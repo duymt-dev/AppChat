@@ -396,3 +396,251 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 - **Cross-reference:** khớp với spec gốc. Đã liệt kê 19 mâu thuẫn ở bảng Risks (R1–R19).
 - **Gaps:** G1–G8 ở trên.
 - **Action needed:** chốt R1–R4, R12–R15 và R17 ở `/vibecode:rri`.
+
+---
+
+## VISION
+
+> Vibecode Kit v5.0 — BƯỚC 3 (VISION) · 2026-10-28 · **Chờ Chủ nhà duyệt**
+> Upstream: Scan Report (trên) + `01-REQUIREMENTS-MATRIX.md` (RRI, D01–D16)
+
+### PROJECT TYPE: Pattern B — SaaS Application (đa tenant, AI-native)
+
+AppChat là SaaS đa tenant theo mô hình OPC: một chủ doanh nghiệp vận hành cả công ty cùng đội AI Agents.
+- **Trung tâm** là **Trợ lý AI**: vừa là orchestrator điều phối các agent chuyên trách, vừa là copilot làm được mọi thao tác có trên UI.
+- **Các module nghiệp vụ** (Hộp thư, CRM, Lịch hẹn, Ticket, Marketing, Loyalty, Báo cáo) là nơi hiển thị và quản lý những gì AI đã làm.
+
+### ARCHITECTURE VISION
+
+```
+ Khách cuối: Zalo cá nhân · Web widget · Email          Chủ DN / Member (trình duyệt)
+        │                                                        │
+        ▼                                                        ▼
+┌────────────────────────┐                   ┌──────────────────────────────────────────┐
+│ WORKER: Channel Gateway │                   │ apps/web — Next.js (App Router)           │
+│  zalo-personal (zca-js, │                   │  App shell · module · Settings            │
+│   session theo tenant)  │                   │  Trợ lý AI dock (Ctrl+K) · UI Command Bus │
+│  · webchat · email      │                   │  (điều hướng, mở drawer, điền form, lọc)  │
+│  inbound → normalize →  │                   └───────────────┬──────────────────────────┘
+│  dedupe → outbox send   │                                   │ REST /v1 + Socket.IO
+└─────────┬──────────────┘                                   ▼
+          │ events (BullMQ)          ┌──────────────────────────────────────────────────┐
+          └─────────────────────────▶│ apps/api — NestJS (modular monolith)              │
+                                     │  Auth/Workspace · Inbox · CRM · Sales · Booking   │
+                                     │  Ticket/SLA · Marketing · Loyalty · Billing ·     │
+                                     │  Reports · Settings                               │
+                                     │ ┌──────────────────────────────────────────────┐ │
+                                     │ │ ★ ACTION REGISTRY (packages/actions)          │ │
+                                     │ │  mỗi action: zod schema · quyền · rủi ro ·    │ │
+                                     │ │  cần xác nhận? · handler · undo · audit       │ │
+                                     │ │  ← UI gọi qua REST  ← AI gọi qua tool-use     │ │
+                                     │ │  ← runtime ngoài gọi qua MCP server           │ │
+                                     │ └──────────────────────────────────────────────┘ │
+                                     └──────────────┬───────────────────────────────────┘
+                                                    │ jobs / events
+                                     ┌──────────────▼───────────────────────────────────┐
+                                     │ WORKER: AI Runtime (NestJS standalone)            │
+                                     │  Trợ lý AI = Orchestrator + Copilot               │
+                                     │   plan → giao agent → theo dõi → tổng hợp         │
+                                     │  AI Agents: Sales · CSKH · Booking · Marketing ·  │
+                                     │   Kế toán · Vận hành (tools = tập con Registry)   │
+                                     │  ┌── AGENT GATEWAY (interface của AppChat) ────┐ │
+                                     │  │ run · resume(approval) · handoff · cancel    │ │
+                                     │  │ engine: Vercel AI SDK v7 (ToolLoopAgent)     │ │
+                                     │  │ Policy Guard · Credit Meter · Audit          │ │
+                                     │  └──────────────────────────────────────────────┘ │
+                                     │  LLM Router: Claude · GPT · Gemini · DeepSeek     │
+                                     │  RAG (pgvector) · Memory theo tenant/khách        │
+                                     │  Scheduler (BullMQ repeatable): follow-up, nhắc,  │
+                                     │   briefing, tác vụ tự chủ                         │
+                                     └──────────────┬───────────────────────────────────┘
+                                                    ▼
+      PostgreSQL 16 (RLS workspace_id · pgvector · unaccent/pg_trgm · materialized view báo cáo)
+      Redis (BullMQ · cache · presence · rate-limit) · Object storage (S3-compatible)
+      — chạy native, không Docker; tiến trình quản lý bằng PM2/systemd —
+```
+
+**Monorepo (pnpm workspaces):**
+
+| Thư mục | Vai trò |
+|---|---|
+| `apps/web` | Next.js |
+| `apps/api` | NestJS HTTP + Socket.IO |
+| `apps/worker` | NestJS standalone, chạy hai role: `channels` và `ai` |
+| `packages/actions` | Action Registry: schema và metadata dùng chung FE/BE/AI |
+| `packages/db` | Prisma schema, migration, SQL RLS |
+| `packages/ui` | design system |
+| `packages/shared` | types, enums, i18n keys |
+
+**Luồng chính:**
+
+1. **Tin đến**
+   - Adapter nhận tin, chuẩn hoá, dedupe, lưu, đẩy qua WS.
+   - Nếu hội thoại đang ở `ai_mode=auto` → giao cho agent trực kênh.
+   - Agent chạy qua Agent Gateway và gọi action.
+   - Action có rủi ro cao → tạo bản ghi chờ duyệt. Ngược lại → trả lời qua outbox.
+2. **Lệnh Trợ lý**
+   - Phân loại ý định, rồi lập kế hoạch.
+   - Thao tác đọc thì chạy ngay. Thao tác ghi, gửi, xoá, chạm tiền thì hiện thẻ xem trước (diff), người dùng xác nhận mới chạy.
+   - Đẩy lệnh điều khiển UI qua Command Bus (ví dụ mở bản ghi, điền form).
+   - Ghi nhật ký kèm thông tin hoàn tác.
+3. **Mọi lần gọi LLM**
+   - Ghi `usage` vào ledger, quy ra credit, trừ ví.
+   - Ví hết → chặn AI và chuyển hội thoại về người.
+
+### AGENT RUNTIME — so sánh và đề xuất (OQ-01)
+
+Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính thức. Các mục ⚠ là thông tin chưa kiểm chứng trong code.
+
+| | OpenFang | OpenClaw | Hermes Agent | **Vercel AI SDK v7** | Mastra |
+|---|---|---|---|---|---|
+| Repo | RightNow-AI/openfang | openclaw/openclaw | NousResearch/hermes-agent | vercel/ai | mastra-ai/mastra |
+| Ngôn ngữ | Rust | TypeScript | Python | TypeScript | TypeScript |
+| License | MIT/Apache-2.0 | MIT | MIT | Apache-2.0 | Apache-2.0 (trừ thư mục `ee/`) |
+| Phiên bản | v0.6.9 (05/2026), pre-1.0, ít release từ tháng 5 | v2026.10.x, release liên tục | v0.22.5 (10/2026) | 7.0.154 (10/2026) | 1.79 (10/2026) |
+| Mô hình | daemon cho 1 operator | gateway cho 1 trust boundary, tự ghi "không phải ranh giới multi-tenant" | 1 profile/process mỗi user | thư viện, nhúng vào worker | thư viện, nhúng vào worker |
+| Đa tenant | ✗ | ✗ | ✗ | tự làm (RLS của ta) | tự làm (`resourceId`) |
+| HITL | approval gate | exec approval | approval endpoint | `toolApproval` | `requireApproval`, suspend/resume bền qua restart |
+| Bảo mật | đã vá auth bypass (#1034) | nhiều CVE RCE năm 2026 | nhiều CVE năm 2026 | lib, không có bề mặt server | lib |
+| Zalo | README nhận có, **không tìm thấy code** ⚠ | **có sẵn chính chủ**: `zalouser` (zca-js) + `zalo` Bot API | plugin cộng đồng | — | — |
+
+**Đề xuất: không fork runtime nào. Tự xây Agent Gateway trong NestJS, engine là Vercel AI SDK v7. Mastra để dành.**
+- **Vì sao không fork:** cả ba runtime đều thiết kế cho một người vận hành, có state store riêng (SQLite) và tool trên máy chủ. Muốn đa tenant (RLS), tính credit theo tenant, lưu duyệt trong DB và dùng Action Registry của ta thì phải mổ lõi của chúng. Thêm vào đó, hai trong ba runtime khác ngôn ngữ (Rust/Python).
+- **Vì sao chọn AI SDK v7:** cùng ngôn ngữ TS; có sẵn tool loop, đa provider (Claude/GPT/Gemini/DeepSeek), streaming và tool approval. Nó chỉ là thư viện nên không mở thêm bề mặt tấn công.
+- **Mastra:** chỉ thêm vào nếu spike cho thấy suspend/resume bền, cron và memory của nó tiết kiệm công đáng kể so với tự làm bằng BullMQ + Postgres.
+- **Mượn thiết kế từng nơi:**
+  - **OpenClaw `zalouser`** (MIT): cách quản lý credential, vòng đời listener, dedupe message id, group policy, chuyển markdown sang rich text Zalo, health probe. Có thể vendor rồi viết lại để session lưu theo tenant trong DB của ta.
+  - **OpenFang:** manifest "Hands" (playbook + tools + guardrails theo lịch) làm mẫu cho tác vụ tự chủ; loop guard; audit log dạng hash-chain.
+  - **Hermes / OpenAI Agents JS:** shape API `runs` + approval; handoff và `RunState` serialize được.
+- **Lối thoát:** Action Registry cũng mở ra dưới dạng **MCP server**. Sau này muốn cắm runtime ngoài (OpenFang, Hermes…) làm engine phụ thì nó vẫn gọi thao tác qua đúng quyền và audit của AppChat.
+- **Việc cần làm ở Blueprint (spike 1–2 ngày):**
+  - Kiểm tra tên trường `usage` của AI SDK v7 khi stream nhiều bước.
+  - Kiểm tra tool approval kết hợp lưu trạng thái chờ duyệt trong Postgres.
+  - Nối zca-js thử với một tài khoản.
+
+### UI VISION
+
+- **Pattern:** app shell gồm rail trái 80px với flyout (Khách hàng & CRM, Báo cáo) và topbar 58px chứa tìm kiếm, thông báo, trợ giúp, đổi workspace.
+  - Nội dung theo kiểu master-detail; list ⇄ kanban; drawer; Panel 360°.
+  - Chuẩn nhãn tiếng Việt và bố cục là prototype (`_bundle.jsx` + overlay).
+- **Trợ lý AI có ở mọi nơi:**
+  - Màn Trợ lý đầy đủ, có hai chế độ Chat và Cowork.
+  - Dock thu nhỏ ở mọi module, mở bằng Ctrl+K, tự nạp ngữ cảnh.
+  - Thẻ xem trước và xác nhận (diff, số bản ghi bị ảnh hưởng).
+  - Thẻ kế hoạch nhiều bước (agent nào đang làm bước nào).
+  - Thẻ deep-link tới kết quả.
+  - Cột "AI gợi ý / Giao AI" trên các bảng.
+- **Theme:** sáng, nền trung tính, primary làm điểm nhấn theo quy tắc 60/30/10. Gradient signature dùng riêng cho các yếu tố AI.
+
+**Design token — chốt theo `styles.css` của prototype** (giải R17 / OQ-08; Design System tham khảo):
+
+| Nhóm | Giá trị |
+|---|---|
+| Primary | `#2DC56A`; dải `#0F5D30 #157A40 #1F9C4F · #58D28A #8AE0AC #BCEDCC`; soft `#E8F8EE` |
+| Text | `#231F20 / #6B7280 / #9CA3AF / #D1D5DB` |
+| Surface | `#FFFFFF / #F9FAFB / #F3F4F6 / #E5E7EB` |
+| Semantic | success `#2DC56A` · info `#2B9EF3` · process `#4B6CFF` · warning `#FFB547` · error `#FF5A3C` · AI/premium `#6E48E6` |
+| Soft background | green `#EDFAF3` · blue `#EEF3FB` · yellow `#FFF4E4` · red `#FEECE9` · violet `#EFEAFA` |
+| AI gradient | `linear-gradient(45deg, #2DC56A, #2B9EF3)` |
+| Font | **Plus Jakarta Sans** 300–800 (UI); **JetBrains Mono** (số, mã); body 14/1.5; scale 11 · 12 · 13 · 14 · 16 · 20 · 28 |
+| Spacing | grid 4px: 4 · 8 · 12 · 16 · 24 · 32 · 48 |
+| Radius | 6 · 10 · 14 · 20 |
+| Shadow | 3 cấp (sm / md / lg) theo prototype |
+| Kích thước | button 36px (sm 30px); chip 22px |
+| Icon | Lucide 24px, stroke 1.6 |
+
+**Lý do chọn:** xanh lá là màu Brand Book 2026, gợi tăng trưởng và tin cậy, hợp với khách SMB dịch vụ. Plus Jakarta Sans hiển thị tiếng Việt có dấu tốt và mang cảm giác hiện đại.
+
+**UI kit:** Tailwind CSS v4 với token ở trên, kèm primitive Radix/shadcn đã được theme lại. Bảng dùng TanStack Table + Virtual; builder dùng React Flow; biểu đồ dùng Recharts. Mọi màn có đủ 5 trạng thái: Empty / Skeleton / Loaded / Error-retry / Confirm. Mục tiêu WCAG AA; desktop-first, responsive đến 1024px.
+
+### API DESIGN
+
+- **REST:** prefix `/v1`. Contract-first: OpenAPI sinh từ Nest + zod (`nestjs-zod`).
+- **Auth:**
+  - `Authorization: Bearer <JWT 15 phút>` + refresh token (httpOnly cookie, xoay vòng).
+  - Header `X-Workspace-Id`; middleware kiểm membership rồi `SET LOCAL app.tenant` trong transaction để RLS áp dụng.
+- **Envelope:**
+  - Thành công: `{ data, meta? }`; danh sách: `{ data: [], next_cursor }` (cursor pagination).
+  - Lỗi: `{ error: { code, message, fields? } }`, dùng mã 400/401/403/404/409/422/429/500.
+- **Ghi dữ liệu:** `Idempotency-Key` bắt buộc với POST tạo/gửi. Rate-limit qua header `X-RateLimit-*`.
+- **Actions** — một cổng thống nhất cho UI và AI:
+  - `POST /v1/actions/{actionId}` với body `{ input, confirm_token? }`. Rủi ro cao mà chưa có `confirm_token` → trả `202 { preview, confirm_token }`.
+  - `GET /v1/actions` liệt kê action người dùng được phép gọi (Trợ lý dùng để chọn tool).
+  - `POST /v1/actions/runs/{id}/undo` để hoàn tác.
+  - Các route REST theo resource (`/v1/contacts` …) vẫn có cho thao tác đọc và list; mọi thao tác ghi đi qua handler của Registry.
+- **AI:**
+  - `POST /v1/assistant/messages` (stream SSE).
+  - `POST /v1/runs/{id}/approve|reject`.
+  - `GET /v1/runs?status=pending_approval`.
+- **Realtime:** Socket.IO namespace `/ws`, room `ws:{workspace}`, `conv:{id}`, `user:{id}`. Event: `message.new`, `conversation.updated`, `run.step`, `approval.requested`, `ui.command`.
+- **Webhooks vào:** `/hooks/channels/{provider}` và `/hooks/payments/{provider}`, có kiểm chữ ký, idempotent.
+
+### PHẠM VI PHÁT HÀNH (theo RRI — sản phẩm thương mại hoàn chỉnh)
+
+#### IN
+
+| Domain | Màn hình chính | Ưu tiên |
+|---|---|---|
+| Auth · Workspace · Trial | Đăng ký/đăng nhập (Email OTP + mật khẩu), khai báo DN bắt buộc, màn chào trial, đổi workspace | P0 |
+| **Trợ lý AI (lõi)** | Màn Trợ lý (Chat/Cowork), dock Ctrl+K ở mọi module, thẻ xác nhận/kế hoạch, Nhật ký hành động + hoàn tác, phiên trò chuyện | P0 |
+| AI Agents | Danh sách agent, builder (cấu hình + chat thử), thư viện mẫu, tri thức RAG, hàng chờ duyệt, hiệu suất agent | P0 |
+| Kênh | Kết nối Zalo cá nhân (QR), Web widget studio, Email; trang Kênh kết nối | P0 (Email P1) |
+| Hộp thư | 3 cột, chế độ AI theo từng hội thoại, folder views của AI, Panel 360°, chuyển thành đơn/lịch/ticket | P0 |
+| Tổng quan | Việc cần tôi, AI đã làm gì, cần follow, onboarding, credit | P0 |
+| Khách hàng & CRM | Khách hàng (bảng/kanban), Hồ sơ 360°, Sản phẩm, Báo giá, Đơn | P0 |
+| Khách hàng & CRM | Hoá đơn + QR thu tiền, custom fields, import/export, gộp trùng | P1 |
+| Lịch hẹn | Lịch ngày/tuần/tháng/danh sách, dịch vụ, chống trùng, nhắc hẹn | P0–P1 |
+| Hỗ trợ | Ticket (list/kanban), SLA mặc định, CSAT | P1 |
+| Marketing | Phân khúc, AI đề xuất chiến dịch, wizard, duyệt, gửi Zalo/Email, báo cáo chiến dịch | P1 |
+| Loyalty | Hạng, sổ điểm, tích tự động, đổi điểm, điều chỉnh tay | P1 |
+| Báo cáo | AI Agents · Hội thoại · Doanh số · Khách hàng · Marketing · Ticket | P1 |
+| Gói & Credit | Popup nâng cấp, trang Gói & thanh toán, ví credit, VietQR + chuyển khoản | P0 |
+| Cài đặt | Settings shell + khoảng 12 trang lõi (thành viên, kênh, widget, trường, thẻ, mẫu trả lời, AI models, AI governance, nhật ký AI, gói/ví, hồ sơ) | P0–P1 |
+| Quản trị nền tảng | Tenant, gói/giá, đối soát chuyển khoản, đơn giá model | P1 |
+
+#### OUT (hoãn)
+
+| Domain | Giai đoạn |
+|---|---|
+| Call Center / AI Voice / WebPhone | Sau |
+| Workflow engine + builder | Sau |
+| Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok | P2 |
+| Hợp đồng + ký số | P2 |
+| Phòng ban, sơ đồ tổ chức, KPI, phân ca, vai trò tuỳ biến, SLA nhiều chính sách | P3 |
+| Help Center, Training Studio/canary, Dashboard builder, Template Studio | P3 |
+| Kafka, ClickHouse, OpenSearch, Docker/K8s, mobile native | Khi cần scale |
+
+### KEY DECISIONS
+
+| # | Decision | Rationale |
+|---|---|---|
+| V1 | Pattern B: SaaS đa tenant, mô hình OPC | RRI D01–D02 |
+| V2 | **Action-first:** Action Registry là nguồn duy nhất cho UI, Trợ lý, agents và MCP | Copilot phải làm được mọi thao tác UI (D03, D16); một chỗ validate, phân quyền, audit, undo |
+| V3 | **Agent runtime: tự xây Agent Gateway + Vercel AI SDK v7; không fork** OpenFang/OpenClaw/Hermes | Cả ba đều single-operator, phải mổ lõi mới đa tenant được, hai trong ba khác ngôn ngữ, nhiều CVE; AI SDK nhúng được, đa provider, có tool approval |
+| V4 | Mastra là tuỳ chọn, quyết sau spike | Chỉ dùng nếu suspend/resume và memory tiết kiệm công rõ rệt |
+| V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
+| V6 | Monorepo pnpm: `web` (Next) · `api` (Nest) · `worker` (Nest, role channels/ai) · `packages/*` | Chia sẻ schema action và types FE/BE; worker tách để giữ phiên Zalo và chạy LLM dài |
+| V7 | Postgres 16 RLS + pgvector + FTS tiếng Việt; Redis/BullMQ; native, không Docker; PM2/systemd | RRI D12–D15 |
+| V8 | Prisma cho CRUD; SQL thô trong migration cho RLS, partial/expression/covering index; deferred join khi phân trang lớn | RRI D13 + quy tắc Postgres trong CLAUDE.md |
+| V9 | Xác nhận theo mức rủi ro: đọc → chạy ngay; ghi/gửi/xoá/tiền → preview + `confirm_token`; agent trực kênh ≥70% tin cậy, các việc chạm tiền luôn chờ duyệt | BR-05, REQ-D05, E03 |
+| V10 | Credit ledger trên mọi lần gọi LLM; hết credit → chặn AI, chuyển hội thoại về người | RRI D09 |
+| V11 | Token UI theo `styles.css` của prototype; Plus Jakarta Sans; Tailwind v4 + shadcn theme lại | Giải R17; khớp prototype mà Chủ nhà đã duyệt |
+| V12 | OTP đăng nhập qua Email (Zalo OTP chờ có OA) | OQ-02; Zalo cá nhân không gửi OTP chính thống được |
+
+---
+
+## Quality Gate: Self-Review (VISION)
+
+- **Completeness:** 6/6
+  - ✅ Project type: Pattern B.
+  - ✅ Tech stack kèm lý do.
+  - ✅ Sơ đồ kiến trúc ASCII.
+  - ✅ Bảng phạm vi IN/OUT (đổi tên thành "Phạm vi phát hành" theo yêu cầu không dùng khái niệm MVP).
+  - ✅ Bảng key decisions.
+  - ✅ Đã append vào `00-PROJECT-CONTEXT.md`.
+- **Cross-reference:** khớp RRI D01–D16 và REQ Domain A–N. Đã giải OQ-01 (đề xuất V3, chờ duyệt), OQ-02 (V12), OQ-08 (V11).
+- **Gaps:**
+  - OQ-03 / V5: chưa chạy thử zca-js.
+  - Chưa kiểm field `usage` của AI SDK v7 (spike ở Blueprint).
+  - OQ-04 – OQ-07 (cổng webhook ngân hàng, API tra MST, khoá LLM, hạ tầng production) cần Chủ nhà cung cấp; không chặn Blueprint.
+- **Action needed:** Chủ nhà duyệt V3 (không fork, AI SDK v7) và V11 (token UI) trước khi sang `/vibecode:blueprint`.
