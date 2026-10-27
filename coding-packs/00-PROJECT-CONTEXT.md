@@ -3,7 +3,7 @@
 > Vibecode Kit v5.0 — BƯỚC 1 (SCAN)
 > Coding workspace: `D:\CODING\AppChat_Ver2` (remote `github.com/duymt-dev/AppChat`)
 > Scanned: 2026-10-27
-> **RRI 2026-10-28:** sản phẩm thương mại hoàn chỉnh, mô hình OPC, lõi là Trợ lý AI đóng vai agent bán hàng; xem `01-REQUIREMENTS-MATRIX.md`.
+> **RRI 2026-10-28:** sản phẩm thương mại hoàn chỉnh, mô hình OPC, lõi là Trợ lý AI làm Orchestrator + Copilot của nền tảng (điều phối agents, điều khiển mọi action trên UI); xem `01-REQUIREMENTS-MATRIX.md`.
 > Scan type: **Greenfield từ bộ đặc tả** — chưa có source code; build mới hoàn toàn bằng **Next.js + NestJS**.
 > Không liên quan / không tái sử dụng codebase V1 (`D:/CODING/appchat`) — quyết định của Chủ nhà 2026-10-27.
 

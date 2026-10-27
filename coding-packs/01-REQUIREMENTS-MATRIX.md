@@ -9,11 +9,15 @@
 ## 0. Định hướng sản phẩm (chốt với Chủ nhà)
 
 - **Mô hình OPC (One-Person Company):** một chủ doanh nghiệp vận hành toàn bộ công việc cùng **đội AI Agents**. Thành viên là người thật thì không bắt buộc.
-- **Lõi sản phẩm:** **Trợ lý AI đóng vai agent bán hàng**, theo cơ chế *một bộ não, hai mặt*:
-  - **Mặt ngoài:** trực kênh, tự tư vấn và bán cho khách qua Zalo cá nhân, Web chat, Email.
-  - **Mặt trong:** chủ DN ra lệnh và hỏi agent qua màn Trợ lý AI.
-  - Hai mặt dùng chung tools, dữ liệu và trí nhớ.
-- **Vai trò các màn còn lại** (CRM, Lịch hẹn, Ticket, Marketing, Loyalty, Báo cáo…): chủ yếu **hiển thị và quản lý những việc agent làm được**, cộng thao tác cơ bản cho người.
+- **Lõi sản phẩm: Trợ lý AI là Orchestrator kiêm Copilot của toàn nền tảng.** Nó *không phải* một agent bán hàng.
+  - **Copilot:** điều khiển được **mọi action có trên UI**. Việc gì người dùng làm được bằng giao diện thì Trợ lý AI cũng làm được bằng hội thoại: tạo, sửa, xoá, gửi, cấu hình, tra cứu, điều hướng. Trợ lý chạy với đúng quyền của người đang ra lệnh.
+  - **Orchestrator:** phân rã yêu cầu, **giao việc cho các AI Agent chuyên trách** (Sales, CSKH, Booking, Marketing, Kế toán, Vận hành…), theo dõi tiến độ, rồi tổng hợp kết quả.
+  - **Đi kèm mọi màn:** có bản thu nhỏ trong từng module, tự nạp ngữ cảnh bản ghi đang xem.
+- **AI Agents chuyên trách** được cấu hình ở module AI Agents. Chúng là đơn vị thực thi:
+  - Một số **trực kênh** để tư vấn và bán cho khách qua Zalo cá nhân, Web chat, Email.
+  - Số khác nhận việc từ Trợ lý AI.
+- **Vai trò các màn còn lại** (Hộp thư, CRM, Lịch hẹn, Ticket, Marketing, Loyalty, Báo cáo, Cài đặt…): là nơi **hiển thị và quản lý những gì Trợ lý AI và các agent đã làm**, và là nơi người dùng thao tác trực tiếp khi cần.
+- **Nguyên tắc kiến trúc hệ quả: "Action-first".** Mọi thao tác trên UI là một **action đã đăng ký** trong một Action Registry dùng chung. Mỗi action gồm schema, quyền, mức rủi ro, có cần xác nhận hay không, và cách hoàn tác. UI và Trợ lý AI gọi **cùng** action đó, nên không có thao tác nào "chỉ bấm tay được".
 - **Mục tiêu:** sản phẩm thương mại, bán được ngay. Không làm bản "MVP".
 - **Kênh bắt buộc:** **Zalo cá nhân** (đăng nhập bằng QR, thư viện không chính thức; chấp nhận rủi ro), **Web Live Chat widget**, **Email**.
 - **Chưa làm:** Call Center, Workflow engine.
@@ -60,12 +64,12 @@
 | REQ-C07 | Thao tác "Chuyển thành": Đơn · Báo giá · Lịch hẹn · Ticket, ngay từ hội thoại. | P1 | Member | TBD |
 | REQ-C08 | Multi-select và thao tác hàng loạt (gắn thẻ, gán, lưu trữ); tìm kiếm tiếng Việt không dấu. | P1 | Member | TBD |
 
-### Domain D — AI Sales Agent (lõi)
+### Domain D — AI Agents chuyên trách (đơn vị thực thi, trực kênh)
 | REQ-ID | Requirement | Priority | Persona | TIP |
 |---|---|---|---|---|
 | REQ-D01 | **Agent runtime** chạy sau một interface **Agent Gateway** để có thể thay động cơ (xem OQ-01). Agent loop gồm: nhận ngữ cảnh → RAG → gọi tools → trả lời. Tin nhắn vào được xử lý bất đồng bộ trong worker, stream kết quả. | P0 | — | TBD |
 | REQ-D02 | **LLM Router đa nhà cung cấp** (Claude / GPT / Gemini / DeepSeek). Định tuyến theo tác vụ, gói và chi phí; có fallback khi nhà cung cấp lỗi. Ẩn tên model với khách (chỉ hiện "AI tiêu chuẩn / nâng cao"). | P0 | — | TBD |
-| REQ-D03 | **Bộ tools bán hàng:** tra cứu sản phẩm / giá / tồn kho; tạo và cập nhật khách hàng; tạo báo giá; tạo đơn; đặt / dời / huỷ lịch hẹn (có kiểm tra trùng); tạo ticket; gắn thẻ; gửi file / ảnh sản phẩm; chuyển người. | P0 | — | TBD |
+| REQ-D03 | **Tools của agent = tập con của Action Registry** (REQ-E01), được cấp quyền theo từng agent. Bộ mặc định cho Sales agent: tra cứu sản phẩm / giá / tồn kho; tạo và cập nhật khách hàng; tạo báo giá; tạo đơn; đặt / dời / huỷ lịch hẹn (có kiểm tra trùng); tạo ticket; gắn thẻ; gửi file / ảnh sản phẩm; chuyển người. | P0 | — | TBD |
 | REQ-D04 | **Knowledge base (RAG):** tải lên PDF / DOCX / XLSX / TXT / URL; dùng pgvector; trả lời kèm trích nguồn. Danh mục sản phẩm cũng là nguồn tri thức. | P0 | Chủ DN | TBD |
 | REQ-D05 | **Ranh giới tự chủ (theo spec):** agent tự trả lời, tạo / cập nhật khách, đặt lịch, tạo báo giá và đơn theo bảng giá khi **độ tin cậy ≥ 70%**. **Bắt buộc người duyệt** khi: giảm giá ngoài chính sách, hoàn tiền, báo giá vượt ngưỡng (cấu hình được, mặc định 20 triệu), hợp đồng, gửi hàng loạt. | P0 | Chủ DN | TBD |
 | REQ-D06 | **Handoff sang người** khi: độ tin cậy thấp, khách đòi gặp người, khách hỏi lặp lại 3 lần, cảm xúc tiêu cực hoặc khiếu nại, ngoài phạm vi. Kèm tóm tắt và bản nháp; hội thoại chuyển sang folder "Cần người". | P0 | — | TBD |
@@ -75,18 +79,26 @@
 | REQ-D10 | **Trí nhớ khách hàng:** agent đọc Hồ sơ 360° (lịch sử mua, lịch hẹn, ghi chú, hạng loyalty) trước khi trả lời và ghi lại sự kiện quan trọng. | P0 | — | TBD |
 | REQ-D11 | Lọc PII trước khi đưa vào prompt (CMND, số thẻ, số tài khoản); có guardrail và danh sách từ cấm. | P1 | — | TBD |
 | REQ-D12 | **Chủ động (Hands):** follow-up khách im lặng, nhắc lịch hẹn, chăm sóc sau mua, hỏi lại báo giá đang treo. Chạy theo lịch, phải tôn trọng giới hạn gửi của Zalo cá nhân. | P1 | — | TBD |
-| REQ-D13 | Nhiều agent chuyên trách (Sales / CSKH / Booking) có điều phối và chuyển việc cho nhau (A2A). | P2 | — | TBD |
+| REQ-D13 | Agent chuyên trách chuyển việc cho nhau (A2A, ví dụ Sales → Booking) ngay trong một hội thoại với khách; Trợ lý AI giám sát. | P1 | — | TBD |
+| REQ-D15 | Bộ agent mẫu sẵn có: **Sales, CSKH, Booking, Marketing, Kế toán, Vận hành**. Mỗi agent có vai trò, tools mặc định và mẫu theo ngành. | P0 | Chủ DN | TBD |
 | REQ-D14 | Hiệu suất agent: số hội thoại, tỉ lệ tự xử lý, tỉ lệ chốt, CSAT, credit đã dùng; đo ngang hàng với nhân sự. | P1 | Chủ DN | TBD |
 
-### Domain E — Trợ lý AI (mặt trong — chủ DN ra lệnh)
+### Domain E — Trợ lý AI: Orchestrator & Copilot của nền tảng (LÕI)
 | REQ-ID | Requirement | Priority | Persona | TIP |
 |---|---|---|---|---|
-| REQ-E01 | Màn Trợ lý AI: ô lệnh lớn, gợi ý theo ngữ cảnh, câu trả lời stream, **thẻ hành động deep-link** tới kết quả. Dùng chung "bộ não" và tools với agent bán hàng. | P0 | Chủ DN | TBD |
-| REQ-E02 | Ra lệnh nghiệp vụ, ví dụ: "hôm nay có gì cần tôi", "tóm tắt khách X", "tạo báo giá cho…", "nhắc tất cả khách có lịch mai", "doanh số tuần này". Mọi thao tác ghi hoặc gửi đều phải **hỏi xác nhận** trước khi chạy (BR-05). | P0 | Chủ DN | TBD |
-| REQ-E03 | Lưu "Nội dung trò chuyện" (danh sách phiên, tìm kiếm); Nhật ký hành động có lọc và hoàn tác. | P1 | Chủ DN | TBD |
-| REQ-E04 | Hai tab **Chat** (tư duy, không thay đổi dữ liệu) và **Cowork** (thực thi qua agent). | P1 | Chủ DN | TBD |
-| REQ-E05 | Bản thu nhỏ "Trợ lý AI · [module]" nhúng trong từng module, tự nạp ngữ cảnh bản ghi đang xem. | P2 | Chủ DN | TBD |
-| REQ-E06 | Cấu hình hệ thống bằng hội thoại (tạo agent, thẻ, mẫu trả lời…). | P2 | Chủ DN | TBD |
+| REQ-E01 | **Action Registry dùng chung.** Mọi thao tác trên UI của *mọi* module (tạo / sửa / xoá / gửi / gán / đổi trạng thái / cấu hình / xuất…) được khai báo **một lần**. Mỗi action có: tên, mô tả cho LLM, input schema (Zod/JSON Schema), quyền yêu cầu, **mức rủi ro** (đọc / ghi / gửi ra ngoài / chạm tiền / xoá), cần xác nhận hay không, và **handler hoàn tác**. Frontend gọi qua API; Trợ lý và agents gọi qua tool-use. Cùng một đường thực thi, cùng validation, cùng audit. | P0 | — | TBD |
+| REQ-E02 | **Copilot điều khiển toàn bộ UI:** Trợ lý AI làm được *mọi* action trong Registry **với đúng quyền của người đang ra lệnh** (Owner / Member), không vượt quyền. Ví dụ: "tạo khách mới tên…", "đổi lịch chị Lan sang 3h chiều", "gửi báo giá BG-102 qua Zalo", "kết nối Zalo mới", "thêm thẻ VIP cho 20 khách mua nhiều nhất", "tắt AI cho hội thoại này", "tạo agent CSKH cho spa". | P0 | Chủ DN / Member | TBD |
+| REQ-E03 | **Xác nhận theo mức rủi ro (BR-05):** action chỉ đọc thì chạy ngay. Action ghi, gửi, xoá hoặc chạm tiền thì hiện **thẻ xem trước** (diff trước/sau, số bản ghi bị ảnh hưởng) với các nút Xác nhận / Sửa / Huỷ. Thao tác hàng loạt bắt buộc xác nhận số lượng. Luôn đề xuất tái dùng luồng đã làm trước đó. | P0 | Chủ DN | TBD |
+| REQ-E04 | **Orchestrator điều phối agents:** phân rã yêu cầu nhiều bước thành kế hoạch; giao từng bước cho AI Agent chuyên trách phù hợp (Sales / CSKH / Booking / Marketing / Kế toán / Vận hành); hiển thị kế hoạch và tiến độ từng bước; tổng hợp kết quả. Người dùng xem, dừng, sửa kế hoạch được. | P0 | Chủ DN | TBD |
+| REQ-E05 | **Điều khiển giao diện (UI control):** Trợ lý có thể điều hướng tới màn, mở bản ghi / drawer / panel 360°, **điền sẵn form** để người dùng xem rồi bấm lưu, làm nổi bật phần tử, áp bộ lọc lên bảng. Thực hiện qua command bus phía client. Câu trả lời kèm **thẻ hành động deep-link** tới kết quả. | P0 | Chủ DN | TBD |
+| REQ-E06 | **Có mặt ở mọi màn:** bản thu nhỏ "Trợ lý AI · [module]" trong từng module, tự nạp ngữ cảnh (màn hiện tại, bản ghi đang xem, dòng đang chọn). Có thể gọi bằng phím tắt (⌘K / Ctrl+K). | P0 | Chủ DN / Member | TBD |
+| REQ-E07 | **Truy vấn và phân tích bằng ngôn ngữ tự nhiên** trên dữ liệu workspace: "doanh số tuần này", "khách nào sắp rời bỏ", "agent nào chốt tốt nhất". Trả lời bằng số liệu, bảng hoặc biểu đồ, có nguồn (link về báo cáo / bản ghi). Chỉ đọc. | P0 | Chủ DN | TBD |
+| REQ-E08 | **Chủ động (briefing):** đầu ngày tóm tắt "việc cần tôi" (hàng chờ duyệt, hội thoại cần người, lịch hôm nay, quá hạn SLA, credit sắp hết) kèm đề xuất hành động một chạm. | P1 | Chủ DN | TBD |
+| REQ-E09 | **Nhật ký hành động và hoàn tác:** mọi action do Trợ lý hoặc agent thực thi được ghi lại (ai ra lệnh, action, input, trước/sau, agent nào, credit). Có lọc theo loại (tạo / cập nhật / gửi / xuất). Hoàn tác được khi action thuộc nhóm cho phép và còn trong thời hạn; đã gửi ra ngoài thì chỉ ghi đính chính. | P0 | Chủ DN | TBD |
+| REQ-E10 | Lưu "Nội dung trò chuyện": danh sách phiên, tìm kiếm, mở lại; nhớ ngữ cảnh dài trong phiên. | P1 | Chủ DN | TBD |
+| REQ-E11 | Hai chế độ **Chat** (tư duy, lên ý tưởng, không đổi dữ liệu) và **Cowork** (thực thi, điều phối agents); chọn agent và cấp độ AI. | P1 | Chủ DN | TBD |
+| REQ-E12 | Đính kèm tệp, ảnh, email vào lệnh (ví dụ "nhập danh sách khách từ file này", "tạo sản phẩm từ ảnh bảng giá"); nhập lệnh bằng giọng nói. | P1 | Chủ DN | TBD |
+| REQ-E13 | **Tác vụ tự chủ (Coworks):** giao một mục tiêu cho agent chạy ngay / theo lịch / theo sự kiện. Có giới hạn công cụ và dữ liệu, giới hạn credit mỗi lần chạy. Luôn hỏi trước khi xoá; hỏi trước khi gửi ra ngoài (bật/tắt được). | P1 | Chủ DN | TBD |
 
 ### Domain F — Khách hàng & Bán hàng (CRM)
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -180,8 +192,9 @@
 | REQ-N08 | Backup Postgres (PITR / dump hằng ngày); RPO ≤ 5 phút, RTO ≤ 1 giờ; quyền bị lãng quên (ẩn danh hoá). | P1 | — | TBD |
 | REQ-N09 | Observability: log có cấu trúc, metric, trace (OpenTelemetry), cảnh báo lỗi kênh. | P1 | — | TBD |
 | REQ-N10 | UI tiếng Việt mặc định với lớp i18n (next-intl), có `en`. Desktop-first, responsive. Đủ 5 trạng thái UI. WCAG AA. | P0 | — | TBD |
-| REQ-N11 | Test: unit (business rules), integration, e2e Playwright cho luồng chính, test cô lập RLS, AI eval set cho agent bán hàng. | P0 | — | TBD |
+| REQ-N11 | Test: unit (business rules), integration, e2e Playwright cho luồng chính, test cô lập RLS, AI eval set cho Trợ lý (chọn đúng action, đúng tham số, đúng quyền, đúng mức xác nhận) và cho các agent trực kênh. | P0 | — | TBD |
 | REQ-N12 | File: BE ≤ 600 dòng, FE ≤ 400 dòng; test để file riêng; commit kèm SHA. | P0 | — | TBD |
+| REQ-N13 | **Definition of Done "Action-first":** mọi tính năng mới phải đăng ký action trong Registry (schema, quyền, rủi ro, hoàn tác) và có test gọi action đó **qua Trợ lý AI**. Chưa làm được hai việc này thì tính năng chưa xong. | P0 | — | TBD |
 
 ---
 
@@ -206,7 +219,8 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 |---|---|---|---|---|
 | D01 | Hình thái phát hành | MVP thu hẹp / sản phẩm đầy đủ | **Sản phẩm thương mại hoàn chỉnh, không gọi là MVP** | Chủ nhà chốt 2026-10-28 |
 | D02 | Mô hình | — | **OPC: 1 chủ + đội AI Agents** | Chủ nhà nhắc lại |
-| D03 | Lõi sản phẩm | — | **Trợ lý AI = agent bán hàng, 1 bộ não 2 mặt** (trực kênh và nhận lệnh nội bộ); các màn khác hiển thị việc agent làm | Chủ nhà chốt |
+| D03 | Lõi sản phẩm | agent bán hàng / orchestrator + copilot | **Trợ lý AI = Orchestrator điều phối các AI Agent + Copilot điều khiển mọi action trên UI.** Agent bán hàng chỉ là một trong các agent chuyên trách. Các màn khác hiển thị việc AI đã làm. | Chủ nhà chốt và đính chính 2026-10-28 |
+| D16 | Kiến trúc thực thi | UI và AI gọi hai đường riêng / dùng chung | **Action-first: một Action Registry dùng chung** cho UI, Trợ lý và agents (schema, quyền, rủi ro, xác nhận, hoàn tác) | Hệ quả bắt buộc của D03: Trợ lý phải làm được mọi thao tác UI mà không viết logic hai lần |
 | D04 | Kênh khi phát hành | Zalo OA / FB / Zalo cá nhân / Web / Email | **Zalo cá nhân + Web widget + Email** | Chủ nhà chọn |
 | D05 | Zalo cá nhân (API không chính thức) | làm / thay bằng OA / cả hai | **Làm, chấp nhận rủi ro**; adapter cô lập, có throttle chống khoá | Chủ nhà chốt |
 | D06 | Quyền tự chủ của agent | theo spec / mọi thao tác ghi cần duyệt / tự chủ tối đa | **Theo spec** (≥70%, ép duyệt khi chạm tiền / hợp đồng / gửi hàng loạt) | Chủ nhà chọn |
@@ -223,7 +237,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 ## OPEN QUESTIONS
 | # | Question | Impact | Suggested Resolution |
 |---|---|---|---|
-| OQ-01 | **Agent runtime:** tự xây trong Nest hay nhúng OpenFang? (Chủ nhà: chưa chốt) | Kiến trúc lõi D01 | Thiết kế **Agent Gateway interface** ngay từ đầu; triển khai mặc định là agent loop tự viết (TS, tool-use đa provider). Chốt OpenFang ở Vision sau khi spike 1–2 ngày. |
+| OQ-01 | **Agent runtime:** tự xây trong Nest hay nhúng OpenFang? (Chủ nhà: chưa chốt) | Lớp điều phối và thực thi agent (D01, E04). Action Registry (E01) **vẫn do AppChat sở hữu** dù chọn phương án nào; OpenFang (nếu dùng) gọi Registry qua MCP. | Thiết kế **Agent Gateway interface** ngay từ đầu; triển khai mặc định là agent loop tự viết (TS, tool-use đa provider). Chốt OpenFang ở Vision sau khi spike 1–2 ngày. |
 | OQ-02 | Gửi OTP đăng nhập qua kênh nào? Spec dùng Zalo OTP (ZNS cần Zalo OA, mà OA không có trong phạm vi) | REQ-A01 | Đề xuất: Email OTP + mật khẩu ngay; Zalo OTP qua ZNS khi có OA (P2). |
 | OQ-03 | Thư viện Zalo cá nhân (ví dụ `zca-js`, Node) và chính sách giới hạn gửi | REQ-B02/B04, I03 | Spike kỹ thuật ở Blueprint; tham số throttle cấu hình được. |
 | OQ-04 | Nhà cung cấp webhook ngân hàng cho VietQR (Casso / SePay / bank API) và tài khoản nhận tiền | REQ-L04 | Chủ nhà cung cấp; adapter có thể thay. |
@@ -241,12 +255,15 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
   - Web Live Chat widget.
   - Email.
 - **Inbox realtime:** 3 cột, chế độ AI theo từng hội thoại, folder views riêng cho AI.
-- **AI Sales Agent:**
-  - Bộ tools bán hàng, RAG.
-  - HITL, hàng chờ duyệt, nhật ký và hoàn tác.
-  - Builder agent, LLM Router đa nhà cung cấp.
-  - Follow-up chủ động.
-- **Trợ lý AI:** chủ DN ra lệnh (Chat / Cowork).
+- **Trợ lý AI (lõi): Orchestrator + Copilot.**
+  - Action Registry phủ mọi thao tác UI; Trợ lý điều khiển toàn bộ nền tảng với quyền của người ra lệnh.
+  - Xác nhận theo mức rủi ro; điều phối agents; điều khiển UI (điều hướng, điền form, lọc).
+  - Có mặt ở mọi màn; truy vấn số liệu bằng ngôn ngữ tự nhiên; nhật ký và hoàn tác.
+- **AI Agents chuyên trách:**
+  - Sales, CSKH, Booking, Marketing, Kế toán, Vận hành.
+  - Trực kênh; tools lấy từ Registry; RAG.
+  - HITL và hàng chờ duyệt; chuyển việc giữa các agent (A2A).
+  - Builder agent; LLM Router đa nhà cung cấp; follow-up chủ động.
 - **CRM:** Khách hàng, Hồ sơ 360°, Sản phẩm, Báo giá, Đơn, Hoá đơn và thu tiền QR.
 - **Lịch hẹn:** chống trùng lịch, nhắc hẹn.
 - **Hỗ trợ:** Ticket/SLA (chính sách mặc định).
@@ -285,4 +302,5 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
   - Bỏ Docker / K8s; bỏ Go / Kafka.
   - Không đăng nhập OTP qua Zalo khi chưa có OA (OQ-02).
 - **Gaps:** OQ-01 (agent runtime) là quyết định kiến trúc lớn nhất, cần chốt trước Blueprint. OQ-03 và OQ-04 cần spike hoặc thông tin từ Chủ nhà.
+- **Đính chính 2026-10-28:** Trợ lý AI là Orchestrator + Copilot, không phải agent bán hàng. Đã viết lại Domain D/E, thêm D16 Action-first và REQ-N13.
 - **Confidence trên P0:** khoảng 85%.
