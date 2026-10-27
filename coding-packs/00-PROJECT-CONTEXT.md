@@ -3,6 +3,7 @@
 > Vibecode Kit v5.0 — BƯỚC 1 (SCAN)
 > Coding workspace: `D:\CODING\AppChat_Ver2` (remote `github.com/duymt-dev/AppChat`)
 > Scanned: 2026-10-27
+> **RRI 2026-10-28:** sản phẩm thương mại hoàn chỉnh, mô hình OPC, lõi là Trợ lý AI đóng vai agent bán hàng; xem `01-REQUIREMENTS-MATRIX.md`.
 > Scan type: **Greenfield từ bộ đặc tả** — chưa có source code; build mới hoàn toàn bằng **Next.js + NestJS**.
 > Không liên quan / không tái sử dụng codebase V1 (`D:/CODING/appchat`) — quyết định của Chủ nhà 2026-10-27.
 
@@ -35,7 +36,7 @@
 | Kiến trúc | Modular Monolith; tách sẵn 2 phần chịu tải là Channel Gateway và AI Inference Worker | [SoT: CTO v4.2 §01, §09] |
 | DB | PostgreSQL 16 + RLS (`workspace_id`) + pgvector (HNSW) | [SoT: CTO v4.2 §07-09, §20] |
 | Cache/Queue | Redis (cache, rate-limit, presence, BullMQ) | [SoT: CTO v4.2 §09] |
-| Broker | Kafka/Redpanda | [SoT: CTO v4.2 §09] — với MVP có thể thay bằng BullMQ cộng outbox (cần chốt). |
+| Broker | Kafka/Redpanda | [SoT: CTO v4.2 §09] — **RRI D15:** dùng BullMQ + outbox, chưa dùng Kafka. |
 | Realtime | WebSocket + SSE fallback | [SoT: CTO v4.2 §09] |
 | Storage | S3-compatible (MinIO/AWS) | |
 | Search | OpenSearch (full-text tiếng Việt) | |
@@ -140,9 +141,9 @@ Chưa có component code. Các khối dựng một lần rồi dùng chung toàn
 | G1 | Chưa có OpenAPI 3.1 đầy đủ; chỉ có 5 endpoint mẫu (CTO §19) | Cần thiết kế API per-module ở Blueprint |
 | G2 | DDL chỉ có mẫu `workspace`, `contact`, `message` (CTO §20); ERD ở mức trường chính | Cần ERD và migration đầy đủ |
 | G3 | `AppChat-Trial-Spec.dc.html` rỗng (206 byte); trial chỉ có trong CHANGELOG 08-29 | Lấy CHANGELOG làm nguồn |
-| G4 | Call Center không có bounded context trong 13 service; cần nhà cung cấp SIP (tham chiếu StringeeX) | Cần chốt có làm ở MVP không |
+| G4 | Call Center không có bounded context trong 13 service; cần nhà cung cấp SIP (tham chiếu StringeeX) | ✅ RRI D07: chưa làm |
 | G5 | Danh mục đổi thưởng Loyalty đã bị xoá, nên không còn chỗ cấu hình việc *dùng* điểm | Lỗ hổng nghiệp vụ |
-| G6 | Chưa có đặc tả Báo cáo chi tiết (10 trang); menu đã gỡ khỏi sidebar | Có thể để sau MVP |
+| G6 | Chưa có đặc tả Báo cáo chi tiết (10 trang); menu đã gỡ khỏi sidebar | Báo cáo đọc từ Postgres (RRI D08) |
 | G7 | Tích hợp kênh thật (Zalo OA/ZNS, Meta, TikTok…) cần app, đăng ký và duyệt template | Phụ thuộc bên ngoài, cần sandbox |
 | G8 | Chưa có test plan chi tiết. Chỉ có chiến lược (CTO §26) và AC mẫu Given/When/Then (SRS §22) | Viết khi làm TIP |
 
@@ -354,24 +355,24 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 
 | # | Mâu thuẫn | Các phương án trong spec | Đề xuất mặc định |
 |---|---|---|---|
-| R1 | **Phạm vi MVP quá lớn** (17 module, 170+ FR, 19 kênh) | CTO roadmap P0→P3 | Theo CTO: P0 = Identity/RLS + Gateway (Zalo/FB/Web) + Inbox realtime; P1 = CRM, Sales, Ticket/SLA, Calendar, AI+RAG, Billing |
+| R1 | **Phạm vi quá lớn** (17 module, 170+ FR, 19 kênh) | CTO roadmap P0→P3 | Theo CTO: P0 = Identity/RLS + Gateway (Zalo/FB/Web) + Inbox realtime; P1 = CRM, Sales, Ticket/SLA, Calendar, AI+RAG, Billing |
 | R2 | Đơn vị tính phí | Token (SRS/CTO) / **Credit** (CHANGELOG 07-28) | Credit (mới hơn) |
 | R3 | Hết credit / vượt ngưỡng | chuyển model rẻ (CHANGELOG) / chặn và gợi ý nạp (Assistant UC-18) / khoá AI ở 5tr₫ (BR-06) | Cần chốt |
 | R4 | Giá gói Team/Business/Ultimate | 5,9/12,9/24,9tr / 2,9/6,9/14,9tr / 2,4/6tr (CTO §28) | Cần chốt (để cấu hình được) |
 | R5 | Công thức Loyalty | sàn(tiền/1.000), 10đ = 1.000₫ (SRS) / 10.000₫ = 1đ, 100đ = 10.000₫, nhân theo hạng (CHANGELOG) | Rule builder cấu hình được (CHANGELOG) |
 | R6 | RBAC | 4 vai trò (CTO) / 5 (Design System) / 7 (SRS) | Vai trò tuỳ biến + seed mặc định |
-| R7 | Số kênh | 12 / 15 / 17 / 18 / 19 | Adapter plugin; MVP chỉ vài kênh |
+| R7 | Số kênh | 12 / 15 / 17 / 18 / 19 | ✅ RRI D04: Zalo cá nhân + Web + Email |
 | R8 | Sidebar / số module | 11 / 12 / 13 / 17; Báo cáo bị gỡ; Loyalty nằm ở 2 chỗ | Theo CHANGELOG 07-26 |
 | R9 | Dashboard KPI | 4 bộ KPI; 08-01 gỡ khối số liệu, thay bằng sơ đồ kiến trúc | Theo Dashboard-Spec + CHANGELOG |
 | R10 | Mobile-first hay Desktop-first | SDD/Spec module ghi mobile-first / SRS + Design System ghi desktop-first 1440 | Desktop-first, responsive |
 | R11 | Hồ sơ 360°: 4 hay 5 tab, ở module nào | | 5 tab; chỉ ở Khách hàng, Báo giá, Inbox |
-| R12 | **OpenFang** (runtime đa tác nhân bên ngoài, v0.1.0) | Có / không nhúng | Thiết kế **Agent Gateway** làm interface; MVP tự chạy agent trong Nest worker |
+| R12 | **OpenFang** (runtime đa tác nhân bên ngoài, v0.1.0) | Có / không nhúng | Thiết kế **Agent Gateway** làm interface; **chưa chốt — OQ-01** |
 | R13 | Go cho Channel Gateway/Worker | Spec ghi Go / Chủ nhà chọn Nest | Toàn bộ NestJS (monorepo, worker riêng) |
-| R14 | Kafka hay BullMQ ở MVP | | BullMQ + outbox; Kafka khi scale |
-| R15 | Call Center (SIP/StringeeX), OpenSearch, ClickHouse | Nhiều hạ tầng nặng | Để sau MVP; dùng Postgres FTS (unaccent + pg_trgm) trước |
+| R14 | Kafka hay BullMQ | | BullMQ + outbox; Kafka khi scale |
+| R15 | Call Center (SIP/StringeeX), OpenSearch, ClickHouse | Nhiều hạ tầng nặng | ✅ RRI D07/D15: chưa làm Call Center; dùng Postgres FTS (unaccent + pg_trgm) trước |
 | R17 | Design token: Design System và `styles.css` của prototype lệch nhau | warn/danger/AI/ink khác giá trị | Chốt một bộ token trước khi dựng UI kit |
 | R18 | Số trang Cài đặt: 54 (CHANGELOG), 40 (SolutionDesign), 32 nav + 3 ẩn (code) | | Lấy code prototype làm danh mục gốc |
-| R19 | i18n: spec ghi 10–11 ngôn ngữ, nhưng prototype không có lớp i18n | | Dựng next-intl từ đầu; MVP chỉ vi (+en) |
+| R19 | i18n: spec ghi 10–11 ngôn ngữ, nhưng prototype không có lớp i18n | | Dựng next-intl từ đầu; giai đoạn đầu vi + en |
 | R16 | Phụ thuộc bên ngoài | Zalo OA/ZNS (duyệt template), Meta App Review, tra cứu MST, VietQR/bank IPN | Thiết kế adapter + mock/sandbox; rủi ro tiến độ |
 
 ---

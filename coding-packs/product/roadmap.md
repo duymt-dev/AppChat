@@ -1,9 +1,10 @@
 # AppChat — Roadmap
 
-> Draft from specs — **MVP scope to be locked in `/vibecode:rri`** (see R1 in 00-PROJECT-CONTEXT).
+> **Đã chốt ở RRI 2026-10-28** (xem `01-REQUIREMENTS-MATRIX.md`): sản phẩm thương mại hoàn chỉnh, mô hình OPC, lõi là Trợ lý AI đóng vai agent bán hàng. Kênh: Zalo cá nhân + Web widget + Email. Chưa làm: Call Center, Workflow.
+> Phần dưới đây là roadmap gốc lấy từ spec, chỉ để tham khảo; phạm vi chính thức theo ma trận yêu cầu.
 > [SoT: CTO Architecture v4.2 §12 "Lộ trình kỹ thuật"; OpenFang Architecture §7; SRS v4.0 §23]
 
-## P0 — Nền tảng (MVP core)
+## P0 — Nền tảng
 - **Identity & Workspace**
   - Đăng nhập bằng OTP Zalo/Email, đăng nhập social.
   - Bắt buộc khai báo DN/Cá nhân (tra cứu MST) và lĩnh vực.
