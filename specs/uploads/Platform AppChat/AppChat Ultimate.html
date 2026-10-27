@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>AppChat Ultimate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=1781538524377"/>
+<link rel="icon" href="assets/symbol.png"/>
+<meta name="ext-resource-dependency" content="assets/symbol.png" data-resource-id="symbol"/>
+<template id="__bundler_thumbnail" data-bg-color="#0B3D2C">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0B3D2C"/>
+    <rect x="470" y="300" width="260" height="200" rx="40" fill="#2DC56A"/>
+    <circle cx="560" cy="400" r="16" fill="#0B3D2C"/>
+    <circle cx="640" cy="400" r="16" fill="#0B3D2C"/>
+    <path d="M540 470 L540 540 L600 500 Z" fill="#2DC56A"/>
+    <text x="600" y="610" font-family="system-ui,sans-serif" font-size="48" font-weight="800" fill="#fff" text-anchor="middle">AppChat</text>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+<div id="__boot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;z-index:99999;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0f172a">
+  <img src="assets/symbol.png" alt="AppChat" style="width:48px;height:48px;border-radius:12px;margin-bottom:16px"/>
+  <div style="font-size:14px;font-weight:700;letter-spacing:.2px">AppChat Ultimate</div>
+  <div id="__boot_msg" style="font-size:12px;color:#64748b;margin-top:8px">Đang tải module…</div>
+  <div style="width:160px;height:3px;background:#e2e8f0;border-radius:2px;margin-top:14px;overflow:hidden"><div id="__boot_bar" style="width:5%;height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:2px;transition:width .3s"></div></div>
+</div>
+<script>(function(){var p=5,b=document.getElementById('__boot_bar');setInterval(function(){if(p<92){p+=Math.random()*4;b.style.width=p+'%'}},250);window.__hideBoot=function(){var el=document.getElementById('__boot');if(el){b.style.width='100%';setTimeout(function(){el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(function(){el.remove()},300)},150)}}})();</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/tag-store.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/_bundle.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/widget-growth.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/channel-connect-modal.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/customer-360.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/customer-360-panel.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/call-center.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/billing-page.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/webphone.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/onboarding.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/workflow.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/tickets-module.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/sales-module.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/dashboard-v2.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/omi-assistant.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/org-settings.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/crm-docs.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/reports-v2.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/ai-agent-builder.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/followup-module.jsx?v=1781538524377" data-presets="react"></script>
+<script type="text/babel" src="components/loyalty-module.jsx?v=1781538524377" data-presets="react"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ============================================================
+   Resilience helpers — never let one missing piece whitescreen the app
+   ============================================================ */
+
+// SafeIcon: renders a placeholder square if Icon.<name> is missing
+const SafeIcon = ({ name, ...rest }) => {
+  const C = window.Icon && window.Icon[name];
+  if (typeof C === 'function') return <C {...rest}/>;
+  // tiny fallback dot so dev sees something is missing without crashing
+  return (
+    <svg viewBox="0 0 24 24" {...rest} style={{ ...(rest.style||{}), opacity: 0.4 }}>
+      <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeDasharray="3 3"/>
+    </svg>
+  );
+};
+
+// SafeMod: lookup a module component by name; auto-retry until it's defined
+// (external Babel scripts transform asynchronously, so a module may be undefined
+//  on the first render — poll instead of forcing a manual reload).
+const SafeMod = ({ name }) => {
+  const [, force] = React.useState(0);
+  const [timedOut, setTimedOut] = React.useState(false);
+  const C = window[name];
+  React.useEffect(() => {
+    if (typeof window[name] === 'function') return;
+    let n = 0;
+    const id = setInterval(() => {
+      n++;
+      if (typeof window[name] === 'function') { clearInterval(id); force(v => v + 1); }
+      else if (n > 150) { clearInterval(id); setTimedOut(true); }
+    }, 100);
+    return () => clearInterval(id);
+  }, [name]);
+  if (typeof C === 'function') return <C/>;
+  if (timedOut) return (
+    <div style={{padding:36, color:'var(--label-02, #6B7280)'}}>
+      <h2 style={{margin:'0 0 6px'}}>Module mất nhiều thời gian để tải</h2>
+      <p style={{margin:'0 0 14px'}}>Component <b>{name}</b> chưa sẵn sàng (mạng chậm hoặc script chưa tải xong).</p>
+      <button onClick={() => { setTimedOut(false); force(v => v + 1); }} style={{padding:'8px 14px', borderRadius:6, border:'1px solid #d1d5db', background:'white', cursor:'pointer', fontWeight:600}}>Thử lại</button>
+    </div>
+  );
+  return (
+    <div style={{padding:36, color:'var(--label-02, #6B7280)', display:'flex', alignItems:'center', gap:12}}>
+      <span style={{width:18, height:18, border:'2px solid #d1d5db', borderTopColor:'#2DC56A', borderRadius:'50%', display:'inline-block', animation:'sm-spin .7s linear infinite'}}></span>
+      <span>Đang tải module <b>{name}</b>…</span>
+      <style>{'@keyframes sm-spin{to{transform:rotate(360deg)}}'}</style>
+    </div>
+  );
+};
+
+// ErrorBoundary: catches render-time crashes inside any module so the rail
+// + other modules keep working. Click "Thử lại" to retry.
+class ErrorBoundary extends React.Component {
+  constructor(p){ super(p); this.state = { err: null }; }
+  static getDerivedStateFromError(err){ return { err }; }
+  componentDidCatch(err, info){ console.error('[Module crash]', err, info); }
+  reset = () => this.setState({ err: null });
+  componentDidUpdate(prev){ if (prev.resetKey !== this.props.resetKey && this.state.err) this.reset(); }
+  render(){
+    if (this.state.err) {
+      return (
+        <div style={{padding:36, maxWidth:640}}>
+          <h2 style={{margin:'0 0 8px', color:'var(--risk, #DC2626)'}}>Module này gặp lỗi</h2>
+          <p style={{color:'var(--label-02, #6B7280)', margin:'0 0 16px'}}>
+            Một thành phần bên trong module bị crash. Các module khác vẫn dùng được — chuyển sang module khác hoặc bấm Thử lại.
+          </p>
+          <pre style={{background:'#f9fafb', padding:12, borderRadius:8, fontSize:12, overflow:'auto', maxHeight:200, color:'#374151', border:'1px solid #e5e7eb'}}>{String(this.state.err && this.state.err.message || this.state.err)}</pre>
+          <button onClick={this.reset} style={{marginTop:14, padding:'8px 14px', borderRadius:6, border:'1px solid #d1d5db', background:'white', cursor:'pointer', fontWeight:500}}>Thử lại</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const MODULES = [
+  { k:'dashboard', l:'Tổng quan', icon:'Grid', mod:'DashboardModule' },
+  { k:'omi', l:'Trợ lý AI', icon:'Sparkles', mod:'OmiAssistantModule' },
+  { k:'messages', l:'Hộp thư', icon:'Chat', mod:'MessagesModule', badge: 7 },
+  { k:'contacts', l:'Khách hàng', icon:'Users', mod:'ContactsModule' },
+  { k:'activities', l:'Hỗ trợ', icon:'Activity', mod:'TicketsModule', badge: 3 },
+  { k:'booking', l:'Calendar', icon:'Calendar', mod:'BookingModule', badge: 7 },
+  { k:'callcenter', l:'Call Center', icon:'CallLog', mod:'CallCenterModule', railHidden:true },
+  { k:'automation', l:'AI Agents', icon:'Automation', mod:'AutomationModule' },
+  { k:'workflow', l:'Quy trình', icon:'Workflow', mod:'WorkflowModule' },
+  { k:'broadcast', l:'Marketing', icon:'Broadcast', mod:'BroadcastModule', railHidden:true },
+  { k:'sales', l:'Products', icon:'Package', mod:'SalesModule', railHidden:true },
+  { k:'orders', l:'Orders', icon:'ShoppingCart', mod:'OrdersModule', railHidden:true },
+  { k:'loyalty', l:'Loyalty', icon:'Star', mod:'LoyaltyModule', railHidden:true },
+  { k:'rep_exec', l:'Executive Dashboard', icon:'Grid', mod:'RepExec', railHidden:true },
+  { k:'rep_conv', l:'Conversations', icon:'Chat', mod:'RepConversations', railHidden:true },
+  { k:'rep_sla', l:'Tickets & SLA', icon:'Activity', mod:'RepTicketsSLA', railHidden:true },
+  { k:'rep_chan', l:'Channels', icon:'Globe', mod:'RepChannels', railHidden:true },
+  { k:'rep_mkt', l:'Marketing', icon:'Broadcast', mod:'RepMarketing', railHidden:true },
+  { k:'rep_sales', l:'Sales & CRM', icon:'TrendUp', mod:'RepSales', railHidden:true },
+  { k:'rep_cust', l:'Customers', icon:'Users', mod:'RepCustomers', railHidden:true },
+  { k:'rep_ai', l:'AI Agents', icon:'Sparkles', mod:'RepAIAgents', railHidden:true },
+  { k:'rep_auto', l:'Automation', icon:'Workflow', mod:'RepAutomation', railHidden:true },
+  { k:'rep_team', l:'Team Performance', icon:'Users', mod:'RepTeam', railHidden:true },
+  { k:'followup', l:'Follow-up', icon:'Bell', mod:'FollowupModule', railHidden:true },
+  { k:'quotes', l:'Báo giá', icon:'FileText', mod:'QuotesModule', railHidden:true },
+  { k:'contracts', l:'Hợp đồng', icon:'Book', mod:'ContractsModule', railHidden:true },
+  { k:'reports', l:'Báo cáo', icon:'Reports', mod:'ReportsModule' },
+  { k:'rep_overview', l:'Tổng quan', icon:'Grid', mod:'RepOverview', railHidden:true },
+  { k:'rep_messages', l:'Messages', icon:'Chat', mod:'RepMessages', railHidden:true },
+  { k:'rep_ticket', l:'Báo cáo Ticket', icon:'Activity', mod:'RepTicket', railHidden:true },
+  { k:'rep_agent', l:'Nhân sự', icon:'Users', mod:'RepAgent', railHidden:true },
+  { k:'rep_cost', l:'Chi phí Token', icon:'Sparkles', mod:'RepCost', railHidden:true },
+  { k:'settings', l:'Cài đặt tài khoản', icon:'Settings', mod:'SettingsModule', hidden:true },
+];
+
+function App() {
+  const [authed, setAuthed] = useState(() => localStorage.getItem('ac_authed') === '1');
+  const [active, setActive] = useState(() => localStorage.getItem('ac_module') || 'messages');
+  const [channelOpen, setChannelOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [repOpen, setRepOpen] = useState(false);
+  const [repTop, setRepTop] = useState(0);
+  const [cusOpen, setCusOpen] = useState(false);
+  const [omiOpen, setOmiOpen] = useState(false);
+  const [curWs, setCurWs] = useState('personal');
+  const [cusTop, setCusTop] = useState(0);
+  useEffect(() => { localStorage.setItem('ac_module', active); }, [active]);
+  useEffect(() => { localStorage.setItem('ac_authed', authed ? '1' : '0'); }, [authed]);
+  useEffect(() => {
+    window.acNavigate = (mod, sub) => { if (sub) localStorage.setItem('ac_settings', sub); setActive(mod); };
+    window.acOpenChannel = () => setChannelOpen(true);
+    window.__acGo = (k) => setActive(k);
+  }, []);
+  const Mod = MODULES.find(m=>m.k===active) || MODULES[0];
+
+  if (!authed) return <AuthRouter onLogin={()=>setAuthed(true)}/>;
+
+  return (
+    <div className="app">
+      <aside className="rail">
+        <div className="rail-logo" title="AppChat">
+          <img src={(window.__resources&&window.__resources.symbol)||"assets/symbol.png"} alt="AppChat"/>
+        </div>
+        {MODULES.filter(m=>!m.hidden && !m.railHidden).map(m => {
+          if (m.k==='omi') {
+            const items=[{k:'chats', l:'Phiên trò chuyện', icon:'Chat'},{k:'actions', l:'Nhật ký', icon:'Activity'}];
+            const childActive = active==='omi';
+            return (
+              <div key="omi" style={{position:'relative', width:'100%', display:'flex', justifyContent:'center'}} onMouseEnter={(e)=>{ const r=e.currentTarget.getBoundingClientRect(); setCusTop(r.top); setOmiOpen(true); }} onMouseLeave={()=>setOmiOpen(false)}>
+                <button className={'rail-item '+(childActive?'active':'')} onClick={(e)=>{ const r=e.currentTarget.getBoundingClientRect(); setCusTop(r.top); setActive('omi'); setOmiOpen(o=>!o); }} title="Trợ lý AI">
+                  <SafeIcon name="Sparkles"/>
+                  <span className="rail-label">Trợ lý AI</span>
+                </button>
+                {omiOpen && (
+                  <div onMouseEnter={()=>setOmiOpen(true)} style={{position:'fixed', left:80, top:cusTop, zIndex:1200, width:208, background:'white', border:'1px solid var(--fill-04)', borderRadius:12, boxShadow:'0 16px 44px rgba(17,24,39,.2)', padding:6}}>
+                    <div style={{fontSize:10.5, fontWeight:800, letterSpacing:'.05em', textTransform:'uppercase', color:'var(--label-03)', padding:'6px 10px 7px'}}>Trợ lý AI · AppChat</div>
+                    {items.map(it=>(
+                      <button key={it.k} onClick={()=>{ window.__omiTab=it.k; setActive('omi'); setTimeout(()=>window.dispatchEvent(new Event('ac-omi-tab')),120); setOmiOpen(false);}} style={{display:'flex', alignItems:'center', gap:10, width:'100%', padding:'9px 10px', border:'none', borderRadius:8, cursor:'pointer', textAlign:'left', fontFamily:'inherit', fontSize:13, fontWeight:500, background:'transparent', color:'var(--label-01)'}}
+                        onMouseEnter={e=>e.currentTarget.style.background='var(--fill-02)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <SafeIcon name={it.icon} style={{width:16, height:16, flexShrink:0, color:'var(--label-02)'}}/>
+                        <span style={{flex:1}}>{it.l}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+          if (m.k==='contacts') {
+            const items=[{k:'contacts', l:'Customers', icon:'Users'},{k:'quotes', l:'Báo giá', icon:'FileText'},{k:'contracts', l:'Hợp đồng', icon:'Note'},{k:'orders', l:'Đơn hàng', icon:'ShoppingCart'},{k:'sales', l:'Sản phẩm', icon:'Package'},{k:'loyalty', l:'Loyalty', icon:'Star'},{k:'callcenter', l:'Call Center', icon:'CallLog'},{k:'broadcast', l:'Marketing', icon:'Broadcast'}];
+            const childActive = items.some(it=>it.k===active) || active==='callcenter';
+            return (
+              <div key="contacts" style={{position:'relative', width:'100%', display:'flex', justifyContent:'center'}} onMouseEnter={(e)=>{ const r=e.currentTarget.getBoundingClientRect(); setCusTop(r.top); setCusOpen(true); }} onMouseLeave={()=>setCusOpen(false)}>
+                <button className={'rail-item '+(childActive?'active':'')} onClick={(e)=>{ const r=e.currentTarget.getBoundingClientRect(); setCusTop(r.top); setCusOpen(o=>!o); }} title="Khách hàng">
+                  <SafeIcon name="Users"/>
+                  <span className="rail-label">Khách hàng</span>
+                </button>
+                {cusOpen && (
+                  <div onMouseEnter={()=>setCusOpen(true)} style={{position:'fixed', left:80, top:cusTop, zIndex:1200, width:208, background:'white', border:'1px solid var(--fill-04)', borderRadius:12, boxShadow:'0 16px 44px rgba(17,24,39,.2)', padding:6}}>
+                    <div style={{fontSize:10.5, fontWeight:800, letterSpacing:'.05em', textTransform:'uppercase', color:'var(--label-03)', padding:'6px 10px 7px'}}>Khách hàng & CRM</div>
+                    {items.map(it=>(
+                      <button key={it.k} onClick={()=>{ if(it.k==='quotes'){ setActive('quotes'); } else if(it.k==='contracts'){ setActive('contracts'); } else { setActive(it.k); } setCusOpen(false);}} style={{display:'flex', alignItems:'center', gap:10, width:'100%', padding:'9px 10px', border:'none', borderRadius:8, cursor:'pointer', textAlign:'left', fontFamily:'inherit', fontSize:13, fontWeight: active===it.k?700:500, background: active===it.k?'var(--bg-green)':'transparent', color: active===it.k?'var(--pr-dark-2)':'var(--label-01)'}}
+                        onMouseEnter={e=>{ if(active!==it.k) e.currentTarget.style.background='var(--fill-02)'; }} onMouseLeave={e=>{ if(active!==it.k) e.currentTarget.style.background='transparent'; }}>
+                        <SafeIcon name={it.icon} style={{width:16, height:16, flexShrink:0, color: active===it.k?'var(--pr-dark-1)':'var(--label-02)'}}/>
+                        <span style={{flex:1}}>{it.l}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+          if (m.k==='reports') {
+            const REP_GROUPS=[
+              {g:'Tổng quan', items:[{k:'rep_exec', l:'Executive Dashboard', icon:'Grid'}]},
+              {g:'Vận hành', items:[{k:'rep_conv', l:'Conversations', icon:'Chat'},{k:'rep_sla', l:'Tickets & SLA', icon:'Activity'},{k:'rep_chan', l:'Channels', icon:'Globe'}]},
+              {g:'Tăng trưởng', items:[{k:'rep_mkt', l:'Marketing', icon:'Broadcast'},{k:'rep_sales', l:'Sales & CRM', icon:'TrendUp'},{k:'rep_cust', l:'Customers', icon:'Users'}]},
+              {g:'AI & Tự động hoá', items:[{k:'rep_ai', l:'AI Agents', icon:'Sparkles'},{k:'rep_auto', l:'Automation & Workflow', icon:'Workflow'}]},
+              {g:'Con người', items:[{k:'rep_team', l:'Team Performance', icon:'Users'}]},
+            ];
+            const repKeys=REP_GROUPS.flatMap(gr=>gr.items.map(i=>i.k));
+            const childActive = repKeys.includes(active);
+            return (
+              <div key="reports" style={{position:'relative', width:'100%', display:'flex', justifyContent:'center'}} onMouseEnter={(e)=>{ const r=e.currentTarget.getBoundingClientRect(); setRepTop(r.top); setRepOpen(true); }} onMouseLeave={()=>setRepOpen(false)}>
+                <button className={'rail-item '+(childActive?'active':'')} onClick={(e)=>{ const r=e.currentTarget.getBoundingClientRect(); setRepTop(r.top); setRepOpen(o=>!o); }} title="Báo cáo">
+                  <SafeIcon name="Reports"/>
+                  <span className="rail-label">Báo cáo</span>
+                </button>
+                {repOpen && (
+                  <div onMouseEnter={()=>setRepOpen(true)} style={{position:'fixed', left:80, top:Math.max(8,Math.min(repTop, (typeof window!=='undefined'?window.innerHeight:800)-470)), zIndex:1200, width:230, maxHeight:'92vh', overflowY:'auto', background:'white', border:'1px solid var(--fill-04)', borderRadius:12, boxShadow:'0 16px 44px rgba(17,24,39,.2)', padding:6}}>
+                    {REP_GROUPS.map(gr=>(
+                      <div key={gr.g} style={{marginBottom:2}}>
+                        <div style={{fontSize:10, fontWeight:800, letterSpacing:'.05em', textTransform:'uppercase', color:'var(--label-03)', padding:'8px 10px 5px'}}>{gr.g}</div>
+                        {gr.items.map(it=>{ const isActive = active===it.k; return (
+                          <button key={it.k} onClick={()=>{ setActive(it.k); setRepOpen(false);}} style={{display:'flex', alignItems:'center', gap:10, width:'100%', padding:'8px 10px', border:'none', borderRadius:8, cursor:'pointer', textAlign:'left', fontFamily:'inherit', fontSize:12.5, fontWeight: isActive?700:500, background: isActive?'var(--bg-green)':'transparent', color: isActive?'var(--pr-dark-2)':'var(--label-01)'}}
+                            onMouseEnter={e=>{ if(!isActive) e.currentTarget.style.background='var(--fill-02)'; }} onMouseLeave={e=>{ if(!isActive) e.currentTarget.style.background='transparent'; }}>
+                            <SafeIcon name={it.icon} style={{width:15, height:15, flexShrink:0, color: isActive?'var(--pr-dark-1)':'var(--label-02)'}}/>
+                            <span style={{flex:1}}>{it.l}</span>
+                          </button>
+                        );})}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+          return (
+            <button key={m.k} className={'rail-item '+(active===m.k?'active':'')} onClick={()=>setActive(m.k)} title={m.l} data-screen-label={m.l}>
+              <SafeIcon name={m.icon}/>
+              <span className="rail-label">{m.l}</span>
+              {m.badge && <span className="rail-badge">{m.badge}</span>}
+            </button>
+          );
+        })}
+        <div className="rail-spacer"/>
+        <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:4, marginBottom:8}}>
+          <div className="rail-avatar" title="Trâm — Sales Lead" onClick={()=>setUserOpen(o=>!o)} style={{cursor:'pointer', outline: userOpen ? '2px solid var(--primary)' : 'none', outlineOffset:2}}>T</div>
+          <button className="rail-foot" title="Cài đặt" onClick={()=>setActive('settings')} style={{background: active==='settings'?'var(--bg-green)':'transparent', color: active==='settings'?'var(--pr-dark-1)':'var(--label-03)'}}><SafeIcon name="Settings" style={{width:19,height:19}}/></button>
+          <button className="rail-foot" title="Thông báo" onClick={()=>setNotifOpen(o=>!o)} style={{position:'relative', background: notifOpen?'var(--bg-green)':'transparent', color: notifOpen?'var(--pr-dark-1)':'var(--label-03)'}}><SafeIcon name="Bell" style={{width:19,height:19}}/><span style={{position:'absolute', top:5, right:9, width:7, height:7, borderRadius:4, background:'#E33F3F', border:'2px solid white'}}/></button>
+          <button className="rail-foot" title="Trợ giúp" onClick={()=>setHelpOpen(o=>!o)} style={{background: helpOpen?'var(--bg-green)':'transparent', color: helpOpen?'var(--pr-dark-1)':'var(--label-03)'}}><SafeIcon name="Help" style={{width:19,height:19}}/></button>
+        </div>
+      </aside>
+
+      {notifOpen && <>
+        <div onClick={()=>setNotifOpen(false)} style={{position:'fixed', inset:0, zIndex:998}}></div>
+        <div style={{position:'fixed', left:84, bottom:14, width:320, background:'white', border:'1px solid var(--fill-04)', borderRadius:14, boxShadow:'0 18px 48px rgba(17,24,39,.2)', zIndex:999, overflow:'hidden'}}>
+          <div style={{display:'flex', alignItems:'center', padding:'13px 16px', borderBottom:'1px solid var(--fill-03)'}}>
+            <span style={{fontSize:14, fontWeight:800}}>Thông báo</span><span style={{flex:1}}></span>
+            <span style={{fontSize:11.5, fontWeight:700, color:'var(--primary)', cursor:'pointer'}}>Đánh dấu đã đọc</span>
+          </div>
+          <div style={{maxHeight:360, overflowY:'auto'}}>
+            {[
+              {ic:'Activity', c:'#E8602C', t:'CSKH AI tạo 5 ticket mới', s:'2 phút trước'},
+              {ic:'Bell', c:'#DC2626', t:'1 ticket sắp quá hạn SLA', s:'12 phút trước'},
+              {ic:'User', c:'#2A6FDB', t:'Sales AI tạo 23 lead mới', s:'30 phút trước'},
+              {ic:'Calendar', c:'#0E9B94', t:'18 lịch hẹn được xác nhận', s:'1 giờ trước'},
+            ].map((n,i)=>(
+              <div key={i} style={{display:'flex', gap:11, padding:'12px 16px', borderBottom:'1px solid var(--fill-03)'}}>
+                <span style={{width:32, height:32, borderRadius:9, background:n.c+'18', color:n.c, display:'grid', placeItems:'center', flexShrink:0}}><SafeIcon name={n.ic} style={{width:16,height:16}}/></span>
+                <div style={{minWidth:0}}><div style={{fontSize:13, fontWeight:600, color:'var(--label-01)'}}>{n.t}</div><div style={{fontSize:11.5, color:'var(--label-03)'}}>{n.s}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>}
+
+      {helpOpen && <>
+        <div onClick={()=>setHelpOpen(false)} style={{position:'fixed', inset:0, zIndex:998}}></div>
+        <div style={{position:'fixed', left:84, bottom:14, width:280, background:'white', border:'1px solid var(--fill-04)', borderRadius:14, boxShadow:'0 18px 48px rgba(17,24,39,.2)', zIndex:999, overflow:'hidden'}}>
+          <div style={{padding:'13px 16px', borderBottom:'1px solid var(--fill-03)', fontSize:14, fontWeight:800}}>Trợ giúp & Hỗ trợ</div>
+          <div style={{padding:6}}>
+            {[
+              {ic:'Book', t:'Trung tâm trợ giúp'},
+              {ic:'MessageSquare', t:'Chat với hỗ trợ'},
+              {ic:'Sparkles', t:'Hỏi Trợ lý AI'},
+              {ic:'FileText', t:'Tài liệu API'},
+            ].map((h,i)=>(
+              <button key={i} onClick={()=>setHelpOpen(false)} style={{display:'flex', alignItems:'center', gap:10, width:'100%', padding:'9px 10px', border:'none', background:'transparent', borderRadius:8, fontSize:13, fontWeight:500, color:'var(--label-01)', cursor:'pointer', textAlign:'left', fontFamily:'inherit'}}
+                onMouseEnter={e=>e.currentTarget.style.background='var(--fill-02)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <SafeIcon name={h.ic} style={{width:16, height:16, flexShrink:0, color:'var(--label-02)'}}/> {h.t}
+              </button>
+            ))}
+          </div>
+        </div>
+      </>}
+
+      {userOpen && <>
+        <div onClick={()=>setUserOpen(false)} style={{position:'fixed', inset:0, zIndex:998}}></div>
+        <div style={{position:'fixed', left:84, bottom:14, width:264, background:'white', border:'1px solid var(--fill-04)', borderRadius:14, boxShadow:'0 18px 48px rgba(17,24,39,.2)', zIndex:999, overflow:'hidden'}}>
+          <div style={{display:'flex', alignItems:'center', gap:11, padding:'14px 14px 12px', borderBottom:'1px solid var(--fill-03)'}}>
+            <div style={{width:38, height:38, borderRadius:'50%', background:'var(--grad-signature)', color:'white', display:'grid', placeItems:'center', fontWeight:800, fontSize:15}}>T</div>
+            <div style={{flex:1, minWidth:0}}>
+              <div style={{fontWeight:700, fontSize:13.5}}>Thùy Trâm</div>
+              <div style={{fontSize:11.5, color:'var(--label-02)'}}>+84 90 771 1888 · Sales Lead</div>
+            </div>
+            <span className="chip green" style={{flexShrink:0}}><span className="dot"></span> Trực</span>
+          </div>
+          {/* Workspace switcher */}
+          <div style={{padding:'10px 12px', borderBottom:'1px solid var(--fill-03)', background:'var(--fill-02)'}}>
+            <div style={{fontSize:10, fontWeight:800, letterSpacing:'.05em', textTransform:'uppercase', color:'var(--label-03)', marginBottom:7}}>Chuyển workspace</div>
+            {[{k:'personal', l:'Trâm · Cá nhân', d:'Gói Cá nhân', c:'#2563EB', ic:'Users'},{k:'team', l:'Spa Hương Sen', d:'Gói Team · 8 thành viên', c:'#0E9B7E', ic:'Users'},{k:'biz', l:'MediaSoft Group', d:'Doanh nghiệp · 42 người', c:'#6E48E6', ic:'Shield'}].map(w=>{ const on=curWs===w.k; return (
+              <button key={w.k} onClick={()=>{ setCurWs(w.k); }} style={{display:'flex', alignItems:'center', gap:10, width:'100%', padding:'8px 9px', border:'1px solid '+(on?w.c:'transparent'), borderRadius:9, cursor:'pointer', textAlign:'left', fontFamily:'inherit', marginBottom:4, background:on?w.c+'10':'white'}}
+                onMouseEnter={e=>{ if(!on) e.currentTarget.style.background='var(--fill-03)'; }} onMouseLeave={e=>{ if(!on) e.currentTarget.style.background='white'; }}>
+                <span style={{width:30,height:30,borderRadius:8,background:w.c+'18',color:w.c,display:'grid',placeItems:'center',flexShrink:0,fontWeight:800,fontSize:13}}>{w.l[0]}</span>
+                <span style={{flex:1, minWidth:0}}><span style={{display:'block', fontSize:12.5, fontWeight:700, color:'var(--label-01)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{w.l}</span><span style={{display:'block', fontSize:10.5, color:'var(--label-03)'}}>{w.d}</span></span>
+                {on && <SafeIcon name="Check" style={{width:15,height:15,color:w.c,flexShrink:0}}/>}
+              </button>
+            );})}
+            <button onClick={()=>{setUserOpen(false); setActive('settings');}} style={{display:'flex', alignItems:'center', gap:7, width:'100%', padding:'7px 9px', marginTop:2, border:'1px dashed var(--fill-04)', borderRadius:8, cursor:'pointer', fontFamily:'inherit', fontSize:11.5, fontWeight:700, color:'var(--pr-dark-2)', background:'transparent'}}>
+              <SafeIcon name="Plus" style={{width:13,height:13}}/> Mua thêm workspace
+            </button>
+          </div>
+          <div style={{padding:6}}>
+            <button onClick={()=>setUserOpen(false)} style={{display:'flex', alignItems:'center', gap:9, width:'100%', padding:'9px 10px', border:'none', background:'transparent', borderRadius:8, fontSize:13, fontWeight:600, color:'var(--label-01)', cursor:'pointer', textAlign:'left'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--fill-02)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <SafeIcon name="Users" style={{width:16, height:16, flexShrink:0, color:'var(--label-02)'}}/> Hồ sơ của tôi
+            </button>
+            <button onClick={()=>{setUserOpen(false); setActive('settings');}} style={{display:'flex', alignItems:'center', gap:9, width:'100%', padding:'9px 10px', border:'none', background:'transparent', borderRadius:8, fontSize:13, fontWeight:600, color:'var(--label-01)', cursor:'pointer', textAlign:'left'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--fill-02)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <SafeIcon name="Settings" style={{width:16, height:16, flexShrink:0, color:'var(--label-02)'}}/> Cài đặt tài khoản
+            </button>
+            <div style={{height:1, background:'var(--fill-03)', margin:'6px 4px'}}></div>
+            <button onClick={()=>{setUserOpen(false); setAuthed(false);}} style={{display:'flex', alignItems:'center', gap:9, width:'100%', padding:'9px 10px', border:'none', background:'transparent', borderRadius:8, fontSize:13, fontWeight:600, color:'var(--label-01)', cursor:'pointer', textAlign:'left'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--fill-02)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <SafeIcon name="Refresh" style={{width:16, height:16, flexShrink:0, color:'var(--label-02)'}}/> Đăng nhập tài khoản khác
+            </button>
+            <button onClick={()=>{setUserOpen(false); setAuthed(false);}} style={{display:'flex', alignItems:'center', gap:9, width:'100%', padding:'9px 10px', border:'none', background:'transparent', borderRadius:8, fontSize:13, fontWeight:700, color:'var(--error)', cursor:'pointer', textAlign:'left'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--bg-red, #FDECEA)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <SafeIcon name="ArrowLeft" style={{width:16, height:16, flexShrink:0}}/> Đăng xuất
+            </button>
+          </div>
+        </div>
+      </>}
+      <main className="module" key={active} data-screen-label={Mod.l}>
+        <ErrorBoundary resetKey={active}>
+          <SafeMod name={Mod.mod}/>
+        </ErrorBoundary>
+      </main>
+      {channelOpen && <ChannelConnectModal onClose={()=>setChannelOpen(false)} audience="Nhóm Bán Hàng"/>}
+      {window.WebPhone ? <window.WebPhone/> : null}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+requestAnimationFrame(function(){window.__hideBoot && window.__hideBoot();});
+</script>
+</body>
+</html>

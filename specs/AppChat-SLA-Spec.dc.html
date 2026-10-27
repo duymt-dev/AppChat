@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEF0F2;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#2F7D4C}a:hover{color:#1F5C36}
+  .box{background:#fff;border:1px solid #DDE1E4;border-radius:12px}
+  .th{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9AA0A6;text-transform:uppercase}
+  .td{font-size:13px;color:#4A5057;line-height:1.65;vertical-align:top;padding:14px 16px;border-top:1px solid #EEF0F2}
+  .ar{align-self:center;color:#C4CBD1;font-size:17px}
+</style>
+</helmet>
+
+<template id="__bundler_thumbnail" data-bg-color="#EEF0F2">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#EEF0F2"/>
+    <circle cx="600" cy="400" r="210" fill="#fff" stroke="#C4CBD1" stroke-width="10"/>
+    <path d="M600 400 L600 240" stroke="#2F7D4C" stroke-width="18" stroke-linecap="round"/>
+    <path d="M600 400 L730 470" stroke="#B91C1C" stroke-width="18" stroke-linecap="round"/>
+    <path d="M600 190 A210 210 0 0 1 786 502" fill="none" stroke="#BFE3CE" stroke-width="22" stroke-linecap="round"/>
+    <circle cx="600" cy="400" r="26" fill="#2F7D4C"/>
+  </svg>
+</template>
+
+<div style="max-width:1420px;margin:0 auto;padding:48px 40px 90px">
+
+  <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">APPCHAT · ĐẶC TẢ MODULE · 12/08/2026</div>
+  <h1 style="font-size:34px;font-weight:800;letter-spacing:-.02em;color:#231F20;margin:10px 0 8px">Thiết lập SLA — Cấu trúc, flow, tính năng &amp; nghiệp vụ</h1>
+  <p style="font-size:15px;color:#6B7280;line-height:1.65;max-width:920px;margin:0;text-wrap:pretty">SLA là <b>lời hứa có thể đo được</b> giữa doanh nghiệp và khách: bao lâu thì có người trả lời, bao lâu thì xong việc. Module này không tự xử lý nghiệp vụ nào — nó <b>định nghĩa đồng hồ</b> cho các module khác (Hộp thư · Ticket · Gọi điện · Lịch hẹn · Marketing · Quy trình) và <b>quyết định khi nào phải báo động</b>.</p>
+
+  <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:20px;font-size:12.5px;color:#8A9096;align-items:center">
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #C4CBD1;border-radius:4px;background:#F5F6F7"></span>Bước xử lý</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:20px;height:20px;background:#EAF6EF;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></span>Điểm quyết định</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFE3CE;border-radius:9px;background:#EAF6EF"></span>Bắt đầu / Kết thúc</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #F0C9C9;border-radius:4px;background:#FBEDED"></span>Vi phạm · leo thang</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #CFC0F0;border-radius:4px;background:#F3EFFE"></span>AI Agent</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFD4EE;border-radius:4px;background:#EFF4FC"></span>Hệ thống · tự động</span>
+  </div>
+
+  <!-- ============ 1 · KHÁI NIỆM ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">1 · BỐN CHỈ SỐ CỐT LÕI</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Mỗi chính sách SLA đặt <b>bốn ngưỡng</b>, tách riêng AI và người. Đây là điểm khác biệt căn bản so với helpdesk truyền thống — AI và người không cùng một chuẩn đo.</div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9E86D4">AI</div>
+      <div style="font-size:15px;font-weight:800;color:#5B3FA8;margin-top:4px">FRT · Phản hồi đầu</div>
+      <div style="font-size:24px;font-weight:800;color:#231F20;margin:8px 0 6px">Tức thì</div>
+      <div style="font-size:12.8px;color:#4A5057;line-height:1.65">Thời gian AI Agent gửi phản hồi đầu tiên. Chuẩn kỳ vọng là 0 phút — nếu AI cũng chậm thì lợi thế tự động hoá không còn ý nghĩa.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9AA0A6">NGƯỜI</div>
+      <div style="font-size:15px;font-weight:800;color:#3A3F44;margin-top:4px">FRT · Phản hồi đầu</div>
+      <div style="font-size:24px;font-weight:800;color:#231F20;margin:8px 0 6px">≤ 10 phút</div>
+      <div style="font-size:12.8px;color:#4A5057;line-height:1.65">Thời gian nhân sự phản hồi lần đầu sau khi tiếp nhận. Đây là chỉ số khách cảm nhận rõ nhất — im lặng lâu là lý do rời bỏ phổ biến nhất.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9E86D4">AI</div>
+      <div style="font-size:15px;font-weight:800;color:#5B3FA8;margin-top:4px">TTR · Giải quyết</div>
+      <div style="font-size:24px;font-weight:800;color:#231F20;margin:8px 0 6px">Tức thì</div>
+      <div style="font-size:12.8px;color:#4A5057;line-height:1.65">Thời gian AI đóng được việc trọn vẹn. Vượt ngưỡng nghĩa là AI đang loay hoay — nên bàn giao người thay vì để khách chờ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9AA0A6">NGƯỜI</div>
+      <div style="font-size:15px;font-weight:800;color:#3A3F44;margin-top:4px">TTR · Giải quyết</div>
+      <div style="font-size:24px;font-weight:800;color:#231F20;margin:8px 0 6px">≤ 4 giờ</div>
+      <div style="font-size:12.8px;color:#4A5057;line-height:1.65">Thời gian đóng việc hoàn toàn. Chỉ tính trong giờ làm việc và trừ khoảng đang chờ khách.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px;padding:12px 15px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:9px;font-size:12.8px;color:#5B3FA8;line-height:1.65"><b>Vì sao tách AI và người:</b> nếu dùng chung một ngưỡng, chỉ số SLA sẽ đẹp giả tạo — AI trả lời tức thì kéo trung bình xuống, che mất việc đội người đang chậm. Tách ra mới thấy đúng: AI giữ được bao nhiêu phần trăm, và phần chuyển cho người có được xử lý tử tế không.</div>
+
+  <!-- ============ 2 · CẤU TRÚC TRANG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">2 · CẤU TRÚC TRANG</div>
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:56px">#</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:220px">Khối</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Nội dung · vai trò</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:190px">Hành vi</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>1</b></td><td class="td"><b>Bảng chính sách SLA</b></td><td class="td">9 cột: tên chính sách · loại nghiệp vụ · phạm vi kênh · hạng khách · FRT (AI) · FRT (Người) · TTR (AI) · TTR (Người) · bật/tắt.</td><td class="td">Tạo · sửa · xoá · bật/tắt từng dòng</td></tr>
+        <tr><td class="td"><b>2</b></td><td class="td"><b>Form chính sách</b></td><td class="td">Đặt tên, chọn loại nghiệp vụ, kênh áp dụng, hạng khách, màu nhận diện, và bốn ngưỡng thời gian.</td><td class="td">Mở từ nút Tạo hoặc menu Sửa</td></tr>
+        <tr><td class="td"><b>3</b></td><td class="td"><b>Giờ làm việc</b></td><td class="td">Bật/tắt từng ngày trong tuần kèm giờ mở – đóng. AI mặc định 24/7, người theo lịch này.</td><td class="td">Toggle theo ngày · đặt khung giờ</td></tr>
+        <tr><td class="td"><b>4</b></td><td class="td"><b>Chuỗi leo thang</b></td><td class="td">Các cấp escalation theo mốc thời gian: nhắc người phụ trách → báo trưởng nhóm → đổi nhóm → báo quản lý.</td><td class="td">Bật/tắt từng cấp</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 3 · FLOWCHART ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3 · FLOW ĐO SLA &amp; LEO THANG</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Từ lúc việc phát sinh đến khi đóng hoặc leo thang. Ba điểm quyết định: <b>chính sách nào áp dụng</b>, <b>có trong giờ làm việc không</b>, và <b>còn kịp hạn không</b>.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 720" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="s1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DDA6A2"/></marker>
+        <marker id="s1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E86D4"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M180,84 V120" marker-end="url(#s1)"/>
+        <path d="M180,184 V220" marker-end="url(#s1)"/>
+        <path d="M310,252 H408" marker-end="url(#s1)"/>
+        <path d="M180,284 V332" marker-end="url(#s1)"/>
+        <path d="M300,376 H408" marker-end="url(#s1)"/>
+        <path d="M180,420 V468" marker-end="url(#s1)"/>
+        <path d="M310,500 H408" marker-end="url(#s1p)" stroke="#9E86D4"/>
+        <path d="M180,532 V580" marker-end="url(#s1)"/>
+        <path d="M666,376 H744" marker-end="url(#s1)"/>
+        <path d="M900,344 V292" marker-end="url(#s1)"/>
+        <path d="M900,408 V462" marker-end="url(#s1r)" stroke="#DDA6A2"/>
+        <path d="M1048,376 H1170 V620 H900" marker-end="url(#s1)"/>
+        <path d="M900,526 V620" marker-end="url(#s1r)" stroke="#DDA6A2"/>
+        <path d="M1030,494 H1090 V206 H1036" marker-end="url(#s1r)" stroke="#DDA6A2" stroke-dasharray="5 4"/>
+        <path d="M310,612 H752" marker-end="url(#s1)"/>
+      </g>
+      <g text-anchor="middle">
+        <rect x="50" y="44" width="260" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="180" y="69" font-size="13" font-weight="700" fill="#2F7D4C">Việc mới phát sinh</text>
+
+        <rect x="50" y="120" width="260" height="64" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="180" y="144" font-size="12.6" font-weight="700" fill="#2C5A93">Xác định thuộc tính việc</text>
+        <text x="180" y="162" font-size="11" font-weight="600" fill="#8A9096">loại nghiệp vụ · kênh · hạng khách</text>
+        <text x="180" y="178" font-size="10.6" font-weight="700" fill="#9AA0A6">chat · ticket · call · email · ZNS</text>
+
+        <rect x="50" y="220" width="260" height="64" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="180" y="244" font-size="12.6" font-weight="700" fill="#2C5A93">Khớp chính sách SLA</text>
+        <text x="180" y="262" font-size="11" font-weight="600" fill="#8A9096">chọn chính sách cụ thể nhất đang bật</text>
+        <text x="180" y="278" font-size="10.6" font-weight="700" fill="#9AA0A6">VIP &gt; kênh riêng &gt; mặc định</text>
+
+        <rect x="408" y="222" width="258" height="60" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="537" y="246" font-size="12.4" font-weight="600" fill="#3A3F44">Không khớp → chính sách mặc định</text>
+        <text x="537" y="264" font-size="11" font-weight="600" fill="#8A9096">không việc nào chạy mà thiếu đồng hồ</text>
+
+        <path d="M180,332 L300,376 L180,420 L60,376 Z" fill="#EAF6EF"/>
+        <text x="180" y="372" font-size="12.2" font-weight="700" fill="#2F7D4C">Trong giờ</text>
+        <text x="180" y="389" font-size="12.2" font-weight="700" fill="#2F7D4C">làm việc?</text>
+
+        <rect x="408" y="344" width="258" height="64" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="537" y="368" font-size="12.6" font-weight="700" fill="#5B3FA8">Ngoài giờ → AI trực 24/7</text>
+        <text x="537" y="386" font-size="11" font-weight="600" fill="#8A9096">chỉ đồng hồ AI chạy</text>
+        <text x="537" y="402" font-size="10.6" font-weight="700" fill="#9AA0A6">đồng hồ người tạm dừng tới đầu ca</text>
+
+        <rect x="50" y="468" width="260" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="180" y="492" font-size="12.6" font-weight="700" fill="#3A3F44">Khởi động đồng hồ</text>
+        <text x="180" y="510" font-size="11" font-weight="600" fill="#8A9096">FRT và TTR đếm song song</text>
+        <text x="180" y="526" font-size="10.6" font-weight="700" fill="#9AA0A6">hiển thị thời gian còn lại trên bản ghi</text>
+
+        <rect x="408" y="468" width="258" height="64" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="537" y="492" font-size="12.6" font-weight="700" fill="#5B3FA8">Chờ khách → tạm dừng</text>
+        <text x="537" y="510" font-size="11" font-weight="600" fill="#8A9096">khách trả lời thì chạy tiếp</text>
+        <text x="537" y="526" font-size="10.6" font-weight="700" fill="#9AA0A6">không phạt việc ngoài tầm kiểm soát</text>
+
+        <path d="M900,292 L1048,376 L900,460 L752,376 Z" fill="#EAF6EF"/>
+        <text x="900" y="372" font-size="12.2" font-weight="700" fill="#2F7D4C">Xong trước hạn?</text>
+        <text x="900" y="389" font-size="11.4" font-weight="600" fill="#6FA98A">theo dõi liên tục</text>
+
+        <rect x="770" y="176" width="266" height="60" rx="8" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="903" y="200" font-size="12.6" font-weight="700" fill="#2F7D4C">Đạt SLA</text>
+        <text x="903" y="218" font-size="11" font-weight="600" fill="#6FA98A">ghi nhận vào % đạt SLA và KPI</text>
+
+        <rect x="770" y="462" width="260" height="64" rx="8" fill="#FDF6F6" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="900" y="486" font-size="12.6" font-weight="700" fill="#C9820B">Sắp đến hạn → cảnh báo</text>
+        <text x="900" y="504" font-size="11" font-weight="600" fill="#C08A85">nhắc người phụ trách · đẩy lên đầu</text>
+        <text x="900" y="520" font-size="10.6" font-weight="700" fill="#C9A09C">còn kịp cứu thì quay lại xử lý</text>
+
+        <rect x="756" y="588" width="288" height="64" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="900" y="612" font-size="12.6" font-weight="700" fill="#A8544F">Quá hạn → leo thang</text>
+        <text x="900" y="630" font-size="11" font-weight="600" fill="#C08A85">báo trưởng nhóm · đổi nhóm · nâng ưu tiên</text>
+        <text x="900" y="646" font-size="10.6" font-weight="700" fill="#C9A09C">hiện ở Tổng quan · Thông báo</text>
+
+        <rect x="50" y="580" width="260" height="64" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="180" y="604" font-size="12.6" font-weight="700" fill="#2C5A93">Ghi số liệu &amp; báo cáo</text>
+        <text x="180" y="622" font-size="11" font-weight="600" fill="#8A9096">% đạt SLA · vi phạm · AI giữ được bao nhiêu</text>
+        <text x="180" y="638" font-size="10.6" font-weight="700" fill="#9AA0A6">vào KPI cá nhân · nhóm · AI Agent</text>
+
+        <text x="358" y="244" font-size="11" font-weight="700" fill="#8A9096">không khớp</text>
+        <text x="356" y="368" font-size="11" font-weight="700" fill="#8A9096">KHÔNG</text>
+        <text x="218" y="446" font-size="11" font-weight="700" fill="#3A9D5D">CÓ</text>
+        <text x="358" y="492" font-size="11" font-weight="700" fill="#9E86D4">tạm dừng</text>
+        <text x="706" y="368" font-size="11" font-weight="700" fill="#8A9096">theo dõi</text>
+        <text x="944" y="266" font-size="11" font-weight="700" fill="#3A9D5D">XONG</text>
+        <text x="948" y="440" font-size="11" font-weight="700" fill="#C9820B">CHƯA XONG</text>
+        <text x="1108" y="404" font-size="11" font-weight="700" fill="#8A9096">đã đạt</text>
+        <text x="1076" y="330" font-size="11" font-weight="700" fill="#C08A85">cứu kịp</text>
+        <text x="530" y="604" font-size="11" font-weight="700" fill="#8A9096">mọi kết quả đều được ghi nhận</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ 4 · FLOW CHI TIẾT ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">4 · FLOW CHI TIẾT THEO TỪNG NGHIỆP VỤ</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Sáu luồng con. Mỗi luồng nêu <b>điều kiện kích hoạt</b>, các bước, <b>điều kiện kết thúc</b> và ngoại lệ.</div>
+
+  <div class="box" style="margin-top:18px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">S1 · Tạo chính sách SLA</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> cần cam kết riêng cho một nhóm khách hoặc kênh. <b>Kết thúc:</b> chính sách bật và bắt đầu áp cho việc mới.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:155px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Đặt tên &amp; loại</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chat · Ticket · Gọi điện · Email · ZNS · Quy trình.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:155px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">2 · Chọn phạm vi</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Kênh áp dụng và hạng khách (Kim cương · Vàng · Tất cả).</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:155px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">3 · Đặt bốn ngưỡng</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">FRT và TTR, mỗi cái tách AI và người.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:155px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Bật &amp; áp dụng</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chỉ áp cho việc mới; việc đang chạy giữ nguyên chính sách cũ.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 13px;background:#F5F6F7;border:1px solid #DDE1E4;border-radius:8px;font-size:12.4px;color:#4A5057;line-height:1.6"><b>Vì sao không áp ngược:</b> đổi ngưỡng giữa chừng sẽ khiến việc đang trong hạn bỗng thành vi phạm — số liệu mất tin cậy và đội hỗ trợ bị phạt oan.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">S2 · Khớp chính sách khi việc phát sinh</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> có hội thoại, ticket, cuộc gọi hoặc lịch hẹn mới. <b>Kết thúc:</b> việc được gắn đúng một chính sách.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:165px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">1 · Đọc thuộc tính</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Loại nghiệp vụ, kênh nguồn, hạng khách trong CDP.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:165px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">2 · Lọc chính sách đang bật</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Bỏ qua chính sách đã tắt, kể cả khi khớp phạm vi.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:165px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">3 · Chọn cái cụ thể nhất</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Ưu tiên: hạng khách &gt; kênh riêng &gt; mặc định.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:165px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Gắn &amp; ghi vết</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Bản ghi lưu tên chính sách để về sau truy được vì sao hạn đó.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 13px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:8px;font-size:12.4px;color:#A8544F;line-height:1.6"><b>Ngoại lệ:</b> không chính sách nào khớp → dùng chính sách mặc định của hệ thống. Không bao giờ để một việc chạy mà không có đồng hồ.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">S3 · Đồng hồ chạy — tạm dừng — chạy tiếp</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> việc được gắn chính sách. <b>Kết thúc:</b> việc đóng hoặc vi phạm.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">Chạy</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Việc đang thuộc trách nhiệm đội — Đang mở, Đang xử lý.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:160px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">Tạm dừng · chờ khách</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Trạng thái Đang chờ; đồng hồ đóng băng, không tính lỗi.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:160px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">Tạm dừng · ngoài giờ</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chỉ đồng hồ người dừng; đồng hồ AI vẫn chạy 24/7.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:160px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">Dừng hẳn</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Việc đóng; chốt kết quả Đạt hoặc Vi phạm.</div></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">S4 · Cảnh báo &amp; leo thang nhiều cấp</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> thời gian còn lại xuống dưới ngưỡng cảnh báo. <b>Kết thúc:</b> việc được xử lý, hoặc đã leo hết các cấp.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px;background:#FDF6F6;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#C9820B;letter-spacing:.06em">CẤP 1</div><div style="font-size:13px;font-weight:700;color:#C9820B;margin-top:3px">Nhắc người phụ trách</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Thông báo trong app; việc nhảy lên đầu danh sách.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:160px;background:#FBEDED;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#A8544F;letter-spacing:.06em">CẤP 2</div><div style="font-size:13px;font-weight:700;color:#A8544F;margin-top:3px">Báo trưởng nhóm</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Kèm lý do chậm và thời gian đã trôi.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:160px;background:#FBEDED;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#A8544F;letter-spacing:.06em">CẤP 3</div><div style="font-size:13px;font-weight:700;color:#A8544F;margin-top:3px">Đổi nhóm · nâng ưu tiên</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chuyển sang nhóm còn năng lực, ưu tiên lên Cao.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:160px;background:#FBEDED;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#A8544F;letter-spacing:.06em">CẤP 4</div><div style="font-size:13px;font-weight:700;color:#A8544F;margin-top:3px">Báo quản lý cấp trên</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Hiện ở Tổng quan; tính vào báo cáo vi phạm.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 13px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:8px;font-size:12.4px;color:#2C5A93;line-height:1.6"><b>Bật/tắt từng cấp:</b> đội nhỏ thường chỉ dùng cấp 1 và 2 — leo thang quá nhiều tầng ở tổ chức ít người chỉ tạo nhiễu.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">S5 · Cấu hình giờ làm việc</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> thiết lập ban đầu hoặc thay đổi lịch vận hành. <b>Kết thúc:</b> đồng hồ người tính đúng theo ca.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">AI · cố định 24/7</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Không cấu hình được — AI không nghỉ, đó là lý do tồn tại của nó.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">Người · theo lịch tuần</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Bật/tắt từng ngày, đặt giờ mở – đóng riêng cho mỗi ngày.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:170px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">Ngoài giờ → AI gánh</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Việc đến ban đêm vẫn được trả lời; đồng hồ người chờ tới đầu ca.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">Khớp phân ca trực</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Lấy đúng người đang trong ca để gán và nhắc.</div></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">S6 · Đo lường &amp; cải tiến</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> định kỳ theo tuần hoặc tháng. <b>Kết thúc:</b> điều chỉnh ngưỡng, nhân sự hoặc phạm vi AI.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Đọc ba chỉ số</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">% đạt SLA · số đang gần hạn · số đã vi phạm hôm nay.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">2 · Tách nguyên nhân</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Do thiếu người, ngưỡng quá chặt, hay AI trả lại quá nhiều?</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:170px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">3 · Xem AI giữ được bao nhiêu</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Tỉ lệ AI giữ SLA — mở rộng phạm vi AI nếu ổn định.</div></div>
+      <div class="ar">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Điều chỉnh</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Sửa ngưỡng, đổi phân ca, hoặc bổ sung tri thức cho AI.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 5 · TÍNH NĂNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5 · TÍNH NĂNG HỖ TRỢ VẬN HÀNH</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Nhiều chính sách song song</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Không ép một chuẩn cho toàn bộ. Khiếu nại VIP có thể 5 phút trong khi email thường là vài giờ — mỗi tổ hợp nghiệp vụ × kênh × hạng khách có cam kết riêng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">Tách chuẩn AI và người</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Bốn ngưỡng thay vì hai. Nhờ đó đo được AI đang gánh bao nhiêu phần và phần chuyển cho người có bị bỏ rơi không.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Bật/tắt không cần xoá</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Tắt tạm một chính sách khi thử nghiệm hoặc mùa cao điểm, giữ nguyên cấu hình để bật lại. Chính sách tắt không áp cho việc mới nhưng vẫn còn trong lịch sử.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Màu nhận diện chính sách</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mỗi chính sách có màu riêng, hiện ở dải bên trái dòng và trên bản ghi áp dụng — nhìn là biết việc này thuộc cam kết nào.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Ba thẻ chỉ số đầu trang</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>% đạt SLA</b> (kèm biến động) · <b>Đang gần hạn</b> · <b>Đã vi phạm hôm nay</b>. Đủ để biết ngay hôm nay có ổn không mà không cần mở báo cáo.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Ghi vết chính sách trên bản ghi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mỗi ticket, hội thoại lưu tên chính sách đã áp. Về sau tranh luận vì sao việc này bị tính vi phạm thì có bằng chứng rõ ràng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Đồng hồ hiển thị tại chỗ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Cột SLA ở Hộp thư và Ticket đếm ngược theo thời gian thực, đổi màu ba mức. Người trực không phải vào trang SLA để biết còn bao lâu.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Leo thang cấu hình được</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Bật/tắt từng cấp theo quy mô tổ chức. Tổ chức nhỏ dùng hai cấp, doanh nghiệp lớn dùng đủ bốn.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">Đồng bộ phân ca trực</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Giờ làm việc và lịch phân ca dùng chung nguồn. Không có tình trạng SLA nghĩ đang trong giờ mà thực tế không ai trực.</div>
+    </div>
+  </div>
+
+  <!-- ============ 6 · GIẢI THÍCH CHỨC NĂNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">6 · GIẢI THÍCH CHI TIẾT TỪNG CHỨC NĂNG</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Mỗi chức năng: <b>làm gì</b> · <b>hoạt động thế nào</b> · <b>vì sao thiết kế như vậy</b>.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:190px">Chức năng</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:270px">Làm gì</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Hoạt động thế nào · vì sao</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Tên chính sách</b></td><td class="td">Nhãn nhận diện, ví dụ <i>Khiếu nại · VIP</i>.</td><td class="td">Hiện trên bản ghi áp dụng. <b>Vì sao:</b> khi tranh luận về vi phạm, cần biết ngay việc đó chịu cam kết nào chứ không phải tra ngược cấu hình.</td></tr>
+        <tr><td class="td"><b>Loại nghiệp vụ</b></td><td class="td">Chat · Ticket · Gọi điện · Email · ZNS · Quy trình.</td><td class="td">Quyết định module nào áp dụng chính sách. <b>Vì sao:</b> SLA không chỉ cho chat — cuộc gọi nhỡ, email chưa trả lời, chiến dịch chưa duyệt đều là cam kết có thời hạn.</td></tr>
+        <tr><td class="td"><b>Phạm vi kênh</b></td><td class="td">Zalo · Facebook · WhatsApp · Email · Web… hoặc tất cả.</td><td class="td">Lọc theo kênh nguồn của việc. <b>Vì sao:</b> kỳ vọng khách khác nhau theo kênh — nhắn Zalo mong phản hồi trong phút, gửi email chấp nhận vài giờ.</td></tr>
+        <tr><td class="td"><b>Hạng khách</b></td><td class="td">Kim cương · Vàng · Tất cả.</td><td class="td">Lấy từ dữ liệu Loyalty trong CDP. <b>Vì sao:</b> khách giá trị cao xứng đáng cam kết nhanh hơn; đây là cách biến hạng thành viên thành trải nghiệm thật chứ không chỉ là huy hiệu.</td></tr>
+        <tr><td class="td"><b>FRT (AI)</b></td><td class="td">Hạn phản hồi đầu của AI Agent.</td><td class="td">Thường đặt <i>Tức thì</i>. <b>Vì sao:</b> nếu AI cũng để khách chờ thì mất toàn bộ lý do triển khai tự động hoá — ngưỡng này là bài kiểm tra sức khoẻ hệ thống.</td></tr>
+        <tr><td class="td"><b>FRT (Người)</b></td><td class="td">Hạn phản hồi đầu của nhân sự.</td><td class="td">Đếm từ khi việc vào hàng đợi người, chỉ chạy trong giờ làm việc. <b>Vì sao:</b> đây là chỉ số khách cảm nhận mạnh nhất; chậm phản hồi đầu là nguyên nhân rời bỏ hàng đầu.</td></tr>
+        <tr><td class="td"><b>TTR (AI)</b></td><td class="td">Hạn AI đóng được việc hoàn toàn.</td><td class="td">Vượt ngưỡng thì bàn giao người. <b>Vì sao:</b> AI loay hoay lâu tệ hơn AI thừa nhận không làm được — ngưỡng này ép ra quyết định bàn giao sớm.</td></tr>
+        <tr><td class="td"><b>TTR (Người)</b></td><td class="td">Hạn nhân sự đóng việc hoàn toàn.</td><td class="td">Trừ khoảng chờ khách và ngoài giờ. <b>Vì sao:</b> đo tổng thời gian thô sẽ phạt đội vì việc họ không kiểm soát được, tạo động cơ đóng ẩu.</td></tr>
+        <tr><td class="td"><b>Bật / tắt chính sách</b></td><td class="td">Ngưng áp dụng mà không xoá cấu hình.</td><td class="td">Chính sách tắt không áp cho việc mới; việc đang chạy giữ nguyên. <b>Vì sao:</b> mùa cao điểm cần nới ngưỡng tạm thời — xoá rồi tạo lại làm mất lịch sử.</td></tr>
+        <tr><td class="td"><b>Thứ tự ưu tiên khớp</b></td><td class="td">Chọn chính sách khi nhiều cái cùng khớp.</td><td class="td">Cụ thể nhất thắng: hạng khách &gt; kênh riêng &gt; mặc định. <b>Vì sao:</b> không có quy tắc rõ thì cùng một việc mỗi lần rơi vào một cam kết khác nhau, số liệu vô nghĩa.</td></tr>
+        <tr><td class="td"><b>Chính sách mặc định</b></td><td class="td">Áp khi không có cái nào khớp.</td><td class="td">Luôn tồn tại, không xoá được. <b>Vì sao:</b> việc không có đồng hồ là việc sẽ bị quên — thà cam kết lỏng còn hơn không cam kết.</td></tr>
+        <tr><td class="td"><b>Giờ làm việc theo ngày</b></td><td class="td">Bật/tắt từng ngày, đặt giờ mở – đóng.</td><td class="td">Chỉ chi phối đồng hồ người. <b>Vì sao:</b> tính SLA lúc 2 giờ sáng cho đội chỉ làm hành chính là phạt vô lý và làm hỏng chỉ số.</td></tr>
+        <tr><td class="td"><b>AI 24/7 cố định</b></td><td class="td">AI không có khái niệm ngoài giờ.</td><td class="td">Không cấu hình được. <b>Vì sao:</b> giá trị lớn nhất của AI Agent chính là phủ khoảng thời gian người không trực — cho phép tắt sẽ phá vỡ lời hứa nền tảng.</td></tr>
+        <tr><td class="td"><b>Tạm dừng khi chờ khách</b></td><td class="td">Đóng băng đồng hồ ở trạng thái Đang chờ.</td><td class="td">Chạy lại khi khách phản hồi. <b>Vì sao:</b> SLA phải đo đúng phần trách nhiệm của đội, nếu không sẽ khuyến khích đóng ticket sớm để làm đẹp số.</td></tr>
+        <tr><td class="td"><b>Ngưỡng cảnh báo sớm</b></td><td class="td">Mốc chuyển sang <i>Sắp đến hạn</i>.</td><td class="td">Đổi màu vàng, nhắc người phụ trách, đẩy lên đầu danh sách. <b>Vì sao:</b> cảnh báo lúc đã vi phạm là quá muộn — giá trị nằm ở việc cứu kịp.</td></tr>
+        <tr><td class="td"><b>Chuỗi leo thang</b></td><td class="td">Bốn cấp từ nhắc cá nhân đến báo quản lý.</td><td class="td">Bật/tắt từng cấp, mỗi cấp gắn một mốc thời gian. <b>Vì sao:</b> leo thang thẳng lên sếp làm nhân viên mất tự chủ; leo thang từ từ cho họ cơ hội tự xử lý trước.</td></tr>
+        <tr><td class="td"><b>% đạt SLA</b></td><td class="td">Tỉ lệ việc hoàn tất trong hạn.</td><td class="td">Kèm biến động so với kỳ trước. <b>Vì sao:</b> là chỉ số sức khoẻ tổng của dịch vụ; xu hướng quan trọng hơn con số tuyệt đối.</td></tr>
+        <tr><td class="td"><b>Đang gần hạn</b></td><td class="td">Số việc sắp vi phạm ngay lúc này.</td><td class="td">Cập nhật thời gian thực, click để xem danh sách. <b>Vì sao:</b> đây là con số hành động được — còn cứu được, khác với con số vi phạm đã là quá khứ.</td></tr>
+        <tr><td class="td"><b>Đã vi phạm hôm nay</b></td><td class="td">Số cam kết đã bị phá vỡ trong ngày.</td><td class="td">So với hôm qua để thấy chiều hướng. <b>Vì sao:</b> con số này phải gây khó chịu — mỗi đơn vị là một khách đã chờ lâu hơn mức hứa.</td></tr>
+        <tr><td class="td"><b>Tỉ lệ AI giữ SLA</b></td><td class="td">Phần cam kết do AI đảm bảo.</td><td class="td">Tách khỏi phần người. <b>Vì sao:</b> quyết định có nên mở rộng phạm vi AI hay không phải dựa trên bằng chứng AI giữ được cam kết, không phải cảm tính.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 7 · MODULE ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">7 · TƯƠNG TÁC VỚI CÁC MODULE KHÁC</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">SLA là <b>lớp quy tắc dùng chung</b>. Nó không chứa việc nào, chỉ cấp đồng hồ và ngưỡng báo động cho các module khác.</div>
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:200px">Module</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:130px">Quan hệ</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Dữ liệu &amp; tác động</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Hộp thư</b></td><td class="td">Áp dụng</td><td class="td">Hội thoại chịu SLA loại <i>Chat</i>; đồng hồ hiện trên từng hội thoại và bộ lọc “sắp trễ”.</td></tr>
+        <tr><td class="td"><b>Hỗ trợ (Ticket)</b></td><td class="td">Áp dụng</td><td class="td">Cột SLA còn lại, ba mức màu, tab SLA trong chi tiết ticket với lịch sử leo thang.</td></tr>
+        <tr><td class="td"><b>Gọi điện</b></td><td class="td">Áp dụng</td><td class="td">Cam kết gọi lại sau cuộc gọi nhỡ; thời gian chờ tối đa trong hàng đợi tổng đài.</td></tr>
+        <tr><td class="td"><b>Lịch hẹn</b></td><td class="td">Áp dụng</td><td class="td">Thời hạn xác nhận yêu cầu đặt lịch; nhắc khi lịch sát giờ chưa ai xác nhận.</td></tr>
+        <tr><td class="td"><b>Marketing</b></td><td class="td">Áp dụng</td><td class="td">Thời hạn phản hồi khách trả lời chiến dịch; hạn duyệt nội dung trước giờ gửi.</td></tr>
+        <tr><td class="td"><b>Quy trình</b></td><td class="td">Hai chiều</td><td class="td">Quy trình đọc sự kiện SLA làm trigger; ngược lại chính bước leo thang được thực thi bằng quy trình.</td></tr>
+        <tr><td class="td"><b>AI Agents</b></td><td class="td">Đối tượng đo</td><td class="td">Agent chịu ngưỡng FRT/TTR riêng; vượt hạn thì bàn giao người. AI được đo ngang hàng nhân sự.</td></tr>
+        <tr><td class="td"><b>Phân ca trực</b></td><td class="td">Nguồn giờ</td><td class="td">Giờ làm việc và người đang trong ca lấy chung một nguồn — tránh lệch giữa cấu hình và thực tế.</td></tr>
+        <tr><td class="td"><b>Sơ đồ tổ chức</b></td><td class="td">Đích leo thang</td><td class="td">Xác định ai là trưởng nhóm, ai là quản lý cấp trên cho từng cấp escalation.</td></tr>
+        <tr><td class="td"><b>Khách hàng &amp; Loyalty</b></td><td class="td">Nguồn phân hạng</td><td class="td">Hạng thành viên quyết định chính sách nào áp — khách Kim cương nhận cam kết nhanh hơn.</td></tr>
+        <tr><td class="td"><b>Tổng quan</b></td><td class="td">Hiển thị</td><td class="td">Việc sắp trễ và đã vi phạm nổi lên khối cần xử lý gấp; ba thẻ chỉ số SLA lên dashboard.</td></tr>
+        <tr><td class="td"><b>KPI &amp; Mục tiêu</b></td><td class="td">Đo lường</td><td class="td">“% đạt SLA” là một trong sáu KPI mặc định, gán được cho cá nhân, nhóm và AI Agent.</td></tr>
+        <tr><td class="td"><b>Báo cáo</b></td><td class="td">Phân tích</td><td class="td">Xu hướng đạt SLA theo kênh, nhóm, khung giờ; phân tích nguyên nhân vi phạm.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 8 · QUY TẮC ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">8 · QUY TẮC THIẾT KẾ</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Không việc nào chạy mà thiếu đồng hồ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Luôn có chính sách mặc định để bắt các trường hợp không khớp. Việc không có hạn là việc sẽ bị quên — thà cam kết lỏng còn hơn không cam kết.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">AI và người đo riêng</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Bốn ngưỡng thay vì hai, để tốc độ của AI không che mất chỗ đội người đang chậm. Chỉ số trung thực quan trọng hơn chỉ số đẹp.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Chỉ đo phần mình kiểm soát</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Tạm dừng khi chờ khách và ngoài giờ làm việc. Đo sai sẽ tạo động cơ lệch: đóng ticket sớm, ép khách trả lời nhanh, hoặc ngại nhận việc khó.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">Cảnh báo trước, không chỉ báo cáo sau</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Giá trị của SLA nằm ở lúc còn cứu được. Báo cáo vi phạm cuối tháng chỉ để rút kinh nghiệm; cảnh báo sắp trễ mới giữ được khách.</div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+</body>
+</html>

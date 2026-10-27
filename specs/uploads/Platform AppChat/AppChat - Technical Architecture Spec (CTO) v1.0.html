@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · Đặc tả Kiến trúc Kỹ thuật (Technical Architecture / CTO) — v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FleF;--ink:#0E1726;--ink2:#3B4658;--ink3:#6B7686;--ink4:#9AA4B2;
+  --line:#E6EAF0;--line2:#EEF1F6;--soft:#F6F8FB;--soft2:#FBFCFE;
+  --pr:#2DC56A;--prd:#157A40;--prd2:#0F5D30;--prs:#E8F8EE;
+  --bl:#2B6FDB;--bls:#EAF1FB;--vi:#6E48E6;--vis:#F1ECFD;--am:#C9820B;--ams:#FBF3E2;--rd:#DC2626;--rds:#FDECEA;--teal:#0E9B94;
+  --mono:'JetBrains Mono',ui-monospace,monospace;--sans:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#EDF0F4;color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.doc{max-width:1080px;margin:32px auto;background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 30px rgba(17,24,39,.06)}
+section{padding:40px 56px;border-bottom:1px solid var(--line2)}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--pr);margin-bottom:10px}
+h1{font-size:38px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin:0 0 14px}
+h1 span{color:var(--pr)}
+h2{font-size:25px;font-weight:800;letter-spacing:-.01em;margin:0 0 8px}
+h3{font-size:18px;font-weight:800;margin:26px 0 10px}
+h4{font-size:13.5px;font-weight:800;margin:20px 0 9px;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
+p{margin:0 0 12px;color:var(--ink2)}
+.lede{font-size:16px;color:var(--ink2);margin-bottom:6px}
+b{color:var(--ink)}
+code{font-family:var(--mono);font-size:.86em;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--prd2)}
+ul,ol{margin:0 0 14px;padding-left:22px;color:var(--ink2)}
+li{margin:5px 0}
+.clean{list-style:none;padding:0}
+.clean li{padding-left:22px;position:relative}
+.clean li:before{content:"▸";position:absolute;left:0;color:var(--pr);font-weight:800}
+a{color:var(--prd);text-decoration:none}
+
+/* cover */
+.cover{background:linear-gradient(160deg,#0E2A1C 0%,#0F5D30 55%,#157A40 100%);color:white;padding:56px 56px 48px}
+.cover .kicker{color:#9BE8BD}
+.cover h1{color:white}.cover h1 span{color:#7DE8A8}
+.cover .sub{color:#CDEBD8;font-size:15.5px;max-width:760px;margin-top:10px}
+.brandrow{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+.bmark{width:38px;height:38px;border-radius:11px;background:#2DC56A;display:grid;place-items:center;color:#0F5D30;font-weight:800;font-size:20px}
+.btxt{font-size:19px;font-weight:800}.btxt span{color:#7DE8A8}
+.dockind{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:6px 14px;font-size:12px;font-weight:700;margin-bottom:24px}
+.vmeta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.vmeta>div{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:11px;padding:12px 16px;min-width:130px}
+.vmeta b{display:block;color:white;font-size:17px}
+.vmeta span{font-size:11.5px;color:#A9D8BC}
+
+/* toc */
+.toc ol{list-style:none;padding:0;columns:2;column-gap:36px}
+.toc li{break-inside:avoid;margin:0 0 3px}
+.toc a{display:flex;gap:11px;align-items:baseline;padding:8px 10px;border-radius:8px;color:var(--ink2)}
+.toc a:hover{background:var(--soft)}
+.toc .n{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--pr);min-width:22px}
+
+.callout{display:flex;gap:13px;border-radius:11px;padding:15px 17px;margin:16px 0;font-size:14px;line-height:1.55}
+.callout .ic{font-size:15px;flex-shrink:0;margin-top:1px}
+.callout.pr{background:var(--prs);border:1px solid #BFE9CF}.callout.pr .ic{color:var(--prd)}
+.callout.bl{background:var(--bls);border:1px solid #CCDFF7}.callout.bl .ic{color:var(--bl)}
+.callout.am{background:var(--ams);border:1px solid #F0DDB0}.callout.am .ic{color:var(--am)}
+.callout.rd{background:var(--rds);border:1px solid #F6C9C9}.callout.rd .ic{color:var(--rd)}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th{background:var(--soft);text-align:left;padding:10px 13px;font-weight:800;color:var(--ink2);border-bottom:2px solid var(--line);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+td{padding:10px 13px;border-bottom:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+td b{color:var(--ink)}
+tr:last-child td{border-bottom:none}
+
+.tag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:20px;letter-spacing:.02em;white-space:nowrap}
+.tag.must{background:var(--rds);color:#B91C1C}.tag.should{background:var(--ams);color:#92600B}.tag.could{background:var(--soft);color:var(--ink3);border:1px solid var(--line)}
+.tag.p0{background:var(--rds);color:#B91C1C}.tag.p1{background:var(--ams);color:#92600B}.tag.p2{background:var(--bls);color:#1A5FC4}
+
+.cardgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:16px 0}
+.cardgrid.c3{grid-template-columns:repeat(3,1fr)}
+.uc{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--soft2)}
+.uc .t{font-weight:800;font-size:14px;margin-bottom:4px}
+.uc .d{font-size:12.5px;color:var(--ink3)}
+.uc .tg{margin-top:9px}
+
+.codeblk{background:#0E1726;color:#CBD5E1;border-radius:11px;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;margin:14px 0;white-space:pre}
+.codeblk .c{color:#64748B}
+.codeblk .k{color:#7DD3FC}
+.codeblk .s{color:#86EFAC}
+.codeblk .y{color:#FCD34D}
+
+.layer{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+.layer .lh{padding:10px 15px;font-weight:800;font-size:13px;color:white;display:flex;align-items:center;gap:8px}
+.layer .lb{padding:13px 15px;background:var(--soft2)}
+.layer .lb .row{display:flex;flex-wrap:wrap;gap:7px}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px;background:white;border:1px solid var(--line);color:var(--ink2)}
+
+.foot{padding:26px 56px;color:var(--ink4);font-size:12.5px;background:var(--soft)}
+.seclabel{font-family:var(--mono);font-size:12px;color:var(--ink4);font-weight:600}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media print{body{background:white}.doc{box-shadow:none;border:none;margin:0;border-radius:0}section{page-break-inside:avoid}}
+@media(max-width:860px){.split,.cardgrid,.cardgrid.c3{grid-template-columns:1fr}.toc ol{columns:1}section{padding:30px 26px}.cover{padding:36px 26px}}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="brandrow"><div class="bmark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfAAAAHwCAYAAABZrD3mAABP4ElEQVR4nO3de3xU5b0v/s9aSSaTmcxMJglDCCGJAQyEi8FNBeyuSHs8nKO1Wutp2VL1lLIVtBt+e2vjryqn2ype6m23Xlp77AUVL1VbysUbVRQVBVSQ+/0OxoAkgRLCJVnnj8yaWTOZJHNZa551+bxfL1symcszk2Q+833Wdz0PQERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERKmQRA+AqC+NbU0FAHCyo71tz4kDoodjCt5cDyo95R7R4zCLMk/opOgxEGUbA5yEa2xrKlDDeeuxXWg9fQzrWrag5XSr6KERWdJFoXGG3O/wwFD48ryo9lagIMft4QcnsRjglHWrjqxVdhzbjY2t27C2eZPo4RBRBopcAYwuGoYLSusRyi/BiGAtcyVL+EKT4VYdWassa1yB5U0rRQ+FiLLkotA4DA8MxaiiWpzjq2TWGIAvKulu9/F9ykeHP8WSQ8s4DU5EAIBqbwW+3m8szgvWsUrXCV9E0oUa2vP3LBA9FCKygPpgHcaVns8KPQN80SgjC/cvVV7au4iVNhGlrcgVwGXlk1idp4gvFKVsY/NWZfHBt3lMm4gMcXnFJfhGv68xzPvAF4eSturIWmXezpfBc7GJKFsur7gEkwdcxGn2BPiCUJ+WNa5Qnt7xIqfJiUiYIlcAP6i6HN8ZdAlzK4wvBPWIwU1EZlQfrMM11Vc6ford0U+eEtt9fJ/y0KanOFVORKZW7a3A1VWXYVLZhY7MMkc+aerZAxueVNicRkRWM7X6SlxT811HZZqjniz1bFnjCuWhTU+JHgYRUUacFOSOeJLUs8a2poK71/+Ku3wRka1Mrb4S3yz7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" style="width:100%;height:100%;object-fit:contain" alt="AppChat"></div><div class="btxt">App<span>Chat</span></div></div>
+    <div class="dockind"><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A"></span> Technical Architecture Spec · CTO · v1.0</div>
+    <h1>Đặc tả <span>Kiến trúc Kỹ thuật</span></h1>
+    <div class="sub">Tài liệu kỹ thuật cấp CTO/Kiến trúc sư — quyết định công nghệ, kiến trúc dịch vụ, mô hình dữ liệu, thiết kế API, tích hợp omnichannel, kiến trúc AI Agent, đa tenant, bảo mật và hạ tầng triển khai. Là nền tảng để đội Dev hiện thực hoá nền tảng "Nền tảng AI Agents vận hành Doanh nghiệp Một Người".</div>
+    <div class="vmeta">
+      <div><b>v1.0</b><span>Architecture baseline</span></div>
+      <div><b>13 dịch vụ</b><span>Modular monolith → services</span></div>
+      <div><b>19 kênh</b><span>Channel Gateway</span></div>
+      <div><b>Multi-tenant</b><span>Workspace isolation</span></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <section class="toc">
+    <div class="kicker">Mục lục</div>
+    <h2>Nội dung tài liệu</h2>
+    <ol>
+      <li><a href="#a1"><span class="n">01</span> Mục tiêu kiến trúc &amp; nguyên tắc</a></li>
+      <li><a href="#a2"><span class="n">02</span> Sơ đồ bối cảnh hệ thống (C4-L1)</a></li>
+      <li><a href="#a3"><span class="n">03</span> Kiến trúc container (C4-L2)</a></li>
+      <li><a href="#a4"><span class="n">04</span> Tech stack &amp; quyết định công nghệ</a></li>
+      <li><a href="#a5"><span class="n">05</span> Phân rã dịch vụ (13 services)</a></li>
+      <li><a href="#a6"><span class="n">06</span> Mô hình dữ liệu &amp; ERD</a></li>
+      <li><a href="#a7"><span class="n">07</span> Mô hình đa tenant (Workspace)</a></li>
+      <li><a href="#a8"><span class="n">08</span> Channel Gateway — 19 kênh</a></li>
+      <li><a href="#a9"><span class="n">09</span> Realtime &amp; Event-driven</a></li>
+      <li><a href="#a10"><span class="n">10</span> Kiến trúc AI Agent (RAG + Token)</a></li>
+      <li><a href="#a11"><span class="n">11</span> Thiết kế API (REST · Webhook · WS)</a></li>
+      <li><a href="#a12"><span class="n">12</span> Bảo mật, phân quyền &amp; tuân thủ</a></li>
+      <li><a href="#a13"><span class="n">13</span> Hạ tầng, mở rộng &amp; triển khai</a></li>
+      <li><a href="#a14"><span class="n">14</span> NFR · SLO · Observability</a></li>
+      <li><a href="#a15"><span class="n">15</span> Lộ trình kỹ thuật &amp; rủi ro</a></li>
+    </ol>
+    <div class="callout bl"><span class="ic">↗</span><div><b>Quan hệ tài liệu:</b> Tài liệu này (Architecture) đứng <b>trên</b> SRS v3.4 (nghiệp vụ/FR-NFR). Đọc theo thứ tự: <b>Architecture (CTO) → SRS (BA) → API Contract (OpenAPI) → ERD chi tiết</b>. Mỗi dịch vụ ở đây ánh xạ tới module nghiệp vụ trong SRS.</div></div>
+  </section>
+
+  <!-- 01 -->
+  <section id="a1">
+    <div class="seclabel">01 — Goals &amp; Principles</div>
+    <h2>Mục tiêu kiến trúc &amp; nguyên tắc thiết kế</h2>
+    <p class="lede">AppChat là nền tảng <b>SaaS B2B đa tenant</b>, hợp nhất 19 kênh nhắn tin về một hộp thư, vận hành bởi <b>con người + AI Agent</b>, phục vụ doanh nghiệp dịch vụ (Spa, Nha khoa, Phòng khám, Giáo dục, Du lịch, Ô tô, BĐS, Tài chính…).</p>
+    <h4>Yêu cầu phi chức năng định hình kiến trúc (Architecturally-significant)</h4>
+    <table>
+      <thead><tr><th style="width:22%">Thuộc tính</th><th>Mục tiêu &amp; hệ quả kiến trúc</th></tr></thead>
+      <tbody>
+        <tr><td><b>Realtime</b></td><td>Tin nhắn ra/vào hiển thị &lt; 1s. → cần message broker + WebSocket/SSE, không poll.</td></tr>
+        <tr><td><b>Multi-tenant</b></td><td>1 user/đội nhóm có nhiều workspace; cô lập dữ liệu tuyệt đối. → tenant_id ở mọi bảng + Row-Level Security.</td></tr>
+        <tr><td><b>Đàn hồi theo tải</b></td><td>Cao điểm (Flash Sale, giờ vàng) gấp 5–10×. → ingestion bất đồng bộ qua queue, stateless workers, auto-scale.</td></tr>
+        <tr><td><b>Khả dụng kênh</b></td><td>19 kênh với rate-limit/webhook khác nhau. → Channel Gateway chuẩn hoá, retry/back-off, outbox pattern.</td></tr>
+        <tr><td><b>Đo lường AI</b></td><td>Tính phí theo token; ngưỡng chi tiêu. → Token Metering service ghi nhận mọi lượt gọi LLM, hạn mức theo workspace.</td></tr>
+        <tr><td><b>Tuân thủ</b></td><td>ISO/IEC 42001 (AI governance), nhật ký audit 1 năm, quyền xoá dữ liệu. → audit log bất biến, data retention policy.</td></tr>
+      </tbody>
+    </table>
+    <h4>7 nguyên tắc kiến trúc</h4>
+    <ol>
+      <li><b>API-first &amp; contract-driven</b> — mọi tính năng phơi qua API có hợp đồng OpenAPI; UI là một consumer.</li>
+      <li><b>Event-driven cho luồng tin nhắn</b> — ingestion/outbound đi qua broker; xử lý đồng bộ chỉ cho truy vấn.</li>
+      <li><b>Tenant isolation by default</b> — không truy vấn nào thiếu <code>tenant_id</code>; RLS ở tầng DB.</li>
+      <li><b>Modular monolith trước, tách service khi cần</b> — khởi đầu 1 codebase module hoá rõ ranh giới; tách dịch vụ theo điểm nóng (Channel Gateway, AI Worker).</li>
+      <li><b>Stateless services</b> — trạng thái ở DB/cache/broker; service scale ngang tự do.</li>
+      <li><b>Idempotency &amp; outbox</b> — gửi tin/đồng bộ kênh đảm bảo "đúng-một-lần hiệu dụng".</li>
+      <li><b>Single source of truth cho số liệu</b> — Reports đọc từ data mart, không tính trùng (khớp nguyên tắc "1 con số 1 nguồn").</li>
+    </ol>
+  </section>
+
+  <!-- 02 -->
+  <section id="a2">
+    <div class="seclabel">02 — System Context (C4 Level 1)</div>
+    <h2>Sơ đồ bối cảnh hệ thống</h2>
+    <p>Ai dùng hệ thống và AppChat nói chuyện với hệ thống ngoài nào.</p>
+    <div class="codeblk"><span class="c">// C4 Context — actors & external systems</span>
+   ┌─────────────┐        ┌─────────────┐        ┌──────────────┐
+   │  Khách hàng  │        │  Nhân viên   │        │   Admin/CTO   │
+   │ (end-user)  │        │ (agent/sale)│        │ (workspace)  │
+   └─────┬───────┘        └──────┬──────┘        └──────┬───────┘
+         │ nhắn tin 19 kênh       │ web app             │ quản trị
+         ▼                        ▼                     ▼
+   ╔════════════════════════════════════════════════════════════╗
+   ║                  A P P C H A T   P L A T F O R M             ║
+   ║   Omnichannel Inbox · CRM360 · AI Agent · Workflow · BI     ║
+   ╚══╦═══════════╦══════════╦═══════════╦═══════════╦═══════════╝
+      │           │          │           │           │
+      ▼           ▼          ▼           ▼           ▼
+  <span class="k">Zalo/FB/</span>   <span class="k">LLM</span>        <span class="k">Payment</span>     <span class="k">CRM/ERP</span>     <span class="k">Email/SMS</span>
+  <span class="k">IG/TikTok</span>  <span class="k">(Claude)</span>   <span class="k">VNPAY/MoMo</span>  <span class="k">Salesforce</span>  <span class="k">ZNS/SMTP</span>
+  <span class="k">WA/Viber…</span>             <span class="k">ZaloPay</span>     <span class="k">Shopify…</span>
+</div>
+    <table>
+      <thead><tr><th>Nhóm ngoài</th><th>Hệ thống</th><th>Giao thức</th></tr></thead>
+      <tbody>
+        <tr><td><b>Kênh nhắn tin</b></td><td>Zalo OA/Cá nhân, Facebook, Instagram, TikTok, WhatsApp, Viber, Telegram, LINE, WeChat, Email, Web Livechat…</td><td>Webhook in + REST out, OAuth</td></tr>
+        <tr><td><b>AI/LLM</b></td><td>Claude (Anthropic) — Haiku/Sonnet/Opus</td><td>HTTPS, streaming</td></tr>
+        <tr><td><b>Thanh toán</b></td><td>VNPAY, MoMo, ZaloPay, Stripe</td><td>REST + IPN webhook</td></tr>
+        <tr><td><b>CRM/ERP/TMĐT</b></td><td>Salesforce, HubSpot, Shopify, MISA, GHTK/GHN…</td><td>REST/Webhook (Integration Hub)</td></tr>
+        <tr><td><b>Hạ tầng gửi</b></td><td>Email (SMTP/IMAP), Zalo ZNS, SMS gateway</td><td>SMTP/REST</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 03 -->
+  <section id="a3">
+    <div class="seclabel">03 — Container View (C4 Level 2)</div>
+    <h2>Kiến trúc container</h2>
+    <p>Các khối triển khai độc lập và cách dữ liệu chảy qua chúng.</p>
+    <div class="layer"><div class="lh" style="background:#2B6FDB">① Tầng Client / Edge</div><div class="lb"><div class="row">
+      <span class="chip">Web App (React SPA)</span><span class="chip">Livechat Widget (embed)</span><span class="chip">CDN / Static</span><span class="chip">WAF + API Gateway</span><span class="chip">Rate limiter</span>
+    </div></div></div>
+    <div class="layer"><div class="lh" style="background:#0E9B94">② Tầng API / BFF</div><div class="lb"><div class="row">
+      <span class="chip">REST API (BFF)</span><span class="chip">GraphQL (tuỳ chọn)</span><span class="chip">WebSocket/SSE Gateway</span><span class="chip">Webhook Receiver (inbound kênh)</span><span class="chip">Auth/OIDC</span>
+    </div></div></div>
+    <div class="layer"><div class="lh" style="background:#6E48E6">③ Tầng Domain Services (13)</div><div class="lb"><div class="row">
+      <span class="chip">Identity &amp; Workspace</span><span class="chip">Conversation/Inbox</span><span class="chip">Channel Gateway</span><span class="chip">Contact/CRM360</span><span class="chip">Deal/Quote/Contract/Order</span><span class="chip">Ticket/SLA</span><span class="chip">Calendar/Booking</span><span class="chip">Marketing/Broadcast</span><span class="chip">AI Agent &amp; RAG</span><span class="chip">Workflow Engine</span><span class="chip">Loyalty</span><span class="chip">Billing/Token Metering</span><span class="chip">Reporting/BI</span>
+    </div></div></div>
+    <div class="layer"><div class="lh" style="background:#C9820B">④ Tầng Async / Workers</div><div class="lb"><div class="row">
+      <span class="chip">Message Broker (Kafka/Redpanda)</span><span class="chip">Inbound ingestion worker</span><span class="chip">Outbound sender worker</span><span class="chip">AI inference worker</span><span class="chip">Workflow runner</span><span class="chip">Scheduler (cron/jobs)</span><span class="chip">Webhook dispatcher (outbox)</span>
+    </div></div></div>
+    <div class="layer"><div class="lh" style="background:#157A40">⑤ Tầng Dữ liệu</div><div class="lb"><div class="row">
+      <span class="chip">PostgreSQL (OLTP + RLS)</span><span class="chip">Redis (cache/queue/presence)</span><span class="chip">Object Storage (S3) — media/file</span><span class="chip">Vector DB (pgvector/Qdrant) — RAG</span><span class="chip">OLAP / Data Mart (ClickHouse) — BI</span><span class="chip">Search (OpenSearch) — hội thoại/KB</span>
+    </div></div></div>
+    <div class="callout pr"><span class="ic">◆</span><div><b>Luồng tin nhắn vào (đại diện):</b> Kênh → <code>Webhook Receiver</code> → publish <code>message.received</code> → <code>Inbound worker</code> chuẩn hoá + lưu Postgres + index Search → emit qua WS tới agent → AI Agent (nếu auto) gọi LLM → outbox → <code>Outbound worker</code> gửi trả kênh (idempotent).</div></div>
+  </section>
+
+  <!-- 04 -->
+  <section id="a4">
+    <div class="seclabel">04 — Technology Decisions</div>
+    <h2>Tech stack &amp; quyết định công nghệ (ADR tóm tắt)</h2>
+    <table>
+      <thead><tr><th style="width:20%">Lớp</th><th style="width:30%">Lựa chọn</th><th>Lý do (ADR)</th></tr></thead>
+      <tbody>
+        <tr><td><b>Frontend</b></td><td>React 18 + TypeScript, Vite, TanStack Query, Tailwind/Design System</td><td>SPA realtime; DS đồng bộ tài liệu; query cache giảm tải API.</td></tr>
+        <tr><td><b>Backend</b></td><td>Node.js (NestJS, TS) <i>hoặc</i> Go cho Channel Gateway/Workers</td><td>TS đồng nhất FE/BE, hệ sinh thái webhook tốt; Go cho throughput cao ở gateway.</td></tr>
+        <tr><td><b>DB chính</b></td><td>PostgreSQL 16 + Row-Level Security + pgvector</td><td>OLTP mạnh, RLS cho đa tenant, vector ngay trong DB giai đoạn đầu.</td></tr>
+        <tr><td><b>Cache/Queue nhẹ</b></td><td>Redis (cache, rate-limit, presence, BullMQ jobs)</td><td>Latency thấp; pub/sub cho presence/typing.</td></tr>
+        <tr><td><b>Broker</b></td><td>Kafka/Redpanda (event log) </td><td>Đảm bảo thứ tự, replay, fan-out cho ingestion &amp; analytics.</td></tr>
+        <tr><td><b>Realtime</b></td><td>WebSocket (socket gateway) + SSE fallback</td><td>Đẩy tin nhắn/typing/seen tức thời.</td></tr>
+        <tr><td><b>Object storage</b></td><td>S3-compatible (MinIO/AWS S3)</td><td>Media, file KB, ghi âm call, hoá đơn/QR.</td></tr>
+        <tr><td><b>OLAP/BI</b></td><td>ClickHouse (data mart) + ETL từ Kafka</td><td>Reports 10 trang truy vấn nhanh, tách khỏi OLTP.</td></tr>
+        <tr><td><b>Search</b></td><td>OpenSearch/Elasticsearch</td><td>Tìm hội thoại, Knowledge Base, full-text tiếng Việt.</td></tr>
+        <tr><td><b>LLM</b></td><td>Claude (Haiku/Sonnet/Opus) qua API, streaming</td><td>Theo cấu hình AI Agent; định tuyến model theo tác vụ/chi phí.</td></tr>
+        <tr><td><b>Infra</b></td><td>Kubernetes + Helm; IaC (Terraform); CI/CD (GitHub Actions)</td><td>Auto-scale workers, blue/green, môi trường tách biệt.</td></tr>
+        <tr><td><b>Observability</b></td><td>OpenTelemetry + Prometheus + Grafana + Loki/Tempo</td><td>Trace xuyên dịch vụ, metric SLO, log tập trung.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout am"><span class="ic">▲</span><div><b>Quyết định khởi đầu:</b> triển khai <b>Modular Monolith</b> (1 deployable, ranh giới module rõ) + tách sẵn 2 dịch vụ chịu tải/độc lập vòng đời: <b>Channel Gateway</b> và <b>AI Inference Worker</b>. Tách thêm khi có tín hiệu (scale, team ownership, SLA riêng).</div></div>
+  </section>
+
+  <!-- 05 -->
+  <section id="a5">
+    <div class="seclabel">05 — Service Decomposition</div>
+    <h2>Phân rã dịch vụ (13 domain services)</h2>
+    <p>Mỗi dịch vụ = một bounded context, sở hữu schema riêng (cùng cluster Postgres, tách schema), ánh xạ module nghiệp vụ trong SRS.</p>
+    <div class="cardgrid">
+      <div class="uc"><div class="t">1 · Identity &amp; Workspace</div><div class="d">User, workspace (đa tenant), membership, RBAC, billing seat, phiên đăng nhập (Phone-OTP/Zalo/Social), chuyển workspace.</div></div>
+      <div class="uc"><div class="t">2 · Channel Gateway</div><div class="d">Adapter 19 kênh: nhận webhook, chuẩn hoá payload, gửi outbound, quản OAuth/token, rate-limit per channel, retry/outbox.</div></div>
+      <div class="uc"><div class="t">3 · Conversation / Inbox</div><div class="d">Hội thoại hợp nhất, message, assignment, lifecycle stage, tag (dùng chung), folder views, presence/typing/seen.</div></div>
+      <div class="uc"><div class="t">4 · Contact / CRM360</div><div class="d">Khách hàng, hồ sơ 360°, nguồn/kênh/khu vực, merge &amp; dedupe, pipeline stage, custom fields.</div></div>
+      <div class="uc"><div class="t">5 · Sales Docs</div><div class="d">Báo giá → Hợp đồng → Đơn hàng, AppFlow nối luồng + cập nhật pipeline; sản phẩm/dịch vụ (catalog).</div></div>
+      <div class="uc"><div class="t">6 · Ticket / SLA</div><div class="d">Ticket, danh mục, gán/chuyển tiếp/escalation, đồng hồ SLA, kanban, comment, AI tự xử lý.</div></div>
+      <div class="uc"><div class="t">7 · Calendar / Booking</div><div class="d">Lịch hẹn (form kiểu Google), follow-up theo giai đoạn (cadence), nhắc tự động, conflict-check.</div></div>
+      <div class="uc"><div class="t">8 · Marketing / Broadcast</div><div class="d">Chiến dịch ZNS/Email/ZBS/SMS, phân khúc, phê duyệt (Chờ/Đã/Từ chối), funnel, template.</div></div>
+      <div class="uc"><div class="t">9 · AI Agent &amp; RAG</div><div class="d">Cấu hình agent (persona/model/hành động/routing), Knowledge Base, vector retrieval, handoff theo độ tin cậy.</div></div>
+      <div class="uc"><div class="t">10 · Workflow Engine</div><div class="d">Trigger → condition → action → wait → goal; bộ mẫu (gồm theo ngành); chạy bất đồng bộ, lịch sử thực thi.</div></div>
+      <div class="uc"><div class="t">11 · Loyalty</div><div class="d">Hạng thành viên, tích/đổi điểm, quy đổi điểm↔tiền, voucher, cấu hình chương trình, tích điểm tự động từ đơn.</div></div>
+      <div class="uc"><div class="t">12 · Billing &amp; Token Metering</div><div class="d">Gói SaaS, add-on, mua thêm token (A/B/C), ngân sách token, ngưỡng tạm ngừng, hoá đơn/QR, đối soát.</div></div>
+      <div class="uc"><div class="t">13 · Reporting / BI</div><div class="d">Data mart, 10 báo cáo (5 nhóm), xuất theo ngày/tổng, "1 con số 1 nguồn", drill-down.</div></div>
+    </div>
+    <div class="callout bl"><span class="ic">↔</span><div><b>Giao tiếp giữa dịch vụ:</b> đồng bộ qua REST nội bộ cho truy vấn; bất đồng bộ qua <b>domain events</b> trên broker cho side-effect (vd <code>order.completed</code> → Loyalty cộng điểm; <code>quote.won</code> → Sales Docs tạo hợp đồng; <code>message.received</code> → AI Agent). Không gọi DB của nhau trực tiếp.</div></div>
+  </section>
+
+  <!-- 06 -->
+  <section id="a6">
+    <div class="seclabel">06 — Data Model</div>
+    <h2>Mô hình dữ liệu &amp; ERD (cốt lõi)</h2>
+    <p>Mọi bảng nghiệp vụ mang <code>tenant_id (workspace_id)</code>; khoá ngoại trong cùng tenant; RLS ép lọc.</p>
+    <div class="codeblk"><span class="c">-- Core entities (rút gọn)</span>
+<span class="k">workspace</span>(id, name, plan, status, owner_user_id, created_at)
+<span class="k">user</span>(id, name, email, phone, status)
+<span class="k">membership</span>(user_id, workspace_id, role, seat_type)          <span class="c">-- N–N: 1 user ↔ nhiều workspace</span>
+<span class="k">channel_account</span>(id, workspace_id, channel, oauth_ref, status)
+<span class="k">contact</span>(id, workspace_id, name, phone, zalo, email, source,
+        city, ward, lifecycle_stage, owner_id, tier, points)   <span class="c">-- CRM360 + Loyalty</span>
+<span class="k">conversation</span>(id, workspace_id, contact_id, channel_account_id,
+        status, assignee_id, ai_mode, last_msg_at)
+<span class="k">message</span>(id, conversation_id, direction, sender, type, body,
+        attachments, channel_msg_id <span class="y">UNIQUE</span>, created_at)        <span class="c">-- idempotency</span>
+<span class="k">tag</span>(id, workspace_id, name, color)  · <span class="k">contact_tag</span> · <span class="k">conversation_tag</span>
+<span class="k">deal</span> / <span class="k">quote</span> / <span class="k">contract</span> / <span class="k">order</span>(…, contact_id, total, status)
+<span class="k">ticket</span>(id, workspace_id, contact_id, category, priority,
+        status, assignee_id, sla_due_at)
+<span class="k">appointment</span>(id, workspace_id, contact_id, start, end, status, remind)
+<span class="k">followup</span>(id, workspace_id, contact_id, stage, due, step, owner)
+<span class="k">campaign</span>(id, workspace_id, channel, segment, status, approval)
+<span class="k">ai_agent</span>(id, workspace_id, persona, model, actions, routing)
+<span class="k">kb_document</span>(id, workspace_id, title, body, embedding <span class="y">vector</span>)  <span class="c">-- RAG</span>
+<span class="k">workflow</span>(id, workspace_id, name, nodes jsonb, status)
+<span class="k">workflow_run</span>(id, workflow_id, trigger, status, log jsonb)
+<span class="k">token_usage</span>(id, workspace_id, agent_id, model, tokens, cost, at)  <span class="c">-- metering</span>
+<span class="k">invoice</span>(id, workspace_id, plan, amount, method, status, file_ref)
+<span class="k">audit_log</span>(id, workspace_id, actor_id, action, target, at)       <span class="c">-- bất biến, 1 năm</span>
+</div>
+    <div class="split">
+      <div>
+        <h4>Quy ước</h4>
+        <ul class="clean">
+          <li><code>tenant_id</code> = <code>workspace_id</code> ở mọi bảng nghiệp vụ.</li>
+          <li><code>channel_msg_id UNIQUE</code> → chống trùng khi webhook gửi lại.</li>
+          <li><code>jsonb</code> cho cấu trúc linh hoạt (workflow nodes, agent actions, custom fields).</li>
+          <li><code>vector</code> (pgvector) cho RAG; index HNSW.</li>
+          <li>Soft-delete + retention; xoá cứng sau 30 ngày.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Phân vùng &amp; hiệu năng</h4>
+        <ul class="clean">
+          <li><code>message</code> partition theo tháng + theo workspace lớn.</li>
+          <li>Hot path đọc inbox: index <code>(workspace_id, status, last_msg_at)</code>.</li>
+          <li>OLTP không chạy báo cáo nặng — ETL sang ClickHouse.</li>
+          <li>Outbox table cho gửi kênh &amp; webhook ra (đảm bảo giao hàng).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section id="a7">
+    <div class="seclabel">07 — Multi-tenancy</div>
+    <h2>Mô hình đa tenant (Workspace)</h2>
+    <p>1 khách hàng có thể có nhiều workspace; 1 user/đội nhóm thuộc nhiều workspace; <b>mua thêm workspace = mua thêm 1 tài khoản</b>.</p>
+    <table>
+      <thead><tr><th style="width:24%">Chiến lược</th><th>Áp dụng cho AppChat</th></tr></thead>
+      <tbody>
+        <tr><td><b>Shared DB, shared schema + RLS</b></td><td><b>(Chọn)</b> mọi bảng có <code>workspace_id</code>; PostgreSQL Row-Level Security ép policy <code>workspace_id = current_setting('app.tenant')</code>. Tối ưu chi phí, vận hành đơn giản, cô lập logic chặt.</td></tr>
+        <tr><td>Shared DB, schema/tenant</td><td>Cân nhắc cho workspace Enterprise lớn cần cô lập mạnh hơn.</td></tr>
+        <tr><td>DB/tenant</td><td>Chỉ cho khách On-premise/Enterprise đặc thù (lộ trình).</td></tr>
+      </tbody>
+    </table>
+    <div class="codeblk"><span class="c">// Mọi request gắn tenant context (middleware)</span>
+<span class="k">async</span> resolveTenant(req){
+  <span class="k">const</span> ws = req.headers[<span class="s">'x-workspace-id'</span>];
+  assertMembership(req.user.id, ws);          <span class="c">// user ∈ workspace?</span>
+  <span class="k">await</span> db.query(<span class="s">`SET app.tenant = '${ws}'`</span>); <span class="c">// RLS đọc biến này</span>
+}
+</div>
+    <ul class="clean">
+      <li><b>Workspace switcher</b> ở Settings — chuyển nhanh; mỗi workspace có plan/seats/token-budget riêng.</li>
+      <li><b>Billing theo workspace</b> — seat, add-on, token đo lường tách biệt từng workspace.</li>
+      <li><b>Phân quyền</b> trong workspace: Owner/Admin/Manager/Agent + vai trò tuỳ biến; sơ đồ tổ chức (Tập đoàn→Chi nhánh→Phòng ban) làm nguồn routing/SLA.</li>
+    </ul>
+  </section>
+
+  <!-- 08 -->
+  <section id="a8">
+    <div class="seclabel">08 — Channel Gateway</div>
+    <h2>Channel Gateway — kiến trúc 19 kênh</h2>
+    <p>Lớp adapter chuẩn hoá mọi kênh về một mô hình hội thoại/tin nhắn nội bộ — cô lập sự khác biệt API/webhook/rate-limit.</p>
+    <div class="codeblk"><span class="c">// Adapter interface (mỗi kênh hiện thực)</span>
+<span class="k">interface</span> ChannelAdapter {
+  verifyWebhook(req): boolean
+  parseInbound(payload): NormalizedMessage[]   <span class="c">// → schema chung</span>
+  sendOutbound(msg): {channel_msg_id}          <span class="c">// idempotent</span>
+  refreshAuth(account): OAuthToken
+  rateLimit: {rpm, burst}
+}
+</div>
+    <table>
+      <thead><tr><th>Khía cạnh</th><th>Giải pháp</th></tr></thead>
+      <tbody>
+        <tr><td><b>Inbound</b></td><td>Webhook Receiver xác thực chữ ký → enqueue → Inbound worker parse + lưu (idempotent theo <code>channel_msg_id</code>).</td></tr>
+        <tr><td><b>Outbound</b></td><td>Outbox pattern: ghi ý định gửi vào DB → Outbound worker gửi + cập nhật trạng thái; retry/back-off; respect rate-limit per channel.</td></tr>
+        <tr><td><b>Auth</b></td><td>OAuth token store mã hoá; auto-refresh; cảnh báo khi token hết hạn (trạng thái kênh "error").</td></tr>
+        <tr><td><b>Khác biệt kênh</b></td><td>Template ZNS duyệt trước; cửa sổ 24h của Messenger/WhatsApp; giới hạn đính kèm — gói trong adapter.</td></tr>
+        <tr><td><b>Mở rộng</b></td><td>Kênh tuỳ chỉnh qua webhook chuẩn → thêm kênh không cần đổi core.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 09 -->
+  <section id="a9">
+    <div class="seclabel">09 — Realtime &amp; Events</div>
+    <h2>Realtime &amp; kiến trúc hướng sự kiện</h2>
+    <div class="split">
+      <div>
+        <h4>Realtime (WebSocket)</h4>
+        <ul class="clean">
+          <li>Socket Gateway theo workspace room + conversation room.</li>
+          <li>Đẩy: tin nhắn mới, typing, seen, assignment, presence.</li>
+          <li>Presence/typing qua Redis pub/sub; scale gateway bằng adapter Redis.</li>
+          <li>SSE fallback cho mạng hạn chế.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Domain events (broker)</h4>
+        <div class="codeblk" style="margin-top:0"><span class="k">message.received</span> · <span class="k">message.sent</span>
+<span class="k">conversation.assigned</span>
+<span class="k">contact.created</span> · <span class="k">contact.merged</span>
+<span class="k">quote.won</span> · <span class="k">order.completed</span>
+<span class="k">ticket.sla_breach_risk</span>
+<span class="k">campaign.approved</span>
+<span class="k">ai.token_used</span>
+<span class="k">workflow.triggered</span>
+</div>
+      </div>
+    </div>
+    <div class="callout pr"><span class="ic">◆</span><div><b>Ví dụ phản ứng chuỗi:</b> <code>order.completed</code> → Loyalty cộng điểm (1.000đ=1 điểm) + Reporting cập nhật data mart + Workflow "chăm sóc sau dịch vụ" kích hoạt. Mỗi consumer độc lập, idempotent theo event id.</div></div>
+  </section>
+
+  <!-- 10 -->
+  <section id="a10">
+    <div class="seclabel">10 — AI Architecture</div>
+    <h2>Kiến trúc AI Agent (RAG + Token Metering)</h2>
+    <div class="codeblk"><span class="c">// Luồng AI trả lời 1 hội thoại</span>
+message.received
+   ▼
+<span class="k">Routing</span>: intent/skill/ngôn ngữ → chọn AI Agent + model (Haiku/Sonnet/Opus)
+   ▼
+<span class="k">RAG</span>: embed câu hỏi → truy vấn vector KB (pgvector) → top-k context
+   ▼
+<span class="k">Prompt</span>: persona + context + lịch sử hội thoại + công cụ (actions)
+   ▼
+<span class="k">LLM call</span> (streaming) ── ghi <span class="k">token_usage</span> (metering) ──► Billing
+   ▼
+<span class="k">Confidence check</span>: đủ tự tin? → gửi trả kênh : <span class="k">handoff</span> nhân viên
+   ▼
+Hành động: tạo Ticket/Lead/Lịch hẹn (tool-use) · cập nhật CRM
+</div>
+    <table>
+      <thead><tr><th style="width:26%">Thành phần</th><th>Chi tiết</th></tr></thead>
+      <tbody>
+        <tr><td><b>Model routing</b></td><td>Theo tác vụ &amp; chi phí: Haiku (FAQ rẻ) → Sonnet (tư vấn) → Opus (phức tạp). Cấu hình ở AI Agent.</td></tr>
+        <tr><td><b>RAG</b></td><td>Knowledge Base (Files/Help Center) → chunk + embed → pgvector HNSW; re-rank; trích nguồn.</td></tr>
+        <tr><td><b>Token metering</b></td><td>Mỗi call ghi <code>token_usage</code> (input/output, model, cost). Tổng hợp theo workspace → ngân sách/ngưỡng tạm ngừng → popup mua thêm token.</td></tr>
+        <tr><td><b>Handoff</b></td><td>Ngưỡng tin cậy / từ khoá nhạy cảm / ngoài giờ → chuyển người; AI Governance log quyết định.</td></tr>
+        <tr><td><b>Guardrail</b></td><td>Lọc PII, chặn nội dung cấm, giới hạn tool-use theo quyền; tuân thủ ISO/IEC 42001.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout am"><span class="ic">▲</span><div><b>Lưu ý triển khai:</b> gọi LLM nằm ở <b>AI Inference Worker</b> (tách riêng, scale độc lập, timeout/retry, hàng đợi ưu tiên). Không gọi LLM đồng bộ trong request UI — stream kết quả qua WebSocket.</div></div>
+  </section>
+
+  <!-- 11 -->
+  <section id="a11">
+    <div class="seclabel">11 — API Design</div>
+    <h2>Thiết kế API (REST · Webhook · WebSocket)</h2>
+    <h4>Nguyên tắc</h4>
+    <ul class="clean">
+      <li>REST tài nguyên, versioned <code>/v1</code>; phân trang cursor; lọc/sort chuẩn hoá.</li>
+      <li>Mọi request mang <code>Authorization: Bearer</code> + <code>X-Workspace-Id</code>.</li>
+      <li>Idempotency-Key cho POST gửi tin/tạo đơn.</li>
+      <li>Webhook ra (outbound) cho tích hợp ngoài; ký HMAC; retry có back-off.</li>
+      <li>Hợp đồng OpenAPI 3.1 là nguồn chân lý — sinh client &amp; mock.</li>
+    </ul>
+    <div class="codeblk"><span class="c"># REST (trích)</span>
+<span class="y">GET</span>  /v1/conversations?status=open&amp;cursor=…
+<span class="y">POST</span> /v1/conversations/{id}/messages        <span class="c"># gửi tin (Idempotency-Key)</span>
+<span class="y">GET</span>  /v1/contacts/{id}                        <span class="c"># hồ sơ 360°</span>
+<span class="y">POST</span> /v1/quotes/{id}/win                      <span class="c"># Báo giá → Hợp đồng</span>
+<span class="y">POST</span> /v1/orders/{id}/complete                 <span class="c"># → cộng điểm Loyalty</span>
+<span class="y">POST</span> /v1/campaigns/{id}/approve
+<span class="y">GET</span>  /v1/reports/executive?from=…&amp;to=…       <span class="c"># xuất theo ngày</span>
+
+<span class="c"># Webhook IN (kênh) / OUT (tích hợp)</span>
+<span class="y">POST</span> /webhooks/channels/{provider}            <span class="c"># inbound, verify chữ ký</span>
+<span class="y">POST</span> {customer_url}  event=order.completed    <span class="c"># outbound, HMAC</span>
+
+<span class="c"># WebSocket</span>
+<span class="k">ws</span>   /realtime  → subscribe(workspace, conversation)
+       events: message.new · typing · seen · assigned
+</div>
+  </section>
+
+  <!-- 12 -->
+  <section id="a12">
+    <div class="seclabel">12 — Security &amp; Compliance</div>
+    <h2>Bảo mật, phân quyền &amp; tuân thủ</h2>
+    <table>
+      <thead><tr><th style="width:24%">Hạng mục</th><th>Giải pháp</th></tr></thead>
+      <tbody>
+        <tr><td><b>Xác thực</b></td><td>Phone-OTP (Zalo) làm chính + social (Google/Facebook); OIDC; phiên JWT ngắn hạn + refresh; SSO (Google/Entra/Okta) cho Enterprise.</td></tr>
+        <tr><td><b>Phân quyền</b></td><td>RBAC theo workspace (Owner/Admin/Manager/Agent + tuỳ biến); kiểm tra ở API + RLS ở DB (defense-in-depth).</td></tr>
+        <tr><td><b>Cô lập tenant</b></td><td>RLS bắt buộc; không truy vấn xuyên workspace; test tự động chống rò rỉ tenant.</td></tr>
+        <tr><td><b>Dữ liệu</b></td><td>Mã hoá at-rest (DB/S3) + in-transit (TLS); mã hoá token OAuth; tách secret (Vault/KMS).</td></tr>
+        <tr><td><b>Audit</b></td><td>Audit log bất biến mọi hành động quản trị, lưu 1 năm; xuất khi cần.</td></tr>
+        <tr><td><b>Quyền riêng tư</b></td><td>Right-to-be-forgotten, data retention, DPO; lọc PII trước khi đưa vào prompt LLM.</td></tr>
+        <tr><td><b>AI Governance</b></td><td>ISO/IEC 42001: log quyết định AI, guardrail, human-in-the-loop, gap analysis định kỳ.</td></tr>
+        <tr><td><b>Hạ tầng</b></td><td>WAF, rate-limit per workspace/IP, chống abuse webhook, scan phụ thuộc (SCA), pentest định kỳ.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 13 -->
+  <section id="a13">
+    <div class="seclabel">13 — Infrastructure</div>
+    <h2>Hạ tầng, mở rộng &amp; triển khai</h2>
+    <div class="split">
+      <div>
+        <h4>Triển khai</h4>
+        <ul class="clean">
+          <li>Kubernetes; mỗi service/worker là Deployment riêng.</li>
+          <li>IaC bằng Terraform; cấu hình bằng Helm.</li>
+          <li>Môi trường: <code>dev → staging → prod</code> tách biệt hoàn toàn.</li>
+          <li>CI/CD: build → test → scan → blue/green / canary.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Mở rộng (scale)</h4>
+        <ul class="clean">
+          <li>Workers stateless auto-scale theo độ sâu hàng đợi.</li>
+          <li>Postgres: read replica cho truy vấn nặng; PgBouncer.</li>
+          <li>Cache đọc inbox/contact; CDN cho media/widget.</li>
+          <li>ClickHouse riêng cho BI — không ảnh hưởng OLTP.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout bl"><span class="ic">↗</span><div><b>Xử lý cao điểm (Flash Sale):</b> inbound đẩy vào Kafka → workers scale ngang; gửi outbound tuân rate-limit kênh qua hàng đợi token-bucket; UI vẫn realtime nhờ tách ingestion khỏi hiển thị.</div></div>
+  </section>
+
+  <!-- 14 -->
+  <section id="a14">
+    <div class="seclabel">14 — NFR · SLO</div>
+    <h2>Phi chức năng · SLO · Observability</h2>
+    <table>
+      <thead><tr><th>Chỉ tiêu</th><th>Mục tiêu (SLO)</th><th>Đo bằng</th></tr></thead>
+      <tbody>
+        <tr><td>Độ trễ hiển thị tin nhắn</td><td>p95 &lt; 1s</td><td>OTel trace ingestion→WS</td></tr>
+        <tr><td>API đọc (p95)</td><td>&lt; 300ms</td><td>Prometheus histogram</td></tr>
+        <tr><td>Khả dụng</td><td>99.9% / tháng</td><td>Uptime + error budget</td></tr>
+        <tr><td>Gửi outbound thành công</td><td>&gt; 99% (sau retry)</td><td>Outbox success rate</td></tr>
+        <tr><td>AI handoff đúng</td><td>theo dõi false-auto</td><td>AI Governance log</td></tr>
+        <tr><td>RPO / RTO</td><td>RPO ≤ 5 phút · RTO ≤ 1 giờ</td><td>Backup PITR + drill</td></tr>
+      </tbody>
+    </table>
+    <h4>Observability</h4>
+    <ul class="clean">
+      <li><b>Trace</b> xuyên dịch vụ (OpenTelemetry) — từ webhook tới WS.</li>
+      <li><b>Metric</b> SLO + business (tin nhắn/giây, token/phút, SLA breach).</li>
+      <li><b>Log</b> tập trung (Loki) + correlation id; alert theo error budget.</li>
+    </ul>
+  </section>
+
+  <!-- 15 -->
+  <section id="a15">
+    <div class="seclabel">15 — Roadmap &amp; Risks</div>
+    <h2>Lộ trình kỹ thuật &amp; rủi ro</h2>
+    <table>
+      <thead><tr><th style="width:14%">Giai đoạn</th><th>Trọng tâm kỹ thuật</th></tr></thead>
+      <tbody>
+        <tr><td><b>P0 — Nền</b></td><td>Identity/Workspace + RLS, Channel Gateway (Zalo/FB/Web), Inbox realtime, Postgres + broker, CI/CD.</td></tr>
+        <tr><td><b>P1 — Lõi</b></td><td>CRM360 + Sales Docs + Ticket/SLA + Calendar; AI Agent + RAG + Token metering; Billing.</td></tr>
+        <tr><td><b>P2 — Mở rộng</b></td><td>Marketing/Workflow engine, Loyalty, Reporting/BI (ClickHouse), Integration Hub, thêm kênh.</td></tr>
+        <tr><td><b>P3 — Quy mô</b></td><td>Tách service điểm nóng, SSO/Enterprise isolation, on-prem, tối ưu chi phí LLM (cache, routing).</td></tr>
+      </tbody>
+    </table>
+    <h4>Rủi ro kiến trúc &amp; giảm thiểu</h4>
+    <table>
+      <thead><tr><th style="width:30%">Rủi ro</th><th>Giảm thiểu</th></tr></thead>
+      <tbody>
+        <tr><td><b>Rò rỉ dữ liệu xuyên tenant</b></td><td>RLS bắt buộc + test tự động + review mọi truy vấn thiếu <code>workspace_id</code>.</td></tr>
+        <tr><td><b>Khác biệt/đứt API kênh</b></td><td>Adapter cô lập + contract test + giám sát tỉ lệ lỗi từng kênh.</td></tr>
+        <tr><td><b>Chi phí LLM tăng</b></td><td>Model routing theo tác vụ, cache câu trả lời, ngân sách token, giám sát chi phí realtime.</td></tr>
+        <tr><td><b>Báo cáo làm chậm OLTP</b></td><td>Tách OLAP (ClickHouse) + ETL; "1 con số 1 nguồn".</td></tr>
+        <tr><td><b>Mất tin nhắn cao điểm</b></td><td>Broker bền + outbox + idempotency + retry; back-pressure.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout pr"><span class="ic">★</span><div><b>Bước tiếp theo (sau tài liệu này):</b> ① ERD chi tiết từng dịch vụ + migration · ② OpenAPI 3.1 contract đầy đủ · ③ Đặc tả nghiệp vụ chi tiết per-service (use-case, sequence diagram, business rules) — nối tiếp xuống tầng SRS v3.4.</div></div>
+  </section>
+
+  <div class="foot">AppChat · Đặc tả Kiến trúc Kỹ thuật (Technical Architecture / CTO) <b>v1.0</b> · MediaSoft JSC · 2026 — Cho CTO · Architect · Tech Lead · Senior Dev. Đứng trên SRS v3.4; đọc cùng OpenAPI Contract &amp; ERD chi tiết.</div>
+
+</div>
+</body>
+</html>

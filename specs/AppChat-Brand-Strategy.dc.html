@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&amp;family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .s{width:1920px;height:1080px;position:relative;overflow:hidden;background:#fff;color:#14201A;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  .grad{background:linear-gradient(125deg,#0E7C8A 0%,#12894F 52%,#1FA85A 100%);color:#fff}
+  .grad::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0 1px,transparent 1px 26px)}
+  .grad>*{position:relative;z-index:1}
+  .s:not(.grad) .h2{padding-bottom:20px;border-bottom:4px solid #2DC56A;display:inline-block}
+  .pad{position:absolute;inset:0;padding:96px 120px;display:flex;flex-direction:column}
+  .kick{font-size:22px;font-weight:800;letter-spacing:.28em;color:#2DC56A;text-transform:uppercase}
+  .kick.on-dark{color:#7DE0A6}
+  .h1{font-size:88px;font-weight:800;letter-spacing:-.03em;line-height:1.02;margin:0}
+  .h2{font-size:58px;font-weight:800;letter-spacing:-.025em;line-height:1.06;margin:0}
+  .lead{font-size:30px;line-height:1.5;font-weight:500;color:#37424C}
+  .lead.on-dark{color:rgba(255,255,255,.78)}
+  .quote{font-family:'Newsreader',serif}
+  .num{display:flex;justify-content:space-between;font-size:20px;color:#9CA3AF;font-weight:600;letter-spacing:.04em;position:absolute;bottom:52px;left:120px;right:120px}
+  .num.on-dark{color:rgba(255,255,255,.45)}
+  .pill{display:inline-block;padding:9px 22px;border-radius:40px;font-size:22px;font-weight:700}
+  .card{border:1px solid #E1E6E3;border-radius:22px;background:#F7FAF8;padding:32px 36px}
+  .card.g{border-color:#CDE9D8;background:#EDFAF3}
+  .card.dk{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06)}
+</style>
+</helmet>
+<a href="AppChat-Document-Index.dc.html" style="position:fixed;left:16px;top:16px;z-index:99999;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:9px;background:rgba(255,255,255,.95);border:1px solid #DDE1E4;box-shadow:0 4px 14px rgba(15,42,28,.14);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12.6px;font-weight:700;color:#157A40;text-decoration:none;backdrop-filter:blur(8px)"><svg width="14" height="14" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>Bộ hồ sơ năng lực</a>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%" data-uneditable="">
+
+<!-- 01 · BÌA -->
+<section class="s grad" data-label="Bìa" data-speaker-notes="Tài liệu chiến lược thương hiệu AppChat — nền tảng trước khi thiết kế.">
+  <div style="position:absolute;right:-90px;top:-90px;width:520px;height:520px;border:1px solid rgba(255,255,255,.12);border-radius:50%"></div>
+  <div class="pad">
+    <div style="display:flex;align-items:center;gap:20px">
+      <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:56px;width:auto;display:block">
+      <span style="font-size:20px;letter-spacing:.28em;color:rgba(255,255,255,.7);font-weight:700">BY MEDIA SOFT</span>
+    </div>
+    <div style="margin-top:auto">
+      <div class="kick on-dark">BRAND STRATEGY · 2026</div>
+      <h1 class="h1" style="margin-top:30px;max-width:1240px">Chiến lược<br>Thương hiệu AppChat</h1>
+      <p class="lead on-dark" style="margin-top:34px;max-width:960px">Nền tảng định hướng trước khi thiết kế — xác lập tầm nhìn, định vị, lời hứa và tính cách thương hiệu cho hệ sinh thái AppChat.</p>
+    </div>
+    <div style="margin-top:52px;display:flex;gap:14px;flex-wrap:wrap">
+      <span class="pill" style="background:rgba(255,255,255,.14);color:#fff">Vision</span>
+      <span class="pill" style="background:rgba(255,255,255,.14);color:#fff">Positioning</span>
+      <span class="pill" style="background:rgba(255,255,255,.14);color:#fff">Promise</span>
+      <span class="pill" style="background:rgba(255,255,255,.14);color:#fff">Personality</span>
+      <span class="pill" style="background:#fff;color:#12894F">Brand Story</span>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · BRAND STRATEGY</span><span>01</span></div>
+</section>
+
+<!-- 02 · MỤC LỤC -->
+<section class="s" data-label="Nội dung" data-speaker-notes="Mười cấu phần nền tảng của chiến lược thương hiệu.">
+  <div class="pad">
+    <div class="kick">NỘI DUNG TÀI LIỆU</div>
+    <h2 class="h2" style="margin-top:24px">Mười nền tảng thương hiệu</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px 60px;margin-top:52px">
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">01</span><span style="font-size:28px;font-weight:700">Tầm nhìn — Vision</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">06</span><span style="font-size:28px;font-weight:700">USP — Điểm bán độc nhất</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">02</span><span style="font-size:28px;font-weight:700">Sứ mệnh — Mission</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">07</span><span style="font-size:28px;font-weight:700">Đối tượng khách hàng</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">03</span><span style="font-size:28px;font-weight:700">Giá trị cốt lõi</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">08</span><span style="font-size:28px;font-weight:700">Tính cách thương hiệu</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">04</span><span style="font-size:28px;font-weight:700">Định vị thương hiệu</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">09</span><span style="font-size:28px;font-weight:700">Kiến trúc thương hiệu</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">05</span><span style="font-size:28px;font-weight:700">Lời hứa thương hiệu</span></div>
+      <div style="display:flex;gap:20px;align-items:baseline;border-bottom:1px solid #EEF2F0;padding:16px 0"><span style="font-size:24px;font-weight:800;color:#2DC56A;min-width:44px">10</span><span style="font-size:28px;font-weight:700">Brand Story</span></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>02</span></div>
+</section>
+
+<!-- 03 · TẦM NHÌN -->
+<section class="s grad" data-label="01 · Tầm nhìn" data-speaker-notes="Tầm nhìn: trở thành nền tảng AI Agents đầu tiên vận hành Doanh nghiệp Một Người.">
+  <div class="pad">
+    <div class="kick on-dark">01 · TẦM NHÌN · VISION</div>
+    <div style="margin-top:auto;margin-bottom:auto">
+      <div class="quote" style="font-size:34px;font-style:italic;color:#7DE0A6;margin-bottom:24px">Chúng tôi tin rằng…</div>
+      <h1 class="h1" style="font-size:74px;max-width:1500px;color:#fff">Mỗi cá nhân đều có thể vận hành một doanh nghiệp trọn vẹn bằng AI</h1>
+      <p class="lead on-dark" style="margin-top:38px;max-width:1240px;font-size:32px">Trở thành <strong style="color:#fff">nền tảng AI Agents đầu tiên vận hành Doanh nghiệp Một Người</strong> — nơi công nghệ xoá bỏ giới hạn về nguồn lực và quy mô.</p>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · BRAND STRATEGY</span><span>03</span></div>
+</section>
+
+<!-- 04 · SỨ MỆNH -->
+<section class="s" data-label="02 · Sứ mệnh" data-speaker-notes="Sứ mệnh: giúp mỗi người xây dựng, vận hành và phát triển doanh nghiệp bằng AI.">
+  <div class="pad">
+    <div class="kick">02 · SỨ MỆNH · MISSION</div>
+    <h2 class="h2" style="margin-top:24px;max-width:1500px">Giúp một người xây dựng, vận hành và phát triển doanh nghiệp với đội ngũ AI Agents</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px">
+      <div class="card"><div style="font-size:20px;font-weight:800;letter-spacing:.06em;color:#157A40">XÂY DỰNG</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px">Khởi tạo trong phút</div><div style="font-size:21px;line-height:1.55;color:#5A6670;font-weight:500">Dựng doanh nghiệp, kết nối kênh và kênh bán chỉ với vài thao tác.</div></div>
+      <div class="card"><div style="font-size:20px;font-weight:800;letter-spacing:.06em;color:#157A40">VẬN HÀNH</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px">AI Agents lo 24/7</div><div style="font-size:21px;line-height:1.55;color:#5A6670;font-weight:500">Hội thoại, bán hàng, chăm sóc — đội ngũ AI đảm nhận không nghỉ.</div></div>
+      <div class="card g"><div style="font-size:20px;font-weight:800;letter-spacing:.06em;color:#157A40">PHÁT TRIỂN</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px;color:#157A40">Mở rộng tinh gọn</div><div style="font-size:21px;line-height:1.55;color:#256B44;font-weight:600">Tăng trưởng bằng dữ liệu &amp; AI, không tăng chi phí tuyến tính.</div></div>
+    </div>
+    <div class="card" style="margin-top:44px;background:#0F2A1C;border:none;padding:34px 46px"><div class="quote" style="font-size:31px;font-style:italic;font-weight:500;color:#fff">"Chúng tôi không bán phần mềm — chúng tôi trao cho mỗi người quyền tự xây một doanh nghiệp."</div></div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>04</span></div>
+</section>
+
+<!-- 05 · GIÁ TRỊ CỐT LÕI -->
+<section class="s" data-label="03 · Giá trị cốt lõi" data-speaker-notes="Năm giá trị cốt lõi định hình văn hoá và sản phẩm.">
+  <div class="pad">
+    <div class="kick">03 · GIÁ TRỊ CỐT LÕI · CORE VALUES</div>
+    <h2 class="h2" style="margin-top:24px">Năm giá trị dẫn đường</h2>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-top:56px">
+      <div class="card" style="padding:30px 26px"><div style="font-size:44px;font-weight:800;color:#2DC56A">01</div><div style="font-size:26px;font-weight:800;margin:14px 0 10px">Lấy con người làm gốc</div><div style="font-size:19px;line-height:1.5;color:#5A6670;font-weight:500">AI phục vụ con người, con người luôn ở vị trí quyết định.</div></div>
+      <div class="card" style="padding:30px 26px"><div style="font-size:44px;font-weight:800;color:#2DC56A">02</div><div style="font-size:26px;font-weight:800;margin:14px 0 10px">Đơn giản triệt để</div><div style="font-size:19px;line-height:1.5;color:#5A6670;font-weight:500">Giấu độ phức tạp, trao trải nghiệm dễ dùng cho mọi người.</div></div>
+      <div class="card" style="padding:30px 26px"><div style="font-size:44px;font-weight:800;color:#2DC56A">03</div><div style="font-size:26px;font-weight:800;margin:14px 0 10px">Tin cậy &amp; minh bạch</div><div style="font-size:19px;line-height:1.5;color:#5A6670;font-weight:500">Dữ liệu là tài sản của khách; mọi hành động AI đều truy vết được.</div></div>
+      <div class="card" style="padding:30px 26px"><div style="font-size:44px;font-weight:800;color:#2DC56A">04</div><div style="font-size:26px;font-weight:800;margin:14px 0 10px">Đổi mới không ngừng</div><div style="font-size:19px;line-height:1.5;color:#5A6670;font-weight:500">Tiên phong AI-Native, liên tục nâng cấp năng lực nền tảng.</div></div>
+      <div class="card g" style="padding:30px 26px"><div style="font-size:44px;font-weight:800;color:#157A40">05</div><div style="font-size:26px;font-weight:800;margin:14px 0 10px;color:#157A40">Trao quyền</div><div style="font-size:19px;line-height:1.5;color:#256B44;font-weight:600">Giúp người nhỏ nhất cũng làm được điều lớn lao.</div></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>05</span></div>
+</section>
+
+<!-- 06 · ĐỊNH VỊ -->
+<section class="s" data-label="04 · Định vị" data-speaker-notes="Định vị theo bốn tầng và câu định vị chuẩn.">
+  <div class="pad">
+    <div class="kick">04 · ĐỊNH VỊ THƯƠNG HIỆU · POSITIONING</div>
+    <h2 class="h2" style="margin-top:24px;max-width:1560px">AppChat — Giải pháp One-Person Company (OPC)</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:48px">
+      <div class="card"><div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#157A40">TẦNG 1</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px">Nền tảng</div><div style="font-size:21px;line-height:1.5;color:#5A6670;font-weight:500">Khẳng định là một <strong>Platform</strong>, không phải công cụ đơn lẻ.</div></div>
+      <div class="card"><div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#157A40">TẦNG 2</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px">AI Agents</div><div style="font-size:21px;line-height:1.5;color:#5A6670;font-weight:500">Công nghệ <strong>cốt lõi</strong>, đặt ngay sau tên thương hiệu.</div></div>
+      <div class="card"><div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#157A40">TẦNG 3</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px">Vận hành</div><div style="font-size:21px;line-height:1.5;color:#5A6670;font-weight:500">Giá trị <strong>chính</strong> mà nền tảng mang lại.</div></div>
+      <div class="card g"><div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#157A40">TẦNG 4</div><div style="font-size:32px;font-weight:800;margin:14px 0 10px;color:#157A40">Doanh nghiệp Một Người</div><div style="font-size:21px;line-height:1.5;color:#256B44;font-weight:600"><strong>Category</strong> mà AppChat sở hữu.</div></div>
+    </div>
+    <div class="card g" style="margin-top:34px;padding:28px 40px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:26px">
+      <div><div style="font-size:16px;font-weight:800;letter-spacing:.06em;color:#157A40">SẢN PHẨM</div><div style="font-size:19px;line-height:1.5;color:#256B44;font-weight:600;margin-top:8px">Giải pháp AI Agents vận hành doanh nghiệp.</div></div>
+      <div><div style="font-size:16px;font-weight:800;letter-spacing:.06em;color:#157A40">DANH MỤC</div><div style="font-size:19px;line-height:1.5;color:#256B44;font-weight:600;margin-top:8px">Doanh nghiệp Một Người.</div></div>
+      <div><div style="font-size:16px;font-weight:800;letter-spacing:.06em;color:#157A40">ĐỊNH VỊ</div><div style="font-size:19px;line-height:1.5;color:#256B44;font-weight:600;margin-top:8px">AI Agents giúp mỗi người xây dựng, vận hành &amp; phát triển Doanh nghiệp Một Người.</div></div>
+      <div><div style="font-size:16px;font-weight:800;letter-spacing:.06em;color:#157A40">THÔNG ĐIỆP</div><div style="font-size:19px;line-height:1.5;color:#256B44;font-weight:600;margin-top:8px">Một người. Một doanh nghiệp. Vận hành bằng AI.</div></div>
+    </div></div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>06</span></div>
+</section>
+
+<!-- 07 · LỜI HỨA -->
+<section class="s grad" data-label="05 · Lời hứa" data-speaker-notes="Lời hứa thương hiệu và ba cam kết chứng minh.">
+  <div class="pad">
+    <div class="kick on-dark">05 · LỜI HỨA THƯƠNG HIỆU · BRAND PROMISE</div>
+    <h1 class="h1" style="font-size:66px;margin-top:26px;max-width:1520px;color:#fff">Giúp một người xây dựng, vận hành và phát triển doanh nghiệp với đội ngũ AI Agents</h1>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:auto">
+      <div class="card dk" style="padding:30px 32px"><div style="font-size:24px;font-weight:800;color:#fff">Nhanh trong tuần đầu</div><div style="font-size:20px;line-height:1.5;color:rgba(255,255,255,.72);font-weight:500;margin-top:8px">Kết nối kênh, giao việc cho AI và thấy giá trị ngay.</div></div>
+      <div class="card dk" style="padding:30px 32px"><div style="font-size:24px;font-weight:800;color:#fff">Một người làm được</div><div style="font-size:20px;line-height:1.5;color:rgba(255,255,255,.72);font-weight:500;margin-top:8px">Vận hành cả bộ máy mà không cần đội ngũ lớn.</div></div>
+      <div class="card dk" style="padding:30px 32px"><div style="font-size:24px;font-weight:800;color:#fff">Đồng hành dài lâu</div><div style="font-size:20px;line-height:1.5;color:rgba(255,255,255,.72);font-weight:500;margin-top:8px">AI học theo doanh nghiệp, càng dùng càng hiệu quả.</div></div>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · BRAND STRATEGY</span><span>07</span></div>
+</section>
+
+<!-- 08 · USP -->
+<section class="s" data-label="06 · USP" data-speaker-notes="USP: AI-Native, Agentic, hợp nhất, thiết kế cho Doanh nghiệp Một Người.">
+  <div class="pad">
+    <div class="kick">06 · USP · ĐIỂM BÁN ĐỘC NHẤT</div>
+    <h2 class="h2" style="margin-top:24px;max-width:1440px">Điều chỉ AppChat có</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px">
+      <div class="card g"><div style="font-size:30px;font-weight:800;color:#157A40;margin-bottom:10px">AI đặt ở lõi, không gắn thêm</div><div style="font-size:22px;line-height:1.55;color:#256B44;font-weight:500">Kiến trúc AI-Native từ nền móng — AI Agents vận hành thật, không phải chatbot dán vào CRM.</div></div>
+      <div class="card"><div style="font-size:30px;font-weight:800;margin-bottom:10px">Một nền tảng — hết phân mảnh</div><div style="font-size:22px;line-height:1.55;color:#5A6670;font-weight:500">Marketing, bán hàng, CSKH, tổng đài, loyalty, báo cáo trên cùng một dữ liệu.</div></div>
+      <div class="card"><div style="font-size:30px;font-weight:800;margin-bottom:10px">Agentic — tự thực thi nghiệp vụ</div><div style="font-size:22px;line-height:1.55;color:#5A6670;font-weight:500">AI không chỉ trả lời: tạo báo giá, ticket, đặt lịch, chạy chiến dịch, dựng workflow.</div></div>
+      <div class="card"><div style="font-size:30px;font-weight:800;margin-bottom:10px">Cho Doanh nghiệp Một Người</div><div style="font-size:22px;line-height:1.55;color:#5A6670;font-weight:500">Thiết kế để một người vận hành cả bộ máy — mở rộng bằng AI thay vì tăng người.</div></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>08</span></div>
+</section>
+
+<!-- 09 · ĐỐI TƯỢNG KHÁCH HÀNG -->
+<section class="s" data-label="07 · Khách hàng" data-speaker-notes="Chân dung khách hàng mục tiêu: solopreneur, chủ shop, freelancer, nhà tư vấn, SME tinh gọn.">
+  <div class="pad">
+    <div class="kick">07 · ĐỐI TƯỢNG KHÁCH HÀNG · TARGET</div>
+    <h2 class="h2" style="margin-top:24px">Doanh nghiệp Một Người &amp; SME tinh gọn</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:52px">
+      <div class="card" style="padding:30px 28px"><div style="font-size:26px;font-weight:800;margin-bottom:12px">Chủ shop online</div><div style="font-size:20px;line-height:1.5;color:#5A6670;font-weight:500">Bán đa kênh, cần trả lời &amp; chốt đơn nhanh mà không kịp thuê người.</div></div>
+      <div class="card" style="padding:30px 28px"><div style="font-size:26px;font-weight:800;margin-bottom:12px">Freelancer / Creator</div><div style="font-size:20px;line-height:1.5;color:#5A6670;font-weight:500">Tự làm thương hiệu cá nhân, cần AI lo hội thoại &amp; chăm khách.</div></div>
+      <div class="card" style="padding:30px 28px"><div style="font-size:26px;font-weight:800;margin-bottom:12px">Nhà tư vấn / Dịch vụ</div><div style="font-size:20px;line-height:1.5;color:#5A6670;font-weight:500">Quản lý lịch hẹn, báo giá, follow-up khách hàng chuyên nghiệp.</div></div>
+      <div class="card g" style="padding:30px 28px"><div style="font-size:26px;font-weight:800;margin-bottom:12px;color:#157A40">SME tinh gọn</div><div style="font-size:20px;line-height:1.5;color:#256B44;font-weight:600">Đội nhỏ muốn mở rộng bằng AI &amp; tự động hoá thay vì tăng nhân sự.</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:36px">
+      <div class="card" style="padding:26px 30px"><div style="font-size:18px;font-weight:800;letter-spacing:.06em;color:#C0392B">NỖI ĐAU</div><div style="font-size:21px;line-height:1.5;color:#37424C;font-weight:600;margin-top:8px">Quá tải, kênh phân mảnh, bỏ lỡ khách, không đủ người trực.</div></div>
+      <div class="card" style="padding:26px 30px"><div style="font-size:18px;font-weight:800;letter-spacing:.06em;color:#157A40">KHÁT VỌNG</div><div style="font-size:21px;line-height:1.5;color:#37424C;font-weight:600;margin-top:8px">Tự chủ, chuyên nghiệp như doanh nghiệp lớn, tự do về thời gian.</div></div>
+      <div class="card" style="padding:26px 30px"><div style="font-size:18px;font-weight:800;letter-spacing:.06em;color:#157A40">TRIGGER MUA</div><div style="font-size:21px;line-height:1.5;color:#37424C;font-weight:600;margin-top:8px">Đơn tăng đột biến, không kịp trả lời, muốn thử AI thay người.</div></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>09</span></div>
+</section>
+
+<!-- 10 · TÍNH CÁCH THƯƠNG HIỆU -->
+<section class="s" data-label="08 · Tính cách" data-speaker-notes="Tính cách thương hiệu và tông giọng.">
+  <div class="pad">
+    <div class="kick">08 · TÍNH CÁCH THƯƠNG HIỆU · PERSONALITY</div>
+    <h2 class="h2" style="margin-top:24px">Người đồng hành thông minh &amp; đáng tin</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:52px">
+      <div class="card" style="padding:30px 28px"><div style="font-size:28px;font-weight:800;color:#157A40;margin-bottom:10px">Thông minh</div><div style="font-size:20px;line-height:1.5;color:#5A6670;font-weight:500">Chủ động, sắc bén, luôn gợi ý bước đi tiếp theo.</div></div>
+      <div class="card" style="padding:30px 28px"><div style="font-size:28px;font-weight:800;color:#157A40;margin-bottom:10px">Đáng tin</div><div style="font-size:20px;line-height:1.5;color:#5A6670;font-weight:500">Minh bạch, an toàn, giữ đúng cam kết với khách.</div></div>
+      <div class="card" style="padding:30px 28px"><div style="font-size:28px;font-weight:800;color:#157A40;margin-bottom:10px">Gần gũi</div><div style="font-size:20px;line-height:1.5;color:#5A6670;font-weight:500">Nói tiếng Việt tự nhiên, dễ hiểu, không thuật ngữ rối rắm.</div></div>
+      <div class="card g" style="padding:30px 28px"><div style="font-size:28px;font-weight:800;color:#157A40;margin-bottom:10px">Truyền cảm hứng</div><div style="font-size:20px;line-height:1.5;color:#256B44;font-weight:600">Cổ vũ tinh thần tự chủ, dám làm chủ của mỗi người.</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px">
+      <div class="card" style="padding:28px 34px"><div style="font-size:18px;font-weight:800;letter-spacing:.06em;color:#157A40">TÔNG GIỌNG — NÊN</div><div style="font-size:21px;line-height:1.6;color:#37424C;font-weight:600;margin-top:10px">Tự tin · rõ ràng · khích lệ · thực tế · lấy khách làm trung tâm.</div></div>
+      <div class="card" style="padding:28px 34px"><div style="font-size:18px;font-weight:800;letter-spacing:.06em;color:#C0392B">TÔNG GIỌNG — TRÁNH</div><div style="font-size:21px;line-height:1.6;color:#37424C;font-weight:600;margin-top:10px">Phô trương · thuật ngữ khó · hứa hẹn quá đà · lạnh lùng máy móc.</div></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>10</span></div>
+</section>
+
+<!-- 11 · KIẾN TRÚC THƯƠNG HIỆU -->
+<section class="s" data-label="09 · Kiến trúc TH" data-speaker-notes="Kiến trúc thương hiệu: Media Soft là thương hiệu mẹ, AppChat là sản phẩm chủ lực.">
+  <div class="pad">
+    <div class="kick">09 · KIẾN TRÚC THƯƠNG HIỆU · ARCHITECTURE</div>
+    <h2 class="h2" style="margin-top:24px">Media Soft bảo chứng — AppChat dẫn dắt</h2>
+    <div style="margin-top:52px;display:flex;flex-direction:column;align-items:center;gap:22px">
+      <div class="card" style="padding:26px 60px;text-align:center;background:#0F2A1C;border:none"><div style="font-size:16px;font-weight:800;letter-spacing:.14em;color:#7DE0A6">THƯƠNG HIỆU MẸ · ENDORSER</div><div style="font-size:38px;font-weight:800;color:#fff;margin-top:6px">Media Soft Group</div></div>
+      <div style="font-size:34px;color:#2DC56A;font-weight:800">↓</div>
+      <div class="card g" style="padding:26px 60px;text-align:center"><div style="font-size:16px;font-weight:800;letter-spacing:.14em;color:#157A40">THƯƠNG HIỆU SẢN PHẨM CHỦ LỰC</div><div style="font-size:44px;font-weight:800;color:#0F2A1C;margin-top:6px">AppChat</div><div style="font-size:20px;color:#256B44;font-weight:600;margin-top:6px">Giải pháp One-Person Company (OPC)</div></div>
+      <div style="font-size:34px;color:#2DC56A;font-weight:800">↓</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:100%">
+        <div class="card" style="padding:20px 24px;text-align:center;font-size:22px;font-weight:700">Hộp thư đa kênh</div>
+        <div class="card" style="padding:20px 24px;text-align:center;font-size:22px;font-weight:700">CRM &amp; Khách hàng</div>
+        <div class="card" style="padding:20px 24px;text-align:center;font-size:22px;font-weight:700">AI Agents &amp; Workflow</div>
+        <div class="card" style="padding:20px 24px;text-align:center;font-size:22px;font-weight:700">Marketing &amp; Loyalty</div>
+      </div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · BRAND STRATEGY</span><span>11</span></div>
+</section>
+
+<!-- 12 · BRAND STORY -->
+<section class="s grad" data-label="10 · Brand Story" data-speaker-notes="Câu chuyện thương hiệu: từ nỗi đau của người làm một mình đến nền tảng AI trao quyền.">
+  <div class="pad">
+    <div class="kick on-dark">10 · BRAND STORY · CÂU CHUYỆN THƯƠNG HIỆU</div>
+    <div style="margin-top:44px;max-width:1520px">
+      <p class="quote" style="font-size:38px;font-style:italic;line-height:1.5;color:#fff;margin:0">"Có hàng triệu người đang một mình gánh cả một doanh nghiệp — vừa bán hàng, vừa chăm khách, vừa marketing. Họ không thiếu khát vọng, họ thiếu một đội ngũ."</p>
+      <p class="lead on-dark" style="font-size:29px;margin-top:34px;max-width:1440px">AppChat ra đời để trở thành đội ngũ đó — một đội ngũ AI Agents làm việc 24/7, hiểu khách hàng, tự thực thi nghiệp vụ và không bao giờ bỏ lỡ một cơ hội. Chúng tôi tin rằng khi AI gánh phần vận hành, mỗi người sẽ được tự do làm điều mình giỏi nhất.</p>
+      <p style="font-size:30px;font-weight:800;color:#fff;margin-top:34px">Đó là lý do chúng tôi xây AppChat — để mỗi người đều có thể trở thành một doanh nghiệp.</p>
+    </div>
+    <div style="margin-top:auto;display:flex;align-items:center;gap:20px">
+      <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:48px;width:auto">
+      <span style="font-size:19px;letter-spacing:.22em;color:rgba(255,255,255,.65);font-weight:700">BY MEDIA SOFT · MAKE IN VIETNAM</span>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · BRAND STRATEGY</span><span>12</span></div>
+</section>
+
+<!-- 13 · LIÊN HỆ -->
+<section class="s grad" data-label="Liên hệ" data-speaker-notes="Slide liên hệ: hotline, email, website, QR Zalo và WeChat, ba văn phòng.">
+  <div style="position:absolute;right:-100px;top:-100px;width:520px;height:520px;border:1px solid rgba(255,255,255,.12);border-radius:50%"></div>
+  <div style="position:absolute;right:60px;bottom:-60px;width:320px;height:320px;border:1px solid rgba(255,255,255,.1);border-radius:50%"></div>
+  <div class="pad">
+    <div style="display:flex;align-items:center;gap:20px">
+      <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:52px;width:auto;display:block">
+      <span style="font-size:20px;letter-spacing:.28em;color:rgba(255,255,255,.7);font-weight:700">BY MEDIA SOFT</span>
+    </div>
+
+    <div style="margin-top:64px">
+      <div style="font-size:20px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.62)">LIÊN HỆ</div>
+      <div style="font-size:76px;font-weight:800;letter-spacing:-.03em;line-height:1.06;margin-top:22px;color:#fff">Bắt đầu vận hành<br>Doanh nghiệp Một Người</div>
+    </div>
+
+    <div style="margin-top:56px;display:flex;gap:56px;align-items:flex-start">
+      <div style="display:flex;gap:30px">
+        <div style="text-align:center">
+          <img src="assets/qr-zalo.png" alt="QR Zalo" style="width:190px;height:190px;object-fit:contain;display:block;border-radius:14px;background:#fff;padding:10px">
+          <div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#fff;margin-top:14px">ZALO</div>
+          <div style="font-size:18px;font-weight:600;color:rgba(255,255,255,.7);margin-top:3px">0907711888</div>
+        </div>
+        <div style="text-align:center">
+          <img src="assets/qr-wechat.png" alt="QR WeChat" style="width:190px;height:190px;object-fit:contain;display:block;border-radius:14px;background:#fff;padding:10px">
+          <div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#fff;margin-top:14px">WECHAT</div>
+          <div style="font-size:18px;font-weight:600;color:rgba(255,255,255,.7);margin-top:3px">maidinhngoc</div>
+        </div>
+      </div>
+
+      <div style="border-left:1px solid rgba(255,255,255,.2);padding-left:56px;flex:1">
+        <div style="display:grid;grid-template-columns:repeat(3,auto);gap:40px;justify-content:start">
+          <div><div style="font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.6);font-weight:700">HOTLINE</div><div style="font-size:27px;font-weight:800;margin-top:8px;color:#fff">0907.711.888</div></div>
+          <div><div style="font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.6);font-weight:700">EMAIL</div><div style="font-size:27px;font-weight:700;margin-top:8px;color:#fff">ngocmd@mediasoft.vn</div></div>
+          <div><div style="font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.6);font-weight:700">WEBSITE</div><div style="font-size:27px;font-weight:800;margin-top:8px;color:#fff">appchat.asia</div></div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.18);margin:34px 0 28px"></div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:7px;background:rgba(255,255,255,.16);font-size:15px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">HÀ NỘI</span>
+            <span style="font-size:21px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.45">P0611, Tòa i3 Vinhomes Smart City, P. Tây Mỗ, TP. Hà Nội</span>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:7px;background:rgba(255,255,255,.16);font-size:15px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">HỒ CHÍ MINH</span>
+            <span style="font-size:21px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.45">Tầng 14, Tòa HM Town, 412 Nguyễn Thị Minh Khai, P. Bàn Cờ, TP. Hồ Chí Minh</span>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:7px;background:rgba(255,255,255,.16);font-size:15px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">ĐÀ NẴNG</span>
+            <span style="font-size:21px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.45">Tầng 8, Tòa Bạch Đằng Complex, 50 Bạch Đằng, P. Hải Châu, TP. Đà Nẵng</span>
+          </div>
+        </div>
+        <div style="margin-top:30px;font-size:18px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.6)">MST 0107855181 · CÔNG TY CỔ PHẦN TẬP ĐOÀN MEDIA SOFT</div>
+      </div>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · BRAND STRATEGY</span><span>13</span></div>
+</section>
+
+
+</x-import>
+
+<template id="__bundler_thumbnail" data-bg-color="#12894F"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#12894F"/><text x="600" y="470" font-family="Plus Jakarta Sans,sans-serif" font-size="360" font-weight="800" fill="#fff" text-anchor="middle">A</text></svg></template></x-dc>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · Wireframe — Đăng ký tối ưu chuyển đổi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2B2B;--ink2:#5A5A5A;--ink3:#8C8C8C;--paper:#FAF8F2;--card:#FFFFFF;
+  --line:#9A958A;--line2:#CFC9BC;--pen:#D6453B;--pen2:#2B6FB8;--good:#1F9C4F;
+  --zalo:#0068FF;--fb:#1877F2;
+  --doodle:255px 12px 225px 14px/14px 225px 14px 255px;
+  --doodle2:14px 220px 16px 240px/230px 16px 240px 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--paper);
+  background-image:radial-gradient(var(--line2) 1px, transparent 1px);background-size:22px 22px;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.hand{font-family:'Caveat',cursive}
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:14px 26px;background:rgba(250,248,242,.92);backdrop-filter:blur(8px);border-bottom:2px dashed var(--line2)}
+.bar .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.bar .logo .m{width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:15px;transform:rotate(-4deg)}
+.bar .ttl{font-size:13px;color:var(--ink2);max-width:360px;line-height:1.35}.bar .ttl b{color:var(--ink)}
+.spacer{flex:1}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2);cursor:pointer;font-weight:600}
+.chk input{width:16px;height:16px;accent-color:var(--pen)}
+.intro{padding:22px 30px 4px;max-width:1280px;margin:0 auto}
+.intro .k{font-family:'Caveat';font-size:30px;font-weight:700;transform:rotate(-1deg);display:inline-block}
+.intro p{font-size:13.5px;color:var(--ink2);max-width:820px;margin-top:4px}
+.princ{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}
+.princ span{font-size:12px;font-weight:600;color:var(--ink2);border:2px solid var(--line2);border-radius:20px;padding:5px 12px;background:var(--card)}
+.princ span b{color:var(--good)}
+
+.wrap{max-width:1280px;margin:0 auto;padding:18px 30px 70px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:32px 26px;align-items:start}
+.frame{position:relative}
+.tag{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.tag .num{width:26px;height:26px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;font-family:'Caveat';transform:rotate(-6deg)}
+.tag .nm{font-family:'Caveat';font-size:23px;font-weight:700;line-height:1}
+.tag .nm small{display:block;font-family:'Plus Jakarta Sans';font-size:10.5px;font-weight:600;color:var(--ink3);letter-spacing:.02em;margin-top:1px}
+.tag .fric{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--good);border:2px solid var(--good);border-radius:8px;padding:3px 8px;transform:rotate(2deg);background:#F1FBF4}
+
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:var(--doodle);padding:22px 20px;box-shadow:5px 6px 0 rgba(43,43,43,.10)}
+.frame:nth-child(even) .card{border-radius:var(--doodle2)}
+.applogo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;margin-bottom:13px}
+.applogo .m{width:24px;height:24px;border-radius:6px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:12px}
+.h1{font-size:21px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px;line-height:1.15}
+.sub{font-size:11.5px;color:var(--ink3);margin-bottom:15px;line-height:1.45}
+
+.sbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:42px;
+  border:2px solid var(--ink);border-radius:13px 9px 13px 9px;background:var(--card);font-weight:700;font-size:13px;color:var(--ink)}
+.sbtn.hero{border-radius:12px 14px 11px 14px;box-shadow:4px 4px 0 var(--ink);font-size:15px;height:52px;background:#EAF2FF}
+.sbtn.sm{height:38px;font-size:12px}
+.srow{display:flex;gap:9px}.srow .sbtn{flex:1}.stack{display:flex;flex-direction:column;gap:9px}
+.gl{width:20px;height:20px;display:grid;place-items:center;border-radius:5px;font-weight:900;font-size:12px}
+.gl.zalo{background:var(--zalo);color:#fff;border-radius:6px}
+.gl.fb{background:var(--fb);color:#fff;border-radius:50%;font-family:Georgia,serif}
+.gl.g{background:#fff;border:1.5px solid var(--line2)}
+.gl.big{width:26px;height:26px;font-size:15px}
+.iconbtn{width:44px;height:44px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:var(--card)}
+.iconbtn .gl{width:22px;height:22px;font-size:13px}
+.divider{display:flex;align-items:center;gap:9px;margin:14px 0;color:var(--ink3);font-size:10px;font-weight:700;letter-spacing:.06em}
+.divider::before,.divider::after{content:'';flex:1;height:0;border-top:2px dashed var(--line2)}
+.field{margin-bottom:11px}.flab{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:4px}
+.fbox{height:44px;border:2px solid var(--line);border-radius:9px 7px 9px 7px;background:#FCFBF7;display:flex;align-items:center;padding:0 11px;gap:8px;color:var(--ink3);font-size:12.5px}
+.fbox.big{height:50px}.fbox .ph{width:54%;height:8px;background:var(--line2);border-radius:4px}
+.fbox .pre{font-weight:700;color:var(--ink2);font-size:13px;border-right:2px solid var(--line2);padding-right:9px}
+.cta{width:100%;height:50px;border:2px solid var(--ink);border-radius:12px 10px 13px 9px;background:var(--ink);color:var(--paper);font-weight:800;font-size:14px;display:grid;place-items:center;box-shadow:3px 3px 0 rgba(43,43,43,.25);margin-top:4px}
+.tlink{display:inline-block;font-size:12px;font-weight:700;color:var(--ink);border-bottom:2px solid var(--line);padding-bottom:1px}
+.foot{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:13px}.foot u{color:var(--ink);text-decoration-style:wavy}
+
+/* trust + proof */
+.trust{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:13px;font-size:10.5px;font-weight:700;color:var(--ink2)}
+.trust span{display:inline-flex;align-items:center;gap:5px}.trust .ok{color:var(--good)}
+.proof{display:flex;align-items:center;gap:9px;margin-top:14px;padding:9px 11px;border:2px dashed var(--line2);border-radius:11px;background:#FFFDF6}
+.proof .av{display:flex}.proof .av i{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);background:var(--line2);margin-left:-7px;display:block}
+.proof .av i:first-child{margin:0}
+.proof .tx{font-size:11px;color:var(--ink2);line-height:1.3}.proof .tx b{color:var(--ink)}
+
+.anno{font-family:'Caveat';font-size:17px;color:var(--pen);line-height:1.18;margin-top:12px;display:flex;gap:7px;align-items:flex-start}
+.anno::before{content:'★';font-family:'Plus Jakarta Sans';font-size:12px;transform:translateY(2px)}
+.anno.b2{color:var(--pen2)}
+body.noanno .anno{display:none}
+
+.note{max-width:1280px;margin:0 auto;padding:0 30px 60px}
+.note .box{border:2.5px solid var(--ink);border-radius:var(--doodle);background:#FFFDF6;padding:18px 20px;box-shadow:5px 6px 0 rgba(43,43,43,.10)}
+.note .box h4{font-family:'Caveat';font-size:24px;font-weight:700;margin-bottom:6px}
+.note .box ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.note .box li{font-size:13px;color:var(--ink2);padding-left:20px;position:relative}
+.note .box li::before{content:'→';position:absolute;left:0;color:var(--pen)}
+.note .box li b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+  <div class="bar">
+    <div class="logo"><div class="m">A</div>App<span style="color:var(--ink3)">Chat</span></div>
+    <div class="ttl">Wireframe v2 · <b>Đăng ký tối ưu chuyển đổi</b> — Zalo · Google · Facebook</div>
+    <div class="spacer"></div>
+    <label class="chk"><input type="checkbox" id="annoTgl" checked> Vì sao tăng CR</label>
+  </div>
+
+  <div class="intro">
+    <div class="k">Bớt ma sát = tăng tỉ lệ hoàn tất đăng ký</div>
+    <p>Vấn đề của bản trước: hiển thị cả email + mật khẩu + nhiều bước ngay khi đăng ký. Mỗi trường nhập làm rớt chuyển đổi. 4 hướng dưới đây đẩy hành động xuống còn <b>1 chạm hoặc 1 trường</b>, không mật khẩu, và dời thiết lập Workspace/kênh vào <b>sau khi tài khoản đã được tạo</b>.</p>
+    <div class="princ">
+      <span><b>0–1</b> trường nhập</span>
+      <span><b>Không</b> mật khẩu lúc đăng ký</span>
+      <span><b>1</b> CTA chính</span>
+      <span>Workspace dời vào <b>sau</b></span>
+      <span>Trust + social proof</span>
+    </div>
+  </div>
+
+  <div class="wrap" id="wrap"></div>
+
+  <div class="note">
+    <div class="box">
+      <h4>Nguyên tắc &amp; khuyến nghị</h4>
+      <ul>
+        <li><b>Càng ít trường, CR càng cao</b> — bỏ Họ/Tên/Mật khẩu/Workspace khỏi bước đăng ký; lấy sau hoặc tự suy ra từ tài khoản social.</li>
+        <li><b>1 chạm thắng mọi form</b> — đăng ký Zalo/Google/Facebook không cần gõ. Đặt Zalo làm nút hero cho thị trường VN.</li>
+        <li><b>Không mật khẩu</b> — passwordless bằng OTP (Zalo/SMS) hoặc magic link email; mật khẩu (nếu cần) đặt sau.</li>
+        <li><b>Đừng chặn đăng ký bằng setup</b> — tên workspace, lĩnh vực, kết nối kênh → chuyển thành onboarding <i>sau</i> khi vào app.</li>
+        <li><b>Khuyến nghị F1 (One-tap Zalo)</b> cho CR cao nhất; F2 (Phone OTP) nếu muốn passwordless mà vẫn sở hữu số điện thoại để remarketing.</li>
+        <li>Chọn 1 hướng (F1–F4) → tôi dựng hi-fi đúng Design System và thay vào <b>components/auth.jsx</b>.</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+const G = {
+  zalo: '<span class="gl zalo">Z</span>', zaloBig:'<span class="gl zalo big">Z</span>',
+  g:    '<span class="gl g"><svg viewBox="0 0 24 24" width="13" height="13"><path fill="#4285F4" d="M21.35 11.1H12v3.18h5.59c-.56 2.67-2.82 4.12-5.59 4.12-3.36 0-6.09-2.73-6.09-6.09S8.64 6.22 12 6.22c1.51 0 2.88.55 3.95 1.46l2.37-2.37C16.9 3.95 14.59 3 12 3 6.98 3 3 6.98 3 12s3.98 9 9 9c5.18 0 8.68-3.64 8.68-8.77 0-.41-.04-.81-.11-1.13z"/></svg></span>',
+  fb:   '<span class="gl fb">f</span>',
+};
+const trust = `<div class="trust"><span class="ok">✓ Miễn phí 14 ngày</span><span class="ok">✓ Không cần thẻ</span><span class="ok">✓ Hủy bất cứ lúc nào</span></div>`;
+const proof = `<div class="proof"><div class="av"><i></i><i></i><i></i><i></i></div><div class="tx"><b>12.000+</b> doanh nghiệp Việt đã đăng ký · ⭐ 4.8/5</div></div>`;
+const applogo = `<div class="applogo"><div class="m">A</div>AppChat</div>`;
+
+const FR = [
+  { n:'F1', nm:'One-tap Zalo', sm:'0 TRƯỜNG · 1 CHẠM', fric:'Ma sát ✂ thấp nhất', b2:false,
+    anno:['Không có form nào hiện ra — chỉ 1 cú chạm là tạo xong tài khoản. Họ/tên/avatar lấy thẳng từ Zalo. CR cao nhất.'],
+    body: applogo
+      + `<div class="h1">Tạo tài khoản trong 5 giây</div>`
+      + `<div class="sub">Dùng thử đầy đủ tính năng Ultimate — không cần điền form.</div>`
+      + `<div class="sbtn hero">${G.zaloBig} Đăng ký bằng Zalo</div>`
+      + `<div class="srow" style="margin-top:10px"><div class="sbtn">${G.g} Google</div><div class="sbtn">${G.fb} Facebook</div></div>`
+      + trust + proof
+      + `<div class="foot">Đã có tài khoản? <u>Đăng nhập</u></div>`
+  },
+  { n:'F2', nm:'Phone OTP', sm:'1 TRƯỜNG · KHÔNG MẬT KHẨU', fric:'Sở hữu SĐT', b2:true,
+    anno:['Chỉ 1 ô số điện thoại → nhận OTP qua Zalo/SMS. Không mật khẩu, hợp thói quen VN, và bạn giữ được SĐT để chăm sóc lại.'],
+    body: applogo
+      + `<div class="h1">Bắt đầu miễn phí</div>`
+      + `<div class="sub">Nhập số điện thoại — nhận mã OTP qua Zalo/SMS, không cần mật khẩu.</div>`
+      + `<div class="field"><div class="flab">Số điện thoại</div><div class="fbox big"><span class="pre">🇻🇳 +84</span><div class="ph"></div></div></div>`
+      + `<div class="cta">Nhận mã OTP →</div>`
+      + `<div class="divider">HOẶC 1 CHẠM</div>`
+      + `<div class="srow"><div class="sbtn sm">${G.zalo} Zalo</div><div class="sbtn sm">${G.g} Google</div><div class="sbtn sm">${G.fb} Facebook</div></div>`
+      + trust
+      + `<div class="foot">Đã có tài khoản? <u>Đăng nhập</u></div>`
+  },
+  { n:'F3', nm:'Magic link email', sm:'1 TRƯỜNG · KHÔNG MẬT KHẨU', fric:'Không gõ pass', b2:false,
+    anno:['Social lên trên cho người 1 chạm; ai thích email chỉ nhập 1 ô → nhận link đăng nhập. Bỏ hẳn ô mật khẩu khỏi đăng ký.'],
+    body: applogo
+      + `<div class="h1">Tạo tài khoản miễn phí</div>`
+      + `<div class="sub">14 ngày · không cần thẻ · đầy đủ tính năng.</div>`
+      + `<div class="stack"><div class="sbtn hero" style="height:46px;font-size:14px">${G.zalo} Đăng ký bằng Zalo</div>`
+      + `<div class="srow"><div class="sbtn">${G.g} Google</div><div class="sbtn">${G.fb} Facebook</div></div></div>`
+      + `<div class="divider">HOẶC DÙNG EMAIL</div>`
+      + `<div class="field"><div class="fbox big">📧 <div class="ph"></div></div></div>`
+      + `<div class="cta">Gửi link bắt đầu</div>`
+      + `<div class="foot">Không mật khẩu — ta gửi link đăng nhập về email.</div>`
+  },
+  { n:'F4', nm:'Value split', sm:'PROOF + 1 CHẠM', fric:'Thuyết phục', b2:true,
+    anno:['Nửa trái bán giá trị + bằng chứng (logo KH, số liệu); nửa phải chỉ 1 cụm nút. Tốt cho landing/quảng cáo có lưu lượng lạnh.'],
+    body: `<div style="display:grid;grid-template-columns:1fr;gap:14px">`
+      + `<div style="border:2px dashed var(--line2);border-radius:12px;padding:13px;background:#FFFDF6">`
+        + `<div class="hand" style="font-size:21px;font-weight:700;line-height:1.1">“Chốt đơn ngay trong khung chat — nhanh hơn 3×”</div>`
+        + `<div style="display:flex;gap:14px;margin-top:10px">`
+          + `<div><div style="font-size:20px;font-weight:800">12K+</div><div style="font-size:10px;color:var(--ink3)">doanh nghiệp</div></div>`
+          + `<div><div style="font-size:20px;font-weight:800">68%</div><div style="font-size:10px;color:var(--ink3)">AI tự xử</div></div>`
+          + `<div><div style="font-size:20px;font-weight:800">4.8★</div><div style="font-size:10px;color:var(--ink3)">đánh giá</div></div>`
+        + `</div>`
+        + `<div style="display:flex;gap:6px;margin-top:11px;flex-wrap:wrap">`
+          + ['Zalo','Shopee','TikTok','Lazada'].map(x=>`<span style="font-size:9.5px;font-weight:700;color:var(--ink3);border:1.5px solid var(--line2);border-radius:6px;padding:3px 7px">${x}</span>`).join('')
+        + `</div>`
+      + `</div>`
+      + `<div>`
+        + `<div class="h1" style="font-size:18px">Đăng ký miễn phí</div>`
+        + `<div class="stack" style="margin-top:10px"><div class="sbtn hero" style="height:46px;font-size:14px">${G.zalo} Đăng ký bằng Zalo</div>`
+        + `<div class="srow"><div class="sbtn sm">${G.g} Google</div><div class="sbtn sm">${G.fb} Facebook</div></div></div>`
+        + trust
+      + `</div></div>`
+  },
+];
+
+document.getElementById('wrap').innerHTML = FR.map(f=>`
+  <div class="frame">
+    <div class="tag"><span class="num">${f.n}</span><span class="nm">${f.nm}<small>${f.sm}</small></span><span class="fric">${f.fric}</span></div>
+    <div class="card">${f.body}</div>
+    ${f.anno.map(a=>`<div class="anno${f.b2?' b2':''}">${a}</div>`).join('')}
+  </div>`).join('');
+
+document.getElementById('annoTgl').addEventListener('change', e=>{
+  document.body.classList.toggle('noanno', !e.target.checked);
+});
+</script>
+</body>
+</html>

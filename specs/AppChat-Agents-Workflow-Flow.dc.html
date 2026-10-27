@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<template id="__bundler_thumbnail" data-bg-color="#EEF0F2">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#EEF0F2"/>
+    <rect x="120" y="360" width="220" height="90" rx="14" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="7"/>
+    <path d="M340 405 H430" stroke="#9E86D4" stroke-width="9"/>
+    <rect x="430" y="360" width="200" height="90" rx="14" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="7"/>
+    <path d="M630 405 H700" stroke="#9E86D4" stroke-width="9"/>
+    <path d="M810 320 L920 405 L810 490 L700 405 Z" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="7"/>
+    <path d="M920 405 H1010" stroke="#C4CBD1" stroke-width="9"/>
+    <rect x="1010" y="365" width="80" height="80" rx="14" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="7"/>
+    <path d="M810 490 V600" stroke="#DDA6A2" stroke-width="9"/>
+    <rect x="700" y="600" width="220" height="80" rx="14" fill="#FBEDED" stroke="#F0C9C9" stroke-width="7"/>
+  </svg>
+</template>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEF0F2;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#2F7D4C}a:hover{color:#1F5C36}
+  .box{background:#fff;border:1px solid #DDE1E4;border-radius:12px}
+</style>
+</helmet>
+
+<div style="max-width:1420px;margin:0 auto;padding:48px 40px 90px">
+
+  <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">APPCHAT · FLOW NGHIỆP VỤ · 10/08/2026</div>
+  <h1 style="font-size:34px;font-weight:800;letter-spacing:-.02em;color:#231F20;margin:10px 0 8px">Tương tác giữa AI Agents và Quy trình</h1>
+  <p style="font-size:15px;color:#6B7280;line-height:1.65;max-width:840px;margin:0;text-wrap:pretty">AI Agent là <b>chủ thể suy luận</b> — quyết định phải làm gì trong ngữ cảnh phi cấu trúc. Quy trình là <b>luật vận hành</b> — chạy đúng các bước đã định nghĩa. Hai bên gọi lẫn nhau theo hai chiều, và cùng rơi về người khi vượt ngưỡng.</p>
+
+  <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:20px;font-size:12.5px;color:#8A9096;align-items:center">
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #C4CBD1;border-radius:4px;background:#F5F6F7"></span>Bước xử lý</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:20px;height:20px;background:#EAF6EF;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></span>Điểm quyết định</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFE3CE;border-radius:9px;background:#EAF6EF"></span>Bắt đầu / Kết thúc</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #F0C9C9;border-radius:4px;background:#FBEDED"></span>Người can thiệp</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #CFC0F0;border-radius:4px;background:#F3EFFE"></span>AI Agent</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFD4EE;border-radius:4px;background:#EFF4FC"></span>Quy trình</span>
+  </div>
+
+  <!-- ============ FLOW A ============ -->
+  <div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">CHIỀU 1 — QUY TRÌNH GỌI AI AGENT</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Quy trình là khung SOP chạy theo luật. Ở bước cần <b>phán đoán</b> (đọc ý định, soạn nội dung, chấm điểm), nó uỷ thác cho AI Agent qua node <b>“Gọi AI Agent”</b> rồi nhận kết quả về để chạy tiếp.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 580" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="a1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E86D4"/></marker>
+        <marker id="a1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DDA6A2"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M145,86 V122" marker-end="url(#a1)"/>
+        <path d="M145,182 V218" marker-end="url(#a1)"/>
+        <path d="M145,278 V314" marker-end="url(#a1)"/>
+        <path d="M270,350 H366" marker-end="url(#a1p)" stroke="#9E86D4"/>
+        <path d="M590,350 H616" marker-end="url(#a1p)" stroke="#9E86D4"/>
+        <path d="M840,350 H896" marker-end="url(#a1)"/>
+        <path d="M1025,318 V238" marker-end="url(#a1)"/>
+        <path d="M730,400 V456" marker-end="url(#a1r)" stroke="#DDA6A2"/>
+        <path d="M1150,350 H1215 V488 H884" marker-end="url(#a1)"/>
+      </g>
+      <g text-anchor="middle">
+        <!-- start -->
+        <rect x="20" y="46" width="250" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="145" y="71" font-size="13.5" font-weight="700" fill="#2F7D4C">TRIGGER · sự kiện xảy ra</text>
+        <!-- steps -->
+        <rect x="20" y="122" width="250" height="60" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="145" y="146" font-size="12.6" font-weight="600" fill="#3A3F44">Quy trình khởi chạy</text>
+        <text x="145" y="164" font-size="11.2" font-weight="600" fill="#8A9096">Khách nhắn · đơn tạo · SLA gần hạn</text>
+
+        <rect x="20" y="218" width="250" height="60" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="145" y="242" font-size="12.6" font-weight="600" fill="#3A3F44">Kiểm tra điều kiện</text>
+        <text x="145" y="260" font-size="11.2" font-weight="600" fill="#8A9096">Kênh · hạng KH · giờ làm việc</text>
+
+        <rect x="20" y="314" width="250" height="72" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="145" y="338" font-size="12.6" font-weight="700" fill="#2C5A93">Node “Gọi AI Agent”</text>
+        <text x="145" y="356" font-size="11.2" font-weight="600" fill="#8A9096">Chọn agent · truyền ngữ cảnh</text>
+        <text x="145" y="373" font-size="11" font-weight="700" fill="#9AA0A6">bước cần phán đoán</text>
+
+        <!-- agent -->
+        <rect x="366" y="314" width="224" height="72" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="478" y="338" font-size="12.8" font-weight="700" fill="#5B3FA8">AI Agent thực thi</text>
+        <text x="478" y="356" font-size="11.2" font-weight="600" fill="#8A9096">Đọc RAG · suy luận</text>
+        <text x="478" y="373" font-size="11.2" font-weight="600" fill="#8A9096">sinh hành động đề xuất</text>
+
+        <!-- confidence gate -->
+        <path d="M726,300 L836,350 L726,400 L616,350 Z" fill="#EAF6EF"/>
+        <text x="726" y="346" font-size="12.4" font-weight="700" fill="#2F7D4C">Độ tin cậy</text>
+        <text x="726" y="363" font-size="12.4" font-weight="700" fill="#2F7D4C">≥ ngưỡng?</text>
+
+        <rect x="900" y="318" width="250" height="68" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="1025" y="342" font-size="12.6" font-weight="600" fill="#3A3F44">Trả kết quả về quy trình</text>
+        <text x="1025" y="360" font-size="11.2" font-weight="600" fill="#8A9096">Nội dung · nhãn · điểm</text>
+        <text x="1025" y="377" font-size="11" font-weight="700" fill="#9AA0A6">ghi Nhật ký hành động</text>
+
+        <rect x="885" y="178" width="280" height="60" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="1025" y="202" font-size="12.6" font-weight="600" fill="#3A3F44">Quy trình chạy tiếp node sau</text>
+        <text x="1025" y="220" font-size="11.2" font-weight="600" fill="#8A9096">Gửi tin · tạo bản ghi · rẽ nhánh</text>
+
+        <!-- human -->
+        <rect x="600" y="460" width="284" height="60" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="742" y="484" font-size="12.6" font-weight="700" fill="#A8544F">Human-in-the-loop</text>
+        <text x="742" y="502" font-size="11.2" font-weight="600" fill="#C08A85">Người duyệt hoặc tự xử lý</text>
+
+        <!-- labels -->
+        <text x="868" y="338" font-size="11.5" font-weight="700" fill="#3A9D5D">ĐẠT</text>
+        <text x="796" y="436" font-size="11.5" font-weight="700" fill="#A8544F">THẤP · leo thang</text>
+        <text x="1050" y="478" font-size="11.5" font-weight="700" fill="#8A9096">việc cần duyệt bắt buộc</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ FLOW B ============ -->
+  <div style="margin-top:52px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">CHIỀU 2 — AI AGENT KÍCH HOẠT QUY TRÌNH</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Agent đang xử lý hội thoại; khi phát hiện <b>ý định nghiệp vụ</b> (khách chốt, khiếu nại, xin báo giá), nó không tự làm hết mà kích hoạt đúng quy trình chuẩn để đảm bảo các bước sau luôn nhất quán và ghi vết đầy đủ.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 520" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="a2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8FAED6"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M160,86 V122" marker-end="url(#a2)"/>
+        <path d="M160,182 V218" marker-end="url(#a2)"/>
+        <path d="M300,250 H416" marker-end="url(#a2)"/>
+        <path d="M660,250 H786" marker-end="url(#a2b)" stroke="#8FAED6"/>
+        <path d="M540,310 V356" marker-end="url(#a2)"/>
+        <path d="M540,416 V446" marker-end="url(#a2)"/>
+        <path d="M915,280 V436" marker-end="url(#a2)"/>
+        <path d="M1040,250 H1110 V104 H160 V118" marker-end="url(#a2)" stroke-dasharray="5 4"/>
+      </g>
+      <g text-anchor="middle">
+        <rect x="20" y="46" width="280" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="160" y="71" font-size="13.5" font-weight="700" fill="#2F7D4C">BẮT ĐẦU · Khách nhắn tin</text>
+
+        <rect x="20" y="122" width="280" height="60" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="160" y="146" font-size="12.6" font-weight="700" fill="#5B3FA8">AI Agent tiếp nhận</text>
+        <text x="160" y="164" font-size="11.2" font-weight="600" fill="#8A9096">Hộp thư hợp nhất · đa kênh</text>
+
+        <rect x="20" y="218" width="280" height="60" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="160" y="242" font-size="12.6" font-weight="600" fill="#3A3F44">Nhận diện ý định &amp; ngữ cảnh</text>
+        <text x="160" y="260" font-size="11.2" font-weight="600" fill="#8A9096">Đọc hồ sơ 360 · lịch sử · RAG</text>
+
+        <path d="M540,190 L660,250 L540,310 L416,250 Z" fill="#EAF6EF"/>
+        <text x="540" y="244" font-size="12.4" font-weight="700" fill="#2F7D4C">Có khớp ý định</text>
+        <text x="540" y="261" font-size="12.4" font-weight="700" fill="#2F7D4C">nghiệp vụ?</text>
+
+        <rect x="786" y="220" width="254" height="60" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="913" y="244" font-size="12.6" font-weight="700" fill="#2C5A93">Kích hoạt quy trình chuẩn</text>
+        <text x="913" y="262" font-size="11.2" font-weight="600" fill="#8A9096">Báo giá · Đơn · Ticket · Lịch hẹn</text>
+
+        <rect x="400" y="356" width="280" height="60" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="540" y="380" font-size="12.6" font-weight="600" fill="#3A3F44">Agent tiếp tục hội thoại</text>
+        <text x="540" y="398" font-size="11.2" font-weight="600" fill="#8A9096">Tư vấn · giải đáp · giữ nhịp</text>
+
+        <rect x="740" y="436" width="300" height="60" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="890" y="460" font-size="12.6" font-weight="600" fill="#3A3F44">Bản ghi tạo &amp; gán phụ trách</text>
+        <text x="890" y="478" font-size="11.2" font-weight="600" fill="#8A9096">Hiện ở module · tính vào KPI</text>
+
+        <rect x="400" y="446" width="280" height="44" rx="22" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="540" y="474" font-size="12.8" font-weight="700" fill="#2F7D4C">KẾT THÚC · xử lý xong</text>
+
+        <text x="722" y="238" font-size="11.5" font-weight="700" fill="#3A9D5D">CÓ</text>
+        <text x="574" y="336" font-size="11.5" font-weight="700" fill="#8A9096">KHÔNG</text>
+        <text x="620" y="96" font-size="11.5" font-weight="700" fill="#8A9096">báo trạng thái ngược về agent</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ STEP DETAIL A ============ -->
+  <div style="margin-top:36px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">DIỄN GIẢI TỪNG BƯỚC — CHIỀU 1</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:14px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B1 · Trigger — sự kiện khởi chạy</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Nguồn kích hoạt:</b> tin nhắn đến bất kỳ kênh nào · bản ghi được tạo/đổi trạng thái (đơn, ticket, lịch hẹn) · mốc thời gian (trước hẹn 24h, sau đóng ticket 1h) · ngưỡng SLA sắp vi phạm · webhook từ hệ thống ngoài.<br><b>Dữ liệu mang theo:</b> id bản ghi, kênh, khách hàng, thời điểm.<br><b>Ràng buộc:</b> một trigger chỉ chạy một instance cho cùng bản ghi để tránh trùng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B2 · Kiểm tra điều kiện</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Bộ lọc thường dùng:</b> kênh · hạng khách · giá trị đơn · phòng ban phụ trách · trong/ngoài giờ làm việc · khách mới hay cũ.<br><b>Kết quả:</b> đủ điều kiện thì đi tiếp; không đủ thì kết thúc im lặng và ghi lý do.<br><b>Lưu ý:</b> giờ làm việc là của <b>người</b> — AI chạy 24/7, nên nhánh ngoài giờ thường rẽ thẳng sang agent.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B3 · Node “Gọi AI Agent”</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Cấu hình node:</b> chọn agent phụ trách · loại việc (soạn nội dung / phân loại / chấm điểm / tóm tắt) · ngưỡng độ tin cậy · thời gian chờ tối đa.<br><b>Truyền vào:</b> ngữ cảnh hội thoại, hồ sơ 360, biến từ các node trước.<br><b>Nhận về:</b> kết quả có cấu trúc để node sau dùng được.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B4 · AI Agent thực thi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Trình tự:</b> đọc ngữ cảnh → truy xuất tri thức (RAG) → suy luận → sinh kết quả kèm điểm tin cậy.<br><b>Phạm vi bị chặn:</b> agent chỉ dùng công cụ đã cấp quyền; không tự ý giảm giá, hoàn tiền hay xoá dữ liệu.<br><b>Ghi vết:</b> mỗi lần chạy ghi prompt, nguồn tri thức đã dùng và token tiêu thụ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B5 · Cổng độ tin cậy</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Đạt ngưỡng:</b> kết quả được dùng ngay, quy trình chạy tiếp không cần người.<br><b>Dưới ngưỡng:</b> đẩy sang người kèm bản nháp của AI để sửa nhanh thay vì làm lại từ đầu.<br><b>Ép duyệt bất kể điểm số:</b> việc chạm tiền (giảm giá, hoàn tiền), gửi hàng loạt, thay đổi hợp đồng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B6 · Chạy tiếp &amp; ghi nhận</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Các node sau:</b> gửi tin qua kênh gốc · tạo/cập nhật bản ghi · gán phụ trách · đặt hẹn theo dõi · rẽ nhánh theo kết quả.<br><b>Ghi nhận:</b> Nhật ký hành động lưu ai/agent nào làm gì, lúc nào — hoàn tác được.<br><b>Chỉ số cập nhật:</b> % AI tự xử, % đạt SLA, KPI người phụ trách.</div>
+    </div>
+  </div>
+
+  <!-- ============ STEP DETAIL B ============ -->
+  <div style="margin-top:36px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">DIỄN GIẢI TỪNG BƯỚC — CHIỀU 2</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:14px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B1 · Agent tiếp nhận hội thoại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Đầu vào:</b> tin nhắn từ Hộp thư hợp nhất — Zalo, Facebook, Instagram, TikTok, Web, Email, Voice.<br><b>Định tuyến:</b> hệ thống chọn agent theo kênh, phòng ban hoặc thẻ hội thoại.<br><b>Ngoại lệ:</b> chưa gán agent nào → về hàng đợi người trực.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B2 · Nhận diện ý định</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Ngữ cảnh đọc:</b> nội dung tin, hồ sơ 360, lịch sử mua, ticket đang mở, tri thức sản phẩm.<br><b>Nhóm ý định:</b> hỏi thông tin · muốn mua · khiếu nại · đặt lịch · theo dõi đơn · yêu cầu người thật.<br><b>Kết quả:</b> nhãn ý định + điểm tin cậy + thực thể trích được (sản phẩm, thời gian, số lượng).</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B3 · Cổng khớp nghiệp vụ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Khớp:</b> ý định ứng với một quy trình đã dựng → kích hoạt, kèm toàn bộ thực thể đã trích.<br><b>Không khớp:</b> agent tiếp tục hội thoại bình thường, không tạo bản ghi thừa.<br><b>Nhiều ý định trong một tin:</b> ưu tiên ý định có giá trị nghiệp vụ cao nhất, phần còn lại trả lời trong hội thoại.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B4 · Kích hoạt quy trình chuẩn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Vì sao không để agent tự làm hết:</b> các bước sau phải nhất quán, ghi vết đầy đủ và tuân thủ quyền hạn — đó là việc của quy trình.<br><b>Quy trình hay được gọi:</b> Tạo báo giá · Tạo đơn · Mở ticket · Đặt lịch hẹn · Chuyển phòng ban.<br><b>Chống trùng:</b> kiểm tra bản ghi đang mở của cùng khách trước khi tạo mới.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B5 · Phản hồi ngược về agent</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Quy trình báo về:</b> đã tạo bản ghi gì, mã số bao nhiêu, ai phụ trách, bước kế tiếp là gì.<br><b>Agent dùng để:</b> nhắn lại cho khách đúng trạng thái thật, không hứa sai.<br><b>Nếu quy trình thất bại:</b> agent nhận lỗi, xin lỗi khách và chuyển người xử lý.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">B6 · Bản ghi hiện ở module</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Nơi xuất hiện:</b> đúng module tương ứng (Báo giá, Đơn bán hàng, Hỗ trợ, Lịch hẹn) và trong tab Lịch sử của hồ sơ 360.<br><b>Gán phụ trách:</b> theo ca trực, phòng ban hoặc người đang chăm khách đó.<br><b>Tính vào:</b> KPI cá nhân/phòng ban và báo cáo hiệu quả AI.</div>
+    </div>
+  </div>
+
+  <!-- ============ USE CASES ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">USE CASE VẬN HÀNH</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Mỗi use case nêu rõ tác nhân, điều kiện kích hoạt, luồng chính, ngoại lệ và kết quả — dùng làm căn cứ khi dựng quy trình thật trên hệ thống.</div>
+
+  <div style="margin-top:24px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">A · QUY TRÌNH ĐIỀU PHỐI AGENT</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-01 · Chuỗi nuôi dưỡng lead có cá nhân hoá</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Marketing.<br><b>Kích hoạt:</b> lead mới vào từ form hoặc quảng cáo.<br><b>Luồng chính:</b> quy trình đặt lịch gửi 5 chạm trong 14 ngày → mỗi chạm gọi agent soạn nội dung theo ngành nghề và hành vi của lead → gửi qua kênh lead hay dùng nhất.<br><b>Ngoại lệ:</b> lead trả lời giữa chuỗi → dừng chuỗi, chuyển sang hội thoại thật.<br><b>Kết quả:</b> tỉ lệ mở tăng nhờ nội dung riêng, lịch gửi vẫn nhất quán.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-02 · Leo thang khi sắp vi phạm SLA</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> CSKH · quản lý ca trực.<br><b>Kích hoạt:</b> hội thoại/ticket còn 15 phút là quá hạn phản hồi.<br><b>Luồng chính:</b> quy trình gọi agent tóm tắt tình huống → gán người trực đang rảnh → gửi cảnh báo kèm bản tóm tắt để người vào việc ngay.<br><b>Ngoại lệ:</b> ngoài giờ làm việc → agent trả lời tạm và hẹn khung giờ phản hồi chính thức.<br><b>Kết quả:</b> giảm số ca vi phạm SLA, người tiếp nhận không phải đọc lại từ đầu.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-03 · Nhắc lịch hẹn và xác nhận</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> lễ tân · vận hành.<br><b>Kích hoạt:</b> trước giờ hẹn 24h và 2h.<br><b>Luồng chính:</b> quy trình gửi nhắc → khách trả lời → agent đọc ý định (xác nhận / đổi giờ / huỷ) → cập nhật lịch tương ứng.<br><b>Ngoại lệ:</b> khách xin đổi giờ ngoài khung trống → agent đề xuất 3 khung gần nhất, chờ khách chọn.<br><b>Kết quả:</b> giảm tỉ lệ khách không đến, lịch luôn phản ánh đúng thực tế.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-04 · Khảo sát sau khi đóng ticket</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> CSKH.<br><b>Kích hoạt:</b> ticket chuyển trạng thái “đã đóng”.<br><b>Luồng chính:</b> chờ 1 giờ → gửi khảo sát ngắn → agent đọc phản hồi mở, phân loại hài lòng/không → điểm thấp thì tự mở ticket theo dõi.<br><b>Ngoại lệ:</b> khách đã khảo sát trong 7 ngày gần đây → bỏ qua, tránh làm phiền.<br><b>Kết quả:</b> có dữ liệu CSAT thật, vấn đề tồn đọng không bị bỏ sót.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">B · AGENT KHỞI PHÁT QUY TRÌNH</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-05 · Khách chốt mua trong hội thoại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Sales Agent.<br><b>Kích hoạt:</b> agent nhận diện ý định “muốn mua” đủ độ tin cậy.<br><b>Luồng chính:</b> kích hoạt quy trình Tạo báo giá → lấy sản phẩm và biến thể đã trao đổi → áp chiết khấu theo hạng khách → agent soạn lời gửi → gửi cho khách.<br><b>Ngoại lệ:</b> giá trị vượt hạn mức → chặn chờ quản lý duyệt trước khi gửi.<br><b>Kết quả:</b> báo giá đúng chính sách, thời gian phản hồi tính bằng phút.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-06 · Khách khiếu nại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> CSKH Agent.<br><b>Kích hoạt:</b> nhận diện giọng điệu tiêu cực hoặc từ khoá khiếu nại.<br><b>Luồng chính:</b> mở ticket với mức ưu tiên tương ứng → gán đúng phòng ban → agent xoa dịu và xác nhận đã ghi nhận → quy trình đặt mốc SLA và theo dõi.<br><b>Ngoại lệ:</b> khách yêu cầu gặp người thật → chuyển ngay, không cố giữ ở AI.<br><b>Kết quả:</b> khiếu nại được ghi vết, không trôi trong hội thoại.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-07 · Khách hỏi tình trạng đơn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Sales/CSKH Agent.<br><b>Kích hoạt:</b> ý định “theo dõi đơn”.<br><b>Luồng chính:</b> agent tra đơn gần nhất của khách → trả lời trạng thái thật → nếu đơn trễ, kích hoạt quy trình xử lý đơn trễ (thông báo, xin lỗi, gán người theo dõi).<br><b>Ngoại lệ:</b> khách có nhiều đơn → agent hỏi lại mã đơn thay vì đoán.<br><b>Kết quả:</b> khách nhận thông tin chính xác, đơn có vấn đề được đưa vào luồng xử lý.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-08 · Khách mới chưa có hồ sơ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> mọi agent tuyến đầu.<br><b>Kích hoạt:</b> hội thoại từ số/tài khoản chưa có trong CRM.<br><b>Luồng chính:</b> agent thu thập tên, nhu cầu, nguồn biết đến → kích hoạt quy trình tạo liên hệ → chạy kiểm tra trùng theo SĐT/email/MST trước khi lưu.<br><b>Ngoại lệ:</b> phát hiện trùng → đề xuất gộp thay vì tạo mới.<br><b>Kết quả:</b> dữ liệu khách sạch ngay từ điểm nhập.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">C · NGOẠI LỆ &amp; KIỂM SOÁT</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">UC-09 · AI không đủ tự tin</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Kích hoạt:</b> điểm tin cậy dưới ngưỡng đã cấu hình.<br><b>Luồng chính:</b> dừng tự động hoá → đẩy việc lên khối “Cần xử lý gấp” ở Tổng quan → kèm bản nháp và lý do không chắc chắn.<br><b>Người xử lý:</b> sửa nháp rồi gửi, hoặc tự làm lại.<br><b>Kết quả:</b> phản hồi vẫn nhanh, chất lượng do người bảo chứng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">UC-10 · Quy trình chạy lỗi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Nguyên nhân thường gặp:</b> kênh mất kết nối, thiếu dữ liệu bắt buộc, hết hạn mức token, hệ thống ngoài không phản hồi.<br><b>Luồng chính:</b> thử lại theo cấu hình → vẫn lỗi thì dừng, gắn nhãn lỗi, cảnh báo quản trị.<br><b>Ràng buộc:</b> không được để khách rơi vào im lặng — agent gửi tin giữ nhịp.<br><b>Kết quả:</b> lỗi hiện rõ ở nhật ký, không âm thầm mất việc.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">UC-11 · Vượt quyền hạn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Trường hợp:</b> giảm giá quá mức, hoàn tiền, sửa hợp đồng đã ký, gửi hàng loạt.<br><b>Luồng chính:</b> quy trình chặn tại điểm duyệt → gửi yêu cầu tới người có quyền → chỉ chạy tiếp khi được chấp thuận.<br><b>Ghi vết:</b> lưu ai duyệt, lúc nào, kèm lý do.<br><b>Kết quả:</b> tự động hoá nhưng vẫn kiểm soát được rủi ro tài chính.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">UC-12 · Khách yêu cầu gặp người thật</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Kích hoạt:</b> khách nói rõ muốn gặp người, hoặc lặp lại câu hỏi ba lần.<br><b>Luồng chính:</b> agent dừng tự trả lời ngay → chuyển hội thoại kèm tóm tắt → gán theo ca trực.<br><b>Ràng buộc:</b> không được cố giữ khách ở AI khi đã yêu cầu.<br><b>Kết quả:</b> trải nghiệm được tôn trọng, tránh leo thang cảm xúc.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-13 · Xung đột — cả hai cùng chạm một bản ghi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tình huống:</b> quy trình đang xử lý một đơn thì agent cũng muốn cập nhật đơn đó theo yêu cầu khách.<br><b>Nguyên tắc:</b> bản ghi bị khoá mềm khi có quy trình đang chạy — agent phải chờ hoặc ghi ghi chú thay vì ghi đè.<br><b>Kết quả:</b> không mất dữ liệu, không có hai nguồn sự thật.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-14 · Đo lường &amp; cải tiến vòng lặp</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Theo dõi:</b> % việc agent tự xử · số lần leo thang theo lý do · tỉ lệ lỗi từng quy trình · thời gian trung bình mỗi node.<br><b>Hành động:</b> node hay leo thang thì bổ sung tri thức RAG hoặc hạ ngưỡng; quy trình hay lỗi thì sửa điều kiện.<br><b>Kết quả:</b> tỉ lệ tự động hoá tăng dần theo thời gian thay vì đứng yên.</div>
+    </div>
+  </div>
+
+  <!-- ============ MATRIX ============ -->
+  <div style="margin-top:52px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">RANH GIỚI TRÁCH NHIỆM</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:16px">
+    <div class="box" style="padding:24px 26px;border-left:4px solid #CFC0F0">
+      <div style="font-size:15px;font-weight:700;color:#5B3FA8;margin-bottom:4px">AI Agents — “ai làm”</div>
+      <div style="font-size:12.8px;color:#8A9096;margin-bottom:14px">Chủ thể suy luận, mỗi lần chạy có thể khác nhau.</div>
+      <div style="font-size:13.2px;color:#4A5057;line-height:1.85">
+        <b>Nhận:</b> ngữ cảnh phi cấu trúc — tin nhắn, hồ sơ 360, tri thức RAG.<br>
+        <b>Làm:</b> hiểu ý định · soạn nội dung · chấm điểm · đề xuất hành động.<br>
+        <b>Giới hạn:</b> có ngưỡng độ tin cậy, có phạm vi quyền hạn.<br>
+        <b>Đo bằng:</b> % tự xử lý · CSAT · số lần leo thang.
+      </div>
+    </div>
+    <div class="box" style="padding:24px 26px;border-left:4px solid #BFD4EE">
+      <div style="font-size:15px;font-weight:700;color:#2C5A93;margin-bottom:4px">Quy trình — “làm theo luật nào”</div>
+      <div style="font-size:12.8px;color:#8A9096;margin-bottom:14px">Luật xác định trước, lặp lại y hệt mỗi lần chạy.</div>
+      <div style="font-size:13.2px;color:#4A5057;line-height:1.85">
+        <b>Nhận:</b> trigger + điều kiện có cấu trúc.<br>
+        <b>Làm:</b> điều phối thứ tự bước · gọi agent · tạo bản ghi · chờ · rẽ nhánh.<br>
+        <b>Giới hạn:</b> không suy luận, chỉ chạy đúng luật đã dựng.<br>
+        <b>Đo bằng:</b> số lần chạy · tỉ lệ lỗi · thời gian hoàn tất.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RULES ============ -->
+  <div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">QUY TẮC CHỌN KHI THIẾT KẾ NGHIỆP VỤ</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Việc cần phán đoán</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Trả lời câu hỏi mở, tư vấn sản phẩm theo nhu cầu, tóm tắt hội thoại, đánh giá mức độ quan tâm.<br><b style="color:#5B3FA8">→ Giao AI Agent.</b></div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Việc luôn giống nhau</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Nhắc lịch trước 24h, leo thang khi quá SLA, gửi khảo sát sau khi đóng ticket, đồng bộ dữ liệu định kỳ.<br><b style="color:#2C5A93">→ Dựng Quy trình.</b></div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Việc nhiều bước có cả hai</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chuỗi nuôi dưỡng lead: lịch gửi cố định nhưng nội dung phải cá nhân hoá theo từng khách.<br><b style="color:#3A3F44">→ Quy trình làm khung, gọi Agent ở bước cần suy luận.</b></div>
+    </div>
+  </div>
+
+  <!-- ============ EXAMPLE ============ -->
+  <div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">VÍ DỤ VẬN HÀNH — TỪ TIN NHẮN ĐẾN ĐƠN HÀNG</div>
+  <div class="box" style="margin-top:16px;padding:26px 28px">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px">
+      <div style="padding:16px 14px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:10px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#9E86D4;margin-bottom:6px">AGENT</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Khách hỏi giá gói HIFU — agent đọc bảng giá từ RAG, tư vấn theo nhu cầu.</div>
+      </div>
+      <div style="padding:16px 14px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:10px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#9E86D4;margin-bottom:6px">AGENT</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Nhận diện ý định <b>“muốn chốt”</b> — độ tin cậy 92%.</div>
+      </div>
+      <div style="padding:16px 14px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">QUY TRÌNH</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Kích hoạt quy trình <b>Tạo báo giá</b> — lấy sản phẩm, áp chiết khấu theo hạng.</div>
+      </div>
+      <div style="padding:16px 14px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">QUY TRÌNH</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Node “Gọi AI Agent” — nhờ agent soạn lời gửi báo giá đúng giọng thương hiệu.</div>
+      </div>
+      <div style="padding:16px 14px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:10px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#DDA6A2;margin-bottom:6px">NGƯỜI</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Giá trị vượt 20tr — quy trình chặn, chờ quản lý duyệt.</div>
+      </div>
+      <div style="padding:16px 14px;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:10px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">KẾT QUẢ</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Duyệt xong — gửi khách, tạo đơn, cập nhật KPI và Nhật ký hành động.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+</body>
+</html>

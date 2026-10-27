@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<template id="__bundler_thumbnail" data-bg-color="#EEF0F2">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#EEF0F2"/>
+    <rect x="290" y="180" width="620" height="440" rx="34" fill="#fff" stroke="#C4CBD1" stroke-width="8"/>
+    <rect x="290" y="180" width="620" height="86" rx="34" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="8"/>
+    <rect x="360" y="150" width="34" height="70" rx="17" fill="#8FAED6"/>
+    <rect x="806" y="150" width="34" height="70" rx="17" fill="#8FAED6"/>
+    <rect x="360" y="330" width="150" height="90" rx="14" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="7"/>
+    <rect x="540" y="330" width="150" height="90" rx="14" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="7"/>
+    <rect x="720" y="330" width="150" height="90" rx="14" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="7"/>
+    <rect x="360" y="460" width="150" height="90" rx="14" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="7"/>
+    <rect x="540" y="460" width="150" height="90" rx="14" fill="#FBEDED" stroke="#F0C9C9" stroke-width="7"/>
+    <rect x="720" y="460" width="150" height="90" rx="14" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="7"/>
+  </svg>
+</template>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEF0F2;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#2F7D4C}a:hover{color:#1F5C36}
+  .box{background:#fff;border:1px solid #DDE1E4;border-radius:12px}
+  .th{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9AA0A6;text-transform:uppercase}
+  .td{font-size:13px;color:#4A5057;line-height:1.65;vertical-align:top;padding:14px 16px;border-top:1px solid #EEF0F2}
+</style>
+</helmet>
+
+<div style="max-width:1420px;margin:0 auto;padding:48px 40px 90px">
+
+  <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">APPCHAT · ĐẶC TẢ MODULE · 11/08/2026</div>
+  <h1 style="font-size:34px;font-weight:800;letter-spacing:-.02em;color:#231F20;margin:10px 0 8px">Lịch hẹn — Trạng thái, luồng nghiệp vụ, tính năng &amp; hoạt động</h1>
+  <p style="font-size:15px;color:#6B7280;line-height:1.65;max-width:900px;margin:0;text-wrap:pretty">Lịch hẹn là điểm giao giữa <b>hội thoại</b> (khách hỏi giờ) và <b>vận hành</b> (nhân sự, phòng, thiết bị có rảnh không). Tài liệu này định nghĩa vòng đời trạng thái, luồng đặt lịch đầu-cuối, danh mục tính năng và các hoạt động được ghi vết.</p>
+
+  <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:20px;font-size:12.5px;color:#8A9096;align-items:center">
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #C4CBD1;border-radius:4px;background:#F5F6F7"></span>Bước xử lý</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:20px;height:20px;background:#EAF6EF;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></span>Điểm quyết định</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFE3CE;border-radius:9px;background:#EAF6EF"></span>Bắt đầu / Kết thúc</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #F0C9C9;border-radius:4px;background:#FBEDED"></span>Ngoại lệ · huỷ</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #CFC0F0;border-radius:4px;background:#F3EFFE"></span>AI Agent</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFD4EE;border-radius:4px;background:#EFF4FC"></span>Quy trình tự động</span>
+  </div>
+
+  <!-- ============ 1 · ĐỊNH NGHĨA TRẠNG THÁI ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">1 · ĐỊNH NGHĨA TRẠNG THÁI</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Chín trạng thái, mỗi trạng thái nêu rõ ý nghĩa, ai được đặt, điều kiện vào và trạng thái kế tiếp hợp lệ. Không cho phép nhảy trạng thái ngoài bảng này.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:170px">Trạng thái</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Ý nghĩa · điều kiện vào</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:180px">Ai đặt</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:280px">Chuyển tiếp hợp lệ</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#6B7280;background:#F3F4F6">Nháp</span></td>
+          <td class="td">Nhân viên đang soạn lịch nhưng chưa gửi cho khách. Chưa giữ chỗ, chưa chiếm khung giờ.</td>
+          <td class="td">Nhân viên</td>
+          <td class="td">→ Chờ xác nhận · Đã huỷ</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#B45309;background:#FFF8EC">Chờ xác nhận</span></td>
+          <td class="td">Đã gửi đề nghị giờ hẹn cho khách, đang đợi khách đồng ý. <b>Giữ chỗ tạm</b> theo thời hạn cấu hình (mặc định 2 giờ).</td>
+          <td class="td">AI Agent · Nhân viên · Khách tự đặt</td>
+          <td class="td">→ Đã xác nhận · Quá hạn xác nhận · Đã dời lịch · Đã huỷ</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#0F7B45;background:#EDFAF3">Đã xác nhận</span></td>
+          <td class="td">Khách đã đồng ý. Khung giờ bị khoá cứng cho nhân sự/phòng/thiết bị. Kích hoạt chuỗi nhắc tự động.</td>
+          <td class="td">Khách · Nhân viên duyệt</td>
+          <td class="td">→ Đang diễn ra · Đã dời lịch · Đã huỷ · Khách không đến</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#1D4ED8;background:#EFF6FF">Đang diễn ra</span></td>
+          <td class="td">Đã đến giờ và khách đã check-in. Hệ thống bắt đầu tính thời lượng thực tế.</td>
+          <td class="td">Lễ tân check-in · tự động theo giờ</td>
+          <td class="td">→ Hoàn tất</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#0F7B45;background:#EDFAF3">Hoàn tất</span></td>
+          <td class="td">Buổi hẹn đã xong. Mở nhánh hậu kỳ: ghi kết quả, tạo đơn/hoá đơn, cộng điểm loyalty, gửi khảo sát.</td>
+          <td class="td">Nhân viên phụ trách</td>
+          <td class="td">Trạng thái cuối (chỉ ghi bổ sung kết quả)</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#B91C1C;background:#FEF2F2">Khách không đến</span></td>
+          <td class="td">Quá giờ hẹn cộng thời gian ân hạn (mặc định 20 phút) mà khách chưa đến và không báo. Tính vào chỉ số no-show.</td>
+          <td class="td">Tự động · Lễ tân xác nhận</td>
+          <td class="td">→ Cần đặt lại (mở lịch mới)</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#6B7280;background:#F3F4F6">Quá hạn xác nhận</span></td>
+          <td class="td">Hết thời hạn giữ chỗ tạm mà khách không phản hồi. <b>Nhả khung giờ</b> để người khác đặt được.</td>
+          <td class="td">Tự động (quy trình)</td>
+          <td class="td">→ Đã huỷ · Chờ xác nhận (nếu khách trả lời muộn và còn chỗ)</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#7C3AED;background:#F3EFFE">Đã dời lịch</span></td>
+          <td class="td">Khách hoặc cửa hàng đổi giờ. Lịch cũ đóng lại, sinh lịch mới liên kết bằng mã gốc để truy vết chuỗi dời.</td>
+          <td class="td">Khách · Nhân viên</td>
+          <td class="td">→ sinh lịch mới ở Chờ xác nhận</td>
+        </tr>
+        <tr>
+          <td class="td"><span style="display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12.2px;font-weight:700;color:#B91C1C;background:#FEF2F2">Đã huỷ</span></td>
+          <td class="td">Huỷ hẳn, không đặt lại trong cùng bản ghi. Bắt buộc chọn <b>lý do huỷ</b> để phục vụ phân tích.</td>
+          <td class="td">Khách · Nhân viên · Tự động</td>
+          <td class="td">Trạng thái cuối</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 2 · SƠ ĐỒ CHUYỂN TRẠNG THÁI ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">2 · SƠ ĐỒ CHUYỂN TRẠNG THÁI</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Hàng trên là luồng thuận lợi. Hàng dưới là các nhánh lệch — mỗi nhánh đều có đường ra rõ ràng, không có trạng thái cụt.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 580" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="s1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DDA6A2"/></marker>
+        <marker id="s1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E86D4"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M195,120 H281" marker-end="url(#s1)"/>
+        <path d="M475,120 H571" marker-end="url(#s1)"/>
+        <path d="M765,120 H861" marker-end="url(#s1)"/>
+        <path d="M1055,120 H1126" marker-end="url(#s1)"/>
+        <path d="M340,152 V264" marker-end="url(#s1)"/>
+        <path d="M640,152 V264" marker-end="url(#s1p)" stroke="#9E86D4"/>
+        <path d="M990,152 V264" marker-end="url(#s1r)" stroke="#DDA6A2"/>
+        <path d="M530,300 H460 V156" marker-end="url(#s1p)" stroke="#9E86D4"/>
+        <path d="M340,332 V384" marker-end="url(#s1r)" stroke="#DDA6A2"/>
+        <path d="M720,152 V420 H489" marker-end="url(#s1r)" stroke="#DDA6A2"/>
+        <path d="M990,332 V384" marker-end="url(#s1)"/>
+        <path d="M990,452 V520 H110 V156" marker-end="url(#s1)" stroke-dasharray="5 4"/>
+      </g>
+      <g text-anchor="middle">
+        <!-- ROW 1 · happy path -->
+        <rect x="25" y="88" width="170" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="110" y="114" font-size="12.8" font-weight="700" fill="#3A3F44">Nháp</text>
+        <text x="110" y="132" font-size="11" font-weight="600" fill="#8A9096">chưa giữ chỗ</text>
+
+        <rect x="285" y="88" width="190" height="64" rx="8" fill="#FFF8EC" stroke="#F0DCB4" stroke-width="1.5"/>
+        <text x="380" y="114" font-size="12.8" font-weight="700" fill="#B45309">Chờ xác nhận</text>
+        <text x="380" y="132" font-size="11" font-weight="600" fill="#B99A66">giữ chỗ tạm 2 giờ</text>
+
+        <rect x="575" y="88" width="190" height="64" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="670" y="114" font-size="12.8" font-weight="700" fill="#0F7B45">Đã xác nhận</text>
+        <text x="670" y="132" font-size="11" font-weight="600" fill="#6FA98A">khoá khung · bật nhắc</text>
+
+        <rect x="865" y="88" width="190" height="64" rx="8" fill="#EFF6FF" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="960" y="114" font-size="12.8" font-weight="700" fill="#1D4ED8">Đang diễn ra</text>
+        <text x="960" y="132" font-size="11" font-weight="600" fill="#7D9AC4">đã check-in</text>
+
+        <rect x="1130" y="88" width="170" height="64" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="1215" y="114" font-size="12.8" font-weight="700" fill="#0F7B45">Hoàn tất</text>
+        <text x="1215" y="132" font-size="11" font-weight="600" fill="#6FA98A">mở nhánh hậu kỳ</text>
+
+        <!-- ROW 2 · deviations -->
+        <rect x="240" y="268" width="200" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="340" y="294" font-size="12.6" font-weight="700" fill="#3A3F44">Quá hạn xác nhận</text>
+        <text x="340" y="312" font-size="11" font-weight="600" fill="#8A9096">nhả khung giờ</text>
+
+        <rect x="530" y="268" width="180" height="64" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="620" y="294" font-size="12.6" font-weight="700" fill="#7C3AED">Đã dời lịch</text>
+        <text x="620" y="312" font-size="11" font-weight="600" fill="#9E86D4">sinh lịch mới</text>
+
+        <rect x="890" y="268" width="200" height="64" rx="8" fill="#FEF2F2" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="990" y="294" font-size="12.6" font-weight="700" fill="#B91C1C">Khách không đến</text>
+        <text x="990" y="312" font-size="11" font-weight="600" fill="#C08A85">quá ân hạn 20 phút</text>
+
+        <!-- ROW 3 · terminal -->
+        <rect x="295" y="388" width="190" height="64" rx="8" fill="#FEF2F2" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="390" y="414" font-size="12.6" font-weight="700" fill="#B91C1C">Đã huỷ</text>
+        <text x="390" y="432" font-size="11" font-weight="600" fill="#C08A85">bắt buộc chọn lý do</text>
+
+        <rect x="890" y="388" width="200" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="990" y="414" font-size="12.6" font-weight="700" fill="#3A3F44">Cần đặt lại</text>
+        <text x="990" y="432" font-size="11" font-weight="600" fill="#8A9096">AI chủ động mời hẹn mới</text>
+
+        <!-- transition labels -->
+        <text x="238" y="112" font-size="11" font-weight="700" fill="#8A9096">gửi</text>
+        <text x="523" y="112" font-size="11" font-weight="700" fill="#3A9D5D">khách đồng ý</text>
+        <text x="813" y="112" font-size="11" font-weight="700" fill="#8A9096">check-in</text>
+        <text x="1093" y="112" font-size="11" font-weight="700" fill="#8A9096">xong</text>
+        <text x="292" y="212" font-size="11" font-weight="700" fill="#8A9096">hết hạn giữ chỗ</text>
+        <text x="700" y="212" font-size="11" font-weight="700" fill="#9E86D4">đổi giờ</text>
+        <text x="1052" y="212" font-size="11" font-weight="700" fill="#C08A85">quá ân hạn</text>
+        <text x="424" y="248" font-size="11" font-weight="700" fill="#9E86D4">lịch mới</text>
+        <text x="286" y="372" font-size="11" font-weight="700" fill="#C08A85">không cứu được</text>
+        <text x="790" y="410" font-size="11" font-weight="700" fill="#C08A85">khách chủ động huỷ</text>
+        <text x="360" y="544" font-size="11" font-weight="700" fill="#8A9096">tạo lại từ đầu</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ 3 · LUỒNG ĐẶT LỊCH ĐẦU-CUỐI ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3 · LUỒNG NGHIỆP VỤ ĐẶT LỊCH ĐẦU-CUỐI</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Từ yêu cầu đặt lịch đến khi buổi hẹn kết thúc. Hai điểm quyết định trọng tâm: <b>còn khung trống không</b> và <b>khách có xác nhận không</b>.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 640" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="f1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DDA6A2"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M300,100 H396" marker-end="url(#f1)"/>
+        <path d="M640,100 H756" marker-end="url(#f1)"/>
+        <path d="M1000,100 H1150 V180 H200 V246" marker-end="url(#f1)"/>
+        <path d="M200,350 V424" marker-end="url(#f1)"/>
+        <path d="M325,460 H360 V160 H820 V136" marker-end="url(#f1)" stroke-dasharray="5 4"/>
+        <path d="M315,300 H416" marker-end="url(#f1)"/>
+        <path d="M700,300 H741" marker-end="url(#f1)"/>
+        <path d="M995,300 H1006" marker-end="url(#f1)"/>
+        <path d="M1120,350 V390 H760 V424" marker-end="url(#f1)"/>
+        <path d="M1230,300 H1270 V424" marker-end="url(#f1r)" stroke="#DDA6A2"/>
+        <path d="M760,492 V524" marker-end="url(#f1)"/>
+      </g>
+      <g text-anchor="middle">
+        <!-- row 1 -->
+        <rect x="20" y="80" width="280" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="160" y="105" font-size="13.2" font-weight="700" fill="#2F7D4C">BẮT ĐẦU · Yêu cầu đặt lịch</text>
+
+        <rect x="400" y="68" width="240" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="520" y="92" font-size="12.6" font-weight="600" fill="#3A3F44">Xác định nguồn &amp; khách</text>
+        <text x="520" y="110" font-size="11" font-weight="600" fill="#8A9096">Chat · Widget · Tổng đài · Nhân viên</text>
+        <text x="520" y="126" font-size="10.6" font-weight="700" fill="#9AA0A6">tra hồ sơ 360 · kiểm tra trùng</text>
+
+        <rect x="760" y="68" width="240" height="64" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="880" y="92" font-size="12.6" font-weight="700" fill="#5B3FA8">AI kiểm tra khung trống</text>
+        <text x="880" y="110" font-size="11" font-weight="600" fill="#8A9096">Nhân sự · phòng · thiết bị</text>
+        <text x="880" y="126" font-size="10.6" font-weight="700" fill="#9AA0A6">theo ca trực &amp; giờ mở cửa</text>
+
+        <!-- row 2 -->
+        <path d="M200,250 L315,300 L200,350 L85,300 Z" fill="#EAF6EF"/>
+        <text x="200" y="296" font-size="12.2" font-weight="700" fill="#2F7D4C">Còn khung</text>
+        <text x="200" y="313" font-size="12.2" font-weight="700" fill="#2F7D4C">trống?</text>
+
+        <rect x="420" y="268" width="280" height="64" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="560" y="292" font-size="12.6" font-weight="700" fill="#2C5A93">Tạo lịch · Chờ xác nhận</text>
+        <text x="560" y="310" font-size="11" font-weight="600" fill="#8A9096">Giữ chỗ tạm · gán người phụ trách</text>
+        <text x="560" y="326" font-size="10.6" font-weight="700" fill="#9AA0A6">ghi vào hồ sơ 360 của khách</text>
+
+        <rect x="745" y="268" width="250" height="64" rx="8" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="1.5"/>
+        <text x="870" y="292" font-size="12.6" font-weight="600" fill="#3A3F44">Gửi xác nhận đa kênh</text>
+        <text x="870" y="310" font-size="11" font-weight="600" fill="#8A9096">Zalo ZNS · SMS · Email</text>
+        <text x="870" y="326" font-size="10.6" font-weight="700" fill="#9AA0A6">kèm nút Xác nhận / Đổi giờ</text>
+
+        <path d="M1120,250 L1230,300 L1120,350 L1010,300 Z" fill="#EAF6EF"/>
+        <text x="1120" y="296" font-size="12.2" font-weight="700" fill="#2F7D4C">Khách</text>
+        <text x="1120" y="313" font-size="12.2" font-weight="700" fill="#2F7D4C">xác nhận?</text>
+
+        <!-- alternative slot -->
+        <rect x="75" y="428" width="250" height="64" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="200" y="452" font-size="12.6" font-weight="700" fill="#5B3FA8">Đề xuất 3 khung gần nhất</text>
+        <text x="200" y="470" font-size="11" font-weight="600" fill="#8A9096">AI xếp theo thói quen khách</text>
+        <text x="200" y="486" font-size="10.6" font-weight="700" fill="#9AA0A6">khách chọn → kiểm tra lại</text>
+
+        <!-- row 3 -->
+        <rect x="610" y="428" width="300" height="64" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="760" y="452" font-size="12.6" font-weight="700" fill="#0F7B45">Đã xác nhận · chuỗi nhắc tự động</text>
+        <text x="760" y="470" font-size="11" font-weight="600" fill="#6FA98A">Nhắc trước 24 giờ và trước 2 giờ</text>
+        <text x="760" y="486" font-size="10.6" font-weight="700" fill="#8FBFA4">đồng bộ lịch nhân sự · khoá khung</text>
+
+        <rect x="1010" y="428" width="280" height="64" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="1150" y="452" font-size="12.6" font-weight="700" fill="#A8544F">Quá hạn giữ chỗ</text>
+        <text x="1150" y="470" font-size="11" font-weight="600" fill="#C08A85">Nhả khung · thông báo nhân viên</text>
+        <text x="1150" y="486" font-size="10.6" font-weight="700" fill="#C9A09C">AI nhắc lần cuối trước khi huỷ</text>
+
+        <!-- row 4 -->
+        <rect x="590" y="528" width="340" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="760" y="552" font-size="12.6" font-weight="600" fill="#3A3F44">Đến giờ → Check-in → Hoàn tất</text>
+        <text x="760" y="570" font-size="11" font-weight="600" fill="#8A9096">Không đến sau ân hạn → đánh dấu no-show</text>
+        <text x="760" y="586" font-size="10.6" font-weight="700" fill="#9AA0A6">hậu kỳ: tạo đơn · cộng điểm · khảo sát</text>
+
+        <!-- labels -->
+        <text x="366" y="290" font-size="11" font-weight="700" fill="#3A9D5D">CÒN</text>
+        <text x="245" y="390" font-size="11" font-weight="700" fill="#8A9096">HẾT CHỖ</text>
+        <text x="940" y="380" font-size="11" font-weight="700" fill="#3A9D5D">CÓ</text>
+        <text x="1258" y="286" font-size="11" font-weight="700" fill="#C08A85">KHÔNG</text>
+        <text x="470" y="152" font-size="11" font-weight="700" fill="#8A9096">kiểm tra lại khung giờ mới</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ 4 · TÍNH NĂNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">4 · TÍNH NĂNG THEO NHÓM</div>
+
+  <div style="margin-top:20px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">A · ĐẶT LỊCH &amp; LỊCH BIỂU</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Đa nguồn đặt lịch</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khách đặt qua hội thoại (AI Agent xử lý), Web Widget, tổng đài, hoặc nhân viên tạo tay. Mọi nguồn đổ về cùng một lịch biểu, không có lịch nằm ngoài hệ thống.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Ba chế độ xem</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Danh sách (lọc &amp; xuất Excel), Kanban theo trạng thái (kéo thả để chuyển), và Lịch theo ngày/tuần/tháng — xem theo nhân sự hoặc theo phòng ban.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Kiểm tra xung đột</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chặn đặt trùng trên ba chiều: nhân sự, phòng và thiết bị. Có tính thời gian đệm giữa hai buổi (dọn dẹp, chuẩn bị) theo cấu hình từng dịch vụ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Giữ chỗ tạm có hạn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Lịch ở Chờ xác nhận giữ khung trong thời hạn cấu hình. Hết hạn tự nhả để khách khác đặt được — tránh khung giờ bị treo bởi khách không phản hồi.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Đặt lịch lặp</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Liệu trình nhiều buổi tạo một lần: chọn số buổi và khoảng cách, hệ thống sinh toàn bộ chuỗi và cảnh báo những buổi rơi vào ngày nghỉ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Danh sách chờ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khung giờ hết chỗ thì khách vào hàng đợi. Khi có người huỷ, AI chủ động mời khách trong hàng đợi theo thứ tự ưu tiên.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">B · TỰ ĐỘNG HOÁ &amp; AI</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">AI gợi ý khung giờ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Đề xuất ba khung phù hợp nhất dựa trên lịch sử đặt của khách, khung giờ họ hay chọn, và mức tải của nhân sự — thay vì bắt khách tự dò lịch trống.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">Đặt lịch ngay trong hội thoại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Agent đọc ý định “muốn đặt lịch”, trích dịch vụ và thời gian mong muốn, rồi kích hoạt quy trình tạo lịch — nhân viên không phải chuyển màn hình.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">Dự báo nguy cơ no-show</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chấm điểm rủi ro theo lịch sử vắng mặt, độ trễ phản hồi và kênh đặt. Điểm cao thì tăng số lần nhắc hoặc yêu cầu đặt cọc.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">Chuỗi nhắc tự động</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Nhắc trước 24 giờ và 2 giờ qua kênh khách hay dùng. Khách trả lời “đổi giờ” hay “huỷ” thì agent xử lý ngay, không cần người trực.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">Quy trình hậu kỳ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Sau khi Hoàn tất: tạo đơn/hoá đơn từ dịch vụ đã dùng, cộng điểm loyalty, gửi khảo sát, và đặt nhắc tái khám theo chu kỳ dịch vụ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">Lấp chỗ trống khi huỷ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Có huỷ sát giờ thì quy trình tự tìm khách trong danh sách chờ hoặc khách đang cần đặt lại, gửi lời mời kèm khung giờ vừa trống.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">C · VẬN HÀNH &amp; ĐO LƯỜNG</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Phân công theo ca trực</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chỉ gán được cho nhân sự đang trong ca và còn tải. Ngoài ca thì AI nhận và hẹn khung phản hồi chính thức thay vì để khách chờ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Check-in &amp; thời lượng thực</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Lễ tân check-in để chuyển Đang diễn ra; hệ thống đo thời lượng thực so với dự kiến, phục vụ tối ưu khung giờ về sau.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Chỉ số theo dõi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Tỉ lệ xác nhận · tỉ lệ no-show · tỉ lệ huỷ theo lý do · công suất khung giờ · thời gian từ yêu cầu đến xác nhận · doanh thu mỗi buổi hẹn.</div>
+    </div>
+  </div>
+
+  <!-- ============ 5 · HOẠT ĐỘNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5 · HOẠT ĐỘNG ĐƯỢC GHI VẾT</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Mọi thay đổi trên lịch hẹn đều ghi vào tab Lịch sử của bản ghi và Nhật ký hành động — luôn truy được <b>ai hoặc agent nào</b> làm gì, lúc nào.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:200px">Hoạt động</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:170px">Ai thực hiện</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Ghi nhận &amp; hệ quả</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Tạo lịch hẹn</b></td><td class="td">Khách · AI Agent · Nhân viên</td><td class="td">Lưu nguồn đặt, dịch vụ, nhân sự, khung giờ. Chạy kiểm tra trùng khách trước khi lưu.</td></tr>
+        <tr><td class="td"><b>Gửi xác nhận</b></td><td class="td">Quy trình tự động</td><td class="td">Ghi kênh gửi và thời điểm. Nếu kênh chính lỗi thì tự chuyển kênh dự phòng.</td></tr>
+        <tr><td class="td"><b>Khách xác nhận</b></td><td class="td">Khách</td><td class="td">Chuyển sang Đã xác nhận, khoá khung giờ, kích hoạt chuỗi nhắc.</td></tr>
+        <tr><td class="td"><b>Dời lịch</b></td><td class="td">Khách · Nhân viên</td><td class="td">Bắt buộc nêu lý do. Lịch cũ đóng, lịch mới liên kết mã gốc. Đếm số lần dời của khách.</td></tr>
+        <tr><td class="td"><b>Huỷ lịch</b></td><td class="td">Khách · Nhân viên · Tự động</td><td class="td">Bắt buộc chọn lý do từ danh mục. Nhả khung giờ và kích hoạt luồng lấp chỗ trống.</td></tr>
+        <tr><td class="td"><b>Gán / đổi người phụ trách</b></td><td class="td">Quản lý · Quy trình</td><td class="td">Kiểm tra ca trực và tải hiện tại. Thông báo cho cả người cũ và người mới.</td></tr>
+        <tr><td class="td"><b>Check-in</b></td><td class="td">Lễ tân</td><td class="td">Ghi giờ đến thực tế, bắt đầu đo thời lượng, chuyển Đang diễn ra.</td></tr>
+        <tr><td class="td"><b>Đánh dấu không đến</b></td><td class="td">Tự động · Lễ tân</td><td class="td">Chỉ đặt được sau khi hết ân hạn. Cộng vào chỉ số no-show của khách, ảnh hưởng điểm rủi ro lần sau.</td></tr>
+        <tr><td class="td"><b>Hoàn tất &amp; ghi kết quả</b></td><td class="td">Nhân viên phụ trách</td><td class="td">Ghi dịch vụ đã dùng, ghi chú chuyên môn, đính kèm ảnh/tệp. Mở nhánh tạo đơn và cộng điểm.</td></tr>
+        <tr><td class="td"><b>Nhắc tự động</b></td><td class="td">Quy trình</td><td class="td">Ghi từng lần nhắc kèm trạng thái gửi. Khách phản hồi thì chuyển agent xử lý.</td></tr>
+        <tr><td class="td"><b>Bình luận nội bộ</b></td><td class="td">Toàn team</td><td class="td">Trao đổi trong bản ghi, có nhắc tên. Khách không nhìn thấy.</td></tr>
+        <tr><td class="td"><b>Đặt lại sau no-show</b></td><td class="td">AI Agent · Nhân viên</td><td class="td">Sinh lịch mới liên kết lịch cũ, giúp đo tỉ lệ cứu được khách đã vắng mặt.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 6 · TÍCH HỢP VỚI MODULE KHÁC ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">6 · TƯƠNG TÁC VỚI CÁC MODULE KHÁC</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Lịch hẹn không đứng một mình. Nó <b>nhận</b> dữ liệu từ Khách hàng, Sản phẩm, Phòng ban; <b>sinh ra</b> Đơn hàng, Hoá đơn, Ticket, điểm Loyalty; và <b>được điều phối</b> bởi AI Agents, Quy trình, SLA.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 700" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="m1g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8FC7A5"/></marker>
+        <marker id="m1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E86D4"/></marker>
+        <marker id="m1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DDA6A2"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M215,120 H400 V296" marker-end="url(#m1)"/>
+        <path d="M215,210 H340 V318 H392" marker-end="url(#m1)"/>
+        <path d="M215,300 H396" marker-end="url(#m1)"/>
+        <path d="M215,390 H340 V362 H392" marker-end="url(#m1)"/>
+        <path d="M215,480 H400 V384" marker-end="url(#m1)"/>
+        <path d="M924,296 V120 H1105" marker-end="url(#m1g)" stroke="#8FC7A5"/>
+        <path d="M924,310 H1000 V210 H1105" marker-end="url(#m1g)" stroke="#8FC7A5"/>
+        <path d="M924,340 H1105" marker-end="url(#m1g)" stroke="#8FC7A5"/>
+        <path d="M924,370 H1000 V430 H1105" marker-end="url(#m1g)" stroke="#8FC7A5"/>
+        <path d="M924,384 V520 H1105" marker-end="url(#m1g)" stroke="#8FC7A5"/>
+        <path d="M660,240 V296" marker-end="url(#m1p)" stroke="#9E86D4"/>
+        <path d="M660,384 V450" marker-end="url(#m1p)" stroke="#9E86D4"/>
+        <path d="M660,610 V660 H118 V510" marker-end="url(#m1)" stroke-dasharray="5 4"/>
+      </g>
+      <g text-anchor="middle">
+        <!-- CENTER -->
+        <rect x="396" y="296" width="528" height="88" rx="12" fill="#EFF4FC" stroke="#8FAED6" stroke-width="2.5"/>
+        <text x="660" y="330" font-size="17" font-weight="800" fill="#2C5A93">MODULE LỊCH HẸN</text>
+        <text x="660" y="352" font-size="12" font-weight="600" fill="#6B8CB4">Bản ghi lịch hẹn · trạng thái · khung giờ · nhân sự</text>
+        <text x="660" y="370" font-size="11" font-weight="700" fill="#8FAED6">nguồn sự thật duy nhất về thời gian phục vụ</text>
+
+        <!-- LEFT · inputs -->
+        <text x="118" y="62" font-size="11.5" font-weight="800" letter-spacing="1" fill="#9AA0A6">ĐẦU VÀO</text>
+        <rect x="20" y="94" width="195" height="52" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="118" y="115" font-size="12.4" font-weight="700" fill="#3A3F44">Khách hàng</text>
+        <text x="118" y="132" font-size="10.8" font-weight="600" fill="#8A9096">hồ sơ 360 · hạng · lịch sử</text>
+
+        <rect x="20" y="184" width="195" height="52" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="118" y="205" font-size="12.4" font-weight="700" fill="#3A3F44">Sản phẩm &amp; dịch vụ</text>
+        <text x="118" y="222" font-size="10.8" font-weight="600" fill="#8A9096">thời lượng · giá · thiết bị cần</text>
+
+        <rect x="20" y="274" width="195" height="52" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="118" y="295" font-size="12.4" font-weight="700" fill="#3A3F44">Hộp thư</text>
+        <text x="118" y="312" font-size="10.8" font-weight="600" fill="#8A9096">yêu cầu đặt từ hội thoại</text>
+
+        <rect x="20" y="364" width="195" height="52" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="118" y="385" font-size="12.4" font-weight="700" fill="#3A3F44">Phòng ban &amp; ca trực</text>
+        <text x="118" y="402" font-size="10.8" font-weight="600" fill="#8A9096">ai rảnh · giờ mở cửa</text>
+
+        <rect x="20" y="454" width="195" height="52" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="118" y="475" font-size="12.4" font-weight="700" fill="#3A3F44">Kênh kết nối</text>
+        <text x="118" y="492" font-size="10.8" font-weight="600" fill="#8A9096">Widget · ZNS · SMS · Email</text>
+
+        <!-- RIGHT · outputs -->
+        <text x="1203" y="62" font-size="11.5" font-weight="800" letter-spacing="1" fill="#9AA0A6">ĐẦU RA</text>
+        <rect x="1105" y="94" width="195" height="52" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="1203" y="115" font-size="12.4" font-weight="700" fill="#0F7B45">Đơn bán hàng</text>
+        <text x="1203" y="132" font-size="10.8" font-weight="600" fill="#6FA98A">từ dịch vụ đã dùng</text>
+
+        <rect x="1105" y="184" width="195" height="52" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="1203" y="205" font-size="12.4" font-weight="700" fill="#0F7B45">Hoá đơn</text>
+        <text x="1203" y="222" font-size="10.8" font-weight="600" fill="#6FA98A">phát hành &amp; thu tiền</text>
+
+        <rect x="1105" y="314" width="195" height="52" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="1203" y="335" font-size="12.4" font-weight="700" fill="#0F7B45">Khách hàng thân thiết</text>
+        <text x="1203" y="352" font-size="10.8" font-weight="600" fill="#6FA98A">cộng điểm · lên hạng</text>
+
+        <rect x="1105" y="404" width="195" height="52" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="1203" y="425" font-size="12.4" font-weight="700" fill="#0F7B45">Hỗ trợ (Ticket)</text>
+        <text x="1203" y="442" font-size="10.8" font-weight="600" fill="#6FA98A">khi có sự cố buổi hẹn</text>
+
+        <rect x="1105" y="494" width="195" height="52" rx="8" fill="#EDFAF3" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="1203" y="515" font-size="12.4" font-weight="700" fill="#0F7B45">Báo cáo &amp; KPI</text>
+        <text x="1203" y="532" font-size="10.8" font-weight="600" fill="#6FA98A">no-show · công suất · doanh thu</text>
+
+        <!-- TOP · orchestration -->
+        <rect x="520" y="180" width="280" height="60" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="660" y="204" font-size="12.6" font-weight="700" fill="#5B3FA8">AI Agents · Trợ lý AI</text>
+        <text x="660" y="222" font-size="10.8" font-weight="600" fill="#8A9096">đọc ý định · gợi ý khung · trả lời khách</text>
+
+        <!-- BOTTOM · governance -->
+        <rect x="480" y="450" width="360" height="60" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="660" y="474" font-size="12.6" font-weight="700" fill="#5B3FA8">Quy trình (Workflow)</text>
+        <text x="660" y="492" font-size="10.8" font-weight="600" fill="#8A9096">nhắc · leo thang · hậu kỳ · lấp chỗ trống</text>
+
+        <rect x="480" y="550" width="360" height="60" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="660" y="574" font-size="12.6" font-weight="700" fill="#A8544F">SLA &amp; Cần xử lý gấp (Tổng quan)</text>
+        <text x="660" y="592" font-size="10.8" font-weight="600" fill="#C08A85">lịch sát giờ chưa xác nhận → đẩy lên người</text>
+        <path d="M660,510 V546" stroke="#DDA6A2" stroke-width="1.8" fill="none" marker-end="url(#m1r)"/>
+
+        <text x="1000" y="646" font-size="11" font-weight="700" fill="#8A9096">việc gấp hiện trên Tổng quan để người can thiệp</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="box" style="margin-top:20px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:190px">Module</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:110px">Chiều</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Dữ liệu trao đổi &amp; ràng buộc</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Khách hàng</b></td><td class="td">Hai chiều</td><td class="td">Lịch hẹn bắt buộc gắn với một khách trong CRM — không có lịch “khách vãng lai không hồ sơ”. Đọc hạng khách để áp chính sách ưu tiên và phí huỷ muộn. Mọi lịch hiện ở tab <b>Lịch sử</b> của hồ sơ 360; số buổi đã đến/vắng tính vào tín hiệu khách hàng ở tab AI.</td></tr>
+        <tr><td class="td"><b>Sản phẩm &amp; dịch vụ</b></td><td class="td">Đọc</td><td class="td">Mỗi dịch vụ khai báo <b>thời lượng chuẩn</b>, thời gian đệm, thiết bị/phòng cần dùng và nhóm nhân sự đủ năng lực. Chính các thông số này quyết định khung giờ nào là hợp lệ.</td></tr>
+        <tr><td class="td"><b>Hộp thư</b></td><td class="td">Hai chiều</td><td class="td">Khách nhắn xin hẹn → agent tạo lịch ngay trong hội thoại. Ngược lại, bản ghi lịch hẹn hiện nút mở lại đúng hội thoại gốc để xem ngữ cảnh đã trao đổi.</td></tr>
+        <tr><td class="td"><b>Phòng ban · Sơ đồ tổ chức · Ca trực</b></td><td class="td">Đọc</td><td class="td">Chỉ gán được cho nhân sự <b>trong ca</b> và còn tải. Lịch xem theo phòng ban/chi nhánh lấy cây đơn vị từ Sơ đồ tổ chức.</td></tr>
+        <tr><td class="td"><b>Kênh kết nối</b></td><td class="td">Đọc · Ghi</td><td class="td">Gửi xác nhận và nhắc qua kênh khách hay dùng (Zalo ZNS · SMS · Email). Kênh lỗi thì tự chuyển kênh dự phòng và ghi lại lần gửi thất bại.</td></tr>
+        <tr><td class="td"><b>Báo giá → Hợp đồng</b></td><td class="td">Hai chiều</td><td class="td">Báo giá dịch vụ có thể sinh lịch hẹn tư vấn/khảo sát. Ngược lại, buổi tư vấn Hoàn tất là điểm kích hoạt tạo báo giá chính thức.</td></tr>
+        <tr><td class="td"><b>Đơn bán hàng</b></td><td class="td">Ghi</td><td class="td">Khi Hoàn tất, dịch vụ đã dùng đẩy sang đơn — giữ liên kết hai chiều để truy từ đơn về buổi hẹn và ngược lại. Liệu trình nhiều buổi trừ dần vào đơn gốc.</td></tr>
+        <tr><td class="td"><b>Hoá đơn</b></td><td class="td">Ghi</td><td class="td">Phát hành hoá đơn từ đơn sinh bởi buổi hẹn. Trường hợp đặt cọc thì cọc ghi nhận ngay ở bước xác nhận và trừ vào hoá đơn cuối.</td></tr>
+        <tr><td class="td"><b>Khách hàng thân thiết</b></td><td class="td">Ghi</td><td class="td">Buổi hẹn Hoàn tất cộng điểm theo quy tắc tích điểm; huỷ muộn hoặc no-show có thể trừ điểm nếu chính sách bật. Điểm cập nhật ngay vào bảng thành viên.</td></tr>
+        <tr><td class="td"><b>Hỗ trợ (Ticket)</b></td><td class="td">Ghi</td><td class="td">Sự cố trong buổi hẹn (trễ giờ, sai dịch vụ, khiếu nại kết quả) mở ticket liên kết lịch hẹn để theo dõi tới khi đóng.</td></tr>
+        <tr><td class="td"><b>Gọi điện (Call Center)</b></td><td class="td">Hai chiều</td><td class="td">Gọi ra xác nhận lịch cho khách không phản hồi tin nhắn. Ghi âm và ghi chú cuộc gọi đính kèm bản ghi lịch hẹn.</td></tr>
+        <tr><td class="td"><b>Marketing</b></td><td class="td">Hai chiều</td><td class="td">Chiến dịch có thể chèn nút đặt lịch và đo số lịch phát sinh. Ngược lại, nhóm khách no-show hoặc quá hạn tái khám là tệp mục tiêu cho chiến dịch mời quay lại.</td></tr>
+        <tr><td class="td"><b>AI Agents</b></td><td class="td">Điều phối</td><td class="td">Agent đọc ý định, gợi ý khung giờ, xử lý phản hồi nhắc lịch. Vượt ngưỡng tin cậy hoặc chạm chính sách tiền thì chuyển người.</td></tr>
+        <tr><td class="td"><b>Quy trình (Workflow)</b></td><td class="td">Điều phối</td><td class="td">Chạy chuỗi nhắc, xử lý quá hạn giữ chỗ, hậu kỳ sau Hoàn tất, và lấp chỗ trống khi có huỷ.</td></tr>
+        <tr><td class="td"><b>SLA · Tổng quan</b></td><td class="td">Giám sát</td><td class="td">Lịch sắp tới giờ mà chưa xác nhận, hoặc yêu cầu đặt lịch chưa ai xử lý, sẽ leo thang và hiện ở khối <b>Cần xử lý gấp</b> trên Tổng quan.</td></tr>
+        <tr><td class="td"><b>Báo cáo &amp; KPI</b></td><td class="td">Ghi</td><td class="td">Cấp số liệu cho báo cáo vận hành và KPI cá nhân/phòng ban: số buổi phục vụ, tỉ lệ no-show, công suất khung giờ, doanh thu mỗi buổi.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 7 · FLOW LIÊN MODULE ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">7 · FLOW LIÊN MODULE — TỪ HỘI THOẠI ĐẾN DOANH THU</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Chuỗi hoàn chỉnh khi mọi thứ thuận lợi: khách hỏi trong Hộp thư, đặt được lịch, đến làm dịch vụ, sinh đơn và hoá đơn, cộng điểm và quay lại.</div>
+
+  <div class="box" style="margin-top:18px;padding:26px 24px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+      <div style="padding:16px 15px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">HỘP THƯ</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Khách nhắn “còn chỗ chiều mai không?”. Agent tra hồ sơ 360, biết khách hạng Vàng, hay đến khung 16h.</div>
+      </div>
+      <div style="padding:16px 15px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#9E86D4;margin-bottom:6px">AI AGENT</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Đọc thời lượng dịch vụ từ Sản phẩm, đối chiếu ca trực, đề xuất 3 khung — khách chọn 16h30.</div>
+      </div>
+      <div style="padding:16px 15px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">LỊCH HẸN</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Tạo bản ghi <b>Chờ xác nhận</b>, giữ chỗ 2 giờ, gán kỹ thuật viên đang trong ca và còn tải.</div>
+      </div>
+      <div style="padding:16px 15px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">QUY TRÌNH</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Gửi ZNS xác nhận qua Kênh kết nối. Khách bấm xác nhận → <b>Đã xác nhận</b>, khoá khung, bật chuỗi nhắc.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px">
+      <div style="padding:16px 15px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#DDA6A2;margin-bottom:6px">SLA · TỔNG QUAN</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Nếu tới sát giờ vẫn chưa xác nhận, việc leo thang lên khối <b>Cần xử lý gấp</b> để lễ tân gọi kiểm tra.</div>
+      </div>
+      <div style="padding:16px 15px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">LỊCH HẸN</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Khách đến, lễ tân check-in → <b>Đang diễn ra</b> → xong buổi, ghi kết quả → <b>Hoàn tất</b>.</div>
+      </div>
+      <div style="padding:16px 15px;background:#EDFAF3;border:1px solid #BFE3CE;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">ĐƠN · HOÁ ĐƠN</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Dịch vụ đã dùng đẩy sang <b>Đơn bán hàng</b>, phát hành <b>Hoá đơn</b>, trừ cọc nếu có.</div>
+      </div>
+      <div style="padding:16px 15px;background:#EDFAF3;border:1px solid #BFE3CE;border-radius:10px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">LOYALTY · MARKETING</div>
+        <div style="font-size:12.8px;color:#4A5057;line-height:1.55">Cộng điểm, cập nhật hạng. Đặt nhắc tái khám; đưa khách vào tệp chiến dịch chăm sóc kỳ sau.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 8 · TÍNH NĂNG LIÊN MODULE ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">8 · TÍNH NĂNG PHÁT SINH TỪ LIÊN KẾT</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Đặt cọc giữ chỗ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Dịch vụ giá trị cao hoặc khách có điểm no-show cao thì yêu cầu cọc. Cọc ghi nhận qua Hoá đơn ở bước xác nhận và tự trừ vào hoá đơn cuối buổi.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Liệu trình trừ dần</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khách mua gói 8 buổi ở Đơn bán hàng; mỗi lịch hẹn Hoàn tất trừ một buổi. Hệ thống cảnh báo khi gói sắp hết để mời gia hạn.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Ưu tiên theo hạng khách</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khách hạng cao được ưu tiên trong danh sách chờ, giữ chỗ tạm lâu hơn, và miễn phí phạt huỷ muộn theo chính sách Loyalty.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Mời quay lại sau no-show</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khách vắng mặt được gom thành tệp Marketing; chiến dịch mời hẹn lại kèm ưu đãi, đo được bao nhiêu khách quay lại thật.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Nhắc tái khám theo chu kỳ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mỗi dịch vụ khai báo chu kỳ khuyến nghị. Đến hạn, quy trình nhắc và agent chủ động mời đặt lịch mới — không đợi khách tự nhớ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Buổi hẹn từ báo giá</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Báo giá gửi đi kèm nút đặt lịch tư vấn. Buổi tư vấn Hoàn tất là mốc để chốt báo giá hoặc chuyển sang Hợp đồng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Gọi ra xác nhận lịch</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khách không phản hồi tin nhắn thì đẩy vào danh sách gọi ra của Call Center; ghi âm và kết quả gọi đính kèm bản ghi lịch hẹn.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Ticket từ sự cố buổi hẹn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Trễ giờ, sai dịch vụ hay khiếu nại kết quả mở ticket liên kết lịch hẹn, có SLA riêng và theo dõi tới khi đóng.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Trường dữ liệu tuỳ biến</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mỗi ngành khai báo trường riêng cho lịch hẹn (loại da, biển số xe, mã hồ sơ bệnh án) — hiện đồng thời ở form, bảng, kanban, bộ lọc và xuất Excel.</div>
+    </div>
+  </div>
+
+  <!-- ============ 9 · QUY TẮC ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">9 · QUY TẮC RÀNG BUỘC</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Không nhảy trạng thái</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chỉ đi theo các mũi tên trong sơ đồ mục 2. Ví dụ không thể chuyển thẳng Chờ xác nhận → Hoàn tất; muốn vậy phải qua Đã xác nhận và Đang diễn ra.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Giờ làm việc là của người</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">AI nhận yêu cầu đặt lịch 24/7, nhưng khung giờ đặt được phải nằm trong giờ mở cửa và ca trực của nhân sự. Ngoài giờ thì AI ghi nhận và hẹn phản hồi.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Bắt buộc lý do khi huỷ và dời</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Không cho huỷ/dời trống lý do. Danh mục lý do cấu hình được để báo cáo phân tích đúng nguyên nhân mất khách.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Khoá mềm khi quy trình đang chạy</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khi một quy trình đang thao tác trên lịch hẹn, agent hoặc người khác phải chờ hoặc ghi ghi chú — không ghi đè, tránh hai nguồn sự thật.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">Việc chạm tiền phải có người duyệt</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Hoàn cọc, miễn phí phạt huỷ muộn, đổi giá dịch vụ — AI đề xuất nhưng phải người có quyền chấp thuận mới thực thi.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">Không để khách rơi vào im lặng</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Nếu quy trình lỗi hoặc AI không đủ tự tin, việc phải hiện ở khối “Cần xử lý gấp” trên Tổng quan, và agent gửi tin giữ nhịp cho khách.</div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&amp;family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .s{width:1920px;height:1080px;position:relative;overflow:hidden;background:#fff;color:#14201A;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  .grad{background:linear-gradient(125deg,#0E7C8A 0%,#12894F 52%,#1FA85A 100%);color:#fff}
+  .grad::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0 1px,transparent 1px 26px)}
+  .grad>*{position:relative;z-index:1}
+  .s:not(.grad) .h2{padding-bottom:20px;border-bottom:4px solid #2DC56A;display:inline-block}
+  .pad{position:absolute;inset:0;padding:96px 120px;display:flex;flex-direction:column}
+  .kick{font-size:22px;font-weight:800;letter-spacing:.28em;color:#2DC56A;text-transform:uppercase}
+  .kick.on-dark{color:#7DE0A6}
+  .h1{font-size:88px;font-weight:800;letter-spacing:-.03em;line-height:1.02;margin:0}
+  .h2{font-size:58px;font-weight:800;letter-spacing:-.025em;line-height:1.06;margin:0}
+  .lead{font-size:30px;line-height:1.5;font-weight:500;color:#37424C}
+  .lead.on-dark{color:rgba(255,255,255,.78)}
+  .quote{font-family:'Newsreader',serif}
+  .num{display:flex;justify-content:space-between;font-size:20px;color:#9CA3AF;font-weight:600;letter-spacing:.04em;position:absolute;bottom:52px;left:120px;right:120px}
+  .num.on-dark{color:rgba(255,255,255,.45)}
+  .card{border:1px solid #E1E6E3;border-radius:22px;background:#F7FAF8;padding:32px 36px}
+  .card.g{border-color:#CDE9D8;background:#EDFAF3}
+  .swatch{border-radius:18px;height:280px;display:flex;flex-direction:column;justify-content:flex-end;padding:26px 28px;color:#fff}
+</style>
+</helmet>
+<a href="AppChat-Document-Index.dc.html" style="position:fixed;left:16px;top:16px;z-index:99999;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:9px;background:rgba(255,255,255,.95);border:1px solid #DDE1E4;box-shadow:0 4px 14px rgba(15,42,28,.14);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12.6px;font-weight:700;color:#157A40;text-decoration:none;backdrop-filter:blur(8px)"><svg width="14" height="14" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>Bộ hồ sơ năng lực</a>
+
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%" data-uneditable="">
+
+<!-- 01 · BÌA -->
+<section class="s grad" data-label="Bìa" data-speaker-notes="Nhận diện cốt lõi AppChat: logo, màu, typography, biểu tượng.">
+  <div style="position:absolute;right:-80px;top:-80px;width:520px;height:520px;border:1px solid rgba(255,255,255,.12);border-radius:50%"></div>
+  <div class="pad">
+    <div style="display:flex;align-items:center;gap:20px">
+      <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:56px;width:auto;display:block">
+      <span style="font-size:20px;letter-spacing:.28em;color:rgba(255,255,255,.7);font-weight:700">BY MEDIA SOFT</span>
+    </div>
+    <div style="margin-top:auto">
+      <div class="kick on-dark">CORE IDENTITY · 2026</div>
+      <h1 class="h1" style="margin-top:30px;max-width:1240px">Nhận diện<br>cốt lõi AppChat</h1>
+      <p class="lead on-dark" style="margin-top:34px;max-width:960px">Bộ quy chuẩn nền tảng: logo, hệ màu, typography và biểu tượng — đảm bảo thương hiệu nhất quán trên mọi điểm chạm.</p>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · CORE IDENTITY</span><span>01</span></div>
+</section>
+
+<!-- 02 · LOGO CHÍNH -->
+<section class="s" data-label="Logo chính" data-speaker-notes="Logo chính: biểu tượng khung chat + chữ AppChat.">
+  <div class="pad">
+    <div class="kick">HỆ THỐNG LOGO · PRIMARY LOGO</div>
+    <h2 class="h2" style="margin-top:24px">Logo chính</h2>
+    <div style="flex:1;display:grid;grid-template-columns:1.3fr 1fr;gap:40px;margin-top:44px">
+      <div class="card" style="display:flex;align-items:center;justify-content:center;padding:0"><img src="assets/appchat-logo-color.png" alt="AppChat logo" style="width:66%;height:auto"></div>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card g" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div style="font-size:24px;font-weight:800;color:#157A40;margin-bottom:10px">Ý nghĩa biểu tượng</div><div style="font-size:21px;line-height:1.55;color:#256B44;font-weight:500">Khung hội thoại kết hợp mũi tên đi lên &amp; nét lá — thể hiện <strong>giao tiếp</strong>, <strong>tăng trưởng</strong> và <strong>sức sống</strong> của doanh nghiệp.</div></div>
+        <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div style="font-size:24px;font-weight:800;margin-bottom:10px">Cấu trúc</div><div style="font-size:21px;line-height:1.55;color:#5A6670;font-weight:500">Biểu tượng (symbol) + chữ thương hiệu (wordmark) "AppChat" đặt cạnh, căn giữa theo trục ngang.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · CORE IDENTITY</span><span>02</span></div>
+</section>
+
+<!-- 03 · BIẾN THỂ LOGO -->
+<section class="s" data-label="Biến thể logo" data-speaker-notes="Các biến thể: đầy đủ màu, âm bản trên nền tối, biểu tượng đơn.">
+  <div class="pad">
+    <div class="kick">HỆ THỐNG LOGO · VARIATIONS</div>
+    <h2 class="h2" style="margin-top:24px">Biến thể logo</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:52px;flex:1">
+      <div style="display:flex;flex-direction:column">
+        <div class="card" style="flex:1;display:flex;align-items:center;justify-content:center"><img src="assets/appchat-logo-color.png" alt="Logo màu" style="width:80%;height:auto"></div>
+        <div style="font-size:22px;font-weight:700;margin-top:18px">Logo màu — nền sáng</div>
+        <div style="font-size:19px;color:#5A6670;font-weight:500;margin-top:4px">Dùng mặc định trên nền trắng/sáng.</div>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div class="card grad" style="flex:1;display:flex;align-items:center;justify-content:center;border:none"><img src="assets/appchat-logo-white.png" alt="Logo âm bản" style="width:80%;height:auto"></div>
+        <div style="font-size:22px;font-weight:700;margin-top:18px">Logo âm bản — nền tối</div>
+        <div style="font-size:19px;color:#5A6670;font-weight:500;margin-top:4px">Dùng trên nền xanh brand/ảnh tối.</div>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div class="card" style="flex:1;display:flex;align-items:center;justify-content:center"><img src="assets/appchat-icon-color.png" alt="Biểu tượng" style="width:52%;height:auto"></div>
+        <div style="font-size:22px;font-weight:700;margin-top:18px">Biểu tượng đơn — App icon</div>
+        <div style="font-size:19px;color:#5A6670;font-weight:500;margin-top:4px">Avatar, favicon, app icon khi không đủ chỗ.</div>
+      </div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · CORE IDENTITY</span><span>03</span></div>
+</section>
+
+<!-- 04 · CLEAR SPACE & SIZE -->
+<section class="s" data-label="Vùng an toàn" data-speaker-notes="Vùng an toàn và kích thước tối thiểu.">
+  <div class="pad">
+    <div class="kick">SỬ DỤNG LOGO · CLEAR SPACE &amp; SIZE</div>
+    <h2 class="h2" style="margin-top:24px">Vùng an toàn &amp; kích thước tối thiểu</h2>
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:40px;margin-top:44px;flex:1">
+      <div class="card" style="display:flex;align-items:center;justify-content:center;position:relative">
+        <div style="position:relative;padding:70px;border:2px dashed #9FD9B4;border-radius:14px"><img src="assets/appchat-icon-color.png" alt="AppChat" style="height:200px;width:auto;display:block"></div>
+        <div style="position:absolute;left:40px;top:40px;font-size:19px;font-weight:800;color:#157A40">X</div>
+        <div style="position:absolute;right:40px;bottom:40px;font-size:19px;font-weight:700;color:#5A6670">Lề tối thiểu = X (chiều cao biểu tượng ÷ 2)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div style="font-size:24px;font-weight:800;margin-bottom:10px">Vùng an toàn</div><div style="font-size:21px;line-height:1.55;color:#5A6670;font-weight:500">Giữ khoảng trống tối thiểu bằng <strong>½ chiều cao biểu tượng</strong> quanh logo — không đặt chữ, ảnh hay đồ hoạ khác vào vùng này.</div></div>
+        <div class="card g" style="flex:1;display:flex;flex-direction:column;justify-content:center"><div style="font-size:24px;font-weight:800;color:#157A40;margin-bottom:10px">Kích thước tối thiểu</div><div style="font-size:21px;line-height:1.55;color:#256B44;font-weight:500">Logo đầy đủ: <strong>≥ 120px</strong> (digital) / <strong>≥ 24mm</strong> (in). Biểu tượng đơn: <strong>≥ 32px</strong>.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · CORE IDENTITY</span><span>04</span></div>
+</section>
+
+<!-- 05 · MISUSE -->
+<section class="s" data-label="Tránh dùng sai" data-speaker-notes="Những cách dùng logo không được phép.">
+  <div class="pad">
+    <div class="kick">SỬ DỤNG LOGO · MISUSE</div>
+    <h2 class="h2" style="margin-top:24px">Không được làm</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:52px;flex:1">
+      <div style="display:flex;flex-direction:column"><div class="card" style="flex:1;display:flex;align-items:center;justify-content:center;position:relative"><img src="assets/appchat-logo-color.png" alt="" style="width:82%;transform:skewX(-14deg)"><span style="position:absolute;top:16px;right:16px;font-size:30px;color:#C0392B;font-weight:800">✕</span></div><div style="font-size:20px;font-weight:700;margin-top:16px;color:#37424C">Không bóp méo, nghiêng</div></div>
+      <div style="display:flex;flex-direction:column"><div class="card" style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;filter:hue-rotate(220deg)"><img src="assets/appchat-logo-color.png" alt="" style="width:82%"><span style="position:absolute;top:16px;right:16px;font-size:30px;color:#C0392B;font-weight:800">✕</span></div><div style="font-size:20px;font-weight:700;margin-top:16px;color:#37424C">Không đổi màu tuỳ ý</div></div>
+      <div style="display:flex;flex-direction:column"><div class="card" style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:#B0764A"><img src="assets/appchat-logo-color.png" alt="" style="width:82%"><span style="position:absolute;top:16px;right:16px;font-size:30px;color:#fff;font-weight:800">✕</span></div><div style="font-size:20px;font-weight:700;margin-top:16px;color:#37424C">Không đặt trên nền tương phản kém</div></div>
+      <div style="display:flex;flex-direction:column"><div class="card" style="flex:1;display:flex;align-items:center;justify-content:center;position:relative"><img src="assets/appchat-logo-color.png" alt="" style="width:150%;max-width:none"><span style="position:absolute;top:16px;right:16px;font-size:30px;color:#C0392B;font-weight:800">✕</span></div><div style="font-size:20px;font-weight:700;margin-top:16px;color:#37424C">Không thay đổi tỉ lệ symbol/chữ</div></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · CORE IDENTITY</span><span>05</span></div>
+</section>
+
+<!-- 06 · HỆ MÀU -->
+<section class="s" data-label="Hệ màu" data-speaker-notes="Bảng màu thương hiệu: xanh brand chủ đạo, sắc độ và màu trung tính.">
+  <div class="pad">
+    <div class="kick">HỆ MÀU · COLOR PALETTE</div>
+    <h2 class="h2" style="margin-top:24px">Bảng màu thương hiệu</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:48px">
+      <div class="swatch" style="background:#2DC56A"><div style="font-size:26px;font-weight:800">Brand Green</div><div style="font-size:20px;font-weight:600;opacity:.9">#2DC56A</div><div style="font-size:16px;opacity:.8;margin-top:2px">Màu chủ đạo</div></div>
+      <div class="swatch" style="background:#12894F"><div style="font-size:26px;font-weight:800">Deep Green</div><div style="font-size:20px;font-weight:600;opacity:.9">#12894F</div><div style="font-size:16px;opacity:.8;margin-top:2px">Nhấn / gradient</div></div>
+      <div class="swatch" style="background:#0F2A1C"><div style="font-size:26px;font-weight:800">Forest</div><div style="font-size:20px;font-weight:600;opacity:.9">#0F2A1C</div><div style="font-size:16px;opacity:.8;margin-top:2px">Chữ đậm / nền tối</div></div>
+      <div class="swatch" style="background:#0E7C8A"><div style="font-size:26px;font-weight:800">Teal</div><div style="font-size:20px;font-weight:600;opacity:.9">#0E7C8A</div><div style="font-size:16px;opacity:.8;margin-top:2px">Điểm gradient</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:22px;margin-top:22px">
+      <div class="swatch" style="background:#EDFAF3;height:150px;color:#157A40"><div style="font-size:22px;font-weight:800">Mint</div><div style="font-size:18px;font-weight:600">#EDFAF3</div></div>
+      <div class="swatch" style="background:#F7FAF8;height:150px;color:#37424C;border:1px solid #E1E6E3"><div style="font-size:22px;font-weight:800">Off-white</div><div style="font-size:18px;font-weight:600">#F7FAF8</div></div>
+      <div class="swatch" style="background:#37424C;height:150px"><div style="font-size:22px;font-weight:800">Slate</div><div style="font-size:18px;font-weight:600;opacity:.9">#37424C</div></div>
+      <div class="swatch" style="background:#5A6670;height:150px"><div style="font-size:22px;font-weight:800">Gray</div><div style="font-size:18px;font-weight:600;opacity:.9">#5A6670</div></div>
+      <div class="swatch" style="background:#9CA3AF;height:150px"><div style="font-size:22px;font-weight:800">Light Gray</div><div style="font-size:18px;font-weight:600;opacity:.9">#9CA3AF</div></div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · CORE IDENTITY</span><span>06</span></div>
+</section>
+
+<!-- 07 · TYPOGRAPHY -->
+<section class="s" data-label="Typography" data-speaker-notes="Bộ chữ: Plus Jakarta Sans cho giao diện, Newsreader cho trích dẫn.">
+  <div class="pad">
+    <div class="kick">TYPOGRAPHY · BỘ CHỮ</div>
+    <h2 class="h2" style="margin-top:24px">Hệ thống chữ</h2>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:40px;margin-top:44px;flex:1">
+      <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:22px;font-weight:800;letter-spacing:.06em;color:#157A40">PRIMARY · PLUS JAKARTA SANS</div>
+        <div style="font-size:96px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-top:16px;color:#0F2A1C">Aa Bb Cc</div>
+        <div style="font-size:38px;font-weight:500;margin-top:14px;color:#37424C">AppChat — Doanh nghiệp Một Người</div>
+        <div style="font-size:24px;margin-top:20px;color:#5A6670;font-weight:600">Weights: 400 · 500 · 600 · 700 · 800</div>
+      </div>
+      <div class="card g" style="display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:22px;font-weight:800;letter-spacing:.06em;color:#157A40">SECONDARY · NEWSREADER</div>
+        <div class="quote" style="font-size:76px;font-weight:600;line-height:1.05;margin-top:16px;color:#0F2A1C">Aa Bb</div>
+        <div class="quote" style="font-size:30px;font-style:italic;margin-top:16px;color:#256B44;line-height:1.5">"Dùng cho trích dẫn &amp; câu chuyện thương hiệu."</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:40px;margin-top:28px">
+      <div style="font-size:22px;color:#5A6670;font-weight:600"><strong style="color:#0F2A1C">Tiêu đề:</strong> Jakarta Bold/ExtraBold, letter-spacing âm</div>
+      <div style="font-size:22px;color:#5A6670;font-weight:600"><strong style="color:#0F2A1C">Nội dung:</strong> Jakarta Medium, line-height 1.5</div>
+    </div>
+  </div>
+  <div class="num"><span>APPCHAT · CORE IDENTITY</span><span>07</span></div>
+</section>
+
+<!-- 08 · BIỂU TƯỢNG & HOẠ TIẾT -->
+<section class="s grad" data-label="Biểu tượng & hoạ tiết" data-speaker-notes="Biểu tượng app, hoạ tiết vân chéo và gradient thương hiệu.">
+  <div class="pad">
+    <div class="kick on-dark">BIỂU TƯỢNG &amp; HOẠ TIẾT · ICON &amp; MOTIF</div>
+    <h2 class="h2" style="margin-top:24px;color:#fff;border:none">Yếu tố đồ hoạ nhận diện</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:52px;flex:1">
+      <div class="card" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center"><img src="assets/appchat-icon-white.png" alt="" style="width:56%"></div>
+        <div style="font-size:22px;font-weight:700;color:#fff">Biểu tượng app</div>
+        <div style="font-size:19px;color:rgba(255,255,255,.72);font-weight:500;margin-top:4px">Bo góc mềm, dùng cho icon &amp; avatar.</div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column">
+        <div style="flex:1;border-radius:14px;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.16) 0 2px,transparent 2px 26px);margin-bottom:20px"></div>
+        <div style="font-size:22px;font-weight:700;color:#fff">Hoạ tiết vân chéo</div>
+        <div style="font-size:19px;color:rgba(255,255,255,.72);font-weight:500;margin-top:4px">Nền phụ tạo chiều sâu, độ nghiêng −45°.</div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column">
+        <div style="flex:1;border-radius:14px;background:linear-gradient(125deg,#0E7C8A,#12894F 52%,#1FA85A);margin-bottom:20px"></div>
+        <div style="font-size:22px;font-weight:700;color:#fff">Gradient thương hiệu</div>
+        <div style="font-size:19px;color:rgba(255,255,255,.72);font-weight:500;margin-top:4px">Teal → Green, dùng cho nền &amp; điểm nhấn.</div>
+      </div>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · CORE IDENTITY</span><span>08</span></div>
+</section>
+
+<!-- 09 · LIÊN HỆ -->
+<section class="s grad" data-label="Liên hệ" data-speaker-notes="Slide liên hệ: hotline, email, website, QR Zalo và WeChat, ba văn phòng.">
+  <div style="position:absolute;right:-100px;top:-100px;width:520px;height:520px;border:1px solid rgba(255,255,255,.12);border-radius:50%"></div>
+  <div style="position:absolute;right:60px;bottom:-60px;width:320px;height:320px;border:1px solid rgba(255,255,255,.1);border-radius:50%"></div>
+  <div class="pad">
+    <div style="display:flex;align-items:center;gap:20px">
+      <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:52px;width:auto;display:block">
+      <span style="font-size:20px;letter-spacing:.28em;color:rgba(255,255,255,.7);font-weight:700">BY MEDIA SOFT</span>
+    </div>
+
+    <div style="margin-top:64px">
+      <div style="font-size:20px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.62)">LIÊN HỆ</div>
+      <div style="font-size:76px;font-weight:800;letter-spacing:-.03em;line-height:1.06;margin-top:22px;color:#fff">Bắt đầu vận hành<br>Doanh nghiệp Một Người</div>
+    </div>
+
+    <div style="margin-top:56px;display:flex;gap:56px;align-items:flex-start">
+      <div style="display:flex;gap:30px">
+        <div style="text-align:center">
+          <img src="assets/qr-zalo.png" alt="QR Zalo" style="width:190px;height:190px;object-fit:contain;display:block;border-radius:14px;background:#fff;padding:10px">
+          <div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#fff;margin-top:14px">ZALO</div>
+          <div style="font-size:18px;font-weight:600;color:rgba(255,255,255,.7);margin-top:3px">0907711888</div>
+        </div>
+        <div style="text-align:center">
+          <img src="assets/qr-wechat.png" alt="QR WeChat" style="width:190px;height:190px;object-fit:contain;display:block;border-radius:14px;background:#fff;padding:10px">
+          <div style="font-size:19px;font-weight:800;letter-spacing:.08em;color:#fff;margin-top:14px">WECHAT</div>
+          <div style="font-size:18px;font-weight:600;color:rgba(255,255,255,.7);margin-top:3px">maidinhngoc</div>
+        </div>
+      </div>
+
+      <div style="border-left:1px solid rgba(255,255,255,.2);padding-left:56px;flex:1">
+        <div style="display:grid;grid-template-columns:repeat(3,auto);gap:40px;justify-content:start">
+          <div><div style="font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.6);font-weight:700">HOTLINE</div><div style="font-size:27px;font-weight:800;margin-top:8px;color:#fff">0907.711.888</div></div>
+          <div><div style="font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.6);font-weight:700">EMAIL</div><div style="font-size:27px;font-weight:700;margin-top:8px;color:#fff">ngocmd@mediasoft.vn</div></div>
+          <div><div style="font-size:15px;letter-spacing:.14em;color:rgba(255,255,255,.6);font-weight:700">WEBSITE</div><div style="font-size:27px;font-weight:800;margin-top:8px;color:#fff">appchat.asia</div></div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.18);margin:34px 0 28px"></div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:7px;background:rgba(255,255,255,.16);font-size:15px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">HÀ NỘI</span>
+            <span style="font-size:21px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.45">P0611, Tòa i3 Vinhomes Smart City, P. Tây Mỗ, TP. Hà Nội</span>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:7px;background:rgba(255,255,255,.16);font-size:15px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">HỒ CHÍ MINH</span>
+            <span style="font-size:21px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.45">Tầng 14, Tòa HM Town, 412 Nguyễn Thị Minh Khai, P. Bàn Cờ, TP. Hồ Chí Minh</span>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:7px;background:rgba(255,255,255,.16);font-size:15px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">ĐÀ NẴNG</span>
+            <span style="font-size:21px;font-weight:500;color:rgba(255,255,255,.92);line-height:1.45">Tầng 8, Tòa Bạch Đằng Complex, 50 Bạch Đằng, P. Hải Châu, TP. Đà Nẵng</span>
+          </div>
+        </div>
+        <div style="margin-top:30px;font-size:18px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.6)">MST 0107855181 · CÔNG TY CỔ PHẦN TẬP ĐOÀN MEDIA SOFT</div>
+      </div>
+    </div>
+  </div>
+  <div class="num on-dark"><span>APPCHAT · CORE IDENTITY</span><span>09</span></div>
+</section>
+
+
+</x-import>
+
+<template id="__bundler_thumbnail" data-bg-color="#12894F"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#12894F"/><text x="600" y="470" font-family="Plus Jakarta Sans,sans-serif" font-size="360" font-weight="800" fill="#fff" text-anchor="middle">A</text></svg></template></x-dc>
+</body>
+</html>

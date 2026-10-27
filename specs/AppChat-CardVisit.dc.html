@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<meta name="design_doc_mode" content="canvas">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;background:#E7ECEA}
+  .stage{display:flex;flex-direction:column;gap:44px;padding:64px;align-items:center}
+  .row{display:flex;gap:44px;flex-wrap:wrap;justify-content:center}
+  .card{width:900px;height:540px;border-radius:24px;position:relative;overflow:hidden;box-shadow:0 30px 70px rgba(15,42,28,.22)}
+  .lbl{font-size:15px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+</style>
+</helmet>
+<a href="AppChat-Document-Index.dc.html" style="position:fixed;left:16px;top:16px;z-index:99999;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:9px;background:rgba(255,255,255,.95);border:1px solid #DDE1E4;box-shadow:0 4px 14px rgba(15,42,28,.14);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12.6px;font-weight:700;color:#157A40;text-decoration:none;backdrop-filter:blur(8px)"><svg width="14" height="14" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>Bộ hồ sơ năng lực</a>
+
+<div class="stage">
+  <div style="font-size:20px;font-weight:700;letter-spacing:.2em;color:#8A968F;text-transform:uppercase">Danh thiếp · 90 × 54 mm</div>
+
+  <div class="row">
+    <!-- FRONT -->
+    <div class="card" style="background:#fff">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:14px;background:linear-gradient(180deg,#2DC56A,#12894F)"></div>
+      <div style="position:absolute;right:-120px;bottom:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(45,197,106,.10),transparent 70%)"></div>
+      <div style="position:absolute;inset:0;padding:52px 58px 46px 72px;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px">
+          <img src="assets/appchat-logo-color.png" alt="AppChat" style="height:60px;width:auto">
+          <div style="display:flex;gap:16px">
+            <div style="text-align:center">
+              <img src="assets/qr-zalo.png" alt="QR Zalo" style="width:98px;height:98px;object-fit:contain;display:block;border-radius:8px">
+              <div style="font-size:13px;font-weight:800;letter-spacing:.1em;color:#0068FF;margin-top:6px">ZALO</div>
+            </div>
+            <div style="text-align:center">
+              <img src="assets/qr-wechat.png" alt="QR WeChat" style="width:98px;height:98px;object-fit:contain;display:block;border-radius:8px">
+              <div style="font-size:13px;font-weight:800;letter-spacing:.1em;color:#09B83E;margin-top:6px">WECHAT</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:26px">
+          <div style="font-size:42px;font-weight:800;letter-spacing:-.02em;color:#0F2A1C;line-height:1.05">Mai Đình Ngọc</div>
+          <div class="lbl" style="color:#157A40;margin-top:9px">CEO &amp; Founder</div>
+          <div style="width:56px;height:4px;background:#2DC56A;border-radius:4px;margin-top:14px"></div>
+        </div>
+
+        <div style="margin-top:auto;display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:19px;color:#37424C;font-weight:600;align-items:center">
+          <span class="lbl" style="color:#9CA3AF">Hotline</span><span style="font-weight:800;color:#0F2A1C">0907.711.888</span>
+          <span class="lbl" style="color:#9CA3AF">Email</span><span>ngocmd@mediasoft.vn</span>
+          <span class="lbl" style="color:#9CA3AF">Website</span><span style="font-weight:700;color:#157A40">appchat.asia</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACK -->
+    <div class="card" style="background:linear-gradient(135deg,#0E7C8A 0%,#12894F 52%,#1FA85A 100%)">
+      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0 1px,transparent 1px 30px)"></div>
+      <div style="position:absolute;right:-90px;top:-90px;width:340px;height:340px;border:1px solid rgba(255,255,255,.14);border-radius:50%"></div>
+      <div style="position:absolute;inset:0;padding:46px 54px;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:18px">
+          <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:44px;width:auto">
+          <div style="width:1px;height:34px;background:rgba(255,255,255,.28)"></div>
+          <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.35">Giải pháp One-Person Company<br><span style="color:rgba(255,255,255,.62);font-size:14px">The One-Person Company Solution</span></div>
+        </div>
+
+        <div style="height:1px;background:rgba(255,255,255,.18);margin:26px 0 22px"></div>
+
+        <div style="display:flex;flex-direction:column;gap:19px">
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:6px;background:rgba(255,255,255,.16);font-size:13px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">HÀ NỘI</span>
+            <span style="font-size:18px;font-weight:600;color:rgba(255,255,255,.94);line-height:1.45">P0611, Tòa i3 Vinhomes Smart City,<br>P. Tây Mỗ, TP. Hà Nội</span>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:6px;background:rgba(255,255,255,.16);font-size:13px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">HỒ CHÍ MINH</span>
+            <span style="font-size:18px;font-weight:600;color:rgba(255,255,255,.94);line-height:1.45">Tầng 14, Tòa HM Town, 412 Nguyễn Thị Minh Khai,<br>P. Bàn Cờ, TP. Hồ Chí Minh</span>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:6px;background:rgba(255,255,255,.16);font-size:13px;font-weight:800;letter-spacing:.08em;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px">ĐÀ NẴNG</span>
+            <span style="font-size:18px;font-weight:600;color:rgba(255,255,255,.94);line-height:1.45">Tầng 8, Tòa Bạch Đằng Complex, 50 Bạch Đằng,<br>P. Hải Châu, TP. Đà Nẵng</span>
+          </div>
+        </div>
+
+        <div style="margin-top:auto;display:flex;align-items:center;gap:14px;font-size:14px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.6);text-transform:uppercase">
+          <span>By Media Soft</span><span style="opacity:.5">·</span><span>MST 0107855181</span><span style="opacity:.5">·</span><span>Make in Vietnam</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT SHEET -->
+  <div style="width:100%;max-width:1844px;background:#fff;border-radius:20px;padding:34px 38px;box-shadow:0 16px 44px rgba(15,42,28,.10)">
+    <div style="font-size:15px;font-weight:800;letter-spacing:.14em;color:#9CA3AF;text-transform:uppercase;margin-bottom:22px">Thông tin liên hệ chuẩn · dùng cho toàn bộ bộ nhận diện</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:26px">
+      <div style="border-left:4px solid #2DC56A;padding-left:18px">
+        <div style="font-size:16px;font-weight:800;color:#0F2A1C;letter-spacing:.04em">VP HÀ NỘI</div>
+        <div style="font-size:17px;color:#37424C;line-height:1.6;margin-top:7px;font-weight:500">P0611, Tòa i3 Vinhomes Smart City, P. Tây Mỗ, TP. Hà Nội</div>
+      </div>
+      <div style="border-left:4px solid #2DC56A;padding-left:18px">
+        <div style="font-size:16px;font-weight:800;color:#0F2A1C;letter-spacing:.04em">VP HỒ CHÍ MINH</div>
+        <div style="font-size:17px;color:#37424C;line-height:1.6;margin-top:7px;font-weight:500">Tầng 14, Tòa HM Town, 412 Nguyễn Thị Minh Khai, P. Bàn Cờ, TP. Hồ Chí Minh</div>
+      </div>
+      <div style="border-left:4px solid #2DC56A;padding-left:18px">
+        <div style="font-size:16px;font-weight:800;color:#0F2A1C;letter-spacing:.04em">VP ĐÀ NẴNG</div>
+        <div style="font-size:17px;color:#37424C;line-height:1.6;margin-top:7px;font-weight:500">Tầng 8, Tòa Bạch Đằng Complex, 50 Bạch Đằng, P. Hải Châu, TP. Đà Nẵng</div>
+      </div>
+    </div>
+    <div style="height:1px;background:#EEF0F2;margin:26px 0 22px"></div>
+    <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:center">
+      <div><div style="font-size:13px;font-weight:800;letter-spacing:.12em;color:#9CA3AF">HOTLINE</div><div style="font-size:20px;font-weight:800;color:#0F2A1C;margin-top:4px">0907.711.888</div></div>
+      <div><div style="font-size:13px;font-weight:800;letter-spacing:.12em;color:#9CA3AF">EMAIL</div><div style="font-size:20px;font-weight:700;color:#37424C;margin-top:4px">ngocmd@mediasoft.vn</div></div>
+      <div><div style="font-size:13px;font-weight:800;letter-spacing:.12em;color:#9CA3AF">WEBSITE</div><div style="font-size:20px;font-weight:800;color:#157A40;margin-top:4px">appchat.asia</div></div>
+      <div><div style="font-size:13px;font-weight:800;letter-spacing:.12em;color:#0068FF">ZALO ID</div><div style="font-size:20px;font-weight:700;color:#37424C;margin-top:4px">0907711888</div></div>
+      <div><div style="font-size:13px;font-weight:800;letter-spacing:.12em;color:#09B83E">WECHAT ID</div><div style="font-size:20px;font-weight:700;color:#37424C;margin-top:4px">maidinhngoc</div></div>
+    </div>
+  </div>
+
+  <div style="font-size:16px;color:#8A968F;font-weight:600">MST 0107855181 · Công ty Cổ phần Tập đoàn Media Soft</div>
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#12894F"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#12894F"/><text x="600" y="470" font-family="Plus Jakarta Sans,sans-serif" font-size="360" font-weight="800" fill="#fff" text-anchor="middle">A</text></svg></template>
+</x-dc>
+</body>
+</html>

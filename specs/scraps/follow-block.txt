@@ -1,0 +1,20 @@
+          <!-- Cần follow hôm nay -->
+          <sc-if value="{{ fuHasItems }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#fff;border:1px solid #E5E7EB;border-radius:16px;box-shadow:0 1px 2px rgba(17,24,39,.04);overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #F3F4F6">
+              <span style="width:32px;height:32px;border-radius:9px;background:#FEF3C7;color:#D97706;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" style="stroke:currentColor;fill:none;stroke-width:1.8"><use href="#ic-bell"/></svg></span>
+              <div style="flex:1"><div style="font-size:14px;font-weight:800;color:#231F20">Cần follow hôm nay</div><div style="font-size:11.5px;color:#6B7280">{{ fuCount }} khách đến hạn<sc-if value="{{ fuHasOverdue }}" hint-placeholder-val="{{ true }}"><span style="color:#DC2626;font-weight:700"> · {{ fuOverdue }} quá hạn</span></sc-if></div></div>
+              <div class="chip" onClick="{{ toggleFu }}" style="font-size:13px;font-weight:600;color:#157A40;background:#EDFAF3;border:1px solid #CDEBD8;border-radius:7px;padding:6px 11px;cursor:pointer">{{ fuToggleLabel }}</div>
+              <div class="chip" onClick="{{ goInbox }}" style="font-size:13px;font-weight:600;color:#6B7280;background:#fff;border:1px solid #E5E7EB;border-radius:7px;padding:6px 11px;cursor:pointer">Mở tất cả →</div>
+            </div>
+            <sc-for list="{{ fuList }}" as="f" hint-placeholder-count="4">
+              <div class="row" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #F3F4F6;background:#fff">
+                <div style="position:relative;flex-shrink:0"><span style="width:30px;height:30px;border-radius:50%;background:{{ f.av }};color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800">{{ f.init }}</span><span style="position:absolute;bottom:-2px;right:-2px;width:15px;height:15px;border-radius:50%;background:{{ f.chBg }};border:2px solid #fff;display:grid;place-items:center;color:#fff;font-size:7px;font-weight:800">{{ f.ch }}</span></div>
+                <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:13px;font-weight:700;color:#231F20;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</span><span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:{{ f.sc }}18;color:{{ f.sc }};flex-shrink:0">{{ f.stage }}</span></div><div style="font-size:11.5px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">{{ f.svc }}</div></div>
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:{{ f.dueBg }};color:{{ f.dueC }};flex-shrink:0">{{ f.due }}</span>
+                <sc-if value="{{ f.ai }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#157A40;padding:4px 9px;border-radius:8px;background:#EDFAF3;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg>AI tự gửi</span></sc-if>
+                <button onClick="{{ f.onDone }}" style="width:30px;height:30px;border:none;border-radius:8px;background:#2DC56A;color:#fff;display:grid;place-items:center;cursor:pointer;flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" style="stroke:#fff;fill:none;stroke-width:2.2"><use href="#ic-check"/></svg></button>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>

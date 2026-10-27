@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Newsreader:ital,opsz,wght@1,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#DDE4DF;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;color:#14201A}
+  a{color:#157A40;text-decoration:none}a:hover{color:#2DC56A}
+  .desk{display:flex;flex-direction:column;align-items:center;gap:24px;padding:34px 16px 70px}
+  .pg{width:210mm;min-height:297mm;background:#fff;position:relative;overflow:visible;box-shadow:0 18px 50px rgba(20,40,30,.16)}
+  .pg.clip{overflow:hidden}
+  .bd{padding:20mm 18mm}
+  .ft{position:absolute;bottom:12mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF;font-weight:600;letter-spacing:.04em}
+  .sec{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .sec i{width:22px;height:3px;background:#2DC56A;border-radius:2px;font-style:normal}
+  .sec span{font-size:10.5px;font-weight:800;letter-spacing:.2em;color:#2DC56A}
+  .t{font-size:30px;font-weight:800;letter-spacing:-.02em;color:#14201A;margin:0 0 12px;line-height:1.12}
+  .lead{font-size:14px;line-height:1.7;color:#37424C;font-weight:500}
+  .quote{font-family:'Newsreader',serif;font-style:italic}
+  /* strategy card */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .card{border:1px solid #E1E6E3;border-radius:14px;padding:15px 16px;background:#fff;display:flex;flex-direction:column;gap:9px;break-inside:avoid}
+  .chead{display:flex;align-items:flex-start;gap:11px}
+  .cnum{width:27px;height:27px;flex-shrink:0;border-radius:8px;background:#EDFAF3;color:#157A40;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .ctitle{font-size:14.5px;font-weight:800;color:#14201A;line-height:1.15;letter-spacing:-.01em}
+  .csub{font-size:10.5px;font-weight:600;color:#2DC56A;letter-spacing:.02em;margin-top:2px}
+  .field{display:grid;grid-template-columns:74px 1fr;gap:8px;align-items:baseline}
+  .flbl{font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;text-transform:uppercase;padding-top:1px}
+  .fval{font-size:11.5px;line-height:1.5;color:#37424C;font-weight:500}
+  .fval strong{color:#14201A;font-weight:700}
+  .divider{height:1px;background:#EEF1F0;margin:1px 0}
+  .partcover{background:#0F2A1C;color:#fff}
+  .pill{display:inline-block;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.03em}
+  @media print{body{background:#fff}.desk{gap:0;padding:0}.pg{box-shadow:none;break-after:page}@page{size:A4;margin:0}}
+</style>
+</helmet>
+<a href="AppChat-Document-Index.dc.html" style="position:fixed;left:16px;top:16px;z-index:99999;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:9px;background:rgba(255,255,255,.95);border:1px solid #DDE1E4;box-shadow:0 4px 14px rgba(15,42,28,.14);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12.6px;font-weight:700;color:#157A40;text-decoration:none;backdrop-filter:blur(8px)"><svg width="14" height="14" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>Bộ hồ sơ năng lực</a>
+
+<div class="desk">
+
+  <!-- ===== COVER ===== -->
+  <section class="pg partcover clip" data-screen-label="Bìa" style="padding:0">
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 70% at 82% 4%, rgba(45,197,106,.30), transparent 55%),radial-gradient(90% 55% at 6% 100%, rgba(21,122,64,.42), transparent 60%)"></div>
+    <div style="position:absolute;right:-120px;top:170px;width:600px;height:600px;border:1px solid rgba(255,255,255,.09);border-radius:50%"></div>
+    <div style="position:absolute;right:50px;top:290px;width:360px;height:360px;border:1px solid rgba(255,255,255,.07);border-radius:50%"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:space-between;padding:26mm 20mm">
+      <div style="display:flex;align-items:center;gap:15px">
+        <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:40px;width:auto;display:block">
+        <span style="font-size:10px;letter-spacing:.28em;color:rgba(255,255,255,.5);font-weight:700">BY MEDIA SOFT</span>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin-bottom:20px">MARKETING STRATEGY FRAMEWORK · 2026</div>
+        <h1 style="font-size:52px;line-height:1.06;font-weight:800;letter-spacing:-.025em;margin:0 0 22px">Bộ khung<br>chiến lược<br>Marketing · PR</h1>
+        <p style="font-size:16px;line-height:1.65;color:rgba(255,255,255,.74);max-width:480px;margin:0;font-weight:500">Ba framework độc lập — Online Marketing, Offline Marketing và Public Relations — hợp nhất thành một Strategy Map cho AppChat — Giải pháp One-Person Company (OPC).</p>
+        <div style="margin-top:18px;padding:12px 16px;border-left:3px solid #2DC56A;background:rgba(255,255,255,.06);border-radius:0 8px 8px 0;max-width:520px"><span style="font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.9);font-weight:600"><strong style="color:#7DE0A6">AppChat</strong> — Giải pháp One-Person Company (OPC) (Solopreneur/OPC).</span></div>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;border-top:1px solid rgba(255,255,255,.14);padding-top:20px">
+        <div style="font-size:12.5px;color:rgba(255,255,255,.6);font-weight:500">Tài liệu chiến lược · Cấp điều hành</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.6);font-weight:500">Chuẩn tư vấn McKinsey · BCG · Bain</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ĐỊNH VỊ & NGUYÊN TẮC ===== -->
+  <section class="pg" data-screen-label="Định vị">
+    <div class="bd">
+      <div class="sec"><i></i><span>ĐỊNH HƯỚNG CHIẾN LƯỢC</span></div>
+      <h2 class="t">Định vị & nguyên tắc thiết kế framework</h2>
+      <p class="lead" style="margin:0 0 10px;max-width:160mm">AppChat <strong style="color:#14201A">không định vị</strong> là CRM, Chatbot hay Omnichannel. AppChat là <strong style="color:#157A40">Giải pháp One-Person Company (OPC)</strong> — nền tảng AI quản trị toàn bộ vòng đời khách hàng: Marketing → Sales → Customer Service → Customer Success, trên một hệ thống hợp nhất.</p>
+      <p class="lead" style="margin:0 0 18px;max-width:160mm">Tham vọng: dẫn đầu danh mục "Doanh nghiệp Một Người" tại Việt Nam. Toàn bộ framework bám các trục lớn: AI Agents · AI Transformation · AI Workforce · Digital Economy · Customer Experience · Productivity · Smart Enterprise — và cộng hưởng tinh thần chính sách thúc đẩy đổi mới sáng tạo, chuyển đổi số quốc gia.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:20px">
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px;background:#fff"><div style="font-size:9.5px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:6px">COMMUNICATION THEME</div><div style="font-size:13px;font-weight:800;color:#157A40;line-height:1.35">Doanh nghiệp Một Người</div><div style="font-size:10.5px;color:#9CA3AF;font-weight:600;margin-top:6px">Chủ đề truyền thông trung tâm — mọi chiến lược phải "kéo lên" được tới đây.</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px;background:#fff"><div style="font-size:9.5px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:6px">BRAND PROMISE</div><div style="font-size:13px;font-weight:800;color:#14201A;line-height:1.35">Giúp mỗi người xây dựng, vận hành &amp; phát triển doanh nghiệp bằng AI</div></div>
+        <div style="border:1px solid #CDE9D8;border-radius:14px;padding:16px;background:#EDFAF3"><div style="font-size:9.5px;font-weight:800;color:#157A40;letter-spacing:.08em;margin-bottom:6px">THOUGHT LEADERSHIP</div><div style="font-size:13px;font-weight:800;color:#157A40;line-height:1.35">Dẫn dắt xu hướng One Person Company tại Việt Nam</div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:20px">
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:18px;background:#F7FAF8"><div style="font-size:12px;font-weight:800;color:#2DC56A;letter-spacing:.04em;margin-bottom:8px">CATEGORY DESIGN</div><p style="font-size:12px;line-height:1.55;color:#37424C;font-weight:500;margin:0">Không cạnh tranh trong danh mục cũ — kiến tạo và sở hữu danh mục mới "Doanh nghiệp Một Người" vận hành bằng AI Agents.</p></div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:18px;background:#F7FAF8"><div style="font-size:12px;font-weight:800;color:#2DC56A;letter-spacing:.04em;margin-bottom:8px">FULL-FUNNEL</div><p style="font-size:12px;line-height:1.55;color:#37424C;font-weight:500;margin:0">Chiến lược phủ toàn phễu: Brand → Demand → Sales → Customer → Advocacy, không rời rạc.</p></div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:18px;background:#F7FAF8"><div style="font-size:12px;font-weight:800;color:#2DC56A;letter-spacing:.04em;margin-bottom:8px">PROOF-LED</div><p style="font-size:12px;line-height:1.55;color:#37424C;font-weight:500;margin:0">Uy tín xây bằng bằng chứng: dữ liệu, case study, thought leadership — không chỉ quảng bá.</p></div>
+      </div>
+
+      <div style="background:#0F2A1C;color:#fff;border-radius:16px;padding:22px 26px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.14em;color:#7DE0A6;margin-bottom:12px">CẤU TRÚC TÀI LIỆU</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+          <div><div style="font-size:22px;font-weight:800;color:#7DE0A6">I</div><div style="font-size:12.5px;font-weight:700;margin-top:3px">Online Marketing</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500">25 chiến lược</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#7DE0A6">II</div><div style="font-size:12.5px;font-weight:700;margin-top:3px">Offline Marketing</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500">21 chiến lược</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#7DE0A6">III</div><div style="font-size:12.5px;font-weight:700;margin-top:3px">PR & Corp Comm</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500">26 chiến lược</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#7DE0A6">IV</div><div style="font-size:12.5px;font-weight:700;margin-top:3px">Strategy Map</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500">8 nhóm + lộ trình</div></div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#9CA3AF;font-weight:500;margin:16px 0 0;font-style:italic">Phạm vi tài liệu: chỉ xây dựng bộ khung chiến lược (framework). Không bao gồm kế hoạch triển khai, KPI, ngân sách, timeline hay chiến thuật thực thi.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>02</span></div>
+  </section>
+
+  <!-- ===== LĂNG KÍNH HỆ TƯ TƯỞNG ===== -->
+  <section class="pg" data-screen-label="Lăng kính hệ tư tưởng">
+    <div class="bd">
+      <div class="sec"><i></i><span>SỢI CHỈ ĐỎ XUYÊN SUỐT</span></div>
+      <h2 class="t">Lăng kính "Doanh nghiệp Một Người"</h2>
+      <p class="lead" style="margin:0 0 16px;max-width:165mm">Mọi chiến lược trong tài liệu — dù Online, Offline hay PR — đều phục vụ một niềm tin duy nhất: <strong style="color:#157A40">một người có thể xây, vận hành và phát triển cả một doanh nghiệp nhờ AI</strong>. Đây là lăng kính lọc và định hướng cả ba phần chiến lược.</p>
+
+      <div style="background:#0F2A1C;color:#fff;border-radius:16px;padding:20px 24px;margin-bottom:16px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.14em;color:#7DE0A6;margin-bottom:8px">TƯ TƯỞNG GỐC</div>
+        <p class="quote" style="font-size:20px;line-height:1.4;font-weight:500;margin:0">"Trước đây quy mô doanh nghiệp đo bằng số người. Từ nay, đo bằng năng lực điều phối AI — và AppChat là nơi điều đó xảy ra."</p>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9CA3AF;margin:0 0 10px">CÁCH TƯ TƯỞNG DẪN DẮT TỪNG PHẦN CHIẾN LƯỢC</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #E1E6E3;border-left:4px solid #2DC56A;border-radius:12px;padding:15px 18px;background:#F7FAF8">
+          <div style="font-size:14px;font-weight:800;color:#157A40;width:78px;flex-shrink:0">PHẦN I<br><span style="font-size:10.5px;color:#9CA3AF">Online</span></div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:3px">Chứng minh &amp; nhân rộng mô hình một người + AI</div>
+            <p style="font-size:11.5px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Kênh số kể chuyện "một người làm được tất cả", dạy cách vận hành bằng AI, và biến người xem thành người thực hành. Content · SEO · Social · Community đều xoay quanh hành trình của chủ doanh nghiệp một người.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #E1E6E3;border-left:4px solid #2DC56A;border-radius:12px;padding:15px 18px;background:#F7FAF8">
+          <div style="font-size:14px;font-weight:800;color:#157A40;width:78px;flex-shrink:0">PHẦN II<br><span style="font-size:10.5px;color:#9CA3AF">Offline</span></div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:3px">Chạm thật &amp; tạo cộng đồng người thực hành</div>
+            <p style="font-size:11.5px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Triển lãm, workshop, roadshow, summit đưa "Doanh nghiệp Một Người" từ khái niệm thành trải nghiệm sờ được — nơi cá nhân gặp nhau, thấy hình mẫu thật và tin rằng mình cũng làm được.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid #E1E6E3;border-left:4px solid #2DC56A;border-radius:12px;padding:15px 18px;background:#F7FAF8">
+          <div style="font-size:14px;font-weight:800;color:#157A40;width:78px;flex-shrink:0">PHẦN III<br><span style="font-size:10.5px;color:#9CA3AF">PR</span></div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:3px">Hợp thức hoá &amp; dẫn dắt danh mục ở tầm quốc gia</div>
+            <p style="font-size:11.5px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Báo chí, nghiên cứu, quan hệ chính phủ và CEO branding biến "One Person Company" thành một xu hướng chính danh — gắn AppChat là đơn vị khởi xướng &amp; dẫn dắt tại Việt Nam.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 12px 12px 0;padding:14px 18px">
+        <div style="font-size:10px;font-weight:800;color:#157A40;letter-spacing:.08em;margin-bottom:5px">PHÉP THỬ NHẤT QUÁN</div>
+        <p style="font-size:11.5px;line-height:1.55;color:#37424C;font-weight:500;margin:0">Trước khi triển khai bất kỳ chiến lược nào, hỏi: <em class="quote">"Nó có củng cố niềm tin một người + AI = một doanh nghiệp không?"</em> Nếu không, chiến lược đó nằm ngoài hệ thống — dù hiệu quả ngắn hạn đến đâu.</p>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>03</span></div>
+  </section>
+
+  <!-- ===== CHÂN DUNG KHÁCH HÀNG · PERSONA ===== -->
+  <section class="pg" data-screen-label="Chân dung khách hàng OPC">
+    <div class="bd">
+      <div class="sec"><i></i><span>NỀN TẢNG ĐỊNH VỊ · ICP / PERSONA</span></div>
+      <h2 class="t">Chân dung khách hàng "Doanh nghiệp Một Người"</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:170mm">Khách hàng AppChat là <strong style="color:#14201A">doanh nghiệp B2B (SME)</strong> trải trên 10 nhóm ngành — nhưng khát vọng chung là vận hành tinh gọn như một <strong style="color:#157A40">"doanh nghiệp một người"</strong>, nơi AI đóng vai đội ngũ. Khách mua là <strong style="color:#14201A">chủ / người điều hành</strong> — không phải cá nhân làm nghệ tự do. Bốn nhóm chủ doanh nghiệp tiêu biểu dưới đây gom lại từ 10 ngành ở trang sau.</p>
+      <div style="display:flex;align-items:center;gap:10px;background:#EDFAF3;border:1px solid #CDE9D8;border-radius:10px;padding:9px 14px;margin-bottom:14px"><span style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.08em;flex-shrink:0">CÁCH ĐỌC</span><span style="font-size:11px;color:#37424C;font-weight:600;line-height:1.4">"Một người" là <strong style="color:#14201A">cách vận hành</strong> (AI = đội ngũ), không phải quy mô nhân sự. Một doanh nghiệp 20 người vẫn có thể "vận hành như một người".</span></div>
+
+      <div class="grid" style="gap:11px">
+
+        <div class="card" style="gap:11px">
+          <div class="chead" style="align-items:center;gap:12px">
+            <div class="cnum" style="width:36px;height:36px;font-size:15px;border-radius:10px">D</div>
+            <div><div class="ctitle" style="font-size:15px">Cơ sở dịch vụ theo lịch hẹn</div><div class="csub">Spa · Thẩm mỹ · Nha khoa · Phòng khám · Gym · Salon</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="field"><span class="flbl">Nỗi đau</span><span class="fval">Lịch hẹn &amp; tư vấn đến từ nhiều kênh (Facebook, Zalo, hotline, walk-in) — lễ tân quá tải, no-show cao, khách cũ không được nhắc lại.</span></div>
+          <div class="field"><span class="flbl">Khát vọng</span><span class="fval"><strong>AI đặt lịch – nhắc hẹn – chăm sóc sau dịch vụ</strong> tự động; lấp đầy lịch mà không tăng nhân sự lễ tân.</span></div>
+          <div class="field"><span class="flbl">Rào cản</span><span class="fval">Quen quản lý bằng sổ/excel &amp; chat tay; lo AI tư vấn sai liệu trình; nhiều chi nhánh khó đồng bộ.</span></div>
+          <div class="field"><span class="flbl">Trigger mua</span><span class="fval">Mùa cao điểm quá tải; tỉ lệ no-show/huỷ hẹn tăng; mở thêm cơ sở / chi nhánh mới.</span></div>
+        </div>
+
+        <div class="card" style="gap:11px">
+          <div class="chead" style="align-items:center;gap:12px">
+            <div class="cnum" style="width:36px;height:36px;font-size:15px;border-radius:10px">B</div>
+            <div><div class="ctitle" style="font-size:15px">Nhà bán lẻ &amp; F&amp;B đa kênh</div><div class="csub">Bán lẻ · Thời trang · Điện máy · Nhà hàng · Cà phê</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="field"><span class="flbl">Nỗi đau</span><span class="fval">Tin nhắn – đơn hàng – bình luận trôi khắp Facebook/Shopee/TikTok/Zalo; sót đơn, chốt chậm; CSKH sau bán bỏ ngỏ.</span></div>
+          <div class="field"><span class="flbl">Khát vọng</span><span class="fval">Một màn hình gom mọi kênh; <strong>AI tư vấn – chốt đơn – upsell – nhắc mua lại</strong>; khách cũ quay lại đều.</span></div>
+          <div class="field"><span class="flbl">Rào cản</span><span class="fval">Nhiều công cụ rời rạc tốn phí; lo AI tư vấn sai sản phẩm; nhân viên thay đổi liên tục phải đào tạo lại.</span></div>
+          <div class="field"><span class="flbl">Trigger mua</span><span class="fval">Mùa sale/flash sale quá tải; tỉ lệ phản hồi tụt làm giảm hiển thị; mở thêm kênh / điểm bán.</span></div>
+        </div>
+
+        <div class="card" style="gap:11px">
+          <div class="chead" style="align-items:center;gap:12px">
+            <div class="cnum" style="width:36px;height:36px;font-size:15px;border-radius:10px">G</div>
+            <div><div class="ctitle" style="font-size:15px">Trung tâm giáo dục &amp; đào tạo</div><div class="csub">Anh ngữ · Luyện thi · Năng khiếu · Gia sư</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="field"><span class="flbl">Nỗi đau</span><span class="fval">Tư vấn tuyển sinh nhiều lượt mới chốt; phụ huynh hỏi qua nhiều kênh; chăm sóc học viên &amp; tái ghi danh làm thủ công.</span></div>
+          <div class="field"><span class="flbl">Khát vọng</span><span class="fval"><strong>AI tư vấn khoá học – theo đuổi lead – nhắc học phí &amp; tái ghi danh</strong>; tăng tỉ lệ chốt tuyển sinh.</span></div>
+          <div class="field"><span class="flbl">Rào cản</span><span class="fval">Chu kỳ quyết định dài, cần con người; lo mất "tính giáo dục" khi để AI; dữ liệu học viên phân tán.</span></div>
+          <div class="field"><span class="flbl">Trigger mua</span><span class="fval">Mùa tuyển sinh cao điểm; tỉ lệ chốt lead thấp; mở thêm ngành học / cơ sở.</span></div>
+        </div>
+
+        <div class="card" style="gap:11px">
+          <div class="chead" style="align-items:center;gap:12px">
+            <div class="cnum" style="width:36px;height:36px;font-size:15px;border-radius:10px">H</div>
+            <div><div class="ctitle" style="font-size:15px">Doanh nghiệp bán hàng giá trị cao</div><div class="csub">BĐS · Ô tô · Du lịch · Tài chính · Agency chuyên môn</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="field"><span class="flbl">Nỗi đau</span><span class="fval">Lead đắt nhưng chu kỳ chốt dài, follow-up nhiều lần dễ rơi; đội sales bận không theo kịp; khó cá nhân hoá quy mô lớn.</span></div>
+          <div class="field"><span class="flbl">Khát vọng</span><span class="fval"><strong>AI nuôi dưỡng &amp; theo đuổi lead 24/7</strong>, chấm điểm &amp; chuyển đúng lúc cho người chốt; không bỏ sót cơ hội.</span></div>
+          <div class="field"><span class="flbl">Rào cản</span><span class="fval">Đề cao chuẩn mực &amp; bảo mật; hoài nghi AI đủ chuyên sâu cho sản phẩm phức tạp; ngại đổi hệ CRM cũ.</span></div>
+          <div class="field"><span class="flbl">Trigger mua</span><span class="fval">Chi phí lead tăng, tỉ lệ chốt giảm; đối thủ phản hồi nhanh hơn; mở rộng thị trường / sản phẩm mới.</span></div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="border:1px solid #CDE9D8;background:#EDFAF3;border-radius:12px;padding:12px 14px"><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.08em;margin-bottom:4px">MẪU SỐ CHUNG</div><div style="font-size:11px;font-weight:600;color:#37424C;line-height:1.45">SME đa kênh, đội ngũ mỏng, chủ ôm nhiều vai</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:12px 14px"><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:4px">KẺ THÙ CHUNG</div><div style="font-size:11px;font-weight:600;color:#37424C;line-height:1.45">Vận hành thủ công &amp; phân mảnh vắt kiệt nguồn lực</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:12px 14px"><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:4px">CHUYỂN HOÁ MONG MUỐN</div><div style="font-size:11px;font-weight:600;color:#37424C;line-height:1.45">Từ "DN phụ thuộc số người" → "DN vận hành bằng AI như một người"</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:12px 14px"><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:4px">VAI TRÒ APPCHAT</div><div style="font-size:11px;font-weight:600;color:#37424C;line-height:1.45">Đội ngũ AI phủ Marketing→Sales→CS→Success</div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>04</span></div>
+  </section>
+
+  <!-- ===== BẢN ĐỒ 10 NGÀNH ===== -->
+  <section class="pg" data-screen-label="Bản đồ ngành phục vụ">
+    <div class="bd">
+      <div class="sec"><i></i><span>THỊ TRƯỜNG MỤC TIÊU · NGÀNH PHỤC VỤ</span></div>
+      <h2 class="t">Bản đồ 10 nhóm ngành của doanh nghiệp một người</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:168mm">Bốn nhóm chủ doanh nghiệp B2B ở trang trước trải cụ thể trên 10 ngành dịch vụ &amp; bán lẻ dưới đây. <span style="color:#157A40;font-weight:700">★ = phân khúc ưu tiên</span> — mô hình khách quay lại nhiều lần, triển khai Loyalty &amp; chăm sóc bằng AI trước.</p>
+
+      <div class="grid" style="gap:10px">
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">01</span> Bán lẻ</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Điện máy</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Điện tử tiêu dùng</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Thời trang</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Phụ kiện</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Nội thất</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Trang sức</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Đồng hồ</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">02</span> Giáo dục</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#EDFAF3;color:#157A40">★ Trung tâm Anh ngữ</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Toán-Lý-Hóa</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Luyện thi</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Gia sư</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Kỹ năng sống</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Mỹ thuật</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Âm nhạc</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">03</span> Sức khoẻ &amp; Làm đẹp</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#EDFAF3;color:#157A40">★ Spa</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Thẩm mỹ viện</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Chăm sóc da</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Nail</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Hair Salon</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ PK Nha khoa</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Chỉnh nha</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ PK Đa khoa</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">PK Chuyên khoa</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">04</span> Dịch vụ chuyên môn</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Giúp việc</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Vệ sinh công nghiệp</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Studio ảnh cưới</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Media Production</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Tư vấn doanh nghiệp</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Tư vấn pháp lý</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Marketing Agency</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">SEO</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">05</span> Ô tô</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Phụ tùng ô tô</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Showroom ô tô</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Xe điện</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Garage</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Bảo dưỡng</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Sửa chữa</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Thuê xe tự lái</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Limousine</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">06</span> Du lịch</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#EDFAF3;color:#157A40">★ Công ty du lịch</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Đại lý vé máy bay</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Tour trong nước</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Tour quốc tế</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Khách sạn</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Resort</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Homestay</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">07</span> Thể hình &amp; Sức khoẻ</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#EDFAF3;color:#157A40">★ Gym</span><span class="pill" style="background:#EDFAF3;color:#157A40">★ Yoga</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Fitness Center</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Personal Trainer</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Pilates</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">08</span> Bất động sản</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Chung cư</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Nhà phố</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Biệt thự</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Văn phòng</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Mặt bằng</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Sàn môi giới</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Môi giới cá nhân</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">09</span> Tài chính</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Bảo hiểm</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Ngân hàng</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Đầu tư</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Tư vấn tài chính</span>
+        </div></div>
+
+        <div class="card" style="gap:8px;padding:13px 15px"><div style="font-size:13px;font-weight:800;color:#14201A"><span style="color:#2DC56A">10</span> Nhà hàng &amp; Ẩm thực</div><div style="display:flex;flex-wrap:wrap;gap:6px">
+          <span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Nhà hàng</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Quán cà phê</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Tiệm bánh</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Đồ ăn nhanh</span><span class="pill" style="background:#F1F4F2;color:#5A6470;font-weight:600">Suất ăn / Catering</span>
+        </div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>05</span></div>
+  </section>
+
+  <!-- ===== MESSAGING HOUSE ===== -->
+  <section class="pg" data-screen-label="Messaging House">
+    <div class="bd">
+      <div class="sec"><i></i><span>KIẾN TRÚC THÔNG ĐIỆP · MESSAGING HOUSE</span></div>
+      <h2 class="t">Ngôi nhà thông điệp AppChat</h2>
+      <p class="lead" style="margin:0 0 16px;max-width:168mm">Một cấu trúc thông điệp duy nhất để mọi kênh — Online, Offline, PR — nói nhất quán: <strong style="color:#14201A">mái nhà</strong> là thông điệp lõi, <strong style="color:#14201A">3 trụ cột</strong> là các hướng giá trị, <strong style="color:#14201A">nền móng</strong> là bằng chứng.</p>
+
+      <!-- ROOF -->
+      <div style="background:#0F2A1C;color:#fff;border-radius:16px 16px 6px 6px;padding:22px 26px;text-align:center;position:relative">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.16em;color:#7DE0A6;margin-bottom:10px">THÔNG ĐIỆP LÕI · CORE MESSAGE</div>
+        <p class="quote" style="font-size:23px;line-height:1.35;font-weight:500;margin:0 0 8px">"Một người. Một nền tảng AI. Một doanh nghiệp hoàn chỉnh."</p>
+        <p style="font-size:12.5px;color:rgba(255,255,255,.7);font-weight:500;margin:0;max-width:150mm;margin:0 auto">AppChat giúp mỗi người xây dựng, vận hành và phát triển doanh nghiệp bằng AI — không cần đội ngũ, không cần ghép nối công cụ.</p>
+      </div>
+
+      <!-- 3 PILLARS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-top:11px">
+        <div style="border:1px solid #E1E6E3;border-top:4px solid #2DC56A;border-radius:8px 8px 14px 14px;padding:16px 17px;background:#F7FAF8">
+          <div style="font-size:10px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:4px">TRỤ CỘT 01</div>
+          <div style="font-size:16px;font-weight:800;color:#157A40;margin-bottom:6px">XÂY</div>
+          <div style="font-size:12px;font-weight:700;color:#14201A;line-height:1.35;margin-bottom:8px">Khởi tạo doanh nghiệp trong vài giờ — không cần đội ngũ.</div>
+          <p style="font-size:10.5px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Thiết lập gian hàng, kịch bản bán, kịch bản chăm sóc và trợ lý AI riêng — chỉ với một người và vài thao tác.</p>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-top:4px solid #2DC56A;border-radius:8px 8px 14px 14px;padding:16px 17px;background:#F7FAF8">
+          <div style="font-size:10px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:4px">TRỤ CỘT 02</div>
+          <div style="font-size:16px;font-weight:800;color:#157A40;margin-bottom:6px">VẬN HÀNH</div>
+          <div style="font-size:12px;font-weight:700;color:#14201A;line-height:1.35;margin-bottom:8px">Đội ngũ AI trực 24/7 — bán hàng, chăm sóc, hỗ trợ.</div>
+          <p style="font-size:10.5px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">AI Agent tư vấn, chốt đơn, trả lời đa kênh và theo dõi khách theo đúng giọng thương hiệu — không bỏ sót, không nghỉ.</p>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-top:4px solid #2DC56A;border-radius:8px 8px 14px 14px;padding:16px 17px;background:#F7FAF8">
+          <div style="font-size:10px;font-weight:800;color:#9CA3AF;letter-spacing:.08em;margin-bottom:4px">TRỤ CỘT 03</div>
+          <div style="font-size:16px;font-weight:800;color:#157A40;margin-bottom:6px">PHÁT TRIỂN</div>
+          <div style="font-size:12px;font-weight:700;color:#14201A;line-height:1.35;margin-bottom:8px">Nhân bản năng lực — quy mô đo bằng điều phối AI.</div>
+          <p style="font-size:10.5px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Một người điều phối cả hệ thống AI để phục vụ nhiều khách hơn, mở thêm kênh và tăng trưởng mà không tăng đầu người.</p>
+        </div>
+      </div>
+
+      <!-- PROOF FOUNDATION -->
+      <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 18px;margin-top:11px;background:#fff">
+        <div style="font-size:10px;font-weight:800;color:#9CA3AF;letter-spacing:.1em;margin-bottom:11px">NỀN MÓNG · PROOF POINTS / REASONS TO BELIEVE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 22px">
+          <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#2DC56A;font-weight:800;font-size:12px;margin-top:1px">✓</span><span style="font-size:11.5px;line-height:1.45;color:#37424C;font-weight:500"><strong style="color:#14201A">AI-Native &amp; Agentic:</strong> kiến trúc sinh ra cho AI, không phải công cụ cũ gắn thêm AI.</span></div>
+          <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#2DC56A;font-weight:800;font-size:12px;margin-top:1px">✓</span><span style="font-size:11.5px;line-height:1.45;color:#37424C;font-weight:500"><strong style="color:#14201A">Toàn vòng đời khách hàng:</strong> Marketing → Sales → Service → Success trên một hệ thống.</span></div>
+          <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#2DC56A;font-weight:800;font-size:12px;margin-top:1px">✓</span><span style="font-size:11.5px;line-height:1.45;color:#37424C;font-weight:500"><strong style="color:#14201A">Đa kênh hợp nhất:</strong> gom Facebook, Zalo, TikTok, Shopee, web về một màn hình.</span></div>
+          <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#2DC56A;font-weight:800;font-size:12px;margin-top:1px">✓</span><span style="font-size:11.5px;line-height:1.45;color:#37424C;font-weight:500"><strong style="color:#14201A">Cá nhân hoá giọng thương hiệu:</strong> AI trả lời đúng chất riêng của từng chủ.</span></div>
+          <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#2DC56A;font-weight:800;font-size:12px;margin-top:1px">✓</span><span style="font-size:11.5px;line-height:1.45;color:#37424C;font-weight:500"><strong style="color:#14201A">Case thực tế theo ngành:</strong> chứng minh bằng chủ doanh nghiệp một người đang vận hành thật.</span></div>
+          <div style="display:flex;gap:9px;align-items:flex-start"><span style="color:#2DC56A;font-weight:800;font-size:12px;margin-top:1px">✓</span><span style="font-size:11.5px;line-height:1.45;color:#37424C;font-weight:500"><strong style="color:#14201A">Người Việt, cho thị trường Việt:</strong> Media Soft đồng hành, am hiểu hành vi bản địa.</span></div>
+        </div>
+      </div>
+
+      <!-- TONE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:9px;margin-top:11px">
+        <div style="border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 10px 10px 0;padding:10px 13px"><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:3px">GIỌNG NÓI</div><div style="font-size:11px;font-weight:700;color:#14201A">Tự tin · Truyền cảm hứng</div></div>
+        <div style="border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 10px 10px 0;padding:10px 13px"><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:3px">CÁ TÍNH</div><div style="font-size:11px;font-weight:700;color:#14201A">Thực tế · Trao quyền</div></div>
+        <div style="border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 10px 10px 0;padding:10px 13px"><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:3px">TRÁNH</div><div style="font-size:11px;font-weight:700;color:#14201A">Thuật ngữ kỹ thuật rối rắm</div></div>
+        <div style="border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 10px 10px 0;padding:10px 13px"><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:3px">LUÔN QUY VỀ</div><div style="font-size:11px;font-weight:700;color:#14201A">"Một người + AI = 1 DN"</div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>06</span></div>
+  </section>
+
+  <!-- ===== ĐỊNH VỊ CẠNH TRANH · POSITIONING ===== -->
+  <section class="pg" data-screen-label="Định vị cạnh tranh">
+    <div class="bd">
+      <div class="sec"><i></i><span>ĐỊNH VỊ CẠNH TRANH · POSITIONING STATEMENT</span></div>
+      <h2 class="t">Vì sao chọn AppChat — không phải CRM, chatbot hay tự ghép công cụ</h2>
+      <p class="lead" style="margin:0 0 16px;max-width:168mm">Khách hàng OPC không thiếu công cụ — họ thiếu <strong style="color:#14201A">một bộ não vận hành hợp nhất</strong>. Mọi lựa chọn thay thế đều bắt một người phải tự làm "chất keo" giữa các mảnh rời. Đây là câu định vị chuẩn và lý do AppChat khác biệt.</p>
+
+      <div style="background:#0F2A1C;color:#fff;border-radius:16px;padding:24px 28px;margin-bottom:18px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.14em;color:#7DE0A6;margin-bottom:12px">CÂU ĐỊNH VỊ CHUẨN</div>
+        <p class="quote" style="font-size:19px;line-height:1.55;font-weight:500;margin:0">Với <strong style="font-style:normal;font-weight:700">chủ doanh nghiệp một người</strong> đang tự gánh cả chuyên môn lẫn vận hành, <strong style="font-style:normal;font-weight:700;color:#7DE0A6">AppChat</strong> là <strong style="font-style:normal;font-weight:700">nền tảng AI-Native quản trị trọn vòng đời khách hàng duy nhất</strong> giúp một người vận hành Marketing → Sales → CS → Success trên một hệ thống — <strong style="font-style:normal;font-weight:700">vì</strong> AI Agent làm thay phần lặp lại và hợp nhất mọi kênh, dữ liệu, hội thoại; <strong style="font-style:normal;font-weight:700">khác với</strong> CRM (chỉ lưu trữ), chatbot (chỉ trả lời), hay tự ghép công cụ (rời rạc &amp; tốn công tích hợp).</p>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9CA3AF;margin:0 0 10px">SO SÁNH VỚI CÁC LỰA CHỌN THAY THẾ</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px">
+        <div class="card" style="gap:7px"><div style="font-size:13px;font-weight:800;color:#14201A">CRM truyền thống</div><div style="font-size:10.5px;color:#B4453A;font-weight:700">Lưu trữ, không hành động</div><p style="font-size:11px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Ghi nhận dữ liệu nhưng không tự chạy hội thoại, không đa kênh gốc — một người vẫn phải thao tác thủ công từng bước.</p></div>
+        <div class="card" style="gap:7px"><div style="font-size:13px;font-weight:800;color:#14201A">Chatbot đơn lẻ</div><div style="font-size:10.5px;color:#B4453A;font-weight:700">Trả lời, không vận hành</div><p style="font-size:11px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Giải quyết từng câu hỏi nhưng đứt gãy với Sales &amp; CS, không có bộ nhớ khách hàng xuyên suốt vòng đời.</p></div>
+        <div class="card" style="gap:7px"><div style="font-size:13px;font-weight:800;color:#14201A">Omnichannel rời rạc</div><div style="font-size:10.5px;color:#B4453A;font-weight:700">Gộp kênh, không gộp trí tuệ</div><p style="font-size:11px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">Gom tin nhắn nhiều kênh về một hộp thư, nhưng thiếu lớp AI Agent tự xử lý &amp; điều phối công việc.</p></div>
+        <div class="card" style="gap:7px"><div style="font-size:13px;font-weight:800;color:#14201A">Tự ghép nhiều công cụ</div><div style="font-size:10.5px;color:#B4453A;font-weight:700">Một người thành "chất keo"</div><p style="font-size:11px;line-height:1.5;color:#5A6470;font-weight:500;margin:0">CRM + chatbot + email + automation ghép tay: tốn phí, dữ liệu phân mảnh, mọi lỗi tích hợp đổ lên một người.</p></div>
+      </div>
+
+      <div style="border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 12px 12px 0;padding:15px 18px">
+        <div style="font-size:10px;font-weight:800;color:#157A40;letter-spacing:.08em;margin-bottom:6px">KHÁC BIỆT CỐT LÕI · AI-NATIVE, KHÔNG PHẢI AI-ADDED</div>
+        <p style="font-size:12px;line-height:1.6;color:#37424C;font-weight:500;margin:0">AppChat được thiết kế gốc quanh AI Agent điều phối trọn vòng đời khách hàng trên một hệ thống — thay vì gắn thêm tính năng AI lên một sản phẩm cũ. Đó là điều một người không thể tự dựng bằng cách ghép công cụ.</p>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>07</span></div>
+  </section>
+
+  <!-- ===== PHỄU OPC & KPI THEO GIAI ĐOẠN ===== -->
+  <section class="pg" data-screen-label="Phễu OPC & KPI">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHỄU OPC & KPI THEO GIAI ĐOẠN</span></div>
+      <h2 class="t">Từ "biết" đến "vận hành doanh nghiệp một người"</h2>
+      <p class="lead" style="margin:0 0 16px;max-width:168mm">Hành trình khách hàng OPC gồm 5 trạng thái nhận thức, chảy song song với 4 giai đoạn trưởng thành doanh nghiệp — <strong style="color:#14201A">Startup → Growth → Scale → Leadership</strong>. Mỗi giai đoạn có mục tiêu marketing và chỉ số đo riêng.</p>
+
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9CA3AF;margin:0 0 9px">PHỄU NHẬN THỨC · 5 TRẠNG THÁI</div>
+      <div style="display:flex;gap:6px;margin-bottom:20px">
+        <div style="flex:1;background:#EDFAF3;border-radius:10px 0 0 10px;padding:12px 10px;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em">01</div><div style="font-size:12px;font-weight:800;color:#157A40;margin-top:3px">BIẾT</div><div style="font-size:9.5px;color:#5A6470;font-weight:600;margin-top:2px">Awareness</div></div>
+        <div style="flex:1;background:#D9F2E4;padding:12px 10px;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em">02</div><div style="font-size:12px;font-weight:800;color:#157A40;margin-top:3px">QUAN TÂM</div><div style="font-size:9.5px;color:#5A6470;font-weight:600;margin-top:2px">Consideration</div></div>
+        <div style="flex:1;background:#A9E5C4;padding:12px 10px;text-align:center"><div style="font-size:9px;font-weight:800;color:#0F2A1C;letter-spacing:.06em;opacity:.5">03</div><div style="font-size:12px;font-weight:800;color:#0F2A1C;margin-top:3px">DÙNG THỬ</div><div style="font-size:9.5px;color:#0F2A1C;font-weight:600;margin-top:2px;opacity:.65">Trial</div></div>
+        <div style="flex:1;background:#4FCB84;padding:12px 10px;text-align:center"><div style="font-size:9px;font-weight:800;color:#fff;letter-spacing:.06em;opacity:.7">04</div><div style="font-size:12px;font-weight:800;color:#fff;margin-top:3px">VẬN HÀNH</div><div style="font-size:9.5px;color:#fff;font-weight:600;margin-top:2px;opacity:.85">Operate</div></div>
+        <div style="flex:1;background:#0F2A1C;border-radius:0 10px 10px 0;padding:12px 10px;text-align:center"><div style="font-size:9px;font-weight:800;color:#7DE0A6;letter-spacing:.06em">05</div><div style="font-size:12px;font-weight:800;color:#fff;margin-top:3px">DẪN DẮT</div><div style="font-size:9.5px;color:#7DE0A6;font-weight:600;margin-top:2px">Advocate</div></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9CA3AF;margin:0 0 10px">4 GIAI ĐOẠN TRƯỞNG THÀNH & CHỈ SỐ ĐO</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+        <div class="card" style="gap:9px"><div><div style="font-size:9px;font-weight:800;color:#2DC56A;letter-spacing:.08em">GIAI ĐOẠN 1</div><div style="font-size:14.5px;font-weight:800;color:#14201A;margin-top:2px">Startup</div></div><div style="font-size:10.5px;color:#5A6470;font-weight:600;line-height:1.45">Một người vừa khởi sự — cần được biết đến &amp; tin rằng làm được.</div><div class="divider"></div><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em">MỤC TIÊU</div><div style="font-size:11px;font-weight:700;color:#157A40">Nhận biết &amp; kích hoạt</div><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em;margin-top:2px">KPI</div><div style="font-size:10.5px;color:#37424C;font-weight:600;line-height:1.5">Reach · Traffic · Sign-up · Activation rate</div></div>
+
+        <div class="card" style="gap:9px"><div><div style="font-size:9px;font-weight:800;color:#2DC56A;letter-spacing:.08em">GIAI ĐOẠN 2</div><div style="font-size:14.5px;font-weight:800;color:#14201A;margin-top:2px">Growth</div></div><div style="font-size:10.5px;color:#5A6470;font-weight:600;line-height:1.45">Đã dùng thử — cần thấy giá trị &amp; chuyển sang vận hành thật.</div><div class="divider"></div><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em">MỤC TIÊU</div><div style="font-size:11px;font-weight:700;color:#157A40">Chuyển đổi &amp; giữ chân</div><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em;margin-top:2px">KPI</div><div style="font-size:10.5px;color:#37424C;font-weight:600;line-height:1.5">Trial→Paid · Retention · Feature adoption</div></div>
+
+        <div class="card" style="gap:9px"><div><div style="font-size:9px;font-weight:800;color:#2DC56A;letter-spacing:.08em">GIAI ĐOẠN 3</div><div style="font-size:14.5px;font-weight:800;color:#14201A;margin-top:2px">Scale</div></div><div style="font-size:10.5px;color:#5A6470;font-weight:600;line-height:1.45">Vận hành ổn định — cần mở rộng &amp; tăng giá trị vòng đời.</div><div class="divider"></div><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em">MỤC TIÊU</div><div style="font-size:11px;font-weight:700;color:#157A40">Mở rộng &amp; tối ưu</div><div style="font-size:9px;font-weight:800;color:#9CA3AF;letter-spacing:.06em;margin-top:2px">KPI</div><div style="font-size:10.5px;color:#37424C;font-weight:600;line-height:1.5">LTV · Expansion revenue · NPS · Referral</div></div>
+
+        <div class="card" style="gap:9px;border-color:#CDE9D8;background:#EDFAF3"><div><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.08em">GIAI ĐOẠN 4</div><div style="font-size:14.5px;font-weight:800;color:#14201A;margin-top:2px">Leadership</div></div><div style="font-size:10.5px;color:#5A6470;font-weight:600;line-height:1.45">Thành hình mẫu OPC — dẫn dắt &amp; lan toả cộng đồng.</div><div class="divider" style="background:#CDE9D8"></div><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.06em">MỤC TIÊU</div><div style="font-size:11px;font-weight:700;color:#157A40">Ủng hộ &amp; dẫn dắt</div><div style="font-size:9px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-top:2px">KPI</div><div style="font-size:10.5px;color:#37424C;font-weight:600;line-height:1.5">Advocacy · UGC · Community · Brand equity</div></div>
+      </div>
+
+      <div style="margin-top:16px;border-left:3px solid #2DC56A;background:#F7FAF8;border:1px solid #E1E6E3;border-radius:12px;padding:14px 18px">
+        <div style="font-size:10px;font-weight:800;color:#157A40;letter-spacing:.08em;margin-bottom:5px">NGUYÊN TẮC ĐO LƯỜNG</div>
+        <p style="font-size:11.5px;line-height:1.55;color:#37424C;font-weight:500;margin:0">Mỗi chiến lược trong tài liệu phải chỉ rõ nó phục vụ giai đoạn nào và kéo chỉ số nào — không có chiến lược "chung chung". Chỉ số bắc cầu giữa các giai đoạn (Activation, Trial→Paid, NPS) là điểm cần theo dõi sát nhất.</p>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>08</span></div>
+  </section>
+
+  <!-- ===== VẬN DỤNG OPC · ONLINE ===== -->
+  <section class="pg" data-screen-label="Vận dụng · Online">
+    <div class="bd">
+      <div class="sec"><i></i><span>VẬN DỤNG HỆ TƯ TƯỞNG · PHẦN I ONLINE</span></div>
+      <h2 class="t">Doanh nghiệp Một Người trong Online Marketing</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:165mm">Ba nhóm chiến lược số được lập trình lại quanh một nhân vật trung tâm: <strong style="color:#157A40">chủ doanh nghiệp một người</strong>. Mỗi nhóm có một góc tiếp cận, thông điệp chủ đạo và loại bằng chứng riêng.</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:15px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 1</span><div style="font-size:14px;font-weight:800;color:#14201A">Brand · Content · Search</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Dạy thị trường khái niệm &amp; cách làm doanh nghiệp một người.</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Một người, một đội ngũ AI"</strong> — bạn không cần thuê thêm để lớn.</div></div>
+            <div class="field"><div class="flbl">Bằng chứng</div><div class="fval">Pillar page, hướng dẫn từng bước, dữ liệu năng suất.</div></div>
+            <div class="field"><div class="flbl">Chỉ dấu</div><div class="fval">Sở hữu từ khoá "doanh nghiệp một người" trên tìm kiếm.</div></div>
+          </div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:15px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 2</span><div style="font-size:14px;font-weight:800;color:#14201A">Social · Community · Demand</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Truyền cảm hứng bằng hình mẫu người thật đang vận hành một mình + AI.</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Nếu họ làm được, bạn cũng làm được"</strong> — hạ rào cản tâm lý.</div></div>
+            <div class="field"><div class="flbl">Bằng chứng</div><div class="fval">Customer story, video hậu trường, cộng đồng người thực hành.</div></div>
+            <div class="field"><div class="flbl">Chỉ dấu</div><div class="fval">Cộng đồng tự lan toả, nội dung do người dùng tạo (UGC).</div></div>
+          </div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:15px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 3</span><div style="font-size:14px;font-weight:800;color:#14201A">Product · Customer · Conversion · Growth</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Biến niềm tin thành hành động — dùng thử &amp; vận hành thật trên AppChat.</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Bắt đầu nhỏ, lớn không giới hạn"</strong> — AI gánh phần lặp lại.</div></div>
+            <div class="field"><div class="flbl">Bằng chứng</div><div class="fval">Demo AI Agent, dùng thử miễn phí, kết quả trước/sau.</div></div>
+            <div class="field"><div class="flbl">Chỉ dấu</div><div class="fval">Tỉ lệ kích hoạt &amp; giữ chân của người dùng một người.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>07</span></div>
+  </section>
+
+  <!-- ===== VẬN DỤNG OPC · OFFLINE ===== -->
+  <section class="pg" data-screen-label="Vận dụng · Offline">
+    <div class="bd">
+      <div class="sec"><i></i><span>VẬN DỤNG HỆ TƯ TƯỞNG · PHẦN II OFFLINE</span></div>
+      <h2 class="t">Doanh nghiệp Một Người trong Offline Marketing</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:165mm">Kênh thật đưa hệ tư tưởng từ màn hình ra đời sống — nơi cá nhân <strong style="color:#157A40">chạm, thấy và tin</strong> rằng mô hình một người + AI là có thật.</p>
+
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:14px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 1</span><div style="font-size:13.5px;font-weight:800;color:#14201A">Triển lãm &amp; Hội nghị</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Sân khấu ra mắt &amp; dẫn dắt category "One Person Company".</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Kỷ nguyên doanh nghiệp một người đã đến"</strong>.</div></div>
+          </div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:14px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 2</span><div style="font-size:13.5px;font-weight:800;color:#14201A">Giáo dục &amp; Trải nghiệm</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Workshop cầm tay chỉ việc — tự dựng doanh nghiệp một người bằng AI.</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Ra về là vận hành được ngay"</strong>.</div></div>
+          </div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:14px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 3</span><div style="font-size:13.5px;font-weight:800;color:#14201A">Điều hành &amp; Kết nối</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Kết nối chủ doanh nghiệp một người với nhau &amp; với đối tác.</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Một mình nhưng không đơn độc"</strong> — có mạng lưới.</div></div>
+          </div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:14px 18px;background:#fff">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 4</span><div style="font-size:13.5px;font-weight:800;color:#14201A">Cộng đồng &amp; Đối tác</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field"><div class="flbl">Góc tiếp cận</div><div class="fval">Nuôi phong trào &amp; hệ sinh thái đối tác quanh mô hình OPC.</div></div>
+            <div class="field"><div class="flbl">Thông điệp</div><div class="fval"><strong>"Cùng nhau định hình cách làm kinh doanh mới"</strong>.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;border-left:3px solid #2DC56A;background:#EDFAF3;border-radius:0 12px 12px 0;padding:12px 18px">
+        <p style="font-size:11.5px;line-height:1.55;color:#37424C;font-weight:500;margin:0">Điều kiện chung: mọi sự kiện offline phải có <strong style="color:#14201A">hình mẫu người thật</strong> lên kể chuyện — bằng chứng sống mạnh hơn mọi bài thuyết trình sản phẩm.</p>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>08</span></div>
+  </section>
+
+  <!-- ===== VẬN DỤNG OPC · PR ===== -->
+  <section class="pg" data-screen-label="Vận dụng · PR">
+    <div class="bd">
+      <div class="sec"><i></i><span>VẬN DỤNG HỆ TƯ TƯỞNG · PHẦN III PR</span></div>
+      <h2 class="t">Doanh nghiệp Một Người trong PR &amp; Truyền thông</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:165mm">PR biến "One Person Company" từ thông điệp thương hiệu thành một <strong style="color:#157A40">xu hướng chính danh cấp quốc gia</strong> — với AppChat là đơn vị khởi xướng &amp; dẫn dắt.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div class="card" style="gap:6px">
+          <div style="display:flex;align-items:center;gap:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 1</span><div style="font-size:12.5px;font-weight:800;color:#14201A">Corporate &amp; Leadership Branding</div></div>
+          <div class="field"><div class="flbl">Đối tượng</div><div class="fval">Giới đầu tư, đối tác, nhân tài, báo chí.</div></div>
+          <div class="field"><div class="flbl">Liên kết</div><div class="fval">CEO là gương mặt của category OPC.</div></div>
+        </div>
+        <div class="card" style="gap:6px">
+          <div style="display:flex;align-items:center;gap:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 2</span><div style="font-size:12.5px;font-weight:800;color:#14201A">Government &amp; Comms</div></div>
+          <div class="field"><div class="flbl">Đối tượng</div><div class="fval">Cơ quan nhà nước, hiệp hội, chương trình quốc gia.</div></div>
+          <div class="field"><div class="flbl">Liên kết</div><div class="fval">OPC cộng hưởng kinh tế số &amp; năng lực AI quốc gia.</div></div>
+        </div>
+        <div class="card" style="gap:6px">
+          <div style="display:flex;align-items:center;gap:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 3</span><div style="font-size:12.5px;font-weight:800;color:#14201A">Authority &amp; Knowledge</div></div>
+          <div class="field"><div class="flbl">Đối tượng</div><div class="fval">Nhà nghiên cứu, doanh nghiệp, giới chuyên môn.</div></div>
+          <div class="field"><div class="flbl">Liên kết</div><div class="fval">Báo cáo gốc về OPC → tài sản được trích dẫn.</div></div>
+        </div>
+        <div class="card" style="gap:6px">
+          <div style="display:flex;align-items:center;gap:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 4</span><div style="font-size:12.5px;font-weight:800;color:#14201A">Media &amp; Editorial</div></div>
+          <div class="field"><div class="flbl">Đối tượng</div><div class="fval">Báo chí đại chúng &amp; chuyên ngành, KOL.</div></div>
+          <div class="field"><div class="flbl">Liên kết</div><div class="fval">Đưa "doanh nghiệp một người" vào tiêu đề báo.</div></div>
+        </div>
+        <div class="card" style="gap:6px;grid-column:1 / -1">
+          <div style="display:flex;align-items:center;gap:8px"><span class="pill" style="background:#EDFAF3;color:#157A40">Nhóm 5</span><div style="font-size:12.5px;font-weight:800;color:#14201A">Purpose &amp; Innovation</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field"><div class="flbl">Đối tượng</div><div class="fval">Xã hội, cộng đồng khởi nghiệp, thế hệ trẻ.</div></div>
+            <div class="field"><div class="flbl">Liên kết</div><div class="fval">Sứ mệnh trao quyền: ai cũng có thể làm chủ nhờ AI — AppChat mở đường.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;background:#0F2A1C;color:#fff;border-radius:14px;padding:16px 20px">
+        <p class="quote" style="font-size:16px;line-height:1.5;font-weight:500;margin:0">"Khi báo chí, chính phủ và cộng đồng cùng nói về 'doanh nghiệp một người' — và đều dẫn về AppChat — đó là lúc thẩm quyền danh mục hình thành."</p>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>09</span></div>
+  </section>
+
+  <!-- ===== PART I DIVIDER ===== -->
+  <section class="pg partcover clip" data-screen-label="Phần I">
+    <div style="position:absolute;inset:0;background:radial-gradient(100% 60% at 90% 0%, rgba(45,197,106,.20), transparent 55%)"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:center;padding:26mm 20mm">
+      <div style="font-size:110px;font-weight:800;color:rgba(125,224,166,.16);letter-spacing:-.03em;line-height:1">I</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin:8px 0 14px">PHẦN I</div>
+      <h2 style="font-size:44px;font-weight:800;letter-spacing:-.025em;margin:0 0 18px;line-height:1.1">Online Marketing<br>Strategy Framework</h2>
+      <p style="font-size:15px;line-height:1.7;color:rgba(255,255,255,.72);max-width:150mm;font-weight:500;margin:0">Danh mục 25 chiến lược Marketing số — từ xây dựng thương hiệu, tạo nhu cầu, chuyển đổi đến giữ chân và lan toả. Mỗi chiến lược trình bày Vai trò · Mục tiêu · Giá trị mang lại · Mối liên hệ với các chiến lược khác.</p>
+      <div style="margin-top:20px;border-left:3px solid #2DC56A;padding:10px 0 10px 16px;max-width:150mm"><div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#7DE0A6;margin-bottom:4px">LĂNG KÍNH DOANH NGHIỆP MỘT NGƯỜI</div><p style="font-size:13px;line-height:1.6;color:rgba(255,255,255,.82);font-weight:500;margin:0">Kênh số là nơi <strong style="color:#fff">chứng minh &amp; nhân rộng</strong> mô hình một người + AI — mỗi nội dung kể chuyện chủ doanh nghiệp một người dùng AppChat để làm marketing, bán hàng, chăm sóc khách hàng mà không cần đội ngũ đông.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:26px">
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Brand</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Content & Search</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Demand & Growth</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Conversion</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Customer & Advocacy</span>
+      </div>
+    </div>
+    <div class="ft" style="color:rgba(255,255,255,.4)"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>10</span></div>
+  </section>
+
+  <!-- ===== PART I · GROUP A: BRAND & CONTENT ===== -->
+  <section class="pg" data-screen-label="I · Brand & Content">
+    <div class="bd">
+      <div class="sec"><i></i><span>I.A · NỀN TẢNG THƯƠNG HIỆU & NỘI DUNG</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Brand · Content · Search</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">01</div><div><div class="ctitle">Brand Marketing</div><div class="csub">Tiếp thị thương hiệu</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Định vị AppChat là thương hiệu của người làm chủ một mình cùng AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Thiết lập nhận thức và định vị AppChat là người kiến tạo danh mục "Doanh nghiệp Một Người".</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Xây dựng brand awareness, brand equity và sự khác biệt so với CRM/chatbot truyền thống.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Giảm chi phí thu hút dài hạn, tạo lực kéo tự nhiên và premium định giá.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Là "trục" cho mọi chiến lược khác — cấp thông điệp lõi cho Content, Social, PR.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">02</div><div><div class="ctitle">Content Marketing</div><div class="csub">Tiếp thị nội dung</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Nội dung dạy cách dựng & vận hành doanh nghiệp một người bằng AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sản xuất tài sản nội dung giáo dục thị trường về Doanh nghiệp Một Người và cách vận hành agentic.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Chiếm lĩnh "share of voice" và nuôi dưỡng nhu cầu qua từng tầng nhận thức.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tài sản dài hạn, hỗ trợ SEO/GEO, cấp nhiên liệu cho Social, Email, Lead Gen.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Là hub trung tâm nuôi SEO, AI SEO, GEO, Social, Email và Webinar.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">03</div><div><div class="ctitle">SEO Strategy</div><div class="csub">Tối ưu công cụ tìm kiếm</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Chiếm từ khoá "kinh doanh một mình", "tự động hoá bán hàng cá nhân".</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Giành hiện diện tự nhiên trên các truy vấn về "doanh nghiệp một người", tự động hoá CSKH, đa kênh.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Traffic chất lượng bền vững, độ tin cậy domain và chi phí thu hút thấp.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Kênh inbound tự vận hành, phục vụ Demand & Lead Generation liên tục.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Dựa vào Content; cộng hưởng AI SEO & GEO; nuôi Lead Gen và CRO.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">04</div><div><div class="ctitle">AI SEO</div><div class="csub">Tối ưu tìm kiếm bằng AI</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Nhân bản nội dung OPC quy mô lớn mà vẫn chỉ một người vận hành.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Ứng dụng AI vào nghiên cứu ý định, cụm chủ đề và tối ưu nội dung quy mô lớn.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng tốc độ và độ phủ SEO; bám sát thay đổi thuật toán và hành vi tìm kiếm.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Hiệu suất nội dung cao hơn với cùng nguồn lực; minh chứng năng lực AI của AppChat.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Mở rộng SEO Strategy; đầu vào trực tiếp cho GEO.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">05</div><div><div class="ctitle">GEO</div><div class="csub">Generative Engine Optimization</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Thành nguồn AI trích dẫn khi ai đó hỏi "khởi nghiệp một người thế nào".</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tối ưu hiện diện trong câu trả lời của các công cụ AI tạo sinh (ChatGPT, Gemini, Perplexity).</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Trở thành nguồn được AI trích dẫn khi người dùng hỏi về nền tảng Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chiếm lĩnh "kênh tìm kiếm thế hệ mới" — lợi thế người đi trước.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Kế thừa Content & SEO; củng cố Thought Leadership và Brand.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">06</div><div><div class="ctitle">Video Marketing</div><div class="csub">Tiếp thị video</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Quay hành trình người thật vận hành doanh nghiệp một mình + AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Trực quan hoá sản phẩm và câu chuyện AI agentic qua demo, explainer, customer story.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng độ hiểu sản phẩm, engagement và tỉ lệ chuyển đổi ở tầng cân nhắc.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Định dạng dễ lan toả, phục vụ cả Social, Website, Sales enablement.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Nhánh của Content; nhiên liệu cho Social & Community.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>11</span></div>
+  </section>
+
+  <!-- ===== PART I · GROUP B: SOCIAL, COMMUNITY, DEMAND ===== -->
+  <section class="pg" data-screen-label="I · Social & Demand">
+    <div class="bd">
+      <div class="sec"><i></i><span>I.B · KÊNH, CỘNG ĐỒNG & TẠO NHU CẦU</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Social · Community · Demand</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">07</div><div><div class="ctitle">Social Media Strategy</div><div class="csub">Chiến lược mạng xã hội</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Kể chuyện đời thường của chủ doanh nghiệp một người mỗi ngày.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Hiện diện & đối thoại trên các nền tảng nơi người ra quyết định B2B hiện hữu.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Mở rộng phủ sóng, tương tác và dẫn traffic về hệ sinh thái nội dung.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Kênh phân phối chính cho Content; tạo tín hiệu xã hội củng cố thương hiệu.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Phân phối Content/Video; giao thoa Community, Influencer, PR.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">08</div><div><div class="ctitle">Community Marketing</div><div class="csub">Tiếp thị cộng đồng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Tụ họp cộng đồng người đang thực hành mô hình một người + AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xây cộng đồng người dùng, nhà điều hành và developer quanh Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tạo network effect, giữ chân và biến người dùng thành người ủng hộ.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">"Hào" cạnh tranh khó sao chép; nguồn insight, nội dung và referral.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Cộng hưởng Customer Marketing, Referral, Offline Meetup.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">09</div><div><div class="ctitle">Influencer Marketing</div><div class="csub">Tiếp thị người ảnh hưởng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Chọn KOC là chính các chủ doanh nghiệp một người điển hình.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Hợp tác với chuyên gia AI/CX và KOL ngành để mượn uy tín, mở rộng phủ sóng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng độ tin cậy và tiếp cận đúng tệp người ra quyết định.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Rút ngắn thời gian tạo niềm tin; khuếch đại thông điệp thương hiệu.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Bổ trợ Social & PR; giao thoa Thought Leadership.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">10</div><div><div class="ctitle">Email Marketing</div><div class="csub">Tiếp thị qua email</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Nuôi dưỡng theo từng chặng dựng doanh nghiệp một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Kênh sở hữu để nuôi dưỡng, giáo dục và duy trì quan hệ theo vòng đời.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Chuyển lead thành cơ hội và mở rộng giá trị khách hàng hiện hữu.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">ROI cao, dữ liệu first-party, không phụ thuộc nền tảng bên thứ ba.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Vận hành bởi Marketing Automation; nuôi Lead Gen & Customer Marketing.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">11</div><div><div class="ctitle">Marketing Automation</div><div class="csub">Tự động hoá marketing</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Bản thân AppChat là bằng chứng: một người tự động hoá mọi thứ.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Điều phối hành trình đa kênh tự động theo hành vi và giai đoạn.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Cá nhân hoá quy mô lớn, tăng hiệu suất và tính nhất quán.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Là minh chứng sống cho chính năng lực agentic của AppChat.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Nền cho Email, Lead Gen, Demand Gen, Data-driven Marketing.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">12</div><div><div class="ctitle">Webinar Strategy</div><div class="csub">Chiến lược hội thảo trực tuyến</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Hội thảo "Dựng doanh nghiệp một người trong 60 phút".</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Giáo dục chuyên sâu và trình diễn sản phẩm trực tiếp cho tệp có nhu cầu.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tạo lead chất lượng cao và thúc đẩy tầng cân nhắc.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Vừa demand gen vừa thought leadership; tái sử dụng thành nhiều nội dung.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Gắn Content & Lead Gen; phiên bản online của Seminar/Workshop offline.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">13</div><div><div class="ctitle">Lead Generation</div><div class="csub">Tạo khách hàng tiềm năng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Thu hút cá nhân đang muốn tự kinh doanh mà thiếu đội ngũ.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Thu hút và nắm bắt lead có nhu cầu rõ ràng vào phễu.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Cung cấp dòng cơ hội ổn định, chất lượng cho đội Sales.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Kết nối trực tiếp marketing với doanh thu.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Nhận đầu vào từ SEO/Content/Webinar; chuyển tiếp cho Performance & CRO.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">14</div><div><div class="ctitle">Demand Generation</div><div class="csub">Tạo nhu cầu</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Tạo nhu cầu mới: "tôi cũng có thể làm chủ một mình nhờ AI".</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tạo và định hình nhu cầu ở tầng thị trường chưa nhận biết vấn đề.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Mở rộng thị trường tổng thể (TAM) cho danh mục "Doanh nghiệp Một Người".</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Xây phễu dài hạn vượt trên nhu cầu sẵn có.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Bao trùm Lead Gen; kết hợp Brand, Content, Webinar, ABM.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>12</span></div>
+  </section>
+
+  <!-- ===== PART I · GROUP C: PRODUCT, CUSTOMER, GROWTH ===== -->
+  <section class="pg" data-screen-label="I · Product & Growth">
+    <div class="bd">
+      <div class="sec"><i></i><span>I.C · SẢN PHẨM, KHÁCH HÀNG & TĂNG TRƯỞNG</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Product · Customer · Conversion · Growth</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">15</div><div><div class="ctitle">Product Marketing</div><div class="csub">Tiếp thị sản phẩm</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Trình bày AppChat như bộ máy vận hành của doanh nghiệp một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Chuyển năng lực sản phẩm thành thông điệp, định vị và câu chuyện giá trị.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Khớp sản phẩm với thị trường; hỗ trợ ra mắt và bán hàng.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Cầu nối Sản phẩm – Marketing – Sales; nguồn thông điệp nhất quán.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Cấp "đạn" cho toàn bộ Content, Brand, GTM và Sales enablement.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">16</div><div><div class="ctitle">Customer Marketing</div><div class="csub">Tiếp thị tới khách hàng hiện hữu</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Giúp khách hiện tại mở rộng mà vẫn giữ mô hình một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Nuôi dưỡng, up-sell/cross-sell và tăng gắn kết với khách đang dùng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng giá trị vòng đời (LTV) và mở rộng doanh thu trong tệp hiện có.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tăng trưởng chi phí thấp; nguồn case study & tham chiếu.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Gắn Customer Success, Referral, Community.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">17</div><div><div class="ctitle">Customer Success Marketing</div><div class="csub">Tiếp thị thành công khách hàng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đo thành công bằng doanh thu trên mỗi người làm chủ.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Biến kết quả khách hàng đạt được thành câu chuyện và bằng chứng giá trị.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Giảm rời bỏ, tăng gia hạn và tạo động lực mở rộng.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chứng minh ROI thực — tài sản thuyết phục mạnh nhất cho tệp mới.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Nuôi Customer Marketing, Case Study, PR, Referral.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">18</div><div><div class="ctitle">Referral Marketing</div><div class="csub">Tiếp thị giới thiệu</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Chủ OPC giới thiệu chủ OPC — cùng hệ giá trị, dễ lan toả.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Kích hoạt khách hàng hài lòng giới thiệu khách mới.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng trưởng lan truyền với chi phí thu hút thấp và niềm tin cao.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Lead chất lượng nhất; củng cố vòng lặp cộng đồng.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Dựa vào Customer Success & Community; giao thoa Affiliate.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">19</div><div><div class="ctitle">Affiliate Marketing</div><div class="csub">Tiếp thị liên kết</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Chính người một người kiếm thêm thu nhập bằng cách giới thiệu.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Mạng lưới đối tác quảng bá hưởng hoa hồng theo hiệu quả.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Mở rộng độ phủ và nguồn lead theo mô hình trả theo kết quả.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Kênh tăng trưởng biến phí, rủi ro thấp, dễ mở rộng.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Giao thoa Referral & Partner Marketing; đo bằng Performance.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">20</div><div><div class="ctitle">Partner Marketing</div><div class="csub">Tiếp thị đối tác</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đối tác phục vụ tệp doanh nghiệp một người cùng khuếch đại.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Đồng marketing với đối tác công nghệ, tích hợp và triển khai.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Mở rộng hệ sinh thái, tiếp cận thị trường mới qua đối tác.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Uy tín cộng hưởng và kênh phân phối gián tiếp.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Gắn ABM, Affiliate và Partner Event (offline).</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">21</div><div><div class="ctitle">Performance Marketing</div><div class="csub">Tiếp thị hiệu suất</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Nhắm quảng cáo tới freelancer, creator, chủ shop solo.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Quảng cáo trả phí đo lường được để tăng tốc lead và chuyển đổi.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tối ưu chi phí trên mỗi kết quả và mở rộng có kiểm soát.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tốc độ và khả năng scale tức thời cho Demand & Lead Gen.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Khuếch đại Lead/Demand Gen; tối ưu bởi CRO & Data-driven.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">22</div><div><div class="ctitle">Conversion Rate Optimization</div><div class="csub">Tối ưu tỉ lệ chuyển đổi (CRO)</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Rút hành trình để một người tự đăng ký & vận hành ngay.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tối ưu website, landing và luồng đăng ký để tăng chuyển đổi.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Khai thác tối đa traffic hiện có, giảm lãng phí phễu.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Nhân hiệu quả cho mọi kênh dẫn traffic.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Bổ trợ SEO, Performance, Lead Gen; dùng dữ liệu Data-driven.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">23</div><div><div class="ctitle">Account-Based Marketing</div><div class="csub">Tiếp thị theo tài khoản (ABM)</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">"Account" ở đây là từng cá nhân khát vọng làm chủ.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Nhắm và cá nhân hoá tới các tài khoản enterprise trọng điểm.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Thắng các hợp đồng lớn, chu kỳ dài với giá trị cao.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Hiệu quả cao cho phân khúc enterprise; Marketing–Sales hợp nhất.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Kết hợp Demand Gen, Partner, Executive Event & Roundtable.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">24</div><div><div class="ctitle">Data-driven Marketing</div><div class="csub">Marketing dựa trên dữ liệu</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Dữ liệu chứng minh một người + AI cho năng suất vượt trội.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Ra quyết định marketing dựa trên dữ liệu & phân tích, không cảm tính.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tối ưu phân bổ nguồn lực và hiệu quả toàn phễu.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Nền tảng đo lường cho mọi chiến lược; phù hợp DNA AI của AppChat.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Xuyên suốt — cấp insight cho Growth, CRO, Performance, Automation.</span></div>
+        </div>
+
+        <div class="card" style="border-color:#2DC56A;background:#EDFAF3">
+          <div class="chead"><div class="cnum" style="background:#2DC56A;color:#fff">25</div><div><div class="ctitle">Growth Marketing</div><div class="csub">Tiếp thị tăng trưởng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Vòng lặp tăng trưởng: mỗi OPC thành công kéo thêm OPC mới.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Thử nghiệm liên tục toàn phễu (AARRR) để tìm đòn bẩy tăng trưởng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng trưởng nhanh, lặp lại và có hệ thống.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Văn hoá thử nghiệm — tối ưu tốc độ học và mở rộng.</span></div>
+          <div class="field"><span class="flbl">Liên hệ</span><span class="fval">Bao trùm & điều phối các chiến lược Demand/Conversion/Customer.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>13</span></div>
+  </section>
+
+  <!-- ===== PART II DIVIDER ===== -->
+  <section class="pg partcover clip" data-screen-label="Phần II">
+    <div style="position:absolute;inset:0;background:radial-gradient(100% 60% at 90% 0%, rgba(45,197,106,.20), transparent 55%)"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:center;padding:26mm 20mm">
+      <div style="font-size:110px;font-weight:800;color:rgba(125,224,166,.16);letter-spacing:-.03em;line-height:1">II</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin:8px 0 14px">PHẦN II</div>
+      <h2 style="font-size:44px;font-weight:800;letter-spacing:-.025em;margin:0 0 18px;line-height:1.1">Offline Marketing<br>Strategy Framework</h2>
+      <p style="font-size:15px;line-height:1.7;color:rgba(255,255,255,.72);max-width:150mm;font-weight:500;margin:0">Danh mục 21 chiến lược Marketing trực tiếp — sự kiện, triển lãm, kết nối điều hành, cộng đồng và đối tác. Mỗi chiến lược trình bày Vai trò · Mục tiêu · Giá trị · Điều kiện triển khai · Đối tượng phù hợp.</p>
+      <div style="margin-top:20px;border-left:3px solid #2DC56A;padding:10px 0 10px 16px;max-width:150mm"><div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#7DE0A6;margin-bottom:4px">LĂNG KÍNH DOANH NGHIỆP MỘT NGƯỜI</div><p style="font-size:13px;line-height:1.6;color:rgba(255,255,255,.82);font-weight:500;margin:0">Không gian offline là nơi <strong style="color:#fff">chạm thật &amp; tạo cộng đồng</strong> — biến "Doanh nghiệp Một Người" từ khái niệm thành trải nghiệm sờ được, nơi cá nhân gặp hình mẫu thật và tin rằng mình cũng làm được.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:26px">
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Triển lãm & Hội nghị</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Giáo dục & Trải nghiệm</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Điều hành & Kết nối</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Cộng đồng & Đối tác</span>
+      </div>
+    </div>
+    <div class="ft" style="color:rgba(255,255,255,.4)"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>14</span></div>
+  </section>
+
+  <!-- ===== II.A TRIỂN LÃM & HỘI NGHỊ ===== -->
+  <section class="pg" data-screen-label="II · Triển lãm & Hội nghị">
+    <div class="bd">
+      <div class="sec"><i></i><span>II.A · TRIỂN LÃM & HỘI NGHỊ</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Exhibition · Trade Show · Conference</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">01</div><div><div class="ctitle">Exhibition Marketing</div><div class="csub">Tiếp thị triển lãm</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Gian hàng trình diễn "một người vận hành cả doanh nghiệp" trực tiếp.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Trưng bày AppChat tại triển lãm công nghệ/chuyển đổi số để tiếp cận diện rộng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng nhận diện, thu lead và định vị là nền tảng "Doanh nghiệp Một Người" tiên phong.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tiếp xúc trực tiếp quy mô lớn, demo trực quan, tạo tín hiệu thị trường.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Gian hàng, đội demo, tài liệu & vật phẩm; ngân sách sự kiện lớn.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Doanh nghiệp đa ngành, đối tác, báo chí, thị trường đại chúng B2B.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">02</div><div><div class="ctitle">Trade Show Marketing</div><div class="csub">Tiếp thị hội chợ thương mại</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đưa mô hình OPC tới hội chợ ngành hàng của SME.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Hiện diện tại hội chợ chuyên ngành để tiếp cận tệp mua có chủ đích.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Kết nối người mua ngành dọc và tạo cơ hội chất lượng cao.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Lead tập trung theo ngành; cơ hội gặp đối tác & nhà phân phối.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Chọn đúng hội chợ ngành mục tiêu; đội sales chuyên trách tại chỗ.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Doanh nghiệp trong ngành trọng điểm (bán lẻ, F&B, BĐS, tài chính…).</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">03</div><div><div class="ctitle">Roadshow</div><div class="csub">Chuỗi sự kiện lưu động</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Lưu diễn các tỉnh, chạm tới hộ kinh doanh & cá nhân khởi sự.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Đưa thông điệp AppChat tới nhiều địa phương theo chuỗi sự kiện di động.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Mở rộng độ phủ vùng miền, kích hoạt thị trường mới.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tiếp cận thị trường tỉnh/vùng mà kênh online khó chạm sâu.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Kịch bản chuẩn hoá lặp lại, đội lưu động, đối tác địa phương.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Doanh nghiệp địa phương, đối tác vùng, cộng đồng khu vực.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">04</div><div><div class="ctitle">Conference</div><div class="csub">Hội nghị chuyên đề</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đưa "doanh nghiệp một người" thành chủ đề hội nghị chính danh.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tham gia/đồng tổ chức hội nghị ngành để khẳng định vị thế chuyên gia.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Xây thought leadership và quan hệ cấp cao.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Uy tín ngành, cơ hội phát biểu, tiếp cận lãnh đạo & báo chí.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Nội dung diễn thuyết chất lượng, diễn giả uy tín từ AppChat.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Lãnh đạo doanh nghiệp, chuyên gia ngành, cơ quan quản lý.</span></div>
+        </div>
+
+        <div class="card" style="border-color:#2DC56A;background:#EDFAF3">
+          <div class="chead"><div class="cnum" style="background:#2DC56A;color:#fff">05</div><div><div class="ctitle">AI Summit</div><div class="csub">Hội nghị thượng đỉnh về AI</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Sân khấu tuyên ngôn category One Person Company của AppChat.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sự kiện chủ lực (flagship) do AppChat dẫn dắt danh mục "Doanh nghiệp Một Người".</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Sở hữu danh mục, quy tụ hệ sinh thái, khẳng định vị thế dẫn đầu.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tài sản thương hiệu lớn nhất offline; đòn bẩy PR & category design.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Năng lực tổ chức lớn, mạng lưới diễn giả & đối tác, uy tín tích luỹ.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Toàn hệ sinh thái: lãnh đạo, đối tác, báo chí, chính phủ, cộng đồng.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>15</span></div>
+  </section>
+
+  <!-- ===== II.B GIÁO DỤC & TRẢI NGHIỆM ===== -->
+  <section class="pg" data-screen-label="II · Giáo dục & Trải nghiệm">
+    <div class="bd">
+      <div class="sec"><i></i><span>II.B · GIÁO DỤC & TRẢI NGHIỆM</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Workshop · Training · Launch · Demo</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">06</div><div><div class="ctitle">Workshop</div><div class="csub">Hội thảo thực hành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Cầm tay chỉ việc dựng doanh nghiệp một người, ra về dùng ngay.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Buổi thực hành giúp khách trải nghiệm trực tiếp năng lực AI của AppChat.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng độ hiểu sản phẩm và thúc đẩy chuyển đổi tầng cân nhắc.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">"Aha moment" trực tiếp; lead chất lượng và tín hiệu mua rõ.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Chuyên viên hướng dẫn, môi trường demo, nhóm nhỏ tập trung.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Đội vận hành, marketing, CSKH của doanh nghiệp quan tâm.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">07</div><div><div class="ctitle">Seminar</div><div class="csub">Hội thảo chuyên đề</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Chuyên đề mô hình vận hành một người theo từng ngành.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Chia sẻ kiến thức về Doanh nghiệp Một Người cho tệp có nhu cầu học hỏi.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Giáo dục thị trường và tạo lead ở tầng nhận thức–cân nhắc.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Định vị chuyên gia; phiên bản offline của Webinar.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Nội dung giá trị, diễn giả, địa điểm & tổ chức quy mô vừa.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Quản lý cấp trung, người làm marketing/CSKH, chủ doanh nghiệp SME.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">08</div><div><div class="ctitle">Training Program</div><div class="csub">Chương trình đào tạo</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đào tạo kỹ năng điều phối đội ngũ AI cho cá nhân.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Đào tạo bài bản cho khách hàng và đối tác sử dụng thành thạo nền tảng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng adoption, giảm rời bỏ, nâng năng lực hệ sinh thái.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Khách thành công → giữ chân & mở rộng; đối tác đủ năng lực triển khai.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Giáo trình, chứng chỉ, đội đào tạo & nền tảng học tập.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Người dùng khách hàng, đối tác triển khai, nhà tích hợp.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">09</div><div><div class="ctitle">University Program</div><div class="csub">Chương trình đại học</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Gieo tư duy OPC cho sinh viên trước khi ra trường.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Hợp tác trường đại học đưa AppChat & mô hình Doanh nghiệp Một Người vào môi trường học thuật.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Xây nguồn nhân lực, thương hiệu tuyển dụng và ảnh hưởng dài hạn.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Đầu tư tương lai: tài năng, đại sứ thương hiệu, uy tín học thuật.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Quan hệ nhà trường, học liệu, tài trợ cuộc thi/đồ án.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Sinh viên, giảng viên, câu lạc bộ công nghệ, khoa CNTT/kinh tế.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">10</div><div><div class="ctitle">Product Launch</div><div class="csub">Sự kiện ra mắt sản phẩm</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Ra mắt tính năng gắn câu chuyện trao quyền cho một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Công bố sản phẩm/tính năng lớn tạo cú hích truyền thông.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tạo tiếng vang, thúc đẩy nhu cầu và củng cố vị thế đổi mới.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Đỉnh chú ý truyền thông; nội dung tái sử dụng cho toàn kênh.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Tính năng đủ lớn, kịch bản sự kiện, phối hợp PR & Product Marketing.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Khách hàng, đối tác, báo chí, cộng đồng, nhà đầu tư.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">11</div><div><div class="ctitle">Demo Day</div><div class="csub">Ngày trình diễn sản phẩm</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Người thật lên demo doanh nghiệp một người họ đang chạy.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Buổi trình diễn tập trung năng lực AI agentic qua tình huống thực tế.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Thuyết phục tệp cân nhắc bằng bằng chứng vận hành.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Rút ngắn chu kỳ bán; "thấy tận mắt" giá trị sản phẩm.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Kịch bản demo mạnh, dữ liệu mẫu, đội tư vấn giải pháp.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Người ra quyết định & đội đánh giá kỹ thuật của khách hàng.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>16</span></div>
+  </section>
+
+  <!-- ===== II.C ĐIỀU HÀNH & KẾT NỐI ===== -->
+  <section class="pg" data-screen-label="II · Điều hành & Kết nối">
+    <div class="bd">
+      <div class="sec"><i></i><span>II.C · ĐIỀU HÀNH & KẾT NỐI</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Executive · Networking · Customer</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">12</div><div><div class="ctitle">CEO Breakfast</div><div class="csub">Toạ đàm ăn sáng lãnh đạo</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Kết nối các chủ doanh nghiệp một người & lãnh đạo tinh gọn.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Gặp gỡ thân mật, quy mô nhỏ giữa lãnh đạo AppChat và CEO khách hàng mục tiêu.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Xây quan hệ cấp cao và thúc đẩy cơ hội enterprise.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tin cậy sâu, đối thoại chiến lược, hỗ trợ ABM.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Danh sách khách VIP tuyển chọn, không gian riêng tư, nội dung tinh gọn.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">CEO/C-level doanh nghiệp lớn trong tệp trọng điểm.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">13</div><div><div class="ctitle">CEO Networking</div><div class="csub">Kết nối lãnh đạo</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Mạng lưới "một mình nhưng không đơn độc".</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sự kiện kết nối cộng đồng lãnh đạo doanh nghiệp quanh chủ đề AI.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Mở rộng mạng lưới quan hệ và ảnh hưởng cấp cao.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Vị thế "trung tâm kết nối" ngành; nguồn cơ hội & giới thiệu.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Uy tín tổ chức, đối tác đồng hành, danh sách khách chất lượng.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">CEO, founder, lãnh đạo cấp cao đa ngành.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">14</div><div><div class="ctitle">Business Matching</div><div class="csub">Kết nối giao thương</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Ghép nối chủ OPC với đối tác, nhà cung cấp, khách hàng.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tổ chức/tham gia kết nối cung–cầu giữa AppChat, đối tác và khách hàng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tạo cơ hội hợp tác và giao dịch trực tiếp.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chuyển quan hệ thành cơ hội kinh doanh cụ thể.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Cơ chế ghép cặp, hồ sơ đối tác, điều phối viên sự kiện.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Đối tác tiềm năng, nhà tích hợp, khách hàng doanh nghiệp.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">15</div><div><div class="ctitle">Executive Roundtable</div><div class="csub">Bàn tròn điều hành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Bàn tròn mô hình vận hành AI-Native cho doanh nghiệp nhỏ.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Thảo luận chuyên sâu, đóng, giữa lãnh đạo về xu hướng Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Định hình tư duy ngành và củng cố vị thế dẫn dắt của AppChat.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Thought leadership cấp cao; insight thị trường & cơ hội chiến lược.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Chủ đề sắc bén, điều phối giỏi, nhóm nhỏ tinh hoa.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">C-level, chuyên gia đầu ngành, nhà hoạch định.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">16</div><div><div class="ctitle">Customer Experience Event</div><div class="csub">Sự kiện trải nghiệm khách hàng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Trình diễn CX đẳng cấp tập đoàn do một người tạo ra.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sự kiện chủ đề CX quy tụ khách hàng & người quan tâm trải nghiệm sản phẩm.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Củng cố định vị danh mục và gắn kết cộng đồng CX.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Sở hữu chủ đề CX; kết hợp giáo dục, cộng đồng và demo.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Nội dung CX giá trị, khách hàng chia sẻ thực tế, tổ chức chuyên nghiệp.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Lãnh đạo CX/CS, marketing, vận hành khách hàng.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">17</div><div><div class="ctitle">Customer Appreciation</div><div class="csub">Tri ân khách hàng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Tôn vinh các chủ doanh nghiệp một người tiêu biểu.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sự kiện tri ân, gắn kết và tôn vinh khách hàng hiện hữu.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng trung thành, giảm rời bỏ, khơi nguồn referral.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Quan hệ bền chặt; khách hàng trở thành người ủng hộ.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Dữ liệu khách hàng thân thiết, chương trình & quà tặng phù hợp.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Khách hàng trung thành, khách hàng chiến lược & tham chiếu.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>17</span></div>
+  </section>
+
+  <!-- ===== II.D CỘNG ĐỒNG & ĐỐI TÁC ===== -->
+  <section class="pg" data-screen-label="II · Cộng đồng & Đối tác">
+    <div class="bd">
+      <div class="sec"><i></i><span>II.D · CỘNG ĐỒNG & ĐỐI TÁC</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Community · Regional · Partner</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">18</div><div><div class="ctitle">Community Meetup</div><div class="csub">Gặp gỡ cộng đồng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Gặp gỡ offline của cộng đồng người thực hành OPC.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Buổi gặp định kỳ của cộng đồng người dùng & người quan tâm Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Nuôi dưỡng cộng đồng, tăng gắn kết và lan toả tự nhiên.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Network effect offline; nguồn nội dung, feedback & đại sứ.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Cộng đồng hạt nhân, người điều phối, nhịp tổ chức đều đặn.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Người dùng, developer, người thực hành marketing/CSKH.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">19</div><div><div class="ctitle">Regional Tour</div><div class="csub">Chuỗi sự kiện theo vùng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Mang mô hình một người + AI tới từng vùng kinh tế.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Chuỗi sự kiện phủ các vùng kinh tế trọng điểm.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Kích hoạt và mở rộng thị trường theo địa lý.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Hiện diện sâu tại vùng; cân bằng độ phủ ngoài trung tâm lớn.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Kịch bản chuẩn hoá, đối tác vùng, đội tổ chức lưu động.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Doanh nghiệp & đối tác tại các tỉnh/vùng mục tiêu.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">20</div><div><div class="ctitle">Industry Tour</div><div class="csub">Chuỗi sự kiện theo ngành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Vào từng ngành dọc chứng minh OPC khả thi ở đó.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Chuỗi sự kiện chuyên biệt cho từng ngành dọc (bán lẻ, F&B, BĐS…).</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Đi sâu bài toán ngành và chứng minh giải pháp phù hợp.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Thông điệp đúng ngữ cảnh ngành; tỉ lệ chuyển đổi cao.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Nội dung & case study theo ngành, chuyên gia ngành dọc.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Doanh nghiệp trong từng ngành trọng điểm.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">21</div><div><div class="ctitle">Partner Event</div><div class="csub">Sự kiện đối tác</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Cùng đối tác mở rộng tệp doanh nghiệp một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sự kiện dành cho hệ sinh thái đối tác công nghệ, tích hợp & triển khai.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Củng cố quan hệ, đồng phát triển thị trường và kênh gián tiếp.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Mở rộng năng lực triển khai & độ phủ qua đối tác.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Chương trình đối tác rõ ràng, lợi ích & lộ trình đồng hành.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Đối tác công nghệ, nhà tích hợp hệ thống, agency.</span></div>
+        </div>
+
+        <div class="card" style="border-color:#2DC56A;background:#EDFAF3">
+          <div class="chead"><div class="cnum" style="background:#2DC56A;color:#fff">22</div><div><div class="ctitle">Channel Partner Event</div><div class="csub">Sự kiện đối tác kênh</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Trang bị cho kênh phân phối câu chuyện & công cụ OPC.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Sự kiện chuyên cho đối tác kênh phân phối/đại lý bán hàng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Kích hoạt kênh, tăng năng lực bán và cam kết doanh số.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Mở rộng doanh thu gián tiếp; đòn bẩy phủ thị trường nhanh.</span></div>
+          <div class="field"><span class="flbl">Điều kiện</span><span class="fval">Chính sách kênh, công cụ bán, chương trình thưởng & đào tạo.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Đại lý, nhà phân phối, đối tác bán hàng ăn hoa hồng.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>18</span></div>
+  </section>
+
+  <!-- ===== PART III DIVIDER ===== -->
+  <section class="pg partcover clip" data-screen-label="Phần III">
+    <div style="position:absolute;inset:0;background:radial-gradient(100% 60% at 90% 0%, rgba(45,197,106,.20), transparent 55%)"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:center;padding:26mm 20mm">
+      <div style="font-size:110px;font-weight:800;color:rgba(125,224,166,.16);letter-spacing:-.03em;line-height:1">III</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin:8px 0 14px">PHẦN III</div>
+      <h2 style="font-size:42px;font-weight:800;letter-spacing:-.025em;margin:0 0 18px;line-height:1.1">Public Relations &<br>Corporate Communication</h2>
+      <p style="font-size:15px;line-height:1.7;color:rgba(255,255,255,.72);max-width:150mm;font-weight:500;margin:0">Danh mục 26 chiến lược xây dựng thương hiệu qua báo chí, truyền thông và uy tín doanh nghiệp — tách hoàn toàn khỏi Marketing Online. Mỗi chiến lược trình bày Vai trò · Mục tiêu · Giá trị · Đối tượng truyền thông · Liên kết thương hiệu AppChat.</p>
+      <div style="margin-top:20px;border-left:3px solid #2DC56A;padding:10px 0 10px 16px;max-width:150mm"><div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#7DE0A6;margin-bottom:4px">LĂNG KÍNH DOANH NGHIỆP MỘT NGƯỜI</div><p style="font-size:13px;line-height:1.6;color:rgba(255,255,255,.82);font-weight:500;margin:0">PR là nơi <strong style="color:#fff">hợp thức hoá &amp; dẫn dắt danh mục</strong> — biến "One Person Company" thành xu hướng chính danh ở tầm quốc gia, gắn AppChat là đơn vị khởi xướng &amp; dẫn dắt tại Việt Nam.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:26px">
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Corporate & Leadership</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Government & Comms</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Authority & Knowledge</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Media & Editorial</span>
+        <span class="pill" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff">Purpose & Innovation</span>
+      </div>
+    </div>
+    <div class="ft" style="color:rgba(255,255,255,.4)"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>19</span></div>
+  </section>
+
+  <!-- ===== III.A CORPORATE & LEADERSHIP BRANDING ===== -->
+  <section class="pg" data-screen-label="III · Corporate & Leadership">
+    <div class="bd">
+      <div class="sec"><i></i><span>III.A · THƯƠNG HIỆU DOANH NGHIỆP & LÃNH ĐẠO</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Corporate · Founder · CEO · Thought Leadership</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">01</div><div><div class="ctitle">Corporate Branding</div><div class="csub">Thương hiệu doanh nghiệp</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">AppChat = thương hiệu tiên phong kỷ nguyên doanh nghiệp một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xây dựng hình ảnh và uy tín tổ chức Media Soft / AppChat ở tầm doanh nghiệp.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tạo niềm tin thể chế với khách hàng lớn, đối tác và nhà đầu tư.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Nền uy tín cho bán hàng enterprise và gọi vốn.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Nhà đầu tư, đối tác chiến lược, khách hàng enterprise, báo chí kinh tế.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Là "mái nhà" uy tín bao trùm thương hiệu sản phẩm AppChat.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">02</div><div><div class="ctitle">Founder Branding</div><div class="csub">Thương hiệu nhà sáng lập</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Nhà sáng lập kể vì sao đặt cược vào mô hình OPC.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xây câu chuyện & tầm nhìn nhà sáng lập gắn với sứ mệnh Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Nhân hoá thương hiệu, truyền cảm hứng và tạo niềm tin.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Kết nối cảm xúc; câu chuyện gốc khó sao chép.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Cộng đồng khởi nghiệp, báo chí, nhà đầu tư, nhân tài.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Truyền "vì sao" của AppChat; hỗ trợ tuyển dụng & gọi vốn.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">03</div><div><div class="ctitle">CEO Branding</div><div class="csub">Thương hiệu CEO</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">CEO là gương mặt & tiếng nói của category One Person Company.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Định vị CEO là tiếng nói dẫn dắt về AI & chuyển đổi trải nghiệm khách hàng.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng ảnh hưởng ngành và uy tín ra quyết định cấp cao.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">"Bảo chứng" cho các thương vụ lớn; mở cửa quan hệ cấp cao.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Lãnh đạo doanh nghiệp, báo chí, cơ quan quản lý, cộng đồng ngành.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Đại diện hình ảnh AppChat trong hội nghị, media & roundtable.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">04</div><div><div class="ctitle">Executive Branding</div><div class="csub">Thương hiệu đội ngũ điều hành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đội ngũ lãnh đạo cùng lan toả tầm nhìn trao quyền cá nhân.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xây hình ảnh chuyên gia cho các lãnh đạo chức năng (CTO, CPO, CMO…).</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Đa dạng hoá tiếng nói chuyên môn, giảm phụ thuộc một cá nhân.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chiều sâu chuyên môn toàn tổ chức; nhiều đại sứ uy tín.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Cộng đồng chuyên môn, báo chí công nghệ, nhân tài, đối tác kỹ thuật.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Củng cố năng lực công nghệ & sản phẩm của AppChat qua con người.</span></div>
+        </div>
+
+        <div class="card" style="border-color:#2DC56A;background:#EDFAF3">
+          <div class="chead"><div class="cnum" style="background:#2DC56A;color:#fff">05</div><div><div class="ctitle">Thought Leadership</div><div class="csub">Dẫn dắt tư tưởng ngành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Sở hữu tuyệt đối narrative "doanh nghiệp một người" tại Việt Nam.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Định hình quan điểm & khung tư duy về Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Trở thành nguồn tham chiếu tư tưởng của danh mục mới.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Quyền định nghĩa luật chơi; lợi thế category leader.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Lãnh đạo ngành, báo chí, học thuật, nhà hoạch định chính sách.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Trục PR trung tâm — nuôi Report, Whitepaper, Speaking, Media.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>20</span></div>
+  </section>
+
+  <!-- ===== III.B GOVERNMENT & CORPORATE COMM ===== -->
+  <section class="pg" data-screen-label="III · Government & Comms">
+    <div class="bd">
+      <div class="sec"><i></i><span>III.B · QUAN HỆ CHÍNH PHỦ & TRUYỀN THÔNG DOANH NGHIỆP</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Government · Public Affairs · Media · Crisis</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">06</div><div><div class="ctitle">Government Relations</div><div class="csub">Quan hệ chính phủ</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">OPC cộng hưởng chương trình kinh tế số & khởi nghiệp quốc gia.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xây quan hệ với cơ quan nhà nước quanh chuyển đổi số & AI quốc gia.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Đồng hành chính sách, tiếp cận chương trình & thị trường công.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Uy tín thể chế; cơ hội dự án khu vực công & bảo chứng quốc gia.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Bộ ngành, sở ban ngành, hiệp hội, chương trình chuyển đổi số.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Gắn AppChat với chương trình AI quốc gia — "sản phẩm Make in Vietnam".</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">07</div><div><div class="ctitle">Public Affairs</div><div class="csub">Vận động chính sách công</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Vận động chính sách hỗ trợ cá nhân kinh doanh bằng AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tham gia đối thoại chính sách về AI, dữ liệu & kinh tế số.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Góp tiếng nói định hình môi trường pháp lý thuận lợi.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Vị thế doanh nghiệp có trách nhiệm; giảm rủi ro chính sách.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Nhà hoạch định, hiệp hội ngành, tổ chức nghiên cứu chính sách.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Củng cố hình ảnh AppChat là người kiến tạo hệ sinh thái AI có trách nhiệm.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">08</div><div><div class="ctitle">Corporate Communications</div><div class="csub">Truyền thông doanh nghiệp</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Mọi phát ngôn nhất quán quanh sứ mệnh trao quyền một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Quản trị thông điệp chính thức và truyền thông nội bộ – bên ngoài nhất quán.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Giữ tính nhất quán, minh bạch và kiểm soát câu chuyện thương hiệu.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Nền tảng ổn định cho mọi hoạt động truyền thông khác.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Nhân sự nội bộ, báo chí, đối tác, nhà đầu tư, công chúng.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">"Nguồn sự thật" thông điệp cho toàn bộ PR & Marketing.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">09</div><div><div class="ctitle">Media Relations</div><div class="csub">Quan hệ truyền thông</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đưa "doanh nghiệp một người" lên mặt báo như xu hướng mới.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xây quan hệ bền vững với nhà báo, biên tập viên và cơ quan báo chí.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng hiện diện tích cực & chất lượng trên báo chí.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Uy tín bên thứ ba (earned media) khó mua bằng quảng cáo.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Nhà báo công nghệ/kinh tế, biên tập viên, cơ quan báo chí.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Kênh khuếch đại mọi câu chuyện thương hiệu & sản phẩm AppChat.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">10</div><div><div class="ctitle">Press Relations</div><div class="csub">Quan hệ báo chí</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Cấp dữ liệu & câu chuyện OPC cho phóng viên khai thác.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Quản trị thông tin chính thức tới báo chí quanh sự kiện & cột mốc.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Đảm bảo đưa tin chính xác, kịp thời và có lợi.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Kiểm soát chất lượng đưa tin ở các thời điểm quan trọng.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Phóng viên, cơ quan báo chí, hãng tin.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Hỗ trợ Product Launch, cột mốc gọi vốn & giải thưởng.</span></div>
+        </div>
+
+        <div class="card" style="border-color:#E0B84C;background:#FBF6EA">
+          <div class="chead"><div class="cnum" style="background:#E0B84C;color:#fff">11</div><div><div class="ctitle">Crisis Communications</div><div class="csub">Truyền thông khủng hoảng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Bảo vệ niềm tin "AI là đồng minh của người làm chủ".</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Chuẩn bị & ứng phó truyền thông khi có sự cố về niềm tin, dữ liệu, AI.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Bảo vệ uy tín, giảm thiểu thiệt hại và phục hồi niềm tin.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">"Bảo hiểm" thương hiệu — đặc biệt quan trọng với nền tảng AI/dữ liệu.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Báo chí, khách hàng, đối tác, cơ quan quản lý, công chúng.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Bảo vệ toàn bộ tài sản thương hiệu; gắn AI Governance của sản phẩm.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>21</span></div>
+  </section>
+
+  <!-- ===== III.C AUTHORITY & KNOWLEDGE ===== -->
+  <section class="pg" data-screen-label="III · Authority & Knowledge">
+    <div class="bd">
+      <div class="sec"><i></i><span>III.C · UY TÍN CHUYÊN MÔN & TRI THỨC</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Report · Whitepaper · Awards · Speaking</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">12</div><div><div class="ctitle">Industry Report</div><div class="csub">Báo cáo ngành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Báo cáo thường niên hiện trạng doanh nghiệp một người ở VN.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Công bố báo cáo về hiện trạng & xu hướng Doanh nghiệp Một Người.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Trở thành nguồn dữ liệu tham chiếu chuẩn của ngành.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Uy tín đầu ngành; tài sản PR & lead magnet cao cấp.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Báo chí, lãnh đạo doanh nghiệp, học thuật, nhà đầu tư.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Hiện thực hoá Thought Leadership bằng dữ liệu độc quyền.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">13</div><div><div class="ctitle">Whitepaper</div><div class="csub">Sách trắng chuyên môn</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Luận điểm nền: quy mô đo bằng năng lực điều phối AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Trình bày chuyên sâu về phương pháp, kiến trúc & giá trị AI agentic.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Thuyết phục tệp kỹ thuật & ra quyết định bằng chiều sâu.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chứng minh năng lực; hỗ trợ bán hàng enterprise & ABM.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">CTO, kiến trúc sư giải pháp, đội đánh giá kỹ thuật, học thuật.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Bằng chứng chiều sâu công nghệ đứng sau định vị AI-Native.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">14</div><div><div class="ctitle">Research Publication</div><div class="csub">Công bố nghiên cứu</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Khảo sát gốc chứng minh hiệu quả mô hình một người + AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Công bố kết quả nghiên cứu/thực nghiệm về AI ứng dụng trong CX.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Khẳng định năng lực đổi mới & vị thế học thuật.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Uy tín khoa học; khác biệt so với đối thủ thuần thương mại.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Cộng đồng nghiên cứu, học thuật, báo chí khoa học công nghệ.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Củng cố "chất AI thực" của AppChat, không phải AI dán nhãn.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">15</div><div><div class="ctitle">Awards Strategy</div><div class="csub">Chiến lược giải thưởng</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Vinh danh doanh nghiệp một người xuất sắc — tạo hình mẫu.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Chủ động tham gia & giành các giải thưởng công nghệ/đổi mới uy tín.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tích luỹ bảo chứng bên thứ ba cho thương hiệu & sản phẩm.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tín hiệu tin cậy mạnh; đòn bẩy PR & bán hàng.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Ban tổ chức giải, báo chí, khách hàng, đối tác.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Bằng chứng vị thế dẫn đầu danh mục "Doanh nghiệp Một Người".</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">16</div><div><div class="ctitle">Speaking Strategy</div><div class="csub">Chiến lược diễn thuyết</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Diễn thuyết đưa OPC lên mọi sân khấu ngành.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Đưa lãnh đạo AppChat lên sân khấu các sự kiện ngành uy tín.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Lan toả tư tưởng và củng cố vị thế chuyên gia.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tiếp cận tệp cao cấp; nội dung tái sử dụng đa kênh.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Khán giả hội nghị, báo chí, lãnh đạo ngành.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Hiện thực hoá Thought Leadership & CEO/Executive Branding.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">17</div><div><div class="ctitle">Industry Forum</div><div class="csub">Diễn đàn ngành</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Dẫn dắt thảo luận ngành về tương lai làm việc một người + AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Tham gia/khởi xướng diễn đàn chuyên ngành về AI & CX.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Kiến tạo không gian đối thoại nơi AppChat giữ vai trò trung tâm.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Sở hữu "sân chơi" ngành; quy tụ hệ sinh thái & ảnh hưởng.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Chuyên gia, doanh nghiệp, hiệp hội, cơ quan quản lý.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Cầu nối PR với category design & cộng đồng (offline).</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>22</span></div>
+  </section>
+
+  <!-- ===== III.D MEDIA & EDITORIAL ===== -->
+  <section class="pg" data-screen-label="III · Media & Editorial">
+    <div class="bd">
+      <div class="sec"><i></i><span>III.D · BÁO CHÍ & BIÊN TẬP</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">Interview · Opinion · Editorial · Podcast · TV</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">18</div><div><div class="ctitle">Media Interview</div><div class="csub">Phỏng vấn báo chí</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Sáng lập & khách hàng OPC lên phỏng vấn kể câu chuyện.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xuất hiện qua phỏng vấn để truyền tải quan điểm & câu chuyện thương hiệu.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng độ nhận diện lãnh đạo và uy tín chuyên môn.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tiếng nói con người, chân thực & giàu ảnh hưởng.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Độc giả báo chí công nghệ/kinh tế, khán giả truyền thông.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Kênh thể hiện CEO/Executive Branding & Thought Leadership.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">19</div><div><div class="ctitle">Opinion Article</div><div class="csub">Bài quan điểm</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Bài quan điểm sắc bén định hình cách nghĩ về OPC.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Đăng bài chính luận/quan điểm của lãnh đạo trên báo uy tín.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Định hình góc nhìn ngành về Doanh nghiệp Một Người và tương lai công việc.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chiều sâu tư tưởng; củng cố vai trò dẫn dắt.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Lãnh đạo doanh nghiệp, giới trí thức, nhà hoạch định.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Hiện thực hoá Thought Leadership qua kênh báo chí.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">20</div><div><div class="ctitle">Editorial Strategy</div><div class="csub">Chiến lược biên tập</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Chuỗi bài định kỳ nuôi dưỡng narrative doanh nghiệp một người.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Định hướng chủ đề & thông điệp nhất quán trên toàn bộ nội dung báo chí.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Kể một câu chuyện thương hiệu mạch lạc theo thời gian.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Tính nhất quán & tích luỹ ý nghĩa; tránh truyền thông rời rạc.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Toàn bộ công chúng mục tiêu qua các kênh biên tập.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">"Nhạc trưởng" nội dung cho Interview, Opinion, Report.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">21</div><div><div class="ctitle">Podcast Guest Strategy</div><div class="csub">Chiến lược khách mời podcast</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Xuất hiện ở podcast khởi nghiệp với thông điệp OPC.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xuất hiện làm khách mời trên các podcast công nghệ/kinh doanh uy tín.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tiếp cận tệp khán giả trung thành, chuyên sâu theo hình thức mới.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Đối thoại dài, chiều sâu, xây quan hệ với người ảnh hưởng.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Cộng đồng nghe podcast: founder, chuyên gia, người thực hành.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Mở rộng Thought Leadership sang định dạng audio hiện đại.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">22</div><div><div class="ctitle">TV Program Strategy</div><div class="csub">Chiến lược truyền hình</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Đưa câu chuyện một người + AI lên truyền hình đại chúng.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Xuất hiện trên chương trình truyền hình về kinh tế, công nghệ, đổi mới.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Tăng độ nhận diện đại chúng và uy tín chính thống.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Phủ sóng rộng & bảo chứng "lên sóng quốc gia".</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Công chúng đại chúng, cộng đồng doanh nghiệp, cơ quan quản lý.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Nâng Corporate & CEO Branding lên tầm chính thống, đại chúng.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>23</span></div>
+  </section>
+
+  <!-- ===== III.E PURPOSE & INNOVATION COMM ===== -->
+  <section class="pg" data-screen-label="III · Purpose & Innovation">
+    <div class="bd">
+      <div class="sec"><i></i><span>III.E · SỨ MỆNH & ĐỔI MỚI SÁNG TẠO</span></div>
+      <h2 class="t" style="font-size:24px;margin-bottom:16px">CSR · ESG · Innovation · AI Transformation</h2>
+      <div class="grid">
+
+        <div class="card">
+          <div class="chead"><div class="cnum">23</div><div><div class="ctitle">CSR Communications</div><div class="csub">Truyền thông trách nhiệm xã hội</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Trao quyền kinh doanh cho nhóm yếu thế bằng AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Truyền thông các hoạt động đóng góp cộng đồng & xã hội của doanh nghiệp.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Xây thiện cảm và hình ảnh doanh nghiệp có trách nhiệm.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Chiều sâu cảm xúc thương hiệu; gắn kết cộng đồng & nhân tài.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Cộng đồng, nhân sự, báo chí, đối tác, xã hội.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Bổ sung chiều "trái tim" cho thương hiệu công nghệ AppChat.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">24</div><div><div class="ctitle">ESG Communications</div><div class="csub">Truyền thông ESG</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">OPC giảm rào cản gia nhập, thúc đẩy kinh tế bao trùm.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Truyền thông cam kết môi trường, xã hội & quản trị minh bạch.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Đáp ứng kỳ vọng nhà đầu tư & khách hàng lớn về phát triển bền vững.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Điều kiện tiên quyết cho hợp tác enterprise & gọi vốn quốc tế.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Nhà đầu tư, khách hàng enterprise, cơ quan quản lý, đối tác quốc tế.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Gắn quản trị dữ liệu & AI có trách nhiệm của AppChat với chuẩn ESG.</span></div>
+        </div>
+
+        <div class="card">
+          <div class="chead"><div class="cnum">25</div><div><div class="ctitle">Innovation Communications</div><div class="csub">Truyền thông đổi mới sáng tạo</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">AppChat liên tục đổi mới cho người làm chủ một mình.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Kể câu chuyện đổi mới liên tục về sản phẩm & công nghệ AppChat.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Giữ hình ảnh tiên phong và động lực dẫn dắt thị trường.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Duy trì "momentum" nhận thức về vị thế công nghệ.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Khách hàng, nhà đầu tư, báo chí công nghệ, nhân tài.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Khuếch đại Product Launch & Research thành câu chuyện đổi mới.</span></div>
+        </div>
+
+        <div class="card" style="border-color:#2DC56A;background:#EDFAF3">
+          <div class="chead"><div class="cnum" style="background:#2DC56A;color:#fff">26</div><div><div class="ctitle">AI Transformation Communications</div><div class="csub">Truyền thông chuyển đổi AI</div></div></div><div class="field" style="margin-top:7px;background:#EDFAF3;border-radius:8px;padding:6px 10px"><span class="flbl" style="color:#157A40">Góc OPC</span><span class="fval" style="font-weight:600;color:#14201A">Dẫn dắt chuyển đổi: từ thuê người sang điều phối AI.</span></div>
+          <div class="field"><span class="flbl">Vai trò</span><span class="fval">Dẫn dắt câu chuyện chuyển đổi AI của doanh nghiệp & nền kinh tế số.</span></div>
+          <div class="field"><span class="flbl">Mục tiêu</span><span class="fval">Gắn AppChat làm biểu tượng của làn sóng AI Transformation tại Việt Nam.</span></div>
+          <div class="field"><span class="flbl">Giá trị</span><span class="fval">Cộng hưởng xu hướng vĩ mô & chính sách quốc gia; nâng tầm vị thế.</span></div>
+          <div class="field"><span class="flbl">Đối tượng</span><span class="fval">Cộng đồng doanh nghiệp, chính phủ, báo chí, xã hội.</span></div>
+          <div class="field"><span class="flbl">Liên kết</span><span class="fval">Trục truyền thông vĩ mô — kết nối mọi nhóm PR với sứ mệnh AppChat.</span></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>24</span></div>
+  </section>
+
+  <!-- ===== PART IV DIVIDER ===== -->
+  <section class="pg partcover clip" data-screen-label="Phần IV">
+    <div style="position:absolute;inset:0;background:radial-gradient(100% 60% at 90% 0%, rgba(45,197,106,.20), transparent 55%)"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:center;padding:26mm 20mm">
+      <div style="font-size:104px;font-weight:800;color:rgba(125,224,166,.16);letter-spacing:-.03em;line-height:1">IV</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin:8px 0 14px">PHẦN IV · TỔNG HỢP</div>
+      <h2 style="font-size:44px;font-weight:800;letter-spacing:-.025em;margin:0 0 18px;line-height:1.1">Marketing<br>Strategy Map</h2>
+      <p style="font-size:15px;line-height:1.7;color:rgba(255,255,255,.72);max-width:150mm;font-weight:500;margin:0">Hợp nhất 73 chiến lược của ba framework thành một bản đồ chiến lược duy nhất: 8 nhóm chức năng · mối liên kết giữa các nhóm · thứ tự ưu tiên triển khai theo 4 giai đoạn phát triển của AppChat.</p>
+    </div>
+    <div class="ft" style="color:rgba(255,255,255,.4)"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>25</span></div>
+  </section>
+
+  <!-- ===== IV.1 · 8 NHÓM CHIẾN LƯỢC ===== -->
+  <section class="pg" data-screen-label="IV · 8 nhóm chiến lược">
+    <div class="bd">
+      <div class="sec"><i></i><span>IV.1 · PHÂN NHÓM CHIẾN LƯỢC</span></div>
+      <h2 class="t" style="font-size:26px;margin-bottom:6px">Toàn bộ chiến lược quy về 8 nhóm</h2>
+      <p class="lead" style="margin:0 0 18px;max-width:160mm">73 chiến lược (Online 25 · Offline 22 · PR 26) được tổ chức theo 8 nhóm chức năng — mỗi nhóm là một "cỗ máy" phục vụ một mục tiêu rõ ràng trong hành trình khách hàng và uy tín thương hiệu.</p>
+
+      <div class="grid" style="gap:11px">
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #2DC56A">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">1 · BRAND</div><span class="pill" style="background:#EDFAF3;color:#157A40">Nhận thức & định vị</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: sở hữu danh mục "Doanh nghiệp Một Người".</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Brand Marketing · Content · SEO · AI SEO · GEO · Video · Social · Product Marketing</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #2DC56A">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">2 · DEMAND</div><span class="pill" style="background:#EDFAF3;color:#157A40">Tạo & bắt nhu cầu</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: xây phễu cơ hội ổn định, chất lượng.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Demand Gen · Lead Gen · Webinar · Email · Marketing Automation · Performance · Growth</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #2DC56A">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">3 · SALES</div><span class="pill" style="background:#EDFAF3;color:#157A40">Chuyển đổi doanh thu</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: chuyển nhu cầu thành hợp đồng.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">CRO · ABM · Demo Day · Product Launch · Business Matching · Whitepaper (enablement)</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #2DC56A">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">4 · CUSTOMER</div><span class="pill" style="background:#EDFAF3;color:#157A40">Giữ chân & mở rộng</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: tăng LTV, giảm rời bỏ.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Customer Marketing · Customer Success Marketing · Training · Customer Appreciation · CX Event</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #2DC56A">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">5 · COMMUNITY</div><span class="pill" style="background:#EDFAF3;color:#157A40">Lan toả & gắn kết</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: network effect & advocacy.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Community Marketing · Referral · Community Meetup · University Program · Industry Forum</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #2DC56A">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">6 · PARTNERSHIP</div><span class="pill" style="background:#EDFAF3;color:#157A40">Mở rộng qua hệ sinh thái</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: độ phủ & doanh thu gián tiếp.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Partner Marketing · Affiliate · Partner Event · Channel Partner Event · Business Matching</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #0F2A1C">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">7 · PR & COMMS</div><span class="pill" style="background:#0F2A1C;color:#7DE0A6">Uy tín & niềm tin</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: uy tín thể chế & dẫn dắt tư tưởng.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Corporate/Founder/CEO/Executive Branding · Thought Leadership · Gov Relations · Media · Report · Awards · ESG · AI Transformation Comms</div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px 17px;border-left:4px solid #0F2A1C">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:15px;font-weight:800;color:#14201A">8 · OFFLINE</div><span class="pill" style="background:#0F2A1C;color:#7DE0A6">Trải nghiệm trực tiếp</span></div>
+          <p style="font-size:11px;color:#9CA3AF;font-weight:600;margin:0 0 6px">Mục tiêu: tin cậy qua tiếp xúc thật.</p>
+          <div style="font-size:11.5px;color:#37424C;font-weight:500;line-height:1.5">Exhibition · Trade Show · Roadshow · Conference · AI Summit · Workshop · Seminar · CEO Breakfast · Roundtable · Regional/Industry Tour</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>26</span></div>
+  </section>
+
+  <!-- ===== IV.2 · LIÊN KẾT GIỮA CÁC NHÓM ===== -->
+  <section class="pg" data-screen-label="IV · Liên kết nhóm">
+    <div class="bd">
+      <div class="sec"><i></i><span>IV.2 · MỐI LIÊN KẾT GIỮA CÁC NHÓM</span></div>
+      <h2 class="t" style="font-size:26px;margin-bottom:6px">Một hệ thống, không phải các kênh rời rạc</h2>
+      <p class="lead" style="margin:0 0 20px;max-width:160mm">Các nhóm chiến lược vận hành như một dây chuyền giá trị: nhóm này tạo đầu vào cho nhóm kia. Bản đồ dưới đây thể hiện dòng chảy chính của giá trị và uy tín.</p>
+
+      <!-- flow row -->
+      <div style="display:flex;align-items:stretch;gap:8px;margin-bottom:18px">
+        <div style="flex:1;background:#0F2A1C;color:#fff;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800">BRAND</div><div style="font-size:10px;color:rgba(255,255,255,.65);font-weight:500;margin-top:3px">Nhận thức</div></div>
+        <div style="display:flex;align-items:center;color:#2DC56A;font-weight:800">→</div>
+        <div style="flex:1;background:#157A40;color:#fff;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800">DEMAND</div><div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:500;margin-top:3px">Nhu cầu</div></div>
+        <div style="display:flex;align-items:center;color:#2DC56A;font-weight:800">→</div>
+        <div style="flex:1;background:#2DC56A;color:#fff;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800">SALES</div><div style="font-size:10px;color:rgba(255,255,255,.8);font-weight:500;margin-top:3px">Doanh thu</div></div>
+        <div style="display:flex;align-items:center;color:#2DC56A;font-weight:800">→</div>
+        <div style="flex:1;background:#157A40;color:#fff;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800">CUSTOMER</div><div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:500;margin-top:3px">Giữ chân</div></div>
+        <div style="display:flex;align-items:center;color:#2DC56A;font-weight:800">→</div>
+        <div style="flex:1;background:#0F2A1C;color:#fff;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800">COMMUNITY</div><div style="font-size:10px;color:rgba(255,255,255,.65);font-weight:500;margin-top:3px">Lan toả</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:6px"><span style="font-size:11px;color:#9CA3AF;font-weight:600;font-style:italic">↑ Vòng lặp tăng trưởng: Community & Customer nuôi ngược lại Brand và Demand (referral, advocacy, case study)</span></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px">
+        <div style="border:1px solid #E1E6E3;border-radius:13px;padding:15px 16px"><div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:4px">PR & COMMS · lớp bao phủ</div><p style="font-size:11.5px;color:#5A6470;font-weight:500;line-height:1.55;margin:0">Không nằm trong phễu tuyến tính — PR tạo uy tín & niềm tin làm "chất xúc tác" nâng hiệu quả cho cả 5 nhóm phễu. Thought Leadership nuôi Brand; Media & Awards hỗ trợ Sales; Gov Relations mở thị trường công.</p></div>
+        <div style="border:1px solid #E1E6E3;border-radius:13px;padding:15px 16px"><div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:4px">OFFLINE · lớp tăng cường</div><p style="font-size:11.5px;color:#5A6470;font-weight:500;line-height:1.55;margin:0">Sự kiện trực tiếp tăng tốc mọi giai đoạn: AI Summit → Brand; Workshop/Demo → Sales; Appreciation/CX Event → Customer; Meetup → Community; Partner Event → Partnership.</p></div>
+        <div style="border:1px solid #E1E6E3;border-radius:13px;padding:15px 16px"><div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:4px">PARTNERSHIP · nhân đôi độ phủ</div><p style="font-size:11.5px;color:#5A6470;font-weight:500;line-height:1.55;margin:0">Chạy song song phễu chính: mở rộng Demand & Sales qua kênh gián tiếp, đồng thời cộng hưởng uy tín (co-branding) với PR.</p></div>
+        <div style="border:1px solid #E1E6E3;border-radius:13px;padding:15px 16px"><div style="font-size:13px;font-weight:800;color:#14201A;margin-bottom:4px">DATA · nền xuyên suốt</div><p style="font-size:11.5px;color:#5A6470;font-weight:500;line-height:1.55;margin:0">Data-driven Marketing & Marketing Automation là hạ tầng chung — đo lường, cá nhân hoá và tối ưu toàn bộ 8 nhóm; cũng là minh chứng năng lực AI của AppChat.</p></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>27</span></div>
+  </section>
+
+  <!-- ===== IV.3 · ƯU TIÊN THEO GIAI ĐOẠN ===== -->
+  <section class="pg" data-screen-label="IV · Ưu tiên theo giai đoạn">
+    <div class="bd">
+      <div class="sec"><i></i><span>IV.3 · THỨ TỰ ƯU TIÊN THEO GIAI ĐOẠN</span></div>
+      <h2 class="t" style="font-size:26px;margin-bottom:6px">Trình tự kích hoạt theo mức trưởng thành</h2>
+      <p class="lead" style="margin:0 0 20px;max-width:160mm">Không kích hoạt cùng lúc tất cả. Mỗi giai đoạn phát triển của AppChat có một tổ hợp nhóm chiến lược trọng tâm — vừa đủ để tạo lực, vừa không dàn trải nguồn lực.</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <div style="border:1px solid #E1E6E3;border-radius:16px;padding:18px 20px;display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center">
+          <div style="text-align:center"><div style="width:40px;height:40px;border-radius:11px;background:#EDFAF3;color:#157A40;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">01</div><div style="font-size:14px;font-weight:800;color:#14201A">STARTUP</div><div style="font-size:10.5px;color:#9CA3AF;font-weight:600">Tìm product–market fit</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:6px">TRỌNG TÂM: BRAND · DEMAND · COMMUNITY (hạt nhân)</div>
+            <p style="font-size:12px;color:#37424C;font-weight:500;line-height:1.55;margin:0">Xây định vị danh mục & câu chuyện sáng lập; Content/SEO/Social nền tảng; Founder Branding & Thought Leadership khởi động PR chi phí thấp; cộng đồng hạt nhân đầu tiên; Webinar & Lead Gen để kiểm chứng nhu cầu.</p>
+          </div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:16px;padding:18px 20px;display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center">
+          <div style="text-align:center"><div style="width:40px;height:40px;border-radius:11px;background:#EDFAF3;color:#157A40;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">02</div><div style="font-size:14px;font-weight:800;color:#14201A">GROWTH</div><div style="font-size:10.5px;color:#9CA3AF;font-weight:600">Tăng tốc thu hút</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:6px">TRỌNG TÂM: DEMAND · SALES · CUSTOMER + OFFLINE</div>
+            <p style="font-size:12px;color:#37424C;font-weight:500;line-height:1.55;margin:0">Tăng tốc Performance, Marketing Automation & Growth experiments; kích hoạt CRO & ABM cho enterprise; Customer Success Marketing & Referral để giữ chân; Workshop/Seminar/Demo Day; Media Relations & Awards bắt đầu tạo bảo chứng.</p>
+          </div>
+        </div>
+
+        <div style="border:1px solid #E1E6E3;border-radius:16px;padding:18px 20px;display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center">
+          <div style="text-align:center"><div style="width:40px;height:40px;border-radius:11px;background:#EDFAF3;color:#157A40;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">03</div><div style="font-size:14px;font-weight:800;color:#14201A">SCALE</div><div style="font-size:10.5px;color:#9CA3AF;font-weight:600">Mở rộng hệ thống</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:6px">TRỌNG TÂM: PARTNERSHIP · PR · toàn bộ OFFLINE</div>
+            <p style="font-size:12px;color:#37424C;font-weight:500;line-height:1.55;margin:0">Kích hoạt Partner/Affiliate/Channel để nhân độ phủ; Regional & Industry Tour; PR nâng cấp: Industry Report, Whitepaper, Speaking, Executive Branding; ESG & Government Relations chuẩn bị cho enterprise & khu vực công.</p>
+          </div>
+        </div>
+
+        <div style="border:1px solid #2DC56A;border-radius:16px;padding:18px 20px;display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;background:#EDFAF3">
+          <div style="text-align:center"><div style="width:40px;height:40px;border-radius:11px;background:#2DC56A;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">04</div><div style="font-size:14px;font-weight:800;color:#14201A">LEADERSHIP</div><div style="font-size:10.5px;color:#157A40;font-weight:700">Dẫn dắt thị trường</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#157A40;letter-spacing:.06em;margin-bottom:6px">TRỌNG TÂM: PR VĨ MÔ · AI SUMMIT · CATEGORY OWNERSHIP</div>
+            <p style="font-size:12px;color:#37424C;font-weight:500;line-height:1.55;margin:0">Sở hữu danh mục qua AI Summit & Industry Forum; AI Transformation Comms gắn với chính sách quốc gia; TV & Opinion tầm đại chúng; GEO dẫn đầu tìm kiếm AI; toàn bộ 8 nhóm vận hành như một cỗ máy tự củng cố (flywheel).</p>
+          </div>
+        </div>
+
+      </div>
+
+      <p style="font-size:11px;color:#9CA3AF;font-weight:500;margin:16px 0 0;font-style:italic">Nguyên tắc: mỗi giai đoạn kế thừa và duy trì nền của giai đoạn trước — không "tắt" nhóm cũ, mà bồi thêm lớp mới và dịch trọng tâm nguồn lực.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>28</span></div>
+  </section>
+
+  <!-- ===== CLOSING ===== -->
+  <section class="pg partcover clip" data-screen-label="Kết">
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 70% at 80% 6%, rgba(45,197,106,.28), transparent 55%),radial-gradient(90% 55% at 8% 100%, rgba(21,122,64,.4), transparent 60%)"></div>
+    <div style="position:absolute;right:-100px;bottom:60px;width:460px;height:460px;border:1px solid rgba(255,255,255,.08);border-radius:50%"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:space-between;padding:26mm 20mm">
+      <div style="display:flex;align-items:center;gap:14px">
+        <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:36px;width:auto;display:block">
+        <span style="font-size:10px;letter-spacing:.28em;color:rgba(255,255,255,.5);font-weight:700">BY MEDIA SOFT</span>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin-bottom:18px">KẾT LUẬN</div>
+        <div class="quote" style="font-size:32px;line-height:1.4;font-weight:500;max-width:150mm;color:#fff">“Không cạnh tranh trong một danh mục cũ — chúng ta kiến tạo và dẫn dắt danh mục Doanh nghiệp Một Người.”</div>
+        <p style="font-size:14.5px;line-height:1.7;color:rgba(255,255,255,.72);max-width:150mm;font-weight:500;margin:24px 0 0">Bộ khung này là nền tảng để bước tiếp: chuyển từng nhóm chiến lược thành kế hoạch hành động, KPI, ngân sách và timeline ở giai đoạn triển khai.</p>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.14);padding-top:18px;display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.6);font-weight:500">
+        <span>Media Soft Group · Hà Nội · Hồ Chí Minh · Đà Nẵng</span>
+        <span>© 2026 · Tài liệu chiến lược nội bộ</span>
+      </div>
+    </div>
+    <div class="ft" style="color:rgba(255,255,255,.4)"><span>APPCHAT · MARKETING STRATEGY FRAMEWORK</span><span>29</span></div>
+  </section>
+
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#12894F"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#12894F"/><text x="600" y="470" font-family="Plus Jakarta Sans,sans-serif" font-size="360" font-weight="800" fill="#fff" text-anchor="middle">A</text></svg></template></x-dc>
+</body>
+</html>

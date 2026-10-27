@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · Design System & UI/UX Spec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pr:#2DC56A; --pr-d:#1F9C4F; --pr-d2:#157A40; --pr-soft:#E8F8EE; --pr-bg:#F2FBF6;
+  --ink:#0E1B13; --l1:#1A2B20; --l2:#5B6B61; --l3:#8A988F; --l4:#B8C4BC;
+  --line:#E4EBE6; --line2:#EFF3F0; --bg:#F7FAF8; --card:#FFFFFF;
+  --info:#2B9EF3; --warn:#F5A830; --risk:#E33F3F; --purple:#8B5CF6;
+  --rad:14px; --rad-sm:9px;
+  --shadow:0 1px 2px rgba(14,27,19,.04), 0 4px 16px rgba(14,27,19,.05);
+  --shadow-lg:0 12px 40px rgba(14,27,19,.10);
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans', system-ui, sans-serif; background:var(--bg); color:var(--l1); line-height:1.5; -webkit-font-smoothing:antialiased}
+a{color:inherit; text-decoration:none}
+
+/* ===== LAYOUT ===== */
+.wrap{display:grid; grid-template-columns:264px 1fr; min-height:100vh}
+.toc{position:sticky; top:0; height:100vh; overflow-y:auto; background:var(--ink); color:#fff; padding:0}
+.toc-head{padding:22px 22px 16px; border-bottom:1px solid rgba(255,255,255,.08)}
+.toc-logo{display:flex; align-items:center; gap:10px; margin-bottom:14px}
+.toc-logo-mark{width:34px; height:34px; border-radius:9px; background:var(--pr); display:grid; place-items:center; font-weight:800; font-size:17px; color:#06250F}
+.toc-logo-txt{font-weight:800; font-size:17px; letter-spacing:-.02em}
+.toc-logo-txt span{color:var(--pr)}
+.toc-sub{font-size:11.5px; color:rgba(255,255,255,.5); line-height:1.5}
+.toc-nav{padding:14px 12px 40px}
+.toc-group{font-size:10px; font-weight:700; letter-spacing:.12em; color:rgba(255,255,255,.35); text-transform:uppercase; padding:16px 12px 7px}
+.toc a{display:flex; align-items:center; gap:9px; padding:8px 12px; border-radius:8px; font-size:13px; color:rgba(255,255,255,.72); font-weight:500; transition:.12s}
+.toc a:hover{background:rgba(255,255,255,.06); color:#fff}
+.toc a .n{width:20px; height:20px; border-radius:5px; background:rgba(255,255,255,.08); display:grid; place-items:center; font-size:10px; font-weight:700; color:rgba(255,255,255,.5); flex-shrink:0}
+
+.main{padding:0 0 80px}
+.hero{padding:64px 64px 48px; background:linear-gradient(135deg, #06250F, #0E1B13 60%); color:#fff; position:relative; overflow:hidden}
+.hero::after{content:''; position:absolute; right:-80px; top:-80px; width:360px; height:360px; border-radius:50%; background:radial-gradient(circle, rgba(45,197,106,.22), transparent 70%)}
+.hero-tag{display:inline-flex; align-items:center; gap:7px; padding:5px 13px; border-radius:999px; background:rgba(45,197,106,.16); border:1px solid rgba(45,197,106,.3); color:#7EE2A4; font-size:12px; font-weight:600; margin-bottom:22px}
+.hero h1{font-size:42px; font-weight:800; letter-spacing:-.03em; line-height:1.1; margin-bottom:16px; max-width:780px}
+.hero h1 span{color:var(--pr)}
+.hero p{font-size:16px; color:rgba(255,255,255,.66); max-width:620px; line-height:1.6}
+.hero-meta{display:flex; gap:32px; margin-top:34px; position:relative; z-index:1}
+.hero-meta div{}
+.hero-meta .v{font-size:24px; font-weight:800; color:var(--pr)}
+.hero-meta .l{font-size:12px; color:rgba(255,255,255,.5); margin-top:2px}
+
+section{padding:48px 64px; border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono); font-size:13px; color:var(--pr-d); font-weight:500; letter-spacing:.04em}
+.sec-h{font-size:28px; font-weight:800; letter-spacing:-.025em; margin:6px 0 8px}
+.sec-d{font-size:15px; color:var(--l2); max-width:680px; margin-bottom:32px; line-height:1.6}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--rad); box-shadow:var(--shadow)}
+.grid{display:grid; gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1100px){.g3,.g4{grid-template-columns:1fr 1fr}}
+
+.chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:600}
+.mono{font-family:var(--mono); font-size:12.5px}
+.lbl{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--l3)}
+
+/* swatches */
+.swatch{border-radius:var(--rad-sm); overflow:hidden; border:1px solid var(--line)}
+.swatch .clr{height:72px}
+.swatch .meta{padding:9px 11px; background:#fff}
+.swatch .nm{font-size:12.5px; font-weight:700}
+.swatch .hx{font-family:var(--mono); font-size:11px; color:var(--l2); margin-top:1px}
+
+/* type scale */
+.type-row{display:flex; align-items:baseline; gap:18px; padding:13px 0; border-bottom:1px dashed var(--line)}
+.type-row .spec{font-family:var(--mono); font-size:11.5px; color:var(--l3); width:140px; flex-shrink:0}
+
+/* spec table */
+table{width:100%; border-collapse:collapse; font-size:13px}
+th{text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--l3); padding:10px 12px; border-bottom:1px solid var(--line); background:var(--line2)}
+td{padding:11px 12px; border-bottom:1px solid var(--line2); vertical-align:top; color:var(--l1)}
+tr:last-child td{border-bottom:none}
+td .mono{color:var(--pr-d)}
+
+/* component preview frames */
+.frame{background:var(--bg); border:1px solid var(--line); border-radius:var(--rad); padding:24px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start}
+.frame.col{flex-direction:column}
+
+/* buttons demo */
+.b{display:inline-flex; align-items:center; gap:7px; font-family:inherit; font-weight:600; font-size:13px; border-radius:9px; padding:9px 16px; cursor:pointer; border:1px solid transparent; transition:.12s}
+.b-pr{background:var(--pr); color:#06250F}
+.b-pr:hover{background:var(--pr-d)}
+.b-gh{background:#fff; color:var(--l1); border-color:var(--line)}
+.b-gh:hover{background:var(--line2)}
+.b-ds{background:rgba(227,63,63,.1); color:var(--risk)}
+.b-sm{padding:6px 12px; font-size:12px}
+
+/* field demo */
+.field{display:flex; flex-direction:column; gap:6px; width:100%}
+.field label{font-size:12.5px; font-weight:600; color:var(--l1)}
+.field .inp{padding:10px 12px; border:1px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit; background:#fff}
+.field .inp:focus{outline:none; border-color:var(--pr); box-shadow:0 0 0 3px var(--pr-soft)}
+.field .hint{font-size:11.5px; color:var(--l3)}
+
+/* status badges */
+.st{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:8px; font-size:11.5px; font-weight:600}
+.st .d{width:6px; height:6px; border-radius:3px}
+
+/* module cards */
+.mod{padding:18px; border-radius:var(--rad); border:1px solid var(--line); background:#fff; transition:.15s}
+.mod:hover{box-shadow:var(--shadow-lg); transform:translateY(-2px)}
+.mod-ic{width:42px; height:42px; border-radius:11px; display:grid; place-items:center; margin-bottom:13px}
+.mod h4{font-size:15px; font-weight:700; margin-bottom:5px}
+.mod p{font-size:12.5px; color:var(--l2); line-height:1.55}
+
+/* mini sidebar mock */
+.sb-mock{width:200px; background:var(--ink); border-radius:12px; padding:12px 8px; flex-shrink:0}
+.sb-mock .it{display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:12.5px; color:rgba(255,255,255,.7); font-weight:500}
+.sb-mock .it.on{background:var(--pr); color:#06250F; font-weight:700}
+.sb-mock .it .dot{width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,.12)}
+.sb-mock .it.on .dot{background:rgba(6,37,15,.2)}
+
+/* layout diagram */
+.layout-d{display:grid; grid-template-columns:54px 200px 1fr 240px; gap:6px; height:280px; font-size:11px; font-weight:600}
+.layout-d > div{border-radius:8px; display:flex; align-items:center; justify-content:center; text-align:center; padding:8px; color:var(--l2)}
+.ld-rail{background:var(--ink); color:rgba(255,255,255,.6)}
+.ld-list{background:#fff; border:1px solid var(--line)}
+.ld-main{background:#fff; border:1px solid var(--line)}
+.ld-ctx{background:var(--pr-bg); border:1px solid var(--pr-soft); color:var(--pr-d2)}
+
+/* breakpoints */
+.bp{display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px dashed var(--line)}
+.bp .bar{height:22px; border-radius:5px; background:var(--pr); flex-shrink:0}
+
+/* numbered callouts */
+.flow{display:flex; flex-direction:column; gap:0}
+.flow-step{display:flex; gap:14px; padding:14px 0; position:relative}
+.flow-step:not(:last-child)::after{content:''; position:absolute; left:15px; top:42px; bottom:-14px; width:2px; background:var(--line)}
+.flow-n{width:32px; height:32px; border-radius:50%; background:var(--pr-soft); color:var(--pr-d2); display:grid; place-items:center; font-weight:800; font-size:13px; flex-shrink:0; z-index:1}
+.flow-c h5{font-size:14px; font-weight:700; margin-bottom:3px}
+.flow-c p{font-size:12.5px; color:var(--l2); line-height:1.55}
+
+ul.spec-list{list-style:none; display:flex; flex-direction:column; gap:9px}
+ul.spec-list li{font-size:13px; color:var(--l1); padding-left:22px; position:relative; line-height:1.5}
+ul.spec-list li::before{content:'✓'; position:absolute; left:0; top:0; color:var(--pr-d); font-weight:800}
+ul.spec-list li b{font-weight:700}
+
+.pill-row{display:flex; flex-wrap:wrap; gap:7px}
+.kbd{font-family:var(--mono); font-size:11px; padding:2px 7px; border-radius:5px; background:#fff; border:1px solid var(--line); color:var(--l2)}
+.note{padding:14px 16px; border-radius:10px; background:var(--pr-bg); border:1px solid var(--pr-soft); font-size:13px; color:var(--pr-d2); line-height:1.6; display:flex; gap:10px}
+.note.warn{background:#FFF8EC; border-color:#F8E3B8; color:#8A5A0C}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== TOC ===== -->
+<nav class="toc">
+  <div class="toc-head">
+    <div class="toc-logo">
+      <div class="toc-logo-mark">A</div>
+      <div class="toc-logo-txt">App<span>Chat</span></div>
+    </div>
+    <div class="toc-sub">Design System & UI/UX Specification<br/>Nền tảng One-Person Company (OPC) · v1.0 · 2026</div>
+  </div>
+  <div class="toc-nav">
+    <div class="toc-group">Nền tảng</div>
+    <a href="#overview"><span class="n">00</span> Tổng quan & nguyên tắc</a>
+    <a href="#brand"><span class="n">01</span> Thương hiệu & màu sắc</a>
+    <a href="#type"><span class="n">02</span> Typography</a>
+    <a href="#spacing"><span class="n">03</span> Spacing · Radius · Shadow</a>
+    <div class="toc-group">Hệ thống</div>
+    <a href="#layout"><span class="n">04</span> Layout tổng thể</a>
+    <a href="#sidebar"><span class="n">05</span> Sidebar & điều hướng</a>
+    <a href="#modules"><span class="n">06</span> 11 Module nền tảng</a>
+    <div class="toc-group">Thành phần</div>
+    <a href="#buttons"><span class="n">07</span> Buttons & Actions</a>
+    <a href="#forms"><span class="n">08</span> Form nhập liệu</a>
+    <a href="#table"><span class="n">09</span> Table & Data</a>
+    <a href="#status"><span class="n">10</span> Status & Badges</a>
+    <div class="toc-group">Logic & UX</div>
+    <a href="#dashboard"><span class="n">11</span> Dashboard UI</a>
+    <a href="#workflow"><span class="n">12</span> Workflow & Automation</a>
+    <a href="#reporting"><span class="n">13</span> Reporting UI</a>
+    <a href="#permission"><span class="n">14</span> Permission UI</a>
+    <a href="#uxlogic"><span class="n">15</span> UX Logic & States</a>
+    <a href="#responsive"><span class="n">16</span> Responsive</a>
+    <a href="#handoff"><span class="n">17</span> Handoff cho team</a>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag"><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A"></span> Enterprise SaaS · AI-First · Omnichannel-First</div>
+    <h1><span>AppChat</span> — Nền tảng One-Person Company (OPC)</h1>
+    <p>Nền tảng hợp nhất cho <b>Sales Growth · Marketing · Customer Service · Operations &amp; Sourcing</b>. Tài liệu chuẩn hoá Business Analysis → Design → Development → QA: design tokens, layout, component library, UX logic, permission &amp; reporting — single source of truth cho toàn team.</p>
+    <div class="hero-meta">
+      <div><div class="v">11</div><div class="l">Module nền tảng</div></div>
+      <div><div class="v">15+</div><div class="l">Kênh social tích hợp</div></div>
+      <div><div class="v">7</div><div class="l">Nhóm người dùng</div></div>
+      <div><div class="v">40+</div><div class="l">Component chuẩn</div></div>
+    </div>
+  </div>
+
+  <!-- 00 OVERVIEW -->
+  <section id="overview">
+    <div class="sec-num">00 — Foundation</div>
+    <h2 class="sec-h">Định vị & nguyên tắc thiết kế</h2>
+    <p class="sec-d"><b>AppChat là Nền tảng One-Person Company (OPC)</b> — hợp nhất hội thoại đa kênh (Zalo, Facebook, WhatsApp, TikTok, Website…) với AI Agents tự động hoá Sales, Marketing, Customer Service, Operations &amp; Sourcing trên một nền tảng duy nhất, sẵn sàng mở rộng toàn cầu và hệ sinh thái đối tác.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:24px">
+      <span class="chip" style="background:var(--pr-soft);color:var(--pr-d2)">AI First</span>
+      <span class="chip" style="background:#EEF6FF;color:#1668C2">Omnichannel First</span>
+      <span class="chip" style="background:#FFF1E0;color:#B5670B">Customer Centric</span>
+      <span class="chip" style="background:#F3E8FF;color:#6D28D9">Global Ready</span>
+      <span class="chip" style="background:#E0F2FE;color:#0369A1">Scalable Platform</span>
+      <span class="chip" style="background:var(--line2);color:var(--l1)">Partner Ecosystem Ready</span>
+    </div>
+    <div class="lbl" style="margin-bottom:10px">Nhóm người dùng mục tiêu</div>
+    <div class="pill-row" style="margin-bottom:26px">
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">Chủ doanh nghiệp</span>
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">Giám đốc Kinh doanh</span>
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">Marketing Manager</span>
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">Customer Service Manager</span>
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">Operations Team</span>
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">Procurement Team</span>
+      <span class="chip" style="background:#fff;border:1px solid var(--line);color:var(--l1)">System Admin</span>
+    </div>
+    <div class="grid g3">
+      <div class="card" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">🎯</div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:6px">Clarity first</h4>
+        <p style="font-size:13px;color:var(--l2);line-height:1.6">Agent xử lý 8h/ngày — mỗi màn hình phải đọc lướt được trong 3 giây. Ưu tiên khoảng trắng, phân cấp rõ, không nhồi nhét thông tin.</p>
+      </div>
+      <div class="card" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">⚡</div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:6px">AI-augmented</h4>
+        <p style="font-size:13px;color:var(--l2);line-height:1.6">AI Agents luôn hiện diện như trợ lý — gợi ý reply, tóm tắt, phân luồng. AI hỗ trợ chứ không thay quyết định của con người.</p>
+      </div>
+      <div class="card" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">🔗</div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:6px">Omnichannel-native</h4>
+        <p style="font-size:13px;color:var(--l2);line-height:1.6">Mọi kênh hiển thị nhất quán trong 1 inbox. Channel badge, màu thương hiệu và metadata đồng bộ trên toàn hệ thống.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:18px">
+      <span>📌</span>
+      <div><b>Quy ước tài liệu:</b> mỗi section gồm <b>spec</b> (giá trị chính xác cho Dev), <b>preview</b> (mô phỏng trực quan cho Designer) và <b>logic</b> (điều kiện hiển thị cho QA). Token đặt theo dạng <span class="mono">--category-name</span>.</div>
+    </div>
+  </section>
+
+  <!-- 01 BRAND -->
+  <section id="brand">
+    <div class="sec-num">01 — Foundation</div>
+    <h2 class="sec-h">Thương hiệu & bảng màu</h2>
+    <p class="sec-d">Màu chủ đạo <b>AppChat Green #2DC56A</b> theo Brand Book 2026. Áp dụng quy tắc 60/30/10: 60% nền trung tính, 30% màu phụ, 10% màu nhấn primary cho CTA & trạng thái tích cực.</p>
+
+    <div class="lbl" style="margin-bottom:12px">Primary ramp</div>
+    <div class="grid g4" style="margin-bottom:28px">
+      <div class="swatch"><div class="clr" style="background:#157A40"></div><div class="meta"><div class="nm">Primary Dark 2</div><div class="hx">#157A40 · --pr-d2</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#1F9C4F"></div><div class="meta"><div class="nm">Primary Dark</div><div class="hx">#1F9C4F · --pr-d</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#2DC56A"></div><div class="meta"><div class="nm">Primary ●</div><div class="hx">#2DC56A · --pr</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#E8F8EE"></div><div class="meta"><div class="nm">Primary Soft</div><div class="hx">#E8F8EE · --pr-soft</div></div></div>
+    </div>
+
+    <div class="lbl" style="margin-bottom:12px">Semantic</div>
+    <div class="grid g4" style="margin-bottom:28px">
+      <div class="swatch"><div class="clr" style="background:#2B9EF3"></div><div class="meta"><div class="nm">Info</div><div class="hx">#2B9EF3</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#F5A830"></div><div class="meta"><div class="nm">Warning</div><div class="hx">#F5A830</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#E33F3F"></div><div class="meta"><div class="nm">Danger</div><div class="hx">#E33F3F</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#8B5CF6"></div><div class="meta"><div class="nm">AI / Purple</div><div class="hx">#8B5CF6</div></div></div>
+    </div>
+
+    <div class="lbl" style="margin-bottom:12px">Neutral (Ink scale)</div>
+    <div class="grid g4">
+      <div class="swatch"><div class="clr" style="background:#0E1B13"></div><div class="meta"><div class="nm">Ink / Label 01</div><div class="hx">#0E1B13</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#5B6B61"></div><div class="meta"><div class="nm">Label 02</div><div class="hx">#5B6B61</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#8A988F"></div><div class="meta"><div class="nm">Label 03</div><div class="hx">#8A988F</div></div></div>
+      <div class="swatch"><div class="clr" style="background:#E4EBE6"></div><div class="meta"><div class="nm">Line / Border</div><div class="hx">#E4EBE6</div></div></div>
+    </div>
+  </section>
+
+  <!-- 02 TYPE -->
+  <section id="type">
+    <div class="sec-num">02 — Foundation</div>
+    <h2 class="sec-h">Typography</h2>
+    <p class="sec-d">Font chính <b>Plus Jakarta Sans</b> (300–800). Font mono <b>JetBrains Mono</b> cho mã, ID, số liệu kỹ thuật. Scale theo bội số 1.2 (Minor Third).</p>
+    <div class="card" style="padding:8px 24px">
+      <div class="type-row"><span class="spec">Display · 42/800/-3%</span><span style="font-size:42px;font-weight:800;letter-spacing:-.03em">Hội thoại đa kênh</span></div>
+      <div class="type-row"><span class="spec">H1 · 28/800/-2.5%</span><span style="font-size:28px;font-weight:800;letter-spacing:-.025em">Tiêu đề trang</span></div>
+      <div class="type-row"><span class="spec">H2 · 20/700/-1.5%</span><span style="font-size:20px;font-weight:700;letter-spacing:-.015em">Tiêu đề section</span></div>
+      <div class="type-row"><span class="spec">Body L · 15/400</span><span style="font-size:15px">Nội dung chính, mô tả, đoạn văn dài</span></div>
+      <div class="type-row"><span class="spec">Body · 13/400</span><span style="font-size:13px">Văn bản UI mặc định, label form, cell bảng</span></div>
+      <div class="type-row"><span class="spec">Caption · 11.5/500</span><span style="font-size:11.5px;font-weight:500;color:var(--l2)">Metadata, timestamp, hint phụ</span></div>
+      <div class="type-row" style="border:none"><span class="spec">Label · 11/700/+6%</span><span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--l3)">SECTION LABEL</span></div>
+    </div>
+  </section>
+
+  <!-- 03 SPACING -->
+  <section id="spacing">
+    <div class="sec-num">03 — Foundation</div>
+    <h2 class="sec-h">Spacing · Radius · Shadow</h2>
+    <p class="sec-d">Grid base <b>4px</b>. Spacing scale: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64. Radius & elevation chia 3 cấp.</p>
+    <div class="grid g2">
+      <div class="card" style="padding:22px">
+        <div class="lbl" style="margin-bottom:14px">Spacing scale (4px base)</div>
+        <div style="display:flex; align-items:flex-end; gap:10px">
+          <div style="text-align:center"><div style="width:4px;height:4px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">4</span></div>
+          <div style="text-align:center"><div style="width:8px;height:8px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">8</span></div>
+          <div style="text-align:center"><div style="width:12px;height:12px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">12</span></div>
+          <div style="text-align:center"><div style="width:16px;height:16px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">16</span></div>
+          <div style="text-align:center"><div style="width:24px;height:24px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">24</span></div>
+          <div style="text-align:center"><div style="width:32px;height:32px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">32</span></div>
+          <div style="text-align:center"><div style="width:48px;height:48px;background:var(--pr);margin:0 auto 6px"></div><span class="mono" style="font-size:10px">48</span></div>
+        </div>
+      </div>
+      <div class="card" style="padding:22px">
+        <div class="lbl" style="margin-bottom:14px">Radius & Shadow</div>
+        <div style="display:flex; gap:16px; align-items:center">
+          <div style="text-align:center"><div style="width:56px;height:56px;background:#fff;border:1px solid var(--line);border-radius:9px;margin-bottom:7px"></div><span class="mono" style="font-size:10px">9px sm</span></div>
+          <div style="text-align:center"><div style="width:56px;height:56px;background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:7px"></div><span class="mono" style="font-size:10px">14px md</span></div>
+          <div style="text-align:center"><div style="width:56px;height:56px;background:#fff;border-radius:14px;box-shadow:var(--shadow);margin-bottom:7px"></div><span class="mono" style="font-size:10px">shadow</span></div>
+          <div style="text-align:center"><div style="width:56px;height:56px;background:#fff;border-radius:14px;box-shadow:var(--shadow-lg);margin-bottom:7px"></div><span class="mono" style="font-size:10px">shadow-lg</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 LAYOUT -->
+  <section id="layout">
+    <div class="sec-num">04 — System</div>
+    <h2 class="sec-h">Layout tổng thể</h2>
+    <p class="sec-d">Khung 4 vùng cố định: <b>Rail điều hướng</b> (54px icon) · <b>List/Filter</b> (200–280px) · <b>Vùng nội dung chính</b> (co giãn) · <b>Context panel</b> (240–340px, đóng/mở được).</p>
+    <div class="card" style="padding:24px; margin-bottom:18px">
+      <div class="layout-d">
+        <div class="ld-rail">Nav<br/>Rail<br/>54px</div>
+        <div class="ld-list">List / Filter<br/>200–280px</div>
+        <div class="ld-main">Vùng nội dung chính · flex</div>
+        <div class="ld-ctx">Context<br/>Panel<br/>240–340px</div>
+      </div>
+    </div>
+    <div class="grid g3">
+      <div><div class="lbl" style="margin-bottom:8px">Nguyên tắc</div><ul class="spec-list"><li>Rail luôn hiển thị, không cuộn</li><li>List có search + filter cố định trên cùng</li><li>Context panel mở mặc định khi có ngữ cảnh</li></ul></div>
+      <div><div class="lbl" style="margin-bottom:8px">Container</div><ul class="spec-list"><li>Max-width nội dung dạng form: <b>980px</b></li><li>Padding trang: <b>24–36px</b></li><li>Gap giữa card: <b>16px</b></li></ul></div>
+      <div><div class="lbl" style="margin-bottom:8px">Scroll behavior</div><ul class="spec-list"><li>Chỉ vùng chính + list cuộn độc lập</li><li>Topbar & rail sticky</li><li>Không bao giờ cuộn toàn trang</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 05 SIDEBAR -->
+  <section id="sidebar">
+    <div class="sec-num">05 — System</div>
+    <h2 class="sec-h">Sidebar & điều hướng</h2>
+    <p class="sec-d">Rail nền <b>Ink #0E1B13</b>, item active dùng nền Primary với chữ tối. Logo AppChat trên cùng, avatar người dùng + thông báo dưới đáy.</p>
+    <div style="display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start">
+      <div class="sb-mock">
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 14px"><div style="width:26px;height:26px;border-radius:7px;background:var(--pr);display:grid;place-items:center;font-weight:800;color:#06250F;font-size:13px">A</div><span style="color:#fff;font-weight:800;font-size:14px">App<span style="color:var(--pr)">Chat</span></span></div>
+        <div class="it on"><span class="dot"></span> Dashboard</div>
+        <div class="it"><span class="dot"></span> Messages <span style="margin-left:auto;background:var(--pr);color:#06250F;font-size:9px;font-weight:800;padding:1px 5px;border-radius:6px">7</span></div>
+        <div class="it"><span class="dot"></span> Activities</div>
+        <div class="it"><span class="dot"></span> Broadcast</div>
+        <div class="it"><span class="dot"></span> Automation</div>
+        <div class="it"><span class="dot"></span> Files</div>
+        <div class="it"><span class="dot"></span> Reports</div>
+        <div class="it"><span class="dot"></span> Settings</div>
+      </div>
+      <div style="flex:1; min-width:300px">
+        <div class="lbl" style="margin-bottom:10px">Trạng thái item</div>
+        <table>
+          <tr><th>State</th><th>Nền</th><th>Chữ</th><th>Dùng khi</th></tr>
+          <tr><td><b>Default</b></td><td class="mono">transparent</td><td class="mono">#FFF/72%</td><td>Trạng thái nghỉ</td></tr>
+          <tr><td><b>Hover</b></td><td class="mono">#FFF/6%</td><td class="mono">#FFF</td><td>Con trỏ trên item</td></tr>
+          <tr><td><b>Active</b></td><td class="mono">#2DC56A</td><td class="mono">#06250F</td><td>Trang hiện tại</td></tr>
+          <tr><td><b>Badge</b></td><td class="mono">primary/danger</td><td>—</td><td>Số chưa đọc / cảnh báo</td></tr>
+        </table>
+        <div class="note" style="margin-top:16px"><span>💡</span><div>Badge số đỏ chỉ dùng cho <b>cảnh báo cần hành động</b> (SLA breach, khiếu nại). Badge xanh primary cho <b>đếm thông thường</b> (tin chưa đọc).</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 MODULES -->
+  <section id="modules">
+    <div class="sec-num">06 — System</div>
+    <h2 class="sec-h">11 Module nền tảng</h2>
+    <p class="sec-d">Kiến trúc sản phẩm hợp nhất, đồng bộ với sidebar app. Mỗi module có icon, màu accent và mục tiêu nghiệp vụ riêng.</p>
+    <div class="grid g4">
+      <div class="mod"><div class="mod-ic" style="background:var(--pr-soft);color:var(--pr-d2)">▦</div><h4>Dashboard</h4><p>KPI tổng quan realtime: hội thoại, SLA, doanh thu, hiệu suất agent.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#E7F3FF;color:#1668C2">💬</div><h4>Messages</h4><p>Trung tâm hội thoại đa kênh — inbox hợp nhất 15+ kênh, AI Cowork co-pilot.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#FFF1E0;color:#B5670B">🎫</div><h4>Tickets</h4><p>Hỗ trợ · SLA · escalation. AI gợi ý xử lý từng case.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#F3E8FF;color:#6D28D9">📣</div><h4>Marketing</h4><p>Chiến dịch Email · ZNS · SMS, phân khúc, phê duyệt.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#E8F8EE;color:var(--pr-d2)">⚙️</div><h4>AI Agents</h4><p>Cấu hình AI Agent &amp; workflow. Phân luồng thông minh đúng người.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#EFF6FF;color:#1D4ED8">👥</div><h4>Customers</h4><p>CRM 360° · pipeline Lead → Won · hợp đồng · báo giá.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#F0FDF4;color:var(--pr-d2)">🗓️</div><h4>Calendar</h4><p>Lịch hẹn đồng bộ Task, conflict-check, nhắc tự động.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#ECFEFF;color:#0E7490">❓</div><h4>Help Center</h4><p>Site self-service: FAQ, bài viết, dataset cho AI RAG.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#FEF3C7;color:#92400E">📁</div><h4>Files</h4><p>Knowledge Base — lưu trữ để AI học lại, trả lời khách tự động.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#E0F2FE;color:#0369A1">📊</div><h4>Reports</h4><p>Hiệu suất Chat · Call · Ticket. AI phân tích insight & gợi ý tối ưu.</p></div>
+      <div class="mod"><div class="mod-ic" style="background:#F1F5F9;color:#475569">🛠️</div><h4>Settings</h4><p>Workspace · phân quyền · API 15+ kênh · AI Governance toàn hệ thống.</p></div>
+    </div>
+  </section>
+
+  <!-- 07 BUTTONS -->
+  <section id="buttons">
+    <div class="sec-num">07 — Component</div>
+    <h2 class="sec-h">Buttons & Actions</h2>
+    <p class="sec-d">3 cấp ưu tiên: <b>Primary</b> (1 hành động chính/màn), <b>Ghost</b> (hành động phụ), <b>Danger</b> (xoá/huỷ). Icon button 28–38px cho toolbar.</p>
+    <div class="frame">
+      <button class="b b-pr">＋ Tạo mới</button>
+      <button class="b b-gh">Huỷ</button>
+      <button class="b b-ds">Xoá</button>
+      <button class="b b-pr b-sm">Lưu</button>
+      <button class="b b-gh b-sm">⇣ Xuất Excel</button>
+      <button class="b b-gh b-sm" style="width:36px;height:36px;padding:0;justify-content:center">⋯</button>
+    </div>
+    <table style="margin-top:18px">
+      <tr><th>Cấp</th><th>Token</th><th>Quy tắc dùng</th></tr>
+      <tr><td><span class="st" style="background:var(--pr-soft);color:var(--pr-d2)">Primary</span></td><td class="mono">.b-pr</td><td>Tối đa <b>1 nút</b> mỗi vùng. Hành động chính (Gửi, Lưu, Tạo).</td></tr>
+      <tr><td><span class="st" style="background:var(--line2);color:var(--l1)">Ghost</span></td><td class="mono">.b-gh</td><td>Hành động phụ, có thể nhiều nút. Border nhạt.</td></tr>
+      <tr><td><span class="st" style="background:rgba(227,63,63,.1);color:var(--risk)">Danger</span></td><td class="mono">.b-ds</td><td>Thao tác phá huỷ. Luôn kèm confirm dialog.</td></tr>
+    </table>
+  </section>
+
+  <!-- 08 FORMS -->
+  <section id="forms">
+    <div class="sec-num">08 — Component</div>
+    <h2 class="sec-h">Form nhập liệu</h2>
+    <p class="sec-d">Label trên input, hint dưới. Focus ring Primary 3px. Validation realtime với màu semantic. Grouping theo card với section label.</p>
+    <div class="grid g2">
+      <div class="card" style="padding:24px">
+        <div class="lbl" style="margin-bottom:16px">Thông tin liên hệ</div>
+        <div style="display:flex; flex-direction:column; gap:16px">
+          <div class="field"><label>Họ và tên *</label><input class="inp" value="Nguyễn Thị Lan"/></div>
+          <div class="field"><label>Số điện thoại *</label><input class="inp" value="0987 123 421"/><span class="hint">Định dạng VN, dùng cho OTP & ZNS</span></div>
+          <div class="field"><label>Email</label><input class="inp" placeholder="ten@congty.vn"/></div>
+          <div style="display:flex; gap:10px; margin-top:4px"><button class="b b-pr b-sm">Lưu liên hệ</button><button class="b b-gh b-sm">Huỷ</button></div>
+        </div>
+      </div>
+      <div>
+        <div class="lbl" style="margin-bottom:10px">Trạng thái input</div>
+        <div style="display:flex; flex-direction:column; gap:14px">
+          <div class="field"><label>Default</label><input class="inp" placeholder="Nhập nội dung…"/></div>
+          <div class="field"><label style="color:var(--pr-d)">Focus</label><input class="inp" style="border-color:var(--pr);box-shadow:0 0 0 3px var(--pr-soft)" value="Đang nhập"/></div>
+          <div class="field"><label style="color:var(--risk)">Error</label><input class="inp" style="border-color:var(--risk);box-shadow:0 0 0 3px rgba(227,63,63,.1)" value="email-sai"/><span class="hint" style="color:var(--risk)">⚠ Email không hợp lệ</span></div>
+          <div class="field"><label>Disabled</label><input class="inp" style="background:var(--line2);color:var(--l3)" value="Khoá chỉnh sửa" disabled/></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 TABLE -->
+  <section id="table">
+    <div class="sec-num">09 — Component</div>
+    <h2 class="sec-h">Table & Data display</h2>
+    <p class="sec-d">Header uppercase 10.5px nền nhạt. Row hover highlight. Checkbox chọn nhiều, action ẩn hiện khi hover. Cột thao tác cố định bên phải.</p>
+    <div class="card" style="overflow:hidden">
+      <table>
+        <tr><th style="width:32px"></th><th>Khách hàng</th><th>Kênh</th><th>Vòng đời</th><th>Tương tác gần nhất</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th></tr>
+        <tr><td><input type="checkbox"/></td><td><b>Nguyễn Thị Lan</b><div style="font-size:11px;color:var(--l3)">Shop Bé Na · CT-1001</div></td><td><span class="chip" style="background:#E7F3FF;color:#1668C2">Zalo OA</span></td><td><span class="chip" style="background:var(--pr-soft);color:var(--pr-d2)">Khách hàng</span></td><td style="color:var(--l2)">Email · 2 giờ trước</td><td><span class="st" style="background:var(--pr-soft);color:var(--pr-d2)"><span class="d" style="background:var(--pr-d2)"></span>Đang hoạt động</span></td><td style="text-align:right;color:var(--l3)">⋯</td></tr>
+        <tr><td><input type="checkbox"/></td><td><b>Trần Quỳnh Anh</b><div style="font-size:11px;color:var(--l3)">CT-1002</div></td><td><span class="chip" style="background:#EFF6FF;color:#1D4ED8">Facebook</span></td><td><span class="chip" style="background:#FEF3C7;color:#92400E">Tiềm năng</span></td><td style="color:var(--l2)">Cuộc gọi · hôm qua</td><td><span class="st" style="background:#FEF3C7;color:#92400E"><span class="d" style="background:#92400E"></span>Chờ xử lý</span></td><td style="text-align:right;color:var(--l3)">⋯</td></tr>
+        <tr><td><input type="checkbox"/></td><td><b>Phạm Minh Tú</b><div style="font-size:11px;color:var(--l3)">CT-1003</div></td><td><span class="chip" style="background:#F1F5F9;color:#475569">TikTok</span></td><td><span class="chip" style="background:#DBEAFE;color:#1E40AF">Lead</span></td><td style="color:var(--l2)">ZNS · 3 ngày</td><td><span class="st" style="background:var(--line2);color:var(--l2)"><span class="d" style="background:var(--l3)"></span>Mới</span></td><td style="text-align:right;color:var(--l3)">⋯</td></tr>
+      </table>
+    </div>
+    <div class="grid g3" style="margin-top:18px">
+      <div><div class="lbl" style="margin-bottom:8px">Tương tác</div><ul class="spec-list"><li>Click row → mở chi tiết</li><li>Checkbox → bulk action bar</li><li>Action ⋯ → menu popover</li></ul></div>
+      <div><div class="lbl" style="margin-bottom:8px">Cột thông minh</div><ul class="spec-list"><li>Gộp tên + ID phụ 1 ô</li><li>Channel badge có màu riêng</li><li>"Tương tác gần nhất" gộp loại + thời gian</li></ul></div>
+      <div><div class="lbl" style="margin-bottom:8px">Trạng thái rỗng</div><ul class="spec-list"><li>Empty state có illustration</li><li>Loading skeleton 5 row</li><li>Error → nút "Thử lại"</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 10 STATUS -->
+  <section id="status">
+    <div class="sec-num">10 — Component</div>
+    <h2 class="sec-h">Status & Badges</h2>
+    <p class="sec-d">Badge trạng thái dùng dot + nhãn. Màu theo ngữ nghĩa, nền nhạt 10–15% opacity của màu chữ.</p>
+    <div class="frame">
+      <span class="st" style="background:var(--pr-soft);color:var(--pr-d2)"><span class="d" style="background:var(--pr-d2)"></span>Đang hoạt động</span>
+      <span class="st" style="background:#FEF3C7;color:#92400E"><span class="d" style="background:#92400E"></span>Chờ xử lý</span>
+      <span class="st" style="background:#DBEAFE;color:#1E40AF"><span class="d" style="background:#1E40AF"></span>Đang giao</span>
+      <span class="st" style="background:rgba(227,63,63,.1);color:var(--risk)"><span class="d" style="background:var(--risk)"></span>Quá hạn SLA</span>
+      <span class="st" style="background:var(--line2);color:var(--l2)"><span class="d" style="background:var(--l3)"></span>Đã đóng</span>
+      <span class="st" style="background:#F3E8FF;color:#6D28D9"><span class="d" style="background:#6D28D9"></span>AI tự xử lý</span>
+    </div>
+  </section>
+
+  <!-- 11 DASHBOARD -->
+  <section id="dashboard">
+    <div class="sec-num">11 — Logic & UX</div>
+    <h2 class="sec-h">Dashboard UI</h2>
+    <p class="sec-d">KPI cards trên cùng (4–6 thẻ), charts giữa, list hoạt động dưới. Mỗi KPI có giá trị lớn + delta màu + sub-label.</p>
+    <div class="grid g4" style="margin-bottom:18px">
+      <div class="card" style="padding:16px;border-top:3px solid var(--pr)"><div class="lbl">Hội thoại hôm nay</div><div style="font-size:26px;font-weight:800;margin-top:4px">248</div><div style="font-size:11.5px;color:var(--pr-d);font-weight:600;margin-top:2px">↑ +12% vs hôm qua</div></div>
+      <div class="card" style="padding:16px;border-top:3px solid var(--info)"><div class="lbl">Thời gian phản hồi</div><div style="font-size:26px;font-weight:800;margin-top:4px">2m 14s</div><div style="font-size:11.5px;color:var(--pr-d);font-weight:600;margin-top:2px">↓ -38s tốt hơn</div></div>
+      <div class="card" style="padding:16px;border-top:3px solid var(--warn)"><div class="lbl">SLA tuân thủ</div><div style="font-size:26px;font-weight:800;margin-top:4px">92%</div><div style="font-size:11.5px;color:var(--warn);font-weight:600;margin-top:2px">mục tiêu 95%</div></div>
+      <div class="card" style="padding:16px;border-top:3px solid var(--purple)"><div class="lbl">AI tự xử lý</div><div style="font-size:26px;font-weight:800;margin-top:4px">41%</div><div style="font-size:11.5px;color:var(--pr-d);font-weight:600;margin-top:2px">↑ +6% tự động hoá</div></div>
+    </div>
+    <div class="note"><span>📐</span><div><b>Logic hiển thị:</b> KPI cập nhật realtime qua WebSocket. Delta xanh = tốt lên, đỏ/cam = cần chú ý. Click KPI → drill-down sang Reports với filter tương ứng.</div></div>
+  </section>
+
+  <!-- 12 WORKFLOW -->
+  <section id="workflow">
+    <div class="sec-num">12 — Logic & UX</div>
+    <h2 class="sec-h">Workflow & Automation</h2>
+    <p class="sec-d">Quy trình phân luồng hội thoại từ khi khách nhắn đến khi đóng case. AI Agent xử lý tầng 1, escalate cho người khi cần.</p>
+    <div class="card" style="padding:24px">
+      <div class="flow">
+        <div class="flow-step"><div class="flow-n">1</div><div class="flow-c"><h5>Tin nhắn đến từ kênh bất kỳ</h5><p>Webhook nhận từ Zalo/FB/WhatsApp → chuẩn hoá thành conversation thống nhất trong inbox.</p></div></div>
+        <div class="flow-step"><div class="flow-n">2</div><div class="flow-c"><h5>AI phân loại ý định & sentiment</h5><p>Claude Cowork gắn nhãn intent (hỏi giá, đặt lịch, khiếu nại…), tính điểm ưu tiên và sentiment.</p></div></div>
+        <div class="flow-step"><div class="flow-n">3</div><div class="flow-c"><h5>Phân luồng thông minh</h5><p>Routing rule: AI tự trả (FAQ) · gán agent theo skill · escalate manager nếu khiếu nại/VIP.</p></div></div>
+        <div class="flow-step"><div class="flow-n">4</div><div class="flow-c"><h5>Agent xử lý với AI co-pilot</h5><p>Gợi ý reply, tóm tắt, tra cứu hồ sơ. Mọi hành động ghi vào timeline khách hàng.</p></div></div>
+        <div class="flow-step"><div class="flow-n">5</div><div class="flow-c"><h5>Đóng case & đồng bộ</h5><p>Cập nhật trạng thái, tạo task follow-up, đồng bộ CRM, kích hoạt khảo sát CSAT.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 REPORTING -->
+  <section id="reporting">
+    <div class="sec-num">13 — Logic & UX</div>
+    <h2 class="sec-h">Reporting UI</h2>
+    <p class="sec-d">Báo cáo theo tab: Tổng quan · Chat · Call · Ticket · Agent · AI. Filter thời gian + kênh + team. Export Excel/PDF, lịch gửi tự động.</p>
+    <div class="grid g2">
+      <div class="card" style="padding:22px">
+        <div class="lbl" style="margin-bottom:14px">Cấu trúc 1 report</div>
+        <ul class="spec-list">
+          <li><b>Filter bar:</b> kỳ · kênh · team · agent</li>
+          <li><b>KPI summary:</b> 4–6 chỉ số chính</li>
+          <li><b>Trend chart:</b> line/area theo thời gian</li>
+          <li><b>Breakdown:</b> bảng + bar theo chiều phân tích</li>
+          <li><b>AI insight:</b> gợi ý tối ưu tự động</li>
+          <li><b>Export:</b> Excel · PDF · lịch email</li>
+        </ul>
+      </div>
+      <div class="card" style="padding:22px">
+        <div class="lbl" style="margin-bottom:14px">Loại biểu đồ chuẩn</div>
+        <table>
+          <tr><th>Chart</th><th>Dùng cho</th></tr>
+          <tr><td><b>Line / Area</b></td><td>Xu hướng theo thời gian</td></tr>
+          <tr><td><b>Bar ngang</b></td><td>So sánh agent / kênh</td></tr>
+          <tr><td><b>Funnel</b></td><td>Pipeline · conversion</td></tr>
+          <tr><td><b>Heatmap</b></td><td>Giờ cao điểm hội thoại</td></tr>
+          <tr><td><b>Donut</b></td><td>Tỷ trọng kênh / intent</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 PERMISSION -->
+  <section id="permission">
+    <div class="sec-num">14 — Logic & UX</div>
+    <h2 class="sec-h">Permission UI</h2>
+    <p class="sec-d">RBAC 5 vai trò. UI ẩn/khoá theo quyền: element không có quyền sẽ bị ẩn hoàn toàn (menu) hoặc khoá + tooltip (action).</p>
+    <div class="card" style="overflow:hidden">
+      <table>
+        <tr><th>Vai trò</th><th>Messages</th><th>Broadcast</th><th>Reports</th><th>Settings</th><th>Pricing</th></tr>
+        <tr><td><b>Admin</b></td><td>✓ Full</td><td>✓ Full</td><td>✓ Full</td><td>✓ Full</td><td>✓</td></tr>
+        <tr><td><b>Manager</b></td><td>✓ Full</td><td>✓ Duyệt</td><td>✓ Team</td><td>◐ Một phần</td><td>✓</td></tr>
+        <tr><td><b>Sales Agent</b></td><td>✓ Được gán</td><td>◐ Tạo nháp</td><td>◐ Cá nhân</td><td>✗ Ẩn</td><td>✓</td></tr>
+        <tr><td><b>CS Agent</b></td><td>✓ Được gán</td><td>✗ Ẩn</td><td>◐ Cá nhân</td><td>✗ Ẩn</td><td>✗ Khoá</td></tr>
+        <tr><td><b>Viewer</b></td><td>◐ Chỉ xem</td><td>✗ Ẩn</td><td>✓ Xem</td><td>✗ Ẩn</td><td>✗</td></tr>
+      </table>
+    </div>
+    <div class="pill-row" style="margin-top:16px">
+      <span class="chip" style="background:var(--pr-soft);color:var(--pr-d2)">✓ Full quyền</span>
+      <span class="chip" style="background:#FEF3C7;color:#92400E">◐ Một phần / chỉ xem</span>
+      <span class="chip" style="background:var(--line2);color:var(--l2)">✗ Ẩn hoặc khoá</span>
+    </div>
+  </section>
+
+  <!-- 15 UX LOGIC -->
+  <section id="uxlogic">
+    <div class="sec-num">15 — Logic & UX</div>
+    <h2 class="sec-h">UX Logic & States</h2>
+    <p class="sec-d">Mọi component phải định nghĩa đủ 5 trạng thái cho QA. Không có "màn trắng" — luôn có feedback.</p>
+    <div class="grid g3">
+      <div class="card" style="padding:18px"><div class="chip" style="background:var(--line2);color:var(--l2);margin-bottom:10px">Empty</div><p style="font-size:13px;color:var(--l2);line-height:1.6">Illustration + câu mô tả + CTA tạo mới. VD: "Chưa có hội thoại nào · Kết nối kênh đầu tiên".</p></div>
+      <div class="card" style="padding:18px"><div class="chip" style="background:#DBEAFE;color:#1E40AF;margin-bottom:10px">Loading</div><p style="font-size:13px;color:var(--l2);line-height:1.6">Skeleton theo hình dạng nội dung thật. Spinner chỉ cho action ngắn &lt;2s.</p></div>
+      <div class="card" style="padding:18px"><div class="chip" style="background:var(--pr-soft);color:var(--pr-d2);margin-bottom:10px">Loaded</div><p style="font-size:13px;color:var(--l2);line-height:1.6">Nội dung đầy đủ. Animation fade-in nhẹ 150ms, không giật.</p></div>
+      <div class="card" style="padding:18px"><div class="chip" style="background:#FEF3C7;color:#92400E;margin-bottom:10px">Error</div><p style="font-size:13px;color:var(--l2);line-height:1.6">Thông báo lỗi rõ ràng + nút "Thử lại". Không đổ lỗi kỹ thuật cho user.</p></div>
+      <div class="card" style="padding:18px"><div class="chip" style="background:rgba(227,63,63,.1);color:var(--risk);margin-bottom:10px">Confirm</div><p style="font-size:13px;color:var(--l2);line-height:1.6">Dialog xác nhận cho hành động phá huỷ. Nút Danger phải ở bên phải.</p></div>
+      <div class="card" style="padding:18px"><div class="chip" style="background:#F3E8FF;color:#6D28D9;margin-bottom:10px">Keyboard</div><p style="font-size:13px;color:var(--l2);line-height:1.6">Command bar <span class="kbd">⌘K</span> · Esc đóng · Tab điều hướng form · Enter gửi.</p></div>
+    </div>
+  </section>
+
+  <!-- 16 RESPONSIVE -->
+  <section id="responsive">
+    <div class="sec-num">16 — System</div>
+    <h2 class="sec-h">Responsive</h2>
+    <p class="sec-d">4 breakpoint. Desktop-first (agent làm việc trên màn rộng), nhưng mobile vẫn dùng được cho giám sát & duyệt nhanh.</p>
+    <div class="card" style="padding:24px">
+      <div class="bp"><div class="bar" style="width:90px"></div><div><b style="font-size:14px">Mobile</b> <span class="mono" style="color:var(--l3)">&lt; 640px</span><div style="font-size:12.5px;color:var(--l2)">1 cột · rail thành bottom-nav · panel thành full-screen modal</div></div></div>
+      <div class="bp"><div class="bar" style="width:170px"></div><div><b style="font-size:14px">Tablet</b> <span class="mono" style="color:var(--l3)">640–1024px</span><div style="font-size:12.5px;color:var(--l2)">2 cột · context panel ẩn, mở dạng drawer phải</div></div></div>
+      <div class="bp"><div class="bar" style="width:280px"></div><div><b style="font-size:14px">Desktop</b> <span class="mono" style="color:var(--l3)">1024–1440px</span><div style="font-size:12.5px;color:var(--l2)">3 cột đầy đủ · layout chuẩn</div></div></div>
+      <div class="bp" style="border:none"><div class="bar" style="width:360px"></div><div><b style="font-size:14px">Wide</b> <span class="mono" style="color:var(--l3)">&gt; 1440px</span><div style="font-size:12.5px;color:var(--l2)">4 vùng + context panel · max-width nội dung 1600px căn giữa</div></div></div>
+    </div>
+  </section>
+
+  <!-- 17 HANDOFF -->
+  <section id="handoff" style="border:none">
+    <div class="sec-num">17 — Delivery</div>
+    <h2 class="sec-h">Handoff cho team</h2>
+    <p class="sec-d">Tài liệu này là single source of truth. Mỗi vai trò dùng phần khác nhau.</p>
+    <div class="grid g3">
+      <div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:8px">🎨 UI/UX Designer</h4><ul class="spec-list" style="gap:6px"><li>Token màu, type, spacing</li><li>Component states (sec 07–10, 15)</li><li>Layout grid & responsive</li></ul></div>
+      <div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:8px">💻 Frontend Dev</h4><ul class="spec-list" style="gap:6px"><li>CSS variables sec 01–03</li><li>Component spec + class</li><li>Breakpoint sec 16</li></ul></div>
+      <div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:8px">🗄️ Backend Dev</h4><ul class="spec-list" style="gap:6px"><li>Workflow phân luồng sec 12</li><li>RBAC matrix sec 14</li><li>15+ kênh tích hợp</li></ul></div>
+      <div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:8px">🏛️ Solution Architect</h4><ul class="spec-list" style="gap:6px"><li>Kiến trúc 8 module sec 06</li><li>AI Governance sec 12</li><li>Permission model sec 14</li></ul></div>
+      <div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:8px">🧪 QA / Testcase</h4><ul class="spec-list" style="gap:6px"><li>5 trạng thái component sec 15</li><li>Permission test cases sec 14</li><li>Responsive checkpoint sec 16</li></ul></div>
+      <div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:8px">📊 Business Analyst</h4><ul class="spec-list" style="gap:6px"><li>Module mapping sec 06</li><li>Workflow nghiệp vụ sec 12</li><li>KPI & report sec 11, 13</li></ul></div>
+    </div>
+    <div class="note" style="margin-top:24px"><span>🔗</span><div><b>Bản demo tương tác:</b> xem <span class="mono">AppChat Ultimate.html</span> để trải nghiệm các module live với dữ liệu mẫu. Tài liệu này định nghĩa chuẩn, bản demo minh hoạ áp dụng.</div></div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

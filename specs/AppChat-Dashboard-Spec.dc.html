@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<template id="__bundler_thumbnail" data-bg-color="#EEF0F2">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#EEF0F2"/>
+    <rect x="120" y="140" width="960" height="90" rx="16" fill="#fff" stroke="#C4CBD1" stroke-width="7"/>
+    <rect x="120" y="270" width="220" height="130" rx="14" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="7"/>
+    <rect x="366" y="270" width="220" height="130" rx="14" fill="#fff" stroke="#C4CBD1" stroke-width="7"/>
+    <rect x="612" y="270" width="220" height="130" rx="14" fill="#fff" stroke="#C4CBD1" stroke-width="7"/>
+    <rect x="858" y="270" width="222" height="130" rx="14" fill="#EFF4FC" stroke="#BFD4EE" stroke-width="7"/>
+    <rect x="120" y="440" width="620" height="220" rx="16" fill="#fff" stroke="#C4CBD1" stroke-width="7"/>
+    <rect x="780" y="440" width="300" height="220" rx="16" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="7"/>
+  </svg>
+</template>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEF0F2;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#2F7D4C}a:hover{color:#1F5C36}
+  .box{background:#fff;border:1px solid #DDE1E4;border-radius:12px}
+  .th{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9AA0A6;text-transform:uppercase}
+  .td{font-size:13px;color:#4A5057;line-height:1.65;vertical-align:top;padding:14px 16px;border-top:1px solid #EEF0F2}
+</style>
+</helmet>
+
+<div style="max-width:1420px;margin:0 auto;padding:48px 40px 90px">
+
+  <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">APPCHAT · ĐẶC TẢ MODULE · 11/08/2026</div>
+  <h1 style="font-size:34px;font-weight:800;letter-spacing:-.02em;color:#231F20;margin:10px 0 8px">Tổng quan — Cấu trúc, flow, tính năng &amp; nghiệp vụ</h1>
+  <p style="font-size:15px;color:#6B7280;line-height:1.65;max-width:900px;margin:0;text-wrap:pretty">Tổng quan không phải trang báo cáo. Nó là <b>bàn điều khiển buổi sáng</b>: trả lời ba câu hỏi trong ba mươi giây — <i>hôm nay thế nào</i>, <i>hệ thống có đang chạy đúng không</i>, <i>việc gì cần tôi ngay bây giờ</i> — rồi đưa người dùng đi thẳng tới nơi xử lý.</p>
+
+  <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:20px;font-size:12.5px;color:#8A9096;align-items:center">
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #C4CBD1;border-radius:4px;background:#F5F6F7"></span>Bước xử lý</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:20px;height:20px;background:#EAF6EF;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></span>Điểm quyết định</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFE3CE;border-radius:9px;background:#EAF6EF"></span>Bắt đầu / Kết thúc</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #F0C9C9;border-radius:4px;background:#FBEDED"></span>Cần người can thiệp</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #CFC0F0;border-radius:4px;background:#F3EFFE"></span>AI Agent</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFD4EE;border-radius:4px;background:#EFF4FC"></span>Quy trình tự động</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px dashed #C4CBD1;border-radius:4px;background:#FAFBFB"></span>Bước tuỳ chọn</span>
+  </div>
+
+  <!-- ============ 1 · CẤU TRÚC TRANG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">1 · CẤU TRÚC TRANG</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Bảy khối, xếp theo thứ tự người dùng cần đọc: chào hỏi → thiết lập → số liệu → kiến trúc đang chạy → giao việc cho AI. Widget nổi luôn ở góc phải.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:56px">#</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:230px">Khối</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Nội dung · vai trò</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:200px">Hành vi</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>0</b></td><td class="td"><b>Lời chào</b></td><td class="td">“Chào Trâm 👋” kèm câu tóm tắt bối cảnh. Bên phải là nút <b>Hỏi Trợ lý AI</b> — lối vào nhanh nhất để giao việc.</td><td class="td">Nút mở module Trợ lý AI</td></tr>
+        <tr><td class="td"><b>1</b></td><td class="td"><b>Onboarding checklist</b></td><td class="td">Năm bước kích hoạt workspace, có thanh tiến độ và phần trăm hoàn tất. Mỗi bước có nút đi thẳng tới trang cần làm.</td><td class="td">Thu gọn / mở rộng · tick từng bước · ẩn khi đủ 5/5</td></tr>
+        <tr><td class="td"><b>2</b></td><td class="td"><b>Thống kê nhanh</b></td><td class="td">Bốn thẻ: <b>Hội thoại hôm nay</b> · <b>Phiên AI thực thi</b> · <b>API calls</b> · <b>Tỷ lệ tự động</b>. Mỗi thẻ có dòng phụ so sánh hoặc cảnh báo.</td><td class="td">Chỉ số thời gian thực</td></tr>
+        <tr><td class="td"><b>3</b></td><td class="td"><b>① Kênh kết nối</b></td><td class="td">Bốn nhóm: kênh vào omnichannel, kênh gửi ra, hệ thống doanh nghiệp, nền tảng dữ liệu. Mỗi kênh hiện chấm sức khoẻ và lượng hội thoại.</td><td class="td">Nút <b>＋ Kết nối</b> mỗi nhóm → Trợ lý AI</td></tr>
+        <tr><td class="td"><b>4</b></td><td class="td"><b>② AI Agentic — trung tâm vận hành</b></td><td class="td">Thẻ <b>Trợ lý AI</b> (điều phối) đứng đầu, kèm các AI Agent phòng ban. Đây là tuyên bố kiến trúc: AI đứng giữa, không phải phụ trợ.</td><td class="td">Click thẻ → mở đúng agent</td></tr>
+        <tr><td class="td"><b>5</b></td><td class="td"><b>③ Module nghiệp vụ</b></td><td class="td">Dải chip toàn bộ module mà AI Agent phòng ban điều phối: Hộp thư · Khách hàng · Sản phẩm · Báo giá · Hợp đồng · Đơn · Hoá đơn · Hỗ trợ · Lịch hẹn · Gọi điện · Marketing · Loyalty · Quy trình.</td><td class="td">Click chip → mở module</td></tr>
+        <tr><td class="td"><b>6</b></td><td class="td"><b>④ CDP — nền dữ liệu hợp nhất</b></td><td class="td">Hồ sơ 360° · lịch sử đa kênh · danh mục sản phẩm · hợp nhất chống trùng · phân khúc động. Khẳng định dữ liệu là tài sản của tenant.</td><td class="td">Chip dẫn tới cấu hình tương ứng</td></tr>
+        <tr><td class="td"><b>7</b></td><td class="td"><b>Widget góc phải</b></td><td class="td">Ba tab: <b>Cần follow</b> (có badge số) · <b>Tin tức &amp; cập nhật</b> · <b>Thông báo</b>. Nổi cố định, không chiếm chỗ nội dung chính.</td><td class="td">Thu gọn / đóng · chuyển tab</td></tr>
+        <tr><td class="td"><b>8</b></td><td class="td"><b>Trợ lý AI theo nghiệp vụ</b></td><td class="td">Bốn thẻ giao việc: Marketing · Kinh doanh · Chăm sóc khách hàng · Vận hành — dạng carousel tự chuyển. Dưới là <b>Gợi ý cho bạn</b> với các câu lệnh mẫu.</td><td class="td">Click thẻ → Trợ lý AI với ngữ cảnh sẵn</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 2 · FLOW BUỔI SÁNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">2 · FLOW NGHIỆP VỤ — PHIÊN LÀM VIỆC BẮT ĐẦU TỪ TỔNG QUAN</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Từ lúc mở app đến khi việc gấp được xử lý xong và chỉ số cập nhật lại. Điểm quyết định trọng tâm: <b>AI Agent xử lý được không</b> — nếu không thì con người can thiệp.</div>
+
+  <div class="box" style="margin-top:18px;padding:30px 26px">
+    <svg viewBox="0 0 1320 700" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="d1r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DDA6A2"/></marker>
+        <marker id="d1p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9E86D4"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M180,86 V122" marker-end="url(#d1)"/>
+        <path d="M320,154 H436" marker-end="url(#d1)"/>
+        <path d="M180,186 V246" marker-end="url(#d1)"/>
+        <path d="M320,278 H436" marker-end="url(#d1)"/>
+        <path d="M180,310 V370" marker-end="url(#d1)"/>
+        <path d="M320,402 H436" marker-end="url(#d1)"/>
+        <path d="M180,434 V500" marker-end="url(#d1)"/>
+        <path d="M320,536 H436" marker-end="url(#d1p)" stroke="#9E86D4"/>
+        <path d="M690,402 H824" marker-end="url(#d1)"/>
+        <path d="M960,370 V300" marker-end="url(#d1p)" stroke="#9E86D4"/>
+        <path d="M960,434 V500" marker-end="url(#d1r)" stroke="#DDA6A2"/>
+        <path d="M1090,268 H1180 V620 H860" marker-end="url(#d1)"/>
+        <path d="M1090,536 H1180" stroke="#DDA6A2"/>
+      </g>
+      <g text-anchor="middle">
+        <!-- LEFT COLUMN · reading order -->
+        <rect x="40" y="46" width="280" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="180" y="71" font-size="13.2" font-weight="700" fill="#2F7D4C">BẮT ĐẦU · Mở workspace</text>
+
+        <rect x="40" y="122" width="280" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="180" y="146" font-size="12.6" font-weight="700" fill="#3A3F44">Đọc thống kê nhanh</text>
+        <text x="180" y="164" font-size="11" font-weight="600" fill="#8A9096">Hội thoại · phiên AI · API · tự động</text>
+        <text x="180" y="180" font-size="10.6" font-weight="700" fill="#9AA0A6">bức tranh trong 30 giây</text>
+
+        <rect x="40" y="246" width="280" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="180" y="270" font-size="12.6" font-weight="700" fill="#3A3F44">Kiểm tra sức khoẻ kênh</text>
+        <text x="180" y="288" font-size="11" font-weight="600" fill="#8A9096">Tốt · Ổn · Chậm · Yếu</text>
+        <text x="180" y="304" font-size="10.6" font-weight="700" fill="#9AA0A6">kênh lỗi → nối lại ngay</text>
+
+        <rect x="40" y="370" width="280" height="64" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="180" y="394" font-size="12.6" font-weight="700" fill="#A8544F">Xem việc cần xử lý gấp</text>
+        <text x="180" y="412" font-size="11" font-weight="600" fill="#C08A85">Hội thoại · ticket · lịch hẹn</text>
+        <text x="180" y="428" font-size="10.6" font-weight="700" fill="#C9A09C">AI không tự xử được · sắp phá SLA</text>
+
+        <rect x="40" y="500" width="280" height="72" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="180" y="524" font-size="12.6" font-weight="700" fill="#3A3F44">Giao việc nhanh cho AI</text>
+        <text x="180" y="542" font-size="11" font-weight="600" fill="#8A9096">4 thẻ nghiệp vụ hoặc gõ trực tiếp</text>
+        <text x="180" y="558" font-size="10.6" font-weight="700" fill="#9AA0A6">Marketing · Kinh doanh · CSKH · Vận hành</text>
+
+        <!-- MIDDLE · side outputs -->
+        <rect x="436" y="126" width="254" height="56" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="563" y="150" font-size="12.4" font-weight="600" fill="#3A3F44">Drill-down vào Báo cáo</text>
+        <text x="563" y="168" font-size="11" font-weight="600" fill="#8A9096">giữ nguyên bộ lọc thời gian</text>
+
+        <rect x="436" y="250" width="254" height="56" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="563" y="274" font-size="12.4" font-weight="600" fill="#3A3F44">Mở trang Kênh kết nối</text>
+        <text x="563" y="292" font-size="11" font-weight="600" fill="#8A9096">nối lại kênh mất kết nối</text>
+
+        <rect x="436" y="370" width="254" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="563" y="394" font-size="12.4" font-weight="600" fill="#3A3F44">Chọn một việc để xử lý</text>
+        <text x="563" y="412" font-size="11" font-weight="600" fill="#8A9096">đọc lý do &amp; thời gian còn lại</text>
+        <text x="563" y="428" font-size="10.6" font-weight="700" fill="#9AA0A6">việc quá hạn xếp lên đầu</text>
+
+        <rect x="436" y="508" width="254" height="56" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="563" y="532" font-size="12.4" font-weight="700" fill="#5B3FA8">Mở Trợ lý AI kèm ngữ cảnh</text>
+        <text x="563" y="550" font-size="11" font-weight="600" fill="#8A9096">không phải tự tìm module</text>
+
+        <!-- DECISION -->
+        <path d="M960,340 L1090,402 L960,464 L830,402 Z" fill="#EAF6EF"/>
+        <text x="960" y="398" font-size="12.4" font-weight="700" fill="#2F7D4C">AI Agent xử lý</text>
+        <text x="960" y="415" font-size="12.4" font-weight="700" fill="#2F7D4C">được không?</text>
+
+        <rect x="830" y="236" width="260" height="64" rx="8" fill="#F3EFFE" stroke="#CFC0F0" stroke-width="1.5"/>
+        <text x="960" y="260" font-size="12.6" font-weight="700" fill="#5B3FA8">Giao AI — một chạm</text>
+        <text x="960" y="278" font-size="11" font-weight="600" fill="#8A9096">AI nhận việc · báo kết quả về</text>
+        <text x="960" y="294" font-size="10.6" font-weight="700" fill="#9AA0A6">thất bại → tự trả lại cho người</text>
+
+        <rect x="830" y="500" width="260" height="72" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="960" y="524" font-size="12.6" font-weight="700" fill="#A8544F">Người tiếp nhận</text>
+        <text x="960" y="542" font-size="11" font-weight="600" fill="#C08A85">mở đúng module với ngữ cảnh</text>
+        <text x="960" y="558" font-size="10.6" font-weight="700" fill="#C9A09C">Hộp thư · CRM · Lịch hẹn · Gọi điện</text>
+
+        <!-- END -->
+        <rect x="560" y="600" width="300" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="710" y="625" font-size="12.8" font-weight="700" fill="#2F7D4C">KPI &amp; SLA cập nhật lại</text>
+
+        <!-- labels -->
+        <text x="378" y="146" font-size="11" font-weight="700" fill="#8A9096">bất thường</text>
+        <text x="378" y="270" font-size="11" font-weight="700" fill="#8A9096">kênh yếu</text>
+        <text x="378" y="394" font-size="11" font-weight="700" fill="#8A9096">có việc gấp</text>
+        <text x="378" y="528" font-size="11" font-weight="700" fill="#9E86D4">chủ động</text>
+        <text x="900" y="330" font-size="11" font-weight="700" fill="#3A9D5D">ĐƯỢC</text>
+        <text x="1000" y="490" font-size="11" font-weight="700" fill="#A8544F">KHÔNG</text>
+        <text x="1240" y="600" font-size="11" font-weight="700" fill="#8A9096">ghi Nhật ký hành động</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ============ 3 · TÍNH NĂNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3 · TÍNH NĂNG THEO NHÓM</div>
+
+  <div style="margin-top:20px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">A · ĐỌC TÌNH HÌNH</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Bốn chỉ số cốt lõi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Hội thoại hôm nay</b> (so với hôm qua) · <b>Phiên AI thực thi</b> (đang chạy / chờ duyệt) · <b>API calls</b> (tỉ lệ lỗi, retry) · <b>Tỷ lệ tự động</b> (phần trăm không cần người). Chọn đúng bốn chỉ số này vì chúng phản ánh cả lưu lượng, hiệu quả AI, sức khoẻ kỹ thuật và mức độ giải phóng nhân sự.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Sức khoẻ kênh kết nối</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Bốn mức <b>Tốt · Ổn · Chậm · Yếu</b> theo chấm màu, kèm số hội thoại từng kênh. Kênh mất kết nối được đánh dấu rõ và có lối đi thẳng sang trang Kênh kết nối để nối lại — không phải tự đi tìm.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Lọc theo khoảng thời gian</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Hôm nay / 7 ngày / 30 ngày / tuỳ chọn — toàn bộ chỉ số và biểu đồ đổi theo. Khi drill-down sang Báo cáo, bộ lọc thời gian được mang theo để không mất ngữ cảnh.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">B · KIẾN TRÚC ĐANG CHẠY</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">① Kênh kết nối — bốn nhóm</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Kênh vào (omnichannel):</b> Zalo OA · Facebook · Instagram · TikTok · Web · Email · Voice.<br><b>Kênh gửi ra:</b> ZNS · SMS · Email marketing · Tổng đài.<br><b>Hệ thống doanh nghiệp:</b> kế toán, bán hàng, kho.<br><b>Nền tảng dữ liệu &amp; trí tuệ:</b> RAG, mô hình AI, kho tri thức.<br>Mỗi nhóm có nút <b>＋ Kết nối</b> mở Trợ lý AI để hỏi và nối kênh bằng hội thoại.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">② AI Agentic — trung tâm vận hành</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Thẻ <b>Trợ lý AI</b> nổi bật (nền đậm) làm orchestrator: nhận tin, phân loại, phân luồng, giao việc. Bên cạnh là các AI Agent phòng ban theo domain nghiệp vụ. Đây là điểm khác biệt định vị: AI đứng <b>giữa</b> hệ thống chứ không phải một tính năng phụ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">③ Module nghiệp vụ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Dải chip liệt kê toàn bộ module mà AI Agent phòng ban điều phối và thực thi. Vai trò kép: vừa là bản đồ năng lực hệ thống, vừa là lối tắt điều hướng — click chip là vào module.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFD4EE">
+      <div style="font-size:14px;font-weight:700;color:#2C5A93;margin-bottom:8px">④ CDP — nền dữ liệu hợp nhất</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Hồ sơ 360° · lịch sử hội thoại đa kênh · danh mục sản phẩm &amp; dịch vụ · hợp nhất chống trùng · phân khúc động. Nhấn mạnh nguyên tắc <b>dữ liệu là tài sản của tenant</b> — không trộn lẫn giữa các doanh nghiệp.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">C · HÀNH ĐỘNG &amp; GIAO VIỆC</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Danh sách cần xử lý gấp</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Gom hội thoại, ticket và lịch hẹn mà AI không tự xử lý được hoặc sắp vi phạm SLA. Mỗi dòng nêu tên khách, loại việc, lý do và thời gian còn lại; sắp xếp theo mức khẩn, việc quá hạn lên đầu.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">Giao AI một chạm</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Nút <b>Giao AI</b> ngay trên dòng việc. Agent nhận việc, trạng thái đổi thành “AI đang xử lý”, kết quả báo về Tổng quan. Thất bại thì tự chuyển lại cho người kèm lý do — không âm thầm mất việc.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Mở module với ngữ cảnh</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Click dòng việc mở đúng module (Hộp thư · Ticket · Khách hàng · Lịch hẹn · Gọi điện) và nhảy thẳng tới bản ghi — người xử lý không phải tìm lại từ đầu.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Onboarding 5 bước</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Kết nối kênh → tạo AI Agent → nhập sản phẩm → mời thành viên → dựng quy trình đầu tiên. Có thanh tiến độ, tick từng bước, thu gọn được, và tự ẩn khi đủ 5/5.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #CFC0F0">
+      <div style="font-size:14px;font-weight:700;color:#5B3FA8;margin-bottom:8px">Bốn thẻ giao việc AI</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Marketing · Kinh doanh · Chăm sóc khách hàng · Vận hành — dạng carousel tự chuyển. Click là mở Trợ lý AI ở đúng chế độ, kèm bộ câu lệnh gợi ý sẵn cho nghiệp vụ đó.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Gợi ý cho bạn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Danh sách câu lệnh mẫu theo tình hình thực tế (“Khách nào cần chăm sóc gấp?”, “Đề xuất 3 việc nên làm ngay”). Giúp người mới biết có thể nhờ AI làm gì mà không phải tự nghĩ.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">D · WIDGET GÓC PHẢI</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Tab · Cần follow</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Khách cần liên hệ hôm nay, tối đa 5 khách khi mở rộng, có badge số trên nhãn tab. Mỗi dòng nêu lý do follow, lần liên hệ cuối và người phụ trách, kèm hành động nhanh: nhắn · gọi · đặt lịch.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Tab · Tin tức &amp; cập nhật</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Tính năng mới, tích hợp mới, thông báo bảo trì — phân loại theo nhãn và mốc thời gian. Giúp người dùng biết hệ thống vừa có gì mà không cần rời trang.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Tab · Thông báo</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Việc được giao, ticket sắp quá hạn SLA, cảnh báo hạn mức token, kết quả chiến dịch. Có trạng thái đã đọc / chưa đọc và mở được tới bản ghi gốc.</div>
+    </div>
+  </div>
+
+  <!-- ============ 3B · QUY TRÌNH HOẠT ĐỘNG THEO NHÓM ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3B · QUY TRÌNH HOẠT ĐỘNG CỦA TỪNG NHÓM TÍNH NĂNG</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Mỗi nhóm tính năng ở mục 3 có quy trình chạy riêng: <b>khi nào kích hoạt · chạy những bước nào · ai chịu trách nhiệm · ngoại lệ xử lý ra sao</b>. Đây là phần để đội phát triển và vận hành bám theo.</div>
+
+  <!-- A -->
+  <div class="box" style="margin-top:20px;padding:24px 26px;border-left:4px solid #C4CBD1">
+    <div style="font-size:15.5px;font-weight:800;color:#3A3F44;margin-bottom:4px">Nhóm A · Đọc tình hình</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-bottom:18px">Mục tiêu: người dùng nắm bức tranh trong 30 giây và phát hiện bất thường trước khi khách phàn nàn.</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+      <div style="padding:14px 14px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">BƯỚC 1</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Nạp dữ liệu.</b> Truy vấn song song từ Hộp thư, AI Agents, Kênh kết nối, SLA theo khoảng thời gian đang chọn.</div></div>
+      <div style="padding:14px 14px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">BƯỚC 2</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Đối chiếu kỳ trước.</b> Tính biến động phần trăm để hiện dòng phụ “+18% so với hôm qua”.</div></div>
+      <div style="padding:14px 14px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">BƯỚC 3</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Chấm sức khoẻ kênh.</b> Dựa trên độ trễ phản hồi, tỉ lệ lỗi gửi và trạng thái token để ra 4 mức.</div></div>
+      <div style="padding:14px 14px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#DDA6A2;margin-bottom:6px">NGOẠI LỆ</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Thiếu dữ liệu.</b> Nêu rõ phần thiếu thay vì hiện số 0 — số sai nguy hiểm hơn số trống.</div></div>
+      <div style="padding:14px 14px;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">KẾT QUẢ</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55">Người dùng biết hôm nay <b>bình thường hay bất thường</b>, và bất thường nằm ở đâu.</div></div>
+    </div>
+    <div style="margin-top:16px;font-size:12.8px;color:#4A5057;line-height:1.7"><b>Trách nhiệm:</b> hệ thống tự chạy khi mở trang và làm mới định kỳ · <b>Tần suất:</b> thời gian thực · <b>Đo bằng:</b> thời gian tải trang, độ lệch số liệu so với báo cáo gốc.</div>
+  </div>
+
+  <!-- B -->
+  <div class="box" style="margin-top:20px;padding:24px 26px;border-left:4px solid #BFD4EE">
+    <div style="font-size:15.5px;font-weight:800;color:#2C5A93;margin-bottom:4px">Nhóm B · Kiến trúc đang chạy</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-bottom:18px">Mục tiêu: thể hiện hệ thống đang vận hành theo kiến trúc nào, và cho phép mở rộng ngay tại chỗ.</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+      <div style="padding:14px 14px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">BƯỚC 1</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Đọc cấu hình tenant.</b> Lấy danh sách kênh đã nối, agent đang bật, module được cấp quyền theo gói.</div></div>
+      <div style="padding:14px 14px;background:#EFF4FC;border:1px solid #BFD4EE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FAED6;margin-bottom:6px">BƯỚC 2</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Dựng 4 lớp.</b> Kênh kết nối → AI Agentic → Module nghiệp vụ → CDP, đúng thứ tự dòng chảy dữ liệu.</div></div>
+      <div style="padding:14px 14px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9E86D4;margin-bottom:6px">BƯỚC 3</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Mở rộng bằng hội thoại.</b> Nút ＋ mỗi nhóm mở Trợ lý AI với câu hỏi dựng sẵn về loại kênh muốn nối.</div></div>
+      <div style="padding:14px 14px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#DDA6A2;margin-bottom:6px">NGOẠI LỆ</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55"><b>Vượt hạn mức gói.</b> Chặn thêm kênh/agent, hiện lối đi tới Nâng cấp thay vì báo lỗi khô.</div></div>
+      <div style="padding:14px 14px;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">KẾT QUẢ</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55">Bản đồ năng lực luôn phản ánh <b>đúng cấu hình thật</b>, đồng thời là lối tắt điều hướng.</div></div>
+    </div>
+    <div style="margin-top:16px;font-size:12.8px;color:#4A5057;line-height:1.7"><b>Trách nhiệm:</b> quản trị viên cấu hình, hệ thống hiển thị · <b>Tần suất:</b> cập nhật khi cấu hình đổi · <b>Đo bằng:</b> số kênh đang hoạt động, số agent bật, độ phủ module.</div>
+  </div>
+
+  <!-- C -->
+  <div class="box" style="margin-top:20px;padding:24px 26px;border-left:4px solid #CFC0F0">
+    <div style="font-size:15.5px;font-weight:800;color:#5B3FA8;margin-bottom:4px">Nhóm C · Hành động &amp; giao việc</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-bottom:18px">Mục tiêu: mọi việc gấp đều có người hoặc AI nhận trong thời gian ngắn nhất, và không việc nào rơi vào im lặng.</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
+      <div style="padding:14px 13px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#DDA6A2;margin-bottom:6px">BƯỚC 1</div><div style="font-size:12.4px;color:#4A5057;line-height:1.55"><b>Thu gom.</b> Các module leo thang việc về theo chuẩn chung: tên · loại · lý do · thời gian còn lại.</div></div>
+      <div style="padding:14px 13px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">BƯỚC 2</div><div style="font-size:12.4px;color:#4A5057;line-height:1.55"><b>Xếp ưu tiên.</b> Theo mức khẩn và hạn SLA; việc quá hạn luôn lên đầu danh sách.</div></div>
+      <div style="padding:14px 13px;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">BƯỚC 3</div><div style="font-size:12.4px;color:#4A5057;line-height:1.55"><b>Quyết định.</b> Trong phạm vi agent và đủ tin cậy → giao AI; ngoài phạm vi → người nhận.</div></div>
+      <div style="padding:14px 13px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9E86D4;margin-bottom:6px">BƯỚC 4A</div><div style="font-size:12.4px;color:#4A5057;line-height:1.55"><b>AI thực thi.</b> Trạng thái đổi thành “AI đang xử lý”, kết quả báo ngược về Tổng quan.</div></div>
+      <div style="padding:14px 13px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">BƯỚC 4B</div><div style="font-size:12.4px;color:#4A5057;line-height:1.55"><b>Người xử lý.</b> Mở đúng module với bản ghi sẵn; việc đánh dấu “đang có người xem” để tránh trùng.</div></div>
+      <div style="padding:14px 13px;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">BƯỚC 5</div><div style="font-size:12.4px;color:#4A5057;line-height:1.55"><b>Đóng vòng.</b> Việc rời danh sách gấp, ghi Nhật ký hành động, KPI và % đạt SLA cập nhật.</div></div>
+    </div>
+    <div style="margin-top:16px;font-size:12.8px;color:#4A5057;line-height:1.7"><b>Ngoại lệ:</b> AI thất bại → tự trả lại người kèm lý do; không ai nhận trong ngưỡng thời gian → leo thang lên quản lý ca trực · <b>Đo bằng:</b> thời gian tiếp nhận trung bình, % việc do AI đóng, số việc quá hạn.</div>
+  </div>
+
+  <!-- D -->
+  <div class="box" style="margin-top:20px;padding:24px 26px;border-left:4px solid #C4CBD1">
+    <div style="font-size:15.5px;font-weight:800;color:#3A3F44;margin-bottom:4px">Nhóm D · Widget góc phải</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-bottom:18px">Mục tiêu: đưa ba dòng thông tin thường trực đến người dùng mà không chiếm chỗ nội dung chính.</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <div style="padding:14px 14px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">CẦN FOLLOW</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55">Lấy từ trạng thái chăm sóc và tín hiệu AI ở hồ sơ 360. Hiện tối đa 5 khách, badge số trên tab. Liên hệ xong thì khách tự rời danh sách.</div></div>
+      <div style="padding:14px 14px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">TIN TỨC</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55">Tính năng mới, tích hợp mới, lịch bảo trì — phân loại theo nhãn và mốc thời gian, đọc ngay không rời trang.</div></div>
+      <div style="padding:14px 14px;background:#F5F6F7;border:1px solid #C4CBD1;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#9AA0A6;margin-bottom:6px">THÔNG BÁO</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55">Việc được giao, ticket sắp quá SLA, cảnh báo hạn mức token, kết quả chiến dịch. Có đã đọc / chưa đọc và mở tới bản ghi gốc.</div></div>
+      <div style="padding:14px 14px;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:10px"><div style="font-size:10.4px;font-weight:800;letter-spacing:.08em;color:#8FC7A5;margin-bottom:6px">HÀNH VI</div><div style="font-size:12.6px;color:#4A5057;line-height:1.55">Thu gọn / đóng được, trạng thái lưu theo người dùng. Có việc mới thì badge nhấp nháy nhẹ, không bật popup chen ngang.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 3C · MA TRẬN TRÁCH NHIỆM ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3C · MA TRẬN TRÁCH NHIỆM THEO VAI TRÒ</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Cùng một trang Tổng quan nhưng mỗi vai trò dùng vào việc khác nhau — cần hiển thị đúng phạm vi dữ liệu theo phân quyền.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:180px">Vai trò</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:230px">Dùng Tổng quan để</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Phạm vi dữ liệu &amp; quyền thao tác</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Chủ doanh nghiệp</b></td><td class="td">Nắm toàn cảnh, phát hiện rủi ro</td><td class="td">Thấy toàn bộ tenant: mọi kênh, mọi phòng ban, doanh thu và tỉ lệ tự động hoá. Không trực tiếp xử lý việc mà giao xuống.</td></tr>
+        <tr><td class="td"><b>Quản lý phòng ban</b></td><td class="td">Điều phối tải và SLA của nhóm</td><td class="td">Giới hạn theo đơn vị trong Sơ đồ tổ chức. Được phân công lại việc gấp và duyệt các đề xuất của AI.</td></tr>
+        <tr><td class="td"><b>Nhân viên trực (CSKH · Sale)</b></td><td class="td">Biết hôm nay phải làm gì</td><td class="td">Thấy việc được giao cho mình và việc chưa ai nhận trong phạm vi kênh phụ trách. Follow khách và giao AI ngay trên widget.</td></tr>
+        <tr><td class="td"><b>Quản trị viên hệ thống</b></td><td class="td">Giữ hạ tầng chạy đúng</td><td class="td">Ưu tiên khối Kênh kết nối, API calls, cảnh báo hạn mức. Được thêm kênh, bật/tắt agent, xử lý lỗi tích hợp.</td></tr>
+        <tr><td class="td"><b>AI Agent</b></td><td class="td">Nhận việc được giao</td><td class="td">Không xem giao diện nhưng là chủ thể thực thi: nhận việc từ nút Giao AI, trả kết quả về, ghi vào Nhật ký hành động.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 3D · CHU KỲ VẬN HÀNH ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3D · CHU KỲ VẬN HÀNH TRONG NGÀY</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Tổng quan phục vụ ba thời điểm khác nhau trong ngày, với trọng tâm khác nhau.</div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#3A9D5D;margin-bottom:8px">ĐẦU CA</div>
+      <div style="font-size:14.5px;font-weight:700;color:#3A3F44;margin-bottom:8px">Chuẩn bị</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Đọc 4 chỉ số so với hôm qua · kiểm tra kênh nào yếu và nối lại · xem tồn đọng từ ca trước · phân công việc chưa ai nhận · mở danh sách Cần follow hôm nay.</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#3A9D5D;margin-bottom:8px">TRONG CA</div>
+      <div style="font-size:14.5px;font-weight:700;color:#3A3F44;margin-bottom:8px">Theo dõi &amp; can thiệp</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Danh sách gấp cập nhật liên tục · nhận cảnh báo SLA qua widget · giao AI những việc lặp lại · nhảy vào module xử lý việc AI không kham được · giao việc mới cho AI qua 4 thẻ nghiệp vụ.</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#3A9D5D;margin-bottom:8px">CUỐI CA</div>
+      <div style="font-size:14.5px;font-weight:700;color:#3A3F44;margin-bottom:8px">Chốt &amp; bàn giao</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Đối chiếu KPI cuối ngày · rà việc còn treo và bàn giao ca sau · xem tỉ lệ AI tự xử để biết nên bổ sung tri thức ở đâu · drill-down báo cáo cho phần bất thường.</div>
+    </div>
+  </div>
+
+  <!-- ============ 4 · TƯƠNG TÁC MODULE ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">4 · TƯƠNG TÁC VỚI CÁC MODULE KHÁC</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Tổng quan <b>không sở hữu dữ liệu nào</b>. Nó tổng hợp từ các module khác và đẩy người dùng quay lại đúng nơi để xử lý — vai trò trạm điều phối, không phải kho lưu trữ.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:200px">Module</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:120px">Vai trò</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Dữ liệu &amp; điều hướng</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Hộp thư</b></td><td class="td">Cấp dữ liệu</td><td class="td">Số hội thoại hôm nay, hội thoại đang chờ, hội thoại AI không xử lý được. Click việc gấp mở thẳng hội thoại đó.</td></tr>
+        <tr><td class="td"><b>AI Agents</b></td><td class="td">Cấp dữ liệu</td><td class="td">Số phiên AI thực thi, phiên đang chạy, phiên chờ duyệt, tỉ lệ tự động. Thẻ agent ở khối ② mở đúng agent.</td></tr>
+        <tr><td class="td"><b>Trợ lý AI</b></td><td class="td">Hai chiều</td><td class="td">Nút <b>Hỏi Trợ lý AI</b>, 4 thẻ nghiệp vụ và các nút ＋ Kết nối đều mở Trợ lý AI kèm ngữ cảnh Tổng quan. Ngược lại, việc AI hoàn tất phản ánh lại vào chỉ số.</td></tr>
+        <tr><td class="td"><b>Kênh kết nối</b></td><td class="td">Cấp dữ liệu</td><td class="td">Trạng thái sức khoẻ và lưu lượng từng kênh. Kênh lỗi có lối đi thẳng sang trang cấu hình để nối lại.</td></tr>
+        <tr><td class="td"><b>Hỗ trợ (Ticket)</b></td><td class="td">Cấp dữ liệu</td><td class="td">Ticket sắp quá hạn SLA hoặc bị leo thang xuất hiện trong danh sách gấp và tab Thông báo.</td></tr>
+        <tr><td class="td"><b>Lịch hẹn</b></td><td class="td">Cấp dữ liệu</td><td class="td">Lịch sát giờ chưa xác nhận, yêu cầu đặt lịch chưa ai xử lý — leo thang lên khối cần xử lý gấp.</td></tr>
+        <tr><td class="td"><b>Khách hàng &amp; CRM</b></td><td class="td">Cấp dữ liệu</td><td class="td">Danh sách <b>Cần follow hôm nay</b> lấy từ trạng thái chăm sóc và tín hiệu khách hàng ở tab AI của hồ sơ 360.</td></tr>
+        <tr><td class="td"><b>Quy trình</b></td><td class="td">Cấp dữ liệu</td><td class="td">Quy trình lỗi hoặc chờ duyệt hiện ở Thông báo; số lần chạy góp vào chỉ số tự động hoá.</td></tr>
+        <tr><td class="td"><b>SLA</b></td><td class="td">Giám sát</td><td class="td">Định nghĩa ngưỡng leo thang. Chính SLA quyết định việc nào được đưa lên khối cần xử lý gấp.</td></tr>
+        <tr><td class="td"><b>Báo cáo</b></td><td class="td">Điều hướng</td><td class="td">Mọi chỉ số đều drill-down được sang báo cáo chi tiết, mang theo bộ lọc thời gian đang áp.</td></tr>
+        <tr><td class="td"><b>Ví &amp; Nâng cấp</b></td><td class="td">Cảnh báo</td><td class="td">Sắp hết token hoặc chạm hạn mức gói hiện ở tab Thông báo, kèm lối đi tới Ví AppChat.</td></tr>
+        <tr><td class="td"><b>KPI &amp; Mục tiêu</b></td><td class="td">Hai chiều</td><td class="td">Việc xử lý xong cập nhật vào KPI cá nhân/phòng ban; tiến độ mục tiêu phản ánh ngược lên Tổng quan.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 5 · HOẠT ĐỘNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5 · HOẠT ĐỘNG NGƯỜI DÙNG THỰC HIỆN</div>
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:230px">Hoạt động</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:150px">Ai thực hiện</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Kết quả</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Tick bước Onboarding</b></td><td class="td">Chủ workspace</td><td class="td">Tiến độ tăng, thanh phần trăm cập nhật; đủ 5/5 thì khối tự ẩn khỏi trang.</td></tr>
+        <tr><td class="td"><b>Thu gọn / mở rộng Onboarding</b></td><td class="td">Mọi người dùng</td><td class="td">Trạng thái lưu lại theo người dùng, không reset khi tải lại trang.</td></tr>
+        <tr><td class="td"><b>Đổi khoảng thời gian</b></td><td class="td">Mọi người dùng</td><td class="td">Toàn bộ chỉ số tính lại; khoảng thiếu dữ liệu được nêu rõ thay vì hiện số sai.</td></tr>
+        <tr><td class="td"><b>Giao AI xử lý</b></td><td class="td">Nhân viên · quản lý</td><td class="td">Ghi Nhật ký hành động (ai giao, agent nào nhận, lúc nào), việc chuyển sang trạng thái AI đang xử lý.</td></tr>
+        <tr><td class="td"><b>Mở việc gấp</b></td><td class="td">Nhân viên trực</td><td class="td">Điều hướng sang module đích với bản ghi mở sẵn; việc được đánh dấu “đang có người xem”.</td></tr>
+        <tr><td class="td"><b>Kết nối kênh mới (＋)</b></td><td class="td">Quản trị viên</td><td class="td">Mở Trợ lý AI với câu hỏi dựng sẵn về loại kênh muốn nối.</td></tr>
+        <tr><td class="td"><b>Follow khách trong widget</b></td><td class="td">Sale · CSKH</td><td class="td">Nhắn / gọi / đặt lịch ngay trên dòng; khách rời khỏi danh sách follow khi đã liên hệ.</td></tr>
+        <tr><td class="td"><b>Đọc &amp; đánh dấu thông báo</b></td><td class="td">Mọi người dùng</td><td class="td">Badge giảm; thông báo mở được tới bản ghi gốc.</td></tr>
+        <tr><td class="td"><b>Giao việc qua thẻ nghiệp vụ</b></td><td class="td">Mọi người dùng</td><td class="td">Mở Trợ lý AI đúng chế độ, ngữ cảnh Tổng quan được truyền theo.</td></tr>
+        <tr><td class="td"><b>Drill-down chỉ số</b></td><td class="td">Quản lý · điều hành</td><td class="td">Mở báo cáo tương ứng, giữ nguyên bộ lọc thời gian đang chọn.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 5B · FLOW CHI TIẾT TỪNG NGHIỆP VỤ ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5B · FLOW CHI TIẾT THEO TỪNG NGHIỆP VỤ</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Bảy luồng con chạy bên trong Tổng quan. Mỗi luồng nêu <b>điều kiện kích hoạt</b>, các bước, <b>điều kiện kết thúc</b> và trường hợp ngoại lệ.</div>
+
+  <div class="box" style="margin-top:18px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F1 · Kích hoạt workspace (Onboarding)</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> tenant mới, chưa đủ 5/5 bước. <b>Kết thúc:</b> đủ 5/5 → khối tự ẩn vĩnh viễn.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:150px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#9AA0A6;letter-spacing:.06em">BƯỚC 1</div><div style="font-size:13px;font-weight:700;color:#3A3F44;margin-top:4px">Kết nối kênh</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Zalo OA hoặc Facebook — tối thiểu một kênh có tin vào.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:150px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#9E86D4;letter-spacing:.06em">BƯỚC 2</div><div style="font-size:13px;font-weight:700;color:#5B3FA8;margin-top:4px">Tạo AI Agent</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chọn mẫu theo ngành hoặc nhờ Trợ lý AI dựng.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:150px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#9AA0A6;letter-spacing:.06em">BƯỚC 3</div><div style="font-size:13px;font-weight:700;color:#3A3F44;margin-top:4px">Nhập sản phẩm</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Nhập tay, tải Excel hoặc đồng bộ từ sàn — AI cần để tư vấn.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:150px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#9AA0A6;letter-spacing:.06em">BƯỚC 4</div><div style="font-size:13px;font-weight:700;color:#3A3F44;margin-top:4px">Mời thành viên</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Gán vai trò &amp; phân quyền; bỏ qua được nếu chạy một mình.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:150px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:11px;font-weight:800;color:#7FA5D4;letter-spacing:.06em">BƯỚC 5</div><div style="font-size:13px;font-weight:700;color:#2C5A93;margin-top:4px">Dựng quy trình đầu</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chào khách mới hoặc nhắc follow-up.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 13px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:8px;font-size:12.4px;color:#A8544F;line-height:1.6"><b>Ngoại lệ:</b> bước 4 bỏ qua được với mô hình một người (OPC) — checklist vẫn tính là hoàn tất. Bước 1 và 2 là bắt buộc: thiếu thì Tổng quan không có dữ liệu để hiển thị.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F2 · Việc gấp leo thang về Tổng quan</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> AI trả việc, SLA sắp vi phạm, hoặc quy trình chạy lỗi. <b>Kết thúc:</b> việc được xử lý hoặc giao lại cho AI.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Module phát tín hiệu</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Hộp thư · Ticket · Lịch hẹn · Quy trình gửi sự kiện leo thang.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">2 · SLA chấm mức khẩn</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Quá hạn &gt; sắp hạn &gt; bình thường; tính thời gian còn lại.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#FBEDED;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#A8544F">3 · Hiện ở khối cần xử lý</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Chuẩn hiển thị: tên · loại · lý do · còn lại bao lâu.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Xử lý &amp; đóng</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Giao AI hoặc người mở module; xong thì rời danh sách.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 13px;background:#F5F6F7;border:1px solid #DDE1E4;border-radius:8px;font-size:12.4px;color:#4A5057;line-height:1.6"><b>Chống trùng:</b> khi một người mở việc, dòng được đánh dấu “đang có người xem” để đồng nghiệp không xử lý chồng. Nếu bỏ ngỏ quá 15 phút, đánh dấu tự gỡ.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F3 · Giao AI một chạm và vòng phản hồi</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> người dùng bấm <i>Giao AI</i>. <b>Kết thúc:</b> AI báo hoàn tất, hoặc trả việc kèm lý do.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Chọn agent phù hợp</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Theo loại việc và phòng ban; Trợ lý AI điều phối.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:160px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">2 · Agent thực thi</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Đọc ngữ cảnh, tra kiến thức, gọi công cụ, soạn phản hồi.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:160px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">3a · Đủ tự tin → hoàn tất</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Ghi Nhật ký, cập nhật KPI, đóng việc.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">↘</div>
+      <div style="flex:1;min-width:160px;background:#FBEDED;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#A8544F">3b · Không chắc → trả người</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Kèm lý do và bản nháp đã soạn để người duyệt nhanh.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 13px;background:#F3EFFE;border:1px solid #CFC0F0;border-radius:8px;font-size:12.4px;color:#5B3FA8;line-height:1.6"><b>Nguyên tắc human-in-the-loop:</b> AI không bao giờ âm thầm bỏ việc. Mọi lần trả lại đều nêu lý do cụ thể (thiếu dữ liệu · ngoài phạm vi · cần phê duyệt giá) và giữ nguyên phần việc đã làm được.</div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F4 · Phát hiện &amp; khôi phục kênh lỗi</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> kênh hết hạn token, bị rate-limit, hoặc ngừng nhận webhook. <b>Kết thúc:</b> kênh về trạng thái Tốt.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Giám sát định kỳ</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Đo độ trễ nhận tin và tỉ lệ lỗi API từng kênh.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#FBEDED;border:1.5px solid #F0C9C9;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#A8544F">2 · Hạ mức sức khoẻ</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Tốt → Ổn → Chậm → Yếu; đồng thời đẩy vào tab Thông báo.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">3 · Mở trang Kênh kết nối</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Cấp lại token, nối lại webhook, kiểm tra quyền ứng dụng.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Xác nhận thông suốt</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Gửi tin thử; chấm về xanh và tin tồn được nạp lại.</div></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F5 · Chăm sóc khách trong ngày (Cần follow)</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> CRM đánh dấu khách đến hạn chăm sóc hoặc có tín hiệu rủi ro. <b>Kết thúc:</b> đã liên hệ, hoặc dời sang ngày khác.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">1 · CDP chấm tín hiệu</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Lâu không tương tác · báo giá treo · sắp hết hạn gói.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">2 · Vào widget Cần follow</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Tối đa 5 khách, kèm lý do và lần liên hệ cuối.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">3 · Hành động ngay trên dòng</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Nhắn · gọi · đặt lịch — không rời trang Tổng quan.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Ghi vào hồ sơ 360</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Timeline khách cập nhật; hẹn lần chăm sóc kế tiếp.</div></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F6 · Giao việc chủ động cho Trợ lý AI</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> người dùng muốn làm gì đó nhưng chưa biết vào module nào. <b>Kết thúc:</b> AI thực thi hoặc bàn giao kết quả.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Chọn thẻ nghiệp vụ</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Marketing · Kinh doanh · CSKH · Vận hành, hoặc gõ tự do.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">2 · Mở Trợ lý AI kèm ngữ cảnh</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Truyền theo bộ lọc thời gian và chỉ số đang xem.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#F3EFFE;border:1.5px solid #CFC0F0;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#5B3FA8">3 · AI đề xuất &amp; xin xác nhận</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Nêu rõ sẽ làm gì trước khi tác động dữ liệu thật.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Thực thi &amp; ghi vết</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Nhật ký hành động ghi ai giao, agent nào làm, hoàn tác được.</div></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:16px;padding:24px 26px">
+    <div style="font-size:14.5px;font-weight:800;color:#231F20">F7 · Đọc số liệu và đào sâu (drill-down)</div>
+    <div style="font-size:12.8px;color:#8A9096;margin-top:4px;line-height:1.55"><b>Kích hoạt:</b> một chỉ số bất thường so với kỳ trước. <b>Kết thúc:</b> tìm ra nguyên nhân và ra quyết định.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">1 · Chọn khoảng thời gian</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Hôm nay · 7 ngày · 30 ngày · tuỳ chọn.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#F5F6F7;border:1.5px solid #C4CBD1;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#3A3F44">2 · So sánh với kỳ trước</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Dòng phụ mỗi thẻ nêu chênh lệch và chiều biến động.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EFF4FC;border:1.5px solid #BFD4EE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2C5A93">3 · Mở báo cáo chi tiết</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Bộ lọc thời gian đi theo, không phải chọn lại.</div></div>
+      <div style="align-self:center;color:#C4CBD1;font-size:17px">→</div>
+      <div style="flex:1;min-width:170px;background:#EAF6EF;border:1.5px solid #BFE3CE;border-radius:8px;padding:12px 14px"><div style="font-size:13px;font-weight:700;color:#2F7D4C">4 · Ra quyết định</div><div style="font-size:11.8px;color:#8A9096;margin-top:3px;line-height:1.5">Điều chỉnh agent, quy trình, hoặc phân bổ nhân sự.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 5C · TÍNH NĂNG HỖ TRỢ VẬN HÀNH ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5C · TÍNH NĂNG HỖ TRỢ VẬN HÀNH</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Những cơ chế chạy ngầm khiến Tổng quan đáng tin: dữ liệu tươi, không chồng việc, mọi thao tác truy được, và dùng được trên điện thoại.</div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Cập nhật thời gian thực</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chỉ số và danh sách tự làm mới khi có sự kiện mới, không cần tải lại trang. Khi mất kết nối, hiện rõ mốc “dữ liệu tính đến lúc…” thay vì âm thầm hiển thị số cũ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Khoá mềm chống xử lý chồng</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Việc đang được ai mở sẽ hiện avatar người đó. Nhiều người cùng trực không giẫm chân nhau; bỏ ngỏ quá 15 phút thì khoá tự gỡ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Nhật ký hành động</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mọi thao tác từ Tổng quan đều ghi: ai làm, agent nào, lúc nào, tác động lên bản ghi gì. Hành động do AI thực hiện có thể hoàn tác.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Hiển thị theo vai trò</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Nhân viên thấy việc của mình và nhóm mình; quản lý thấy toàn phòng ban; chủ workspace thấy toàn tenant. Cùng một trang, phạm vi dữ liệu khác nhau.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Trạng thái rỗng có hướng dẫn</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Chưa có dữ liệu thì nói rõ vì sao và cần làm gì tiếp, kèm nút đi thẳng — thay vì để trống hoặc hiện số 0 gây hiểu nhầm.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Mobile-first</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Trên điện thoại: thẻ thống kê xếp dọc, khối kiến trúc cuộn ngang, widget thu về nút nổi. Việc gấp và nút Giao AI luôn chạm tới được.</div>
+    </div>
+  </div>
+
+  <!-- ============ 5D · GIẢI THÍCH TỪNG CHỨC NĂNG ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5D · GIẢI THÍCH CHI TIẾT TỪNG CHỨC NĂNG</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:940px;line-height:1.55">Mỗi chức năng: <b>làm gì</b> · <b>hoạt động thế nào</b> · <b>vì sao thiết kế như vậy</b>.</div>
+
+  <div class="box" style="margin-top:18px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#FAFBFB">
+        <th class="th" style="text-align:left;padding:12px 16px;width:190px">Chức năng</th>
+        <th class="th" style="text-align:left;padding:12px 16px;width:270px">Làm gì</th>
+        <th class="th" style="text-align:left;padding:12px 16px">Hoạt động thế nào · vì sao</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="td"><b>Hội thoại hôm nay</b></td><td class="td">Đếm hội thoại mới trong khoảng thời gian đang chọn.</td><td class="td">Gom từ mọi kênh đã kết nối, so với kỳ trước cùng độ dài. <b>Vì sao:</b> đây là chỉ báo nhu cầu thị trường sớm nhất — tụt bất thường thường là kênh lỗi chứ không phải ế khách.</td></tr>
+        <tr><td class="td"><b>Phiên AI thực thi</b></td><td class="td">Số nhiệm vụ AI Agent đã chạy, tách đang chạy / chờ duyệt.</td><td class="td">Mỗi phiên là một chuỗi hành động có ghi vết. <b>Vì sao:</b> cho thấy AI đang thực sự làm việc chứ không chỉ trả lời — và bao nhiêu việc đang nghẽn ở khâu chờ người duyệt.</td></tr>
+        <tr><td class="td"><b>API calls</b></td><td class="td">Lưu lượng gọi API kèm tỉ lệ lỗi và số lần thử lại.</td><td class="td">Đo ở tầng tích hợp với kênh và hệ thống ngoài. <b>Vì sao:</b> lỗi tích hợp làm hỏng trải nghiệm khách trước khi con số kinh doanh kịp phản ánh.</td></tr>
+        <tr><td class="td"><b>Tỷ lệ tự động</b></td><td class="td">Phần trăm việc hoàn tất không cần người chạm vào.</td><td class="td">Tính bằng việc AI đóng chia tổng việc. <b>Vì sao:</b> đây là thước đo trực tiếp cho lời hứa OPC — một người vận hành được cả doanh nghiệp.</td></tr>
+        <tr><td class="td"><b>Chấm sức khoẻ kênh</b></td><td class="td">Bốn mức Tốt · Ổn · Chậm · Yếu cho từng kênh.</td><td class="td">Dựa trên độ trễ nhận tin và tỉ lệ lỗi. <b>Vì sao:</b> dùng bốn mức thay vì chỉ bật/tắt, vì kênh thường suy giảm dần trước khi chết hẳn — bắt sớm thì không mất tin khách.</td></tr>
+        <tr><td class="td"><b>Nút ＋ Kết nối</b></td><td class="td">Thêm kênh mới ngay từ Tổng quan.</td><td class="td">Mở Trợ lý AI với câu hỏi dựng sẵn theo loại kênh. <b>Vì sao:</b> nối kênh vốn nhiều bước kỹ thuật; hỏi đáp bằng hội thoại dễ hơn đọc tài liệu.</td></tr>
+        <tr><td class="td"><b>Thẻ Trợ lý AI (khối ②)</b></td><td class="td">Điểm vào orchestrator điều phối toàn hệ thống.</td><td class="td">Nền đậm, đứng đầu hàng, tách khỏi các agent phòng ban. <b>Vì sao:</b> thị giác phải nói đúng kiến trúc — AI ở trung tâm, không phải một tính năng bên lề.</td></tr>
+        <tr><td class="td"><b>Thẻ AI Agent phòng ban</b></td><td class="td">Xem nhanh agent nào đang trực và phụ trách gì.</td><td class="td">Click mở thẳng trang cấu hình agent đó. <b>Vì sao:</b> khi kết quả không như ý, người dùng cần sửa agent chứ không phải sửa từng hội thoại.</td></tr>
+        <tr><td class="td"><b>Dải chip module (khối ③)</b></td><td class="td">Bản đồ toàn bộ nghiệp vụ AI Agent điều phối.</td><td class="td">Vừa là tuyên bố năng lực, vừa là lối tắt điều hướng. <b>Vì sao:</b> người mới thường không biết hệ thống làm được gì; liệt kê thẳng ra hiệu quả hơn menu nhiều cấp.</td></tr>
+        <tr><td class="td"><b>Khối CDP (④)</b></td><td class="td">Nền dữ liệu khách hàng hợp nhất.</td><td class="td">Hồ sơ 360 · lịch sử đa kênh · hợp nhất chống trùng · phân khúc động. <b>Vì sao:</b> AI chỉ thông minh bằng dữ liệu nó thấy — nhấn mạnh dữ liệu là tài sản của tenant, không trộn lẫn giữa doanh nghiệp.</td></tr>
+        <tr><td class="td"><b>Danh sách cần xử lý</b></td><td class="td">Gom mọi việc AI không tự xử được về một chỗ.</td><td class="td">Chuẩn hoá bốn thông tin: tên · loại · lý do · thời gian còn lại; việc quá hạn lên đầu. <b>Vì sao:</b> nếu mỗi module tự báo động riêng, người trực phải mở bảy trang mới biết hôm nay làm gì.</td></tr>
+        <tr><td class="td"><b>Nút Giao AI</b></td><td class="td">Chuyển việc cho agent xử lý bằng một chạm.</td><td class="td">Đổi trạng thái sang “AI đang xử lý”, kết quả báo về Tổng quan; thất bại thì trả lại kèm lý do. <b>Vì sao:</b> giảm ma sát tối đa — nếu phải mở module rồi mới giao được, người dùng sẽ tự làm cho nhanh.</td></tr>
+        <tr><td class="td"><b>Onboarding checklist</b></td><td class="td">Dẫn tenant mới qua 5 bước kích hoạt.</td><td class="td">Thanh tiến độ, tick từng bước, tự ẩn khi đủ. <b>Vì sao:</b> workspace thiếu kênh và agent thì Tổng quan rỗng — checklist bảo vệ trải nghiệm ngày đầu.</td></tr>
+        <tr><td class="td"><b>Widget Cần follow</b></td><td class="td">Danh sách khách cần liên hệ hôm nay.</td><td class="td">Tối đa 5 khách, có hành động nhắn / gọi / đặt lịch ngay trên dòng. <b>Vì sao:</b> giới hạn 5 để buộc ưu tiên; danh sách dài vô tận thì không ai làm hết.</td></tr>
+        <tr><td class="td"><b>Widget Thông báo</b></td><td class="td">Cảnh báo hệ thống và việc được giao.</td><td class="td">SLA sắp vi phạm · hạn mức token · quy trình lỗi · kết quả chiến dịch. <b>Vì sao:</b> tách khỏi việc gấp để cảnh báo hạ tầng không lấn chỗ việc kinh doanh.</td></tr>
+        <tr><td class="td"><b>Bốn thẻ giao việc AI</b></td><td class="td">Điểm vào Trợ lý AI theo bốn nhóm nghiệp vụ.</td><td class="td">Carousel tự chuyển, click mở đúng chế độ kèm câu lệnh gợi ý. <b>Vì sao:</b> ô chat trống làm người dùng bí; gợi ý theo nghiệp vụ giúp họ biết nên nhờ gì.</td></tr>
+        <tr><td class="td"><b>Bộ lọc thời gian</b></td><td class="td">Đổi khoảng phân tích cho cả trang.</td><td class="td">Áp cho mọi chỉ số và đi theo khi drill-down. <b>Vì sao:</b> đổi bộ lọc rồi phải chọn lại ở trang báo cáo là điểm gãy phổ biến nhất khi phân tích.</td></tr>
+        <tr><td class="td"><b>Drill-down</b></td><td class="td">Từ chỉ số đi thẳng vào báo cáo chi tiết.</td><td class="td">Click tiêu đề khối hoặc con số. <b>Vì sao:</b> con số chỉ có giá trị khi truy được nguyên nhân; nếu không đào sâu được thì Tổng quan chỉ là trang trang trí.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 6 · QUY TẮC ============ -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">6 · QUY TẮC THIẾT KẾ</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Không sở hữu dữ liệu</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Tổng quan chỉ đọc và tổng hợp. Mọi thao tác sửa dữ liệu đều thực hiện ở module gốc — tránh hai nguồn sự thật và giữ ghi vết tập trung.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Mỗi khối phải dẫn tới hành động</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Không có khối nào chỉ để trưng số. Chỉ số phải drill-down được, danh sách phải xử lý được, kiến trúc phải click vào được.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">Việc gấp luôn nổi lên</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mọi module leo thang việc về đây theo cùng một chuẩn: tên · loại · lý do · thời gian còn lại. Người dùng chỉ cần nhìn một chỗ để biết hôm nay cần làm gì.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">Không giấu lỗi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Kênh mất kết nối, quy trình chạy lỗi, AI thất bại — đều hiện rõ kèm lối khắc phục. Số liệu đẹp mà hệ thống đang hỏng là phản tác dụng.</div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+</body>
+</html>

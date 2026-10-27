@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · F2 Phone OTP — Flow Wireframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2B2B;--ink2:#5A5A5A;--ink3:#8C8C8C;--paper:#FAF8F2;--card:#FFFFFF;
+  --line:#9A958A;--line2:#CFC9BC;--pen:#D6453B;--pen2:#2B6FB8;--good:#1F9C4F;
+  --zalo:#0068FF;--eid:#C0392B;
+  --doodle:255px 12px 225px 14px/14px 225px 14px 255px;
+  --doodle2:14px 220px 16px 240px/230px 16px 240px 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--paper);
+  background-image:radial-gradient(var(--line2) 1px, transparent 1px);background-size:22px 22px;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.hand{font-family:'Caveat',cursive}
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:14px 26px;background:rgba(250,248,242,.92);backdrop-filter:blur(8px);border-bottom:2px dashed var(--line2)}
+.bar .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.bar .logo .m{width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:15px;transform:rotate(-4deg)}
+.bar .ttl{font-size:13px;color:var(--ink2);max-width:300px;line-height:1.35}.bar .ttl b{color:var(--ink)}
+.spacer{flex:1}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:11px;overflow:hidden;background:var(--card)}
+.seg button{border:none;background:transparent;font-family:inherit;font-weight:700;font-size:12.5px;padding:8px 14px;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2);cursor:pointer;font-weight:600}
+.chk input{width:16px;height:16px;accent-color:var(--pen)}
+
+.intro{padding:22px 30px 4px;max-width:1340px;margin:0 auto}
+.intro .k{font-family:'Caveat';font-size:30px;font-weight:700;transform:rotate(-1deg);display:inline-block}
+.intro p{font-size:13.5px;color:var(--ink2);max-width:880px;margin-top:4px}
+.flowmap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px}
+.flowmap .chip{font-size:12px;font-weight:700;color:var(--ink);border:2px solid var(--ink);border-radius:9px;padding:6px 11px;background:var(--card)}
+.flowmap .chip small{display:block;font-size:9.5px;font-weight:600;color:var(--ink3)}
+.flowmap .ar{color:var(--ink3);font-weight:800}
+
+.rail{max-width:1340px;margin:0 auto;padding:20px 30px 70px;display:flex;gap:14px;align-items:stretch;overflow-x:auto}
+.step{flex:0 0 312px;display:flex;flex-direction:column}
+.arrowcol{flex:0 0 26px;display:grid;place-items:center;color:var(--line);font-size:22px;font-weight:800}
+.tag{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.tag .num{width:24px;height:24px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;font-family:'Caveat';transform:rotate(-6deg)}
+.tag .nm{font-family:'Caveat';font-size:21px;font-weight:700;line-height:1}
+.tag .nm small{display:block;font-family:'Plus Jakarta Sans';font-size:9.5px;font-weight:600;color:var(--ink3);letter-spacing:.02em;margin-top:1px}
+
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:var(--doodle);padding:20px 17px;box-shadow:5px 6px 0 rgba(43,43,43,.10);flex:1}
+.step:nth-child(4n+3) .card{border-radius:var(--doodle2)}
+.applogo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:13.5px;margin-bottom:11px}
+.applogo .m{width:22px;height:22px;border-radius:6px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:11px}
+.prog{display:flex;gap:4px;margin-bottom:12px}
+.prog i{height:5px;flex:1;border-radius:3px;background:var(--line2)}
+.prog i.on{background:var(--ink)}
+.h1{font-size:17.5px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px;line-height:1.15}
+.sub{font-size:11px;color:var(--ink3);margin-bottom:14px;line-height:1.45}
+
+.field{margin-bottom:11px}.flab{font-size:10.5px;font-weight:700;color:var(--ink2);margin-bottom:4px;display:flex;justify-content:space-between}
+.flab .opt{color:var(--ink3);font-weight:600}
+.fbox{height:44px;border:2px solid var(--line);border-radius:9px 7px 9px 7px;background:#FCFBF7;display:flex;align-items:center;padding:0 11px;gap:8px;color:var(--ink3);font-size:12.5px}
+.fbox.big{height:48px}.fbox .ph{flex:1;height:8px;background:var(--line2);border-radius:4px}
+.fbox .pre{font-weight:700;color:var(--ink2);font-size:13px;border-right:2px solid var(--line2);padding-right:9px}
+.fbox .val{color:var(--ink);font-weight:700;font-size:13px}
+.cta{width:100%;height:46px;border:2px solid var(--ink);border-radius:12px 10px 13px 9px;background:var(--ink);color:var(--paper);font-weight:800;font-size:13.5px;display:grid;place-items:center;box-shadow:3px 3px 0 rgba(43,43,43,.25);margin-top:4px}
+.cta.zalo{background:#EAF2FF;color:var(--ink);border-color:var(--ink)}
+.ghostbtn{width:100%;height:40px;border:2px solid var(--line);border-radius:10px;background:var(--card);font-weight:700;font-size:12.5px;color:var(--ink2);display:grid;place-items:center;margin-top:8px}
+.gl{width:20px;height:20px;display:grid;place-items:center;border-radius:6px;font-weight:900;font-size:12px;background:var(--zalo);color:#fff}
+
+/* otp boxes */
+.otp{display:flex;gap:7px;margin-bottom:8px}
+.otp i{flex:1;height:48px;border:2px solid var(--line);border-radius:9px;background:#FCFBF7;display:grid;place-items:center;font-weight:800;font-size:18px}
+.otp i.f{border-color:var(--ink);background:#fff}
+.muted{font-size:10.5px;color:var(--ink3);margin-bottom:12px}.muted b{color:var(--ink)}
+.muted a{color:var(--pen2);font-weight:700}
+
+/* confirm step */
+.bigcheck{width:54px;height:54px;border-radius:14px;border:2.5px solid var(--good);background:#F1FBF4;display:grid;place-items:center;color:var(--good);font-size:28px;margin-bottom:13px}
+.idrow{display:flex;align-items:center;gap:10px;padding:11px;border:2px dashed var(--line2);border-radius:11px;background:#FFFDF6;margin-bottom:10px}
+.idrow .av{width:34px;height:34px;border-radius:50%;background:var(--zalo);color:#fff;display:grid;place-items:center;font-weight:800}
+.idrow .tx{font-size:12px}.idrow .tx b{font-size:13px}.idrow .tx div{color:var(--ink3);font-size:10.5px}
+
+/* account type toggle inside step */
+.atoggle{display:flex;gap:7px;margin-bottom:13px}
+.atoggle .opt{flex:1;border:2px solid var(--line2);border-radius:10px;padding:9px;text-align:center;font-size:11.5px;font-weight:700;color:var(--ink2);background:var(--card)}
+.atoggle .opt.on{border-color:var(--ink);background:#F4F1E8;color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.atoggle .opt small{display:block;font-size:9px;font-weight:600;color:var(--ink3);margin-top:2px}
+
+.verify{display:flex;gap:8px;align-items:flex-start;padding:10px;border:2px solid var(--good);border-radius:11px;background:#F1FBF4;margin-top:4px}
+.verify .ic{color:var(--good);font-size:15px}
+.verify .tx{font-size:11px;color:var(--ink2);line-height:1.35}.verify .tx b{color:var(--ink);font-size:12px}
+.idbadge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:#fff;background:var(--eid);border-radius:6px;padding:3px 8px;margin-bottom:9px}
+.trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;font-size:10px;font-weight:700;color:var(--ink2)}
+.trust .ok{color:var(--good)}
+
+.anno{font-family:'Caveat';font-size:16px;color:var(--pen);line-height:1.18;margin-top:11px;display:flex;gap:6px;align-items:flex-start}
+.anno::before{content:'★';font-family:'Plus Jakarta Sans';font-size:11px;transform:translateY(2px)}
+.anno.b2{color:var(--pen2)}
+body.noanno .anno{display:none}
+
+.note{max-width:1340px;margin:0 auto;padding:0 30px 60px}
+.note .box{border:2.5px solid var(--ink);border-radius:var(--doodle);background:#FFFDF6;padding:18px 20px;box-shadow:5px 6px 0 rgba(43,43,43,.10)}
+.note .box h4{font-family:'Caveat';font-size:24px;font-weight:700;margin-bottom:6px}
+.note .box ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.note .box li{font-size:13px;color:var(--ink2);padding-left:20px;position:relative}
+.note .box li::before{content:'→';position:absolute;left:0;color:var(--pen)}
+.note .box li b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+  <div class="bar">
+    <div class="logo"><div class="m">A</div>App<span style="color:var(--ink3)">Chat</span></div>
+    <div class="ttl">F2 · <b>Đăng ký bằng SĐT Zalo</b> — storyboard 5 bước</div>
+    <div class="spacer"></div>
+    <span style="font-size:11.5px;font-weight:700;color:var(--ink2)">Loại tài khoản:</span>
+    <div class="seg" id="seg">
+      <button class="on" data-t="dn">Doanh nghiệp</button>
+      <button data-t="cn">Cá nhân</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="annoTgl" checked> Chú thích</label>
+  </div>
+
+  <div class="intro">
+    <div class="k">Số Zalo cá nhân = định danh chính của nền tảng</div>
+    <p>Lý do CR cao: gần như mọi chủ shop VN đều có Zalo, gõ 1 số → OTP là xong, không mật khẩu. Sau khi xác thực số, mới khai báo doanh nghiệp và <b>định danh pháp lý</b> bằng <b>Mã số thuế</b> (doanh nghiệp) hoặc <b>Mã định danh cá nhân VNeID</b> (hộ KD / cá nhân) — phục vụ xuất hoá đơn &amp; chống tài khoản ảo.</p>
+    <div class="flowmap">
+      <span class="chip">1 · Số điện thoại<small>SĐT ZALO</small></span><span class="ar">→</span>
+      <span class="chip">2 · Nhập OTP<small>ZALO / SMS</small></span><span class="ar">→</span>
+      <span class="chip">3 · Xác nhận<small>SỐ ĐÃ XÁC THỰC</small></span><span class="ar">→</span>
+      <span class="chip">4 · Khai báo DN<small>TÊN · LĨNH VỰC</small></span><span class="ar">→</span>
+      <span class="chip">5 · Định danh<small>MST / VNeID</small></span>
+    </div>
+  </div>
+
+  <div class="rail" id="rail"></div>
+
+  <div class="note">
+    <div class="box">
+      <h4>Ghi chú triển khai cho Dev</h4>
+      <ul>
+        <li><b>Bước 1–3 là điều kiện đủ để tạo tài khoản</b> — user vào được app ngay sau OTP. Bước 4–5 có thể cho <i>"Hoàn tất sau"</i> để không chặn chuyển đổi, nhưng khoá tính năng xuất hoá đơn tới khi định danh xong.</li>
+        <li><b>OTP qua Zalo ZNS trước, fallback SMS</b> — rẻ hơn &amp; tỉ lệ nhận cao; hết hạn 60–120s, giới hạn gửi lại.</li>
+        <li><b>Mã số thuế:</b> tra cứu tự động API Tổng cục Thuế → tự điền tên công ty &amp; địa chỉ (giảm gõ, tăng độ tin).</li>
+        <li><b>VNeID:</b> liên kết qua cổng định danh quốc gia (OAuth) hoặc nhập số định danh 12 số + đối chiếu; tuân thủ ND13 về dữ liệu cá nhân.</li>
+        <li><b>Chống trùng:</b> 1 SĐT = 1 chủ workspace; mời thành viên khác bằng SĐT/Zalo trong app.</li>
+        <li>Duyệt xong storyboard → tôi dựng hi-fi đúng Design System &amp; thay <b>components/auth.jsx</b>.</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+let atype = 'dn'; // dn | cn
+
+function steps(){
+  const idLabel = atype==='dn' ? 'Mã số thuế doanh nghiệp' : 'Mã định danh cá nhân (VNeID)';
+  const idOpt   = atype==='dn' ? '10–13 số' : '12 số';
+  const idBadge = atype==='dn'
+    ? `<span class="idbadge" style="background:#157A40">● TRA CỨU TỔNG CỤC THUẾ</span>`
+    : `<span class="idbadge">● XÁC THỰC VNeID</span>`;
+  const verifyTx = atype==='dn'
+    ? `<b>Công ty TNHH MediaSoft VN</b><br>123 Nguyễn Huệ, Q1, TP.HCM · MST hợp lệ ✓`
+    : `<b>Nguyễn Thùy Trâm</b><br>Định danh VNeID đã đối chiếu ✓ · Hộ kinh doanh`;
+  const idHelper = atype==='dn'
+    ? 'Tự điền tên &amp; địa chỉ công ty từ MST'
+    : 'Liên kết qua cổng VNeID quốc gia';
+
+  return [
+  { n:'1', nm:'Số điện thoại', sm:'SĐT ZALO', p:1, anno:['Chỉ 1 ô để gõ — đặt số Zalo làm hero. Không có mật khẩu, không họ tên ở bước này.'],
+    body:`<div class="applogo"><div class="m">A</div>AppChat</div><div class="prog">${prog(1)}</div>
+      <div class="h1">Đăng ký bằng số Zalo</div>
+      <div class="sub">Nhập số điện thoại đang dùng Zalo — nhận mã OTP, không cần mật khẩu.</div>
+      <div class="field"><div class="flab">Số điện thoại <span class="opt">dùng Zalo</span></div><div class="fbox big"><span class="pre">🇻🇳 +84</span><span class="val">90 771 1888</span></div></div>
+      <div class="cta zalo"><span style="display:inline-flex;gap:8px;align-items:center"><span class="gl">Z</span> Nhận mã OTP qua Zalo</span></div>
+      <div class="ghostbtn">Gửi OTP qua SMS</div>
+      <div class="trust"><span class="ok">✓ Miễn phí 14 ngày</span><span class="ok">✓ Không cần thẻ</span></div>`
+  },
+  { n:'2', nm:'Nhập OTP', sm:'ZALO / SMS', p:2, b2:true, anno:['6 ô tự nhảy + tự đọc OTP. Đếm ngược gửi lại để giảm bỏ cuộc.'],
+    body:`<div class="applogo"><div class="m">A</div>AppChat</div><div class="prog">${prog(2)}</div>
+      <div class="h1">Nhập mã xác thực</div>
+      <div class="sub">Mã 6 số đã gửi tới Zalo <b>+84 90 771 1888</b>.</div>
+      <div class="otp"><i class="f">2</i><i class="f">9</i><i class="f">0</i><i>·</i><i>·</i><i>·</i></div>
+      <div class="muted">Không nhận được mã? <b>Gửi lại sau 0:48</b> · <a>Đổi số</a></div>
+      <div class="cta">Xác nhận</div>`
+  },
+  { n:'3', nm:'Xác nhận', sm:'SỐ ĐÃ XÁC THỰC', p:3, anno:['Phản hồi tích cực ngay → tạo cảm giác "đã xong". Tên/avatar lấy từ Zalo, user chỉ việc tiếp tục.'],
+    body:`<div class="applogo"><div class="m">A</div>AppChat</div><div class="prog">${prog(3)}</div>
+      <div class="bigcheck">✓</div>
+      <div class="h1">Đã xác thực số điện thoại</div>
+      <div class="sub">Tài khoản của bạn đã được tạo. Hoàn tất hồ sơ để bắt đầu.</div>
+      <div class="idrow"><div class="av">T</div><div class="tx"><b>Thùy Trâm</b><div>+84 90 771 1888 · qua Zalo</div></div></div>
+      <div class="cta">Tiếp tục khai báo →</div>
+      <div class="muted" style="text-align:center;margin-top:10px"><a>Vào app, hoàn tất sau</a></div>`
+  },
+  { n:'4', nm:'Khai báo doanh nghiệp', sm:'TÊN · LĨNH VỰC', p:4, b2:true, anno:['Chọn loại tài khoản ở đầu → quyết định bước 5 hỏi MST hay VNeID. Dùng toggle trên thanh công cụ để xem cả 2 nhánh.'],
+    body:`<div class="applogo"><div class="m">A</div>AppChat</div><div class="prog">${prog(4)}</div>
+      <div class="h1">Thông tin doanh nghiệp</div>
+      <div class="sub">Giúp cá nhân hoá workspace &amp; xuất hoá đơn.</div>
+      <div class="atoggle">
+        <div class="opt ${atype==='dn'?'on':''}">Doanh nghiệp<small>Có MST</small></div>
+        <div class="opt ${atype==='cn'?'on':''}">Cá nhân / Hộ KD<small>Dùng VNeID</small></div>
+      </div>
+      <div class="field"><div class="flab">${atype==='dn'?'Tên công ty':'Tên hộ kinh doanh'}</div><div class="fbox"><div class="ph"></div></div></div>
+      <div class="field"><div class="flab">Lĩnh vực</div><div class="fbox"><div class="ph" style="width:50%"></div></div></div>
+      <div class="cta">Tiếp tục</div>`
+  },
+  { n:'5', nm:'Định danh pháp lý', sm:'MST / VNeID', p:5, anno:[(atype==='dn'?'Gõ MST → tự tra cứu &amp; điền tên/địa chỉ công ty. Ít gõ, tăng tin cậy, chống tài khoản ảo.':'Nhập/QR VNeID → đối chiếu định danh cá nhân. Tuân thủ ND13 về dữ liệu cá nhân.')],
+    body:`<div class="applogo"><div class="m">A</div>AppChat</div><div class="prog">${prog(5)}</div>
+      ${idBadge}
+      <div class="h1">${atype==='dn'?'Mã số thuế doanh nghiệp':'Mã định danh cá nhân'}</div>
+      <div class="sub">${atype==='dn'?'Để xuất hoá đơn VAT &amp; xác minh doanh nghiệp.':'Xác minh chủ tài khoản qua VNeID.'}</div>
+      <div class="field"><div class="flab">${idLabel} <span class="opt">${idOpt}</span></div><div class="fbox big"><span class="val">${atype==='dn'?'0312 345 678':'001 099 012 345'}</span></div></div>
+      ${atype==='cn'?'<div class="ghostbtn">📷 Quét QR trên app VNeID</div>':''}
+      <div class="verify"><span class="ic">✓</span><div class="tx">${verifyTx}</div></div>
+      <div class="cta" style="margin-top:12px">Hoàn tất &amp; vào Workspace →</div>
+      <div class="muted" style="text-align:center;margin-top:9px">${idHelper}</div>`
+  },
+  ];
+}
+function prog(active){ let s=''; for(let i=1;i<=5;i++) s+=`<i class="${i<=active?'on':''}"></i>`; return s; }
+
+function render(){
+  const rail = document.getElementById('rail');
+  const arr = steps();
+  rail.innerHTML = arr.map((f,idx)=>`
+    <div class="step">
+      <div class="tag"><span class="num">${f.n}</span><span class="nm">${f.nm}<small>${f.sm}</small></span></div>
+      <div class="card">${f.body}</div>
+      ${f.anno.map(a=>`<div class="anno${f.b2?' b2':''}">${a}</div>`).join('')}
+    </div>
+    ${idx<arr.length-1?'<div class="arrowcol">→</div>':''}
+  `).join('');
+}
+render();
+
+document.getElementById('seg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  atype=b.dataset.t;
+  [...document.querySelectorAll('#seg button')].forEach(x=>x.classList.toggle('on', x===b));
+  render();
+});
+document.getElementById('annoTgl').addEventListener('change', e=>{
+  document.body.classList.toggle('noanno', !e.target.checked);
+});
+</script>
+</body>
+</html>

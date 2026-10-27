@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#EEF0F2">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#EEF0F2"/>
+  <rect x="420" y="180" width="360" height="440" rx="28" fill="#fff" stroke="#C4CBD1" stroke-width="6"/>
+  <circle cx="600" cy="270" r="34" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="6"/>
+  <rect x="470" y="350" width="260" height="40" rx="10" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="5"/>
+  <rect x="470" y="410" width="260" height="40" rx="10" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="5"/>
+  <rect x="470" y="490" width="260" height="46" rx="12" fill="#2DC56A"/></svg>
+</template>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#EEF0F2}
+a{color:#3A9D5D}a:hover{color:#2C7A48}
+</style>
+</helmet>
+<div style="min-width:1400px;padding:44px 48px;background:#EEF0F2;color:#3A3F44">
+  <div style="margin-bottom:8px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">APPCHAT · WIREFRAME · v2 (26/07/2026)</div>
+  <div style="font-size:30px;font-weight:700;color:#2C3034;letter-spacing:-.02em">Xác thực — Đăng ký 3 bước · Đăng nhập Zalo-first · Quên mật khẩu · Khai báo bắt buộc</div>
+  <div style="font-size:14px;color:#8A9096;margin-top:6px;max-width:860px;line-height:1.5;text-wrap:pretty">Bản phác thảo bố cục (low-fi) theo thiết kế hiện hành. Khối xám = vùng nội dung; đường kẻ = chữ; ô viền đứt = nơi nhập liệu. Đã cập nhật: đăng ký rút từ 5 → <b>3 bước</b>, đăng nhập mặc định <b>Zalo · OTP</b>, khai báo doanh nghiệp/cá nhân chuyển vào <b>popup chặn</b> sau khi vào app.</div>
+
+  <!-- ===== LUỒNG TỔNG ===== -->
+  <div style="margin-top:34px;background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:24px 26px">
+    <div style="font-size:15px;font-weight:700;color:#4A5057;margin-bottom:4px">Luồng nghiệp vụ tổng quan</div>
+    <div style="font-size:13px;color:#9AA0A6;margin-bottom:20px">Mọi đường vào đều bị chặn bởi popup khai báo nếu chưa hoàn tất — kiểm tra bằng cờ <b>ac_declared</b>.</div>
+    <div style="display:flex;align-items:stretch;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:210px;border:1.5px solid #D6DBDF;border-radius:11px;padding:15px 16px;background:#F7F8F9">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#9AA0A6;margin-bottom:8px">ĐƯỜNG VÀO</div>
+        <div style="font-size:13.5px;color:#4A5057;line-height:1.7">• Đăng nhập Zalo · OTP <i>(mặc định)</i><br>• Đăng nhập Email &amp; mật khẩu<br>• 6 nút social 1 chạm<br>• Đăng ký mới (3 bước)</div>
+      </div>
+      <div style="display:grid;place-items:center;font-size:22px;color:#C4CBD1">→</div>
+      <div style="flex:1;min-width:210px;border:1.5px solid #D6DBDF;border-radius:11px;padding:15px 16px;background:#F7F8F9">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#9AA0A6;margin-bottom:8px">login()</div>
+        <div style="font-size:13.5px;color:#4A5057;line-height:1.7">Đọc cờ <b>ac_declared</b><br>• = 1 → vào thẳng Workspace<br>• ≠ 1 → bật <b>onbPending</b></div>
+      </div>
+      <div style="display:grid;place-items:center;font-size:22px;color:#C4CBD1">→</div>
+      <div style="flex:1;min-width:210px;border:1.5px solid #B8BFC5;border-radius:11px;padding:15px 16px;background:#EDF1EE">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#7B8B80;margin-bottom:8px">POPUP CHẶN (2 BƯỚC)</div>
+        <div style="font-size:13.5px;color:#4A5057;line-height:1.7">1. Thông tin DN / cá nhân<br>2. Lĩnh vực kinh doanh<br>→ <b>ac_declared = 1</b></div>
+      </div>
+      <div style="display:grid;place-items:center;font-size:22px;color:#C4CBD1">→</div>
+      <div style="flex:1;min-width:180px;border:1.5px solid #D6DBDF;border-radius:11px;padding:15px 16px;background:#F7F8F9">
+        <div style="font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#9AA0A6;margin-bottom:8px">WORKSPACE</div>
+        <div style="font-size:13.5px;color:#4A5057;line-height:1.7">Vào app đầy đủ chức năng. Lần sau chỉ cần SĐT → OTP → vào.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== WIREFRAMES ===== -->
+  <div style="display:flex;gap:28px;margin-top:38px;flex-wrap:wrap">
+
+    <!-- 1 · ĐĂNG NHẬP ZALO -->
+    <div style="width:330px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:22px;height:22px;border-radius:6px;background:#C4CBD1;display:grid;place-items:center;font-size:12px;font-weight:700;color:#5A6169">1</span><span style="font-size:15px;font-weight:700;color:#4A5057">Đăng nhập · Zalo OTP <i style="font-weight:400;color:#9AA0A6">(mặc định)</i></span></div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:24px 22px;box-shadow:0 1px 0 #D8DDE1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px"><div style="width:26px;height:26px;border-radius:7px;background:#C4CBD1"></div><div style="width:70px;height:11px;border-radius:3px;background:#D6DBDF"></div><div style="flex:1"></div><div style="width:52px;height:20px;border-radius:5px;border:1.5px dashed #C4CBD1"></div></div>
+        <div style="width:170px;height:20px;border-radius:4px;background:#C9CFD4;margin-bottom:9px"></div>
+        <div style="width:100%;height:9px;border-radius:3px;background:#E1E5E8;margin-bottom:5px"></div>
+        <div style="width:62%;height:9px;border-radius:3px;background:#E1E5E8;margin-bottom:22px"></div>
+        <div style="width:74px;height:9px;border-radius:3px;background:#D6DBDF;margin-bottom:7px"></div>
+        <div style="height:48px;border:1.5px dashed #C4CBD1;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;padding:0 13px;gap:9px"><div style="width:26px;height:10px;border-radius:3px;background:#CFD5DA"></div><div style="width:1px;height:20px;background:#DDE1E4"></div><div style="width:104px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="height:48px;border-radius:10px;background:#B8BFC5;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px"><div style="width:150px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div><div style="width:12px;height:10px;border-radius:2px;background:#fff;opacity:.5"></div></div>
+        <div style="display:flex;justify-content:center;margin-bottom:18px"><div style="width:210px;height:7px;border-radius:3px;background:#E7EAEC"></div></div>
+        <div style="display:flex;justify-content:center;margin-bottom:20px"><div style="width:120px;height:9px;border-radius:3px;background:#CFD5DA"></div></div>
+        <div style="display:flex;justify-content:center;gap:6px;margin-bottom:18px"><div style="width:92px;height:8px;border-radius:3px;background:#E1E5E8"></div><div style="width:114px;height:8px;border-radius:3px;background:#D2D7DB"></div></div>
+        <div style="display:flex;justify-content:flex-end"><div style="width:130px;height:28px;border-radius:7px;border:1.5px solid #D6DBDF;display:flex;align-items:center;padding:0 8px;gap:6px"><div style="width:14px;height:10px;border-radius:2px;background:#DCE0E3"></div><div style="width:70px;height:7px;border-radius:3px;background:#E1E5E8"></div></div></div>
+      </div>
+      <div style="font-size:12px;color:#9AA0A6;margin-top:10px;line-height:1.55"><b>+84 ▸ số Zalo</b> → nút "Nhận mã OTP qua Zalo" (chỉ bật khi ≥ 9 số) → 6 ô OTP (← Đổi số) → "Xác nhận &amp; vào Workspace". Dưới có link <b>"Đăng nhập bằng email"</b>. Không cần mật khẩu.</div>
+    </div>
+
+    <!-- 2 · ĐĂNG NHẬP EMAIL -->
+    <div style="width:330px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:22px;height:22px;border-radius:6px;background:#C4CBD1;display:grid;place-items:center;font-size:12px;font-weight:700;color:#5A6169">2</span><span style="font-size:15px;font-weight:700;color:#4A5057">Đăng nhập · Email &amp; mật khẩu</span></div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:24px 22px;box-shadow:0 1px 0 #D8DDE1">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:18px"><div style="width:12px;height:9px;border-radius:2px;background:#CFD5DA"></div><div style="width:130px;height:9px;border-radius:3px;background:#D6DBDF"></div></div>
+        <div style="width:80px;height:9px;border-radius:3px;background:#D6DBDF;margin-bottom:7px"></div>
+        <div style="height:42px;border:1.5px dashed #C4CBD1;border-radius:9px;margin-bottom:16px;display:flex;align-items:center;padding:0 12px;gap:8px"><div style="width:15px;height:15px;border-radius:4px;background:#DCE0E3"></div><div style="width:120px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px"><div style="width:70px;height:9px;border-radius:3px;background:#D6DBDF"></div><div style="width:80px;height:9px;border-radius:3px;background:#DFE4E7"></div></div>
+        <div style="height:42px;border:1.5px dashed #C4CBD1;border-radius:9px;margin-bottom:16px;display:flex;align-items:center;padding:0 12px;gap:8px"><div style="width:15px;height:15px;border-radius:4px;background:#DCE0E3"></div><div style="width:90px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px"><div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #C4CBD1"></div><div style="width:160px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="height:48px;border-radius:10px;background:#B8BFC5;display:flex;align-items:center;justify-content:center;margin-bottom:18px"><div style="width:170px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+        <div style="display:flex;justify-content:center;gap:6px;margin-bottom:20px"><div style="width:90px;height:8px;border-radius:3px;background:#E1E5E8"></div><div style="width:110px;height:8px;border-radius:3px;background:#D2D7DB"></div></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div style="flex:1;height:1px;background:#DDE1E4"></div><div style="width:90px;height:7px;border-radius:3px;background:#E1E5E8"></div><div style="flex:1;height:1px;background:#DDE1E4"></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div></div>
+      </div>
+      <div style="font-size:12px;color:#9AA0A6;margin-top:10px;line-height:1.55">Vào từ link "Đăng nhập bằng email". Đầu màn có <b>← Đăng nhập qua Zalo</b>. Có Ghi nhớ 30 ngày · Quên mật khẩu · 6 nút social lưới 3×2 (logo thật, không có Zalo).</div>
+    </div>
+
+    <!-- 3 · ĐĂNG KÝ 3 BƯỚC -->
+    <div style="width:330px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:22px;height:22px;border-radius:6px;background:#C4CBD1;display:grid;place-items:center;font-size:12px;font-weight:700;color:#5A6169">3</span><span style="font-size:15px;font-weight:700;color:#4A5057">Đăng ký — bước 1/3 &amp; 2/3</span></div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:24px 22px;box-shadow:0 1px 0 #D8DDE1;margin-bottom:22px">
+        <div style="display:flex;gap:5px;margin-bottom:9px"><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#E1E5E8"></div><div style="flex:1;height:5px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="width:150px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:18px"></div>
+        <div style="width:180px;height:20px;border-radius:4px;background:#C9CFD4;margin-bottom:9px"></div>
+        <div style="width:100%;height:9px;border-radius:3px;background:#E1E5E8;margin-bottom:18px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:16px"><div style="flex:1;height:52px;border:1.5px solid #B8BFC5;border-radius:10px;padding:9px"><div style="width:50px;height:9px;border-radius:3px;background:#CFD5DA;margin-bottom:6px"></div><div style="width:70px;height:7px;border-radius:3px;background:#E1E5E8"></div></div><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:10px;padding:9px"><div style="width:50px;height:9px;border-radius:3px;background:#E1E5E8;margin-bottom:6px"></div><div style="width:70px;height:7px;border-radius:3px;background:#EBEEF0"></div></div></div>
+        <div style="width:66px;height:9px;border-radius:3px;background:#D6DBDF;margin-bottom:7px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:18px"><div style="width:60px;height:44px;border:1.5px dashed #C4CBD1;border-radius:9px"></div><div style="flex:1;height:44px;border:1.5px dashed #C4CBD1;border-radius:9px"></div></div>
+        <div style="height:48px;border-radius:10px;background:#B8BFC5;display:flex;align-items:center;justify-content:center;margin-bottom:16px"><div style="width:190px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+        <div style="display:flex;justify-content:center;gap:6px;margin-bottom:16px"><div style="width:90px;height:8px;border-radius:3px;background:#E1E5E8"></div><div style="width:70px;height:8px;border-radius:3px;background:#D2D7DB"></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div><div style="height:40px;border:1.5px solid #D6DBDF;border-radius:8px"></div></div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:22px 20px;box-shadow:0 1px 0 #D8DDE1">
+        <div style="display:flex;gap:5px;margin-bottom:9px"><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="width:140px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:16px"></div>
+        <div style="width:160px;height:18px;border-radius:4px;background:#C9CFD4;margin-bottom:14px"></div>
+        <div style="display:flex;gap:6px;margin-bottom:14px"><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:11px"></div><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:11px"></div><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:11px"></div><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:11px"></div><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:11px"></div><div style="flex:1;height:52px;border:1.5px dashed #C4CBD1;border-radius:11px"></div></div>
+        <div style="width:210px;height:8px;border-radius:3px;background:#E1E5E8;margin-bottom:16px"></div>
+        <div style="height:46px;border-radius:9px;background:#B8BFC5;display:flex;align-items:center;justify-content:center"><div style="width:110px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+      </div>
+      <div style="font-size:12px;color:#9AA0A6;margin-top:10px;line-height:1.55"><b>1/3 CHỌN CÁCH XÁC THỰC</b>: tab Qua Zalo / Qua Email → nhập <b>Số Zalo</b> hoặc email → "Nhận mã kích hoạt qua Zalo/Email"; hoặc social 1 chạm.<br><b>2/3 NHẬP MÃ XÁC THỰC</b>: 6 ô, nút "Xác nhận mã", tự chuyển bước khi đủ 6 số; link <b>Đổi số / Đổi email</b> theo kênh.</div>
+    </div>
+
+    <!-- 4 · BƯỚC 3/3 + QUÊN MK -->
+    <div style="width:330px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:22px;height:22px;border-radius:6px;background:#C4CBD1;display:grid;place-items:center;font-size:12px;font-weight:700;color:#5A6169">4</span><span style="font-size:15px;font-weight:700;color:#4A5057">Đăng ký — bước 3/3 · Xác nhận</span></div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:24px 22px;box-shadow:0 1px 0 #D8DDE1;margin-bottom:22px">
+        <div style="display:flex;gap:5px;margin-bottom:9px"><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div></div>
+        <div style="width:120px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:16px"></div>
+        <div style="width:78px;height:9px;border-radius:3px;background:#DFE4E7;margin-bottom:16px"></div>
+        <div style="width:60px;height:60px;border-radius:16px;background:#DCE0E3;display:grid;place-items:center;margin-bottom:16px"><div style="width:24px;height:18px;border-radius:4px;background:#B8BFC5"></div></div>
+        <div style="width:200px;height:20px;border-radius:4px;background:#C9CFD4;margin-bottom:16px"></div>
+        <div style="border:1.5px solid #D6DBDF;border-radius:11px;padding:13px;display:flex;align-items:center;gap:11px;margin-bottom:20px"><div style="width:36px;height:36px;border-radius:10px;background:#C4CBD1"></div><div style="flex:1"><div style="width:96px;height:9px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div><div style="width:130px;height:8px;border-radius:3px;background:#E7EAEC"></div></div><div style="width:66px;height:20px;border-radius:11px;background:#E4EBE6"></div></div>
+        <div style="height:48px;border-radius:10px;background:#B8BFC5;display:flex;align-items:center;justify-content:center"><div style="width:150px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:22px;height:22px;border-radius:6px;background:#C4CBD1;display:grid;place-items:center;font-size:12px;font-weight:700;color:#5A6169">5</span><span style="font-size:15px;font-weight:700;color:#4A5057">Quên mật khẩu</span></div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:22px 20px;box-shadow:0 1px 0 #D8DDE1;margin-bottom:14px">
+        <div style="width:50px;height:50px;border-radius:13px;background:#DCE0E3;display:grid;place-items:center;margin-bottom:16px"><div style="width:22px;height:22px;border-radius:6px;background:#C4CBD1"></div></div>
+        <div style="width:150px;height:18px;border-radius:4px;background:#C9CFD4;margin-bottom:9px"></div>
+        <div style="width:100%;height:8px;border-radius:3px;background:#E1E5E8;margin-bottom:16px"></div>
+        <div style="height:42px;border:1.5px dashed #C4CBD1;border-radius:9px;margin-bottom:14px;display:flex;align-items:center;padding:0 12px;gap:8px"><div style="width:15px;height:15px;border-radius:4px;background:#DCE0E3"></div><div style="width:120px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="height:46px;border-radius:9px;background:#B8BFC5;display:flex;align-items:center;justify-content:center"><div style="width:120px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:20px;box-shadow:0 1px 0 #D8DDE1;text-align:center">
+        <div style="width:50px;height:50px;border-radius:50%;background:#DCE0E3;margin:0 auto 14px;display:grid;place-items:center"><div style="width:22px;height:16px;border-radius:4px;background:#C4CBD1"></div></div>
+        <div style="width:150px;height:13px;border-radius:4px;background:#C9CFD4;margin:0 auto 10px"></div>
+        <div style="width:100%;height:8px;border-radius:3px;background:#E1E5E8;margin-bottom:5px"></div>
+        <div style="width:70%;height:8px;border-radius:3px;background:#E1E5E8;margin:0 auto"></div>
+      </div>
+      <div style="font-size:12px;color:#9AA0A6;margin-top:10px;line-height:1.55"><b>3/3</b>: thẻ tài khoản đã xác thực (câu chữ + avatar đổi theo kênh Zalo/Email), có <b>← Quay lại</b> và <b>"Đăng nhập vào App"</b>.<br><b>Quên MK</b>: chỉ ở đường Email → nhập email → gửi link (hiệu lực 15 phút) → màn xác nhận → "Về đăng nhập".</div>
+    </div>
+
+    <!-- 5 · POPUP KHAI BÁO BẮT BUỘC -->
+    <div style="width:330px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="width:22px;height:22px;border-radius:6px;background:#B8BFC5;display:grid;place-items:center;font-size:12px;font-weight:700;color:#4A5057">6</span><span style="font-size:15px;font-weight:700;color:#4A5057">Popup khai báo bắt buộc</span></div>
+      <div style="background:#fff;border:1.5px solid #B8BFC5;border-radius:14px;padding:22px 20px;box-shadow:0 1px 0 #D8DDE1;margin-bottom:22px">
+        <div style="display:flex;gap:5px;margin-bottom:14px"><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#E1E5E8"></div></div>
+        <div style="width:190px;height:16px;border-radius:4px;background:#C9CFD4;margin-bottom:14px"></div>
+        <div style="display:flex;gap:8px;margin-bottom:16px"><div style="flex:1;height:46px;border:1.5px solid #B8BFC5;border-radius:10px;padding:8px"><div style="width:60px;height:8px;border-radius:3px;background:#CFD5DA;margin-bottom:5px"></div><div style="width:44px;height:6px;border-radius:3px;background:#E1E5E8"></div></div><div style="flex:1;height:46px;border:1.5px dashed #C4CBD1;border-radius:10px;padding:8px"><div style="width:50px;height:8px;border-radius:3px;background:#E1E5E8;margin-bottom:5px"></div><div style="width:60px;height:6px;border-radius:3px;background:#EBEEF0"></div></div></div>
+        <div style="width:78px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div>
+        <div style="display:flex;gap:7px;margin-bottom:12px"><div style="flex:1;height:42px;border:1.5px dashed #C4CBD1;border-radius:9px"></div><div style="width:74px;height:42px;border-radius:9px;background:#8F979E"></div></div>
+        <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:8px;background:#EDF1EE;margin-bottom:14px"><div style="width:13px;height:13px;border-radius:50%;background:#B8C7BC"></div><div style="width:170px;height:7px;border-radius:3px;background:#CDD8D0"></div></div>
+        <div style="width:70px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div>
+        <div style="height:38px;border:1.5px solid #DDE1E4;border-radius:9px;background:#F3F4F5;margin-bottom:11px"></div>
+        <div style="width:52px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div>
+        <div style="height:38px;border:1.5px solid #DDE1E4;border-radius:9px;background:#F3F4F5;margin-bottom:11px"></div>
+        <div style="display:flex;gap:9px;margin-bottom:11px"><div style="flex:1"><div style="width:70px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div><div style="height:38px;border:1.5px solid #DDE1E4;border-radius:9px;background:#F3F4F5"></div></div><div style="flex:1"><div style="width:58px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div><div style="height:38px;border:1.5px solid #DDE1E4;border-radius:9px;background:#F3F4F5"></div></div></div>
+        <div style="display:flex;gap:9px;margin-bottom:18px"><div style="flex:1"><div style="width:80px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div><div style="height:38px;border:1.5px solid #DDE1E4;border-radius:9px;background:#F3F4F5"></div></div><div style="flex:1"><div style="width:56px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div><div style="height:38px;border:1.5px solid #DDE1E4;border-radius:9px;background:#F3F4F5"></div></div></div>
+        <div style="height:46px;border-radius:9px;background:#B8BFC5;display:flex;align-items:center;justify-content:center"><div style="width:90px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+      </div>
+      <div style="background:#fff;border:1.5px solid #B8BFC5;border-radius:14px;padding:22px 20px;box-shadow:0 1px 0 #D8DDE1">
+        <div style="display:flex;gap:5px;margin-bottom:14px"><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div><div style="flex:1;height:5px;border-radius:3px;background:#B8BFC5"></div></div>
+        <div style="width:210px;height:18px;border-radius:4px;background:#C9CFD4;margin-bottom:9px"></div>
+        <div style="width:100%;height:8px;border-radius:3px;background:#E1E5E8;margin-bottom:5px"></div>
+        <div style="width:76%;height:8px;border-radius:3px;background:#E1E5E8;margin-bottom:16px"></div>
+        <div style="width:110px;height:8px;border-radius:3px;background:#D6DBDF;margin-bottom:6px"></div>
+        <div style="height:86px;border:1.5px dashed #C4CBD1;border-radius:9px;margin-bottom:18px;padding:10px"><div style="width:88%;height:7px;border-radius:3px;background:#EBEEF0;margin-bottom:6px"></div><div style="width:64%;height:7px;border-radius:3px;background:#EBEEF0"></div></div>
+        <div style="height:46px;border-radius:9px;background:#B8BFC5;display:flex;align-items:center;justify-content:center"><div style="width:180px;height:11px;border-radius:3px;background:#fff;opacity:.7"></div></div>
+      </div>
+      <div style="font-size:12px;color:#9AA0A6;margin-top:10px;line-height:1.55">Phủ toàn màn (z-index 2000), <b>không có nút đóng</b>. B1: chọn loại → MST + <b>Tra cứu</b> (DN/Hộ KD) hoặc VNeID + nhập tay (Cá nhân) → các trường tự điền. B2: Lĩnh vực kinh doanh → "Hoàn tất &amp; vào Workspace".</div>
+    </div>
+
+  </div>
+
+  <!-- ===== ĐẶC TẢ NGHIỆP VỤ ===== -->
+  <div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">MÔ TẢ NGHIỆP VỤ CHI TIẾT</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:18px">
+    <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#4A5057;margin-bottom:4px">A · Đăng ký 3 bước</div>
+      <div style="font-size:13px;color:#9AA0A6;margin-bottom:14px">Rút gọn từ 5 bước — khai báo chuyển vào popup sau khi vào app.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.75">
+        <b>1/3 CHỌN CÁCH XÁC THỰC</b> — hai tab <i>Qua Zalo</i> / <i>Qua Email</i>. Nhãn ô đổi theo tab: "Số Zalo" hoặc "Email công ty". Nút CTA đổi nhãn: "Nhận mã kích hoạt qua Zalo / qua Email". Có 6 nút social đăng ký 1 chạm (bỏ qua bước 2–3, vào thẳng popup khai báo).<br>
+        <b>2/3 NHẬP MÃ XÁC THỰC</b> — 6 ô OTP. Hiển thị đúng <b>một</b> đích nhận mã theo kênh đã chọn. Có nút "Xác nhận mã"; nhập đủ 6 số cũng tự chuyển bước. Link đổi đích: "Đổi số" (Zalo) / "Đổi email" (Email).<br>
+        <b>3/3 XÁC NHẬN</b> — thẻ tài khoản đã xác thực; tiêu đề, phụ đề và màu avatar đổi theo kênh. Có <b>← Quay lại</b> (về bước 2) và <b>"Đăng nhập vào App"</b> → bật popup khai báo.<br>
+        <b>Đã loại bỏ</b>: lối thoát "Vào app, hoàn tất sau" ở mọi bước; hai bước cũ 4/5 và 5/5 (Thông tin DN, Định danh pháp lý) không còn nằm trong màn đăng ký.
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#4A5057;margin-bottom:4px">B · Đăng nhập — Zalo là mặc định</div>
+      <div style="font-size:13px;color:#9AA0A6;margin-bottom:14px">Không dùng tab; hai pane chuyển nhau bằng link văn bản.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.75">
+        <b>Pane Zalo (mặc định)</b> — nhập +84 ▸ số Zalo; nút "Nhận mã OTP qua Zalo" chỉ bật khi ≥ 9 chữ số → 6 ô OTP (có ← Đổi số) → "Xác nhận &amp; vào Workspace". Dưới có link <b>"Đăng nhập bằng email"</b>. Không cần mật khẩu.<br>
+        <b>Pane Email</b> — email + mật khẩu + Ghi nhớ 30 ngày → "Đăng nhập vào Workspace". Đầu màn có <b>← Đăng nhập qua Zalo</b>; có "Quên mật khẩu?" và 6 nút social.<br>
+        <b>Social login</b> (dùng chung): Google · Facebook · LinkedIn · ChatGPT · Gemini · DeepSeek — logo thật, lưới 3 nút/hàng, đặt dưới dòng chuyển màn. <i>Đã bỏ Zalo khỏi nhóm social</i> vì Zalo là phương thức chính.<br>
+        <b>Ngôn ngữ</b> — chọn ở footer form: 10 ngôn ngữ (Việt · English · Melayu · ไทย · Indonesia · Filipino · 日本語 · 한국어 · 中文 香港 · 中文 繁體).
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#4A5057;margin-bottom:4px">C · Khai báo bắt buộc (popup Onboarding)</div>
+      <div style="font-size:13px;color:#9AA0A6;margin-bottom:14px">Áp dụng cho <b>mọi</b> đường vào — logic nằm trong <code>login()</code>.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.75">
+        <b>Nhóm loại tài khoản</b> — <i>Doanh nghiệp / Hộ kinh doanh</i> là một nhóm; <i>Cá nhân</i> là nhóm riêng.<br>
+        <b>Bước 1 · DN / Hộ KD</b> — nhập <b>Mã số thuế</b> → nhấn <b>Tra cứu</b> → hệ thống trả và tự điền: Tên công ty · Địa chỉ · Người đại diện · Điện thoại · Ngày hoạt động · Tình trạng (mọi trường sửa được). Có banner "Đã tìm thấy".<br>
+        <b>Bước 1 · Cá nhân</b> — nhập <b>mã định danh / VNeID</b>, <b>không có nút Tra cứu</b>; các trường Họ và tên · Địa chỉ · Điện thoại hiện ngay để nhập tay (nền input sáng, có placeholder gợi ý).<br>
+        <b>Bước 2</b> — câu hỏi "Lĩnh vực kinh doanh của bạn?" (mô tả tự do) → dùng để gợi ý AI Agent, quy trình và mẫu trả lời phù hợp → nút <b>"Hoàn tất &amp; vào Workspace"</b>.<br>
+        <b>Chặn</b> — popup phủ toàn màn (z-index 2000), không nút đóng, không lối thoát. Nút bước 1 bật khi có tên; nút bước 2 bật khi đã nhập lĩnh vực. Nhãn bước và tiêu đề đổi theo loại tài khoản.
+      </div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#4A5057;margin-bottom:4px">D · Quên mật khẩu &amp; Trạng thái lưu</div>
+      <div style="font-size:13px;color:#9AA0A6;margin-bottom:14px">Chỉ áp dụng đường Email — Zalo OTP không dùng mật khẩu.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.75">
+        <b>Luồng</b> — Đăng nhập (pane Email) → "Quên mật khẩu?" → nhập email công ty → "Gửi link đặt lại" → màn xác nhận "Đã gửi email" (link hiệu lực <b>15 phút</b>) → "Về đăng nhập". Mọi màn đều có ← Quay lại.<br><br>
+        <b>Cờ trạng thái (localStorage)</b><br>
+        • <code>ac_authed</code> — đã đăng nhập.<br>
+        • <code>ac_declared</code> — đã hoàn tất khai báo (đặt một lần, dùng cho mọi lần đăng nhập sau).<br>
+        • <code>ac_onbpending</code> — đang nợ khai báo → bật popup khi vào app.<br><br>
+        <b>Hệ quả</b> — hoàn tất khai báo một lần thì các lần sau chỉ cần <b>SĐT Zalo → OTP → vào app</b>, không hỏi lại.
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:34px;background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;padding:20px 24px">
+    <div style="font-size:14px;font-weight:700;color:#4A5057;margin-bottom:10px">Thay đổi so với bản wireframe v1</div>
+    <div style="font-size:13.5px;color:#4A5057;line-height:1.8">
+      • Đăng ký <b>5 bước → 3 bước</b>; nhãn bước mới: CHỌN CÁCH XÁC THỰC · NHẬP MÃ XÁC THỰC · XÁC NHẬN.<br>
+      • Đăng nhập mặc định <b>Zalo · OTP</b> (trước là Email &amp; mật khẩu); chuyển pane bằng link, không dùng tab.<br>
+      • Khai báo DN/cá nhân <b>rời khỏi màn đăng ký</b>, chuyển hẳn vào popup chặn sau khi vào app.<br>
+      • <b>Xoá</b> phần chọn Nhóm ngành / Ngành cụ thể (chip + "Ngành khác"); thay bằng <b>Tra cứu MST</b> và ô <b>Lĩnh vực kinh doanh</b> tự do.<br>
+      • <b>Xoá</b> lối thoát "Vào app, hoàn tất sau" — khai báo là bắt buộc.<br>
+      • Tách nhóm loại tài khoản: <b>DN + Hộ KD</b> (có tra cứu) vs <b>Cá nhân</b> (nhập tay).<br>
+      • Social: bỏ Zalo, thêm ChatGPT · Gemini · DeepSeek; logo thật, lưới 3/hàng.
+    </div>
+  </div>
+<div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">USE CASE — TOÀN BỘ TRƯỜNG HỢP SỬ DỤNG</div><div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:900px;line-height:1.55">Toàn bộ trường hợp sử dụng của luồng xác thực: đăng ký, đăng nhập, xác thực OTP, đăng nhập mạng xã hội, quên mật khẩu và khai báo bắt buộc.</div><div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">A · ĐĂNG KÝ</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px"><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-01 · Đăng ký qua Zalo</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> chủ doanh nghiệp / cá nhân mới.<br><b>Luồng chính:</b> chọn <i>Qua Zalo</i> → nhập số Zalo (+84) → nút <i>Nhận mã kích hoạt qua Zalo</i> → nhập 6 số → xác nhận.<br><b>Ràng buộc:</b> nút chỉ bật khi số đủ 9 chữ số.<br><b>Kết quả:</b> tài khoản được tạo, chuyển sang khai báo bắt buộc.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-02 · Đăng ký qua Email</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> chọn <i>Qua Email</i> → nhập email công ty → <i>Nhận mã kích hoạt qua Email</i> → nhập mã.<br><b>Quy tắc:</b> toàn bộ câu chữ đổi theo kênh (tiêu đề "Đã xác thực email", link "Đổi email").<br><b>Ngoại lệ:</b> email sai định dạng → chặn gửi.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-03 · Đăng ký / đăng nhập 1 chạm (Social)</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Nhà cung cấp:</b> Google · Facebook · LinkedIn · ChatGPT · Gemini · DeepSeek (lưới 3 nút / hàng, logo thật).<br><b>Luồng chính:</b> chọn nhà cung cấp → uỷ quyền → vào App.<br><b>Kết quả:</b> bỏ qua bước OTP, vẫn phải khai báo nếu chưa có.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-04 · Nhập mã xác thực</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> 6 ô mã → tự chuyển bước khi đủ số, hoặc bấm <i>Xác nhận mã</i>.<br><b>Ngoại lệ:</b> mã sai/hết hạn → thông báo, giữ nguyên bước.<br><b>Kết quả:</b> hiện thẻ "Đã xác thực" kèm đúng kênh và đích nhận mã.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-05 · Gửi lại mã · đổi số/email</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> đợi đếm ngược → <i>Gửi lại</i>; hoặc bấm <i>Đổi số</i> / <i>Đổi email</i> để về bước nhập.<br><b>Quy tắc:</b> nhãn link đổi theo kênh đang dùng.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-12 · Chọn ngôn ngữ trước khi đăng nhập</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> mở bộ chọn ở màn xác thực → chọn trong 11 ngôn ngữ (cờ + tên bản địa) → toàn bộ giao diện đổi ngay.<br><b>Mặc định:</b> Tiếng Việt.</div></div></div><div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">B · ĐĂNG NHẬP</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px"><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-06 · Đăng nhập bằng Zalo OTP (mặc định)</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> nhập số Zalo → <i>Nhận mã OTP qua Zalo</i> → 6 số → <i>Xác nhận &amp; vào Workspace</i>.<br><b>Ưu điểm:</b> không cần mật khẩu.<br><b>Luồng phụ:</b> link <i>Đăng nhập bằng email</i> để chuyển phương thức.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-07 · Đăng nhập bằng Email &amp; mật khẩu</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> nhập email + mật khẩu → tuỳ chọn <i>Ghi nhớ 30 ngày</i> → <i>Đăng nhập vào Workspace</i>.<br><b>Luồng phụ:</b> <i>← Đăng nhập qua Zalo</i> để quay lại phương thức mặc định.<br><b>Ngoại lệ:</b> sai thông tin → báo lỗi, không tiết lộ email có tồn tại hay không.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-08 · Quên mật khẩu</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Điều kiện:</b> chỉ áp dụng cho đường Email.<br><b>Luồng chính:</b> <i>Quên mật khẩu?</i> → nhập email → <i>Gửi link đặt lại</i> → màn xác nhận đã gửi (link hiệu lực 15 phút) → <i>Về đăng nhập</i>.<br><b>Ngoại lệ:</b> email không tồn tại → vẫn hiện màn xác nhận (chống dò tài khoản).</div></div></div><div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">C · KHAI BÁO BẮT BUỘC SAU ĐĂNG NHẬP</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px"><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-09 · Khai báo Doanh nghiệp / Hộ kinh doanh</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Kích hoạt:</b> cờ <code>ac_declared</code> chưa bật.<br><b>Luồng chính:</b> chọn loại → nhập <b>MST</b> → <i>Tra cứu</i> → hệ thống tự điền Tên công ty · Địa chỉ · Người đại diện · Điện thoại · Ngày hoạt động · Tình trạng (đều sửa được) → <i>Tiếp tục</i>.<br><b>Ràng buộc:</b> phải tra cứu thành công và có tên mới bật nút.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-10 · Khai báo Cá nhân</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> chọn <i>Cá nhân</i> → nhập <b>mã định danh / VNeID</b> → nhập tay Họ tên · Địa chỉ · Điện thoại (không có nút Tra cứu) → <i>Tiếp tục</i>.<br><b>Khác biệt:</b> input nền sáng + placeholder gợi ý thay vì ô chỉ đọc.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-11 · Khai báo lĩnh vực kinh doanh</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> mô tả tự do lĩnh vực đang kinh doanh → <i>Hoàn tất &amp; vào Workspace</i>.<br><b>Mục đích:</b> AppChat dùng để gợi ý AI Agent, quy trình và mẫu trả lời phù hợp.<br><b>Kết quả:</b> bật <code>ac_declared</code> — các lần đăng nhập sau vào thẳng app.</div></div><div class="box" style="padding:20px 22px"><div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-13 · Chặn vào app khi chưa khai báo</div><div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Quy tắc:</b> áp dụng cho <b>mọi</b> đường đăng nhập (Zalo OTP · Email · 6 nút social).<br><b>Hành vi:</b> popup phủ toàn màn (z-index cao nhất), không có nút đóng, không có lối "hoàn tất sau".<br><b>Kết quả:</b> chỉ vào Workspace khi hoàn tất đủ 2 bước.</div></div></div><div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">FLOWCHART — LUỒNG XÁC THỰC &amp; KHAI BÁO</div><div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:900px;line-height:1.55">Từ lúc mở AppChat đến khi vào Workspace. Ba nhánh vào (đăng ký · đăng nhập · social) hợp nhất tại điểm xác thực, sau đó bắt buộc qua cửa khai báo doanh nghiệp/cá nhân.</div><div class="box" style="margin-top:18px;padding:28px 24px"><svg viewBox="0 0 1340 1250" style="width:100%;height:auto;display:block;font-family:inherit"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker></defs><g fill="none" stroke="#C4CBD1" stroke-width="1.8"><path d="M670,54 V96" marker-end="url(#ar)"/><path d="M540,140 H340 V222" stroke="#C4CBD1"/><path d="M340,222 V226" marker-end="url(#ar)"/><path d="M800,140 H1000 V222"/><path d="M1000,222 V226" marker-end="url(#ar)"/><path d="M340,282 V326" marker-end="url(#ar)"/><path d="M340,382 V426" marker-end="url(#ar)"/><path d="M180,454 H144" marker-end="url(#ar)" stroke="#DDBEBB"/><path d="M74,424 V354 H176" marker-end="url(#ar)" stroke-dasharray="5 4"/><path d="M1000,282 V326" marker-end="url(#ar)"/><path d="M1000,382 V426" marker-end="url(#ar)"/><path d="M1160,354 H1245" marker-end="url(#ar)" stroke="#DDBEBB"/><path d="M340,482 V540"/><path d="M1000,482 V540"/><path d="M340,540 H1000"/><path d="M670,540 V576" marker-end="url(#ar)"/><path d="M670,664 V706" marker-end="url(#ar)"/><path d="M670,756 V796" marker-end="url(#ar)"/><path d="M820,844 H1160 V1210" stroke="#C4CBD1"/><path d="M1160,1210 H842" marker-end="url(#ar)"/><path d="M670,890 V930" marker-end="url(#ar)"/><path d="M670,930 H460"/><path d="M670,930 H900"/><path d="M460,930 V952" marker-end="url(#ar)"/><path d="M900,930 V952" marker-end="url(#ar)"/><path d="M460,1016 V1050"/><path d="M900,1016 V1050"/><path d="M460,1050 H900"/><path d="M670,1050 V1084" marker-end="url(#ar)"/><path d="M670,1145 V1190" marker-end="url(#ar)"/></g><g text-anchor="middle"><rect x="510" y="14" width="320" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/><text x="670" y="38" font-size="13.5" font-weight="700" fill="#2F7D4C">BẮT ĐẦU · Mở AppChat</text><path d="M670,96 L800,140 L670,184 L540,140 Z" fill="#EAF6EF"/><text x="670" y="144" font-size="12.4" font-weight="700" fill="#2F7D4C">Đã có tài khoản?</text><text x="430" y="132" font-size="11.5" font-weight="700" fill="#8A9096" text-anchor="middle">KHÔNG · đăng ký</text><text x="910" y="132" font-size="11.5" font-weight="700" fill="#3A9D5D" text-anchor="middle">CÓ · đăng nhập</text><rect x="180" y="226" width="320" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="340" y="249.5" font-size="12.4" font-weight="600" fill="#4A5057">Chọn cách xác thực: Zalo / Email</text><text x="340" y="266.5" font-size="11" font-weight="700" fill="#9AA0A6">UC-01 · UC-02</text><rect x="180" y="326" width="320" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="340" y="349.5" font-size="12.4" font-weight="600" fill="#4A5057">Nhập số Zalo / email công ty</text><text x="340" y="366.5" font-size="11" font-weight="600" fill="#9AA0A6">nút "Nhận mã kích hoạt qua …"</text><rect x="180" y="426" width="320" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="340" y="449.5" font-size="12.4" font-weight="600" fill="#4A5057">Nhập mã xác thực 6 số</text><text x="340" y="466.5" font-size="11" font-weight="700" fill="#9AA0A6">UC-04 · tự chuyển bước khi đủ số</text><rect x="8" y="424" width="132" height="60" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/><text x="74" y="445" font-size="11.4" font-weight="700" fill="#A8544F">Gửi lại mã</text><text x="74" y="461" font-size="11.4" font-weight="700" fill="#A8544F">đổi số · email</text><text x="74" y="476" font-size="10.5" font-weight="700" fill="#C08A85">UC-05</text><rect x="840" y="226" width="320" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="1000" y="249.5" font-size="12.4" font-weight="600" fill="#4A5057">Zalo · OTP (mặc định)</text><text x="1000" y="266.5" font-size="11" font-weight="700" fill="#9AA0A6">UC-06</text><rect x="840" y="326" width="320" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="1000" y="349.5" font-size="12.4" font-weight="600" fill="#4A5057">Email + mật khẩu · ghi nhớ 30 ngày</text><text x="1000" y="366.5" font-size="11" font-weight="700" fill="#9AA0A6">UC-07</text><rect x="840" y="426" width="320" height="56" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/><text x="1000" y="449.5" font-size="12.4" font-weight="600" fill="#4A5057">Social 1 chạm (6 nhà cung cấp)</text><text x="1000" y="466.5" font-size="11" font-weight="700" fill="#9AA0A6">UC-03</text><rect x="1245" y="328" width="90" height="52" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/><text x="1290" y="349.5" font-size="11.5" font-weight="700" fill="#A8544F">Quên MK</text><text x="1290" y="366.5" font-size="11" font-weight="700" fill="#C08A85">UC-08</text><path d="M670,576 L810,620 L670,664 L530,620 Z" fill="#EAF6EF"/><text x="670" y="624" font-size="12.4" font-weight="700" fill="#2F7D4C">Xác thực thành công?</text><text x="700" y="690" font-size="11.5" font-weight="700" fill="#3A9D5D" text-anchor="middle">CÓ</text><rect x="500" y="712" width="340" height="44" rx="8" fill="#fff" stroke="#C4CBD1" stroke-width="1.5"/><text x="670" y="738" font-size="13" font-weight="700" fill="#3A3F44">Đăng nhập vào App</text><path d="M670,798 L820,844 L670,890 L520,844 Z" fill="#EAF6EF"/><text x="670" y="839.5" font-size="12.4" font-weight="700" fill="#2F7D4C">Đã khai báo</text><text x="670" y="856.5" font-size="12.4" font-weight="700" fill="#2F7D4C">doanh nghiệp?</text><text x="990" y="836" font-size="11.5" font-weight="700" fill="#3A9D5D" text-anchor="middle">CÓ · vào thẳng</text><text x="700" y="918" font-size="11.5" font-weight="700" fill="#A8544F" text-anchor="middle">CHƯA</text><rect x="280" y="952" width="360" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="460" y="971" font-size="12.4" font-weight="600" fill="#4A5057">Popup B1 · Doanh nghiệp / Hộ KD</text><text x="460" y="988" font-size="11.6" font-weight="600" fill="#8A9096">MST → Tra cứu → tự điền 6 trường</text><text x="460" y="1005" font-size="11" font-weight="700" fill="#9AA0A6">UC-09</text><rect x="720" y="952" width="360" height="64" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="900" y="971" font-size="12.4" font-weight="600" fill="#4A5057">Popup B1 · Cá nhân</text><text x="900" y="988" font-size="11.6" font-weight="600" fill="#8A9096">VNeID → nhập tay (tên · địa chỉ · SĐT)</text><text x="900" y="1005" font-size="11" font-weight="700" fill="#9AA0A6">UC-10</text><rect x="460" y="1087" width="420" height="58" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/><text x="670" y="1111.5" font-size="12.6" font-weight="600" fill="#4A5057">Popup B2 · Lĩnh vực kinh doanh</text><text x="670" y="1128.5" font-size="11" font-weight="700" fill="#9AA0A6">UC-11 · bắt buộc mới vào được Workspace</text><rect x="500" y="1190" width="340" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/><text x="670" y="1214" font-size="13.5" font-weight="700" fill="#2F7D4C">KẾT THÚC · Vào Workspace</text></g></svg></div><div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:#8A9096;align-items:center"><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #C4CBD1;border-radius:4px;background:#F5F6F7"></span>Bước xử lý</span><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:20px;height:20px;background:#EAF6EF;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></span>Điểm quyết định</span><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFE3CE;border-radius:9px;background:#EAF6EF"></span>Bắt đầu / Kết thúc</span><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #F0C9C9;border-radius:4px;background:#FBEDED"></span>Ngoại lệ · cần người can thiệp</span><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px dashed #C4CBD1;border-radius:4px;background:#FAFBFB"></span>Bước tuỳ chọn</span></div>
+</div>
+
+</x-dc>
+</body>
+</html>

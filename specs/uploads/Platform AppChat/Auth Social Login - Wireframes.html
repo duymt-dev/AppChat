@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · Wireframe — Đăng nhập/Đăng ký qua Zalo · Google · Facebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2B2B;--ink2:#5A5A5A;--ink3:#8C8C8C;--paper:#FAF8F2;--card:#FFFFFF;
+  --line:#9A958A;--line2:#CFC9BC;--pen:#D6453B;--pen2:#2B6FB8;
+  --zalo:#0068FF;--fb:#1877F2;
+  --doodle:255px 12px 225px 14px/14px 225px 14px 255px;
+  --doodle2:14px 220px 16px 240px/230px 16px 240px 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);
+  background:var(--paper);
+  background-image:radial-gradient(var(--line2) 1px, transparent 1px);
+  background-size:22px 22px;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.hand{font-family:'Caveat',cursive}
+
+/* Top toolbar */
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:14px 26px;background:rgba(250,248,242,.9);backdrop-filter:blur(8px);border-bottom:2px dashed var(--line2)}
+.bar .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.bar .logo .m{width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:15px;transform:rotate(-4deg)}
+.bar .ttl{font-size:13px;color:var(--ink2);max-width:330px;line-height:1.35}
+.bar .ttl b{color:var(--ink)}
+.spacer{flex:1}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:11px;overflow:hidden;background:var(--card)}
+.seg button{border:none;background:transparent;font-family:inherit;font-weight:700;font-size:13px;padding:8px 16px;cursor:pointer;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2);cursor:pointer;font-weight:600}
+.chk input{width:16px;height:16px;accent-color:var(--pen)}
+
+.intro{padding:22px 30px 4px;max-width:1280px;margin:0 auto}
+.intro .k{font-family:'Caveat';font-size:30px;font-weight:700;transform:rotate(-1deg);display:inline-block}
+.intro p{font-size:13.5px;color:var(--ink2);max-width:760px;margin-top:4px}
+.intro .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--ink2)}
+.intro .legend span{display:inline-flex;align-items:center;gap:7px}
+.swatch{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--ink)}
+
+/* Grid of frames */
+.wrap{max-width:1280px;margin:0 auto;padding:18px 30px 80px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:30px 26px;align-items:start}
+.frame{position:relative}
+.tag{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.tag .num{width:26px;height:26px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;font-family:'Caveat';transform:rotate(-6deg)}
+.tag .nm{font-family:'Caveat';font-size:23px;font-weight:700;line-height:1}
+.tag .nm small{display:block;font-family:'Plus Jakarta Sans';font-size:10.5px;font-weight:600;color:var(--ink3);letter-spacing:.02em;margin-top:1px}
+
+.card{background:var(--card);border:2.5px solid var(--ink);border-radius:var(--doodle);
+  padding:22px 20px;box-shadow:5px 6px 0 rgba(43,43,43,.10)}
+.frame:nth-child(even) .card{border-radius:var(--doodle2)}
+.applogo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;margin-bottom:14px}
+.applogo .m{width:24px;height:24px;border-radius:6px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:12px}
+.h1{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px}
+.sub{font-size:11.5px;color:var(--ink3);margin-bottom:16px;line-height:1.4}
+
+/* sketchy social button */
+.sbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;height:42px;
+  border:2px solid var(--ink);border-radius:13px 9px 13px 9px;background:var(--card);
+  font-weight:700;font-size:13px;cursor:default;color:var(--ink)}
+.sbtn.pri{border-radius:11px 13px 10px 13px;box-shadow:3px 3px 0 var(--ink);font-size:14px;height:46px}
+.sbtn.sm{height:38px;font-size:12px}
+.sbtn .gl{flex-shrink:0}
+.srow{display:flex;gap:9px}
+.srow .sbtn{flex:1}
+.stack{display:flex;flex-direction:column;gap:9px}
+
+/* brand glyphs (only colored bits) */
+.gl{width:20px;height:20px;display:grid;place-items:center;border-radius:5px;font-weight:900;font-size:12px}
+.gl.zalo{background:var(--zalo);color:#fff;border-radius:6px}
+.gl.fb{background:var(--fb);color:#fff;border-radius:50%;font-family:Georgia,serif}
+.gl.g{background:#fff;border:1.5px solid var(--line2)}
+.iconbtn{width:46px;height:46px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;background:var(--card)}
+.iconbtn .gl{width:22px;height:22px;font-size:13px}
+
+.divider{display:flex;align-items:center;gap:9px;margin:15px 0;color:var(--ink3);font-size:10px;font-weight:700;letter-spacing:.06em}
+.divider::before,.divider::after{content:'';flex:1;height:0;border-top:2px dashed var(--line2)}
+
+.field{margin-bottom:11px}
+.flab{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:4px}
+.fbox{height:40px;border:2px solid var(--line);border-radius:9px 7px 9px 7px;background:#FCFBF7;
+  display:flex;align-items:center;padding:0 11px;gap:8px;color:var(--ink3);font-size:12.5px}
+.fbox .ph{width:54%;height:8px;background:var(--line2);border-radius:4px}
+.cta{width:100%;height:46px;border:2px solid var(--ink);border-radius:12px 10px 13px 9px;
+  background:var(--ink);color:var(--paper);font-weight:800;font-size:13.5px;display:grid;place-items:center;
+  box-shadow:3px 3px 0 rgba(43,43,43,.25);margin-top:4px;cursor:default}
+.foot{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:13px}
+.foot u{color:var(--ink);text-decoration-style:wavy}
+.tlink{display:inline-block;font-size:12px;font-weight:700;color:var(--ink);border-bottom:2px solid var(--line);padding-bottom:1px;margin-top:2px}
+
+/* pencil annotations */
+.anno{font-family:'Caveat';font-size:17px;color:var(--pen);line-height:1.15;margin-top:12px;
+  display:flex;gap:7px;align-items:flex-start}
+.anno::before{content:'✎';font-family:'Plus Jakarta Sans';font-size:13px;transform:translateY(1px)}
+.anno.b2{color:var(--pen2)}
+.tip{font-family:'Caveat';font-size:16px;color:var(--ink2);transform:rotate(-1.5deg);margin:6px 0 0 4px}
+body.noanno .anno,body.noanno .tip{display:none}
+
+.note{max-width:1280px;margin:0 auto;padding:0 30px 60px}
+.note .box{border:2.5px solid var(--ink);border-radius:var(--doodle);background:#FFFDF6;padding:18px 20px;box-shadow:5px 6px 0 rgba(43,43,43,.10)}
+.note .box h4{font-family:'Caveat';font-size:24px;font-weight:700;margin-bottom:6px}
+.note .box ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.note .box li{font-size:13px;color:var(--ink2);padding-left:20px;position:relative}
+.note .box li::before{content:'→';position:absolute;left:0;color:var(--pen)}
+.note .box li b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+  <div class="bar">
+    <div class="logo"><div class="m">A</div>App<span style="color:var(--ink3)">Chat</span></div>
+    <div class="ttl">Wireframe · <b>Đăng nhập / Đăng ký</b> qua Zalo · Google · Facebook</div>
+    <div class="spacer"></div>
+    <div class="seg" id="seg">
+      <button class="on" data-mode="login">Đăng nhập</button>
+      <button data-mode="register">Đăng ký</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="annoTgl" checked> Chú thích</label>
+  </div>
+
+  <div class="intro">
+    <div class="k">5 hướng bố cục — chọn 1 để dựng hi-fi</div>
+    <p>Bản phác thô để so sánh cách sắp xếp 3 nút mạng xã hội với form email. Chỉ logo thương hiệu được tô màu; phần còn lại giữ b&amp;w cho dễ tập trung vào cấu trúc &amp; luồng.</p>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--zalo)"></span> Zalo</span>
+      <span><span class="swatch g" style="border-color:var(--line2)">G</span> Google</span>
+      <span><span class="swatch" style="background:var(--fb)"></span> Facebook</span>
+      <span style="color:var(--pen);font-weight:700">✎ = ghi chú đánh giá</span>
+    </div>
+  </div>
+
+  <div class="wrap" id="wrap"></div>
+
+  <div class="note">
+    <div class="box">
+      <h4>Gợi ý chọn hướng</h4>
+      <ul>
+        <li><b>A — Zalo ưu tiên:</b> hợp nhất với thị trường VN, tỉ lệ chuyển đổi đăng nhập cao nhất. Khuyến nghị mặc định.</li>
+        <li><b>C — Social-first (không mật khẩu):</b> nhanh nhất, ít ma sát; phù hợp đăng ký dùng thử. Email ẩn sau link.</li>
+        <li><b>D — Email chính:</b> giữ cho khách doanh nghiệp đã quen email/SSO; social là phụ.</li>
+        <li>Nói cho tôi hướng bạn thích (A–E) — tôi sẽ dựng bản hi-fi đúng Design System &amp; thay vào <b>components/auth.jsx</b>.</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+const G = {
+  zalo: '<span class="gl zalo">Z</span>',
+  g:    '<span class="gl g"><svg viewBox="0 0 24 24" width="13" height="13"><path fill="#4285F4" d="M21.35 11.1H12v3.18h5.59c-.56 2.67-2.82 4.12-5.59 4.12-3.36 0-6.09-2.73-6.09-6.09S8.64 6.22 12 6.22c1.51 0 2.88.55 3.95 1.46l2.37-2.37C16.9 3.95 14.59 3 12 3 6.98 3 3 6.98 3 12s3.98 9 9 9c5.18 0 8.68-3.64 8.68-8.77 0-.41-.04-.81-.11-1.13z"/></svg></span>',
+  fb:   '<span class="gl fb">f</span>',
+};
+const field = (lab) => `<div class="field"><div class="flab">${lab}</div><div class="fbox"><div class="ph"></div></div></div>`;
+
+// per-mode copy
+const COPY = {
+  login:   {h:'Đăng nhập', sub:'Vào Workspace để điều hành hội thoại đa kênh.', cta:'Đăng nhập', foot:'Chưa có tài khoản? <u>Đăng ký dùng thử</u>', verb:'Tiếp tục với', vbShort:''},
+  register:{h:'Đăng ký dùng thử', sub:'14 ngày · không cần thẻ · đầy đủ tính năng.', cta:'Tạo tài khoản', foot:'Đã có tài khoản? <u>Đăng nhập</u>', verb:'Đăng ký với', vbShort:''},
+};
+
+function frames(mode){
+  const c = COPY[mode];
+  const head = `<div class="applogo"><div class="m">A</div>AppChat</div><div class="h1">${c.h}</div><div class="sub">${c.sub}</div>`;
+  const emailBlock = field('Email công ty') + field('Mật khẩu') + `<div class="cta">${c.cta}</div>`;
+
+  return [
+    { n:'A', nm:'Zalo ưu tiên', sm:'1 nút lớn + 2 phụ', anno:['Zalo to & full-width — kênh quen thuộc nhất với người Việt, đặt trên cùng để tối ưu chuyển đổi.'], cls:'',
+      body: head
+        + `<div class="sbtn pri">${G.zalo} ${c.verb} Zalo</div>`
+        + `<div class="srow" style="margin-top:9px">`
+          + `<div class="sbtn">${G.g} Google</div>`
+          + `<div class="sbtn">${G.fb} Facebook</div>`
+        + `</div>`
+        + `<div class="divider">HOẶC DÙNG EMAIL</div>`
+        + emailBlock
+        + `<div class="foot">${c.foot}</div>`
+    },
+    { n:'B', nm:'3 nút bằng nhau', sm:'1 hàng cân đối', anno:['Ba nền tảng ngang hàng — gọn 1 dòng, không thiên vị. Logo + nhãn ngắn.'], b2:true, cls:'',
+      body: head
+        + `<div class="srow">`
+          + `<div class="sbtn sm">${G.zalo} Zalo</div>`
+          + `<div class="sbtn sm">${G.g} Google</div>`
+          + `<div class="sbtn sm">${G.fb} Facebook</div>`
+        + `</div>`
+        + `<div class="divider">HOẶC DÙNG EMAIL</div>`
+        + emailBlock
+        + `<div class="foot">${c.foot}</div>`
+    },
+    { n:'C', nm:'Social-first', sm:'không mật khẩu', anno:['Nhanh nhất, ít ma sát nhất. 3 nút xếp dọc; email ẩn sau link nhỏ bên dưới.'], cls:'',
+      body: head
+        + `<div class="stack">`
+          + `<div class="sbtn pri">${G.zalo} ${c.verb} Zalo</div>`
+          + `<div class="sbtn">${G.g} ${c.verb} Google</div>`
+          + `<div class="sbtn">${G.fb} ${c.verb} Facebook</div>`
+        + `</div>`
+        + `<div style="text-align:center;margin-top:15px"><span class="tlink">Dùng email &amp; mật khẩu →</span></div>`
+        + `<div class="foot" style="margin-top:18px">${c.foot}</div>`
+    },
+    { n:'D', nm:'Email chính', sm:'social là phụ', anno:['Cho khách doanh nghiệp quen email/SSO. Social rút thành hàng icon tròn ở dưới.'], b2:true, cls:'',
+      body: head
+        + emailBlock
+        + `<div class="divider">HOẶC TIẾP TỤC VỚI</div>`
+        + `<div class="srow" style="justify-content:center;gap:14px">`
+          + `<div class="iconbtn">${G.zalo}</div>`
+          + `<div class="iconbtn">${G.g}</div>`
+          + `<div class="iconbtn">${G.fb}</div>`
+        + `</div>`
+        + `<div class="foot" style="margin-top:15px">${c.foot}</div>`
+    },
+    { n:'E', nm:'Zalo + Google nổi', sm:'Facebook phụ', anno:['Ưu tiên 2 kênh mạnh (Zalo, Google). Facebook nhỏ hơn cho khách quốc tế.'], cls:'',
+      body: head
+        + `<div class="stack">`
+          + `<div class="sbtn pri">${G.zalo} ${c.verb} Zalo</div>`
+          + `<div class="sbtn">${G.g} ${c.verb} Google</div>`
+        + `</div>`
+        + `<div class="sbtn sm" style="margin-top:9px;border-style:dashed;color:var(--ink2)">${G.fb} Facebook</div>`
+        + `<div class="divider">HOẶC DÙNG EMAIL</div>`
+        + emailBlock
+        + `<div class="foot">${c.foot}</div>`
+    },
+  ];
+}
+
+function render(mode){
+  const wrap = document.getElementById('wrap');
+  wrap.innerHTML = frames(mode).map(f => `
+    <div class="frame">
+      <div class="tag"><span class="num">${f.n}</span><span class="nm">${f.nm}<small>${f.sm.toUpperCase()}</small></span></div>
+      <div class="card">${f.body}</div>
+      ${f.anno.map(a=>`<div class="anno${f.b2?' b2':''}">${a}</div>`).join('')}
+    </div>`).join('');
+}
+
+let mode='login';
+render(mode);
+document.getElementById('seg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  mode=b.dataset.mode;
+  [...document.querySelectorAll('#seg button')].forEach(x=>x.classList.toggle('on', x===b));
+  render(mode);
+});
+document.getElementById('annoTgl').addEventListener('change', e=>{
+  document.body.classList.toggle('noanno', !e.target.checked);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEF0F2;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#157A40;text-decoration:none}a:hover{color:#0F5D30}
+  .box{background:#fff;border:1px solid #DDE1E4;border-radius:12px}
+  .th{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#9AA0A6;text-transform:uppercase}
+  .row:hover{background:#FAFBFB}
+  .btn:hover{background:#EAF6EF;border-color:#BFE3CE}
+  .nav:hover{background:#EAF6EF;color:#0F5D30}
+  .card{transition:border-color .15s,box-shadow .15s,transform .15s}
+  .card:hover{border-color:#BFE3CE;box-shadow:0 6px 20px rgba(15,42,28,.08);transform:translateY(-2px)}
+  .navbar::-webkit-scrollbar{height:0}
+  .navbar{scrollbar-width:none}
+  html{scroll-behavior:smooth}
+  @media (max-width:820px){ .navlbl{display:none} }
+</style>
+</helmet>
+
+<template id="__bundler_thumbnail" data-bg-color="#0F2A1C">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0F2A1C"/>
+    <rect x="290" y="150" width="620" height="72" rx="14" fill="#2DC56A"/>
+    <rect x="290" y="270" width="620" height="40" rx="10" fill="#3E7A5A"/>
+    <rect x="290" y="340" width="620" height="40" rx="10" fill="#3E7A5A"/>
+    <rect x="290" y="410" width="620" height="40" rx="10" fill="#3E7A5A"/>
+    <rect x="290" y="480" width="620" height="40" rx="10" fill="#28513C"/>
+    <rect x="290" y="550" width="620" height="40" rx="10" fill="#28513C"/>
+  </svg>
+</template>
+
+<div style="max-width:1420px;margin:0 auto;padding:0 0 0">
+
+  <!-- STICKY NAV -->
+  <div style="position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid #DDE1E4">
+    <div style="max-width:1420px;margin:0 auto;padding:0 22px;height:58px;display:flex;align-items:center;gap:10px">
+      <div onClick="{{ goBack }}" class="btn" style="display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 11px;border:1px solid #DDE1E4;border-radius:9px;background:#fff;cursor:pointer;font-size:12.8px;font-weight:700;color:#4A5057;flex-shrink:0">
+        <svg width="15" height="15" viewBox="0 0 24 24" style="stroke:#4A5057;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>
+        Quay lại
+      </div>
+      <span style="width:1px;height:22px;background:#E5E7EB;flex-shrink:0"></span>
+      <span style="width:26px;height:26px;border-radius:7px;background:#157A40;display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0">A</span>
+      <span style="font-size:14.5px;font-weight:800;color:#231F20;letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Mục lục tài liệu AppChat</span>
+      <span style="flex:1"></span>
+      <div class="navbar" style="display:flex;align-items:center;gap:3px;flex-shrink:0">
+        <sc-for list="{{ navs }}" as="n" hint-placeholder-count="6">
+          <a href="{{ n.href }}" class="nav" title="{{ n.no }} · {{ n.short }}" style="display:inline-flex;align-items:center;height:30px;padding:0 8px;border-radius:7px;font-size:12.2px;font-weight:700;color:#4A5057;white-space:nowrap"><span style="color:#6B7280;margin-right:5px;font-weight:800">{{ n.no }}</span><span class="navlbl">{{ n.short }}</span></a>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div style="position:relative;background:#0F2A1C;padding:66px 44px 58px;color:#fff;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 130% at 88% -10%, rgba(45,197,106,.5) 0%, rgba(21,122,64,.32) 38%, rgba(15,42,28,0) 72%)"></div>
+    <div style="position:absolute;right:-60px;bottom:-90px;width:340px;height:340px;border-radius:50%;border:1px solid rgba(184,240,220,.16)"></div>
+    <div style="position:absolute;right:20px;bottom:-40px;width:220px;height:220px;border-radius:50%;border:1px solid rgba(184,240,220,.12)"></div>
+    <div style="position:relative;max-width:1332px;margin:0 auto">
+      <div style="display:inline-flex;align-items:center;gap:9px;padding:6px 13px 6px 8px;border:1px solid rgba(184,240,220,.3);border-radius:999px;margin-bottom:26px">
+        <span style="width:22px;height:22px;border-radius:6px;background:#2DC56A;display:grid;place-items:center;font-size:12px;font-weight:800;color:#0F2A1C">A</span>
+        <span style="font-size:11.6px;font-weight:700;letter-spacing:.14em;color:#B8F0DC">THE ONE-PERSON COMPANY SOLUTION · MỤC LỤC TÀI LIỆU 2026</span>
+      </div>
+      <div style="font-size:46px;font-weight:800;letter-spacing:-.035em;line-height:1.08;margin-bottom:16px">Bộ hồ sơ năng lực<br>và thương hiệu AppChat</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+        <span style="width:36px;height:3px;background:#2DC56A;border-radius:2px"></span>
+        <span style="font-size:20px;font-weight:800;color:#B8F0DC;letter-spacing:-.2px">Một người. Một doanh nghiệp. Vận hành bằng AI.</span>
+      </div>
+      <div style="font-size:15.5px;line-height:1.7;max-width:820px;opacity:.95;text-wrap:pretty"><b>AppChat là giải pháp One-Person Company (OPC)</b>, giúp <b>một người</b> xây dựng, vận hành và phát triển doanh nghiệp với <b>đội ngũ AI Agents</b>.</div>
+      <div style="font-size:13.8px;line-height:1.7;max-width:820px;opacity:.72;margin-top:14px;text-wrap:pretty">Trang này là cổng truy cập toàn bộ hệ thống tài liệu AppChat. Các tài liệu được đánh số theo thứ tự đọc, phân loại theo nhóm và ghi rõ phiên bản mới nhất, phiên bản hiện hành, tài liệu triển khai và bản cũ lưu trữ.</div>
+    </div>
+  </div>
+
+  <div style="padding:36px 32px 100px;max-width:1420px;margin:0 auto">
+
+  <!-- STATS -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+    <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+      <div class="box" style="padding:22px 24px;border-top:4px solid {{ s.c }}">
+        <div style="font-size:34px;font-weight:800;letter-spacing:-.03em;color:{{ s.c }};line-height:1">{{ s.v }}</div>
+        <div style="font-size:13.5px;font-weight:700;color:#231F20;margin-top:8px">{{ s.l }}</div>
+        <div style="font-size:12px;color:#9AA0A6;margin-top:3px;line-height:1.45">{{ s.d }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- ĐỊNH VỊ CHUẨN -->
+  <div style="margin-top:44px;display:flex;align-items:flex-end;gap:14px">
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">ĐỊNH VỊ CHUẨN · DÙNG THỐNG NHẤT TOÀN BỘ TÀI LIỆU</div>
+      <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:900px;line-height:1.55">Ba tầng dùng cho ba mục đích khác nhau — không thay thế nhau, không trộn lẫn. Mọi tiêu đề, thông điệp và nội dung trong các nhóm bên dưới đều phải bám hệ thống này.</div>
+    </div>
+    <a href="AppChat-Positioning-System.dc.html" class="btn" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border:1px solid #DDE1E4;border-radius:9px;background:#fff;font-size:12.6px;font-weight:700;color:#157A40;white-space:nowrap;flex-shrink:0">Xem tài liệu đầy đủ
+      <svg width="13" height="13" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M9 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
+    <div class="box" style="padding:22px 24px;border-top:4px solid #157A40">
+      <div style="font-size:11.2px;font-weight:800;letter-spacing:.1em;color:#157A40;margin-bottom:11px">TẦNG 1 · CATEGORY</div>
+      <div style="font-size:17px;font-weight:800;color:#231F20;line-height:1.42;margin-bottom:12px">AppChat là giải pháp One-Person Company (OPC).</div>
+      <div style="font-size:12.4px;color:#8A9096;line-height:1.6">Giới thiệu một câu · tiêu đề trang · slide bìa · câu trả lời “AppChat là gì”.</div>
+    </div>
+    <div class="box" style="padding:22px 24px;border-top:4px solid #2DC56A">
+      <div style="font-size:11.2px;font-weight:800;letter-spacing:.1em;color:#157A40;margin-bottom:11px">TẦNG 2 · ĐỊNH NGHĨA CHÍNH THỨC</div>
+      <div style="font-size:14.6px;font-weight:700;color:#231F20;line-height:1.5;margin-bottom:12px">AppChat là giải pháp One-Person Company (OPC), giúp một người xây dựng, vận hành và phát triển doanh nghiệp với đội ngũ AI&nbsp;Agents.</div>
+      <div style="font-size:12.4px;color:#8A9096;line-height:1.6">Website · hồ sơ năng lực · proposal · tài liệu giới thiệu sản phẩm.</div>
+    </div>
+    <div class="box" style="padding:22px 24px;border-top:4px solid #B8F0DC">
+      <div style="font-size:11.2px;font-weight:800;letter-spacing:.1em;color:#157A40;margin-bottom:11px">TẦNG 3 · THÔNG ĐIỆP TRUYỀN THÔNG</div>
+      <div style="font-size:18px;font-weight:800;color:#231F20;line-height:1.36">Một người. Một doanh nghiệp.<br>Vận hành bằng AI.</div>
+      <div style="font-size:13px;font-weight:700;color:#157A40;margin:7px 0 12px">One Person. One Company. Powered by AI.</div>
+      <div style="font-size:12.4px;color:#8A9096;line-height:1.6">Quảng cáo · standee · backdrop · social · video · sự kiện.</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px;margin-top:16px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:13.6px;font-weight:800;color:#A8544F;margin-bottom:8px">⚠ Không dùng “OPC” đứng riêng trong tiêu đề chính</div>
+      <div style="font-size:12.8px;color:#4A5057;line-height:1.7">Dễ nhầm với thương hiệu hiện hữu (Dược phẩm OPC). Luôn viết đủ <b>Doanh nghiệp Một Người – One Person Company (OPC)</b>; chỉ rút gọn ở thân bài sau khi đã nêu đủ một lần.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:13.6px;font-weight:800;color:#231F20;margin-bottom:10px">Lockup thống nhất</div>
+      <div style="background:#0F2A1C;border-radius:9px;padding:16px 18px;text-align:center">
+        <div style="font-size:17px;font-weight:800;color:#fff;letter-spacing:.02em">APPCHAT</div>
+        <div style="font-size:12.6px;font-weight:700;color:#B8F0DC;margin-top:3px">The One-Person Company Solution</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box" style="padding:22px 24px;margin-top:16px">
+    <div style="font-size:13.6px;font-weight:800;color:#231F20;margin-bottom:5px">Kiến trúc logic của AppChat</div>
+    <div style="font-size:12.6px;color:#8A9096;line-height:1.6;margin-bottom:16px">Trật tự này quyết định cách nói về sản phẩm: <b>OPC là mô hình</b>, AppChat là giải pháp vận hành mô hình đó, bên dưới là ba lớp. Không đảo thứ tự.</div>
+
+    <div style="background:#0F2A1C;border-radius:9px;padding:13px;text-align:center;margin-bottom:9px">
+      <div style="font-size:15px;font-weight:800;color:#fff">One-Person Company (OPC)</div>
+      <div style="font-size:11.8px;font-weight:600;color:#B8F0DC;margin-top:2px">mô hình doanh nghiệp</div>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#C4CBD1;line-height:1;margin-bottom:9px">↓</div>
+    <div style="background:#157A40;border-radius:9px;padding:13px;text-align:center;margin-bottom:9px">
+      <div style="font-size:15px;font-weight:800;color:#fff">AppChat</div>
+      <div style="font-size:11.8px;font-weight:600;color:#B8F0DC;margin-top:2px">giải pháp hiện thực hoá và vận hành OPC · category AppChat sở hữu</div>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#C4CBD1;line-height:1;margin-bottom:9px">↓</div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="border:1px solid #DDE1E4;border-radius:9px;padding:14px 15px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.09em;color:#157A40;margin-bottom:6px">LỚP 1 · LỰC LƯỢNG AI</div>
+        <div style="font-size:12.6px;font-weight:700;color:#231F20;line-height:1.55">AI Assistant · AI Agents · Con người điều hành</div>
+        <div style="font-size:11.8px;color:#9AA0A6;line-height:1.55;margin-top:6px">Vai trò thực thi — AI trực tiếp hoàn thành từng công việc cụ thể.</div>
+      </div>
+      <div style="border:1px solid #DDE1E4;border-radius:9px;padding:14px 15px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.09em;color:#157A40;margin-bottom:6px">LỚP 2 · NỀN TẢNG ĐIỀU PHỐI</div>
+        <div style="font-size:12.6px;font-weight:700;color:#231F20;line-height:1.55">Knowledge · Workflows · Analytics</div>
+        <div style="font-size:11.8px;color:#9AA0A6;line-height:1.55;margin-top:6px">Đảm bảo AI làm đúng dữ liệu, đúng quy trình và luôn kiểm soát được.</div>
+      </div>
+      <div style="border:1px solid #DDE1E4;border-radius:9px;padding:14px 15px">
+        <div style="font-size:10.6px;font-weight:800;letter-spacing:.09em;color:#157A40;margin-bottom:6px">LỚP 3 · HỆ SINH THÁI ỨNG DỤNG</div>
+        <div style="font-size:12.6px;font-weight:700;color:#231F20;line-height:1.55">Omnichannel · Ứng dụng nghiệp vụ · Broadcast</div>
+        <div style="font-size:11.8px;color:#9AA0A6;line-height:1.55;margin-top:6px">Nơi AI hoàn thành công việc — kết nối khách hàng, dữ liệu và kinh doanh.</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#C4CBD1;line-height:1;margin:9px 0">↓</div>
+    <div style="background:#F5F6F7;border:1px solid #DDE1E4;border-radius:9px;padding:13px;text-align:center">
+      <div style="font-size:10.6px;font-weight:800;letter-spacing:.09em;color:#9AA0A6;margin-bottom:6px">CÁC PHÒNG BAN ĐƯỢC VẬN HÀNH</div>
+      <div style="font-size:13.2px;font-weight:700;color:#3A3F44">Marketing · Sales · CSKH · Finance · HR · Operations</div>
+      <div style="font-size:11.6px;color:#9AA0A6;margin-top:5px">Tiếp thị → Tiềm năng → Bán hàng → Đơn hàng → Hoá đơn → Chăm sóc → Giữ chân → Vận hành → Điều hành</div>
+    </div>
+  </div>
+
+  <div class="box" style="padding:22px 24px;margin-top:16px">
+    <div style="font-size:13.6px;font-weight:800;color:#231F20;margin-bottom:14px">Áp dụng theo điểm chạm</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px 20px">
+      <sc-for list="{{ touchpoints }}" as="t" hint-placeholder-count="9">
+        <div style="display:flex;gap:10px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid #F1F3F4">
+          <span style="display:inline-flex;align-items:center;height:21px;padding:0 8px;border-radius:6px;background:#EAF6EF;font-size:11px;font-weight:800;color:#0F5D30;flex-shrink:0;white-space:nowrap">{{ t.tier }}</span>
+          <div style="min-width:0">
+            <div style="font-size:12.8px;font-weight:700;color:#231F20;line-height:1.4">{{ t.name }}</div>
+            <div style="font-size:11.8px;color:#8A9096;line-height:1.55;margin-top:2px">{{ t.use }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:13.6px;font-weight:800;color:#231F20;margin-bottom:10px">Công thức đặt tiêu đề</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.4px;font-weight:700;margin-bottom:11px">
+        <span style="background:#FBEDED;border:1px solid #F0C9C9;border-radius:7px;padding:6px 11px;color:#A8544F">Nút thắt</span>
+        <span style="color:#C4CBD1">+</span>
+        <span style="background:#EAF6EF;border:1px solid #BFE3CE;border-radius:7px;padding:6px 11px;color:#0F5D30">AI Agent giải quyết</span>
+        <span style="color:#C4CBD1">+</span>
+        <span style="background:#F5F6F7;border:1px solid #DDE1E4;border-radius:7px;padding:6px 11px;color:#4A5057">Kết quả</span>
+      </div>
+      <div style="font-size:12.6px;color:#4A5057;line-height:1.75;border-top:1px solid #F1F3F4;padding-top:10px"><b>AI Agent bán hàng</b> giúp doanh nghiệp không bỏ sót lead ngoài giờ.<br><b>AI Agent nhắc công nợ</b> giúp chủ doanh nghiệp kiểm soát dòng tiền.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:13.6px;font-weight:800;color:#231F20;margin-bottom:10px">Trục truyền thông category</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.8px;font-weight:800;color:#157A40">
+        <span style="background:#EAF6EF;border-radius:6px;padding:5px 9px">WHY NOW</span><span style="color:#C4CBD1">→</span>
+        <span style="background:#EAF6EF;border-radius:6px;padding:5px 9px">WHAT</span><span style="color:#C4CBD1">→</span>
+        <span style="background:#EAF6EF;border-radius:6px;padding:5px 9px">HOW</span><span style="color:#C4CBD1">→</span>
+        <span style="background:#EAF6EF;border-radius:6px;padding:5px 9px">PROOF</span><span style="color:#C4CBD1">→</span>
+        <span style="background:#EAF6EF;border-radius:6px;padding:5px 9px">SYSTEM</span><span style="color:#C4CBD1">→</span>
+        <span style="background:#EAF6EF;border-radius:6px;padding:5px 9px">SCALE</span>
+      </div>
+      <div style="font-size:12.6px;color:#8A9096;line-height:1.65;margin-top:11px;border-top:1px solid #F1F3F4;padding-top:10px">Phân bổ nội dung: <b style="color:#231F20">35%</b> nỗi đau &amp; giải pháp · <b style="color:#231F20">25%</b> giáo dục category · <b style="color:#231F20">25%</b> bằng chứng · <b style="color:#231F20">10%</b> hợp tác · <b style="color:#231F20">5%</b> tính năng.</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:13.6px;font-weight:800;color:#A8544F;margin-bottom:9px">✕ Không dùng — keyword chung chung</div>
+      <div style="font-size:12.6px;color:#9AA0A6;line-height:1.9;text-decoration:line-through;text-decoration-color:#DDBEBB">AI doanh nghiệp · AI nhân sự · AI Marketing · nền tảng AI · AI Agent Platform · AI Automation Platform</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #BFE3CE">
+      <div style="font-size:13.6px;font-weight:800;color:#0F5D30;margin-bottom:9px">✓ Dùng — keyword gắn công việc thực tế</div>
+      <div style="font-size:12.6px;color:#4A5057;line-height:1.9;font-weight:600">AI Agents bán hàng · tư vấn khách hàng · chốt đơn · chăm sóc khách hàng · nhắc công nợ · quản lý đơn hàng · theo dõi dòng tiền · giao việc · báo cáo lãnh đạo</div>
+    </div>
+  </div>
+
+  <div class="box" style="padding:20px 22px;margin-top:16px">
+    <div style="font-size:13.6px;font-weight:800;color:#231F20;margin-bottom:12px">Lộ trình rút gọn thông điệp</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <div style="border-left:3px solid #DDE1E4;padding-left:12px">
+        <div style="font-size:10.8px;font-weight:800;letter-spacing:.1em;color:#9AA0A6">GIAI ĐOẠN 1</div>
+        <div style="font-size:13.2px;font-weight:700;color:#231F20;margin-top:5px">Giải thích đầy đủ</div>
+        <div style="font-size:12.2px;color:#8A9096;line-height:1.6;margin-top:4px">Thị trường chưa biết OPC — luôn kèm định nghĩa Tầng 2.</div>
+      </div>
+      <div style="border-left:3px solid #BFE3CE;padding-left:12px">
+        <div style="font-size:10.8px;font-weight:800;letter-spacing:.1em;color:#9AA0A6">GIAI ĐOẠN 2</div>
+        <div style="font-size:13.2px;font-weight:700;color:#231F20;margin-top:5px">Rút về category + slogan</div>
+        <div style="font-size:12.2px;color:#8A9096;line-height:1.6;margin-top:4px">Khi báo chí và khách hàng đã nhắc lại chữ OPC.</div>
+      </div>
+      <div style="border-left:3px solid #157A40;padding-left:12px">
+        <div style="font-size:10.8px;font-weight:800;letter-spacing:.1em;color:#157A40">GIAI ĐOẠN 3</div>
+        <div style="font-size:13.2px;font-weight:700;color:#231F20;margin-top:5px">Một dòng duy nhất</div>
+        <div style="font-size:12.2px;color:#157A40;line-height:1.6;margin-top:4px;font-weight:700">AppChat — The One-Person Company Solution.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box" style="padding:20px 22px;margin-top:16px;border-left:4px solid #F0C9C9">
+    <div style="font-size:13.6px;font-weight:800;color:#A8544F;margin-bottom:10px">Bốn sai số cần tránh</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px 22px;font-size:12.6px;color:#4A5057;line-height:1.65">
+      <div><b>Gọi AppChat là “nền tảng AI”</b> — đẩy vào category đã đông, mất lợi thế OPC.</div>
+      <div><b>Đảo thứ tự kiến trúc</b> — đúng thứ tự là OPC → AppChat → AI Agents.</div>
+      <div><b>Dùng slogan thay định nghĩa</b> — proposal và hồ sơ luôn dùng Tầng 2.</div>
+      <div><b>Liệt kê tính năng thay vì nút thắt</b> — nói kết quả, không nói số lượng tính năng.</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div style="margin-top:40px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">QUY ƯỚC TRẠNG THÁI TÀI LIỆU</div>
+  <div class="box" style="margin-top:14px;padding:22px 24px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px 26px">
+      <sc-for list="{{ legend }}" as="g" hint-placeholder-count="9">
+        <div style="display:flex;gap:11px;align-items:flex-start">
+          <span style="{{ g.badge }}">{{ g.k }}</span>
+          <span style="font-size:12.8px;color:#6B7280;line-height:1.5;flex:1;padding-top:2px">{{ g.d }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- GROUPS -->
+  <sc-for list="{{ groups }}" as="G" hint-placeholder-count="6">
+    <div style="margin-top:46px">
+      <div id="{{ G.anchor }}" style="scroll-margin-top:76px;display:flex;align-items:center;gap:16px;margin-bottom:4px">
+        <div style="width:46px;height:46px;border-radius:11px;background:#0F2A1C;display:grid;place-items:center;flex-shrink:0"><span style="font-size:17px;font-weight:800;color:#B8F0DC;letter-spacing:-.02em">{{ G.no }}</span></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:20px;font-weight:800;color:#231F20;letter-spacing:-.025em">{{ G.name }}</div>
+          <div style="font-size:13.2px;color:#8A9096;line-height:1.55;margin-top:3px">{{ G.desc }}</div>
+        </div>
+        <div style="display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:#EAF6EF;border:1px solid #BFE3CE;font-size:12.2px;font-weight:700;color:#0F5D30;white-space:nowrap;flex-shrink:0">{{ G.count }} tài liệu</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;margin-top:16px">
+        <sc-for list="{{ G.docs }}" as="d" hint-placeholder-count="4">
+          <a href="{{ d.href }}" class="card" style="display:flex;flex-direction:column;background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:20px 20px 17px;color:inherit">
+            <div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:11px">
+              <span style="width:28px;height:28px;border-radius:8px;background:#F2F4F5;display:grid;place-items:center;font-size:12px;font-weight:800;color:#8A9096;flex-shrink:0">{{ d.no }}</span>
+              <span style="font-size:15px;font-weight:800;color:#231F20;line-height:1.38;letter-spacing:-.015em;flex:1;min-width:0">{{ d.name }}</span>
+            </div>
+            <div style="font-size:12.9px;color:#8A9096;line-height:1.6;flex:1">{{ d.desc }}</div>
+            <sc-if value="{{ d.hasNote }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11.8px;color:#B45309;line-height:1.5;margin-top:10px;background:#FFFBEB;border:1px solid #FDE9C0;border-radius:7px;padding:6px 9px">{{ d.note }}</div>
+            </sc-if>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:13px">
+              <sc-for list="{{ d.tags }}" as="t" hint-placeholder-count="2">
+                <span style="{{ t.badge }}">{{ t.k }}</span>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px;margin-top:14px;padding-top:12px;border-top:1px solid #F1F3F4">
+              <span style="font-size:11.6px;font-weight:800;color:#4A5057;font-variant-numeric:tabular-nums">{{ d.ver }}</span>
+              <span style="width:3px;height:3px;border-radius:2px;background:#C4CBD1"></span>
+              <span style="font-size:11.6px;color:#9AA0A6;font-variant-numeric:tabular-nums">{{ d.date }}</span>
+              <span style="flex:1"></span>
+              <span style="font-size:11px;font-weight:700;color:#9AA0A6;letter-spacing:.03em">{{ d.fmt }}</span>
+              <span class="arrow" style="display:inline-flex;align-items:center;gap:4px;font-size:12.2px;font-weight:700;color:#157A40;white-space:nowrap">Xem
+                <svg width="13" height="13" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M9 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ G.hasOld }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;border-top:2px dashed #D6C9C7;padding-top:14px">
+          <div onClick="{{ G.toggle }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;padding:9px 14px;background:#FBEDED;border:1px solid #F0C9C9;border-radius:9px">
+            <span style="font-size:11px;color:#A8544F;width:11px">{{ G.caret }}</span>
+            <span style="font-size:13px;font-weight:800;color:#A8544F;flex:1">Bản cũ — Chỉ lưu trữ, không gửi ra bên ngoài</span>
+            <span style="font-size:12.2px;font-weight:700;color:#C08A85">{{ G.oldCount }} bản</span>
+          </div>
+          <sc-if value="{{ G.oldOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="box" style="overflow:hidden;margin-top:10px;border-color:#F0C9C9;background:#FEFBFB">
+              <sc-for list="{{ G.olds }}" as="o" hint-placeholder-count="2">
+                <div style="display:grid;grid-template-columns:minmax(200px,2.6fr) 72px 80px 104px 150px;gap:8px;padding:13px 18px;border-bottom:1px solid #F7EDED;align-items:center">
+                  <div style="min-width:0">
+                    <div style="font-size:13.6px;font-weight:700;color:#8A6F6C;line-height:1.4">{{ o.name }}</div>
+                    <div style="font-size:12.2px;color:#B09A98;line-height:1.5;margin-top:2px">Đã được thay thế bởi: <b style="color:#A8544F">{{ o.replacedBy }}</b></div>
+                  </div>
+                  <span style="font-size:12.6px;font-weight:700;color:#B09A98;font-variant-numeric:tabular-nums">{{ o.ver }}</span>
+                  <span style="font-size:12.4px;color:#B09A98;font-variant-numeric:tabular-nums">{{ o.date }}</span>
+                  <span style="display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:999px;font-size:11.6px;font-weight:700;color:#A8544F;background:#FBEDED;width:fit-content">Bản cũ</span>
+                  <div style="display:flex;justify-content:flex-end;gap:6px">
+                    <span style="font-size:11.4px;font-weight:700;color:#C08A85;align-self:center">{{ o.fmt }}</span>
+                    <a href="{{ o.href }}" onClick="{{ o.warn }}" style="display:inline-flex;align-items:center;height:30px;padding:0 11px;border:1px solid #F0C9C9;border-radius:8px;font-size:12.2px;font-weight:700;color:#A8544F;background:#fff">Mở lưu trữ</a>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="padding:11px 18px;font-size:12.2px;color:#A8544F;background:#FBEDED;line-height:1.55">⚠ Các bản trên chỉ dùng để tra cứu lịch sử. Không gửi cho khách hàng, đối tác hoặc cơ quan quản lý.</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-for>
+
+  <!-- RULES -->
+  <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">NGUYÊN TẮC SỬ DỤNG &amp; SẮP XẾP</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:14px">
+    <div class="box" style="padding:20px 22px;border-left:4px solid #157A40">
+      <div style="font-size:14px;font-weight:700;color:#231F20;margin-bottom:8px">Thứ tự ưu tiên hiển thị</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Tài liệu <b>Mới nhất</b> và <b>Khuyên dùng</b> luôn xếp đầu nhóm. Bản cũ nằm dưới đường phân cách và mặc định thu gọn.</div>
+    </div>
+    <div class="box" style="padding:20px 22px;border-left:4px solid #157A40">
+      <div style="font-size:14px;font-weight:700;color:#231F20;margin-bottom:8px">Một bản hiện hành duy nhất</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Mỗi tài liệu chỉ có một phiên bản được xác định là bản hiện hành. Các phiên bản khác phải gắn nhãn <b>Bản cũ</b> kèm tên bản thay thế.</div>
+    </div>
+        <div class="box" style="padding:20px 22px;border-left:4px solid #F0C9C9">
+      <div style="font-size:14px;font-weight:700;color:#A8544F;margin-bottom:8px">Tài liệu gửi khách hàng</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7">Không được chứa ghi chú nội bộ hoặc bản chưa phê duyệt. Chỉ dùng các bộ đã đóng gói ở nhóm <b>04</b>. Tài liệu chỉ xem trực tuyến — việc tải và phát hành do bộ phận phụ trách thực hiện.</div>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1420}}">
+const S = {
+  'Mới nhất':   ['#0F5D30','#EAF6EF','#BFE3CE'],
+  'Chuẩn':      ['#1D4ED8','#EFF4FC','#C7DBF7'],
+  'Khuyên dùng':['#B45309','#FFFBEB','#FDE9C0'],
+  'Triển khai': ['#5B3FA8','#F3EFFE','#DACCF5'],
+  'Nền':        ['#0E7C66','#E4F6F3','#B9E6DF'],
+  'Demo':       ['#B91C1C','#FEF2F2','#F7CFCF'],
+  'Bản cũ':     ['#A8544F','#FBEDED','#F0C9C9'],
+};
+function badge(k, big){
+  const c = S[k] || S['Chuẩn'];
+  return 'display:inline-flex;align-items:center;height:'+(big?24:22)+'px;padding:0 '+(big?11:9)+'px;border-radius:999px;font-size:'+(big?12:11.4)+'px;font-weight:700;white-space:nowrap;color:'+c[0]+';background:'+c[1]+';border:1px solid '+c[2];
+}
+
+const LEGEND = [
+  ['Mới nhất','Phiên bản nâng cấp mới nhất, ưu tiên sử dụng.'],
+  ['Chuẩn','Phiên bản hiện hành, chưa có tài liệu thay thế.'],
+  ['Khuyên dùng','Phiên bản được đề xuất khi gửi khách hàng hoặc đối tác.'],
+  ['Triển khai','Tài liệu phục vụ thiết kế, thi công, vận hành hoặc thực hiện công việc.'],
+  ['Nền','Tài liệu gốc, làm cơ sở xây dựng các phiên bản khác.'],
+  ['Demo','Nguyên mẫu sản phẩm sử dụng để trình diễn.'],
+  ['Bản cũ','Phiên bản chỉ dùng để lưu trữ, không sử dụng khi gửi ra bên ngoài.'],
+];
+
+// [name, desc, ver, date, tags, fmt, href, note]
+const GROUPS = [
+  ['01','Hồ sơ năng lực và Portfolio','Hồ sơ giới thiệu, năng lực giải pháp, sản phẩm, dự án và case study.', [
+    ['Bài tham luận triển lãm B2B — OPC Keynote','Bài trình bày mô hình One-Person Company cho triển lãm và hội nghị.','v1.2','26/08/2026',['Mới nhất','Khuyên dùng'],'HTML · Deck','AppChat-OPC-Keynote.dc.html',''],
+    ['Master Deck — Tài liệu tổng quan','Bộ slide trình bày với nhà đầu tư, doanh nghiệp và triển khai nội bộ.','v3.0','20/08/2026',['Chuẩn','Khuyên dùng'],'HTML · Deck · PPTX','AppChat-Master-Deck.dc.html',''],
+    ['Portfolio sản phẩm','Hồ sơ năng lực sản phẩm với hình ảnh thực tế và sơ đồ kiến trúc.','v2.0','18/08/2026',['Chuẩn','Khuyên dùng'],'HTML · PPTX','AppChat-Portfolio.dc.html',''],
+    ['Danh thiếp — Card Visit','Mẫu danh thiếp hai mặt theo nhận diện AppChat.','v1.1','—',['Chuẩn'],'HTML · In','AppChat-CardVisit.dc.html',''],
+    ['Định hướng thiết kế','Các phương án hướng thiết kế đã trình bày và phương án được chọn.','v1.0','—',['Nền'],'HTML','AppChat Directions.dc.html','Tài liệu tham chiếu nội bộ.'],
+  ], [
+    ['Portfolio sản phẩm — bản in','v1.9','12/08/2026','HTML · In','AppChat-Portfolio-print-c7ejxh.dc.html','Portfolio sản phẩm v2.0'],
+  ]],
+
+  ['02','Thương hiệu','Định vị, thông điệp, nhận diện, hình ảnh và nguyên tắc sử dụng thương hiệu AppChat.', [
+    ['Hệ thống định vị và thông điệp','Ba tầng định vị, kiến trúc logic, hệ thống từ khóa và nguyên tắc truyền thông.','v5.0','26/08/2026',['Mới nhất','Chuẩn','Nền'],'HTML','AppChat-Positioning-System.dc.html',''],
+    ['Chiến lược thương hiệu','Tầm nhìn, sứ mệnh, giá trị cốt lõi, lời hứa thương hiệu và brand story.','v2.2','22/08/2026',['Chuẩn','Khuyên dùng'],'HTML · PPTX','AppChat-Brand-Strategy.dc.html',''],
+    ['Cẩm nang thương hiệu — Brand Guideline','Quy chuẩn logo, màu sắc, typography, icon, pattern, grid và quy tắc in ấn.','v2.1','22/08/2026',['Chuẩn','Triển khai'],'HTML · PPTX','AppChat-Brand-Guideline.dc.html',''],
+    ['Nhận diện cốt lõi — Core Identity','Bộ nhận diện gốc: logo, lockup, bảng màu và hệ typography.','v2.0','—',['Chuẩn','Nền'],'HTML · PPTX','AppChat-Core-Identity.dc.html',''],
+    ['Nhận diện Marketing','Ứng dụng nhận diện lên website, social, banner, standee, backdrop, booth.','v2.0','—',['Chuẩn','Triển khai'],'HTML · PPTX','AppChat-Marketing-Identity.dc.html',''],
+  ], []],
+
+  ['03','Chiến lược và Marketing','Chiến lược thị trường, truyền thông, nội dung, SEO, bán hàng và phát triển category One-Person Company.', [
+    ['Bộ khung chiến lược Marketing','Framework Online · Offline · PR hợp nhất thành Strategy Map theo 4 giai đoạn.','v3.1','22/08/2026',['Mới nhất','Chuẩn'],'HTML · PPTX','AppChat-Marketing-Strategy-Framework.dc.html',''],
+    ['Kế hoạch triển khai Marketing','Lộ trình thực thi, phân bổ nội dung, KPI theo giai đoạn.','v2.1','14/08/2026',['Chuẩn','Triển khai'],'HTML · PPTX','AppChat-Marketing-Execution-Plan.dc.html',''],
+  ], []],
+
+  ['04','Bộ tài liệu gửi khách hàng','Các bộ tài liệu đã được chọn lọc, sắp xếp và đóng gói để gửi khách hàng, đối tác, hiệp hội hoặc cơ quan quản lý.', [
+    ['Ứng dụng AppChat (standalone)','Bản offline hoàn chỉnh, mở trực tiếp không cần cài đặt.','v6.0','26/08/2026',['Mới nhất','Khuyên dùng','Demo'],'HTML · Standalone','AppChat (standalone).html',''],
+    ['Bộ Thương hiệu và Marketing','Bộ đóng gói HTML và PPTX gồm hồ sơ năng lực, thương hiệu và chiến lược Marketing.','v1.0','26/08/2026',['Khuyên dùng'],'Thư mục · ZIP','AppChat-Package/README.md','Chỉ gồm tài liệu thương hiệu và marketing — không kèm tài liệu kỹ thuật.'],
+  ], []],
+];
+
+class Component extends DCLogic {
+  state = { open: {} };
+  renderVals(){
+    const groups = GROUPS.map(([no,name,desc,docs,olds])=>{
+      const isOpen = !!this.state.open[no];
+      return {
+        no, name, desc, anchor:'g'+no,
+        count: String(docs.length),
+        hasOld: olds.length>0,
+        oldCount: String(olds.length),
+        oldOpen: isOpen,
+        caret: isOpen ? '▾' : '▸',
+        toggle: ()=>this.setState(s=>({ open:{...s.open, [no]: !s.open[no] } })),
+        docs: docs.map((d,i)=>({
+          no: String(i+1).padStart(2,'0'),
+          name: d[0], desc: d[1], ver: d[2], date: d[3],
+          tags: d[4].map(k=>({ k, badge: badge(k) })),
+          fmt: d[5], href: d[6],
+          note: d[7], hasNote: !!d[7],
+        })),
+        olds: olds.map(o=>({
+          name:o[0], ver:o[1], date:o[2], fmt:o[3], href:o[4], replacedBy:o[5],
+          warn:(e)=>{ if(!window.confirm('Đây là BẢN CŨ chỉ dùng để lưu trữ.\n\nĐã được thay thế bởi: '+o[5]+'\n\nKhông gửi bản này cho khách hàng hoặc đối tác. Vẫn mở?')) e.preventDefault(); }
+        })),
+      };
+    });
+    const total = GROUPS.reduce((n,g)=>n+g[3].length,0);
+    const oldTotal = GROUPS.reduce((n,g)=>n+g[4].length,0);
+    const SHORT={"01":"Năng lực","02":"Thương hiệu","03":"Marketing","04":"Gửi khách"};
+    const TP=[
+      ['1 + 3','Website · hero','Tiêu đề category, phụ đề là slogan'],
+      ['2','Website · phần giới thiệu','Định nghĩa chính thức, nguyên văn'],
+      ['1+2+3','Màn đăng nhập app','Eyebrow → định nghĩa → slogan'],
+      ['2','Hồ sơ năng lực · proposal','Định nghĩa + kiến trúc logic'],
+      ['1 + 3','Pitch deck · slide bìa','Category lớn, slogan làm phụ đề'],
+      ['3','Standee · backdrop · booth','Chỉ slogan + logo'],
+      ['Trục','Bài SEO · báo chí','Nỗi đau → keyword AI Agents → OPC'],
+      ['3 + trục','Social · video ngắn','Mỗi nội dung một nút thắt'],
+      ['1','Email · ký tên','AppChat — The One-Person Company Solution'],
+    ];
+    return {
+      groups,
+      touchpoints: TP.map(([tier,name,use])=>({tier,name,use})),
+      navs: GROUPS.map(g=>({ no:g[0], short:SHORT[g[0]]||"", href:"#g"+g[0] })),
+      goBack: ()=>{ if(history.length>1) history.back(); else location.href="index.md"; },
+      legend: LEGEND.map(([k,d])=>({ k, d, badge: badge(k,true) })),
+      stats: [
+        { v:String(total), l:'Tài liệu bản chuẩn', d:'Đang hiện hành, ưu tiên sử dụng', c:'#157A40' },
+        { v:String(GROUPS.length), l:'Nhóm tài liệu', d:'Từ hồ sơ năng lực đến bộ gửi khách hàng', c:'#2DC56A' },
+        { v:String(oldTotal), l:'Bản cũ lưu trữ', d:'Chỉ tra cứu lịch sử', c:'#A8544F' },
+        { v:'v5', l:'Phiên bản hiện hành', d:'Hệ thống định vị · cập nhật 26/08/2026', c:'#1D4ED8' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

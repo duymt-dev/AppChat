@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+@keyframes acpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}
+.acdot{animation:acpulse 1.8s ease-in-out infinite}
+.navi:hover{background:rgba(255,255,255,.07)!important}
+.naviL:hover{background:#F0F6F2!important}
+.kcard{transition:.16s}.kcard:hover{transform:translateY(-2px)}
+</style>
+</helmet>
+<a href="AppChat-Document-Index.dc.html" style="position:fixed;left:16px;top:16px;z-index:99999;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:9px;background:rgba(255,255,255,.95);border:1px solid #DDE1E4;box-shadow:0 4px 14px rgba(15,42,28,.14);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12.6px;font-weight:700;color:#157A40;text-decoration:none;backdrop-filter:blur(8px)"><svg width="14" height="14" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>Bộ hồ sơ năng lực</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.8"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.8"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.8"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.8"/></symbol>
+<symbol id="ic-inbox" viewBox="0 0 24 24"><path d="M3 13l2.4-7A2 2 0 0 1 7.3 4.6h9.4a2 2 0 0 1 1.9 1.4L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 13h5l1.2 2.2h5.6L16 13h5"/></symbol>
+<symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3.2 20a5.8 5.8 0 0 1 11.6 0"/><path d="M16 5.4a3 3 0 0 1 0 5.6"/><path d="M17.5 20a5.8 5.8 0 0 0-2.8-5"/></symbol>
+<symbol id="ic-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="3.2"/><path d="M12 8V4.3"/><circle cx="12" cy="3" r="1.4"/><circle cx="9.2" cy="13" r="1.25"/><circle cx="14.8" cy="13" r="1.25"/><path d="M9.5 16.4h5"/></symbol>
+<symbol id="ic-flow" viewBox="0 0 24 24"><rect x="3" y="3.5" width="6" height="5" rx="1.4"/><rect x="15" y="3.5" width="6" height="5" rx="1.4"/><rect x="9" y="15.5" width="6" height="5" rx="1.4"/><path d="M6 8.5V11a2 2 0 0 0 2 2h4"/><path d="M18 8.5V11a2 2 0 0 1-2 2h-4v2.5"/></symbol>
+<symbol id="ic-mega" viewBox="0 0 24 24"><path d="M4 10v4a1 1 0 0 0 1 1h2.5l8 4V5l-8 4H5a1 1 0 0 0-1 1z"/><path d="M18.5 9.2a3.2 3.2 0 0 1 0 5.6"/></symbol>
+<symbol id="ic-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.6"/><path d="M3.5 9.6h17"/><path d="M8 3v4M16 3v4"/></symbol>
+<symbol id="ic-ticket" viewBox="0 0 24 24"><path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5V10a2 2 0 0 0 0 4v2.5A1.5 1.5 0 0 1 18.5 18h-13A1.5 1.5 0 0 1 4 16.5V14a2 2 0 0 0 0-4z"/><path d="M12 6.5v11" stroke-dasharray="1.5 2.2"/></symbol>
+<symbol id="ic-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M7.5 14.5l3.2-3.4 2.6 2.2 4.2-5"/></symbol>
+<symbol id="ic-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.2v2.4M12 18.4v2.4M20.8 12h-2.4M5.6 12H3.2M18.2 5.8l-1.7 1.7M7.5 16.5l-1.7 1.7M18.2 18.2l-1.7-1.7M7.5 7.5 5.8 5.8"/></symbol>
+<symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.4L12 17l-1.9-5.6L4.5 10l5.6-1.4z"/></symbol>
+<symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.6"/><path d="M20 20l-3.6-3.6"/></symbol>
+<symbol id="ic-bell" viewBox="0 0 24 24"><path d="M6 9.5a6 6 0 0 1 12 0c0 4.5 2 5.5 2 5.5H4s2-1 2-5.5z"/><path d="M10 19a2 2 0 0 0 4 0"/></symbol>
+<symbol id="ic-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+<symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M5 12h13M12.5 6l6 6-6 6"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19.5 6.5"/></symbol>
+<symbol id="ic-phone" viewBox="0 0 24 24"><path d="M5 4h3.2l1.8 4.6-2.3 1.5a11 11 0 0 0 5 5l1.5-2.3 4.6 1.8V18a2 2 0 0 1-2 2A15.5 15.5 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+<symbol id="ic-gift" viewBox="0 0 24 24"><rect x="4" y="9.5" width="16" height="10.5" rx="1.6"/><path d="M3.2 9.5h17.6M12 9.5V20"/><path d="M12 9.5S10.6 4.8 8.2 5.4 8.6 9.5 12 9.5zM12 9.5s1.4-4.7 3.8-4.1S15.4 9.5 12 9.5z"/></symbol>
+<symbol id="ic-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.4a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.1-2.7 4"/><path d="M12 17h.01"/></symbol>
+</defs></svg>
+
+<div style="width:max-content;min-width:100%;min-height:100vh;box-sizing:border-box;padding:48px;background:#e7e5df">
+
+  <div style="margin-bottom:30px;max-width:760px">
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px">
+      <div style="width:34px;height:34px;border-radius:10px;background:#2DC56A;display:grid;place-items:center;font-weight:800;color:#06250F;font-size:17px">A</div>
+      <div style="font-weight:800;font-size:18px;letter-spacing:-.02em;color:#0E1B13">App<span style="color:#1F9C4F">Chat</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;color:#5B6B61;border:1px solid #cfd6d0;padding:3px 8px;border-radius:6px">3 DIRECTIONS · DASHBOARD</div>
+    </div>
+    <h1 style="font-size:26px;font-weight:800;letter-spacing:-.03em;color:#0E1B13;margin-bottom:8px">Ba hướng nhận diện cho AppChat Platform</h1>
+    <p style="font-size:14.5px;line-height:1.6;color:#5B6B61">Cùng một màn hình Dashboard &amp; app shell, ba ngôn ngữ thị giác khác nhau — đều giữ xanh lá thương hiệu <b style="color:#1F9C4F">#2DC56A</b>, font Plus Jakarta Sans và tinh thần AI-native. Chọn một hướng để tôi triển khai cho toàn bộ ~50 module.</p>
+  </div>
+
+  <div style="display:flex;gap:56px;align-items:flex-start">
+
+    <!-- ============ A · AURORA ============ -->
+    <div id="dirA" style="flex:none;width:1240px">
+      <div style="margin-bottom:14px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;color:#1F9C4F;margin-bottom:3px">DIRECTION A</div>
+        <div style="font-size:19px;font-weight:800;color:#0E1B13;letter-spacing:-.02em">Aurora — Signature Refined</div>
+        <div style="font-size:13px;color:#5B6B61;margin-top:3px">Bản nâng cấp tinh tế của hiện tại: rail tối, workspace sáng, glow xanh nhẹ. An toàn, premium, tin cậy.</div>
+      </div>
+      <div style="background:#fff;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden">
+        <div style="display:flex;height:1024px;background:#F7FAF8;font-size:13px;color:#1A2B20">
+          <!-- rail -->
+          <div style="width:88px;background:#0E1B13;display:flex;flex-direction:column;align-items:center;padding:18px 0;flex-shrink:0">
+            <div style="width:42px;height:42px;border-radius:12px;background:#2DC56A;display:grid;place-items:center;font-weight:800;color:#06250F;font-size:21px;margin-bottom:22px">A</div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:100%;align-items:center">
+              <div style="width:72px;padding:9px 0;border-radius:12px;background:rgba(45,197,106,.16);box-shadow:inset 2px 0 0 #2DC56A;display:flex;flex-direction:column;align-items:center;gap:5px;color:#2DC56A">
+                <svg width="21" height="21" style="stroke:#2DC56A;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-grid"/></svg>
+                <span style="font-size:9.5px;font-weight:700">Tổng quan</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-spark"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Trợ lý AI</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6);position:relative">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-inbox"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Hộp thư</span>
+                <span style="position:absolute;top:5px;right:13px;background:#E33F3F;color:#fff;font-size:8.5px;font-weight:700;border-radius:7px;padding:1px 5px">7</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-users"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Khách hàng</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6);text-align:center;line-height:1.15">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-cal"/></svg>
+                <span style="font-size:9px;font-weight:600">Lịch làm việc</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bot"/></svg>
+                <span style="font-size:9.5px;font-weight:600">AI Agents</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-flow"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Quy trình</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-mega"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Marketing</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6);text-align:center;line-height:1.15">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-phone"/></svg>
+                <span style="font-size:9px;font-weight:600">Call Center</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-gift"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Loyalty</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.6)">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-chart"/></svg>
+                <span style="font-size:9.5px;font-weight:600">Báo cáo</span>
+              </div>
+            </div>
+            <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;position:relative">
+              <div class="navi" style="width:72px;padding:8px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,.6);position:relative">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bell"/></svg>
+                <span style="font-size:9px;font-weight:600">Thông báo</span>
+                <span style="position:absolute;top:3px;right:13px;background:#E33F3F;color:#fff;font-size:8.5px;font-weight:700;border-radius:7px;padding:1px 5px">3</span>
+              </div>
+              <div style="width:48px;height:1px;background:rgba(255,255,255,.09)"></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2DC56A,#157A40);display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;box-shadow:0 0 0 2px rgba(45,197,106,.35)">T</div>
+                <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,.6)">Trâm ▾</span>
+              </div>
+              <div style="position:absolute;left:64px;bottom:0;width:240px;background:#fff;border:1px solid #E4EBE6;border-radius:14px;box-shadow:0 20px 54px rgba(14,27,19,.26);padding:7px;z-index:6;text-align:left">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px 11px;border-bottom:1px solid #EFF3F0;margin-bottom:5px">
+                  <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2DC56A,#157A40);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px">T</div>
+                  <div style="min-width:0"><div style="font-size:12.5px;font-weight:700;color:#0E1B13">Trâm Nguyễn</div><div style="font-size:10.5px;color:#8A988F">tramnt@appchat.vn</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px;background:#F2FBF6">
+                  <svg width="16" height="16" style="stroke:#1F9C4F;fill:none;stroke-width:1.8"><use href="#ic-grid"/></svg>
+                  <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">Chuyển workspace</div><div style="font-size:10px;color:#8A988F">Spa Bé Na</div></div>
+                  <svg width="15" height="15" style="stroke:#8A988F;fill:none;stroke-width:1.9"><use href="#ic-arrow"/></svg>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px"><svg width="16" height="16" style="stroke:#5B6B61;fill:none;stroke-width:1.8"><use href="#ic-users"/></svg><span style="font-size:12.5px;font-weight:600;color:#1A2B20">Hồ sơ của tôi</span></div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px"><svg width="16" height="16" style="stroke:#5B6B61;fill:none;stroke-width:1.8"><use href="#ic-help"/></svg><span style="font-size:12.5px;font-weight:600;color:#1A2B20">Trợ giúp &amp; Hỗ trợ</span></div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px"><svg width="16" height="16" style="stroke:#5B6B61;fill:none;stroke-width:1.8"><use href="#ic-cog"/></svg><span style="font-size:12.5px;font-weight:600;color:#1A2B20">Cài đặt tài khoản</span></div>
+                <div style="height:1px;background:#EFF3F0;margin:5px 4px"></div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px"><svg width="16" height="16" style="stroke:#E33F3F;fill:none;stroke-width:1.8"><use href="#ic-arrow"/></svg><span style="font-size:12.5px;font-weight:600;color:#E33F3F">Đăng xuất</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- main -->
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="height:66px;background:#fff;border-bottom:1px solid #E4EBE6;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0">
+              <div>
+                <div style="font-size:17px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">Tổng quan</div>
+                <div style="font-size:12px;color:#8A988F">Trung tâm hội thoại &amp; AI · cập nhật thời gian thực</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="display:flex;align-items:center;gap:8px;background:#F2FBF6;border:1px solid #E4EBE6;border-radius:10px;padding:8px 13px;width:230px;color:#8A988F">
+                  <svg width="16" height="16" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-search"/></svg>
+                  <span style="font-size:12.5px">Tìm hoặc /lệnh</span>
+                  <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;border:1px solid #E4EBE6;border-radius:5px;padding:1px 5px">⌘K</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;background:#2DC56A;color:#06250F;font-weight:700;font-size:13px;padding:9px 15px;border-radius:10px;box-shadow:0 4px 14px rgba(45,197,106,.35)">
+                  <svg width="16" height="16" style="stroke:#06250F;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg> Hỏi AppChat
+                </div>
+              </div>
+            </div>
+            <!-- content -->
+            <div style="flex:1;padding:26px 28px;background:radial-gradient(900px 300px at 80% -40px,rgba(45,197,106,.10),transparent 70%),#F7FAF8;overflow:hidden">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px">
+                <div>
+                  <div style="font-size:24px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">Chào Trâm 👋</div>
+                  <div style="font-size:13.5px;color:#5B6B61;margin-top:2px">Toàn cảnh hội thoại, chuyển đổi từ AI và các hoạt động đang chạy hôm nay.</div>
+                </div>
+                <div style="display:flex;gap:9px">
+                  <div style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #E4EBE6;border-radius:10px;padding:8px 13px;font-weight:600;font-size:12.5px;color:#1A2B20">Xuất báo cáo</div>
+                  <div style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #E4EBE6;border-radius:10px;padding:8px 13px;font-weight:600;font-size:12.5px;color:#1A2B20">Làm mới</div>
+                </div>
+              </div>
+
+              <!-- KPI row -->
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+                <div class="kcard" style="background:#fff;border:1px solid #E4EBE6;border-radius:14px;padding:17px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8A988F">Hội thoại hôm nay</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 6px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">1.284</div><div style="font-size:11.5px;font-weight:700;color:#1F9C4F;padding-bottom:5px">▲ 12%</div></div>
+                  <div style="display:flex;align-items:flex-end;gap:3px;height:26px">
+                    <div style="flex:1;height:40%;background:#E8F8EE;border-radius:2px"></div><div style="flex:1;height:55%;background:#E8F8EE;border-radius:2px"></div><div style="flex:1;height:48%;background:#E8F8EE;border-radius:2px"></div><div style="flex:1;height:70%;background:#A8E9C2;border-radius:2px"></div><div style="flex:1;height:62%;background:#A8E9C2;border-radius:2px"></div><div style="flex:1;height:85%;background:#2DC56A;border-radius:2px"></div><div style="flex:1;height:100%;background:#2DC56A;border-radius:2px"></div>
+                  </div>
+                </div>
+                <div class="kcard" style="background:#fff;border:1px solid #E4EBE6;border-radius:14px;padding:17px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8A988F">AI tự xử lý</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 6px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">85%</div><div style="font-size:11.5px;font-weight:700;color:#1F9C4F;padding-bottom:5px">▲ 3%</div></div>
+                  <div style="height:7px;border-radius:4px;background:#EFF3F0;overflow:hidden;margin-top:9px"><div style="width:85%;height:100%;background:linear-gradient(90deg,#2DC56A,#1F9C4F)"></div></div>
+                  <div style="font-size:11px;color:#8A988F;margin-top:6px">1.091 / 1.284 hội thoại</div>
+                </div>
+                <div class="kcard" style="background:#fff;border:1px solid #E4EBE6;border-radius:14px;padding:17px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8A988F">Lead mới</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 6px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">47</div><div style="font-size:11.5px;font-weight:700;color:#1F9C4F;padding-bottom:5px">▲ 8</div></div>
+                  <div style="display:flex;gap:5px;margin-top:9px"><span style="font-size:10.5px;font-weight:600;background:#E8F8EE;color:#157A40;border-radius:6px;padding:2px 7px">Hot 12</span><span style="font-size:10.5px;font-weight:600;background:#FFF8EC;color:#8A5A0C;border-radius:6px;padding:2px 7px">Warm 23</span></div>
+                </div>
+                <div class="kcard" style="background:#fff;border:1px solid #E4EBE6;border-radius:14px;padding:17px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8A988F">CSAT</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 6px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">4.6<span style="font-size:16px;color:#F5A830">★</span></div><div style="font-size:11.5px;font-weight:700;color:#1F9C4F;padding-bottom:5px">▲ 0.2</div></div>
+                  <div style="font-size:11px;color:#8A988F;margin-top:9px">312 đánh giá · 7 ngày</div>
+                </div>
+              </div>
+
+              <!-- main grid -->
+              <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px">
+                <div style="background:#fff;border:1px solid #E4EBE6;border-radius:14px;padding:18px 20px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                    <div style="display:flex;align-items:center;gap:8px"><span class="acdot" style="width:8px;height:8px;border-radius:5px;background:#2DC56A;display:inline-block"></span><div style="font-size:14.5px;font-weight:700;color:#0E1B13">Hoạt động AI · Real-time</div></div>
+                    <div style="font-size:11.5px;color:#1F9C4F;font-weight:600">Xem tất cả →</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid #EFF3F0">
+                      <div style="width:34px;height:34px;border-radius:9px;background:#E8F8EE;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#1F9C4F;fill:none;stroke-width:1.8"><use href="#ic-bot"/></svg></div>
+                      <div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>Sales Agent</b> chốt đơn #SP290411 — Chị Lan (Shop Bé Na)</div><div style="font-size:11px;color:#8A988F;margin-top:1px">qua Zalo OA · gói liệu trình HIFU 8 buổi</div></div>
+                      <span style="font-size:10.5px;font-weight:600;background:#E8F8EE;color:#157A40;border-radius:6px;padding:3px 8px;flex-shrink:0">Hoàn tất</span>
+                      <span style="font-size:11px;color:#B8C4BC;flex-shrink:0">2′</span>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid #EFF3F0">
+                      <div style="width:34px;height:34px;border-radius:9px;background:#EFF7FF;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#2B9EF3;fill:none;stroke-width:1.8"><use href="#ic-spark"/></svg></div>
+                      <div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>AI phân loại</b> 23 hội thoại mới vào luồng Sales / Support</div><div style="font-size:11px;color:#8A988F;margin-top:1px">Intent + Sentiment · độ tin cậy TB 92%</div></div>
+                      <span style="font-size:10.5px;font-weight:600;background:#EFF7FF;color:#0B4F8A;border-radius:6px;padding:3px 8px;flex-shrink:0">Tự động</span>
+                      <span style="font-size:11px;color:#B8C4BC;flex-shrink:0">6′</span>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid #EFF3F0">
+                      <div style="width:34px;height:34px;border-radius:9px;background:#FFF8EC;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#F5A830;fill:none;stroke-width:1.8"><use href="#ic-ticket"/></svg></div>
+                      <div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>Support Agent</b> chuyển ticket #4821 cho Minh</div><div style="font-size:11px;color:#8A988F;margin-top:1px">AI confidence 64% → escalate người phụ trách</div></div>
+                      <span style="font-size:10.5px;font-weight:600;background:#FFF8EC;color:#8A5A0C;border-radius:6px;padding:3px 8px;flex-shrink:0">Escalate</span>
+                      <span style="font-size:11px;color:#B8C4BC;flex-shrink:0">12′</span>
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0">
+                      <div style="width:34px;height:34px;border-radius:9px;background:#F3EEFE;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#8B5CF6;fill:none;stroke-width:1.8"><use href="#ic-flow"/></svg></div>
+                      <div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>Journey</b> "Remind liệu trình HIFU" đã gửi 142 tin nhắn</div><div style="font-size:11px;color:#8A988F;margin-top:1px">tỷ lệ mở 71% · 38 phản hồi · 9 đặt lịch</div></div>
+                      <span style="font-size:10.5px;font-weight:600;background:#F3EEFE;color:#6D28D9;border-radius:6px;padding:3px 8px;flex-shrink:0">Đang chạy</span>
+                      <span style="font-size:11px;color:#B8C4BC;flex-shrink:0">25′</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="background:#fff;border:1px solid #E4EBE6;border-radius:14px;padding:18px 20px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                  <div style="font-size:14.5px;font-weight:700;color:#0E1B13;margin-bottom:14px">Sức khoẻ kênh</div>
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#0068FF;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">Z</div><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">Zalo OA</div></div><div style="font-size:11.5px;color:#8A988F">1.284</div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#157A40;background:#E8F8EE;border-radius:6px;padding:3px 7px"><span style="width:5px;height:5px;border-radius:3px;background:#2DC56A"></span>Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#1877F2;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">f</div><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">Facebook Page</div></div><div style="font-size:11.5px;color:#8A988F">612</div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#157A40;background:#E8F8EE;border-radius:6px;padding:3px 7px"><span style="width:5px;height:5px;border-radius:3px;background:#2DC56A"></span>Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">◎</div><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">Instagram</div></div><div style="font-size:11.5px;color:#8A988F">188</div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#8A5A0C;background:#FFF8EC;border-radius:6px;padding:3px 7px"><span style="width:5px;height:5px;border-radius:3px;background:#F5A830"></span>Ổn</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#25D366;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">W</div><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">WhatsApp</div></div><div style="font-size:11.5px;color:#8A988F">94</div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#157A40;background:#E8F8EE;border-radius:6px;padding:3px 7px"><span style="width:5px;height:5px;border-radius:3px;background:#2DC56A"></span>Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#1A2B20;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">⌘</div><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">Website Live Chat</div></div><div style="font-size:11.5px;color:#8A988F">341</div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#B45309;background:#FFF1E6;border-radius:6px;padding:3px 7px"><span style="width:5px;height:5px;border-radius:3px;background:#F97316"></span>Chậm</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#229ED9;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">✈</div><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#1A2B20">Telegram</div></div><div style="font-size:11.5px;color:#8A988F">27</div><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#B91C1C;background:#FEF2F2;border-radius:6px;padding:3px 7px"><span style="width:5px;height:5px;border-radius:3px;background:#E33F3F"></span>Yếu</span></div>
+                  </div>
+                  <div style="margin-top:16px;padding:12px;border-radius:11px;background:linear-gradient(135deg,#06250F,#0E1B13);color:#fff">
+                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><svg width="15" height="15" style="stroke:#2DC56A;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg><span style="font-size:11.5px;font-weight:700;color:#7EE2A4">Trợ lý AI gợi ý</span></div>
+                    <div style="font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.78)">Telegram phản hồi <b style="color:#fff">yếu</b> — 3 hội thoại quá hạn SLA. Bật AI Agent hoặc phân công người trực để xử lý ngay.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- URGENT · HUMAN HANDOFF -->
+              <div style="margin-top:18px;background:#fff;border:1px solid #F6D9C8;border-radius:14px;padding:18px 20px;box-shadow:0 1px 2px rgba(14,27,19,.04)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <span class="acdot" style="width:8px;height:8px;border-radius:5px;background:#E33F3F;display:inline-block"></span>
+                    <div style="font-size:14.5px;font-weight:700;color:#0E1B13">Cần người xử lý</div>
+                    <span style="font-size:11px;font-weight:700;background:#FEE2E2;color:#B91C1C;border-radius:7px;padding:2px 8px">5</span>
+                    <span style="font-size:12px;color:#8A988F">AI Agent không tự xử lý được — cần can thiệp ngay</span>
+                  </div>
+                  <div style="font-size:11.5px;color:#1F9C4F;font-weight:600">Xem hàng đợi →</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid #EFF3F0;border-radius:11px;background:#FBFCFB">
+                    <div style="width:34px;height:34px;border-radius:9px;background:#FEE2E2;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#E33F3F;fill:none;stroke-width:1.8"><use href="#ic-inbox"/></svg></div>
+                    <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:#1A2B20">Chị Hương — Khiếu nại đơn #SP2210</div><div style="font-size:10.5px;color:#8A988F;margin-top:2px">Facebook · Khách yêu cầu gặp người</div></div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:#B91C1C">Quá hạn 6′</span><span style="font-size:10.5px;font-weight:700;color:#06250F;background:#2DC56A;border-radius:6px;padding:3px 9px">Tiếp nhận</span></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid #EFF3F0;border-radius:11px;background:#FBFCFB">
+                    <div style="width:34px;height:34px;border-radius:9px;background:#FFF1E6;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#B45309;fill:none;stroke-width:1.8"><use href="#ic-ticket"/></svg></div>
+                    <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:#1A2B20">#4830 — Yêu cầu hoàn tiền liệu trình</div><div style="font-size:10.5px;color:#8A988F;margin-top:2px">Zalo OA · Ngoài phạm vi AI xử lý</div></div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:#B45309">Còn 9′</span><span style="font-size:10.5px;font-weight:700;color:#06250F;background:#2DC56A;border-radius:6px;padding:3px 9px">Tiếp nhận</span></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid #EFF3F0;border-radius:11px;background:#FBFCFB">
+                    <div style="width:34px;height:34px;border-radius:9px;background:#F3EEFE;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#8B5CF6;fill:none;stroke-width:1.8"><use href="#ic-cal"/></svg></div>
+                    <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:#1A2B20">Anh Tú — đổi lịch HIFU 15:00 hôm nay</div><div style="font-size:10.5px;color:#8A988F;margin-top:2px">WhatsApp · Trùng lịch kỹ thuật viên</div></div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:#8A5A0C">Còn 22′</span><span style="font-size:10.5px;font-weight:700;color:#1A2B20;background:#fff;border:1px solid #E4EBE6;border-radius:6px;padding:3px 9px">Phân công</span></div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid #EFF3F0;border-radius:11px;background:#FBFCFB">
+                    <div style="width:34px;height:34px;border-radius:9px;background:#EFF7FF;display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#2B9EF3;fill:none;stroke-width:1.8"><use href="#ic-inbox"/></svg></div>
+                    <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:#1A2B20">Đơn quốc tế — ashleyfowler</div><div style="font-size:10.5px;color:#8A988F;margin-top:2px">Instagram · AI confidence 58% (&lt;70%)</div></div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:#B91C1C">Quá hạn 2′</span><span style="font-size:10.5px;font-weight:700;color:#06250F;background:#2DC56A;border-radius:6px;padding:3px 9px">Tiếp nhận</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ B · NEBULA ============ -->
+    <div id="dirB" style="flex:none;width:1240px">
+      <div style="margin-bottom:14px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;color:#1F9C4F;margin-bottom:3px">DIRECTION B</div>
+        <div style="font-size:19px;font-weight:800;color:#0E1B13;letter-spacing:-.02em">Nebula — AI Cockpit</div>
+        <div style="font-size:13px;color:#5B6B61;margin-top:3px">Workspace tối, xanh lá là năng lượng. Command-bar trung tâm, cảm giác "buồng lái AI" agentic, hiện đại nhất.</div>
+      </div>
+      <div style="background:#fff;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden">
+        <div style="display:flex;height:884px;background:#0A120D;font-size:13px;color:#C7D2CC">
+          <!-- rail -->
+          <div style="width:88px;background:#06100A;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;padding:18px 0;flex-shrink:0">
+            <div style="width:42px;height:42px;border-radius:12px;background:#2DC56A;display:grid;place-items:center;font-weight:800;color:#06250F;font-size:21px;margin-bottom:22px;box-shadow:0 0 22px rgba(45,197,106,.5)">A</div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:100%;align-items:center">
+              <div style="width:72px;padding:9px 0;border-radius:12px;background:rgba(45,197,106,.14);border:1px solid rgba(45,197,106,.4);display:flex;flex-direction:column;align-items:center;gap:5px;color:#2DC56A;box-shadow:0 0 16px rgba(45,197,106,.22)">
+                <svg width="21" height="21" style="stroke:#2DC56A;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-grid"/></svg><span style="font-size:9.5px;font-weight:700">Tổng quan</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-spark"/></svg><span style="font-size:9.5px;font-weight:600">Trợ lý AI</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5);position:relative">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-inbox"/></svg><span style="font-size:9.5px;font-weight:600">Hộp thư</span><span style="position:absolute;top:5px;right:13px;background:#2DC56A;color:#06250F;font-size:8.5px;font-weight:800;border-radius:7px;padding:1px 5px">7</span>
+              </div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-users"/></svg><span style="font-size:9.5px;font-weight:600">Khách hàng</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5);text-align:center;line-height:1.15"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-cal"/></svg><span style="font-size:9px;font-weight:600">Lịch làm việc</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bot"/></svg><span style="font-size:9.5px;font-weight:600">AI Agents</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-flow"/></svg><span style="font-size:9.5px;font-weight:600">Quy trình</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-mega"/></svg><span style="font-size:9.5px;font-weight:600">Marketing</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5);text-align:center;line-height:1.15"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-phone"/></svg><span style="font-size:9px;font-weight:600">Call Center</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-gift"/></svg><span style="font-size:9.5px;font-weight:600">Loyalty</span></div>
+              <div class="navi" style="width:72px;padding:9px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.5)"><svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-chart"/></svg><span style="font-size:9.5px;font-weight:600">Báo cáo</span></div>
+            </div>
+            <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:10px;width:100%">
+              <div class="navi" style="width:72px;padding:8px 0;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,.5);position:relative">
+                <svg width="21" height="21" style="stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><use href="#ic-bell"/></svg>
+                <span style="font-size:9px;font-weight:600">Thông báo</span>
+                <span style="position:absolute;top:3px;right:13px;background:#2DC56A;color:#06250F;font-size:8.5px;font-weight:800;border-radius:7px;padding:1px 5px">3</span>
+              </div>
+              <div style="width:48px;height:1px;background:rgba(255,255,255,.08)"></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2DC56A,#157A40);display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;box-shadow:0 0 0 2px rgba(45,197,106,.4)">T</div>
+                <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,.5)">Trâm ▾</span>
+              </div>
+            </div>
+          </div>
+          <!-- main -->
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="height:66px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 26px;flex-shrink:0">
+              <div style="font-size:17px;font-weight:800;letter-spacing:-.02em;color:#fff">Tổng quan</div>
+              <div style="flex:1;max-width:420px;margin:0 24px;display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);border:1px solid rgba(45,197,106,.25);border-radius:11px;padding:9px 14px;color:rgba(255,255,255,.5)">
+                <svg width="16" height="16" style="stroke:#2DC56A;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg><span style="font-size:12.5px">Hỏi AppChat bất cứ điều gì…</span><span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;background:rgba(255,255,255,.08);border-radius:5px;padding:2px 6px">⌘K</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                
+                <div style="display:flex;align-items:center;gap:7px;background:#2DC56A;color:#06250F;font-weight:700;font-size:13px;padding:9px 15px;border-radius:10px;box-shadow:0 0 22px rgba(45,197,106,.45)"><svg width="16" height="16" style="stroke:#06250F;fill:none;stroke-width:1.9"><use href="#ic-bolt"/></svg> Tạo Agent</div>
+              </div>
+            </div>
+            <!-- content -->
+            <div style="flex:1;padding:26px 28px;overflow:hidden;background:radial-gradient(800px 360px at 75% -60px,rgba(45,197,106,.12),transparent 65%)">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px">
+                <div>
+                  <div style="font-size:24px;font-weight:800;letter-spacing:-.02em;color:#fff">Chào Trâm 👋</div>
+                  <div style="font-size:13.5px;color:rgba(255,255,255,.55);margin-top:2px">4 AI Agents đang vận hành · xử lý 85% hội thoại không cần người.</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;background:rgba(45,197,106,.1);border:1px solid rgba(45,197,106,.3);border-radius:10px;padding:8px 13px;color:#7EE2A4;font-weight:600;font-size:12.5px"><span class="acdot" style="width:8px;height:8px;border-radius:5px;background:#2DC56A;display:inline-block"></span> Hệ thống ổn định</div>
+              </div>
+
+              <!-- KPI row -->
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+                <div class="kcard" style="background:#0F1D14;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:17px">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.45)">Hội thoại hôm nay</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 8px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#fff">1.284</div><div style="font-size:11.5px;font-weight:700;color:#2DC56A;padding-bottom:5px">▲ 12%</div></div>
+                  <div style="display:flex;align-items:flex-end;gap:3px;height:24px"><div style="flex:1;height:40%;background:rgba(45,197,106,.25);border-radius:2px"></div><div style="flex:1;height:55%;background:rgba(45,197,106,.3);border-radius:2px"></div><div style="flex:1;height:48%;background:rgba(45,197,106,.3);border-radius:2px"></div><div style="flex:1;height:70%;background:rgba(45,197,106,.5);border-radius:2px"></div><div style="flex:1;height:62%;background:rgba(45,197,106,.6);border-radius:2px"></div><div style="flex:1;height:85%;background:#2DC56A;border-radius:2px"></div><div style="flex:1;height:100%;background:#2DC56A;border-radius:2px;box-shadow:0 0 8px rgba(45,197,106,.8)"></div></div>
+                </div>
+                <div class="kcard" style="background:#0F1D14;border:1px solid rgba(45,197,106,.35);border-radius:14px;padding:17px;box-shadow:0 0 26px rgba(45,197,106,.12)">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.45)">AI tự xử lý</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 8px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#2DC56A;text-shadow:0 0 18px rgba(45,197,106,.5)">85%</div><div style="font-size:11.5px;font-weight:700;color:#2DC56A;padding-bottom:5px">▲ 3%</div></div>
+                  <div style="height:7px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:9px"><div style="width:85%;height:100%;background:#2DC56A;box-shadow:0 0 10px rgba(45,197,106,.8)"></div></div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:6px">1.091 / 1.284 hội thoại</div>
+                </div>
+                <div class="kcard" style="background:#0F1D14;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:17px">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.45)">Lead mới</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 8px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#fff">47</div><div style="font-size:11.5px;font-weight:700;color:#2DC56A;padding-bottom:5px">▲ 8</div></div>
+                  <div style="display:flex;gap:5px;margin-top:6px"><span style="font-size:10.5px;font-weight:600;background:rgba(45,197,106,.15);color:#7EE2A4;border-radius:6px;padding:2px 7px">Hot 12</span><span style="font-size:10.5px;font-weight:600;background:rgba(245,168,48,.15);color:#F5C77E;border-radius:6px;padding:2px 7px">Warm 23</span></div>
+                </div>
+                <div class="kcard" style="background:#0F1D14;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:17px">
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.45)">CSAT</div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;margin:8px 0 8px"><div style="font-size:27px;font-weight:800;letter-spacing:-.02em;color:#fff">4.6<span style="font-size:16px;color:#F5A830">★</span></div><div style="font-size:11.5px;font-weight:700;color:#2DC56A;padding-bottom:5px">▲ 0.2</div></div>
+                  <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:9px">312 đánh giá · 7 ngày</div>
+                </div>
+              </div>
+
+              <!-- main grid -->
+              <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px">
+                <div style="background:#0F1D14;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px"><span class="acdot" style="width:8px;height:8px;border-radius:5px;background:#2DC56A;display:inline-block;box-shadow:0 0 8px #2DC56A"></span><div style="font-size:14.5px;font-weight:700;color:#fff">Hoạt động AI · Real-time</div></div><div style="font-size:11.5px;color:#2DC56A;font-weight:600">Xem tất cả →</div></div>
+                  <div style="display:flex;flex-direction:column">
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="width:34px;height:34px;border-radius:9px;background:rgba(45,197,106,.15);display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#2DC56A;fill:none;stroke-width:1.8"><use href="#ic-bot"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#E4EBE6"><b style="color:#fff">Sales Agent</b> chốt đơn #SP290411 — Chị Lan</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">qua Zalo OA · gói liệu trình HIFU 8 buổi</div></div><span style="font-size:10.5px;font-weight:600;background:rgba(45,197,106,.15);color:#7EE2A4;border-radius:6px;padding:3px 8px;flex-shrink:0">Hoàn tất</span><span style="font-size:11px;color:rgba(255,255,255,.3);flex-shrink:0">2′</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="width:34px;height:34px;border-radius:9px;background:rgba(43,158,243,.15);display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#5CB8F5;fill:none;stroke-width:1.8"><use href="#ic-spark"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#E4EBE6"><b style="color:#fff">AI phân loại</b> 23 hội thoại mới vào luồng Sales / Support</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">Intent + Sentiment · độ tin cậy TB 92%</div></div><span style="font-size:10.5px;font-weight:600;background:rgba(43,158,243,.15);color:#7EC2F5;border-radius:6px;padding:3px 8px;flex-shrink:0">Tự động</span><span style="font-size:11px;color:rgba(255,255,255,.3);flex-shrink:0">6′</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)"><div style="width:34px;height:34px;border-radius:9px;background:rgba(245,168,48,.15);display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#F5C77E;fill:none;stroke-width:1.8"><use href="#ic-ticket"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#E4EBE6"><b style="color:#fff">Support Agent</b> chuyển ticket #4821 cho Minh</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">AI confidence 64% → escalate người phụ trách</div></div><span style="font-size:10.5px;font-weight:600;background:rgba(245,168,48,.15);color:#F5C77E;border-radius:6px;padding:3px 8px;flex-shrink:0">Escalate</span><span style="font-size:11px;color:rgba(255,255,255,.3);flex-shrink:0">12′</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;padding:11px 0"><div style="width:34px;height:34px;border-radius:9px;background:rgba(139,92,246,.18);display:grid;place-items:center;flex-shrink:0"><svg width="17" height="17" style="stroke:#B79BF7;fill:none;stroke-width:1.8"><use href="#ic-flow"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#E4EBE6"><b style="color:#fff">Journey</b> "Remind liệu trình HIFU" đã gửi 142 tin</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">tỷ lệ mở 71% · 38 phản hồi · 9 đặt lịch</div></div><span style="font-size:10.5px;font-weight:600;background:rgba(139,92,246,.18);color:#C4B0F9;border-radius:6px;padding:3px 8px;flex-shrink:0">Đang chạy</span><span style="font-size:11px;color:rgba(255,255,255,.3);flex-shrink:0">25′</span></div>
+                  </div>
+                </div>
+                <div style="background:#0F1D14;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px">
+                  <div style="font-size:14.5px;font-weight:700;color:#fff;margin-bottom:14px">Sức khoẻ kênh</div>
+                  <div style="display:flex;flex-direction:column;gap:13px">
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#0068FF;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">Z</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#E4EBE6">Zalo OA</div><div style="font-size:12px;color:rgba(255,255,255,.5)">1.284</div><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A;box-shadow:0 0 6px #2DC56A"></span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#1877F2;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">f</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#E4EBE6">Facebook Page</div><div style="font-size:12px;color:rgba(255,255,255,.5)">612</div><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A;box-shadow:0 0 6px #2DC56A"></span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">◎</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#E4EBE6">Instagram</div><div style="font-size:12px;color:rgba(255,255,255,.5)">188</div><span style="width:7px;height:7px;border-radius:4px;background:#F5A830"></span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#25D366;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">W</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#E4EBE6">WhatsApp</div><div style="font-size:12px;color:rgba(255,255,255,.5)">94</div><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A;box-shadow:0 0 6px #2DC56A"></span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#1A2B20;border:1px solid rgba(255,255,255,.15);display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">⌘</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#E4EBE6">Website Live Chat</div><div style="font-size:12px;color:rgba(255,255,255,.5)">341</div><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A;box-shadow:0 0 6px #2DC56A"></span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:26px;height:26px;border-radius:7px;background:#229ED9;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px">✈</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#E4EBE6">Telegram</div><div style="font-size:12px;color:rgba(255,255,255,.5)">27</div><span style="width:7px;height:7px;border-radius:4px;background:#E33F3F"></span></div>
+                  </div>
+                  <div style="margin-top:16px;padding:12px;border-radius:11px;background:rgba(45,197,106,.1);border:1px solid rgba(45,197,106,.28)">
+                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><svg width="15" height="15" style="stroke:#2DC56A;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg><span style="font-size:11.5px;font-weight:700;color:#7EE2A4">Trợ lý AI gợi ý</span></div>
+                    <div style="font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.7)">Telegram đang chậm phản hồi. Bật AI Agent cho kênh này để giảm thời gian chờ ~8 phút.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ C · CLARITY ============ -->
+    <div id="dirC" style="flex:none;width:1280px">
+      <div style="margin-bottom:14px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;color:#1F9C4F;margin-bottom:3px">DIRECTION C</div>
+        <div style="font-size:19px;font-weight:800;color:#0E1B13;letter-spacing:-.02em">Clarity — Bright Enterprise</div>
+        <div style="font-size:13px;color:#5B6B61;margin-top:3px">Sidebar sáng có nhãn chữ, nhiều khoảng thở, bo mềm. Xanh lá dùng tiết chế làm điểm nhấn &amp; data. Calm, data-forward kiểu Linear/Stripe.</div>
+      </div>
+      <div style="background:#fff;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden">
+        <div style="display:flex;height:884px;background:#FBFCFB;font-size:13px;color:#1A2B20">
+          <!-- rail -->
+          <div style="width:228px;background:#fff;border-right:1px solid #ECF0ED;display:flex;flex-direction:column;padding:18px 14px;flex-shrink:0">
+            <div style="display:flex;align-items:center;gap:10px;padding:0 6px;margin-bottom:22px">
+              <div style="width:36px;height:36px;border-radius:10px;background:#2DC56A;display:grid;place-items:center;font-weight:800;color:#06250F;font-size:18px">A</div>
+              <div><div style="font-weight:800;font-size:16px;letter-spacing:-.02em;color:#0E1B13">App<span style="color:#1F9C4F">Chat</span></div><div style="font-size:9.5px;color:#8A988F;letter-spacing:.05em">SPA BÉ NA · WORKSPACE</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#F5F8F6;border:1px solid #ECF0ED;border-radius:10px;padding:8px 11px;margin-bottom:18px;color:#8A988F"><svg width="15" height="15" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-search"/></svg><span style="font-size:12px">Tìm kiếm</span><span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9.5px;background:#fff;border:1px solid #ECF0ED;border-radius:4px;padding:1px 5px">⌘K</span></div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;color:#B8C4BC;padding:0 8px 8px">VẬN HÀNH</div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;background:#E8F8EE;color:#157A40;font-weight:700"><svg width="19" height="19" style="stroke:#1F9C4F;fill:none;stroke-width:1.8"><use href="#ic-grid"/></svg><span style="font-size:13px">Tổng quan</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#1F9C4F;fill:none;stroke-width:1.8"><use href="#ic-spark"/></svg><span style="font-size:13px">Trợ lý AI</span><span style="margin-left:auto;font-size:8.5px;font-weight:800;letter-spacing:.05em;color:#157A40;background:#E8F8EE;border-radius:6px;padding:2px 6px">AI</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-inbox"/></svg><span style="font-size:13px">Hộp thư</span><span style="margin-left:auto;background:#2DC56A;color:#06250F;font-size:10px;font-weight:800;border-radius:8px;padding:1px 7px">7</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-users"/></svg><span style="font-size:13px">Khách hàng</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-cal"/></svg><span style="font-size:13px">Lịch làm việc</span></div>
+            </div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;color:#B8C4BC;padding:16px 8px 8px">AI &amp; TỰ ĐỘNG</div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-bot"/></svg><span style="font-size:13px">AI Agents</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-flow"/></svg><span style="font-size:13px">Quy trình</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-mega"/></svg><span style="font-size:13px">Marketing</span></div>
+            </div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;color:#B8C4BC;padding:16px 8px 8px">KINH DOANH</div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-phone"/></svg><span style="font-size:13px">Call Center</span></div>
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-gift"/></svg><span style="font-size:13px">Loyalty</span></div>
+            </div>
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:.1em;color:#B8C4BC;padding:16px 8px 8px">PHÂN TÍCH</div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-chart"/></svg><span style="font-size:13px">Báo cáo</span></div>
+            </div>
+            <div style="margin-top:auto;display:flex;flex-direction:column;gap:6px">
+              <div class="naviL" style="display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:#5B6B61;font-weight:600"><svg width="19" height="19" style="stroke:#8A988F;fill:none;stroke-width:1.8"><use href="#ic-bell"/></svg><span style="font-size:13px">Thông báo</span><span style="margin-left:auto;background:#E33F3F;color:#fff;font-size:10px;font-weight:800;border-radius:8px;padding:1px 7px">3</span></div>
+              <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;background:#F5F8F6;border:1px solid #ECF0ED;cursor:pointer">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2DC56A,#157A40);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px">T</div>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:#0E1B13">Trâm Nguyễn</div><div style="font-size:10.5px;color:#8A988F">Quản lý · Spa Bé Na</div></div>
+                <svg width="15" height="15" style="stroke:#8A988F;fill:none;stroke-width:1.9;transform:rotate(90deg)"><use href="#ic-arrow"/></svg>
+              </div>
+            </div>
+          </div>
+          <!-- main -->
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="height:70px;background:#fff;border-bottom:1px solid #ECF0ED;display:flex;align-items:center;justify-content:space-between;padding:0 30px;flex-shrink:0">
+              <div><div style="font-size:18px;font-weight:800;letter-spacing:-.02em;color:#0E1B13">Tổng quan</div><div style="font-size:12px;color:#8A988F">Thứ Tư, 18/06/2026 · cập nhật thời gian thực</div></div>
+              <div style="display:flex;align-items:center;gap:11px">
+                <div style="display:flex;background:#F5F8F6;border:1px solid #ECF0ED;border-radius:10px;padding:3px"><span style="font-size:12px;font-weight:700;padding:6px 13px;border-radius:7px;background:#fff;color:#0E1B13;box-shadow:0 1px 2px rgba(0,0,0,.05)">Hôm nay</span><span style="font-size:12px;font-weight:600;padding:6px 13px;color:#8A988F">7 ngày</span><span style="font-size:12px;font-weight:600;padding:6px 13px;color:#8A988F">Tháng</span></div>
+                
+                <div style="display:flex;align-items:center;gap:8px;background:#2DC56A;color:#06250F;font-weight:700;font-size:13px;padding:10px 16px;border-radius:11px"><svg width="16" height="16" style="stroke:#06250F;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg> Hỏi AppChat</div>
+              </div>
+            </div>
+            <!-- content -->
+            <div style="flex:1;padding:28px 30px;overflow:hidden">
+              <div style="margin-bottom:24px"><div style="font-size:25px;font-weight:800;letter-spacing:-.025em;color:#0E1B13">Chào Trâm 👋</div><div style="font-size:14px;color:#5B6B61;margin-top:3px">Toàn cảnh hội thoại, chuyển đổi từ AI và các hoạt động đang chạy hôm nay.</div></div>
+
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px">
+                <div class="kcard" style="background:#fff;border:1px solid #ECF0ED;border-radius:18px;padding:20px;box-shadow:0 2px 10px rgba(14,27,19,.04)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:12px;font-weight:600;color:#8A988F">Hội thoại hôm nay</div><div style="width:30px;height:30px;border-radius:9px;background:#E8F8EE;display:grid;place-items:center"><svg width="16" height="16" style="stroke:#1F9C4F;fill:none;stroke-width:1.9"><use href="#ic-inbox"/></svg></div></div><div style="font-size:30px;font-weight:800;letter-spacing:-.03em;color:#0E1B13;margin:12px 0 4px">1.284</div><div style="font-size:12px;color:#1F9C4F;font-weight:600">▲ 12% so với hôm qua</div></div>
+                <div class="kcard" style="background:#fff;border:1px solid #ECF0ED;border-radius:18px;padding:20px;box-shadow:0 2px 10px rgba(14,27,19,.04)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:12px;font-weight:600;color:#8A988F">AI tự xử lý</div><div style="width:30px;height:30px;border-radius:9px;background:#E8F8EE;display:grid;place-items:center"><svg width="16" height="16" style="stroke:#1F9C4F;fill:none;stroke-width:1.9"><use href="#ic-spark"/></svg></div></div><div style="font-size:30px;font-weight:800;letter-spacing:-.03em;color:#0E1B13;margin:12px 0 8px">85%</div><div style="height:7px;border-radius:4px;background:#EFF3F0;overflow:hidden"><div style="width:85%;height:100%;background:linear-gradient(90deg,#2DC56A,#1F9C4F)"></div></div></div>
+                <div class="kcard" style="background:#fff;border:1px solid #ECF0ED;border-radius:18px;padding:20px;box-shadow:0 2px 10px rgba(14,27,19,.04)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:12px;font-weight:600;color:#8A988F">Lead mới</div><div style="width:30px;height:30px;border-radius:9px;background:#E8F8EE;display:grid;place-items:center"><svg width="16" height="16" style="stroke:#1F9C4F;fill:none;stroke-width:1.9"><use href="#ic-users"/></svg></div></div><div style="font-size:30px;font-weight:800;letter-spacing:-.03em;color:#0E1B13;margin:12px 0 6px">47</div><div style="display:flex;gap:6px"><span style="font-size:10.5px;font-weight:600;background:#E8F8EE;color:#157A40;border-radius:6px;padding:2px 8px">Hot 12</span><span style="font-size:10.5px;font-weight:600;background:#FFF8EC;color:#8A5A0C;border-radius:6px;padding:2px 8px">Warm 23</span></div></div>
+                <div class="kcard" style="background:#fff;border:1px solid #ECF0ED;border-radius:18px;padding:20px;box-shadow:0 2px 10px rgba(14,27,19,.04)"><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:12px;font-weight:600;color:#8A988F">CSAT</div><div style="width:30px;height:30px;border-radius:9px;background:#FFF8EC;display:grid;place-items:center;color:#F5A830;font-size:15px">★</div></div><div style="font-size:30px;font-weight:800;letter-spacing:-.03em;color:#0E1B13;margin:12px 0 4px">4.6</div><div style="font-size:12px;color:#1F9C4F;font-weight:600">▲ 0.2 · 312 đánh giá</div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:20px">
+                <div style="background:#fff;border:1px solid #ECF0ED;border-radius:18px;padding:20px 22px;box-shadow:0 2px 10px rgba(14,27,19,.04)">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="display:flex;align-items:center;gap:8px"><span class="acdot" style="width:8px;height:8px;border-radius:5px;background:#2DC56A;display:inline-block"></span><div style="font-size:15px;font-weight:700;color:#0E1B13">Hoạt động AI · Real-time</div></div><div style="font-size:12px;color:#1F9C4F;font-weight:600">Xem tất cả →</div></div>
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <div style="display:flex;gap:13px;align-items:center;padding:12px;border-radius:12px;background:#FAFBFA"><div style="width:36px;height:36px;border-radius:10px;background:#E8F8EE;display:grid;place-items:center;flex-shrink:0"><svg width="18" height="18" style="stroke:#1F9C4F;fill:none;stroke-width:1.8"><use href="#ic-bot"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>Sales Agent</b> chốt đơn #SP290411 — Chị Lan</div><div style="font-size:11px;color:#8A988F;margin-top:1px">qua Zalo OA · gói liệu trình HIFU 8 buổi</div></div><span style="font-size:10.5px;font-weight:600;background:#E8F8EE;color:#157A40;border-radius:6px;padding:3px 8px;flex-shrink:0">Hoàn tất</span><span style="font-size:11px;color:#B8C4BC;flex-shrink:0">2′</span></div>
+                    <div style="display:flex;gap:13px;align-items:center;padding:12px;border-radius:12px"><div style="width:36px;height:36px;border-radius:10px;background:#EFF7FF;display:grid;place-items:center;flex-shrink:0"><svg width="18" height="18" style="stroke:#2B9EF3;fill:none;stroke-width:1.8"><use href="#ic-spark"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>AI phân loại</b> 23 hội thoại mới vào luồng Sales / Support</div><div style="font-size:11px;color:#8A988F;margin-top:1px">Intent + Sentiment · độ tin cậy TB 92%</div></div><span style="font-size:10.5px;font-weight:600;background:#EFF7FF;color:#0B4F8A;border-radius:6px;padding:3px 8px;flex-shrink:0">Tự động</span><span style="font-size:11px;color:#B8C4BC;flex-shrink:0">6′</span></div>
+                    <div style="display:flex;gap:13px;align-items:center;padding:12px;border-radius:12px;background:#FAFBFA"><div style="width:36px;height:36px;border-radius:10px;background:#FFF8EC;display:grid;place-items:center;flex-shrink:0"><svg width="18" height="18" style="stroke:#F5A830;fill:none;stroke-width:1.8"><use href="#ic-ticket"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>Support Agent</b> chuyển ticket #4821 cho Minh</div><div style="font-size:11px;color:#8A988F;margin-top:1px">AI confidence 64% → escalate người phụ trách</div></div><span style="font-size:10.5px;font-weight:600;background:#FFF8EC;color:#8A5A0C;border-radius:6px;padding:3px 8px;flex-shrink:0">Escalate</span><span style="font-size:11px;color:#B8C4BC;flex-shrink:0">12′</span></div>
+                    <div style="display:flex;gap:13px;align-items:center;padding:12px;border-radius:12px"><div style="width:36px;height:36px;border-radius:10px;background:#F3EEFE;display:grid;place-items:center;flex-shrink:0"><svg width="18" height="18" style="stroke:#8B5CF6;fill:none;stroke-width:1.8"><use href="#ic-flow"/></svg></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#1A2B20"><b>Journey</b> "Remind liệu trình HIFU" đã gửi 142 tin</div><div style="font-size:11px;color:#8A988F;margin-top:1px">tỷ lệ mở 71% · 38 phản hồi · 9 đặt lịch</div></div><span style="font-size:10.5px;font-weight:600;background:#F3EEFE;color:#6D28D9;border-radius:6px;padding:3px 8px;flex-shrink:0">Đang chạy</span><span style="font-size:11px;color:#B8C4BC;flex-shrink:0">25′</span></div>
+                  </div>
+                </div>
+                <div style="background:#fff;border:1px solid #ECF0ED;border-radius:18px;padding:20px 22px;box-shadow:0 2px 10px rgba(14,27,19,.04)">
+                  <div style="font-size:15px;font-weight:700;color:#0E1B13;margin-bottom:16px">Sức khoẻ kênh</div>
+                  <div style="display:flex;flex-direction:column;gap:14px">
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:#0068FF;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px">Z</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#1A2B20">Zalo OA</div><div style="font-size:12px;color:#5B6B61">1.284</div><span style="font-size:10.5px;font-weight:600;color:#157A40;background:#E8F8EE;border-radius:6px;padding:2px 8px">Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:#1877F2;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px">f</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#1A2B20">Facebook Page</div><div style="font-size:12px;color:#5B6B61">612</div><span style="font-size:10.5px;font-weight:600;color:#157A40;background:#E8F8EE;border-radius:6px;padding:2px 8px">Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF);display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px">◎</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#1A2B20">Instagram</div><div style="font-size:12px;color:#5B6B61">188</div><span style="font-size:10.5px;font-weight:600;color:#8A5A0C;background:#FFF8EC;border-radius:6px;padding:2px 8px">Ổn</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:#25D366;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px">W</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#1A2B20">WhatsApp</div><div style="font-size:12px;color:#5B6B61">94</div><span style="font-size:10.5px;font-weight:600;color:#157A40;background:#E8F8EE;border-radius:6px;padding:2px 8px">Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:#1A2B20;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px">⌘</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#1A2B20">Website Live Chat</div><div style="font-size:12px;color:#5B6B61">341</div><span style="font-size:10.5px;font-weight:600;color:#157A40;background:#E8F8EE;border-radius:6px;padding:2px 8px">Tốt</span></div>
+                    <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:8px;background:#229ED9;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px">✈</div><div style="flex:1;font-size:12.5px;font-weight:600;color:#1A2B20">Telegram</div><div style="font-size:12px;color:#5B6B61">27</div><span style="font-size:10.5px;font-weight:600;color:#B91C1C;background:#FEF2F2;border-radius:6px;padding:2px 8px">Chậm</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#12894F"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#12894F"/><text x="600" y="470" font-family="Plus Jakarta Sans,sans-serif" font-size="360" font-weight="800" fill="#fff" text-anchor="middle">A</text></svg></template></x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

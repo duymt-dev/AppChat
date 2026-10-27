@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · Đặc tả Nghiệp vụ &amp; Yêu cầu Phần mềm (SRS) — v3.4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--pr:#2DC56A;--pr-d:#1F9C4F;--pr-d2:#157A40;--pr-soft:#E8F8EE;--pr-bg:#F2FBF6;--ink:#0E1B13;--l1:#1A2B20;--l2:#5B6B61;--l3:#8A988F;--line:#E4EBE6;--line2:#EFF3F0;--bg:#F7FAF8;--card:#FFFFFF;--info:#2B9EF3;--warn:#F5A830;--risk:#E33F3F;--purple:#8B5CF6;--mono:'JetBrains Mono',ui-monospace,monospace;}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--l1);line-height:1.6;-webkit-font-smoothing:antialiased}
+.doc{max-width:1000px;margin:0 auto;padding:0 0 100px}
+.cover{background:linear-gradient(135deg,#06250F,#0E1B13 60%);color:#fff;padding:64px 56px 50px;position:relative;overflow:hidden}
+.cover::after{content:'';position:absolute;right:-110px;top:-110px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(45,197,106,.22),transparent 70%)}
+.cover::before{content:'';position:absolute;left:-90px;bottom:-130px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(45,197,106,.10),transparent 70%)}
+.brandrow{display:flex;align-items:center;gap:11px;margin-bottom:26px;position:relative;z-index:1}
+.bmark{width:36px;height:36px;border-radius:10px;background:var(--pr);display:grid;place-items:center;font-weight:800;color:#06250F;font-size:18px}
+.btxt{font-weight:800;font-size:18px;letter-spacing:-.02em}.btxt span{color:var(--pr)}
+.dockind{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;background:rgba(45,197,106,.16);border:1px solid rgba(45,197,106,.3);color:#7EE2A4;font-size:12px;font-weight:600;margin-bottom:18px;position:relative;z-index:1}
+.cover h1{font-size:36px;font-weight:800;letter-spacing:-.025em;line-height:1.12;margin-bottom:13px;max-width:760px;position:relative;z-index:1}.cover h1 span{color:var(--pr)}
+.cover .sub{font-size:15px;color:rgba(255,255,255,.66);max-width:700px;position:relative;z-index:1;line-height:1.6}
+.cover .vmeta{display:flex;gap:26px;margin-top:30px;position:relative;z-index:1;font-size:12.5px;flex-wrap:wrap}
+.cover .vmeta b{display:block;color:var(--pr);font-size:15px;font-weight:700;margin-bottom:1px}.cover .vmeta span{color:rgba(255,255,255,.55)}
+.toc{background:var(--card);border-bottom:1px solid var(--line);padding:26px 56px}
+.toc h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--l3);margin-bottom:12px;font-weight:700}
+.toc ol{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 28px}
+.toc ol li{font-size:13px;padding:3px 0}
+.toc ol li a{color:var(--l1);text-decoration:none;display:flex;gap:8px}
+.toc ol li a:hover{color:var(--pr-d)}
+.toc ol li .n{font-family:var(--mono);color:var(--pr-d);font-weight:600;flex-shrink:0}
+section{padding:44px 56px;border-bottom:1px solid var(--line);background:var(--card)}
+.kicker{font-family:var(--mono);font-size:12px;color:var(--pr-d);font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+h2{font-size:25px;font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+.sec-d{font-size:14px;color:var(--l2);max-width:740px;margin-bottom:18px;line-height:1.6}
+h3{font-size:16px;font-weight:700;margin:22px 0 9px}
+h4{font-size:14px;font-weight:700;margin:16px 0 7px;color:var(--l1)}
+p{font-size:14px;color:var(--l1);margin-bottom:11px}.muted{color:var(--l2)}
+.lead{font-size:16px;color:var(--l2);line-height:1.66;margin-bottom:8px}.lead b{color:var(--l1)}
+.callout{padding:14px 16px;border-radius:11px;font-size:13.5px;line-height:1.55;display:flex;gap:11px;margin:13px 0}
+.callout.pr{background:var(--pr-bg);border:1px solid var(--pr-soft);color:var(--pr-d2)}.callout.info{background:#EFF7FF;border:1px solid #CFE6FB;color:#0B4F8A}.callout.warn{background:#FFF8EC;border:1px solid #F7E2B8;color:#8A5A0C}
+.callout b{font-weight:700}.callout .ic{font-size:15px;line-height:1.3}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:8px;margin:8px 0}
+ul.clean li{font-size:13.5px;padding-left:22px;position:relative;line-height:1.5}
+ul.clean li::before{content:'▸';position:absolute;left:0;top:0;color:var(--pr-d);font-weight:800}
+ul.clean li b{font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--l3);padding:9px 11px;border-bottom:1px solid var(--line);background:var(--line2)}
+td{padding:10px 11px;border-bottom:1px solid var(--line2);vertical-align:top}td b{font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr};.toc ol{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);border-radius:11px;padding:14px;background:#fff}.panel h4{margin-top:0}.panel p{font-size:12.5px;color:var(--l2);margin:0;line-height:1.5}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.02em;white-space:nowrap}
+.tag.must{background:#FEE2E2;color:#991B1B}.tag.should{background:#FEF3C7;color:#92400E}.tag.could{background:#DBEAFE;color:#1E40AF}
+.tag.built{background:var(--pr-soft);color:var(--pr-d2)}.tag.bk{background:#EDE9FE;color:#5B21B6}.tag.partial{background:#FFF3DD;color:#8A5A0C}
+.mod{border:1px solid var(--line);border-radius:12px;padding:0;background:#fff;margin:14px 0;overflow:hidden}
+.mod .mh{display:flex;align-items:center;gap:11px;padding:13px 16px;background:#FAFCFB;border-bottom:1px solid var(--line)}
+.mod .mi{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;flex-shrink:0;background:var(--pr-soft)}
+.mod .mh .t{font-size:15px;font-weight:800}.mod .mh .c{font-size:11.5px;color:var(--l2);font-family:var(--mono)}
+.mod .mh .badge{margin-left:auto;display:flex;gap:6px;align-items:center}
+.mod .mb{padding:6px 16px 8px}
+.fr{display:grid;grid-template-columns:84px 1fr 84px 78px;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12.5px;align-items:start}
+.fr:last-child{border:none}
+.fr .id{font-family:var(--mono);font-weight:700;color:var(--pr-d);font-size:11.5px}
+.fr .pri{text-align:center}.fr .ver{text-align:center}
+.fr-head{display:grid;grid-template-columns:84px 1fr 84px 78px;gap:10px;padding:8px 0 4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--l3);border-bottom:1px solid var(--line)}
+.fr-head .c2,.fr-head .c3{text-align:center}
+.uc{border:1px solid var(--line);border-radius:10px;padding:13px;background:#fff;margin:10px 0}
+.uc .uh{font-size:13px;font-weight:700;margin-bottom:7px}.uc .uh .id{font-family:var(--mono);color:var(--pr-d)}
+.uc table{margin:0}.uc td:first-child{font-weight:600;width:130px;color:var(--l2)}
+.flow{display:flex;flex-wrap:wrap;gap:0;margin:10px 0}
+.flow .st{flex:1;min-width:118px;border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff;font-size:12px}
+.flow .st .n{font-family:var(--mono);font-size:10px;color:var(--pr-d);font-weight:700}
+.flow .st b{font-size:12.5px;display:block;margin:2px 0 3px}.flow .st p{font-size:11px;color:var(--l2);margin:0;line-height:1.4}
+.flow .arr{display:flex;align-items:center;padding:0 5px;color:var(--l3)}
+@media(max-width:760px){.flow .arr{display:none}}
+.cl-row{display:grid;grid-template-columns:96px 1fr;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:13px;align-items:start}
+.cl-v{font-family:var(--mono);font-weight:700;color:var(--pr-d)}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+.stat-grid .sc{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:#fff}
+.stat-grid .sc b{font-size:24px;font-weight:800;color:var(--pr-d);letter-spacing:-.02em;display:block}
+.stat-grid .sc span{font-size:11.5px;color:var(--l2)}
+@media(max-width:760px){.stat-grid{grid-template-columns:1fr 1fr}}
+.modmap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.modmap .mm{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff}
+.modmap .mm .ic{font-size:17px;margin-bottom:5px}
+.modmap .mm b{font-size:13px;font-weight:800;display:block}
+.modmap .mm p{font-size:11px;color:var(--l2);margin:2px 0 0;line-height:1.45}
+.modmap .mm .grp{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--pr-d);font-family:var(--mono)}
+@media(max-width:760px){.modmap{grid-template-columns:1fr 1fr}}
+.foot{padding:34px 56px;color:var(--l3);font-size:12px;text-align:center}.foot b{color:var(--l2)}
+.note{font-size:12px;color:var(--l3);font-style:italic;margin-top:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--l2);margin:10px 0 4px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+@media print{section{padding:26px 30px}.cover{padding:34px 30px}.mod{break-inside:avoid}.uc{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="doc">
+  <div class="cover">
+    <div class="brandrow"><div class="bmark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfAAAAHwCAYAAABZrD3mAABP4ElEQVR4nO3de3xU5b0v/s9aSSaTmcxMJglDCCGJAQyEi8FNBeyuSHs8nKO1Wutp2VL1lLIVtBt+e2vjryqn2ype6m23Xlp77AUVL1VbysUbVRQVBVSQ+/0OxoAkgRLCJVnnj8yaWTOZJHNZa551+bxfL1symcszk2Q+833Wdz0PQERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERKmQRA+AqC+NbU0FAHCyo71tz4kDoodjCt5cDyo95R7R4zCLMk/opOgxEGUbA5yEa2xrKlDDeeuxXWg9fQzrWrag5XSr6KERWdJFoXGG3O/wwFD48ryo9lagIMft4QcnsRjglHWrjqxVdhzbjY2t27C2eZPo4RBRBopcAYwuGoYLSusRyi/BiGAtcyVL+EKT4VYdWassa1yB5U0rRQ+FiLLkotA4DA8MxaiiWpzjq2TWGIAvKulu9/F9ykeHP8WSQ8s4DU5EAIBqbwW+3m8szgvWsUrXCV9E0oUa2vP3LBA9FCKygPpgHcaVns8KPQN80SgjC/cvVV7au4iVNhGlrcgVwGXlk1idp4gvFKVsY/NWZfHBt3lMm4gMcXnFJfhGv68xzPvAF4eSturIWmXezpfBc7GJKFsur7gEkwdcxGn2BPiCUJ+WNa5Qnt7xIqfJiUiYIlcAP6i6HN8ZdAlzK4wvBPWIwU1EZlQfrMM11Vc6ford0U+eEtt9fJ/y0KanOFVORKZW7a3A1VWXYVLZhY7MMkc+aerZAxueVNicRkRWM7X6SlxT811HZZqjniz1bFnjCuWhTU+JHgYRUUacFOSOeJLUs8a2poK71/+Ku3wRka1Mrb4S3yz7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" style="width:100%;height:100%;object-fit:contain" alt="AppChat"></div><div class="btxt">App<span>Chat</span></div></div>
+    <div class="dockind"><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A"></span> SRS · Business Analysis · v4.0 · Đồng bộ Architecture v4.2</div>
+    <h1>Đặc tả <span>Nghiệp vụ &amp; Yêu cầu Phần mềm</span></h1>
+    <div class="sub">Tài liệu Business Analyst cho đội phát triển — mô tả đầy đủ nghiệp vụ, vai trò, use-case, yêu cầu chức năng (FR) &amp; phi chức năng (NFR), luồng dữ liệu, tiêu chí nghiệm thu và lộ trình theo phiên bản. Cấu trúc theo <b style="color:#fff">12 Module nền tảng</b> — đồng bộ sidebar app &amp; Design System v3.3 của <b style="color:#fff">Nền tảng One-Person Company (OPC)</b>. Mỗi module gắn một nhóm nghiệp vụ.</div>
+    <div class="vmeta">
+      <div><b>v4.0</b><span>Đồng bộ Arch v4.2</span></div>
+      <div><b>+Đặc tả dev</b><span>API·Event·DB·BR</span></div>
+      <div><b>19 kênh</b><span>Omnichannel</span></div>
+      <div><b>170+ FR</b><span>Theo module</span></div>
+      <div><b>Dev · QA · PO · Architect</b><span>Đối tượng</span></div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <h3>Mục lục</h3>
+    <ol>
+      <li><a href="#intro"><span class="n">01</span> Giới thiệu &amp; phạm vi</a></li>
+      <li><a href="#glossary"><span class="n">02</span> Thuật ngữ &amp; quy ước</a></li>
+      <li><a href="#roles"><span class="n">03</span> Vai trò &amp; phân quyền (RBAC)</a></li>
+      <li><a href="#arch"><span class="n">04</span> Kiến trúc &amp; mô hình dữ liệu</a></li>
+      <li><a href="#priority"><span class="n">05</span> Quy ước ưu tiên &amp; trạng thái</a></li>
+      <li><a href="#m-dashboard"><span class="n">06</span> Module 1: Dashboard</a></li>
+      <li><a href="#m-messages"><span class="n">07</span> Module 2: Messages</a></li>
+      <li><a href="#m-callcenter"><span class="n">08</span> Module 3: Call Center</a></li>
+      <li><a href="#m-customers"><span class="n">09</span> Module 4: Customers</a></li>
+      <li><a href="#m-calendar"><span class="n">10</span> Module 5: Calendar</a></li>
+      <li><a href="#m-tickets"><span class="n">11</span> Module 6: Tickets</a></li>
+      <li><a href="#m-marketing"><span class="n">12</span> Module 7: Marketing</a></li>
+      <li><a href="#m-agents"><span class="n">13</span> Module 8: AI Agents</a></li>
+      <li><a href="#m-reports"><span class="n">14</span> Module 9: Reports</a></li>
+      <li><a href="#m-files"><span class="n">15</span> Module 10: Files</a></li>
+      <li><a href="#m-help"><span class="n">16</span> Module 11: Help Center</a></li>
+      <li><a href="#m-settings"><span class="n">17</span> Module 12: Settings</a></li>
+      <li><a href="#m-auth"><span class="n">18</span> Cross-cutting: Auth</a></li>
+      <li><a href="#nfr"><span class="n">19</span> Yêu cầu phi chức năng (NFR)</a></li>
+      <li><a href="#integration"><span class="n">20</span> Tích hợp &amp; API kênh</a></li>
+      <li><a href="#billing"><span class="n">21</span> Gói dịch vụ &amp; Thanh toán</a></li>
+      <li><a href="#acceptance"><span class="n">22</span> Tiêu chí nghiệm thu &amp; QA</a></li>
+      <li><a href="#roadmap"><span class="n">23</span> Lộ trình &amp; trạng thái phiên bản</a></li>
+      <li><a href="#devspec"><span class="n">24</span> Đặc tả phát triển chi tiết (Dev)</a></li>
+      <li><a href="#events"><span class="n">25</span> Domain Events &amp; luồng dữ liệu</a></li>
+      <li><a href="#datadict"><span class="n">26</span> Data Dictionary (bảng · trường)</a></li>
+      <li><a href="#bizrules"><span class="n">27</span> Business Rules đầy đủ</a></li>
+      <li><a href="#traceability"><span class="n">28</span> Traceability (FR ↔ Service ↔ API)</a></li>
+    </ol>
+  </div>
+
+  <section id="intro">
+    <div class="kicker">01 — Introduction</div>
+    <h2>Giới thiệu &amp; phạm vi</h2>
+    <p class="lead"><b>AppChat</b> là <b>nền tảng One-Person Company (OPC)</b> — hợp nhất 19 kênh giao tiếp khách hàng vào một không gian làm việc duy nhất, với AI Agents tự động hoá trọn vòng đời <b>Sales · Marketing · Service · Operations</b> cho doanh nghiệp Việt Nam.</p>
+    <h4>Mục tiêu tài liệu</h4>
+    <ul class="clean">
+      <li>Cung cấp đặc tả đủ chi tiết để đội Dev <b>ước lượng, thiết kế &amp; lập trình</b> không cần đoán.</li>
+      <li>Định nghĩa <b>vai trò, use-case, FR/NFR, luồng dữ liệu, tiêu chí nghiệm thu</b> cho từng module.</li>
+      <li><b>Đồng bộ với sidebar app &amp; Design System v3.3</b> — mỗi module trong tài liệu = một mục điều hướng trong app, gắn một nhóm nghiệp vụ.</li>
+    </ul>
+    <div class="callout pr"><span class="ic">◆</span><div><b>Cập nhật cấu trúc v3.3 — 12 Module nền tảng:</b> hợp nhất Contacts + Deals thành <b>Customers</b> (CRM 360° + pipeline + hợp đồng + báo giá); tách <b>Calendar</b> (lịch hẹn) và <b>Tickets</b> (hỗ trợ SLA) thành module riêng; Broadcast nâng thành <b>Marketing</b>; Automation nâng thành <b>AI Agents</b>. Sourcing &amp; Orders xuyên biên trở thành năng lực mở rộng (add-on), không nằm trên sidebar chính. <b>Bổ sung Module 3 — Call Center</b> (tổng đài gọi vào/ra, AI Voice, ghi âm &amp; nghe lại, webphone nổi) cùng nghiệp vụ <b>Gói dịch vụ &amp; Thanh toán</b> chi tiết (mục 21).</div></div>
+    <h4>12 Module nền tảng — bản đồ nghiệp vụ</h4>
+    <div class="modmap">
+      <div class="mm"><div class="ic">📊</div><b>Dashboard</b><p>KPI realtime cross-function: Sales, Marketing, Service, Operations.</p><span class="grp">Operations</span></div>
+      <div class="mm"><div class="ic">💬</div><b>Messages</b><p>Inbox đa kênh hợp nhất 19 kênh social, AI Agent co-pilot.</p><span class="grp">Service · Sales</span></div>
+      <div class="mm"><div class="ic">☎️</div><b>Call Center</b><p>Tổng đài gọi vào/ra · AI Voice · ghi âm &amp; nghe lại · webphone.</p><span class="grp">Service · Sales</span></div>
+      <div class="mm"><div class="ic">👥</div><b>Customers</b><p>CRM 360° · pipeline Lead → Won · hợp đồng · báo giá.</p><span class="grp">Sales</span></div>
+      <div class="mm"><div class="ic">📅</div><b>Calendar</b><p>Lịch hẹn đồng bộ Task, conflict-check, nhắc tự động.</p><span class="grp">Sales · Service</span></div>
+      <div class="mm"><div class="ic">🎫</div><b>Tickets</b><p>Hỗ trợ · SLA · escalation. AI gợi ý xử lý từng case.</p><span class="grp">Service</span></div>
+      <div class="mm"><div class="ic">📣</div><b>Marketing</b><p>Chiến dịch Email · ZNS · SMS, phân khúc, phê duyệt.</p><span class="grp">Marketing</span></div>
+      <div class="mm"><div class="ic">🤖</div><b>AI Agents</b><p>Cấu hình AI Agent &amp; workflow, phân luồng thông minh.</p><span class="grp">Operations</span></div>
+      <div class="mm"><div class="ic">📈</div><b>Reports</b><p>Hiệu suất Chat · Call · Ticket. AI phân tích insight.</p><span class="grp">Operations</span></div>
+      <div class="mm"><div class="ic">📁</div><b>Files</b><p>Knowledge Base — dataset để AI Agent học &amp; trả lời.</p><span class="grp">Operations</span></div>
+      <div class="mm"><div class="ic">❓</div><b>Help Center</b><p>Site self-service: FAQ, bài viết, dataset cho AI RAG.</p><span class="grp">Service</span></div>
+      <div class="mm"><div class="ic">⚙️</div><b>Settings</b><p>Workspace · phân quyền · API 19 kênh · AI Governance.</p><span class="grp">Admin</span></div>
+    </div>
+    <h4>Ngoài phạm vi (Out-of-scope · v3.3)</h4>
+    <ul class="clean">
+      <li><b>Mobile native / PWA</b> — nền tảng tập trung desktop web (1440px); mobile không nằm trong lộ trình hiện tại.</li>
+      <li><b>Sourcing / Orders xuyên biên</b> — đã loại khỏi phạm vi sản phẩm; không có trên sidebar, không đặc tả.</li>
+      <li><b>SMS OTP</b> — đăng ký/đăng nhập chỉ dùng OTP qua Zalo (kèm social login); không gửi OTP qua SMS.</li>
+      <li><b>API Explorer tương tác</b> &amp; <b>Widget Customizer</b> (Backlog P2) · <b>Consent/DPIA Hub</b> (Backlog P3).</li>
+    </ul>
+    <div class="callout info"><span class="ic">↗</span><div><b>Tài liệu liên quan (v3.3):</b> Design System (token UI + sidebar spec), Platform Overview, Capability Deck, Feature Audit. SRS này là <b>nguồn chân lý</b> cho yêu cầu phần mềm.</div></div>
+  </section>
+
+  <section id="glossary">
+    <div class="kicker">02 — Glossary</div>
+    <h2>Thuật ngữ &amp; quy ước</h2>
+    <table>
+      <thead><tr><th style="width:26%">Thuật ngữ</th><th>Định nghĩa</th></tr></thead>
+      <tbody>
+        <tr><td><b>Conversation (Hội thoại)</b></td><td>Một luồng tin nhắn với 1 khách trên 1 kênh; gắn 1 customer &amp; 1 assignee.</td></tr>
+        <tr><td><b>Channel (Kênh)</b></td><td>Điểm chạm giao tiếp (Zalo, FB, TikTok, Email…). 19 kênh, 5 nhóm.</td></tr>
+        <tr><td><b>AI Agent</b></td><td>Tác tử AI cấu hình được (persona, KB, rule): co-pilot trong Messages, tự động trả lời, phân luồng, gợi ý xử lý ticket.</td></tr>
+        <tr><td><b>Customer 360°</b></td><td>Hồ sơ khách hợp nhất: định danh đa kênh, lịch sử, deal, hợp đồng, báo giá.</td></tr>
+        <tr><td><b>Pipeline / Deal</b></td><td>Cơ hội bán theo stage Lead → Qualified → Proposal → Negotiation → Won/Lost.</td></tr>
+        <tr><td><b>Ticket / Case</b></td><td>Yêu cầu hỗ trợ có SLA, priority, assignee, trạng thái vòng đời &amp; escalation.</td></tr>
+        <tr><td><b>SLA</b></td><td>Cam kết thời gian phản hồi/xử lý; quá hạn kích hoạt cảnh báo &amp; escalation.</td></tr>
+        <tr><td><b>Segment (Phân khúc)</b></td><td>Tập khách hàng lọc theo điều kiện (tag, hành vi, giá trị) dùng cho Marketing.</td></tr>
+        <tr><td><b>Approval workflow</b></td><td>Quy trình phê duyệt nội dung chiến dịch (ZNS/Email/SMS) trước khi gửi.</td></tr>
+        <tr><td><b>Knowledge Base / RAG</b></td><td>Kho tài liệu được embedding để AI Agent học &amp; trả lời có căn cứ (grounding).</td></tr>
+        <tr><td><b>Conflict-check</b></td><td>Kiểm tra trùng lịch khi đặt hẹn trên Calendar.</td></tr>
+        <tr><td><b>IVR</b></td><td>Kịch bản trả lời tự động khi khách gọi tổng đài: lời chào → menu phím → hàng đợi/AI Voice.</td></tr>
+        <tr><td><b>Extension (Máy nhánh)</b></td><td>Số máy lẻ gán cho agent (web phone / IP phone / mobile); AI Voice Agent cũng có máy nhánh riêng.</td></tr>
+        <tr><td><b>ACW</b></td><td>After-Call Work — thời gian xử lý hậu cuộc gọi (ghi chú, cập nhật hồ sơ) trước khi nhận cuộc tiếp.</td></tr>
+        <tr><td><b>Token</b></td><td>Đơn vị tính phí sử dụng AI; đi kèm theo gói, mua thêm khi vượt.</td></tr>
+        <tr><td><b>RBAC · FR/NFR · UC</b></td><td>Phân quyền theo vai trò · Yêu cầu chức năng/phi chức năng · Use-case.</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Quy ước mã: <b>FR-[MOD]-NN</b> · <b>UC-[MOD]-NN</b> · <b>NFR-NN</b>. MOD: DASH, MSG, CALL, CUS, CAL, TKT, MKT, AGT, RPT, FILE, HELP, SET, AUTH, BILL.</p>
+  </section>
+
+  <section id="roles">
+    <div class="kicker">03 — Roles &amp; Permissions</div>
+    <h2>Vai trò &amp; phân quyền (RBAC)</h2>
+    <p class="sec-d">7 nhóm người dùng chính. Quyền chi tiết cấu hình trong Settings → Phân quyền (roles matrix); bảng dưới là mặc định.</p>
+    <table>
+      <thead><tr><th style="width:20%">Vai trò</th><th style="width:24%">Mô tả</th><th>Quyền chính theo module</th></tr></thead>
+      <tbody>
+        <tr><td><b>Admin (Chủ DN)</b></td><td>Toàn quyền workspace</td><td>Tất cả 12 module · billing · phân quyền · AI Governance · audit</td></tr>
+        <tr><td><b>Sales Manager</b></td><td>Quản lý đội bán</td><td>Customers (pipeline + forecast + quota), Calendar, Reports, phân công lead</td></tr>
+        <tr><td><b>Sales Agent</b></td><td>Nhân viên bán</td><td>Messages (được giao), Customers của mình, Calendar, tạo báo giá/hợp đồng</td></tr>
+        <tr><td><b>Marketing Manager</b></td><td>Chiến dịch &amp; nuôi dưỡng</td><td>Marketing (campaign, template, segment, phê duyệt), Reports marketing</td></tr>
+        <tr><td><b>CS Manager / Agent</b></td><td>Chăm sóc &amp; hỗ trợ KH</td><td>Messages, Tickets (SLA, escalation), Call Center (gọi &amp; nghe lại), Calendar, Help Center; ẩn pricing</td></tr>
+        <tr><td><b>Operation / AI Ops</b></td><td>Vận hành &amp; AI</td><td>AI Agents (cấu hình, training, canary), Files KB, routing/SLA, Dashboard</td></tr>
+        <tr><td><b>Viewer</b></td><td>Chỉ xem</td><td>Dashboard &amp; Reports (read-only)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><span class="ic">⚠</span><div><b>Quy tắc:</b> mọi hành động ghi audit log (ai · làm gì · khi nào). Dữ liệu nhạy cảm (PII, pricing, hợp đồng) cần quyền riêng — mặc định ẩn với CS/Viewer.</div></div>
+  </section>
+
+  <section id="arch">
+    <div class="kicker">04 — Architecture &amp; Data</div>
+    <h2>Kiến trúc &amp; mô hình dữ liệu</h2>
+    <p class="sec-d">Kiến trúc tham chiếu cho Dev — chi tiết kỹ thuật do Solution Architect quyết định, đây là khung nghiệp vụ.</p>
+    <h4>Thực thể dữ liệu cốt lõi (Core entities)</h4>
+    <table>
+      <thead><tr><th style="width:22%">Entity</th><th style="width:36%">Mô tả</th><th>Quan hệ chính</th></tr></thead>
+      <tbody>
+        <tr><td><b>Workspace</b></td><td>Tổ chức / tenant</td><td>1–N Users, Channels, Customers</td></tr>
+        <tr><td><b>User</b></td><td>Người dùng nội bộ</td><td>thuộc Workspace, có Role</td></tr>
+        <tr><td><b>Channel</b></td><td>Kênh kết nối (19 kênh)</td><td>thuộc Workspace, 1–N Conversations</td></tr>
+        <tr><td><b>Customer</b></td><td>Khách hàng 360° (contact/account/lead)</td><td>1–N Conversations, Deals, Tickets, Events, Quotes</td></tr>
+        <tr><td><b>Conversation</b></td><td>Hội thoại</td><td>1 Customer, 1 Channel, N Messages, 1 Assignee</td></tr>
+        <tr><td><b>Message</b></td><td>Tin nhắn</td><td>thuộc Conversation; type: text/image/file/voice…</td></tr>
+        <tr><td><b>Deal</b></td><td>Cơ hội bán (6-stage, trong Customers)</td><td>1 Customer, 1 Stage, 1 Owner, N Quotes/Contracts</td></tr>
+        <tr><td><b>Quote / Contract</b></td><td>Báo giá &amp; hợp đồng</td><td>thuộc Deal/Customer; trạng thái duyệt &amp; ký</td></tr>
+        <tr><td><b>Event (Lịch hẹn)</b></td><td>Cuộc hẹn / meeting / call</td><td>1 Customer, 1+ Users; đồng bộ Task; conflict-check</td></tr>
+        <tr><td><b>Ticket</b></td><td>Case hỗ trợ có SLA</td><td>1 Customer, 1 Assignee, priority, SLA timer, N comments</td></tr>
+        <tr><td><b>Campaign / Template / Segment</b></td><td>Chiến dịch, mẫu tin, phân khúc</td><td>Campaign → 1 Segment, 1 Template, 1+ Channels, approval</td></tr>
+        <tr><td><b>AIAgent</b></td><td>Cấu hình AI (persona, KB, rule)</td><td>Knowledge refs, workflow, governance, canary</td></tr>
+        <tr><td><b>KnowledgeDoc / HelpArticle</b></td><td>Tài liệu &amp; bài viết cho AI (embedding)</td><td>thuộc Workspace; nguồn RAG (Files + Help Center)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Luồng dữ liệu A — tin nhắn đến → xử lý (Messages)</h4>
+    <div class="flow">
+      <div class="st"><div class="n">1</div><b>Inbound</b><p>Webhook kênh → chuẩn hoá message</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">2</div><b>Route</b><p>Gắn Customer, AI Agent theo rule</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">3</div><b>AI / Human</b><p>Agent trả lời hoặc escalate người</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">4</div><b>Outbound</b><p>Gửi qua channel API + log</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">5</div><b>Analytics</b><p>Cập nhật KPI, billing Token</p></div>
+    </div>
+
+    <h4>Luồng dữ liệu B — lead → deal → hợp đồng (Customers)</h4>
+    <div class="flow">
+      <div class="st"><div class="n">1</div><b>Lead</b><p>Tạo từ chat/form/import</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">2</div><b>Qualify</b><p>Chấm điểm, gắn owner</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">3</div><b>Proposal</b><p>Gắn báo giá &amp; lịch hẹn</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">4</div><b>Negotiate</b><p>Hợp đồng, e-sign</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">5</div><b>Won</b><p>Doanh số vào Reports</p></div>
+    </div>
+
+    <h4>Luồng dữ liệu C — ticket hỗ trợ có SLA (Tickets)</h4>
+    <div class="flow">
+      <div class="st"><div class="n">1</div><b>Tạo ticket</b><p>Từ chat/email/form</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">2</div><b>Phân loại</b><p>AI gợi ý category &amp; priority</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">3</div><b>SLA timer</b><p>Đếm ngược theo cam kết</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">4</div><b>Xử lý</b><p>AI gợi ý giải pháp từ KB</p></div>
+      <div class="arr">→</div>
+      <div class="st"><div class="n">5</div><b>Đóng / Escalate</b><p>CSAT + audit</p></div>
+    </div>
+  </section>
+
+  <section id="priority">
+    <div class="kicker">05 — Conventions</div>
+    <h2>Quy ước ưu tiên &amp; trạng thái</h2>
+    <div class="grid3">
+      <div class="panel"><h4>Ưu tiên (MoSCoW)</h4>
+        <p style="margin-bottom:6px"><span class="tag must">MUST</span> Bắt buộc</p>
+        <p style="margin-bottom:6px"><span class="tag should">SHOULD</span> Quan trọng</p>
+        <p><span class="tag could">COULD</span> Có thể hoãn</p>
+      </div>
+      <div class="panel"><h4>Trạng thái build</h4>
+        <p style="margin-bottom:6px"><span class="tag built">v3.3 ✓</span> Đã build &amp; ship</p>
+        <p style="margin-bottom:6px"><span class="tag partial">Mở rộng</span> Build, cần hoàn thiện</p>
+        <p><span class="tag bk">Backlog</span> Chưa làm</p>
+      </div>
+      <div class="panel"><h4>Cột bảng FR</h4>
+        <p style="margin:0">Mỗi FR có <b>ID · Mô tả · PRI</b> (MoSCoW) · <b>STATUS</b> (trạng thái build). QA dùng ID để map test case.</p>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="sc"><b>11</b><span>Module nền tảng</span></div>
+      <div class="sc"><b>170+</b><span>FR theo module</span></div>
+      <div class="sc"><b>19</b><span>Kênh omnichannel</span></div>
+      <div class="sc"><b>4</b><span>Hạng mục backlog</span></div>
+    </div>
+  </section>
+  <section id="m-dashboard">
+    <div class="kicker">06 — Module 1</div>
+    <h2>Dashboard — Trung tâm điều hành</h2>
+    <p class="sec-d">KPI realtime cross-function: Sales · Marketing · Service · Operations. Sức khoẻ vận hành, insight AI, workload đội.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">📊</div><div><div class="t">Dashboard</div><div class="c">MOD-DASH · /dashboard</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-DASH-01</span><span>KPI cards realtime 4 nhóm chức năng: Sales (doanh số, deal won), Marketing (campaign, lead), Service (SLA, CSAT, ticket), Operations (hội thoại, AI tự xử).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-DASH-02</span><span>Heatmap inbound 7×24 + Channel-mix doughnut + Top-intent chart.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-DASH-03</span><span>Agent performance bar + Pending-queue banner cảnh báo SLA quá hạn.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-DASH-04</span><span>AI insight feed: gợi ý tối ưu (giờ vàng, bottleneck) từ dữ liệu cross-function.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-DASH-05</span><span>Bộ lọc thời gian/kênh/đội + Export CSV/PDF.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-DASH-06</span><span>Widget customizer: drag-drop tile, lưu view, chia sẻ team.</span><span class="pri"><span class="tag could">COULD</span></span><span class="ver"><span class="tag bk">Backlog</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-DASH-01</span> · Theo dõi sức khoẻ vận hành đầu ngày</div>
+      <table>
+        <tr><td>Actor</td><td>Admin / Manager</td></tr>
+        <tr><td>Tiền điều kiện</td><td>Đã đăng nhập, có quyền xem Dashboard</td></tr>
+        <tr><td>Luồng chính</td><td>Mở Dashboard → chọn "Hôm nay" → xem KPI 4 nhóm → đọc AI insight → drill-down chỉ số bất thường</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Nắm tình hình, điều phối nguồn lực kịp thời</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-messages">
+    <div class="kicker">07 — Module 2</div>
+    <h2>Messages — Inbox đa kênh hợp nhất</h2>
+    <p class="sec-d">Hợp nhất 19 kênh social vào 1 inbox, UX kiểu Zalo, AI Agent co-pilot soạn reply inline, context panel khách 360°.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">💬</div><div><div class="t">Messages</div><div class="c">MOD-MSG · /messages</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-MSG-01</span><span>Hợp nhất hội thoại từ 19 kênh đã kết nối vào 1 inbox, badge kênh.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-02</span><span>FolderRail views: All · Mine · Mention · VIP · Cart · Complain. Intent labels (BUY/COMPARE/COMPLAIN/SUPPORT).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-03</span><span>Chat bubble kiểu Zalo: reply-to, react, forward, pinned bar; sticker picker + voice message.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-04</span><span>Attach menu 12 loại (ảnh, file, vị trí, sản phẩm, poll…); seen-by + typing + scroll-to-bottom FAB.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-05</span><span>Context panel 360°: khách, deal, ticket, lịch hẹn, ghi chú; phân công/chuyển agent/nhãn.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-06</span><span>AI Agent co-pilot: gợi ý reply, tóm tắt, dịch, viết lại inline.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-07</span><span>Quick action từ hội thoại: tạo Customer / Deal / Ticket / lịch hẹn.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MSG-08</span><span>Density toggle · bulk select · search; nút "Kết nối kênh mới".</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-MSG-01</span> · Xử lý tin khách đa kênh có AI hỗ trợ</div>
+      <table>
+        <tr><td>Actor</td><td>Sales / CS Agent</td></tr>
+        <tr><td>Tiền điều kiện</td><td>Kênh đã kết nối, hội thoại được giao</td></tr>
+        <tr><td>Luồng chính</td><td>Nhận tin → mở hội thoại → xem panel 360° → AI gợi ý reply → chỉnh &amp; gửi → tạo Deal/Ticket nếu cần → đóng/chuyển</td></tr>
+        <tr><td>Luồng phụ</td><td>AI Agent tự trả lời nếu bật auto; escalate người khi dưới ngưỡng tin cậy</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Tin trả lời, lịch sử &amp; KPI cập nhật, Token AI ghi nhận</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-callcenter">
+    <div class="kicker">08 — Module 3</div>
+    <h2>Call Center — Tổng đài &amp; Voice AI</h2>
+    <p class="sec-d">Thống kê gọi vào/gọi ra realtime · trạng thái máy nhánh · ghi âm &amp; nghe lại · AI Voice Agent · webphone nổi (gọi đi / nhận cuộc gọi / chuyển máy) hoạt động ở mọi module. Cấu hình tổng đài đặt tại Settings → Tổng đài (FR-SET-10).</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">☎️</div><div><div class="t">Call Center</div><div class="c">MOD-CALL · /call-center</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-CALL-01</span><span><b>KPI realtime:</b> tổng cuộc gọi · gọi vào · gọi ra · gọi nhỡ (tỉ lệ) · thời lượng TB · % AI Voice tự xử; biểu đồ cuộc gọi theo giờ (vào/ra).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-02</span><span><b>Nhật ký cuộc gọi:</b> chiều gọi, khách/số, agent · máy nhánh, số tổng đài, giờ, thời lượng, trạng thái; lọc theo Tất cả/Vào/Ra/Nhỡ/Voicemail/AI Voice.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-03</span><span><b>Nghe lại ghi âm:</b> player waveform, tốc độ phát, tải file; lưu trữ 12 tháng; phân quyền nghe (Admin/Manager).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-04</span><span><b>AI sau cuộc gọi:</b> transcript đầy đủ, tóm tắt, chấm sentiment — tự đính vào hồ sơ khách 360°.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-05</span><span><b>Trạng thái máy nhánh realtime</b> (sẵn sàng/đang gọi/ACW/nghỉ) + hàng đợi chờ; giám sát nghe xen · whisper · barge-in (Manager).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-06</span><span><b>Webphone nổi:</b> dialer gọi đi (bàn phím + chọn caller ID), màn nhận cuộc gọi đến, màn đang gọi (mute/hold/record/DTMF), <b>chuyển máy</b> blind/consult tới máy nhánh hoặc hàng đợi; thu nhỏ thành pill, dùng được ở mọi module; click-to-call từ hồ sơ khách.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-07</span><span>Gọi nhỡ tự tạo task gọi lại cho agent phụ trách; voicemail ngoài giờ kèm lời chào riêng.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-08</span><span><b>AI Voice Agent</b> nghe máy trước: tự xử câu hỏi thường gặp (deflect), chuyển người khi vượt ngưỡng tin cậy; ghi audit theo AI Governance.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CALL-09</span><span>Auto-dialer chiến dịch gọi ra theo segment từ Marketing.</span><span class="pri"><span class="tag could">COULD</span></span><span class="ver"><span class="tag bk">Backlog</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-CALL-01</span> · Khách gọi vào hotline</div>
+      <table>
+        <tr><td>Actor</td><td>Khách hàng · AI Voice Agent · CS Agent</td></tr>
+        <tr><td>Luồng chính</td><td>Gọi 1900 1234 → IVR lời chào → AI Voice trả lời trước → (nếu cần) menu phím → hàng đợi → agent nghe máy → ghi âm + transcript + tóm tắt → đính hồ sơ 360°</td></tr>
+        <tr><td>Ngoại lệ</td><td>Quá giờ chờ tối đa → voicemail + task gọi lại; ngoài giờ → lời chào ngoài giờ + voicemail</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Cuộc gọi xuất hiện trong nhật ký, KPI cập nhật realtime, hồ sơ khách có timeline cuộc gọi</td></tr>
+      </table>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-CALL-02</span> · Agent gọi đi &amp; chuyển máy</div>
+      <table>
+        <tr><td>Actor</td><td>Sales/CS Agent</td></tr>
+        <tr><td>Luồng chính</td><td>Click-to-call từ hồ sơ khách (hoặc mở dialer webphone) → chọn caller ID → gọi → đang gọi (mute/hold/record) → cần chuyển chuyên môn → chuyển máy consult tới ext khác hoặc hàng đợi</td></tr>
+        <tr><td>Quy tắc</td><td>Caller ID theo đội (Sales → 1900 1234); chuyển máy giữ nguyên ghi âm xuyên suốt; trạng thái máy nhánh cập nhật realtime</td></tr>
+        <tr><td>Hậu điều kiện</td><td>1 bản ghi cuộc gọi duy nhất kèm chuỗi chuyển máy; transcript + tóm tắt đính hồ sơ</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-customers">
+    <div class="kicker">09 — Module 4</div>
+    <h2>Customers — CRM 360° &amp; Pipeline</h2>
+    <p class="sec-d">CRM 360° (Contacts/Accounts/Leads) · pipeline Lead → Won (Kanban 6-stage) · hợp đồng · báo giá. Hợp nhất Contacts + Deals.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">👥</div><div><div class="t">Customers</div><div class="c">MOD-CUS · /customers</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-CUS-01</span><span>3 tab Contacts · Accounts · Leads; 9 view filter + filter-by-field; cột tuỳ biến.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CUS-02</span><span>Detail panel 360° (5 tab): Tổng quan · Hoạt động · Ghi chú · Timeline đa kênh · Liên quan (deal/ticket/lịch hẹn).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CUS-03</span><span><b>Pipeline Kanban 6-stage:</b> Lead → Qualified → Proposal → Negotiation → Won / Lost; drag-drop đổi stage.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CUS-04</span><span>Deal drawer: contact, timeline, products, health score; Forecast view + Weighted pipeline + Quota attainment.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CUS-05</span><span><b>Báo giá &amp; hợp đồng:</b> tạo từ deal, mẫu duyệt sẵn, trạng thái gửi/duyệt/ký (e-sign).</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CUS-06</span><span>AI Score + gợi ý next-action; AI enrich (làm giàu data).</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CUS-07</span><span>Mass update · Merge · Delete · Import · Export · Search; custom fields động theo ngành.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-CUS-01</span> · Đưa lead qua pipeline tới chốt hợp đồng</div>
+      <table>
+        <tr><td>Actor</td><td>Sales Agent / Manager</td></tr>
+        <tr><td>Luồng chính</td><td>Lead mới → tư vấn (Messages) → tạo Deal → kéo Qualified → Proposal (gắn báo giá) → Negotiation (hợp đồng) → Won</td></tr>
+        <tr><td>Quy tắc</td><td>Weighted = giá trị × xác suất stage; Won cập nhật Quota &amp; Forecast; mọi chuyển stage vào timeline</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Deal đóng, doanh số ghi nhận, Reports &amp; Dashboard cập nhật</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-calendar">
+    <div class="kicker">10 — Module 5</div>
+    <h2>Calendar — Lịch hẹn &amp; Task</h2>
+    <p class="sec-d">Lịch hẹn đồng bộ Task, conflict-check khi đặt, nhắc tự động qua Zalo/Email trước N giờ.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">📅</div><div><div class="t">Calendar</div><div class="c">MOD-CAL · /calendar</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-CAL-01</span><span>Lịch tháng/tuần/ngày + danh sách; tạo nhanh cuộc hẹn/meeting/call.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CAL-02</span><span>Đồng bộ 1 nguồn dữ liệu với Task (Activities); gắn Customer/Deal/Ticket.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CAL-03</span><span><b>Conflict-check:</b> cảnh báo trùng lịch của assignee khi đặt hẹn; gợi ý slot trống.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CAL-04</span><span><b>Nhắc tự động</b> qua Zalo/Email/Push trước N giờ; reschedule &amp; hủy.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-CAL-05</span><span>Đồng bộ Google Calendar / Outlook 2 chiều.</span><span class="pri"><span class="tag could">COULD</span></span><span class="ver"><span class="tag bk">Backlog</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-CAL-01</span> · Đặt lịch hẹn tư vấn không trùng giờ</div>
+      <table>
+        <tr><td>Actor</td><td>Sales / CS Agent</td></tr>
+        <tr><td>Luồng chính</td><td>Từ hội thoại/khách → "Đặt hẹn" → chọn giờ → conflict-check báo trống → lưu → hệ thống nhắc tự động trước N giờ</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Lịch hẹn gắn Customer, đồng bộ Task, nhắc cả 2 bên</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-tickets">
+    <div class="kicker">11 — Module 6</div>
+    <h2>Tickets — Hỗ trợ &amp; SLA</h2>
+    <p class="sec-d">Hỗ trợ khách hàng có SLA &amp; escalation; AI Agent gợi ý hướng xử lý từng case dựa trên Knowledge Base.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">🎫</div><div><div class="t">Tickets</div><div class="c">MOD-TKT · /tickets</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-TKT-01</span><span>Danh sách ticket: mã, khách, category, priority, assignee, trạng thái, SLA timer; filter &amp; search.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-TKT-02</span><span>Tạo ticket từ chat/email/form; gắn Customer &amp; hội thoại nguồn.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-TKT-03</span><span><b>SLA &amp; escalation:</b> đếm ngược theo cam kết; quá hạn cảnh báo &amp; tự chuyển cấp.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-TKT-04</span><span><b>AI gợi ý xử lý:</b> phân loại + đề xuất giải pháp/bài viết từ Knowledge Base cho từng case.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-TKT-05</span><span>Ticket drawer: timeline, comment nội bộ, đính kèm; chuyển trạng thái &amp; CSAT khi đóng.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-TKT-01</span> · Xử lý ticket có AI gợi ý &amp; SLA</div>
+      <table>
+        <tr><td>Actor</td><td>CS Agent / Manager</td></tr>
+        <tr><td>Luồng chính</td><td>Ticket tạo → AI phân loại + gợi ý giải pháp → agent xử lý → cập nhật trạng thái → đóng + CSAT</td></tr>
+        <tr><td>Quy tắc</td><td>SLA timer chạy theo priority; quá hạn → cảnh báo Dashboard + escalation tự động; mọi thay đổi ghi audit</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Ticket đóng đúng SLA, dữ liệu vào Reports Service</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-marketing">
+    <div class="kicker">12 — Module 7</div>
+    <h2>Marketing — Chiến dịch đa kênh</h2>
+    <p class="sec-d">Chiến dịch Email · ZNS · SMS; phân khúc khách hàng; phê duyệt nội dung trước khi gửi; đo ROI.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">📣</div><div><div class="t">Marketing</div><div class="c">MOD-MKT · /marketing</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-MKT-01</span><span>Campaign list + KPI Sent/Open/Click/Reply; step wizard (phân khúc → mẫu → lịch gửi).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MKT-02</span><span><b>Phân khúc (segment)</b> từ Customers theo tag/hành vi/giá trị; channel-mix Email/ZNS/SMS; A/B test 2 biến thể.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MKT-03</span><span>Template Studio drag-drop: block types, preview realtime đa kênh, variable binding, library duyệt sẵn.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MKT-04</span><span><b>Phê duyệt (approval workflow)</b> ZNS/Email/SMS: multi-reviewer, AI pre-flight kiểm nội dung, audit log.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-MKT-05</span><span>Timeline delivery; throttle &amp; chi phí ước tính theo kênh (phí tin + Token).</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag partial">Mở rộng</span></span></div>
+        <div class="fr"><span class="id">FR-MKT-06</span><span>Đo ROI từng chiến dịch (gửi/mở/click/chuyển đổi → doanh số).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m-agents">
+    <div class="kicker">13 — Module 8</div>
+    <h2>AI Agents — Cấu hình &amp; phân luồng</h2>
+    <p class="sec-d">Cấu hình AI Agent &amp; workflow no-code, phân luồng thông minh; training studio (persona, eval, model compare, canary).</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">🤖</div><div><div class="t">AI Agents</div><div class="c">MOD-AGT · /ai-agents</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-AGT-01</span><span>Workflow canvas node-based + template quick-start; <b>phân luồng thông minh</b> (intent/tag/SLA → agent/người).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-AGT-02</span><span>AI Agent config: persona, gắn Knowledge Base; Trigger new-msg/intent/tag/SLA.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-AGT-03</span><span>Action: reply/assign/tag/webhook; escalation rules; auto-reply theo ngưỡng tin cậy.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-AGT-04</span><span>Test mode + activity log + Agent performance card.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-AGT-05</span><span><b>Training Studio:</b> persona builder, Golden Set test cases, Eval Runner rubric scoring.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-AGT-06</span><span>Model Comparison (Haiku/Sonnet/Opus) + Canary deploy 5 bậc % + rollback.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+    <div class="uc">
+      <div class="uh"><span class="id">UC-AGT-01</span> · Huấn luyện &amp; roll-out AI Agent an toàn</div>
+      <table>
+        <tr><td>Actor</td><td>Operation / AI Ops</td></tr>
+        <tr><td>Luồng chính</td><td>Cấu hình persona → gắn KB → chạy Golden Set qua Eval Runner → so sánh model → canary 5% → mở rộng dần</td></tr>
+        <tr><td>Quy tắc</td><td>Không roll-out 100% nếu eval score dưới ngưỡng; mọi bậc canary ghi audit &amp; có rollback</td></tr>
+        <tr><td>Hậu điều kiện</td><td>Agent vận hành với độ tin cậy đo được; human-in-the-loop khi dưới ngưỡng</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="m-reports">
+    <div class="kicker">14 — Module 9</div>
+    <h2>Reports — Hiệu suất &amp; Insight</h2>
+    <p class="sec-d">Hiệu suất Chat · Call · Ticket; drill-down theo agent/kênh; AI phân tích insight, revenue attribution.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">📈</div><div><div class="t">Reports</div><div class="c">MOD-RPT · /reports</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-RPT-01</span><span>Dashboard preset hiệu suất <b>Chat · Call · Ticket</b>; time-range picker + compare.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-RPT-02</span><span>Drill-down theo agent/kênh; AI performance (deflect rate, confidence).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-RPT-03</span><span><b>AI phân tích insight:</b> phát hiện xu hướng, bất thường, gợi ý hành động bằng ngôn ngữ tự nhiên.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-RPT-04</span><span>Revenue from chat; cohort retention; Export CSV · Scheduled email · Saved views.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-RPT-05</span><span>Báo cáo tuỳ biến drag-drop builder.</span><span class="pri"><span class="tag could">COULD</span></span><span class="ver"><span class="tag bk">Backlog</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m-files">
+    <div class="kicker">15 — Module 10</div>
+    <h2>Files — Knowledge Base cho AI</h2>
+    <p class="sec-d">Knowledge Base — dataset để AI Agent học &amp; trả lời (RAG). Upload, sync nguồn, embedding + semantic search.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">📁</div><div><div class="t">Files</div><div class="c">MOD-FILE · /files</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-FILE-01</span><span>Grid + List view; upload drag-drop · folder tree.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-FILE-02</span><span><b>Dataset cho AI:</b> embedding status per file; toggle "Dùng trong AI Agent" (RAG grounding).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-FILE-03</span><span>Sync: Drive, Shopify, Notion, URL; quick filter type/source/ngày.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-FILE-04</span><span>Xem trước PDF/DOCX/IMG; semantic search.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-FILE-05</span><span>Phân quyền truy cập tài liệu theo vai trò.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m-help">
+    <div class="kicker">16 — Module 11</div>
+    <h2>Help Center — Self-service Site</h2>
+    <p class="sec-d">Site self-service: FAQ, bài viết, chuyên mục; đồng thời là dataset cho AI RAG trả lời khách tự động.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">❓</div><div><div class="t">Help Center</div><div class="c">MOD-HELP · /help-center</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-HELP-01</span><span>Trang Help public: FAQ, bài viết, chuyên mục; search; trình soạn bài viết WYSIWYG.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-HELP-02</span><span><b>Dataset cho AI RAG:</b> bài viết tự động dùng làm nguồn cho AI Agent trả lời khách (Messages/Tickets).</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-HELP-03</span><span>SEO, tên miền tuỳ chỉnh, analytics lượt xem &amp; bài viết hữu ích.</span><span class="pri"><span class="tag could">COULD</span></span><span class="ver"><span class="tag partial">Mở rộng</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m-settings">
+    <div class="kicker">17 — Module 12</div>
+    <h2>Settings &amp; Governance</h2>
+    <p class="sec-d">Workspace · phân quyền · kết nối &amp; API 19 kênh · AI Governance (ISO 42001) · billing · bảo mật.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">⚙️</div><div><div class="t">Settings</div><div class="c">MOD-SET · /settings</div></div><div class="badge"><span class="tag built">v3.3 ✓ · 27 sections</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-SET-01</span><span>Workspace: Tổng quan · Thương hiệu · Giờ làm việc.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-02</span><span><b>Phân quyền:</b> Thành viên · Roles matrix · Phòng ban (RBAC chi tiết).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-03</span><span>Data: Custom fields · Tags · Câu trả lời mẫu.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-04</span><span><b>AI Governance ISO 42001:</b> Models · Agents · Audit (log, ngưỡng tin cậy, human-in-the-loop).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-05</span><span><b>Kết nối &amp; API 19 kênh</b> (OAuth/QR/API key/token); quản lý webhook.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-06</span><span>Apps: Marketplace · API · Dev tools (keys).</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-07</span><span>Security: SSO · 2FA · Audit log · GDPR/PDPA · data retention · DPA download.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-08</span><span><b>Gói &amp; thanh toán:</b> thông tin gói hiện tại · Token &amp; chi phí phát sinh · mua thêm tài nguyên · lịch sử hóa đơn — đặc tả chi tiết tại mục 21 (FR-BILL).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-SET-09</span><span>API Explorer tương tác &amp; Consent/DPIA Hub.</span><span class="pri"><span class="tag could">COULD</span></span><span class="ver"><span class="tag bk">Backlog</span></span></div>
+        <div class="fr"><span class="id">FR-SET-10</span><span><b>Tổng đài (Call Center):</b> số hotline (nhà mạng/SIP trunk, toggle) · IVR (lời chào, AI Voice trả lời trước, menu phím) · hàng đợi &amp; chiến lược phân phối · máy nhánh · quy tắc gọi ra/caller ID · ghi âm &amp; giám sát · thông số SIP — mô hình tham chiếu StringeeX.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="m-auth">
+    <div class="kicker">18 — Cross-cutting</div>
+    <h2>Auth — Xác thực &amp; phiên</h2>
+    <p class="sec-d">Lớp xác thực dùng chung cho toàn nền tảng (không phải mục sidebar) — đăng nhập, 2FA, SSO, audit.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">🔐</div><div><div class="t">Auth</div><div class="c">MOD-AUTH</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr" style="grid-template-columns:90px 1fr 70px"><span class="id">FR-AUTH-01</span><span>Đăng nhập / đăng ký / quên mật khẩu.</span><span class="pri"><span class="tag must">MUST</span></span></div>
+        <div class="fr" style="grid-template-columns:90px 1fr 70px"><span class="id">FR-AUTH-02</span><span>OTP / 2FA; session &amp; remember-me.</span><span class="pri"><span class="tag must">MUST</span></span></div>
+        <div class="fr" style="grid-template-columns:90px 1fr 70px"><span class="id">FR-AUTH-03</span><span>SSO doanh nghiệp (SAML/OIDC).</span><span class="pri"><span class="tag should">SHOULD</span></span></div>
+        <div class="fr" style="grid-template-columns:90px 1fr 70px"><span class="id">FR-AUTH-04</span><span>Mọi đăng nhập ghi audit log.</span><span class="pri"><span class="tag must">MUST</span></span></div>
+      </div>
+    </div>
+  </section>
+  <section id="nfr">
+    <div class="kicker">19 — Non-Functional</div>
+    <h2>Yêu cầu phi chức năng (NFR)</h2>
+    <table>
+      <thead><tr><th style="width:9%">Mã</th><th style="width:18%">Nhóm</th><th>Yêu cầu</th></tr></thead>
+      <tbody>
+        <tr><td><b>NFR-01</b></td><td>Hiệu năng</td><td>Inbox load &lt; 2s; gửi tin &lt; 1s; chịu tải N hội thoại đồng thời (điền theo quy mô).</td></tr>
+        <tr><td><b>NFR-02</b></td><td>Realtime</td><td>Tin nhắn đến hiển thị &lt; 3s qua websocket/push.</td></tr>
+        <tr><td><b>NFR-03</b></td><td>Sẵn sàng</td><td>Uptime mục tiêu 99.9%; cơ chế retry webhook kênh.</td></tr>
+        <tr><td><b>NFR-04</b></td><td>Bảo mật</td><td>Mã hoá at-rest &amp; in-transit; RBAC; audit log; OWASP Top 10.</td></tr>
+        <tr><td><b>NFR-05</b></td><td>Tuân thủ</td><td>PII theo ND13/GDPR/PDPA; lưu trữ &amp; xoá dữ liệu theo chính sách; SOC 2.</td></tr>
+        <tr><td><b>NFR-06</b></td><td>Mở rộng</td><td>Multi-tenant; scale ngang; kiến trúc kênh dạng plugin/adapter.</td></tr>
+        <tr><td><b>NFR-07</b></td><td>Khả dụng</td><td>Responsive web (desktop trước; PWA backlog); WCAG AA; VN-first song ngữ Việt/Anh.</td></tr>
+        <tr><td><b>NFR-08</b></td><td>AI Governance</td><td>ISO 42001; log mọi hành động AI; ngưỡng tin cậy; human override; grounding chống hallucination; canary &amp; eval.</td></tr>
+        <tr><td><b>NFR-09</b></td><td>Quan sát</td><td>Logging, monitoring, alerting; trace lỗi tích hợp kênh; metering Token realtime.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="integration">
+    <div class="kicker">20 — Integration</div>
+    <h2>Tích hợp &amp; API kênh (19 kênh)</h2>
+    <table>
+      <thead><tr><th style="width:16%">Nhóm</th><th>Kênh</th><th style="width:30%">Cơ chế kết nối</th></tr></thead>
+      <tbody>
+        <tr><td><b>Social (7)</b></td><td>Zalo OA, Zalo Personal, Messenger, Instagram, WhatsApp Business, WhatsApp Personal, Telegram</td><td>OAuth / QR / Bot token / Cloud API</td></tr>
+        <tr><td><b>Commerce (4)</b></td><td>TikTok Business, TikTok Shop, Shopee, Lazada</td><td>OAuth shop API</td></tr>
+        <tr><td><b>Marketing (4)</b></td><td>ZNS, SMS, Email, Push Notification</td><td>API key / SMTP-IMAP / gateway</td></tr>
+        <tr><td><b>Voice (2)</b></td><td>Call Center, AI Voice Agent</td><td>SIP / Voice API</td></tr>
+        <tr><td><b>Web (2)</b></td><td>Live Chat, Web Widget</td><td>JS SDK nhúng</td></tr>
+      </tbody>
+    </table>
+    <ul class="clean">
+      <li><b>Inbound:</b> webhook chuẩn hoá message → hàng đợi xử lý → route tới Customer &amp; AI Agent.</li>
+      <li><b>Outbound:</b> adapter mỗi kênh tuân thủ giới hạn (24h window, template approval…).</li>
+      <li><b>Mở rộng:</b> kiến trúc adapter cho phép thêm kênh mới không đổi core.</li>
+    </ul>
+  </section>
+
+  <section id="billing">
+    <div class="kicker">21 — Gói &amp; Thanh toán</div>
+    <h2>Gói dịch vụ &amp; Thanh toán</h2>
+    <p class="sec-d">Nghiệp vụ billing đầy đủ: thời hạn gói · Token định mức &amp; phát sinh · mua thêm tài nguyên · hóa đơn. Giao diện tại Settings → Gói &amp; thanh toán (FR-SET-08). 3 dòng tính phí: <b>phí gói</b> + <b>phí tin</b> (ZNS/SMS/Email theo đơn giá kênh) + <b>Token AI</b>.</p>
+    <div class="mod">
+      <div class="mh"><div class="mi">💳</div><div><div class="t">Gói &amp; Thanh toán</div><div class="c">MOD-BILL · /settings/billing</div></div><div class="badge"><span class="tag built">v3.3 ✓</span></div></div>
+      <div class="mb">
+        <div class="fr-head"><span>ID</span><span>Yêu cầu chức năng</span><span class="c2">PRI</span><span class="c3">STATUS</span></div>
+        <div class="fr"><span class="id">FR-BILL-01</span><span><b>Thanh toán gói:</b> chuyển khoản hoặc quét QR Code (VietQR/Napas 247); hệ thống tự xác nhận giao dịch và kích hoạt gói.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-02</span><span><b>Quản lý thời hạn theo từng gói</b> (ngày kích hoạt → ngày hết hạn). Khi hết hạn: <b>popup chặn</b> yêu cầu gia hạn hoặc mua mới để tiếp tục sử dụng; dữ liệu giữ 30 ngày.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-03</span><span><b>Token:</b> dùng theo định mức gói khi còn hiệu lực; vượt định mức → ghi nhận <b>chi phí phát sinh tự động</b> theo đơn giá/token; khi tổng phí phát sinh đạt <b>ngưỡng 5.000.000 VNĐ</b> → tạm ngừng sử dụng AI, yêu cầu thanh toán trước khi tiếp tục.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-04</span><span><b>Mua thêm tài nguyên:</b> Người dùng (User) &amp; Kết nối tài khoản (Account Connection) — hiển thị bảng giá + QR Code để thanh toán trực tuyến ngay khi phát sinh nhu cầu.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-05</span><span><b>Thông tin gói hiện tại:</b> tên gói · ngày kích hoạt · ngày hết hạn · số User · số Account Connection · Token còn lại · trạng thái gói.</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-06</span><span><b>Lịch sử hóa đơn:</b> mã hóa đơn · tên gói · ngày thanh toán · số tiền · phương thức · trạng thái · tải Invoice (PDF, hoá đơn VAT).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-07</span><span><b>Bộ lọc hóa đơn:</b> theo mã hóa đơn · tên gói · trạng thái · khoảng thời gian (từ–đến).</span><span class="pri"><span class="tag must">MUST</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+        <div class="fr"><span class="id">FR-BILL-08</span><span>Cảnh báo trước khi hết hạn / sắp hết Token (banner + email); metering Token realtime trong Settings.</span><span class="pri"><span class="tag should">SHOULD</span></span><span class="ver"><span class="tag built">v3.3</span></span></div>
+      </div>
+    </div>
+    <div class="callout warn"><span class="ic">⚠</span><div>Dev cần: <b>metering Token chính xác</b> (mỗi call AI ghi usage) · <b>quota enforcement</b> tại ngưỡng 5.000.000 ₫ (chặn dịch vụ AI, không chặn truy cập dữ liệu) · <b>webhook xác nhận chuyển khoản/QR</b> từ gateway ngân hàng · <b>đối soát</b> phí tin với gateway kênh · cập nhật quota User/Connection ngay khi thanh toán thành công.</div></div>
+  </section>
+
+  <section id="acceptance">
+    <div class="kicker">22 — Acceptance &amp; QA</div>
+    <h2>Tiêu chí nghiệm thu &amp; QA</h2>
+    <p class="sec-d">Mỗi FR phải có acceptance criteria dạng Given–When–Then. Ví dụ mẫu cho QA viết test case.</p>
+    <div class="grid2">
+      <div class="uc" style="margin:0">
+        <div class="uh">AC mẫu · FR-MSG-01 (hợp nhất inbox)</div>
+        <table>
+          <tr><td>Given</td><td>2 kênh Zalo &amp; Facebook đã kết nối</td></tr>
+          <tr><td>When</td><td>Khách gửi tin trên cả 2 kênh</td></tr>
+          <tr><td>Then</td><td>Cả 2 hội thoại hiện trong 1 inbox, đúng kênh, đúng customer, realtime &lt; 3s</td></tr>
+        </table>
+      </div>
+      <div class="uc" style="margin:0">
+        <div class="uh">AC mẫu · FR-CUS-03 (drag stage)</div>
+        <table>
+          <tr><td>Given</td><td>Deal ở stage "Qualified" trên Kanban</td></tr>
+          <tr><td>When</td><td>Kéo thẻ sang "Proposal"</td></tr>
+          <tr><td>Then</td><td>Stage cập nhật, weighted pipeline tính lại, timeline ghi mốc</td></tr>
+        </table>
+      </div>
+      <div class="uc" style="margin:0">
+        <div class="uh">AC mẫu · FR-TKT-03 (SLA escalation)</div>
+        <table>
+          <tr><td>Given</td><td>Ticket priority Cao có SLA 2 giờ</td></tr>
+          <tr><td>When</td><td>Quá 2 giờ chưa phản hồi</td></tr>
+          <tr><td>Then</td><td>Cảnh báo Dashboard + tự escalation lên cấp quản lý + ghi audit</td></tr>
+        </table>
+      </div>
+      <div class="uc" style="margin:0">
+        <div class="uh">AC mẫu · FR-CAL-03 (conflict-check)</div>
+        <table>
+          <tr><td>Given</td><td>Agent đã có hẹn 10:00–10:30</td></tr>
+          <tr><td>When</td><td>Đặt hẹn mới 10:15 cho cùng agent</td></tr>
+          <tr><td>Then</td><td>Hệ thống cảnh báo trùng lịch &amp; gợi ý slot trống gần nhất</td></tr>
+        </table>
+      </div>
+      <div class="uc" style="margin:0">
+        <div class="uh">AC mẫu · FR-CALL-07 (gọi nhỡ → task)</div>
+        <table>
+          <tr><td>Given</td><td>Khách gọi vào 1900 1234 giờ cao điểm, không agent nào bắt máy trong thời gian chờ tối đa</td></tr>
+          <tr><td>When</td><td>Cuộc gọi kết thúc ở trạng thái "Gọi nhỡ"</td></tr>
+          <tr><td>Then</td><td>Nhật ký ghi "Gọi nhỡ", KPI tỉ lệ nhỡ cập nhật, task gọi lại tự tạo cho agent phụ trách khách đó</td></tr>
+        </table>
+      </div>
+      <div class="uc" style="margin:0">
+        <div class="uh">AC mẫu · FR-BILL-03 (ngưỡng Token 5tr)</div>
+        <table>
+          <tr><td>Given</td><td>Workspace đã vượt định mức Token, phí phát sinh đang 4.990.000 ₫</td></tr>
+          <tr><td>When</td><td>Tác vụ AI tiếp theo đẩy tổng phí đạt ≥ 5.000.000 ₫</td></tr>
+          <tr><td>Then</td><td>Dịch vụ AI tạm ngừng, popup yêu cầu thanh toán (QR) hiển thị; thanh toán xong tự mở lại</td></tr>
+        </table>
+      </div>
+    </div>
+    <h4>Phạm vi test</h4>
+    <ul class="clean">
+      <li><b>Functional:</b> mỗi FR có ≥1 test case theo AC.</li>
+      <li><b>Integration:</b> webhook in/out từng kênh (mock + sandbox).</li>
+      <li><b>Performance:</b> tải đồng thời theo NFR-01/02.</li>
+      <li><b>Security:</b> RBAC, injection, audit log, PII.</li>
+      <li><b>AI:</b> Golden Set qua Eval Runner; ngưỡng tin cậy; canary rollback.</li>
+      <li><b>UAT:</b> theo persona &amp; use-case chính từng module.</li>
+    </ul>
+  </section>
+
+  <section id="devspec">
+    <div class="kicker">24 — Development Spec</div>
+    <h2>Đặc tả phát triển chi tiết (Dev)</h2>
+    <div class="sec-d">Ánh xạ mỗi module nghiệp vụ → service (theo Architecture v4.2), API chính, sự kiện và bảng dữ liệu sở hữu. Đây là cầu nối FR (nghiệp vụ) xuống hiện thực hoá.</div>
+    <table>
+      <thead><tr><th>Module</th><th>Service (v4.2)</th><th>API chính</th><th>Bảng sở hữu</th></tr></thead>
+      <tbody>
+        <tr><td><b>Dashboard</b></td><td>Reporting/BI</td><td><code>GET /v1/dashboard/kpi</code></td><td>(đọc data mart)</td></tr>
+        <tr><td><b>Trợ lý AI (Omi)</b></td><td>AI Agent</td><td><code>POST /v1/omi/command</code> · <code>/confirm</code></td><td>omi_session, omi_log</td></tr>
+        <tr><td><b>Messages</b></td><td>Conversation</td><td><code>GET/POST /v1/conversations/*</code></td><td>conversation, message, tag</td></tr>
+        <tr><td><b>Customers</b></td><td>Contact/CRM360 + Sales Docs</td><td><code>/v1/contacts</code> · <code>/v1/quotes</code> · <code>/orders</code></td><td>contact, deal, quote, contract, order</td></tr>
+        <tr><td><b>Calendar</b></td><td>Calendar/Booking</td><td><code>/v1/appointments</code> · <code>/followups</code></td><td>appointment, followup</td></tr>
+        <tr><td><b>Tickets</b></td><td>Ticket/SLA</td><td><code>/v1/tickets</code> · <code>/{id}/escalate</code></td><td>ticket, ticket_comment</td></tr>
+        <tr><td><b>Marketing</b></td><td>Marketing</td><td><code>/v1/campaigns</code> · <code>/{id}/approve</code></td><td>campaign, campaign_recipient</td></tr>
+        <tr><td><b>AI Agents</b></td><td>AI Agent &amp; RAG</td><td><code>/v1/ai-agents</code> · <code>/kb</code></td><td>ai_agent, kb_document</td></tr>
+        <tr><td><b>Workflow</b></td><td>Workflow Engine</td><td><code>/v1/workflows</code> · <code>/{id}/run</code></td><td>workflow, workflow_run</td></tr>
+        <tr><td><b>Reports</b></td><td>Reporting/BI</td><td><code>/v1/reports/{key}?from&amp;to</code></td><td>(data mart ClickHouse)</td></tr>
+        <tr><td><b>Loyalty</b></td><td>Loyalty</td><td><code>/v1/loyalty/*</code></td><td>member, point_ledger, voucher</td></tr>
+        <tr><td><b>Settings/Billing</b></td><td>Identity + Billing/Token</td><td><code>/v1/workspaces</code> · <code>/v1/billing/*</code></td><td>workspace, membership, token_usage, invoice</td></tr>
+      </tbody>
+    </table>
+    <div class="callout pr"><span class="ic">◆</span><div><b>Nguyên tắc dev:</b> API-first (OpenAPI 3.1), idempotency cho POST ghi, mọi truy vấn ràng <code>workspace_id</code> (RLS), side-effect đi qua domain event — không gọi DB chéo service.</div></div>
+  </section>
+
+  <section id="events">
+    <div class="kicker">25 — Domain Events</div>
+    <h2>Domain Events &amp; luồng dữ liệu</h2>
+    <div class="sec-d">Mọi tác động lan toả (side-effect) đi qua sự kiện trên broker — consumer độc lập, idempotent theo event id.</div>
+    <table>
+      <thead><tr><th>Event</th><th>Phát bởi</th><th>Consumer &amp; hệ quả</th></tr></thead>
+      <tbody>
+        <tr><td><code>message.received</code></td><td>Channel Gateway</td><td>Conversation lưu · AI Agent (auto) · WS push agent</td></tr>
+        <tr><td><code>quote.won</code></td><td>Sales Docs</td><td>Tạo Hợp đồng · cập nhật pipeline stage=Won</td></tr>
+        <tr><td><code>order.completed</code></td><td>Sales Docs</td><td>Loyalty +điểm (sàn tiền/1.000) · Reporting cập nhật · Workflow chăm sóc</td></tr>
+        <tr><td><code>ticket.sla_breach_risk</code></td><td>Ticket/SLA</td><td>Cảnh báo quản lý · escalation cấp 2</td></tr>
+        <tr><td><code>campaign.approved</code></td><td>Marketing</td><td>Scheduler gửi · Reporting funnel</td></tr>
+        <tr><td><code>ai.token_used</code></td><td>AI Worker</td><td>Token Metering cộng dồn · kiểm ngưỡng tạm ngừng</td></tr>
+        <tr><td><code>contact.merged</code></td><td>CRM360</td><td>Gộp hội thoại/đơn/điểm · cập nhật tham chiếu</td></tr>
+        <tr><td><code>workflow.triggered</code></td><td>Workflow</td><td>Workflow runner thực thi node tuần tự</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="datadict">
+    <div class="kicker">26 — Data Dictionary</div>
+    <h2>Data Dictionary (bảng · trường chính)</h2>
+    <table>
+      <thead><tr><th>Bảng</th><th>Trường chính</th><th>Ghi chú</th></tr></thead>
+      <tbody>
+        <tr><td><code>workspace</code></td><td>id, name, plan, status, owner_user_id</td><td>Tenant gốc</td></tr>
+        <tr><td><code>membership</code></td><td>user_id, workspace_id, role, seat_type</td><td>N–N: 1 user ↔ nhiều workspace</td></tr>
+        <tr><td><code>contact</code></td><td>id, workspace_id, name, phone, zalo, email, source, city, ward, lifecycle_stage, owner_id, tier, points</td><td>CRM360 + Loyalty</td></tr>
+        <tr><td><code>conversation</code></td><td>id, workspace_id, contact_id, channel_account_id, status, assignee_id, ai_mode, last_msg_at</td><td>Hội thoại hợp nhất</td></tr>
+        <tr><td><code>message</code></td><td>id, conversation_id, direction, type, body, attachments, channel_msg_id <b>UNIQUE</b></td><td>Idempotency chống trùng</td></tr>
+        <tr><td><code>quote/contract/order</code></td><td>id, workspace_id, contact_id, total, status</td><td>Sales flow nối</td></tr>
+        <tr><td><code>ticket</code></td><td>id, workspace_id, contact_id, category, priority, status, assignee_id, sla_due_at</td><td>SLA clock</td></tr>
+        <tr><td><code>token_usage</code></td><td>workspace_id, agent_id, model, tokens, cost, at</td><td>Metering theo workspace</td></tr>
+        <tr><td><code>point_ledger</code></td><td>workspace_id, contact_id, delta, reason, ref, at</td><td>Sổ cái điểm Loyalty</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="bizrules">
+    <div class="kicker">27 — Business Rules</div>
+    <h2>Business Rules đầy đủ</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Quy tắc</th></tr></thead>
+      <tbody>
+        <tr><td><b>BR-01</b></td><td>Hạ gói không quy đổi token/thời gian sử dụng còn lại; đổi gói tính lại theo gói mới.</td></tr>
+        <tr><td><b>BR-02</b></td><td>Chiến dịch đã duyệt chỉ được tạm dừng hoặc xoá, không sửa nội dung.</td></tr>
+        <tr><td><b>BR-03</b></td><td>Gói Cá nhân chỉ 1 user; muốn thêm user dùng chung phải nâng lên Doanh nghiệp.</td></tr>
+        <tr><td><b>BR-04</b></td><td>Tích điểm = sàn(tổng tiền đơn / 1.000); quy đổi 10 điểm = 1.000₫ (cấu hình được).</td></tr>
+        <tr><td><b>BR-05</b></td><td>Omi không thực thi khi chưa có xác nhận rõ ràng của người dùng; luôn đề xuất tái dùng luồng cũ.</td></tr>
+        <tr><td><b>BR-06</b></td><td>Token vượt ngưỡng tạm ngừng (mặc định 5.000.000₫) → khoá AI đến khi thanh toán.</td></tr>
+        <tr><td><b>BR-07</b></td><td>Hội thoại không giới hạn; kích thích sử dụng bằng token, hết token → popup mua thêm.</td></tr>
+        <tr><td><b>BR-08</b></td><td>Mua thêm workspace = mua thêm 1 tài khoản; billing/seats/token tách riêng từng workspace.</td></tr>
+        <tr><td><b>BR-09</b></td><td>Quote → Win mới sinh Hợp đồng + Đơn; pipeline stage cập nhật tự động (single source).</td></tr>
+        <tr><td><b>BR-10</b></td><td>Số liệu Report theo "1 con số 1 nguồn" — Executive chỉ tóm tắt, link sâu trang chủ.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="traceability">
+    <div class="kicker">28 — Traceability</div>
+    <h2>Ma trận truy vết (FR ↔ Service ↔ API)</h2>
+    <div class="sec-d">Bảo đảm mỗi yêu cầu chức năng đều có điểm hiện thực và kiểm thử.</div>
+    <table>
+      <thead><tr><th>Nhóm FR</th><th>Service</th><th>API/Event</th><th>Test (mục 22/26)</th></tr></thead>
+      <tbody>
+        <tr><td>Hộp thư &amp; hội thoại</td><td>Conversation</td><td><code>/conversations</code> · <code>message.received</code></td><td>E2E inbox · contract</td></tr>
+        <tr><td>CRM &amp; Sales flow</td><td>CRM360 + Sales Docs</td><td><code>/quotes/win</code> · <code>order.completed</code></td><td>E2E chốt deal</td></tr>
+        <tr><td>Ticket &amp; SLA</td><td>Ticket/SLA</td><td><code>/tickets</code> · <code>sla_breach_risk</code></td><td>Integration SLA clock</td></tr>
+        <tr><td>AI &amp; Token</td><td>AI Agent + Billing</td><td><code>/ai-agents</code> · <code>ai.token_used</code></td><td>AI eval · metering</td></tr>
+        <tr><td>Đa tenant</td><td>Identity/Workspace</td><td><code>/workspaces/switch</code></td><td>Tenant isolation (RLS)</td></tr>
+        <tr><td>Loyalty</td><td>Loyalty</td><td><code>/loyalty/*</code> · point_ledger</td><td>Unit công thức điểm</td></tr>
+      </tbody>
+    </table>
+    <div class="callout info"><span class="ic">↗</span><div><b>Bộ tài liệu:</b> SRS v4.0 (tài liệu này) ↔ Architecture v4.2 (kiến trúc/sơ đồ) ↔ OpenAPI Contract ↔ ERD chi tiết. Đọc SRS để hiểu "làm gì", Architecture để hiểu "làm thế nào".</div></div>
+  </section>
+
+  <section id="roadmap">
+    <div class="kicker">23 — Release &amp; Status</div>
+    <h2>Lộ trình &amp; trạng thái phiên bản</h2>
+    <div class="legend">
+      <span><span class="tag built">v3.3 ✓</span> Đã ship</span>
+      <span><span class="tag partial">Mở rộng</span> Cần hoàn thiện</span>
+      <span><span class="tag bk">Backlog</span> Chưa làm</span>
+    </div>
+    <div class="cl-row"><span class="cl-v">v3.4 · Hiện tại</span><span><b>Nâng cấp lớn — mở rộng nghiệp vụ &amp; tái cấu trúc IA:</b><br/>
+      • <b>Reports mới (10 trang, gom 5 nhóm):</b> Tổng quan (Executive) · Vận hành (Conversations · Tickets&amp;SLA · Channels) · Tăng trưởng (Marketing · Sales&amp;CRM · Customers) · AI &amp; Tự động hoá (AI Agents · Automation) · Con người (Team). Mỗi trang: <b>xuất theo khoảng ngày + xuất tổng</b> + danh sách chi tiết; nguyên tắc <b>“1 con số 1 nguồn”</b>.<br/>
+      • <b>Loyalty</b> (hạng · tích điểm · quy đổi điểm↔tiền · voucher · cấu hình) + huy hiệu hạng trong panel 360°; tag hạng dùng chung; tích điểm tự động khi hoàn tất đơn.<br/>
+      • <b>Luồng nối CRM</b> Báo giá→Hợp đồng→Đơn hàng→Pipeline · <b>Follow-up theo giai đoạn</b> nhúng vào Calendar (lưới+danh sách) + widget Dashboard.<br/>
+      • <b>Sản phẩm/Đơn hàng</b> tách menu · <b>Trợ lý AI (Omi)</b> · <b>Workflow</b> + trình duyệt mẫu có nhóm <b>Theo ngành dịch vụ</b> (Spa, Nha khoa/PK, Anh ngữ, Gym, Ô tô, Du lịch).<br/>
+      • <b>Tổ chức:</b> sơ đồ từ trên xuống + chiến dịch gán SLA/KPI/Phân ca theo thời hạn.<br/>
+      • <b>Settings:</b> <b>đa workspace</b> (mua thêm workspace = mua thêm tài khoản) · trang <b>Tích hợp</b> làm mới tách khỏi <b>Kênh kết nối</b> · gỡ “Thương hiệu” &amp; “Giờ làm việc” · <b>Ngân sách Token</b> + <b>Mua thêm token</b> A/B/C + popup hết token.<br/>
+      • <b>Bảng giá</b> Cá nhân/Doanh nghiệp (4 gói/nhóm + so sánh) · <b>Onboarding 5 bước</b> (thu gọn) · <b>rail gọn kiểu respond.io</b> (flyout Khách hàng &amp; Reports) · <b>bộ chọn ngành 2 cấp tiếng Việt</b> (10 nhóm).</span></div>
+    <div class="cl-row"><span class="cl-v">v3.3</span><span><b>12/12 module nền tảng hoàn thiện giao diện E2E,</b> đồng bộ sidebar &amp; Design System: Dashboard · Messages · <b>Call Center</b> · <b>Customers</b> · <b>Calendar</b> · <b>Tickets</b> · <b>Marketing</b> · <b>AI Agents</b> · Reports · Files · Help Center · Settings — cùng lớp Auth. Luồng E2E: Inbox → 360° → Deal → Lịch hẹn → Ticket → Marketing → Reports.</span></div>
+    <div class="cl-row"><span class="cl-v">Backlog · P2</span><span><b>API Explorer Interactive</b> (Swagger-like, code gen) · <b>Widget Customizer Dashboard</b> · đồng bộ Google/Outlook Calendar · Báo cáo tuỳ biến builder.</span></div>
+    <div class="cl-row" style="border:none"><span class="cl-v">Backlog · P3</span><span><b>Consent &amp; DPIA Hub</b> cho ISO 42001 review · Auto-dialer chiến dịch gọi ra (FR-CALL-09).</span></div>
+    <div class="callout pr"><span class="ic">★</span><div><b>Khuyến nghị BA:</b> tài liệu này là <b>nguồn chân lý v3.3</b> theo cấu trúc 12 module — QA map test theo ID FR; mỗi sprint backlog lấy 1 nhóm P1→P3; review NFR &amp; AI Governance mỗi release; cập nhật SRS khi sidebar/app đổi.</div></div>
+  </section>
+
+  <div class="foot">AppChat · Đặc tả Nghiệp vụ &amp; Yêu cầu Phần mềm (SRS) <b>v4.0</b> · MediaSoft JSC · 2026 — 28 phần · đồng bộ Architecture v4.2 · Cho Dev · QA · PO · BA · Architect. Nền tảng "Nền tảng One-Person Company (OPC)el Platform" · 12 Module nền tảng đồng bộ sidebar &amp; Design System.</div>
+
+
+
+</div>
+</body>
+</html>

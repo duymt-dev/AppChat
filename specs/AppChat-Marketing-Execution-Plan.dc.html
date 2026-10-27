@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Newsreader:ital,opsz,wght@1,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#DDE4DF;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;color:#14201A}
+  a{color:#157A40;text-decoration:none}a:hover{color:#2DC56A}
+  .desk{display:flex;flex-direction:column;align-items:center;gap:24px;padding:34px 16px 70px}
+  .pg{width:210mm;min-height:297mm;background:#fff;position:relative;overflow:visible;box-shadow:0 18px 50px rgba(20,40,30,.16)}
+  .pg.clip{overflow:hidden}
+  .bd{padding:18mm 16mm}
+  .ft{position:absolute;bottom:11mm;left:16mm;right:16mm;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF;font-weight:600;letter-spacing:.04em}
+  .sec{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .sec i{width:22px;height:3px;background:#2DC56A;border-radius:2px;font-style:normal}
+  .sec span{font-size:10.5px;font-weight:800;letter-spacing:.2em;color:#2DC56A}
+  .t{font-size:28px;font-weight:800;letter-spacing:-.02em;color:#14201A;margin:0 0 10px;line-height:1.12}
+  .lead{font-size:13.5px;line-height:1.65;color:#37424C;font-weight:500}
+  .quote{font-family:'Newsreader',serif;font-style:italic}
+  .pill{display:inline-block;padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.03em}
+  /* tables */
+  table.tb{width:100%;border-collapse:collapse;font-size:10.5px}
+  table.tb th{background:#0F2A1C;color:#DFF3E8;font-weight:700;text-align:left;padding:8px 9px;letter-spacing:.02em;font-size:9.5px;text-transform:uppercase}
+  table.tb td{padding:8px 9px;border-bottom:1px solid #EEF1F0;color:#37424C;font-weight:500;vertical-align:top;line-height:1.4}
+  table.tb tr:nth-child(even) td{background:#F7FAF8}
+  table.tb td strong{color:#14201A;font-weight:700}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.02em}
+  .tg-green{background:#EDFAF3;color:#157A40}
+  .tg-amber{background:#FFF4E0;color:#B7791F}
+  .tg-blue{background:#E8F1FE;color:#1E5FC4}
+  .tg-gray{background:#EEF1F0;color:#5A6670}
+  /* bar */
+  .barrow{display:grid;grid-template-columns:150px 1fr 96px;gap:12px;align-items:center;margin-bottom:9px}
+  .barlbl{font-size:11px;font-weight:700;color:#14201A}
+  .bartrk{height:20px;background:#EEF1F0;border-radius:6px;overflow:hidden}
+  .barfil{height:100%;border-radius:6px;background:linear-gradient(90deg,#157A40,#2DC56A);display:flex;align-items:center;justify-content:flex-end;padding-right:7px;color:#fff;font-size:9px;font-weight:800}
+  .barval{font-size:11px;font-weight:700;color:#37424C;text-align:right}
+  .partcover{background:#0F2A1C;color:#fff}
+  /* funnel */
+  .fnl{display:flex;flex-direction:column;gap:6px;align-items:center}
+  .fnb{color:#fff;border-radius:10px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+  @media print{body{background:#fff}.desk{gap:0;padding:0}.pg{box-shadow:none;break-after:page}@page{size:A4;margin:0}}
+</style>
+</helmet>
+<a href="AppChat-Document-Index.dc.html" style="position:fixed;left:16px;top:16px;z-index:99999;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:9px;background:rgba(255,255,255,.95);border:1px solid #DDE1E4;box-shadow:0 4px 14px rgba(15,42,28,.14);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:12.6px;font-weight:700;color:#157A40;text-decoration:none;backdrop-filter:blur(8px)"><svg width="14" height="14" viewBox="0 0 24 24" style="stroke:#157A40;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 5l-7 7 7 7"/></svg>Bộ hồ sơ năng lực</a>
+
+<div class="desk">
+
+  <!-- ===== COVER ===== -->
+  <section class="pg partcover clip" data-screen-label="Bìa" style="padding:0">
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 70% at 82% 4%, rgba(45,197,106,.30), transparent 55%),radial-gradient(90% 55% at 6% 100%, rgba(21,122,64,.42), transparent 60%)"></div>
+    <div style="position:absolute;right:-120px;top:170px;width:600px;height:600px;border:1px solid rgba(255,255,255,.09);border-radius:50%"></div>
+    <div style="position:absolute;right:50px;top:290px;width:360px;height:360px;border:1px solid rgba(255,255,255,.07);border-radius:50%"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:space-between;padding:26mm 20mm">
+      <div style="display:flex;align-items:center;gap:15px">
+        <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:40px;width:auto;display:block">
+        <span style="font-size:10px;letter-spacing:.28em;color:rgba(255,255,255,.5);font-weight:700">BY MEDIA SOFT</span>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.3em;color:#7DE0A6;margin-bottom:20px">MARKETING EXECUTION PLAN · 12 THÁNG · 2026</div>
+        <h1 style="font-size:50px;line-height:1.06;font-weight:800;letter-spacing:-.025em;margin:0 0 22px">Kế hoạch<br>triển khai<br>Marketing</h1>
+        <p style="font-size:16px;line-height:1.65;color:rgba(255,255,255,.74);max-width:500px;margin:0;font-weight:500">Từ bộ khung chiến lược đến thực thi: roadmap ưu tiên, kế hoạch 12 tháng, ngân sách <strong style="color:#fff">50 triệu ₫/tháng</strong>, nhân sự, timeline 90 ngày, dự báo ROI và quản trị rủi ro cho AppChat — nền tảng phục vụ <strong style="color:#7DE0A6">Doanh nghiệp Một Người</strong>.</p>
+        <div style="margin-top:18px;padding:12px 16px;border-left:3px solid #2DC56A;background:rgba(255,255,255,.06);border-radius:0 8px 8px 0;max-width:520px"><span style="font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.9);font-weight:600"><strong style="color:#7DE0A6">AppChat</strong> — Giải pháp AI Agents vận hành theo mô hình "doanh nghiệp một người" (Solopreneur/OPC).</span></div>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;border-top:1px solid rgba(255,255,255,.14);padding-top:20px">
+        <div style="font-size:12.5px;color:rgba(255,255,255,.6);font-weight:500">Tài liệu triển khai · Cấp điều hành (CEO/CMO)</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.6);font-weight:500">SaaS B2B · AI Platform · Việt Nam</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GAP ANALYSIS ===== -->
+  <section class="pg" data-screen-label="Phân tích khoảng trống">
+    <div class="bd">
+      <div class="sec"><i></i><span>ĐIỂM XUẤT PHÁT</span></div>
+      <h2 class="t">Bộ khung đã có gì — và còn thiếu gì để chạy thật</h2>
+      <p class="lead" style="margin:0 0 16px;max-width:170mm">Framework chiến lược đã định nghĩa <strong>định vị, category, 73 chiến lược và Strategy Map 8 nhóm</strong>. Nhưng framework <strong>không</strong> trả lời: làm gì trước, ai làm, tốn bao nhiêu, đo bằng gì, khi nào xong. Đây là 8 khoảng trống cần lấp để triển khai — chính là nội dung tài liệu này.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px">
+        <div style="border:1px solid #CDE9D8;border-radius:14px;padding:16px;background:#EDFAF3">
+          <div style="font-size:10px;font-weight:800;color:#157A40;letter-spacing:.08em;margin-bottom:8px">✓ FRAMEWORK ĐÃ CÓ</div>
+          <div style="font-size:11.5px;line-height:1.7;color:#256B44;font-weight:600">Định vị AI-Native Agentic CX · Category design · Communication theme "Doanh nghiệp Một Người" · Messaging House · 4 persona B2B · 73 chiến lược (Online/Offline/PR) · Strategy Map 8 nhóm · Positioning vs đối thủ · Phễu OPC theo 4 giai đoạn</div>
+        </div>
+        <div style="border:1px solid #F3D9B0;border-radius:14px;padding:16px;background:#FFF9EF">
+          <div style="font-size:10px;font-weight:800;color:#B7791F;letter-spacing:.08em;margin-bottom:8px">✗ CÒN THIẾU ĐỂ TRIỂN KHAI</div>
+          <div style="font-size:11.5px;line-height:1.7;color:#8A6420;font-weight:600">Thứ tự ưu tiên & lý do · Kế hoạch tháng có KPI · Ngân sách phân bổ theo hạng mục · Sơ đồ nhân sự & chi phí · Timeline tuần · Mô hình phễu & ROI có số · Quản trị rủi ro · Cơ chế đo lường / bộ công cụ</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9CA3AF;margin:0 0 10px">8 HẠNG MỤC BỔ SUNG — CẤU TRÚC TÀI LIỆU NÀY</div>
+      <table class="tb">
+        <thead><tr><th style="width:26px">#</th><th>Hạng mục bổ sung</th><th>Trả lời câu hỏi</th><th style="width:74px">Trang</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td><strong>Strategic Roadmap</strong></td><td>Làm gì trước, vì sao, mốc hoàn thành nào?</td><td>04</td></tr>
+          <tr><td><strong>2</strong></td><td><strong>Marketing Plan 12 tháng</strong></td><td>Mỗi tháng mục tiêu — KPI — deliverable — ai — điều kiện xong?</td><td>05–06</td></tr>
+          <tr><td><strong>3</strong></td><td><strong>Monthly Budget Plan</strong></td><td>50 triệu ₫ chia thế nào, kỳ vọng gì?</td><td>07</td></tr>
+          <tr><td><strong>4</strong></td><td><strong>Resource Plan</strong></td><td>In-house / freelancer / agency / AI Agent — tốn bao nhiêu?</td><td>08</td></tr>
+          <tr><td><strong>5</strong></td><td><strong>Execution Timeline 90 ngày</strong></td><td>Tuần 1→12 làm gì, giao gì, deadline nào?</td><td>09</td></tr>
+          <tr><td><strong>6</strong></td><td><strong>ROI Projection</strong></td><td>Reach→MRR, CAC, LTV, ROI ra sao?</td><td>10</td></tr>
+          <tr><td><strong>7</strong></td><td><strong>Risk Management</strong></td><td>Rủi ro gì, giảm thiểu thế nào?</td><td>11</td></tr>
+          <tr><td><strong>8</strong></td><td><strong>Đo lường & Tech Stack</strong></td><td>Đo bằng công cụ nào, nhịp review ra sao?</td><td>11</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:10.5px;color:#9CA3AF;font-weight:500;margin:14px 0 0;font-style:italic">Nguyên tắc xuyên suốt: mọi hoạt động phải "kéo lên" được chủ đề Doanh nghiệp Một Người, ưu tiên hạng mục ROI cao, khả thi trong 50 triệu ₫/tháng cho startup SaaS B2B AI tại Việt Nam.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>03</span></div>
+  </section>
+
+  <!-- ===== STRATEGIC ROADMAP ===== -->
+  <section class="pg" data-screen-label="Strategic Roadmap">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 1 · STRATEGIC ROADMAP</span></div>
+      <h2 class="t">Lộ trình 4 giai đoạn — ưu tiên theo ROI & sự phụ thuộc</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:170mm">Thứ tự không tùy hứng: giai đoạn sau <strong>phụ thuộc</strong> tài sản dựng ở giai đoạn trước. Không thể scale paid khi chưa có landing chuyển đổi; không thể làm PR authority khi chưa có case study. Vì vậy dựng nền → tạo cầu → khuếch đại → dẫn dắt.</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border:1px solid #E1E6E3;border-left:4px solid #2DC56A;border-radius:12px;padding:14px 17px;background:#F7FAF8">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <div style="font-size:14px;font-weight:800;color:#14201A">Giai đoạn 1 · NỀN MÓNG <span style="color:#9CA3AF;font-weight:600;font-size:11px">— Tháng 1–3 (Startup)</span></div>
+            <span class="pill" style="background:#EDFAF3;color:#157A40">Ưu tiên #1</span>
+          </div>
+          <div style="font-size:11.5px;line-height:1.6;color:#37424C;font-weight:500"><strong>Vì sao trước:</strong> không có tài sản chuyển đổi (landing, câu chuyện, 3 case study, tracking) thì mọi đồng paid đều lãng phí. <strong>Việc:</strong> landing OPC + tracking đầy đủ, content engine, SEO nền, 3 case study đầu, khai sinh category "AI Customer Experience". <strong>Mốc:</strong> ≥300 trial, ≥3 case study, tracking chuẩn end-to-end.</div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-left:4px solid #2DC56A;border-radius:12px;padding:14px 17px;background:#F7FAF8">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <div style="font-size:14px;font-weight:800;color:#14201A">Giai đoạn 2 · TẠO CẦU <span style="color:#9CA3AF;font-weight:600;font-size:11px">— Tháng 4–6 (Growth)</span></div>
+            <span class="pill" style="background:#EDFAF3;color:#157A40">Ưu tiên #2</span>
+          </div>
+          <div style="font-size:11.5px;line-height:1.6;color:#37424C;font-weight:500"><strong>Vì sao tiếp:</strong> khi nền chuyển đổi đã chạy, mới bơm nhu cầu để scale hiệu quả. <strong>Việc:</strong> mở paid có kiểm soát (CPA mục tiêu), webinar series hàng tháng, chuỗi demo theo ngành, email nurture. <strong>Mốc:</strong> CAC ≤ mục tiêu, ≥120 khách trả phí lũy kế, 2 kênh có ROI dương.</div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-left:4px solid #157A40;border-radius:12px;padding:14px 17px;background:#F7FAF8">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <div style="font-size:14px;font-weight:800;color:#14201A">Giai đoạn 3 · KHUẾCH ĐẠI <span style="color:#9CA3AF;font-weight:600;font-size:11px">— Tháng 7–9 (Scale)</span></div>
+            <span class="pill" style="background:#E8F1FE;color:#1E5FC4">Ưu tiên #3</span>
+          </div>
+          <div style="font-size:11.5px;line-height:1.6;color:#37424C;font-weight:500"><strong>Vì sao:</strong> có bằng chứng ROI rồi mới đáng nhân qua KOC/đối tác/cộng đồng. <strong>Việc:</strong> KOL/KOC ngành, chương trình đối tác & affiliate, cộng đồng "Doanh nghiệp Một Người", user-generated proof. <strong>Mốc:</strong> ≥30% lead đến từ kênh earned/partner, cộng đồng ≥2.000 thành viên.</div>
+        </div>
+        <div style="border:1px solid #E1E6E3;border-left:4px solid #0F2A1C;border-radius:12px;padding:14px 17px;background:#F7FAF8">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <div style="font-size:14px;font-weight:800;color:#14201A">Giai đoạn 4 · DẪN DẮT <span style="color:#9CA3AF;font-weight:600;font-size:11px">— Tháng 10–12 (Leadership)</span></div>
+            <span class="pill" style="background:#EEF1F0;color:#5A6670">Ưu tiên #4</span>
+          </div>
+          <div style="font-size:11.5px;line-height:1.6;color:#37424C;font-weight:500"><strong>Vì sao cuối:</strong> chiếm vị thế "người dẫn dắt category" chỉ thuyết phục khi đã có traction & cộng đồng. <strong>Việc:</strong> báo cáo ngành "One Person Company Vietnam", sự kiện flagship, PR báo chí/authority, mở rộng ARR. <strong>Mốc:</strong> ≥1 báo cáo ngành được trích dẫn, sự kiện ≥300 người, MRR đạt mục tiêu năm.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;background:#0F2A1C;color:#fff;border-radius:14px;padding:14px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#7DE0A6">MỐC Q1</div><div style="font-size:12px;font-weight:700;margin-top:3px">Nền chuyển đổi + 300 trial</div></div>
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#7DE0A6">MỐC Q2</div><div style="font-size:12px;font-weight:700;margin-top:3px">CAC đạt chuẩn + 120 KH</div></div>
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#7DE0A6">MỐC Q3</div><div style="font-size:12px;font-weight:700;margin-top:3px">Kênh earned + cộng đồng 2k</div></div>
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#7DE0A6">MỐC Q4</div><div style="font-size:12px;font-weight:700;margin-top:3px">Vị thế dẫn dắt + MRR mục tiêu</div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>04</span></div>
+  </section>
+
+  <!-- ===== 12-MONTH PLAN H1 ===== -->
+  <section class="pg" data-screen-label="Kế hoạch 12 tháng · H1">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 2 · MARKETING PLAN 12 THÁNG (H1)</span></div>
+      <h2 class="t">Nửa đầu năm — Nền móng & Tạo cầu (T1–T6)</h2>
+      <table class="tb" style="margin-top:6px">
+        <thead><tr><th style="width:38px">Tháng</th><th style="width:22%">Mục tiêu</th><th>KPI chính</th><th style="width:24%">Deliverables</th><th style="width:64px">Phụ trách</th><th style="width:18%">Điều kiện hoàn thành (DoD)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>T1</strong><br><span class="tag tg-green">Nền</span></td><td>Dựng nền chuyển đổi & tracking</td><td>Landing OPC live · Tracking GA4+pixel · 8 bài trụ</td><td>Landing page, 3 content pillar, hệ tag UTM</td><td>MKT Lead</td><td>Tracking end-to-end chạy đúng; landing đạt tốc độ &lt;2,5s</td></tr>
+          <tr><td><strong>T2</strong><br><span class="tag tg-green">Nền</span></td><td>Content engine + SEO nền</td><td>12 bài/tháng · 20 từ khóa top100 · 500 subs email</td><td>SEO cluster, 4 video ngắn, chuỗi email chào</td><td>Content</td><td>Bài xuất bản đều; 20 từ khóa được index & xếp hạng</td></tr>
+          <tr><td><strong>T3</strong><br><span class="tag tg-green">Nền</span></td><td>3 case study đầu + khai sinh category</td><td>≥300 trial lũy kế · 3 case study · CTR email ≥25%</td><td>3 case study, 1 webinar thử, e-book OPC</td><td>MKT Lead</td><td>3 case study xuất bản; ≥300 trial; e-book ≥400 tải</td></tr>
+          <tr><td><strong>T4</strong><br><span class="tag tg-blue">Cầu</span></td><td>Mở paid có kiểm soát</td><td>CPA ≤250k ₫ · 40 SQL · ROAS ≥1,5</td><td>3 campaign paid, 20 biến thể ad, retargeting</td><td>Ads (FL)</td><td>CPA đạt trần; ≥2 nhóm quảng cáo ROAS dương</td></tr>
+          <tr><td><strong>T5</strong><br><span class="tag tg-blue">Cầu</span></td><td>Webinar series + demo ngành</td><td>2 webinar · 250 đăng ký · 60 SQL</td><td>Webinar deck, demo theo 3 ngành, nurture flow</td><td>MKT + Sales</td><td>≥120 tham dự thực; ≥25% dự → đặt demo</td></tr>
+          <tr><td><strong>T6</strong><br><span class="tag tg-blue">Cầu</span></td><td>Tối ưu phễu & đạt CAC chuẩn</td><td>≥120 KH trả phí lũy kế · CAC ≤3,3tr · MRR ≥45tr</td><td>Báo cáo phễu, A/B landing, bảng giá tối ưu</td><td>MKT Lead</td><td>CAC ≤ mục tiêu; 2 kênh ROI dương; review Q2 xong</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">300+</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">Trial cuối Q1</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">120+</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">KH trả phí cuối Q2</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">≤3,3tr</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">CAC mục tiêu ₫</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">45tr</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">MRR cuối Q2 ₫</div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>05</span></div>
+  </section>
+
+  <!-- ===== 12-MONTH PLAN H2 ===== -->
+  <section class="pg" data-screen-label="Kế hoạch 12 tháng · H2">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 2 · MARKETING PLAN 12 THÁNG (H2)</span></div>
+      <h2 class="t">Nửa cuối năm — Khuếch đại & Dẫn dắt (T7–T12)</h2>
+      <table class="tb" style="margin-top:6px">
+        <thead><tr><th style="width:38px">Tháng</th><th style="width:22%">Mục tiêu</th><th>KPI chính</th><th style="width:24%">Deliverables</th><th style="width:64px">Phụ trách</th><th style="width:18%">Điều kiện hoàn thành (DoD)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>T7</strong><br><span class="tag tg-blue">Đại</span></td><td>Kích hoạt KOL/KOC ngành</td><td>8 KOC · 500k reach · 80 SQL</td><td>Brief KOC, kịch bản review, mã ưu đãi riêng</td><td>Social</td><td>≥6 KOC đăng đúng brief; ≥1 nội dung viral (&gt;50k view)</td></tr>
+          <tr><td><strong>T8</strong><br><span class="tag tg-blue">Đại</span></td><td>Chương trình đối tác & affiliate</td><td>15 đối tác · 25% lead earned</td><td>Cổng affiliate, tài liệu đối tác, chia hoa hồng</td><td>MKT + BD</td><td>≥10 đối tác kích hoạt; ≥25% lead từ kênh earned</td></tr>
+          <tr><td><strong>T9</strong><br><span class="tag tg-green">Đại</span></td><td>Cộng đồng "Doanh nghiệp Một Người"</td><td>2.000 thành viên · 30 UGC/tháng</td><td>Nhóm cộng đồng, lịch nội dung, sự kiện online</td><td>Community</td><td>≥2.000 thành viên; ≥30 nội dung do user tạo</td></tr>
+          <tr><td><strong>T10</strong><br><span class="tag tg-gray">Dẫn</span></td><td>Báo cáo ngành OPC Vietnam</td><td>1 báo cáo · 5 báo chí đưa tin</td><td>Khảo sát, báo cáo PDF, thông cáo báo chí</td><td>PR (AG)</td><td>Báo cáo phát hành; ≥5 đầu báo/kênh trích dẫn</td></tr>
+          <tr><td><strong>T11</strong><br><span class="tag tg-gray">Dẫn</span></td><td>Sự kiện flagship OPC Summit</td><td>300 người · 100 SQL · 20 KH</td><td>Sự kiện offline/hybrid, sponsor, sau sự kiện</td><td>Event Lead</td><td>≥300 dự; ≥20 KH mới từ sự kiện; NPS ≥8</td></tr>
+          <tr><td><strong>T12</strong><br><span class="tag tg-gray">Dẫn</span></td><td>Chốt năm & mở rộng ARR</td><td>MRR ≥95tr · 180 KH · tổng kết năm</td><td>Chiến dịch cuối năm, báo cáo năm, kế hoạch 2027</td><td>MKT Lead</td><td>MRR ≥95tr ₫; ≥180 KH lũy kế; kế hoạch năm sau duyệt</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">30%+</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">Lead earned cuối Q3</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">2.000</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">Cộng đồng OPC</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">180</div><div style="font-size:10px;color:#5A6670;font-weight:600;margin-top:2px">KH trả phí cuối năm</div></div>
+        <div style="border:1px solid #CDE9D8;border-radius:12px;padding:13px;background:#EDFAF3;text-align:center"><div style="font-size:22px;font-weight:800;color:#157A40">95tr</div><div style="font-size:10px;color:#256B44;font-weight:700;margin-top:2px">MRR cuối năm ₫</div></div>
+      </div>
+      <p style="font-size:10.5px;color:#9CA3AF;font-weight:500;margin:12px 0 0;font-style:italic">Phụ trách viết tắt: MKT Lead (in-house) · Content/Social/Community (in-house + freelancer) · Ads/Design/Video (freelancer) · PR/Event (agency/dự án) · BD (kinh doanh). Chi tiết ở Phần 4.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>06</span></div>
+  </section>
+
+  <!-- ===== BUDGET PLAN ===== -->
+  <section class="pg" data-screen-label="Ngân sách tháng">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 3 · MONTHLY BUDGET PLAN</span></div>
+      <h2 class="t">Phân bổ 50 triệu ₫/tháng — ưu tiên ROI cao</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:170mm">Ngân sách hoạt động (media, sản xuất, công cụ, dịch vụ thuê ngoài). Lương nhân sự cơ hữu tính riêng ở Phần 4. Tỷ trọng dồn vào <strong>tài sản dùng lâu dài</strong> (content, video, SEO) và <strong>kênh đo được ROI</strong> (paid, KOC), giữ dự phòng cho tối ưu.</p>
+
+      <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:20px">
+        <div>
+          <div class="barrow"><div class="barlbl">Paid Ads</div><div class="bartrk"><div class="barfil" style="width:90%">18%</div></div><div class="barval">9,0tr</div></div>
+          <div class="barrow"><div class="barlbl">Content Marketing</div><div class="bartrk"><div class="barfil" style="width:80%">16%</div></div><div class="barval">8,0tr</div></div>
+          <div class="barrow"><div class="barlbl">Video Production</div><div class="bartrk"><div class="barfil" style="width:60%">12%</div></div><div class="barval">6,0tr</div></div>
+          <div class="barrow"><div class="barlbl">Social Media</div><div class="bartrk"><div class="barfil" style="width:40%">8%</div></div><div class="barval">4,0tr</div></div>
+          <div class="barrow"><div class="barlbl">KOL / KOC</div><div class="bartrk"><div class="barfil" style="width:40%">8%</div></div><div class="barval">4,0tr</div></div>
+          <div class="barrow"><div class="barlbl">PR</div><div class="bartrk"><div class="barfil" style="width:40%">8%</div></div><div class="barval">4,0tr</div></div>
+          <div class="barrow"><div class="barlbl">SEO</div><div class="bartrk"><div class="barfil" style="width:30%">6%</div></div><div class="barval">3,0tr</div></div>
+          <div class="barrow"><div class="barlbl">Webinar / Event</div><div class="bartrk"><div class="barfil" style="width:30%">6%</div></div><div class="barval">3,0tr</div></div>
+          <div class="barrow"><div class="barlbl">AI Tools</div><div class="bartrk"><div class="barfil" style="width:25%">5%</div></div><div class="barval">2,5tr</div></div>
+          <div class="barrow"><div class="barlbl">Thiết kế</div><div class="bartrk"><div class="barfil" style="width:20%">4%</div></div><div class="barval">2,0tr</div></div>
+          <div class="barrow"><div class="barlbl">Dự phòng</div><div class="bartrk"><div class="barfil" style="width:20%">4%</div></div><div class="barval">2,0tr</div></div>
+          <div class="barrow"><div class="barlbl">Email Marketing</div><div class="bartrk"><div class="barfil" style="width:15%">3%</div></div><div class="barval">1,5tr</div></div>
+          <div class="barrow"><div class="barlbl">Landing Page</div><div class="bartrk"><div class="barfil" style="width:10%">2%</div></div><div class="barval">1,0tr</div></div>
+          <div style="display:grid;grid-template-columns:150px 1fr 96px;gap:12px;margin-top:8px;padding-top:8px;border-top:2px solid #0F2A1C"><div style="font-size:12px;font-weight:800;color:#0F2A1C">TỔNG</div><div></div><div style="font-size:13px;font-weight:800;color:#157A40;text-align:right">50,0tr</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF">MỤC TIÊU & KỲ VỌNG THEO HẠNG MỤC</div>
+          <div style="font-size:10px;line-height:1.55;color:#37424C;font-weight:500;border:1px solid #E1E6E3;border-radius:10px;padding:11px 13px;background:#F7FAF8"><strong style="color:#14201A">Paid Ads (9tr):</strong> lấy demand đo được → ~36 SQL/tháng, CPA ≤250k, ROAS ≥1,5.</div>
+          <div style="font-size:10px;line-height:1.55;color:#37424C;font-weight:500;border:1px solid #E1E6E3;border-radius:10px;padding:11px 13px;background:#F7FAF8"><strong style="color:#14201A">Content (8tr):</strong> tài sản organic dài hạn → 12 bài + 500 subs/tháng, nuôi SEO & nurture.</div>
+          <div style="font-size:10px;line-height:1.55;color:#37424C;font-weight:500;border:1px solid #E1E6E3;border-radius:10px;padding:11px 13px;background:#F7FAF8"><strong style="color:#14201A">Video (6tr):</strong> demo & story OPC → 4 video/tháng, tăng CVR landing & social.</div>
+          <div style="font-size:10px;line-height:1.55;color:#37424C;font-weight:500;border:1px solid #E1E6E3;border-radius:10px;padding:11px 13px;background:#F7FAF8"><strong style="color:#14201A">KOC (4tr):</strong> bằng chứng xã hội chi phí thấp → 8 KOC/tháng, reach 500k, lead earned.</div>
+          <div style="font-size:10px;line-height:1.55;color:#37424C;font-weight:500;border:1px solid #E1E6E3;border-radius:10px;padding:11px 13px;background:#F7FAF8"><strong style="color:#14201A">SEO + Email + AI Tools (7tr):</strong> hạ CAC theo thời gian, tăng LTV, tự động hoá vận hành lean.</div>
+          <div style="font-size:10px;line-height:1.55;color:#256B44;font-weight:600;border:1px solid #CDE9D8;border-radius:10px;padding:11px 13px;background:#EDFAF3"><strong style="color:#157A40">Tổng năm:</strong> 600tr ₫ hoạt động. ~70% dồn vào tài sản lâu dài + kênh ROI đo được; 4% dự phòng để nhân đôi kênh thắng.</div>
+        </div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>07</span></div>
+  </section>
+
+  <!-- ===== RESOURCE PLAN ===== -->
+  <section class="pg" data-screen-label="Nhân sự">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 4 · RESOURCE PLAN</span></div>
+      <h2 class="t">Bộ máy tinh gọn — con người điều phối, AI Agent thực thi</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:170mm">Chính mô hình "Doanh nghiệp Một Người" áp dụng cho đội marketing: <strong>lõi cơ hữu nhỏ</strong>, freelancer theo kỹ năng, agency theo dự án, và <strong>AI Agent gánh phần lặp lại</strong> (draft, lịch đăng, phân tích, tối ưu).</p>
+
+      <table class="tb">
+        <thead><tr><th style="width:22%">Nguồn lực</th><th style="width:20%">Vai trò</th><th>Nhiệm vụ</th><th style="width:16%">Hình thức</th><th style="width:15%">Chi phí/tháng</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Marketing Lead</strong> <span class="tag tg-green">In-house</span></td><td>Chủ trì chiến lược & vận hành</td><td>Điều phối toàn bộ, sở hữu KPI, tối ưu phễu, làm việc với AI Agent</td><td>Toàn thời gian</td><td>Chi phí cố định*</td></tr>
+          <tr><td><strong>Content & Community</strong> <span class="tag tg-green">In-house</span></td><td>Nội dung + cộng đồng</td><td>Sản xuất bài/kịch bản, quản trị cộng đồng OPC, biên tập AI draft</td><td>Toàn thời gian</td><td>Chi phí cố định*</td></tr>
+          <tr><td><strong>Performance Ads</strong> <span class="tag tg-amber">Freelancer</span></td><td>Chạy & tối ưu paid</td><td>Meta/Google/TikTok Ads, retargeting, A/B, báo cáo CPA/ROAS</td><td>Bán thời gian</td><td>~5–6tr (trong media)</td></tr>
+          <tr><td><strong>Video Editor</strong> <span class="tag tg-amber">Freelancer</span></td><td>Dựng video</td><td>4 video/tháng: demo, story OPC, cut social</td><td>Theo sản phẩm</td><td>Trong 6tr Video</td></tr>
+          <tr><td><strong>Designer</strong> <span class="tag tg-amber">Freelancer</span></td><td>Thiết kế</td><td>Ad creative, landing visual, ấn phẩm sự kiện</td><td>Theo sản phẩm</td><td>Trong 2tr Thiết kế</td></tr>
+          <tr><td><strong>PR & Event</strong> <span class="tag tg-blue">Agency</span></td><td>Quan hệ báo chí & sự kiện</td><td>Thông cáo, quan hệ báo, tổ chức OPC Summit (Q4)</td><td>Theo dự án</td><td>Trong PR + Event</td></tr>
+          <tr><td><strong>AI Agents</strong> <span class="tag tg-gray">AppChat</span></td><td>Thực thi tự động</td><td>Draft nội dung, lịch đăng, phân loại lead, phân tích, gợi ý tối ưu, chatbot inbound</td><td>24/7</td><td>Trong AI Tools 2,5tr</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px">
+        <div style="border:1px solid #E1E6E3;border-radius:14px;padding:16px;background:#F7FAF8">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:8px">CÁCH AI AGENT THAY 3–4 NHÂN SỰ</div>
+          <div style="font-size:11px;line-height:1.65;color:#37424C;font-weight:500">• <strong>Content Agent:</strong> draft bài/caption/email theo pillar → người biên tập.<br>• <strong>Social Agent:</strong> lên lịch, đăng đa kênh, tổng hợp tương tác.<br>• <strong>Analytics Agent:</strong> báo cáo phễu tự động, cảnh báo lệch KPI.<br>• <strong>Ads Copilot:</strong> gợi ý phân bổ, cắt nhóm quảng cáo kém.<br>• <strong>Inbound Agent:</strong> trả lời & phân loại lead 24/7 ngay trên AppChat.</div>
+        </div>
+        <div style="border:1px solid #CDE9D8;border-radius:14px;padding:16px;background:#EDFAF3">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#157A40;margin-bottom:8px">ƯỚC TÍNH CHI PHÍ NHÂN SỰ (THAM KHẢO)</div>
+          <div style="font-size:11px;line-height:1.7;color:#256B44;font-weight:600">Lõi cơ hữu 2 người*: ~35–45tr ₫/tháng (ngoài ngân sách hoạt động 50tr).<br>Freelancer/Agency: đã gộp trong 50tr media theo từng hạng mục.<br><strong style="color:#157A40">Tổng chi marketing/tháng ≈ 85–95tr ₫</strong> (hoạt động + nhân sự lõi).</div>
+          <div style="font-size:9px;color:#5A8A6C;font-weight:500;margin-top:8px;font-style:italic">*Có thể khởi động bằng 1 founder-led + 1 exec để tối ưu chi phí giai đoạn đầu, mở rộng khi ROI đã chứng minh.</div>
+        </div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>08</span></div>
+  </section>
+
+  <!-- ===== 90-DAY TIMELINE ===== -->
+  <section class="pg" data-screen-label="Timeline 90 ngày">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 5 · EXECUTION TIMELINE · 90 NGÀY</span></div>
+      <h2 class="t">Kế hoạch theo tuần — Tuần 1 → Tuần 12</h2>
+      <table class="tb" style="margin-top:6px">
+        <thead><tr><th style="width:44px">Tuần</th><th style="width:30%">Công việc</th><th style="width:28%">Deliverables</th><th>KPI / Deadline</th></tr></thead>
+        <tbody>
+          <tr><td><strong>T1</strong></td><td>Setup nền tảng đo lường, khóa messaging, dựng backlog nội dung</td><td>GA4 + pixel + UTM, brand kit, backlog 30 chủ đề</td><td>Tracking chạy · hết ngày 7</td></tr>
+          <tr><td><strong>T2</strong></td><td>Thiết kế & dựng landing OPC, wireframe → build</td><td>Landing bản 1, 3 ad concept</td><td>Landing staging · hết ngày 14</td></tr>
+          <tr><td><strong>T3</strong></td><td>Landing live, xuất bản 4 bài trụ đầu, mở kênh social</td><td>Landing production, 4 bài, 3 kênh social</td><td>Landing live · &lt;2,5s tải</td></tr>
+          <tr><td><strong>T4</strong></td><td>Chuỗi email chào, 2 video ngắn đầu, khởi động SEO</td><td>Email flow, 2 video, 10 từ khóa target</td><td>≥100 subs · hết ngày 28</td></tr>
+          <tr><td><strong>T5</strong></td><td>Nhịp content đều, bắt đầu case study #1</td><td>4 bài, 2 video, phỏng vấn KH #1</td><td>Nhịp 3 bài/tuần ổn định</td></tr>
+          <tr><td><strong>T6</strong></td><td>Xuất bản case study #1, e-book OPC, thử paid nhỏ</td><td>Case study #1, e-book, 1 campaign test</td><td>≥150 trial lũy kế</td></tr>
+          <tr><td><strong>T7</strong></td><td>Tối ưu test paid, case study #2, chuẩn bị webinar</td><td>Báo cáo test, case study #2, deck webinar</td><td>CPA test ≤300k</td></tr>
+          <tr><td><strong>T8</strong></td><td>Webinar thử nghiệm #1, mở rộng cluster SEO</td><td>Webinar #1, 6 bài SEO cluster</td><td>≥80 đăng ký webinar</td></tr>
+          <tr><td><strong>T9</strong></td><td>Scale nhóm quảng cáo thắng, case study #3</td><td>Cấu trúc campaign v2, case study #3</td><td>≥250 trial · ROAS ≥1,3</td></tr>
+          <tr><td><strong>T10</strong></td><td>Nurture nâng cao, bắt đầu outreach KOC</td><td>Nurture 5 bước, shortlist 10 KOC</td><td>≥40 SQL lũy kế</td></tr>
+          <tr><td><strong>T11</strong></td><td>Kích hoạt 3 KOC đầu, tối ưu bảng giá & CVR</td><td>3 nội dung KOC, A/B bảng giá</td><td>CVR trial→paid tăng ≥15%</td></tr>
+          <tr><td><strong>T12</strong></td><td>Chốt Q1, báo cáo tổng, khóa kế hoạch Q2</td><td>Báo cáo 90 ngày, kế hoạch Q2, learnings</td><td>≥300 trial · review xong ngày 90</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:14px;background:#0F2A1C;color:#fff;border-radius:14px;padding:14px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#7DE0A6">TUẦN 1–4</div><div style="font-size:12px;font-weight:700;margin-top:3px">Dựng nền & tracking</div></div>
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#7DE0A6">TUẦN 5–8</div><div style="font-size:12px;font-weight:700;margin-top:3px">Content + case study + test paid</div></div>
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#7DE0A6">TUẦN 9–12</div><div style="font-size:12px;font-weight:700;margin-top:3px">Scale + KOC + chốt Q1</div></div>
+        <div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:#7DE0A6">MỐC 90 NGÀY</div><div style="font-size:12px;font-weight:700;margin-top:3px">300 trial · nền chuyển đổi hoàn chỉnh</div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>09</span></div>
+  </section>
+
+  <!-- ===== ROI PROJECTION ===== -->
+  <section class="pg" data-screen-label="Dự báo ROI">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 6 · ROI PROJECTION</span></div>
+      <h2 class="t">Phễu tăng trưởng & hiệu quả đầu tư — 12 tháng</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:10px">PHỄU LŨY KẾ NĂM 1</div>
+          <div class="fnl">
+            <div class="fnb" style="width:100%;background:#0F2A1C"><span>Reach</span><strong>4.000.000</strong></div>
+            <div class="fnb" style="width:92%;background:#125733"><span>Website traffic</span><strong>150.000</strong></div>
+            <div class="fnb" style="width:80%;background:#157A40"><span>Leads (MQL)</span><strong>4.000</strong></div>
+            <div class="fnb" style="width:66%;background:#1E9A54"><span>Trial</span><strong>1.200</strong></div>
+            <div class="fnb" style="width:52%;background:#2DC56A"><span>SQL</span><strong>600</strong></div>
+            <div class="fnb" style="width:38%;background:#46D982;color:#0F2A1C"><span>Khách hàng</span><strong>180</strong></div>
+          </div>
+          <div style="font-size:9.5px;color:#9CA3AF;font-weight:500;margin-top:10px;line-height:1.5">Tỷ lệ chuyển đổi giả định: traffic→lead 2,7% · lead→trial 30% · trial→SQL 50% · SQL→KH 30%. Bám chuẩn SaaS B2B AI giai đoạn đầu tại VN.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF">CHỈ SỐ HIỆU QUẢ</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8"><div style="font-size:9px;color:#9CA3AF;font-weight:700">MRR CUỐI NĂM</div><div style="font-size:20px;font-weight:800;color:#157A40">95tr ₫</div></div>
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8"><div style="font-size:9px;color:#9CA3AF;font-weight:700">ARR CHẠY</div><div style="font-size:20px;font-weight:800;color:#157A40">~1,14 tỷ</div></div>
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8"><div style="font-size:9px;color:#9CA3AF;font-weight:700">CAC (hoạt động)</div><div style="font-size:20px;font-weight:800;color:#14201A">3,3tr ₫</div></div>
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8"><div style="font-size:9px;color:#9CA3AF;font-weight:700">LTV (24 tháng)</div><div style="font-size:20px;font-weight:800;color:#14201A">9,6tr ₫</div></div>
+            <div style="border:1px solid #CDE9D8;border-radius:12px;padding:13px;background:#EDFAF3"><div style="font-size:9px;color:#157A40;font-weight:700">LTV : CAC</div><div style="font-size:20px;font-weight:800;color:#157A40">2,9×</div></div>
+            <div style="border:1px solid #CDE9D8;border-radius:12px;padding:13px;background:#EDFAF3"><div style="font-size:9px;color:#157A40;font-weight:700">HOÀN VỐN CAC</div><div style="font-size:20px;font-weight:800;color:#157A40">~7 tháng</div></div>
+          </div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#0F2A1C;color:#fff">
+            <div style="font-size:9px;color:#7DE0A6;font-weight:800;letter-spacing:.08em">ROI NĂM 1 (THEO LTV)</div>
+            <div style="font-size:13px;font-weight:700;line-height:1.5;margin-top:4px">180 KH × LTV 9,6tr = <strong style="color:#7DE0A6">1,73 tỷ ₫</strong> giá trị vòng đời · Tổng chi hoạt động 600tr → <strong style="color:#7DE0A6">ROI ≈ 2,9×</strong>. Tính cả lương lõi (~1,1 tỷ tổng), ROI ≈ 1,5× ngay năm đầu, dương bền vững từ Q3.</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10px;color:#9CA3AF;font-weight:500;margin:14px 0 0;font-style:italic">Kịch bản cơ sở (base case). ARPA blended ~500k ₫/tháng (mix gói Cá nhân → Doanh nghiệp), gross margin ~80%, churn ~4%/tháng. Kịch bản thận trọng: 120 KH, ROI ~1,8× (LTV). Kịch bản tốt: 240 KH nếu ≥2 kênh viral.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>10</span></div>
+  </section>
+
+  <!-- ===== RISK + MEASUREMENT ===== -->
+  <section class="pg" data-screen-label="Rủi ro & Đo lường">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 7 · RISK MANAGEMENT</span></div>
+      <h2 class="t">Rủi ro trọng yếu & phương án giảm thiểu</h2>
+      <table class="tb" style="margin-top:4px">
+        <thead><tr><th style="width:12%">Nhóm</th><th style="width:34%">Rủi ro</th><th style="width:12%">Mức độ</th><th>Phương án giảm thiểu</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Marketing</strong></td><td>Category "AI CX" còn mới, thị trường chưa hiểu → CAC cao</td><td><span class="tag tg-amber">Cao</span></td><td>Content giáo dục thị trường trước, case study cụ thể theo ngành, đo CPA hàng tuần và cắt kênh kém</td></tr>
+          <tr><td><strong>Sales</strong></td><td>Trial nhiều nhưng không lên trả phí (CVR thấp)</td><td><span class="tag tg-amber">Cao</span></td><td>Onboarding có AI Agent, nurture theo hành vi, đội sale theo SQL, tối ưu bảng giá & gói dùng thử</td></tr>
+          <tr><td><strong>Product</strong></td><td>Sản phẩm chưa kịp trưởng thành so với kỳ vọng truyền thông</td><td><span class="tag tg-amber">TB</span></td><td>Đồng bộ marketing–product roadmap, truyền thông theo năng lực thật, beta có kiểm soát</td></tr>
+          <tr><td><strong>Brand</strong></td><td>Thông điệp OPC bị hiểu nhầm "thay thế con người"</td><td><span class="tag tg-blue">TB</span></td><td>Định khung "AI khuếch đại năng lực cá nhân", câu chuyện người thật, tránh phóng đại</td></tr>
+          <tr><td><strong>Budget</strong></td><td>50tr/tháng hạn chế, dàn trải dễ mất hiệu quả</td><td><span class="tag tg-amber">Cao</span></td><td>Dồn vào 3–4 kênh ROI đã chứng minh, giữ 4% dự phòng, review phân bổ mỗi tháng theo dữ liệu</td></tr>
+          <tr><td><strong>Vận hành</strong></td><td>Đội tinh gọn → quá tải, phụ thuộc freelancer</td><td><span class="tag tg-gray">TB</span></td><td>AI Agent gánh việc lặp, SOP & template hóa, có backup freelancer cho vai trò trọng yếu</td></tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:16px">
+        <div class="sec" style="margin-bottom:8px"><i></i><span>PHẦN 8 · ĐO LƯỜNG & TECH STACK</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="border:1px solid #E1E6E3;border-radius:14px;padding:15px;background:#F7FAF8">
+            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:8px">BỘ CÔNG CỤ (TRONG NGÂN SÁCH AI TOOLS)</div>
+            <div style="font-size:11px;line-height:1.7;color:#37424C;font-weight:500">• <strong>Analytics:</strong> GA4, pixel đa kênh, UTM chuẩn<br>• <strong>CRM & phễu:</strong> chính AppChat (dogfooding) + AI Agent<br>• <strong>Content/SEO:</strong> công cụ AI draft + theo dõi từ khóa<br>• <strong>Email/Automation:</strong> nurture theo hành vi<br>• <strong>Dashboard:</strong> báo cáo phễu tự động realtime</div>
+          </div>
+          <div style="border:1px solid #CDE9D8;border-radius:14px;padding:15px;background:#EDFAF3">
+            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#157A40;margin-bottom:8px">NHỊP REVIEW</div>
+            <div style="font-size:11px;line-height:1.7;color:#256B44;font-weight:600">• <strong>Hàng ngày:</strong> AI Agent cảnh báo lệch KPI, chi tiêu paid<br>• <strong>Hàng tuần:</strong> review phễu & CPA, cắt/nhân kênh<br>• <strong>Hàng tháng:</strong> tái phân bổ ngân sách theo ROI<br>• <strong>Hàng quý:</strong> review mốc roadmap, chốt giai đoạn<br>• <strong>Bắc Đẩu (North Star):</strong> Số Doanh nghiệp Một Người vận hành thật trên AppChat</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10.5px;color:#9CA3AF;font-weight:500;margin:14px 0 0;font-style:italic">Nguyên tắc quyết định: mọi hạng mục không đạt KPI sau 2 chu kỳ review sẽ bị cắt hoặc tái cấu trúc; ngân sách chuyển sang kênh đang thắng.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>11</span></div>
+  </section>
+
+  <!-- ===== 9 · DETAILED EXECUTION · PHASE 1 ===== -->
+  <section class="pg" data-screen-label="Phase 1 · Tuần 1-2">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 9 · DETAILED EXECUTION · PHASE 1 — FOUNDATION</span></div>
+      <h2 class="t">Chi tiết Tuần 1–2 — Brand & Content Foundation</h2>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- WEEK 1 -->
+        <div style="border:1px solid #E1E6E3;border-radius:14px;overflow:hidden">
+          <div style="background:#0F2A1C;color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:800">Tuần 1 · <span style="color:#7DE0A6">Brand Foundation</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600">Mục tiêu: chốt nền tảng thương hiệu & tài sản chuyển đổi đầu tiên</div>
+          </div>
+          <div style="padding:13px 16px;display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:7px">CHECKLIST CÔNG VIỆC</div>
+              <div style="font-size:11px;line-height:1.85;color:#37424C;font-weight:500">☐ Hoàn thiện Positioning &amp; câu định vị chuẩn<br>☐ Hoàn thiện Messaging House (lõi → 3 trụ)<br>☐ Hoàn thiện Brand Story "Doanh nghiệp Một Người"<br>☐ Viết &amp; dựng Landing Page v1<br>☐ Hoàn thiện Logo guideline &amp; brand kit<br>☐ Xây dựng hệ thống CTA (demo/trial)</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF">THÔNG SỐ</div>
+              <div style="font-size:10.5px;line-height:1.6;color:#37424C;font-weight:500"><strong style="color:#14201A">Phụ trách:</strong> MKT Lead + Designer (FL)<br><strong style="color:#14201A">Deliverables:</strong> Brand Guideline · Website v1 · Pitch Deck<br><strong style="color:#14201A">KPI:</strong> Landing live · tracking chạy<br><strong style="color:#14201A">Hoàn thành:</strong> hết ngày 7<br><strong style="color:#14201A">Phụ thuộc:</strong> — (điểm khởi đầu)</div>
+            </div>
+          </div>
+        </div>
+        <!-- WEEK 2 -->
+        <div style="border:1px solid #E1E6E3;border-radius:14px;overflow:hidden">
+          <div style="background:#125733;color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:800">Tuần 2 · <span style="color:#7DE0A6">Content Foundation</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600">Mục tiêu: dựng bộ máy nội dung & thư viện AI để sản xuất đều</div>
+          </div>
+          <div style="padding:13px 16px;display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:7px">CHECKLIST CÔNG VIỆC</div>
+              <div style="font-size:11px;line-height:1.85;color:#37424C;font-weight:500">☐ Xây dựng Content Pillars (4 trụ)<br>☐ Xây dựng ngân hàng 100 chủ đề<br>☐ Xây dựng AI Prompt Library (30 prompt)<br>☐ Thiết kế Template Canva (10 mẫu)<br>☐ Thiết kế bộ Thumbnail chuẩn<br>☐ Chuẩn hóa màu sắc &amp; typography</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF">THÔNG SỐ</div>
+              <div style="font-size:10.5px;line-height:1.6;color:#37424C;font-weight:500"><strong style="color:#14201A">Phụ trách:</strong> Content + AI Agent + Designer (FL)<br><strong style="color:#14201A">Deliverables:</strong> 100 Content Ideas · 30 AI Prompt · 10 Templates<br><strong style="color:#14201A">KPI:</strong> đủ backlog 4 tuần nội dung<br><strong style="color:#14201A">Hoàn thành:</strong> hết ngày 14<br><strong style="color:#14201A">Phụ thuộc:</strong> Tuần 1 (messaging &amp; brand kit)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>12</span></div>
+  </section>
+
+  <!-- ===== 9 · PHASE 1 · WEEK 3-4 ===== -->
+  <section class="pg" data-screen-label="Phase 1 · Tuần 3-4">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 9 · DETAILED EXECUTION · PHASE 1 — FOUNDATION</span></div>
+      <h2 class="t">Chi tiết Tuần 3–4 — Channel & Campaign Foundation</h2>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- WEEK 3 -->
+        <div style="border:1px solid #E1E6E3;border-radius:14px;overflow:hidden">
+          <div style="background:#157A40;color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:800">Tuần 3 · <span style="color:#DFF3E8">Channel Foundation</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600">Mục tiêu: mở &amp; chuẩn hóa toàn bộ kênh phân phối</div>
+          </div>
+          <div style="padding:13px 16px;display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:7px">CHECKLIST CÔNG VIỆC</div>
+              <div style="font-size:11px;line-height:1.85;color:#37424C;font-weight:500">☐ Mở &amp; tối ưu Facebook / LinkedIn / TikTok / YouTube<br>☐ Thiết lập chuỗi Email chào mừng (welcome flow)<br>☐ Xuất bản 4 bài trụ đầu tiên<br>☐ Cài đặt SEO on-page &amp; 10 từ khóa mục tiêu<br>☐ Dựng 2 video ngắn đầu tiên<br>☐ Kết nối kênh về AppChat (inbound Agent)</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF">THÔNG SỐ</div>
+              <div style="font-size:10.5px;line-height:1.6;color:#37424C;font-weight:500"><strong style="color:#14201A">Phụ trách:</strong> Content/Social + Video (FL)<br><strong style="color:#14201A">Deliverables:</strong> 4 kênh live · Welcome email · 4 bài · 2 video<br><strong style="color:#14201A">KPI:</strong> ≥100 subs · kênh chạy đều<br><strong style="color:#14201A">Hoàn thành:</strong> hết ngày 21<br><strong style="color:#14201A">Phụ thuộc:</strong> Tuần 2 (content &amp; template)</div>
+            </div>
+          </div>
+        </div>
+        <!-- WEEK 4 -->
+        <div style="border:1px solid #E1E6E3;border-radius:14px;overflow:hidden">
+          <div style="background:#1E9A54;color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:800">Tuần 4 · <span style="color:#DFF3E8">Campaign Foundation</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600">Mục tiêu: khởi động chiến dịch đầu tiên & vòng đo lường</div>
+          </div>
+          <div style="padding:13px 16px;display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:7px">CHECKLIST CÔNG VIỆC</div>
+              <div style="font-size:11px;line-height:1.85;color:#37424C;font-weight:500">☐ Khởi chạy campaign "One Person Company" (awareness)<br>☐ Chạy test paid ads nhỏ (1–2 nhóm)<br>☐ Xuất bản e-book OPC + form thu lead<br>☐ Dựng nurture flow 5 bước<br>☐ Thiết lập dashboard phễu realtime<br>☐ Review &amp; chốt learnings tháng 1</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.08em;color:#9CA3AF">THÔNG SỐ</div>
+              <div style="font-size:10.5px;line-height:1.6;color:#37424C;font-weight:500"><strong style="color:#14201A">Phụ trách:</strong> MKT Lead + Ads (FL) + AI Agent<br><strong style="color:#14201A">Deliverables:</strong> Campaign live · E-book · Nurture · Dashboard<br><strong style="color:#14201A">KPI:</strong> ≥150 trial · CPA test ≤300k<br><strong style="color:#14201A">Hoàn thành:</strong> hết ngày 28<br><strong style="color:#14201A">Phụ thuộc:</strong> Tuần 3 (kênh &amp; landing)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10.5px;color:#9CA3AF;font-weight:500;margin:13px 0 0;font-style:italic">Phase 1 hoàn tất = toàn bộ nền tảng thương hiệu, nội dung, kênh và chiến dịch sẵn sàng để Phase 2 (Growth) bơm demand. Mọi tuần đều có KPI &amp; phụ thuộc rõ ràng để không vỡ tiến độ.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>13</span></div>
+  </section>
+
+  <!-- ===== 10 · MONTHLY MARKETING CALENDAR ===== -->
+  <section class="pg" data-screen-label="Lịch Marketing 12 tháng">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 10 · MONTHLY MARKETING CALENDAR</span></div>
+      <h2 class="t">Lịch phát hành theo kênh — 12 tháng</h2>
+      <p class="lead" style="margin:0 0 12px;max-width:170mm">Nhịp sản xuất chuẩn hàng tháng theo kênh, tăng dần theo giai đoạn. Con số là <strong>sản lượng/tháng</strong>; đơn vị: bài viết (post), video, bài PR, chiến dịch email, webinar.</p>
+      <table class="tb">
+        <thead><tr><th style="width:60px">Tháng</th><th>Facebook</th><th>LinkedIn</th><th>TikTok</th><th>YouTube</th><th>PR</th><th>Email</th><th>Webinar</th><th style="width:15%">Giai đoạn</th></tr></thead>
+        <tbody>
+          <tr><td><strong>T1</strong></td><td>20 post</td><td>12 post</td><td>28 video</td><td>8 video</td><td>1 bài</td><td>8 campaign</td><td>Chuẩn bị</td><td><span class="tag tg-green">Nền</span></td></tr>
+          <tr><td><strong>T2</strong></td><td>20</td><td>12</td><td>28</td><td>8</td><td>2</td><td>8</td><td>Chuẩn bị</td><td><span class="tag tg-green">Nền</span></td></tr>
+          <tr><td><strong>T3</strong></td><td>24</td><td>14</td><td>30</td><td>8</td><td>2</td><td>10</td><td>1 (thử)</td><td><span class="tag tg-green">Nền</span></td></tr>
+          <tr><td><strong>T4</strong></td><td>24</td><td>16</td><td>32</td><td>10</td><td>2</td><td>10</td><td>1</td><td><span class="tag tg-blue">Cầu</span></td></tr>
+          <tr><td><strong>T5</strong></td><td>28</td><td>16</td><td>32</td><td>10</td><td>3</td><td>12</td><td>2</td><td><span class="tag tg-blue">Cầu</span></td></tr>
+          <tr><td><strong>T6</strong></td><td>28</td><td>18</td><td>34</td><td>12</td><td>3</td><td>12</td><td>2</td><td><span class="tag tg-blue">Cầu</span></td></tr>
+          <tr><td><strong>T7</strong></td><td>30</td><td>18</td><td>36</td><td>12</td><td>3</td><td>12</td><td>2</td><td><span class="tag tg-blue">Đại</span></td></tr>
+          <tr><td><strong>T8</strong></td><td>30</td><td>20</td><td>36</td><td>12</td><td>4</td><td>14</td><td>2</td><td><span class="tag tg-blue">Đại</span></td></tr>
+          <tr><td><strong>T9</strong></td><td>32</td><td>20</td><td>38</td><td>14</td><td>4</td><td>14</td><td>3</td><td><span class="tag tg-green">Đại</span></td></tr>
+          <tr><td><strong>T10</strong></td><td>32</td><td>22</td><td>38</td><td>14</td><td>5</td><td>14</td><td>2</td><td><span class="tag tg-gray">Dẫn</span></td></tr>
+          <tr><td><strong>T11</strong></td><td>34</td><td>24</td><td>40</td><td>16</td><td>6</td><td>16</td><td>3 + Summit</td><td><span class="tag tg-gray">Dẫn</span></td></tr>
+          <tr><td><strong>T12</strong></td><td>34</td><td>24</td><td>40</td><td>16</td><td>5</td><td>16</td><td>2</td><td><span class="tag tg-gray">Dẫn</span></td></tr>
+        </tbody>
+      </table>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8"><div style="font-size:9px;color:#9CA3AF;font-weight:700">TỔNG NỘI DUNG/NĂM</div><div style="font-size:19px;font-weight:800;color:#157A40">~1.400+</div><div style="font-size:10px;color:#5A6670;font-weight:600">post + video</div></div>
+        <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8"><div style="font-size:9px;color:#9CA3AF;font-weight:700">WEBINAR/NĂM</div><div style="font-size:19px;font-weight:800;color:#157A40">~24</div><div style="font-size:10px;color:#5A6670;font-weight:600">+ 1 Summit flagship</div></div>
+        <div style="border:1px solid #CDE9D8;border-radius:12px;padding:13px;background:#EDFAF3"><div style="font-size:9px;color:#157A40;font-weight:700">CƠ CHẾ</div><div style="font-size:12.5px;font-weight:700;color:#157A40;line-height:1.4;margin-top:2px">AI Agent draft ~70% → người biên tập &amp; duyệt</div></div>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>14</span></div>
+  </section>
+
+  <!-- ===== 11 · WEEKLY CONTENT CALENDAR ===== -->
+  <section class="pg" data-screen-label="Lịch nội dung tuần">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 11 · WEEKLY CONTENT CALENDAR</span></div>
+      <h2 class="t">Lịch nội dung chi tiết theo ngày — tuần mẫu</h2>
+      <p class="lead" style="margin:0 0 12px;max-width:170mm">Một tuần chuẩn: mỗi ngày có kênh · định dạng · góc nội dung · CTA. Chủ đề luôn "kéo lên" chủ đề <strong>Doanh nghiệp Một Người</strong>. Đây là template lặp lại hàng tuần, thay nội dung theo backlog 100 chủ đề.</p>
+      <table class="tb">
+        <thead><tr><th style="width:60px">Ngày</th><th style="width:16%">Kênh</th><th style="width:14%">Định dạng</th><th>Góc nội dung / Tiêu đề mẫu</th><th style="width:16%">CTA</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Thứ 2</strong></td><td>Facebook</td><td>Bài viết</td><td>"Tại sao AI sẽ tạo ra Doanh nghiệp Một Người"</td><td>Đọc blog</td></tr>
+          <tr><td rowspan="2"><strong>Thứ 3</strong></td><td>TikTok</td><td>Video ngắn</td><td>"1 người vận hành doanh nghiệp 100 triệu/tháng"</td><td>Xem demo</td></tr>
+          <tr><td>LinkedIn</td><td>Bài chuyên môn</td><td>Góc nhìn: AI Agent thay 5 đầu việc vận hành</td><td>Kết nối</td></tr>
+          <tr><td><strong>Thứ 4</strong></td><td>Email</td><td>Newsletter</td><td>Bản tin tuần: xu hướng OPC + case study mới</td><td>Đăng ký Demo</td></tr>
+          <tr><td rowspan="2"><strong>Thứ 5</strong></td><td>YouTube</td><td>Video demo</td><td>Hướng dẫn: dựng phễu bán hàng bằng AppChat trong 20 phút</td><td>Dùng thử</td></tr>
+          <tr><td>Facebook</td><td>Carousel</td><td>Trước/sau: quy trình CSKH thủ công → AI tự xử</td><td>Xem bảng giá</td></tr>
+          <tr><td><strong>Thứ 6</strong></td><td>TikTok</td><td>Video</td><td>"Một ngày của chủ Doanh nghiệp Một Người cùng AI"</td><td>Xem demo</td></tr>
+          <tr><td rowspan="2"><strong>Thứ 7</strong></td><td>LinkedIn</td><td>Case study</td><td>Câu chuyện khách hàng thật theo ngành</td><td>Đọc case study</td></tr>
+          <tr><td>Facebook</td><td>Tương tác</td><td>Poll/hỏi cộng đồng: nút thắt vận hành lớn nhất?</td><td>Tham gia nhóm</td></tr>
+          <tr><td><strong>Chủ nhật</strong></td><td>Tổng hợp</td><td>Recap + lên lịch</td><td>Tổng kết tuần, chuẩn bị backlog tuần sau (AI Agent)</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:13px;border:1px solid #CDE9D8;border-radius:12px;padding:13px 16px;background:#EDFAF3;font-size:10.5px;line-height:1.6;color:#256B44;font-weight:600">Quy tắc 3-3-3 mỗi tuần: <strong>3 nội dung giáo dục</strong> (dạy thị trường) · <strong>3 nội dung bằng chứng</strong> (case study, demo, số liệu) · <strong>3 nội dung chuyển đổi</strong> (CTA trial/demo/bảng giá). Cân bằng phễu Awareness → Consideration → Conversion trong từng tuần.</div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>15</span></div>
+  </section>
+
+  <!-- ===== 12 · CONTENT PRODUCTION WORKFLOW ===== -->
+  <section class="pg" data-screen-label="Quy trình sản xuất nội dung">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 12 · CONTENT PRODUCTION WORKFLOW</span></div>
+      <h2 class="t">Quy trình sản xuất nội dung — 12 bước, người + AI</h2>
+      <p class="lead" style="margin:0 0 16px;max-width:170mm">Dây chuyền chuẩn hóa từ ý tưởng đến tối ưu. AI Agent gánh các bước lặp lại (research, draft, phân phối, theo dõi), con người giữ các chốt chất lượng (biên tập, thiết kế, quyết định tối ưu).</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative">
+        <!-- row 1 -->
+        <div style="grid-column:1 / span 4;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:26px;position:relative">
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">01</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Research</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI Agent</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">02</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Idea</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI + Người</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">03</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Outline</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI Agent</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">04</div><div style="font-size:12.5px;font-weight:800;color:#14201A">AI viết</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI Agent</div></div>
+        </div>
+        <!-- row 2 -->
+        <div style="grid-column:1 / span 4;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:26px">
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">08</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Đăng</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI Agent</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">07</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Video</div><div style="font-size:9.5px;color:#B7791F;font-weight:700;margin-top:3px">Editor (FL)</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">06</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Thiết kế</div><div style="font-size:9.5px;color:#B7791F;font-weight:700;margin-top:3px">Designer (FL)</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#F7FAF8;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">05</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Biên tập</div><div style="font-size:9.5px;color:#157A40;font-weight:700;margin-top:3px">Người</div></div>
+        </div>
+        <!-- row 3 -->
+        <div style="grid-column:1 / span 4;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">09</div><div style="font-size:12.5px;font-weight:800;color:#14201A">SEO</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI Agent</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">10</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Quảng cáo</div><div style="font-size:9.5px;color:#B7791F;font-weight:700;margin-top:3px">Ads (FL)</div></div>
+          <div style="border:1px solid #E1E6E3;border-radius:12px;padding:13px;background:#fff;text-align:center"><div style="font-size:9px;font-weight:800;color:#9CA3AF;margin-bottom:4px">11</div><div style="font-size:12.5px;font-weight:800;color:#14201A">Theo dõi KPI</div><div style="font-size:9.5px;color:#2DC56A;font-weight:700;margin-top:3px">AI Agent</div></div>
+          <div style="border:1px solid #CDE9D8;border-radius:12px;padding:13px;background:#EDFAF3;text-align:center"><div style="font-size:9px;font-weight:800;color:#157A40;margin-bottom:4px">12</div><div style="font-size:12.5px;font-weight:800;color:#157A40">Tối ưu</div><div style="font-size:9.5px;color:#157A40;font-weight:700;margin-top:3px">Người + AI</div></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:#5A6670"><span style="width:12px;height:12px;border-radius:3px;background:#2DC56A"></span> AI Agent thực thi</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:#5A6670"><span style="width:12px;height:12px;border-radius:3px;background:#157A40"></span> Người (chốt chất lượng)</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:#5A6670"><span style="width:12px;height:12px;border-radius:3px;background:#B7791F"></span> Freelancer (chuyên môn)</span>
+        <span style="font-size:10.5px;color:#9CA3AF;font-weight:600;margin-left:auto;font-style:italic">Thời gian trung bình: 1 bài blog ~4h · 1 video ~1 ngày · rút ~60% nhờ AI</span>
+      </div>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>16</span></div>
+  </section>
+
+  <!-- ===== 13 · CAMPAIGN TIMELINE ===== -->
+  <section class="pg" data-screen-label="Campaign Timeline">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 13 · CAMPAIGN TIMELINE</span></div>
+      <h2 class="t">Cấu trúc chiến dịch theo tháng — 4 tuần một mạch phễu</h2>
+      <p class="lead" style="margin:0 0 14px;max-width:170mm">Mỗi tháng là một chiến dịch chủ đề, chạy theo mạch <strong>Awareness → Education → Case Study → Demo/CTA</strong>. Đây là "khuôn" lặp lại; chủ đề đổi theo giai đoạn.</p>
+
+      <div style="border:1px solid #E1E6E3;border-radius:14px;overflow:hidden;margin-bottom:14px">
+        <div style="background:#0F2A1C;color:#fff;padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13.5px;font-weight:800">Tháng 1 · Campaign <span style="color:#7DE0A6">"One Person Company"</span></div>
+          <div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:600">CTA đích: Đăng ký Trial</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr)">
+          <div style="padding:14px;border-right:1px solid #EEF1F0"><div style="font-size:9px;font-weight:800;color:#9CA3AF">TUẦN 1</div><div style="font-size:13px;font-weight:800;color:#2DC56A;margin:3px 0 5px">Awareness</div><div style="font-size:10px;line-height:1.5;color:#37424C;font-weight:500">Giới thiệu khái niệm OPC, khơi vấn đề, viral video ngắn</div></div>
+          <div style="padding:14px;border-right:1px solid #EEF1F0"><div style="font-size:9px;font-weight:800;color:#9CA3AF">TUẦN 2</div><div style="font-size:13px;font-weight:800;color:#2DC56A;margin:3px 0 5px">Education</div><div style="font-size:10px;line-height:1.5;color:#37424C;font-weight:500">Dạy cách AI vận hành doanh nghiệp, blog trụ, webinar</div></div>
+          <div style="padding:14px;border-right:1px solid #EEF1F0"><div style="font-size:9px;font-weight:800;color:#9CA3AF">TUẦN 3</div><div style="font-size:13px;font-weight:800;color:#2DC56A;margin:3px 0 5px">Case Study</div><div style="font-size:10px;line-height:1.5;color:#37424C;font-weight:500">Bằng chứng khách hàng thật theo ngành, số liệu</div></div>
+          <div style="padding:14px"><div style="font-size:9px;font-weight:800;color:#9CA3AF">TUẦN 4</div><div style="font-size:13px;font-weight:800;color:#157A40;margin:3px 0 5px">Demo / CTA</div><div style="font-size:10px;line-height:1.5;color:#37424C;font-weight:500">Đẩy demo/trial, retargeting, ưu đãi có thời hạn</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:9px">CHỦ ĐỀ CHIẾN DỊCH THEO THÁNG</div>
+      <table class="tb">
+        <thead><tr><th style="width:70px">Tháng</th><th>Chủ đề chiến dịch</th><th style="width:22%">CTA đích</th><th style="width:16%">Giai đoạn</th></tr></thead>
+        <tbody>
+          <tr><td><strong>T1–T3</strong></td><td>"One Person Company" · "AI vận hành thay bạn" · "Khai sinh AI Customer Experience"</td><td>Trial</td><td><span class="tag tg-green">Nền</span></td></tr>
+          <tr><td><strong>T4–T6</strong></td><td>"Doanh nghiệp không ngủ" · "Từ 1 người đến 100 triệu/tháng" · "Phễu bán hàng tự động"</td><td>Demo → Paid</td><td><span class="tag tg-blue">Cầu</span></td></tr>
+          <tr><td><strong>T7–T9</strong></td><td>"Câu chuyện người thật" · "Cộng đồng OPC" · "Đối tác cùng thắng"</td><td>Trial + Referral</td><td><span class="tag tg-blue">Đại</span></td></tr>
+          <tr><td><strong>T10–T12</strong></td><td>"Báo cáo OPC Vietnam" · "OPC Summit" · "Tổng kết & mở rộng"</td><td>Enterprise + Upsell</td><td><span class="tag tg-gray">Dẫn</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>17</span></div>
+  </section>
+
+  <!-- ===== 14 · DAILY SOP + 15 · DELIVERABLES ===== -->
+  <section class="pg" data-screen-label="Daily SOP & Checklist">
+    <div class="bd">
+      <div class="sec"><i></i><span>PHẦN 14 · DAILY SOP</span></div>
+      <h2 class="t">Quy trình vận hành hàng ngày</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#9CA3AF;margin-bottom:9px">NHỊP MỘT NGÀY — MARKETING LEAD + AI AGENT</div>
+          <div style="display:flex;flex-direction:column;gap:0">
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">08:00</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Review KPI (dashboard AI cảnh báo qua đêm)</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">08:30</div><div style="font-size:11.5px;color:#37424C;font-weight:600">AI research trend + backlog chủ đề trong ngày</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">09:00</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Viết &amp; biên tập nội dung (AI draft → người duyệt)</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">10:30</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Review Landing Page &amp; A/B đang chạy</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">13:30</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Quay/dựng video (theo lịch sản xuất)</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">15:00</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Đăng bài đa kênh (AI Agent lên lịch &amp; phân phối)</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">16:00</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Chạy &amp; tối ưu Ads (kiểm tra CPA, cắt nhóm kém)</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid #EEF1F0"><div style="font-size:12px;font-weight:800;color:#157A40">17:00</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Review Leads (AI phân loại → bàn giao sale)</div></div>
+            <div style="display:grid;grid-template-columns:56px 1fr;gap:12px;padding:8px 0"><div style="font-size:12px;font-weight:800;color:#157A40">18:00</div><div style="font-size:11.5px;color:#37424C;font-weight:600">Báo cáo ngày (AI tổng hợp tự động)</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec" style="margin-bottom:8px"><i></i><span>PHẦN 15 · DELIVERABLES CHECKLIST</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:12px 14px;background:#F7FAF8">
+              <div style="font-size:11px;font-weight:800;color:#14201A;margin-bottom:5px">🎯 Brand</div>
+              <div style="font-size:10.5px;line-height:1.75;color:#37424C;font-weight:500">☐ Logo ☐ Guideline ☐ Pitch Deck</div>
+            </div>
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:12px 14px;background:#F7FAF8">
+              <div style="font-size:11px;font-weight:800;color:#14201A;margin-bottom:5px">🌐 Website</div>
+              <div style="font-size:10.5px;line-height:1.75;color:#37424C;font-weight:500">☐ Homepage ☐ Pricing ☐ Demo</div>
+            </div>
+            <div style="border:1px solid #E1E6E3;border-radius:12px;padding:12px 14px;background:#F7FAF8">
+              <div style="font-size:11px;font-weight:800;color:#14201A;margin-bottom:5px">📣 Marketing</div>
+              <div style="font-size:10.5px;line-height:1.75;color:#37424C;font-weight:500">☐ Landing Page ☐ E-book ☐ Webinar ☐ Email Sequence ☐ Video Library ☐ Case Study ☐ AI Prompt Library</div>
+            </div>
+            <div style="border:1px solid #CDE9D8;border-radius:12px;padding:12px 14px;background:#EDFAF3">
+              <div style="font-size:11px;font-weight:800;color:#157A40;margin-bottom:5px">💼 Sales</div>
+              <div style="font-size:10.5px;line-height:1.75;color:#256B44;font-weight:600">☐ Demo Script ☐ Sales Deck ☐ ROI Calculator ☐ Proposal ☐ FAQ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:10.5px;color:#9CA3AF;font-weight:500;margin:14px 0 0;font-style:italic">SOP là khung linh hoạt — AI Agent xử lý phần lặp lại để 1 người điều phối được cả bộ máy, đúng tinh thần "Doanh nghiệp Một Người". Checklist deliverables dùng để nghiệm thu từng giai đoạn.</p>
+    </div>
+    <div class="ft"><span>APPCHAT · MARKETING EXECUTION PLAN</span><span>18</span></div>
+  </section>
+
+  <!-- ===== BACK COVER ===== -->
+  <section class="pg partcover clip" data-screen-label="Tổng kết" style="padding:0">
+    <div style="position:absolute;inset:0;background:radial-gradient(100% 60% at 88% 8%, rgba(45,197,106,.26), transparent 55%),radial-gradient(90% 55% at 4% 96%, rgba(21,122,64,.4), transparent 60%)"></div>
+    <div style="position:relative;height:297mm;display:flex;flex-direction:column;justify-content:space-between;padding:26mm 20mm">
+      <div style="display:flex;align-items:center;gap:14px">
+        <img src="assets/appchat-logo-white.png" alt="AppChat" style="height:34px;width:auto;display:block">
+        <span style="font-size:10px;letter-spacing:.28em;color:rgba(255,255,255,.5);font-weight:700">BY MEDIA SOFT</span>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.28em;color:#7DE0A6;margin-bottom:18px">SẴN SÀNG TRIỂN KHAI</div>
+        <h2 class="quote" style="font-size:32px;line-height:1.35;font-weight:500;margin:0 0 22px;max-width:620px">"Kế hoạch chỉ có giá trị khi chạy được ngay — với đúng ngân sách, đúng người và đúng thứ tự."</h2>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:640px">
+          <div><div style="font-size:26px;font-weight:800;color:#7DE0A6">600tr</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px">Ngân sách năm ₫</div></div>
+          <div><div style="font-size:26px;font-weight:800;color:#7DE0A6">180</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px">Khách hàng mục tiêu</div></div>
+          <div><div style="font-size:26px;font-weight:800;color:#7DE0A6">95tr</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px">MRR cuối năm ₫</div></div>
+          <div><div style="font-size:26px;font-weight:800;color:#7DE0A6">2,9×</div><div style="font-size:11px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px">ROI (LTV)</div></div>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.14);padding-top:18px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">AppChat · AI-Native Agentic CX Platform · Doanh nghiệp Một Người</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500">Media Soft Group · 2026</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#12894F"><svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#12894F"/><text x="600" y="470" font-family="Plus Jakarta Sans,sans-serif" font-size="360" font-weight="800" fill="#fff" text-anchor="middle">A</text></svg></template></x-dc>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#EEF0F2">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#EEF0F2"/>
+    <rect x="480" y="180" width="240" height="72" rx="36" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="6"/>
+    <path d="M600 252 V330" stroke="#C4CBD1" stroke-width="8"/>
+    <path d="M600 330 L720 400 L600 470 L480 400 Z" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="6"/>
+    <path d="M600 470 V550" stroke="#C4CBD1" stroke-width="8"/>
+    <rect x="470" y="550" width="260" height="76" rx="14" fill="#FFFFFF" stroke="#C4CBD1" stroke-width="6"/>
+    <path d="M480 400 H300 V626 H470" stroke="#C4CBD1" stroke-width="8" fill="none"/>
+    <path d="M720 400 H900" stroke="#C99490" stroke-width="8"/>
+    <rect x="900" y="366" width="180" height="68" rx="14" fill="#FBEDED" stroke="#F0C9C9" stroke-width="6"/>
+  </svg>
+</template>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#EEF0F2}
+.ln{height:8px;border-radius:3px;background:#E1E5E8}.lnd{height:8px;border-radius:3px;background:#D6DBDF}
+.box{background:#fff;border:1.5px solid #CFD5DA;border-radius:14px;box-shadow:0 1px 0 #D8DDE1}
+.dash{border:1.5px dashed #C4CBD1;border-radius:9px}</style>
+</helmet>
+<div style="min-width:1440px;padding:44px 48px;background:#EEF0F2;color:#3A3F44">
+  <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">APPCHAT · WIREFRAME</div>
+  <div style="font-size:30px;font-weight:700;color:#2C3034;letter-spacing:-.02em">Trợ lý AI — bố cục &amp; nghiệp vụ</div>
+  <div style="font-size:14px;color:#8A9096;margin-top:6px;max-width:860px;line-height:1.5">Điểm vào giao việc bằng ngôn ngữ tự nhiên: chat để ra lệnh, AI phân tích ý định → điều phối module &amp; agent → thực thi và trả kết quả. Có submenu Phiên trò chuyện &amp; Nhật ký hành động.</div>
+
+  <!-- ===== SHELL ===== -->
+  <div style="display:flex;margin-top:34px;border:1.5px solid #CFD5DA;border-radius:16px;overflow:hidden;background:#fff">
+    <!-- sidebar -->
+    <div style="width:190px;border-right:1.5px solid #E1E5E8;padding:18px 14px;background:#FAFBFC;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px"><div style="width:28px;height:28px;border-radius:8px;background:#C4CBD1"></div><div style="width:74px;height:12px;border-radius:3px;background:#CFD5DA"></div></div>
+      <div style="height:34px;border-radius:8px;background:#EAF6EF;border:1px solid #BFE3CE;display:flex;align-items:center;gap:9px;padding:0 10px;margin-bottom:6px"><div style="width:16px;height:16px;border-radius:4px;background:#8FCBA6"></div><div style="width:64px;height:8px;border-radius:3px;background:#8FCBA6"></div></div>
+      <!-- submenu flyout -->
+      <div style="margin:0 0 8px 22px;padding-left:10px;border-left:1.5px dashed #BFE3CE;display:flex;flex-direction:column;gap:8px">
+        <div class="lnd" style="width:74%"></div><div class="lnd" style="width:64%"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:6px 10px"><div class="ln" style="width:78%"></div><div class="ln" style="width:64%"></div><div class="ln" style="width:82%"></div><div class="ln" style="width:58%"></div><div class="ln" style="width:74%"></div><div class="ln" style="width:66%"></div></div>
+      <div style="margin-top:10px;font-size:10.5px;color:#B0B6BB;padding-left:10px">▲ Hover menu → submenu:<br>Phiên trò chuyện · Nhật ký</div>
+    </div>
+
+    <!-- main -->
+    <div style="flex:1;min-width:0;background:linear-gradient(180deg,#F3FBF6,#F9FAFB 55%);display:flex;flex-direction:column">
+      <!-- topbar -->
+      <div style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-bottom:1px solid #EAEDEF"><div style="width:26px;height:26px;border-radius:7px;background:#8FCBA6"></div><div style="width:90px;height:14px;border-radius:4px;background:#C9CFD4"></div><div style="width:60px;height:20px;border-radius:11px;background:#CDEAD9"></div><div style="flex:1"></div><div class="dash" style="width:90px;height:30px"></div><div class="dash" style="width:70px;height:30px"></div></div>
+
+      <!-- welcome / hero -->
+      <div style="flex:1;padding:36px 24px;display:flex;flex-direction:column;align-items:center">
+        <div style="width:56px;height:56px;border-radius:16px;background:#8FCBA6;display:grid;place-items:center;margin-bottom:16px"><div style="width:26px;height:26px;border-radius:7px;background:#fff;opacity:.6"></div></div>
+        <div style="width:320px;height:22px;border-radius:5px;background:#C9CFD4;margin-bottom:10px"></div>
+        <div style="width:440px;height:9px;border-radius:3px;background:#E1E5E8;margin-bottom:6px"></div>
+        <div style="width:360px;height:9px;border-radius:3px;background:#E1E5E8;margin-bottom:26px"></div>
+
+        <!-- command input -->
+        <div style="width:100%;max-width:720px"><div style="height:56px;border:1.5px solid #BFE3CE;border-radius:14px;background:#fff;display:flex;align-items:center;padding:0 16px;gap:12px"><div style="width:22px;height:22px;border-radius:6px;background:#DCE0E3"></div><div style="flex:1;height:9px;border-radius:3px;background:#E8ECEE"></div><div style="width:22px;height:22px;border-radius:6px;background:#8FCBA6"></div><div style="width:36px;height:36px;border-radius:9px;background:#8FCBA6"></div></div></div>
+
+        <!-- 4 nghiệp vụ cards -->
+        <div style="width:100%;max-width:900px;margin-top:14px">
+          <div style="width:110px;height:10px;border-radius:3px;background:#CFD5DA;margin-bottom:12px"></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div class="dash" style="height:96px;padding:13px"><div style="width:28px;height:28px;border-radius:8px;background:#DCE0E3;margin-bottom:10px"></div><div class="lnd" style="width:70%;margin-bottom:6px"></div><div class="ln" style="width:90%"></div></div>
+            <div class="dash" style="height:96px;padding:13px"><div style="width:28px;height:28px;border-radius:8px;background:#DCE0E3;margin-bottom:10px"></div><div class="lnd" style="width:64%;margin-bottom:6px"></div><div class="ln" style="width:84%"></div></div>
+            <div class="dash" style="height:96px;padding:13px"><div style="width:28px;height:28px;border-radius:8px;background:#DCE0E3;margin-bottom:10px"></div><div class="lnd" style="width:60%;margin-bottom:6px"></div><div class="ln" style="width:88%"></div></div>
+            <div class="dash" style="height:96px;padding:13px"><div style="width:28px;height:28px;border-radius:8px;background:#DCE0E3;margin-bottom:10px"></div><div class="lnd" style="width:66%;margin-bottom:6px"></div><div class="ln" style="width:80%"></div></div>
+          </div>
+        </div>
+
+        <!-- gợi ý nhanh -->
+        <div style="width:100%;max-width:900px;margin-top:22px">
+          <div style="width:120px;height:10px;border-radius:3px;background:#CFD5DA;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="dash" style="width:240px;height:32px"></div><div class="dash" style="width:200px;height:32px"></div><div class="dash" style="width:280px;height:32px"></div><div class="dash" style="width:170px;height:32px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:22px;margin-top:14px;flex-wrap:wrap;font-size:12.5px;color:#8A9096">
+    <span>Sidebar: click "Trợ lý AI" mở trang · hover hiện submenu (Phiên trò chuyện · Nhật ký)</span>
+    <span>Hero: ô lệnh + gửi (voice)</span>
+    <span>4 card nghiệp vụ: Marketing · Kinh doanh · CSKH · Vận hành</span>
+    <span>Gợi ý cho bạn: prompt nhanh</span>
+  </div>
+
+  <!-- ===== 2 STATES: đang chat + submenu ===== -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;margin-top:34px">
+    <!-- state: đang chat -->
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#4A5057;margin-bottom:10px">Trạng thái: đang trò chuyện</div>
+      <div class="box" style="padding:16px;height:300px;display:flex;flex-direction:column">
+        <div style="display:flex;gap:8px;margin-bottom:12px"><div style="width:26px;height:26px;border-radius:50%;background:#8FCBA6;flex-shrink:0"></div><div class="dash" style="flex:1;padding:8px;height:52px"><div class="ln" style="width:90%;margin-bottom:5px"></div><div class="ln" style="width:70%"></div></div></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-direction:row-reverse"><div style="width:26px;height:26px;border-radius:50%;background:#C4CBD1;flex-shrink:0"></div><div style="max-width:70%;background:#EAF6EF;border:1px solid #BFE3CE;border-radius:9px;padding:8px"><div class="ln" style="width:120px;background:#CDEAD9"></div></div></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px"><div style="width:26px;height:26px;border-radius:50%;background:#8FCBA6;flex-shrink:0"></div><div class="dash" style="flex:1;padding:8px;height:64px"><div class="ln" style="width:95%;margin-bottom:5px"></div><div class="ln" style="width:85%;margin-bottom:5px"></div><div style="display:flex;gap:6px;margin-top:6px"><div style="width:70px;height:22px;border-radius:6px;background:#CDEAD9"></div><div style="width:70px;height:22px;border-radius:6px;border:1px solid #D6DBDF"></div></div></div></div>
+        <div style="flex:1"></div>
+        <div style="height:40px;border:1.5px solid #BFE3CE;border-radius:10px;background:#fff;display:flex;align-items:center;padding:0 12px;gap:8px"><div style="flex:1;height:8px;border-radius:3px;background:#E8ECEE"></div><div style="width:26px;height:26px;border-radius:7px;background:#8FCBA6"></div></div>
+      </div>
+    </div>
+    <!-- state: phiên trò chuyện -->
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#4A5057;margin-bottom:10px">Submenu: Phiên trò chuyện</div>
+      <div class="box" style="padding:16px;height:300px">
+        <div style="display:flex;align-items:center;margin-bottom:12px"><div style="width:120px;height:12px;border-radius:3px;background:#C9CFD4"></div><div style="flex:1"></div><div style="width:90px;height:28px;border-radius:8px;background:#8FCBA6"></div></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px"><div class="dash" style="flex:1;height:34px"></div><div class="dash" style="width:90px;height:34px"></div></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #EEF0F2"><div style="width:30px;height:30px;border-radius:8px;background:#DCE0E3"></div><div style="flex:1"><div class="lnd" style="width:70%;margin-bottom:5px"></div><div class="ln" style="width:45%"></div></div><div style="width:44px;height:18px;border-radius:9px;background:#CDEAD9"></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #EEF0F2"><div style="width:30px;height:30px;border-radius:8px;background:#DCE0E3"></div><div style="flex:1"><div class="lnd" style="width:60%;margin-bottom:5px"></div><div class="ln" style="width:50%"></div></div><div style="width:44px;height:18px;border-radius:9px;background:#F1E2B8"></div></div>
+          <div style="display:flex;align-items:center;gap:10px"><div style="width:30px;height:30px;border-radius:8px;background:#DCE0E3"></div><div style="flex:1"><div class="lnd" style="width:66%;margin-bottom:5px"></div><div class="ln" style="width:40%"></div></div><div style="width:44px;height:18px;border-radius:9px;background:#CDEAD9"></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- state: nhật ký -->
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#4A5057;margin-bottom:10px">Submenu: Nhật ký hành động</div>
+      <div class="box" style="padding:16px;height:300px">
+        <div style="width:130px;height:12px;border-radius:3px;background:#C9CFD4;margin-bottom:12px"></div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap"><div style="width:50px;height:26px;border-radius:13px;background:#CDEAD9"></div><div class="dash" style="width:60px;height:26px"></div><div class="dash" style="width:66px;height:26px"></div><div class="dash" style="width:54px;height:26px"></div></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:10px"><div style="width:10px;height:10px;border-radius:50%;background:#8FCBA6;margin-top:3px"></div><div style="flex:1"><div class="lnd" style="width:80%;margin-bottom:5px"></div><div class="ln" style="width:55%"></div></div><div style="width:40px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+          <div style="display:flex;gap:10px"><div style="width:10px;height:10px;border-radius:50%;background:#C4CBD1;margin-top:3px"></div><div style="flex:1"><div class="lnd" style="width:70%;margin-bottom:5px"></div><div class="ln" style="width:60%"></div></div><div style="width:40px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+          <div style="display:flex;gap:10px"><div style="width:10px;height:10px;border-radius:50%;background:#C4CBD1;margin-top:3px"></div><div style="flex:1"><div class="lnd" style="width:75%;margin-bottom:5px"></div><div class="ln" style="width:50%"></div></div><div style="width:40px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+          <div style="display:flex;gap:10px"><div style="width:10px;height:10px;border-radius:50%;background:#C4CBD1;margin-top:3px"></div><div style="flex:1"><div class="lnd" style="width:68%;margin-bottom:5px"></div><div class="ln" style="width:45%"></div></div><div style="width:40px;height:8px;border-radius:3px;background:#E1E5E8"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NGHIỆP VỤ & LUỒNG ===== -->
+  <div style="margin-top:40px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">MÔ TẢ NGHIỆP VỤ &amp; LUỒNG LÀM VIỆC</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:18px">
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#3A9D5D;margin-bottom:4px">① Ra lệnh bằng ngôn ngữ tự nhiên</div>
+      <div style="font-size:13px;color:#8A9096;margin-bottom:12px">Chat để giao việc, không cần bấm menu.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.7"><b>Đầu vào:</b> gõ hoặc nói (voice) yêu cầu.<br><b>Luồng:</b> nhập lệnh → AI phân tích ý định → xác định module/agent → thực thi → trả kết quả &amp; đề xuất bước tiếp.<br><b>Ví dụ:</b> "Tạo báo giá cho KH A", "Lên chiến dịch ZNS tuần này", "Tóm tắt hội thoại chưa trả lời".</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#3A9D5D;margin-bottom:4px">② 4 nhóm nghiệp vụ</div>
+      <div style="font-size:13px;color:#8A9096;margin-bottom:12px">Điểm khởi động nhanh theo lĩnh vực.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.7"><b>Marketing:</b> chiến dịch, nội dung, phân khúc.<br><b>Kinh doanh:</b> báo giá, hợp đồng, đơn, chốt deal.<br><b>CSKH:</b> ticket, FAQ, chăm sóc, SLA.<br><b>Vận hành:</b> workflow, tổng hợp, báo cáo.<br><b>Luồng:</b> click card → AI mở luồng làm việc tương ứng.</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#3A9D5D;margin-bottom:4px">③ Gợi ý cho bạn</div>
+      <div style="font-size:13px;color:#8A9096;margin-bottom:12px">Prompt gợi ý theo ngữ cảnh &amp; vai trò.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.7"><b>Luồng:</b> click chip → nạp sẵn ô lệnh → chỉnh &amp; gửi.<br><b>Quy tắc:</b> gợi ý đổi theo dữ liệu hôm nay, việc đang treo, vai trò người dùng.</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#3A9D5D;margin-bottom:4px">④ Thực thi &amp; xác nhận</div>
+      <div style="font-size:13px;color:#8A9096;margin-bottom:12px">AI hành động có kiểm soát.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.7"><b>Luồng:</b> AI đề xuất hành động → hiện nút xác nhận (Tạo / Gửi / Cập nhật) → người dùng duyệt → thực thi trên module thật.<br><b>Quy tắc:</b> hành động ghi/gửi luôn hỏi xác nhận; confidence thấp → chuyển người (HITL).</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#3A9D5D;margin-bottom:4px">⑤ Phiên trò chuyện</div>
+      <div style="font-size:13px;color:#8A9096;margin-bottom:12px">Lịch sử phiên làm việc.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.7"><b>Truy cập:</b> hover menu Trợ lý AI → submenu, hoặc trong trang.<br><b>Luồng:</b> tìm/lọc theo nhóm &amp; thời gian → mở lại phiên → tiếp tục nơi đã dừng.</div>
+    </div>
+    <div class="box" style="padding:22px 24px">
+      <div style="font-size:15px;font-weight:700;color:#3A9D5D;margin-bottom:4px">⑥ Nhật ký hành động</div>
+      <div style="font-size:13px;color:#8A9096;margin-bottom:12px">Kiểm toán mọi việc AI đã làm.</div>
+      <div style="font-size:13.5px;color:#4A5057;line-height:1.7"><b>Nội dung:</b> loại hành động (Tạo/Cập nhật/Gửi/Xuất), đối tượng tác động, thời gian, người/agent.<br><b>Luồng:</b> lọc → xem chi tiết → <i>hoàn tác</i> nếu được phép.</div>
+    </div>
+  </div>
+
+  <!-- FLOW STRIP -->
+  <div class="box" style="margin-top:24px;padding:22px 24px">
+    <div style="font-size:15px;font-weight:700;color:#4A5057;margin-bottom:16px">Luồng tổng: Trợ lý AI điều phối nghiệp vụ</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;font-weight:600;color:#5A6169">
+      <span style="padding:8px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7">Nhập lệnh / chọn card</span><span style="color:#9AA0A6">→</span>
+      <span style="padding:8px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7">AI phân tích ý định</span><span style="color:#9AA0A6">→</span>
+      <span style="padding:8px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7">Điều phối module / agent</span><span style="color:#9AA0A6">→</span>
+      <span style="padding:8px 14px;border:1.5px solid #BFE3CE;border-radius:8px;background:#EAF6EF">Xác nhận &amp; thực thi</span><span style="color:#9AA0A6">→</span>
+      <span style="padding:8px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7">Ghi Nhật ký / lưu Phiên</span>
+    </div>
+  </div>
+
+  <!-- ===== TẤT CẢ LUỒNG NGHIỆP VỤ ===== -->
+  <div style="margin-top:40px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">TẤT CẢ LUỒNG NGHIỆP VỤ TRONG TRỢ LÝ AI</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:18px">
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F1 · Ra lệnh &amp; điều hướng module</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Nhập lệnh / voice</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">AI phân tích ý định</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #BFE3CE;border-radius:7px;background:#EAF6EF">Mở đúng module &amp; thực hiện việc</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F2 · Xem dashboard / báo cáo qua chat</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Hỏi số liệu</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">AI truy vấn dữ liệu</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Trả chart / bảng · mở Báo cáo</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F3 · Xử lý công việc (tạo/cập nhật bản ghi)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Yêu cầu (VD tạo báo giá)</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">AI dựng nháp</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #BFE3CE;border-radius:7px;background:#EAF6EF">Xác nhận → ghi vào module thật</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F4 · Tạo workflow bằng chat</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Mô tả quy trình</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">AI dựng node/trigger</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Xem trước → kích hoạt Quy trình</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F5 · Tạo / cấu hình AI Agent qua chat</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Mô tả vai trò agent</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">AI đề xuất prompt/kiến thức</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Lưu vào AI Agents</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F6 · 4 nhóm nghiệp vụ (card khởi động)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Marketing</span><span style="color:#9AA0A6">·</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Kinh doanh</span><span style="color:#9AA0A6">·</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">CSKH</span><span style="color:#9AA0A6">·</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Vận hành</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F7 · Gợi ý cho bạn (prompt nhanh)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Chip gợi ý theo ngữ cảnh</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Nạp vào ô lệnh</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Chỉnh &amp; gửi</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F8 · Thực thi có xác nhận (an toàn)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">AI đề xuất hành động</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #F0C9C9;border-radius:7px;background:#FBEDED">Hỏi xác nhận (Tạo/Gửi/Xoá)</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Người duyệt → thực thi</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F9 · Đính kèm ngữ cảnh &amp; RAG</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Đính file / chọn liên hệ</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #BFE3CE;border-radius:7px;background:#EAF6EF">AI tra Knowledge Base (RAG)</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Trả lời có dẫn nguồn</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F10 · Phiên trò chuyện (mở lại)</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Hover menu → submenu</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Tìm / lọc theo nhóm &amp; thời gian</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Mở lại → tiếp tục</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F11 · Nhật ký hành động &amp; hoàn tác</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Lọc loại / đối tượng</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Xem chi tiết hành động</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #F0C9C9;border-radius:7px;background:#FBEDED">Hoàn tác (nếu được phép)</span>
+      </div>
+    </div>
+
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14.5px;font-weight:700;color:#3A9D5D;margin-bottom:10px">F12 · Bản thu nhỏ nhúng trong module</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:600;color:#5A6169">
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Nút "Trợ lý AI · [module]"</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #BFE3CE;border-radius:7px;background:#EAF6EF">Popup thu nhỏ tại chỗ</span><span style="color:#9AA0A6">→</span>
+        <span style="padding:6px 11px;border:1.5px solid #C4CBD1;border-radius:7px;background:#F5F6F7">Ra lệnh theo ngữ cảnh trang</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== USE CASES ===== -->
+  <div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">USE CASE — TOÀN BỘ TRƯỜNG HỢP SỬ DỤNG TRỢ LÝ AI</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:900px;line-height:1.55">Mỗi use case ghi rõ tác nhân, tiền điều kiện, luồng chính, luồng phụ/ngoại lệ và kết quả. Nhóm theo mục đích sử dụng.</div>
+
+  <div style="margin-top:22px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">A · TRUY CẬP &amp; RA LỆNH</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-01 · Ra lệnh bằng văn bản</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Nhân viên · Quản lý.<br><b>Tiền điều kiện:</b> đã đăng nhập, đã khai báo doanh nghiệp.<br><b>Luồng chính:</b> mở Trợ lý AI → gõ yêu cầu → gửi → AI phân tích ý định → trả kết quả/đề xuất hành động.<br><b>Ngoại lệ:</b> lệnh không rõ → AI hỏi lại; ngoài phạm vi → AI từ chối và gợi ý module phù hợp.<br><b>Kết quả:</b> có câu trả lời hoặc hành động chờ duyệt.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-02 · Ra lệnh bằng giọng nói</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Nhân viên (đang di chuyển).<br><b>Tiền điều kiện:</b> cấp quyền micro.<br><b>Luồng chính:</b> bấm icon voice → nói → chuyển thành văn bản trong ô lệnh → xác nhận/chỉnh → gửi.<br><b>Ngoại lệ:</b> không nhận được quyền micro → hiện hướng dẫn; nhận sai → cho sửa trước khi gửi.<br><b>Kết quả:</b> lệnh được gửi như UC-01.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-03 · Khởi động từ card nghiệp vụ</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Người dùng mới chưa biết gõ gì.<br><b>Luồng chính:</b> chọn 1 trong 4 card (Marketing · Kinh doanh · CSKH · Vận hành) → AI nạp ngữ cảnh nhóm → hiện danh sách việc làm được → chọn việc.<br><b>Luồng phụ:</b> card thứ 5 tự chuyển (carousel) sau 3 giây.<br><b>Kết quả:</b> vào hội thoại đã có ngữ cảnh nghiệp vụ.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-04 · Dùng chip "Gợi ý cho bạn"</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> mọi người dùng.<br><b>Luồng chính:</b> click chip → prompt nạp sẵn vào ô lệnh → chỉnh nếu cần → gửi.<br><b>Quy tắc:</b> gợi ý thay đổi theo vai trò, dữ liệu tồn đọng (ticket quá hạn, báo giá chờ duyệt) và thời điểm trong ngày.<br><b>Kết quả:</b> rút ngắn thời gian ra lệnh.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-05 · Đính kèm tệp / ảnh</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> bấm ＋ → Add file → chọn tệp → AI đọc nội dung → tóm tắt / trích dữ liệu → đề xuất hành động (VD: nhập danh sách khách từ Excel).<br><b>Ngoại lệ:</b> định dạng không hỗ trợ hoặc quá dung lượng → báo lỗi rõ nguyên nhân.<br><b>Kết quả:</b> dữ liệu tệp trở thành ngữ cảnh của phiên.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-06 · Mở rộng ngữ cảnh (kênh · nền tảng · tìm kiếm)</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> bấm ＋ → chọn <i>Kênh kết nối</i> / <i>Nền tảng kết nối</i> / <i>Nghiên cứu</i> / <i>Tìm kiếm</i> → AI lấy thêm dữ liệu ngoài phiên → tổng hợp vào câu trả lời.<br><b>Tiền điều kiện:</b> kênh/nền tảng đã kết nối trong Cài đặt.<br><b>Ngoại lệ:</b> chưa kết nối → điều hướng sang trang kết nối.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">B · THỰC THI NGHIỆP VỤ (TAB COWORK)</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-07 · Giao việc cho AI Agent</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Quản lý · Nhân viên.<br><b>Luồng chính:</b> tab Cowork → bấm ＋ → <i>Chọn AI Agent</i> → chọn model thực thi → mô tả nhiệm vụ → Chạy → Agent thực thi nhiều bước, báo tiến độ.<br><b>Ngoại lệ:</b> chưa có Agent phù hợp → <i>Tạo AI Agent mới</i> (UC-08).<br><b>Kết quả:</b> nhiệm vụ hoàn tất, ghi vào Nhật ký.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-08 · Tạo AI Agent từ Trợ lý AI</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> ＋ → <i>Tạo AI Agent mới</i> → mở popup cấu hình thủ công (tên · vai trò · prompt · kiến thức · công cụ) → Lưu → Agent xuất hiện trong menu AI Agents.<br><b>Quy tắc:</b> Agent đã tồn tại chỉ sửa được ở menu AI Agents, không sửa trong Trợ lý AI.<br><b>Kết quả:</b> Agent sẵn sàng nhận việc.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-09 · Tạo bản ghi nghiệp vụ bằng hội thoại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Phạm vi:</b> khách hàng · báo giá · hợp đồng · đơn bán hàng · hóa đơn · ticket · lịch hẹn · chiến dịch.<br><b>Luồng chính:</b> ra lệnh ("tạo báo giá cho chị Lan…") → AI hỏi thiếu trường bắt buộc → hiện bản nháp → người dùng bấm <i>Tạo</i> → lưu vào module tương ứng.<br><b>Ngoại lệ:</b> trùng dữ liệu → cảnh báo check trùng, cho gộp hoặc tạo mới.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-10 · Dựng quy trình (Workflow) bằng hội thoại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> mô tả nhu cầu tự động hoá → AI đề xuất khung Trigger → Điều kiện → Hành động → xem trước → Lưu vào menu Quy trình.<br><b>Luồng phụ:</b> chọn mẫu quy trình có sẵn rồi nhờ AI tinh chỉnh.<br><b>Kết quả:</b> workflow ở trạng thái nháp, cần bật để chạy.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-11 · Cấu hình hệ thống bằng hội thoại</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Phạm vi:</b> SLA · KPI · phân ca · thành viên · vai trò &amp; phân quyền · phòng ban · sơ đồ tổ chức · trường dữ liệu · mẫu trả lời · thẻ &amp; nhãn.<br><b>Tiền điều kiện:</b> người dùng có quyền quản trị tương ứng.<br><b>Ngoại lệ:</b> không đủ quyền → AI từ chối và nêu vai trò cần có.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-12 · Chạy báo cáo &amp; hỏi số liệu</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Luồng chính:</b> hỏi bằng ngôn ngữ tự nhiên ("doanh thu tháng này theo kênh") → AI truy vấn → trả bảng/biểu đồ kèm nhận định → cho phép xuất Excel hoặc lưu thành báo cáo định kỳ.<br><b>Ngoại lệ:</b> dữ liệu chưa đủ kỳ → nêu rõ khoảng thiếu.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#3A9D5D">C · KIỂM SOÁT · LỊCH SỬ · NHÚNG</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:12px">
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-13 · Duyệt hành động (Human-in-the-loop)</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Kích hoạt:</b> độ tin cậy &lt; 70% hoặc hành động thuộc nhóm cần duyệt (gửi khách, ký, xoá).<br><b>Luồng chính:</b> AI dừng, hiện thẻ xác nhận kèm nội dung sẽ thực thi → người dùng <i>Duyệt</i> / <i>Sửa</i> / <i>Huỷ</i>.<br><b>Kết quả:</b> chỉ thực thi sau khi người duyệt; mọi lựa chọn đều được ghi log.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-14 · Xem &amp; tiếp tục Nội dung trò chuyện</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Truy cập:</b> hover menu Trợ lý AI → submenu, hoặc trang danh sách.<br><b>Luồng chính:</b> tìm/lọc theo tên · nhóm · thời gian · trạng thái → mở lại → tiếp tục hội thoại với nguyên ngữ cảnh.<br><b>Luồng phụ:</b> đổi tên · lưu trữ · xoá phiên.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-15 · Kiểm toán Nhật ký hành động</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tác nhân:</b> Quản lý · Quản trị viên.<br><b>Luồng chính:</b> lọc theo loại hành động (Tạo/Cập nhật/Gửi/Xuất/Xoá) · đối tượng tác động · người hoặc agent · thời gian → xem chi tiết trước/sau.<br><b>Kết quả:</b> minh bạch mọi việc AI đã làm.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-16 · Hoàn tác hành động</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Tiền điều kiện:</b> hành động thuộc nhóm cho phép hoàn tác và còn trong thời hạn.<br><b>Luồng chính:</b> mở Nhật ký → chọn hành động → <i>Hoàn tác</i> → xác nhận → dữ liệu trở về trạng thái trước.<br><b>Ngoại lệ:</b> đã gửi ra ngoài (email/ZNS) → không hoàn tác được, chỉ ghi nhận đính chính.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-17 · Trợ lý AI thu nhỏ trong module</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Phạm vi:</b> Hộp thư · Khách hàng · Báo giá · Hợp đồng · Đơn · Hóa đơn · Ticket · Lịch hẹn · Marketing · Gọi điện · Loyalty.<br><b>Luồng chính:</b> bấm nút <i>Trợ lý AI · [module]</i> → popup thu nhỏ tại chỗ, đã nạp ngữ cảnh bản ghi đang xem → ra lệnh → kết quả áp trực tiếp lên trang.<br><b>Kết quả:</b> không phải rời trang đang làm.</div>
+    </div>
+    <div class="box" style="padding:20px 22px">
+      <div style="font-size:14px;font-weight:700;color:#3A3F44;margin-bottom:8px">UC-18 · Chọn model thực thi</div>
+      <div style="font-size:13px;color:#4A5057;line-height:1.7"><b>Áp dụng:</b> cả tab Chat và tab Cowork.<br><b>Luồng chính:</b> mở bộ chọn model → xem mức chi phí token &amp; thế mạnh từng model → chọn → áp cho phiên hiện tại.<br><b>Ngoại lệ:</b> hết token trong gói → chặn chạy, gợi ý nạp Credit ở Ví AppChat.</div>
+    </div>
+  </div>
+
+  <!-- ===== FLOWCHART ===== -->
+  <div style="margin-top:44px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">FLOWCHART — LUỒNG NGHIỆP VỤ TRỢ LÝ AI</div>
+  <div style="font-size:13.5px;color:#8A9096;margin-top:6px;max-width:900px;line-height:1.55">Sơ đồ quyết định từ lúc người dùng ra lệnh đến khi hành động được thực thi, ghi nhật ký và lưu phiên. Hình thoi = điểm quyết định · chữ nhật = bước xử lý · viên thuốc = điểm bắt đầu/kết thúc.</div>
+
+  <div class="box" style="margin-top:18px;padding:28px 24px">
+    <svg viewBox="0 0 1340 1450" style="width:100%;height:auto;display:block;font-family:inherit">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8A9096"/></marker>
+        <marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#C99490"/></marker>
+      </defs>
+      <g fill="none" stroke="#C4CBD1" stroke-width="1.8">
+        <path d="M670,54 V92" /><path d="M170,92 H1170" />
+        <path d="M170,92 V122" marker-end="url(#ar)"/><path d="M420,92 V122" marker-end="url(#ar)"/><path d="M670,92 V122" marker-end="url(#ar)"/><path d="M920,92 V122" marker-end="url(#ar)"/><path d="M1170,92 V122" marker-end="url(#ar)"/>
+        <path d="M170,178 V210" /><path d="M420,178 V210" /><path d="M670,178 V210" /><path d="M920,178 V210" /><path d="M1170,178 V210" />
+        <path d="M170,210 H1170" /><path d="M670,210 V276" marker-end="url(#ar)"/>
+        <path d="M355,300 H505" marker-end="url(#ar)" stroke-dasharray="5 4"/>
+        <path d="M1015,300 H835" marker-end="url(#ar)" stroke-dasharray="5 4"/>
+        <path d="M670,324 V354" marker-end="url(#ar)"/>
+        <path d="M550,400 H410" marker-end="url(#ar)"/>
+        <path d="M210,400 H60 V210 H664" />
+        <path d="M670,446 V486" marker-end="url(#ar)"/>
+        <path d="M785,530 H960" marker-end="url(#arR)" stroke="#DDBEBB"/>
+        <path d="M670,574 V628" marker-end="url(#ar)"/>
+        <path d="M670,672 V712" marker-end="url(#ar)"/>
+        <path d="M800,760 H960" marker-end="url(#arR)" stroke="#DDBEBB"/>
+        <path d="M1090,788 V815 H670" stroke="#DDBEBB"/>
+        <path d="M670,808 V815" /><path d="M480,815 H860" />
+        <path d="M480,815 V845" marker-end="url(#ar)"/><path d="M860,815 V845" marker-end="url(#ar)"/>
+        <path d="M480,955 V970" /><path d="M860,955 V970" /><path d="M480,970 H860" />
+        <path d="M670,970 V979" marker-end="url(#ar)"/>
+        <path d="M670,1021 V1046" marker-end="url(#ar)"/>
+        <path d="M555,1090 H350" marker-end="url(#arR)" stroke="#DDBEBB"/>
+        <path d="M110,1090 H100 V650 H454" marker-end="url(#ar)" stroke-dasharray="5 4"/>
+        <path d="M670,1134 V1160" /><path d="M500,1160 H840" />
+        <path d="M500,1160 V1175" marker-end="url(#ar)"/><path d="M840,1160 V1175" marker-end="url(#ar)"/>
+        <path d="M500,1225 V1260" marker-end="url(#ar)"/><path d="M840,1225 V1260" marker-end="url(#ar)"/>
+        <path d="M500,1320 V1350" /><path d="M840,1320 V1350" /><path d="M500,1350 H840" />
+        <path d="M670,1350 V1380" marker-end="url(#ar)"/>
+      </g>
+
+      <g text-anchor="middle">
+        <rect x="540" y="14" width="260" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="670" y="39" font-size="13.5" font-weight="700" fill="#2F7D4C">BẮT ĐẦU · Mở Trợ lý AI</text>
+
+        <rect x="70" y="122" width="200" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="170" y="146" font-size="12.6" font-weight="600" fill="#4A5057">Gõ ô lệnh</text><text x="170" y="164" font-size="11" font-weight="700" fill="#9AA0A6">UC-01</text>
+        <rect x="320" y="122" width="200" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="420" y="146" font-size="12.6" font-weight="600" fill="#4A5057">Giọng nói (voice)</text><text x="420" y="164" font-size="11" font-weight="700" fill="#9AA0A6">UC-02</text>
+        <rect x="570" y="122" width="200" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="670" y="146" font-size="12.6" font-weight="600" fill="#4A5057">Card nghiệp vụ</text><text x="670" y="164" font-size="11" font-weight="700" fill="#9AA0A6">UC-03</text>
+        <rect x="820" y="122" width="200" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="920" y="146" font-size="12.6" font-weight="600" fill="#4A5057">Chip gợi ý</text><text x="920" y="164" font-size="11" font-weight="700" fill="#9AA0A6">UC-04</text>
+        <rect x="1070" y="122" width="200" height="56" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="1170" y="146" font-size="12.6" font-weight="600" fill="#4A5057">Nút thu nhỏ trong module</text><text x="1170" y="164" font-size="11" font-weight="700" fill="#9AA0A6">UC-17</text>
+
+        <rect x="125" y="270" width="230" height="60" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="240" y="291" font-size="12" font-weight="600" fill="#8A9096">Nạp ngữ cảnh: tệp · kênh ·</text><text x="240" y="307" font-size="12" font-weight="600" fill="#8A9096">nền tảng · nghiên cứu</text><text x="240" y="323" font-size="11" font-weight="700" fill="#9AA0A6">UC-05 · UC-06</text>
+
+        <rect x="505" y="276" width="330" height="48" rx="8" fill="#fff" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="670" y="298" font-size="13" font-weight="700" fill="#3A3F44">AI phân tích ý định</text><text x="670" y="315" font-size="12" fill="#8A9096">&amp; trích xuất tham số</text>
+
+        <rect x="1015" y="272" width="250" height="56" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="1140" y="296" font-size="12" font-weight="600" fill="#8A9096">Chọn model thực thi</text><text x="1140" y="314" font-size="11" font-weight="700" fill="#9AA0A6">UC-18</text>
+
+        <path d="M670,354 L790,400 L670,446 L550,400 Z" fill="#EAF6EF"/>
+        <text x="670" y="396" font-size="12.4" font-weight="700" fill="#2F7D4C">Đủ thông tin</text><text x="670" y="412" font-size="12.4" font-weight="700" fill="#2F7D4C">để thực thi?</text>
+        <rect x="210" y="374" width="200" height="52" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="310" y="396" font-size="12" font-weight="600" fill="#8A9096">AI hỏi bổ sung thông tin</text><text x="310" y="413" font-size="11" font-weight="700" fill="#9AA0A6">UC-01 ngoại lệ</text>
+        <text x="478" y="392" font-size="11.5" font-weight="700" fill="#8A9096">KHÔNG</text>
+        <text x="694" y="470" font-size="11.5" font-weight="700" fill="#3A9D5D">CÓ</text>
+
+        <path d="M670,486 L785,530 L670,574 L555,530 Z" fill="#EAF6EF"/>
+        <text x="670" y="526" font-size="12.4" font-weight="700" fill="#2F7D4C">Còn token</text><text x="670" y="542" font-size="12.4" font-weight="700" fill="#2F7D4C">trong gói?</text>
+        <rect x="960" y="502" width="270" height="56" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="1095" y="524" font-size="12" font-weight="700" fill="#A8544F">Chặn chạy · gợi ý nạp Credit</text><text x="1095" y="542" font-size="11" font-weight="700" fill="#C08A85">UC-18 ngoại lệ</text>
+        <text x="870" y="522" font-size="11.5" font-weight="700" fill="#A8544F">HẾT</text>
+        <text x="700" y="606" font-size="11.5" font-weight="700" fill="#3A9D5D">CÒN</text>
+
+        <rect x="460" y="628" width="420" height="44" rx="8" fill="#fff" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="670" y="656" font-size="13" font-weight="700" fill="#3A3F44">Lập kế hoạch hành động (chuỗi bước · module)</text>
+
+        <path d="M670,712 L800,760 L670,808 L540,760 Z" fill="#EAF6EF"/>
+        <text x="670" y="756" font-size="12.4" font-weight="700" fill="#2F7D4C">Độ tin cậy &amp;</text><text x="670" y="772" font-size="12.4" font-weight="700" fill="#2F7D4C">quyền hạn đủ?</text>
+        <rect x="960" y="732" width="270" height="56" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="1095" y="754" font-size="12" font-weight="700" fill="#A8544F">Human-in-the-loop</text><text x="1095" y="771" font-size="11.5" font-weight="700" fill="#A8544F">Duyệt / Sửa / Huỷ · UC-13</text>
+        <text x="880" y="752" font-size="11.5" font-weight="700" fill="#A8544F">CHƯA ĐỦ</text>
+        <text x="700" y="838" font-size="11.5" font-weight="700" fill="#3A9D5D">ĐỦ · tự chạy</text>
+
+        <rect x="320" y="845" width="320" height="110" rx="10" fill="#fff" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="480" y="872" font-size="13" font-weight="700" fill="#2F7D4C">Tab Chat</text>
+        <text x="480" y="894" font-size="12" fill="#8A9096">Lên ý tưởng · đề xuất ·</text><text x="480" y="911" font-size="12" fill="#8A9096">sắp xếp công việc</text>
+        <text x="480" y="929" font-size="12" fill="#8A9096">Hỏi số liệu &amp; báo cáo · UC-12</text>
+        <text x="480" y="946" font-size="11" fill="#9AA0A6">(không thay đổi dữ liệu)</text>
+
+        <rect x="700" y="845" width="320" height="110" rx="10" fill="#fff" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="860" y="872" font-size="13" font-weight="700" fill="#2F7D4C">Tab Cowork</text>
+        <text x="860" y="894" font-size="12" fill="#8A9096">Giao việc Agent UC-07 · tạo UC-08</text>
+        <text x="860" y="911" font-size="12" fill="#8A9096">Tạo bản ghi UC-09</text>
+        <text x="860" y="928" font-size="12" fill="#8A9096">Dựng workflow UC-10</text>
+        <text x="860" y="945" font-size="12" fill="#8A9096">Cấu hình hệ thống UC-11</text>
+
+        <rect x="360" y="979" width="620" height="42" rx="8" fill="#FDF6F6" stroke="#F0C9C9" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="670" y="996" font-size="11.8" font-weight="700" fill="#A8544F">Kiểm tra trước khi ghi: trùng dữ liệu → gộp/tạo mới (UC-09)</text>
+        <text x="670" y="1012" font-size="11.8" font-weight="700" fill="#A8544F">· không đủ quyền → từ chối, nêu vai trò cần có (UC-11)</text>
+
+        <path d="M670,1046 L785,1090 L670,1134 L555,1090 Z" fill="#EAF6EF"/>
+        <text x="670" y="1086" font-size="12.4" font-weight="700" fill="#2F7D4C">Thực thi</text><text x="670" y="1102" font-size="12.4" font-weight="700" fill="#2F7D4C">thành công?</text>
+        <rect x="110" y="1064" width="240" height="52" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="230" y="1086" font-size="12" font-weight="700" fill="#A8544F">Báo lỗi · gợi ý sửa</text><text x="230" y="1103" font-size="11.5" font-weight="700" fill="#C08A85">thử lại từ bước lập kế hoạch</text>
+        <text x="452" y="1082" font-size="11.5" font-weight="700" fill="#A8544F">KHÔNG</text>
+        <text x="700" y="1156" font-size="11.5" font-weight="700" fill="#3A9D5D">CÓ</text>
+
+        <rect x="370" y="1175" width="260" height="50" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="500" y="1196" font-size="12.6" font-weight="600" fill="#4A5057">Ghi Nhật ký hành động</text><text x="500" y="1213" font-size="11" font-weight="700" fill="#9AA0A6">UC-15 · kiểm toán</text>
+        <rect x="710" y="1175" width="260" height="50" rx="8" fill="#F5F6F7" stroke="#C4CBD1" stroke-width="1.5"/>
+        <text x="840" y="1196" font-size="12.6" font-weight="600" fill="#4A5057">Lưu Nội dung trò chuyện</text><text x="840" y="1213" font-size="11" font-weight="700" fill="#9AA0A6">UC-14</text>
+
+        <rect x="360" y="1260" width="280" height="60" rx="8" fill="#FBEDED" stroke="#F0C9C9" stroke-width="1.5"/>
+        <text x="500" y="1281" font-size="11.8" font-weight="700" fill="#A8544F">Hoàn tác nếu được phép · đã gửi</text><text x="500" y="1297" font-size="11.8" font-weight="700" fill="#A8544F">ra ngoài thì chỉ đính chính</text><text x="500" y="1313" font-size="11" font-weight="700" fill="#C08A85">UC-16</text>
+        <rect x="700" y="1260" width="280" height="60" rx="8" fill="#FAFBFB" stroke="#C4CBD1" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="840" y="1281" font-size="11.8" font-weight="600" fill="#8A9096">Mở lại tiếp tục · đổi tên ·</text><text x="840" y="1297" font-size="11.8" font-weight="600" fill="#8A9096">lưu trữ · xoá</text><text x="840" y="1313" font-size="11" font-weight="700" fill="#9AA0A6">UC-14 luồng phụ</text>
+
+        <rect x="505" y="1380" width="330" height="40" rx="20" fill="#EAF6EF" stroke="#BFE3CE" stroke-width="1.5"/>
+        <text x="670" y="1405" font-size="13.5" font-weight="700" fill="#2F7D4C">KẾT THÚC · Trả kết quả cho người dùng</text>
+      </g>
+    </svg>
+  </div>
+
+  <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:#8A9096;align-items:center">
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #C4CBD1;border-radius:4px;background:#F5F6F7"></span>Bước xử lý</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:20px;height:20px;background:#EAF6EF;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)"></span>Điểm quyết định</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #BFE3CE;border-radius:9px;background:#EAF6EF"></span>Bắt đầu / Kết thúc</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px solid #F0C9C9;border-radius:4px;background:#FBEDED"></span>Ngoại lệ · cần người can thiệp</span>
+    <span style="display:inline-flex;align-items:center;gap:7px"><span style="width:26px;height:14px;border:1.5px dashed #C4CBD1;border-radius:4px;background:#FAFBFB"></span>Bước tuỳ chọn</span>
+  </div>
+
+  <div style="display:none">
+
+      <div style="padding:11px 26px;border-radius:999px;border:1.5px solid #BFE3CE;background:#EAF6EF;font-size:13.5px;font-weight:700;color:#2F7D4C">BẮT ĐẦU · Mở Trợ lý AI</div>
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+
+      <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;justify-content:center">
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.6px;font-weight:600;color:#4A5057;text-align:center;min-width:132px">Gõ ô lệnh<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-01</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.6px;font-weight:600;color:#4A5057;text-align:center;min-width:132px">Giọng nói (voice)<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-02</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.6px;font-weight:600;color:#4A5057;text-align:center;min-width:132px">Card nghiệp vụ<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-03</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.6px;font-weight:600;color:#4A5057;text-align:center;min-width:132px">Chip gợi ý<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-04</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.6px;font-weight:600;color:#4A5057;text-align:center;min-width:132px">Nút thu nhỏ trong module<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-17</span></div>
+        </div>
+      </div>
+
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="padding:10px 14px;border:1.5px dashed #C4CBD1;border-radius:8px;background:#FAFBFB;font-size:12.4px;font-weight:600;color:#8A9096;text-align:center;max-width:210px">Nạp thêm ngữ cảnh: tệp/ảnh · kênh · nền tảng · nghiên cứu · tìm kiếm<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-05 · UC-06</span></div>
+        <div style="font-size:15px;color:#9AA0A6">→</div>
+        <div style="padding:11px 22px;border:1.5px solid #C4CBD1;border-radius:8px;background:#fff;font-size:13.2px;font-weight:700;color:#3A3F44">AI phân tích ý định &amp; trích xuất tham số</div>
+        <div style="font-size:15px;color:#9AA0A6">←</div>
+        <div style="padding:10px 14px;border:1.5px dashed #C4CBD1;border-radius:8px;background:#FAFBFB;font-size:12.4px;font-weight:600;color:#8A9096;text-align:center;max-width:180px">Chọn model thực thi<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-18</span></div>
+      </div>
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:196px;height:96px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#EAF6EF;display:grid;place-items:center;text-align:center;padding:0 26px;box-sizing:border-box"><span style="font-size:12.6px;font-weight:700;color:#2F7D4C">Còn token trong gói?</span></div>
+        <div style="font-size:15px;color:#9AA0A6">→</div>
+        <div style="padding:10px 16px;border:1.5px solid #F0C9C9;border-radius:8px;background:#FBEDED;font-size:12.6px;font-weight:700;color:#A8544F;text-align:center;max-width:200px">Chặn chạy · gợi ý nạp Credit (Ví AppChat)<br><span style="font-size:11px;font-weight:700;opacity:.7">UC-18 ngoại lệ</span></div>
+      </div>
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="padding:10px 16px;border:1.5px dashed #C4CBD1;border-radius:8px;background:#FAFBFB;font-size:12.6px;font-weight:600;color:#8A9096;text-align:center;max-width:190px">AI hỏi bổ sung thông tin còn thiếu<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-01 ngoại lệ</span></div>
+          <div style="font-size:15px;color:#9AA0A6">→</div>
+        </div>
+        <div style="width:190px;height:96px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#EAF6EF;border:none;display:grid;place-items:center;text-align:center;padding:0 26px;box-sizing:border-box"><span style="font-size:12.6px;font-weight:700;color:#2F7D4C">Đủ thông tin để thực thi?</span></div>
+        <div style="font-size:12.4px;font-weight:700;color:#3A9D5D">CÓ</div>
+      </div>
+      <div style="font-size:12.4px;font-weight:700;color:#8A9096;margin-top:2px">↑ KHÔNG · quay lại hỏi</div>
+
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+      <div style="padding:11px 22px;border:1.5px solid #C4CBD1;border-radius:8px;background:#fff;font-size:13.2px;font-weight:700;color:#3A3F44">Lập kế hoạch hành động (chuỗi bước · module liên quan)</div>
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="font-size:12.4px;font-weight:700;color:#3A9D5D">≥ 70% · TỰ CHẠY</div>
+        <div style="width:200px;height:96px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#EAF6EF;display:grid;place-items:center;text-align:center;padding:0 28px;box-sizing:border-box"><span style="font-size:12.6px;font-weight:700;color:#2F7D4C">Độ tin cậy &amp; quyền hạn đủ?</span></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:15px;color:#9AA0A6">→</div>
+          <div style="padding:10px 16px;border:1.5px solid #F0C9C9;border-radius:8px;background:#FBEDED;font-size:12.6px;font-weight:700;color:#A8544F;text-align:center;max-width:200px">Human-in-the-loop · Duyệt / Sửa / Huỷ<br><span style="font-size:11px;font-weight:700;opacity:.7">UC-13</span></div>
+        </div>
+      </div>
+
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+      <div style="display:flex;align-items:flex-start;gap:26px">
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:12px 18px;border:1.5px solid #BFE3CE;border-radius:10px;background:#fff;text-align:center;min-width:230px">
+            <div style="font-size:13px;font-weight:700;color:#2F7D4C;margin-bottom:3px">Tab Chat</div>
+            <div style="font-size:12.4px;color:#8A9096;line-height:1.5">Lên ý tưởng · đề xuất · sắp xếp công việc<br>Hỏi số liệu &amp; chạy báo cáo <b style="color:#9AA0A6">UC-12</b><br><i>(không thay đổi dữ liệu)</i></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:12px 18px;border:1.5px solid #BFE3CE;border-radius:10px;background:#fff;text-align:center;min-width:230px">
+            <div style="font-size:13px;font-weight:700;color:#2F7D4C;margin-bottom:3px">Tab Cowork</div>
+            <div style="font-size:12.4px;color:#8A9096;line-height:1.5">Giao việc AI Agent <b style="color:#9AA0A6">UC-07</b> · tạo Agent <b style="color:#9AA0A6">UC-08</b><br>Tạo bản ghi <b style="color:#9AA0A6">UC-09</b> · dựng workflow <b style="color:#9AA0A6">UC-10</b><br>Cấu hình hệ thống <b style="color:#9AA0A6">UC-11</b></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:9px 16px;border:1.5px dashed #F0C9C9;border-radius:8px;background:#FDF6F6;font-size:12.2px;font-weight:600;color:#A8544F;text-align:center;max-width:560px">Kiểm tra trước khi ghi: trùng dữ liệu → cảnh báo gộp/tạo mới <b>(UC-09)</b> · không đủ quyền → từ chối, nêu vai trò cần có <b>(UC-11)</b></div>
+
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="padding:10px 16px;border:1.5px solid #F0C9C9;border-radius:8px;background:#FBEDED;font-size:12.6px;font-weight:700;color:#A8544F;text-align:center;max-width:190px">Báo lỗi · gợi ý sửa · thử lại</div>
+          <div style="font-size:15px;color:#9AA0A6">→</div>
+        </div>
+        <div style="width:190px;height:96px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#EAF6EF;display:grid;place-items:center;text-align:center;padding:0 26px;box-sizing:border-box"><span style="font-size:12.6px;font-weight:700;color:#2F7D4C">Thực thi thành công?</span></div>
+        <div style="font-size:12.4px;font-weight:700;color:#3A9D5D">CÓ</div>
+      </div>
+
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+      <div style="display:flex;align-items:flex-start;gap:20px">
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 16px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.8px;font-weight:600;color:#4A5057;text-align:center;min-width:180px">Ghi Nhật ký hành động<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-15 · kiểm toán</span></div>
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:9px 14px;border:1.5px solid #F0C9C9;border-radius:8px;background:#FBEDED;font-size:12.2px;font-weight:700;color:#A8544F;text-align:center;max-width:190px">Hoàn tác nếu được phép · đã gửi ra ngoài thì chỉ đính chính<br><span style="font-size:11px;font-weight:700;opacity:.7">UC-16</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:10px 16px;border:1.5px solid #C4CBD1;border-radius:8px;background:#F5F6F7;font-size:12.8px;font-weight:600;color:#4A5057;text-align:center;min-width:180px">Lưu Nội dung trò chuyện<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-14</span></div>
+          <div style="width:2px;height:14px;background:#C4CBD1"></div>
+          <div style="padding:9px 14px;border:1.5px solid #C4CBD1;border-radius:8px;background:#FAFBFB;font-size:12.2px;font-weight:600;color:#8A9096;text-align:center;max-width:190px">Mở lại tiếp tục · đổi tên · lưu trữ · xoá<br><span style="font-size:11px;color:#9AA0A6;font-weight:700">UC-14 luồng phụ</span></div>
+        </div>
+      </div>
+
+      <div style="width:2px;height:22px;background:#C4CBD1"></div>
+      <div style="padding:11px 26px;border-radius:999px;border:1.5px solid #BFE3CE;background:#EAF6EF;font-size:13.5px;font-weight:700;color:#2F7D4C">KẾT THÚC · Trả kết quả cho người dùng</div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

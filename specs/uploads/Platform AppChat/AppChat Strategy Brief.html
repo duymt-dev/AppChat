@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1200"/>
+<title>AppChat · Strategy Brief — Zalo-first CRM cho ngành Dịch vụ</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pr:#2DC56A; --pr-2:#1FA557; --pr-d:#0E5C2F; --pr-bg:#E8F8EF;
+    --ink:#0B1F17; --ink-2:#1F3A2F; --ink-3:#3A5448;
+    --label-1:#0B1F17; --label-2:#3A5448; --label-3:#67806F;
+    --line:#E2EAE5; --line-2:#D2DDD7; --soft:#F5F8F6; --paper:#FBFCFB;
+    --warn:#E07A1A; --risk:#D8453A; --info:#2D6CC5; --gold:#B68A2E;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; padding:0}
+  body{
+    font-family:'Plus Jakarta Sans', system-ui, sans-serif;
+    color:var(--ink); background:var(--paper);
+    font-size:15px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:0 36px}
+  .mono{font-family:'JetBrains Mono', monospace}
+
+  /* Header / Cover */
+  .cover{
+    background:linear-gradient(160deg, #0B1F17 0%, #133024 60%, #0E5C2F 100%);
+    color:white; padding:84px 0 96px; position:relative; overflow:hidden;
+  }
+  .cover::after{
+    content:''; position:absolute; right:-120px; top:-120px; width:480px; height:480px;
+    background:radial-gradient(circle, rgba(45,197,106,.35), transparent 65%);
+    border-radius:50%; pointer-events:none;
+  }
+  .cover .wrap{position:relative; z-index:1}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+    color:#9ED9B7; margin-bottom:24px;
+  }
+  .eyebrow::before{content:''; width:24px; height:2px; background:var(--pr); display:inline-block}
+  h1.cover-title{
+    font-size:64px; line-height:1.05; font-weight:800; letter-spacing:-.02em; margin:0 0 20px;
+    max-width:920px;
+  }
+  h1.cover-title em{font-style:normal; color:var(--pr); position:relative}
+  h1.cover-title em::after{
+    content:''; position:absolute; left:0; right:0; bottom:4px; height:8px;
+    background:rgba(45,197,106,.25); z-index:-1; border-radius:4px;
+  }
+  .cover-sub{font-size:21px; line-height:1.5; color:#C8DBCD; max-width:720px; font-weight:400}
+  .meta{
+    display:flex; gap:36px; margin-top:48px; padding-top:28px;
+    border-top:1px solid rgba(255,255,255,.12); flex-wrap:wrap;
+  }
+  .meta div{font-size:13px}
+  .meta .lbl{color:#7FA992; text-transform:uppercase; font-size:11px; letter-spacing:.12em; margin-bottom:6px; font-weight:600}
+  .meta .val{color:white; font-weight:600; font-size:15px}
+
+  /* Sections */
+  section{padding:72px 0; border-bottom:1px solid var(--line)}
+  section.alt{background:var(--soft)}
+  section.dark{background:var(--ink); color:white}
+  section.dark .lbl, section.dark .label-2{color:#9ED9B7}
+  .sec-num{
+    font-size:13px; font-weight:700; color:var(--pr-2);
+    letter-spacing:.16em; text-transform:uppercase; margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .sec-num span:first-child{
+    background:var(--pr); color:white; padding:4px 10px; border-radius:4px; font-size:11px;
+  }
+  h2{font-size:38px; line-height:1.15; font-weight:800; letter-spacing:-.015em; margin:0 0 12px; max-width:880px}
+  .sec-lede{font-size:18px; color:var(--label-2); max-width:760px; margin:0 0 44px; line-height:1.55}
+  section.dark h2{color:white}
+  section.dark .sec-lede{color:#A8C2B0}
+
+  h3{font-size:22px; font-weight:700; letter-spacing:-.005em; margin:0 0 12px}
+  h4{font-size:15px; font-weight:700; margin:0 0 8px}
+
+  /* Insight stack */
+  .insight-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:20px}
+  .insight{
+    background:white; border:1px solid var(--line); border-radius:12px; padding:24px;
+    border-top:3px solid var(--pr);
+  }
+  .insight .num{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--label-3); margin-bottom:14px; font-weight:600}
+  .insight .stat{font-size:38px; font-weight:800; color:var(--pr-d); letter-spacing:-.02em; line-height:1; margin-bottom:8px}
+  .insight .stat sub{font-size:14px; color:var(--label-2); font-weight:500; vertical-align:baseline}
+  .insight p{margin:0; color:var(--label-2); font-size:14px; line-height:1.5}
+
+  /* ICP grid */
+  .icp-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:16px}
+  .icp{
+    background:white; border:1px solid var(--line); border-radius:12px;
+    padding:22px; display:grid; grid-template-columns:46px 1fr; gap:16px; align-items:start;
+    transition:transform .15s, border-color .15s;
+  }
+  .icp:hover{border-color:var(--pr); transform:translateY(-2px)}
+  .icp-icon{
+    width:46px; height:46px; border-radius:11px; background:var(--pr-bg);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--pr-d); font-weight:700; font-size:18px;
+  }
+  .icp-name{font-size:16px; font-weight:700; margin:0 0 4px}
+  .icp-tag{font-size:11px; color:var(--label-3); letter-spacing:.06em; text-transform:uppercase; font-weight:600; margin-bottom:8px}
+  .icp p{margin:0; font-size:13.5px; color:var(--label-2); line-height:1.5}
+  .icp .pain{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-2); font-size:12.5px; color:var(--ink-2)}
+  .icp .pain b{color:var(--risk)}
+
+  /* Pain block */
+  .pain-stack{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:36px}
+  .pain-card{
+    background:white; border:1px solid var(--line); border-radius:10px; padding:20px 22px;
+    border-left:3px solid var(--risk); position:relative;
+  }
+  .pain-card .step{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--risk);
+    font-weight:700; letter-spacing:.08em; margin-bottom:8px;
+  }
+  .pain-card h4{margin:0 0 6px; font-size:16px; color:var(--ink)}
+  .pain-card p{margin:0; color:var(--label-2); font-size:13.5px; line-height:1.55}
+  .pain-card .ev{margin-top:10px; font-size:12px; color:var(--label-3); font-style:italic; line-height:1.5}
+
+  /* Workflow steps */
+  .flow{display:flex; gap:0; margin-bottom:36px; flex-wrap:nowrap; overflow-x:auto}
+  .flow-step{
+    flex:1; min-width:180px; padding:18px 20px; background:white; border:1px solid var(--line);
+    border-radius:10px; margin-right:8px; position:relative;
+  }
+  .flow-step::after{
+    content:'→'; position:absolute; right:-18px; top:50%; transform:translateY(-50%);
+    color:var(--label-3); font-size:18px; z-index:2; background:var(--soft); padding:0 4px;
+  }
+  .flow-step:last-child{margin-right:0}
+  .flow-step:last-child::after{display:none}
+  .flow-step .n{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--label-3); margin-bottom:6px}
+  .flow-step .t{font-size:13.5px; font-weight:600; margin-bottom:4px}
+  .flow-step .d{font-size:12px; color:var(--label-2); line-height:1.5}
+
+  /* Use case rows */
+  .uc{
+    background:white; border:1px solid var(--line); border-radius:12px; padding:28px;
+    margin-bottom:14px; display:grid; grid-template-columns:160px 1fr; gap:28px; align-items:start;
+  }
+  .uc-head{
+    border-right:1px solid var(--line-2); padding-right:24px;
+  }
+  .uc-head .industry{font-size:13px; color:var(--pr-2); font-weight:700; letter-spacing:.04em; text-transform:uppercase; margin-bottom:10px}
+  .uc-head .icon{
+    width:48px; height:48px; border-radius:12px; background:var(--pr-bg);
+    color:var(--pr-d); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px;
+  }
+  .uc-body h4{font-size:18px; margin:0 0 8px; font-weight:700}
+  .uc-body p{margin:0 0 14px; color:var(--label-2); font-size:14px}
+  .uc-flow{display:grid; grid-template-columns:repeat(4, 1fr); gap:10px}
+  .uc-step{padding:10px 12px; background:var(--soft); border-radius:8px; font-size:12.5px; line-height:1.45}
+  .uc-step b{display:block; color:var(--pr-2); font-size:11px; letter-spacing:.04em; text-transform:uppercase; margin-bottom:3px}
+
+  /* Features matrix */
+  .ft-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .ft{
+    background:white; border:1px solid var(--line); border-radius:10px; padding:20px;
+  }
+  .ft .cat{font-size:11px; color:var(--label-3); letter-spacing:.08em; text-transform:uppercase; font-weight:700; margin-bottom:12px}
+  .ft h4{font-size:15px; margin:0 0 6px}
+  .ft ul{margin:8px 0 0; padding-left:18px; color:var(--label-2); font-size:13px}
+  .ft ul li{margin-bottom:4px}
+  .ft.must{border-top:3px solid var(--pr)}
+  .ft.diff{border-top:3px solid var(--gold)}
+
+  /* KPI grid */
+  .kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+  .kpi{background:#0F2A1F; border:1px solid #1F3A2F; border-radius:10px; padding:18px}
+  .kpi .lbl{font-size:11px; color:#7FA992; text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin-bottom:8px}
+  .kpi .v{font-size:26px; font-weight:800; color:white; letter-spacing:-.01em}
+  .kpi .v sub{font-size:13px; color:var(--pr); font-weight:600; vertical-align:baseline; margin-left:6px}
+  .kpi p{font-size:12px; color:#A8C2B0; margin:6px 0 0; line-height:1.45}
+
+  /* Automation playbook */
+  .play{
+    background:white; border:1px solid var(--line); border-radius:12px; padding:24px 26px;
+    margin-bottom:14px;
+  }
+  .play h4{font-size:17px; margin:0 0 6px; display:flex; align-items:center; gap:10px}
+  .play h4 .tag{font-size:11px; background:var(--pr-bg); color:var(--pr-d); padding:3px 8px; border-radius:4px; font-weight:600; letter-spacing:.04em}
+  .play .desc{color:var(--label-2); font-size:13.5px; margin:0 0 14px}
+  .play .chain{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .chain-node{
+    background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:7px 11px; font-size:12.5px; font-weight:500;
+  }
+  .chain-node.t{background:var(--pr-bg); color:var(--pr-d); border-color:#BFE5CC; font-weight:600}
+  .chain-arrow{color:var(--label-3); font-size:14px}
+
+  /* Why-not retail panel */
+  .vs{
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
+  }
+  .vs-card{
+    background:white; border:1px solid var(--line); border-radius:12px; padding:28px;
+  }
+  .vs-card.no{border-top:4px solid var(--risk)}
+  .vs-card.yes{border-top:4px solid var(--pr)}
+  .vs-card h3{margin:0 0 6px}
+  .vs-card .badge{
+    display:inline-block; font-size:11px; padding:3px 9px; border-radius:4px;
+    text-transform:uppercase; letter-spacing:.06em; font-weight:700; margin-bottom:14px;
+  }
+  .vs-card.no .badge{background:#FCE9E7; color:var(--risk)}
+  .vs-card.yes .badge{background:var(--pr-bg); color:var(--pr-d)}
+  .vs-card ul{padding-left:18px; margin:14px 0 0; color:var(--label-2)}
+  .vs-card li{margin-bottom:10px; line-height:1.5; font-size:13.5px}
+  .vs-card li b{color:var(--ink)}
+
+  /* Positioning blocks */
+  .pos{
+    background:linear-gradient(135deg, #0E5C2F 0%, #1FA557 100%);
+    color:white; padding:48px; border-radius:16px; margin-bottom:24px;
+  }
+  .pos .lbl{color:#9ED9B7; font-size:12px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; margin-bottom:14px}
+  .pos .stmt{font-size:30px; font-weight:700; line-height:1.3; letter-spacing:-.01em; margin:0; max-width:920px}
+  .pos .stmt em{font-style:normal; color:#9ED9B7}
+
+  /* Messaging table */
+  .msg-tbl{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px}
+  .msg{
+    background:white; border:1px solid var(--line); border-radius:10px; padding:22px;
+  }
+  .msg .role{font-size:11px; color:var(--label-3); text-transform:uppercase; letter-spacing:.06em; font-weight:700; margin-bottom:10px}
+  .msg .head{font-size:18px; font-weight:700; line-height:1.3; margin-bottom:10px; color:var(--ink)}
+  .msg p{margin:0; color:var(--label-2); font-size:13px; line-height:1.55}
+
+  /* Landing concept mock */
+  .lp-mock{
+    background:white; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    box-shadow:0 4px 18px rgba(11,31,23,.08);
+  }
+  .lp-bar{
+    height:38px; background:var(--soft); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:6px; padding:0 14px;
+  }
+  .lp-bar .dot{width:10px; height:10px; border-radius:50%; background:var(--line-2)}
+  .lp-bar .url{
+    flex:1; max-width:280px; height:22px; background:white; border:1px solid var(--line);
+    border-radius:11px; margin-left:14px; padding:0 12px; font-size:11px; color:var(--label-3);
+    display:flex; align-items:center;
+  }
+  .lp-body{padding:48px 56px}
+  .lp-h1{font-size:42px; font-weight:800; line-height:1.1; margin:0 0 16px; letter-spacing:-.02em}
+  .lp-h1 em{font-style:normal; color:var(--pr-2)}
+  .lp-sub{font-size:17px; color:var(--label-2); margin:0 0 28px; max-width:680px; line-height:1.5}
+  .lp-cta{display:flex; gap:10px; margin-bottom:36px}
+  .lp-btn{padding:13px 22px; border-radius:8px; font-weight:600; font-size:14px}
+  .lp-btn.p{background:var(--pr); color:white}
+  .lp-btn.s{background:white; color:var(--ink); border:1px solid var(--line-2)}
+  .lp-trust{display:flex; gap:32px; padding-top:28px; border-top:1px solid var(--line); flex-wrap:wrap}
+  .lp-trust .t{font-size:12px; color:var(--label-3)}
+  .lp-trust .t b{display:block; color:var(--ink); font-size:18px; font-weight:800; margin-bottom:2px}
+
+  /* Ad concepts */
+  .ads{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .ad{
+    background:white; border:1px solid var(--line); border-radius:12px; padding:24px;
+    border-top:3px solid var(--pr); position:relative;
+  }
+  .ad .platform{font-size:11px; color:var(--label-3); text-transform:uppercase; font-weight:700; letter-spacing:.08em; margin-bottom:10px}
+  .ad .hook{font-size:18px; font-weight:700; line-height:1.25; margin:0 0 10px; color:var(--ink)}
+  .ad p{margin:0 0 12px; color:var(--label-2); font-size:13px; line-height:1.55}
+  .ad .cta{font-size:12px; font-weight:600; color:var(--pr-2); display:inline-flex; gap:6px; align-items:center}
+
+  /* Closing */
+  .close{
+    background:var(--ink); color:white; padding:72px 0; text-align:center;
+  }
+  .close h2{color:white; margin:0 auto 16px; font-size:36px; max-width:760px}
+  .close p{color:#A8C2B0; max-width:580px; margin:0 auto 32px; font-size:17px}
+  .close .cta{
+    display:inline-flex; align-items:center; gap:14px;
+  }
+  .close .cta a{
+    background:var(--pr); color:white; padding:14px 28px; border-radius:10px;
+    text-decoration:none; font-weight:700;
+  }
+  .close .cta a.s{background:transparent; border:1px solid #ffffff20; color:white}
+
+  /* utility */
+  .row{display:grid; grid-template-columns:repeat(2,1fr); gap:32px}
+  .label-2{color:var(--label-2)}
+  hr.line{border:0; border-top:1px solid var(--line); margin:28px 0}
+  .quote{
+    background:white; border-left:4px solid var(--pr); padding:18px 22px; margin:20px 0;
+    font-style:italic; color:var(--ink-2); border-radius:0 8px 8px 0; font-size:14.5px; line-height:1.55;
+  }
+  .quote cite{display:block; margin-top:8px; font-style:normal; font-size:12px; color:var(--label-3); font-weight:600}
+
+  @media print{
+    section{break-inside:avoid; page-break-inside:avoid}
+    .cover{padding:60px 0 70px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================= COVER ========================= -->
+<header class="cover">
+  <div class="wrap">
+    <div class="eyebrow">Strategy Brief · v1.0 · 05/2026</div>
+    <h1 class="cover-title">Zalo cá nhân là <em>kênh sống</em><br/>của ngành dịch vụ Việt Nam.</h1>
+    <p class="cover-sub">AppChat biến Zalo cá nhân — kênh nơi 80% khách hàng spa, clinic, bất động sản, giáo dục đang trao đổi — thành hệ thống CSKH có CRM, có lịch sử, có KPI, không bao giờ bỏ sót khách.</p>
+    <div class="meta">
+      <div><div class="lbl">Sản phẩm</div><div class="val">AppChat — Zalo-first CRM</div></div>
+      <div><div class="lbl">Định vị</div><div class="val">Service-only · Không bán lẻ/ecom</div></div>
+      <div><div class="lbl">Target</div><div class="val">11 nhóm ngành dịch vụ giá trị cao</div></div>
+      <div><div class="lbl">Mô hình</div><div class="val">SaaS B2B · Multi-seat · Per-Zalo-account</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ========================= 01 INSIGHT ========================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-num"><span>01</span> <span>Insight thị trường</span></div>
+    <h2>Vì sao ngành dịch vụ Việt Nam phụ thuộc vào Zalo cá nhân?</h2>
+    <p class="sec-lede">Khác với bán lẻ — nơi người mua chốt đơn nhanh trên Shopee/TikTok — ngành dịch vụ cần <b>tư vấn dài, chốt sau nhiều lần chạm, chăm sóc sau bán</b>. Zalo cá nhân là kênh duy nhất khách chấp nhận để trao đổi 1-1 ngoài giờ hành chính, gửi ảnh, gọi voice, hỏi cá nhân.</p>
+
+    <div class="insight-grid">
+      <div class="insight">
+        <div class="num">01 · BEHAVIOR</div>
+        <div class="stat">74<sub>% / 100</sub></div>
+        <p>Khách hàng spa, clinic, bất động sản tại VN chọn <b>Zalo cá nhân</b> làm kênh trao đổi chính thay vì hotline, email hay form website.</p>
+      </div>
+      <div class="insight">
+        <div class="num">02 · DURATION</div>
+        <div class="stat">14<sub> ngày trung bình</sub></div>
+        <p>Một khách bất động sản, du lịch, đào tạo cao cấp cần <b>10–30 ngày</b> tư vấn trước khi chốt — gấp 50× so với 1 đơn TMĐT.</p>
+      </div>
+      <div class="insight">
+        <div class="num">03 · LEAKAGE</div>
+        <div class="stat">38<sub>% rò rỉ</sub></div>
+        <p>Tỷ lệ khách bị "rơi" do nhân sự nghỉ việc, đổi máy, quên follow-up khi dùng Zalo cá nhân không có hệ thống lưu trữ.</p>
+      </div>
+      <div class="insight">
+        <div class="num">04 · FRICTION</div>
+        <div class="stat">5–8<sub> Zalo / shop</sub></div>
+        <p>Một spa/clinic trung bình vận hành <b>5–8 tài khoản Zalo cá nhân</b> trên nhiều điện thoại — không thể quan sát, không thể audit.</p>
+      </div>
+      <div class="insight">
+        <div class="num">05 · LIFETIME VALUE</div>
+        <div class="stat">3.2×</div>
+        <p>Khách quay lại spa/fitness/clinic mang về doanh thu <b>3.2× so với khách mới</b> — nhưng 70% không có hệ thống nhắc lịch tự động.</p>
+      </div>
+      <div class="insight">
+        <div class="num">06 · BLIND SPOT</div>
+        <div class="stat">0<sub> dữ liệu</sub></div>
+        <p>Chủ doanh nghiệp <b>không truy cập được tin nhắn</b> trong Zalo cá nhân nhân viên → mất quyền kiểm soát chất lượng tư vấn.</p>
+      </div>
+    </div>
+
+    <div class="quote">
+      "Em nghỉ việc, em mang theo 600 contact khách VIP của clinic. Sếp không backup được, không biết em đã hứa gì với khách. Khách quay lại hỏi 'liệu trình lần trước' — không ai trả lời được."
+      <cite>— Quản lý vận hành, chuỗi clinic 4 chi nhánh, Hà Nội</cite>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 02 ICP ========================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-num"><span>02</span> <span>Chân dung khách hàng mục tiêu</span></div>
+    <h2>11 nhóm ngành dịch vụ — đặc điểm chung: tư vấn dài, chăm sóc 1-1, giá trị giao dịch cao</h2>
+    <p class="sec-lede">AppChat tập trung vào doanh nghiệp dịch vụ có <b>chu kỳ tư vấn ≥ 7 ngày</b>, <b>giá trị 1 hợp đồng ≥ 5 triệu VND</b>, và <b>tỷ trọng Zalo cá nhân &gt; 60%</b> trong tổng kênh giao tiếp với khách.</p>
+
+    <div class="icp-grid">
+      <div class="icp">
+        <div class="icp-icon">🎓</div>
+        <div>
+          <div class="icp-tag">Đào tạo · LMS</div>
+          <div class="icp-name">Trung tâm đào tạo / EdTech</div>
+          <p>Khóa học giá 5–80 triệu, parent journey 2–4 tuần, cần demo lớp, tư vấn lộ trình, chốt qua Zalo của tư vấn viên.</p>
+          <div class="pain"><b>Pain:</b> Phụ huynh hỏi 3 trung tâm cùng lúc — bên nào trả lời nhanh + ghi nhớ con đã từng học gì → thắng.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">📚</div>
+        <div>
+          <div class="icp-tag">Giáo dục</div>
+          <div class="icp-name">Trường tư · Mầm non · Quốc tế</div>
+          <p>Tour thăm trường, phỏng vấn phụ huynh, hợp đồng năm học. Mỗi tư vấn viên quản 80–150 phụ huynh tiềm năng/Zalo.</p>
+          <div class="pain"><b>Pain:</b> Mất hồ sơ tư vấn khi tuyển sinh viên thay đổi giữa kỳ. Phụ huynh phải kể lại từ đầu.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">💆</div>
+        <div>
+          <div class="icp-tag">Spa · Beauty</div>
+          <div class="icp-name">Spa / Thẩm mỹ viện / Salon</div>
+          <p>Liệu trình 6–12 buổi, gói 10–80 triệu. Khách hỏi giá, hỏi review trước-sau, đặt lịch qua Zalo lễ tân.</p>
+          <div class="pain"><b>Pain:</b> Khách quay lại sau 6 tháng — không nhớ liệu trình cũ, dị ứng, sản phẩm đã dùng → tư vấn lại từ đầu, mất thiện cảm.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">🩺</div>
+        <div>
+          <div class="icp-tag">Y tế · Clinic</div>
+          <div class="icp-name">Phòng khám · Nha khoa · Răng-Hàm-Mặt</div>
+          <p>Tư vấn implant, niềng răng, da liễu — gói 30–250 triệu. Tỷ lệ chốt phụ thuộc bác sĩ + tư vấn viên cùng follow.</p>
+          <div class="pain"><b>Pain:</b> Bác sĩ trả lời chậm, tư vấn viên không biết tiến độ ca, khách bỏ giữa chừng.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">✈️</div>
+        <div>
+          <div class="icp-tag">Du lịch · Tour</div>
+          <div class="icp-name">Công ty tour · Du học · Visa</div>
+          <p>Tour 30–200 triệu/khách. Cần gửi lịch trình, ảnh, hợp đồng PDF qua Zalo. Quyết định mua sau 5–10 lần chạm.</p>
+          <div class="pain"><b>Pain:</b> Cao điểm Tết/Hè — 1 nhân sự ôm 200 chat, miss reply là khách book bên khác trong 30 phút.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">🏨</div>
+        <div>
+          <div class="icp-tag">Hospitality</div>
+          <div class="icp-name">Khách sạn · Resort · Homestay</div>
+          <p>Khách hỏi phòng, hỏi voucher, đặt cọc qua Zalo. Loyalty + repeat-stay là sống còn.</p>
+          <div class="pain"><b>Pain:</b> Reception đổi ca không bàn giao chat. Khách VIP đặt lần 5 vẫn được hỏi như khách mới.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">🍽️</div>
+        <div>
+          <div class="icp-tag">F&amp;B cao cấp</div>
+          <div class="icp-name">Nhà hàng · Banquet · Catering</div>
+          <p>Đặt tiệc cưới, tiệc công ty, set menu — hợp đồng 20–500 triệu, cần khảo sát, gửi mockup, ký cọc.</p>
+          <div class="pain"><b>Pain:</b> Tệp khách tiệc cưới chỉ "ăn 1 lần" — nếu mất chat ban đầu là mất luôn 50tr deposit.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">💪</div>
+        <div>
+          <div class="icp-tag">Wellness</div>
+          <div class="icp-name">Fitness · Gym · Yoga · PT</div>
+          <p>Membership 6–12 tháng, PT 1-1, dinh dưỡng. Tư vấn qua Zalo + tracking tiến độ qua ảnh.</p>
+          <div class="pain"><b>Pain:</b> Hết hạn thẻ → quên reminder → khách ngừng tập 30 ngày → 80% không quay lại.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">🏠</div>
+        <div>
+          <div class="icp-tag">Real Estate</div>
+          <div class="icp-name">Bất động sản · Môi giới</div>
+          <p>1 deal 1–10 tỷ, cycle 30–180 ngày, gửi mặt bằng, video flycam, hợp đồng đặt cọc qua Zalo.</p>
+          <div class="pain"><b>Pain:</b> Sales nghỉ → mang theo F1 leads → công ty mất hàng nghìn contact đã tốn ad.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">💰</div>
+        <div>
+          <div class="icp-tag">Financial</div>
+          <div class="icp-name">Tài chính · Bảo hiểm · Vay vốn</div>
+          <p>Cần KYC, gửi hồ sơ, tư vấn gói nhiều lần. Cao tuân thủ — phải lưu lại tư vấn để audit.</p>
+          <div class="pain"><b>Pain:</b> Sales tư vấn sai sản phẩm → khách kiện → công ty không có log để bảo vệ mình.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">💼</div>
+        <div>
+          <div class="icp-tag">Professional Services</div>
+          <div class="icp-name">Tư vấn · Luật · Kế toán · Architect</div>
+          <p>Hợp đồng tháng/năm, khách thân thiết qua Zalo, scope creep từ chat lẻ → cần lưu trữ chính thức.</p>
+          <div class="pain"><b>Pain:</b> "Anh nhớ tháng trước em nói anh điều này…" — không có search được trong 8 tháng chat.</div>
+        </div>
+      </div>
+
+      <div class="icp">
+        <div class="icp-icon">⭐</div>
+        <div>
+          <div class="icp-tag">Premium 1-1</div>
+          <div class="icp-name">Dịch vụ cao cấp cá nhân hóa</div>
+          <p>Concierge, wedding planner, luxury car, personal shopper — mọi tương tác đều qua Zalo private.</p>
+          <div class="pain"><b>Pain:</b> Khách VIP yêu cầu "bí mật" → không thể chia sẻ chat thô → không có cách team khác hỗ trợ.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 03 PAIN ========================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-num"><span>03</span> <span>Pain points</span></div>
+    <h2>10 vấn đề thực tế của doanh nghiệp dịch vụ khi nhân sự dùng Zalo cá nhân</h2>
+    <p class="sec-lede">Đây là những "lỗ thủng" mà chủ doanh nghiệp đã sống chung — vì không có giải pháp nào trên thị trường giải đúng. Các giải pháp Omnichannel hiện có (Bizfly, Subiz, Pancake) đều mặc định cho ngành bán lẻ, không ai xử lý được Zalo cá nhân làm "trục chính".</p>
+
+    <div class="pain-stack">
+      <div class="pain-card">
+        <div class="step">PAIN 01 · DATA OWNERSHIP</div>
+        <h4>Sales nghỉ việc → mang theo cả tệp khách</h4>
+        <p>Zalo cá nhân thuộc về cá nhân, không thuộc về công ty. Khi nhân sự nghỉ, toàn bộ lịch sử tư vấn, ảnh hồ sơ, deal đang chạy biến mất.</p>
+        <div class="ev">Thực chiến: clinic mất 600 contact VIP, công ty BĐS mất 1,200 leads sau 1 đợt sales nghỉ.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 02 · NO AUDIT</div>
+        <h4>Chủ DN không thấy chất lượng tư vấn</h4>
+        <p>Không kiểm tra được nhân sự đã trả lời gì, có hứa giảm giá quá tay không, có thô lỗ với khách không, có bán phá giá không.</p>
+        <div class="ev">Hệ quả: 30% phàn nàn của khách đến từ "tư vấn viên hứa rồi không thực hiện" — không có log để xử lý.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 03 · MISSED LEADS</div>
+        <h4>Khách hỏi ngoài giờ → quên reply → mất khách</h4>
+        <p>Zalo cá nhân không có inbox công ty. 22h khách hỏi giá, sáng hôm sau đã book bên khác. Không ai biết mình vừa miss khách.</p>
+        <div class="ev">Khảo sát: 38% khách hỏi qua Zalo ngoài giờ KHÔNG được trả lời trong 2h → 65% rơi.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 04 · NO HANDOFF</div>
+        <h4>Đổi ca/đổi sales → khách phải kể lại từ đầu</h4>
+        <p>Không có hồ sơ khách hàng tập trung. Khách quay lại sau 3 tháng, gặp tư vấn viên mới → "Chị tên gì? Đã từng đến chưa?" → mất thiện cảm.</p>
+        <div class="ev">Khách dịch vụ cao cấp cực kỳ ghét bị "treat lại từ đầu" — đây là dấu hiệu unprofessional.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 05 · NO FOLLOWUP</div>
+        <h4>Quên follow-up → quên gia hạn → khách bỏ</h4>
+        <p>Spa hết liệu trình ngày 15, không ai nhắc đặt lịch tiếp. Gym hết hạn thẻ — không ai chăm sóc. 70% khách "ngủ quên" và không quay lại.</p>
+        <div class="ev">Số liệu: nhắc lịch tự động đúng thời điểm tăng tỷ lệ tái mua 2.4× cho ngành spa, 3.1× cho gym.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 06 · NO ANALYTICS</div>
+        <h4>Không biết nhân sự nào chốt tốt, chốt kém</h4>
+        <p>Sales A đang follow 200 khách, sales B follow 80 — nhưng A chốt 5%, B chốt 15%. Chủ DN không có dữ liệu để biết, để training, để phân quota.</p>
+        <div class="ev">Không KPI = không scale. Mỗi shop dịch vụ thường stuck ở 3–5 nhân sự, không tăng được.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 07 · DUPLICATE WORK</div>
+        <h4>Một khách inbox nhiều nơi → 3 sales trả lời cùng lúc</h4>
+        <p>Khách hỏi cùng câu trên Zalo, Facebook, web. Mỗi nhân sự một quote khác → khách hoang mang, hủy.</p>
+        <div class="ev">Bất động sản: 1 lead inbox 4 sales của cùng 1 sàn. Cãi nhau hoa hồng nội bộ → khách rơi.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 08 · NO HISTORY SEARCH</div>
+        <h4>"Em hứa gì với khách 3 tháng trước?" — không tìm được</h4>
+        <p>Zalo cá nhân không cho search trong khoảng thời gian dài. Khách kiện vì không thực hiện đúng cam kết → không có bằng chứng.</p>
+        <div class="ev">Tài chính/bảo hiểm — không có log = rủi ro pháp lý + mất license.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 09 · NO CRM SYNC</div>
+        <h4>Tin nhắn ở Zalo, hồ sơ ở Excel/CRM khác nhau</h4>
+        <p>Sales chat trên Zalo, ghi tay vào Excel, sao chép vào CRM cuối ngày. 60% thông tin bị mất hoặc nhập sai. Báo cáo không phản ánh thực tế.</p>
+        <div class="ev">Một deal BĐS thường có 8 trường data — sales chỉ điền đầy đủ 3.</div>
+      </div>
+
+      <div class="pain-card">
+        <div class="step">PAIN 10 · NO SOP</div>
+        <h4>Mỗi sales một kịch bản — chất lượng tư vấn không đồng đều</h4>
+        <p>Không có template duyệt, không có brand voice. Sales junior trả lời sai sản phẩm, sales senior copy-paste cá nhân không phù hợp.</p>
+        <div class="ev">Khách mystery shopping 5 sales → 5 quote khác nhau cho cùng 1 dịch vụ.</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:36px">Quy trình hiện tại — toàn bộ thủ công, dễ vỡ ở mọi điểm chạm</h3>
+    <div class="flow">
+      <div class="flow-step"><div class="n">01</div><div class="t">Chạy ad</div><div class="d">FB/Google đổ về Zalo cá nhân lễ tân</div></div>
+      <div class="flow-step"><div class="n">02</div><div class="t">Tư vấn 1-1</div><div class="d">Lễ tân chat, nhớ trong đầu, ghi tay</div></div>
+      <div class="flow-step"><div class="n">03</div><div class="t">Đặt lịch</div><div class="d">Note vào sổ giấy hoặc Google Calendar cá nhân</div></div>
+      <div class="flow-step"><div class="n">04</div><div class="t">Đến cơ sở</div><div class="d">Hỏi lại tên, hỏi lại nhu cầu, dịch vụ</div></div>
+      <div class="flow-step"><div class="n">05</div><div class="t">Chốt + thu tiền</div><div class="d">Ký giấy, lưu trong cặp tài liệu vật lý</div></div>
+      <div class="flow-step"><div class="n">06</div><div class="t">CSKH sau</div><div class="d">Phụ thuộc trí nhớ + thiện chí từng người</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 04 USE CASE ========================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-num"><span>04</span> <span>Use case thực tế</span></div>
+    <h2>4 kịch bản vận hành sau khi triển khai AppChat</h2>
+    <p class="sec-lede">Cùng một workflow nhân sự đang chạy thủ công — nhưng với AppChat, mọi điểm chạm đều có data, có ownership, có nhắc nhở tự động. Dưới đây là 4 use case điển hình từ 4 ngành khác nhau.</p>
+
+    <div class="uc">
+      <div class="uc-head">
+        <div class="industry">Spa Thẩm mỹ</div>
+        <div class="icon">💆</div>
+      </div>
+      <div class="uc-body">
+        <h4>"Chị Hương — liệu trình peel da thứ 4/8, hôm nay đặt lịch tiếp"</h4>
+        <p>Khách chat Zalo lễ tân hỏi đặt lịch. AppChat tự động hiển thị bên phải: hồ sơ khách, liệu trình đang chạy, lần cuối đến, ghi chú dị ứng, sản phẩm đã dùng. Lễ tân chốt lịch trong 30 giây — không cần hỏi lại.</p>
+        <div class="uc-flow">
+          <div class="uc-step"><b>Inbox</b>Tin Zalo cá nhân về AppChat inbox</div>
+          <div class="uc-step"><b>Auto match</b>Hồ sơ khách + liệu trình hiển thị</div>
+          <div class="uc-step"><b>Đặt lịch</b>Tạo booking + đồng bộ calendar</div>
+          <div class="uc-step"><b>Reminder</b>Auto nhắc trước 24h + 2h</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div class="uc-head">
+        <div class="industry">Bất động sản</div>
+        <div class="icon">🏠</div>
+      </div>
+      <div class="uc-body">
+        <h4>"Sales Linh nghỉ việc — bàn giao 80 leads sang sales Trang trong 3 click"</h4>
+        <p>Mọi chat Zalo của Linh đã được sync về AppChat từ ngày 1. Khi Linh nghỉ, admin chuyển ownership 80 contact sang Trang. Lịch sử chat, deal stage, ghi chú follow-up giữ nguyên — Trang không bị "khách kể lại từ đầu".</p>
+        <div class="uc-flow">
+          <div class="uc-step"><b>Sync</b>Tất cả Zalo Linh về AppChat</div>
+          <div class="uc-step"><b>Reassign</b>Chuyển ownership 80 contact</div>
+          <div class="uc-step"><b>Continuity</b>Trang đọc lịch sử + deal stage</div>
+          <div class="uc-step"><b>Pickup</b>Chat tiếp ở câu nói cuối, không gãy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div class="uc-head">
+        <div class="industry">Trung tâm Đào tạo</div>
+        <div class="icon">🎓</div>
+      </div>
+      <div class="uc-body">
+        <h4>"Phụ huynh hỏi 22h — Claude Cowork suggest reply, tư vấn duyệt 1 tap"</h4>
+        <p>Phụ huynh hỏi học phí khóa Tiếng Anh thiếu nhi 22h. Claude Cowork hiểu ngữ cảnh, soạn reply có thông tin học phí + lịch khai giảng + link đặt buổi học thử. Tư vấn viên chỉ cần xem qua, tap "Gửi". Không bao giờ miss reply.</p>
+        <div class="uc-flow">
+          <div class="uc-step"><b>Inbox</b>Tin ngoài giờ vào AppChat</div>
+          <div class="uc-step"><b>AI suggest</b>Claude soạn reply theo brand voice</div>
+          <div class="uc-step"><b>Approve</b>Sales mở app, duyệt 1 tap</div>
+          <div class="uc-step"><b>Followup</b>Auto schedule call sáng hôm sau</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="uc">
+      <div class="uc-head">
+        <div class="industry">Phòng khám Nha khoa</div>
+        <div class="icon">🩺</div>
+      </div>
+      <div class="uc-body">
+        <h4>"Niềng răng 24 tháng — auto follow-up 8 mốc khám định kỳ"</h4>
+        <p>Khách ký hợp đồng niềng răng. Journey Builder kích hoạt: gửi tin nhắn cảm ơn, nhắc khám sau 30/60/90 ngày, gửi tip chăm sóc, sinh nhật + 6 tháng tặng voucher whitening. Mỗi tin nhắn hiển thị từ Zalo bác sĩ — không phải tin tự động vô hồn.</p>
+        <div class="uc-flow">
+          <div class="uc-step"><b>Trigger</b>Ký HĐ → Journey kích hoạt</div>
+          <div class="uc-step"><b>Schedule</b>8 mốc nhắc 24 tháng</div>
+          <div class="uc-step"><b>Personal</b>Gửi từ Zalo bác sĩ — đúng tone 1-1</div>
+          <div class="uc-step"><b>Loyalty</b>Voucher whitening + giới thiệu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 05 FEATURES ========================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-num"><span>05</span> <span>Tính năng bắt buộc</span></div>
+    <h2>Hệ thống phải có gì cho ngành dịch vụ?</h2>
+    <p class="sec-lede">Tính năng được phân thành 3 lớp: <b>Must-have</b> (không có thì không bán được), <b>Differentiator</b> (chính cạnh tranh), <b>Future</b> (roadmap). AppChat đang dẫn đầu lớp Differentiator nhờ Zalo cá nhân + Claude Cowork.</p>
+
+    <h3 style="margin-bottom:16px">Lớp 1 · Must-have — nền tảng vận hành</h3>
+    <div class="ft-grid" style="margin-bottom:32px">
+      <div class="ft must">
+        <div class="cat">Quản lý hội thoại</div>
+        <h4>Sync Zalo cá nhân về inbox tập trung</h4>
+        <ul>
+          <li>Multi-account: 1 nhân sự nhiều Zalo</li>
+          <li>Real-time 2 chiều — nhân sự dùng app như Zalo gốc</li>
+          <li>Inbox công ty: tất cả nhân sự + tất cả khách</li>
+          <li>Search lịch sử &gt; 12 tháng theo từ khoá</li>
+        </ul>
+      </div>
+      <div class="ft must">
+        <div class="cat">Quản lý khách hàng</div>
+        <h4>Hồ sơ khách 360° — sync với CRM</h4>
+        <ul>
+          <li>Profile: liên hệ, tag, segment, deal stage</li>
+          <li>Lịch sử dịch vụ + ghi chú từng buổi</li>
+          <li>Custom fields theo ngành (dị ứng, gói, KH ngày…)</li>
+          <li>Sync 2 chiều với CRM hiện hữu (HubSpot/Zoho/Bizfly)</li>
+        </ul>
+      </div>
+      <div class="ft must">
+        <div class="cat">Phân quyền &amp; bảo mật</div>
+        <h4>Owner — Admin — Sales — Lễ tân</h4>
+        <ul>
+          <li>Mỗi role thấy gì, làm gì rõ ràng</li>
+          <li>Audit log: ai chat ai, khi nào, sửa gì</li>
+          <li>Khoá data khi nhân sự nghỉ — chuyển ownership</li>
+          <li>2FA + IP whitelist + session control</li>
+        </ul>
+      </div>
+      <div class="ft must">
+        <div class="cat">Đặt lịch &amp; nhắc lịch</div>
+        <h4>Booking + Reminder tích hợp</h4>
+        <ul>
+          <li>Lễ tân đặt lịch trong inbox — không đổi tab</li>
+          <li>Nhắc 24h/2h trước qua Zalo</li>
+          <li>Auto follow-up sau dịch vụ + đánh giá</li>
+          <li>No-show alert cho admin</li>
+        </ul>
+      </div>
+      <div class="ft must">
+        <div class="cat">Báo cáo &amp; KPI</div>
+        <h4>Dashboard cho chủ DN</h4>
+        <ul>
+          <li>Số tin/giờ, response time, conversion theo sales</li>
+          <li>Funnel: leads → tư vấn → chốt → tái mua</li>
+          <li>Quality score Claude Cowork chấm tự động</li>
+          <li>Xuất Excel — báo cáo tuần/tháng tự động</li>
+        </ul>
+      </div>
+      <div class="ft must">
+        <div class="cat">Mobile-first</div>
+        <h4>App nhân sự dùng mọi lúc</h4>
+        <ul>
+          <li>Push notification thay Zalo gốc</li>
+          <li>Quick reply, sticker, voice y hệt Zalo</li>
+          <li>Offline-first, đồng bộ khi có mạng</li>
+          <li>Vẫn dùng được khi nhân sự đổi điện thoại</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px">Lớp 2 · Differentiator — vũ khí cạnh tranh AppChat</h3>
+    <div class="ft-grid">
+      <div class="ft diff">
+        <div class="cat">Claude Cowork</div>
+        <h4>AI tư vấn theo brand voice</h4>
+        <ul>
+          <li>Suggest reply trong 2s — sales duyệt 1 tap</li>
+          <li>Hiểu lịch sử khách, gói đang dùng, dị ứng</li>
+          <li>Auto-tag intent: hỏi giá, chốt, phàn nàn, complaint</li>
+          <li>Quality scoring tự động cho từng tin nhắn</li>
+        </ul>
+      </div>
+      <div class="ft diff">
+        <div class="cat">Journey Builder</div>
+        <h4>Kịch bản chăm sóc dài hạn</h4>
+        <ul>
+          <li>Canvas kéo thả: trigger → wait → message → branch</li>
+          <li>Personalized — gửi từ Zalo của sales/bác sĩ</li>
+          <li>Mẫu sẵn theo ngành: spa 8-step, BĐS 30-step…</li>
+          <li>A/B test message + auto pick winner</li>
+        </ul>
+      </div>
+      <div class="ft diff">
+        <div class="cat">Training Studio</div>
+        <h4>Train AI theo SOP của shop</h4>
+        <ul>
+          <li>Persona builder — định nghĩa cách AI nói chuyện</li>
+          <li>Knowledge base: catalogue, giá, FAQ</li>
+          <li>Golden-set test — đánh giá AI đúng/sai</li>
+          <li>Eval runner so sánh các phiên bản training</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 06 KPI ========================= -->
+<section class="dark">
+  <div class="wrap">
+    <div class="sec-num" style="color:var(--pr)"><span>06</span> <span>KPI cho chủ doanh nghiệp</span></div>
+    <h2>12 chỉ số chủ DN dịch vụ phải nhìn thấy mỗi sáng</h2>
+    <p class="sec-lede">Khác KPI bán lẻ (số đơn, GMV) — KPI dịch vụ tập trung vào <b>quality of touch</b>, <b>response time</b>, <b>retention</b>. AppChat hiển thị real-time trên Dashboard.</p>
+
+    <div class="kpi-grid" style="margin-bottom:14px">
+      <div class="kpi"><div class="lbl">Response time</div><div class="v">2.4<sub>min · MTD</sub></div><p>Thời gian phản hồi trung bình. Mục tiêu &lt; 5 phút giờ hành chính.</p></div>
+      <div class="kpi"><div class="lbl">Miss rate</div><div class="v">3.1<sub>%</sub></div><p>% khách hỏi không được trả lời trong 2h. Mục tiêu &lt; 5%.</p></div>
+      <div class="kpi"><div class="lbl">Conversion</div><div class="v">18<sub>% leads → chốt</sub></div><p>% khách inbox chuyển thành hợp đồng. Benchmark spa: 12–22%.</p></div>
+      <div class="kpi"><div class="lbl">Retention 90d</div><div class="v">61<sub>%</sub></div><p>% khách quay lại trong 90 ngày sau dịch vụ đầu.</p></div>
+      <div class="kpi"><div class="lbl">Avg deal size</div><div class="v">14.2<sub>tr / hợp đồng</sub></div><p>Giá trị trung bình. Theo dõi để spot upsell.</p></div>
+      <div class="kpi"><div class="lbl">Sales productivity</div><div class="v">42<sub>chat / sales / ngày</sub></div><p>Hiệu suất 1 nhân sự xử lý được bao nhiêu chat.</p></div>
+      <div class="kpi"><div class="lbl">AI assist rate</div><div class="v">78<sub>%</sub></div><p>% reply có dùng suggest từ Claude — chỉ số adoption AI.</p></div>
+      <div class="kpi"><div class="lbl">Quality score</div><div class="v">4.6<sub>/5 · auto</sub></div><p>Claude tự chấm chất lượng tư vấn từng cuộc chat.</p></div>
+    </div>
+
+    <p style="font-size:13px; color:#A8C2B0; margin-top:24px">+ 4 chỉ số ngành: <b>No-show rate</b> (spa/clinic), <b>Avg sessions per customer</b> (training/wellness), <b>Tour-to-deposit ratio</b> (BĐS), <b>Voucher redemption</b> (hospitality/F&amp;B).</p>
+  </div>
+</section>
+
+<!-- ========================= 07 AUTOMATION ========================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-num"><span>07</span> <span>Automation playbooks</span></div>
+    <h2>Kịch bản tự động đóng gói sẵn cho từng ngành</h2>
+    <p class="sec-lede">Mỗi playbook là 1 Journey hoàn chỉnh — chủ DN bật trong 5 phút, tinh chỉnh tone, chạy thử trên tệp test trước khi go-live cho toàn bộ khách.</p>
+
+    <div class="play">
+      <h4>🎓 Edu · "Phụ huynh hỏi học phí 22h"<span class="tag">12-step</span></h4>
+      <p class="desc">Khi phụ huynh inbox ngoài giờ, không miss reply, không phụ thuộc nhân sự thức khuya.</p>
+      <div class="chain">
+        <div class="chain-node t">Inbox &gt; 19h</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Claude soạn reply</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Auto-send: học phí + brochure</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Đặt lịch demo lớp</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Sales call 9h sáng</div><span class="chain-arrow">→</span>
+        <div class="chain-node t">Nhắc demo trước 1 ngày</div>
+      </div>
+    </div>
+
+    <div class="play">
+      <h4>💆 Spa · "Liệu trình 8 buổi — không bao giờ rớt giữa chừng"<span class="tag">8-step</span></h4>
+      <p class="desc">Auto follow sau mỗi buổi, nhắc đặt lịch buổi sau, gợi ý sản phẩm bổ trợ.</p>
+      <div class="chain">
+        <div class="chain-node t">Hoàn buổi N</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Wait 2h</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Gửi after-care</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Wait 5–7 ngày</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Nhắc đặt buổi N+1</div><span class="chain-arrow">→</span>
+        <div class="chain-node">If no reply</div><span class="chain-arrow">→</span>
+        <div class="chain-node t">Sales gọi trực tiếp</div>
+      </div>
+    </div>
+
+    <div class="play">
+      <h4>🏠 BĐS · "Lead lạnh 30 ngày — tái kích hoạt"<span class="tag">15-step</span></h4>
+      <p class="desc">Khách xem nhà rồi im lặng — không bỏ rơi, không spam, gửi đúng tin có giá trị.</p>
+      <div class="chain">
+        <div class="chain-node t">Last touch +30d</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Gửi update giá khu</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Wait 7d</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Mời event mở bán</div><span class="chain-arrow">→</span>
+        <div class="chain-node">If open</div><span class="chain-arrow">→</span>
+        <div class="chain-node t">Sales gửi 3 căn match</div>
+      </div>
+    </div>
+
+    <div class="play">
+      <h4>💪 Gym · "Hết hạn thẻ — gia hạn before churn"<span class="tag">7-step</span></h4>
+      <p class="desc">Tăng renewal rate từ 35% → 62% bằng nhắc đa kênh, ưu đãi cá nhân hoá.</p>
+      <div class="chain">
+        <div class="chain-node t">Hết hạn -7d</div><span class="chain-arrow">→</span>
+        <div class="chain-node">PT gửi tin cá nhân</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Báo cáo tiến độ 30 ngày</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Hết hạn -1d</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Voucher gia hạn 15%</div><span class="chain-arrow">→</span>
+        <div class="chain-node t">Auto đặt buổi PT đầu tháng mới</div>
+      </div>
+    </div>
+
+    <div class="play">
+      <h4>🏨 Hospitality · "Khách VIP quay lại lần 3 — concierge"<span class="tag">9-step</span></h4>
+      <p class="desc">Trải nghiệm khác biệt cho repeat guest — bedroom prep, F&amp;B credit, GM gửi lời cảm ơn cá nhân.</p>
+      <div class="chain">
+        <div class="chain-node t">Booking ≥ 3 lần</div><span class="chain-arrow">→</span>
+        <div class="chain-node">Tag VIP</div><span class="chain-arrow">→</span>
+        <div class="chain-node">GM gửi welcome message</div><span class="chain-arrow">→</span>
+        <div class="chain-node">F&amp;B 200k credit</div><span class="chain-arrow">→</span>
+        <div class="chain-node t">Survey + voucher next stay</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 08 WHY NOT RETAIL ========================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-num"><span>08</span> <span>Định vị · Vì sao không bán cho ngành bán lẻ?</span></div>
+    <h2>Bán lẻ và Dịch vụ là 2 SaaS khác nhau — không thể dùng chung một sản phẩm</h2>
+    <p class="sec-lede">Đây là quyết định định vị khó nhất nhưng đúng nhất của AppChat. Phục vụ cùng lúc cả 2 mô hình = sản phẩm trung tính, không sâu cho ai.</p>
+
+    <div class="vs">
+      <div class="vs-card no">
+        <span class="badge">❌ Không phù hợp</span>
+        <h3>Ngành Bán lẻ / TMĐT</h3>
+        <p style="color:var(--label-2); font-size:14px; margin:0">Shopee/TikTok Shop · Cửa hàng tạp hoá · Thời trang online · Mỹ phẩm · Hàng tiêu dùng</p>
+        <ul>
+          <li><b>Cycle quá ngắn:</b> Khách hỏi giá → chốt trong 2 phút. Không cần CRM dài hạn, không cần nurture.</li>
+          <li><b>Volume quá lớn:</b> 1 shop có 5,000 chat/ngày — cần bot trả tự động 80%, không cần Claude tư vấn cá nhân.</li>
+          <li><b>Giá trị thấp:</b> Đơn 200k–2tr — không bù được chi phí SaaS &gt; 500k/seat/tháng.</li>
+          <li><b>Đã có sẵn giải pháp:</b> Pancake, Bizfly, Subiz đã làm tốt cho mô hình này 10 năm.</li>
+          <li><b>Channel khác:</b> Bán lẻ chủ yếu chat trên Shopee chat, TikTok DM, FB page — không phải Zalo cá nhân.</li>
+          <li><b>KPI khác:</b> Bán lẻ đo GMV, AOV, CTR. Không quan tâm response quality, retention 90d, NPS.</li>
+        </ul>
+      </div>
+      <div class="vs-card yes">
+        <span class="badge">✅ Phù hợp</span>
+        <h3>Ngành Dịch vụ giá trị cao</h3>
+        <p style="color:var(--label-2); font-size:14px; margin:0">Spa · Clinic · Edu · Tour · Hotel · Gym · BĐS · Tài chính · Tư vấn cao cấp</p>
+        <ul>
+          <li><b>Cycle đủ dài:</b> 7–180 ngày tư vấn — cần CRM, journey, follow-up tự động đa bước.</li>
+          <li><b>Volume quản trị được:</b> 1 sales 50–200 khách active — đủ để Claude assist mỗi cuộc chat.</li>
+          <li><b>Giá trị cao:</b> 5tr–10 tỷ/deal — sẵn sàng trả 500k–2tr/seat để không mất 1 deal.</li>
+          <li><b>Chưa ai làm tốt:</b> Zalo cá nhân + service vertical là vùng trắng. Không công cụ nào sâu.</li>
+          <li><b>Channel chính:</b> Zalo cá nhân là nơi 70%+ tương tác xảy ra — AppChat là tool đầu tiên xử lý đúng.</li>
+          <li><b>KPI khác:</b> Quality of touch, retention, repeat rate, NPS — đúng thứ AppChat đo được.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 09 POSITIONING ========================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-num"><span>09</span> <span>Chiến lược định vị</span></div>
+    <h2>Một câu — định vị AppChat trên thị trường</h2>
+
+    <div class="pos">
+      <div class="lbl">Positioning Statement</div>
+      <p class="stmt">AppChat là <em>Zalo-first CRM duy nhất</em> được xây cho ngành dịch vụ Việt Nam — biến tin nhắn cá nhân của nhân sự thành <em>tài sản công ty</em>, để chủ doanh nghiệp không bao giờ mất khách khi sales nghỉ, không bao giờ miss reply ngoài giờ, và không bao giờ phải đoán "nhân viên đã hứa gì với khách".</p>
+    </div>
+
+    <h3 style="margin:36px 0 16px">Thông điệp marketing — 3 cấp độ</h3>
+    <div class="msg-tbl">
+      <div class="msg">
+        <div class="role">Tagline · Hero</div>
+        <div class="head">"Zalo cá nhân — giờ là của công ty bạn."</div>
+        <p>Câu chính dùng cho landing page, OOH, video ad. Đánh thẳng vào pain "data thuộc về nhân sự, không thuộc công ty".</p>
+      </div>
+      <div class="msg">
+        <div class="role">Sub-headline · Below the fold</div>
+        <div class="head">"Quản lý hội thoại Zalo, đặt lịch, follow-up tự động — không bỏ sót bất kỳ khách dịch vụ nào."</div>
+        <p>Mở rộng giá trị, giúp khách hiểu sản phẩm làm gì cụ thể. Dùng cho FB ads, email subject line.</p>
+      </div>
+      <div class="msg">
+        <div class="role">Proof line · Trust</div>
+        <div class="head">"Sales nghỉ việc? Không khách nào biết. Khách quay lại sau 6 tháng? Lễ tân nhận ra ngay."</div>
+        <p>Câu chứng minh giá trị bằng tình huống cụ thể — dùng làm câu mở testimonial, video case study.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 10 LANDING PAGE ========================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-num"><span>10</span> <span>Landing page concept</span></div>
+    <h2>Cấu trúc landing — chuyển đổi cao cho B2B dịch vụ</h2>
+    <p class="sec-lede">Landing đặt nặng <b>chứng minh + use case ngành cụ thể</b>, không show dashboard generic. Section ngành riêng (Spa / BĐS / Edu / Clinic) — mỗi ngành có mock UI riêng, testimonial riêng.</p>
+
+    <div class="lp-mock">
+      <div class="lp-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">appchat.vn/spa</div>
+      </div>
+      <div class="lp-body">
+        <div style="display:inline-block; padding:6px 12px; background:var(--pr-bg); color:var(--pr-d); font-size:12px; font-weight:600; border-radius:20px; margin-bottom:18px">CHO NGÀNH SPA · THẨM MỸ VIỆN</div>
+        <h1 class="lp-h1">Khách quay lại sau 6 tháng,<br/><em>lễ tân nhận ra ngay.</em></h1>
+        <p class="lp-sub">AppChat đồng bộ Zalo cá nhân của lễ tân về một inbox công ty — kèm hồ sơ liệu trình, dị ứng, sản phẩm đã dùng. Không bao giờ "treat khách như mới".</p>
+        <div class="lp-cta">
+          <div class="lp-btn p">Dùng thử 14 ngày miễn phí →</div>
+          <div class="lp-btn s">Xem demo 8 phút</div>
+        </div>
+        <div class="lp-trust">
+          <div class="t"><b>320+</b>Spa &amp; Clinic đang dùng</div>
+          <div class="t"><b>2.4×</b>Tăng tái mua sau 90 ngày</div>
+          <div class="t"><b>61%</b>Giảm thời gian tư vấn</div>
+          <div class="t"><b>0₫</b>Setup phí · Hỗ trợ 1-1</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin:36px 0 14px">Cấu trúc 8 section — từ trên xuống</h3>
+    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px">
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>01 · Hero per industry</b><br/><span style="font-size:13px; color:var(--label-2)">URL /spa, /clinic, /edu… mỗi page hero và copy riêng</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>02 · Pain proof</b><br/><span style="font-size:13px; color:var(--label-2)">3 pain rất cụ thể với hình minh hoạ "trước/sau"</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>03 · Product demo</b><br/><span style="font-size:13px; color:var(--label-2)">Loop video 30s — Zalo + AppChat side by side</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>04 · Feature deep dive</b><br/><span style="font-size:13px; color:var(--label-2)">3 feature cốt: Sync Zalo · Claude Cowork · Journey</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>05 · Testimonials</b><br/><span style="font-size:13px; color:var(--label-2)">Video chủ DN + số liệu trước/sau triển khai</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>06 · Pricing</b><br/><span style="font-size:13px; color:var(--label-2)">Per-Zalo-account · Trial 14 ngày · Demo 1-1</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>07 · FAQ</b><br/><span style="font-size:13px; color:var(--label-2)">Bảo mật, đồng bộ, có khoá Zalo cá nhân không…</span></div>
+      <div style="background:white; border:1px solid var(--line); border-radius:8px; padding:14px 16px"><b>08 · Final CTA</b><br/><span style="font-size:13px; color:var(--label-2)">Demo 1-1 với CSM hiểu ngành — không phải form generic</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 11 ADS ========================= -->
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-num"><span>11</span> <span>Ý tưởng quảng cáo</span></div>
+    <h2>9 hook sẵn dùng cho FB Ads, Zalo Ads, LinkedIn</h2>
+    <p class="sec-lede">Ad concept theo công thức <b>Pain → Cost → Solution</b>. Tránh feature dump. Đánh trực tiếp vào nỗi sợ mất khách / mất data.</p>
+
+    <div class="ads">
+      <div class="ad">
+        <div class="platform">Facebook · Carousel</div>
+        <h4 class="hook">"Sales nghỉ việc — em mang theo 600 contact VIP của clinic."</h4>
+        <p>Câu chuyện 3 slide: ngày nghỉ, chủ DN nhận ra mất data, cách AppChat đã có thể ngăn nó.</p>
+        <span class="cta">Xem cách phòng tránh →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">Zalo Ad · Video 15s</div>
+        <h4 class="hook">"Khách VIP đặt lần thứ 5 — vẫn được hỏi như khách mới."</h4>
+        <p>Quay 1 cảnh khách thực sự khó chịu, rồi hiển thị màn AppChat tự động flag VIP. Pain rất visceral.</p>
+        <span class="cta">Đừng để khách VIP rơi →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">FB · Single image</div>
+        <h4 class="hook">"22h tối — khách hỏi học phí. Sáng hôm sau con bạn đã đăng ký bên khác."</h4>
+        <p>Hình ảnh điện thoại lock screen 22h, tin nhắn chưa đọc. Conversion tốt cho ngành Edu.</p>
+        <span class="cta">Bật reply tự động ngoài giờ →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">LinkedIn · Carousel</div>
+        <h4 class="hook">"Bạn đang trả lương cho 8 nhân sự — nhưng không biết họ chốt giá nào với khách."</h4>
+        <p>Chạm vào chủ DN dịch vụ size 5–20 nhân sự. Audit + transparency là giá trị bán cho cấp Founder.</p>
+        <span class="cta">Xem cách audit hội thoại →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">Zalo Ad · Static</div>
+        <h4 class="hook">"Spa của bạn có 1,200 khách — nhưng tháng này chỉ 80 quay lại."</h4>
+        <p>Trực diện numerical pain. Sau đó là solution: journey nhắc lịch tự động → 2.4× retention.</p>
+        <span class="cta">Tăng repeat rate ngay →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">FB · Reels 30s</div>
+        <h4 class="hook">"Cô niềng răng tháng trước — em hỏi cô về quá trình hồi phục, được không?"</h4>
+        <p>Mô phỏng tin nhắn từ Zalo bác sĩ, được Journey gửi tự động. Cảm động + thực tế.</p>
+        <span class="cta">Cá nhân hóa 100% →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">Google Ad · Search</div>
+        <h4 class="hook">"Phần mềm quản lý Zalo cá nhân cho Spa &amp; Clinic"</h4>
+        <p>Bid intent: "quản lý chat Zalo nhân viên", "phần mềm CRM cho spa", "đồng bộ Zalo về CRM".</p>
+        <span class="cta">Dùng thử miễn phí →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">Tiktok · UGC 60s</div>
+        <h4 class="hook">"Tôi mở chuỗi 4 spa — đây là lý do tôi không cho nhân viên dùng Zalo cá nhân nữa."</h4>
+        <p>Founder kể chuyện thật. UGC organic vibe. Ngành Spa/Clinic đang hot trên TikTok.</p>
+        <span class="cta">Xem hệ thống tôi đang dùng →</span>
+      </div>
+      <div class="ad">
+        <div class="platform">FB · Lead form</div>
+        <h4 class="hook">"Nhận checklist 47 điểm: Zalo cá nhân chuyên nghiệp cho ngành dịch vụ."</h4>
+        <p>Lead magnet — tải PDF → enter funnel email/Zalo nurture 7 ngày trước khi pitch demo.</p>
+        <span class="cta">Tải checklist miễn phí →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= CLOSING ========================= -->
+<section class="close">
+  <div class="wrap">
+    <h2>"Bán lẻ đã có Pancake. Dịch vụ — chưa có ai. AppChat làm điều đó."</h2>
+    <p>Đây là vùng trắng cuối cùng của thị trường Omnichannel Việt Nam. AppChat không cạnh tranh với Pancake hay Bizfly — chúng tôi giải bài toán họ chưa từng định giải.</p>
+    <div class="cta">
+      <a href="AppChat Ultimate.html">Xem demo nền tảng →</a>
+      <a href="Feature Audit.html" class="s">Đọc Feature Audit</a>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

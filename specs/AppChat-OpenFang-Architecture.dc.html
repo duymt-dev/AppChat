@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#EEF0F2;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;color:#231F20}
+  a{color:#157A40}a:hover{color:#0F5D30}
+</style>
+</helmet>
+
+<template id="__bundler_thumbnail" data-bg-color="#0F2A1C">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="800" fill="#0F2A1C"/><rect x="200" y="120" width="800" height="90" rx="14" fill="#2DC56A"/><rect x="200" y="240" width="800" height="90" rx="14" fill="#3E7A5A"/><rect x="200" y="360" width="800" height="90" rx="14" fill="#6E48E6"/><rect x="200" y="480" width="800" height="90" rx="14" fill="#3E7A5A"/><rect x="200" y="600" width="800" height="80" rx="14" fill="#28513C"/></svg>
+</template>
+
+<div style="max-width:1440px;margin:0 auto;padding-bottom:90px">
+
+  <!-- HERO -->
+  <div style="position:relative;background:#0F2A1C;color:#fff;padding:58px 44px 50px;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(110% 130% at 90% -10%, rgba(45,197,106,.45) 0%, rgba(21,122,64,.28) 38%, rgba(15,42,28,0) 72%)"></div>
+    <div style="position:relative;max-width:1352px;margin:0 auto">
+      <div style="display:inline-flex;align-items:center;gap:9px;padding:6px 13px 6px 8px;border:1px solid rgba(184,240,220,.3);border-radius:999px;margin-bottom:22px">
+        <span style="width:22px;height:22px;border-radius:6px;background:#2DC56A;display:grid;place-items:center;font-size:12px;font-weight:800;color:#0F2A1C">A</span>
+        <span style="font-size:11.6px;font-weight:700;letter-spacing:.14em;color:#B8F0DC">KIẾN TRÚC GIẢI PHÁP · v1.0 · 23/10/2026</span>
+      </div>
+      <div style="font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.1">AppChat × OpenFang</div>
+      <div style="font-size:20px;font-weight:700;color:#B8F0DC;margin-top:10px">Kiến trúc SaaS đa tenant cho mô hình Doanh nghiệp Một Người</div>
+      <div style="font-size:15px;line-height:1.7;max-width:900px;opacity:.9;margin-top:18px;text-wrap:pretty">AppChat giữ nguyên toàn bộ giao diện và sidebar, đồng thời sở hữu tenant, dữ liệu khách hàng, phân quyền và tính phí. <b>OpenFang</b> được nhúng làm <b>nền tảng đa tác nhân</b> (Multi-Agent Runtime) phía sau: nhiều AI Agents chuyên trách cùng phối hợp, giao việc cho nhau và cùng hoàn thành một nghiệp vụ. Hai bên giao tiếp qua <b>Agent Gateway</b> — một lớp đệm cho phép thay động cơ khác mà không phải sửa sản phẩm.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px">
+        <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:12.6px;font-weight:700">Giữ nguyên sidebar</span>
+        <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:12.6px;font-weight:700">Multi-tenant SaaS</span>
+        <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:12.6px;font-weight:700">Hệ thống đa tác nhân (Multi-Agent)</span>
+        <span style="display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:12.6px;font-weight:700">Tính phí theo user · token · workspace · agent</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:40px 44px 0;max-width:1440px;margin:0 auto;box-sizing:border-box">
+
+  <!-- ===== 1 · KIẾN TRÚC TỔNG THỂ ===== -->
+  <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">1 · KIẾN TRÚC TỔNG THỂ — 7 LỚP</div>
+  <div style="font-size:13.6px;color:#8A9096;margin-top:6px;max-width:960px;line-height:1.55">Đọc từ trên xuống: người dùng và khách hàng đi vào qua giao diện AppChat. Control Plane kiểm soát tenant và tính phí. Agent Gateway chuyển việc xuống OpenFang chạy. Agent gọi ngược lại dịch vụ nghiệp vụ của AppChat để đọc và ghi dữ liệu.</div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+
+    <!-- L1 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#F5F6F7;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9AA0A6">LỚP 1</div><div style="font-size:15px;font-weight:800;margin-top:4px">Điểm chạm</div><div style="font-size:12px;color:#8A9096;margin-top:3px;line-height:1.45">Ai đi vào hệ thống</div></div>
+      <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div><div style="font-size:12px;font-weight:800;color:#157A40;margin-bottom:8px">NGƯỜI VẬN HÀNH (CHỦ DN · NHÂN SỰ)</div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Web App</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Mobile App</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Desktop</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Open API · Webhook</span></div></div>
+        <div><div style="font-size:12px;font-weight:800;color:#157A40;margin-bottom:8px">KHÁCH HÀNG CUỐI (KÊNH)</div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Zalo OA · ZNS</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Facebook · Instagram</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">TikTok Shop</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">WhatsApp · Telegram</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Widget Web</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Email · SMS · Voice</span></div></div>
+      </div>
+    </div>
+
+    <!-- L2 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#157A40;border-radius:12px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#B8F0DC">LỚP 2</div><div style="font-size:15px;font-weight:800;margin-top:4px">Trải nghiệm AppChat</div><div style="font-size:12px;color:#B8F0DC;margin-top:3px;line-height:1.45">Giữ nguyên sidebar</div></div>
+      <div style="background:#fff;border:1.5px solid #2DC56A;border-radius:12px;padding:14px 16px">
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px">
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Tổng quan</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#F3EFFE;font-size:12.8px;font-weight:700;color:#5B3FA8">Trợ lý AI<div style="font-size:11px;font-weight:600;color:#7D66C2;margin-top:2px">Chat · Cowork</div></div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Hộp thư</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Khách hàng<div style="font-size:11px;font-weight:600;color:#3E7A5A;margin-top:2px">7 trang CRM</div></div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Hỗ trợ</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Lịch hẹn</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Marketing</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Gọi điện</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#F3EFFE;font-size:12.8px;font-weight:700;color:#5B3FA8">AI Agents<div style="font-size:11px;font-weight:600;color:#7D66C2;margin-top:2px">quản lý trên OpenFang</div></div>
+          <div style="padding:9px 10px;border-radius:9px;background:#F3EFFE;font-size:12.8px;font-weight:700;color:#5B3FA8">Quy trình<div style="font-size:11px;font-weight:600;color:#7D66C2;margin-top:2px">workflow + Hands</div></div>
+          <div style="padding:9px 10px;border-radius:9px;background:#EDFAF3;font-size:12.8px;font-weight:700;color:#0F5D30">Báo cáo</div>
+          <div style="padding:9px 10px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700;color:#4A5057">Cài đặt · Ví · Nâng cấp</div>
+        </div>
+        <div style="font-size:12.4px;color:#8A9096;margin-top:10px;line-height:1.5">Ô <b style="color:#5B3FA8">tím</b> là module dùng động cơ OpenFang phía sau; ô xanh là module nghiệp vụ AppChat tự quản. Giao diện người dùng không thay đổi.</div>
+      </div>
+    </div>
+
+    <!-- L3 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#0F2A1C;border-radius:12px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#B8F0DC">LỚP 3</div><div style="font-size:15px;font-weight:800;margin-top:4px">Control Plane SaaS</div><div style="font-size:12px;color:#B8F0DC;margin-top:3px;line-height:1.45">AppChat sở hữu</div></div>
+      <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">Tenant &amp; Workspace</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Tạo tenant, nhiều workspace, sơ đồ tổ chức, phòng ban</div></div>
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">Định danh &amp; Phân quyền</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">SSO · OTP Zalo/Email · RBAC theo menu · ma trận quyền</div></div>
+        <div style="border:1.5px solid #2DC56A;border-radius:10px;padding:11px 12px;background:#F6FCF8"><div style="font-size:13.4px;font-weight:800;color:#0F5D30">Billing &amp; Metering</div><div style="font-size:12px;color:#3E7A5A;margin-top:4px;line-height:1.5">Gói · user · token · workspace · agent · ví credit · hoá đơn</div></div>
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">Quota &amp; Rate limit</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Hạn mức theo gói, chặn mềm/cứng, cảnh báo sắp hết token</div></div>
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">Agent Registry</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Danh mục agent mỗi tenant, mẫu, phiên bản, trạng thái</div></div>
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">AI Governance</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Human-in-the-loop, ngưỡng tin cậy, từ cấm, phê duyệt</div></div>
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">SLA · Ca trực · KPI</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Chính sách AI 24/7 và con người theo giờ hành chính</div></div>
+        <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.4px;font-weight:800">Audit &amp; Tuân thủ</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Nhật ký hành động, lưu vết theo tenant, xuất báo cáo</div></div>
+      </div>
+    </div>
+
+    <!-- L4 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#6E48E6;border-radius:12px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#E2D8FF">LỚP 4</div><div style="font-size:15px;font-weight:800;margin-top:4px">Agent Gateway</div><div style="font-size:12px;color:#E2D8FF;margin-top:3px;line-height:1.45">Lớp đệm — thay được động cơ</div></div>
+      <div style="background:#fff;border:1.5px solid #CFC0F0;border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+        <div style="border-radius:10px;padding:11px 12px;background:#F7F4FE"><div style="font-size:13.2px;font-weight:800;color:#5B3FA8">Tenant Context</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Gắn tenant_id, workspace, quyền vào mọi lệnh</div></div>
+        <div style="border-radius:10px;padding:11px 12px;background:#F7F4FE"><div style="font-size:13.2px;font-weight:800;color:#5B3FA8">Agent Router</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Định tuyến việc tới đúng agent, xếp hàng và ưu tiên theo SLA</div></div>
+        <div style="border-radius:10px;padding:11px 12px;background:#F7F4FE"><div style="font-size:13.2px;font-weight:800;color:#5B3FA8">Token Meter</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Đếm token vào/ra mỗi lượt, trừ ví, chặn khi hết hạn mức</div></div>
+        <div style="border-radius:10px;padding:11px 12px;background:#F7F4FE"><div style="font-size:13.2px;font-weight:800;color:#5B3FA8">Channel Normalizer</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Chuẩn hoá tin từ Zalo/TikTok VN — kênh OpenFang chưa có</div></div>
+        <div style="border-radius:10px;padding:11px 12px;background:#F7F4FE"><div style="font-size:13.2px;font-weight:800;color:#5B3FA8">Policy Guard</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Kiểm tra governance trước và sau khi agent hành động</div></div>
+      </div>
+    </div>
+
+    <!-- L5 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#3A2A6E;border-radius:12px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#CFC0F0">LỚP 5</div><div style="font-size:15px;font-weight:800;margin-top:4px">OpenFang Runtime</div><div style="font-size:12px;color:#CFC0F0;margin-top:3px;line-height:1.45">Động cơ chạy tác nhân</div></div>
+      <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px">
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Multi-Agent Orchestrator</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Trợ lý AI phân rã việc, giao cho agent phòng ban, tổng hợp kết quả</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">AI Agents</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Sales · CSKH · Marketing · Vận hành · Tài chính · HR</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Hands (tự chạy)</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Việc theo lịch: nhắc công nợ, tìm lead, báo cáo sáng</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Workflow đa tác nhân</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Chuỗi nhiều agent nối nhau: rẽ nhánh, song song, lặp</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Memory</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Phiên hội thoại, vector — tách riêng mỗi tenant</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Agent-to-Agent (A2A) · MCP</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Agent giao việc cho agent; gọi công cụ và dịch vụ AppChat</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Sandbox WASM</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Cô lập thực thi công cụ, giới hạn tài nguyên</div></div>
+          <div style="border:1px solid #E5E7EB;border-radius:10px;padding:11px 12px"><div style="font-size:13.2px;font-weight:800">Audit trail</div><div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5">Ghi vết từng hành động, đẩy về Control Plane</div></div>
+        </div>
+        <div style="font-size:12.4px;color:#8A9096;margin-top:10px;line-height:1.5"><b style="color:#231F20">Cá nhân:</b> runtime dùng chung (pool), tách theo namespace. <b style="color:#231F20">Doanh nghiệp:</b> runtime riêng cho mỗi tenant.</div>
+      </div>
+    </div>
+
+    <!-- L6 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#F5F6F7;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9AA0A6">LỚP 6</div><div style="font-size:15px;font-weight:800;margin-top:4px">Dịch vụ nghiệp vụ</div><div style="font-size:12px;color:#8A9096;margin-top:3px;line-height:1.45">Nguồn sự thật — mở cho agent qua MCP</div></div>
+      <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px">
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Inbox Service</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">CRM · Liên hệ</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Sản phẩm</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Báo giá · Hợp đồng</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Đơn hàng · Hoá đơn</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Ticket · SLA</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Lịch hẹn</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Marketing · Broadcast</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Tổng đài</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Loyalty</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Ví · Thanh toán QR</span>
+        <span style="padding:8px 12px;border-radius:9px;background:#F5F6F7;font-size:12.8px;font-weight:700">Thông báo</span>
+      </div>
+    </div>
+
+    <!-- L7 -->
+    <div style="display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch">
+      <div style="background:#F5F6F7;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#9AA0A6">LỚP 7</div><div style="font-size:15px;font-weight:800;margin-top:4px">Dữ liệu &amp; Mô hình</div><div style="font-size:12px;color:#8A9096;margin-top:3px;line-height:1.45">Tách theo tenant</div></div>
+      <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+        <div><div style="font-size:12px;font-weight:800;color:#157A40;margin-bottom:8px">DỮ LIỆU</div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">CDP · hồ sơ 360</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">PostgreSQL (RLS theo tenant)</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Vector store / tenant</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Object storage (AppChat Cloud)</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Event bus</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Kho phân tích</span></div></div>
+        <div><div style="font-size:12px;font-weight:800;color:#157A40;margin-bottom:8px">MÔ HÌNH AI (qua LLM Router)</div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Claude</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Gemini</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">GPT</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">DeepSeek</span><span style="padding:5px 10px;border-radius:7px;background:#F5F6F7;font-size:12.6px;font-weight:600">Mô hình nội bộ (tuỳ chọn)</span></div><div style="font-size:12px;color:#8A9096;margin-top:8px">Chọn mô hình theo gói và độ khó công việc để tối ưu chi phí token.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2 · LUỒNG XỬ LÝ ===== -->
+  <div style="margin-top:46px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">2 · LUỒNG XỬ LÝ MỘT TIN NHẮN — ĐA TÁC NHÂN PHỐI HỢP</div>
+  <div style="font-size:13.6px;color:#8A9096;margin-top:6px;max-width:960px;line-height:1.55">Ví dụ: khách nhắn Zalo hỏi giá và muốn đặt lịch. Orchestrator tách việc cho hai agent chuyên trách, hai agent phối hợp và trả về một câu trả lời thống nhất. Mọi bước đều đếm token và trừ vào ví của tenant.</div>
+  <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:20px 22px;margin-top:16px">
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px"><div style="font-size:11.6px;font-weight:800;color:#9AA0A6">01</div><div style="font-size:13.8px;font-weight:800;margin-top:4px">Tin đến</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Zalo → Channel Normalizer chuẩn hoá → gắn tenant</div></div>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px"><div style="font-size:11.6px;font-weight:800;color:#9AA0A6">02</div><div style="font-size:13.8px;font-weight:800;margin-top:4px">Kiểm tra quota</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Còn token? còn slot agent? Hết thì chuyển cho người</div></div>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px;background:#F7F4FE;border-color:#DACCF5"><div style="font-size:11.6px;font-weight:800;color:#7D66C2">03</div><div style="font-size:13.8px;font-weight:800;margin-top:4px;color:#5B3FA8">Orchestrator phân việc</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Tách 2 ý định → giao cho 2 agent chuyên trách</div></div>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px;background:#F7F4FE;border-color:#DACCF5"><div style="font-size:11.6px;font-weight:800;color:#7D66C2">04</div><div style="font-size:13.8px;font-weight:800;margin-top:4px;color:#5B3FA8">Sales AI ⇄ Booking AI</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Phối hợp qua A2A: báo giá xong chuyển tiếp đặt lịch</div></div>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px"><div style="font-size:11.6px;font-weight:800;color:#9AA0A6">05</div><div style="font-size:13.8px;font-weight:800;margin-top:4px">Policy Guard</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Tin cậy &lt; 70% hoặc từ cấm → chờ người duyệt</div></div>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px"><div style="font-size:11.6px;font-weight:800;color:#9AA0A6">06</div><div style="font-size:13.8px;font-weight:800;margin-top:4px">Ghi nghiệp vụ</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Tạo báo giá + lịch hẹn trong CRM (nguồn sự thật)</div></div>
+      <div style="border:1px solid #E5E7EB;border-radius:10px;padding:13px 14px"><div style="font-size:11.6px;font-weight:800;color:#9AA0A6">07</div><div style="font-size:13.8px;font-weight:800;margin-top:4px">Trả lời khách</div><div style="font-size:12.4px;color:#6B7280;margin-top:4px;line-height:1.5">Gộp 2 kết quả thành 1 tin, gửi lại Zalo</div></div>
+      <div style="border:1.5px solid #2DC56A;border-radius:10px;padding:13px 14px;background:#F6FCF8"><div style="font-size:11.6px;font-weight:800;color:#3E7A5A">08</div><div style="font-size:13.8px;font-weight:800;margin-top:4px;color:#0F5D30">Tính phí &amp; ghi vết</div><div style="font-size:12.4px;color:#3E7A5A;margin-top:4px;line-height:1.5">Token Meter trừ ví · Audit · KPI agent cập nhật</div></div>
+    </div>
+  </div>
+
+  <!-- ===== 3 · TÍNH PHÍ ===== -->
+  <div style="margin-top:46px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">3 · MÔ HÌNH TÍNH PHÍ &amp; ĐO LƯỜNG</div>
+  <div style="font-size:13.6px;color:#8A9096;margin-top:6px;max-width:960px;line-height:1.55">Billing &amp; Metering nằm ở Control Plane của AppChat, không nằm trong OpenFang. Nhờ vậy giá bán, gói và ví độc lập với động cơ bên dưới.</div>
+  <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;overflow:hidden;margin-top:16px">
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:11px 18px;background:#FAFBFB;border-bottom:1px solid #EEF0F2;font-size:11.4px;font-weight:800;letter-spacing:.06em;color:#9AA0A6"><span>KHOẢN THU</span><span>ĐO BẰNG GÌ</span><span>ĐIỂM ĐO TRONG KIẾN TRÚC</span><span>KHI VƯỢT HẠN MỨC</span></div>
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;color:#4A5057;line-height:1.55"><b style="color:#231F20">Gói thuê bao</b><span>Cá nhân (Miễn phí · Cá nhân · Pro · Max) · Doanh nghiệp (Team · Business · Ultimate · Enterprise)</span><span>Tenant &amp; Workspace → quyền tính năng</span><span>Khoá tính năng ngoài gói</span></div>
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;color:#4A5057;line-height:1.55"><b style="color:#231F20">Người dùng</b><span>Số user hoạt động / tháng</span><span>Định danh &amp; Phân quyền</span><span>Mời thêm user → mua thêm</span></div>
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;color:#4A5057;line-height:1.55"><b style="color:#231F20">Token AI</b><span>Token vào + ra mỗi lượt, quy đổi credit theo mô hình</span><span>Token Meter tại Agent Gateway</span><span>Cảnh báo 80% · chặn 100% · nạp ví</span></div>
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;color:#4A5057;line-height:1.55"><b style="color:#231F20">Workspace</b><span>Số workspace / tenant</span><span>Tenant &amp; Workspace</span><span>Mua thêm workspace</span></div>
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;color:#4A5057;line-height:1.55"><b style="color:#231F20">AI Agents</b><span>Số AI Agents đang hoạt động trong tenant</span><span>Agent Registry + Agent Router</span><span>Agent mới ở trạng thái chờ · mua slot</span></div>
+    <div style="display:grid;grid-template-columns:200px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1fr);gap:12px;padding:13px 18px;font-size:13.2px;color:#4A5057;line-height:1.55"><b style="color:#231F20">Dịch vụ gia tăng</b><span>Tin ZNS · SMS · Email · phút gọi · dung lượng lưu trữ</span><span>Dịch vụ nghiệp vụ (Lớp 6)</span><span>Trừ ví theo đơn giá</span></div>
+  </div>
+
+  <!-- ===== 4 · CÔ LẬP TENANT ===== -->
+  <div style="margin-top:46px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">4 · CÔ LẬP TENANT — HAI MÔ HÌNH TRIỂN KHAI</div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px">
+    <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:20px 22px">
+      <div style="font-size:11.6px;font-weight:800;letter-spacing:.08em;color:#157A40">GÓI CÁ NHÂN · POOLED</div>
+      <div style="font-size:17px;font-weight:800;margin-top:6px">Runtime dùng chung, tách theo namespace</div>
+      <div style="font-size:13.2px;color:#4A5057;line-height:1.75;margin-top:10px">• Nhiều tenant chạy chung một cụm OpenFang<br>• Memory và vector tách theo <code>tenant_id</code><br>• Giới hạn số agent hoạt động theo gói<br>• Chi phí hạ tầng thấp → giá gói rẻ</div>
+    </div>
+    <div style="background:#fff;border:1.5px solid #2DC56A;border-radius:12px;padding:20px 22px">
+      <div style="font-size:11.6px;font-weight:800;letter-spacing:.08em;color:#157A40">GÓI DOANH NGHIỆP · DEDICATED</div>
+      <div style="font-size:17px;font-weight:800;margin-top:6px">Runtime riêng cho từng tenant</div>
+      <div style="font-size:13.2px;color:#4A5057;line-height:1.75;margin-top:10px">• Mỗi tenant một instance OpenFang riêng<br>• Tự mở rộng theo số lượng agent và khối lượng công việc<br>• Có thể đặt tại hạ tầng khách (Enterprise)<br>• Cam kết SLA và cô lập dữ liệu tuyệt đối</div>
+    </div>
+  </div>
+
+  <!-- ===== 5 · PHÂN VAI ===== -->
+  <div style="margin-top:46px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">5 · AI LÀM GÌ — RANH GIỚI APPCHAT VÀ OPENFANG</div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px">
+    <div style="background:#fff;border:1px solid #DDE1E4;border-left:4px solid #157A40;border-radius:12px;padding:20px 22px">
+      <div style="font-size:15px;font-weight:800;color:#0F5D30">AppChat sở hữu</div>
+      <div style="font-size:13.2px;color:#4A5057;line-height:1.85;margin-top:10px">Toàn bộ giao diện &amp; sidebar · tenant, user, phân quyền · dữ liệu khách hàng &amp; nghiệp vụ · gói, ví, tính phí · governance &amp; SLA · kênh Việt Nam (Zalo, TikTok Shop, ZNS) · thương hiệu và hợp đồng với khách</div>
+    </div>
+    <div style="background:#fff;border:1px solid #DDE1E4;border-left:4px solid #6E48E6;border-radius:12px;padding:20px 22px">
+      <div style="font-size:15px;font-weight:800;color:#5B3FA8">OpenFang đảm nhận</div>
+      <div style="font-size:13.2px;color:#4A5057;line-height:1.85;margin-top:10px">Chạy AI Agents và Hands · điều phối nhiều agent · workflow nhiều bước · bộ nhớ hội thoại · gọi công cụ/MCP · sandbox thực thi · định tuyến mô hình AI · kênh quốc tế (WhatsApp, Telegram, Slack…)</div>
+    </div>
+  </div>
+
+  <!-- ===== 6 · RỦI RO ===== -->
+  <div style="margin-top:46px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">6 · RỦI RO &amp; CÁCH GIẢM THIỂU</div>
+  <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;overflow:hidden;margin-top:16px">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;line-height:1.55"><b>OpenFang mới ở v0.1.0</b><span style="color:#4A5057">Khoá phiên bản, tự duy trì bản fork; Agent Gateway giữ hợp đồng API ổn định để thay động cơ khác khi cần</span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;line-height:1.55"><b>OpenFang thiết kế cho một người dùng, chưa có sẵn đa tenant</b><span style="color:#4A5057">AppChat tự làm cô lập: namespace (gói cá nhân), instance riêng (doanh nghiệp), RLS ở cơ sở dữ liệu</span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;line-height:1.55"><b>Thiếu kênh Việt Nam</b><span style="color:#4A5057">Channel Normalizer ở Gateway xử lý Zalo OA/ZNS, TikTok Shop VN trước khi chuyển cho agent</span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;padding:13px 18px;border-bottom:1px solid #F3F4F6;font-size:13.2px;line-height:1.55"><b>Chi phí token tăng nhanh khi nhiều agent phối hợp</b><span style="color:#4A5057">Đo token tại Gateway trước khi gọi mô hình; hạn mức agent và token theo gói; dùng mô hình rẻ cho việc đơn giản</span></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;padding:13px 18px;font-size:13.2px;line-height:1.55"><b>Agent tự hành động sai</b><span style="color:#4A5057">Policy Guard trước/sau mỗi hành động, human-in-the-loop khi tin cậy thấp, audit đầy đủ</span></div>
+  </div>
+
+  <!-- ===== 7 · LỘ TRÌNH ===== -->
+  <div style="margin-top:46px;font-size:13px;font-weight:700;letter-spacing:.14em;color:#9AA0A6">7 · LỘ TRÌNH TRIỂN KHAI ĐỀ XUẤT</div>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px">
+    <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:20px 22px"><div style="font-size:11.6px;font-weight:800;letter-spacing:.08em;color:#9AA0A6">GIAI ĐOẠN 1 · 4 TUẦN</div><div style="font-size:15.4px;font-weight:800;margin-top:6px">Thử nghiệm</div><div style="font-size:13px;color:#4A5057;line-height:1.7;margin-top:8px">Dựng Agent Gateway tối thiểu · chạy 2 agent (Sales, CSKH) cho 1 tenant nội bộ · đo token, độ trễ, độ ổn định</div></div>
+    <div style="background:#fff;border:1px solid #DDE1E4;border-radius:12px;padding:20px 22px"><div style="font-size:11.6px;font-weight:800;letter-spacing:.08em;color:#9AA0A6">GIAI ĐOẠN 2 · 8 TUẦN</div><div style="font-size:15.4px;font-weight:800;margin-top:6px">Đa tenant</div><div style="font-size:13px;color:#4A5057;line-height:1.7;margin-top:8px">Namespace cho gói cá nhân · Token Meter nối ví · Policy Guard · kênh Zalo qua Normalizer · Hands theo lịch</div></div>
+    <div style="background:#fff;border:1.5px solid #2DC56A;border-radius:12px;padding:20px 22px"><div style="font-size:11.6px;font-weight:800;letter-spacing:.08em;color:#157A40">GIAI ĐOẠN 3 · 12 TUẦN</div><div style="font-size:15.4px;font-weight:800;margin-top:6px">Thương mại hoá</div><div style="font-size:13px;color:#4A5057;line-height:1.7;margin-top:8px">Runtime riêng cho doanh nghiệp · tính phí theo số AI Agents · SLA · mở cho toàn bộ khách hàng</div></div>
+  </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

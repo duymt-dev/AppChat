@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AppChat · Master Marketing Strategy v3.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--pr:#2DC56A;--pr-d:#1F9C4F;--pr-d2:#157A40;--pr-soft:#E8F8EE;--pr-bg:#F2FBF6;--ink:#0E1B13;--l1:#1A2B20;--l2:#5B6B61;--l3:#8A988F;--line:#E4EBE6;--line2:#EFF3F0;--bg:#F7FAF8;--card:#FFFFFF;--info:#2B9EF3;--warn:#F5A830;--risk:#E33F3F;--purple:#8B5CF6;--mono:'JetBrains Mono',ui-monospace,monospace;}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--l1);line-height:1.62;-webkit-font-smoothing:antialiased}
+.doc{max-width:980px;margin:0 auto;padding:0 0 100px}
+.cover{background:linear-gradient(135deg,#06250F,#0E1B13 62%);color:#fff;padding:66px 56px 54px;position:relative;overflow:hidden}
+.cover::after{content:'';position:absolute;right:-110px;top:-110px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(45,197,106,.22),transparent 70%)}
+.brandrow{display:flex;align-items:center;gap:11px;margin-bottom:28px}
+.bmark{width:38px;height:38px;border-radius:10px;background:var(--pr);display:grid;place-items:center;font-weight:800;color:#06250F;font-size:19px}
+.btxt{font-weight:800;font-size:19px;letter-spacing:-.02em}.btxt span{color:var(--pr)}
+.dockind{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;background:rgba(45,197,106,.16);border:1px solid rgba(45,197,106,.3);color:#7EE2A4;font-size:12px;font-weight:600;margin-bottom:20px}
+.cover h1{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:15px;max-width:740px}.cover h1 span{color:var(--pr)}
+.cover .sub{font-size:16px;color:rgba(255,255,255,.68);max-width:680px;line-height:1.6}
+.cover .vmeta{display:flex;gap:30px;margin-top:34px;position:relative;z-index:1;font-size:12.5px;flex-wrap:wrap}
+.cover .vmeta b{display:block;color:var(--pr);font-size:15px;font-weight:700;margin-bottom:1px}.cover .vmeta span{color:rgba(255,255,255,.55)}
+.toc-mini{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.toc-mini a{font-size:12px;padding:5px 11px;border-radius:8px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);font-weight:600;text-decoration:none}
+.toc-mini a:hover{background:var(--pr);color:#06250F}
+section{padding:46px 56px;border-bottom:1px solid var(--line);background:var(--card)}
+.kicker{font-family:var(--mono);font-size:12px;color:var(--pr-d);font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+h2{font-size:26px;font-weight:800;letter-spacing:-.025em;margin:6px 0 8px}
+.sec-d{font-size:14.5px;color:var(--l2);max-width:720px;margin-bottom:20px}
+h3{font-size:17px;font-weight:700;margin:24px 0 10px;letter-spacing:-.01em}
+h4{font-size:13.5px;font-weight:700;margin-bottom:8px}
+p{font-size:14.5px;color:var(--l1);margin-bottom:13px}.muted{color:var(--l2)}
+.lead{font-size:16px;color:var(--l2);line-height:1.66;margin-bottom:10px}.lead b{color:var(--l1)}
+.callout{padding:17px 19px;border-radius:13px;font-size:13.5px;line-height:1.62;display:flex;gap:12px;margin:16px 0}
+.callout.pr{background:var(--pr-bg);border:1px solid var(--pr-soft);color:var(--pr-d2)}
+.callout.info{background:#EFF7FF;border:1px solid #CFE6FB;color:#0B4F8A}
+.callout.warn{background:#FFF8EC;border:1px solid #F8E3B8;color:#8A5A0C}
+.callout.dark{background:#0E1B13;color:#fff;border:none}.callout.dark b{color:var(--pr)}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:10px;margin:10px 0}
+ul.clean li{font-size:14px;padding-left:24px;position:relative;line-height:1.56}
+ul.clean li::before{content:'✓';position:absolute;left:0;top:0;color:var(--pr-d);font-weight:800}ul.clean li b{font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:820px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.stat{border:1px solid var(--line);border-radius:13px;padding:18px}.stat .v{font-size:27px;font-weight:800;letter-spacing:-.02em;color:var(--pr-d2)}.stat .l{font-size:12.5px;color:var(--l2);margin-top:3px;line-height:1.4}
+.panel{border:1px solid var(--line);border-radius:13px;padding:18px}.panel p{font-size:13px;color:var(--l2);margin:0;line-height:1.55}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--l3);padding:10px 11px;border-bottom:1px solid var(--line);background:var(--line2)}
+td{padding:11px;border-bottom:1px solid var(--line2);vertical-align:top}td b{font-weight:700}
+.cmp td:first-child{font-weight:700;background:var(--pr-bg)}
+.cmp .ap{background:var(--pr-soft);color:var(--pr-d2);font-weight:700}
+.house{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.house .roof{background:linear-gradient(135deg,#0E1B13,#157A40);color:#fff;padding:18px 20px;text-align:center}
+.house .roof .big{font-size:18px;font-weight:800}.house .roof .sm{font-size:12px;opacity:.7;margin-top:3px}
+.house .cols{display:grid;grid-template-columns:repeat(4,1fr)}
+.house .col{padding:15px;border-right:1px solid var(--line);font-size:12.5px}.house .col:last-child{border-right:none}
+.house .col .t{font-weight:700;font-size:13px;margin-bottom:6px;color:var(--pr-d2)}.house .col .p{color:var(--l2);line-height:1.5}
+.house .base{background:var(--line2);padding:12px 20px;font-size:12px;color:var(--l2);text-align:center;font-weight:600}
+.fn{border:1px solid var(--line);border-radius:13px;padding:15px;position:relative;overflow:hidden}
+.fn::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+.fn.f1::before{background:#2B9EF3}.fn.f2::before{background:#8B5CF6}.fn.f3::before{background:#F5A830}.fn.f4::before{background:#2DC56A}.fn.f5::before{background:#EC4899}.fn.f6::before{background:#0E7490}
+.fn .s{font-family:var(--mono);font-size:10px;font-weight:700}.fn h4{font-size:13.5px;margin:5px 0}.fn p{font-size:12px;color:var(--l2);margin:0 0 7px;line-height:1.45}.fn .m{font-size:10.5px;color:var(--pr-d2);font-weight:700;background:var(--pr-soft);padding:2px 7px;border-radius:6px}
+.tree{display:flex;flex-direction:column;gap:7px}.tree .node{display:flex;align-items:center;gap:10px;font-size:12.5px}.tree .node .b{height:25px;border-radius:6px;display:flex;align-items:center;padding:0 11px;font-weight:700;color:#fff;font-size:11.5px}
+.persona{border:1px solid var(--line);border-radius:13px;padding:15px}.persona h4{font-size:13.5px;margin-bottom:3px}.persona .role{font-size:10.5px;color:var(--l3);margin-bottom:8px}.persona .r{font-size:11.5px;margin-bottom:4px;color:var(--l2)}.persona .r b{color:var(--l1)}
+.risk{border:1px solid var(--line);border-radius:12px;padding:14px;border-left:3px solid var(--warn)}.risk h4{font-size:13px}.risk p{font-size:12px;color:var(--l2);margin:4px 0 0}
+.src-list{font-size:12px;color:var(--l2);line-height:1.7}.src-list a{color:var(--pr-d);word-break:break-all}
+.quote{font-size:18px;font-weight:600;line-height:1.5;padding:14px 0 14px 20px;border-left:3px solid var(--pr);margin:14px 0}
+.final{background:var(--pr-bg)}
+.frame{border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 22px 46px -22px rgba(14,27,19,.4);background:#fff;margin:8px 0}
+.frame .bar{display:flex;align-items:center;gap:7px;padding:9px 13px;background:#0E1B13}
+.frame .dot{width:10px;height:10px;border-radius:50%}.frame .dot.r{background:#FF5F57}.frame .dot.y{background:#FEBC2E}.frame .dot.g{background:#28C840}
+.frame .url{margin-left:10px;flex:1;background:#1c2c22;color:#8A988F;font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:6px}
+.frame img{width:100%;display:block}
+.cap{font-size:12px;color:var(--l3);text-align:center;margin-top:9px;font-style:italic}
+.svgwrap{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff;margin:8px 0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--l2)}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+.ph{color:#8A5A0C;font-weight:600}
+.t-up{background:#E8F8EE;color:#157A40}
+.tl .row{display:grid;grid-template-columns:60px 1fr;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line);align-items:start}
+.tl .q{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--pr-d)}
+.tl .row b{font-size:13.5px;font-weight:700}.tl .row p{font-size:12.5px;color:var(--l2);margin:3px 0 0;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="cover">
+    <div class="brandrow"><div class="bmark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfAAAAHwCAYAAABZrD3mAABP4ElEQVR4nO3de3xU5b0v/s9aSSaTmcxMJglDCCGJAQyEi8FNBeyuSHs8nKO1Wutp2VL1lLIVtBt+e2vjryqn2ype6m23Xlp77AUVL1VbysUbVRQVBVSQ+/0OxoAkgRLCJVnnj8yaWTOZJHNZa551+bxfL1symcszk2Q+833Wdz0PQERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERKmQRA+AqC+NbU0FAHCyo71tz4kDoodjCt5cDyo95R7R4zCLMk/opOgxEGUbA5yEa2xrKlDDeeuxXWg9fQzrWrag5XSr6KERWdJFoXGG3O/wwFD48ryo9lagIMft4QcnsRjglHWrjqxVdhzbjY2t27C2eZPo4RBRBopcAYwuGoYLSusRyi/BiGAtcyVL+EKT4VYdWassa1yB5U0rRQ+FiLLkotA4DA8MxaiiWpzjq2TWGIAvKulu9/F9ykeHP8WSQ8s4DU5EAIBqbwW+3m8szgvWsUrXCV9E0oUa2vP3LBA9FCKygPpgHcaVns8KPQN80SgjC/cvVV7au4iVNhGlrcgVwGXlk1idp4gvFKVsY/NWZfHBt3lMm4gMcXnFJfhGv68xzPvAF4eSturIWmXezpfBc7GJKFsur7gEkwdcxGn2BPiCUJ+WNa5Qnt7xIqfJiUiYIlcAP6i6HN8ZdAlzK4wvBPWIwU1EZlQfrMM11Vc6ford0U+eEtt9fJ/y0KanOFVORKZW7a3A1VWXYVLZhY7MMkc+aerZAxueVNicRkRWM7X6SlxT811HZZqjniz1bFnjCuWhTU+JHgYRUUacFOSOeJLUs8a2poK71/+Ku3wRka1Mrb4S3yz7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" style="width:100%;height:100%;object-fit:contain" alt="AppChat"></div><div class="btxt">App<span>Chat</span></div></div>
+    <div class="dockind"><span style="width:7px;height:7px;border-radius:4px;background:#2DC56A"></span> Master Document · v3.3 · Visual Edition</div>
+    <h1><span>Master Marketing Strategy</span> — biến mỗi cuộc trò chuyện thành doanh thu</h1>
+    <div class="sub">Tài liệu marketing tổng thể cho AppChat · Nền tảng One-Person Company (OPC). Insight thị trường, định vị cạnh tranh với 11 nền tảng (có dẫn nguồn), messaging, funnel, ICP, GTM 90 ngày, KPI &amp; budget.</div>
+    <div class="vmeta">
+      <div><b>v3.3</b><span>Visual Edition</span></div>
+      <div><b>29/05/2026</b><span>Cập nhật</span></div>
+      <div><b>20 sections</b><span>Phương án A</span></div>
+      <div><b>Investor · Partner · Customer · Internal</b><span>Đối tượng</span></div>
+    </div>
+    <div class="toc-mini">
+      <a href="#exec">Summary</a><a href="#tam">TAM/SAM/SOM</a><a href="#insight">Insight</a><a href="#compare">So sánh 11 nền tảng</a>
+      <a href="#position">Positioning 2×2</a><a href="#idea">Messaging House</a><a href="#icp">ICP &amp; Persona</a><a href="#journey">Customer Journey</a>
+      <a href="#funnel">Funnel AAARRR</a><a href="#pillar">Content Pillars</a><a href="#playbook">Demand-gen</a><a href="#90day">90-day Plan</a>
+      <a href="#econ">Channel Economics</a><a href="#sla">Mkt–Sales SLA</a><a href="#stack">Martech</a><a href="#proof">Proof</a>
+      <a href="#kpi">KPI Tree</a><a href="#budget">Budget Scenario</a><a href="#risk">Risk</a><a href="#sources">Nguồn</a>
+    </div>
+  </div>
+
+  <!-- 1 EXEC -->
+  <section id="exec">
+    <div class="kicker">01 — Executive Summary</div>
+    <h2>Tóm tắt điều hành</h2>
+    <p class="lead">Thị trường có hàng triệu doanh nghiệp bán &amp; chăm sóc khách trên nhiều kênh social nhưng <b>công cụ phân mảnh, dữ liệu rời rạc, phản hồi chậm</b>. AppChat giải bằng nền tảng AI Agent hợp nhất. Marketing biến định vị này thành nhận biết, nhu cầu &amp; pipeline đo lường được — với câu chuyện thị trường nhất quán, có bằng chứng.</p>
+    <div class="callout pr" style="margin-top:14px"><span>◆</span><div><b>Chủ đề "Doanh nghiệp Một Người" · Brand Promise:</b> AppChat giúp mỗi người <b>xây dựng, vận hành và phát triển doanh nghiệp bằng AI</b>. "Một người" là cách vận hành — không phải quy mô nhân sự; khách hàng là doanh nghiệp B2B (SME).</div></div>
+    <div class="grid4" style="margin:18px 0 6px">
+      <div class="stat"><div class="v">5.000<span style="font-size:15px">+</span></div><div class="l">DN mục tiêu năm đầu (beachhead SMB đa kênh)</div></div>
+      <div class="stat"><div class="v">&lt;10′</div><div class="l">Time-to-value mục tiêu</div></div>
+      <div class="stat"><div class="v">3×</div><div class="l">Mục tiêu MQL→SQL vs baseline</div></div>
+      <div class="stat"><div class="v">≤12m</div><div class="l">CAC payback mục tiêu</div></div>
+    </div>
+    <div class="callout dark"><span>◆</span><div><b>Big Idea:</b> "Mọi cuộc trò chuyện đều có thể thành doanh thu." Marketing không bán phần mềm chat — chứng minh AI Agents biến chat đa kênh thành tăng trưởng kinh doanh.</div></div>
+  </section>
+
+  <!-- 2 TAM -->
+  <section id="tam">
+    <div class="kicker">02 — Market Sizing</div>
+    <h2>TAM / SAM / SOM</h2>
+    <p class="sec-d">Khung định cỡ thị trường. <b>Con số dưới đây là mô hình ước lượng nội bộ cần thay bằng số liệu nghiên cứu chính thức trước khi dùng đối ngoại</b> — khung tư duy là phần quan trọng.</p>
+    <div class="grid3">
+      <div class="panel"><h4>TAM — Tổng thị trường</h4><p>Toàn bộ DN dùng hội thoại social để bán &amp; CSKH tại Đông Nam Á (conversational commerce). <i>[cần số liệu nguồn]</i></p></div>
+      <div class="panel"><h4>SAM — Thị trường phục vụ được</h4><p>DN SMB → Enterprise tại VN + ĐNÁ bán đa kênh social, có ngân sách phần mềm. <i>[cần số liệu nguồn]</i></p></div>
+      <div class="panel"><h4>SOM — Thị trường giành được</h4><p>Beachhead SMB đa kênh VN trong 24 tháng đầu — mục tiêu 5.000+ DN active.</p></div>
+    </div>
+    <div class="callout warn"><span>⚠</span><div><b>Nguyên tắc không bịa số:</b> mọi con số thị trường phải dẫn nguồn (báo cáo ngành, hiệp hội, nhà phân tích). Tài liệu này để trống chỗ cần số liệu thay vì điền số giả.</div></div>
+    <div class="svgwrap" style="margin-top:16px">
+      <svg viewBox="0 0 760 210" width="100%" role="img" aria-label="Market growth">
+        <g font-family="Plus Jakarta Sans">
+          <text x="20" y="20" font-size="12.5" font-weight="700" fill="#1A2B20">Conversational commerce — xu hướng tăng trưởng (minh hoạ định tính)</text>
+          <polyline fill="none" stroke="#2DC56A" stroke-width="3" points="40,165 180,148 320,118 460,86 600,52 720,30"/>
+          <polygon fill="#2DC56A" opacity=".09" points="40,165 180,148 320,118 460,86 600,52 720,30 720,185 40,185"/>
+          <g font-size="11" fill="#5B6B61" text-anchor="middle">
+            <circle cx="40" cy="165" r="4" fill="#2DC56A"/><text x="40" y="200">2023</text>
+            <circle cx="180" cy="148" r="4" fill="#2DC56A"/><text x="180" y="200">2024</text>
+            <circle cx="320" cy="118" r="4" fill="#2DC56A"/><text x="320" y="200">2025</text>
+            <circle cx="460" cy="86" r="4" fill="#2DC56A"/><text x="460" y="200">2026</text>
+            <circle cx="600" cy="52" r="4" fill="#2DC56A"/><text x="600" y="200">2027</text>
+            <circle cx="720" cy="30" r="5" fill="#157A40"/><text x="720" y="200" font-weight="700" fill="#157A40">2028</text>
+          </g>
+        </g>
+      </svg>
+      <div class="legend"><span><i style="background:#2DC56A"></i>Quy mô thị trường (hướng tăng)</span><span style="color:#8A5A0C">⚠ Hình minh hoạ — thay bằng số nghiên cứu trước khi dùng đối ngoại</span></div>
+    </div>
+  </section>
+
+  <!-- 3 INSIGHT -->
+  <section id="insight">
+    <div class="kicker">03 — Market Insight</div>
+    <h2>Insight &amp; nỗi đau khách hàng</h2>
+    <div class="grid3">
+      <div class="panel"><h4>😵 Phân mảnh kênh</h4><p>DN bán trên nhiều kênh (Facebook, Zalo, TikTok, Shopee…), mỗi kênh một inbox — tin rơi rớt, phản hồi chậm, mất đơn.</p></div>
+      <div class="panel"><h4>🧩 Công cụ chắp vá</h4><p>Ghép inbox + CRM + chatbot + broadcast + ticket; dữ liệu không liên thông, chi phí cộng dồn.</p></div>
+      <div class="panel"><h4>🐢 Thiếu tự động hoá AI</h4><p>Phần lớn trả lời thủ công; chưa có AI phân luồng, scoring hay gợi ý chốt.</p></div>
+    </div>
+    <div class="quote">"Khách hỏi giá lúc 22h, sáng mai mới trả lời thì khách đã mua chỗ khác."</div>
+  </section>
+
+  <!-- 4 COMPARE 11 -->
+  <section id="compare">
+    <div class="kicker">04 — Competitive Landscape</div>
+    <h2>So sánh AppChat với 11 nền tảng</h2>
+    <p class="sec-d">So sánh theo <b>tiêu chí định vị/năng lực công khai</b>. Để tuân thủ "không bịa số liệu", bảng chỉ nêu dữ kiện kiểm chứng được; giá &amp; con số thay đổi theo thời gian — xem mục Nguồn.</p>
+    <div class="callout info"><span>ℹ</span><div>Nhóm <b>quốc tế</b> (Respond.io, SleekFlow, Wati, Bird, Trengo, ManyChat) mạnh omnichannel/automation, đa phần tính theo USD &amp; contact/seat. Nhóm <b>Việt Nam</b> (Haravan, Pancake, Smax, Fchat, Salework) mạnh bán hàng social + sàn TMĐT + chốt đơn/livestream, giá VND dễ tiếp cận.</div></div>
+    <div style="overflow-x:auto">
+    <table class="cmp">
+      <tr><th>Nền tảng</th><th>Trọng tâm</th><th>AI / Automation</th><th>CRM / Pipeline</th><th>Thị trường &amp; giá</th></tr>
+      <tr class="ap"><td>AppChat</td><td class="ap">AI Agents vận hành DN Một Người — Sales · Mkt · Service · Ops</td><td class="ap">AI Agents end-to-end: phân luồng, scoring, gợi ý, workflow</td><td class="ap">CRM 360° + pipeline tích hợp sẵn</td><td class="ap">VN + ĐNÁ · Tiered SaaS + usage</td></tr>
+      <tr><td>Respond.io</td><td>Omnichannel messaging / conversation mgmt</td><td>AI Agents, workflow automation, broadcast <sup>[1][2]</sup></td><td>Lifecycle inbox + CRM integration <sup>[1]</sup></td><td>Toàn cầu (HQ Singapore) · Starter $79 / Growth $159 / Advanced $279 + Enterprise <sup>[3]</sup></td></tr>
+      <tr><td>SleekFlow</td><td>Social commerce / omnichannel messaging</td><td>AI + flow automation, broadcast</td><td>CRM contact mgmt</td><td>Châu Á · theo gói + contact <i>(kiểm chứng tại nguồn)</i></td></tr>
+      <tr><td>Wati</td><td>WhatsApp Business API tập trung</td><td>Chatbot/no-code automation, broadcast</td><td>Contact mgmt nhẹ</td><td>Toàn cầu · theo gói WhatsApp <i>(kiểm chứng tại nguồn)</i></td></tr>
+      <tr><td>Bird (MessageBird)</td><td>CPaaS / omnichannel (SMS, WA, Email)</td><td>Automation, AI, flows quy mô lớn</td><td>CRM/marketing cloud</td><td>Toàn cầu · usage-based/CPaaS</td></tr>
+      <tr><td>Trengo</td><td>Team inbox đa kênh / helpdesk</td><td>AI HelpMate, automation, rules</td><td>Contact + integration</td><td>Châu Âu/toàn cầu · theo seat <i>(kiểm chứng)</i></td></tr>
+      <tr><td>ManyChat</td><td>Marketing automation chatbot (IG/FB/WA)</td><td>Chatbot flow, broadcast marketing</td><td>Tag/segment nhẹ</td><td>Toàn cầu · Free + Pro theo contact</td></tr>
+      <tr><td>Haravan</td><td>Bán hàng đa kênh + website TMĐT (VN)</td><td>Trợ lý AI tư vấn, chatbot, broadcast Zalo/Email/FB <sup>[4][5]</sup></td><td>Hồ sơ KH 360°, phân khúc tự động <sup>[4]</sup></td><td>VN · từ ~300.000đ/tháng <sup>[5]</sup></td></tr>
+      <tr><td>Pancake</td><td>All-in-one business messaging + bán social/sàn (VN)</td><td>Bot Cake tự động trả lời FB/IG/WA/Zalo OA <sup>[6][7]</sup></td><td>Quản lý đơn + KH đa kênh; hệ POS/Store/Webcake <sup>[6]</sup></td><td>VN · theo gói VND <i>(kiểm chứng)</i></td></tr>
+      <tr><td>Smax (Smax.ai)</td><td>Chatbot &amp; tự động hoá bán hàng social (VN)</td><td>Chatbot kịch bản, tự động comment/inbox</td><td>Thu thập data KH cơ bản</td><td>VN · theo gói VND <i>(kiểm chứng)</i></td></tr>
+      <tr><td>Fchat</td><td>Chatbot Messenger/đa kênh bán hàng (VN)</td><td>Chatbot kịch bản, auto-reply, ẩn comment</td><td>Đồng bộ data KH sang CRM ngoài <sup>[8]</sup></td><td>VN · theo gói VND <i>(kiểm chứng)</i></td></tr>
+      <tr><td>Salework</td><td>Quản lý bán hàng &amp; chat sàn TMĐT (VN)</td><td>Auto-reply, tự động hoá xử lý đơn sàn</td><td>Quản lý đơn/KH đa sàn</td><td>VN · theo gói VND <i>(kiểm chứng)</i></td></tr>
+    </table>
+    </div>
+    <p class="muted" style="margin-top:6px"><b>Khoảng trống AppChat lấp:</b> nhóm VN mạnh "bán hàng &amp; chốt đơn" nhưng AI/automation còn ở mức chatbot kịch bản; nhóm quốc tế mạnh omnichannel/AI nhưng giá USD &amp; ít tối ưu hành vi mua sắm VN. AppChat định vị giao điểm: <b>AI Agents chiều sâu + bản địa hoá VN/ĐNÁ + hợp nhất Sales→Service trong một nền tảng</b>.</p>
+  </section>
+
+  <!-- 5 POSITIONING 2x2 -->
+  <section id="position">
+    <div class="kicker">05 — Positioning Map</div>
+    <h2>Bản đồ định vị 2×2</h2>
+    <p class="sec-d">Trục X: chiều sâu AI/Automation. Trục Y: mức độ hợp nhất nền tảng (single platform vs công cụ điểm).</p>
+    <div class="grid2">
+      <div class="panel"><h4>Góc phải-trên · "Unified + AI sâu"</h4><p><b>AppChat</b> · Respond.io · (Bird ở quy mô CPaaS) — nền tảng hợp nhất, AI mạnh. AppChat khác biệt bằng bản địa hoá VN/ĐNÁ &amp; phủ Sales→Service.</p></div>
+      <div class="panel"><h4>Góc trái · "Công cụ điểm"</h4><p>ManyChat (marketing bot), Wati (WhatsApp), Fchat/Smax (chatbot social VN), Salework (chat sàn) — mạnh một mảng, chưa hợp nhất toàn vòng đời.</p></div>
+      <div class="panel"><h4>Nhóm "Bán hàng VN"</h4><p>Haravan, Pancake — mạnh bán đa kênh + sàn + livestream; AI đang nâng dần. Lợi thế: hệ sinh thái bán hàng.</p></div>
+      <div class="panel"><h4>Nhóm "Inbox/Helpdesk"</h4><p>Trengo, SleekFlow — team inbox/omnichannel; thiên CS &amp; messaging hơn là full CRM-sales-ops.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 MESSAGING HOUSE -->
+  <section id="idea">
+    <div class="kicker">06 — Messaging House</div>
+    <h2>Thông điệp cốt lõi</h2>
+    <div class="house">
+      <div class="roof"><div class="big">Mọi cuộc trò chuyện đều có thể thành doanh thu</div><div class="sm">Nền tảng One-Person Company (OPC)</div></div>
+      <div class="cols">
+        <div class="col"><div class="t">Hợp nhất</div><div class="p">19 kênh social trong một inbox, không bỏ sót tin.</div></div>
+        <div class="col"><div class="t">Tự động hoá</div><div class="p">AI Agents phân luồng, trả lời, scoring, gợi ý chốt 24/7.</div></div>
+        <div class="col"><div class="t">Tăng trưởng</div><div class="p">Pipeline, broadcast &amp; CRM tăng chốt, giảm chi phí.</div></div>
+        <div class="col"><div class="t">Tin cậy</div><div class="p">RBAC, AI Governance, bảo mật Enterprise · Global Ready.</div></div>
+      </div>
+      <div class="base">PROOF · case study · số liệu kết quả · logo khách hàng · tích hợp 19 kênh</div>
+    </div>
+  </section>
+
+  <!-- 7 ICP -->
+  <section id="icp">
+    <div class="kicker">07 — ICP &amp; Buyer Persona</div>
+    <h2>Chân dung khách lý tưởng</h2>
+    <div class="grid3">
+      <div class="persona"><h4>Chủ DN / CEO</h4><div class="role">Economic buyer</div><div class="r"><b>Pain:</b> tốn nhiều công cụ, khó nhìn tổng thể</div><div class="r"><b>Gain:</b> 1 nền tảng, ROI rõ</div><div class="r"><b>Trigger:</b> mở rộng kênh/quy mô</div><div class="r"><b>Objection:</b> đổi hệ thống tốn công</div></div>
+      <div class="persona"><h4>Marketing Manager</h4><div class="role">Champion</div><div class="r"><b>Pain:</b> campaign rời, khó đo ROAS</div><div class="r"><b>Gain:</b> broadcast + journey + đo lường</div><div class="r"><b>Trigger:</b> chuẩn bị mùa cao điểm</div><div class="r"><b>Objection:</b> learning curve</div></div>
+      <div class="persona"><h4>CS Manager</h4><div class="role">User buyer</div><div class="r"><b>Pain:</b> quá tải tin, SLA trượt</div><div class="r"><b>Gain:</b> AI tự xử FAQ, CSAT tăng</div><div class="r"><b>Trigger:</b> tăng lượng hội thoại</div><div class="r"><b>Objection:</b> AI trả lời sai</div></div>
+    </div>
+  </section>
+
+  <!-- 8 JOURNEY -->
+  <section id="journey">
+    <div class="kicker">08 — Customer Journey</div>
+    <h2>Hành trình khách hàng &amp; nội dung tương ứng</h2>
+    <table>
+      <tr><th>Giai đoạn</th><th>Tâm lý khách</th><th>Nội dung Marketing</th></tr>
+      <tr><td><b>Unaware</b></td><td class="muted">Chưa biết có giải pháp</td><td>SEO, thought-leadership "AI Agent cho bán hàng"</td></tr>
+      <tr><td><b>Problem-aware</b></td><td class="muted">Biết đau (inbox phân mảnh)</td><td>Blog nỗi đau, checklist, so sánh cách làm</td></tr>
+      <tr><td><b>Solution-aware</b></td><td class="muted">So sánh nền tảng</td><td>Bảng so sánh (mục 04), case study, demo</td></tr>
+      <tr><td><b>Product-aware</b></td><td class="muted">Cân nhắc AppChat</td><td>Free trial, ROI calculator, webinar</td></tr>
+      <tr><td><b>Customer → Advocate</b></td><td class="muted">Đã mua, hài lòng</td><td>Onboarding, success, referral, review</td></tr>
+    </table>
+  </section>
+
+  <!-- 9 FUNNEL -->
+  <section id="funnel">
+    <div class="kicker">09 — Growth Funnel</div>
+    <div class="frame">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">app.appchat.vn / dashboard</span></div>
+      <img src="assets/shot-marketing.png" alt="AppChat — Marketing &amp; Broadcast"/>
+    </div>
+    <div class="cap">Marketing &amp; Broadcast trong AppChat — m&aacute;y thực thi cho to&agrave;n bộ funnel dưới đ&acirc;y (ảnh sản phẩm thật).</div>
+    <div class="grid3">
+      <div class="fn f1"><div class="s" style="color:#2B9EF3">AWARENESS</div><h4>Nhận biết</h4><p>SEO, social, KOL, PR ra mắt category.</p><span class="m">Reach · Branded search</span></div>
+      <div class="fn f2"><div class="s" style="color:#8B5CF6">ACQUISITION</div><h4>Thu hút</h4><p>Lead magnet, webinar, trial, landing use-case.</p><span class="m">MQL · CPL</span></div>
+      <div class="fn f3"><div class="s" style="color:#F5A830">ACTIVATION</div><h4>Kích hoạt</h4><p>Onboarding, kết nối kênh đầu, AI "aha &lt;10′".</p><span class="m">Activation rate</span></div>
+      <div class="fn f4"><div class="s" style="color:#2DC56A">REVENUE</div><h4>Doanh thu</h4><p>Upsell tier, usage AI, mở rộng seat.</p><span class="m">Conversion · ARPA</span></div>
+      <div class="fn f5"><div class="s" style="color:#EC4899">RETENTION</div><h4>Giữ chân</h4><p>Nurture, milestone, QBR Enterprise.</p><span class="m">NRR · Churn</span></div>
+      <div class="fn f6"><div class="s" style="color:#0E7490">REFERRAL</div><h4>Lan toả</h4><p>Referral, case study, review, partner.</p><span class="m">Referral · NPS</span></div>
+    </div>
+    <div class="svgwrap" style="margin-top:18px">
+      <svg viewBox="0 0 880 250" width="100%" role="img" aria-label="Funnel AAARRR">
+        <g font-family="Plus Jakarta Sans" text-anchor="middle">
+          <text x="440" y="22" font-size="13" font-weight="700" fill="#1A2B20">Conversion funnel — minh hoạ cơ chế (điền số thực khi có dữ liệu)</text>
+          <g font-size="12" font-weight="700" fill="#fff">
+            <rect x="110" y="42"  width="660" height="30" rx="5" fill="#2B9EF3"/><text x="440" y="62">AWARENESS · Reach</text>
+            <rect x="160" y="78"  width="560" height="30" rx="5" fill="#8B5CF6"/><text x="440" y="98">ACQUISITION · MQL</text>
+            <rect x="220" y="114" width="440" height="30" rx="5" fill="#F5A830"/><text x="440" y="134">ACTIVATION · Aha &lt;10′</text>
+            <rect x="280" y="150" width="320" height="30" rx="5" fill="#2DC56A"/><text x="440" y="170">REVENUE · Win</text>
+            <rect x="330" y="186" width="220" height="30" rx="5" fill="#EC4899"/><text x="440" y="206">RETENTION · NRR</text>
+            <rect x="370" y="222" width="140" height="24" rx="5" fill="#0E7490"/><text x="440" y="239" font-size="11">REFERRAL</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 10 PILLAR -->
+  <section id="pillar">
+    <div class="kicker">10 — Content Pillars</div>
+    <h2>4 trụ nội dung</h2>
+    <table>
+      <tr><th>Pillar</th><th>Mục tiêu</th><th>Kênh</th></tr>
+      <tr><td><b>AI for Growth</b></td><td class="muted">AI Agents tăng bán &amp; CSKH</td><td class="muted">Blog/SEO, LinkedIn</td></tr>
+      <tr><td><b>Omnichannel Ops</b></td><td class="muted">Gộp inbox &amp; quy trình</td><td class="muted">YouTube, Facebook</td></tr>
+      <tr><td><b>Customer Stories</b></td><td class="muted">Bằng chứng kết quả</td><td class="muted">Portfolio, email, PR</td></tr>
+      <tr><td><b>Playbooks</b></td><td class="muted">Giá trị theo ngành/persona</td><td class="muted">Lead magnet, webinar</td></tr>
+    </table>
+  </section>
+
+  <!-- 11 PLAYBOOK -->
+  <section id="playbook">
+    <div class="kicker">11 — Demand-Gen Playbook</div>
+    <h2>Cỗ máy tạo nhu cầu</h2>
+    <div class="grid2">
+      <div class="panel"><h4>🎯 Inbound engine</h4><p>SEO trụ + cluster theo intent, lead magnet, email nurture 5 bước, retargeting.</p></div>
+      <div class="panel"><h4>📹 Webinar &amp; demo</h4><p>Webinar 2 tuần/lần theo ngành; demo live "kết nối kênh + AI trả lời".</p></div>
+      <div class="panel"><h4>🤝 Partner co-marketing</h4><p>Joint webinar, co-branded content, MDF cho reseller.</p></div>
+      <div class="panel"><h4>⭐ Customer advocacy</h4><p>Referral, review G2/marketplace, case study hằng tháng.</p></div>
+    </div>
+  </section>
+
+  <!-- 12 90 DAY -->
+  <section id="90day">
+    <div class="kicker">12 — 90-Day Execution Plan</div>
+    <h2>Kế hoạch thực thi 90 ngày</h2>
+    <table>
+      <tr><th>Giai đoạn</th><th>Trọng tâm</th><th>Deliverable chính</th></tr>
+      <tr><td><b>Ngày 1–30</b></td><td class="muted">Nền tảng &amp; messaging</td><td>Messaging house, website/landing, 8 bài SEO trụ, tracking &amp; analytics, 1 webinar</td></tr>
+      <tr><td><b>Ngày 31–60</b></td><td class="muted">Demand-gen khởi động</td><td>Lead magnet theo ngành, email nurture, retargeting, 3 case study, KOL series</td></tr>
+      <tr><td><b>Ngày 61–90</b></td><td class="muted">Tối ưu &amp; mở rộng</td><td>A/B landing, partner co-marketing, ROI calculator, review &amp; double-down kênh hiệu quả</td></tr>
+    </table>
+  </section>
+
+  <!-- 13 ECON -->
+  <section id="econ">
+    <div class="kicker">13 — Channel Economics</div>
+    <h2>Kinh tế theo kênh</h2>
+    <p class="sec-d">Khung theo dõi hiệu quả từng kênh — <b>điền số thực khi có dữ liệu chạy</b>, không bịa.</p>
+    <table>
+      <tr><th>Kênh</th><th>Mục tiêu</th><th>CPL</th><th>CAC</th><th>Ghi chú</th></tr>
+      <tr><td><b>SEO/Content</b></td><td class="muted">Inbound dài hạn</td><td class="muted">[điền]</td><td class="muted">[điền]</td><td class="muted">CAC giảm dần theo thời gian</td></tr>
+      <tr><td><b>Paid Social</b></td><td class="muted">Acquisition nhanh</td><td class="muted">[điền]</td><td class="muted">[điền]</td><td class="muted">Kiểm soát theo ROAS</td></tr>
+      <tr><td><b>Webinar</b></td><td class="muted">SQL chất lượng</td><td class="muted">[điền]</td><td class="muted">[điền]</td><td class="muted">Conversion cao</td></tr>
+      <tr><td><b>Partner</b></td><td class="muted">Mid-market</td><td class="muted">[điền]</td><td class="muted">[điền]</td><td class="muted">CAC chia sẻ margin</td></tr>
+    </table>
+  </section>
+
+  <!-- 14 SLA -->
+  <section id="sla">
+    <div class="kicker">14 — Marketing–Sales SLA</div>
+    <h2>Định nghĩa &amp; bàn giao lead</h2>
+    <ul class="clean">
+      <li><b>MQL:</b> đạt ngưỡng lead score (hành vi + nhân khẩu), VD: tải lead magnet + thuộc ICP.</li>
+      <li><b>SQL:</b> Sales xác nhận có nhu cầu &amp; ngân sách (BANT nhẹ).</li>
+      <li><b>SLA bàn giao:</b> Sales liên hệ MQL trong &lt; 24h; phản hồi trạng thái về Marketing.</li>
+      <li><b>Lead scoring model:</b> điểm theo nguồn, hành vi, độ khớp ICP; review hằng tháng.</li>
+    </ul>
+  </section>
+
+  <!-- 15 STACK -->
+  <section id="stack">
+    <div class="kicker">15 — Martech Stack</div>
+    <h2>Hệ công cụ marketing</h2>
+    <div class="grid4">
+      <div class="panel"><h4>CRM &amp; Automation</h4><p>AppChat (dogfooding) + marketing automation</p></div>
+      <div class="panel"><h4>Analytics</h4><p>GA4, product analytics, dashboard nội bộ</p></div>
+      <div class="panel"><h4>Attribution</h4><p>UTM chuẩn, multi-touch attribution</p></div>
+      <div class="panel"><h4>Content &amp; SEO</h4><p>CMS, công cụ SEO, asset library</p></div>
+    </div>
+    <p class="muted" style="margin-top:10px">Ưu tiên <b>dogfooding</b>: dùng chính AppChat cho inbound chat &amp; nurture — vừa tiết kiệm, vừa tạo case study thực.</p>
+  </section>
+
+  <!-- 16 PROOF -->
+  <section id="proof">
+    <div class="kicker">16 — Proof &amp; Social Proof</div>
+    <h2>Chiến lược bằng chứng</h2>
+    <ul class="clean">
+      <li><b>Case study framework:</b> Thách thức → Giải pháp → Kết quả (số liệu dẫn đầu) — 1 case/tháng.</li>
+      <li><b>Review velocity:</b> chủ động xin review G2/marketplace sau milestone thành công.</li>
+      <li><b>Logo wall &amp; số liệu tổng:</b> X khách · Y hội thoại · Z kênh (cập nhật khi có thật).</li>
+      <li><b>Awards &amp; PR:</b> giải thưởng ngành, thông cáo cột mốc.</li>
+    </ul>
+  </section>
+
+  <!-- 17 KPI -->
+  <section id="kpi">
+    <div class="kicker">17 — KPI Tree</div>
+    <h2>KPI nối doanh thu</h2>
+    <div class="tree">
+      <div class="node"><div class="b" style="background:#2B9EF3;width:30%">Reach / Traffic</div><span class="muted">nhận biết</span></div>
+      <div class="node"><div class="b" style="background:#8B5CF6;width:42%">MQL</div><span class="muted">CPL ↓</span></div>
+      <div class="node"><div class="b" style="background:#F5A830;width:56%">SQL</div><span class="muted">MQL→SQL ≥ 30%</span></div>
+      <div class="node"><div class="b" style="background:#2DC56A;width:70%">Win / Customer</div><span class="muted">CAC payback ≤ 12m</span></div>
+      <div class="node"><div class="b" style="background:#EC4899;width:84%">Expansion / NRR</div><span class="muted">NRR &gt; 110%</span></div>
+    </div>
+    <div class="svgwrap" style="margin-top:16px">
+      <svg viewBox="0 0 820 220" width="100%" role="img" aria-label="KPI tree">
+        <g font-family="Plus Jakarta Sans" text-anchor="middle">
+          <rect x="320" y="14" width="180" height="42" rx="9" fill="#0E1B13"/>
+          <text x="410" y="33" font-size="12" font-weight="700" fill="#fff">Doanh thu (Revenue)</text>
+          <text x="410" y="48" font-size="10" fill="#7EE2A4">North-star metric</text>
+          <line x1="410" y1="56" x2="160" y2="92" stroke="#C9D4CD" stroke-width="1.4"/>
+          <line x1="410" y1="56" x2="410" y2="92" stroke="#C9D4CD" stroke-width="1.4"/>
+          <line x1="410" y1="56" x2="660" y2="92" stroke="#C9D4CD" stroke-width="1.4"/>
+          <g font-size="11.5" font-weight="700">
+            <rect x="75"  y="92" width="170" height="40" rx="8" fill="#EEF6FF" stroke="#BBD9F7"/><text x="160" y="109" fill="#1668C2">New business</text><text x="160" y="124" font-size="10" font-weight="500" fill="#5B6B61">MQL → SQL → Win</text>
+            <rect x="325" y="92" width="170" height="40" rx="8" fill="#F3E8FF" stroke="#D6BCFB"/><text x="410" y="109" fill="#6D28D9">Expansion</text><text x="410" y="124" font-size="10" font-weight="500" fill="#5B6B61">Upsell Token · NRR</text>
+            <rect x="575" y="92" width="170" height="40" rx="8" fill="#FFF1E0" stroke="#F5D7A8"/><text x="660" y="109" fill="#B5670B">Retention</text><text x="660" y="124" font-size="10" font-weight="500" fill="#5B6B61">Churn ↓ · CSAT</text>
+          </g>
+          <g font-size="10" font-weight="500" fill="#5B6B61">
+            <line x1="160" y1="132" x2="160" y2="160" stroke="#E4EBE6"/><text x="160" y="176">CPL · MQL→SQL · CAC payback</text>
+            <line x1="410" y1="132" x2="410" y2="160" stroke="#E4EBE6"/><text x="410" y="176">Token usage · seat expansion</text>
+            <line x1="660" y1="132" x2="660" y2="160" stroke="#E4EBE6"/><text x="660" y="176">NRR &gt; 110% · logo churn ↓</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 18 BUDGET -->
+  <section id="budget">
+    <div class="kicker">18 — Budget Scenario</div>
+    <h2>3 kịch bản ngân sách</h2>
+    <div class="grid3">
+      <div class="stat"><div class="v">Lean</div><div class="l">Ưu tiên inbound + advocacy. CAC thấp, tăng trưởng chậm-ổn định.</div></div>
+      <div class="stat"><div class="v">Base</div><div class="l">Inbound 40% · Paid 25% · Webinar/Partner 20% · Brand 15%. Cân bằng tốc độ &amp; chi phí.</div></div>
+      <div class="stat"><div class="v">Aggressive</div><div class="l">Tăng Paid &amp; brand campaign ra mắt category; chấp nhận CAC cao hơn để giành thị phần.</div></div>
+    </div>
+    <p class="muted" style="margin-top:10px">Mỗi kịch bản gắn forecast pipeline tương ứng (MQL→SQL→Win) — chọn theo mục tiêu &amp; khẩu vị rủi ro của Board.</p>
+  </section>
+
+  <!-- 19 RISK -->
+  <section id="risk">
+    <div class="kicker">19 — Risk Register</div>
+    <h2>Rủi ro &amp; phương án</h2>
+    <div class="grid2">
+      <div class="risk"><h4>Cạnh tranh giá từ nền tảng VN</h4><p>Đối thủ VN giá rẻ. → Cạnh tranh bằng giá trị AI &amp; hợp nhất, không đua giá.</p></div>
+      <div class="risk"><h4>Phụ thuộc chính sách kênh (Meta/Zalo)</h4><p>Thay đổi API/policy. → Đa dạng kênh, theo sát policy, partner chính thức.</p></div>
+      <div class="risk"><h4>AI trả lời sai gây mất tin</h4><p>→ Human-in-the-loop, AI Governance, kiểm soát phạm vi agent.</p></div>
+      <div class="risk"><h4>Chu kỳ bán dài ở Enterprise</h4><p>→ Land SMB trước (PLG), nuôi Enterprise song song với proof.</p></div>
+    </div>
+  </section>
+
+  <!-- 20 SOURCES -->
+  <section id="sources" class="final">
+    <div class="kicker">20 — Nguồn &amp; Disclaimer</div>
+    <h2>Nguồn dẫn chứng</h2>
+    <p class="sec-d">Dữ kiện đối thủ lấy từ trang chính thức &amp; nguồn review công khai (truy cập 05/2026). Giá &amp; tính năng thay đổi theo thời gian — <b>kiểm chứng tại nguồn trước khi dùng đối ngoại</b>. Các ô ghi "kiểm chứng tại nguồn" là phần chưa có xác nhận trực tiếp tại thời điểm soạn.</p>
+    <div class="src-list">
+      [1] Chatimize — Respond.io Review 2026 · <a href="https://chatimize.com/reviews/respond-io/">chatimize.com/reviews/respond-io</a><br/>
+      [2] Respond.io official · <a href="https://respond.io/">respond.io</a><br/>
+      [3] Respond.io Pricing (Starter $79 / Growth $159 / Advanced $279 + Enterprise) · <a href="https://respond.io/pricing">respond.io/pricing</a><br/>
+      [4] Haravan official — Giải pháp bán hàng đa kênh · <a href="https://www.haravan.com/">haravan.com</a><br/>
+      [5] Haravan Omnichannel (từ ~300.000đ/tháng; trợ lý AI tư vấn) · <a href="https://www.haravan.com/omnichannel">haravan.com/omnichannel</a><br/>
+      [6] GHN — Pancake là gì (Bot Cake, POS, Store, Webcake) · <a href="https://ghn.vn/blogs/tip-ban-hang/loi-ich-khi-ban-hang-voi-phan-mem-pancake">ghn.vn</a><br/>
+      [7] Pancake official · <a href="https://pancake.vn/">pancake.vn</a><br/>
+      [8] HUB platform — tích hợp Fchat/Pancake/Manychat · <a href="https://blog.hub-js.com/">blog.hub-js.com</a>
+    </div>
+    <div class="callout warn" style="margin-top:16px"><span>⚠</span><div><b>Cam kết không bịa dữ liệu:</b> mọi con số định lượng (thị phần, giá đối thủ chưa xác minh, KPI thực) đều để trống "[điền]"/"kiểm chứng tại nguồn" thay vì điền số giả. Bổ sung khi có dữ liệu chính thức.</div></div>
+  </section>
+
+</div>
+
+  <!-- v3.3 DEEP: FINANCIAL PROJECTION + CATEGORY NARRATIVE -->
+  <section id="financial">
+    <div class="kicker">v3.3 — Financial Projection</div>
+    <h2>Khung dự phóng tài chính 3 năm</h2>
+    <p class="sec-d">Khung mô hình doanh thu &amp; tăng trưởng — mọi con số để <span class="ph">[điền theo kế hoạch tài chính]</span>, không bịa số đối ngoại.</p>
+    <table>
+      <thead><tr><th>Chỉ tiêu</th><th>Năm 1</th><th>Năm 2</th><th>Năm 3</th></tr></thead>
+      <tbody>
+        <tr><td><b>DN active</b></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>ARR</b></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>ARPA</b></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>NRR</b></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>Gross Margin</b></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>CAC Payback</b></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td><td><span class="ph">[điền]</span></td></tr>
+      </tbody>
+    </table>
+    <div class="grid3" style="margin-top:14px">
+      <div class="panel"><h4>Doanh thu mở rộng</h4><p>NRR &gt;100% nhờ Land-and-Expand: thêm kênh/module + tăng Token theo mức dùng AI.</p></div>
+      <div class="panel"><h4>Đòn bẩy biên</h4><p>Subscription biên cao kéo blended margin lên khi tỷ trọng recurring tăng theo quy mô.</p></div>
+      <div class="panel"><h4>Hiệu quả vốn</h4><p>PLG hạ CAC; partner-led mở rộng biên chi phí thấp; payback rút ngắn theo thời gian.</p></div>
+    </div>
+  </section>
+
+  <section id="category-deep">
+    <div class="kicker">v3.3 — Category Design</div>
+    <h2>Chiến lược tạo &amp; thống lĩnh category</h2>
+    <p class="sec-d">AppChat định nghĩa category mới <b>"Nền tảng One-Person Company (OPC)"</b> — và xây kế hoạch trở thành "category king".</p>
+    <div class="tl">
+      <div class="row"><span class="q">B1</span><div><b>Đặt tên &amp; định nghĩa vấn đề</b><p>Khung "phân mảnh kênh + quá tải nhân sự = mất tăng trưởng" → AppChat là lời giải mặc định bằng AI Agent.</p></div></div>
+      <div class="row"><span class="q">B2</span><div><b>Giáo dục thị trường</b><p>Thought leadership, báo cáo ngành, webinar — dạy thị trường vì sao cần "Nền tảng One-Person Company (OPC)", không phải "thêm chatbot".</p></div></div>
+      <div class="row"><span class="q">B3</span><div><b>Sở hữu ngôn ngữ</b><p>Mọi điểm chạm dùng nhất quán thuật ngữ định vị; biến tên category thành đồng nghĩa với AppChat.</p></div></div>
+      <div class="row"><span class="q">B4</span><div><b>Thắng category king</b><p>Lợi thế Zalo &amp; AI tiếng Việt + hệ sinh thái đối tác + proof khách hàng → dẫn đầu phân khúc SMB đa kênh VN.</p></div></div>
+    </div>
+  </section>
+
+  <!-- v3.3 BOARD ADDENDUM -->
+  <section id="board-economics">
+    <div class="kicker">v3.3 — Board / Investor Addendum</div>
+    <h2>Kinh tế đơn vị &amp; định vị Board</h2>
+    <p class="sec-d">Bổ sung tầng Board/Investor — giữ nguyên toàn bộ nội dung v3.2. Trọng tâm bản này: Unit Economics (CAC/LTV/Payback/NRR), Financial Projection framework & Category Design — bổ sung tầng Board cho chiến lược.</p>
+    <div class="grid3">
+      <div class="panel"><h4>3 dòng doanh thu</h4><p><b>Subscription</b> (recurring) + <b>Token AI</b> (theo mức dùng) + <b>Phí tin</b> quảng cáo. Không giới hạn user; gói khác nhau về tính năng &amp; Token.</p></div>
+      <div class="panel"><h4>Land &amp; Expand</h4><p>Bắt đầu gói nhỏ → mở thêm kênh/module → tăng Token khi AI dùng nhiều. NRR tăng theo thời gian.</p></div>
+      <div class="panel"><h4>Category Design</h4><p>Định nghĩa category mới <b>"Nền tảng One-Person Company (OPC)"</b> — dẫn dắt thị trường, không đuổi theo công cụ chat cũ.</p></div>
+    </div>
+    <table>
+      <thead><tr><th>Chỉ số đơn vị</th><th>Ý nghĩa</th><th>Mục tiêu</th></tr></thead>
+      <tbody>
+        <tr><td><b>CAC</b></td><td>Chi phí thu hút 1 khách</td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>LTV / CAC</b></td><td>Hiệu quả đầu tư (≥3)</td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>CAC Payback</b></td><td>Tháng hoàn vốn CAC</td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>Gross Margin</b></td><td>Biên lợi nhuận gộp</td><td><span class="ph">[điền]</span></td></tr>
+        <tr><td><b>NRR</b></td><td>Net Revenue Retention (>100%)</td><td><span class="ph">[điền]</span></td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><span>⚠</span><div><b>Nguyên tắc không bịa số:</b> mọi chỉ số tài chính để <span class="ph">[điền số thực]</span> theo mô hình kế hoạch — không điền số giả khi dùng đối ngoại.</div></div>
+    <div class="cl-row" style="margin-top:18px"><span class="cl-v">v3.3</span><span class="cl-t t-new">Added</span><span>Board/Investor Addendum: Unit Economics (CAC/LTV/Payback/NRR), 3 dòng doanh thu &amp; Land-and-Expand, Category Design. Unit Economics (CAC/LTV/Payback/NRR), Financial Projection framework & Category Design — bổ sung tầng Board cho chiến lược.</span></div>
+    <div class="cl-row" style="border:none"><span class="cl-v">v3.3</span><span class="cl-t t-up" style="background:#E8F8EE;color:#157A40">Upgraded</span><span>Giữ nguyên toàn bộ nội dung v3.2; bổ sung tầng Board — v3.2 vẫn song song.</span></div>
+  </section>
+
+</body>
+</html>

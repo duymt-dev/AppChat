@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-print-defaults>
+@media print {
+  @page { margin: 0.5in; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  figure, table, pre, blockquote, img, svg, tr, [class~="card" i] { break-inside: avoid; }
+  img, svg { max-width: 100%; }
+  p { orphans: 3; widows: 3; }
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:#EEF1F0;color:#231F20}
+.mono{font-family:'JetBrains Mono',monospace}
+</style>
+<script>
+window.__only=function(id){
+  document.querySelectorAll('[data-chrome]').forEach(function(n){n.style.display='none'});
+  document.querySelectorAll('[data-dgm]').forEach(function(n){var on=n.getAttribute('data-dgm')===id;n.style.display=on?'block':'none';n.style.margin='0';n.style.boxShadow='none';n.style.borderRadius='0'});
+  document.body.style.background='#fff';
+  var w=document.getElementById('dgwrap');if(w){w.style.padding='0';w.style.maxWidth='none';w.style.margin='0'}
+  window.scrollTo(0,0);
+};
+window.__showall=function(){location.reload()};
+</script>
+</helmet>
+
+<div id="dgwrap" style="max-width:1320px;margin:0 auto;padding:40px 28px 80px">
+
+  <!-- ===== BANNER ===== -->
+  <div data-chrome="1" style="background:linear-gradient(120deg,#157A40,#2DC56A 70%,#58D28A);border-radius:20px;padding:36px 40px;color:#fff;position:relative;overflow:hidden;margin-bottom:26px">
+    <div style="position:absolute;right:-40px;top:-40px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+    <div style="position:absolute;right:80px;bottom:-60px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
+    <div style="position:relative">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.22em;opacity:.9;margin-bottom:14px">WBS THIẾT KẾ UI/UX · BỘ SƠ ĐỒ KIẾN TRÚC</div>
+      <div style="font-size:38px;font-weight:800;letter-spacing:-.02em;line-height:1.08;margin-bottom:12px">AppChat — Kiến trúc hệ thống &amp;<br>Cấu trúc công việc thiết kế</div>
+      <div style="font-size:14.5px;opacity:.92;max-width:680px;line-height:1.6">Trực quan hoá từ tài liệu System Design Document (SDD) &amp; hiện trạng sản phẩm. Bộ sơ đồ được nhóm theo chủ đề, kèm bản phân rã công việc thiết kế (WBS) có ước lượng effort và phân công.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
+        <span style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600">14 sơ đồ · 7 nhóm chủ đề</span>
+        <span style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600">17 module nghiệp vụ</span>
+        <span style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600">WBS ~119 man-day</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== LEGEND ===== -->
+  <div data-chrome="1" style="background:#fff;border:1px solid #E1E6E3;border-radius:14px;padding:18px 22px;margin-bottom:26px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9CA3AF;margin-bottom:12px">Chú giải lớp kiến trúc</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap">
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#2A6FDB"></span>Kênh &amp; khách hàng cuối</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#0E9B94"></span>Ứng dụng client</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#2DC56A"></span>API Gateway / Realtime</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#157A40"></span>Dịch vụ lõi</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#6E48E6"></span>Lớp AI</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#C9820B"></span>Lớp dữ liệu</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="width:13px;height:13px;border-radius:4px;background:#5B6470"></span>Tích hợp ngoài</span>
+    </div>
+  </div>
+
+  <!-- ===== WBS SECTION ===== -->
+  <div data-chrome="1" style="margin-bottom:14px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#231F20;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">W</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Work Breakdown Structure — Thiết kế UI/UX</div>
+      <div style="font-size:13px;color:#6B7280">6 giai đoạn · ước lượng effort (man-day) &amp; phân công vai trò</div>
+    </div>
+  </div>
+  <div data-chrome="1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:34px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:#F4F7F5;text-align:left">
+          <th style="padding:12px 14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#6B7280;width:64px">Mã</th>
+          <th style="padding:12px 14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#6B7280">Hạng mục công việc</th>
+          <th style="padding:12px 14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#6B7280">Sản phẩm bàn giao</th>
+          <th style="padding:12px 14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#6B7280;width:96px;text-align:center">Effort (md)</th>
+          <th style="padding:12px 14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#6B7280;width:150px">Phụ trách</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#EDFAF3"><td colspan="3" style="padding:10px 14px;font-weight:800;color:#157A40">P0 · Nghiên cứu &amp; Khám phá</td><td style="padding:10px 14px;text-align:center;font-weight:800;color:#157A40">12</td><td style="padding:10px 14px"></td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">0.1</td><td style="padding:10px 14px;font-weight:600">Phỏng vấn stakeholder &amp; thu thập yêu cầu</td><td style="padding:10px 14px;color:#6B7280">Biên bản, mục tiêu sản phẩm</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UX Lead</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">0.2</td><td style="padding:10px 14px;font-weight:600">Nghiên cứu người dùng &amp; chân dung</td><td style="padding:10px 14px;color:#6B7280">Persona, JTBD (CSKH/Sales/MKT/QL)</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UX Researcher</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">0.3</td><td style="padding:10px 14px;font-weight:600">Phân tích đối thủ &amp; audit SDD</td><td style="padding:10px 14px;color:#6B7280">Báo cáo benchmark</td><td style="padding:10px 14px;text-align:center">2</td><td style="padding:10px 14px">UX Lead</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">0.4</td><td style="padding:10px 14px;font-weight:600">Bản đồ hành trình khách hàng &amp; nghiệp vụ</td><td style="padding:10px 14px;color:#6B7280">Journey map</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UX Researcher</td></tr>
+
+        <tr style="background:#EDFAF3"><td colspan="3" style="padding:10px 14px;font-weight:800;color:#157A40">P1 · Information Architecture &amp; Flows</td><td style="padding:10px 14px;text-align:center;font-weight:800;color:#157A40">18</td><td style="padding:10px 14px"></td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">1.1</td><td style="padding:10px 14px;font-weight:600">Cây thông tin &amp; điều hướng (17 module)</td><td style="padding:10px 14px;color:#6B7280">Sitemap</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UX Lead</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">1.2</td><td style="padding:10px 14px;font-weight:600">Luồng nghiệp vụ chính</td><td style="padding:10px 14px;color:#6B7280">User flows (login, kênh, ví, broadcast, inbox…)</td><td style="padding:10px 14px;text-align:center">5</td><td style="padding:10px 14px">UX Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">1.3</td><td style="padding:10px 14px;font-weight:600">Wireframe lo-fi toàn bộ màn hình</td><td style="padding:10px 14px;color:#6B7280">Wireframe</td><td style="padding:10px 14px;text-align:center">8</td><td style="padding:10px 14px">UX Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">1.4</td><td style="padding:10px 14px;font-weight:600">Kiểm thử concept lo-fi</td><td style="padding:10px 14px;color:#6B7280">Báo cáo test</td><td style="padding:10px 14px;text-align:center">2</td><td style="padding:10px 14px">UX Researcher</td></tr>
+
+        <tr style="background:#EDFAF3"><td colspan="3" style="padding:10px 14px;font-weight:800;color:#157A40">P2 · Design System / UI Kit</td><td style="padding:10px 14px;text-align:center;font-weight:800;color:#157A40">16</td><td style="padding:10px 14px"></td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">2.1</td><td style="padding:10px 14px;font-weight:600">Design tokens (màu, type, spacing, radius, shadow)</td><td style="padding:10px 14px;color:#6B7280">Token sheet</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">Design System Lead</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">2.2</td><td style="padding:10px 14px;font-weight:600">Thư viện component (nav, card, table, form, modal, kanban…)</td><td style="padding:10px 14px;color:#6B7280">UI Kit</td><td style="padding:10px 14px;text-align:center">8</td><td style="padding:10px 14px">Design System Lead</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">2.3</td><td style="padding:10px 14px;font-weight:600">Iconography &amp; minh hoạ</td><td style="padding:10px 14px;color:#6B7280">Bộ icon</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">2.4</td><td style="padding:10px 14px;font-weight:600">Mẫu layout &amp; grid app-shell</td><td style="padding:10px 14px;color:#6B7280">Layout spec</td><td style="padding:10px 14px;text-align:center">2</td><td style="padding:10px 14px">Design System Lead</td></tr>
+
+        <tr style="background:#EDFAF3"><td colspan="3" style="padding:10px 14px;font-weight:800;color:#157A40">P3 · Thiết kế giao diện theo module</td><td style="padding:10px 14px;text-align:center;font-weight:800;color:#157A40">51</td><td style="padding:10px 14px"></td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.1</td><td style="padding:10px 14px;font-weight:600">App-shell, điều hướng, Tổng quan (Dashboard)</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.2</td><td style="padding:10px 14px;font-weight:600">Trợ lý AI (chat-command)</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.3</td><td style="padding:10px 14px;font-weight:600">Hộp thư omnichannel + Customer 360</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">6</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.4</td><td style="padding:10px 14px;font-weight:600">Khách hàng / CDP (CRM, custom field)</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">5</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.5</td><td style="padding:10px 14px;font-weight:600">Marketing &amp; Broadcast (Email/Zalo/SMS/Automation)</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">6</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.6</td><td style="padding:10px 14px;font-weight:600">Bán hàng: Báo giá, Đơn, Hợp đồng, Sản phẩm</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">6</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.7</td><td style="padding:10px 14px;font-weight:600">CSKH: Ticket &amp; SLA</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.8</td><td style="padding:10px 14px;font-weight:600">Lịch hẹn, AI Agents, Quy trình</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">5</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.9</td><td style="padding:10px 14px;font-weight:600">Call Center &amp; AI Voice</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.10</td><td style="padding:10px 14px;font-weight:600">Loyalty &amp; Báo cáo</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">3.11</td><td style="padding:10px 14px;font-weight:600">Ví AppChat, Đối tác, Cài đặt</td><td style="padding:10px 14px;color:#6B7280">Hi-fi</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+
+        <tr style="background:#EDFAF3"><td colspan="3" style="padding:10px 14px;font-weight:800;color:#157A40">P4 · Prototype &amp; Kiểm thử</td><td style="padding:10px 14px;text-align:center;font-weight:800;color:#157A40">12</td><td style="padding:10px 14px"></td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">4.1</td><td style="padding:10px 14px;font-weight:600">Prototype tương tác (luồng chính)</td><td style="padding:10px 14px;color:#6B7280">Prototype</td><td style="padding:10px 14px;text-align:center">5</td><td style="padding:10px 14px">Prototyper</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">4.2</td><td style="padding:10px 14px;font-weight:600">Usability testing &amp; tổng hợp</td><td style="padding:10px 14px;color:#6B7280">Báo cáo</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UX Researcher</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">4.3</td><td style="padding:10px 14px;font-weight:600">Tinh chỉnh theo phản hồi</td><td style="padding:10px 14px;color:#6B7280">Bản cập nhật</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+
+        <tr style="background:#EDFAF3"><td colspan="3" style="padding:10px 14px;font-weight:800;color:#157A40">P5 · Bàn giao &amp; Hỗ trợ phát triển</td><td style="padding:10px 14px;text-align:center;font-weight:800;color:#157A40">10</td><td style="padding:10px 14px"></td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">5.1</td><td style="padding:10px 14px;font-weight:600">Spec &amp; redline, design handoff</td><td style="padding:10px 14px;color:#6B7280">Tài liệu handoff</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">5.2</td><td style="padding:10px 14px;font-weight:600">Hỗ trợ phát triển &amp; QA giao diện</td><td style="padding:10px 14px;color:#6B7280">Ghi chú QA</td><td style="padding:10px 14px;text-align:center">4</td><td style="padding:10px 14px">UI Designer</td></tr>
+        <tr style="border-top:1px solid #F0F2F1"><td class="mono" style="padding:10px 14px;color:#9CA3AF">5.3</td><td style="padding:10px 14px;font-weight:600">Bộ sơ đồ kiến trúc &amp; tài liệu hệ thống</td><td style="padding:10px 14px;color:#6B7280">Sơ đồ + index (tài liệu này)</td><td style="padding:10px 14px;text-align:center">3</td><td style="padding:10px 14px">UX Lead</td></tr>
+
+        <tr style="border-top:2px solid #231F20;background:#231F20;color:#fff"><td colspan="3" style="padding:13px 14px;font-weight:800">Tổng cộng</td><td style="padding:13px 14px;text-align:center;font-weight:800;font-size:15px">119</td><td style="padding:13px 14px;font-weight:600">man-day</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== GROUP A HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#2A6FDB;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">A</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Kiến trúc tổng thể hệ thống</div>
+      <div style="font-size:13px;color:#6B7280">Bức tranh lớp dịch vụ &amp; lớp AI của nền tảng</div>
+    </div>
+  </div>
+
+  <!-- A1: HIGH-LEVEL ARCHITECTURE -->
+  <div data-dgm="a1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2A6FDB;padding:4px 9px;border-radius:7px">A1</span>
+      <div><div style="font-size:16px;font-weight:800">Kiến trúc phân lớp tổng thể</div><div style="font-size:12.5px;color:#6B7280">Từ kênh khách hàng → gateway → dịch vụ lõi → AI → dữ liệu → tích hợp ngoài</div></div>
+    </div>
+    <div style="padding:26px 24px;display:flex;flex-direction:column;gap:14px">
+
+      <!-- band: channels -->
+      <div style="background:#2A6FDB0D;border:1px solid #2A6FDB33;border-radius:14px;padding:14px 16px;display:flex;gap:16px;align-items:center">
+        <div style="flex-shrink:0;width:148px"><span style="background:#2A6FDB;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">Kênh &amp; KH cuối</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1">
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Zalo OA</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Facebook / Messenger</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Instagram</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">WhatsApp</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Telegram</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">TikTok</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Website Widget</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Shopee / Lazada</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Email · SMS</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Tổng đài thoại</span>
+        </div>
+      </div>
+      <div style="text-align:center;color:#C0C7C3;font-size:18px;line-height:.5">↓</div>
+
+      <!-- band: client apps -->
+      <div style="background:#0E9B940D;border:1px solid #0E9B9433;border-radius:14px;padding:14px 16px;display:flex;gap:16px;align-items:center">
+        <div style="flex-shrink:0;width:148px"><span style="background:#0E9B94;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">Ứng dụng client</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1">
+          <span style="background:#fff;border:1px solid #B6E3DF;color:#0A6F69;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Web Workspace (agent)</span>
+          <span style="background:#fff;border:1px solid #B6E3DF;color:#0A6F69;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Mobile App</span>
+          <span style="background:#fff;border:1px solid #B6E3DF;color:#0A6F69;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Chat Widget SDK</span>
+          <span style="background:#fff;border:1px solid #B6E3DF;color:#0A6F69;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Trang quản trị</span>
+        </div>
+      </div>
+      <div style="text-align:center;color:#C0C7C3;font-size:18px;line-height:.5">↓</div>
+
+      <!-- band: gateway -->
+      <div style="background:#2DC56A14;border:1px solid #2DC56A40;border-radius:14px;padding:14px 16px;display:flex;gap:16px;align-items:center">
+        <div style="flex-shrink:0;width:148px"><span style="background:#2DC56A;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">API Gateway</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;flex:1">
+          <span style="background:#fff;border:1px solid #A8E5C2;color:#157A40;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">REST / GraphQL API</span>
+          <span style="background:#fff;border:1px solid #A8E5C2;color:#157A40;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">WebSocket Realtime</span>
+          <span style="background:#fff;border:1px solid #A8E5C2;color:#157A40;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Webhook Ingress</span>
+          <span style="background:#fff;border:1px solid #A8E5C2;color:#157A40;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Auth / SSO · RBAC</span>
+          <span style="background:#fff;border:1px solid #A8E5C2;color:#157A40;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px">Rate-limit · Queue</span>
+        </div>
+      </div>
+      <div style="text-align:center;color:#C0C7C3;font-size:18px;line-height:.5">↓</div>
+
+      <!-- band: core services -->
+      <div style="background:#157A400D;border:1px solid #157A4033;border-radius:14px;padding:14px 16px;display:flex;gap:16px;align-items:flex-start">
+        <div style="flex-shrink:0;width:148px;padding-top:4px"><span style="background:#157A40;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">Dịch vụ lõi</span></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1">
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Hội thoại / Inbox</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">CDP · KH 360°</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Marketing &amp; Broadcast</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Bán hàng (Báo giá/Đơn/HĐ)</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">CSKH · Ticket / SLA</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Lịch hẹn</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Loyalty</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Ví &amp; Thanh toán</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Workflow Automation</span>
+          <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:8px 10px;border-radius:8px;text-align:center">Báo cáo &amp; Phân tích</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;justify-content:center;color:#C0C7C3;font-size:18px;line-height:.5"><span>↓ AI</span><span>↓ Data</span><span>↓ Tích hợp</span></div>
+
+      <!-- bottom row: AI / Data / Integrations -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+        <div style="background:#6E48E60D;border:1px solid #6E48E633;border-radius:14px;padding:14px 16px">
+          <span style="background:#6E48E6;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">Lớp AI</span>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Marketing AI</span>
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Sales AI</span>
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">CSKH AI</span>
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Operation AI</span>
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Trợ lý AI</span>
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">NLP / Intent</span>
+            <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">AI Voice</span>
+          </div>
+        </div>
+        <div style="background:#C9820B0D;border:1px solid #C9820B33;border-radius:14px;padding:14px 16px">
+          <span style="background:#C9820B;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">Lớp dữ liệu</span>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+            <span style="background:#fff;border:1px solid #EAD3A3;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">CSDL quan hệ</span>
+            <span style="background:#fff;border:1px solid #EAD3A3;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Kho sự kiện</span>
+            <span style="background:#fff;border:1px solid #EAD3A3;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Search / Index</span>
+            <span style="background:#fff;border:1px solid #EAD3A3;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Object Storage</span>
+            <span style="background:#fff;border:1px solid #EAD3A3;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Cache / Redis</span>
+          </div>
+        </div>
+        <div style="background:#5B64700D;border:1px solid #5B647033;border-radius:14px;padding:14px 16px">
+          <span style="background:#5B6470;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px">Tích hợp ngoài</span>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
+            <span style="background:#fff;border:1px solid #D3D8DD;color:#48505A;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Cổng thanh toán (VietQR)</span>
+            <span style="background:#fff;border:1px solid #D3D8DD;color:#48505A;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Telco SMS</span>
+            <span style="background:#fff;border:1px solid #D3D8DD;color:#48505A;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">Email ESP</span>
+            <span style="background:#fff;border:1px solid #D3D8DD;color:#48505A;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">API mạng xã hội</span>
+            <span style="background:#fff;border:1px solid #D3D8DD;color:#48505A;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">ERP / CRM</span>
+            <span style="background:#fff;border:1px solid #D3D8DD;color:#48505A;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px">eKYC / Ký số</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- A2: AI AGENTS ARCHITECTURE -->
+  <div data-dgm="a2" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#6E48E6;padding:4px 9px;border-radius:7px">A2</span>
+      <div><div style="font-size:16px;font-weight:800">Kiến trúc lớp AI Agents</div><div style="font-size:12.5px;color:#6B7280">Trợ lý điều phối → agent chuyên trách → năng lực dùng chung → hành động trên dịch vụ lõi</div></div>
+    </div>
+    <div style="padding:28px 24px;display:flex;flex-direction:column;gap:16px;align-items:center">
+
+      <div style="background:linear-gradient(135deg,#231F20,#3A3340);color:#fff;border-radius:14px;padding:16px 26px;text-align:center;min-width:340px">
+        <div style="font-size:15px;font-weight:800">Trợ lý AI — Orchestrator</div>
+        <div style="font-size:12px;opacity:.8;margin-top:3px">Hiểu mệnh lệnh hội thoại · định tuyến · gọi công cụ · tổng hợp kết quả</div>
+      </div>
+      <div style="color:#C0C7C3;font-size:18px;line-height:.5">↓ định tuyến theo intent</div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%">
+        <div style="background:#6E48E60D;border:1.5px solid #6E48E633;border-radius:14px;padding:16px;text-align:center"><div style="font-size:14px;font-weight:800;color:#5733C2">Marketing AI</div><div style="font-size:11.5px;color:#6B7280;margin-top:5px;line-height:1.45">Đề xuất kênh, soạn nội dung, broadcast, A/B</div></div>
+        <div style="background:#6E48E60D;border:1.5px solid #6E48E633;border-radius:14px;padding:16px;text-align:center"><div style="font-size:14px;font-weight:800;color:#5733C2">Sales AI</div><div style="font-size:11.5px;color:#6B7280;margin-top:5px;line-height:1.45">Tư vấn, báo giá, chốt đơn, chăm sóc lead</div></div>
+        <div style="background:#6E48E60D;border:1.5px solid #6E48E633;border-radius:14px;padding:16px;text-align:center"><div style="font-size:14px;font-weight:800;color:#5733C2">CSKH AI</div><div style="font-size:11.5px;color:#6B7280;margin-top:5px;line-height:1.45">Trả lời FAQ, phân loại ticket, xử lý SLA</div></div>
+        <div style="background:#6E48E60D;border:1.5px solid #6E48E633;border-radius:14px;padding:16px;text-align:center"><div style="font-size:14px;font-weight:800;color:#5733C2">Operation AI</div><div style="font-size:11.5px;color:#6B7280;margin-top:5px;line-height:1.45">Tự động hoá quy trình, nhắc việc, tổng hợp</div></div>
+      </div>
+      <div style="color:#C0C7C3;font-size:18px;line-height:.5">↓ dùng chung năng lực</div>
+
+      <div style="background:#F4F1FC;border:1px dashed #C8B9F0;border-radius:14px;padding:14px 16px;width:100%;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">NLP · Intent / Entity</span>
+        <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Knowledge Base / RAG</span>
+        <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Tools / Function calling</span>
+        <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">AI Voice (STT/TTS)</span>
+        <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Sentiment / Phân loại</span>
+        <span style="background:#fff;border:1px solid #D6CAF5;color:#5733C2;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Bộ nhớ hội thoại</span>
+      </div>
+      <div style="color:#C0C7C3;font-size:18px;line-height:.5">↓ thực thi hành động</div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%">
+        <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Inbox / Hội thoại</span>
+        <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">CDP</span>
+        <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Marketing</span>
+        <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Báo giá / Đơn</span>
+        <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Ticket</span>
+        <span style="background:#fff;border:1px solid #B9DCC6;color:#0F5E32;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Workflow</span>
+      </div>
+
+      <div style="background:#FFF8EC;border:1px solid #F2D9A8;border-radius:12px;padding:12px 18px;display:flex;align-items:center;gap:10px;margin-top:4px">
+        <span style="width:9px;height:9px;border-radius:50%;background:#C9820B"></span>
+        <span style="font-size:12.5px;color:#8A5A0C;font-weight:600">Human-in-the-loop: agent chuyển giao cho nhân viên khi vượt ngưỡng tin cậy / khách yêu cầu / phát hiện khiếu nại.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== GROUP B HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#0E9B94;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">B</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Sitemap / Information Architecture</div>
+      <div style="font-size:13px;color:#6B7280">Cây điều hướng &amp; phân cấp màn hình toàn nền tảng</div>
+    </div>
+  </div>
+
+  <!-- B1: SITEMAP -->
+  <div data-dgm="b1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#0E9B94;padding:4px 9px;border-radius:7px">B1</span>
+      <div><div style="font-size:16px;font-weight:800">Sitemap — Cây điều hướng Workspace</div><div style="font-size:12.5px;color:#6B7280">17 module · nhóm theo cụm chức năng trên thanh điều hướng trái</div></div>
+    </div>
+    <div style="padding:26px 24px">
+      <div style="display:flex;justify-content:center;margin-bottom:22px">
+        <span style="background:#231F20;color:#fff;font-size:14px;font-weight:800;padding:10px 22px;border-radius:10px">AppChat Workspace</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px">
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Vào &amp; Điều hành</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;font-weight:600">Đăng nhập / Onboarding</span>
+              <span style="font-size:12.5px;font-weight:600">Tổng quan (Dashboard)</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Trợ lý AI</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">↳ Chat-command</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Phiên trò chuyện</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Nhật ký hành động</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Hộp thư (Omnichannel)</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">↳ Danh sách hội thoại</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Cửa sổ chat + AI</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Customer 360 panel</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Kết nối kênh</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Khách hàng &amp; CRM</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">↳ Khách hàng (CDP) · Custom field</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Báo giá</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Hợp đồng · Ký số</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Đơn hàng · Thanh toán</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Sản phẩm &amp; Dịch vụ</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Marketing</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">↳ Chiến dịch · Broadcast</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Email Marketing</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Zalo ZBS</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ SMS Marketing</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Automation</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Vận hành</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;font-weight:600">Lịch hẹn</span>
+              <span style="font-size:12.5px;font-weight:600">AI Agents</span>
+              <span style="font-size:12.5px;font-weight:600">Quy trình (Workflow)</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Kênh thoại &amp; Giữ chân</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">Gọi điện ↳ IVR · Hàng đợi · Cuộc gọi</span>
+              <span style="font-size:12.5px;font-weight:600">Loyalty</span>
+              <span style="font-size:12.5px;color:#6B7280">Hỗ trợ (Ticket) ↳ SLA</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Báo cáo</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">↳ Tổng quan · Kênh</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Marketing · Sales · Khách hàng</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:800;color:#0E9B94;padding-bottom:6px">Cài đặt tài khoản</div>
+            <div style="border-left:2px solid #DCE5E3;padding-left:12px;display:flex;flex-direction:column;gap:5px">
+              <span style="font-size:12.5px;color:#6B7280">↳ Cấu hình · Phân quyền</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Ví AppChat · Lịch sử Token</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Đối tác tiếp thị (Affiliate)</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Email / SMS / Zalo MKT</span>
+              <span style="font-size:12.5px;color:#6B7280">↳ Kênh kết nối</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GROUP C HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#2DC56A;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">C</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">User Flow theo nghiệp vụ</div>
+      <div style="font-size:13px;color:#6B7280">Hành trình thao tác chính của người dùng · điểm rẽ nhánh được tô vàng</div>
+    </div>
+  </div>
+
+  <!-- C1 -->
+  <div data-dgm="c1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:16px 22px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2DC56A;padding:4px 9px;border-radius:7px">C1</span>
+      <div style="font-size:15.5px;font-weight:800">Đăng nhập &amp; Onboarding</div>
+    </div>
+    <div style="padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+        <span style="background:#157A40;color:#fff;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:10px">Mở AppChat</span>
+        <span style="color:#9FB7A8;font-weight:700">→</span>
+        <span style="background:#FFF8EC;border:1.5px solid #F2D9A8;color:#8A5A0C;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:10px">Đã có tài khoản?</span>
+      </div>
+      <div style="border-left:2px solid #E1E6E3;padding-left:16px;display:flex;flex-direction:column;gap:11px">
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <span style="font-size:11.5px;font-weight:800;color:#157A40;width:54px">CÓ →</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Đăng nhập (SSO / Email)</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Xác thực OTP / 2FA</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chọn Workspace</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Dashboard</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <span style="font-size:11.5px;font-weight:800;color:#C9820B;width:54px">CHƯA →</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Đăng ký</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Tạo Workspace</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Kết nối kênh đầu tiên</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Onboarding tour</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Dashboard</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C2 -->
+  <div data-dgm="c2" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:16px 22px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2DC56A;padding:4px 9px;border-radius:7px">C2</span>
+      <div style="font-size:15.5px;font-weight:800">Kết nối kênh (Zalo / Facebook / IG…)</div>
+    </div>
+    <div style="padding:22px;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+      <span style="background:#157A40;color:#fff;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:10px">Hộp thư / Cài đặt</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Nhấn "Kết nối kênh"</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chọn nền tảng</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Đăng nhập OAuth</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Cấp quyền</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chọn Trang / OA</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Đăng ký webhook</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Đồng bộ hội thoại</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Kênh hoạt động</span>
+    </div>
+  </div>
+
+  <!-- C3 -->
+  <div data-dgm="c3" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:16px 22px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2DC56A;padding:4px 9px;border-radius:7px">C3</span>
+      <div style="font-size:15.5px;font-weight:800">Nạp ví &amp; thanh toán QR</div>
+    </div>
+    <div style="padding:22px;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+      <span style="background:#157A40;color:#fff;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:10px">Ví AppChat</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Nhấn "Nạp tiền"</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Nhập số tiền / gói</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chọn VietQR</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Hiện mã QR</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Quét &amp; chuyển khoản</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Cổng xác nhận (webhook)</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Cộng số dư</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Biên nhận</span>
+    </div>
+  </div>
+
+  <!-- C4 -->
+  <div data-dgm="c4" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:16px 22px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2DC56A;padding:4px 9px;border-radius:7px">C4</span>
+      <div style="font-size:15.5px;font-weight:800">Tạo chiến dịch Broadcast (Marketing)</div>
+    </div>
+    <div style="padding:22px;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+      <span style="background:#157A40;color:#fff;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:10px">Marketing</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">"Tạo chiến dịch"</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chọn kênh</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chọn tệp khách (segment / upload)</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Soạn nội dung (AI gợi ý)</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#FFF8EC;border:1.5px solid #F2D9A8;color:#8A5A0C;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">A/B test?</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Kiểm tra số dư token</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Lên lịch / Gửi ngay</span>
+      <span style="color:#9FB7A8;font-weight:700">→</span>
+      <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Theo dõi báo cáo</span>
+    </div>
+  </div>
+
+  <!-- C5 -->
+  <div data-dgm="c5" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:16px 22px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2DC56A;padding:4px 9px;border-radius:7px">C5</span>
+      <div style="font-size:15.5px;font-weight:800">Xử lý hội thoại Inbox (AI → nhân viên)</div>
+    </div>
+    <div style="padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+        <span style="background:#157A40;color:#fff;font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:10px">Tin nhắn đến (kênh)</span>
+        <span style="color:#9FB7A8;font-weight:700">→</span>
+        <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Hợp nhất vào Inbox</span>
+        <span style="color:#9FB7A8;font-weight:700">→</span>
+        <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">AI phân loại + trả lời</span>
+        <span style="color:#9FB7A8;font-weight:700">→</span>
+        <span style="background:#FFF8EC;border:1.5px solid #F2D9A8;color:#8A5A0C;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Đủ tự tin?</span>
+      </div>
+      <div style="border-left:2px solid #E1E6E3;padding-left:16px;display:flex;flex-direction:column;gap:11px">
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <span style="font-size:11.5px;font-weight:800;color:#157A40;width:54px">CÓ →</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">AI xử lý / đóng</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Ghi nhận CSAT</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <span style="font-size:11.5px;font-weight:800;color:#C9820B;width:54px">KHÔNG →</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Chuyển nhân viên</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">NV trả lời</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#FFF8EC;border:1.5px solid #F2D9A8;color:#8A5A0C;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Cần báo giá / ticket?</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#fff;border:1.5px solid #CDEBD9;color:#157A40;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px">Tạo báo giá / ticket</span>
+          <span style="color:#9FB7A8;font-weight:700">→</span>
+          <span style="background:#231F20;color:#fff;font-size:12.5px;font-weight:700;padding:8px 12px;border-radius:10px">Đóng + CSAT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GROUP D HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#157A40;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">D</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Sơ đồ phân rã chức năng</div>
+      <div style="font-size:13px;color:#6B7280">Functional decomposition — nhóm chức năng &amp; tính năng con của từng module</div>
+    </div>
+  </div>
+
+  <!-- D1 -->
+  <div data-dgm="d1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#157A40;padding:4px 9px;border-radius:7px">D1</span>
+      <div><div style="font-size:16px;font-weight:800">Bản đồ chức năng theo module</div><div style="font-size:12.5px;color:#6B7280">10 nhóm chức năng lõi · tính năng con</div></div>
+    </div>
+    <div style="padding:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Hộp thư</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Hội thoại đa kênh</span><span>· Gán &amp; chuyển hội thoại</span><span>· Nhãn · ưu tiên · SLA</span><span>· Trả lời nhanh / macro</span><span>· Ghi chú nội bộ</span><span>· AI gợi ý phản hồi</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Khách hàng (CDP)</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Hồ sơ 360°</span><span>· Phân khúc / segment</span><span>· Custom field</span><span>· Lịch sử tương tác</span><span>· Điểm &amp; hạng</span><span>· Nguồn &amp; kênh</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Bán hàng</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Báo giá</span><span>· Đơn hàng</span><span>· Hợp đồng &amp; ký số</span><span>· Sản phẩm / dịch vụ</span><span>· Pipeline cơ hội</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Marketing</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Broadcast đa kênh</span><span>· Email · Zalo ZBS · SMS</span><span>· Automation</span><span>· A/B test</span><span>· Báo cáo chiến dịch</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">CSKH</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Ticket</span><span>· SLA &amp; đếm ngược</span><span>· Macro xử lý</span><span>· Phân loại AI</span><span>· Khảo sát CSAT</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">AI &amp; Tự động hoá</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· AI Agents</span><span>· Trợ lý AI (chat-command)</span><span>· Workflow</span><span>· Nhật ký hành động</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Lịch &amp; Tổng đài</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Lịch hẹn &amp; phân công</span><span>· Gọi điện (Call Center)</span><span>· IVR · Hàng đợi</span><span>· AI Voice</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Loyalty</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Hạng thành viên</span><span>· Tích / đổi điểm</span><span>· Quy tắc tích điểm</span><span>· Ưu đãi &amp; voucher</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#EDFAF3;padding:10px 13px;font-size:13px;font-weight:800;color:#157A40">Báo cáo</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Tổng quan</span><span>· Kênh · Marketing</span><span>· Sales · Khách hàng</span><span>· Xuất &amp; lên lịch</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;overflow:hidden">
+        <div style="background:#F4F4F5;padding:10px 13px;font-size:13px;font-weight:800;color:#48505A">Hệ thống &amp; Tài khoản</div>
+        <div style="padding:11px 13px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#4A5550">
+          <span>· Ví &amp; Token</span><span>· Đối tác (Affiliate)</span><span>· Kênh kết nối</span><span>· Phân quyền (RBAC)</span><span>· Cấu hình chung</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== GROUP E HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#6E48E6;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">E</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Design System &amp; Component Hierarchy</div>
+      <div style="font-size:13px;color:#6B7280">Bản đồ hệ thống thiết kế &amp; cây phân cấp component giao diện</div>
+    </div>
+  </div>
+
+  <!-- E1: DESIGN SYSTEM MAP -->
+  <div data-dgm="e1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#6E48E6;padding:4px 9px;border-radius:7px">E1</span>
+      <div><div style="font-size:16px;font-weight:800">Bản đồ Design System</div><div style="font-size:12.5px;color:#6B7280">Foundations → Components → Patterns</div></div>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;padding:16px 18px">
+        <div style="font-size:13px;font-weight:800;color:#231F20;margin-bottom:12px">① Foundations · Nền tảng</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <div>
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Màu sắc</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+              <span style="width:22px;height:22px;border-radius:6px;background:#2DC56A;border:1px solid #00000010"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#157A40"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#231F20"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#2A6FDB"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#6E48E6"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#C9820B"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#E0556B"></span>
+              <span style="width:22px;height:22px;border-radius:6px;background:#F9FAFB;border:1px solid #E5E7EB"></span>
+            </div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:7px">Brand · semantic · neutral</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Typography</div>
+            <div style="font-size:17px;font-weight:800;color:#231F20;line-height:1.1">Plus Jakarta Sans</div>
+            <div class="mono" style="font-size:12.5px;color:#6B7280;margin-top:4px">JetBrains Mono · số liệu/mã</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Token khác</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span style="background:#F4F7F5;border:1px solid #E6EAE8;font-size:11.5px;font-weight:600;color:#4A5550;padding:5px 9px;border-radius:7px">Spacing 4-8-12…</span>
+              <span style="background:#F4F7F5;border:1px solid #E6EAE8;font-size:11.5px;font-weight:600;color:#4A5550;padding:5px 9px;border-radius:7px">Radius 8/10/14</span>
+              <span style="background:#F4F7F5;border:1px solid #E6EAE8;font-size:11.5px;font-weight:600;color:#4A5550;padding:5px 9px;border-radius:7px">Shadow / elevation</span>
+              <span style="background:#F4F7F5;border:1px solid #E6EAE8;font-size:11.5px;font-weight:600;color:#4A5550;padding:5px 9px;border-radius:7px">Icon 24px stroke</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;padding:16px 18px">
+        <div style="font-size:13px;font-weight:800;color:#231F20;margin-bottom:12px">② Components · Thành phần</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Điều hướng</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Nav rail</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Flyout</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Top bar</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Tab</span></div></div>
+          <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Hiển thị dữ liệu</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">KPI card</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Table</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Kanban</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Timeline</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Chart</span></div></div>
+          <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Nhập liệu</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Text · Select</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Search</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Toggle</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Checkbox</span></div></div>
+          <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Hành động</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Button</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Chip</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Dropdown menu</span></div></div>
+          <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Phản hồi</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Modal</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Toast</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Badge</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">SLA countdown</span></div></div>
+          <div><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:8px">Overlay</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Popover</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Drawer</span><span style="background:#F4F1FC;border:1px solid #E2D8F8;color:#5733C2;font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:7px">Panel 360°</span></div></div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #E6EAE8;border-radius:13px;padding:16px 18px">
+        <div style="font-size:13px;font-weight:800;color:#231F20;margin-bottom:12px">③ Patterns · Mẫu bố cục</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="background:#EDFAF3;border:1px solid #BFE8CE;color:#157A40;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">App-shell layout</span>
+          <span style="background:#EDFAF3;border:1px solid #BFE8CE;color:#157A40;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Detail panel (master-detail)</span>
+          <span style="background:#EDFAF3;border:1px solid #BFE8CE;color:#157A40;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Wizard / stepper</span>
+          <span style="background:#EDFAF3;border:1px solid #BFE8CE;color:#157A40;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Filter bar</span>
+          <span style="background:#EDFAF3;border:1px solid #BFE8CE;color:#157A40;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">Empty state</span>
+          <span style="background:#EDFAF3;border:1px solid #BFE8CE;color:#157A40;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px">List / Kanban toggle</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E2: COMPONENT HIERARCHY -->
+  <div data-dgm="e2" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#6E48E6;padding:4px 9px;border-radius:7px">E2</span>
+      <div><div style="font-size:16px;font-weight:800">Cây phân cấp component — App Shell</div><div style="font-size:12.5px;color:#6B7280">Cấu trúc lồng nhau của giao diện Workspace</div></div>
+    </div>
+    <div style="padding:24px;font-size:12.5px;color:#4A5550;line-height:1.9" class="mono">
+      <div style="font-weight:700;color:#231F20">App</div>
+      <div style="padding-left:18px;border-left:2px solid #EDE7FB;margin-left:6px">
+        <div>├─ AuthGate <span style="color:#9CA3AF">(Login · OTP · Workspace picker)</span></div>
+        <div>└─ AppShell</div>
+        <div style="padding-left:18px;border-left:2px solid #EDE7FB;margin-left:6px">
+          <div>├─ NavRail <span style="color:#9CA3AF">· Logo · NavItem[] · Flyout (CRM / Báo cáo / Cài đặt) · UserMenu</span></div>
+          <div>├─ TopBar <span style="color:#9CA3AF">· Search · Notif · Help · WorkspaceSwitch</span></div>
+          <div>├─ ModuleRouter</div>
+          <div style="padding-left:18px;border-left:2px solid #EDE7FB;margin-left:6px">
+            <div>├─ DashboardView <span style="color:#9CA3AF">· KPIGrid · AgentPanel · StaffTable</span></div>
+            <div>├─ AssistantView <span style="color:#9CA3AF">· ChatCommand · Sessions · ActionLog</span></div>
+            <div>├─ InboxView</div>
+            <div style="padding-left:18px;border-left:2px solid #EDE7FB;margin-left:6px"><div>├─ ConvList · ├─ ChatWindow · ├─ Customer360 · └─ AIAssistPanel</div></div>
+            <div>├─ CustomersView <span style="color:#9CA3AF">· Table · CustomField · DetailPanel</span></div>
+            <div>├─ MarketingView <span style="color:#9CA3AF">· CampaignList · BroadcastWizard · Email/Zalo/SMS</span></div>
+            <div>├─ SalesViews <span style="color:#9CA3AF">· Quotes · Orders · Contracts · Products</span></div>
+            <div>├─ TicketsView · CalendarView · CallCenterView · LoyaltyView · ReportsView</div>
+            <div>└─ SettingsView <span style="color:#9CA3AF">· Config · Wallet · Affiliate · Channels · RBAC</span></div>
+          </div>
+          <div>└─ GlobalOverlays <span style="color:#9CA3AF">· ConnectChannelModal · WalletModal · Toasts</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GROUP F HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#D9682E;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">F</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Sequence Diagram</div>
+      <div style="font-size:13px;color:#6B7280">Trình tự trao đổi giữa các thành phần · nét liền = yêu cầu, nét đứt = phản hồi</div>
+    </div>
+  </div>
+
+  <!-- F1: QR PAYMENT SEQUENCE -->
+  <div data-dgm="f1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#D9682E;padding:4px 9px;border-radius:7px">F1</span>
+      <div><div style="font-size:16px;font-weight:800">Thanh toán &amp; nạp ví qua QR (VietQR)</div><div style="font-size:12.5px;color:#6B7280">11 bước · xác nhận giao dịch qua webhook</div></div>
+    </div>
+    <div style="padding:24px">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px">
+        <div style="background:#231F20;color:#fff;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">Khách hàng</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">AppChat Web</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">Payment Service</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">VietQR / Ngân hàng</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">Ví &amp; Số dư</div>
+      </div>
+      <div style="position:relative">
+        <div style="position:absolute;inset:0;pointer-events:none">
+          <div style="position:absolute;top:0;bottom:0;left:10%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:30%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:50%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:70%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:90%;border-left:1.5px dashed #D5DED9"></div>
+        </div>
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:1 / 3;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">1 · Nhấn "Nạp tiền"</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:2 / 4;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">2 · Tạo yêu cầu nạp (số tiền)</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">3 · Sinh mã VietQR</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">4 · Trả QR + nội dung CK</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:2 / 4;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">5 · Trả mã QR cho Web</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:1 / 3;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">6 · Hiển thị QR cho khách</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:1 / 5;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">7 · Quét &amp; chuyển khoản (app ngân hàng)</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:2px;background:#157A40"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#157A40;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#157A40">8 · Webhook xác nhận giao dịch</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 6;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">9 · Cộng số dư</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:2 / 6;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">10 · Cập nhật số dư (realtime)</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:1 / 3;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">11 · Hiện biên nhận</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- F2: OAUTH CHANNEL CONNECT SEQUENCE -->
+  <div data-dgm="f2" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#D9682E;padding:4px 9px;border-radius:7px">F2</span>
+      <div><div style="font-size:16px;font-weight:800">Kết nối kênh qua OAuth + Webhook</div><div style="font-size:12.5px;color:#6B7280">Cấp quyền nền tảng → đăng ký webhook → nhận tin nhắn về Inbox</div></div>
+    </div>
+    <div style="padding:24px">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px">
+        <div style="background:#231F20;color:#fff;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">Admin</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">AppChat Web</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">AppChat Backend</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">Nền tảng (Zalo/FB)</div>
+        <div style="background:#FDEEE4;border:1px solid #F2C9AE;color:#A6481F;border-radius:8px;padding:8px 4px;font-size:11.5px;font-weight:700;text-align:center">Inbox / Hội thoại</div>
+      </div>
+      <div style="position:relative">
+        <div style="position:absolute;inset:0;pointer-events:none">
+          <div style="position:absolute;top:0;bottom:0;left:10%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:30%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:50%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:70%;border-left:1.5px dashed #D5DED9"></div>
+          <div style="position:absolute;top:0;bottom:0;left:90%;border-left:1.5px dashed #D5DED9"></div>
+        </div>
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:1 / 3;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">1 · Chọn "Kết nối Zalo OA"</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:2 / 5;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">2 · Redirect OAuth</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:1 / 5;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">3 · Đăng nhập + cấp quyền</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">4 · Trả authorization code</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">5 · Đổi code lấy access token</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">6 · access_token + refresh</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#D9682E"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#D9682E;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#231F20">7 · Đăng ký webhook URL</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:3 / 5;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">8 · Xác nhận webhook</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:2 / 4;position:relative;height:34px"><div style="position:absolute;left:14px;right:6px;top:60%;height:0;border-top:2px dashed #9CA3AF"></div><span style="position:absolute;left:4px;top:60%;transform:translateY(-50%);color:#9CA3AF;font-size:12px">◀</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#6B7280">9 · Kênh hoạt động + đồng bộ</span></div></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);min-height:42px;align-items:center"><div style="grid-column:4 / 6;position:relative;height:34px"><div style="position:absolute;left:6px;right:14px;top:60%;height:2px;background:#157A40"></div><span style="position:absolute;right:4px;top:60%;transform:translateY(-50%);color:#157A40;font-size:12px">▶</span><span style="position:absolute;left:0;right:0;top:0;text-align:center;font-size:11px;font-weight:600;color:#157A40">10 · Tin nhắn mới → Inbox (về sau)</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GROUP G HEADER ===== -->
+  <div data-chrome="1" style="margin:40px 0 16px;display:flex;align-items:center;gap:12px">
+    <span style="width:34px;height:34px;border-radius:10px;background:#2A6FDB;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px">G</span>
+    <div>
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.01em">Data Model &amp; Luồng dữ liệu</div>
+      <div style="font-size:13px;color:#6B7280">Mô hình thực thể (ER) &amp; pipeline xử lý dữ liệu omnichannel</div>
+    </div>
+  </div>
+
+  <!-- G1: ER MODEL -->
+  <div data-dgm="g1" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2A6FDB;padding:4px 9px;border-radius:7px">G1</span>
+      <div><div style="font-size:16px;font-weight:800">Mô hình thực thể (ER)</div><div style="font-size:12.5px;color:#6B7280">🔑 khoá chính · 🔗 khoá ngoại</div></div>
+    </div>
+    <div style="padding:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+      <div style="border:1.5px solid #C7D7F5;border-radius:12px;overflow:hidden">
+        <div style="background:#2A6FDB;color:#fff;padding:9px 13px;font-size:13px;font-weight:800">Customer</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>name · phone · email<br>segment · source · channel<br>🔗 tier_id · ltv<br>custom_fields[]</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">Conversation</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>🔗 customer_id<br>channel · status · priority<br>🔗 assignee_id · csat</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">Message</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>🔗 conversation_id<br>sender · type · content<br>timestamp</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">Campaign</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>name · type · channel<br>segment · schedule · status<br>token_cost</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">Ticket</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>🔗 customer_id<br>title · priority · status<br>sla_due · 🔗 assignee_id</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">Quote / Order</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id · code<br>🔗 customer_id<br>items[] · total · status<br>🔗 contract_id</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">WalletTxn</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>type · amount · balance<br>method · ref · timestamp</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">LoyaltyPoint</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>🔗 customer_id<br>🔗 tier · points<br>history[]</div>
+      </div>
+      <div style="border:1px solid #DCE3EF;border-radius:12px;overflow:hidden">
+        <div style="background:#EAF1FB;color:#1E4FA8;padding:9px 13px;font-size:13px;font-weight:800">Staff / Agent</div>
+        <div class="mono" style="padding:11px 13px;font-size:11.5px;color:#4A5550;line-height:1.85">🔑 id<br>name · team · role<br>is_ai · permissions[]</div>
+      </div>
+
+      <div style="grid-column:1 / 4;background:#F7FAFE;border:1px solid #DCE3EF;border-radius:12px;padding:13px 16px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:9px">Quan hệ chính</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Customer 1—∞ Conversation</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Conversation 1—∞ Message</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Customer 1—∞ Ticket</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Customer 1—∞ Quote/Order</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Customer 1—1 LoyaltyPoint</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Campaign ∞—∞ Customer (segment)</span>
+          <span style="background:#fff;border:1px solid #C7D7F5;color:#1E4FA8;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;" class="mono">Staff 1—∞ Conversation/Ticket</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- G2: DATA FLOW -->
+  <div data-dgm="g2" style="background:#fff;border:1px solid #E1E6E3;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 1px 2px rgba(17,24,39,.04)">
+    <div style="padding:18px 24px;border-bottom:1px solid #EEF1F0;display:flex;align-items:center;gap:12px">
+      <span class="mono" style="font-size:12px;font-weight:600;color:#fff;background:#2A6FDB;padding:4px 9px;border-radius:7px">G2</span>
+      <div><div style="font-size:16px;font-weight:800">Luồng dữ liệu omnichannel</div><div style="font-size:12.5px;color:#6B7280">Thu thập → chuẩn hoá → CDP → AI làm giàu → phân khúc → hành động → phân tích</div></div>
+    </div>
+    <div style="padding:26px 24px">
+      <div style="display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;justify-content:center">
+        <div style="flex:1;min-width:130px;background:#EAF1FB;border:1px solid #C7D7F5;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#1E4FA8">Thu thập</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Webhook đa kênh, form, import</div></div>
+        <div style="display:flex;align-items:center;color:#9FB7C8;font-weight:700;font-size:18px">→</div>
+        <div style="flex:1;min-width:130px;background:#EAF1FB;border:1px solid #C7D7F5;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#1E4FA8">Chuẩn hoá</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Hợp nhất danh tính, khử trùng lặp</div></div>
+        <div style="display:flex;align-items:center;color:#9FB7C8;font-weight:700;font-size:18px">→</div>
+        <div style="flex:1;min-width:130px;background:#EDFAF3;border:1px solid #BFE8CE;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#157A40">CDP 360°</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Hồ sơ thống nhất, lịch sử</div></div>
+        <div style="display:flex;align-items:center;color:#9FB7C8;font-weight:700;font-size:18px">→</div>
+        <div style="flex:1;min-width:130px;background:#F4F1FC;border:1px solid #E2D8F8;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#5733C2">AI làm giàu</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Phân loại, sentiment, dự đoán</div></div>
+      </div>
+      <div style="display:flex;justify-content:center;color:#9FB7C8;font-size:18px;margin:8px 0">↓</div>
+      <div style="display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;justify-content:center">
+        <div style="flex:1;min-width:130px;background:#F4F1FC;border:1px solid #E2D8F8;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#5733C2">Phân khúc</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Segment động, điểm RFM</div></div>
+        <div style="display:flex;align-items:center;color:#9FB7C8;font-weight:700;font-size:18px">→</div>
+        <div style="flex:1;min-width:130px;background:#EDFAF3;border:1px solid #BFE8CE;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#157A40">Hành động</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Broadcast, Inbox, Workflow, Loyalty</div></div>
+        <div style="display:flex;align-items:center;color:#9FB7C8;font-weight:700;font-size:18px">→</div>
+        <div style="flex:1;min-width:130px;background:#FFF8EC;border:1px solid #F2D9A8;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#8A5A0C">Phân tích</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Báo cáo, KPI, attribution</div></div>
+        <div style="display:flex;align-items:center;color:#9FB7C8;font-weight:700;font-size:18px">↺</div>
+        <div style="flex:1;min-width:130px;background:#F4F7F5;border:1px dashed #C7D0CB;border-radius:12px;padding:14px;text-align:center"><div style="font-size:13px;font-weight:800;color:#48505A">Vòng phản hồi</div><div style="font-size:11px;color:#6B7280;margin-top:4px;line-height:1.4">Cập nhật hồ sơ &amp; mô hình AI</div></div>
+      </div>
+      <div style="margin-top:22px;border-top:1px dashed #E1E6E3;padding-top:16px">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;margin-bottom:10px">Kho dữ liệu</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="background:#FFF8EC;border:1px solid #F2D9A8;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">CSDL quan hệ</span>
+          <span style="background:#FFF8EC;border:1px solid #F2D9A8;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Kho sự kiện (event store)</span>
+          <span style="background:#FFF8EC;border:1px solid #F2D9A8;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Search / Index</span>
+          <span style="background:#FFF8EC;border:1px solid #F2D9A8;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Object storage (media)</span>
+          <span style="background:#FFF8EC;border:1px solid #F2D9A8;color:#8A5A0C;font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px">Cache / Redis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script>
+(async () => {
+  if (!document.title || !document.title.trim()) document.title = "UIUX-Architecture";
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    print-color-adjust: exact; -webkit-print-color-adjust: exact;\n    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        !settleRoot.querySelector('.sc-placeholder');
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  // Project support.js may predate runtime default-seeding; push via bridge.
+  if (isDc && window.__dcSetProps && window.__dcRootName) {
+    try {
+      const dpEl = document.querySelector('script[data-dc-script]');
+      const meta = JSON.parse((dpEl && dpEl.getAttribute('data-props')) || '{}');
+      const bag = {};
+      for (const k in meta)
+        if (k[0] !== '$' && meta[k] && meta[k].default !== undefined)
+          bag[k] = meta[k].default;
+      if (Object.keys(bag).length) {
+        window.__dcSetProps(window.__dcRootName(), bag);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    } catch (e) {}
+  }
+  // Reveal content gated on scroll or visibility before printing. Lazy <img>,
+  // IntersectionObserver fade-ins, and collapsed <details> don't render while
+  // off-screen, so a long page would print with them blank or closed. Open
+  // every <details>, force native-lazy images eager, and scroll the document
+  // through its full height to trip lazy-load + IO; then wait (bounded) for the
+  // newly-triggered images. Inert for deck-stage (slides aren't scroll-gated).
+  try {
+    for (const d of document.querySelectorAll('details')) d.open = true;
+    for (const img of document.querySelectorAll('img[loading="lazy"]'))
+      img.loading = 'eager';
+    const scroller = document.scrollingElement || document.documentElement;
+    const full = Math.max(scroller.scrollHeight, document.body.scrollHeight);
+    const step = window.innerHeight || 800;
+    for (let y = 0; y <= full; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    window.scrollTo(0, 0);
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((img) =>
+          img.complete
+            ? null
+            : new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+              })
+        )
+      ),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  } catch (e) {}
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  // Re-append deck-stage's @page last so no author @page can add a margin and
+  // spill each full-bleed slide onto two sheets. Backstop for old copies.
+  if (ds) {
+    let pg = document.getElementById('deck-stage-print-page');
+    if (!pg) {
+      pg = document.createElement('style');
+      pg.textContent = '@page{size:' + (+ds.getAttribute('width') || 1920) +
+        'px ' + (+ds.getAttribute('height') || 1080) + 'px;margin:0}';
+    }
+    document.body.appendChild(pg);
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  // Size the PDF page to the rendered design unless the file opted into
+  // standard paper via @page{size:letter|A4|…}. Decks own their own @page.
+  // Wrappers (body, …) lose padding+margin so the frame sits at (0,0); the
+  // frame itself loses only margin — its padding is INSIDE the measured
+  // rect and must stay, or content shifts and leaves a gap at bottom/right.
+  var __m = null;
+  try { __m = (() => {
+  var STAMP = true;
+  var docEl = document.documentElement;
+  var doc = { width: docEl.scrollWidth, height: docEl.scrollHeight };
+
+  var ds = document.querySelector('deck-stage');
+  if (ds) {
+    var dw = Number(ds.getAttribute('width')) || 1920;
+    var dh = Number(ds.getAttribute('height')) || 1080;
+    var n = typeof ds.length === 'number' ? ds.length : ds.children.length;
+    var idx = typeof ds.index === 'number' ? ds.index : 0;
+    var frames = [];
+    for (var i = 0; i < n; i++) frames.push({ left: 0, top: 0, width: dw, height: dh });
+    return { kind: 'deck', source: 'declared', doc: doc, frames: frames,
+      authored: frames.map(function(){return{width:true,height:true}}),
+      deck: { width: dw, height: dh, slideCount: n, index: idx },
+      signals: { paperPage: false, pxPage: false } };
+  }
+
+  // Declared kind: a doc-page tag names the kind outright, so no signal
+  // heuristics run (like the deck branch above, signals report false —
+  // they describe inferred classifications only). The tag alone is not
+  // trusted: the element must have upgraded (shadowRoot present), so a
+  // leftover tag whose script was deleted falls through to the heuristics
+  // that handle plain markup.
+  var stageSx = window.scrollX || 0, stageSy = window.scrollY || 0;
+  var dp = document.querySelector('doc-page');
+  if (dp && dp.shadowRoot) {
+    // Crop to the sheet, not the host — the desk around it is screen-only
+    // chrome that must not land in PNG exports.
+    var sheet = dp.shadowRoot.querySelector('.sheet');
+    var sr = (sheet || dp).getBoundingClientRect();
+    return { kind: 'paper-doc', source: 'declared', doc: doc,
+      frames: [{ left: sr.left + stageSx, top: sr.top + stageSy,
+        width: sr.width, height: sr.height }],
+      authored: [{ width: false, height: false }],
+      signals: { paperPage: false, pxPage: false } };
+  }
+  var paperPage = false, pxPage = false;
+  var eachRule = function (fn) {
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs; try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        fn(rs[r]);
+        if (rs[r].cssRules) for (var n = 0; n < rs[r].cssRules.length; n++) fn(rs[r].cssRules[n]);
+      }
+    }
+  };
+  eachRule(function (r) {
+    if (r.type !== 6) return;
+    var m = /\bsize\s*:\s*([^;}]+)/i.exec(r.cssText || '');
+    if (!m) return;
+    if (/\b(letter|a[3-5]|legal|ledger)\b/i.test(m[1])) paperPage = true;
+    if (/\d+(?:\.\d+)?px\b/i.test(m[1])) pxPage = true;
+  });
+  var signals = { paperPage: paperPage, pxPage: pxPage };
+
+  var pxVal = function (v) {
+    var m = /^(\d+(?:\.\d+)?)px$/.exec(v || ''); return m ? +m[1] : 0;
+  };
+  var authoredPx = function (el, prop) {
+    if (pxVal(el.style[prop])) return true;
+    var attr = el.getAttribute(prop);
+    if (attr && /^\d+$/.test(attr)) return true;
+    var hit = false;
+    eachRule(function (r) {
+      if (hit || r.type !== 1 || !r.style) return;
+      try { if (el.matches(r.selectorText) && pxVal(r.style[prop])) hit = true; } catch (e) {}
+    });
+    return hit;
+  };
+
+  var el = document.body, rootPxW = false;
+  for (;;) {
+    var kids = [];
+    for (var c = 0; c < el.children.length; c++) {
+      var t = el.children[c].tagName;
+      if (t !== 'SCRIPT' && t !== 'STYLE' && t !== 'TEMPLATE') kids.push(el.children[c]);
+    }
+    if (kids.length !== 1 || !(kids[0] instanceof HTMLElement)) break;
+    if (STAMP) el.setAttribute('data-om-frame-wrap', '');
+    el = kids[0];
+    rootPxW = authoredPx(el, 'width');
+    if (rootPxW) break;
+  }
+  if (!rootPxW) rootPxW = authoredPx(el, 'width');
+
+  // @page{size:letter} alone is a flowing doc; with a px-width root it's a
+  // fixed sheet pretending to be paper — fall through and size to render.
+  if (paperPage && !rootPxW) {
+    return { kind: 'paper-doc', source: 'inferred', doc: doc, signals: signals,
+      frames: [{ left: 0, top: 0, width: doc.width, height: doc.height }],
+      authored: [{ width: false, height: false }] };
+  }
+
+  var sx = window.scrollX || 0, sy = window.scrollY || 0;
+  var rectOf = function (e) {
+    var r = e.getBoundingClientRect();
+    var oy; try { oy = getComputedStyle(e).overflowY; } catch (err) {}
+    var h = oy === 'visible' ? Math.max(r.height, e.scrollHeight || 0) : r.height;
+    return { left: r.left + sx, top: r.top + sy, width: r.width, height: h };
+  };
+
+  // Multi-frame: ≥2 visible non-fixed children, each with authored px width
+  // AND height, all within ±2px of each other. Off unless the page opts in
+  // via data-om-multi-frame on the stop element — guards against card grids
+  // and pricing tables that match the geometry but aren't separate canvases.
+  if (el.hasAttribute('data-om-multi-frame')) {
+    var cands = [];
+    for (var k = 0; k < el.children.length; k++) {
+      var ch = el.children[k];
+      var cs; try { cs = getComputedStyle(ch); } catch (e) { continue; }
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.position === 'fixed') continue;
+      var rc = rectOf(ch);
+      if (rc.width < 2 || rc.height < 2) continue;
+      if (!authoredPx(ch, 'width') || !authoredPx(ch, 'height')) continue;
+      cands.push(rc);
+    }
+    if (cands.length >= 2) {
+      var w0 = cands[0].width, h0 = cands[0].height, ok = true;
+      for (var q = 1; q < cands.length; q++)
+        if (Math.abs(cands[q].width - w0) > 2 || Math.abs(cands[q].height - h0) > 2) ok = false;
+      if (ok) return { kind: 'multi-frame', source: 'inferred', doc: doc, signals: signals,
+        frames: cands, authored: cands.map(function(){return{width:true,height:true}}) };
+    }
+  }
+
+  if (STAMP) el.setAttribute('data-om-frame', '');
+  return { kind: 'single-canvas', source: 'inferred', doc: doc, signals: signals,
+    frames: [rectOf(el)],
+    authored: [{ width: rootPxW, height: authoredPx(el, 'height') }] };
+})(); } catch (e) {}
+  var frame = null;
+  if (__m && __m.kind === 'single-canvas') {
+    var f = __m.frames && __m.frames[0];
+    if (f && f.width >= 200 && f.height >= 200) {
+      frame = f;
+      var fst = document.createElement('style');
+      fst.textContent = '@media print{@page{size:' + Math.ceil(f.width) + 'px ' +
+        Math.ceil(f.height) + 'px;margin:0}' +
+        'html,body,[data-om-frame-wrap]{padding:0!important;margin:0!important;background:none!important}' +
+        '[data-om-frame]{margin:0!important}}';
+      document.body.appendChild(fst);
+    }
+  }
+  // Relax break-inside on oversized elements. An element taller than a
+  // printable page can't honor break-inside: avoid — browsers either overflow
+  // it or push it whole to the next page, leaving a blank gap, then break it
+  // anyway at an arbitrary point. After the final layout (content revealed,
+  // animations jumped), find elements taller than a page that still compute
+  // break-inside: avoid and reset them to auto, so the browser breaks them at
+  // their children's boundaries instead (children keep their own avoid). PAGE_PX
+  // is a conservative portrait estimate at 96 CSS px/in — Letter/A4 usable
+  // height minus our 0.5in margins — so only clearly-oversized elements are
+  // touched and under-page elements still stay whole. Skipped for decks (slides
+  // are sized to the page) and for fixed-size canvases (frame set, or an author
+  // px-based @page) — runs as before for flowing docs on letter/A4.
+  try {
+    if (!ds && !frame && !(__m && __m.signals && __m.signals.pxPage)) {
+      const PAGE_PX = 1024;
+      // Our print defaults add a real @page margin only when the source has
+      // no @page of its own; computed style can't tell us (it reports screen
+      // media), so read the injected rule directly.
+      const defaults = document.querySelector('style[data-omelette-print-defaults]');
+      const pageInset = /@page\s*\{[^}]*margin/.test(defaults ? defaults.textContent || '' : '');
+      const SEL = 'section,article,figure,table,pre,blockquote,[class~="card" i],[class~="page" i],[class~="sheet" i]';
+      for (const el of document.body.querySelectorAll(SEL)) {
+        if (el instanceof HTMLElement && el.offsetHeight > PAGE_PX) {
+          el.setAttribute('data-om-oversized', '');
+          // Fake-paged docs simulate sheets with over-tall break-after:page
+          // boxes; honoring the break spills half-blank pages and ends a
+          // colored box mid-sheet. Flow them, and (only when we own the page
+          // inset) drop the redundant padding/background via the rule below.
+          const cs = getComputedStyle(el);
+          if (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always') {
+            el.setAttribute('data-om-fakepage', '');
+          }
+        }
+      }
+      const ost = document.createElement('style');
+      ost.textContent = '@media print{' +
+        '[data-om-oversized]{break-inside:auto !important;page-break-inside:auto !important}' +
+        '[data-om-fakepage]{break-after:auto !important;page-break-after:auto !important}' +
+        (pageInset ? '[data-om-fakepage]{padding:0 !important;background:none !important}' : '') +
+        '}';
+      document.head.appendChild(ost);
+    }
+  } catch (e) {}
+  // macOS Preview renders Skia-PDF Luminosity soft-masks as opaque grey boxes;
+  // swap the CSS that triggers them for Preview-safe forms.
+  try {
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+
+      if (cs.boxShadow !== 'none' && cs.filter === 'none') {
+        const outs = [], kept = [];
+        for (const s of cs.boxShadow.split(/,(?![^(]*[)])/)) {
+          const t = s.trim();
+          const m = t.match(/^(rgba?[(][^)]+[)]) (-?[0-9.]+px) (-?[0-9.]+px) ([0-9.]+px) -?[0-9.]+px$/);
+          if (m && parseFloat(m[4]) > 0) outs.push('drop-shadow(' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[1] + ')');
+          else kept.push(t);
+        }
+        if (outs.length) {
+          el.style.setProperty('filter', outs.join(' '), 'important');
+          el.style.setProperty('box-shadow', kept.join(', ') || 'none', 'important');
+        }
+      }
+
+      const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+      if (mask && mask !== 'none' && cs.filter === 'none') el.style.setProperty('filter', 'opacity(1)', 'important');
+    }
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>

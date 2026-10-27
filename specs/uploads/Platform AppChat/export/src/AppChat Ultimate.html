@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>AppChat Ultimate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" href="assets/symbol.png"/>
+<meta name="ext-resource-dependency" content="assets/symbol.png" data-resource-id="symbol"/>
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="url(#bg)"/>
+    <g transform="translate(240 180)">
+      <rect x="0" y="0" width="320" height="240" rx="40" fill="#fff" opacity="0.96"/>
+      <text x="160" y="135" font-family="system-ui, sans-serif" font-size="68" font-weight="800" text-anchor="middle" fill="#0f172a">App<tspan fill="#3b82f6">Chat</tspan></text>
+      <text x="160" y="180" font-family="system-ui, sans-serif" font-size="20" font-weight="600" text-anchor="middle" fill="#64748b" letter-spacing="2">ULTIMATE</text>
+    </g>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+<div id="__boot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;z-index:99999;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0f172a">
+  <img id="__boot_logo" alt="AppChat" style="width:48px;height:48px;border-radius:12px;margin-bottom:16px"/>
+  <div style="font-size:14px;font-weight:700;letter-spacing:.2px">AppChat Ultimate</div>
+  <div id="__boot_msg" style="font-size:12px;color:#64748b;margin-top:8px">Đang tải module…</div>
+  <div style="width:160px;height:3px;background:#e2e8f0;border-radius:2px;margin-top:14px;overflow:hidden"><div id="__boot_bar" style="width:5%;height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:2px;transition:width .3s"></div></div>
+</div>
+<script>(function(){var p=5,b=document.getElementById('__boot_bar');var lg=document.getElementById('__boot_logo');if(lg&&window.__resources&&window.__resources.symbol)lg.src=window.__resources.symbol;setInterval(function(){if(p<92){p+=Math.random()*4;b.style.width=p+'%'}},250);window.__hideBoot=function(){var el=document.getElementById('__boot');if(el){b.style.width='100%';setTimeout(function(){el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(function(){el.remove()},300)},150)}}})();</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/_bundle.jsx" data-presets="react"></script>
+<script type="text/babel" src="components/channel-connect-modal.jsx" data-presets="react"></script>
+<script type="text/babel" src="components/customer-360.jsx" data-presets="react"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ============================================================
+   Resilience helpers — never let one missing piece whitescreen the app
+   ============================================================ */
+
+// SafeIcon: renders a placeholder square if Icon.<name> is missing
+const SafeIcon = ({ name, ...rest }) => {
+  const C = window.Icon && window.Icon[name];
+  if (typeof C === 'function') return <C {...rest}/>;
+  // tiny fallback dot so dev sees something is missing without crashing
+  return (
+    <svg viewBox="0 0 24 24" {...rest} style={{ ...(rest.style||{}), opacity: 0.4 }}>
+      <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeDasharray="3 3"/>
+    </svg>
+  );
+};
+
+// SafeMod: lookup a module component by name; render a stub placeholder if missing
+const SafeMod = ({ name }) => {
+  const C = window[name];
+  if (typeof C === 'function') return <C/>;
+  return (
+    <div style={{padding:36, color:'var(--label-02, #6B7280)'}}>
+      <h2 style={{margin:'0 0 6px'}}>Module chưa sẵn sàng</h2>
+      <p>Component <code style={{fontFamily:'ui-monospace,monospace',background:'#f3f4f6',padding:'2px 6px',borderRadius:4}}>{name}</code> chưa load. Refresh trang để thử lại.</p>
+    </div>
+  );
+};
+
+// ErrorBoundary: catches render-time crashes inside any module so the rail
+// + other modules keep working. Click "Thử lại" to retry.
+class ErrorBoundary extends React.Component {
+  constructor(p){ super(p); this.state = { err: null }; }
+  static getDerivedStateFromError(err){ return { err }; }
+  componentDidCatch(err, info){ console.error('[Module crash]', err, info); }
+  reset = () => this.setState({ err: null });
+  componentDidUpdate(prev){ if (prev.resetKey !== this.props.resetKey && this.state.err) this.reset(); }
+  render(){
+    if (this.state.err) {
+      return (
+        <div style={{padding:36, maxWidth:640}}>
+          <h2 style={{margin:'0 0 8px', color:'var(--risk, #DC2626)'}}>Module này gặp lỗi</h2>
+          <p style={{color:'var(--label-02, #6B7280)', margin:'0 0 16px'}}>
+            Một thành phần bên trong module bị crash. Các module khác vẫn dùng được — chuyển sang module khác hoặc bấm Thử lại.
+          </p>
+          <pre style={{background:'#f9fafb', padding:12, borderRadius:8, fontSize:12, overflow:'auto', maxHeight:200, color:'#374151', border:'1px solid #e5e7eb'}}>{String(this.state.err && this.state.err.message || this.state.err)}</pre>
+          <button onClick={this.reset} style={{marginTop:14, padding:'8px 14px', borderRadius:6, border:'1px solid #d1d5db', background:'white', cursor:'pointer', fontWeight:500}}>Thử lại</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const MODULES = [
+  { k:'dashboard', l:'Dashboard', icon:'Grid', mod:'DashboardModule' },
+  { k:'messages', l:'Messages', icon:'Chat', mod:'MessagesModule', badge: 7 },
+  { k:'contacts', l:'Liên hệ', icon:'Users', mod:'ContactsModule' },
+  { k:'booking', l:'Booking', icon:'Calendar', mod:'BookingModule', badge: 7 },
+  { k:'deals', l:'Deals', icon:'Zap', mod:'DealsModule', badge: 12 },
+  { k:'activities', l:'Activities', icon:'Activity', mod:'ActivitiesModule', badge: 3 },
+  { k:'broadcast', l:'Broadcast', icon:'Broadcast', mod:'BroadcastModule' },
+  { k:'automation', l:'Automation', icon:'Automation', mod:'AutomationModule' },
+  { k:'journey', l:'Journey', icon:'Route', mod:'JourneyModule' },
+  { k:'files', l:'Files', icon:'Files', mod:'FilesModule' },
+  { k:'helpcenter', l:'Help Center', icon:'Help', mod:'HelpCenterModule' },
+  { k:'staff', l:'Nhân sự & Ca', icon:'Users', mod:'StaffShiftsModule', badge: 2 },
+  { k:'inventory', l:'Inventory', icon:'Package', mod:'InventoryModule' },
+  { k:'reports', l:'Reports', icon:'Reports', mod:'ReportsModule' },
+  { k:'settings', l:'Settings', icon:'Settings', mod:'SettingsModule' },
+];
+
+function App() {
+  const [authed, setAuthed] = useState(() => localStorage.getItem('ac_authed') === '1');
+  const [active, setActive] = useState(() => localStorage.getItem('ac_module') || 'messages');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [channelOpen, setChannelOpen] = useState(false);
+  useEffect(() => { localStorage.setItem('ac_module', active); }, [active]);
+  useEffect(() => { localStorage.setItem('ac_authed', authed ? '1' : '0'); }, [authed]);
+  const Mod = MODULES.find(m=>m.k===active) || MODULES[0];
+
+  if (!authed) return <AuthRouter onLogin={()=>setAuthed(true)}/>;
+
+  return (
+    <div className="app">
+      <aside className="rail">
+        <div className="rail-logo" title="AppChat">
+          <img src="assets/symbol.png" alt="AppChat"/>
+        </div>
+        {MODULES.map(m => (
+          <button key={m.k} className={'rail-item '+(active===m.k?'active':'')} onClick={()=>setActive(m.k)} title={m.l} data-screen-label={m.l}>
+            <SafeIcon name={m.icon}/>
+            <span className="rail-label">{m.l}</span>
+            {m.badge && <span className="rail-badge">{m.badge}</span>}
+          </button>
+        ))}
+        <div className="rail-spacer"/>
+        <button className="rail-item" title="Mobile PWA · Sprint 24" onClick={()=>setMobileOpen(true)} style={{color:'#FF8A4C'}}><SafeIcon name="Smartphone"/><span className="rail-label">Mobile</span><span className="rail-badge" style={{background:'#FF8A4C',color:'#fff',borderColor:'#FF8A4C'}}>β</span></button>
+        <button className="rail-item" title="Help"><SafeIcon name="Help"/></button>
+        <button className="rail-item" title="Notifications"><SafeIcon name="Bell"/><span className="rail-badge">2</span></button>
+        <div className="rail-avatar" title="Trâm — Sales Lead">T</div>
+      </aside>
+      <main className="module" key={active} data-screen-label={Mod.l}>
+        <ErrorBoundary resetKey={active}>
+          <SafeMod name={Mod.mod}/>
+        </ErrorBoundary>
+      </main>
+      {mobileOpen && <MobileShell onClose={()=>setMobileOpen(false)}/>}
+      {channelOpen && <ChannelConnectModal onClose={()=>setChannelOpen(false)} audience="Nhóm Bán Hàng"/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+requestAnimationFrame(function(){window.__hideBoot && window.__hideBoot();});
+</script>
+</body>
+</html>
