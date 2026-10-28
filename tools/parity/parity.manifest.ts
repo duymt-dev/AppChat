@@ -495,4 +495,16 @@ export const MANIFEST: ParityEntry[] = [
     clip: { x: 920, y: 0, width: 520, height: 900 },
     mask: [{ x: 1000, y: 44, width: 260, height: 20, reason: 'D29 phụ đề nêu mức AI thay tên model' }],
   },
+  // Nhật ký: "Workflow" (OUT) → Ticket; "ZNS" → Zalo (fixture) — ô chữ hai dòng đó mask; thời gian là chuỗi ngày tương đối giống nhau.
+  {
+    id: 'actions:log',
+    route: '/assistant/actions',
+    protoStorage: asst,
+    proto: (p) => protoSetState(p, { asstView: 'actions' }),
+    mask: [
+      { x: 240, y: 345, width: 480, height: 40, reason: 'Workflow là mục OUT → Ticket' },
+      { x: 240, y: 405, width: 480, height: 36, reason: 'ZNS là mục OUT → Zalo' },
+      { x: 724, y: 345, width: 300, height: 40, reason: 'đối tượng của dòng Workflow (OUT)' },
+    ],
+  },
 ];

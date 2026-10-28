@@ -6,7 +6,8 @@ export const useCoworkStyles = createStyles(({ css, responsive }) => ({
   page: css`
     flex: 1;
     overflow-y: auto;
-    padding: 24px 28px;
+    /* prototype .appscroll ≤ 1440px: padding ngang 28 → 20 (L72) */
+    padding: 24px 20px;
     ${responsive.md} {
       padding: 16px 12px;
     }

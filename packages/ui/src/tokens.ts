@@ -202,6 +202,7 @@ export const color = {
   drawerVeil: 'rgba(15,23,20,.4)',
   activeLine: '#BCE8CD',
   sparkBar: '#CDE9D8',
+  pink: '#DB2777',
 } as const;
 
 export const gradient = {

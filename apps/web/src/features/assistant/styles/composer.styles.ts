@@ -44,6 +44,7 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
     cursor: pointer;
     color: ${color.text3};
     padding: 0;
+    flex-shrink: 0;
     ${responsive.md} {
       width: ${layout.touch}px;
       height: ${layout.touch}px;
@@ -128,6 +129,9 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
   effort: css`
     color: ${color.text4};
     font-weight: ${font.weight.semibold};
+    ${responsive.md} {
+      display: none;
+    }
   `,
   mic: css`
     width: 36px;

@@ -22,7 +22,8 @@
   "assistantFly": {
     "title": "AI Assistant · AppChat",
     "chats": "Conversations",
-    "actions": "Action log"
+    "actions": "Action log",
+    "approvals": "Approvals"
   },
   "crmFly": {
     "title": "Customers & CRM",
