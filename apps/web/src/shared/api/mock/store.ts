@@ -6,6 +6,8 @@ import { loadSession, saveSession, type MockSession } from './session';
 import { createDashboardState, type DashboardState } from './domains/dashboard';
 import { createInboxState, type InboxState } from './domains/inbox';
 import { createCustomersState, type CustomersState } from './domains/customers';
+import { createAssistantState, type AssistantState } from './domains/assistant';
+import { createAgentsState, type AgentsState } from './domains/agents';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -31,6 +33,8 @@ export interface MockDb {
   dashboard: DashboardState;
   inbox: InboxState;
   customers: CustomersState;
+  assistant: AssistantState;
+  agents: AgentsState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -54,6 +58,8 @@ const db: MockDb = {
   dashboard: createDashboardState(),
   inbox: createInboxState(),
   customers: createCustomersState(),
+  assistant: createAssistantState(),
+  agents: createAgentsState(),
 };
 
 type Listener = (event: string) => void;

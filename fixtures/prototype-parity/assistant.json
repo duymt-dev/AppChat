@@ -1,0 +1,612 @@
+{
+ "think_cards": [
+  {
+   "label": "Lên ý tưởng",
+   "desc": "Ý tưởng chiến dịch, nội dung, ưu đãi — brainstorm nhiều hướng để chọn.",
+   "color": "#DB2777",
+   "icon": "ic-spark",
+   "tag": "Sáng tạo",
+   "command": "Gợi ý cho tôi 5 ý tưởng chiến dịch cho tháng này"
+  },
+  {
+   "label": "Lập kế hoạch",
+   "desc": "Kế hoạch tuần/tháng, phân rã công việc, mốc thời gian.",
+   "color": "#2563EB",
+   "icon": "ic-cal",
+   "tag": "Kế hoạch",
+   "command": "Lập kế hoạch kinh doanh tháng này theo tuần"
+  },
+  {
+   "label": "Phân tích & đề xuất",
+   "desc": "Đọc số liệu → nhận định → khuyến nghị hành động.",
+   "color": "#0E9B94",
+   "icon": "ic-chart",
+   "tag": "Phân tích",
+   "command": "Phân tích tình hình kinh doanh tuần này và đề xuất việc cần làm"
+  },
+  {
+   "label": "Soạn nội dung",
+   "desc": "Email, ZNS, kịch bản gọi, bài đăng — nhiều biến thể.",
+   "color": "#C9820B",
+   "icon": "ic-doc",
+   "tag": "Nội dung",
+   "command": "Soạn 3 biến thể tin nhắn chào khách mới"
+  },
+  {
+   "label": "Ra quyết định",
+   "desc": "So sánh phương án, ưu/nhược, chọn hướng đi.",
+   "color": "#6E48E6",
+   "icon": "ic-flow",
+   "tag": "Quyết định",
+   "command": "So sánh 2 phương án ưu đãi và khuyến nghị nên chọn cái nào"
+  }
+ ],
+ "cowork_cards": [
+  {
+   "id": "ag_sales",
+   "name": "Sales Agent",
+   "desc": "Tư vấn sản phẩm, gửi báo giá, chốt đơn theo kịch bản.",
+   "model_tier": "advanced",
+   "status": "active",
+   "color": "#1F9C4F",
+   "icon": "ic-trend"
+  },
+  {
+   "id": "ag_service",
+   "name": "CSKH Agent",
+   "desc": "Trả lời FAQ, xử lý ticket, giữ SLA phản hồi.",
+   "model_tier": "advanced",
+   "status": "active",
+   "color": "#C9820B",
+   "icon": "ic-inbox"
+  },
+  {
+   "id": "ag_mkt",
+   "name": "Marketing Agent",
+   "desc": "Soạn nội dung, lên chiến dịch, chạy A/B test.",
+   "model_tier": "max",
+   "status": "active",
+   "color": "#DB2777",
+   "icon": "ic-mega"
+  },
+  {
+   "id": "ag_booking",
+   "name": "Booking Agent",
+   "desc": "Đặt lịch, xác nhận, nhắc hẹn tự động.",
+   "model_tier": "standard",
+   "status": "active",
+   "color": "#2563EB",
+   "icon": "ic-cal"
+  },
+  {
+   "id": "ag_acc",
+   "name": "Kế toán Agent",
+   "desc": "Nhắc công nợ, đối soát thanh toán, xuất hoá đơn.",
+   "model_tier": "advanced",
+   "status": "active",
+   "color": "#0E9B94",
+   "icon": "ic-doc"
+  },
+  {
+   "id": "ag_ops",
+   "name": "Vận hành Agent",
+   "desc": "Phân ca, tổng hợp báo cáo, cảnh báo bất thường.",
+   "model_tier": "advanced",
+   "status": "paused",
+   "color": "#6E48E6",
+   "icon": "ic-bolt"
+  }
+ ],
+ "prompts": [
+  "Tóm tắt tình hình kinh doanh hôm nay",
+  "Khách nào cần chăm sóc gấp?",
+  "Đề xuất 3 việc nên làm ngay",
+  "Có bất thường nào trong dữ liệu không?",
+  "So sánh kết quả hôm nay với hôm qua",
+  "Cảnh báo nào cần xử lý trước?",
+  "Doanh thu tuần này so với mục tiêu?",
+  "Hội thoại nào AI chưa xử lý được?",
+  "Tổng hợp lịch hẹn hôm nay",
+  "Khách hàng mới trong 7 ngày qua",
+  "Tỷ lệ chốt đơn tháng này thế nào?",
+  "Việc gì đang quá hạn cần làm ngay?"
+ ],
+ "intents": [
+  {
+   "key": "quote",
+   "re": "báo giá|quote|chào giá",
+   "icon": "ic-doc",
+   "color": "#C9820B",
+   "action_id": "quote.create",
+   "route": "/quotes",
+   "title": "Báo giá do AppChat AI soạn",
+   "desc": "AppChat lấy giá từ danh mục, áp ưu đãi & voucher, tính VAT — anh duyệt rồi chốt sang Hợp đồng.",
+   "dest": "Báo giá"
+  },
+  {
+   "key": "agent",
+   "re": "tạo.*agent|agent.*csk|dựng ai|tạo ai",
+   "icon": "ic-spark",
+   "color": "#0E9B7E",
+   "action_id": "agent.create_and_publish",
+   "route": "/agents",
+   "title": "Tạo AI Agent",
+   "desc": "AppChat sẽ tạo AI Agent CSKH (mức Nâng cao) gắn kênh Zalo cá nhân + Web chat, ngưỡng tin cậy 80%.",
+   "dest": "AI Agents"
+  },
+  {
+   "key": "campaign",
+   "re": "chiến dịch|broadcast|gửi tin",
+   "icon": "ic-mega",
+   "color": "#DB2777",
+   "action_id": "campaign.create",
+   "route": "/marketing",
+   "title": "Tạo chiến dịch Marketing",
+   "desc": "AppChat sẽ tạo chiến dịch Zalo win-back cho 12 khách VIP nguội, chờ anh duyệt trước khi gửi.",
+   "dest": "Marketing"
+  },
+  {
+   "key": "ticket",
+   "re": "giao việc|tạo task|nhắc việc|phân công|ticket",
+   "icon": "ic-ticket",
+   "color": "#C9820B",
+   "action_id": "ticket.create",
+   "route": "/tickets",
+   "title": "Tạo công việc",
+   "desc": "AppChat sẽ tạo task follow-up giao cho người phụ trách, hạn hôm nay.",
+   "dest": "Hỗ trợ"
+  }
+ ],
+ "replies": [
+  {
+   "re": "tóm tắt|tình hình|hôm nay",
+   "text": "Hôm nay workspace có 177 hội thoại (▲12%), 42 đang chờ xử lý — cao hơn mức trung bình. Doanh thu attributed ~44 triệu (▲18%). AI tự xử lý đạt 63%. Em đề xuất bổ sung agent khung 10–11h và ưu tiên 8 ticket sắp quá SLA. Anh muốn em mở danh sách ticket đó không?"
+  },
+  {
+   "re": "chăm sóc|nguội|cần gọi|vip",
+   "text": "Em lọc được 12 khách VIP 60 ngày chưa tương tác và 5 khách CSAT < 3.5. Nhóm này đóng góp ~38% doanh thu kỳ trước. Em có thể tạo sẵn chiến dịch win-back qua Zalo + phân công cho đội Sale. Anh duyệt em chạy nhé?"
+  },
+  {
+   "re": "deal|chốt|doanh thu|dự báo",
+   "text": "Pipeline đang có 6 deal ở giai đoạn Proposal (~128 triệu). 2 deal quá hạn follow-up >2 ngày. Dự báo doanh thu cuối tháng: 312–340 triệu (xác suất 78%). Em nên nhắc đội Sale follow 2 deal nóng trước chứ ạ?"
+  },
+  {
+   "re": "sla|csat|khiếu nại",
+   "text": "Hiện có 8 ticket sắp chạm SLA (trong 1 giờ tới), tập trung ở danh mục Giao hàng. CSAT trung bình 4.7/5. Em đề xuất escalation 3 ticket ưu tiên Cao cho trưởng nhóm CSKH. Anh muốn xem chi tiết không?"
+  }
+ ],
+ "fallback": "Em đã hiểu yêu cầu của anh. Dựa trên dữ liệu CRM, marketing và bán hàng hiện có, em sẽ phân tích và đề xuất phương án cụ thể. Anh cho em thêm chút ngữ cảnh (kênh, khoảng thời gian, nhóm khách) để em tư vấn chính xác hơn nhé.",
+ "tasks": [
+  {
+   "id": "tk_1",
+   "name": "Marketing Agent",
+   "role": "Thu hút & nuôi dưỡng lead",
+   "runs": 1480,
+   "success": "94%",
+   "cost": "120k₫",
+   "active": true,
+   "model_tier": "standard",
+   "department": "Marketing",
+   "channels": [
+    "Zalo cá nhân",
+    "Website"
+   ],
+   "conf": 72
+  },
+  {
+   "id": "tk_2",
+   "name": "Sales Agent",
+   "role": "Tư vấn · báo giá · chốt đơn",
+   "runs": 860,
+   "success": "91%",
+   "cost": "180k₫",
+   "active": true,
+   "model_tier": "advanced",
+   "department": "Kinh doanh",
+   "channels": [
+    "Zalo cá nhân",
+    "Website",
+    "Email"
+   ],
+   "conf": 78
+  },
+  {
+   "id": "tk_3",
+   "name": "Support Agent",
+   "role": "CSKH · ticket · FAQ",
+   "runs": 1240,
+   "success": "89%",
+   "cost": "96k₫",
+   "active": true,
+   "model_tier": "standard",
+   "department": "CSKH",
+   "channels": [
+    "Web chat",
+    "Email"
+   ],
+   "conf": 70
+  },
+  {
+   "id": "tk_4",
+   "name": "Operations Agent",
+   "role": "Đơn hàng · lịch hẹn",
+   "runs": 420,
+   "success": "96%",
+   "cost": "72k₫",
+   "active": true,
+   "model_tier": "standard",
+   "department": "Vận hành",
+   "channels": [
+    "Nội bộ"
+   ],
+   "conf": 80
+  },
+  {
+   "id": "tk_5",
+   "name": "Loyalty Agent",
+   "role": "Tích điểm & giữ chân",
+   "runs": 310,
+   "success": "92%",
+   "cost": "54k₫",
+   "active": true,
+   "model_tier": "standard",
+   "department": "CSKH",
+   "channels": [
+    "Zalo cá nhân"
+   ],
+   "conf": 75
+  },
+  {
+   "id": "tk_6",
+   "name": "Retention Agent",
+   "role": "Win-back khách ngủ đông",
+   "runs": 180,
+   "success": "88%",
+   "cost": "60k₫",
+   "active": false,
+   "model_tier": "advanced",
+   "department": "Marketing",
+   "channels": [
+    "Zalo cá nhân",
+    "Email"
+   ],
+   "conf": 68
+  }
+ ],
+ "task_stats": [
+  {
+   "key": "total",
+   "color": "#2563EB",
+   "icon": "ic-bot"
+  },
+  {
+   "key": "active",
+   "color": "#16A34A",
+   "icon": "ic-check"
+  },
+  {
+   "key": "runs",
+   "color": "#6E48E6",
+   "icon": "ic-flow"
+  },
+  {
+   "key": "auto",
+   "color": "#0E9B94",
+   "icon": "ic-spark"
+  },
+  {
+   "key": "tokens",
+   "color": "#C8820B",
+   "icon": "ic-gift"
+  },
+  {
+   "key": "attention",
+   "color": "#DC2626",
+   "icon": "ic-bell"
+  }
+ ],
+ "task_kpi": {
+  "auto": "86%",
+  "tokens": "1,42tr",
+  "attention": "3"
+ },
+ "task_templates": [
+  {
+   "label": "Báo cáo doanh thu tuần",
+   "name": "Báo cáo doanh thu tuần",
+   "goal": "Lấy đơn hàng 7 ngày qua, nhóm theo sản phẩm, so với tuần trước, xuất file Excel và gửi tóm tắt cho tôi.",
+   "department": "Tài chính"
+  },
+  {
+   "label": "Dọn dữ liệu khách trùng",
+   "name": "Dọn dữ liệu khách hàng trùng",
+   "goal": "Quét danh sách khách hàng, tìm bản ghi trùng theo SĐT/email, đề xuất gộp và chờ tôi duyệt.",
+   "department": "Vận hành"
+  },
+  {
+   "label": "Nhắc công nợ quá hạn",
+   "name": "Nhắc công nợ quá hạn",
+   "goal": "Lọc đề nghị thanh toán quá hạn trên 7 ngày, soạn tin nhắc theo từng khách, chờ duyệt rồi gửi qua Zalo.",
+   "department": "Tài chính"
+  }
+ ],
+ "departments": [
+  {
+   "key": "Marketing",
+   "bg": "#EDE9FC",
+   "fg": "#6E48E6"
+  },
+  {
+   "key": "Kinh doanh",
+   "bg": "#EDFAF3",
+   "fg": "#157A40"
+  },
+  {
+   "key": "CSKH",
+   "bg": "#E7F0FF",
+   "fg": "#2563EB"
+  },
+  {
+   "key": "Vận hành",
+   "bg": "#FFF4E5",
+   "fg": "#B45309"
+  },
+  {
+   "key": "Tài chính",
+   "bg": "#FEF2F2",
+   "fg": "#B91C1C"
+  }
+ ],
+ "task_data": [
+  "Khách hàng",
+  "Đơn hàng",
+  "Báo giá",
+  "Đề nghị thanh toán",
+  "Hội thoại",
+  "Tệp đính kèm"
+ ],
+ "task_tools": [
+  "Đọc dữ liệu",
+  "Tạo / sửa bản ghi",
+  "Gửi tin nhắn",
+  "Tạo file báo cáo",
+  "Gửi email"
+ ],
+ "drawer": {
+  "prompt": "Bạn là trợ lý AI của MediaSoft Spa, hỗ trợ khách hàng tư vấn liệu trình, báo giá và đặt lịch. Luôn xưng \"em\", gọi khách bằng \"anh/chị\". Khi không chắc chắn, bàn giao cho nhân viên.",
+  "tokens": "248k",
+  "tools": [
+   {
+    "label": "Tạo báo giá",
+    "on": true
+   },
+   {
+    "label": "Đặt lịch hẹn",
+    "on": true
+   },
+   {
+    "label": "Tạo ticket",
+    "on": true
+   },
+   {
+    "label": "Gửi tin Zalo / Email",
+    "on": true
+   },
+   {
+    "label": "Chốt đơn ≤ 10tr",
+    "on": true
+   },
+   {
+    "label": "Gửi voucher / giảm giá",
+    "on": false
+   },
+   {
+    "label": "Chuyển người thật",
+    "on": true
+   },
+   {
+    "label": "Lập đề nghị thanh toán",
+    "on": false
+   }
+  ],
+  "knowledge": [
+   {
+    "label": "Catalogue BST Hè 2026",
+    "meta": "12 tài liệu",
+    "on": true
+   },
+   {
+    "label": "Bảng giá & khuyến mãi",
+    "meta": "5 tài liệu",
+    "on": true
+   },
+   {
+    "label": "Chính sách đổi trả",
+    "meta": "3 tài liệu",
+    "on": true
+   },
+   {
+    "label": "FAQ dịch vụ",
+    "meta": "28 mục",
+    "on": false
+   }
+  ],
+  "logs": [
+   {
+    "time": "10:24",
+    "text": "Tạo báo giá #BG-2043 cho chị Lan",
+    "color": "#16A34A"
+   },
+   {
+    "time": "10:19",
+    "text": "Trả lời hội thoại Zalo (tự động)",
+    "color": "#2563EB"
+   },
+   {
+    "time": "10:05",
+    "text": "Bàn giao cho Minh · confidence thấp",
+    "color": "#C8820B"
+   },
+   {
+    "time": "09:47",
+    "text": "Đặt lịch hẹn 14:00 · Khoa",
+    "color": "#16A34A"
+   },
+   {
+    "time": "09:30",
+    "text": "Gửi tin nhắc lịch · 42 khách",
+    "color": "#6E48E6"
+   }
+  ]
+ },
+ "action_logs": [
+  {
+   "id": "al_seed_1",
+   "kind": "create",
+   "title": "AI Agent \"CSKH Spa\"",
+   "object": "AI Agent",
+   "day": "today",
+   "time": "10:21",
+   "undoable": true,
+   "status": "done",
+   "action_id": "agent.create_and_publish"
+  },
+  {
+   "id": "al_seed_2",
+   "kind": "create",
+   "title": "Ticket \"Khiếu nại giao hàng\"",
+   "object": "Hỗ trợ",
+   "day": "today",
+   "time": "09:48",
+   "undoable": true,
+   "status": "done",
+   "action_id": "ticket.create"
+  },
+  {
+   "id": "al_seed_3",
+   "kind": "send",
+   "title": "Chiến dịch Zalo \"Flash Sale\"",
+   "object": "Marketing · 1.200 khách",
+   "day": "today",
+   "time": "09:30",
+   "undoable": false,
+   "status": "pending",
+   "action_id": "campaign.send"
+  },
+  {
+   "id": "al_seed_4",
+   "kind": "export",
+   "title": "Báo cáo doanh thu tuần",
+   "object": "Tổng quan",
+   "day": "yesterday",
+   "time": "17:02",
+   "undoable": false,
+   "status": "done",
+   "action_id": "insight.query"
+  },
+  {
+   "id": "al_seed_5",
+   "kind": "update",
+   "title": "Pipeline 9 cơ hội → \"Đang chăm\"",
+   "object": "Khách hàng / CRM",
+   "day": "yesterday",
+   "time": "15:40",
+   "undoable": true,
+   "status": "done",
+   "action_id": "contact.set_stage"
+  },
+  {
+   "id": "al_seed_6",
+   "kind": "create",
+   "title": "Báo giá BG-2051 cho Spa Hương Sen",
+   "object": "Báo giá",
+   "day": "yesterday",
+   "time": "14:18",
+   "undoable": true,
+   "status": "done",
+   "action_id": "quote.create"
+  },
+  {
+   "id": "al_seed_7",
+   "kind": "send",
+   "title": "Email cảm ơn 24 khách mua combo",
+   "object": "Marketing · 24 khách",
+   "day": "yesterday",
+   "time": "10:05",
+   "undoable": false,
+   "status": "done",
+   "action_id": "campaign.send"
+  },
+  {
+   "id": "al_seed_8",
+   "kind": "update",
+   "title": "Gắn tag \"VIP nguội\" cho 42 khách",
+   "object": "Khách hàng / CRM",
+   "day": "2d",
+   "time": "16:12",
+   "undoable": true,
+   "status": "done",
+   "action_id": "contact.tag"
+  },
+  {
+   "id": "al_seed_9",
+   "kind": "delete",
+   "title": "Gỡ 3 liên hệ trùng lặp",
+   "object": "Khách hàng / CRM",
+   "day": "2d",
+   "time": "11:30",
+   "undoable": true,
+   "status": "done",
+   "action_id": "contact.merge"
+  },
+  {
+   "id": "al_seed_10",
+   "kind": "create",
+   "title": "Mục tiêu KPI Q3 cho đội Sales",
+   "object": "Tổng quan / KPI",
+   "day": "3d",
+   "time": "09:15",
+   "undoable": true,
+   "status": "done",
+   "action_id": "insight.query"
+  }
+ ],
+ "approvals": [
+  {
+   "id": "ap_1",
+   "action_id": "campaign.send",
+   "risk": "send",
+   "permission": "campaign.approve",
+   "agent": "Marketing Agent",
+   "title": "Gửi chiến dịch Zalo \"Flash Sale\"",
+   "summary": "Gửi 1.200 tin Zalo cá nhân cho nhóm khách Thân thiết + VIP.",
+   "reason": "Gửi ra ngoài > 100 người nhận",
+   "day": "today",
+   "time": "09:30"
+  },
+  {
+   "id": "ap_2",
+   "action_id": "quote.send",
+   "risk": "send",
+   "permission": "quote.approve",
+   "agent": "Sales Agent",
+   "title": "Gửi báo giá BG-2058 cho Spa Hương Sen",
+   "summary": "Tổng 24.800.000₫ · chiết khấu 8% — vượt ngưỡng 5%, tổng vượt 20 triệu.",
+   "reason": "Vượt ngưỡng duyệt 20M / 5%",
+   "day": "today",
+   "time": "08:52"
+  },
+  {
+   "id": "ap_3",
+   "action_id": "payment.refund",
+   "risk": "money",
+   "permission": "payment.refund_approve",
+   "agent": "Support Agent",
+   "title": "Hoàn tiền 1.250.000₫ cho Lê Mạnh Hùng",
+   "summary": "Đơn ĐH-1184 · khách trả lại 1 sản phẩm lỗi, đã có ảnh xác nhận.",
+   "reason": "Thao tác tiền",
+   "day": "yesterday",
+   "time": "16:40"
+  }
+ ]
+}

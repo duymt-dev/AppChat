@@ -6,6 +6,8 @@ import { mockHandlers } from './handlers';
 import { mockRoutes } from './routes';
 import { inboxParamRoute } from './domains/inbox';
 import { customersParamRoute } from './domains/customers';
+import { agentsParamRoute } from './domains/agents';
+import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 
@@ -29,13 +31,13 @@ export const mockTransport: Transport = {
   async get(path, params) {
     const tax = path.match(/^\/business-lookup\/tax\/(.+)$/);
     if (tax) return structuredClone(taxLookup(mockDb(), decodeURIComponent(tax[1]!))) as never;
-    const route = mockRoutes[path] ?? customersParamRoute(path) ?? inboxParamRoute(path);
+    const route = mockRoutes[path] ?? agentsParamRoute(path) ?? customersParamRoute(path) ?? inboxParamRoute(path);
     if (!route) fail(404, 'NOT_FOUND', `mock route ${path}`);
     return structuredClone(route!(mockDb(), params ?? {})) as never;
   },
 
   async post(path, body) {
-    const handler = mockPosts[path];
+    const handler = mockPosts[path] ?? assistantPosts[path];
     if (!handler) return fail(404, 'NOT_FOUND', `mock post ${path}`);
     let out: unknown;
     mutate((db) => {
@@ -77,6 +79,7 @@ export const mockTransport: Transport = {
     const logId = nextId('al');
     const undoUntil = def.undo ? new Date(Date.now() + def.undo.windowSec * 1000).toISOString() : undefined;
     if (def.undo && handler.undo) undoLog.set(logId, () => mutate((db) => handler.undo!(db, parsed.data as never)));
+    if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && handler.undo));
     return {
       status: 200,
       data: {
@@ -90,8 +93,11 @@ export const mockTransport: Transport = {
 
   async undo(actionLogId) {
     const fn = undoLog.get(actionLogId);
-    if (!fn) fail(409, 'CONFLICT', 'UNDO_EXPIRED');
-    fn!();
+    // dòng nhật ký mẫu (fixture) không có handler undo trong phiên — chỉ đổi trạng thái
+    const seeded = mockDb().assistant.logs.find((l) => l.id === actionLogId && l.undoable && !l.undone && !fn);
+    if (!fn && !seeded) fail(409, 'CONFLICT', 'UNDO_EXPIRED');
+    fn?.();
     undoLog.delete(actionLogId);
+    mutate((db) => markUndone(db, actionLogId), 'action.undo');
   },
 };

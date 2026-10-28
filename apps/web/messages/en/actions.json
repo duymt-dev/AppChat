@@ -118,5 +118,56 @@
     "update": {
       "title": "Save field settings"
     }
+  },
+  "agent": {
+    "draft_from_description": {
+      "title": "Draft agent config"
+    },
+    "create": {
+      "title": "Create AI agent (draft)"
+    },
+    "create_and_publish": {
+      "title": "Create & publish AI agent"
+    },
+    "update": {
+      "title": "Save agent draft"
+    },
+    "publish": {
+      "title": "Publish AI agent"
+    },
+    "rollback": {
+      "title": "Roll back version"
+    },
+    "pause": {
+      "title": "Pause / resume AI agent"
+    },
+    "delete": {
+      "title": "Delete AI agent"
+    },
+    "test": {
+      "title": "Test-chat AI agent"
+    },
+    "optimize_prompt": {
+      "title": "Optimise instructions"
+    }
+  },
+  "approval": {
+    "approve": {
+      "title": "Approve request"
+    },
+    "reject": {
+      "title": "Reject request"
+    }
+  },
+  "ai_task": {
+    "create": {
+      "title": "Create autonomous task"
+    },
+    "update": {
+      "title": "Save task config"
+    },
+    "pause": {
+      "title": "Pause / resume task"
+    }
   }
 }
