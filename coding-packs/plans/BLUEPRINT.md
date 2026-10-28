@@ -27,7 +27,7 @@ AppChat_Ver2/
 │   ├── ai/                       # Agent Gateway interface, AiSdkEngine, LLM Router, prompts, meta-tools
 │   ├── channels/                 # Channel adapter interface + adapters (zalo-personal, webchat, email)
 │   ├── shared/                   # types, enums, error codes, money/phone/date utils, i18n keys
-│   └── ui/                       # design tokens (Tailwind v4 theme), primitives (shadcn theme lại), icons
+│   └── ui/                       # antd theme (token prototype → ConfigProvider), antd-style tokens, wrapper component, icons (lucide-react)
 ├── coding-packs/                 # Vibecode artifacts (không phải code)
 └── specs/                        # tài liệu phi kỹ thuật
 ```
@@ -59,7 +59,7 @@ packages/core/src/
 ├── marketing/         # segment, campaign, recipient, suggestion
 ├── loyalty/           # config, ledger, tier
 ├── ai/                # ai_agent, kb (source/chunk), ai_run/step, approval, assistant session, tasks, governance
-├── reports/           # materialized views, query service
+├── insights/          # query số liệu chỉ đọc dùng chung: dashboard, thống kê agent/chiến dịch/ticket, metric cho Trợ lý (không có module Báo cáo — D19)
 ├── notify/            # notification, mailer
 ├── platform/          # quản trị nền tảng (tenant, gói, giá model, đối soát)
 └── index.ts           # export Nest modules (đăng ký sẵn ở TIP-001 → các TIP sau KHÔNG sửa)
@@ -97,7 +97,7 @@ Mỗi domain đi theo layout cố định, mỗi file ≤ 600 dòng:
 | `apps/api` | `src/main.ts` | HTTP `/v1/*`, `/hooks/*`, Socket.IO namespace `/ws` (app) và `/widget` (khách web), OpenAPI tại `/v1/docs` |
 | `apps/worker` ROLE=channels | `src/main.ts` | Giữ phiên Zalo (lease theo account), IMAP poll, outbound sender, inbound pipeline |
 | `apps/worker` ROLE=ai | `src/main.ts` | Chạy AI run (agent reply, assistant, delegate, tasks), embedding, RAG ingest |
-| `apps/worker` ROLE=jobs | `src/main.ts` | Outbox relay, scheduler (SLA, giữ chỗ lịch hẹn, nhắc hẹn, no-show, campaign, refresh matview, hết hạn trial/QR) |
+| `apps/worker` ROLE=jobs | `src/main.ts` | Outbox relay, scheduler (SLA, giữ chỗ lịch hẹn, nhắc hẹn, no-show, campaign, hết hạn trial/QR) |
 | `apps/web` | `src/app/*` | Next.js; trong dev proxy `/api/*` → api; trong prod đặt sau nginx cùng domain |
 
 ### 1.4 Frontend (`apps/web/src`)
@@ -111,7 +111,7 @@ app/
 │   ├── customers/ · customers/[id]/ · products/ · quotes/ · orders/ · invoices/ · loyalty/
 │   ├── appointments/ · tickets/ · marketing/ · marketing/campaigns/[id]/
 │   ├── agents/ · agents/[id]/ · agents/approvals/ · agents/activity/
-│   ├── reports/[page]/ · settings/[section]/
+│   ├── settings/[section]/
 ├── (admin)/admin/[section]/          # Quản trị nền tảng
 features/<module>/                     # components/ · hooks/ · api.ts · types.ts (mỗi module một thư mục)
 shared/
@@ -119,7 +119,7 @@ shared/
 ├── actions/    # useAction(), ConfirmActionDialog, action result toasts
 ├── realtime/   # socket client, event → query invalidation
 ├── assistant/  # AssistantDock, UI Command Bus (đăng ký handler theo route), context provider
-├── shell/      # NavRail, Flyout, TopBar, nav-config.ts (đủ mọi route ngay từ TIP-007)
+├── shell/      # NavRail, Flyout, TopBar, MobileTabBar, nav-config.ts (đủ mọi route ngay từ TIP nền tảng UI)
 └── states/     # EmptyState, Skeletons, ErrorState, PageStates (5 trạng thái)
 messages/vi.json · messages/en.json   # next-intl; key theo module (mỗi module 1 file con)
 ```
@@ -282,11 +282,11 @@ Ghi chú: `ws` = `workspace_id`. Dấu → là tham chiếu (FK).
 | `conversation.handoff` | reason, summary | notify Owner/assignee |
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
 | `quote.sent` / `quote.accepted` / `quote.rejected` | | crm stage → quote / won; timeline |
-| `order.completed` / `order.cancelled` | total, contact_id | loyalty earn / reverse, crm stage won, total_spent, reports |
+| `order.completed` / `order.cancelled` | total, contact_id | loyalty earn / reverse, crm stage won, total_spent |
 | `invoice.paid` | | order.pay_status |
 | `appointment.created` / `confirmed` / `completed` / `no_show` / `cancelled` | | reminders, timeline, ai tasks, loyalty (gói buổi) |
 | `ticket.sla_warning` / `ticket.sla_breached` / `ticket.closed` | | notify, escalation, csat |
-| `campaign.approved` / `campaign.completed` | | sender job, reports |
+| `campaign.approved` / `campaign.completed` | | sender job, campaign stats |
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
 | `subscription.changed` / `trial.expired` | | quota, notify |
@@ -540,9 +540,8 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `billing.report_transfer`: write; "Tôi đã chuyển khoản" → `pending_review`.
 - `billing.set_auto_topup`: config.
 
-**reports**
-- `report.query`: read, agent ✓. Chỉ chạy truy vấn đã định nghĩa sẵn, không chạy SQL tự do.
-- `report.export`: read, luôn preview.
+**insights**
+- `insight.query`: read, agent ✓. Chỉ chạy metric đã định nghĩa sẵn trong `insights/metrics/*` (doanh số theo kỳ, khách sắp rời, hiệu suất agent…), không chạy SQL tự do. Dùng cho Tổng quan và cho Trợ lý AI trả lời số liệu (REQ-E07).
 
 **platform** (platform_admin)
 - `admin.plan.upsert`
@@ -642,7 +641,7 @@ type UiCommand =
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |
 | billing | `GET /v1/billing/summary` (gói, hạn, credit, giới hạn) · `GET /v1/billing/plans` · `GET /v1/billing/ledger?cursor=` · `GET /v1/billing/invoices` · `GET /v1/billing/invoices/:id` (QR, trạng thái) |
-| dashboard / reports | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/reports/:page?from=&to=&compare=` · `GET /v1/reports/:page/export?from=&to=` (xlsx) |
+| dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn) |
 | misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` |
 | admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
 
@@ -754,7 +753,7 @@ Danh mục action quá lớn để nhồi hết vào prompt, nên Trợ lý ch�
 | `call_action(action_id, input)` | Gọi `ActionExecutor` với `source='assistant'`, `onBehalfOfUserId=user` → read chạy ngay; còn lại trả `needs_confirmation` |
 | `delegate(agent_id \| role, task, context)` | Tạo `ai_run` con (kind=delegate) chạy agent chuyên trách với tool set của agent; trả tóm tắt kết quả; hiển thị trong plan |
 | `ui(command: UiCommand)` | Phát `ui.command` tới user (điều hướng, mở drawer, điền form, lọc, highlight) |
-| `query_data(report_key, params)` | = `report.query` (truy vấn số liệu có sẵn, chỉ đọc) |
+| `query_data(metric, params)` | = `insight.query` (metric định nghĩa sẵn, chỉ đọc); trả bảng/biểu đồ nhỏ ngay trong thẻ trả lời |
 | `plan(steps[])` / `update_step(id, status)` | Cập nhật thẻ kế hoạch |
 
 - **System prompt** gồm: vai trò, quyền của user, màn hiện tại và bản ghi đang xem (từ `context`), danh sách agent đang có, quy tắc xác nhận và hoàn tác. Viết bằng tiếng Việt, trả lời tiếng Việt.
@@ -818,16 +817,30 @@ export interface NormalizedInbound {
 
 ## 7. FRONTEND — COMPONENT TREE
 
+### 7.0 UI kit & quy tắc hiển thị (chốt V11 / D18)
+
+- **Ant Design v6** (`antd`), `@ant-design/nextjs-registry`, `antd-style`, **Ant Design X 2.x** (Trợ lý), `@ant-design/charts`, `lucide-react`. Không dùng Tailwind / shadcn / antd-mobile.
+- `packages/ui/theme.ts` map token prototype vào `ConfigProvider` (xem Vision V11). **Không hard-code màu hoặc kích thước trong component**; chỉ dùng token.
+- **Responsive:**
+  - `≥ lg`: giống prototype.
+  - `md`: rail thu gọn, 360° thành Drawer.
+  - `< md`: `MobileTabBar` (5 tab), Inbox 3 màn nối tiếp, Drawer `placement="bottom"`, bảng thành danh sách thẻ (`ResponsiveTable` tự đổi theo `Grid.useBreakpoint()`).
+- **Parity < 5%** với `AppChat.dc.html` ở 1440×900 (REQ-N14):
+  - `tools/parity` (Playwright `toHaveScreenshot`, `maxDiffPixelRatio: 0.05`) + `parity.manifest.ts` + seed `fixtures/prototype-parity`.
+  - Mỗi TIP UI phải dán kết quả vào Completion Report.
+- **Mobile:** e2e Playwright ở 390×844 (không tràn ngang, action chạy được, vùng chạm ≥ 44px).
+
 ### 7.1 Shell & dùng chung (`shared/`, `packages/ui`)
 
 ```
 (app)/layout
 └── AppShell
-    ├── NavRail { items: NavItem[]; collapsed: boolean }          # 80px; flyout Khách hàng & CRM, Báo cáo
+    ├── NavRail { items: NavItem[]; collapsed: boolean }          # 80px (≥ md); flyout Khách hàng & CRM
+    ├── MobileTabBar { items: NavItem[] }                          # < md: Tổng quan · Hộp thư · Trợ lý · Khách hàng · Thêm
     │   └── NavFlyout { group: NavGroup }
     ├── TopBar  { onSearch; workspace: WorkspaceSummary }           # tìm kiếm ⌘/, thông báo, trợ giúp, trial badge, WorkspaceSwitcher
     ├── <main>{children}</main>
-    ├── AssistantDock { context: AssistantContext }                 # Ctrl+K; panel phải 420px; dùng chung AssistantThread
+    ├── AssistantDock { context: AssistantContext }                 # Ctrl+K; panel phải 420px (< md: toàn màn); dùng chung AssistantThread
     ├── ConfirmActionHost                                           # nhận preview từ useAction / assistant
     └── Toaster · RealtimeProvider · UiCommandHost
 ```
@@ -835,12 +848,13 @@ export interface NormalizedInbound {
 Primitive dùng chung (`packages/ui` + `shared`), kèm props chính:
 
 ```ts
-DataTable<T>   { columns: ColumnDef<T>[]; query: UseInfiniteQueryResult<Page<T>>; selection?: RowSelectionState;
-                 onRowClick?(row: T): void; bulkActions?: BulkAction[]; aiColumn?: (row: T) => AiSuggestion | null; virtual?: boolean }
+DataTable<T>   { columns: TableColumnsType<T>; query: UseInfiniteQueryResult<Page<T>>; selection?: Key[];   // bọc antd Table (virtual)
+                 onRowClick?(row: T): void; bulkActions?: BulkAction[]; aiColumn?: (row: T) => AiSuggestion | null;
+                 mobileCard?: (row: T) => ReactNode /* < md: render danh sách thẻ */ }
 KanbanBoard<T> { columns: { key: string; label: string; color: string }[]; items: T[]; groupBy(item: T): string;
                  onMove(item: T, to: string): void /* gọi action */; renderCard(item: T): ReactNode }
 FilterBar      { fields: FilterField[]; value: FilterState; onChange(v: FilterState): void; savedViews?: SavedView[] }
-EntityDrawer   { entity: EntityKind; id: string; tabs: DrawerTab[]; onClose(): void }
+EntityDrawer   { entity: EntityKind; id: string; tabs: DrawerTab[]; onClose(): void }   // antd Drawer; < md: placement="bottom", full height
 PageHeader     { title: string; actions?: ReactNode; kpis?: KpiItem[] }
 PageStates     { state: 'empty'|'loading'|'error'|'ready'; empty?: EmptySpec; onRetry?(): void; children }
 ConfirmActionDialog { preview: ActionPreview; onConfirm(): void; onCancel(): void; editable?: boolean }
@@ -854,11 +868,11 @@ assistant/[[...sessionId]]
 └── AssistantPage
     ├── SessionSidebar { sessions; onNew; onSearch }
     ├── ModeTabs { mode: 'chat'|'cowork' }                     + AgentPicker + TierPicker
-    ├── AssistantThread { sessionId }
-    │   ├── MessageBubble · PlanCard { steps } · ConfirmCard { preview; confirmToken }
+    ├── AssistantThread { sessionId }                          # @ant-design/x Bubble.List (stream)
+    │   ├── MessageBubble · PlanCard { steps } (x ThoughtChain) · ConfirmCard { preview; confirmToken }
     │   ├── ResultCard { summary; uiTarget } · DelegationCard { runId; agent }
     │   └── WelcomeCarousel (Chat: 5 card tư duy · Cowork: 6 card agent) + Suggestions
-    └── AssistantComposer { onSend; attachments; voice? }
+    └── AssistantComposer { onSend; attachments; voice? }      # @ant-design/x Sender
 
 inbox/[[...conversationId]]
 └── InboxPage
@@ -879,7 +893,6 @@ marketing/                MarketingPage → SuggestionTable(7 cột) · Campaign
 loyalty/                  LoyaltyPage → Overview · MemberTable · AdjustPointsDialog(3 bước) · ConfigDialog
 agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat) · ApprovalsQueue · AgentActivity(action log)
 dashboard/                DashboardPage → GreetingBar(hỏi Trợ lý) · NeedsMe · AiTodayFeed · FollowUpWidget · OnboardingChecklist · CreditCard
-reports/[page]            ReportPage { page } → DateRangeFilter(shared) · KpiGrid · Charts(Recharts) · DetailTable · ExportButton
 settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → SettingsSection registry: general · members · profile · channels · webchat · fields · tags · replies · hours · ai-models · ai-governance · ai-log · billing · notifications
 (admin)/admin/[section]   workspaces · plans · model-prices · transfers · templates
 (onboarding)/declare      DeclareBusinessModal (không đóng được; 2 bước) · welcome → TrialWelcome (2 nút)
@@ -889,7 +902,7 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 
 - **Server state:** TanStack Query. Key theo dạng `[module, entity, params]`. Realtime event chỉ invalidate hoặc patch cache, không lưu state song song.
 - **UI state:** Zustand, chỉ gồm `assistantDock` (mở/đóng, context), `inboxUi` (folder, mật độ hiển thị) và `shell` (thu gọn).
-- **Form:** react-hook-form + zod resolver. Schema lấy thẳng từ `packages/actions` để cùng validate với server.
+- **Form:** antd `Form` + rule sinh từ zod schema của `packages/actions` (helper `zodRule(schema)`), để cùng validate với server.
 - **UI Command Bus:** mỗi page đăng ký handler bằng `useUiCommand('prefill', 'quote.form', handler)`. Lệnh không có handler thì chuyển thành `navigate` tới route mặc định của entity.
 
 ---
@@ -919,7 +932,8 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 
 | Hạng mục | Ngân sách / chuẩn |
 |---|---|
-| Web | LCP < 2.5s (desktop, 4G nhanh); JS ban đầu mỗi route ≤ 250KB gz; danh sách > 100 dòng phải virtual; ảnh dùng `next/image` |
+| Web | LCP < 2.5s (desktop, 4G nhanh; mobile 4G < 3s); JS ban đầu mỗi route ≤ 300KB gz (antd tree-shake theo component); danh sách > 100 dòng phải virtual; ảnh dùng `next/image` |
+| UI parity | Desktop 1440×900: sai khác pixel < 5% so với prototype mỗi màn/trạng thái chính (REQ-N14); mobile 390×844: không tràn ngang, vùng chạm ≥ 44px |
 | API | đọc p95 < 300ms; ghi p95 < 500ms; tin nhắn vào → hiện trên UI p95 < 1s; AI trả lời kênh p50 < 8s (không tính debounce) |
 | DB | không truy vấn nào > 100ms ở 1 triệu bản ghi/tenant với các list chính (kiểm bằng `EXPLAIN ANALYZE` trong TIP) |
 | Khả dụng | 99.9%; mọi job idempotent; outbox retry back-off `2^n` (tối đa 8 lần) rồi dead-letter |

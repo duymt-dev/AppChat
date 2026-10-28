@@ -47,7 +47,7 @@ coding-packs/
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js (App Router) + React + TypeScript strict |
+| Frontend | Next.js (App Router) + React + TypeScript strict · Ant Design v6 + Ant Design X (desktop + mobile web, parity prototype < 5%) |
 | Backend | NestJS (TypeScript), modular monolith + worker processes |
 | Database | PostgreSQL 16 + RLS (`workspace_id`) + pgvector |
 | Cache / Queue | Redis (+ BullMQ) |

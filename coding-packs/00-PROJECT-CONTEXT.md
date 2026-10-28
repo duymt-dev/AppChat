@@ -62,7 +62,7 @@ Chưa có module code. Dưới đây là **các module nghiệp vụ theo spec**
 | 8 | Gọi điện (Call Center, IVR, AI Voice, webphone) | (Call Center — chưa có trong 13 service) | SRS §08 |
 | 9 | AI Agents (45 mẫu, builder, RAG, ngưỡng tin cậy) | AI Agent & RAG | Agents-Workflow-Flow |
 | 10 | Quy trình (Workflow builder, 70 mẫu, 9 loại node) | Workflow Engine | Agents-Workflow-Flow |
-| 11 | Báo cáo (10 trang, 5 nhóm) — **đã gỡ khỏi sidebar 07-26** | Reporting/BI | SRS §14, CTO §10.13 |
+| 11 | ~~Báo cáo (10 trang, 5 nhóm)~~ — đã gỡ khỏi sidebar 07-26; **loại khỏi phạm vi 2026-10-28** (Chủ nhà: không có trong prototype hiện hành và docs mới) | — | — |
 | — | Cài đặt (40–54 trang; trong đó có SLA, KPI, phân ca, phòng ban, sơ đồ tổ chức, RBAC, kênh, tích hợp, Ví, Affiliate) | Identity + Billing + nhiều module | SLA-Spec, SolutionDesign §8.15 |
 | — | Billing & Ví Credit (gói, nạp VietQR, chuyển khoản thủ công, hoá đơn) | Billing & Token Metering | CTO §10.12, SRS §21 |
 
@@ -71,7 +71,7 @@ Chưa có module code. Dưới đây là **các module nghiệp vụ theo spec**
 App
 ├─ AuthGate (Login · OTP · Workspace picker)
 └─ AppShell
-   ├─ NavRail (Logo · Nav items · Flyout CRM/Báo cáo/Cài đặt · UserMenu)
+   ├─ NavRail (Logo · Nav items · Flyout CRM/Cài đặt · UserMenu)
    ├─ TopBar (Search · Notif · Help · WorkspaceSwitch)
    ├─ ModuleRouter
    │  ├─ DashboardView (KPIGrid · AgentPanel · StaffTable)
@@ -80,7 +80,7 @@ App
    │  ├─ CustomersView (Table · CustomField · DetailPanel)
    │  ├─ MarketingView (CampaignList · BroadcastWizard · Email/Zalo/SMS)
    │  ├─ SalesViews (Quotes · Orders · Contracts · Products)
-   │  ├─ TicketsView · CalendarView · CallCenterView · LoyaltyView · ReportsView
+   │  ├─ TicketsView · CalendarView · CallCenterView · LoyaltyView
    │  └─ SettingsView (Config · Wallet · Affiliate · Channels · RBAC)
    └─ GlobalOverlays (ConnectChannelModal · WalletModal · Toasts)
 ```
@@ -143,7 +143,7 @@ Chưa có component code. Các khối dựng một lần rồi dùng chung toàn
 | G3 | `AppChat-Trial-Spec.dc.html` rỗng (206 byte); trial chỉ có trong CHANGELOG 08-29 | Lấy CHANGELOG làm nguồn |
 | G4 | Call Center không có bounded context trong 13 service; cần nhà cung cấp SIP (tham chiếu StringeeX) | ✅ RRI D07: chưa làm |
 | G5 | Danh mục đổi thưởng Loyalty đã bị xoá, nên không còn chỗ cấu hình việc *dùng* điểm | Lỗ hổng nghiệp vụ |
-| G6 | Chưa có đặc tả Báo cáo chi tiết (10 trang); menu đã gỡ khỏi sidebar | Báo cáo đọc từ Postgres (RRI D08) |
+| G6 | Chưa có đặc tả Báo cáo chi tiết (10 trang); menu đã gỡ khỏi sidebar | ✅ Đóng: Báo cáo **loại khỏi phạm vi 2026-10-28** (Chủ nhà: không có trong prototype hiện hành và docs mới). Số liệu xem qua Tổng quan và Trợ lý AI (REQ-E07) |
 | G7 | Tích hợp kênh thật (Zalo OA/ZNS, Meta, TikTok…) cần app, đăng ký và duyệt template | Phụ thuộc bên ngoài, cần sandbox |
 | G8 | Chưa có test plan chi tiết. Chỉ có chiến lược (CTO §26) và AC mẫu Given/When/Then (SRS §22) | Viết khi làm TIP |
 
@@ -198,7 +198,6 @@ Chưa có code. Chuẩn kỹ thuật đã định sẵn [SoT: CTO §18 + CLAUDE.
 **⚠️ Nguồn chân lý trong prototype:**
 - `components/_bundle.jsx` (18.454 dòng) là bản ghép 23 module và là **bản mới nhất**. Các file lẻ cùng tên (`contacts.jsx`, `settings.jsx`, …) là **bản cũ**, không được port từ chúng.
 - Code thực sự chạy: `tag-store.jsx` + `_bundle.jsx` + 19 file overlay (ghi đè) ≈ 26,5k dòng.
-- `reports-module.jsx` không được load, nhưng có bộ chart SVG tốt nhất.
 
 **File → module (live):**
 
@@ -219,7 +218,6 @@ Chưa có code. Chuẩn kỹ thuật đã định sẵn [SoT: CTO §18 + CLAUDE.
 | Gọi điện + cấu hình tổng đài (7 mục) + WebPhone nổi | `call-center.jsx`, `webphone.jsx` |
 | AI Agents (list + builder 2 panel: cấu hình / chat test) | bundle: rest (`AutomationModule`), `ai-agent-builder.jsx` |
 | Quy trình (editor dạng list bước + trình duyệt mẫu) | `workflow.jsx`; canvas tự do ở bundle: journey-builder |
-| Báo cáo 10 trang / 5 nhóm | `reports-v2.jsx` |
 | Cài đặt | bundle: settings (2.127) + `org-settings.jsx` (Sơ đồ tổ chức / SLA / KPI / Phân ca) + `billing-page.jsx` + `widget-growth.jsx` + `channel-connect-modal.jsx` |
 | Có UI nhưng không có đường vào (tham khảo cho backlog) | Deals pipeline + Forecast, Help Center, Membership, Reviews, Phòng & tài nguyên, Phân ca/Payroll, Kho, Dashboard Builder, Training Studio (persona / golden set / eval / canary) |
 
@@ -235,7 +233,6 @@ Chưa có code. Chuẩn kỹ thuật đã định sẵn [SoT: CTO §18 + CLAUDE.
 | 6 | Lịch hẹn | |
 | 7 | AI Agents | |
 | 8 | Quy trình | |
-| 9 | Báo cáo | flyout 5 nhóm, 10 trang |
 
 Footer: avatar (đổi workspace) · Cài đặt · Thông báo · Trợ giúp.
 
@@ -319,7 +316,7 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 | Đối tượng người dùng? | Chủ DN dịch vụ, nhân sự Sales/CSKH/MKT/Quản lý, AI Agent [SRS §03; SolutionDesign §4.1] |
 | Multi-tenant? | Có: shared DB + RLS; user ↔ nhiều workspace; billing tách theo workspace [CTO §08; BR-08] |
 | Ngôn ngữ UI? | Mặc định Tiếng Việt; có selector đa ngôn ngữ (10–11) [CHANGELOG 07-26] |
-| Platform? | Desktop web trước (1440px). Native mobile/PWA là out-of-scope [SRS §01] |
+| Platform? | Desktop web chuẩn 1440px + **mobile web responsive** (Chủ nhà chốt 2026-10-28). Native mobile/PWA là out-of-scope [SRS §01] |
 | Đăng nhập? | Zalo OTP chính + Email/mật khẩu + social (Google/FB/LinkedIn/ChatGPT/Gemini/DeepSeek). **Không SMS OTP** [Auth-Wireframe v2; SRS §01] |
 | Khai báo bắt buộc? | Popup không đóng được: tra MST (DN/Hộ KD) hoặc VNeID (Cá nhân), rồi chọn lĩnh vực [Auth-Wireframe] |
 | Trial? | Cá nhân Pro 15 ngày, 10.000 credit; hết hạn hạ về Miễn phí, dữ liệu giữ nguyên, thông báo đóng được [CHANGELOG 08-29] |
@@ -364,7 +361,7 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 | R7 | Số kênh | 12 / 15 / 17 / 18 / 19 | ✅ RRI D04: Zalo cá nhân + Web + Email |
 | R8 | Sidebar / số module | 11 / 12 / 13 / 17; Báo cáo bị gỡ; Loyalty nằm ở 2 chỗ | Theo CHANGELOG 07-26 |
 | R9 | Dashboard KPI | 4 bộ KPI; 08-01 gỡ khối số liệu, thay bằng sơ đồ kiến trúc | Theo Dashboard-Spec + CHANGELOG |
-| R10 | Mobile-first hay Desktop-first | SDD/Spec module ghi mobile-first / SRS + Design System ghi desktop-first 1440 | Desktop-first, responsive |
+| R10 | Mobile-first hay Desktop-first | SDD/Spec module ghi mobile-first / SRS + Design System ghi desktop-first 1440 | **Đã giải (V11):** chuẩn desktop 1440 (parity < 5% với prototype) + mobile web responsive bằng antd |
 | R11 | Hồ sơ 360°: 4 hay 5 tab, ở module nào | | 5 tab; chỉ ở Khách hàng, Báo giá, Inbox |
 | R12 | **OpenFang** (runtime đa tác nhân bên ngoài, v0.1.0) | Có / không nhúng | Thiết kế **Agent Gateway** làm interface; **chưa chốt — OQ-01** |
 | R13 | Go cho Channel Gateway/Worker | Spec ghi Go / Chủ nhà chọn Nest | Toàn bộ NestJS (monorepo, worker riêng) |
@@ -408,7 +405,7 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 
 AppChat là SaaS đa tenant theo mô hình OPC: một chủ doanh nghiệp vận hành cả công ty cùng đội AI Agents.
 - **Trung tâm** là **Trợ lý AI**: vừa là orchestrator điều phối các agent chuyên trách, vừa là copilot làm được mọi thao tác có trên UI.
-- **Các module nghiệp vụ** (Hộp thư, CRM, Lịch hẹn, Ticket, Marketing, Loyalty, Báo cáo) là nơi hiển thị và quản lý những gì AI đã làm.
+- **Các module nghiệp vụ** (Hộp thư, CRM, Lịch hẹn, Ticket, Marketing, Loyalty) là nơi hiển thị và quản lý những gì AI đã làm.
 
 ### ARCHITECTURE VISION
 
@@ -428,7 +425,7 @@ AppChat là SaaS đa tenant theo mô hình OPC: một chủ doanh nghiệp vận
           └─────────────────────────▶│ apps/api — NestJS (modular monolith)              │
                                      │  Auth/Workspace · Inbox · CRM · Sales · Booking   │
                                      │  Ticket/SLA · Marketing · Loyalty · Billing ·     │
-                                     │  Reports · Settings                               │
+                                     │  Settings                                         │
                                      │ ┌──────────────────────────────────────────────┐ │
                                      │ │ ★ ACTION REGISTRY (packages/actions)          │ │
                                      │ │  mỗi action: zod schema · quyền · rủi ro ·    │ │
@@ -455,7 +452,7 @@ AppChat là SaaS đa tenant theo mô hình OPC: một chủ doanh nghiệp vận
                                      │   briefing, tác vụ tự chủ                         │
                                      └──────────────┬───────────────────────────────────┘
                                                     ▼
-      PostgreSQL 16 (RLS workspace_id · pgvector · unaccent/pg_trgm · materialized view báo cáo)
+      PostgreSQL 16 (RLS workspace_id · pgvector · unaccent/pg_trgm)
       Redis (BullMQ · cache · presence · rate-limit) · Object storage (S3-compatible)
       — chạy native, không Docker; tiến trình quản lý bằng PM2/systemd —
 ```
@@ -527,7 +524,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 
 ### UI VISION
 
-- **Pattern:** app shell gồm rail trái 80px với flyout (Khách hàng & CRM, Báo cáo) và topbar 58px chứa tìm kiếm, thông báo, trợ giúp, đổi workspace.
+- **Pattern:** app shell gồm rail trái 80px với flyout (Khách hàng & CRM) và topbar 58px chứa tìm kiếm, thông báo, trợ giúp, đổi workspace.
   - Nội dung theo kiểu master-detail; list ⇄ kanban; drawer; Panel 360°.
   - Chuẩn nhãn tiếng Việt và bố cục là prototype (`_bundle.jsx` + overlay).
 - **Trợ lý AI có ở mọi nơi:**
@@ -539,7 +536,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - Cột "AI gợi ý / Giao AI" trên các bảng.
 - **Theme:** sáng, nền trung tính, primary làm điểm nhấn theo quy tắc 60/30/10. Gradient signature dùng riêng cho các yếu tố AI.
 
-**Design token — chốt theo `styles.css` của prototype** (giải R17 / OQ-08; Design System tham khảo):
+**Design token — CHỐT theo `styles.css` của prototype** (Chủ nhà duyệt 2026-10-28; giải R17 / OQ-08; Design System chỉ tham khảo hình dạng component):
 
 | Nhóm | Giá trị |
 |---|---|
@@ -558,7 +555,51 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 
 **Lý do chọn:** xanh lá là màu Brand Book 2026, gợi tăng trưởng và tin cậy, hợp với khách SMB dịch vụ. Plus Jakarta Sans hiển thị tiếng Việt có dấu tốt và mang cảm giác hiện đại.
 
-**UI kit:** Tailwind CSS v4 với token ở trên, kèm primitive Radix/shadcn đã được theme lại. Bảng dùng TanStack Table + Virtual; builder dùng React Flow; biểu đồ dùng Recharts. Mọi màn có đủ 5 trạng thái: Empty / Skeleton / Loaded / Error-retry / Confirm. Mục tiêu WCAG AA; desktop-first, responsive đến 1024px.
+**UI kit (CHỐT 2026-10-28): Ant Design v6 (`antd`) — một bộ component cho cả desktop và mobile, layout responsive.**
+- **Thư viện:**
+  - `antd` v6 kèm `@ant-design/nextjs-registry` (SSR style cho App Router, không nháy).
+  - **Ant Design X 2.x** (`@ant-design/x`) cho Trợ lý AI: `Bubble` stream, `Sender`, `ThoughtChain` (thẻ kế hoạch nhiều bước), `Conversations` (danh sách phiên).
+  - `antd-style` cho style riêng (CSS-in-JS cùng hệ token).
+  - Icon: `lucide-react` (stroke 1.6, theo prototype). `@ant-design/icons` chỉ dùng khi Lucide không có.
+  - Bảng: `Table` của antd, bật `virtual` cho danh sách > 100 dòng.
+  - Biểu đồ: `@ant-design/charts` (cùng theme).
+- **Không dùng** Tailwind, shadcn/Radix, `antd-mobile`. Chỉ một hệ style.
+- **Theme:** token prototype (bảng trên) map vào `ConfigProvider theme.token` và `components.*` trong `packages/ui/theme.ts`. Ví dụ:
+  - `colorPrimary #2DC56A`, `colorText #231F20`, `colorTextSecondary #6B7280`, `colorBorder #E5E7EB`, `colorBgLayout #F9FAFB`.
+  - `colorWarning #FFB547`, `colorError #FF5A3C`, `colorInfo #2B9EF3`.
+  - `borderRadius 10` (sm 6, lg 14), `controlHeight 36` (sm 30), `fontFamily 'Plus Jakarta Sans'`, `fontSize 14`.
+  - Token riêng (`process`, `premium/AI`, gradient AI, 5 nền nhạt) khai báo thành CSS variables và custom token của `antd-style`.
+- **Responsive (một codebase, mobile web; không app native / PWA):**
+  - Breakpoint antd: `xs < 576`, `md ≥ 768`, `lg ≥ 992`, `xl ≥ 1200`, `xxl ≥ 1600`. Thiết kế chuẩn ở **1440px** (bằng prototype).
+  - `≥ lg`: layout y hệt prototype (rail 80px, topbar 58px, 3 cột Inbox, drawer bên phải).
+  - `md`: rail thu gọn, Panel 360° chuyển thành Drawer.
+  - `< md` (điện thoại):
+    - Rail chuyển thành **thanh tab dưới**: Tổng quan · Hộp thư · Trợ lý · Khách hàng · Thêm.
+    - Inbox thành 3 màn nối tiếp: danh sách → chat → 360°.
+    - Drawer thành `Drawer placement="bottom"` toàn màn.
+    - Bảng chuyển dạng danh sách thẻ.
+    - Trợ lý mở toàn màn.
+- **Parity với prototype < 5%** (Chủ nhà yêu cầu): xem mục **UI PARITY** bên dưới.
+- Mọi màn có đủ 5 trạng thái: Empty / Skeleton / Loaded / Error-retry / Confirm. Mục tiêu WCAG AA.
+
+### UI PARITY (desktop 1440px so với prototype)
+
+- **Chuẩn so sánh:**
+  - File `docs/06-prototype/AppChat.dc.html` (bản mới nhất), mở ở viewport **1440×900**.
+  - Cùng dữ liệu mẫu: seed `fixtures/prototype-parity` tái tạo đúng dữ liệu trong prototype.
+  - Cùng font.
+- **Ngưỡng:** sai khác điểm ảnh **< 5%** trên mỗi màn và mỗi trạng thái chính.
+  - Đo bằng Playwright `toHaveScreenshot` (pixelmatch, `threshold: 0.1`, `maxDiffPixelRatio: 0.05`).
+  - Vùng động (giờ, con trỏ, ảnh ngẫu nhiên) được mask.
+- **Phải giữ y hệt:** nhãn tiếng Việt, thứ tự menu, bố cục, kích thước (rail 80px, topbar 58px, button 36px, chip 22px), spacing, radius, màu, cỡ chữ và độ đậm.
+- **Ngoại lệ có chủ đích** (không tính vào 5%, phải liệt kê trong báo cáo parity):
+  - Module không làm: Call Center, Workflow, Hợp đồng, Báo cáo — ẩn khỏi menu.
+  - Kênh không làm khi phát hành (Facebook, Instagram, Telegram, WhatsApp…) — chỉ hiển thị kênh có thật.
+- **Quy trình:**
+  1. TIP nền tảng UI dựng `tools/parity`: script Playwright chụp prototype theo danh sách màn (`parity.manifest.ts`: route, trạng thái, mask, vùng ngoại lệ), lưu baseline vào `tests/parity/baseline/`.
+  2. Mỗi TIP UI phải chạy `pnpm parity <màn>` và dán tỉ lệ sai khác vào Completion Report.
+  3. Màn nào ≥ 5% thì TIP chưa DONE.
+- **Mobile (< md):** prototype không có bản mobile nên không đo pixel. Kiểm bằng e2e Playwright ở viewport 390×844: không tràn ngang, mọi action chạy được, vùng chạm ≥ 44px.
 
 ### API DESIGN
 
@@ -600,7 +641,6 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | Hỗ trợ | Ticket (list/kanban), SLA mặc định, CSAT | P1 |
 | Marketing | Phân khúc, AI đề xuất chiến dịch, wizard, duyệt, gửi Zalo/Email, báo cáo chiến dịch | P1 |
 | Loyalty | Hạng, sổ điểm, tích tự động, đổi điểm, điều chỉnh tay | P1 |
-| Báo cáo | AI Agents · Hội thoại · Doanh số · Khách hàng · Marketing · Ticket | P1 |
 | Gói & Credit | Popup nâng cấp, trang Gói & thanh toán, ví credit, VietQR + chuyển khoản | P0 |
 | Cài đặt | Settings shell + khoảng 12 trang lõi (thành viên, kênh, widget, trường, thẻ, mẫu trả lời, AI models, AI governance, nhật ký AI, gói/ví, hồ sơ) | P0–P1 |
 | Quản trị nền tảng | Tenant, gói/giá, đối soát chuyển khoản, đơn giá model | P1 |
@@ -610,6 +650,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | Domain | Giai đoạn |
 |---|---|
 | Call Center / AI Voice / WebPhone | Sau |
+| Module Báo cáo (10 trang / 5 nhóm, xuất Excel, báo cáo lên lịch) | Loại bỏ (2026-10-28) |
 | Workflow engine + builder | Sau |
 | Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok | P2 |
 | Hợp đồng + ký số | P2 |
@@ -631,7 +672,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | V8 | Prisma cho CRUD; SQL thô trong migration cho RLS, partial/expression/covering index; deferred join khi phân trang lớn | RRI D13 + quy tắc Postgres trong CLAUDE.md |
 | V9 | Xác nhận theo mức rủi ro: đọc → chạy ngay; ghi/gửi/xoá/tiền → preview + `confirm_token`; agent trực kênh ≥70% tin cậy, các việc chạm tiền luôn chờ duyệt | BR-05, REQ-D05, E03 |
 | V10 | Credit ledger trên mọi lần gọi LLM; hết credit → chặn AI, chuyển hội thoại về người | RRI D09 |
-| V11 | Token UI theo `styles.css` của prototype; Plus Jakarta Sans; Tailwind v4 + shadcn theme lại | Giải R17; khớp prototype mà Chủ nhà đã duyệt |
+| V11 | **(CHỐT 2026-10-28)** Token UI theo `styles.css` của prototype; Plus Jakarta Sans. **UI kit: Ant Design v6 + Ant Design X**, một codebase responsive cho desktop và mobile web. **Parity desktop với prototype < 5%** (đo pixel bằng Playwright) | Giải R17; Chủ nhà chọn Ant; prototype là bản Chủ nhà đã duyệt |
 | V12 | OTP đăng nhập qua Email (Zalo OTP chờ có OA) | OQ-02; Zalo cá nhân không gửi OTP chính thống được |
 
 ---
@@ -650,4 +691,4 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - OQ-03 / V5: chưa chạy thử zca-js.
   - Chưa kiểm field `usage` và việc chạy tiếp sau restart của AI SDK v7 (spike nửa ngày ở TIP AI).
   - OQ-04 – OQ-07 (cổng webhook ngân hàng, API tra MST, khoá LLM, hạ tầng production) cần Chủ nhà cung cấp; không chặn Blueprint.
-- **Trạng thái duyệt:** V3/V4 đã chốt (B, không Mastra, không swarm — 2026-10-28). Phần còn lại của Vision và V11 (token UI) đang chờ Chủ nhà đọc.
+- **Trạng thái duyệt:** V3/V4 (B, không Mastra, không swarm) và V11 (token prototype + Ant Design + parity < 5%) đã chốt 2026-10-28. Phần còn lại của Vision chờ Chủ nhà đọc.

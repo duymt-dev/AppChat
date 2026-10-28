@@ -44,7 +44,7 @@
 - **Marketing:** AI đề xuất chiến dịch từ CDP; wizard; phê duyệt; ZNS/Email/SMS; A/B.
 - **Quy trình (Workflow engine + builder):** trigger → điều kiện → hành động; kèm mẫu theo ngành.
 - **Loyalty:** hạng thành viên, rule builder KHI · NẾU · THÌ, cảnh báo khách sắp rời bỏ.
-- **Báo cáo:** 10 trang chia 5 nhóm; data mart (ClickHouse) để đảm bảo "1 con số 1 nguồn".
+- ~~**Báo cáo:** 10 trang chia 5 nhóm; data mart (ClickHouse)~~ — loại bỏ 2026-10-28 (RRI D19).
 - **Integration Hub:** outbound webhook ký HMAC, Google Sheets, Email ESP; thêm kênh mới (IG, WhatsApp, Telegram, TikTok, Email).
 
 ## P3 — Quy mô
@@ -55,6 +55,6 @@
 - **Bổ sung:** Help Center, Training Studio (eval/canary), Dashboard builder.
 
 ## Ngoài phạm vi
-- Mobile native / PWA (chỉ làm desktop-first, responsive).
+- Mobile native / PWA (chỉ làm web responsive cho desktop và mobile, bằng Ant Design).
 - Sourcing / marketplace.
 - SMS OTP.

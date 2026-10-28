@@ -6,7 +6,7 @@
 | Lớp | Lựa chọn |
 |---|---|
 | Ngôn ngữ | TypeScript strict (FE + BE), monorepo pnpm workspaces |
-| Frontend | Next.js (App Router), React, TanStack Query, design tokens từ Design System, i18n (next-intl, mặc định `vi`) |
+| Frontend | Next.js (App Router), React, TanStack Query, **Ant Design v6** (`antd` + `@ant-design/nextjs-registry` + `antd-style`) và **Ant Design X 2.x** cho Trợ lý AI; một codebase responsive desktop + mobile web; i18n (next-intl, mặc định `vi`) |
 | Backend | NestJS — modular monolith (module = bounded context) + worker process riêng cho Channel Gateway & AI inference |
 | API | REST `/v1`, OpenAPI 3.1 (contract-first), cursor pagination, `Idempotency-Key`, lỗi `{error:{code,message,fields}}` |
 | Database | PostgreSQL 16 + Row-Level Security theo `workspace_id` + pgvector (HNSW) + unaccent/pg_trgm (tìm kiếm tiếng Việt) |
@@ -20,8 +20,8 @@
 | Test | Vitest/Jest (unit), Testcontainers (integration), Playwright (e2e), RLS isolation test, k6 (load) |
 | Observability | OpenTelemetry + Prometheus + Grafana + Loki |
 | Infra / CI | **Không dùng Docker.** Postgres 16 + Redis native; Next.js + NestJS (api + worker) chạy bằng PM2/systemd; GitHub Actions |
-| Font / UI | Plus Jakarta Sans 300–800, JetBrains Mono; primary #2DC56A; icon 24px stroke (Lucide-style) |
+| Font / UI | Token theo `styles.css` của prototype, map vào antd theme: Plus Jakarta Sans 300–800, JetBrains Mono; primary #2DC56A; icon `lucide-react` stroke 1.6. **Parity desktop với prototype < 5%** (Playwright screenshot) |
 
 | Kênh | Zalo cá nhân (thư viện QR-login không chính thức, adapter cô lập — OQ-03), Web widget (JS SDK), Email (IMAP/SMTP, Gmail OAuth) |
 | Search | Postgres FTS + unaccent + pg_trgm (chưa dùng OpenSearch) |
-| Báo cáo | Postgres + materialized view (chưa dùng ClickHouse) |
+| Số liệu | Query trực tiếp Postgres có index (Tổng quan, thống kê agent/chiến dịch/ticket, Trợ lý AI). Không có module Báo cáo (D19) |

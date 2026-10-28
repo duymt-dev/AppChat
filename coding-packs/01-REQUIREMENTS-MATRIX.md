@@ -16,7 +16,7 @@
 - **AI Agents chuyên trách** được cấu hình ở module AI Agents. Chúng là đơn vị thực thi:
   - Một số **trực kênh** để tư vấn và bán cho khách qua Zalo cá nhân, Web chat, Email.
   - Số khác nhận việc từ Trợ lý AI.
-- **Vai trò các màn còn lại** (Hộp thư, CRM, Lịch hẹn, Ticket, Marketing, Loyalty, Báo cáo, Cài đặt…): là nơi **hiển thị và quản lý những gì Trợ lý AI và các agent đã làm**, và là nơi người dùng thao tác trực tiếp khi cần.
+- **Vai trò các màn còn lại** (Hộp thư, CRM, Lịch hẹn, Ticket, Marketing, Loyalty, Cài đặt…): là nơi **hiển thị và quản lý những gì Trợ lý AI và các agent đã làm**, và là nơi người dùng thao tác trực tiếp khi cần.
 - **Nguyên tắc kiến trúc hệ quả: "Action-first".** Mọi thao tác trên UI là một **action đã đăng ký** trong một Action Registry dùng chung. Mỗi action gồm schema, quyền, mức rủi ro, có cần xác nhận hay không, và cách hoàn tác. UI và Trợ lý AI gọi **cùng** action đó, nên không có thao tác nào "chỉ bấm tay được".
 - **Mục tiêu:** sản phẩm thương mại, bán được ngay. Không làm bản "MVP".
 - **Kênh bắt buộc:** **Zalo cá nhân** (đăng nhập bằng QR, thư viện không chính thức; chấp nhận rủi ro), **Web Live Chat widget**, **Email**.
@@ -92,7 +92,7 @@
 | REQ-E04 | **Orchestrator điều phối agents:** phân rã yêu cầu nhiều bước thành kế hoạch; giao từng bước cho AI Agent chuyên trách phù hợp (Sales / CSKH / Booking / Marketing / Kế toán / Vận hành); hiển thị kế hoạch và tiến độ từng bước; tổng hợp kết quả. Người dùng xem, dừng, sửa kế hoạch được. | P0 | Chủ DN | TBD |
 | REQ-E05 | **Điều khiển giao diện (UI control):** Trợ lý có thể điều hướng tới màn, mở bản ghi / drawer / panel 360°, **điền sẵn form** để người dùng xem rồi bấm lưu, làm nổi bật phần tử, áp bộ lọc lên bảng. Thực hiện qua command bus phía client. Câu trả lời kèm **thẻ hành động deep-link** tới kết quả. | P0 | Chủ DN | TBD |
 | REQ-E06 | **Có mặt ở mọi màn:** bản thu nhỏ "Trợ lý AI · [module]" trong từng module, tự nạp ngữ cảnh (màn hiện tại, bản ghi đang xem, dòng đang chọn). Có thể gọi bằng phím tắt (⌘K / Ctrl+K). | P0 | Chủ DN / Member | TBD |
-| REQ-E07 | **Truy vấn và phân tích bằng ngôn ngữ tự nhiên** trên dữ liệu workspace: "doanh số tuần này", "khách nào sắp rời bỏ", "agent nào chốt tốt nhất". Trả lời bằng số liệu, bảng hoặc biểu đồ, có nguồn (link về báo cáo / bản ghi). Chỉ đọc. | P0 | Chủ DN | TBD |
+| REQ-E07 | **Truy vấn và phân tích bằng ngôn ngữ tự nhiên** trên dữ liệu workspace: "doanh số tuần này", "khách nào sắp rời bỏ", "agent nào chốt tốt nhất". Trả lời bằng số liệu, bảng hoặc biểu đồ, có nguồn (link về bản ghi / danh sách đã lọc). Chỉ đọc. | P0 | Chủ DN | TBD |
 | REQ-E08 | **Chủ động (briefing):** đầu ngày tóm tắt "việc cần tôi" (hàng chờ duyệt, hội thoại cần người, lịch hôm nay, quá hạn SLA, credit sắp hết) kèm đề xuất hành động một chạm. | P1 | Chủ DN | TBD |
 | REQ-E09 | **Nhật ký hành động và hoàn tác:** mọi action do Trợ lý hoặc agent thực thi được ghi lại (ai ra lệnh, action, input, trước/sau, agent nào, credit). Có lọc theo loại (tạo / cập nhật / gửi / xuất). Hoàn tác được khi action thuộc nhóm cho phép và còn trong thời hạn; đã gửi ra ngoài thì chỉ ghi đính chính. | P0 | Chủ DN | TBD |
 | REQ-E10 | Lưu "Nội dung trò chuyện": danh sách phiên, tìm kiếm, mở lại; nhớ ngữ cảnh dài trong phiên. | P1 | Chủ DN | TBD |
@@ -152,12 +152,11 @@
 | REQ-J04 | Agent biết hạng và điểm của khách để tư vấn ưu đãi; hiển thị trên Hồ sơ 360°. | P1 | Agent | TBD |
 | REQ-J05 | Rule builder KHI · NẾU · THÌ (10 sự kiện); cảnh báo khách sắp rời bỏ. | P2 | — | TBD |
 
-### Domain K — Tổng quan & Báo cáo
+### Domain K — Tổng quan
 | REQ-ID | Requirement | Priority | Persona | TIP |
 |---|---|---|---|---|
 | REQ-K01 | **Tổng quan:** "Việc cần tôi" (hàng chờ duyệt, hội thoại cần người, quá hạn), "AI đã làm gì hôm nay", Cần follow (tối đa 5), checklist onboarding 5 bước, số dư credit. | P0 | Chủ DN | TBD |
-| REQ-K02 | **Báo cáo:** Hiệu suất AI Agent · Hội thoại & kênh · Doanh số & đơn · Khách hàng · Marketing · Ticket/SLA. Bộ lọc thời gian dùng chung; xuất Excel. Đọc từ Postgres / materialized view, nguyên tắc "1 con số 1 nguồn". | P1 | Chủ DN | TBD |
-| REQ-K03 | Báo cáo lên lịch gửi email; AI narrative (diễn giải số liệu). | P2 | — | TBD |
+| ~~REQ-K02~~ | ~~Báo cáo (6 nhóm, xuất Excel)~~ — **loại bỏ 2026-10-28 (D19)**. | — | — | — |
 
 ### Domain L — Gói, Credit & Thanh toán
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -191,7 +190,8 @@
 | REQ-N07 | Hiệu năng: tin nhắn p95 < 1s; API đọc p95 < 300ms. Uptime mục tiêu 99.9%. | P0 | — | TBD |
 | REQ-N08 | Backup Postgres (PITR / dump hằng ngày); RPO ≤ 5 phút, RTO ≤ 1 giờ; quyền bị lãng quên (ẩn danh hoá). | P1 | — | TBD |
 | REQ-N09 | Observability: log có cấu trúc, metric, trace (OpenTelemetry), cảnh báo lỗi kênh. | P1 | — | TBD |
-| REQ-N10 | UI tiếng Việt mặc định với lớp i18n (next-intl), có `en`. Desktop-first, responsive. Đủ 5 trạng thái UI. WCAG AA. | P0 | — | TBD |
+| REQ-N10 | UI tiếng Việt mặc định với lớp i18n (next-intl), có `en`. **Ant Design v6**, một codebase cho desktop (chuẩn 1440px) và **mobile web responsive**. Đủ 5 trạng thái UI. WCAG AA. | P0 | — | TBD |
+| REQ-N14 | **Parity UI với prototype < 5%:** mỗi màn và trạng thái chính ở 1440×900 sai khác điểm ảnh < 5% so với `AppChat.dc.html` (Playwright screenshot, dữ liệu seed giống prototype). Ngoại lệ chỉ gồm các module và kênh ngoài phạm vi. | P0 | Chủ DN | TBD |
 | REQ-N11 | Test: unit (business rules), integration, e2e Playwright cho luồng chính, test cô lập RLS, AI eval set cho Trợ lý (chọn đúng action, đúng tham số, đúng quyền, đúng mức xác nhận) và cho các agent trực kênh. | P0 | — | TBD |
 | REQ-N12 | File: BE ≤ 600 dòng, FE ≤ 400 dòng; test để file riêng; commit kèm SHA. | P0 | — | TBD |
 | REQ-N13 | **Definition of Done "Action-first":** mọi tính năng mới phải đăng ký action trong Registry (schema, quyền, rủi ro, hoàn tác) và có test gọi action đó **qua Trợ lý AI**. Chưa làm được hai việc này thì tính năng chưa xong. | P0 | — | TBD |
@@ -206,7 +206,7 @@
 - **Trial:** Cá nhân Pro 15 ngày, 10.000 credit; hết hạn hạ về Miễn phí, thông báo đóng được.
 - **Luồng bán hàng:** báo giá → đơn → hoá đơn → điểm loyalty; pipeline tự cập nhật.
 - **Ngưỡng AI:** tự xử khi tin cậy ≥ 70%; HITL với việc chạm tiền, gửi hàng loạt, hợp đồng; Trợ lý không thực thi khi chưa xác nhận.
-- **Platform:** desktop web trước; không native mobile; không SMS OTP.
+- **Platform:** desktop web (chuẩn 1440px) + mobile web responsive (D18); không native mobile / PWA; không SMS OTP.
 - **Design tokens:** Plus Jakarta Sans; primary #2DC56A (bộ token cuối cùng chốt ở Vision — R17).
 - **Prototype** (`docs/06-prototype/AppChat.dc.html` mới nhất; source JSX ở `docs/06-prototype/jsx-reference`) là chuẩn UI và nhãn tiếng Việt.
 
@@ -225,7 +225,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D05 | Zalo cá nhân (API không chính thức) | làm / thay bằng OA / cả hai | **Làm, chấp nhận rủi ro**; adapter cô lập, có throttle chống khoá | Chủ nhà chốt |
 | D06 | Quyền tự chủ của agent | theo spec / mọi thao tác ghi cần duyệt / tự chủ tối đa | **Theo spec** (≥70%, ép duyệt khi chạm tiền / hợp đồng / gửi hàng loạt) | Chủ nhà chọn |
 | D07 | Module chưa làm | — | **Call Center, Workflow engine** | Chủ nhà chốt |
-| D08 | Module phụ khi phát hành | — | **Ticket/SLA, Marketing broadcast, Loyalty, Báo cáo** (cùng CRM, Lịch hẹn, Billing, Cài đặt) | Chủ nhà chọn |
+| D08 | Module phụ khi phát hành | — | **Ticket/SLA, Marketing broadcast, Loyalty** (cùng CRM, Lịch hẹn, Billing, Cài đặt). ~~Báo cáo~~ loại bỏ 2026-10-28 (D19) | Chủ nhà chọn |
 | D09 | Hết credit | chặn / chuyển model rẻ / trả sau, khoá ở 5tr | **Chặn AI + popup nạp**, cảnh báo 80%, dữ liệu vẫn dùng | Chủ nhà chọn |
 | D10 | Bảng giá | chốt số / cấu hình được | **Lưu DB, cấu hình được**, seed theo prototype | Chủ nhà chọn |
 | D11 | RBAC | 4 vai trò / 7 vai trò / Owner + Member | **Owner + Member** | Hợp mô hình OPC |
@@ -233,7 +233,9 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D13 | ORM | Prisma / Drizzle / TypeORM | **Prisma** (+ SQL thô cho RLS / index nâng cao) | Chủ nhà chọn |
 | D14 | LLM | Claude / đa nhà cung cấp / gateway | **Đa nhà cung cấp** (LLM Router) | Chủ nhà chọn |
 | D17 | Agent runtime & phối hợp agent | fork OpenFang/OpenClaw/Hermes / Mastra / AI SDK + lớp nối tự viết; có / không swarm | **AI SDK v7 + lớp nối tự viết; không swarm** (giữ orchestrator, handoff, hỏi ý, tác vụ tự chủ) | Chủ nhà chốt 2026-10-28; xem Vision V3–V4 |
-| D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm), materialized view** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
+| D19 | Module Báo cáo | giữ 6 trang / bỏ | **Bỏ khỏi phạm vi.** Số liệu chỉ hiện ở Tổng quan, Hiệu suất agent (REQ-D14), thống kê chiến dịch (REQ-I05), KPI Ticket (REQ-H04) và truy vấn qua Trợ lý AI (REQ-E07) | Chủ nhà chốt 2026-10-28: không có trong prototype hiện hành và docs mới |
+| D18 | UI kit & nền tảng hiển thị | Tailwind + shadcn / antd + antd-mobile / antd một codebase | **Ant Design v6 + Ant Design X, một codebase responsive desktop + mobile web; token theo prototype; parity < 5%** | Chủ nhà chốt 2026-10-28 |
+| D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
 | # | Question | Impact | Suggested Resolution |
@@ -270,12 +272,13 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 - **Hỗ trợ:** Ticket/SLA (chính sách mặc định).
 - **Marketing broadcast:** AI đề xuất, gửi qua Zalo cá nhân và Email, bắt buộc duyệt.
 - **Loyalty:** hạng, tích và đổi điểm tự động.
-- **Tổng quan và Báo cáo.**
+- **Tổng quan.**
 - **Gói / Credit / VietQR:** cùng trang quản trị nền tảng.
 - **Cài đặt:** các trang cốt lõi.
 
 ### Out of Scope (hoãn)
 - Call Center / AI Voice / WebPhone.
+- Module Báo cáo (10 trang / 5 nhóm, xuất Excel, báo cáo lên lịch, AI narrative) — D19.
 - Workflow engine và builder.
 - Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok (P2).
 - Hợp đồng và ký số (P2).
