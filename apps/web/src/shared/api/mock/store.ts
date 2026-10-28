@@ -5,6 +5,7 @@ import type { SystemRole } from '@appchat/shared';
 import { loadSession, saveSession, type MockSession } from './session';
 import { createDashboardState, type DashboardState } from './domains/dashboard';
 import { createInboxState, type InboxState } from './domains/inbox';
+import { createCustomersState, type CustomersState } from './domains/customers';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -29,6 +30,7 @@ export interface MockDb {
   business: BusinessProfile | null;
   dashboard: DashboardState;
   inbox: InboxState;
+  customers: CustomersState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -51,6 +53,7 @@ const db: MockDb = {
   business: null,
   dashboard: createDashboardState(),
   inbox: createInboxState(),
+  customers: createCustomersState(),
 };
 
 type Listener = (event: string) => void;

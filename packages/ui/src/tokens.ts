@@ -148,6 +148,34 @@ export const color = {
   photoB: '#A7D7C5',
   photoC: '#B9C7F0',
   photoD: '#E9D3A6',
+  // khách hàng (prototype L2451–2984)
+  rowHover: '#FAFBFA',
+  aiHintText: '#5B5470',
+  aiPeekBg: '#F2EEFD',
+  statusActive: '#0F7B45',
+  statusPotentialBg: '#EFF6FF',
+  kanbanCol: '#F7F9FA',
+  kanbanCount: '#EEF1F0',
+  dashLine: '#CBD5D1',
+  checkLine: '#D1D5DB',
+  grab: '#C9D0D8',
+  dupBg: '#FEF4F4',
+  dupLine: '#FBD9D9',
+  ruleBg: '#EFF4FB',
+  ruleLine: '#D6E4F5',
+  fieldsBg: '#F3EEFE',
+  tipBg: '#F6F4FE',
+  tipLine: '#E6E0FB',
+  tipText: '#4B3F73',
+  tierSoftBg: '#FFF4E0',
+  lookupBg: '#EFEAFE',
+  assignIcon: '#7C9CFF',
+  sky: '#0EA5E9',
+  sparkMint: '#7EE2A4',
+  dimVeil: 'rgba(15,20,28,.42)',
+  peekVeil: 'rgba(15,23,20,.35)',
+  webTag: 'rgba(15,23,20,.34)',
+  webIcon: 'rgba(255,255,255,.92)',
 } as const;
 
 export const gradient = {
@@ -171,6 +199,7 @@ export const gradient = {
   productCard: 'linear-gradient(135deg,#EDFAF3,#CDEBD8)',
   tier: 'linear-gradient(135deg,#6E48E6,#8B6FE8)',
   connectHint: 'linear-gradient(135deg,#EDFAF3,#fff)',
+  peekHead: 'linear-gradient(135deg,#F6F2FF,#ECFDF5)',
 } as const;
 
 export const shadow = {
@@ -202,6 +231,13 @@ export const shadow = {
   card2: '0 1px 2px rgba(0,0,0,.04)',
   tabRaise: '0 1px 2px rgba(0,0,0,.05)',
   panelSlide: '-14px 0 40px rgba(15,42,28,.18)',
+  crmModal: '0 30px 80px rgba(14,27,19,.32)',
+  rowMenu: '0 12px 32px rgba(15,23,42,.16)',
+  filterPop: '0 16px 40px rgba(17,24,39,.2)',
+  table: '0 1px 2px rgba(14,27,19,.04)',
+  kanbanCard: '0 1px 2px rgba(17,24,39,.05)',
+  segOn: '0 1px 2px rgba(0,0,0,.08)',
+  peek: '0 24px 60px rgba(15,23,20,.3)',
 } as const;
 
 export const font = {
@@ -282,6 +318,10 @@ export const layout = {
   inboxRail: 216,
   inbox360: 340,
   minShell: 1180,
+  /** Khách hàng: drawer 360° / Trợ lý AI 392 · bảng tối thiểu 1150 · cột kanban 230. */
+  crmDrawer: 392,
+  crmTableMin: 1150,
+  kanbanCol: 230,
 } as const;
 
 /** Breakpoint của prototype (CSS L280–392): auth 1 cột ≤ 1100px, mobile ≤ 680px. */

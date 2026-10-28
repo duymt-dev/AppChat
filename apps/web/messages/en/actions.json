@@ -75,5 +75,48 @@
     "add": {
       "title": "Add internal note"
     }
+  },
+  "contact": {
+    "create": {
+      "title": "Create customer"
+    },
+    "update": {
+      "title": "Update customer"
+    },
+    "set_stage": {
+      "title": "Change stage"
+    },
+    "tag": {
+      "title": "Tag customer"
+    },
+    "delete": {
+      "title": "Delete customer"
+    },
+    "merge": {
+      "title": "Merge duplicates"
+    },
+    "add_collaborator": {
+      "title": "Add co-owner"
+    },
+    "remove_collaborator": {
+      "title": "Remove co-owner"
+    },
+    "transfer_owner": {
+      "title": "Transfer owner"
+    },
+    "request_access": {
+      "title": "Request access"
+    },
+    "decide_access": {
+      "title": "Decide access request"
+    }
+  },
+  "custom_field": {
+    "define": {
+      "title": "Create custom field"
+    },
+    "update": {
+      "title": "Save field settings"
+    }
   }
 }

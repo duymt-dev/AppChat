@@ -75,5 +75,48 @@
     "add": {
       "title": "Thêm ghi chú nội bộ"
     }
+  },
+  "contact": {
+    "create": {
+      "title": "Tạo khách hàng"
+    },
+    "update": {
+      "title": "Cập nhật khách hàng"
+    },
+    "set_stage": {
+      "title": "Chuyển giai đoạn"
+    },
+    "tag": {
+      "title": "Gắn tag khách"
+    },
+    "delete": {
+      "title": "Xoá khách hàng"
+    },
+    "merge": {
+      "title": "Gộp khách trùng"
+    },
+    "add_collaborator": {
+      "title": "Thêm đồng phụ trách"
+    },
+    "remove_collaborator": {
+      "title": "Gỡ đồng phụ trách"
+    },
+    "transfer_owner": {
+      "title": "Chuyển phụ trách"
+    },
+    "request_access": {
+      "title": "Xin chia sẻ khách"
+    },
+    "decide_access": {
+      "title": "Duyệt yêu cầu chia sẻ"
+    }
+  },
+  "custom_field": {
+    "define": {
+      "title": "Tạo trường mở rộng"
+    },
+    "update": {
+      "title": "Lưu cấu hình trường"
+    }
   }
 }
