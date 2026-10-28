@@ -8,6 +8,7 @@ import { inboxParamRoute } from './domains/inbox';
 import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
 import { productsParamRoute } from './domains/products';
+import { quotesParamRoute } from './domains/quotes';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
@@ -45,6 +46,7 @@ export const mockTransport: Transport = {
     const route =
       mockRoutes[path] ??
       productsParamRoute(path) ??
+      quotesParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??
       inboxParamRoute(path);

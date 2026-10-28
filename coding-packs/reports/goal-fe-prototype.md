@@ -123,10 +123,10 @@
 | `products:list` | Danh sách sản phẩm | L5624 | P | ✅ | 0.0373 | pass | 81dba0d | DataTable + KanbanBoard theo danh mục; giá vốn chỉ hiện với `catalog.cost_view`; nguồn đồng bộ theo connector registry (Zalo cá nhân, Website; sàn / POS "Sắp có" — D28/D31) — mask hàng chip |
 | `products:detail` | Chi tiết sản phẩm | L5624 | P | ✅ | 0.0199 | pass | 81dba0d | EntityDrawer (thêm prop `header`) · 5 tab; prototype khoá cứng `pdDetailOn: false` nên entry parity bật cờ qua `protoOverrideVals` |
 | `products:create` | Tạo sản phẩm | L5624 | P | ✅ | 0.0229 | pass | 81dba0d | 6 loại (khối nhập theo loại), danh mục mới (`category.create`), trường riêng, thuộc tính → biến thể; lưu `product.create` / `product.update`; ModalShell thêm biến thể `dense` |
-| `quotes:list` | Danh sách báo giá | L4957 | P | ⬜ | | | | Hiệu lực 15 ngày |
-| `quotes:editor` | Soạn báo giá (dòng, chiết khấu, thuế sau CK) | L4957 | P | ⬜ | | | | |
-| `quotes:detail` | Chi tiết báo giá + các version | L4957 | P | ⬜ | | | | |
-| `quotes:draft-from-content` | AI soạn báo giá từ nội dung | — | M | ⬜ | — | | | D30 |
+| `quotes:list` | Danh sách báo giá | L4957 | P | ✅ | 0.0233 | pass | SHA_Q | Hiệu lực 15 ngày (cột Hết hạn = gửi + 15); chip theo trạng thái COMMERCE §3; DataTable + Kanban 4 cột; scope sales `own`; tổng = `quoteTotals` (thuế sau CK, không trừ điểm) |
+| `quotes:editor` | Soạn báo giá (dòng, chiết khấu, thuế sau CK) | L4957 | P | ✅ | 0.0180 | pass | SHA_Q | Form 720 (crmSpec quotes): dòng từ catalog / ngoài danh mục, CK dòng + CK tổng, thuế theo dòng; cảnh báo ngưỡng 20tr / 5% / ngoài danh mục; `quote.create` |
+| `quotes:detail` | Chi tiết báo giá + các version | L4957 | P | ✅ | 0.0400 | pass | SHA_Q | 4 tab; chân theo trạng thái (gửi duyệt → duyệt → gửi → chốt → Hợp đồng / Đơn); `request_revision` tạo Lần n+1, tab Lịch sử liệt kê version; mask: tổng (không trừ điểm — COMMERCE §3), hàng nút gửi (ZBS/SMS OUT) |
+| `quotes:draft-from-content` | AI soạn báo giá từ nội dung | — | M | ✅ | — | pass | SHA_Q | D30: `quote.draft_from_content` (mock khớp catalog, giá từ catalog, ngoài danh mục buộc duyệt, chỉ nháp); mở từ Trợ lý AI · Báo giá |
 | `contracts:list` | Danh sách hợp đồng | L5343 | E | ⬜ | | | | "Ký số" → "Ký điện tử" |
 | `contracts:kanban` | Kanban 4 cột (Nháp / Chờ ký / Đã ký / Hết hạn) | L5343 | E | ⬜ | | | | |
 | `contracts:detail` | Drawer hợp đồng | L5343 | E | ⬜ | | | | |

@@ -25,6 +25,8 @@ export interface EntityDrawerProps {
   /** Header nền gradient (drawer Trợ lý). */
   tinted?: boolean;
   tabs?: DrawerTab[];
+  /** Tab đệm ngang 12px (drawer chứng từ — prototype qDetail.tabs L9435). */
+  wideTabs?: boolean;
   tab?: string;
   onTab?: (key: string) => void;
   children: ReactNode;
@@ -129,6 +131,9 @@ const useStyles = createStyles(({ css }) => ({
       min-height: ${layout.touch}px;
     }
   `,
+  tabWide: css`
+    padding: 12px;
+  `,
   tabOn: css`
     border-bottom-color: ${color.brand};
     color: ${color.brandInk};
@@ -230,7 +235,7 @@ export function EntityDrawer(p: EntityDrawerProps) {
                 type="button"
                 role="tab"
                 aria-selected={p.tab === t.key}
-                className={cx(styles.tab, p.tab === t.key && styles.tabOn)}
+                className={cx(styles.tab, p.wideTabs && styles.tabWide, p.tab === t.key && styles.tabOn)}
                 onClick={() => p.onTab?.(t.key)}
               >
                 {t.label}

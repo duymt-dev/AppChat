@@ -1,6 +1,8 @@
 // Token lấy nguyên giá trị từ prototype AppChat.dc.html (CSS L39–392 + style inline của shell L637–1078).
 // Component chỉ được dùng token ở đây (qua createStyles / ConfigProvider) — cấm hard-code màu / px.
 
+import { salesColor, salesGradient } from './tokens-sales';
+
 export const color = {
   brand: '#2DC56A',
   brandHover: '#1FB85C',
@@ -203,6 +205,7 @@ export const color = {
   activeLine: '#BCE8CD',
   sparkBar: '#CDE9D8',
   pink: '#DB2777',
+  ...salesColor,
 } as const;
 
 export const gradient = {
@@ -235,6 +238,7 @@ export const gradient = {
   kanbanSky: 'linear-gradient(135deg,#0EA5E9,#0369A1)',
   asstPage: 'linear-gradient(180deg,#F4FBF8 0%,#F9FAFB 60%)',
   confBar: 'linear-gradient(90deg,#2DC56A,#6E48E6)',
+  ...salesGradient,
 } as const;
 
 export const shadow = {
@@ -285,18 +289,7 @@ export const shadow = {
 } as const;
 
 /** Màu hình minh hoạ (mặt bot Trợ lý — prototype L1196, L1265). Chỉ dùng cho SVG minh hoạ. */
-export const illus = {
-  botLight: '#5BE08A',
-  botMid: '#2DC56A',
-  botDeep: '#1B9E54',
-  botEye: '#0B3D24',
-  botCheek: '#FF9F8A',
-  botTealLight: '#3FD9C0',
-  botTealMid: '#1FB9A6',
-  botTealDeep: '#0E9B7E',
-  botTealEye: '#0B3D34',
-  white: '#FFFFFF',
-} as const;
+export { illus } from './tokens-illus';
 
 export const font = {
   family: "'Plus Jakarta Sans', system-ui, sans-serif",

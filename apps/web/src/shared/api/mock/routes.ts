@@ -7,6 +7,7 @@ import { customersRoutes } from './domains/customers';
 import { assistantRoutes } from './domains/assistant';
 import { agentsRoutes } from './domains/agents';
 import { productsRoutes } from './domains/products';
+import { quotesRoutes } from './domains/quotes';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -45,4 +46,5 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...assistantRoutes,
   ...agentsRoutes,
   ...productsRoutes,
+  ...quotesRoutes,
 };

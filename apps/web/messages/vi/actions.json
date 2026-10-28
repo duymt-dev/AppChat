@@ -190,5 +190,46 @@
     "adjust": {
       "title": "Điều chỉnh tồn kho"
     }
+  },
+  "quote": {
+    "create": {
+      "title": "Tạo báo giá"
+    },
+    "update": {
+      "title": "Cập nhật báo giá"
+    },
+    "delete": {
+      "title": "Xoá báo giá"
+    },
+    "submit_for_approval": {
+      "title": "Gửi duyệt báo giá"
+    },
+    "approve": {
+      "title": "Duyệt báo giá"
+    },
+    "reject_internal": {
+      "title": "Trả lại báo giá"
+    },
+    "send": {
+      "title": "Gửi báo giá"
+    },
+    "request_revision": {
+      "title": "Tạo bản sửa báo giá"
+    },
+    "mark_accepted": {
+      "title": "Khách chốt báo giá"
+    },
+    "mark_rejected": {
+      "title": "Khách từ chối báo giá"
+    },
+    "extend_validity": {
+      "title": "Gia hạn báo giá"
+    },
+    "comment": {
+      "title": "Thêm trao đổi nội bộ"
+    },
+    "draft_from_content": {
+      "title": "AI soạn báo giá"
+    }
   }
 }

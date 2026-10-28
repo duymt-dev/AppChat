@@ -6,6 +6,7 @@ import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
+import { quotesHandlers } from './domains/quotes';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -69,4 +70,5 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...assistantHandlers,
   ...agentsHandlers,
   ...productsHandlers,
+  ...quotesHandlers,
 };

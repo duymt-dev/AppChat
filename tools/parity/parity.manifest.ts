@@ -44,6 +44,7 @@ const crm = { ac_module: 'customers' };
 const asst = { ac_module: 'assistant' };
 const agents = { ac_module: 'agents' };
 const products = { ac_module: 'products' };
+const quotes = { ac_module: 'quotes' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -698,5 +699,47 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('pd-add').click(),
     appWait: '[data-product]',
     clipTo: { proto: 'div[style*="width: 560px"]', app: '[data-testid="pd-form"] [role="dialog"]' },
+  },
+  // ===== F4 — Báo giá =====
+  // COMMERCE §3: không trừ điểm loyalty trên báo giá; trạng thái theo §3; "Gửi ZBS / SMS" (OUT) → Gửi Zalo / Email / PDF.
+  {
+    id: 'quotes:list',
+    route: '/quotes',
+    protoStorage: quotes,
+    appWait: '[data-quote]',
+  },
+  {
+    id: 'quotes:editor',
+    route: '/quotes',
+    protoStorage: quotes,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo báo giá' }).click(),
+    app: (p) => p.getByTestId('q-create').click(),
+    appWait: '[data-quote]',
+    clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="q-form"] [role="dialog"]' },
+  },
+  {
+    id: 'quotes:detail',
+    route: '/quotes',
+    protoStorage: quotes,
+    proto: (p) => p.locator('.row', { hasText: 'BG-2041' }).first().click(),
+    app: (p) => p.locator('[data-quote="q_2041"]').first().click(),
+    appWait: '[data-quote]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      {
+        x: 1132,
+        y: 40,
+        width: 200,
+        height: 32,
+        reason: 'COMMERCE §3 — tổng không trừ điểm loyalty trên báo giá',
+      },
+      {
+        x: 1068,
+        y: 146,
+        width: 352,
+        height: 40,
+        reason: 'prototype-parity §6 — Gửi ZBS / SMS (OUT) → Gửi Zalo / Email / Tải PDF',
+      },
+    ],
   },
 ];
