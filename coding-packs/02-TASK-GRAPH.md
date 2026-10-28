@@ -1,8 +1,174 @@
 # AppChat — Task Graph
 
-> Vibecode Kit v5.0 — BƯỚC 5 (TASK GRAPH)
-> Run `/vibecode:blueprint` to populate this file.
+> Vibecode Kit v5.0 — BƯỚC 5 (TASK GRAPH) · 2026-10-28
+> **46 TIP**, chia **9 wave** (~656 giờ builder). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
+> Wave là thứ tự phụ thuộc, không phải tuần lịch. Trong một wave, các TIP không phụ thuộc nhau chạy song song được (mỗi TIP một nhánh / worktree riêng).
 
 ---
 
-*Placeholder — will be populated by `/vibecode:blueprint`*
+## DEPENDENCY GRAPH
+
+```
+W1  001 Scaffold ─▶ 002 DB nền tảng + tenant ─▶ 003 Action kernel + API core
+                                                   │
+        ┌──────────────────────────────────────────┼──────────────────────────────┐
+W2      ▼                                          ▼                              ▼
+     004 Identity & auth ─▶ 005 Authz ─▶ 006 Realtime + notify        007 Web foundation ─▶ 008 Parity tooling
+        │                    │   │                                        │
+W3      ├─▶ 009 Billing core ─▶ 010 Billing payments ◀── 012 Integrations framework ◀─┤
+        └──────────────▶ 011 Auth & onboarding UI ◀───────────────────────────────────┤
+                             005,006,007 ─▶ 013 Settings shell + thành viên + vai trò ┘
+                                                   │
+W4                       013 ─▶ 014 Channels + Zalo cá nhân ─┬─▶ 016 Inbox backend ─┬─▶ 017 Web widget
+                         005 ─▶ 015 CRM core ────────────────┘                      └─▶ 018 Email (P1)
+                                                   │
+W5   003,009 ─▶ 019 AI runtime ─┬─▶ 020 KB / RAG ──────────┐
+                                ├─▶ 021 Agents backend ────┼─▶ 022 Agent trực kênh (016, 015)
+                                │                          │
+W6                              └─▶ 023 Trợ lý AI ─▶ 024 Agents UI + Duyệt + Nhật ký
+                 016,022 ─▶ 025 Inbox UI     015 ─▶ 026 Khách hàng UI     027 Catalog     019 ─▶ 028 Mẫu chứng từ
+                                                   │
+W7   027,028,015,016 ─▶ 029 Báo giá ─┬─▶ 030 Hợp đồng + ký điện tử
+                                     └─▶ 031 Đơn + kho + khung đồng bộ sàn (012) ─▶ 032 Đề nghị thanh toán + thu tiền (010)
+                                                              032 ─▶ 033 Lịch hẹn
+                                                   │
+W8   034 Ticket/SLA · 035 Tác vụ tự chủ · 036 Loyalty · 037 Marketing · 038 Tổng quan + insights
+     039 Gói & ví UI · 040 Quản trị nền tảng · 041 Lưu trữ workspace · 042 Vai trò tuỳ biến + nhóm · 043 AI học từ hội thoại
+                                                   │
+W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (phụ thuộc tất cả)
+```
+
+**Chuỗi cứng (đường găng):** `001 → 002 → 003 → 004 → 005 → 015 → 016 → 022 → 025` và `003 → 019 → 021 → 023 → 024`. Commerce: `027 → 029 → 031 → 032 → 033`.
+
+---
+
+## TIP SUMMARY TABLE
+
+| TIP | Name | Depends On | Priority | Est. Hours | Wave | REQ | Standards chính |
+|-----|------|-----------|----------|-----------|------|-----|-----------------|
+| 001 | Scaffold monorepo, stub mọi domain, lint gates (size, boundaries, i18n), CI | — | P0 | 10 | W1 | N01, N12 | code/file-size-module-layout, code/testing |
+| 002 | DB nền tảng + tenant: 2 Prisma client, `TenantDbResolver`, template DB, provisioner, `tenant-migrate`, kernel.prisma, routing.prisma, test cô lập tenant | 001 | P0 | 14 | W1 | A03, N02 | database/tenant-db, database/indexing |
+| 003 | Action kernel + API core: Nest bootstrap, envelope / `AppError`, `ActionExecutor` (registry, zod, policy, confirm token, idempotency, undo, action_log), outbox relay, BullMQ, `Clock` | 002 | P0 | 16 | W1 | E01, E03, E09, N03, N05, N13, A07 | actions/action-registry, api/response-envelope, events/outbox |
+| 004 | Identity & auth: OTP email (`MailProvider` Brevo + console dev), JWT / refresh, tạo workspace → `tenant.provision`, membership, invite, business profile + `TaxLookupProvider` VietQR | 003 | P0 | 14 | W2 | A01, A02, A04 | api/response-envelope, integrations/provider-ports |
+| 005 | Authz engine: authz.prisma, `permissions.ts`, seed 5 vai trò, `AuthzContext` (cache), `scopeFilter`, kiểm quyền trong Executor, `GET /me/authz`, harness test role-isolation | 004 | P0 | 10 | W2 | A05 | authz/rbac-permissions |
+| 006 | Realtime + thông báo: Socket.IO `/ws` + rooms, event → WS lọc quyền, `notification`, email thông báo theo locale | 003, 005 | P0 | 8 | W2 | N04, M02 | events/outbox, i18n/i18n |
+| 007 | Web foundation: Next + antd theme token, AppShell / NavRail / MobileTabBar, `shared/*` (api client, `useAction`, `ConfirmActionHost`, `useCan`, UiCommandBus, PageStates), primitive `packages/ui`, next-intl vi + en | 003, 005 | P0 | 18 | W2 | N10, E06 | ui/frontend-structure, ui/prototype-parity, i18n/i18n |
+| 008 | Parity tooling: `tools/parity`, `parity.manifest.ts`, baseline prototype, `fixtures/prototype-parity`, đồng hồ cố định; e2e mobile 390 harness | 007 | P0 | 8 | W2 | N14 | ui/prototype-parity, code/testing |
+| 009 | Billing core: plan (seed), subscription, trial 15 ngày + 10.000 credit, credit wallet / ledger, `CreditMeter`, quota / `PLAN_LIMIT_REACHED` | 004 | P0 | 10 | W3 | A06, L01, L02, L03 | database/tenant-db |
+| 010 | Billing payments: `billing_invoice`, sinh VietQR, webhook SePay nền tảng, `bank_transaction`, khớp mã, xác nhận tay (admin) | 009, 012 | P0 | 10 | W3 | L04 | integrations/provider-ports |
+| 011 | Auth & onboarding UI: đăng nhập / đăng ký / OTP / quên mật khẩu, popup khai báo DN, màn chào mừng, chờ khởi tạo workspace, đổi workspace | 004, 007, 008 | P0 | 12 | W3 | A01, A02, A04, A06 | ui/frontend-structure, ui/prototype-parity |
+| 012 | Integrations framework + trang Nền tảng kết nối: `packages/integrations` registry, integrations.prisma, route, queue `integrations`, webhook router, manifest "Sắp có", đăng ký quan tâm | 003, 005, 007 | P0 | 14 | W3 | M03 | integrations/provider-ports, ui/prototype-parity |
+| 013 | Settings shell + Tổng quan workspace, giờ làm việc, Ngôn ngữ, Thành viên (mời, đổi vai trò), Vai trò & phân quyền (chỉ đọc), Thông báo | 005, 006, 007 | P0 | 12 | W3 | M01, M02, A05 | ui/frontend-structure, authz/rbac-permissions |
+| 014 | Channels core + Zalo cá nhân (**spike zca-js đầu TIP**): channels.prisma, adapter / manifest / registry, worker-channels lease, outbox gửi + rate limit, trang Kênh kết nối | 003, 006, 013 | P0 | 20 | W4 | B01, B02, B03, B04, B07 | channels/omnichannel-adapter |
+| 015 | CRM core: crm.prisma (contact, identity, collaborator, access request, timeline, note, tag, custom field), chống giành khách, chuyển phụ trách, gộp / import / export | 005 | P0 | 16 | W4 | F01, F01b, F02, F03, F04, C06 | authz/rbac-permissions, database/indexing |
+| 016 | Inbox backend: inbox.prisma, inbound pipeline (dedupe, resolve contact), gửi qua outbox, action hội thoại, folders / counts, tự gán theo người phụ trách | 014, 015 | P0 | 14 | W4 | C01–C04, C06, C08 | channels/omnichannel-adapter, events/outbox |
+| 017 | Web widget: channels-webchat.prisma, `apps/widget`, socket `/widget`, cài đặt widget | 014, 016 | P0 | 12 | W4 | B05 | channels/omnichannel-adapter |
+| 018 | Kênh Email: IMAP (imapflow) + SMTP, gom thread | 014, 016 | P1 | 10 | W4 | B06 | channels/omnichannel-adapter |
+| 019 | AI runtime: ai-runs.prisma, platform/ai-config.prisma (`llm_provider`, `model_route`, `model_price`), Agent Gateway + `AiSdkEngine`, router (provider gốc + OpenAI-compatible), lưu / chạy tiếp run, rào chắn, trừ credit; **spike K4 đầu TIP** | 003, 009 | P0 | 18 | W5 | D01, D02, L01 | ai/agent-gateway |
+| 020 | Kho tri thức (RAG): ai-kb.prisma, queue `kb-ingest`, parse / cắt đoạn / embed, hybrid search + ngưỡng căn cứ, action `kb.*`, trang Dữ liệu RAG | 019, 007 | P0 | 16 | W5 | D04 | ai/rag |
+| 021 | Agents backend: ai-agents.prisma (agent + version, approval, governance), templates.prisma, action `agent.*` (tạo / xuất bản / quay lại / thử giả lập / tạo từ mô tả), `approval.*` | 019, 005 | P0 | 14 | W5 | D03, D05, D07, D09, D09b, D15 | ai/agent-gateway, actions/action-registry |
+| 022 | Agent trực kênh: queue `agent-reply`, lắp ngữ cảnh, output có cấu trúc, handoff, copilot, lọc PII, `transfer_to_agent` / `consult` | 016, 020, 021, 015 | P0 | 16 | W5 | D05, D06, D10, D11, D13, C02 | ai/agent-gateway, ai/rag |
+| 023 | Trợ lý AI: ai-assistant.prisma, meta-tools (`find_actions`, `call_action`, `ui`, `plan`, `query_data`, `delegate`), stream SSE, AssistantPage + AssistantDock (Ant Design X), ConfirmCard, Chat / Cowork | 021, 019, 007 | P0 | 22 | W6 | E02, E04, E05, E06, E07, E10, E11, E12 | ai/agent-gateway, ui/frontend-structure |
+| 024 | Agents UI + hàng chờ duyệt + nhật ký hành động: AgentsPage, TemplateGallery, AgentBuilder, tạo bằng Trợ lý, lịch sử phiên bản, TestChat; assistant/approvals, assistant/actions | 021, 023 | P0 | 16 | W6 | D07, D08, D09, D09b, D15, E09 | ui/prototype-parity, ui/frontend-structure |
+| 025 | Inbox UI: 3 cột, folders, chat, composer, chế độ AI, handoff banner, gợi ý copilot, panel 360°, "Chuyển thành" | 016, 022, 008 | P0 | 20 | W6 | C01–C05, C07, C08 | ui/prototype-parity, ui/frontend-structure |
+| 026 | Khách hàng UI: bảng / kanban, Hồ sơ 360°, người phụ trách + đồng phụ trách, chuyển phụ trách, xin chia sẻ, trường dữ liệu, thẻ, import / export | 015, 008 | P0 | 16 | W6 | F01, F01b, F02, F03, F04 | ui/prototype-parity, authz/rbac-permissions |
+| 027 | Catalog: catalog.prisma (6 loại, biến thể P1, combo, `stock_movement`), action `product.*`, trang Sản phẩm, đồng bộ mô tả sang RAG | 005, 008 | P0 | 14 | W6 | F05 | database/indexing, ui/prototype-parity |
+| 028 | Mẫu chứng từ: documents.prisma (`doc_template`), registry biến, render react-pdf, **spike K8 LibreOffice đầu TIP**, render DOCX, wizard DOCX + AI nhận diện biến, bảng kiểm, queue `doc-render`, trang Mẫu chứng từ | 003, 019, 007 | P0 | 18 | W6 | F06b | documents/templates |
+| 029 | Báo giá: sales-quotes.prisma, version n+1, ngưỡng duyệt, gửi qua hội thoại, link xem, hết hạn 15 ngày, AI soạn từ nội dung, QuoteEditor, trang Báo giá | 027, 028, 015, 016 | P0 | 18 | W7 | F06, F06b, F10 | documents/templates, actions/action-registry |
+| 030 | Hợp đồng + ký điện tử: contracts.prisma, duyệt + ký (OTP + chữ ký), trang ký công khai, trang chứng nhận + SHA-256, phụ lục, gia hạn T-30, AI soạn nháp, trang Hợp đồng | 028, 029, 006 | P0 | 20 | W7 | F09, F10 | documents/templates, authz/rbac-permissions |
+| 031 | Đơn hàng + kho + khung đồng bộ sàn: sales-orders.prisma, 2 trục trạng thái, tạo từ báo giá / hợp đồng, xác nhận → trừ kho, huỷ, `OrderSyncProvider` + `mock` + queue `order-sync`, trang Đơn hàng | 027, 029, 012 | P0 | 18 | W7 | F07, F07b, F10 | integrations/provider-ports |
+| 032 | Đề nghị thanh toán + thu tiền: sales-payments.prisma, cọc / đợt / toàn bộ, VietQR của DN, bank feed SePay của DN, xác nhận tay, hoàn tiền có duyệt, phiếu thu, nhắc công nợ, liệu trình, trang Đề nghị thanh toán | 031, 028, 010, 012 | P0 | 16 | W7 | F08, G07 | documents/templates, integrations/provider-ports |
+| 033 | Lịch hẹn: booking.prisma, nhân sự, giờ mở cửa, tìm slot + chống trùng (btree_gist), trạng thái, giữ chỗ, nhắc hẹn, trừ buổi liệu trình, gợi ý tạo đơn, trang Lịch | 015, 027, 032 | P0 | 18 | W7 | G01–G05 | database/indexing, ui/prototype-parity |
+| 034 | Ticket & SLA: support.prisma, SLA mặc định, đồng hồ SLA, leo thang, agent tạo ticket, trang Ticket | 015, 016 | P1 | 14 | W8 | H01–H04 | ui/prototype-parity |
+| 035 | Tác vụ tự chủ & chủ động: ai-tasks.prisma, Coworks (ngay / lịch / sự kiện), mẫu follow-up / báo giá treo / nhắc hẹn / sau mua / briefing sáng | 022, 023 | P1 | 12 | W8 | D12, E08, E13 | ai/agent-gateway |
+| 036 | Loyalty: loyalty.prisma, hạng, cộng điểm một lần khi đơn hoàn tất, đổi điểm, điều chỉnh có lý do, trang Khách thân thiết | 031, 032 | P1 | 10 | W8 | J01–J04 | — |
+| 037 | Marketing broadcast: marketing.prisma, phân khúc động, AI đề xuất, wizard, duyệt bắt buộc, queue `campaign-send` (throttle Zalo / email), thống kê | 015, 016, 022 | P1 | 18 | W8 | I01–I05 | channels/omnichannel-adapter |
+| 038 | Tổng quan + insights: registry metric, `insight.query`, Dashboard (Việc cần tôi, AI hôm nay, follow-up, onboarding, credit), hiệu suất agent | 022, 023, 029, 031 | P0 | 12 | W8 | K01, E07, D14 | ui/prototype-parity |
+| 039 | Gói & ví UI: trang Gói & thanh toán, popup Nâng cấp, badge trial, cảnh báo credit, luồng mua bằng QR, hết hạn gói | 009, 010, 013 | P0 | 10 | W8 | L05, L06, L07 | ui/prototype-parity |
+| 040 | Quản trị nền tảng: workspaces, gói, đơn giá model, LLM provider (probe), duyệt chuyển khoản, agent template | 009, 010, 019, 021 | P1 | 12 | W8 | L08 | authz/rbac-permissions |
+| 041 | Lưu trữ / khôi phục / xoá workspace (gói Miễn phí 90 ngày) | 002, 009 | P1 | 8 | W8 | A09 | database/tenant-db |
+| 042 | Vai trò tuỳ biến + Nhóm + uỷ quyền + chia lead tự động | 005, 013, 015 | P1 | 12 | W8 | A05b, F01c | authz/rbac-permissions |
+| 043 | AI học từ hội thoại (đề xuất hỏi–đáp có người duyệt) | 020, 016 | P1 | 8 | W8 | D04b | ai/rag |
+| 044 | AI eval gate: harness replay + live, đủ các suite (`assistant-*`, `agent-*`, `rag`, `doc-draft`, `delegate-consult`), báo cáo, CI | 022, 023, 024, 028, 020 | P0 | 16 | W9 | N11 | ai/eval |
+| 045 | Hạ tầng production: `infra/` (provision, nginx, systemd + PM2, PgBouncer, pgBackRest, LibreOffice + font), Prometheus / Alertmanager / Grafana / Loki / Alloy, dashboard + alert, deploy `releases/<sha>` | 001 | P0 | 20 | W9 | N01, N06, N08, N09 | Blueprint §11 |
+| 046 | Release hardening: đo p95, rà bảo mật, chạy parity mọi màn, e2e mobile, độ phủ `en`, diễn tập backup / restore | tất cả | P0 | 16 | W9 | N06, N07, N14 | tất cả |
+
+**Tổng:** 46 TIP · ~656 giờ · P0: 37 TIP · P1: 9 TIP.
+
+---
+
+## PARALLELIZATION OPPORTUNITIES
+
+| Wave | Chạy song song | Ghi chú |
+|------|----------------|---------|
+| W1 | — | Tuần tự: khung, DB, kernel là nền của mọi thứ |
+| W2 | {004 → 005 → 006} ∥ {007 → 008} | 007 bắt đầu được ngay khi 003 xong (dùng contract API của 003; `useCan` nối 005 sau) |
+| W3 | 009 ∥ 011 ∥ 012 ∥ 013 ; rồi 010 | 010 cần port `BankFeedProvider` của 012 |
+| W4 | 014 ∥ 015 ; rồi 016 ; rồi 017 ∥ 018 | 014 kẹt nếu chưa có tài khoản Zalo phụ → làm 015 trước |
+| W5 | 019 ; rồi 020 ∥ 021 ; rồi 022 | 019 kẹt nếu chưa có key LLM (dùng mock model cho unit, nhưng nghiệm thu cần provider thật) |
+| W6 | 023 ∥ 025 ∥ 026 ∥ 027 ∥ 028 ; rồi 024 | 6 nhánh độc lập về file |
+| W7 | 029 ; rồi 030 ∥ 031 ; rồi 032 ; rồi 033 | Commerce đi theo chuỗi vì cùng luồng tiền |
+| W8 | 034 ∥ 035 ∥ 036 ∥ 037 ∥ 038 ∥ 039 ∥ 040 ∥ 041 ∥ 042 ∥ 043 | Toàn bộ độc lập về file; 036 cần 032 xong |
+| W9 | 044 ∥ 045 ; rồi 046 | 045 làm sớm được bất cứ lúc nào khi có VPS (Chủ nhà đang hoãn) |
+
+**Tránh đụng file khi chạy song song:** TIP-001 tạo sẵn mọi file tổng hợp (`app.module.ts`, `core/index.ts`, `actions/index.ts`, `nav-config.ts`, registry kênh / connector, `messages/*/<module>.json`). TIP sau **chỉ điền stub của domain mình**. Muốn sửa file của TIP khác → dừng, báo Chủ thầu (escalation L2).
+
+---
+
+## BẢN ĐỒ SỞ HỮU FILE SCHEMA & ACTION
+
+Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tenant/sales.prisma` cũ tách thành 3 file theo TIP.
+
+| File | TIP | Bảng / nội dung |
+|------|-----|-----------------|
+| `platform/ops.prisma` · `platform/routing.prisma` | 002 | `tenant_migration`, `workspace_stats`, `platform_audit_log` · mọi bảng `tenant_*_route` |
+| `platform/identity.prisma` | 004 | `user`, `otp_code`, `refresh_token`, `workspace`, `membership` (+ `delegations`), `invite`, `business_profile` |
+| `platform/billing.prisma` | 009 | `plan`, `subscription`, `credit_wallet`, `credit_ledger` |
+| `platform/billing-payments.prisma` | 010 | `billing_invoice`, `bank_transaction` |
+| `platform/integrations.prisma` | 012 | `integration_interest` |
+| `platform/ai-config.prisma` | 019 | `llm_provider`, `model_route`, `model_price` |
+| `platform/templates.prisma` | 021 | `agent_template` |
+| `tenant/kernel.prisma` | 002 | `action_log`, `outbox_event`, `idempotency_key`, `file`, `sequence_counter`, `notification` |
+| `tenant/authz.prisma` | 005 | `role`, `team`, `team_member` |
+| `tenant/integrations.prisma` | 012 | `integration_connection`, `integration_mapping`, `integration_call_log`, `integration_event` |
+| `tenant/channels.prisma` · `tenant/channels-webchat.prisma` | 014 · 017 | `channel_account`, … · `webchat_widget` |
+| `tenant/crm.prisma` | 015 | `contact`, `contact_identity`, `contact_collaborator`, `contact_access_request`, `tag`, `contact_tag`, `contact_memory`, `timeline_event`, `contact_note`, `custom_field_def` |
+| `tenant/inbox.prisma` | 016 | `conversation`, `message`, `canned_reply`, `outbox_message`, … |
+| `tenant/ai-runs.prisma` · `ai-kb.prisma` · `ai-agents.prisma` · `ai-assistant.prisma` · `ai-tasks.prisma` | 019 · 020 · 021 · 023 · 035 | Blueprint §2.2 ai-* |
+| `tenant/catalog.prisma` | 027 | `product_category`, `product`, `product_variant`, `product_component`, `stock_movement` |
+| `tenant/documents.prisma` | 028 | `doc_template` |
+| `tenant/sales-quotes.prisma` | 029 | `quote`, `quote_item` |
+| `tenant/contracts.prisma` | 030 | `contract`, `contract_appendix`, `contract_signer`, `contract_signature_event` |
+| `tenant/sales-orders.prisma` | 031 | `order`, `order_item` |
+| `tenant/sales-payments.prisma` | 032 | `invoice`, `customer_payment`, `customer_package`, `package_usage`, `tenant_bank_feed`, `payment_account` |
+| `tenant/booking.prisma` | 033 | `staff`, `business_hours`, `appointment`, … |
+| `tenant/support.prisma` · `loyalty.prisma` · `marketing.prisma` | 034 · 036 · 037 | Blueprint §2.2 |
+
+`packages/actions/src/<domain>.ts` đi theo cùng bảng trên (ví dụ `quotes.ts` → 029, `orders.ts` → 031). TIP 018, 038–043, 044–046 không tạo bảng mới.
+
+---
+
+## CỔNG TÀI NGUYÊN (Chủ nhà cấp trước TIP)
+
+| Tài nguyên | Chặn TIP | Khi chưa có |
+|------------|----------|-------------|
+| Key LLM (tối thiểu 1 router OpenAI-compatible như OpenRouter / 9router, hoặc Anthropic + OpenAI cho embedding) | 019 (nghiệm thu), 020, 022, 023, 044 live | Unit test bằng mock model của AI SDK; **không** báo DONE cho các ô cần provider thật |
+| 1–2 tài khoản Zalo cá nhân phụ | 014 (spike + nghiệm thu) | Làm 015 trước; 014 chỉ dựng khung adapter |
+| Tài khoản SePay + tài khoản nhận tiền AppChat | 010, 032 (chạy thật) | Adapter `mock`; nghiệm thu bằng webhook giả lập |
+| Tài khoản Brevo + domain gửi (SPF / DKIM / DMARC) | 004, 006 (gửi thật) | Adapter `console` in OTP ra log ở dev |
+| VPS + domain (Chủ nhà đang hoãn) | 045, 046 | Làm sau cùng |
+| Đăng ký app đối tác Shopee / TikTok Shop / Lazada | adapter thật P2 (ngoài 46 TIP) | Khung + `mock` trong 031 |
+
+---
+
+## MÔI TRƯỜNG DEV (đã có trên máy, không Docker)
+
+- Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x64-16`) + **pgvector 0.8.1** (build MSVC, 2026-10-28) · Memurai 8 (Redis-compatible, service) · LibreOffice 26.8 (`C:\Program Files\LibreOffice\program\soffice.exe`) · Git.
+- Chưa có: key LLM, tài khoản Zalo phụ, SePay, Brevo (xem bảng trên).
+
+---
+
+## TEAM ALLOCATION
+
+- Mô hình OPC: **Chủ nhà** duyệt / quyết; **Chủ thầu** (Claude, phiên thiết kế) viết TIP theo wave, nhận Completion Report, verify; **Thợ** (Claude Code, mỗi TIP một phiên / nhánh) thi công.
+- Mỗi TIP có file riêng `tips/TIP-XXX-<slug>.md`, sinh bằng `/vibecode:tip` **theo từng wave** (không viết trước cả 46 TIP để TIP sau dùng kết quả thật của TIP trước).

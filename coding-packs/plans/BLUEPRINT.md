@@ -1,6 +1,6 @@
 # AppChat — Technical Blueprint (khế ước kiến trúc)
 
-> Vibecode Kit v5.0 — BƯỚC 4 (BLUEPRINT) · 2026-10-28 · **BẢN NHÁP — chờ Chủ nhà duyệt**
+> Vibecode Kit v5.0 — BƯỚC 4 (BLUEPRINT) · 2026-10-28 · **ĐÃ DUYỆT — Chủ nhà duyệt 2026-10-28** (D36)
 > Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V15), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D32, REQ A–N), `plans/COMMERCE-DECISIONS.md`, `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
 > Đã duyệt thì **không đổi kiến trúc**. Thay đổi lớn phải quay lại Vision.
 
@@ -339,7 +339,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 **[T] tenant/catalog.prisma** — `product_category(name, parent_id?)`; `product(code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, package_service_ids uuid[]?, allow_use_on_deposit bool, low_stock_threshold?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)` — giá **chưa VAT**; `product_variant(product_id, sku, name, attrs jsonb, price?, stock, status)` (P1); `product_component(product_id, child_id, qty)` cho combo; `stock_movement(product_id, variant_id?, kind(sale|return|adjust|import), qty, ref_type, ref_id, reason?, actor_id, created_at)` với idx(product_id, created_at desc). Index: gin trigram trên tên; idx(status, type). Quy tắc kho: COMMERCE-DECISIONS §2.
 
-**[T] tenant/sales.prisma**
+**[T] tenant/sales-*.prisma** — tách theo TIP: `sales-quotes.prisma` (quote, quote_item — TIP-029) · `sales-orders.prisma` (order, order_item — TIP-031) · `sales-payments.prisma` (invoice, customer_payment, customer_package, package_usage, tenant_bank_feed, payment_account — TIP-032)
 
 | Bảng | Trường |
 |---|---|

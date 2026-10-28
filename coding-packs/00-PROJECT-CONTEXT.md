@@ -700,4 +700,4 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - OQ-03 / V5: chưa chạy thử zca-js.
   - Chưa kiểm field `usage` và việc chạy tiếp sau restart của AI SDK v7 (spike nửa ngày ở TIP AI).
   - OQ-04 – OQ-07 (cổng webhook ngân hàng, API tra MST, khoá LLM, hạ tầng production) cần Chủ nhà cung cấp; không chặn Blueprint.
-- **Trạng thái duyệt:** V3/V4 (B, không Mastra, không swarm) và V11 (token prototype + Ant Design + parity < 5%) đã chốt 2026-10-28. Phần còn lại của Vision chờ Chủ nhà đọc.
+- **Trạng thái duyệt:** Vision + Blueprint **đã duyệt 2026-10-28 (D36)**. Lịch sử: V3/V4 (B, không Mastra, không swarm) và V11 (token prototype + Ant Design + parity < 5%) đã chốt 2026-10-28. Phần còn lại của Vision chờ Chủ nhà đọc.

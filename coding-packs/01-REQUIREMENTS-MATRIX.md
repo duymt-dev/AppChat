@@ -266,6 +266,7 @@ Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực t
 | D33 | Nguồn LLM | chỉ provider gốc / **provider gốc + router OpenAI-compatible** | **Cả hai.** Provider gốc qua `@ai-sdk/*`; router (OpenRouter, 9router, LiteLLM, vLLM, …) qua `@ai-sdk/openai-compatible` khai báo trong bảng `llm_provider` (base URL, key mã hoá, header, khả năng); `model_route` trỏ tới provider bất kỳ; embedding mặc định `text-embedding-3-small` 1536 chiều (qua OpenAI hoặc router hỗ trợ embeddings) | Chủ nhà chốt 2026-10-28 |
 | D34 | Email hệ thống | SMTP / SES / **Brevo** | **Brevo** (API transactional, domain riêng SPF / DKIM / DMARC) qua `MailProvider`; SMTP giữ làm adapter dự phòng | Chủ nhà chốt 2026-10-28 |
 | D35 | Mặc định vận hành | — | Eval: an toàn / quyền 100%, chọn action ≥ 95% (2/3 lần), rubric ≥ 90%. Uỷ quyền ký hợp đồng / duyệt hoàn tiền cho Quản lý mặc định **tắt**. Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo. Đối soát: SePay chính, Casso dự phòng. Tra MST: VietQR. Dev: pgvector native Windows + LibreOffice | Chủ nhà đồng ý theo đề xuất 2026-10-28 |
+| D36 | Duyệt Blueprint | — | **Blueprint đã duyệt** (sau rà soát D27–D35); Task Graph 46 TIP / 9 wave và Builder Handoff sinh từ bản này | Chủ nhà duyệt 2026-10-28 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
