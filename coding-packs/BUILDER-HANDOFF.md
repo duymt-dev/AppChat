@@ -111,7 +111,7 @@ Phụ thuộc chi tiết, chạy song song và cổng tài nguyên: `02-TASK-GRA
 3. Nếu TIP có **spike** (014 zca-js, 019 AI SDK usage, 028 LibreOffice): làm spike trước, báo kết quả ngay trong report; spike fail → escalation L2, không làm tiếp phần phụ thuộc.
 4. Implement đúng `Files touched`; chỉ điền stub của domain mình.
 5. Self-test theo Acceptance Criteria: unit + integration (Postgres + Redis thật, DB tenant tạo từ template) + tenant / role isolation khi chạm dữ liệu + parity / e2e mobile khi có UI + eval khi chạm AI.
-6. Chạy `pnpm lint && pnpm typecheck && pnpm test` (+ `pnpm parity <id>` / `pnpm i18n:check` khi liên quan). Dán output.
+6. **Chỉ chạy phần bị ảnh hưởng** (D39, `standards/code/testing.md` §4b): `pnpm turbo run test lint typecheck --filter=...[origin/main]` · `pnpm parity <id>` của màn vừa sửa · `pnpm e2e <module>` · `pnpm i18n:check` khi đổi chuỗi. Sửa lớp dùng chung → thêm `pnpm parity --done`. Chạy toàn bộ chỉ ở cuối wave / trước merge `main`. Dán output + ghi phạm vi đã chạy.
 7. Commit (message kết thúc bằng dòng attribution của phiên), `git status --short` sạch, lấy SHA.
 8. Gửi Completion Report.
 

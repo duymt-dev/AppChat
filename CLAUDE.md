@@ -82,6 +82,7 @@ messages/<locale>/<module>.json   vi (nguồn) + en
 - Xong việc + test pass → `git add` + `git commit` **ngay**; `git status --short` phải sạch trước khi báo DONE.
 - Báo DONE kèm **git commit SHA** (`git rev-parse --short HEAD`), không dùng hash file binary.
 - Commit message kết thúc bằng dòng attribution của phiên.
+- **Chỉ test phần bị ảnh hưởng** (D39): test / lint / typecheck theo package đổi (`pnpm turbo run test lint typecheck --filter=...[origin/main]`), `pnpm parity <id>` của màn vừa sửa, `pnpm e2e <module>` của module vừa sửa. Sửa lớp dùng chung (theme, primitive, `shared/*`, schema action, kernel) thì chạy thêm `pnpm parity --done`. Chạy toàn bộ chỉ ở cuối pha, trước merge `main` và gate cuối. Chi tiết: `standards/code/testing.md` §4b.
 - Test phải chạy thật, dán output; không báo DONE khi test chưa chạy hoặc còn đỏ. Ô nào thiếu tài nguyên (key LLM, Zalo, SePay, Brevo) thì ghi rõ "chưa nghiệm thu với provider thật".
 
 ## 6. Prototype (chuẩn UI duy nhất)

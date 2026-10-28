@@ -31,14 +31,15 @@
    - không tràn ngang (`scrollWidth <= innerWidth`);
    - vùng chạm ≥ 44px;
    - mọi action chính chạy được.
-10. **Hồi quy:** CI chạy `pnpm parity` cho mọi màn đã DONE. Màn đang DONE mà vượt 5% thì chặn merge.
+10. **Hồi quy:** trong lúc làm chỉ chạy `pnpm parity <id>` của màn vừa sửa; sửa theme / primitive / shell thì chạy `pnpm parity --done`. CI trước merge `main` chạy `pnpm parity --done`; màn đang DONE mà vượt 5% thì chặn merge (D39).
 
 ## Lệnh
 
 ```bash
 pnpm parity:baseline            # chụp prototype theo manifest → tests/parity/baseline/
 pnpm parity <id>[:state]        # chụp app + so; in bảng diffRatio; exit 1 nếu > 0.05
-pnpm parity --all               # toàn bộ màn đã khai báo
+pnpm parity --done              # mọi màn đã ✅ (khi sửa lớp dùng chung; CI trước merge)
+pnpm parity --all               # toàn bộ màn đã khai báo (cuối pha / gate cuối)
 ```
 
 ## Lý do

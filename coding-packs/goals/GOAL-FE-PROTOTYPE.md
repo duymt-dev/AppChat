@@ -49,14 +49,19 @@ Dựng toàn bộ frontend `apps/web` cho mọi màn P0 + P1 **giống prototype
 3. **Cấu trúc:** đúng `frontend-structure.md` — `page.tsx` ≤ 120 dòng, screen ≤ 250, mọi file ≤ 400; ghi chỉ qua `useAction`; có `ui-commands.ts` (prefill / open / filter) cho màn có form; đủ 5 trạng thái (loading, empty, error, ready, no-permission).
 4. **i18n:** `pnpm i18n:check` xanh (vi + en đủ key, không chuỗi cứng).
 5. **Quyền:** đổi vai trò ở dev toolbar → nút / chip đúng ma trận Blueprint §3.5.
-6. **Chất lượng:** `pnpm lint && pnpm typecheck && pnpm test` xanh; component có logic có test (`*.test.tsx`).
+6. **Chất lượng:** lint / typecheck / test **của phần bị ảnh hưởng** xanh; component có logic có test (`*.test.tsx`).
+
+**Phạm vi test (D39) — chỉ test cái vừa sửa:**
+- Mỗi màn: `pnpm parity <id>` cho các ID của màn đó, `pnpm e2e <module>` (desktop + 390), `pnpm turbo run test lint typecheck --filter=...[origin/main]`, `pnpm i18n:check` nếu thêm chuỗi.
+- Sửa lớp dùng chung (theme, primitive `packages/ui`, `shared/*`, schema `packages/actions`, mock transport) → chạy thêm `pnpm parity --done` (mọi màn đã ✅).
+- Chạy toàn bộ (`pnpm lint && pnpm typecheck && pnpm test && pnpm parity --all && pnpm e2e`) **chỉ** ở cuối mỗi pha và ở F7.
 
 Tiêu chí đúng-sai (3, 4, 5, 6) không có ngưỡng thấp hơn 100%. Ngưỡng 5% của parity là ngưỡng Chủ nhà đặt.
 
 ## Cách làm & báo cáo
 
 - Nhánh `goal/fe-prototype`; làm tuần tự F0 → F7; trong một pha làm từng màn.
-- **Mỗi màn xong:** chạy parity + e2e mobile + lint / test → commit (một màn một commit trở lên) → cập nhật dòng tương ứng trong `coding-packs/reports/goal-fe-prototype.md` (đã liệt kê sẵn 135 dòng F0–F7; ID dòng = id trong `parity.manifest.ts`; điền TT, diffRatio, Mobile 390, Commit) và cập nhật bảng Tổng quan tiến độ.
+- **Mỗi màn xong:** chạy parity + e2e mobile + lint / test **của phần bị ảnh hưởng** → commit (một màn một commit trở lên) → cập nhật dòng tương ứng trong `coding-packs/reports/goal-fe-prototype.md` (đã liệt kê sẵn 135 dòng F0–F7; ID dòng = id trong `parity.manifest.ts`; điền TT, diffRatio, Mobile 390, Commit) và cập nhật bảng Tổng quan tiến độ.
 - **Hết mỗi pha:** Completion Report theo `BUILDER-HANDOFF.md` vào cùng file report; `git status --short` sạch; báo SHA.
 - Màn không xuống được 5% sau khi đã lấy đúng giá trị từ prototype → ghi vùng lệch + ảnh diff + nguyên nhân, escalation L2 (không tự nới ngưỡng, không tự thêm ngoại lệ).
 - Spec thiếu / mâu thuẫn → L2. Muốn đổi luật nghiệp vụ, quyền, nhãn pháp lý → L3.
