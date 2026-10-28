@@ -27,6 +27,7 @@ Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · Nes
 | AI | `standards/ai/agent-gateway.md` · `standards/ai/rag.md` · `standards/ai/eval.md` · Blueprint §5 |
 | Kênh / tích hợp | `standards/channels/omnichannel-adapter.md` · `standards/integrations/provider-ports.md` · Blueprint §6, §8 |
 | Hạ tầng | Blueprint §11 |
+| Git / PR / CI | `standards/workflow/git-flow-ci.md` |
 
 **Thứ tự ưu tiên khi tài liệu mâu thuẫn:** `COMMERCE-DECISIONS.md` > `BLUEPRINT.md` > `standards/` > `01-REQUIREMENTS-MATRIX.md` (Decisions D01–D37) > `00-PROJECT-CONTEXT.md` (Vision) > `docs/`. Về **hình ảnh UI**: prototype thắng, trừ các ngoại lệ có mã quyết định trong `standards/ui/prototype-parity.md`. Mâu thuẫn không giải được → dừng, hỏi (escalation L2).
 
@@ -78,7 +79,8 @@ messages/<locale>/<module>.json   vi (nguồn) + en
 
 ## 5. Git & báo cáo
 
-- Nhánh `tip/XXX-<slug>` hoặc `goal/<slug>`; không tự merge vào `main`.
+- **Git flow (D40, `coding-packs/standards/workflow/git-flow-ci.md`):** nhánh việc (`tip/XXX-<slug>`, `goal/<slug>`, `fix/…`, `chore/…`, `docs/…`) tách từ `origin/dev` mới nhất → PR **chỉ vào `dev`** (`gh pr create --base dev`, mẫu thân PR trong standard). **Không bao giờ** PR vào `main`, push thẳng `dev` / `main`, hay tự merge PR — `dev → main` do Chủ nhà tự làm.
+- Goal dài: một PR mỗi pha. Trước khi mở PR: `git rebase origin/dev`; CI phải xanh.
 - Xong việc + test pass → `git add` + `git commit` **ngay**; `git status --short` phải sạch trước khi báo DONE.
 - Báo DONE kèm **git commit SHA** (`git rev-parse --short HEAD`), không dùng hash file binary.
 - Commit message kết thúc bằng dòng attribution của phiên.

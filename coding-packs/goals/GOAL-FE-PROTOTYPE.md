@@ -60,7 +60,9 @@ Tiêu chí đúng-sai (3, 4, 5, 6) không có ngưỡng thấp hơn 100%. Ngư�
 
 ## Cách làm & báo cáo
 
-- Nhánh `goal/fe-prototype`; làm tuần tự F0 → F7; trong một pha làm từng màn.
+- Nhánh `goal/fe-prototype` tách từ `origin/dev`; làm tuần tự F0 → F7; trong một pha làm từng màn.
+- **Hết mỗi pha:** chạy full một lần → `git rebase origin/dev` → push → `gh pr create --base dev` (một PR / pha, thân PR theo `standards/workflow/git-flow-ci.md` §3) → CI xanh. Không PR vào `main`, không tự merge. Pha sau làm tiếp trên cùng nhánh (PR xếp chồng) nếu PR pha trước chưa được merge.
+- F0 dựng luôn `.github/workflows/ci.yml`, `parity.yml`, `e2e.yml`, `full.yml` theo standard.
 - **Mỗi màn xong:** chạy parity + e2e mobile + lint / test **của phần bị ảnh hưởng** → commit (một màn một commit trở lên) → cập nhật dòng tương ứng trong `coding-packs/reports/goal-fe-prototype.md` (đã liệt kê sẵn 135 dòng F0–F7; ID dòng = id trong `parity.manifest.ts`; điền TT, diffRatio, Mobile 390, Commit) và cập nhật bảng Tổng quan tiến độ.
 - **Hết mỗi pha:** Completion Report theo `BUILDER-HANDOFF.md` vào cùng file report; `git status --short` sạch; báo SHA.
 - Màn không xuống được 5% sau khi đã lấy đúng giá trị từ prototype → ghi vùng lệch + ảnh diff + nguyên nhân, escalation L2 (không tự nới ngưỡng, không tự thêm ngoại lệ).

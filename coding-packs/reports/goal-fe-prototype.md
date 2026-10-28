@@ -15,17 +15,17 @@
 
 ## Tổng quan tiến độ
 
-| Pha | Nội dung | Số dòng | ✅ | ❌ / ⛔ | Completion Report | Commit cuối pha |
-|-----|----------|--------:|---:|-------:|-------------------|-----------------|
-| F0 | Scaffold, theme, shell, công cụ | 15 | 0 | 0 | ⬜ | |
-| F1 | Auth & onboarding | 10 | 0 | 0 | ⬜ | |
-| F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | |
-| F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | |
-| F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | |
-| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | |
-| F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | |
-| **Tổng** | | **135** | **0** | **0** | | |
+| Pha | Nội dung | Số dòng | ✅ | ❌ / ⛔ | Completion Report | Commit cuối pha | PR → dev |
+|-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
+| F0 | Scaffold, theme, shell, công cụ | 15 | 0 | 0 | ⬜ | | |
+| F1 | Auth & onboarding | 10 | 0 | 0 | ⬜ | | |
+| F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | | |
+| F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
+| F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
+| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
+| F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
+| **Tổng** | | **135** | **0** | **0** | | | |
 
 ---
 
@@ -37,7 +37,7 @@
 | `f0:theme` | `packages/ui/theme.ts` lấy token từ CSS prototype | L39–392 | C | ⬜ | — | — | | |
 | `f0:icons` | 54 icon sprite `#ic-*` → `packages/ui/icons` | L396–455 | C | ⬜ | — | — | | |
 | `f0:i18n` | next-intl vi + en, fallback, `fmt.*`, đồng bộ antd / dayjs | — | C | ⬜ | — | — | | |
-| `f0:lint` | Lint size (400 FE), boundaries, i18next; typecheck; CI | — | C | ⬜ | — | — | | |
+| `f0:lint` | Lint size (400 FE), boundaries, i18next; typecheck; CI `.github/workflows/{ci,parity,e2e,full}.yml` (D40) | — | C | ⬜ | — | — | | |
 | `f0:mock` | Mock transport + mock action executor + fixtures + dev toolbar đổi vai trò | L7668+ | C | ⬜ | — | — | | |
 | `f0:parity-tool` | `tools/parity` + `parity.manifest.ts` + baseline + đồng hồ cố định | — | C | ⬜ | — | — | | |
 | `f0:e2e-mobile` | Harness Playwright 390×844 | — | C | ⬜ | — | — | | |

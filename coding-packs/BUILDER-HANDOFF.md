@@ -82,6 +82,7 @@ Bắt buộc đọc các standard mà TIP ghi ở cột "Standards chính" (`02-
 | events | [outbox](standards/events/outbox.md) | mọi TIP phát / nhận event |
 | i18n | [i18n](standards/i18n/i18n.md) | mọi TIP có chuỗi hiển thị |
 | integrations | [provider-ports](standards/integrations/provider-ports.md) | 004, 010, 012, 031, 032 |
+| workflow | [git-flow-ci](standards/workflow/git-flow-ci.md) | mọi TIP / goal |
 | ui | [frontend-structure](standards/ui/frontend-structure.md) · [prototype-parity](standards/ui/prototype-parity.md) | mọi TIP có UI |
 
 ### Môi trường dev
@@ -107,13 +108,14 @@ Phụ thuộc chi tiết, chạy song song và cổng tài nguyên: `02-TASK-GRA
 ## HOW TO USE TIPs
 
 1. Đọc TIP → đọc các mục Blueprint / COMMERCE-DECISIONS / standards mà TIP trích.
-2. Tạo nhánh `tip/XXX-<slug>` (song song thì mỗi TIP một worktree). Không tự merge.
+2. Tạo nhánh `tip/XXX-<slug>` từ `origin/dev` mới nhất (song song thì mỗi TIP một worktree). PR chỉ vào `dev`; không tự merge; không đụng `main` (`standards/workflow/git-flow-ci.md`, D40).
 3. Nếu TIP có **spike** (014 zca-js, 019 AI SDK usage, 028 LibreOffice): làm spike trước, báo kết quả ngay trong report; spike fail → escalation L2, không làm tiếp phần phụ thuộc.
 4. Implement đúng `Files touched`; chỉ điền stub của domain mình.
 5. Self-test theo Acceptance Criteria: unit + integration (Postgres + Redis thật, DB tenant tạo từ template) + tenant / role isolation khi chạm dữ liệu + parity / e2e mobile khi có UI + eval khi chạm AI.
 6. **Chỉ chạy phần bị ảnh hưởng** (D39, `standards/code/testing.md` §4b): `pnpm turbo run test lint typecheck --filter=...[origin/main]` · `pnpm parity <id>` của màn vừa sửa · `pnpm e2e <module>` · `pnpm i18n:check` khi đổi chuỗi. Sửa lớp dùng chung → thêm `pnpm parity --done`. Chạy toàn bộ chỉ ở cuối wave / trước merge `main`. Dán output + ghi phạm vi đã chạy.
 7. Commit (message kết thúc bằng dòng attribution của phiên), `git status --short` sạch, lấy SHA.
-8. Gửi Completion Report.
+8. Hết TIP: `git rebase origin/dev` → push → `gh pr create --base dev` (thân PR theo mẫu trong standard) → chờ CI xanh.
+9. Gửi Completion Report kèm link PR.
 
 ## COMPLETION REPORT FORMAT
 
