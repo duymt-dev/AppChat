@@ -35,19 +35,19 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
       width: 100%;
     }
     ${responsive.md} {
-      padding: 26px 20px 36px;
+      padding: 24px 20px 36px;
       max-width: none;
     }
   `,
   logoRow: css`
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 48px;
     & img {
       width: 36px;
       height: 36px;
-      border-radius: 9px;
+      border-radius: ${radius.r8}px;
     }
     ${responsive.md} {
       margin-bottom: 28px;
@@ -68,7 +68,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     padding: 2px 6px;
     background: ${color.brandBg};
     color: ${color.brandInk};
-    border-radius: 4px;
+    border-radius: ${radius.r4}px;
     font-weight: ${font.weight.bold};
     vertical-align: middle;
   `,
@@ -84,21 +84,21 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     margin-bottom: 6px;
     color: ${color.text};
     ${responsive.md} {
-      font-size: 25px;
+      font-size: ${font.scale.s24}px;
     }
   `,
   titleMd: css`
     font-size: ${font.size.stepTitle}px;
     letter-spacing: -0.6px;
     ${responsive.md} {
-      font-size: 23px;
+      font-size: ${font.scale.s22}px;
     }
   `,
   titleReg: css`
     font-size: ${font.size.regTitle}px;
     letter-spacing: -0.7px;
     ${responsive.md} {
-      font-size: 25px;
+      font-size: ${font.scale.s24}px;
     }
   `,
   sub: css`
@@ -120,7 +120,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     font-weight: ${font.weight.semibold};
     color: ${color.text3};
     cursor: pointer;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     background: none;
     border: none;
     padding: 0;
@@ -150,7 +150,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
   `,
   iconHigh: css`
     & > svg {
-      top: 14px;
+      top: 12px;
     }
   `,
   input: css`
@@ -159,13 +159,13 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     border-radius: ${radius.md}px;
     border: 1px solid ${color.border};
     background: ${color.bg};
-    padding: 0 14px 0 40px;
+    padding: 0 12px 0 40px;
     font-size: ${font.size.input}px;
     outline: none;
     font-family: inherit;
     color: ${color.text};
     ${responsive.md} {
-      font-size: 16px;
+      font-size: ${font.scale.s16}px;
     }
   `,
   inputPw: css`
@@ -197,7 +197,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
   check: css`
     width: 16px;
     height: 16px;
-    border-radius: 4px;
+    border-radius: ${radius.r4}px;
     display: grid;
     place-items: center;
     border: 1px solid ${color.brand};
@@ -236,7 +236,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     text-align: center;
     font-size: ${font.size.body}px;
     color: ${color.text3};
-    margin-top: 22px;
+    margin-top: 20px;
   `,
   footer: css`
     display: flex;
@@ -252,7 +252,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     border: 1px solid ${color.border};
     border-radius: ${radius.sm}px;
     background: ${color.surface};
-    padding: 0 10px;
+    padding: 0 8px;
     font-size: ${font.size.small}px;
     font-family: inherit;
     color: ${color.text2};
@@ -262,7 +262,7 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
   badgeIcon: css`
     width: 56px;
     height: 56px;
-    border-radius: 14px;
+    border-radius: ${radius.r12}px;
     background: ${color.brandBg};
     display: grid;
     place-items: center;

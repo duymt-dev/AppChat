@@ -5,13 +5,13 @@ import { color, font, radius } from '@appchat/ui';
 export const useAuthPartStyles = createStyles(({ css }) => ({
   prog: css`
     display: flex;
-    gap: 5px;
+    gap: 4px;
     margin-bottom: 8px;
   `,
   progBar: css`
     flex: 1;
     height: 5px;
-    border-radius: 3px;
+    border-radius: ${radius.r4}px;
     background: ${color.border};
   `,
   progOn: css`
@@ -22,7 +22,7 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
     font-weight: ${font.weight.bold};
     letter-spacing: 0.06em;
     color: ${color.text4};
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   hint: css`
     text-align: center;
@@ -46,18 +46,18 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
     }
   `,
   sentLg: css`
-    margin-bottom: 22px;
+    margin-bottom: 20px;
   `,
   perks: css`
     display: flex;
-    gap: 18px;
+    gap: 16px;
     justify-content: center;
-    margin-top: 18px;
+    margin-top: 16px;
     font-size: ${font.size.small}px;
     font-weight: ${font.weight.semibold};
     & > span {
       display: inline-flex;
-      gap: 5px;
+      gap: 4px;
       align-items: center;
       color: ${color.brandDeep};
     }
@@ -84,11 +84,11 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 13px;
+    padding: 12px;
     border: 1px solid ${color.border};
     border-radius: ${radius.lg}px;
     background: ${color.bg};
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   userAvatar: css`
     width: 40px;
@@ -118,19 +118,19 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
   badge: css`
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     font-size: ${font.size.step}px;
     font-weight: ${font.weight.bold};
     color: ${color.brandInk};
     background: ${color.brandBg};
-    border-radius: 20px;
-    padding: 3px 9px;
+    border-radius: ${radius.r20}px;
+    padding: 2px 8px;
     white-space: nowrap;
     &::before {
       content: '';
       width: 5px;
       height: 5px;
-      border-radius: 3px;
+      border-radius: ${radius.r4}px;
       background: ${color.brand};
     }
   `,
@@ -141,7 +141,7 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
     border: 1px solid ${color.brandLine3};
     border-radius: ${radius.md}px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     font-size: ${font.size.body}px;
     color: ${color.brandInkDeep};
   `,
@@ -163,7 +163,7 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
   `,
   chan: css`
     flex: 1;
-    padding: 11px 14px;
+    padding: 12px 12px;
     border-radius: ${radius.lg}px;
     border: 2px solid ${color.border};
     background: ${color.surface};
@@ -189,10 +189,10 @@ export const useAuthPartStyles = createStyles(({ css }) => ({
     color: ${color.text3};
   `,
   subMid: css`
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   fieldLg: css`
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   backSm: css`
     margin-bottom: 16px;

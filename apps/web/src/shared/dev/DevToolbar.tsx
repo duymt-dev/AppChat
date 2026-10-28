@@ -19,7 +19,7 @@ const useStyles = createStyles(({ css }) => ({
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 10px;
+    padding: 6px 8px;
     background: ${color.surface};
     border: 1px dashed ${color.border};
     border-radius: ${radius.md}px;

@@ -113,48 +113,55 @@ export const shadow = {
 export const font = {
   family: "'Plus Jakarta Sans', system-ui, sans-serif",
   mono: "'JetBrains Mono', monospace",
-  // cỡ chữ dùng trong prototype (px)
+  // cỡ chữ — thang đều D41 (giá trị prototype snap về bậc gần nhất của FONT_SCALE)
   size: {
-    xxs: 9.4,
-    railLabel: 9.9,
+    xxs: 10,
+    railLabel: 10,
     tag: 11,
-    eyebrow: 11.6,
-    caption: 12.4,
-    small: 12.7,
-    body: 14.3,
-    bodyLg: 14.9,
-    title: 15.4,
-    brand: 17.6,
-    upgrade: 16.5,
-    h3: 18.7,
-    h2: 19.8,
-    h1: 24.2,
-    step: 12.1,
-    input: 15.4,
+    eyebrow: 12,
+    caption: 12,
+    small: 13,
+    body: 14,
+    bodyLg: 15,
+    title: 15,
+    brand: 18,
+    upgrade: 16,
+    h3: 18,
+    h2: 20,
+    h1: 24,
+    step: 12,
+    input: 15,
     btn: 16,
-    otp: 24.2,
-    slogan: 19.8,
-    stat: 26.4,
-    welcome: 27,
+    otp: 24,
+    slogan: 20,
+    stat: 28,
+    welcome: 28,
     expired: 24,
-    onbTitle: 28.6,
-    stepTitle: 30.8,
-    regTitle: 33,
-    authTitle: 35.2,
-    display: 48.4,
-    micro: 10.8,
-    noteSm: 12.5,
+    onbTitle: 28,
+    stepTitle: 32,
+    regTitle: 32,
+    authTitle: 36,
+    display: 48,
+    micro: 11,
+    noteSm: 12,
     sub13: 13,
-    hint: 13.2,
-    lock: 13.5,
-    perk: 13.8,
-    lead2: 14.5,
-    trialNum: 21,
+    hint: 13,
+    lock: 13,
+    perk: 14,
+    lead2: 14,
+    trialNum: 20,
   },
+  /** Bậc thô của thang (dùng cho override responsive). */
+  scale: { s10: 10, s11: 11, s12: 12, s13: 13, s14: 14, s15: 15, s16: 16, s18: 18, s20: 20, s22: 22, s24: 24, s28: 28, s32: 32, s36: 36, s48: 48 },
   weight: { regular: 400, medium: 500, semibold: 600, bold: 700, heavy: 800 },
 } as const;
 
-export const radius = { xs: 6, sm: 8, md: 10, lg: 12, xl: 13, xxl: 14, card: 16, modal: 18, pill: 999 } as const;
+/** Thang đều D41 — mọi cỡ chữ / bo góc / spacing phải nằm trên thang (test: tokens.test.ts). */
+export const FONT_SCALE = [10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 28, 32, 36, 48] as const;
+export const RADIUS_SCALE = [4, 6, 8, 10, 12, 16, 20, 999] as const;
+export const SPACE_UNIT = 4;
+
+export const radius = { r4: 4, r6: 6, r8: 8, r10: 10, r12: 12, r16: 16, r20: 20, xs: 6, sm: 8, md: 10, lg: 12, xl: 12, xxl: 12, card: 16, modal: 16, pill: 999 } as const;
 
 export const layout = {
   railCollapsed: 80,

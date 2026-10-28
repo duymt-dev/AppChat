@@ -8,10 +8,11 @@
   "scripts": {
     "dev": "turbo run dev --filter=@appchat/web",
     "build": "turbo run build",
-    "lint": "turbo run lint && node tools/scripts/lint-size.mjs",
+    "lint": "turbo run lint && node tools/scripts/lint-size.mjs && node tools/scripts/lint-tokens.mjs",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "lint:size": "node tools/scripts/lint-size.mjs",
+    "lint:tokens": "node tools/scripts/lint-tokens.mjs",
     "i18n:check": "node tools/scripts/i18n-check.mjs",
     "parity": "pnpm --filter @appchat/parity run parity",
     "parity:baseline": "pnpm --filter @appchat/parity run baseline",

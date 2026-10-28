@@ -7,8 +7,8 @@ const spin = keyframes`
 
 export const useProvisionStyles = createStyles(({ css }) => ({
   pad: css`
-    padding-top: 30px;
-    padding-bottom: 26px;
+    padding-top: 28px;
+    padding-bottom: 24px;
   `,
   spinner: css`
     width: 44px;
@@ -17,17 +17,17 @@ export const useProvisionStyles = createStyles(({ css }) => ({
     border: 4px solid ${color.brandBg};
     border-top-color: ${color.brand};
     animation: ${spin} 0.9s linear infinite;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   steps: css`
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   `,
   step: css`
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-size: ${font.size.perk}px;
     color: ${color.text2};
   `,

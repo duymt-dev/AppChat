@@ -19,13 +19,13 @@
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
 | F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
-| F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | | |
+| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 0 | 0 | ⬜ | | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **135** | **25** | **0** | | | |
+| **Tổng** | | **136** | **25** | **0** | | | |
 
 ---
 
@@ -68,6 +68,7 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
+| `f2:token-scale` | Chuẩn hoá thang token D41 (chữ / bo góc / viền / spacing) + đo lại F0–F1 | L39–392 | C | ✅ | — | pass | TOKSHA | D41 · `tokens.ts` thang đều + `tokens.test.ts` + `lint:tokens`; prototype chuẩn hoá bằng `tools/scripts/normalize-prototype.mjs` (9.717 giá trị, chạy lại ra cùng kết quả). Đo lại F0–F1 trên prototype mới: shell:default 0.0109 · rail-collapsed 0.0001 · flyout-crm 0.0020 · notifications 0.0001 · user-menu 0.0001 · assistant-dock 0.0062 · auth:login 0.0192 · otp 0.0315 · register 0.0186 · forgot 0.0164 · declare-business 0.0316 · declare-individual 0.0301 · trial-welcome 0.0261 · trial-expired 0.0375 |
 | `dashboard:default` | Tổng quan có dữ liệu | L1079 | P | ⬜ | | | | |
 | `dashboard:new-workspace` | Tổng quan workspace mới (onboarding checklist) | L1079 | P | ⬜ | | | | |
 | `dashboard:widget-picker` | Chọn widget | L1139 | P | ⬜ | | | | |

@@ -15,8 +15,14 @@
    - `mask` (selector vùng động: giờ, avatar ngẫu nhiên, biểu đồ random).
    - `exceptions` (vùng khác **có chủ đích**, kèm `reason` và mã quyết định).
 4. **Dữ liệu đo giống prototype:** seed `fixtures/prototype-parity` tái tạo **đúng** dữ liệu mẫu của prototype (tên khách, mã đơn, số tiền, thời gian). App chạy ở chế độ `PARITY_FIXTURE=1` với đồng hồ cố định (`2026-06-24 09:00 +07:00`).
-5. **Lấy giá trị, không đoán:**
-   - Kích thước, màu, spacing, radius, cỡ chữ và độ đậm lấy từ prototype (DevTools / `styles.css`), rồi đưa vào token antd (`packages/ui/theme.ts`) hoặc `antd-style`.
+5. **Lấy giá trị theo thang token, không đoán (D41 / D-TOKEN):**
+   - Đọc giá trị từ prototype (DevTools / `styles.css`), rồi **snap về bậc gần nhất của thang token** trong `packages/ui/tokens.ts`:
+     - cỡ chữ: 10 (nhãn rail) / 11 / 12 / 13 / 14 / 15 / 16 / 18 / 20 / 22 / 24 / 28 / 32 / 36 / 48;
+     - bo góc: 4 / 6 / 8 / 10 / 12 / 16 / 20 / pill;
+     - spacing: bội số của 4;
+     - một màu viền.
+   - Không thêm bậc lẻ (12.1, 12.7, 13.2…). Màu thương hiệu / trạng thái giữ nguyên giá trị prototype.
+   - Đưa vào token antd (`packages/ui/theme.ts`) hoặc `antd-style`.
    - **Cấm hard-code màu/px trong component.** Giá trị chưa có token thì thêm token.
 6. **Ngoại lệ có chủ đích** chỉ được khi có mã quyết định (D/V/REQ). Danh sách hiện hành:
    - **Module ẩn:** Gọi điện, Quy trình, Báo cáo (D07, D19).
@@ -45,5 +51,6 @@ pnpm parity --all               # toàn bộ màn đã khai báo (cuối pha / g
 ## Lý do
 
 - Chủ nhà yêu cầu parity dưới 5% (2026-10-28).
+- Chủ nhà chốt thang token đều (D41, 2026-10-28): prototype có nhiều giá trị gần trùng, chuẩn hoá để giao diện đồng bộ; ngưỡng 5% giữ nguyên.
 - Prototype là bản giao diện Chủ nhà đã duyệt.
 - Đo tự động để "giống prototype" là con số kiểm được, không dựa vào cảm nhận.

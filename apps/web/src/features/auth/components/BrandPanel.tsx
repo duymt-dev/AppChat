@@ -90,14 +90,14 @@ const useStyles = createStyles(({ css }) => ({
     backdrop-filter: blur(12px);
     border: 1px solid ${color.glassLine};
     border-radius: ${radius.card}px;
-    padding: 18px;
+    padding: 16px;
     margin-bottom: 24px;
     box-shadow: ${shadow.glass};
   `,
   cardHead: css`
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 12px;
   `,
   avatar: css`
@@ -119,16 +119,16 @@ const useStyles = createStyles(({ css }) => ({
   `,
   tag: css`
     font-size: ${font.size.tag}px;
-    padding: 3px 6px;
+    padding: 2px 6px;
     background: ${color.glass3};
     border-radius: ${radius.xs}px;
   `,
   msg: css`
     background: ${color.glass2};
-    padding: 10px 12px;
-    border-radius: 4px 14px 14px 14px;
+    padding: 8px 12px;
+    border-radius: ${radius.r4}px ${radius.r12}px ${radius.r12}px ${radius.r12}px;
     font-size: ${font.size.body}px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   `,
   ai: css`
     display: flex;
@@ -137,13 +137,13 @@ const useStyles = createStyles(({ css }) => ({
     font-size: ${font.size.small}px;
     background: ${color.aiChipBg};
     border: 1px solid ${color.aiChipLine};
-    padding: 8px 10px;
+    padding: 8px 8px;
     border-radius: ${radius.md}px;
   `,
   aiMark: css`
     width: 16px;
     height: 16px;
-    border-radius: 4px;
+    border-radius: ${radius.r4}px;
     background: ${color.white};
     display: grid;
     place-items: center;

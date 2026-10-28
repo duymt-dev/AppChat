@@ -33,8 +33,8 @@ const useStyles = createStyles(({ css, responsive }) => ({
   head: css`
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 16px 18px;
+    gap: 12px;
+    padding: 16px 16px;
     border-bottom: 1px solid ${color.divider};
     background: ${gradient.aiSoft};
   `,
@@ -74,16 +74,16 @@ const useStyles = createStyles(({ css, responsive }) => ({
   body: css`
     flex: 1;
     overflow-y: auto;
-    padding: 16px 18px;
+    padding: 16px 16px;
   `,
   bubble: css`
     display: flex;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 16px;
     & > span {
       width: 30px;
       height: 30px;
-      border-radius: 9px;
+      border-radius: ${radius.r8}px;
       background: ${color.text};
       display: grid;
       place-items: center;
@@ -93,7 +93,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
       background: ${color.bg};
       border: 1px solid ${color.divider};
       border-radius: ${radius.lg}px;
-      padding: 11px 13px;
+      padding: 12px 12px;
       font-size: ${font.size.body}px;
       color: ${color.text2};
       line-height: 1.55;
@@ -104,7 +104,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
     border-top: 1px solid ${color.divider};
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 8px;
   `,
   input: css`
     display: flex;
@@ -112,7 +112,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
     gap: 8px;
     border: 1px solid ${color.border};
     border-radius: ${radius.lg}px;
-    padding: 8px 8px 8px 13px;
+    padding: 8px 8px 8px 12px;
     & input {
       flex: 1;
       border: none;
@@ -126,7 +126,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
       width: 34px;
       height: 34px;
       border: none;
-      border-radius: 9px;
+      border-radius: ${radius.r8}px;
       background: ${color.brand};
       display: grid;
       place-items: center;
@@ -137,8 +137,8 @@ const useStyles = createStyles(({ css, responsive }) => ({
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    font-size: 13.2px;
+    gap: 6px;
+    font-size: ${font.scale.s13}px;
     font-weight: ${font.weight.bold};
     color: ${color.text3};
     cursor: pointer;
