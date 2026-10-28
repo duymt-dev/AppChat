@@ -298,8 +298,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `subscription` | ws (unique), plan_id, status(trialing\|active\|expired\|cancelled), trial_started_at, trial_ends_at, current_period_start, current_period_end | |
 | `credit_wallet` | ws (pk), plan_balance bigint (reset mỗi kỳ, không cộng dồn), topup_balance bigint (không hết hạn), low_threshold, warn_80_sent_at, warn_95_sent_at | CHECK cả hai ≥ 0; trừ plan_balance trước |
 | `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
-| `model_price` | provider, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
-| `model_route` | tier, priority, provider, model, purpose(chat\|embed) | fallback theo priority |
+| `model_price` | provider_key, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
+| `llm_provider` | key (unique), kind(anthropic\|openai\|google\|deepseek\|openai_compatible), name, base_url?, api_key_enc bytea, headers jsonb?, capabilities jsonb `{tools, json_schema, streaming, embeddings, vision, reasoning}`, status(active\|disabled), last_probe_at?, last_error? | D33. Router OpenRouter / 9router / LiteLLM… = `openai_compatible`; chỉ Quản trị nền tảng sửa |
+| `model_route` | tier, priority, provider_key → `llm_provider.key`, model, purpose(chat\|embed\|rerank), params jsonb? | fallback theo priority; một tier có thể trộn provider gốc và router |
 | `billing_invoice` | ws, code, kind(plan\|credits\|addon\|upgrade_proration), plan_id?, credits?, amount, vat_info jsonb (MST, tên đơn vị, địa chỉ, email nhận), status(pending\|pending_review\|paid\|expired\|cancelled), method(qr\|bank_transfer), transfer_code unique, qr_payload, expires_at, paid_at, bank_tx_id? | partial idx(status) WHERE status in (pending, pending_review) |
 | `bank_transaction` | provider, provider_tx_id unique, amount, content, account_no, occurred_at, matched_invoice_id?, raw jsonb | idempotent theo `provider_tx_id` |
 
@@ -770,6 +771,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `admin.plan.upsert`
 - `admin.model_price.upsert`
 - `admin.model_route.upsert`
+- `admin.llm_provider.upsert` / `admin.llm_provider.probe` / `admin.llm_provider.disable`: config (D33)
 - `admin.invoice.confirm_transfer`: money.
 - `admin.workspace.suspend` / `admin.workspace.resume`
 - `admin.workspace.archive` / `admin.workspace.restore`: config, luôn preview (§2.0 bước 5)
@@ -1026,7 +1028,10 @@ export type RunEvent = { type: 'delta'|'tool_call'|'tool_result'|'paused'|'usage
 - **Usage:** mỗi bước LLM phát event `usage` → `CreditMeter.charge(ws, provider, model, in, out, runId, stepIdx)`. Hàm này ghi `credit_ledger` và trừ `credit_wallet` trong một transaction ở **DB nền tảng** (idempotent theo `(ws, 'ai_step', runId:stepIdx)`), sau đó mới ghi `ai_run_step.credits` ở DB tenant. Trước mỗi bước kiểm `balance > 0`; ví hết thì phát `CREDIT_EXHAUSTED`.
 - **LLM Router:**
   - Đọc `model_route` theo tier/purpose. Lỗi 5xx, 429 hoặc timeout 30s thì chuyển sang provider kế tiếp.
-  - API key của provider đặt trong env. Chỉ bật provider có key.
+  - **Provider (D33):** đọc bảng `llm_provider` (cache 60s). `kind` gốc dùng `@ai-sdk/anthropic|openai|google|deepseek`; `openai_compatible` dùng `createOpenAICompatible({ baseURL, apiKey, headers })` cho OpenRouter, 9router, LiteLLM, vLLM…
+  - Key mã hoá AES-256-GCM trong DB nền tảng; env chỉ giữ khoá mã hoá và (tuỳ chọn) key khởi tạo cho seed. Chỉ provider `active` + có key mới được route.
+  - `capabilities` quyết định model nào được dùng cho agent có tool / structured output. Router không hỗ trợ tool calling thì không xếp vào tier của agent. `probe` khi lưu: gọi thử chat + tool call + (nếu `embeddings`) embed.
+  - Usage: lấy token từ AI SDK; router trả thêm chi phí thì ghi vào `ai_run_step.meta.provider_cost` để đối chiếu, credit vẫn tính theo `model_price`.
   - Embedding dùng 1536 chiều, provider cấu hình trong `model_route` purpose=embed.
 
 ### 5.2 Trợ lý AI (Orchestrator + Copilot)
@@ -1247,12 +1252,12 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 
 | Tích hợp | Cách làm | Trạng thái |
 |---|---|---|
-| LLM: Anthropic, OpenAI, Google, DeepSeek | AI SDK providers; key trong env; route trong DB | Cần key (OQ-06) |
+| LLM: Anthropic, OpenAI, Google, DeepSeek + router OpenAI-compatible (OpenRouter, 9router…) | AI SDK providers + `@ai-sdk/openai-compatible`; provider / key trong bảng `llm_provider`, route trong `model_route` (D33) | Cần key (OQ-06) |
 | Zalo cá nhân | zca-js (pin version), adapter riêng | Spike trong TIP-014 |
-| Email gửi hệ thống (OTP, thông báo) | SMTP qua nodemailer, interface `Mailer` | Cần SMTP (OQ-07) |
-| Tra cứu MST | interface `TaxLookupProvider`; bản `mock` + bản thật (ứng viên cần kiểm chứng: API VietQR business lookup) | OQ-05 |
+| Email gửi hệ thống (OTP, thông báo) | **Brevo** transactional API qua `MailProvider` (D34); webhook Brevo (bounce / complaint) → đánh dấu email lỗi; SMTP (nodemailer) là adapter dự phòng | Cần tài khoản Brevo + domain gửi (SPF / DKIM / DMARC) |
+| Tra cứu MST | `TaxLookupProvider`: **VietQR** + `mock`; lỗi thì nhập tay (D35) | |
 | VietQR (AppChat thu tiền và DN thu tiền khách) | Tự sinh payload EMVCo/NAPAS (BIN + STK + số tiền + nội dung), render QR bằng `qrcode` | Tự làm |
-| Webhook ngân hàng | port `BankFeedProvider`; adapter SePay / Casso; bản `mock` cho dev | OQ-04 |
+| Webhook ngân hàng | port `BankFeedProvider`; **SePay chính**, Casso dự phòng; bản `mock` cho dev (D35) | OQ-04 |
 | **Connector registry (D28)** | `packages/integrations`: port theo năng lực (`EInvoiceProvider`, `ESignProvider`, `AccountingSyncProvider`, `CommerceSyncProvider`, `SheetSyncProvider`, `SmsProvider`, `MailProvider`, `StorageProvider`, `TaxLookupProvider`) + `ConnectorManifest`; gọi ra ngoài qua queue `integrations` (retry, idempotent, call log); webhook chung `/hooks/integrations/:connector/:connectionId` | Chuẩn `standards/integrations/provider-ports.md`; MISA / Mắt Bão / VNPT / Viettel… = "Sắp có" |
 | Object storage | interface `Storage`: `local` (dev `./.data/files`; prod `/srv/appchat/files` trên VPS + backup restic) và `s3` (S3-compatible, bật bằng env khi cần) | |
 | PDF chứng từ | Mẫu `rich`: `@react-pdf/renderer` trong worker (font Plus Jakarta Sans nhúng). Mẫu `docx`: `docxtemplater` + **LibreOffice headless native** (`soffice --convert-to pdf`, queue `doc-render`, user riêng, không mạng) — D30 | Cài LibreOffice trên VPS-APP (infra) |
@@ -1288,7 +1293,7 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 
 | # | Rủi ro | Xử lý |
 |---|---|---|
-| K1 | **pgvector trên Windows chạy native** khó cài (cần build hoặc binary đúng phiên bản PG16) | TIP-002 kiểm `CREATE EXTENSION vector`. Nếu không cài được: dev tạm dùng `kb_chunk.embedding` kiểu `real[]` + tìm tuyến tính (chỉ cho dev). Prod chạy Linux có pgvector. Escalate nếu cả hai đều không được |
+| K1 | ~~pgvector trên Windows~~ **Đã xử lý 2026-10-28:** build pgvector 0.8.1 bằng MSVC và cài vào PG16 trên máy dev. Ghi lệnh cài vào `infra/dev/README.md` | TIP-002 kiểm `CREATE EXTENSION vector`. Nếu không cài được: dev tạm dùng `kb_chunk.embedding` kiểu `real[]` + tìm tuyến tính (chỉ cho dev). Prod chạy Linux có pgvector. Escalate nếu cả hai đều không được |
 | K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; thiết kế sẵn chỗ cho Zalo OA (P2) |
 | K3 | DB-per-tenant: số kết nối, RAM của Prisma Client mỗi DB, autovacuum trên nhiều DB | PgBouncer transaction mode bắt buộc; driver adapter `@prisma/adapter-pg` pool nhỏ; LRU client; đo RAM/latency với 200 DB giả lập. Đo p95 ở TIP-002 |
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |

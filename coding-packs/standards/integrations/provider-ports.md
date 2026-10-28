@@ -9,13 +9,13 @@
 
 | Port | Dùng cho | Adapter phát hành | Adapter ứng viên (Sắp có) |
 |---|---|---|---|
-| `BankFeedProvider` | đối soát chuyển khoản (thu phí AppChat + tiền khách của DN) | SePay, Casso, `mock` | API ngân hàng trực tiếp |
+| `BankFeedProvider` | đối soát chuyển khoản (thu phí AppChat + tiền khách của DN) | **SePay** (chính), Casso, `mock` | API ngân hàng trực tiếp |
 | `EInvoiceProvider` | hoá đơn điện tử (NĐ 123/2020, NĐ 70/2025) | `mock` | **MISA meInvoice, Mắt Bão (M-Invoice), VNPT Invoice, Viettel S-Invoice, EasyInvoice, FPT** |
 | `ESignProvider` | ký số CA cho hợp đồng | `appchat_native` (ký điện tử OTP) | VNPT-CA, Viettel-CA, FPT-CA, MISA eSign |
-| `TaxLookupProvider` | tra cứu MST khi khai báo DN | `mock` + 1 provider thật (OQ-05) | — |
-| `MailProvider` | email hệ thống (OTP, thông báo) | SMTP | Brevo, Mailgun, SES |
+| `TaxLookupProvider` | tra cứu MST khi khai báo DN | **VietQR**, `mock` | — |
+| `MailProvider` | email hệ thống (OTP, thông báo) | **Brevo** (D34), SMTP dự phòng | Mailgun, SES |
 | `StorageProvider` | file | `local`, `s3` | Google Cloud Storage |
-| `LlmProvider` | LLM | Anthropic, OpenAI, Google, DeepSeek (qua AI SDK) | — |
+| `LlmProvider` | LLM (nền tảng, không phải của workspace) | Anthropic, OpenAI, Google, DeepSeek + **mọi router OpenAI-compatible** (OpenRouter, 9router, LiteLLM, vLLM) qua AI SDK — D33 | — |
 | `AccountingSyncProvider` | đồng bộ đơn / công nợ sang kế toán | — | MISA AMIS, Fast, Odoo |
 | `CommerceSyncProvider` | đồng bộ sản phẩm / tồn | — | KiotViet, Sapo, Haravan, WooCommerce |
 | `OrderSyncProvider` | kéo đơn từ sàn / POS (webhook + poll), đẩy trạng thái (P2) — D31 | `mock` | Sapo, Shopee, TikTok Shop, Lazada, Haravan, KiotViet, WooCommerce |

@@ -31,7 +31,7 @@
    - Hội thoại `resolved` có câu trả lời của người hoặc agent được khen thì job đề xuất cặp hỏi–đáp (`kb_suggestion`).
    - Đề xuất vào hàng chờ "AI đã học — chờ duyệt". **Chỉ vào kho sau khi người có quyền `kb.manage` duyệt** (sửa được trước khi duyệt). Không tự học ngầm.
    - PII bị che trước khi đề xuất.
-10. **Embedding:** 1536 chiều, provider theo `model_route` purpose=`embed`.
+10. **Embedding:** 1536 chiều, mặc định `text-embedding-3-small` (OpenAI hoặc router hỗ trợ `/embeddings`), provider theo `model_route` purpose=`embed` (D33, D35).
     - Đổi model embed thì re-embed toàn kho bằng job, ghi `kb_chunk.embed_model`. Truy vấn chỉ so các đoạn cùng `embed_model`.
 11. **Index:**
     - `hnsw (embedding vector_cosine_ops)`.

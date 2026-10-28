@@ -14,7 +14,7 @@
 | Cache / Queue | Redis (native; Memurai trên Windows dev) + BullMQ; outbox pattern. Chưa dùng Kafka |
 | Realtime | WebSocket (Socket.IO hoặc ws gateway của Nest) + SSE fallback |
 | Storage | Đĩa VPS (`/srv/appchat/files`) + backup restic; S3-compatible bên ngoài tuỳ chọn qua interface `Storage` |
-| LLM / Agent | **LLM Router đa nhà cung cấp** (Claude / GPT / Gemini / DeepSeek), routing theo tác vụ/gói/chi phí, có fallback, streaming. **Agent runtime: Vercel AI SDK v7** (`ToolLoopAgent`, `toolApproval`) + **Agent Gateway** tự viết (tool từ Action Registry, credit meter, lưu/chạy tiếp run trong Postgres). Không Mastra, không fork, không swarm (D17 / Vision V3–V4) |
+| LLM / Agent | **LLM Router đa nhà cung cấp** (Claude / GPT / Gemini / DeepSeek + router OpenAI-compatible như OpenRouter, 9router — D33), routing theo tác vụ/gói/chi phí, có fallback, streaming. **Agent runtime: Vercel AI SDK v7** (`ToolLoopAgent`, `toolApproval`) + **Agent Gateway** tự viết (tool từ Action Registry, credit meter, lưu/chạy tiếp run trong Postgres). Không Mastra, không fork, không swarm (D17 / Vision V3–V4) |
 | Auth | Email OTP + mật khẩu (Zalo OTP khi có OA — OQ-02); JWT ngắn hạn + refresh; RBAC **Owner + Member** |
 | Thanh toán | VietQR / Napas 247 (IPN), chuyển khoản thủ công có đối soát |
 | Test | Vitest/Jest (unit), Testcontainers (integration), Playwright (e2e), tenant isolation test (DB riêng), k6 (load) |

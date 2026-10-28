@@ -32,4 +32,8 @@
 10. **Trả lời theo ngôn ngữ:** Trợ lý theo `user.locale`; agent theo `ai_agent.language` (`auto` = theo `contact.locale` phát hiện từ tin khách).
 10b. **Agent chạy theo phiên bản đã xuất bản** (`published_version_id`), không theo bản nháp. Chat thử dùng bản nháp + `dryRun`. Trợ lý tạo agent chỉ qua `agent.create_and_publish` có preview (D29).
 11. **Quan sát:** mỗi bước ghi `ai_run_step` + phát `run.step` qua WS; có metric latency / token / lỗi theo provider + model. Owner xem trực tiếp và bấm dừng được (`run.cancel` huỷ cả cây).
-12. **Provider:** key đặt trong env của nền tảng; chỉ bật provider có key. Fallback khi gặp 5xx / 429 / timeout 30s, theo `model_route`.
+12. **Provider (D33):**
+    - Provider khai trong bảng `llm_provider` (DB nền tảng, key mã hoá): `kind` gốc (anthropic / openai / google / deepseek) hoặc `openai_compatible` (OpenRouter, 9router, LiteLLM, vLLM…) dùng `createOpenAICompatible`.
+    - Chỉ provider `active` + đã `probe` OK mới được route. `capabilities` (tools, json_schema, streaming, embeddings) quyết định dùng cho việc gì; agent có tool chỉ route tới model hỗ trợ tool calling.
+    - Fallback khi gặp 5xx / 429 / timeout 30s, theo `model_route.priority` (trộn được provider gốc và router).
+    - Không hard-code tên model trong code; model chỉ nằm trong `model_route`.

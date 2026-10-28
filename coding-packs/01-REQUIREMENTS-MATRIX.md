@@ -70,7 +70,7 @@
 | REQ-ID | Requirement | Priority | Persona | TIP |
 |---|---|---|---|---|
 | REQ-D01 | **Agent runtime** chạy sau một interface **Agent Gateway** để có thể thay động cơ (xem OQ-01). Agent loop gồm: nhận ngữ cảnh → RAG → gọi tools → trả lời. Tin nhắn vào được xử lý bất đồng bộ trong worker, stream kết quả. | P0 | — | TBD |
-| REQ-D02 | **LLM Router đa nhà cung cấp** (Claude / GPT / Gemini / DeepSeek). Định tuyến theo tác vụ, gói và chi phí; có fallback khi nhà cung cấp lỗi. Ẩn tên model với khách (chỉ hiện "AI tiêu chuẩn / nâng cao"). | P0 | — | TBD |
+| REQ-D02 | **LLM Router đa nhà cung cấp** (Claude / GPT / Gemini / DeepSeek) **+ mọi router OpenAI-compatible (OpenRouter, 9router…) — D33**. Định tuyến theo tác vụ, gói và chi phí; có fallback khi nhà cung cấp lỗi. Ẩn tên model với khách (chỉ hiện "AI tiêu chuẩn / nâng cao"). | P0 | — | TBD |
 | REQ-D03 | **Tools của agent = tập con của Action Registry** (REQ-E01), được cấp quyền theo từng agent. Bộ mặc định cho Sales agent: tra cứu sản phẩm / giá / tồn kho; tạo và cập nhật khách hàng; tạo báo giá; tạo đơn; đặt / dời / huỷ lịch hẹn (có kiểm tra trùng); tạo ticket; gắn thẻ; gửi file / ảnh sản phẩm; chuyển người. | P0 | — | TBD |
 | REQ-D04 | **Kho tri thức (RAG)** theo trang Dữ liệu RAG của prototype: thư mục, thẻ, nguồn (tải lên PDF / DOCX / XLSX / CSV / TXT / MD, URL, văn bản, danh mục sản phẩm; Drive = "Sắp có"); trạng thái index, số đoạn, index lại. Tài liệu `public` / `internal`. Agent nhận tri thức theo thư mục / thẻ. Tìm kết hợp vector + từ khoá không dấu, ngưỡng căn cứ (không bịa), trích nguồn. **Giá / tồn / lịch luôn lấy qua tool, không lấy từ RAG.** Chuẩn: `standards/ai/rag.md`. | P0 | Chủ DN | TBD |
 | REQ-D04b | **AI học từ hội thoại:** từ hội thoại đã giải quyết, AI đề xuất cặp hỏi–đáp vào hàng chờ "AI đã học"; **người duyệt (sửa được) rồi mới vào kho**. | P1 | Chủ DN | TBD |
@@ -263,19 +263,24 @@ Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực t
 | D30 | Mẫu chứng từ + AI soạn | chỉ mẫu hệ thống / **mẫu rich + DOCX của DN** | **Mẫu rich hoặc DOCX của DN** (AI nhận diện biến, người xác nhận; PDF qua LibreOffice headless native); AI soạn báo giá / hợp đồng từ nội dung, số liệu luôn từ bản ghi, điều khoản mẫu nguyên văn, bảng kiểm Điều 398 cảnh báo | Chủ nhà chốt 2026-10-28 |
 | D31 | Đồng bộ đơn sàn / POS | không / **chừa khung** | **Port `OrderSyncProvider` + thẻ "Sắp có"**; đơn sàn khoá hàng / giá, thu "qua sàn", tồn chuẩn theo kết nối, **tích điểm đơn sàn mặc định tắt** | Chủ nhà chốt 2026-10-28 |
 | D32 | Nhiều sales chăm một khách | nhiều chủ ngang hàng / **1 chính + đồng phụ trách** | **1 chính + đồng phụ trách / theo dõi**; chống giành khách + xin chia sẻ; chuyển phụ trách chỉ Quản lý; chia lead tự động P1 | Chủ nhà chốt 2026-10-28 |
+| D33 | Nguồn LLM | chỉ provider gốc / **provider gốc + router OpenAI-compatible** | **Cả hai.** Provider gốc qua `@ai-sdk/*`; router (OpenRouter, 9router, LiteLLM, vLLM, …) qua `@ai-sdk/openai-compatible` khai báo trong bảng `llm_provider` (base URL, key mã hoá, header, khả năng); `model_route` trỏ tới provider bất kỳ; embedding mặc định `text-embedding-3-small` 1536 chiều (qua OpenAI hoặc router hỗ trợ embeddings) | Chủ nhà chốt 2026-10-28 |
+| D34 | Email hệ thống | SMTP / SES / **Brevo** | **Brevo** (API transactional, domain riêng SPF / DKIM / DMARC) qua `MailProvider`; SMTP giữ làm adapter dự phòng | Chủ nhà chốt 2026-10-28 |
+| D35 | Mặc định vận hành | — | Eval: an toàn / quyền 100%, chọn action ≥ 95% (2/3 lần), rubric ≥ 90%. Uỷ quyền ký hợp đồng / duyệt hoàn tiền cho Quản lý mặc định **tắt**. Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo. Đối soát: SePay chính, Casso dự phòng. Tra MST: VietQR. Dev: pgvector native Windows + LibreOffice | Chủ nhà đồng ý theo đề xuất 2026-10-28 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
 | # | Question | Impact | Suggested Resolution |
 |---|---|---|---|
 | OQ-01 | ~~**Agent runtime:** tự xây trong Nest hay nhúng OpenFang?~~ **ĐÃ GIẢI 2026-10-28 → D17 / Vision V3.** | Lớp điều phối và thực thi agent (D01, E04). Action Registry (E01) **vẫn do AppChat sở hữu** dù chọn phương án nào; OpenFang (nếu dùng) gọi Registry qua MCP. | Thiết kế **Agent Gateway interface** ngay từ đầu; triển khai mặc định là agent loop tự viết (TS, tool-use đa provider). Chốt OpenFang ở Vision sau khi spike 1–2 ngày. |
-| OQ-02 | Gửi OTP đăng nhập qua kênh nào? Spec dùng Zalo OTP (ZNS cần Zalo OA, mà OA không có trong phạm vi) | REQ-A01 | Đề xuất: Email OTP + mật khẩu ngay; Zalo OTP qua ZNS khi có OA (P2). |
+| OQ-02 | ~~Gửi OTP đăng nhập qua kênh nào?~~ **ĐÃ GIẢI 2026-10-28:** Email OTP (qua Brevo — D34) + mật khẩu; Zalo OTP qua ZNS khi có OA (P2). | REQ-A01 | — |
 | OQ-03 | Thư viện Zalo cá nhân (ví dụ `zca-js`, Node) và chính sách giới hạn gửi | REQ-B02/B04, I03 | Spike kỹ thuật ở Blueprint; tham số throttle cấu hình được. |
-| OQ-04 | Nhà cung cấp webhook ngân hàng cho VietQR (Casso / SePay / bank API) và tài khoản nhận tiền | REQ-L04 | Chủ nhà cung cấp; adapter có thể thay. |
-| OQ-05 | API tra cứu MST (nhà cung cấp, chi phí) | REQ-A02 | Chủ nhà chọn; tạm thời cho nhập tay nếu tra cứu lỗi. |
-| OQ-06 | Khoá API của các LLM provider và bảng đơn giá credit theo model | REQ-D02, L01 | Chủ nhà cung cấp khoá; đơn giá lưu DB. |
-| OQ-07 | Hạ tầng production: **đã chốt native VPS + Prometheus/Grafana/Loki (D20)**. Còn mở: nhà cung cấp VPS, domain, SMTP gửi email, nơi lưu backup offsite | REQ-N01, N08, N09 | Chủ nhà cung cấp trước khi deploy lần đầu |
-| OQ-08 | Bộ design token cuối cùng (Design System hay `styles.css` của prototype — R17) | REQ-N10 | Chốt ở Vision. |
+| OQ-04 | Webhook ngân hàng: **chốt SePay chính, Casso dự phòng** (2026-10-28). Còn chờ: tài khoản SePay + tài khoản nhận tiền của AppChat. Dev dùng `mock`. | REQ-L04 | Chủ nhà cấp trước khi TIP thanh toán chạy thật. |
+| OQ-05 | ~~API tra cứu MST~~ **ĐÃ GIẢI 2026-10-28:** API tra MST của VietQR (miễn phí) qua `TaxLookupProvider`; lỗi thì nhập tay. | REQ-A02 | — |
+| OQ-06 | Khoá LLM: **hỗ trợ provider gốc (Anthropic, OpenAI, Google, DeepSeek) và mọi router OpenAI-compatible (OpenRouter, 9router, …) — D33**. Còn chờ: khoá thật (tối thiểu 1 router hoặc Anthropic + OpenAI) và bảng đơn giá credit. | REQ-D02, L01 | Chủ nhà cấp trước TIP AI; đơn giá lưu DB. |
+| OQ-07 | Hạ tầng production: **native VPS + Prometheus/Grafana/Loki (D20)**; email hệ thống = **Brevo (D34)**; backup offsite = object storage S3-compatible ở nhà cung cấp khác VPS. **Hoãn (Chủ nhà chưa quan tâm):** nhà cung cấp / vị trí VPS, domain. | REQ-N01, N08, N09 | Chủ nhà chốt trước deploy lần đầu |
+| OQ-08 | ~~Bộ design token cuối cùng~~ **ĐÃ GIẢI → V11:** token từ `styles.css` của prototype. | REQ-N10 | — |
+| OQ-09 | Tài khoản Zalo cá nhân phụ để spike `zca-js` (OQ-03) | REQ-B02/B04 | Chủ nhà cấp 1–2 tài khoản phụ (không dùng tài khoản chính). |
+| OQ-10 | Đăng ký app đối tác Shopee / TikTok Shop / Lazada (K9) | REQ-F07b (adapter P2) | Chủ nhà nộp sớm; không chặn phát hành. |
 
 ## SCOPE BOUNDARIES
 
