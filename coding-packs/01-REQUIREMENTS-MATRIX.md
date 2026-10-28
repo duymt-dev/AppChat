@@ -35,7 +35,8 @@
 | REQ-A02 | Popup khai báo bắt buộc, không đóng được. Doanh nghiệp/Hộ KD: tra cứu MST rồi tự điền thông tin. Cá nhân: nhập VNeID và nhập tay. Sau đó chọn lĩnh vực kinh doanh (taxonomy ngành 2 cấp, 10 nhóm). | P0 | Chủ DN | TBD |
 | REQ-A03 | Workspace là tenant; **mỗi workspace một PostgreSQL database riêng**, tạo tự động khi đăng ký (DB nền tảng giữ identity, membership, gói, ví, registry). Migration áp cho mọi DB tenant; có test tự động chống rò rỉ dữ liệu giữa các tenant (D21). | P0 | — | TBD |
 | REQ-A04 | Một user thuộc được nhiều workspace (membership N–N), chuyển workspace ngay từ menu Hồ sơ. | P1 | Chủ DN | TBD |
-| REQ-A05 | RBAC đơn giản: **Owner + Member**. Owner có toàn quyền gồm billing; Member xử lý hội thoại và dữ liệu, không vào billing hay cài đặt hệ thống. Mời thành viên bằng email hoặc SĐT. | P0 | Chủ DN | TBD |
+| REQ-A05 | **Phân quyền theo permission + phạm vi dữ liệu (D27).** 5 vai trò mặc định: Chủ sở hữu · Quản lý · Sales · CSKH · Kế toán. Phạm vi dữ liệu theo module: Của tôi / Nhóm / Tất cả (sales chỉ thấy khách, hội thoại, báo giá, đơn được gán). AI chạy đúng quyền người ra lệnh. Trang Vai trò & phân quyền ở chế độ chỉ đọc. Mời thành viên bằng email hoặc SĐT; số user giới hạn theo gói. Chuẩn: `standards/authz/rbac-permissions.md`. | P0 | Chủ DN | TBD |
+| REQ-A05b | Vai trò tuỳ biến (nhân bản từ vai trò hệ thống, sửa ma trận quyền theo prototype), quản lý Nhóm (team), ẩn trường theo vai trò. | P1 | Chủ DN | TBD |
 | REQ-A06 | Trial 15 ngày gói Cá nhân Pro, kèm 10.000 credit; có màn chào mừng (2 nút) và badge "Còn X ngày". Hết hạn thì hạ về gói Miễn phí; thông báo đóng được; dữ liệu giữ nguyên. | P0 | Chủ DN | TBD |
 | REQ-A07 | Audit log cho mọi hành động quản trị, của người và của AI. | P1 | — | TBD |
 | REQ-A09 | **Tự lưu trữ workspace gói Miễn phí không hoạt động 90 ngày** (ngưỡng cấu hình theo gói): báo trước 14 ngày; lưu trữ = dump DB + drop; đăng nhập lại thì tự khôi phục (< 2 phút), dữ liệu giữ nguyên. Trial và gói trả phí không bao giờ bị lưu trữ. Bản lưu trữ không tự xoá. | P1 | Chủ DN / Platform admin | TBD |
@@ -177,8 +178,9 @@
 |---|---|---|---|---|
 | REQ-M01 | Settings shell: menu trái chia nhóm, có tìm kiếm. Các trang: Tổng quan workspace · Thành viên · Kênh kết nối · Trợ lý AI website (widget) · Trường dữ liệu · Thẻ & nhãn · Câu trả lời mẫu · AI Models (bật/tắt nhà cung cấp) · AI Governance (ngưỡng, từ cấm, nhóm phải duyệt) · Nhật ký AI · Gói & thanh toán / Ví · Hồ sơ của tôi. | P0–P1 | Chủ DN | TBD |
 | REQ-M02 | Giờ làm việc / giờ trực AI; thông báo (in-app + email). | P1 | Chủ DN | TBD |
-| REQ-M03 | Tích hợp: Google Sheets, outbound webhook ký HMAC, API key. | P2 | — | TBD |
-| REQ-M04 | Phòng ban, Sơ đồ tổ chức, KPI, Phân ca, vai trò tuỳ biến (khi khách lên gói Doanh nghiệp). | P3 | — | TBD |
+| REQ-M03 | **Trang Nền tảng kết nối (D28)** theo prototype: connector registry + port theo năng lực (bank feed, hoá đơn điện tử, ký số, kế toán, TMĐT, sheet, SMS, mail, storage). Phát hành: SePay, Casso (đối soát), SMTP, storage. Connector khác (MISA, Mắt Bão, VNPT, Viettel, EasyInvoice, FPT, KiotViet, Sapo, Haravan, Google Sheets…) hiện thẻ "Sắp có" + "Đăng ký quan tâm". Chuẩn: `standards/integrations/provider-ports.md`. | P0 | Chủ DN | TBD |
+| REQ-M03b | Adapter thật cho hoá đơn điện tử (MISA meInvoice / Mắt Bão / VNPT / Viettel), ký số CA, đồng bộ kế toán / TMĐT, Google Sheets, outbound webhook ký HMAC, API key. | P2 | — | TBD |
+| REQ-M04 | Phòng ban, Sơ đồ tổ chức, KPI, Phân ca (khi khách lên gói Doanh nghiệp). Vai trò tuỳ biến đã chuyển lên P1 (REQ-A05b). | P3 | — | TBD |
 
 ### Domain N — Nền tảng & phi chức năng
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -214,7 +216,12 @@
 
 ## APPLICABLE STANDARDS (from coding-packs/standards/)
 
-none — chưa có standards index; Standards Discovery đã được hoãn (chạy `/vibecode:scan --standards` sau Blueprint).
+Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực tiếp chi phối RRI:
+- [authz/rbac-permissions](standards/authz/rbac-permissions.md) — REQ-A05, A05b (D27)
+- [integrations/provider-ports](standards/integrations/provider-ports.md) — REQ-M03, M03b, L04, F-hoá đơn (D28)
+- [channels/omnichannel-adapter](standards/channels/omnichannel-adapter.md) — REQ-B*
+- [ui/prototype-parity](standards/ui/prototype-parity.md) — REQ-N14
+- [actions/action-registry](standards/actions/action-registry.md), [ai/agent-gateway](standards/ai/agent-gateway.md), [ai/eval](standards/ai/eval.md) — REQ-D/E, N11
 
 ## DECISIONS LOG
 | # | Decision | Options | Chosen | Rationale |
@@ -230,7 +237,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D08 | Module phụ khi phát hành | — | **Ticket/SLA, Marketing broadcast, Loyalty** (cùng CRM, Lịch hẹn, Billing, Cài đặt). ~~Báo cáo~~ loại bỏ 2026-10-28 (D19) | Chủ nhà chọn |
 | D09 | Hết credit | chặn / chuyển model rẻ / trả sau, khoá ở 5tr | **Chặn AI + popup nạp**, cảnh báo 80%, dữ liệu vẫn dùng | Chủ nhà chọn |
 | D10 | Bảng giá | chốt số / cấu hình được | **Lưu DB, cấu hình được**, seed theo prototype | Chủ nhà chọn |
-| D11 | RBAC | 4 vai trò / 7 vai trò / Owner + Member | **Owner + Member** | Hợp mô hình OPC |
+| D11 | RBAC | 4 vai trò / 7 vai trò / Owner + Member | ~~Owner + Member~~ → **thay bằng D27** | Ban đầu theo mô hình OPC |
 | D12 | Hạ tầng | Docker / native | **Không dùng Docker**; Next + Nest; Postgres + Redis native | Chủ nhà chốt |
 | D13 | ORM | Prisma / Drizzle / TypeORM | **Prisma** (+ SQL thô cho index nâng cao) | Chủ nhà chọn |
 | D14 | LLM | Claude / đa nhà cung cấp / gateway | **Đa nhà cung cấp** (LLM Router) | Chủ nhà chọn |
@@ -244,6 +251,8 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D23 | Workspace không hoạt động | giữ DB mãi / tự lưu trữ | **Tự lưu trữ gói Miễn phí sau 90 ngày không hoạt động** (dump + drop, khôi phục khi đăng nhập; trả phí/trial không áp dụng; bản lưu trữ không tự xoá) | Chủ nhà đồng ý 2026-10-28; giảm số DB trên cluster (rủi ro K7) |
 | D22 | i18n khi phát hành | vi + en / đủ 11 ngôn ngữ | **vi + en**, registry 11 ngôn ngữ để bật dần bằng file bản dịch | Chủ nhà chọn A 2026-10-28 |
 | D18 | UI kit & nền tảng hiển thị | Tailwind + shadcn / antd + antd-mobile / antd một codebase | **Ant Design v6 + Ant Design X, một codebase responsive desktop + mobile web; token theo prototype; parity < 5%** | Chủ nhà chốt 2026-10-28 |
+| D27 | Phân quyền | Owner + Member / vai trò cố định / **permission + vai trò mặc định + phạm vi dữ liệu** | **Permission engine; 5 vai trò mặc định (Chủ sở hữu, Quản lý, Sales, CSKH, Kế toán); scope Của tôi / Nhóm / Tất cả; AI chạy theo quyền người ra lệnh; vai trò tuỳ biến + Nhóm ở P1** | Chủ nhà chốt 2026-10-28: nhiều sales / CSKH cùng tham gia; thay D11 |
+| D28 | Kết nối bên thứ 3 | ẩn trang / chỉ connector có thật / **bật trang + thẻ "Sắp có"** | **Bật Cài đặt → Nền tảng kết nối ở P0**, connector registry + port theo năng lực; SePay / Casso / SMTP / storage phát hành, còn lại "Sắp có" | Chủ nhà chốt 2026-10-28: chừa sẵn MISA, Mắt Bão, VNPT, Viettel… |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
@@ -261,7 +270,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 ## SCOPE BOUNDARIES
 
 ### In Scope (bản phát hành thương mại đầu tiên)
-- **Identity / Workspace / Trial / Owner + Member:** đăng ký và đăng nhập, khai báo DN bắt buộc, workspace với DB riêng, trial 15 ngày, phân quyền Owner + Member.
+- **Identity / Workspace / Trial / Phân quyền:** đăng ký và đăng nhập, khai báo DN bắt buộc, workspace với DB riêng, trial 15 ngày, phân quyền theo permission + 5 vai trò mặc định + phạm vi dữ liệu (D27); vai trò tuỳ biến + Nhóm (P1).
 - **Kênh:**
   - Zalo cá nhân (1-1 và nhóm).
   - Web Live Chat widget.
@@ -283,7 +292,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 - **Loyalty:** hạng, tích và đổi điểm tự động.
 - **Tổng quan.**
 - **Gói / Credit / VietQR:** cùng trang quản trị nền tảng.
-- **Cài đặt:** Tổng quan workspace (+ giờ làm việc) · Ngôn ngữ · Thành viên · Kênh kết nối · Web widget · Trường dữ liệu · Thẻ · Câu trả lời mẫu · Mẫu hợp đồng · AI Models · Dữ liệu RAG · AI Governance · Nhật ký AI / Audit · SLA mặc định · Thông báo · Ví & gói.
+- **Cài đặt:** Tổng quan workspace (+ giờ làm việc) · Ngôn ngữ · Thành viên · Kênh kết nối · Web widget · Trường dữ liệu · Thẻ · Câu trả lời mẫu · Mẫu hợp đồng · Vai trò & phân quyền · Nền tảng kết nối (D28) · AI Models · Dữ liệu RAG · AI Governance · Nhật ký AI / Audit · SLA mặc định · Thông báo · Ví & gói.
 - **Danh sách màn chi tiết + thứ tự build:** `RRI-GOAL-*.md` và `02-TASK-GRAPH.md` (D26).
 
 ### Out of Scope (hoãn)
@@ -293,7 +302,8 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 - Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok (P2).
 - Ký số CA cho hợp đồng (P2; ký điện tử của AppChat đã IN — D25).
 - Swarm: các agent tự bàn và tự chia việc mà không có đầu mối (D17). Handoff và hỏi ý giữa agent vẫn nằm trong phạm vi (REQ-D13).
-- Phòng ban, sơ đồ tổ chức, KPI, phân ca, vai trò tuỳ biến, SLA đa chính sách (P3).
+- Phòng ban, sơ đồ tổ chức, KPI, phân ca, SLA đa chính sách (P3).
+- Adapter thật cho hoá đơn điện tử / ký số CA / kế toán / TMĐT / Sheets (P2 — thẻ "Sắp có" đã IN, D28).
 - Help Center, Training Studio / canary, Dashboard builder, Template Studio.
 - Kafka, ClickHouse, OpenSearch, K8s, Docker.
 - Mobile native / PWA.

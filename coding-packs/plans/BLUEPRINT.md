@@ -1,7 +1,7 @@
 # AppChat — Technical Blueprint (khế ước kiến trúc)
 
 > Vibecode Kit v5.0 — BƯỚC 4 (BLUEPRINT) · 2026-10-28 · **BẢN NHÁP — chờ Chủ nhà duyệt**
-> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V12), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D16, REQ A–N), `product/*`
+> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V15), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D28, REQ A–N), `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
 > Đã duyệt thì **không đổi kiến trúc**. Thay đổi lớn phải quay lại Vision.
 
 ---
@@ -25,7 +25,8 @@ AppChat_Ver2/
 │   ├── actions/                  # ★ Action Registry: định nghĩa (id, zod schema, metadata) — dùng chung web/core/ai
 │   ├── db/                       # 2 Prisma schema (platform + tenant), migrations, PlatformDb, TenantDbResolver (LRU), provisioner, tenant-migrate runner, seed
 │   ├── ai/                       # Agent Gateway interface, AiSdkEngine, LLM Router, prompts, meta-tools
-│   ├── channels/                 # Channel adapter interface + adapters (zalo-personal, webchat, email)
+│   ├── channels/                 # ChannelAdapter + ChannelManifest + channelRegistry; adapters (zalo-personal, webchat, email) — standards/channels
+│   ├── integrations/             # Port theo năng lực + ConnectorManifest + connectorRegistry; adapters (sepay, casso, smtp, s3, mock; coming_soon: misa, matbao, vnpt, viettel…) — standards/integrations
 │   ├── shared/                   # types, enums, error codes, money/phone/date utils, i18n keys
 │   └── ui/                       # antd theme (token prototype → ConfigProvider), antd-style tokens, wrapper component, icons (lucide-react)
 ├── infra/                        # hạ tầng native VPS: scripts provision/deploy, nginx, systemd, postgres, prometheus, loki, alloy, grafana (§11)
@@ -37,9 +38,9 @@ AppChat_Ver2/
 - `shared` → không phụ thuộc package nào.
 - `actions` → chỉ `shared` (+ zod).
 - `db` → `shared`.
-- `ai`, `channels` → `shared`, `actions` (**không** import `core` — nhận dependency qua interface).
-- `core` → `db`, `actions`, `shared`, `ai`, `channels`.
-- `api`, `worker` → `core` (+ `ai`, `channels`).
+- `ai`, `channels`, `integrations` → `shared`, `actions` (**không** import `core` — nhận dependency qua interface).
+- `core` → `db`, `actions`, `shared`, `ai`, `channels`, `integrations`.
+- `api`, `worker` → `core` (+ `ai`, `channels`, `integrations`).
 - `web` → `actions`, `shared`, `ui` (**không bao giờ** import `core`/`db`).
 
 ### 1.2 `packages/core` — mỗi bounded context một thư mục
@@ -254,12 +255,14 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `otp_code` | id, email, purpose(register\|login\|reset), code_hash, attempts, expires_at, consumed_at | idx(email, purpose, created_at desc) |
 | `refresh_token` | id, user_id→user, token_hash, family_id, expires_at, revoked_at, user_agent, ip | unique(token_hash); idx(user_id) |
 | `workspace` | id, name, slug, owner_user_id→user, timezone, locale, status(active\|suspended), settings jsonb (giờ mở cửa, giờ trực AI, ngưỡng mặc định) | **registry tenant**: thêm `db_name`, `db_host`, `db_status(provisioning\|active\|suspended\|archiving\|archived\|restoring\|deleting)`, `archived_at?`, `archive_key?`, `schema_version`, `provisioned_at` |
-| `membership` | ws, user_id, role(owner\|member), status(active\|invited\|removed), joined_at | unique(ws, user_id); idx(user_id) INCLUDE(ws, role) |
-| `invite` | ws, email, role, token_hash, expires_at, accepted_at | unique(token_hash) |
+| `membership` | ws, user_id, role_key text (khoá vai trò trong DB tenant: owner\|manager\|sales\|cs\|accountant\|custom:*), status(active\|invited\|removed), joined_at | unique(ws, user_id); idx(user_id) INCLUDE(ws, role_key). Quyền chi tiết resolve ở bảng `role` [T] (D27) |
+| `invite` | ws, email, role_key, token_hash, expires_at, accepted_at | unique(token_hash) |
 | `business_profile` | ws (pk), kind(enterprise\|household\|individual), tax_code?, national_id?, legal_name, address, representative, phone, founded_on?, legal_status?, industry_group, industry, business_description, declared_at | 1-1 workspace |
 | `tenant_channel_route` | channel_account_id (pk), ws, type, external_id, status | worker-channels đọc để biết account cần giữ phiên + DB đích; đồng bộ khi kênh đổi trạng thái |
 | `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
 | `tenant_bank_feed_route` | feed_id (pk), ws, provider | webhook SePay / Casso của DN → DB đích |
+| `tenant_integration_route` | connection_id (pk), ws, connector_key, status | webhook `/hooks/integrations/:connector/:connectionId` → DB đích (D28) |
+| `integration_interest` | ws, connector_key, user_id, note?, created_at | unique(ws, connector_key); thẻ "Sắp có" → "Đăng ký quan tâm" |
 | `tenant_sign_route` | token_hash (pk), ws, expires_at | trang ký công khai `/sign/[token]` → DB đích |
 | `tenant_migration` | ws, version, status(pending\|running\|done\|failed), error?, started_at, finished_at | idx(status, version) |
 | `workspace_stats` | ws (pk), contacts, conversations_30d, messages_30d, db_size_bytes, last_active_at, refreshed_at | job đêm gom từ từng DB, phục vụ trang quản trị |
@@ -373,6 +376,27 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `ai_task` | name, goal, department, agent_id, trigger(manual\|schedule\|event), cron?, event_type?, data_scope jsonb, tool_ids text[], credit_limit_per_run, ask_before_send bool, model_tier, status(active\|paused), last_run_at, next_run_at |
 | `ai_governance` | id smallint pk = 1, banned_words text[], force_approval jsonb (quote_total_over 20000000, discount_over_pct 5, refund always, bulk_send, contract), pii_filter bool, default_threshold |
 
+**[T] tenant/authz.prisma** (D27 — chuẩn `standards/authz/rbac-permissions.md`)
+
+| Bảng | Trường | Ràng buộc / index |
+|---|---|---|
+| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, created_at | unique(key). Seed 5 vai trò hệ thống khi provision |
+| `team` | name, lead_user_id? | (P1 UI; bảng có từ đầu) |
+| `team_member` | team_id, user_id | pk(team_id, user_id); idx(user_id) |
+
+- Bảng nghiệp vụ có chủ sở hữu (`contact`, `conversation`, `quote`, `contract`, `order`, `invoice`, `appointment`, `ticket`) có `owner_user_id` và/hoặc `assignee_user_id` + `team_id?`, cùng index theo `standards/database/indexing.md` §7.
+
+**[T] tenant/integrations.prisma** (D28 — chuẩn `standards/integrations/provider-ports.md`)
+
+| Bảng | Trường | Ràng buộc / index |
+|---|---|---|
+| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status) |
+| `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) |
+| `integration_call_log` | connection_id, op, ref_type, ref_id, idempotency_key, status, latency_ms, error?, created_at | unique(idempotency_key); idx(connection_id, created_at desc) |
+| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id) |
+
+- `tenant_bank_feed` (sales) là một `integration_connection` port `bank_feed`; giữ bảng feed riêng cho khớp mã `TT-xxxxxx`, tham chiếu `connection_id`.
+
 **[T] tenant/kernel.prisma** (hạ tầng chung — TIP-002)
 
 | Bảng | Trường |
@@ -414,7 +438,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 ```ts
 // packages/actions/src/define.ts
 export type Risk = 'read' | 'write' | 'send' | 'money' | 'delete' | 'config';
-export type Permission = 'member' | 'owner' | 'platform_admin';
+export type Permission = PermissionKey | 'platform_admin';   // PermissionKey = `<module>.<verb>` — standards/authz/rbac-permissions.md (D27)
 export interface ActionDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> {
   id: string;                 // 'quote.send' — <domain>.<verb>
   module: ModuleKey;          // dùng cho nav, quyền, nhóm hiển thị
@@ -455,7 +479,7 @@ interface ActionHandler<I, O> {
 
 1. Tra registry. Không có action → `ACTION_NOT_FOUND`.
 2. Zod parse input, lỗi → `422`.
-3. Kiểm quyền theo membership role của `onBehalfOfUserId ?? actor`.
+3. Kiểm `can(authz, def.permission)` theo vai trò của `onBehalfOfUserId ?? actor`, rồi kiểm **data scope** của bản ghi đích (`own|team|all`); ngoài scope → `SCOPE_FORBIDDEN` (D27).
 4. Áp **policy** (§3.3). Kết quả là chạy ngay, hoặc trả `PREVIEW_REQUIRED` (kèm preview + `confirm_token` lưu Redis 10 phút, gắn với hash của input), hoặc tạo `APPROVAL_REQUIRED` (insert `approval_request`).
 5. Kiểm `Idempotency-Key`.
 6. Mở transaction trên DB tenant của workspace (qua `TenantDbResolver`), gọi `handler.execute`, ghi `action_log` (before/after), ghi `outbox_event`. Action có `db: 'platform'` (billing, member, workspace, admin) chạy transaction trên DB nền tảng; action_log vẫn ghi vào DB tenant (admin.* ghi `platform_audit_log`).
@@ -478,7 +502,7 @@ interface ActionHandler<I, O> {
 
 Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 
-**identity / settings** (risk config, owner trừ khi ghi chú khác)
+**identity / settings** (risk config; permission ghi theo `<module>.<verb>`, ví dụ `members.manage`, `settings.manage` — xem `standards/authz/rbac-permissions.md`)
 - `workspace.update`
 - `business_profile.update`
 - `member.invite` (send)
@@ -488,6 +512,10 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `profile.update` (member, write)
 - `working_hours.update`
 - `notification.mark_read` (member, write)
+- `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
+- `team.create` / `team.update` / `team.set_members` (P1)
+- `workspace.transfer_ownership` (owner, OTP)
+- `integration.connect` / `integration.disconnect` / `integration.test` / `integration.sync_now` / `integration.register_interest` (permission `integrations.manage`; `register_interest` = write)
 
 **channels**
 - `channel.zalo.start_login`: trả QR qua WS.
@@ -784,6 +812,8 @@ type UiCommand =
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |
 | billing | `GET /v1/billing/summary` (gói, hạn, credit, giới hạn) · `GET /v1/billing/plans` · `GET /v1/billing/ledger?cursor=` · `GET /v1/billing/invoices` · `GET /v1/billing/invoices/:id` (QR, trạng thái) |
 | dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn) |
+| authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
+| integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
 | misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` |
 | admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
 
@@ -821,6 +851,7 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 ### 4.7 Webhooks
 
 - `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ.
+- `POST /hooks/integrations/:connector/:connectionId`: webhook connector của DN (D28). Tra `tenant_integration_route` → DB tenant; adapter tự kiểm chữ ký; insert `integration_event` idempotent theo id của provider; trả 200 rồi xử lý trong queue `integrations`.
 - `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
 - `POST /hooks/channels/:provider`: dành cho kênh dùng webhook về sau (Zalo OA, Meta). Hiện chưa dùng.
 
@@ -1039,7 +1070,7 @@ loyalty/                  LoyaltyPage → Overview · MemberTable · AdjustPoint
 agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat)
 assistant/approvals       ApprovalsQueue (màn mới, không đo parity) · assistant/actions → ActionLog + hoàn tác (prototype L1464)
 dashboard/                DashboardPage → GreetingBar(hỏi Trợ lý) · NeedsMe · AiTodayFeed · FollowUpWidget · OnboardingChecklist · CreditCard
-settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · contract_templates (mới) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). Các mục OUT bị ẩn (Vai trò, Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, Nền tảng kết nối, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
+settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · contract_templates (mới) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). · **roles** (Vai trò & phân quyền — P0 chỉ đọc ma trận, P1 sửa/tạo; D27) · **integrations** (Nền tảng kết nối — registry + thẻ "Sắp có"; D28). Các mục OUT bị ẩn (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
 (admin)/admin/[section]   workspaces · plans · model-prices · transfers · templates
 (onboarding)/declare      DeclareBusinessModal (không đóng được; 2 bước) · welcome → TrialWelcome (2 nút)
 ```
@@ -1086,7 +1117,8 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prot
 | Email gửi hệ thống (OTP, thông báo) | SMTP qua nodemailer, interface `Mailer` | Cần SMTP (OQ-07) |
 | Tra cứu MST | interface `TaxLookupProvider`; bản `mock` + bản thật (ứng viên cần kiểm chứng: API VietQR business lookup) | OQ-05 |
 | VietQR (AppChat thu tiền và DN thu tiền khách) | Tự sinh payload EMVCo/NAPAS (BIN + STK + số tiền + nội dung), render QR bằng `qrcode` | Tự làm |
-| Webhook ngân hàng | interface `BankFeedProvider`; adapter ứng viên SePay / Casso; bản `mock` cho dev | OQ-04 |
+| Webhook ngân hàng | port `BankFeedProvider`; adapter SePay / Casso; bản `mock` cho dev | OQ-04 |
+| **Connector registry (D28)** | `packages/integrations`: port theo năng lực (`EInvoiceProvider`, `ESignProvider`, `AccountingSyncProvider`, `CommerceSyncProvider`, `SheetSyncProvider`, `SmsProvider`, `MailProvider`, `StorageProvider`, `TaxLookupProvider`) + `ConnectorManifest`; gọi ra ngoài qua queue `integrations` (retry, idempotent, call log); webhook chung `/hooks/integrations/:connector/:connectionId` | Chuẩn `standards/integrations/provider-ports.md`; MISA / Mắt Bão / VNPT / Viettel… = "Sắp có" |
 | Object storage | interface `Storage`: `local` (dev `./.data/files`; prod `/srv/appchat/files` trên VPS + backup restic) và `s3` (S3-compatible, bật bằng env khi cần) | |
 | PDF báo giá/hoá đơn | `@react-pdf/renderer` chạy trong worker; font Plus Jakarta Sans nhúng sẵn | |
 | Excel import/export | `exceljs` | |

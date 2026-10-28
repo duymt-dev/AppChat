@@ -87,6 +87,8 @@ App
 
 ### PATTERNS_DETECTED (từ spec — sẽ thành chuẩn code)
 
+> **Ghi đè 2026-10-28:** chuẩn code chính thức nằm ở `standards/` (xem `standards/README.md`). Phần dưới chép từ spec gốc. Chỗ nào mâu thuẫn thì standards thắng; đặc biệt: multi-tenant = **DB riêng mỗi workspace, không RLS** (`standards/database/tenant-db.md`); phân quyền = permission + data scope (`standards/authz/rbac-permissions.md`, D27).
+
 - **Multi-tenant:**
   - Shared DB + `workspace_id` trên mọi bảng + PostgreSQL RLS (`current_setting('app.tenant')`).
   - Mọi request mang `X-Workspace-Id`; middleware kiểm membership rồi mới set tenant.
@@ -595,7 +597,9 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 - **Ngoại lệ có chủ đích** (không tính vào 5%, phải liệt kê trong báo cáo parity):
   - Module không làm: Call Center, Workflow, Báo cáo — ẩn khỏi menu. Các mục Cài đặt OUT bị ẩn (danh sách ở Blueprint §7.2).
   - Nội dung trái với quyết định đã chốt: trial 14→15 ngày, OTP Zalo→Email, ẩn social login, bỏ "tự nạp" / "tự chuyển model tiết kiệm", "Ký số"→"Ký điện tử", "Hóa đơn"→"Đề nghị thanh toán", kênh Marketing chỉ Zalo cá nhân + Email.
-  - Kênh không làm khi phát hành (Facebook, Instagram, Telegram, WhatsApp…) — chỉ hiển thị kênh có thật.
+  - Kênh không làm khi phát hành (Facebook, Instagram, Telegram, WhatsApp…) — chỉ hiển thị kênh có manifest.
+  - Trang Vai trò & phân quyền chỉ đọc ở P0 (D27); trang Nền tảng kết nối chỉ hiện connector có manifest, thẻ "Sắp có" (D28).
+  - Danh sách đầy đủ + quy trình đo: `standards/ui/prototype-parity.md`.
 - **Quy trình:**
   1. TIP nền tảng UI dựng `tools/parity`: script Playwright chụp prototype theo danh sách màn (`parity.manifest.ts`: route, trạng thái, mask, vùng ngoại lệ), lưu baseline vào `tests/parity/baseline/`.
   2. Mỗi TIP UI phải chạy `pnpm parity <màn>` và dán tỉ lệ sai khác vào Completion Report.
