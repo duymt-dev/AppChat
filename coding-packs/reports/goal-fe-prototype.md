@@ -152,9 +152,9 @@
 | `calendar:list` | Danh sách lịch hẹn | L3871 | P | ✅ | 0.0388 | pass | c84a299 | Nhóm theo ngày; follow-up (cfu_*) xen theo giờ, "Xong" → follow_up.complete; lọc KTV/trạng thái/phòng ban; tìm không dấu |
 | `calendar:appointment` | Drawer lịch hẹn | L3871 | P | ✅ | 0.0446 | pass | c84a299 | Chân theo trạng thái: Xác nhận → Khách đã đến → Hoàn thành; ⋯ Không đến / Huỷ (bắt buộc lý do). Trong gói → trừ 1 buổi; ngoài gói → chỉ gợi ý "Tạo đơn" (COMMERCE 8b); không cộng điểm. Mask tự động hoá SMS→Zalo (§6 Kênh) |
 | `calendar:create` | Tạo lịch hẹn + chọn slot | L3871 | P | ✅ | 0.0279 | pass | c84a299 | Giờ bắt đầu chỉ chọn từ appointment.find_slots (dịch vụ + buffer + KTV); giờ kết thúc = thời lượng; trùng → CONFLICT; "Đổi giờ" giữ mã (exclude_id) |
-| `tickets:list` | Danh sách ticket + KPI | L4837 | P | ⬜ | | | | |
-| `tickets:kanban` | Kanban 4 cột | L4837 | P | ⬜ | | | | |
-| `tickets:detail` | Drawer ticket (timeline, SLA) | L4837 | P | ⬜ | | | | |
+| `tickets:list` | Danh sách ticket + KPI | L4837 | P | ✅ | 0.0439 | pass | 59dacfc | 14 ticket theo TKDATA; KPI bấm để lọc; 6 bộ lọc + sắp xếp ưu tiên; tìm không dấu; chọn nhiều → ticket.bulk_update (gán / AI xử lý / ưu tiên); kênh theo channel registry (§6) |
+| `tickets:kanban` | Kanban 4 cột | L4837 | P | ✅ | 0.0356 | pass | 59dacfc | 4 cột theo trạng thái; kéo sang "Đã đóng" mở hộp lý do, cột khác → ticket.set_status |
+| `tickets:detail` | Drawer ticket (timeline, SLA) | L4837 | P | ✅ | 0.0491 | pass | 59dacfc | Drawer 400px: 4 tab (Chi tiết · Trao đổi · Lịch sử · SLA), đồng hồ SLA từ ttr_due_at (waiting = tạm dừng), Can thiệp ↔ Giao AI (ticket.assign), macro, ghi chú nội bộ / trả lời khách (ticket.comment), đóng bắt buộc lý do + ghi kết quả SLA, mở lại. Mask đồng hồ + mốc thời gian (prototype hard-code) |
 | `marketing:suggestions` | Bảng gợi ý chiến dịch | L3394 | E | ⬜ | | | | Kênh chỉ Zalo cá nhân + Email |
 | `marketing:campaigns` | Danh sách chiến dịch | L3394 | E | ⬜ | | | | |
 | `marketing:wizard` | Wizard tạo chiến dịch | L3394 | E | ⬜ | | | | |
