@@ -56,7 +56,7 @@ Tiêu chí đúng-sai (3, 4, 5, 6) không có ngưỡng thấp hơn 100%. Ngư�
 ## Cách làm & báo cáo
 
 - Nhánh `goal/fe-prototype`; làm tuần tự F0 → F7; trong một pha làm từng màn.
-- **Mỗi màn xong:** chạy parity + e2e mobile + lint / test → commit (một màn một commit trở lên) → ghi một dòng vào `coding-packs/reports/goal-fe-prototype.md`: `màn | state | diffRatio | mobile | commit SHA`.
+- **Mỗi màn xong:** chạy parity + e2e mobile + lint / test → commit (một màn một commit trở lên) → cập nhật dòng tương ứng trong `coding-packs/reports/goal-fe-prototype.md` (đã liệt kê sẵn 135 dòng F0–F7; ID dòng = id trong `parity.manifest.ts`; điền TT, diffRatio, Mobile 390, Commit) và cập nhật bảng Tổng quan tiến độ.
 - **Hết mỗi pha:** Completion Report theo `BUILDER-HANDOFF.md` vào cùng file report; `git status --short` sạch; báo SHA.
 - Màn không xuống được 5% sau khi đã lấy đúng giá trị từ prototype → ghi vùng lệch + ảnh diff + nguyên nhân, escalation L2 (không tự nới ngưỡng, không tự thêm ngoại lệ).
 - Spec thiếu / mâu thuẫn → L2. Muốn đổi luật nghiệp vụ, quyền, nhãn pháp lý → L3.
