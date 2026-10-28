@@ -21,11 +21,11 @@
 | F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
 | F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | bf2b4a5 | [#4](https://github.com/duymt-dev/AppChat/pull/4) (xếp chồng #3) |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
-| F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
+| F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | __F4SHA__ | __F4PR__ |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **136** | **67** | **0** | | | |
+| **Tổng** | | **137** | **88** | **0** | | | |
 
 ---
 
@@ -137,9 +137,10 @@
 | `orders:detail` | Chi tiết đơn | L5489 | P | ✅ | 0.0398 | pass | 98aeb7e | 5 tab; prototype khoá `odDetailOn: false` → `protoOverrideVals`; chân: Xác nhận (new → processing) · Hoàn tất (+điểm) · Huỷ (lý do; đã thu → yêu cầu hoàn tiền); vận chuyển nhập tay |
 | `orders:create` | Form tạo đơn | L4060 | P | ✅ | 0.0293 | pass | 98aeb7e | Nút thật mở crmForm 720 (crmSpec.orders L8409 — không phải odNewOn L4060): dòng từ catalog, cọc ≤ tổng (bật deposit_required → Chờ cọc), giao hàng; `order.create`; `?from_quote=` / `?from_contract=` |
 | `orders:marketplace` | Đơn từ sàn (badge nguồn, khoá dòng hàng) | — | M | ✅ | — | pass | 98aeb7e | D31: đơn Shopee mẫu (`source = marketplace`, `platform_status`), badge nguồn ở bảng / kanban / drawer, khoá dòng – giá – tổng, không tích điểm, không gửi đề nghị thanh toán; nút Đồng bộ sàn (`order.sync_now`, adapter thật P2) |
-| `invoices:list` | Danh sách đề nghị thanh toán | L5233 | E | ⬜ | | | | "Hóa đơn" → "Đề nghị thanh toán" |
-| `invoices:detail-qr` | Chi tiết + VietQR | L5233 | E | ⬜ | | | | |
-| `invoices:record-payment` | Ghi nhận thanh toán | L5233 | E | ⬜ | | | | |
+| `invoices:list` | Danh sách đề nghị thanh toán | L5233 | E | ✅ | 0.0202 | pass | cfb5a49 | "Hóa đơn" → "Đề nghị thanh toán" (COMMERCE §5, mã TT-00xxxx) — mask tiêu đề; 4 thẻ số liệu; tìm không dấu; scope sales `own`; nút "Cần đối soát (n)" cho vai trò có `payment.record` |
+| `invoices:detail-qr` | Chi tiết + VietQR | L5233 | E | ✅ | 0.0273 | pass | cfb5a49 | Drawer 360° 5 tab; prototype khoá `ivDetailOn: false` → `protoOverrideVals`; VietQR (EMVCo NAPAS, số tiền = còn phải thu, nội dung = mã TT để khớp tự động) + dòng "không thay thế hoá đơn GTGT" — mask thẻ QR |
+| `invoices:record-payment` | Ghi nhận thanh toán | L5233 | E | ✅ | 0.0286 | pass | cfb5a49 | `invoice.record_payment` (QR / CK / tiền mặt / thẻ, ≤ còn phải thu, phiếu thu PT-) → partial / paid, cộng `order.paid_total`; đo trạng thái đã thu đủ (prototype chỉ toast); "Cần đối soát" = `invoice.resolve_bank_match`; huỷ chỉ khi chưa thu |
+| `invoices:create` | Form tạo đề nghị thanh toán | L8413 | P | ✅ | 0.0396 | pass | cfb5a49 | Nút thật mở crmForm 720 (crmSpec.invoices): đơn liên quan điền sẵn khách + số còn phải thu, loại cọc / đợt / toàn bộ, hạn +7 ngày, luôn Nháp; từ đơn "Đề nghị thanh toán" → `?order=` |
 
 ## F5 — Lịch hẹn · Ticket · Marketing · Khách thân thiết
 
@@ -543,7 +544,103 @@
 - Đề xuất `agent.test` nhận `config` bản nháp (chạy thử trước khi lưu); mock đã làm theo cách này.
 
 ### F4
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F4
+
+**STATUS:** DONE
+**COMMIT:** cfb5a49 trên nhánh `goal/fe-prototype-f4` (xếp chồng F3 / PR #5)
+
+**FILES CHANGED:**
+- Dùng chung (b626d05): `ui-commands.ts` + test cho Khách hàng / Hộp thư / Trợ lý / AI Agents (prefill · open · filter), bù yêu cầu "mọi màn có form có ui-commands".
+- Sản phẩm & Dịch vụ (81dba0d): `features/products`.
+  - DataTable + Kanban theo danh mục; drawer 5 tab; form 6 loại (khối nhập theo loại, thuộc tính → biến thể, danh mục mới).
+  - Action `product.*` / `category.create`; giá vốn chỉ hiện với `catalog.cost_view`.
+  - `EntityDrawer` thêm prop `header`; `ModalShell` thêm biến thể `dense`.
+- Báo giá (49c3a9c): `features/quotes`.
+  - Danh sách / kanban 4 cột; soạn báo giá (dòng catalog / ngoài danh mục, CK dòng + CK tổng, thuế sau CK); drawer 4 tab + version (`request_revision`).
+  - Luật COMMERCE §3: hiệu lực 15 ngày; ngưỡng duyệt 20tr / 5% / ngoài danh mục; không trừ điểm trên báo giá.
+  - `packages/shared/commerce/quote-math.ts` (`quoteTotals`, `approvalReasons`) + test.
+  - D30: `quote.draft_from_content` (AI soạn nháp từ nội dung).
+- Hợp đồng + ký điện tử (c1485f8): `features/contracts`, route công khai `app/(public)/sign/[token]`.
+  - Danh sách / kanban 4 cột; drawer 5 tab; tạo HĐ (crmForm 720); `?from_quote=`.
+  - Duyệt & ký (Chủ sở hữu ký trước): OTP + `SignaturePad` (`shared/forms`); gửi ký bằng link một lần 7 ngày qua Zalo / Email; nhắc ký, gia hạn link, chấm dứt (lý do), gia hạn HĐ.
+  - Trang ký công khai: đồng ý → OTP → ký tay → chứng nhận (SHA-256, thời điểm, lưu vết); sai OTP 5 lần thì khoá; Từ chối ký.
+  - Lỗi mới `OTP_INVALID` / `SIGN_LINK_INVALID`; sự kiện `contract.signed` / `contract.declined` → invalidate.
+  - `ModalShell` thêm `stacked` (z 1005 trên drawer); `EntityDrawer` tắt focus trap (`focusable.trap=false`) để modal xếp chồng nhận bàn phím.
+- Đơn hàng (98aeb7e): `features/orders`.
+  - 2 trục độc lập (tiến độ + thanh toán), mỗi chip lọc đúng trục; kanban 4 cột; drawer 5 tab.
+  - Tạo đơn: dòng catalog, cọc ≤ tổng → Chờ cọc; xác nhận → hoàn tất (+ điểm 10.000đ = 1 điểm) → huỷ (lý do bắt buộc; đã thu thì sinh yêu cầu hoàn tiền); vận chuyển nhập tay.
+  - D31: đơn từ sàn có badge nguồn, khoá dòng hàng, không tích điểm, không gửi đề nghị thanh toán; nút Đồng bộ sàn.
+  - Nhận nguồn `?from_quote=` / `?from_contract=`.
+- Đề nghị thanh toán (cfb5a49): `features/invoices`.
+  - Danh sách + 4 thẻ số liệu; drawer 360° có tiến độ thu, khoản thu và VietQR.
+  - `packages/shared/commerce/vietqr.ts`: EMVCo NAPAS + CRC-16, có test.
+  - Ghi nhận thanh toán: ≤ còn phải thu; sinh phiếu thu; cộng vào `order.paid_total`.
+  - Hàng "Cần đối soát" (`invoice.resolve_bank_match`); huỷ chỉ khi chưa thu; form crmForm 720.
+  - Nút "Đề nghị thanh toán" ở đơn hàng mở form điền sẵn đơn đó.
+- Mock: `shared/api/mock/domains/{products,quotes,quotes-draft,contracts,contracts-sign,orders,invoices}.ts`.
+- Fixture: `fixtures/prototype-parity/{products,quotes,contracts,orders,invoices}.json`, sinh bởi `tools/scripts/fixtures/gen-*.py`.
+- Parity manifest: 17 dòng F4 (P / E).
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint` / `pnpm typecheck` / `pnpm test` (turbo): 15/15 task xanh.
+  - `lint:size` 485 file, không vượt trần; `lint:tokens` 351 file đúng thang D41.
+  - unit: shared 19, ui 2, actions 3, web 43 passed (0 failed). Mới ở F4: `quote-math`, `vietqr`, ui-commands các module.
+- `pnpm i18n:check`: vi 2206 / en 2206 key (100%).
+- `pnpm parity --all`: 67/67 PASS. Kết quả F4:
+
+  | Màn | Loại | diffRatio |
+  |-----|------|-----------|
+  | products:list | P | 0.0373 |
+  | products:detail | P | 0.0199 |
+  | products:create | P | 0.0229 |
+  | quotes:list | P | 0.0233 |
+  | quotes:editor | P | 0.0180 |
+  | quotes:detail | P | 0.0400 |
+  | contracts:list | E | 0.0344 |
+  | contracts:kanban | E | 0.0200 |
+  | contracts:detail | E | 0.0147 |
+  | contracts:create | P | 0.0281 |
+  | orders:list | P | 0.0337 |
+  | orders:detail | P | 0.0398 |
+  | orders:create | P | 0.0293 |
+  | invoices:list | E | 0.0202 |
+  | invoices:detail-qr | E | 0.0273 |
+  | invoices:record-payment | E | 0.0286 |
+  | invoices:create | P | 0.0396 |
+
+  Loại M (không đo pixel): `quotes:draft-from-content`, `contracts:approve-sign`, `sign:public`, `orders:marketplace`.
+- `pnpm e2e` (build + start, desktop + mobile-390): 85 passed, 61 skipped (test chỉ chạy ở một viewport), 0 failed.
+- Mobile 390: danh sách / drawer / form của sản phẩm, báo giá, hợp đồng, trang ký, đơn hàng, đề nghị thanh toán: không tràn ngang, vùng chạm ≥ 44px.
+- Phân quyền (mock):
+  - Sales chỉ thấy bản ghi của mình (`own`), không thấy "Đồng bộ sàn", không ghi nhận thanh toán, không thấy hàng đối soát.
+  - Kế toán thấy tất cả và ghi nhận được.
+  - Chỉ Chủ sở hữu duyệt & ký hợp đồng.
+- Không chạy được:
+  - backend thật (FE dùng mock transport D38);
+  - Zalo / Email gửi ký và gửi đề nghị thanh toán; webhook SePay / Casso; sàn TMĐT: chưa nghiệm thu với provider thật.
+
+**ISSUES DISCOVERED:**
+- Trung bình: drawer antd bật focus trap mặc định, nên modal xếp chồng (OTP, lý do huỷ) không nhận được bàn phím. Đã sửa ở primitive `EntityDrawer`.
+- Thấp: nút "Tạo hợp đồng" / "Tạo đơn hàng" / "Tạo hóa đơn" của prototype mở crmForm 720 (`openCrmForm`), không mở modal riêng (`cnNewOn` / `odNewOn`). Parity đo theo nút thật.
+- Thấp: prototype khoá cứng `pdDetailOn` / `ctDetailOn` / `odDetailOn` / `ivDetailOn: false`. Entry parity bật cờ qua `protoOverrideVals`.
+- Thấp: "Ghi nhận thanh toán" của prototype chỉ hiện toast. Parity đo trạng thái sau khi đã thu đủ.
+- Thấp: trạng thái drawer nằm trong store, nên khi chuyển màn (đơn → đề nghị thanh toán) phải đóng drawer nguồn trước.
+
+**DEVIATIONS FROM SPEC:** (đều theo COMMERCE-DECISIONS, thắng prototype)
+- §9: "Ký số" → "Ký điện tử" (OTP + ký tay; ký số CA để P2). "Chờ duyệt" gộp vào Nháp + badge.
+- §5: "Hóa đơn" → "Đề nghị thanh toán":
+  - mã TT-00xxxx; ghi chú "không thay thế hoá đơn GTGT";
+  - thêm trạng thái Thu một phần / Đã huỷ;
+  - ngày mẫu dời trước 24/06/2026 để "Quá hạn" đúng nghĩa;
+  - thêm thẻ VietQR và hàng "Cần đối soát" (mask khi đo).
+- §4: đơn hàng tách 2 trục; chip lọc theo trục; thuế 0% để giá trị khớp prototype. D31: thêm 1 đơn sàn mẫu.
+- §3: hiệu lực báo giá 15 ngày; tổng không trừ điểm (mask dòng tổng); ZBS / SMS (OUT) → Zalo / Email / PDF.
+- Màn mới (loại M): AI soạn báo giá, duyệt & ký, trang ký công khai, đơn từ sàn.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Blueprint §2.2 `invoice`: thêm `transfer_code` (mã CK không dấu, ví dụ TT002041) tách khỏi `code` hiển thị, vì nội dung CK ngân hàng bỏ ký tự "-".
+- Blueprint §4.4: `/invoices/meta` nên trả hàng "Cần đối soát" chỉ cho vai trò có `payment.record` (mock đã làm theo cách này).
+- Cài đặt › Thanh toán (F6) cần form `payment_account` (ngân hàng, BIN, số TK, chủ TK) vì VietQR đọc từ đây.
 
 ### F5
 _chưa có_
