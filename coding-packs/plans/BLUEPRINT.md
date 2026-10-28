@@ -1,7 +1,7 @@
 # AppChat — Technical Blueprint (khế ước kiến trúc)
 
 > Vibecode Kit v5.0 — BƯỚC 4 (BLUEPRINT) · 2026-10-28 · **BẢN NHÁP — chờ Chủ nhà duyệt**
-> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V15), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D28, REQ A–N), `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
+> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V15), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D32, REQ A–N), `plans/COMMERCE-DECISIONS.md`, `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
 > Đã duyệt thì **không đổi kiến trúc**. Thay đổi lớn phải quay lại Vision.
 
 ---
@@ -50,17 +50,21 @@ packages/core/src/
 ├── kernel/            # TenantContext, ActionExecutor, ActionLog, UndoService, ConfirmTokenService,
 │                      # EventBus (outbox), Idempotency, Policy (risk), Errors, Pagination, Clock
 ├── identity/          # user, workspace, membership, invite, auth (OTP, password, tokens), business-profile
+├── authz/             # role, team, permission catalog, AuthzContext resolver (cache Redis), scopeFilter (D27, D32)
 ├── billing/           # plan, subscription, wallet, credit-ledger, quota, platform invoice, payment matching
 ├── channels/          # channel_account, credentials vault, account lease, health
 ├── inbox/             # conversation, message, tag, canned-reply, inbound pipeline, outbound service
 ├── crm/               # contact, identity resolution, dedupe/merge, timeline, custom fields, import/export
 ├── catalog/           # product, category
-├── sales/             # quote, order, invoice, customer payment (VietQR của workspace)
+├── sales/             # quote, order (+ nhập đơn sàn / POS — D31), invoice (đề nghị thanh toán), customer payment, customer_package, bank feed
+├── contracts/         # contract, appendix, signer, signature event, trang ký công khai, renewal (D25)
+├── documents/         # doc_template (rich / DOCX), biến chuẩn, render PDF (react-pdf / LibreOffice), AI soạn chứng từ, bảng kiểm (D30)
+├── integrations/      # integration_connection, mapping, call log, resolver theo port, webhook router, interest (D28) — adapter ở packages/integrations
 ├── booking/           # staff, business hours, appointment, slot finder
 ├── support/           # ticket, sla policy, sla clock, escalation
 ├── marketing/         # segment, campaign, recipient, suggestion
 ├── loyalty/           # config, ledger, tier
-├── ai/                # ai_agent, kb (source/chunk), ai_run/step, approval, assistant session, tasks, governance
+├── ai/                # ai_agent (+ version), kb (folder / source / chunk / suggestion, hybrid search), ai_run/step, approval, assistant session, tasks, governance
 ├── insights/          # query số liệu chỉ đọc dùng chung: dashboard, thống kê agent/chiến dịch/ticket, metric cho Trợ lý (không có module Báo cáo — D19)
 ├── notify/            # notification, mailer
 ├── platform/          # quản trị nền tảng (tenant, gói, giá model, đối soát)
@@ -89,7 +93,9 @@ Mỗi domain đi theo layout cố định, mỗi file ≤ 600 dòng:
   - `apps/api/src/http/<domain>/<domain>.http.module.ts` (controllers của domain nằm trong thư mục này)
   - `apps/worker/src/roles/{channels,ai,jobs}.module.ts` (import sẵn `<Domain>JobsModule` rỗng từ core)
   - `packages/actions/src/<domain>.ts` (mảng rỗng)
-  - `packages/db/prisma/schema/<domain>.prisma` (rỗng)
+  - `packages/db/prisma/{platform,tenant}/<file>.prisma` (rỗng; đúng cấu trúc §2.1)
+  - `packages/channels/src/registry.ts` và `packages/integrations/src/registry.ts` (danh sách rỗng + manifest `coming_soon`)
+  - `apps/web/src/features/<module>/index.ts` (theo `standards/ui/frontend-structure.md`)
   - `apps/web/messages/{vi,en}/<module>.json`
 - Mọi file tổng hợp (`app.module.ts`, `core/index.ts`, `actions/index.ts`, `nav-config.ts`) đã import đủ từ đầu. **TIP sau chỉ điền vào stub của domain mình**, không sửa file tổng hợp.
 
@@ -99,8 +105,24 @@ Mỗi domain đi theo layout cố định, mỗi file ≤ 600 dòng:
 | `apps/api` | `src/main.ts` | HTTP `/v1/*`, `/hooks/*`, Socket.IO namespace `/ws` (app) và `/widget` (khách web), OpenAPI tại `/v1/docs` |
 | `apps/worker` ROLE=channels | `src/main.ts` | Giữ phiên Zalo (lease theo account), IMAP poll, outbound sender, inbound pipeline |
 | `apps/worker` ROLE=ai | `src/main.ts` | Chạy AI run (agent reply, assistant, delegate, tasks), embedding, RAG ingest |
-| `apps/worker` ROLE=jobs | `src/main.ts` | Outbox relay, scheduler (SLA, giữ chỗ lịch hẹn, nhắc hẹn, no-show, campaign, hết hạn trial/QR) |
+| `apps/worker` ROLE=jobs | `src/main.ts` | Outbox relay, scheduler (SLA, giữ chỗ lịch hẹn, nhắc hẹn, no-show, campaign, hết hạn trial/QR), tenant provision / migrate / archive / restore, integrations, đồng bộ đơn, render chứng từ |
 | `apps/web` | `src/app/*` | Next.js; trong dev proxy `/api/*` → api; trong prod đặt sau nginx cùng domain |
+
+**Hàng đợi BullMQ** (Redis; mọi job mang `workspaceId`, idempotent; retry back-off rồi dead-letter):
+
+| Queue | Worker ROLE | Job |
+|---|---|---|
+| `events` | jobs | outbox relay → consumer theo event (§2.3) |
+| `send:<channel_account_id>` | channels | gửi tin theo `outbox_message`, rate limiter của kênh |
+| `campaign-send` | channels | gửi chiến dịch theo lô (cap / ngày, jitter) |
+| `agent-reply` | ai | trả lời của agent trực kênh (job id `agent-reply:{conversationId}`, debounce 3s) |
+| `assistant-run` · `ai-resume` · `ai-task` | ai | lượt Trợ lý, chạy tiếp run sau duyệt (`ai-resume:{runId}`), tác vụ tự chủ |
+| `kb-ingest` | ai | parse → cắt đoạn → embed → ghi `kb_chunk`; re-ingest sản phẩm; đề xuất hỏi–đáp (P1) |
+| `integrations` | jobs | gọi ra ngoài qua port (retry, idempotency `(connection_id, op, ref_id)`, call log) |
+| `order-sync` | jobs | poll đơn sàn / POS theo kết nối (repeatable 5 phút) + xử lý webhook đã nhận (D31) |
+| `doc-render` | jobs | render PDF chứng từ (react-pdf / LibreOffice headless, 2 tiến trình, timeout 60s) (D30) |
+| `tenant` | jobs | `tenant.provision` / `tenant-migrate` / `tenant.archive` / `tenant.restore` |
+| `scheduler` (repeatable) | jobs | SLA tick, giữ chỗ / nhắc hẹn, no-show, hết hạn báo giá, hợp đồng T-30 / hết hạn, công nợ T+1 / T+7, trial, `tenant.archive-scan`, đối soát credit hằng giờ, sweep outbox 10 phút |
 
 ### 1.4 Frontend (`apps/web/src`)
 
@@ -292,7 +314,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Index |
 |---|---|---|
-| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
+| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, team_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
 | `message` | conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, created_at | unique(channel_account_id, external_msg_id); idx(conversation_id, created_at desc). Partition theo tháng làm sau khi scale |
 | `conversation_participant` | conversation_id, external_id, display_name, contact_id? | dùng cho hội thoại nhóm |
 | `conversation_tag` | conversation_id, tag_id | pk(conversation_id, tag_id) |
@@ -303,7 +325,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Index |
 |---|---|---|
-| `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|contract\|won\|lost), owner_user_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
+| `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|contract\|won\|lost), owner_user_id?, team_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
 | `contact_identity` | contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) — `channel_type = marketplace` cho buyer id của sàn (D31) |
 | `contact_collaborator` | contact_id, user_id, role(collaborator\|watcher), added_by, created_at | pk(contact_id, user_id); idx(user_id, contact_id) — scope `own` (D32) |
 | `contact_access_request` | contact_id, requester_user_id, status(pending\|approved\|rejected), decided_by?, decided_at?, note? | idx(contact_id, status); partial unique(contact_id, requester_user_id) WHERE status='pending' |
@@ -320,11 +342,11 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường |
 |---|---|
-| `quote` | code, version int, root_quote_id?, contact_id, conversation_id?, status(draft\|pending_approval\|approved\|sent\|viewed\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, line_discount_total, header_discount (pct\|amount), discount_total, tax_total, total, valid_days (15), valid_until (= sent_at + valid_days), viewed_at?, order_id?, note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
+| `quote` | code, version int, root_quote_id?, contact_id, owner_user_id (phụ trách lúc tạo — doanh số), team_id?, template_id?, template_version?, conversation_id?, status(draft\|pending_approval\|approved\|sent\|viewed\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, line_discount_total, header_discount (pct\|amount), discount_total, tax_total, total, valid_days (15), valid_until (= sent_at + valid_days), viewed_at?, order_id?, note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
 | `quote_item` | quote_id, product_id?, variant_id?, name, qty numeric(12,2), unit_price (chưa VAT), discount (pct\|amount), tax_rate, line_total, sort — thuế tính sau chiết khấu |
-| `order` | code, source(manual\|quote\|contract\|appointment\|marketplace\|pos), external_connection_id?, external_id?, platform_status?, synced_at?, locked_lines bool, owner_user_id, contact_id, quote_id? (unique), contract_id?, appointment_id?, conversation_id?, **status(new\|processing\|completed\|cancelled)**, **pay_status(unpaid\|awaiting_deposit\|deposited\|partial\|paid\|partially_refunded\|refunded)**, deposit_required bool, deposit_amount?, subtotal, discount_total, tax_total, total, paid_total, refunded_total, points_used, shipping jsonb? (đơn vị, mã vận đơn, ngày giao dự kiến), confirmed_at?, completed_at?, cancelled_at?, cancel_reason? |
+| `order` | code, source(manual\|quote\|contract\|appointment\|marketplace\|pos), external_connection_id?, external_id?, platform_status?, synced_at?, locked_lines bool, owner_user_id, team_id?, contact_id, quote_id? (unique), contract_id?, appointment_id?, conversation_id?, **status(new\|processing\|completed\|cancelled)**, **pay_status(unpaid\|awaiting_deposit\|deposited\|partial\|paid\|partially_refunded\|refunded)**, deposit_required bool, deposit_amount?, subtotal, discount_total, tax_total, total, paid_total, refunded_total, points_used, shipping jsonb? (đơn vị, mã vận đơn, ngày giao dự kiến), confirmed_at?, completed_at?, cancelled_at?, cancel_reason? |
 | `order_item` | order_id, product_id?, variant_id?, name, qty, unit_price, discount, tax_rate, line_total |
-| `invoice` | **Đề nghị thanh toán** (mã `TT-…`): code, order_id, contact_id, kind(deposit\|installment\|full), status(draft\|sent\|partial\|paid\|overdue\|void), amount, paid_amount, due_date (mặc định +7 ngày), reminders_sent jsonb, sent_at?, file_id?, einvoice_ref? (P2). Index: idx(contact_id, status) INCLUDE(amount, paid_amount, due_date); partial idx(due_date) WHERE status in (sent, partial) |
+| `invoice` | **Đề nghị thanh toán** (mã `TT-…`): code, order_id, contact_id, owner_user_id (theo đơn), team_id?, kind(deposit\|installment\|full), status(draft\|sent\|partial\|paid\|overdue\|void), amount, paid_amount, due_date (mặc định +7 ngày), reminders_sent jsonb, sent_at?, file_id?, einvoice_ref? (P2). Index: idx(contact_id, status) INCLUDE(amount, paid_amount, due_date); partial idx(due_date) WHERE status in (sent, partial) |
 | `customer_payment` | invoice_id, order_id, contact_id, kind(deposit\|payment\|points\|refund), amount (refund < 0), method(qr\|bank_transfer\|cash\|card\|points), reference?, bank_tx_ref?, status(pending\|confirmed\|failed\|needs_review), confirmed_by?, approval_id? (refund), receipt_file_id? |
 | `customer_package` | contact_id, product_id, order_id, total_sessions, used_sessions, expires_at, status(active\|exhausted\|expired\|refunded), extended_by?, note. Index: idx(contact_id, status) |
 | `package_usage` | package_id, appointment_id (unique), used_at, reverted_at? |
@@ -335,7 +357,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường |
 |---|---|
-| `contract` | code (`HĐ-…`), number?, kind(service\|sale\|framework), contact_id, quote_id? (unique), renewal_of_id?, title, value, start_date?, end_date?, owner_user_id, status(draft\|pending_approval\|pending_signature\|signed\|declined\|expired\|terminated), source(template\|upload), template_id?, body_html?, file_id? (PDF hiện hành), signed_file_id?, signed_sha256?, approved_by?, signed_by_business_at?, signed_by_customer_at?, sign_link_expires_at?, terminated_reason?, note, custom jsonb. Index: idx(status, end_date) INCLUDE(contact_id, value); idx(contact_id, created_at desc) |
+| `contract` | code (`HĐ-…`), number?, kind(service\|sale\|framework), contact_id, quote_id? (unique), renewal_of_id?, title, value, start_date?, end_date?, owner_user_id, team_id?, status(draft\|pending_approval\|pending_signature\|signed\|declined\|expired\|terminated), source(template\|upload), template_id?, body_html?, file_id? (PDF hiện hành), signed_file_id?, signed_sha256?, approved_by?, signed_by_business_at?, signed_by_customer_at?, sign_link_expires_at?, terminated_reason?, note, custom jsonb. Index: idx(status, end_date) INCLUDE(contact_id, value); idx(contact_id, created_at desc) |
 | `doc_template` | kind(quote\|contract\|payment_request\|receipt), contract_kind?, name, source(rich\|docx), body_html?, docx_file_id?, field_map jsonb (vị trí → biến, đã người xác nhận), checklist_result jsonb, is_default, version, updated_by | idx(kind, is_default); thay `contract_template` (D30 — `standards/documents/templates.md`) |
 | `contract_appendix` | contract_id, code, body_html?, file_id?, status (cùng luồng duyệt/ký), signed_file_id?, signed_sha256? |
 | `contract_signer` | contract_id \| appendix_id, party(business\|customer), name, email?, phone?, otp_channel(email\|zalo\|sms_none), signature_image_file_id?, signed_at?, ip?, user_agent? |
@@ -348,14 +370,14 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 |---|---|
 | `staff` | name, user_id?, color, skills (product ids), active |
 | `staff_schedule` | staff_id, weekday, start_time, end_time (mặc định lấy theo giờ mở cửa) |
-| `appointment` | code, contact_id, service_id (product type=service), staff_id?, start_at, end_at, status(pending\|confirmed\|in_progress\|done\|no_show\|rescheduled\|cancelled\|expired), hold_expires_at?, reschedule_of_id?, reschedule_count, cancel_reason?, source(user\|agent\|assistant\|widget), conversation_id?, note, reminders_sent jsonb. **Ràng buộc:** `EXCLUDE USING gist (staff_id WITH =, tstzrange(start_at, end_at + buffer) WITH &&) WHERE (status IN ('pending','confirmed','in_progress'))`; idx(start_at) INCLUDE(staff_id, status) |
+| `appointment` | code, contact_id, owner_user_id? (phụ trách khách lúc đặt), team_id?, service_id (product type=service), staff_id?, start_at, end_at, status(pending\|confirmed\|in_progress\|done\|no_show\|rescheduled\|cancelled\|expired), hold_expires_at?, reschedule_of_id?, reschedule_count, cancel_reason?, source(user\|agent\|assistant\|widget), conversation_id?, note, reminders_sent jsonb. **Ràng buộc:** `EXCLUDE USING gist (staff_id WITH =, tstzrange(start_at, end_at + buffer) WITH &&) WHERE (status IN ('pending','confirmed','in_progress'))`; idx(start_at) INCLUDE(staff_id, status) |
 
 **[T] tenant/support.prisma**
 
 | Bảng | Trường |
 |---|---|
 | `sla_policy` | name, is_default (không xoá được), frt_human_min (10), ttr_human_min (240), business_hours_only, escalation jsonb, active |
-| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
+| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, team_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
 | `ticket_comment` | ticket_id, author_type, author_id, body, internal bool |
 
 **[T] tenant/marketing.prisma** — `segment(name, filter jsonb /* AST điều kiện */, is_dynamic, last_count)`; `campaign(code, name, kind(reactivation|upsell|conversion|aftercare|manual), channel(zalo|email), segment_id, content jsonb {text, variables, cta, attachments}, ab jsonb?, status(draft|pending_approval|approved|scheduled|running|paused|completed|rejected|cancelled), scheduled_at?, approved_by?, approved_at?, est_recipients, est_credits, stats jsonb, suggestion_id?)`; `campaign_recipient(campaign_id, contact_id, status(pending|skipped|sent|failed|replied|converted), skip_reason?, message_id?, sent_at?)` với unique(campaign_id, contact_id); `campaign_suggestion(kind, title, reason, segment_filter, est_count, best_time, channel, status(new|used|dismissed), generated_at)`.
@@ -389,7 +411,11 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `team` | name, lead_user_id? | (P1 UI; bảng có từ đầu) |
 | `team_member` | team_id, user_id | pk(team_id, user_id); idx(user_id) |
 
-- Bảng nghiệp vụ có chủ sở hữu (`contact`, `conversation`, `quote`, `contract`, `order`, `invoice`, `appointment`, `ticket`) có `owner_user_id` và/hoặc `assignee_user_id` + `team_id?`, cùng index theo `standards/database/indexing.md` §7.
+- Bảng nghiệp vụ có chủ sở hữu (`contact`, `conversation`, `quote`, `contract`, `order`, `invoice`, `appointment`, `ticket`) có `owner_user_id` và/hoặc `assignee_user_id` + `team_id?`, cùng index theo `standards/database/indexing.md` §7:
+  - `contact(owner_user_id, last_interaction_at DESC) WHERE deleted_at IS NULL` · `contact_collaborator(user_id, contact_id)`
+  - `conversation(assignee_user_id, status, last_message_at DESC)` · `ticket(assignee_user_id, status, created_at DESC)`
+  - `quote(owner_user_id, status, created_at DESC)` · `order(owner_user_id, status, created_at DESC)` · `invoice(owner_user_id, status, due_date)` · `contract(owner_user_id, status, end_date)` · `appointment(owner_user_id, start_at)`
+  - Bản `team`: `(team_id, …)` cùng thứ tự, partial `WHERE team_id IS NOT NULL`.
 
 **[T] tenant/integrations.prisma** (D28 — chuẩn `standards/integrations/provider-ports.md`)
 
@@ -433,6 +459,15 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
 | `subscription.changed` / `trial.expired` | | quota, notify |
+| `member.role_changed` / `member.removed` | user_id | xoá cache AuthzContext; WS `authz.changed` → FE tải lại `me/authz`; gỡ gán hội thoại khi bị xoá |
+| `contact.owner_changed` / `contact.collaborator_changed` | contact_id, from, to, moved: {conversations, quotes, appointments} | timeline; thông báo hai bên; gán lại hội thoại đang mở (D32) |
+| `contact.access_requested` / `contact.access_decided` | request_id | thông báo owner của khách / Quản lý (Việc cần tôi); thông báo người xin |
+| `agent.published` / `agent.paused` / `agent.deleted` | agent_id, version | làm mới routing agent theo kênh; WS; thông báo |
+| `kb.source_ready` / `kb.source_failed` | source_id, chunk_count / error | WS cập nhật trang Dữ liệu RAG; thông báo khi lỗi |
+| `kb.suggestion_created` (P1) | suggestion_id | thông báo người có `kb.manage` |
+| `order.imported` / `order.external_updated` | order_id, connection_id | như `order.confirmed` / `completed` / `cancelled` theo trạng thái ánh xạ (kho; loyalty **chỉ khi** bật cho kết nối); timeline (D31) |
+| `integration.connected` / `integration.error` / `integration.disconnected` | connection_id, connector_key | thông báo; metric `integration_connection_status`; trang Nền tảng kết nối |
+| `document.rendered` / `document.render_failed` | ref_type, ref_id, file_id | gắn `file_id` vào chứng từ; WS; lỗi thì thông báo người tạo (D30) |
 
 ---
 
@@ -494,7 +529,7 @@ interface ActionHandler<I, O> {
 
 | Nguồn \ Risk | read | write | send | money | delete | config |
 |---|---|---|---|---|---|---|
-| `ui` (người bấm) | chạy | chạy | chạy | chạy | chạy (UI tự hiện dialog xác nhận) | chạy (chỉ owner nếu permission=owner) |
+| `ui` (người bấm) | chạy | chạy | chạy | chạy | chạy (UI tự hiện dialog xác nhận) | chạy (theo permission của action, §3.5) |
 | `assistant` | chạy | **preview → xác nhận** | preview → xác nhận | preview → xác nhận | preview → xác nhận | preview → xác nhận |
 | `agent` (trực kênh) | chạy | chạy nếu được cấp và confidence ≥ ngưỡng, không thì approval | chỉ trả lời trong hội thoại đang phục vụ; gửi khác → approval | **approval** | **cấm** | **cấm** |
 | `task` (Cowork) | chạy | chạy trong `data_scope` | approval nếu `ask_before_send` | approval | luôn approval | cấm |
@@ -505,7 +540,7 @@ interface ActionHandler<I, O> {
 
 ### 3.4 Danh mục action (đầy đủ cho phát hành)
 
-Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
+Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). **Permission** của từng action theo §3.5 (tên nhóm ghi cạnh tiêu đề module; chỗ ghi permission riêng thì theo chỗ đó).
 
 **identity / settings** (risk config; permission ghi theo `<module>.<verb>`, ví dụ `members.manage`, `settings.manage` — xem `standards/authz/rbac-permissions.md`)
 - `workspace.update`
@@ -514,23 +549,23 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `member.remove` (delete)
 - `member.set_role`
 - `invite.revoke`
-- `profile.update` (member, write)
+- `profile.update` (mọi thành viên, write)
 - `working_hours.update`
-- `notification.mark_read` (member, write)
+- `notification.mark_read` (mọi thành viên, write)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
 - `team.create` / `team.update` / `team.set_members` (P1)
 - `workspace.transfer_ownership` (owner, OTP)
 - `integration.connect` / `integration.disconnect` / `integration.test` / `integration.sync_now` / `integration.register_interest` (permission `integrations.manage`; `register_interest` = write)
 
-**channels**
+**channels** (`channels.manage`)
 - `channel.zalo.start_login`: trả QR qua WS.
 - `channel.email.connect`
 - `channel.update_settings`
 - `channel.reconnect`
-- `channel.disconnect` (owner)
+- `channel.disconnect` (`channels.manage`)
 - `webchat.update_widget`
 
-**inbox** (member)
+**inbox** (`inbox.view` đọc · `inbox.reply` gửi / ghi chú · `inbox.assign` gán · `inbox.manage` thẻ, câu trả lời mẫu)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -552,7 +587,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `canned_reply.create` / `canned_reply.update` / `canned_reply.delete` | config | | |
 | `tag.create` / `tag.update` / `tag.delete` | config | | |
 
-**crm** (member)
+**crm** (`crm.view` · `crm.edit` · `crm.delete` · `crm.import` · `crm.export` · `crm.reassign` · `crm.fields_manage`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -572,10 +607,10 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `contact.delete` | delete | | 30d, xoá mềm |
 | `contact.import` | write, bulk | | 24h, theo lô |
 | `contact.export` | read | | luôn preview |
-| `contact.forget` | delete, owner | | không hoàn tác: ẩn danh hoá |
+| `contact.forget` | delete, `privacy.erase` (chỉ Chủ sở hữu) | | không hoàn tác: ẩn danh hoá |
 | `custom_field.define` / `custom_field.update` / `custom_field.delete` | config | | |
 
-**catalog**
+**catalog** (`catalog.view` · `catalog.manage` · `stock.adjust`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -589,14 +624,14 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `product.import` | write, bulk | | |
 | `category.create` / `category.update` / `category.delete` | config | | |
 
-**sales** (quy tắc: `plans/COMMERCE-DECISIONS.md`)
+**sales** (quy tắc: `plans/COMMERCE-DECISIONS.md`; `quote.*` · `contract.*` · `order.*` · `invoice.manage` · `payment.record` · `payment.refund_request` · `payment.refund_approve` · `finance.manage` · `documents.manage`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
 | `quote.create` | write | ✓ | 24h, khi chưa gửi |
 | `quote.update` | write, chỉ ở draft | ✓ | |
 | `quote.submit_for_approval` | write (tự động khi vượt ngưỡng) | ✓ | |
-| `quote.approve` / `quote.reject_internal` | money, owner | | |
+| `quote.approve` / `quote.reject_internal` | money, `quote.approve` | | |
 | `quote.send` | send | ✓ khi đúng policy | |
 | `quote.request_revision` | write, tạo version n+1 | ✓ | |
 | `quote.mark_accepted` | write | ✓ (≥ 70% tin cậy) | 24h |
@@ -606,11 +641,11 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `contract.create_from_quote` | write ("→ Hợp đồng") | ✓ chỉ nháp | 24h |
 | `contract.update` | write, chỉ draft | ✓ | 24h |
 | `contract.submit` | write (→ Chờ duyệt) | ✓ | |
-| `contract.approve_and_sign` | money, **owner** (OTP + chữ ký) | | |
-| `contract.request_changes` / `contract.reject_internal` | write, owner | | |
-| `contract.send_for_signature` | send, owner | | |
+| `contract.approve_and_sign` | money, **`contract.sign`** (mặc định chỉ Chủ sở hữu; cấp được cho Quản lý được uỷ quyền) (OTP + chữ ký) | | |
+| `contract.request_changes` / `contract.reject_internal` | write, `contract.review` | | |
+| `contract.send_for_signature` | send, `contract.sign` | | |
 | `contract.remind_signer` / `contract.extend_sign_link` | send | ✓ | |
-| `contract.terminate` | money, owner, lý do bắt buộc | | |
+| `contract.terminate` | money, `contract.sign`, lý do bắt buộc | | |
 | `contract.renew` | write (tạo bản mới) | ✓ chỉ nháp | 24h |
 | `contract.create_appendix` | write (cùng luồng duyệt/ký) | ✓ chỉ nháp | 24h |
 | `doc_template.create` / `doc_template.update` / `doc_template.delete` | config (`documents.manage`) | | 24h |
@@ -634,15 +669,15 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `invoice.record_payment` | money (xác nhận tay) | | 24h |
 | `invoice.resolve_bank_match` | money (hàng "Cần đối soát") | | 24h |
 | `invoice.void` | money | | |
-| `payment.refund` | money, **luôn duyệt** | | |
+| `payment.refund` | money, `payment.refund_request`; **luôn duyệt** bởi `payment.refund_approve` | | |
 | `payment.redeem_points` | money (≤ 50% giá trị đơn) | | 24h |
 | `package.extend` | write | | 24h |
 | `package.adjust_sessions` | write, lý do bắt buộc | | 24h |
 | `stock.adjust` | write, lý do bắt buộc | | 24h |
-| `payment_account.update` | config, owner | | |
-| `bank_feed.connect` / `bank_feed.disconnect` | config, owner | | |
+| `payment_account.update` | config, `finance.manage` | | |
+| `bank_feed.connect` / `bank_feed.disconnect` | config, `finance.manage` | | |
 
-**booking**
+**booking** (`booking.view` · `booking.manage` · `booking.config`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -658,7 +693,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `staff.create` / `staff.update` / `staff.deactivate` | config | | |
 | `business_hours.update` | config | | |
 
-**support**
+**support** (`ticket.view` · `ticket.manage` · `sla.manage`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -673,7 +708,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `ticket.bulk_update` | write, bulk | | 24h |
 | `sla.update_default` | config | | |
 
-**marketing**
+**marketing** (`campaign.view` · `campaign.manage` · `campaign.approve`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -684,19 +719,19 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `campaign.update` | write, chỉ draft | | |
 | `campaign.submit` | write | | 24h |
 | `campaign.send_test` | send | | |
-| `campaign.approve` | send, bulk, owner, **luôn xác nhận** | | |
+| `campaign.approve` | send, bulk, `campaign.approve`, **luôn xác nhận** | | |
 | `campaign.reject` | write | | |
 | `campaign.pause` | write | | |
 | `campaign.resume` | write | | |
 | `campaign.cancel` | write | | |
 | `campaign.delete` | delete | | |
 
-**loyalty**
+**loyalty** (`loyalty.view` · `loyalty.adjust` · `loyalty.config`)
 - `loyalty.get_member`: read, agent ✓.
 - `loyalty.update_config`: config.
 - `loyalty.adjust_points`: money; bắt buộc 1 trong 7 lý do; undo 24h.
 
-**ai**
+**ai** (`assistant.use` · `agents.manage` · `kb.manage` · `approvals.decide` · `ai.governance` · `ai_task.manage`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
@@ -717,18 +752,18 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `kb.refresh_source` | write | | |
 | `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | |
 | `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | |
-| `approval.approve` / `approval.reject` / `approval.edit_and_approve` | owner | | |
+| `approval.approve` / `approval.reject` / `approval.edit_and_approve` | write, `approvals.decide` **và** permission duyệt của action gốc (`quote.approve`, `contract.sign`, `payment.refund_approve`, `campaign.approve`…) | | |
 | `run.cancel` | write | | |
 | `ai_task.create` / `ai_task.update` / `ai_task.pause` / `ai_task.delete` | config | | |
 | `ai_task.run_now` | write | | |
-| `governance.update` | config, owner | | |
+| `governance.update` | config, `ai.governance` | | |
 
-**billing** (owner)
+**billing** (`billing.manage` — chỉ Chủ sở hữu)
 - `billing.create_invoice`: money; mua gói hoặc credit, sinh QR.
 - `billing.cancel_invoice`
 - `billing.report_transfer`: write; "Tôi đã chuyển khoản" → `pending_review`.
 
-**insights**
+**insights** (`insights.view`; số liệu lọc theo data scope của người hỏi)
 - `insight.query`: read, agent ✓. Chỉ chạy metric đã định nghĩa sẵn trong `insights/metrics/*` (doanh số theo kỳ, khách sắp rời, hiệu suất agent…), không chạy SQL tự do. Dùng cho Tổng quan và cho Trợ lý AI trả lời số liệu (REQ-E07).
 
 **platform** (platform_admin)
@@ -741,6 +776,62 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `admin.agent_template.upsert`
 
 > Thêm tính năng sau này = thêm action vào danh mục này (REQ-N13). Không có thao tác ghi nào nằm ngoài Registry.
+
+### 3.5 Danh mục permission & 5 vai trò mặc định (D27, D32)
+
+Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò hệ thống khi `tenant.provision`). Chuẩn: `standards/authz/rbac-permissions.md`. ✓ = có; **S** = có nhưng giới hạn theo data scope của vai trò; — = không.
+
+| Nhóm | Permission | Chủ sở hữu | Quản lý | Sales | CSKH | Kế toán |
+|---|---|---|---|---|---|---|
+| Hộp thư | `inbox.view` · `inbox.reply` | ✓ | ✓ | S | S | — |
+| | `inbox.assign` · `inbox.manage` · `inbox.export` | ✓ | ✓ | — | — | — |
+| Khách hàng | `crm.view` | ✓ | ✓ | S | ✓ (đọc) | ✓ (đọc) |
+| | `crm.edit` | ✓ | ✓ | S | S (thông tin liên hệ) | — |
+| | `crm.delete` · `crm.import` · `crm.export` · `crm.reassign` · `crm.fields_manage` | ✓ | ✓ | — | — | — |
+| | `privacy.erase` | ✓ | — | — | — | — |
+| Sản phẩm | `catalog.view` | ✓ | ✓ | ✓ | ✓ (không giá vốn) | ✓ |
+| | `catalog.manage` | ✓ | ✓ | — | — | — |
+| | `catalog.cost_view` · `stock.adjust` | ✓ | ✓ | — | — | ✓ |
+| Báo giá | `quote.view` · `quote.create` · `quote.send` | ✓ | ✓ | S | — | ✓ (chỉ xem) |
+| | `quote.approve` | ✓ | ✓ | — | — | — |
+| Hợp đồng | `contract.view` · `contract.draft` | ✓ | ✓ | S | — | ✓ (chỉ xem) |
+| | `contract.review` | ✓ | ✓ | — | — | — |
+| | `contract.sign` (duyệt + ký, gửi ký, chấm dứt) | ✓ | uỷ quyền | — | — | — |
+| Mẫu chứng từ | `documents.manage` | ✓ | ✓ | — | — | — |
+| Đơn hàng | `order.view` · `order.manage` · `order.cancel` | ✓ | ✓ | S | — | ✓ |
+| Thu tiền | `invoice.manage` (tạo / gửi đề nghị thanh toán) | ✓ | ✓ | S | — | ✓ |
+| | `payment.record` (xác nhận tay, đối soát, huỷ đề nghị) | ✓ | ✓ | — | — | ✓ |
+| | `payment.refund_request` | ✓ | ✓ | S | — | ✓ |
+| | `payment.refund_approve` | ✓ | uỷ quyền | — | — | — |
+| | `finance.manage` (tài khoản nhận tiền, bank feed) | ✓ | — | — | — | — |
+| | `package.manage` (liệu trình) | ✓ | ✓ | S | S | — |
+| Lịch hẹn | `booking.view` · `booking.manage` | ✓ | ✓ | S | S | — |
+| | `booking.config` (nhân sự, giờ mở cửa) | ✓ | ✓ | — | — | — |
+| Hỗ trợ | `ticket.view` · `ticket.manage` | ✓ | ✓ | S | S | — |
+| | `sla.manage` | ✓ | ✓ | — | — | — |
+| Marketing | `campaign.view` · `campaign.manage` · `campaign.approve` | ✓ | ✓ | — | — | — |
+| Loyalty | `loyalty.view` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| | `loyalty.adjust` | ✓ | ✓ | — | — | ✓ |
+| | `loyalty.config` | ✓ | ✓ | — | — | — |
+| AI | `assistant.use` · `ai_task.manage` | ✓ | ✓ | S | S | S |
+| | `agents.manage` · `kb.manage` · `approvals.decide` | ✓ | ✓ | — | — | — |
+| | `ai.governance` | ✓ | — | — | — | — |
+| Số liệu | `insights.view` | ✓ | ✓ | S | S | S |
+| Cài đặt | `settings.manage` · `members.manage` · `channels.manage` · `integrations.manage` · `audit.view` | ✓ | ✓ | — | — | — |
+| | `roles.manage` (P1) · `billing.manage` · `workspace.transfer_ownership` | ✓ | — | — | — | — |
+
+**Data scope mặc định** (`role.data_scope`):
+
+| Vai trò | inbox | crm | sales (báo giá, hợp đồng, đơn, thu tiền) | booking | support | insights |
+|---|---|---|---|---|---|---|
+| Chủ sở hữu, Quản lý | all | all | all | all | all | all |
+| Sales | own | own | own | own | own | own |
+| CSKH | own | all (đọc) / own (sửa) | — | own | own | own |
+| Kế toán | — | all (đọc) | all | — | — | all (module sales) |
+
+- `own` gồm bản ghi mình phụ trách / được gán **và** mọi bản ghi của khách mình là collaborator / watcher (D32).
+- "uỷ quyền" = Chủ sở hữu bật riêng cho từng Quản lý (lưu trong `role` tuỳ biến P1; P0 bật bằng cờ `membership.delegations text[]`).
+- Viewer (prototype) = vai trò tuỳ biến P1.
 
 ---
 
@@ -819,15 +910,15 @@ type UiCommand =
 | Module | Endpoints |
 |---|---|
 | inbox | `GET /v1/conversations?folder=all\|mine\|ai_running\|needs_human\|ai_pending_approval\|unread\|archived&channel_account_id=&tag_id=&q=` · `GET /v1/conversations/:id` · `GET /v1/conversations/:id/messages?cursor=` (mới → cũ) · `GET /v1/conversations/counts` · `GET /v1/canned-replies` · `GET /v1/tags` |
-| crm | `GET /v1/contacts?stage=&group=&tag_id=&owner_id=&q=&sort=` · `GET /v1/contacts/:id` (360) · `GET /v1/contacts/:id/timeline?cursor=` · `GET /v1/contacts/duplicates` · `GET /v1/custom-fields?entity=` |
+| crm | `GET /v1/contacts?stage=&group=&tag_id=&owner_id=&q=&sort=` · `GET /v1/contacts/:id` (360) · `GET /v1/contacts/:id/timeline?cursor=` · `GET /v1/contacts/duplicates` · `GET /v1/contacts/:id/collaborators` · `GET /v1/contact-access-requests?status=` · `GET /v1/custom-fields?entity=` |
 | catalog | `GET /v1/products?type=&category_id=&status=&q=` · `GET /v1/products/:id` · `GET /v1/categories` |
-| contracts | `GET /v1/contracts?status=&kind=&contact_id=&expiring_within=` · `GET /v1/contracts/:id` (+ phụ lục, người ký, sự kiện ký) · `GET /v1/contracts/:id/pdf` · `GET /v1/contract-templates` · **public:** `GET /v1/public/sign/:token` (PDF + thông tin hiển thị) · `POST /v1/public/sign/:token/otp` · `POST /v1/public/sign/:token/sign` { otp, signature_png, consent: true } · `POST /v1/public/sign/:token/decline` { reason? } — rate-limit theo token + IP, OTP 6 số, sai 5 lần thì khoá link |
+| contracts | `GET /v1/contracts?status=&kind=&contact_id=&expiring_within=` · `GET /v1/contracts/:id` (+ phụ lục, người ký, sự kiện ký) · `GET /v1/contracts/:id/pdf` · `GET /v1/doc-templates?kind=` · **public:** `GET /v1/public/sign/:token` (PDF + thông tin hiển thị) · `POST /v1/public/sign/:token/otp` · `POST /v1/public/sign/:token/sign` { otp, signature_png, consent: true } · `POST /v1/public/sign/:token/decline` { reason? } — rate-limit theo token + IP, OTP 6 số, sai 5 lần thì khoá link |
 | sales | `GET /v1/quotes?status=&contact_id=` · `GET /v1/quotes/:id` (gồm các version) · `GET /v1/quotes/:id/pdf` · `GET /v1/orders?…` · `GET /v1/orders/:id` · `GET /v1/invoices?…` · `GET /v1/invoices/:id` · `GET /v1/invoices/:id/qr` |
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
 | support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
 | marketing | `GET /v1/segments` · `POST /v1/segments/preview` (đọc) · `GET /v1/campaigns?status=` · `GET /v1/campaigns/:id` (+stats) · `GET /v1/campaign-suggestions` |
 | loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=` · `GET /v1/loyalty/members/:contactId/ledger` |
-| ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/sources?agent_id=` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
+| ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/suggestions?status=` (P1) · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |
 | billing | `GET /v1/billing/summary` (gói, hạn, credit, giới hạn) · `GET /v1/billing/plans` · `GET /v1/billing/ledger?cursor=` · `GET /v1/billing/invoices` · `GET /v1/billing/invoices/:id` (QR, trạng thái) |
@@ -1107,6 +1198,14 @@ agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nh�
 assistant/approvals       ApprovalsQueue (màn mới, không đo parity) · assistant/actions → ActionLog + hoàn tác (prototype L1464)
 dashboard/                DashboardPage → GreetingBar(hỏi Trợ lý) · NeedsMe · AiTodayFeed · FollowUpWidget · OnboardingChecklist · CreditCard
 settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · doc_templates (Mẫu chứng từ — báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; rich + DOCX; D30) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). · **roles** (Vai trò & phân quyền — P0 chỉ đọc ma trận, P1 sửa/tạo; D27) · **integrations** (Nền tảng kết nối — registry + thẻ "Sắp có"; D28). Các mục OUT bị ẩn (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
+customers/ (D32)          ContactOwnerCell + CollaboratorsPopover · TransferOwnerModal (chọn chuyển kèm hội thoại / báo giá / lịch) · AccessRequestDialog ("Đã có người phụ trách: …" + Xin chia sẻ) · AccessRequestsList (trong NeedsMe)
+quotes/ contracts/ (D30)  DraftFromContentModal (dán nội dung / đính kèm → chọn mẫu → AI soạn nháp) · AiSuggestedClauseBlock (Giữ / Bỏ) · LegalChecklistPanel
+orders/ (D31)             OrderSourceBadge (sàn / POS) · ExternalLockBanner (khoá dòng hàng / giá) · PlatformStatusTag
+agents/ (D29)             AgentCreateMenu (Mở Workflow — ẩn · Tạo thủ công · Trợ lý AI; theo prototype) · AgentAiCreateModal (mô tả → AgentDraftPreview → "Tạo & xuất bản" | "Mở trong builder") · AgentVersionHistory (xuất bản / quay lại) · TestChat (dryRun)
+settings/roles (D27)      RolesMatrix (P0 chỉ đọc: nhóm quyền × 5 vai trò, theo prototype L6011) · P1: RoleEditor (nhân bản, sửa) · TeamsManager · DelegationToggles (uỷ quyền ký / hoàn tiền cho Quản lý)
+settings/integrations     IntegrationsPage (theo prototype L6218) → CategoryTabs · StatsStrip · ConnectorGrid → ConnectorCard { manifest, status } (badge "Sắp có" + InterestButton) · ConnectModal (form sinh từ `manifest.auth.fields`) · ConnectionDrawer (trạng thái, nhật ký gọi, đồng bộ ngay, chọn bên giữ tồn, bật tích điểm đơn sàn, ngắt) (D28, D31)
+settings/doc_templates    TemplateList (tab theo loại) · RichTemplateEditor · DocxUploadWizard (tải lên → AI nhận diện → FieldMapper đánh dấu / sửa biến → LegalChecklistPanel → lưu) · TemplatePreview (PDF) (D30)
+settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTabs (Tất cả / AI đã học / Từ hội thoại / Do bạn upload) · FileTable (trạng thái index, số đoạn, index lại) · UploadModal (thư mục, thẻ, visibility) · SuggestionQueue (P1)
 (admin)/admin/[section]   workspaces · plans · model-prices · transfers · templates
 (onboarding)/declare      DeclareBusinessModal (không đóng được; 2 bước) · welcome → TrialWelcome (2 nút)
 ```
@@ -1195,6 +1294,11 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prot
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |
 | K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop, khôi phục khi đăng nhập — §2.0 bước 5, D23) |
 | K6 | Single VPS là điểm lỗi duy nhất | Backup offsite + restore thử hằng tuần; runbook dựng lại VPS < 1 giờ bằng `infra/scripts`; khi doanh thu cho phép thì thêm replica PG ở VPS thứ 2 |
+| K8 | **LibreOffice DOCX → PDF** lệch bố cục / font so với Word; tốn CPU | Spike đầu TIP chứng từ với 5 mẫu DOCX thật (bảng, header/footer, font tiếng Việt); cài font (Plus Jakarta Sans, Times New Roman, Arial, DejaVu) trên VPS; giới hạn 2 tiến trình + timeout 60s; lệch thì trả thêm DOCX đã điền và khuyến nghị mẫu rich |
+| K9 | API sàn TMĐT (Shopee Open Platform, TikTok Shop Partner, Lazada Open Platform) cần **đăng ký app đối tác / duyệt**, webhook cần domain HTTPS | Adapter thật để P2 nên không chặn phát hành; Chủ nhà nộp đăng ký sớm; khung + `mock` có từ P0 |
+| K10 | AI nhận diện biến DOCX sai, AI soạn sai số liệu | Bắt buộc người xác nhận field map; số liệu luôn từ bản ghi; eval `doc-draft` |
+| K11 | Scope `own` + join `contact_collaborator` làm chậm list lớn | Index §2.2 authz; `EXPLAIN` trong TIP; p95 > 300ms thì denormalize `contact.visible_user_ids uuid[]` + GIN |
+| K12 | pgvector HNSW kèm filter (`kb_scope`, visibility) giảm recall | Dùng `hnsw.iterative_scan` (pgvector ≥ 0.8); kho nhỏ thì quét chính xác; eval `rag` |
 | K5 | Prisma multi-file schema và tên cờ preview đổi theo phiên bản | TIP-001 chốt phiên bản Prisma/Next/Nest ổn định mới nhất, ghi lại vào `product/tech-stack.md` |
 
 ---
@@ -1228,6 +1332,7 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prot
 - Monitoring tách VPS riêng để **app sập vẫn còn cảnh báo**. Giai đoạn đầu có thể gộp chung một VPS; khi đó Blackbox exporter phải đặt ở nơi khác (hoặc dùng uptime check ngoài).
 - Khi tải tăng: tách PostgreSQL sang VPS-DB riêng (streaming replica cho đọc), rồi tách `worker-ai`. Kiến trúc không đổi, chỉ đổi biến môi trường.
 - File upload: `Storage` interface — mặc định `local` trên đĩa VPS (`/srv/appchat/files`) + backup restic; đổi sang `s3` (S3-compatible bên ngoài) chỉ bằng env.
+- **LibreOffice headless** + bộ font (apt) trên VPS-APP cho queue `doc-render` (D30); chạy dưới user `appchat-render`, không mạng, thư mục tạm riêng mỗi job.
 
 ### 11.2 Thư mục `infra/` trong repo
 
@@ -1312,3 +1417,79 @@ infra/
 - fail2ban, `unattended-upgrades` (bản vá bảo mật), user `appchat` không có sudo chạy app.
 - Grafana sau nginx + TLS, tắt đăng ký, bật 2FA cho admin.
 - PostgreSQL: `scram-sha-256`; 4 role tách biệt (`appchat_platform_app`, `appchat_tenant_app`, `appchat_provisioner`, `appchat_migrator` — §2.0); app chỉ kết nối qua PgBouncer; DB template không cho app kết nối; TLS nếu tách sang VPS-DB.
+
+---
+
+## 12. PHỤ LỤC — TRUY VẾT REQ → BLUEPRINT
+
+Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dưới đây. Task Graph gán TIP theo bảng này.
+
+| REQ | Thiết kế ở |
+|---|---|
+| A01 | §4.2 · §2.2 identity (`otp_code`, `refresh_token`) |
+| A02 | §2.2 `business_profile` · §8 `TaxLookupProvider` · §7.2 onboarding |
+| A03 | §2.0 · §2.1 · `standards/database/tenant-db.md` |
+| A04 | §2.2 `membership` · §4.2 |
+| A05, A05b | §2.2 authz.prisma · §3.2 bước 3 · §3.5 · §7.2 settings/roles · `standards/authz/rbac-permissions.md` |
+| A06 | §2.2 billing (`plan`, `subscription`) · §7.2 onboarding |
+| A07 | §2.2 kernel `action_log`, `platform_audit_log` |
+| A09 | §2.0 bước 5 · queue `tenant` |
+| B01 | §6 · `standards/channels/omnichannel-adapter.md` |
+| B02, B03, B04 | §6 Zalo cá nhân · §10 K2 |
+| B05 | §6 webchat · §2.2 channels-webchat |
+| B06 | §6 email |
+| B07 | §4.4 channels · §7.2 settings/channels |
+| C01–C04, C08 | §2.2 inbox · §3.4 inbox · §7.2 inbox |
+| C05 | §7.2 Composer · §5.3 copilot |
+| C06 | §6 inbound pipeline |
+| C07 | §3.4 `quote.create` / `order.create` / `appointment.create` / `ticket.create` · §7.2 ChatHeader "Chuyển thành" |
+| D01, D02, D03 | §5.1 · `standards/ai/agent-gateway.md` |
+| D04, D04b | §2.2 ai-kb · §5.3 · §7.2 settings/rag_data · `standards/ai/rag.md` |
+| D05, D06 | §3.3 · §5.3 |
+| D07 | §2.2 `approval_request` · §7.2 assistant/approvals |
+| D08 | §2.2 `ai_run`, `ai_run_step`, `action_log` |
+| D09, D09b, D15 | §2.2 `ai_agent`, `ai_agent_version`, `agent_template` · §5.3b · §7.2 agents |
+| D10 | §2.2 `contact_memory` · §5.3 |
+| D11 | §5.3 bước 6 |
+| D12, E08, E13 | §5.4 · queue `ai-task` |
+| D13 | §5.1 phối hợp agent |
+| D14 | §4.4 `agents/:id/stats` · insights |
+| E01, E03, E09, N13 | §3 · `standards/actions/action-registry.md` |
+| E02, E04, E05, E06, E11 | §5.2 · §7.1 AssistantDock · §7.3 UI Command Bus · `standards/ui/frontend-structure.md` §2.8 |
+| E07 | §3.4 `insight.query` |
+| E10 | §4.4 assistant sessions |
+| E12 | §4.4 files · §5.2 |
+| F01, F02, F04 | §2.2 crm · §7.2 customers |
+| F01b, F01c | §2.2 `contact_collaborator`, `contact_access_request` · §3.4 crm · §3.5 · COMMERCE §8b |
+| F03 | §3.4 `contact.merge` / `contact.import` / `contact.export` |
+| F05, G07 | §2.2 catalog · `customer_package` · COMMERCE §2, §6 |
+| F06, F06b | §2.2 sales `quote`, `doc_template` · COMMERCE §3, §12 · `standards/documents/templates.md` |
+| F07, F07b | §2.2 `order` · COMMERCE §4, §4b · queue `order-sync` · `standards/integrations/provider-ports.md` |
+| F08 | §2.2 `invoice`, `customer_payment` · §4.7 · COMMERCE §5 |
+| F09 | §2.2 contracts · §4.4 public sign · §7.2 contracts, (public)/sign · COMMERCE §9 |
+| F10 | §2.3 · COMMERCE §8 |
+| G01–G05 | §2.2 booking · §3.4 booking · §7.2 calendar |
+| H01–H04 | §2.2 support · §3.4 support · §7.2 tickets |
+| I01–I05 | §2.2 marketing · §3.4 marketing · queue `campaign-send` · §7.2 marketing |
+| J01–J04 | §2.2 loyalty · COMMERCE §7 · §7.2 loyalty |
+| K01 | §4.4 dashboard · §7.2 dashboard |
+| L01, L02, L03 | §5.1 usage / `CreditMeter` · §2.2 billing |
+| L04 | §4.7 · §8 VietQR / `BankFeedProvider` |
+| L05, L06, L07 | §7.2 settings/wallet · COMMERCE §10 |
+| L08 | §7.2 (admin) · §3.4 platform |
+| M01 | §7.2 settings registry |
+| M02 | `workspace.settings` · notify |
+| M03 | §2.2 integrations.prisma · §8 · §7.2 settings/integrations |
+| N01 | §1 · §11 |
+| N02 | §2.0 · §2.1 |
+| N03 | §4.1 · `standards/api/response-envelope.md` |
+| N04 | §4.6 |
+| N05 | §2.3 · §1.3 hàng đợi · `standards/events/outbox.md` |
+| N06 | §9 · §11.5 |
+| N07 | §9 |
+| N08 | §11 backup |
+| N09 | §11.4 |
+| N10 | §7.4 · `standards/i18n/i18n.md` |
+| N11 | §9 · `standards/code/testing.md` · `standards/ai/eval.md` |
+| N12 | `standards/code/file-size-module-layout.md` |
+| N14 | §7.0 · `standards/ui/prototype-parity.md` |

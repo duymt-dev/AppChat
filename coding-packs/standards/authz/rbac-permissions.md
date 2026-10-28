@@ -45,6 +45,8 @@
 
 ## 5 vai trò mặc định (seed khi tạo workspace)
 
+> Ma trận permission × vai trò và data scope mặc định chi tiết: **Blueprint §3.5**.
+
 | Key | Tên | Tóm tắt quyền | Phạm vi dữ liệu |
 |---|---|---|---|
 | `owner` | Chủ sở hữu | Tất cả, gồm billing, vai trò, chuyển quyền | all |
