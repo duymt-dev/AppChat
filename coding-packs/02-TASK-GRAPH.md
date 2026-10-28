@@ -6,6 +6,8 @@
 
 ---
 
+> **D38 (2026-10-28):** frontend được dựng trước theo prototype trong goal `coding-packs/goals/GOAL-FE-PROTOTYPE.md` (mock transport). Phần UI của các TIP dưới đây khi đó chỉ còn: bật `httpTransport` cho module, chạy e2e + parity lại. TIP 007 + 008 được goal này thay thế hoàn toàn.
+
 ## DEPENDENCY GRAPH
 
 ```
