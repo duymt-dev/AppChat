@@ -1,0 +1,79 @@
+{
+  "declare": {
+    "bizTitle": "Thông tin doanh nghiệp",
+    "indivTitle": "Thông tin cá nhân",
+    "sub": "Giúp cá nhân hoá Workspace và phục vụ xuất hoá đơn.",
+    "typeBiz": "Doanh nghiệp / Hộ KD",
+    "typeBizSub": "Có mã số thuế",
+    "typeIndiv": "Cá nhân",
+    "typeIndivSub": "Dùng mã VNeID",
+    "taxLabel": "Mã số thuế doanh nghiệp",
+    "idLabel": "Mã định danh cá nhân (VNeID)",
+    "taxPlaceholder": "0312 345 678",
+    "idPlaceholder": "001 099 012 345",
+    "lookup": "Tra cứu",
+    "found": "Đã tìm thấy — thông tin tự động điền bên dưới",
+    "notFound": "Không tìm thấy mã số thuế — vui lòng nhập tay bên dưới",
+    "nameBiz": "Tên công ty / hộ kinh doanh",
+    "nameIndiv": "Họ và tên",
+    "namePlaceholder": "Nguyễn Văn A",
+    "address": "Địa chỉ",
+    "addressPlaceholder": "Số nhà, đường, phường/xã, quận/huyện, tỉnh/TP",
+    "rep": "Người đại diện",
+    "phone": "Điện thoại",
+    "phonePlaceholder": "0912 345 678",
+    "founded": "Ngày hoạt động",
+    "status": "Tình trạng",
+    "next": "Tiếp tục",
+    "back": "← Quay lại",
+    "fieldTitle": "Lĩnh vực kinh doanh của bạn?",
+    "fieldSub": "Mô tả ngắn gọn lĩnh vực bạn đang kinh doanh — AppChat dùng thông tin này để gợi ý AI Agent, quy trình và mẫu trả lời phù hợp.",
+    "fieldLabel": "Lĩnh vực kinh doanh",
+    "fieldPlaceholder": "VD: Bán lẻ mỹ phẩm nhập khẩu qua Zalo & Facebook…",
+    "submit": "Hoàn tất & vào Workspace",
+    "required": "Bắt buộc hoàn tất để kích hoạt Workspace",
+    "indivHint": "Nhập đúng thông tin trên CCCD / VNeID bên dưới"
+  },
+  "provisioning": {
+    "title": "Đang khởi tạo workspace…",
+    "sub": "AppChat đang tạo không gian dữ liệu riêng cho doanh nghiệp của bạn. Việc này thường mất dưới 1 phút.",
+    "steps": {
+      "db": "Tạo cơ sở dữ liệu riêng",
+      "seed": "Cài đặt mặc định (SLA, loyalty, AI governance)",
+      "trial": "Kích hoạt 15 ngày dùng thử Cá nhân Pro"
+    },
+    "failed": "Khởi tạo chưa xong. Chúng tôi sẽ thử lại tự động.",
+    "retry": "Thử lại"
+  },
+  "welcome": {
+    "eyebrow": "GIẢI PHÁP ONE-PERSON COMPANY",
+    "mark": "A",
+    "title": "Chào mừng đến AppChat 👋",
+    "body": "Bạn có <b>15 ngày trải nghiệm gói Cá nhân Pro</b>. Toàn bộ tính năng của gói đã được kích hoạt đến ngày <b>{date}</b>.",
+    "days": "15",
+    "boxTitle": "15 ngày dùng thử miễn phí",
+    "boxSub": "Gói <b>Cá nhân Pro</b> · mở hết tính năng · đến {date}",
+    "perks": {
+      "1": "Kết nối không giới hạn Zalo, Facebook, Instagram, TikTok, Website và Email",
+      "2": "Toàn bộ AI Agents theo phòng ban — Bán hàng, CSKH, Marketing, Vận hành",
+      "3": "CRM đầy đủ: khách hàng, báo giá, hợp đồng, đơn hàng, hoá đơn, loyalty",
+      "4": "Quy trình tự động, báo cáo và 10.000 credit AI dùng thử"
+    },
+    "start": "Bắt đầu dùng thử",
+    "pricing": "Xem bảng giá",
+    "note": "Hết thời gian trải nghiệm, tài khoản sẽ tự động chuyển về gói Miễn phí. Dữ liệu của bạn được giữ nguyên."
+  },
+  "expired": {
+    "title": "Thời gian trải nghiệm đã kết thúc",
+    "body": "Thời gian trải nghiệm Cá nhân Pro đã kết thúc. Tài khoản của bạn đã được <b>chuyển về gói Miễn phí</b> — bạn vẫn đăng nhập và dùng bình thường trong giới hạn gói.",
+    "locks": {
+      "1": "Chỉ giữ 1 kênh kết nối — các kênh vượt giới hạn tạm ngưng",
+      "2": "Chỉ giữ 1 AI Agent — các agent còn lại tạm dừng",
+      "3": "Credit AI về mức 500 / tháng theo gói Miễn phí",
+      "4": "Báo cáo nâng cao và quy trình tự động bị khoá"
+    },
+    "upgrade": "Xem bảng giá · Nâng cấp",
+    "note": "Dữ liệu của bạn được giữ nguyên. Nâng cấp là mở lại ngay toàn bộ tính năng.",
+    "close": "Đóng"
+  }
+}

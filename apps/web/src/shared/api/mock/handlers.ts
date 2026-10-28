@@ -8,6 +8,26 @@ export interface MockHandler {
 }
 
 export const mockHandlers: Record<string, MockHandler> = {
+  'business_profile.update': {
+    execute: (
+      db,
+      input: { kind: 'enterprise' | 'household' | 'individual'; tax_code?: string; national_id?: string; legal_name: string; address: string; phone?: string; representative?: string; business_description: string },
+    ) => {
+      db.business = {
+        kind: input.kind === 'individual' ? 'individual' : 'business',
+        tax_code: input.tax_code,
+        id_number: input.national_id,
+        name: input.legal_name,
+        address: input.address,
+        phone: input.phone,
+        representative: input.representative,
+        field: input.business_description,
+      };
+      db.session.declared = true;
+      db.session.provisioned = false;
+      return { workspace_id: db.shell.me.current_workspace_id, declared_at: new Date().toISOString() };
+    },
+  },
   'notification.mark_read': {
     execute: (db) => {
       const updated = db.readNotifications ? 0 : db.shell.notifications.length;

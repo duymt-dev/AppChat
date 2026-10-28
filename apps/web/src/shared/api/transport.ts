@@ -15,6 +15,8 @@ export type ActionResponse<O = unknown> =
 export interface Transport {
   /** GET /v1/<path> → payload của envelope `{ data }` hoặc `{ data, next_cursor }`. */
   get<T>(path: string, params?: QueryParams): Promise<T>;
+  /** POST endpoint ngoài Action Registry — chỉ auth / public (Blueprint §4.2: /auth/*, /workspaces, /public/*). */
+  post<T>(path: string, body?: unknown): Promise<T>;
   /** POST /v1/actions/:id */
   action<O = unknown>(id: string, input: unknown, opts?: ActionCallOptions): Promise<ActionResponse<O>>;
   /** POST /v1/action-logs/:id/undo */

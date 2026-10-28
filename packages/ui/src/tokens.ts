@@ -52,6 +52,30 @@ export const color = {
   avatarRing: 'rgba(45,197,106,.35)',
   overlay: 'rgba(15,23,20,.45)',
   veil: 'rgba(15,20,28,.32)',
+  // auth + onboarding (prototype L459–790)
+  disabled: '#C9D4CD',
+  textBtn2: '#4A5057',
+  avatarMint: '#58D28A',
+  mint: '#B8F0DC',
+  mintSoft: '#BCEDCC',
+  forest: '#0F2A1C',
+  zalo: '#0068FF',
+  dangerSoftBg: '#FEF2F2',
+  dangerSoftBorder: '#F7CFCF',
+  dangerDeep: '#C8263A',
+  brandLine: 'rgba(45,197,106,.32)',
+  brandLine2: 'rgba(45,197,106,.25)',
+  brandLine3: 'rgba(45,197,106,.2)',
+  mintLine: 'rgba(184,240,220,.32)',
+  mintRing: 'rgba(184,240,220,.2)',
+  glass: 'rgba(255,255,255,.08)',
+  glass2: 'rgba(255,255,255,.1)',
+  glass3: 'rgba(255,255,255,.15)',
+  glassLine: 'rgba(255,255,255,.18)',
+  aiChipBg: 'rgba(45,197,106,.2)',
+  aiChipLine: 'rgba(188,237,204,.5)',
+  onbVeil: 'rgba(15,23,42,.55)',
+  welcomeVeil: 'rgba(15,23,42,.62)',
 } as const;
 
 export const gradient = {
@@ -61,6 +85,11 @@ export const gradient = {
   ai: 'linear-gradient(135deg,#2DC56A,#6E48E6)',
   aiSoft: 'linear-gradient(135deg,#ECFDF5,#F5F3FF)',
   updates: 'linear-gradient(135deg,#2DC56A,#1FB85C)',
+  authBrand: 'linear-gradient(135deg,#0F5D30 0%,#1F9C4F 45%,#2B9EF3 100%)',
+  authHeadline: 'linear-gradient(90deg,#fff,#BCEDCC)',
+  authGlowTop: 'radial-gradient(circle,rgba(255,255,255,.12),transparent 70%)',
+  authGlowBottom: 'radial-gradient(circle,rgba(43,158,243,.4),transparent 70%)',
+  trialHero: 'linear-gradient(135deg,#0F2A1C 0%,#157A40 58%,#2DC56A 100%)',
 } as const;
 
 export const shadow = {
@@ -73,6 +102,12 @@ export const shadow = {
   dock: '0 24px 60px rgba(15,23,20,.26)',
   sidePanel: '-12px 0 40px rgba(14,27,19,.2)',
   card: '0 8px 24px rgba(14,27,19,.08)',
+  btnGlow: '0 4px 14px rgba(45,197,106,.35)',
+  glass: '0 20px 60px rgba(0,0,0,.25)',
+  onbCard: '0 30px 80px rgba(17,24,39,.35)',
+  welcomeCard: '0 34px 90px rgba(17,24,39,.4)',
+  expiredCard: '0 34px 90px rgba(17,24,39,.44)',
+  flagRing: '0 0 0 1px rgba(0,0,0,.08)',
 } as const;
 
 export const font = {
@@ -94,6 +129,27 @@ export const font = {
     h3: 18.7,
     h2: 19.8,
     h1: 24.2,
+    step: 12.1,
+    input: 15.4,
+    btn: 16,
+    otp: 24.2,
+    slogan: 19.8,
+    stat: 26.4,
+    welcome: 27,
+    expired: 24,
+    onbTitle: 28.6,
+    stepTitle: 30.8,
+    regTitle: 33,
+    authTitle: 35.2,
+    display: 48.4,
+    micro: 10.8,
+    noteSm: 12.5,
+    sub13: 13,
+    hint: 13.2,
+    lock: 13.5,
+    perk: 13.8,
+    lead2: 14.5,
+    trialNum: 21,
   },
   weight: { regular: 400, medium: 500, semibold: 600, bold: 700, heavy: 800 },
 } as const;
@@ -121,4 +177,9 @@ export const layout = {
   minShell: 1180,
 } as const;
 
-export const z = { rail: 20, dockVeil: 80, dock: 81, tabbar: 800, flyout: 1200, modal: 1400, popover: 1500 } as const;
+/** Breakpoint của prototype (CSS L280–392): auth 1 cột ≤ 1100px, mobile ≤ 680px. */
+export const mq = {
+  auth: '@media (max-width: 1100px)',
+} as const;
+
+export const z = { rail: 20, onboarding: 2000, welcome: 2100, expired: 2200, dockVeil: 80, dock: 81, tabbar: 800, flyout: 1200, modal: 1400, popover: 1500 } as const;

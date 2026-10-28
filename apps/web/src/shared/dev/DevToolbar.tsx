@@ -14,7 +14,7 @@ const useStyles = createStyles(({ css }) => ({
   bar: css`
     position: fixed;
     right: 12px;
-    top: 12px;
+    bottom: 72px;
     z-index: 3000;
     display: flex;
     align-items: center;

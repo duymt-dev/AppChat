@@ -15,5 +15,10 @@
     }
   },
   "done": "Đã thực hiện: {title}",
-  "previewTitle": "Xác nhận thao tác"
+  "previewTitle": "Xác nhận thao tác",
+  "business_profile": {
+    "update": {
+      "title": "Cập nhật thông tin doanh nghiệp"
+    }
+  }
 }

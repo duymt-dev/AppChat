@@ -22,6 +22,11 @@ export interface ParityEntry {
   clip?: Rect;
   /** Chỉ đo shell: ẩn nội dung màn ở cả hai bên (nội dung màn đo ở dòng của màn đó). */
   shellOnly?: boolean;
+  /** Selector chờ trước khi chụp (mặc định: shell). Màn auth không có shell. */
+  protoWait?: string;
+  appWait?: string;
+  /** So theo khung một phần tử (popup): lấy bbox ở mỗi bên, kích thước theo prototype. Ghi đè `clip`. */
+  clipTo?: { proto: string; app: string };
   /** Vùng động / ngoại lệ có mã quyết định — tô cùng màu ở cả hai ảnh trước khi so. */
   mask?: (Rect & { reason: string })[];
 }
@@ -35,6 +40,17 @@ const RAIL_EXP: Rect = { x: 0, y: 0, width: 230, height: 900 };
 const dash = { ac_module: 'dashboard' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
+
+const AUTH_OUT = { ac_authed: '0' };
+/** Ẩn đăng nhập / đăng ký mạng xã hội (D-OTP) — gỡ khỏi DOM prototype như mục OUT để phần dưới không lệch. */
+const removeSocial = (p: Page) =>
+  p.evaluate(() => {
+    for (const g of document.querySelectorAll<HTMLElement>('.authform [style*="repeat(3, 1fr)"]')) {
+      g.previousElementSibling?.remove();
+      g.remove();
+    }
+  });
+const ONB_CARD = { proto: '.onbcard', app: '[data-testid="onb-card"]' };
 
 export const MANIFEST: ParityEntry[] = [
   {
@@ -89,5 +105,102 @@ export const MANIFEST: ParityEntry[] = [
       { x: 1048, y: 67, width: 392, height: 735, reason: 'thân dock theo màn — đo ở assistant:* (F3)' },
       { x: 1061, y: 810, width: 300, height: 34, reason: 'placeholder ô hỏi theo màn' },
     ],
+  },
+
+  // ── F1 · Auth (D-OTP / OQ-02: OTP qua Email, ẩn đăng nhập mạng xã hội) ──
+  {
+    id: 'auth:login',
+    route: '/login',
+    protoStorage: AUTH_OUT,
+    protoWait: '.authwrap',
+    appWait: '[data-testid="auth-screen"]',
+    proto: async (p) => {
+      await p.click('.lnk:text-is("Đăng nhập bằng email")');
+      await removeSocial(p);
+    },
+    app: async (p) => {
+      await p.fill('[data-testid="login-email"]', 'tramnt@appchat.vn');
+      await p.fill('[data-testid="login-password-input"]', '••••••••••');
+    },
+  },
+  {
+    id: 'auth:otp',
+    route: '/login',
+    protoStorage: AUTH_OUT,
+    protoWait: '.authwrap',
+    appWait: '[data-testid="auth-screen"]',
+    proto: async (p) => {
+      await p.fill('input[placeholder="912 345 678"]', '912 345 678');
+      await p.click('text=Nhận mã OTP qua Zalo');
+      await removeSocial(p);
+    },
+    app: async (p) => {
+      await p.click('text=← Đăng nhập bằng mã OTP');
+      await p.fill('[data-testid="login-email"]', 'tramnt@appchat.vn');
+      await p.click('[data-testid="login-send-otp"]');
+      await p.waitForSelector('[data-testid="login-otp-sent"]');
+    },
+  },
+  {
+    id: 'auth:register',
+    route: '/register',
+    protoStorage: AUTH_OUT,
+    protoWait: '.authwrap',
+    appWait: '[data-testid="auth-screen"]',
+    proto: async (p) => {
+      await p.click('.lnk:text-is("Đăng ký dùng thử 15 ngày")');
+      await p.click('text=Qua Email');
+      await p.fill('.authform input[placeholder="ban@congty.vn"]', 'tramnt@appchat.vn');
+      await removeSocial(p);
+    },
+    app: (p) => p.fill('[data-testid="register-email"]', 'tramnt@appchat.vn'),
+  },
+  {
+    id: 'auth:forgot',
+    route: '/forgot-password',
+    protoStorage: AUTH_OUT,
+    protoWait: '.authwrap',
+    appWait: '[data-testid="auth-screen"]',
+    proto: async (p) => {
+      await p.click('.lnk:text-is("Đăng nhập bằng email")');
+      await p.click('.lnk:text-is("Quên mật khẩu?")');
+    },
+    app: (p) => p.fill('[data-testid="forgot-email"]', 'tramnt@appchat.vn'),
+  },
+  // ── F1 · Onboarding (popup trên shell — so khung thẻ) ──
+  {
+    id: 'onboarding:declare-business',
+    route: '/dashboard?session=authed',
+    protoStorage: { ac_declared: '0', ac_onbpending: '1', ac_trialseen: '0' },
+    clipTo: ONB_CARD,
+    proto: async (p) => {
+      await p.fill('.onbcard input', '0312 345 678');
+      await p.click('.onblookup');
+    },
+    app: async (p) => {
+      await p.fill('[data-testid="declare-id"]', '0312 345 678');
+      await p.click('[data-testid="declare-lookup"]');
+      await p.waitForSelector('[data-testid="declare-lookup-result"]');
+    },
+  },
+  {
+    id: 'onboarding:declare-individual',
+    route: '/dashboard?session=authed',
+    protoStorage: { ac_declared: '0', ac_onbpending: '1', ac_trialseen: '0' },
+    clipTo: ONB_CARD,
+    proto: (p) => p.click('.onbcard >> text="Cá nhân"'),
+    app: (p) => p.click('[data-testid="declare-type-individual"]'),
+  },
+  {
+    id: 'onboarding:trial-welcome',
+    route: '/dashboard?session=authed,declared',
+    protoStorage: { ac_trialseen: '0' },
+    clipTo: ONB_CARD,
+  },
+  {
+    id: 'onboarding:trial-expired',
+    route: '/dashboard?session=authed,declared,trialSeen,expired',
+    protoStorage: { ac_trialdays: '0' },
+    clipTo: ONB_CARD,
   },
 ];

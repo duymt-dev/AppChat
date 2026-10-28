@@ -63,12 +63,12 @@ async function main() {
   try {
     for (const e of entries) {
       try {
-        await captureProto(browser, e, file(e.id, 'proto'));
+        const box = await captureProto(browser, e, file(e.id, 'proto'));
         if (cmd === 'baseline') {
           rows.push({ id: e.id, ratio: null, ok: true });
           continue;
         }
-        await captureApp(browser, e, APP_URL, file(e.id, 'app'));
+        await captureApp(browser, e, APP_URL, file(e.id, 'app'), box);
         const r = compareImages(file(e.id, 'proto'), file(e.id, 'app'), file(e.id, 'diff'), e);
         rows.push({ id: e.id, ratio: r.ratio, ok: r.ratio <= MAX_DIFF_RATIO });
       } catch (err) {

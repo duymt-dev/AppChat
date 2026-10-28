@@ -5,3 +5,4 @@ Dữ liệu mẫu trích **nguyên văn** từ prototype `coding-packs/docs/06-p
 | File | Nguồn prototype |
 |------|-----------------|
 | `shell.json` | rail (badge L828–846), thông báo L907–910, menu avatar + workspace L1034–1045, ví L1063 |
+| `auth.json` | auth + onboarding: email mẫu L501, tra MST L11778 (doLookup), thẻ brand L620–626, số liệu L628–630 |
