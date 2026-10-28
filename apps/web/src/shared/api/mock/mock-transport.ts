@@ -10,6 +10,7 @@ import { agentsParamRoute } from './domains/agents';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
 import { contractsParamRoute } from './domains/contracts';
+import { ordersParamRoute } from './domains/orders';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
@@ -50,6 +51,7 @@ export const mockTransport: Transport = {
       productsParamRoute(path) ??
       quotesParamRoute(path) ??
       contractsParamRoute(path) ??
+      ordersParamRoute(path) ??
       signParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??

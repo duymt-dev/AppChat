@@ -272,5 +272,37 @@
     "delete": {
       "title": "Xoá hợp đồng"
     }
+  },
+  "order": {
+    "create": {
+      "title": "Tạo đơn hàng"
+    },
+    "create_from_quote": {
+      "title": "Tạo đơn từ báo giá"
+    },
+    "create_from_contract": {
+      "title": "Tạo đơn từ hợp đồng"
+    },
+    "update": {
+      "title": "Cập nhật đơn hàng"
+    },
+    "set_deposit": {
+      "title": "Đặt cọc đơn hàng"
+    },
+    "confirm": {
+      "title": "Xác nhận đơn"
+    },
+    "complete": {
+      "title": "Hoàn tất đơn"
+    },
+    "cancel": {
+      "title": "Huỷ đơn"
+    },
+    "update_shipping": {
+      "title": "Cập nhật vận chuyển"
+    },
+    "sync_now": {
+      "title": "Đồng bộ đơn từ sàn"
+    }
   }
 }

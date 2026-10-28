@@ -272,5 +272,37 @@
     "delete": {
       "title": "Delete contract"
     }
+  },
+  "order": {
+    "create": {
+      "title": "Create order"
+    },
+    "create_from_quote": {
+      "title": "Create order from quote"
+    },
+    "create_from_contract": {
+      "title": "Create order from contract"
+    },
+    "update": {
+      "title": "Update order"
+    },
+    "set_deposit": {
+      "title": "Set order deposit"
+    },
+    "confirm": {
+      "title": "Confirm order"
+    },
+    "complete": {
+      "title": "Complete order"
+    },
+    "cancel": {
+      "title": "Cancel order"
+    },
+    "update_shipping": {
+      "title": "Update shipping"
+    },
+    "sync_now": {
+      "title": "Sync marketplace orders"
+    }
   }
 }

@@ -46,6 +46,7 @@ const agents = { ac_module: 'agents' };
 const products = { ac_module: 'products' };
 const quotes = { ac_module: 'quotes' };
 const contracts = { ac_module: 'contracts' };
+const orders = { ac_module: 'orders' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -796,5 +797,34 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('ct-create').click(),
     appWait: '[data-contract]',
     clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="ct-form"] [role="dialog"]' },
+  },
+  // ===== F4 — Đơn hàng =====
+  // COMMERCE §4: 2 trục (Thanh toán = pay_status, Trạng thái = tiến độ); D31: thêm 1 đơn từ sàn (badge nguồn) — mask dòng đó.
+  {
+    id: 'orders:list',
+    route: '/orders',
+    protoStorage: orders,
+    appWait: '[data-order]',
+  },
+  {
+    id: 'orders:detail',
+    route: '/orders',
+    protoStorage: orders,
+    proto: async (p) => {
+      await p.locator('span', { hasText: 'SP290411' }).first().click();
+      await protoOverrideVals(p, { odDetailOn: true });
+    },
+    app: (p) => p.locator('[data-order="ord_290411"]').first().click(),
+    appWait: '[data-order]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'orders:create',
+    route: '/orders',
+    protoStorage: orders,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo đơn hàng' }).click(),
+    app: (p) => p.getByTestId('od-create').click(),
+    appWait: '[data-order]',
+    clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="od-form"] [role="dialog"]' },
   },
 ];
