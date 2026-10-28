@@ -1,5 +1,7 @@
 # AppChat Coding Packs — Vibecode Kit v5.0
 
+> Hướng dẫn cho Claude Code: `../CLAUDE.md` (gốc repo).
+
 > AI Quality Command Center — Coding Packs for AppChat (Giải pháp One-Person Company)
 > Greenfield rebuild from `docs/` (technical specs) with Next.js + NestJS. Generated from Vibecode Kit v5.0 framework.
 
@@ -42,6 +44,7 @@ coding-packs/
 ├── docs/                             # Tài liệu kỹ thuật + prototype (docs/06-prototype/AppChat.dc.html)
 ├── product/                          # mission · roadmap · tech-stack
 ├── reports/                          # Completion + verify reports
+├── goals/                            # Goal dài (GOAL-FE-PROTOTYPE.md — D38)
 └── tips/                             # TIP files (/vibecode:tip, sinh theo từng wave)
 ```
 
