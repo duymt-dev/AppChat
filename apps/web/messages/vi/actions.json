@@ -231,5 +231,46 @@
     "draft_from_content": {
       "title": "AI soạn báo giá"
     }
+  },
+  "contract": {
+    "create": {
+      "title": "Tạo hợp đồng"
+    },
+    "create_from_quote": {
+      "title": "Tạo hợp đồng từ báo giá"
+    },
+    "update": {
+      "title": "Cập nhật hợp đồng"
+    },
+    "submit": {
+      "title": "Trình duyệt hợp đồng"
+    },
+    "approve_and_sign": {
+      "title": "Duyệt & ký hợp đồng"
+    },
+    "request_changes": {
+      "title": "Yêu cầu sửa hợp đồng"
+    },
+    "reject_internal": {
+      "title": "Từ chối hợp đồng"
+    },
+    "send_for_signature": {
+      "title": "Gửi ký hợp đồng"
+    },
+    "remind_signer": {
+      "title": "Nhắc khách ký"
+    },
+    "extend_sign_link": {
+      "title": "Gia hạn link ký"
+    },
+    "terminate": {
+      "title": "Chấm dứt hợp đồng"
+    },
+    "renew": {
+      "title": "Gia hạn hợp đồng"
+    },
+    "delete": {
+      "title": "Xoá hợp đồng"
+    }
   }
 }

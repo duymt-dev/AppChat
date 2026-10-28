@@ -15,5 +15,7 @@
   "APPROVAL_REQUIRED": "Đã gửi yêu cầu duyệt",
   "INVALID_STATE": "Trạng thái hiện tại không cho phép thao tác này",
   "QUOTE_NEEDS_APPROVAL": "Báo giá vượt ngưỡng — cần duyệt trước khi gửi",
-  "INTERNAL": "Lỗi hệ thống, thử lại sau"
+  "INTERNAL": "Lỗi hệ thống, thử lại sau",
+  "OTP_INVALID": "Mã OTP không đúng",
+  "SIGN_LINK_INVALID": "Link ký đã hết hạn hoặc không còn hiệu lực"
 }

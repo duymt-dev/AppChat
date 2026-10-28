@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { createStyles } from 'antd-style';
 import { Icon } from '../icons';
 import type { IconName } from '../icons/paths';
-import { color, font, radius, shadow } from '../tokens';
+import { color, font, radius, shadow, z } from '../tokens';
 
 export interface ModalShellProps {
   open: boolean;
@@ -25,6 +25,8 @@ export interface ModalShellProps {
   roomy?: boolean;
   /** Đầu modal kiểu form sản phẩm (prototype L4072): icon 38, tiêu đề 18, đệm dưới 12, chân nền xám. */
   dense?: boolean;
+  /** Mở chồng trên EntityDrawer (antd Drawer z 1000): đặt trên drawer, dưới toast antd. */
+  stacked?: boolean;
 }
 
 const useStyles = createStyles(({ css, responsive }) => ({
@@ -40,6 +42,11 @@ const useStyles = createStyles(({ css, responsive }) => ({
     ${responsive.md} {
       padding: 0;
       z-index: 900;
+    }
+  `,
+  stacked: css`
+    && {
+      z-index: ${z.stackedModal};
     }
   `,
   box: css`
@@ -137,7 +144,7 @@ export function ModalShell(p: ModalShellProps) {
   const { styles, cx } = useStyles();
   if (!p.open) return null;
   return (
-    <div className={styles.veil} onClick={p.onClose} data-testid={p.testId}>
+    <div className={cx(styles.veil, p.stacked && styles.stacked)} onClick={p.onClose} data-testid={p.testId}>
       <div
         className={styles.box}
         style={{ width: p.width }}

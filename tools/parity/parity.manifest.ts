@@ -45,6 +45,7 @@ const asst = { ac_module: 'assistant' };
 const agents = { ac_module: 'agents' };
 const products = { ac_module: 'products' };
 const quotes = { ac_module: 'quotes' };
+const contracts = { ac_module: 'contracts' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -741,5 +742,59 @@ export const MANIFEST: ParityEntry[] = [
         reason: 'prototype-parity §6 — Gửi ZBS / SMS (OUT) → Gửi Zalo / Email / Tải PDF',
       },
     ],
+  },
+  // ===== F4 — Hợp đồng =====
+  // COMMERCE §9: "Ký số" → "Ký điện tử"; trạng thái theo §9 (Chờ duyệt gộp vào Nháp); tạo = crmForm 720 (openContractNew → openCrmForm).
+  {
+    id: 'contracts:list',
+    route: '/contracts',
+    protoStorage: contracts,
+    appWait: '[data-contract]',
+  },
+  {
+    id: 'contracts:kanban',
+    route: '/contracts',
+    protoStorage: contracts,
+    proto: (p) => p.locator('button', { hasText: 'Kanban' }).first().click(),
+    app: (p) => p.getByTestId('ct-view-kanban').click(),
+    appWait: '[data-contract]',
+  },
+  {
+    id: 'contracts:detail',
+    route: '/contracts',
+    protoStorage: contracts,
+    proto: async (p) => {
+      await p.locator('span', { hasText: 'HĐ-1180' }).first().click();
+      await protoOverrideVals(p, { ctDetailOn: true });
+    },
+    app: (p) => p.locator('[data-contract="ctr_1180"]').first().click(),
+    appWait: '[data-contract]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      {
+        x: 1068,
+        y: 350,
+        width: 352,
+        height: 34,
+        reason: 'COMMERCE §9 — "Ký số" → "Ký điện tử" (ký điện tử đơn giản OTP + ký tay; ký số CA để P2)',
+      },
+      {
+        x: 1048,
+        y: 836,
+        width: 392,
+        height: 64,
+        reason:
+          'COMMERCE §9 — chân thao tác theo trạng thái (→ Đơn hàng / Chấm dứt / Duyệt & ký…) prototype không có',
+      },
+    ],
+  },
+  {
+    id: 'contracts:create',
+    route: '/contracts',
+    protoStorage: contracts,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo hợp đồng' }).click(),
+    app: (p) => p.getByTestId('ct-create').click(),
+    appWait: '[data-contract]',
+    clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="ct-form"] [role="dialog"]' },
   },
 ];

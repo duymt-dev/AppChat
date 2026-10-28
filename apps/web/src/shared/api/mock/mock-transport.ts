@@ -9,6 +9,8 @@ import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
+import { contractsParamRoute } from './domains/contracts';
+import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
@@ -47,6 +49,8 @@ export const mockTransport: Transport = {
       mockRoutes[path] ??
       productsParamRoute(path) ??
       quotesParamRoute(path) ??
+      contractsParamRoute(path) ??
+      signParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??
       inboxParamRoute(path);
@@ -55,12 +59,16 @@ export const mockTransport: Transport = {
   },
 
   async post(path, body) {
-    const handler = mockPosts[path] ?? assistantPosts[path];
+    const handler = mockPosts[path] ?? assistantPosts[path] ?? signParamPost(path);
     if (!handler) return fail(404, 'NOT_FOUND', `mock post ${path}`);
     let out: unknown;
-    mutate((db) => {
-      out = handler(db, (body ?? {}) as Record<string, unknown>);
-    }, `post.${path}`);
+    const signEvent = path.match(/^\/public\/sign\/[^/]+\/(sign|decline)$/)?.[1];
+    mutate(
+      (db) => {
+        out = handler(db, (body ?? {}) as Record<string, unknown>);
+      },
+      signEvent ? `contract.${signEvent === 'sign' ? 'signed' : 'declined'}` : `post.${path}`,
+    );
     return structuredClone(out) as never;
   },
 

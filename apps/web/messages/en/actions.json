@@ -231,5 +231,46 @@
     "draft_from_content": {
       "title": "AI quote draft"
     }
+  },
+  "contract": {
+    "create": {
+      "title": "Create contract"
+    },
+    "create_from_quote": {
+      "title": "Create contract from quote"
+    },
+    "update": {
+      "title": "Update contract"
+    },
+    "submit": {
+      "title": "Submit contract for approval"
+    },
+    "approve_and_sign": {
+      "title": "Approve & sign contract"
+    },
+    "request_changes": {
+      "title": "Request contract changes"
+    },
+    "reject_internal": {
+      "title": "Reject contract"
+    },
+    "send_for_signature": {
+      "title": "Send contract for signature"
+    },
+    "remind_signer": {
+      "title": "Remind signer"
+    },
+    "extend_sign_link": {
+      "title": "Extend signing link"
+    },
+    "terminate": {
+      "title": "Terminate contract"
+    },
+    "renew": {
+      "title": "Renew contract"
+    },
+    "delete": {
+      "title": "Delete contract"
+    }
   }
 }

@@ -183,6 +183,8 @@ export function EntityDrawer(p: EntityDrawerProps) {
       size={mobile ? '100%' : layout.crmDrawer}
       closable={false}
       destroyOnHidden
+      // Modal chồng trên drawer (ModalShell stacked — duyệt & ký, gửi ký) cần nhận bàn phím: tắt bẫy focus của drawer.
+      focusable={{ trap: false }}
       styles={{
         body: { padding: 0 },
         mask: { background: color.veil },
