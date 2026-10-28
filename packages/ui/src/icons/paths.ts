@@ -61,6 +61,9 @@ export const ICONS = {
   'ic-user-plus': { viewBox: '0 0 24 24', body: "<circle cx=\"9\" cy=\"8\" r=\"3.3\"/><path d=\"M3.2 20a5.8 5.8 0 0 1 11.6 0\"/><path d=\"M19 8v6M16 11h6\"/>" },
   'ic-logout': { viewBox: '0 0 24 24', body: "<path d=\"M14 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8\"/><path d=\"M17 8l4 4-4 4M21 12H10\"/>" },
   'ic-chevron-right': { viewBox: '0 0 24 24', body: "<path d=\"M9 6l6 6-6 6\"/>" },
+  'ic-smile': { viewBox: '0 0 24 24', body: "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M9 14s1 1.5 3 1.5 3-1.5 3-1.5M9 9h.01M15 9h.01\"/>" },
+  'ic-clip': { viewBox: '0 0 24 24', body: "<path d=\"M21 11.5 12 20a5 5 0 0 1-7-7l8.5-8.5a3.5 3.5 0 0 1 5 5L10 16a1.5 1.5 0 0 1-2-2l7-7\"/>" },
+  'ic-image': { viewBox: '0 0 24 24', body: "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2.4\"/><circle cx=\"8.5\" cy=\"9.5\" r=\"1.6\"/><path d=\"M5 18l5-5 4 4 2-2 3 3\"/>" },
 } as const;
 
 export type IconName = keyof typeof ICONS;

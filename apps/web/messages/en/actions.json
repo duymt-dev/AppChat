@@ -30,5 +30,50 @@
     "complete": {
       "title": "Follow-up done"
     }
+  },
+  "conversation": {
+    "mark_read": {
+      "title": "Mark as read"
+    },
+    "set_status": {
+      "title": "Change conversation status"
+    },
+    "assign": {
+      "title": "Assign conversation"
+    },
+    "tag": {
+      "title": "Tag conversation"
+    },
+    "pin": {
+      "title": "Pin / unpin"
+    },
+    "archive": {
+      "title": "Archive conversation"
+    },
+    "set_ai_mode": {
+      "title": "Change AI mode"
+    },
+    "handoff": {
+      "title": "Take over conversation"
+    },
+    "clear_history": {
+      "title": "Clear conversation history"
+    }
+  },
+  "message": {
+    "send": {
+      "title": "Send message"
+    },
+    "recall": {
+      "title": "Recall message"
+    },
+    "delete": {
+      "title": "Delete message"
+    }
+  },
+  "note": {
+    "add": {
+      "title": "Add internal note"
+    }
   }
 }

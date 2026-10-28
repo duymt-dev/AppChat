@@ -1,0 +1,285 @@
+{
+  "assistant": "AI Assistant",
+  "emptyChat": "Pick a conversation to start",
+  "tabs": {
+    "all": "All",
+    "mine": "Mine",
+    "mention": "@Mention",
+    "unread": "Unread",
+    "ai_pending_approval": "AI awaiting approval",
+    "vip": "⭐ VIP",
+    "complaint": "⚠ Complaints"
+  },
+  "folders": {
+    "title": "Inbox folders",
+    "toggle": "Show / hide folders",
+    "synced": "{n} channels · synced <b>just now</b>",
+    "mailbox": "Inbox",
+    "ai": "AI status",
+    "channels": "Channels",
+    "saved": "Saved filters",
+    "items": {
+      "all": "All",
+      "unread": "Unread",
+      "mention": "Mentions me",
+      "starred": "Starred",
+      "mine": "Mine",
+      "team": "My team",
+      "spam": "Spam / blocked",
+      "ai_running": "AI handling",
+      "ai_pending_approval": "AI awaiting approval",
+      "needs_human": "Needs a human"
+    },
+    "at": "@"
+  },
+  "list": {
+    "title": "Inbox",
+    "sub": "{total} conversations · {unread} unread",
+    "connect": "Connect channel",
+    "search": "Search customer, phone, content, booking code…",
+    "allChannels": "All channels",
+    "allAccounts": "All accounts",
+    "menu": "Conversation actions",
+    "emptyTitle": "No conversations yet",
+    "emptyHint": "Connect a channel and customer messages will land here.",
+    "emptySearch": "No conversation matches your search.",
+    "sort": {
+      "latest": "Latest",
+      "unread": "Unread",
+      "priority": "Priority",
+      "vip": "VIP",
+      "sla": "SLA at risk"
+    },
+    "actions": {
+      "close": "Close conversation",
+      "snooze": "Snooze",
+      "shortcut": "Shortcuts",
+      "assign": "Assign",
+      "lifecycle": "Lifecycle stage",
+      "tag": "Add tag"
+    },
+    "caret": "›",
+    "kbd": "⌘K"
+  },
+  "chat": {
+    "back": "Back to list",
+    "video": "Schedule a video call",
+    "call": "Schedule a call",
+    "search": "Search in conversation",
+    "toggle360": "Collapse profile",
+    "members": "{n} members",
+    "online": "{n} online",
+    "zaloGroup": "Zalo group",
+    "offline": "offline",
+    "pinned": "📌 Pinned:",
+    "unpin": "Unpin",
+    "handoff": {
+      "title": "Needs a human",
+      "take": "Take over",
+      "useDraft": "Use draft",
+      "badge": "AI paused"
+    },
+    "suggest": {
+      "title": "AI Cowork suggested reply",
+      "confidence": "{pct}% confidence",
+      "send": "Send",
+      "edit": "Edit",
+      "other": "Another suggestion"
+    }
+  },
+  "thread": {
+    "insight": "AI insight:",
+    "confidence": "· {pct}% confidence",
+    "note": "Internal note",
+    "deleted": "Message removed from AppChat",
+    "recalled": "Message recalled"
+  },
+  "msgMenu": {
+    "title": "Message actions",
+    "messages": "Message",
+    "recall": "Recall",
+    "delete": "Delete message",
+    "conversation": "Conversation",
+    "archive": "Archive",
+    "hide": "Hide chat",
+    "clear": "Clear history",
+    "group": "Create group"
+  },
+  "composer": {
+    "placeholder": "Message {name}… ( / = AI command · @ = mention · # = service )",
+    "notePlaceholder": "Internal note — the customer won't see it…",
+    "attach": "Add file, connector, plugin",
+    "via": "Send via <b>{ch}</b> · <k>Enter</k> to send",
+    "send": "Send",
+    "saveNote": "Save note",
+    "quickReact": "Quick react:",
+    "modes": {
+      "reply": "Reply",
+      "note": "Internal note",
+      "copilot": "Co-pilot",
+      "auto": "AI auto"
+    },
+    "tools": {
+      "qr": "Quick replies",
+      "sched": "Book appointment",
+      "xl": "Translate"
+    },
+    "qr": {
+      "title": "Quick replies",
+      "hint": "Type / in the box to filter"
+    },
+    "sched": {
+      "title": "Book an appointment for {name}",
+      "ai": "AI-suggested best slots",
+      "best": "Best",
+      "fit": "Good fit",
+      "send": "Send booking confirmation",
+      "confirm": "Your appointment is confirmed for {time} on {day}."
+    },
+    "xl": {
+      "title": "Auto translate",
+      "auto": "Two-way auto translate",
+      "autoHint": "Customer → Vietnamese · You → customer's language",
+      "to": "Translate my draft to"
+    },
+    "autoBadge": "AUTO"
+  },
+  "p360": {
+    "title": "360° profile",
+    "close": "Close profile",
+    "tabs": {
+      "overview": "Overview",
+      "crm": "CRM",
+      "ai": "AI",
+      "files": "Files",
+      "history": "History"
+    },
+    "journey": "Customer journey",
+    "stageAt": "Stage: {stage}",
+    "aiHint": "AI tip:",
+    "aiSummary": "AI summary",
+    "closeChance": "Close chance",
+    "contact": "Customer info",
+    "edit": "Edit",
+    "leadScore": "Lead score",
+    "tier": "MEMBER TIER",
+    "points": "points · ≈ {value}",
+    "deal": "Opportunity / Deal",
+    "add": "+ Add",
+    "dealValue": "Value",
+    "dealStage": "Stage",
+    "dealProb": "Probability",
+    "dealClose": "Expected close",
+    "history": "Interaction history",
+    "exportCsv": "Export CSV",
+    "tasks": "To-dos",
+    "addTask": "+ New task",
+    "notes": "Notes",
+    "addNote": "+ Add note",
+    "comments": "Comments",
+    "openDeal": "Open opportunity",
+    "recentOrder": "Recent order",
+    "recentPayment": "Recent payment request",
+    "segments": "Segments & tags",
+    "behavior": "Behaviour analysis",
+    "signals": "Customer signals",
+    "nba": "AI next-best-action",
+    "files": "Files",
+    "timeline": "Omnichannel timeline",
+    "ops": {
+      "quote": "Quote",
+      "contract": "Contract",
+      "order": "Order"
+    },
+    "foot": {
+      "email": "Send email",
+      "ticket": "Create ticket",
+      "booking": "Book"
+    },
+    "spark": "✦",
+    "aiBadge": "AI",
+    "signalUp": "▲ ",
+    "signalWarn": "⚠ "
+  },
+  "group": {
+    "title": "Group info",
+    "close": "Close group info",
+    "members": "{n} members",
+    "joinLink": "Group invite link",
+    "media": "Photos/Videos",
+    "files": "Files",
+    "links": "Links",
+    "hide": "Hide chat",
+    "clear": "Clear chat history",
+    "acts": {
+      "mute": "Mute",
+      "pin": "Pin chat",
+      "add": "Add member",
+      "manage": "Manage group"
+    },
+    "ai": {
+      "title": "AI in group",
+      "mention": "When @mentioned",
+      "auto": "Auto reply",
+      "off": "Off",
+      "rules": "Group rules for AI",
+      "rulesSub": "4 rules · AI reads them before replying"
+    },
+    "board": "Group board",
+    "pinned": "Pinned messages",
+    "notes": "Internal notes",
+    "notesSub": "Staff only",
+    "mediaCount": "{n} items",
+    "seeAll": "See all",
+    "caretOpen": "▾",
+    "caretClosed": "▸"
+  },
+  "connect": {
+    "eyebrow": "Connect a new channel",
+    "title": "Choose a channel to add to AppChat",
+    "meta": "{n} channels · Omnichannel",
+    "close": "Close",
+    "soon": "Coming soon",
+    "time": "⏱ {time}",
+    "cats": {
+      "all": "All channels",
+      "social": "Social & Messaging",
+      "web": "Web · Email"
+    },
+    "hintTitle": "AppChat AI tip",
+    "hintBody": "Your industry (Spa/Beauty) is most active on <b>Zalo</b> — connect <b>personal Zalo</b> and <b>Live chat website</b> first so AI can start handling conversations.",
+    "ready": "Ready",
+    "industries": {
+      "fashion": "Fashion",
+      "beauty": "Cosmetics / Health",
+      "fnb": "F&B"
+    },
+    "byIndustry": "By industry"
+  },
+  "ai": {
+    "title": "AI Assistant",
+    "sub": "Compact mode · help right inside the conversation",
+    "close": "Close",
+    "hello": "I'm looking at the conversation with <b>{name}</b>. I can summarise, draft a reply, create a quote or book an appointment. What do you need?",
+    "ask": "Ask the AI Assistant about this conversation…",
+    "send": "Send",
+    "openFull": "Open the full AI Assistant →",
+    "sections": {
+      "quick": "Quick actions",
+      "cowork": "AI Cowork",
+      "move": "Move"
+    },
+    "cmds": {
+      "new": "New conversation",
+      "invite": "Invite a member to the conversation",
+      "meet": "Book an appointment for the customer",
+      "summary": "Summarise the last 30 messages",
+      "draft": "Draft a suggested reply",
+      "translate": "Translate to English",
+      "intent": "Detect customer intent",
+      "mention": "Move to @Mention tab",
+      "assign": "Hand over · @Trâm",
+      "vip": "Tag as VIP"
+    }
+  }
+}

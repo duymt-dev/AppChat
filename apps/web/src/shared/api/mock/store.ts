@@ -4,6 +4,7 @@ import auth from '../../../../../../fixtures/prototype-parity/auth.json';
 import type { SystemRole } from '@appchat/shared';
 import { loadSession, saveSession, type MockSession } from './session';
 import { createDashboardState, type DashboardState } from './domains/dashboard';
+import { createInboxState, type InboxState } from './domains/inbox';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -27,6 +28,7 @@ export interface MockDb {
   session: MockSession;
   business: BusinessProfile | null;
   dashboard: DashboardState;
+  inbox: InboxState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -48,6 +50,7 @@ const db: MockDb = {
   session: loadSession(),
   business: null,
   dashboard: createDashboardState(),
+  inbox: createInboxState(),
 };
 
 type Listener = (event: string) => void;

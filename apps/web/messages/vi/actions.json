@@ -30,5 +30,50 @@
     "complete": {
       "title": "Đã follow khách"
     }
+  },
+  "conversation": {
+    "mark_read": {
+      "title": "Đánh dấu đã đọc"
+    },
+    "set_status": {
+      "title": "Đổi trạng thái hội thoại"
+    },
+    "assign": {
+      "title": "Phân công hội thoại"
+    },
+    "tag": {
+      "title": "Gắn thẻ hội thoại"
+    },
+    "pin": {
+      "title": "Ghim / bỏ ghim"
+    },
+    "archive": {
+      "title": "Lưu trữ hội thoại"
+    },
+    "set_ai_mode": {
+      "title": "Đổi chế độ AI"
+    },
+    "handoff": {
+      "title": "Nhận xử lý hội thoại"
+    },
+    "clear_history": {
+      "title": "Xoá lịch sử hội thoại"
+    }
+  },
+  "message": {
+    "send": {
+      "title": "Gửi tin nhắn"
+    },
+    "recall": {
+      "title": "Thu hồi tin nhắn"
+    },
+    "delete": {
+      "title": "Xoá tin nhắn"
+    }
+  },
+  "note": {
+    "add": {
+      "title": "Thêm ghi chú nội bộ"
+    }
   }
 }

@@ -38,6 +38,7 @@ export const FIXED_TIME = '2026-06-24T09:00:00+07:00';
 const RAIL: Rect = { x: 0, y: 0, width: 80, height: 900 };
 const RAIL_EXP: Rect = { x: 0, y: 0, width: 230, height: 900 };
 const dash = { ac_module: 'dashboard' };
+const inbox = { ac_module: 'inbox' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -226,5 +227,96 @@ export const MANIFEST: ParityEntry[] = [
     proto: (p) => p.locator('button', { hasText: 'Thông báo' }).last().click(),
     app: (p) => p.getByTestId('updates-widget').getByRole('button', { name: /Thông báo/ }).click(),
     clipTo: { proto: 'div[style*="width: 360px"][style*="position: fixed"]', app: '[data-testid="updates-widget"]' },
+  },
+  // ── F2 · Hộp thư ──
+  { id: 'inbox:default', route: '/inbox', protoStorage: inbox },
+  {
+    // Prototype không có trạng thái rỗng: gỡ các dòng hội thoại khỏi DOM; app seed ?inbox=empty. So cột danh sách.
+    id: 'inbox:empty',
+    route: '/inbox?inbox=empty',
+    protoStorage: inbox,
+    proto: (p) => p.evaluate(() => document.querySelectorAll('.convrow, .row[style*="border-bottom: 1px solid rgb(243, 244, 246)"]').forEach((n) => n.remove())),
+    clip: { x: 80, y: 44, width: 320, height: 300 },
+  },
+  {
+    id: 'inbox:folder-rail',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.click('div[style*="width: 30px; height: 30px"]:has(path[d="M4 6h16M4 12h16M4 18h16"])'),
+    app: (p) => p.click('[data-testid="inbox-rail-toggle"]'),
+    clip: { x: 80, y: 0, width: 560, height: 900 },
+  },
+  {
+    id: 'inbox:conv-menu',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.click('.convdots'),
+    app: (p) => p.locator('[data-conv="c_lan"] .conv-dots').click(),
+    clip: { x: 80, y: 280, width: 320, height: 300 },
+  },
+  {
+    id: 'inbox:chat-menu',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.click('.msgdots'),
+    app: (p) => p.locator('[data-testid="msg-dots"]').first().click(),
+    clip: { x: 400, y: 200, width: 700, height: 420 },
+  },
+  {
+    id: 'inbox:ai-panel',
+    route: '/inbox',
+    protoStorage: inbox,
+    // ZNS là mục OUT (D29, marketing chỉ Zalo cá nhân + Email): gỡ "Gửi template ZNS" khỏi prototype như mục OUT.
+    proto: async (p) => {
+      await p.locator('div', { hasText: /^Trợ lý AI$/ }).last().click();
+      await p.locator('.chip', { hasText: 'Gửi template ZNS' }).evaluate((n) => n.remove());
+    },
+    app: (p) => p.click('[data-testid="inbox-ai-open"]'),
+    clipTo: { proto: 'div[style*="width: min(440px"]', app: '[data-testid="inbox-ai-modal"] [role="dialog"]' },
+  },
+  {
+    // Ngoại lệ D28 / prototype-parity §6: chỉ kênh có manifest (zalo_personal / webchat / email) kết nối được, còn lại "Sắp có".
+    id: 'inbox:connect-channel',
+    route: '/inbox',
+    protoStorage: inbox,
+    // Thẻ "Tổng đài / Call Center" gỡ như mục OUT (module Gọi điện ẩn — D07, D19); mục "Theo ngành" chưa có dữ liệu nên mask.
+    proto: async (p) => {
+      await p.locator('.btnp', { hasText: 'Kết Nối Kênh' }).click();
+      await p.locator('.chip', { hasText: 'Tổng đài / Call Center' }).evaluate((n) => n.remove());
+    },
+    app: (p) => p.click('[data-testid="inbox-connect"]'),
+    clipTo: { proto: 'div[style*="width: min(900px"]', app: '[data-testid="connect-modal"] [role="dialog"]' },
+  },
+  {
+    id: 'inbox:account-switch',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.locator('span', { hasText: 'Tất cả tài khoản' }).first().click(),
+    app: (p) => p.click('[data-testid="acct-select"]'),
+    clip: { x: 80, y: 180, width: 320, height: 360 },
+    // Tên tài khoản theo channel registry (zalo_personal / webchat / email) — ngoại lệ "Kênh" prototype-parity §6.
+    mask: [{ x: 128, y: 285, width: 222, height: 255, reason: 'prototype-parity §6 Kênh — tên tài khoản theo channel registry' }],
+  },
+  {
+    id: 'inbox:zalo-group-info',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.locator('.row', { hasText: 'Nhóm VIP Spa Hương Sen' }).first().click(),
+    app: (p) => p.locator('[data-conv="g_vip"] button').first().click(),
+  },
+  {
+    // Banner "Cần người" + bản nháp AI dùng khung thẻ "AI gợi ý trả lời" của prototype (L1789–1795): so thẻ đó.
+    id: 'inbox:handoff',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.locator('.appscroll', { hasText: 'Claude Cowork gợi ý trả lời' }).last().evaluate((n) => n.scrollTo(0, n.scrollHeight)),
+    app: (p) => p.locator('[data-conv="c_hieu"] button').first().click(),
+    clipTo: { proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"][style*="border-radius: 12px"]', app: '[data-testid="handoff-banner"]' },
+    // Trạng thái handoff không có trong prototype (REQ-C handoff): so khung thẻ, mask phần chữ khác nội dung.
+    mask: [
+      { x: 44, y: 8, width: 600, height: 26, reason: 'handoff không có trong prototype — tiêu đề / nhãn khác nội dung' },
+      { x: 24, y: 62, width: 616, height: 52, reason: 'handoff không có trong prototype — bản nháp AI khác nội dung' },
+      { x: 24, y: 136, width: 260, height: 36, reason: 'handoff không có trong prototype — nút Nhận xử lý / Dùng bản nháp' },
+    ],
   },
 ];

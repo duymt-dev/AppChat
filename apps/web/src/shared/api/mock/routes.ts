@@ -2,6 +2,7 @@
 import { ROLE_DEFS } from '@appchat/shared';
 import type { MockDb } from './store';
 import { dashboardRoutes } from './domains/dashboard';
+import { inboxRoutes } from './domains/inbox';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -26,4 +27,5 @@ export const mockRoutes: Record<string, MockRoute> = {
     return { status };
   },
   ...dashboardRoutes,
+  ...inboxRoutes,
 };
