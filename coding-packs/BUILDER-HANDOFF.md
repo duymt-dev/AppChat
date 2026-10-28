@@ -63,7 +63,7 @@ Nền tảng cho doanh nghiệp dịch vụ nhỏ vận hành theo mô hình **O
 ### Roadmap Priorities
 
 - Bản phát hành đầu = **toàn bộ P0 + P1** (D26), theo 9 wave trong `02-TASK-GRAPH.md`.
-- Chưa làm: Call Center, Workflow engine, module Báo cáo, kênh Zalo OA / Facebook / Instagram / TikTok / WhatsApp / Telegram, ký số CA, hoá đơn điện tử thật, adapter sàn thật (khung đã có).
+- Chưa làm: Call Center, Workflow engine, module Báo cáo, kênh Zalo OA / Facebook / Instagram / TikTok / WhatsApp / Telegram, ký số CA, hoá đơn điện tử thật, adapter sàn thật (khung đã có), MCP server / client (đã chừa đường — D37).
 
 ### Applicable Standards
 

@@ -518,7 +518,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - **OpenClaw `zalouser`** (MIT): cách quản lý credential, vòng đời listener, dedupe message id, group policy, chuyển markdown sang rich text Zalo, health probe. Có thể vendor rồi viết lại để session lưu theo tenant trong DB của ta.
   - **OpenFang:** manifest "Hands" (playbook + tools + guardrails theo lịch) làm mẫu cho tác vụ tự chủ; loop guard; audit log dạng hash-chain.
   - **Hermes / OpenAI Agents JS:** shape API `runs` + approval; handoff và `RunState` serialize được.
-- **Lối thoát:** Action Registry cũng mở ra dưới dạng **MCP server**. Sau này muốn cắm runtime ngoài (OpenFang, Hermes…) làm engine phụ thì nó vẫn gọi thao tác qua đúng quyền và audit của AppChat.
+- **Lối thoát (P2 — D37, chưa làm ở bản phát hành):** Action Registry cũng mở ra được dưới dạng **MCP server**. Sau này muốn cắm runtime ngoài (OpenFang, Hermes…) làm engine phụ thì nó vẫn gọi thao tác qua đúng quyền và audit của AppChat.
 - **Spike nửa ngày ở đầu TIP AI (chỉ cho phương án B):**
   - Kiểm tra tên trường `usage` của AI SDK v7 khi stream nhiều bước.
   - Kiểm tra kịch bản dừng chờ duyệt rồi chạy tiếp sau khi restart worker (báo giá 25 triệu, duyệt sau 3 giờ).

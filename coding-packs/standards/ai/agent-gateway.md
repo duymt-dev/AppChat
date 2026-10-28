@@ -12,6 +12,7 @@
    - Tool của agent sinh từ `ActionDef` (JSON Schema) và `execute` gọi `ActionExecutor`.
    - Ngoại lệ: meta-tool (`find_actions`, `call_action`, `ui`, `plan`, `query_data`) và tool phối hợp (`delegate`, `transfer_to_agent`, `consult`, `reply`, `handoff`).
    - Không viết logic nghiệp vụ trong tool.
+   - Mọi tool (action, meta, sau này tool MCP ngoài) đi qua một kiểu `ToolSpec` có `origin`; policy tra theo `ActionContext.source`. Giữ vậy để thêm MCP server / client ở P2 mà không sửa engine (D37).
 3. **Quyền:**
    - Trợ lý: `onBehalfOfUserId` (quyền + scope của user).
    - Agent trực kênh: `tool_ids` do Owner cấp ∩ `agentGrantable`, giới hạn trong hội thoại đang phục vụ.

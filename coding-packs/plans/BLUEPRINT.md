@@ -503,7 +503,7 @@ export const defineAction = <I, O>(d: ActionDef<I, O>) => d;
 
 ```ts
 interface ActionContext {
-  workspaceId: string; source: 'ui'|'assistant'|'agent'|'task'|'system'|'api';
+  workspaceId: string; source: 'ui'|'assistant'|'agent'|'task'|'system'|'api';   // 'mcp' dành sẵn cho P2 (D37)
   actor: { type: 'user'|'agent'|'assistant'|'system'; id: string };
   onBehalfOfUserId?: string;   // assistant / task luôn mang user gốc → quyền = quyền user đó
   runId?: string; stepId?: string; idempotencyKey?: string; confirmToken?: string;
@@ -989,7 +989,7 @@ export interface RunRequest {
   maxSteps: number;                     // mặc định 8 (agent), 16 (assistant)
   budget: { maxCredits: number };
 }
-export interface ToolSpec { name: string; description: string; inputSchema: JSONSchema;
+export interface ToolSpec { name: string; description: string; inputSchema: JSONSchema; origin: 'action' | 'meta' | 'external';   // 'external' = tool MCP (P2, D37)
   execute(input: unknown, meta: { stepId: string }): Promise<ToolOutcome>; }
 export type ToolOutcome =
   | { kind: 'ok'; output: unknown }
@@ -1024,6 +1024,10 @@ export type RunEvent = { type: 'delta'|'tool_call'|'tool_result'|'paused'|'usage
   - Tối đa 3 lần `transfer_to_agent` mỗi lượt khách; A → B → A trong cùng một lượt thì handoff sang người.
   - Ngân sách credit chung cho cả cây run (run con trừ vào budget của run gốc).
   - Mọi bước đều ghi vào `ai_run_step` và phát `run.step` qua WS để Owner xem trực tiếp và bấm dừng (`run.cancel` huỷ cả cây).
+- **Đường mở rộng MCP (P2 — D37, chưa làm):**
+  - *MCP server:* `apps/api` thêm route `/mcp` (Streamable HTTP, `@modelcontextprotocol/sdk`); `tools/list` = action lọc theo quyền (như `find_actions`), `tools/call` = `ActionExecutor` với `source='mcp'` (policy như `assistant`: ghi → preview / approval). OAuth 2.1 chọn workspace + nhóm quyền. Không cần đổi Registry vì action đã có JSON Schema + mô tả cho LLM.
+  - *MCP client:* connector `mcp_custom` trong `packages/integrations` (chỉ HTTPS, không stdio); `createMCPClient` của `@ai-sdk/mcp` → `ToolSpec(origin='external')`; Owner đánh dấu tool chỉ đọc, còn lại coi là ghi → approval; kết quả là dữ liệu không tin cậy; trừ credit + log như tool nội bộ.
+  - Ràng buộc cho bản phát hành để giữ đường: không logic nghiệp vụ trong tool; mọi tool đi qua một `ToolSpec`; policy tra theo `source` (không hard-code danh sách nguồn ở nơi khác).
 - **Không làm swarm:** không có kênh để agent tự nhắn agent khác ngoài 3 tool trên; mỗi lần phối hợp đều có một run cha làm đầu mối.
 - **Usage:** mỗi bước LLM phát event `usage` → `CreditMeter.charge(ws, provider, model, in, out, runId, stepIdx)`. Hàm này ghi `credit_ledger` và trừ `credit_wallet` trong một transaction ở **DB nền tảng** (idempotent theo `(ws, 'ai_step', runId:stepIdx)`), sau đó mới ghi `ai_run_step.credits` ở DB tenant. Trước mỗi bước kiểm `balance > 0`; ví hết thì phát `CREDIT_EXHAUSTED`.
 - **LLM Router:**

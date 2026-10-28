@@ -267,6 +267,7 @@ Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực t
 | D34 | Email hệ thống | SMTP / SES / **Brevo** | **Brevo** (API transactional, domain riêng SPF / DKIM / DMARC) qua `MailProvider`; SMTP giữ làm adapter dự phòng | Chủ nhà chốt 2026-10-28 |
 | D35 | Mặc định vận hành | — | Eval: an toàn / quyền 100%, chọn action ≥ 95% (2/3 lần), rubric ≥ 90%. Uỷ quyền ký hợp đồng / duyệt hoàn tiền cho Quản lý mặc định **tắt**. Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo. Đối soát: SePay chính, Casso dự phòng. Tra MST: VietQR. Dev: pgvector native Windows + LibreOffice | Chủ nhà đồng ý theo đề xuất 2026-10-28 |
 | D36 | Duyệt Blueprint | — | **Blueprint đã duyệt** (sau rà soát D27–D35); Task Graph 46 TIP / 9 wave và Builder Handoff sinh từ bản này | Chủ nhà duyệt 2026-10-28 |
+| D37 | MCP | làm ngay (server / client) / **chừa đường** | **Không làm ở bản phát hành.** Orchestrator + copilot + multi-agent chạy hoàn toàn bằng AI SDK + Action Registry nội bộ. Chừa đường P2: (a) MCP server = adapter mỏng trên Action Registry (`@modelcontextprotocol/sdk`, nguồn `mcp`, OAuth); (b) MCP client = tool ngoài qua `@ai-sdk/mcp` cấp cho agent như connector | Chủ nhà chốt 2026-10-28 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
@@ -321,6 +322,7 @@ Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực t
 - Phòng ban, sơ đồ tổ chức, KPI, phân ca, SLA đa chính sách (P3).
 - Adapter thật cho hoá đơn điện tử / ký số CA / kế toán / TMĐT / Sheets (P2 — thẻ "Sắp có" đã IN, D28).
 - Help Center, Training Studio / canary, Dashboard builder, Template Studio.
+- MCP server / MCP client (P2 — đã chừa đường, D37).
 - Kafka, ClickHouse, OpenSearch, K8s, Docker.
 - Mobile native / PWA.
 
