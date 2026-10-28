@@ -69,9 +69,9 @@
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
 | `f2:token-scale` | Chuẩn hoá thang token D41 (chữ / bo góc / viền / spacing) + đo lại F0–F1 | L39–392 | C | ✅ | — | pass | 5d41c73 | D41 · `tokens.ts` thang đều + `tokens.test.ts` + `lint:tokens`; prototype chuẩn hoá bằng `tools/scripts/normalize-prototype.mjs` (9.717 giá trị, chạy lại ra cùng kết quả). Đo lại F0–F1 trên prototype mới: shell:default 0.0109 · rail-collapsed 0.0001 · flyout-crm 0.0020 · notifications 0.0001 · user-menu 0.0001 · assistant-dock 0.0062 · auth:login 0.0192 · otp 0.0315 · register 0.0186 · forgot 0.0164 · declare-business 0.0316 · declare-individual 0.0301 · trial-welcome 0.0261 · trial-expired 0.0375 |
-| `dashboard:default` | Tổng quan có dữ liệu | L1079 | P | ⬜ | | | | |
-| `dashboard:new-workspace` | Tổng quan workspace mới (onboarding checklist) | L1079 | P | ⬜ | | | | |
-| `dashboard:widget-picker` | Chọn widget | L1139 | P | ⬜ | | | | |
+| `dashboard:default` | Tổng quan có dữ liệu | L1079 | P | ✅ | 0.0171 | pass | db52d91 | Checklist thu gọn (obCollapsed) + 4 thống kê + 4 thẻ + trung tâm cập nhật; pill module bỏ Gọi điện / Quy trình (D07, D19) |
+| `dashboard:new-workspace` | Tổng quan workspace mới (onboarding checklist) | L1079 | P | ✅ | 0.0085 | pass | db52d91 | Checklist 5 bước mở, 0/5 (mặc định prototype); đánh dấu qua `onboarding.toggle_step` |
+| `dashboard:widget-picker` | Chọn widget | L1139 | P | ✅ | 0.0257 | pass | db52d91 | L1139 = "Trung tâm cập nhật" (prototype không có bộ chọn widget riêng): 3 tab Cần follow / Tin tức / Thông báo, thu nhỏ thành nút "Cập nhật"; `follow_up.complete` hoàn tác 24h |
 | `inbox:default` | 3 cột, đang mở một hội thoại | L1505 | P | ⬜ | | | | |
 | `inbox:empty` | Chưa có hội thoại | L1505 | P | ⬜ | | | | |
 | `inbox:folder-rail` | Rail thư mục mở | L1602 | P | ⬜ | | | | |
