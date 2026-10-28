@@ -19,7 +19,7 @@
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
 | F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
-| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | 3126b8f | |
+| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | bf2b4a5 | [#4](https://github.com/duymt-dev/AppChat/pull/4) (xếp chồng #3) |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
