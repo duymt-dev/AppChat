@@ -1,0 +1,13 @@
+{
+  "appName": "AppChat",
+  "close": "Đóng",
+  "cancel": "Huỷ",
+  "confirm": "Xác nhận",
+  "retry": "Thử lại",
+  "undo": "Hoàn tác",
+  "loading": "Đang tải…",
+  "seeMore": "Xem thêm →",
+  "empty": "Chưa có dữ liệu",
+  "noPermission": "Bạn không có quyền xem mục này",
+  "error": "Đã có lỗi xảy ra"
+}

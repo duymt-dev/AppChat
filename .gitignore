@@ -1,2 +1,17 @@
 specs/.zip
 coding-packs/handoffs/
+node_modules/
+.pnpm-store/
+.turbo/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+tools/parity/out/
+apps/web/test-results/
+apps/web/playwright-report/
+.DS_Store
+apps/web/next-env.d.ts

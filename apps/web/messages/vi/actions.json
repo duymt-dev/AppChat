@@ -1,0 +1,19 @@
+{
+  "notification": {
+    "mark_read": {
+      "title": "Đánh dấu thông báo đã đọc"
+    }
+  },
+  "profile": {
+    "update": {
+      "title": "Cập nhật hồ sơ"
+    }
+  },
+  "workspace": {
+    "switch": {
+      "title": "Chuyển workspace"
+    }
+  },
+  "done": "Đã thực hiện: {title}",
+  "previewTitle": "Xác nhận thao tác"
+}

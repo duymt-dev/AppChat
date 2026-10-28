@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "dashboard": "Tổng quan",
+    "assistant": "Trợ lý AI",
+    "inbox": "Hộp thư",
+    "customers": "Khách hàng",
+    "tickets": "Hỗ trợ",
+    "marketing": "Marketing",
+    "calendar": "Lịch hẹn",
+    "agents": "AI Agents",
+    "loyalty": "Khách thân thiết",
+    "quotes": "Báo giá",
+    "contracts": "Hợp đồng",
+    "orders": "Đơn hàng",
+    "products": "Sản phẩm",
+    "invoices": "Đề nghị thanh toán",
+    "settings": "Cài đặt",
+    "more": "Thêm"
+  },
+  "collapse": "Thu gọn",
+  "expand": "Mở rộng",
+  "assistantFly": {
+    "title": "Trợ lý AI · AppChat",
+    "chats": "Nội dung trò chuyện",
+    "actions": "Nhật ký hành động"
+  },
+  "crmFly": {
+    "title": "Khách hàng & CRM",
+    "customers": "Khách hàng",
+    "products": "Sản phẩm",
+    "quotes": "Báo giá",
+    "orders": "Đơn bán hàng",
+    "invoices": "Đề nghị thanh toán",
+    "contracts": "Hợp đồng",
+    "loyalty": "Khách hàng thân thiết"
+  },
+  "notifications": {
+    "label": "Thông báo",
+    "title": "Thông báo",
+    "markRead": "Đánh dấu đã đọc"
+  },
+  "upgrade": "Nâng cấp",
+  "news": {
+    "title": "Tin tức & cập nhật",
+    "body": "AppChat vừa ra mắt Claude Cowork & Voice AI cho gói mới."
+  },
+  "trial": {
+    "active": "Trial Cá nhân Pro · Còn {days} ngày",
+    "free": "Gói Miễn phí"
+  },
+  "user": {
+    "onDuty": "Trực",
+    "switchWorkspace": "Chuyển workspace",
+    "profile": "Hồ sơ của tôi",
+    "accountSettings": "Cài đặt tài khoản",
+    "language": "Ngôn ngữ",
+    "helpCenter": "Trung tâm trợ giúp",
+    "supportChat": "Chat với hỗ trợ",
+    "wallet": "Ví AppChat",
+    "logout": "Đăng xuất"
+  },
+  "dock": {
+    "title": "Trợ lý AI",
+    "subtitle": "Phiên bản thu nhỏ · hỗ trợ ngay trong màn hình",
+    "placeholder": "Hỏi trợ lý…",
+    "openFull": "Mở toàn màn hình",
+    "greeting": "Em có thể tóm tắt, soạn nội dung hoặc thao tác thay anh/chị ngay trên màn này.",
+    "quick": "Hành động nhanh",
+    "send": "Gửi"
+  }
+}

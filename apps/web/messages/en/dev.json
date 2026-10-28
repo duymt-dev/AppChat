@@ -1,0 +1,10 @@
+{
+  "role": "Role (mock)",
+  "roles": {
+    "owner": "Owner",
+    "manager": "Manager",
+    "sales": "Sales",
+    "cs": "Customer care",
+    "accountant": "Accountant"
+  }
+}

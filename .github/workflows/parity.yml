@@ -1,0 +1,46 @@
+# D40 — parity < 5% với prototype cho màn của module đổi (lớp dùng chung đổi → mọi màn đã khai).
+name: parity
+
+on:
+  pull_request:
+    paths:
+      - apps/web/**
+      - packages/ui/**
+      - packages/shared/**
+      - tools/parity/**
+      - fixtures/prototype-parity/**
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parity:
+    runs-on: ubuntu-24.04
+    env:
+      NEXT_PUBLIC_API_MODE: mock
+      PARITY_APP_URL: http://localhost:3417
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Chromium đúng bản Playwright; font Plus Jakarta Sans / JetBrains Mono lấy từ @fontsource trong repo (không CDN)
+      - run: pnpm --filter @appchat/parity exec playwright install --with-deps chromium
+      - run: pnpm --filter @appchat/web exec next build
+      - name: Start app
+        run: |
+          pnpm --filter @appchat/web exec next start -p 3417 &
+          npx --yes wait-on http://localhost:3417/dashboard --timeout 120000
+      - run: git fetch origin dev && pnpm parity --changed
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-diff
+          path: tools/parity/out/
+          if-no-files-found: ignore

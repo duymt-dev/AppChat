@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+  - tools/parity
+autoInstallPeers: true
+strictPeerDependencies: false
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  '@parcel/watcher': true
+  '@swc/core': true
+minimumReleaseAgeExclude:
+  - '@boundaries/elements@3.3.0'
+  - eslint-plugin-boundaries@7.4.0

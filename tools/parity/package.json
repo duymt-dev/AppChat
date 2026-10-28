@@ -1,0 +1,23 @@
+{
+  "name": "@appchat/parity",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "baseline": "tsx src/cli.ts baseline",
+    "parity": "tsx src/cli.ts compare",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "node -e \"process.exit(0)\""
+  },
+  "devDependencies": {
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@fontsource/plus-jakarta-sans": "5.3.0",
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "@types/pngjs": "6.0.5",
+    "pixelmatch": "7.2.0",
+    "pngjs": "7.0.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3"
+  }
+}

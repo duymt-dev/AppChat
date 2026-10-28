@@ -1,0 +1,17 @@
+{
+  "VALIDATION_FAILED": "Dữ liệu chưa hợp lệ",
+  "UNAUTHENTICATED": "Phiên đăng nhập đã hết hạn",
+  "FORBIDDEN": "Bạn không có quyền thực hiện thao tác này",
+  "SCOPE_FORBIDDEN": "Bản ghi nằm ngoài phạm vi dữ liệu của bạn",
+  "NOT_FOUND": "Không tìm thấy dữ liệu",
+  "CONFLICT": "Dữ liệu đã thay đổi, vui lòng tải lại",
+  "CONTACT_OWNED": "Khách này đã có người phụ trách",
+  "IDEMPOTENCY_REPLAY": "Yêu cầu đã được xử lý",
+  "RATE_LIMITED": "Thao tác quá nhanh, thử lại sau",
+  "PLAN_LIMIT_REACHED": "Đã chạm giới hạn của gói",
+  "CREDIT_EXHAUSTED": "Đã hết credit AI",
+  "ACTION_NOT_FOUND": "Thao tác không tồn tại",
+  "PREVIEW_REQUIRED": "Cần xác nhận trước khi thực hiện",
+  "APPROVAL_REQUIRED": "Đã gửi yêu cầu duyệt",
+  "INTERNAL": "Lỗi hệ thống, thử lại sau"
+}
