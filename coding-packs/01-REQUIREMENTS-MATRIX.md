@@ -108,12 +108,13 @@
 | REQ-F02 | **Hồ sơ 360°:** tóm tắt AI, thông tin, timeline đa kênh, đơn / báo giá / lịch hẹn / ticket, ghi chú, hạng loyalty. | P0 | Chủ DN | TBD |
 | REQ-F03 | Check trùng và gộp hồ sơ (SĐT / email / ID kênh / MST); import và export Excel. | P1 | Chủ DN | TBD |
 | REQ-F04 | **Custom fields** theo workspace và ngành (Text, Number, Currency, Date, Phone, Email, Picklist, Lookup, File), tự áp vào bảng, form, bộ lọc và chi tiết. | P1 | Chủ DN | TBD |
-| REQ-F05 | **Sản phẩm & Dịch vụ:** các loại vật lý / dịch vụ / combo / thẻ-liệu trình; giá, giá vốn, đơn vị tính, thuế, tồn kho, ảnh, danh mục. **Agent dùng làm nguồn tư vấn và báo giá.** | P0 | Chủ DN | TBD |
-| REQ-F06 | **Báo giá:** do agent hoặc người tạo; mặc định hết hạn sau 15 ngày; versioning n+1 khi bị yêu cầu sửa hoặc từ chối; trạng thái chờ / đã chấp nhận / yêu cầu sửa / từ chối / hết hạn; gửi khách qua kênh hội thoại (PDF hoặc ảnh). | P0 | Chủ DN / Agent | TBD |
-| REQ-F07 | **Đơn hàng:** tạo từ báo giá hoặc trực tiếp; trạng thái new → confirmed → (shipping) → done / cancelled; trạng thái thanh toán; hoàn tất đơn phát event `order.completed`. | P0 | Chủ DN / Agent | TBD |
-| REQ-F08 | **Hoá đơn và thu tiền:** hoá đơn từ đơn hàng; gửi QR thanh toán VietQR cho khách cuối; trạng thái Nháp / Đã gửi / Đã thanh toán / Quá hạn; công nợ. | P1 | Chủ DN | TBD |
-| REQ-F09 | Hợp đồng (từ báo giá thắng, duyệt, ký). | P2 | Chủ DN | TBD |
-| REQ-F10 | Pipeline tự cập nhật giai đoạn khách theo luồng báo giá → đơn → hoá đơn (BR-09). | P0 | — | TBD |
+| REQ-F05 | **Sản phẩm & Dịch vụ:** 6 loại (vật lý / dịch vụ / combo / thẻ-liệu trình / số / cho thuê); giá chưa VAT, giá vốn, ĐVT, thuế theo dòng, ảnh, danh mục; **biến thể** (P1); **tồn kho** trừ khi đơn xác nhận, hoàn khi huỷ, cho phép âm kèm cảnh báo (D24). **Agent dùng làm nguồn tư vấn và báo giá.** | P0 | Chủ DN | TBD |
+| REQ-F06 | **Báo giá:** agent hoặc người tạo; chiết khấu theo dòng và trên tổng, thuế sau chiết khấu; **hiệu lực 15 ngày kể từ lúc gửi**; versioning n+1; duyệt chỉ khi vượt ngưỡng (> 20 triệu hoặc giảm > 5%); gửi PDF qua kênh; khách phản hồi trong chat thì AI cập nhật trạng thái; báo giá chấp nhận → nút **"→ Đơn hàng"** (D24). | P0 | Chủ DN / Agent | TBD |
+| REQ-F07 | **Đơn hàng:** tạo từ báo giá, gợi ý từ lịch hẹn hoàn tất, hoặc trực tiếp. **Hai trục:** tiến độ (Mới → Đang xử lý → **Hoàn tất** / Huỷ) và thanh toán (Chưa TT · **Chờ cọc** (chỉ đơn cần cọc) · Đã cọc · Một phần · Đã TT · Đã hoàn). Huỷ đơn đã thu tiền thì sinh hoàn tiền có duyệt; vận chuyển nhập tay. `order.completed` cộng điểm (D24). | P0 | Chủ DN / Agent | TBD |
+| REQ-F08 | **Đề nghị thanh toán & thu tiền** (không thay hoá đơn GTGT; hoá đơn điện tử P2): cọc / đợt / toàn bộ; VietQR; hạn 7 ngày, nhắc T-1/T+1/T+7; xác nhận tay **hoặc** đối soát tự động khi DN kết nối SePay/Casso; phiếu thu; công nợ theo khách; hoàn tiền luôn duyệt (D24). | P0 | Chủ DN | TBD |
+| REQ-G07 | **Liệu trình / gói buổi:** gói sinh khi đơn có gói được xác nhận và đã thu đủ (hoặc đã cọc nếu cho phép); lịch hẹn hoàn tất thì trừ 1 buổi; no-show không trừ (cấu hình được); nhắc khi còn 1 buổi / 7 ngày; hết hạn thì khoá, Owner gia hạn tay; hiển thị ở 360°, agent đọc được (D24). | P0 | Chủ DN / Agent | TBD |
+| REQ-F09 | Hợp đồng (từ báo giá thắng, duyệt, ký). Bên bán tự soạn và ký, không cần đăng ký với cơ quan nhà nước; khách xác nhận bằng OTP / ký trên màn hình. | P2 | Chủ DN | TBD |
+| REQ-F10 | Pipeline tự cập nhật giai đoạn khách: gửi báo giá → Báo giá; đơn hoàn tất → Đã mua; báo giá từ chối / hết hạn → Đang tư vấn; không hạ giai đoạn của khách đã mua; kéo tay luôn thắng (thay BR-09; D24). | P0 | — | TBD |
 
 ### Domain G — Lịch hẹn
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -123,7 +124,7 @@
 | REQ-G03 | **Chống trùng lịch** theo nhân sự (P0) và theo phòng / thiết bị (P2); agent gợi ý slot trống gần nhất. | P0 | Agent | TBD |
 | REQ-G04 | Nhắc hẹn trước 24 giờ và 2 giờ qua kênh khách đã dùng; khách trả lời "đổi" hoặc "huỷ" thì agent xử lý. | P1 | Agent | TBD |
 | REQ-G05 | Bắt buộc gắn lịch với Khách hàng trong CRM. | P0 | — | TBD |
-| REQ-G06 | Danh sách chờ, lịch lặp / liệu trình, dự báo no-show, đặt cọc. | P2 | — | TBD |
+| REQ-G06 | Danh sách chờ, lịch lặp, dự báo no-show, đặt cọc. | P2 | — | TBD |
 
 ### Domain H — Hỗ trợ (Ticket) & SLA
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -148,8 +149,8 @@
 | REQ-ID | Requirement | Priority | Persona | TIP |
 |---|---|---|---|---|
 | REQ-J01 | Hạng thành viên (mặc định Thành viên 0 / Bạc 5.000 / Vàng 15.000 / Kim cương 40.000 điểm; cấu hình được); sổ cái điểm (point ledger). | P1 | Chủ DN | TBD |
-| REQ-J02 | Tự cộng điểm khi `order.completed`. Công thức cấu hình được (mặc định 10.000₫ = 1 điểm, nhân hệ số theo hạng); tỉ lệ quy đổi điểm ↔ tiền cấu hình được. | P1 | — | TBD |
-| REQ-J03 | Ghi nhận và điều chỉnh điểm thủ công (bắt buộc lý do, có log, hoàn tác được); **đổi điểm** khi tạo đơn hoặc hoá đơn (lấp gap G5). | P1 | Chủ DN | TBD |
+| REQ-J02 | Tự cộng điểm **một lần** khi `order.completed`: **10.000đ = 1 điểm** trên số tiền thực trả sau chiết khấu, trước VAT, nhân hệ số hạng (Vàng ×1,5, Kim cương ×2); quy đổi 1 điểm = 100đ; cấu hình được (D24). | P1 | — | TBD |
+| REQ-J03 | Ghi nhận và điều chỉnh điểm thủ công (bắt buộc lý do, có log, hoàn tác được); **đổi điểm** khi thanh toán (tối đa 50% giá trị đơn); huỷ / hoàn tiền thì đảo điểm theo tỉ lệ; điểm hết hạn 12 tháng; xét hạng mỗi quý (D24). | P1 | Chủ DN | TBD |
 | REQ-J04 | Agent biết hạng và điểm của khách để tư vấn ưu đãi; hiển thị trên Hồ sơ 360°. | P1 | Agent | TBD |
 | REQ-J05 | Rule builder KHI · NẾU · THÌ (10 sự kiện); cảnh báo khách sắp rời bỏ. | P2 | — | TBD |
 
@@ -168,7 +169,7 @@
 | REQ-L04 | Thanh toán **VietQR**: QR động theo mã đơn, hết hạn 15 phút; webhook ngân hàng tự đối soát (idempotent theo `invoice_id`); sau đó kích hoạt gói hoặc cộng credit. Có thêm chuyển khoản thủ công (pending_review → admin xác nhận). | P0 | Chủ DN | TBD |
 | REQ-L05 | Trang Gói & thanh toán: gói hiện tại, ngày hết hạn, credit còn lại, mua thêm (credit / kênh / user), lịch sử hoá đơn (PDF). | P0 | Chủ DN | TBD |
 | REQ-L06 | Popup Nâng cấp: chọn Cá nhân / Doanh nghiệp, 4 thẻ gói, bảng so sánh. | P0 | Chủ DN | TBD |
-| REQ-L07 | Hết hạn gói: popup gia hạn; dữ liệu giữ 30 ngày. Tự nạp khi số dư thấp. | P1 | — | TBD |
+| REQ-L07 | Hết hạn gói: popup gia hạn; dữ liệu giữ 30 ngày. Nhắc khi credit đã dùng 80% / 95% (**bỏ tự nạp** vì VietQR không trừ tự động — D24). Credit gói không cộng dồn; credit mua thêm không hết hạn; nâng gói giữa kỳ tính chênh theo ngày. | P1 | — | TBD |
 | REQ-L08 | **Trang quản trị nền tảng** (cho đội AppChat): quản lý tenant, gói, giá, đối soát chuyển khoản, đơn giá model. | P1 | Platform admin | TBD |
 
 ### Domain M — Cài đặt
@@ -237,6 +238,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D19 | Module Báo cáo | giữ 6 trang / bỏ | **Bỏ khỏi phạm vi.** Số liệu chỉ hiện ở Tổng quan, Hiệu suất agent (REQ-D14), thống kê chiến dịch (REQ-I05), KPI Ticket (REQ-H04) và truy vấn qua Trợ lý AI (REQ-E07) | Chủ nhà chốt 2026-10-28: không có trong prototype hiện hành và docs mới |
 | D20 | Hạ tầng production | cloud managed / Docker / native VPS | **Native trên VPS Linux** (systemd + PM2, nginx, PG16, Redis), monitoring **Prometheus + Grafana + Loki** trên VPS riêng, backup pgBackRest offsite | Chủ nhà chốt 2026-10-28 |
 | D21 | Mô hình tenant | shared DB + RLS / schema riêng / **database riêng** | **Mỗi workspace một database riêng (`CREATE DATABASE`) + DB nền tảng**; ví credit và hoá đơn gói ở DB nền tảng | Chủ nhà chốt 2026-10-28 |
+| D24 | Luồng nghiệp vụ Commerce | — | **Chốt toàn bộ theo `plans/COMMERCE-DECISIONS.md`** (Q1–Q8, 8b, 9a, 9b + mặc định): điểm 10.000đ, đề nghị thanh toán (e-invoice P2), đối soát tay + SePay/Casso, báo giá 15 ngày từ lúc gửi, agent giảm tối đa 5%, cọc / một phần, liệu trình, tồn kho, báo giá → đơn bằng nút, lịch hẹn → đơn chỉ gợi ý, bước cuối "Hoàn tất", chờ cọc chỉ cho đơn cần cọc | Chủ nhà chốt 2026-10-28 |
 | D23 | Workspace không hoạt động | giữ DB mãi / tự lưu trữ | **Tự lưu trữ gói Miễn phí sau 90 ngày không hoạt động** (dump + drop, khôi phục khi đăng nhập; trả phí/trial không áp dụng; bản lưu trữ không tự xoá) | Chủ nhà đồng ý 2026-10-28; giảm số DB trên cluster (rủi ro K7) |
 | D22 | i18n khi phát hành | vi + en / đủ 11 ngôn ngữ | **vi + en**, registry 11 ngôn ngữ để bật dần bằng file bản dịch | Chủ nhà chọn A 2026-10-28 |
 | D18 | UI kit & nền tảng hiển thị | Tailwind + shadcn / antd + antd-mobile / antd một codebase | **Ant Design v6 + Ant Design X, một codebase responsive desktop + mobile web; token theo prototype; parity < 5%** | Chủ nhà chốt 2026-10-28 |

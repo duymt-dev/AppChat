@@ -233,7 +233,7 @@ PostgreSQL 16 cluster (native)  ── PgBouncer (transaction mode, :6432) ─�
 - **Tiền:** `bigint`, đơn vị VND (không dùng float). **Credit:** `bigint`.
 - **Thời gian:** `timestamptz`; hiển thị theo timezone của workspace (mặc định `Asia/Ho_Chi_Minh`).
 - **Enum:** dùng Postgres enum qua Prisma, giá trị tiếng Anh snake_case. Nhãn hiển thị nằm trong i18n.
-- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `HD-…`, `LH-…`, `TK-…`. Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
+- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `TT-…` (đề nghị thanh toán), `LH-…`, `TK-…`. Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
 - **Extensions** (cài sẵn trong DB template): `pgcrypto`, `vector` (pgvector), `pg_trgm`, `unaccent`, `btree_gist`, `citext`.
 - **Hàm bất biến:** `f_unaccent(text) IMMUTABLE`, dùng cho expression index tìm kiếm tiếng Việt không dấu.
 - **Index:**
@@ -258,6 +258,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `business_profile` | ws (pk), kind(enterprise\|household\|individual), tax_code?, national_id?, legal_name, address, representative, phone, founded_on?, legal_status?, industry_group, industry, business_description, declared_at | 1-1 workspace |
 | `tenant_channel_route` | channel_account_id (pk), ws, type, external_id, status | worker-channels đọc để biết account cần giữ phiên + DB đích; đồng bộ khi kênh đổi trạng thái |
 | `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
+| `tenant_bank_feed_route` | feed_id (pk), ws, provider | webhook SePay / Casso của DN → DB đích |
 | `tenant_migration` | ws, version, status(pending\|running\|done\|failed), error?, started_at, finished_at | idx(status, version) |
 | `workspace_stats` | ws (pk), contacts, conversations_30d, messages_30d, db_size_bytes, last_active_at, refreshed_at | job đêm gom từ từng DB, phục vụ trang quản trị |
 | `platform_audit_log` | actor_user_id, action_id, ws?, input jsonb, result jsonb, created_at | audit cho action `admin.*` và action chạm DB nền tảng |
@@ -268,11 +269,11 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 |---|---|---|
 | `plan` | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, archive_inactive_days? (Miễn phí = 90, còn lại null), active, sort | seed theo prototype; sửa được trong trang admin |
 | `subscription` | ws (unique), plan_id, status(trialing\|active\|expired\|cancelled), trial_started_at, trial_ends_at, current_period_start, current_period_end | |
-| `credit_wallet` | ws (pk), balance bigint, low_threshold, warn_80_sent_at, auto_topup jsonb | `balance >= 0` CHECK |
+| `credit_wallet` | ws (pk), plan_balance bigint (reset mỗi kỳ, không cộng dồn), topup_balance bigint (không hết hạn), low_threshold, warn_80_sent_at, warn_95_sent_at | CHECK cả hai ≥ 0; trừ plan_balance trước |
 | `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
 | `model_price` | provider, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
 | `model_route` | tier, priority, provider, model, purpose(chat\|embed) | fallback theo priority |
-| `billing_invoice` | ws, code, kind(plan\|credits\|addon), plan_id?, credits?, amount, status(pending\|pending_review\|paid\|expired\|cancelled), method(qr\|bank_transfer), transfer_code unique, qr_payload, expires_at, paid_at, bank_tx_id? | partial idx(status) WHERE status in (pending, pending_review) |
+| `billing_invoice` | ws, code, kind(plan\|credits\|addon\|upgrade_proration), plan_id?, credits?, amount, vat_info jsonb (MST, tên đơn vị, địa chỉ, email nhận), status(pending\|pending_review\|paid\|expired\|cancelled), method(qr\|bank_transfer), transfer_code unique, qr_payload, expires_at, paid_at, bank_tx_id? | partial idx(status) WHERE status in (pending, pending_review) |
 | `bank_transaction` | provider, provider_tx_id unique, amount, content, account_no, occurred_at, matched_invoice_id?, raw jsonb | idempotent theo `provider_tx_id` |
 
 **[T] tenant/channels.prisma** (TIP-014) + **tenant/channels-webchat.prisma** (`webchat_widget` — TIP-017)
@@ -306,18 +307,21 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact_note` | contact_id, body, author_user_id | |
 | `custom_field_def` | entity(contact\|product\|quote\|order\|ticket\|appointment), key, label, type(text\|number\|currency\|date\|email\|phone\|picklist\|lookup\|file\|textarea), options jsonb, required, sort, visible_in jsonb | unique(entity, key) |
 
-**[T] tenant/catalog.prisma** — `product_category(name, parent_id?)`; `product(code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)`; `product_component(product_id, child_id, qty)` cho combo. Index: gin trigram trên tên; idx(status, type).
+**[T] tenant/catalog.prisma** — `product_category(name, parent_id?)`; `product(code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, package_service_ids uuid[]?, allow_use_on_deposit bool, low_stock_threshold?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)` — giá **chưa VAT**; `product_variant(product_id, sku, name, attrs jsonb, price?, stock, status)` (P1); `product_component(product_id, child_id, qty)` cho combo; `stock_movement(product_id, variant_id?, kind(sale|return|adjust|import), qty, ref_type, ref_id, reason?, actor_id, created_at)` với idx(product_id, created_at desc). Index: gin trigram trên tên; idx(status, type). Quy tắc kho: COMMERCE-DECISIONS §2.
 
 **[T] tenant/sales.prisma**
 
 | Bảng | Trường |
 |---|---|
-| `quote` | code, version int, root_quote_id?, contact_id, conversation_id?, status(draft\|pending_approval\|sent\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, discount_total, tax_total, total, valid_until (mặc định +15 ngày), note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
-| `quote_item` | quote_id, product_id?, name, qty numeric(12,2), unit_price, discount, tax_rate, line_total, sort |
-| `order` | code, contact_id, quote_id?, conversation_id?, status(new\|confirmed\|shipping\|done\|cancelled), pay_status(unpaid\|partial\|paid\|refunded), subtotal, discount_total, points_redeemed, points_value, tax_total, total, shipping jsonb?, completed_at?, cancelled_reason? |
-| `order_item` | order_id, product_id?, name, qty, unit_price, discount, tax_rate, line_total |
-| `invoice` | code, order_id, contact_id, status(draft\|sent\|paid\|overdue\|void), total, paid_amount, due_date, sent_at?, file_id? |
-| `customer_payment` | invoice_id, amount, method(qr\|bank_transfer\|cash\|card), reference?, status(pending\|confirmed\|failed), confirmed_by? |
+| `quote` | code, version int, root_quote_id?, contact_id, conversation_id?, status(draft\|pending_approval\|approved\|sent\|viewed\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, line_discount_total, header_discount (pct\|amount), discount_total, tax_total, total, valid_days (15), valid_until (= sent_at + valid_days), viewed_at?, order_id?, note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
+| `quote_item` | quote_id, product_id?, variant_id?, name, qty numeric(12,2), unit_price (chưa VAT), discount (pct\|amount), tax_rate, line_total, sort — thuế tính sau chiết khấu |
+| `order` | code, contact_id, quote_id? (unique), appointment_id?, conversation_id?, **status(new\|processing\|completed\|cancelled)**, **pay_status(unpaid\|awaiting_deposit\|deposited\|partial\|paid\|partially_refunded\|refunded)**, deposit_required bool, deposit_amount?, subtotal, discount_total, tax_total, total, paid_total, refunded_total, points_used, shipping jsonb? (đơn vị, mã vận đơn, ngày giao dự kiến), confirmed_at?, completed_at?, cancelled_at?, cancel_reason? |
+| `order_item` | order_id, product_id?, variant_id?, name, qty, unit_price, discount, tax_rate, line_total |
+| `invoice` | **Đề nghị thanh toán** (mã `TT-…`): code, order_id, contact_id, kind(deposit\|installment\|full), status(draft\|sent\|partial\|paid\|overdue\|void), amount, paid_amount, due_date (mặc định +7 ngày), reminders_sent jsonb, sent_at?, file_id?, einvoice_ref? (P2). Index: idx(contact_id, status) INCLUDE(amount, paid_amount, due_date); partial idx(due_date) WHERE status in (sent, partial) |
+| `customer_payment` | invoice_id, order_id, contact_id, kind(deposit\|payment\|points\|refund), amount (refund < 0), method(qr\|bank_transfer\|cash\|card\|points), reference?, bank_tx_ref?, status(pending\|confirmed\|failed\|needs_review), confirmed_by?, approval_id? (refund), receipt_file_id? |
+| `customer_package` | contact_id, product_id, order_id, total_sessions, used_sessions, expires_at, status(active\|exhausted\|expired\|refunded), extended_by?, note. Index: idx(contact_id, status) |
+| `package_usage` | package_id, appointment_id (unique), used_at, reverted_at? |
+| `tenant_bank_feed` | provider(sepay\|casso), account_no, secret_enc bytea, status, last_tx_at — DN tự kết nối để đối soát tự động (Q3) |
 | `payment_account` | bank_bin, account_no, account_name — tài khoản nhận tiền của DN, dùng sinh VietQR cho khách |
 
 **[T] tenant/booking.prisma**
@@ -338,7 +342,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 **[T] tenant/marketing.prisma** — `segment(name, filter jsonb /* AST điều kiện */, is_dynamic, last_count)`; `campaign(code, name, kind(reactivation|upsell|conversion|aftercare|manual), channel(zalo|email), segment_id, content jsonb {text, variables, cta, attachments}, ab jsonb?, status(draft|pending_approval|approved|scheduled|running|paused|completed|rejected|cancelled), scheduled_at?, approved_by?, approved_at?, est_recipients, est_credits, stats jsonb, suggestion_id?)`; `campaign_recipient(campaign_id, contact_id, status(pending|skipped|sent|failed|replied|converted), skip_reason?, message_id?, sent_at?)` với unique(campaign_id, contact_id); `campaign_suggestion(kind, title, reason, segment_filter, est_count, best_time, channel, status(new|used|dismissed), generated_at)`.
 
-**[T] tenant/loyalty.prisma** — `loyalty_config(id smallint pk = 1, enabled, earn_vnd_per_point (10000), redeem_vnd_per_point (100), tiers jsonb [{key:'member',min:0,mult:1},{key:'silver',min:5000,mult:1},{key:'gold',min:15000,mult:1.5},{key:'diamond',min:40000,mult:2}], expiry_months?)`; `loyalty_ledger(contact_id, delta, balance_after, kind(earn|redeem|adjust|expire|reverse), reason, ref_type, ref_id, actor_type, actor_id, reversed_by_id?)` với idx(contact_id, created_at desc).
+**[T] tenant/loyalty.prisma** — `loyalty_config(id smallint pk = 1, enabled, earn_vnd_per_point (10000), redeem_vnd_per_point (100), tiers jsonb [{key:'member',min:0,mult:1},{key:'silver',min:5000,mult:1},{key:'gold',min:15000,mult:1.5},{key:'diamond',min:40000,mult:2}], expiry_months (12), max_redeem_pct (50), tier_window_months (12), tier_review (quarterly))`; `loyalty_ledger(contact_id, delta, balance_after, kind(earn|redeem|adjust|expire|reverse), reason, ref_type, ref_id, expires_at?, remaining?, actor_type, actor_id, reversed_by_id?)` với idx(contact_id, created_at desc); unique(kind, ref_type, ref_id) WHERE kind='earn' — chống cộng điểm hai lần. Quy tắc: COMMERCE-DECISIONS §7.
 
 **[T] tenant/ai-*.prisma** (riêng `agent_template` ở [P] platform/templates.prisma) — `ai_run`, `ai_run_step` → ai-runs (TIP-019) · `kb_*` → ai-kb (TIP-020) · `ai_agent`, `agent_template`, `approval_request`, `ai_governance` → ai-agents (TIP-021) · `assistant_*` → ai-assistant (TIP-023) · `ai_task` → ai-tasks (TIP-035)
 
@@ -354,7 +358,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `assistant_session` | user_id, title, mode(chat\|cowork), last_message_at, archived_at? |
 | `assistant_message` | session_id, role(user\|assistant\|tool), content jsonb (parts: text, card, ui_command, attachment), run_id? |
 | `ai_task` | name, goal, department, agent_id, trigger(manual\|schedule\|event), cron?, event_type?, data_scope jsonb, tool_ids text[], credit_limit_per_run, ask_before_send bool, model_tier, status(active\|paused), last_run_at, next_run_at |
-| `ai_governance` | id smallint pk = 1, banned_words text[], force_approval jsonb (quote_total_over 20000000, discount_over_pct, refund, bulk_send, contract), pii_filter bool, default_threshold |
+| `ai_governance` | id smallint pk = 1, banned_words text[], force_approval jsonb (quote_total_over 20000000, discount_over_pct 5, refund always, bulk_send, contract), pii_filter bool, default_threshold |
 
 **[T] tenant/kernel.prisma** (hạ tầng chung — TIP-002)
 
@@ -375,10 +379,12 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `message.sent` | … | support (first_response), marketing (stats) |
 | `conversation.handoff` | reason, summary | notify Owner/assignee |
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
-| `quote.sent` / `quote.accepted` / `quote.rejected` | | crm stage → quote / won; timeline |
-| `order.completed` / `order.cancelled` | total, contact_id | loyalty earn / reverse, crm stage won, total_spent |
-| `invoice.paid` | | order.pay_status |
-| `appointment.created` / `confirmed` / `completed` / `no_show` / `cancelled` | | reminders, timeline, ai tasks, loyalty (gói buổi) |
+| `quote.sent` / `quote.viewed` / `quote.accepted` / `quote.rejected` / `quote.expired` | | crm stage (COMMERCE-DECISIONS §8); timeline; nhắc hết hạn |
+| `order.confirmed` | order_id | trừ kho (`stock_movement`), sinh `customer_package` nếu đủ điều kiện |
+| `order.completed` / `order.cancelled` | total, net_before_vat, contact_id | loyalty earn (một lần) / reverse; crm stage → Đã mua; total_spent; hoàn kho + yêu cầu hoàn tiền khi huỷ |
+| `payment.confirmed` / `payment.refunded` | invoice_id, order_id, amount | tính lại `invoice.status` + `order.pay_status`; phiếu thu; sinh gói khi đã đủ tiền |
+| `invoice.overdue` | | nhắc khách T+1 / T+7; công nợ |
+| `appointment.created` / `confirmed` / `completed` / `no_show` / `cancelled` | | reminders, timeline, ai tasks; `completed` → trừ buổi `customer_package` hoặc **gợi ý** tạo đơn (8b) |
 | `ticket.sla_warning` / `ticket.sla_breached` / `ticket.closed` | | notify, escalation, csat |
 | `campaign.approved` / `campaign.completed` | | sender job, campaign stats |
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
@@ -528,30 +534,45 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `product.create` | write | | 24h |
 | `product.update` | write | | 24h |
 | `product.archive` | delete | | 30d |
+| `product_variant.create` / `product_variant.update` / `product_variant.archive` | write | | 24h |
+| `stock.get` | read | ✓ | |
 | `product.import` | write, bulk | | |
 | `category.create` / `category.update` / `category.delete` | config | | |
 
-**sales**
+**sales** (quy tắc: `plans/COMMERCE-DECISIONS.md`)
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
 | `quote.create` | write | ✓ | 24h, khi chưa gửi |
 | `quote.update` | write, chỉ ở draft | ✓ | |
+| `quote.submit_for_approval` | write (tự động khi vượt ngưỡng) | ✓ | |
+| `quote.approve` / `quote.reject_internal` | money, owner | | |
 | `quote.send` | send | ✓ khi đúng policy | |
-| `quote.revise` | write, tạo version n+1 | ✓ | |
-| `quote.mark_accepted` | write | ✓ | 24h |
+| `quote.request_revision` | write, tạo version n+1 | ✓ | |
+| `quote.mark_accepted` | write | ✓ (≥ 70% tin cậy) | 24h |
 | `quote.mark_rejected` | write | ✓ | 24h |
-| `quote.approve` | money, owner | | |
+| `quote.extend_validity` | write | | 24h |
 | `order.create` | write | ✓ | 24h, khi ở new |
-| `order.confirm` | write | ✓ | 24h |
-| `order.update_status` | write | | 24h |
-| `order.complete` | money | | 24h, đảo cả điểm |
-| `order.cancel` | money | | |
-| `invoice.create` | write | | 24h |
+| `order.create_from_quote` | write ("→ Đơn hàng") | ✓ khi khách chốt | 24h |
+| `order.create_from_appointment` | write (gợi ý 8b, người/agent xác nhận) | ✓ | 24h |
+| `order.update` | write (new; processing khi chưa thu) | ✓ | 24h |
+| `order.set_deposit` | write | ✓ | 24h |
+| `order.confirm` | write (new → processing, trừ kho) | ✓ | 24h |
+| `order.complete` | money (cộng điểm) | | 24h, đảo điểm |
+| `order.cancel` | money (lý do bắt buộc; đã thu → sinh hoàn tiền) | | |
+| `order.update_shipping` | write | ✓ | 24h |
+| `invoice.create` | write (đề nghị thanh toán: cọc / đợt / toàn bộ) | ✓ | 24h |
 | `invoice.send_payment_qr` | send | ✓ | |
-| `invoice.mark_paid` | money | | 24h |
+| `invoice.record_payment` | money (xác nhận tay) | | 24h |
+| `invoice.resolve_bank_match` | money (hàng "Cần đối soát") | | 24h |
 | `invoice.void` | money | | |
+| `payment.refund` | money, **luôn duyệt** | | |
+| `payment.redeem_points` | money (≤ 50% giá trị đơn) | | 24h |
+| `package.extend` | write | | 24h |
+| `package.adjust_sessions` | write, lý do bắt buộc | | 24h |
+| `stock.adjust` | write, lý do bắt buộc | | 24h |
 | `payment_account.update` | config, owner | | |
+| `bank_feed.connect` / `bank_feed.disconnect` | config, owner | | |
 
 **booking**
 
@@ -606,7 +627,6 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `loyalty.get_member`: read, agent ✓.
 - `loyalty.update_config`: config.
 - `loyalty.adjust_points`: money; bắt buộc 1 trong 7 lý do; undo 24h.
-- `loyalty.redeem`: money; đổi điểm khi tạo đơn hoặc hoá đơn; undo 24h.
 
 **ai**
 
@@ -632,7 +652,6 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `billing.create_invoice`: money; mua gói hoặc credit, sinh QR.
 - `billing.cancel_invoice`
 - `billing.report_transfer`: write; "Tôi đã chuyển khoản" → `pending_review`.
-- `billing.set_auto_topup`: config.
 
 **insights**
 - `insight.query`: read, agent ✓. Chỉ chạy metric đã định nghĩa sẵn trong `insights/metrics/*` (doanh số theo kỳ, khách sắp rời, hiệu suất agent…), không chạy SQL tự do. Dùng cho Tổng quan và cho Trợ lý AI trả lời số liệu (REQ-E07).
@@ -773,7 +792,8 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 
 ### 4.7 Webhooks
 
-- `POST /hooks/payments/:provider`: kiểm chữ ký/API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` → `invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ.
+- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ.
+- `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
 - `POST /hooks/channels/:provider`: dành cho kênh dùng webhook về sau (Zalo OA, Meta). Hiện chưa dùng.
 
 ---
@@ -981,7 +1001,7 @@ inbox/[[...conversationId]]
 
 customers/                CustomersPage → PageHeader + StageTabs + FilterBar + (DataTable | KanbanBoard) → Customer360Drawer
 customers/[id]            Customer360Page tabs: Tổng quan · CRM · AI · Tệp · Lịch sử
-products/ quotes/ orders/ invoices/   cùng mẫu ListPage + EntityDrawer; QuoteEditor { quoteId? } (line items, chiết khấu, tổng, preview PDF)
+products/ quotes/ orders/ invoices/   cùng mẫu ListPage + EntityDrawer; QuoteEditor { quoteId? } (line items, chiết khấu dòng + tổng, thuế sau CK, preview PDF); OrderDetail (2 trục trạng thái, thanh toán, gói buổi, kho); "Hoá đơn" hiển thị là "Đề nghị thanh toán"
 appointments/             CalendarPage → ViewSwitch(day|week|month|list) · StaffLanes · AppointmentBlock · AppointmentDrawer · SlotPicker
 tickets/                  TicketsPage → KpiStrip(5) · FilterBar · (DataTable | Kanban 4 cột) · TicketDrawer (timeline, comment, SLA clock)
 marketing/                MarketingPage → SuggestionTable(7 cột) · CampaignList · CampaignWizard(steps: đối tượng → nội dung → kênh & lịch → duyệt) · CampaignDetail(stats)
