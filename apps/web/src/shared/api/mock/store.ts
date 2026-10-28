@@ -12,6 +12,7 @@ import { createProductsState, type ProductsState } from './domains/products';
 import { createQuotesState, type QuotesState } from './domains/quotes';
 import { createContractsState, type ContractsState } from './domains/contracts';
 import { createOrdersState, type OrdersState } from './domains/orders';
+import { createInvoicesState, type InvoicesState } from './domains/invoices';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -43,6 +44,7 @@ export interface MockDb {
   quotes: QuotesState;
   contracts: ContractsState;
   orders: OrdersState;
+  invoices: InvoicesState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -72,6 +74,7 @@ const db: MockDb = {
   quotes: createQuotesState(),
   contracts: createContractsState(),
   orders: createOrdersState(),
+  invoices: createInvoicesState(),
 };
 
 type Listener = (event: string) => void;

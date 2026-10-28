@@ -304,5 +304,22 @@
     "sync_now": {
       "title": "Đồng bộ đơn từ sàn"
     }
+  },
+  "invoice": {
+    "create": {
+      "title": "Tạo đề nghị thanh toán"
+    },
+    "send_payment_qr": {
+      "title": "Gửi đề nghị thanh toán kèm VietQR"
+    },
+    "record_payment": {
+      "title": "Ghi nhận thanh toán"
+    },
+    "resolve_bank_match": {
+      "title": "Đối soát giao dịch ngân hàng"
+    },
+    "void": {
+      "title": "Huỷ đề nghị thanh toán"
+    }
   }
 }

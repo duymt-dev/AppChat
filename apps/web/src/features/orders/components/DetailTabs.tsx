@@ -2,12 +2,14 @@
 // Tổng quan thêm theo COMMERCE §4: 2 trục (tiến độ + thanh toán), nguồn / chứng từ gốc, cọc, điểm, vận chuyển nhập tay; đơn sàn khoá dòng (D31).
 'use client';
 import { App } from 'antd';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useOrderTabStyles } from '../styles/tabs.styles';
 import { PayText, useSvc, useTr } from '../columns';
 import { ShippingCard } from './ShippingCard';
+import { useOrdersUi } from '../orders-store';
 import type { Order, OrdersMeta } from '../types';
 
 const EXT_BG: Record<string, string> = { pdf: color.dangerStrong, xlsx: color.okGreen, jpg: color.violet };
@@ -25,11 +27,16 @@ const EV_DOT: Record<string, string> = {
 export function OverviewTab({ o }: { o: Order }) {
   const t = useTranslations('orders');
   const fmt = useFmt();
-  const { message } = App.useApp();
   const { styles, cx } = useOrderTabStyles();
   const tr = useTr();
   const svc = useSvc();
+  const router = useRouter();
   const ref = o.quote_code || o.contract_code;
+  // "Đề nghị thanh toán" / "Gửi link TT" → màn Đề nghị thanh toán với form điền sẵn đơn này (COMMERCE §5).
+  const toInvoice = () => {
+    useOrdersUi.getState().set({ detail: null, tab: 'overview' });
+    router.push(`/invoices?order=${o.id}`);
+  };
   return (
     <>
       {o.locked_lines && o.external ? (
@@ -68,7 +75,7 @@ export function OverviewTab({ o }: { o: Order }) {
           type="button"
           className={styles.btn}
           disabled={o.status === 'cancelled' || o.locked_lines}
-          onClick={() => void message.info(t('detail.invoiceHint'))}
+          onClick={toInvoice}
         >
           <Icon name="ic-send" size={15} color="currentColor" />
           {t('detail.sendLink')}
@@ -77,7 +84,7 @@ export function OverviewTab({ o }: { o: Order }) {
           type="button"
           className={cx(styles.btn, styles.btnPrimary)}
           disabled={o.status === 'cancelled' || o.locked_lines}
-          onClick={() => void message.info(t('detail.invoiceHint'))}
+          onClick={toInvoice}
         >
           <Icon name="ic-dl" size={15} color={color.white} />
           {t('detail.invoice')}

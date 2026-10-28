@@ -304,5 +304,22 @@
     "sync_now": {
       "title": "Sync marketplace orders"
     }
+  },
+  "invoice": {
+    "create": {
+      "title": "Create payment request"
+    },
+    "send_payment_qr": {
+      "title": "Send payment request with VietQR"
+    },
+    "record_payment": {
+      "title": "Record payment"
+    },
+    "resolve_bank_match": {
+      "title": "Reconcile bank transaction"
+    },
+    "void": {
+      "title": "Void payment request"
+    }
   }
 }

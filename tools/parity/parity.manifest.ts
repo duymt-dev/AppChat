@@ -47,6 +47,7 @@ const products = { ac_module: 'products' };
 const quotes = { ac_module: 'quotes' };
 const contracts = { ac_module: 'contracts' };
 const orders = { ac_module: 'orders' };
+const invoices = { ac_module: 'invoices' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -826,5 +827,65 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('od-create').click(),
     appWait: '[data-order]',
     clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="od-form"] [role="dialog"]' },
+  },
+  // ===== F4 — Đề nghị thanh toán =====
+  // COMMERCE §5: "Hóa đơn" → "Đề nghị thanh toán" (mã TT-00xxxx); chip trạng thái thêm Thu một phần / Đã huỷ; ngày dời trước 24/06 cho Quá hạn.
+  {
+    id: 'invoices:list',
+    route: '/invoices',
+    protoStorage: invoices,
+    appWait: '[data-invoice]',
+    mask: [
+      {
+        x: 108,
+        y: 24,
+        width: 420,
+        height: 52,
+        reason: 'COMMERCE §5 — tiêu đề "Hóa đơn" → "Đề nghị thanh toán" (chứng từ không thay thế hoá đơn GTGT)',
+      },
+    ],
+  },
+  {
+    id: 'invoices:detail-qr',
+    route: '/invoices',
+    protoStorage: invoices,
+    proto: async (p) => {
+      await p.locator('b', { hasText: 'HD-2039' }).first().click();
+      await protoOverrideVals(p, { ivDetailOn: true });
+    },
+    app: (p) => p.locator('[data-invoice="inv_2039"]').first().click(),
+    appWait: '[data-invoice]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      {
+        x: 1068,
+        y: 648,
+        width: 352,
+        height: 252,
+        reason: 'COMMERCE §5 — thẻ VietQR (số tiền còn lại + nội dung CK = mã TT để khớp tự động) prototype không có',
+      },
+    ],
+  },
+  {
+    // Prototype "Ghi nhận thanh toán" chỉ là toast (inbAct) → đo trạng thái sau khi đã ghi nhận: đề nghị đã thu đủ, danh sách khoản thu, 100%.
+    id: 'invoices:record-payment',
+    route: '/invoices',
+    protoStorage: invoices,
+    proto: async (p) => {
+      await p.locator('b', { hasText: 'HD-2041' }).first().click();
+      await protoOverrideVals(p, { ivDetailOn: true });
+    },
+    app: (p) => p.locator('[data-invoice="inv_2041"]').first().click(),
+    appWait: '[data-invoice]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'invoices:create',
+    route: '/invoices',
+    protoStorage: invoices,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo hóa đơn' }).click(),
+    app: (p) => p.getByTestId('iv-create').click(),
+    appWait: '[data-invoice]',
+    clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="iv-form"] [role="dialog"]' },
   },
 ];
