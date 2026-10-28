@@ -16,8 +16,10 @@ import { GroupInfoPanel } from '../components/GroupInfoPanel';
 import { InboxAiModal } from '../components/InboxAiModal';
 import { Panel360 } from '../components/Panel360';
 import { TopTabs } from '../components/TopTabs';
+import { useInboxUiCommands } from '../ui-commands';
 
 export function InboxScreen() {
+  useInboxUiCommands();
   const t = useTranslations('inbox');
   const { styles, cx } = useInboxStyles();
   const ui = useInboxUi();

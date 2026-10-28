@@ -17,8 +17,10 @@ import { CrmToolbar } from '../components/CrmToolbar';
 import { CrmOverlays } from '../components/CrmOverlays';
 import { KanbanCard } from '../components/KanbanCard';
 import type { ContactRow, StageKey } from '../types';
+import { useCustomersUiCommands } from '../ui-commands';
 
 export function CustomersScreen() {
+  useCustomersUiCommands();
   const t = useTranslations('customers');
   const { message } = App.useApp();
   const { styles } = useCrmStyles();

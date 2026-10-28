@@ -16,8 +16,10 @@ import { TemplateGallery } from '../components/TemplateGallery';
 import { AgentCard } from '../components/AgentCard';
 import { AgentAiDrawer } from '../components/AgentAiDrawer';
 import { VersionsDrawer } from '../components/VersionsDrawer';
+import { useAgentsUiCommands } from '../ui-commands';
 
 export function AgentsScreen() {
+  useAgentsUiCommands();
   const t = useTranslations('agents');
   const router = useRouter();
   const { styles, cx } = useAgentsStyles();

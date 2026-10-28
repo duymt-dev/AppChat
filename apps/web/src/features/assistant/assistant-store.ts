@@ -15,6 +15,8 @@ interface AssistantUi {
   pop: AsstPop;
   popAnchor: { left: number; bottom: number; right: number };
   taskNew: boolean;
+  /** Giá trị Trợ lý điền sẵn cho modal tạo tác vụ (UiCommand prefill `ai_task.form`). */
+  taskPrefill: Record<string, unknown> | null;
   taskOpen: string | null;
   set: (p: Partial<Omit<AssistantUi, 'set' | 'openPop' | 'push' | 'patchMsg' | 'reset'>>) => void;
   openPop: (pop: Exclude<AsstPop, null>, el: HTMLElement) => void;
@@ -33,6 +35,7 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   pop: null,
   popAnchor: { left: 0, bottom: 0, right: 0 },
   taskNew: false,
+  taskPrefill: null,
   taskOpen: null,
   set: (p) => set(p),
   openPop: (pop, el) => {

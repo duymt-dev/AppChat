@@ -26,19 +26,21 @@ const initial = () => ({
 });
 
 export function TaskCreateModal({ data }: { data: AiTasksPayload }) {
+  const open = useAssistantUi((s) => s.taskNew);
+  if (!open) return null;
+  return <TaskCreateForm data={data} />;
+}
+
+function TaskCreateForm({ data }: { data: AiTasksPayload }) {
   const t = useTranslations('assistant');
   const { styles, cx } = useTaskFormStyles();
   const ui = useAssistantUi();
   const create = useAction<{ task_id: string }>('ai_task.create');
-  const [f, setF] = useState(initial);
-  if (!ui.taskNew) return null;
+  const [f, setF] = useState(() => ({ ...initial(), ...(ui.taskPrefill as Partial<ReturnType<typeof initial>>) }));
   const set = (p: Partial<typeof f>) => setF((s) => ({ ...s, ...p }));
   const toggle = (k: 'data' | 'tools', v: string) => set({ [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] });
   const ok = !!(f.name.trim() && f.goal.trim());
-  const close = () => {
-    ui.set({ taskNew: false });
-    setF(initial());
-  };
+  const close = () => ui.set({ taskNew: false, taskPrefill: null });
   const save = async () => {
     if (!ok) return;
     const res = await create.run({

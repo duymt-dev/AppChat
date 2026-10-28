@@ -13,6 +13,7 @@ import { Composer } from './Composer';
 import { MessageBubble } from './MessageBubble';
 import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
+import { useInboxUi } from '../inbox-store';
 import type { ChannelMeta, Conversation } from '../types';
 
 export function ChatPanel({ conv, channel, className }: { conv: Conversation; channel: ChannelMeta | undefined; className?: string }) {
@@ -22,7 +23,8 @@ export function ChatPanel({ conv, channel, className }: { conv: Conversation; ch
   const thread = useQuery(threadQuery(conv.id));
   const send = useAction('message.send');
   const handoff = useAction('conversation.handoff');
-  const [draft, setDraft] = useState('');
+  const draft = useInboxUi((s) => s.draft);
+  const setDraft = (v: string) => useInboxUi.getState().set({ draft: v });
   const [hideSuggest, setHideSuggest] = useState(false);
   const suggestion = thread.data?.suggestion;
   const plain = (s: string) => s.replace(/<\/?b>/g, '');

@@ -32,7 +32,10 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
   const create = useAction<{ contact_id: string }>('contact.create');
   const update = useAction('contact.update');
   const request = useAction('contact.request_access');
-  const [d, setD] = useState<Draft>((): Draft => (contact ? { full_name: contact.full_name, title: contact.title, owner_user_id: contact.owner_user_id, email: contact.email, phone: contact.phone, zalo: contact.zalo, city: contact.city, district: contact.district } : {}));
+  const [d, setD] = useState<Draft>((): Draft => ({
+    ...(contact ? { full_name: contact.full_name, title: contact.title, owner_user_id: contact.owner_user_id, email: contact.email, phone: contact.phone, zalo: contact.zalo, city: contact.city, district: contact.district } : {}),
+    ...ui.prefill,
+  }));
   const [err, setErr] = useState('');
   const [owned, setOwned] = useState<{ id: string; owner: string; sent: boolean } | null>(null);
   const close = () => ui.set({ modal: null, target: null });

@@ -21,8 +21,10 @@ import { ComposerPopovers } from '../components/ComposerPopovers';
 import { TaskCard } from '../components/TaskCard';
 import { TaskCreateModal } from '../components/TaskCreateModal';
 import { TaskDrawer } from '../components/TaskDrawer';
+import { useAssistantUiCommands } from '../ui-commands';
 
 export function CoworkScreen() {
+  useAssistantUiCommands();
   const t = useTranslations('assistant');
   const router = useRouter();
   const { styles: page } = useAssistantStyles();

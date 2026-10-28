@@ -20,10 +20,9 @@ export interface AgentsState {
 /** Giới hạn gói (plan.max_agents) của gói đang dùng thử — vượt thì PLAN_LIMIT_REACHED. */
 export const MAX_AGENTS = 10;
 
-const snapshot = (a: Agent): Config => {
-  const { id: _id, version: _v, status: _s, deleted: _d, dirty: _dt, ...cfg } = a;
-  return structuredClone(cfg);
-};
+const RUNTIME_KEYS = ['id', 'version', 'status', 'deleted', 'dirty'] as const;
+const snapshot = (a: Agent): Config =>
+  structuredClone(Object.fromEntries(Object.entries(a).filter(([k]) => !(RUNTIME_KEYS as readonly string[]).includes(k)))) as Config;
 
 const seedVersions = (a: Agent): AgentVersion[] =>
   Array.from({ length: a.version }, (_, i) => ({

@@ -14,8 +14,10 @@ interface CrmUiState {
   menuFor: string | null;
   tagFor: string | null;
   filterOpen: boolean;
+  /** Giá trị Trợ lý điền sẵn cho form tạo / sửa (UiCommand prefill `contact.form`). */
+  prefill: Record<string, string> | null;
   setFilter: (p: Partial<ContactFilter>) => void;
-  set: (p: Partial<Pick<CrmUiState, 'layout' | 'modal' | 'target' | 'detail' | 'menuFor' | 'tagFor' | 'filterOpen'>>) => void;
+  set: (p: Partial<Pick<CrmUiState, 'layout' | 'modal' | 'target' | 'detail' | 'menuFor' | 'tagFor' | 'filterOpen' | 'prefill'>>) => void;
   open: (modal: Exclude<CrmModal, null>, target?: string) => void;
 }
 
@@ -30,7 +32,8 @@ export const useCrmUi = create<CrmUiState>((set) => ({
   menuFor: null,
   tagFor: null,
   filterOpen: false,
+  prefill: null,
   setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p } })),
   set: (p) => set(p),
-  open: (modal, target) => set({ modal, target: target ?? null, menuFor: null, tagFor: null }),
+  open: (modal, target) => set({ modal, target: target ?? null, menuFor: null, tagFor: null, prefill: null }),
 }));

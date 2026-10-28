@@ -10,8 +10,10 @@ import { AssistantTopBar } from '../components/AssistantTopBar';
 import { WelcomeView } from '../components/WelcomeView';
 import { ChatThread } from '../components/ChatThread';
 import { ComposerPopovers } from '../components/ComposerPopovers';
+import { useAssistantUiCommands } from '../ui-commands';
 
 export function AssistantScreen() {
+  useAssistantUiCommands();
   const { styles } = useAssistantStyles();
   const { data: me } = useMe();
   const allowed = useCan('assistant.use');

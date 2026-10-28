@@ -1,31 +1,28 @@
 // Thư viện mẫu theo ngành — prototype L2240–2287: tìm + 3 select (nhóm ngành / ngành / AI Agent) + Xoá lọc, lưới 5 cột, 20 mẫu / trang.
 'use client';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAgentsStyles } from '../styles/agents.styles';
 import { templatesQuery } from '../api';
+import { ALL_TEMPLATES, useAgentsUi } from '../agents-store';
 import type { AgentTemplate, AgentsMeta, TemplateFilter } from '../types';
 
 const PAGE = 20;
-const ALL: TemplateFilter = { q: '', group: 'all', industry: 'all', name: 'all' };
 
 export function TemplateGallery({ meta, onPick }: { meta: AgentsMeta; onPick: (tpl: AgentTemplate) => void }) {
   const t = useTranslations('agents');
   const { styles, cx } = useAgentsStyles();
-  const [f, setF] = useState<TemplateFilter>(ALL);
-  const [pg, setPg] = useState(1);
+  const f = useAgentsUi((s) => s.tplFilter);
+  const pg = useAgentsUi((s) => s.tplPage);
+  const setPg = (tplPage: number) => useAgentsUi.getState().set({ tplPage });
   const q = useQuery(templatesQuery(f));
   const rows = q.data?.data ?? [];
   const total = rows.length;
   const pages = Math.max(1, Math.ceil(total / PAGE));
   const cur = Math.min(pg, pages);
   const shown = rows.slice((cur - 1) * PAGE, cur * PAGE);
-  const patch = (p: Partial<TemplateFilter>) => {
-    setF((s) => ({ ...s, ...p }));
-    setPg(1);
-  };
+  const patch = (p: Partial<TemplateFilter>) => useAgentsUi.getState().setTplFilter(p);
   const industries = meta.taxonomy.find((g) => g.group === f.group)?.industries ?? [];
   const groupOf = (tag: string) => meta.taxonomy.find((g) => g.industries.includes(tag))?.group;
   const names = meta.template_names.filter(
@@ -70,7 +67,7 @@ export function TemplateGallery({ meta, onPick }: { meta: AgentsMeta; onPick: (t
             </option>
           ))}
         </select>
-        <button type="button" className={styles.clear} onClick={() => patch(ALL)} data-testid="ag-clear">
+        <button type="button" className={styles.clear} onClick={() => patch(ALL_TEMPLATES)} data-testid="ag-clear">
           {t('clear')}
         </button>
       </div>
