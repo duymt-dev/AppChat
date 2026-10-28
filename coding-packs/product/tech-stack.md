@@ -13,13 +13,13 @@
 | ORM / migration | **Prisma**; RLS, partial index, expression index và `INCLUDE` viết bằng SQL thô trong migration; migration versioned, không sửa migration đã merge |
 | Cache / Queue | Redis (native; Memurai trên Windows dev) + BullMQ; outbox pattern. Chưa dùng Kafka |
 | Realtime | WebSocket (Socket.IO hoặc ws gateway của Nest) + SSE fallback |
-| Storage | S3-compatible (MinIO local / AWS S3) |
+| Storage | Đĩa VPS (`/srv/appchat/files`) + backup restic; S3-compatible bên ngoài tuỳ chọn qua interface `Storage` |
 | LLM / Agent | **LLM Router đa nhà cung cấp** (Claude / GPT / Gemini / DeepSeek), routing theo tác vụ/gói/chi phí, có fallback, streaming. **Agent runtime: Vercel AI SDK v7** (`ToolLoopAgent`, `toolApproval`) + **Agent Gateway** tự viết (tool từ Action Registry, credit meter, lưu/chạy tiếp run trong Postgres). Không Mastra, không fork, không swarm (D17 / Vision V3–V4) |
 | Auth | Email OTP + mật khẩu (Zalo OTP khi có OA — OQ-02); JWT ngắn hạn + refresh; RBAC **Owner + Member** |
 | Thanh toán | VietQR / Napas 247 (IPN), chuyển khoản thủ công có đối soát |
 | Test | Vitest/Jest (unit), Testcontainers (integration), Playwright (e2e), RLS isolation test, k6 (load) |
-| Observability | OpenTelemetry + Prometheus + Grafana + Loki |
-| Infra / CI | **Không dùng Docker.** Postgres 16 + Redis native; Next.js + NestJS (api + worker) chạy bằng PM2/systemd; GitHub Actions |
+| Observability | **Prometheus + Alertmanager + Grafana + Loki** (Grafana Alloy thu log), exporters node/postgres/redis/nginx/blackbox, app metrics `prom-client`, log JSON `pino` có `traceId`. Cài native trên VPS monitoring riêng. OTel trace (Tempo) để sau |
+| Infra / CI | **Native trên VPS Linux (Ubuntu 24.04), không Docker/K8s.** nginx + certbot; Postgres 16 + pgvector (PGDG) và Redis 7 cài apt; Next.js + NestJS (api + worker) chạy PM2, hạ tầng chạy systemd; backup pgBackRest offsite; script provision/deploy trong `infra/`; CI/CD GitHub Actions → SSH deploy, zero-downtime reload |
 | Font / UI | Token theo `styles.css` của prototype, map vào antd theme: Plus Jakarta Sans 300–800, JetBrains Mono; primary #2DC56A; icon `lucide-react` stroke 1.6. **Parity desktop với prototype < 5%** (Playwright screenshot) |
 
 | Kênh | Zalo cá nhân (thư viện QR-login không chính thức, adapter cô lập — OQ-03), Web widget (JS SDK), Email (IMAP/SMTP, Gmail OAuth) |

@@ -674,6 +674,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | V10 | Credit ledger trên mọi lần gọi LLM; hết credit → chặn AI, chuyển hội thoại về người | RRI D09 |
 | V11 | **(CHỐT 2026-10-28)** Token UI theo `styles.css` của prototype; Plus Jakarta Sans. **UI kit: Ant Design v6 + Ant Design X**, một codebase responsive cho desktop và mobile web. **Parity desktop với prototype < 5%** (đo pixel bằng Playwright) | Giải R17; Chủ nhà chọn Ant; prototype là bản Chủ nhà đã duyệt |
 | V12 | OTP đăng nhập qua Email (Zalo OTP chờ có OA) | OQ-02; Zalo cá nhân không gửi OTP chính thống được |
+| V13 | **(CHỐT 2026-10-28) Production native trên VPS Linux**: systemd + PM2, nginx, PG16 + pgvector, Redis; **Prometheus + Alertmanager + Grafana + Loki** trên VPS monitoring riêng; backup pgBackRest offsite; script `infra/` dựng lại được | Chủ nhà chốt; không Docker (D12); chi tiết ở Blueprint §11 |
 
 ---
 

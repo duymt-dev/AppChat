@@ -189,7 +189,7 @@
 | REQ-N06 | Bảo mật: JWT ngắn hạn + refresh; mã hoá credential kênh (AES-256); TLS; OWASP Top 10; rate-limit. | P0 | — | TBD |
 | REQ-N07 | Hiệu năng: tin nhắn p95 < 1s; API đọc p95 < 300ms. Uptime mục tiêu 99.9%. | P0 | — | TBD |
 | REQ-N08 | Backup Postgres (PITR / dump hằng ngày); RPO ≤ 5 phút, RTO ≤ 1 giờ; quyền bị lãng quên (ẩn danh hoá). | P1 | — | TBD |
-| REQ-N09 | Observability: log có cấu trúc, metric, trace (OpenTelemetry), cảnh báo lỗi kênh. | P1 | — | TBD |
+| REQ-N09 | Observability native trên VPS: **Prometheus + Alertmanager + Grafana + Loki** (Alloy thu log); exporters hệ thống/PG/Redis/nginx/uptime; app metrics (API, queue, kênh, AI, credit); log JSON có `traceId`; dashboard và cảnh báo (email + Telegram) khai báo trong repo. | P0 | — | TBD |
 | REQ-N10 | UI tiếng Việt mặc định với lớp i18n (next-intl), có `en`. **Ant Design v6**, một codebase cho desktop (chuẩn 1440px) và **mobile web responsive**. Đủ 5 trạng thái UI. WCAG AA. | P0 | — | TBD |
 | REQ-N14 | **Parity UI với prototype < 5%:** mỗi màn và trạng thái chính ở 1440×900 sai khác điểm ảnh < 5% so với `AppChat.dc.html` (Playwright screenshot, dữ liệu seed giống prototype). Ngoại lệ chỉ gồm các module và kênh ngoài phạm vi. | P0 | Chủ DN | TBD |
 | REQ-N11 | Test: unit (business rules), integration, e2e Playwright cho luồng chính, test cô lập RLS, AI eval set cho Trợ lý (chọn đúng action, đúng tham số, đúng quyền, đúng mức xác nhận) và cho các agent trực kênh. | P0 | — | TBD |
@@ -234,6 +234,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D14 | LLM | Claude / đa nhà cung cấp / gateway | **Đa nhà cung cấp** (LLM Router) | Chủ nhà chọn |
 | D17 | Agent runtime & phối hợp agent | fork OpenFang/OpenClaw/Hermes / Mastra / AI SDK + lớp nối tự viết; có / không swarm | **AI SDK v7 + lớp nối tự viết; không swarm** (giữ orchestrator, handoff, hỏi ý, tác vụ tự chủ) | Chủ nhà chốt 2026-10-28; xem Vision V3–V4 |
 | D19 | Module Báo cáo | giữ 6 trang / bỏ | **Bỏ khỏi phạm vi.** Số liệu chỉ hiện ở Tổng quan, Hiệu suất agent (REQ-D14), thống kê chiến dịch (REQ-I05), KPI Ticket (REQ-H04) và truy vấn qua Trợ lý AI (REQ-E07) | Chủ nhà chốt 2026-10-28: không có trong prototype hiện hành và docs mới |
+| D20 | Hạ tầng production | cloud managed / Docker / native VPS | **Native trên VPS Linux** (systemd + PM2, nginx, PG16, Redis), monitoring **Prometheus + Grafana + Loki** trên VPS riêng, backup pgBackRest offsite | Chủ nhà chốt 2026-10-28 |
 | D18 | UI kit & nền tảng hiển thị | Tailwind + shadcn / antd + antd-mobile / antd một codebase | **Ant Design v6 + Ant Design X, một codebase responsive desktop + mobile web; token theo prototype; parity < 5%** | Chủ nhà chốt 2026-10-28 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
@@ -246,7 +247,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | OQ-04 | Nhà cung cấp webhook ngân hàng cho VietQR (Casso / SePay / bank API) và tài khoản nhận tiền | REQ-L04 | Chủ nhà cung cấp; adapter có thể thay. |
 | OQ-05 | API tra cứu MST (nhà cung cấp, chi phí) | REQ-A02 | Chủ nhà chọn; tạm thời cho nhập tay nếu tra cứu lỗi. |
 | OQ-06 | Khoá API của các LLM provider và bảng đơn giá credit theo model | REQ-D02, L01 | Chủ nhà cung cấp khoá; đơn giá lưu DB. |
-| OQ-07 | Hạ tầng production (VPS / cloud nào, domain, email gửi) | REQ-N01 | Chốt trước khi triển khai. |
+| OQ-07 | Hạ tầng production: **đã chốt native VPS + Prometheus/Grafana/Loki (D20)**. Còn mở: nhà cung cấp VPS, domain, SMTP gửi email, nơi lưu backup offsite | REQ-N01, N08, N09 | Chủ nhà cung cấp trước khi deploy lần đầu |
 | OQ-08 | Bộ design token cuối cùng (Design System hay `styles.css` của prototype — R17) | REQ-N10 | Chốt ở Vision. |
 
 ## SCOPE BOUNDARIES

@@ -28,6 +28,7 @@ AppChat_Ver2/
 │   ├── channels/                 # Channel adapter interface + adapters (zalo-personal, webchat, email)
 │   ├── shared/                   # types, enums, error codes, money/phone/date utils, i18n keys
 │   └── ui/                       # antd theme (token prototype → ConfigProvider), antd-style tokens, wrapper component, icons (lucide-react)
+├── infra/                        # hạ tầng native VPS: scripts provision/deploy, nginx, systemd, postgres, prometheus, loki, alloy, grafana (§11)
 ├── coding-packs/                 # Vibecode artifacts (không phải code)
 └── specs/                        # tài liệu phi kỹ thuật
 ```
@@ -917,7 +918,7 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 | Tra cứu MST | interface `TaxLookupProvider`; bản `mock` + bản thật (ứng viên cần kiểm chứng: API VietQR business lookup) | OQ-05 |
 | VietQR (AppChat thu tiền và DN thu tiền khách) | Tự sinh payload EMVCo/NAPAS (BIN + STK + số tiền + nội dung), render QR bằng `qrcode` | Tự làm |
 | Webhook ngân hàng | interface `BankFeedProvider`; adapter ứng viên SePay / Casso; bản `mock` cho dev | OQ-04 |
-| Object storage | interface `Storage`: `local` (dev, thư mục `./.data/files`) và `s3` (prod, S3-compatible) | |
+| Object storage | interface `Storage`: `local` (dev `./.data/files`; prod `/srv/appchat/files` trên VPS + backup restic) và `s3` (S3-compatible, bật bằng env khi cần) | |
 | PDF báo giá/hoá đơn | `@react-pdf/renderer` chạy trong worker; font Plus Jakarta Sans nhúng sẵn | |
 | Excel import/export | `exceljs` | |
 | Parse tài liệu RAG | `pdf-parse`, `mammoth` (docx), `exceljs`/csv, fetch URL + readability | |
@@ -943,7 +944,7 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 | A11y | WCAG AA (tương phản, focus ring 3px, điều hướng bàn phím trong dock/dialog/table) |
 | i18n | Không hard-code chuỗi UI; `vi` mặc định, có `en`; tiền `1.250.000₫`, ngày `dd/MM/yyyy` |
 | Test | unit (core services + policy), integration (Postgres thật DB `appchat_test`, Redis thật), RLS isolation, e2e Playwright, AI eval (fixture replay + live gated `AI_EVAL_LIVE=1`) |
-| Vận hành | PM2 ecosystem; log JSON (pino); `/healthz` (process sống), `/readyz` (DB, Redis); backup `pg_dump` hằng ngày + WAL archive (RPO ≤ 5 phút khi bật) |
+| Vận hành | Native VPS (systemd + PM2), không Docker (§11); log JSON (pino) → Alloy → Loki; metrics `prom-client` + exporters → Prometheus; Grafana dashboards + Alertmanager (email/Telegram); `/healthz`, `/readyz`; pgBackRest (full tuần, diff ngày, WAL liên tục → RPO ≤ 5 phút, RTO ≤ 1 giờ), restore thử hằng tuần |
 
 ---
 
@@ -955,4 +956,118 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 | K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; thiết kế sẵn chỗ cho Zalo OA (P2) |
 | K3 | Prisma + RLS: mỗi request một transaction | `db.tenant()` dùng batch `$transaction([set_config, query])` cho đọc đơn giản; interactive transaction cho action. Đo p95 ở TIP-002 |
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |
+| K6 | Single VPS là điểm lỗi duy nhất | Backup offsite + restore thử hằng tuần; runbook dựng lại VPS < 1 giờ bằng `infra/scripts`; khi doanh thu cho phép thì thêm replica PG ở VPS thứ 2 |
 | K5 | Prisma multi-file schema và tên cờ preview đổi theo phiên bản | TIP-001 chốt phiên bản Prisma/Next/Nest ổn định mới nhất, ghi lại vào `product/tech-stack.md` |
+
+---
+
+## 11. HẠ TẦNG PRODUCTION & OBSERVABILITY (chốt 2026-10-28 — Vision V13, RRI D20)
+
+**Nguyên tắc:** mọi thứ chạy **native trên VPS Linux** (Ubuntu Server 24.04 LTS), quản lý bằng **systemd** (hạ tầng) và **PM2** (app Node). **Không Docker, không K8s.** Cấu hình hạ tầng nằm trong repo (`infra/`), dựng lại được từ đầu bằng script idempotent.
+
+### 11.1 Topology
+
+```
+                Internet ──443──▶ ┌──────────────────────────── VPS-APP (≥ 8 vCPU / 16 GB / NVMe) ───────────────────────────┐
+                                  │ nginx (TLS certbot, HTTP/2, WS upgrade, rate-limit, gzip/brotli)                         │
+                                  │   app.<domain>     → web  :3000  (Next.js, PM2 cluster ×2)                               │
+                                  │   app.<domain>/api → api  :4000  (NestJS, PM2 cluster ×N, sticky cho Socket.IO)          │
+                                  │   widget.<domain>  → widget.js tĩnh + /widget socket                                    │
+                                  │ worker-channels ×1 · worker-ai ×N · worker-jobs ×1   (PM2 fork)                          │
+                                  │ PostgreSQL 16 + pgvector (PGDG apt) · Redis 7 (apt, AOF everysec)                        │
+                                  │ node_exporter · postgres_exporter · redis_exporter · nginx exporter · Grafana Alloy      │
+                                  │ /metrics của api/worker chỉ nghe 127.0.0.1 / mạng riêng                                  │
+                                  └───────────────┬───────────────────────────────────────────────────────────────────────────┘
+                                                  │ mạng riêng / WireGuard (scrape metrics, push log)
+                                  ┌───────────────▼────────────── VPS-MON (2 vCPU / 4 GB / 100 GB) ──────────────────────────┐
+                                  │ Prometheus (retention 15 ngày) · Alertmanager · Loki (retention 30 ngày, filesystem)     │
+                                  │ Grafana (sau nginx + TLS, chỉ Owner/đội vận hành) · Blackbox exporter (uptime HTTPS)      │
+                                  └──────────────────────────────────────────────────────────────────────────────────────────┘
+          Backup offsite: pgBackRest → S3-compatible hoặc VPS thứ 3 (full tuần, diff ngày, WAL liên tục) · file upload rsync/restic
+```
+
+- Monitoring tách VPS riêng để **app sập vẫn còn cảnh báo**. Giai đoạn đầu có thể gộp chung một VPS; khi đó Blackbox exporter phải đặt ở nơi khác (hoặc dùng uptime check ngoài).
+- Khi tải tăng: tách PostgreSQL sang VPS-DB riêng (streaming replica cho đọc), rồi tách `worker-ai`. Kiến trúc không đổi, chỉ đổi biến môi trường.
+- File upload: `Storage` interface — mặc định `local` trên đĩa VPS (`/srv/appchat/files`) + backup restic; đổi sang `s3` (S3-compatible bên ngoài) chỉ bằng env.
+
+### 11.2 Thư mục `infra/` trong repo
+
+```
+infra/
+├── README.md                  # runbook: dựng VPS mới, deploy, rollback, restore backup, xoay secret
+├── scripts/
+│   ├── provision-app.sh       # idempotent: user, ufw, fail2ban, node 22 LTS, pnpm, pm2, nginx, certbot, PG16+pgvector, redis, exporters, alloy
+│   ├── provision-mon.sh       # prometheus, alertmanager, loki, grafana, blackbox (binary chính thức / apt repo Grafana)
+│   ├── deploy.sh              # build → migrate → pm2 reload (gọi từ GitHub Actions qua SSH)
+│   ├── rollback.sh            # quay về release trước (thư mục releases/<sha>, symlink current)
+│   └── backup-verify.sh       # restore thử bản backup mới nhất vào DB tạm mỗi tuần
+├── nginx/                     # site configs (app, api, widget, grafana), snippets TLS/headers/rate-limit
+├── systemd/                   # unit cho exporter, alloy, prometheus, loki, alertmanager, grafana (khi cài từ binary)
+├── postgres/                  # postgresql.conf tuning, pg_hba.conf, pgbackrest.conf
+├── redis/redis.conf
+├── prometheus/                # prometheus.yml, rules/*.yml (recording + alert)
+├── alertmanager/alertmanager.yml   # kênh nhận: email + Telegram
+├── loki/loki.yml · alloy/config.alloy
+└── grafana/
+    ├── provisioning/          # datasources (Prometheus, Loki), dashboards provider
+    └── dashboards/*.json      # dashboard as code
+```
+
+### 11.3 Deploy (zero-downtime)
+
+1. GitHub Actions: lint → typecheck → unit/integration → build (`pnpm turbo build`) → đóng gói artifact.
+2. SSH vào VPS-APP: giải nén vào `/srv/appchat/releases/<git-sha>`, `pnpm install --frozen-lockfile --prod`.
+3. `prisma migrate deploy` (role `appchat_owner`). Migration phải tương thích ngược một phiên bản (expand → migrate → contract) để reload không lỗi.
+4. Đổi symlink `current` → `pm2 reload ecosystem.config.cjs --update-env` (cluster reload từng instance). Worker nhận SIGTERM thì ngừng nhận job mới, chờ job đang chạy (tối đa 60 giây). `worker-channels` nhả lease Zalo trước khi tắt.
+5. Smoke test `/readyz` + Blackbox; lỗi thì `rollback.sh` tự động.
+- Secrets: file `/etc/appchat/env` (chmod 600, chỉ user `appchat` đọc), không commit. Mẫu ở `.env.example`.
+
+### 11.4 Observability
+
+**Metrics (Prometheus):**
+
+| Nguồn | Exporter | Chỉ số chính |
+|---|---|---|
+| Máy chủ | node_exporter | CPU, RAM, disk, I/O, network |
+| PostgreSQL | postgres_exporter (+ `pg_stat_statements`) | kết nối, TPS, slow query, cache hit, bloat, tuổi backup/WAL |
+| Redis | redis_exporter | bộ nhớ, evictions, kết nối |
+| nginx | nginx-prometheus-exporter (stub_status) | request, kết nối |
+| api / worker | `prom-client` tại `/metrics` (127.0.0.1) | HTTP RED theo route (`http_request_duration_seconds`), action theo `action_id` + kết quả, WS kết nối, BullMQ (`queue_waiting/active/failed` theo queue), outbox lag, tin nhắn vào/ra theo kênh, **trạng thái tài khoản kênh** (connected/error/expired), LLM latency/token/lỗi theo provider + model, credit trừ, approval đang chờ |
+| Uptime | blackbox_exporter | HTTPS app/api/widget, hạn TLS |
+
+- **Không** dùng `workspace_id` làm label metric (cardinality cao). Theo dõi theo tenant thì dùng log hoặc query DB.
+
+**Logs (Loki):**
+- App log JSON bằng **pino**, mỗi dòng có `level`, `msg`, `traceId`, `ws`, `runId?`, `actionId?`, `conversationId?`. Redact token, mật khẩu, credential kênh, số điện thoại / email (che một phần).
+- PM2 ghi file `/var/log/appchat/*.log` (logrotate). **Grafana Alloy** đọc file và journald rồi đẩy lên Loki.
+- Label Loki giữ ít: `app`, `env`, `level`, `host`. Các trường còn lại lọc bằng `| json`.
+- Truy vết: `traceId` sinh ở nginx (`$request_id`) → api → job BullMQ → worker, nên một yêu cầu của khách lọc được trọn luồng trong Loki. OpenTelemetry trace (Grafana Tempo) để ngỏ, thêm sau khi cần.
+
+**Dashboards (Grafana, provision từ repo):**
+1. Tổng quan hệ thống (VPS, PG, Redis, nginx).
+2. API & Realtime (RED theo route, WS, lỗi theo mã).
+3. Queues & Outbox (backlog, retry, dead-letter).
+4. Kênh (Zalo theo tài khoản: trạng thái, gửi/nhận, lỗi, cap/ngày; Email IMAP; widget).
+5. AI (run theo loại, step, latency, token, credit, lỗi theo provider, tỉ lệ handoff, approval chờ).
+6. Billing (QR tạo/đã trả, webhook ngân hàng, đối soát lỗi).
+
+**Cảnh báo (Alertmanager → email + Telegram):**
+
+| Cảnh báo | Điều kiện |
+|---|---|
+| API lỗi | tỉ lệ 5xx > 2% trong 5 phút |
+| API chậm | p95 > 1s trong 10 phút |
+| Queue nghẽn | `queue_waiting` > 500 hoặc job tuổi > 5 phút; có job vào dead-letter |
+| Kênh Zalo | tài khoản chuyển `error`/`expired`, hoặc lỗi gửi > 10% trong 15 phút |
+| LLM | lỗi provider > 20% trong 5 phút (router đã fallback nhưng cần biết) |
+| Thanh toán | webhook ngân hàng lỗi chữ ký / không khớp hoá đơn |
+| Hạ tầng | disk > 80%, RAM > 90%, PG kết nối > 80% max, Redis evictions > 0 |
+| Backup | bản full/diff mới nhất > 26 giờ, WAL archive lỗi, `backup-verify` thất bại |
+| Uptime / TLS | HTTPS down > 2 phút; chứng chỉ còn < 14 ngày |
+
+### 11.5 Bảo mật VPS
+
+- `ufw`: chỉ mở 22 (khoá mật khẩu, chỉ SSH key), 80, 443. Postgres / Redis / exporters / Prometheus / Loki chỉ nghe `127.0.0.1` hoặc giao diện WireGuard.
+- fail2ban, `unattended-upgrades` (bản vá bảo mật), user `appchat` không có sudo chạy app.
+- Grafana sau nginx + TLS, tắt đăng ký, bật 2FA cho admin.
+- PostgreSQL: `scram-sha-256`, role `appchat_app` (không BYPASSRLS) và `appchat_owner` tách biệt; TLS nếu tách sang VPS-DB.
