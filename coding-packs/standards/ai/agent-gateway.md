@@ -4,6 +4,7 @@
 
 ## Quy tắc
 
+0. **Mọi lời gọi model dùng AI SDK** (generate / stream / tool loop / `generateObject` / `embed` / `rerank`). Phần tự viết: lưu và chạy tiếp run, phối hợp, policy, credit, RAG storage + search (`ai/rag.md`).
 1. **Mọi lời gọi LLM đi qua `packages/ai`** (`AgentEngine`, `LlmRouter`, `CreditMeter`).
    - Cấm import `@ai-sdk/*` hay SDK của provider ở ngoài `packages/ai`.
    - Engine nằm sau interface để thay được.
@@ -28,6 +29,7 @@
    - `confidence` thấp, khiếu nại, đòi gặp người, lặp câu 3 lần hoặc chạm từ cấm thì handoff.
 8. **Prompt nằm trong kho** `packages/ai/prompts/<name>.<locale>.md`, có version. Cấm nối prompt rải trong service.
 9. **PII:** che CCCD, số thẻ, số tài khoản trước khi gửi LLM; khôi phục khi gửi ra ngoài.
-10. **Trả lời theo ngôn ngữ:** Trợ lý theo `user.locale`; agent theo `contact.locale` (phát hiện từ tin khách).
+10. **Trả lời theo ngôn ngữ:** Trợ lý theo `user.locale`; agent theo `ai_agent.language` (`auto` = theo `contact.locale` phát hiện từ tin khách).
+10b. **Agent chạy theo phiên bản đã xuất bản** (`published_version_id`), không theo bản nháp. Chat thử dùng bản nháp + `dryRun`. Trợ lý tạo agent chỉ qua `agent.create_and_publish` có preview (D29).
 11. **Quan sát:** mỗi bước ghi `ai_run_step` + phát `run.step` qua WS; có metric latency / token / lỗi theo provider + model. Owner xem trực tiếp và bấm dừng được (`run.cancel` huỷ cả cây).
 12. **Provider:** key đặt trong env của nền tảng; chỉ bật provider có key. Fallback khi gặp 5xx / 429 / timeout 30s, theo `model_route`.

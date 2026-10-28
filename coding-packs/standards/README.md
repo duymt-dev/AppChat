@@ -6,6 +6,7 @@
 |------|----------|-------------|
 | actions | [action-registry](actions/action-registry.md) | Action-first: một đường ghi duy nhất, thứ tự Executor, preview / undo / governance, test bắt buộc |
 | ai | [agent-gateway](ai/agent-gateway.md) | `packages/ai` là cổng LLM duy nhất, tool = action, run lưu DB rồi chạy tiếp, rào chắn, credit, prompt có version |
+| ai | [rag](ai/rag.md) | Kho tri thức thư mục + thẻ, public / internal, hybrid search + ngưỡng căn cứ + trích nguồn, giá qua tool, học từ hội thoại có duyệt (D29) |
 | ai | [eval](ai/eval.md) | Bộ ca eval cố định, replay mọi PR + live gated, ngưỡng (an toàn 100%) |
 | api | [response-envelope](api/response-envelope.md) | `{data}` / `{error:{code}}`, cursor, mã HTTP, Idempotency-Key, contract zod |
 | authz | [rbac-permissions](authz/rbac-permissions.md) | Permission engine + 5 vai trò mặc định + data scope own / team / all; AI chạy theo quyền người ra lệnh (D27) |

@@ -364,10 +364,13 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường |
 |---|---|
-| `ai_agent` | name, role(sales\|cs\|booking\|marketing\|accounting\|ops\|custom), avatar, persona, tone, system_prompt, model_tier(standard\|advanced\|max), tool_ids text[] (action ids), kb_source_ids uuid[], channel_account_ids uuid[], confidence_threshold (0.7), approval_rules jsonb, working_hours jsonb, status(draft\|active\|paused), template_key?, version |
+| `ai_agent` | name, emoji?, avatar_file_id?, role(sales\|cs\|booking\|marketing\|accounting\|ops\|custom), language(vi\|en\|bilingual\|auto), persona, tone, system_prompt, intents text[], model_tier(standard\|advanced\|max), tool_ids text[] (action ids), kb_scope jsonb `{folder_ids[], tags[]}`, channel_account_ids uuid[], confidence_threshold (0.7), approval_rules jsonb, working_hours jsonb, status(draft\|active\|paused), template_key?, created_via(manual\|template\|assistant), created_by, **published_version_id?**, draft_dirty bool. Các cột cấu hình là **bản nháp**; agent chạy theo `published_version_id` (D29) |
+| `ai_agent_version` | agent_id, version int, config jsonb (snapshot đủ cấu hình), published_by, published_at, note? | unique(agent_id, version); idx(agent_id, version desc) |
 | `agent_template` **[P]** | key, role, industry_group?, industry?, name, description, defaults jsonb |
-| `kb_source` | agent_id?, kind(file\|url\|text\|catalog), name, file_id?, url?, status(pending\|processing\|ready\|failed), error?, chunk_count, refreshed_at |
-| `kb_chunk` | source_id, content, embedding vector(1536), token_count, meta jsonb. Index: `hnsw (embedding vector_cosine_ops)`; idx(source_id) |
+| `kb_folder` | name, parent_id?, visibility(public\|internal), sort | idx(parent_id) |
+| `kb_source` | folder_id?, origin(upload\|url\|text\|catalog\|conversation\|drive), kind(pdf\|docx\|xlsx\|csv\|txt\|md\|url\|text\|product), name, tags text[], visibility(public\|internal), file_id?, url?, product_id?, sha256?, status(pending\|processing\|ready\|failed), error?, chunk_count, size_bytes, created_by, refreshed_at, deleted_at? | idx(folder_id, status) WHERE deleted_at IS NULL; gin(tags); unique(sha256) WHERE deleted_at IS NULL |
+| `kb_chunk` | source_id, ord, content, content_norm (= f_unaccent(lower(content))), embedding vector(1536), embed_model, token_count, meta jsonb `{path[], page?, row?, volatile?}` | `hnsw (embedding vector_cosine_ops)`; `gin (content_norm gin_trgm_ops)`; idx(source_id, ord) |
+| `kb_suggestion` (P1) | conversation_id, question, answer, source_message_ids uuid[], status(pending\|approved\|rejected), edited bool, reviewed_by?, reviewed_at?, kb_source_id? | idx(status, created_at desc) |
 | `ai_run` | kind(agent_reply\|assistant\|delegate\|consult\|task\|suggestion), parent_run_id?, root_run_id?, depth, state jsonb? (messages + pending tool call khi chờ duyệt), agent_id?, conversation_id?, assistant_session_id?, task_id?, initiated_by_user_id?, status(queued\|running\|waiting_approval\|completed\|failed\|cancelled\|handoff), plan jsonb?, input jsonb, output jsonb?, error?, confidence?, credits_used, started_at, finished_at. Index: idx(status, started_at desc) |
 | `ai_run_step` | run_id, idx, type(llm\|tool\|delegate\|consult\|handoff\|ui_command), agent_id?, action_id?, input jsonb, output jsonb, status, provider?, model?, tokens_in, tokens_out, credits, latency_ms |
 | `approval_request` | run_id, step_id, action_id, input jsonb, preview jsonb, risk, reason, status(pending\|approved\|rejected\|edited\|expired), requested_at, decided_by?, decided_at?, decision_note?. partial idx(requested_at desc) WHERE status='pending' |
@@ -687,16 +690,23 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
+| `agent.draft_from_description` | read | | |
 | `agent.create` | config | | |
+| `agent.create_and_publish` | config | | 24h (= pause + xoá) |
 | `agent.update` | config | | 24h |
+| `agent.optimize_prompt` | read | | |
 | `agent.publish` | config | | |
+| `agent.rollback` | config | | |
 | `agent.pause` | config | | |
 | `agent.delete` | delete | | 30d |
-| `agent.test` | read | | |
+| `agent.test` | read (giả lập: action chỉ preview) | | |
 | `kb.search` | read | ✓ | |
 | `kb.add_source` | write | | |
-| `kb.remove_source` | delete | | |
+| `kb.update_source` (thư mục, thẻ, visibility) | write | | 24h |
+| `kb.remove_source` | delete | | 30d |
 | `kb.refresh_source` | write | | |
+| `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | |
+| `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | |
 | `approval.approve` / `approval.reject` / `approval.edit_and_approve` | owner | | |
 | `run.cancel` | write | | |
 | `ai_task.create` / `ai_task.update` / `ai_task.pause` / `ai_task.delete` | config | | |
@@ -887,6 +897,7 @@ export type RunEvent = { type: 'delta'|'tool_call'|'tool_result'|'paused'|'usage
 ```
 
 - **Engine mặc định:** `AiSdkEngine` (Vercel AI SDK v7, `ToolLoopAgent`/`streamText`). Tool `execute` gọi `ActionExecutor`.
+- **Mọi lời gọi model đều qua AI SDK:** agent loop, Trợ lý, structured output (`generateObject`: soạn cấu hình agent, tối ưu prompt, đề xuất hỏi–đáp, phân loại ý định), `embed` / `embedMany` (RAG), `rerank` (nếu bật). **Phần tự viết:** lưu và chạy tiếp run, phối hợp agent, policy / credit, RAG (parse, cắt đoạn, lưu pgvector, hybrid search) — AI SDK không cung cấp các phần này.
 - **Lưu và chạy tiếp run (tự viết, không phụ thuộc framework):**
   - Khi tool trả về `needs_*`, engine dừng loop và ghi trong một transaction: `ai_run.status = waiting_approval`, `ai_run.state = { messages: ModelMessage[], pendingToolCall: { toolCallId, actionId, input }, stepIdx }` (cột jsonb), cùng một dòng `approval_request`.
   - Khi có quyết định (`approval.decided`), job `ai-resume:{runId}` trên BullMQ chạy:
@@ -938,12 +949,25 @@ Danh mục action quá lớn để nhồi hết vào prompt, nên Trợ lý ch�
 Khi có `message.received` mà `ai_mode=auto` và có `assignee_agent_id` (hoặc agent mặc định của kênh), chạy pipeline sau:
 
 1. **Debounce 3 giây** (gom tin liên tiếp). Job id = `agent-reply:{conversationId}`, nên không chạy song song trên cùng một hội thoại.
-2. **Lắp ngữ cảnh:** 20 tin gần nhất, `contact.get_360` rút gọn, `contact_memory`, top-6 chunk từ `kb.search`, giờ mở cửa, chính sách của agent.
+2. **Lắp ngữ cảnh:** cấu hình theo `published_version_id`, 20 tin gần nhất, `contact.get_360` rút gọn, `contact_memory`, top-6 đoạn từ `kb.search` (hybrid, trong `kb_scope`, chỉ `public` — `standards/ai/rag.md`), giờ mở cửa, chính sách của agent. Dưới ngưỡng căn cứ → không bịa (hỏi lại / handoff).
 3. **Tools** = `tool_ids` của agent, cộng thêm `reply(text, attachments?)` (chính là `message.send` vào hội thoại hiện tại), `handoff(reason, summary)` (chuyển sang người), `transfer_to_agent(role, reason, summary)` và `consult(role, question)` (xem §5.1).
 4. **Output bắt buộc có cấu trúc** `{ reply?, confidence 0–1, intent, sentiment, needs_human?: reason }`.
    - Nếu `confidence < threshold`, hoặc khách đòi gặp người, hoặc cùng câu hỏi lặp 3 lần, hoặc sentiment tiêu cực / khiếu nại, hoặc chạm từ cấm → **handoff**: không gửi reply, lưu bản nháp, đặt `ai_state=handoff`, thông báo.
 5. **Copilot mode:** cùng pipeline nhưng chỉ sinh gợi ý (không gửi), đẩy về UI.
 6. **Lọc PII trước khi gửi LLM:** regex CCCD/CMND, số thẻ, số tài khoản → thay bằng token. Khi gửi ra ngoài thì khôi phục lại.
+
+### 5.3b Tạo agent (D29)
+
+- **3 cách vào** (prototype trang AI Agents): Tạo thủ công → `AgentBuilder` · Từ mẫu (`agent_template`) → builder điền sẵn · **Trợ lý AI** → modal / dock Trợ lý.
+- **Luồng Trợ lý:** người dùng mô tả → `agent.draft_from_description` (AI SDK `generateObject`, schema = cấu hình agent; chọn tools bằng `find_actions` lọc theo quyền người ra lệnh) → Trợ lý gọi `agent.create_and_publish` → policy `assistant × config` trả **preview** đủ cấu hình (prompt, kênh, tools + risk, tri thức, ngưỡng, quy tắc duyệt) với 2 nút **"Tạo & xuất bản"** / **"Mở trong builder"** → xác nhận thì agent chạy ngay (`ai_agent_version` v1, `created_via=assistant`).
+- **Rào chắn:**
+  - `tool_ids` ⊆ quyền người ra lệnh ∩ `agentGrantable`.
+  - Tool risk `money` / `delete` mặc định bật trong `approval_rules`.
+  - Gắn kênh đang có agent khác thì preview cảnh báo thay thế.
+  - Vượt `plan.max_agents` → `PLAN_LIMIT_REACHED`.
+- **Không tạo agent tạm:** `delegate` chỉ nhắm agent đã xuất bản. Không có agent phù hợp thì Trợ lý gợi ý "Tạo agent …" (một `UiCommand` / đề xuất), không tự tạo.
+- **Xuất bản / phiên bản:** builder sửa bản nháp (`draft_dirty`); `agent.publish` snapshot vào `ai_agent_version`; `ai_run.agent_version` ghi phiên bản đã chạy; `agent.rollback(version)` publish lại snapshot cũ.
+- **Chat thử:** `agent.test` chạy agent bằng bản nháp với `ActionContext.dryRun=true` → mọi action không phải `read` trả preview, không ghi DB, không gửi ra ngoài; vẫn trừ credit.
 
 ### 5.4 Tác vụ tự chủ & chủ động
 
