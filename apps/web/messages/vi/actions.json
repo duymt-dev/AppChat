@@ -347,5 +347,31 @@
     "mark_no_show": {
       "title": "Đánh dấu không đến"
     }
+  },
+  "ticket": {
+    "search": {
+      "title": "Tìm ticket"
+    },
+    "create": {
+      "title": "Tạo ticket"
+    },
+    "assign": {
+      "title": "Gán người phụ trách ticket"
+    },
+    "set_status": {
+      "title": "Đổi trạng thái ticket"
+    },
+    "comment": {
+      "title": "Ghi chú / trả lời ticket"
+    },
+    "close": {
+      "title": "Đóng ticket"
+    },
+    "reopen": {
+      "title": "Mở lại ticket"
+    },
+    "bulk_update": {
+      "title": "Cập nhật hàng loạt ticket"
+    }
   }
 }

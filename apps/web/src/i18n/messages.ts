@@ -20,6 +20,7 @@ export const MODULES = [
   'orders',
   'invoices',
   'calendar',
+  'tickets',
 ] as const;
 
 type Messages = Record<string, unknown>;

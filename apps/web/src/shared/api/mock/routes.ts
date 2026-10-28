@@ -12,6 +12,7 @@ import { contractsRoutes } from './domains/contracts';
 import { ordersRoutes } from './domains/orders';
 import { invoicesRoutes } from './domains/invoices';
 import { calendarRoutes } from './domains/calendar';
+import { ticketsRoutes } from './domains/tickets';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -55,4 +56,5 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...ordersRoutes,
   ...invoicesRoutes,
   ...calendarRoutes,
+  ...ticketsRoutes,
 };

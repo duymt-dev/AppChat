@@ -347,5 +347,31 @@
     "mark_no_show": {
       "title": "Mark no-show"
     }
+  },
+  "ticket": {
+    "search": {
+      "title": "Search tickets"
+    },
+    "create": {
+      "title": "Create ticket"
+    },
+    "assign": {
+      "title": "Assign ticket"
+    },
+    "set_status": {
+      "title": "Change ticket status"
+    },
+    "comment": {
+      "title": "Note / reply on ticket"
+    },
+    "close": {
+      "title": "Close ticket"
+    },
+    "reopen": {
+      "title": "Reopen ticket"
+    },
+    "bulk_update": {
+      "title": "Bulk update tickets"
+    }
   }
 }

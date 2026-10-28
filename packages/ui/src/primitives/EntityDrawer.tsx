@@ -37,6 +37,8 @@ export interface EntityDrawerProps {
   testId?: string;
   /** Nền vùng nội dung (360° dùng nền xám). */
   muted?: boolean;
+  /** Rộng desktop khác 392 (drawer ticket 400 — prototype L3279). */
+  width?: number;
 }
 
 const useStyles = createStyles(({ css }) => ({
@@ -180,7 +182,7 @@ export function EntityDrawer(p: EntityDrawerProps) {
       open={p.open}
       onClose={p.onClose}
       placement={mobile ? 'bottom' : 'right'}
-      size={mobile ? '100%' : layout.crmDrawer}
+      size={mobile ? '100%' : (p.width ?? layout.crmDrawer)}
       closable={false}
       destroyOnHidden
       // Modal chồng trên drawer (ModalShell stacked — duyệt & ký, gửi ký) cần nhận bàn phím: tắt bẫy focus của drawer.

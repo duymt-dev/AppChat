@@ -13,6 +13,7 @@ import { contractsParamRoute } from './domains/contracts';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
 import { calendarParamRoute } from './domains/calendar';
+import { ticketsParamRoute } from './domains/tickets';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
@@ -56,6 +57,7 @@ export const mockTransport: Transport = {
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
       calendarParamRoute(path) ??
+      ticketsParamRoute(path) ??
       signParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??

@@ -1,0 +1,160 @@
+// Hỗ trợ / Ticket (Blueprint §3.4 support; §2.2 ticket). Prototype L4837–4955 + drawer L3276–3360.
+// open → in_progress → waiting (SLA tạm dừng) → closed (lý do bắt buộc); reopen đưa về open và tăng reopened_count.
+import { z } from 'zod';
+import { defineAction } from './define';
+
+const ticketId = z.string().min(1);
+const status = z.enum(['open', 'in_progress', 'waiting']);
+const priority = z.enum(['high', 'medium', 'low']);
+const out = z.object({ ticket_id: z.string(), status: z.string() });
+const opened = (o: { ticket_id: string }) => ({
+  type: 'open' as const,
+  entity: 'ticket',
+  id: o.ticket_id,
+  view: 'drawer' as const,
+});
+
+export const ticketSearch = defineAction({
+  id: 'ticket.search',
+  module: 'support',
+  title: 'actions.ticket.search.title',
+  description: 'Search tickets by text / status / priority / SLA state. Example: {"q":"hoàn tiền","sla":"breach"}',
+  input: z.object({
+    q: z.string().optional(),
+    status: z.enum(['open', 'in_progress', 'waiting', 'closed']).optional(),
+    priority: priority.optional(),
+    sla: z.enum(['breach', 'risk', 'ok']).optional(),
+  }),
+  output: z.object({ tickets: z.array(z.object({ id: z.string(), code: z.string(), title: z.string(), status: z.string() })) }),
+  permission: 'ticket.view',
+  risk: 'read',
+  agentGrantable: true,
+  invalidates: [],
+});
+
+export const ticketCreate = defineAction({
+  id: 'ticket.create',
+  module: 'support',
+  title: 'actions.ticket.create.title',
+  description:
+    'Open a support ticket; SLA due times come from the default SLA policy and priority. Example: {"title":"Khách yêu cầu hoàn tiền","company":"Cty ABC","channel":"zalo_personal","category":"Refund","priority":"high"}',
+  input: z.object({
+    title: z.string().trim().min(1).max(200),
+    company: z.string().max(120).optional(),
+    email: z.string().email().optional(),
+    contact_id: z.string().optional(),
+    channel: z.enum(['zalo_personal', 'webchat', 'email']),
+    category: z.string().min(1),
+    priority,
+    status: status.optional(),
+    team_id: z.string().optional(),
+    assignee_user_id: z.string().optional(),
+    assignee_agent_id: z.string().optional(),
+    description: z.string().max(5000).optional(),
+  }),
+  output: z.object({ ticket_id: z.string(), code: z.string() }),
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: true,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
+  uiTarget: opened,
+});
+
+export const ticketAssign = defineAction({
+  id: 'ticket.assign',
+  module: 'support',
+  title: 'actions.ticket.assign.title',
+  description: 'Assign a ticket to a user or the AI agent (exactly one). Example: {"ticket_id":"tk_2041","assignee_user_id":"u_minh"}',
+  input: z.object({
+    ticket_id: ticketId,
+    assignee_user_id: z.string().optional(),
+    assignee_agent_id: z.string().optional(),
+    team_id: z.string().optional(),
+  }),
+  output: out,
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: true,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
+});
+
+export const ticketSetStatus = defineAction({
+  id: 'ticket.set_status',
+  module: 'support',
+  title: 'actions.ticket.set_status.title',
+  description: 'Move an open ticket between open / in_progress / waiting (waiting pauses the SLA clock). Use ticket.close to close.',
+  input: z.object({ ticket_id: ticketId, status }),
+  output: out,
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: true,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
+});
+
+export const ticketComment = defineAction({
+  id: 'ticket.comment',
+  module: 'support',
+  title: 'actions.ticket.comment.title',
+  description:
+    'Add an internal note (internal=true) or a reply to the customer (internal=false; first reply stops the FRT clock). Example: {"ticket_id":"tk_2041","body":"Đã gọi khách","internal":true}',
+  input: z.object({ ticket_id: ticketId, body: z.string().trim().min(1).max(5000), internal: z.boolean() }),
+  output: z.object({ ticket_id: z.string(), comment_id: z.string() }),
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: true,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
+});
+
+export const ticketClose = defineAction({
+  id: 'ticket.close',
+  module: 'support',
+  title: 'actions.ticket.close.title',
+  description: 'Close a ticket; reason required (resolved | duplicate | withdrawn | out_of_scope). SLA result is recorded.',
+  input: z.object({
+    ticket_id: ticketId,
+    reason: z.enum(['resolved', 'duplicate', 'withdrawn', 'out_of_scope']),
+    note: z.string().max(1000).optional(),
+  }),
+  output: out.extend({ sla_result: z.enum(['met', 'breached']) }),
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: true,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
+});
+
+export const ticketReopen = defineAction({
+  id: 'ticket.reopen',
+  module: 'support',
+  title: 'actions.ticket.reopen.title',
+  description: 'Reopen a closed ticket (→ open, reopened_count + 1).',
+  input: z.object({ ticket_id: ticketId }),
+  output: out,
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['tickets'],
+});
+
+export const ticketBulkUpdate = defineAction({
+  id: 'ticket.bulk_update',
+  module: 'support',
+  title: 'actions.ticket.bulk_update.title',
+  description: 'Apply one change to many tickets: assignee, priority, or hand over to the AI agent.',
+  input: z.object({
+    ticket_ids: z.array(ticketId).min(1).max(200),
+    assignee_user_id: z.string().optional(),
+    assignee_agent_id: z.string().optional(),
+    priority: priority.optional(),
+  }),
+  output: z.object({ updated: z.number() }),
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
+});

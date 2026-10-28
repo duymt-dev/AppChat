@@ -49,6 +49,7 @@ const contracts = { ac_module: 'contracts' };
 const orders = { ac_module: 'orders' };
 const invoices = { ac_module: 'invoices' };
 const calendar = { ac_module: 'calendar' };
+const tickets = { ac_module: 'tickets' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -949,5 +950,46 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('cal-create').click(),
     appWait: '[data-appt]',
     clipTo: { proto: 'div[style*="width:540px"], div[style*="width: 540px"]', app: '[data-testid="cal-form"] [role="dialog"]' },
+  },
+  // ===== F5 — Ticket =====
+  // Kênh theo channel registry (§6): ô kênh Instagram/Facebook/WhatsApp/Telegram → Zalo cá nhân / Web chat / Email; "Cập nhật cuối" theo giờ mock.
+  {
+    id: 'tickets:list',
+    route: '/tickets',
+    protoStorage: tickets,
+    appWait: '[data-ticket]',
+  },
+  {
+    id: 'tickets:kanban',
+    route: '/tickets',
+    protoStorage: tickets,
+    proto: (p) => p.locator('button', { hasText: 'Kanban' }).first().click(),
+    app: (p) => p.getByTestId('tk-view-kanban').click(),
+    appWait: '[data-ticket]',
+  },
+  {
+    id: 'tickets:detail',
+    route: '/tickets',
+    protoStorage: tickets,
+    proto: (p) => p.getByText('Khách yêu cầu đổi lịch hẹn liệu trình', { exact: true }).first().click(),
+    app: (p) => p.locator('[data-ticket="tk_2041"]').click(),
+    appWait: '[data-ticket]',
+    clip: { x: 1040, y: 0, width: 400, height: 900 },
+    mask: [
+      {
+        x: 1056,
+        y: 196,
+        width: 368,
+        height: 90,
+        reason: 'đồng hồ SLA tính từ ttr_due_at thật (prototype hard-code 2g 14p theo ưu tiên — tkdCountdown L9165)',
+      },
+      {
+        x: 1056,
+        y: 76,
+        width: 300,
+        height: 20,
+        reason: 'Tạo / Cập nhật tính từ created_at / updated_at (prototype hard-code "5 phút trước · vừa xong")',
+      },
+    ],
   },
 ];

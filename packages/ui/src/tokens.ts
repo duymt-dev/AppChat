@@ -374,6 +374,7 @@ export const layout = {
   minShell: 1180,
   /** Khách hàng: drawer 360° / Trợ lý AI 392 · bảng tối thiểu 1150 · cột kanban 230. */
   crmDrawer: 392,
+  tkDrawer: 400,
   crmTableMin: 1150,
   kanbanCol: 230,
   /** Trợ lý AI: composer 680 · luồng chat 760 · popover + 284 / mức AI 290 / agent 270 · drawer Cowork 520 · modal Cowork 680. */

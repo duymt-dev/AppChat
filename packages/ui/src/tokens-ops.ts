@@ -15,8 +15,13 @@ export const opsColor = {
   infoLine: '#BFDBFE',
   greenWash: '#F0FDF4',
   fuStripe: 'rgba(124,58,237,.04)',
+  closedGreen: '#22C55E',
+  emailGreen: '#1F8A4D',
+  webDark: '#111827',
+  tealDeep: '#0E9B7E',
 } as const;
 
 export const opsGradient = {
   syncBanner: 'linear-gradient(90deg,#EFF6FF,#F0FDF4)',
+  tkAiBanner: 'linear-gradient(135deg,rgba(45,197,106,.08),rgba(43,158,243,.05))',
 } as const;

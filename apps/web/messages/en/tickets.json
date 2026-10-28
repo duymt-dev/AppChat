@@ -1,0 +1,233 @@
+{
+  "title": "Tickets",
+  "sub": "Support · SLA · Escalation",
+  "search": "Search tickets, customers, codes…",
+  "create": "New ticket",
+  "ai": "AI Assistant · Tickets",
+  "kpi": {
+    "total": "All tickets",
+    "open": "Open",
+    "waiting": "Awaiting reply",
+    "breach": "SLA breached",
+    "closed": "Closed"
+  },
+  "trend": "↑ {v}",
+  "listTitle": "All tickets",
+  "listCount": "{n} tickets",
+  "filter": {
+    "priority": "Priority",
+    "status": "Status",
+    "team": "Team",
+    "category": "Category",
+    "assignee": "Assignee",
+    "sla": "SLA"
+  },
+  "sort": {
+    "recent": "Newest",
+    "priority": "Highest priority"
+  },
+  "export": "Export",
+  "exporting": "Exporting tickets…",
+  "view": {
+    "list": "List",
+    "kanban": "Kanban"
+  },
+  "status": {
+    "open": "Open",
+    "in_progress": "In progress",
+    "waiting": "Waiting",
+    "closed": "Closed"
+  },
+  "priority": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "slaState": {
+    "breach": "Breached",
+    "risk": "Due soon",
+    "ok": "On track"
+  },
+  "slaLeft": "{t} left",
+  "slaOver": "Overdue {t}",
+  "slaClosed": "Closed",
+  "slaPaused": "Paused",
+  "dur": {
+    "hm": "{h}h {m}m",
+    "h": "{h}h",
+    "m": "{m}m"
+  },
+  "col": {
+    "title": "Title",
+    "cust": "Customer",
+    "status": "Status",
+    "owner": "Assignee",
+    "sla": "SLA",
+    "updated": "Last update",
+    "ai": "AI hint",
+    "act": "Actions"
+  },
+  "aiHint": {
+    "agent": "AI is handling this ticket within SLA",
+    "user": "{name} is handling — reply within SLA"
+  },
+  "aiPeek": "View AI hint",
+  "aiPeekMsg": "AI hint for {code}: {hint}",
+  "empty": "No matching tickets",
+  "menu": {
+    "open": "Actions",
+    "view": "View details",
+    "pause": "Pause",
+    "close": "Complete",
+    "reopen": "Reopen"
+  },
+  "bulk": {
+    "selected": "{n} tickets selected",
+    "assign": "Assign owner",
+    "ai": "Hand to AI",
+    "priority": "Change priority",
+    "clear": "Clear selection",
+    "done": "Updated {n} tickets"
+  },
+  "detail": {
+    "close": "Close",
+    "created": "Created: {t}",
+    "updated": "Updated: {t}",
+    "copy": "Copy code",
+    "copied": "Copied {code}",
+    "tab": {
+      "detail": "Details",
+      "thread": "Conversation",
+      "history": "History",
+      "sla": "SLA"
+    },
+    "aiOn": "AI is handling this",
+    "aiOnSub": "You can step in at any time",
+    "aiOff": "AI auto-handling is off",
+    "aiOffSub": "A staff member owns this ticket",
+    "takeOver": "Take over",
+    "handAi": "Hand to AI",
+    "slaLeft": "SLA remaining",
+    "slaCountdown": "SLA countdown",
+    "due": "Resolution due: {h}h from creation",
+    "paused": "SLA paused (waiting for customer)",
+    "info": "General",
+    "cust": "Customer",
+    "status": "Status",
+    "owner": "Assignee",
+    "team": "Team",
+    "category": "Category",
+    "priority": "Priority",
+    "desc": "Issue description",
+    "noDesc": "No description yet.",
+    "macros": "Quick macros",
+    "macro": {
+      "ack": "Acknowledge receipt",
+      "guide": "Send instructions",
+      "info": "Ask for more info",
+      "tech": "Escalate to technical team",
+      "resolve": "Mark as resolved"
+    },
+    "macroText": {
+      "ack": "We have received your request and are checking it now.",
+      "guide": "Here are the detailed steps to resolve this — please follow them.",
+      "info": "Could you share more details (booking code / screenshot) so we can check?",
+      "tech": "Escalated to the technical team."
+    },
+    "internal": "Internal",
+    "ev": {
+      "created": "Ticket created",
+      "assigned": "Assigned to {name}",
+      "status": "Status → {status}",
+      "note": "Internal note added",
+      "reply": "Replied to customer",
+      "closed": "Ticket closed ({reason})",
+      "reopened": "Ticket reopened",
+      "priority": "Priority changed"
+    },
+    "by": {
+      "system": "System",
+      "routing": "Routing rule"
+    },
+    "slaRow": {
+      "frt": "First response (FRT)",
+      "ttr": "Resolution time",
+      "esc": "Escalations"
+    },
+    "target": "Target {v}",
+    "le": "≤ {v}",
+    "policy": "SLA policy: {name}",
+    "result": {
+      "met": "SLA met",
+      "breached": "SLA breached"
+    },
+    "note": "Internal note",
+    "reply": "Reply to customer",
+    "notePh": "Note for teammates…",
+    "replyPh": "Reply to the customer…",
+    "send": "Send",
+    "closeBtn": "Close ticket",
+    "reopen": "Reopen",
+    "closedAs": "Closed · {reason}"
+  },
+  "closeBox": {
+    "title": "Close ticket {code}",
+    "sub": "Pick a reason — the SLA result is recorded.",
+    "reason": "Reason",
+    "note": "Note (optional)",
+    "cancel": "Cancel",
+    "ok": "Close ticket",
+    "reasons": {
+      "resolved": "Resolved",
+      "duplicate": "Duplicate",
+      "withdrawn": "Customer withdrew",
+      "out_of_scope": "Out of scope"
+    }
+  },
+  "form": {
+    "title": "New ticket",
+    "titleL": "Title *",
+    "titlePh": "e.g. Customer asks for a refund…",
+    "company": "Customer / Company",
+    "companyPh": "ABC Co.",
+    "email": "Email",
+    "emailPh": "contact@company.vn",
+    "channel": "Channel",
+    "category": "Category",
+    "priority": "Priority",
+    "status": "Status",
+    "team": "Team",
+    "owner": "Assignee",
+    "desc": "Issue description",
+    "descHint": "Use the toolbar for bold, italic, underline or lists.",
+    "cancel": "Cancel",
+    "save": "Create ticket",
+    "close": "Close",
+    "required": "Enter a ticket title",
+    "emailBad": "Invalid email",
+    "tools": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "ul": "Bulleted list",
+      "ol": "Numbered list"
+    }
+  },
+  "channel": {
+    "zalo_personal": "Zalo personal",
+    "webchat": "Web chat",
+    "email": "Email"
+  },
+  "aiPanel": {
+    "title": "AI Assistant · Support",
+    "sub": "Handle tickets & SLA with AI",
+    "close": "Close",
+    "hello": "Hi {name} 👋 How can I help with tickets today? Pick a shortcut below or type a request.",
+    "ph": "Ask the assistant about tickets…",
+    "send": "Send",
+    "full": "Open full AI Assistant →",
+    "picked": "Applied: {t}",
+    "ack": "Noted — the assistant will answer in the full dock."
+  },
+  "agent": "AI Agent"
+}
