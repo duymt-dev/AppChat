@@ -53,7 +53,7 @@ coding-packs/
 | Cache / Queue | Redis (+ BullMQ) |
 | Realtime | WebSocket (+ SSE fallback) |
 | Storage | S3-compatible |
-| LLM | Đa nhà cung cấp (Claude / GPT / Gemini / DeepSeek) qua LLM Router; Agent Gateway + Vercel AI SDK v7 (Vision V3) |
+| LLM | Đa nhà cung cấp (Claude / GPT / Gemini / DeepSeek) qua LLM Router; Agent Gateway tự viết + Vercel AI SDK v7 (chốt — Vision V3/V4, RRI D17) |
 
 ## Source Documents
 

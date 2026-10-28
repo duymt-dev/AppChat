@@ -504,18 +504,25 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | Bảo mật | đã vá auth bypass (#1034) | nhiều CVE RCE năm 2026 | nhiều CVE năm 2026 | lib, không có bề mặt server | lib |
 | Zalo | README nhận có, **không tìm thấy code** ⚠ | **có sẵn chính chủ**: `zalouser` (zca-js) + `zalo` Bot API | plugin cộng đồng | — | — |
 
-**Đề xuất: không fork runtime nào. Tự xây Agent Gateway trong NestJS, engine là Vercel AI SDK v7. Mastra để dành.**
+**CHỐT (Chủ nhà duyệt 2026-10-28): phương án B — Vercel AI SDK v7 + lớp nối tự viết (Agent Gateway) trong NestJS. Không fork runtime nào, không dùng Mastra.**
 - **Vì sao không fork:** cả ba runtime đều thiết kế cho một người vận hành, có state store riêng (SQLite) và tool trên máy chủ. Muốn đa tenant (RLS), tính credit theo tenant, lưu duyệt trong DB và dùng Action Registry của ta thì phải mổ lõi của chúng. Thêm vào đó, hai trong ba runtime khác ngôn ngữ (Rust/Python).
 - **Vì sao chọn AI SDK v7:** cùng ngôn ngữ TS; có sẵn tool loop, đa provider (Claude/GPT/Gemini/DeepSeek), streaming và tool approval. Nó chỉ là thư viện nên không mở thêm bề mặt tấn công.
-- **Mastra:** chỉ thêm vào nếu spike cho thấy suspend/resume bền, cron và memory của nó tiết kiệm công đáng kể so với tự làm bằng BullMQ + Postgres.
+- **Vì sao không dùng Mastra:**
+  - Phần Mastra làm hộ (storage/bảng riêng, memory, RAG, trace, duyệt trong luồng chat) thì AppChat vẫn phải có bản riêng nằm trong Postgres có RLS: `contact_memory`, `kb_chunk`, `approval_request`, `ai_run`. Dùng Mastra nghĩa là chạy hai nguồn dữ liệu song song.
+  - Mastra vừa bỏ `.network()` sau một năm để chuyển sang supervisor, và đang có lỗi mở ở đúng phần duyệt qua agent con (mastra-ai/mastra#28583).
+  - Mastra vẫn để ngỏ: Agent Gateway có interface, muốn đổi engine thì không phải sửa nghiệp vụ.
+- **Vì sao không dùng WorkflowAgent / Postgres World của AI SDK v7:** đây là bản tham chiếu, chưa tối ưu scale và bảo mật, route HTTP không có xác thực.
+- **Cách lưu và chạy tiếp run chờ duyệt:** khi tool trả `approval_required`, lưu messages của run vào `ai_run` (Postgres, RLS), sau đó dừng. Khi Owner duyệt, worker đọc messages ra, thêm kết quả tool rồi chạy tiếp vòng lặp. Toàn bộ chạy qua BullMQ.
+- **Cách các agent phối hợp:** Trợ lý AI điều phối bằng tool `delegate`. Agent chuyển hội thoại với khách cho agent khác bằng `transfer_to_agent` (Sales → Booking). Agent hỏi ý agent khác ở hậu trường bằng `consult` (Sales hỏi Kế toán). Ngoài ra có tác vụ tự chủ chạy theo lịch hoặc theo sự kiện. Mỗi lần phối hợp đều có đầu mối, có ngân sách credit và có trace.
+- **Không làm swarm**, tức là các agent tự bàn và tự chia việc mà không ai điều phối (Chủ nhà chốt 2026-10-28). Lý do: OPC cần dự đoán được, duyệt được và kiểm soát được credit.
 - **Mượn thiết kế từng nơi:**
   - **OpenClaw `zalouser`** (MIT): cách quản lý credential, vòng đời listener, dedupe message id, group policy, chuyển markdown sang rich text Zalo, health probe. Có thể vendor rồi viết lại để session lưu theo tenant trong DB của ta.
   - **OpenFang:** manifest "Hands" (playbook + tools + guardrails theo lịch) làm mẫu cho tác vụ tự chủ; loop guard; audit log dạng hash-chain.
   - **Hermes / OpenAI Agents JS:** shape API `runs` + approval; handoff và `RunState` serialize được.
 - **Lối thoát:** Action Registry cũng mở ra dưới dạng **MCP server**. Sau này muốn cắm runtime ngoài (OpenFang, Hermes…) làm engine phụ thì nó vẫn gọi thao tác qua đúng quyền và audit của AppChat.
-- **Việc cần làm ở Blueprint (spike 1–2 ngày):**
+- **Spike nửa ngày ở đầu TIP AI (chỉ cho phương án B):**
   - Kiểm tra tên trường `usage` của AI SDK v7 khi stream nhiều bước.
-  - Kiểm tra tool approval kết hợp lưu trạng thái chờ duyệt trong Postgres.
+  - Kiểm tra kịch bản dừng chờ duyệt rồi chạy tiếp sau khi restart worker (báo giá 25 triệu, duyệt sau 3 giờ).
   - Nối zca-js thử với một tài khoản.
 
 ### UI VISION
@@ -616,8 +623,8 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 |---|---|---|
 | V1 | Pattern B: SaaS đa tenant, mô hình OPC | RRI D01–D02 |
 | V2 | **Action-first:** Action Registry là nguồn duy nhất cho UI, Trợ lý, agents và MCP | Copilot phải làm được mọi thao tác UI (D03, D16); một chỗ validate, phân quyền, audit, undo |
-| V3 | **Agent runtime: tự xây Agent Gateway + Vercel AI SDK v7; không fork** OpenFang/OpenClaw/Hermes | Cả ba đều single-operator, phải mổ lõi mới đa tenant được, hai trong ba khác ngôn ngữ, nhiều CVE; AI SDK nhúng được, đa provider, có tool approval |
-| V4 | Mastra là tuỳ chọn, quyết sau spike | Chỉ dùng nếu suspend/resume và memory tiết kiệm công rõ rệt |
+| V3 | **Agent runtime (CHỐT B, 2026-10-28): Vercel AI SDK v7 (`ToolLoopAgent`, `toolApproval`) + lớp nối tự viết (Agent Gateway: tool từ Registry, credit, router, lưu/chạy tiếp run trong Postgres). Không fork** OpenFang/OpenClaw/Hermes | Fork thì phải mổ lõi mới đa tenant được. AI SDK là lớp nền ít đổi API, đa provider; dữ liệu, quyền, credit và audit nằm trọn trong Postgres có RLS |
+| V4 | **Không dùng Mastra, không làm swarm.** Phối hợp agent gồm orchestrator (`delegate`), handoff (`transfer_to_agent`), hỏi ý (`consult`) và tác vụ tự chủ | Mastra trùng storage/memory và đang có lỗi ở phần duyệt qua agent con; swarm khó dự đoán, khó duyệt và tốn credit. Interface Agent Gateway để ngỏ cho cả hai sau này |
 | V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
 | V6 | Monorepo pnpm: `web` (Next) · `api` (Nest) · `worker` (Nest, role channels/ai) · `packages/*` | Chia sẻ schema action và types FE/BE; worker tách để giữ phiên Zalo và chạy LLM dài |
 | V7 | Postgres 16 RLS + pgvector + FTS tiếng Việt; Redis/BullMQ; native, không Docker; PM2/systemd | RRI D12–D15 |
@@ -638,9 +645,9 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - ✅ Bảng phạm vi IN/OUT (đổi tên thành "Phạm vi phát hành" theo yêu cầu không dùng khái niệm MVP).
   - ✅ Bảng key decisions.
   - ✅ Đã append vào `00-PROJECT-CONTEXT.md`.
-- **Cross-reference:** khớp RRI D01–D16 và REQ Domain A–N. Đã giải OQ-01 (đề xuất V3, chờ duyệt), OQ-02 (V12), OQ-08 (V11).
+- **Cross-reference:** khớp RRI D01–D16 và REQ Domain A–N. Đã giải OQ-01 (V3 chốt B ngày 2026-10-28), OQ-02 (V12), OQ-08 (V11).
 - **Gaps:**
   - OQ-03 / V5: chưa chạy thử zca-js.
-  - Chưa kiểm field `usage` của AI SDK v7 (spike ở Blueprint).
+  - Chưa kiểm field `usage` và việc chạy tiếp sau restart của AI SDK v7 (spike nửa ngày ở TIP AI).
   - OQ-04 – OQ-07 (cổng webhook ngân hàng, API tra MST, khoá LLM, hạ tầng production) cần Chủ nhà cung cấp; không chặn Blueprint.
-- **Action needed:** Chủ nhà duyệt V3 (không fork, AI SDK v7) và V11 (token UI) trước khi sang `/vibecode:blueprint`.
+- **Trạng thái duyệt:** V3/V4 đã chốt (B, không Mastra, không swarm — 2026-10-28). Phần còn lại của Vision và V11 (token UI) đang chờ Chủ nhà đọc.

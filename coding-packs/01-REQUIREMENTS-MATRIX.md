@@ -79,7 +79,7 @@
 | REQ-D10 | **Trí nhớ khách hàng:** agent đọc Hồ sơ 360° (lịch sử mua, lịch hẹn, ghi chú, hạng loyalty) trước khi trả lời và ghi lại sự kiện quan trọng. | P0 | — | TBD |
 | REQ-D11 | Lọc PII trước khi đưa vào prompt (CMND, số thẻ, số tài khoản); có guardrail và danh sách từ cấm. | P1 | — | TBD |
 | REQ-D12 | **Chủ động (Hands):** follow-up khách im lặng, nhắc lịch hẹn, chăm sóc sau mua, hỏi lại báo giá đang treo. Chạy theo lịch, phải tôn trọng giới hạn gửi của Zalo cá nhân. | P1 | — | TBD |
-| REQ-D13 | Agent chuyên trách chuyển việc cho nhau (A2A, ví dụ Sales → Booking) ngay trong một hội thoại với khách; Trợ lý AI giám sát. | P1 | — | TBD |
+| REQ-D13 | Agent chuyên trách phối hợp với nhau: **chuyển hội thoại** (Sales → Booking → trả lại Sales) và **hỏi ý agent khác** ở hậu trường (Sales hỏi Kế toán về công nợ). Luôn có đầu mối, giới hạn số bước chuyển, ngân sách credit, trace đầy đủ; Trợ lý AI giám sát. **Không làm swarm** (D17). | P1 | — | TBD |
 | REQ-D15 | Bộ agent mẫu sẵn có: **Sales, CSKH, Booking, Marketing, Kế toán, Vận hành**. Mỗi agent có vai trò, tools mặc định và mẫu theo ngành. | P0 | Chủ DN | TBD |
 | REQ-D14 | Hiệu suất agent: số hội thoại, tỉ lệ tự xử lý, tỉ lệ chốt, CSAT, credit đã dùng; đo ngang hàng với nhân sự. | P1 | Chủ DN | TBD |
 
@@ -232,12 +232,13 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D12 | Hạ tầng | Docker / native | **Không dùng Docker**; Next + Nest; Postgres + Redis native | Chủ nhà chốt |
 | D13 | ORM | Prisma / Drizzle / TypeORM | **Prisma** (+ SQL thô cho RLS / index nâng cao) | Chủ nhà chọn |
 | D14 | LLM | Claude / đa nhà cung cấp / gateway | **Đa nhà cung cấp** (LLM Router) | Chủ nhà chọn |
+| D17 | Agent runtime & phối hợp agent | fork OpenFang/OpenClaw/Hermes / Mastra / AI SDK + lớp nối tự viết; có / không swarm | **AI SDK v7 + lớp nối tự viết; không swarm** (giữ orchestrator, handoff, hỏi ý, tác vụ tự chủ) | Chủ nhà chốt 2026-10-28; xem Vision V3–V4 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm), materialized view** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
 | # | Question | Impact | Suggested Resolution |
 |---|---|---|---|
-| OQ-01 | **Agent runtime:** tự xây trong Nest hay nhúng OpenFang? (Chủ nhà: chưa chốt) | Lớp điều phối và thực thi agent (D01, E04). Action Registry (E01) **vẫn do AppChat sở hữu** dù chọn phương án nào; OpenFang (nếu dùng) gọi Registry qua MCP. | Thiết kế **Agent Gateway interface** ngay từ đầu; triển khai mặc định là agent loop tự viết (TS, tool-use đa provider). Chốt OpenFang ở Vision sau khi spike 1–2 ngày. |
+| OQ-01 | ~~**Agent runtime:** tự xây trong Nest hay nhúng OpenFang?~~ **ĐÃ GIẢI 2026-10-28 → D17 / Vision V3.** | Lớp điều phối và thực thi agent (D01, E04). Action Registry (E01) **vẫn do AppChat sở hữu** dù chọn phương án nào; OpenFang (nếu dùng) gọi Registry qua MCP. | Thiết kế **Agent Gateway interface** ngay từ đầu; triển khai mặc định là agent loop tự viết (TS, tool-use đa provider). Chốt OpenFang ở Vision sau khi spike 1–2 ngày. |
 | OQ-02 | Gửi OTP đăng nhập qua kênh nào? Spec dùng Zalo OTP (ZNS cần Zalo OA, mà OA không có trong phạm vi) | REQ-A01 | Đề xuất: Email OTP + mật khẩu ngay; Zalo OTP qua ZNS khi có OA (P2). |
 | OQ-03 | Thư viện Zalo cá nhân (ví dụ `zca-js`, Node) và chính sách giới hạn gửi | REQ-B02/B04, I03 | Spike kỹ thuật ở Blueprint; tham số throttle cấu hình được. |
 | OQ-04 | Nhà cung cấp webhook ngân hàng cho VietQR (Casso / SePay / bank API) và tài khoản nhận tiền | REQ-L04 | Chủ nhà cung cấp; adapter có thể thay. |
@@ -278,7 +279,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 - Workflow engine và builder.
 - Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok (P2).
 - Hợp đồng và ký số (P2).
-- Đa agent điều phối A2A (P2).
+- Swarm: các agent tự bàn và tự chia việc mà không có đầu mối (D17). Handoff và hỏi ý giữa agent vẫn nằm trong phạm vi (REQ-D13).
 - Phòng ban, sơ đồ tổ chức, KPI, phân ca, vai trò tuỳ biến, SLA đa chính sách (P3).
 - Help Center, Training Studio / canary, Dashboard builder, Template Studio.
 - Kafka, ClickHouse, OpenSearch, K8s, Docker.
@@ -301,6 +302,6 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
   - RBAC rút còn Owner + Member.
   - Bỏ Docker / K8s; bỏ Go / Kafka.
   - Không đăng nhập OTP qua Zalo khi chưa có OA (OQ-02).
-- **Gaps:** OQ-01 (agent runtime) là quyết định kiến trúc lớn nhất, cần chốt trước Blueprint. OQ-03 và OQ-04 cần spike hoặc thông tin từ Chủ nhà.
+- **Gaps:** ~~OQ-01 (agent runtime)~~ đã chốt ở D17. OQ-03 và OQ-04 cần spike hoặc thông tin từ Chủ nhà.
 - **Đính chính 2026-10-28:** Trợ lý AI là Orchestrator + Copilot, không phải agent bán hàng. Đã viết lại Domain D/E, thêm D16 Action-first và REQ-N13.
 - **Confidence trên P0:** khoảng 85%.
