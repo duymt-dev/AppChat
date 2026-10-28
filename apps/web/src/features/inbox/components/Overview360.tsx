@@ -25,7 +25,7 @@ export function Overview360({ c }: { c: Contact360 }) {
   return (
     <>
       <div className={styles.card}>
-        <div className={styles.cardHead}>
+        <div className={cx(styles.cardHead, styles.cardHeadTight)}>
           <span className={styles.eyebrow}>{t('journey')}</span>
           <span className={cx(styles.chip, styles.chipEnd)} style={{ color: color.amberGold, background: color.amberGoldBg }}>
             {t('stageAt', { stage: c.journey.stage })}
@@ -121,7 +121,7 @@ export function Overview360({ c }: { c: Contact360 }) {
             {t('add')}
           </button>
         </div>
-        <div className={cs.pname}>{c.deal.title}</div>
+        <div className={cs.dealTitle}>{c.deal.title}</div>
         <div className={styles.kv}>
           {t('dealValue')}
           <b>{fmt.money(c.deal.value)}</b>

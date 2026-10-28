@@ -1,0 +1,36 @@
+// Drawer Hồ sơ 360° của khách — prototype L2723–2936 (cùng nội dung panel 360° hộp thư: dùng lại Profile360 qua features/inbox).
+'use client';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { EntityDrawer } from '@appchat/ui';
+import { Profile360Actions, Profile360Content, TABS_360, type Tab360 } from '@/features/inbox';
+import { useCrmUi } from '../crm-store';
+
+export function Customer360Drawer() {
+  const t = useTranslations('customers.p360');
+  const tt = useTranslations('inbox.p360.tabs');
+  const ui = useCrmUi();
+  const [tab, setTab] = useState<Tab360>('overview');
+  const close = () => {
+    ui.set({ detail: null });
+    setTab('overview');
+  };
+
+  return (
+    <EntityDrawer
+      open={!!ui.detail}
+      onClose={close}
+      title={t('title')}
+      badge={t('badge')}
+      closeLabel={t('close')}
+      tabs={TABS_360.map((k) => ({ key: k, label: tt(k) }))}
+      tab={tab}
+      onTab={(k) => setTab(k as Tab360)}
+      footer={<Profile360Actions />}
+      muted
+      testId="crm-360"
+    >
+      {ui.detail ? <Profile360Content contactId={ui.detail} tab={tab} /> : null}
+    </EntityDrawer>
+  );
+}

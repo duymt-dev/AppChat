@@ -7,7 +7,8 @@ import { onMockEvent } from '../api/mock/store';
 import { qk } from '../api/query-keys';
 
 const EVENT_KEYS: Record<string, readonly (readonly unknown[])[]> = {
-  'authz.changed': [qk.authz()],
+  // đổi vai trò = đổi data scope → danh sách theo scope phải tải lại
+  'authz.changed': [qk.authz(), ['crm'], ['inbox']],
   'notification.new': [qk.notifications()],
 };
 

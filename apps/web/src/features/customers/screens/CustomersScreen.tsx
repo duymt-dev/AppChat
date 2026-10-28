@@ -1,0 +1,88 @@
+// Khách hàng (orchestrator) — prototype L2451–2984: PageHeader + KPI · StageTabs · thanh lọc · (DataTable | KanbanBoard) · drawer / modal.
+'use client';
+import { useState, type Key } from 'react';
+import { App } from 'antd';
+import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
+import { DataTable, KanbanBoard, PageHeader, StageTabs } from '@appchat/ui';
+import { useAction } from '@/shared/actions/useAction';
+import { useCan } from '@/shared/authz/useCan';
+import { PageStates, stateOf } from '@/shared/states/PageStates';
+import { useCrmStyles } from '../styles/crm.styles';
+import { useCrmUi } from '../crm-store';
+import { contactsQuery, crmStatsQuery, duplicatesQuery } from '../api';
+import { ContactCard, useContactColumns } from '../columns';
+import { CrmHeaderActions } from '../components/CrmHeaderActions';
+import { CrmToolbar } from '../components/CrmToolbar';
+import { CrmOverlays } from '../components/CrmOverlays';
+import { KanbanCard } from '../components/KanbanCard';
+import type { ContactRow, StageKey } from '../types';
+
+export function CustomersScreen() {
+  const t = useTranslations('customers');
+  const { message } = App.useApp();
+  const { styles } = useCrmStyles();
+  const ui = useCrmUi();
+  const list = useQuery(contactsQuery(ui.filter));
+  const stats = useQuery(crmStatsQuery()).data;
+  const dups = useQuery(duplicatesQuery()).data;
+  const setStage = useAction('contact.set_stage');
+  const canEdit = useCan('crm.edit');
+  const [selected, setSelected] = useState<Key[]>([]);
+  const rows = list.data?.data ?? [];
+  const aiDo = () => void message.info(t('ai.doing'));
+  const columns = useContactColumns(aiDo);
+  const stageCols = (stats?.stages ?? []).filter((s) => s.key !== 'all');
+
+  return (
+    <div className={styles.wrap} data-testid="customers">
+      <PageHeader
+        title={t('title')}
+        subtitle={t('sub')}
+        actions={<CrmHeaderActions dupCount={dups?.summary.groups ?? 0} />}
+        kpis={stats?.stats.map((k) => ({ ...k, label: t(`stats.${k.key}` as never) }))}
+      />
+      <StageTabs
+        stages={(stats?.stages ?? []).map((s) => ({ key: s.key, label: t(`stages.${s.key}`), color: s.color, count: s.count }))}
+        value={ui.filter.stage}
+        onChange={(k) => ui.setFilter({ stage: k as StageKey })}
+        views={[
+          { key: 'list', label: t('layout.list'), icon: 'ic-inbox' },
+          { key: 'kanban', label: t('layout.kanban'), icon: 'ic-grid' },
+        ]}
+        view={ui.layout}
+        onView={(k) => ui.set({ layout: k as 'list' | 'kanban' })}
+      />
+      <CrmToolbar allSelected={rows.length > 0 && selected.length === rows.length} onSelectAll={(on) => setSelected(on ? rows.map((r) => r.id) : [])} />
+      <PageStates state={stateOf(list)} onRetry={() => void list.refetch()}>
+        {ui.layout === 'list' ? (
+          <DataTable<ContactRow>
+            testId="crm-table"
+            rows={rows}
+            columns={columns}
+            rowKey={(r) => r.id}
+            minWidth={1150}
+            selection={{ keys: selected, onChange: setSelected }}
+            onRowClick={(r) => ui.set({ detail: r.id })}
+            rowProps={(r) => ({ 'data-contact': r.id })}
+            mobileCard={(r) => <ContactCard c={r} />}
+            emptyText={t('empty')}
+          />
+        ) : (
+          <KanbanBoard<ContactRow>
+            testId="crm-kanban"
+            columns={stageCols.map((s) => ({ key: s.key, label: t(`stages.${s.key}`), color: s.color }))}
+            items={rows}
+            itemKey={(r) => r.id}
+            groupBy={(r) => r.stage}
+            renderCard={(r) => <KanbanCard c={r} tagDefs={stats?.tag_defs ?? []} />}
+            onMove={canEdit ? (r, to) => void setStage.run({ contact_id: r.id, stage: to }) : undefined}
+            addLabel={canEdit ? t('kanban.add') : undefined}
+            onAdd={() => ui.open('create')}
+          />
+        )}
+      </PageStates>
+      <CrmOverlays rows={rows} />
+    </div>
+  );
+}

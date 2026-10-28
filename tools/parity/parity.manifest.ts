@@ -39,6 +39,7 @@ const RAIL: Rect = { x: 0, y: 0, width: 80, height: 900 };
 const RAIL_EXP: Rect = { x: 0, y: 0, width: 230, height: 900 };
 const dash = { ac_module: 'dashboard' };
 const inbox = { ac_module: 'inbox' };
+const crm = { ac_module: 'customers' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -318,5 +319,75 @@ export const MANIFEST: ParityEntry[] = [
       { x: 24, y: 62, width: 616, height: 52, reason: 'handoff không có trong prototype — bản nháp AI khác nội dung' },
       { x: 24, y: 136, width: 260, height: 36, reason: 'handoff không có trong prototype — nút Nhận xử lý / Dùng bản nháp' },
     ],
+  },
+  {
+    id: 'customers:table',
+    route: '/customers',
+    protoStorage: crm,
+  },
+  {
+    id: 'customers:kanban',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('button', { hasText: 'Kanban' }).click(),
+    app: (p) => p.getByRole('radio', { name: 'Kanban' }).click(),
+  },
+  {
+    id: 'customers:filter',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.chip', { hasText: /^Lọc$/ }).click(),
+    app: (p) => p.getByTestId('filter-btn').click(),
+    clip: { x: 900, y: 200, width: 540, height: 380 },
+  },
+  {
+    id: 'customers:edit',
+    route: '/customers',
+    protoStorage: crm,
+    proto: async (p) => {
+      await p.locator('div[title="Thao tác"]').first().click();
+      await p.locator('div[style*="min-width: 184px"] .row', { hasText: 'Cập nhật khách hàng' }).click();
+    },
+    app: async (p) => {
+      await p.locator('.row-dots').first().click();
+      await p.getByRole('menuitem', { name: 'Cập nhật khách hàng' }).click();
+    },
+    clipTo: { proto: 'div[style*="width: 560px"]', app: '[data-testid="crm-edit"] [role="dialog"]' },
+  },
+  {
+    id: 'customers:dedupe',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.chip', { hasText: 'Check trùng' }).click(),
+    app: (p) => p.getByTestId('crm-dedupe').click(),
+    clipTo: { proto: 'div[style*="width: 880px"]', app: '[data-testid="crm-dedupe-modal"] [role="dialog"]' },
+  },
+  {
+    id: 'customers:fields',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.chip', { hasText: 'Trường mở rộng' }).click(),
+    app: (p) => p.getByTestId('crm-fields').click(),
+    clipTo: { proto: 'div[style*="width: 880px"]', app: '[data-testid="crm-fields-modal"] [role="dialog"]' },
+  },
+  {
+    id: 'customers:360',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.row', { hasText: 'Nguyễn Thị Lan' }).first().click(),
+    app: (p) => p.locator('[data-contact="ct_lan"]').first().click(),
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'customers:ai',
+    route: '/customers',
+    protoStorage: crm,
+    // "Soạn ZNS chăm sóc theo phân khúc" là mục OUT (prototype-parity §6) — gỡ khỏi prototype.
+    proto: async (p) => {
+      await p.locator('.btnp', { hasText: 'Trợ lý AI' }).click();
+      await p.locator('.chip', { hasText: 'Soạn ZNS' }).evaluate((n) => n.remove());
+    },
+    app: (p) => p.getByTestId('crm-ai').click(),
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
 ];

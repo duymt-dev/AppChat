@@ -109,6 +109,9 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
     gap: 8px;
     margin-bottom: 12px;
   `,
+  cardHeadTight: css`
+    margin-bottom: 8px;
+  `,
   eyebrow: css`
     font-size: ${font.scale.s12}px;
     font-weight: ${font.weight.heavy};

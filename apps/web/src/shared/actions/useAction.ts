@@ -12,6 +12,8 @@ import { useConfirmStore } from './confirm-store';
 
 export interface RunOptions {
   silent?: boolean;
+  /** Màn tự xử lý lỗi nghiệp vụ (vd. CONTACT_OWNED → "Xin chia sẻ"); trả true để bỏ toast lỗi chung. */
+  onError?: (e: ApiRequestError) => boolean;
 }
 
 export function useAction<O = unknown>(id: string) {
@@ -54,6 +56,7 @@ export function useAction<O = unknown>(id: string) {
         }
         return res.data;
       } catch (e) {
+        if (e instanceof ApiRequestError && opts.onError?.(e)) return null;
         const code = e instanceof ApiRequestError ? e.error.code : 'INTERNAL';
         message.error(t(`errors.${code}` as never));
         return null;

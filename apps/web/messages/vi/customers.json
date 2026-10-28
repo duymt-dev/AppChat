@@ -238,7 +238,8 @@
     "newLabel": "Nhãn trường mới",
     "cancel": "Huỷ",
     "save": "Lưu cấu hình",
-    "close": "Đóng"
+    "close": "Đóng",
+    "tipVar": "{{contact.size}}"
   },
   "p360": {
     "title": "Hồ sơ 360°",

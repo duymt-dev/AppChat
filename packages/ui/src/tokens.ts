@@ -172,6 +172,8 @@ export const color = {
   assignIcon: '#7C9CFF',
   sky: '#0EA5E9',
   sparkMint: '#7EE2A4',
+  forestDeep: '#06250F',
+  editIconBg: '#EAF7EF',
   dimVeil: 'rgba(15,20,28,.42)',
   peekVeil: 'rgba(15,23,20,.35)',
   webTag: 'rgba(15,23,20,.34)',
@@ -200,6 +202,12 @@ export const gradient = {
   tier: 'linear-gradient(135deg,#6E48E6,#8B6FE8)',
   connectHint: 'linear-gradient(135deg,#EDFAF3,#fff)',
   peekHead: 'linear-gradient(135deg,#F6F2FF,#ECFDF5)',
+  kanbanBlue: 'linear-gradient(135deg,#2B9EF3,#1D4ED8)',
+  kanbanGreen: 'linear-gradient(135deg,#1F9C4F,#0F6E50)',
+  kanbanViolet: 'linear-gradient(135deg,#8B5CF6,#6E48E6)',
+  kanbanPink: 'linear-gradient(135deg,#EC4899,#BE185D)',
+  kanbanAmber: 'linear-gradient(135deg,#F59E0B,#D97706)',
+  kanbanSky: 'linear-gradient(135deg,#0EA5E9,#0369A1)',
 } as const;
 
 export const shadow = {

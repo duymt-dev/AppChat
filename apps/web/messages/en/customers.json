@@ -238,7 +238,8 @@
     "newLabel": "New field label",
     "cancel": "Cancel",
     "save": "Save",
-    "close": "Close"
+    "close": "Close",
+    "tipVar": "{{contact.size}}"
   },
   "p360": {
     "title": "360° profile",

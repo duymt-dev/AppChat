@@ -61,6 +61,12 @@ export const useCardStyles = createStyles(({ css }) => ({
     font-size: ${font.scale.s18}px;
     color: ${color.text};
   `,
+  dealTitle: css`
+    font-weight: ${font.weight.bold};
+    font-size: ${font.scale.s15}px;
+    color: ${color.text};
+    margin-bottom: 8px;
+  `,
   tier: css`
     font-size: ${font.scale.s11}px;
     font-weight: ${font.weight.heavy};
