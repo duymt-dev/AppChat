@@ -524,7 +524,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 
 ### UI VISION
 
-- **Pattern:** app shell gồm rail trái 80px với flyout (Khách hàng & CRM) và topbar 58px chứa tìm kiếm, thông báo, trợ giúp, đổi workspace.
+- **Pattern (theo prototype `AppChat.dc.html` L799–1072):** rail trái 80px với submenu (Trợ lý AI, Khách hàng & CRM); tìm kiếm, thông báo, Nâng cấp, badge trial và avatar menu (đổi workspace, Hồ sơ, Cài đặt, Ngôn ngữ, Trợ giúp, Ví, Đăng xuất) nằm ở **đáy rail** — không có topbar riêng. (Mô tả cũ "topbar 58px" không còn đúng.)
   - Nội dung theo kiểu master-detail; list ⇄ kanban; drawer; Panel 360°.
   - Chuẩn nhãn tiếng Việt và bố cục là prototype (`_bundle.jsx` + overlay).
 - **Trợ lý AI có ở mọi nơi:**
@@ -593,7 +593,8 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - Vùng động (giờ, con trỏ, ảnh ngẫu nhiên) được mask.
 - **Phải giữ y hệt:** nhãn tiếng Việt, thứ tự menu, bố cục, kích thước (rail 80px, topbar 58px, button 36px, chip 22px), spacing, radius, màu, cỡ chữ và độ đậm.
 - **Ngoại lệ có chủ đích** (không tính vào 5%, phải liệt kê trong báo cáo parity):
-  - Module không làm: Call Center, Workflow, Hợp đồng, Báo cáo — ẩn khỏi menu.
+  - Module không làm: Call Center, Workflow, Báo cáo — ẩn khỏi menu. Các mục Cài đặt OUT bị ẩn (danh sách ở Blueprint §7.2).
+  - Nội dung trái với quyết định đã chốt: trial 14→15 ngày, OTP Zalo→Email, ẩn social login, bỏ "tự nạp" / "tự chuyển model tiết kiệm", "Ký số"→"Ký điện tử", "Hóa đơn"→"Đề nghị thanh toán", kênh Marketing chỉ Zalo cá nhân + Email.
   - Kênh không làm khi phát hành (Facebook, Instagram, Telegram, WhatsApp…) — chỉ hiển thị kênh có thật.
 - **Quy trình:**
   1. TIP nền tảng UI dựng `tools/parity`: script Playwright chụp prototype theo danh sách màn (`parity.manifest.ts`: route, trạng thái, mask, vùng ngoại lệ), lưu baseline vào `tests/parity/baseline/`.
@@ -636,7 +637,8 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | Hộp thư | 3 cột, chế độ AI theo từng hội thoại, folder views của AI, Panel 360°, chuyển thành đơn/lịch/ticket | P0 |
 | Tổng quan | Việc cần tôi, AI đã làm gì, cần follow, onboarding, credit | P0 |
 | Khách hàng & CRM | Khách hàng (bảng/kanban), Hồ sơ 360°, Sản phẩm, Báo giá, Đơn | P0 |
-| Khách hàng & CRM | Hoá đơn + QR thu tiền, custom fields, import/export, gộp trùng | P1 |
+| Khách hàng & CRM | **Hợp đồng + ký điện tử**, Đề nghị thanh toán + QR / SePay-Casso, liệu trình (D24, D25) | P0 |
+| Khách hàng & CRM | Custom fields, import/export, gộp trùng | P1 |
 | Lịch hẹn | Lịch ngày/tuần/tháng/danh sách, dịch vụ, chống trùng, nhắc hẹn | P0–P1 |
 | Hỗ trợ | Ticket (list/kanban), SLA mặc định, CSAT | P1 |
 | Marketing | Phân khúc, AI đề xuất chiến dịch, wizard, duyệt, gửi Zalo/Email, báo cáo chiến dịch | P1 |
@@ -653,7 +655,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | Module Báo cáo (10 trang / 5 nhóm, xuất Excel, báo cáo lên lịch) | Loại bỏ (2026-10-28) |
 | Workflow engine + builder | Sau |
 | Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok | P2 |
-| Hợp đồng + ký số | P2 |
+| Ký số CA cho hợp đồng (ký điện tử của AppChat đã IN — D25) | P2 |
 | Phòng ban, sơ đồ tổ chức, KPI, phân ca, vai trò tuỳ biến, SLA nhiều chính sách | P3 |
 | Help Center, Training Studio/canary, Dashboard builder, Template Studio | P3 |
 | Kafka, ClickHouse, OpenSearch, Docker/K8s, mobile native | Khi cần scale |

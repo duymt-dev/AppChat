@@ -113,8 +113,8 @@
 | REQ-F07 | **Đơn hàng:** tạo từ báo giá, gợi ý từ lịch hẹn hoàn tất, hoặc trực tiếp. **Hai trục:** tiến độ (Mới → Đang xử lý → **Hoàn tất** / Huỷ) và thanh toán (Chưa TT · **Chờ cọc** (chỉ đơn cần cọc) · Đã cọc · Một phần · Đã TT · Đã hoàn). Huỷ đơn đã thu tiền thì sinh hoàn tiền có duyệt; vận chuyển nhập tay. `order.completed` cộng điểm (D24). | P0 | Chủ DN / Agent | TBD |
 | REQ-F08 | **Đề nghị thanh toán & thu tiền** (không thay hoá đơn GTGT; hoá đơn điện tử P2): cọc / đợt / toàn bộ; VietQR; hạn 7 ngày, nhắc T-1/T+1/T+7; xác nhận tay **hoặc** đối soát tự động khi DN kết nối SePay/Casso; phiếu thu; công nợ theo khách; hoàn tiền luôn duyệt (D24). | P0 | Chủ DN | TBD |
 | REQ-G07 | **Liệu trình / gói buổi:** gói sinh khi đơn có gói được xác nhận và đã thu đủ (hoặc đã cọc nếu cho phép); lịch hẹn hoàn tất thì trừ 1 buổi; no-show không trừ (cấu hình được); nhắc khi còn 1 buổi / 7 ngày; hết hạn thì khoá, Owner gia hạn tay; hiển thị ở 360°, agent đọc được (D24). | P0 | Chủ DN / Agent | TBD |
-| REQ-F09 | Hợp đồng (từ báo giá thắng, duyệt, ký). Bên bán tự soạn và ký, không cần đăng ký với cơ quan nhà nước; khách xác nhận bằng OTP / ký trên màn hình. | P2 | Chủ DN | TBD |
-| REQ-F10 | Pipeline tự cập nhật giai đoạn khách: gửi báo giá → Báo giá; đơn hoàn tất → Đã mua; báo giá từ chối / hết hạn → Đang tư vấn; không hạ giai đoạn của khách đã mua; kéo tay luôn thắng (thay BR-09; D24). | P0 | — | TBD |
+| REQ-F09 | **Hợp đồng:** tạo từ báo giá đã chấp nhận (tuỳ chọn) hoặc trực tiếp; 3 loại (Dịch vụ / Mua bán / Nguyên tắc); nội dung từ mẫu theo loại hoặc PDF tải lên; Owner duyệt và ký trước, rồi gửi khách **ký điện tử** (link + OTP + ký tay, lưu vết + trang chứng nhận + SHA-256); đã ký thì khoá, thay đổi qua phụ lục; sinh đơn từ hợp đồng; nhắc gia hạn T-30, tự hết hạn; ký số CA ở P2 (D25). | **P0** | Chủ DN / Agent (nháp) | TBD |
+| REQ-F10 | Pipeline tự cập nhật giai đoạn khách: gửi báo giá → Báo giá; hợp đồng gửi ký / đã ký → Hợp đồng; đơn hoàn tất → Đã mua; báo giá từ chối / hết hạn → Đang tư vấn; không hạ giai đoạn của khách đã mua; kéo tay luôn thắng (thay BR-09; D24). | P0 | — | TBD |
 
 ### Domain G — Lịch hẹn
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -238,6 +238,8 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D19 | Module Báo cáo | giữ 6 trang / bỏ | **Bỏ khỏi phạm vi.** Số liệu chỉ hiện ở Tổng quan, Hiệu suất agent (REQ-D14), thống kê chiến dịch (REQ-I05), KPI Ticket (REQ-H04) và truy vấn qua Trợ lý AI (REQ-E07) | Chủ nhà chốt 2026-10-28: không có trong prototype hiện hành và docs mới |
 | D20 | Hạ tầng production | cloud managed / Docker / native VPS | **Native trên VPS Linux** (systemd + PM2, nginx, PG16, Redis), monitoring **Prometheus + Grafana + Loki** trên VPS riêng, backup pgBackRest offsite | Chủ nhà chốt 2026-10-28 |
 | D21 | Mô hình tenant | shared DB + RLS / schema riêng / **database riêng** | **Mỗi workspace một database riêng (`CREATE DATABASE`) + DB nền tảng**; ví credit và hoá đơn gói ở DB nền tảng | Chủ nhà chốt 2026-10-28 |
+| D25 | Hợp đồng | P2 / **P0** | **P0**: tuỳ chọn sau báo giá; Owner duyệt + ký trước; khách ký điện tử (OTP + ký tay, lưu vết); ký số CA P2 | Chủ nhà chốt 2026-10-28 |
+| D26 | Phạm vi prod đợt đầu | chỉ P0 / **P0 + P1** | **Toàn bộ P0 + P1** của ma trận (màn và domain liệt kê ở Scope Boundaries), build theo pha, phát hành khi đủ | Chủ nhà chốt 2026-10-28 ("không MVP") |
 | D24 | Luồng nghiệp vụ Commerce | — | **Chốt toàn bộ theo `plans/COMMERCE-DECISIONS.md`** (Q1–Q8, 8b, 9a, 9b + mặc định): điểm 10.000đ, đề nghị thanh toán (e-invoice P2), đối soát tay + SePay/Casso, báo giá 15 ngày từ lúc gửi, agent giảm tối đa 5%, cọc / một phần, liệu trình, tồn kho, báo giá → đơn bằng nút, lịch hẹn → đơn chỉ gợi ý, bước cuối "Hoàn tất", chờ cọc chỉ cho đơn cần cọc | Chủ nhà chốt 2026-10-28 |
 | D23 | Workspace không hoạt động | giữ DB mãi / tự lưu trữ | **Tự lưu trữ gói Miễn phí sau 90 ngày không hoạt động** (dump + drop, khôi phục khi đăng nhập; trả phí/trial không áp dụng; bản lưu trữ không tự xoá) | Chủ nhà đồng ý 2026-10-28; giảm số DB trên cluster (rủi ro K7) |
 | D22 | i18n khi phát hành | vi + en / đủ 11 ngôn ngữ | **vi + en**, registry 11 ngôn ngữ để bật dần bằng file bản dịch | Chủ nhà chọn A 2026-10-28 |
@@ -274,21 +276,22 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
   - Trực kênh; tools lấy từ Registry; RAG.
   - HITL và hàng chờ duyệt; chuyển việc giữa các agent (A2A).
   - Builder agent; LLM Router đa nhà cung cấp; follow-up chủ động.
-- **CRM:** Khách hàng, Hồ sơ 360°, Sản phẩm, Báo giá, Đơn, Hoá đơn và thu tiền QR.
+- **CRM & bán hàng:** Khách hàng, Hồ sơ 360°, Sản phẩm (biến thể, kho), Báo giá, **Hợp đồng + ký điện tử**, Đơn, Đề nghị thanh toán + thu tiền QR / SePay-Casso, Liệu trình.
 - **Lịch hẹn:** chống trùng lịch, nhắc hẹn.
 - **Hỗ trợ:** Ticket/SLA (chính sách mặc định).
 - **Marketing broadcast:** AI đề xuất, gửi qua Zalo cá nhân và Email, bắt buộc duyệt.
 - **Loyalty:** hạng, tích và đổi điểm tự động.
 - **Tổng quan.**
 - **Gói / Credit / VietQR:** cùng trang quản trị nền tảng.
-- **Cài đặt:** các trang cốt lõi.
+- **Cài đặt:** Tổng quan workspace (+ giờ làm việc) · Ngôn ngữ · Thành viên · Kênh kết nối · Web widget · Trường dữ liệu · Thẻ · Câu trả lời mẫu · Mẫu hợp đồng · AI Models · Dữ liệu RAG · AI Governance · Nhật ký AI / Audit · SLA mặc định · Thông báo · Ví & gói.
+- **Danh sách màn chi tiết + thứ tự build:** `RRI-GOAL-*.md` và `02-TASK-GRAPH.md` (D26).
 
 ### Out of Scope (hoãn)
 - Call Center / AI Voice / WebPhone.
 - Module Báo cáo (10 trang / 5 nhóm, xuất Excel, báo cáo lên lịch, AI narrative) — D19.
 - Workflow engine và builder.
 - Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok (P2).
-- Hợp đồng và ký số (P2).
+- Ký số CA cho hợp đồng (P2; ký điện tử của AppChat đã IN — D25).
 - Swarm: các agent tự bàn và tự chia việc mà không có đầu mối (D17). Handoff và hỏi ý giữa agent vẫn nằm trong phạm vi (REQ-D13).
 - Phòng ban, sơ đồ tổ chức, KPI, phân ca, vai trò tuỳ biến, SLA đa chính sách (P3).
 - Help Center, Training Studio / canary, Dashboard builder, Template Studio.

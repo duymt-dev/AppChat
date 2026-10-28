@@ -1,6 +1,6 @@
 # AppChat — Quy tắc nghiệp vụ Commerce (ĐÃ CHỐT)
 
-> Chủ nhà chốt 2026-10-28 (RRI **D24**). Các quyết định ở đây **thắng** mọi mô tả cũ trong SRS / CTO / SolutionDesign / prototype khi có mâu thuẫn.
+> Chủ nhà chốt 2026-10-28 (RRI **D24**; Hợp đồng nâng lên P0 — **D25**). Các quyết định ở đây **thắng** mọi mô tả cũ trong SRS / CTO / SolutionDesign / prototype khi có mâu thuẫn.
 > Dữ liệu và action tương ứng: `plans/BLUEPRINT.md` §2.2 (sales / catalog / loyalty), §2.3 (events), §3.4 (actions).
 > Ghi chú pháp lý dưới đây chỉ để tham khảo khi thiết kế, không phải tư vấn pháp lý.
 
@@ -18,7 +18,9 @@
 | Q6 | Cọc / thanh toán một phần | **Làm ngay.** Cọc là một khoản thanh toán; có trạng thái "Một phần"; trạng thái thanh toán tách khỏi trạng thái đơn |
 | Q7 | Liệu trình / gói buổi | **Làm ngay:** `customer_package` lưu số dư buổi, lịch hẹn hoàn tất thì trừ 1 buổi |
 | Q8 | Tồn kho | **Trừ khi đơn `confirmed`, hoàn khi huỷ**; cho phép tồn âm kèm cảnh báo; truy vết bằng `stock_movement` |
-| 8 | Báo giá → Đơn | Nút **"→ Đơn hàng"** (người bấm hoặc agent làm khi khách chốt). Không có bước Hợp đồng (P2) |
+| 8 | Báo giá → Đơn / Hợp đồng | Báo giá `accepted` có **2 nút: "→ Hợp đồng" và "→ Đơn hàng"** (người bấm hoặc agent làm khi khách chốt). Hợp đồng là **tuỳ chọn** (D25) |
+| C1 | Ký hợp đồng | **Ký điện tử của AppChat:** OTP + ký tay trên màn hình, lưu vết và trang chứng nhận; ký số CA (`ESignProvider`) ở P2 |
+| C2 | Bên ký | **Owner ký trước** (đồng thời là duyệt), sau đó gửi khách ký; PDF cuối có đủ chữ ký 2 bên |
 | 8b | Lịch hẹn hoàn tất → Đơn | **Chỉ gợi ý** ("Tạo đơn cho buổi này?"), người hoặc agent xác nhận mới tạo |
 | 9a | Bước cuối của đơn | **"Hoàn tất"**, dùng chung cho hàng hoá và dịch vụ |
 | 9b | "Chờ cọc" | **Chỉ áp cho đơn được đánh dấu cần cọc** |
@@ -63,10 +65,9 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 - **Khách phản hồi trong chat** ("ok chốt", "bớt chút được không", "thôi"):
   - AI nhận ý định rồi gọi `quote.mark_accepted` / `quote.request_revision` / `quote.mark_rejected`.
   - Agent tự làm khi độ tin cậy ≥ 70%; dưới mức đó thì hỏi người.
-- **Báo giá → Đơn:** báo giá `accepted` có nút **"→ Đơn hàng"** (`order.create_from_quote`). Agent cũng gọi được action này khi khách xác nhận chốt.
-  - Không tự sinh đơn.
-  - Mỗi báo giá chỉ sinh một đơn.
-  - Nút "→ Hợp đồng" ẩn tới P2.
+- **Báo giá → Đơn / Hợp đồng:** báo giá `accepted` có 2 nút **"→ Hợp đồng"** (`contract.create_from_quote`) và **"→ Đơn hàng"** (`order.create_from_quote`). Agent cũng gọi được khi khách xác nhận chốt.
+  - Không tự sinh.
+  - Mỗi báo giá sinh tối đa một hợp đồng **hoặc** một đơn trực tiếp.
 
 ## 4. Đơn hàng
 
@@ -78,7 +79,7 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 | **Thanh toán** `pay_status` (tổng hợp từ các đề nghị thanh toán) | `unpaid` (Chưa thanh toán) · `awaiting_deposit` (**Chờ cọc** — chỉ khi `deposit_required`) · `deposited` (Đã cọc) · `partial` (Một phần) · `paid` (Đã thanh toán) · `refunded` / `partially_refunded` (Đã hoàn tiền) |
 
 - Đơn có thể tạo từ 3 nguồn:
-  - Từ báo giá (`quote_id`).
+  - Từ báo giá (`quote_id`), hoặc **từ hợp đồng đã ký** (`contract_id`, một hợp đồng sinh được nhiều đơn).
   - **Từ lịch hẹn hoàn tất:** chỉ là **gợi ý**. Thẻ "Tạo đơn cho buổi này?" hiện trong lịch hẹn, Inbox và Trợ lý; người hoặc agent xác nhận mới tạo. Nếu buổi hẹn trừ vào liệu trình đã mua thì không gợi ý tạo đơn.
   - Tạo trực tiếp.
 - `confirmed` không còn là một trạng thái riêng. Chuyển `new → processing` chính là **xác nhận đơn**; lúc đó trừ kho và sinh `customer_package` (nếu có gói và đã đủ điều kiện, xem §6).
@@ -148,6 +149,7 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 |---|---|
 | Khách mới từ kênh | Lead mới |
 | Gửi báo giá (`quote.sent`) | Báo giá (nếu đang ở giai đoạn thấp hơn) |
+| Hợp đồng gửi ký / đã ký (`contract.sent_for_signature`, `contract.signed`) | Hợp đồng (nếu đang ở giai đoạn thấp hơn) |
 | Báo giá bị từ chối / hết hạn mà không còn báo giá mở | Đang tư vấn |
 | Đơn hoàn tất (`order.completed`) | Đã mua |
 
@@ -155,13 +157,51 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 - Người kéo tay luôn thắng quy tắc tự động. Quy tắc tự động không ghi đè trong 24 giờ sau lần kéo tay.
 - Không có pipeline Deal riêng (khác SRS FR-CUS-03). Giai đoạn nằm ngay trên Khách hàng, đúng như prototype.
 
-## 9. Hợp đồng (P2 — ghi lại để khỏi làm sai)
+## 9. Hợp đồng (P0 — D25)
 
-- Bên bán tự soạn và ký, không cần đăng ký với cơ quan nhà nước. Các ngành của khách AppChat không thuộc 8 ngành phải đăng ký hợp đồng mẫu theo QĐ 07/2024/QĐ-TTg.
-- Khi làm ở P2:
-  - Hợp đồng sinh từ báo giá `accepted`; từ hợp đồng có thể sinh đơn.
-  - Khách xác nhận bằng OTP, nút đồng ý hoặc ký trên màn hình (giao dịch điện tử hợp lệ theo Luật GDĐT 2023). Chữ ký số CA là tuỳ chọn.
-- Bản phát hành đầu ẩn menu Hợp đồng và nút "→ Hợp đồng" (ngoại lệ parity).
+**Pháp lý:** bên bán tự soạn và ký, không cần đăng ký với cơ quan nhà nước. Các ngành của khách AppChat không thuộc 8 ngành phải đăng ký hợp đồng mẫu theo QĐ 07/2024/QĐ-TTg. Hợp đồng điện tử có giá trị như văn bản (Luật GDĐT 2023). Ký điện tử đơn giản (OTP + ký tay trên màn hình) hợp lệ khi hai bên thoả thuận dùng; ký số CA là tuỳ chọn nâng cao.
+
+**Trạng thái** (nhãn theo prototype):
+
+```
+draft (Nháp) ──submit──▶ pending_approval (Chờ duyệt — Owner) ──owner ký + duyệt──▶ pending_signature (Chờ ký) ──khách ký──▶ signed (Đã ký)
+   ▲                         │ yêu cầu sửa / từ chối                                   │ khách từ chối / hết hạn link                │ hết ngày kết thúc
+   └─────────────────────────┘                                                          └──▶ declined (Từ chối)                       ▼
+                                                                                                                                 expired (Hết hạn)
+signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
+```
+
+- Kanban và bộ lọc giữ 4 cột/chip của prototype: Nháp · Chờ ký · Đã ký · Hết hạn. "Chờ duyệt" gộp vào cột Nháp và hiện badge. Từ chối và Đã chấm dứt chỉ hiện trong bộ lọc "Tất cả".
+- **Nguồn tạo:**
+  - Từ báo giá `accepted` (nút "→ Hợp đồng").
+  - Tạo trực tiếp (thường là loại Nguyên tắc).
+  - Agent / Trợ lý **chỉ được soạn nháp**. Gửi ký luôn cần Owner (RRI D05: hợp đồng thuộc nhóm bắt buộc có người duyệt).
+- **Loại:** Dịch vụ / Mua bán / Nguyên tắc.
+- **Trường** (form prototype L8408): mã HĐ (tự sinh `HĐ-…`), số hợp đồng, khách hàng, báo giá liên quan, ngày ký, ngày bắt đầu, ngày kết thúc, giá trị, loại, người phụ trách, file hợp đồng, ghi chú.
+- **Nội dung:**
+  - (a) Sinh từ **mẫu theo loại**: mỗi loại có một mẫu rich-text với biến `{{customer.name}}`, `{{business.legal_name}}`, `{{quote.items}}`, `{{contract.value}}`, `{{contract.start}}`… Mẫu mặc định do AppChat cung cấp; Owner sửa trong Cài đặt → "Mẫu hợp đồng". Render ra PDF.
+  - (b) **Tải lên PDF có sẵn.**
+- **Ký điện tử của AppChat (C1):**
+  1. Owner bấm "Duyệt & ký": xác nhận OTP (email) và ký tay trên màn hình. Chữ ký được chèn vào PDF.
+  2. "Gửi ký": khách nhận link qua kênh hội thoại hoặc email. Link một lần, hết hạn sau 7 ngày, gia hạn được.
+  3. Khách mở link (trang công khai, không cần đăng nhập): xem PDF → tick "Tôi đã đọc và đồng ý ký điện tử" → OTP gửi tới SĐT/email của khách (qua Zalo đang chat hoặc email) → ký tay trên màn hình.
+  4. Hệ thống hoàn tất PDF: chèn chữ ký khách, thêm **trang chứng nhận ký**, tính `SHA-256` của file cuối, khoá nội dung.
+     - Trang chứng nhận gồm: mã HĐ, mã băm, các bên, thời điểm, IP, user-agent, kênh OTP, mã giao dịch.
+  5. Gửi bản PDF đã ký cho cả 2 bên.
+  - **Lưu vết** `contract_signature_event`: mỗi bước (gửi, mở, OTP gửi / OTP đúng / OTP sai, ký, từ chối) đều ghi thời điểm, IP, UA, mã băm tài liệu tại thời điểm đó. Dữ liệu chỉ thêm (append-only), không sửa được.
+  - Khách bấm "Từ chối ký" (kèm lý do tuỳ chọn) thì chuyển `declined`, báo Owner.
+  - **Ký số CA** (VNPT-CA, Viettel-CA, FPT-CA…) để P2, qua interface `ESignProvider`. Nhãn "Ký số" trong prototype đổi thành "Ký điện tử" (ngoại lệ parity có ghi tên).
+- **Sau khi ký:**
+  - Nội dung khoá.
+  - Muốn thay đổi phải tạo **phụ lục** (`contract_appendix`: cùng luồng duyệt và ký) hoặc hợp đồng mới.
+  - Nút **"→ Đơn hàng"** sinh đơn có `contract_id`; một hợp đồng sinh được nhiều đơn.
+- **Hết hạn và gia hạn:**
+  - Trước ngày kết thúc 30 ngày: nhắc Owner (thông báo + Việc cần tôi) và gợi ý agent chào gia hạn (theo prototype).
+  - Qua ngày kết thúc thì `expired`.
+  - "Gia hạn" tạo hợp đồng mới (`renewal_of_id`), đi lại luồng duyệt và ký.
+- **Chấm dứt:** chỉ Owner, bắt buộc lý do, ghi timeline. Không ảnh hưởng tới các đơn đã sinh.
+- **Giai đoạn khách:** thêm giai đoạn **"Hợp đồng"** giữa "Báo giá" và "Đã mua". Hợp đồng `pending_signature` hoặc `signed` thì chuyển sang "Hợp đồng" nếu khách đang ở giai đoạn thấp hơn (§8).
+- **Hồ sơ 360°:** hiển thị các hợp đồng của khách, giá trị đang hiệu lực, ngày hết hạn gần nhất.
 
 ## 10. Thu phí nền tảng (Domain L — bổ sung)
 
@@ -182,7 +222,8 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 | 3 mốc cộng điểm | prototype (thanh toán) / Appointments-Spec (buổi hoàn tất) / RRI (`order.completed`) | Chỉ một mốc: đơn hoàn tất |
 | Hiệu lực báo giá | RRI, CHANGELOG (15 ngày) / prototype (7 ngày từ khi gửi) | 15 ngày kể từ lúc gửi |
 | Trạng thái báo giá / đơn / hoá đơn | prototype (3 bộ khác nhau) / Blueprint | §3, §4, §5 |
-| Báo giá thắng sinh Hợp đồng + Đơn | SRS BR-09, CTO | Báo giá → Đơn bằng nút; Hợp đồng P2 |
+| Báo giá thắng sinh Hợp đồng + Đơn | SRS BR-09, CTO | Báo giá accepted → nút "→ Hợp đồng" (tuỳ chọn) hoặc "→ Đơn hàng"; hợp đồng đã ký → nút "→ Đơn hàng" (D25) |
+| "Ký số" trong prototype | prototype L5342+ | Ký điện tử của AppChat ở P0; ký số CA ở P2 |
 | Mọi báo giá qua duyệt nội bộ | SolutionDesign §4.2 | Chỉ duyệt khi vượt ngưỡng |
 | Trừ buổi liệu trình đặt ở loyalty | Blueprint §2.3 cũ | Chuyển sang `customer_package` |
 | Pipeline Deal 6 bước | SRS FR-CUS-03 | Giai đoạn nằm trên Khách hàng |

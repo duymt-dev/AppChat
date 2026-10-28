@@ -109,10 +109,11 @@ app/
 ├── (onboarding)/declare · welcome
 ├── (app)/layout.tsx                 # AppShell + AssistantDock + realtime provider
 │   ├── dashboard/ · assistant/[[...sessionId]]/ · inbox/[[...conversationId]]/
-│   ├── customers/ · customers/[id]/ · products/ · quotes/ · orders/ · invoices/ · loyalty/
-│   ├── appointments/ · tickets/ · marketing/ · marketing/campaigns/[id]/
-│   ├── agents/ · agents/[id]/ · agents/approvals/ · agents/activity/
+│   ├── customers/ · customers/[id]/ · products/ · quotes/ · contracts/ · orders/ · invoices/ · loyalty/
+│   ├── calendar/ · tickets/ · marketing/ · marketing/campaigns/[id]/
+│   ├── agents/ · agents/[id]/ · assistant/approvals/ · assistant/actions/
 │   ├── settings/[section]/
+├── (public)/sign/[token]/            # trang ký hợp đồng cho khách (không đăng nhập)
 ├── (admin)/admin/[section]/          # Quản trị nền tảng
 features/<module>/                     # components/ · hooks/ · api.ts · types.ts (mỗi module một thư mục)
 shared/
@@ -120,7 +121,7 @@ shared/
 ├── actions/    # useAction(), ConfirmActionDialog, action result toasts
 ├── realtime/   # socket client, event → query invalidation
 ├── assistant/  # AssistantDock, UI Command Bus (đăng ký handler theo route), context provider
-├── shell/      # NavRail, Flyout, TopBar, MobileTabBar, nav-config.ts (đủ mọi route ngay từ TIP nền tảng UI)
+├── shell/      # NavRail (search · thông báo · Nâng cấp · trial badge · avatar menu ở đáy rail, theo prototype), Flyout, MobileTabBar, nav-config.ts (đủ mọi route ngay từ TIP nền tảng UI)
 └── states/     # EmptyState, Skeletons, ErrorState, PageStates (5 trạng thái)
 messages/<locale>/<module>.json       # next-intl + ICU; vi (nguồn) + en khi phát hành; thêm ngôn ngữ = thêm thư mục (§7.4)
 ```
@@ -259,6 +260,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `tenant_channel_route` | channel_account_id (pk), ws, type, external_id, status | worker-channels đọc để biết account cần giữ phiên + DB đích; đồng bộ khi kênh đổi trạng thái |
 | `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
 | `tenant_bank_feed_route` | feed_id (pk), ws, provider | webhook SePay / Casso của DN → DB đích |
+| `tenant_sign_route` | token_hash (pk), ws, expires_at | trang ký công khai `/sign/[token]` → DB đích |
 | `tenant_migration` | ws, version, status(pending\|running\|done\|failed), error?, started_at, finished_at | idx(status, version) |
 | `workspace_stats` | ws (pk), contacts, conversations_30d, messages_30d, db_size_bytes, last_active_at, refreshed_at | job đêm gom từ từng DB, phục vụ trang quản trị |
 | `platform_audit_log` | actor_user_id, action_id, ws?, input jsonb, result jsonb, created_at | audit cho action `admin.*` và action chạm DB nền tảng |
@@ -298,7 +300,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Index |
 |---|---|---|
-| `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|won\|lost), owner_user_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
+| `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|contract\|won\|lost), owner_user_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
 | `contact_identity` | contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) |
 | `tag` | name, color, scope(all\|contact\|conversation) | unique(lower(name)) — nguồn thẻ dùng chung cho khách và hội thoại |
 | `contact_tag` | contact_id, tag_id | pk |
@@ -315,7 +317,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 |---|---|
 | `quote` | code, version int, root_quote_id?, contact_id, conversation_id?, status(draft\|pending_approval\|approved\|sent\|viewed\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, line_discount_total, header_discount (pct\|amount), discount_total, tax_total, total, valid_days (15), valid_until (= sent_at + valid_days), viewed_at?, order_id?, note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
 | `quote_item` | quote_id, product_id?, variant_id?, name, qty numeric(12,2), unit_price (chưa VAT), discount (pct\|amount), tax_rate, line_total, sort — thuế tính sau chiết khấu |
-| `order` | code, contact_id, quote_id? (unique), appointment_id?, conversation_id?, **status(new\|processing\|completed\|cancelled)**, **pay_status(unpaid\|awaiting_deposit\|deposited\|partial\|paid\|partially_refunded\|refunded)**, deposit_required bool, deposit_amount?, subtotal, discount_total, tax_total, total, paid_total, refunded_total, points_used, shipping jsonb? (đơn vị, mã vận đơn, ngày giao dự kiến), confirmed_at?, completed_at?, cancelled_at?, cancel_reason? |
+| `order` | code, contact_id, quote_id? (unique), contract_id?, appointment_id?, conversation_id?, **status(new\|processing\|completed\|cancelled)**, **pay_status(unpaid\|awaiting_deposit\|deposited\|partial\|paid\|partially_refunded\|refunded)**, deposit_required bool, deposit_amount?, subtotal, discount_total, tax_total, total, paid_total, refunded_total, points_used, shipping jsonb? (đơn vị, mã vận đơn, ngày giao dự kiến), confirmed_at?, completed_at?, cancelled_at?, cancel_reason? |
 | `order_item` | order_id, product_id?, variant_id?, name, qty, unit_price, discount, tax_rate, line_total |
 | `invoice` | **Đề nghị thanh toán** (mã `TT-…`): code, order_id, contact_id, kind(deposit\|installment\|full), status(draft\|sent\|partial\|paid\|overdue\|void), amount, paid_amount, due_date (mặc định +7 ngày), reminders_sent jsonb, sent_at?, file_id?, einvoice_ref? (P2). Index: idx(contact_id, status) INCLUDE(amount, paid_amount, due_date); partial idx(due_date) WHERE status in (sent, partial) |
 | `customer_payment` | invoice_id, order_id, contact_id, kind(deposit\|payment\|points\|refund), amount (refund < 0), method(qr\|bank_transfer\|cash\|card\|points), reference?, bank_tx_ref?, status(pending\|confirmed\|failed\|needs_review), confirmed_by?, approval_id? (refund), receipt_file_id? |
@@ -323,6 +325,17 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `package_usage` | package_id, appointment_id (unique), used_at, reverted_at? |
 | `tenant_bank_feed` | provider(sepay\|casso), account_no, secret_enc bytea, status, last_tx_at — DN tự kết nối để đối soát tự động (Q3) |
 | `payment_account` | bank_bin, account_no, account_name — tài khoản nhận tiền của DN, dùng sinh VietQR cho khách |
+
+**[T] tenant/contracts.prisma** (D25 — quy tắc ở COMMERCE-DECISIONS §9)
+
+| Bảng | Trường |
+|---|---|
+| `contract` | code (`HĐ-…`), number?, kind(service\|sale\|framework), contact_id, quote_id? (unique), renewal_of_id?, title, value, start_date?, end_date?, owner_user_id, status(draft\|pending_approval\|pending_signature\|signed\|declined\|expired\|terminated), source(template\|upload), template_id?, body_html?, file_id? (PDF hiện hành), signed_file_id?, signed_sha256?, approved_by?, signed_by_business_at?, signed_by_customer_at?, sign_link_expires_at?, terminated_reason?, note, custom jsonb. Index: idx(status, end_date) INCLUDE(contact_id, value); idx(contact_id, created_at desc) |
+| `contract_template` | kind, name, body_html (biến `{{…}}`), is_default, version, updated_by |
+| `contract_appendix` | contract_id, code, body_html?, file_id?, status (cùng luồng duyệt/ký), signed_file_id?, signed_sha256? |
+| `contract_signer` | contract_id \| appendix_id, party(business\|customer), name, email?, phone?, otp_channel(email\|zalo\|sms_none), signature_image_file_id?, signed_at?, ip?, user_agent? |
+| `contract_signature_event` | contract_id, appendix_id?, signer_id?, type(sent\|opened\|otp_sent\|otp_ok\|otp_fail\|signed\|declined\|link_extended), doc_sha256, ip, user_agent, created_at — **append-only** (REVOKE UPDATE/DELETE với `appchat_tenant_app`) |
+| `contract_sign_token` | token_hash (unique), contract_id, appendix_id?, signer_id, expires_at, used_at? |
 
 **[T] tenant/booking.prisma**
 
@@ -380,6 +393,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `conversation.handoff` | reason, summary | notify Owner/assignee |
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
 | `quote.sent` / `quote.viewed` / `quote.accepted` / `quote.rejected` / `quote.expired` | | crm stage (COMMERCE-DECISIONS §8); timeline; nhắc hết hạn |
+| `contract.approved` / `contract.sent_for_signature` / `contract.signed` / `contract.declined` / `contract.expiring` (T-30) / `contract.expired` / `contract.terminated` | contract_id, contact_id | crm stage → Hợp đồng; timeline; thông báo Owner; gửi PDF đã ký 2 bên; nhắc gia hạn; gợi ý agent |
 | `order.confirmed` | order_id | trừ kho (`stock_movement`), sinh `customer_package` nếu đủ điều kiện |
 | `order.completed` / `order.cancelled` | total, net_before_vat, contact_id | loyalty earn (một lần) / reverse; crm stage → Đã mua; total_spent; hoàn kho + yêu cầu hoàn tiền khi huỷ |
 | `payment.confirmed` / `payment.refunded` | invoice_id, order_id, amount | tính lại `invoice.status` + `order.pay_status`; phiếu thu; sinh gói khi đã đủ tiền |
@@ -552,6 +566,19 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 | `quote.mark_accepted` | write | ✓ (≥ 70% tin cậy) | 24h |
 | `quote.mark_rejected` | write | ✓ | 24h |
 | `quote.extend_validity` | write | | 24h |
+| `contract.create` | write (nháp, từ mẫu hoặc upload) | ✓ chỉ nháp | 24h |
+| `contract.create_from_quote` | write ("→ Hợp đồng") | ✓ chỉ nháp | 24h |
+| `contract.update` | write, chỉ draft | ✓ | 24h |
+| `contract.submit` | write (→ Chờ duyệt) | ✓ | |
+| `contract.approve_and_sign` | money, **owner** (OTP + chữ ký) | | |
+| `contract.request_changes` / `contract.reject_internal` | write, owner | | |
+| `contract.send_for_signature` | send, owner | | |
+| `contract.remind_signer` / `contract.extend_sign_link` | send | ✓ | |
+| `contract.terminate` | money, owner, lý do bắt buộc | | |
+| `contract.renew` | write (tạo bản mới) | ✓ chỉ nháp | 24h |
+| `contract.create_appendix` | write (cùng luồng duyệt/ký) | ✓ chỉ nháp | 24h |
+| `contract_template.update` | config, owner | | 24h |
+| `order.create_from_contract` | write ("→ Đơn hàng" từ HĐ đã ký) | ✓ | 24h |
 | `order.create` | write | ✓ | 24h, khi ở new |
 | `order.create_from_quote` | write ("→ Đơn hàng") | ✓ khi khách chốt | 24h |
 | `order.create_from_appointment` | write (gợi ý 8b, người/agent xác nhận) | ✓ | 24h |
@@ -746,6 +773,7 @@ type UiCommand =
 | inbox | `GET /v1/conversations?folder=all\|mine\|ai_running\|needs_human\|ai_pending_approval\|unread\|archived&channel_account_id=&tag_id=&q=` · `GET /v1/conversations/:id` · `GET /v1/conversations/:id/messages?cursor=` (mới → cũ) · `GET /v1/conversations/counts` · `GET /v1/canned-replies` · `GET /v1/tags` |
 | crm | `GET /v1/contacts?stage=&group=&tag_id=&owner_id=&q=&sort=` · `GET /v1/contacts/:id` (360) · `GET /v1/contacts/:id/timeline?cursor=` · `GET /v1/contacts/duplicates` · `GET /v1/custom-fields?entity=` |
 | catalog | `GET /v1/products?type=&category_id=&status=&q=` · `GET /v1/products/:id` · `GET /v1/categories` |
+| contracts | `GET /v1/contracts?status=&kind=&contact_id=&expiring_within=` · `GET /v1/contracts/:id` (+ phụ lục, người ký, sự kiện ký) · `GET /v1/contracts/:id/pdf` · `GET /v1/contract-templates` · **public:** `GET /v1/public/sign/:token` (PDF + thông tin hiển thị) · `POST /v1/public/sign/:token/otp` · `POST /v1/public/sign/:token/sign` { otp, signature_png, consent: true } · `POST /v1/public/sign/:token/decline` { reason? } — rate-limit theo token + IP, OTP 6 số, sai 5 lần thì khoá link |
 | sales | `GET /v1/quotes?status=&contact_id=` · `GET /v1/quotes/:id` (gồm các version) · `GET /v1/quotes/:id/pdf` · `GET /v1/orders?…` · `GET /v1/orders/:id` · `GET /v1/invoices?…` · `GET /v1/invoices/:id` · `GET /v1/invoices/:id/qr` |
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
 | support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
@@ -1001,14 +1029,17 @@ inbox/[[...conversationId]]
 
 customers/                CustomersPage → PageHeader + StageTabs + FilterBar + (DataTable | KanbanBoard) → Customer360Drawer
 customers/[id]            Customer360Page tabs: Tổng quan · CRM · AI · Tệp · Lịch sử
+contracts/                ContractsPage → KpiStrip(4) · FilterChips(Nháp/Chờ ký/Đã ký/Hết hạn) · (DataTable | Kanban 4 cột) · ContractDrawer (thông tin · nội dung/PDF · ký điện tử · phụ lục · timeline ký · AI gợi ý) · ContractEditor (mẫu theo loại + biến | upload PDF)
+(public)/sign/[token]      SignPage → PdfViewer · ConsentCheckbox · OtpStep · SignaturePad · Done (tải PDF đã ký)
 products/ quotes/ orders/ invoices/   cùng mẫu ListPage + EntityDrawer; QuoteEditor { quoteId? } (line items, chiết khấu dòng + tổng, thuế sau CK, preview PDF); OrderDetail (2 trục trạng thái, thanh toán, gói buổi, kho); "Hoá đơn" hiển thị là "Đề nghị thanh toán"
-appointments/             CalendarPage → ViewSwitch(day|week|month|list) · StaffLanes · AppointmentBlock · AppointmentDrawer · SlotPicker
+calendar/                 CalendarPage → ViewSwitch(day|week|month|list) · StaffLanes · AppointmentBlock · AppointmentDrawer · SlotPicker
 tickets/                  TicketsPage → KpiStrip(5) · FilterBar · (DataTable | Kanban 4 cột) · TicketDrawer (timeline, comment, SLA clock)
 marketing/                MarketingPage → SuggestionTable(7 cột) · CampaignList · CampaignWizard(steps: đối tượng → nội dung → kênh & lịch → duyệt) · CampaignDetail(stats)
 loyalty/                  LoyaltyPage → Overview · MemberTable · AdjustPointsDialog(3 bước) · ConfigDialog
-agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat) · ApprovalsQueue · AgentActivity(action log)
+agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat)
+assistant/approvals       ApprovalsQueue (màn mới, không đo parity) · assistant/actions → ActionLog + hoàn tác (prototype L1464)
 dashboard/                DashboardPage → GreetingBar(hỏi Trợ lý) · NeedsMe · AiTodayFeed · FollowUpWidget · OnboardingChecklist · CreditCard
-settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → SettingsSection registry: general · members · profile · channels · webchat · fields · tags · replies · hours · ai-models · ai-governance · ai-log · billing · notifications
+settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · contract_templates (mới) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). Các mục OUT bị ẩn (Vai trò, Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, Nền tảng kết nối, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
 (admin)/admin/[section]   workspaces · plans · model-prices · transfers · templates
 (onboarding)/declare      DeclareBusinessModal (không đóng được; 2 bước) · welcome → TrialWelcome (2 nút)
 ```
