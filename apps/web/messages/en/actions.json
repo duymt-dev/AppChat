@@ -373,5 +373,53 @@
     "bulk_update": {
       "title": "Bulk update tickets"
     }
+  },
+  "segment": {
+    "preview": {
+      "title": "Preview segment"
+    }
+  },
+  "campaign": {
+    "suggest": {
+      "title": "Suggest campaigns"
+    },
+    "create": {
+      "title": "Create campaign"
+    },
+    "submit": {
+      "title": "Submit campaign for approval"
+    },
+    "send_test": {
+      "title": "Send test campaign"
+    },
+    "approve": {
+      "title": "Approve & send campaign"
+    },
+    "reject": {
+      "title": "Reject campaign"
+    },
+    "pause": {
+      "title": "Pause campaign"
+    },
+    "resume": {
+      "title": "Resume campaign"
+    },
+    "cancel": {
+      "title": "Cancel campaign"
+    },
+    "delete": {
+      "title": "Delete campaign"
+    }
+  },
+  "loyalty": {
+    "get_member": {
+      "title": "View member points"
+    },
+    "adjust_points": {
+      "title": "Adjust points"
+    },
+    "update_config": {
+      "title": "Update loyalty settings"
+    }
   }
 }
