@@ -127,12 +127,12 @@
 | `quotes:editor` | Soạn báo giá (dòng, chiết khấu, thuế sau CK) | L4957 | P | ✅ | 0.0180 | pass | 49c3a9c | Form 720 (crmSpec quotes): dòng từ catalog / ngoài danh mục, CK dòng + CK tổng, thuế theo dòng; cảnh báo ngưỡng 20tr / 5% / ngoài danh mục; `quote.create` |
 | `quotes:detail` | Chi tiết báo giá + các version | L4957 | P | ✅ | 0.0400 | pass | 49c3a9c | 4 tab; chân theo trạng thái (gửi duyệt → duyệt → gửi → chốt → Hợp đồng / Đơn); `request_revision` tạo Lần n+1, tab Lịch sử liệt kê version; mask: tổng (không trừ điểm — COMMERCE §3), hàng nút gửi (ZBS/SMS OUT) |
 | `quotes:draft-from-content` | AI soạn báo giá từ nội dung | — | M | ✅ | — | pass | 49c3a9c | D30: `quote.draft_from_content` (mock khớp catalog, giá từ catalog, ngoài danh mục buộc duyệt, chỉ nháp); mở từ Trợ lý AI · Báo giá |
-| `contracts:list` | Danh sách hợp đồng | L5343 | E | ⬜ | | | | "Ký số" → "Ký điện tử" |
-| `contracts:kanban` | Kanban 4 cột (Nháp / Chờ ký / Đã ký / Hết hạn) | L5343 | E | ⬜ | | | | |
-| `contracts:detail` | Drawer hợp đồng | L5343 | E | ⬜ | | | | |
-| `contracts:create` | Form tạo hợp đồng | L4047 | P | ⬜ | | | | |
-| `contracts:approve-sign` | Duyệt & ký (OTP + chữ ký) | — | M | ⬜ | — | | | D25 |
-| `sign:public` | Trang ký công khai `/sign/[token]` | — | M | ⬜ | — | | | D25 |
+| `contracts:list` | Danh sách hợp đồng | L5343 | E | ✅ | 0.0344 | pass | c1485f8 | "Ký số" → "Ký điện tử" (COMMERCE §9); chip 4 trạng thái (Chờ duyệt gộp Nháp + badge); DataTable + lọc Người tạo / Giá trị; scope sales `own` |
+| `contracts:kanban` | Kanban 4 cột (Nháp / Chờ ký / Đã ký / Hết hạn) | L5343 | E | ✅ | 0.0200 | pass | c1485f8 | KanbanBoard theo `chipOf(status)`; Từ chối / Đã chấm dứt chỉ ở "Tất cả" |
+| `contracts:detail` | Drawer hợp đồng | L5343 | E | ✅ | 0.0147 | pass | c1485f8 | 5 tab (Tổng quan · CRM · AI · Tệp · Lịch sử = sự kiện ký); prototype khoá `ctDetailOn: false` → `protoOverrideVals`; mask: dòng "Ký điện tử" (đổi nhãn) + chân thao tác theo trạng thái (→ Đơn hàng / Chấm dứt / Gia hạn) |
+| `contracts:create` | Form tạo hợp đồng | L4047 | P | ✅ | 0.0281 | pass | c1485f8 | Nút thật mở crmForm 720 (crmSpec.contracts L8407 — không phải cnNewOn L4047); `contract.create` luôn Nháp; kiểm bắt buộc + ngày kết thúc > bắt đầu; `?from_quote=` → `contract.create_from_quote` |
+| `contracts:approve-sign` | Duyệt & ký (OTP + chữ ký) | — | M | ✅ | — | pass | c1485f8 | D25: `contract.approve_and_sign` (`contract.sign` — chỉ Owner) với OTP email + SignaturePad; Gửi ký = link một lần 7 ngày qua Zalo / Email; nhắc ký, gia hạn link, chấm dứt (lý do bắt buộc), gia hạn HĐ |
+| `sign:public` | Trang ký công khai `/sign/[token]` | — | M | ✅ | — | pass | c1485f8 | D25: route `(public)` không đăng nhập; đồng ý → OTP (Zalo) → ký tay → chứng nhận (mã HĐ, SHA-256, thời điểm, lưu vết IP); sai OTP còn N lần, 5 lần khoá; Từ chối ký; link sai / hết hạn → trang báo |
 | `orders:list` | Danh sách đơn (2 cột trạng thái) | L5489 | P | ⬜ | | | | Chip lọc theo COMMERCE §4 |
 | `orders:detail` | Chi tiết đơn | L5489 | P | ⬜ | | | | |
 | `orders:create` | Form tạo đơn | L4060 | P | ⬜ | | | | |
