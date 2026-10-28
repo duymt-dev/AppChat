@@ -29,6 +29,8 @@ export interface EntityDrawerProps {
   onTab?: (key: string) => void;
   children: ReactNode;
   footer?: ReactNode;
+  /** Thay khối đầu mặc định (drawer chi tiết sản phẩm / hợp đồng / đơn: icon lớn + chip + chỉ số) — nút đóng vẫn đặt góc phải. */
+  header?: ReactNode;
   closeLabel: string;
   testId?: string;
   /** Nền vùng nội dung (360° dùng nền xám). */
@@ -139,6 +141,22 @@ const useStyles = createStyles(({ css }) => ({
   muted: css`
     background: ${color.bg};
   `,
+  headCustom: css`
+    position: relative;
+    background: ${color.surface};
+    border-bottom: 1px solid ${color.border};
+    padding: 16px 20px;
+    flex-shrink: 0;
+  `,
+  closeAbs: css`
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  `,
+  tabsWhite: css`
+    background: ${color.surface};
+    padding: 0 16px;
+  `,
   panel: css`
     display: flex;
     flex-direction: column;
@@ -160,27 +178,61 @@ export function EntityDrawer(p: EntityDrawerProps) {
       size={mobile ? '100%' : layout.crmDrawer}
       closable={false}
       destroyOnHidden
-      styles={{ body: { padding: 0 }, mask: { background: color.veil }, wrapper: { boxShadow: shadow.sidePanel }, section: tinted ? undefined : { borderLeft: `1px solid ${color.border}` } }}
+      styles={{
+        body: { padding: 0 },
+        mask: { background: color.veil },
+        wrapper: { boxShadow: shadow.sidePanel },
+        section: tinted ? undefined : { borderLeft: `1px solid ${color.border}` },
+      }}
     >
       <div className={styles.panel} data-testid={p.testId}>
-        <div className={cx(styles.head, tinted && styles.headTinted)}>
-          <span className={cx(styles.icon, tinted && styles.iconLg)} style={{ background: p.iconBg ?? gradient.aiAgent }}>
-            <Icon name={p.icon ?? 'ic-spark'} size={tinted ? 17 : 13} color={color.white} strokeWidth={1.9} />
-          </span>
-          <div className={tinted ? styles.grow : undefined}>
-            <span className={cx(styles.title, tinted && styles.titleLg)}>{p.title}</span>
-            {p.subtitle ? <div className={styles.sub}>{p.subtitle}</div> : null}
+        {p.header ? (
+          <div className={styles.headCustom}>
+            {p.header}
+            <button
+              type="button"
+              className={cx(styles.close, styles.closeAbs)}
+              onClick={p.onClose}
+              aria-label={p.closeLabel}
+            >
+              <Icon name="ic-x" size={18} color={color.text3} />
+            </button>
           </div>
-          {p.badge ? <span className={styles.badge}>{p.badge}</span> : null}
-          {tinted ? null : <span className={styles.grow} />}
-          <button type="button" className={styles.close} onClick={p.onClose} aria-label={p.closeLabel}>
-            <Icon name="ic-x" size={18} color={color.text3} />
-          </button>
-        </div>
+        ) : (
+          <div className={cx(styles.head, tinted && styles.headTinted)}>
+            <span
+              className={cx(styles.icon, tinted && styles.iconLg)}
+              style={{ background: p.iconBg ?? gradient.aiAgent }}
+            >
+              <Icon
+                name={p.icon ?? 'ic-spark'}
+                size={tinted ? 17 : 13}
+                color={color.white}
+                strokeWidth={1.9}
+              />
+            </span>
+            <div className={tinted ? styles.grow : undefined}>
+              <span className={cx(styles.title, tinted && styles.titleLg)}>{p.title}</span>
+              {p.subtitle ? <div className={styles.sub}>{p.subtitle}</div> : null}
+            </div>
+            {p.badge ? <span className={styles.badge}>{p.badge}</span> : null}
+            {tinted ? null : <span className={styles.grow} />}
+            <button type="button" className={styles.close} onClick={p.onClose} aria-label={p.closeLabel}>
+              <Icon name="ic-x" size={18} color={color.text3} />
+            </button>
+          </div>
+        )}
         {p.tabs ? (
-          <div className={styles.tabs} role="tablist">
+          <div className={cx(styles.tabs, !!p.header && styles.tabsWhite)} role="tablist">
             {p.tabs.map((t) => (
-              <button key={t.key} type="button" role="tab" aria-selected={p.tab === t.key} className={cx(styles.tab, p.tab === t.key && styles.tabOn)} onClick={() => p.onTab?.(t.key)}>
+              <button
+                key={t.key}
+                type="button"
+                role="tab"
+                aria-selected={p.tab === t.key}
+                className={cx(styles.tab, p.tab === t.key && styles.tabOn)}
+                onClick={() => p.onTab?.(t.key)}
+              >
                 {t.label}
               </button>
             ))}

@@ -7,11 +7,16 @@ import { mockRoutes } from './routes';
 import { inboxParamRoute } from './domains/inbox';
 import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
+import { productsParamRoute } from './domains/products';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 
-const fail = (status: number, code: ConstructorParameters<typeof ApiRequestError>[1]['code'], message: string) => {
+const fail = (
+  status: number,
+  code: ConstructorParameters<typeof ApiRequestError>[1]['code'],
+  message: string,
+) => {
   throw new ApiRequestError(status, { code, message });
 };
 
@@ -24,14 +29,25 @@ const undoLog = new Map<string, () => void>();
 const authzCtx = () => {
   const { role } = mockDb();
   const def = ROLE_DEFS[role];
-  return { userId: 'u_tram', isOwner: role === 'owner', permissions: new Set(def.permissions), scope: def.scope, teamIds: [] };
+  return {
+    userId: 'u_tram',
+    isOwner: role === 'owner',
+    permissions: new Set(def.permissions),
+    scope: def.scope,
+    teamIds: [],
+  };
 };
 
 export const mockTransport: Transport = {
   async get(path, params) {
     const tax = path.match(/^\/business-lookup\/tax\/(.+)$/);
     if (tax) return structuredClone(taxLookup(mockDb(), decodeURIComponent(tax[1]!))) as never;
-    const route = mockRoutes[path] ?? agentsParamRoute(path) ?? customersParamRoute(path) ?? inboxParamRoute(path);
+    const route =
+      mockRoutes[path] ??
+      productsParamRoute(path) ??
+      agentsParamRoute(path) ??
+      customersParamRoute(path) ??
+      inboxParamRoute(path);
     if (!route) fail(404, 'NOT_FOUND', `mock route ${path}`);
     return structuredClone(route!(mockDb(), params ?? {})) as never;
   },
@@ -52,7 +68,11 @@ export const mockTransport: Transport = {
     if (!def || !handler) return fail(404, 'ACTION_NOT_FOUND', id);
     const parsed = def.input.safeParse(input);
     if (!parsed.success) return fail(422, 'VALIDATION_FAILED', parsed.error.message);
-    if (def.permission !== 'self' && def.permission !== 'platform_admin' && !can(authzCtx(), def.permission as PermissionKey)) {
+    if (
+      def.permission !== 'self' &&
+      def.permission !== 'platform_admin' &&
+      !can(authzCtx(), def.permission as PermissionKey)
+    ) {
       return fail(403, 'FORBIDDEN', id);
     }
 
@@ -78,7 +98,8 @@ export const mockTransport: Transport = {
     }, `action.${id}`);
     const logId = nextId('al');
     const undoUntil = def.undo ? new Date(Date.now() + def.undo.windowSec * 1000).toISOString() : undefined;
-    if (def.undo && handler.undo) undoLog.set(logId, () => mutate((db) => handler.undo!(db, parsed.data as never)));
+    if (def.undo && handler.undo)
+      undoLog.set(logId, () => mutate((db) => handler.undo!(db, parsed.data as never)));
     if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && handler.undo));
     return {
       status: 200,
@@ -94,7 +115,9 @@ export const mockTransport: Transport = {
   async undo(actionLogId) {
     const fn = undoLog.get(actionLogId);
     // dòng nhật ký mẫu (fixture) không có handler undo trong phiên — chỉ đổi trạng thái
-    const seeded = mockDb().assistant.logs.find((l) => l.id === actionLogId && l.undoable && !l.undone && !fn);
+    const seeded = mockDb().assistant.logs.find(
+      (l) => l.id === actionLogId && l.undoable && !l.undone && !fn,
+    );
     if (!fn && !seeded) fail(409, 'CONFLICT', 'UNDO_EXPIRED');
     fn?.();
     undoLog.delete(actionLogId);

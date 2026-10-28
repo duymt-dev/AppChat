@@ -169,5 +169,26 @@
     "pause": {
       "title": "Bật / tạm dừng tác vụ"
     }
+  },
+  "product": {
+    "create": {
+      "title": "Thêm sản phẩm"
+    },
+    "update": {
+      "title": "Cập nhật sản phẩm"
+    },
+    "archive": {
+      "title": "Xoá sản phẩm"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Tạo danh mục"
+    }
+  },
+  "stock": {
+    "adjust": {
+      "title": "Điều chỉnh tồn kho"
+    }
   }
 }

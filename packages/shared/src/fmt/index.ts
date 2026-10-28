@@ -25,6 +25,14 @@ export const createFmt = ({ locale, timeZone = DEFAULT_TZ }: FmtOptions) => {
       if (Math.abs(n) >= 1e3) return `${trim(n / 1e3)}k₫`;
       return `${n}₫`;
     },
+    /** Dạng ngắn kiểu Việt của drawer chứng từ (prototype L9531): 12800000 → "12,8tr₫", 1020000000 → "1,02 tỷ₫". */
+    moneyShort: (v: string | number): string => {
+      const n = toNumber(v);
+      const dec = (x: number, d: number) => x.toFixed(d).replace('.', ',');
+      if (Math.abs(n) >= 1e9) return `${dec(n / 1e9, 2)} tỷ₫`;
+      if (Math.abs(n) >= 1e6) return `${dec(n / 1e6, 1)}tr₫`;
+      return `${new Intl.NumberFormat('vi-VN').format(n)}₫`;
+    },
     number: (v: string | number): string => num.format(toNumber(v)),
     compact: (v: number): string =>
       new Intl.NumberFormat(intl, { notation: 'compact', maximumFractionDigits: 1 }).format(v),

@@ -120,9 +120,9 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `products:list` | Danh sách sản phẩm | L5624 | P | ⬜ | | | | |
-| `products:detail` | Chi tiết sản phẩm | L5624 | P | ⬜ | | | | |
-| `products:create` | Tạo sản phẩm | L5624 | P | ⬜ | | | | 6 loại |
+| `products:list` | Danh sách sản phẩm | L5624 | P | ✅ | 0.0373 | pass | SHA_F4P | DataTable + KanbanBoard theo danh mục; giá vốn chỉ hiện với `catalog.cost_view`; nguồn đồng bộ theo connector registry (Zalo cá nhân, Website; sàn / POS "Sắp có" — D28/D31) — mask hàng chip |
+| `products:detail` | Chi tiết sản phẩm | L5624 | P | ✅ | 0.0199 | pass | SHA_F4P | EntityDrawer (thêm prop `header`) · 5 tab; prototype khoá cứng `pdDetailOn: false` nên entry parity bật cờ qua `protoOverrideVals` |
+| `products:create` | Tạo sản phẩm | L5624 | P | ✅ | 0.0229 | pass | SHA_F4P | 6 loại (khối nhập theo loại), danh mục mới (`category.create`), trường riêng, thuộc tính → biến thể; lưu `product.create` / `product.update`; ModalShell thêm biến thể `dense` |
 | `quotes:list` | Danh sách báo giá | L4957 | P | ⬜ | | | | Hiệu lực 15 ngày |
 | `quotes:editor` | Soạn báo giá (dòng, chiết khấu, thuế sau CK) | L4957 | P | ⬜ | | | | |
 | `quotes:detail` | Chi tiết báo giá + các version | L4957 | P | ⬜ | | | | |

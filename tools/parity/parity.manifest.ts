@@ -1,6 +1,6 @@
 // Danh sách màn × trạng thái đo parity (standards/ui/prototype-parity §3). ID = ID dòng trong coding-packs/reports/goal-fe-prototype.md.
 import type { Page } from '@playwright/test';
-import { protoSetState } from './protoState';
+import { protoOverrideVals, protoSetState } from './protoState';
 
 export interface Rect {
   x: number;
@@ -43,6 +43,7 @@ const inbox = { ac_module: 'inbox' };
 const crm = { ac_module: 'customers' };
 const asst = { ac_module: 'assistant' };
 const agents = { ac_module: 'agents' };
+const products = { ac_module: 'products' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -229,8 +230,15 @@ export const MANIFEST: ParityEntry[] = [
     route: '/dashboard',
     protoStorage: dash,
     proto: (p) => p.locator('button', { hasText: 'Thông báo' }).last().click(),
-    app: (p) => p.getByTestId('updates-widget').getByRole('button', { name: /Thông báo/ }).click(),
-    clipTo: { proto: 'div[style*="width: 360px"][style*="position: fixed"]', app: '[data-testid="updates-widget"]' },
+    app: (p) =>
+      p
+        .getByTestId('updates-widget')
+        .getByRole('button', { name: /Thông báo/ })
+        .click(),
+    clipTo: {
+      proto: 'div[style*="width: 360px"][style*="position: fixed"]',
+      app: '[data-testid="updates-widget"]',
+    },
   },
   // ── F2 · Hộp thư ──
   { id: 'inbox:default', route: '/inbox', protoStorage: inbox },
@@ -239,7 +247,12 @@ export const MANIFEST: ParityEntry[] = [
     id: 'inbox:empty',
     route: '/inbox?inbox=empty',
     protoStorage: inbox,
-    proto: (p) => p.evaluate(() => document.querySelectorAll('.convrow, .row[style*="border-bottom: 1px solid rgb(243, 244, 246)"]').forEach((n) => n.remove())),
+    proto: (p) =>
+      p.evaluate(() =>
+        document
+          .querySelectorAll('.convrow, .row[style*="border-bottom: 1px solid rgb(243, 244, 246)"]')
+          .forEach((n) => n.remove()),
+      ),
     clip: { x: 80, y: 44, width: 320, height: 300 },
   },
   {
@@ -272,11 +285,17 @@ export const MANIFEST: ParityEntry[] = [
     protoStorage: inbox,
     // ZNS là mục OUT (D29, marketing chỉ Zalo cá nhân + Email): gỡ "Gửi template ZNS" khỏi prototype như mục OUT.
     proto: async (p) => {
-      await p.locator('div', { hasText: /^Trợ lý AI$/ }).last().click();
+      await p
+        .locator('div', { hasText: /^Trợ lý AI$/ })
+        .last()
+        .click();
       await p.locator('.chip', { hasText: 'Gửi template ZNS' }).evaluate((n) => n.remove());
     },
     app: (p) => p.click('[data-testid="inbox-ai-open"]'),
-    clipTo: { proto: 'div[style*="width: min(440px"]', app: '[data-testid="inbox-ai-modal"] [role="dialog"]' },
+    clipTo: {
+      proto: 'div[style*="width: min(440px"]',
+      app: '[data-testid="inbox-ai-modal"] [role="dialog"]',
+    },
   },
   {
     // Ngoại lệ D28 / prototype-parity §6: chỉ kênh có manifest (zalo_personal / webchat / email) kết nối được, còn lại "Sắp có".
@@ -299,7 +318,15 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.click('[data-testid="acct-select"]'),
     clip: { x: 80, y: 180, width: 320, height: 360 },
     // Tên tài khoản theo channel registry (zalo_personal / webchat / email) — ngoại lệ "Kênh" prototype-parity §6.
-    mask: [{ x: 128, y: 285, width: 222, height: 255, reason: 'prototype-parity §6 Kênh — tên tài khoản theo channel registry' }],
+    mask: [
+      {
+        x: 128,
+        y: 285,
+        width: 222,
+        height: 255,
+        reason: 'prototype-parity §6 Kênh — tên tài khoản theo channel registry',
+      },
+    ],
   },
   {
     id: 'inbox:zalo-group-info',
@@ -313,14 +340,39 @@ export const MANIFEST: ParityEntry[] = [
     id: 'inbox:handoff',
     route: '/inbox',
     protoStorage: inbox,
-    proto: (p) => p.locator('.appscroll', { hasText: 'Claude Cowork gợi ý trả lời' }).last().evaluate((n) => n.scrollTo(0, n.scrollHeight)),
+    proto: (p) =>
+      p
+        .locator('.appscroll', { hasText: 'Claude Cowork gợi ý trả lời' })
+        .last()
+        .evaluate((n) => n.scrollTo(0, n.scrollHeight)),
     app: (p) => p.locator('[data-conv="c_hieu"] button').first().click(),
-    clipTo: { proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"][style*="border-radius: 12px"]', app: '[data-testid="handoff-banner"]' },
+    clipTo: {
+      proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"][style*="border-radius: 12px"]',
+      app: '[data-testid="handoff-banner"]',
+    },
     // Trạng thái handoff không có trong prototype (REQ-C handoff): so khung thẻ, mask phần chữ khác nội dung.
     mask: [
-      { x: 44, y: 8, width: 600, height: 26, reason: 'handoff không có trong prototype — tiêu đề / nhãn khác nội dung' },
-      { x: 24, y: 62, width: 616, height: 52, reason: 'handoff không có trong prototype — bản nháp AI khác nội dung' },
-      { x: 24, y: 136, width: 260, height: 36, reason: 'handoff không có trong prototype — nút Nhận xử lý / Dùng bản nháp' },
+      {
+        x: 44,
+        y: 8,
+        width: 600,
+        height: 26,
+        reason: 'handoff không có trong prototype — tiêu đề / nhãn khác nội dung',
+      },
+      {
+        x: 24,
+        y: 62,
+        width: 616,
+        height: 52,
+        reason: 'handoff không có trong prototype — bản nháp AI khác nội dung',
+      },
+      {
+        x: 24,
+        y: 136,
+        width: 260,
+        height: 36,
+        reason: 'handoff không có trong prototype — nút Nhận xử lý / Dùng bản nháp',
+      },
     ],
   },
   {
@@ -405,7 +457,11 @@ export const MANIFEST: ParityEntry[] = [
     id: 'assistant:cowork-welcome',
     route: '/assistant',
     protoStorage: asst,
-    proto: (p) => p.locator('div', { hasText: /^Cowork$/ }).first().click(),
+    proto: (p) =>
+      p
+        .locator('div', { hasText: /^Cowork$/ })
+        .first()
+        .click(),
     app: (p) => p.getByRole('radio', { name: 'Cowork' }).click(),
     mask: [
       { x: 846, y: 355, width: 150, height: 32, reason: 'D29 mức AI thay tên model' },
@@ -448,7 +504,11 @@ export const MANIFEST: ParityEntry[] = [
     id: 'assistant:model-picker',
     route: '/assistant',
     protoStorage: asst,
-    proto: (p) => p.locator('div', { hasText: /^Sonnet 4.5High$/ }).first().click(),
+    proto: (p) =>
+      p
+        .locator('div', { hasText: /^Sonnet 4.5High$/ })
+        .first()
+        .click(),
     app: (p) => p.getByTestId('asst-tier').click(),
     clip: { x: 640, y: 190, width: 480, height: 210 },
   },
@@ -457,8 +517,14 @@ export const MANIFEST: ParityEntry[] = [
     route: '/assistant',
     protoStorage: asst,
     proto: async (p) => {
-      await p.locator('div', { hasText: /^Cowork$/ }).first().click();
-      await p.locator('div', { hasText: /^Chưa chọn AI Agent$/ }).first().click();
+      await p
+        .locator('div', { hasText: /^Cowork$/ })
+        .first()
+        .click();
+      await p
+        .locator('div', { hasText: /^Chưa chọn AI Agent$/ })
+        .first()
+        .click();
     },
     app: async (p) => {
       await p.getByRole('radio', { name: 'Cowork' }).click();
@@ -516,7 +582,13 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-testid="ag-tpl"]',
     mask: [
       { x: 1030, y: 14, width: 150, height: 42, reason: 'Mở Workflow là mục OUT (ẩn)' },
-      { x: 80, y: 800, width: 1360, height: 100, reason: 'mục Agent của bạn (danh sách agent, ngoài khung prototype)' },
+      {
+        x: 80,
+        y: 800,
+        width: 1360,
+        height: 100,
+        reason: 'mục Agent của bạn (danh sách agent, ngoài khung prototype)',
+      },
     ],
   },
   {
@@ -542,7 +614,13 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-testid="agb-name"]',
     mask: [
       { x: 20, y: 255, width: 340, height: 105, reason: 'D29 mức AI thay tên model' },
-      { x: 20, y: 805, width: 680, height: 95, reason: 'prototype-parity §6 Kênh — channel registry (Zalo cá nhân / Web chat / Email)' },
+      {
+        x: 20,
+        y: 805,
+        width: 680,
+        height: 95,
+        reason: 'prototype-parity §6 Kênh — channel registry (Zalo cá nhân / Web chat / Email)',
+      },
     ],
   },
   {
@@ -575,7 +653,9 @@ export const MANIFEST: ParityEntry[] = [
     },
     appWait: '[data-testid="agb-name"]',
     clip: { x: 880, y: 60, width: 560, height: 840 },
-    mask: [{ x: 880, y: 400, width: 560, height: 30, reason: 'dòng ghi chú chạy thử (dryRun) — thêm theo D29' }],
+    mask: [
+      { x: 880, y: 400, width: 560, height: 30, reason: 'dòng ghi chú chạy thử (dryRun) — thêm theo D29' },
+    ],
   },
   {
     id: 'agents:ai-create',
@@ -585,5 +665,38 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('ag-ai').click(),
     appWait: '[data-testid="ag-tpl"]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // ===== F4 — Sản phẩm =====
+  // D28 / D31: nguồn đồng bộ lấy từ connector registry (Zalo cá nhân, Website + "Sắp có") thay danh sách cứng của prototype — mask hàng chip.
+  {
+    id: 'products:list',
+    route: '/products',
+    protoStorage: products,
+    appWait: '[data-product]',
+    mask: [
+      { x: 80, y: 252, width: 1360, height: 44, reason: 'D28/D31 nguồn đồng bộ theo connector registry' },
+    ],
+  },
+  {
+    id: 'products:detail',
+    route: '/products',
+    protoStorage: products,
+    // prototype khoá cứng pdDetailOn: false (L9527 vẫn tính pdDetail) — bật cờ để hiện drawer đúng thiết kế L5683.
+    proto: async (p) => {
+      await p.locator('.cmpwrap .row').first().locator('div[style*="cursor: pointer"]').first().click();
+      await protoOverrideVals(p, { pdDetailOn: true });
+    },
+    app: (p) => p.locator('[data-product]').first().click(),
+    appWait: '[data-product]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'products:create',
+    route: '/products',
+    protoStorage: products,
+    proto: (p) => p.locator('.btnp', { hasText: 'Thêm sản phẩm' }).click(),
+    app: (p) => p.getByTestId('pd-add').click(),
+    appWait: '[data-product]',
+    clipTo: { proto: 'div[style*="width: 560px"]', app: '[data-testid="pd-form"] [role="dialog"]' },
   },
 ];

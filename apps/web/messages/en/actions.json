@@ -169,5 +169,26 @@
     "pause": {
       "title": "Pause / resume task"
     }
+  },
+  "product": {
+    "create": {
+      "title": "Add product"
+    },
+    "update": {
+      "title": "Update product"
+    },
+    "archive": {
+      "title": "Delete product"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Create category"
+    }
+  },
+  "stock": {
+    "adjust": {
+      "title": "Adjust stock"
+    }
   }
 }
