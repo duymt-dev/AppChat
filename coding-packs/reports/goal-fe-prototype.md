@@ -18,7 +18,7 @@
 | Pha | Nội dung | Số dòng | ✅ | ❌ / ⛔ | Completion Report | Commit cuối pha | PR → dev |
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
-| F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | (PR F1) |
+| F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
 | F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
