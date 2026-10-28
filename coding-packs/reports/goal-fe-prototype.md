@@ -17,7 +17,7 @@
 
 | Pha | Nội dung | Số dòng | ✅ | ❌ / ⛔ | Completion Report | Commit cuối pha | PR → dev |
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
-| F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | e7b9d14 | (link sau khi push) |
+| F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [tạo PR](https://github.com/duymt-dev/AppChat/compare/dev...goal/fe-prototype?expand=1) · thân PR: `reports/pr/F0.md` |
 | F1 | Auth & onboarding | 10 | 0 | 0 | ⬜ | | |
 | F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
