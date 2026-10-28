@@ -507,4 +507,81 @@ export const MANIFEST: ParityEntry[] = [
       { x: 724, y: 345, width: 300, height: 40, reason: 'đối tượng của dòng Workflow (OUT)' },
     ],
   },
+  // ===== F3 — AI Agents =====
+  // E: ẩn "Mở Workflow" (OUT); thêm mục "Agent của bạn" dưới thư viện mẫu (prototype không render aiAgents) — mask vùng đó.
+  {
+    id: 'agents:list',
+    route: '/agents',
+    protoStorage: agents,
+    appWait: '[data-testid="ag-tpl"]',
+    mask: [
+      { x: 1030, y: 14, width: 150, height: 42, reason: 'Mở Workflow là mục OUT (ẩn)' },
+      { x: 80, y: 800, width: 1360, height: 100, reason: 'mục Agent của bạn (danh sách agent, ngoài khung prototype)' },
+    ],
+  },
+  {
+    id: 'agents:template-gallery',
+    route: '/agents',
+    protoStorage: agents,
+    appWait: '[data-testid="ag-tpl"]',
+    proto: async (p) => {
+      await p.locator('select').nth(0).selectOption('Dịch vụ & CSKH');
+      await p.waitForTimeout(150);
+    },
+    app: (p) => p.getByTestId('ag-group').selectOption('Dịch vụ & CSKH'),
+    clip: { x: 80, y: 60, width: 1360, height: 740 },
+  },
+  // E: "Mô hình AI" (tên model) → "Mức AI" (D29); kênh theo channel registry (3 kênh thay 8) — mask hai vùng đó.
+  {
+    id: 'agents:builder',
+    route: '/agents/new',
+    protoStorage: agents,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo thủ công' }).click(),
+    appWait: '[data-testid="agb-name"]',
+    mask: [
+      { x: 20, y: 255, width: 340, height: 105, reason: 'D29 mức AI thay tên model' },
+      { x: 20, y: 805, width: 680, height: 95, reason: 'prototype-parity §6 Kênh — channel registry (Zalo cá nhân / Web chat / Email)' },
+    ],
+  },
+  {
+    id: 'agents:builder-templates',
+    route: '/agents/new',
+    protoStorage: agents,
+    proto: async (p) => {
+      await p.locator('.btnp', { hasText: 'Tạo thủ công' }).click();
+      await p.locator('span', { hasText: /^Thêm mẫu lời nhắc ▾$/ }).click();
+    },
+    app: (p) => p.getByTestId('agb-tpl').click(),
+    appWait: '[data-testid="agb-name"]',
+    clip: { x: 20, y: 360, width: 680, height: 340 },
+  },
+  {
+    id: 'agents:test-chat',
+    route: '/agents/new',
+    protoStorage: agents,
+    proto: async (p) => {
+      await p.locator('.btnp', { hasText: 'Tạo thủ công' }).click();
+      const box = p.locator('input[placeholder="Nhập tin để kiểm thử…"]');
+      await box.fill('Giá liệu trình bao nhiêu?');
+      await box.press('Enter');
+      await p.waitForTimeout(300);
+    },
+    app: async (p) => {
+      await p.getByTestId('agb-test-input').fill('Giá liệu trình bao nhiêu?');
+      await p.getByTestId('agb-test-input').press('Enter');
+      await p.getByTestId('agb-ai-msg').nth(1).waitFor();
+    },
+    appWait: '[data-testid="agb-name"]',
+    clip: { x: 880, y: 60, width: 560, height: 840 },
+    mask: [{ x: 880, y: 400, width: 560, height: 30, reason: 'dòng ghi chú chạy thử (dryRun) — thêm theo D29' }],
+  },
+  {
+    id: 'agents:ai-create',
+    route: '/agents',
+    protoStorage: agents,
+    proto: (p) => p.locator('.btnp', { hasText: 'Trợ lý AI' }).click(),
+    app: (p) => p.getByTestId('ag-ai').click(),
+    appWait: '[data-testid="ag-tpl"]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
 ];
