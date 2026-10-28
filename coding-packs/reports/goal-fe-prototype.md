@@ -19,7 +19,7 @@
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
 | F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
-| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 0 | 0 | ⬜ | | |
+| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 14 | 0 | ⬜ | | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
@@ -72,16 +72,16 @@
 | `dashboard:default` | Tổng quan có dữ liệu | L1079 | P | ✅ | 0.0171 | pass | db52d91 | Checklist thu gọn (obCollapsed) + 4 thống kê + 4 thẻ + trung tâm cập nhật; pill module bỏ Gọi điện / Quy trình (D07, D19) |
 | `dashboard:new-workspace` | Tổng quan workspace mới (onboarding checklist) | L1079 | P | ✅ | 0.0085 | pass | db52d91 | Checklist 5 bước mở, 0/5 (mặc định prototype); đánh dấu qua `onboarding.toggle_step` |
 | `dashboard:widget-picker` | Chọn widget | L1139 | P | ✅ | 0.0257 | pass | db52d91 | L1139 = "Trung tâm cập nhật" (prototype không có bộ chọn widget riêng): 3 tab Cần follow / Tin tức / Thông báo, thu nhỏ thành nút "Cập nhật"; `follow_up.complete` hoàn tác 24h |
-| `inbox:default` | 3 cột, đang mở một hội thoại | L1505 | P | ⬜ | | | | |
-| `inbox:empty` | Chưa có hội thoại | L1505 | P | ⬜ | | | | |
-| `inbox:folder-rail` | Rail thư mục mở | L1602 | P | ⬜ | | | | |
-| `inbox:conv-menu` | Menu hội thoại trong danh sách | L1675 | P | ⬜ | | | | |
-| `inbox:chat-menu` | Menu trong khung chat | L1774 | P | ⬜ | | | | |
-| `inbox:ai-panel` | Panel AI của hộp thư | L1509 | P | ⬜ | | | | |
-| `inbox:connect-channel` | Modal kết nối kênh | L1548 | E | ⬜ | | | | Chỉ kênh có manifest |
-| `inbox:account-switch` | Chọn tài khoản kênh | L1651 | P | ⬜ | | | | |
-| `inbox:zalo-group-info` | Thông tin nhóm Zalo (thành viên / ảnh / file / link / AI) | L1928–1989 | P | ⬜ | | | | |
-| `inbox:handoff` | Banner "Cần người" + bản nháp AI | L1505 | P | ⬜ | | | | |
+| `inbox:default` | 3 cột, đang mở một hội thoại | L1505 | P | ✅ | 0.0443 | pass | f38b33d | Tab trên 7 mục · danh sách 320 · chat kiểu WhatsApp (ghim, ảnh, voice, thẻ SP, tệp, AI phân tích, gợi ý trả lời) · Hồ sơ 360° 5 tab; kênh map về zalo_personal / webchat / email (§6 Kênh) |
+| `inbox:empty` | Chưa có hội thoại | L1505 | P | ✅ | 0.0292 | pass | f38b33d | Prototype không có trạng thái rỗng: gỡ dòng hội thoại ở prototype, app seed `?inbox=empty` |
+| `inbox:folder-rail` | Rail thư mục mở | L1602 | P | ✅ | 0.0445 | pass | f38b33d | Rail 216px: Hộp thư · Trạng thái AI · Kênh (chỉ 3 kênh phát hành) · Bộ lọc đã lưu |
+| `inbox:conv-menu` | Menu hội thoại trong danh sách | L1675 | P | ✅ | 0.0416 | pass | f38b33d | Đóng / Tạm ẩn / Phân công / Gắn thẻ qua `conversation.set_status` / `assign` / `tag` |
+| `inbox:chat-menu` | Menu trong khung chat | L1774 | P | ✅ | 0.0413 | pass | f38b33d | Thu hồi / Xoá tin / Lưu trữ / Ẩn / Xoá lịch sử (`message.recall`, `message.delete`*, `conversation.archive`, `conversation.clear_history`*) |
+| `inbox:ai-panel` | Panel AI của hộp thư | L1509 | P | ✅ | 0.0480 | pass | f38b33d | Gỡ "Gửi template ZNS" ở prototype (ZNS OUT — D29); "Claude Cowork" → "AI Cowork" (không hiện tên model — D29) |
+| `inbox:connect-channel` | Modal kết nối kênh | L1548 | E | ✅ | 0.0159 | pass | f38b33d | E — §6 Kênh / D28: zalo_personal, webchat, email kết nối được; kênh khác thẻ "Sắp có" (aria-disabled); gỡ thẻ Tổng đài (Gọi điện ẩn — D07) |
+| `inbox:account-switch` | Chọn tài khoản kênh | L1651 | P | ✅ | 0.0091 | pass | f38b33d | Tài khoản theo channel registry; mask cột tên (§6 Kênh) |
+| `inbox:zalo-group-info` | Thông tin nhóm Zalo (thành viên / ảnh / file / link / AI) | L1928–1989 | P | ✅ | 0.0468 | pass | f38b33d | Thành viên · link mời · bảng tin · Ảnh/Video · File · Link · AI trong nhóm (khi @ / tự động / tắt) · ẩn / xoá lịch sử |
+| `inbox:handoff` | Banner "Cần người" + bản nháp AI | L1505 | P | ✅ | 0.0064 | pass | f38b33d | Không có trong prototype: dùng khung thẻ "AI gợi ý trả lời", mask chữ; `conversation.handoff` nhận xử lý, "Dùng bản nháp" đưa nháp vào ô soạn |
 | `customers:table` | Danh sách dạng bảng | L2451 | P | ⬜ | | | | |
 | `customers:kanban` | Kanban theo giai đoạn | L2451 | P | ⬜ | | | | |
 | `customers:filter` | Bộ lọc mở | L2496 | P | ⬜ | | | | |
