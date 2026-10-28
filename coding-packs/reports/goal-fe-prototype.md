@@ -22,10 +22,10 @@
 | F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | bf2b4a5 | [#4](https://github.com/duymt-dev/AppChat/pull/4) (xếp chồng #3) |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
-| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
+| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 14 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **88** | **0** | | | |
+| **Tổng** | | **137** | **102** | **0** | | | |
 
 ---
 
@@ -155,11 +155,11 @@
 | `tickets:list` | Danh sách ticket + KPI | L4837 | P | ✅ | 0.0439 | pass | 59dacfc | 14 ticket theo TKDATA; KPI bấm để lọc; 6 bộ lọc + sắp xếp ưu tiên; tìm không dấu; chọn nhiều → ticket.bulk_update (gán / AI xử lý / ưu tiên); kênh theo channel registry (§6) |
 | `tickets:kanban` | Kanban 4 cột | L4837 | P | ✅ | 0.0356 | pass | 59dacfc | 4 cột theo trạng thái; kéo sang "Đã đóng" mở hộp lý do, cột khác → ticket.set_status |
 | `tickets:detail` | Drawer ticket (timeline, SLA) | L4837 | P | ✅ | 0.0491 | pass | 59dacfc | Drawer 400px: 4 tab (Chi tiết · Trao đổi · Lịch sử · SLA), đồng hồ SLA từ ttr_due_at (waiting = tạm dừng), Can thiệp ↔ Giao AI (ticket.assign), macro, ghi chú nội bộ / trả lời khách (ticket.comment), đóng bắt buộc lý do + ghi kết quả SLA, mở lại. Mask đồng hồ + mốc thời gian (prototype hard-code) |
-| `marketing:suggestions` | Bảng gợi ý chiến dịch | L3394 | E | ⬜ | | | | Kênh chỉ Zalo cá nhân + Email |
-| `marketing:campaigns` | Danh sách chiến dịch | L3394 | E | ⬜ | | | | |
-| `marketing:wizard` | Wizard tạo chiến dịch | L3394 | E | ⬜ | | | | |
-| `marketing:analytics` | Chi tiết / thống kê chiến dịch | L3569 | P | ⬜ | | | | |
-| `marketing:ai` | Panel AI marketing | L3538 | P | ⬜ | | | | |
+| `marketing:suggestions` | Bảng gợi ý chiến dịch | L3394 | E | ✅ | 0.0172 | pass | eb73c5b | Modal AI phân tích 3 giai đoạn (đang phân tích 12 tín hiệu → bảng 4 đề xuất → chi tiết: pitch, thông tin, dự báo, tín hiệu); "Tạo chiến dịch từ đề xuất" mở wizard điền sẵn (campaign.create kèm suggestion_id, đề xuất đánh dấu Đã tạo). Kênh chỉ Zalo cá nhân + Email (§6) |
+| `marketing:campaigns` | Danh sách chiến dịch | L3394 | E | ✅ | 0.0422 | pass | eb73c5b | Tab kênh Tất cả · Email · Zalo cá nhân · Automation (bỏ SMS / ZNS / ZBS — §6), hero theo kênh + A/B + lịch gửi, 4 KPI; tab trạng thái + Chờ duyệt / Nháp / Từ chối; menu dòng theo trạng thái (submit / approve / reject / pause / resume / cancel / delete). Mask phụ đề kênh |
+| `marketing:wizard` | Wizard tạo chiến dịch | L3394 | E | ✅ | 0.0204 | pass | eb73c5b | 4 bước: Kênh (Zalo cá nhân / Email, 1 kênh) · Người nhận (tìm, nhóm, Upload Excel, chọn khách) · Nội dung (AI soạn 3 giọng, thanh định dạng, tiêu đề email) · Lịch (Gửi ngay / Hẹn giờ / AI tối ưu, credit dự kiến). Lưu nháp = campaign.create; Gửi duyệt = create + submit. Mask lưới kênh (§6) |
+| `marketing:analytics` | Chi tiết / thống kê chiến dịch | L3569 | P | ✅ | 0.0210 | pass | eb73c5b | Trang toàn màn: 5 thẻ số, lọc + pill trạng thái người nhận, bảng người nhận, tab Nội dung / Lịch sử gửi; Chờ duyệt → thanh duyệt (Gửi thử · Từ chối · Duyệt & gửi luôn qua hộp xác nhận — campaign.approve risk send) |
+| `marketing:ai` | Panel AI marketing | L3538 | P | ✅ | 0.0351 | pass | eb73c5b | Panel 392px: 4 gợi ý → mở wizard điền sẵn từ đề xuất; ô hỏi; "Mở Trợ lý AI đầy đủ" mở dock |
 | `loyalty:overview` | Tổng quan khách thân thiết | L4412 | P | ⬜ | | | | 10.000đ = 1 điểm |
 | `loyalty:members` | Bảng thành viên | L4412 | P | ⬜ | | | | |
 | `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | P | ⬜ | | | | |
