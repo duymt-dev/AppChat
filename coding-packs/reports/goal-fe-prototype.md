@@ -146,12 +146,12 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `calendar:week` | Lịch tuần | L3871 | P | ⬜ | | | | |
-| `calendar:day` | Lịch ngày | L3871 | P | ⬜ | | | | |
-| `calendar:month` | Lịch tháng | L3871 | P | ⬜ | | | | |
-| `calendar:list` | Danh sách lịch hẹn | L3871 | P | ⬜ | | | | |
-| `calendar:appointment` | Drawer lịch hẹn | L3871 | P | ⬜ | | | | |
-| `calendar:create` | Tạo lịch hẹn + chọn slot | L3871 | P | ⬜ | | | | |
+| `calendar:week` | Lịch tuần | L3871 | P | ✅ | 0.0163 | pass | c84a299 | Lưới giờ 09–15h như prototype, cột thứ 22–28/06; ‹ › đổi tuần; bấm ô trống → form điền sẵn ngày/giờ |
+| `calendar:day` | Lịch ngày | L3871 | P | ✅ | 0.0118 | pass | c84a299 | Blueprint §7.2 ViewSwitch(day) — prototype không có chế độ Ngày: so khung Tuần, mask lưới (làn KTV theo giờ mở cửa 08–19h) |
+| `calendar:month` | Lịch tháng | L3871 | P | ✅ | 0.0153 | pass | c84a299 | Lưới 7 cột, ≤2 lịch/ngày + "+n lịch nữa"; hôm nay nền xanh; bấm ngày → chế độ Ngày |
+| `calendar:list` | Danh sách lịch hẹn | L3871 | P | ✅ | 0.0388 | pass | c84a299 | Nhóm theo ngày; follow-up (cfu_*) xen theo giờ, "Xong" → follow_up.complete; lọc KTV/trạng thái/phòng ban; tìm không dấu |
+| `calendar:appointment` | Drawer lịch hẹn | L3871 | P | ✅ | 0.0446 | pass | c84a299 | Chân theo trạng thái: Xác nhận → Khách đã đến → Hoàn thành; ⋯ Không đến / Huỷ (bắt buộc lý do). Trong gói → trừ 1 buổi; ngoài gói → chỉ gợi ý "Tạo đơn" (COMMERCE 8b); không cộng điểm. Mask tự động hoá SMS→Zalo (§6 Kênh) |
+| `calendar:create` | Tạo lịch hẹn + chọn slot | L3871 | P | ✅ | 0.0279 | pass | c84a299 | Giờ bắt đầu chỉ chọn từ appointment.find_slots (dịch vụ + buffer + KTV); giờ kết thúc = thời lượng; trùng → CONFLICT; "Đổi giờ" giữ mã (exclude_id) |
 | `tickets:list` | Danh sách ticket + KPI | L4837 | P | ⬜ | | | | |
 | `tickets:kanban` | Kanban 4 cột | L4837 | P | ⬜ | | | | |
 | `tickets:detail` | Drawer ticket (timeline, SLA) | L4837 | P | ⬜ | | | | |
