@@ -528,7 +528,9 @@ export const MANIFEST: ParityEntry[] = [
       await p.locator('select').nth(0).selectOption('Dịch vụ & CSKH');
       await p.waitForTimeout(150);
     },
-    app: (p) => p.getByTestId('ag-group').selectOption('Dịch vụ & CSKH'),
+    app: async (p) => {
+      await p.getByTestId('ag-group').selectOption('Dịch vụ & CSKH');
+    },
     clip: { x: 80, y: 60, width: 1360, height: 740 },
   },
   // E: "Mô hình AI" (tên model) → "Mức AI" (D29); kênh theo channel registry (3 kênh thay 8) — mask hai vùng đó.
