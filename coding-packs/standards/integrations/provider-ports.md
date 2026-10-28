@@ -18,6 +18,7 @@
 | `LlmProvider` | LLM | Anthropic, OpenAI, Google, DeepSeek (qua AI SDK) | — |
 | `AccountingSyncProvider` | đồng bộ đơn / công nợ sang kế toán | — | MISA AMIS, Fast, Odoo |
 | `CommerceSyncProvider` | đồng bộ sản phẩm / tồn | — | KiotViet, Sapo, Haravan, WooCommerce |
+| `OrderSyncProvider` | kéo đơn từ sàn / POS (webhook + poll), đẩy trạng thái (P2) — D31 | `mock` | Sapo, Shopee, TikTok Shop, Lazada, Haravan, KiotViet, WooCommerce |
 | `SheetSyncProvider` | xuất / đồng bộ bảng | — | Google Sheets |
 | `SmsProvider` | SMS (P2) | — | Viettel, VNPT, eSMS, Twilio |
 
@@ -39,6 +40,13 @@
    - Quyền `integrations.manage`.
    - Việc chạm tiền hoặc pháp lý (phát hành hoá đơn, huỷ hoá đơn) có risk `money`.
 9. **Sandbox trước:** adapter phải hỗ trợ `mode: 'sandbox' | 'live'`. Test contract chạy bằng `mock` + fixture. Test live chỉ chạy khi có biến `INTEG_LIVE_<KEY>=1`.
+
+## Đồng bộ đơn (D31)
+
+- `OrderSyncProvider.pull(conn, since)` / `handleWebhook()` → `ExternalOrder` chuẩn hoá (buyer, lines, totals, platform_status, paid). Core gọi `order.import_external` (`source = system`), idempotent theo `(connection_id, external_id)`.
+- Adapter cung cấp `mapStatus(platform_status) → { status, pay_status }`. Core không biết trạng thái riêng của sàn.
+- `integration_connection.config.stock_master = 'appchat' | 'external'`; `config.loyalty_enabled` mặc định `false`.
+- Quy tắc nghiệp vụ: COMMERCE-DECISIONS §4b.
 
 ## Hợp đồng
 

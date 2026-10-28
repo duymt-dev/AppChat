@@ -15,7 +15,9 @@
 | code | [testing](code/testing.md) | Các tầng test, test cô lập tenant + role, DB thật, báo kết quả trung thực + commit SHA |
 | database | [indexing](database/indexing.md) | Thứ tự composite, INCLUDE, deferred join, cursor, partial / expression index, index cho scope |
 | database | [tenant-db](database/tenant-db.md) | Mỗi workspace một DB, 2 Prisma client, không FK xuyên DB, migration expand-compatible |
+| documents | [templates](documents/templates.md) | Mẫu chứng từ rich / DOCX của DN, AI nhận diện biến + AI soạn từ nội dung, số liệu từ bản ghi, bảng kiểm Điều 398 (D30) |
 | events | [outbox](events/outbox.md) | Transactional outbox, relay qua dirty set, consumer idempotent |
 | i18n | [i18n](i18n/i18n.md) | next-intl + ICU, không chuỗi cứng, helper fmt, lỗi theo code, AI theo locale |
 | integrations | [provider-ports](integrations/provider-ports.md) | Port theo năng lực + ConnectorManifest + registry; SePay / Casso / MISA / Mắt Bão / VNPT / Viettel…; trang Nền tảng kết nối có thẻ "Sắp có" (D28) |
+| ui | [frontend-structure](ui/frontend-structure.md) | Cây `apps/web` (app chỉ routing, features/<module>/screens·components·hooks), useAction cho ghi, useCan, ui-commands, 5 trạng thái, token-only, responsive |
 | ui | [prototype-parity](ui/prototype-parity.md) | Playwright 1440×900, maxDiffPixelRatio 0.05, manifest + fixture + danh sách ngoại lệ |

@@ -15,7 +15,7 @@
 4. **Một chỗ ném lỗi:** service ném `AppError(code, httpStatus?, fields?)`; filter toàn cục chuyển thành envelope. Cấm `res.status().json()` trong controller.
 5. **Mã HTTP chuẩn:**
    - 422 `VALIDATION_FAILED` · 401 `UNAUTHENTICATED` · 403 `FORBIDDEN` / `SCOPE_FORBIDDEN` · 404 `NOT_FOUND` / `ACTION_NOT_FOUND`.
-   - 409 `CONFLICT` / `UNDO_EXPIRED` · 402 `PLAN_LIMIT_REACHED` / `CREDIT_EXHAUSTED` · 429 `RATE_LIMITED`.
+   - 409 `CONFLICT` / `UNDO_EXPIRED` / `CONTACT_OWNED` · 402 `PLAN_LIMIT_REACHED` / `CREDIT_EXHAUSTED` · 429 `RATE_LIMITED`.
    - 503 / 423 `WORKSPACE_UNAVAILABLE` · 500 `INTERNAL` (không lộ stack).
 6. **Ghi luôn đi qua `POST /v1/actions/:id`** (xem `actions/action-registry.md`). Không thêm `PUT/PATCH/DELETE` nghiệp vụ. Ngoại lệ được phép: auth, upload file (presign), webhook, trang ký công khai.
 7. **`Idempotency-Key`** bắt buộc với action có risk `send` / `money` và với lệnh tạo. Gửi lại cùng key thì trả kết quả cũ (`IDEMPOTENCY_REPLAY`, HTTP 200).

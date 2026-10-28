@@ -17,7 +17,7 @@
    - `membership.role_id` lấy từ DB nền tảng; quyền resolve ở DB tenant.
    - Vai trò hệ thống (`is_system`) không xoá được và không sửa được permission. Owner có thể nhân bản thành vai trò tuỳ biến (P1).
 5. **Phạm vi dữ liệu theo module** (`data_scope`): `own | team | all`.
-   - `own`: bản ghi có `owner_user_id = me` hoặc `assignee_user_id = me`, cộng hội thoại được gán cho mình.
+   - `own`: bản ghi có `owner_user_id = me` hoặc `assignee_user_id = me`, cộng hội thoại được gán cho mình, **cộng mọi bản ghi của khách mà mình là collaborator / watcher** (`contact_collaborator`, D32).
    - `team`: bản ghi của các thành viên cùng `team_id`. Bảng `team` và `team_member` có từ đầu; UI quản lý Nhóm ở P1.
    - `all`: toàn bộ workspace.
    - Repo **bắt buộc** áp `scopeFilter(ctx, module)` vào mọi query list/get. Không có bypass ngầm.
@@ -32,6 +32,16 @@
    - API: guard trên action và route đọc.
    - Repo: scope filter.
    - Test tenant-isolation đi kèm test **role-isolation**: sales A không đọc được khách của sales B khi scope là `own`.
+
+## Chăm sóc khách — nhiều sales (D32)
+
+- Mỗi khách có **0–1 phụ trách chính** (`contact.owner_user_id`) và nhiều `contact_collaborator(role = collaborator | watcher)`.
+  - collaborator: như owner trên khách đó (xem, nhắn, tạo báo giá / đơn / lịch), **không** chuyển phụ trách, không xoá khách.
+  - watcher: chỉ đọc + nhận thông báo.
+- **Chống giành khách:** tạo / nhập trùng với khách đã có owner → trả `CONTACT_OWNED` (409) kèm tên người phụ trách, không trả dữ liệu khách; UI hiện "Xin chia sẻ" (`contact.request_access`). Owner của khách hoặc người có `crm.reassign` duyệt.
+- **Chuyển phụ trách** chỉ với `crm.reassign` (Quản lý, Chủ sở hữu). Agent / Trợ lý chỉ **đề xuất** (approval).
+- **Doanh số** ghi `owner_user_id` lúc tạo chứng từ; không đổi khi chuyển phụ trách.
+- `scopeFilter(ctx, 'crm' | 'sales' | 'inbox' | 'booking')` với `own` phải join `contact_collaborator` (index `contact_collaborator(user_id, contact_id)`).
 
 ## 5 vai trò mặc định (seed khi tạo workspace)
 

@@ -24,6 +24,9 @@
 | 8b | Lịch hẹn hoàn tất → Đơn | **Chỉ gợi ý** ("Tạo đơn cho buổi này?"), người hoặc agent xác nhận mới tạo |
 | 9a | Bước cuối của đơn | **"Hoàn tất"**, dùng chung cho hàng hoá và dịch vụ |
 | 9b | "Chờ cọc" | **Chỉ áp cho đơn được đánh dấu cần cọc** |
+| D30 | Mẫu chứng từ + AI soạn | Mẫu rich hoặc DOCX của DN; AI soạn từ nội dung; số liệu luôn từ bản ghi; điều khoản mẫu nguyên văn — §12 |
+| D31 | Đơn từ sàn / POS | Khung đồng bộ + "Sắp có"; đơn sàn khoá hàng / giá; thu qua sàn; tích điểm mặc định tắt — §4b |
+| D32 | Nhiều sales / một khách | 1 phụ trách chính + đồng phụ trách / theo dõi — §8b |
 
 ---
 
@@ -97,6 +100,17 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
   - Tất cả · Đã thanh toán · Đã cọc · Chờ cọc · Đã huỷ.
   - Mỗi chip lọc đúng trục của nó. Bảng hiển thị 2 cột: Trạng thái đơn và Thanh toán.
 
+## 4b. Đơn từ sàn / phần mềm bán hàng (D31)
+
+- **Nguồn:** `order.source = manual | quote | contract | appointment | marketplace | pos`, kèm `external_ref` `{connection_id, external_id, platform_status}`. Nhập **một lần** (unique theo kết nối + mã ngoài).
+- **Trạng thái:** adapter ánh xạ trạng thái sàn về 2 trục (ví dụ Shopee `READY_TO_SHIP` → `processing`; `COMPLETED` → `completed`; `CANCELLED` / trả hàng → `cancelled` hoặc hoàn một phần). Giữ `platform_status` gốc để hiển thị.
+- **Không sửa dòng hàng / giá / tổng** của đơn sàn: sàn là nguồn sự thật. Sửa được: người phụ trách, ghi chú, thẻ.
+- **Thanh toán:** đơn sàn đã thanh toán ghi `customer_payment(method = marketplace)`, **không** sinh Đề nghị thanh toán / VietQR. Đơn COD của sàn: `paid` khi sàn báo hoàn tất.
+- **Kho:** mỗi kết nối chọn **bên giữ tồn chuẩn**: `appchat` (AppChat đẩy tồn lên sàn — P2) hoặc `external` (Sapo / KiotViet là gốc, AppChat nhận tồn về). Đơn sàn vẫn ghi `stock_movement`, quy tắc Q8 giữ nguyên.
+- **Khách:** sàn thường che SĐT, nên khớp theo `contact_identity(channel_type = marketplace, external_id = buyer_id)`. Chỉ lưu dữ liệu sàn cho phép.
+- **Loyalty:** đơn sàn **mặc định không tích điểm** (sàn thường cấm kéo khách ra ngoài). Bật được trong cấu hình loyalty; khi bật vẫn đúng Q1 (10.000đ = 1 điểm, một lần khi `completed`).
+- **Khi nào có:** khung, port, mock, thẻ "Sắp có": P0. Adapter thật (Sapo, Shopee, TikTok Shop, Lazada, Haravan, KiotViet, WooCommerce): P2. Đẩy trạng thái / tồn lên sàn: P2.
+
 ## 5. Đề nghị thanh toán và thu tiền
 
 - **Tên hiển thị:** "Đề nghị thanh toán" (mã `TT-000123`). Tên kỹ thuật vẫn là `invoice`.
@@ -157,6 +171,16 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 - Người kéo tay luôn thắng quy tắc tự động. Quy tắc tự động không ghi đè trong 24 giờ sau lần kéo tay.
 - Không có pipeline Deal riêng (khác SRS FR-CUS-03). Giai đoạn nằm ngay trên Khách hàng, đúng như prototype.
 
+## 8b. Nhiều sales chăm một khách (D32)
+
+- **Vai trò trên khách:** `owner` (phụ trách chính, đúng 1 người hoặc trống) · `collaborator` (đồng phụ trách: xem, nhắn, tạo chứng từ) · `watcher` (chỉ xem + nhận thông báo).
+- **Scope `own`** = khách mà mình là owner **hoặc** collaborator / watcher; hội thoại, báo giá, hợp đồng, đơn, lịch hẹn của khách đó đi theo.
+- **Chống giành khách:** sales tạo / nhập khách trùng (SĐT / email / MST / ID kênh) với khách đã có owner thì không thấy chi tiết, chỉ thấy "Đã có người phụ trách: Minh" + nút **"Xin chia sẻ"** (`contact.request_access`). Owner của khách hoặc Quản lý duyệt.
+- **Chuyển phụ trách** (`contact.transfer_owner`): chỉ Quản lý / Chủ sở hữu (permission `crm.reassign`). Tuỳ chọn chuyển kèm hội thoại đang mở, báo giá chưa chốt, lịch hẹn sắp tới. Ghi timeline + thông báo hai bên.
+- **Tin nhắn mới:** khách có owner thì hội thoại tự gán cho owner. Owner ngoài ca / vắng thì vào hàng chung hoặc giao agent theo cấu hình kênh.
+- **Doanh số:** báo giá / hợp đồng / đơn ghi `owner_user_id` **tại thời điểm tạo** (không đổi khi chuyển phụ trách sau đó). Hiệu suất và KPI tính theo trường này.
+- **Lead mới (P1):** chia thủ công / vòng tròn / theo kênh / theo tải.
+
 ## 9. Hợp đồng (P0 — D25)
 
 **Pháp lý:** bên bán tự soạn và ký, không cần đăng ký với cơ quan nhà nước. Các ngành của khách AppChat không thuộc 8 ngành phải đăng ký hợp đồng mẫu theo QĐ 07/2024/QĐ-TTg. Hợp đồng điện tử có giá trị như văn bản (Luật GDĐT 2023). Ký điện tử đơn giản (OTP + ký tay trên màn hình) hợp lệ khi hai bên thoả thuận dùng; ký số CA là tuỳ chọn nâng cao.
@@ -179,7 +203,8 @@ signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
 - **Loại:** Dịch vụ / Mua bán / Nguyên tắc.
 - **Trường** (form prototype L8408): mã HĐ (tự sinh `HĐ-…`), số hợp đồng, khách hàng, báo giá liên quan, ngày ký, ngày bắt đầu, ngày kết thúc, giá trị, loại, người phụ trách, file hợp đồng, ghi chú.
 - **Nội dung:**
-  - (a) Sinh từ **mẫu theo loại**: mỗi loại có một mẫu rich-text với biến `{{customer.name}}`, `{{business.legal_name}}`, `{{quote.items}}`, `{{contract.value}}`, `{{contract.start}}`… Mẫu mặc định do AppChat cung cấp; Owner sửa trong Cài đặt → "Mẫu hợp đồng". Render ra PDF.
+  - (a) Sinh từ **mẫu theo loại**: mỗi loại có một mẫu rich-text với biến `{{customer.name}}`, `{{business.legal_name}}`, `{{quote.items}}`, `{{contract.value}}`, `{{contract.start}}`… Mẫu mặc định do AppChat cung cấp; Owner sửa trong Cài đặt → "Mẫu chứng từ". Render ra PDF.
+  - (a2) **Mẫu DOCX của DN** + AI soạn từ nội dung (D30, §12).
   - (b) **Tải lên PDF có sẵn.**
 - **Ký điện tử của AppChat (C1):**
   1. Owner bấm "Duyệt & ký": xác nhận OTP (email) và ký tay trên màn hình. Chữ ký được chèn vào PDF.
@@ -202,6 +227,17 @@ signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
 - **Chấm dứt:** chỉ Owner, bắt buộc lý do, ghi timeline. Không ảnh hưởng tới các đơn đã sinh.
 - **Giai đoạn khách:** thêm giai đoạn **"Hợp đồng"** giữa "Báo giá" và "Đã mua". Hợp đồng `pending_signature` hoặc `signed` thì chuyển sang "Hợp đồng" nếu khách đang ở giai đoạn thấp hơn (§8).
 - **Hồ sơ 360°:** hiển thị các hợp đồng của khách, giá trị đang hiệu lực, ngày hết hạn gần nhất.
+
+## 12. Mẫu chứng từ & AI soạn (D30)
+
+- **Không đổi luật:** tính tiền (§3), hiệu lực 15 ngày, ngưỡng duyệt, đề nghị thanh toán "không thay thế hoá đơn GTGT" (§5), duyệt + ký hợp đồng (§9), tích điểm (§7).
+- **Mẫu:** `doc_template(kind = quote | contract | payment_request | receipt)`, nguồn `rich` (soạn trong app) hoặc `docx` (DN tải lên, AI nhận diện biến, người xác nhận). Có version; chứng từ ghi version đã dùng.
+- **AI soạn từ nội dung** (ghi chú, đoạn chat, brief, câu lệnh):
+  - Báo giá: khớp dòng với catalog, giá lấy từ catalog; dòng ngoài danh mục hoặc giảm > 5% thì buộc duyệt.
+  - Hợp đồng: điền biến; điều khoản mẫu giữ nguyên văn; điều khoản AI đề xuất nằm trong khối tô nổi, phải Giữ / Bỏ hết trước khi trình duyệt.
+  - AI chỉ tạo nháp.
+- **Bảng kiểm** (cảnh báo, không chặn): hợp đồng theo Điều 398 BLDS 2015; báo giá có thông tin bên bán + MST + hiệu lực + VAT; đề nghị thanh toán / phiếu thu luôn có dòng "không thay thế hoá đơn GTGT" (không xoá được).
+- Chi tiết kỹ thuật: `standards/documents/templates.md`.
 
 ## 10. Thu phí nền tảng (Domain L — bổ sung)
 
