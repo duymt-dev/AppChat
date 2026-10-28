@@ -50,6 +50,7 @@ const orders = { ac_module: 'orders' };
 const invoices = { ac_module: 'invoices' };
 const calendar = { ac_module: 'calendar' };
 const tickets = { ac_module: 'tickets' };
+const marketing = { ac_module: 'marketing' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -991,5 +992,68 @@ export const MANIFEST: ParityEntry[] = [
         reason: 'Tạo / Cập nhật tính từ created_at / updated_at (prototype hard-code "5 phút trước · vừa xong")',
       },
     ],
+  },
+  {
+    id: 'marketing:campaigns',
+    route: '/marketing',
+    protoStorage: marketing,
+    appWait: '[data-campaign]',
+    mask: [
+      {
+        x: 80,
+        y: 0,
+        width: 1360,
+        height: 56,
+        reason: 'phụ đề kênh: Zalo cá nhân + Email (prototype-parity §6 Kênh — bỏ ZBS / ZNS / SMS)',
+      },
+    ],
+  },
+  {
+    id: 'marketing:suggestions',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: async (p) => {
+      await p.getByText('AI phân tích dữ liệu khách hàng', { exact: true }).first().click();
+      await p.getByText('Tái kích hoạt khách hàng cũ', { exact: true }).first().waitFor({ timeout: 8000 });
+    },
+    app: async (p) => {
+      await p.locator('[data-testid="mk-analyze"]').click();
+      await p.locator('[data-suggestion]').first().waitFor({ timeout: 8000 });
+    },
+    appWait: '[data-campaign]',
+  },
+  {
+    id: 'marketing:wizard',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: (p) => p.getByText('Tạo chiến dịch thủ công', { exact: true }).first().click(),
+    app: (p) => p.locator('[data-testid="mk-create"]').click(),
+    appWait: '[data-campaign]',
+    mask: [
+      {
+        x: 174,
+        y: 360,
+        width: 1092,
+        height: 260,
+        reason: 'bước Kênh gửi: 2 kênh Zalo cá nhân + Email, chọn 1 (prototype-parity §6 Kênh — bỏ ZNS / OA / SMS / FB / WhatsApp)',
+      },
+    ],
+  },
+  {
+    id: 'marketing:analytics',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: (p) => p.getByText('Flash Sale 20/04 — ZNS', { exact: true }).first().click(),
+    app: (p) => p.locator('[data-campaign="cp_2101"]').click(),
+    appWait: '[data-campaign]',
+  },
+  {
+    id: 'marketing:ai',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: (p) => p.locator('[title="Trợ lý AI · Marketing"]').first().click(),
+    app: (p) => p.locator('[data-testid="mk-ai-open"]').click(),
+    appWait: '[data-campaign]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
 ];

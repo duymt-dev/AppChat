@@ -409,6 +409,9 @@
     },
     "delete": {
       "title": "Xoá chiến dịch"
+    },
+    "update": {
+      "title": "Sửa chiến dịch"
     }
   },
   "loyalty": {

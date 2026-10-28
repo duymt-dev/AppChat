@@ -409,6 +409,9 @@
     },
     "delete": {
       "title": "Delete campaign"
+    },
+    "update": {
+      "title": "Edit campaign"
     }
   },
   "loyalty": {

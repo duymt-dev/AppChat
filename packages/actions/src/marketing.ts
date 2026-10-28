@@ -7,6 +7,11 @@ import { defineAction } from './define';
 const campaignId = z.string().min(1);
 const channel = z.enum(['zalo', 'email']);
 const out = z.object({ campaign_id: z.string(), status: z.string() });
+const content = z.object({
+  subject: z.string().max(200).optional(),
+  text: z.string().trim().min(1).max(4000),
+  cta: z.string().max(120).optional(),
+});
 const opened = (o: { campaign_id: string }) => ({
   type: 'open' as const,
   entity: 'campaign',
@@ -50,12 +55,14 @@ export const campaignCreate = defineAction({
     name: z.string().trim().min(1).max(160),
     kind: z.enum(['reactivation', 'upsell', 'conversion', 'aftercare', 'manual']).optional(),
     channel,
-    segment_ids: z.array(z.string()).min(1),
-    content: z.object({ subject: z.string().max(200).optional(), text: z.string().trim().min(1).max(4000), cta: z.string().max(120).optional() }),
+    segment_ids: z.array(z.string()).optional(),
+    contact_ids: z.array(z.string()).optional(),
+    content,
     ab: z.object({ text_b: z.string().max(4000) }).optional(),
+    send: z.enum(['now', 'schedule', 'ai_time']).optional(),
     scheduled_at: z.string().optional(),
     suggestion_id: z.string().optional(),
-  }),
+  }).refine((v) => (v.segment_ids?.length ?? 0) + (v.contact_ids?.length ?? 0) > 0, { message: 'audience', path: ['contact_ids'] }),
   output: z.object({ campaign_id: z.string(), code: z.string(), est_recipients: z.number(), est_credits: z.number() }),
   permission: 'campaign.manage',
   risk: 'write',
@@ -63,6 +70,24 @@ export const campaignCreate = defineAction({
   undo: { windowSec: 86_400 },
   invalidates: ['marketing'],
   uiTarget: opened,
+});
+
+export const campaignUpdate = defineAction({
+  id: 'campaign.update',
+  module: 'marketing',
+  title: 'actions.campaign.update.title',
+  description: 'Edit a draft or rejected campaign (name, content, schedule). Example: {"campaign_id":"cp_2","name":"Ra mắt BST Hè","content":{"text":"…"}}',
+  input: z.object({
+    campaign_id: campaignId,
+    name: z.string().trim().min(1).max(160).optional(),
+    content: content.optional(),
+    scheduled_at: z.string().optional(),
+  }),
+  output: out,
+  permission: 'campaign.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['marketing'],
 });
 
 export const campaignSubmit = defineAction({

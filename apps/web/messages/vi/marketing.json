@@ -1,0 +1,368 @@
+{
+  "title": "Marketing",
+  "sub": "Gửi chiến dịch đa kênh · Zalo cá nhân · Email Marketing",
+  "analyze": "AI phân tích dữ liệu khách hàng",
+  "create": "Tạo chiến dịch thủ công",
+  "aiBtn": "Trợ lý AI · Marketing",
+  "chan": {
+    "all": "Tất cả",
+    "email": "Email",
+    "zalo": "Zalo cá nhân",
+    "auto": "Automation"
+  },
+  "chanLabel": {
+    "zalo": "Zalo cá nhân",
+    "email": "Email Marketing"
+  },
+  "hero": {
+    "email": {
+      "title": "Email Marketing",
+      "desc": "Soạn email, A/B subject line, lịch gửi & báo cáo mở/click."
+    },
+    "zalo": {
+      "title": "Zalo cá nhân",
+      "desc": "Gửi tin hàng loạt từ tài khoản Zalo cá nhân — phân khúc, lịch gửi, giới hạn mỗi ngày, theo dõi đã xem."
+    },
+    "auto": {
+      "title": "Automation Flows",
+      "desc": "Kịch bản tự động đa bước theo hành vi — trigger, chờ, rẽ nhánh, gửi."
+    },
+    "compose": "Soạn chiến dịch {name}",
+    "flow": "Tạo automation flow",
+    "ab": "A/B Testing",
+    "abCount": "{n} thử nghiệm",
+    "varA": "Biến thể A",
+    "varB": "Biến thể B",
+    "upcoming": "Lịch gửi sắp tới"
+  },
+  "kpi": {
+    "running": "Chiến dịch đang chạy",
+    "sent": "Tin đã gửi",
+    "open": "Tỷ lệ mở",
+    "click": "Tỷ lệ click",
+    "trend": "↑ {v} so với tháng trước"
+  },
+  "status": {
+    "all": "Tất cả",
+    "draft": "Nháp",
+    "pending_approval": "Chờ duyệt",
+    "scheduled": "Hẹn giờ",
+    "running": "Đang chạy",
+    "paused": "Tạm dừng",
+    "completed": "Hoàn thành",
+    "rejected": "Từ chối",
+    "cancelled": "Đã hủy"
+  },
+  "search": "Tìm kiếm chiến dịch…",
+  "sort": "Sắp xếp: Mới nhất",
+  "col": {
+    "name": "Chiến dịch",
+    "channel": "Kênh",
+    "status": "Trạng thái",
+    "time": "Thời gian",
+    "perf": "Hiệu suất",
+    "ai": "AI gợi ý",
+    "act": "Thao tác"
+  },
+  "badge": {
+    "ai": "AI",
+    "manual": "Manual"
+  },
+  "perf": {
+    "sent": "Đã gửi",
+    "open": "Mở",
+    "click": "Click",
+    "none": "Chưa gửi",
+    "dash": "—"
+  },
+  "timeLine": "{date} · 08:00",
+  "endLine": "→ {end}",
+  "hint": {
+    "0": "Nên chăm sóc lại — 18 ngày chưa liên hệ",
+    "1": "Gửi ưu đãi giữ chân khách",
+    "2": "Nhắc thanh toán / theo dõi đơn",
+    "3": "Đề xuất upsell combo phù hợp",
+    "4": "Phản hồi gấp theo SLA",
+    "5": "Đặt lịch follow-up tuần này"
+  },
+  "aiDo": "Giao AI Agent xử lý ngay",
+  "aiDoing": "AI Agent đang xử lý: tối ưu tiêu đề & giờ gửi chiến dịch",
+  "aiPeek": "Xem gợi ý AI",
+  "peekTitle": "Chiến dịch · AI gợi ý",
+  "peek": [
+    "Tỷ lệ mở thấp hơn TB — đổi tiêu đề & giờ gửi (19–21h).",
+    "Phân khúc khách ngủ đông 90 ngày — tách nhánh win-back.",
+    "Kênh tối ưu: Zalo cá nhân cho nhóm này (miễn phí, mở cao).",
+    "A/B test 2 nội dung để tăng CTR ~12%."
+  ],
+  "menu": {
+    "open": "Thao tác",
+    "view": "Xem chi tiết",
+    "submit": "Gửi duyệt",
+    "approve": "Duyệt & gửi",
+    "reject": "Từ chối",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "cancel": "Huỷ chiến dịch",
+    "delete": "Xoá chiến dịch"
+  },
+  "rejectReason": "Nội dung chưa phù hợp — cần chỉnh lại",
+  "foot": "Hiển thị <b>1 - {n}</b> của {n} chiến dịch",
+  "empty": "Không có chiến dịch phù hợp",
+  "an": {
+    "title": "AI phân tích dữ liệu khách hàng",
+    "subLoading": "Đang đọc hồ sơ, hành vi mua và lịch sử tương tác…",
+    "subList": "{n} cơ hội Marketing được phát hiện",
+    "subDetail": "Chi tiết đề xuất · kiểm tra trước khi tạo chiến dịch",
+    "loading": "AI đang phân tích dữ liệu khách hàng và tìm kiếm các cơ hội Marketing phù hợp…",
+    "intro": "AI đã phân tích <b>4.280 khách hàng</b> trên 12 nhóm tín hiệu và phát hiện <b>{n} cơ hội Marketing</b>. Mỗi đề xuất nêu rõ nên làm gì, gửi cho ai, vì sao, bằng kênh nào và vào thời điểm nào.",
+    "col": {
+      "priority": "Ưu tiên",
+      "name": "Chiến dịch AI đề xuất",
+      "segment": "Nhóm khách hàng",
+      "count": "Số lượng",
+      "reason": "Lý do đề xuất",
+      "channel": "Kênh",
+      "when": "Thời điểm"
+    },
+    "priority": {
+      "high": "Cao",
+      "medium": "Trung bình"
+    },
+    "rerun": "Yêu cầu AI phân tích lại",
+    "pickHint": "Chọn một đề xuất để xem chi tiết",
+    "used": "Đã tạo",
+    "back": "← Quay lại danh sách đề xuất",
+    "pitch": "Đề xuất của AI",
+    "info": "Thông tin đề xuất",
+    "k": {
+      "type": "Loại chiến dịch",
+      "audience": "Đối tượng",
+      "count": "Số lượng",
+      "channel": "Kênh phù hợp",
+      "time": "Thời điểm",
+      "message": "Thông điệp",
+      "priority": "Mức độ ưu tiên"
+    },
+    "countV": "{n} khách hàng",
+    "forecast": "Dự báo tỷ lệ phản hồi",
+    "signals": "Tín hiệu AI dùng để đề xuất",
+    "createFrom": "Tạo chiến dịch từ đề xuất",
+    "viewList": "Xem danh sách khách hàng",
+    "adjust": "Điều chỉnh điều kiện lọc",
+    "exclude": "Loại bỏ khách hàng",
+    "close": "Đóng",
+    "and": " và "
+  },
+  "wiz": {
+    "titleNew": "Tạo chiến dịch Broadcast",
+    "titleAi": "Chiến dịch từ đề xuất AI",
+    "sub": "Gửi tin tới khách hàng qua Zalo cá nhân hoặc Email — chọn từ phân khúc có sẵn hoặc danh sách đã lưu.",
+    "close": "Đóng",
+    "steps": [
+      "Kênh gửi",
+      "Người nhận",
+      "Nội dung",
+      "Lên lịch & gửi"
+    ],
+    "aiBox": "AI đã điền sẵn từ đề xuất — kiểm tra & phê duyệt",
+    "aiK": {
+      "name": "Tên chiến dịch",
+      "type": "Loại chiến dịch",
+      "segment": "Nhóm khách hàng nhận",
+      "exclude": "Danh sách loại trừ",
+      "channel": "Kênh gửi",
+      "time": "Ngày giờ gửi",
+      "subject": "Tiêu đề",
+      "body": "Nội dung chính",
+      "cta": "CTA"
+    },
+    "excludeV": "Khách đã huỷ nhận tin · số không hợp lệ",
+    "s1": "Chọn kênh gửi",
+    "s1sub": "Mỗi chiến dịch gửi qua một kênh — Zalo cá nhân gửi theo lô có giới hạn mỗi ngày, Email gửi tới khách có email.",
+    "ch": {
+      "zalo": {
+        "name": "Zalo cá nhân",
+        "desc": "Tin tới khách đã kết bạn / đã chat · gửi theo lô, tối đa 200 tin / ngày",
+        "cost": "Miễn phí"
+      },
+      "email": {
+        "name": "Email",
+        "desc": "HTML · 18,400 contacts có email",
+        "cost": "1 credit / 100 email"
+      }
+    },
+    "s2": "Chọn người nhận",
+    "s2sub": "Lọc theo nhóm đối tượng, tìm kiếm, hoặc upload Excel — tích chọn khách rồi tiếp tục soạn nội dung.",
+    "custSearch": "Tìm khách hàng theo tên hoặc số điện thoại…",
+    "upload": "Upload Excel",
+    "uploadDone": "Đã nhập 1.248 liên hệ từ file Excel",
+    "uploadFile": "danh-sach-khach.xlsx",
+    "uploadSum": "Đã nhập 1.248 liên hệ · 1.180 hợp lệ · 68 trùng bỏ qua",
+    "unload": "Gỡ",
+    "groupAll": "Tất cả",
+    "selectAll": "Chọn tất cả",
+    "showing": "Hiển thị danh sách tất cả khách hàng · {n}",
+    "cCol": {
+      "name": "Tên khách hàng",
+      "phone": "Số điện thoại",
+      "email": "Email",
+      "meta": "Phân loại",
+      "group": "Nhóm"
+    },
+    "grp": {
+      "vip": "VIP",
+      "returning": "Quay lại",
+      "cart": "Bỏ giỏ",
+      "new": "Mới",
+      "cold": "Inactive"
+    },
+    "noCust": "Không tìm thấy khách hàng phù hợp.",
+    "picked": "Đã chọn {n} khách hàng",
+    "pickedSub": "Tiếp tục để soạn nội dung tin nhắn bằng AI hoặc trình soạn thảo",
+    "toContent": "Tiếp tục soạn nội dung",
+    "s3": "Nội dung tin nhắn",
+    "s3sub": "Dùng biến cá nhân hoá {Tên}, {Link}. AI có thể soạn giúp theo từng giọng điệu.",
+    "name": "Tên chiến dịch",
+    "namePh": "VD: Flash Sale Hè 2026 — Khách Vàng",
+    "subject": "Tiêu đề email",
+    "aiCompose": "AI soạn nội dung",
+    "aiComposeSub": "— chọn giọng điệu để AI viết",
+    "tones": {
+      "friendly": "Thân thiện",
+      "luxury": "Sang trọng",
+      "urgent": "Khẩn cấp"
+    },
+    "toneText": {
+      "friendly": "Chào anh/chị {Tên}! 🌸 Spa đang có ưu đãi 30% cho liệu trình HIFU tới 23:59 hôm nay. Đặt lịch ngay nhé 👉 {Link}",
+      "luxury": "Kính gửi quý khách {Tên}, chúng tôi trân trọng dành tặng ưu đãi 30% cho liệu trình cao cấp. Đặt lịch tại {Link}.",
+      "urgent": "⚡ {Tên} ơi, CHỈ HÔM NAY! Giảm 30% toàn bộ liệu trình — số lượng có hạn. Nhận ưu đãi: {Link}"
+    },
+    "toneDone": "AI đã soạn nội dung · giọng {l}",
+    "body": "Nội dung",
+    "aiHelp": "AI soạn giúp",
+    "aiHelpText": "Chào anh/chị {Tên}! 🌸 Flash Sale 30% liệu trình HIFU tới 23:59 hôm nay. Đặt lịch ngay 👉 {Link}",
+    "defaultBody": "Chào anh/chị {Tên}! Flash Sale 30% áo polo cotton tới 23:59 hôm nay. Xem ngay 👉 {Link}",
+    "tools": {
+      "bold": "Đậm",
+      "italic": "Nghiêng",
+      "underline": "Gạch chân",
+      "ul": "Danh sách",
+      "ol": "Danh sách số"
+    },
+    "preview": "<b>Xem trước:</b> tin sẽ hiển thị với tên khách thật và link rút gọn theo dõi click.",
+    "s4": "Lên lịch & gửi",
+    "s4sub": "Gửi ngay, hẹn giờ, hoặc để AI chọn thời điểm tối ưu cho từng khách. Chiến dịch luôn qua bước duyệt trước khi gửi.",
+    "send": {
+      "now": "Gửi ngay",
+      "nowSub": "Bắt đầu gửi hàng loạt ngay sau khi duyệt",
+      "schedule": "Hẹn giờ",
+      "ai_time": "AI tối ưu thời điểm",
+      "aiSub": "Gửi cho mỗi khách vào giờ họ hay mở app nhất",
+      "rec": "Khuyên dùng"
+    },
+    "summary": "Tóm tắt chiến dịch",
+    "sumCh": "Kênh gửi",
+    "sumAud": "Người nhận",
+    "sumCredits": "Credit dự kiến",
+    "footSum": "<b>Tóm tắt:</b> {ch} · {n} người nhận",
+    "back": "← Quay lại",
+    "next": "Tiếp tục →",
+    "draft": "Lưu nháp",
+    "submit": "Gửi duyệt",
+    "errName": "Nhập tên chiến dịch",
+    "errAud": "Chọn ít nhất một nhóm hoặc một khách hàng",
+    "errBody": "Nhập nội dung tin nhắn",
+    "fromAi": "AI đã điền sẵn chiến dịch: {name}"
+  },
+  "detail": {
+    "back": "Quay lại",
+    "export": "Xuất danh sách",
+    "exporting": "Đang xuất danh sách người nhận…",
+    "resend": "Gửi lại người chưa đọc",
+    "resendDone": "Đã xếp lịch gửi lại cho khách chưa đọc",
+    "tab": {
+      "recipients": "Danh sách khách hàng",
+      "content": "Nội dung",
+      "history": "Lịch sử gửi"
+    },
+    "stat": {
+      "sent": "Đã gửi",
+      "read": "Đã đọc",
+      "click": "Đã click",
+      "conv": "Chuyển đổi",
+      "revenue": "Doanh thu"
+    },
+    "revenueV": "48.7M đ",
+    "roi": "ROI 4.8×",
+    "all": "100%",
+    "fStatus": "Trạng thái: Tất cả",
+    "fSeg": "Phân khúc: Tất cả",
+    "fTime": "Thời gian: Tất cả",
+    "rSearch": "Tìm kiếm SĐT, tên khách hàng…",
+    "adv": "Bộ lọc nâng cao",
+    "pills": {
+      "all": "Tất cả",
+      "delivered": "Đã gửi",
+      "opened": "Đã đọc",
+      "clicked": "Đã click",
+      "unread": "Chưa đọc",
+      "failed": "Chưa gửi"
+    },
+    "list": "Danh sách khách hàng",
+    "listN": "{n} khách hàng",
+    "rCol": {
+      "cust": "Khách hàng",
+      "phone": "SĐT",
+      "status": "Trạng thái",
+      "sent": "Thời gian gửi",
+      "read": "Thời gian đọc",
+      "click": "Thời gian click",
+      "act": "Thao tác"
+    },
+    "rst": {
+      "clicked": "Đã click",
+      "opened": "Đã đọc",
+      "delivered": "Đã gửi",
+      "failed": "Thất bại"
+    },
+    "view": "Xem",
+    "more": "Thêm",
+    "contentT": "Nội dung đã gửi",
+    "approved": "Đã duyệt nội dung",
+    "historyT": "Lịch sử gửi",
+    "ev": {
+      "created": "Chiến dịch được tạo",
+      "submitted": "Gửi duyệt nội dung",
+      "approved": "Được phê duyệt",
+      "started": "Bắt đầu gửi hàng loạt",
+      "rejected": "Bị từ chối",
+      "paused": "Tạm dừng gửi",
+      "resumed": "Tiếp tục gửi",
+      "cancelled": "Huỷ chiến dịch",
+      "edited": "Chỉnh sửa chiến dịch"
+    },
+    "notSent": "Chiến dịch chưa gửi — chưa có người nhận.",
+    "approvalBar": "Chiến dịch đang chờ duyệt · {n} người nhận",
+    "approve": "Duyệt & gửi",
+    "reject": "Từ chối",
+    "submit": "Gửi duyệt",
+    "sendTest": "Gửi thử",
+    "testDone": "Đã gửi thử tới {to}",
+    "rejected": "Đã bị từ chối: {reason}"
+  },
+  "aiPanel": {
+    "title": "Trợ lý AI · Marketing",
+    "sub": "Gợi ý & tạo chiến dịch theo dữ liệu khách hàng",
+    "close": "Đóng",
+    "hello": "Dựa trên dữ liệu tháng này, mình gợi ý 4 chiến dịch có tiềm năng cao. Chọn để mở wizard tạo nhanh.",
+    "go": "Tạo chiến dịch này",
+    "ph": "Hỏi trợ lý về chiến dịch…",
+    "send": "Gửi",
+    "full": "Mở Trợ lý AI đầy đủ →",
+    "ack": "Đã ghi nhận — Trợ lý sẽ trả lời trong dock đầy đủ."
+  },
+  "from": "Từ ngày",
+  "to": "Đến ngày",
+  "perPage": "{n} / trang"
+}

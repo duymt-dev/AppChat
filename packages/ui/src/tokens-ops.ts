@@ -19,6 +19,23 @@ export const opsColor = {
   emailGreen: '#1F8A4D',
   webDark: '#111827',
   tealDeep: '#0E9B7E',
+  mkCancelled: '#94A3B8',
+  mkOpen: '#E8843C',
+  mkClick: '#E0556B',
+  mkAiTag: '#F3EFFE',
+  mkHeroLine: '#ECEEF0',
+  mkKpiLine: '#EEF1F4',
+  mkInfoKey: '#8A9096',
+  mkAiKey: '#4E8567',
+  mkPreview: '#F0F7FF',
+  mkCheckLine: '#D5D9DE',
+  mkClickBg: '#E7F7EE',
+  mkBrandSoft: 'rgba(45,197,106,.04)',
+  mkBrandSoft2: 'rgba(45,197,106,.06)',
+  mkInfoSoft: 'rgba(43,158,243,.08)',
+  mkGlass: 'rgba(255,255,255,.14)',
+  mkGlass3: 'rgba(255,255,255,.3)',
+  mkWhite60: 'rgba(255,255,255,.6)',
 } as const;
 
 export const opsGradient = {

@@ -8,3 +8,4 @@ Dữ liệu mẫu trích **nguyên văn** từ prototype `coding-packs/docs/06-p
 | `auth.json` | auth + onboarding: email mẫu L501, tra MST L11778 (doLookup), thẻ brand L620–626, số liệu L628–630 |
 | `calendar.json` | Lịch hẹn bkGroups / bkMonthCells L11096–11160 — sinh bởi `tools/scripts/fixtures/gen-calendar.py` (ngoại lệ ghi đầu script) |
 | `tickets.json` | Ticket TKDATA L8690–8705, tkdMacros / tkAiSuggests L9171–9187 — sinh bởi `tools/scripts/fixtures/gen-tickets.py` |
+| `marketing.json` | Chiến dịch CAMP L8730–8764 (kênh → Zalo cá nhân / Email), A/B · lịch gửi L8782–8783, đề xuất AI L9041–9093, khách wizard L8983–9023, người nhận L9025–9039 — sinh bởi `tools/scripts/fixtures/gen-marketing.py` |
