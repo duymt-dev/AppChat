@@ -176,6 +176,27 @@ PostgreSQL 16 cluster (native)  ── PgBouncer (transaction mode, :6432) ─�
 3. **Xoá workspace:** `db_status=deleting` → `pg_dump` lưu archive (giữ 30 ngày) → `DROP DATABASE` → xoá registry.
 4. **Chuyển máy chủ:** `db_host` cho phép đặt workspace ở cluster khác. Chuyển bằng `pg_dump | pg_restore` khi `db_status=suspended`; không phải sửa code.
 
+5. **Tự lưu trữ workspace không hoạt động** (chốt 2026-10-28 — RRI D23):
+   - **Áp dụng:** chỉ gói có `plan.archive_inactive_days` khác null. Seed: gói **Miễn phí = 90 ngày**; trial và mọi gói trả phí = null (không bao giờ tự lưu trữ). Đổi được trong trang quản trị gói.
+   - **"Hoạt động"** = `workspace_stats.last_active_at`, lấy max của các mốc: thành viên đăng nhập, tin nhắn vào/ra, action bất kỳ.
+   - **Job đêm `tenant.archive-scan`:**
+     - Còn 14 ngày tới ngưỡng thì gửi email + thông báo cho Owner: "Workspace sẽ được lưu trữ vào ngày …, đăng nhập để giữ hoạt động".
+     - Tới ngưỡng thì chạy `tenant.archive`.
+   - **`tenant.archive`** (`appchat_provisioner`):
+     1. `db_status=archiving`.
+     2. Ngắt kênh: worker nhả lease Zalo, ngừng IMAP, widget hiển thị "tạm ngoại tuyến".
+     3. `pg_dump -Fc` → kho lưu trữ (`Storage` archive bucket, mã hoá) → kiểm checksum và restore thử danh mục (`pg_restore -l`).
+     4. `DROP DATABASE`.
+     5. `db_status=archived`, `archived_at`, `archive_key`.
+     - Bước nào lỗi thì giữ nguyên DB, đặt `db_status=active` và cảnh báo.
+   - **Khôi phục khi đăng nhập:** member mở workspace `archived`.
+     - UI hiện "Đang khôi phục workspace…" và nghe event `workspace.ready`.
+     - Job `tenant.restore`: `CREATE DATABASE` rỗng → `pg_restore` → chạy `tenant-migrate` lên version hiện tại → `db_status=active`.
+     - Kênh cần kết nối lại: Zalo phải quét QR lại nếu phiên đã hết hạn.
+     - Mục tiêu < 2 phút với workspace gói Miễn phí.
+   - **Bản lưu trữ:** giữ cho tới khi Owner yêu cầu xoá (action `workspace.delete`) hoặc quản trị nền tảng xoá. Không tự xoá vĩnh viễn.
+   - **Action:** `admin.workspace.archive` / `admin.workspace.restore` (platform_admin, risk config, luôn preview). Owner không tự lưu trữ; Owner chỉ có `workspace.delete`.
+
 **Định tuyến không qua `X-Workspace-Id`:**
 - Tin Zalo / IMAP: `worker-channels` đọc `tenant_channel_route(channel_account_id, workspace_id, type, status)` từ DB nền tảng để biết account nào cần giữ phiên và thuộc DB nào.
 - Widget: `tenant_widget_route(public_key → workspace_id)`.
@@ -231,7 +252,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `user` | id, email citext, password_hash?, name, phone?, avatar_url?, locale, is_platform_admin bool, email_verified_at, last_login_at | unique(email) |
 | `otp_code` | id, email, purpose(register\|login\|reset), code_hash, attempts, expires_at, consumed_at | idx(email, purpose, created_at desc) |
 | `refresh_token` | id, user_id→user, token_hash, family_id, expires_at, revoked_at, user_agent, ip | unique(token_hash); idx(user_id) |
-| `workspace` | id, name, slug, owner_user_id→user, timezone, locale, status(active\|suspended), settings jsonb (giờ mở cửa, giờ trực AI, ngưỡng mặc định) | **registry tenant**: thêm `db_name`, `db_host`, `db_status(provisioning\|active\|suspended\|archived\|deleting)`, `schema_version`, `provisioned_at` |
+| `workspace` | id, name, slug, owner_user_id→user, timezone, locale, status(active\|suspended), settings jsonb (giờ mở cửa, giờ trực AI, ngưỡng mặc định) | **registry tenant**: thêm `db_name`, `db_host`, `db_status(provisioning\|active\|suspended\|archiving\|archived\|restoring\|deleting)`, `archived_at?`, `archive_key?`, `schema_version`, `provisioned_at` |
 | `membership` | ws, user_id, role(owner\|member), status(active\|invited\|removed), joined_at | unique(ws, user_id); idx(user_id) INCLUDE(ws, role) |
 | `invite` | ws, email, role, token_hash, expires_at, accepted_at | unique(token_hash) |
 | `business_profile` | ws (pk), kind(enterprise\|household\|individual), tax_code?, national_id?, legal_name, address, representative, phone, founded_on?, legal_status?, industry_group, industry, business_description, declared_at | 1-1 workspace |
@@ -245,7 +266,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ghi chú |
 |---|---|---|
-| `plan` | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, active, sort | seed theo prototype; sửa được trong trang admin |
+| `plan` | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, archive_inactive_days? (Miễn phí = 90, còn lại null), active, sort | seed theo prototype; sửa được trong trang admin |
 | `subscription` | ws (unique), plan_id, status(trialing\|active\|expired\|cancelled), trial_started_at, trial_ends_at, current_period_start, current_period_end | |
 | `credit_wallet` | ws (pk), balance bigint, low_threshold, warn_80_sent_at, auto_topup jsonb | `balance >= 0` CHECK |
 | `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
@@ -622,6 +643,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn).
 - `admin.model_route.upsert`
 - `admin.invoice.confirm_transfer`: money.
 - `admin.workspace.suspend` / `admin.workspace.resume`
+- `admin.workspace.archive` / `admin.workspace.restore`: config, luôn preview (§2.0 bước 5)
 - `admin.agent_template.upsert`
 
 > Thêm tính năng sau này = thêm action vào danh mục này (REQ-N13). Không có thao tác ghi nào nằm ngoài Registry.
@@ -1052,7 +1074,7 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 | K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; thiết kế sẵn chỗ cho Zalo OA (P2) |
 | K3 | DB-per-tenant: số kết nối, RAM của Prisma Client mỗi DB, autovacuum trên nhiều DB | PgBouncer transaction mode bắt buộc; driver adapter `@prisma/adapter-pg` pool nhỏ; LRU client; đo RAM/latency với 200 DB giả lập. Đo p95 ở TIP-002 |
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |
-| K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace miễn phí không hoạt động lâu có thể archive (dump + drop, khôi phục khi đăng nhập) — cần Chủ nhà chốt chính sách |
+| K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop, khôi phục khi đăng nhập — §2.0 bước 5, D23) |
 | K6 | Single VPS là điểm lỗi duy nhất | Backup offsite + restore thử hằng tuần; runbook dựng lại VPS < 1 giờ bằng `infra/scripts`; khi doanh thu cho phép thì thêm replica PG ở VPS thứ 2 |
 | K5 | Prisma multi-file schema và tên cờ preview đổi theo phiên bản | TIP-001 chốt phiên bản Prisma/Next/Nest ổn định mới nhất, ghi lại vào `product/tech-stack.md` |
 
@@ -1162,7 +1184,7 @@ infra/
 | Thanh toán | webhook ngân hàng lỗi chữ ký / không khớp hoá đơn |
 | Hạ tầng | disk > 80%, RAM > 90%, PG kết nối > 80% max, Redis evictions > 0 |
 | Backup | bản full/diff mới nhất > 26 giờ, WAL archive lỗi, `backup-verify` thất bại |
-| Tenant DB | `tenant.provision` lỗi / > 60 giây; `tenant-migrate` có DB `failed`; PgBouncer client chờ > 0 trong 2 phút |
+| Tenant DB | `tenant.provision` lỗi / > 60 giây; `tenant.archive` / `tenant.restore` lỗi hoặc restore > 5 phút; `tenant-migrate` có DB `failed`; PgBouncer client chờ > 0 trong 2 phút |
 | Uptime / TLS | HTTPS down > 2 phút; chứng chỉ còn < 14 ngày |
 
 ### 11.5 Bảo mật VPS

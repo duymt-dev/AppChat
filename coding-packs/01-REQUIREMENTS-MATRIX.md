@@ -38,6 +38,7 @@
 | REQ-A05 | RBAC đơn giản: **Owner + Member**. Owner có toàn quyền gồm billing; Member xử lý hội thoại và dữ liệu, không vào billing hay cài đặt hệ thống. Mời thành viên bằng email hoặc SĐT. | P0 | Chủ DN | TBD |
 | REQ-A06 | Trial 15 ngày gói Cá nhân Pro, kèm 10.000 credit; có màn chào mừng (2 nút) và badge "Còn X ngày". Hết hạn thì hạ về gói Miễn phí; thông báo đóng được; dữ liệu giữ nguyên. | P0 | Chủ DN | TBD |
 | REQ-A07 | Audit log cho mọi hành động quản trị, của người và của AI. | P1 | — | TBD |
+| REQ-A09 | **Tự lưu trữ workspace gói Miễn phí không hoạt động 90 ngày** (ngưỡng cấu hình theo gói): báo trước 14 ngày; lưu trữ = dump DB + drop; đăng nhập lại thì tự khôi phục (< 2 phút), dữ liệu giữ nguyên. Trial và gói trả phí không bao giờ bị lưu trữ. Bản lưu trữ không tự xoá. | P1 | Chủ DN / Platform admin | TBD |
 | REQ-A08 | Đăng nhập social (Google / Facebook…). | P2 | Chủ DN | TBD |
 
 ### Domain B — Kênh (Channel Gateway)
@@ -236,6 +237,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D19 | Module Báo cáo | giữ 6 trang / bỏ | **Bỏ khỏi phạm vi.** Số liệu chỉ hiện ở Tổng quan, Hiệu suất agent (REQ-D14), thống kê chiến dịch (REQ-I05), KPI Ticket (REQ-H04) và truy vấn qua Trợ lý AI (REQ-E07) | Chủ nhà chốt 2026-10-28: không có trong prototype hiện hành và docs mới |
 | D20 | Hạ tầng production | cloud managed / Docker / native VPS | **Native trên VPS Linux** (systemd + PM2, nginx, PG16, Redis), monitoring **Prometheus + Grafana + Loki** trên VPS riêng, backup pgBackRest offsite | Chủ nhà chốt 2026-10-28 |
 | D21 | Mô hình tenant | shared DB + RLS / schema riêng / **database riêng** | **Mỗi workspace một database riêng (`CREATE DATABASE`) + DB nền tảng**; ví credit và hoá đơn gói ở DB nền tảng | Chủ nhà chốt 2026-10-28 |
+| D23 | Workspace không hoạt động | giữ DB mãi / tự lưu trữ | **Tự lưu trữ gói Miễn phí sau 90 ngày không hoạt động** (dump + drop, khôi phục khi đăng nhập; trả phí/trial không áp dụng; bản lưu trữ không tự xoá) | Chủ nhà đồng ý 2026-10-28; giảm số DB trên cluster (rủi ro K7) |
 | D22 | i18n khi phát hành | vi + en / đủ 11 ngôn ngữ | **vi + en**, registry 11 ngôn ngữ để bật dần bằng file bản dịch | Chủ nhà chọn A 2026-10-28 |
 | D18 | UI kit & nền tảng hiển thị | Tailwind + shadcn / antd + antd-mobile / antd một codebase | **Ant Design v6 + Ant Design X, một codebase responsive desktop + mobile web; token theo prototype; parity < 5%** | Chủ nhà chốt 2026-10-28 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
