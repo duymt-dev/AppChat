@@ -208,7 +208,7 @@
 - **Ngưỡng AI:** tự xử khi tin cậy ≥ 70%; HITL với việc chạm tiền, gửi hàng loạt, hợp đồng; Trợ lý không thực thi khi chưa xác nhận.
 - **Platform:** desktop web trước; không native mobile; không SMS OTP.
 - **Design tokens:** Plus Jakarta Sans; primary #2DC56A (bộ token cuối cùng chốt ở Vision — R17).
-- **Prototype** (`specs/uploads/Platform AppChat`, bundle là bản mới nhất) là chuẩn UI và nhãn tiếng Việt.
+- **Prototype** (`docs/06-prototype/AppChat.dc.html` mới nhất; source JSX ở `docs/06-prototype/jsx-reference`) là chuẩn UI và nhãn tiếng Việt.
 
 ## APPLICABLE STANDARDS (from coding-packs/standards/)
 

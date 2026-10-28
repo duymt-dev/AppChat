@@ -1,6 +1,6 @@
 # AppChat — Mission
 
-> Draft from specs — confirm/adjust. [SoT: SolutionDesign v1.1 §1-3; CHANGELOG 2026-08-26; uploads/Platform AppChat/CLAUDE.md]
+> Draft from specs — confirm/adjust. [SoT: SolutionDesign v1.1 §1-3; CHANGELOG 2026-08-26; docs/06-prototype/jsx-reference/CLAUDE.md]
 
 ## Vấn đề
 Doanh nghiệp dịch vụ nhỏ đang dùng rời rạc nhiều công cụ: một phần mềm chat, một CRM, một hệ thống marketing, một tổng đài, một helpdesk. Hệ quả:

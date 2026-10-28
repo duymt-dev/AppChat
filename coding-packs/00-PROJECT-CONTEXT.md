@@ -16,7 +16,7 @@
 - Dùng chữ "giải pháp" thay cho "nền tảng"; không dùng "OPC" đứng một mình trong tiêu đề. [SoT: CHANGELOG 2026-08-26; Document-Index]
 - **Khách mục tiêu:** doanh nghiệp dịch vụ có khách quay lại (Spa, Nha khoa, Phòng khám, Giáo dục, Gym, Ô tô, Du lịch, BĐS, Tài chính, F&B…).
 - **Không** phục vụ mô hình sàn TMĐT.
-- Taxonomy ngành 2 cấp (10 nhóm ngành) dùng cho onboarding, segment và template. [SoT: uploads/Platform AppChat/CLAUDE.md]
+- Taxonomy ngành 2 cấp (10 nhóm ngành) dùng cho onboarding, segment và template. [SoT: docs/06-prototype/jsx-reference/CLAUDE.md]
 - AI là hạ tầng vận hành, không phải tính năng bổ trợ. Có human-in-the-loop ở các điểm quyết định. [SoT: SolutionDesign §2, §7]
 
 ---
@@ -25,7 +25,7 @@
 
 ### TECH_STACK
 
-**Hiện trạng repo:** chỉ có `specs/` (tài liệu), chưa có `package.json`, chưa có app.
+**Hiện trạng repo:** chỉ có tài liệu (`coding-packs/docs/` kỹ thuật, `specs/` phi kỹ thuật), chưa có `package.json`, chưa có app.
 
 **Stack mục tiêu** (Chủ nhà chốt Next + Nest; các lớp khác lấy từ CTO Architecture v4.2 §09):
 
@@ -132,7 +132,7 @@ Chưa có component code. Các khối dựng một lần rồi dùng chung toàn
 - **Phản hồi:** Modal, Toast, Badge, **SLA countdown** (3 màu).
 - **Overlay:** Popover, Drawer, **Panel 360°**.
 - **Builder:** Workflow canvas (node-based), Rule builder KHI·NẾU·THÌ (Loyalty), Campaign wizard.
-- **Prototype tham chiếu UI:** `specs/uploads/Platform AppChat/components/*.jsx` (~43k LoC) và `AppChat Ultimate.html`. Chỉ dùng để tham chiếu giao diện, không port nguyên code. Chi tiết ở mục *Prototype* bên dưới.
+- **Prototype tham chiếu UI:** `docs/06-prototype/jsx-reference/components/*.jsx` (~43k LoC) và `AppChat Ultimate.html`. Chỉ dùng để tham chiếu giao diện, không port nguyên code. Chi tiết ở mục *Prototype* bên dưới.
 
 ### GAPS_DETECTED
 
@@ -181,7 +181,7 @@ Chưa có code. Chuẩn kỹ thuật đã định sẵn [SoT: CTO §18 + CLAUDE.
 
 ## Prototype (UI reference)
 
-- **Vị trí:** `specs/uploads/Platform AppChat/` gồm `AppChat Ultimate.html`, `components/*.jsx` (45 file, ~43k LoC), `styles.css`.
+- **Vị trí:** prototype mới nhất là `docs/06-prototype/AppChat.dc.html`. Source JSX đọc được ở `docs/06-prototype/jsx-reference/` gồm `AppChat Ultimate.html`, `components/*.jsx` (45 file, ~43k LoC), `styles.css`.
 - **Bản offline:** `AppChat (standalone).html`, `AppChat.dc.html`.
 - **Quy ước của prototype:** sửa trong `components/*.jsx`, bump `?v=`, build standalone. Toàn bộ UI mặc định tiếng Việt.
 - **Dùng làm gì:** nguồn chân lý về **bố cục, nhãn tiếng Việt, luồng UI và mock data shape**.
@@ -297,12 +297,12 @@ Footer: avatar (đổi workspace) · Cài đặt · Thông báo · Trợ giúp.
 
 Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ thể thắng cũ và tổng quát):
 
-1. **`specs/CHANGELOG.md`** (07/2026 → 27/10/2026): quyết định nghiệp vụ mới nhất.
+1. **`docs/CHANGELOG.md`** (07/2026 → 27/10/2026): quyết định nghiệp vụ mới nhất.
 2. **Spec module chi tiết (08/2026):**
    - Tickets-Spec, SLA-Spec, Appointments-Spec, Dashboard-Spec, Marketing-Spec, Agents-Workflow-Flow.
    - 5 Wireframe: Auth, Dashboard, Assistant, Inbox, Customers.
-3. **`uploads/Platform AppChat/AppChat BA - Software Requirements Spec v4.0`**: FR/NFR/BR, RBAC 7 vai trò.
-4. **`uploads/Platform AppChat/AppChat - Technical Architecture (CTO) v4.2 (master-full)`**: kiến trúc, ERD, events, API, DDL, NFR/SLO, RBAC 4 vai trò.
+3. **`docs/01-requirements/SRS-v4.0.html`**: FR/NFR/BR, RBAC 7 vai trò.
+4. **`docs/02-architecture/CTO-Architecture-v4.2.html`**: kiến trúc, ERD, events, API, DDL, NFR/SLO, RBAC 4 vai trò.
 5. **`UIUX-Architecture.dc.html` = `tổng quan.pdf`**: sơ đồ A1–G2, sitemap 17 module, cây component, ER.
 6. **`AppChat-SolutionDesign-v1.1.dc.html` (v2.7)**: menu, 40 trang Cài đặt, mô tả module.
 7. **`AppChat-SDD.dc.html` (v1.0)**: bản gốc, đã bị thay thế bởi các tài liệu trên.
