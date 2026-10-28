@@ -10,11 +10,11 @@ import { color, font, radius, shadow } from '@appchat/ui';
 import { apiMode } from '../api/transport';
 import { mockDb, setMockRole } from '../api/mock/store';
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, responsive }) => ({
   bar: css`
     position: fixed;
-    right: 12px;
-    bottom: 72px;
+    left: 96px;
+    bottom: 12px;
     z-index: 3000;
     display: flex;
     align-items: center;
@@ -26,6 +26,10 @@ const useStyles = createStyles(({ css }) => ({
     box-shadow: ${shadow.card};
     font-size: ${font.size.small}px;
     color: ${color.text3};
+    /* chỉ là công cụ mock: < md ẩn để không đè UI thật (đổi vai trò kiểm ở desktop) */
+    ${responsive.md} {
+      display: none;
+    }
   `,
 }));
 

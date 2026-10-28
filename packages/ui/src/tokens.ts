@@ -76,6 +76,21 @@ export const color = {
   aiChipLine: 'rgba(188,237,204,.5)',
   onbVeil: 'rgba(15,23,42,.55)',
   welcomeVeil: 'rgba(15,23,42,.62)',
+  // dashboard (prototype L1079–1177)
+  ink: '#151A17',
+  okText: '#2F7D4C',
+  warnAmber: '#E0A21C',
+  eyebrowMuted: '#B9BEC2',
+  pillText: '#4B5563',
+  dividerFaint: '#F1F3F4',
+  cyan: '#0891B2',
+  tabIdle: '#FAFBFB',
+  amberBg: '#FEF3C7',
+  amberText: '#B45309',
+  roseBg: '#FDECEC',
+  inkMuted: 'rgba(255,255,255,.62)',
+  whiteGlass: 'rgba(255,255,255,.25)',
+  whiteSoft: 'rgba(255,255,255,.9)',
 } as const;
 
 export const gradient = {
@@ -89,6 +104,8 @@ export const gradient = {
   authHeadline: 'linear-gradient(90deg,#fff,#BCEDCC)',
   authGlowTop: 'radial-gradient(circle,rgba(255,255,255,.12),transparent 70%)',
   authGlowBottom: 'radial-gradient(circle,rgba(43,158,243,.4),transparent 70%)',
+  brandSoft: 'linear-gradient(135deg,#2DC56A,#1F9C4F)',
+  brandBar: 'linear-gradient(90deg,#2DC56A,#1F9C4F)',
   trialHero: 'linear-gradient(135deg,#0F2A1C 0%,#157A40 58%,#2DC56A 100%)',
 } as const;
 
@@ -108,6 +125,9 @@ export const shadow = {
   welcomeCard: '0 34px 90px rgba(17,24,39,.4)',
   expiredCard: '0 34px 90px rgba(17,24,39,.44)',
   flagRing: '0 0 0 1px rgba(0,0,0,.08)',
+  cardSoft: '0 1px 2px rgba(17,24,39,.04)',
+  widget: '0 24px 60px rgba(15,23,20,.26)',
+  widgetPill: '0 12px 30px rgba(45,197,106,.4)',
 } as const;
 
 export const font = {
@@ -181,6 +201,8 @@ export const layout = {
   dockW: 392,
   mobileTabH: 60,
   touch: 44,
+  /** .chip / .btnp của prototype (L62–63): cao tối thiểu 36px, < md 44px. */
+  chip: 36,
   minShell: 1180,
 } as const;
 

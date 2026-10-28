@@ -20,5 +20,15 @@
     "update": {
       "title": "Cập nhật thông tin doanh nghiệp"
     }
+  },
+  "onboarding": {
+    "toggle_step": {
+      "title": "Cập nhật bước bắt đầu"
+    }
+  },
+  "follow_up": {
+    "complete": {
+      "title": "Đã follow khách"
+    }
   }
 }

@@ -1,5 +1,6 @@
 // Handler giả cho action (chạy trên store in-memory). Policy chung nằm ở mock-transport; ở đây chỉ có nghiệp vụ.
 import type { MockDb } from './store';
+import { dashboardHandlers } from './domains/dashboard';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -48,4 +49,5 @@ export const mockHandlers: Record<string, MockHandler> = {
       return { user_id: db.shell.me.user.id };
     },
   },
+  ...dashboardHandlers,
 };

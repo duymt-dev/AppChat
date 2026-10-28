@@ -20,5 +20,15 @@
     "update": {
       "title": "Update business profile"
     }
+  },
+  "onboarding": {
+    "toggle_step": {
+      "title": "Update getting-started step"
+    }
+  },
+  "follow_up": {
+    "complete": {
+      "title": "Follow-up done"
+    }
   }
 }

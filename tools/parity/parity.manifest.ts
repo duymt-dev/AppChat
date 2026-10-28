@@ -203,4 +203,28 @@ export const MANIFEST: ParityEntry[] = [
     protoStorage: { ac_trialdays: '0' },
     clipTo: ONB_CARD,
   },
+  // ── F2 · Tổng quan ──
+  {
+    // Tổng quan đang vận hành = checklist đã thu gọn (prototype obCollapsed, L1123)
+    id: 'dashboard:default',
+    route: '/dashboard',
+    protoStorage: dash,
+    proto: (p) => p.locator('.chip', { hasText: 'Thu gọn' }).first().click(),
+    app: (p) => p.getByRole('button', { name: 'Thu gọn' }).click(),
+  },
+  {
+    // Workspace mới = checklist "Bắt đầu với AppChat" mở, 0/5 (trạng thái mặc định của prototype L1089)
+    id: 'dashboard:new-workspace',
+    route: '/dashboard',
+    protoStorage: dash,
+  },
+  {
+    // L1139 = "Trung tâm cập nhật" (prototype không có bộ chọn widget riêng) — đo tab Thông báo + Tin tức trong khung
+    id: 'dashboard:widget-picker',
+    route: '/dashboard',
+    protoStorage: dash,
+    proto: (p) => p.locator('button', { hasText: 'Thông báo' }).last().click(),
+    app: (p) => p.getByTestId('updates-widget').getByRole('button', { name: /Thông báo/ }).click(),
+    clipTo: { proto: 'div[style*="width: 360px"][style*="position: fixed"]', app: '[data-testid="updates-widget"]' },
+  },
 ];

@@ -1,0 +1,60 @@
+{
+  "greeting": "Hi {name} 👋",
+  "greetingSub": "An overview of conversations, AI conversions and everything running today.",
+  "askAssistant": "Ask the AI Assistant",
+  "onboarding": {
+    "title": "Get started with AppChat",
+    "sub": "Complete 5 steps to activate your workspace and put AI Agents to work.",
+    "collapse": "Collapse",
+    "expand": "Expand ›",
+    "progress": "{done}/5 done",
+    "pct": "· {pct}%",
+    "collapsedSub": "{done}/5 steps · {pct}% done",
+    "reopen": "Reopen",
+    "toggle": "Mark step"
+  },
+  "sections": {
+    "connect": {
+      "title": "Connected channels",
+      "sub": "Every customer touchpoint flows into one unified inbox"
+    },
+    "agents": {
+      "title": "Agentic AI — operations hub",
+      "sub": "Department AI Agents coordinate the whole system"
+    },
+    "modules": {
+      "title": "Business modules",
+      "sub": "Department AI Agents orchestrate & execute in every module"
+    },
+    "cdp": {
+      "title": "CDP — unified customer data",
+      "sub": "360° profiles · omnichannel history · data owned by the tenant"
+    }
+  },
+  "groups": {
+    "in": "INBOUND — OMNICHANNEL",
+    "out": "OUTBOUND",
+    "erp": "BUSINESS SYSTEMS",
+    "data": "DATA & INTELLIGENCE"
+  },
+  "connect": "Connect",
+  "agentsLayer": "AI LAYER — AGENTS RUN BY PLAYBOOK",
+  "domains": "{n} domains",
+  "assistantName": "AI Assistant",
+  "assistantDesc": "Orchestrates every AI Agent — receives, classifies, routes and assigns work.",
+  "openAssistant": "Open execution chat",
+  "agentsFoot": "AI handles <b>~85%</b> · Human-in-the-loop below 70% confidence · RAG & Knowledge Base · Workflow & Journey Builder · Training Studio",
+  "widget": {
+    "title": "Updates center",
+    "short": "Updates",
+    "collapse": "Minimise",
+    "follow": "Follow-ups",
+    "news": "News",
+    "notif": "Notifications",
+    "due": "{n} customers due",
+    "overdue": " · {n} overdue",
+    "openAll": "Open all →",
+    "done": "Followed up",
+    "empty": "No follow-ups left today"
+  }
+}
