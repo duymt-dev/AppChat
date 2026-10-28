@@ -19,13 +19,13 @@
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
 | F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
-| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 14 | 0 | ⬜ | | |
+| F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | 3126b8f | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **136** | **25** | **0** | | | |
+| **Tổng** | | **136** | **36** | **0** | | | |
 
 ---
 
@@ -82,17 +82,17 @@
 | `inbox:account-switch` | Chọn tài khoản kênh | L1651 | P | ✅ | 0.0091 | pass | f38b33d | Tài khoản theo channel registry; mask cột tên (§6 Kênh) |
 | `inbox:zalo-group-info` | Thông tin nhóm Zalo (thành viên / ảnh / file / link / AI) | L1928–1989 | P | ✅ | 0.0468 | pass | f38b33d | Thành viên · link mời · bảng tin · Ảnh/Video · File · Link · AI trong nhóm (khi @ / tự động / tắt) · ẩn / xoá lịch sử |
 | `inbox:handoff` | Banner "Cần người" + bản nháp AI | L1505 | P | ✅ | 0.0064 | pass | f38b33d | Không có trong prototype: dùng khung thẻ "AI gợi ý trả lời", mask chữ; `conversation.handoff` nhận xử lý, "Dùng bản nháp" đưa nháp vào ô soạn |
-| `customers:table` | Danh sách dạng bảng | L2451 | P | ⬜ | | | | |
-| `customers:kanban` | Kanban theo giai đoạn | L2451 | P | ⬜ | | | | |
-| `customers:filter` | Bộ lọc mở | L2496 | P | ⬜ | | | | |
-| `customers:edit` | Form tạo / sửa khách | L2600 | P | ⬜ | | | | |
-| `customers:dedupe` | Kiểm trùng / gộp | L2626 | P | ⬜ | | | | |
-| `customers:fields` | Cấu hình cột / trường | L2684 | P | ⬜ | | | | |
-| `customers:360` | Hồ sơ 360° | L2724 | P | ⬜ | | | | |
-| `customers:ai` | Panel AI của khách hàng | L2938 | P | ⬜ | | | | |
-| `customers:collaborators` | Người phụ trách + đồng phụ trách | — | M | ⬜ | — | | | D32 |
-| `customers:access-request` | "Đã có người phụ trách" + Xin chia sẻ | — | M | ⬜ | — | | | D32 |
-| `customers:transfer-owner` | Chuyển phụ trách | — | M | ⬜ | — | | | D32 |
+| `customers:table` | Danh sách dạng bảng | L2451 | P | ✅ | 0.0058 | pass | 3126b8f | `DataTable` (antd Table, primitive dùng chung) · 15 cột + checkbox · nguồn map về kênh có manifest (§6) · "Tạo hóa đơn" → "Đề nghị thanh toán" · < md thẻ `mobileCard` |
+| `customers:kanban` | Kanban theo giai đoạn | L2451 | P | ✅ | 0.0343 | pass | 3126b8f | `KanbanBoard` primitive · 6 giai đoạn · kéo thả → `contact.set_stage` · gắn / bỏ tag → `contact.tag` |
+| `customers:filter` | Bộ lọc mở | L2496 | P | ✅ | 0.0081 | pass | 3126b8f | `FilterPopover` primitive (nhóm · nguồn · tags · pipeline) + `FilterSelect` (phạm vi · trạng thái · phụ trách) |
+| `customers:edit` | Form tạo / sửa khách | L2600 | P | ✅ | 0.0130 | pass | 3126b8f | Cập nhật 560px (`ModalShell`) → `contact.update`; Tạo liên hệ 720px 3 nhóm trường → `contact.create` |
+| `customers:dedupe` | Kiểm trùng / gộp | L2626 | E | ✅ | 0.0084 | pass | 3126b8f | "CLAUDE GỢI Ý" → "AI GỢI Ý" (D29) · gộp → `contact.merge` (bulk → xác nhận) · không khớp → "nhập với Trợ lý AI" |
+| `customers:fields` | Cấu hình cột / trường | L2684 | P | ✅ | 0.0313 | pass | 3126b8f | Bắt buộc / hiện → `custom_field.update` · thêm → `custom_field.define` · ví dụ biến template Email (bỏ ZNS — §6) |
+| `customers:360` | Hồ sơ 360° | L2724 | P | ✅ | 0.0336 | pass | 3126b8f | `EntityDrawer` 392px (< md từ dưới, full cao) · nội dung 5 tab dùng lại `Profile360Content` của hộp thư (export qua `features/inbox/index.ts`) |
+| `customers:ai` | Panel AI của khách hàng | L2938 | E | ✅ | 0.0174 | pass | 3126b8f | Drawer `EntityDrawer` tinted · "Soạn ZNS" là mục OUT, gỡ khỏi prototype khi đo (§6) · kết quả phân tích mẫu, "Mở Kanban" / "Mở bảng hợp nhất" chạy thật |
+| `customers:collaborators` | Người phụ trách + đồng phụ trách | — | M | ✅ | — | pass | 3126b8f | Menu ⋯ → "Người phụ trách": chính + đồng phụ trách / theo dõi · thêm / gỡ (chủ của khách hoặc `crm.reassign`) · Sales thấy khách đồng phụ trách trong scope `own` (badge "Đồng phụ trách") |
+| `customers:access-request` | "Đã có người phụ trách" + Xin chia sẻ | — | M | ✅ | — | pass | 3126b8f | Tạo trùng SĐT / email với khách của người khác → `CONTACT_OWNED` (409), không lộ dữ liệu khách → "Xin chia sẻ" (`contact.request_access`) · duyệt trong modal Người phụ trách (`contact.decide_access`) |
+| `customers:transfer-owner` | Chuyển phụ trách | — | M | ✅ | — | pass | 3126b8f | Chỉ `crm.reassign` (Sales không thấy mục) · chọn người nhận + chuyển kèm hội thoại / báo giá / lịch hẹn → `contact.transfer_owner`; doanh số chứng từ cũ giữ nguyên |
 
 ## F3 — Trợ lý AI · AI Agents · Duyệt · Nhật ký
 
@@ -332,7 +332,120 @@
 - PR #2 (F0) chưa merge nên F1 đi chung nhánh: PR F1 mở từ nhánh `goal/fe-prototype-f1`, xếp chồng lên F0.
 
 ### F2
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F2
+
+**STATUS:** DONE
+**COMMIT:** 3126b8f trên nhánh `goal/fe-prototype-f2` (xếp chồng F1 / PR #3)
+
+**FILES CHANGED:**
+- `f2:token-scale` (D41, 5d41c73):
+  - `packages/ui/tokens.ts` theo thang đều (chữ / bo góc / spacing);
+  - `tokens.test.ts`;
+  - `tools/scripts/lint-tokens.mjs`;
+  - đo lại F0–F1.
+- Tổng quan (db52d91):
+  - `features/dashboard/{screens,components,api,types}`;
+  - action `onboarding.toggle_step`, `follow_up.complete`;
+  - mock `domains/dashboard.ts`;
+  - fixture `dashboard.json`.
+- Hộp thư (f38b33d): `features/inbox`.
+  - 3 cột · rail thư mục · danh sách · chat · composer + popover · hồ sơ 360° · thông tin nhóm Zalo · modal kết nối kênh · Trợ lý thu nhỏ · banner handoff.
+  - Action `packages/actions/src/inbox.ts`: 13 action.
+  - Mock `domains/inbox.ts` (+ test).
+  - Fixture `inbox.json` (sinh bởi `tools/scripts/fixtures/gen-inbox.py`).
+  - 3 icon mới.
+- Khách hàng (44eac49, 3126b8f):
+  - Primitive dùng chung trong `packages/ui/src/primitives` (Blueprint §7):
+    - `DataTable` bọc antd Table, có `mobileCard` cho < md;
+    - `KanbanBoard`, kéo thả → `onMove`;
+    - `StageTabs` / `FilterSelect` / `FilterPopover`;
+    - `EntityDrawer` 392px (< md từ dưới, full cao);
+    - `ModalShell`, `PageHeader` + KPI, `ActionMenu`.
+    - Ticket / Báo giá / Đơn / Sản phẩm dùng lại các primitive này.
+  - `features/customers`:
+    - screen orchestrator;
+    - `columns.tsx`, `KanbanCard`, `CrmToolbar`, `CrmHeaderActions`;
+    - modal sửa / tạo, kiểm trùng, trường mở rộng;
+    - drawer 360°, drawer AI;
+    - D32: Người phụ trách, Chuyển phụ trách, "Xin chia sẻ".
+  - Hồ sơ 360° tách thành `Profile360Content` / `Profile360Actions`, export qua `features/inbox/index.ts` để dùng chung panel hộp thư và drawer Khách hàng.
+  - Action `packages/actions/src/crm.ts`: `contact.create / update / set_stage / tag / delete / merge / add_collaborator / remove_collaborator / transfer_owner / request_access / decide_access`, `custom_field.define / update`.
+  - Mock `domains/customers.ts`:
+    - scope `own` gồm khách mình đồng phụ trách;
+    - `CONTACT_OWNED` 409 không lộ dữ liệu khách;
+    - có test.
+  - Fixture `customers.json` (`gen-customers.py`).
+- Dùng chung:
+  - `useAction` thêm `onError` (màn tự xử lý lỗi nghiệp vụ, vd. CONTACT_OWNED);
+  - `authz.changed` invalidate `crm` / `inbox` (đổi vai trò = đổi data scope).
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint`: 5/5 xanh; `lint:size`: 274 file, không file nào vượt trần; `lint:tokens`: 171 file đúng thang D41.
+- `pnpm typecheck`: 5/5 xanh.
+- `pnpm test`: shared 11, ui 2, actions 3, web 27 passed (0 failed).
+- `pnpm i18n:check`: vi 784 / en 784 key (100%).
+- `pnpm parity --all`: 35/35 PASS. Kết quả F2:
+
+  | Màn | diffRatio |
+  |-----|-----------|
+  | dashboard:default | 0.0171 |
+  | dashboard:new-workspace | 0.0085 |
+  | dashboard:widget-picker | 0.0257 |
+  | inbox:default | 0.0406 |
+  | inbox:empty | 0.0292 |
+  | inbox:folder-rail | 0.0445 |
+  | inbox:conv-menu | 0.0416 |
+  | inbox:chat-menu | 0.0413 |
+  | inbox:ai-panel | 0.0480 |
+  | inbox:connect-channel | 0.0160 |
+  | inbox:account-switch | 0.0091 |
+  | inbox:zalo-group-info | 0.0468 |
+  | inbox:handoff | 0.0064 |
+  | customers:table | 0.0058 |
+  | customers:kanban | 0.0343 |
+  | customers:filter | 0.0081 |
+  | customers:edit | 0.0130 |
+  | customers:dedupe | 0.0084 |
+  | customers:fields | 0.0313 |
+  | customers:360 | 0.0336 |
+  | customers:ai | 0.0174 |
+
+  F0–F1 đo lại vẫn ≤ 0.0375.
+- `pnpm e2e` (build + start, desktop + mobile-390): 44 passed, 20 skipped (test chỉ chạy ở một viewport), 0 failed.
+- Mobile 390:
+  - dashboard / inbox / customers: không tràn ngang, vùng chạm ≥ 44px.
+  - Khách hàng: thẻ thay bảng; drawer 360° từ dưới; kanban cuộn snap.
+- Role isolation (mock): Sales chỉ thấy khách mình phụ trách + khách đồng phụ trách (unit + e2e). Sales không có "Chuyển phụ trách" / "Xoá". Kế toán không có soạn tin / kết nối kênh.
+- Không chạy được:
+  - backend thật (FE dùng mock transport D38);
+  - provider thật (Zalo, email): chưa nghiệm thu với provider thật.
+
+**ISSUES DISCOVERED:**
+- Trung bình: lúc đầu tôi dựng bảng / kanban Khách hàng bằng markup riêng, lệch Blueprint §7 (primitive dùng chung). Đã sửa trước khi commit: dựng `DataTable` / `KanbanBoard` / `FilterBar` / `EntityDrawer` trong `packages/ui` (hướng A, Chủ nhà xác nhận 2026-10-29).
+- Thấp: đổi vai trò trên dev toolbar trước đây chỉ làm mới `/me/authz`, nên danh sách theo scope bị cũ. Đã invalidate thêm `crm` / `inbox`.
+- Thấp: prototype có 2 menu "Cập nhật khách hàng" (bảng + kanban ẩn). Selector parity phải nhắm đúng menu 184px của bảng.
+
+**DEVIATIONS FROM SPEC:**
+- Kênh / nguồn khách theo channel registry (§6):
+  - Zalo OA / Facebook / TikTok → Zalo cá nhân / Email / Website / Nhập tay / Giới thiệu;
+  - hộp thư chỉ zalo_personal / webchat / email; kênh khác hiện "Sắp có" (D28).
+- Đổi nội dung theo quyết định:
+  - "Tạo hóa đơn" → "Đề nghị thanh toán";
+  - "CLAUDE GỢI Ý" → "AI GỢI Ý", "Claude Cowork" → "AI Cowork" (D29).
+- Gỡ mục OUT khỏi prototype trước khi chụp: "Soạn ZNS" / "Gửi template ZNS", "Tổng đài / Call Center".
+- D32 (màn mới, loại M, không đo pixel): Người phụ trách, Xin chia sẻ, Chuyển phụ trách dựng bằng `ModalShell` + token.
+- Action chưa có trong Blueprint §3.4, đề xuất bổ sung:
+  - `onboarding.toggle_step`, `follow_up.complete`;
+  - `message.delete`, `conversation.clear_history`;
+  - `contact.decide_access` có trong §3.4 (cặp request / decide); `custom_field.update` dùng cho bật / tắt bắt buộc · hiện.
+- `custom_field_def.type` thêm `multi` / `tier` / `tags` theo dữ liệu prototype (Blueprint §2.2 chỉ có picklist / lookup…). Đề xuất bổ sung enum.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Bổ sung vào Blueprint §3.4: `onboarding.toggle_step`, `follow_up.complete`, `message.delete`, `conversation.clear_history`, `workspace.switch` (từ F0). Bổ sung D41 (thang token) vào standards/ui.
+- Bổ sung `multi` / `tier` / `tags` vào enum `custom_field_def.type` (§2.2).
+- F4 / F5 (Báo giá, Đơn, Ticket…) dùng lại primitive `DataTable` / `KanbanBoard` / `EntityDrawer` / `ModalShell` đã có.
+- PR #2 / #3 chưa merge: PR F2 mở từ `goal/fe-prototype-f2`, xếp chồng #3.
+
 
 ### F3
 _chưa có_
