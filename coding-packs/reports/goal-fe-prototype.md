@@ -98,14 +98,14 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `assistant:chat-welcome` | Trợ lý, chế độ Chat, màn chào | L1178 | P | ⬜ | | | | |
-| `assistant:cowork-welcome` | Trợ lý, chế độ Cowork, màn chào | L1178 | P | ⬜ | | | | |
-| `assistant:thread` | Hội thoại có plan + confirm + result card | L1178 | P | ⬜ | | | | Dữ liệu kịch bản mock |
-| `assistant:attach` | Menu "+" đính kèm | L640 | P | ⬜ | | | | |
-| `assistant:model-picker` | Chọn mức AI | L656 | E | ⬜ | | | | Mức AI, ẩn tên model (D29) |
-| `assistant:agent-picker` | Chọn agent | L668 | P | ⬜ | | | | |
-| `assistant:cowork-new` | Tạo tác vụ Cowork | L1318 | P | ⬜ | | | | |
-| `assistant:cowork-drawer` | Drawer tác vụ (prompt / kiến thức / công cụ / nhật ký) | L1388 | P | ⬜ | | | | |
+| `assistant:chat-welcome` | Trợ lý, chế độ Chat, màn chào | L1178 | P | ✅ | 0.0265 | pass | ccaad26 | Pill mức AI mask (D29) |
+| `assistant:cowork-welcome` | Trợ lý, chế độ Cowork, màn chào | L1178 | P | ✅ | 0.0260 | pass | ccaad26 | Pill + tag thẻ agent: mức AI (D29) — mask |
+| `assistant:thread` | Hội thoại có plan + confirm + result card | L1178 | P | ✅ | 0.0030 | pass | ccaad26 | Dữ liệu kịch bản mock; Kịch bản omiIntent/omiReply qua POST /assistant/messages + /confirm |
+| `assistant:attach` | Menu "+" đính kèm | L640 | P | ✅ | 0.0242 | pass | ccaad26 |  |
+| `assistant:model-picker` | Chọn mức AI | L656 | E | ✅ | 0.0359 | pass | ccaad26 | Mức AI, ẩn tên model (D29); Tiêu chuẩn / Nâng cao / Tối đa, không tên model (D29) |
+| `assistant:agent-picker` | Chọn agent | L668 | P | ✅ | 0.0339 | pass | ccaad26 |  |
+| `assistant:cowork-new` | Tạo tác vụ Cowork | L1318 | P | ✅ | 0.0176 | pass | ccaad26 | "Model thực thi" → "Mức AI thực thi" (D29) — mask; ghi qua ai_task.create |
+| `assistant:cowork-drawer` | Drawer tác vụ (prompt / kiến thức / công cụ / nhật ký) | L1388 | P | ✅ | 0.0049 | pass | ccaad26 |  |
 | `agents:list` | Danh sách agent + thống kê | L2227 | E | ⬜ | | | | Ẩn "Mở Workflow" |
 | `agents:template-gallery` | Thư viện mẫu theo ngành | L2227 | P | ⬜ | | | | |
 | `agents:builder` | Builder tạo / sửa agent | L2292 | E | ⬜ | | | | Ẩn hành động OUT, mức AI (D29) |
@@ -113,8 +113,8 @@
 | `agents:test-chat` | Chat thử trong builder | L2292 | P | ⬜ | | | | dryRun |
 | `agents:ai-create` | Tạo agent bằng Trợ lý AI | L2421 | E | ⬜ | | | | Thêm thẻ xác nhận "Tạo & xuất bản" (D29) |
 | `agents:versions` | Lịch sử phiên bản, quay lại | — | M | ⬜ | — | | | D29 |
-| `approvals:queue` | Hàng chờ duyệt | — | M | ⬜ | — | | | |
-| `actions:log` | Nhật ký hành động + hoàn tác | L1464 | P | ⬜ | | | | |
+| `approvals:queue` | Hàng chờ duyệt | — | M | ✅ | — | pass | 7b66250 | Màn mới; duyệt cần approvals.decide + quyền action gốc (Quản lý không duyệt hoàn tiền) |
+| `actions:log` | Nhật ký hành động + hoàn tác | L1464 | P | ✅ | 0.0232 | pass | 7b66250 | Workflow / ZNS (OUT) → Ticket / Zalo — mask 2 ô |
 
 ## F4 — Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán
 
