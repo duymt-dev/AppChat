@@ -133,10 +133,10 @@
 | `contracts:create` | Form tạo hợp đồng | L4047 | P | ✅ | 0.0281 | pass | c1485f8 | Nút thật mở crmForm 720 (crmSpec.contracts L8407 — không phải cnNewOn L4047); `contract.create` luôn Nháp; kiểm bắt buộc + ngày kết thúc > bắt đầu; `?from_quote=` → `contract.create_from_quote` |
 | `contracts:approve-sign` | Duyệt & ký (OTP + chữ ký) | — | M | ✅ | — | pass | c1485f8 | D25: `contract.approve_and_sign` (`contract.sign` — chỉ Owner) với OTP email + SignaturePad; Gửi ký = link một lần 7 ngày qua Zalo / Email; nhắc ký, gia hạn link, chấm dứt (lý do bắt buộc), gia hạn HĐ |
 | `sign:public` | Trang ký công khai `/sign/[token]` | — | M | ✅ | — | pass | c1485f8 | D25: route `(public)` không đăng nhập; đồng ý → OTP (Zalo) → ký tay → chứng nhận (mã HĐ, SHA-256, thời điểm, lưu vết IP); sai OTP còn N lần, 5 lần khoá; Từ chối ký; link sai / hết hạn → trang báo |
-| `orders:list` | Danh sách đơn (2 cột trạng thái) | L5489 | P | ⬜ | | | | Chip lọc theo COMMERCE §4 |
-| `orders:detail` | Chi tiết đơn | L5489 | P | ⬜ | | | | |
-| `orders:create` | Form tạo đơn | L4060 | P | ⬜ | | | | |
-| `orders:marketplace` | Đơn từ sàn (badge nguồn, khoá dòng hàng) | — | M | ⬜ | — | | | D31 |
+| `orders:list` | Danh sách đơn (2 cột trạng thái) | L5489 | P | ✅ | 0.0337 | pass | 98aeb7e | Chip lọc theo COMMERCE §4 (mỗi chip lọc đúng trục); cột Thanh toán = pay_status, Trạng thái = tiến độ; Kanban 4 cột theo chip; lọc Người tạo / Giá trị / Nguồn |
+| `orders:detail` | Chi tiết đơn | L5489 | P | ✅ | 0.0398 | pass | 98aeb7e | 5 tab; prototype khoá `odDetailOn: false` → `protoOverrideVals`; chân: Xác nhận (new → processing) · Hoàn tất (+điểm) · Huỷ (lý do; đã thu → yêu cầu hoàn tiền); vận chuyển nhập tay |
+| `orders:create` | Form tạo đơn | L4060 | P | ✅ | 0.0293 | pass | 98aeb7e | Nút thật mở crmForm 720 (crmSpec.orders L8409 — không phải odNewOn L4060): dòng từ catalog, cọc ≤ tổng (bật deposit_required → Chờ cọc), giao hàng; `order.create`; `?from_quote=` / `?from_contract=` |
+| `orders:marketplace` | Đơn từ sàn (badge nguồn, khoá dòng hàng) | — | M | ✅ | — | pass | 98aeb7e | D31: đơn Shopee mẫu (`source = marketplace`, `platform_status`), badge nguồn ở bảng / kanban / drawer, khoá dòng – giá – tổng, không tích điểm, không gửi đề nghị thanh toán; nút Đồng bộ sàn (`order.sync_now`, adapter thật P2) |
 | `invoices:list` | Danh sách đề nghị thanh toán | L5233 | E | ⬜ | | | | "Hóa đơn" → "Đề nghị thanh toán" |
 | `invoices:detail-qr` | Chi tiết + VietQR | L5233 | E | ⬜ | | | | |
 | `invoices:record-payment` | Ghi nhận thanh toán | L5233 | E | ⬜ | | | | |
