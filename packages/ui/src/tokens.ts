@@ -2,6 +2,7 @@
 // Component chỉ được dùng token ở đây (qua createStyles / ConfigProvider) — cấm hard-code màu / px.
 
 import { salesColor, salesGradient } from './tokens-sales';
+import { opsColor, opsGradient } from './tokens-ops';
 
 export const color = {
   brand: '#2DC56A',
@@ -206,6 +207,7 @@ export const color = {
   sparkBar: '#CDE9D8',
   pink: '#DB2777',
   ...salesColor,
+  ...opsColor,
 } as const;
 
 export const gradient = {
@@ -239,6 +241,7 @@ export const gradient = {
   asstPage: 'linear-gradient(180deg,#F4FBF8 0%,#F9FAFB 60%)',
   confBar: 'linear-gradient(90deg,#2DC56A,#6E48E6)',
   ...salesGradient,
+  ...opsGradient,
 } as const;
 
 export const shadow = {

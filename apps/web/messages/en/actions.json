@@ -321,5 +321,31 @@
     "void": {
       "title": "Void payment request"
     }
+  },
+  "appointment": {
+    "find_slots": {
+      "title": "Find free slots"
+    },
+    "create": {
+      "title": "Book appointment"
+    },
+    "confirm": {
+      "title": "Confirm appointment"
+    },
+    "reschedule": {
+      "title": "Reschedule appointment"
+    },
+    "cancel": {
+      "title": "Cancel appointment"
+    },
+    "check_in": {
+      "title": "Check in"
+    },
+    "complete": {
+      "title": "Complete appointment"
+    },
+    "mark_no_show": {
+      "title": "Mark no-show"
+    }
   }
 }

@@ -321,5 +321,31 @@
     "void": {
       "title": "Huỷ đề nghị thanh toán"
     }
+  },
+  "appointment": {
+    "find_slots": {
+      "title": "Tìm khung giờ trống"
+    },
+    "create": {
+      "title": "Tạo lịch hẹn"
+    },
+    "confirm": {
+      "title": "Xác nhận lịch hẹn"
+    },
+    "reschedule": {
+      "title": "Đổi giờ lịch hẹn"
+    },
+    "cancel": {
+      "title": "Huỷ lịch hẹn"
+    },
+    "check_in": {
+      "title": "Khách đã đến"
+    },
+    "complete": {
+      "title": "Hoàn thành lịch hẹn"
+    },
+    "mark_no_show": {
+      "title": "Đánh dấu không đến"
+    }
   }
 }

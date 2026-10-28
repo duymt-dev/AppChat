@@ -38,10 +38,16 @@ export const dashboardHandlers: Record<string, MockHandler> = {
   },
   'follow_up.complete': {
     execute: (db, input: { follow_up_id: string }) => {
+      // follow-up hiện trong lịch hẹn (cfu_*) dùng chung action với Tổng quan.
+      if (input.follow_up_id.startsWith('cfu_')) {
+        db.calendar.follow_done.push(input.follow_up_id);
+        return { remaining: 0 };
+      }
       db.dashboard.removedFollowUps.push(input.follow_up_id);
       return { remaining: db.dashboard.data.follow_ups.length - db.dashboard.removedFollowUps.length };
     },
     undo: (db, input: { follow_up_id: string }) => {
+      db.calendar.follow_done = db.calendar.follow_done.filter((id) => id !== input.follow_up_id);
       db.dashboard.removedFollowUps = db.dashboard.removedFollowUps.filter((id) => id !== input.follow_up_id);
     },
   },

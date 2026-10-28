@@ -27,5 +27,5 @@ export const followUpComplete = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['dashboard'],
+  invalidates: ['dashboard', 'calendar'],
 });

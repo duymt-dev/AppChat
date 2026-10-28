@@ -40,6 +40,11 @@ export const createFmt = ({ locale, timeZone = DEFAULT_TZ }: FmtOptions) => {
       new Intl.DateTimeFormat(intl, { day: '2-digit', month: '2-digit', year: 'numeric', timeZone }).format(
         new Date(d),
       ),
+    /** "Thứ Tư, 24 tháng 6" (vi) / "Wednesday, June 24" (en) — tiêu đề nhóm ngày của lịch hẹn. */
+    dateLong: (d: Date | string | number): string =>
+      new Intl.DateTimeFormat(intl, { weekday: 'long', day: 'numeric', month: 'long', timeZone }).format(
+        new Date(typeof d === 'string' && d.length === 10 ? `${d}T12:00:00Z` : d),
+      ),
     time: (d: Date | string | number): string =>
       new Intl.DateTimeFormat(intl, { hour: '2-digit', minute: '2-digit', hour12: false, timeZone }).format(
         new Date(d),

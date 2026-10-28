@@ -48,6 +48,7 @@ const quotes = { ac_module: 'quotes' };
 const contracts = { ac_module: 'contracts' };
 const orders = { ac_module: 'orders' };
 const invoices = { ac_module: 'invoices' };
+const calendar = { ac_module: 'calendar' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -887,5 +888,66 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('iv-create').click(),
     appWait: '[data-invoice]',
     clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="iv-form"] [role="dialog"]' },
+  },
+  // ===== F5 — Lịch hẹn =====
+  // Ngày neo 24/06/2026 (prototype "Thứ 6, 20 tháng 6" / "Tháng 5") → mask nhãn ngày; kênh đặt theo channel registry.
+  {
+    id: 'calendar:list',
+    route: '/calendar',
+    protoStorage: calendar,
+    appWait: '[data-appt]',
+  },
+  {
+    id: 'calendar:week',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('button', { hasText: 'Tuần' }).first().click(),
+    app: (p) => p.getByTestId('cal-view-week').click(),
+    appWait: '[data-appt]',
+  },
+  {
+    id: 'calendar:month',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('button', { hasText: 'Tháng' }).first().click(),
+    app: (p) => p.getByTestId('cal-view-month').click(),
+    appWait: '[data-appt]',
+  },
+  {
+    // Prototype không có chế độ "Ngày" (Blueprint §7.2 ViewSwitch day) → so với khung Tuần; vùng lưới khác cột (KTV thay vì thứ) được mask.
+    id: 'calendar:day',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('button', { hasText: 'Tuần' }).first().click(),
+    app: (p) => p.getByTestId('cal-view-day').click(),
+    appWait: '[data-appt]',
+    mask: [{ x: 80, y: 300, width: 1360, height: 600, reason: 'Blueprint §7.2 — chế độ Ngày (làn KTV) không có trong prototype' }],
+  },
+  {
+    id: 'calendar:appointment',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('.row', { hasText: 'Trị mụn chuyên sâu' }).first().click(),
+    app: (p) => p.locator('[data-appt]', { hasText: 'Trị mụn chuyên sâu' }).first().click(),
+    appWait: '[data-appt]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      {
+        x: 1060,
+        y: 655,
+        width: 368,
+        height: 170,
+        reason: 'prototype-parity §6 Kênh (SMS → Zalo cá nhân) + thẻ liệu trình COMMERCE 8b (trừ buổi khi hoàn thành)',
+      },
+    ],
+  },
+  {
+    id: 'calendar:create',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo lịch hẹn' }).first().click(),
+    app: (p) => p.getByTestId('cal-create').click(),
+    appWait: '[data-appt]',
+    clipTo: { proto: 'div[style*="width:540px"], div[style*="width: 540px"]', app: '[data-testid="cal-form"] [role="dialog"]' },
   },
 ];
