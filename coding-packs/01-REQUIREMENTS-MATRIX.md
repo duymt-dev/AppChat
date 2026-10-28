@@ -33,7 +33,7 @@
 |---|---|---|---|---|
 | REQ-A01 | Đăng ký / đăng nhập bằng OTP. Cần chốt kênh gửi OTP: Zalo hay Email (xem OQ-02). Có thêm Email + mật khẩu, "Ghi nhớ 30 ngày", quên mật khẩu (link 15 phút, chống dò tài khoản). | P0 | Chủ DN | TBD |
 | REQ-A02 | Popup khai báo bắt buộc, không đóng được. Doanh nghiệp/Hộ KD: tra cứu MST rồi tự điền thông tin. Cá nhân: nhập VNeID và nhập tay. Sau đó chọn lĩnh vực kinh doanh (taxonomy ngành 2 cấp, 10 nhóm). | P0 | Chủ DN | TBD |
-| REQ-A03 | Workspace là tenant; mọi bảng nghiệp vụ có `workspace_id` và **PostgreSQL RLS**; có test tự động chống rò rỉ dữ liệu giữa các tenant. | P0 | — | TBD |
+| REQ-A03 | Workspace là tenant; **mỗi workspace một PostgreSQL database riêng**, tạo tự động khi đăng ký (DB nền tảng giữ identity, membership, gói, ví, registry). Migration áp cho mọi DB tenant; có test tự động chống rò rỉ dữ liệu giữa các tenant (D21). | P0 | — | TBD |
 | REQ-A04 | Một user thuộc được nhiều workspace (membership N–N), chuyển workspace ngay từ menu Hồ sơ. | P1 | Chủ DN | TBD |
 | REQ-A05 | RBAC đơn giản: **Owner + Member**. Owner có toàn quyền gồm billing; Member xử lý hội thoại và dữ liệu, không vào billing hay cài đặt hệ thống. Mời thành viên bằng email hoặc SĐT. | P0 | Chủ DN | TBD |
 | REQ-A06 | Trial 15 ngày gói Cá nhân Pro, kèm 10.000 credit; có màn chào mừng (2 nút) và badge "Còn X ngày". Hết hạn thì hạ về gói Miễn phí; thông báo đóng được; dữ liệu giữ nguyên. | P0 | Chủ DN | TBD |
@@ -182,7 +182,7 @@
 | REQ-ID | Requirement | Priority | Persona | TIP |
 |---|---|---|---|---|
 | REQ-N01 | **Không dùng Docker.** Monorepo: Next.js (web) + NestJS (api + worker). PostgreSQL 16 và Redis cài native (dev: Postgres 16 + Memurai trên Windows; prod: service native hoặc managed); chạy bằng PM2/systemd. | P0 | — | TBD |
-| REQ-N02 | Prisma (schema + migration); RLS, partial index, expression index, `INCLUDE` viết bằng SQL thô trong migration. Query tuân thủ quy tắc index trong CLAUDE.md. | P0 | — | TBD |
+| REQ-N02 | Prisma 2 schema (platform + tenant) + migration runner cho mọi DB tenant; partial index, expression index, `INCLUDE` viết bằng SQL thô trong migration; PgBouncer. Query tuân thủ quy tắc index trong CLAUDE.md. | P0 | — | TBD |
 | REQ-N03 | API REST `/v1`, OpenAPI tự sinh, cursor pagination, `Idempotency-Key`, lỗi chuẩn hoá. | P0 | — | TBD |
 | REQ-N04 | Realtime bằng Socket.IO, room theo workspace / hội thoại; presence và typing. | P0 | — | TBD |
 | REQ-N05 | Queue BullMQ + outbox; domain events nội bộ (`message.received`, `order.completed`, `ai.credit_used`…). Consumer idempotent. | P0 | — | TBD |
@@ -190,9 +190,9 @@
 | REQ-N07 | Hiệu năng: tin nhắn p95 < 1s; API đọc p95 < 300ms. Uptime mục tiêu 99.9%. | P0 | — | TBD |
 | REQ-N08 | Backup Postgres (PITR / dump hằng ngày); RPO ≤ 5 phút, RTO ≤ 1 giờ; quyền bị lãng quên (ẩn danh hoá). | P1 | — | TBD |
 | REQ-N09 | Observability native trên VPS: **Prometheus + Alertmanager + Grafana + Loki** (Alloy thu log); exporters hệ thống/PG/Redis/nginx/uptime; app metrics (API, queue, kênh, AI, credit); log JSON có `traceId`; dashboard và cảnh báo (email + Telegram) khai báo trong repo. | P0 | — | TBD |
-| REQ-N10 | UI tiếng Việt mặc định với lớp i18n (next-intl), có `en`. **Ant Design v6**, một codebase cho desktop (chuẩn 1440px) và **mobile web responsive**. Đủ 5 trạng thái UI. WCAG AA. | P0 | — | TBD |
+| REQ-N10 | UI tiếng Việt mặc định với lớp i18n (next-intl + ICU), phát hành `vi` + `en`, registry sẵn 11 ngôn ngữ để bật dần (D22). **Ant Design v6**, một codebase cho desktop (chuẩn 1440px) và **mobile web responsive**. Đủ 5 trạng thái UI. WCAG AA. | P0 | — | TBD |
 | REQ-N14 | **Parity UI với prototype < 5%:** mỗi màn và trạng thái chính ở 1440×900 sai khác điểm ảnh < 5% so với `AppChat.dc.html` (Playwright screenshot, dữ liệu seed giống prototype). Ngoại lệ chỉ gồm các module và kênh ngoài phạm vi. | P0 | Chủ DN | TBD |
-| REQ-N11 | Test: unit (business rules), integration, e2e Playwright cho luồng chính, test cô lập RLS, AI eval set cho Trợ lý (chọn đúng action, đúng tham số, đúng quyền, đúng mức xác nhận) và cho các agent trực kênh. | P0 | — | TBD |
+| REQ-N11 | Test: unit (business rules), integration, e2e Playwright cho luồng chính, test cô lập tenant (DB riêng), AI eval set cho Trợ lý (chọn đúng action, đúng tham số, đúng quyền, đúng mức xác nhận) và cho các agent trực kênh. | P0 | — | TBD |
 | REQ-N12 | File: BE ≤ 600 dòng, FE ≤ 400 dòng; test để file riêng; commit kèm SHA. | P0 | — | TBD |
 | REQ-N13 | **Definition of Done "Action-first":** mọi tính năng mới phải đăng ký action trong Registry (schema, quyền, rủi ro, hoàn tác) và có test gọi action đó **qua Trợ lý AI**. Chưa làm được hai việc này thì tính năng chưa xong. | P0 | — | TBD |
 
@@ -201,7 +201,7 @@
 ## AUTO-ANSWERED (from Scan Report)
 
 - **Khách mục tiêu:** doanh nghiệp dịch vụ có khách quay lại; không làm TMĐT; taxonomy 10 nhóm ngành.
-- **Tenant:** shared DB + RLS; billing / credit tách riêng theo workspace (BR-08).
+- **Tenant:** ~~shared DB + RLS~~ → **DB riêng mỗi workspace** (D21); billing / credit tách riêng theo workspace (BR-08), lưu ở DB nền tảng.
 - **Đơn vị tính phí:** Credit (1 credit = 10 token cũ); ẩn tên model với khách.
 - **Trial:** Cá nhân Pro 15 ngày, 10.000 credit; hết hạn hạ về Miễn phí, thông báo đóng được.
 - **Luồng bán hàng:** báo giá → đơn → hoá đơn → điểm loyalty; pipeline tự cập nhật.
@@ -230,11 +230,13 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 | D10 | Bảng giá | chốt số / cấu hình được | **Lưu DB, cấu hình được**, seed theo prototype | Chủ nhà chọn |
 | D11 | RBAC | 4 vai trò / 7 vai trò / Owner + Member | **Owner + Member** | Hợp mô hình OPC |
 | D12 | Hạ tầng | Docker / native | **Không dùng Docker**; Next + Nest; Postgres + Redis native | Chủ nhà chốt |
-| D13 | ORM | Prisma / Drizzle / TypeORM | **Prisma** (+ SQL thô cho RLS / index nâng cao) | Chủ nhà chọn |
+| D13 | ORM | Prisma / Drizzle / TypeORM | **Prisma** (+ SQL thô cho index nâng cao) | Chủ nhà chọn |
 | D14 | LLM | Claude / đa nhà cung cấp / gateway | **Đa nhà cung cấp** (LLM Router) | Chủ nhà chọn |
 | D17 | Agent runtime & phối hợp agent | fork OpenFang/OpenClaw/Hermes / Mastra / AI SDK + lớp nối tự viết; có / không swarm | **AI SDK v7 + lớp nối tự viết; không swarm** (giữ orchestrator, handoff, hỏi ý, tác vụ tự chủ) | Chủ nhà chốt 2026-10-28; xem Vision V3–V4 |
 | D19 | Module Báo cáo | giữ 6 trang / bỏ | **Bỏ khỏi phạm vi.** Số liệu chỉ hiện ở Tổng quan, Hiệu suất agent (REQ-D14), thống kê chiến dịch (REQ-I05), KPI Ticket (REQ-H04) và truy vấn qua Trợ lý AI (REQ-E07) | Chủ nhà chốt 2026-10-28: không có trong prototype hiện hành và docs mới |
 | D20 | Hạ tầng production | cloud managed / Docker / native VPS | **Native trên VPS Linux** (systemd + PM2, nginx, PG16, Redis), monitoring **Prometheus + Grafana + Loki** trên VPS riêng, backup pgBackRest offsite | Chủ nhà chốt 2026-10-28 |
+| D21 | Mô hình tenant | shared DB + RLS / schema riêng / **database riêng** | **Mỗi workspace một database riêng (`CREATE DATABASE`) + DB nền tảng**; ví credit và hoá đơn gói ở DB nền tảng | Chủ nhà chốt 2026-10-28 |
+| D22 | i18n khi phát hành | vi + en / đủ 11 ngôn ngữ | **vi + en**, registry 11 ngôn ngữ để bật dần bằng file bản dịch | Chủ nhà chọn A 2026-10-28 |
 | D18 | UI kit & nền tảng hiển thị | Tailwind + shadcn / antd + antd-mobile / antd một codebase | **Ant Design v6 + Ant Design X, một codebase responsive desktop + mobile web; token theo prototype; parity < 5%** | Chủ nhà chốt 2026-10-28 |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
@@ -253,7 +255,7 @@ none — chưa có standards index; Standards Discovery đã được hoãn (ch�
 ## SCOPE BOUNDARIES
 
 ### In Scope (bản phát hành thương mại đầu tiên)
-- **Identity / Workspace / Trial / Owner + Member:** đăng ký và đăng nhập, khai báo DN bắt buộc, workspace với RLS, trial 15 ngày, phân quyền Owner + Member.
+- **Identity / Workspace / Trial / Owner + Member:** đăng ký và đăng nhập, khai báo DN bắt buộc, workspace với DB riêng, trial 15 ngày, phân quyền Owner + Member.
 - **Kênh:**
   - Zalo cá nhân (1-1 và nhóm).
   - Web Live Chat widget.

@@ -34,7 +34,7 @@
 | Frontend | **Next.js** (App Router) + React + TypeScript strict | Chủ nhà chốt. Spec gốc ghi "React 18 + Vite + TanStack Query" → **Next thay Vite**. Vẫn nên dùng TanStack Query cho data cache. |
 | Backend | **NestJS** (TypeScript) | Chủ nhà chốt; khớp spec. Spec gợi ý viết Channel Gateway/Workers bằng Go → **cần chốt**: viết toàn bộ bằng Nest, hay giữ Go cho phần này. |
 | Kiến trúc | Modular Monolith; tách sẵn 2 phần chịu tải là Channel Gateway và AI Inference Worker | [SoT: CTO v4.2 §01, §09] |
-| DB | PostgreSQL 16 + RLS (`workspace_id`) + pgvector (HNSW) | [SoT: CTO v4.2 §07-09, §20] |
+| DB | PostgreSQL 16 + RLS (`workspace_id`) + pgvector (HNSW) | [SoT: CTO v4.2 §07-09, §20] — **V14:** đổi sang DB riêng mỗi workspace |
 | Cache/Queue | Redis (cache, rate-limit, presence, BullMQ) | [SoT: CTO v4.2 §09] |
 | Broker | Kafka/Redpanda | [SoT: CTO v4.2 §09] — **RRI D15:** dùng BullMQ + outbox, chưa dùng Kafka. |
 | Realtime | WebSocket + SSE fallback | [SoT: CTO v4.2 §09] |
@@ -159,7 +159,7 @@ Chưa có code. Chuẩn kỹ thuật đã định sẵn [SoT: CTO §18 + CLAUDE.
   - Tenant-isolation (0 rò rỉ).
   - Load (k6, p95 < 1s).
   - AI eval.
-- **Definition of Done:** có test + OpenAPI cập nhật + RLS test + OTel metric/log/trace + idempotency cho thao tác gửi/tạo.
+- **Definition of Done:** có test + OpenAPI cập nhật + test cô lập tenant + OTel metric/log/trace + idempotency cho thao tác gửi/tạo.
 - **Giới hạn kích thước file (CLAUDE.md global):**
   - Backend: tối ưu 200–400 dòng, **trần 600** (chạm 500 thì tách submodule).
   - Frontend: tối ưu 150–250 dòng, **trần 400**. Screen chỉ làm orchestrator; tách `components/`, `hooks/`, `types.ts`.
@@ -314,7 +314,7 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 | Câu hỏi RRI | Đã trả lời bởi spec |
 |---|---|
 | Đối tượng người dùng? | Chủ DN dịch vụ, nhân sự Sales/CSKH/MKT/Quản lý, AI Agent [SRS §03; SolutionDesign §4.1] |
-| Multi-tenant? | Có: shared DB + RLS; user ↔ nhiều workspace; billing tách theo workspace [CTO §08; BR-08] |
+| Multi-tenant? | Có; **mỗi workspace một database riêng** + DB nền tảng (Chủ nhà chốt 2026-10-28, thay shared DB + RLS của spec); user ↔ nhiều workspace; billing tách theo workspace [CTO §08; BR-08] |
 | Ngôn ngữ UI? | Mặc định Tiếng Việt; có selector đa ngôn ngữ (10–11) [CHANGELOG 07-26] |
 | Platform? | Desktop web chuẩn 1440px + **mobile web responsive** (Chủ nhà chốt 2026-10-28). Native mobile/PWA là out-of-scope [SRS §01] |
 | Đăng nhập? | Zalo OTP chính + Email/mật khẩu + social (Google/FB/LinkedIn/ChatGPT/Gemini/DeepSeek). **Không SMS OTP** [Auth-Wireframe v2; SRS §01] |
@@ -333,8 +333,8 @@ Khi tài liệu mâu thuẫn, áp **thứ tự ưu tiên** sau (mới và cụ t
 
 ## Constraints
 
-1. **Stack:** Next.js + NestJS + TypeScript strict + PostgreSQL 16 (RLS, pgvector) + Redis. Không dùng lại code V1.
-2. **Tenant isolation không thương lượng:** mọi bảng nghiệp vụ có `workspace_id` cộng RLS; có test tự động chống rò rỉ.
+1. **Stack:** Next.js + NestJS + TypeScript strict + PostgreSQL 16 (DB riêng mỗi workspace, pgvector) + Redis. Không dùng lại code V1.
+2. **Tenant isolation không thương lượng:** mỗi workspace một PostgreSQL database riêng; chỉ mở DB tenant sau khi xác thực membership; có test tự động chống rò rỉ.
 3. **Truy vấn Postgres** theo CLAUDE.md global:
    - Composite index theo thứ tự "bằng trước, khoảng/sort sau".
    - Dùng `INCLUDE` để có covering index.
@@ -452,7 +452,7 @@ AppChat là SaaS đa tenant theo mô hình OPC: một chủ doanh nghiệp vận
                                      │   briefing, tác vụ tự chủ                         │
                                      └──────────────┬───────────────────────────────────┘
                                                     ▼
-      PostgreSQL 16 (RLS workspace_id · pgvector · unaccent/pg_trgm)
+      PostgreSQL 16 (DB nền tảng + 1 DB/workspace qua PgBouncer · pgvector · unaccent/pg_trgm)
       Redis (BullMQ · cache · presence · rate-limit) · Object storage (S3-compatible)
       — chạy native, không Docker; tiến trình quản lý bằng PM2/systemd —
 ```
@@ -465,7 +465,7 @@ AppChat là SaaS đa tenant theo mô hình OPC: một chủ doanh nghiệp vận
 | `apps/api` | NestJS HTTP + Socket.IO |
 | `apps/worker` | NestJS standalone, chạy hai role: `channels` và `ai` |
 | `packages/actions` | Action Registry: schema và metadata dùng chung FE/BE/AI |
-| `packages/db` | Prisma schema, migration, SQL RLS |
+| `packages/db` | Prisma schema platform + tenant, migration, TenantDbResolver, provisioner, tenant-migrate runner |
 | `packages/ui` | design system |
 | `packages/shared` | types, enums, i18n keys |
 
@@ -496,20 +496,20 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | License | MIT/Apache-2.0 | MIT | MIT | Apache-2.0 | Apache-2.0 (trừ thư mục `ee/`) |
 | Phiên bản | v0.6.9 (05/2026), pre-1.0, ít release từ tháng 5 | v2026.10.x, release liên tục | v0.22.5 (10/2026) | 7.0.154 (10/2026) | 1.79 (10/2026) |
 | Mô hình | daemon cho 1 operator | gateway cho 1 trust boundary, tự ghi "không phải ranh giới multi-tenant" | 1 profile/process mỗi user | thư viện, nhúng vào worker | thư viện, nhúng vào worker |
-| Đa tenant | ✗ | ✗ | ✗ | tự làm (RLS của ta) | tự làm (`resourceId`) |
+| Đa tenant | ✗ | ✗ | ✗ | tự làm (DB riêng của ta) | tự làm (`resourceId`) |
 | HITL | approval gate | exec approval | approval endpoint | `toolApproval` | `requireApproval`, suspend/resume bền qua restart |
 | Bảo mật | đã vá auth bypass (#1034) | nhiều CVE RCE năm 2026 | nhiều CVE năm 2026 | lib, không có bề mặt server | lib |
 | Zalo | README nhận có, **không tìm thấy code** ⚠ | **có sẵn chính chủ**: `zalouser` (zca-js) + `zalo` Bot API | plugin cộng đồng | — | — |
 
 **CHỐT (Chủ nhà duyệt 2026-10-28): phương án B — Vercel AI SDK v7 + lớp nối tự viết (Agent Gateway) trong NestJS. Không fork runtime nào, không dùng Mastra.**
-- **Vì sao không fork:** cả ba runtime đều thiết kế cho một người vận hành, có state store riêng (SQLite) và tool trên máy chủ. Muốn đa tenant (RLS), tính credit theo tenant, lưu duyệt trong DB và dùng Action Registry của ta thì phải mổ lõi của chúng. Thêm vào đó, hai trong ba runtime khác ngôn ngữ (Rust/Python).
+- **Vì sao không fork:** cả ba runtime đều thiết kế cho một người vận hành, có state store riêng (SQLite) và tool trên máy chủ. Muốn đa tenant (DB riêng mỗi workspace), tính credit theo tenant, lưu duyệt trong DB và dùng Action Registry của ta thì phải mổ lõi của chúng. Thêm vào đó, hai trong ba runtime khác ngôn ngữ (Rust/Python).
 - **Vì sao chọn AI SDK v7:** cùng ngôn ngữ TS; có sẵn tool loop, đa provider (Claude/GPT/Gemini/DeepSeek), streaming và tool approval. Nó chỉ là thư viện nên không mở thêm bề mặt tấn công.
 - **Vì sao không dùng Mastra:**
-  - Phần Mastra làm hộ (storage/bảng riêng, memory, RAG, trace, duyệt trong luồng chat) thì AppChat vẫn phải có bản riêng nằm trong Postgres có RLS: `contact_memory`, `kb_chunk`, `approval_request`, `ai_run`. Dùng Mastra nghĩa là chạy hai nguồn dữ liệu song song.
+  - Phần Mastra làm hộ (storage/bảng riêng, memory, RAG, trace, duyệt trong luồng chat) thì AppChat vẫn phải có bản riêng nằm trong DB tenant của ta: `contact_memory`, `kb_chunk`, `approval_request`, `ai_run`. Dùng Mastra nghĩa là chạy hai nguồn dữ liệu song song.
   - Mastra vừa bỏ `.network()` sau một năm để chuyển sang supervisor, và đang có lỗi mở ở đúng phần duyệt qua agent con (mastra-ai/mastra#28583).
   - Mastra vẫn để ngỏ: Agent Gateway có interface, muốn đổi engine thì không phải sửa nghiệp vụ.
 - **Vì sao không dùng WorkflowAgent / Postgres World của AI SDK v7:** đây là bản tham chiếu, chưa tối ưu scale và bảo mật, route HTTP không có xác thực.
-- **Cách lưu và chạy tiếp run chờ duyệt:** khi tool trả `approval_required`, lưu messages của run vào `ai_run` (Postgres, RLS), sau đó dừng. Khi Owner duyệt, worker đọc messages ra, thêm kết quả tool rồi chạy tiếp vòng lặp. Toàn bộ chạy qua BullMQ.
+- **Cách lưu và chạy tiếp run chờ duyệt:** khi tool trả `approval_required`, lưu messages của run vào `ai_run` (DB tenant), sau đó dừng. Khi Owner duyệt, worker đọc messages ra, thêm kết quả tool rồi chạy tiếp vòng lặp. Toàn bộ chạy qua BullMQ.
 - **Cách các agent phối hợp:** Trợ lý AI điều phối bằng tool `delegate`. Agent chuyển hội thoại với khách cho agent khác bằng `transfer_to_agent` (Sales → Booking). Agent hỏi ý agent khác ở hậu trường bằng `consult` (Sales hỏi Kế toán). Ngoài ra có tác vụ tự chủ chạy theo lịch hoặc theo sự kiện. Mỗi lần phối hợp đều có đầu mối, có ngân sách credit và có trace.
 - **Không làm swarm**, tức là các agent tự bàn và tự chia việc mà không ai điều phối (Chủ nhà chốt 2026-10-28). Lý do: OPC cần dự đoán được, duyệt được và kiểm soát được credit.
 - **Mượn thiết kế từng nơi:**
@@ -606,7 +606,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 - **REST:** prefix `/v1`. Contract-first: OpenAPI sinh từ Nest + zod (`nestjs-zod`).
 - **Auth:**
   - `Authorization: Bearer <JWT 15 phút>` + refresh token (httpOnly cookie, xoay vòng).
-  - Header `X-Workspace-Id`; middleware kiểm membership rồi `SET LOCAL app.tenant` trong transaction để RLS áp dụng.
+  - Header `X-Workspace-Id`; middleware kiểm membership ở DB nền tảng rồi mới resolve DB tenant của workspace (Blueprint §2.0).
 - **Envelope:**
   - Thành công: `{ data, meta? }`; danh sách: `{ data: [], next_cursor }` (cursor pagination).
   - Lỗi: `{ error: { code, message, fields? } }`, dùng mã 400/401/403/404/409/422/429/500.
@@ -664,17 +664,19 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 |---|---|---|
 | V1 | Pattern B: SaaS đa tenant, mô hình OPC | RRI D01–D02 |
 | V2 | **Action-first:** Action Registry là nguồn duy nhất cho UI, Trợ lý, agents và MCP | Copilot phải làm được mọi thao tác UI (D03, D16); một chỗ validate, phân quyền, audit, undo |
-| V3 | **Agent runtime (CHỐT B, 2026-10-28): Vercel AI SDK v7 (`ToolLoopAgent`, `toolApproval`) + lớp nối tự viết (Agent Gateway: tool từ Registry, credit, router, lưu/chạy tiếp run trong Postgres). Không fork** OpenFang/OpenClaw/Hermes | Fork thì phải mổ lõi mới đa tenant được. AI SDK là lớp nền ít đổi API, đa provider; dữ liệu, quyền, credit và audit nằm trọn trong Postgres có RLS |
+| V3 | **Agent runtime (CHỐT B, 2026-10-28): Vercel AI SDK v7 (`ToolLoopAgent`, `toolApproval`) + lớp nối tự viết (Agent Gateway: tool từ Registry, credit, router, lưu/chạy tiếp run trong Postgres). Không fork** OpenFang/OpenClaw/Hermes | Fork thì phải mổ lõi mới đa tenant được. AI SDK là lớp nền ít đổi API, đa provider; dữ liệu, quyền, credit và audit nằm trọn trong Postgres của ta |
 | V4 | **Không dùng Mastra, không làm swarm.** Phối hợp agent gồm orchestrator (`delegate`), handoff (`transfer_to_agent`), hỏi ý (`consult`) và tác vụ tự chủ | Mastra trùng storage/memory và đang có lỗi ở phần duyệt qua agent con; swarm khó dự đoán, khó duyệt và tốn credit. Interface Agent Gateway để ngỏ cho cả hai sau này |
 | V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
 | V6 | Monorepo pnpm: `web` (Next) · `api` (Nest) · `worker` (Nest, role channels/ai) · `packages/*` | Chia sẻ schema action và types FE/BE; worker tách để giữ phiên Zalo và chạy LLM dài |
-| V7 | Postgres 16 RLS + pgvector + FTS tiếng Việt; Redis/BullMQ; native, không Docker; PM2/systemd | RRI D12–D15 |
-| V8 | Prisma cho CRUD; SQL thô trong migration cho RLS, partial/expression/covering index; deferred join khi phân trang lớn | RRI D13 + quy tắc Postgres trong CLAUDE.md |
+| V7 | Postgres 16 (DB nền tảng + **DB riêng mỗi workspace**, PgBouncer) + pgvector + FTS tiếng Việt; Redis/BullMQ; native, không Docker; PM2/systemd | RRI D12–D15, D21 |
+| V8 | Prisma (2 schema: platform + tenant) cho CRUD; SQL thô trong migration cho partial/expression/covering index; deferred join khi phân trang lớn | RRI D13 + quy tắc Postgres trong CLAUDE.md |
 | V9 | Xác nhận theo mức rủi ro: đọc → chạy ngay; ghi/gửi/xoá/tiền → preview + `confirm_token`; agent trực kênh ≥70% tin cậy, các việc chạm tiền luôn chờ duyệt | BR-05, REQ-D05, E03 |
 | V10 | Credit ledger trên mọi lần gọi LLM; hết credit → chặn AI, chuyển hội thoại về người | RRI D09 |
 | V11 | **(CHỐT 2026-10-28)** Token UI theo `styles.css` của prototype; Plus Jakarta Sans. **UI kit: Ant Design v6 + Ant Design X**, một codebase responsive cho desktop và mobile web. **Parity desktop với prototype < 5%** (đo pixel bằng Playwright) | Giải R17; Chủ nhà chọn Ant; prototype là bản Chủ nhà đã duyệt |
 | V12 | OTP đăng nhập qua Email (Zalo OTP chờ có OA) | OQ-02; Zalo cá nhân không gửi OTP chính thống được |
 | V13 | **(CHỐT 2026-10-28) Production native trên VPS Linux**: systemd + PM2, nginx, PG16 + pgvector, Redis; **Prometheus + Alertmanager + Grafana + Loki** trên VPS monitoring riêng; backup pgBackRest offsite; script `infra/` dựng lại được | Chủ nhà chốt; không Docker (D12); chi tiết ở Blueprint §11 |
+| V14 | **(CHỐT 2026-10-28) Mỗi workspace một PostgreSQL database riêng** (`CREATE DATABASE … TEMPLATE`), cùng một DB nền tảng (identity, membership, gói, ví credit, hoá đơn gói, registry, định tuyến kênh/widget). Bảng tenant không có `workspace_id`, không RLS; PgBouncer; migration runner cho mọi DB | Chủ nhà yêu cầu cô lập ở mức DB; xoá / xuất / chuyển máy chủ từng khách dễ; chi tiết ở Blueprint §2.0 |
+| V15 | **(CHỐT 2026-10-28) i18n:** phát hành `vi` + `en`; registry khai báo sẵn 11 ngôn ngữ của prototype, chỉ bật vi/en; thêm ngôn ngữ chỉ cần file bản dịch | Chủ nhà chọn phương án A; Blueprint §7.4 |
 
 ---
 

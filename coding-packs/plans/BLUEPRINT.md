@@ -23,7 +23,7 @@ AppChat_Ver2/
 ├── packages/
 │   ├── core/                     # ★ Domain: NestJS modules (service + repo + action handlers), dùng chung api & worker
 │   ├── actions/                  # ★ Action Registry: định nghĩa (id, zod schema, metadata) — dùng chung web/core/ai
-│   ├── db/                       # Prisma multi-file schema, migrations (SQL RLS/index), tenant client, seed
+│   ├── db/                       # 2 Prisma schema (platform + tenant), migrations, PlatformDb, TenantDbResolver (LRU), provisioner, tenant-migrate runner, seed
 │   ├── ai/                       # Agent Gateway interface, AiSdkEngine, LLM Router, prompts, meta-tools
 │   ├── channels/                 # Channel adapter interface + adapters (zalo-personal, webchat, email)
 │   ├── shared/                   # types, enums, error codes, money/phone/date utils, i18n keys
@@ -122,31 +122,98 @@ shared/
 ├── assistant/  # AssistantDock, UI Command Bus (đăng ký handler theo route), context provider
 ├── shell/      # NavRail, Flyout, TopBar, MobileTabBar, nav-config.ts (đủ mọi route ngay từ TIP nền tảng UI)
 └── states/     # EmptyState, Skeletons, ErrorState, PageStates (5 trạng thái)
-messages/vi.json · messages/en.json   # next-intl; key theo module (mỗi module 1 file con)
+messages/<locale>/<module>.json       # next-intl + ICU; vi (nguồn) + en khi phát hành; thêm ngôn ngữ = thêm thư mục (§7.4)
 ```
 
 ---
 
 ## 2. DATA MODEL (PostgreSQL 16)
 
+### 2.0 Mô hình tenant: **mỗi workspace một PostgreSQL database riêng** (chốt 2026-10-28 — Vision V14, RRI D21)
+
+```
+PostgreSQL 16 cluster (native)  ── PgBouncer (transaction mode, :6432) ── app
+├── appchat_platform          DB nền tảng (control plane), duy nhất
+├── appchat_tenant_template   DB mẫu đã migrate + extensions; KHÔNG app nào kết nối (để CREATE DATABASE … TEMPLATE chạy được)
+├── ws_<workspace_short_id>   DB riêng của từng workspace (data plane)
+└── …
+```
+
+- **DB nền tảng** (`appchat_platform`) chứa:
+  - **Identity:** `user`, `otp_code`, `refresh_token`, `workspace` (registry), `membership`, `invite`, `business_profile`.
+  - **Billing:** `plan`, `subscription`, `credit_wallet`, `credit_ledger`, `billing_invoice`, `bank_transaction`.
+  - **Cấu hình:** `model_price`, `model_route`, `agent_template`.
+  - **Định tuyến:** `tenant_channel_route`, `tenant_widget_route`.
+  - **Vận hành:** `tenant_migration`, `workspace_stats`, `platform_audit_log`.
+- **DB tenant** (`ws_*`) chứa toàn bộ dữ liệu nghiệp vụ còn lại: kênh, hội thoại, CRM, bán hàng, lịch, ticket, marketing, loyalty, AI, action log, outbox, file.
+- **Bảng trong DB tenant không có cột `workspace_id` và không dùng RLS.** Cô lập ở mức database. Index không cần `workspace_id` ở đầu.
+- Không có FK giữa hai DB. Bảng tenant tham chiếu user bằng cột scalar `user_id` (không FK). Kiểm tồn tại ở tầng service qua `membership`.
+
+**Truy cập (`packages/db`):**
+- Hai Prisma schema và hai client:
+  - `prisma/platform/*.prisma` → `@appchat/db/platform`
+  - `prisma/tenant/*.prisma` → `@appchat/db/tenant`
+  - Multi-file; mỗi file thuộc đúng một TIP.
+- `PlatformDb`: một client dùng chung.
+- `TenantDbResolver.get(workspaceId)`:
+  - Đọc `workspace.db_name/db_host/db_status` (cache Redis 60s), rồi trả về `TenantDb` (Prisma Client + driver adapter `@prisma/adapter-pg`, pool nhỏ `max=3` qua PgBouncer).
+  - Client được cache LRU trong mỗi process (mặc định 100 DB, đóng client idle > 10 phút).
+  - **Chỉ được gọi với `TenantContext` đã xác thực:** middleware kiểm `membership` (hoặc route registry cho kênh/widget/webhook) rồi mới tạo context. Không có API nào nhận tên DB từ client.
+  - `db_status ≠ active` thì trả `WORKSPACE_UNAVAILABLE` (503 khi provisioning, 423 khi suspended/archived).
+- Thao tác chạm cả hai DB (ví dụ trừ credit + ghi `ai_run_step`) **không có transaction chung**:
+  - Làm phía nền tảng trước, có khoá idempotent (`credit_ledger` unique `(workspace_id, ref_type, ref_id)`), rồi mới ghi phía tenant.
+  - Job đối soát hằng giờ sửa chênh lệch.
+
+**Vòng đời DB tenant:**
+1. **Tạo workspace:**
+   - Ghi `workspace(db_status=provisioning)`.
+   - Job `tenant.provision` (worker-jobs, role `appchat_provisioner` có `CREATEDB`) chạy `CREATE DATABASE ws_x TEMPLATE appchat_tenant_template OWNER appchat_tenant_owner`, rồi seed mặc định: SLA policy mặc định, `loyalty_config`, `ai_governance`, thẻ mẫu, câu trả lời mẫu, agent mẫu theo ngành đã khai báo.
+   - Đặt `db_status=active`. Mục tiêu < 10 giây; UI onboarding hiện "Đang khởi tạo workspace…" và lắng nghe event `workspace.ready` qua WS.
+2. **Migration:**
+   - Deploy theo thứ tự: `migrate platform` → `migrate template` → `tenant-migrate` (runner duyệt mọi DB `active|suspended`, song song 4, ghi `tenant_migration(workspace_id, version, status, error, finished_at)`; DB lỗi thì đánh dấu, retry, không chặn DB khác, có cảnh báo).
+   - Migration phải expand-compatible: code mới chạy được với schema cũ một version trong lúc runner chưa chạy xong.
+   - App đọc `schema_version` của DB tenant; thấp hơn mức tối thiểu thì trả 503 cho workspace đó cho tới khi migrate xong.
+3. **Xoá workspace:** `db_status=deleting` → `pg_dump` lưu archive (giữ 30 ngày) → `DROP DATABASE` → xoá registry.
+4. **Chuyển máy chủ:** `db_host` cho phép đặt workspace ở cluster khác. Chuyển bằng `pg_dump | pg_restore` khi `db_status=suspended`; không phải sửa code.
+
+**Định tuyến không qua `X-Workspace-Id`:**
+- Tin Zalo / IMAP: `worker-channels` đọc `tenant_channel_route(channel_account_id, workspace_id, type, status)` từ DB nền tảng để biết account nào cần giữ phiên và thuộc DB nào.
+- Widget: `tenant_widget_route(public_key → workspace_id)`.
+- Webhook ngân hàng: chỉ chạm DB nền tảng (`billing_invoice`).
+- Job BullMQ luôn mang `workspaceId` trong payload; processor resolve DB từ đó.
+
+**Outbox khi có nhiều DB:**
+- Ghi `outbox_event` trong DB tenant cùng transaction nghiệp vụ, sau commit thì `SADD outbox:dirty <workspaceId>` (Redis).
+- Relay drain các workspace trong set đó.
+- Sweep toàn bộ DB mỗi 10 phút làm lưới an toàn.
+
+**Roles Postgres:**
+
+| Role | Dùng cho |
+|---|---|
+| `appchat_platform_app` | app đọc/ghi DB nền tảng |
+| `appchat_tenant_app` | app đọc/ghi các DB `ws_*` (`CONNECT` + DML); không `CREATEDB` |
+| `appchat_provisioner` | chỉ job tạo/xoá DB (`CREATEDB`) |
+| `appchat_migrator` | owner schema, chạy migration |
+
 ### 2.1 Quy tắc chung (bắt buộc)
 
-- **Prisma multi-file schema:** `packages/db/prisma/schema/<file>.prisma`. Mỗi file thuộc đúng **một TIP** (bản đồ sở hữu ở `02-TASK-GRAPH.md`). Domain lớn được tách nhiều file: `billing.prisma` + `billing-payments.prisma`, `channels.prisma` + `channels-webchat.prisma`, `ai-runs.prisma` + `ai-kb.prisma` + `ai-agents.prisma` + `ai-assistant.prisma` + `ai-tasks.prisma`. Tương tự `packages/actions/src/<file>.ts`.
-- **Migration:** mỗi TIP tạo thư mục migration riêng `<timestamp>_<tip>_<mô tả>`. Không sửa migration đã merge. Sau khi merge vào `main` phải chạy `prisma migrate diff` để kiểm drift; có drift thì tạo migration sửa.
-- **Không dùng Prisma relation xuyên domain.** Tham chiếu sang domain khác chỉ là cột scalar (`contactId String @db.Uuid`); foreign key được thêm bằng SQL trong migration. Prisma relation chỉ được dùng trong cùng một file domain. Nhờ vậy các TIP chạy song song không phải sửa chung file.
-- **Cột chuẩn của mọi bảng tenant:** `id uuid pk default gen_random_uuid()` (bảng hot dùng uuidv7 sinh từ app) · `workspace_id uuid not null` · `created_at timestamptz default now()` · `updated_at timestamptz`. Bản ghi xoá mềm có thêm `deleted_at`.
-- **RLS:**
-  - Mọi bảng tenant: `ENABLE ROW LEVEL SECURITY` + `FORCE` + policy `USING (workspace_id = current_setting('app.workspace_id', true)::uuid)` (kể cả `WITH CHECK`).
-  - App kết nối bằng role `appchat_app`, không có `BYPASSRLS`.
-  - Migration và quản trị nền tảng dùng role `appchat_owner`.
-- **Tenant client:**
-  - `db.tenant(ctx).run(async tx => …)` mở một transaction, chạy `SELECT set_config('app.workspace_id', $1, true)`, rồi mới chạy query.
-  - Repo vẫn truyền `workspaceId` vào `where` (defense in depth).
+- **Prisma multi-file schema:** `packages/db/prisma/{platform,tenant}/<file>.prisma`. Mỗi file thuộc đúng **một TIP** (bản đồ sở hữu ở `02-TASK-GRAPH.md`). Domain lớn tách nhiều file: `billing.prisma` + `billing-payments.prisma`, `channels.prisma` + `channels-webchat.prisma`, `ai-runs.prisma` + `ai-kb.prisma` + `ai-agents.prisma` + `ai-assistant.prisma` + `ai-tasks.prisma`. Tương tự `packages/actions/src/<file>.ts`.
+- **Migration:** mỗi TIP tạo thư mục migration riêng `<timestamp>_<tip>_<mô tả>` trong `platform/` hoặc `tenant/`. Không sửa migration đã merge. Sau khi merge vào `main` phải chạy `prisma migrate diff` cho cả hai schema để kiểm drift.
+- **Không dùng Prisma relation xuyên domain.** Tham chiếu sang domain khác chỉ là cột scalar (`contactId String @db.Uuid`); foreign key (trong cùng DB) được thêm bằng SQL trong migration. Prisma relation chỉ được dùng trong cùng một file domain. Nhờ vậy các TIP chạy song song không phải sửa chung file.
+- **Cột chuẩn:**
+  - Bảng tenant: `id uuid pk` (bảng hot dùng uuidv7 sinh từ app) · `created_at timestamptz default now()` · `updated_at timestamptz` · `deleted_at` nếu xoá mềm.
+  - Bảng nền tảng gắn với workspace có thêm `workspace_id uuid not null`.
+- **Test cô lập tenant (bắt buộc, thay cho RLS test):**
+  - (a) Request với `X-Workspace-Id` không thuộc membership → 403, không mở kết nối DB tenant.
+  - (b) `TenantDbResolver` không tạo được client khi thiếu context đã xác thực.
+  - (c) Job/route kênh resolve đúng DB theo registry.
+  - (d) Hai workspace chạy song song không thấy dữ liệu của nhau, kiểm trên DB thật.
 - **Tiền:** `bigint`, đơn vị VND (không dùng float). **Credit:** `bigint`.
-- **Thời gian:** `timestamptz`; hiển thị theo `Asia/Ho_Chi_Minh` (cấu hình theo workspace).
-- **Enum:** dùng Postgres enum qua Prisma, giá trị tiếng Anh snake_case. Nhãn tiếng Việt nằm trong i18n.
-- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `HD-…`, `LH-…`, `TK-…`. Sinh bằng bảng `sequence_counter(workspace_id, kind, value)` và lệnh `UPDATE … RETURNING`.
-- **Extensions:** `pgcrypto`, `vector` (pgvector), `pg_trgm`, `unaccent`, `btree_gist`.
+- **Thời gian:** `timestamptz`; hiển thị theo timezone của workspace (mặc định `Asia/Ho_Chi_Minh`).
+- **Enum:** dùng Postgres enum qua Prisma, giá trị tiếng Anh snake_case. Nhãn hiển thị nằm trong i18n.
+- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `HD-…`, `LH-…`, `TK-…`. Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
+- **Extensions** (cài sẵn trong DB template): `pgcrypto`, `vector` (pgvector), `pg_trgm`, `unaccent`, `btree_gist`, `citext`.
 - **Hàm bất biến:** `f_unaccent(text) IMMUTABLE`, dùng cho expression index tìm kiếm tiếng Việt không dấu.
 - **Index:**
   - Thứ tự cột: so sánh `=` trước, cột range/sort sau. Thêm `INCLUDE` khi cần covering index.
@@ -155,124 +222,129 @@ messages/vi.json · messages/en.json   # next-intl; key theo module (mỗi modul
 
 ### 2.2 Entities theo domain
 
-Ghi chú: `ws` = `workspace_id`. Dấu → là tham chiếu (FK).
+Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` (chỉ có ở bảng [P]). Bảng [T] không có cột workspace. Dấu → là tham chiếu.
 
-**identity.prisma** (TIP-004) — các bảng `user`, `refresh_token`, `otp_code` không có `workspace_id` và không áp RLS. Chỉ truy cập qua service.
+**[P] platform/identity.prisma** (TIP-004) — `user`, `refresh_token`, `otp_code` không gắn workspace. Chỉ truy cập qua service.
 
 | Bảng | Trường chính | Ràng buộc / index |
 |---|---|---|
 | `user` | id, email citext, password_hash?, name, phone?, avatar_url?, locale, is_platform_admin bool, email_verified_at, last_login_at | unique(email) |
 | `otp_code` | id, email, purpose(register\|login\|reset), code_hash, attempts, expires_at, consumed_at | idx(email, purpose, created_at desc) |
 | `refresh_token` | id, user_id→user, token_hash, family_id, expires_at, revoked_at, user_agent, ip | unique(token_hash); idx(user_id) |
-| `workspace` | id, name, slug, owner_user_id→user, timezone, locale, status(active\|suspended), settings jsonb (giờ mở cửa, giờ trực AI, ngưỡng mặc định) | **gốc tenant**: RLS dùng id |
+| `workspace` | id, name, slug, owner_user_id→user, timezone, locale, status(active\|suspended), settings jsonb (giờ mở cửa, giờ trực AI, ngưỡng mặc định) | **registry tenant**: thêm `db_name`, `db_host`, `db_status(provisioning\|active\|suspended\|archived\|deleting)`, `schema_version`, `provisioned_at` |
 | `membership` | ws, user_id, role(owner\|member), status(active\|invited\|removed), joined_at | unique(ws, user_id); idx(user_id) INCLUDE(ws, role) |
 | `invite` | ws, email, role, token_hash, expires_at, accepted_at | unique(token_hash) |
 | `business_profile` | ws (pk), kind(enterprise\|household\|individual), tax_code?, national_id?, legal_name, address, representative, phone, founded_on?, legal_status?, industry_group, industry, business_description, declared_at | 1-1 workspace |
+| `tenant_channel_route` | channel_account_id (pk), ws, type, external_id, status | worker-channels đọc để biết account cần giữ phiên + DB đích; đồng bộ khi kênh đổi trạng thái |
+| `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
+| `tenant_migration` | ws, version, status(pending\|running\|done\|failed), error?, started_at, finished_at | idx(status, version) |
+| `workspace_stats` | ws (pk), contacts, conversations_30d, messages_30d, db_size_bytes, last_active_at, refreshed_at | job đêm gom từ từng DB, phục vụ trang quản trị |
+| `platform_audit_log` | actor_user_id, action_id, ws?, input jsonb, result jsonb, created_at | audit cho action `admin.*` và action chạm DB nền tảng |
 
-**billing.prisma** (TIP-009) + **billing-payments.prisma** (`billing_invoice`, `bank_transaction` — TIP-010)
+**[P] platform/billing.prisma** (TIP-009) + **platform/billing-payments.prisma** (`billing_invoice`, `bank_transaction` — TIP-010)
 
 | Bảng | Trường | Ghi chú |
 |---|---|---|
-| `plan` (platform, không RLS) | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, active, sort | seed theo prototype; sửa được trong trang admin |
+| `plan` | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, active, sort | seed theo prototype; sửa được trong trang admin |
 | `subscription` | ws (unique), plan_id, status(trialing\|active\|expired\|cancelled), trial_started_at, trial_ends_at, current_period_start, current_period_end | |
 | `credit_wallet` | ws (pk), balance bigint, low_threshold, warn_80_sent_at, auto_topup jsonb | `balance >= 0` CHECK |
-| `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind) |
-| `model_price` (platform) | provider, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
-| `model_route` (platform) | tier, priority, provider, model, purpose(chat\|embed) | fallback theo priority |
+| `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
+| `model_price` | provider, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
+| `model_route` | tier, priority, provider, model, purpose(chat\|embed) | fallback theo priority |
 | `billing_invoice` | ws, code, kind(plan\|credits\|addon), plan_id?, credits?, amount, status(pending\|pending_review\|paid\|expired\|cancelled), method(qr\|bank_transfer), transfer_code unique, qr_payload, expires_at, paid_at, bank_tx_id? | partial idx(status) WHERE status in (pending, pending_review) |
-| `bank_transaction` (platform) | provider, provider_tx_id unique, amount, content, account_no, occurred_at, matched_invoice_id?, raw jsonb | idempotent theo `provider_tx_id` |
+| `bank_transaction` | provider, provider_tx_id unique, amount, content, account_no, occurred_at, matched_invoice_id?, raw jsonb | idempotent theo `provider_tx_id` |
 
-**channels.prisma** (TIP-014) + **channels-webchat.prisma** (`webchat_widget` — TIP-017)
+**[T] tenant/channels.prisma** (TIP-014) + **tenant/channels-webchat.prisma** (`webchat_widget` — TIP-017)
 
 | Bảng | Trường | Ghi chú |
 |---|---|---|
-| `channel_account` | ws, type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định), health jsonb, last_event_at | unique(ws, type, external_id) |
-| `webchat_widget` | ws, channel_account_id, public_key unique, theme jsonb, greeting, prechat_form jsonb, agent_id?, allowed_domains text[] | |
+| `channel_account` | type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định), health jsonb, last_event_at | unique(type, external_id) |
+| `webchat_widget` | channel_account_id, public_key unique, theme jsonb, greeting, prechat_form jsonb, agent_id?, allowed_domains text[] | |
 
-**inbox.prisma**
-
-| Bảng | Trường | Index |
-|---|---|---|
-| `conversation` | ws, channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(ws, status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(ws, assignee_user_id, last_message_at desc); partial idx(ws, ai_state) WHERE ai_state in (waiting_approval, handoff) |
-| `message` | ws, conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, created_at | unique(channel_account_id, external_msg_id); idx(ws, conversation_id, created_at desc). Partition theo tháng làm sau khi scale |
-| `conversation_participant` | ws, conversation_id, external_id, display_name, contact_id? | dùng cho hội thoại nhóm |
-| `conversation_tag` | ws, conversation_id, tag_id | pk(conversation_id, tag_id) |
-| `canned_reply` | ws, shortcut, title, body, attachments jsonb | unique(ws, shortcut) |
-| `outbox_message` | ws, message_id, channel_account_id, payload jsonb, status(pending\|sending\|sent\|failed\|dead), attempts, next_attempt_at, last_error | idx(status, next_attempt_at) |
-
-**crm.prisma**
+**[T] tenant/inbox.prisma**
 
 | Bảng | Trường | Index |
 |---|---|---|
-| `contact` | ws, code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|won\|lost), owner_user_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(ws, phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(ws, stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(ws, lower(email)) WHERE email IS NOT NULL |
-| `contact_identity` | ws, contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) |
-| `tag` | ws, name, color, scope(all\|contact\|conversation) | unique(ws, lower(name)) — nguồn thẻ dùng chung cho khách và hội thoại |
-| `contact_tag` | ws, contact_id, tag_id | pk |
-| `contact_memory` | ws, contact_id, fact, source_run_id?, confidence | AI ghi nhớ sự kiện về khách |
-| `timeline_event` | ws, contact_id, type(message\|quote\|order\|invoice\|payment\|appointment\|ticket\|note\|ai_action\|loyalty\|campaign\|stage), ref_type, ref_id, actor_type, actor_id, summary, payload jsonb, occurred_at | idx(ws, contact_id, occurred_at desc) |
-| `contact_note` | ws, contact_id, body, author_user_id | |
-| `custom_field_def` | ws, entity(contact\|product\|quote\|order\|ticket\|appointment), key, label, type(text\|number\|currency\|date\|email\|phone\|picklist\|lookup\|file\|textarea), options jsonb, required, sort, visible_in jsonb | unique(ws, entity, key) |
+| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
+| `message` | conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, created_at | unique(channel_account_id, external_msg_id); idx(conversation_id, created_at desc). Partition theo tháng làm sau khi scale |
+| `conversation_participant` | conversation_id, external_id, display_name, contact_id? | dùng cho hội thoại nhóm |
+| `conversation_tag` | conversation_id, tag_id | pk(conversation_id, tag_id) |
+| `canned_reply` | shortcut, title, body, attachments jsonb | unique(shortcut) |
+| `outbox_message` | message_id, channel_account_id, payload jsonb, status(pending\|sending\|sent\|failed\|dead), attempts, next_attempt_at, last_error | idx(status, next_attempt_at) |
 
-**catalog.prisma** — `product_category(ws, name, parent_id?)`; `product(ws, code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)`; `product_component(product_id, child_id, qty)` cho combo. Index: gin trigram trên tên; idx(ws, status, type).
+**[T] tenant/crm.prisma**
 
-**sales.prisma**
+| Bảng | Trường | Index |
+|---|---|---|
+| `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|won\|lost), owner_user_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
+| `contact_identity` | contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) |
+| `tag` | name, color, scope(all\|contact\|conversation) | unique(lower(name)) — nguồn thẻ dùng chung cho khách và hội thoại |
+| `contact_tag` | contact_id, tag_id | pk |
+| `contact_memory` | contact_id, fact, source_run_id?, confidence | AI ghi nhớ sự kiện về khách |
+| `timeline_event` | contact_id, type(message\|quote\|order\|invoice\|payment\|appointment\|ticket\|note\|ai_action\|loyalty\|campaign\|stage), ref_type, ref_id, actor_type, actor_id, summary, payload jsonb, occurred_at | idx(contact_id, occurred_at desc) |
+| `contact_note` | contact_id, body, author_user_id | |
+| `custom_field_def` | entity(contact\|product\|quote\|order\|ticket\|appointment), key, label, type(text\|number\|currency\|date\|email\|phone\|picklist\|lookup\|file\|textarea), options jsonb, required, sort, visible_in jsonb | unique(entity, key) |
+
+**[T] tenant/catalog.prisma** — `product_category(name, parent_id?)`; `product(code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)`; `product_component(product_id, child_id, qty)` cho combo. Index: gin trigram trên tên; idx(status, type).
+
+**[T] tenant/sales.prisma**
 
 | Bảng | Trường |
 |---|---|
-| `quote` | ws, code, version int, root_quote_id?, contact_id, conversation_id?, status(draft\|pending_approval\|sent\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, discount_total, tax_total, total, valid_until (mặc định +15 ngày), note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
-| `quote_item` | ws, quote_id, product_id?, name, qty numeric(12,2), unit_price, discount, tax_rate, line_total, sort |
-| `order` | ws, code, contact_id, quote_id?, conversation_id?, status(new\|confirmed\|shipping\|done\|cancelled), pay_status(unpaid\|partial\|paid\|refunded), subtotal, discount_total, points_redeemed, points_value, tax_total, total, shipping jsonb?, completed_at?, cancelled_reason? |
-| `order_item` | ws, order_id, product_id?, name, qty, unit_price, discount, tax_rate, line_total |
-| `invoice` | ws, code, order_id, contact_id, status(draft\|sent\|paid\|overdue\|void), total, paid_amount, due_date, sent_at?, file_id? |
-| `customer_payment` | ws, invoice_id, amount, method(qr\|bank_transfer\|cash\|card), reference?, status(pending\|confirmed\|failed), confirmed_by? |
-| `payment_account` | ws, bank_bin, account_no, account_name — tài khoản nhận tiền của DN, dùng sinh VietQR cho khách |
+| `quote` | code, version int, root_quote_id?, contact_id, conversation_id?, status(draft\|pending_approval\|sent\|accepted\|revision_requested\|rejected\|expired\|superseded), subtotal, discount_total, tax_total, total, valid_until (mặc định +15 ngày), note, created_by_type(user\|agent\|assistant), created_by_id, approved_by?, sent_at?, decided_at?, file_id? |
+| `quote_item` | quote_id, product_id?, name, qty numeric(12,2), unit_price, discount, tax_rate, line_total, sort |
+| `order` | code, contact_id, quote_id?, conversation_id?, status(new\|confirmed\|shipping\|done\|cancelled), pay_status(unpaid\|partial\|paid\|refunded), subtotal, discount_total, points_redeemed, points_value, tax_total, total, shipping jsonb?, completed_at?, cancelled_reason? |
+| `order_item` | order_id, product_id?, name, qty, unit_price, discount, tax_rate, line_total |
+| `invoice` | code, order_id, contact_id, status(draft\|sent\|paid\|overdue\|void), total, paid_amount, due_date, sent_at?, file_id? |
+| `customer_payment` | invoice_id, amount, method(qr\|bank_transfer\|cash\|card), reference?, status(pending\|confirmed\|failed), confirmed_by? |
+| `payment_account` | bank_bin, account_no, account_name — tài khoản nhận tiền của DN, dùng sinh VietQR cho khách |
 
-**booking.prisma**
+**[T] tenant/booking.prisma**
 
 | Bảng | Trường / ràng buộc |
 |---|---|
-| `staff` | ws, name, user_id?, color, skills (product ids), active |
-| `staff_schedule` | ws, staff_id, weekday, start_time, end_time (mặc định lấy theo giờ mở cửa) |
-| `appointment` | ws, code, contact_id, service_id (product type=service), staff_id?, start_at, end_at, status(pending\|confirmed\|in_progress\|done\|no_show\|rescheduled\|cancelled\|expired), hold_expires_at?, reschedule_of_id?, reschedule_count, cancel_reason?, source(user\|agent\|assistant\|widget), conversation_id?, note, reminders_sent jsonb. **Ràng buộc:** `EXCLUDE USING gist (workspace_id WITH =, staff_id WITH =, tstzrange(start_at, end_at + buffer) WITH &&) WHERE (status IN ('pending','confirmed','in_progress'))`; idx(ws, start_at) INCLUDE(staff_id, status) |
+| `staff` | name, user_id?, color, skills (product ids), active |
+| `staff_schedule` | staff_id, weekday, start_time, end_time (mặc định lấy theo giờ mở cửa) |
+| `appointment` | code, contact_id, service_id (product type=service), staff_id?, start_at, end_at, status(pending\|confirmed\|in_progress\|done\|no_show\|rescheduled\|cancelled\|expired), hold_expires_at?, reschedule_of_id?, reschedule_count, cancel_reason?, source(user\|agent\|assistant\|widget), conversation_id?, note, reminders_sent jsonb. **Ràng buộc:** `EXCLUDE USING gist (staff_id WITH =, tstzrange(start_at, end_at + buffer) WITH &&) WHERE (status IN ('pending','confirmed','in_progress'))`; idx(start_at) INCLUDE(staff_id, status) |
 
-**support.prisma**
-
-| Bảng | Trường |
-|---|---|
-| `sla_policy` | ws, name, is_default (không xoá được), frt_human_min (10), ttr_human_min (240), business_hours_only, escalation jsonb, active |
-| `ticket` | ws, code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(ws, status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
-| `ticket_comment` | ws, ticket_id, author_type, author_id, body, internal bool |
-
-**marketing.prisma** — `segment(ws, name, filter jsonb /* AST điều kiện */, is_dynamic, last_count)`; `campaign(ws, code, name, kind(reactivation|upsell|conversion|aftercare|manual), channel(zalo|email), segment_id, content jsonb {text, variables, cta, attachments}, ab jsonb?, status(draft|pending_approval|approved|scheduled|running|paused|completed|rejected|cancelled), scheduled_at?, approved_by?, approved_at?, est_recipients, est_credits, stats jsonb, suggestion_id?)`; `campaign_recipient(ws, campaign_id, contact_id, status(pending|skipped|sent|failed|replied|converted), skip_reason?, message_id?, sent_at?)` với unique(campaign_id, contact_id); `campaign_suggestion(ws, kind, title, reason, segment_filter, est_count, best_time, channel, status(new|used|dismissed), generated_at)`.
-
-**loyalty.prisma** — `loyalty_config(ws pk, enabled, earn_vnd_per_point (10000), redeem_vnd_per_point (100), tiers jsonb [{key:'member',min:0,mult:1},{key:'silver',min:5000,mult:1},{key:'gold',min:15000,mult:1.5},{key:'diamond',min:40000,mult:2}], expiry_months?)`; `loyalty_ledger(ws, contact_id, delta, balance_after, kind(earn|redeem|adjust|expire|reverse), reason, ref_type, ref_id, actor_type, actor_id, reversed_by_id?)` với idx(ws, contact_id, created_at desc).
-
-**ai-*.prisma** — `ai_run`, `ai_run_step` → ai-runs (TIP-019) · `kb_*` → ai-kb (TIP-020) · `ai_agent`, `agent_template`, `approval_request`, `ai_governance` → ai-agents (TIP-021) · `assistant_*` → ai-assistant (TIP-023) · `ai_task` → ai-tasks (TIP-035)
+**[T] tenant/support.prisma**
 
 | Bảng | Trường |
 |---|---|
-| `ai_agent` | ws, name, role(sales\|cs\|booking\|marketing\|accounting\|ops\|custom), avatar, persona, tone, system_prompt, model_tier(standard\|advanced\|max), tool_ids text[] (action ids), kb_source_ids uuid[], channel_account_ids uuid[], confidence_threshold (0.7), approval_rules jsonb, working_hours jsonb, status(draft\|active\|paused), template_key?, version |
-| `agent_template` (platform) | key, role, industry_group?, industry?, name, description, defaults jsonb |
-| `kb_source` | ws, agent_id?, kind(file\|url\|text\|catalog), name, file_id?, url?, status(pending\|processing\|ready\|failed), error?, chunk_count, refreshed_at |
-| `kb_chunk` | ws, source_id, content, embedding vector(1536), token_count, meta jsonb. Index: `hnsw (embedding vector_cosine_ops)`; idx(ws, source_id) |
-| `ai_run` | ws, kind(agent_reply\|assistant\|delegate\|consult\|task\|suggestion), parent_run_id?, root_run_id?, depth, state jsonb? (messages + pending tool call khi chờ duyệt), agent_id?, conversation_id?, assistant_session_id?, task_id?, initiated_by_user_id?, status(queued\|running\|waiting_approval\|completed\|failed\|cancelled\|handoff), plan jsonb?, input jsonb, output jsonb?, error?, confidence?, credits_used, started_at, finished_at. Index: idx(ws, status, started_at desc) |
-| `ai_run_step` | ws, run_id, idx, type(llm\|tool\|delegate\|consult\|handoff\|ui_command), agent_id?, action_id?, input jsonb, output jsonb, status, provider?, model?, tokens_in, tokens_out, credits, latency_ms |
-| `approval_request` | ws, run_id, step_id, action_id, input jsonb, preview jsonb, risk, reason, status(pending\|approved\|rejected\|edited\|expired), requested_at, decided_by?, decided_at?, decision_note?. partial idx(ws, requested_at desc) WHERE status='pending' |
-| `assistant_session` | ws, user_id, title, mode(chat\|cowork), last_message_at, archived_at? |
-| `assistant_message` | ws, session_id, role(user\|assistant\|tool), content jsonb (parts: text, card, ui_command, attachment), run_id? |
-| `ai_task` | ws, name, goal, department, agent_id, trigger(manual\|schedule\|event), cron?, event_type?, data_scope jsonb, tool_ids text[], credit_limit_per_run, ask_before_send bool, model_tier, status(active\|paused), last_run_at, next_run_at |
-| `ai_governance` | ws pk, banned_words text[], force_approval jsonb (quote_total_over 20000000, discount_over_pct, refund, bulk_send, contract), pii_filter bool, default_threshold |
+| `sla_policy` | name, is_default (không xoá được), frt_human_min (10), ttr_human_min (240), business_hours_only, escalation jsonb, active |
+| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
+| `ticket_comment` | ticket_id, author_type, author_id, body, internal bool |
 
-**kernel.prisma** (hạ tầng chung — TIP-002)
+**[T] tenant/marketing.prisma** — `segment(name, filter jsonb /* AST điều kiện */, is_dynamic, last_count)`; `campaign(code, name, kind(reactivation|upsell|conversion|aftercare|manual), channel(zalo|email), segment_id, content jsonb {text, variables, cta, attachments}, ab jsonb?, status(draft|pending_approval|approved|scheduled|running|paused|completed|rejected|cancelled), scheduled_at?, approved_by?, approved_at?, est_recipients, est_credits, stats jsonb, suggestion_id?)`; `campaign_recipient(campaign_id, contact_id, status(pending|skipped|sent|failed|replied|converted), skip_reason?, message_id?, sent_at?)` với unique(campaign_id, contact_id); `campaign_suggestion(kind, title, reason, segment_filter, est_count, best_time, channel, status(new|used|dismissed), generated_at)`.
+
+**[T] tenant/loyalty.prisma** — `loyalty_config(id smallint pk = 1, enabled, earn_vnd_per_point (10000), redeem_vnd_per_point (100), tiers jsonb [{key:'member',min:0,mult:1},{key:'silver',min:5000,mult:1},{key:'gold',min:15000,mult:1.5},{key:'diamond',min:40000,mult:2}], expiry_months?)`; `loyalty_ledger(contact_id, delta, balance_after, kind(earn|redeem|adjust|expire|reverse), reason, ref_type, ref_id, actor_type, actor_id, reversed_by_id?)` với idx(contact_id, created_at desc).
+
+**[T] tenant/ai-*.prisma** (riêng `agent_template` ở [P] platform/templates.prisma) — `ai_run`, `ai_run_step` → ai-runs (TIP-019) · `kb_*` → ai-kb (TIP-020) · `ai_agent`, `agent_template`, `approval_request`, `ai_governance` → ai-agents (TIP-021) · `assistant_*` → ai-assistant (TIP-023) · `ai_task` → ai-tasks (TIP-035)
 
 | Bảng | Trường |
 |---|---|
-| `action_log` | ws, action_id, risk, source(ui\|assistant\|agent\|task\|system\|api), actor_type(user\|agent\|assistant\|system), actor_id, on_behalf_of_user_id?, run_id?, input jsonb, before jsonb?, after jsonb?, result jsonb?, status(succeeded\|failed\|undone), error?, undo_until?, undone_by?, undone_at?, created_at. Index: idx(ws, created_at desc) INCLUDE(action_id, actor_type, status); idx(ws, run_id). **Đây cũng là audit log.** |
-| `outbox_event` | id, ws, topic, payload jsonb, status(pending\|published\|failed), attempts, available_at, created_at. idx(status, available_at) |
-| `idempotency_key` | ws, key, route, request_hash, response jsonb, status_code, created_at. pk(ws, key); TTL 24h (job dọn) |
-| `file` | ws, storage_key, name, mime, size, sha256, uploaded_by, purpose |
-| `sequence_counter` | ws, kind, value | pk(ws, kind) |
-| `notification` | ws, user_id, type, title, body, link, read_at?. idx(ws, user_id, read_at, created_at desc) |
+| `ai_agent` | name, role(sales\|cs\|booking\|marketing\|accounting\|ops\|custom), avatar, persona, tone, system_prompt, model_tier(standard\|advanced\|max), tool_ids text[] (action ids), kb_source_ids uuid[], channel_account_ids uuid[], confidence_threshold (0.7), approval_rules jsonb, working_hours jsonb, status(draft\|active\|paused), template_key?, version |
+| `agent_template` **[P]** | key, role, industry_group?, industry?, name, description, defaults jsonb |
+| `kb_source` | agent_id?, kind(file\|url\|text\|catalog), name, file_id?, url?, status(pending\|processing\|ready\|failed), error?, chunk_count, refreshed_at |
+| `kb_chunk` | source_id, content, embedding vector(1536), token_count, meta jsonb. Index: `hnsw (embedding vector_cosine_ops)`; idx(source_id) |
+| `ai_run` | kind(agent_reply\|assistant\|delegate\|consult\|task\|suggestion), parent_run_id?, root_run_id?, depth, state jsonb? (messages + pending tool call khi chờ duyệt), agent_id?, conversation_id?, assistant_session_id?, task_id?, initiated_by_user_id?, status(queued\|running\|waiting_approval\|completed\|failed\|cancelled\|handoff), plan jsonb?, input jsonb, output jsonb?, error?, confidence?, credits_used, started_at, finished_at. Index: idx(status, started_at desc) |
+| `ai_run_step` | run_id, idx, type(llm\|tool\|delegate\|consult\|handoff\|ui_command), agent_id?, action_id?, input jsonb, output jsonb, status, provider?, model?, tokens_in, tokens_out, credits, latency_ms |
+| `approval_request` | run_id, step_id, action_id, input jsonb, preview jsonb, risk, reason, status(pending\|approved\|rejected\|edited\|expired), requested_at, decided_by?, decided_at?, decision_note?. partial idx(requested_at desc) WHERE status='pending' |
+| `assistant_session` | user_id, title, mode(chat\|cowork), last_message_at, archived_at? |
+| `assistant_message` | session_id, role(user\|assistant\|tool), content jsonb (parts: text, card, ui_command, attachment), run_id? |
+| `ai_task` | name, goal, department, agent_id, trigger(manual\|schedule\|event), cron?, event_type?, data_scope jsonb, tool_ids text[], credit_limit_per_run, ask_before_send bool, model_tier, status(active\|paused), last_run_at, next_run_at |
+| `ai_governance` | id smallint pk = 1, banned_words text[], force_approval jsonb (quote_total_over 20000000, discount_over_pct, refund, bulk_send, contract), pii_filter bool, default_threshold |
+
+**[T] tenant/kernel.prisma** (hạ tầng chung — TIP-002)
+
+| Bảng | Trường |
+|---|---|
+| `action_log` | action_id, risk, source(ui\|assistant\|agent\|task\|system\|api), actor_type(user\|agent\|assistant\|system), actor_id, on_behalf_of_user_id?, run_id?, input jsonb, before jsonb?, after jsonb?, result jsonb?, status(succeeded\|failed\|undone), error?, undo_until?, undone_by?, undone_at?, created_at. Index: idx(created_at desc) INCLUDE(action_id, actor_type, status); idx(run_id). **Đây cũng là audit log.** |
+| `outbox_event` | id, topic, payload jsonb, status(pending\|published\|failed), attempts, available_at, created_at. idx(status, available_at) |
+| `idempotency_key` | key, route, request_hash, response jsonb, status_code, created_at. pk(key); TTL 24h (job dọn) |
+| `file` | storage_key, name, mime, size, sha256, uploaded_by, purpose |
+| `sequence_counter` | kind, value | pk(kind) |
+| `notification` | user_id, type, title, body, link, read_at?. idx(user_id, read_at, created_at desc) |
 
 ### 2.3 Domain events (outbox → BullMQ queue `events`)
 
@@ -331,9 +403,9 @@ interface ActionContext {
   runId?: string; stepId?: string; idempotencyKey?: string; confirmToken?: string;
 }
 interface ActionHandler<I, O> {
-  execute(ctx: ActionContext, input: I, tx: TenantTx): Promise<O>;
-  preview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<ActionPreview>; // diff before/after, count
-  undo?(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void>;
+  execute(ctx: ActionContext, input: I, tx: DbTx): Promise<O>;
+  preview?(ctx: ActionContext, input: I, tx: DbTx): Promise<ActionPreview>; // diff before/after, count
+  undo?(ctx: ActionContext, log: ActionLogRow, tx: DbTx): Promise<void>;
 }
 // @ActionHandler('quote.send') — đăng ký qua decorator; boot fail nếu registry có id thiếu handler
 ```
@@ -345,7 +417,7 @@ interface ActionHandler<I, O> {
 3. Kiểm quyền theo membership role của `onBehalfOfUserId ?? actor`.
 4. Áp **policy** (§3.3). Kết quả là chạy ngay, hoặc trả `PREVIEW_REQUIRED` (kèm preview + `confirm_token` lưu Redis 10 phút, gắn với hash của input), hoặc tạo `APPROVAL_REQUIRED` (insert `approval_request`).
 5. Kiểm `Idempotency-Key`.
-6. Mở tenant transaction, gọi `handler.execute`, ghi `action_log` (before/after), ghi `outbox_event`.
+6. Mở transaction trên DB tenant của workspace (qua `TenantDbResolver`), gọi `handler.execute`, ghi `action_log` (before/after), ghi `outbox_event`. Action có `db: 'platform'` (billing, member, workspace, admin) chạy transaction trên DB nền tảng; action_log vẫn ghi vào DB tenant (admin.* ghi `platform_audit_log`).
 7. Trả `{ result, actionLogId, undoUntil?, uiTarget? }`.
 
 ### 3.3 Policy theo nguồn × rủi ro
@@ -738,7 +810,7 @@ export type RunEvent = { type: 'delta'|'tool_call'|'tool_result'|'paused'|'usage
   - Ngân sách credit chung cho cả cây run (run con trừ vào budget của run gốc).
   - Mọi bước đều ghi vào `ai_run_step` và phát `run.step` qua WS để Owner xem trực tiếp và bấm dừng (`run.cancel` huỷ cả cây).
 - **Không làm swarm:** không có kênh để agent tự nhắn agent khác ngoài 3 tool trên; mỗi lần phối hợp đều có một run cha làm đầu mối.
-- **Usage:** mỗi bước LLM phát event `usage` → `CreditMeter.charge(ws, provider, model, in, out, runId)`. Hàm này ghi ledger và trừ ví trong cùng transaction. Trước mỗi bước kiểm `balance > 0`; ví hết thì phát `CREDIT_EXHAUSTED`.
+- **Usage:** mỗi bước LLM phát event `usage` → `CreditMeter.charge(ws, provider, model, in, out, runId, stepIdx)`. Hàm này ghi `credit_ledger` và trừ `credit_wallet` trong một transaction ở **DB nền tảng** (idempotent theo `(ws, 'ai_step', runId:stepIdx)`), sau đó mới ghi `ai_run_step.credits` ở DB tenant. Trước mỗi bước kiểm `balance > 0`; ví hết thì phát `CREDIT_EXHAUSTED`.
 - **LLM Router:**
   - Đọc `model_route` theo tier/purpose. Lỗi 5xx, 429 hoặc timeout 30s thì chuyển sang provider kế tiếp.
   - API key của provider đặt trong env. Chỉ bật provider có key.
@@ -804,7 +876,7 @@ export interface NormalizedInbound {
 }
 ```
 
-- **Account lease:** mỗi `channel_account` chỉ do **một** worker giữ phiên. Dùng Redis lock `lease:channel:{id}`, TTL 30 giây, heartbeat 10 giây. Worker khởi động sẽ nhận các account `connected` chưa có lease.
+- **Account lease:** danh sách account cần giữ phiên đọc từ `tenant_channel_route` (DB nền tảng); credential đọc từ DB tenant tương ứng. Mỗi `channel_account` chỉ do **một** worker giữ phiên. Dùng Redis lock `lease:channel:{id}`, TTL 30 giây, heartbeat 10 giây. Worker khởi động sẽ nhận các account `connected` chưa có lease.
 - **Zalo cá nhân** (zca-js; thiết kế theo OpenClaw `zalouser`, MIT):
   - **Đăng nhập:** QR login phát ảnh qua WS. Khi thành công, lưu `{cookie, imei, userAgent}` đã mã hoá vào `credentials_enc`. Khởi động lại thì login bằng credential đã lưu; lỗi thì chuyển `expired` và thông báo quét lại.
   - **Listener:** tin 1-1 và tin nhóm. Nhóm chỉ kích hoạt AI theo `group_ai_policy`.
@@ -908,6 +980,30 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 
 ---
 
+### 7.4 i18n (chốt 2026-10-28 — Vision V15, RRI D22: phát hành `vi` + `en`, nền sẵn để thêm ngôn ngữ)
+
+- **Registry ngôn ngữ** `packages/shared/src/i18n/locales.ts`: mỗi ngôn ngữ có mã BCP-47, tên bản địa, cờ (ảnh 20×14, không dùng emoji), locale của antd, locale của dayjs, định dạng số/tiền/ngày, `dir`, `enabled`.
+  - Khai báo sẵn đủ 11 ngôn ngữ của prototype (`vi`, `en`, `zh-CN`, `zh-HK`, `zh-TW`, `ja`, `ko`, `th`, `ms`, `id`, `fil`); chỉ `vi` và `en` có `enabled: true`.
+  - Menu ngôn ngữ (Profile, footer đăng nhập) chỉ hiện ngôn ngữ đã bật. Đây là ngoại lệ parity có chủ đích.
+  - **Thêm ngôn ngữ = thêm thư mục bản dịch + bật `enabled`.** Không sửa code.
+- **Bản dịch:** `apps/web/messages/<locale>/<module>.json` (next-intl), chuẩn ICU MessageFormat (số nhiều, biến, chọn). Không nối chuỗi trong code.
+  - `vi` là ngôn ngữ nguồn.
+  - Fallback: `zh-HK → zh-TW → en → vi`, và `* → en → vi`. Không bao giờ hiện key thô.
+- **Đồng bộ khi đổi ngôn ngữ:** next-intl, `ConfigProvider locale` của antd và Ant Design X, dayjs, `Intl.NumberFormat`/`DateTimeFormat` (qua helper `fmt.money/date/number` trong `packages/shared`).
+- **Chọn locale:** `user.locale` → `workspace.locale` → `Accept-Language` → `vi`. Trước khi đăng nhập dùng cookie `NEXT_LOCALE`. Không đưa locale vào URL (app nằm sau đăng nhập).
+- **Server:**
+  - API trả `error.code` (+ `fields` là code); client tự dịch.
+  - Email (OTP, mời, thông báo), PDF báo giá/hoá đơn và thông báo in-app render theo locale người nhận, template ở `packages/shared/i18n/server/<locale>/`.
+  - Nhãn action (`actions.<id>.title`) lấy từ messages.
+- **AI:**
+  - Trợ lý trả lời bằng ngôn ngữ của người dùng (`user.locale`, hoặc ngôn ngữ họ đang gõ).
+  - Agent trực kênh trả lời bằng **ngôn ngữ khách đang nhắn**: phát hiện và lưu `contact.locale` (thêm cột này vào `contact`).
+  - System prompt nằm trong kho prompt (`packages/ai/prompts/`), tách khỏi messages UI.
+  - Dữ liệu do doanh nghiệp nhập (sản phẩm, KB, nội dung chiến dịch) không tự dịch.
+- **CI:**
+  - `i18n:check` fail khi `vi` hoặc `en` thiếu key, hoặc còn chuỗi hard-code (`eslint-plugin-i18next` cho JSX/TSX).
+  - Ngôn ngữ chưa bật thì chỉ báo độ phủ; chỉ được bật khi độ phủ ≥ 98% và đã kiểm UI (độ dài chữ th/zh/ja).
+
 ## 8. INTEGRATION POINTS
 
 | Tích hợp | Cách làm | Trạng thái |
@@ -942,8 +1038,8 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 | 5 trạng thái UI | Empty / Skeleton / Loaded (fade 150ms) / Error-retry / Confirm — bắt buộc ở mọi màn có dữ liệu |
 | Bảo mật | argon2id; JWT HS256 (secret ≥ 32 byte, xoay được); CSRF: refresh cookie SameSite=Lax + chỉ chấp nhận POST; helmet; rate-limit (auth, actions, widget); mã hoá credential kênh AES-256-GCM (`CHANNEL_ENC_KEY`); upload kiểm MIME + giới hạn kích thước |
 | A11y | WCAG AA (tương phản, focus ring 3px, điều hướng bàn phím trong dock/dialog/table) |
-| i18n | Không hard-code chuỗi UI; `vi` mặc định, có `en`; tiền `1.250.000₫`, ngày `dd/MM/yyyy` |
-| Test | unit (core services + policy), integration (Postgres thật DB `appchat_test`, Redis thật), RLS isolation, e2e Playwright, AI eval (fixture replay + live gated `AI_EVAL_LIVE=1`) |
+| i18n | §7.4: phát hành `vi` + `en`; registry 11 ngôn ngữ (chỉ bật vi/en); ICU, fallback, antd/dayjs đồng bộ; lint chặn chuỗi hard-code; tiền `1.250.000₫`, ngày `dd/MM/yyyy` theo locale |
+| Test | unit (core services + policy), integration (Postgres thật: `appchat_platform_test` + DB tenant tạo từ template mỗi suite, Redis thật), tenant isolation (§2.1), e2e Playwright, AI eval (fixture replay + live gated `AI_EVAL_LIVE=1`) |
 | Vận hành | Native VPS (systemd + PM2), không Docker (§11); log JSON (pino) → Alloy → Loki; metrics `prom-client` + exporters → Prometheus; Grafana dashboards + Alertmanager (email/Telegram); `/healthz`, `/readyz`; pgBackRest (full tuần, diff ngày, WAL liên tục → RPO ≤ 5 phút, RTO ≤ 1 giờ), restore thử hằng tuần |
 
 ---
@@ -954,8 +1050,9 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 |---|---|---|
 | K1 | **pgvector trên Windows chạy native** khó cài (cần build hoặc binary đúng phiên bản PG16) | TIP-002 kiểm `CREATE EXTENSION vector`. Nếu không cài được: dev tạm dùng `kb_chunk.embedding` kiểu `real[]` + tìm tuyến tính (chỉ cho dev). Prod chạy Linux có pgvector. Escalate nếu cả hai đều không được |
 | K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; thiết kế sẵn chỗ cho Zalo OA (P2) |
-| K3 | Prisma + RLS: mỗi request một transaction | `db.tenant()` dùng batch `$transaction([set_config, query])` cho đọc đơn giản; interactive transaction cho action. Đo p95 ở TIP-002 |
+| K3 | DB-per-tenant: số kết nối, RAM của Prisma Client mỗi DB, autovacuum trên nhiều DB | PgBouncer transaction mode bắt buộc; driver adapter `@prisma/adapter-pg` pool nhỏ; LRU client; đo RAM/latency với 200 DB giả lập. Đo p95 ở TIP-002 |
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |
+| K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace miễn phí không hoạt động lâu có thể archive (dump + drop, khôi phục khi đăng nhập) — cần Chủ nhà chốt chính sách |
 | K6 | Single VPS là điểm lỗi duy nhất | Backup offsite + restore thử hằng tuần; runbook dựng lại VPS < 1 giờ bằng `infra/scripts`; khi doanh thu cho phép thì thêm replica PG ở VPS thứ 2 |
 | K5 | Prisma multi-file schema và tên cờ preview đổi theo phiên bản | TIP-001 chốt phiên bản Prisma/Next/Nest ổn định mới nhất, ghi lại vào `product/tech-stack.md` |
 
@@ -974,7 +1071,8 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
                                   │   app.<domain>/api → api  :4000  (NestJS, PM2 cluster ×N, sticky cho Socket.IO)          │
                                   │   widget.<domain>  → widget.js tĩnh + /widget socket                                    │
                                   │ worker-channels ×1 · worker-ai ×N · worker-jobs ×1   (PM2 fork)                          │
-                                  │ PostgreSQL 16 + pgvector (PGDG apt) · Redis 7 (apt, AOF everysec)                        │
+                                  │ PostgreSQL 16 + pgvector (PGDG apt) — 1 DB nền tảng + 1 DB/workspace · PgBouncer :6432 │
+                                  │ Redis 7 (apt, AOF everysec)                                                              │
                                   │ node_exporter · postgres_exporter · redis_exporter · nginx exporter · Grafana Alloy      │
                                   │ /metrics của api/worker chỉ nghe 127.0.0.1 / mạng riêng                                  │
                                   └───────────────┬───────────────────────────────────────────────────────────────────────────┘
@@ -996,14 +1094,14 @@ settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm) → Settings
 infra/
 ├── README.md                  # runbook: dựng VPS mới, deploy, rollback, restore backup, xoay secret
 ├── scripts/
-│   ├── provision-app.sh       # idempotent: user, ufw, fail2ban, node 22 LTS, pnpm, pm2, nginx, certbot, PG16+pgvector, redis, exporters, alloy
+│   ├── provision-app.sh       # idempotent: user, ufw, fail2ban, node 22 LTS, pnpm, pm2, nginx, certbot, PG16+pgvector, pgbouncer, redis, exporters, alloy; tạo 4 role + DB nền tảng + DB template
 │   ├── provision-mon.sh       # prometheus, alertmanager, loki, grafana, blackbox (binary chính thức / apt repo Grafana)
 │   ├── deploy.sh              # build → migrate → pm2 reload (gọi từ GitHub Actions qua SSH)
 │   ├── rollback.sh            # quay về release trước (thư mục releases/<sha>, symlink current)
 │   └── backup-verify.sh       # restore thử bản backup mới nhất vào DB tạm mỗi tuần
 ├── nginx/                     # site configs (app, api, widget, grafana), snippets TLS/headers/rate-limit
 ├── systemd/                   # unit cho exporter, alloy, prometheus, loki, alertmanager, grafana (khi cài từ binary)
-├── postgres/                  # postgresql.conf tuning, pg_hba.conf, pgbackrest.conf
+├── postgres/                  # postgresql.conf tuning (autovacuum cho nhiều DB), pg_hba.conf, pgbackrest.conf, pgbouncer.ini
 ├── redis/redis.conf
 ├── prometheus/                # prometheus.yml, rules/*.yml (recording + alert)
 ├── alertmanager/alertmanager.yml   # kênh nhận: email + Telegram
@@ -1017,7 +1115,7 @@ infra/
 
 1. GitHub Actions: lint → typecheck → unit/integration → build (`pnpm turbo build`) → đóng gói artifact.
 2. SSH vào VPS-APP: giải nén vào `/srv/appchat/releases/<git-sha>`, `pnpm install --frozen-lockfile --prod`.
-3. `prisma migrate deploy` (role `appchat_owner`). Migration phải tương thích ngược một phiên bản (expand → migrate → contract) để reload không lỗi.
+3. Migration (role `appchat_migrator`): `migrate platform` → `migrate template` → `tenant-migrate` (duyệt mọi DB `ws_*`, song song 4, ghi `tenant_migration`). Migration phải tương thích ngược một phiên bản (expand → migrate → contract) để reload không lỗi khi runner chưa xong.
 4. Đổi symlink `current` → `pm2 reload ecosystem.config.cjs --update-env` (cluster reload từng instance). Worker nhận SIGTERM thì ngừng nhận job mới, chờ job đang chạy (tối đa 60 giây). `worker-channels` nhả lease Zalo trước khi tắt.
 5. Smoke test `/readyz` + Blackbox; lỗi thì `rollback.sh` tự động.
 - Secrets: file `/etc/appchat/env` (chmod 600, chỉ user `appchat` đọc), không commit. Mẫu ở `.env.example`.
@@ -1029,7 +1127,8 @@ infra/
 | Nguồn | Exporter | Chỉ số chính |
 |---|---|---|
 | Máy chủ | node_exporter | CPU, RAM, disk, I/O, network |
-| PostgreSQL | postgres_exporter (+ `pg_stat_statements`) | kết nối, TPS, slow query, cache hit, bloat, tuổi backup/WAL |
+| PostgreSQL | postgres_exporter (+ `pg_stat_statements`) | kết nối, TPS, slow query, cache hit, bloat, tuổi backup/WAL; số DB tenant, kích thước top-20 DB (không auto-discover toàn bộ DB để tránh cardinality) |
+| PgBouncer | pgbouncer_exporter | pool đang dùng / chờ, client chờ |
 | Redis | redis_exporter | bộ nhớ, evictions, kết nối |
 | nginx | nginx-prometheus-exporter (stub_status) | request, kết nối |
 | api / worker | `prom-client` tại `/metrics` (127.0.0.1) | HTTP RED theo route (`http_request_duration_seconds`), action theo `action_id` + kết quả, WS kết nối, BullMQ (`queue_waiting/active/failed` theo queue), outbox lag, tin nhắn vào/ra theo kênh, **trạng thái tài khoản kênh** (connected/error/expired), LLM latency/token/lỗi theo provider + model, credit trừ, approval đang chờ |
@@ -1063,6 +1162,7 @@ infra/
 | Thanh toán | webhook ngân hàng lỗi chữ ký / không khớp hoá đơn |
 | Hạ tầng | disk > 80%, RAM > 90%, PG kết nối > 80% max, Redis evictions > 0 |
 | Backup | bản full/diff mới nhất > 26 giờ, WAL archive lỗi, `backup-verify` thất bại |
+| Tenant DB | `tenant.provision` lỗi / > 60 giây; `tenant-migrate` có DB `failed`; PgBouncer client chờ > 0 trong 2 phút |
 | Uptime / TLS | HTTPS down > 2 phút; chứng chỉ còn < 14 ngày |
 
 ### 11.5 Bảo mật VPS
@@ -1070,4 +1170,4 @@ infra/
 - `ufw`: chỉ mở 22 (khoá mật khẩu, chỉ SSH key), 80, 443. Postgres / Redis / exporters / Prometheus / Loki chỉ nghe `127.0.0.1` hoặc giao diện WireGuard.
 - fail2ban, `unattended-upgrades` (bản vá bảo mật), user `appchat` không có sudo chạy app.
 - Grafana sau nginx + TLS, tắt đăng ký, bật 2FA cho admin.
-- PostgreSQL: `scram-sha-256`, role `appchat_app` (không BYPASSRLS) và `appchat_owner` tách biệt; TLS nếu tách sang VPS-DB.
+- PostgreSQL: `scram-sha-256`; 4 role tách biệt (`appchat_platform_app`, `appchat_tenant_app`, `appchat_provisioner`, `appchat_migrator` — §2.0); app chỉ kết nối qua PgBouncer; DB template không cho app kết nối; TLS nếu tách sang VPS-DB.

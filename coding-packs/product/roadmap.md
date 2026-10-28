@@ -10,7 +10,7 @@
   - Bắt buộc khai báo DN/Cá nhân (tra cứu MST) và lĩnh vực.
   - Multi-workspace với membership N–N; chuyển workspace.
   - RBAC (vai trò tuỳ biến, seed mặc định).
-  - RLS trên Postgres, có test chống rò rỉ dữ liệu giữa tenant.
+  - ~~RLS trên Postgres~~ → mỗi workspace một database riêng (RRI D21), có test chống rò rỉ dữ liệu giữa tenant.
 - **Trial 15 ngày gói Cá nhân Pro**, kèm badge và màn chào mừng.
 - **Channel Gateway:** kiến trúc adapter, bắt đầu với Zalo OA, Facebook Messenger và Web Live Chat. Có webhook, chống xử lý trùng (idempotent) và outbox.
 - **Hộp thư realtime**, bố cục 3 cột:

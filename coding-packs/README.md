@@ -49,7 +49,7 @@ coding-packs/
 |-------|-----------|
 | Frontend | Next.js (App Router) + React + TypeScript strict · Ant Design v6 + Ant Design X (desktop + mobile web, parity prototype < 5%) |
 | Backend | NestJS (TypeScript), modular monolith + worker processes |
-| Database | PostgreSQL 16 + RLS (`workspace_id`) + pgvector |
+| Database | PostgreSQL 16 — DB nền tảng + database riêng mỗi workspace (PgBouncer) + pgvector |
 | Cache / Queue | Redis (+ BullMQ) |
 | Realtime | WebSocket (+ SSE fallback) |
 | Storage | S3-compatible |
