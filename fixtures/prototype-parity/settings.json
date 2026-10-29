@@ -1,0 +1,115 @@
+{
+  "now": "2026-06-24T09:00:00+07:00",
+  "workspace": {
+    "id": "ms-vn-2026",
+    "name": "MediaSoft Vietnam",
+    "initial": "MS",
+    "legal_name": "MediaSoft Vietnam Corp.",
+    "website": "https://mediasoft.vn",
+    "tax_code": "0314783952",
+    "address": "81 Cách Mạng Tháng 8, Q.1, TP.HCM",
+    "support_phone": "+84 28 3823 4567",
+    "admin_email": "admin@mediasoft.vn",
+    "locale": "vi",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "date_format": "DD/MM/YYYY",
+    "currency": "VND"
+  },
+  "workspaces": [
+    {
+      "name": "MediaSoft Vietnam",
+      "id": "ms-vn-2026",
+      "plan": "Ultimate",
+      "seats": "12/15",
+      "color": "#1B9E5A",
+      "current": true
+    },
+    {
+      "name": "Spa Hương Sen",
+      "id": "spa-hs-2026",
+      "plan": "Business",
+      "seats": "5/8",
+      "color": "#DB2777",
+      "current": false
+    },
+    {
+      "name": "Nha khoa Minh Châu",
+      "id": "nk-mc-2026",
+      "plan": "Team",
+      "seats": "3/5",
+      "color": "#2563EB",
+      "current": false
+    }
+  ],
+  "members": [
+    {
+      "id": "u_ngoc",
+      "name": "Mai Đình Ngọc",
+      "email": "ngocmd@mediasoft.vn",
+      "role": "owner",
+      "dept": "Ban giám đốc",
+      "color": "#16A34A",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_tram",
+      "name": "Nguyễn Thùy Trâm",
+      "email": "tramnt@appchat.vn",
+      "role": "manager",
+      "dept": "Kinh doanh",
+      "color": "#7C3AED",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_minh",
+      "name": "Lê Quốc Minh",
+      "email": "minhlq@appchat.vn",
+      "role": "manager",
+      "dept": "Vận hành",
+      "color": "#16A34A",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_huong",
+      "name": "Phạm Thu Hương",
+      "email": "huongpt@appchat.vn",
+      "role": "cs",
+      "dept": "CS",
+      "color": "#2563EB",
+      "last": "2h",
+      "status": "offline"
+    },
+    {
+      "id": "u_huyen",
+      "name": "Đỗ Thị Huyền",
+      "email": "huyendt@appchat.vn",
+      "role": "sales",
+      "dept": "Marketing",
+      "color": "#16A34A",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_khanh",
+      "name": "Trần Văn Khánh",
+      "email": "khanhtv@appchat.vn",
+      "role": "accountant",
+      "dept": "Kế toán",
+      "color": "#2563EB",
+      "last": "3d",
+      "status": "pending"
+    }
+  ],
+  "member_total": 12,
+  "seat_limit": 15,
+  "role_colors": {
+    "owner": "#DC2626",
+    "manager": "#7C3AED",
+    "sales": "#2DC56A",
+    "cs": "#F59E0B",
+    "accountant": "#2563EB"
+  }
+}

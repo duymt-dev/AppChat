@@ -17,6 +17,7 @@ import { createCalendarState, type CalendarState } from './domains/calendar';
 import { createTicketsState, type TicketsState } from './domains/tickets';
 import { createMarketingState, type MarketingState } from './domains/marketing';
 import { createLoyaltyState, type LoyaltyState } from './domains/loyalty';
+import { createSettingsState, type SettingsState } from './domains/settings';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -53,6 +54,7 @@ export interface MockDb {
   tickets: TicketsState;
   marketing: MarketingState;
   loyalty: LoyaltyState;
+  settings: SettingsState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -87,6 +89,7 @@ const db: MockDb = {
   tickets: createTicketsState(),
   marketing: createMarketingState(),
   loyalty: createLoyaltyState(),
+  settings: createSettingsState(),
 };
 
 type Listener = (event: string) => void;

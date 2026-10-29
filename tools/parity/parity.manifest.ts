@@ -52,6 +52,27 @@ const calendar = { ac_module: 'calendar' };
 const tickets = { ac_module: 'tickets' };
 const marketing = { ac_module: 'marketing' };
 const loyalty = { ac_module: 'loyalty' };
+const settings = (tab: string) => ({ ac_module: 'settings', ac_settings: tab });
+
+/** Mục Cài đặt OUT (prototype-parity §6) → gỡ khỏi nav prototype để các mục còn lại đúng vị trí như V2. */
+const SETTINGS_OUT = [
+  'Sơ đồ tổ chức', 'Phòng ban', 'KPI & Mục tiêu', 'Phân ca trực', 'Cấu hình workflow', 'Routing & assignment',
+  'API & Webhooks', 'API Playground', 'Developer tools', 'Bảo mật', 'SSO & 2FA', 'Data & Compliance', 'Đối tác tiếp thị',
+];
+const settingsProto = (p: Page) =>
+  p.evaluate((out) => {
+    const nav = [...document.querySelectorAll<HTMLElement>('.appscroll')].find((el) => el.offsetWidth === 280);
+    if (!nav) return;
+    const rows = [...nav.children] as HTMLElement[];
+    let seenApps = 0;
+    for (const el of rows) {
+      const text = el.textContent?.trim() ?? '';
+      if (text === 'TỰ ĐỘNG HOÁ') el.remove();
+      else if (text === 'ỨNG DỤNG' && ++seenApps === 2) el.remove();
+      else if (out.some((l) => text === l || (text.startsWith(l) && /^(NEW|PRO|\d+)?$/.test(text.slice(l.length))))) el.remove();
+    }
+  }, SETTINGS_OUT);
+const ST_MAIN = { x: 360, y: 64, width: 1080, height: 836 };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -1106,5 +1127,45 @@ export const MANIFEST: ParityEntry[] = [
     proto: (p) => p.locator('.cmpwrap').nth(2).scrollIntoViewIfNeeded(),
     app: (p) => p.getByTestId('ly-rules').scrollIntoViewIfNeeded(),
     clipTo: { proto: '.cmpwrap >> nth=2', app: '[data-testid="ly-rules"]' },
+  },
+  {
+    id: 'settings:shell',
+    route: '/settings/general',
+    protoStorage: settings('general'),
+    appWait: '[data-testid="st-nav"]',
+    proto: settingsProto,
+    clip: { x: 80, y: 0, width: 280, height: 900 },
+  },
+  {
+    id: 'settings:general',
+    route: '/settings/general',
+    protoStorage: settings('general'),
+    appWait: '[data-ws]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:locale',
+    route: '/settings/locale',
+    protoStorage: settings('locale'),
+    appWait: '[data-testid="st-locale"]',
+    proto: settingsProto,
+    clip: { x: 360, y: 64, width: 1080, height: 400 },
+  },
+  {
+    id: 'settings:members',
+    route: '/settings/members',
+    protoStorage: settings('members'),
+    appWait: '[data-member]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:roles',
+    route: '/settings/roles',
+    protoStorage: settings('roles'),
+    appWait: '[data-role]',
+    proto: settingsProto,
+    clip: ST_MAIN,
   },
 ];
