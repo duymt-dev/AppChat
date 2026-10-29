@@ -24,7 +24,7 @@
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 26 | 0 | ✅ | 7e531ba | [#8](https://github.com/duymt-dev/AppChat/pull/8) (xếp chồng #7) |
-| F7 | Rà soát cuối | 5 | 5 | 0 | ✅ | __F7SHA__ | __F7PR__ |
+| F7 | Rà soát cuối | 5 | 5 | 0 | ✅ | 8a368bc | [#9](https://github.com/duymt-dev/AppChat/pull/9) (xếp chồng #8) |
 | **Tổng** | | **137** | **137** | **0** | | | |
 
 ---
