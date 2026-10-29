@@ -20,12 +20,12 @@
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
 | F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
 | F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | bf2b4a5 | [#4](https://github.com/duymt-dev/AppChat/pull/4) (xếp chồng #3) |
-| F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
+| F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **136** | **36** | **0** | | | |
+| **Tổng** | | **136** | **67** | **0** | | | |
 
 ---
 
@@ -98,23 +98,23 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `assistant:chat-welcome` | Trợ lý, chế độ Chat, màn chào | L1178 | P | ⬜ | | | | |
-| `assistant:cowork-welcome` | Trợ lý, chế độ Cowork, màn chào | L1178 | P | ⬜ | | | | |
-| `assistant:thread` | Hội thoại có plan + confirm + result card | L1178 | P | ⬜ | | | | Dữ liệu kịch bản mock |
-| `assistant:attach` | Menu "+" đính kèm | L640 | P | ⬜ | | | | |
-| `assistant:model-picker` | Chọn mức AI | L656 | E | ⬜ | | | | Mức AI, ẩn tên model (D29) |
-| `assistant:agent-picker` | Chọn agent | L668 | P | ⬜ | | | | |
-| `assistant:cowork-new` | Tạo tác vụ Cowork | L1318 | P | ⬜ | | | | |
-| `assistant:cowork-drawer` | Drawer tác vụ (prompt / kiến thức / công cụ / nhật ký) | L1388 | P | ⬜ | | | | |
-| `agents:list` | Danh sách agent + thống kê | L2227 | E | ⬜ | | | | Ẩn "Mở Workflow" |
-| `agents:template-gallery` | Thư viện mẫu theo ngành | L2227 | P | ⬜ | | | | |
-| `agents:builder` | Builder tạo / sửa agent | L2292 | E | ⬜ | | | | Ẩn hành động OUT, mức AI (D29) |
-| `agents:builder-templates` | Mẫu prompt trong builder | L2332 | P | ⬜ | | | | |
-| `agents:test-chat` | Chat thử trong builder | L2292 | P | ⬜ | | | | dryRun |
-| `agents:ai-create` | Tạo agent bằng Trợ lý AI | L2421 | E | ⬜ | | | | Thêm thẻ xác nhận "Tạo & xuất bản" (D29) |
-| `agents:versions` | Lịch sử phiên bản, quay lại | — | M | ⬜ | — | | | D29 |
-| `approvals:queue` | Hàng chờ duyệt | — | M | ⬜ | — | | | |
-| `actions:log` | Nhật ký hành động + hoàn tác | L1464 | P | ⬜ | | | | |
+| `assistant:chat-welcome` | Trợ lý, chế độ Chat, màn chào | L1178 | P | ✅ | 0.0265 | pass | ccaad26 | Pill mức AI mask (D29) |
+| `assistant:cowork-welcome` | Trợ lý, chế độ Cowork, màn chào | L1178 | P | ✅ | 0.0260 | pass | ccaad26 | Pill + tag thẻ agent: mức AI (D29) — mask |
+| `assistant:thread` | Hội thoại có plan + confirm + result card | L1178 | P | ✅ | 0.0030 | pass | ccaad26 | Dữ liệu kịch bản mock; Kịch bản omiIntent/omiReply qua POST /assistant/messages + /confirm |
+| `assistant:attach` | Menu "+" đính kèm | L640 | P | ✅ | 0.0242 | pass | ccaad26 |  |
+| `assistant:model-picker` | Chọn mức AI | L656 | E | ✅ | 0.0359 | pass | ccaad26 | Mức AI, ẩn tên model (D29); Tiêu chuẩn / Nâng cao / Tối đa, không tên model (D29) |
+| `assistant:agent-picker` | Chọn agent | L668 | P | ✅ | 0.0339 | pass | ccaad26 |  |
+| `assistant:cowork-new` | Tạo tác vụ Cowork | L1318 | P | ✅ | 0.0176 | pass | ccaad26 | "Model thực thi" → "Mức AI thực thi" (D29) — mask; ghi qua ai_task.create |
+| `assistant:cowork-drawer` | Drawer tác vụ (prompt / kiến thức / công cụ / nhật ký) | L1388 | P | ✅ | 0.0049 | pass | ccaad26 |  |
+| `agents:list` | Danh sách agent + thống kê | L2227 | E | ✅ | 0.0053 | pass | 37a386a | Ẩn "Mở Workflow" (OUT) — mask; thêm mục "Agent của bạn" (bật / tạm dừng, mức AI, phiên bản, xoá) dưới thư viện — mask |
+| `agents:template-gallery` | Thư viện mẫu theo ngành | L2227 | P | ✅ | 0.0213 | pass | 37a386a | Tìm + 3 select phụ thuộc + Xoá lọc, 20 mẫu / trang (45 mẫu, 3 trang); mẫu → builder |
+| `agents:builder` | Builder tạo / sửa agent | L2292 | E | ✅ | 0.0116 | pass | 37a386a | Ẩn hành động OUT, mức AI (D29); "Mô hình AI" → "Mức AI", kênh theo registry (3) — mask 2 vùng; xuất bản = agent.create_and_publish / agent.update + agent.publish |
+| `agents:builder-templates` | Mẫu prompt trong builder | L2332 | P | ✅ | 0.0382 | pass | 37a386a | 4 mẫu + "Tối ưu hóa" qua agent.optimize_prompt |
+| `agents:test-chat` | Chat thử trong builder | L2292 | P | ✅ | 0.0008 | pass | 37a386a | dryRun; mỗi lượt gọi agent.test (risk read), kèm dòng ghi chú chạy thử |
+| `agents:ai-create` | Tạo agent bằng Trợ lý AI | L2421 | E | ✅ | 0.0074 | pass | 37a386a | Thêm thẻ xác nhận "Tạo & xuất bản" (D29); mô tả → agent.draft_from_description → agent.create_and_publish \| "Mở trong builder" mang bản nháp sang |
+| `agents:versions` | Lịch sử phiên bản, quay lại | — | M | ✅ | — | pass | 37a386a | D29; drawer 392 của AI Agents, mỗi lần xuất bản = 1 phiên bản, quay lại = agent.rollback (tạo phiên bản mới) |
+| `approvals:queue` | Hàng chờ duyệt | — | M | ✅ | — | pass | 7b66250 | Màn mới; duyệt cần approvals.decide + quyền action gốc (Quản lý không duyệt hoàn tiền) |
+| `actions:log` | Nhật ký hành động + hoàn tác | L1464 | P | ✅ | 0.0232 | pass | 7b66250 | Workflow / ZNS (OUT) → Ticket / Zalo — mask 2 ô |
 
 ## F4 — Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán
 
@@ -448,7 +448,99 @@
 
 
 ### F3
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F3
+
+**STATUS:** DONE
+**COMMIT:** c62ae0f trên nhánh `goal/fe-prototype-f3` (xếp chồng F2 / PR #4)
+
+**FILES CHANGED:**
+- Lớp dữ liệu (6f89e3f):
+  - `packages/actions/src/ai.ts`: 16 action:
+    - agent: `draft_from_description / create / create_and_publish / update / publish / rollback / pause / delete / test / optimize_prompt`;
+    - approval: `approve / reject`;
+    - ai_task: `create / update / pause / delete`.
+  - Quyền dùng: `agents.manage`, `approvals.decide`, `ai_task.manage`.
+  - Mock `shared/api/mock/domains/assistant.ts` (lượt chat + thẻ xác nhận, Coworks, nhật ký hành động, hàng chờ duyệt) và `agents.ts` (agent, mẫu, phiên bản); có test.
+  - Fixture `assistant.json` / `agents.json`, sinh bởi `tools/scripts/fixtures/gen-assistant.py`. Tên model đổi thành mức AI (D29), mục OUT đã bỏ.
+- Trợ lý AI (ccaad26): `features/assistant`.
+  - Màn chào Chat / Cowork; hội thoại có thẻ xác nhận → đã lưu / huỷ.
+  - Composer: popover + / mức AI / agent.
+  - Coworks: chỉ số, lưới tác vụ, modal tạo, drawer cấu hình 4 tab.
+  - Thêm token nhóm `illus` cho mặt bot.
+- Nhật ký + Chờ duyệt (7b66250):
+  - Nhật ký: lọc loại / trạng thái / ngày, hoàn tác.
+  - Chờ duyệt: duyệt cần `approvals.decide` **và** quyền approve của action gốc.
+  - Flyout Trợ lý có mục "Chờ duyệt" theo quyền; `authz.changed` invalidate toàn bộ.
+- AI Agents (37a386a): `features/agents`.
+  - Thư viện mẫu: tìm + 3 select phụ thuộc, 20 mẫu / trang.
+  - "Agent của bạn": bật / tạm dừng, mức AI, phiên bản, xoá.
+  - Builder toàn màn (`/agents/new`, `/agents/[id]`):
+    - biểu tượng, tên, mức AI, ngôn ngữ;
+    - prompt + 4 mẫu + Tối ưu hóa;
+    - kênh theo registry; intent / từ khoá / khung giờ;
+    - 9 hành động map sang action id; governance;
+    - kiến thức; chat thử qua `agent.test` (dryRun).
+  - Drawer Trợ lý AI thu nhỏ: gợi ý → mô tả → thẻ xác nhận "Tạo & xuất bản" | "Mở trong builder".
+  - Drawer lịch sử phiên bản: quay lại tạo phiên bản mới.
+- Dùng chung: `tools/parity/protoState.ts` (đặt state prototype qua fiber `stateNode.logic`); 15 dòng manifest F3.
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint`: 5/5 xanh; `lint:size` 336 file, không vượt trần; `lint:tokens` 228 file đúng thang D41.
+- `pnpm typecheck`: 5/5 xanh.
+- `pnpm test`: shared 11, ui 2, actions 3, web 34 passed (0 failed).
+- `pnpm i18n:check`: vi 1131 / en 1131 key (100%).
+- `pnpm parity --all`: 50/50 PASS. Kết quả F3:
+
+  | Màn | diffRatio |
+  |-----|-----------|
+  | assistant:chat-welcome | 0.0265 |
+  | assistant:cowork-welcome | 0.0260 |
+  | assistant:thread | 0.0030 |
+  | assistant:attach | 0.0242 |
+  | assistant:model-picker | 0.0359 |
+  | assistant:agent-picker | 0.0339 |
+  | assistant:cowork-new | 0.0176 |
+  | assistant:cowork-drawer | 0.0049 |
+  | actions:log | 0.0232 |
+  | agents:list | 0.0053 |
+  | agents:template-gallery | 0.0213 |
+  | agents:builder | 0.0116 |
+  | agents:builder-templates | 0.0382 |
+  | agents:test-chat | 0.0008 |
+  | agents:ai-create | 0.0074 |
+
+  `approvals:queue` và `agents:versions` là màn mới (loại M), không đo pixel.
+- `pnpm e2e` (build + start, desktop + mobile-390): 55 passed, 31 skipped (test chỉ chạy ở một viewport), 0 failed.
+  - Trợ lý: 6 test; AI Agents: 5 test.
+- Mobile 390: assistant / cowork / nhật ký / chờ duyệt / agents / builder / drawer Trợ lý không tràn ngang, vùng chạm ≥ 44px.
+- Phân quyền (mock):
+  - Quản lý không duyệt được yêu cầu hoàn tiền (thiếu quyền action gốc).
+  - Sales không thấy mục "Chờ duyệt".
+- Không chạy được:
+  - backend thật (FE dùng mock transport D38);
+  - LLM thật cho chat / chat thử / soạn agent (kịch bản mock): chưa nghiệm thu với provider thật.
+
+**ISSUES DISCOVERED:**
+- Thấp: prototype đặt state qua `stateNode.logic.setState`, không qua `stateNode.setState`. Đã gom vào `protoState.ts`.
+- Thấp: `page.goto` reset store mock, nên e2e đi trong app qua flyout để giữ dữ liệu vừa tạo.
+- Thấp: dev server cache import động thất bại của `messages/*/agents.json` (file tạo sau khi server chạy) → phải khởi động lại. Không ảnh hưởng build.
+- Thấp: prototype có danh sách `aiAgents` trong state nhưng không render. "Agent của bạn" là phần thêm dưới thư viện mẫu, mask khi đo.
+
+**DEVIATIONS FROM SPEC:**
+- D29:
+  - tên model (Haiku / Sonnet / Opus) thành mức AI Tiêu chuẩn / Nâng cao / Tối đa ở composer, Coworks, drawer, builder, thẻ agent;
+  - tạo agent bằng Trợ lý có thẻ xác nhận một bước.
+- Gỡ mục OUT:
+  - "Mở Workflow";
+  - hành động ZNS / SMS, kích hoạt workflow, xử lý cuộc gọi, HTTP;
+  - kênh ngoài registry: builder chỉ có Zalo cá nhân / Web chat / Email.
+- Màn mới (loại M, dựng bằng token + pattern sẵn có): Chờ duyệt, lịch sử phiên bản.
+- Nhật ký: dòng "Workflow" / "ZNS" của prototype thành Ticket / Zalo (fixture), mask khi đo.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Blueprint §3.4 nên ghi rõ: duyệt (`approval.approve`) cần đồng thời quyền approve của action gốc.
+- Blueprint §2.2 `ai_agent`: thêm `handoff_to` (staff / team / lead) và `governance` (4 cờ) theo builder.
+- Đề xuất `agent.test` nhận `config` bản nháp (chạy thử trước khi lưu); mock đã làm theo cách này.
 
 ### F4
 _chưa có_

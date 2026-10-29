@@ -22,7 +22,8 @@
   "assistantFly": {
     "title": "Trợ lý AI · AppChat",
     "chats": "Nội dung trò chuyện",
-    "actions": "Nhật ký hành động"
+    "actions": "Nhật ký hành động",
+    "approvals": "Chờ duyệt"
   },
   "crmFly": {
     "title": "Khách hàng & CRM",

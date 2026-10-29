@@ -31,6 +31,7 @@ export function NavFlyout({ kind }: NavFlyoutProps) {
   const { styles } = usePopoverStyles();
   const flyout = useShellStore((s) => s.flyout);
   const setFlyout = useShellStore((s) => s.setFlyout);
+  const canApprove = useCan('approvals.decide');
   if (!flyout || flyout.kind !== kind) return null;
 
   const go = (route: string) => {
@@ -55,6 +56,12 @@ export function NavFlyout({ kind }: NavFlyoutProps) {
             <Icon name="ic-flow" size={layout.iconSm} color={color.text3} />
             <span>{t('assistantFly.actions')}</span>
           </div>
+          {canApprove ? (
+            <div className={styles.flyRow} onClick={() => go('/assistant/approvals')}>
+              <Icon name="ic-shield" size={layout.iconSm} color={color.text3} />
+              <span>{t('assistantFly.approvals')}</span>
+            </div>
+          ) : null}
         </>
       ) : (
         <>

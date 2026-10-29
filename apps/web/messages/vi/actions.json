@@ -118,5 +118,56 @@
     "update": {
       "title": "Lưu cấu hình trường"
     }
+  },
+  "agent": {
+    "draft_from_description": {
+      "title": "Soạn cấu hình agent"
+    },
+    "create": {
+      "title": "Tạo AI Agent (nháp)"
+    },
+    "create_and_publish": {
+      "title": "Tạo & xuất bản AI Agent"
+    },
+    "update": {
+      "title": "Lưu nháp AI Agent"
+    },
+    "publish": {
+      "title": "Xuất bản AI Agent"
+    },
+    "rollback": {
+      "title": "Quay lại phiên bản"
+    },
+    "pause": {
+      "title": "Bật / tạm dừng AI Agent"
+    },
+    "delete": {
+      "title": "Xoá AI Agent"
+    },
+    "test": {
+      "title": "Chat thử AI Agent"
+    },
+    "optimize_prompt": {
+      "title": "Tối ưu hướng dẫn"
+    }
+  },
+  "approval": {
+    "approve": {
+      "title": "Duyệt yêu cầu"
+    },
+    "reject": {
+      "title": "Từ chối yêu cầu"
+    }
+  },
+  "ai_task": {
+    "create": {
+      "title": "Tạo tác vụ tự chủ"
+    },
+    "update": {
+      "title": "Lưu cấu hình tác vụ"
+    },
+    "pause": {
+      "title": "Bật / tạm dừng tác vụ"
+    }
   }
 }

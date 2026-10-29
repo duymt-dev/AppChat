@@ -22,11 +22,13 @@ interface InboxUiState {
   modal: InboxModal;
   composerMode: 'reply' | 'note';
   autoXl: boolean;
+  /** Bản nháp composer (Trợ lý điền qua UiCommand prefill `inbox.composer`). */
+  draft: string;
   select: (id: string) => void;
   backToList: () => void;
   toggleRail: () => void;
   toggle360: () => void;
-  set: (p: Partial<Pick<InboxUiState, 'tab' | 'tab360' | 'channel' | 'account' | 'sort' | 'modal' | 'composerMode' | 'autoXl'>>) => void;
+  set: (p: Partial<Pick<InboxUiState, 'tab' | 'tab360' | 'channel' | 'account' | 'sort' | 'modal' | 'composerMode' | 'autoXl' | 'draft'>>) => void;
   togglePop: (p: Exclude<InboxPop, null>, menuFor?: string) => void;
   closePop: () => void;
 }
@@ -49,7 +51,8 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   modal: null,
   composerMode: 'reply',
   autoXl: false,
-  select: (selectedId) => set({ selectedId, mobileChat: true, pop: null, tab360: 'overview' }),
+  draft: '',
+  select: (selectedId) => set({ selectedId, mobileChat: true, pop: null, tab360: 'overview', draft: '' }),
   backToList: () => set({ mobileChat: false }),
   toggleRail: () => set((s) => ({ folderRail: !s.folderRail })),
   toggle360: () => set((s) => ({ show360: !s.show360 })),

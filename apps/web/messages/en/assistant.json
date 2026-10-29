@@ -1,0 +1,220 @@
+{
+  "title": "AI Assistant",
+  "brand": "AppChat",
+  "crumb": {
+    "actions": "· Action log",
+    "cowork": "· Autonomous tasks (Coworks)",
+    "approvals": "· Approvals"
+  },
+  "newChat": "New conversation",
+  "hello": "Hello, {name} 👋",
+  "ask": "How can AppChat help you today?",
+  "placeholder": "Ask AppChat… type / for quick commands, @ to reference a customer/campaign",
+  "placeholderShort": "Ask AppChat…",
+  "placeholderCowork": "Give an AI agent a multi-step task…",
+  "mode": {
+    "chat": "Chat",
+    "cowork": "Cowork"
+  },
+  "attach": "Attach",
+  "quick": "Quick commands",
+  "voice": "Voice input",
+  "send": "Send",
+  "next": "Next",
+  "thinkTitle": "AI assistant by task",
+  "teamTitle": "AI agent team — pick one to assign work",
+  "suggestTitle": "Suggestions for you",
+  "agentNone": "No AI agent selected",
+  "agentStatus": {
+    "active": "Running",
+    "paused": "Paused"
+  },
+  "tier": {
+    "standard": "Standard",
+    "advanced": "Advanced",
+    "max": "Max",
+    "standardDesc": "Fastest for short answers",
+    "advancedDesc": "Best for everyday work",
+    "maxDesc": "For the hardest problems",
+    "effort": "Effort",
+    "effortHigh": "High",
+    "check": "✓",
+    "effortMore": "High ›"
+  },
+  "plus": {
+    "coworkTitle": "COWORK · EXECUTION",
+    "file": "Add file or image",
+    "fileShort": "Add file",
+    "fileKey": "Ctrl+U",
+    "screenshot": "Take a screenshot",
+    "channels": "Connected channels",
+    "integrations": "Integrations",
+    "research": "Research",
+    "search": "Search",
+    "pickAgent": "Choose AI agent",
+    "newAgent": "Create new AI agent"
+  },
+  "agentPick": "CHOOSE THE EXECUTING AI AGENT",
+  "agentSuffix": "{name} (AI)",
+  "ai": "AppChat AI",
+  "confirm": "Confirm & save",
+  "cancel": "Cancel",
+  "cancelled": "Cancelled — AppChat did not run it.",
+  "saved": "Saved to {dest} — open",
+  "confirmLead": "Understood. AppChat is ready to run this — please confirm:",
+  "cw": {
+    "title": "Autonomous tasks (Coworks)",
+    "sub": "Autonomous AI agents — run multi-step tasks",
+    "create": "Create autonomous task",
+    "stats": {
+      "total": "Total agents",
+      "active": "Enabled",
+      "runs": "Runs 24h",
+      "auto": "AI self-resolve rate",
+      "tokens": "Tokens today",
+      "attention": "Need attention"
+    },
+    "runs": "Runs 24h",
+    "success": "Success",
+    "cost": "Cost / day",
+    "handoff": "Handoff threshold {n}%",
+    "tierTag": "◈ {tier}",
+    "toggle": "Enable / pause {name}",
+    "new": {
+      "title": "Create autonomous task",
+      "sub": "Assign a multi-step task — the AI runs it, checks the result and repeats until done.",
+      "name": "Task name *",
+      "namePh": "E.g. Weekly revenue summary",
+      "goal": "Task goal *",
+      "goalPh": "Describe the work step by step. E.g. Take orders from the last 7 days, group by product, compare with last week, export to Excel and send me a summary on Zalo.",
+      "quick": "Quick templates:",
+      "dept": "Department",
+      "data": "Data access granted",
+      "dataHint": "The AI only reads/writes within the selected scope, in an isolated environment.",
+      "tools": "Allowed tools",
+      "run": "Run mode",
+      "runs": {
+        "manual": "Run now",
+        "schedule": "On schedule",
+        "event": "On event"
+      },
+      "tier": "AI level",
+      "tierOpt": "{tier} · {desc}",
+      "askDelete": "Ask before deleting data",
+      "always": "Always on",
+      "askSend": "Ask before sending outside",
+      "budget": "Credit limit per run",
+      "hint": "Runs on {tier} · up to {budget} credits per run",
+      "hintEmpty": "Enter a name and goal to create the task",
+      "cancel": "Cancel",
+      "createRun": "Create & run now",
+      "createOnly": "Create task"
+    },
+    "drawer": {
+      "sub": "{role} · ◈ {tier}",
+      "tabs": {
+        "prompt": "Persona & prompt",
+        "knowledge": "Knowledge",
+        "tools": "Tools & permissions",
+        "logs": "Log & cost"
+      },
+      "tone": "Tone",
+      "tones": {
+        "friendly": "Friendly",
+        "pro": "Professional",
+        "brief": "Brief"
+      },
+      "lang": "Language",
+      "langs": {
+        "vi": "Tiếng Việt",
+        "en": "English",
+        "zh": "中文"
+      },
+      "prompt": "System prompt",
+      "knowHint": "Choose the RAG folders / documents attached to this agent.",
+      "toolsHint": "Operations this agent may run on its own. Advanced limits live in <b>AI Governance</b>.",
+      "tokens": "Tokens today",
+      "costToday": "Cost today",
+      "log": "Action log",
+      "close": "Close",
+      "save": "Save configuration"
+    }
+  },
+  "log": {
+    "title": "Action log",
+    "sub": "Every action AppChat runs is recorded — by type and affected object, and can be undone.",
+    "search": "Search actions, objects…",
+    "status": {
+      "all": "Any status",
+      "done": "Executed",
+      "pending": "Awaiting approval",
+      "undone": "Undone"
+    },
+    "day": {
+      "all": "Any time",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "2d": "2 days ago",
+      "3d": "3 days ago",
+      "7d": "Last 7 days"
+    },
+    "when": "{day} · {time}",
+    "reset": "Reset",
+    "count": "{n} / {total} actions",
+    "kind": {
+      "all": "All",
+      "create": "Create",
+      "update": "Update",
+      "send": "Send",
+      "export": "Export / report",
+      "delete": "Delete"
+    },
+    "col": {
+      "kind": "Type",
+      "title": "Action",
+      "object": "Object",
+      "time": "Time",
+      "status": "Status",
+      "undo": "Undo"
+    },
+    "undo": "Undo",
+    "dash": "—",
+    "empty": "No actions of this type.",
+    "undone": "Undone: {title}"
+  },
+  "ap": {
+    "title": "Approvals",
+    "sub": "Actions proposed by AI agents that need someone with the right permission before they run — outbound sends, money, over-threshold.",
+    "tabs": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "by": "Proposed by {agent}",
+    "reason": "Why approval is needed",
+    "risk": {
+      "send": "Outbound",
+      "money": "Money",
+      "write": "Write",
+      "delete": "Delete",
+      "config": "Config",
+      "read": "Read"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "noRight": "You don't have permission to approve this action",
+    "note": "Note (optional)",
+    "empty": "Nothing is waiting for approval.",
+    "status": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending"
+    }
+  },
+  "nav": {
+    "chat": "Conversation",
+    "actions": "Action log",
+    "cowork": "Autonomous tasks",
+    "approvals": "Approvals"
+  }
+}

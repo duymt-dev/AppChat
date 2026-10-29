@@ -178,6 +178,31 @@ export const color = {
   peekVeil: 'rgba(15,23,20,.35)',
   webTag: 'rgba(15,23,20,.34)',
   webIcon: 'rgba(255,255,255,.92)',
+  // Trợ lý AI · AI Agents (prototype L1178–1504, L2227–2450)
+  pillBg: '#F1F3F5',
+  tealBadgeBg: '#DDF6EF',
+  agentPickBg: '#F3F0FF',
+  agentPickText: '#5B34D6',
+  dotIdle: '#DDE1E4',
+  cardLine: '#ECEFF1',
+  pendingBg: '#FEF6E7',
+  drawerBg: '#F7F8FA',
+  drawerLine: '#EDEFF1',
+  logLine: '#F5F6F8',
+  tagLine: '#EEF0F2',
+  chipHoverLine: '#A8E9C2',
+  asstTopBar: 'rgba(255,255,255,.7)',
+  asstFoot: 'rgba(255,255,255,.8)',
+  doneBg: '#EAF7EF',
+  mutedBg: '#F1F3F5',
+  noticeBg: '#FEF9E7',
+  noticeLine: '#FBE7A1',
+  noticeText: '#92702A',
+  violetChip: '#F2EEFD',
+  drawerVeil: 'rgba(15,23,20,.4)',
+  activeLine: '#BCE8CD',
+  sparkBar: '#CDE9D8',
+  pink: '#DB2777',
 } as const;
 
 export const gradient = {
@@ -208,6 +233,8 @@ export const gradient = {
   kanbanPink: 'linear-gradient(135deg,#EC4899,#BE185D)',
   kanbanAmber: 'linear-gradient(135deg,#F59E0B,#D97706)',
   kanbanSky: 'linear-gradient(135deg,#0EA5E9,#0369A1)',
+  asstPage: 'linear-gradient(180deg,#F4FBF8 0%,#F9FAFB 60%)',
+  confBar: 'linear-gradient(90deg,#2DC56A,#6E48E6)',
 } as const;
 
 export const shadow = {
@@ -246,6 +273,29 @@ export const shadow = {
   kanbanCard: '0 1px 2px rgba(17,24,39,.05)',
   segOn: '0 1px 2px rgba(0,0,0,.08)',
   peek: '0 24px 60px rgba(15,23,20,.3)',
+  composer: '0 4px 18px rgba(17,24,39,.06)',
+  asstPop: '0 18px 50px rgba(15,23,42,.18)',
+  cwModal: '0 30px 70px rgba(17,24,39,.32)',
+  cwDrawer: '-16px 0 48px rgba(15,23,20,.2)',
+  toast: '0 12px 32px rgba(0,0,0,.28)',
+  knob: '0 1px 3px rgba(0,0,0,.2)',
+  hoverCard: '0 2px 8px rgba(45,197,106,.12)',
+  emojiPop: '0 16px 40px rgba(17,24,39,.18)',
+  welcomeFace: 'drop-shadow(0 8px 20px rgba(45,197,106,.28))',
+} as const;
+
+/** Màu hình minh hoạ (mặt bot Trợ lý — prototype L1196, L1265). Chỉ dùng cho SVG minh hoạ. */
+export const illus = {
+  botLight: '#5BE08A',
+  botMid: '#2DC56A',
+  botDeep: '#1B9E54',
+  botEye: '#0B3D24',
+  botCheek: '#FF9F8A',
+  botTealLight: '#3FD9C0',
+  botTealMid: '#1FB9A6',
+  botTealDeep: '#0E9B7E',
+  botTealEye: '#0B3D34',
+  white: '#FFFFFF',
 } as const;
 
 export const font = {
@@ -330,6 +380,14 @@ export const layout = {
   crmDrawer: 392,
   crmTableMin: 1150,
   kanbanCol: 230,
+  /** Trợ lý AI: composer 680 · luồng chat 760 · popover + 284 / mức AI 290 / agent 270 · drawer Cowork 520 · modal Cowork 680. */
+  composer: 680,
+  thread: 760,
+  popPlus: 284,
+  popTier: 290,
+  popAgent: 270,
+  cwDrawer: 520,
+  cwModal: 680,
 } as const;
 
 /** Breakpoint của prototype (CSS L280–392): auth 1 cột ≤ 1100px, mobile ≤ 680px. */

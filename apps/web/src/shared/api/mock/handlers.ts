@@ -3,6 +3,8 @@ import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
 import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
+import { assistantHandlers } from './domains/assistant';
+import { agentsHandlers } from './domains/agents';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -54,4 +56,6 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...dashboardHandlers,
   ...inboxHandlers,
   ...customersHandlers,
+  ...assistantHandlers,
+  ...agentsHandlers,
 };
