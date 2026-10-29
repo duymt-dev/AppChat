@@ -18,6 +18,7 @@ import { CrmOverlays } from '../components/CrmOverlays';
 import { KanbanCard } from '../components/KanbanCard';
 import type { ContactRow, StageKey } from '../types';
 import { useCustomersUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 export function CustomersScreen() {
   useCustomersUiCommands();
@@ -25,7 +26,7 @@ export function CustomersScreen() {
   const { message } = App.useApp();
   const { styles } = useCrmStyles();
   const ui = useCrmUi();
-  const list = useQuery(contactsQuery(ui.filter));
+  const list = useQuery(contactsQuery(ui.filter, ui.pg));
   const stats = useQuery(crmStatsQuery()).data;
   const dups = useQuery(duplicatesQuery()).data;
   const setStage = useAction('contact.set_stage');
@@ -60,6 +61,7 @@ export function CustomersScreen() {
         {ui.layout === 'list' ? (
           <DataTable<ContactRow>
             testId="crm-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="crm-table-pager" />}
             rows={rows}
             columns={columns}
             rowKey={(r) => r.id}

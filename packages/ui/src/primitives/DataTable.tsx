@@ -1,10 +1,12 @@
 // DataTable<T> (Blueprint §7 primitive): bọc antd Table — header in hoa 12px, dòng 14px, hover, chọn nhiều dòng.
 // < md: thay bảng bằng danh sách thẻ `mobileCard` (frontend-structure §6). Không biết nghiệp vụ, không i18n — nhãn do màn truyền vào.
+// ≥ md (D42): khung bảng lấp phần cao còn lại của màn (`ListPage`), chỉ thân bảng cuộn, header dính; `footer` (Pager) nằm đáy khung.
 'use client';
 import type { Key, ReactNode } from 'react';
 import { ConfigProvider, Empty, Grid, Table, type TableColumnsType } from 'antd';
 import { createStyles } from 'antd-style';
 import { color, font, radius, shadow } from '../tokens';
+import { LIST_MIN_H } from './list-layout';
 
 export type { TableColumnsType };
 
@@ -22,16 +24,29 @@ export interface DataTableProps<T> {
   emptyText?: ReactNode;
   rowProps?: (row: T) => Record<string, string>;
   testId?: string;
+  /** Footer trong khung bảng (Pager). */
+  footer?: ReactNode;
 }
 
-const useStyles = createStyles(({ css }) => ({
+const useStyles = createStyles(({ css, responsive }) => ({
   box: css`
     background: ${color.surface};
     border: 1px solid ${color.border};
     border-radius: ${radius.r12}px;
     box-shadow: ${shadow.table};
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: ${LIST_MIN_H}px;
+    ${responsive.md} {
+      flex: none;
+      min-height: 0;
+    }
     .ant-table-thead > tr > th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
       font-size: ${font.scale.s12}px;
       line-height: normal;
       white-space: nowrap;
@@ -55,6 +70,12 @@ const useStyles = createStyles(({ css }) => ({
     .ant-table-tbody > tr > td:last-child {
       padding-right: 16px;
     }
+  `,
+  /** Vùng cuộn duy nhất của bảng (dọc + ngang) — header sticky bám vào đây. */
+  scroll: css`
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
   `,
   check: css`
     margin: 0;
@@ -80,6 +101,11 @@ const useStyles = createStyles(({ css }) => ({
   empty: css`
     padding: 48px 16px;
   `,
+  cardFoot: css`
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r12}px;
+    overflow: hidden;
+  `,
 }));
 
 const TABLE_THEME = {
@@ -100,7 +126,7 @@ const TABLE_THEME = {
   },
 } as const;
 
-export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowClick, selection, mobileCard, emptyText, rowProps, testId }: DataTableProps<T>) {
+export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowClick, selection, mobileCard, emptyText, rowProps, testId, footer }: DataTableProps<T>) {
   const { styles, cx } = useStyles();
   const screens = Grid.useBreakpoint();
   const mobile = screens.md === false;
@@ -140,26 +166,30 @@ export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowCl
               </div>
             ))
           : empty}
+        {footer ? <div className={styles.cardFoot}>{footer}</div> : null}
       </div>
     );
   }
 
   return (
     <div className={styles.box} data-testid={testId}>
-      <ConfigProvider theme={TABLE_THEME}>
-        <Table<T>
+      <div className={styles.scroll} data-testid={testId ? `${testId}-scroll` : undefined}>
+        <ConfigProvider theme={TABLE_THEME}>
+          <Table<T>
           rowKey={rowKey}
           dataSource={rows}
           loading={loading}
           pagination={false}
           tableLayout="fixed"
-          scroll={minWidth ? { x: minWidth } : undefined}
+          style={minWidth ? { minWidth } : undefined}
           locale={{ emptyText: empty }}
           columns={selection ? [selectColumn, ...columns] : columns}
           rowClassName={() => cx(onRowClick && styles.clickable)}
           onRow={(r) => ({ onClick: () => onRowClick?.(r), ...rowProps?.(r) })}
-        />
-      </ConfigProvider>
+          />
+        </ConfigProvider>
+      </div>
+      {footer}
     </div>
   );
 }

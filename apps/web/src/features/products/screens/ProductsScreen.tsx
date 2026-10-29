@@ -16,6 +16,7 @@ import { ProductDrawer } from '../components/ProductDrawer';
 import { ProductFormModal } from '../components/ProductFormModal';
 import type { Product } from '../types';
 import { useProductsUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 const KPI = [
   ['total', color.blue, 'ic-box'],
@@ -31,7 +32,7 @@ export function ProductsScreen() {
   const { message } = App.useApp();
   const { styles } = useProductsStyles();
   const ui = useProductsUi();
-  const list = useQuery(productsQuery(ui.filter));
+  const list = useQuery(productsQuery(ui.filter, ui.pg));
   const meta = useQuery(productsMetaQuery()).data;
   const canManage = useCan('catalog.manage');
   const columns = useProductColumns();
@@ -92,6 +93,7 @@ export function ProductsScreen() {
         {ui.layout === 'list' ? (
           <DataTable<Product>
             testId="pd-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="pd-table-pager" />}
             rows={rows}
             columns={columns}
             rowKey={(r) => r.id}

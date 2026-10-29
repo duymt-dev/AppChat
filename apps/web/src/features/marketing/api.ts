@@ -2,11 +2,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Campaign, CampaignDetail, CampaignFilter, MarketingMeta, Suggestion } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const campaignsQuery = (f: CampaignFilter) =>
+export const campaignsQuery = (f: CampaignFilter, pg?: PageState) =>
   queryOptions({
-    queryKey: ['marketing', 'list', f],
-    queryFn: () => transport.get<{ data: Campaign[] }>('/campaigns', { ...f, ...(f.q ? {} : { q: undefined }) }),
+    queryKey: ['marketing', 'list', f, pg],
+    queryFn: () => transport.get<Paged<Campaign>>('/campaigns', { ...f, ...(f.q ? {} : { q: undefined }), ...pg }),
     placeholderData: (prev) => prev,
   });
 

@@ -241,26 +241,4 @@ export const useLoyaltyStyles = createStyles(({ css, responsive }) => ({
       color: ${color.brandInk};
     }
   `,
-  page: css`
-    min-width: 28px;
-    height: 28px;
-    border-radius: ${radius.r6}px;
-    border: 1px solid ${color.border};
-    background: ${color.surface};
-    display: inline-grid;
-    place-items: center;
-    font-size: ${font.scale.s13}px;
-    font-weight: ${font.weight.bold};
-    color: ${color.text3};
-    padding: 0 12px;
-    ${responsive.md} {
-      display: none;
-    }
-  `,
-  pageOn: css`
-    padding: 0;
-    border-color: ${color.brand};
-    background: ${color.brandBg};
-    color: ${color.brandInk};
-  `,
 }));

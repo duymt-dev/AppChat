@@ -19,6 +19,7 @@ import { RecordPaymentModal, VoidInvoiceModal } from '../components/PaymentModal
 import { ReconcileDrawer } from '../components/ReconcileDrawer';
 import type { Invoice } from '../types';
 import { useInvoicesUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 const STATS = [
   ['total', color.text],
@@ -47,7 +48,7 @@ export function InvoicesScreen() {
   const t = useTranslations('invoices');
   const { styles } = useInvoicesStyles();
   const ui = useInvoicesUi();
-  const list = useQuery(invoicesQuery(ui.q));
+  const list = useQuery(invoicesQuery(ui.q, ui.pg));
   const meta = useQuery(invoicesMetaQuery()).data;
   const canCreate = useCan('invoice.manage');
   const setDock = useShellStore((s) => s.setDock);
@@ -58,6 +59,12 @@ export function InvoicesScreen() {
   const val = (k: (typeof STATS)[number][0]) =>
     !meta ? '' : k === 'total' ? String(meta.stats.total) : tr(meta.stats[k]);
   const pending = meta?.bank_txs.length ?? 0;
+  const reconcile = pending ? (
+    <button type="button" className={styles.reconcile} onClick={() => ui.set({ reconcileOpen: true })} data-testid="iv-reconcile-open">
+      <Icon name="ic-bell" size={13} color={color.amberText} />
+      {t('reconcile.btn', { n: pending })}
+    </button>
+  ) : null;
 
   return (
     <div className={styles.wrap} data-testid="invoices">
@@ -113,6 +120,7 @@ export function InvoicesScreen() {
         <div className={styles.table}>
           <DataTable<Invoice>
             testId="iv-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={(pg) => ui.set({ pg })} extra={reconcile} testId="iv-table-pager" />}
             rows={rows}
             columns={columns}
             rowKey={(r) => r.id}
@@ -122,23 +130,6 @@ export function InvoicesScreen() {
             mobileCard={(r) => <InvoiceCard i={r} />}
             emptyText={t('empty')}
           />
-        </div>
-        <div className={styles.foot}>
-          <span>{t.rich('count', { n: rows.length, b: (c) => <b>{c}</b> })}</span>
-          {pending ? (
-            <>
-              <span className={styles.grow} />
-              <button
-                type="button"
-                className={styles.reconcile}
-                onClick={() => ui.set({ reconcileOpen: true })}
-                data-testid="iv-reconcile-open"
-              >
-                <Icon name="ic-bell" size={13} color={color.amberText} />
-                {t('reconcile.btn', { n: pending })}
-              </button>
-            </>
-          ) : null}
         </div>
       </PageStates>
       {meta ? <InvoiceDrawer meta={meta} /> : null}

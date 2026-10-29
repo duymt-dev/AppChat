@@ -1,6 +1,6 @@
 // Màn Đề nghị thanh toán — tiêu đề + tìm + 2 nút, 4 thẻ số liệu, bảng, chân bảng, nút "Cần đối soát" — prototype L5234–5254.
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius } from '@appchat/ui';
+import { color, font, layout, listPage, radius } from '@appchat/ui';
 
 const btn = `
   display: inline-flex;
@@ -16,6 +16,7 @@ const btn = `
 
 export const useInvoicesStyles = createStyles(({ css, responsive }) => ({
   wrap: css`
+    ${listPage(responsive.md)}
     padding: 24px 28px;
     font-family: ${font.family};
     line-height: normal;
@@ -102,6 +103,13 @@ export const useInvoicesStyles = createStyles(({ css, responsive }) => ({
     font-weight: ${font.weight.heavy};
   `,
   table: css`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    ${responsive.md} {
+      display: block;
+    }
     .ant-table-thead > tr > th {
       background: ${color.tabIdle};
       color: ${color.text4};

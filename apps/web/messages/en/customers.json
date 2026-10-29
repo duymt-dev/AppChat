@@ -306,5 +306,6 @@
     "cancel": "Cancel",
     "submit": "Transfer owner",
     "close": "Close"
-  }
+  },
+  "unit": "customers"
 }

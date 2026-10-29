@@ -41,7 +41,6 @@
     "at": "Ngày phát hành",
     "by": "Người lập"
   },
-  "count": "Hiển thị <b>{n}</b> đề nghị thanh toán",
   "reconcile": {
     "btn": "Cần đối soát ({n})",
     "title": "Cần đối soát · giao dịch ngân hàng",
@@ -172,5 +171,6 @@
     "note": "Ghi chú",
     "required": "Chọn khách hàng và nhập số tiền lớn hơn 0",
     "over": "Số tiền đề nghị không được lớn hơn số đơn còn phải thu"
-  }
+  },
+  "unit": "đề nghị thanh toán"
 }

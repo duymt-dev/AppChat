@@ -2,16 +2,18 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Quote, QuoteFilter, QuotesMeta } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const quotesQuery = (f: QuoteFilter) =>
+export const quotesQuery = (f: QuoteFilter, pg?: PageState) =>
   queryOptions({
-    queryKey: ['quotes', 'list', f],
+    queryKey: ['quotes', 'list', f, pg],
     queryFn: () =>
-      transport.get<{ data: Quote[] }>('/quotes', {
+      transport.get<Paged<Quote>>('/quotes', {
         status: f.status,
         owner_id: f.owner_id,
         returning: f.returning,
         ...(f.q ? { q: f.q } : {}),
+        ...pg,
       }),
     placeholderData: (prev) => prev,
   });

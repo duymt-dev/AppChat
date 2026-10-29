@@ -1,6 +1,6 @@
 // Màn Marketing — topbar, tab kênh, hero theo kênh, 4 KPI, tab trạng thái, hàng lọc, phân trang — prototype L3394–3533.
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius } from '@appchat/ui';
+import { color, font, layout, listPage, radius } from '@appchat/ui';
 
 const btn = `
   display: inline-flex;
@@ -28,6 +28,7 @@ const field = `
 
 export const useMarketingStyles = createStyles(({ css, responsive }) => ({
   wrap: css`
+    ${listPage(responsive.md)}
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
@@ -281,59 +282,6 @@ export const useMarketingStyles = createStyles(({ css, responsive }) => ({
     background: ${color.surface};
     font-family: inherit;
     cursor: pointer;
-    ${responsive.md} {
-      display: none;
-    }
-  `,
-  foot: css`
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 2px 6px;
-    font-size: ${font.scale.s13}px;
-    color: ${color.text3};
-    b {
-      color: ${color.text};
-    }
-  `,
-  pages: css`
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    ${responsive.md} {
-      display: none;
-    }
-  `,
-  page: css`
-    min-width: 28px;
-    height: 28px;
-    border-radius: ${radius.r6}px;
-    border: 1px solid ${color.border};
-    background: ${color.surface};
-    display: grid;
-    place-items: center;
-    font-size: ${font.scale.s13}px;
-    font-weight: ${font.weight.bold};
-    color: ${color.text};
-  `,
-  pageOn: css`
-    border-color: ${color.brand};
-    background: ${color.brand};
-    color: ${color.white};
-  `,
-  pageNav: css`
-    font-size: ${font.scale.s15}px;
-    font-weight: ${font.weight.regular};
-    color: ${color.text3};
-  `,
-  per: css`
-    height: 30px;
-    padding: 0 8px;
-    border: 1px solid ${color.border};
-    border-radius: ${radius.r6}px;
-    font-size: ${font.scale.s13}px;
-    font-family: inherit;
-    background: ${color.surface};
     ${responsive.md} {
       display: none;
     }

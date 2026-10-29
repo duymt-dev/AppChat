@@ -5,6 +5,7 @@ import fixture from '../../../../../../../fixtures/prototype-parity/products.jso
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { paginate } from '../paginate';
 
 export type ProductsFixture = typeof fixture;
 type Fixed = ProductsFixture['products'][number];
@@ -47,7 +48,7 @@ export const productsRoutes: Record<string, MockRoute> = {
         (!p.status || x.status === p.status) &&
         (!q || x.name.toLowerCase().includes(q) || x.code.toLowerCase().includes(q)),
     );
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   '/products/meta': (db) => ({
     categories: db.products.categories,

@@ -1,9 +1,10 @@
 // Màn Báo giá — tiêu đề + tìm + 2 nút, chip trạng thái, thanh công cụ, thanh chọn nhiều, chân bảng — prototype L4958–5011.
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius, shadow } from '@appchat/ui';
+import { color, font, layout, listPage, radius, shadow } from '@appchat/ui';
 
 export const useQuotesStyles = createStyles(({ css, responsive }) => ({
   wrap: css`
+    ${listPage(responsive.md)}
     padding: 24px 28px;
     font-family: ${font.family};
     line-height: normal;
@@ -227,52 +228,6 @@ export const useQuotesStyles = createStyles(({ css, responsive }) => ({
     background: ${color.brand};
     border-color: ${color.brand};
     color: ${color.white};
-    font-weight: ${font.weight.bold};
-  `,
-  foot: css`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: ${color.surface};
-    border: 1px solid ${color.border};
-    border-top: none;
-    border-radius: 0 0 ${radius.r16}px ${radius.r16}px;
-    margin-top: -12px;
-    font-size: ${font.scale.s13}px;
-    color: ${color.text3};
-    b {
-      color: ${color.text};
-    }
-  `,
-  pg: css`
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid ${color.border};
-    border-radius: ${radius.r6}px;
-    padding: 0 12px;
-    height: 30px;
-    font-size: ${font.scale.s13}px;
-    font-weight: ${font.weight.semibold};
-    color: ${color.text};
-    background: ${color.surface};
-    font-family: inherit;
-    cursor: pointer;
-    &:disabled {
-      color: ${color.text4};
-      cursor: default;
-    }
-  `,
-  pgOn: css`
-    min-width: 28px;
-    height: 28px;
-    border-radius: ${radius.r6}px;
-    border: 1px solid ${color.brand};
-    background: ${color.brandBg};
-    color: ${color.brandInk};
-    display: grid;
-    place-items: center;
-    font-size: ${font.scale.s13}px;
     font-weight: ${font.weight.bold};
   `,
 }));

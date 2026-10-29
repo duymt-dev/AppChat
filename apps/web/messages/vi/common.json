@@ -9,5 +9,11 @@
   "seeMore": "Xem thêm →",
   "empty": "Chưa có dữ liệu",
   "noPermission": "Bạn không có quyền xem mục này",
-  "error": "Đã có lỗi xảy ra"
+  "error": "Đã có lỗi xảy ra",
+  "pager": {
+    "range": "Hiển thị <b>{from}–{to}</b> / {total} {unit}",
+    "prev": "‹ Trước",
+    "next": "Sau ›",
+    "perPage": "{n} / trang"
+  }
 }

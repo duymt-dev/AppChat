@@ -14,6 +14,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { draftFromContent } from './quotes-draft';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.quotes)[number];
 export type QuoteStatus =
@@ -106,7 +107,7 @@ export const quotesRoutes: Record<string, MockRoute> = {
         (!p.returning || p.returning === 'all' || String(q.returning) === String(p.returning === 'old')) &&
         (!s || [q.code, q.contact_name, q.items[0]?.name ?? ''].some((v) => v.toLowerCase().includes(s))),
     );
-    return { data: rows.map(enrich), next_cursor: null };
+    return paginate(rows.map(enrich), p);
   },
   '/quotes/meta': (db) => {
     const all = db.quotes.quotes.filter((q) => visible(db, q));

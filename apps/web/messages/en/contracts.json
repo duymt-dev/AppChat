@@ -82,9 +82,6 @@
   "spark": "✦ {hint}",
   "aiDo": "Hand to AI Agent now",
   "aiDoing": "AI Agent is handling {code}",
-  "count": "Showing <b>{n}</b> contracts",
-  "prev": "‹ Prev",
-  "next": "Next ›",
   "menu": {
     "open": "Actions",
     "view": "View details",
@@ -292,5 +289,6 @@
       "signed": "Signed"
     },
     "evMeta": "{at} · IP {ip}"
-  }
+  },
+  "unit": "contracts"
 }

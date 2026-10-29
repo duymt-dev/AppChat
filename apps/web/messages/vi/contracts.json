@@ -82,9 +82,6 @@
   "spark": "✦ {hint}",
   "aiDo": "Giao AI Agent xử lý ngay",
   "aiDoing": "AI Agent đang xử lý {code}",
-  "count": "Hiển thị <b>{n}</b> hợp đồng",
-  "prev": "‹ Trước",
-  "next": "Sau ›",
   "menu": {
     "open": "Thao tác",
     "view": "Xem chi tiết",
@@ -292,5 +289,6 @@
       "signed": "Ký"
     },
     "evMeta": "{at} · IP {ip}"
-  }
+  },
+  "unit": "hợp đồng"
 }

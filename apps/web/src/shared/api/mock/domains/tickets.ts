@@ -8,6 +8,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.tickets)[number];
 type Comment = Fixed['comments'][number];
@@ -98,7 +99,7 @@ export const ticketsRoutes: Record<string, MockRoute> = {
           : b.created_at.slice(0, 10).localeCompare(a.created_at.slice(0, 10)) || b.code.localeCompare(a.code),
       )
       .map(view);
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   '/tickets/meta': (db) => {
     const all = db.tickets.tickets.filter((t) => visible(db, t));

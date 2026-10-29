@@ -9,5 +9,11 @@
   "seeMore": "See more →",
   "empty": "No data yet",
   "noPermission": "You don't have permission to view this",
-  "error": "Something went wrong"
+  "error": "Something went wrong",
+  "pager": {
+    "range": "Showing <b>{from}–{to}</b> of {total} {unit}",
+    "prev": "‹ Prev",
+    "next": "Next ›",
+    "perPage": "{n} / page"
+  }
 }

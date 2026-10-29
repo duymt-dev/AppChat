@@ -229,5 +229,6 @@
     "picked": "Đã áp dụng: {t}",
     "ack": "Đã ghi nhận — Trợ lý sẽ trả lời trong dock đầy đủ."
   },
-  "agent": "AI Agent"
+  "agent": "AI Agent",
+  "unit": "ticket"
 }

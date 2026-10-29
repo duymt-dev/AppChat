@@ -7,6 +7,8 @@ export interface MockSession {
   expiredSeen: boolean;
   trialDaysLeft: number;
   provisioned: boolean;
+  /** Danh sách dày ~120 dòng (bulk.ts) — chỉ khi seed `?session=…,bulk`. */
+  bulk?: boolean;
 }
 
 const KEY = 'ac_mock_session';
@@ -20,7 +22,7 @@ const DEFAULT: MockSession = {
   provisioned: false,
 };
 
-/** Seed đọc từ ?session=… (e2e / parity): authed,declared,trialSeen,expired,provisioned */
+/** Seed đọc từ ?session=… (e2e / parity): authed,declared,trialSeen,expired,provisioned,bulk */
 const fromQuery = (): Partial<MockSession> | null => {
   const q = new URLSearchParams(window.location.search).get('session');
   if (q === null) return null;
@@ -32,6 +34,7 @@ const fromQuery = (): Partial<MockSession> | null => {
     expiredSeen: false,
     trialDaysLeft: f.has('expired') ? 0 : 15,
     provisioned: f.has('declared') || f.has('provisioned'),
+    bulk: f.has('bulk'),
   };
 };
 

@@ -8,6 +8,7 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import { enrichOrder } from './orders';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.invoices)[number];
 export type InvoiceStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'void';
@@ -99,7 +100,7 @@ export const invoicesRoutes: Record<string, MockRoute> = {
       .filter((i) => visible(db, i))
       .filter((i) => !q || [i.code, i.contact_name, i.title, i.owner_name].some((v) => norm(v).includes(q)))
       .map(enrichInvoice);
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   '/invoices/meta': (db) => {
     const all = db.invoices.invoices.filter((i) => visible(db, i) && i.status !== 'void').map(enrichInvoice);

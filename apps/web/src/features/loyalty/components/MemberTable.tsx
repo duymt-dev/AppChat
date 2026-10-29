@@ -4,6 +4,8 @@
 import { useTranslations } from 'next-intl';
 import { ActionMenu, Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
+import { ListPager } from '@/shared/list/ListPager';
+import type { PageMeta } from '@/shared/list/paged';
 import { useLoyaltyStyles } from '../styles/loyalty.styles';
 import { useTableStyles } from '../styles/tables.styles';
 import { useLoyaltyUi } from '../loyalty-store';
@@ -67,11 +69,12 @@ function Row({ m, i }: { m: Member; i: number }) {
   );
 }
 
-export function MemberTable({ rows }: { rows: Member[] }) {
+export function MemberTable({ rows, meta }: { rows: Member[]; meta: PageMeta | undefined }) {
   const t = useTranslations('loyalty.mem');
+  const tl = useTranslations('loyalty');
   const tt = useTranslations('loyalty.tier');
-  const { styles, cx } = useLoyaltyStyles();
-  const tb = useTableStyles().styles;
+  const { styles } = useLoyaltyStyles();
+  const { styles: tb, cx } = useTableStyles();
   const ui = useLoyaltyUi();
   return (
     <div className={styles.card} data-testid="ly-members">
@@ -97,7 +100,7 @@ export function MemberTable({ rows }: { rows: Member[] }) {
           ))}
         </select>
       </div>
-      <div className={tb.scroll}>
+      <div className={cx(tb.scroll, tb.scrollY)} data-testid="ly-members-scroll">
         <div className={tb.mHead}>
           <span>{t('col.idx')}</span>
           <span>{t('col.name')}</span>
@@ -111,17 +114,11 @@ export function MemberTable({ rows }: { rows: Member[] }) {
           <span className={tb.end}>{t('col.act')}</span>
         </div>
         {rows.map((m, i) => (
-          <Row key={m.contact_id} m={m} i={i} />
+          <Row key={m.contact_id} m={m} i={i + (meta ? (meta.page - 1) * meta.limit : 0)} />
         ))}
         {rows.length ? null : <div className={styles.foot}>{t('empty')}</div>}
       </div>
-      <div className={styles.foot}>
-        <span>{t.rich('foot', { n: rows.length, b: (c) => <b>{c}</b> })}</span>
-        <span className={styles.grow} />
-        <span className={styles.page}>{t('prev')}</span>
-        <span className={cx(styles.page, styles.pageOn)}>1</span>
-        <span className={styles.page}>{t('next')}</span>
-      </div>
+      <ListPager meta={meta} unit={tl('unit')} onChange={ui.setPg} testId="ly-members-pager" />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { AccessRequest, Collaborators, ContactRow, CrmAi, CrmStats, CustomField, Duplicates, Member, StageKey } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
 export interface ContactFilter {
   stage: StageKey;
@@ -16,8 +17,8 @@ export interface ContactFilter {
 const staticOpts = { staleTime: Infinity } as const;
 const clean = (f: ContactFilter) => Object.fromEntries(Object.entries(f).filter(([, v]) => v !== '' && v !== false && v !== 'all'));
 
-export const contactsQuery = (f: ContactFilter) =>
-  queryOptions({ queryKey: ['crm', 'contacts', f], queryFn: () => transport.get<{ data: ContactRow[]; next_cursor: string | null }>('/contacts', clean(f)) });
+export const contactsQuery = (f: ContactFilter, pg?: PageState) =>
+  queryOptions({ queryKey: ['crm', 'contacts', f, pg], queryFn: () => transport.get<Paged<ContactRow>>('/contacts', { ...clean(f), ...pg }) });
 
 export const crmStatsQuery = () => queryOptions({ queryKey: ['crm', 'stats'], queryFn: () => transport.get<CrmStats>('/contacts/stats'), ...staticOpts });
 

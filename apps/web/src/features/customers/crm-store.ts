@@ -1,11 +1,15 @@
 // UI state màn Khách hàng: bộ lọc, chế độ xem, modal / drawer / menu đang mở.
 import { create } from 'zustand';
+import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { ContactFilter } from './api';
 
 export type CrmModal = 'create' | 'edit' | 'dedupe' | 'fields' | 'ai' | 'peek' | 'collab' | 'transfer' | null;
 
 interface CrmUiState {
   filter: ContactFilter;
+  /** Trang bảng (D42) — đổi bộ lọc thì về trang 1. */
+  pg: PageState;
+  setPg: (p: PageState) => void;
   layout: 'list' | 'kanban';
   modal: CrmModal;
   /** Khách đang mở (drawer 360° / modal sửa / collaborators / chuyển phụ trách). */
@@ -24,6 +28,7 @@ interface CrmUiState {
 export const EMPTY_FILTER: ContactFilter = { stage: 'all', q: '', mine: false, status: '', owner_id: '', group: '', source: '' };
 
 export const useCrmUi = create<CrmUiState>((set) => ({
+  pg: FIRST_PAGE,
   filter: EMPTY_FILTER,
   layout: 'list',
   modal: null,
@@ -33,7 +38,8 @@ export const useCrmUi = create<CrmUiState>((set) => ({
   tagFor: null,
   filterOpen: false,
   prefill: null,
-  setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p } })),
+  setPg: (pg) => set({ pg }),
+  setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 } })),
   set: (p) => set(p),
   open: (modal, target) => set({ modal, target: target ?? null, menuFor: null, tagFor: null, prefill: null }),
 }));

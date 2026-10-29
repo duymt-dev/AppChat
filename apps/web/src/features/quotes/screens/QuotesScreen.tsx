@@ -17,6 +17,7 @@ import { DraftFromContentModal } from '../components/DraftFromContentModal';
 import { KANBAN } from '../status';
 import type { Quote } from '../types';
 import { useQuotesUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -30,7 +31,7 @@ export function QuotesScreen() {
   const t = useTranslations('quotes');
   const { styles } = useQuotesStyles();
   const ui = useQuotesUi();
-  const list = useQuery(quotesQuery(ui.filter));
+  const list = useQuery(quotesQuery(ui.filter, ui.pg));
   const meta = useQuery(quotesMetaQuery()).data;
   const canCreate = useCan('quote.create');
   const columns = useQuoteColumns();
@@ -97,6 +98,7 @@ export function QuotesScreen() {
             <BulkBar rows={rows} />
             <DataTable<Quote>
               testId="q-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="q-table-pager" />}
               rows={rows}
               columns={columns}
               rowKey={(r) => r.id}
@@ -107,17 +109,6 @@ export function QuotesScreen() {
               mobileCard={(r) => <QuoteCard q={r} />}
               emptyText={t('empty')}
             />
-            <div className={styles.foot}>
-              <span>{t.rich('count', { n: rows.length, b: (c) => <b>{c}</b> })}</span>
-              <span className={styles.grow} />
-              <button type="button" className={styles.pg} disabled>
-                {t('prev')}
-              </button>
-              <span className={styles.pgOn}>{t('page')}</span>
-              <button type="button" className={styles.pg} disabled>
-                {t('next')}
-              </button>
-            </div>
           </>
         ) : (
           <KanbanBoard<Quote>

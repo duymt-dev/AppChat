@@ -3,16 +3,18 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Contract, ContractFilter, ContractsMeta, SignView } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const contractsQuery = (f: ContractFilter) =>
+export const contractsQuery = (f: ContractFilter, pg?: PageState) =>
   queryOptions({
-    queryKey: ['contracts', 'list', f],
+    queryKey: ['contracts', 'list', f, pg],
     queryFn: () =>
-      transport.get<{ data: Contract[] }>('/contracts', {
+      transport.get<Paged<Contract>>('/contracts', {
         status: f.status,
         owner_id: f.owner_id,
         value: f.value,
         ...(f.q ? { q: f.q } : {}),
+        ...pg,
       }),
     placeholderData: (prev) => prev,
   });

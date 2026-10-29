@@ -8,6 +8,7 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import type { QuoteItem } from './quotes';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.orders)[number];
 export type OrderStatus = 'new' | 'processing' | 'completed' | 'cancelled';
@@ -112,7 +113,7 @@ export const ordersRoutes: Record<string, MockRoute> = {
           (!p.source || p.source === 'all' || o.source === p.source) &&
           (!s || [o.code, o.contact_name, o.items[0]?.name ?? ''].some((v) => v.toLowerCase().includes(s))),
       );
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   '/orders/meta': (db) => {
     const all = db.orders.orders.filter((o) => visible(db, o)).map(enrichOrder);

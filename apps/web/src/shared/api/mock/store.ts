@@ -3,6 +3,7 @@ import shell from '../../../../../../fixtures/prototype-parity/shell.json';
 import auth from '../../../../../../fixtures/prototype-parity/auth.json';
 import type { SystemRole } from '@appchat/shared';
 import { loadSession, saveSession, type MockSession } from './session';
+import { bulkify } from './bulk';
 import { createDashboardState, type DashboardState } from './domains/dashboard';
 import { createInboxState, type InboxState } from './domains/inbox';
 import { createCustomersState, type CustomersState } from './domains/customers';
@@ -109,6 +110,8 @@ const db: MockDb = {
   settingsBilling: createSettingsBillingState(),
   docTemplates: createDocTemplatesState(),
 };
+
+if (db.session.bulk) bulkify(db);
 
 type Listener = (event: string) => void;
 const listeners = new Set<Listener>();

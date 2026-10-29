@@ -10,20 +10,20 @@ import { useMarketingUi } from '../marketing-store';
 import { campaignsQuery, marketingMetaQuery } from '../api';
 import { CampaignCard, useCampaignColumns } from '../columns';
 import { MarketingHeader } from '../components/MarketingHeader';
-import { Pagination } from '../components/Pagination';
 import { AnalyzeModal } from '../components/AnalyzeModal';
 import { CampaignWizard } from '../components/CampaignWizard';
 import { CampaignDetail } from '../components/CampaignDetail';
 import { MarketingAiDrawer } from '../components/MarketingAiDrawer';
 import type { Campaign } from '../types';
 import { useMarketingUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 export function MarketingScreen() {
   useMarketingUiCommands();
   const t = useTranslations('marketing');
   const { styles } = useMarketingStyles();
   const ui = useMarketingUi();
-  const list = useQuery(campaignsQuery(ui.filter));
+  const list = useQuery(campaignsQuery(ui.filter, ui.pg));
   const meta = useQuery(marketingMetaQuery()).data;
   const rows = list.data?.data ?? [];
   const columns = useCampaignColumns(rows);
@@ -33,6 +33,7 @@ export function MarketingScreen() {
       <PageStates state={stateOf(list)} onRetry={() => void list.refetch()}>
         <DataTable<Campaign>
           testId="mk-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="mk-table-pager" />}
           rows={rows}
           columns={columns}
           rowKey={(r) => r.id}
@@ -43,7 +44,6 @@ export function MarketingScreen() {
           emptyText={t('empty')}
         />
       </PageStates>
-      <Pagination n={rows.length} />
       {meta ? <AnalyzeModal meta={meta} /> : null}
       {meta ? <CampaignWizard meta={meta} /> : null}
       {meta ? <MarketingAiDrawer meta={meta} /> : null}

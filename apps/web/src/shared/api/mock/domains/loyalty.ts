@@ -7,6 +7,7 @@ import fixture from '../../../../../../../fixtures/prototype-parity/loyalty.json
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.members)[number];
 export type Member = Fixed;
@@ -81,7 +82,7 @@ export const loyaltyRoutes: Record<string, MockRoute> = {
         (!p.tier || p.tier === 'all' || m.tier === p.tier) &&
         (!q || [m.name, m.phone, digits(m.phone)].some((v) => norm(v).includes(q))),
     );
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   /** Tra cứu theo SĐT cho hộp "Thêm thành viên & ghi nhận điểm" (bước 1). */
   '/loyalty/lookup': (db, p) => {
