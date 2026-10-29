@@ -12,7 +12,7 @@
 5. **Trạng thái suy ra** (derived) — như `order.pay_status`, `invoice.status` phần `partial|paid|overdue`, `channel` của loại kênh (REQ-B09) — **không** có action đặt trực tiếp; tính lại trong cùng transaction khi nguồn đổi, bằng hàm thuần trong `state.ts`.
 6. **Trạng thái cuối** (terminal) khai rõ trong flow; không action nào đi ra, trừ action "mở lại" có tên riêng được liệt kê.
 7. **Mỗi chuyển đổi có nghĩa với bên ngoài phát event** `<entity>.<past_tense>` (`events/outbox.md`) và ghi `timeline_event` nếu entity gắn khách.
-8. **Thêm / bỏ trạng thái hoặc chuyển đổi** = escalation L2 (`domain/gap-filling.md` §2). Bảng §4 có ô *đề xuất* là phần Chủ thầu suy ra từ `docs/03-module-specs` / prototype; chốt khi duyệt PR này, sau đó cũng chỉ đổi qua L2.
+8. **Thêm / bỏ trạng thái hoặc chuyển đổi** = escalation L2 (`domain/gap-filling.md` §2). Phần suy ra từ `docs/03-module-specs` / prototype (lịch hẹn, ticket, chiến dịch, agent, approval, gia hạn báo giá) đã được Chủ nhà chốt — **D52** (2026-10-29).
 
 ## 2. Hợp đồng
 
@@ -33,7 +33,7 @@ export function allowedActions<S extends string>(f: Flow<S>, from: S): string[];
 
 ## 4. Danh mục
 
-Ký hiệu: `A —action→ B`. *(sys)* = chuyển bởi job / event. **[đề xuất]** = chưa có trong COMMERCE / Blueprint, chốt khi duyệt.
+Ký hiệu: `A —action→ B`. *(sys)* = chuyển bởi job / event. *(D52)* = chốt 2026-10-29, không có trong COMMERCE / Blueprint trước đó.
 
 ### Báo giá `quote` (COMMERCE §3)
 - `draft —quote.submit_for_approval→ pending_approval` (khi chạm ngưỡng; `approvalReasons()` trong `commerce/quote-math.ts`)
@@ -42,7 +42,7 @@ Ký hiệu: `A —action→ B`. *(sys)* = chuyển bởi job / event. **[đề x
 - `sent —(sys) mở link→ viewed`
 - `sent|viewed —quote.mark_accepted→ accepted` · `—quote.mark_rejected→ rejected` · `—quote.request_revision→ revision_requested` (sinh version n+1 `draft`; bản này → `superseded` khi bản mới được gửi)
 - `sent|viewed —(sys) quá valid_until→ expired`
-- `sent|viewed —quote.extend_validity→` giữ trạng thái, dời `valid_until` · **[đề xuất]** `expired —quote.extend_validity→ sent` nếu chưa có version mới hơn
+- `sent|viewed —quote.extend_validity→` giữ trạng thái, dời `valid_until` · `expired —quote.extend_validity→ sent` nếu chưa có version mới hơn, gửi lại link cho khách *(D52)*; đã có version mới → `INVALID_TRANSITION`
 - `draft —quote.update→ draft`; trạng thái khác sửa = `quote.request_revision` (D46)
 - Terminal: `accepted`, `rejected`, `superseded` (`expired` chỉ ra bằng extend).
 
@@ -72,20 +72,20 @@ Ký hiệu: `A —action→ B`. *(sys)* = chuyển bởi job / event. **[đề x
 - `active —(sys) used = total→ exhausted` · `active —(sys) quá expires_at→ expired` · `active —payment.refund_approve→ refunded`
 - `expired|exhausted —package.extend | package.adjust_sessions→ active` (Owner, ghi log).
 
-### Lịch hẹn `appointment` (theo `docs/03-module-specs/AppChat-Appointments-Spec` §2) **[đề xuất]**
+### Lịch hẹn `appointment` (theo `docs/03-module-specs/AppChat-Appointments-Spec` §2) *(D52)*
 - `pending —appointment.confirm→ confirmed` · `pending —(sys) quá hold_expires_at→ expired`
 - `pending|confirmed —appointment.reschedule→ rescheduled` (sinh lịch mới `pending`, `reschedule_of_id`) · `pending|confirmed —appointment.cancel→ cancelled` (lý do)
 - `confirmed —appointment.check_in→ in_progress` · `in_progress —appointment.complete→ done` (trừ buổi liệu trình; gợi ý tạo đơn)
 - `confirmed —appointment.mark_no_show→ no_show` (sau ân hạn; mặc định không trừ buổi)
-- `expired —appointment.confirm→ confirmed` nếu khung còn trống (kiểm lại EXCLUDE) · `expired —appointment.cancel→ cancelled`
+- `expired —appointment.confirm→ confirmed` nếu khung còn trống (kiểm lại EXCLUDE; hết chỗ → `SLOT_TAKEN` + gợi ý khung khác qua `appointment.find_slots`) · `expired —appointment.cancel→ cancelled`
 - `done` có `undo` trong cửa sổ của action (trả buổi). Không có chuyển `pending → done` trực tiếp.
 - Terminal: `done`, `no_show`, `rescheduled`, `cancelled`.
 
-### Ticket `ticket` (Tickets-Spec, SLA-Spec) **[đề xuất]**
+### Ticket `ticket` (Tickets-Spec, SLA-Spec) *(D52)*
 - `open —ticket.set_status→ in_progress | waiting` · `in_progress —ticket.set_status→ waiting` · `waiting —ticket.set_status→ in_progress`
 - `waiting —(sys) khách trả lời→ in_progress` (SLA chạy tiếp)
 - `open|in_progress|waiting —ticket.close→ closed` (bắt buộc `close_reason`; chốt `sla_result`)
-- `closed —ticket.reopen | (sys) khách nhắn trong 7 ngày→ open` (giữ mã + lịch sử, `reopened_count + 1`)
+- `closed —ticket.reopen | (sys) khách nhắn trong 7 ngày kể từ `closed_at`→ open` (giữ mã + lịch sử, `reopened_count + 1`); quá 7 ngày tin vào hội thoại như thường, người tự tạo ticket mới
 - SLA: đồng hồ người dừng ở `waiting` và ngoài giờ làm việc; đồng hồ AI không dừng.
 
 ### Hội thoại `conversation`
@@ -104,11 +104,11 @@ Ký hiệu: `A —action→ B`. *(sys)* = chuyển bởi job / event. **[đề x
 - `rejected —campaign.update→ draft`
 - `approved —(có scheduled_at)→ scheduled` · `approved|scheduled —(sys) đến giờ / gửi ngay→ running`
 - `running —campaign.pause→ paused` · `paused —campaign.resume→ running` · `running —(sys) hết người nhận→ completed`
-- `draft|pending_approval|approved|scheduled|paused —campaign.cancel→ cancelled` **[đề xuất]**
+- `draft|pending_approval|approved|scheduled|paused —campaign.cancel→ cancelled` *(D52)*; đang `running` phải `campaign.pause` trước; tin đã gửi giữ nguyên, người nhận chưa gửi → `skipped`
 - Terminal: `completed`, `cancelled`.
 
 ### AI Agent `ai_agent` · tri thức · duyệt
-- `ai_agent`: `draft —agent.publish→ active` (tạo `ai_agent_version`) · `active —agent.pause→ paused` · `paused —agent.publish→ active` · `active —agent.publish→ active` (version mới) · `agent.rollback` = publish lại snapshot cũ · `agent.delete` xoá mềm, chặn khi agent đang phụ trách kênh / hội thoại mở **[đề xuất]**.
+- `ai_agent`: `draft —agent.publish→ active` (tạo `ai_agent_version`) · `active —agent.pause→ paused` · `paused —agent.publish→ active` · `active —agent.publish→ active` (version mới) · `agent.rollback` = publish lại snapshot cũ · `agent.delete` xoá mềm, chặn khi agent đang phụ trách kênh / hội thoại mở → `HAS_DEPENDENCIES` kèm danh sách *(D52)*; lịch sử `ai_run` giữ nguyên.
 - `kb_source`: `pending → processing → ready | failed` *(sys)* · `ready|failed —kb.refresh_source→ processing`.
-- `approval_request`: `pending —approval.approve→ approved` · `—approval.edit_and_approve→ edited` · `—approval.reject→ rejected` · `—(sys) quá hạn→ expired` (**[đề xuất]** 72 giờ, cấu hình ở `ai_governance`). Terminal: cả bốn.
+- `approval_request`: `pending —approval.approve→ approved` · `—approval.edit_and_approve→ edited` · `—approval.reject→ rejected` · `—(sys) quá hạn→ expired` (72 giờ, cấu hình ở `ai_governance` — *D52*; hết hạn thì báo người yêu cầu, hội thoại liên quan về người phụ trách). Terminal: cả bốn.
 - `contact_access_request`, `kb_suggestion`: `pending → approved | rejected`, terminal.

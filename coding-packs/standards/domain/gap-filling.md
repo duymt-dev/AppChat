@@ -43,6 +43,7 @@
 FE (goal `fe-prototype` + ver2.1) đã dựng xong bằng mock. Với TIP backend:
 
 1. **Action đã có trong `packages/actions`** → cài handler đúng `input` / `output` zod đó. Muốn đổi schema → escalation L2 (đổi schema là đổi contract FE).
+   - **Ngoại lệ — mở rộng tương thích ngược, không cần L2:** thêm trường **optional** vào `input` (ví dụ `if_version` theo `domain/concurrency.md`) hoặc thêm trường vào `output` / shape đọc (ví dụ `version`, `meta.total`). Điều kiện: FE và mock cũ chạy nguyên không sửa, test hiện có vẫn xanh; TIP backend thêm trường cùng lúc cài handler và ghi vào report. Đổi tên, bỏ trường, đổi kiểu, biến optional thành bắt buộc, đổi enum → vẫn là L2.
 2. **Shape đọc** → `packages/shared/src/api/<domain>.ts` (zod). Chưa có thì TIP backend **tách từ mock + `features/<module>/types.ts`** ra file này trước, rồi FE và BE cùng import.
 3. **Harness contract** (`apps/api/test/contract/<domain>.contract.test.ts`): cùng request chạy qua mock transport và HTTP, parse bằng cùng zod; lệch là fail. Bật `NEXT_PUBLIC_API_MODE=http` cho module chỉ khi harness xanh.
 4. Mock trả dữ liệu hoặc hành vi mà Blueprint không có → không tự hợp thức hoá; ghi vào report để Chủ thầu chốt bên nào đúng.

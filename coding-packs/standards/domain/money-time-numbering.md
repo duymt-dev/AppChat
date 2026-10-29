@@ -41,11 +41,11 @@
 | product | `SP-{n:4}` | SP-1001 | |
 | quote | `BG-{n:4}` | BG-2041 | version: `BG-2041` + cột `version` (hiển thị `BG-2041 · v2`), không sinh mã mới |
 | contract | `HĐ-{n:4}` | HĐ-1180 | phụ lục `HĐ-1180/PL-{k}` |
-| order | `DH-{n:6}` | DH-000123 | **[chốt khi duyệt]** prototype + mock FE dùng `SP290411` (trùng tiền tố mã sản phẩm `SP-`), Blueprint ghi `DH-`. Đề xuất `DH-`; chọn `DH-` thì đổi fixture + ghi `PD` |
+| order | `DH-{n:6}` | DH-000123 | D52: không dùng `SP290411` của prototype (trùng tiền tố mã sản phẩm). Fixture + mock FE đổi sang `DH-`; mask cột mã đơn khi đo parity trích D52 |
 | invoice (đề nghị thanh toán) | `TT-{n:6}` | TT-002041 | là mã khớp nội dung chuyển khoản (COMMERCE §5) — không đổi định dạng |
 | receipt (phiếu thu) | `PT-{n:6}` | PT-000045 | |
 | appointment | `LH-{n:4}` | LH-1201 | |
-| ticket | `TKT-{n:4}` | TKT-2041 | **[chốt khi duyệt]** prototype + mock FE dùng `TKT-`, Blueprint ghi `TK-`. Đề xuất giữ `TKT-` (không đổi UI), sửa Blueprint |
+| ticket | `TKT-{n:4}` | TKT-2041 | D52: giữ như prototype + mock FE; Blueprint `TK-` sửa thành `TKT-` |
 | campaign | `CD-{n:4}` | CD-0012 | |
 
    `{n:4}` = đệm 0 tới tối thiểu 4 chữ số, vượt thì dài thêm (không quay vòng). Không reset theo năm.

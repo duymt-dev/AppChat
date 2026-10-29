@@ -258,7 +258,7 @@ PostgreSQL 16 cluster (native)  ── PgBouncer (transaction mode, :6432) ─�
 - **Tiền:** `bigint`, đơn vị VND (không dùng float). **Credit:** `bigint`.
 - **Thời gian:** `timestamptz`; hiển thị theo timezone của workspace (mặc định `Asia/Ho_Chi_Minh`).
 - **Enum:** dùng Postgres enum qua Prisma, giá trị tiếng Anh snake_case. Nhãn hiển thị nằm trong i18n.
-- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `TT-…` (đề nghị thanh toán), `LH-…`, `TK-…`. Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
+- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `TT-…` (đề nghị thanh toán), `LH-…`, `TKT-…` (D52). Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
 - **Extensions** (cài sẵn trong DB template): `pgcrypto`, `vector` (pgvector), `pg_trgm`, `unaccent`, `btree_gist`, `citext`.
 - **Hàm bất biến:** `f_unaccent(text) IMMUTABLE`, dùng cho expression index tìm kiếm tiếng Việt không dấu.
 - **Index:**
