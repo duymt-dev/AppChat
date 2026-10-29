@@ -1,0 +1,41 @@
+# D40 — e2e của module đổi, desktop 1440 + mobile 390.
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - apps/web/**
+      - packages/ui/**
+      - packages/shared/**
+      - packages/actions/**
+      - fixtures/prototype-parity/**
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    env:
+      NEXT_PUBLIC_API_MODE: mock
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @appchat/web exec playwright install --with-deps chromium
+      - run: git fetch origin dev && pnpm e2e --changed
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          if-no-files-found: ignore

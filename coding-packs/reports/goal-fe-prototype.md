@@ -17,7 +17,7 @@
 
 | Pha | Nội dung | Số dòng | ✅ | ❌ / ⛔ | Completion Report | Commit cuối pha | PR → dev |
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
-| F0 | Scaffold, theme, shell, công cụ | 15 | 0 | 0 | ⬜ | | |
+| F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
 | F1 | Auth & onboarding | 10 | 0 | 0 | ⬜ | | |
 | F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
@@ -25,7 +25,7 @@
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **135** | **0** | **0** | | | |
+| **Tổng** | | **135** | **15** | **0** | | | |
 
 ---
 
@@ -33,21 +33,21 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `f0:workspace` | Root monorepo đúng Blueprint §1.1; `apps/web`, `packages/{ui,shared,actions}` | — | C | ⬜ | — | — | | |
-| `f0:theme` | `packages/ui/theme.ts` lấy token từ CSS prototype | L39–392 | C | ⬜ | — | — | | |
-| `f0:icons` | 54 icon sprite `#ic-*` → `packages/ui/icons` | L396–455 | C | ⬜ | — | — | | |
-| `f0:i18n` | next-intl vi + en, fallback, `fmt.*`, đồng bộ antd / dayjs | — | C | ⬜ | — | — | | |
-| `f0:lint` | Lint size (400 FE), boundaries, i18next; typecheck; CI `.github/workflows/{ci,parity,e2e,full}.yml` (D40) | — | C | ⬜ | — | — | | |
-| `f0:mock` | Mock transport + mock action executor + fixtures + dev toolbar đổi vai trò | L7668+ | C | ⬜ | — | — | | |
-| `f0:parity-tool` | `tools/parity` + `parity.manifest.ts` + baseline + đồng hồ cố định | — | C | ⬜ | — | — | | |
-| `f0:e2e-mobile` | Harness Playwright 390×844 | — | C | ⬜ | — | — | | |
-| `shell:default` | AppShell + NavRail mở, đáy rail (search, thông báo, Nâng cấp, trial, avatar) | L637–1078 | E | ⬜ | | | | Ẩn Gọi điện / Quy trình / Báo cáo (D07, D19) |
-| `shell:rail-collapsed` | Rail thu gọn | L800 | P | ⬜ | | | | |
-| `shell:flyout-crm` | Flyout nhóm Khách hàng & CRM | L814+ | P | ⬜ | | | | |
-| `shell:notifications` | Popover thông báo | L903 | P | ⬜ | | | | |
-| `shell:user-menu` | Menu avatar + đổi workspace + ngôn ngữ | L1034–1052 | E | ⬜ | | | | Chỉ hiện vi / en (D22) |
-| `shell:assistant-dock` | AssistantDock mở trên một màn | L820 | P | ⬜ | | | | |
-| `shell:mobile-tabbar` | MobileTabBar 5 tab (< md) | — | M | ⬜ | — | | | Chỉ mobile |
+| `f0:workspace` | Root monorepo đúng Blueprint §1.1; `apps/web`, `packages/{ui,shared,actions}` | — | C | ✅ | — | — | e7b9d14 | pnpm 11 + turbo; apps/web, packages/{ui,shared,actions}, tools/parity |
+| `f0:theme` | `packages/ui/theme.ts` lấy token từ CSS prototype | L39–392 | C | ✅ | — | — | e7b9d14 | `packages/ui/src/tokens.ts` + `theme.ts` (giá trị lấy nguyên từ prototype) |
+| `f0:icons` | 54 icon sprite `#ic-*` → `packages/ui/icons` | L396–455 | C | ✅ | — | — | e7b9d14 | 54 `ic-*` + 6 `lg-*` sinh từ sprite (`tools/scripts/gen-icons.mjs`), giữ path SVG gốc |
+| `f0:i18n` | next-intl vi + en, fallback, `fmt.*`, đồng bộ antd / dayjs | — | C | ✅ | — | — | e7b9d14 | next-intl vi + en (cookie NEXT_LOCALE), fallback → en → vi, `fmt.*`, antd + dayjs đồng bộ; i18n:check 90/90 key |
+| `f0:lint` | Lint size (400 FE), boundaries, i18next; typecheck; CI `.github/workflows/{ci,parity,e2e,full}.yml` (D40) | — | C | ✅ | — | — | e7b9d14 | eslint boundaries + i18next + no-restricted-imports; lint:size; ci/parity/e2e/full.yml |
+| `f0:mock` | Mock transport + mock action executor + fixtures + dev toolbar đổi vai trò | L7668+ | C | ✅ | — | — | e7b9d14 | mock transport + mock ActionExecutor (zod, quyền, bulk→202, undo) + fixture shell + dev toolbar 5 vai trò |
+| `f0:parity-tool` | `tools/parity` + `parity.manifest.ts` + baseline + đồng hồ cố định | — | C | ✅ | — | — | e7b9d14 | baseline offline (React/Babel vendor, font @fontsource), clock 2026-06-24 09:00, gỡ mục OUT khỏi DOM prototype |
+| `f0:e2e-mobile` | Harness Playwright 390×844 | — | C | ✅ | — | pass | e7b9d14 | Playwright desktop 1440 + mobile-390; `pnpm e2e <module>` / `--changed` |
+| `shell:default` | AppShell + NavRail mở, đáy rail (search, thông báo, Nâng cấp, trial, avatar) | L637–1078 | E | ✅ | 0.0015 | pass | e7b9d14 | Ẩn Gọi điện / Quy trình / Báo cáo (D07, D19) · Rail mở rộng; Gọi điện / Quy trình gỡ ở cả hai bên (D07, D19) |
+| `shell:rail-collapsed` | Rail thu gọn | L800 | P | ✅ | 0.0001 | pass | e7b9d14 |  |
+| `shell:flyout-crm` | Flyout nhóm Khách hàng & CRM | L814+ | P | ✅ | 0.0020 | n/a (chỉ có trên rail ≥ md; shell 390 → `shell:mobile-tabbar` pass) | e7b9d14 | "Hóa đơn" → "Đề nghị thanh toán" (vùng chữ nằm trong ngưỡng) |
+| `shell:notifications` | Popover thông báo | L903 | P | ✅ | 0.0001 | n/a (chỉ có trên rail ≥ md; shell 390 → `shell:mobile-tabbar` pass) | e7b9d14 |  |
+| `shell:user-menu` | Menu avatar + đổi workspace + ngôn ngữ | L1034–1052 | E | ✅ | 0.0001 | n/a (chỉ có trên rail ≥ md; shell 390 → `shell:mobile-tabbar` pass) | e7b9d14 | Chỉ hiện vi / en (D22) · Ẩn "Đối tác tiếp thị" (OUT); ngôn ngữ chỉ vi / en (D22) |
+| `shell:assistant-dock` | AssistantDock mở trên một màn | L820 | P | ✅ | 0.0062 | pass (dock toàn màn < md) | e7b9d14 | So khung dock (khung "phiên bản thu nhỏ" L2938); thân dock theo màn đo ở assistant:* (F3) — mask ghi trong manifest |
+| `shell:mobile-tabbar` | MobileTabBar 5 tab (< md) | — | M | ✅ | — | pass | e7b9d14 | Chỉ mobile · 5 tab + Drawer "Thêm" (placement bottom), vùng chạm ≥ 44px |
 
 ## F1 — Auth & onboarding
 
@@ -211,7 +211,55 @@
 > Mỗi pha một mục, theo mẫu Completion Report trong `BUILDER-HANDOFF.md` (STATUS, COMMIT, FILES CHANGED, TEST RESULTS, ISSUES, DEVIATIONS, SUGGESTIONS).
 
 ### F0
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F0
+
+**STATUS:** DONE
+**COMMIT:** e7b9d14 trên nhánh `goal/fe-prototype` (tách từ `origin/dev` 6119d62)
+
+**FILES CHANGED:**
+- Created: root `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `tsconfig.base.json`, `.prettierrc`, `.gitattributes`: workspace pnpm 11 + turbo.
+- Created: `packages/shared`: permissions + 5 vai trò + data scope (Blueprint §3.5), registry 11 ngôn ngữ (bật vi / en), `fmt.*`, API envelope + error codes.
+- Created: `packages/actions`: `defineAction`, `UiCommand`, `ActionResult` / `ActionAccepted` (Blueprint §3.1, §4.3), action shell (`notification.mark_read`, `profile.update`, `workspace.switch`).
+- Created: `packages/ui`: `tokens.ts` (giá trị prototype), `theme.ts` (antd ConfigProvider), `Icon` + 60 icon từ sprite.
+- Created: `apps/web`:
+  - Next 16 App Router, next-intl, providers (antd + Query + dayjs).
+  - `shared/{api,actions,authz,assistant,realtime,states,shell,dev,i18n}`.
+  - Route stub cho mọi module P0.
+  - messages vi / en.
+- Created: `fixtures/prototype-parity/shell.json`: dữ liệu shell trích nguyên văn từ prototype.
+- Created: `tools/parity`: manifest, capture (baseline offline), compare, CLI `<id> | --done | --all | --changed`.
+- Created: `tools/scripts/{lint-size,i18n-check,e2e,gen-icons}.mjs`.
+- Created: `.github/workflows/{ci,parity,e2e,full}.yml`.
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint`: 5/5 task xanh; `lint:size`: 137 file, không file nào vượt trần.
+- `pnpm typecheck`: 5/5 xanh.
+- `pnpm test`: shared 11 passed, actions 3 passed, web 11 passed (0 failed).
+- `pnpm i18n:check`: vi 90 / en 90 key (100%).
+- `pnpm build`: xanh.
+- `pnpm parity --all`:
+  - shell:default 0.0015
+  - shell:rail-collapsed 0.0001
+  - shell:flyout-crm 0.0020
+  - shell:notifications 0.0001
+  - shell:user-menu 0.0001
+  - shell:assistant-dock 0.0062
+- `pnpm e2e` (desktop + mobile-390): 5 passed, 3 skipped. Các test skip là test chỉ chạy ở một viewport: test desktop bỏ qua ở mobile và ngược lại.
+- Tenant / role isolation: N/A (chưa có backend). Quyền UI kiểm bằng e2e "dev toolbar đổi vai trò": vai trò Kế toán làm ẩn Hộp thư / AI Agents.
+- Không chạy được: CI GitHub (chưa push lúc viết report). Xem link PR ở bảng tiến độ.
+
+**ISSUES DISCOVERED:**
+- Thấp: `support.js` của prototype tải React / Babel từ unpkg. Đã lưu bản cố định ở `tools/parity/vendor/` (3,2 MB) để đo offline và ổn định trên CI.
+- Thấp: nút "Nâng cấp" trong prototype khai inline `height:46px`, nhưng class `.btnp` ép về 36px. V2 lấy giá trị **hiển thị thật** (36px).
+
+**DEVIATIONS FROM SPEC:**
+- `shell:assistant-dock`: prototype không có dock chung; dock lấy theo khung "Trợ lý AI · phiên bản thu nhỏ" (L2938). Chỉ đo pixel phần khung (đầu, chân, nút gửi). Tiêu đề, thân và placeholder theo màn được mask; phần nội dung đo ở `assistant:*` (F3). Lý do ghi trong `parity.manifest.ts`.
+- Mục OUT (Gọi điện, Quy trình, Đối tác tiếp thị) được gỡ khỏi DOM prototype trước khi chụp, đúng `prototype-parity` §7: các mục còn lại dồn lên như prototype đã bỏ mục đó.
+- Thêm action `workspace.switch` (prototype có đổi workspace trong menu avatar, Blueprint §3.4 chưa có id). Đề xuất bổ sung vào danh mục identity.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Bật branch protection cho `dev` với check `ci` (+ `parity`, `e2e`) như `git-flow-ci` §4.
+- Bổ sung `workspace.switch` vào Blueprint §3.4.
 
 ### F1
 _chưa có_

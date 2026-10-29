@@ -1,0 +1,17 @@
+{
+  "VALIDATION_FAILED": "Invalid data",
+  "UNAUTHENTICATED": "Your session has expired",
+  "FORBIDDEN": "You are not allowed to do this",
+  "SCOPE_FORBIDDEN": "This record is outside your data scope",
+  "NOT_FOUND": "Not found",
+  "CONFLICT": "Data changed, please reload",
+  "CONTACT_OWNED": "This customer already has an owner",
+  "IDEMPOTENCY_REPLAY": "Request already processed",
+  "RATE_LIMITED": "Too many requests, try again later",
+  "PLAN_LIMIT_REACHED": "Plan limit reached",
+  "CREDIT_EXHAUSTED": "AI credits exhausted",
+  "ACTION_NOT_FOUND": "Unknown action",
+  "PREVIEW_REQUIRED": "Confirmation required",
+  "APPROVAL_REQUIRED": "Sent for approval",
+  "INTERNAL": "System error, try again later"
+}

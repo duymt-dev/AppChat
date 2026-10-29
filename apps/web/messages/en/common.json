@@ -1,0 +1,13 @@
+{
+  "appName": "AppChat",
+  "close": "Close",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "retry": "Retry",
+  "undo": "Undo",
+  "loading": "Loading…",
+  "seeMore": "See more →",
+  "empty": "No data yet",
+  "noPermission": "You don't have permission to view this",
+  "error": "Something went wrong"
+}

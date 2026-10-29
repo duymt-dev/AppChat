@@ -1,0 +1,19 @@
+{
+  "notification": {
+    "mark_read": {
+      "title": "Mark notifications as read"
+    }
+  },
+  "profile": {
+    "update": {
+      "title": "Update profile"
+    }
+  },
+  "workspace": {
+    "switch": {
+      "title": "Switch workspace"
+    }
+  },
+  "done": "Done: {title}",
+  "previewTitle": "Confirm action"
+}
