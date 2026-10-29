@@ -22,10 +22,10 @@
 | F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | bf2b4a5 | [#4](https://github.com/duymt-dev/AppChat/pull/4) (xếp chồng #3) |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
-| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 14 | 0 | ⬜ | | |
+| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **102** | **0** | | | |
+| **Tổng** | | **137** | **106** | **0** | | | |
 
 ---
 
@@ -160,10 +160,10 @@
 | `marketing:wizard` | Wizard tạo chiến dịch | L3394 | E | ✅ | 0.0204 | pass | eb73c5b | 4 bước: Kênh (Zalo cá nhân / Email, 1 kênh) · Người nhận (tìm, nhóm, Upload Excel, chọn khách) · Nội dung (AI soạn 3 giọng, thanh định dạng, tiêu đề email) · Lịch (Gửi ngay / Hẹn giờ / AI tối ưu, credit dự kiến). Lưu nháp = campaign.create; Gửi duyệt = create + submit. Mask lưới kênh (§6) |
 | `marketing:analytics` | Chi tiết / thống kê chiến dịch | L3569 | P | ✅ | 0.0210 | pass | eb73c5b | Trang toàn màn: 5 thẻ số, lọc + pill trạng thái người nhận, bảng người nhận, tab Nội dung / Lịch sử gửi; Chờ duyệt → thanh duyệt (Gửi thử · Từ chối · Duyệt & gửi luôn qua hộp xác nhận — campaign.approve risk send) |
 | `marketing:ai` | Panel AI marketing | L3538 | P | ✅ | 0.0351 | pass | eb73c5b | Panel 392px: 4 gợi ý → mở wizard điền sẵn từ đề xuất; ô hỏi; "Mở Trợ lý AI đầy đủ" mở dock |
-| `loyalty:overview` | Tổng quan khách thân thiết | L4412 | P | ⬜ | | | | 10.000đ = 1 điểm |
-| `loyalty:members` | Bảng thành viên | L4412 | P | ⬜ | | | | |
-| `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | P | ⬜ | | | | |
-| `loyalty:config` | Cấu hình hạng / điểm | L4412 | P | ⬜ | | | | |
+| `loyalty:overview` | Tổng quan khách thân thiết | L4412 | P | ✅ | 0.0324 | pass | a26b6fb | Topbar (tìm, Thêm thành viên, Trợ lý AI) + 5 ô tổng quan, cảnh báo rời bỏ (Tặng ưu đãi → Marketing). 10.000đ = 1 điểm, chỉ cộng khi đơn hoàn tất (COMMERCE §7) |
+| `loyalty:members` | Bảng thành viên | L4412 | P | ✅ | 0.0314 | pass | a26b6fb | Lọc hạng, tìm không dấu tên / SĐT, menu dòng (xem / điều chỉnh), drawer 5 tab (Tổng quan, CRM thang hạng ×1/×1/×1,5/×2, AI, Tệp, Lịch sử điểm) |
+| `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | P | ✅ | 0.0365 | pass | a26b6fb | Tra SĐT → xác định hạng → ghi nhận: điều chỉnh tay ± kèm lý do bắt buộc (loyalty.adjust_points, hoàn tác 24h); khách mới tạo liên hệ CRM (contact.create) trước; chặn trừ quá số dư. Bỏ "ghi nhận theo giao dịch" và "hạng khởi tạo" của prototype vì COMMERCE §7 (mask khối ghi nhận) |
+| `loyalty:config` | Cấu hình hạng / điểm | L4412 | P | ✅ | 0.0173 | pass | a26b6fb | Bảng quy tắc (2 đang áp dụng, 6 "sắp có" — không có builder quy tắc tự do), hộp cấu hình (bật/tắt, hệ số hạng, tích điểm sàn TMĐT) qua loyalty.update_config, hộp thử nghiệm tính điểm |
 
 ## F6 — Cài đặt · Gói & ví · popup
 
