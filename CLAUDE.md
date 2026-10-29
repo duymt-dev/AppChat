@@ -19,7 +19,7 @@ Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · Nes
 
 | Việc | Đọc thêm |
 |------|----------|
-| Frontend / UI | `standards/ui/frontend-structure.md` · `standards/ui/prototype-parity.md` · `standards/i18n/i18n.md` · Blueprint §7 · prototype (mục 6 dưới) |
+| Frontend / UI | `standards/ui/frontend-structure.md` · `standards/ui/prototype-parity.md` (§6b 4 mức lệch) · `standards/ui/interaction-patterns.md` · sổ `docs/06-prototype/DEVIATIONS.md` · `standards/i18n/i18n.md` · Blueprint §7 · prototype (mục 6 dưới) |
 | Backend / action | `standards/actions/action-registry.md` · `standards/api/response-envelope.md` · `standards/events/outbox.md` · Blueprint §3, §4 |
 | Schema / query | `standards/database/tenant-db.md` · `standards/database/indexing.md` · Blueprint §2 · `02-TASK-GRAPH.md` → Bản đồ sở hữu file |
 | Phân quyền / dữ liệu có chủ sở hữu | `standards/authz/rbac-permissions.md` · Blueprint §3.5 |

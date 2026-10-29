@@ -16,7 +16,7 @@ Bạn là **THỢ THI CÔNG**. Chủ nhà và Chủ thầu đã thống nhất t
 3. **Action-first.** Mọi thao tác ghi là action trong `packages/actions` + handler, chạy qua `ActionExecutor`. Không có đường ghi thứ hai (`standards/actions/action-registry.md`).
 4. **DB riêng mỗi workspace.** Chỉ lấy DB tenant qua `TenantDbResolver` với context đã xác thực. Bảng tenant không có `workspace_id`, không RLS. Mọi list / get áp `scopeFilter` (`standards/database/tenant-db.md`, `standards/authz/rbac-permissions.md`).
 5. **Kích thước file:** backend ≤ 600 dòng (≥ 500 thì tách), frontend ≤ 400 dòng, màn là orchestrator. Test ở file riêng, không viết inline (`standards/code/file-size-module-layout.md`).
-6. **UI giống prototype < 5%** ở 1440×900 (`pnpm parity <id>`), mobile 390×844 qua e2e. Chỉ dùng token, không hard-code màu / px (`standards/ui/prototype-parity.md`, `standards/ui/frontend-structure.md`).
+6. **UI giống prototype < 5%** ở 1440×900 (`pnpm parity <id>`), mobile 390×844 qua e2e. Chỉ dùng token, không hard-code màu / px (`standards/ui/prototype-parity.md`, `standards/ui/frontend-structure.md`). Prototype không vẽ hoặc vẽ sai → làm theo `standards/ui/interaction-patterns.md` và 4 mức lệch ở `prototype-parity.md` §6b (ghi `PD-xxx` vào `docs/06-prototype/DEVIATIONS.md`; mức 3 vẫn theo prototype đến khi Chủ nhà duyệt).
 7. **Test thật, báo trung thực, commit ngay.** Chạy test thật và dán output. Không báo DONE khi test chưa chạy hoặc còn đỏ. Xong thì `git add` + `git commit`, `git status --short` phải sạch, báo **git commit SHA** (không dùng hash file binary).
 
 Ràng buộc chung: **không dùng Docker**. Nguồn duy nhất là `coding-packs/` và `specs/`. Không tự thêm thư viện ngoài tech stack mà không ghi vào Deviations.
@@ -83,7 +83,7 @@ Bắt buộc đọc các standard mà TIP ghi ở cột "Standards chính" (`02-
 | i18n | [i18n](standards/i18n/i18n.md) | mọi TIP có chuỗi hiển thị |
 | integrations | [provider-ports](standards/integrations/provider-ports.md) | 004, 010, 012, 031, 032 |
 | workflow | [git-flow-ci](standards/workflow/git-flow-ci.md) | mọi TIP / goal |
-| ui | [frontend-structure](standards/ui/frontend-structure.md) · [prototype-parity](standards/ui/prototype-parity.md) | mọi TIP có UI |
+| ui | [frontend-structure](standards/ui/frontend-structure.md) · [prototype-parity](standards/ui/prototype-parity.md) · [interaction-patterns](standards/ui/interaction-patterns.md) | mọi TIP có UI |
 
 ### Môi trường dev
 
