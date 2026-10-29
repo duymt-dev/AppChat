@@ -23,6 +23,8 @@ import { SlaSection } from '../components/SlaSection';
 import { NotifSection } from '../components/NotifSection';
 import { BillingSection } from '../components/BillingSection';
 import { WalletSection } from '../components/WalletSection';
+import { ProfileSection } from '../components/ProfileSection';
+import { DocTemplatesSection } from '../components/DocTemplatesSection';
 import { resolveSection, type NavItem, type SectionKey } from '../registry';
 import { useSettingsUiCommands } from '../ui-commands';
 
@@ -46,6 +48,8 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   notifications: NotifSection,
   billing: BillingSection,
   wallet: WalletSection,
+  profile: ProfileSection,
+  doc_templates: DocTemplatesSection,
 };
 
 /** Mục có phụ đề dưới tiêu đề (prototype L5775). */

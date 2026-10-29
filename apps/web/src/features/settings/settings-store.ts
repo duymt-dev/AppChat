@@ -34,6 +34,9 @@ interface SettingsUi {
   kbFolder: string | null;
   kbQ: string;
   kbUpload: boolean;
+  docKind: string;
+  /** Hộp mẫu: `{ source }` = tạo mới; có id = sửa. */
+  docModal: { id?: string; source: 'rich' | 'docx' } | null;
   set: (p: Partial<Omit<SettingsUi, 'set'>>) => void;
 }
 
@@ -57,5 +60,7 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   kbFolder: null,
   kbQ: '',
   kbUpload: false,
+  docKind: 'all',
+  docModal: null,
   set: (p) => setState(p),
 }));

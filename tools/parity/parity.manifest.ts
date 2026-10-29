@@ -1333,6 +1333,15 @@ export const MANIFEST: ParityEntry[] = [
     clip: { x: 0, y: 0, width: 1440, height: 900 },
   },
   {
+    // Prototype không có màn hồ sơ riêng: menu avatar "Hồ sơ của tôi" (L1050, goProfile L11327) mở Cài đặt › Tổng quan → đo theo đích đó.
+    id: 'profile:me',
+    route: '/settings/profile',
+    protoStorage: settings('general'),
+    appWait: '[data-testid="st-profile-form"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
     id: 'settings:integrations',
     route: '/settings/integrations',
     protoStorage: settings('integrations'),

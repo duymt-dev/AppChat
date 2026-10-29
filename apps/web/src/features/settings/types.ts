@@ -326,3 +326,25 @@ export interface WalletData {
   low_alert: boolean;
   ledger: { id: string; at: string; desc: string; kind: 'grant' | 'topup' | 'usage' | 'refund' | 'adjust' | 'expire'; source: string; delta: number }[];
 }
+
+export type DocKindKey = 'quote' | 'contract' | 'payment_request' | 'receipt';
+
+export interface DocTemplate {
+  id: string;
+  kind: DocKindKey;
+  name: string;
+  source: 'rich' | 'docx';
+  body?: string;
+  file_name?: string;
+  fields: { placeholder: string; variable: string }[];
+  is_default: boolean;
+  version: number;
+  updated_by: string;
+  updated_at: string;
+}
+
+export interface DetectedField {
+  placeholder: string;
+  variable: string;
+  confidence: number;
+}

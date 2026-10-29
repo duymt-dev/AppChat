@@ -21,6 +21,7 @@ import { settingsDataRoutes } from './domains/settings-data';
 import { settingsAiRoutes } from './domains/settings-ai';
 import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
+import { docTemplatesRoutes } from './domains/doc-templates';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -73,4 +74,5 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...settingsAiRoutes,
   ...settingsOpsRoutes,
   ...settingsBillingRoutes,
+  ...docTemplatesRoutes,
 };

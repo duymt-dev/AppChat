@@ -2,8 +2,8 @@
   "title": "Settings",
   "sub": "Quản trị workspace · AI · Bảo mật · Thanh toán",
   "search": "Tìm cài đặt… (⌘K)",
-  "docs": "Tài liệu",
   "docsSoon": "Tài liệu hướng dẫn đang được cập nhật",
+  "docs": "Tài liệu",
   "group": {
     "workspace": "WORKSPACE",
     "users": "NGƯỜI DÙNG",
@@ -1119,6 +1119,167 @@
         "adjust": "Điều chỉnh",
         "expire": "Hết hạn"
       }
+    }
+  },
+  "profile": {
+    "info": "Thông tin cá nhân",
+    "infoD": "Hiển thị với đồng nghiệp trong workspace và trên chứng từ bạn phụ trách",
+    "name": "Họ và tên",
+    "nameH": "Tên hiển thị trong hộp thư và chứng từ",
+    "phone": "Số điện thoại",
+    "email": "Email đăng nhập",
+    "emailH": "Đổi email qua bộ phận hỗ trợ",
+    "locale": "Ngôn ngữ giao diện",
+    "lang": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "cancel": "Huỷ",
+    "save": "Lưu thay đổi",
+    "session": "Phiên đăng nhập",
+    "sessionD": "Đăng xuất khỏi thiết bị này",
+    "logout": "Đăng xuất",
+    "logoutD": "Thoát phiên hiện tại — dữ liệu workspace không bị ảnh hưởng"
+  },
+  "doctpl": {
+    "kind": {
+      "quote": "Báo giá",
+      "contract": "Hợp đồng",
+      "payment_request": "Đề nghị thanh toán",
+      "receipt": "Phiếu thu"
+    },
+    "kinds": {
+      "all": "Tất cả",
+      "quote": "Báo giá",
+      "contract": "Hợp đồng",
+      "payment_request": "Đề nghị thanh toán",
+      "receipt": "Phiếu thu"
+    },
+    "source": {
+      "rich": "Soạn trong app",
+      "docx": "DOCX"
+    },
+    "upload": "Tải mẫu DOCX",
+    "new": "Tạo mẫu",
+    "col": {
+      "name": "Tên mẫu",
+      "kind": "Loại",
+      "source": "Nguồn",
+      "ver": "Bản",
+      "updated": "Cập nhật",
+      "default": "Mặc định"
+    },
+    "updated": "{by} · {at}",
+    "default": "Mặc định",
+    "setDefault": "Đặt mặc định",
+    "edit": "Sửa",
+    "del": "Xoá",
+    "rule": "Mẫu chỉ quyết định trình bày — số tiền, dòng hàng, hiệu lực luôn lấy từ chứng từ. Chứng từ đã gửi / đã ký giữ nguyên bản mẫu lúc phát hành.",
+    "var": {
+      "business_legal_name": "Tên pháp lý DN",
+      "business_tax_code": "MST DN",
+      "business_address": "Địa chỉ DN",
+      "business_representative": "Người đại diện DN",
+      "business_logo": "Logo",
+      "business_bank_account": "Tài khoản nhận tiền",
+      "customer_name": "Tên khách hàng",
+      "customer_tax_code": "MST khách hàng",
+      "customer_address": "Địa chỉ khách hàng",
+      "customer_phone": "SĐT khách hàng",
+      "customer_email": "Email khách hàng",
+      "customer_representative": "Đại diện khách hàng",
+      "doc_code": "Số chứng từ",
+      "doc_date": "Ngày lập",
+      "doc_valid_until": "Hiệu lực đến",
+      "doc_owner": "Người phụ trách",
+      "items": "Bảng hàng hoá / dịch vụ",
+      "totals_subtotal": "Tạm tính",
+      "totals_discount": "Chiết khấu",
+      "totals_vat": "Thuế GTGT",
+      "totals_total": "Tổng cộng",
+      "totals_total_words": "Số tiền bằng chữ",
+      "contract_kind": "Loại hợp đồng",
+      "contract_value": "Giá trị hợp đồng",
+      "contract_start": "Ngày bắt đầu",
+      "contract_end": "Ngày kết thúc",
+      "payment_vietqr": "Mã VietQR",
+      "payment_transfer_note": "Nội dung chuyển khoản",
+      "signatures_seller": "Chữ ký bên bán",
+      "signatures_buyer": "Chữ ký bên mua"
+    },
+    "modal": {
+      "newT": "Tạo mẫu chứng từ",
+      "editT": "Sửa mẫu chứng từ",
+      "save": "Lưu mẫu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "name": "Tên mẫu *",
+      "kind": "Loại chứng từ",
+      "vars": "Chèn biến (bấm để thêm vào cuối nội dung)",
+      "body": "Nội dung mẫu",
+      "bodyPh": "<h2>BÁO GIÁ '{{'doc.code'}}'</h2> …",
+      "notVat": "Dòng \"Chứng từ này không thay thế hoá đơn giá trị gia tăng\" luôn được in — không xoá được.",
+      "asDefault": "Đặt làm mẫu mặc định của loại này",
+      "errName": "Nhập tên mẫu",
+      "errVars": "Biến không hợp lệ cho loại chứng từ này: {v}"
+    },
+    "wizard": {
+      "title": "Tải mẫu DOCX của doanh nghiệp",
+      "editT": "Sửa gán biến mẫu DOCX",
+      "step": {
+        "1": "Tải file",
+        "2": "Gán biến",
+        "3": "Bảng kiểm"
+      },
+      "next": "Tiếp tục",
+      "save": "Xác nhận & lưu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "kind": "Loại chứng từ",
+      "dropT": "Chọn file Word (.docx) của bạn",
+      "detecting": "AI đang nhận diện vị trí cần điền…",
+      "dropS": "Tối đa 10MB · không nhận file có macro (.docm). Giữ nguyên logo, bố cục và điều khoản của bạn.",
+      "pick": "Chọn file",
+      "name": "Tên mẫu *",
+      "mapHint": "AI đề xuất các vị trí cần điền trong {file}. Kiểm tra từng dòng — đổi biến, bỏ dòng sai. Dòng tin cậy thấp được tô vàng.",
+      "col": {
+        "place": "Vị trí trong file",
+        "var": "Biến",
+        "conf": "Tin cậy"
+      },
+      "remove": "Bỏ dòng",
+      "confirm": "Bạn đã xác nhận {n} vị trí. Xem bảng kiểm pháp lý trước khi lưu — mục thiếu chỉ là cảnh báo.",
+      "errType": "Chỉ nhận file .docx (không nhận file có macro .docm)",
+      "errSize": "File vượt quá 10MB",
+      "errName": "Nhập tên mẫu",
+      "errFields": "Cần ít nhất một vị trí được gán biến"
+    },
+    "check": {
+      "title": {
+        "contract": "Bảng kiểm hợp đồng (Điều 398 BLDS 2015)",
+        "quote": "Bảng kiểm báo giá",
+        "payment_request": "Bảng kiểm đề nghị thanh toán",
+        "receipt": "Bảng kiểm phiếu thu"
+      },
+      "missing": "{n} mục cần xem lại",
+      "allOk": "Đủ các mục",
+      "item": {
+        "parties": "Thông tin hai bên",
+        "subject": "Đối tượng của hợp đồng",
+        "quantity": "Số lượng, chất lượng",
+        "price_payment": "Giá, phương thức thanh toán",
+        "term_place": "Thời hạn, địa điểm, phương thức thực hiện",
+        "rights": "Quyền và nghĩa vụ các bên",
+        "breach": "Trách nhiệm do vi phạm",
+        "dispute": "Phương thức giải quyết tranh chấp",
+        "effective": "Ngày hiệu lực",
+        "seller_tax": "Thông tin bên bán + MST",
+        "date": "Ngày lập",
+        "validity": "Thời hạn hiệu lực báo giá",
+        "vat_note": "Giá đã gồm / chưa gồm VAT",
+        "not_vat": "Dòng \"không thay thế hoá đơn GTGT\" (tự chèn)"
+      },
+      "hint": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn lưu được mẫu."
     }
   }
 }

@@ -178,6 +178,11 @@ export const useGeneralStyles = createStyles(({ css, responsive }) => ({
     justify-content: flex-end;
     padding: 16px 0;
     border-top: 1px solid ${color.divider};
+    ${responsive.md} {
+      && button {
+        min-height: ${layout.touch}px;
+      }
+    }
   `,
   dzT: css`
     font-size: ${font.scale.s15}px;

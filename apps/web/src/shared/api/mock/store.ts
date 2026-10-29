@@ -23,6 +23,7 @@ import { createSettingsDataState, type SettingsDataState } from './domains/setti
 import { createSettingsAiState, type SettingsAiState } from './domains/settings-ai';
 import { createSettingsOpsState, type SettingsOpsState } from './domains/settings-ops';
 import { createSettingsBillingState, type SettingsBillingState } from './domains/settings-billing';
+import { createDocTemplatesState, type DocTemplatesState } from './domains/doc-templates';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -65,6 +66,7 @@ export interface MockDb {
   settingsAi: SettingsAiState;
   settingsOps: SettingsOpsState;
   settingsBilling: SettingsBillingState;
+  docTemplates: DocTemplatesState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -105,6 +107,7 @@ const db: MockDb = {
   settingsAi: createSettingsAiState(),
   settingsOps: createSettingsOpsState(),
   settingsBilling: createSettingsBillingState(),
+  docTemplates: createDocTemplatesState(),
 };
 
 type Listener = (event: string) => void;

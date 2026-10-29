@@ -2,6 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type {
+  DocTemplate,
   BillInvoice,
   BillingCatalog,
   BillingSummary,
@@ -86,4 +87,10 @@ export const billInvoicesQuery = (p: { status: string; q: string }) =>
     queryKey: ['billing', 'invoices', p],
     queryFn: () => transport.get<{ data: BillInvoice[] }>('/billing/invoices', { status: p.status, ...(p.q ? { q: p.q } : {}) }),
     placeholderData: (prev) => prev,
+  });
+
+export const docTemplatesQuery = (kind: string) =>
+  queryOptions({
+    queryKey: ['doc_templates', kind],
+    queryFn: () => transport.get<{ data: DocTemplate[] }>('/doc-templates', kind === 'all' ? {} : { kind }),
   });

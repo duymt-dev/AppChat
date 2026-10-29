@@ -2,8 +2,8 @@
   "title": "Settings",
   "sub": "Workspace · AI · Security · Billing",
   "search": "Search settings… (⌘K)",
-  "docs": "Docs",
   "docsSoon": "Documentation is being updated",
+  "docs": "Docs",
   "group": {
     "workspace": "WORKSPACE",
     "users": "USERS",
@@ -1119,6 +1119,167 @@
         "adjust": "Adjust",
         "expire": "Expired"
       }
+    }
+  },
+  "profile": {
+    "info": "Personal info",
+    "infoD": "Shown to teammates and on documents you own",
+    "name": "Full name",
+    "nameH": "Display name in the inbox and documents",
+    "phone": "Phone",
+    "email": "Sign-in email",
+    "emailH": "Contact support to change it",
+    "locale": "Interface language",
+    "lang": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "session": "Session",
+    "sessionD": "Sign out of this device",
+    "logout": "Sign out",
+    "logoutD": "End the current session — workspace data is not affected"
+  },
+  "doctpl": {
+    "kind": {
+      "quote": "Quote",
+      "contract": "Contract",
+      "payment_request": "Payment request",
+      "receipt": "Receipt"
+    },
+    "kinds": {
+      "all": "All",
+      "quote": "Quotes",
+      "contract": "Contracts",
+      "payment_request": "Payment requests",
+      "receipt": "Receipts"
+    },
+    "source": {
+      "rich": "In-app editor",
+      "docx": "DOCX"
+    },
+    "upload": "Upload DOCX",
+    "new": "New template",
+    "col": {
+      "name": "Template",
+      "kind": "Type",
+      "source": "Source",
+      "ver": "Ver.",
+      "updated": "Updated",
+      "default": "Default"
+    },
+    "updated": "{by} · {at}",
+    "default": "Default",
+    "setDefault": "Make default",
+    "edit": "Edit",
+    "del": "Delete",
+    "rule": "Templates only control layout — amounts, lines and validity always come from the document. Sent / signed documents keep the template version they were issued with.",
+    "var": {
+      "business_legal_name": "Business legal name",
+      "business_tax_code": "Business tax code",
+      "business_address": "Business address",
+      "business_representative": "Business representative",
+      "business_logo": "Logo",
+      "business_bank_account": "Receiving account",
+      "customer_name": "Customer name",
+      "customer_tax_code": "Customer tax code",
+      "customer_address": "Customer address",
+      "customer_phone": "Customer phone",
+      "customer_email": "Customer email",
+      "customer_representative": "Customer representative",
+      "doc_code": "Document no.",
+      "doc_date": "Issue date",
+      "doc_valid_until": "Valid until",
+      "doc_owner": "Owner",
+      "items": "Line items table",
+      "totals_subtotal": "Subtotal",
+      "totals_discount": "Discount",
+      "totals_vat": "VAT",
+      "totals_total": "Total",
+      "totals_total_words": "Amount in words",
+      "contract_kind": "Contract type",
+      "contract_value": "Contract value",
+      "contract_start": "Start date",
+      "contract_end": "End date",
+      "payment_vietqr": "VietQR code",
+      "payment_transfer_note": "Transfer note",
+      "signatures_seller": "Seller signature",
+      "signatures_buyer": "Buyer signature"
+    },
+    "modal": {
+      "newT": "New document template",
+      "editT": "Edit document template",
+      "save": "Save template",
+      "cancel": "Cancel",
+      "close": "Close",
+      "name": "Template name *",
+      "kind": "Document type",
+      "vars": "Insert variable (click to append)",
+      "body": "Template body",
+      "bodyPh": "<h2>QUOTE '{{'doc.code'}}'</h2> …",
+      "notVat": "The line \"This document does not replace a VAT invoice\" is always printed — it cannot be removed.",
+      "asDefault": "Make this the default for this type",
+      "errName": "Enter a template name",
+      "errVars": "Variables not allowed for this type: {v}"
+    },
+    "wizard": {
+      "title": "Upload your DOCX template",
+      "editT": "Edit DOCX field mapping",
+      "step": {
+        "1": "Upload",
+        "2": "Map fields",
+        "3": "Checklist"
+      },
+      "next": "Continue",
+      "save": "Confirm & save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "kind": "Document type",
+      "dropT": "Choose your Word file (.docx)",
+      "detecting": "AI is detecting fields…",
+      "dropS": "Up to 10MB · macro files (.docm) are rejected. Your logo, layout and clauses are kept as is.",
+      "pick": "Choose file",
+      "name": "Template name *",
+      "mapHint": "AI suggests fields to fill in {file}. Check each row — change the variable or remove wrong rows. Low-confidence rows are highlighted.",
+      "col": {
+        "place": "Position in file",
+        "var": "Variable",
+        "conf": "Confidence"
+      },
+      "remove": "Remove row",
+      "confirm": "You confirmed {n} fields. Review the legal checklist before saving — missing items are warnings only.",
+      "errType": "Only .docx files are accepted (no .docm macros)",
+      "errSize": "File is larger than 10MB",
+      "errName": "Enter a template name",
+      "errFields": "Map at least one field"
+    },
+    "check": {
+      "title": {
+        "contract": "Contract checklist (Civil Code Art. 398)",
+        "quote": "Quote checklist",
+        "payment_request": "Payment request checklist",
+        "receipt": "Receipt checklist"
+      },
+      "missing": "{n} items to review",
+      "allOk": "All items present",
+      "item": {
+        "parties": "Details of both parties",
+        "subject": "Subject matter",
+        "quantity": "Quantity and quality",
+        "price_payment": "Price and payment method",
+        "term_place": "Term, place and method of performance",
+        "rights": "Rights and obligations",
+        "breach": "Liability for breach",
+        "dispute": "Dispute resolution",
+        "effective": "Effective date",
+        "seller_tax": "Seller details + tax code",
+        "date": "Issue date",
+        "validity": "Quote validity",
+        "vat_note": "Price incl. / excl. VAT",
+        "not_vat": "\"Does not replace a VAT invoice\" line (auto-inserted)"
+      },
+      "hint": "Warnings only — parties may agree otherwise; you can still save."
     }
   }
 }
