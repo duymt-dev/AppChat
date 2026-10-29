@@ -15,6 +15,13 @@ import { calendarRoutes } from './domains/calendar';
 import { ticketsRoutes } from './domains/tickets';
 import { marketingRoutes } from './domains/marketing';
 import { loyaltyRoutes } from './domains/loyalty';
+import { settingsRoutes } from './domains/settings';
+import { settingsAppsRoutes } from './domains/settings-apps';
+import { settingsDataRoutes } from './domains/settings-data';
+import { settingsAiRoutes } from './domains/settings-ai';
+import { settingsOpsRoutes } from './domains/settings-ops';
+import { settingsBillingRoutes } from './domains/settings-billing';
+import { docTemplatesRoutes } from './domains/doc-templates';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -61,4 +68,11 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...ticketsRoutes,
   ...marketingRoutes,
   ...loyaltyRoutes,
+  ...settingsRoutes,
+  ...settingsAppsRoutes,
+  ...settingsDataRoutes,
+  ...settingsAiRoutes,
+  ...settingsOpsRoutes,
+  ...settingsBillingRoutes,
+  ...docTemplatesRoutes,
 };

@@ -14,6 +14,13 @@ import { calendarHandlers } from './domains/calendar';
 import { ticketsHandlers } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
+import { settingsHandlers } from './domains/settings';
+import { settingsAppsHandlers } from './domains/settings-apps';
+import { settingsDataHandlers } from './domains/settings-data';
+import { settingsAiHandlers } from './domains/settings-ai';
+import { settingsOpsHandlers } from './domains/settings-ops';
+import { settingsBillingHandlers } from './domains/settings-billing';
+import { docTemplatesHandlers } from './domains/doc-templates';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -65,8 +72,9 @@ export const mockHandlers: Record<string, MockHandler> = {
     },
   },
   'profile.update': {
-    execute: (db, input: { name?: string; locale?: string }) => {
+    execute: (db, input: { name?: string; phone?: string; locale?: string }) => {
       if (input.name) db.shell.me.user.name = input.name;
+      if (input.phone !== undefined) db.shell.me.user.phone = input.phone;
       if (input.locale) db.shell.me.user.locale = input.locale;
       return { user_id: db.shell.me.user.id };
     },
@@ -85,4 +93,11 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...ticketsHandlers,
   ...marketingHandlers,
   ...loyaltyHandlers,
+  ...settingsHandlers,
+  ...settingsAppsHandlers,
+  ...settingsDataHandlers,
+  ...settingsAiHandlers,
+  ...settingsOpsHandlers,
+  ...settingsBillingHandlers,
+  ...docTemplatesHandlers,
 };

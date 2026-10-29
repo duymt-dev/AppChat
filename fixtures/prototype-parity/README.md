@@ -10,3 +10,4 @@ Dữ liệu mẫu trích **nguyên văn** từ prototype `coding-packs/docs/06-p
 | `tickets.json` | Ticket TKDATA L8690–8705, tkdMacros / tkAiSuggests L9171–9187 — sinh bởi `tools/scripts/fixtures/gen-tickets.py` |
 | `marketing.json` | Chiến dịch CAMP L8730–8764 (kênh → Zalo cá nhân / Email), A/B · lịch gửi L8782–8783, đề xuất AI L9041–9093, khách wizard L8983–9023, người nhận L9025–9039 — sinh bởi `tools/scripts/fixtures/gen-marketing.py` |
 | `loyalty.json` | Tổng quan / thành viên / cảnh báo rời bỏ / quy tắc prototype L4412–4740 + lyAdd L11498–11570; hạng, hệ số, sổ điểm tính lại theo COMMERCE §7 — sinh bởi `tools/scripts/fixtures/gen-loyalty.py` |
+| `settings.json` | Cài đặt prototype L5754–7421 (workspace L10737, thành viên L7870); vai trò = 5 vai trò hệ thống §3.5 (D27) — sinh bởi `tools/scripts/fixtures/gen-settings.py` |

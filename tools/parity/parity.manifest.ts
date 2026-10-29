@@ -52,6 +52,36 @@ const calendar = { ac_module: 'calendar' };
 const tickets = { ac_module: 'tickets' };
 const marketing = { ac_module: 'marketing' };
 const loyalty = { ac_module: 'loyalty' };
+const settings = (tab: string) => ({ ac_module: 'settings', ac_settings: tab });
+
+/** Mục Cài đặt OUT (prototype-parity §6) → gỡ khỏi nav prototype để các mục còn lại đúng vị trí như V2. */
+const SETTINGS_OUT = [
+  'Sơ đồ tổ chức', 'Phòng ban', 'KPI & Mục tiêu', 'Phân ca trực', 'Cấu hình workflow', 'Routing & assignment',
+  'API & Webhooks', 'API Playground', 'Developer tools', 'Bảo mật', 'SSO & 2FA', 'Data & Compliance', 'Đối tác tiếp thị',
+];
+const settingsProto = (p: Page) =>
+  p.evaluate((out) => {
+    const nav = [...document.querySelectorAll<HTMLElement>('.appscroll')].find((el) => el.offsetWidth === 280);
+    if (!nav) return;
+    const rows = [...nav.children] as HTMLElement[];
+    let seenApps = 0;
+    for (const el of rows) {
+      const text = el.textContent?.trim() ?? '';
+      if (text === 'TỰ ĐỘNG HOÁ') el.remove();
+      else if (text === 'ỨNG DỤNG' && ++seenApps === 2) el.remove();
+      else if (out.some((l) => text === l || (text.startsWith(l) && /^(NEW|PRO|\d+)?$/.test(text.slice(l.length))))) el.remove();
+    }
+  }, SETTINGS_OUT);
+/** Nền tảng kết nối: thẻ Tổng đài (module OUT, không có manifest — provider-ports.md) gỡ khỏi prototype. */
+const integProto = async (p: Page) => {
+  await settingsProto(p);
+  await p.evaluate(() => {
+    for (const el of document.querySelectorAll<HTMLElement>('div[style*="min-height: 188px"]')) {
+      if (el.textContent?.includes('Tổng đài (Call Center)')) el.remove();
+    }
+  });
+};
+const ST_MAIN = { x: 360, y: 64, width: 1080, height: 836 };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -1106,5 +1136,243 @@ export const MANIFEST: ParityEntry[] = [
     proto: (p) => p.locator('.cmpwrap').nth(2).scrollIntoViewIfNeeded(),
     app: (p) => p.getByTestId('ly-rules').scrollIntoViewIfNeeded(),
     clipTo: { proto: '.cmpwrap >> nth=2', app: '[data-testid="ly-rules"]' },
+  },
+  {
+    id: 'settings:shell',
+    route: '/settings/general',
+    protoStorage: settings('general'),
+    appWait: '[data-testid="st-nav"]',
+    proto: settingsProto,
+    clip: { x: 80, y: 0, width: 280, height: 900 },
+  },
+  {
+    id: 'settings:general',
+    route: '/settings/general',
+    protoStorage: settings('general'),
+    appWait: '[data-ws]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:locale',
+    route: '/settings/locale',
+    protoStorage: settings('locale'),
+    appWait: '[data-testid="st-locale"]',
+    proto: settingsProto,
+    clip: { x: 360, y: 64, width: 1080, height: 400 },
+  },
+  {
+    id: 'settings:members',
+    route: '/settings/members',
+    protoStorage: settings('members'),
+    appWait: '[data-member]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:roles',
+    route: '/settings/roles',
+    protoStorage: settings('roles'),
+    appWait: '[data-role]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:channels',
+    route: '/settings/channels',
+    protoStorage: settings('channels'),
+    appWait: '[data-channel]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:web-widget',
+    route: '/settings/web_widget',
+    protoStorage: settings('web_widget'),
+    appWait: '[data-testid="st-wg-preview"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+    mask: [
+      {
+        x: 1044,
+        y: 250,
+        width: 360,
+        height: 650,
+        reason: 'Prototype L7210–7254: sc-if khối "Bổ sung kiến thức" đóng thừa </div></sc-if> làm cột xem trước vỡ (chỉ còn nhãn "Mã nhúng"); app dựng cột xem trước 360 theo L7261–7298',
+      },
+    ],
+  },
+  {
+    id: 'settings:fields',
+    route: '/settings/contacts_fields',
+    protoStorage: settings('contacts_fields'),
+    appWait: '[data-field]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:tags',
+    route: '/settings/tags',
+    protoStorage: settings('tags'),
+    appWait: '[data-tag]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:replies',
+    route: '/settings/replies',
+    protoStorage: settings('replies'),
+    appWait: '[data-reply]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:ai-models',
+    route: '/settings/ai_models',
+    protoStorage: settings('ai_models'),
+    appWait: '[data-tier]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:rag',
+    route: '/settings/rag_data',
+    protoStorage: settings('rag_data'),
+    appWait: '[data-doc]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:ai-gov',
+    route: '/settings/ai_gov',
+    protoStorage: settings('ai_gov'),
+    appWait: '[data-testid="st-gov-scopes"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:ai-audit',
+    route: '/settings/ai_audit',
+    protoStorage: settings('ai_audit'),
+    appWait: '[data-audit]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:audit',
+    route: '/settings/audit',
+    protoStorage: settings('audit'),
+    appWait: '[data-audit]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:sla',
+    route: '/settings/org_sla',
+    protoStorage: settings('org_sla'),
+    appWait: '[data-sla]',
+    // E: chỉ chính sách mặc định (Blueprint §2 sla_policy) — prototype rút còn đúng một dòng tương đương.
+    proto: async (p) => {
+      await settingsProto(p);
+      await protoSetState(p, {
+        slaPolicies: [['Mặc định', 'Áp dụng cho mọi hội thoại & ticket', 'Tất cả kênh', 'Tất cả', '#2563EB', true, 0, 10, 30, 240]],
+      });
+      // Prototype thừa một thẻ đóng div trước khối SLA (L5776–7374) nên khối rơi ra ngoài khung padding 28/36 của panel — trả về đúng khung.
+      await p.evaluate(() => {
+        const t = [...document.querySelectorAll<HTMLElement>('div')].find((d) => d.textContent?.trim() === 'Giờ làm việc của con người');
+        const main = t?.closest<HTMLElement>('.appscroll');
+        if (!main) return;
+        const kids = [...main.children] as HTMLElement[];
+        kids[0]!.style.paddingBottom = '0px';
+        for (const el of kids.slice(1)) {
+          el.style.marginLeft = '36px';
+          el.style.marginRight = '36px';
+        }
+      });
+    },
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:notifications',
+    route: '/settings/notifications',
+    protoStorage: settings('notifications'),
+    appWait: '[data-event]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:billing',
+    route: '/settings/billing',
+    protoStorage: settings('billing'),
+    appWait: '[data-testid="st-bill-hero"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:wallet',
+    route: '/settings/wallet',
+    protoStorage: settings('wallet'),
+    appWait: '[data-testid="st-wal-hero"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'modal:upgrade',
+    route: '/settings/billing?upgrade=1',
+    protoStorage: settings('billing'),
+    appWait: '[data-testid="upgrade-modal"]',
+    proto: (p) => protoSetState(p, { upgradeOpen: true }),
+    clip: { x: 0, y: 0, width: 1440, height: 900 },
+  },
+  {
+    id: 'modal:buy-credit',
+    route: '/settings/wallet?topup=1',
+    protoStorage: settings('wallet'),
+    appWait: '[data-testid="credit-modal"]',
+    proto: (p) => protoSetState(p, { napOpen: true }),
+    clip: { x: 0, y: 0, width: 1440, height: 900 },
+  },
+  {
+    // Prototype không có màn hồ sơ riêng: menu avatar "Hồ sơ của tôi" (L1050, goProfile L11327) mở Cài đặt › Tổng quan → đo theo đích đó.
+    id: 'profile:me',
+    route: '/settings/profile',
+    protoStorage: settings('general'),
+    appWait: '[data-testid="st-profile-form"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:integrations',
+    route: '/settings/integrations',
+    protoStorage: settings('integrations'),
+    appWait: '[data-connector]',
+    proto: integProto,
+    clip: ST_MAIN,
+    mask: [
+      {
+        x: 396,
+        y: 616,
+        width: 1008,
+        height: 284,
+        reason: 'D28: chỉ connector có manifest — nhóm Marketing bỏ SMS / ZBS (P2 / OUT), thêm SePay / Casso; thẻ "Sắp có" + Đăng ký quan tâm',
+      },
+    ],
+  },
+  {
+    id: 'settings:integrations-connect',
+    route: '/settings/integrations',
+    protoStorage: settings('integrations'),
+    appWait: '[data-connector]',
+    proto: async (p) => {
+      await integProto(p);
+      await p.getByText('Google Sheets', { exact: true }).first().click();
+      await p.getByText('Tích hợp & đồng bộ dữ liệu').waitFor();
+    },
+    app: async (p) => {
+      await p.locator('[data-connector="casso"]').click();
+      await p.getByTestId('st-int-modal').waitFor();
+    },
+    clipTo: { proto: 'div[style*="width: 440px"]', app: '[data-testid="st-int-modal"] [role="dialog"]' },
+    mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
   },
 ];

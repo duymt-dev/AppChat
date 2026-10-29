@@ -45,6 +45,7 @@ export const opsColor = {
   lyRuleChip: '#F1F5F9',
   lySwitchOff: '#D1D5DB',
   lyDash: '#C4CBD1',
+  transparentWhite: 'rgba(255,255,255,0)',
 } as const;
 
 export const opsGradient = {

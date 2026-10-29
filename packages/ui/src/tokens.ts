@@ -3,6 +3,7 @@
 
 import { salesColor, salesGradient } from './tokens-sales';
 import { opsColor, opsGradient } from './tokens-ops';
+import { settingsColor, settingsGradient, settingsShadow } from './tokens-settings';
 
 export const color = {
   brand: '#2DC56A',
@@ -208,6 +209,7 @@ export const color = {
   pink: '#DB2777',
   ...salesColor,
   ...opsColor,
+  ...settingsColor,
 } as const;
 
 export const gradient = {
@@ -242,6 +244,7 @@ export const gradient = {
   confBar: 'linear-gradient(90deg,#2DC56A,#6E48E6)',
   ...salesGradient,
   ...opsGradient,
+  ...settingsGradient,
 } as const;
 
 export const shadow = {
@@ -289,6 +292,7 @@ export const shadow = {
   hoverCard: '0 2px 8px rgba(45,197,106,.12)',
   emojiPop: '0 16px 40px rgba(17,24,39,.18)',
   welcomeFace: 'drop-shadow(0 8px 20px rgba(45,197,106,.28))',
+  ...settingsShadow,
 } as const;
 
 /** Màu hình minh hoạ (mặt bot Trợ lý — prototype L1196, L1265). Chỉ dùng cho SVG minh hoạ. */

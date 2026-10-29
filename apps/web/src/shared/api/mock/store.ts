@@ -17,6 +17,13 @@ import { createCalendarState, type CalendarState } from './domains/calendar';
 import { createTicketsState, type TicketsState } from './domains/tickets';
 import { createMarketingState, type MarketingState } from './domains/marketing';
 import { createLoyaltyState, type LoyaltyState } from './domains/loyalty';
+import { createSettingsState, type SettingsState } from './domains/settings';
+import { createSettingsAppsState, type SettingsAppsState } from './domains/settings-apps';
+import { createSettingsDataState, type SettingsDataState } from './domains/settings-data';
+import { createSettingsAiState, type SettingsAiState } from './domains/settings-ai';
+import { createSettingsOpsState, type SettingsOpsState } from './domains/settings-ops';
+import { createSettingsBillingState, type SettingsBillingState } from './domains/settings-billing';
+import { createDocTemplatesState, type DocTemplatesState } from './domains/doc-templates';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -53,6 +60,13 @@ export interface MockDb {
   tickets: TicketsState;
   marketing: MarketingState;
   loyalty: LoyaltyState;
+  settings: SettingsState;
+  settingsApps: SettingsAppsState;
+  settingsData: SettingsDataState;
+  settingsAi: SettingsAiState;
+  settingsOps: SettingsOpsState;
+  settingsBilling: SettingsBillingState;
+  docTemplates: DocTemplatesState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -87,6 +101,13 @@ const db: MockDb = {
   tickets: createTicketsState(),
   marketing: createMarketingState(),
   loyalty: createLoyaltyState(),
+  settings: createSettingsState(),
+  settingsApps: createSettingsAppsState(),
+  settingsData: createSettingsDataState(),
+  settingsAi: createSettingsAiState(),
+  settingsOps: createSettingsOpsState(),
+  settingsBilling: createSettingsBillingState(),
+  docTemplates: createDocTemplatesState(),
 };
 
 type Listener = (event: string) => void;

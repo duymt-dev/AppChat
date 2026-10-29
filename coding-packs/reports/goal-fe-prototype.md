@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 26 | 0 | ✅ | 7e531ba | [#8](https://github.com/duymt-dev/AppChat/pull/8) (xếp chồng #7) |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **106** | **0** | | | |
+| **Tổng** | | **137** | **132** | **0** | | | |
 
 ---
 
@@ -169,32 +169,32 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `settings:shell` | SettingsShell (nav nhóm + tìm kiếm) | L5754 | E | ⬜ | | | | Ẩn mục OUT (Blueprint §7.2) |
-| `settings:general` | Tổng quan workspace + giờ làm việc | L5824 | P | ⬜ | | | | |
-| `settings:locale` | Ngôn ngữ & vùng | L6270 | E | ⬜ | | | | Chỉ vi / en |
-| `settings:members` | Thành viên | L5861 | P | ⬜ | | | | |
-| `settings:roles` | Vai trò & phân quyền (ma trận) | L5992 | E | ⬜ | | | | Chỉ đọc ở P0 (D27) |
-| `settings:channels` | Kênh kết nối | L5892 | E | ⬜ | | | | Chỉ kênh có manifest |
-| `settings:web-widget` | Trợ lý AI website (widget) | L7184 | P | ⬜ | | | | |
-| `settings:fields` | Trường dữ liệu | L7099 | P | ⬜ | | | | |
-| `settings:tags` | Thẻ & nhãn | L6031 | P | ⬜ | | | | |
-| `settings:replies` | Câu trả lời mẫu | L6064 | P | ⬜ | | | | |
-| `settings:doc-templates` | Mẫu chứng từ | — | M | ⬜ | — | | | D30 |
-| `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ⬜ | — | | | D30 |
-| `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ⬜ | | | | D28 |
-| `settings:integrations-connect` | Modal kết nối connector | L6219 | E | ⬜ | | | | D28 |
-| `settings:ai-models` | AI Models | L6878 | E | ⬜ | | | | Mức AI, ẩn tên model (D29) |
-| `settings:rag` | Dữ liệu RAG · Knowledge Base | L6906 | P | ⬜ | | | | D29 |
-| `settings:ai-gov` | AI Governance | L6991 | P | ⬜ | | | | |
-| `settings:ai-audit` | AI Audit log | L7035 | P | ⬜ | | | | |
-| `settings:audit` | Audit log | L7024 | P | ⬜ | | | | |
-| `settings:sla` | Thiết lập SLA (chính sách mặc định) | L7375 | E | ⬜ | | | | Chỉ chính sách mặc định |
-| `settings:notifications` | Thông báo | L6200 | P | ⬜ | | | | |
-| `settings:billing` | Gói & thanh toán | L5947 | E | ⬜ | | | | |
-| `settings:wallet` | Ví AppChat (credit, lịch sử) | L6463 | E | ⬜ | | | | Bỏ "tự nạp" |
-| `modal:upgrade` | Popup Nâng cấp (Cá nhân / Doanh nghiệp, 4 gói) | L985 | P | ⬜ | | | | |
-| `modal:buy-credit` | Mua thêm credit (QR) | L915 | E | ⬜ | | | | |
-| `profile:me` | Hồ sơ của tôi | L1034 (menu) | P | ⬜ | | | | |
+| `settings:shell` | SettingsShell (nav nhóm + tìm kiếm) | L5754 | E | ✅ | 0.0001 | pass | 0162970 | Ẩn mục OUT (Blueprint §7.2) · registry `features/settings/registry.ts`; route `/settings/[section]` + alias cũ (sla, canned-replies…); ô tìm lọc nav không dấu; < md nav thành dải chip. Mẫu chứng từ (D30) đặt cuối nav. Bản đo: gỡ mục OUT khỏi nav prototype |
+| `settings:general` | Tổng quan workspace + giờ làm việc | L5824 | P | ✅ | 0.0008 | pass | 0162970 | Workspace của bạn (3 thẻ), logo, Thông tin chung → `workspace.update`; Vùng nguy hiểm chỉ Chủ sở hữu (gửi yêu cầu — xử lý ở Quản trị nền tảng). Giờ làm việc nằm trong Thiết lập SLA như prototype (`working_hours.update`) |
+| `settings:locale` | Ngôn ngữ & vùng | L6270 | E | ✅ | 0.0012 | pass | 0162970 | Chỉ vi / en (D22) · ngôn ngữ đổi ngay (cookie + `profile.update`); múi giờ / định dạng ngày → `workspace.update`; tiền tệ VND cố định |
+| `settings:members` | Thành viên | L5861 | P | ✅ | 0.0059 | pass | 0162970 | Tìm không dấu, banner AI, bảng; Mời (`member.invite` → Chờ xác nhận), Sửa vai trò (`member.set_role`, hoàn tác 24h), Xoá / Thu hồi lời mời; vai trò = 5 vai trò §3.5 (Chủ sở hữu không gán / xoá được). Không có quyền `members.manage` → no-permission |
+| `settings:roles` | Vai trò & phân quyền (ma trận) | L5992 | E | ✅ | 0.0282 | pass | 0162970 | Chỉ đọc ở P0 (D27) · 5 vai trò hệ thống + ma trận 10 nhóm × 5 vai trò lấy từ ROLE_DEFS (nhóm OUT Gọi điện / Quy trình / Báo cáo bỏ); "Tạo vai trò" khoá kèm ghi chú P1 |
+| `settings:channels` | Kênh kết nối | L5892 | E | ✅ | 0.0414 | pass | 57240c2 | Chỉ kênh có manifest (D28): zalo_personal / email / webchat kết nối được, 13 kênh khác nút "Sắp có" (disabled); lọc Tất cả / Đã / Chưa kết nối; danh sách ↔ thẻ; webchat mở Trợ lý AI website; ngắt kết nối qua channel.disconnect |
+| `settings:web-widget` | Trợ lý AI website (widget) | L7184 | P | ✅ | 0.0089 | pass | 57240c2 | Ghi qua webchat.update_widget; KPI, nút hành động bật/tắt/xoá, khối AI Agent (Agent, ngưỡng bàn giao, kiến thức, tông, chế độ, nghiệp vụ), mã nhúng + Copy, xem trước 360 (launcher đóng/mở). Mask cột xem trước: prototype L7210–7254 đóng thẻ thừa làm vỡ cột (chỉ còn nhãn); app dựng theo L7261–7298 |
+| `settings:fields` | Trường dữ liệu | L7099 | P | ✅ | 0.0030 | pass | 7ee1e94 | 4 module (Khách hàng · Tickets · Đơn hàng · Sản phẩm); thêm / sửa (hiển thị tại, vai trò §3.5, điều kiện, AI) / đổi thứ tự / xoá qua custom_field.* (thêm custom_field.delete theo Blueprint §612); kiểu theo enum custom_field_def; trường liên hệ đồng bộ với modal CRM |
+| `settings:tags` | Thẻ & nhãn | L6031 | P | ✅ | 0.0037 | pass | 7ee1e94 | tag.create / update / delete (hoàn tác 24h); tên bắt buộc + trùng tên 409; emoji, 10 màu |
+| `settings:replies` | Câu trả lời mẫu | L6064 | P | ✅ | 0.0060 | pass | 7ee1e94 | canned_reply.* ; nhóm có sẵn + nhóm mới; shortcut kiểm /[a-z0-9_-] |
+| `settings:doc-templates` | Mẫu chứng từ | — | M | ✅ | — | pass | bd6595f | D30 · TemplateList theo loại (báo giá / hợp đồng / đề nghị thanh toán / phiếu thu), mặc định mỗi loại không xoá được, đặt mặc định, xoá + hoàn tác 24h (`doc_template.*`); RichTemplateEditor: chèn biến từ registry `@appchat/shared` documents/variables, biến lạ → lỗi khi lưu, dòng "không thay thế hoá đơn GTGT" khoá; quyền `documents.manage` |
+| `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ✅ | — | pass | bd6595f | D30 · tải .docx ≤ 10MB (từ chối .docm) → `doc_template.detect_fields` → FieldMapper (đổi / bỏ dòng, tin cậy < 70% tô vàng) → bảng kiểm Điều 398 BLDS (cảnh báo, không chặn) → lưu chỉ sau bước người xác nhận (templates.md §4) |
+| `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ✅ | 0.0007 | pass | 57240c2 | D28: chỉ connector có manifest (GA: Brevo, SMTP, SePay, Casso; còn lại "Sắp có" + Đăng ký quan tâm); gỡ thẻ Tổng đài; mask nhóm Marketing (SMS / ZBS bỏ) |
+| `settings:integrations-connect` | Modal kết nối connector | L6219 | E | ✅ | 0.0191 | pass | 57240c2 | Trường theo manifest connector (secret → ô mật khẩu); integration.connect 422 khi thiếu trường / chưa GA |
+| `settings:ai-models` | AI Models | L6878 | E | ✅ | 0.0212 | pass | 2e8cce9 | D29: thẻ mức AI (Tiêu chuẩn / Nâng cao / Tối đa, credit / 1K token) thay tên model; phân bổ theo tác vụ chỉ hiện mức gói cho phép; mức khoá → Gói & thanh toán; bỏ "Tự động chuyển model rẻ" (prototype-parity §6); ai_settings.update |
+| `settings:rag` | Dữ liệu RAG · Knowledge Base | L6906 | P | ✅ | 0.0236 | pass | 2e8cce9 | D29: nav + thư mục + tìm theo tên / thẻ; tải lên (học / chỉ lưu), học lại, xoá → thùng rác (hoàn tác 30 ngày), thư mục mới, train lại; kb.* |
+| `settings:ai-gov` | AI Governance | L6991 | P | ✅ | 0.0067 | pass | 2e8cce9 | governance.update cho từng công tắc / từ khoá / select |
+| `settings:ai-audit` | AI Audit log | L7035 | P | ✅ | 0.0217 | pass | 2e8cce9 | Chỉ đọc; actor ghi "Trợ lý AI" / agent (không tên model — D29); xuất JSON |
+| `settings:audit` | Audit log | L7024 | P | ✅ | 0.0168 | pass | 2e8cce9 | Chỉ đọc (audit.view); vai trò theo §3.5; xuất JSON |
+| `settings:sla` | Thiết lập SLA (chính sách mặc định) | L7375 | E | ✅ | 0.0382 | pass | 0eadae0 | Chỉ chính sách mặc định (Blueprint §2 sla_policy) — "Tạo chính sách" tắt + tooltip; sửa ngưỡng FRT/TTR AI · người (`sla.update_default`), giờ làm việc theo ngày + dừng ngoài giờ (`working_hours.update`), leo thang. Bản đo: prototype rút còn một dòng mặc định; khối SLA prototype lọt khỏi khung padding (thừa thẻ đóng) → trả về khung 36px |
+| `settings:notifications` | Thông báo | L6200 | P | ✅ | 0.0106 | pass | 0eadae0 | Tuỳ chọn của người dùng hiện tại (quyền self) qua `notification.update_prefs`; bỏ sự kiện "Workflow chạy lỗi" (Workflow OUT) |
+| `settings:billing` | Gói & thanh toán | L5947 | E | ✅ | 0.0334 | pass | c821cc1 | REQ-L05: thẻ gói hiện tại ("Token còn lại" → credit gói — REQ-L01), Gia hạn → popup Nâng cấp; lịch sử hoá đơn gói theo `billing_invoice` (pending / pending_review / paid / expired / cancelled), Thanh toán → hộp VietQR (`billing.create_invoice` / `billing.report_transfer`). Bỏ "Demo: hết hạn" |
+| `settings:wallet` | Ví AppChat (credit, lịch sử) | L6463 | E | ✅ | 0.0388 | pass | c821cc1 | Bỏ "tự nạp" (D24) → nhắc 80% / 95% (`wallet.update_alerts`); hết credit → AI tạm dừng (D09, thay "tự chuyển model"); số dư = credit gói + mua thêm; cửa hàng chỉ credit + người dùng / kênh (ZNS / SMS / Voice / token theo model / dịch vụ chuyên nghiệp OUT); lịch sử = `credit_ledger` |
+| `modal:upgrade` | Popup Nâng cấp (Cá nhân / Doanh nghiệp, 4 gói) | L985 | P | ✅ | 0.0416 | pass | c821cc1 | REQ-L06 · mở bằng `?upgrade=1` (rail Nâng cấp, trial welcome / expired); bảng so sánh bỏ nhóm OUT; bỏ nút "Mô phỏng hết hạn" và 3 thẻ mua thêm (nằm ở Ví) |
+| `modal:buy-credit` | Mua thêm credit (QR) | L915 | E | ✅ | 0.0365 | pass | c821cc1 | 4 gói credit → hộp VietQR 15 phút (REQ-L04) → "Tôi đã chuyển khoản" → Thanh toán thành công; chỉ VietQR / chuyển khoản (COMMERCE §10) |
+| `profile:me` | Hồ sơ của tôi | L1034 (menu) | P | ✅ | 0.0474 | pass | bd6595f | Prototype không có màn riêng (goProfile L11327 mở Tổng quan) → đo theo đích đó; khung thẻ + form như Tổng quan: tên / SĐT (`profile.update`, quyền self), email chỉ đọc, ngôn ngữ vi / en (D22), Đăng xuất |
 
 ## F7 — Rà soát cuối
 
@@ -733,7 +733,106 @@
 - Cài đặt › Khách thân thiết (F6) có thể dùng lại `ConfigModal` qua settings registry thay vì dựng form thứ hai.
 
 ### F6
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F6
+
+**STATUS:** DONE
+**COMMIT:** 3fd7d12 (code) trên nhánh `goal/fe-prototype-f6` (xếp chồng F5 / PR #7)
+
+**FILES CHANGED:**
+- Action Cài đặt (c316aae): `packages/actions/{settings,settings-apps,settings-ai,documents}.ts` theo Blueprint §3.4.
+  - Bổ sung trong pha: `custom_field.delete` (hoàn tác 24h), `wallet.update_alerts` (nhắc 80% / 95% thay tự nạp — D24).
+  - `sla.update_default` nhận ngưỡng phút + `escalation` (`z.partialRecord`).
+- Khung (0162970): `features/settings` — `SettingsShell` + registry (`registry.ts`).
+  - Nav nhóm, ô tìm không dấu, ẩn mục OUT (Blueprint §7.2); route `/settings/[section]` + alias cũ; < md nav thành dải chip.
+  - Mục ẩn (không có dòng nav): web_widget, billing, profile.
+- Workspace / người dùng (0162970): Tổng quan (`workspace.update`, vùng nguy hiểm chỉ Chủ sở hữu), Ngôn ngữ & vùng (vi / en — D22), Thành viên (mời / đổi vai trò / khoá), Vai trò & phân quyền chỉ đọc (D27).
+- Ứng dụng (57240c2, 7ee1e94):
+  - Kênh kết nối (theo manifest), Nền tảng kết nối (thẻ "Sắp có" + Đăng ký quan tâm — D28), Trợ lý AI website (widget + bản xem trước).
+  - Trường dữ liệu (theo đối tượng, kéo thứ tự, vị trí hiển thị), Thẻ & nhãn, Câu trả lời mẫu (nhóm, phím tắt).
+- AI (2e8cce9): AI Models theo mức AI không tên model (D29), Dữ liệu RAG (nav, thư mục, tải lên học / chỉ lưu, học lại, thùng rác), AI Governance, AI Audit log, Audit log (xuất JSON).
+- Vận hành (0eadae0): Thiết lập SLA (chính sách mặc định, giờ làm việc theo ngày, dừng ngoài giờ, leo thang, dự báo rủi ro), Thông báo (sự kiện × Desktop / Email / Mobile, Không làm phiền, âm thanh, email tóm tắt).
+- Gói & ví (c821cc1):
+  - Gói & thanh toán: thẻ gói hiện tại, Gia hạn → popup Nâng cấp, lịch sử hoá đơn gói (tìm, trạng thái, khoảng ngày).
+  - Ví AppChat: số dư credit (gói + mua thêm), nhắc credit, tab Nạp tiền / Lịch sử ví / Hoá đơn.
+  - Popup Nâng cấp (`?upgrade=1`), hộp Nạp credit (`?topup=1`), hộp VietQR (`billing.create_invoice` → `billing.report_transfer` → Thanh toán thành công).
+- Mẫu chứng từ + Hồ sơ (bd6595f):
+  - Mẫu chứng từ (D30): TemplateList theo loại, RichTemplateEditor, DocxUploadWizard (tải lên → AI nhận diện → FieldMapper → bảng kiểm → lưu).
+  - `packages/shared/src/documents/variables.ts` (+ test): registry biến chuẩn, `validateTemplateVars`, `LEGAL_CHECKLIST`.
+  - Hồ sơ của tôi: tên / SĐT (`profile.update`), email chỉ đọc, ngôn ngữ, đăng xuất.
+- Mock: `shared/api/mock/domains/{settings,settings-apps,settings-data,settings-ai,settings-ops,settings-billing,doc-templates}.ts` (+ `settings-data.test.ts`).
+- Fixture: `fixtures/prototype-parity/settings.json` sinh bởi `tools/scripts/fixtures/gen-settings.py` (+ `settings_ai.py`, `settings_ops.py`, `settings_billing.py`); `shell.json` thêm email người dùng.
+- Token: `packages/ui/src/tokens-settings.ts` (màu / gradient / shadow mục Cài đặt).
+- Parity manifest: 24 dòng F6 đo pixel (2 dòng M không đo). E2E: `e2e/settings{,-data,-ai,-ops,-billing,-docs,-profile}.spec.ts`.
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint` / `pnpm typecheck` / `pnpm test` (turbo): xanh.
+  - Đã sửa 1 lỗi typecheck ở `tools/parity/parity.manifest.ts` (3fd7d12).
+  - `lint:size` 719 file, không vượt trần; `lint:tokens` 551 file đúng thang D41.
+  - unit: shared 27, ui 2, actions 3, web 57 passed (0 failed).
+- `pnpm i18n:check`: vi 4120 / en 4120 key (100%).
+- `pnpm parity --all` (build production, `next start`): **109/109 PASS**. Kết quả F6:
+
+  | Màn | Loại | diffRatio |
+  |-----|------|-----------|
+  | settings:shell | E | 0.0001 |
+  | settings:general | P | 0.0008 |
+  | settings:locale | E | 0.0012 |
+  | settings:members | P | 0.0059 |
+  | settings:roles | E | 0.0282 |
+  | settings:channels | E | 0.0414 |
+  | settings:web-widget | P | 0.0089 |
+  | settings:fields | P | 0.0030 |
+  | settings:tags | P | 0.0037 |
+  | settings:replies | P | 0.0060 |
+  | settings:integrations | E | 0.0007 |
+  | settings:integrations-connect | E | 0.0191 |
+  | settings:ai-models | E | 0.0212 |
+  | settings:rag | P | 0.0236 |
+  | settings:ai-gov | P | 0.0067 |
+  | settings:ai-audit | P | 0.0217 |
+  | settings:audit | P | 0.0168 |
+  | settings:sla | E | 0.0382 |
+  | settings:notifications | P | 0.0106 |
+  | settings:billing | E | 0.0334 |
+  | settings:wallet | E | 0.0388 |
+  | modal:upgrade | P | 0.0416 |
+  | modal:buy-credit | E | 0.0365 |
+  | profile:me | P | 0.0474 |
+  | settings:doc-templates | M | — |
+  | settings:doc-templates-docx | M | — |
+
+- `pnpm e2e` (build + start, desktop + mobile-390): **151 passed**, 127 skipped (test chỉ chạy ở một viewport), 0 failed.
+- Mobile 390: mọi mục Cài đặt + hộp (thành viên, thẻ, câu trả lời, trường, RAG tải lên, SLA, Nâng cấp, Nạp credit, QR, mẫu chứng từ, wizard DOCX): không tràn ngang, vùng chạm ≥ 44px.
+- Phân quyền (mock): AI Models / Governance / Audit cần quyền tương ứng (sales bị chặn); SLA cần `sla.manage`; Gói & ví chỉ Chủ sở hữu (`billing.manage`, manager bị chặn); Mẫu chứng từ cần `documents.manage`; Hồ sơ của tôi mọi vai trò (self).
+- Không chạy được:
+  - backend thật (FE dùng mock transport D38);
+  - VietQR / webhook ngân hàng (SePay / Casso), AI nhận diện biến DOCX (LLM), render PDF LibreOffice, gửi email digest: chưa nghiệm thu với provider thật.
+
+**ISSUES DISCOVERED:**
+- Trung bình: dev server Next 16 hỏng worker ("Jest worker encountered 2 child process exceptions") sau nhiều giờ chạy và khi `parity --all` gọi dồn → mọi route trả 500. Chạy parity / e2e cuối pha trên build production (`next start`) thì ổn định.
+- Thấp: khối SLA của prototype nằm ngoài khung padding 28 / 36 (thừa một thẻ đóng `div` trước L7375). Bản đo trả khối về khung + rút bảng chính sách còn dòng mặc định.
+- Thấp: key i18n `settings.docs` (nút "Tài liệu" đầu Cài đặt) bị ghi đè khi thêm nhóm Mẫu chứng từ → đổi nhóm mẫu sang `settings.doctpl`.
+- Thấp: `cx(null)` của antd-style ném lỗi → luôn truyền boolean (`!!x && styles.y`).
+
+**DEVIATIONS FROM SPEC:** (đều theo Decisions / COMMERCE-DECISIONS, thắng prototype)
+- Prototype-parity §6: ẩn mục OUT (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, Workflow, Routing, API / Playground / Developer, Bảo mật / SSO, Data & Compliance, Đối tác tiếp thị, SMS / ZBS, Tổng đài, Cloud).
+- D27: Vai trò & phân quyền chỉ đọc ở P0, đúng 5 vai trò hệ thống.
+- D28: Nền tảng kết nối chỉ connector có manifest; còn lại thẻ "Sắp có" + Đăng ký quan tâm (mask khi đo).
+- D29: AI Models hiện mức AI, không tên model; bỏ "Tự động chuyển model rẻ".
+- Blueprint §7.2: SLA chỉ chính sách mặc định ("Tạo chính sách" tắt kèm tooltip).
+- COMMERCE §10 / D24 / D09:
+  - bỏ "tự nạp" → nhắc 80% / 95%; hết credit thì AI tạm dừng (thay "tự chuyển model tiết kiệm");
+  - chỉ VietQR / chuyển khoản; ví tính bằng credit;
+  - cửa hàng chỉ credit + người dùng / kênh;
+  - bỏ "Demo: hết hạn", "Mô phỏng hết hạn".
+- D30: Mẫu chứng từ là màn mới (không đo pixel, dùng đúng token / pattern).
+- Hồ sơ của tôi: prototype không có màn riêng (goProfile mở Tổng quan) → dựng theo khung Tổng quan, đo với đích đó.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Blueprint §3.4 billing: thêm `wallet.update_alerts` (bật / tắt nhắc 80% / 95%) vào bảng action.
+- Blueprint §3.4 crm: thêm `custom_field.delete` (hoàn tác 24h) cạnh `custom_field.create / update`.
+- Blueprint §4.2: `GET /billing/wallet` (số dư gói + mua thêm, `credit_ledger`) tách khỏi `/billing/summary` cho tab Lịch sử ví.
+- Tooling: script `pnpm parity --all` nên tự build + `next start` (như `pnpm e2e`) thay vì dựa vào dev server đang chạy.
 
 ### F7
 _chưa có_

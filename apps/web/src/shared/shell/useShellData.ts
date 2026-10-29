@@ -14,7 +14,7 @@ export interface MeWorkspace {
 }
 
 export interface Me {
-  user: { id: string; name: string; initial: string; phone: string; title: string; locale: string };
+  user: { id: string; name: string; initial: string; phone: string; title: string; locale: string; email: string };
   workspaces: MeWorkspace[];
   current_workspace_id: string;
   billing: { trial_days_left: number; paid_plan: string; wallet_balance: string };
