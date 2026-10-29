@@ -196,11 +196,12 @@ export function StepContent({ d, patch }: { d: WizardDraft; patch: Patch }) {
     patch({ body: t.raw(`toneText.${k}`) as string });
     void message.success(t('toneDone', { l: t(`tones.${k}`) }));
   };
+  const s3sub = t.raw('s3sub') as string;
   return (
     <>
       <div className={w.sec}>
         <div className={w.secT}>{t('s3')}</div>
-        <div className={w.secS}>{t.raw('s3sub') as string}</div>
+        <div className={w.secS}>{s3sub}</div>
       </div>
       <div className={w.field}>
         <div className={w.label}>{t('name')}</div>

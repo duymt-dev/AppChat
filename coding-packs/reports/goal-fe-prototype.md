@@ -162,7 +162,7 @@
 | `marketing:ai` | Panel AI marketing | L3538 | P | ✅ | 0.0351 | pass | eb73c5b | Panel 392px: 4 gợi ý → mở wizard điền sẵn từ đề xuất; ô hỏi; "Mở Trợ lý AI đầy đủ" mở dock |
 | `loyalty:overview` | Tổng quan khách thân thiết | L4412 | P | ✅ | 0.0324 | pass | a26b6fb | Topbar (tìm, Thêm thành viên, Trợ lý AI) + 5 ô tổng quan, cảnh báo rời bỏ (Tặng ưu đãi → Marketing). 10.000đ = 1 điểm, chỉ cộng khi đơn hoàn tất (COMMERCE §7) |
 | `loyalty:members` | Bảng thành viên | L4412 | P | ✅ | 0.0314 | pass | a26b6fb | Lọc hạng, tìm không dấu tên / SĐT, menu dòng (xem / điều chỉnh), drawer 5 tab (Tổng quan, CRM thang hạng ×1/×1/×1,5/×2, AI, Tệp, Lịch sử điểm) |
-| `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | P | ✅ | 0.0365 | pass | a26b6fb | Tra SĐT → xác định hạng → ghi nhận: điều chỉnh tay ± kèm lý do bắt buộc (loyalty.adjust_points, hoàn tác 24h); khách mới tạo liên hệ CRM (contact.create) trước; chặn trừ quá số dư. Bỏ "ghi nhận theo giao dịch" và "hạng khởi tạo" của prototype vì COMMERCE §7 (mask khối ghi nhận) |
+| `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | E | ✅ | 0.0365 | pass | a26b6fb | Tra SĐT → xác định hạng → ghi nhận: điều chỉnh tay ± kèm lý do bắt buộc (loyalty.adjust_points, hoàn tác 24h); khách mới tạo liên hệ CRM (contact.create) trước; chặn trừ quá số dư. Bỏ "ghi nhận theo giao dịch" và "hạng khởi tạo" của prototype vì COMMERCE §7 (mask khối ghi nhận) |
 | `loyalty:config` | Cấu hình hạng / điểm | L4412 | P | ✅ | 0.0173 | pass | a26b6fb | Bảng quy tắc (2 đang áp dụng, 6 "sắp có" — không có builder quy tắc tự do), hộp cấu hình (bật/tắt, hệ số hạng, tích điểm sàn TMĐT) qua loyalty.update_config, hộp thử nghiệm tính điểm |
 
 ## F6 — Cài đặt · Gói & ví · popup
