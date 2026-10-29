@@ -638,5 +638,196 @@
       "errName": "Nhập tên trường",
       "sysNote": "Trường hệ thống: không đổi được tên và kiểu dữ liệu."
     }
+  },
+  "aiModels": {
+    "defaultT": "Mức AI mặc định",
+    "defaultS": "Dùng cho Co-pilot và Agent",
+    "badge": {
+      "using": "Đang dùng",
+      "hot": "Hot task"
+    },
+    "desc": {
+      "standard": "Nhanh · tiết kiệm · Co-pilot thời gian thực",
+      "advanced": "Mạnh · suy luận phức tạp",
+      "max": "Tối ưu độ chính xác cao"
+    },
+    "price": "{n} credit / 1K token",
+    "unlock": "Nâng cấp để mở khoá",
+    "current": "Đang dùng mặc định",
+    "use": "Đặt làm mặc định",
+    "tasksT": "Phân bổ theo tác vụ",
+    "tasksS": "Gán mức AI phù hợp cho từng việc",
+    "task": {
+      "copilot": "Hộp thư · Co-pilot gợi ý",
+      "auto_reply": "Hộp thư · Agent tự động trả lời",
+      "order_analysis": "Vận hành · Agent phân tích đơn",
+      "insights": "Báo cáo · AI Insights",
+      "content": "Marketing · Tối ưu nội dung"
+    },
+    "limitsT": "Giới hạn sử dụng",
+    "budget": "Ngân sách AI hàng tháng",
+    "budgetD": "Cảnh báo khi dùng ≥80%",
+    "rate": "Giới hạn mỗi agent",
+    "rateD": "Giới hạn token/phút"
+  },
+  "rag": {
+    "search": "Hỏi AI về tệp của bạn…",
+    "newFolder": "Thư mục mới",
+    "folderPh": "Tên thư mục",
+    "create": "Tạo",
+    "cancel": "Huỷ",
+    "upload": "Upload",
+    "nav": {
+      "all": "Tất cả tệp",
+      "learned": "AI đã học",
+      "conv": "Từ hội thoại",
+      "upload": "Do bạn upload",
+      "star": "Đánh dấu sao",
+      "trash": "Thùng rác"
+    },
+    "folders": "THƯ MỤC",
+    "knowT": "AI Knowledge",
+    "knowS": "AI đã học <b>{n} tệp</b>. Khi khách hỏi, AI sẽ tự động tra cứu và trả lời.",
+    "train": "Train lại kho tri thức",
+    "files": "{n} tệp · {s}",
+    "col": {
+      "name": "Tên",
+      "size": "Size",
+      "src": "Nguồn",
+      "by": "Người tạo",
+      "date": "Ngày"
+    },
+    "src": {
+      "upload": "Upload",
+      "drive": "Drive",
+      "conv": "Hội thoại Zalo",
+      "internal": "Internal"
+    },
+    "learned": "Đã học",
+    "download": "Tải xuống",
+    "relearn": "Học lại",
+    "del": "Chuyển vào thùng rác",
+    "empty": "Chưa có tệp nào ở đây.",
+    "trashEmpty": "Thùng rác trống — tệp xoá được giữ 30 ngày.",
+    "modal": {
+      "title": "Tải tài liệu lên",
+      "save": "Tải lên & học",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "drop": "Kéo thả tệp vào đây hoặc <b>chọn từ máy</b>",
+      "dropS": "PDF · DOC · XLS · PPT · MD · MP4 · ảnh — tối đa 100 MB",
+      "name": "Tên tài liệu *",
+      "namePh": "VD: Bảng giá dịch vụ 2026",
+      "folder": "Thư mục chứa",
+      "noFolder": "(Không có)",
+      "tags": "Thẻ (ngăn cách bởi dấu phẩy)",
+      "tagsPh": "VD: Giá sỉ, Hè 2026",
+      "learn": "Cho AI học tài liệu này",
+      "learnD": "Embedding tự động để AI truy hồi khi trả lời",
+      "errName": "Nhập tên tài liệu"
+    }
+  },
+  "gov": {
+    "heroT": "AI Governance tuân thủ ISO/IEC 42001",
+    "heroS": "Workspace của bạn đang áp dụng {n}/{m} chính sách khuyến nghị.",
+    "gap": "Xem gap analysis →",
+    "sensitive": "Nhạy cảm",
+    "risky": "Rủi ro cao",
+    "scopeT": "Phạm vi dữ liệu AI được phép truy cập",
+    "scope": {
+      "messages": "Tin nhắn khách 30 ngày gần nhất",
+      "catalog": "Catalogue & bảng giá nội bộ",
+      "faq": "Chính sách đổi trả / FAQ",
+      "pii": "Thông tin khách hàng (PII)",
+      "finance": "Hợp đồng & hồ sơ tài chính",
+      "partner": "Dữ liệu hợp đồng đối tác"
+    },
+    "scopeD": {
+      "messages": "Bao gồm ảnh, file đính kèm",
+      "catalog": "Sản phẩm, giá, khuyến mãi",
+      "faq": "Dữ liệu public",
+      "pii": "CCCD, số điện thoại, địa chỉ — rủi ro rò rỉ",
+      "finance": "Chỉ Quản lý + Chủ sở hữu được bật",
+      "partner": "Giá, điều khoản hợp tác"
+    },
+    "boundT": "Ranh giới hành vi",
+    "boundS": "Bật = AI được phép tự làm; tắt = phải có người duyệt",
+    "bound": {
+      "auto_close": "Tự chốt đơn > 10.000.000₫ (không cần duyệt)",
+      "send_bank": "Tự gửi thông tin tài khoản thanh toán",
+      "discount": "Tự hứa giảm giá / voucher > 10%",
+      "promise_delivery": "Tự cam kết thời gian giao hàng",
+      "escalate": "Tự chuyển người khi độ tin cậy < 70%",
+      "disclosure": "Luôn kèm ghi chú \"Tin nhắn từ AI\"",
+      "log_all": "Ghi nhật ký toàn bộ hành vi AI"
+    },
+    "kwT": "Từ khoá cấm & lọc nội dung",
+    "kwS": "AI tự động từ chối hoặc chuyển người",
+    "kwAdd": "+ Thêm",
+    "kwRemove": "Bỏ từ khoá {k}",
+    "filter": "Mức độ lọc",
+    "filters": {
+      "strict": "Chặt (khuyến nghị)",
+      "balanced": "Cân bằng",
+      "relaxed": "Nới lỏng"
+    },
+    "longReview": "Người duyệt câu trả lời dài > 200 từ",
+    "retT": "Lưu trữ & chia sẻ",
+    "retS": "Thời gian lưu dữ liệu AI và chia sẻ bên ngoài",
+    "retention": "Lưu prompt + câu trả lời",
+    "retentionD": "Dùng cho audit và cải thiện",
+    "ret": {
+      "30": "30 ngày",
+      "90": "90 ngày",
+      "180": "180 ngày",
+      "365": "1 năm"
+    },
+    "noTrain": "Không dùng dữ liệu để train model bên ngoài",
+    "anonymize": "Ẩn PII trước khi gửi nhà cung cấp AI",
+    "residency": "Vị trí lưu dữ liệu",
+    "residencyD": "Vị trí lưu trữ dữ liệu AI",
+    "res": {
+      "sg": "Singapore (APAC)",
+      "vn": "Việt Nam",
+      "us": "United States",
+      "eu": "EU (Frankfurt)"
+    }
+  },
+  "audit": {
+    "export": "Xuất JSON",
+    "audit": {
+      "title": "Audit log",
+      "sub": "Mọi hành động trong workspace · lưu 1 năm",
+      "file": "audit-log.json"
+    },
+    "ai": {
+      "title": "AI Audit log",
+      "sub": "Toàn bộ hành vi AI trong 24h · lưu 90 ngày",
+      "file": "ai-audit-log.json"
+    },
+    "col": {
+      "time": "Giờ",
+      "actor": "Actor",
+      "action": "Hành động",
+      "ip": "IP",
+      "context": "Context",
+      "status": "Status"
+    },
+    "actor": {
+      "system": "Hệ thống",
+      "ai": "Trợ lý AI"
+    },
+    "aiActor": {
+      "copilot": "Trợ lý AI — Co-pilot",
+      "ops": "Agent Vận hành",
+      "order": "Agent Đơn hàng",
+      "cs": "Agent CSKH",
+      "human": "Người · Lan"
+    },
+    "status": {
+      "ok": "OK",
+      "warn": "Warn",
+      "escalated": "Escalated"
+    }
   }
 }

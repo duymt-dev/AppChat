@@ -18,6 +18,7 @@ import { loyaltyRoutes } from './domains/loyalty';
 import { settingsRoutes } from './domains/settings';
 import { settingsAppsRoutes } from './domains/settings-apps';
 import { settingsDataRoutes } from './domains/settings-data';
+import { settingsAiRoutes } from './domains/settings-ai';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -67,4 +68,5 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...settingsRoutes,
   ...settingsAppsRoutes,
   ...settingsDataRoutes,
+  ...settingsAiRoutes,
 };

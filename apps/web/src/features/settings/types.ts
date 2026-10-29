@@ -163,3 +163,66 @@ export interface FieldsData {
   data: FieldDef[];
   counts: Record<FieldEntity, number>;
 }
+
+export type AiTier = 'standard' | 'advanced' | 'max';
+
+export interface AiSettings {
+  default_tier: AiTier;
+  tiers: { key: AiTier; credits: string; badge: '' | 'using' | 'hot'; active: boolean; locked: boolean }[];
+  tasks: { key: string; tier: AiTier }[];
+  budget: number;
+  rate_limit: number;
+}
+
+export interface KbDoc {
+  id: string;
+  name: string;
+  type: string;
+  tags: string[];
+  learned: boolean;
+  size: string;
+  source: string;
+  by: string;
+  date: string;
+  folder_id: string | null;
+  starred: boolean;
+}
+
+export interface KbData {
+  types: Record<string, [string, string, string]>;
+  folders: { id: string; name: string }[];
+  nav: Record<string, number>;
+  learned_total: number;
+  size: string;
+  data: KbDoc[];
+}
+
+export interface Governance {
+  scopes: { key: string; on: boolean; sensitive: boolean }[];
+  bounds: { key: string; on: boolean; risky: boolean }[];
+  keywords: string[];
+  filter: 'strict' | 'balanced' | 'relaxed';
+  long_review: boolean;
+  retention: '30' | '90' | '180' | '365';
+  no_external_train: boolean;
+  anonymize_pii: boolean;
+  residency: 'sg' | 'vn' | 'us' | 'eu';
+  applied: number;
+  total: number;
+}
+
+export interface AuditRow {
+  time: string;
+  name: string | null;
+  role: string;
+  action: string;
+  ip: string | null;
+}
+
+export interface AiAuditRow {
+  time: string;
+  actor: string;
+  action: string;
+  context: string;
+  status: 'ok' | 'warn' | 'escalated';
+}

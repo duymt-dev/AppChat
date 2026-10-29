@@ -7,11 +7,12 @@ interface Props {
   onChange: (v: boolean) => void;
   label: string;
   small?: boolean;
+  large?: boolean;
   disabled?: boolean;
   testId?: string;
 }
 
-export function Switch({ on, onChange, label, small, disabled, testId }: Props) {
+export function Switch({ on, onChange, label, small, large, disabled, testId }: Props) {
   const { styles, cx } = useSwitchStyles();
   return (
     <button
@@ -24,7 +25,7 @@ export function Switch({ on, onChange, label, small, disabled, testId }: Props) 
       onClick={() => onChange(!on)}
       data-testid={testId}
     >
-      <span className={cx(styles.track, small && styles.small, on && styles.on)}>
+      <span className={cx(styles.track, small && styles.small, large && styles.large, on && styles.on)} data-on={on ? '1' : '0'}>
         <span className={styles.dot} />
       </span>
     </button>

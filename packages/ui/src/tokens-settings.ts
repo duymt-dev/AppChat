@@ -15,6 +15,13 @@ export const settingsColor = {
   wgWhite20: 'rgba(255,255,255,.2)',
   fieldsHeroText: '#5B6B62',
   fieldsOff: '#C0C4C9',
+  govWarnText: '#8A5A10',
+  govRiskText: '#B42318',
+  govBorder: '#FCD34D',
+  govIcon: '#D97706',
+  aiTierBadge: '#E7F7EE',
+  auditHead: '#FAFBFB',
+  ragDrop: '#C9D4CD',
 } as const;
 
 export const settingsGradient = {
@@ -22,6 +29,7 @@ export const settingsGradient = {
   wgPreview: 'linear-gradient(160deg,#EAF6FF,#F4F7FA)',
   wgHead: 'linear-gradient(135deg,#2DC56A,#1FB85C)',
   fieldsHero: 'linear-gradient(135deg,#EDFAF3,rgba(255,255,255,0))',
+  govHero: 'linear-gradient(135deg,#FEF3C7,#fff)',
 } as const;
 
 export const settingsShadow = {

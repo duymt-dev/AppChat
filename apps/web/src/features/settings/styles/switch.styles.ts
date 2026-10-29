@@ -1,4 +1,5 @@
-// Công tắc Cài đặt — prototype L7197: 36×20 bo 12, chấm 16 trắng bóng nhẹ, top 2 / left 2 → 18. Nhỏ: 34×19, chấm 15.
+// Công tắc Cài đặt — prototype L7197: 36×20 bo 12, chấm 16 trắng bóng nhẹ, top 2 / left 2 → 18. Nhỏ: 34×19, chấm 15. Lớn (hàng
+// cài đặt L6994): 42×24, chấm 20, bật → left 20.
 import { createStyles } from 'antd-style';
 import { color, layout, radius } from '@appchat/ui';
 
@@ -38,6 +39,20 @@ export const useSwitchStyles = createStyles(({ css, responsive }) => ({
     span {
       width: 15px;
       height: 15px;
+    }
+  `,
+  large: css`
+    && {
+      width: 42px;
+      height: 24px;
+      border-radius: ${radius.r12}px;
+    }
+    span {
+      width: 20px;
+      height: 20px;
+    }
+    &&[data-on='1'] span {
+      left: 20px;
     }
   `,
   on: css`

@@ -1304,5 +1304,441 @@
         "condition": ""
       }
     ]
-  }
+  },
+  "ai": {
+    "default_tier": "standard",
+    "tiers": [
+      {
+        "key": "standard",
+        "credits": "1",
+        "badge": "using",
+        "active": true,
+        "locked": false
+      },
+      {
+        "key": "advanced",
+        "credits": "4",
+        "badge": "hot",
+        "active": true,
+        "locked": false
+      },
+      {
+        "key": "max",
+        "credits": "15",
+        "badge": "",
+        "active": false,
+        "locked": true
+      }
+    ],
+    "tasks": [
+      {
+        "key": "copilot",
+        "tier": "standard"
+      },
+      {
+        "key": "auto_reply",
+        "tier": "standard"
+      },
+      {
+        "key": "order_analysis",
+        "tier": "advanced"
+      },
+      {
+        "key": "insights",
+        "tier": "advanced"
+      },
+      {
+        "key": "content",
+        "tier": "standard"
+      }
+    ],
+    "budget": 5000000,
+    "rate_limit": 10000
+  },
+  "kb": {
+    "types": {
+      "pdf": [
+        "PDF",
+        "#E0566A",
+        "#FCEBEE"
+      ],
+      "xls": [
+        "XLS",
+        "#1B9E5A",
+        "#EAF7EF"
+      ],
+      "doc": [
+        "DOC",
+        "#2563EB",
+        "#EAF1FC"
+      ],
+      "folder": [
+        "",
+        "#C9820B",
+        "#FBF3E2"
+      ],
+      "mp4": [
+        "MP4",
+        "#FFFFFF",
+        "#231F20"
+      ],
+      "md": [
+        "MD",
+        "#0E9B94",
+        "#E6F6F4"
+      ],
+      "ppt": [
+        "PPT",
+        "#E8602C",
+        "#FCEEE6"
+      ]
+    },
+    "folders": [
+      {
+        "id": "f_cat",
+        "name": "Catalogues"
+      },
+      {
+        "id": "f_price",
+        "name": "Bảng giá"
+      },
+      {
+        "id": "f_policy",
+        "name": "Policy & Contracts"
+      },
+      {
+        "id": "f_img",
+        "name": "Ảnh sản phẩm"
+      },
+      {
+        "id": "f_report",
+        "name": "Reports"
+      }
+    ],
+    "nav": {
+      "all": 412,
+      "learned": 284,
+      "conv": 186,
+      "upload": 128,
+      "star": 24,
+      "trash": 8
+    },
+    "learned_total": 284,
+    "size": "4.2 GB",
+    "docs": [
+      {
+        "id": "kb_1",
+        "name": "Catalogue BST Hè 2026.pdf",
+        "type": "pdf",
+        "tags": [
+          "Catalogue",
+          "Hè 2026"
+        ],
+        "learned": true,
+        "size": "12.4 MB",
+        "source": "upload",
+        "by": "Trâm",
+        "date": "2026-04-18",
+        "folder_id": "f_cat",
+        "starred": false
+      },
+      {
+        "id": "kb_2",
+        "name": "Bảng giá sỉ — Dropship Q2.xlsx",
+        "type": "xls",
+        "tags": [
+          "Giá sỉ"
+        ],
+        "learned": true,
+        "size": "840 KB",
+        "source": "upload",
+        "by": "Minh",
+        "date": "2026-04-17",
+        "folder_id": "f_price",
+        "starred": false
+      },
+      {
+        "id": "kb_3",
+        "name": "Chính sách đổi trả 2026.docx",
+        "type": "doc",
+        "tags": [
+          "Policy"
+        ],
+        "learned": true,
+        "size": "124 KB",
+        "source": "upload",
+        "by": "Hương",
+        "date": "2026-04-15",
+        "folder_id": "f_policy",
+        "starred": false
+      },
+      {
+        "id": "kb_4",
+        "name": "Ảnh sản phẩm — Shoot April",
+        "type": "folder",
+        "tags": [
+          "Ảnh"
+        ],
+        "learned": false,
+        "size": "312 files",
+        "source": "drive",
+        "by": "Trâm",
+        "date": "2026-04-14",
+        "folder_id": "f_img",
+        "starred": false
+      },
+      {
+        "id": "kb_5",
+        "name": "Video hướng dẫn mặc váy hoa.mp4",
+        "type": "mp4",
+        "tags": [
+          "Video",
+          "Tutorial"
+        ],
+        "learned": true,
+        "size": "48.2 MB",
+        "source": "conv",
+        "by": "AI (from Zalo)",
+        "date": "2026-04-12",
+        "folder_id": null,
+        "starred": false
+      },
+      {
+        "id": "kb_6",
+        "name": "Hợp đồng Gia Dụng Sài Gòn.pdf",
+        "type": "pdf",
+        "tags": [
+          "Contract",
+          "Vận hành"
+        ],
+        "learned": false,
+        "size": "2.1 MB",
+        "source": "conv",
+        "by": "Minh",
+        "date": "2026-04-10",
+        "folder_id": "f_policy",
+        "starred": false
+      },
+      {
+        "id": "kb_7",
+        "name": "FAQ — Quy trình đơn hàng.md",
+        "type": "md",
+        "tags": [
+          "FAQ",
+          "Vận hành"
+        ],
+        "learned": true,
+        "size": "18 KB",
+        "source": "internal",
+        "by": "Huyền",
+        "date": "2026-04-08",
+        "folder_id": null,
+        "starred": false
+      },
+      {
+        "id": "kb_8",
+        "name": "Báo cáo KPI tháng 3.pptx",
+        "type": "ppt",
+        "tags": [
+          "Report"
+        ],
+        "learned": false,
+        "size": "6.8 MB",
+        "source": "upload",
+        "by": "CMO",
+        "date": "2026-04-05",
+        "folder_id": "f_report",
+        "starred": false
+      }
+    ]
+  },
+  "governance": {
+    "keywords": [
+      "chính trị",
+      "tôn giáo",
+      "cạnh tranh tiêu cực",
+      "đầu tư tài chính",
+      "y tế cá nhân",
+      "pháp lý cá nhân"
+    ],
+    "filter": "strict",
+    "long_review": false,
+    "retention": "90",
+    "no_external_train": true,
+    "anonymize_pii": true,
+    "residency": "sg",
+    "applied": 12,
+    "total": 14,
+    "scopes": [
+      {
+        "key": "messages",
+        "on": true,
+        "sensitive": false
+      },
+      {
+        "key": "catalog",
+        "on": true,
+        "sensitive": false
+      },
+      {
+        "key": "faq",
+        "on": true,
+        "sensitive": false
+      },
+      {
+        "key": "pii",
+        "on": false,
+        "sensitive": true
+      },
+      {
+        "key": "finance",
+        "on": false,
+        "sensitive": true
+      },
+      {
+        "key": "partner",
+        "on": false,
+        "sensitive": false
+      }
+    ],
+    "bounds": [
+      {
+        "key": "auto_close",
+        "on": false,
+        "risky": true
+      },
+      {
+        "key": "send_bank",
+        "on": false,
+        "risky": true
+      },
+      {
+        "key": "discount",
+        "on": false,
+        "risky": true
+      },
+      {
+        "key": "promise_delivery",
+        "on": false,
+        "risky": false
+      },
+      {
+        "key": "escalate",
+        "on": true,
+        "risky": false
+      },
+      {
+        "key": "disclosure",
+        "on": true,
+        "risky": false
+      },
+      {
+        "key": "log_all",
+        "on": true,
+        "risky": false
+      }
+    ]
+  },
+  "audit": [
+    {
+      "time": "14:32",
+      "name": "Lan",
+      "role": "owner",
+      "action": "Cập nhật quy tắc phân công \"Chào Zalo\"",
+      "ip": "118.70.12.45"
+    },
+    {
+      "time": "14:18",
+      "name": "Trâm",
+      "role": "manager",
+      "action": "Mời user hoang@mediasoft.vn",
+      "ip": "118.70.12.44"
+    },
+    {
+      "time": "13:55",
+      "name": null,
+      "role": "system",
+      "action": "Gia hạn khoá kết nối SePay",
+      "ip": null
+    },
+    {
+      "time": "13:22",
+      "name": "Minh",
+      "role": "sales",
+      "action": "Xuất CSV 240 khách hàng",
+      "ip": "14.241.55.87"
+    },
+    {
+      "time": "12:40",
+      "name": null,
+      "role": "ai",
+      "action": "Chuyển hội thoại #8230 → Lan",
+      "ip": null
+    },
+    {
+      "time": "12:15",
+      "name": "Lan",
+      "role": "owner",
+      "action": "Đổi vai trò Nhân viên kinh doanh",
+      "ip": "118.70.12.45"
+    },
+    {
+      "time": "11:50",
+      "name": "Trâm",
+      "role": "manager",
+      "action": "Kết nối kênh Email",
+      "ip": "118.70.12.44"
+    }
+  ],
+  "ai_audit": [
+    {
+      "time": "14:23:10",
+      "actor": "copilot",
+      "action": "Gợi ý trả lời",
+      "context": "Hộp thư / Hội thoại #8245",
+      "status": "ok"
+    },
+    {
+      "time": "14:22:48",
+      "actor": "ops",
+      "action": "Đồng bộ dữ liệu đơn",
+      "context": "Đồng bộ 500 đơn",
+      "status": "ok"
+    },
+    {
+      "time": "14:21:02",
+      "actor": "copilot",
+      "action": "Bị chặn (từ khoá cấm)",
+      "context": "Chủ đề tài chính cá nhân",
+      "status": "warn"
+    },
+    {
+      "time": "14:19:36",
+      "actor": "order",
+      "action": "Tự chốt đơn 850.000₫",
+      "context": "Đơn #VN-8842",
+      "status": "ok"
+    },
+    {
+      "time": "14:15:21",
+      "actor": "cs",
+      "action": "Chuyển người — độ tin cậy 62%",
+      "context": "Khách khiếu nại hoàn tiền",
+      "status": "escalated"
+    },
+    {
+      "time": "14:12:04",
+      "actor": "human",
+      "action": "Điều chỉnh hướng dẫn agent",
+      "context": "Sales Zalo · phiên bản 12",
+      "status": "ok"
+    },
+    {
+      "time": "14:10:18",
+      "actor": "copilot",
+      "action": "Ẩn PII trong nhật ký",
+      "context": "Hội thoại #8240 — ẩn SĐT",
+      "status": "ok"
+    }
+  ]
 }

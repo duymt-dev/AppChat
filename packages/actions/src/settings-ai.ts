@@ -3,20 +3,20 @@
 import { z } from 'zod';
 import { defineAction } from './define';
 
-const TIER = z.enum(['fast', 'balanced', 'deep']);
+const TIER = z.enum(['standard', 'advanced', 'max']);
 
 export const aiSettingsUpdate = defineAction({
   id: 'ai_settings.update',
   module: 'ai',
   title: 'actions.ai_settings.update.title',
   description:
-    'Set the default AI tier and per-task tiers (model names stay hidden — D29), monthly credit budget and auto-downgrade. Example: {"default_tier":"balanced","tasks":{"reply":"fast"},"budget":5000000}',
+    'Set the default AI tier and per-task tiers (model names stay hidden — D29), monthly credit budget and per-agent rate limit. Example: {"default_tier":"advanced","tasks":{"reply":"standard"},"budget":5000000}',
   input: z.object({
     default_tier: TIER.optional(),
     tasks: z.record(z.string(), TIER).optional(),
     budget: z.number().int().min(0).optional(),
-    rate_limit: z.number().int().min(1).max(1000).optional(),
-    auto_downgrade: z.boolean().optional(),
+    /** Token / phút mỗi agent. */
+    rate_limit: z.number().int().min(1).max(100_000).optional(),
   }),
   output: z.object({ ok: z.boolean() }),
   permission: 'ai.governance',
@@ -36,6 +36,8 @@ export const kbAddSource = defineAction({
     url: z.string().url().optional(),
     tags: z.array(z.string().max(30)).max(10).optional(),
     visibility: z.enum(['all', 'agents', 'staff']).default('all'),
+    /** false = chỉ lưu, chưa embedding ("Cho AI học tài liệu này" — prototype L7498). */
+    learn: z.boolean().default(true),
   }),
   output: z.object({ source_id: z.string() }),
   permission: 'kb.manage',
@@ -94,8 +96,12 @@ export const governanceUpdate = defineAction({
     scopes: z.record(z.string(), z.boolean()).optional(),
     bounds: z.record(z.string(), z.boolean()).optional(),
     keywords: z.array(z.string().trim().min(1).max(40)).max(100).optional(),
-    filter: z.enum(['strict', 'standard', 'off']).optional(),
-    retention: z.enum(['30d', '90d', '1y']).optional(),
+    filter: z.enum(['strict', 'balanced', 'relaxed']).optional(),
+    retention: z.enum(['30', '90', '180', '365']).optional(),
+    long_review: z.boolean().optional(),
+    no_external_train: z.boolean().optional(),
+    anonymize_pii: z.boolean().optional(),
+    residency: z.enum(['sg', 'vn', 'us', 'eu']).optional(),
   }),
   output: z.object({ ok: z.boolean() }),
   permission: 'ai.governance',

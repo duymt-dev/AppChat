@@ -17,6 +17,7 @@ import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
 import { settingsAppsHandlers } from './domains/settings-apps';
 import { settingsDataHandlers } from './domains/settings-data';
+import { settingsAiHandlers } from './domains/settings-ai';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -91,4 +92,5 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...settingsHandlers,
   ...settingsAppsHandlers,
   ...settingsDataHandlers,
+  ...settingsAiHandlers,
 };

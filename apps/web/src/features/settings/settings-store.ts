@@ -30,6 +30,10 @@ interface SettingsUi {
   fieldEntity: FieldEntity;
   fieldQ: string;
   fieldModal: { key?: string } | null;
+  kbNav: string;
+  kbFolder: string | null;
+  kbQ: string;
+  kbUpload: boolean;
   set: (p: Partial<Omit<SettingsUi, 'set'>>) => void;
 }
 
@@ -49,5 +53,9 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   fieldEntity: 'contact',
   fieldQ: '',
   fieldModal: null,
+  kbNav: 'all',
+  kbFolder: null,
+  kbQ: '',
+  kbUpload: false,
   set: (p) => setState(p),
 }));

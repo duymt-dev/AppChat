@@ -1,7 +1,23 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { Channel, Connector, FieldEntity, FieldsData, MembersPage, Reply, RolesData, TagsData, Widget, WorkspaceData } from './types';
+import type {
+  AiAuditRow,
+  AiSettings,
+  AuditRow,
+  Channel,
+  Connector,
+  FieldEntity,
+  FieldsData,
+  Governance,
+  KbData,
+  MembersPage,
+  Reply,
+  RolesData,
+  TagsData,
+  Widget,
+  WorkspaceData,
+} from './types';
 
 export const workspaceQuery = () =>
   queryOptions({ queryKey: ['workspace', 'settings'], queryFn: () => transport.get<WorkspaceData>('/settings/workspace') });
@@ -32,3 +48,18 @@ export const repliesQuery = (q: string) =>
 
 export const fieldsQuery = (entity: FieldEntity) =>
   queryOptions({ queryKey: ['crm', 'settings-fields', entity], queryFn: () => transport.get<FieldsData>('/settings/fields', { entity }) });
+
+export const aiSettingsQuery = () => queryOptions({ queryKey: ['ai', 'settings'], queryFn: () => transport.get<AiSettings>('/settings/ai') });
+
+export const kbQuery = (p: { nav: string; folder: string | null; q: string }) =>
+  queryOptions({
+    queryKey: ['kb', 'settings', p],
+    queryFn: () => transport.get<KbData>('/settings/kb', { nav: p.nav, ...(p.folder ? { folder: p.folder } : {}), ...(p.q ? { q: p.q } : {}) }),
+    placeholderData: (prev) => prev,
+  });
+
+export const governanceQuery = () => queryOptions({ queryKey: ['ai', 'governance'], queryFn: () => transport.get<Governance>('/settings/governance') });
+
+export const auditQuery = () => queryOptions({ queryKey: ['audit', 'workspace'], queryFn: () => transport.get<AuditRow[]>('/settings/audit') });
+
+export const aiAuditQuery = () => queryOptions({ queryKey: ['audit', 'ai'], queryFn: () => transport.get<AiAuditRow[]>('/settings/ai-audit') });

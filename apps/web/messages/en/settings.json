@@ -638,5 +638,196 @@
       "errName": "Enter a field name",
       "sysNote": "System field: name and type cannot be changed."
     }
+  },
+  "aiModels": {
+    "defaultT": "Default AI level",
+    "defaultS": "Used by Co-pilot and agents",
+    "badge": {
+      "using": "In use",
+      "hot": "Hot task"
+    },
+    "desc": {
+      "standard": "Fast · economical · real-time Co-pilot",
+      "advanced": "Strong · complex reasoning",
+      "max": "Highest accuracy"
+    },
+    "price": "{n} credits / 1K tokens",
+    "unlock": "Upgrade to unlock",
+    "current": "Current default",
+    "use": "Set as default",
+    "tasksT": "Per-task allocation",
+    "tasksS": "Assign the right AI level to each job",
+    "task": {
+      "copilot": "Inbox · Co-pilot suggestions",
+      "auto_reply": "Inbox · agent auto-reply",
+      "order_analysis": "Operations · agent order analysis",
+      "insights": "Reports · AI Insights",
+      "content": "Marketing · content optimizer"
+    },
+    "limitsT": "Usage limits",
+    "budget": "Monthly AI budget",
+    "budgetD": "Warn at ≥80% usage",
+    "rate": "Per-agent rate limit",
+    "rateD": "Tokens per minute"
+  },
+  "rag": {
+    "search": "Ask AI about your files…",
+    "newFolder": "New folder",
+    "folderPh": "Folder name",
+    "create": "Create",
+    "cancel": "Cancel",
+    "upload": "Upload",
+    "nav": {
+      "all": "All files",
+      "learned": "Learned by AI",
+      "conv": "From conversations",
+      "upload": "Uploaded by you",
+      "star": "Starred",
+      "trash": "Trash"
+    },
+    "folders": "FOLDERS",
+    "knowT": "AI Knowledge",
+    "knowS": "AI has learned <b>{n} files</b>. When customers ask, AI looks them up and answers.",
+    "train": "Retrain knowledge base",
+    "files": "{n} files · {s}",
+    "col": {
+      "name": "Name",
+      "size": "Size",
+      "src": "Source",
+      "by": "Created by",
+      "date": "Date"
+    },
+    "src": {
+      "upload": "Upload",
+      "drive": "Drive",
+      "conv": "Zalo chat",
+      "internal": "Internal"
+    },
+    "learned": "Learned",
+    "download": "Download",
+    "relearn": "Re-learn",
+    "del": "Move to trash",
+    "empty": "No files here yet.",
+    "trashEmpty": "Trash is empty — deleted files are kept for 30 days.",
+    "modal": {
+      "title": "Upload a document",
+      "save": "Upload & learn",
+      "cancel": "Cancel",
+      "close": "Close",
+      "drop": "Drag a file here or <b>choose from your computer</b>",
+      "dropS": "PDF · DOC · XLS · PPT · MD · MP4 · images — up to 100 MB",
+      "name": "Document name *",
+      "namePh": "e.g. 2026 service price list",
+      "folder": "Folder",
+      "noFolder": "(None)",
+      "tags": "Tags (comma separated)",
+      "tagsPh": "e.g. Wholesale, Summer 2026",
+      "learn": "Let AI learn this document",
+      "learnD": "Embedded automatically so AI can retrieve it",
+      "errName": "Enter a document name"
+    }
+  },
+  "gov": {
+    "heroT": "AI governance aligned with ISO/IEC 42001",
+    "heroS": "Your workspace applies {n}/{m} recommended policies.",
+    "gap": "View gap analysis →",
+    "sensitive": "Sensitive",
+    "risky": "High risk",
+    "scopeT": "Data AI may access",
+    "scope": {
+      "messages": "Customer messages, last 30 days",
+      "catalog": "Catalogue & internal price list",
+      "faq": "Return policy / FAQ",
+      "pii": "Customer personal data (PII)",
+      "finance": "Contracts & financial records",
+      "partner": "Partner contract data"
+    },
+    "scopeD": {
+      "messages": "Including images and attachments",
+      "catalog": "Products, prices, promotions",
+      "faq": "Public data",
+      "pii": "ID numbers, phone, address — leak risk",
+      "finance": "Only Managers and the Owner may enable",
+      "partner": "Prices, partnership terms"
+    },
+    "boundT": "Behaviour boundaries",
+    "boundS": "On = AI may do it alone; off = needs human approval",
+    "bound": {
+      "auto_close": "Close orders > 10,000,000₫ without approval",
+      "send_bank": "Send payment account details",
+      "discount": "Promise discounts / vouchers > 10%",
+      "promise_delivery": "Commit to delivery times",
+      "escalate": "Hand off to a human when confidence < 70%",
+      "disclosure": "Always add the \"Message from AI\" note",
+      "log_all": "Log every AI action for audit"
+    },
+    "kwT": "Banned keywords & output filter",
+    "kwS": "AI refuses or hands off automatically",
+    "kwAdd": "+ Add",
+    "kwRemove": "Remove keyword {k}",
+    "filter": "Filter strictness",
+    "filters": {
+      "strict": "Strict (recommended)",
+      "balanced": "Balanced",
+      "relaxed": "Relaxed"
+    },
+    "longReview": "Human review for replies > 200 words",
+    "retT": "Retention & sharing",
+    "retS": "How long AI data is kept and shared",
+    "retention": "Keep prompts + responses",
+    "retentionD": "Used for audit and improvement",
+    "ret": {
+      "30": "30 days",
+      "90": "90 days",
+      "180": "180 days",
+      "365": "1 year"
+    },
+    "noTrain": "Never use data to train external models",
+    "anonymize": "Anonymize PII before sending to AI providers",
+    "residency": "Data residency",
+    "residencyD": "Where AI data is stored",
+    "res": {
+      "sg": "Singapore (APAC)",
+      "vn": "Vietnam",
+      "us": "United States",
+      "eu": "EU (Frankfurt)"
+    }
+  },
+  "audit": {
+    "export": "Export JSON",
+    "audit": {
+      "title": "Audit log",
+      "sub": "Every action in the workspace · kept 1 year",
+      "file": "audit-log.json"
+    },
+    "ai": {
+      "title": "AI Audit log",
+      "sub": "All AI activity in the last 24h · kept 90 days",
+      "file": "ai-audit-log.json"
+    },
+    "col": {
+      "time": "Time",
+      "actor": "Actor",
+      "action": "Action",
+      "ip": "IP",
+      "context": "Context",
+      "status": "Status"
+    },
+    "actor": {
+      "system": "System",
+      "ai": "AI Assistant"
+    },
+    "aiActor": {
+      "copilot": "AI Assistant — Co-pilot",
+      "ops": "Operations agent",
+      "order": "Order agent",
+      "cs": "Customer care agent",
+      "human": "Human · Lan"
+    },
+    "status": {
+      "ok": "OK",
+      "warn": "Warn",
+      "escalated": "Escalated"
+    }
   }
 }

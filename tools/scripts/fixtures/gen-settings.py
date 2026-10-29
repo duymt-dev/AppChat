@@ -5,6 +5,10 @@
 # - AI Models hiện mức AI, không tên model (D29); bỏ "tự nạp" ví và "tự chuyển model tiết kiệm".
 import json
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+from settings_ai import build_ai  # noqa: E402
 
 NOW = "2026-06-24T09:00:00+07:00"
 
@@ -225,6 +229,7 @@ def build():
             {"id": f"rp_{k + 1}", "category": g, "shortcut": sc, "title": n, "body": b} for k, (g, sc, n, b) in enumerate(REPLIES)
         ],
         "fields": {e: field_rows(rows) for e, rows in FIELDS.items()},
+        **build_ai(),
     }
 
 
