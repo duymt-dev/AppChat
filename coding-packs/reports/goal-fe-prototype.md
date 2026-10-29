@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 9 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 12 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **115** | **0** | | | |
+| **Tổng** | | **137** | **118** | **0** | | | |
 
 ---
 
@@ -176,9 +176,9 @@
 | `settings:roles` | Vai trò & phân quyền (ma trận) | L5992 | E | ✅ | 0.0282 | pass | 0162970 | Chỉ đọc ở P0 (D27) · 5 vai trò hệ thống + ma trận 10 nhóm × 5 vai trò lấy từ ROLE_DEFS (nhóm OUT Gọi điện / Quy trình / Báo cáo bỏ); "Tạo vai trò" khoá kèm ghi chú P1 |
 | `settings:channels` | Kênh kết nối | L5892 | E | ✅ | 0.0414 | pass | 57240c2 | Chỉ kênh có manifest (D28): zalo_personal / email / webchat kết nối được, 13 kênh khác nút "Sắp có" (disabled); lọc Tất cả / Đã / Chưa kết nối; danh sách ↔ thẻ; webchat mở Trợ lý AI website; ngắt kết nối qua channel.disconnect |
 | `settings:web-widget` | Trợ lý AI website (widget) | L7184 | P | ✅ | 0.0089 | pass | 57240c2 | Ghi qua webchat.update_widget; KPI, nút hành động bật/tắt/xoá, khối AI Agent (Agent, ngưỡng bàn giao, kiến thức, tông, chế độ, nghiệp vụ), mã nhúng + Copy, xem trước 360 (launcher đóng/mở). Mask cột xem trước: prototype L7210–7254 đóng thẻ thừa làm vỡ cột (chỉ còn nhãn); app dựng theo L7261–7298 |
-| `settings:fields` | Trường dữ liệu | L7099 | P | ⬜ | | | | |
-| `settings:tags` | Thẻ & nhãn | L6031 | P | ⬜ | | | | |
-| `settings:replies` | Câu trả lời mẫu | L6064 | P | ⬜ | | | | |
+| `settings:fields` | Trường dữ liệu | L7099 | P | ✅ | 0.0030 | pass | 7ee1e94 | 4 module (Khách hàng · Tickets · Đơn hàng · Sản phẩm); thêm / sửa (hiển thị tại, vai trò §3.5, điều kiện, AI) / đổi thứ tự / xoá qua custom_field.* (thêm custom_field.delete theo Blueprint §612); kiểu theo enum custom_field_def; trường liên hệ đồng bộ với modal CRM |
+| `settings:tags` | Thẻ & nhãn | L6031 | P | ✅ | 0.0037 | pass | 7ee1e94 | tag.create / update / delete (hoàn tác 24h); tên bắt buộc + trùng tên 409; emoji, 10 màu |
+| `settings:replies` | Câu trả lời mẫu | L6064 | P | ✅ | 0.0060 | pass | 7ee1e94 | canned_reply.* ; nhóm có sẵn + nhóm mới; shortcut kiểm /[a-z0-9_-] |
 | `settings:doc-templates` | Mẫu chứng từ | — | M | ⬜ | — | | | D30 |
 | `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ⬜ | — | | | D30 |
 | `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ✅ | 0.0007 | pass | 57240c2 | D28: chỉ connector có manifest (GA: Brevo, SMTP, SePay, Casso; còn lại "Sắp có" + Đăng ký quan tâm); gỡ thẻ Tổng đài; mask nhóm Marketing (SMS / ZBS bỏ) |
