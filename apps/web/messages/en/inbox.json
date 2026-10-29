@@ -234,6 +234,7 @@
   "p360": {
     "title": "360° profile",
     "close": "Close profile",
+    "customize": "Customize 360° profile",
     "tabs": {
       "overview": "Overview",
       "crm": "CRM",

@@ -1215,6 +1215,14 @@ export const MANIFEST: ParityEntry[] = [
     clip: ST_MAIN,
   },
   {
+    id: 'settings:profile-360',
+    route: '/settings/profile_360',
+    protoStorage: settings('p360'),
+    appWait: '[data-testid^="pl-card-"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
     id: 'settings:tags',
     route: '/settings/tags',
     protoStorage: settings('tags'),

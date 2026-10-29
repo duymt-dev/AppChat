@@ -18,6 +18,7 @@ import type {
   KbData,
   MembersPage,
   NotifPrefs,
+  ProfileLayoutsData,
   SlaData,
   Reply,
   RolesData,
@@ -88,6 +89,9 @@ export const billInvoicesQuery = (p: { status: string; q: string }) =>
     queryFn: () => transport.get<{ data: BillInvoice[] }>('/billing/invoices', { status: p.status, ...(p.q ? { q: p.q } : {}) }),
     placeholderData: (prev) => prev,
   });
+
+export const profileLayoutsQuery = () =>
+  queryOptions({ queryKey: ['profile_layouts'], queryFn: () => transport.get<ProfileLayoutsData>('/settings/profile-layouts') });
 
 export const docTemplatesQuery = (kind: string) =>
   queryOptions({

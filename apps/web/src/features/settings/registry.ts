@@ -6,7 +6,7 @@ import type { PermissionKey } from '@appchat/shared';
 
 export type SectionKey =
   | 'general' | 'locale' | 'members' | 'roles' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
-  | 'contacts_fields' | 'tags' | 'replies' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
+  | 'contacts_fields' | 'tags' | 'replies' | 'profile_360' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
   | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile';
 
 export interface NavItem {
@@ -40,6 +40,8 @@ export const NAV: NavGroup[] = [
       { key: 'channels', icon: 'ic-globe', perm: 'channels.manage' },
       { key: 'integrations', icon: 'ic-grid', perm: 'integrations.manage' },
       { key: 'contacts_fields', icon: 'ic-grid', perm: 'crm.fields_manage' },
+      // Hồ sơ 360° — mẫu & gán vai trò (ver2.1 REQ-M05; prototype L10303: ngay sau Trường dữ liệu, trước Thẻ & nhãn).
+      { key: 'profile_360', icon: 'ic-users', badge: 'NEW', perm: 'settings.manage' },
       { key: 'tags', icon: 'ic-gift', n: '24', perm: 'inbox.manage' },
       { key: 'replies', icon: 'ic-bolt', n: '48', perm: 'inbox.manage' },
     ],

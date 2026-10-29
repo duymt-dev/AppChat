@@ -109,6 +109,18 @@ test.describe('inbox', () => {
     await expect(mail).toHaveCount(0);
   });
 
+  test('Hồ sơ 360°: nút ⚙ mở hộp Tuỳ chỉnh bố cục đúng mẫu của vai trò (REQ-F12)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.locator('[data-conv="c_lan"] button').first().click();
+    await page.getByTestId('p360-customize').click();
+    const editor = page.getByTestId('pl-editor');
+    await expect(editor).toBeVisible();
+    await expect(editor).toContainText('Tuỳ chỉnh Hồ sơ 360°');
+    await page.getByTestId('pl-editor-done').click();
+    await expect(editor).toHaveCount(0);
+  });
+
   test('trạng thái rỗng', async ({ page }) => {
     await page.goto(`${URL}&inbox=empty`);
     await expect(page.getByTestId('conv-empty')).toContainText('Chưa có hội thoại');

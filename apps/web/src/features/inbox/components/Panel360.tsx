@@ -1,7 +1,11 @@
 // Hồ sơ 360° của khách — prototype L2011–2224: header · 5 tab · nội dung · hàng nghiệp vụ (báo giá / hợp đồng / đơn) · thanh hành động.
+// Nút ⚙ (REQ-F12) mở hộp Tuỳ chỉnh bố cục cho đúng mẫu đang gán với vai trò của người dùng hiện tại.
 'use client';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
+import { useAuthz } from '@/shared/authz/useCan';
+import { profileLayoutsQuery, useProfileLayoutUi, ProfileLayoutEditor } from '@/features/settings';
 import { usePanelStyles } from '../styles/panel.styles';
 import { useInboxUi } from '../inbox-store';
 import { Profile360Actions } from './Profile360Actions';
@@ -11,6 +15,13 @@ export function Panel360({ contactId }: { contactId: string }) {
   const t = useTranslations('inbox.p360');
   const { styles, cx } = usePanelStyles();
   const ui = useInboxUi();
+  const authz = useAuthz().data;
+  const layouts = useQuery(profileLayoutsQuery()).data;
+  const openEditor = useProfileLayoutUi((s) => s.open);
+  const onCustomize = () => {
+    const id = authz && layouts ? layouts.role_assignments[authz.role] : undefined;
+    if (id) openEditor(id);
+  };
 
   return (
     <aside className={styles.panel} data-testid="panel-360">
@@ -20,10 +31,14 @@ export function Panel360({ contactId }: { contactId: string }) {
         </span>
         {t('title')}
         <span className={styles.badge}>{t('aiBadge')}</span>
+        <button type="button" className={styles.gear} onClick={onCustomize} aria-label={t('customize')} data-testid="p360-customize">
+          <Icon name="ic-cog" size={15} color={color.text3} />
+        </button>
         <button type="button" className={styles.close} onClick={ui.toggle360} aria-label={t('close')}>
           <Icon name="ic-x" size={18} color={color.text3} />
         </button>
       </div>
+      <ProfileLayoutEditor />
       <div className={styles.tabs} role="tablist">
         {TABS.map((k) => (
           <button key={k} type="button" role="tab" aria-selected={ui.tab360 === k} className={cx(styles.tab, ui.tab360 === k && styles.tabOn)} onClick={() => ui.set({ tab360: k })}>

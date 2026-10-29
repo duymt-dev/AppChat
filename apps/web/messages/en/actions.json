@@ -519,6 +519,23 @@
       "title": "Register interest in integration"
     }
   },
+  "profile_layout": {
+    "create": {
+      "title": "Create Hồ sơ 360° template"
+    },
+    "update": {
+      "title": "Edit Hồ sơ 360° layout"
+    },
+    "duplicate": {
+      "title": "Duplicate Hồ sơ 360° template"
+    },
+    "delete": {
+      "title": "Delete Hồ sơ 360° template"
+    },
+    "assign_role": {
+      "title": "Assign template to role"
+    }
+  },
   "ai_settings": {
     "update": {
       "title": "Update AI settings"

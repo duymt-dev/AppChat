@@ -348,3 +348,32 @@ export interface DetectedField {
   variable: string;
   confidence: number;
 }
+
+/** Hồ sơ 360° (REQ-F12, M05) — tab jsonb trong `profile_layout` (Blueprint §2.2). */
+export interface LayoutTab {
+  key: string;
+  label: string;
+  enabled: boolean;
+  sort: number;
+  /** Tab mặc định của prototype (Tổng quan / CRM / AI / Tệp / Lịch sử) — xoá được, khôi phục được. */
+  builtin: boolean;
+  /** Khối bổ sung từ thư viện 12 khối (p360Lib), hiện dưới nội dung gốc của tab. */
+  blocks: string[];
+}
+
+export interface ProfileLayout {
+  id: string;
+  name: string;
+  is_system: boolean;
+  tabs: LayoutTab[];
+  roles: SystemRoleKey[];
+  created_by: string;
+}
+
+export type SystemRoleKey = 'owner' | 'manager' | 'sales' | 'cs' | 'accountant';
+
+export interface ProfileLayoutsData {
+  layouts: ProfileLayout[];
+  /** role_key → layout_id (profile_layout_role) — mỗi vai trò đúng một mẫu. */
+  role_assignments: Record<SystemRoleKey, string>;
+}

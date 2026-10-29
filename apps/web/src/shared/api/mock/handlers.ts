@@ -16,6 +16,7 @@ import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
 import { settingsAppsHandlers } from './domains/settings-apps';
+import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
 import { settingsAiHandlers } from './domains/settings-ai';
 import { settingsOpsHandlers } from './domains/settings-ops';
@@ -95,6 +96,7 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...loyaltyHandlers,
   ...settingsHandlers,
   ...settingsAppsHandlers,
+  ...profileLayoutHandlers,
   ...settingsDataHandlers,
   ...settingsAiHandlers,
   ...settingsOpsHandlers,

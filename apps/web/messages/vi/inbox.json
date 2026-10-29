@@ -234,6 +234,7 @@
   "p360": {
     "title": "Hồ sơ 360°",
     "close": "Đóng hồ sơ",
+    "customize": "Tuỳ chỉnh Hồ sơ 360°",
     "tabs": {
       "overview": "Tổng quan",
       "crm": "CRM",

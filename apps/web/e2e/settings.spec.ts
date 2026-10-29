@@ -159,6 +159,30 @@ test.describe('settings', () => {
     await expect(pv).not.toContainText('Xin chào! 👋');
   });
 
+  test('hồ sơ 360°: danh sách mẫu, gán vai trò, tuỳ chỉnh bố cục tab (REQ-F12, M05)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('profile_360'));
+    await expect(page.getByTestId('st-title')).toHaveText('Hồ sơ 360°');
+    await expect(page.locator('[data-testid^="pl-card-"]')).toHaveCount(3);
+    // mẫu hệ thống không có nút Xoá.
+    await expect(page.getByTestId('pl-del-pl_default')).toHaveCount(0);
+    // gán vai trò CSKH cho mẫu CSKH (đã gán sẵn ở seed — bấm lại không đổi, chỉ xác nhận không lỗi).
+    await page.getByTestId('pl-role-pl_cskh-cs').click();
+    await expect(page.getByTestId('pl-card-pl_cskh')).toBeVisible();
+    // mở hộp tuỳ chỉnh bố cục, tắt một tab, đổi tên, thêm tab mới.
+    await page.getByTestId('pl-edit-pl_default').click();
+    const editor = page.getByTestId('pl-editor');
+    await expect(editor).toBeVisible();
+    await page.locator('[data-testid="pl-tab-files"] button[role="switch"]').click();
+    await page.locator('[data-testid="pl-tab-overview"] input').fill('Trang chủ');
+    await page.getByTestId('pl-add-open').click();
+    await page.getByTestId('pl-add-name').fill('Khối mới');
+    await page.getByTestId('pl-add-save').click();
+    await expect(page.locator('[data-testid^="pl-tab-"]')).toHaveCount(6);
+    await page.getByTestId('pl-editor-done').click();
+    await expect(editor).toHaveCount(0);
+  });
+
   test('390: kênh, tích hợp, widget — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await page.goto(go('channels'));

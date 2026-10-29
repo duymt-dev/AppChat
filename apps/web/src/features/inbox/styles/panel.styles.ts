@@ -53,8 +53,19 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
     border-radius: ${radius.r6}px;
     padding: 2px 6px;
   `,
-  close: css`
+  gear: css`
     margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border-radius: ${radius.r6}px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: ${color.text3};
+  `,
+  close: css`
     display: none;
     width: ${layout.touch}px;
     height: ${layout.touch}px;
