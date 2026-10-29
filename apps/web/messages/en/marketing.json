@@ -1,0 +1,368 @@
+{
+  "title": "Marketing",
+  "sub": "Multi-channel campaigns · Zalo personal · Email marketing",
+  "analyze": "AI customer data analysis",
+  "create": "Create campaign manually",
+  "aiBtn": "AI Assistant · Marketing",
+  "chan": {
+    "all": "All",
+    "email": "Email",
+    "zalo": "Zalo personal",
+    "auto": "Automation"
+  },
+  "chanLabel": {
+    "zalo": "Zalo personal",
+    "email": "Email Marketing"
+  },
+  "hero": {
+    "email": {
+      "title": "Email Marketing",
+      "desc": "Compose emails, A/B subject lines, schedule & open/click reports."
+    },
+    "zalo": {
+      "title": "Zalo personal",
+      "desc": "Bulk messages from your personal Zalo account — segments, schedule, daily cap, seen tracking."
+    },
+    "auto": {
+      "title": "Automation Flows",
+      "desc": "Multi-step automated journeys by behaviour — trigger, wait, branch, send."
+    },
+    "compose": "Compose {name} campaign",
+    "flow": "Create automation flow",
+    "ab": "A/B Testing",
+    "abCount": "{n} experiments",
+    "varA": "Variant A",
+    "varB": "Variant B",
+    "upcoming": "Upcoming sends"
+  },
+  "kpi": {
+    "running": "Running campaigns",
+    "sent": "Messages sent",
+    "open": "Open rate",
+    "click": "Click rate",
+    "trend": "↑ {v} vs last month"
+  },
+  "status": {
+    "all": "All",
+    "draft": "Draft",
+    "pending_approval": "Pending approval",
+    "scheduled": "Scheduled",
+    "running": "Running",
+    "paused": "Paused",
+    "completed": "Completed",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "search": "Search campaigns…",
+  "sort": "Sort: Newest",
+  "col": {
+    "name": "Campaign",
+    "channel": "Channel",
+    "status": "Status",
+    "time": "Time",
+    "perf": "Performance",
+    "ai": "AI hint",
+    "act": "Actions"
+  },
+  "badge": {
+    "ai": "AI",
+    "manual": "Manual"
+  },
+  "perf": {
+    "sent": "Sent",
+    "open": "Open",
+    "click": "Click",
+    "none": "Not sent",
+    "dash": "—"
+  },
+  "timeLine": "{date} · 08:00",
+  "endLine": "→ {end}",
+  "hint": {
+    "0": "Re-engage — no contact for 18 days",
+    "1": "Send a retention offer",
+    "2": "Payment reminder / order follow-up",
+    "3": "Suggest a matching combo upsell",
+    "4": "Urgent reply per SLA",
+    "5": "Schedule a follow-up this week"
+  },
+  "aiDo": "Hand to the AI agent now",
+  "aiDoing": "AI agent is working: optimising subject & send time",
+  "aiPeek": "View AI hint",
+  "peekTitle": "Campaign · AI hints",
+  "peek": [
+    "Open rate below average — change subject & send time (7–9 pm).",
+    "Dormant 90-day segment — split into a win-back branch.",
+    "Best channel: Zalo personal for this group (free, high open rate).",
+    "A/B test 2 messages to lift CTR ~12%."
+  ],
+  "menu": {
+    "open": "Actions",
+    "view": "View details",
+    "submit": "Submit for approval",
+    "approve": "Approve & send",
+    "reject": "Reject",
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel campaign",
+    "delete": "Delete campaign"
+  },
+  "rejectReason": "Content not suitable — needs revision",
+  "foot": "Showing <b>1 - {n}</b> of {n} campaigns",
+  "empty": "No matching campaigns",
+  "an": {
+    "title": "AI customer data analysis",
+    "subLoading": "Reading profiles, purchase behaviour and interaction history…",
+    "subList": "{n} marketing opportunities found",
+    "subDetail": "Suggestion details · review before creating the campaign",
+    "loading": "AI is analysing customer data and looking for suitable marketing opportunities…",
+    "intro": "AI analysed <b>4,280 customers</b> across 12 signal groups and found <b>{n} marketing opportunities</b>. Each suggestion states what to do, who to send to, why, through which channel and when.",
+    "col": {
+      "priority": "Priority",
+      "name": "Suggested campaign",
+      "segment": "Customer group",
+      "count": "Count",
+      "reason": "Reason",
+      "channel": "Channel",
+      "when": "Timing"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium"
+    },
+    "rerun": "Ask AI to re-analyse",
+    "pickHint": "Pick a suggestion to see details",
+    "used": "Created",
+    "back": "← Back to suggestions",
+    "pitch": "AI suggestion",
+    "info": "Suggestion details",
+    "k": {
+      "type": "Campaign type",
+      "audience": "Audience",
+      "count": "Count",
+      "channel": "Best channel",
+      "time": "Timing",
+      "message": "Message",
+      "priority": "Priority"
+    },
+    "countV": "{n} customers",
+    "forecast": "Forecast response rate",
+    "signals": "Signals used by AI",
+    "createFrom": "Create campaign from suggestion",
+    "viewList": "View customer list",
+    "adjust": "Adjust filter conditions",
+    "exclude": "Exclude customers",
+    "close": "Close",
+    "and": " and "
+  },
+  "wiz": {
+    "titleNew": "Create broadcast campaign",
+    "titleAi": "Campaign from AI suggestion",
+    "sub": "Send to customers via Zalo personal or Email — pick from existing segments or saved lists.",
+    "close": "Close",
+    "steps": [
+      "Channel",
+      "Recipients",
+      "Content",
+      "Schedule & send"
+    ],
+    "aiBox": "Prefilled by AI from the suggestion — review & approve",
+    "aiK": {
+      "name": "Campaign name",
+      "type": "Campaign type",
+      "segment": "Target groups",
+      "exclude": "Exclusion list",
+      "channel": "Channel",
+      "time": "Send time",
+      "subject": "Subject",
+      "body": "Main message",
+      "cta": "CTA"
+    },
+    "excludeV": "Unsubscribed customers · invalid numbers",
+    "s1": "Choose a channel",
+    "s1sub": "Each campaign uses one channel — Zalo personal sends in daily-capped batches, Email reaches customers with an email address.",
+    "ch": {
+      "zalo": {
+        "name": "Zalo personal",
+        "desc": "Messages to friends / past chats · batched, up to 200 messages a day",
+        "cost": "Free"
+      },
+      "email": {
+        "name": "Email",
+        "desc": "HTML · 18,400 contacts with email",
+        "cost": "1 credit / 100 emails"
+      }
+    },
+    "s2": "Choose recipients",
+    "s2sub": "Filter by group, search, or upload Excel — tick customers then continue to the message.",
+    "custSearch": "Search customers by name or phone…",
+    "upload": "Upload Excel",
+    "uploadDone": "Imported 1,248 contacts from Excel",
+    "uploadFile": "customer-list.xlsx",
+    "uploadSum": "Imported 1,248 contacts · 1,180 valid · 68 duplicates skipped",
+    "unload": "Remove",
+    "groupAll": "All",
+    "selectAll": "Select all",
+    "showing": "Showing all customers · {n}",
+    "cCol": {
+      "name": "Customer name",
+      "phone": "Phone",
+      "email": "Email",
+      "meta": "Segment",
+      "group": "Group"
+    },
+    "grp": {
+      "vip": "VIP",
+      "returning": "Returning",
+      "cart": "Cart drop",
+      "new": "New",
+      "cold": "Inactive"
+    },
+    "noCust": "No matching customers.",
+    "picked": "{n} customers selected",
+    "pickedSub": "Continue to compose the message with AI or the editor",
+    "toContent": "Continue to content",
+    "s3": "Message content",
+    "s3sub": "Use personalisation variables {Tên}, {Link}. AI can write it in different tones.",
+    "name": "Campaign name",
+    "namePh": "e.g. Summer Flash Sale 2026 — Gold customers",
+    "subject": "Email subject",
+    "aiCompose": "AI compose",
+    "aiComposeSub": "— pick a tone for AI",
+    "tones": {
+      "friendly": "Friendly",
+      "luxury": "Premium",
+      "urgent": "Urgent"
+    },
+    "toneText": {
+      "friendly": "Hi {Tên}! 🌸 30% off HIFU treatments until 11:59 pm today. Book now 👉 {Link}",
+      "luxury": "Dear {Tên}, we are pleased to offer you 30% off our premium treatments. Book at {Link}.",
+      "urgent": "⚡ {Tên}, TODAY ONLY! 30% off all treatments — limited slots. Claim: {Link}"
+    },
+    "toneDone": "AI wrote the message · {l} tone",
+    "body": "Content",
+    "aiHelp": "AI help",
+    "aiHelpText": "Hi {Tên}! 🌸 30% Flash Sale on HIFU until 11:59 pm today. Book now 👉 {Link}",
+    "defaultBody": "Hi {Tên}! Flash Sale 30% on cotton polos until 11:59 pm today. Shop now 👉 {Link}",
+    "tools": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "ul": "Bulleted list",
+      "ol": "Numbered list"
+    },
+    "preview": "<b>Preview:</b> the message shows the real customer name and a tracked short link.",
+    "s4": "Schedule & send",
+    "s4sub": "Send now, schedule, or let AI pick the best time per customer. Campaigns are always approved before sending.",
+    "send": {
+      "now": "Send now",
+      "nowSub": "Start bulk sending right after approval",
+      "schedule": "Schedule",
+      "ai_time": "AI-optimised timing",
+      "aiSub": "Send to each customer when they usually open the app",
+      "rec": "Recommended"
+    },
+    "summary": "Campaign summary",
+    "sumCh": "Channel",
+    "sumAud": "Recipients",
+    "sumCredits": "Estimated credits",
+    "footSum": "<b>Summary:</b> {ch} · {n} recipients",
+    "back": "← Back",
+    "next": "Continue →",
+    "draft": "Save draft",
+    "submit": "Submit for approval",
+    "errName": "Enter a campaign name",
+    "errAud": "Pick at least one group or customer",
+    "errBody": "Enter the message content",
+    "fromAi": "AI prefilled the campaign: {name}"
+  },
+  "detail": {
+    "back": "Back",
+    "export": "Export list",
+    "exporting": "Exporting recipients…",
+    "resend": "Resend to unread",
+    "resendDone": "Resend to unread customers scheduled",
+    "tab": {
+      "recipients": "Recipients",
+      "content": "Content",
+      "history": "Send history"
+    },
+    "stat": {
+      "sent": "Sent",
+      "read": "Read",
+      "click": "Clicked",
+      "conv": "Converted",
+      "revenue": "Revenue"
+    },
+    "revenueV": "48.7M ₫",
+    "roi": "ROI 4.8×",
+    "all": "100%",
+    "fStatus": "Status: All",
+    "fSeg": "Segment: All",
+    "fTime": "Time: All",
+    "rSearch": "Search phone, customer name…",
+    "adv": "Advanced filters",
+    "pills": {
+      "all": "All",
+      "delivered": "Sent",
+      "opened": "Read",
+      "clicked": "Clicked",
+      "unread": "Unread",
+      "failed": "Not sent"
+    },
+    "list": "Recipients",
+    "listN": "{n} customers",
+    "rCol": {
+      "cust": "Customer",
+      "phone": "Phone",
+      "status": "Status",
+      "sent": "Sent at",
+      "read": "Read at",
+      "click": "Clicked at",
+      "act": "Actions"
+    },
+    "rst": {
+      "clicked": "Clicked",
+      "opened": "Read",
+      "delivered": "Sent",
+      "failed": "Failed"
+    },
+    "view": "View",
+    "more": "More",
+    "contentT": "Message sent",
+    "approved": "Content approved",
+    "historyT": "Send history",
+    "ev": {
+      "created": "Campaign created",
+      "submitted": "Submitted for approval",
+      "approved": "Approved",
+      "started": "Bulk sending started",
+      "rejected": "Rejected",
+      "paused": "Sending paused",
+      "resumed": "Sending resumed",
+      "cancelled": "Campaign cancelled",
+      "edited": "Campaign edited"
+    },
+    "notSent": "Campaign not sent yet — no recipients.",
+    "approvalBar": "Campaign is pending approval · {n} recipients",
+    "approve": "Approve & send",
+    "reject": "Reject",
+    "submit": "Submit for approval",
+    "sendTest": "Send test",
+    "testDone": "Test sent to {to}",
+    "rejected": "Rejected: {reason}"
+  },
+  "aiPanel": {
+    "title": "AI Assistant · Marketing",
+    "sub": "Suggest & create campaigns from customer data",
+    "close": "Close",
+    "hello": "Based on this month's data, here are 4 high-potential campaigns. Pick one to open the quick wizard.",
+    "go": "Create this campaign",
+    "ph": "Ask the assistant about campaigns…",
+    "send": "Send",
+    "full": "Open full AI Assistant →",
+    "ack": "Noted — the assistant will answer in the full dock."
+  },
+  "from": "From",
+  "to": "To",
+  "perPage": "{n} / page"
+}

@@ -12,6 +12,10 @@ import { quotesParamRoute } from './domains/quotes';
 import { contractsParamRoute } from './domains/contracts';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
+import { calendarParamRoute } from './domains/calendar';
+import { ticketsParamRoute } from './domains/tickets';
+import { marketingParamRoute } from './domains/marketing';
+import { loyaltyParamRoute } from './domains/loyalty';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
@@ -54,6 +58,10 @@ export const mockTransport: Transport = {
       contractsParamRoute(path) ??
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
+      calendarParamRoute(path) ??
+      ticketsParamRoute(path) ??
+      marketingParamRoute(path) ??
+      loyaltyParamRoute(path) ??
       signParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??

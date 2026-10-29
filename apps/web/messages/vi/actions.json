@@ -321,5 +321,108 @@
     "void": {
       "title": "Huỷ đề nghị thanh toán"
     }
+  },
+  "appointment": {
+    "find_slots": {
+      "title": "Tìm khung giờ trống"
+    },
+    "create": {
+      "title": "Tạo lịch hẹn"
+    },
+    "confirm": {
+      "title": "Xác nhận lịch hẹn"
+    },
+    "reschedule": {
+      "title": "Đổi giờ lịch hẹn"
+    },
+    "cancel": {
+      "title": "Huỷ lịch hẹn"
+    },
+    "check_in": {
+      "title": "Khách đã đến"
+    },
+    "complete": {
+      "title": "Hoàn thành lịch hẹn"
+    },
+    "mark_no_show": {
+      "title": "Đánh dấu không đến"
+    }
+  },
+  "ticket": {
+    "search": {
+      "title": "Tìm ticket"
+    },
+    "create": {
+      "title": "Tạo ticket"
+    },
+    "assign": {
+      "title": "Gán người phụ trách ticket"
+    },
+    "set_status": {
+      "title": "Đổi trạng thái ticket"
+    },
+    "comment": {
+      "title": "Ghi chú / trả lời ticket"
+    },
+    "close": {
+      "title": "Đóng ticket"
+    },
+    "reopen": {
+      "title": "Mở lại ticket"
+    },
+    "bulk_update": {
+      "title": "Cập nhật hàng loạt ticket"
+    }
+  },
+  "segment": {
+    "preview": {
+      "title": "Xem trước tệp khách"
+    }
+  },
+  "campaign": {
+    "suggest": {
+      "title": "Gợi ý chiến dịch"
+    },
+    "create": {
+      "title": "Tạo chiến dịch"
+    },
+    "submit": {
+      "title": "Gửi duyệt chiến dịch"
+    },
+    "send_test": {
+      "title": "Gửi thử chiến dịch"
+    },
+    "approve": {
+      "title": "Duyệt & gửi chiến dịch"
+    },
+    "reject": {
+      "title": "Từ chối chiến dịch"
+    },
+    "pause": {
+      "title": "Tạm dừng chiến dịch"
+    },
+    "resume": {
+      "title": "Tiếp tục chiến dịch"
+    },
+    "cancel": {
+      "title": "Huỷ chiến dịch"
+    },
+    "delete": {
+      "title": "Xoá chiến dịch"
+    },
+    "update": {
+      "title": "Sửa chiến dịch"
+    }
+  },
+  "loyalty": {
+    "get_member": {
+      "title": "Xem điểm thành viên"
+    },
+    "adjust_points": {
+      "title": "Điều chỉnh điểm"
+    },
+    "update_config": {
+      "title": "Cập nhật cấu hình khách thân thiết"
+    }
   }
 }

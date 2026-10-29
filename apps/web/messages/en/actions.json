@@ -321,5 +321,108 @@
     "void": {
       "title": "Void payment request"
     }
+  },
+  "appointment": {
+    "find_slots": {
+      "title": "Find free slots"
+    },
+    "create": {
+      "title": "Book appointment"
+    },
+    "confirm": {
+      "title": "Confirm appointment"
+    },
+    "reschedule": {
+      "title": "Reschedule appointment"
+    },
+    "cancel": {
+      "title": "Cancel appointment"
+    },
+    "check_in": {
+      "title": "Check in"
+    },
+    "complete": {
+      "title": "Complete appointment"
+    },
+    "mark_no_show": {
+      "title": "Mark no-show"
+    }
+  },
+  "ticket": {
+    "search": {
+      "title": "Search tickets"
+    },
+    "create": {
+      "title": "Create ticket"
+    },
+    "assign": {
+      "title": "Assign ticket"
+    },
+    "set_status": {
+      "title": "Change ticket status"
+    },
+    "comment": {
+      "title": "Note / reply on ticket"
+    },
+    "close": {
+      "title": "Close ticket"
+    },
+    "reopen": {
+      "title": "Reopen ticket"
+    },
+    "bulk_update": {
+      "title": "Bulk update tickets"
+    }
+  },
+  "segment": {
+    "preview": {
+      "title": "Preview segment"
+    }
+  },
+  "campaign": {
+    "suggest": {
+      "title": "Suggest campaigns"
+    },
+    "create": {
+      "title": "Create campaign"
+    },
+    "submit": {
+      "title": "Submit campaign for approval"
+    },
+    "send_test": {
+      "title": "Send test campaign"
+    },
+    "approve": {
+      "title": "Approve & send campaign"
+    },
+    "reject": {
+      "title": "Reject campaign"
+    },
+    "pause": {
+      "title": "Pause campaign"
+    },
+    "resume": {
+      "title": "Resume campaign"
+    },
+    "cancel": {
+      "title": "Cancel campaign"
+    },
+    "delete": {
+      "title": "Delete campaign"
+    },
+    "update": {
+      "title": "Edit campaign"
+    }
+  },
+  "loyalty": {
+    "get_member": {
+      "title": "View member points"
+    },
+    "adjust_points": {
+      "title": "Adjust points"
+    },
+    "update_config": {
+      "title": "Update loyalty settings"
+    }
   }
 }

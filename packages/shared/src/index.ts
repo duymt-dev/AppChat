@@ -4,3 +4,4 @@ export * from './fmt';
 export * from './api';
 export * from './commerce/quote-math';
 export * from './commerce/vietqr';
+export * from './booking/slots';

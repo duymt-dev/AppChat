@@ -10,6 +10,10 @@ import * as quotes from './quotes';
 import * as contracts from './contracts';
 import * as orders from './orders';
 import * as invoices from './invoices';
+import * as booking from './booking';
+import * as support from './support';
+import * as marketing from './marketing';
+import * as loyalty from './loyalty';
 
 export * from './define';
 export * from './identity';
@@ -23,6 +27,11 @@ export * from './quotes';
 export * from './contracts';
 export * from './orders';
 export * from './invoices';
+export * from './booking';
+export * from './support';
+export * from './marketing';
+export * from './loyalty';
+export * from './loyalty-reasons';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -38,6 +47,10 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contracts),
   ...Object.values(orders),
   ...Object.values(invoices),
+  ...Object.values(booking),
+  ...Object.values(support),
+  ...Object.values(marketing),
+  ...Object.values(loyalty),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

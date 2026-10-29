@@ -22,10 +22,10 @@
 | F2 | Tổng quan · Hộp thư · Khách hàng | 25 | 25 | 0 | ✅ | bf2b4a5 | [#4](https://github.com/duymt-dev/AppChat/pull/4) (xếp chồng #3) |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
-| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
+| F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **88** | **0** | | | |
+| **Tổng** | | **137** | **106** | **0** | | | |
 
 ---
 
@@ -146,24 +146,24 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `calendar:week` | Lịch tuần | L3871 | P | ⬜ | | | | |
-| `calendar:day` | Lịch ngày | L3871 | P | ⬜ | | | | |
-| `calendar:month` | Lịch tháng | L3871 | P | ⬜ | | | | |
-| `calendar:list` | Danh sách lịch hẹn | L3871 | P | ⬜ | | | | |
-| `calendar:appointment` | Drawer lịch hẹn | L3871 | P | ⬜ | | | | |
-| `calendar:create` | Tạo lịch hẹn + chọn slot | L3871 | P | ⬜ | | | | |
-| `tickets:list` | Danh sách ticket + KPI | L4837 | P | ⬜ | | | | |
-| `tickets:kanban` | Kanban 4 cột | L4837 | P | ⬜ | | | | |
-| `tickets:detail` | Drawer ticket (timeline, SLA) | L4837 | P | ⬜ | | | | |
-| `marketing:suggestions` | Bảng gợi ý chiến dịch | L3394 | E | ⬜ | | | | Kênh chỉ Zalo cá nhân + Email |
-| `marketing:campaigns` | Danh sách chiến dịch | L3394 | E | ⬜ | | | | |
-| `marketing:wizard` | Wizard tạo chiến dịch | L3394 | E | ⬜ | | | | |
-| `marketing:analytics` | Chi tiết / thống kê chiến dịch | L3569 | P | ⬜ | | | | |
-| `marketing:ai` | Panel AI marketing | L3538 | P | ⬜ | | | | |
-| `loyalty:overview` | Tổng quan khách thân thiết | L4412 | P | ⬜ | | | | 10.000đ = 1 điểm |
-| `loyalty:members` | Bảng thành viên | L4412 | P | ⬜ | | | | |
-| `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | P | ⬜ | | | | |
-| `loyalty:config` | Cấu hình hạng / điểm | L4412 | P | ⬜ | | | | |
+| `calendar:week` | Lịch tuần | L3871 | P | ✅ | 0.0163 | pass | c84a299 | Lưới giờ 09–15h như prototype, cột thứ 22–28/06; ‹ › đổi tuần; bấm ô trống → form điền sẵn ngày/giờ |
+| `calendar:day` | Lịch ngày | L3871 | P | ✅ | 0.0118 | pass | c84a299 | Blueprint §7.2 ViewSwitch(day) — prototype không có chế độ Ngày: so khung Tuần, mask lưới (làn KTV theo giờ mở cửa 08–19h) |
+| `calendar:month` | Lịch tháng | L3871 | P | ✅ | 0.0153 | pass | c84a299 | Lưới 7 cột, ≤2 lịch/ngày + "+n lịch nữa"; hôm nay nền xanh; bấm ngày → chế độ Ngày |
+| `calendar:list` | Danh sách lịch hẹn | L3871 | P | ✅ | 0.0388 | pass | c84a299 | Nhóm theo ngày; follow-up (cfu_*) xen theo giờ, "Xong" → follow_up.complete; lọc KTV/trạng thái/phòng ban; tìm không dấu |
+| `calendar:appointment` | Drawer lịch hẹn | L3871 | P | ✅ | 0.0446 | pass | c84a299 | Chân theo trạng thái: Xác nhận → Khách đã đến → Hoàn thành; ⋯ Không đến / Huỷ (bắt buộc lý do). Trong gói → trừ 1 buổi; ngoài gói → chỉ gợi ý "Tạo đơn" (COMMERCE 8b); không cộng điểm. Mask tự động hoá SMS→Zalo (§6 Kênh) |
+| `calendar:create` | Tạo lịch hẹn + chọn slot | L3871 | P | ✅ | 0.0279 | pass | c84a299 | Giờ bắt đầu chỉ chọn từ appointment.find_slots (dịch vụ + buffer + KTV); giờ kết thúc = thời lượng; trùng → CONFLICT; "Đổi giờ" giữ mã (exclude_id) |
+| `tickets:list` | Danh sách ticket + KPI | L4837 | P | ✅ | 0.0439 | pass | 59dacfc | 14 ticket theo TKDATA; KPI bấm để lọc; 6 bộ lọc + sắp xếp ưu tiên; tìm không dấu; chọn nhiều → ticket.bulk_update (gán / AI xử lý / ưu tiên); kênh theo channel registry (§6) |
+| `tickets:kanban` | Kanban 4 cột | L4837 | P | ✅ | 0.0356 | pass | 59dacfc | 4 cột theo trạng thái; kéo sang "Đã đóng" mở hộp lý do, cột khác → ticket.set_status |
+| `tickets:detail` | Drawer ticket (timeline, SLA) | L4837 | P | ✅ | 0.0491 | pass | 59dacfc | Drawer 400px: 4 tab (Chi tiết · Trao đổi · Lịch sử · SLA), đồng hồ SLA từ ttr_due_at (waiting = tạm dừng), Can thiệp ↔ Giao AI (ticket.assign), macro, ghi chú nội bộ / trả lời khách (ticket.comment), đóng bắt buộc lý do + ghi kết quả SLA, mở lại. Mask đồng hồ + mốc thời gian (prototype hard-code) |
+| `marketing:suggestions` | Bảng gợi ý chiến dịch | L3394 | E | ✅ | 0.0172 | pass | eb73c5b | Modal AI phân tích 3 giai đoạn (đang phân tích 12 tín hiệu → bảng 4 đề xuất → chi tiết: pitch, thông tin, dự báo, tín hiệu); "Tạo chiến dịch từ đề xuất" mở wizard điền sẵn (campaign.create kèm suggestion_id, đề xuất đánh dấu Đã tạo). Kênh chỉ Zalo cá nhân + Email (§6) |
+| `marketing:campaigns` | Danh sách chiến dịch | L3394 | E | ✅ | 0.0422 | pass | eb73c5b | Tab kênh Tất cả · Email · Zalo cá nhân · Automation (bỏ SMS / ZNS / ZBS — §6), hero theo kênh + A/B + lịch gửi, 4 KPI; tab trạng thái + Chờ duyệt / Nháp / Từ chối; menu dòng theo trạng thái (submit / approve / reject / pause / resume / cancel / delete). Mask phụ đề kênh |
+| `marketing:wizard` | Wizard tạo chiến dịch | L3394 | E | ✅ | 0.0204 | pass | eb73c5b | 4 bước: Kênh (Zalo cá nhân / Email, 1 kênh) · Người nhận (tìm, nhóm, Upload Excel, chọn khách) · Nội dung (AI soạn 3 giọng, thanh định dạng, tiêu đề email) · Lịch (Gửi ngay / Hẹn giờ / AI tối ưu, credit dự kiến). Lưu nháp = campaign.create; Gửi duyệt = create + submit. Mask lưới kênh (§6) |
+| `marketing:analytics` | Chi tiết / thống kê chiến dịch | L3569 | P | ✅ | 0.0210 | pass | eb73c5b | Trang toàn màn: 5 thẻ số, lọc + pill trạng thái người nhận, bảng người nhận, tab Nội dung / Lịch sử gửi; Chờ duyệt → thanh duyệt (Gửi thử · Từ chối · Duyệt & gửi luôn qua hộp xác nhận — campaign.approve risk send) |
+| `marketing:ai` | Panel AI marketing | L3538 | P | ✅ | 0.0351 | pass | eb73c5b | Panel 392px: 4 gợi ý → mở wizard điền sẵn từ đề xuất; ô hỏi; "Mở Trợ lý AI đầy đủ" mở dock |
+| `loyalty:overview` | Tổng quan khách thân thiết | L4412 | P | ✅ | 0.0324 | pass | a26b6fb | Topbar (tìm, Thêm thành viên, Trợ lý AI) + 5 ô tổng quan, cảnh báo rời bỏ (Tặng ưu đãi → Marketing). 10.000đ = 1 điểm, chỉ cộng khi đơn hoàn tất (COMMERCE §7) |
+| `loyalty:members` | Bảng thành viên | L4412 | P | ✅ | 0.0314 | pass | a26b6fb | Lọc hạng, tìm không dấu tên / SĐT, menu dòng (xem / điều chỉnh), drawer 5 tab (Tổng quan, CRM thang hạng ×1/×1/×1,5/×2, AI, Tệp, Lịch sử điểm) |
+| `loyalty:adjust-points` | Điều chỉnh điểm (3 bước) | L4412 | E | ✅ | 0.0365 | pass | a26b6fb | Tra SĐT → xác định hạng → ghi nhận: điều chỉnh tay ± kèm lý do bắt buộc (loyalty.adjust_points, hoàn tác 24h); khách mới tạo liên hệ CRM (contact.create) trước; chặn trừ quá số dư. Bỏ "ghi nhận theo giao dịch" và "hạng khởi tạo" của prototype vì COMMERCE §7 (mask khối ghi nhận) |
+| `loyalty:config` | Cấu hình hạng / điểm | L4412 | P | ✅ | 0.0173 | pass | a26b6fb | Bảng quy tắc (2 đang áp dụng, 6 "sắp có" — không có builder quy tắc tự do), hộp cấu hình (bật/tắt, hệ số hạng, tích điểm sàn TMĐT) qua loyalty.update_config, hộp thử nghiệm tính điểm |
 
 ## F6 — Cài đặt · Gói & ví · popup
 
@@ -643,7 +643,94 @@
 - Cài đặt › Thanh toán (F6) cần form `payment_account` (ngân hàng, BIN, số TK, chủ TK) vì VietQR đọc từ đây.
 
 ### F5
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F5
+
+**STATUS:** DONE
+**COMMIT:** be2a128 (code)  trên nhánh `goal/fe-prototype-f5` (xếp chồng F4 / PR #6)
+
+**FILES CHANGED:**
+- Lịch hẹn (c84a299): `features/calendar`.
+  - 4 chế độ xem: Tuần · Ngày (làn KTV) · Tháng · Danh sách. Follow-up xen theo giờ.
+  - Drawer theo vòng đời: Xác nhận → Khách đã đến → Hoàn thành; Không đến / Huỷ bắt buộc lý do. Trong gói thì trừ 1 buổi liệu trình (COMMERCE 8b).
+  - Tạo / đổi lịch: giờ bắt đầu chỉ chọn từ `appointment.find_slots` (dịch vụ + buffer + KTV); trùng lịch → `CONFLICT`.
+  - `packages/shared/booking/slots.ts` + test; action `appointment.*` / `follow_up.complete` (`packages/actions/booking.ts`).
+- Ticket (59dacfc): `features/tickets`.
+  - Danh sách + KPI bấm để lọc, 6 bộ lọc, chọn nhiều → `ticket.bulk_update`; kanban 4 cột (kéo sang Đã đóng mở hộp lý do).
+  - Drawer 4 tab (Chi tiết · Trao đổi · Lịch sử · SLA). Đồng hồ SLA tạm dừng khi đang chờ khách; Can thiệp ↔ Giao AI.
+  - Action `ticket.*` (`packages/actions/support.ts`).
+- Action marketing + loyalty (85c62b6): `packages/actions/{marketing,loyalty,loyalty-reasons}.ts` theo Blueprint §3.4.
+- Marketing (eb73c5b): `features/marketing`.
+  - Tab kênh chỉ Tất cả · Email · Zalo cá nhân · Automation (§6); hero theo kênh, 4 KPI, tab trạng thái; menu dòng theo vòng đời (submit / approve / reject / pause / resume / cancel / delete).
+  - AI phân tích: 4 đề xuất → chi tiết → wizard điền sẵn.
+  - Wizard 4 bước: Kênh · Người nhận · Nội dung (AI soạn 3 giọng) · Lịch (Gửi ngay / Hẹn giờ / AI tối ưu).
+  - Trang chi tiết: thẻ số, người nhận lọc theo pill, Nội dung / Lịch sử gửi; Duyệt & gửi luôn qua hộp xác nhận (`campaign.approve` luôn confirm). Panel AI 392px.
+  - Token z mới `mkPage` / `mkModal` (200 / 210) để hộp xác nhận nằm trên trang toàn màn.
+- Khách thân thiết (a26b6fb): `features/loyalty`.
+  - Tổng quan 5 ô, bảng thành viên (lọc hạng, tìm không dấu), cảnh báo rời bỏ, bảng quy tắc.
+  - Hộp Thêm thành viên & ghi nhận điểm: tra SĐT → hạng → điều chỉnh ± kèm lý do bắt buộc (`loyalty.adjust_points`, hoàn tác). Khách mới tạo liên hệ qua `contact.create` trước; chặn trừ quá số dư.
+  - Hộp Cấu hình (`loyalty.update_config`), Thử nghiệm tính điểm, drawer thành viên 5 tab (thang hạng, lịch sử điểm).
+- Mock: `shared/api/mock/domains/{calendar,tickets,marketing,loyalty}.ts` (+ `loyalty.test.ts`).
+- Fixture: `fixtures/prototype-parity/{calendar,tickets,marketing,loyalty}.json`, sinh bởi `tools/scripts/fixtures/gen-*.py`.
+- Parity manifest: 18 dòng F5. E2E: `e2e/{calendar,tickets,marketing,loyalty}.spec.ts`.
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint` / `pnpm typecheck` / `pnpm test` (turbo): xanh.
+  - Đã sửa 1 lỗi lint i18next ở `WizardSteps.tsx` (be2a128).
+  - `lint:size` 605 file, không vượt trần; `lint:tokens` 453 file đúng thang D41.
+  - unit: shared 23, ui 2, actions 3, web 53 passed (0 failed).
+- `pnpm i18n:check`: vi 3064 / en 3064 key (100%).
+- `pnpm parity --all`: **85/85 PASS**. Kết quả F5:
+
+  | Màn | Loại | diffRatio |
+  |-----|------|-----------|
+  | calendar:week | P | 0.0163 |
+  | calendar:day | P | 0.0118 |
+  | calendar:month | P | 0.0153 |
+  | calendar:list | P | 0.0388 |
+  | calendar:appointment | P | 0.0446 |
+  | calendar:create | P | 0.0279 |
+  | tickets:list | P | 0.0439 |
+  | tickets:kanban | P | 0.0356 |
+  | tickets:detail | P | 0.0491 |
+  | marketing:suggestions | E | 0.0172 |
+  | marketing:campaigns | E | 0.0422 |
+  | marketing:wizard | E | 0.0204 |
+  | marketing:analytics | P | 0.0210 |
+  | marketing:ai | P | 0.0351 |
+  | loyalty:overview | P | 0.0324 |
+  | loyalty:members | P | 0.0314 |
+  | loyalty:adjust-points | E | 0.0365 |
+  | loyalty:config | P | 0.0173 |
+
+- `pnpm e2e` (build + start, desktop + mobile-390): **113 passed**, 89 skipped (test chỉ chạy ở một viewport), 0 failed.
+- Mobile 390: lịch (4 chế độ + drawer + form), ticket (thẻ + drawer), marketing (thẻ, chi tiết, wizard), khách thân thiết (thẻ, drawer, hộp ghi điểm): không tràn ngang, vùng chạm ≥ 44px.
+- Phân quyền (mock):
+  - `loyalty.adjust` chỉ có owner / manager / accountant; cs bị `FORBIDDEN` (test mock).
+  - `loyalty.config` chỉ có owner / manager.
+  - Duyệt chiến dịch theo `campaign.approve`.
+- Không chạy được:
+  - backend thật (FE dùng mock transport D38);
+  - gửi chiến dịch Zalo cá nhân / Email (Brevo), nhắc lịch hẹn qua kênh: chưa nghiệm thu với provider thật.
+
+**ISSUES DISCOVERED:**
+- Trung bình: hộp xác nhận (`ConfirmActionHost`) nằm dưới overlay z.modal 1400, nên trang chi tiết chiến dịch che nút Xác nhận. Đã thêm token z `mkPage` / `mkModal` thấp hơn cho overlay toàn màn có gọi confirm.
+- Thấp: prototype không có chế độ Ngày cho lịch hẹn. `calendar:day` so khung Tuần và mask lưới (Blueprint §7.2 ViewSwitch).
+- Thấp: chuỗi i18n có `{Tên}` / `{Link}` (biến cá nhân hoá chiến dịch) phải đọc bằng `t.raw` để next-intl không coi là placeholder.
+
+**DEVIATIONS FROM SPEC:** (đều theo COMMERCE-DECISIONS / Decisions, thắng prototype)
+- §6 Marketing: bỏ kênh SMS / ZNS / ZBS; wizard chỉ Zalo cá nhân + Email (mask lưới kênh khi đo).
+- §7 Khách thân thiết:
+  - điểm chỉ cộng khi đơn hoàn tất (10.000đ = 1 điểm × hệ số hạng ×1 / ×1 / ×1,5 / ×2);
+  - hộp ghi nhận không còn "ghi nhận theo giao dịch" / "hạng khởi tạo", thay bằng điều chỉnh tay ± kèm 1 trong 7 lý do (mask khối ghi nhận khi đo);
+  - hạng xét theo điểm tích 12 tháng;
+  - bảng quy tắc chỉ 2 quy tắc đang áp dụng, 6 quy tắc còn lại là "Sắp có" (không có builder quy tắc tự do);
+  - lịch hẹn không tích điểm.
+- 8b Liệu trình: hoàn thành lịch trong gói thì trừ 1 buổi; huỷ / không đến thì không trừ.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Blueprint §4: `/loyalty/lookup?phone=` nên trả cả `contact` CRM khi số chưa là thành viên, để hộp ghi điểm không tạo trùng liên hệ (mock đã làm theo cách này).
+- Blueprint §3.4: thêm `loyalty.adjust_points` vào nhóm undo 24h trong nhật ký hành động (mock đã có undo).
+- Cài đặt › Khách thân thiết (F6) có thể dùng lại `ConfigModal` qua settings registry thay vì dựng form thứ hai.
 
 ### F6
 _chưa có_

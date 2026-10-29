@@ -48,6 +48,10 @@ const quotes = { ac_module: 'quotes' };
 const contracts = { ac_module: 'contracts' };
 const orders = { ac_module: 'orders' };
 const invoices = { ac_module: 'invoices' };
+const calendar = { ac_module: 'calendar' };
+const tickets = { ac_module: 'tickets' };
+const marketing = { ac_module: 'marketing' };
+const loyalty = { ac_module: 'loyalty' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -887,5 +891,220 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.getByTestId('iv-create').click(),
     appWait: '[data-invoice]',
     clipTo: { proto: 'div[style*="width: 720px"]', app: '[data-testid="iv-form"] [role="dialog"]' },
+  },
+  // ===== F5 — Lịch hẹn =====
+  // Ngày neo 24/06/2026 (prototype "Thứ 6, 20 tháng 6" / "Tháng 5") → mask nhãn ngày; kênh đặt theo channel registry.
+  {
+    id: 'calendar:list',
+    route: '/calendar',
+    protoStorage: calendar,
+    appWait: '[data-appt]',
+  },
+  {
+    id: 'calendar:week',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('button', { hasText: 'Tuần' }).first().click(),
+    app: (p) => p.getByTestId('cal-view-week').click(),
+    appWait: '[data-appt]',
+  },
+  {
+    id: 'calendar:month',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('button', { hasText: 'Tháng' }).first().click(),
+    app: (p) => p.getByTestId('cal-view-month').click(),
+    appWait: '[data-appt]',
+  },
+  {
+    // Prototype không có chế độ "Ngày" (Blueprint §7.2 ViewSwitch day) → so với khung Tuần; vùng lưới khác cột (KTV thay vì thứ) được mask.
+    id: 'calendar:day',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('button', { hasText: 'Tuần' }).first().click(),
+    app: (p) => p.getByTestId('cal-view-day').click(),
+    appWait: '[data-appt]',
+    mask: [{ x: 80, y: 300, width: 1360, height: 600, reason: 'Blueprint §7.2 — chế độ Ngày (làn KTV) không có trong prototype' }],
+  },
+  {
+    id: 'calendar:appointment',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('.row', { hasText: 'Trị mụn chuyên sâu' }).first().click(),
+    app: (p) => p.locator('[data-appt]', { hasText: 'Trị mụn chuyên sâu' }).first().click(),
+    appWait: '[data-appt]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      {
+        x: 1060,
+        y: 655,
+        width: 368,
+        height: 170,
+        reason: 'prototype-parity §6 Kênh (SMS → Zalo cá nhân) + thẻ liệu trình COMMERCE 8b (trừ buổi khi hoàn thành)',
+      },
+    ],
+  },
+  {
+    id: 'calendar:create',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('.btnp', { hasText: 'Tạo lịch hẹn' }).first().click(),
+    app: (p) => p.getByTestId('cal-create').click(),
+    appWait: '[data-appt]',
+    clipTo: { proto: 'div[style*="width:540px"], div[style*="width: 540px"]', app: '[data-testid="cal-form"] [role="dialog"]' },
+  },
+  // ===== F5 — Ticket =====
+  // Kênh theo channel registry (§6): ô kênh Instagram/Facebook/WhatsApp/Telegram → Zalo cá nhân / Web chat / Email; "Cập nhật cuối" theo giờ mock.
+  {
+    id: 'tickets:list',
+    route: '/tickets',
+    protoStorage: tickets,
+    appWait: '[data-ticket]',
+  },
+  {
+    id: 'tickets:kanban',
+    route: '/tickets',
+    protoStorage: tickets,
+    proto: (p) => p.locator('button', { hasText: 'Kanban' }).first().click(),
+    app: (p) => p.getByTestId('tk-view-kanban').click(),
+    appWait: '[data-ticket]',
+  },
+  {
+    id: 'tickets:detail',
+    route: '/tickets',
+    protoStorage: tickets,
+    proto: (p) => p.getByText('Khách yêu cầu đổi lịch hẹn liệu trình', { exact: true }).first().click(),
+    app: (p) => p.locator('[data-ticket="tk_2041"]').click(),
+    appWait: '[data-ticket]',
+    clip: { x: 1040, y: 0, width: 400, height: 900 },
+    mask: [
+      {
+        x: 1056,
+        y: 196,
+        width: 368,
+        height: 90,
+        reason: 'đồng hồ SLA tính từ ttr_due_at thật (prototype hard-code 2g 14p theo ưu tiên — tkdCountdown L9165)',
+      },
+      {
+        x: 1056,
+        y: 76,
+        width: 300,
+        height: 20,
+        reason: 'Tạo / Cập nhật tính từ created_at / updated_at (prototype hard-code "5 phút trước · vừa xong")',
+      },
+    ],
+  },
+  {
+    id: 'marketing:campaigns',
+    route: '/marketing',
+    protoStorage: marketing,
+    appWait: '[data-campaign]',
+    mask: [
+      {
+        x: 80,
+        y: 0,
+        width: 1360,
+        height: 56,
+        reason: 'phụ đề kênh: Zalo cá nhân + Email (prototype-parity §6 Kênh — bỏ ZBS / ZNS / SMS)',
+      },
+    ],
+  },
+  {
+    id: 'marketing:suggestions',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: async (p) => {
+      await p.getByText('AI phân tích dữ liệu khách hàng', { exact: true }).first().click();
+      await p.getByText('Tái kích hoạt khách hàng cũ', { exact: true }).first().waitFor({ timeout: 8000 });
+    },
+    app: async (p) => {
+      await p.locator('[data-testid="mk-analyze"]').click();
+      await p.locator('[data-suggestion]').first().waitFor({ timeout: 8000 });
+    },
+    appWait: '[data-campaign]',
+  },
+  {
+    id: 'marketing:wizard',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: (p) => p.getByText('Tạo chiến dịch thủ công', { exact: true }).first().click(),
+    app: (p) => p.locator('[data-testid="mk-create"]').click(),
+    appWait: '[data-campaign]',
+    mask: [
+      {
+        x: 174,
+        y: 360,
+        width: 1092,
+        height: 260,
+        reason: 'bước Kênh gửi: 2 kênh Zalo cá nhân + Email, chọn 1 (prototype-parity §6 Kênh — bỏ ZNS / OA / SMS / FB / WhatsApp)',
+      },
+    ],
+  },
+  {
+    id: 'marketing:analytics',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: (p) => p.getByText('Flash Sale 20/04 — ZNS', { exact: true }).first().click(),
+    app: (p) => p.locator('[data-campaign="cp_2101"]').click(),
+    appWait: '[data-campaign]',
+  },
+  {
+    id: 'marketing:ai',
+    route: '/marketing',
+    protoStorage: marketing,
+    proto: (p) => p.locator('[title="Trợ lý AI · Marketing"]').first().click(),
+    app: (p) => p.locator('[data-testid="mk-ai-open"]').click(),
+    appWait: '[data-campaign]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'loyalty:overview',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+  },
+  {
+    id: 'loyalty:members',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+    proto: (p) => p.getByText('Danh sách thành viên', { exact: true }).first().scrollIntoViewIfNeeded(),
+    app: (p) => p.getByTestId('ly-members').scrollIntoViewIfNeeded(),
+    clipTo: { proto: '.cmpwrap >> nth=0', app: '[data-testid="ly-members"]' },
+  },
+  {
+    id: 'loyalty:adjust-points',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+    proto: async (p) => {
+      await p.getByText('Thêm thành viên', { exact: true }).first().click();
+      await p.locator('input[placeholder="VD: 0903 123 456"]').fill('0903 123 456');
+      await p.getByText('Tra cứu', { exact: true }).click();
+    },
+    app: async (p) => {
+      await p.getByTestId('ly-add').click();
+      await p.getByTestId('ly-adj-phone').fill('0903 123 456');
+      await p.getByTestId('ly-adj-lookup').click();
+      await p.getByTestId('ly-adj-found').waitFor();
+    },
+    mask: [
+      {
+        x: 420,
+        y: 330,
+        width: 600,
+        height: 440,
+        reason: 'bước Ghi nhận điểm: điều chỉnh tay ± + 1 trong 7 lý do, hiện số dư / hạng sau (COMMERCE §7 — điểm tự động chỉ cộng khi đơn hoàn tất, bỏ "Loại ghi nhận theo quy tắc")',
+      },
+    ],
+  },
+  {
+    id: 'loyalty:config',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+    proto: (p) => p.locator('.cmpwrap').nth(2).scrollIntoViewIfNeeded(),
+    app: (p) => p.getByTestId('ly-rules').scrollIntoViewIfNeeded(),
+    clipTo: { proto: '.cmpwrap >> nth=2', app: '[data-testid="ly-rules"]' },
   },
 ];

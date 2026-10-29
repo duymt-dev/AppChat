@@ -2,6 +2,7 @@
 // Component chỉ được dùng token ở đây (qua createStyles / ConfigProvider) — cấm hard-code màu / px.
 
 import { salesColor, salesGradient } from './tokens-sales';
+import { opsColor, opsGradient } from './tokens-ops';
 
 export const color = {
   brand: '#2DC56A',
@@ -206,6 +207,7 @@ export const color = {
   sparkBar: '#CDE9D8',
   pink: '#DB2777',
   ...salesColor,
+  ...opsColor,
 } as const;
 
 export const gradient = {
@@ -239,6 +241,7 @@ export const gradient = {
   asstPage: 'linear-gradient(180deg,#F4FBF8 0%,#F9FAFB 60%)',
   confBar: 'linear-gradient(90deg,#2DC56A,#6E48E6)',
   ...salesGradient,
+  ...opsGradient,
 } as const;
 
 export const shadow = {
@@ -371,6 +374,7 @@ export const layout = {
   minShell: 1180,
   /** Khách hàng: drawer 360° / Trợ lý AI 392 · bảng tối thiểu 1150 · cột kanban 230. */
   crmDrawer: 392,
+  tkDrawer: 400,
   crmTableMin: 1150,
   kanbanCol: 230,
   /** Trợ lý AI: composer 680 · luồng chat 760 · popover + 284 / mức AI 290 / agent 270 · drawer Cowork 520 · modal Cowork 680. */
@@ -388,4 +392,4 @@ export const mq = {
   auth: '@media (max-width: 1100px)',
 } as const;
 
-export const z = { rail: 20, onboarding: 2000, welcome: 2100, expired: 2200, dockVeil: 80, dock: 81, tabbar: 800, flyout: 1200, modal: 1400, popover: 1500, stackedModal: 1005 } as const;
+export const z = { rail: 20, mkPage: 200, mkModal: 210, onboarding: 2000, welcome: 2100, expired: 2200, dockVeil: 80, dock: 81, tabbar: 800, flyout: 1200, modal: 1400, popover: 1500, stackedModal: 1005 } as const;
