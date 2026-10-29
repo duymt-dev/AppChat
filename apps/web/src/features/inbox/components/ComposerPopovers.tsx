@@ -1,32 +1,75 @@
-// Popover của ô soạn: Trả lời nhanh · Đặt lịch hẹn (AI gợi ý khung giờ) · Dịch tự động — prototype L1801–1868.
+// Popover của ô soạn: Trả lời nhanh · Đặt lịch hẹn (AI gợi ý khung giờ) · Dịch tự động · menu ＋ (REQ-C11) — prototype L1801–1868, L653.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { registry } from '@appchat/actions';
 import { Icon, color } from '@appchat/ui';
+import { agentsQuery, agentsMetaQuery } from '@/features/agents';
 import { useComposerStyles } from '../styles/composer.styles';
 import { usePopStyles } from '../styles/popover.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import { cannedQuery, slotsQuery } from '../api';
+import type { Conversation } from '../types';
 
 const LANGS = ['English', '中文', '한국어', '日本語'] as const;
 
-export function ComposerPopovers({ customer, onInsert }: { customer: string; onInsert: (text: string) => void }) {
+export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversation; customer: string; onInsert: (text: string) => void }) {
   const t = useTranslations('inbox.composer');
+  const tAll = useTranslations();
   const { styles, cx } = useComposerStyles();
   const { styles: ps } = usePopStyles();
   const { styles: base } = useInboxStyles();
   const ui = useInboxUi();
+  const agents = useQuery({ ...agentsQuery(), enabled: ui.pop === 'attach' });
+  const meta = useQuery({ ...agentsMetaQuery(), enabled: ui.pop === 'attach' });
+  /** Agent phụ trách hội thoại chưa gắn `assignee_agent_id` ở FE — tạm lấy agent nhận kênh này làm đại diện (REQ-C11). */
+  const repAgent = (agents.data?.data ?? []).find((a) => a.channels.includes(conv.channel)) ?? agents.data?.data[0];
+  const actionIds = new Set(
+    (repAgent?.tools ?? []).map((key) => meta.data?.tools.find((tl) => tl.key === key)?.action_id).filter((id): id is string => !!id),
+  );
+  const tools = registry.filter((a) => actionIds.has(a.id));
+  const byModule = new Map<string, typeof tools>();
+  for (const a of tools) byModule.set(a.module, [...(byModule.get(a.module) ?? []), a]);
   const canned = useQuery({ ...cannedQuery(), enabled: ui.pop === 'qr' });
   const slots = useQuery({ ...slotsQuery(), enabled: ui.pop === 'sched' });
   const [slot, setSlot] = useState(0);
   const [lang, setLang] = useState(0);
-  if (ui.pop !== 'qr' && ui.pop !== 'sched' && ui.pop !== 'xl') return null;
+  if (ui.pop !== 'qr' && ui.pop !== 'sched' && ui.pop !== 'xl' && ui.pop !== 'attach') return null;
 
   return (
     <>
       <div className={base.veil} onClick={ui.closePop} />
+      {ui.pop === 'attach' ? (
+        <div className={cx(ps.pop, ps.popNarrow)} data-testid="attach-pop">
+          <div className={ps.popBody}>
+            <button type="button" className={cx(ps.slot)} onClick={ui.closePop}>
+              <Icon name="ic-doc" size={15} color={color.text3} />
+              <span className={styles.grow}>{t('attachMenu.file')}</span>
+            </button>
+            <button type="button" className={cx(ps.slot)} onClick={ui.closePop}>
+              <Icon name="ic-image" size={15} color={color.text3} />
+              <span className={styles.grow}>{t('attachMenu.screenshot')}</span>
+            </button>
+            <div className={ps.popHint}>{t('attachMenu.agentTools')}</div>
+            {[...byModule.entries()].map(([mod, items]) => (
+              <div key={mod} className={ps.slot} style={{ cursor: 'default' }}>
+                <span className={styles.grow}>
+                  <div className={ps.qrTitle}>{t(`attachMenu.modules.${mod}` as never)}</div>
+                  <div className={ps.qrPreview}>{items.map((a) => tAll(a.title as never)).join(' · ')}</div>
+                </span>
+              </div>
+            ))}
+            {!tools.length ? <div className={ps.popHint}>{t('attachMenu.noTools')}</div> : null}
+            <button type="button" className={ps.slot} disabled>
+              <Icon name="ic-globe" size={15} color={color.text4} />
+              <span className={styles.grow}>{t('attachMenu.research')}</span>
+              <span className={styles.conf}>{t('attachMenu.soon')}</span>
+            </button>
+          </div>
+        </div>
+      ) : null}
       {ui.pop === 'qr' ? (
         <div className={ps.pop} data-testid="qr-pop">
           <div className={ps.popHead}>

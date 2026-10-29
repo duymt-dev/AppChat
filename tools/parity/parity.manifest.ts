@@ -385,7 +385,8 @@ export const MANIFEST: ParityEntry[] = [
         .evaluate((n) => n.scrollTo(0, n.scrollHeight)),
     app: (p) => p.locator('[data-conv="c_hieu"] button').first().click(),
     clipTo: {
-      proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"][style*="border-radius: 12px"]',
+      // border-radius đổi 12px→14px ở prototype ver2.1 (D44 normalize) — khớp theo gradient, bỏ ràng buộc bán kính.
+      proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"]',
       app: '[data-testid="handoff-banner"]',
     },
     // Trạng thái handoff không có trong prototype (REQ-C handoff): so khung thẻ, mask phần chữ khác nội dung.

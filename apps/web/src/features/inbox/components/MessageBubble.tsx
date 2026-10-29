@@ -30,7 +30,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   switch (m.kind) {
     case 'system':
       return (
-        <div className={styles.center}>
+        <div className={styles.center} id={`msg-${m.id}`}>
           <span className={styles.pill}>
             <Rich text={body} />
           </span>
@@ -38,13 +38,13 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
       );
     case 'date':
       return (
-        <div className={styles.dateWrap}>
+        <div className={styles.dateWrap} id={`msg-${m.id}`}>
           <span className={cx(styles.pill, styles.date)}>{body}</span>
         </div>
       );
     case 'ai_insight':
       return (
-        <div className={styles.insightWrap}>
+        <div className={styles.insightWrap} id={`msg-${m.id}`}>
           <div className={styles.insight}>
             <Icon name="ic-spark" size={12} color={color.brand} />
             <span className={styles.insightLabel}>{t('insight')}</span>
@@ -57,7 +57,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
       );
     case 'group_alert':
       return (
-        <div className={styles.alert} data-testid="group-alert">
+        <div className={styles.alert} data-testid="group-alert" id={`msg-${m.id}`}>
           <Icon name="ic-bell" size={15} color={color.vipText} />
           <div>
             <div className={styles.alertTitle}>{m.title}</div>
@@ -69,7 +69,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
       );
     case 'note':
       return (
-        <div className={styles.note} data-testid="note">
+        <div className={styles.note} data-testid="note" id={`msg-${m.id}`}>
           <div className={styles.noteLabel}>{t('note')}</div>
           {m.plain ? body : <Rich text={body} />}
         </div>
@@ -93,7 +93,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   if (m.direction === 'out') {
     if (m.agent) {
       return (
-        <div className={cx(styles.row, styles.rowTop, styles.out, styles.outAgent)}>
+        <div className={cx(styles.row, styles.rowTop, styles.out, styles.outAgent)} id={`msg-${m.id}`}>
           <div className={cx(styles.av, styles.avAgent)}>
             <Icon name="ic-spark" size={13} strokeWidth={2} color={color.white} />
           </div>
@@ -108,7 +108,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
       );
     }
     return (
-      <div className={cx(styles.row, styles.out)} data-testid="msg-out">
+      <div className={cx(styles.row, styles.out)} data-testid="msg-out" id={`msg-${m.id}`}>
         <div>
           {m.kind === 'card' ? (
             <div className={styles.card}>
@@ -123,8 +123,19 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
             </div>
           ) : (
             <div className={cx(styles.outBubble, m.kind === 'sticker' && styles.sticker)}>
+              {m.reply_to ? (
+                <div className={styles.quoted} data-testid="msg-quoted">
+                  {m.reply_to.preview}
+                </div>
+              ) : null}
               {text}
-              <div className={cx(styles.stamp, styles.stampOut)}>{`${m.time ?? ''}${ticks}`}</div>
+              {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
+              <div className={cx(styles.stamp, styles.stampOut)}>
+                {/* Tin gửi đi hiện tên người gửi (REQ-C13) */}
+                {m.sender ? <b className={styles.senderOut}>{m.sender}</b> : null}
+                {m.sender ? ' · ' : ''}
+                {`${m.time ?? ''}${ticks}`}
+              </div>
             </div>
           )}
           {m.kind === 'card' ? <div className={cx(styles.stamp, styles.stampOut)}>{`${m.time ?? ''}${ticks}`}</div> : null}
@@ -134,7 +145,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   }
 
   return (
-    <div className={cx(styles.row, isGroup && styles.rowTop)} data-testid="msg-in">
+    <div className={cx(styles.row, isGroup && styles.rowTop)} data-testid="msg-in" id={`msg-${m.id}`}>
       {avatar}
       {m.kind === 'image' ? (
         <div className={cx(styles.in, styles.pad8)}>
@@ -167,10 +178,11 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
             </div>
           ) : null}
           {text}
+          {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
           <div className={styles.stamp}>{m.time}</div>
         </div>
       )}
-      {m.menu && !m.deleted ? <MessageMenu convId={conv.id} messageId={m.id} /> : null}
+      {m.menu && !m.deleted ? <MessageMenu convId={conv.id} message={m} isPinned={conv.pinned_message_id === m.id} /> : null}
     </div>
   );
 }

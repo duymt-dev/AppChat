@@ -9,14 +9,34 @@ type Conv = InboxFixture['conversations'][number];
 type Msg = { id: string; kind: string; [k: string]: unknown };
 
 export interface InboxState {
-  conversations: (Conv & { status: string; archived: boolean; ai_mode: string; assignee: string | null; pinned: boolean })[];
+  conversations: (Conv & {
+    status: string;
+    archived: boolean;
+    ai_mode: string;
+    assignee: string | null;
+    pinned: boolean;
+    hidden: boolean;
+    pinned_message_id: string | null;
+  })[];
   messages: Record<string, Msg[]>;
+  /** Bản ghi nhãn trước khi `conversation.set_tags` áp — dùng để hoàn tác. */
+  tagBackup: Record<string, { label: string; tone: string }[]>;
   seq: number;
 }
 
 export const createInboxState = (): InboxState => ({
-  conversations: fixture.conversations.map((c) => ({ ...structuredClone(c), status: 'open', archived: false, ai_mode: 'copilot', assignee: null, pinned: !!c.pinned_note })),
+  conversations: fixture.conversations.map((c) => ({
+    ...structuredClone(c),
+    status: 'open',
+    archived: false,
+    ai_mode: 'copilot',
+    assignee: null,
+    pinned: !!c.pinned_note,
+    hidden: false,
+    pinned_message_id: null,
+  })),
   messages: structuredClone(fixture.messages) as Record<string, Msg[]>,
+  tagBackup: {},
   seq: 0,
 });
 
@@ -27,7 +47,7 @@ export const inboxRoutes: Record<string, MockRoute> = {
   '/conversations': (db, p) => {
     if (isEmptySeed()) return { data: [], next_cursor: null };
     const channel = p.channel as string | undefined;
-    const rows = db.inbox.conversations.filter((c) => !c.archived && c.status !== 'closed' && (!channel || c.channel === channel));
+    const rows = db.inbox.conversations.filter((c) => !c.archived && !c.hidden && c.status !== 'closed' && (!channel || c.channel === channel));
     return { data: rows, next_cursor: null };
   },
   '/conversations/counts': () => (isEmptySeed() ? { ...fixture.folders, empty: true } : fixture.folders),
@@ -50,8 +70,10 @@ export const inboxParamRoute = (path: string): MockRoute | null => {
 };
 
 const conv = (db: Parameters<MockRoute>[0], id: string) => db.inbox.conversations.find((c) => c.id === id)!;
+const msg = (db: Parameters<MockRoute>[0], convId: string, messageId: string) => db.inbox.messages[convId]?.find((m) => m.id === messageId);
 
 type Ci = { conversation_id: string };
+type Mi = Ci & { message_id: string };
 
 export const inboxHandlers: Record<string, MockHandler> = {
   'conversation.mark_read': {
@@ -70,9 +92,9 @@ export const inboxHandlers: Record<string, MockHandler> = {
     },
   },
   'conversation.assign': {
-    execute: (db, i: Ci & { user_id: string }) => {
-      conv(db, i.conversation_id).assignee = i.user_id;
-      return { assignee_user_id: i.user_id };
+    execute: (db, i: Ci & { user_id?: string; agent_id?: string }) => {
+      conv(db, i.conversation_id).assignee = i.user_id ?? i.agent_id ?? null;
+      return { assignee_user_id: i.user_id ?? null, assignee_agent_id: i.agent_id ?? null };
     },
     undo: (db, i: Ci) => {
       conv(db, i.conversation_id).assignee = null;
@@ -93,6 +115,27 @@ export const inboxHandlers: Record<string, MockHandler> = {
     execute: (db, i: Ci & { pinned: boolean }) => {
       conv(db, i.conversation_id).pinned = i.pinned;
       return { pinned: i.pinned };
+    },
+  },
+  'conversation.set_tags': {
+    execute: (db, i: Ci & { tags: string[] }) => {
+      const c = conv(db, i.conversation_id);
+      db.inbox.tagBackup[i.conversation_id] = c.tags;
+      c.tags = i.tags.map((label) => c.tags.find((t) => t.label === label) ?? { label, tone: 'channel' as const });
+      return { tags: i.tags };
+    },
+    undo: (db, i: Ci) => {
+      const prev = db.inbox.tagBackup[i.conversation_id];
+      if (prev) conv(db, i.conversation_id).tags = prev;
+    },
+  },
+  'conversation.hide': {
+    execute: (db, i: Ci & { hidden: boolean }) => {
+      conv(db, i.conversation_id).hidden = i.hidden;
+      return { hidden: i.hidden };
+    },
+    undo: (db, i: Ci) => {
+      conv(db, i.conversation_id).hidden = false;
     },
   },
   'conversation.archive': {
@@ -133,13 +176,15 @@ export const inboxHandlers: Record<string, MockHandler> = {
     },
   },
   'message.send': {
-    execute: (db, i: Ci & { text: string }) => {
+    execute: (db, i: Ci & { text: string; reply_to_id?: string }) => {
       const id = `ms${++db.inbox.seq}`;
       const list = (db.inbox.messages[i.conversation_id] ??= []);
       const at = list.findIndex((m) => m.kind === 'typing');
-      const msg: Msg = { id, kind: 'text', direction: 'out', body: i.text, time: 'Vừa xong', status: 'sent', plain: true };
-      if (at >= 0) list.splice(at, 0, msg);
-      else list.push(msg);
+      const replyTo = i.reply_to_id ? list.find((m) => m.id === i.reply_to_id) : undefined;
+      const sent: Msg = { id, kind: 'text', direction: 'out', body: i.text, time: 'Vừa xong', status: 'sent', plain: true, sender: 'Trâm' };
+      if (replyTo) sent.reply_to = { id: replyTo.id, preview: String(replyTo.body ?? '').slice(0, 80) };
+      if (at >= 0) list.splice(at, 0, sent);
+      else list.push(sent);
       const c = conv(db, i.conversation_id);
       c.preview = i.text;
       c.ai_draft = undefined as never;
@@ -174,6 +219,36 @@ export const inboxHandlers: Record<string, MockHandler> = {
     undo: (db, i: Ci & { message_id: string }) => {
       const m = db.inbox.messages[i.conversation_id]?.find((x) => x.id === i.message_id);
       if (m) Object.assign(m, { deleted: false });
+    },
+  },
+  'message.react': {
+    execute: (db, i: Mi & { emoji: string }) => {
+      const m = msg(db, i.conversation_id, i.message_id);
+      if (!m) return { emoji: null };
+      const next = m.reaction === i.emoji ? null : i.emoji;
+      m.reaction = next;
+      return { emoji: next };
+    },
+  },
+  'message.pin': {
+    execute: (db, i: Mi & { pinned: boolean }) => {
+      conv(db, i.conversation_id).pinned_message_id = i.pinned ? i.message_id : null;
+      return { pinned: i.pinned };
+    },
+    undo: (db, i: Mi) => {
+      conv(db, i.conversation_id).pinned_message_id = null;
+    },
+  },
+  'ai.translate': {
+    execute: () => ({ text: 'Hi, does your spa still have a HIFU slot this afternoon?' }),
+  },
+  'message.forward': {
+    execute: (db, i: Mi & { target_conversation_id: string }) => {
+      const src = msg(db, i.conversation_id, i.message_id);
+      const id = `ms${++db.inbox.seq}`;
+      const list = (db.inbox.messages[i.target_conversation_id] ??= []);
+      list.push({ id, kind: src?.kind ?? 'text', direction: 'out', body: src?.body, title: src?.title, sub: src?.sub, price: src?.price, unit: src?.unit, time: 'Vừa xong', status: 'sent', plain: true, forwarded: true });
+      return { message_id: id };
     },
   },
 };

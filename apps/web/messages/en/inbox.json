@@ -56,15 +56,42 @@
       "shortcut": "Shortcuts",
       "assign": "Assign",
       "lifecycle": "Lifecycle stage",
-      "tag": "Add tag"
+      "tag": "Add tag",
+      "archive": "Archive conversation",
+      "hideconv": "Hide conversation",
+      "group": "Create group",
+      "clear": "Clear history"
     },
+    "closed": "Conversation closed",
+    "comingSoon": "Coming soon",
     "caret": "›",
-    "kbd": "⌘K"
+    "kbd": "⌘K",
+    "back": "‹",
+    "snoozeOpts": {
+      "1h": "1 hour",
+      "3h": "3 hours",
+      "tomorrow": "Until tomorrow morning",
+      "custom": "Pick a date & time"
+    },
+    "shortcutHint": "insert into the composer",
+    "assignHint": "{role}",
+    "stageCurrent": "Current stage",
+    "stages": {
+      "lead": "New lead",
+      "potential": "Potential",
+      "consulting": "In discussion",
+      "quote": "Quoted",
+      "contract": "Contract",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "tagsHint": "Tap to select · applies to the customer",
+    "tagsNewPh": "New tag…",
+    "tagsAdd": "+ Add",
+    "tagsDone": "Done · {n} tags"
   },
   "chat": {
     "back": "Back to list",
-    "video": "Schedule a video call",
-    "call": "Schedule a call",
     "search": "Search in conversation",
     "toggle360": "Collapse profile",
     "members": "{n} members",
@@ -73,6 +100,21 @@
     "offline": "offline",
     "pinned": "📌 Pinned:",
     "unpin": "Unpin",
+    "pinnedMsg": "📌 Pinned message:",
+    "unpinMsg": "Unpin",
+    "search2": {
+      "placeholder": "Search in this conversation…",
+      "none": "No match for “{q}” in this conversation · try the search box in the conversation list to search everywhere.",
+      "sender": "Sender",
+      "senderAll": "All",
+      "senderContact": "Customer",
+      "senderUser": "Staff",
+      "senderAgent": "AI Agent",
+      "prev": "Previous result",
+      "next": "Next result",
+      "close": "Close (Esc)",
+      "count": "{i}/{n}"
+    },
     "handoff": {
       "title": "Needs a human",
       "take": "Take over",
@@ -96,14 +138,32 @@
   },
   "msgMenu": {
     "title": "Message actions",
-    "messages": "Message",
+    "reply": "Reply",
+    "copy": "Copy",
+    "forward": "Forward",
+    "pin": "Pin message",
+    "unpin": "Unpin message",
+    "translate": "Translate",
+    "ticket": "Create ticket from this message",
     "recall": "Recall",
+    "recallHint": "Your messages only",
     "delete": "Delete message",
-    "conversation": "Conversation",
-    "archive": "Archive",
-    "hide": "Hide chat",
-    "clear": "Clear history",
-    "group": "Create group"
+    "copied": "Message content copied",
+    "reacts": {
+      "👍": "Like",
+      "❤️": "Love",
+      "😂": "Haha",
+      "😮": "Wow",
+      "😢": "Sad",
+      "🙏": "Thanks"
+    }
+  },
+  "forward": {
+    "title": "Forward message",
+    "search": "Search conversations…",
+    "send": "Forward",
+    "close": "Close",
+    "sent": "Message forwarded"
   },
   "composer": {
     "placeholder": "Message {name}… ( / = AI command · @ = mention · # = service )",
@@ -112,9 +172,36 @@
     "via": "Send via <b>{ch}</b> · <k>Enter</k> to send",
     "send": "Send",
     "saveNote": "Save note",
-    "quickReact": "Quick react:",
+    "replyingTo": "Replying to:",
+    "cancelReply": "Cancel quote",
+    "senderLine": "Sender: <b>{name} (you)</b>",
+    "attachMenu": {
+      "file": "Add file",
+      "screenshot": "Screenshot",
+      "agentTools": "Agent permissions (read-only)",
+      "noTools": "The handling agent has no tools granted",
+      "research": "Research / web search",
+      "soon": "Coming soon",
+      "modules": {
+        "identity": "Identity",
+        "crm": "Customers",
+        "sales": "Sales",
+        "catalog": "Products",
+        "documents": "Documents",
+        "loyalty": "Loyalty",
+        "marketing": "Marketing",
+        "support": "Support",
+        "settings": "Settings",
+        "notifications": "Notifications",
+        "ai": "AI",
+        "billing": "Billing",
+        "inbox": "Inbox",
+        "channels": "Channels",
+        "integrations": "Integrations",
+        "booking": "Booking"
+      }
+    },
     "modes": {
-      "reply": "Reply",
       "note": "Internal note",
       "copilot": "Co-pilot",
       "auto": "AI auto"

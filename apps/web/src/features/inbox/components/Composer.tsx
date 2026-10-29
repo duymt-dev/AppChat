@@ -1,17 +1,19 @@
-// Ô soạn tin — prototype L1869–1902: chế độ (Trả lời / Ghi chú nội bộ / Co-pilot / AI tự xử) · công cụ · ô nhập · Gửi · thả nhanh.
+// Ô soạn tin — prototype ver2.1 L2195–2245: Ghi chú nội bộ / Co-pilot / AI tự xử · Quick replies / Đặt lịch hẹn / Dịch ·
+// trích dẫn khi trả lời · dòng "Người gửi" · Gửi. REQ-C13: bỏ chế độ "Trả lời" (ngầm định) và 6 icon công cụ, bỏ "Thả nhanh".
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
+import { useMe } from '@/shared/shell/useShellData';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useInboxUi } from '../inbox-store';
 import { ComposerPopovers } from './ComposerPopovers';
 import type { ChannelMeta, Conversation } from '../types';
 
-const ICONS: IconName[] = ['ic-smile', 'ic-clip', 'ic-image', 'ic-mic', 'ic-phone', 'ic-video', 'ic-bolt', 'ic-cal', 'ic-globe'];
-const REACTS = ['❤️', '👍', '😄', '😮', '😢', '🙏', '🔥'];
+/** 3 icon trang trí còn lại sau khi bỏ 6 icon công cụ (REQ-C13) — không có onClick, giữ đúng số lượng của prototype. */
+const DECOR: IconName[] = ['ic-smile', 'ic-clip', 'ic-image'];
 
 export interface ComposerProps {
   conv: Conversation;
@@ -29,6 +31,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
   const send = useAction('message.send');
   const note = useAction('note.add');
   const aiMode = useAction('conversation.set_ai_mode');
+  const me = useMe();
   const [busy, setBusy] = useState(false);
   const isNote = ui.composerMode === 'note';
   const customer = conv.kind === 'group' ? conv.title : conv.title.split(' — ')[0]!;
@@ -37,14 +40,18 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
     const text = draft.trim();
     if (!text || busy) return;
     setBusy(true);
-    const res = isNote ? await note.run({ conversation_id: conv.id, text }, { silent: true }) : await send.run({ conversation_id: conv.id, text }, { silent: true });
+    const res = isNote
+      ? await note.run({ conversation_id: conv.id, text }, { silent: true })
+      : await send.run({ conversation_id: conv.id, text, ...(ui.replyTo ? { reply_to_id: ui.replyTo.id } : {}) }, { silent: true });
     setBusy(false);
-    if (res) onDraft('');
+    if (res) {
+      onDraft('');
+      ui.set({ replyTo: null });
+    }
   };
 
   const modes: [key: string, icon: IconName, tone: string, onClick: () => void][] = [
-    ['reply', 'ic-send', color.text, () => ui.set({ composerMode: 'reply' })],
-    ['note', 'ic-doc', color.text3, () => ui.set({ composerMode: 'note' })],
+    ['note', 'ic-doc', isNote ? color.text : color.text3, () => ui.set({ composerMode: isNote ? 'reply' : 'note' })],
     ['copilot', 'ic-spark', color.brandInk, () => void aiMode.run({ conversation_id: conv.id, ai_mode: 'copilot' })],
     ['auto', 'ic-bot', color.violetInk, () => void aiMode.run({ conversation_id: conv.id, ai_mode: 'auto' })],
   ];
@@ -58,17 +65,14 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
 
   return (
     <div className={styles.wrap} data-testid="composer">
-      <ComposerPopovers customer={customer} onInsert={(v) => (onDraft(v), ui.closePop())} />
+      <ComposerPopovers conv={conv} customer={customer} onInsert={(v) => (onDraft(v), ui.closePop())} />
       <div className={styles.modes}>
-        {modes.map(([key, icon, tone, onClick]) => {
-          const on = (key === 'reply' && !isNote) || (key === 'note' && isNote);
-          return (
-            <button key={key} type="button" className={cx(styles.mode, on && styles.modeOn)} style={{ color: on ? color.text : tone }} onClick={onClick} aria-pressed={on}>
-              <Icon name={icon} size={14} color="currentColor" />
-              {t(`modes.${key}` as never)}
-            </button>
-          );
-        })}
+        {modes.map(([key, icon, tone, onClick]) => (
+          <button key={key} type="button" className={cx(styles.mode, key === 'note' && isNote && styles.modeOn)} style={{ color: tone }} onClick={onClick} aria-pressed={key === 'note' ? isNote : undefined}>
+            <Icon name={icon} size={14} color="currentColor" />
+            {t(`modes.${key}` as never)}
+          </button>
+        ))}
         <span className={styles.grow} />
         {tools.map(([key, icon]) => (
           <button key={key} type="button" className={cx(styles.tool, key === 'xl' && ui.autoXl && styles.toolOn)} onClick={() => ui.togglePop(key)} aria-expanded={ui.pop === key}>
@@ -79,6 +83,16 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
         ))}
       </div>
       <div className={cx(styles.box, isNote && styles.boxNote)}>
+        {ui.replyTo && !isNote ? (
+          <div className={styles.replyBar} data-testid="composer-reply">
+            <span className={styles.grow}>
+              {t('replyingTo')} {ui.replyTo.preview}
+            </span>
+            <button type="button" className={styles.replyX} onClick={() => ui.set({ replyTo: null })} aria-label={t('cancelReply')}>
+              <Icon name="ic-x" size={13} color={color.text3} />
+            </button>
+          </div>
+        ) : null}
         <textarea
           className={styles.input}
           rows={1}
@@ -98,28 +112,20 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
           <button type="button" className={styles.plus} title={t('attach')} aria-label={t('attach')} onClick={() => ui.togglePop('attach')}>
             <Icon name="ic-plus" size={14} color={color.chatIcon} />
           </button>
-          {ICONS.map((ic) => (
-            <button key={ic} type="button" className={styles.ico} aria-label={ic}>
-              <Icon name={ic} size={18} strokeWidth={1.7} color="currentColor" />
-            </button>
+          {DECOR.map((ic) => (
+            <Icon key={ic} name={ic} size={18} strokeWidth={1.7} color="currentColor" />
           ))}
           <span className={styles.grow} />
-          <span className={styles.via}>
-            {t.rich('via', { ch: channel?.label ?? '', b: (c) => <b style={{ color: channel?.color }}>{c}</b>, k: (c) => <kbd className={styles.kbd}>{c}</kbd> })}
-          </span>
+          {!isNote ? (
+            <span className={styles.via}>
+              {t.rich('senderLine', { name: me.data?.user.name.split(' ').at(-1) ?? '', b: (c) => <b style={{ color: channel?.color }}>{c}</b> })}
+            </span>
+          ) : null}
           <button type="button" className={styles.send} onClick={() => void submit()} disabled={!draft.trim() || busy} data-testid="composer-send">
             <Icon name="ic-send" size={15} color={color.white} />
             {isNote ? t('saveNote') : t('send')}
           </button>
         </div>
-      </div>
-      <div className={styles.react}>
-        {t('quickReact')}
-        {REACTS.map((r) => (
-          <button key={r} type="button" className={styles.emoji} onClick={() => onDraft(draft + r)}>
-            {r}
-          </button>
-        ))}
       </div>
     </div>
   );

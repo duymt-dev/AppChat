@@ -96,6 +96,29 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
     border-color: ${color.alertLine};
     background: ${color.alertBg};
   `,
+  /** Trích dẫn tin đang trả lời (REQ-C09 "Trả lời"). */
+  replyBar: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    border-radius: ${radius.r8}px;
+    background: ${color.bg};
+    border-left: 2px solid ${color.brand};
+    font-size: ${font.scale.s12}px;
+    color: ${color.text3};
+  `,
+  replyX: css`
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  `,
   input: css`
     width: 100%;
     border: none;

@@ -51,6 +51,8 @@ export const ticketCreate = defineAction({
     assignee_user_id: z.string().optional(),
     assignee_agent_id: z.string().optional(),
     description: z.string().max(5000).optional(),
+    /** Tạo từ tin nhắn (menu ⋯ Hộp thư, REQ-C09) — chỉ để truy vết, không bắt buộc tồn tại. */
+    source_message_id: z.string().optional(),
   }),
   output: z.object({ ticket_id: z.string(), code: z.string() }),
   permission: 'ticket.manage',

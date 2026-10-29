@@ -58,6 +58,7 @@ export const ICONS = {
   'ic-edit': { viewBox: '0 0 24 24', body: "<path d=\"M4 20h4L19 9l-4-4L4 16z\"/><path d=\"M13.5 6.5l4 4\"/>" },
   'ic-link': { viewBox: '0 0 24 24', body: "<path d=\"M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1\"/><path d=\"M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1\"/>" },
   'ic-pin': { viewBox: '0 0 24 24', body: "<path d=\"M9 4h6l-1 6 3 3H7l3-3z\"/><path d=\"M12 13v7\"/>" },
+  'ic-reply': { viewBox: '0 0 24 24', body: "<path d=\"M10 8V4l-7 7 7 7v-4c5 0 8.5 1.5 11 6-1-6.5-4.5-10-11-10z\"/>" },
   'ic-user-plus': { viewBox: '0 0 24 24', body: "<circle cx=\"9\" cy=\"8\" r=\"3.3\"/><path d=\"M3.2 20a5.8 5.8 0 0 1 11.6 0\"/><path d=\"M19 8v6M16 11h6\"/>" },
   'ic-logout': { viewBox: '0 0 24 24', body: "<path d=\"M14 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8\"/><path d=\"M17 8l4 4-4 4M21 12H10\"/>" },
   'ic-chevron-right': { viewBox: '0 0 24 24', body: "<path d=\"M9 6l6 6-6 6\"/>" },

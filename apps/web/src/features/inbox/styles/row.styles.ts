@@ -1,6 +1,6 @@
 // Dòng hội thoại + menu ⋯ — prototype L1650–1734 (+ CSS L57–58 hiện nút ⋯ khi hover).
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius, shadow } from '@appchat/ui';
+import { color, font, layout, radius, shadow, z } from '@appchat/ui';
 
 export const useRowStyles = createStyles(({ css, responsive }) => ({
   row: css`
@@ -193,7 +193,7 @@ export const useRowStyles = createStyles(({ css, responsive }) => ({
     border-radius: ${radius.r12}px;
     box-shadow: ${shadow.menu};
     padding: 6px;
-    z-index: 36;
+    z-index: ${z.popover};
     text-align: left;
     cursor: default;
   `,
@@ -225,5 +225,134 @@ export const useRowStyles = createStyles(({ css, responsive }) => ({
   caret: css`
     color: ${color.text4};
     line-height: 1.5;
+  `,
+  disabled: css`
+    opacity: 0.5;
+    cursor: default;
+  `,
+  sep: css`
+    height: 1px;
+    background: ${color.divider};
+    margin: 4px 2px;
+  `,
+  back: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid ${color.divider};
+    margin-bottom: 4px;
+    cursor: pointer;
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.heavy};
+    color: ${color.text};
+  `,
+  subList: css`
+    max-height: 260px;
+    overflow-y: auto;
+  `,
+  subMeta: css`
+    font-size: ${font.scale.s11}px;
+    color: ${color.text4};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  `,
+  dot: css`
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-size: ${font.scale.s11}px;
+    font-weight: ${font.weight.heavy};
+    border: 1.5px solid ${color.checkLine};
+    color: transparent;
+  `,
+  dotOn: css`
+    background: ${color.brand};
+    color: ${color.white};
+    border-color: ${color.brand};
+  `,
+  tagHint: css`
+    font-size: ${font.scale.s11}px;
+    font-weight: ${font.weight.bold};
+    color: ${color.text4};
+    margin-bottom: 8px;
+  `,
+  tagWrap: css`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 8px 4px;
+  `,
+  tagChip: css`
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: ${radius.pill}px;
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.bold};
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1.5px solid ${color.border};
+    background: ${color.surface};
+    color: ${color.text3};
+  `,
+  tagChipOn: css`
+    border-color: ${color.brand};
+    background: ${color.brand};
+    color: ${color.white};
+  `,
+  tagNewRow: css`
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 8px 2px;
+    padding-top: 8px;
+    border-top: 1px solid ${color.divider};
+  `,
+  tagInput: css`
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s13}px;
+    font-family: inherit;
+    outline: none;
+  `,
+  tagAdd: css`
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: ${radius.r8}px;
+    background: ${color.divider};
+    color: ${color.text2};
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.bold};
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
+  `,
+  doneBtn: css`
+    margin: 8px 6px 4px;
+    height: 36px;
+    border-radius: ${radius.r10}px;
+    background: ${color.brand};
+    color: ${color.white};
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.bold};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    font-family: inherit;
   `,
 }));

@@ -169,6 +169,76 @@ export const useChatStyles = createStyles(({ css, responsive }) => ({
       min-height: ${layout.touch}px;
     }
   `,
+  search: css`
+    border-bottom: 1px solid ${color.border};
+    background: ${color.surface};
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    ${responsive.md} {
+      padding: 6px 12px;
+    }
+  `,
+  searchRow: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  `,
+  searchInput: css`
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s13}px;
+    font-family: inherit;
+    outline: none;
+    background: ${color.bg};
+  `,
+  searchSelect: css`
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s13}px;
+    font-family: inherit;
+    background: ${color.bg};
+    color: ${color.text2};
+    flex-shrink: 0;
+  `,
+  searchCount: css`
+    font-size: ${font.scale.s12}px;
+    color: ${color.text4};
+    flex-shrink: 0;
+    white-space: nowrap;
+  `,
+  searchBtn: css`
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: none;
+    border-radius: ${radius.r8}px;
+    cursor: pointer;
+    color: ${color.chatIcon};
+    flex-shrink: 0;
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    &:hover:not(:disabled) {
+      background: ${color.bg};
+    }
+  `,
+  searchNone: css`
+    font-size: ${font.scale.s13}px;
+    color: ${color.text4};
+    padding: 2px 0 0;
+  `,
   thread: css`
     flex: 1;
     overflow-y: auto;

@@ -13,6 +13,7 @@ import { Composer } from './Composer';
 import { MessageBubble } from './MessageBubble';
 import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
+import { ThreadSearchBar } from './ThreadSearchBar';
 import { useInboxUi } from '../inbox-store';
 import type { ChannelMeta, Conversation } from '../types';
 
@@ -20,6 +21,7 @@ export function ChatPanel({ conv, channel, className }: { conv: Conversation; ch
   const t = useTranslations('inbox.chat');
   const { styles, cx } = useChatStyles();
   const { styles: cs } = useComposerStyles();
+  const searchOpen = useInboxUi((s) => s.searchOpen);
   const thread = useQuery(threadQuery(conv.id));
   const send = useAction('message.send');
   const handoff = useAction('conversation.handoff');
@@ -32,6 +34,7 @@ export function ChatPanel({ conv, channel, className }: { conv: Conversation; ch
   return (
     <div className={cx(styles.col, className)} data-testid="chat-panel">
       <ChatHeader conv={conv} channel={channel} />
+      {searchOpen ? <ThreadSearchBar conv={conv} /> : null}
       <div className={styles.thread} data-testid="thread">
         {(thread.data?.data ?? []).map((m) => (
           <MessageBubble key={m.id} m={m} conv={conv} />

@@ -56,15 +56,42 @@
       "shortcut": "Phím tắt",
       "assign": "Phân công",
       "lifecycle": "Vòng đời (giai đoạn)",
-      "tag": "Gắn thẻ"
+      "tag": "Gắn thẻ",
+      "archive": "Lưu trữ hội thoại",
+      "hideconv": "Ẩn trò chuyện",
+      "group": "Tạo nhóm",
+      "clear": "Xóa lịch sử"
     },
+    "closed": "Đã đóng hội thoại",
+    "comingSoon": "Sắp có",
     "caret": "›",
-    "kbd": "⌘K"
+    "kbd": "⌘K",
+    "back": "‹",
+    "snoozeOpts": {
+      "1h": "1 giờ",
+      "3h": "3 giờ",
+      "tomorrow": "Đến sáng mai",
+      "custom": "Tuỳ chọn ngày giờ"
+    },
+    "shortcutHint": "chèn vào khung nhập",
+    "assignHint": "{role}",
+    "stageCurrent": "Giai đoạn hiện tại",
+    "stages": {
+      "lead": "Lead mới",
+      "potential": "Tiềm năng",
+      "consulting": "Đang tư vấn",
+      "quote": "Báo giá",
+      "contract": "Hợp đồng",
+      "won": "Đã mua",
+      "lost": "Thất bại"
+    },
+    "tagsHint": "Chạm để chọn · áp dụng cho khách",
+    "tagsNewPh": "Tạo thẻ mới…",
+    "tagsAdd": "+ Thêm",
+    "tagsDone": "Xong · gắn {n} thẻ"
   },
   "chat": {
     "back": "Quay lại danh sách",
-    "video": "Hẹn gọi video",
-    "call": "Hẹn gọi điện",
     "search": "Tìm trong hội thoại",
     "toggle360": "Thu gọn hồ sơ",
     "members": "{n} thành viên",
@@ -73,6 +100,21 @@
     "offline": "ngoại tuyến",
     "pinned": "📌 Ghim:",
     "unpin": "Bỏ ghim",
+    "pinnedMsg": "📌 Tin đã ghim:",
+    "unpinMsg": "Bỏ ghim",
+    "search2": {
+      "placeholder": "Tìm trong hội thoại này…",
+      "none": "Không tìm thấy “{q}” trong hội thoại này · thử ô tìm kiếm ở danh sách hội thoại bên trái để tìm trong tất cả hội thoại.",
+      "sender": "Người gửi",
+      "senderAll": "Tất cả",
+      "senderContact": "Khách",
+      "senderUser": "Nhân viên",
+      "senderAgent": "AI Agent",
+      "prev": "Kết quả trước",
+      "next": "Kết quả sau",
+      "close": "Đóng (Esc)",
+      "count": "{i}/{n}"
+    },
     "handoff": {
       "title": "Cần người",
       "take": "Nhận xử lý",
@@ -96,14 +138,32 @@
   },
   "msgMenu": {
     "title": "Thao tác tin nhắn",
-    "messages": "Quản lý tin nhắn",
+    "reply": "Trả lời",
+    "copy": "Sao chép",
+    "forward": "Chuyển tiếp",
+    "pin": "Ghim tin nhắn",
+    "unpin": "Bỏ ghim tin nhắn",
+    "translate": "Dịch",
+    "ticket": "Tạo ticket từ tin này",
     "recall": "Thu hồi",
+    "recallHint": "Chỉ tin của bạn",
     "delete": "Xóa tin nhắn",
-    "conversation": "Quản lý hội thoại",
-    "archive": "Lưu trữ",
-    "hide": "Ẩn trò chuyện",
-    "clear": "Xóa lịch sử",
-    "group": "Tạo nhóm"
+    "copied": "Đã sao chép nội dung tin nhắn",
+    "reacts": {
+      "👍": "Thích",
+      "❤️": "Yêu thích",
+      "😂": "Haha",
+      "😮": "Wow",
+      "😢": "Buồn",
+      "🙏": "Cảm ơn"
+    }
+  },
+  "forward": {
+    "title": "Chuyển tiếp tin nhắn",
+    "search": "Tìm hội thoại…",
+    "send": "Chuyển",
+    "close": "Đóng",
+    "sent": "Đã chuyển tiếp tin nhắn"
   },
   "composer": {
     "placeholder": "Nhập tin cho {name}… ( / = lệnh AI · @ = mention · # = dịch vụ )",
@@ -112,9 +172,36 @@
     "via": "Gửi qua <b>{ch}</b> · <k>Enter</k> gửi",
     "send": "Gửi",
     "saveNote": "Lưu ghi chú",
-    "quickReact": "Thả nhanh:",
+    "replyingTo": "Đang trả lời:",
+    "cancelReply": "Bỏ trích dẫn",
+    "senderLine": "Người gửi: <b>{name} (bạn)</b>",
+    "attachMenu": {
+      "file": "Thêm tệp",
+      "screenshot": "Chụp ảnh màn hình",
+      "agentTools": "Quyền của agent (chỉ xem)",
+      "noTools": "Agent phụ trách chưa được cấp công cụ nào",
+      "research": "Research / tìm trên web",
+      "soon": "Sắp có",
+      "modules": {
+        "identity": "Định danh",
+        "crm": "Khách hàng",
+        "sales": "Bán hàng",
+        "catalog": "Sản phẩm",
+        "documents": "Tài liệu",
+        "loyalty": "Khách thân thiết",
+        "marketing": "Marketing",
+        "support": "Hỗ trợ",
+        "settings": "Cài đặt",
+        "notifications": "Thông báo",
+        "ai": "AI",
+        "billing": "Thanh toán",
+        "inbox": "Hộp thư",
+        "channels": "Kênh",
+        "integrations": "Kết nối",
+        "booking": "Lịch hẹn"
+      }
+    },
     "modes": {
-      "reply": "Trả lời",
       "note": "Ghi chú nội bộ",
       "copilot": "Co-pilot",
       "auto": "AI tự xử"

@@ -1,31 +1,32 @@
 // Header khung chat + thanh ghim — prototype L1739–1762.
 'use client';
-import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useChatStyles } from '../styles/chat.styles';
+import { threadQuery } from '../api';
 import { useInboxUi } from '../inbox-store';
 import { Rich } from './Rich';
 import type { ChannelMeta, Conversation } from '../types';
 
 export function ChatHeader({ conv, channel }: { conv: Conversation; channel: ChannelMeta | undefined }) {
   const t = useTranslations('inbox.chat');
-  const router = useRouter();
   const { styles, cx } = useChatStyles();
   const ui = useInboxUi();
   const pin = useAction('conversation.pin');
+  const pinMessage = useAction('message.pin');
+  const thread = useQuery(threadQuery(conv.id));
   const isGroup = conv.kind === 'group';
   const badge = (
     <span className={styles.chBadge} style={{ background: channel?.color }}>
       {channel?.short}
     </span>
   );
-  // Gọi thoại / video: module Gọi điện ẩn (D07, D19) — chuyển sang Lịch hẹn để hẹn gọi.
+  const pinnedMsg = conv.pinned_message_id ? (thread.data?.data ?? []).find((m) => m.id === conv.pinned_message_id) : undefined;
+  // REQ-C13: bỏ gọi thoại/video (module Gọi điện ẩn D07, D19 — chuyển Lịch hẹn để hẹn gọi); thêm nút Tìm trong hội thoại.
   const icons: [IconName, string, () => void, boolean][] = [
-    ['ic-video', t('video'), () => router.push('/calendar'), true],
-    ['ic-phone', t('call'), () => router.push('/calendar'), true],
-    ['ic-search', t('search'), () => undefined, true],
+    ['ic-search', t('search'), () => ui.set({ searchOpen: !ui.searchOpen }), false],
     ['ic-panel', t('toggle360'), ui.toggle360, false],
   ];
 
@@ -73,8 +74,17 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
         </div>
         <div className={styles.icons}>
           {icons.map(([icon, label, onClick, hideMobile]) => (
-            <button key={icon} type="button" className={cx(styles.iconBtn, hideMobile && styles.hideMobile)} title={label} aria-label={label} onClick={onClick}>
-              <Icon name={icon} size={icon === 'ic-video' ? 20 : 18} color={color.chatIcon} />
+            <button
+              key={icon}
+              type="button"
+              className={cx(styles.iconBtn, hideMobile && styles.hideMobile)}
+              title={label}
+              aria-label={label}
+              aria-pressed={icon === 'ic-search' ? ui.searchOpen : undefined}
+              data-testid={icon === 'ic-search' ? 'chat-search-toggle' : undefined}
+              onClick={onClick}
+            >
+              <Icon name={icon} size={18} color={color.chatIcon} />
             </button>
           ))}
         </div>
@@ -87,6 +97,19 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
           </span>
           <button type="button" className={styles.unpin} onClick={() => void pin.run({ conversation_id: conv.id, pinned: false })}>
             {t('unpin')}
+          </button>
+        </div>
+      ) : null}
+      {pinnedMsg ? (
+        <div className={styles.pin} data-testid="chat-pin-message">
+          <span className={styles.pinLabel}>{t('pinnedMsg')}</span>
+          <span className={styles.pinText}>{pinnedMsg.body}</span>
+          <button
+            type="button"
+            className={styles.unpin}
+            onClick={() => void pinMessage.run({ conversation_id: conv.id, message_id: pinnedMsg.id, pinned: false }, { silent: true })}
+          >
+            {t('unpinMsg')}
           </button>
         </div>
       ) : null}
