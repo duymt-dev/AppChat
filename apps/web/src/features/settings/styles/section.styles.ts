@@ -105,6 +105,11 @@ export const useSectionStyles = createStyles(({ css, responsive }) => ({
       min-height: ${layout.chip}px;
       padding: 0 12px;
     }
+    ${responsive.md} {
+      && {
+        min-height: ${layout.touch}px;
+      }
+    }
   `,
   ghost: css`
     ${btn}

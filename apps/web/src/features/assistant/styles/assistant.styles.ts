@@ -153,6 +153,10 @@ export const useAssistantStyles = createStyles(({ css, responsive }) => ({
     align-items: center;
     gap: 4px;
     margin-right: 8px;
+    /* < md: chấm trang quá nhỏ để chạm — chuyển trang bằng nút "Tiếp" 44px */
+    ${responsive.md} {
+      display: none;
+    }
   `,
   dot: css`
     width: 6px;
@@ -174,6 +178,10 @@ export const useAssistantStyles = createStyles(({ css, responsive }) => ({
     background: ${color.surface};
     cursor: pointer;
     padding: 0;
+    ${responsive.md} {
+      width: ${layout.touch}px;
+      height: ${layout.touch}px;
+    }
   `,
   cards: css`
     display: grid;

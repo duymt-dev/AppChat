@@ -24,8 +24,8 @@
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 26 | 0 | ✅ | 7e531ba | [#8](https://github.com/duymt-dev/AppChat/pull/8) (xếp chồng #7) |
-| F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **132** | **0** | | | |
+| F7 | Rà soát cuối | 5 | 5 | 0 | ✅ | 8a368bc | [#9](https://github.com/duymt-dev/AppChat/pull/9) (xếp chồng #8) |
+| **Tổng** | | **137** | **137** | **0** | | | |
 
 ---
 
@@ -200,11 +200,11 @@
 
 | ID | Việc | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------|-----------|------|----|-----------|-----------|--------|---------|
-| `f7:mobile-sweep` | Rà mọi màn ở 390×844 | — | C | ⬜ | — | | | |
-| `f7:en-coverage` | `pnpm i18n:check`: en đủ 100% key | — | C | ⬜ | — | — | | |
-| `f7:parity-all` | `pnpm parity --all` xanh | — | C | ⬜ | | — | | |
-| `f7:file-size` | Không file nào vượt trần; page ≤ 120, screen ≤ 250 | — | C | ⬜ | — | — | | |
-| `f7:roles` | Đổi 5 vai trò ở dev toolbar, nút / chip đúng Blueprint §3.5 | — | C | ⬜ | — | — | | |
+| `f7:mobile-sweep` | Rà mọi màn ở 390×844 | — | C | ✅ | — | pass | 43d43f5 | `e2e/mobile-sweep.spec.ts`: 44 route (18 module + 21 mục Cài đặt + 5 auth / ký công khai) — không tràn ngang, mọi nút / tab hiển thị ≥ 44px; sửa 6 màn lọt (checklist onboarding, chấm trang + Tiếp màn chào Trợ lý, Chat / Cowork 40→44, công tắc Cowork, nút `sm` Cài đặt, link quay lại đăng nhập). Luồng action chính: spec từng module (mobile-390) |
+| `f7:en-coverage` | `pnpm i18n:check`: en đủ 100% key | — | C | ✅ | — | — | 43d43f5 | vi 4120 / en 4120 key, phủ 100.0%; eslint `i18next/no-literal-string` xanh |
+| `f7:parity-all` | `pnpm parity --all` xanh | — | C | ✅ | max 0.0491 | — | 43d43f5 | 109/109 PASS trên build production (`next start`); cao nhất tickets:detail 0.0491, inbox:ai-panel 0.0480, profile:me 0.0474 |
+| `f7:file-size` | Không file nào vượt trần; page ≤ 120, screen ≤ 250 | — | C | ✅ | — | — | 43d43f5 | `pnpm lint:size`: 722 file, không file vượt trần (allowlist rỗng) |
+| `f7:roles` | Đổi 5 vai trò ở dev toolbar, nút / chip đúng Blueprint §3.5 | — | C | ✅ | — | — | 43d43f5 | `e2e/roles.spec.ts`: 5 vai trò × mục rail · route module bị chặn (no-permission) · nút chính (Tạo KH, Thêm SP, Tạo lịch hẹn) + 390 Kế toán (tab / Thêm lọc theo quyền). Thêm `RouteGuard` (shell) — trước đó Hộp thư / Lịch / Marketing / Ticket / Agents mở được bằng URL dù thiếu quyền xem |
 
 ---
 
@@ -835,7 +835,49 @@
 - Tooling: script `pnpm parity --all` nên tự build + `next start` (như `pnpm e2e`) thay vì dựa vào dev server đang chạy.
 
 ### F7
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F7 (gate cuối)
+
+**STATUS:** DONE — 137/137 dòng F0–F7 ✅ (0 ❌ / ⛔)
+**COMMIT:** 43d43f5 (code) trên nhánh `goal/fe-prototype-f7` (xếp chồng F6 / PR #8)
+
+**FILES CHANGED:**
+- Phân quyền xem màn (Blueprint §3.5):
+  - `shared/shell/nav-config.ts`: `routePermission(pathname)` lấy permission xem từ cùng cấu hình rail / flyout CRM (+ test).
+  - `shared/shell/RouteGuard.tsx`: bọc nội dung `AppShell`; vai trò thiếu quyền xem module → `PageStates` no-permission.
+  - `shared/shell/MobileTabBar.tsx`: tab + ngăn "Thêm" lọc theo quyền như rail.
+- Vùng chạm < md (chỉ đổi dưới breakpoint `md`, desktop / parity không đổi):
+  - `dashboard/components/checklist.styles.ts`: nút đánh dấu bước 44px (vòng tròn vẫn vẽ 24px).
+  - `assistant/styles/assistant.styles.ts`: ẩn chấm trang, nút Tiếp 44px.
+  - `assistant/styles/composer.styles.ts`: Chat / Cowork 44px.
+  - `assistant/styles/cowork.styles.ts`: công tắc agent 44px.
+  - `settings/styles/section.styles.ts`: nút `sm` 44px.
+  - `auth/auth.styles.ts`: link quay lại 44px.
+- E2E:
+  - `e2e/roles.spec.ts` (5 vai trò desktop + 390 Kế toán);
+  - `e2e/mobile-sweep.spec.ts` (44 route ở 390).
+
+**TEST RESULTS:** (gate cuối goal, chạy local trên build production `next build` + `next start`, mock D38)
+- `pnpm lint` / `pnpm typecheck` / `pnpm test`: xanh.
+  - unit: shared 27, ui 2, actions 3, web 58 passed (0 failed).
+  - `lint:size` 722 file, không vượt trần; `lint:tokens` 552 file đúng thang D41.
+- `pnpm i18n:check`: vi 4120 / en 4120 key (100.0%).
+- `pnpm parity --all`: **109/109 PASS**, cao nhất 0.0491 (tickets:detail).
+- `pnpm e2e`: **201 passed**, 177 skipped (test chỉ chạy ở một viewport), 0 failed.
+- `git status --short`: sạch.
+- Không chạy được: backend thật và provider thật (LLM, Zalo cá nhân, SePay / Casso, Brevo, LibreOffice render) — FE dùng mock transport (D38); chưa nghiệm thu với provider thật.
+
+**ISSUES DISCOVERED:**
+- Cao (đã sửa): màn Hộp thư, Lịch hẹn, Marketing, Hỗ trợ, AI Agents không tự chặn quyền xem. Mục rail đã ẩn, nhưng mở thẳng URL vẫn vào được (dữ liệu mock không lọc). Đã thêm `RouteGuard` dùng chung permission của `nav-config`; e2e roles khoá lại.
+- Trung bình (đã sửa): 6 màn có nút < 44px ở 390 mà spec từng module không bắt (chỉ kiểm nút chính). `mobile-sweep` giờ kiểm mọi nút / tab hiển thị.
+- Thấp: `TaskStop` không dừng tiến trình con `next start` trên Windows (cổng 3418 vẫn bị giữ) → phải dừng theo PID của cổng.
+
+**DEVIATIONS FROM SPEC:**
+- Màn chào Trợ lý < md ẩn chấm phân trang (quá nhỏ để chạm), chuyển trang bằng nút Tiếp 44px. Desktop giữ nguyên prototype.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Khi bật `httpTransport`: server vẫn phải trả 403 cho `GET` list / detail theo cùng permission (`RouteGuard` chỉ là lớp UI).
+- CI: thêm `e2e/mobile-sweep.spec.ts` + `e2e/roles.spec.ts` vào job `e2e` bắt buộc của PR vào `dev` (rẻ, ~30s), để màn mới không lọt vùng chạm / quyền.
+- Tooling: `pnpm parity --all` nên tự build + `next start` như `pnpm e2e`.
 
 ## Escalation log
 

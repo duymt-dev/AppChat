@@ -113,10 +113,21 @@ export const useChecklistStyles = createStyles(({ css, responsive }) => ({
     & svg {
       visibility: hidden;
     }
+    /* < md: vùng chạm 44px, vòng tròn giữ 24px (viền vẽ bằng box-shadow inset trên nền trong suốt) */
+    ${responsive.md} {
+      width: ${layout.touch}px;
+      height: ${layout.touch}px;
+      margin: -8px;
+      border: none;
+      background: radial-gradient(circle, ${color.surface} 10px, ${color.border} 10px, ${color.border} 12px, transparent 12px);
+    }
   `,
   circleOn: css`
     border: none;
     background: ${color.brand};
+    ${responsive.md} {
+      background: radial-gradient(circle, ${color.brand} 12px, transparent 12px);
+    }
     & svg {
       visibility: visible;
     }

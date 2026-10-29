@@ -46,5 +46,11 @@ export const activeRailKey = (pathname: string): NavKey | null => {
   return RAIL_ITEMS.find((i) => i.route === base)?.key ?? null;
 };
 
+/** Quyền xem của route module (rail + nhóm CRM); route không khai báo (dashboard, settings tự kiểm) → undefined. */
+export const routePermission = (pathname: string): PermissionKey | undefined => {
+  const base = `/${pathname.split('/')[1] ?? ''}`;
+  return [...RAIL_ITEMS, ...CRM_ITEMS].find((i) => i.route === base)?.permission;
+};
+
 /** MobileTabBar < md: Tổng quan · Hộp thư · Trợ lý · Khách hàng · Thêm (Blueprint §7.1). */
 export const MOBILE_TABS: readonly NavKey[] = ['dashboard', 'inbox', 'assistant', 'customers'];
