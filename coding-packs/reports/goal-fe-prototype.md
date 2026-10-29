@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 23 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 26 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **129** | **0** | | | |
+| **Tổng** | | **137** | **132** | **0** | | | |
 
 ---
 
@@ -179,8 +179,8 @@
 | `settings:fields` | Trường dữ liệu | L7099 | P | ✅ | 0.0030 | pass | 7ee1e94 | 4 module (Khách hàng · Tickets · Đơn hàng · Sản phẩm); thêm / sửa (hiển thị tại, vai trò §3.5, điều kiện, AI) / đổi thứ tự / xoá qua custom_field.* (thêm custom_field.delete theo Blueprint §612); kiểu theo enum custom_field_def; trường liên hệ đồng bộ với modal CRM |
 | `settings:tags` | Thẻ & nhãn | L6031 | P | ✅ | 0.0037 | pass | 7ee1e94 | tag.create / update / delete (hoàn tác 24h); tên bắt buộc + trùng tên 409; emoji, 10 màu |
 | `settings:replies` | Câu trả lời mẫu | L6064 | P | ✅ | 0.0060 | pass | 7ee1e94 | canned_reply.* ; nhóm có sẵn + nhóm mới; shortcut kiểm /[a-z0-9_-] |
-| `settings:doc-templates` | Mẫu chứng từ | — | M | ⬜ | — | | | D30 |
-| `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ⬜ | — | | | D30 |
+| `settings:doc-templates` | Mẫu chứng từ | — | M | ✅ | — | pass | bd6595f | D30 · TemplateList theo loại (báo giá / hợp đồng / đề nghị thanh toán / phiếu thu), mặc định mỗi loại không xoá được, đặt mặc định, xoá + hoàn tác 24h (`doc_template.*`); RichTemplateEditor: chèn biến từ registry `@appchat/shared` documents/variables, biến lạ → lỗi khi lưu, dòng "không thay thế hoá đơn GTGT" khoá; quyền `documents.manage` |
+| `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ✅ | — | pass | bd6595f | D30 · tải .docx ≤ 10MB (từ chối .docm) → `doc_template.detect_fields` → FieldMapper (đổi / bỏ dòng, tin cậy < 70% tô vàng) → bảng kiểm Điều 398 BLDS (cảnh báo, không chặn) → lưu chỉ sau bước người xác nhận (templates.md §4) |
 | `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ✅ | 0.0007 | pass | 57240c2 | D28: chỉ connector có manifest (GA: Brevo, SMTP, SePay, Casso; còn lại "Sắp có" + Đăng ký quan tâm); gỡ thẻ Tổng đài; mask nhóm Marketing (SMS / ZBS bỏ) |
 | `settings:integrations-connect` | Modal kết nối connector | L6219 | E | ✅ | 0.0191 | pass | 57240c2 | Trường theo manifest connector (secret → ô mật khẩu); integration.connect 422 khi thiếu trường / chưa GA |
 | `settings:ai-models` | AI Models | L6878 | E | ✅ | 0.0212 | pass | 2e8cce9 | D29: thẻ mức AI (Tiêu chuẩn / Nâng cao / Tối đa, credit / 1K token) thay tên model; phân bổ theo tác vụ chỉ hiện mức gói cho phép; mức khoá → Gói & thanh toán; bỏ "Tự động chuyển model rẻ" (prototype-parity §6); ai_settings.update |
@@ -194,7 +194,7 @@
 | `settings:wallet` | Ví AppChat (credit, lịch sử) | L6463 | E | ✅ | 0.0388 | pass | c821cc1 | Bỏ "tự nạp" (D24) → nhắc 80% / 95% (`wallet.update_alerts`); hết credit → AI tạm dừng (D09, thay "tự chuyển model"); số dư = credit gói + mua thêm; cửa hàng chỉ credit + người dùng / kênh (ZNS / SMS / Voice / token theo model / dịch vụ chuyên nghiệp OUT); lịch sử = `credit_ledger` |
 | `modal:upgrade` | Popup Nâng cấp (Cá nhân / Doanh nghiệp, 4 gói) | L985 | P | ✅ | 0.0416 | pass | c821cc1 | REQ-L06 · mở bằng `?upgrade=1` (rail Nâng cấp, trial welcome / expired); bảng so sánh bỏ nhóm OUT; bỏ nút "Mô phỏng hết hạn" và 3 thẻ mua thêm (nằm ở Ví) |
 | `modal:buy-credit` | Mua thêm credit (QR) | L915 | E | ✅ | 0.0365 | pass | c821cc1 | 4 gói credit → hộp VietQR 15 phút (REQ-L04) → "Tôi đã chuyển khoản" → Thanh toán thành công; chỉ VietQR / chuyển khoản (COMMERCE §10) |
-| `profile:me` | Hồ sơ của tôi | L1034 (menu) | P | ⬜ | | | | |
+| `profile:me` | Hồ sơ của tôi | L1034 (menu) | P | ✅ | 0.0474 | pass | bd6595f | Prototype không có màn riêng (goProfile L11327 mở Tổng quan) → đo theo đích đó; khung thẻ + form như Tổng quan: tên / SĐT (`profile.update`, quyền self), email chỉ đọc, ngôn ngữ vi / en (D22), Đăng xuất |
 
 ## F7 — Rà soát cuối
 
