@@ -70,7 +70,7 @@
 | REQ-C08 | Multi-select và thao tác hàng loạt (gắn thẻ, gán, lưu trữ); tìm kiếm tiếng Việt không dấu. | P1 | Member | TBD |
 | REQ-C09 | **Menu ⋯ tin nhắn** (ver2.1 #1): hàng cảm xúc 👍❤️😂😮😢🙏 (bấm lại để bỏ) · Trả lời (trích tin) · Sao chép · Chuyển tiếp · Ghim tin nhắn · Dịch · Tạo ticket từ tin này (điền sẵn) · nhóm nguy hiểm Thu hồi (chỉ tin của mình) / Xoá (xác nhận). Cảm xúc chỉ hiện ở kênh hỗ trợ. | P0 | Member | TBD (ver2.1) |
 | REQ-C10 | **Menu ⋯ hội thoại có submenu** (ver2.1 #2), submenu thay nội dung + nút ‹: Đóng · Tạm ẩn (1 giờ / 3 giờ / sáng mai / tuỳ chọn) · Phím tắt (chèn câu trả lời mẫu vào khung nhập) · Phân công (nhân viên + AI Agent, kèm tải) · Vòng đời (**enum `contact.stage` hiện có** — D49) · Gắn thẻ nhiều (tạo thẻ mới). Dưới đường kẻ: Lưu trữ · **Ẩn trò chuyện** (D50) · Tạo nhóm ("Sắp có") · Xoá lịch sử (xác nhận). | P0 | Member | TBD (ver2.1) |
-| REQ-C11 | **Menu ＋ khung nhập** (ver2.1 #5): Thêm tệp · Chụp ảnh màn hình · Skills › (lệnh /…, bấm là chèn) · Nền tảng kết nối › · Tiện ích › — đọc **cấp quyền của Agent phụ trách hội thoại** (mục chưa cấp thì mờ + "Chưa cấp cho …") · Research / Web search hiện "Sắp có" (D48). | P0 | Member | TBD (ver2.1) |
+| REQ-C11 | **Menu ＋ khung nhập** (ver2.1 #5): Thêm tệp · Chụp ảnh màn hình · **Quyền của agent** (chỉ xem): danh sách Tools mà agent phụ trách hội thoại được cấp, nhóm theo module (gồm nhóm Kỹ năng AI — lệnh /… bấm là chèn); tool cần connector chưa kết nối hiện badge *Cần kết nối X* / *Sắp có*. **Không có công tắc**; link *Chỉnh trong Builder ›* (D51). Research / Web search hiện "Sắp có" (D48). | P0 | Member | TBD (ver2.1) |
 | REQ-C12 | **Tìm trong hội thoại** (ver2.1 #9): thanh tìm dưới tiêu đề, không dấu, tô vàng, kết quả đang chọn viền cam, bộ đếm N/M, ↑↓ / Enter / Shift+Enter / Esc, lọc người gửi (Tất cả / Khách / Nhân viên / AI Agent). | P0 | Member | TBD (ver2.1) |
 | REQ-C13 | **Header + khung nhập theo ver2.1:** bỏ nút video / gọi điện (D07); bỏ chế độ "Trả lời" và 6 icon thanh công cụ; dòng "Người gửi: <tên> (bạn)"; tin gửi đi hiện tên người gửi; bỏ hàng "Thả nhanh" (cảm xúc chuyển vào REQ-C09). | P0 | Member | TBD (ver2.1) |
 
@@ -94,7 +94,7 @@
 | REQ-D13 | Agent chuyên trách phối hợp với nhau: **chuyển hội thoại** (Sales → Booking → trả lại Sales) và **hỏi ý agent khác** ở hậu trường (Sales hỏi Kế toán về công nợ). Luôn có đầu mối, giới hạn số bước chuyển, ngân sách credit, trace đầy đủ; Trợ lý AI giám sát. **Không làm swarm** (D17). | P1 | — | TBD |
 | REQ-D15 | Bộ agent mẫu sẵn có: **Sales, CSKH, Booking, Marketing, Kế toán, Vận hành**. Mỗi agent có vai trò, tools mặc định và mẫu theo ngành. | P0 | Chủ DN | TBD |
 | REQ-D14 | Hiệu suất agent: số hội thoại, tỉ lệ tự xử lý, tỉ lệ chốt, CSAT, credit đã dùng; đo ngang hàng với nhân sự. | P1 | Chủ DN | TBD |
-| REQ-D16 | **Danh mục công cụ cấp theo Agent** (ver2.1 #4): một danh mục chung gồm Skills · Nền tảng kết nối · Tiện ích, mỗi mục ánh xạ **action id của Action Registry** hoặc **connector manifest** (D47). Tab Công cụ & Quyền có 3 khối công tắc n/tổng cho đúng Agent đang mở. Connector ngoài manifest hiện "Sắp có". | P0 | Chủ | TBD (ver2.1) |
+| REQ-D16 | **Quyền của agent = danh sách Tools trong Builder AI Agents** (D51): một nơi cấu hình duy nhất. Tools là action có `agentGrantable`, **nhóm theo module** (Hộp thư, Khách hàng, Bán hàng, Lịch hẹn, Hỗ trợ, Marketing, Loyalty…) + nhóm **Kỹ năng AI** (action chỉ đọc: tóm tắt, dịch, nhận diện ý định, chấm điểm lead, trích thông tin). "Hành động" và "Tiện ích" của prototype gộp vào đây. Connector **không cấp cho agent**: tool cần connector hiện badge *Cần kết nối X* (chưa kết nối) / *Sắp có* (chưa có manifest). Builder hiện n/tổng mỗi nhóm. | P0 | Chủ | TBD (ver2.1) |
 
 ### Domain E — Trợ lý AI: Orchestrator & Copilot của nền tảng (LÕI)
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -112,7 +112,7 @@
 | REQ-E11 | Hai chế độ **Chat** (tư duy, lên ý tưởng, không đổi dữ liệu) và **Cowork** (thực thi, điều phối agents); chọn agent và cấp độ AI. | P1 | Chủ DN | TBD |
 | REQ-E12 | Đính kèm tệp, ảnh, email vào lệnh (ví dụ "nhập danh sách khách từ file này", "tạo sản phẩm từ ảnh bảng giá"); nhập lệnh bằng giọng nói. | P1 | Chủ DN | TBD |
 | REQ-E13 | **Tác vụ tự chủ (Coworks):** giao một mục tiêu cho agent chạy ngay / theo lịch / theo sự kiện. Có giới hạn công cụ và dữ liệu, giới hạn credit mỗi lần chạy. Luôn hỏi trước khi xoá; hỏi trước khi gửi ra ngoài (bật/tắt được). | P1 | Chủ DN | TBD |
-| REQ-E14 | **Khung "Trợ lý AI đang điều phối"** ở Cowork (ver2.1 #4): một hàng thu gọn "N việc · x đang chạy · y cần bạn duyệt · Xem chi tiết ›" mở modal danh sách việc (agent, công cụ, tiến độ, trạng thái) với Dừng (`run.cancel`) · Duyệt & gửi (`approval.approve`) · Xem kết quả. | P0 | Chủ | TBD (ver2.1) |
+| REQ-E14 | **Khung "Trợ lý AI đang điều phối"** ở Cowork (ver2.1 #4): một hàng thu gọn "N việc · x đang chạy · y cần bạn duyệt · Xem chi tiết ›" mở modal danh sách việc (agent, công cụ, tiến độ, trạng thái) với Dừng (`run.cancel`) · Duyệt & gửi (`approval.approve`) · Xem kết quả. Tab Công cụ & Quyền của drawer Cowork **chỉ hiển thị** quyền hiệu lực (quyền agent ∩ quyền người giao — D51) + link sang Builder, không bật / tắt. | P0 | Chủ | TBD (ver2.1) |
 
 ### Domain F — Khách hàng & Bán hàng (CRM)
 | REQ-ID | Requirement | Priority | Persona | TIP |
@@ -291,10 +291,11 @@ Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực t
 | D44 | Thang token khi cập nhật prototype | theo kích thước mới của ver2.1 / **chuẩn hoá ver2.1 về D41** | **Mỗi bản prototype mới chạy `tools/scripts/normalize-prototype.mjs` trước khi commit làm chuẩn so pixel; thang D41 giữ nguyên.** Đo 2026-10-29: chép nguyên ver2.1 thì 43/109 PASS, chuẩn hoá thì 102/109 (7 màn lệch do tính năng mới) | Chủ nhà 2026-10-29 (RRI ver2.1) |
 | D45 | Phạm vi đợt ver2.1 | chọn lọc / **cả 4 nhóm** | **Hộp thư · Hồ sơ 360° · AI Agent · Kênh + nút Trợ lý AI** (REQ-B09–B11, C09–C13, D16, E14, F11–F12, M05, N20); mục 11 (thanh nổi) đã hoàn tác ở prototype → không làm; mục 12 đã xong (D42 / D43) | Chủ nhà 2026-10-29 |
 | D46 | Hồ sơ 360° mở form với báo giá / hợp đồng đã gửi | sửa tại chỗ như prototype / **giữ luật COMMERCE** | **Nháp → Cập nhật; báo giá đã gửi → Tạo phiên bản mới (`quote.request_revision`); hợp đồng đã gửi ký → mở chi tiết, không sửa; chưa có → Tạo mới.** Prototype ver2.1 vẽ "Cập nhật BG-2041 (Đã gửi)" — ngoại lệ có mã D46 | Chủ nhà 2026-10-29 |
-| D47 | Danh mục công cụ của Agent (Skills / Nền tảng kết nối / Tiện ích) | công cụ ngoài kiểu plugin / **ánh xạ Action Registry + connector manifest** | **Mỗi mục là một action id (Skills / Tiện ích) hoặc một connector có manifest (Nền tảng kết nối); mục ngoài manifest (ZBS, Misa, KiotViet, Sapo, Haravan, WooCommerce, Odoo, Fast, Google Sheets) hiện "Sắp có"; không thêm plugin / MCP (D37 để P2)** | Suy ra từ D16, D28, D37; Chủ nhà duyệt phạm vi 2026-10-29 |
+| D47 | ~~Danh mục công cụ của Agent (Skills / Nền tảng kết nối / Tiện ích) ánh xạ Action Registry + connector manifest~~ | — | **Thay bằng D51** (2026-10-29) | — |
 | D48 | Research / Web search trong menu ＋ | làm thật / ẩn / **hiện "Sắp có"** | **Giữ dòng, khoá + nhãn "Sắp có"; không thêm thư viện; làm thật ở P2 cùng MCP** | Chủ nhà 2026-10-29 |
 | D49 | Vòng đời trong menu ⋯ hội thoại | đổi enum theo prototype (6 giai đoạn) / **dùng enum hiện có** | **Submenu Vòng đời liệt kê đúng `contact.stage` của màn Khách hàng (`contact.set_stage`)** — một nguồn, khớp Kanban và tab giai đoạn | Chủ nhà 2026-10-29 |
 | D50 | Ẩn trò chuyện / Tạo nhóm (Zalo) | làm cả hai / bỏ / **Ẩn làm, Tạo nhóm "Sắp có"** | **Ẩn trò chuyện = `conversation.hidden_at` (không hiện ở danh sách, có tin mới thì hiện lại); Tạo nhóm Zalo khoá "Sắp có" đến TIP-014 (kênh thật)** | Chủ nhà 2026-10-29 |
+| D51 | Quyền công cụ của agent (thay D47) | danh mục Skills / Connectors / Plugins cấp riêng ở nhiều nơi (ver2.1) / **một danh sách Tools trong Builder** | (1) **Quyền của agent chỉ cấu hình ở Builder AI Agents**, dạng danh sách Tools (action `agentGrantable`) **nhóm theo module**; "Hành động" + "Tiện ích" (Plugins) gộp vào đây. (2) **Skills → nhóm "Kỹ năng AI"** gồm các action chỉ đọc (risk `read`) trong cùng danh sách Tools. (3) **Connector không cấp cho agent**; tool cần connector hiện badge *Cần kết nối X* / *Sắp có*. (4) **Menu ＋ ở Hộp thư và drawer Cowork chỉ hiển thị** quyền của agent + link sang Builder, không bật / tắt. (5) **Quyền hiệu lực của `delegate` và của tác vụ Cowork = quyền agent ∩ quyền người ra lệnh** (Blueprint §3.3b). Prototype ver2.1 (cấp quyền ở drawer Cowork, công tắc trong menu ＋) — ngoại lệ có mã D51 | Chủ nhà 2026-10-29 (đề xuất 1–5, Skills = nhóm Kỹ năng AI) |
 | D15 | Queue / Search / OLAP | Kafka, OpenSearch, ClickHouse / nhẹ hơn | **BullMQ + outbox, Postgres FTS (unaccent + pg_trgm)** | Chủ nhà đồng ý dùng Next + Nest tối giản, không thêm hạ tầng nặng |
 
 ## OPEN QUESTIONS
@@ -386,7 +387,7 @@ Xem `standards/README.md` (14 standard, sinh 2026-10-28). Các standard trực t
   - Research / Web search (D48);
   - vòng đời (D49);
   - ẩn / tạo nhóm (D50).
-- **CHALLENGE-PROPOSE:** D47 (danh mục công cụ ánh xạ Action Registry / manifest) suy ra từ D16 / D28 / D37.
+- **CHALLENGE-PROPOSE:** D47 → **thay bằng D51** sau đề xuất của Chủ nhà: quyền agent một nơi (Builder), Skills = nhóm Kỹ năng AI, connector không cấp cho agent, menu ＋ / Cowork chỉ hiển thị, quyền giao = agent ∩ người ra lệnh.
 - **REQ mới:** B09–B11, C09–C13, D16, E14, F11–F12, M05, N15 — đều P0, có prototype dòng ver2.1 trong Scan delta.
 - **Open questions còn lại:** OQ-11, OQ-12 (P2–P3, Chủ thầu chốt khi viết TIP), không chặn.
 - **Confidence trên P0 ver2.1:** ~90%.

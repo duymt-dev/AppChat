@@ -761,7 +761,7 @@ Không đổi so với Vision (V6–V15). Prototype ver2.1 không kéo thêm th�
 ### PATTERNS_DETECTED (ảnh hưởng tới việc làm theo ver2.1)
 - Form nghiệp vụ dùng chung được gọi từ màn khác. Prototype có `openCrmForm(mod, values, mode, ref)` ở z-index 1400. App cần export modal qua `features/<x>/index.ts`, hoặc dùng một host modal ở `shared`. Lý do: luật import không cho `features/a` dùng `features/b/components/*`.
 - Submenu thay nội dung menu, có nút ‹ quay lại. Dùng ở menu ⋯ hội thoại và menu ＋. Nên thành primitive dùng chung (mở rộng `ActionMenu` của `packages/ui`).
-- Danh mục công cụ một nguồn (`agCatalog`), đọc ở 2 nơi: cấp quyền cho Agent và menu ＋ Hộp thư.
+- Danh mục công cụ một nguồn (`agCatalog`), đọc ở 2 nơi: cấp quyền cho Agent và menu ＋ Hộp thư. **D51:** nguồn = danh sách Tools của Builder (action `agentGrantable` nhóm theo module + nhóm Kỹ năng AI); menu ＋ / Cowork chỉ đọc.
 - Nút Trợ lý AI một kiểu → cần primitive `AiButton` ở `packages/ui`.
 
 ### REUSABLE_COMPONENTS (đã có, dùng lại cho ver2.1)
@@ -783,7 +783,7 @@ Không đổi so với Vision (V6–V15). Prototype ver2.1 không kéo thêm th�
     - Blueprint đã có `conversation.untag`, nhưng `packages/actions` chưa có.
   - **Ticket và email:** `ticket.create` + `source_message_id`; gửi email mới cho khách (chưa có hội thoại).
   - **Bố cục 360°:** `profile_layout.*`.
-  - **Agent:** cấp connector cho agent; `run.cancel` (Blueprint L757 có, `packages/actions` chưa có).
+  - **Agent:** `run.cancel` (Blueprint L757 có, `packages/actions` chưa có); action "Kỹ năng AI" chỉ đọc (`ai.summarize`, `ai.translate`, `ai.detect_intent`, `ai.score_lead`, `ai.extract` — tên chốt khi cập nhật Blueprint §3.4); trường `ActionDef.requires_connector?` (badge *Cần kết nối X*). **Không** cấp connector cho agent (D51).
   - **Kênh:**
     - `channel.update_settings` (Blueprint L564 có, `packages/actions` chưa có);
     - `channel.test`, `channel.pause` / `resume`, `channel.sync_history`;
@@ -792,7 +792,6 @@ Không đổi so với Vision (V6–V15). Prototype ver2.1 không kéo thêm th�
   - `message_reaction`;
   - `conversation.pinned_message_id`;
   - `profile_layout` (bảng riêng, hoặc `workspace.settings.p360`);
-  - `ai_agent.connector_keys`;
   - `channel_account.settings jsonb` (agent, chế độ AI, giờ, lời chào, định tuyến, cờ đồng bộ);
   - đọc `ai_run` đang chạy;
   - thống kê kênh 7 ngày;

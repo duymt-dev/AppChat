@@ -536,6 +536,17 @@ interface ActionHandler<I, O> {
 | `task` (Cowork) | chạy | chạy trong `data_scope` | approval nếu `ask_before_send` | approval | luôn approval | cấm |
 
 - `bulk=true` luôn yêu cầu preview kèm số bản ghi, kể cả khi nguồn là `ui`.
+
+### 3.3b Quyền hiệu lực khi agent làm thay người (D51)
+
+- **Một nơi cấp quyền:** quyền của agent = `ai_agent.tool_ids`, chỉ sửa ở Builder AI Agents (`agent.update`). Menu ＋ Hộp thư và drawer Cowork chỉ đọc.
+- **Agent trực kênh** (`source=agent`, không có người ra lệnh): quyền hiệu lực = `tool_ids` của agent, áp policy §3.3.
+- **`delegate` từ Trợ lý AI** và **tác vụ Cowork** (`source=assistant` / `task`): quyền hiệu lực = **`tool_ids` của agent ∩ permission của người ra lệnh** (`initiated_by_user_id`), và **data scope theo người ra lệnh** (`ai_task.data_scope` không được rộng hơn scope của người tạo).
+  - Kiểm ở `ActionExecutor` cho **mỗi** lần gọi tool, không chỉ lúc tạo task. Người ra lệnh mất quyền sau đó thì lần gọi kế tiếp bị chặn.
+  - Tool ngoài giao → không đưa vào danh sách tool của run. Nếu vẫn bị gọi → `FORBIDDEN`, ghi `ai_run_step` lỗi, run tiếp tục với các tool còn lại.
+  - `action_log.on_behalf_of_user_id` = người ra lệnh; `actor_type=agent`, `actor_id` = agent.
+  - `delegate` lồng nhau: run con kế thừa giao của run cha (giao càng sâu càng hẹp).
+- **Connector không phải quyền của agent:** action cần connector khai báo `requires_connector` trong `ActionDef`. Connector chưa kết nối thì tool vẫn hiện trong Builder (badge *Cần kết nối X*), nhưng không đưa vào run; chưa có manifest thì hiện *Sắp có*.
 - Luật **governance** luôn ép approval, không phụ thuộc bảng trên: báo giá > 20.000.000₫, giảm giá ngoài chính sách, hoàn tiền, gửi hàng loạt, hợp đồng.
 - Từ cấm: chặn nội dung, đặt `handoff`.
 
@@ -1015,7 +1026,7 @@ export type RunEvent = { type: 'delta'|'tool_call'|'tool_result'|'paused'|'usage
 
 | Tool | Ai dùng | Hành vi |
 |---|---|---|
-| `delegate(agent_id\|role, task, context)` | Trợ lý AI | Tạo `ai_run` con (`kind=delegate`, `parent_run_id`), chạy agent đích với bộ tool của agent đó, trả tóm tắt kết quả. Run con cần duyệt thì cả run cha chờ theo |
+| `delegate(agent_id\|role, task, context)` | Trợ lý AI | Tạo `ai_run` con (`kind=delegate`, `parent_run_id`), chạy agent đích với bộ tool = **tool của agent ∩ quyền người ra lệnh** (§3.3b), trả tóm tắt kết quả. Run con cần duyệt thì cả run cha chờ theo |
 | `transfer_to_agent(role, reason, summary)` | Agent trực kênh | Đổi `conversation.assignee_agent_id`, ghi `ai_run_step(type=handoff)`, agent mới nhận summary và tiếp tục ngay trong lượt đó. Có thể trả lại agent cũ |
 | `consult(role, question)` | Agent trực kênh, agent con | Chạy agent đích ở chế độ **chỉ đọc** (chỉ được dùng action có risk `read`), trả lời ngắn, không gửi gì cho khách |
 
@@ -1046,7 +1057,7 @@ Danh mục action quá lớn để nhồi hết vào prompt, nên Trợ lý ch�
 |---|---|
 | `find_actions(query, module?)` | Tìm action phù hợp (lọc theo quyền user) → trả id + mô tả + input schema rút gọn. Index tìm bằng embedding của description, có cache |
 | `call_action(action_id, input)` | Gọi `ActionExecutor` với `source='assistant'`, `onBehalfOfUserId=user` → read chạy ngay; còn lại trả `needs_confirmation` |
-| `delegate(agent_id \| role, task, context)` | Tạo `ai_run` con (kind=delegate) chạy agent chuyên trách với tool set của agent; trả tóm tắt kết quả; hiển thị trong plan |
+| `delegate(agent_id \| role, task, context)` | Tạo `ai_run` con (kind=delegate) chạy agent chuyên trách với tool set = tool của agent ∩ quyền người ra lệnh (§3.3b); trả tóm tắt kết quả; hiển thị trong plan |
 | `ui(command: UiCommand)` | Phát `ui.command` tới user (điều hướng, mở drawer, điền form, lọc, highlight) |
 | `query_data(metric, params)` | = `insight.query` (metric định nghĩa sẵn, chỉ đọc); trả bảng/biểu đồ nhỏ ngay trong thẻ trả lời |
 | `plan(steps[])` / `update_step(id, status)` | Cập nhật thẻ kế hoạch |
