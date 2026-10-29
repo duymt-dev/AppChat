@@ -103,6 +103,17 @@ export interface ActionLogRow {
   undone?: boolean;
 }
 
+export interface Run {
+  id: string;
+  root_run_id: string;
+  task: string;
+  agent: string;
+  meta: string;
+  pct: number;
+  status: 'running' | 'waiting_approval' | 'done';
+  approval_id?: string;
+}
+
 export interface ApprovalRow {
   id: string;
   action_id: string;

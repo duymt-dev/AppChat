@@ -15,5 +15,23 @@
     "prev": "‹ Prev",
     "next": "Next ›",
     "perPage": "{n} / page"
+  },
+  "modules": {
+    "identity": "Identity",
+    "crm": "Customers",
+    "sales": "Sales",
+    "catalog": "Products",
+    "documents": "Documents",
+    "loyalty": "Loyalty",
+    "marketing": "Marketing",
+    "support": "Support",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "ai": "AI",
+    "billing": "Billing",
+    "inbox": "Inbox",
+    "channels": "Channels",
+    "integrations": "Integrations",
+    "booking": "Appointments"
   }
 }

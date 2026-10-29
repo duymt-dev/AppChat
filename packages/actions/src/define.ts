@@ -29,6 +29,10 @@ export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.Zo
   risk: Risk;
   bulk?: boolean;
   agentGrantable: boolean;
+  /** Nhóm "Kỹ năng AI" trong Builder Tools — chỉ action đọc (risk 'read') hữu ích cho AI trực kênh (D51). */
+  skill?: boolean;
+  /** Key connector/channel cần kết nối để tool chạy được — Builder hiện badge "Cần kết nối X" (D51 §3.3b). */
+  requiresConnector?: string;
   undo?: { windowSec: number };
   invalidates: string[];
   db?: 'platform';

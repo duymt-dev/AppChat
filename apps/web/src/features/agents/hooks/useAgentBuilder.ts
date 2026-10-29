@@ -16,7 +16,7 @@ export const blankConfig = (): AgentConfig => ({
   prompt: '',
   intents: [0, 2],
   model_tier: 'advanced',
-  tools: ['end_conversation', 'assign', 'ticket', 'booking'],
+  tools: ['conversation.close', 'conversation.assign', 'ticket.create', 'appointment.create'],
   channels: ['zalo_personal', 'webchat'],
   threshold: 70,
   handoff_to: 'staff',

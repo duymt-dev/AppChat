@@ -182,24 +182,11 @@
       "noTools": "Agent phụ trách chưa được cấp công cụ nào",
       "research": "Research / tìm trên web",
       "soon": "Sắp có",
-      "modules": {
-        "identity": "Định danh",
-        "crm": "Khách hàng",
-        "sales": "Bán hàng",
-        "catalog": "Sản phẩm",
-        "documents": "Tài liệu",
-        "loyalty": "Khách thân thiết",
-        "marketing": "Marketing",
-        "support": "Hỗ trợ",
-        "settings": "Cài đặt",
-        "notifications": "Thông báo",
-        "ai": "AI",
-        "billing": "Thanh toán",
-        "inbox": "Hộp thư",
-        "channels": "Kênh",
-        "integrations": "Kết nối",
-        "booking": "Lịch hẹn"
-      }
+      "count": "({on}/{total})",
+      "needs_connector": "cần kết nối",
+      "coming_soon": "sắp có",
+      "skillGroup": "Kỹ năng AI",
+      "editInBuilder": "Chỉnh trong Builder ›"
     },
     "modes": {
       "note": "Ghi chú nội bộ",

@@ -15,5 +15,23 @@
     "prev": "‹ Trước",
     "next": "Sau ›",
     "perPage": "{n} / trang"
+  },
+  "modules": {
+    "identity": "Định danh",
+    "crm": "Khách hàng",
+    "sales": "Bán hàng",
+    "catalog": "Sản phẩm",
+    "documents": "Tài liệu",
+    "loyalty": "Khách thân thiết",
+    "marketing": "Marketing",
+    "support": "Hỗ trợ",
+    "settings": "Cài đặt",
+    "notifications": "Thông báo",
+    "ai": "AI",
+    "billing": "Thanh toán",
+    "inbox": "Hộp thư",
+    "channels": "Kênh",
+    "integrations": "Kết nối",
+    "booking": "Lịch hẹn"
   }
 }

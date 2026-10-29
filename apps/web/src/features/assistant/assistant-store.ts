@@ -18,6 +18,8 @@ interface AssistantUi {
   /** Giá trị Trợ lý điền sẵn cho modal tạo tác vụ (UiCommand prefill `ai_task.form`). */
   taskPrefill: Record<string, unknown> | null;
   taskOpen: string | null;
+  /** Modal chi tiết "Trợ lý AI đang điều phối" (REQ-E14). */
+  runsOpen: boolean;
   set: (p: Partial<Omit<AssistantUi, 'set' | 'openPop' | 'push' | 'patchMsg' | 'reset'>>) => void;
   openPop: (pop: Exclude<AsstPop, null>, el: HTMLElement) => void;
   push: (m: ChatMessage) => void;
@@ -37,6 +39,7 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   taskNew: false,
   taskPrefill: null,
   taskOpen: null,
+  runsOpen: false,
   set: (p) => set(p),
   openPop: (pop, el) => {
     const r = el.getBoundingClientRect();

@@ -29,6 +29,7 @@ export const segmentPreview = defineAction({
   permission: 'campaign.view',
   risk: 'read',
   agentGrantable: true,
+  skill: true,
   invalidates: [],
 });
 
@@ -42,6 +43,7 @@ export const campaignSuggest = defineAction({
   permission: 'campaign.view',
   risk: 'read',
   agentGrantable: true,
+  skill: true,
   invalidates: [],
 });
 

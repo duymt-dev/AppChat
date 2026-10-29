@@ -80,6 +80,22 @@
     "handoff": "Handoff threshold {n}%",
     "tierTag": "◈ {tier}",
     "toggle": "Enable / pause {name}",
+    "run": {
+      "title": "AI assistant is orchestrating",
+      "summary": "{total} tasks · {running} running · {needApprove} need your approval",
+      "seeDetail": "See details ›",
+      "close": "Close",
+      "status": {
+        "running": "Running",
+        "waiting_approval": "Waiting for approval",
+        "done": "Done"
+      },
+      "action": {
+        "stop": "Stop",
+        "approveSend": "Approve & send",
+        "viewResult": "View result"
+      }
+    },
     "new": {
       "title": "Create autonomous task",
       "sub": "Assign a multi-step task — the AI runs it, checks the result and repeats until done.",
@@ -132,7 +148,10 @@
       },
       "prompt": "System prompt",
       "knowHint": "Choose the RAG folders / documents attached to this agent.",
-      "toolsHint": "Operations this agent may run on its own. Advanced limits live in <b>AI Governance</b>.",
+      "toolsHintReadOnly": "Permissions of the agent assigned to this task (read-only) — edit in Builder AI Agents.",
+      "toolGranted": "Granted",
+      "toolNotGranted": "Not granted",
+      "editInBuilder": "Edit in Builder ›",
       "tokens": "Tokens today",
       "costToday": "Cost today",
       "log": "Action log",

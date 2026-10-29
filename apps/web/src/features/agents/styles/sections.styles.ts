@@ -177,6 +177,39 @@ export const useSectionStyles = createStyles(({ css, responsive }) => ({
     flex-direction: column;
     gap: 8px;
   `,
+  toolGroups: css`
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  `,
+  toolGroup: css``,
+  toolGroupHead: css`
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+  `,
+  toolGroupTitle: css`
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.bold};
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: ${color.text4};
+  `,
+  toolGroupCount: css`
+    font-size: ${font.scale.s12}px;
+    color: ${color.text4};
+  `,
+  rowBadge: css`
+    flex-shrink: 0;
+    font-size: ${font.scale.s11}px;
+    font-weight: ${font.weight.bold};
+    padding: 2px 8px;
+    border-radius: ${radius.r6}px;
+    background: ${color.pillBg};
+    color: ${color.text4};
+    white-space: nowrap;
+  `,
   row: css`
     border: 1px solid ${color.border};
     border-radius: ${radius.r12}px;

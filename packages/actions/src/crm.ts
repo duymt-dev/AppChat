@@ -263,6 +263,7 @@ export const contactSendEmail = defineAction({
   permission: 'inbox.reply',
   risk: 'send',
   agentGrantable: true,
+  requiresConnector: 'email',
   invalidates: ['crm', 'inbox'],
 });
 

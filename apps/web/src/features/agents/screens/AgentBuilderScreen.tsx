@@ -50,7 +50,7 @@ function BuilderForm({ seed, meta: m, agentId, title }: FormProps) {
             <BasicsSection cfg={b.cfg} patch={b.patch} emojis={m.emojis} />
             <GuidanceSection cfg={b.cfg} patch={b.patch} templates={m.prompt_templates} />
             <RoutingSection cfg={b.cfg} meta={m} toggle={(k, v) => b.toggleIn(k, v as never)} />
-            <ActionsSection cfg={b.cfg} patch={b.patch} meta={m} toggleTool={(k) => b.toggleIn('tools', k)} />
+            <ActionsSection cfg={b.cfg} patch={b.patch} toggleTool={(k) => b.toggleIn('tools', k)} />
           </div>
         </div>
         <div className={styles.right}>

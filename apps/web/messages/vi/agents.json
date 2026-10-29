@@ -101,45 +101,11 @@
     },
     "actions": "Hành động",
     "actionsSub": "Chỉ định các hành động mà Trợ lý AI có thể thực hiện trong suốt cuộc hội thoại. Mỗi hành động chỉ hoạt động nếu được kích hoạt.",
-    "tool": {
-      "end_conversation": [
-        "Kết thúc cuộc trò chuyện",
-        "Trợ lý AI có thể kết thúc cuộc trò chuyện dựa trên hướng dẫn của bạn."
-      ],
-      "assign": [
-        "Phân công cho nhân viên / nhóm",
-        "Chỉ định hội thoại cho nhân viên thật, AI Agent khác hoặc một nhóm."
-      ],
-      "ticket": [
-        "Tạo ticket hỗ trợ",
-        "Tự động tạo ticket khi khách cần hỗ trợ hoặc khiếu nại, gán ưu tiên & SLA."
-      ],
-      "deal": [
-        "Tạo & cập nhật cơ hội (CRM)",
-        "Ghi nhận lead, đẩy cơ hội qua pipeline Lead → Won trong Khách hàng."
-      ],
-      "booking": [
-        "Đặt lịch hẹn",
-        "Kiểm tra slot trống và đặt lịch hẹn cho khách trên Lịch hẹn."
-      ],
-      "stage": [
-        "Cập nhật giai đoạn vòng đời",
-        "Cập nhật Giai đoạn Vòng đời của liên hệ dựa trên hội thoại."
-      ],
-      "contact": [
-        "Cập nhật thông tin liên hệ",
-        "Tự động cập nhật các trường thông tin liên hệ."
-      ],
-      "tags": [
-        "Cập nhật thẻ",
-        "Thêm hoặc xoá các thẻ khỏi một liên hệ."
-      ],
-      "note": [
-        "Thêm bình luận",
-        "Thêm bình luận nội bộ để chia sẻ ngữ cảnh nhanh với agent khác."
-      ]
-    },
     "toolOn": "Bật / tắt: {name}",
+    "toolCount": "{on}/{total}",
+    "skillGroup": "Kỹ năng AI",
+    "needsConnector": "Cần kết nối {name}",
+    "comingSoon": "Sắp có",
     "gov": "Bàn giao cho người & An toàn",
     "govTag": "(AI Governance)",
     "govSub": "Vận hành AI an toàn theo chuẩn ISO 42001 — bàn giao cho nhân viên khi cần và tuân thủ dữ liệu.",

@@ -19,18 +19,63 @@ type Approval = AssistantFixture['approvals'][number] & { status: 'pending' | 'a
 type Intent = AssistantFixture['intents'][number];
 type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled' };
 
+/** Hàng "Trợ lý AI đang điều phối" ở Cowork (REQ-E14) — nguồn GET /v1/runs?root_run_id=&status=. */
+export interface Run {
+  id: string;
+  root_run_id: string;
+  task: string;
+  agent: string;
+  meta: string;
+  pct: number;
+  status: 'running' | 'waiting_approval' | 'done';
+  approval_id?: string;
+}
+
 export interface AssistantState {
   tasks: Task[];
   logs: ActionLogRow[];
   approvals: Approval[];
+  runs: Run[];
   pending: Pending[];
   seq: number;
 }
 
+/** 4 hàng mẫu của prototype (R0, L11420) — Operations/Sales/Support/Marketing Agent. */
+const seedRuns = (): Run[] => [
+  { id: 'run_1', root_run_id: 'run_root_1', task: 'Nhắc công nợ 6 khách quá hạn', agent: 'Operations Agent', meta: 'Misa · Zalo ZBS', pct: 60, status: 'running' },
+  {
+    id: 'run_2',
+    root_run_id: 'run_root_1',
+    task: 'Soạn tin chốt 6 báo giá còn treo',
+    agent: 'Sales Agent',
+    meta: 'Bảng giá & Báo giá · Zalo ZBS',
+    pct: 100,
+    status: 'waiting_approval',
+    approval_id: 'ap_4',
+  },
+  { id: 'run_3', root_run_id: 'run_root_1', task: 'Phân loại 18 hội thoại mới', agent: 'Support Agent', meta: 'Phân tích ý định', pct: 35, status: 'running' },
+  { id: 'run_4', root_run_id: 'run_root_1', task: 'Gửi ZNS nhắc lịch hẹn 42 khách', agent: 'Marketing Agent', meta: 'Zalo ZBS', pct: 100, status: 'done' },
+];
+
+const seedRunApproval = (): Approval => ({
+  id: 'ap_4',
+  action_id: 'quote.send',
+  risk: 'send',
+  permission: 'quote.send',
+  agent: 'Sales Agent',
+  title: 'Soạn tin chốt 6 báo giá còn treo',
+  summary: 'Gửi tin nhắc chốt 6 báo giá còn treo qua Zalo ZBS.',
+  reason: 'Gửi ra ngoài — cần duyệt trước khi gửi',
+  day: 'today',
+  time: '09:40',
+  status: 'pending',
+});
+
 export const createAssistantState = (): AssistantState => ({
   tasks: structuredClone(fixture.tasks),
   logs: structuredClone(fixture.action_logs),
-  approvals: fixture.approvals.map((a) => ({ ...a, status: 'pending' as const })),
+  approvals: [...fixture.approvals.map((a) => ({ ...a, status: 'pending' as const })), seedRunApproval()],
+  runs: seedRuns(),
   pending: [],
   seq: 0,
 });
@@ -97,6 +142,13 @@ export const assistantRoutes: Record<string, MockRoute> = {
         .map((a) => ({ ...a, can_decide: can_(db, 'approvals.decide') && can_(db, a.permission) })),
       next_cursor: null,
     };
+  },
+  // GET /v1/runs?root_run_id=&status= — khung "Trợ lý AI đang điều phối" ở Cowork (REQ-E14, Blueprint §4.4)
+  '/runs': (db, p) => {
+    const rows = db.assistant.runs.filter(
+      (r) => (!p.root_run_id || r.root_run_id === p.root_run_id) && (!p.status || p.status === 'all' || r.status === p.status),
+    );
+    return { data: rows, next_cursor: null };
   },
 };
 
@@ -200,6 +252,8 @@ export const assistantHandlers: Record<string, MockHandler> = {
       a.note = i.note;
       const seed = db.assistant.logs.find((l) => l.action_id === a.action_id && l.status === 'pending');
       if (seed) seed.status = 'done';
+      const run = db.assistant.runs.find((r) => r.approval_id === a.id);
+      if (run) run.status = 'done';
       return { approval_id: a.id, status: a.status };
     },
   },
@@ -209,6 +263,15 @@ export const assistantHandlers: Record<string, MockHandler> = {
       a.status = 'rejected';
       a.note = i.note;
       return { approval_id: a.id, status: a.status };
+    },
+  },
+  'run.cancel': {
+    execute: (db, i: { run_id: string }) => {
+      const r = db.assistant.runs.find((x) => x.id === i.run_id);
+      if (!r) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.run_id });
+      r.status = 'done';
+      r.pct = 100;
+      return { run_id: r.id, status: r.status };
     },
   },
 };

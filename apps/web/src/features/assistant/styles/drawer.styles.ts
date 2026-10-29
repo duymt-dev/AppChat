@@ -179,6 +179,13 @@ export const useDrawerStyles = createStyles(({ css, responsive }) => ({
   `,
   link: css`
     color: ${color.brandInk};
+    font-weight: ${font.weight.bold};
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: ${font.scale.s13}px;
   `,
   list: css`
     display: flex;
@@ -214,6 +221,12 @@ export const useDrawerStyles = createStyles(({ css, responsive }) => ({
   toolLabel: css`
     font-size: ${font.scale.s14}px;
     font-weight: ${font.weight.semibold};
+  `,
+  toolState: css`
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.bold};
+    color: ${color.text4};
+    flex-shrink: 0;
   `,
   sw: css`
     width: 42px;

@@ -90,14 +90,14 @@ test.describe('assistant', () => {
   test('chờ duyệt: Chủ sở hữu duyệt; Quản lý không duyệt được hoàn tiền; Sales không thấy mục', async ({ page }) => {
     test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
     await page.goto(`/assistant/approvals${Q}`);
-    await expect(page.getByTestId('ap-card')).toHaveCount(3);
+    await expect(page.getByTestId('ap-card')).toHaveCount(4);
     await page.locator('[data-approval="ap_1"]').getByTestId('ap-approve').click();
-    await expect(page.getByTestId('ap-card')).toHaveCount(2);
+    await expect(page.getByTestId('ap-card')).toHaveCount(3);
     await setRole(page, 'Quản lý');
     await expect(page.locator('[data-approval="ap_3"]').getByTestId('ap-approve')).toBeDisabled();
     await expect(page.locator('[data-approval="ap_3"]')).toContainText('không có quyền duyệt');
     await page.locator('[data-approval="ap_2"]').getByTestId('ap-reject').click();
-    await expect(page.getByTestId('ap-card')).toHaveCount(1);
+    await expect(page.getByTestId('ap-card')).toHaveCount(2);
     await setRole(page, 'Sales');
     await page.locator('[data-nav="assistant"]').hover();
     await expect(page.getByTestId('flyout-assistant')).not.toContainText('Chờ duyệt');
