@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 5 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 9 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **111** | **0** | | | |
+| **Tổng** | | **137** | **115** | **0** | | | |
 
 ---
 
@@ -174,15 +174,15 @@
 | `settings:locale` | Ngôn ngữ & vùng | L6270 | E | ✅ | 0.0012 | pass | 0162970 | Chỉ vi / en (D22) · ngôn ngữ đổi ngay (cookie + `profile.update`); múi giờ / định dạng ngày → `workspace.update`; tiền tệ VND cố định |
 | `settings:members` | Thành viên | L5861 | P | ✅ | 0.0059 | pass | 0162970 | Tìm không dấu, banner AI, bảng; Mời (`member.invite` → Chờ xác nhận), Sửa vai trò (`member.set_role`, hoàn tác 24h), Xoá / Thu hồi lời mời; vai trò = 5 vai trò §3.5 (Chủ sở hữu không gán / xoá được). Không có quyền `members.manage` → no-permission |
 | `settings:roles` | Vai trò & phân quyền (ma trận) | L5992 | E | ✅ | 0.0282 | pass | 0162970 | Chỉ đọc ở P0 (D27) · 5 vai trò hệ thống + ma trận 10 nhóm × 5 vai trò lấy từ ROLE_DEFS (nhóm OUT Gọi điện / Quy trình / Báo cáo bỏ); "Tạo vai trò" khoá kèm ghi chú P1 |
-| `settings:channels` | Kênh kết nối | L5892 | E | ⬜ | | | | Chỉ kênh có manifest |
-| `settings:web-widget` | Trợ lý AI website (widget) | L7184 | P | ⬜ | | | | |
+| `settings:channels` | Kênh kết nối | L5892 | E | ✅ | 0.0414 | pass | 57240c2 | Chỉ kênh có manifest (D28): zalo_personal / email / webchat kết nối được, 13 kênh khác nút "Sắp có" (disabled); lọc Tất cả / Đã / Chưa kết nối; danh sách ↔ thẻ; webchat mở Trợ lý AI website; ngắt kết nối qua channel.disconnect |
+| `settings:web-widget` | Trợ lý AI website (widget) | L7184 | P | ✅ | 0.0089 | pass | 57240c2 | Ghi qua webchat.update_widget; KPI, nút hành động bật/tắt/xoá, khối AI Agent (Agent, ngưỡng bàn giao, kiến thức, tông, chế độ, nghiệp vụ), mã nhúng + Copy, xem trước 360 (launcher đóng/mở). Mask cột xem trước: prototype L7210–7254 đóng thẻ thừa làm vỡ cột (chỉ còn nhãn); app dựng theo L7261–7298 |
 | `settings:fields` | Trường dữ liệu | L7099 | P | ⬜ | | | | |
 | `settings:tags` | Thẻ & nhãn | L6031 | P | ⬜ | | | | |
 | `settings:replies` | Câu trả lời mẫu | L6064 | P | ⬜ | | | | |
 | `settings:doc-templates` | Mẫu chứng từ | — | M | ⬜ | — | | | D30 |
 | `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ⬜ | — | | | D30 |
-| `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ⬜ | | | | D28 |
-| `settings:integrations-connect` | Modal kết nối connector | L6219 | E | ⬜ | | | | D28 |
+| `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ✅ | 0.0007 | pass | 57240c2 | D28: chỉ connector có manifest (GA: Brevo, SMTP, SePay, Casso; còn lại "Sắp có" + Đăng ký quan tâm); gỡ thẻ Tổng đài; mask nhóm Marketing (SMS / ZBS bỏ) |
+| `settings:integrations-connect` | Modal kết nối connector | L6219 | E | ✅ | 0.0191 | pass | 57240c2 | Trường theo manifest connector (secret → ô mật khẩu); integration.connect 422 khi thiếu trường / chưa GA |
 | `settings:ai-models` | AI Models | L6878 | E | ⬜ | | | | Mức AI, ẩn tên model (D29) |
 | `settings:rag` | Dữ liệu RAG · Knowledge Base | L6906 | P | ⬜ | | | | D29 |
 | `settings:ai-gov` | AI Governance | L6991 | P | ⬜ | | | | |
