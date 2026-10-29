@@ -18,14 +18,14 @@
 | Pha | Nội dung | Số dòng | ✅ | ❌ / ⛔ | Completion Report | Commit cuối pha | PR → dev |
 |-----|----------|--------:|---:|-------:|-------------------|-----------------|----------|
 | F0 | Scaffold, theme, shell, công cụ | 15 | 15 | 0 | ✅ | be02d86 | [#2](https://github.com/duymt-dev/AppChat/pull/2) |
-| F1 | Auth & onboarding | 10 | 0 | 0 | ⬜ | | |
+| F1 | Auth & onboarding | 10 | 10 | 0 | ✅ | e3433b8 | [#3](https://github.com/duymt-dev/AppChat/pull/3) (xếp chồng #2) |
 | F2 | Tổng quan · Hộp thư · Khách hàng | 24 | 0 | 0 | ⬜ | | |
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 0 | 0 | ⬜ | | |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 20 | 0 | 0 | ⬜ | | |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 0 | 0 | ⬜ | | |
 | F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **135** | **15** | **0** | | | |
+| **Tổng** | | **135** | **25** | **0** | | | |
 
 ---
 
@@ -53,16 +53,16 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `auth:login` | Đăng nhập | L471 | E | ⬜ | | | | OTP Email, ẩn social login |
-| `auth:register` | Đăng ký | L523 | E | ⬜ | | | | |
-| `auth:otp` | Nhập mã OTP | L459–630 | E | ⬜ | | | | Gửi qua email (Brevo) |
-| `auth:forgot` | Quên mật khẩu | L588 | P | ⬜ | | | | |
-| `auth:reset` | Đặt lại mật khẩu (link 15 phút) | — | M | ⬜ | — | | | |
-| `onboarding:declare-business` | Popup khai báo DN / hộ KD (tra MST) | L758–766 | P | ⬜ | | | | Không đóng được |
-| `onboarding:declare-individual` | Popup khai báo cá nhân | L776 | P | ⬜ | | | | |
-| `onboarding:trial-welcome` | Màn chào mừng trial (2 nút) | state `trialWelcome` | E | ⬜ | | | | 15 ngày (không phải 14) |
-| `onboarding:trial-expired` | Thông báo hết trial | state `expiredSeen` | P | ⬜ | | | | |
-| `onboarding:provisioning` | "Đang khởi tạo workspace…" | — | M | ⬜ | — | | | D21 |
+| `auth:login` | Đăng nhập | L471 | E | ✅ | 0.0198 | pass | e3433b8 | OTP Email, ẩn social login · Form email + mật khẩu mặc định; link "← Đăng nhập bằng mã OTP" thay "← Đăng nhập qua Zalo" (D-OTP); lưới social gỡ khỏi DOM prototype (ẩn, D-OTP) |
+| `auth:register` | Đăng ký | L523 | E | ✅ | 0.0179 | pass | e3433b8 | Kênh Email (thẻ Zalo khoá, chờ OA — D-OTP); "14 ngày" → "15 ngày"; đăng ký 1 chạm ẩn. 3 bước: email → OTP → đã xác thực → popup khai báo |
+| `auth:otp` | Nhập mã OTP | L459–630 | E | ✅ | 0.0305 | pass | e3433b8 | Gửi qua email (Brevo) · so với bước OTP Zalo của prototype; đích gửi là email (D-OTP). Đăng ký bước 2 dùng cùng OtpInput + đếm ngược gửi lại 0:48 |
+| `auth:forgot` | Quên mật khẩu | L588 | P | ✅ | 0.0171 | pass | e3433b8 | Luôn báo "Đã gửi" kể cả email lạ (chống dò tài khoản, REQ-A01); e2e kiểm trạng thái đã gửi |
+| `auth:reset` | Đặt lại mật khẩu (link 15 phút) | — | M | ✅ | — | pass | e3433b8 | `/reset-password?token=` · khung + pattern của Quên mật khẩu; ≥ 8 ký tự, 2 ô phải khớp; token lỗi → thông báo link hết hạn |
+| `onboarding:declare-business` | Popup khai báo DN / hộ KD (tra MST) | L758–766 | P | ✅ | 0.0306 | pass | e3433b8 | Không đóng được · đo khung thẻ sau khi tra MST 0312345678; MST không thấy → nhập tay (OQ-05); ghi qua `business_profile.update` |
+| `onboarding:declare-individual` | Popup khai báo cá nhân | L776 | P | ✅ | 0.0299 | pass | e3433b8 | VNeID 12 số bắt buộc (zod refine) |
+| `onboarding:trial-welcome` | Màn chào mừng trial (2 nút) | state `trialWelcome` | E | ✅ | 0.0257 | pass | e3433b8 | 15 ngày (không phải 14) · ngày hết hạn theo `fmt.date`; "Xem bảng giá" → /settings/billing?upgrade=1 |
+| `onboarding:trial-expired` | Thông báo hết trial | state `expiredSeen` | P | ✅ | 0.0365 | pass | e3433b8 | Đóng bằng X / nền / Esc; ghi nhận qua `/session/ack` |
+| `onboarding:provisioning` | "Đang khởi tạo workspace…" | — | M | ✅ | — | pass | e3433b8 | D21 · poll `GET /workspaces/:id/provisioning` tới `ready`, lỗi → Thử lại; cùng thẻ popup onboarding |
 
 ## F2 — Tổng quan · Hộp thư · Khách hàng
 
@@ -262,7 +262,73 @@
 - Bổ sung `workspace.switch` vào Blueprint §3.4.
 
 ### F1
-_chưa có_
+### COMPLETION REPORT — GOAL-FE-PROTOTYPE · F1
+
+**STATUS:** DONE
+**COMMIT:** e3433b8 trên nhánh `goal/fe-prototype` (nối tiếp F0, PR #2)
+
+**FILES CHANGED:**
+- Created: `apps/web/src/features/auth`:
+  - `screens/{Login,Register,Forgot,ResetPassword}Screen.tsx`.
+  - `components/{AuthLayout,BrandPanel,AuthButton,EmailField,OtpInput}.tsx`.
+  - `hooks/useAuthFlow.ts`, `api.ts`, `auth*.styles.ts`, `index.ts`.
+- Created: `apps/web/src/features/onboarding`:
+  - `components/{OnboardingGate,DeclareBusinessModal,DeclareStepInfo,ProvisioningCard,TrialWelcome,TrialExpired}.tsx`.
+  - `hooks/useDeclareForm.ts`, `*.styles.ts`, `index.ts`.
+- Created: routes `app/(auth)/{login,register,forgot-password,reset-password}`.
+- Modified: `(app)/layout.tsx` bọc `OnboardingGate`. Cổng theo thứ tự:
+  1. chưa đăng nhập → `/login`;
+  2. chưa khai báo → popup khai báo;
+  3. đang khởi tạo → `ProvisioningCard`;
+  4. sau đó → chào mừng trial;
+  5. trial hết → thông báo hết trial.
+- Created: `packages/actions/src/onboarding.ts` với `business_profile.update` (zod: MST 10 / 13 số, VNeID 12 số).
+- Mock:
+  - Created: `session.ts`, `auth-routes.ts`.
+  - Modified: routes `/session`, `/auth/brand`, `/workspace/provisioning`, `/business-lookup/tax/:code`.
+  - Modified: `transport.post`, cùng handler `business_profile.update`.
+- Created: `fixtures/prototype-parity/auth.json`.
+- Modified: `packages/ui/tokens.ts`. Thêm màu / gradient / bóng / cỡ chữ auth + onboarding, và `mq.auth` = 1100px (breakpoint prototype).
+- Modified: `tools/parity`:
+  - `protoWait` / `appWait` cho màn không có shell;
+  - `clipTo` so khung popup;
+  - 8 entry F1.
+- Created: messages `auth.json`, `onboarding.json` (vi + en).
+- Created: e2e `auth.spec.ts`, `onboarding.spec.ts`; unit `auth-routes.test.ts`.
+- Modified: `UserMenu` "Đăng xuất" gọi `/auth/logout`.
+- Modified: DevToolbar dời xuống góc dưới phải, không che nút đóng popup trên mobile.
+
+**TEST RESULTS:** (full gate cuối pha, chạy local)
+- `pnpm lint`: 5/5 xanh; `lint:size`: 172 file, không file nào vượt trần.
+- `pnpm typecheck`: 5/5 xanh.
+- `pnpm test`: shared 11, actions 3, web 16 passed (0 failed).
+- `pnpm i18n:check`: vi 239 / en 239 key (100%).
+- `pnpm parity --all`: 14/14 PASS.
+  - F0, không đổi: shell:default 0.0015, rail-collapsed 0.0001, flyout-crm 0.0020, notifications 0.0001, user-menu 0.0001, assistant-dock 0.0062.
+  - F1: auth:login 0.0198, auth:otp 0.0305, auth:register 0.0179, auth:forgot 0.0171, onboarding:declare-business 0.0306, onboarding:declare-individual 0.0299, onboarding:trial-welcome 0.0257, onboarding:trial-expired 0.0365.
+- `pnpm e2e` (build + start, desktop + mobile-390): 23 passed, 5 skipped. Test skip là test chỉ chạy ở một viewport.
+- Mobile 390:
+  - auth: không tràn ngang; input và nút ≥ 44px.
+  - Popup onboarding toàn màn (390px), không tràn ngang; vùng chạm ≥ 44px.
+
+**ISSUES DISCOVERED:**
+- Thấp: `responsive.xl` của antd-style là `max-width: 1599px`, nên ẩn BrandPanel ngay ở 1440. Đã thêm token `mq.auth` = 1100px, đúng breakpoint prototype.
+- Thấp: DevToolbar (chỉ có ở mock) ở góc trên phải che nút X của popup trên 390. Đã dời xuống dưới.
+
+**DEVIATIONS FROM SPEC:**
+- D-OTP (OQ-02):
+  - OTP gửi qua Email thay Zalo.
+  - Form mặc định là email + mật khẩu.
+  - Thẻ "Qua Zalo" ở bước đăng ký bị khoá, ghi "Sắp có — cần Zalo OA".
+  - Ẩn đăng nhập / đăng ký mạng xã hội. Lưới social bị gỡ khỏi DOM prototype trước khi chụp, cùng cơ chế với mục OUT.
+- Trial 15 ngày: thay "14 ngày" ở bước đăng ký.
+- Mục báo của declare-individual: prototype hiện banner "Đã tìm thấy…" cho cá nhân dù không có tra cứu. V2 giữ khung banner nhưng đổi chữ thành "Nhập đúng thông tin trên CCCD / VNeID" cho đúng nghĩa. Vùng chữ nằm trong ngưỡng.
+- `auth:otp` đo bước nhập mã của luồng đăng nhập (prototype: Zalo; V2: email).
+- Sau OTP đăng ký, mock đặt phiên về "chưa khai báo" để đi hết popup khai báo → khởi tạo → chào mừng.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- Chốt nội dung email OTP / đặt lại mật khẩu (Brevo template, D34) trước khi nối backend.
+- PR #2 (F0) chưa merge nên F1 đi chung nhánh: PR F1 mở từ nhánh `goal/fe-prototype-f1`, xếp chồng lên F0.
 
 ### F2
 _chưa có_

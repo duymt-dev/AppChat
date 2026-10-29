@@ -58,7 +58,7 @@ export default [
         2,
         {
           mode: 'jsx-only',
-          callees: { exclude: ['t[a-zA-Z]*', 'useTranslations', 'require'] },
+          callees: { exclude: ['t[a-zA-Z]*', 't[a-zA-Z]*\.rich', 'useTranslations', 'require'] },
           'jsx-attributes': { include: ['title', 'placeholder', 'alt', 'aria-label', 'label'] },
           // ký hiệu trang trí của prototype, không phải chuỗi dịch
           words: { exclude: ['[✓✕▾·→—•]', '[0-9.,:%₫ ]+'] },
@@ -68,7 +68,7 @@ export default [
   },
   {
     // ảnh nhỏ cố định của shell (logo 30px, cờ 20×14) — giữ <img> để khớp pixel prototype
-    files: ['src/shared/shell/**/*.tsx'],
+    files: ['src/shared/shell/**/*.tsx', 'src/features/auth/components/AuthLayout.tsx'],
     rules: { '@next/next/no-img-element': 0 },
   },
   {

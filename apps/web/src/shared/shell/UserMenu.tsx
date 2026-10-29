@@ -2,8 +2,10 @@
 'use client';
 import { useState, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color, layout } from '@appchat/ui';
+import { transport } from '../api/client';
 import { useFmt } from '../i18n/useFmt';
 import { useAction } from '../actions/useAction';
 import { useShellStore } from './shell-store';
@@ -43,9 +45,16 @@ export function UserMenu() {
   const switchWs = useAction('workspace.switch');
   const [lang, setLang] = useState<{ top: number; left: number } | null>(null);
 
+  const qc = useQueryClient();
   const go = (route: string) => {
     setPopover(null);
     router.push(route);
+  };
+  const logout = async () => {
+    setPopover(null);
+    await transport.post('/auth/logout');
+    qc.clear();
+    router.replace('/login');
   };
   const showLang = (e: MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -111,7 +120,7 @@ export function UserMenu() {
           <span className={styles.wallet}>{fmt.moneyCompact(me.billing.wallet_balance)}</span>
         </div>
         <div className={pop.sep} />
-        <div className={pop.row} onClick={() => go('/login')}>
+        <div className={pop.row} onClick={() => void logout()} data-testid="user-logout">
           <Icon name="ic-arrow" color={color.danger} />
           <span className={styles.logout}>{t('logout')}</span>
         </div>

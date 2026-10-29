@@ -32,6 +32,16 @@ export const httpTransport: Transport = {
     const body = await parse<{ data: unknown; next_cursor?: string | null }>(res);
     return ('next_cursor' in body ? body : body.data) as never;
   },
+  async post(path, body) {
+    const res = await fetch(`${BASE}${path}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: headers(),
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const parsed = await parse<{ data?: unknown } | undefined>(res);
+    return (parsed && typeof parsed === 'object' && 'data' in parsed ? parsed.data : parsed) as never;
+  },
   async action(id, input, opts) {
     const res = await fetch(`${BASE}/actions/${id}`, {
       method: 'POST',

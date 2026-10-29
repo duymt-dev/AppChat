@@ -5,8 +5,8 @@ import { PNG } from 'pngjs';
 import type { ParityEntry } from '../parity.manifest';
 
 const paint = (img: PNG, e: ParityEntry) => {
-  const ox = e.clip?.x ?? 0;
-  const oy = e.clip?.y ?? 0;
+  const ox = e.clipTo ? 0 : (e.clip?.x ?? 0);
+  const oy = e.clipTo ? 0 : (e.clip?.y ?? 0);
   for (const m of e.mask ?? []) {
     for (let y = Math.max(0, m.y - oy); y < Math.min(img.height, m.y - oy + m.height); y++) {
       for (let x = Math.max(0, m.x - ox); x < Math.min(img.width, m.x - ox + m.width); x++) {

@@ -15,4 +15,13 @@ export const mockRoutes: Record<string, MockRoute> = {
     next_cursor: null,
   }),
   '/nav/badges': (db) => db.shell.nav_badges,
+  // trialEndsAt = bắt đầu trial + 15 ngày (D-trial 15 ngày; prototype tính từ ac_trialstart)
+  '/session': (db) => ({ ...db.session, trialEndsAt: Date.parse(db.auth.trial.started_at) + db.auth.trial.days * 86_400_000 }),
+  '/auth/brand': (db) => ({ card: db.auth.brand_card, stats: db.auth.brand_stats }),
+  // GET /v1/workspaces/:id/provisioning — tenant.provision (D21); mock: lần hỏi đầu "running", lần sau "ready"
+  '/workspace/provisioning': (db) => {
+    const status = db.session.provisioned ? 'ready' : 'running';
+    db.session.provisioned = true;
+    return { status };
+  },
 };

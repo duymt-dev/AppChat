@@ -15,5 +15,10 @@
     }
   },
   "done": "Done: {title}",
-  "previewTitle": "Confirm action"
+  "previewTitle": "Confirm action",
+  "business_profile": {
+    "update": {
+      "title": "Update business profile"
+    }
+  }
 }

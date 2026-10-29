@@ -1,13 +1,30 @@
 // Store in-memory của mock: nạp fixture prototype, ghi đè bởi mock action handler, phát sự kiện cho realtime giả.
 import shell from '../../../../../../fixtures/prototype-parity/shell.json';
+import auth from '../../../../../../fixtures/prototype-parity/auth.json';
 import type { SystemRole } from '@appchat/shared';
+import { loadSession, saveSession, type MockSession } from './session';
 
 export type ShellFixture = typeof shell;
+export type AuthFixture = typeof auth;
+
+export interface BusinessProfile {
+  kind: 'business' | 'individual';
+  tax_code?: string;
+  id_number?: string;
+  name: string;
+  address: string;
+  phone?: string;
+  representative?: string;
+  field: string;
+}
 
 export interface MockDb {
   shell: ShellFixture;
+  auth: AuthFixture;
   role: SystemRole;
   readNotifications: boolean;
+  session: MockSession;
+  business: BusinessProfile | null;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -21,7 +38,14 @@ const initialRole = (): SystemRole => {
   }
 };
 
-const db: MockDb = { shell: structuredClone(shell), role: initialRole(), readNotifications: false };
+const db: MockDb = {
+  shell: structuredClone(shell),
+  auth: structuredClone(auth),
+  role: initialRole(),
+  readNotifications: false,
+  session: loadSession(),
+  business: null,
+};
 
 type Listener = (event: string) => void;
 const listeners = new Set<Listener>();
@@ -30,6 +54,8 @@ export const mockDb = () => db;
 
 export const mutate = (fn: (d: MockDb) => void, event = 'mock.changed') => {
   fn(db);
+  saveSession(db.session);
+  db.shell.me.billing.trial_days_left = db.session.trialDaysLeft;
   for (const l of listeners) l(event);
 };
 
@@ -48,3 +74,5 @@ export const setMockRole = (role: SystemRole) => {
     d.role = role;
   }, 'authz.changed');
 };
+
+db.shell.me.billing.trial_days_left = db.session.trialDaysLeft;
