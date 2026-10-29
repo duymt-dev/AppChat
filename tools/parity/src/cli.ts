@@ -70,7 +70,7 @@ async function main() {
         }
         await captureApp(browser, e, APP_URL, file(e.id, 'app'), box);
         const r = compareImages(file(e.id, 'proto'), file(e.id, 'app'), file(e.id, 'diff'), e);
-        rows.push({ id: e.id, ratio: r.ratio, ok: r.ratio <= (e.maxDiffRatio ?? MAX_DIFF_RATIO) });
+        rows.push({ id: e.id, ratio: r.ratio, ok: r.ratio <= MAX_DIFF_RATIO });
       } catch (err) {
         rows.push({ id: e.id, ratio: null, ok: false, error: (err as Error).message.split('\n')[0] });
       }
