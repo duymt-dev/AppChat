@@ -1,4 +1,10 @@
-// Màn làm ở pha sau của GOAL-FE-PROTOTYPE; F0 chỉ giữ route cho nav-config.
+import { Suspense } from 'react';
+import { OrdersScreen } from '@/features/orders';
+
 export default function Page() {
-  return null;
+  return (
+    <Suspense>
+      <OrdersScreen />
+    </Suspense>
+  );
 }

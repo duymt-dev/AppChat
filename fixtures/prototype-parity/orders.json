@@ -1,0 +1,425 @@
+{
+  "orders": [
+    {
+      "id": "ord_290411",
+      "code": "SP290411",
+      "source": "manual",
+      "channel": "zalo_personal",
+      "external": null,
+      "locked_lines": false,
+      "contact_id": "ct_lan",
+      "contact_name": "Chị Lan",
+      "phone": "0903 123 456",
+      "owner_user_id": "u_minh",
+      "owner_name": "Minh",
+      "quote_id": null,
+      "quote_code": "",
+      "contract_id": null,
+      "contract_code": "",
+      "status": "processing",
+      "deposit_required": true,
+      "deposit_amount": "6400000",
+      "paid_total": "6400000",
+      "refund_pending": false,
+      "items": [
+        {
+          "name": "HIFU 8 buổi",
+          "qty": 1,
+          "unit_price": "12800000",
+          "tax_rate": 0
+        }
+      ],
+      "header_discount": null,
+      "created_at": "2026-06-24T09:10:00+07:00",
+      "cancel_reason": "",
+      "points_earned": 0,
+      "shipping": {
+        "carrier": "",
+        "tracking": "",
+        "eta": "",
+        "address": "",
+        "receiver": "",
+        "receiver_phone": ""
+      },
+      "note": "",
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-24T09:10:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "confirmed",
+          "at": "2026-06-24T09:10:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "deposit",
+          "at": "2026-06-24T09:10:00+07:00",
+          "actor": "system",
+          "amount": "6400000"
+        }
+      ],
+      "ai": {
+        "hint": "Nên chăm sóc lại — 18 ngày chưa liên hệ",
+        "wait": false
+      }
+    },
+    {
+      "id": "ord_290410",
+      "code": "SP290410",
+      "source": "manual",
+      "channel": "webchat",
+      "external": null,
+      "locked_lines": false,
+      "contact_id": "ct_maianh",
+      "contact_name": "Mai Anh",
+      "phone": "0934 222 111",
+      "owner_user_id": "u_huong",
+      "owner_name": "Hương",
+      "quote_id": null,
+      "quote_code": "",
+      "contract_id": null,
+      "contract_code": "",
+      "status": "completed",
+      "deposit_required": false,
+      "deposit_amount": "0",
+      "paid_total": "4200000",
+      "refund_pending": false,
+      "items": [
+        {
+          "name": "Triệt lông nách",
+          "qty": 1,
+          "unit_price": "4200000",
+          "tax_rate": 0
+        }
+      ],
+      "header_discount": null,
+      "created_at": "2026-06-24T08:20:00+07:00",
+      "cancel_reason": "",
+      "points_earned": 420,
+      "shipping": {
+        "carrier": "",
+        "tracking": "",
+        "eta": "",
+        "address": "",
+        "receiver": "",
+        "receiver_phone": ""
+      },
+      "note": "",
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-24T08:20:00+07:00",
+          "actor": "Hương"
+        },
+        {
+          "type": "confirmed",
+          "at": "2026-06-24T08:20:00+07:00",
+          "actor": "Hương"
+        },
+        {
+          "type": "paid",
+          "at": "2026-06-24T08:20:00+07:00",
+          "actor": "system",
+          "amount": "4200000"
+        },
+        {
+          "type": "completed",
+          "at": "2026-06-24T08:20:00+07:00",
+          "actor": "Hương",
+          "points": 420
+        }
+      ],
+      "ai": {
+        "hint": "Gửi ưu đãi giữ chân khách",
+        "wait": false
+      }
+    },
+    {
+      "id": "ord_290409",
+      "code": "SP290409",
+      "source": "manual",
+      "channel": "zalo_personal",
+      "external": null,
+      "locked_lines": false,
+      "contact_id": "ct_vy",
+      "contact_name": "Phương Vy",
+      "phone": "0978 456 789",
+      "owner_user_id": "u_tram",
+      "owner_name": "Trâm",
+      "quote_id": null,
+      "quote_code": "",
+      "contract_id": null,
+      "contract_code": "",
+      "status": "new",
+      "deposit_required": true,
+      "deposit_amount": "2850000",
+      "paid_total": "0",
+      "refund_pending": false,
+      "items": [
+        {
+          "name": "Combo da mặt",
+          "qty": 1,
+          "unit_price": "9500000",
+          "tax_rate": 0
+        }
+      ],
+      "header_discount": null,
+      "created_at": "2026-06-23T15:40:00+07:00",
+      "cancel_reason": "",
+      "points_earned": 0,
+      "shipping": {
+        "carrier": "",
+        "tracking": "",
+        "eta": "",
+        "address": "",
+        "receiver": "",
+        "receiver_phone": ""
+      },
+      "note": "",
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-23T15:40:00+07:00",
+          "actor": "Trâm"
+        }
+      ],
+      "ai": {
+        "hint": "Nhắc thanh toán / theo dõi đơn",
+        "wait": true
+      }
+    },
+    {
+      "id": "ord_290408",
+      "code": "SP290408",
+      "source": "manual",
+      "channel": "email",
+      "external": null,
+      "locked_lines": false,
+      "contact_id": "ct_baoan",
+      "contact_name": "Cty Bảo An",
+      "phone": "028 7300 5588",
+      "owner_user_id": "u_minh",
+      "owner_name": "Minh",
+      "quote_id": null,
+      "quote_code": "",
+      "contract_id": null,
+      "contract_code": "",
+      "status": "completed",
+      "deposit_required": false,
+      "deposit_amount": "0",
+      "paid_total": "48000000",
+      "refund_pending": false,
+      "items": [
+        {
+          "name": "Gói AI 12 tháng",
+          "qty": 1,
+          "unit_price": "48000000",
+          "tax_rate": 0
+        }
+      ],
+      "header_discount": null,
+      "created_at": "2026-06-22T10:00:00+07:00",
+      "cancel_reason": "",
+      "points_earned": 4800,
+      "shipping": {
+        "carrier": "",
+        "tracking": "",
+        "eta": "",
+        "address": "",
+        "receiver": "",
+        "receiver_phone": ""
+      },
+      "note": "",
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-22T10:00:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "confirmed",
+          "at": "2026-06-22T10:00:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "paid",
+          "at": "2026-06-22T10:00:00+07:00",
+          "actor": "system",
+          "amount": "48000000"
+        },
+        {
+          "type": "completed",
+          "at": "2026-06-22T10:00:00+07:00",
+          "actor": "Minh",
+          "points": 4800
+        }
+      ],
+      "ai": {
+        "hint": "Đề xuất upsell combo phù hợp",
+        "wait": false
+      }
+    },
+    {
+      "id": "ord_290407",
+      "code": "SP290407",
+      "source": "manual",
+      "channel": "zalo_personal",
+      "external": null,
+      "locked_lines": false,
+      "contact_id": "ct_dung",
+      "contact_name": "Anh Dũng",
+      "phone": "0912 345 678",
+      "owner_user_id": "u_khoa",
+      "owner_name": "Khoa",
+      "quote_id": null,
+      "quote_code": "",
+      "contract_id": null,
+      "contract_code": "",
+      "status": "cancelled",
+      "deposit_required": false,
+      "deposit_amount": "0",
+      "paid_total": "0",
+      "refund_pending": false,
+      "items": [
+        {
+          "name": "Gói triệt lông năm",
+          "qty": 1,
+          "unit_price": "22000000",
+          "tax_rate": 0
+        }
+      ],
+      "header_discount": null,
+      "created_at": "2026-06-20T14:30:00+07:00",
+      "cancel_reason": "Khách đổi ý",
+      "points_earned": 0,
+      "shipping": {
+        "carrier": "",
+        "tracking": "",
+        "eta": "",
+        "address": "",
+        "receiver": "",
+        "receiver_phone": ""
+      },
+      "note": "",
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-20T14:30:00+07:00",
+          "actor": "Khoa"
+        },
+        {
+          "type": "cancelled",
+          "at": "2026-06-20T14:30:00+07:00",
+          "actor": "Khoa",
+          "reason": "Khách đổi ý"
+        }
+      ],
+      "ai": {
+        "hint": "Phản hồi gấp theo SLA",
+        "wait": false
+      }
+    },
+    {
+      "id": "ord_290405",
+      "code": "SP290405",
+      "source": "marketplace",
+      "channel": "marketplace",
+      "external": {
+        "platform": "shopee",
+        "external_id": "240619SHP7731",
+        "platform_status": "READY_TO_SHIP"
+      },
+      "locked_lines": true,
+      "contact_id": "ct_shopee_7731",
+      "contact_name": "Khách Shopee ***31",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "owner_name": "Trâm",
+      "quote_id": null,
+      "quote_code": "",
+      "contract_id": null,
+      "contract_code": "",
+      "status": "processing",
+      "deposit_required": false,
+      "deposit_amount": "0",
+      "paid_total": "690000",
+      "refund_pending": false,
+      "items": [
+        {
+          "name": "Serum phục hồi B5",
+          "qty": 1,
+          "unit_price": "690000",
+          "tax_rate": 0
+        }
+      ],
+      "header_discount": null,
+      "created_at": "2026-06-19T11:05:00+07:00",
+      "cancel_reason": "",
+      "points_earned": 0,
+      "shipping": {
+        "carrier": "SPX Express",
+        "tracking": "SPXVN0461177",
+        "eta": "2026-06-26",
+        "address": "",
+        "receiver": "",
+        "receiver_phone": ""
+      },
+      "note": "",
+      "events": [
+        {
+          "type": "imported",
+          "at": "2026-06-19T11:05:00+07:00",
+          "actor": "system"
+        },
+        {
+          "type": "paid",
+          "at": "2026-06-19T11:05:00+07:00",
+          "actor": "system",
+          "amount": "690000"
+        }
+      ],
+      "ai": {
+        "hint": "Đặt lịch follow-up tuần này",
+        "wait": false
+      }
+    }
+  ],
+  "crm": {
+    "ltv": "86500000",
+    "total": 14,
+    "tier": "Kim cương",
+    "points": 24800
+  },
+  "insight": "Khách hạng Kim cương, đơn giá trị cao. Đề xuất upsell combo dưỡng da (+3.2tr) và mời tham gia gói năm để tăng LTV.",
+  "files": [
+    {
+      "name": "Đề nghị thanh toán.pdf",
+      "ext": "pdf",
+      "by": "system",
+      "at": "2026-06-24",
+      "size": "86 KB"
+    },
+    {
+      "name": "Phiếu thu cọc.pdf",
+      "ext": "pdf",
+      "by": "Trâm",
+      "at": "2026-06-24",
+      "size": "42 KB"
+    },
+    {
+      "name": "Ảnh chuyển khoản.jpg",
+      "ext": "jpg",
+      "by": "customer",
+      "at": "2026-06-24",
+      "size": ""
+    }
+  ],
+  "ai_runs": {
+    "risk": "Rà soát 6 đơn hàng: SP290409 (Phương Vy) chờ cọc quá 24h — đề xuất nhắc đặt cọc kèm ưu đãi. SP290407 đã huỷ — nên hỏi lý do để win-back.",
+    "upsell": "AI gợi ý upsell: Chị Lan (HIFU 8 buổi) phù hợp combo dưỡng da 4 buổi (+3.2tr, xác suất 71%). Mai Anh nên mời gói năm.",
+    "collect": "2 đơn đang chờ thanh toán (Chị Lan còn 6,4tr; Phương Vy chờ cọc 2,85tr). Đề xuất gửi đề nghị thanh toán kèm VietQR + nhắc sau 24h.",
+    "analyze": "Doanh thu đã thu tháng này: 59,3tr. Tỉ lệ thanh toán đủ 64%. Đơn huỷ chủ yếu do chậm chốt cọc — đề xuất bật nhắc tự động."
+  }
+}

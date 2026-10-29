@@ -169,5 +169,157 @@
     "pause": {
       "title": "Pause / resume task"
     }
+  },
+  "product": {
+    "create": {
+      "title": "Add product"
+    },
+    "update": {
+      "title": "Update product"
+    },
+    "archive": {
+      "title": "Delete product"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Create category"
+    }
+  },
+  "stock": {
+    "adjust": {
+      "title": "Adjust stock"
+    }
+  },
+  "quote": {
+    "create": {
+      "title": "Create quote"
+    },
+    "update": {
+      "title": "Update quote"
+    },
+    "delete": {
+      "title": "Delete quote"
+    },
+    "submit_for_approval": {
+      "title": "Submit quote for approval"
+    },
+    "approve": {
+      "title": "Approve quote"
+    },
+    "reject_internal": {
+      "title": "Return quote"
+    },
+    "send": {
+      "title": "Send quote"
+    },
+    "request_revision": {
+      "title": "Create quote revision"
+    },
+    "mark_accepted": {
+      "title": "Customer accepted quote"
+    },
+    "mark_rejected": {
+      "title": "Customer declined quote"
+    },
+    "extend_validity": {
+      "title": "Extend quote validity"
+    },
+    "comment": {
+      "title": "Add internal comment"
+    },
+    "draft_from_content": {
+      "title": "AI quote draft"
+    }
+  },
+  "contract": {
+    "create": {
+      "title": "Create contract"
+    },
+    "create_from_quote": {
+      "title": "Create contract from quote"
+    },
+    "update": {
+      "title": "Update contract"
+    },
+    "submit": {
+      "title": "Submit contract for approval"
+    },
+    "approve_and_sign": {
+      "title": "Approve & sign contract"
+    },
+    "request_changes": {
+      "title": "Request contract changes"
+    },
+    "reject_internal": {
+      "title": "Reject contract"
+    },
+    "send_for_signature": {
+      "title": "Send contract for signature"
+    },
+    "remind_signer": {
+      "title": "Remind signer"
+    },
+    "extend_sign_link": {
+      "title": "Extend signing link"
+    },
+    "terminate": {
+      "title": "Terminate contract"
+    },
+    "renew": {
+      "title": "Renew contract"
+    },
+    "delete": {
+      "title": "Delete contract"
+    }
+  },
+  "order": {
+    "create": {
+      "title": "Create order"
+    },
+    "create_from_quote": {
+      "title": "Create order from quote"
+    },
+    "create_from_contract": {
+      "title": "Create order from contract"
+    },
+    "update": {
+      "title": "Update order"
+    },
+    "set_deposit": {
+      "title": "Set order deposit"
+    },
+    "confirm": {
+      "title": "Confirm order"
+    },
+    "complete": {
+      "title": "Complete order"
+    },
+    "cancel": {
+      "title": "Cancel order"
+    },
+    "update_shipping": {
+      "title": "Update shipping"
+    },
+    "sync_now": {
+      "title": "Sync marketplace orders"
+    }
+  },
+  "invoice": {
+    "create": {
+      "title": "Create payment request"
+    },
+    "send_payment_qr": {
+      "title": "Send payment request with VietQR"
+    },
+    "record_payment": {
+      "title": "Record payment"
+    },
+    "resolve_bank_match": {
+      "title": "Reconcile bank transaction"
+    },
+    "void": {
+      "title": "Void payment request"
+    }
   }
 }

@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { createStyles } from 'antd-style';
 import { Icon } from '../icons';
 import type { IconName } from '../icons/paths';
-import { color, font, radius, shadow } from '../tokens';
+import { color, font, radius, shadow, z } from '../tokens';
 
 export interface ModalShellProps {
   open: boolean;
@@ -23,6 +23,10 @@ export interface ModalShellProps {
   flush?: boolean;
   /** Form (prototype L2610): thân 20px, chân 16px 20px. */
   roomy?: boolean;
+  /** Đầu modal kiểu form sản phẩm (prototype L4072): icon 38, tiêu đề 18, đệm dưới 12, chân nền xám. */
+  dense?: boolean;
+  /** Mở chồng trên EntityDrawer (antd Drawer z 1000): đặt trên drawer, dưới toast antd. */
+  stacked?: boolean;
 }
 
 const useStyles = createStyles(({ css, responsive }) => ({
@@ -38,6 +42,11 @@ const useStyles = createStyles(({ css, responsive }) => ({
     ${responsive.md} {
       padding: 0;
       z-index: 900;
+    }
+  `,
+  stacked: css`
+    && {
+      z-index: ${z.stackedModal};
     }
   `,
   box: css`
@@ -64,6 +73,19 @@ const useStyles = createStyles(({ css, responsive }) => ({
     gap: 12px;
     padding: 16px 20px;
     border-bottom: 1px solid ${color.divider};
+  `,
+  headDense: css`
+    padding: 16px 20px 12px;
+  `,
+  iconDense: css`
+    width: 38px;
+    height: 38px;
+  `,
+  titleDense: css`
+    font-size: ${font.scale.s18}px;
+  `,
+  footDense: css`
+    background: ${color.bg};
   `,
   icon: css`
     width: 34px;
@@ -122,19 +144,31 @@ export function ModalShell(p: ModalShellProps) {
   const { styles, cx } = useStyles();
   if (!p.open) return null;
   return (
-    <div className={styles.veil} onClick={p.onClose} data-testid={p.testId}>
-      <div className={styles.box} style={{ width: p.width }} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-        <div className={styles.head}>
-          <span className={styles.icon} style={{ background: p.iconBg }}>
-            <Icon name={p.icon} size={17} color={p.iconColor} />
+    <div className={cx(styles.veil, p.stacked && styles.stacked)} onClick={p.onClose} data-testid={p.testId}>
+      <div
+        className={styles.box}
+        style={{ width: p.width }}
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={cx(styles.head, p.dense && styles.headDense)}>
+          <span className={cx(styles.icon, p.dense && styles.iconDense)} style={{ background: p.iconBg }}>
+            <Icon name={p.icon} size={p.dense ? 19 : 17} color={p.iconColor} />
           </span>
-          <span className={styles.title}>{p.title}</span>
+          <span className={cx(styles.title, p.dense && styles.titleDense)}>{p.title}</span>
           <button type="button" className={styles.x} onClick={p.onClose} aria-label={p.closeLabel}>
             <Icon name="ic-x" size={18} color={color.text3} />
           </button>
         </div>
-        <div className={cx(styles.body, p.flush && styles.flush, p.roomy && styles.roomyBody)}>{p.children}</div>
-        {p.footer ? <div className={cx(styles.foot, p.roomy && styles.roomyFoot)}>{p.footer}</div> : null}
+        <div className={cx(styles.body, p.flush && styles.flush, p.roomy && styles.roomyBody)}>
+          {p.children}
+        </div>
+        {p.footer ? (
+          <div className={cx(styles.foot, p.roomy && styles.roomyFoot, p.dense && styles.footDense)}>
+            {p.footer}
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-// Màn làm ở pha sau của GOAL-FE-PROTOTYPE; F0 chỉ giữ route cho nav-config.
+import { QuotesScreen } from '@/features/quotes';
+
 export default function Page() {
-  return null;
+  return <QuotesScreen />;
 }

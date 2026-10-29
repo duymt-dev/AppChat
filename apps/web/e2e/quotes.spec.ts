@@ -1,0 +1,139 @@
+import { expect, test, type Page } from '@playwright/test';
+import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+
+const URL = '/quotes?session=authed,declared,trialSeen';
+
+const setRole = async (page: Page, label: string) => {
+  await page.getByTestId('dev-toolbar').locator('.ant-select').click();
+  await page.locator('.ant-select-item-option', { hasText: label }).click();
+};
+
+test.describe('quotes', () => {
+  test('danh sách: chip trạng thái, tìm, kanban, hiệu lực 15 ngày, tổng tính thuế sau chiết khấu', async ({
+    page,
+  }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await expect(page.locator('[data-quote]')).toHaveCount(3);
+    // BG-2041: 12.800.000 − 5% = 12.160.000 + VAT 8% = 13.132.800 (không trừ điểm trên báo giá — COMMERCE §3)
+    await expect(page.locator('[data-quote="q_2041"]')).toContainText('13,1tr₫');
+    await expect(page.locator('[data-quote="q_2041"]')).toContainText('09/07/2026');
+    await page
+      .getByTestId('q-chips')
+      .getByRole('button', { name: /Đã gửi/ })
+      .click();
+    await expect(page.locator('[data-quote]')).toHaveCount(1);
+    await page
+      .getByTestId('q-chips')
+      .getByRole('button', { name: /Tất cả/ })
+      .click();
+    await page.getByTestId('q-search').fill('dũng');
+    await expect(page.locator('[data-quote]')).toHaveCount(1);
+    await page.getByTestId('q-search').fill('');
+    await page.getByTestId('q-view-kanban').click();
+    await expect(page.getByTestId('q-kanban')).toBeVisible();
+  });
+
+  test('vượt ngưỡng: gửi bị chặn → gửi duyệt → duyệt → gửi Zalo → khách chốt → sang Đơn hàng', async ({
+    page,
+  }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.locator('[data-quote="q_2039"]').click();
+    const drawer = page.getByTestId('q-drawer');
+    await expect(drawer.getByTestId('q-approval-banner')).toContainText('tổng > 20 triệu');
+    await drawer.getByTestId('q-send-zalo').click();
+    await expect(page.getByText('Báo giá vượt ngưỡng — cần duyệt trước khi gửi')).toBeVisible();
+    await drawer.getByTestId('q-submit').click();
+    await expect(drawer).toContainText('Chờ duyệt');
+    await drawer.getByTestId('q-approve').click();
+    await expect(drawer).toContainText('Đã duyệt');
+    await drawer.getByTestId('q-send-zalo').click();
+    await expect(drawer).toContainText('Đã gửi');
+    await drawer.getByTestId('q-to-order').click();
+    await expect(page).toHaveURL(/\/orders\?from_quote=q_2039/);
+  });
+
+  test('tạo báo giá: chọn khách + sản phẩm catalog, chiết khấu tổng, ngoài danh mục buộc duyệt; trao đổi nội bộ; bản sửa n+1', async ({
+    page,
+  }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.getByTestId('q-create').click();
+    const form = page.getByTestId('q-form');
+    await form.getByTestId('q-save').click();
+    await expect(form).toContainText('Chọn khách hàng');
+    await form.getByTestId('q-contact').selectOption('ct_lan');
+    await form.getByTestId('q-pick').selectOption('pd_4');
+    await expect(form.getByTestId('q-total')).toHaveValue('540.000₫');
+    await form.getByTestId('q-header-disc').fill('10');
+    await expect(form.getByTestId('q-needs-approval')).toContainText('giảm > 5%');
+    await form.getByTestId('q-header-disc').fill('0');
+    await expect(form.getByTestId('q-needs-approval')).toHaveCount(0);
+    await form.getByTestId('q-save').click();
+    const drawer = page.getByTestId('q-drawer');
+    await expect(drawer).toContainText('BG-2042');
+    await expect(page.locator('[data-quote]')).toHaveCount(4);
+    await drawer.getByTestId('q-comment-input').fill('Khách hỏi lịch tuần sau');
+    await drawer.getByTestId('q-comment-input').press('Enter');
+    await expect(drawer.getByTestId('q-comments')).toContainText('Khách hỏi lịch tuần sau');
+    await drawer.getByTestId('q-send-zalo').click();
+    await drawer.getByTestId('q-revision').click();
+    await expect(drawer).toContainText('Lần 2');
+    await drawer.getByRole('tab', { name: 'Lịch sử' }).click();
+    await expect(drawer.getByTestId('q-version')).toHaveCount(2);
+  });
+
+  test('AI soạn báo giá từ nội dung: khớp catalog, giá từ catalog, chỉ tạo nháp (D30)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.getByTestId('q-ai-open').click();
+    await page.getByTestId('q-ai-sugg').click();
+    await expect(page.getByTestId('q-ai-result')).toContainText('HIFU 8 buổi');
+    await page.getByTestId('q-ai-draft').click();
+    const modal = page.getByTestId('q-draft');
+    await modal.getByTestId('q-draft-contact').selectOption('ct_lan');
+    await modal
+      .getByTestId('q-draft-content')
+      .fill('Chị Lan lấy Khám da soi VISIA + Serum phục hồi B5, giảm 5%');
+    await modal.getByTestId('q-draft-run').click();
+    const drawer = page.getByTestId('q-drawer');
+    await expect(drawer).toContainText('Nháp');
+    await expect(drawer.getByTestId('q-detail-lines').getByLabel('Hạng mục').first()).toHaveValue(
+      'Khám da soi VISIA',
+    );
+    await expect(drawer.getByTestId('q-detail-lines').getByLabel('Hạng mục').nth(1)).toHaveValue(
+      'Serum phục hồi B5',
+    );
+    // (500.000 + 680.000) − 5% = 1.121.000 + 8% = 1.210.680
+    await expect(drawer.getByTestId('q-detail-total')).toHaveText('1.210.680₫');
+  });
+
+  test('vai trò Sales: chỉ báo giá của mình, không có quyền duyệt', async ({ page }) => {
+    test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
+    await page.goto(URL);
+    await setRole(page, 'Sales');
+    // scope sales = own: người dùng mock (Trâm) chỉ thấy BG-2040 của mình
+    await expect(page.locator('[data-quote]')).toHaveCount(1);
+    await expect(page.locator('[data-quote="q_2040"]')).toBeVisible();
+    await expect(page.getByTestId('q-bulk-approve')).toHaveCount(0);
+    await expect(page.getByTestId('q-create')).toBeVisible();
+  });
+
+  test('390: thẻ báo giá, drawer, form toàn màn, không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
+    test.skip(!isMobile(page), 'chỉ mobile');
+    await page.goto(URL);
+    await expect(page.getByTestId('q-table').locator('[data-quote]')).toHaveCount(3);
+    await expectNoHorizontalOverflow(page);
+    await expectTouchTargets(page.getByTestId('q-create'));
+    await page.locator('[data-quote="q_2041"]').click();
+    await expect(page.getByTestId('q-drawer')).toBeVisible();
+    await expectTouchTargets(page.getByTestId('q-to-order'));
+    await expectNoHorizontalOverflow(page);
+    await page.getByTestId('q-drawer').getByRole('button', { name: 'Đóng' }).first().click();
+    await page.getByTestId('q-create').click();
+    await expect(page.getByTestId('q-form')).toBeVisible();
+    await expectTouchTargets(page.getByTestId('q-save'));
+    await expectNoHorizontalOverflow(page);
+  });
+});

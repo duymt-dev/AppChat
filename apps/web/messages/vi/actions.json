@@ -169,5 +169,157 @@
     "pause": {
       "title": "Bật / tạm dừng tác vụ"
     }
+  },
+  "product": {
+    "create": {
+      "title": "Thêm sản phẩm"
+    },
+    "update": {
+      "title": "Cập nhật sản phẩm"
+    },
+    "archive": {
+      "title": "Xoá sản phẩm"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Tạo danh mục"
+    }
+  },
+  "stock": {
+    "adjust": {
+      "title": "Điều chỉnh tồn kho"
+    }
+  },
+  "quote": {
+    "create": {
+      "title": "Tạo báo giá"
+    },
+    "update": {
+      "title": "Cập nhật báo giá"
+    },
+    "delete": {
+      "title": "Xoá báo giá"
+    },
+    "submit_for_approval": {
+      "title": "Gửi duyệt báo giá"
+    },
+    "approve": {
+      "title": "Duyệt báo giá"
+    },
+    "reject_internal": {
+      "title": "Trả lại báo giá"
+    },
+    "send": {
+      "title": "Gửi báo giá"
+    },
+    "request_revision": {
+      "title": "Tạo bản sửa báo giá"
+    },
+    "mark_accepted": {
+      "title": "Khách chốt báo giá"
+    },
+    "mark_rejected": {
+      "title": "Khách từ chối báo giá"
+    },
+    "extend_validity": {
+      "title": "Gia hạn báo giá"
+    },
+    "comment": {
+      "title": "Thêm trao đổi nội bộ"
+    },
+    "draft_from_content": {
+      "title": "AI soạn báo giá"
+    }
+  },
+  "contract": {
+    "create": {
+      "title": "Tạo hợp đồng"
+    },
+    "create_from_quote": {
+      "title": "Tạo hợp đồng từ báo giá"
+    },
+    "update": {
+      "title": "Cập nhật hợp đồng"
+    },
+    "submit": {
+      "title": "Trình duyệt hợp đồng"
+    },
+    "approve_and_sign": {
+      "title": "Duyệt & ký hợp đồng"
+    },
+    "request_changes": {
+      "title": "Yêu cầu sửa hợp đồng"
+    },
+    "reject_internal": {
+      "title": "Từ chối hợp đồng"
+    },
+    "send_for_signature": {
+      "title": "Gửi ký hợp đồng"
+    },
+    "remind_signer": {
+      "title": "Nhắc khách ký"
+    },
+    "extend_sign_link": {
+      "title": "Gia hạn link ký"
+    },
+    "terminate": {
+      "title": "Chấm dứt hợp đồng"
+    },
+    "renew": {
+      "title": "Gia hạn hợp đồng"
+    },
+    "delete": {
+      "title": "Xoá hợp đồng"
+    }
+  },
+  "order": {
+    "create": {
+      "title": "Tạo đơn hàng"
+    },
+    "create_from_quote": {
+      "title": "Tạo đơn từ báo giá"
+    },
+    "create_from_contract": {
+      "title": "Tạo đơn từ hợp đồng"
+    },
+    "update": {
+      "title": "Cập nhật đơn hàng"
+    },
+    "set_deposit": {
+      "title": "Đặt cọc đơn hàng"
+    },
+    "confirm": {
+      "title": "Xác nhận đơn"
+    },
+    "complete": {
+      "title": "Hoàn tất đơn"
+    },
+    "cancel": {
+      "title": "Huỷ đơn"
+    },
+    "update_shipping": {
+      "title": "Cập nhật vận chuyển"
+    },
+    "sync_now": {
+      "title": "Đồng bộ đơn từ sàn"
+    }
+  },
+  "invoice": {
+    "create": {
+      "title": "Tạo đề nghị thanh toán"
+    },
+    "send_payment_qr": {
+      "title": "Gửi đề nghị thanh toán kèm VietQR"
+    },
+    "record_payment": {
+      "title": "Ghi nhận thanh toán"
+    },
+    "resolve_bank_match": {
+      "title": "Đối soát giao dịch ngân hàng"
+    },
+    "void": {
+      "title": "Huỷ đề nghị thanh toán"
+    }
   }
 }

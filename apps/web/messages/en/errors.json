@@ -13,5 +13,9 @@
   "ACTION_NOT_FOUND": "Unknown action",
   "PREVIEW_REQUIRED": "Confirmation required",
   "APPROVAL_REQUIRED": "Sent for approval",
-  "INTERNAL": "System error, try again later"
+  "INVALID_STATE": "The current status does not allow this action",
+  "QUOTE_NEEDS_APPROVAL": "This quote is over the threshold — get it approved before sending",
+  "INTERNAL": "System error, try again later",
+  "OTP_INVALID": "Incorrect OTP code",
+  "SIGN_LINK_INVALID": "This signing link has expired or is no longer valid"
 }

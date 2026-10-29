@@ -5,6 +5,11 @@ import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
 import { agentsHandlers } from './domains/agents';
+import { productsHandlers } from './domains/products';
+import { quotesHandlers } from './domains/quotes';
+import { contractsHandlers } from './domains/contracts';
+import { ordersHandlers } from './domains/orders';
+import { invoicesHandlers } from './domains/invoices';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -16,7 +21,16 @@ export const mockHandlers: Record<string, MockHandler> = {
   'business_profile.update': {
     execute: (
       db,
-      input: { kind: 'enterprise' | 'household' | 'individual'; tax_code?: string; national_id?: string; legal_name: string; address: string; phone?: string; representative?: string; business_description: string },
+      input: {
+        kind: 'enterprise' | 'household' | 'individual';
+        tax_code?: string;
+        national_id?: string;
+        legal_name: string;
+        address: string;
+        phone?: string;
+        representative?: string;
+        business_description: string;
+      },
     ) => {
       db.business = {
         kind: input.kind === 'individual' ? 'individual' : 'business',
@@ -58,4 +72,9 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...customersHandlers,
   ...assistantHandlers,
   ...agentsHandlers,
+  ...productsHandlers,
+  ...quotesHandlers,
+  ...contractsHandlers,
+  ...ordersHandlers,
+  ...invoicesHandlers,
 };
