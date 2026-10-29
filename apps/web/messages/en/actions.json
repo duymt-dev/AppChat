@@ -2,6 +2,9 @@
   "notification": {
     "mark_read": {
       "title": "Mark notifications as read"
+    },
+    "update_prefs": {
+      "title": "Update notification preferences"
     }
   },
   "profile": {
@@ -12,6 +15,9 @@
   "workspace": {
     "switch": {
       "title": "Switch workspace"
+    },
+    "update": {
+      "title": "Update workspace info"
     }
   },
   "done": "Done: {title}",
@@ -423,6 +429,139 @@
     },
     "update_config": {
       "title": "Update loyalty settings"
+    }
+  },
+  "member": {
+    "invite": {
+      "title": "Invite member"
+    },
+    "set_role": {
+      "title": "Change member role"
+    },
+    "remove": {
+      "title": "Remove member"
+    }
+  },
+  "invite": {
+    "revoke": {
+      "title": "Revoke invite"
+    }
+  },
+  "working_hours": {
+    "update": {
+      "title": "Update working hours"
+    }
+  },
+  "sla": {
+    "update_default": {
+      "title": "Update default SLA"
+    }
+  },
+  "tag": {
+    "create": {
+      "title": "Create tag"
+    },
+    "update": {
+      "title": "Update tag"
+    },
+    "delete": {
+      "title": "Delete tag"
+    }
+  },
+  "canned_reply": {
+    "create": {
+      "title": "Create canned reply"
+    },
+    "update": {
+      "title": "Update canned reply"
+    },
+    "delete": {
+      "title": "Delete canned reply"
+    }
+  },
+  "channel": {
+    "zalo": {
+      "start_login": {
+        "title": "Connect personal Zalo"
+      }
+    },
+    "email": {
+      "connect": {
+        "title": "Connect email"
+      }
+    },
+    "reconnect": {
+      "title": "Reconnect channel"
+    },
+    "disconnect": {
+      "title": "Disconnect channel"
+    }
+  },
+  "webchat": {
+    "update_widget": {
+      "title": "Update website widget"
+    }
+  },
+  "integration": {
+    "connect": {
+      "title": "Connect integration"
+    },
+    "disconnect": {
+      "title": "Disconnect integration"
+    },
+    "register_interest": {
+      "title": "Register interest in integration"
+    }
+  },
+  "ai_settings": {
+    "update": {
+      "title": "Update AI settings"
+    }
+  },
+  "kb": {
+    "add_source": {
+      "title": "Add knowledge source"
+    },
+    "remove_source": {
+      "title": "Remove knowledge source"
+    },
+    "refresh_source": {
+      "title": "Re-index knowledge source"
+    },
+    "folder": {
+      "create": {
+        "title": "Create knowledge folder"
+      }
+    }
+  },
+  "governance": {
+    "update": {
+      "title": "Update AI governance"
+    }
+  },
+  "billing": {
+    "create_invoice": {
+      "title": "Create plan / credit invoice"
+    },
+    "cancel_invoice": {
+      "title": "Cancel plan invoice"
+    },
+    "report_transfer": {
+      "title": "Report bank transfer"
+    }
+  },
+  "doc_template": {
+    "create": {
+      "title": "Create document template"
+    },
+    "update": {
+      "title": "Update document template"
+    },
+    "delete": {
+      "title": "Delete document template"
+    },
+    "detect_fields": {
+      "title": "Detect template fields"
     }
   }
 }

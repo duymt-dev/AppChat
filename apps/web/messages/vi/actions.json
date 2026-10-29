@@ -2,6 +2,9 @@
   "notification": {
     "mark_read": {
       "title": "Đánh dấu thông báo đã đọc"
+    },
+    "update_prefs": {
+      "title": "Cập nhật tuỳ chọn thông báo"
     }
   },
   "profile": {
@@ -12,6 +15,9 @@
   "workspace": {
     "switch": {
       "title": "Chuyển workspace"
+    },
+    "update": {
+      "title": "Cập nhật thông tin workspace"
     }
   },
   "done": "Đã thực hiện: {title}",
@@ -423,6 +429,139 @@
     },
     "update_config": {
       "title": "Cập nhật cấu hình khách thân thiết"
+    }
+  },
+  "member": {
+    "invite": {
+      "title": "Mời thành viên"
+    },
+    "set_role": {
+      "title": "Đổi vai trò thành viên"
+    },
+    "remove": {
+      "title": "Xoá thành viên"
+    }
+  },
+  "invite": {
+    "revoke": {
+      "title": "Thu hồi lời mời"
+    }
+  },
+  "working_hours": {
+    "update": {
+      "title": "Cập nhật giờ làm việc"
+    }
+  },
+  "sla": {
+    "update_default": {
+      "title": "Cập nhật SLA mặc định"
+    }
+  },
+  "tag": {
+    "create": {
+      "title": "Tạo thẻ"
+    },
+    "update": {
+      "title": "Sửa thẻ"
+    },
+    "delete": {
+      "title": "Xoá thẻ"
+    }
+  },
+  "canned_reply": {
+    "create": {
+      "title": "Tạo câu trả lời mẫu"
+    },
+    "update": {
+      "title": "Sửa câu trả lời mẫu"
+    },
+    "delete": {
+      "title": "Xoá câu trả lời mẫu"
+    }
+  },
+  "channel": {
+    "zalo": {
+      "start_login": {
+        "title": "Kết nối Zalo cá nhân"
+      }
+    },
+    "email": {
+      "connect": {
+        "title": "Kết nối email"
+      }
+    },
+    "reconnect": {
+      "title": "Kết nối lại kênh"
+    },
+    "disconnect": {
+      "title": "Ngắt kết nối kênh"
+    }
+  },
+  "webchat": {
+    "update_widget": {
+      "title": "Cập nhật widget website"
+    }
+  },
+  "integration": {
+    "connect": {
+      "title": "Kết nối nền tảng"
+    },
+    "disconnect": {
+      "title": "Ngắt kết nối nền tảng"
+    },
+    "register_interest": {
+      "title": "Đăng ký quan tâm kết nối"
+    }
+  },
+  "ai_settings": {
+    "update": {
+      "title": "Cập nhật cấu hình AI"
+    }
+  },
+  "kb": {
+    "add_source": {
+      "title": "Thêm tài liệu tri thức"
+    },
+    "remove_source": {
+      "title": "Xoá tài liệu tri thức"
+    },
+    "refresh_source": {
+      "title": "Học lại tài liệu"
+    },
+    "folder": {
+      "create": {
+        "title": "Tạo thư mục tri thức"
+      }
+    }
+  },
+  "governance": {
+    "update": {
+      "title": "Cập nhật AI Governance"
+    }
+  },
+  "billing": {
+    "create_invoice": {
+      "title": "Tạo hoá đơn gói / credit"
+    },
+    "cancel_invoice": {
+      "title": "Huỷ hoá đơn gói"
+    },
+    "report_transfer": {
+      "title": "Báo đã chuyển khoản"
+    }
+  },
+  "doc_template": {
+    "create": {
+      "title": "Tạo mẫu chứng từ"
+    },
+    "update": {
+      "title": "Sửa mẫu chứng từ"
+    },
+    "delete": {
+      "title": "Xoá mẫu chứng từ"
+    },
+    "detect_fields": {
+      "title": "AI nhận diện biến mẫu"
     }
   }
 }
