@@ -21,6 +21,7 @@ import { createSettingsState, type SettingsState } from './domains/settings';
 import { createSettingsAppsState, type SettingsAppsState } from './domains/settings-apps';
 import { createSettingsDataState, type SettingsDataState } from './domains/settings-data';
 import { createSettingsAiState, type SettingsAiState } from './domains/settings-ai';
+import { createSettingsOpsState, type SettingsOpsState } from './domains/settings-ops';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -61,6 +62,7 @@ export interface MockDb {
   settingsApps: SettingsAppsState;
   settingsData: SettingsDataState;
   settingsAi: SettingsAiState;
+  settingsOps: SettingsOpsState;
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -99,6 +101,7 @@ const db: MockDb = {
   settingsApps: createSettingsAppsState(),
   settingsData: createSettingsDataState(),
   settingsAi: createSettingsAiState(),
+  settingsOps: createSettingsOpsState(),
 };
 
 type Listener = (event: string) => void;

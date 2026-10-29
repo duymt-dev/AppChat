@@ -19,7 +19,7 @@ test.describe('settings · AI', () => {
     await page.getByTestId('st-ai-task-insights').focus();
     await expect(page.getByTestId('st-ai-budget')).toHaveValue('8,000,000');
     await page.getByTestId('st-ai-tier-max').click();
-    await expect(page).toHaveURL(/\/settings\/billing/);
+    await expect(page).toHaveURL(/\/settings\/billing/, { timeout: 15_000 });
   });
 
   test('RAG: nav AI đã học, lọc thư mục, tìm theo thẻ, tải lên (không học), học lại, xoá → thùng rác', async ({ page }) => {

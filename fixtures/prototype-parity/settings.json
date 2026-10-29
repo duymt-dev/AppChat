@@ -1740,5 +1740,176 @@
       "context": "Hội thoại #8240 — ẩn SĐT",
       "status": "ok"
     }
-  ]
+  ],
+  "sla": {
+    "policy": {
+      "name": "Mặc định",
+      "scope": "all",
+      "tier": "all",
+      "color": "#2563EB",
+      "on": true,
+      "frt_ai": 0,
+      "frt_human": 10,
+      "ttr_ai": 30,
+      "ttr_human": 240
+    },
+    "tz": "GMT+7 · Hà Nội",
+    "days": [
+      {
+        "day": 0,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 1,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 2,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 3,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 4,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 5,
+        "on": true,
+        "from": "08:00",
+        "to": "12:00"
+      },
+      {
+        "day": 6,
+        "on": false,
+        "from": "08:00",
+        "to": "18:00"
+      }
+    ],
+    "pause_sla": true,
+    "escalation": [
+      {
+        "key": "warn_80",
+        "color": "#F59E0B",
+        "on": true
+      },
+      {
+        "key": "frt_breach",
+        "color": "#DC2626",
+        "on": true
+      },
+      {
+        "key": "ttr_breach",
+        "color": "#DC2626",
+        "on": true
+      },
+      {
+        "key": "ai_low",
+        "color": "#6E48E6",
+        "on": true
+      },
+      {
+        "key": "vip_wait",
+        "color": "#2563EB",
+        "on": false
+      }
+    ],
+    "risk": {
+      "at_risk": 8,
+      "ai": 5,
+      "human": 3
+    }
+  },
+  "notif": {
+    "dnd": {
+      "on": false,
+      "from": "22:00",
+      "to": "08:00"
+    },
+    "sound": true,
+    "digest": "daily",
+    "groups": [
+      {
+        "key": "msg",
+        "events": [
+          {
+            "key": "msg_assigned",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "msg_mention",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "msg_vip",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "sla_warn",
+            "desktop": true,
+            "email": false,
+            "mobile": true
+          }
+        ]
+      },
+      {
+        "key": "ai",
+        "events": [
+          {
+            "key": "ai_review",
+            "desktop": true,
+            "email": false,
+            "mobile": false
+          },
+          {
+            "key": "ai_escalate",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "ai_budget",
+            "desktop": false,
+            "email": true,
+            "mobile": false
+          }
+        ]
+      },
+      {
+        "key": "system",
+        "events": [
+          {
+            "key": "channel_down",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "billing_invoice",
+            "desktop": false,
+            "email": true,
+            "mobile": false
+          }
+        ]
+      }
+    ]
+  }
 }

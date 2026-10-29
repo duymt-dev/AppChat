@@ -22,6 +22,10 @@ export const settingsColor = {
   aiTierBadge: '#E7F7EE',
   auditHead: '#FAFBFB',
   ragDrop: '#C9D4CD',
+  slaAiLine: '#E3D9FB',
+  slaOff: '#D1D5DB',
+  slaRiskAccent: '#7EE2A4',
+  slaRiskText: 'rgba(255,255,255,.82)',
 } as const;
 
 export const settingsGradient = {
@@ -30,6 +34,7 @@ export const settingsGradient = {
   wgHead: 'linear-gradient(135deg,#2DC56A,#1FB85C)',
   fieldsHero: 'linear-gradient(135deg,#EDFAF3,rgba(255,255,255,0))',
   govHero: 'linear-gradient(135deg,#FEF3C7,#fff)',
+  slaRisk: 'linear-gradient(135deg,#06250F,#231F20)',
 } as const;
 
 export const settingsShadow = {

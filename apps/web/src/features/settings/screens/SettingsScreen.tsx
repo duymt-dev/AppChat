@@ -19,6 +19,8 @@ import { AiModelsSection } from '../components/AiModelsSection';
 import { RagSection } from '../components/RagSection';
 import { GovSection } from '../components/GovSection';
 import { AuditSection, AiAuditSection } from '../components/AuditSection';
+import { SlaSection } from '../components/SlaSection';
+import { NotifSection } from '../components/NotifSection';
 import { resolveSection, type NavItem, type SectionKey } from '../registry';
 import { useSettingsUiCommands } from '../ui-commands';
 
@@ -38,6 +40,8 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   ai_gov: GovSection,
   ai_audit: AiAuditSection,
   audit: AuditSection,
+  org_sla: SlaSection,
+  notifications: NotifSection,
 };
 
 /** Mục có phụ đề dưới tiêu đề (prototype L5775). */

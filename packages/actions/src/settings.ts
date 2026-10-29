@@ -110,12 +110,15 @@ export const slaUpdateDefault = defineAction({
   module: 'support',
   title: 'actions.sla.update_default.title',
   description:
-    'Update the default SLA policy (minutes): first response and resolution, separately for AI and humans. Example: {"frt_ai":1,"frt_human":15,"ttr_ai":30,"ttr_human":480}',
+    'Update the default SLA policy (minutes; 0 = immediate): first response and resolution for AI and humans, and escalation rules. Example: {"frt_human":15,"ttr_human":480,"escalation":{"vip_wait":true}}',
   input: z.object({
-    frt_ai: z.number().int().min(1).max(1440),
-    frt_human: z.number().int().min(1).max(10_080),
-    ttr_ai: z.number().int().min(1).max(10_080),
-    ttr_human: z.number().int().min(1).max(43_200),
+    /** 0 = tức thì / không áp dụng (prototype L7616). */
+    frt_ai: z.number().int().min(0).max(1440).optional(),
+    frt_human: z.number().int().min(1).max(10_080).optional(),
+    ttr_ai: z.number().int().min(0).max(10_080).optional(),
+    ttr_human: z.number().int().min(1).max(43_200).optional(),
+    /** Quy tắc leo thang bật / tắt — `sla_policy.escalation` (Blueprint §2). */
+    escalation: z.partialRecord(z.enum(['warn_80', 'frt_breach', 'ttr_breach', 'ai_low', 'vip_wait']), z.boolean()).optional(),
   }),
   output: z.object({ ok: z.boolean() }),
   permission: 'sla.manage',

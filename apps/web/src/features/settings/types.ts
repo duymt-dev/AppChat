@@ -226,3 +226,26 @@ export interface AiAuditRow {
   context: string;
   status: 'ok' | 'warn' | 'escalated';
 }
+
+export interface SlaDay {
+  day: number;
+  on: boolean;
+  from: string;
+  to: string;
+}
+
+export interface SlaData {
+  policy: { name: string; scope: string; tier: string; color: string; on: boolean; frt_ai: number; frt_human: number; ttr_ai: number; ttr_human: number };
+  tz: string;
+  days: SlaDay[];
+  pause_sla: boolean;
+  escalation: { key: string; color: string; on: boolean }[];
+  risk: { at_risk: number; ai: number; human: number };
+}
+
+export interface NotifPrefs {
+  groups: { key: string; events: { key: string; desktop: boolean; email: boolean; mobile: boolean }[] }[];
+  dnd: { on: boolean; from: string; to: string };
+  sound: boolean;
+  digest: 'off' | 'daily' | 'weekly';
+}

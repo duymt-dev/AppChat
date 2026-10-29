@@ -829,5 +829,115 @@
       "warn": "Warn",
       "escalated": "Escalated"
     }
+  },
+  "sla": {
+    "new": "Tạo chính sách",
+    "newSoon": "Nhiều chính sách theo kênh / hạng khách có ở bản sau — hiện dùng chính sách mặc định",
+    "col": {
+      "policy": "Chính sách",
+      "scope": "Phạm vi",
+      "tier": "Hạng KH",
+      "frtAi": "FRT · AI",
+      "frt": "FRT · Người",
+      "ttrAi": "TTR · AI",
+      "ttr": "TTR · Người",
+      "on": "Bật"
+    },
+    "defaultName": "Mặc định",
+    "defaultType": "Áp dụng cho mọi hội thoại & ticket",
+    "allChannels": "Tất cả kênh",
+    "allTiers": "Tất cả",
+    "alwaysOn": "Chính sách mặc định luôn bật",
+    "edit": "Sửa chính sách",
+    "now": "Tức thì",
+    "hoursT": "Giờ làm việc của con người",
+    "aiT": "AI Agent hoạt động <b>24/7</b>",
+    "aiS": "AI phản hồi mọi lúc · SLA con người chỉ tính trong giờ làm dưới đây",
+    "day": {
+      "0": "T2",
+      "1": "T3",
+      "2": "T4",
+      "3": "T5",
+      "4": "T6",
+      "5": "T7",
+      "6": "CN"
+    },
+    "open": "Mở",
+    "closed": "Nghỉ",
+    "pause": "Dừng đồng hồ SLA con người ngoài giờ làm việc",
+    "pauseD": "Đêm/lễ SLA con người tự tạm dừng · AI vẫn xử lý 24/7",
+    "escT": "Quy tắc leo thang",
+    "esc": {
+      "warn_80": "Đạt 80% ngưỡng SLA",
+      "frt_breach": "Quá hạn phản hồi (FRT)",
+      "ttr_breach": "Quá hạn giải quyết (TTR)",
+      "ai_low": "Độ tin cậy AI < 70%",
+      "vip_wait": "Khách VIP chờ > 5 phút"
+    },
+    "escA": {
+      "warn_80": "→ Nhắc nhở người phụ trách",
+      "frt_breach": "→ Tự gán cho Quản lý + cảnh báo",
+      "ttr_breach": "→ Nâng mức ưu tiên → Cao",
+      "ai_low": "→ Bàn giao cho con người ngay",
+      "vip_wait": "→ Gửi thông báo cho Chủ sở hữu"
+    },
+    "riskT": "AI dự báo rủi ro SLA",
+    "riskS": "{n} hội thoại đang có nguy cơ trễ SLA trong 30 phút tới. AI đề xuất tự xử lý {a} hội thoại đơn giản và ưu tiên {h} ca cho con người.",
+    "modal": {
+      "title": "Sửa chính sách SLA mặc định",
+      "save": "Lưu chính sách",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "name": "Tên chính sách",
+      "defaultName": "Mặc định",
+      "thresholds": "Ngưỡng cam kết (phút) — <ai>AI</ai> vs Con người",
+      "f": {
+        "frt_ai": "Phản hồi (FRT) · AI",
+        "frt_human": "Phản hồi (FRT) · Người",
+        "ttr_ai": "Giải quyết (TTR) · AI",
+        "ttr_human": "Giải quyết (TTR) · Người"
+      },
+      "hint": "Nhập 0 = tức thì / không áp dụng (chỉ cho AI). Đồng hồ chỉ chạy trong giờ làm việc nếu bật \"Dừng ngoài giờ\".",
+      "err": "Nhập số phút hợp lệ (AI ≥ 0, người ≥ 1)"
+    },
+    "aiOn": "Luôn bật"
+  },
+  "notif": {
+    "col": {
+      "event": "Sự kiện",
+      "desktop": "Desktop",
+      "email": "Email",
+      "mobile": "Mobile"
+    },
+    "group": {
+      "msg": "Tin nhắn",
+      "ai": "AI",
+      "system": "Hệ thống"
+    },
+    "event": {
+      "msg_assigned": "Tin mới được gán cho tôi",
+      "msg_mention": "Nhắc đến tôi trong hội thoại",
+      "msg_vip": "Tin từ VIP / khách ưu tiên",
+      "sla_warn": "SLA sắp vi phạm",
+      "ai_review": "AI cần duyệt trước khi gửi",
+      "ai_escalate": "AI chuyển sang người",
+      "ai_budget": "AI vượt ngân sách",
+      "channel_down": "Kênh bị ngắt kết nối",
+      "billing_invoice": "Gói & ví — hoá đơn mới"
+    },
+    "prefsT": "Tuỳ chọn nhận thông báo",
+    "dnd": "Không làm phiền (Do Not Disturb)",
+    "dndD": "Tạm ẩn thông báo đẩy trong khung giờ nghỉ — tin vẫn được ghi nhận.",
+    "from": "Từ",
+    "to": "đến",
+    "sound": "Âm thanh thông báo",
+    "soundD": "Phát âm báo khi có tin mới trên desktop.",
+    "digest": "Email tóm tắt (digest)",
+    "digestD": "Gửi email tổng hợp hoạt động & việc cần xử lý.",
+    "digests": {
+      "off": "Tắt",
+      "daily": "Hằng ngày · 08:00",
+      "weekly": "Hằng tuần · Thứ 2"
+    }
   }
 }

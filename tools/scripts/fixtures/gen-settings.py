@@ -9,6 +9,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from settings_ai import build_ai  # noqa: E402
+from settings_ops import build_ops  # noqa: E402
 
 NOW = "2026-06-24T09:00:00+07:00"
 
@@ -230,6 +231,7 @@ def build():
         ],
         "fields": {e: field_rows(rows) for e, rows in FIELDS.items()},
         **build_ai(),
+        **build_ops(),
     }
 
 

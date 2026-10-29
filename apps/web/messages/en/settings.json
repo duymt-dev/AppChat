@@ -829,5 +829,115 @@
       "warn": "Warn",
       "escalated": "Escalated"
     }
+  },
+  "sla": {
+    "new": "New policy",
+    "newSoon": "Multiple policies per channel / tier come later — the default policy applies now",
+    "col": {
+      "policy": "Policy",
+      "scope": "Scope",
+      "tier": "Tier",
+      "frtAi": "FRT · AI",
+      "frt": "FRT · Human",
+      "ttrAi": "TTR · AI",
+      "ttr": "TTR · Human",
+      "on": "On"
+    },
+    "defaultName": "Default",
+    "defaultType": "Applies to all conversations & tickets",
+    "allChannels": "All channels",
+    "allTiers": "All",
+    "alwaysOn": "The default policy is always on",
+    "edit": "Edit policy",
+    "now": "Instant",
+    "hoursT": "Human working hours",
+    "aiT": "AI agents work <b>24/7</b>",
+    "aiS": "AI answers any time · human SLA only counts within the hours below",
+    "day": {
+      "0": "Mon",
+      "1": "Tue",
+      "2": "Wed",
+      "3": "Thu",
+      "4": "Fri",
+      "5": "Sat",
+      "6": "Sun"
+    },
+    "open": "Open",
+    "closed": "Closed",
+    "pause": "Pause the human SLA clock outside working hours",
+    "pauseD": "Nights/holidays pause the human SLA · AI keeps working 24/7",
+    "escT": "Escalation rules",
+    "esc": {
+      "warn_80": "Reaches 80% of SLA",
+      "frt_breach": "First response overdue (FRT)",
+      "ttr_breach": "Resolution overdue (TTR)",
+      "ai_low": "AI confidence < 70%",
+      "vip_wait": "VIP customer waiting > 5 minutes"
+    },
+    "escA": {
+      "warn_80": "→ Remind the assignee",
+      "frt_breach": "→ Assign to a Manager + alert",
+      "ttr_breach": "→ Raise priority → High",
+      "ai_low": "→ Hand off to a human now",
+      "vip_wait": "→ Notify the Owner"
+    },
+    "riskT": "AI SLA risk forecast",
+    "riskS": "{n} conversations risk missing SLA in the next 30 minutes. AI suggests handling {a} simple ones itself and prioritising {h} for humans.",
+    "modal": {
+      "title": "Edit default SLA policy",
+      "save": "Save policy",
+      "cancel": "Cancel",
+      "close": "Close",
+      "name": "Policy name",
+      "defaultName": "Default",
+      "thresholds": "Commitments (minutes) — <ai>AI</ai> vs Human",
+      "f": {
+        "frt_ai": "First response (FRT) · AI",
+        "frt_human": "First response (FRT) · Human",
+        "ttr_ai": "Resolution (TTR) · AI",
+        "ttr_human": "Resolution (TTR) · Human"
+      },
+      "hint": "Enter 0 = instant / not applicable (AI only). The clock only runs in working hours when \"Pause outside hours\" is on.",
+      "err": "Enter valid minutes (AI ≥ 0, human ≥ 1)"
+    },
+    "aiOn": "Always on"
+  },
+  "notif": {
+    "col": {
+      "event": "Event",
+      "desktop": "Desktop",
+      "email": "Email",
+      "mobile": "Mobile"
+    },
+    "group": {
+      "msg": "Messages",
+      "ai": "AI",
+      "system": "System"
+    },
+    "event": {
+      "msg_assigned": "New message assigned to me",
+      "msg_mention": "Mentioned in a conversation",
+      "msg_vip": "Message from a VIP / priority customer",
+      "sla_warn": "SLA about to be breached",
+      "ai_review": "AI needs approval before sending",
+      "ai_escalate": "AI handed off to a human",
+      "ai_budget": "AI over budget",
+      "channel_down": "Channel disconnected",
+      "billing_invoice": "Plan & wallet — new invoice"
+    },
+    "prefsT": "Notification preferences",
+    "dnd": "Do Not Disturb",
+    "dndD": "Mute push notifications during quiet hours — messages are still recorded.",
+    "from": "From",
+    "to": "to",
+    "sound": "Notification sound",
+    "soundD": "Play a sound for new messages on desktop.",
+    "digest": "Email digest",
+    "digestD": "Send an email summary of activity & to-dos.",
+    "digests": {
+      "off": "Off",
+      "daily": "Daily · 08:00",
+      "weekly": "Weekly · Monday"
+    }
   }
 }

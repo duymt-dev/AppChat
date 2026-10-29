@@ -12,6 +12,8 @@ import type {
   Governance,
   KbData,
   MembersPage,
+  NotifPrefs,
+  SlaData,
   Reply,
   RolesData,
   TagsData,
@@ -63,3 +65,7 @@ export const governanceQuery = () => queryOptions({ queryKey: ['ai', 'governance
 export const auditQuery = () => queryOptions({ queryKey: ['audit', 'workspace'], queryFn: () => transport.get<AuditRow[]>('/settings/audit') });
 
 export const aiAuditQuery = () => queryOptions({ queryKey: ['audit', 'ai'], queryFn: () => transport.get<AiAuditRow[]>('/settings/ai-audit') });
+
+export const slaQuery = () => queryOptions({ queryKey: ['settings', 'sla'], queryFn: () => transport.get<SlaData>('/settings/sla') });
+
+export const notifPrefsQuery = () => queryOptions({ queryKey: ['me', 'notif-prefs'], queryFn: () => transport.get<NotifPrefs>('/settings/notifications') });

@@ -8,11 +8,13 @@ interface Props {
   label: string;
   small?: boolean;
   large?: boolean;
+  /** 38×22 — bảng thông báo (prototype L6206). */
+  mid?: boolean;
   disabled?: boolean;
   testId?: string;
 }
 
-export function Switch({ on, onChange, label, small, large, disabled, testId }: Props) {
+export function Switch({ on, onChange, label, small, large, mid, disabled, testId }: Props) {
   const { styles, cx } = useSwitchStyles();
   return (
     <button
@@ -25,7 +27,7 @@ export function Switch({ on, onChange, label, small, large, disabled, testId }: 
       onClick={() => onChange(!on)}
       data-testid={testId}
     >
-      <span className={cx(styles.track, small && styles.small, large && styles.large, on && styles.on)} data-on={on ? '1' : '0'}>
+      <span className={cx(styles.track, small && styles.small, large && styles.large, mid && styles.mid, on && styles.on)} data-on={on ? '1' : '0'}>
         <span className={styles.dot} />
       </span>
     </button>

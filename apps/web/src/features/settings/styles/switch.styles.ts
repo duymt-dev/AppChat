@@ -55,6 +55,20 @@ export const useSwitchStyles = createStyles(({ css, responsive }) => ({
       left: 20px;
     }
   `,
+  mid: css`
+    && {
+      width: 38px;
+      height: 22px;
+      border-radius: ${radius.r12}px;
+    }
+    span {
+      width: 18px;
+      height: 18px;
+    }
+    &&[data-on='1'] span {
+      left: 18px;
+    }
+  `,
   on: css`
     && {
       background: ${color.brand};

@@ -1267,6 +1267,40 @@ export const MANIFEST: ParityEntry[] = [
     clip: ST_MAIN,
   },
   {
+    id: 'settings:sla',
+    route: '/settings/org_sla',
+    protoStorage: settings('org_sla'),
+    appWait: '[data-sla]',
+    // E: chỉ chính sách mặc định (Blueprint §2 sla_policy) — prototype rút còn đúng một dòng tương đương.
+    proto: async (p) => {
+      await settingsProto(p);
+      await protoSetState(p, {
+        slaPolicies: [['Mặc định', 'Áp dụng cho mọi hội thoại & ticket', 'Tất cả kênh', 'Tất cả', '#2563EB', true, 0, 10, 30, 240]],
+      });
+      // Prototype thừa một thẻ đóng div trước khối SLA (L5776–7374) nên khối rơi ra ngoài khung padding 28/36 của panel — trả về đúng khung.
+      await p.evaluate(() => {
+        const t = [...document.querySelectorAll<HTMLElement>('div')].find((d) => d.textContent?.trim() === 'Giờ làm việc của con người');
+        const main = t?.closest<HTMLElement>('.appscroll');
+        if (!main) return;
+        const kids = [...main.children] as HTMLElement[];
+        kids[0].style.paddingBottom = '0px';
+        for (const el of kids.slice(1)) {
+          el.style.marginLeft = '36px';
+          el.style.marginRight = '36px';
+        }
+      });
+    },
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:notifications',
+    route: '/settings/notifications',
+    protoStorage: settings('notifications'),
+    appWait: '[data-event]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
     id: 'settings:integrations',
     route: '/settings/integrations',
     protoStorage: settings('integrations'),
