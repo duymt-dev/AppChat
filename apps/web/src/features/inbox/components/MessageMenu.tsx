@@ -52,6 +52,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
 
   return (
     <>
+      <div className={styles.dotsWrap}>
       <button
         type="button"
         className={cx(styles.dots, 'msg-dots', open && styles.dotsOn)}
@@ -97,6 +98,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
           </div>
         </>
       ) : null}
+      </div>
       {translated ? (
         <div className={styles.translated} data-testid="msg-translated">
           <Icon name="ic-globe" size={12} color={color.info} />

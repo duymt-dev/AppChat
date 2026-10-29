@@ -3,6 +3,12 @@ import { createStyles } from 'antd-style';
 import { color, font, layout, radius, shadow, z } from '@appchat/ui';
 
 export const useMessageMenuStyles = createStyles(({ css, responsive }) => ({
+  /** Bọc nút ⋯ + menu — neo menu vào góc nút (bottom-aligned), không neo vào .row (prototype L2120: position:relative;align-self:flex-end). */
+  dotsWrap: css`
+    position: relative;
+    flex-shrink: 0;
+    align-self: flex-end;
+  `,
   dots: css`
     flex-shrink: 0;
     width: 30px;
@@ -33,8 +39,8 @@ export const useMessageMenuStyles = createStyles(({ css, responsive }) => ({
   `,
   menu: css`
     position: absolute;
-    top: 32px;
-    left: 40px;
+    top: 36px;
+    right: 0;
     width: 210px;
     background: ${color.surface};
     border: 1px solid ${color.border};
