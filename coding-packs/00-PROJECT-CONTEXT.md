@@ -2,7 +2,7 @@
 
 > Vibecode Kit v5.0 — BƯỚC 1 (SCAN)
 > Coding workspace: `D:\CODING\AppChat_Ver2` (remote `github.com/duymt-dev/AppChat`)
-> Scanned: 2026-10-27
+> Scanned: 2026-10-27 · **Scan delta prototype ver2.1: 2026-10-29** (cuối file) · Vision cập nhật V16–V18 2026-10-29
 > **RRI 2026-10-28:** sản phẩm thương mại hoàn chỉnh, mô hình OPC, lõi là Trợ lý AI làm Orchestrator + Copilot của nền tảng (điều phối agents, điều khiển mọi action trên UI); xem `01-REQUIREMENTS-MATRIX.md`.
 > Scan type: **Greenfield từ bộ đặc tả** — chưa có source code; build mới hoàn toàn bằng **Next.js + NestJS**.
 > Không liên quan / không tái sử dụng codebase V1 (`D:/CODING/appchat`) — quyết định của Chủ nhà 2026-10-27.
@@ -599,7 +599,9 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - Nội dung trái với quyết định đã chốt: trial 14→15 ngày, OTP Zalo→Email, ẩn social login, bỏ "tự nạp" / "tự chuyển model tiết kiệm", "Ký số"→"Ký điện tử", "Hóa đơn"→"Đề nghị thanh toán", kênh Marketing chỉ Zalo cá nhân + Email.
   - Kênh không làm khi phát hành (Facebook, Instagram, Telegram, WhatsApp…) — chỉ hiển thị kênh có manifest.
   - Trang Vai trò & phân quyền chỉ đọc ở P0 (D27); trang Nền tảng kết nối chỉ hiện connector có manifest, thẻ "Sắp có" (D28).
+  - **Từ prototype ver2.1 (2026-10-29):** bảng danh sách giữ cuộn trong khung + số trang (D42, D43 — prototype mới không ghi đè); Hồ sơ 360° với báo giá / hợp đồng đã gửi theo luật COMMERCE (D46); quyền agent chỉ cấu hình ở Builder, menu ＋ / Cowork chỉ hiển thị (D51); Research / Web search, Tạo nhóm Zalo hiện "Sắp có" (D48, D50).
   - Danh sách đầy đủ + quy trình đo: `standards/ui/prototype-parity.md`.
+- **Bản prototype mới:** chạy `node tools/scripts/normalize-prototype.mjs` (về thang D41) trước khi commit làm chuẩn so pixel (D44).
 - **Quy trình:**
   1. TIP nền tảng UI dựng `tools/parity`: script Playwright chụp prototype theo danh sách màn (`parity.manifest.ts`: route, trạng thái, mask, vùng ngoại lệ), lưu baseline vào `tests/parity/baseline/`.
   2. Mỗi TIP UI phải chạy `pnpm parity <màn>` và dán tỉ lệ sai khác vào Completion Report.
@@ -636,11 +638,11 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 |---|---|---|
 | Auth · Workspace · Trial | Đăng ký/đăng nhập (Email OTP + mật khẩu), khai báo DN bắt buộc, màn chào trial, đổi workspace | P0 |
 | **Trợ lý AI (lõi)** | Màn Trợ lý (Chat/Cowork), dock Ctrl+K ở mọi module, thẻ xác nhận/kế hoạch, Nhật ký hành động + hoàn tác, phiên trò chuyện | P0 |
-| AI Agents | Danh sách agent, builder (cấu hình + chat thử), thư viện mẫu, tri thức RAG, hàng chờ duyệt, hiệu suất agent | P0 |
-| Kênh | Kết nối Zalo cá nhân (QR), Web widget studio, Email; trang Kênh kết nối | P0 (Email P1) |
-| Hộp thư | 3 cột, chế độ AI theo từng hội thoại, folder views của AI, Panel 360°, chuyển thành đơn/lịch/ticket | P0 |
+| AI Agents | Danh sách agent, builder (cấu hình + chat thử), thư viện mẫu, tri thức RAG, hàng chờ duyệt, hiệu suất agent; **Tools nhóm theo module + Kỹ năng AI là nơi duy nhất cấp quyền** (D51); khung "Trợ lý AI đang điều phối" ở Cowork (REQ-E14) | P0 |
+| Kênh | Kết nối Zalo cá nhân (QR), Web widget studio, Email; trang Kênh kết nối — **một kênh nhiều tài khoản, kết nối 3 bước, drawer Quản lý kênh** (ver2.1, REQ-B09–B11) | P0 (Email P1) |
+| Hộp thư | 3 cột, chế độ AI theo từng hội thoại, folder views của AI, Panel 360°, chuyển thành đơn/lịch/ticket; ver2.1: menu ⋯ tin nhắn (cảm xúc, ghim, chuyển tiếp, dịch, tạo ticket), menu ⋯ hội thoại có submenu, tìm trong hội thoại, menu ＋ chỉ đọc quyền agent (REQ-C09–C13) | P0 |
 | Tổng quan | Việc cần tôi, AI đã làm gì, cần follow, onboarding, credit | P0 |
-| Khách hàng & CRM | Khách hàng (bảng/kanban), Hồ sơ 360°, Sản phẩm, Báo giá, Đơn | P0 |
+| Khách hàng & CRM | Khách hàng (bảng/kanban), Hồ sơ 360° (bố cục theo mẫu & vai trò, 6 nút mở form tại chỗ — REQ-F11, F12, M05), Sản phẩm, Báo giá, Đơn | P0 |
 | Khách hàng & CRM | **Hợp đồng + ký điện tử**, Đề nghị thanh toán + QR / SePay-Casso, liệu trình (D24, D25) | P0 |
 | Khách hàng & CRM | Custom fields, import/export, gộp trùng | P1 |
 | Lịch hẹn | Lịch ngày/tuần/tháng/danh sách, dịch vụ, chống trùng, nhắc hẹn | P0–P1 |
@@ -672,7 +674,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | V2 | **Action-first:** Action Registry là nguồn duy nhất cho UI, Trợ lý, agents và MCP | Copilot phải làm được mọi thao tác UI (D03, D16); một chỗ validate, phân quyền, audit, undo |
 | V3 | **Agent runtime (CHỐT B, 2026-10-28): Vercel AI SDK v7 (`ToolLoopAgent`, `toolApproval`) + lớp nối tự viết (Agent Gateway: tool từ Registry, credit, router, lưu/chạy tiếp run trong Postgres). Không fork** OpenFang/OpenClaw/Hermes | Fork thì phải mổ lõi mới đa tenant được. AI SDK là lớp nền ít đổi API, đa provider; dữ liệu, quyền, credit và audit nằm trọn trong Postgres của ta |
 | V4 | **Không dùng Mastra, không làm swarm.** Phối hợp agent gồm orchestrator (`delegate`), handoff (`transfer_to_agent`), hỏi ý (`consult`) và tác vụ tự chủ | Mastra trùng storage/memory và đang có lỗi ở phần duyệt qua agent con; swarm khó dự đoán, khó duyệt và tốn credit. Interface Agent Gateway để ngỏ cho cả hai sau này |
-| V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
+| V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Chủ nhà đã thử zca-js 2026-10-29, chưa thấy vấn đề (phiên bản chốt ở TIP-014 — OQ-03). Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
 | V6 | Monorepo pnpm: `web` (Next) · `api` (Nest) · `worker` (Nest, role channels/ai) · `packages/*` | Chia sẻ schema action và types FE/BE; worker tách để giữ phiên Zalo và chạy LLM dài |
 | V7 | Postgres 16 (DB nền tảng + **DB riêng mỗi workspace**, PgBouncer) + pgvector + FTS tiếng Việt; Redis/BullMQ; native, không Docker; PM2/systemd | RRI D12–D15, D21 |
 | V8 | Prisma (2 schema: platform + tenant) cho CRUD; SQL thô trong migration cho partial/expression/covering index; deferred join khi phân trang lớn | RRI D13 + quy tắc Postgres trong CLAUDE.md |
@@ -683,6 +685,9 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | V13 | **(CHỐT 2026-10-28) Production native trên VPS Linux**: systemd + PM2, nginx, PG16 + pgvector, Redis; **Prometheus + Alertmanager + Grafana + Loki** trên VPS monitoring riêng; backup pgBackRest offsite; script `infra/` dựng lại được | Chủ nhà chốt; không Docker (D12); chi tiết ở Blueprint §11 |
 | V14 | **(CHỐT 2026-10-28) Mỗi workspace một PostgreSQL database riêng** (`CREATE DATABASE … TEMPLATE`), cùng một DB nền tảng (identity, membership, gói, ví credit, hoá đơn gói, registry, định tuyến kênh/widget). Bảng tenant không có `workspace_id`, không RLS; PgBouncer; migration runner cho mọi DB | Chủ nhà yêu cầu cô lập ở mức DB; xoá / xuất / chuyển máy chủ từng khách dễ; chi tiết ở Blueprint §2.0. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop), khôi phục khi đăng nhập (D23) |
 | V15 | **(CHỐT 2026-10-28) i18n:** phát hành `vi` + `en`; registry khai báo sẵn 11 ngôn ngữ của prototype, chỉ bật vi/en; thêm ngôn ngữ chỉ cần file bản dịch | Chủ nhà chọn phương án A; Blueprint §7.4 |
+| V16 | **(CHỐT 2026-10-29) Bảng danh sách có số trang** (D42, D43): màn cao đúng viewport, chỉ thân bảng cuộn, header dính, `Pager` 20 / 50 / 100; API `page` + `limit`, backend deferred join. Bản prototype mới không ghi đè | Bảng dài cuộn cả màn làm mất thanh lọc / header; 9 bảng chính |
+| V17 | **(CHỐT 2026-10-29) Prototype mới chuẩn hoá về thang D41** trước khi làm chuẩn parity (D44) | ver2.1 đổi cỡ toàn cục; chép nguyên thì 43/109 màn đạt, chuẩn hoá thì 102/109 |
+| V18 | **(CHỐT 2026-10-29) Quyền agent một nơi** (D51): Tools trong Builder nhóm theo module + Kỹ năng AI; connector không cấp cho agent; menu ＋ / Cowork chỉ hiển thị; `delegate` / Cowork = quyền agent ∩ quyền người ra lệnh (Blueprint §3.3b) | Tránh cấp quyền ở nhiều chỗ; agent không vượt quyền người giao việc |
 
 ---
 
@@ -701,3 +706,175 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - Chưa kiểm field `usage` và việc chạy tiếp sau restart của AI SDK v7 (spike nửa ngày ở TIP AI).
   - OQ-04 – OQ-07 (cổng webhook ngân hàng, API tra MST, khoá LLM, hạ tầng production) cần Chủ nhà cung cấp; không chặn Blueprint.
 - **Trạng thái duyệt:** Vision + Blueprint **đã duyệt 2026-10-28 (D36)**. Lịch sử: V3/V4 (B, không Mastra, không swarm) và V11 (token prototype + Ant Design + parity < 5%) đã chốt 2026-10-28. Phần còn lại của Vision chờ Chủ nhà đọc.
+
+---
+
+## SCAN DELTA — Prototype ver2.1 (2026-10-29)
+
+> Vibecode Kit v5.0 — BƯỚC 1 (SCAN, delta).
+> Nguồn: `coding-packs/docs/06-prototype/AppChat.dc.html` ver2.1 (commit cdabf55, 12.553 dòng; bản trước ef05c32, 11.836 dòng) + 15 mục `[2026-10-29]` trong `coding-packs/docs/CHANGELOG.md`.
+> So với code: `apps/web` sau GOAL-FE-PROTOTYPE F0–F7 + D42 (dev dcb7731).
+> Scan type: **New module addition + UI refresh** trên codebase FE đã có (mock transport D38); backend chưa có.
+
+### TECH_STACK
+Không đổi so với Vision (V6–V15). Prototype ver2.1 không kéo thêm thư viện. [SoT: package.json, CLAUDE.md §1]
+
+### Đo hiện trạng — parity app hiện tại so với ver2.1
+- **So nguyên bản ver2.1: 43 PASS / 66 FAIL.**
+  - Nguyên nhân chính không phải tính năng. Ver2.1 đổi kích thước toàn cục:
+    - 4.273 / 4.706 cỡ chữ thành số lẻ (14 → 14.3, 12 → 12.1, 13 → 12.7 / 13.2 / 13.8, 24 → 24.2…);
+    - bo góc 7 / 9 / 11 / 14 xuất hiện 1.131 lần;
+    - viền `#E9EBED` quay lại;
+    - padding / gap nở khoảng 1.1×.
+  - Bản trước đã được chuẩn hoá về thang D41 (commit 5d41c73). Ver2.1 đưa giá trị lẻ trở lại. CHANGELOG không ghi việc này.
+- **Sau khi chạy `tools/scripts/normalize-prototype.mjs` (ép về thang D41): 102 PASS / 7 FAIL.**
+  - 10.028 giá trị đổi. Chạy thử rồi hoàn tác, chưa commit.
+  - 4 màn lệch thật do tính năng đổi: `inbox:conv-menu` 0.0529 · `inbox:chat-menu` 0.0896 · `inbox:connect-channel` 0.0620 · `assistant:agent-picker` 0.0990.
+  - 3 entry hỏng locator do nút "Trợ lý AI" đổi class `.btnp` → `.aibtn`: `shell:assistant-dock`, `customers:ai`, `agents:ai-create`. Manifest cần sửa.
+- Kết luận: chuẩn hoá prototype về D41 là đủ để giữ parity cho các màn không đổi tính năng.
+
+### EXISTING_MODULES — hiện trạng theo 15 mục ver2.1
+| # | Mục ver2.1 | Prototype (dòng mới) | App hiện tại | Trạng thái |
+|---|---|---|---|---|
+| 1 | Hộp thư: menu ⋯ tin nhắn đúng ngữ cảnh. Gồm cảm xúc, Trả lời, Sao chép, Chuyển tiếp, Ghim, Dịch, Tạo ticket; Thu hồi / Xoá tách nhóm | L2120–2132, L11829–11845, icon `ic-reply` L463 | `features/inbox/components/MessageMenu.tsx:9-18` còn trộn nhóm hội thoại | Thiếu |
+| 2 | Hộp thư: menu ⋯ hội thoại có submenu thật. Gồm Tạm ẩn, Phím tắt, Phân công, Vòng đời, Gắn thẻ nhiều; Lưu trữ / Ẩn / Tạo nhóm / Xoá lịch sử chuyển vào đây | L1978–2009, L11850–11882 | `ConvRow.tsx:11-18,43-50`: 6 mục, giá trị cứng, không submenu | Một phần |
+| 3 + 8 | Hồ sơ 360°: 6 nút mở form tại chỗ, điền sẵn; có bản ghi thì Cập nhật, chưa có thì Tạo. Thêm modal soạn email | L2562–2573, L3290–3301, L11350–11371, form CRM L5554–5597, email L760–776 | `Profile360Content.tsx:13-22,49,57` dùng `router.push` sang trang khác; store chỉ có `form:'create'` | Thiếu |
+| 4 | AI Agent: danh mục Skills / Nền tảng kết nối / Tiện ích cấp theo Agent; khung "Trợ lý AI đang điều phối" + modal | L8654–8665, L1706–1712, L1521–1527, L736–759 | `TaskDrawer.tsx:120-131` (danh sách phẳng); `agents/components/builder/ActionsSection.tsx:28-37` (công tắc theo action) | Một phần |
+| 5 | Hộp thư: menu ＋ khung nhập gồm Skills / Connectors / Plugins / Research / Web search | L2180–2202, L10197–10232 | `Composer.tsx:98` mở `pop 'attach'` nhưng không render | Thiếu |
+| 6 | Hồ sơ 360°: sửa / xoá được tab mặc định, thêm khối bổ sung | L690–735, L11389–11410 | Tab cứng (`Profile360Content.tsx:24`, `Panel360.tsx:27-31`) | Thiếu |
+| 7 | Hồ sơ 360°: bố cục theo mẫu & vai trò; Cài đặt → **Hồ sơ 360°** (mục mới, nhóm Ứng dụng) | L2360, L3088, L8631–8653, L6397–6415, nav L10303 | Không có trong `settings/registry.ts` | Thiếu |
+| 9 | Hộp thư: tìm trong hội thoại (🔍) | L2069–2096, L11337–11349 | `ChatHeader.tsx:28` nút không làm gì | Thiếu |
+| 10 | Hồ sơ 360°: 6 nút cùng kích thước, nền trắng viền xám | L2562–2573 | `Profile360Content.tsx:18-21,57` nền màu | Thiếu |
+| 11 | Thanh thao tác nổi đáy màn → **đã hoàn tác** trong cùng bản; chỉ còn tweak prototype | L8051, L401–403 | — | Không cần làm |
+| 12 | Bảng cuộn trong khung, header dính | L393–403 | `packages/ui/src/primitives/DataTable.tsx` (D42) | Xong (D43 giữ Pager + 9 bảng) |
+| 13 | Nút "Trợ lý AI" một kiểu (`.aibtn`) | 16 vị trí, CSS L392 | 5+ biến thể cục bộ (inbox, quotes, invoices, contracts, orders, tickets, calendar, agents, customers, marketing); chưa có primitive | Một phần |
+| 14 | Kênh: một kênh nhiều tài khoản | L8666–8692, L6258+, L11238–11246 | `settings/types.ts:54-69` một tài khoản / loại; Hộp thư có danh sách tài khoản | Một phần |
+| 15 | Kết nối kênh 3 bước + drawer Quản lý kênh 6 khối | L777–869, L870–966, L8693–8700, L11250–11330 | `settings/components/ConnectChannelModal.tsx` dạng cơ bản (QR Zalo, form email, link widget) | Thiếu |
+
+**Thay đổi không có trong CHANGELOG** (ngoài mục kích thước toàn cục ở trên):
+- **Header chat:** bỏ nút video và gọi điện, khớp D07. App vẫn còn 2 nút này (`ChatHeader.tsx:26-27`).
+- **Khung nhập:**
+  - bỏ chế độ "Trả lời";
+  - bỏ 6 icon thanh công cụ (mic, phone, video, bolt, cal, globe);
+  - bỏ hàng "Thả nhanh";
+  - "Gửi qua Zalo OA" → "Người gửi: Trâm (bạn)".
+- **Tin nhắn:** tin gửi đi hiện tên người gửi ("Trâm · 10:40 ✓✓"); đổi kiểu hiển thị "đang soạn tin…".
+- **Placeholder ô tìm hội thoại:** bỏ "mã lịch hẹn".
+- **Tổng quan:** nút "Hỏi Trợ lý AI" → "Trợ lý AI" (`.aibtn`).
+- **Icon sprite:** 54 → 55 (thêm `ic-reply`).
+
+### PATTERNS_DETECTED (ảnh hưởng tới việc làm theo ver2.1)
+- Form nghiệp vụ dùng chung được gọi từ màn khác. Prototype có `openCrmForm(mod, values, mode, ref)` ở z-index 1400. App cần export modal qua `features/<x>/index.ts`, hoặc dùng một host modal ở `shared`. Lý do: luật import không cho `features/a` dùng `features/b/components/*`.
+- Submenu thay nội dung menu, có nút ‹ quay lại. Dùng ở menu ⋯ hội thoại và menu ＋. Nên thành primitive dùng chung (mở rộng `ActionMenu` của `packages/ui`).
+- Danh mục công cụ một nguồn (`agCatalog`), đọc ở 2 nơi: cấp quyền cho Agent và menu ＋ Hộp thư. **D51:** nguồn = danh sách Tools của Builder (action `agentGrantable` nhóm theo module + nhóm Kỹ năng AI); menu ＋ / Cowork chỉ đọc.
+- Nút Trợ lý AI một kiểu → cần primitive `AiButton` ở `packages/ui`.
+
+### REUSABLE_COMPONENTS (đã có, dùng lại cho ver2.1)
+- Modal có sẵn và đã nhận prefill:
+  - `TicketFormModal.tsx:40`
+  - `AppointmentFormModal.tsx:27`
+  - `QuoteFormModal.tsx:29`
+  - `ContractFormModal.tsx:34`
+  - `OrderFormModal.tsx:38`
+- `ActionMenu` (`packages/ui`) cho menu ⋯.
+- `ActionsSection` (agent builder) cho công tắc theo action.
+- `AccountSelect` (inbox) cho danh sách tài khoản kênh.
+- `useAction`, `ConfirmActionHost`, `PageStates`, `DataTable` + `ListPager` (D42).
+
+### GAPS_DETECTED
+- **G-v21-1 · Action thiếu trong `packages/actions`** (cần cho 15 mục):
+  - **Tin nhắn:** `message.react`, `message.pin`, `message.forward`, `message.translate`; `message.send` + `reply_to_message_id`.
+  - **Hội thoại và khách:** `conversation.set_status` + `snoozed_until`; `conversation.assign` + `agent_id`; `contact.untag` / `contact.set_tags`.
+    - Blueprint đã có `conversation.untag`, nhưng `packages/actions` chưa có.
+  - **Ticket và email:** `ticket.create` + `source_message_id`; gửi email mới cho khách (chưa có hội thoại).
+  - **Bố cục 360°:** `profile_layout.*`.
+  - **Agent:** `run.cancel` (Blueprint L757 có, `packages/actions` chưa có); action "Kỹ năng AI" chỉ đọc (`ai.summarize`, `ai.translate`, `ai.detect_intent`, `ai.score_lead`, `ai.extract` — tên chốt khi cập nhật Blueprint §3.4); trường `ActionDef.requires_connector?` (badge *Cần kết nối X*). **Không** cấp connector cho agent (D51).
+  - **Kênh:**
+    - `channel.update_settings` (Blueprint L564 có, `packages/actions` chưa có);
+    - `channel.test`, `channel.pause` / `resume`, `channel.sync_history`;
+    - `channel.reconnect` / `disconnect` theo `channel_account_id`.
+- **G-v21-2 · Dữ liệu mới:**
+  - `message_reaction`;
+  - `conversation.pinned_message_id`;
+  - `profile_layout` (bảng riêng, hoặc `workspace.settings.p360`);
+  - `channel_account.settings jsonb` (agent, chế độ AI, giờ, lời chào, định tuyến, cờ đồng bộ);
+  - đọc `ai_run` đang chạy;
+  - thống kê kênh 7 ngày;
+  - `contact.get_360` trả bản ghi đang mở và dữ liệu khối.
+- **G-v21-3 · Blueprint §7.2 settings registry** chưa có mục `p360`.
+- **G-v21-4 · Parity manifest:** 3 locator `.btnp` "Trợ lý AI" cần đổi sang `.aibtn`. Bảng dòng prototype trong `CLAUDE.md` §6 đã cũ (xem bản đồ dòng mới ở dưới).
+
+### Bản đồ dòng prototype ver2.1 (thay bảng `CLAUDE.md` §6)
+| Vùng | Cũ | ver2.1 |
+|---|---|---|
+| CSS toàn cục | L39–392 | L39–404 (`.aibtn`, `.tblpage` L392–403) |
+| Icon sprite | L396–455 | L407–469 (55 icon) |
+| Auth | L459–630 | L471–647 |
+| Modal / popover toàn cục (mới) | — | L653–966 (＋ L653, editor 360° L690, việc đang chạy L736, email L760, kết nối kênh L777, drawer kênh L870) |
+| Popup trial / khai báo DN | L758–790 | L967–1088 |
+| Shell / rail | L637–1078 | L1089–1362 |
+| dashboard · assistant · inbox · agents · customers | 1079 · 1178 · 1505 · 2227 · 2451 | 1369 · 1468 · 1808 · 2581 · 2805 |
+| marketing · calendar · loyalty · tickets | 3394 · 3871 · 4412 · 4837 | 3760 · 4237 · 4778 · 5203 |
+| quotes · invoices · contracts · orders · products · settings | 4957 · 5233 · 5343 · 5489 · 5624 · 5754 | 5323 · 5599 · 5709 · 5855 · 5990 · 6120 |
+| ẩn: workflow · callcenter · reports | 2985 · 4235 · 4740 | 3351 · 4601 · 5106 |
+| state · `renderVals()` · thứ tự rail · `setNav` | 7668 · 8428 · 8525 · 9810 | 8052 · 8902 · 8999 · 10299 |
+
+### CODE_HEALTH (dev dcb7731)
+- lint / typecheck / test xanh; unit tests: shared 27, ui 2, actions 3, web 61.
+- `lint:size` 729 file, không file nào vượt trần. `lint:tokens` 555 file.
+- i18n vi / en 4.117 key, phủ 100%.
+- e2e 212 passed; parity với bản trước 109/109.
+- CI `parity` đỏ trên GitHub ở PR #4–#9: lệch font Linux / Windows, 6 màn vượt 0.05 khoảng 0.002. Chủ nhà đã quyết định bỏ qua.
+
+### ESTIMATED_SIZE (ước lượng FE trên mock, chưa tính backend)
+| Nhóm | Mục | Ước lượng |
+|---|---|---|
+| Chuẩn hoá prototype + manifest | B.1, G-v21-4 | 0.5 ngày |
+| Hộp thư (menu tin nhắn, menu hội thoại, ＋, tìm, khung nhập / header) | 1, 2, 5, 9, phần ngoài CHANGELOG | 3–4 ngày |
+| Hồ sơ 360° (form tại chỗ, nút, bố cục tab, Cài đặt Hồ sơ 360°) | 3/8, 6, 7, 10 | 4–5 ngày |
+| AI Agent (danh mục + cấp quyền, việc đang chạy) | 4 | 2 ngày |
+| Kênh (nhiều tài khoản, kết nối 3 bước, drawer quản lý) | 14, 15 | 3 ngày |
+| Nút Trợ lý AI chung | 13 | 0.5 ngày |
+
+---
+
+## Auto-Answered Requirements (ver2.1 — bỏ qua ở RRI)
+- **AA-v21-1:** Bảng cuộn trong khung giữ D42 + Pager, cho cả 9 bảng (D43). Tweak `tableScroll='page'` của prototype không làm.
+- **AA-v21-2:** Mục 11 (thanh nổi) đã hoàn tác trong prototype → không làm.
+- **AA-v21-3:** Kênh ngoài manifest vẫn ẩn hoặc hiện "Sắp có" (D04, D28, prototype-parity §6). Gồm Zalo OA, Facebook, Messenger, Instagram, WhatsApp, Telegram, LINE, Viber, WeChat, Tổng đài SIP, TikTok. Luồng kết nối chỉ có 3 đường: QR (Zalo cá nhân), form (Email IMAP), webchat. Nhánh OAuth và đồng bộ bình luận / đánh giá không làm.
+- **AA-v21-4:** Connector ngoài manifest hiện "Sắp có" (D28): ZBS, Misa, KiotViet, Sapo, Haravan, WooCommerce, Odoo, Fast, Google Sheets. Brevo là nhà cung cấp email hệ thống (D34), không phải connector của agent.
+- **AA-v21-5:** Bỏ nút video / gọi điện ở header chat (D07) — khớp ver2.1.
+- **AA-v21-6:** Nút Trợ lý AI ở màn ẩn (Gọi điện, Quy trình) không làm. Tooltip "Hóa đơn" → "Đề nghị thanh toán".
+- **AA-v21-7:** Giá trị lẻ của ver2.1 (13.4px, bo 9px…) quy về thang D41 khi code (prototype-parity §5).
+- **AA-v21-8:** Vai trò trong prototype (Quản trị / Kinh doanh / CSKH / Marketing / Vận hành) quy về 5 vai trò hệ thống D27. Marketing / Vận hành là vai trò tuỳ biến P1.
+- **AA-v21-9:** "Phòng ban nhận" trong cấu hình kênh phụ thuộc Teams (P1, ẩn) → ẩn ở P0.
+- **AA-v21-10:** Mục Cài đặt "Hồ sơ 360°" thêm vào settings registry (Blueprint §7.2) và rail Cài đặt, nhóm Ứng dụng.
+
+## Constraints (ver2.1)
+- COMMERCE-DECISIONS thắng prototype:
+  - báo giá đã gửi sửa bằng phiên bản mới (`quote.request_revision`), không sửa tại chỗ;
+  - hợp đồng chỉ sửa khi Nháp.
+- Luật import `features/a` không được dùng `features/b/components/*` → modal form gọi chéo phải qua `index.ts` hoặc host ở `shared`.
+- Mọi ghi qua `useAction`; action mới khai báo ở `packages/actions` trước (zod, permission, risk, invalidates).
+- D41 thang token, D42 / D43 bảng, D27 vai trò, D28 / D29 connector và mức AI, D37 MCP để P2.
+
+## Risks / Tech Debt (ver2.1 — cần chốt ở RRI)
+| # | Rủi ro / mâu thuẫn | Ảnh hưởng |
+|---|---|---|
+| R-v21-1 | Ver2.1 đưa giá trị lẻ trở lại, ngược D41. Chép nguyên bản thì 66/109 màn vượt 5% | Toàn bộ parity |
+| R-v21-2 | Hồ sơ 360° "Cập nhật" BG-2041 (Đã gửi) và HĐ-0412 (Chờ ký), trong khi Blueprint L633 / L643 chỉ cho sửa khi Nháp | COMMERCE |
+| R-v21-3 | 6 giai đoạn vòng đời trong prototype khác enum `contact.stage` (Blueprint L329) | Dữ liệu CRM |
+| R-v21-4 | Research / Web search, Skills / Plugins nghe như công cụ ngoài (gần MCP — D37 để P2); chưa có trong stack | Phạm vi AI |
+| R-v21-5 | "Ẩn trò chuyện", "Tạo nhóm" (Zalo) chưa có trường dữ liệu / action kênh | Phạm vi Hộp thư |
+| R-v21-6 | Dữ liệu khối 360° trong prototype là mẫu cố định; app cần `contact.get_360` thật | Backend |
+
+## Quality Gate: Self-Review (SCAN delta ver2.1)
+- [x] Tech stack (không đổi, dẫn V6–V15)
+- [x] Màn / route bị ảnh hưởng liệt kê (15 mục + phần ngoài CHANGELOG + bản đồ dòng mới)
+- [x] Schema: dữ liệu mới liệt kê ở G-v21-2 (tham chiếu Blueprint §2)
+- [x] Patterns (menu submenu, form gọi chéo, danh mục công cụ, AiButton)
+- [x] Code health có số đo thật (lint / test / e2e / parity trước và sau chuẩn hoá)
+- [x] Auto-answered (AA-v21-1…10) cho RRI
+- [x] Constraints, Risks R-v21-1…6
+- [x] Nguồn: dòng prototype + file:line app ở từng ô
+- [ ] Standards / Product subflow: bỏ qua. Standards đã có đủ (`standards/README.md`); `product/` đã có.
