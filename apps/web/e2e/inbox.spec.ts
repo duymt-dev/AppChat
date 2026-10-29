@@ -66,6 +66,49 @@ test.describe('inbox', () => {
     await expect(page.getByTestId('inbox-connect')).toHaveCount(0);
   });
 
+  test('Hồ sơ 360°: 6 nút mở form tại chỗ theo luật COMMERCE (REQ-F11)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.locator('[data-conv="c_lan"] button').first().click();
+    // Báo giá đã gửi (BG-2041) → tạo bản sửa, mở form sửa bản mới (quote.request_revision rồi edit).
+    await page.getByTestId('p360-quote').click();
+    const qForm = page.getByTestId('q-form');
+    await expect(qForm).toBeVisible();
+    await expect(qForm).toContainText('Sửa báo giá');
+    await qForm.locator('button[aria-label]').first().click();
+    await expect(qForm).toHaveCount(0);
+    // Hợp đồng đã ký (HD-1180) → mở chi tiết chỉ xem, không phải form sửa.
+    await page.getByTestId('p360-contract').click();
+    const ctDrawer = page.getByTestId('ct-drawer');
+    await expect(ctDrawer).toBeVisible();
+    await expect(page.getByTestId('ct-form')).toHaveCount(0);
+    await ctDrawer.locator('button[aria-label]').first().click();
+    await expect(ctDrawer).toHaveCount(0);
+    // Đơn / Ticket / Lịch hẹn: luôn tạo mới, điền sẵn khách.
+    await page.getByTestId('p360-order').click();
+    const odForm = page.getByTestId('od-form');
+    await expect(odForm).toBeVisible();
+    await odForm.locator('button[aria-label]').first().click();
+    await expect(odForm).toHaveCount(0);
+    await page.getByTestId('p360-ticket').click();
+    const tkForm = page.getByTestId('tk-form');
+    await expect(tkForm).toBeVisible();
+    await tkForm.locator('button[aria-label]').first().click();
+    await expect(tkForm).toHaveCount(0);
+    await page.getByTestId('p360-booking').click();
+    const calForm = page.getByTestId('cal-form');
+    await expect(calForm).toBeVisible();
+    await calForm.locator('button[aria-label]').first().click();
+    await expect(calForm).toHaveCount(0);
+    // Gửi email: modal soạn email, điền sẵn "Đến" từ hồ sơ khách.
+    await page.getByTestId('p360-email').click();
+    const mail = page.getByTestId('email-compose');
+    await expect(mail).toBeVisible();
+    await expect(page.getByTestId('email-to')).toHaveValue(/Chị Lan/);
+    await page.getByTestId('email-send').click();
+    await expect(mail).toHaveCount(0);
+  });
+
   test('trạng thái rỗng', async ({ page }) => {
     await page.goto(`${URL}&inbox=empty`);
     await expect(page.getByTestId('conv-empty')).toContainText('Chưa có hội thoại');

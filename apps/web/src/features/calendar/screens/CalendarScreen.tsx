@@ -11,7 +11,6 @@ import { ListView } from '../components/ListView';
 import { DayView, WeekView } from '../components/WeekDayViews';
 import { MonthView } from '../components/MonthView';
 import { AppointmentDrawer } from '../components/AppointmentDrawer';
-import { AppointmentFormModal } from '../components/AppointmentFormModal';
 import { CancelApptModal } from '../components/CancelApptModal';
 import { CalendarAiDrawer } from '../components/CalendarAiDrawer';
 import { useCalendarUiCommands } from '../ui-commands';
@@ -39,7 +38,6 @@ export function CalendarScreen() {
         ) : null}
       </PageStates>
       {meta ? <AppointmentDrawer meta={meta} /> : null}
-      {meta ? <AppointmentFormModal meta={meta} /> : null}
       {meta ? <CalendarAiDrawer meta={meta} /> : null}
       <CancelApptModal />
     </div>

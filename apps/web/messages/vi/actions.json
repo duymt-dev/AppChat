@@ -115,6 +115,9 @@
     },
     "decide_access": {
       "title": "Duyệt yêu cầu chia sẻ"
+    },
+    "send_email": {
+      "title": "Gửi email"
     }
   },
   "custom_field": {

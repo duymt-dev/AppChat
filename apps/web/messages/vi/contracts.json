@@ -177,6 +177,7 @@
   },
   "form": {
     "title": "Tạo hợp đồng",
+    "editTitle": "Sửa hợp đồng",
     "section": "Thông tin hợp đồng",
     "close": "Đóng",
     "cancel": "Huỷ",

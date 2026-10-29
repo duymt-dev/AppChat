@@ -177,6 +177,7 @@
   },
   "form": {
     "title": "New contract",
+    "editTitle": "Edit contract",
     "section": "Contract information",
     "close": "Close",
     "cancel": "Cancel",

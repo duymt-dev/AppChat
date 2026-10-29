@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { usePanelStyles } from '../styles/panel.styles';
 import { useInboxUi } from '../inbox-store';
-import { Profile360Actions, Profile360Content, TABS_360 as TABS } from './Profile360Content';
+import { Profile360Actions } from './Profile360Actions';
+import { Profile360Content, TABS_360 as TABS } from './Profile360Content';
 
 export function Panel360({ contactId }: { contactId: string }) {
   const t = useTranslations('inbox.p360');
@@ -33,7 +34,7 @@ export function Panel360({ contactId }: { contactId: string }) {
       <div className={styles.scroll}>
         <Profile360Content contactId={contactId} tab={ui.tab360} />
       </div>
-      <Profile360Actions />
+      <Profile360Actions contactId={contactId} />
     </aside>
   );
 }

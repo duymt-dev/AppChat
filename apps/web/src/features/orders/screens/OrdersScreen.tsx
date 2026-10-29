@@ -15,7 +15,6 @@ import { ordersMetaQuery, ordersQuery } from '../api';
 import { OrderCard, OrderKanbanCard, useOrderColumns, useTr } from '../columns';
 import { BulkBar, OrdersToolbar } from '../components/OrdersToolbar';
 import { CancelOrderModal, OrderDrawer } from '../components/OrderDrawer';
-import { OrderFormModal } from '../components/OrderFormModal';
 import { OrderAiDrawer } from '../components/OrderAiDrawer';
 import { KANBAN, laneOf } from '../status';
 import type { Order } from '../types';
@@ -151,7 +150,6 @@ export function OrdersScreen() {
       </PageStates>
       {meta ? <OrderDrawer meta={meta} /> : null}
       {meta ? <OrderAiDrawer meta={meta} /> : null}
-      <OrderFormModal />
       <CancelOrderModal />
     </div>
   );

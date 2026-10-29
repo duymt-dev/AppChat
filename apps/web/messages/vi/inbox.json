@@ -286,7 +286,35 @@
     "spark": "✦",
     "aiBadge": "AI",
     "signalUp": "▲ ",
-    "signalWarn": "⚠ "
+    "signalWarn": "⚠ ",
+    "email": {
+      "title": "Gửi email",
+      "close": "Đóng",
+      "cancel": "Huỷ",
+      "send": "Gửi email",
+      "from": "Gửi từ",
+      "to": "Đến",
+      "template": "Mẫu email",
+      "subject": "Tiêu đề",
+      "body": "Nội dung",
+      "tpl": {
+        "followUp": {
+          "label": "Theo dõi sau tư vấn",
+          "subject": "Theo dõi sau buổi tư vấn",
+          "body": "Chào {name},\n\nCảm ơn anh/chị đã dành thời gian trao đổi. Em gửi lại tóm tắt nội dung đã tư vấn để anh/chị tiện theo dõi.\n\nTrân trọng."
+        },
+        "resendQuote": {
+          "label": "Gửi lại báo giá",
+          "subject": "Gửi lại báo giá",
+          "body": "Chào {name},\n\nEm gửi lại báo giá để anh/chị xem và phản hồi giúp em nhé.\n\nTrân trọng."
+        },
+        "confirmBooking": {
+          "label": "Xác nhận lịch hẹn",
+          "subject": "Xác nhận lịch hẹn",
+          "body": "Chào {name},\n\nXin xác nhận lịch hẹn của anh/chị. Nếu cần đổi giờ anh/chị nhắn lại giúp em.\n\nTrân trọng."
+        }
+      }
+    }
   },
   "group": {
     "title": "Thông tin nhóm",

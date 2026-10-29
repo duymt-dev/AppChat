@@ -115,6 +115,9 @@
     },
     "decide_access": {
       "title": "Decide access request"
+    },
+    "send_email": {
+      "title": "Send email"
     }
   },
   "custom_field": {

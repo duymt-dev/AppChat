@@ -19,6 +19,14 @@ export const contractsQuery = (f: ContractFilter, pg?: PageState) =>
     placeholderData: (prev) => prev,
   });
 
+/** Hợp đồng gần nhất của một khách — REQ-F11 (6 nút Hồ sơ 360°). */
+export const latestContractByContactQuery = (contactId: string) =>
+  queryOptions({
+    queryKey: ['contracts', 'by-contact', contactId],
+    queryFn: () => transport.get<Paged<Contract>>('/contracts', { contact_id: contactId }),
+    select: (r) => [...r.data].sort((a, b) => b.created_at.localeCompare(a.created_at))[0],
+  });
+
 export const contractQuery = (id: string) =>
   queryOptions({
     queryKey: ['contracts', 'one', id],

@@ -27,5 +27,13 @@ export const quoteVersionsQuery = (id: string) =>
     queryFn: () => transport.get<Quote[]>(`/quotes/${id}/versions`),
   });
 
+/** Báo giá gần nhất (còn hiển thị, không superseded/deleted) của một khách — REQ-F11 (6 nút Hồ sơ 360°). */
+export const latestQuoteByContactQuery = (contactId: string) =>
+  queryOptions({
+    queryKey: ['quotes', 'by-contact', contactId],
+    queryFn: () => transport.get<Paged<Quote>>('/quotes', { contact_id: contactId }),
+    select: (r) => [...r.data].sort((a, b) => b.created_at.localeCompare(a.created_at))[0],
+  });
+
 export const quotesMetaQuery = () =>
   queryOptions({ queryKey: ['quotes', 'meta'], queryFn: () => transport.get<QuotesMeta>('/quotes/meta') });

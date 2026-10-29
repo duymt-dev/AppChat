@@ -12,7 +12,9 @@ interface ContractsUi {
   selected: string[];
   detail: string | null;
   tab: string;
-  form: 'create' | null;
+  form: 'create' | 'edit' | null;
+  /** Hợp đồng đang sửa khi `form==='edit'` (REQ-F11: Nháp → Cập nhật tại chỗ). */
+  editId: string | null;
   /** Hợp đồng đang mở hộp "Duyệt & ký" / "Gửi ký". */
   signFor: string | null;
   sendFor: string | null;
@@ -32,6 +34,7 @@ export const useContractsUi = create<ContractsUi>((set) => ({
   detail: null,
   tab: 'overview',
   form: null,
+  editId: null,
   signFor: null,
   sendFor: null,
   aiOpen: false,

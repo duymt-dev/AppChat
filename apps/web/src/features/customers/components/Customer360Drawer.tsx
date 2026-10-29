@@ -26,7 +26,7 @@ export function Customer360Drawer() {
       tabs={TABS_360.map((k) => ({ key: k, label: tt(k) }))}
       tab={tab}
       onTab={(k) => setTab(k as Tab360)}
-      footer={<Profile360Actions />}
+      footer={ui.detail ? <Profile360Actions contactId={ui.detail} /> : null}
       muted
       testId="crm-360"
     >

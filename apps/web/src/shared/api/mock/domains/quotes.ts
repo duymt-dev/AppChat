@@ -104,6 +104,7 @@ export const quotesRoutes: Record<string, MockRoute> = {
         visible(db, q) &&
         (!p.status || p.status === 'all' || q.status === p.status) &&
         (!p.owner_id || p.owner_id === 'all' || q.owner_user_id === p.owner_id) &&
+        (!p.contact_id || q.contact_id === p.contact_id) &&
         (!p.returning || p.returning === 'all' || String(q.returning) === String(p.returning === 'old')) &&
         (!s || [q.code, q.contact_name, q.items[0]?.name ?? ''].some((v) => v.toLowerCase().includes(s))),
     );
