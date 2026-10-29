@@ -1,7 +1,8 @@
 # AppChat — Technical Blueprint (khế ước kiến trúc)
 
 > Vibecode Kit v5.0 — BƯỚC 4 (BLUEPRINT) · 2026-10-28 · **ĐÃ DUYỆT — Chủ nhà duyệt 2026-10-28** (D36)
-> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V15), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D32, REQ A–N), `plans/COMMERCE-DECISIONS.md`, `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
+> **Cập nhật 2026-10-29:** prototype ver2.1 + D42–D51 (bảng có số trang, quyền agent một nơi, một kênh nhiều tài khoản, menu tin nhắn / hội thoại, bố cục Hồ sơ 360°). Không đổi kiến trúc; chỉ bổ sung entity, action, endpoint, primitive.
+> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V18 + Scan delta ver2.1), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D51, REQ A–N), `plans/COMMERCE-DECISIONS.md`, `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
 > Đã duyệt thì **không đổi kiến trúc**. Thay đổi lớn phải quay lại Vision.
 
 ---
@@ -308,15 +309,17 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ghi chú |
 |---|---|---|
-| `channel_account` | type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định), health jsonb, last_event_at | unique(type, external_id) |
+| `channel_account` | type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định; ver2.1 REQ-B11: giờ + lời chào trả lời tự động, cách chia + SLA, đồng bộ `{auto_create_contact, history_days: 0\|7\|30\|90}`), paused_at?, health jsonb, last_event_at | unique(type, external_id) |
+| _ghi chú_ | **Một kênh nhiều tài khoản (REQ-B09):** mỗi `type` có nhiều `channel_account`. Trạng thái kênh tính ở service: sức khoẻ = tài khoản kém nhất, số hội thoại cộng dồn; hết tài khoản `connected` → kênh "Chưa kết nối". | |
 | `webchat_widget` | channel_account_id, public_key unique, theme jsonb, greeting, prechat_form jsonb, agent_id?, allowed_domains text[] | |
 
 **[T] tenant/inbox.prisma**
 
 | Bảng | Trường | Index |
 |---|---|---|
-| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, team_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
-| `message` | conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, created_at | unique(channel_account_id, external_msg_id); idx(conversation_id, created_at desc). Partition theo tháng làm sau khi scale |
+| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, team_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, **hidden_at?** (D50 — ẩn khỏi danh sách, tin vào mới thì xoá), **pinned_message_id?** (REQ-C09), group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
+| `message` | conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, **reply_to_id?**, **forwarded_from_id?**, deleted_at?, created_at | unique(channel_account_id, external_msg_id); idx(conversation_id, created_at desc). Partition theo tháng làm sau khi scale. Tìm trong hội thoại (REQ-C12): expression index `gin (f_unaccent(lower(body)) gin_trgm_ops)` + lọc `conversation_id` |
+| `message_reaction` | message_id, actor_type(user\|contact), actor_id, emoji(👍\|❤️\|😂\|😮\|😢\|🙏), created_at | pk(message_id, actor_type, actor_id, emoji) — bấm lại = xoá; chỉ kênh có `capabilities.reactions` (OQ-12) |
 | `conversation_participant` | conversation_id, external_id, display_name, contact_id? | dùng cho hội thoại nhóm |
 | `conversation_tag` | conversation_id, tag_id | pk(conversation_id, tag_id) |
 | `canned_reply` | shortcut, title, body, attachments jsonb | unique(shortcut) |
@@ -335,6 +338,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact_memory` | contact_id, fact, source_run_id?, confidence | AI ghi nhớ sự kiện về khách |
 | `timeline_event` | contact_id, type(message\|quote\|order\|invoice\|payment\|appointment\|ticket\|note\|ai_action\|loyalty\|campaign\|stage), ref_type, ref_id, actor_type, actor_id, summary, payload jsonb, occurred_at | idx(contact_id, occurred_at desc) |
 | `contact_note` | contact_id, body, author_user_id | |
+| `profile_layout` | name, is_system bool (Mặc định · CSKH · Kinh doanh), tabs jsonb `[{key, label, enabled, sort, builtin, blocks: block_key[]}]` (≥ 1 tab; khối lấy từ thư viện 12 khối), created_by | REQ-F12, M05 |
+| `profile_layout_role` | role_key (pk, 5 vai trò D27), layout_id | mỗi vai trò đúng một mẫu; xoá mẫu đang gán → về Mặc định |
 | `custom_field_def` | entity(contact\|product\|quote\|order\|ticket\|appointment), key, label, type(text\|number\|currency\|date\|email\|phone\|picklist\|lookup\|file\|textarea), options jsonb, required, sort, visible_in jsonb | unique(entity, key) |
 
 **[T] tenant/catalog.prisma** — `product_category(name, parent_id?)`; `product(code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, package_service_ids uuid[]?, allow_use_on_deposit bool, low_stock_threshold?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)` — giá **chưa VAT**; `product_variant(product_id, sku, name, attrs jsonb, price?, stock, status)` (P1); `product_component(product_id, child_id, qty)` cho combo; `stock_movement(product_id, variant_id?, kind(sale|return|adjust|import), qty, ref_type, ref_id, reason?, actor_id, created_at)` với idx(product_id, created_at desc). Index: gin trigram trên tên; idx(status, type). Quy tắc kho: COMMERCE-DECISIONS §2.
@@ -490,6 +495,8 @@ export interface ActionDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> {
   risk: Risk;
   bulk?: boolean;             // thao tác nhiều bản ghi → luôn preview số lượng
   agentGrantable: boolean;    // có được cấp cho AI Agent trực kênh không
+  skill?: boolean;            // nhóm "Kỹ năng AI" trong Builder (chỉ risk 'read') — D51
+  requiresConnector?: string; // key connector / channel type; chưa kết nối thì tool không vào run — D51
   undo?: { windowSec: number };   // có hoàn tác + thời hạn
   invalidates: string[];      // query keys FE cần refetch
   uiTarget?: (o: z.infer<O>) => UiCommand;   // deep-link kết quả
@@ -546,7 +553,8 @@ interface ActionHandler<I, O> {
   - Tool ngoài giao → không đưa vào danh sách tool của run. Nếu vẫn bị gọi → `FORBIDDEN`, ghi `ai_run_step` lỗi, run tiếp tục với các tool còn lại.
   - `action_log.on_behalf_of_user_id` = người ra lệnh; `actor_type=agent`, `actor_id` = agent.
   - `delegate` lồng nhau: run con kế thừa giao của run cha (giao càng sâu càng hẹp).
-- **Connector không phải quyền của agent:** action cần connector khai báo `requires_connector` trong `ActionDef`. Connector chưa kết nối thì tool vẫn hiện trong Builder (badge *Cần kết nối X*), nhưng không đưa vào run; chưa có manifest thì hiện *Sắp có*.
+- **Connector không phải quyền của agent:** action cần connector khai báo `requiresConnector` trong `ActionDef` (§3.1). Connector chưa kết nối thì tool vẫn hiện trong Builder (badge *Cần kết nối X*), nhưng không đưa vào run; chưa có manifest thì hiện *Sắp có*.
+- **Builder hiển thị Tools** theo `ActionDef.module` (Hộp thư, Khách hàng, Bán hàng, Lịch hẹn, Hỗ trợ, Marketing, Loyalty…) + nhóm **Kỹ năng AI** (`skill: true`), mỗi nhóm n/tổng. Nguồn: `GET /v1/agents/:id/tools` (§4.4).
 - Luật **governance** luôn ép approval, không phụ thuộc bảng trên: báo giá > 20.000.000₫, giảm giá ngoài chính sách, hoàn tiền, gửi hàng loạt, hợp đồng.
 - Từ cấm: chặn nội dung, đặt `handoff`.
 
@@ -563,6 +571,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `invite.revoke`
 - `profile.update` (mọi thành viên, write)
 - `working_hours.update`
+- `profile_layout.create` / `profile_layout.update` / `profile_layout.duplicate` / `profile_layout.delete` / `profile_layout.assign_role` (config, `settings.manage`; mẫu hệ thống không xoá được — REQ-F12, M05)
 - `notification.mark_read` (mọi thành viên, write)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
 - `team.create` / `team.update` / `team.set_members` (P1)
@@ -576,6 +585,10 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `channel.reconnect`
 - `channel.disconnect` (`channels.manage`)
 - `webchat.update_widget`
+- `channel.test` (read — kiểm tra kết nối; form Email IMAP / SMTP gọi trước khi lưu, REQ-B10)
+- `channel.pause` / `channel.resume` (config)
+- `channel.sync_history` (write; `history_days` 0 / 7 / 30 / 90 — REQ-B11)
+- Mọi action kênh nhận `channel_account_id` (một kênh nhiều tài khoản — REQ-B09); `channel.disconnect` tài khoản cuối → kênh thành Chưa kết nối.
 
 **inbox** (`inbox.view` đọc · `inbox.reply` gửi / ghi chú · `inbox.assign` gán · `inbox.manage` thẻ, câu trả lời mẫu)
 
@@ -594,10 +607,19 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `conversation.bulk_update` | write, bulk | | 24h |
 | `conversation.handoff` | write | ✓ | |
 | `message.send` | send | ✓ chỉ hội thoại hiện tại | |
-| `message.recall` | send | | |
+| `message.recall` | send (chỉ tin của mình) | | |
+| `message.delete` | delete (xác nhận) | | 24h |
+| `message.react` / `message.unreact` | write (kênh có `capabilities.reactions`) | | |
+| `message.pin` / `message.unpin` | write → `conversation.pinned_message_id` | | |
+| `message.forward` | send (sang hội thoại khác) | | |
+| `conversation.set_tags` | write (gắn nhiều thẻ một lần; thẻ mới qua `tag.create`) | ✓ | 24h |
+| `conversation.hide` / `conversation.unhide` | write → `hidden_at` (D50) | | 24h |
+| `conversation.clear_history` | delete (xác nhận) | | |
 | `note.add` | write | | 24h |
 | `canned_reply.create` / `canned_reply.update` / `canned_reply.delete` | config | | |
 | `tag.create` / `tag.update` / `tag.delete` | config | | |
+
+Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (trích tin); `conversation.set_status` với `snoozed` bắt buộc `snoozed_until` (1 giờ / 3 giờ / sáng mai / tuỳ chọn); `conversation.assign` nhận `user_id` **hoặc** `agent_id`; Vòng đời trong menu ⋯ gọi `contact.set_stage` (D49); Dịch tin dùng `ai.translate` (Kỹ năng AI); Tạo nhóm Zalo "Sắp có" (D50). Không có action gọi video / gọi điện (D07).
 
 **crm** (`crm.view` · `crm.edit` · `crm.delete` · `crm.import` · `crm.export` · `crm.reassign` · `crm.fields_manage`)
 
@@ -610,6 +632,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `contact.set_stage` | write | ✓ | 24h |
 | `contact.tag` | write | ✓ | 24h |
 | `contact.add_note` | write | ✓ | 24h |
+| `contact.send_email` | send, `requiresConnector: 'email'` (modal soạn: từ tài khoản email, đến, 3 mẫu — REQ-F11) | | |
 | `contact.remember` | write | ✓ | |
 | `contact.bulk_update` | write, bulk | | 24h |
 | `contact.merge` | write | | 7d |
@@ -710,7 +733,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
 | `ticket.search` | read | ✓ | |
-| `ticket.create` | write | ✓ | 24h |
+| `ticket.create` | write (`source_message_id?` — tạo từ tin nhắn, điền sẵn; REQ-C09) | ✓ | 24h |
 | `ticket.update` | write | | 24h |
 | `ticket.assign` | write | ✓ | 24h |
 | `ticket.set_status` | write | ✓ | 24h |
@@ -765,7 +788,8 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | |
 | `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | |
 | `approval.approve` / `approval.reject` / `approval.edit_and_approve` | write, `approvals.decide` **và** permission duyệt của action gốc (`quote.approve`, `contract.sign`, `payment.refund_approve`, `campaign.approve`…) | | |
-| `run.cancel` | write | | |
+| `run.cancel` | write (nút Dừng ở khung "Trợ lý AI đang điều phối" — REQ-E14) | | |
+| `ai.summarize` · `ai.translate` · `ai.detect_intent` · `ai.score_lead` · `ai.extract_info` | read, `skill: true` — nhóm **Kỹ năng AI** (D51); lệnh `/…` trong khung nhập | ✓ | |
 | `ai_task.create` / `ai_task.update` / `ai_task.pause` / `ai_task.delete` | config | | |
 | `ai_task.run_now` | write | | |
 | `governance.update` | config, `ai.governance` | | |
@@ -856,6 +880,7 @@ Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò h
 - Header bắt buộc: `Authorization: Bearer <access JWT 15m>` và `X-Workspace-Id: <uuid>` (trừ `/v1/auth/*`, `/v1/me`, `/hooks/*`).
 - Thành công: `200 { data, meta? }`.
 - List: `{ data: T[], next_cursor: string | null }`. Cursor là base64 của `(sortKey, id)`; tham số `?limit=` (≤ 100, mặc định 30) và `?cursor=`.
+- **Bảng có số trang (D42, D43):** 9 list chính (khách hàng, sản phẩm, báo giá, đơn, đề nghị thanh toán, hợp đồng, ticket, marketing, thành viên loyalty) nhận `?page=&limit=` (20 / 50 / 100) và trả `{ data, next_cursor, meta: { total, page, limit } }`; backend offset + deferred join + đếm tổng. Không có `page` → cursor như trên. Chi tiết: `standards/api/response-envelope.md` §2.
 - Lỗi: `{ error: { code: string, message: string, fields?: Record<string,string> } }`.
 
 | Mã code | HTTP |
@@ -940,6 +965,12 @@ type UiCommand =
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
 | misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` |
 | admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
+
+Bổ sung ver2.1:
+- inbox: `GET /v1/conversations/:id/messages/search?q=&sender=all|contact|user|agent` (không dấu, trả vị trí để tô — REQ-C12); list hội thoại bỏ `hidden_at` khác null (D50); `GET /v1/conversations/:id/agent-tools` (quyền hiệu lực của agent phụ trách, chỉ đọc — REQ-C11).
+- crm: `GET /v1/contacts/:id` (360) trả thêm `layout` theo vai trò người xem và dữ liệu các khối được bật · `GET /v1/profile-layouts` · `GET /v1/profile-layouts/:id?as_role=` (REQ-F12, M05).
+- ai: `GET /v1/agents/:id/tools` (nhóm theo module + Kỹ năng AI, `granted`, badge `needs_connector` / `coming_soon` — D51) · `GET /v1/runs?root_run_id=&status=running|waiting_approval` (khung điều phối Cowork — REQ-E14).
+- channels: `GET /v1/channels` trả theo `type` kèm `accounts[]` và trạng thái gộp · `GET /v1/channels/:accountId/stats?days=7` (REQ-B09, B11).
 
 ### 4.5 Trợ lý AI & runs
 
@@ -1099,6 +1130,7 @@ Khi có `message.received` mà `ai_mode=auto` và có `assignee_agent_id` (hoặ
   - Nhắc hẹn (24h / 2h).
   - Chăm sóc sau mua (D+3).
   - Briefing sáng 08:00 cho Owner (gửi vào Trợ lý và thông báo).
+- **Khung "Trợ lý AI đang điều phối" (Cowork, REQ-E14):** một hàng thu gọn "N việc · x đang chạy · y cần bạn duyệt" → modal danh sách run con (agent, công cụ, tiến độ, trạng thái) với Dừng (`run.cancel`) · Duyệt & gửi (`approval.approve`) · Xem kết quả. Tab Công cụ & Quyền của drawer Cowork **chỉ hiển thị** quyền hiệu lực (§3.3b) + link sang Builder.
 - **Ràng buộc khi gửi ra ngoài:** mọi tác vụ gửi đều đi qua outbox và rate limiter của kênh. Đặc biệt Zalo cá nhân: delay ngẫu nhiên 2–6 giây, cap mặc định 200 tin chủ động/ngày/tài khoản, cấu hình được.
 
 ---
@@ -1123,7 +1155,8 @@ export interface NormalizedInbound {
 ```
 
 - **Account lease:** danh sách account cần giữ phiên đọc từ `tenant_channel_route` (DB nền tảng); credential đọc từ DB tenant tương ứng. Mỗi `channel_account` chỉ do **một** worker giữ phiên. Dùng Redis lock `lease:channel:{id}`, TTL 30 giây, heartbeat 10 giây. Worker khởi động sẽ nhận các account `connected` chưa có lease.
-- **Zalo cá nhân** (zca-js; thiết kế theo OpenClaw `zalouser`, MIT):
+- **Một kênh nhiều tài khoản + kết nối 3 bước (REQ-B09, B10):** chọn kênh → xác thực (QR Zalo cá nhân · form Email IMAP / SMTP + `channel.test` · Webchat) → cấu hình nhanh (tên, AI Agent, chế độ AI trả lời ngay / gợi ý / tắt, cách chia). Nhánh OAuth và kênh ngoài manifest hiện "Sắp có". Manifest khai báo `capabilities.reactions` (OQ-12).
+- **Zalo cá nhân** (zca-js — Chủ nhà đã thử 2026-10-29, chưa thấy vấn đề; thiết kế theo OpenClaw `zalouser`, MIT):
   - **Đăng nhập:** QR login phát ảnh qua WS. Khi thành công, lưu `{cookie, imei, userAgent}` đã mã hoá vào `credentials_enc`. Khởi động lại thì login bằng credential đã lưu; lỗi thì chuyển `expired` và thông báo quét lại.
   - **Listener:** tin 1-1 và tin nhóm. Nhóm chỉ kích hoạt AI theo `group_ai_policy`.
   - **Gửi:** text (markdown → rich text), ảnh, file, sticker. Chia đoạn ≤ 2000 ký tự.
@@ -1169,7 +1202,7 @@ export interface NormalizedInbound {
 Primitive dùng chung (`packages/ui` + `shared`), kèm props chính:
 
 ```ts
-DataTable<T>   { columns: TableColumnsType<T>; query: UseInfiniteQueryResult<Page<T>>; selection?: Key[];   // bọc antd Table (virtual)
+DataTable<T>   { rows: T[]; columns: TableColumnsType<T>; rowKey(row: T): string; selection?: { keys; onChange }; footer?: ReactNode;   // D42: cao hết phần còn lại, chỉ thân bảng cuộn, header dính
                  onRowClick?(row: T): void; bulkActions?: BulkAction[]; aiColumn?: (row: T) => AiSuggestion | null;
                  mobileCard?: (row: T) => ReactNode /* < md: render danh sách thẻ */ }
 KanbanBoard<T> { columns: { key: string; label: string; color: string }[]; items: T[]; groupBy(item: T): string;
@@ -1178,6 +1211,9 @@ FilterBar      { fields: FilterField[]; value: FilterState; onChange(v: FilterSt
 EntityDrawer   { entity: EntityKind; id: string; tabs: DrawerTab[]; onClose(): void }   // antd Drawer; < md: placement="bottom", full height
 PageHeader     { title: string; actions?: ReactNode; kpis?: KpiItem[] }
 PageStates     { state: 'empty'|'loading'|'error'|'ready'; empty?: EmptySpec; onRetry?(): void; children }
+Pager          { page; size; total; onPage(p): void; onSize?(n): void; label; prev; next }   // D42: số trang + 20/50/100; < md chỉ Trước · trang · Sau
+AiButton       { module: string; onClick(): void }   // REQ-N15: một kiểu nút "Trợ lý AI" toàn app (nền mực, ✦ brand, tooltip tên module)
+ActionMenu     { items: (MenuItem | { label; submenu: MenuItem[] })[] }   // REQ-C10: submenu thay nội dung + nút ‹
 ConfirmActionDialog { preview: ActionPreview; onConfirm(): void; onCancel(): void; editable?: boolean }
 useAction<Id extends ActionId>(id) → { run(input, opts?): Promise<ActionResult>; isPending; }   // tự xử lý 202 preview, invalidates, toast + nút "Hoàn tác"
 ```
@@ -1200,10 +1236,12 @@ inbox/[[...conversationId]]
     ├── FolderRail { counts }        # Tất cả · Của tôi · AI đang xử lý · Cần người · AI chờ duyệt · Chưa đọc · theo kênh · thẻ
     ├── ConversationList { folder; filters }         (virtual)
     ├── ChatPanel { conversationId }
-    │   ├── ChatHeader (assign, tag, AiModeToggle, status, "Chuyển thành ▾")
+    │   ├── ChatHeader (assign, tag, AiModeToggle, status, "Chuyển thành ▾", ⋯ ConversationMenu có submenu — REQ-C10; không video / gọi điện)
+    │   ├── ThreadSearchBar (REQ-C12) · PinnedMessageBar · MessageMenu ⋯ (cảm xúc, trả lời, chuyển tiếp, ghim, dịch, tạo ticket, thu hồi / xoá — REQ-C09)
     │   ├── MessageThread (virtual, load-more) · AiSuggestionBar (copilot) · HandoffBanner
-    │   └── Composer (text, emoji, attach, canned "/", note mode, AI rewrite/translate)
-    └── ContextPanel → Customer360Panel { contactId }   # tóm tắt AI, info, đơn/báo giá/lịch/ticket, ghi chú, hạng
+    │   └── Composer (text, emoji, attach, canned "/", note mode, AI rewrite/translate; menu ＋: tệp · chụp màn hình · AgentToolsPanel chỉ đọc + link Builder — REQ-C11, D51; "Người gửi: <tên> (bạn)")
+    └── ContextPanel → Customer360Panel { contactId; layout }   # tab / khối theo profile_layout của vai trò (⚙ Tuỳ chỉnh — REQ-F12); 6 nút mở form tại chỗ theo luật COMMERCE (D46, REQ-F11)
+                                                         # tóm tắt AI, info, đơn/báo giá/lịch/ticket, ghi chú, hạng
 
 customers/                CustomersPage → PageHeader + StageTabs + FilterBar + (DataTable | KanbanBoard) → Customer360Drawer
 customers/[id]            Customer360Page tabs: Tổng quan · CRM · AI · Tệp · Lịch sử
@@ -1214,10 +1252,10 @@ calendar/                 CalendarPage → ViewSwitch(day|week|month|list) · St
 tickets/                  TicketsPage → KpiStrip(5) · FilterBar · (DataTable | Kanban 4 cột) · TicketDrawer (timeline, comment, SLA clock)
 marketing/                MarketingPage → SuggestionTable(7 cột) · CampaignList · CampaignWizard(steps: đối tượng → nội dung → kênh & lịch → duyệt) · CampaignDetail(stats)
 loyalty/                  LoyaltyPage → Overview · MemberTable · AdjustPointsDialog(3 bước) · ConfigDialog
-agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat)
+agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat). Tab Tools = **nơi duy nhất cấp quyền agent**: ToolGroup theo module + Kỹ năng AI, n/tổng, badge Cần kết nối X / Sắp có (D51, REQ-D16)
 assistant/approvals       ApprovalsQueue (màn mới, không đo parity) · assistant/actions → ActionLog + hoàn tác (prototype L1464)
 dashboard/                DashboardPage → GreetingBar(hỏi Trợ lý) · NeedsMe · AiTodayFeed · FollowUpWidget · OnboardingChecklist · CreditCard
-settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · doc_templates (Mẫu chứng từ — báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; rich + DOCX; D30) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). · **roles** (Vai trò & phân quyền — P0 chỉ đọc ma trận, P1 sửa/tạo; D27) · **integrations** (Nền tảng kết nối — registry + thẻ "Sắp có"; D28). Các mục OUT bị ẩn (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
+settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · doc_templates (Mẫu chứng từ — báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; rich + DOCX; D30) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). · **roles** (Vai trò & phân quyền — P0 chỉ đọc ma trận, P1 sửa/tạo; D27) · **integrations** (Nền tảng kết nối — registry + thẻ "Sắp có"; D28) · **profile_360** (Hồ sơ 360° — nhóm Ứng dụng: mẫu, gán vai trò, Xem như vai trò; REQ-M05) · **channels** theo ver2.1: danh sách kênh → tài khoản → ChannelDrawer (tổng quan, hiệu suất 7 ngày, trả lời tự động, phân công & SLA, đồng bộ, vùng nguy hiểm) + ConnectChannelWizard 3 bước (REQ-B09–B11). Các mục OUT bị ẩn (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
 customers/ (D32)          ContactOwnerCell + CollaboratorsPopover · TransferOwnerModal (chọn chuyển kèm hội thoại / báo giá / lịch) · AccessRequestDialog ("Đã có người phụ trách: …" + Xin chia sẻ) · AccessRequestsList (trong NeedsMe)
 quotes/ contracts/ (D30)  DraftFromContentModal (dán nội dung / đính kèm → chọn mẫu → AI soạn nháp) · AiSuggestedClauseBlock (Giữ / Bỏ) · LegalChecklistPanel
 orders/ (D31)             OrderSourceBadge (sàn / POS) · ExternalLockBanner (khoá dòng hàng / giá) · PlatformStatusTag
@@ -1459,9 +1497,12 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | B05 | §6 webchat · §2.2 channels-webchat |
 | B06 | §6 email |
 | B07 | §4.4 channels · §7.2 settings/channels |
+| B09, B10, B11 | §2.2 `channel_account` · §3.4 channels · §4.4 channels · §6 · §7.2 settings/channels |
 | C01–C04, C08 | §2.2 inbox · §3.4 inbox · §7.2 inbox |
 | C05 | §7.2 Composer · §5.3 copilot |
 | C06 | §6 inbound pipeline |
+| C09, C10, C12, C13 | §2.2 `message_reaction`, `conversation.hidden_at` / `pinned_message_id`, `message.reply_to_id` · §3.4 inbox · §4.4 inbox · §7.1 ActionMenu · §7.2 inbox |
+| C11, D16 | §3.1 `skill` / `requiresConnector` · §3.3b · §3.4 ai (Kỹ năng AI) · §4.4 `agents/:id/tools` · §7.2 agents, Composer |
 | C07 | §3.4 `quote.create` / `order.create` / `appointment.create` / `ticket.create` · §7.2 ChatHeader "Chuyển thành" |
 | D01, D02, D03 | §5.1 · `standards/ai/agent-gateway.md` |
 | D04, D04b | §2.2 ai-kb · §5.3 · §7.2 settings/rag_data · `standards/ai/rag.md` |
@@ -1479,6 +1520,7 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | E07 | §3.4 `insight.query` |
 | E10 | §4.4 assistant sessions |
 | E12 | §4.4 files · §5.2 |
+| E14 | §3.3b · §4.4 runs · §5.4 khung điều phối |
 | F01, F02, F04 | §2.2 crm · §7.2 customers |
 | F01b, F01c | §2.2 `contact_collaborator`, `contact_access_request` · §3.4 crm · §3.5 · COMMERCE §8b |
 | F03 | §3.4 `contact.merge` / `contact.import` / `contact.export` |
@@ -1488,6 +1530,8 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | F08 | §2.2 `invoice`, `customer_payment` · §4.7 · COMMERCE §5 |
 | F09 | §2.2 contracts · §4.4 public sign · §7.2 contracts, (public)/sign · COMMERCE §9 |
 | F10 | §2.3 · COMMERCE §8 |
+| F11 | §3.4 `contact.send_email`, `quote.request_revision` · §7.2 Customer360Panel · D46 |
+| F12, M05 | §2.2 `profile_layout`, `profile_layout_role` · §3.4 settings · §4.4 crm · §7.2 settings/profile_360 |
 | G01–G05 | §2.2 booking · §3.4 booking · §7.2 calendar |
 | H01–H04 | §2.2 support · §3.4 support · §7.2 tickets |
 | I01–I05 | §2.2 marketing · §3.4 marketing · queue `campaign-send` · §7.2 marketing |
@@ -1512,4 +1556,5 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | N10 | §7.4 · `standards/i18n/i18n.md` |
 | N11 | §9 · `standards/code/testing.md` · `standards/ai/eval.md` |
 | N12 | `standards/code/file-size-module-layout.md` |
-| N14 | §7.0 · `standards/ui/prototype-parity.md` |
+| N14 | §7.0 · `standards/ui/prototype-parity.md` (ngoại lệ D42 / D43 / D44 / D46 / D51) |
+| N15 | §7.1 `AiButton` |

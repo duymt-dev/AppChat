@@ -71,11 +71,12 @@ messages/<locale>/<module>.json   vi (nguồn) + en
 1. **Action-first:** mọi thao tác ghi là action trong `packages/actions` chạy qua `ActionExecutor` (`POST /v1/actions/:id`). FE ghi **chỉ** bằng `useAction(id).run(input)`. Không có đường ghi thứ hai.
 2. **Tenant:** DB tenant chỉ lấy qua `TenantDbResolver`; bảng tenant không có `workspace_id`, không RLS; mọi list / get áp `scopeFilter`.
 3. **Kích thước file:** backend 200–400 dòng, trần **600** (≥ 500 thì tách); frontend 150–250, trần **400**; màn chỉ là orchestrator. **Test ở file riêng**, không viết inline.
-4. **UI:** giống prototype **< 5%** (1440×900, `pnpm parity <id>`); mobile 390×844 qua e2e; chỉ dùng token (`packages/ui/theme.ts`), **cấm hard-code màu / px**, cấm CSS rời; mọi chuỗi qua i18n (vi + en).
-5. **Postgres:** composite index cột `=` trước, range / sort sau; `INCLUDE` cho covering; deferred join cho list có LIMIT; partial / expression index; cursor pagination. Ghi `EXPLAIN` cho list mới.
+4. **UI:** giống prototype **< 5%** (1440×900, `pnpm parity <id>`); mobile 390×844 qua e2e; chỉ dùng token (`packages/ui/theme.ts`), **cấm hard-code màu / px**, cấm CSS rời; mọi chuỗi qua i18n (vi + en). Bảng danh sách theo D42 (cuộn trong khung, header dính, `Pager` số trang) — prototype mới không ghi đè (D43).
+5. **Postgres:** composite index cột `=` trước, range / sort sau; `INCLUDE` cho covering; deferred join cho list có LIMIT; partial / expression index; cursor pagination (9 bảng có số trang dùng `page` + `limit` — D42). Ghi `EXPLAIN` cho list mới.
 6. **API:** `{ data }` / `{ data, next_cursor }` / `{ error: { code, message, fields? } }`; tiền là string VND; `Idempotency-Key` cho lệnh tạo và risk send / money.
 7. **Luật commerce và quyền đã chốt không được tự đổi** (báo giá 15 ngày, ngưỡng duyệt 20M / 5%, ký hợp đồng Owner trước, đơn 2 trục, đề nghị thanh toán ≠ hoá đơn GTGT, 10.000đ = 1 điểm, 5 vai trò + data scope).
-8. Không thêm thư viện ngoài tech stack mà không ghi vào Deviations. Không swarm agent. MCP để P2 (D37).
+8. **Quyền agent (D51):** chỉ cấu hình ở Builder AI Agents (Tools nhóm theo module + Kỹ năng AI); connector không cấp cho agent; `delegate` / Cowork = quyền agent ∩ quyền người ra lệnh, kiểm mỗi lần gọi tool (Blueprint §3.3b).
+9. Không thêm thư viện ngoài tech stack mà không ghi vào Deviations. Không swarm agent. MCP để P2 (D37).
 
 ## 5. Git & báo cáo
 
@@ -112,4 +113,6 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 ## 8. Goal hiện tại
 
-`coding-packs/goals/GOAL-FE-PROTOTYPE.md` — dựng toàn bộ frontend `apps/web` theo prototype bằng mock transport (D38).
+`coding-packs/goals/GOAL-FE-PROTOTYPE.md` — dựng toàn bộ frontend `apps/web` theo prototype bằng mock transport (D38): **xong F0–F7**.
+
+Kế tiếp: đợt **prototype ver2.1** (D45 — Hộp thư · Hồ sơ 360° · AI Agent · Kênh + nút Trợ lý AI; REQ-B09–B11, C09–C13, D16, E14, F11–F12, M05, N15). Nguồn: `00-PROJECT-CONTEXT.md` → SCAN DELTA ver2.1, Blueprint (cập nhật 2026-10-29). Goal chưa viết.

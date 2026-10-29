@@ -2,7 +2,7 @@
 
 > Vibecode Kit v5.0 — BƯỚC 1 (SCAN)
 > Coding workspace: `D:\CODING\AppChat_Ver2` (remote `github.com/duymt-dev/AppChat`)
-> Scanned: 2026-10-27 · **Scan delta prototype ver2.1: 2026-10-29** (cuối file)
+> Scanned: 2026-10-27 · **Scan delta prototype ver2.1: 2026-10-29** (cuối file) · Vision cập nhật V16–V18 2026-10-29
 > **RRI 2026-10-28:** sản phẩm thương mại hoàn chỉnh, mô hình OPC, lõi là Trợ lý AI làm Orchestrator + Copilot của nền tảng (điều phối agents, điều khiển mọi action trên UI); xem `01-REQUIREMENTS-MATRIX.md`.
 > Scan type: **Greenfield từ bộ đặc tả** — chưa có source code; build mới hoàn toàn bằng **Next.js + NestJS**.
 > Không liên quan / không tái sử dụng codebase V1 (`D:/CODING/appchat`) — quyết định của Chủ nhà 2026-10-27.
@@ -599,7 +599,9 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
   - Nội dung trái với quyết định đã chốt: trial 14→15 ngày, OTP Zalo→Email, ẩn social login, bỏ "tự nạp" / "tự chuyển model tiết kiệm", "Ký số"→"Ký điện tử", "Hóa đơn"→"Đề nghị thanh toán", kênh Marketing chỉ Zalo cá nhân + Email.
   - Kênh không làm khi phát hành (Facebook, Instagram, Telegram, WhatsApp…) — chỉ hiển thị kênh có manifest.
   - Trang Vai trò & phân quyền chỉ đọc ở P0 (D27); trang Nền tảng kết nối chỉ hiện connector có manifest, thẻ "Sắp có" (D28).
+  - **Từ prototype ver2.1 (2026-10-29):** bảng danh sách giữ cuộn trong khung + số trang (D42, D43 — prototype mới không ghi đè); Hồ sơ 360° với báo giá / hợp đồng đã gửi theo luật COMMERCE (D46); quyền agent chỉ cấu hình ở Builder, menu ＋ / Cowork chỉ hiển thị (D51); Research / Web search, Tạo nhóm Zalo hiện "Sắp có" (D48, D50).
   - Danh sách đầy đủ + quy trình đo: `standards/ui/prototype-parity.md`.
+- **Bản prototype mới:** chạy `node tools/scripts/normalize-prototype.mjs` (về thang D41) trước khi commit làm chuẩn so pixel (D44).
 - **Quy trình:**
   1. TIP nền tảng UI dựng `tools/parity`: script Playwright chụp prototype theo danh sách màn (`parity.manifest.ts`: route, trạng thái, mask, vùng ngoại lệ), lưu baseline vào `tests/parity/baseline/`.
   2. Mỗi TIP UI phải chạy `pnpm parity <màn>` và dán tỉ lệ sai khác vào Completion Report.
@@ -636,11 +638,11 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 |---|---|---|
 | Auth · Workspace · Trial | Đăng ký/đăng nhập (Email OTP + mật khẩu), khai báo DN bắt buộc, màn chào trial, đổi workspace | P0 |
 | **Trợ lý AI (lõi)** | Màn Trợ lý (Chat/Cowork), dock Ctrl+K ở mọi module, thẻ xác nhận/kế hoạch, Nhật ký hành động + hoàn tác, phiên trò chuyện | P0 |
-| AI Agents | Danh sách agent, builder (cấu hình + chat thử), thư viện mẫu, tri thức RAG, hàng chờ duyệt, hiệu suất agent | P0 |
-| Kênh | Kết nối Zalo cá nhân (QR), Web widget studio, Email; trang Kênh kết nối | P0 (Email P1) |
-| Hộp thư | 3 cột, chế độ AI theo từng hội thoại, folder views của AI, Panel 360°, chuyển thành đơn/lịch/ticket | P0 |
+| AI Agents | Danh sách agent, builder (cấu hình + chat thử), thư viện mẫu, tri thức RAG, hàng chờ duyệt, hiệu suất agent; **Tools nhóm theo module + Kỹ năng AI là nơi duy nhất cấp quyền** (D51); khung "Trợ lý AI đang điều phối" ở Cowork (REQ-E14) | P0 |
+| Kênh | Kết nối Zalo cá nhân (QR), Web widget studio, Email; trang Kênh kết nối — **một kênh nhiều tài khoản, kết nối 3 bước, drawer Quản lý kênh** (ver2.1, REQ-B09–B11) | P0 (Email P1) |
+| Hộp thư | 3 cột, chế độ AI theo từng hội thoại, folder views của AI, Panel 360°, chuyển thành đơn/lịch/ticket; ver2.1: menu ⋯ tin nhắn (cảm xúc, ghim, chuyển tiếp, dịch, tạo ticket), menu ⋯ hội thoại có submenu, tìm trong hội thoại, menu ＋ chỉ đọc quyền agent (REQ-C09–C13) | P0 |
 | Tổng quan | Việc cần tôi, AI đã làm gì, cần follow, onboarding, credit | P0 |
-| Khách hàng & CRM | Khách hàng (bảng/kanban), Hồ sơ 360°, Sản phẩm, Báo giá, Đơn | P0 |
+| Khách hàng & CRM | Khách hàng (bảng/kanban), Hồ sơ 360° (bố cục theo mẫu & vai trò, 6 nút mở form tại chỗ — REQ-F11, F12, M05), Sản phẩm, Báo giá, Đơn | P0 |
 | Khách hàng & CRM | **Hợp đồng + ký điện tử**, Đề nghị thanh toán + QR / SePay-Casso, liệu trình (D24, D25) | P0 |
 | Khách hàng & CRM | Custom fields, import/export, gộp trùng | P1 |
 | Lịch hẹn | Lịch ngày/tuần/tháng/danh sách, dịch vụ, chống trùng, nhắc hẹn | P0–P1 |
@@ -672,7 +674,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | V2 | **Action-first:** Action Registry là nguồn duy nhất cho UI, Trợ lý, agents và MCP | Copilot phải làm được mọi thao tác UI (D03, D16); một chỗ validate, phân quyền, audit, undo |
 | V3 | **Agent runtime (CHỐT B, 2026-10-28): Vercel AI SDK v7 (`ToolLoopAgent`, `toolApproval`) + lớp nối tự viết (Agent Gateway: tool từ Registry, credit, router, lưu/chạy tiếp run trong Postgres). Không fork** OpenFang/OpenClaw/Hermes | Fork thì phải mổ lõi mới đa tenant được. AI SDK là lớp nền ít đổi API, đa provider; dữ liệu, quyền, credit và audit nằm trọn trong Postgres của ta |
 | V4 | **Không dùng Mastra, không làm swarm.** Phối hợp agent gồm orchestrator (`delegate`), handoff (`transfer_to_agent`), hỏi ý (`consult`) và tác vụ tự chủ | Mastra trùng storage/memory và đang có lỗi ở phần duyệt qua agent con; swarm khó dự đoán, khó duyệt và tốn credit. Interface Agent Gateway để ngỏ cho cả hai sau này |
-| V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
+| V5 | Zalo cá nhân dùng **zca-js**, thiết kế adapter theo OpenClaw `zalouser` | Chủ nhà đã thử zca-js 2026-10-29, chưa thấy vấn đề (phiên bản chốt ở TIP-014 — OQ-03). Plugin tham chiếu tốt nhất hiện có (MIT); session lưu theo tenant trong DB của ta |
 | V6 | Monorepo pnpm: `web` (Next) · `api` (Nest) · `worker` (Nest, role channels/ai) · `packages/*` | Chia sẻ schema action và types FE/BE; worker tách để giữ phiên Zalo và chạy LLM dài |
 | V7 | Postgres 16 (DB nền tảng + **DB riêng mỗi workspace**, PgBouncer) + pgvector + FTS tiếng Việt; Redis/BullMQ; native, không Docker; PM2/systemd | RRI D12–D15, D21 |
 | V8 | Prisma (2 schema: platform + tenant) cho CRUD; SQL thô trong migration cho partial/expression/covering index; deferred join khi phân trang lớn | RRI D13 + quy tắc Postgres trong CLAUDE.md |
@@ -683,6 +685,9 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | V13 | **(CHỐT 2026-10-28) Production native trên VPS Linux**: systemd + PM2, nginx, PG16 + pgvector, Redis; **Prometheus + Alertmanager + Grafana + Loki** trên VPS monitoring riêng; backup pgBackRest offsite; script `infra/` dựng lại được | Chủ nhà chốt; không Docker (D12); chi tiết ở Blueprint §11 |
 | V14 | **(CHỐT 2026-10-28) Mỗi workspace một PostgreSQL database riêng** (`CREATE DATABASE … TEMPLATE`), cùng một DB nền tảng (identity, membership, gói, ví credit, hoá đơn gói, registry, định tuyến kênh/widget). Bảng tenant không có `workspace_id`, không RLS; PgBouncer; migration runner cho mọi DB | Chủ nhà yêu cầu cô lập ở mức DB; xoá / xuất / chuyển máy chủ từng khách dễ; chi tiết ở Blueprint §2.0. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop), khôi phục khi đăng nhập (D23) |
 | V15 | **(CHỐT 2026-10-28) i18n:** phát hành `vi` + `en`; registry khai báo sẵn 11 ngôn ngữ của prototype, chỉ bật vi/en; thêm ngôn ngữ chỉ cần file bản dịch | Chủ nhà chọn phương án A; Blueprint §7.4 |
+| V16 | **(CHỐT 2026-10-29) Bảng danh sách có số trang** (D42, D43): màn cao đúng viewport, chỉ thân bảng cuộn, header dính, `Pager` 20 / 50 / 100; API `page` + `limit`, backend deferred join. Bản prototype mới không ghi đè | Bảng dài cuộn cả màn làm mất thanh lọc / header; 9 bảng chính |
+| V17 | **(CHỐT 2026-10-29) Prototype mới chuẩn hoá về thang D41** trước khi làm chuẩn parity (D44) | ver2.1 đổi cỡ toàn cục; chép nguyên thì 43/109 màn đạt, chuẩn hoá thì 102/109 |
+| V18 | **(CHỐT 2026-10-29) Quyền agent một nơi** (D51): Tools trong Builder nhóm theo module + Kỹ năng AI; connector không cấp cho agent; menu ＋ / Cowork chỉ hiển thị; `delegate` / Cowork = quyền agent ∩ quyền người ra lệnh (Blueprint §3.3b) | Tránh cấp quyền ở nhiều chỗ; agent không vượt quyền người giao việc |
 
 ---
 
