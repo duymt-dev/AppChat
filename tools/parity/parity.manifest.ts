@@ -51,6 +51,7 @@ const invoices = { ac_module: 'invoices' };
 const calendar = { ac_module: 'calendar' };
 const tickets = { ac_module: 'tickets' };
 const marketing = { ac_module: 'marketing' };
+const loyalty = { ac_module: 'loyalty' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -1055,5 +1056,55 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.locator('[data-testid="mk-ai-open"]').click(),
     appWait: '[data-campaign]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'loyalty:overview',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+  },
+  {
+    id: 'loyalty:members',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+    proto: (p) => p.getByText('Danh sách thành viên', { exact: true }).first().scrollIntoViewIfNeeded(),
+    app: (p) => p.getByTestId('ly-members').scrollIntoViewIfNeeded(),
+    clipTo: { proto: '.cmpwrap >> nth=0', app: '[data-testid="ly-members"]' },
+  },
+  {
+    id: 'loyalty:adjust-points',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+    proto: async (p) => {
+      await p.getByText('Thêm thành viên', { exact: true }).first().click();
+      await p.locator('input[placeholder="VD: 0903 123 456"]').fill('0903 123 456');
+      await p.getByText('Tra cứu', { exact: true }).click();
+    },
+    app: async (p) => {
+      await p.getByTestId('ly-add').click();
+      await p.getByTestId('ly-adj-phone').fill('0903 123 456');
+      await p.getByTestId('ly-adj-lookup').click();
+      await p.getByTestId('ly-adj-found').waitFor();
+    },
+    mask: [
+      {
+        x: 420,
+        y: 330,
+        width: 600,
+        height: 440,
+        reason: 'bước Ghi nhận điểm: điều chỉnh tay ± + 1 trong 7 lý do, hiện số dư / hạng sau (COMMERCE §7 — điểm tự động chỉ cộng khi đơn hoàn tất, bỏ "Loại ghi nhận theo quy tắc")',
+      },
+    ],
+  },
+  {
+    id: 'loyalty:config',
+    route: '/loyalty',
+    protoStorage: loyalty,
+    appWait: '[data-member]',
+    proto: (p) => p.locator('.cmpwrap').nth(2).scrollIntoViewIfNeeded(),
+    app: (p) => p.getByTestId('ly-rules').scrollIntoViewIfNeeded(),
+    clipTo: { proto: '.cmpwrap >> nth=2', app: '[data-testid="ly-rules"]' },
   },
 ];

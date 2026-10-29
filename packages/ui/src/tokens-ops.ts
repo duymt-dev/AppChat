@@ -36,6 +36,15 @@ export const opsColor = {
   mkGlass: 'rgba(255,255,255,.14)',
   mkGlass3: 'rgba(255,255,255,.3)',
   mkWhite60: 'rgba(255,255,255,.6)',
+  lyGold: '#F59E0B',
+  lyLowRisk: '#0F7B45',
+  lyOrange: '#E8602C',
+  lyNewBg: '#FFF8EC',
+  lyNewLine: '#FBE7C2',
+  lyNewText: '#92700F',
+  lyRuleChip: '#F1F5F9',
+  lySwitchOff: '#D1D5DB',
+  lyDash: '#C4CBD1',
 } as const;
 
 export const opsGradient = {

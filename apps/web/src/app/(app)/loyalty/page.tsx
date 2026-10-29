@@ -1,4 +1,5 @@
-// Màn làm ở pha sau của GOAL-FE-PROTOTYPE; F0 chỉ giữ route cho nav-config.
+import { LoyaltyScreen } from '@/features/loyalty';
+
 export default function Page() {
-  return null;
+  return <LoyaltyScreen />;
 }
