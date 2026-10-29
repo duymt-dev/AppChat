@@ -939,5 +939,186 @@
       "daily": "Daily · 08:00",
       "weekly": "Weekly · Monday"
     }
+  },
+  "billing": {
+    "seg": {
+      "personal": "Personal",
+      "business": "Business"
+    },
+    "plan": {
+      "popular": "Popular",
+      "popularBig": "Most popular",
+      "trialTag": "ON TRIAL",
+      "trialCta": "On trial · {n} days left",
+      "freeCta": "Free plan",
+      "current": "Current plan",
+      "contact": "Contact us",
+      "choose": "Choose plan",
+      "free": "Free",
+      "per": {
+        "month": "/ month",
+        "year": "/ year"
+      }
+    },
+    "cmp": {
+      "title": "Detailed plan comparison",
+      "expand": "Expand all",
+      "collapse": "Collapse all",
+      "feature": "Feature",
+      "group": {
+        "platform": "Platform & admin",
+        "dashboard": "Dashboard",
+        "assistant": "AI Assistant",
+        "inbox": "Inbox",
+        "crm": "Customers & CRM",
+        "tickets": "Support (tickets)",
+        "marketing": "Marketing",
+        "booking": "Bookings",
+        "agents": "AI Agents",
+        "service": "Service & support"
+      }
+    },
+    "upgrade": {
+      "title": "Upgrade plan",
+      "sub": "Pick the right plan — unlock more channels, AI credit and premium features",
+      "close": "Close",
+      "trialT": "You are trialling Personal Pro — {n} days left",
+      "trialS": "All features unlocked. When it ends the workspace is paused and moves to the Free plan.",
+      "contacted": "Request sent — the AppChat team will contact you within 1 business day."
+    },
+    "credit": {
+      "title": "Choose a credit pack",
+      "sub": "1 credit ≈ 1 AI conversation · 10 marketing emails. Pick a pack to get a payment QR.",
+      "close": "Close",
+      "unit": "credit",
+      "bonus": "+{n}% bonus",
+      "approx": "≈ {n} AI conversations",
+      "pick": "Select"
+    },
+    "checkout": {
+      "sub": "Scan the QR with your banking app or transfer manually — confirmed automatically in ~1 minute. The QR expires in 15 minutes.",
+      "napas": "VietQR · Napas 247",
+      "amount": "Amount",
+      "bank": "Bank",
+      "acc": "Account no.",
+      "holder": "Account holder",
+      "content": "Transfer note",
+      "paid": "I have transferred",
+      "close": "Close",
+      "doneT": "Payment received",
+      "doneS": "<b>{item}</b> recorded. Matched against <b>{code}</b> and applied to your account.",
+      "finish": "Done"
+    },
+    "hero": {
+      "current": "CURRENT PLAN",
+      "renew": "Renew",
+      "st": {
+        "active": "Active",
+        "trialing": "Trial",
+        "expired": "Expired",
+        "cancelled": "Cancelled"
+      },
+      "activated": "Activated",
+      "expires": "Expires",
+      "daysLeft": "{n} days left",
+      "users": "Users",
+      "seatsLeft": "{n} seats left",
+      "channels": "Connected channels",
+      "chLeft": "{n} connections left",
+      "credits": "Plan credit left",
+      "reset": "Resets every month"
+    },
+    "inv": {
+      "title": "Invoice history",
+      "search": "Search invoice no., plan…",
+      "status": "Status",
+      "all": "All statuses",
+      "from": "From",
+      "to": "To",
+      "count": "{n} invoices",
+      "col": {
+        "code": "Invoice no.",
+        "pkg": "Item",
+        "date": "Date",
+        "amount": "Amount",
+        "method": "Method",
+        "status": "Status",
+        "invoice": "Invoice"
+      },
+      "st": {
+        "paid": "Paid",
+        "pending": "Awaiting payment",
+        "pending_review": "Under review",
+        "expired": "Expired",
+        "cancelled": "Cancelled"
+      },
+      "method": {
+        "qr": "QR code",
+        "bank_transfer": "Bank transfer"
+      },
+      "pay": "Pay",
+      "view": "View"
+    }
+  },
+  "wallet": {
+    "balance": "AVAILABLE BALANCE",
+    "unit": "credit",
+    "balS": "Plan credit {plan} · top-up {topup} · lasts ~{d} days at the current pace",
+    "topup": "Top up",
+    "alertT": "Remind me when credit runs low",
+    "alertS": "Notify at 80% and 95% of plan credit used — top up via VietQR, nothing is charged automatically.",
+    "outNote": "Out of credit: AI pauses and automated conversations go to people — data and inbox keep working.",
+    "tab": {
+      "topup": "Top up",
+      "history": "Wallet history",
+      "invoice": "Invoices"
+    },
+    "plans": "Plans",
+    "contacted": "Request sent — the AppChat team will contact you within 1 business day.",
+    "shop": {
+      "credit": "Buy credit",
+      "addon": "Extra resources"
+    },
+    "creditT": "Buy credit",
+    "creditHint": "1 credit ≈ 1 AI conversation · 10 marketing emails. Purchased credit never expires; plan credit is used first.",
+    "bonus": "+{n}% bonus",
+    "approx": "≈ {n} AI conversations",
+    "topupBtn": "Buy",
+    "addonT": "Extra resources",
+    "addonHint": "Go beyond your plan limits — billed monthly with your plan.",
+    "addon": {
+      "user": "Extra user",
+      "channel": "Extra channel"
+    },
+    "addonD": {
+      "user": "Add 1 user seat to the workspace.",
+      "channel": "Connect 1 more channel / account."
+    },
+    "perMonth": "/month",
+    "buy": "Buy",
+    "ledger": {
+      "title": "Wallet history",
+      "filter": "Filter",
+      "f": {
+        "all": "All",
+        "in": "Credit in",
+        "out": "Credit out"
+      },
+      "col": {
+        "at": "Time",
+        "desc": "Description",
+        "kind": "Type",
+        "source": "Source",
+        "credit": "Credit"
+      },
+      "kind": {
+        "grant": "Plan grant",
+        "topup": "Top-up",
+        "usage": "Usage",
+        "refund": "Refund",
+        "adjust": "Adjust",
+        "expire": "Expired"
+      }
+    }
   }
 }

@@ -151,3 +151,17 @@ export const billingReportTransfer = defineAction({
   invalidates: ['billing'],
   db: 'platform',
 });
+
+export const walletUpdateAlerts = defineAction({
+  id: 'wallet.update_alerts',
+  module: 'billing',
+  title: 'actions.wallet.update_alerts.title',
+  description: 'Turn low-credit reminders (at 80% and 95% of plan credit used) on or off; there is no auto top-up (D24). Example: {"low_alert":true}',
+  input: z.object({ low_alert: z.boolean() }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'billing.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['billing'],
+  db: 'platform',
+});

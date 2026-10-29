@@ -566,5 +566,10 @@
     "detect_fields": {
       "title": "AI nhận diện biến mẫu"
     }
+  },
+  "wallet": {
+    "update_alerts": {
+      "title": "Cập nhật nhắc credit"
+    }
   }
 }

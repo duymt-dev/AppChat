@@ -1911,5 +1911,806 @@
         ]
       }
     ]
+  },
+  "billing": {
+    "current": {
+      "plan_key": "ultimate",
+      "plan_name": "Ultimate",
+      "status": "active",
+      "activated_at": "2025-12-20",
+      "expires_at": "2026-12-20",
+      "days_left": 192,
+      "period_pct": 62,
+      "users": {
+        "used": 12,
+        "max": 15
+      },
+      "channels": {
+        "used": 9,
+        "max": 12
+      },
+      "credits_month": 200000
+    },
+    "plans": {
+      "personal": [
+        {
+          "key": "free",
+          "name": "Miễn phí",
+          "price": "0",
+          "period": "",
+          "desc": "Bắt đầu trải nghiệm AppChat",
+          "popular": false,
+          "features": [
+            "1 người dùng",
+            "1 kênh kết nối",
+            "1 AI Agent",
+            "500 credit / tháng",
+            "CRM cơ bản · 500 liên hệ",
+            "Hỗ trợ cộng đồng"
+          ]
+        },
+        {
+          "key": "personal",
+          "name": "Cá nhân",
+          "price": "2030000",
+          "period": "year",
+          "desc": "Cá nhân hoá & bán hàng đa kênh",
+          "popular": false,
+          "features": [
+            "1 người dùng",
+            "3 kênh kết nối",
+            "AI tiêu chuẩn + nâng cao",
+            "3.000 credit / tháng",
+            "CRM + pipeline + báo giá",
+            "Tickets cơ bản · Quick-reply"
+          ]
+        },
+        {
+          "key": "personal_pro",
+          "name": "Cá nhân Pro",
+          "price": "5090000",
+          "period": "year",
+          "desc": "Toàn bộ sức mạnh cho cá nhân",
+          "popular": true,
+          "features": [
+            "1 người dùng",
+            "8 kênh kết nối",
+            "AI toàn bộ cấp độ",
+            "10.000 credit / tháng",
+            "Marketing + Loyalty",
+            "Ưu tiên hỗ trợ 24/7"
+          ]
+        },
+        {
+          "key": "personal_max",
+          "name": "Cá nhân Max",
+          "price": "10190000",
+          "period": "year",
+          "desc": "Cá nhân chuyên nghiệp tối đa",
+          "popular": false,
+          "features": [
+            "1 người dùng",
+            "19 kênh kết nối",
+            "AI toàn bộ cấp độ",
+            "25.000 credit / tháng",
+            "AI Governance + RAG mở rộng",
+            "Hỗ trợ ưu tiên cao nhất"
+          ]
+        }
+      ],
+      "business": [
+        {
+          "key": "team",
+          "name": "Team",
+          "price": "5900000",
+          "period": "month",
+          "desc": "Đội nhóm nhỏ bắt đầu đa kênh",
+          "popular": false,
+          "features": [
+            "5 người dùng",
+            "5 kênh kết nối",
+            "2 AI Agent",
+            "20.000 credit / tháng",
+            "CRM + Loyalty đầy đủ",
+            "Hỗ trợ trong giờ"
+          ]
+        },
+        {
+          "key": "business",
+          "name": "Business",
+          "price": "12900000",
+          "period": "month",
+          "desc": "Vận hành chuyên nghiệp đa phòng ban",
+          "popular": true,
+          "features": [
+            "8 người dùng",
+            "10 kênh kết nối",
+            "5 AI Agent",
+            "50.000 credit / tháng",
+            "Marketing + phân khúc",
+            "Hỗ trợ ưu tiên"
+          ]
+        },
+        {
+          "key": "ultimate",
+          "name": "Ultimate",
+          "price": "24900000",
+          "period": "month",
+          "desc": "Toàn bộ năng lực cho doanh nghiệp",
+          "popular": false,
+          "features": [
+            "15 người dùng",
+            "Kênh không giới hạn",
+            "AI Agent không giới hạn",
+            "200.000 credit / tháng",
+            "AI Governance + RAG mở rộng",
+            "CSM riêng · SLA 99.9%"
+          ]
+        },
+        {
+          "key": "enterprise",
+          "name": "Enterprise",
+          "price": null,
+          "period": "",
+          "desc": "Triển khai riêng theo nhu cầu",
+          "popular": false,
+          "features": [
+            "User tuỳ chỉnh",
+            "Hạ tầng riêng",
+            "AI Governance ISO 42001",
+            "Credit tuỳ chỉnh",
+            "Tích hợp sâu ERP",
+            "CSM + onsite"
+          ]
+        }
+      ]
+    },
+    "compare": [
+      {
+        "group": "platform",
+        "rows": [
+          {
+            "feature": "Người dùng",
+            "personal": [
+              "1",
+              "1",
+              "1",
+              "1"
+            ],
+            "business": [
+              "5",
+              "8",
+              "15",
+              "Tuỳ chỉnh"
+            ]
+          },
+          {
+            "feature": "Kênh kết nối",
+            "personal": [
+              "1",
+              "3",
+              "8",
+              "19"
+            ],
+            "business": [
+              "5",
+              "10",
+              "Không giới hạn",
+              "Không giới hạn"
+            ]
+          },
+          {
+            "feature": "Phân quyền vai trò",
+            "personal": [
+              "—",
+              "—",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Nền tảng kết nối",
+            "personal": [
+              "—",
+              "Cơ bản",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓ + tuỳ biến"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "dashboard",
+        "rows": [
+          {
+            "feature": "Dashboard tổng quan",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "assistant",
+        "rows": [
+          {
+            "feature": "Chat ra lệnh nghiệp vụ",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Gợi ý xử lý theo ngữ cảnh",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Phiên trò chuyện & nhật ký",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "inbox",
+        "rows": [
+          {
+            "feature": "Hộp thư hợp nhất đa kênh",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Gán & phân luồng hội thoại",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Quick-reply / mẫu trả lời",
+            "personal": [
+              "Cơ bản",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "crm",
+        "rows": [
+          {
+            "feature": "Liên hệ (CRM)",
+            "personal": [
+              "500",
+              "Pipeline",
+              "Nâng cao",
+              "Không giới hạn"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Báo giá · Hợp đồng · Đơn",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Sản phẩm",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Loyalty",
+            "personal": [
+              "—",
+              "—",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "tickets",
+        "rows": [
+          {
+            "feature": "Tạo & xử lý ticket",
+            "personal": [
+              "Cơ bản",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "SLA & leo thang",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "marketing",
+        "rows": [
+          {
+            "feature": "Email Marketing",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Phân khúc khách hàng",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "booking",
+        "rows": [
+          {
+            "feature": "Đặt & quản lý lịch hẹn",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Nhắc lịch tự động",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "agents",
+        "rows": [
+          {
+            "feature": "Số AI Agent",
+            "personal": [
+              "1",
+              "2",
+              "5",
+              "Không giới hạn"
+            ],
+            "business": [
+              "2",
+              "5",
+              "Không giới hạn",
+              "Không giới hạn"
+            ]
+          },
+          {
+            "feature": "Mức AI",
+            "personal": [
+              "Tiêu chuẩn",
+              "Tiêu chuẩn + Nâng cao",
+              "Toàn bộ",
+              "Toàn bộ"
+            ],
+            "business": [
+              "Toàn bộ",
+              "Toàn bộ",
+              "Toàn bộ",
+              "Toàn bộ"
+            ]
+          },
+          {
+            "feature": "Credit / tháng",
+            "personal": [
+              "500",
+              "3.000",
+              "10.000",
+              "25.000"
+            ],
+            "business": [
+              "20.000",
+              "50.000",
+              "200.000",
+              "Tuỳ chỉnh"
+            ]
+          },
+          {
+            "feature": "AI Governance",
+            "personal": [
+              "—",
+              "—",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "—",
+              "Cơ bản",
+              "✓",
+              "✓ + audit"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "service",
+        "rows": [
+          {
+            "feature": "Kênh hỗ trợ",
+            "personal": [
+              "Cộng đồng",
+              "Trong giờ",
+              "24/7",
+              "Ưu tiên cao"
+            ],
+            "business": [
+              "Trong giờ",
+              "Ưu tiên",
+              "CSM riêng",
+              "CSM + onsite"
+            ]
+          },
+          {
+            "feature": "SLA cam kết",
+            "personal": [
+              "—",
+              "—",
+              "99.5%",
+              "99.5%"
+            ],
+            "business": [
+              "99%",
+              "99.5%",
+              "99.9%",
+              "99.95%"
+            ]
+          }
+        ]
+      }
+    ],
+    "credit_packs": [
+      {
+        "key": "credit_500",
+        "credits": 500,
+        "price": "500000",
+        "bonus": 0,
+        "popular": false
+      },
+      {
+        "key": "credit_1000",
+        "credits": 1050,
+        "price": "1000000",
+        "bonus": 5,
+        "popular": true
+      },
+      {
+        "key": "credit_2000",
+        "credits": 2200,
+        "price": "2000000",
+        "bonus": 10,
+        "popular": false
+      },
+      {
+        "key": "credit_5000",
+        "credits": 5750,
+        "price": "5000000",
+        "bonus": 15,
+        "popular": false
+      }
+    ],
+    "addons": [
+      {
+        "key": "addon_user",
+        "kind": "user",
+        "price": "150000",
+        "period": "month"
+      },
+      {
+        "key": "addon_channel",
+        "kind": "channel",
+        "price": "200000",
+        "period": "month"
+      }
+    ],
+    "invoices": [
+      {
+        "id": "INV-2026-0612",
+        "code": "INV-2026-0612",
+        "desc": "Ultimate · 12 tháng",
+        "date": "2025-12-20",
+        "amount": "90000000",
+        "method": "bank_transfer",
+        "status": "paid",
+        "kind": "plan",
+        "item": "ultimate"
+      },
+      {
+        "id": "INV-2026-0588",
+        "code": "INV-2026-0588",
+        "desc": "Mua thêm 5 người dùng",
+        "date": "2026-04-12",
+        "amount": "9000000",
+        "method": "qr",
+        "status": "paid",
+        "kind": "addon",
+        "item": "addon_user"
+      },
+      {
+        "id": "INV-2026-0541",
+        "code": "INV-2026-0541",
+        "desc": "Nạp 5.750 credit",
+        "date": "2026-03-01",
+        "amount": "5000000",
+        "method": "qr",
+        "status": "paid",
+        "kind": "credit",
+        "item": "credit_5000"
+      },
+      {
+        "id": "INV-2026-0712",
+        "code": "INV-2026-0712",
+        "desc": "Nạp 2.200 credit",
+        "date": "2026-06-05",
+        "amount": "2000000",
+        "method": "bank_transfer",
+        "status": "pending",
+        "kind": "credit",
+        "item": "credit_2000"
+      },
+      {
+        "id": "INV-2026-0488",
+        "code": "INV-2026-0488",
+        "desc": "Mua thêm 3 kênh kết nối",
+        "date": "2026-02-14",
+        "amount": "1800000",
+        "method": "qr",
+        "status": "paid",
+        "kind": "addon",
+        "item": "addon_channel"
+      },
+      {
+        "id": "INV-2025-1102",
+        "code": "INV-2025-1102",
+        "desc": "Business · 6 tháng (gói cũ)",
+        "date": "2025-06-20",
+        "amount": "23400000",
+        "method": "bank_transfer",
+        "status": "paid",
+        "kind": "plan",
+        "item": "business"
+      },
+      {
+        "id": "INV-2025-0931",
+        "code": "INV-2025-0931",
+        "desc": "Nạp 1.050 credit",
+        "date": "2025-09-02",
+        "amount": "1000000",
+        "method": "qr",
+        "status": "expired",
+        "kind": "credit",
+        "item": "credit_1000"
+      }
+    ],
+    "bank": {
+      "bank": "Vietcombank — CN HCM",
+      "account_no": "0071 000 888 999",
+      "account_name": "CTY CP MEDIASOFT VN"
+    },
+    "vat": {
+      "tax_code": "0314783952",
+      "legal_name": "MediaSoft Vietnam Corp.",
+      "address": "81 Cách Mạng Tháng 8, Q.1, TP.HCM",
+      "email": "admin@mediasoft.vn"
+    }
+  },
+  "wallet": {
+    "plan_balance": 101150,
+    "topup_balance": 2450,
+    "days_estimate": 18,
+    "low_alert": true,
+    "ledger": [
+      {
+        "id": "cl_1",
+        "at": "2026-06-28T14:20:00+07:00",
+        "desc": "Nạp 2.200 credit · INV-2026-0627",
+        "kind": "topup",
+        "source": "VietQR",
+        "delta": 2200
+      },
+      {
+        "id": "cl_2",
+        "at": "2026-06-27T09:12:00+07:00",
+        "desc": "AI trả lời hội thoại · 4.120 token",
+        "kind": "usage",
+        "source": "Hộp thư",
+        "delta": -37
+      },
+      {
+        "id": "cl_3",
+        "at": "2026-06-26T16:40:00+07:00",
+        "desc": "Chiến dịch email · 1.200 người nhận",
+        "kind": "usage",
+        "source": "Marketing",
+        "delta": -120
+      },
+      {
+        "id": "cl_4",
+        "at": "2026-06-25T11:05:00+07:00",
+        "desc": "Trợ lý AI · soạn báo giá",
+        "kind": "usage",
+        "source": "Trợ lý AI",
+        "delta": -18
+      },
+      {
+        "id": "cl_5",
+        "at": "2026-06-24T08:30:00+07:00",
+        "desc": "Nạp 1.050 credit · INV-2026-0624",
+        "kind": "topup",
+        "source": "Chuyển khoản",
+        "delta": 1050
+      },
+      {
+        "id": "cl_6",
+        "at": "2026-06-01T00:00:00+07:00",
+        "desc": "Cấp credit gói Ultimate · tháng 6",
+        "kind": "grant",
+        "source": "Gói",
+        "delta": 1200
+      }
+    ]
   }
 }

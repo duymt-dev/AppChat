@@ -26,6 +26,22 @@ export const settingsColor = {
   slaOff: '#D1D5DB',
   slaRiskAccent: '#7EE2A4',
   slaRiskText: 'rgba(255,255,255,.82)',
+  cmpGroupLine: '#E4EBE6',
+  billMint: '#7EE2A4',
+  billMintBg: 'rgba(126,226,164,.15)',
+  billGlass: 'rgba(255,255,255,.12)',
+  billBar: 'rgba(255,255,255,.18)',
+  billMuted: 'rgba(255,255,255,.65)',
+  billMuted2: 'rgba(255,255,255,.6)',
+  billMuted3: 'rgba(255,255,255,.7)',
+  billPaidBg: '#E7F7EE',
+  bonusBg: '#EAF7EF',
+  trialBar: 'rgba(45,197,106,.22)',
+  trialDash: 'rgba(45,197,106,.5)',
+  creditVeil: 'rgba(15,23,20,.5)',
+  ledgerOut: '#FDECEA',
+  qrLabel: '#8A988F',
+  qrCloseLine: '#D7DED8',
 } as const;
 
 export const settingsGradient = {
@@ -35,6 +51,8 @@ export const settingsGradient = {
   fieldsHero: 'linear-gradient(135deg,#EDFAF3,rgba(255,255,255,0))',
   govHero: 'linear-gradient(135deg,#FEF3C7,#fff)',
   slaRisk: 'linear-gradient(135deg,#06250F,#231F20)',
+  billHero: 'linear-gradient(135deg,#06250F,#14532D)',
+  walHero: 'linear-gradient(135deg,#06250F,#231F20)',
 } as const;
 
 export const settingsShadow = {
@@ -42,4 +60,8 @@ export const settingsShadow = {
   wgLauncher: '0 8px 22px rgba(45,197,106,.45)',
   wgMsg: '0 1px 2px rgba(15,23,42,.06)',
   wgAvatar: '0 2px 6px rgba(0,0,0,.15)',
+  planCard: '0 1px 2px rgba(17,24,39,.04)',
+  planRing: '0 0 0 3px rgba(45,197,106,.12)',
+  creditHover: '0 6px 18px rgba(45,197,106,.16)',
+  creditModal: '0 30px 70px rgba(15,23,20,.34)',
 } as const;

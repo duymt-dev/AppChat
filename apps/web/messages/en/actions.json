@@ -566,5 +566,10 @@
     "detect_fields": {
       "title": "Detect template fields"
     }
+  },
+  "wallet": {
+    "update_alerts": {
+      "title": "Update credit reminders"
+    }
   }
 }

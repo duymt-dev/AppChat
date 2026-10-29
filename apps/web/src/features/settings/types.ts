@@ -249,3 +249,80 @@ export interface NotifPrefs {
   sound: boolean;
   digest: 'off' | 'daily' | 'weekly';
 }
+
+export type PlanSeg = 'personal' | 'business';
+
+export interface Plan {
+  key: string;
+  name: string;
+  /** VND dạng chuỗi; null = Liên hệ (Enterprise); "0" = Miễn phí. */
+  price: string | null;
+  period: 'month' | 'year' | '';
+  desc: string;
+  popular: boolean;
+  features: string[];
+}
+
+export interface BillingSummary {
+  plan_key: string;
+  plan_name: string;
+  status: 'trialing' | 'active' | 'expired' | 'cancelled';
+  activated_at: string;
+  expires_at: string;
+  days_left: number;
+  period_pct: number;
+  users: { used: number; max: number };
+  channels: { used: number; max: number };
+  credits_month: number;
+  balance: number;
+  plan_balance: number;
+  topup_balance: number;
+}
+
+export interface CreditPack {
+  key: string;
+  credits: number;
+  price: string;
+  bonus: number;
+  popular: boolean;
+}
+
+export interface BillingCatalog {
+  plans: Record<PlanSeg, Plan[]>;
+  compare: { group: string; rows: { feature: string; personal: string[]; business: string[] }[] }[];
+  credit_packs: CreditPack[];
+  addons: { key: string; kind: 'user' | 'channel'; price: string; period: 'month' }[];
+}
+
+export type BillInvoiceStatus = 'pending' | 'pending_review' | 'paid' | 'expired' | 'cancelled';
+
+export interface BillQr {
+  payload: string;
+  amount: string;
+  content: string;
+  expires_at: string;
+  bank: string;
+  account_no: string;
+  account_name: string;
+}
+
+export interface BillInvoice {
+  id: string;
+  code: string;
+  desc: string;
+  date: string;
+  amount: string;
+  method: 'qr' | 'bank_transfer';
+  status: BillInvoiceStatus;
+  kind: 'plan' | 'credit' | 'addon';
+  item: string;
+  qr?: BillQr;
+}
+
+export interface WalletData {
+  plan_balance: number;
+  topup_balance: number;
+  days_estimate: number;
+  low_alert: boolean;
+  ledger: { id: string; at: string; desc: string; kind: 'grant' | 'topup' | 'usage' | 'refund' | 'adjust' | 'expire'; source: string; delta: number }[];
+}

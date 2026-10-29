@@ -939,5 +939,186 @@
       "daily": "Hằng ngày · 08:00",
       "weekly": "Hằng tuần · Thứ 2"
     }
+  },
+  "billing": {
+    "seg": {
+      "personal": "Cá nhân",
+      "business": "Doanh nghiệp"
+    },
+    "plan": {
+      "popular": "Phổ biến",
+      "popularBig": "Phổ biến nhất",
+      "trialTag": "ĐANG DÙNG THỬ",
+      "trialCta": "Đang dùng thử · còn {n} ngày",
+      "freeCta": "Đang miễn phí",
+      "current": "Gói hiện tại",
+      "contact": "Liên hệ",
+      "choose": "Chọn gói",
+      "free": "Miễn phí",
+      "per": {
+        "month": "/ tháng",
+        "year": "/ năm"
+      }
+    },
+    "cmp": {
+      "title": "So sánh chi tiết các gói",
+      "expand": "Mở rộng tất cả",
+      "collapse": "Thu gọn tất cả",
+      "feature": "Tính năng",
+      "group": {
+        "platform": "Nền tảng & Quản trị",
+        "dashboard": "Tổng quan (Dashboard)",
+        "assistant": "Trợ lý AI",
+        "inbox": "Hộp thư",
+        "crm": "Khách hàng & CRM",
+        "tickets": "Hỗ trợ (Tickets)",
+        "marketing": "Marketing",
+        "booking": "Lịch hẹn",
+        "agents": "AI Agents",
+        "service": "Hỗ trợ dịch vụ"
+      }
+    },
+    "upgrade": {
+      "title": "Nâng cấp gói",
+      "sub": "Chọn gói phù hợp — mở khoá thêm kênh, credit AI và tính năng cao cấp",
+      "close": "Đóng",
+      "trialT": "Bạn đang dùng thử Cá nhân Pro — còn {n} ngày",
+      "trialS": "Mở hết tính năng. Hết hạn sẽ tạm khoá workspace và chuyển về gói Miễn phí.",
+      "contacted": "Đã gửi yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc."
+    },
+    "credit": {
+      "title": "Chọn gói nạp Credit",
+      "sub": "1 credit ≈ 1 hội thoại AI · 10 email marketing. Chọn gói để lấy mã QR thanh toán.",
+      "close": "Đóng",
+      "unit": "credit",
+      "bonus": "+{n}% tặng",
+      "approx": "≈ {n} hội thoại AI",
+      "pick": "Chọn"
+    },
+    "checkout": {
+      "sub": "Quét QR bằng app ngân hàng hoặc chuyển khoản thủ công — hệ thống tự xác nhận trong ~1 phút. Mã QR hết hạn sau 15 phút.",
+      "napas": "VietQR · Napas 247",
+      "amount": "Số tiền",
+      "bank": "Ngân hàng",
+      "acc": "Số tài khoản",
+      "holder": "Chủ tài khoản",
+      "content": "Nội dung CK",
+      "paid": "Tôi đã chuyển khoản",
+      "close": "Đóng",
+      "doneT": "Thanh toán thành công",
+      "doneS": "Đã ghi nhận <b>{item}</b>. Hệ thống đã đối soát theo <b>{code}</b> và cộng vào tài khoản.",
+      "finish": "Hoàn tất"
+    },
+    "hero": {
+      "current": "GÓI HIỆN TẠI",
+      "renew": "Gia hạn",
+      "st": {
+        "active": "Còn hiệu lực",
+        "trialing": "Dùng thử",
+        "expired": "Hết hạn",
+        "cancelled": "Đã huỷ"
+      },
+      "activated": "Ngày kích hoạt",
+      "expires": "Ngày hết hạn",
+      "daysLeft": "{n} ngày còn lại",
+      "users": "Người dùng",
+      "seatsLeft": "Còn {n} chỗ trống",
+      "channels": "Kênh kết nối",
+      "chLeft": "Còn {n} kết nối",
+      "credits": "Credit gói còn lại",
+      "reset": "Reset theo chu kỳ tháng"
+    },
+    "inv": {
+      "title": "Lịch sử hóa đơn",
+      "search": "Tìm mã hóa đơn, tên gói…",
+      "status": "Trạng thái",
+      "all": "Mọi trạng thái",
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "count": "{n} hóa đơn",
+      "col": {
+        "code": "Mã hóa đơn",
+        "pkg": "Gói dịch vụ",
+        "date": "Ngày TT",
+        "amount": "Số tiền",
+        "method": "Phương thức",
+        "status": "Trạng thái",
+        "invoice": "Invoice"
+      },
+      "st": {
+        "paid": "Đã thanh toán",
+        "pending": "Chờ thanh toán",
+        "pending_review": "Chờ xác nhận",
+        "expired": "Quá hạn",
+        "cancelled": "Đã huỷ"
+      },
+      "method": {
+        "qr": "QR Code",
+        "bank_transfer": "Chuyển khoản"
+      },
+      "pay": "Thanh toán",
+      "view": "Xem"
+    }
+  },
+  "wallet": {
+    "balance": "SỐ DƯ KHẢ DỤNG",
+    "unit": "credit",
+    "balS": "Credit gói {plan} · mua thêm {topup} · đủ dùng ~{d} ngày theo nhịp hiện tại",
+    "topup": "Nạp tiền",
+    "alertT": "Nhắc khi credit sắp hết",
+    "alertS": "Báo khi đã dùng 80% và 95% credit gói — nạp bằng VietQR, không tự trừ tiền.",
+    "outNote": "Hết credit: AI tạm dừng, hội thoại tự động chuyển về người — dữ liệu và hộp thư vẫn dùng bình thường.",
+    "tab": {
+      "topup": "Nạp tiền",
+      "history": "Lịch sử ví",
+      "invoice": "Hoá đơn"
+    },
+    "plans": "Gói dịch vụ",
+    "contacted": "Đã gửi yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc.",
+    "shop": {
+      "credit": "Nạp Credit",
+      "addon": "Tài nguyên bổ sung"
+    },
+    "creditT": "Nạp Credit",
+    "creditHint": "1 credit ≈ 1 hội thoại AI · 10 email marketing. Credit mua thêm không hết hạn; credit gói trừ trước.",
+    "bonus": "+{n}% tặng",
+    "approx": "≈ {n} hội thoại AI",
+    "topupBtn": "Nạp",
+    "addonT": "Tài nguyên bổ sung",
+    "addonHint": "Thêm vượt hạn mức của gói — tính theo tháng, tự gia hạn cùng gói.",
+    "addon": {
+      "user": "Thêm người dùng",
+      "channel": "Thêm kênh kết nối"
+    },
+    "addonD": {
+      "user": "Thêm 1 chỗ người dùng vào workspace.",
+      "channel": "Kết nối thêm 1 kênh / tài khoản."
+    },
+    "perMonth": "/tháng",
+    "buy": "Mua",
+    "ledger": {
+      "title": "Lịch sử ví",
+      "filter": "Lọc",
+      "f": {
+        "all": "Tất cả",
+        "in": "Cộng credit",
+        "out": "Trừ credit"
+      },
+      "col": {
+        "at": "Thời gian",
+        "desc": "Nội dung",
+        "kind": "Loại",
+        "source": "Nguồn",
+        "credit": "Credit"
+      },
+      "kind": {
+        "grant": "Cấp gói",
+        "topup": "Nạp",
+        "usage": "Tiêu",
+        "refund": "Hoàn",
+        "adjust": "Điều chỉnh",
+        "expire": "Hết hạn"
+      }
+    }
   }
 }

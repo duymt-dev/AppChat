@@ -2,6 +2,10 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type {
+  BillInvoice,
+  BillingCatalog,
+  BillingSummary,
+  WalletData,
   AiAuditRow,
   AiSettings,
   AuditRow,
@@ -69,3 +73,17 @@ export const aiAuditQuery = () => queryOptions({ queryKey: ['audit', 'ai'], quer
 export const slaQuery = () => queryOptions({ queryKey: ['settings', 'sla'], queryFn: () => transport.get<SlaData>('/settings/sla') });
 
 export const notifPrefsQuery = () => queryOptions({ queryKey: ['me', 'notif-prefs'], queryFn: () => transport.get<NotifPrefs>('/settings/notifications') });
+
+export const billingSummaryQuery = () => queryOptions({ queryKey: ['billing', 'summary'], queryFn: () => transport.get<BillingSummary>('/billing/summary') });
+
+export const billingPlansQuery = () =>
+  queryOptions({ queryKey: ['billing', 'plans'], queryFn: () => transport.get<BillingCatalog>('/billing/plans'), staleTime: Infinity });
+
+export const walletQuery = () => queryOptions({ queryKey: ['billing', 'wallet'], queryFn: () => transport.get<WalletData>('/billing/wallet') });
+
+export const billInvoicesQuery = (p: { status: string; q: string }) =>
+  queryOptions({
+    queryKey: ['billing', 'invoices', p],
+    queryFn: () => transport.get<{ data: BillInvoice[] }>('/billing/invoices', { status: p.status, ...(p.q ? { q: p.q } : {}) }),
+    placeholderData: (prev) => prev,
+  });
