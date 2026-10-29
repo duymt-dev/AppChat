@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 0 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 5 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **106** | **0** | | | |
+| **Tổng** | | **137** | **111** | **0** | | | |
 
 ---
 
@@ -169,11 +169,11 @@
 
 | ID | Màn · trạng thái | Prototype | Loại | TT | diffRatio | Mobile 390 | Commit | Ghi chú |
 |----|------------------|-----------|------|----|-----------|-----------|--------|---------|
-| `settings:shell` | SettingsShell (nav nhóm + tìm kiếm) | L5754 | E | ⬜ | | | | Ẩn mục OUT (Blueprint §7.2) |
-| `settings:general` | Tổng quan workspace + giờ làm việc | L5824 | P | ⬜ | | | | |
-| `settings:locale` | Ngôn ngữ & vùng | L6270 | E | ⬜ | | | | Chỉ vi / en |
-| `settings:members` | Thành viên | L5861 | P | ⬜ | | | | |
-| `settings:roles` | Vai trò & phân quyền (ma trận) | L5992 | E | ⬜ | | | | Chỉ đọc ở P0 (D27) |
+| `settings:shell` | SettingsShell (nav nhóm + tìm kiếm) | L5754 | E | ✅ | 0.0001 | pass | 0162970 | Ẩn mục OUT (Blueprint §7.2) · registry `features/settings/registry.ts`; route `/settings/[section]` + alias cũ (sla, canned-replies…); ô tìm lọc nav không dấu; < md nav thành dải chip. Mẫu chứng từ (D30) đặt cuối nav. Bản đo: gỡ mục OUT khỏi nav prototype |
+| `settings:general` | Tổng quan workspace + giờ làm việc | L5824 | P | ✅ | 0.0008 | pass | 0162970 | Workspace của bạn (3 thẻ), logo, Thông tin chung → `workspace.update`; Vùng nguy hiểm chỉ Chủ sở hữu (gửi yêu cầu — xử lý ở Quản trị nền tảng). Giờ làm việc nằm trong Thiết lập SLA như prototype (`working_hours.update`) |
+| `settings:locale` | Ngôn ngữ & vùng | L6270 | E | ✅ | 0.0012 | pass | 0162970 | Chỉ vi / en (D22) · ngôn ngữ đổi ngay (cookie + `profile.update`); múi giờ / định dạng ngày → `workspace.update`; tiền tệ VND cố định |
+| `settings:members` | Thành viên | L5861 | P | ✅ | 0.0059 | pass | 0162970 | Tìm không dấu, banner AI, bảng; Mời (`member.invite` → Chờ xác nhận), Sửa vai trò (`member.set_role`, hoàn tác 24h), Xoá / Thu hồi lời mời; vai trò = 5 vai trò §3.5 (Chủ sở hữu không gán / xoá được). Không có quyền `members.manage` → no-permission |
+| `settings:roles` | Vai trò & phân quyền (ma trận) | L5992 | E | ✅ | 0.0282 | pass | 0162970 | Chỉ đọc ở P0 (D27) · 5 vai trò hệ thống + ma trận 10 nhóm × 5 vai trò lấy từ ROLE_DEFS (nhóm OUT Gọi điện / Quy trình / Báo cáo bỏ); "Tạo vai trò" khoá kèm ghi chú P1 |
 | `settings:channels` | Kênh kết nối | L5892 | E | ⬜ | | | | Chỉ kênh có manifest |
 | `settings:web-widget` | Trợ lý AI website (widget) | L7184 | P | ⬜ | | | | |
 | `settings:fields` | Trường dữ liệu | L7099 | P | ⬜ | | | | |
