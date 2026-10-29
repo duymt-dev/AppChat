@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 19 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 23 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **125** | **0** | | | |
+| **Tổng** | | **137** | **129** | **0** | | | |
 
 ---
 
@@ -190,10 +190,10 @@
 | `settings:audit` | Audit log | L7024 | P | ✅ | 0.0168 | pass | 2e8cce9 | Chỉ đọc (audit.view); vai trò theo §3.5; xuất JSON |
 | `settings:sla` | Thiết lập SLA (chính sách mặc định) | L7375 | E | ✅ | 0.0382 | pass | 0eadae0 | Chỉ chính sách mặc định (Blueprint §2 sla_policy) — "Tạo chính sách" tắt + tooltip; sửa ngưỡng FRT/TTR AI · người (`sla.update_default`), giờ làm việc theo ngày + dừng ngoài giờ (`working_hours.update`), leo thang. Bản đo: prototype rút còn một dòng mặc định; khối SLA prototype lọt khỏi khung padding (thừa thẻ đóng) → trả về khung 36px |
 | `settings:notifications` | Thông báo | L6200 | P | ✅ | 0.0106 | pass | 0eadae0 | Tuỳ chọn của người dùng hiện tại (quyền self) qua `notification.update_prefs`; bỏ sự kiện "Workflow chạy lỗi" (Workflow OUT) |
-| `settings:billing` | Gói & thanh toán | L5947 | E | ⬜ | | | | |
-| `settings:wallet` | Ví AppChat (credit, lịch sử) | L6463 | E | ⬜ | | | | Bỏ "tự nạp" |
-| `modal:upgrade` | Popup Nâng cấp (Cá nhân / Doanh nghiệp, 4 gói) | L985 | P | ⬜ | | | | |
-| `modal:buy-credit` | Mua thêm credit (QR) | L915 | E | ⬜ | | | | |
+| `settings:billing` | Gói & thanh toán | L5947 | E | ✅ | 0.0334 | pass | c821cc1 | REQ-L05: thẻ gói hiện tại ("Token còn lại" → credit gói — REQ-L01), Gia hạn → popup Nâng cấp; lịch sử hoá đơn gói theo `billing_invoice` (pending / pending_review / paid / expired / cancelled), Thanh toán → hộp VietQR (`billing.create_invoice` / `billing.report_transfer`). Bỏ "Demo: hết hạn" |
+| `settings:wallet` | Ví AppChat (credit, lịch sử) | L6463 | E | ✅ | 0.0388 | pass | c821cc1 | Bỏ "tự nạp" (D24) → nhắc 80% / 95% (`wallet.update_alerts`); hết credit → AI tạm dừng (D09, thay "tự chuyển model"); số dư = credit gói + mua thêm; cửa hàng chỉ credit + người dùng / kênh (ZNS / SMS / Voice / token theo model / dịch vụ chuyên nghiệp OUT); lịch sử = `credit_ledger` |
+| `modal:upgrade` | Popup Nâng cấp (Cá nhân / Doanh nghiệp, 4 gói) | L985 | P | ✅ | 0.0416 | pass | c821cc1 | REQ-L06 · mở bằng `?upgrade=1` (rail Nâng cấp, trial welcome / expired); bảng so sánh bỏ nhóm OUT; bỏ nút "Mô phỏng hết hạn" và 3 thẻ mua thêm (nằm ở Ví) |
+| `modal:buy-credit` | Mua thêm credit (QR) | L915 | E | ✅ | 0.0365 | pass | c821cc1 | 4 gói credit → hộp VietQR 15 phút (REQ-L04) → "Tôi đã chuyển khoản" → Thanh toán thành công; chỉ VietQR / chuyển khoản (COMMERCE §10) |
 | `profile:me` | Hồ sơ của tôi | L1034 (menu) | P | ⬜ | | | | |
 
 ## F7 — Rà soát cuối
