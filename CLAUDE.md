@@ -20,7 +20,8 @@ Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · Nes
 | Việc | Đọc thêm |
 |------|----------|
 | Frontend / UI | `standards/ui/frontend-structure.md` · `standards/ui/prototype-parity.md` · `standards/i18n/i18n.md` · Blueprint §7 · prototype (mục 6 dưới) |
-| Backend / action | `standards/actions/action-registry.md` · `standards/api/response-envelope.md` · `standards/events/outbox.md` · Blueprint §3, §4 |
+| Backend / action | `standards/actions/action-registry.md` · `standards/api/response-envelope.md` · `standards/events/outbox.md` · `standards/domain/*` (state-machine, concurrency, money-time-numbering, validation-defaults) · `standards/ops/observability-security.md` · Blueprint §3, §4 |
+| Thiết kế không nói / prototype chưa đủ nghiệp vụ | `standards/domain/gap-filling.md` (thang tra cứu, được tự quyết / phải hỏi, ghi "Giả định đã chọn") |
 | Schema / query | `standards/database/tenant-db.md` · `standards/database/indexing.md` · Blueprint §2 · `02-TASK-GRAPH.md` → Bản đồ sở hữu file |
 | Phân quyền / dữ liệu có chủ sở hữu | `standards/authz/rbac-permissions.md` · Blueprint §3.5 |
 | Commerce (báo giá, hợp đồng, đơn, thu tiền, loyalty) | `plans/COMMERCE-DECISIONS.md` (luật đã chốt — **không được đổi**) · `standards/documents/templates.md` |

@@ -11,7 +11,7 @@ Bạn là **THỢ THI CÔNG**. Chủ nhà và Chủ thầu đã thống nhất t
 
 ## QUY TẮC TUYỆT ĐỐI
 
-1. **Làm đúng TIP.** Chỉ đụng các file trong `Files touched`. Không thêm tính năng ngoài TIP. Thiếu thông tin hoặc spec mâu thuẫn thì escalate, không đoán.
+1. **Làm đúng TIP.** Chỉ đụng các file trong `Files touched`. Không thêm tính năng ngoài TIP. Thiết kế im lặng → tra theo thang ở `standards/domain/gap-filling.md` §1, tự quyết những loại được phép (§2) bằng giả định an toàn (§3) và ghi mục **"Giả định đã chọn"** trong Completion Report; loại phải hỏi hoặc spec mâu thuẫn thì escalate, không đoán.
 2. **Không đổi kiến trúc.** Blueprint + standards là luật. Muốn lệch → escalation L2 trước khi code.
 3. **Action-first.** Mọi thao tác ghi là action trong `packages/actions` + handler, chạy qua `ActionExecutor`. Không có đường ghi thứ hai (`standards/actions/action-registry.md`).
 4. **DB riêng mỗi workspace.** Chỉ lấy DB tenant qua `TenantDbResolver` với context đã xác thực. Bảng tenant không có `workspace_id`, không RLS. Mọi list / get áp `scopeFilter` (`standards/database/tenant-db.md`, `standards/authz/rbac-permissions.md`).
@@ -50,7 +50,9 @@ apps/{web,api,worker,widget} · packages/{core,actions,db,ai,channels,integratio
 
 ### API Patterns
 
-- `{ data, meta? }` · list `{ data, next_cursor }` (cursor, không offset) · lỗi `{ error: { code, message, fields? } }` ném bằng `AppError`.
+- `{ data, meta? }` · list `{ data, next_cursor }` theo cursor; **9 bảng có số trang (D42)** nhận `?page=&limit=` và trả thêm `meta: { total, page, limit }` (offset + deferred join) · lỗi `{ error: { code, message, fields? } }` ném bằng `AppError`.
+- Action và shape đọc FE đã dùng (`packages/actions`, mock) là contract: cài đúng, đổi phải escalate; shape đọc tách thành zod ở `packages/shared/src/api/<domain>.ts`, có contract test FE ↔ BE (`standards/domain/gap-filling.md` §5).
+- Trạng thái theo bảng `packages/shared/src/<domain>/state.ts` (`INVALID_TRANSITION`), khoá lạc quan `version` (`STALE_VERSION`), tiền / thời gian / mã theo `standards/domain/*`.
 - Ghi chỉ qua `POST /v1/actions/:id` → 200 kết quả · 202 `preview_required` (+ `confirm_token`) · 202 `approval_required`.
 - `Authorization: Bearer` + `X-Workspace-Id`; `Idempotency-Key` cho lệnh tạo và risk `send` / `money`. Tiền là string VND, thời gian ISO có offset, snake_case.
 - Event chỉ phát qua outbox trong cùng transaction; consumer idempotent (`standards/events/outbox.md`).
@@ -78,6 +80,8 @@ Bắt buộc đọc các standard mà TIP ghi ở cột "Standards chính" (`02-
 | channels | [omnichannel-adapter](standards/channels/omnichannel-adapter.md) | 014, 016–018, 037 |
 | code | [file-size-module-layout](standards/code/file-size-module-layout.md) · [testing](standards/code/testing.md) | mọi TIP |
 | database | [tenant-db](standards/database/tenant-db.md) · [indexing](standards/database/indexing.md) | mọi TIP có schema / query |
+| domain | [gap-filling](standards/domain/gap-filling.md) · [state-machine](standards/domain/state-machine.md) · [concurrency](standards/domain/concurrency.md) · [money-time-numbering](standards/domain/money-time-numbering.md) · [validation-defaults](standards/domain/validation-defaults.md) | mọi TIP backend; `gap-filling` cho mọi TIP |
+| ops | [observability-security](standards/ops/observability-security.md) | mọi TIP có route / job / webhook / upload |
 | documents | [templates](standards/documents/templates.md) | 028–032 |
 | events | [outbox](standards/events/outbox.md) | mọi TIP phát / nhận event |
 | i18n | [i18n](standards/i18n/i18n.md) | mọi TIP có chuỗi hiển thị |
@@ -138,6 +142,8 @@ Phụ thuộc chi tiết, chạy song song và cổng tài nguyên: `02-TASK-GRA
 - Không chạy được: [ô nào, vì sao — ví dụ thiếu key LLM]
 
 **ISSUES DISCOVERED:** [issue — mức độ — mô tả — đề xuất]
+**GIẢ ĐỊNH ĐÃ CHỌN:** (`standards/domain/gap-filling.md` §6) [chỗ trống — bậc tra cứu dừng — lựa chọn — lý do — đảo ngược thế nào]
+- Contract FE ↔ BE: [domain → pass/fail] · bật `httpTransport`: [module] (nếu TIP backend)
 **DEVIATIONS FROM SPEC:** [lệch gì — vì sao — ảnh hưởng]
 **SUGGESTIONS FOR CHỦ THẦU:** [quan sát — đề xuất]
 ```
