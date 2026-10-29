@@ -144,6 +144,17 @@ export const useCoworkStyles = createStyles(({ css, responsive }) => ({
     cursor: pointer;
     border: none;
     padding: 0;
+    /* < md: vùng chạm 44px, công tắc vẽ 44×28 (nền chỉ phủ content-box) */
+    ${responsive.md} {
+      width: ${layout.touch}px;
+      height: ${layout.touch}px;
+      padding: 8px 0;
+      background-clip: content-box;
+      border-radius: ${radius.r12 * 2}px;
+      & > span {
+        top: 12px;
+      }
+    }
     & > span {
       position: absolute;
       top: 2px;

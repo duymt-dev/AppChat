@@ -72,7 +72,7 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
     background: transparent;
     color: ${color.text4};
     ${responsive.md} {
-      height: 40px;
+      height: ${layout.touch}px;
     }
   `,
   segOn: css`

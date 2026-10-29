@@ -7,6 +7,7 @@ import { Drawer } from 'antd';
 import { createStyles } from 'antd-style';
 import { Icon, color, font, layout, z } from '@appchat/ui';
 import { activeRailKey, CRM_ITEMS, MOBILE_TABS, RAIL_ITEMS, type NavItem } from './nav-config';
+import { useAuthz } from '../authz/useCan';
 
 const useStyles = createStyles(({ css, responsive }) => ({
   bar: css`
@@ -65,12 +66,15 @@ export function MobileTabBar() {
   const { styles, cx } = useStyles();
   const [moreOpen, setMoreOpen] = useState(false);
   const active = activeRailKey(pathname);
-  const rest = [...RAIL_ITEMS, ...CRM_ITEMS.slice(1)].filter((i) => !MOBILE_TABS.includes(i.key));
+  const { data: authz } = useAuthz();
+  const visible = (i: NavItem) => !i.permission || !authz || authz.is_owner || authz.permissions.includes(i.permission);
+  const tabs = MOBILE_TABS.filter((k) => visible(BY_KEY.get(k)!));
+  const rest = [...RAIL_ITEMS, ...CRM_ITEMS.slice(1)].filter((i) => !MOBILE_TABS.includes(i.key) && visible(i));
 
   return (
     <>
       <nav className={styles.bar} data-testid="mobile-tabbar">
-        {MOBILE_TABS.map((k) => {
+        {tabs.map((k) => {
           const item = BY_KEY.get(k)!;
           return (
             <button key={k} type="button" className={cx(styles.tab, active === k && styles.on)} onClick={() => router.push(item.route)}>

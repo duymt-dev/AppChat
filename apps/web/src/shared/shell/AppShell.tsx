@@ -7,6 +7,7 @@ import { AssistantDock } from '../assistant/AssistantDock';
 import { useEventInvalidation } from '../realtime/event-invalidation';
 import { NavRail } from './NavRail';
 import { MobileTabBar } from './MobileTabBar';
+import { RouteGuard } from './RouteGuard';
 import { useShellStore } from './shell-store';
 import { useShellStyles } from './shell.styles';
 
@@ -39,7 +40,9 @@ export function AppShell({ children }: AppShellProps) {
     <div className={styles.shell} data-testid="app-shell">
       <NavRail onUpgrade={() => router.push('/settings/billing?upgrade=1')} />
       <main className={styles.main} onClick={() => popover && setPopover(null)}>
-        <div className={styles.scroll}>{children}</div>
+        <div className={styles.scroll}>
+          <RouteGuard>{children}</RouteGuard>
+        </div>
       </main>
       <MobileTabBar />
       <AssistantDock />

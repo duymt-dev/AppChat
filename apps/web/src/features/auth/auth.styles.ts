@@ -1,6 +1,6 @@
 // Style màn auth — prototype L459–630 (+ responsive L356–375). Giá trị qua token packages/ui.
 import { createStyles } from 'antd-style';
-import { color, font, mq, radius, shadow } from '@appchat/ui';
+import { color, font, layout, mq, radius, shadow } from '@appchat/ui';
 
 export const useAuthStyles = createStyles(({ css, responsive }) => ({
   wrap: css`
@@ -125,6 +125,9 @@ export const useAuthStyles = createStyles(({ css, responsive }) => ({
     border: none;
     padding: 0;
     font-family: inherit;
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
     &:hover {
       text-decoration: underline;
     }
