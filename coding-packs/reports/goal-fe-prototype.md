@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 17 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 19 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **123** | **0** | | | |
+| **Tổng** | | **137** | **125** | **0** | | | |
 
 ---
 
@@ -188,8 +188,8 @@
 | `settings:ai-gov` | AI Governance | L6991 | P | ✅ | 0.0067 | pass | 2e8cce9 | governance.update cho từng công tắc / từ khoá / select |
 | `settings:ai-audit` | AI Audit log | L7035 | P | ✅ | 0.0217 | pass | 2e8cce9 | Chỉ đọc; actor ghi "Trợ lý AI" / agent (không tên model — D29); xuất JSON |
 | `settings:audit` | Audit log | L7024 | P | ✅ | 0.0168 | pass | 2e8cce9 | Chỉ đọc (audit.view); vai trò theo §3.5; xuất JSON |
-| `settings:sla` | Thiết lập SLA (chính sách mặc định) | L7375 | E | ⬜ | | | | Chỉ chính sách mặc định |
-| `settings:notifications` | Thông báo | L6200 | P | ⬜ | | | | |
+| `settings:sla` | Thiết lập SLA (chính sách mặc định) | L7375 | E | ✅ | 0.0382 | pass | 0eadae0 | Chỉ chính sách mặc định (Blueprint §2 sla_policy) — "Tạo chính sách" tắt + tooltip; sửa ngưỡng FRT/TTR AI · người (`sla.update_default`), giờ làm việc theo ngày + dừng ngoài giờ (`working_hours.update`), leo thang. Bản đo: prototype rút còn một dòng mặc định; khối SLA prototype lọt khỏi khung padding (thừa thẻ đóng) → trả về khung 36px |
+| `settings:notifications` | Thông báo | L6200 | P | ✅ | 0.0106 | pass | 0eadae0 | Tuỳ chọn của người dùng hiện tại (quyền self) qua `notification.update_prefs`; bỏ sự kiện "Workflow chạy lỗi" (Workflow OUT) |
 | `settings:billing` | Gói & thanh toán | L5947 | E | ⬜ | | | | |
 | `settings:wallet` | Ví AppChat (credit, lịch sử) | L6463 | E | ⬜ | | | | Bỏ "tự nạp" |
 | `modal:upgrade` | Popup Nâng cấp (Cá nhân / Doanh nghiệp, 4 gói) | L985 | P | ⬜ | | | | |
