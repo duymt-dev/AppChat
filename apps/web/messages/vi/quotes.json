@@ -4,7 +4,12 @@
   "search": "Tìm mã BG, khách hàng…",
   "create": "Tạo báo giá",
   "ai": "Trợ lý AI · Báo giá",
-  "stats": { "total": "Tổng báo giá", "approved": "Đã duyệt", "waiting": "Chờ phản hồi", "close": "Tỉ lệ chốt" },
+  "stats": {
+    "total": "Tổng báo giá",
+    "approved": "Đã duyệt",
+    "waiting": "Chờ phản hồi",
+    "close": "Tỉ lệ chốt"
+  },
   "status": {
     "all": "Tất cả",
     "draft": "Nháp",
@@ -32,7 +37,10 @@
   },
   "export": "Xuất Excel",
   "exporting": "Đang xuất danh sách báo giá ra Excel…",
-  "layout": { "list": "Danh sách", "kanban": "Kanban" },
+  "layout": {
+    "list": "Danh sách",
+    "kanban": "Kanban"
+  },
   "bulk": {
     "all": "Chọn tất cả",
     "forward": "Chuyển tiếp",
@@ -61,10 +69,6 @@
   "aiPeek": "Xem gợi ý AI",
   "aiDoing": "AI Agent đang xử lý báo giá {code}",
   "spark": "✦ {hint}",
-  "count": "Hiển thị <b>{n}</b> báo giá",
-  "prev": "‹ Trước",
-  "next": "Sau ›",
-  "page": "1",
   "empty": "Chưa có báo giá phù hợp.",
   "menu": {
     "open": "Thao tác",
@@ -74,7 +78,12 @@
     "reject": "Từ chối báo giá",
     "delete": "Xóa"
   },
-  "kanban": { "draft": "Nháp", "sent": "Đã gửi", "approved": "Đã duyệt", "accepted": "Đã chốt" },
+  "kanban": {
+    "draft": "Nháp",
+    "sent": "Đã gửi",
+    "approved": "Đã duyệt",
+    "accepted": "Đã chốt"
+  },
   "form": {
     "title": "Tạo báo giá",
     "editTitle": "Sửa báo giá",
@@ -111,7 +120,11 @@
     "save": "Lưu",
     "required": "Chọn khách hàng và thêm ít nhất một dòng có đơn giá",
     "needApproval": "Báo giá vượt ngưỡng ({reasons}) — sau khi lưu cần gửi duyệt trước khi gửi khách.",
-    "reasons": { "total": "tổng > 20 triệu", "discount": "giảm > 5%", "off_catalog": "có hàng ngoài danh mục" }
+    "reasons": {
+      "total": "tổng > 20 triệu",
+      "discount": "giảm > 5%",
+      "off_catalog": "có hàng ngoài danh mục"
+    }
   },
   "detail": {
     "close": "Đóng",
@@ -121,7 +134,12 @@
     "sendZalo": "Gửi Zalo",
     "sendEmail": "Gửi Email",
     "sendPdf": "Tải PDF",
-    "tabs": { "overview": "Tổng quan", "crm": "CRM", "ai": "AI", "history": "Lịch sử" },
+    "tabs": {
+      "overview": "Tổng quan",
+      "crm": "CRM",
+      "ai": "AI",
+      "history": "Lịch sử"
+    },
     "journey": "Hành trình trao đổi",
     "stage": {
       "accepted": "Đã chốt",
@@ -200,12 +218,21 @@
       "price": "Chốt giá & chiết khấu",
       "contract": "Chuyển hợp đồng khi duyệt"
     },
-    "when": { "yesterday": "Hôm qua", "today": "Hôm nay", "none": "—" },
+    "when": {
+      "yesterday": "Hôm qua",
+      "today": "Hôm nay",
+      "none": "—"
+    },
     "chat": "Trao đổi nội bộ",
     "chatSub": "· Sale · Kế toán · Quản lý",
     "chatPh": "Nhập trao đổi nội bộ…",
     "chatSend": "Gửi trao đổi",
-    "crm": { "ltv": "LTV khách", "orders": "Tổng đơn", "quotes": "Báo giá khách", "close": "Tỉ lệ chốt" },
+    "crm": {
+      "ltv": "LTV khách",
+      "orders": "Tổng đơn",
+      "quotes": "Báo giá khách",
+      "close": "Tỉ lệ chốt"
+    },
     "sendTrack": "Gửi & theo dõi",
     "validity": "Báo giá hết hiệu lực sau {n} ngày kể từ khi gửi.",
     "validUntil": "Hiệu lực đến {d}",
@@ -271,5 +298,6 @@
     "run": "Soạn nháp",
     "required": "Chọn khách hàng và nhập nội dung",
     "done": "Đã soạn nháp {code} — {n} dòng ngoài danh mục cần duyệt"
-  }
+  },
+  "unit": "báo giá"
 }

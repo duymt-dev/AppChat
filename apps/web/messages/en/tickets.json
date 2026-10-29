@@ -229,5 +229,6 @@
     "picked": "Applied: {t}",
     "ack": "Noted — the assistant will answer in the full dock."
   },
-  "agent": "AI Agent"
+  "agent": "AI Agent",
+  "unit": "tickets"
 }

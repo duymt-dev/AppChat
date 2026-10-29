@@ -107,7 +107,6 @@
     "delete": "Xoá chiến dịch"
   },
   "rejectReason": "Nội dung chưa phù hợp — cần chỉnh lại",
-  "foot": "Hiển thị <b>1 - {n}</b> của {n} chiến dịch",
   "empty": "Không có chiến dịch phù hợp",
   "an": {
     "title": "AI phân tích dữ liệu khách hàng",
@@ -364,5 +363,5 @@
   },
   "from": "Từ ngày",
   "to": "Đến ngày",
-  "perPage": "{n} / trang"
+  "unit": "chiến dịch"
 }

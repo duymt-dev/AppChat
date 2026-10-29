@@ -1,9 +1,13 @@
 // UI state Đơn hàng: bộ lọc, chế độ xem, chọn nhiều, drawer, form tạo, huỷ đơn, AI panel, menu dòng.
 import { create } from 'zustand';
+import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { OrderFilter } from './types';
 
 interface OrdersUi {
   filter: OrderFilter;
+  /** Trang bảng (D42) — đổi bộ lọc thì về trang 1. */
+  pg: PageState;
+  setPg: (p: PageState) => void;
   layout: 'list' | 'kanban';
   selected: string[];
   detail: string | null;
@@ -16,10 +20,11 @@ interface OrdersUi {
   /** Giá trị Trợ lý điền sẵn cho form (UiCommand prefill `order.form`). */
   prefill: Record<string, unknown> | null;
   setFilter: (p: Partial<OrderFilter>) => void;
-  set: (p: Partial<Omit<OrdersUi, 'set' | 'setFilter'>>) => void;
+  set: (p: Partial<Omit<OrdersUi, 'set' | 'setFilter' | 'setPg'>>) => void;
 }
 
 export const useOrdersUi = create<OrdersUi>((set) => ({
+  pg: FIRST_PAGE,
   filter: { chip: 'all', owner_id: 'all', value: 'all', source: 'all', q: '' },
   layout: 'list',
   selected: [],
@@ -30,6 +35,7 @@ export const useOrdersUi = create<OrdersUi>((set) => ({
   aiOpen: false,
   menuFor: null,
   prefill: null,
-  setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, selected: [] })),
+  setPg: (pg) => set({ pg }),
+  setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 }, selected: [] })),
   set: (p) => set(p),
 }));

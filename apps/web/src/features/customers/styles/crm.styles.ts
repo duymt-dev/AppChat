@@ -1,9 +1,10 @@
 // Khách hàng — nút đầu trang, thanh thao tác hàng loạt — prototype L2451–2512 (< md: xếp dọc, chạm ≥ 44px).
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius } from '@appchat/ui';
+import { color, font, layout, listPage, radius } from '@appchat/ui';
 
 export const useCrmStyles = createStyles(({ css, responsive }) => ({
   wrap: css`
+    ${listPage(responsive.md)}
     padding: 24px 28px;
     font-family: ${font.family};
     line-height: normal;

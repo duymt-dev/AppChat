@@ -20,6 +20,7 @@ import { OrderAiDrawer } from '../components/OrderAiDrawer';
 import { KANBAN, laneOf } from '../status';
 import type { Order } from '../types';
 import { useOrdersUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -55,9 +56,9 @@ export function OrdersScreen() {
   useOrdersUiCommands();
   useFromSource();
   const t = useTranslations('orders');
-  const { styles, cx } = useOrdersStyles();
+  const { styles } = useOrdersStyles();
   const ui = useOrdersUi();
-  const list = useQuery(ordersQuery(ui.filter));
+  const list = useQuery(ordersQuery(ui.filter, ui.pg));
   const meta = useQuery(ordersMetaQuery()).data;
   const canCreate = useCan('order.manage');
   const columns = useOrderColumns();
@@ -125,6 +126,7 @@ export function OrdersScreen() {
             <BulkBar rows={rows} />
             <DataTable<Order>
               testId="od-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="od-table-pager" />}
               rows={rows}
               columns={columns}
               rowKey={(r) => r.id}
@@ -135,17 +137,6 @@ export function OrdersScreen() {
               mobileCard={(r) => <OrderCard o={r} />}
               emptyText={t('empty')}
             />
-            <div className={styles.foot}>
-              <span>{t.rich('count', { n: rows.length, b: (c) => <b>{c}</b> })}</span>
-              <span className={styles.grow} />
-              <button type="button" className={styles.pg} disabled>
-                {t('prev')}
-              </button>
-              <span className={cx(styles.pgN, styles.pgOn)}>1</span>
-              <button type="button" className={styles.pg} disabled>
-                {t('next')}
-              </button>
-            </div>
           </>
         ) : (
           <KanbanBoard<Order>

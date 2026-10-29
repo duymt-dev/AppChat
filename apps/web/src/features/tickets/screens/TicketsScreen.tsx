@@ -19,6 +19,7 @@ import { TicketsAiDrawer } from '../components/TicketsAiDrawer';
 import { STATUSES, STATUS_TONE } from '../status';
 import type { Ticket, TicketStatus } from '../types';
 import { useTicketsUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 const NO_NOW = '1970-01-01T00:00:00Z';
 
@@ -27,7 +28,7 @@ export function TicketsScreen() {
   const t = useTranslations('tickets');
   const { styles } = useTicketsStyles();
   const ui = useTicketsUi();
-  const list = useQuery(ticketsQuery(ui.filter));
+  const list = useQuery(ticketsQuery(ui.filter, ui.pg));
   const meta = useQuery(ticketsMetaQuery()).data;
   const columns = useTicketColumns(meta?.now ?? NO_NOW);
   const setStatus = useAction('ticket.set_status');
@@ -49,6 +50,7 @@ export function TicketsScreen() {
         {ui.layout === 'list' ? (
           <DataTable<Ticket>
             testId="tk-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="tk-table-pager" />}
             rows={rows}
             columns={columns}
             rowKey={(r) => r.id}

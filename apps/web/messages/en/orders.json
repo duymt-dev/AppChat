@@ -94,9 +94,6 @@
   "aiDo": "Hand to AI Agent now",
   "aiDoing": "AI Agent is handling {code}",
   "aiPeek": "View AI hint",
-  "count": "Showing <b>{n}</b> orders",
-  "prev": "‹ Prev",
-  "next": "Next ›",
   "menu": {
     "open": "Actions",
     "view": "View details",
@@ -224,5 +221,6 @@
     "ack": "Noted — I will handle this order request right away.",
     "ackPay": "I will send a payment request with VietQR and track the deposit for you.",
     "ackCancel": "I will review cancelled orders and draft a win-back script."
-  }
+  },
+  "unit": "orders"
 }

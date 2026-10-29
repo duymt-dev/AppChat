@@ -44,9 +44,6 @@
       "new": "New",
       "churn_risk": "At risk"
     },
-    "foot": "Showing <b>1–{n}</b> / {n} members",
-    "prev": "‹ Prev",
-    "next": "Next ›",
     "empty": "No matching members",
     "menu": {
       "open": "Actions",
@@ -272,5 +269,6 @@
       "reverse": "Reversed"
     },
     "noHistory": "No point transactions yet"
-  }
+  },
+  "unit": "members"
 }

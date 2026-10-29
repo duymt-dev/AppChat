@@ -7,6 +7,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW, enrich as enrichQuote } from './quotes';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.contracts)[number];
 export type ContractStatus =
@@ -103,7 +104,7 @@ export const contractsRoutes: Record<string, MockRoute> = {
         (!p.value || p.value === 'all' || (VALUE[String(p.value)]?.(Number(c.value)) ?? true)) &&
         (!s || [c.code, c.contact_name, c.title].some((v) => v.toLowerCase().includes(s))),
     );
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   '/contracts/meta': (db) => {
     const all = db.contracts.contracts.filter((c) => visible(db, c));

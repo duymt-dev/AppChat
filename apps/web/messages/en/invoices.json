@@ -41,7 +41,6 @@
     "at": "Issued on",
     "by": "Issued by"
   },
-  "count": "Showing <b>{n}</b> payment requests",
   "reconcile": {
     "btn": "Needs reconciliation ({n})",
     "title": "Needs reconciliation · bank transactions",
@@ -172,5 +171,6 @@
     "note": "Note",
     "required": "Pick a customer and enter an amount greater than 0",
     "over": "Requested amount cannot exceed what the order still owes"
-  }
+  },
+  "unit": "payment requests"
 }

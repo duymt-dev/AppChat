@@ -8,6 +8,7 @@
 2. **List:** `{ data: T[], next_cursor: string | null }`.
    - Cursor = base64url của `(sortKey, id)`. `?limit=` ≤ 100, mặc định 30.
    - **Không dùng offset** cho list mà người dùng cuộn. Offset chỉ dùng cho bảng quản trị có số trang, và phải kèm deferred join.
+   - **Bảng có số trang (D42):** list chính của Khách hàng, Sản phẩm, Báo giá, Đơn hàng, Đề nghị thanh toán, Hợp đồng, Ticket, Marketing, thành viên Loyalty nhận `?page=&limit=` (limit ≤ 100) và trả `{ data, next_cursor, meta: { total, page, limit } }`; backend dùng offset + deferred join + đếm tổng. Không truyền `page` → giữ hành vi cursor (ô chọn, modal).
 3. **Lỗi:** `{ error: { code, message, fields? } }`.
    - `code` là UPPER_SNAKE nằm trong `packages/shared/src/errors.ts`.
    - `fields` map tên trường → **mã lỗi** (không phải câu chữ). Client dịch bằng i18n.

@@ -2,11 +2,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { LoyaltyConfig, LoyaltyOverview, Lookup, Member, MemberFilter } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const membersQuery = (f: MemberFilter) =>
+export const membersQuery = (f: MemberFilter, pg?: PageState) =>
   queryOptions({
-    queryKey: ['loyalty', 'members', f],
-    queryFn: () => transport.get<{ data: Member[] }>('/loyalty/members', { ...f, ...(f.q ? {} : { q: undefined }) }),
+    queryKey: ['loyalty', 'members', f, pg],
+    queryFn: () => transport.get<Paged<Member>>('/loyalty/members', { ...f, ...(f.q ? {} : { q: undefined }), ...pg }),
     placeholderData: (prev) => prev,
   });
 

@@ -6,6 +6,7 @@ import fixture from '../../../../../../../fixtures/prototype-parity/marketing.js
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.campaigns)[number];
 export type CampaignStatus =
@@ -61,7 +62,7 @@ export const marketingRoutes: Record<string, MockRoute> = {
         (!p.channel || p.channel === 'all' || (p.channel === 'auto' ? c.source === 'ai' : c.channel === p.channel)) &&
         (!q || [c.name, c.desc, c.code].some((v) => norm(v).includes(q))),
     );
-    return { data: rows, next_cursor: null };
+    return paginate(rows, p);
   },
   '/campaigns/meta': (db) => ({
     now: fixture.now,

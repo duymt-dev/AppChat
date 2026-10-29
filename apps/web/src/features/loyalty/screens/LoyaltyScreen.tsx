@@ -29,7 +29,7 @@ export function LoyaltyScreen() {
   const setDock = useShellStore((s) => s.setDock);
   const canAdjust = useCan('loyalty.adjust');
   const ov = useQuery(loyaltyOverviewQuery());
-  const list = useQuery(membersQuery(ui.filter));
+  const list = useQuery(membersQuery(ui.filter, ui.pg));
   return (
     <div className={styles.wrap} data-testid="loyalty">
       <div className={styles.top}>
@@ -61,7 +61,7 @@ export function LoyaltyScreen() {
         {ov.data ? (
           <>
             <OverviewCard data={ov.data} />
-            <MemberTable rows={list.data?.data ?? []} />
+            <MemberTable rows={list.data?.data ?? []} meta={list.data?.meta} />
             <ChurnCard data={ov.data} />
             <RulesCard data={ov.data} />
             <MemberDrawer data={ov.data} />

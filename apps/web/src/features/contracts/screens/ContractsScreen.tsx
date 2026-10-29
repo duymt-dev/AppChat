@@ -21,6 +21,7 @@ import { ApproveSignModal, SendSignModal } from '../components/SignModals';
 import { KANBAN, chipOf } from '../status';
 import type { Contract } from '../types';
 import { useContractsUiCommands } from '../ui-commands';
+import { ListPager } from '@/shared/list/ListPager';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -50,9 +51,9 @@ export function ContractsScreen() {
   useContractsUiCommands();
   useFromQuote();
   const t = useTranslations('contracts');
-  const { styles, cx } = useContractsStyles();
+  const { styles } = useContractsStyles();
   const ui = useContractsUi();
-  const list = useQuery(contractsQuery(ui.filter));
+  const list = useQuery(contractsQuery(ui.filter, ui.pg));
   const meta = useQuery(contractsMetaQuery()).data;
   const canCreate = useCan('contract.draft');
   const columns = useContractColumns();
@@ -120,6 +121,7 @@ export function ContractsScreen() {
             <BulkBar rows={rows} />
             <DataTable<Contract>
               testId="ct-table"
+            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="ct-table-pager" />}
               rows={rows}
               columns={columns}
               rowKey={(r) => r.id}
@@ -130,17 +132,6 @@ export function ContractsScreen() {
               mobileCard={(r) => <ContractCard c={r} />}
               emptyText={t('empty')}
             />
-            <div className={styles.foot}>
-              <span>{t.rich('count', { n: rows.length, b: (c) => <b>{c}</b> })}</span>
-              <span className={styles.grow} />
-              <button type="button" className={styles.pg} disabled>
-                {t('prev')}
-              </button>
-              <span className={cx(styles.pgN, styles.pgOn)}>1</span>
-              <button type="button" className={styles.pg} disabled>
-                {t('next')}
-              </button>
-            </div>
           </>
         ) : (
           <KanbanBoard<Contract>

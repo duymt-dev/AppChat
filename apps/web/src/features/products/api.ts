@@ -2,12 +2,13 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Product, ProductFilter, ProductsMeta } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const productsQuery = (f: ProductFilter) =>
+export const productsQuery = (f: ProductFilter, pg?: PageState) =>
   queryOptions({
-    queryKey: ['catalog', 'products', f],
+    queryKey: ['catalog', 'products', f, pg],
     queryFn: () =>
-      transport.get<{ data: Product[] }>('/products', { category: f.category, ...(f.q ? { q: f.q } : {}) }),
+      transport.get<Paged<Product>>('/products', { category: f.category, ...(f.q ? { q: f.q } : {}), ...pg }),
     placeholderData: (prev) => prev,
   });
 

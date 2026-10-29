@@ -1,6 +1,6 @@
 // Màn Ticket — topbar, 5 KPI (thẻ đang lọc viền xanh), tiêu đề danh sách, thanh lọc 6 select + sắp xếp/xuất/chế độ xem, thanh chọn nhiều — prototype L4838–4890.
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius, shadow } from '@appchat/ui';
+import { color, font, layout, listPage, radius, shadow } from '@appchat/ui';
 
 const btn = `
   display: inline-flex;
@@ -36,6 +36,7 @@ const chip = `
 
 export const useTicketsStyles = createStyles(({ css, responsive }) => ({
   wrap: css`
+    ${listPage(responsive.md)}
     padding: 16px 20px;
     display: flex;
     flex-direction: column;

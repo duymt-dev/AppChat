@@ -44,9 +44,6 @@
       "new": "Mới",
       "churn_risk": "Sắp rời bỏ"
     },
-    "foot": "Hiển thị <b>1–{n}</b> / {n} thành viên",
-    "prev": "‹ Trước",
-    "next": "Sau ›",
     "empty": "Không có thành viên phù hợp",
     "menu": {
       "open": "Thao tác",
@@ -272,5 +269,6 @@
       "reverse": "Đảo điểm"
     },
     "noHistory": "Chưa có giao dịch điểm"
-  }
+  },
+  "unit": "thành viên"
 }

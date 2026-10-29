@@ -6,6 +6,7 @@ import inboxFixture from '../../../../../../../fixtures/prototype-parity/inbox.j
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { paginate } from '../paginate';
 
 export type CustomersFixture = typeof fixture;
 type Contact = CustomersFixture['contacts'][number] & { deleted?: boolean };
@@ -64,7 +65,7 @@ export const customersRoutes: Record<string, MockRoute> = {
         (!p.mine || c.owner_user_id === ME || (db.customers.collaborators[c.id] ?? []).some((x) => x.user_id === ME)) &&
         (!q || [c.full_name, c.email, c.phone, c.title].some((v) => v.toLowerCase().includes(q))),
     );
-    return { data: rows.map((c) => withAccess(db, c)), next_cursor: null };
+    return paginate(rows.map((c) => withAccess(db, c)), p);
   },
   '/contacts/stats': () => ({ stats: fixture.stats, stages: fixture.stages, tag_defs: fixture.tag_defs }),
   '/contacts/duplicates': (db) => ({ summary: fixture.duplicates.summary, groups: db.customers.duplicates }),

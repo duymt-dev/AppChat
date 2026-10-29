@@ -107,7 +107,6 @@
     "delete": "Delete campaign"
   },
   "rejectReason": "Content not suitable — needs revision",
-  "foot": "Showing <b>1 - {n}</b> of {n} campaigns",
   "empty": "No matching campaigns",
   "an": {
     "title": "AI customer data analysis",
@@ -364,5 +363,5 @@
   },
   "from": "From",
   "to": "To",
-  "perPage": "{n} / page"
+  "unit": "campaigns"
 }

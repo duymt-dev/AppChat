@@ -209,5 +209,6 @@
     },
     "required": "Nhập tên và giá bán",
     "cfPh": "Nhập nội dung"
-  }
+  },
+  "unit": "sản phẩm"
 }

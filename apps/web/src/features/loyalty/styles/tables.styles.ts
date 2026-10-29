@@ -1,6 +1,6 @@
 // Bảng thành viên (34 1.4fr .85fr×4 .95fr 1fr 44) · cảnh báo rời bỏ (1.3fr .8fr 1fr 1.5fr .9fr 190) · quy tắc (34 1.6fr 1.5fr 1.5fr .85fr 128) — prototype L4437–4490.
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius } from '@appchat/ui';
+import { color, font, layout, LIST_MIN_H, radius } from '@appchat/ui';
 
 const clip = `
   white-space: nowrap;
@@ -34,8 +34,19 @@ export const useTableStyles = createStyles(({ css, responsive }) => ({
   scroll: css`
     overflow-x: auto;
   `,
+  /** Bảng thành viên (D42): cuộn trong khung ≤ LIST_MIN_H + 160, header dính; < md: không giới hạn (danh sách gọn). */
+  scrollY: css`
+    max-height: ${LIST_MIN_H + 160}px;
+    overflow: auto;
+    ${responsive.md} {
+      max-height: none;
+    }
+  `,
   mHead: css`
     ${head}
+    position: sticky;
+    top: 0;
+    z-index: 1;
     grid-template-columns: ${M};
     min-width: 900px;
     ${responsive.md} {

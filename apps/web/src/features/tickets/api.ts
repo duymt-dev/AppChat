@@ -2,11 +2,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Ticket, TicketFilter, TicketsMeta } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const ticketsQuery = (f: TicketFilter) =>
+export const ticketsQuery = (f: TicketFilter, pg?: PageState) =>
   queryOptions({
-    queryKey: ['tickets', 'list', f],
-    queryFn: () => transport.get<{ data: Ticket[] }>('/tickets', { ...f, ...(f.q ? {} : { q: undefined }) }),
+    queryKey: ['tickets', 'list', f, pg],
+    queryFn: () => transport.get<Paged<Ticket>>('/tickets', { ...f, ...(f.q ? {} : { q: undefined }), ...pg }),
     placeholderData: (prev) => prev,
   });
 

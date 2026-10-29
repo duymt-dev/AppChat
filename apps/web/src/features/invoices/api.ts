@@ -2,11 +2,12 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Invoice, InvoicesMeta } from './types';
+import type { PageState, Paged } from '@/shared/list/paged';
 
-export const invoicesQuery = (q: string) =>
+export const invoicesQuery = (q: string, pg?: PageState) =>
   queryOptions({
-    queryKey: ['invoices', 'list', q],
-    queryFn: () => transport.get<{ data: Invoice[] }>('/invoices', q ? { q } : {}),
+    queryKey: ['invoices', 'list', q, pg],
+    queryFn: () => transport.get<Paged<Invoice>>('/invoices', { ...(q ? { q } : {}), ...pg }),
     placeholderData: (prev) => prev,
   });
 

@@ -209,5 +209,6 @@
     },
     "required": "Enter a name and a price",
     "cfPh": "Enter a value"
-  }
+  },
+  "unit": "products"
 }

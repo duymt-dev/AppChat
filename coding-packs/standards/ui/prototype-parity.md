@@ -30,6 +30,7 @@
    - **Kênh:** chỉ kênh có manifest (`standards/channels/omnichannel-adapter.md`). **Connector:** chỉ connector có manifest, thẻ "Sắp có" (D28).
    - **Nội dung theo quyết định:** trial 15 ngày; OTP Email; ẩn social login; bỏ "tự nạp" và "tự chuyển model tiết kiệm"; "Ký số" → "Ký điện tử"; "Hóa đơn" → "Đề nghị thanh toán"; marketing chỉ Zalo cá nhân + Email.
    - **AI Agents (D29):** chọn model hiện mức AI (tiêu chuẩn / nâng cao / tối đa), không hiện tên Claude; danh sách kênh theo channel registry; danh sách hành động ẩn mục OUT (Xử lý cuộc gọi, Kích hoạt workflow, HTTP request, ZNS / SMS); nút "Mở Workflow" ẩn.
+   - **Màn danh sách (D42):** màn lấp đúng chiều cao vùng nội dung; chỉ thân bảng cuộn (header bảng dính), footer phân trang có số trang (`Pager`, 20 / 50 / 100 dòng) nằm đáy khung bảng. Prototype cuộn cả màn — ảnh 1440×900 vẫn đo như cũ.
    - **Màn mới không có trong prototype** (không đo pixel, nhưng phải dùng đúng token và pattern): Chờ duyệt, Quản trị nền tảng, trang ký hợp đồng công khai, Mẫu chứng từ (D30), hộp "Xin chia sẻ" / chuyển phụ trách (D32).
 7. **Ngoại lệ không được làm tăng diện tích lệch ngoài vùng của nó.** Ví dụ ẩn một mục menu thì các mục khác giữ nguyên vị trí như prototype đã bỏ mục đó; vẫn phải dưới 5% sau khi mask vùng ngoại lệ.
 8. **Báo cáo trong Completion Report** cho từng màn × trạng thái: `diffRatio`, ảnh diff (`tests/parity/out/<id>-<state>.diff.png`) và danh sách ngoại lệ đã áp.
