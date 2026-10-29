@@ -29,7 +29,7 @@ Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · Nes
 | Hạ tầng | Blueprint §11 |
 | Git / PR / CI | `standards/workflow/git-flow-ci.md` |
 
-**Thứ tự ưu tiên khi tài liệu mâu thuẫn:** `COMMERCE-DECISIONS.md` > `BLUEPRINT.md` > `standards/` > `01-REQUIREMENTS-MATRIX.md` (Decisions D01–D37) > `00-PROJECT-CONTEXT.md` (Vision) > `docs/`. Về **hình ảnh UI**: prototype thắng, trừ các ngoại lệ có mã quyết định trong `standards/ui/prototype-parity.md`. Mâu thuẫn không giải được → dừng, hỏi (escalation L2).
+**Thứ tự ưu tiên khi tài liệu mâu thuẫn:** `COMMERCE-DECISIONS.md` > `BLUEPRINT.md` > `standards/` > `01-REQUIREMENTS-MATRIX.md` (Decisions D01–D43) > `00-PROJECT-CONTEXT.md` (Vision) > `docs/`. Về **hình ảnh UI**: prototype thắng, trừ các ngoại lệ có mã quyết định trong `standards/ui/prototype-parity.md`. **Bản prototype mới (ver2.1 trở đi) không ghi đè hành vi bảng danh sách D42** (cuộn trong khung, header dính, phân trang có số trang) — D43. Mâu thuẫn không giải được → dừng, hỏi (escalation L2).
 
 ## 3. Cấu trúc code
 
