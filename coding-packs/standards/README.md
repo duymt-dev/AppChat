@@ -21,4 +21,5 @@
 | integrations | [provider-ports](integrations/provider-ports.md) | Port theo năng lực + ConnectorManifest + registry; SePay / Casso / MISA / Mắt Bão / VNPT / Viettel…; trang Nền tảng kết nối có thẻ "Sắp có" (D28) |
 | workflow | [git-flow-ci](workflow/git-flow-ci.md) | Nhánh việc → PR chỉ vào `dev`; `dev → main` do Chủ nhà; mẫu commit / PR; CI affected + parity + e2e + full; branch protection (D40) |
 | ui | [frontend-structure](ui/frontend-structure.md) | Cây `apps/web` (app chỉ routing, features/<module>/screens·components·hooks), useAction cho ghi, useCan, ui-commands, 5 trạng thái, token-only, responsive |
-| ui | [prototype-parity](ui/prototype-parity.md) | Playwright 1440×900, maxDiffPixelRatio 0.05, manifest + fixture + danh sách ngoại lệ |
+| ui | [prototype-parity](ui/prototype-parity.md) | Playwright 1440×900, maxDiffPixelRatio 0.05, manifest + fixture + danh sách ngoại lệ; 4 mức lệch (§6b) + luật mask |
+| ui | [interaction-patterns](ui/interaction-patterns.md) | Thước đo hành vi / bố cục (IP-x.y) khi prototype không vẽ hoặc vẽ sai; căn cứ duy nhất để ghi lệch `PD-xxx` (sổ `docs/06-prototype/DEVIATIONS.md`) |
