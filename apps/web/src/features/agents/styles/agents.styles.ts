@@ -54,11 +54,6 @@ export const useAgentsStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
-  btnDark: css`
-    background: ${color.text};
-    border-color: ${color.text};
-    color: ${color.white};
-  `,
   secHead: css`
     display: flex;
     align-items: center;

@@ -141,7 +141,7 @@ export const MANIFEST: ParityEntry[] = [
     route: '/dashboard',
     protoStorage: { ac_module: 'customers' },
     shellOnly: true,
-    proto: (p) => p.locator('.btnp', { hasText: 'Trợ lý AI' }).first().click(),
+    proto: (p) => p.locator('.aibtn', { hasText: 'Trợ lý AI' }).first().click(),
     app: (p) => p.keyboard.press('Control+k'),
     clip: { x: 1048, y: 0, width: 392, height: 900 },
     mask: [
@@ -477,7 +477,7 @@ export const MANIFEST: ParityEntry[] = [
     protoStorage: crm,
     // "Soạn ZNS chăm sóc theo phân khúc" là mục OUT (prototype-parity §6) — gỡ khỏi prototype.
     proto: async (p) => {
-      await p.locator('.btnp', { hasText: 'Trợ lý AI' }).click();
+      await p.locator('.aibtn', { hasText: 'Trợ lý AI' }).click();
       await p.locator('.chip', { hasText: 'Soạn ZNS' }).evaluate((n) => n.remove());
     },
     app: (p) => p.getByTestId('crm-ai').click(),
@@ -699,7 +699,7 @@ export const MANIFEST: ParityEntry[] = [
     id: 'agents:ai-create',
     route: '/agents',
     protoStorage: agents,
-    proto: (p) => p.locator('.btnp', { hasText: 'Trợ lý AI' }).click(),
+    proto: (p) => p.locator('.aibtn', { hasText: 'Trợ lý AI' }).click(),
     app: (p) => p.getByTestId('ag-ai').click(),
     appWait: '[data-testid="ag-tpl"]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },

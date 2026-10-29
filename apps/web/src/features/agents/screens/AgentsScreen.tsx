@@ -4,7 +4,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Icon, color } from '@appchat/ui';
+import { AiButton, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
@@ -22,7 +22,7 @@ export function AgentsScreen() {
   useAgentsUiCommands();
   const t = useTranslations('agents');
   const router = useRouter();
-  const { styles, cx } = useAgentsStyles();
+  const { styles } = useAgentsStyles();
   const { styles: ms } = useMineStyles();
   const ui = useAgentsUi();
   const canManage = useCan('agents.manage');
@@ -44,10 +44,7 @@ export function AgentsScreen() {
               <Icon name="ic-plus" size={14} color={color.text3} strokeWidth={2} />
               {t('manual')}
             </button>
-            <button type="button" className={cx(styles.btn, styles.btnDark)} onClick={() => ui.set({ aiOpen: true })} data-testid="ag-ai">
-              <Icon name="ic-spark" size={14} color={color.sparkMint} strokeWidth={1.9} />
-              {t('assistant')}
-            </button>
+            <AiButton label={t('assistant')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="ag-ai" />
           </>
         ) : null}
       </div>
