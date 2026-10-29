@@ -123,6 +123,9 @@
     },
     "update": {
       "title": "Save field settings"
+    },
+    "delete": {
+      "title": "Delete custom field"
     }
   },
   "agent": {

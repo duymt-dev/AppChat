@@ -123,6 +123,9 @@
     },
     "update": {
       "title": "Lưu cấu hình trường"
+    },
+    "delete": {
+      "title": "Xoá trường dữ liệu"
     }
   },
   "agent": {

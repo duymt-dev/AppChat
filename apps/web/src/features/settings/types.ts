@@ -114,3 +114,52 @@ export interface Widget {
   kpis: { clicks: number; chats: number; running: number; total: number };
   embed: string;
 }
+
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  emoji: string;
+  description: string;
+  count: number;
+  created_by: string;
+  source: string;
+  created_at: string;
+  updated_by: string | null;
+  updated_at: string;
+}
+
+export interface TagsData {
+  data: Tag[];
+  palette: string[];
+}
+
+export interface Reply {
+  id: string;
+  category: string;
+  shortcut: string;
+  title: string;
+  body: string;
+}
+
+export type FieldEntity = 'contact' | 'ticket' | 'order' | 'product';
+export const PLACES = ['list', 'kanban', 'form', 'filter', 'detail', 'export'] as const;
+export type FieldPlace = (typeof PLACES)[number];
+
+export interface FieldDef {
+  key: string;
+  label: string;
+  type: string;
+  options: string;
+  required: boolean;
+  ai: boolean;
+  sys: boolean;
+  visible_in: Record<FieldPlace, boolean>;
+  roles: string[];
+  condition: string;
+}
+
+export interface FieldsData {
+  data: FieldDef[];
+  counts: Record<FieldEntity, number>;
+}

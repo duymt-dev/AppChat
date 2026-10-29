@@ -7,13 +7,9 @@ import { App } from 'antd';
 import { Icon, color } from '@appchat/ui';
 import { useShellStyles } from '../styles/shell.styles';
 import { NAV, type SectionKey } from '../registry';
+import { foldVi } from '../text';
 
-const norm = (s: string) =>
-  s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
-    .toLowerCase();
+const norm = foldVi;
 
 interface Props {
   active: SectionKey;

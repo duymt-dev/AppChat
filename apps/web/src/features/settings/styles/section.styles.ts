@@ -271,6 +271,11 @@ export const useSectionStyles = createStyles(({ css, responsive }) => ({
     box-shadow: ${shadow.popover};
     padding: 4px;
   `,
+  scrim: css`
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+  `,
   mItem: css`
     display: flex;
     align-items: center;

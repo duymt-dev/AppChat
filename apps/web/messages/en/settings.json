@@ -482,5 +482,161 @@
       "open": "Open chat",
       "close": "Close chat"
     }
+  },
+  "rowMenu": "Actions",
+  "tags": {
+    "heroT": "Tags",
+    "heroS": "Create and manage tags to organize conversations and the inbox.",
+    "learn": "Learn more",
+    "new": "Create tag",
+    "search": "Search tags",
+    "col": {
+      "name": "Name",
+      "desc": "Description",
+      "by": "Created by",
+      "src": "Source",
+      "created": "Created on",
+      "editBy": "Last edited by",
+      "updated": "Last edited on",
+      "act": "Actions"
+    },
+    "source": {
+      "user": "User",
+      "ai": "AI",
+      "system": "System"
+    },
+    "at": "{m}/{d}/{y}, {h}",
+    "edit": "Edit",
+    "del": "Delete",
+    "modal": {
+      "title": "Create tag",
+      "editTitle": "Edit tag",
+      "create": "Create tag",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "emoji": "Emoji",
+      "name": "Name",
+      "namePh": "Tag name",
+      "required": "This field is required",
+      "dup": "A tag with this name already exists",
+      "color": "Color",
+      "desc": "Description",
+      "descPh": "Describe your tag here"
+    }
+  },
+  "replies": {
+    "search": "Search by name or shortcut (/)",
+    "new": "Canned reply",
+    "count": "{n} replies",
+    "edit": "Edit reply",
+    "del": "Delete",
+    "modal": {
+      "title": "New canned reply",
+      "editTitle": "Edit canned reply",
+      "save": "Save reply",
+      "cancel": "Cancel",
+      "close": "Close",
+      "cat": "Group",
+      "newCat": "+ New group",
+      "newCatPh": "New group name",
+      "shortcut": "Shortcut",
+      "shortcutPh": "/vidu",
+      "name": "Reply name *",
+      "namePh": "e.g. First-time greeting",
+      "body": "Content",
+      "bodyPh": "Reply text… use '{tên}' to insert the customer name",
+      "vars": "Variables:",
+      "errTitle": "Enter a reply name",
+      "errShortcut": "Shortcut must start with \"/\" and use lowercase letters, digits, \"_\" or \"-\"",
+      "errBody": "Enter a group and content"
+    }
+  },
+  "fields": {
+    "heroT": "Custom fields",
+    "heroS": "Create, edit and manage extra fields per module — no code. Configured fields appear on <b>lists, Kanban, forms, filters, detail screens</b> and <b>Excel import/export</b> exactly as set.",
+    "module": {
+      "contact": "Customers",
+      "ticket": "Tickets",
+      "order": "Orders",
+      "product": "Products"
+    },
+    "search": "Search fields by name / type…",
+    "new": "Add field",
+    "col": {
+      "order": "Order",
+      "name": "Field name",
+      "type": "Type",
+      "req": "Required",
+      "places": "Shown in",
+      "roles": "Visible to"
+    },
+    "sys": "SYSTEM",
+    "ai": "AI",
+    "cond": "COND",
+    "required": "Required",
+    "allRoles": "All roles",
+    "empty": "No fields for this module yet. Click “Add field” to start.",
+    "type": {
+      "text": "Short text",
+      "textarea": "Long text",
+      "number": "Number",
+      "currency": "Currency (VND)",
+      "phone": "Phone",
+      "email": "Email",
+      "date": "Date",
+      "picklist": "Single select",
+      "multi": "Multi select",
+      "file": "File",
+      "tier": "Tier",
+      "tags": "Tags",
+      "lookup": "Lookup"
+    },
+    "place": {
+      "list": "List",
+      "kanban": "Kanban",
+      "form": "Form",
+      "filter": "Filter",
+      "detail": "Detail",
+      "export": "Excel"
+    },
+    "menu": {
+      "edit": "Edit",
+      "up": "Move up",
+      "down": "Move down",
+      "del": "Delete field"
+    },
+    "modal": {
+      "title": "Add custom field",
+      "editTitle": "Edit custom field",
+      "save": "Save field",
+      "cancel": "Cancel",
+      "close": "Close",
+      "name": "Field name *",
+      "namePh": "e.g. Tax code",
+      "type": "Data type",
+      "opts": "Options (separated by /)",
+      "optsPh": "e.g. VIP/Gold/Regular",
+      "required": "Required",
+      "ai": "AI keeps it updated",
+      "adv": "Advanced options",
+      "advS": "Placement · roles · condition",
+      "places": "Shown in",
+      "place": {
+        "list": "List tab",
+        "kanban": "Kanban tab",
+        "form": "Add/edit form",
+        "filter": "Search filters",
+        "detail": "Detail screen",
+        "export": "Excel import / export"
+      },
+      "roles": "Visible to roles",
+      "rolesHint": "(empty = all roles)",
+      "cond": "Display condition",
+      "optional": "(optional)",
+      "condPh": "e.g. Show when Type = Business",
+      "errName": "Enter a field name",
+      "sysNote": "System field: name and type cannot be changed."
+    }
   }
 }

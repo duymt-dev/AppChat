@@ -119,6 +119,75 @@ WIDGET = {
     ]),
 }
 
+TAG_AT = "2026-07-21T14:48:00+07:00"
+TAGS = [
+    ["tg_vip", "VIP", "#DB2777", 342], ["tg_new", "Khách mới", "#2563EB", 1280], ["tg_care", "Cần chăm sóc", "#F5A830", 86],
+    ["tg_bought", "Đã mua", "#1B9E5A", 2140], ["tg_churn", "Nguy cơ rời bỏ", "#DC2626", 54], ["tg_hot", "Hot lead", "#E8602C", 128],
+    ["tg_cared", "Đã chăm sóc", "#0E9B94", 412], ["tg_potential", "Tiềm năng", "#7C3AED", 196],
+]
+TAG_PALETTE = ["#DC2626", "#F59E0B", "#2563EB", "#16A34A", "#7C3AED", "#0E9B94", "#DB2777", "#E8602C", "#6B7280", "#06B6D4"]
+
+REPLIES = [
+    ["Chào & xin lỗi", "/chao", "Chào khách lần đầu", "Dạ em chào anh/chị {tên} 👋 Em là trợ lý của AppChat, em có thể hỗ trợ gì cho mình ạ?"],
+    ["Chào & xin lỗi", "/xinloi", "Xin lỗi khi khách chờ lâu", "Dạ em xin lỗi đã để anh/chị chờ ạ. Em đang kiểm tra và phản hồi mình ngay trong ít phút nhé!"],
+    ["Chào & xin lỗi", "/cam_on", "Cảm ơn khách đã mua hàng", "Em cảm ơn anh/chị đã tin tưởng đặt hàng ạ 🎉 Đơn của mình đang được xử lý, em sẽ cập nhật tình trạng giao hàng sớm nhất."],
+    ["Thông tin sản phẩm", "/gia", "Gửi bảng giá tổng", "Dạ em gửi anh/chị bảng giá dịch vụ ạ. Hiện bên em đang có ưu đãi cho khách mới, anh/chị quan tâm gói nào để em tư vấn chi tiết nhé?"],
+    ["Thông tin sản phẩm", "/size", "Hướng dẫn chọn size", "Để chọn size chuẩn, anh/chị cho em xin chiều cao & cân nặng, em sẽ tư vấn size phù hợp nhất ạ."],
+    ["Thông tin sản phẩm", "/chat_lieu", "Giải thích chất liệu", "Sản phẩm dùng chất liệu cao cấp, thoáng mát, co giãn tốt và bền màu sau nhiều lần giặt ạ."],
+    ["Vận chuyển & thanh toán", "/ship", "Phí ship từng khu vực", "Nội thành: 20.000₫ · Ngoại thành & tỉnh: 30.000₫ · Miễn phí ship cho đơn từ 500.000₫ ạ."],
+    ["Vận chuyển & thanh toán", "/cod", "Chính sách COD", "Bên em hỗ trợ thanh toán khi nhận hàng (COD) toàn quốc, anh/chị được kiểm tra hàng trước khi thanh toán ạ."],
+    ["Vận chuyển & thanh toán", "/doi_tra", "Chính sách đổi trả 7 ngày", "Anh/chị được đổi/trả trong 7 ngày nếu sản phẩm lỗi hoặc chưa sử dụng, còn nguyên tem mác ạ."],
+]
+
+# Trường dữ liệu theo module (prototype cfData L7733): kiểu map sang enum Blueprint §2 custom_field_def; vai trò "Quản trị" → owner.
+FT = {"Text": "text", "Phone": "phone", "Email": "email", "Select": "picklist", "Currency": "currency", "Date": "date", "Paragraph": "textarea", "Number": "number"}
+PL = ["list", "kanban", "form", "filter", "detail", "export"]
+ALL_ON = "111111"
+FIELDS = {
+    "contact": [
+        ["full_name", "Họ tên", "Text", "", 1, 0, 1, ALL_ON, [], ""],
+        ["phone", "Số điện thoại", "Phone", "", 1, 0, 1, "101111", [], ""],
+        ["email", "Email", "Email", "", 0, 0, 1, "101111", [], ""],
+        ["kind", "Phân loại", "Select", "Cá nhân/Doanh nghiệp", 0, 0, 0, ALL_ON, [], ""],
+        ["tax_code", "Mã số thuế", "Text", "", 0, 0, 0, "001011", ["owner", "manager"], "Hiển thị khi Phân loại = Doanh nghiệp"],
+        ["tier", "Tier khách", "Select", "VIP/Gold/Regular", 0, 0, 0, ALL_ON, [], ""],
+        ["ltv", "LTV dự kiến", "Currency", "", 0, 0, 0, "001011", ["owner", "manager"], ""],
+        ["birthday", "Ngày sinh", "Date", "", 0, 0, 0, "001011", [], ""],
+        ["ai_note", "Ghi chú AI", "Paragraph", "", 0, 1, 0, "001010", [], ""],
+    ],
+    "ticket": [
+        ["title", "Tiêu đề", "Text", "", 1, 0, 1, ALL_ON, [], ""],
+        ["priority", "Mức ưu tiên", "Select", "Cao/Trung bình/Thấp", 1, 0, 1, ALL_ON, [], ""],
+        ["kind", "Loại yêu cầu", "Select", "Sự cố/Yêu cầu/Khiếu nại", 0, 0, 0, ALL_ON, [], ""],
+        ["sla", "SLA cam kết", "Number", "", 0, 0, 0, "001011", ["owner", "manager"], ""],
+        ["product", "Sản phẩm liên quan", "Text", "", 0, 0, 0, "001011", [], ""],
+        ["ai_summary", "AI tóm tắt", "Paragraph", "", 0, 1, 0, "000010", [], ""],
+    ],
+    "order": [
+        ["code", "Mã đơn", "Text", "", 1, 0, 1, ALL_ON, [], ""],
+        ["amount", "Giá trị đơn", "Currency", "", 1, 0, 1, ALL_ON, [], ""],
+        ["pay_status", "Trạng thái TT", "Select", "Đã thanh toán/Đã cọc/Chờ cọc", 0, 0, 0, ALL_ON, [], ""],
+        ["pay_method", "Phương thức", "Select", "Chuyển khoản/Tiền mặt/COD", 0, 0, 0, "001111", [], ""],
+        ["coupon", "Mã giảm giá", "Text", "", 0, 0, 0, "001011", [], ""],
+    ],
+    "product": [
+        ["name", "Tên sản phẩm", "Text", "", 1, 0, 1, ALL_ON, [], ""],
+        ["category", "Danh mục", "Select", "Liệu trình/Combo/Gói năm/Dịch vụ lẻ", 1, 0, 0, ALL_ON, [], ""],
+        ["price", "Giá niêm yết", "Currency", "", 1, 0, 1, "101111", [], ""],
+        ["duration", "Thời lượng", "Number", "", 0, 0, 0, "001011", [], "Hiển thị khi Danh mục = Liệu trình"],
+        ["warranty", "Bảo hành", "Text", "", 0, 0, 0, "001011", [], ""],
+    ],
+}
+
+
+def field_rows(rows):
+    return [
+        {"key": k, "label": n, "type": FT[t], "options": o, "required": bool(r), "ai": bool(a), "sys": bool(sy),
+         "visible_in": {p: v == "1" for p, v in zip(PL, vis)}, "roles": roles, "condition": c}
+        for k, n, t, o, r, a, sy, vis, roles, c in rows
+    ]
+
+
 ROLE_COLORS = {"owner": "#DC2626", "manager": "#7C3AED", "sales": "#2DC56A", "cs": "#F59E0B", "accountant": "#2563EB"}
 
 
@@ -146,6 +215,16 @@ def build():
             {"key": k, "name": n, "group": g, "color": c, "status": st, "connected": on, "opens": op, "fields": f, "interest": False}
             for k, n, g, c, st, on, op, f in CONNECTORS
         ],
+        "tags": [
+            {"id": i, "name": n, "color": c, "emoji": "", "description": "", "count": cnt, "created_by": "Ngọc Mai", "source": "user",
+             "created_at": TAG_AT, "updated_by": None, "updated_at": TAG_AT}
+            for i, n, c, cnt in TAGS
+        ],
+        "tag_palette": TAG_PALETTE,
+        "replies": [
+            {"id": f"rp_{k + 1}", "category": g, "shortcut": sc, "title": n, "body": b} for k, (g, sc, n, b) in enumerate(REPLIES)
+        ],
+        "fields": {e: field_rows(rows) for e, rows in FIELDS.items()},
     }
 
 

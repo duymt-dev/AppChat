@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { defineAction } from './define';
 
-const TAG = z.object({ name: z.string().trim().min(1).max(40), description: z.string().max(200).optional(), color: z.string().max(20).optional() });
+const TAG = z.object({ name: z.string().trim().min(1).max(40), description: z.string().max(200).optional(), color: z.string().max(20).optional(), emoji: z.string().max(8).optional() });
 const REPLY = z.object({
   shortcut: z.string().regex(/^\/[a-z0-9_-]{1,30}$/),
   title: z.string().trim().min(1).max(80),

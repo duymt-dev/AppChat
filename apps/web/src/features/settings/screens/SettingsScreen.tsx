@@ -12,6 +12,9 @@ import { RolesSection } from '../components/RolesSection';
 import { ChannelsSection } from '../components/ChannelsSection';
 import { IntegrationsSection } from '../components/IntegrationsSection';
 import { WidgetSection } from '../components/WidgetSection';
+import { TagsSection } from '../components/TagsSection';
+import { RepliesSection } from '../components/RepliesSection';
+import { FieldsSection } from '../components/FieldsSection';
 import { resolveSection, type NavItem, type SectionKey } from '../registry';
 import { useSettingsUiCommands } from '../ui-commands';
 
@@ -23,6 +26,9 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   channels: ChannelsSection,
   integrations: IntegrationsSection,
   web_widget: WidgetSection,
+  contacts_fields: FieldsSection,
+  tags: TagsSection,
+  replies: RepliesSection,
 };
 
 /** Mục có phụ đề dưới tiêu đề (prototype L5775). */

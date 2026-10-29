@@ -482,5 +482,161 @@
       "open": "Mở cửa sổ chat",
       "close": "Đóng cửa sổ chat"
     }
+  },
+  "rowMenu": "Thao tác",
+  "tags": {
+    "heroT": "Thẻ",
+    "heroS": "Tạo và quản lý Thẻ để sắp xếp các cuộc hội thoại và hộp thư đến.",
+    "learn": "Tìm hiểu thêm",
+    "new": "Tạo thẻ",
+    "search": "Thẻ tìm kiếm",
+    "col": {
+      "name": "Tên",
+      "desc": "Sự miêu tả",
+      "by": "Được tạo bởi",
+      "src": "Nguồn",
+      "created": "Được tạo vào ngày",
+      "editBy": "Lần chỉnh sửa cuối cùng bởi",
+      "updated": "Lần chỉnh sửa cuối cùng vào",
+      "act": "Hành động"
+    },
+    "source": {
+      "user": "Người dùng",
+      "ai": "AI",
+      "system": "Hệ thống"
+    },
+    "at": "Ngày {d} tháng {m} năm {y}, {h}",
+    "edit": "Chỉnh sửa",
+    "del": "Xoá",
+    "modal": {
+      "title": "Tạo thẻ",
+      "editTitle": "Sửa thẻ",
+      "create": "Tạo thẻ",
+      "save": "Lưu",
+      "cancel": "Hủy bỏ",
+      "close": "Đóng",
+      "emoji": "Biểu tượng cảm xúc",
+      "name": "Tên",
+      "namePh": "Tên thẻ",
+      "required": "Trường này là bắt buộc",
+      "dup": "Tên thẻ đã tồn tại",
+      "color": "Màu sắc",
+      "desc": "Sự miêu tả",
+      "descPh": "Mô tả Thẻ của bạn ở đây"
+    }
+  },
+  "replies": {
+    "search": "Tìm theo tên hoặc shortcut (/)",
+    "new": "Câu trả lời mẫu",
+    "count": "{n} mẫu",
+    "edit": "Sửa mẫu",
+    "del": "Xoá",
+    "modal": {
+      "title": "Tạo câu trả lời mẫu",
+      "editTitle": "Sửa câu trả lời mẫu",
+      "save": "Lưu mẫu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "cat": "Nhóm",
+      "newCat": "+ Nhóm mới",
+      "newCatPh": "Tên nhóm mới",
+      "shortcut": "Shortcut",
+      "shortcutPh": "/vidu",
+      "name": "Tên mẫu *",
+      "namePh": "VD: Chào khách lần đầu",
+      "body": "Nội dung",
+      "bodyPh": "Nội dung trả lời… dùng '{tên}' để chèn tên khách",
+      "vars": "Biến:",
+      "errTitle": "Nhập tên mẫu",
+      "errShortcut": "Shortcut bắt đầu bằng \"/\" và chỉ gồm chữ thường không dấu, số, \"_\" hoặc \"-\"",
+      "errBody": "Nhập nhóm và nội dung"
+    }
+  },
+  "fields": {
+    "heroT": "Trường dữ liệu (Custom Fields)",
+    "heroS": "Tự tạo, chỉnh sửa & quản lý trường dữ liệu bổ sung theo từng module — không cần lập trình. Trường được cấu hình sẽ tự hiển thị trên <b>danh sách, Kanban, form, bộ lọc, màn hình chi tiết</b> và <b>Import/Export Excel</b> theo đúng cấu hình.",
+    "module": {
+      "contact": "Khách hàng",
+      "ticket": "Tickets",
+      "order": "Đơn hàng",
+      "product": "Sản phẩm"
+    },
+    "search": "Tìm trường theo tên / kiểu dữ liệu…",
+    "new": "Thêm trường",
+    "col": {
+      "order": "Thứ tự",
+      "name": "Tên trường",
+      "type": "Kiểu dữ liệu",
+      "req": "Bắt buộc",
+      "places": "Hiển thị tại",
+      "roles": "Quyền xem"
+    },
+    "sys": "HỆ THỐNG",
+    "ai": "AI",
+    "cond": "ĐK",
+    "required": "Bắt buộc",
+    "allRoles": "Mọi vai trò",
+    "empty": "Chưa có trường nào cho module này. Bấm “Thêm trường” để bắt đầu.",
+    "type": {
+      "text": "Văn bản ngắn",
+      "textarea": "Văn bản dài",
+      "number": "Số",
+      "currency": "Tiền tệ (VND)",
+      "phone": "Số điện thoại",
+      "email": "Email",
+      "date": "Ngày",
+      "picklist": "Lựa chọn (1)",
+      "multi": "Lựa chọn (nhiều)",
+      "file": "Tệp đính kèm",
+      "tier": "Hạng",
+      "tags": "Thẻ",
+      "lookup": "Liên kết bản ghi"
+    },
+    "place": {
+      "list": "DS",
+      "kanban": "Kanban",
+      "form": "Form",
+      "filter": "Lọc",
+      "detail": "Chi tiết",
+      "export": "Excel"
+    },
+    "menu": {
+      "edit": "Chỉnh sửa",
+      "up": "Lên trên",
+      "down": "Xuống dưới",
+      "del": "Xoá trường"
+    },
+    "modal": {
+      "title": "Thêm trường dữ liệu",
+      "editTitle": "Sửa trường dữ liệu",
+      "save": "Lưu trường",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "name": "Tên trường *",
+      "namePh": "VD: Mã số thuế",
+      "type": "Kiểu dữ liệu",
+      "opts": "Tuỳ chọn (ngăn cách bởi /)",
+      "optsPh": "VD: VIP/Gold/Regular",
+      "required": "Bắt buộc nhập",
+      "ai": "AI tự cập nhật",
+      "adv": "Tuỳ chọn nâng cao",
+      "advS": "Hiển thị · vai trò · điều kiện",
+      "places": "Hiển thị tại",
+      "place": {
+        "list": "Tab danh sách",
+        "kanban": "Tab Kanban",
+        "form": "Form thêm/sửa",
+        "filter": "Bộ lọc tìm kiếm",
+        "detail": "Màn hình chi tiết",
+        "export": "Import / Export Excel"
+      },
+      "roles": "Quyền hiển thị theo vai trò",
+      "rolesHint": "(bỏ trống = mọi vai trò)",
+      "cond": "Điều kiện hiển thị",
+      "optional": "(tuỳ chọn)",
+      "condPh": "VD: Hiển thị khi Phân loại = Doanh nghiệp",
+      "errName": "Nhập tên trường",
+      "sysNote": "Trường hệ thống: không đổi được tên và kiểu dữ liệu."
+    }
   }
 }

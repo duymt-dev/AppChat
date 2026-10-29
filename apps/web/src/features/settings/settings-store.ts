@@ -1,6 +1,7 @@
 // UI state Cài đặt (frontend-structure §5: zustand chỉ giữ trạng thái giao diện; dữ liệu ở TanStack Query).
 import { create } from 'zustand';
 import type { SystemRole } from '@appchat/shared';
+import type { FieldEntity } from './types';
 
 export interface MemberDraft {
   /** Có id → sửa vai trò; không → mời mới. */
@@ -21,6 +22,14 @@ interface SettingsUi {
   integCat: string;
   /** key connector đang mở hộp kết nối. */
   integModal: string | null;
+  tagQ: string;
+  /** null = đóng; `{}` = tạo; có id = sửa. */
+  tagModal: { id?: string } | null;
+  replyQ: string;
+  replyModal: { id?: string } | null;
+  fieldEntity: FieldEntity;
+  fieldQ: string;
+  fieldModal: { key?: string } | null;
   set: (p: Partial<Omit<SettingsUi, 'set'>>) => void;
 }
 
@@ -33,5 +42,12 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   channelModal: null,
   integCat: 'all',
   integModal: null,
+  tagQ: '',
+  tagModal: null,
+  replyQ: '',
+  replyModal: null,
+  fieldEntity: 'contact',
+  fieldQ: '',
+  fieldModal: null,
   set: (p) => setState(p),
 }));

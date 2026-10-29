@@ -13,12 +13,15 @@ export const settingsColor = {
   wgOnline: '#7BFFB0',
   wgPowered: '#B5BDC6',
   wgWhite20: 'rgba(255,255,255,.2)',
+  fieldsHeroText: '#5B6B62',
+  fieldsOff: '#C0C4C9',
 } as const;
 
 export const settingsGradient = {
   wgAiBox: 'linear-gradient(135deg,#EDFAF3,#F2EEFD)',
   wgPreview: 'linear-gradient(160deg,#EAF6FF,#F4F7FA)',
   wgHead: 'linear-gradient(135deg,#2DC56A,#1FB85C)',
+  fieldsHero: 'linear-gradient(135deg,#EDFAF3,rgba(255,255,255,0))',
 } as const;
 
 export const settingsShadow = {

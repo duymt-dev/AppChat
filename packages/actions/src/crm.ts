@@ -184,6 +184,15 @@ export const contactDecideAccess = defineAction({
 });
 
 const fieldType = z.enum(['text', 'number', 'currency', 'date', 'email', 'phone', 'picklist', 'multi', 'tier', 'tags', 'lookup', 'file', 'textarea']);
+const fieldEntity = z.enum(['contact', 'product', 'quote', 'order', 'ticket', 'appointment']);
+const place = z.enum(['list', 'kanban', 'form', 'filter', 'detail', 'export']);
+/** Cấu hình nâng cao (Cài đặt › Trường dữ liệu — prototype L932–960): hiển thị tại, vai trò được xem (rỗng = mọi vai trò), điều kiện, AI tự cập nhật. */
+const fieldExtras = {
+  ai: z.boolean().optional(),
+  visible_in: z.record(place, z.boolean()).optional(),
+  roles: z.array(z.string().min(1)).max(5).optional(),
+  condition: z.string().max(120).optional(),
+};
 
 export const customFieldDefine = defineAction({
   id: 'custom_field.define',
@@ -191,12 +200,13 @@ export const customFieldDefine = defineAction({
   title: 'actions.custom_field.define.title',
   description: 'Define a custom field on an entity. Example: {"entity":"contact","label":"Size áo","type":"picklist","options":"S/M/L"}',
   input: z.object({
-    entity: z.enum(['contact', 'product', 'quote', 'order', 'ticket', 'appointment']),
+    entity: fieldEntity,
     label: z.string().trim().min(1).max(60),
     type: fieldType,
     options: z.string().max(300).optional(),
     group: z.string().max(60).optional(),
     required: z.boolean().optional(),
+    ...fieldExtras,
   }),
   output: z.object({ key: z.string() }),
   permission: 'crm.fields_manage',
@@ -209,14 +219,43 @@ export const customFieldUpdate = defineAction({
   id: 'custom_field.update',
   module: 'crm',
   title: 'actions.custom_field.update.title',
-  description: 'Update required / visible flags of custom fields. Example: {"entity":"contact","fields":[{"key":"size","required":false,"visible":true}]}',
+  description:
+    'Update custom fields (flags, label, options, placement, roles) and optionally their order. Example: {"entity":"contact","fields":[{"key":"size","required":false,"visible":true}]}',
   input: z.object({
-    entity: z.enum(['contact', 'product', 'quote', 'order', 'ticket', 'appointment']),
-    fields: z.array(z.object({ key: z.string().min(1), required: z.boolean(), visible: z.boolean() })).min(1),
+    entity: fieldEntity,
+    fields: z
+      .array(
+        z.object({
+          key: z.string().min(1),
+          required: z.boolean().optional(),
+          visible: z.boolean().optional(),
+          label: z.string().trim().min(1).max(60).optional(),
+          type: fieldType.optional(),
+          options: z.string().max(300).optional(),
+          ...fieldExtras,
+        }),
+      )
+      .default([]),
+    /** Thứ tự mới (đủ key của entity) — "Lên trên / Xuống dưới". */
+    order: z.array(z.string().min(1)).optional(),
   }),
   output: z.object({ updated: z.number().int() }),
   permission: 'crm.fields_manage',
   risk: 'config',
   agentGrantable: false,
+  invalidates: ['crm'],
+});
+
+export const customFieldDelete = defineAction({
+  id: 'custom_field.delete',
+  module: 'crm',
+  title: 'actions.custom_field.delete.title',
+  description: 'Delete a non-system custom field; stored values are kept 30 days. Example: {"entity":"contact","key":"size"}',
+  input: z.object({ entity: fieldEntity, key: z.string().min(1) }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'crm.fields_manage',
+  risk: 'delete',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
   invalidates: ['crm'],
 });

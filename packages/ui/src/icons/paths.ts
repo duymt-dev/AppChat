@@ -64,6 +64,10 @@ export const ICONS = {
   'ic-smile': { viewBox: '0 0 24 24', body: "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M9 14s1 1.5 3 1.5 3-1.5 3-1.5M9 9h.01M15 9h.01\"/>" },
   'ic-clip': { viewBox: '0 0 24 24', body: "<path d=\"M21 11.5 12 20a5 5 0 0 1-7-7l8.5-8.5a3.5 3.5 0 0 1 5 5L10 16a1.5 1.5 0 0 1-2-2l7-7\"/>" },
   'ic-image': { viewBox: '0 0 24 24', body: "<rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2.4\"/><circle cx=\"8.5\" cy=\"9.5\" r=\"1.6\"/><path d=\"M5 18l5-5 4 4 2-2 3 3\"/>" },
+  'ic-more-v': { viewBox: '0 0 24 24', body: "<circle cx=\"12\" cy=\"5\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"19\" r=\"1.6\"/>" },
+  'ic-more-h': { viewBox: '0 0 24 24', body: "<circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/>" },
+  'ic-up': { viewBox: '0 0 24 24', body: "<path d=\"M12 19V5M6 11l6-6 6 6\"/>" },
+  'ic-down': { viewBox: '0 0 24 24', body: "<path d=\"M12 5v14M6 13l6 6 6-6\"/>" },
 } as const;
 
 export type IconName = keyof typeof ICONS;
