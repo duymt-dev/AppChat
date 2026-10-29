@@ -23,9 +23,9 @@
 | F3 | Trợ lý AI · AI Agents · Duyệt · Nhật ký | 17 | 17 | 0 | ✅ | 51b50aa | [#5](https://github.com/duymt-dev/AppChat/pull/5) (xếp chồng #4) |
 | F4 | Sản phẩm · Báo giá · Hợp đồng · Đơn · Đề nghị thanh toán | 21 | 21 | 0 | ✅ | e82bc84 | [#6](https://github.com/duymt-dev/AppChat/pull/6) (xếp chồng #5) |
 | F5 | Lịch hẹn · Ticket · Marketing · Khách thân thiết | 18 | 18 | 0 | ✅ | 8602a6e | [#7](https://github.com/duymt-dev/AppChat/pull/7) (xếp chồng #6) |
-| F6 | Cài đặt · Gói & ví · popup | 26 | 12 | 0 | ⬜ | | |
+| F6 | Cài đặt · Gói & ví · popup | 26 | 17 | 0 | ⬜ | | |
 | F7 | Rà soát cuối | 5 | 0 | 0 | ⬜ | | |
-| **Tổng** | | **137** | **118** | **0** | | | |
+| **Tổng** | | **137** | **123** | **0** | | | |
 
 ---
 
@@ -183,11 +183,11 @@
 | `settings:doc-templates-docx` | Wizard DOCX + gán biến + bảng kiểm | — | M | ⬜ | — | | | D30 |
 | `settings:integrations` | Nền tảng kết nối (thẻ "Sắp có") | L6219 | E | ✅ | 0.0007 | pass | 57240c2 | D28: chỉ connector có manifest (GA: Brevo, SMTP, SePay, Casso; còn lại "Sắp có" + Đăng ký quan tâm); gỡ thẻ Tổng đài; mask nhóm Marketing (SMS / ZBS bỏ) |
 | `settings:integrations-connect` | Modal kết nối connector | L6219 | E | ✅ | 0.0191 | pass | 57240c2 | Trường theo manifest connector (secret → ô mật khẩu); integration.connect 422 khi thiếu trường / chưa GA |
-| `settings:ai-models` | AI Models | L6878 | E | ⬜ | | | | Mức AI, ẩn tên model (D29) |
-| `settings:rag` | Dữ liệu RAG · Knowledge Base | L6906 | P | ⬜ | | | | D29 |
-| `settings:ai-gov` | AI Governance | L6991 | P | ⬜ | | | | |
-| `settings:ai-audit` | AI Audit log | L7035 | P | ⬜ | | | | |
-| `settings:audit` | Audit log | L7024 | P | ⬜ | | | | |
+| `settings:ai-models` | AI Models | L6878 | E | ✅ | 0.0212 | pass | 2e8cce9 | D29: thẻ mức AI (Tiêu chuẩn / Nâng cao / Tối đa, credit / 1K token) thay tên model; phân bổ theo tác vụ chỉ hiện mức gói cho phép; mức khoá → Gói & thanh toán; bỏ "Tự động chuyển model rẻ" (prototype-parity §6); ai_settings.update |
+| `settings:rag` | Dữ liệu RAG · Knowledge Base | L6906 | P | ✅ | 0.0236 | pass | 2e8cce9 | D29: nav + thư mục + tìm theo tên / thẻ; tải lên (học / chỉ lưu), học lại, xoá → thùng rác (hoàn tác 30 ngày), thư mục mới, train lại; kb.* |
+| `settings:ai-gov` | AI Governance | L6991 | P | ✅ | 0.0067 | pass | 2e8cce9 | governance.update cho từng công tắc / từ khoá / select |
+| `settings:ai-audit` | AI Audit log | L7035 | P | ✅ | 0.0217 | pass | 2e8cce9 | Chỉ đọc; actor ghi "Trợ lý AI" / agent (không tên model — D29); xuất JSON |
+| `settings:audit` | Audit log | L7024 | P | ✅ | 0.0168 | pass | 2e8cce9 | Chỉ đọc (audit.view); vai trò theo §3.5; xuất JSON |
 | `settings:sla` | Thiết lập SLA (chính sách mặc định) | L7375 | E | ⬜ | | | | Chỉ chính sách mặc định |
 | `settings:notifications` | Thông báo | L6200 | P | ⬜ | | | | |
 | `settings:billing` | Gói & thanh toán | L5947 | E | ⬜ | | | | |
