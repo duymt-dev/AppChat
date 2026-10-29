@@ -1,0 +1,167 @@
+import type { IconName } from '@appchat/ui';
+
+export type ChannelType = 'zalo_personal' | 'webchat' | 'email';
+export type TagTone = 'vip' | 'channel' | 'hot' | 'group' | 'warn' | 'ai' | 'violet';
+export type AiState = 'idle' | 'running' | 'waiting_approval' | 'handoff';
+
+export interface ChannelMeta {
+  label: string;
+  short: string;
+  color: string;
+}
+
+export interface ConvTag {
+  label: string;
+  tone: TagTone;
+}
+
+export interface Conversation {
+  id: string;
+  kind: 'direct' | 'group';
+  title: string;
+  initials: string;
+  hue: string;
+  more?: string;
+  more_hue?: string;
+  channel: ChannelType;
+  account: string;
+  time: string;
+  preview: string;
+  preview_sender?: string;
+  tags: ConvTag[];
+  unread: number;
+  online?: boolean;
+  members?: number;
+  online_count?: number;
+  contact_id: string | null;
+  presence?: string;
+  pinned_note?: string;
+  pinned: boolean;
+  ai_state: AiState;
+  ai_mode: 'off' | 'copilot' | 'auto';
+  handoff_reason?: string;
+  ai_draft?: string;
+  status: string;
+}
+
+export interface Message {
+  id: string;
+  kind: 'system' | 'date' | 'text' | 'image' | 'audio' | 'ai_insight' | 'sticker' | 'card' | 'file' | 'typing' | 'group_alert' | 'note';
+  direction?: 'in' | 'out';
+  body?: string;
+  time?: string;
+  status?: string;
+  menu?: boolean;
+  agent?: boolean;
+  sender?: string;
+  sender_initials?: string;
+  sender_hue?: string;
+  sender_color?: string;
+  title?: string;
+  sub?: string;
+  price?: string;
+  unit?: string;
+  meta?: string;
+  confidence?: number;
+  /** Tin do người dùng vừa gửi (mock): hiển thị text thuần, không phải HTML fixture. */
+  plain?: boolean;
+  recalled?: boolean;
+  deleted?: boolean;
+}
+
+export interface ThreadData {
+  data: Message[];
+  next_cursor: string | null;
+  suggestion: { text: string; confidence: number } | null;
+}
+
+export type FolderRow = [key: string, icon: IconName | '@', count: number];
+
+export interface FolderCounts {
+  tabs: [key: string, count: number, dot: 'brand' | 'amber' | 'violet' | null][];
+  mailbox: FolderRow[];
+  ai: FolderRow[];
+  channels: [ChannelType, number][];
+  saved: [label: string, count: number][];
+  synced: number;
+  empty?: boolean;
+}
+
+export interface ChannelAccount {
+  id: string;
+  channel: ChannelType;
+  name: string;
+  count: number;
+}
+
+export interface ConnectChannel {
+  type: string;
+  name: string;
+  tag: string;
+  status: 'ga' | 'beta' | 'coming_soon';
+  time: string;
+  short: string;
+  color: string;
+  cat: 'social' | 'web';
+}
+
+export interface TimelineItem {
+  icon: IconName;
+  tone: 'zalo' | 'ok' | 'red' | 'brand' | 'amber' | 'violet' | 'muted';
+  when: string;
+  text: string;
+}
+
+export interface Contact360 {
+  id: string;
+  name: string;
+  initials: string;
+  avatar_color: string;
+  tier: string;
+  since: string;
+  stage_label: string;
+  lead_score: number;
+  lead_level: string;
+  phone: string;
+  company: string;
+  email: string;
+  role: string;
+  points: string;
+  points_value: string;
+  journey: { stage: string; hint: string };
+  ai_summary: { badge: string; close_pct: number; bullets: string[] };
+  deal: { title: string; value: string; stage: string; probability: number; close_date: string; need: string };
+  history: TimelineItem[];
+  tasks: { id: string; title: string; due: string; done: boolean; cal?: boolean }[];
+  note: { body: string; meta: string };
+  comments: { author: string; initial: string; body: string; at: string }[];
+  crm: {
+    kpis: [string, string][];
+    open_deal: { title: string; meta: string; value: string };
+    recent_order: { title: string; status: string };
+    recent_payment: { title: string; status: string };
+    segments: [string, TagTone][];
+  };
+  ai: {
+    bars: [string, string, number, 'ok' | 'brand' | 'blue'][];
+    signals: ['up' | 'warn', string][];
+    predict: { close: string; revenue: string };
+    churn: string;
+    nba: string[];
+  };
+  timeline: TimelineItem[];
+  files: { ext: string; tone: 'red' | 'amber'; name: string; meta: string }[];
+}
+
+export interface GroupInfo {
+  members_total: number;
+  members_hint: string;
+  members: [name: string, initials: string, hue: string, role: string][];
+  pinned_sub: string;
+  media: [title: string, hue: number, label: string][];
+  files: [ext: string, name: string, meta: string][];
+  links: [title: string, url: string][];
+  join_link: string;
+  unanswered: number;
+  ai_policy: 'mention' | 'auto' | 'off';
+}

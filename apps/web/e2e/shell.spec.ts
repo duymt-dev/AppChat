@@ -25,6 +25,7 @@ test.describe('shell', () => {
   test('mobile 390: không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await page.goto('/dashboard');
+    await expect(page.getByTestId('mobile-tabbar')).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await expectTouchTargets(page.getByTestId('mobile-tabbar').getByRole('button'));
   });

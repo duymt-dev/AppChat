@@ -20,5 +20,103 @@
     "update": {
       "title": "Update business profile"
     }
+  },
+  "onboarding": {
+    "toggle_step": {
+      "title": "Update getting-started step"
+    }
+  },
+  "follow_up": {
+    "complete": {
+      "title": "Follow-up done"
+    }
+  },
+  "conversation": {
+    "mark_read": {
+      "title": "Mark as read"
+    },
+    "set_status": {
+      "title": "Change conversation status"
+    },
+    "assign": {
+      "title": "Assign conversation"
+    },
+    "tag": {
+      "title": "Tag conversation"
+    },
+    "pin": {
+      "title": "Pin / unpin"
+    },
+    "archive": {
+      "title": "Archive conversation"
+    },
+    "set_ai_mode": {
+      "title": "Change AI mode"
+    },
+    "handoff": {
+      "title": "Take over conversation"
+    },
+    "clear_history": {
+      "title": "Clear conversation history"
+    }
+  },
+  "message": {
+    "send": {
+      "title": "Send message"
+    },
+    "recall": {
+      "title": "Recall message"
+    },
+    "delete": {
+      "title": "Delete message"
+    }
+  },
+  "note": {
+    "add": {
+      "title": "Add internal note"
+    }
+  },
+  "contact": {
+    "create": {
+      "title": "Create customer"
+    },
+    "update": {
+      "title": "Update customer"
+    },
+    "set_stage": {
+      "title": "Change stage"
+    },
+    "tag": {
+      "title": "Tag customer"
+    },
+    "delete": {
+      "title": "Delete customer"
+    },
+    "merge": {
+      "title": "Merge duplicates"
+    },
+    "add_collaborator": {
+      "title": "Add co-owner"
+    },
+    "remove_collaborator": {
+      "title": "Remove co-owner"
+    },
+    "transfer_owner": {
+      "title": "Transfer owner"
+    },
+    "request_access": {
+      "title": "Request access"
+    },
+    "decide_access": {
+      "title": "Decide access request"
+    }
+  },
+  "custom_field": {
+    "define": {
+      "title": "Create custom field"
+    },
+    "update": {
+      "title": "Save field settings"
+    }
   }
 }

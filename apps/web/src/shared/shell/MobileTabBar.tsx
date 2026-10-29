@@ -32,7 +32,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 2px;
     background: none;
     border: none;
     color: ${color.text4};

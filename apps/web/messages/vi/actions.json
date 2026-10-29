@@ -20,5 +20,103 @@
     "update": {
       "title": "Cập nhật thông tin doanh nghiệp"
     }
+  },
+  "onboarding": {
+    "toggle_step": {
+      "title": "Cập nhật bước bắt đầu"
+    }
+  },
+  "follow_up": {
+    "complete": {
+      "title": "Đã follow khách"
+    }
+  },
+  "conversation": {
+    "mark_read": {
+      "title": "Đánh dấu đã đọc"
+    },
+    "set_status": {
+      "title": "Đổi trạng thái hội thoại"
+    },
+    "assign": {
+      "title": "Phân công hội thoại"
+    },
+    "tag": {
+      "title": "Gắn thẻ hội thoại"
+    },
+    "pin": {
+      "title": "Ghim / bỏ ghim"
+    },
+    "archive": {
+      "title": "Lưu trữ hội thoại"
+    },
+    "set_ai_mode": {
+      "title": "Đổi chế độ AI"
+    },
+    "handoff": {
+      "title": "Nhận xử lý hội thoại"
+    },
+    "clear_history": {
+      "title": "Xoá lịch sử hội thoại"
+    }
+  },
+  "message": {
+    "send": {
+      "title": "Gửi tin nhắn"
+    },
+    "recall": {
+      "title": "Thu hồi tin nhắn"
+    },
+    "delete": {
+      "title": "Xoá tin nhắn"
+    }
+  },
+  "note": {
+    "add": {
+      "title": "Thêm ghi chú nội bộ"
+    }
+  },
+  "contact": {
+    "create": {
+      "title": "Tạo khách hàng"
+    },
+    "update": {
+      "title": "Cập nhật khách hàng"
+    },
+    "set_stage": {
+      "title": "Chuyển giai đoạn"
+    },
+    "tag": {
+      "title": "Gắn tag khách"
+    },
+    "delete": {
+      "title": "Xoá khách hàng"
+    },
+    "merge": {
+      "title": "Gộp khách trùng"
+    },
+    "add_collaborator": {
+      "title": "Thêm đồng phụ trách"
+    },
+    "remove_collaborator": {
+      "title": "Gỡ đồng phụ trách"
+    },
+    "transfer_owner": {
+      "title": "Chuyển phụ trách"
+    },
+    "request_access": {
+      "title": "Xin chia sẻ khách"
+    },
+    "decide_access": {
+      "title": "Duyệt yêu cầu chia sẻ"
+    }
+  },
+  "custom_field": {
+    "define": {
+      "title": "Tạo trường mở rộng"
+    },
+    "update": {
+      "title": "Lưu cấu hình trường"
+    }
   }
 }

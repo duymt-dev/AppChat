@@ -38,6 +38,8 @@ export const FIXED_TIME = '2026-06-24T09:00:00+07:00';
 const RAIL: Rect = { x: 0, y: 0, width: 80, height: 900 };
 const RAIL_EXP: Rect = { x: 0, y: 0, width: 230, height: 900 };
 const dash = { ac_module: 'dashboard' };
+const inbox = { ac_module: 'inbox' };
+const crm = { ac_module: 'customers' };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -202,5 +204,190 @@ export const MANIFEST: ParityEntry[] = [
     route: '/dashboard?session=authed,declared,trialSeen,expired',
     protoStorage: { ac_trialdays: '0' },
     clipTo: ONB_CARD,
+  },
+  // ── F2 · Tổng quan ──
+  {
+    // Tổng quan đang vận hành = checklist đã thu gọn (prototype obCollapsed, L1123)
+    id: 'dashboard:default',
+    route: '/dashboard',
+    protoStorage: dash,
+    proto: (p) => p.locator('.chip', { hasText: 'Thu gọn' }).first().click(),
+    app: (p) => p.getByRole('button', { name: 'Thu gọn' }).click(),
+  },
+  {
+    // Workspace mới = checklist "Bắt đầu với AppChat" mở, 0/5 (trạng thái mặc định của prototype L1089)
+    id: 'dashboard:new-workspace',
+    route: '/dashboard',
+    protoStorage: dash,
+  },
+  {
+    // L1139 = "Trung tâm cập nhật" (prototype không có bộ chọn widget riêng) — đo tab Thông báo + Tin tức trong khung
+    id: 'dashboard:widget-picker',
+    route: '/dashboard',
+    protoStorage: dash,
+    proto: (p) => p.locator('button', { hasText: 'Thông báo' }).last().click(),
+    app: (p) => p.getByTestId('updates-widget').getByRole('button', { name: /Thông báo/ }).click(),
+    clipTo: { proto: 'div[style*="width: 360px"][style*="position: fixed"]', app: '[data-testid="updates-widget"]' },
+  },
+  // ── F2 · Hộp thư ──
+  { id: 'inbox:default', route: '/inbox', protoStorage: inbox },
+  {
+    // Prototype không có trạng thái rỗng: gỡ các dòng hội thoại khỏi DOM; app seed ?inbox=empty. So cột danh sách.
+    id: 'inbox:empty',
+    route: '/inbox?inbox=empty',
+    protoStorage: inbox,
+    proto: (p) => p.evaluate(() => document.querySelectorAll('.convrow, .row[style*="border-bottom: 1px solid rgb(243, 244, 246)"]').forEach((n) => n.remove())),
+    clip: { x: 80, y: 44, width: 320, height: 300 },
+  },
+  {
+    id: 'inbox:folder-rail',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.click('div[style*="width: 30px; height: 30px"]:has(path[d="M4 6h16M4 12h16M4 18h16"])'),
+    app: (p) => p.click('[data-testid="inbox-rail-toggle"]'),
+    clip: { x: 80, y: 0, width: 560, height: 900 },
+  },
+  {
+    id: 'inbox:conv-menu',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.click('.convdots'),
+    app: (p) => p.locator('[data-conv="c_lan"] .conv-dots').click(),
+    clip: { x: 80, y: 280, width: 320, height: 300 },
+  },
+  {
+    id: 'inbox:chat-menu',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.click('.msgdots'),
+    app: (p) => p.locator('[data-testid="msg-dots"]').first().click(),
+    clip: { x: 400, y: 200, width: 700, height: 420 },
+  },
+  {
+    id: 'inbox:ai-panel',
+    route: '/inbox',
+    protoStorage: inbox,
+    // ZNS là mục OUT (D29, marketing chỉ Zalo cá nhân + Email): gỡ "Gửi template ZNS" khỏi prototype như mục OUT.
+    proto: async (p) => {
+      await p.locator('div', { hasText: /^Trợ lý AI$/ }).last().click();
+      await p.locator('.chip', { hasText: 'Gửi template ZNS' }).evaluate((n) => n.remove());
+    },
+    app: (p) => p.click('[data-testid="inbox-ai-open"]'),
+    clipTo: { proto: 'div[style*="width: min(440px"]', app: '[data-testid="inbox-ai-modal"] [role="dialog"]' },
+  },
+  {
+    // Ngoại lệ D28 / prototype-parity §6: chỉ kênh có manifest (zalo_personal / webchat / email) kết nối được, còn lại "Sắp có".
+    id: 'inbox:connect-channel',
+    route: '/inbox',
+    protoStorage: inbox,
+    // Thẻ "Tổng đài / Call Center" gỡ như mục OUT (module Gọi điện ẩn — D07, D19); mục "Theo ngành" chưa có dữ liệu nên mask.
+    proto: async (p) => {
+      await p.locator('.btnp', { hasText: 'Kết Nối Kênh' }).click();
+      await p.locator('.chip', { hasText: 'Tổng đài / Call Center' }).evaluate((n) => n.remove());
+    },
+    app: (p) => p.click('[data-testid="inbox-connect"]'),
+    clipTo: { proto: 'div[style*="width: min(900px"]', app: '[data-testid="connect-modal"] [role="dialog"]' },
+  },
+  {
+    id: 'inbox:account-switch',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.locator('span', { hasText: 'Tất cả tài khoản' }).first().click(),
+    app: (p) => p.click('[data-testid="acct-select"]'),
+    clip: { x: 80, y: 180, width: 320, height: 360 },
+    // Tên tài khoản theo channel registry (zalo_personal / webchat / email) — ngoại lệ "Kênh" prototype-parity §6.
+    mask: [{ x: 128, y: 285, width: 222, height: 255, reason: 'prototype-parity §6 Kênh — tên tài khoản theo channel registry' }],
+  },
+  {
+    id: 'inbox:zalo-group-info',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.locator('.row', { hasText: 'Nhóm VIP Spa Hương Sen' }).first().click(),
+    app: (p) => p.locator('[data-conv="g_vip"] button').first().click(),
+  },
+  {
+    // Banner "Cần người" + bản nháp AI dùng khung thẻ "AI gợi ý trả lời" của prototype (L1789–1795): so thẻ đó.
+    id: 'inbox:handoff',
+    route: '/inbox',
+    protoStorage: inbox,
+    proto: (p) => p.locator('.appscroll', { hasText: 'Claude Cowork gợi ý trả lời' }).last().evaluate((n) => n.scrollTo(0, n.scrollHeight)),
+    app: (p) => p.locator('[data-conv="c_hieu"] button').first().click(),
+    clipTo: { proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"][style*="border-radius: 12px"]', app: '[data-testid="handoff-banner"]' },
+    // Trạng thái handoff không có trong prototype (REQ-C handoff): so khung thẻ, mask phần chữ khác nội dung.
+    mask: [
+      { x: 44, y: 8, width: 600, height: 26, reason: 'handoff không có trong prototype — tiêu đề / nhãn khác nội dung' },
+      { x: 24, y: 62, width: 616, height: 52, reason: 'handoff không có trong prototype — bản nháp AI khác nội dung' },
+      { x: 24, y: 136, width: 260, height: 36, reason: 'handoff không có trong prototype — nút Nhận xử lý / Dùng bản nháp' },
+    ],
+  },
+  {
+    id: 'customers:table',
+    route: '/customers',
+    protoStorage: crm,
+  },
+  {
+    id: 'customers:kanban',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('button', { hasText: 'Kanban' }).click(),
+    app: (p) => p.getByRole('radio', { name: 'Kanban' }).click(),
+  },
+  {
+    id: 'customers:filter',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.chip', { hasText: /^Lọc$/ }).click(),
+    app: (p) => p.getByTestId('filter-btn').click(),
+    clip: { x: 900, y: 200, width: 540, height: 380 },
+  },
+  {
+    id: 'customers:edit',
+    route: '/customers',
+    protoStorage: crm,
+    proto: async (p) => {
+      await p.locator('div[title="Thao tác"]').first().click();
+      await p.locator('div[style*="min-width: 184px"] .row', { hasText: 'Cập nhật khách hàng' }).click();
+    },
+    app: async (p) => {
+      await p.locator('.row-dots').first().click();
+      await p.getByRole('menuitem', { name: 'Cập nhật khách hàng' }).click();
+    },
+    clipTo: { proto: 'div[style*="width: 560px"]', app: '[data-testid="crm-edit"] [role="dialog"]' },
+  },
+  {
+    id: 'customers:dedupe',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.chip', { hasText: 'Check trùng' }).click(),
+    app: (p) => p.getByTestId('crm-dedupe').click(),
+    clipTo: { proto: 'div[style*="width: 880px"]', app: '[data-testid="crm-dedupe-modal"] [role="dialog"]' },
+  },
+  {
+    id: 'customers:fields',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.chip', { hasText: 'Trường mở rộng' }).click(),
+    app: (p) => p.getByTestId('crm-fields').click(),
+    clipTo: { proto: 'div[style*="width: 880px"]', app: '[data-testid="crm-fields-modal"] [role="dialog"]' },
+  },
+  {
+    id: 'customers:360',
+    route: '/customers',
+    protoStorage: crm,
+    proto: (p) => p.locator('.row', { hasText: 'Nguyễn Thị Lan' }).first().click(),
+    app: (p) => p.locator('[data-contact="ct_lan"]').first().click(),
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  {
+    id: 'customers:ai',
+    route: '/customers',
+    protoStorage: crm,
+    // "Soạn ZNS chăm sóc theo phân khúc" là mục OUT (prototype-parity §6) — gỡ khỏi prototype.
+    proto: async (p) => {
+      await p.locator('.btnp', { hasText: 'Trợ lý AI' }).click();
+      await p.locator('.chip', { hasText: 'Soạn ZNS' }).evaluate((n) => n.remove());
+    },
+    app: (p) => p.getByTestId('crm-ai').click(),
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
 ];

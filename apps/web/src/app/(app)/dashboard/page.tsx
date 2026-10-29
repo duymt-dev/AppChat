@@ -1,4 +1,5 @@
-// Màn Tổng quan làm ở F2 (dashboard:*). F0 chỉ cần route để đo shell.
+import { DashboardScreen } from '@/features/dashboard';
+
 export default function Page() {
-  return null;
+  return <DashboardScreen />;
 }

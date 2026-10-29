@@ -18,7 +18,7 @@ export const usePopoverStyles = createStyles(({ css }) => ({
   head: css`
     display: flex;
     align-items: center;
-    padding: 13px 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid ${color.divider};
   `,
   headTitle: css`
@@ -46,7 +46,7 @@ export const usePopoverStyles = createStyles(({ css }) => ({
   `,
   notif: css`
     display: flex;
-    gap: 11px;
+    gap: 12px;
     padding: 12px 16px;
     border-bottom: 1px solid ${color.dividerSoft};
     &:last-child {
@@ -56,7 +56,7 @@ export const usePopoverStyles = createStyles(({ css }) => ({
   notifIcon: css`
     width: 32px;
     height: 32px;
-    border-radius: 9px;
+    border-radius: ${radius.r8}px;
     display: grid;
     place-items: center;
     flex-shrink: 0;
@@ -73,8 +73,8 @@ export const usePopoverStyles = createStyles(({ css }) => ({
   row: css`
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 9px 10px;
+    gap: 8px;
+    padding: 8px 8px;
     border-radius: ${radius.sm}px;
     cursor: pointer;
     font-size: ${font.size.body}px;
@@ -104,13 +104,13 @@ export const usePopoverStyles = createStyles(({ css }) => ({
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: ${color.text4};
-    padding: 6px 10px 7px;
+    padding: 6px 8px 6px;
   `,
   flyRow: css`
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 9px 10px;
+    gap: 8px;
+    padding: 8px 8px;
     border-radius: ${radius.sm}px;
     cursor: pointer;
     font-size: ${font.size.body}px;

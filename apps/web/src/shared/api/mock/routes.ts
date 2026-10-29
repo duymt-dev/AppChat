@@ -1,6 +1,9 @@
 // Endpoint đọc của mock (Blueprint §4.2, §4.4). Thêm route khi làm màn tương ứng.
 import { ROLE_DEFS } from '@appchat/shared';
 import type { MockDb } from './store';
+import { dashboardRoutes } from './domains/dashboard';
+import { inboxRoutes } from './domains/inbox';
+import { customersRoutes } from './domains/customers';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -24,4 +27,7 @@ export const mockRoutes: Record<string, MockRoute> = {
     db.session.provisioned = true;
     return { status };
   },
+  ...dashboardRoutes,
+  ...inboxRoutes,
+  ...customersRoutes,
 };

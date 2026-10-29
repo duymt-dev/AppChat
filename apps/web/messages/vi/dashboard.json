@@ -1,0 +1,60 @@
+{
+  "greeting": "Chào {name} 👋",
+  "greetingSub": "Toàn cảnh hội thoại, chuyển đổi từ AI và các hoạt động đang chạy hôm nay.",
+  "askAssistant": "Hỏi Trợ lý AI",
+  "onboarding": {
+    "title": "Bắt đầu với AppChat",
+    "sub": "Hoàn tất 5 bước để kích hoạt workspace và đưa AI Agent vào vận hành.",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng ›",
+    "progress": "{done}/5 hoàn tất",
+    "pct": "· {pct}%",
+    "collapsedSub": "{done}/5 bước · {pct}% hoàn tất",
+    "reopen": "Mở lại",
+    "toggle": "Đánh dấu bước"
+  },
+  "sections": {
+    "connect": {
+      "title": "Kênh kết nối",
+      "sub": "Mọi điểm chạm khách hàng đổ về một hộp thư hợp nhất"
+    },
+    "agents": {
+      "title": "AI Agentic — trung tâm vận hành",
+      "sub": "Đội AI Agent phòng ban điều phối toàn hệ thống"
+    },
+    "modules": {
+      "title": "Module nghiệp vụ",
+      "sub": "AI Agent phòng ban điều phối & thực thi trên từng module"
+    },
+    "cdp": {
+      "title": "CDP — nền dữ liệu khách hàng hợp nhất",
+      "sub": "Hồ sơ 360° · lịch sử đa kênh · dữ liệu là tài sản của tenant"
+    }
+  },
+  "groups": {
+    "in": "KÊNH VÀO — OMNICHANNEL",
+    "out": "KÊNH GỬI RA",
+    "erp": "HỆ THỐNG DOANH NGHIỆP",
+    "data": "NỀN TẢNG DỮ LIỆU & TRÍ TUỆ"
+  },
+  "connect": "Kết nối",
+  "agentsLayer": "AI LAYER — AGENTS TỰ CHẠY THEO QUY TRÌNH",
+  "domains": "{n} domain",
+  "assistantName": "Trợ lý AI",
+  "assistantDesc": "Điều phối toàn bộ AI Agent — nhận tin, phân loại, phân luồng và giao việc.",
+  "openAssistant": "Mở chat thực thi",
+  "agentsFoot": "AI tự xử <b>~85%</b> · Human-in-the-loop khi độ tin cậy < 70% · RAG & Knowledge Base · Workflow & Journey Builder · Training Studio",
+  "widget": {
+    "title": "Trung tâm cập nhật",
+    "short": "Cập nhật",
+    "collapse": "Thu nhỏ",
+    "follow": "Cần follow",
+    "news": "Tin tức",
+    "notif": "Thông báo",
+    "due": "{n} khách đến hạn",
+    "overdue": " · {n} quá hạn",
+    "openAll": "Mở tất cả →",
+    "done": "Đã follow",
+    "empty": "Không còn khách cần follow hôm nay"
+  }
+}

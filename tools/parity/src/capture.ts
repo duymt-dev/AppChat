@@ -40,6 +40,10 @@ const removeOut = (page: Page) =>
       const text = el.textContent?.trim() ?? '';
       if (labels.some((l) => text === l || text.startsWith(l))) el.remove();
     }
+    // pill module trên Tổng quan (thẻ "Module nghiệp vụ")
+    for (const el of document.querySelectorAll<HTMLElement>('.dashwrap [style*="white-space: nowrap"]')) {
+      if (labels.includes(el.textContent?.trim() ?? '') && el.children.length === 0) el.remove();
+    }
   }, OUT_LABELS);
 
 const settle = async (p: Page) => {

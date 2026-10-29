@@ -1,0 +1,285 @@
+{
+  "assistant": "Trợ lý AI",
+  "emptyChat": "Chọn một hội thoại để bắt đầu",
+  "tabs": {
+    "all": "Tất cả",
+    "mine": "Của tôi",
+    "mention": "@Mention",
+    "unread": "Chưa đọc",
+    "ai_pending_approval": "AI chờ duyệt",
+    "vip": "⭐ VIP",
+    "complaint": "⚠ Khiếu nại"
+  },
+  "folders": {
+    "title": "Thư mục hộp thư",
+    "toggle": "Mở / đóng thư mục",
+    "synced": "{n} kênh · đồng bộ <b>vừa xong</b>",
+    "mailbox": "Hộp thư",
+    "ai": "Trạng thái AI",
+    "channels": "Kênh",
+    "saved": "Bộ lọc đã lưu",
+    "items": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "mention": "Mention tôi",
+      "starred": "Đã gắn sao",
+      "mine": "Của tôi",
+      "team": "Của nhóm",
+      "spam": "Spam / đã chặn",
+      "ai_running": "AI tự xử",
+      "ai_pending_approval": "AI chờ duyệt",
+      "needs_human": "Cần can thiệp"
+    },
+    "at": "@"
+  },
+  "list": {
+    "title": "Hộp thư",
+    "sub": "{total} hội thoại · {unread} chưa đọc",
+    "connect": "Kết Nối Kênh",
+    "search": "Tìm khách, SĐT, nội dung, mã lịch hẹn…",
+    "allChannels": "Tất cả kênh",
+    "allAccounts": "Tất cả tài khoản",
+    "menu": "Thao tác hội thoại",
+    "emptyTitle": "Chưa có hội thoại",
+    "emptyHint": "Kết nối kênh để tin nhắn của khách đổ về đây.",
+    "emptySearch": "Không có hội thoại khớp từ khoá.",
+    "sort": {
+      "latest": "Mới nhất",
+      "unread": "Chưa đọc",
+      "priority": "Ưu tiên",
+      "vip": "VIP",
+      "sla": "Sắp quá SLA"
+    },
+    "actions": {
+      "close": "Đóng hội thoại",
+      "snooze": "Tạm ẩn",
+      "shortcut": "Phím tắt",
+      "assign": "Phân công",
+      "lifecycle": "Vòng đời (giai đoạn)",
+      "tag": "Gắn thẻ"
+    },
+    "caret": "›",
+    "kbd": "⌘K"
+  },
+  "chat": {
+    "back": "Quay lại danh sách",
+    "video": "Hẹn gọi video",
+    "call": "Hẹn gọi điện",
+    "search": "Tìm trong hội thoại",
+    "toggle360": "Thu gọn hồ sơ",
+    "members": "{n} thành viên",
+    "online": "{n} đang online",
+    "zaloGroup": "Nhóm Zalo",
+    "offline": "ngoại tuyến",
+    "pinned": "📌 Ghim:",
+    "unpin": "Bỏ ghim",
+    "handoff": {
+      "title": "Cần người",
+      "take": "Nhận xử lý",
+      "useDraft": "Dùng bản nháp",
+      "badge": "AI đã tạm dừng"
+    },
+    "suggest": {
+      "title": "AI Cowork gợi ý trả lời",
+      "confidence": "độ tin {pct}%",
+      "send": "Gửi",
+      "edit": "Chỉnh sửa",
+      "other": "Gợi ý khác"
+    }
+  },
+  "thread": {
+    "insight": "AI phân tích:",
+    "confidence": "· tin {pct}%",
+    "note": "Ghi chú nội bộ",
+    "deleted": "Tin nhắn đã xoá khỏi AppChat",
+    "recalled": "Tin nhắn đã được thu hồi"
+  },
+  "msgMenu": {
+    "title": "Thao tác tin nhắn",
+    "messages": "Quản lý tin nhắn",
+    "recall": "Thu hồi",
+    "delete": "Xóa tin nhắn",
+    "conversation": "Quản lý hội thoại",
+    "archive": "Lưu trữ",
+    "hide": "Ẩn trò chuyện",
+    "clear": "Xóa lịch sử",
+    "group": "Tạo nhóm"
+  },
+  "composer": {
+    "placeholder": "Nhập tin cho {name}… ( / = lệnh AI · @ = mention · # = dịch vụ )",
+    "notePlaceholder": "Ghi chú nội bộ — khách không thấy…",
+    "attach": "Thêm tệp, kết nối, plugin",
+    "via": "Gửi qua <b>{ch}</b> · <k>Enter</k> gửi",
+    "send": "Gửi",
+    "saveNote": "Lưu ghi chú",
+    "quickReact": "Thả nhanh:",
+    "modes": {
+      "reply": "Trả lời",
+      "note": "Ghi chú nội bộ",
+      "copilot": "Co-pilot",
+      "auto": "AI tự xử"
+    },
+    "tools": {
+      "qr": "Quick replies",
+      "sched": "Đặt lịch hẹn",
+      "xl": "Dịch"
+    },
+    "qr": {
+      "title": "Trả lời nhanh",
+      "hint": "Gõ / trong ô nhập để lọc nhanh"
+    },
+    "sched": {
+      "title": "Đặt lịch hẹn cho {name}",
+      "ai": "AI gợi ý khung giờ tốt nhất",
+      "best": "Tốt nhất",
+      "fit": "Phù hợp",
+      "send": "Gửi thẻ xác nhận lịch",
+      "confirm": "Em xác nhận lịch hẹn {time} ngày {day} cho mình nhé ạ."
+    },
+    "xl": {
+      "title": "Dịch tự động",
+      "auto": "Tự động dịch 2 chiều",
+      "autoHint": "Tin khách → tiếng Việt · Tin bạn → ngôn ngữ khách",
+      "to": "Dịch tin soạn sang"
+    },
+    "autoBadge": "AUTO"
+  },
+  "p360": {
+    "title": "Hồ sơ 360°",
+    "close": "Đóng hồ sơ",
+    "tabs": {
+      "overview": "Tổng quan",
+      "crm": "CRM",
+      "ai": "AI",
+      "files": "Tệp",
+      "history": "Lịch sử"
+    },
+    "journey": "Hành trình trao đổi",
+    "stageAt": "Đang ở: {stage}",
+    "aiHint": "AI gợi ý:",
+    "aiSummary": "AI Tóm tắt",
+    "closeChance": "Khả năng chốt",
+    "contact": "Thông tin khách hàng",
+    "edit": "Sửa",
+    "leadScore": "Lead Score",
+    "tier": "HẠNG THÀNH VIÊN",
+    "points": "điểm · ≈ {value}",
+    "deal": "Cơ hội / Deal",
+    "add": "+ Thêm",
+    "dealValue": "Giá trị",
+    "dealStage": "Giai đoạn",
+    "dealProb": "Xác suất",
+    "dealClose": "Ngày dự kiến chốt",
+    "history": "Lịch sử tương tác",
+    "exportCsv": "Xuất CSV",
+    "tasks": "Việc cần làm",
+    "addTask": "+ Tạo việc",
+    "notes": "Ghi chú",
+    "addNote": "+ Thêm ghi chú",
+    "comments": "Comment",
+    "openDeal": "Cơ hội đang mở",
+    "recentOrder": "Đơn hàng gần đây",
+    "recentPayment": "Đề nghị thanh toán gần đây",
+    "segments": "Phân khúc & thẻ",
+    "behavior": "Phân tích hành vi",
+    "signals": "Tín hiệu khách hàng",
+    "nba": "AI đề xuất next-best-action",
+    "files": "Tệp tin",
+    "timeline": "Dòng thời gian đa kênh",
+    "ops": {
+      "quote": "Báo giá",
+      "contract": "Hợp đồng",
+      "order": "Đơn hàng"
+    },
+    "foot": {
+      "email": "Gửi email",
+      "ticket": "Tạo ticket",
+      "booking": "Đặt lịch"
+    },
+    "spark": "✦",
+    "aiBadge": "AI",
+    "signalUp": "▲ ",
+    "signalWarn": "⚠ "
+  },
+  "group": {
+    "title": "Thông tin nhóm",
+    "close": "Đóng thông tin nhóm",
+    "members": "{n} thành viên",
+    "joinLink": "Link tham gia nhóm",
+    "media": "Ảnh/Video",
+    "files": "File",
+    "links": "Link",
+    "hide": "Ẩn trò chuyện",
+    "clear": "Xoá lịch sử trò chuyện",
+    "acts": {
+      "mute": "Tắt thông báo",
+      "pin": "Ghim hội thoại",
+      "add": "Thêm thành viên",
+      "manage": "Quản lý nhóm"
+    },
+    "ai": {
+      "title": "AI trong nhóm",
+      "mention": "Khi được @",
+      "auto": "Tự động",
+      "off": "Tắt",
+      "rules": "Quy định nhóm cho AI",
+      "rulesSub": "4 quy định · AI đọc trước khi trả lời"
+    },
+    "board": "Bảng tin nhóm",
+    "pinned": "Tin nhắn đã ghim",
+    "notes": "Ghi chú nội bộ",
+    "notesSub": "Chỉ nhân viên thấy",
+    "mediaCount": "{n} mục",
+    "seeAll": "Xem tất cả",
+    "caretOpen": "▾",
+    "caretClosed": "▸"
+  },
+  "connect": {
+    "eyebrow": "Kết nối kênh mới",
+    "title": "Chọn kênh bạn muốn thêm vào AppChat",
+    "meta": "{n} kênh · Omnichannel",
+    "close": "Đóng",
+    "soon": "Sắp có",
+    "time": "⏱ {time}",
+    "cats": {
+      "all": "Tất cả kênh",
+      "social": "Social & Messaging",
+      "web": "Web · Email"
+    },
+    "hintTitle": "AppChat AI gợi ý",
+    "hintBody": "Ngành của bạn (Spa/Beauty) hoạt động mạnh trên <b>Zalo</b> — kết nối <b>Zalo cá nhân</b> và <b>Live chat website</b> trước để AI bắt đầu xử lý hội thoại.",
+    "ready": "Sẵn sàng",
+    "industries": {
+      "fashion": "Thời trang",
+      "beauty": "Mỹ phẩm / Sức khoẻ",
+      "fnb": "F&B"
+    },
+    "byIndustry": "Theo ngành"
+  },
+  "ai": {
+    "title": "Trợ lý AI",
+    "sub": "Phiên bản thu nhỏ · hỗ trợ ngay trong hội thoại",
+    "close": "Đóng",
+    "hello": "Em đang xem hội thoại với <b>{name}</b>. Em có thể tóm tắt, soạn trả lời, tạo báo giá hoặc đặt lịch ngay. Anh cần gì ạ?",
+    "ask": "Hỏi Trợ lý AI về hội thoại này…",
+    "send": "Gửi",
+    "openFull": "Mở Trợ lý AI đầy đủ →",
+    "sections": {
+      "quick": "Hành động nhanh",
+      "cowork": "AI Cowork",
+      "move": "Chuyển"
+    },
+    "cmds": {
+      "new": "Tạo hội thoại mới",
+      "invite": "Mời thành viên vào hội thoại",
+      "meet": "Đặt lịch hẹn cho khách",
+      "summary": "Tóm tắt 30 tin cuối",
+      "draft": "Soạn phản hồi gợi ý",
+      "translate": "Dịch sang tiếng Anh",
+      "intent": "Phát hiện ý định khách",
+      "mention": "Chuyển sang Tab @Mention",
+      "assign": "Chuyển agent · @Trâm",
+      "vip": "Gắn tag VIP"
+    }
+  }
+}

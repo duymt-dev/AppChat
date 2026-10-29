@@ -19,7 +19,7 @@ export const useRailFootStyles = createStyles(({ css }) => ({
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
     position: relative;
     cursor: pointer;
     border: none;
@@ -36,10 +36,10 @@ export const useRailFootStyles = createStyles(({ css }) => ({
   dot: css`
     position: absolute;
     top: 2px;
-    right: 15px;
+    right: 16px;
     width: 7px;
     height: 7px;
-    border-radius: 4px;
+    border-radius: ${radius.r4}px;
     background: ${color.danger};
     border: 2px solid ${color.text};
   `,
@@ -48,25 +48,25 @@ export const useRailFootStyles = createStyles(({ css }) => ({
     background: ${gradient.news};
     border: 1px solid ${color.brandBorder};
     border-radius: ${radius.xxl}px;
-    padding: 14px;
+    padding: 12px;
     box-sizing: border-box;
     margin-bottom: 4px;
   `,
   newsTitle: css`
-    font-size: 14.9px;
+    font-size: ${font.scale.s15}px;
     font-weight: ${font.weight.heavy};
     color: ${color.text};
     line-height: 1.25;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
   `,
   newsBody: css`
     font-size: ${font.size.small}px;
     color: ${color.text3};
     line-height: 1.5;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   `,
   newsLink: css`
-    font-size: 13.2px;
+    font-size: ${font.scale.s13}px;
     font-weight: ${font.weight.bold};
     color: ${color.brandInk};
     cursor: pointer;
@@ -79,7 +79,7 @@ export const useRailFootStyles = createStyles(({ css }) => ({
     & span {
       width: 7px;
       height: 7px;
-      border-radius: 4px;
+      border-radius: ${radius.r4}px;
       background: ${color.brandDot};
     }
     & span[data-on] {
@@ -91,7 +91,7 @@ export const useRailFootStyles = createStyles(({ css }) => ({
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 6px;
     height: 30px;
     padding: 0 12px;
     border-radius: ${radius.pill}px;
@@ -108,7 +108,7 @@ export const useRailFootStyles = createStyles(({ css }) => ({
     & i {
       width: 6px;
       height: 6px;
-      border-radius: 4px;
+      border-radius: ${radius.r4}px;
       flex-shrink: 0;
       background: ${color.brand};
     }
@@ -151,7 +151,7 @@ export const useRailFootStyles = createStyles(({ css }) => ({
   me: css`
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     cursor: pointer;
     padding: 4px;
     width: 100%;
@@ -176,7 +176,7 @@ export const useRailFootStyles = createStyles(({ css }) => ({
   `,
   meName: css`
     display: block;
-    font-size: 13.8px;
+    font-size: ${font.scale.s14}px;
     font-weight: ${font.weight.bold};
     color: ${color.white};
     white-space: nowrap;

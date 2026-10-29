@@ -31,7 +31,7 @@ Dựng toàn bộ frontend `apps/web` cho mọi màn P0 + P1 **giống prototype
 
 | Pha | Màn / phần | Prototype | Ghi chú |
 |-----|-----------|-----------|---------|
-| F0 | Scaffold: root workspace (đúng Blueprint §1.1), `apps/web`, `packages/{ui,shared,actions}`; `theme.ts` từ token prototype (L39–392); icon sprite → `packages/ui/icons`; AppShell + NavRail + NavFlyout + MobileTabBar + AssistantDock khung; `shared/*`; next-intl vi + en; lint (size, boundaries, i18next); `tools/parity` + `parity.manifest.ts` + baseline; e2e harness 390 | L637–1078, L8525 | Gate: shell parity < 5%, CI lint / typecheck / test xanh |
+| F0 | Scaffold: root workspace (đúng Blueprint §1.1), `apps/web`, `packages/{ui,shared,actions}`; `theme.ts` từ token prototype (L39–392) theo thang đều D41; icon sprite → `packages/ui/icons`; AppShell + NavRail + NavFlyout + MobileTabBar + AssistantDock khung; `shared/*`; next-intl vi + en; lint (size, boundaries, i18next); `tools/parity` + `parity.manifest.ts` + baseline; e2e harness 390 | L637–1078, L8525 | Gate: shell parity < 5%, CI lint / typecheck / test xanh |
 | F1 | Auth: login, register, OTP, forgot, reset · popup khai báo DN · màn chào mừng trial · chờ khởi tạo workspace | L459–630, L758–790 | OTP Email (ngoại lệ D-OTP), ẩn social login |
 | F2 | Dashboard · Hộp thư (3 cột, folders, chat, composer, panel 360°, chế độ AI, handoff) · Khách hàng (bảng / kanban, 360°, phụ trách + đồng phụ trách, xin chia sẻ, chuyển phụ trách) | L1079, L1505, L2451 | D32 hộp mới không đo pixel |
 | F3 | Trợ lý AI (page + dock, Chat / Cowork, plan / confirm / result card) · AI Agents (list, template gallery, builder, tạo bằng Trợ lý, phiên bản, test chat) · Chờ duyệt · Nhật ký hành động | L1178, L2227 | Mức AI thay tên model (D29) |
@@ -65,7 +65,7 @@ Tiêu chí đúng-sai (3, 4, 5, 6) không có ngưỡng thấp hơn 100%. Ngư�
 - F0 dựng luôn `.github/workflows/ci.yml`, `parity.yml`, `e2e.yml`, `full.yml` theo standard.
 - **Mỗi màn xong:** chạy parity + e2e mobile + lint / test **của phần bị ảnh hưởng** → commit (một màn một commit trở lên) → cập nhật dòng tương ứng trong `coding-packs/reports/goal-fe-prototype.md` (đã liệt kê sẵn 135 dòng F0–F7; ID dòng = id trong `parity.manifest.ts`; điền TT, diffRatio, Mobile 390, Commit) và cập nhật bảng Tổng quan tiến độ.
 - **Hết mỗi pha:** Completion Report theo `BUILDER-HANDOFF.md` vào cùng file report; `git status --short` sạch; báo SHA.
-- Màn không xuống được 5% sau khi đã lấy đúng giá trị từ prototype → ghi vùng lệch + ảnh diff + nguyên nhân, escalation L2 (không tự nới ngưỡng, không tự thêm ngoại lệ).
+- Màn không xuống được 5% sau khi đã lấy giá trị prototype theo thang token D41 → ghi vùng lệch + ảnh diff + nguyên nhân, escalation L2 (không tự nới ngưỡng, không tự thêm ngoại lệ).
 - Spec thiếu / mâu thuẫn → L2. Muốn đổi luật nghiệp vụ, quyền, nhãn pháp lý → L3.
 
 ## Khi backend xong (ngoài goal này)

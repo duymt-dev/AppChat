@@ -14,7 +14,7 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     width: 560px;
     max-width: 100%;
     background: ${color.surface};
-    border-radius: 20px;
+    border-radius: ${radius.r20}px;
     box-shadow: ${shadow.welcomeCard};
     overflow: hidden;
     ${responsive.md} {
@@ -34,17 +34,17 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
   hero: css`
     position: relative;
     background: ${gradient.trialHero};
-    padding: 34px 34px 30px;
+    padding: 32px 32px 28px;
     color: ${color.white};
     overflow: hidden;
     ${responsive.md} {
-      padding: 34px 20px 30px;
+      padding: 32px 20px 28px;
     }
   `,
   ring: css`
     position: absolute;
-    right: -70px;
-    top: -70px;
+    right: -68px;
+    top: -68px;
     width: 250px;
     height: 250px;
     border: 1px solid ${color.mintRing};
@@ -57,15 +57,15 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 12px 5px 7px;
+    padding: 4px 12px 4px 6px;
     border: 1px solid ${color.mintLine};
     border-radius: ${radius.pill}px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   mark: css`
     width: 20px;
     height: 20px;
-    border-radius: 6px;
+    border-radius: ${radius.r6}px;
     background: ${color.brand};
     display: grid;
     place-items: center;
@@ -85,26 +85,26 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     letter-spacing: -0.025em;
     line-height: 1.18;
     ${responsive.md} {
-      font-size: 21px;
+      font-size: ${font.scale.s20}px;
     }
   `,
   heroBody: css`
     font-size: ${font.size.lead2}px;
     line-height: 1.6;
-    margin-top: 10px;
+    margin-top: 8px;
     opacity: 0.92;
   `,
   body: css`
-    padding: 26px 34px 30px;
+    padding: 24px 32px 28px;
     ${responsive.md} {
-      padding: 26px 20px 30px;
+      padding: 24px 20px 28px;
     }
   `,
   box: css`
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
+    gap: 12px;
+    padding: 16px 16px;
     background: ${color.brandBg};
     border: 1px solid ${color.brandLine};
     border-radius: ${radius.xl}px;
@@ -140,13 +140,13 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
   list: css`
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin: 20px 0 22px;
+    gap: 8px;
+    margin: 20px 0 20px;
   `,
   perk: css`
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     font-size: ${font.size.perk}px;
     color: ${color.text2};
     line-height: 1.5;
@@ -159,7 +159,7 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     height: 48px;
     background: ${color.brand};
     color: ${color.white};
-    border-radius: 11px;
+    border-radius: ${radius.r10}px;
     font-weight: ${font.weight.bold};
     font-size: ${font.size.input}px;
     cursor: pointer;
@@ -174,11 +174,11 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
   ghost: css`
     width: 100%;
     height: 44px;
-    margin-top: 10px;
+    margin-top: 8px;
     border: 1px solid ${color.border};
     background: ${color.surface};
     color: ${color.textBtn2};
-    border-radius: 11px;
+    border-radius: ${radius.r10}px;
     font-weight: ${font.weight.bold};
     font-size: ${font.size.body}px;
     cursor: pointer;
@@ -191,7 +191,7 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     text-align: center;
     font-size: ${font.size.caption}px;
     color: ${color.text4};
-    margin-top: 14px;
+    margin-top: 12px;
     line-height: 1.5;
   `,
   close: css`
@@ -200,7 +200,7 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     top: 16px;
     width: 32px;
     height: 32px;
-    border-radius: 9px;
+    border-radius: ${radius.r8}px;
     display: grid;
     place-items: center;
     cursor: pointer;
@@ -215,10 +215,10 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     }
   `,
   exHead: css`
-    padding: 30px 34px 26px;
+    padding: 28px 32px 24px;
     border-bottom: 1px solid ${color.divider};
     ${responsive.md} {
-      padding: 30px 20px 26px;
+      padding: 28px 20px 24px;
     }
   `,
   exIcon: css`
@@ -229,7 +229,7 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     border: 1.5px solid ${color.dangerSoftBorder};
     display: grid;
     place-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   exTitle: css`
     font-size: ${font.size.expired}px;
@@ -238,42 +238,42 @@ export const useTrialStyles = createStyles(({ css, responsive }) => ({
     color: ${color.text};
     line-height: 1.22;
     ${responsive.md} {
-      font-size: 20px;
+      font-size: ${font.scale.s20}px;
     }
   `,
   exBody: css`
     font-size: ${font.size.body}px;
     color: ${color.text3};
     line-height: 1.62;
-    margin-top: 10px;
+    margin-top: 8px;
     & b {
       color: ${color.text};
     }
   `,
   exPad: css`
-    padding: 22px 34px 28px;
+    padding: 20px 32px 28px;
     ${responsive.md} {
-      padding: 22px 20px 28px;
+      padding: 20px 20px 28px;
     }
   `,
   locks: css`
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 8px;
     margin-bottom: 20px;
   `,
   lock: css`
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
     font-size: ${font.size.lock}px;
     color: ${color.text3};
     line-height: 1.5;
     & > svg {
-      margin-top: 3px;
+      margin-top: 2px;
     }
   `,
   footTight: css`
-    margin-top: 13px;
+    margin-top: 12px;
   `,
 }));

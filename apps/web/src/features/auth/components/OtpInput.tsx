@@ -9,7 +9,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
   row: css`
     display: flex;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   `,
   cell: css`
     flex: 1;
@@ -29,7 +29,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
     }
     ${responsive.md} {
       height: 48px;
-      font-size: 19px;
+      font-size: ${font.scale.s18}px;
       border-radius: ${radius.md}px;
     }
   `,

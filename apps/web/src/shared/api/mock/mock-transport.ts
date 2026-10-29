@@ -4,6 +4,8 @@ import { ApiRequestError, can, ROLE_DEFS, type PermissionKey } from '@appchat/sh
 import type { Transport } from '../transport';
 import { mockHandlers } from './handlers';
 import { mockRoutes } from './routes';
+import { inboxParamRoute } from './domains/inbox';
+import { customersParamRoute } from './domains/customers';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 
@@ -27,7 +29,7 @@ export const mockTransport: Transport = {
   async get(path, params) {
     const tax = path.match(/^\/business-lookup\/tax\/(.+)$/);
     if (tax) return structuredClone(taxLookup(mockDb(), decodeURIComponent(tax[1]!))) as never;
-    const route = mockRoutes[path];
+    const route = mockRoutes[path] ?? customersParamRoute(path) ?? inboxParamRoute(path);
     if (!route) fail(404, 'NOT_FOUND', `mock route ${path}`);
     return structuredClone(route!(mockDb(), params ?? {})) as never;
   },

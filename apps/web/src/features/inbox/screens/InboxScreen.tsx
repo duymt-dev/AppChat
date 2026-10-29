@@ -1,0 +1,62 @@
+// Hộp thư (orchestrator) — prototype L1505–2226: tab trên · rail thư mục · danh sách · khung chat · hồ sơ 360° / thông tin nhóm · modal.
+// < md: một cột — danh sách hoặc khung chat (nút ‹ quay lại).
+'use client';
+import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
+import { Empty } from 'antd';
+import { PageStates, stateOf } from '@/shared/states/PageStates';
+import { useInboxStyles } from '../styles/inbox.styles';
+import { useInboxUi } from '../inbox-store';
+import { accountsQuery, channelsQuery, conversationsQuery, countsQuery } from '../api';
+import { ChatPanel } from '../components/ChatPanel';
+import { ConnectChannelModal } from '../components/ConnectChannelModal';
+import { ConversationList } from '../components/ConversationList';
+import { FolderRail } from '../components/FolderRail';
+import { GroupInfoPanel } from '../components/GroupInfoPanel';
+import { InboxAiModal } from '../components/InboxAiModal';
+import { Panel360 } from '../components/Panel360';
+import { TopTabs } from '../components/TopTabs';
+
+export function InboxScreen() {
+  const t = useTranslations('inbox');
+  const { styles, cx } = useInboxStyles();
+  const ui = useInboxUi();
+  const list = useQuery(conversationsQuery(ui.channel));
+  const counts = useQuery(countsQuery()).data;
+  const channels = useQuery(channelsQuery()).data;
+  const accounts = useQuery(accountsQuery()).data ?? [];
+  const convs = list.data?.data ?? [];
+  const conv = convs.find((c) => c.id === ui.selectedId) ?? convs[0];
+  const unread = convs.reduce((n, c) => n + c.unread, 0);
+  const customer = conv ? (conv.kind === 'group' ? conv.title : conv.title.split(' — ')[0]!) : '';
+
+  return (
+    <div className={styles.root} data-testid="inbox">
+      <TopTabs counts={counts} />
+      <div className={styles.body}>
+        {ui.folderRail && counts ? <FolderRail counts={counts} channels={channels} /> : null}
+        <PageStates state={stateOf(list)} onRetry={() => void list.refetch()}>
+          <ConversationList
+            conversations={convs}
+            channels={channels}
+            accounts={accounts}
+            unreadTotal={unread}
+            className={cx(ui.mobileChat && conv && styles.hideMobile)}
+          />
+          {conv ? (
+            <>
+              <ChatPanel key={conv.id} conv={conv} channel={channels?.[conv.channel]} className={cx(!ui.mobileChat && styles.hideMobile)} />
+              {ui.show360 ? conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} /> : null : null}
+            </>
+          ) : (
+            <div className={cx(styles.empty, styles.hideMobile)} data-testid="inbox-empty">
+              <Empty description={t('emptyChat')} />
+            </div>
+          )}
+        </PageStates>
+      </div>
+      {ui.modal === 'connect' ? <ConnectChannelModal /> : null}
+      {ui.modal === 'ai' ? <InboxAiModal customer={customer} /> : null}
+    </div>
+  );
+}

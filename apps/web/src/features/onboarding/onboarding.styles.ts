@@ -44,9 +44,9 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     }
   `,
   pad: css`
-    padding: 22px 26px 12px;
+    padding: 20px 24px 12px;
     ${responsive.md} {
-      padding: 22px 20px 20px;
+      padding: 20px 20px 20px;
     }
   `,
   prog: css`
@@ -57,7 +57,7 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
   progBar: css`
     flex: 1;
     height: 5px;
-    border-radius: 3px;
+    border-radius: ${radius.r4}px;
     background: ${color.border};
   `,
   progOn: css`
@@ -70,7 +70,7 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     margin-bottom: 6px;
     color: ${color.text};
     ${responsive.md} {
-      font-size: 22px;
+      font-size: ${font.scale.s22}px;
     }
   `,
   sub: css`
@@ -84,11 +84,11 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
   types: css`
     display: flex;
     gap: 8px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   `,
   type: css`
     flex: 1;
-    padding: 12px 10px;
+    padding: 12px 8px;
     border-radius: ${radius.lg}px;
     text-align: left;
     cursor: pointer;
@@ -130,16 +130,16 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     border-radius: ${radius.md}px;
     border: 1px solid ${color.border};
     background: ${color.bg};
-    padding: 0 14px;
+    padding: 0 12px;
     font-size: ${font.size.input}px;
     outline: none;
     font-family: inherit;
     color: ${color.text};
     box-sizing: border-box;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     ${responsive.md} {
       min-height: 48px;
-      font-size: 16px;
+      font-size: ${font.scale.s16}px;
     }
   `,
   inputBare: css`
@@ -150,7 +150,7 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
   `,
   textarea: css`
     height: 100px;
-    padding: 12px 14px;
+    padding: 12px 12px;
     resize: none;
     line-height: 1.55;
     margin-bottom: 20px;
@@ -179,11 +179,11 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     display: flex;
     gap: 8px;
     align-items: center;
-    padding: 9px 12px;
+    padding: 8px 12px;
     background: ${color.brandBg};
     border: 1px solid ${color.brandLine3};
-    border-radius: 9px;
-    margin-bottom: 14px;
+    border-radius: ${radius.r8}px;
+    margin-bottom: 12px;
     font-size: ${font.size.hint}px;
     color: ${color.brandInkDeep};
   `,
@@ -195,7 +195,7 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
   pair: css`
     display: flex;
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     & > div {
       flex: 1;
     }
@@ -211,7 +211,7 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     height: 48px;
     background: ${color.brand};
     color: ${color.white};
-    border-radius: 11px;
+    border-radius: ${radius.r10}px;
     font-weight: ${font.weight.bold};
     font-size: ${font.size.btn}px;
     cursor: pointer;
@@ -234,7 +234,7 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     font-weight: ${font.weight.semibold};
     color: ${color.text3};
     cursor: pointer;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     background: none;
     border: none;
     padding: 0;
@@ -244,6 +244,6 @@ export const useOnbStyles = createStyles(({ css, responsive }) => ({
     text-align: center;
     font-size: ${font.size.noteSm}px;
     color: ${color.text4};
-    margin-top: 10px;
+    margin-top: 8px;
   `,
 }));

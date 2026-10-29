@@ -41,7 +41,7 @@ export const useShellStyles = createStyles(({ css, responsive }) => ({
     background: ${color.rail};
     display: flex;
     flex-direction: column;
-    padding: 12px 0 10px;
+    padding: 12px 0 8px;
     flex-shrink: 0;
     position: relative;
     z-index: ${z.rail};
@@ -62,8 +62,8 @@ export const useShellStyles = createStyles(({ css, responsive }) => ({
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 14px 10px;
+    gap: 8px;
+    padding: 0 12px 8px;
     box-sizing: border-box;
   `,
   brandCol: css`
@@ -72,7 +72,7 @@ export const useShellStyles = createStyles(({ css, responsive }) => ({
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    padding: 0 0 10px;
+    padding: 0 0 8px;
     box-sizing: border-box;
   `,
   brandText: css`
@@ -113,7 +113,7 @@ export const useShellStyles = createStyles(({ css, responsive }) => ({
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
     min-height: 0;
     box-sizing: border-box;
     scrollbar-width: none;
@@ -183,7 +183,7 @@ export const useShellStyles = createStyles(({ css, responsive }) => ({
     align-items: center;
     justify-content: flex-start;
     gap: 12px;
-    padding: 0 14px;
+    padding: 0 12px;
   `,
   naviActive: css`
     background: ${color.railActiveBg};
@@ -214,8 +214,8 @@ export const useShellStyles = createStyles(({ css, responsive }) => ({
     color: ${color.white};
     font-size: ${font.size.xxs}px;
     font-weight: ${font.weight.bold};
-    border-radius: 7px;
-    padding: 1px 5px;
+    border-radius: ${radius.r6}px;
+    padding: 2px 4px;
     line-height: 1.5;
   `,
 }));
