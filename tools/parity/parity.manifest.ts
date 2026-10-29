@@ -1283,7 +1283,7 @@ export const MANIFEST: ParityEntry[] = [
         const main = t?.closest<HTMLElement>('.appscroll');
         if (!main) return;
         const kids = [...main.children] as HTMLElement[];
-        kids[0].style.paddingBottom = '0px';
+        kids[0]!.style.paddingBottom = '0px';
         for (const el of kids.slice(1)) {
           el.style.marginLeft = '36px';
           el.style.marginRight = '36px';
