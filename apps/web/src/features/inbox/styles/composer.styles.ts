@@ -39,10 +39,10 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
     cursor: pointer;
     font-family: inherit;
     text-align: left;
+    white-space: nowrap;
+    flex-shrink: 0;
     ${responsive.md} {
       min-height: ${layout.touch}px;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
   `,
   modeOn: css`
@@ -68,10 +68,10 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
     cursor: pointer;
     font-family: inherit;
     text-align: left;
+    white-space: nowrap;
+    flex-shrink: 0;
     ${responsive.md} {
       min-height: ${layout.touch}px;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
   `,
   toolOn: css`
