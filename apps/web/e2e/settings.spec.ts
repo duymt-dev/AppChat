@@ -98,4 +98,84 @@ test.describe('settings', () => {
     await expect(page.locator('[data-ws]').first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
+  test('kênh: kênh chưa có manifest "Sắp có", ngắt kết nối email, lọc Chưa kết nối, kết nối lại (email sai bị chặn)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('channels'));
+    await expect(page.getByTestId('st-ch-facebook')).toBeDisabled();
+    await page.getByTestId('st-ch-f-on').click();
+    await expect(page.locator('[data-channel]')).toHaveCount(3);
+    await page.getByTestId('st-ch-email').click();
+    await page.getByTestId('st-ch-disconnect').click();
+    await expect(page.locator('[data-channel]')).toHaveCount(2);
+    await page.getByTestId('st-ch-f-off').click();
+    await expect(page.locator('[data-channel="email"]')).toHaveCount(1);
+    await page.getByTestId('st-ch-f-all').click();
+    await page.getByTestId('st-ch-email').click();
+    const m = page.getByTestId('st-ch-modal');
+    await m.getByTestId('st-ch-email').fill('sai');
+    await m.getByTestId('st-ch-modal-save').click();
+    await expect(m).toBeVisible();
+    await m.getByTestId('st-ch-email').fill('hotro@spa.vn');
+    await m.getByTestId('st-ch-modal-save').click();
+    await expect(m).toHaveCount(0);
+    await page.getByTestId('st-ch-f-on').click();
+    await expect(page.locator('[data-channel]')).toHaveCount(3);
+  });
+
+  test('tích hợp: lọc nhóm, kết nối Casso (thiếu trường bị chặn), Đăng ký quan tâm thẻ "Sắp có"', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('integrations'));
+    await page.getByTestId('st-int-cat-payments').click();
+    await expect(page.locator('[data-connector]')).toHaveCount(2);
+    await page.locator('[data-connector="casso"]').click();
+    const m = page.getByTestId('st-int-modal');
+    await m.getByTestId('st-int-save').click();
+    await expect(m).toBeVisible();
+    await m.getByTestId('st-int-f-api_key').fill('ck_live_123');
+    await m.getByTestId('st-int-save').click();
+    await expect(m).toHaveCount(0);
+    await expect(page.locator('[data-connector="casso"]')).toContainText('Thiết lập');
+    await page.getByTestId('st-int-cat-all').click();
+    await page.getByTestId('st-int-interest-kiotviet').click();
+    await expect(page.getByTestId('st-int-interest-kiotviet')).toBeDisabled();
+  });
+
+  test('widget: bật nút hành động hiện ở xem trước, đổi Agent / chế độ, sửa lời chào', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('web_widget'));
+    const pv = page.getByTestId('st-wg-preview');
+    await expect(pv).not.toContainText('Theo dõi đơn');
+    await page.getByTestId('st-wg-act-order').click();
+    await expect(pv).toContainText('Theo dõi đơn');
+    await page.getByTestId('st-wg-agent').filter({ hasText: 'Support Agent' }).click();
+    await expect(pv).toContainText('Support Agent (AI)');
+    await page.getByTestId('st-wg-mode-auto').click();
+    await page.getByTestId('st-wg-greet').fill('Chào bạn, Spa nghe ạ');
+    await page.getByTestId('st-wg-name').click();
+    await expect(pv).toContainText('Chào bạn, Spa nghe ạ');
+    await page.getByTestId('st-wg-ai-on').click();
+    await expect(page.getByTestId('st-wg-agent')).toHaveCount(0);
+    await page.getByTestId('st-wg-launcher').click();
+    await expect(pv).not.toContainText('Xin chào! 👋');
+  });
+
+  test('390: kênh, tích hợp, widget — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
+    test.skip(!isMobile(page), 'chỉ mobile');
+    await page.goto(go('channels'));
+    await expect(page.locator('[data-channel]').first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.getByTestId('st-ch-email').click();
+    await expect(page.getByTestId('st-ch-modal')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.goto(go('integrations'));
+    await expect(page.locator('[data-connector]').first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.locator('[data-connector="casso"]').click();
+    await expect(page.getByTestId('st-int-modal')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.goto(go('web_widget'));
+    await expect(page.getByTestId('st-wg-preview')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await expectTouchTargets(page.getByTestId('st-wg-aichat'));
+  });
 });

@@ -72,6 +72,15 @@ const settingsProto = (p: Page) =>
       else if (out.some((l) => text === l || (text.startsWith(l) && /^(NEW|PRO|\d+)?$/.test(text.slice(l.length))))) el.remove();
     }
   }, SETTINGS_OUT);
+/** Nền tảng kết nối: thẻ Tổng đài (module OUT, không có manifest — provider-ports.md) gỡ khỏi prototype. */
+const integProto = async (p: Page) => {
+  await settingsProto(p);
+  await p.evaluate(() => {
+    for (const el of document.querySelectorAll<HTMLElement>('div[style*="min-height: 188px"]')) {
+      if (el.textContent?.includes('Tổng đài (Call Center)')) el.remove();
+    }
+  });
+};
 const ST_MAIN = { x: 360, y: 64, width: 1080, height: 836 };
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
@@ -1167,5 +1176,64 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-role]',
     proto: settingsProto,
     clip: ST_MAIN,
+  },
+  {
+    id: 'settings:channels',
+    route: '/settings/channels',
+    protoStorage: settings('channels'),
+    appWait: '[data-channel]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    id: 'settings:web-widget',
+    route: '/settings/web_widget',
+    protoStorage: settings('web_widget'),
+    appWait: '[data-testid="st-wg-preview"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+    mask: [
+      {
+        x: 1044,
+        y: 250,
+        width: 360,
+        height: 650,
+        reason: 'Prototype L7210–7254: sc-if khối "Bổ sung kiến thức" đóng thừa </div></sc-if> làm cột xem trước vỡ (chỉ còn nhãn "Mã nhúng"); app dựng cột xem trước 360 theo L7261–7298',
+      },
+    ],
+  },
+  {
+    id: 'settings:integrations',
+    route: '/settings/integrations',
+    protoStorage: settings('integrations'),
+    appWait: '[data-connector]',
+    proto: integProto,
+    clip: ST_MAIN,
+    mask: [
+      {
+        x: 396,
+        y: 616,
+        width: 1008,
+        height: 284,
+        reason: 'D28: chỉ connector có manifest — nhóm Marketing bỏ SMS / ZBS (P2 / OUT), thêm SePay / Casso; thẻ "Sắp có" + Đăng ký quan tâm',
+      },
+    ],
+  },
+  {
+    id: 'settings:integrations-connect',
+    route: '/settings/integrations',
+    protoStorage: settings('integrations'),
+    appWait: '[data-connector]',
+    proto: async (p) => {
+      await integProto(p);
+      await p.getByText('Google Sheets', { exact: true }).first().click();
+      await p.getByText('Tích hợp & đồng bộ dữ liệu').waitFor();
+    },
+    app: async (p) => {
+      await p.locator('[data-connector="casso"]').click();
+      await p.getByTestId('st-int-modal').waitFor();
+    },
+    clipTo: { proto: 'div[style*="width: 440px"]', app: '[data-testid="st-int-modal"] [role="dialog"]' },
+    mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
   },
 ];

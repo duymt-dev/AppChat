@@ -16,6 +16,7 @@ import { ticketsRoutes } from './domains/tickets';
 import { marketingRoutes } from './domains/marketing';
 import { loyaltyRoutes } from './domains/loyalty';
 import { settingsRoutes } from './domains/settings';
+import { settingsAppsRoutes } from './domains/settings-apps';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
@@ -63,4 +64,5 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...marketingRoutes,
   ...loyaltyRoutes,
   ...settingsRoutes,
+  ...settingsAppsRoutes,
 };

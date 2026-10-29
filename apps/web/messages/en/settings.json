@@ -266,5 +266,221 @@
       "privacy_erase": "Erase personal data"
     },
     "create": "Create role"
+  },
+  "channels": {
+    "filter": {
+      "all": "All",
+      "on": "Connected",
+      "off": "Not connected"
+    },
+    "list": "List",
+    "cards": "Cards",
+    "col": {
+      "channel": "Channel",
+      "status": "Status",
+      "convs": "Conversations",
+      "frt": "FRT",
+      "agent": "AI Agent"
+    },
+    "on": "Connected",
+    "off": "Not connected",
+    "notLinked": "Not linked",
+    "soonD": "Coming soon — connector in progress",
+    "manage": "Manage",
+    "connect": "Connect",
+    "link": "Link",
+    "soon": "Coming soon",
+    "group": {
+      "msg": "Business messaging",
+      "web": "Website & email",
+      "shop": "E-commerce"
+    },
+    "badge": {
+      "on": "Connected",
+      "pop": "Popular",
+      "beta": "beta"
+    },
+    "desc": {
+      "zalo_oa": "Connect a Zalo Official Account to sell and support on Zalo.",
+      "zalo_personal": "Connect personal Zalo to reply to your regular customers.",
+      "facebook": "Connect a Facebook Page to engage your customers.",
+      "messenger": "Connect Facebook Messenger to engage your customers.",
+      "instagram": "Connect Instagram to answer DMs and build relationships.",
+      "whatsapp": "Connect WhatsApp to support customers anytime.",
+      "whatsapp_business": "Connect the WhatsApp Business API via Facebook for seamless support.",
+      "telegram": "Connect a Telegram bot for real-time support.",
+      "tiktok_messaging": "Connect TikTok Business Messaging to reach new audiences.",
+      "viber": "Connect a Viber bot to support customers on Viber.",
+      "line": "Connect a LINE Official Account for timely support.",
+      "wechat": "Connect an official WeChat account to engage customers.",
+      "email": "Connect a mailbox to manage all communication in one place.",
+      "tiktok_shop": "Connect TikTok Shop to handle orders and messages.",
+      "shopee": "Connect Shopee to sync orders and chat with buyers.",
+      "webchat": "Embed a chat widget to talk to website visitors in real time."
+    },
+    "modal": {
+      "title": "Link {n}",
+      "manageTitle": "Manage {n}",
+      "cancel": "Cancel",
+      "close": "Close",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "stats": "{n} conversations · FRT {f}",
+      "qr": "Zalo login QR",
+      "qrD": "Open Zalo on your phone → scan the QR to sign in. New messages arrive in the inbox.",
+      "label": "Account label",
+      "labelPh": "e.g. Sales Zalo",
+      "scanned": "I have scanned",
+      "address": "Mailbox address",
+      "addressPh": "cskh@doanhnghiep.vn",
+      "addressD": "AppChat gives you a forwarding address; mail sent here lands in the inbox.",
+      "connect": "Connect",
+      "errEmail": "Invalid email",
+      "openWidget": "Open widget settings",
+      "widgetD": "Website chat uses an embedded widget: set the greeting, AI agent and embed code in Website AI widget."
+    }
+  },
+  "integrations": {
+    "heroT": "App integrations",
+    "heroS": "Connect AppChat with CRM, e-commerce, payments, ERP and productivity tools — automate the whole data flow.",
+    "group": {
+      "all": "All",
+      "channels_studio": "Channels & studio",
+      "marketing": "Marketing",
+      "crm": "CRM",
+      "commerce": "E-commerce",
+      "payments": "Payments",
+      "productivity": "Productivity",
+      "erp": "ERP & operations"
+    },
+    "desc": {
+      "web_widget": "Let AI answer website visitors — embed the chat, pick the on-duty agent, tone and data to collect.",
+      "brevo": "Marketing and system email via Brevo — contact lists sync automatically.",
+      "smtp": "Send email through Gmail / Google Workspace (SMTP).",
+      "mailgun": "High-volume email via the Mailgun API with open/click tracking.",
+      "sepay": "Automatic bank reconciliation: incoming transfers match payment requests by reference.",
+      "casso": "Bank transaction reconciliation via Casso — backup for SePay.",
+      "kiotviet": "Sync KiotViet products, stock and orders into sales conversations.",
+      "sapo": "Sync Sapo orders, stock and customers into AppChat.",
+      "haravan": "Connect Haravan to look up and close orders in chat.",
+      "woocommerce": "WooCommerce: look up WordPress orders and products in chat.",
+      "google_sheets": "Export / sync leads and reports to Google Sheets.",
+      "gcs": "Store workspace files, media and backups on Google Cloud Storage.",
+      "misa_meinvoice": "Issue MISA meInvoice e-invoices from AppChat orders.",
+      "matbao_minvoice": "Issue Mắt Bão M-Invoice e-invoices (Decree 123/2020).",
+      "vnpt_invoice": "Issue VNPT e-invoices.",
+      "viettel_sinvoice": "Issue Viettel S-Invoice e-invoices.",
+      "odoo": "Two-way real-time sync with Odoo CRM / Sales / Inventory.",
+      "fast": "Connect Fast accounting — sync orders and receivables."
+    },
+    "connected": "Connected",
+    "enabled": "Enabled",
+    "soonBadge": "Coming soon",
+    "connect": "Connect",
+    "setup": "Set up",
+    "interest": "Notify me",
+    "interested": "Registered",
+    "field": {
+      "api_key": "API key / Token",
+      "account_number": "Receiving account number",
+      "host": "SMTP host",
+      "username": "Username",
+      "password": "App password"
+    },
+    "modal": {
+      "title": "Connect {n}",
+      "sub": "Integration & data sync",
+      "ph": "Paste the key…",
+      "cancel": "Cancel",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "connectedD": "Connected and syncing. Disconnecting stops sync; synced data is kept."
+    }
+  },
+  "widget": {
+    "cfgT": "Settings · Web widget",
+    "name": "Agent name shown on the widget",
+    "namePh": "e.g. AppChat Assistant",
+    "greet": "Greeting",
+    "aiChat": "AI chat inside the widget",
+    "aiChatD": "Visitors message right away, AI answers 24/7",
+    "prechat": "Pre-chat form",
+    "prechatD": "Ask name + phone → create a CRM lead",
+    "actions": "Action buttons",
+    "addAction": "+ Add button",
+    "addActionSoon": "Custom action buttons are coming in a later release",
+    "edit": "Edit",
+    "del": "Delete",
+    "act": {
+      "order": "Track order",
+      "faq": "FAQ"
+    },
+    "actType": {
+      "order": "Order lookup",
+      "faq": "Frequently asked questions"
+    },
+    "embed": "Website embed code",
+    "copy": "Copy",
+    "copied": "Embed code copied",
+    "kpi": {
+      "clicks": "Clicks / scans",
+      "chats": "New conversations",
+      "rate": "Conversion rate",
+      "run": "Widgets running"
+    },
+    "ai": {
+      "title": "AI agent for the widget",
+      "sub": "The agent answers and runs tasks 24/7",
+      "agent": "Assigned AI agent",
+      "newAgent": "New agent",
+      "global": "Multilingual (global) · replies in the visitor’s language · on duty 24/7",
+      "handoff": "Human handoff threshold · {n}%",
+      "know": "Knowledge scope",
+      "addKnow": "+ Add knowledge",
+      "knowD": "The agent only answers from the selected sources — {n} in use.",
+      "k": {
+        "catalog": "Product catalogue",
+        "price": "Price list",
+        "policy": "Return & warranty policy",
+        "faq": "FAQ",
+        "company": "Company info",
+        "process": "Sales process",
+        "website": "Website"
+      },
+      "tone": "Tone",
+      "tones": {
+        "friendly": "Friendly",
+        "professional": "Professional",
+        "brief": "Brief"
+      },
+      "mode": "Reply mode",
+      "modes": {
+        "auto": "AI only",
+        "human": "Human",
+        "hybrid": "Hybrid"
+      },
+      "collect": "Collect info → create records",
+      "collectD": "AI gathers the needed details in the chat, then creates the record in the right module — {n} enabled.",
+      "c": {
+        "answer": "Answer questions",
+        "lead": "Create lead (CRM)",
+        "ticket": "Create ticket",
+        "booking": "Book appointment",
+        "quote": "Create quote",
+        "contract": "Create contract",
+        "debt": "Payment reminder"
+      }
+    },
+    "pv": {
+      "title": "Preview · Tidio style",
+      "online": "Online",
+      "hi": "Hello! 👋",
+      "hiS": "We usually reply within minutes",
+      "meta": "{a} (AI) · just now",
+      "ph": "Type your message…",
+      "powered": "⚡ Powered by <b>AppChat</b>",
+      "open": "Open chat",
+      "close": "Close chat"
+    }
   }
 }

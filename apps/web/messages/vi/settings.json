@@ -266,5 +266,221 @@
       "privacy_erase": "Xoá dữ liệu cá nhân"
     },
     "create": "Tạo vai trò"
+  },
+  "channels": {
+    "filter": {
+      "all": "Tất cả",
+      "on": "Đã kết nối",
+      "off": "Chưa kết nối"
+    },
+    "list": "Danh sách",
+    "cards": "Dạng thẻ",
+    "col": {
+      "channel": "Kênh",
+      "status": "Trạng thái",
+      "convs": "Hội thoại",
+      "frt": "FRT",
+      "agent": "AI Agent"
+    },
+    "on": "Đã kết nối",
+    "off": "Chưa kết nối",
+    "notLinked": "Chưa liên kết",
+    "soonD": "Sắp có — đang hoàn thiện kết nối",
+    "manage": "Quản lý",
+    "connect": "Kết nối",
+    "link": "Liên kết",
+    "soon": "Sắp có",
+    "group": {
+      "msg": "Tin nhắn doanh nghiệp",
+      "web": "Website & Email",
+      "shop": "Thương mại điện tử"
+    },
+    "badge": {
+      "on": "Đã kết nối",
+      "pop": "Phổ biến",
+      "beta": "bản thử nghiệm"
+    },
+    "desc": {
+      "zalo_oa": "Kết nối Zalo Official Account để chăm sóc & bán hàng trực tiếp trên Zalo.",
+      "zalo_personal": "Kết nối Zalo cá nhân để trả lời tin nhắn khách hàng quen thuộc.",
+      "facebook": "Kết nối Facebook Page để tương tác với khách hàng của bạn.",
+      "messenger": "Kết nối Facebook Messenger để tương tác với khách hàng của bạn.",
+      "instagram": "Kết nối Instagram để trả lời tin nhắn riêng tư và xây dựng kết nối với khách.",
+      "whatsapp": "Kết nối WhatsApp để hỗ trợ khách hàng nhanh chóng mọi lúc mọi nơi.",
+      "whatsapp_business": "Kết nối WhatsApp Business API qua Facebook để hỗ trợ và tương tác với khách hàng một cách liền mạch.",
+      "telegram": "Kết nối Telegram Bot để cung cấp hỗ trợ theo thời gian thực khi khách hàng cần.",
+      "tiktok_messaging": "Kết nối TikTok Business Messaging để thu hút lượng khán giả hoàn toàn mới.",
+      "viber": "Kết nối Viber Bot để hỗ trợ khách hàng và tương tác trên Viber.",
+      "line": "Kết nối Tài khoản chính thức LINE để cung cấp hỗ trợ kịp thời cho khách hàng.",
+      "wechat": "Kết nối với tài khoản WeChat chính thức để tương tác với khách hàng.",
+      "email": "Kết nối hộp thư email để quản lý toàn bộ liên lạc tập trung tại một nơi.",
+      "tiktok_shop": "Kết nối TikTok Shop để xử lý đơn hàng & tin nhắn ngay trên TikTok.",
+      "shopee": "Kết nối Shopee để đồng bộ đơn hàng và trò chuyện với người mua.",
+      "webchat": "Nhúng widget chat lên website để tư vấn khách truy cập theo thời gian thực."
+    },
+    "modal": {
+      "title": "Liên kết {n}",
+      "manageTitle": "Quản lý {n}",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "reconnect": "Kết nối lại",
+      "disconnect": "Ngắt kết nối",
+      "stats": "{n} hội thoại · FRT {f}",
+      "qr": "Mã QR đăng nhập Zalo",
+      "qrD": "Mở Zalo trên điện thoại → Quét mã QR để đăng nhập. Tin nhắn mới sẽ về Hộp thư.",
+      "label": "Tên hiển thị tài khoản",
+      "labelPh": "VD: Zalo bán hàng",
+      "scanned": "Tôi đã quét mã",
+      "address": "Địa chỉ hộp thư",
+      "addressPh": "cskh@doanhnghiep.vn",
+      "addressD": "AppChat cấp địa chỉ chuyển tiếp; email gửi tới hộp thư này sẽ về Hộp thư.",
+      "connect": "Kết nối",
+      "errEmail": "Email không hợp lệ",
+      "openWidget": "Mở cấu hình widget",
+      "widgetD": "Website Chat dùng widget nhúng: chỉnh lời chào, AI Agent và lấy mã nhúng ở mục Trợ lý AI website."
+    }
+  },
+  "integrations": {
+    "heroT": "Tích hợp ứng dụng",
+    "heroS": "Kết nối AppChat với CRM, TMĐT, thanh toán, ERP và công cụ năng suất — tự động hoá toàn bộ luồng dữ liệu.",
+    "group": {
+      "all": "Tất cả",
+      "channels_studio": "Kênh & Studio",
+      "marketing": "Marketing",
+      "crm": "CRM",
+      "commerce": "TMĐT",
+      "payments": "Thanh toán",
+      "productivity": "Năng suất",
+      "erp": "ERP & Vận hành"
+    },
+    "desc": {
+      "web_widget": "Dùng AI để trả lời khách hàng trên website — nhúng khung chat, chọn AI Agent trực, tông giọng và thông tin cần thu thập.",
+      "brevo": "Email marketing & email hệ thống qua Brevo — đồng bộ danh sách liên hệ tự động.",
+      "smtp": "Gửi email qua Gmail / Google Workspace (SMTP).",
+      "mailgun": "Gửi email số lượng lớn qua Mailgun API — theo dõi mở/click.",
+      "sepay": "Đối soát chuyển khoản tự động: tiền về tài khoản → khớp đề nghị thanh toán theo nội dung CK.",
+      "casso": "Đối soát giao dịch ngân hàng qua Casso — dự phòng cho SePay.",
+      "kiotviet": "Đồng bộ sản phẩm, tồn kho và đơn hàng KiotViet vào hội thoại bán hàng.",
+      "sapo": "Đồng bộ dữ liệu từ nền tảng Sapo vào hệ thống AppChat — đơn, kho, khách hàng.",
+      "haravan": "Kết nối Haravan để tra cứu đơn & chốt đơn ngay trong cuộc trò chuyện.",
+      "woocommerce": "Tích hợp WooCommerce, tra cứu đơn & sản phẩm WordPress trong chat.",
+      "google_sheets": "Xuất / đồng bộ khách hàng tiềm năng và báo cáo sang Google Sheets.",
+      "gcs": "Lưu tệp, media & backup của workspace trên Google Cloud Storage — xác thực bằng Service Account.",
+      "misa_meinvoice": "Phát hành hoá đơn điện tử MISA meInvoice từ đơn hàng AppChat.",
+      "matbao_minvoice": "Phát hành hoá đơn điện tử Mắt Bão M-Invoice theo NĐ 123/2020.",
+      "vnpt_invoice": "Phát hành hoá đơn điện tử VNPT Invoice.",
+      "viettel_sinvoice": "Phát hành hoá đơn điện tử Viettel S-Invoice.",
+      "odoo": "Đồng bộ CRM / Sales / Inventory của Odoo theo hai chiều thời gian thực.",
+      "fast": "Kết nối phần mềm kế toán Fast — đồng bộ đơn & công nợ khách hàng."
+    },
+    "connected": "Đã kết nối",
+    "enabled": "Đã bật",
+    "soonBadge": "Sắp có",
+    "connect": "Kết nối",
+    "setup": "Thiết lập",
+    "interest": "Đăng ký quan tâm",
+    "interested": "Đã đăng ký",
+    "field": {
+      "api_key": "API key / Token",
+      "account_number": "Số tài khoản nhận",
+      "host": "SMTP host",
+      "username": "Tài khoản",
+      "password": "Mật khẩu ứng dụng"
+    },
+    "modal": {
+      "title": "Kết nối {n}",
+      "sub": "Tích hợp & đồng bộ dữ liệu",
+      "ph": "Dán khoá kết nối…",
+      "cancel": "Huỷ",
+      "connect": "Kết nối",
+      "disconnect": "Ngắt kết nối",
+      "connectedD": "Đang kết nối và đồng bộ. Ngắt kết nối sẽ dừng đồng bộ; dữ liệu đã đồng bộ được giữ nguyên."
+    }
+  },
+  "widget": {
+    "cfgT": "Cấu hình · Widget web",
+    "name": "Tên Agent hiển thị trên widget",
+    "namePh": "VD: Trợ lý AppChat",
+    "greet": "Lời chào",
+    "aiChat": "Chat AI trực tiếp trong widget",
+    "aiChatD": "Khách nhắn ngay, AI trả lời 24/7",
+    "prechat": "Thu thông tin trước chat (pre-chat)",
+    "prechatD": "Hỏi tên + SĐT → tạo lead vào CRM",
+    "actions": "Nút hành động",
+    "addAction": "+ Thêm nút",
+    "addActionSoon": "Tuỳ biến nút hành động sẽ có ở bản sau",
+    "edit": "Sửa",
+    "del": "Xoá",
+    "act": {
+      "order": "Theo dõi đơn",
+      "faq": "Câu hỏi thường gặp"
+    },
+    "actType": {
+      "order": "Tra cứu đơn",
+      "faq": "Câu hỏi thường gặp"
+    },
+    "embed": "Mã nhúng website",
+    "copy": "Copy",
+    "copied": "Đã sao chép mã nhúng",
+    "kpi": {
+      "clicks": "Lượt click / quét",
+      "chats": "Hội thoại mới",
+      "rate": "Tỉ lệ chuyển đổi",
+      "run": "Widget đang chạy"
+    },
+    "ai": {
+      "title": "AI Agent phụ trách widget",
+      "sub": "Agent tự trả lời & thực thi nghiệp vụ 24/7",
+      "agent": "AI Agent phụ trách",
+      "newAgent": "Agent mới",
+      "global": "Đa ngôn ngữ (global) · trả lời tự động theo ngôn ngữ khách · trực 24/24",
+      "handoff": "Ngưỡng bàn giao người thật · {n}%",
+      "know": "Phạm vi kiến thức",
+      "addKnow": "+ Bổ sung kiến thức",
+      "knowD": "Agent chỉ trả lời dựa trên nguồn được chọn — {n} nguồn đang dùng.",
+      "k": {
+        "catalog": "Catalogue sản phẩm",
+        "price": "Bảng giá",
+        "policy": "Chính sách đổi trả & bảo hành",
+        "faq": "FAQ",
+        "company": "Thông tin công ty",
+        "process": "Quy trình bán hàng",
+        "website": "Website"
+      },
+      "tone": "Tông giọng",
+      "tones": {
+        "friendly": "Thân thiện",
+        "professional": "Chuyên nghiệp",
+        "brief": "Ngắn gọn"
+      },
+      "mode": "Chế độ trả lời",
+      "modes": {
+        "auto": "AI tự động",
+        "human": "Con người",
+        "hybrid": "Kết hợp"
+      },
+      "collect": "Thu thập thông tin → đưa vào nghiệp vụ",
+      "collectD": "AI hỏi đủ thông tin cần thiết trong hội thoại rồi tự tạo bản ghi ở module tương ứng — {n} nghiệp vụ đang bật.",
+      "c": {
+        "answer": "Giải đáp câu hỏi",
+        "lead": "Tạo Lead (CRM)",
+        "ticket": "Tạo Ticket",
+        "booking": "Đặt lịch hẹn",
+        "quote": "Tạo báo giá",
+        "contract": "Tạo hợp đồng",
+        "debt": "Nhắc công nợ"
+      }
+    },
+    "pv": {
+      "title": "Xem trước · phong cách Tidio",
+      "online": "Đang trực tuyến",
+      "hi": "Xin chào! 👋",
+      "hiS": "Bọn mình thường trả lời trong vài phút",
+      "meta": "{a} (AI) · vừa xong",
+      "ph": "Nhập tin nhắn của bạn…",
+      "powered": "⚡ Được hỗ trợ bởi <b>AppChat</b>",
+      "open": "Mở cửa sổ chat",
+      "close": "Đóng cửa sổ chat"
+    }
   }
 }

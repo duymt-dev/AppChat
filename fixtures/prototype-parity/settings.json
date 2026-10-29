@@ -111,5 +111,521 @@
     "sales": "#2DC56A",
     "cs": "#F59E0B",
     "accountant": "#2563EB"
-  }
+  },
+  "channels": [
+    {
+      "type": "zalo_oa",
+      "name": "Zalo OA",
+      "short": "Z",
+      "color": "#0068FF",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "pop",
+      "available": false
+    },
+    {
+      "type": "zalo_personal",
+      "name": "Zalo cá nhân",
+      "short": "Z",
+      "color": "#0068FF",
+      "connected": true,
+      "account": "Trâm · 0907 711 888",
+      "convs": 412,
+      "frt": "1'12",
+      "health": "good",
+      "agent": "Sales Agent (AI)",
+      "group": "msg",
+      "label": "",
+      "available": true
+    },
+    {
+      "type": "facebook",
+      "name": "Facebook Page",
+      "short": "f",
+      "color": "#1877F2",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "pop",
+      "available": false
+    },
+    {
+      "type": "messenger",
+      "name": "Messenger",
+      "short": "f",
+      "color": "#1877F2",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "pop",
+      "available": false
+    },
+    {
+      "type": "instagram",
+      "name": "Instagram",
+      "short": "◎",
+      "color": "#E1306C",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "pop",
+      "available": false
+    },
+    {
+      "type": "whatsapp",
+      "name": "WhatsApp",
+      "short": "W",
+      "color": "#25D366",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "pop",
+      "available": false
+    },
+    {
+      "type": "whatsapp_business",
+      "name": "WhatsApp Business (API)",
+      "short": "W",
+      "color": "#25D366",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "pop",
+      "available": false
+    },
+    {
+      "type": "telegram",
+      "name": "Telegram",
+      "short": "✈",
+      "color": "#229ED9",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "",
+      "available": false
+    },
+    {
+      "type": "tiktok_messaging",
+      "name": "TikTok Messaging",
+      "short": "♪",
+      "color": "#111111",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "beta",
+      "available": false
+    },
+    {
+      "type": "viber",
+      "name": "Viber",
+      "short": "V",
+      "color": "#7360F2",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "",
+      "available": false
+    },
+    {
+      "type": "line",
+      "name": "LINE",
+      "short": "L",
+      "color": "#06C755",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "",
+      "available": false
+    },
+    {
+      "type": "wechat",
+      "name": "WeChat",
+      "short": "微",
+      "color": "#07C160",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "msg",
+      "label": "",
+      "available": false
+    },
+    {
+      "type": "email",
+      "name": "Email",
+      "short": "@",
+      "color": "#1F8A4D",
+      "connected": true,
+      "account": "cskh@appchat.vn",
+      "convs": 88,
+      "frt": "42'",
+      "health": "good",
+      "agent": "",
+      "group": "web",
+      "label": "",
+      "available": true
+    },
+    {
+      "type": "tiktok_shop",
+      "name": "TikTok Shop",
+      "short": "♪",
+      "color": "#111111",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "shop",
+      "label": "",
+      "available": false
+    },
+    {
+      "type": "shopee",
+      "name": "Shopee",
+      "short": "S",
+      "color": "#EE4D2D",
+      "connected": false,
+      "account": "",
+      "convs": 0,
+      "frt": "—",
+      "health": "off",
+      "agent": "",
+      "group": "shop",
+      "label": "",
+      "available": false
+    },
+    {
+      "type": "webchat",
+      "name": "Website Chat",
+      "short": "⌘",
+      "color": "#2DC56A",
+      "connected": true,
+      "account": "appchat.vn",
+      "convs": 324,
+      "frt": "0'48",
+      "health": "good",
+      "agent": "Sales Agent (AI)",
+      "group": "web",
+      "label": "pop",
+      "available": true
+    }
+  ],
+  "widget": {
+    "name": "Trợ lý AppChat",
+    "greeting": "Xin chào 👋 Spa hỗ trợ gì cho mình ạ?",
+    "ai_chat": true,
+    "prechat": true,
+    "actions": [
+      {
+        "key": "order",
+        "color": "#C9820B",
+        "on": false
+      },
+      {
+        "key": "faq",
+        "color": "#0E9B94",
+        "on": false
+      }
+    ],
+    "ai_on": true,
+    "agents": [
+      "Sales Agent",
+      "Support Agent",
+      "Marketing Agent"
+    ],
+    "agent": "Sales Agent",
+    "handoff": 70,
+    "knowledge": [
+      "catalog",
+      "price",
+      "policy",
+      "faq",
+      "company",
+      "process",
+      "website"
+    ],
+    "knowledge_on": [
+      "catalog",
+      "price",
+      "faq"
+    ],
+    "tone": "friendly",
+    "mode": "hybrid",
+    "collect": [
+      "answer",
+      "lead",
+      "ticket",
+      "booking",
+      "quote",
+      "contract",
+      "debt"
+    ],
+    "collect_on": [
+      "lead",
+      "ticket",
+      "answer"
+    ],
+    "kpis": {
+      "clicks": 7480,
+      "chats": 1743,
+      "running": 3,
+      "total": 4
+    },
+    "embed": "<script src=\"https://cdn.appchat.vn/w.js\"\n  data-id=\"w1\" data-pos=\"br\"\n  data-channels=\"zalo,webchat,email\"></script>"
+  },
+  "connectors": [
+    {
+      "key": "web_widget",
+      "name": "Trợ lý AI",
+      "group": "channels_studio",
+      "color": "#2DC56A",
+      "status": "ga",
+      "connected": true,
+      "opens": "web_widget",
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "brevo",
+      "name": "Brevo",
+      "group": "marketing",
+      "color": "#0B996E",
+      "status": "ga",
+      "connected": true,
+      "opens": null,
+      "fields": [
+        "api_key"
+      ],
+      "interest": false
+    },
+    {
+      "key": "smtp",
+      "name": "Google Workspace",
+      "group": "marketing",
+      "color": "#4285F4",
+      "status": "ga",
+      "connected": false,
+      "opens": null,
+      "fields": [
+        "host",
+        "username",
+        "password"
+      ],
+      "interest": false
+    },
+    {
+      "key": "mailgun",
+      "name": "Mailgun",
+      "group": "marketing",
+      "color": "#C02021",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "sepay",
+      "name": "SePay",
+      "group": "payments",
+      "color": "#0E7C66",
+      "status": "ga",
+      "connected": true,
+      "opens": null,
+      "fields": [
+        "api_key",
+        "account_number"
+      ],
+      "interest": false
+    },
+    {
+      "key": "casso",
+      "name": "Casso",
+      "group": "payments",
+      "color": "#1E5BBF",
+      "status": "ga",
+      "connected": false,
+      "opens": null,
+      "fields": [
+        "api_key"
+      ],
+      "interest": false
+    },
+    {
+      "key": "kiotviet",
+      "name": "KiotViet",
+      "group": "commerce",
+      "color": "#1763F4",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "sapo",
+      "name": "Sapo",
+      "group": "commerce",
+      "color": "#1565C0",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "haravan",
+      "name": "Haravan",
+      "group": "commerce",
+      "color": "#0066FF",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "woocommerce",
+      "name": "WooCommerce",
+      "group": "commerce",
+      "color": "#7F54B3",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "google_sheets",
+      "name": "Google Sheets",
+      "group": "productivity",
+      "color": "#0F9D58",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "gcs",
+      "name": "Google Cloud Storage",
+      "group": "productivity",
+      "color": "#4285F4",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "misa_meinvoice",
+      "name": "MISA meInvoice",
+      "group": "erp",
+      "color": "#E2231A",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "matbao_minvoice",
+      "name": "Mắt Bão M-Invoice",
+      "group": "erp",
+      "color": "#D71920",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "vnpt_invoice",
+      "name": "VNPT Invoice",
+      "group": "erp",
+      "color": "#0068B7",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "viettel_sinvoice",
+      "name": "Viettel S-Invoice",
+      "group": "erp",
+      "color": "#EE0033",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "odoo",
+      "name": "Odoo",
+      "group": "erp",
+      "color": "#714B67",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "fast",
+      "name": "Fast",
+      "group": "erp",
+      "color": "#E8602C",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    }
+  ]
 }

@@ -156,8 +156,14 @@ export const webchatUpdateWidget = defineAction({
     prechat: z.boolean().optional(),
     agent_id: z.string().optional(),
     handoff: z.number().int().min(50).max(95).optional(),
-    tone: z.enum(['friendly', 'professional', 'luxury']).optional(),
-    mode: z.enum(['ai', 'human', 'hybrid']).optional(),
+    tone: z.enum(['friendly', 'professional', 'brief']).optional(),
+    mode: z.enum(['auto', 'human', 'hybrid']).optional(),
+    ai_on: z.boolean().optional(),
+    /** Nguồn kiến thức Agent được dùng (kb folder / nhóm). */
+    knowledge_on: z.array(z.string().max(60)).max(30).optional(),
+    /** Nghiệp vụ AI được tạo bản ghi từ hội thoại widget (lead, ticket, booking…). */
+    collect_on: z.array(z.string().max(30)).max(10).optional(),
+    actions: z.array(z.object({ key: z.string().max(30), on: z.boolean() })).max(10).optional(),
   }),
   output: z.object({ ok: z.boolean() }),
   permission: 'channels.manage',
