@@ -237,3 +237,16 @@ export const aiTaskPause = defineAction({
   agentGrantable: false,
   invalidates: ['ai-tasks'],
 });
+
+export const aiTranslate = defineAction({
+  id: 'ai.translate',
+  module: 'ai',
+  title: 'actions.ai.translate.title',
+  description: 'Translate a message to Vietnamese (mock: returns a fixed demo translation). Example: {"conversation_id":"c_lan","message_id":"m7"}',
+  input: z.object({ conversation_id: z.string().min(1), message_id: z.string().min(1) }),
+  output: z.object({ text: z.string() }),
+  permission: 'inbox.view',
+  risk: 'read',
+  agentGrantable: true,
+  invalidates: [],
+});

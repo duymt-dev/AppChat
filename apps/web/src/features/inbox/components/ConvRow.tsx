@@ -1,21 +1,14 @@
-// Một dòng hội thoại (cá nhân / nhóm) + menu ⋯ — prototype L1650–1734.
+// Một dòng hội thoại (cá nhân / nhóm) + menu ⋯ (REQ-C10) — prototype L1650–1734, L1978–2033.
 'use client';
 import { useTranslations } from 'next-intl';
-import { Icon, color, type IconName } from '@appchat/ui';
+import { color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useRowStyles } from '../styles/row.styles';
+import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import { TAG_TONE } from '../tones';
+import { ConvMenu } from './ConvMenu';
 import type { ChannelMeta, Conversation } from '../types';
-
-const MENU: [key: string, icon: IconName, sub: boolean][] = [
-  ['close', 'ic-check', false],
-  ['snooze', 'ic-eye', true],
-  ['shortcut', 'ic-bolt', true],
-  ['assign', 'ic-users', true],
-  ['lifecycle', 'ic-flow', true],
-  ['tag', 'ic-gift', false],
-];
 
 export interface ConvRowProps {
   conv: Conversation;
@@ -26,11 +19,9 @@ export interface ConvRowProps {
 export function ConvRow({ conv, channel, selected }: ConvRowProps) {
   const t = useTranslations('inbox.list');
   const { styles, cx } = useRowStyles();
+  const { styles: base } = useInboxStyles();
   const ui = useInboxUi();
   const markRead = useAction('conversation.mark_read');
-  const setStatus = useAction('conversation.set_status');
-  const assign = useAction('conversation.assign');
-  const tag = useAction('conversation.tag');
   const menuOpen = ui.pop === 'convMenu' && ui.menuFor === conv.id;
   const isGroup = conv.kind === 'group';
   const chBg = channel?.color ?? color.text3;
@@ -38,15 +29,6 @@ export function ConvRow({ conv, channel, selected }: ConvRowProps) {
   const open = () => {
     ui.select(conv.id);
     if (conv.unread > 0) void markRead.run({ conversation_id: conv.id }, { silent: true });
-  };
-
-  const pick = (key: string) => {
-    ui.closePop();
-    const id = conv.id;
-    if (key === 'close') void setStatus.run({ conversation_id: id, status: 'closed' });
-    if (key === 'snooze') void setStatus.run({ conversation_id: id, status: 'snoozed', snooze_hours: 4 });
-    if (key === 'assign') void assign.run({ conversation_id: id, user_id: 'u_tram' });
-    if (key === 'tag') void tag.run({ conversation_id: id, tag: 'VIP' });
   };
 
   return (
@@ -112,17 +94,8 @@ export function ConvRow({ conv, channel, selected }: ConvRowProps) {
           </svg>
         </button>
       ) : null}
-      {menuOpen ? (
-        <div className={styles.menu} role="menu" data-testid="conv-menu">
-          {MENU.map(([key, icon, sub]) => (
-            <button key={key} type="button" role="menuitem" className={styles.item} onClick={() => pick(key)}>
-              <Icon name={icon} size={15} color={color.text3} />
-              <span className={styles.grow}>{t(`actions.${key}` as never)}</span>
-              {sub ? <span className={styles.caret}>{t('caret')}</span> : null}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      {menuOpen ? <div className={base.veil} onClick={ui.closeConvMenu} /> : null}
+      <ConvMenu conv={conv} open={menuOpen} onClose={ui.closeConvMenu} />
     </div>
   );
 }

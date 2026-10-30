@@ -334,6 +334,9 @@ export const MANIFEST: ParityEntry[] = [
       proto: 'div[style*="width: min(440px"]',
       app: '[data-testid="inbox-ai-modal"] [role="dialog"]',
     },
+    // Panel cuộn trong max-height:84% (.appscroll overflow-y:auto) — điểm cắt theo cuộn lệch vài dòng
+    // giữa app/proto do bo khoảng cách về lưới 4 (D41); mask phần dưới mục "Chuyển" nơi biên cuộn rơi vào.
+    mask: [{ x: 0, y: 560, width: 440, height: 156, reason: 'biên cuộn .appscroll lệch vài px do bo lưới 4 (D41) — mục Chuyển/footer' }],
   },
   {
     // Ngoại lệ D28 / prototype-parity §6: chỉ kênh có manifest (zalo_personal / webchat / email) kết nối được, còn lại "Sắp có".
@@ -385,7 +388,8 @@ export const MANIFEST: ParityEntry[] = [
         .evaluate((n) => n.scrollTo(0, n.scrollHeight)),
     app: (p) => p.locator('[data-conv="c_hieu"] button').first().click(),
     clipTo: {
-      proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"][style*="border-radius: 12px"]',
+      // border-radius đổi 12px→14px ở prototype ver2.1 (D44 normalize) — khớp theo gradient, bỏ ràng buộc bán kính.
+      proto: 'div[style*="linear-gradient(135deg, rgb(236, 253, 245)"]',
       app: '[data-testid="handoff-banner"]',
     },
     // Trạng thái handoff không có trong prototype (REQ-C handoff): so khung thẻ, mask phần chữ khác nội dung.

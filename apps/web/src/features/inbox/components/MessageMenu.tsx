@@ -1,47 +1,58 @@
-// Menu ⋯ của tin nhắn — prototype L1774–1786: Thu hồi · Xoá tin · Lưu trữ · Ẩn · Xoá lịch sử · Tạo nhóm.
+// Menu ⋯ của tin nhắn (REQ-C09, ver2.1 #1) — prototype L2121–2135 (menu), L11800–11845 (danh sách hành vi):
+// hàng cảm xúc (bấm lại để bỏ) · Trả lời · Sao chép · Chuyển tiếp · Ghim · Dịch · Tạo ticket · Thu hồi / Xoá.
 'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { App } from 'antd';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
-import { useBubbleStyles } from '../styles/bubble.styles';
+import { useMessageMenuStyles } from '../styles/menu.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
+import type { Message } from '../types';
 
-const MSG: [key: 'recall' | 'delete', icon: IconName][] = [
-  ['recall', 'ic-refresh'],
-  ['delete', 'ic-trash'],
-];
-const CONV: [key: 'archive' | 'hide' | 'clear' | 'group', icon: IconName][] = [
-  ['archive', 'ic-box'],
-  ['hide', 'ic-eye'],
-  ['clear', 'ic-clock'],
-  ['group', 'ic-users'],
-];
+const REACTS = ['👍', '❤️', '😂', '😮', '😢', '🙏'] as const;
 
-export function MessageMenu({ convId, messageId }: { convId: string; messageId: string }) {
+export function MessageMenu({ convId, message, isPinned }: { convId: string; message: Message; isPinned: boolean }) {
   const t = useTranslations('inbox.msgMenu');
-  const { styles, cx } = useBubbleStyles();
+  const router = useRouter();
+  const { message: toast } = App.useApp();
+  const { styles, cx } = useMessageMenuStyles();
   const { styles: base } = useInboxStyles();
   const ui = useInboxUi();
+  const messageId = message.id;
   const open = ui.pop === 'chatMenu' && ui.menuFor === messageId;
+  const react = useAction('message.react');
+  const pin = useAction('message.pin');
+  const translate = useAction<{ text: string }>('ai.translate');
   const recall = useAction('message.recall');
   const del = useAction('message.delete');
-  const archive = useAction('conversation.archive');
-  const snooze = useAction('conversation.set_status');
-  const clear = useAction('conversation.clear_history');
+  const [translated, setTranslated] = useState<string | null>(null);
 
-  const run = (key: string) => {
-    ui.closePop();
-    const ids = { conversation_id: convId, message_id: messageId };
-    if (key === 'recall') void recall.run(ids);
-    if (key === 'delete') void del.run(ids);
-    if (key === 'archive') void archive.run({ conversation_id: convId });
-    if (key === 'hide') void snooze.run({ conversation_id: convId, status: 'snoozed', snooze_hours: 24 });
-    if (key === 'clear') void clear.run({ conversation_id: convId });
-  };
+  const close = ui.closePop;
+
+  const items: [key: string, icon: IconName, hint: string | undefined, danger: boolean, onClick: () => void][] = [
+    ['reply', 'ic-reply', undefined, false, () => { close(); ui.set({ replyTo: { id: messageId, preview: (message.body ?? '').slice(0, 80) } }); }],
+    ['copy', 'ic-doc', undefined, false, () => { close(); void navigator.clipboard?.writeText(message.body ?? '').then(() => toast.success(t('copied'))); }],
+    ['forward', 'ic-send', undefined, false, () => { close(); ui.set({ modal: 'forward', forwardFrom: { convId, messageId } }); }],
+    [isPinned ? 'unpin' : 'pin', 'ic-pin', undefined, false, () => { close(); void pin.run({ conversation_id: convId, message_id: messageId, pinned: !isPinned }, { silent: true }); }],
+    ['translate', 'ic-globe', undefined, false, () => { close(); void translate.run({ conversation_id: convId, message_id: messageId }, { silent: true }).then((r) => r && setTranslated(r.result.text)); }],
+    ['ticket', 'ic-ticket', undefined, false, () => {
+      close();
+      const q = new URLSearchParams({
+        tk_title: `Từ tin nhắn: ${(message.body ?? '').slice(0, 40)}…`,
+        tk_channel: 'zalo_personal',
+      });
+      router.push(`/tickets?${q.toString()}`);
+    }],
+    ['recall', 'ic-refresh', t('recallHint'), false, () => { close(); void recall.run({ conversation_id: convId, message_id: messageId }); }],
+    ['delete', 'ic-trash', undefined, true, () => { close(); void del.run({ conversation_id: convId, message_id: messageId }); }],
+  ];
 
   return (
     <>
+      <div className={styles.dotsWrap}>
       <button
         type="button"
         className={cx(styles.dots, 'msg-dots', open && styles.dotsOn)}
@@ -60,23 +71,39 @@ export function MessageMenu({ convId, messageId }: { convId: string; messageId: 
       {open ? (
         <>
           <div className={base.veil} onClick={ui.closePop} />
-          <div className={styles.menu} role="menu" data-testid="chat-menu">
-            <div className={styles.menuHead}>{t('messages')}</div>
-            {MSG.map(([key, icon]) => (
-              <button key={key} type="button" role="menuitem" className={cx(styles.menuItem, key === 'delete' && styles.danger)} onClick={() => run(key)}>
-                <Icon name={icon} size={16} color={key === 'delete' ? color.danger : color.text3} />
-                {t(key)}
-              </button>
-            ))}
-            <div className={styles.menuHead}>{t('conversation')}</div>
-            {CONV.map(([key, icon]) => (
-              <button key={key} type="button" role="menuitem" className={styles.menuItem} onClick={() => run(key)}>
-                <Icon name={icon} size={16} color={color.text3} />
-                {t(key)}
-              </button>
+          <div className={cx(styles.menu, styles.menuWide)} role="menu" data-testid="chat-menu">
+            <div className={styles.reactRow}>
+              {REACTS.map((e) => (
+                <button
+                  key={e}
+                  type="button"
+                  className={cx(styles.reactBtn, message.reaction === e && styles.reactBtnOn)}
+                  title={t(`reacts.${e}` as never)}
+                  onClick={() => { close(); void react.run({ conversation_id: convId, message_id: messageId, emoji: e }, { silent: true }); }}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+            {items.map(([key, icon, hint, danger, onClick], i) => (
+              <div key={key}>
+                {i === items.length - 2 ? <div className={styles.sep} /> : null}
+                <button type="button" role="menuitem" className={cx(styles.menuItem, danger && styles.danger)} onClick={onClick}>
+                  <Icon name={icon} size={15} color={danger ? color.danger : color.text3} />
+                  <span className={styles.menuGrow}>{t(key as never)}</span>
+                  {hint ? <span className={styles.menuHint}>{hint}</span> : null}
+                </button>
+              </div>
             ))}
           </div>
         </>
+      ) : null}
+      </div>
+      {translated ? (
+        <div className={styles.translated} data-testid="msg-translated">
+          <Icon name="ic-globe" size={12} color={color.info} />
+          {translated}
+        </div>
       ) : null}
     </>
   );

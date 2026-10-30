@@ -325,6 +325,12 @@ export const useModalStyles = createStyles(({ css, responsive }) => ({
     font-weight: ${font.weight.semibold};
     color: ${color.text};
   `,
+  cmdRow: css`
+    justify-content: space-between;
+    color: ${color.brandInk};
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.semibold};
+  `,
   kbd: css`
     font-family: ${font.mono};
     font-size: ${font.scale.s11}px;

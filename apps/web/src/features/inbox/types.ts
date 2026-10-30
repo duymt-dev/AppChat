@@ -42,6 +42,10 @@ export interface Conversation {
   handoff_reason?: string;
   ai_draft?: string;
   status: string;
+  /** Tin đang ghim lên đầu hội thoại (REQ-C09 `message.pin`) — khác `pinned_note` (ghi chú ghim thủ công). */
+  pinned_message_id?: string | null;
+  /** Ẩn khỏi danh sách cho đến khi có tin mới (D50 `conversation.hide`). */
+  hidden?: boolean;
 }
 
 export interface Message {
@@ -67,6 +71,12 @@ export interface Message {
   plain?: boolean;
   recalled?: boolean;
   deleted?: boolean;
+  /** Cảm xúc hiện tại của người dùng trên tin này (REQ-C09 `message.react`, bấm lại để bỏ). */
+  reaction?: string | null;
+  /** Tin được trích khi trả lời (REQ-C09 "Trả lời"). */
+  reply_to?: { id: string; preview: string };
+  /** Tin được chuyển tiếp tới hội thoại này (REQ-C09 "Chuyển tiếp"). */
+  forwarded?: boolean;
 }
 
 export interface ThreadData {

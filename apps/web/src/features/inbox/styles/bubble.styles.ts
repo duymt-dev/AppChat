@@ -1,6 +1,6 @@
 // Bong bóng tin nhắn + menu tin + thẻ AI gợi ý — prototype L1763–1810.
 import { createStyles } from 'antd-style';
-import { color, font, gradient, layout, radius, shadow } from '@appchat/ui';
+import { color, font, gradient, radius, shadow } from '@appchat/ui';
 
 export const useBubbleStyles = createStyles(({ css, responsive }) => ({
   center: css`
@@ -120,6 +120,11 @@ export const useBubbleStyles = createStyles(({ css, responsive }) => ({
   `,
   stampOut: css`
     color: ${color.chatSub};
+  `,
+  /** Tên người gửi trong stamp tin ra ngoài (REQ-C13: "tin gửi đi hiện tên người gửi"). */
+  senderOut: css`
+    color: ${color.text2};
+    font-weight: ${font.weight.bold};
   `,
   stampAgent: css`
     color: ${color.agentMeta};
@@ -301,77 +306,18 @@ export const useBubbleStyles = createStyles(({ css, responsive }) => ({
     line-height: 1.5;
     margin-top: 2px;
   `,
-  dots: css`
-    flex-shrink: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+  /** Khối trích tin khi trả lời (REQ-C09 "Trả lời"). */
+  quoted: css`
+    border-left: 2px solid ${color.border};
+    padding: 2px 8px;
+    margin-bottom: 4px;
+    font-size: ${font.scale.s12}px;
     color: ${color.text3};
-    background: ${color.surface};
-    border: 1px solid ${color.border};
-    box-shadow: ${shadow.dots};
-    padding: 0;
-    opacity: 0;
-    transition: opacity 0.14s;
-    ${responsive.md} {
-      opacity: 1;
-      width: ${layout.touch}px;
-      height: ${layout.touch}px;
-      border: none;
-      box-shadow: none;
-      background: transparent;
-    }
+    opacity: 0.85;
   `,
-  dotsOn: css`
-    opacity: 1;
-  `,
-  menu: css`
-    position: absolute;
-    top: 32px;
-    left: 40px;
-    width: 210px;
-    background: ${color.surface};
-    border: 1px solid ${color.border};
-    border-radius: ${radius.r12}px;
-    box-shadow: ${shadow.menu};
-    padding: 6px;
-    z-index: 50;
-    text-align: left;
-  `,
-  menuHead: css`
-    font-size: ${font.scale.s11}px;
-    font-weight: ${font.weight.heavy};
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: ${color.text4};
-    padding: 8px 8px 4px;
-  `,
-  menuItem: css`
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px;
-    border-radius: ${radius.r8}px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    font-family: inherit;
-    font-size: ${font.scale.s14}px;
-    color: ${color.text};
-    text-align: left;
-    &:hover {
-      background: ${color.bg};
-    }
-    ${responsive.md} {
-      min-height: ${layout.touch}px;
-    }
-  `,
-  danger: css`
-    color: ${color.danger};
+  reactionBadge: css`
+    display: inline-flex;
+    margin-left: 6px;
+    font-size: ${font.scale.s12}px;
   `,
 }));

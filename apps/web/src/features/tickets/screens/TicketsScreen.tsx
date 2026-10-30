@@ -1,6 +1,8 @@
 // Ticket (orchestrator) — prototype L4837–4955: topbar + 5 KPI · lọc 6 trường + sắp xếp / xuất / chế độ xem · chọn nhiều ·
 // (DataTable | Kanban 4 cột) · drawer chi tiết (SLA, trao đổi, lịch sử) · form tạo · hộp đóng ticket · AI panel.
 'use client';
+import { useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DataTable, KanbanBoard, color } from '@appchat/ui';
@@ -17,11 +19,39 @@ import { TicketFormModal } from '../components/TicketFormModal';
 import { CloseTicketModal } from '../components/CloseTicketModal';
 import { TicketsAiDrawer } from '../components/TicketsAiDrawer';
 import { STATUSES, STATUS_TONE } from '../status';
-import type { Ticket, TicketStatus } from '../types';
+import type { Channel, Ticket, TicketsMeta, TicketStatus } from '../types';
 import { useTicketsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
 
 const NO_NOW = '1970-01-01T00:00:00Z';
+
+/** Tạo ticket từ tin nhắn trong Hộp thư (REQ-C09 "Tạo ticket từ tin này", điền sẵn rồi mở ngay chi tiết). */
+function useFromMessage(meta: TicketsMeta | undefined) {
+  const params = useSearchParams();
+  const router = useRouter();
+  const create = useAction<{ ticket_id: string }>('ticket.create');
+  const set = useTicketsUi((s) => s.set);
+  const done = useRef('');
+  const title = params.get('tk_title');
+  useEffect(() => {
+    if (!title || !meta || done.current === title) return;
+    done.current = title;
+    void create
+      .run({
+        title,
+        channel: (params.get('tk_channel') as Channel | null) ?? 'zalo_personal',
+        category: meta.categories[0]!,
+        priority: 'medium',
+        status: 'open',
+        team_id: meta.teams[0]!.id,
+        assignee_user_id: meta.members[0]?.id,
+      })
+      .then((r) => {
+        if (r) set({ detail: r.result.ticket_id, tab: 'detail' });
+        router.replace('/tickets');
+      });
+  }, [title, meta]); // eslint-disable-line react-hooks/exhaustive-deps
+}
 
 export function TicketsScreen() {
   useTicketsUiCommands();
@@ -30,6 +60,7 @@ export function TicketsScreen() {
   const ui = useTicketsUi();
   const list = useQuery(ticketsQuery(ui.filter, ui.pg));
   const meta = useQuery(ticketsMetaQuery()).data;
+  useFromMessage(meta);
   const columns = useTicketColumns(meta?.now ?? NO_NOW);
   const setStatus = useAction('ticket.set_status');
   const rows = list.data?.data ?? [];

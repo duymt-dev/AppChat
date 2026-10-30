@@ -572,7 +572,8 @@
     "direction": "out",
     "body": "Dạ chị ơi, em check kho ngay giúp chị 💚",
     "time": "10:40",
-    "status": "read"
+    "status": "read",
+    "sender": "Trâm"
    },
    {
     "id": "m8",
@@ -580,7 +581,8 @@
     "direction": "out",
     "body": "💚",
     "time": "10:40",
-    "status": "read"
+    "status": "read",
+    "sender": "Trâm"
    },
    {
     "id": "m9",

@@ -1,6 +1,6 @@
 // Popover của ô soạn (trả lời nhanh / đặt lịch / dịch) — prototype L1801–1868.
 import { createStyles } from 'antd-style';
-import { color, font, radius, shadow } from '@appchat/ui';
+import { color, font, radius, shadow, z } from '@appchat/ui';
 
 export const usePopStyles = createStyles(({ css, responsive }) => ({
   pop: css`
@@ -8,7 +8,7 @@ export const usePopStyles = createStyles(({ css, responsive }) => ({
     left: 12px;
     right: 12px;
     bottom: calc(100% - 4px);
-    z-index: 41;
+    z-index: ${z.popover};
     background: ${color.surface};
     border: 1px solid ${color.border};
     border-radius: ${radius.r12}px;
