@@ -553,6 +553,7 @@ interface ActionHandler<I, O> {
   - Tool ngoài giao → không đưa vào danh sách tool của run. Nếu vẫn bị gọi → `FORBIDDEN`, ghi `ai_run_step` lỗi, run tiếp tục với các tool còn lại.
   - `action_log.on_behalf_of_user_id` = người ra lệnh; `actor_type=agent`, `actor_id` = agent.
   - `delegate` lồng nhau: run con kế thừa giao của run cha (giao càng sâu càng hẹp).
+  - **Kiến thức (D54):** `kb.search` trong run giao dùng `kb_scope` của agent ∩ quyền đọc của người ra lệnh, được trả `internal` người đó được xem. Agent trực kênh trả lời khách chỉ nhận `public` trong `kb_scope`; Trợ lý (không có `kb_scope`) tìm cả kho trong quyền của người hỏi.
 - **Connector không phải quyền của agent:** action cần connector khai báo `requiresConnector` trong `ActionDef` (§3.1). Connector chưa kết nối thì tool vẫn hiện trong Builder (badge *Cần kết nối X*), nhưng không đưa vào run; chưa có manifest thì hiện *Sắp có*.
 - **Builder hiển thị Tools** theo `ActionDef.module` (Hộp thư, Khách hàng, Bán hàng, Lịch hẹn, Hỗ trợ, Marketing, Loyalty…) + nhóm **Kỹ năng AI** (`skill: true`), mỗi nhóm n/tổng. Nguồn: `GET /v1/agents/:id/tools` (§4.4).
 - Luật **governance** luôn ép approval, không phụ thuộc bảng trên: báo giá > 20.000.000₫, giảm giá ngoài chính sách, hoàn tiền, gửi hàng loạt, hợp đồng.

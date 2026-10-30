@@ -6,11 +6,14 @@
 
 1. **Một kho mỗi workspace**, tổ chức bằng thư mục (`kb_folder`) và thẻ, theo trang Dữ liệu RAG của prototype.
    - Nguồn (`origin`): `upload | url | text | catalog | conversation | drive`. `drive` là thẻ "Sắp có".
-2. **Agent nhận tri thức theo phạm vi** `ai_agent.kb_scope = { folder_ids[], tags[] }`, không gán từng tài liệu.
+2. **Agent nhận tri thức theo phạm vi** `ai_agent.kb_scope = { folder_ids[], tags[] }`, không gán từng tài liệu (D54).
    - `kb.search` của agent luôn lọc theo scope này.
-3. **Tài liệu có `visibility`:**
-   - `public`: agent trả lời khách được dùng.
-   - `internal` (ví dụ hợp đồng, báo cáo nội bộ): chỉ Trợ lý dùng, cho người có quyền đọc module tương ứng.
+   - Chọn scope ở Builder AI Agents, khối "Nguồn kiến thức" (bộ chọn thư mục / thẻ). Trang Dữ liệu RAG chỉ quản lý tài liệu, không gán agent.
+   - **Trợ lý AI** không có `kb_scope`: tìm cả kho, lọc theo quyền đọc của người hỏi.
+3. **Tài liệu có `visibility`** — đúng 2 giá trị (D54):
+   - `public` (UI: "Khách được xem qua AI"): agent trả lời khách được dùng.
+   - `internal` (UI: "Chỉ nội bộ"; ví dụ hợp đồng, báo cáo nội bộ): Trợ lý dùng, cho người có quyền đọc module tương ứng.
+   - **Agent làm cho người** (Trợ lý `delegate`, tác vụ Cowork): phạm vi = `kb_scope` ∩ quyền đọc của người ra lệnh, được dùng `internal` người đó được xem (cùng luật Blueprint §3.3b). Agent trực kênh trả lời khách: chỉ `public`.
    - Mặc định của thư mục kế thừa xuống tài liệu.
 4. **Giá, tồn kho, khuyến mãi đang chạy, lịch trống, công nợ luôn lấy qua read action** (`product.search`, `booking.find_slots`…), **không bao giờ lấy từ RAG**.
    - Danh mục sản phẩm vào RAG chỉ phần mô tả / thông số. Đoạn có giá bị gắn `meta.volatile=true` và không đưa vào prompt.
