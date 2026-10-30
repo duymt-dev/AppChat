@@ -95,7 +95,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 
 | TIP | Wave | Trạng thái | Nhánh | SHA | PR |
 |-----|------|-----------|-------|-----|----|
-| 001 | W1 | chờ | — | — | — |
+| 001 | W1 | DONE | `tip/001-scaffold-backend` | c96496d | chờ Chủ nhà tạo |
 | 002 | W1 | chờ | — | — | — |
 | 003 | W1 | chờ | — | — | — |
 | 004 | W2 | chờ | — | — | — |
