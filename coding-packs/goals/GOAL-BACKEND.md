@@ -79,7 +79,7 @@ Ngưỡng duy nhất < 100% là các ô phụ thuộc dịch vụ ngoài (bản 
 | 1–2 tài khoản Zalo cá nhân phụ | 014 | làm 015 trước; 014 dựng adapter + test bằng fake | Chưa có |
 | SePay (+ tài khoản nhận tiền) | 010, 032 | adapter `mock`, webhook giả lập | Chưa có |
 | Brevo + domain gửi | 004, 006 | adapter `console` in OTP ra log | Chưa có |
-| Mật khẩu Postgres máy dev | 002 → hết | TIP-001 không cần DB; từ 002 integration test chờ | Chưa có — Q-007 |
+| Mật khẩu Postgres máy dev | 002 → hết | — | Đã xử lý — DC-009 (`appchat_dev_admin`) |
 | VPS + domain | 045, 046 | làm cuối; 045 viết script + chạy thử trên máy dev nếu được | Chủ nhà đang hoãn |
 
 ## Không làm trong goal này
@@ -96,7 +96,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | TIP | Wave | Trạng thái | Nhánh | SHA | PR |
 |-----|------|-----------|-------|-----|----|
 | 001 | W1 | DONE | `tip/001-scaffold-backend` | c96496d | chờ Chủ nhà tạo |
-| 002 | W1 | chờ | — | — | — |
+| 002 | W1 | DONE | `tip/002-db-platform-tenant` (xếp chồng 001) | fce8c7c | chờ Chủ nhà tạo |
 | 003 | W1 | chờ | — | — | — |
 | 004 | W2 | chờ | — | — | — |
 | 005 | W2 | chờ | — | — | — |
