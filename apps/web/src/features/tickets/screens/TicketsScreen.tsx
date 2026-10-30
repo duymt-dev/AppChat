@@ -15,7 +15,6 @@ import { TicketCard, TicketKanbanCard, useTicketColumns } from '../columns';
 import { TicketsHeader } from '../components/TicketsHeader';
 import { BulkBar } from '../components/BulkBar';
 import { TicketDrawer } from '../components/TicketDrawer';
-import { TicketFormModal } from '../components/TicketFormModal';
 import { CloseTicketModal } from '../components/CloseTicketModal';
 import { TicketsAiDrawer } from '../components/TicketsAiDrawer';
 import { STATUSES, STATUS_TONE } from '../status';
@@ -106,7 +105,6 @@ export function TicketsScreen() {
       </PageStates>
       {meta ? <TicketDrawer meta={meta} /> : null}
       {meta ? <TicketsAiDrawer meta={meta} /> : null}
-      {meta ? <TicketFormModal meta={meta} /> : null}
       <CloseTicketModal />
     </div>
   );

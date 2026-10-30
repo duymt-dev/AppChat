@@ -11,7 +11,19 @@ import { contactsQuery, membersQuery } from '@/features/customers';
 import { useQuoteFormStyles } from '../styles/form.styles';
 import { useQuotesUi } from '../quotes-store';
 import { initialQuoteDraft, useQuoteDraft } from '../hooks/useQuoteDraft';
+import { quoteQuery } from '../api';
+import type { Quote } from '../types';
 import { LineEditor } from './LineEditor';
+
+const toPrefill = (q: Quote): Record<string, unknown> => ({
+  contact_id: q.contact_id,
+  owner_user_id: q.owner_user_id,
+  valid_days: q.valid_days,
+  items: q.items,
+  header_discount: q.header_discount,
+  payment_terms: q.payment_terms,
+  note: q.note,
+});
 
 const ALL_CONTACTS = {
   stage: 'all',
@@ -25,27 +37,49 @@ const ALL_CONTACTS = {
 
 export function QuoteFormModal() {
   const ui = useQuotesUi();
-  if (ui.form !== 'create') return null;
-  return <QuoteForm key={JSON.stringify(ui.prefill)} />;
+  if (!ui.form) return null;
+  if (ui.form === 'edit' && ui.editId) return <QuoteEditLoader id={ui.editId} />;
+  return <QuoteForm key={JSON.stringify(ui.prefill)} mode="create" />;
 }
 
-function QuoteForm() {
+/** Nạp báo giá hiện có trước khi mở form sửa (REQ-F11: Nháp → Cập nhật tại chỗ). */
+function QuoteEditLoader({ id }: { id: string }) {
+  const q = useQuery(quoteQuery(id)).data;
+  if (!q) return null;
+  return <QuoteForm key={id} mode="edit" editId={id} editCode={q.code} editPrefill={toPrefill(q)} />;
+}
+
+function QuoteForm({
+  mode,
+  editId,
+  editCode,
+  editPrefill,
+}: {
+  mode: 'create' | 'edit';
+  editId?: string;
+  editCode?: string;
+  editPrefill?: Record<string, unknown>;
+}) {
   const t = useTranslations('quotes.form');
   const fmt = useFmt();
   const { styles, cx } = useQuoteFormStyles();
   const ui = useQuotesUi();
   const contacts = useQuery(contactsQuery(ALL_CONTACTS)).data?.data ?? [];
   const members = useQuery(membersQuery()).data ?? [];
-  const f = useQuoteDraft(initialQuoteDraft(ui.prefill));
+  const f = useQuoteDraft(initialQuoteDraft(mode === 'edit' ? editPrefill : ui.prefill));
   const create = useAction<{ quote_id: string }>('quote.create');
+  const update = useAction<{ quote_id: string }>('quote.update');
   const [err, setErr] = useState('');
   const [today] = useState(() => Date.now());
-  const close = () => ui.set({ form: null, prefill: null });
+  const close = () => ui.set({ form: null, prefill: null, editId: null });
 
   const save = async () => {
     if (!f.valid) return setErr(t('required'));
-    const res = await create.run(f.input);
-    if (res) ui.set({ form: null, prefill: null, detail: res.result.quote_id, tab: 'overview' });
+    const res =
+      mode === 'edit' && editId
+        ? await update.run({ quote_id: editId, patch: f.input })
+        : await create.run(f.input);
+    if (res) ui.set({ form: null, prefill: null, editId: null, detail: res.result.quote_id, tab: 'overview' });
   };
 
   const field = (label: string, node: ReactNode, wide?: boolean) => (
@@ -60,7 +94,7 @@ function QuoteForm() {
       open
       onClose={close}
       width={720}
-      title={t('title')}
+      title={mode === 'edit' ? t('editTitle') : t('title')}
       icon="ic-plus"
       iconColor={color.brandDeep}
       iconBg={color.brandBg}
@@ -86,7 +120,7 @@ function QuoteForm() {
       <div className={styles.section}>
         <div className={styles.sectionTitle}>{t('general')}</div>
         <div className={styles.grid}>
-          {field(t('code'), <input className={styles.input} placeholder={t('codePh')} disabled />)}
+          {field(t('code'), <input className={styles.input} value={editCode ?? ''} placeholder={t('codePh')} disabled />)}
           {field(
             t('contact'),
             <select

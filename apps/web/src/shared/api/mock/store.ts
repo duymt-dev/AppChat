@@ -20,6 +20,7 @@ import { createMarketingState, type MarketingState } from './domains/marketing';
 import { createLoyaltyState, type LoyaltyState } from './domains/loyalty';
 import { createSettingsState, type SettingsState } from './domains/settings';
 import { createSettingsAppsState, type SettingsAppsState } from './domains/settings-apps';
+import { createProfileLayoutState, type ProfileLayoutState } from './domains/profile-layout';
 import { createSettingsDataState, type SettingsDataState } from './domains/settings-data';
 import { createSettingsAiState, type SettingsAiState } from './domains/settings-ai';
 import { createSettingsOpsState, type SettingsOpsState } from './domains/settings-ops';
@@ -63,6 +64,7 @@ export interface MockDb {
   loyalty: LoyaltyState;
   settings: SettingsState;
   settingsApps: SettingsAppsState;
+  profileLayout: ProfileLayoutState;
   settingsData: SettingsDataState;
   settingsAi: SettingsAiState;
   settingsOps: SettingsOpsState;
@@ -104,6 +106,7 @@ const db: MockDb = {
   loyalty: createLoyaltyState(),
   settings: createSettingsState(),
   settingsApps: createSettingsAppsState(),
+  profileLayout: createProfileLayoutState(),
   settingsData: createSettingsDataState(),
   settingsAi: createSettingsAiState(),
   settingsOps: createSettingsOpsState(),

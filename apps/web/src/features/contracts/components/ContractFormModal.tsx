@@ -11,7 +11,23 @@ import { quotesQuery } from '@/features/quotes';
 import { useContractFormStyles } from '../styles/form.styles';
 import { useContractsUi } from '../contracts-store';
 import { initialContractDraft, useContractForm } from '../hooks/useContractForm';
-import type { ContractKind } from '../types';
+import { contractQuery } from '../api';
+import type { Contract, ContractKind } from '../types';
+
+const toPrefill = (c: Contract): Record<string, unknown> => ({
+  contact_id: c.contact_id,
+  quote_id: c.quote_id ?? '',
+  number: c.number,
+  kind: c.kind,
+  title: c.title,
+  value: c.value,
+  signed_date: c.signed_date,
+  start_date: c.start_date ?? '',
+  end_date: c.end_date ?? '',
+  owner_user_id: c.owner_user_id,
+  file_name: c.file_name,
+  note: c.note,
+});
 
 const ALL_CONTACTS = {
   stage: 'all',
@@ -30,21 +46,40 @@ const TODAY = '2026-06-24';
 
 export function ContractFormModal() {
   const ui = useContractsUi();
-  if (ui.form !== 'create') return null;
-  return <ContractForm key={JSON.stringify(ui.prefill)} />;
+  if (!ui.form) return null;
+  if (ui.form === 'edit' && ui.editId) return <ContractEditLoader id={ui.editId} />;
+  return <ContractForm key={JSON.stringify(ui.prefill)} mode="create" />;
 }
 
-function ContractForm() {
+/** Nạp hợp đồng hiện có trước khi mở form sửa (REQ-F11: Nháp → Cập nhật tại chỗ). */
+function ContractEditLoader({ id }: { id: string }) {
+  const c = useQuery(contractQuery(id)).data;
+  if (!c) return null;
+  return <ContractForm key={id} mode="edit" editId={id} editCode={c.code} editPrefill={toPrefill(c)} />;
+}
+
+function ContractForm({
+  mode,
+  editId,
+  editCode,
+  editPrefill,
+}: {
+  mode: 'create' | 'edit';
+  editId?: string;
+  editCode?: string;
+  editPrefill?: Record<string, unknown>;
+}) {
   const t = useTranslations('contracts');
   const { styles, cx } = useContractFormStyles();
   const ui = useContractsUi();
   const contacts = useQuery(contactsQuery(ALL_CONTACTS)).data?.data ?? [];
   const members = useQuery(membersQuery()).data ?? [];
   const quotes = useQuery(quotesQuery(ALL_QUOTES)).data?.data ?? [];
-  const f = useContractForm(initialContractDraft(TODAY, ui.prefill));
+  const f = useContractForm(initialContractDraft(TODAY, mode === 'edit' ? editPrefill : ui.prefill));
   const create = useAction<{ contract_id: string }>('contract.create');
+  const update = useAction<{ contract_id: string }>('contract.update');
   const [err, setErr] = useState('');
-  const close = () => ui.set({ form: null, prefill: null });
+  const close = () => ui.set({ form: null, prefill: null, editId: null });
 
   const save = async () => {
     if (f.missing.length) {
@@ -56,8 +91,11 @@ function ContractForm() {
       return setErr(t('form.required', { fields: f.missing.map((m) => names[m]).join(', ') }));
     }
     if (f.badRange) return setErr(t('form.endBefore'));
-    const res = await create.run(f.input);
-    if (res) ui.set({ form: null, prefill: null, detail: res.result.contract_id, tab: 'overview' });
+    const res =
+      mode === 'edit' && editId
+        ? await update.run({ contract_id: editId, patch: f.input })
+        : await create.run(f.input);
+    if (res) ui.set({ form: null, prefill: null, editId: null, detail: res.result.contract_id, tab: 'overview' });
   };
 
   const field = (label: string, node: ReactNode, wide?: boolean) => (
@@ -82,7 +120,7 @@ function ContractForm() {
       open
       onClose={close}
       width={720}
-      title={t('form.title')}
+      title={mode === 'edit' ? t('form.editTitle') : t('form.title')}
       icon="ic-plus"
       iconColor={color.brandDeep}
       iconBg={color.brandBg}
@@ -112,7 +150,7 @@ function ContractForm() {
       <div className={styles.section}>
         <div className={styles.sectionTitle}>{t('form.section')}</div>
         <div className={styles.grid}>
-          {field(t('form.code'), <input className={styles.input} placeholder={t('form.codePh')} disabled />)}
+          {field(t('form.code'), <input className={styles.input} value={editCode ?? ''} placeholder={t('form.codePh')} disabled />)}
           {field(
             t('form.number'),
             <input

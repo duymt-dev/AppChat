@@ -115,6 +115,9 @@
     },
     "decide_access": {
       "title": "Duyệt yêu cầu chia sẻ"
+    },
+    "send_email": {
+      "title": "Gửi email"
     }
   },
   "custom_field": {
@@ -514,6 +517,23 @@
     },
     "register_interest": {
       "title": "Đăng ký quan tâm kết nối"
+    }
+  },
+  "profile_layout": {
+    "create": {
+      "title": "Tạo mẫu Hồ sơ 360°"
+    },
+    "update": {
+      "title": "Sửa bố cục Hồ sơ 360°"
+    },
+    "duplicate": {
+      "title": "Nhân bản mẫu Hồ sơ 360°"
+    },
+    "delete": {
+      "title": "Xoá mẫu Hồ sơ 360°"
+    },
+    "assign_role": {
+      "title": "Gán mẫu cho vai trò"
     }
   },
   "ai_settings": {

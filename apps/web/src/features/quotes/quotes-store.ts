@@ -12,7 +12,9 @@ interface QuotesUi {
   selected: string[];
   detail: string | null;
   tab: string;
-  form: 'create' | null;
+  form: 'create' | 'edit' | null;
+  /** Báo giá đang sửa khi `form==='edit'` (REQ-F11: Nháp → Cập nhật tại chỗ). */
+  editId: string | null;
   draftOpen: boolean;
   aiOpen: boolean;
   menuFor: string | null;
@@ -30,6 +32,7 @@ export const useQuotesUi = create<QuotesUi>((set) => ({
   detail: null,
   tab: 'overview',
   form: null,
+  editId: null,
   draftOpen: false,
   aiOpen: false,
   menuFor: null,

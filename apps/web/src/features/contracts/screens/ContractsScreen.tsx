@@ -14,8 +14,6 @@ import { useContractsUi } from '../contracts-store';
 import { contractsMetaQuery, contractsQuery } from '../api';
 import { ContractCard, ContractKanbanCard, useContractColumns, useTr } from '../columns';
 import { BulkBar, ContractsToolbar } from '../components/ContractsToolbar';
-import { ContractDrawer } from '../components/ContractDrawer';
-import { ContractFormModal } from '../components/ContractFormModal';
 import { ContractAiDrawer } from '../components/ContractAiDrawer';
 import { ApproveSignModal, SendSignModal } from '../components/SignModals';
 import { KANBAN, chipOf } from '../status';
@@ -144,9 +142,7 @@ export function ContractsScreen() {
           />
         )}
       </PageStates>
-      {meta ? <ContractDrawer meta={meta} /> : null}
       {meta ? <ContractAiDrawer meta={meta} /> : null}
-      <ContractFormModal />
       <ApproveSignModal />
       <SendSignModal />
     </div>

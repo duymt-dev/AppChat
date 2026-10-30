@@ -1,9 +1,19 @@
 // Cài đặt › Ứng dụng (Blueprint §3.4 inbox · channels · identity/integrations; D28). Prototype L5892–6267, L7184–7301.
 // Thẻ, câu trả lời mẫu, kênh kết nối, web widget, nền tảng kết nối (connector theo manifest, thẻ "Sắp có").
+// profile_layout.*: bố cục Hồ sơ 360° theo mẫu & vai trò (REQ-F12, M05; prototype L690–735, L6397–6415).
 import { z } from 'zod';
 import { defineAction } from './define';
 
 const TAG = z.object({ name: z.string().trim().min(1).max(40), description: z.string().max(200).optional(), color: z.string().max(20).optional(), emoji: z.string().max(8).optional() });
+const ROLE_KEY = z.enum(['owner', 'manager', 'sales', 'cs', 'accountant']);
+const LAYOUT_TAB = z.object({
+  key: z.string().min(1),
+  label: z.string().trim().min(1).max(40),
+  enabled: z.boolean(),
+  sort: z.number().int(),
+  builtin: z.boolean(),
+  blocks: z.array(z.string().min(1)).max(12),
+});
 const REPLY = z.object({
   shortcut: z.string().regex(/^\/[a-z0-9_-]{1,30}$/),
   title: z.string().trim().min(1).max(80),
@@ -209,4 +219,69 @@ export const integrationRegisterInterest = defineAction({
   risk: 'write',
   agentGrantable: false,
   invalidates: ['integrations'],
+});
+
+export const profileLayoutCreate = defineAction({
+  id: 'profile_layout.create',
+  module: 'settings',
+  title: 'actions.profile_layout.create.title',
+  description: 'Create a Hồ sơ 360° layout template (tabs + blocks per tab). Example: {"name":"Marketing","tabs":[{"key":"overview","label":"Tổng quan","enabled":true,"sort":0,"builtin":true,"blocks":[]}]}',
+  input: z.object({ name: z.string().trim().min(1).max(60), tabs: z.array(LAYOUT_TAB).min(1) }),
+  output: z.object({ layout_id: z.string() }),
+  permission: 'settings.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['profile_layouts'],
+});
+
+export const profileLayoutUpdate = defineAction({
+  id: 'profile_layout.update',
+  module: 'settings',
+  title: 'actions.profile_layout.update.title',
+  description: 'Edit a layout\'s name or tabs (order, visibility, rename, blocks); at least one tab must stay enabled. Example: {"layout_id":"pl_1","patch":{"tabs":[...]}}',
+  input: z.object({ layout_id: z.string().min(1), patch: z.object({ name: z.string().trim().min(1).max(60).optional(), tabs: z.array(LAYOUT_TAB).min(1).optional() }) }),
+  output: z.object({ layout_id: z.string() }),
+  permission: 'settings.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['profile_layouts'],
+});
+
+export const profileLayoutDuplicate = defineAction({
+  id: 'profile_layout.duplicate',
+  module: 'settings',
+  title: 'actions.profile_layout.duplicate.title',
+  description: 'Duplicate a layout template as a new, unassigned, non-system copy. Example: {"layout_id":"pl_1"}',
+  input: z.object({ layout_id: z.string().min(1) }),
+  output: z.object({ layout_id: z.string() }),
+  permission: 'settings.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['profile_layouts'],
+});
+
+export const profileLayoutDelete = defineAction({
+  id: 'profile_layout.delete',
+  module: 'settings',
+  title: 'actions.profile_layout.delete.title',
+  description: 'Delete a non-system layout; roles assigned to it fall back to the default layout. Example: {"layout_id":"pl_2"}',
+  input: z.object({ layout_id: z.string().min(1) }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'settings.manage',
+  risk: 'delete',
+  agentGrantable: false,
+  invalidates: ['profile_layouts'],
+});
+
+export const profileLayoutAssignRole = defineAction({
+  id: 'profile_layout.assign_role',
+  module: 'settings',
+  title: 'actions.profile_layout.assign_role.title',
+  description: 'Assign a layout template to a system role (one template per role). Example: {"role":"cs","layout_id":"pl_2"}',
+  input: z.object({ role: ROLE_KEY, layout_id: z.string().min(1) }),
+  output: z.object({ role: z.string(), layout_id: z.string() }),
+  permission: 'settings.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['profile_layouts'],
 });

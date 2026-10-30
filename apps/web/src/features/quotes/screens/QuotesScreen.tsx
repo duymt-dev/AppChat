@@ -11,7 +11,6 @@ import { quotesMetaQuery, quotesQuery } from '../api';
 import { QuoteCard, QuoteKanbanCard, useQuoteColumns } from '../columns';
 import { BulkBar, QuotesToolbar } from '../components/QuotesToolbar';
 import { QuoteDrawer } from '../components/QuoteDrawer';
-import { QuoteFormModal } from '../components/QuoteFormModal';
 import { QuoteAiDrawer } from '../components/QuoteAiDrawer';
 import { DraftFromContentModal } from '../components/DraftFromContentModal';
 import { KANBAN } from '../status';
@@ -123,7 +122,6 @@ export function QuotesScreen() {
       </PageStates>
       {meta ? <QuoteDrawer meta={meta} /> : null}
       {meta ? <QuoteAiDrawer meta={meta} /> : null}
-      <QuoteFormModal />
       <DraftFromContentModal />
     </div>
   );

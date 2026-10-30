@@ -246,6 +246,26 @@ export const customFieldUpdate = defineAction({
   invalidates: ['crm'],
 });
 
+export const contactSendEmail = defineAction({
+  id: 'contact.send_email',
+  module: 'crm',
+  title: 'actions.contact.send_email.title',
+  description:
+    'Send a standalone email to a contact (not tied to an existing conversation) — REQ-F11 Hồ sơ 360°. Example: {"contact_id":"ct_lan","from":"cskh@huongsen.vn","subject":"Theo dõi sau tư vấn","body":"Chào chị Lan,…"}',
+  input: z.object({
+    contact_id: contactId,
+    from: z.string().email(),
+    to: z.string().min(1),
+    subject: z.string().trim().min(1).max(200),
+    body: z.string().trim().min(1).max(5000),
+  }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'inbox.reply',
+  risk: 'send',
+  agentGrantable: true,
+  invalidates: ['crm', 'inbox'],
+});
+
 export const customFieldDelete = defineAction({
   id: 'custom_field.delete',
   module: 'crm',

@@ -17,6 +17,7 @@ import { marketingRoutes } from './domains/marketing';
 import { loyaltyRoutes } from './domains/loyalty';
 import { settingsRoutes } from './domains/settings';
 import { settingsAppsRoutes } from './domains/settings-apps';
+import { profileLayoutRoutes } from './domains/profile-layout';
 import { settingsDataRoutes } from './domains/settings-data';
 import { settingsAiRoutes } from './domains/settings-ai';
 import { settingsOpsRoutes } from './domains/settings-ops';
@@ -70,6 +71,7 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...loyaltyRoutes,
   ...settingsRoutes,
   ...settingsAppsRoutes,
+  ...profileLayoutRoutes,
   ...settingsDataRoutes,
   ...settingsAiRoutes,
   ...settingsOpsRoutes,

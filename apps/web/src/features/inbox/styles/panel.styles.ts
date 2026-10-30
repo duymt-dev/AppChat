@@ -53,8 +53,19 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
     border-radius: ${radius.r6}px;
     padding: 2px 6px;
   `,
-  close: css`
+  gear: css`
     margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border-radius: ${radius.r6}px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: ${color.text3};
+  `,
+  close: css`
     display: none;
     width: ${layout.touch}px;
     height: ${layout.touch}px;
@@ -186,25 +197,27 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
   `,
   ops: css`
     display: flex;
-    gap: 4px;
+    gap: 6px;
     padding: 8px 12px 0;
     background: ${color.surface};
-    flex-wrap: wrap;
   `,
+  /** 6 nút mở form tại chỗ (REQ-F11) — cùng kích thước, nền trắng viền xám, màu theo loại (ver2.1 #10). */
   op: css`
-    flex: 1 1 auto;
-    height: 32px;
+    flex: 1;
+    min-width: 0;
+    height: ${layout.chip}px;
     border-radius: ${radius.r8}px;
     border: 1px solid ${color.border};
     background: ${color.surface};
     font-size: ${font.scale.s13}px;
-    font-weight: ${font.weight.semibold};
+    font-weight: ${font.weight.bold};
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     font-family: inherit;
+    white-space: nowrap;
     ${responsive.md} {
       height: ${layout.touch}px;
     }
@@ -212,17 +225,18 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
   foot: css`
     display: flex;
     gap: 6px;
-    padding: 8px 12px;
+    padding: 8px 12px 12px;
     background: ${color.surface};
-    border-top: 1px solid ${color.border};
   `,
   footBtn: css`
     flex: 1;
-    height: 38px;
+    min-width: 0;
+    height: ${layout.chip}px;
     border-radius: ${radius.r8}px;
-    border: none;
+    border: 1px solid ${color.border};
+    background: ${color.surface};
     font-weight: ${font.weight.bold};
-    font-size: ${font.scale.s14}px;
+    font-size: ${font.scale.s13}px;
     display: inline-flex;
     align-items: center;
     justify-content: center;

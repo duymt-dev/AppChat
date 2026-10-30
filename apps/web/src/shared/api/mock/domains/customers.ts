@@ -243,6 +243,9 @@ export const customersHandlers: Record<string, MockHandler> = {
       return { status: r.status };
     },
   },
+  'contact.send_email': {
+    execute: () => ({ ok: true }),
+  },
   'custom_field.define': {
     execute: (db, i: { label: string; type: string; options?: string; group?: string; required?: boolean }) => {
       const key = `cf_${++db.customers.seq}`;

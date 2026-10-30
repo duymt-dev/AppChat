@@ -101,6 +101,7 @@ export const contractsRoutes: Record<string, MockRoute> = {
         visible(db, c) &&
         (!p.status || p.status === 'all' || chipOf(c.status) === p.status) &&
         (!p.owner_id || p.owner_id === 'all' || c.owner_user_id === p.owner_id) &&
+        (!p.contact_id || c.contact_id === p.contact_id) &&
         (!p.value || p.value === 'all' || (VALUE[String(p.value)]?.(Number(c.value)) ?? true)) &&
         (!s || [c.code, c.contact_name, c.title].some((v) => v.toLowerCase().includes(s))),
     );

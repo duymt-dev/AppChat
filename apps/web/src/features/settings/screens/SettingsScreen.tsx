@@ -14,6 +14,7 @@ import { IntegrationsSection } from '../components/IntegrationsSection';
 import { WidgetSection } from '../components/WidgetSection';
 import { TagsSection } from '../components/TagsSection';
 import { RepliesSection } from '../components/RepliesSection';
+import { Profile360Section } from '../components/Profile360Section';
 import { FieldsSection } from '../components/FieldsSection';
 import { AiModelsSection } from '../components/AiModelsSection';
 import { RagSection } from '../components/RagSection';
@@ -39,6 +40,7 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   contacts_fields: FieldsSection,
   tags: TagsSection,
   replies: RepliesSection,
+  profile_360: Profile360Section,
   ai_models: AiModelsSection,
   rag_data: RagSection,
   ai_gov: GovSection,

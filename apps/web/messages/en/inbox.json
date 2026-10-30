@@ -234,6 +234,7 @@
   "p360": {
     "title": "360° profile",
     "close": "Close profile",
+    "customize": "Customize 360° profile",
     "tabs": {
       "overview": "Overview",
       "crm": "CRM",
@@ -286,7 +287,35 @@
     "spark": "✦",
     "aiBadge": "AI",
     "signalUp": "▲ ",
-    "signalWarn": "⚠ "
+    "signalWarn": "⚠ ",
+    "email": {
+      "title": "Send email",
+      "close": "Close",
+      "cancel": "Cancel",
+      "send": "Send email",
+      "from": "From",
+      "to": "To",
+      "template": "Email template",
+      "subject": "Subject",
+      "body": "Body",
+      "tpl": {
+        "followUp": {
+          "label": "Follow up after consult",
+          "subject": "Following up on our chat",
+          "body": "Hi {name},\n\nThanks for taking the time to talk with us. Here's a quick recap of what we discussed.\n\nBest regards."
+        },
+        "resendQuote": {
+          "label": "Resend quote",
+          "subject": "Resending your quote",
+          "body": "Hi {name},\n\nResending the quote for your review — let us know what you think.\n\nBest regards."
+        },
+        "confirmBooking": {
+          "label": "Confirm appointment",
+          "subject": "Appointment confirmation",
+          "body": "Hi {name},\n\nConfirming your appointment. Let us know if you need to reschedule.\n\nBest regards."
+        }
+      }
+    }
   },
   "group": {
     "title": "Group info",
