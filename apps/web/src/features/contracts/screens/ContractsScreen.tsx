@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { DataTable, Icon, KanbanBoard, PageHeader, color } from '@appchat/ui';
+import { AiButton, DataTable, Icon, KanbanBoard, PageHeader, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
@@ -49,6 +49,7 @@ export function ContractsScreen() {
   useContractsUiCommands();
   useFromQuote();
   const t = useTranslations('contracts');
+  const tc = useTranslations('common');
   const { styles } = useContractsStyles();
   const ui = useContractsUi();
   const list = useQuery(contractsQuery(ui.filter, ui.pg));
@@ -93,15 +94,7 @@ export function ContractsScreen() {
                 {t('create')}
               </button>
             ) : null}
-            <button
-              type="button"
-              className={styles.aiBtn}
-              onClick={() => ui.set({ aiOpen: true })}
-              data-testid="ct-ai-open"
-            >
-              <Icon name="ic-spark" size={15} color={color.white} />
-              {t('ai')}
-            </button>
+            <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="ct-ai-open" />
           </>
         }
         kpis={KPI.map(([k, c, icon]) => ({

@@ -1,5 +1,6 @@
 // Primitive dùng chung (Blueprint §7, frontend-structure §2): màn danh sách = PageHeader + StageTabs/FilterBar + (DataTable | KanbanBoard) + EntityDrawer.
 export * from './ActionMenu';
+export * from './AiButton';
 export * from './DataTable';
 export * from './EntityDrawer';
 export * from './FilterBar';

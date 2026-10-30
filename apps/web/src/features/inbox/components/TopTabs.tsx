@@ -1,7 +1,7 @@
 // Thanh tab trên hộp thư — prototype L1584–1597: nút rail thư mục · 7 tab có đếm · nút "Trợ lý AI".
 'use client';
 import { useTranslations } from 'next-intl';
-import { Icon, color } from '@appchat/ui';
+import { AiButton, Icon, color } from '@appchat/ui';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import type { FolderCounts } from '../types';
@@ -10,6 +10,7 @@ const DOT = { brand: color.brand, amber: color.warnAmber, violet: color.violet }
 
 export function TopTabs({ counts }: { counts: FolderCounts | undefined }) {
   const t = useTranslations('inbox');
+  const tc = useTranslations('common');
   const { styles, cx } = useInboxStyles();
   const ui = useInboxUi();
 
@@ -31,10 +32,7 @@ export function TopTabs({ counts }: { counts: FolderCounts | undefined }) {
           );
         })}
       </div>
-      <button type="button" className={styles.aiBtn} onClick={() => ui.set({ modal: 'ai' })} data-testid="inbox-ai-open">
-        <Icon name="ic-spark" size={14} strokeWidth={1.9} color={color.brandInk} />
-        <span className={styles.aiLabel}>{t('assistant')}</span>
-      </button>
+      <AiButton label={tc('aiButton')} module={t('list.title')} onClick={() => ui.set({ modal: 'ai' })} testId="inbox-ai-open" />
     </div>
   );
 }

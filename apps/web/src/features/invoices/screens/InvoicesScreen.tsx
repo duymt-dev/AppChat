@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { DataTable, Icon, PageHeader, color } from '@appchat/ui';
+import { AiButton, DataTable, Icon, PageHeader, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useShellStore } from '@/shared/shell/shell-store';
@@ -46,6 +46,7 @@ export function InvoicesScreen() {
   useInvoicesUiCommands();
   useFromOrder();
   const t = useTranslations('invoices');
+  const tc = useTranslations('common');
   const { styles } = useInvoicesStyles();
   const ui = useInvoicesUi();
   const list = useQuery(invoicesQuery(ui.q, ui.pg));
@@ -94,15 +95,7 @@ export function InvoicesScreen() {
                 {t('create')}
               </button>
             ) : null}
-            <button
-              type="button"
-              className={styles.aiBtn}
-              onClick={() => setDock(true)}
-              data-testid="iv-ai-open"
-            >
-              <Icon name="ic-spark" size={15} color={color.white} />
-              {t('ai')}
-            </button>
+            <AiButton label={tc('aiButton')} module={t('title')} onClick={() => setDock(true)} testId="iv-ai-open" />
           </>
         }
       />

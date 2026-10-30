@@ -99,9 +99,6 @@ export const useCrmStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
-  btnDark: css`
-    background: ${color.text};
-  `,
   bar: css`
     display: flex;
     align-items: center;

@@ -1,7 +1,6 @@
 {
   "greeting": "Chào {name} 👋",
   "greetingSub": "Toàn cảnh hội thoại, chuyển đổi từ AI và các hoạt động đang chạy hôm nay.",
-  "askAssistant": "Hỏi Trợ lý AI",
   "onboarding": {
     "title": "Bắt đầu với AppChat",
     "sub": "Hoàn tất 5 bước để kích hoạt workspace và đưa AI Agent vào vận hành.",

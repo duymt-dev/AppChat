@@ -2,7 +2,7 @@
 // Chế độ xem theo Blueprint §7.2 ViewSwitch(list | day | week | month) — thêm "Ngày" vào nhóm nút của prototype.
 'use client';
 import { useTranslations } from 'next-intl';
-import { Icon, color, type IconName } from '@appchat/ui';
+import { AiButton, Icon, color, type IconName } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useCalendarStyles } from '../styles/calendar.styles';
 import { useCalendarUi } from '../calendar-store';
@@ -26,6 +26,7 @@ const KPI = [
 
 export function CalendarHeader({ meta }: { meta: CalendarMeta | undefined }) {
   const t = useTranslations('calendar');
+  const tc = useTranslations('common');
   const { styles, cx } = useCalendarStyles();
   const ui = useCalendarUi();
   const canCreate = useCan('booking.manage');
@@ -68,10 +69,7 @@ export function CalendarHeader({ meta }: { meta: CalendarMeta | undefined }) {
             {t('create')}
           </button>
         ) : null}
-        <button type="button" className={styles.dark} onClick={() => ui.set({ aiOpen: true })} data-testid="cal-ai-open">
-          <Icon name="ic-spark" size={14} color={color.sparkMint} strokeWidth={1.9} />
-          {t('ai')}
-        </button>
+        <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="cal-ai-open" />
       </div>
       <div className={styles.kpis} data-testid="cal-kpis">
         {KPI.map(([k, ic, c]) => (

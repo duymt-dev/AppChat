@@ -1,13 +1,14 @@
 // Nút trên đầu màn Khách hàng — prototype L2456–2463: tìm kiếm · Check trùng · Trường mở rộng · Nhập · Xuất Excel · Tạo liên hệ · Trợ lý AI.
 'use client';
 import { useTranslations } from 'next-intl';
-import { Icon, color } from '@appchat/ui';
+import { AiButton, Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useCrmStyles } from '../styles/crm.styles';
 import { useCrmUi } from '../crm-store';
 
 export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
   const t = useTranslations('customers');
+  const tc = useTranslations('common');
   const { styles, cx } = useCrmStyles();
   const ui = useCrmUi();
   const canEdit = useCan('crm.edit');
@@ -59,10 +60,7 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
           {t('create')}
         </button>
       ) : null}
-      <button type="button" className={cx(styles.btnp, styles.btnDark)} onClick={() => ui.open('ai')} data-testid="crm-ai">
-        <Icon name="ic-spark" size={13} color={color.sparkMint} strokeWidth={1.9} />
-        {t('assistant')}
-      </button>
+      <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.open('ai')} testId="crm-ai" />
     </>
   );
 }

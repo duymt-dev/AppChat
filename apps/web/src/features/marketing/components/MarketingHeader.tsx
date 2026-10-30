@@ -2,7 +2,7 @@
 // hero theo kênh hoặc 4 KPI tổng quan, tab trạng thái (+ Chờ duyệt / Nháp / Từ chối), hàng lọc. Ngoại lệ §6 Kênh: bỏ SMS / ZNS / ZBS.
 'use client';
 import { useTranslations } from 'next-intl';
-import { Icon, color, type IconName } from '@appchat/ui';
+import { AiButton, Icon, color, type IconName } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useMarketingStyles } from '../styles/marketing.styles';
 import { useMarketingUi } from '../marketing-store';
@@ -44,6 +44,7 @@ function Kpis({ meta }: { meta: MarketingMeta }) {
 
 export function MarketingHeader({ meta }: { meta: MarketingMeta | undefined }) {
   const t = useTranslations('marketing');
+  const tc = useTranslations('common');
   const { styles, cx } = useMarketingStyles();
   const ui = useMarketingUi();
   const canCreate = useCan('campaign.manage');
@@ -70,9 +71,7 @@ export function MarketingHeader({ meta }: { meta: MarketingMeta | undefined }) {
             {t('create')}
           </button>
         ) : null}
-        <button type="button" className={styles.sq} onClick={() => ui.set({ aiOpen: true })} title={t('aiBtn')} aria-label={t('aiBtn')} data-testid="mk-ai-open">
-          <Icon name="ic-spark" size={16} color={color.violet} strokeWidth={1.9} />
-        </button>
+        <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="mk-ai-open" />
       </div>
       <div className={styles.chans} role="tablist">
         {CHAN_TABS.map(([k, c, ic]) => {

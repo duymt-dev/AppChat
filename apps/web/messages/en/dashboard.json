@@ -1,7 +1,6 @@
 {
   "greeting": "Hi {name} 👋",
   "greetingSub": "An overview of conversations, AI conversions and everything running today.",
-  "askAssistant": "Ask the AI Assistant",
   "onboarding": {
     "title": "Get started with AppChat",
     "sub": "Complete 5 steps to activate your workspace and put AI Agents to work.",
