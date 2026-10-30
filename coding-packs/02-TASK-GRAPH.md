@@ -184,4 +184,4 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 ## TEAM ALLOCATION
 
 - Mô hình OPC: **Chủ nhà** duyệt / quyết; **Chủ thầu** (Claude, phiên thiết kế) viết TIP theo wave, nhận Completion Report, verify; **Thợ** (Claude Code, mỗi TIP một phiên / nhánh) thi công.
-- Mỗi TIP có file riêng `tips/TIP-XXX-<slug>.md`, sinh bằng `/vibecode:tip` **theo từng wave** (không viết trước cả 46 TIP để TIP sau dùng kết quả thật của TIP trước).
+- Mỗi TIP có file riêng `tips/TIP-XXX-<slug>.md`, sinh bằng `/vibecode:tip` **ngay trước khi thi công TIP đó** (D57 — siết cách "theo từng wave" cũ; không viết trước để TIP sau dùng kết quả thật của TIP trước). Tiến độ: `goals/GOAL-BACKEND.md`.

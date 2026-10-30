@@ -19,7 +19,7 @@ Bạn là **THỢ THI CÔNG**. Chủ nhà và Chủ thầu đã thống nhất t
 6. **UI giống prototype < 5%** ở 1440×900 (`pnpm parity <id>`), mobile 390×844 qua e2e. Chỉ dùng token, không hard-code màu / px (`standards/ui/prototype-parity.md`, `standards/ui/frontend-structure.md`). Prototype không vẽ hoặc vẽ sai → làm theo `standards/ui/interaction-patterns.md` và 4 mức lệch ở `prototype-parity.md` §6b (ghi `PD-xxx` vào `docs/06-prototype/DEVIATIONS.md`; mức 3 vẫn theo prototype đến khi Chủ nhà duyệt).
 7. **Test thật, báo trung thực, commit ngay.** Chạy test thật và dán output. Không báo DONE khi test chưa chạy hoặc còn đỏ. Xong thì `git add` + `git commit`, `git status --short` phải sạch, báo **git commit SHA** (không dùng hash file binary).
 
-Ràng buộc chung: **không dùng Docker**. Nguồn duy nhất là `coding-packs/` và `specs/`. Không tự thêm thư viện ngoài tech stack mà không ghi vào Deviations.
+Ràng buộc chung: **không dùng Docker**. Nguồn duy nhất là `coding-packs/` và `specs/`. Không tự thêm thư viện ngoài tech stack mà không ghi vào `DEVIATIONS.md`. Goal backend dùng ba sổ `QUESTIONS.md` · `DECISIONS.md` · `DEVIATIONS.md` (`goals/GOAL-BACKEND.md`).
 
 ## PROJECT CONTEXT
 
@@ -116,9 +116,9 @@ Phụ thuộc chi tiết, chạy song song và cổng tài nguyên: `02-TASK-GRA
 3. Nếu TIP có **spike** (014 zca-js, 019 AI SDK usage, 028 LibreOffice): làm spike trước, báo kết quả ngay trong report; spike fail → escalation L2, không làm tiếp phần phụ thuộc.
 4. Implement đúng `Files touched`; chỉ điền stub của domain mình.
 5. Self-test theo Acceptance Criteria: unit + integration (Postgres + Redis thật, DB tenant tạo từ template) + tenant / role isolation khi chạm dữ liệu + parity / e2e mobile khi có UI + eval khi chạm AI.
-6. **Chỉ chạy phần bị ảnh hưởng** (D39, `standards/code/testing.md` §4b): `pnpm turbo run test lint typecheck --filter=...[origin/main]` · `pnpm parity <id>` của màn vừa sửa · `pnpm e2e <module>` · `pnpm i18n:check` khi đổi chuỗi. Sửa lớp dùng chung → thêm `pnpm parity --done`. Chạy toàn bộ chỉ ở cuối wave / trước merge `main`. Dán output + ghi phạm vi đã chạy.
+6. **Chỉ chạy phần bị ảnh hưởng** (D39, `standards/code/testing.md` §4b): `pnpm turbo run test lint typecheck --filter=...[origin/main]` · `pnpm parity <id>` của màn vừa sửa · `pnpm e2e <module>` · `pnpm i18n:check` khi đổi chuỗi. Sửa lớp dùng chung → thêm `pnpm parity --done`. Chạy toàn bộ chỉ ở cuối wave / trước merge `main`. Dán output + ghi phạm vi đã chạy. **TIP backend (D58):** chỉ test nghiệp vụ của TIP — phạm vi ở `goals/GOAL-BACKEND.md` → "Phạm vi test".
 7. Commit (message kết thúc bằng dòng attribution của phiên), `git status --short` sạch, lấy SHA.
-8. Hết TIP: `git rebase origin/dev` → push → `gh pr create --base dev` (thân PR theo mẫu trong standard) → chờ CI xanh.
+8. Hết TIP: `git rebase origin/dev` → push → `gh pr create --base dev` (thân PR theo mẫu trong standard; `gh` chưa đăng nhập → gửi link `compare/dev...<nhánh>` + thân PR để Chủ nhà tạo) → chờ CI xanh.
 9. Gửi Completion Report kèm link PR.
 
 ## COMPLETION REPORT FORMAT
@@ -152,6 +152,6 @@ Phụ thuộc chi tiết, chạy song song và cổng tài nguyên: `02-TASK-GRA
 
 | Mức | Khi nào | Làm gì |
 |-----|---------|--------|
-| **L1 — tự xử** | Chi tiết nhỏ không đổi contract: tên biến nội bộ, cách chia file trong domain, thư viện tiện ích đã có trong stack | Làm, ghi vào Deviations |
+| **L1 — tự xử** | Chi tiết nhỏ không đổi contract: tên biến nội bộ, cách chia file trong domain, thư viện tiện ích đã có trong stack | Làm, ghi vào `DEVIATIONS.md` |
 | **L2 — hỏi Chủ thầu** | Spec thiếu / mâu thuẫn; cần sửa file ngoài `Files touched` hoặc stub domain khác; đổi schema / API / action contract; spike fail; vượt trần dòng mà không tách được hợp lý; test hạ tầng không chạy được | Dừng phần bị ảnh hưởng, báo PARTIAL kèm câu hỏi cụ thể + phương án đề xuất |
 | **L3 — lên Chủ nhà** | Đổi phạm vi / quy tắc nghiệp vụ (giá, duyệt, pháp lý, quyền), cần tài nguyên ngoài (key, tài khoản, chi phí), rủi ro bảo mật / dữ liệu khách | Báo BLOCKED, Chủ thầu chuyển lên Chủ nhà; không tự quyết |

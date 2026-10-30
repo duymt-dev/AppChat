@@ -73,6 +73,7 @@ Ngưỡng duy nhất < 100% là các ô phụ thuộc dịch vụ ngoài (bản 
 | 1–2 tài khoản Zalo cá nhân phụ | 014 | làm 015 trước; 014 dựng adapter + test bằng fake | Chưa có |
 | SePay (+ tài khoản nhận tiền) | 010, 032 | adapter `mock`, webhook giả lập | Chưa có |
 | Brevo + domain gửi | 004, 006 | adapter `console` in OTP ra log | Chưa có |
+| Mật khẩu Postgres máy dev | 002 → hết | TIP-001 không cần DB; từ 002 integration test chờ | Chưa có — Q-007 |
 | VPS + domain | 045, 046 | làm cuối; 045 viết script + chạy thử trên máy dev nếu được | Chủ nhà đang hoãn |
 
 ## Không làm trong goal này
@@ -84,6 +85,51 @@ Ngưỡng duy nhất < 100% là các ô phụ thuộc dịch vụ ngoài (bản 
 
 ## Tiến độ
 
+Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài nguyên ngoài) · `BLOCKED`. Goal bắt đầu khi Chủ nhà đặt `/goal`; tài liệu goal + ba sổ đi cùng commit đầu của nhánh TIP-001 (DC-003).
+
 | TIP | Wave | Trạng thái | Nhánh | SHA | PR |
 |-----|------|-----------|-------|-----|----|
-| 001 | W1 | đang làm | `tip/001-scaffold-backend` | — | — |
+| 001 | W1 | chờ | — | — | — |
+| 002 | W1 | chờ | — | — | — |
+| 003 | W1 | chờ | — | — | — |
+| 004 | W2 | chờ | — | — | — |
+| 005 | W2 | chờ | — | — | — |
+| 006 | W2 | chờ | — | — | — |
+| 009 | W3 | chờ | — | — | — |
+| 010 | W3 | chờ | — | — | — |
+| 011 | W3 | chờ | — | — | — |
+| 012 | W3 | chờ | — | — | — |
+| 013 | W3 | chờ | — | — | — |
+| 014 | W4 | chờ | — | — | — |
+| 015 | W4 | chờ | — | — | — |
+| 016 | W4 | chờ | — | — | — |
+| 017 | W4 | chờ | — | — | — |
+| 018 | W4 | chờ | — | — | — |
+| 019 | W5 | chờ | — | — | — |
+| 020 | W5 | chờ | — | — | — |
+| 021 | W5 | chờ | — | — | — |
+| 022 | W5 | chờ | — | — | — |
+| 023 | W6 | chờ | — | — | — |
+| 024 | W6 | chờ | — | — | — |
+| 025 | W6 | chờ | — | — | — |
+| 026 | W6 | chờ | — | — | — |
+| 027 | W6 | chờ | — | — | — |
+| 028 | W6 | chờ | — | — | — |
+| 029 | W7 | chờ | — | — | — |
+| 030 | W7 | chờ | — | — | — |
+| 031 | W7 | chờ | — | — | — |
+| 032 | W7 | chờ | — | — | — |
+| 033 | W7 | chờ | — | — | — |
+| 034 | W8 | chờ | — | — | — |
+| 035 | W8 | chờ | — | — | — |
+| 036 | W8 | chờ | — | — | — |
+| 037 | W8 | chờ | — | — | — |
+| 038 | W8 | chờ | — | — | — |
+| 039 | W8 | chờ | — | — | — |
+| 040 | W8 | chờ | — | — | — |
+| 041 | W8 | chờ | — | — | — |
+| 042 | W8 | chờ | — | — | — |
+| 043 | W8 | chờ | — | — | — |
+| 044 | W9 | chờ | — | — | — |
+| 045 | W9 | chờ | — | — | — |
+| 046 | W9 | chờ | — | — | — |
