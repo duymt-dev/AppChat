@@ -9,7 +9,9 @@ export function useEnterApp() {
   const qc = useQueryClient();
   const router = useRouter();
   return useCallback(async () => {
-    await qc.invalidateQueries({ queryKey: authKeys.session });
+    // Tải lại phiên (kể cả khi query đang không dùng) TRƯỚC khi vào app: cổng onboarding đọc dữ liệu cũ `authed:false`
+    // trong lúc refetch sẽ đẩy ngược về /login (chế độ http — TIP-011).
+    await qc.refetchQueries({ queryKey: authKeys.session, type: 'all' });
     router.replace('/dashboard');
   }, [qc, router]);
 }

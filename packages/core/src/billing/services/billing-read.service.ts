@@ -130,7 +130,15 @@ export class BillingReadService {
       workspaces: Object.fromEntries(
         workspaceIds.map((id) => {
           const x = per.get(id);
-          return [id, { plan: x?.plan?.name ?? null, trial_ends_at: x?.sub.status === 'trialing' ? (x.sub.trialEndsAt?.toISOString() ?? null) : null }];
+          return [
+            id,
+            {
+              plan: x?.plan?.name ?? null,
+              plan_key: x?.plan?.key ?? null,
+              segment: x?.plan?.segment ?? null,
+              trial_ends_at: x?.sub.status === 'trialing' ? (x.sub.trialEndsAt?.toISOString() ?? null) : null,
+            },
+          ];
         }),
       ),
       billing: {
@@ -139,6 +147,20 @@ export class BillingReadService {
         wallet_balance: String(Number(wallet?.topupBalance ?? 0n) * CREDIT_VND),
       },
     };
+  }
+
+  /**
+   * Trạng thái trial cho `GET /v1/session` (TIP-011): chưa có subscription → `started:false` (consumer `billing.trial` chưa chạy);
+   * `trialing` → số ngày còn lại; `expired` = đã từng trial và đang ở gói Miễn phí (gói trả phí không bị nhắc hết trial).
+   */
+  async trialState(workspaceId: string) {
+    const sub = await this.db.subscription.findUnique({ where: { workspaceId } });
+    if (!sub) return { started: false, daysLeft: 0, endsAt: 0, expired: false };
+    const now = this.now().getTime();
+    const ends = sub.trialEndsAt?.getTime() ?? 0;
+    if (sub.status === 'trialing') return { started: true, daysLeft: Math.max(0, Math.ceil((ends - now) / DAY)), endsAt: ends, expired: ends <= now };
+    const plan = await this.db.plan.findUnique({ where: { id: sub.planId }, select: { key: true } });
+    return { started: true, daysLeft: 0, endsAt: ends, expired: !!sub.trialStartedAt && plan?.key === 'free' };
   }
 
   /** Ví: số dư + 50 dòng gần nhất + ước tính số ngày còn dùng được (theo mức dùng 7 ngày qua). */

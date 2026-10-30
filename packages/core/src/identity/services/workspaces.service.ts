@@ -41,7 +41,7 @@ export class WorkspacesService {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async create(userId: string, name: string) {
+  async create(userId: string, name: string, opts: { autoNamed?: boolean } = {}) {
     const now = this.clock.now();
     const id = uuidv7(now.getTime());
     const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { locale: true } });
@@ -56,6 +56,8 @@ export class WorkspacesService {
           locale: user.locale,
           dbName: tenantDbName(id),
           dbStatus: 'provisioning',
+          // Workspace tự tạo lúc đăng nhập lần đầu (TIP-011) — khai báo DN lần đầu đổi tên theo tên pháp lý.
+          ...(opts.autoNamed ? { settings: { auto_named: true } } : {}),
         },
       });
       await tx.membership.create({ data: { workspaceId: id, userId, roleKey: 'owner', status: 'active', joinedAt: now } });
@@ -114,6 +116,41 @@ export class WorkspacesService {
       current_workspace_id: current,
       needs_declare: !workspaces.some((w) => declared.has(w.id)),
     };
+  }
+
+  /**
+   * Đăng ký / đăng nhập xong mà chưa thuộc workspace nào → tạo workspace đầu tiên (tên = phần trước @ của email) + job
+   * `tenant.provision` (Auth flow Blueprint §8: tạo workspace trước khai báo). Đã có membership active → không làm gì.
+   */
+  async ensureFirst(userId: string, email: string): Promise<string | null> {
+    if (await this.db.membership.findFirst({ where: { userId, status: 'active' }, select: { workspaceId: true } })) return null;
+    return (await this.create(userId, email.split('@')[0]!.slice(0, 120) || 'Workspace', { autoNamed: true })).id;
+  }
+
+  /** Workspace đang dùng của user + trạng thái onboarding phía identity (GET /v1/session — TIP-011). */
+  async onboarding(userId: string) {
+    const me = await this.me(userId);
+    const ws = me.workspaces.find((w) => w.id === me.current_workspace_id);
+    if (!ws) return null;
+    const m = await this.db.membership.findUnique({ where: { workspaceId_userId: { workspaceId: ws.id, userId } }, select: { noticesSeen: true } });
+    const ready = ws.db_status === 'active';
+    return {
+      workspaceId: ws.id,
+      declared: ws.declared,
+      dbReady: ready,
+      failed: !ready && (ws.db_status !== 'provisioning' || (await this.queue.failed(ws.id))),
+      notices: m?.noticesSeen ?? [],
+    };
+  }
+
+  /** Đã xem thông báo onboarding (`trial_welcome` / `trial_expired`) ở workspace đang dùng — idempotent. */
+  async ackNotice(userId: string, notice: string): Promise<void> {
+    const cur = await this.onboarding(userId);
+    if (!cur || cur.notices.includes(notice)) return;
+    await this.db.membership.update({
+      where: { workspaceId_userId: { workspaceId: cur.workspaceId, userId } },
+      data: { noticesSeen: { push: notice } },
+    });
   }
 
   /** workspace.switch: đích phải là membership active. */

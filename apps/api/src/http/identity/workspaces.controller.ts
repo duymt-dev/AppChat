@@ -10,6 +10,7 @@ import { normalizeTaxCode } from '@appchat/integrations';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 import { parseBody } from './http-util';
+import { meView } from './me.view';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -29,7 +30,7 @@ export class WorkspacesController {
       me.workspaces.map((w) => w.id),
       me.current_workspace_id,
     );
-    return { data: { ...me, workspaces: me.workspaces.map((w) => ({ ...w, ...b.workspaces[w.id] })), billing: b.billing } };
+    return { data: meView(me, b) };
   }
 
   @Post('workspaces')

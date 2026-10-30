@@ -1,5 +1,5 @@
 // business_profile.update (db platform, settings.manage) — khai báo DN / hộ KD / cá nhân sau đăng ký (REQ-A02, DC-019).
-// Lần đầu ghi declared_at; cập nhật sau giữ declared_at cũ.
+// Lần đầu ghi declared_at (+ đổi tên workspace tự tạo — TIP-011); cập nhật sau giữ declared_at cũ.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, businessProfileUpdate } from '@appchat/actions';
@@ -36,6 +36,16 @@ export class BusinessProfileUpdateHandler implements Handler<Input, Output> {
       create: { workspaceId: ws, ...fields, declaredAt: this.clock.now() },
       update: fields,
     });
+    // Workspace tự tạo lúc đăng ký (TIP-011, tên tạm theo email) → khai báo lần đầu đặt tên theo tên pháp lý / họ tên.
+    if (!before) {
+      const w = await ptx.workspace.findUnique({ where: { id: ws }, select: { settings: true } });
+      const settings = (w?.settings ?? {}) as Record<string, unknown>;
+      if (settings.auto_named) {
+        const rest = { ...settings };
+        delete rest.auto_named;
+        await ptx.workspace.update({ where: { id: ws }, data: { name: input.legal_name.slice(0, 120), settings: rest as object } });
+      }
+    }
     const declaredAt = row.declaredAt.toISOString();
     return {
       result: { workspace_id: ws, declared_at: declaredAt },

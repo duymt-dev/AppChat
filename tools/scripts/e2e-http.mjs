@@ -1,0 +1,74 @@
+// pnpm e2e:http [spec…] — E2E trên backend thật (D57 / D59 "E2E luồng TIP ở http"): build api + worker, chạy bản build
+// (api cổng 4117, worker ROLE=jobs) với env `.env` máy dev + MAIL_CONSOLE_DIR (đọc OTP / link), rồi Playwright với
+// apps/web/playwright.http.config.ts (web `next build` NEXT_PUBLIC_API_MODE=http, rewrite /api → API). Dọn tiến trình khi xong.
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+const ROOT = join(import.meta.dirname, '..', '..');
+const API_PORT = process.env.E2E_API_PORT ?? '4117';
+const envFile = join(ROOT, '.env');
+const base = existsSync(envFile)
+  ? Object.fromEntries(
+      readFileSync(envFile, 'utf8')
+        .split(/\r?\n/)
+        .filter((l) => /^[A-Z_]+=/.test(l))
+        .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
+    )
+  : {};
+const mailDir = mkdtempSync(join(tmpdir(), 'appchat-mail-'));
+const env = {
+  ...process.env,
+  ...base,
+  NODE_ENV: 'test',
+  LOG_LEVEL: 'warn',
+  API_PORT,
+  MAIL_PROVIDER: 'console',
+  MAIL_CONSOLE_DIR: mailDir,
+  TAX_LOOKUP_PROVIDER: 'mock',
+  COOKIE_SECURE: 'false',
+};
+
+const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });
+if (!process.argv.includes('--no-build')) {
+  const b = run('pnpm', ['turbo', 'run', 'build', '--filter=@appchat/api', '--filter=@appchat/worker']);
+  if (b.status !== 0) process.exit(b.status ?? 1);
+}
+
+const procs = [
+  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
+  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'jobs' }, stdio: 'inherit' }),
+];
+const stop = () => {
+  for (const p of procs) p.kill();
+  rmSync(mailDir, { recursive: true, force: true });
+};
+process.on('SIGINT', () => {
+  stop();
+  process.exit(130);
+});
+
+// Chờ API sẵn sàng.
+const deadline = Date.now() + 60_000;
+for (;;) {
+  try {
+    if ((await fetch(`http://localhost:${API_PORT}/v1/health`)).ok) break;
+  } catch {
+    /* chưa lên */
+  }
+  if (Date.now() > deadline) {
+    console.error('e2e:http — API không lên sau 60 giây');
+    stop();
+    process.exit(1);
+  }
+  await new Promise((r) => setTimeout(r, 500));
+}
+
+const specs = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const r = run('pnpm', ['exec', 'playwright', 'test', '--config', 'playwright.http.config.ts', ...specs], {
+  cwd: join(ROOT, 'apps/web'),
+  env: { ...process.env, API_URL: `http://localhost:${API_PORT}`, MAIL_CONSOLE_DIR: mailDir },
+});
+stop();
+process.exit(r.status ?? 1);

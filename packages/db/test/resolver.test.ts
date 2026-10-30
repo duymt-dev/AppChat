@@ -108,6 +108,14 @@ describe('TenantDbResolver', () => {
     await expect(resolver.get(ctx)).resolves.toBeDefined();
   });
 
+  it('không cache trạng thái chưa active: worker (tiến trình khác) đặt active → lần gọi sau mở được ngay (TIP-011)', async () => {
+    const { resolver, registry } = setup('provisioning', { now: () => 0 });
+    const ctx = TenantContexts.system(WS[0]!, 'j');
+    await expect(resolver.get(ctx)).rejects.toBeInstanceOf(WorkspaceUnavailableError);
+    await registry.setStatus(WS[0]!, 'active');
+    await expect(resolver.get(ctx)).resolves.toBeDefined();
+  });
+
   it('LRU: vượt cacheSize → đóng client ít dùng nhất; idle quá hạn → đóng', async () => {
     let t = 0;
     const { resolver, closed } = setup('active', { cacheSize: 2, idleMs: 1000, now: () => t });

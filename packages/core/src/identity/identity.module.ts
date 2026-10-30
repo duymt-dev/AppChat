@@ -1,6 +1,8 @@
 // Domain `identity` — user, workspace, membership, invite, auth (OTP, password, tokens), business-profile (TIP-004).
 // Service dựng bằng factory từ env (ENV_SOURCE): thiếu DB / Redis / JWT_SECRET → service = null (process không cần auth,
 // vd. test health / worker không DB vẫn boot); HTTP controller của identity chỉ đăng ký khi đủ (apps/api).
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Module, type FactoryProvider, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -12,6 +14,7 @@ import { RateLimiter } from '../kernel/rate-limit';
 import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
 import { BusinessProfileUpdateHandler } from './actions/business-profile-update.handler';
+import { OnboardingToggleStepHandler } from './actions/onboarding-toggle-step.handler';
 import { ProfileUpdateHandler } from './actions/profile-update.handler';
 import { WorkspaceSwitchHandler } from './actions/workspace-switch.handler';
 import { readIdentityEnv, type IdentityEnv } from './identity.env';
@@ -30,7 +33,14 @@ type Src = Record<string, string | undefined>;
 
 /** Thư console: dev in mã / link ra stderr để đăng nhập thử (không qua logger có cấu trúc — ops §1.4); test chỉ giữ trong bộ nhớ. */
 const consoleMail = (env: IdentityEnv) =>
-  new MemoryMailProvider(env.NODE_ENV === 'development' ? (m) => process.stderr.write(`[mail:console] ${m.subject}\n${m.text}\n`) : undefined);
+  new MemoryMailProvider((m) => {
+    if (env.NODE_ENV === 'development') process.stderr.write(`[mail:console] ${m.subject}\n${m.text}\n`);
+    // E2E http (TIP-011) đọc OTP / link từ file; env validate cấm biến này ở production.
+    if (env.MAIL_CONSOLE_DIR) {
+      mkdirSync(env.MAIL_CONSOLE_DIR, { recursive: true });
+      writeFileSync(join(env.MAIL_CONSOLE_DIR, `${m.to}.txt`), m.text);
+    }
+  });
 
 const mailFor = (env: IdentityEnv): MailProvider => {
   const sender = { email: env.MAIL_FROM_EMAIL, name: env.MAIL_FROM_NAME };
@@ -96,7 +106,7 @@ const providers: FactoryProvider[] = [
 ];
 
 @Module({
-  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler],
+  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler],
   exports: [
     IDENTITY_ENV,
     MAIL_PROVIDER,

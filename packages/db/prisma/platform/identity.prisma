@@ -129,6 +129,8 @@ model Membership {
   roleKey     String           @map("role_key")
   status      MembershipStatus @default(active)
   delegations String[]         @default([])
+  /// Thông báo onboarding đã xem theo người × workspace (`trial_welcome`, `trial_expired`) — `POST /v1/session/ack` (TIP-011).
+  noticesSeen String[]         @default([]) @map("notices_seen")
   joinedAt    DateTime?        @map("joined_at") @db.Timestamptz(6)
   createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
 

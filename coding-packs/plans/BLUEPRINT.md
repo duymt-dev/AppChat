@@ -916,6 +916,10 @@ POST /v1/auth/logout             (cookie)                                       
 GET  /v1/me                                                                                → { user, workspaces: [{ id, name, role, plan, trial_ends_at }] }
 POST /v1/workspaces              { name }                                                  → { workspace }       (tạo workspace mới; người tạo là owner)
 GET  /v1/business-lookup/tax/:taxCode                                                      → { legal_name, address, representative, phone, founded_on, legal_status } | 404
+GET  /v1/session                 (public)                                                 → { authed, declared, provisioned, trialDaysLeft, trialEndsAt, trialSeen, expiredSeen, workspace_id }   (TIP-011, DC-037)
+POST /v1/session/ack             { notice: 'trial_welcome'|'trial_expired' }  (auth)      → 204
+GET  /v1/workspace/provisioning  (auth, workspace đang dùng)                              → { status: 'running'|'ready'|'failed' }
+GET  /v1/auth/brand?locale=      (public)                                                 → { card, stats }
 ```
 
 ### 4.3 Actions (cổng ghi thống nhất)

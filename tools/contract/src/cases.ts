@@ -12,5 +12,6 @@ export interface ContractCase {
 
 export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'notification.mark_read', input: { ids: 'all' }, tip: '003' },
+  { action: 'onboarding.toggle_step', input: { step: 'channel', done: true }, tip: '011' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

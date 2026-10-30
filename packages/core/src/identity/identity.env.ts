@@ -18,6 +18,8 @@ export const identityEnv = z
     SMTP_PASS: z.string().optional(),
     MAIL_FROM_EMAIL: z.string().email().default('no-reply@appchat.vn'),
     MAIL_FROM_NAME: z.string().default('AppChat'),
+    /** Dev / E2E http (TIP-011): MAIL_PROVIDER=console ghi thư gần nhất mỗi người nhận ra `<dir>/<email>.txt` để test đọc OTP / link. */
+    MAIL_CONSOLE_DIR: z.string().optional(),
     /** mock (fixture) | vietqr (OQ-05). */
     TAX_LOOKUP_PROVIDER: z.enum(['mock', 'vietqr']).default('mock'),
     /** Gốc link trong email (đặt lại mật khẩu, lời mời). */
@@ -27,6 +29,7 @@ export const identityEnv = z
   })
   .superRefine((e, ctx) => {
     if (e.NODE_ENV === 'production' && e.MAIL_PROVIDER === 'console') ctx.addIssue({ code: 'custom', path: ['MAIL_PROVIDER'], message: 'console cấm ở production' });
+    if (e.NODE_ENV === 'production' && e.MAIL_CONSOLE_DIR) ctx.addIssue({ code: 'custom', path: ['MAIL_CONSOLE_DIR'], message: 'cấm ở production' });
     if (e.MAIL_PROVIDER === 'brevo' && !e.BREVO_API_KEY) ctx.addIssue({ code: 'custom', path: ['BREVO_API_KEY'], message: 'required' });
     if (e.MAIL_PROVIDER === 'smtp' && !e.SMTP_HOST) ctx.addIssue({ code: 'custom', path: ['SMTP_HOST'], message: 'required' });
   });

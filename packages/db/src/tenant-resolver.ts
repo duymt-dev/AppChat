@@ -82,7 +82,10 @@ export class TenantDbResolver {
     const c = this.info.get(workspaceId);
     if (c && this.now() - c.at < ttl) return c.row;
     const row = await this.opts.registry.find(workspaceId);
-    this.info.set(workspaceId, { at: this.now(), row });
+    // Chỉ cache workspace `active`: đang khởi tạo / khôi phục thì tra lại mỗi lần — worker ở tiến trình khác đổi trạng thái,
+    // cache 60s sẽ giữ 503 WORKSPACE_UNAVAILABLE tới một phút sau khi DB đã sẵn sàng (TIP-011).
+    if (row?.dbStatus === 'active') this.info.set(workspaceId, { at: this.now(), row });
+    else this.info.delete(workspaceId);
     return row;
   }
 }

@@ -2,7 +2,7 @@
 import { Body, Controller, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
-import { AuthService, IDENTITY_ENV, InvitesService, OtpService, PASSWORD_MIN, SessionsService, normalizeEmail, type IdentityEnv, type LoginOutcome } from '@appchat/core';
+import { AuthService, IDENTITY_ENV, InvitesService, OtpService, PASSWORD_MIN, SessionsService, WorkspacesService, normalizeEmail, type IdentityEnv, type LoginOutcome } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 import { REFRESH_COOKIE, clearRefreshCookie, clientIp, parseBody, readCookie, setRefreshCookie } from './http-util';
@@ -22,6 +22,7 @@ export class AuthController {
     @Inject(OtpService) private readonly otp: OtpService,
     @Inject(SessionsService) private readonly sessions: SessionsService,
     @Inject(InvitesService) private readonly invites: InvitesService,
+    @Inject(WorkspacesService) private readonly workspaces: WorkspacesService,
     @Inject(IDENTITY_ENV) private readonly env: IdentityEnv,
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
   ) {}
@@ -35,9 +36,16 @@ export class AuthController {
     return { userAgent: Array.isArray(ua) ? ua[0] : ua, ip: clientIp(req) };
   }
 
-  private signedIn(res: ServerResponse, o: LoginOutcome, extra: Record<string, unknown> = {}) {
+  /**
+   * Đăng nhập xong: chưa thuộc workspace nào → tạo workspace đầu tiên + job khởi tạo (Auth flow Blueprint §8, TIP-011);
+   * `needs_declare` = workspace đang dùng chưa khai báo (FE mở popup khai báo).
+   */
+  private async signedIn(res: ServerResponse, o: LoginOutcome, extra: Record<string, unknown> = {}) {
+    await this.workspaces.ensureFirst(o.user.id, o.user.email);
+    const me = await this.workspaces.me(o.user.id);
+    const declared = me.workspaces.find((w) => w.id === me.current_workspace_id)?.declared ?? false;
     setRefreshCookie(res, o.refreshToken, o.refreshExpiresAt, this.secure);
-    return { data: { access_token: o.accessToken, user: o.user, needs_password: o.needsPassword, ...extra } };
+    return { data: { access_token: o.accessToken, user: o.user, needs_password: o.needsPassword, needs_declare: !declared, ...extra } };
   }
 
   @Post('otp/request')

@@ -14,3 +14,4 @@ export * from './codes';
 export * from './notify';
 export * from './events';
 export * from './billing';
+export * from './identity';

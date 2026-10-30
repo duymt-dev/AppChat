@@ -4,6 +4,7 @@ node_modules/
 .pnpm-store/
 .turbo/
 .next/
+.next-http/
 dist/
 coverage/
 *.tsbuildinfo
