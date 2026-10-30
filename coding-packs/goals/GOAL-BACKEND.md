@@ -100,7 +100,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 003 | W1 | DONE | `tip/003-action-kernel` (xếp chồng 002) | fc262e2 | chờ Chủ nhà tạo |
 | 004 | W2 | DONE | `tip/004-identity-auth` (xếp chồng 003) | 9044eb4 | chờ Chủ nhà tạo |
 | 005 | W2 | DONE | `tip/005-authz` (xếp chồng 004) | 0fcd2e9 | chờ Chủ nhà tạo |
-| 006 | W2 | chờ | — | — | — |
+| 006 | W2 | DONE | `tip/006-realtime-notify` (xếp chồng 005) | 202da08 | chờ Chủ nhà tạo |
 | 009 | W3 | chờ | — | — | — |
 | 010 | W3 | chờ | — | — | — |
 | 011 | W3 | chờ | — | — | — |
