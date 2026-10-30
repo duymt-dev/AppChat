@@ -1,6 +1,6 @@
-// Mock Khách hàng (Blueprint §4.4 crm, D32): GET /contacts, /contacts/stats, /contacts/duplicates, /custom-fields, /members,
+// Mock Khách hàng (Blueprint §4.4 crm, D32): GET /contacts, /contacts/stats, /contacts/duplicates, /members,
 // /contacts/:id/collaborators, /contact-access-requests. Dữ liệu = prototype L2451–2984 (fixture sinh bởi tools/scripts/fixtures/gen-customers.py).
-import { ApiRequestError, ROLE_DEFS } from '@appchat/shared';
+import { ApiRequestError, ROLE_DEFS, type CustomValues } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/customers.json';
 import inboxFixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
@@ -17,7 +17,6 @@ export interface CustomersState {
   contacts: Contact[];
   collaborators: Record<string, Collab[]>;
   requests: AccessRequest[];
-  fields: CustomersFixture['custom_fields'];
   duplicates: CustomersFixture['duplicates']['groups'];
   seq: number;
 }
@@ -29,7 +28,6 @@ export const createCustomersState = (): CustomersState => ({
   contacts: structuredClone(fixture.contacts),
   collaborators: structuredClone(fixture.collaborators) as Record<string, Collab[]>,
   requests: [],
-  fields: structuredClone(fixture.custom_fields),
   duplicates: structuredClone(fixture.duplicates.groups),
   seq: 0,
 });
@@ -69,7 +67,6 @@ export const customersRoutes: Record<string, MockRoute> = {
   },
   '/contacts/stats': () => ({ stats: fixture.stats, stages: fixture.stages, tag_defs: fixture.tag_defs }),
   '/contacts/duplicates': (db) => ({ summary: fixture.duplicates.summary, groups: db.customers.duplicates }),
-  '/custom-fields': (db) => db.customers.fields,
   '/members': () => fixture.members,
   '/crm/ai': () => ({ runs: fixture.ai_runs, peek: fixture.peek }),
   '/contact-access-requests': (db) =>
@@ -87,6 +84,7 @@ const profile360 = (c: Contact) => ({
   phone: c.phone,
   email: c.email,
   role: c.title === '—' ? inboxFixture.contacts.ct_lan.role : c.title,
+  custom: (c as { custom?: CustomValues }).custom,
 });
 
 /** /contacts/:id (360, khách kh_*) · /contacts/:id/collaborators. */
@@ -245,18 +243,5 @@ export const customersHandlers: Record<string, MockHandler> = {
   },
   'contact.send_email': {
     execute: () => ({ ok: true }),
-  },
-  'custom_field.define': {
-    execute: (db, i: { label: string; type: string; options?: string; group?: string; required?: boolean }) => {
-      const key = `cf_${++db.customers.seq}`;
-      db.customers.fields.push({ key, label: i.label, type: i.type, options: i.options ?? '–', group: i.group ?? '—', required: !!i.required, visible: true });
-      return { key };
-    },
-  },
-  'custom_field.update': {
-    execute: (db, i: { fields: { key: string; required: boolean; visible: boolean }[] }) => {
-      for (const f of i.fields) Object.assign(db.customers.fields.find((x) => x.key === f.key) ?? {}, f);
-      return { updated: i.fields.length };
-    },
   },
 };

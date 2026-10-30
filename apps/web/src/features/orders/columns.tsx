@@ -11,6 +11,7 @@ import { useOrderCellStyles } from './styles/cells.styles';
 import { useOrdersUi } from './orders-store';
 import { PAY_TONE, STATUS_TONE, avColor, avInitial } from './status';
 import type { Order } from './types';
+import { useCustomColumns } from '@/shared/custom-fields';
 
 export function StatusChip({ o }: { o: Order }) {
   const t = useTranslations('orders.status');
@@ -158,6 +159,7 @@ export function useOrderColumns(): TableColumnsType<Order> {
   const tr = useTr();
   const svc = useSvc();
   const { styles } = useOrderCellStyles();
+  const custom = useCustomColumns<Order>('order');
   return [
     {
       key: 'code',
@@ -203,6 +205,7 @@ export function useOrderColumns(): TableColumnsType<Order> {
     { key: 'pay', title: t('col.pay'), width: 130, render: (_, o) => <PayText o={o} /> },
     { key: 'status', title: t('col.status'), width: 110, render: (_, o) => <StatusChip o={o} /> },
     { key: 'ai', title: t('col.ai'), width: 140, render: (_, o) => <AiCell o={o} /> },
+    ...custom,
     {
       key: 'act',
       title: <span className={styles.end}>{t('col.act')}</span>,

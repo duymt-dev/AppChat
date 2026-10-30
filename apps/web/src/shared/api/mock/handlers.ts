@@ -22,6 +22,7 @@ import { settingsAiHandlers } from './domains/settings-ai';
 import { settingsOpsHandlers } from './domains/settings-ops';
 import { settingsBillingHandlers } from './domains/settings-billing';
 import { docTemplatesHandlers } from './domains/doc-templates';
+import { withCustomValues } from './domains/custom-values';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -29,7 +30,7 @@ export interface MockHandler {
   preview?(db: MockDb, input: never): { summary: string; count?: number };
 }
 
-export const mockHandlers: Record<string, MockHandler> = {
+export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   'business_profile.update': {
     execute: (
       db,
@@ -102,4 +103,4 @@ export const mockHandlers: Record<string, MockHandler> = {
   ...settingsOpsHandlers,
   ...settingsBillingHandlers,
   ...docTemplatesHandlers,
-};
+});

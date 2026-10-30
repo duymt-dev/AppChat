@@ -13,6 +13,7 @@ import { productsQuery } from '@/features/products';
 import { useOrderFormStyles } from '../styles/form.styles';
 import { useOrdersUi } from '../orders-store';
 import { initialOrderDraft, useOrderForm } from '../hooks/useOrderForm';
+import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 
 const SHIP = [
   ['address', 'addr'],
@@ -49,12 +50,18 @@ function OrderForm() {
   const f = useOrderForm(initialOrderDraft(ui.prefill));
   const create = useAction<{ order_id: string }>('order.create');
   const [err, setErr] = useState('');
+  const cf = useCustomDraft('order');
   const close = () => ui.set({ form: null, prefill: null });
 
   const save = async () => {
     if (!f.valid) return setErr(t('form.required'));
     if (f.depositOver) return setErr(t('form.depositOver'));
-    const res = await create.run(f.input);
+    const c = cf.collect('create');
+    if (!c.ok) return;
+    const res = await create.run(
+      { ...f.input, ...(c.custom ? { custom: c.custom } : {}) },
+      { onError: (e) => cf.absorb(e.error.fields) },
+    );
     if (res) ui.set({ form: null, prefill: null, detail: res.result.order_id, tab: 'overview' });
   };
   const pick = (id: string) => {
@@ -219,6 +226,7 @@ function OrderForm() {
           )}
         </div>
       </div>
+      <CustomFieldInputs draft={cf} />
     </ModalShell>
   );
 }

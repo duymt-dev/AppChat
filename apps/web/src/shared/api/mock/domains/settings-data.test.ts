@@ -23,12 +23,11 @@ describe('mock settings-data', () => {
     expect((await mockTransport.get<Tags>('/settings/tags')).data[1]?.id).toBe('tg_new');
   });
 
-  it('trường: thêm trường liên hệ đồng bộ sang CRM; trường hệ thống không xoá được; đổi thứ tự', async () => {
-    const before = mockDb().customers.fields.length;
+  it('trường: thêm trường liên hệ (một nguồn, D56); trường hệ thống không xoá được; đổi thứ tự', async () => {
     await mockTransport.action('custom_field.define', { entity: 'contact', label: 'Nghề nghiệp', type: 'text' });
-    expect(mockDb().customers.fields).toHaveLength(before + 1);
     const f = await mockTransport.get<Fields>('/settings/fields', { entity: 'contact' });
     expect(f.counts.contact).toBe(10);
+    expect(f.data.at(-1)).toMatchObject({ label: 'Nghề nghiệp', sys: false, key: expect.stringMatching(/^cf_\d+$/) });
     await expect(mockTransport.action('custom_field.delete', { entity: 'contact', key: 'phone' })).rejects.toMatchObject({ error: { code: 'VALIDATION_FAILED' } });
     const order = f.data.map((x) => x.key);
     [order[0], order[1]] = [order[1]!, order[0]!];

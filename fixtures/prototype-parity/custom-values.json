@@ -1,0 +1,90 @@
+{
+  "contact": {
+    "ct_lan": {
+      "kind": "Cá nhân",
+      "tier": "VIP",
+      "birthday": "1990-03-14",
+      "ai_note": "Thích liệu trình buổi tối, hỏi kỹ giá trước khi chốt."
+    },
+    "kh_1002": {
+      "kind": "Doanh nghiệp",
+      "tier": "Gold",
+      "tax_code": "0312345678",
+      "ltv": "45000000"
+    },
+    "kh_1003": {
+      "kind": "Cá nhân",
+      "tier": "Regular"
+    },
+    "kh_1004": {
+      "kind": "Cá nhân",
+      "tier": "Regular"
+    },
+    "kh_1005": {
+      "kind": "Doanh nghiệp",
+      "tier": "VIP",
+      "tax_code": "0109876543",
+      "ltv": "120000000"
+    },
+    "kh_1006": {
+      "kind": "Cá nhân",
+      "tier": "Gold"
+    },
+    "kh_1007": {
+      "kind": "Cá nhân",
+      "tier": "Regular"
+    },
+    "kh_1008": {
+      "kind": "Doanh nghiệp",
+      "tier": "Regular"
+    }
+  },
+  "product": {
+    "pd_1": {
+      "warranty": "Không áp dụng"
+    },
+    "pd_4": {
+      "warranty": "12 tháng"
+    }
+  },
+  "quote": {
+    "q_2041": {
+      "consult_channel": "Zalo",
+      "decision_maker": "Chị Lan"
+    },
+    "q_2040": {
+      "consult_channel": "Tại quầy"
+    }
+  },
+  "order": {
+    "ord_290411": {
+      "pay_method": "Chuyển khoản"
+    },
+    "ord_290410": {
+      "pay_method": "Tiền mặt",
+      "coupon": "SPA10"
+    }
+  },
+  "ticket": {
+    "tk_2041": {
+      "kind": "Khiếu nại",
+      "sla": 4
+    },
+    "tk_2040": {
+      "kind": "Yêu cầu",
+      "product": "Liệu trình trị mụn"
+    },
+    "tk_2039": {
+      "kind": "Sự cố"
+    }
+  },
+  "appointment": {
+    "ap_1201": {
+      "skin_type": "Da dầu",
+      "special_request": "Phòng riêng, không dùng tinh dầu sả"
+    },
+    "ap_1202": {
+      "skin_type": "Nhạy cảm"
+    }
+  }
+}

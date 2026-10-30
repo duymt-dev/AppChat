@@ -1,3 +1,4 @@
+import type { CustomValues } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
 export type ChannelType = 'zalo_personal' | 'webchat' | 'email';
@@ -161,6 +162,8 @@ export interface Contact360 {
   };
   timeline: TimelineItem[];
   files: { ext: string; tone: 'red' | 'amber'; name: string; meta: string }[];
+  /** Trường tuỳ biến (D56) — khối "Thông tin thêm" cuối tab Tổng quan. */
+  custom?: CustomValues;
 }
 
 export interface GroupInfo {

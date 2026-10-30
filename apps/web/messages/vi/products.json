@@ -207,8 +207,7 @@
       "list": "•",
       "olist": "1."
     },
-    "required": "Nhập tên và giá bán",
-    "cfPh": "Nhập nội dung"
+    "required": "Nhập tên và giá bán"
   },
   "unit": "sản phẩm"
 }

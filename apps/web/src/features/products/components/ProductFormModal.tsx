@@ -3,8 +3,10 @@
 import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import type { ApiRequestError } from '@appchat/shared';
 import { Icon, ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { useCustomDraft } from '@/shared/custom-fields';
 import { useProductFormStyles } from '../styles/form.styles';
 import { useProductsUi } from '../products-store';
 import { productQuery } from '../api';
@@ -44,6 +46,7 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
   const { styles, cx } = useProductFormStyles();
   const ui = useProductsUi();
   const f = useProductForm(initialDraft(meta.categories, product, ui.prefill));
+  const cf = useCustomDraft('product', product?.custom);
   const [cats, setCats] = useState(meta.categories);
   const [newCat, setNewCat] = useState<string | null>(null);
   const [err, setErr] = useState('');
@@ -64,10 +67,13 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
 
   const save = async () => {
     if (!f.valid) return setErr(t('required'));
-    const input = toInput(f.d);
+    const c = cf.collect(product ? 'update' : 'create');
+    if (!c.ok) return;
+    const input = { ...toInput(f.d), ...(c.custom ? { custom: c.custom } : {}) };
+    const onError = (e: ApiRequestError) => cf.absorb(e.error.fields);
     const res = product
-      ? await update.run({ product_id: product.id, patch: input })
-      : await create.run(input);
+      ? await update.run({ product_id: product.id, patch: input }, { onError })
+      : await create.run(input, { onError });
     if (res) close();
   };
 
@@ -249,7 +255,7 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
         )}
       </div>
       {err ? <div className={styles.err}>{err}</div> : null}
-      <TypeSections f={f} fields={meta.custom_fields} />
+      <TypeSections f={f} cf={cf} />
     </ModalShell>
   );
 }

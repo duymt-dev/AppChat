@@ -3,9 +3,9 @@
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
+import { CustomFieldInputs, type CustomDraft } from '@/shared/custom-fields';
 import { useProductFormStyles } from '../styles/form.styles';
 import type { ProductDraft, ProductFormApi } from '../hooks/useProductForm';
-import type { ProductsMeta } from '../types';
 
 const RENT_UNITS = ['hour', 'day', 'week', 'month'] as const;
 
@@ -180,28 +180,16 @@ function TypeBlock({ f }: { f: ProductFormApi }) {
   }
 }
 
-export function TypeSections({ f, fields }: { f: ProductFormApi; fields: ProductsMeta['custom_fields'] }) {
+/** `cf` = trường tuỳ biến của sản phẩm (D56) — định nghĩa ở Cài đặt › Trường dữ liệu, trường trùng cột thật là `sys`. */
+export function TypeSections({ f, cf }: { f: ProductFormApi; cf: CustomDraft }) {
   const t = useTranslations('products.form');
   const { styles, cx } = useProductFormStyles();
   return (
     <div className={styles.blocks}>
       <TypeBlock f={f} />
       <Sec title={t('cfSec')} hint={t('cfHint')} action={<span className={styles.link}>{t('cfAdd')}</span>}>
-        {fields.length ? (
-          <div className={styles.cfGrid}>
-            {fields.map((c) => (
-              <div key={c.key}>
-                <label className={styles.label}>{c.label}</label>
-                <input
-                  className={cx(styles.input, styles.inputSm)}
-                  placeholder={t('cfPh')}
-                  value={f.d.custom[c.key] ?? ''}
-                  onChange={(e) => f.set('custom', { ...f.d.custom, [c.key]: e.target.value })}
-                  data-testid={`pd-cf-${c.key}`}
-                />
-              </div>
-            ))}
-          </div>
+        {cf.fields.length ? (
+          <CustomFieldInputs draft={cf} title={false} dense />
         ) : (
           <div className={styles.cfEmpty}>{t.rich('cfEmpty', { b: (c) => <b>{c}</b> })}</div>
         )}

@@ -18,6 +18,11 @@ export interface FilterField {
   key: string;
   label: string;
   options: { value: string; label: string }[];
+  /** Ô nhập chữ (lọc "chứa") thay cho ô chọn — trường tuỳ biến kiểu text (D56). */
+  text?: boolean;
+  placeholder?: string;
+  /** Trường tuỳ biến của workspace (D56) — gắn `data-custom-field` để parity tách khỏi phần prototype. */
+  custom?: boolean;
 }
 
 const useStyles = createStyles(({ css, responsive }) => ({
@@ -116,6 +121,13 @@ const useStyles = createStyles(({ css, responsive }) => ({
     ${responsive.md} {
       min-height: ${layout.touch}px;
       flex: 1;
+    }
+  `,
+  text: css`
+    cursor: text;
+    outline: none;
+    &:focus {
+      border-color: ${color.brand};
     }
   `,
   strong: css`
@@ -331,15 +343,19 @@ export function FilterPopover({ buttonLabel, title, fields, value, onApply, clea
           <div className={styles.pop} data-testid="filter-pop">
             <div className={styles.popTitle}>{title}</div>
             {fields.map((f) => (
-              <div key={f.key} className={styles.field}>
+              <div key={f.key} className={styles.field} data-custom-field={f.custom ? f.key : undefined}>
                 <div className={styles.label}>{f.label}</div>
-                <select aria-label={f.label} className={cx(styles.select, styles.full)} value={draft[f.key] ?? ''} onChange={(e) => setDraft({ ...draft, [f.key]: e.target.value })}>
-                  {f.options.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
+                {f.text ? (
+                  <input aria-label={f.label} className={cx(styles.select, styles.full, styles.text)} value={draft[f.key] ?? ''} placeholder={f.placeholder} onChange={(e) => setDraft({ ...draft, [f.key]: e.target.value })} />
+                ) : (
+                  <select aria-label={f.label} className={cx(styles.select, styles.full)} value={draft[f.key] ?? ''} onChange={(e) => setDraft({ ...draft, [f.key]: e.target.value })}>
+                    {f.options.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             ))}
             <div className={styles.actions}>

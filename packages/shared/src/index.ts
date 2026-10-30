@@ -6,3 +6,4 @@ export * from './commerce/quote-math';
 export * from './commerce/vietqr';
 export * from './booking/slots';
 export * from './documents/variables';
+export * from './custom-fields/values';

@@ -1,5 +1,5 @@
 // Kiểu dữ liệu Báo giá (Blueprint §2.2 quote / quote_item; COMMERCE §3). Tiền là string VND, đơn giá chưa VAT.
-import type { Discount } from '@appchat/shared';
+import type { CustomValues, Discount } from '@appchat/shared';
 
 export type QuoteStatus =
   | 'draft'
@@ -54,6 +54,8 @@ export interface Quote {
   total: string;
   lines: { gross: string; net: string }[];
   approval_reasons: ('total' | 'discount' | 'off_catalog')[];
+  /** Trường tuỳ biến (D56). */
+  custom?: CustomValues;
 }
 
 export interface QuotesMeta {
@@ -71,4 +73,5 @@ export interface QuoteFilter {
   owner_id: string;
   returning: string;
   q: string;
+  custom?: Record<string, string>;
 }

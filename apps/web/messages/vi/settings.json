@@ -689,7 +689,9 @@
       "contact": "Khách hàng",
       "ticket": "Tickets",
       "order": "Đơn hàng",
-      "product": "Sản phẩm"
+      "product": "Sản phẩm",
+      "quote": "Báo giá",
+      "appointment": "Lịch hẹn"
     },
     "search": "Tìm trường theo tên / kiểu dữ liệu…",
     "new": "Thêm trường",

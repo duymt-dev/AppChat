@@ -1,6 +1,6 @@
 // Mock Sản phẩm (Blueprint §4.4 catalog): GET /products?type=&category=&status=&q=, /products/:id, /products/meta.
 // Dữ liệu = prototype L5624–5753 (fixture sinh bởi tools/scripts/fixtures/gen-products.py). Giá chưa VAT, tiền là string VND.
-import { ApiRequestError } from '@appchat/shared';
+import { ApiRequestError, type CustomValues } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/products.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -19,7 +19,7 @@ export type Product = Omit<Fixed, 'stock' | 'sessions' | 'valid_days'> & {
   deposit?: string;
   rental_unit?: string;
   components?: { name: string; qty: number }[];
-  custom?: Record<string, string>;
+  custom?: CustomValues;
 };
 
 export interface ProductsState {
@@ -64,7 +64,6 @@ export const productsRoutes: Record<string, MockRoute> = {
     history: fixture.history,
     crm_stats: fixture.crm_stats,
     crm_buyers: fixture.crm_buyers,
-    custom_fields: fixture.custom_fields,
   }),
 };
 
@@ -119,7 +118,6 @@ export const productsHandlers: Record<string, MockHandler> = {
         sessions: i.sessions ?? null,
         valid_days: i.valid_days ?? null,
         components: i.components,
-        custom: i.custom,
         tint: pal[0],
         ink: pal[1],
         icon: pal[2],

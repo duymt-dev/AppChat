@@ -229,7 +229,12 @@
       "lookup": "Lookup",
       "tags": "Tags",
       "number": "Number",
-      "date": "Date"
+      "date": "Date",
+      "currency": "Currency",
+      "textarea": "Paragraph",
+      "email": "Email",
+      "phone": "Phone",
+      "file": "File"
     },
     "tipLead": "✶",
     "tipTitle": "Mẹo:",
@@ -239,7 +244,9 @@
     "cancel": "Huỷ",
     "save": "Lưu cấu hình",
     "close": "Đóng",
-    "tipVar": "{{contact.size}}"
+    "tipVar": "{{contact.tier}}",
+    "noOptions": "–",
+    "groupAll": "Mọi nhóm ngành"
   },
   "p360": {
     "title": "Hồ sơ 360°",

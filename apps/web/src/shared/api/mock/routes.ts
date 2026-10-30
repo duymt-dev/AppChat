@@ -23,10 +23,11 @@ import { settingsAiRoutes } from './domains/settings-ai';
 import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
 import { docTemplatesRoutes } from './domains/doc-templates';
+import { withCustomFilters } from './domains/custom-values';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
 
-export const mockRoutes: Record<string, MockRoute> = {
+export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   '/me': (db) => db.shell.me,
   '/me/authz': (db) => {
     const def = ROLE_DEFS[db.role];
@@ -77,4 +78,4 @@ export const mockRoutes: Record<string, MockRoute> = {
   ...settingsOpsRoutes,
   ...settingsBillingRoutes,
   ...docTemplatesRoutes,
-};
+});

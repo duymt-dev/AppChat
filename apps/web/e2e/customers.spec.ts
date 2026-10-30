@@ -55,7 +55,7 @@ test.describe('customers', () => {
     await expect(page.getByTestId('dd-group')).toHaveCount(2);
     await page.getByTestId('crm-dedupe-modal').getByRole('button', { name: 'Đóng' }).click();
     await page.getByTestId('crm-fields').click();
-    await expect(page.getByTestId('cf-row')).toHaveCount(7);
+    await expect(page.getByTestId('cf-row')).toHaveCount(6);
   });
 
   test('D32: tạo khách trùng người khác → Xin chia sẻ', async ({ page }) => {

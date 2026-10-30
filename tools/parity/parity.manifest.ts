@@ -469,6 +469,11 @@ export const MANIFEST: ParityEntry[] = [
     proto: (p) => p.locator('.chip', { hasText: 'Trường mở rộng' }).click(),
     app: (p) => p.getByTestId('crm-fields').click(),
     clipTo: { proto: 'div[style*="width: 880px"]', app: '[data-testid="crm-fields-modal"] [role="dialog"]' },
+    // D56: danh sách trường = trường tuỳ biến thật của workspace (cùng Cài đặt › Trường dữ liệu), không phải 7 trường mẫu của prototype.
+    mask: [
+      { x: 690, y: 80, width: 190, height: 36, reason: 'đếm trường theo dữ liệu workspace (D56)' },
+      { x: 0, y: 130, width: 880, height: 559, reason: 'bảng trường + chân modal theo dữ liệu workspace (D56)' },
+    ],
   },
   {
     id: 'customers:360',

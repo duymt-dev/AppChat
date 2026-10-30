@@ -29,7 +29,6 @@ export interface ProductDraft {
   available: string;
   combo: Row[];
   attrs: Row[];
-  custom: Record<string, string>;
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '');
@@ -63,7 +62,6 @@ export function initialDraft(
     available: '',
     combo: [],
     attrs: [],
-    custom: { ...((p as { custom?: Record<string, string> } | undefined)?.custom ?? {}) },
   };
 }
 
@@ -119,7 +117,6 @@ export function toInput(d: ProductDraft) {
       : {}),
     ...(d.type === 'rental' ? { rental_unit: d.rentUnit, deposit: d.deposit || undefined } : {}),
     ...(attrs.length ? { attrs } : {}),
-    ...(Object.values(d.custom).some(Boolean) ? { custom: d.custom } : {}),
   };
 }
 

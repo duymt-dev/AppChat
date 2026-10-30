@@ -9,6 +9,7 @@ import { useTkFormStyles } from '../styles/form.styles';
 import { useTicketsUi } from '../tickets-store';
 import { PRIORITIES, STATUSES } from '../status';
 import type { Channel, Priority, TicketsMeta } from '../types';
+import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 
 const CHANNELS: Channel[] = ['zalo_personal', 'webchat', 'email'];
 const OPEN_STATUSES = STATUSES.filter((s) => s !== 'closed');
@@ -60,24 +61,31 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
     description: str(prefill.description),
   });
   const [err, setErr] = useState('');
+  const cf = useCustomDraft('ticket');
   const up = <K extends keyof typeof d>(k: K, v: (typeof d)[K]) => setD((s) => ({ ...s, [k]: v }));
   const close = () => set({ form: false, prefill: null });
   const save = async () => {
     if (!d.title.trim()) return setErr(t('form.required'));
     if (d.email && !EMAIL.test(d.email)) return setErr(t('form.emailBad'));
     const agent = d.owner === meta.agent.id;
-    const r = await create.run({
-      title: d.title.trim(),
-      ...(d.company.trim() ? { company: d.company.trim() } : {}),
-      ...(d.email ? { email: d.email } : {}),
-      channel: d.channel,
-      category: d.category,
-      priority: d.priority,
-      status: d.status,
-      team_id: agent ? 't_ai' : d.team_id,
-      ...(agent ? { assignee_agent_id: d.owner } : { assignee_user_id: d.owner }),
-      ...(d.description.trim() ? { description: d.description.trim() } : {}),
-    });
+    const c = cf.collect('create');
+    if (!c.ok) return;
+    const r = await create.run(
+      {
+        title: d.title.trim(),
+        ...(d.company.trim() ? { company: d.company.trim() } : {}),
+        ...(d.email ? { email: d.email } : {}),
+        channel: d.channel,
+        category: d.category,
+        priority: d.priority,
+        status: d.status,
+        team_id: agent ? 't_ai' : d.team_id,
+        ...(agent ? { assignee_agent_id: d.owner } : { assignee_user_id: d.owner }),
+        ...(d.description.trim() ? { description: d.description.trim() } : {}),
+        ...(c.custom ? { custom: c.custom } : {}),
+      },
+      { onError: (e) => cf.absorb(e.error.fields) },
+    );
     if (r) set({ form: false, prefill: null, detail: r.result.ticket_id, tab: 'detail' });
   };
   const field = (label: string, el: React.ReactNode, full?: boolean) => (
@@ -171,6 +179,7 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
           <div className={styles.hint}>{t('form.descHint')}</div>
         </div>
       </div>
+      <CustomFieldInputs draft={cf} />
     </ModalShell>
   );
 }

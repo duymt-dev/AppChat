@@ -11,6 +11,30 @@
   "empty": "No data yet",
   "noPermission": "You don't have permission to view this",
   "error": "Something went wrong",
+  "customFields": {
+    "section": "Additional info",
+    "pick": "— Select —",
+    "ph": "Enter a value",
+    "all": "All",
+    "contains": "Contains…",
+    "empty": "—",
+    "required": "{label} *",
+    "aiMark": "✦",
+    "aiHint": "AI can fill this field",
+    "tagsHint": "Separate with commas",
+    "error": {
+      "required": "Required",
+      "number": "Must be a number",
+      "money": "Amount must contain digits only",
+      "list": "Invalid list",
+      "option": "Value is not one of the options",
+      "text": "Invalid value",
+      "date": "Invalid date",
+      "email": "Invalid email",
+      "unknown": "This field no longer exists",
+      "forbidden": "You can't edit this field"
+    }
+  },
   "pager": {
     "range": "Showing <b>{from}–{to}</b> of {total} {unit}",
     "prev": "‹ Prev",

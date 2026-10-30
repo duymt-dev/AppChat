@@ -62,7 +62,7 @@ test.describe('products', () => {
     await form.getByTestId('pd-f-name').fill('Khăn spa cotton');
     await form.getByTestId('pd-f-price').fill('150.000');
     await expect(form.getByTestId('pd-f-price')).toHaveValue('150000');
-    await form.getByTestId('pd-cf-warranty').fill('6 tháng');
+    await form.getByTestId('cf-in-warranty').fill('6 tháng');
     await form.getByTestId('pd-save').click();
     await expect(form).toHaveCount(0);
     await expect(page.locator('[data-product]')).toHaveCount(7);

@@ -1,4 +1,5 @@
 // Modal "Trường thông tin mở rộng" — prototype L2684–2722 (880px). Bật / tắt bắt buộc · hiện → custom_field.update; thêm → custom_field.define.
+// Cùng dữ liệu với Cài đặt › Trường dữ liệu (D56 §1): trường tuỳ biến (không hệ thống) của liên hệ; "Hiện" = cột trên bảng.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -9,8 +10,16 @@ import { useShellStore } from '@/shared/shell/shell-store';
 import { useDedupeStyles } from '../styles/dedupe.styles';
 import { useFormStyles } from '../styles/form.styles';
 import { useCrmUi } from '../crm-store';
-import { customFieldsQuery } from '../api';
-import type { CustomField } from '../types';
+import { customFieldDefsQuery } from '@/shared/custom-fields';
+
+interface Row {
+  key: string;
+  label: string;
+  type: string;
+  options: string;
+  required: boolean;
+  visible: boolean;
+}
 
 const KIND_TONE: Record<string, [string, string]> = {
   picklist: [color.ruleBg, color.blue],
@@ -27,10 +36,19 @@ export function FieldsModal() {
   const { styles: fs } = useFormStyles();
   const ui = useCrmUi();
   const setDock = useShellStore((s) => s.setDock);
-  const list = useQuery(customFieldsQuery()).data;
+  const list = useQuery(customFieldDefsQuery('contact'))
+    .data?.data.filter((f) => !f.sys)
+    .map((f): Row => ({
+      key: f.key,
+      label: f.label,
+      type: f.type,
+      options: f.options,
+      required: f.required,
+      visible: f.visible_in.list,
+    }));
   const update = useAction('custom_field.update');
   const define = useAction('custom_field.define');
-  const [draft, setDraft] = useState<CustomField[] | null>(null);
+  const [draft, setDraft] = useState<Row[] | null>(null);
   const [label, setLabel] = useState('');
   const rows = draft ?? list ?? [];
   const tipVar = t.raw('tipVar') as string;
@@ -115,8 +133,8 @@ export function FieldsModal() {
                     {t(`types.${f.type}` as never)}
                   </span>
                 </span>
-                <span className={styles.opts}>{f.options}</span>
-                <span className={styles.grp}>{f.group}</span>
+                <span className={styles.opts}>{f.options || t('noOptions')}</span>
+                <span className={styles.grp}>{t('groupAll')}</span>
                 {check(f.required, () => flip(f.key, REQ), `${t('required')} ${f.label}`)}
                 {check(f.visible, () => flip(f.key, VIS), `${t('visible')} ${f.label}`)}
               </div>

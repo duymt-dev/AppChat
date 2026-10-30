@@ -1,5 +1,6 @@
 // Khách hàng (Blueprint §3.4 crm, D32 phụ trách + đồng phụ trách). Prototype L2451–2984.
 import { z } from 'zod';
+import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const contactId = z.string().min(1);
@@ -20,6 +21,8 @@ const contactFields = z.object({
   status: z.enum(['active', 'potential', 'inactive']).optional(),
   owner_user_id: userId.optional(),
   note: z.string().max(2000).optional(),
+  /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
+  custom: customValuesSchema.optional(),
 });
 
 export const contactCreate = defineAction({

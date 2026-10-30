@@ -11,6 +11,30 @@
   "empty": "Chưa có dữ liệu",
   "noPermission": "Bạn không có quyền xem mục này",
   "error": "Đã có lỗi xảy ra",
+  "customFields": {
+    "section": "Thông tin thêm",
+    "pick": "— Chọn —",
+    "ph": "Nhập nội dung",
+    "all": "Tất cả",
+    "contains": "Chứa…",
+    "empty": "—",
+    "required": "{label} *",
+    "aiMark": "✦",
+    "aiHint": "AI điền được trường này",
+    "tagsHint": "Ngăn cách bằng dấu phẩy",
+    "error": {
+      "required": "Bắt buộc nhập",
+      "number": "Phải là số",
+      "money": "Số tiền chỉ gồm chữ số",
+      "list": "Danh sách không hợp lệ",
+      "option": "Giá trị không có trong lựa chọn",
+      "text": "Giá trị không hợp lệ",
+      "date": "Ngày không hợp lệ",
+      "email": "Email không hợp lệ",
+      "unknown": "Trường không còn tồn tại",
+      "forbidden": "Bạn không có quyền sửa trường này"
+    }
+  },
   "pager": {
     "range": "Hiển thị <b>{from}–{to}</b> / {total} {unit}",
     "prev": "‹ Trước",

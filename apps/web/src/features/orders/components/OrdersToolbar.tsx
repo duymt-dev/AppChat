@@ -12,6 +12,7 @@ import { useOrdersStyles } from '../styles/orders.styles';
 import { useOrdersUi } from '../orders-store';
 import { FILTERS } from '../status';
 import type { Order, OrdersMeta } from '../types';
+import { customFilterValue, pickCustomFilter, useCustomFilterFields } from '@/shared/custom-fields';
 
 const VIEWS = [
   ['list', 'ic-inbox'],
@@ -26,6 +27,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
   const { styles, cx } = useOrdersStyles();
   const ui = useOrdersUi();
   const members = useQuery(membersQuery()).data ?? [];
+  const cfFilters = useCustomFilterFields('order');
   const canSync = useCan('integrations.manage');
   const sync = useAction<{ imported: number }>('order.sync_now');
   return (
@@ -72,10 +74,21 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
               ...SOURCES.map((v) => ({ value: v, label: t(`source.${v}`) })),
             ],
           },
+          ...cfFilters,
         ]}
-        value={{ owner_id: ui.filter.owner_id, value: ui.filter.value, source: ui.filter.source }}
+        value={{
+          owner_id: ui.filter.owner_id,
+          value: ui.filter.value,
+          source: ui.filter.source,
+          ...customFilterValue(ui.filter.custom),
+        }}
         onApply={(v) =>
-          ui.setFilter({ owner_id: v.owner_id ?? 'all', value: v.value ?? 'all', source: v.source ?? 'all' })
+          ui.setFilter({
+            owner_id: v.owner_id ?? 'all',
+            value: v.value ?? 'all',
+            source: v.source ?? 'all',
+            custom: pickCustomFilter(v),
+          })
         }
         clearLabel={t('filter.clear')}
         applyLabel={t('filter.apply')}

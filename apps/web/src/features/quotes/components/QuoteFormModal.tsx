@@ -14,6 +14,8 @@ import { initialQuoteDraft, useQuoteDraft } from '../hooks/useQuoteDraft';
 import { quoteQuery } from '../api';
 import type { Quote } from '../types';
 import { LineEditor } from './LineEditor';
+import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
+import type { ApiRequestError, CustomValues } from '@appchat/shared';
 
 const toPrefill = (q: Quote): Record<string, unknown> => ({
   contact_id: q.contact_id,
@@ -46,7 +48,16 @@ export function QuoteFormModal() {
 function QuoteEditLoader({ id }: { id: string }) {
   const q = useQuery(quoteQuery(id)).data;
   if (!q) return null;
-  return <QuoteForm key={id} mode="edit" editId={id} editCode={q.code} editPrefill={toPrefill(q)} />;
+  return (
+    <QuoteForm
+      key={id}
+      mode="edit"
+      editId={id}
+      editCode={q.code}
+      editPrefill={toPrefill(q)}
+      editCustom={q.custom}
+    />
+  );
 }
 
 function QuoteForm({
@@ -54,11 +65,13 @@ function QuoteForm({
   editId,
   editCode,
   editPrefill,
+  editCustom,
 }: {
   mode: 'create' | 'edit';
   editId?: string;
   editCode?: string;
   editPrefill?: Record<string, unknown>;
+  editCustom?: CustomValues;
 }) {
   const t = useTranslations('quotes.form');
   const fmt = useFmt();
@@ -70,15 +83,20 @@ function QuoteForm({
   const create = useAction<{ quote_id: string }>('quote.create');
   const update = useAction<{ quote_id: string }>('quote.update');
   const [err, setErr] = useState('');
+  const cf = useCustomDraft('quote', editCustom);
   const [today] = useState(() => Date.now());
   const close = () => ui.set({ form: null, prefill: null, editId: null });
 
   const save = async () => {
     if (!f.valid) return setErr(t('required'));
+    const c = cf.collect(mode === 'edit' ? 'update' : 'create');
+    if (!c.ok) return;
+    const input = { ...f.input, ...(c.custom ? { custom: c.custom } : {}) };
+    const onError = (e: ApiRequestError) => cf.absorb(e.error.fields);
     const res =
       mode === 'edit' && editId
-        ? await update.run({ quote_id: editId, patch: f.input })
-        : await create.run(f.input);
+        ? await update.run({ quote_id: editId, patch: input }, { onError })
+        : await create.run(input, { onError });
     if (res) ui.set({ form: null, prefill: null, editId: null, detail: res.result.quote_id, tab: 'overview' });
   };
 
@@ -230,6 +248,7 @@ function QuoteForm({
           )}
         </div>
       </div>
+      <CustomFieldInputs draft={cf} />
     </ModalShell>
   );
 }

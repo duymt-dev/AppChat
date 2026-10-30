@@ -2,6 +2,7 @@
 // Hai trục độc lập: status (new → processing → completed | cancelled) và pay_status (tổng hợp từ khoản thu).
 // Đơn từ sàn (source = marketplace): không sửa dòng hàng / giá / tổng — sàn là nguồn sự thật.
 import { z } from 'zod';
+import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 import { discount, lineItem, money } from './sales-schemas';
 
@@ -23,6 +24,8 @@ const fields = z.object({
   deposit_amount: money.optional(),
   shipping: shipping.optional(),
   note: z.string().max(2000).optional(),
+  /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
+  custom: customValuesSchema.optional(),
 });
 const out = z.object({ order_id: z.string(), code: z.string() });
 const st = z.object({ order_id: z.string(), status: z.string() });

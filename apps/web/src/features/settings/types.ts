@@ -127,7 +127,8 @@ export interface Reply {
   body: string;
 }
 
-export type FieldEntity = 'contact' | 'ticket' | 'order' | 'product';
+/** 6 thực thể có trường tuỳ biến (D56). */
+export type FieldEntity = 'contact' | 'product' | 'quote' | 'order' | 'ticket' | 'appointment';
 export const PLACES = ['list', 'kanban', 'form', 'filter', 'detail', 'export'] as const;
 export type FieldPlace = (typeof PLACES)[number];
 

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { ModalShell, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 import { useFormStyles } from '../styles/form.styles';
 import { useCrmUi } from '../crm-store';
 import { membersQuery } from '../api';
@@ -37,6 +38,7 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
     ...ui.prefill,
   }));
   const [err, setErr] = useState('');
+  const cf = useCustomDraft('contact', contact?.custom);
   const [owned, setOwned] = useState<{ id: string; owner: string; sent: boolean } | null>(null);
   const close = () => ui.set({ modal: null, target: null });
   const set = (k: string, v: string) => setD((x) => ({ ...x, [k]: v }));
@@ -76,17 +78,21 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
 
   const save = async () => {
     if (mode === 'edit' && contact) {
-      const patch = Object.fromEntries(EDIT.map(([k]) => [k, d[k] ?? '']).filter(([k, v]) => k !== 'owner_user_id' || v));
-      if (await update.run({ contact_id: contact.id, patch })) close();
+      const c = cf.collect('update');
+      if (!c.ok) return;
+      const patch = { ...Object.fromEntries(EDIT.map(([k]) => [k, d[k] ?? '']).filter(([k, v]) => k !== 'owner_user_id' || v)), ...(c.custom ? { custom: c.custom } : {}) };
+      if (await update.run({ contact_id: contact.id, patch }, { onError: (e) => cf.absorb(e.error.fields) })) close();
       return;
     }
     const missing = CREATE.flatMap(([, fs]) => fs.filter(([k, , req]) => req && !d[k]?.trim()).map(([k]) => label(k)));
     if (missing.length) return setErr(t('form.missing', { fields: missing.join(', ') }));
+    const c = cf.collect('create');
+    if (!c.ok) return;
     const { full_name, phone, email, zalo, city, district, type, group, source, status, owner_user_id, note } = d;
-    const input = Object.fromEntries(Object.entries({ full_name, phone, email, zalo, city, district, type, group, source, status, owner_user_id, note }).filter(([, v]) => v));
+    const input = { ...Object.fromEntries(Object.entries({ full_name, phone, email, zalo, city, district, type, group, source, status, owner_user_id, note }).filter(([, v]) => v)), ...(c.custom ? { custom: c.custom } : {}) };
     const res = await create.run(input, {
       onError: (e) => {
-        if (e.error.code !== 'CONTACT_OWNED') return false;
+        if (e.error.code !== 'CONTACT_OWNED') return cf.absorb(e.error.fields);
         setOwned({ id: e.error.fields?.contact_id ?? '', owner: e.error.fields?.owner_name ?? '', sent: false });
         return true;
       },
@@ -149,6 +155,7 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
           </div>
         ))
       )}
+      <CustomFieldInputs draft={cf} />
     </ModalShell>
   );
 }
