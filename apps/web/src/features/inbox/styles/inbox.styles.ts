@@ -92,31 +92,6 @@ export const useInboxStyles = createStyles(({ css, responsive }) => ({
     background: ${color.brandTint};
     color: ${color.brand};
   `,
-  aiBtn: css`
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 36px;
-    padding: 0 12px;
-    border-radius: ${radius.r8}px;
-    border: 1px solid ${color.brand};
-    background: ${color.brandBg};
-    cursor: pointer;
-    font-size: ${font.scale.s14}px;
-    font-weight: ${font.weight.bold};
-    color: ${color.brandInk};
-    flex-shrink: 0;
-    font-family: inherit;
-    ${responsive.md} {
-      height: ${layout.touch}px;
-      margin-bottom: 4px;
-    }
-  `,
-  aiLabel: css`
-    ${responsive.md} {
-      display: none;
-    }
-  `,
   body: css`
     display: flex;
     flex: 1;

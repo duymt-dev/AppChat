@@ -2,17 +2,26 @@
 // chân nút Quản lý / Liên kết. Nền gradient nhạt theo màu kênh.
 'use client';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useChannelsStyles } from '../styles/channels.styles';
 import { useSettingsUi } from '../settings-store';
 import type { Channel } from '../types';
 
+const WIDGET = '/settings/web_widget';
+
 export function ChannelCard({ c }: { c: Channel }) {
   const t = useTranslations('settings.channels');
+  const router = useRouter();
   const { styles, cx } = useChannelsStyles();
   const set = useSettingsUi((s) => s.set);
   const can = useCan('channels.manage');
+  const open = () => {
+    if (c.connected) return set({ channelDrawer: { type: c.type, accountId: null } });
+    if (c.type === 'webchat') return router.push(WIDGET);
+    return set({ channelWizard: { type: c.type, step: 2 } });
+  };
   // Nhãn: đã kết nối > nhãn prototype (Phổ biến / bản thử nghiệm). "Sắp có" hiện ở nút, không thay nhãn (giữ đúng vị trí như prototype).
   const badgeAny = c.connected ? 'on' : c.label === 'beta' ? 'beta' : c.label === 'pop' ? 'pop' : null;
   return (
@@ -34,7 +43,7 @@ export function ChannelCard({ c }: { c: Channel }) {
       <span className={styles.grow} />
       <div className={styles.cFoot}>
         {can ? (
-          <button type="button" className={styles.cBtn} disabled={!c.available} onClick={() => set({ channelModal: c.type })} data-testid={`st-ch-${c.type}`}>
+          <button type="button" className={styles.cBtn} disabled={!c.available} onClick={open} data-testid={`st-ch-${c.type}`}>
             {t(c.connected ? 'manage' : c.available ? 'link' : 'soon')}
           </button>
         ) : null}

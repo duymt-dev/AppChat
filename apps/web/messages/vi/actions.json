@@ -493,19 +493,34 @@
   "channel": {
     "zalo": {
       "start_login": {
-        "title": "Kết nối Zalo cá nhân"
+        "title": "Thêm tài khoản Zalo cá nhân"
       }
     },
     "email": {
       "connect": {
-        "title": "Kết nối email"
+        "title": "Thêm tài khoản email"
       }
     },
+    "test": {
+      "title": "Kiểm tra kết nối kênh"
+    },
+    "update_settings": {
+      "title": "Cập nhật cấu hình tài khoản kênh"
+    },
+    "pause": {
+      "title": "Tạm dừng tài khoản kênh"
+    },
+    "resume": {
+      "title": "Tiếp tục tài khoản kênh"
+    },
+    "sync_history": {
+      "title": "Đồng bộ lịch sử kênh"
+    },
     "reconnect": {
-      "title": "Kết nối lại kênh"
+      "title": "Kết nối lại tài khoản kênh"
     },
     "disconnect": {
-      "title": "Ngắt kết nối kênh"
+      "title": "Ngắt kết nối tài khoản kênh"
     }
   },
   "webchat": {

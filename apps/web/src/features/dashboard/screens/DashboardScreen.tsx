@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Icon, color } from '@appchat/ui';
+import { AiButton, color } from '@appchat/ui';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useMe } from '@/shared/shell/useShellData';
 import { dashboardQuery } from '../api';
@@ -17,6 +17,7 @@ import { UpdatesWidget } from '../components/UpdatesWidget';
 
 export function DashboardScreen() {
   const t = useTranslations('dashboard');
+  const tc = useTranslations('common');
   const router = useRouter();
   const { styles } = useDashStyles();
   const q = useQuery(dashboardQuery());
@@ -31,10 +32,7 @@ export function DashboardScreen() {
           <div className={styles.hello}>{t('greeting', { name: firstName })}</div>
           <div className={styles.helloSub}>{t('greetingSub')}</div>
         </div>
-        <button type="button" className={styles.cta} onClick={() => router.push('/assistant')}>
-          <Icon name="ic-spark" size={16} color={color.white} />
-          {t('askAssistant')}
-        </button>
+        <AiButton label={tc('aiButton')} onClick={() => router.push('/assistant')} testId="dash-ai-open" />
       </div>
       <PageStates state={stateOf(q)} onRetry={() => void q.refetch()}>
         {d ? (

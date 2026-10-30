@@ -36,26 +36,6 @@ export const useDashStyles = createStyles(({ css, responsive }) => ({
     color: ${color.text3};
     margin-top: 2px;
   `,
-  cta: css`
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 36px;
-    padding: 0 12px;
-    border-radius: ${radius.r6}px;
-    background: ${color.brand};
-    color: ${color.white};
-    font-weight: ${font.weight.bold};
-    font-size: ${font.scale.s14}px;
-    cursor: pointer;
-    border: none;
-    font-family: inherit;
-    line-height: 1;
-    white-space: nowrap;
-    ${responsive.md} {
-      min-height: 44px;
-    }
-  `,
   stats: css`
     display: grid;
     grid-template-columns: repeat(4, 1fr);

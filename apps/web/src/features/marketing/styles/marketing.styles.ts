@@ -86,22 +86,6 @@ export const useMarketingStyles = createStyles(({ css, responsive }) => ({
       order: 3;
     }
   `,
-  sq: css`
-    width: 36px;
-    height: 36px;
-    display: inline-grid;
-    place-items: center;
-    border: 1px solid ${color.border};
-    border-radius: ${radius.r8}px;
-    background: ${color.surface};
-    cursor: pointer;
-    padding: 0;
-    ${responsive.md} {
-      width: ${layout.touch}px;
-      height: ${layout.touch}px;
-      order: 3;
-    }
-  `,
   chans: css`
     display: flex;
     gap: 8px;

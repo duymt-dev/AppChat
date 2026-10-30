@@ -106,13 +106,6 @@ export const useCalendarStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
-  dark: css`
-    ${btn}
-    background: ${color.text};
-    ${responsive.md} {
-      height: ${layout.touch}px;
-    }
-  `,
   kpis: css`
     display: grid;
     grid-template-columns: repeat(5, 1fr);

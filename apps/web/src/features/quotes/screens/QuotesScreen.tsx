@@ -2,7 +2,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { DataTable, Icon, KanbanBoard, PageHeader, color } from '@appchat/ui';
+import { AiButton, DataTable, Icon, KanbanBoard, PageHeader, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useQuotesStyles } from '../styles/quotes.styles';
@@ -28,6 +28,7 @@ const KPI = [
 export function QuotesScreen() {
   useQuotesUiCommands();
   const t = useTranslations('quotes');
+  const tc = useTranslations('common');
   const { styles } = useQuotesStyles();
   const ui = useQuotesUi();
   const list = useQuery(quotesQuery(ui.filter, ui.pg));
@@ -71,15 +72,7 @@ export function QuotesScreen() {
                 {t('create')}
               </button>
             ) : null}
-            <button
-              type="button"
-              className={styles.aiBtn}
-              onClick={() => ui.set({ aiOpen: true })}
-              data-testid="q-ai-open"
-            >
-              <Icon name="ic-spark" size={15} color={color.violet} />
-              {t('ai')}
-            </button>
+            <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="q-ai-open" />
           </>
         }
         kpis={KPI.map(([k, c, icon]) => ({

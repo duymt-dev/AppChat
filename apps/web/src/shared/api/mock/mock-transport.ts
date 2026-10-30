@@ -16,6 +16,7 @@ import { calendarParamRoute } from './domains/calendar';
 import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
 import { loyaltyParamRoute } from './domains/loyalty';
+import { settingsAppsParamRoute } from './domains/settings-apps';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
@@ -62,6 +63,7 @@ export const mockTransport: Transport = {
       ticketsParamRoute(path) ??
       marketingParamRoute(path) ??
       loyaltyParamRoute(path) ??
+      settingsAppsParamRoute(path) ??
       signParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??

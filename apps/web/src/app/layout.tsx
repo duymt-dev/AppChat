@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getLocale();
   const [messages, timeZone] = await Promise.all([getMessages(), getTimeZone()]);
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body>
         <Providers locale={locale} timeZone={timeZone} messages={messages}>
           {children}

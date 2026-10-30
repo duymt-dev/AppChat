@@ -105,9 +105,9 @@ export const channelZaloStartLogin = defineAction({
   id: 'channel.zalo.start_login',
   module: 'channels',
   title: 'actions.channel.zalo.start_login.title',
-  description: 'Start connecting a personal Zalo account; returns a QR code to scan with the Zalo app. Example: {}',
+  description: 'Start connecting a new personal Zalo account (one of possibly many); returns a QR code to scan with the Zalo app. Example: {}',
   input: z.object({ label: z.string().max(60).optional() }),
-  output: z.object({ channel_id: z.string(), qr: z.string() }),
+  output: z.object({ channel_account_id: z.string(), qr: z.string() }),
   permission: 'channels.manage',
   risk: 'config',
   agentGrantable: false,
@@ -118,11 +118,94 @@ export const channelEmailConnect = defineAction({
   id: 'channel.email.connect',
   module: 'channels',
   title: 'actions.channel.email.connect.title',
-  description: 'Connect a support mailbox (forwarding address). Example: {"address":"hotro@spa.vn","name":"Hỗ trợ"}',
+  description: 'Connect a new mailbox account (IMAP/SMTP). Example: {"address":"hotro@spa.vn","name":"Hỗ trợ"}',
   input: z.object({ address: z.string().email(), name: z.string().max(60).optional() }),
-  output: z.object({ channel_id: z.string() }),
+  output: z.object({ channel_account_id: z.string() }),
   permission: 'channels.manage',
   risk: 'config',
+  agentGrantable: false,
+  invalidates: ['channels'],
+});
+
+export const channelTest = defineAction({
+  id: 'channel.test',
+  module: 'channels',
+  title: 'actions.channel.test.title',
+  description:
+    'Test a channel connection — either an existing account (channel_account_id) or a draft form before it is created (type + fields, e.g. email IMAP/SMTP). Example: {"type":"email","fields":{"imap_host":"imap.gmail.com"}}',
+  input: z.union([
+    z.object({ channel_account_id: z.string().min(1) }),
+    z.object({ type: z.string().min(1), fields: z.record(z.string(), z.string()) }),
+  ]),
+  output: z.object({ ok: z.boolean(), message: z.string().optional() }),
+  permission: 'channels.manage',
+  risk: 'read',
+  agentGrantable: false,
+  invalidates: [],
+});
+
+export const channelUpdateSettings = defineAction({
+  id: 'channel.update_settings',
+  module: 'channels',
+  title: 'actions.channel.update_settings.title',
+  description:
+    'Update an account\'s auto-reply, assignment/SLA and sync settings. Example: {"channel_account_id":"acc_1","patch":{"ai_mode":"auto","agent_id":"ag_1"}}',
+  input: z.object({
+    channel_account_id: z.string().min(1),
+    patch: z.object({
+      name: z.string().trim().min(1).max(60).optional(),
+      agent_id: z.string().optional(),
+      ai_mode: z.enum(['auto', 'suggest', 'off']).optional(),
+      hours: z.string().max(60).optional(),
+      greeting: z.string().max(300).optional(),
+      assign_mode: z.enum(['round_robin', 'least_busy', 'shift']).optional(),
+      sla_policy: z.string().max(60).optional(),
+      sync_messages: z.boolean().optional(),
+      sync_auto_create_contact: z.boolean().optional(),
+    }),
+  }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'channels.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['channels'],
+});
+
+export const channelPause = defineAction({
+  id: 'channel.pause',
+  module: 'channels',
+  title: 'actions.channel.pause.title',
+  description: 'Pause an account; it stops sending/receiving until resumed. Example: {"channel_account_id":"acc_1"}',
+  input: z.object({ channel_account_id: z.string().min(1) }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'channels.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['channels'],
+});
+
+export const channelResume = defineAction({
+  id: 'channel.resume',
+  module: 'channels',
+  title: 'actions.channel.resume.title',
+  description: 'Resume a paused account. Example: {"channel_account_id":"acc_1"}',
+  input: z.object({ channel_account_id: z.string().min(1) }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'channels.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['channels'],
+});
+
+export const channelSyncHistory = defineAction({
+  id: 'channel.sync_history',
+  module: 'channels',
+  title: 'actions.channel.sync_history.title',
+  description: 'Re-sync an account\'s message history for the last N days (0 = off). Example: {"channel_account_id":"acc_1","history_days":30}',
+  input: z.object({ channel_account_id: z.string().min(1), history_days: z.union([z.literal(0), z.literal(7), z.literal(30), z.literal(90)]) }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'channels.manage',
+  risk: 'write',
   agentGrantable: false,
   invalidates: ['channels'],
 });
@@ -131,9 +214,9 @@ export const channelReconnect = defineAction({
   id: 'channel.reconnect',
   module: 'channels',
   title: 'actions.channel.reconnect.title',
-  description: 'Reconnect a channel whose session expired. Example: {"channel_id":"ch_zalo_1"}',
-  input: z.object({ channel_id: z.string().min(1) }),
-  output: z.object({ channel_id: z.string(), status: z.string() }),
+  description: 'Reconnect an account whose session expired. Example: {"channel_account_id":"acc_1"}',
+  input: z.object({ channel_account_id: z.string().min(1) }),
+  output: z.object({ channel_account_id: z.string(), status: z.string() }),
   permission: 'channels.manage',
   risk: 'config',
   agentGrantable: false,
@@ -144,8 +227,9 @@ export const channelDisconnect = defineAction({
   id: 'channel.disconnect',
   module: 'channels',
   title: 'actions.channel.disconnect.title',
-  description: 'Disconnect a channel; history is kept, new messages stop. Example: {"channel_id":"ch_zalo_1"}',
-  input: z.object({ channel_id: z.string().min(1) }),
+  description:
+    'Disconnect an account; history is kept, new messages stop. Disconnecting the last account of a channel type leaves it "not connected". Example: {"channel_account_id":"acc_1"}',
+  input: z.object({ channel_account_id: z.string().min(1) }),
   output: z.object({ ok: z.boolean() }),
   permission: 'channels.manage',
   risk: 'delete',

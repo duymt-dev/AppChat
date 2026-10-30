@@ -3,7 +3,7 @@
 'use client';
 import { App } from 'antd';
 import { useTranslations } from 'next-intl';
-import { Icon, color, type IconName } from '@appchat/ui';
+import { AiButton, Icon, color, type IconName } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useTicketsStyles } from '../styles/tickets.styles';
 import { EMPTY_FILTER, useTicketsUi } from '../tickets-store';
@@ -50,6 +50,7 @@ function Sel({ k, opts, testId }: { k: SelKey; opts: [string, string][]; testId?
 
 export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; count: number }) {
   const t = useTranslations('tickets');
+  const tc = useTranslations('common');
   const { message } = App.useApp();
   const { styles, cx } = useTicketsStyles();
   const ui = useTicketsUi();
@@ -81,10 +82,7 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
             {t('create')}
           </button>
         ) : null}
-        <button type="button" className={styles.dark} onClick={() => ui.set({ aiOpen: true })} data-testid="tk-ai-open">
-          <Icon name="ic-spark" size={14} color={color.sparkMint} strokeWidth={1.9} />
-          {t('ai')}
-        </button>
+        <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="tk-ai-open" />
       </div>
       <div className={styles.kpis} data-testid="tk-kpis">
         {KPI.map(([k, ic, c, p]) => (

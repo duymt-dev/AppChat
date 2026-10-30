@@ -8,6 +8,7 @@ import { useCrmUi } from '../crm-store';
 
 export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
   const t = useTranslations('customers');
+  const tc = useTranslations('common');
   const { styles, cx } = useCrmStyles();
   const ui = useCrmUi();
   const canEdit = useCan('crm.edit');
@@ -59,7 +60,7 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
           {t('create')}
         </button>
       ) : null}
-      <AiButton label={t('assistant')} module={t('title')} onClick={() => ui.open('ai')} testId="crm-ai" />
+      <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.open('ai')} testId="crm-ai" />
     </>
   );
 }

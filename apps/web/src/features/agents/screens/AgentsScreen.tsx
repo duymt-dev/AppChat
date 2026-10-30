@@ -21,6 +21,7 @@ import { useAgentsUiCommands } from '../ui-commands';
 export function AgentsScreen() {
   useAgentsUiCommands();
   const t = useTranslations('agents');
+  const tc = useTranslations('common');
   const router = useRouter();
   const { styles } = useAgentsStyles();
   const { styles: ms } = useMineStyles();
@@ -44,7 +45,7 @@ export function AgentsScreen() {
               <Icon name="ic-plus" size={14} color={color.text3} strokeWidth={2} />
               {t('manual')}
             </button>
-            <AiButton label={t('assistant')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="ag-ai" />
+            <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.set({ aiOpen: true })} testId="ag-ai" />
           </>
         ) : null}
       </div>

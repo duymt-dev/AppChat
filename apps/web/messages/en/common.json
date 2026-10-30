@@ -1,5 +1,6 @@
 {
   "appName": "AppChat",
+  "aiButton": "AI Assistant",
   "close": "Close",
   "cancel": "Cancel",
   "confirm": "Confirm",

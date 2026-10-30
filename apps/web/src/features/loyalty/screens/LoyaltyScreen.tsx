@@ -4,7 +4,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { Icon, color } from '@appchat/ui';
+import { AiButton, Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useShellStore } from '@/shared/shell/shell-store';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
@@ -24,6 +24,7 @@ import { useLoyaltyUiCommands } from '../ui-commands';
 export function LoyaltyScreen() {
   useLoyaltyUiCommands();
   const t = useTranslations('loyalty');
+  const tc = useTranslations('common');
   const { styles } = useLoyaltyStyles();
   const ui = useLoyaltyUi();
   const setDock = useShellStore((s) => s.setDock);
@@ -52,10 +53,7 @@ export function LoyaltyScreen() {
             {t('add')}
           </button>
         ) : null}
-        <button type="button" className={styles.dark} onClick={() => setDock(true)}>
-          <Icon name="ic-spark" size={14} color={color.sparkMint} strokeWidth={1.9} />
-          {t('ai')}
-        </button>
+        <AiButton label={tc('aiButton')} module={t('title')} onClick={() => setDock(true)} testId="ly-ai-open" />
       </div>
       <PageStates state={stateOf(ov)} onRetry={() => void ov.refetch()}>
         {ov.data ? (

@@ -40,6 +40,19 @@ export const membersQuery = (q: string) =>
 export const channelsQuery = (filter: 'all' | 'on' | 'off') =>
   queryOptions({ queryKey: ['channels', 'settings', filter], queryFn: () => transport.get<Channel[]>('/settings/channels', { filter }) });
 
+export interface ChannelAccountStats {
+  account_id: string;
+  days: { day: number; convs: number; frt_sec: number }[];
+  total_convs: number;
+}
+
+export const channelAccountStatsQuery = (accountId: string) =>
+  queryOptions({
+    queryKey: ['channels', 'settings', 'stats', accountId],
+    queryFn: () => transport.get<ChannelAccountStats>(`/settings/channels/${accountId}/stats`, { days: 7 }),
+    enabled: !!accountId,
+  });
+
 export const connectorsQuery = () =>
   queryOptions({ queryKey: ['integrations', 'list'], queryFn: () => transport.get<Connector[]>('/settings/integrations') });
 

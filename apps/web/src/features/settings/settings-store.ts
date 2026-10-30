@@ -17,8 +17,10 @@ interface SettingsUi {
   menuFor: string | null;
   chanFilter: 'all' | 'on' | 'off';
   chanView: 'cards' | 'list';
-  /** type kênh đang mở hộp liên kết / quản lý. */
-  channelModal: string | null;
+  /** Wizard kết nối kênh 3 bước (B10): null = đóng; type null = đang ở bước chọn kênh. */
+  channelWizard: { type: string | null; step: 1 | 2 | 3 } | null;
+  /** Drawer Quản lý kênh 2 cấp (B11): accountId null = cấp 1 danh sách, có id = cấp 2 chi tiết. */
+  channelDrawer: { type: string; accountId: string | null } | null;
   integCat: string;
   /** key connector đang mở hộp kết nối. */
   integModal: string | null;
@@ -46,7 +48,8 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   menuFor: null,
   chanFilter: 'all',
   chanView: 'cards',
-  channelModal: null,
+  channelWizard: null,
+  channelDrawer: null,
   integCat: 'all',
   integModal: null,
   tagQ: '',
