@@ -336,7 +336,7 @@ export const MANIFEST: ParityEntry[] = [
     },
     // Panel cuộn trong max-height:84% (.appscroll overflow-y:auto) — điểm cắt theo cuộn lệch vài dòng
     // giữa app/proto do bo khoảng cách về lưới 4 (D41); mask phần dưới mục "Chuyển" nơi biên cuộn rơi vào.
-    mask: [{ x: 0, y: 560, width: 440, height: 156, reason: 'biên cuộn .appscroll lệch vài px do bo lưới 4 — mục Chuyển/footer' }],
+    mask: [{ x: 0, y: 560, width: 440, height: 156, reason: 'biên cuộn .appscroll lệch vài px do bo lưới 4 (D41) — mục Chuyển/footer' }],
   },
   {
     // Ngoại lệ D28 / prototype-parity §6: chỉ kênh có manifest (zalo_personal / webchat / email) kết nối được, còn lại "Sắp có".
