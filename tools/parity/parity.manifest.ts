@@ -82,6 +82,9 @@ const integProto = async (p: Page) => {
   });
 };
 const ST_MAIN = { x: 360, y: 64, width: 1080, height: 836 };
+// D53 / PD-004: app căn giữa cột Cấu hình của Builder AI Agents, prototype L2659 bám lề trái. Ảnh app trả cột về lề trái
+// để vẫn so pixel nội dung thay vì mask cả cột 680.
+const builderLeft = (p: Page) => p.addStyleTag({ content: '[data-testid="agb-col"] { margin: 0 !important; }' });
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -653,6 +656,7 @@ export const MANIFEST: ParityEntry[] = [
     route: '/agents/new',
     protoStorage: agents,
     proto: (p) => p.locator('.btnp', { hasText: 'Tạo thủ công' }).click(),
+    app: builderLeft,
     appWait: '[data-testid="agb-name"]',
     mask: [
       { x: 20, y: 255, width: 340, height: 105, reason: 'D29 mức AI thay tên model' },
@@ -673,7 +677,10 @@ export const MANIFEST: ParityEntry[] = [
       await p.locator('.btnp', { hasText: 'Tạo thủ công' }).click();
       await p.locator('span', { hasText: /^Thêm mẫu lời nhắc ▾$/ }).click();
     },
-    app: (p) => p.getByTestId('agb-tpl').click(),
+    app: async (p) => {
+      await builderLeft(p);
+      await p.getByTestId('agb-tpl').click();
+    },
     appWait: '[data-testid="agb-name"]',
     clip: { x: 20, y: 360, width: 680, height: 340 },
   },

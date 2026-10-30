@@ -46,7 +46,7 @@ function BuilderForm({ seed, meta: m, agentId, title }: FormProps) {
       </div>
       <div className={styles.body}>
         <div className={styles.left}>
-          <div className={styles.col}>
+          <div className={styles.col} data-testid="agb-col">
             <BasicsSection cfg={b.cfg} patch={b.patch} emojis={m.emojis} />
             <GuidanceSection cfg={b.cfg} patch={b.patch} templates={m.prompt_templates} />
             <RoutingSection cfg={b.cfg} meta={m} toggle={(k, v) => b.toggleIn(k, v as never)} />

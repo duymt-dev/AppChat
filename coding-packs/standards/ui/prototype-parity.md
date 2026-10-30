@@ -39,6 +39,7 @@
      - Menu ⋯ hội thoại: submenu Vòng đời = enum `contact.stage` hiện có (D49); Tạo nhóm Zalo khoá "Sắp có" (D50).
      - AI Agent: quyền chỉ cấu hình ở tab Tools của Builder (nhóm theo module + Kỹ năng AI); danh mục Skills / Connectors / Plugins riêng của prototype không dựng (D51).
      - Header hội thoại: không có nút video / gọi điện (D07, REQ-C13).
+     - Builder AI Agents: cột Cấu hình (max 680) căn giữa trong vùng trái, không bám lề trái như prototype L2659 (D53, PD-004).
    - **Màn mới không có trong prototype** (không đo pixel, nhưng phải dùng đúng token và pattern): Chờ duyệt, Quản trị nền tảng, trang ký hợp đồng công khai, Mẫu chứng từ (D30), hộp "Xin chia sẻ" / chuyển phụ trách (D32).
 6b. **Prototype im lặng hoặc sai — 4 mức lệch.** Thước đo "sai" là `ui/interaction-patterns.md` (mã `IP-x.y`); không có mục IP nào bị vi phạm thì **không** được gọi là sai, làm đúng prototype. Chỗ lệch chưa có mã D / V / REQ / COMMERCE ghi vào sổ `docs/06-prototype/DEVIATIONS.md` (`PD-xxx`).
 

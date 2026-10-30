@@ -1,4 +1,4 @@
-// Builder toàn màn — prototype L2291–2419: thanh trên, cột cấu hình (max 680) + cột kiểm thử (42%, 380–560). < md: một cột.
+// Builder toàn màn — prototype L2291–2419: thanh trên, cột cấu hình (max 680, căn giữa — D53/PD-004) + cột kiểm thử (42%, 380–560). < md: một cột.
 import { createStyles } from 'antd-style';
 import { color, font, gradient, layout, radius, shadow } from '@appchat/ui';
 
@@ -126,6 +126,7 @@ export const useBuilderStyles = createStyles(({ css, responsive }) => ({
   `,
   col: css`
     max-width: 680px;
+    margin: 0 auto;
   `,
   right: css`
     width: 42%;
