@@ -5,7 +5,7 @@ import { Module, type FactoryProvider, type OnApplicationShutdown } from '@nestj
 import { Queue } from 'bullmq';
 import type { Redis } from 'ioredis';
 import type { PlatformDb } from '@appchat/db';
-import { BrevoMailProvider, MemoryMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, type MailProvider } from '@appchat/integrations';
+import { BrevoMailProvider, MemoryMailProvider, SmtpMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, type MailProvider } from '@appchat/integrations';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENV_SOURCE } from '../kernel/kernel.module';
 import { RateLimiter } from '../kernel/rate-limit';
@@ -32,10 +32,13 @@ type Src = Record<string, string | undefined>;
 const consoleMail = (env: IdentityEnv) =>
   new MemoryMailProvider(env.NODE_ENV === 'development' ? (m) => process.stderr.write(`[mail:console] ${m.subject}\n${m.text}\n`) : undefined);
 
-const mailFor = (env: IdentityEnv): MailProvider =>
-  env.MAIL_PROVIDER === 'brevo'
-    ? new BrevoMailProvider({ apiKey: env.BREVO_API_KEY!, sender: { email: env.MAIL_FROM_EMAIL, name: env.MAIL_FROM_NAME } })
-    : consoleMail(env);
+const mailFor = (env: IdentityEnv): MailProvider => {
+  const sender = { email: env.MAIL_FROM_EMAIL, name: env.MAIL_FROM_NAME };
+  if (env.MAIL_PROVIDER === 'brevo') return new BrevoMailProvider({ apiKey: env.BREVO_API_KEY!, sender });
+  if (env.MAIL_PROVIDER === 'smtp')
+    return new SmtpMailProvider({ host: env.SMTP_HOST!, port: env.SMTP_PORT, secure: env.SMTP_SECURE === 'true', user: env.SMTP_USER, pass: env.SMTP_PASS, sender });
+  return consoleMail(env);
+};
 
 class QueueCloser implements OnApplicationShutdown {
   constructor(private readonly q: BullProvisionQueue | null) {}

@@ -139,7 +139,8 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `platform/integrations.prisma` | 012 | `integration_interest` |
 | `platform/ai-config.prisma` | 019 | `llm_provider`, `model_route`, `model_price` |
 | `platform/templates.prisma` | 021 | `agent_template` |
-| `tenant/kernel.prisma` | 002 | `action_log`, `outbox_event`, `idempotency_key`, `file`, `sequence_counter`, `notification` |
+| `platform/notify.prisma` | 006 | `notification_pref` (thêm khi làm TIP-006 — DV-002) |
+| `tenant/kernel.prisma` | 002 | `action_log`, `outbox_event`, `idempotency_key`, `file`, `sequence_counter`, `notification`; + `event_consumption` (TIP-006 — DC-027) |
 | `tenant/authz.prisma` | 005 | `role`, `team`, `team_member` |
 | `tenant/integrations.prisma` | 012 | `integration_connection`, `integration_mapping`, `integration_call_log`, `integration_event` |
 | `tenant/channels.prisma` · `tenant/channels-webchat.prisma` | 014 · 017 | `channel_account`, … · `webchat_widget` |

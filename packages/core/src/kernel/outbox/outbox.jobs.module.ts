@@ -1,5 +1,6 @@
 // Outbox relay trong worker ROLE=jobs (events/outbox.md §2): drain outbox:dirty mỗi giây, sweep mọi DB 10 phút,
-// publish sang BullMQ queue `events` (jobId = event id → không trùng khi relay chạy lại). Chỉ bật khi có DB + Redis.
+// publish sang BullMQ queue `events` (jobId = event id → không trùng khi relay chạy lại); EventsRunner (TIP-006) chạy consumer.
+// Chỉ bật khi có DB + Redis.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -9,14 +10,14 @@ import { LOGGER } from '../kernel.module';
 import type { AppLogger } from '../logger/logger';
 import { REDIS } from '../redis';
 import { TENANT_RESOLVER, WORKSPACE_REGISTRY } from '../tenant/tenant.providers';
+import { EVENTS_QUEUE, EventsRunner } from '../events/events.runner';
 import { drainDirty, sweepAll, type EventPublisher, type RelayDeps } from './relay';
-
-export const EVENTS_QUEUE = 'events';
 
 export class BullEventPublisher implements EventPublisher {
   constructor(private readonly queue: Queue) {}
   async publish(e: Parameters<EventPublisher['publish']>[0]): Promise<void> {
-    await this.queue.add(e.topic, { ...e }, { jobId: e.id, removeOnComplete: 1000, removeOnFail: 5000 });
+    // Consumer lỗi → retry back-off mũ (outbox §2), tối đa 8 lần; consumer đã xong không chạy lại (event_consumption).
+    await this.queue.add(e.topic, { ...e }, { jobId: e.id, attempts: 8, backoff: { type: 'exponential', delay: 2000 }, removeOnComplete: 1000, removeOnFail: 5000 });
   }
 }
 
@@ -59,5 +60,5 @@ class OutboxRelayRunner implements OnApplicationBootstrap, OnApplicationShutdown
   }
 }
 
-@Module({ providers: [OutboxRelayRunner] })
+@Module({ providers: [OutboxRelayRunner, EventsRunner] })
 export class OutboxJobsModule {}

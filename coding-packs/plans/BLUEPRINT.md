@@ -443,7 +443,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `idempotency_key` | key, route, request_hash, response jsonb, status_code, created_at. pk(key); TTL 24h (job dọn) |
 | `file` | storage_key, name, mime, size, sha256, uploaded_by, purpose |
 | `sequence_counter` | kind, value | pk(kind) |
-| `notification` | user_id, type, title, body, link, read_at?. idx(user_id, read_at, created_at desc) |
+| `notification` | user_id, type (loại `NOTIFY_KINDS`), title (render theo locale người nhận), body, link, read_at?. idx(user_id, created_at desc, id desc) + partial `WHERE read_at IS NULL` (TIP-006) |
+| `event_consumption` | event_id, consumer, created_at. pk(event_id, consumer) — khoá idempotent consumer `events` (outbox §4, TIP-006 DC-027) |
 
 ### 2.3 Domain events (outbox → BullMQ queue `events`)
 
@@ -465,6 +466,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
 | `subscription.changed` / `trial.expired` | | quota, notify |
+| `notify.requested` | kind, to { user_ids?, permission? }, params, link?, exclude_user_id? | notify: ghi `notification` theo locale người nhận → WS `notification.new` → email theo tuỳ chọn (TIP-006) |
 | `member.role_changed` / `member.removed` | user_id | xoá cache AuthzContext; WS `authz.changed` → FE tải lại `me/authz`; gỡ gán hội thoại khi bị xoá |
 | `contact.owner_changed` / `contact.collaborator_changed` | contact_id, from, to, moved: {conversations, quotes, appointments} | timeline; thông báo hai bên; gán lại hội thoại đang mở (D32) |
 | `contact.access_requested` / `contact.access_decided` | request_id | thông báo owner của khách / Quản lý (Việc cần tôi); thông báo người xin |
@@ -574,6 +576,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `working_hours.update`
 - `profile_layout.create` / `profile_layout.update` / `profile_layout.duplicate` / `profile_layout.delete` / `profile_layout.assign_role` (config, `settings.manage`; mẫu hệ thống không xoá được — REQ-F12, M05)
 - `notification.mark_read` (mọi thành viên, write)
+- `notification.update_prefs` (self, write, `db: 'platform'` — tuỳ chọn thông báo của tôi, bảng nền tảng `notification_pref`; TIP-006)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
 - `team.create` / `team.update` / `team.set_members` (P1)
 - `workspace.transfer_ownership` (owner, OTP)

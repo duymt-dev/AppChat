@@ -123,6 +123,7 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
   await platform.workspace.deleteMany({ where: { id: { in: workspaces } } });
   await platform.refreshToken.deleteMany({ where: { userId: { in: users } } });
   await platform.otpCode.deleteMany({ where: { email: { in: emails } } });
+  await platform.notificationPref.deleteMany({ where: { userId: { in: users } } });
   await platform.user.deleteMany({ where: { id: { in: users } } });
 }
 

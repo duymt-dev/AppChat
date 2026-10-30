@@ -128,8 +128,20 @@ model Notification {
   readAt    DateTime? @map("read_at") @db.Timestamptz(6)
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  @@index([userId, createdAt(sort: Desc)])
+  /// Danh sách theo người nhận, cursor `(created_at, id)` (TIP-006); chưa đọc dùng index partial viết tay ở migration 006.
+  @@index([userId, createdAt(sort: Desc), id(sort: Desc)])
   @@map("notification")
+}
+
+/// Consumer queue `events` đã xử lý event nào (events/outbox.md §4) — khoá `(event_id, consumer)`, TIP-006.
+model EventConsumption {
+  eventId   String   @map("event_id") @db.Uuid
+  consumer  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([eventId, consumer])
+  @@index([createdAt])
+  @@map("event_consumption")
 }
 
 /// Version schema của DB tenant (app so với mức tối thiểu — Blueprint §2.0 Migration). Một dòng.

@@ -8,9 +8,14 @@ export const identityEnv = z
     JWT_SECRET: z.string().min(32),
     JWT_KID: z.string().min(1).default('k1'),
     JWT_SECRETS_OLD: z.string().optional(),
-    /** console (dev / test: giữ thư trong bộ nhớ + log không PII) | brevo (D34). */
-    MAIL_PROVIDER: z.enum(['console', 'brevo']).default('console'),
+    /** console (dev / test: giữ thư trong bộ nhớ + log không PII) | brevo (D34) | smtp (dự phòng, nodemailer — DC-018). */
+    MAIL_PROVIDER: z.enum(['console', 'brevo', 'smtp']).default('console'),
     BREVO_API_KEY: z.string().optional(),
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+    SMTP_SECURE: z.enum(['true', 'false']).default('false'),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
     MAIL_FROM_EMAIL: z.string().email().default('no-reply@appchat.vn'),
     MAIL_FROM_NAME: z.string().default('AppChat'),
     /** mock (fixture) | vietqr (OQ-05). */
@@ -23,6 +28,7 @@ export const identityEnv = z
   .superRefine((e, ctx) => {
     if (e.NODE_ENV === 'production' && e.MAIL_PROVIDER === 'console') ctx.addIssue({ code: 'custom', path: ['MAIL_PROVIDER'], message: 'console cấm ở production' });
     if (e.MAIL_PROVIDER === 'brevo' && !e.BREVO_API_KEY) ctx.addIssue({ code: 'custom', path: ['BREVO_API_KEY'], message: 'required' });
+    if (e.MAIL_PROVIDER === 'smtp' && !e.SMTP_HOST) ctx.addIssue({ code: 'custom', path: ['SMTP_HOST'], message: 'required' });
   });
 
 export type IdentityEnv = z.infer<typeof identityEnv>;

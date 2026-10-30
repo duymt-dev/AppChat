@@ -23,3 +23,6 @@ export * from './outbox/relay';
 export * from './outbox/outbox.jobs.module';
 export * from './rate-limit';
 export * from './tenant-seeds';
+export * from './events/consumer';
+export * from './events/dispatcher';
+export * from './events/events.runner';

@@ -36,5 +36,6 @@ export const useNavBadges = () =>
 export const useNotifications = () =>
   useQuery({
     queryKey: qk.notifications(),
-    queryFn: () => transport.get<ListEnvelope<NotificationItem>>('/notifications'),
+    // Popover chuông chỉ hiện thông báo chưa đọc ("Đánh dấu đã đọc" → danh sách rỗng) — Blueprint §4.4 `?unread=`.
+    queryFn: () => transport.get<ListEnvelope<NotificationItem>>('/notifications', { unread: true }),
   });
