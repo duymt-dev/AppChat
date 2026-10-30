@@ -98,7 +98,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 001 | W1 | DONE | `tip/001-scaffold-backend` | c96496d | chờ Chủ nhà tạo |
 | 002 | W1 | DONE | `tip/002-db-platform-tenant` (xếp chồng 001) | fce8c7c | chờ Chủ nhà tạo |
 | 003 | W1 | DONE | `tip/003-action-kernel` (xếp chồng 002) | fc262e2 | chờ Chủ nhà tạo |
-| 004 | W2 | chờ | — | — | — |
+| 004 | W2 | DONE | `tip/004-identity-auth` (xếp chồng 003) | 9044eb4 | chờ Chủ nhà tạo |
 | 005 | W2 | chờ | — | — | — |
 | 006 | W2 | chờ | — | — | — |
 | 009 | W3 | chờ | — | — | — |
