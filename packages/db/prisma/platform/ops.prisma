@@ -1,3 +1,57 @@
 // platform/ops.prisma — sở hữu: TIP-002 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Bảng: tenant_migration, workspace_stats, platform_audit_log.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Không Prisma relation xuyên domain (Blueprint §2.1).
+
+enum TenantMigrationStatus {
+  pending
+  running
+  done
+  failed
+
+  @@map("tenant_migration_status")
+}
+
+/// Lần chạy tenant-migrate của từng DB tenant (Blueprint §2.0 — Migration).
+model TenantMigration {
+  id          String                @id @default(uuid()) @db.Uuid
+  workspaceId String                @map("workspace_id") @db.Uuid
+  version     String
+  status      TenantMigrationStatus @default(pending)
+  error       String?
+  startedAt   DateTime?             @map("started_at") @db.Timestamptz(6)
+  finishedAt  DateTime?             @map("finished_at") @db.Timestamptz(6)
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, version])
+  @@index([status, version])
+  @@map("tenant_migration")
+}
+
+/// Số liệu gom từ từng DB tenant (job đêm) cho trang quản trị + tự lưu trữ (D23).
+model WorkspaceStats {
+  workspaceId      String    @id @map("workspace_id") @db.Uuid
+  contacts         Int       @default(0)
+  conversations30d Int       @default(0) @map("conversations_30d")
+  messages30d      Int       @default(0) @map("messages_30d")
+  dbSizeBytes      BigInt    @default(0) @map("db_size_bytes")
+  lastActiveAt     DateTime? @map("last_active_at") @db.Timestamptz(6)
+  refreshedAt      DateTime? @map("refreshed_at") @db.Timestamptz(6)
+
+  @@map("workspace_stats")
+}
+
+/// Audit cho action `admin.*` và action chạm DB nền tảng (ops §4).
+model PlatformAuditLog {
+  id          String   @id @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  actionId    String   @map("action_id")
+  workspaceId String?  @map("workspace_id") @db.Uuid
+  input       Json
+  result      Json?
+  traceId     String?  @map("trace_id")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@map("platform_audit_log")
+}

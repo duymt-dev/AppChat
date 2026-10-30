@@ -18,6 +18,6 @@ export function roleModules(role: string) {
 @Module({})
 export class WorkerModule {
   static forRole(role: string): DynamicModule {
-    return { module: WorkerModule, imports: [KernelModule, ...roleModules(role)] };
+    return { module: WorkerModule, imports: [KernelModule.forRoot(), ...roleModules(role)] };
   }
 }

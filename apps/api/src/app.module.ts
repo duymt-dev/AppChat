@@ -44,5 +44,5 @@ export const DOMAIN_HTTP_MODULES = [
     PlatformHttpModule,
 ];
 
-@Module({ imports: [KernelModule, HealthModule, ...DOMAIN_HTTP_MODULES] })
+@Module({ imports: [KernelModule.forRoot(), HealthModule, ...DOMAIN_HTTP_MODULES] })
 export class AppModule {}

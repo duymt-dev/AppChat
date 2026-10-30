@@ -1,3 +1,60 @@
 // platform/routing.prisma — sở hữu: TIP-002 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Bảng: mọi bảng tenant_*_route.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Không Prisma relation xuyên domain (Blueprint §2.1).
+// Định tuyến không qua X-Workspace-Id (Blueprint §2.0): kênh / widget / webhook / trang ký → DB đích. TIP chủ domain ghi dòng.
+
+/// Account kênh cần giữ phiên + DB đích (worker-channels đọc). type = chuỗi registry kênh, không enum.
+model TenantChannelRoute {
+  channelAccountId String   @id @map("channel_account_id") @db.Uuid
+  workspaceId      String   @map("workspace_id") @db.Uuid
+  type             String
+  externalId       String?  @map("external_id")
+  status           String
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, type])
+  @@index([workspaceId])
+  @@map("tenant_channel_route")
+}
+
+/// public_key của widget → workspace (namespace /widget).
+model TenantWidgetRoute {
+  publicKey      String   @id @map("public_key")
+  workspaceId    String   @map("workspace_id") @db.Uuid
+  allowedDomains String[] @map("allowed_domains")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([workspaceId])
+  @@map("tenant_widget_route")
+}
+
+/// Webhook SePay / Casso của DN → DB đích.
+model TenantBankFeedRoute {
+  feedId      String @id @map("feed_id")
+  workspaceId String @map("workspace_id") @db.Uuid
+  provider    String
+
+  @@index([workspaceId])
+  @@map("tenant_bank_feed_route")
+}
+
+/// Webhook /hooks/integrations/:connector/:connectionId → DB đích (D28).
+model TenantIntegrationRoute {
+  connectionId String @id @map("connection_id") @db.Uuid
+  workspaceId  String @map("workspace_id") @db.Uuid
+  connectorKey String @map("connector_key")
+  status       String
+
+  @@index([workspaceId])
+  @@map("tenant_integration_route")
+}
+
+/// Trang ký công khai /sign/[token] → DB đích (chỉ lưu hash token).
+model TenantSignRoute {
+  tokenHash   String   @id @map("token_hash")
+  workspaceId String   @map("workspace_id") @db.Uuid
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@index([expiresAt])
+  @@map("tenant_sign_route")
+}

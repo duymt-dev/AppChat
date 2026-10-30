@@ -37,7 +37,7 @@ module.exports = {
   ],
   options: {
     doNotFollow: { path: 'node_modules' },
-    exclude: { path: ['(^|/)(node_modules|dist|\\.next|\\.turbo|coverage|test-results|playwright-report)/', 'next-env\\.d\\.ts$'] },
+    exclude: { path: ['(^|/)(node_modules|dist|\\.next|\\.turbo|coverage|test-results|playwright-report)/', 'next-env\\.d\\.ts$', '/src/generated/'] },
     tsPreCompilationDeps: true,
     // alias `@/` của apps/web (tsconfig riêng, chỉ khai paths)
     tsConfig: { fileName: 'tsconfig.depcruise.json' },

@@ -18,6 +18,7 @@ export const ERROR_CODES = [
   'QUOTE_NEEDS_APPROVAL',
   'OTP_INVALID',
   'SIGN_LINK_INVALID',
+  'WORKSPACE_UNAVAILABLE',
   'INTERNAL',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];

@@ -1,4 +1,5 @@
 // TIP-001 AC11: stub Prisma đúng tên + thư mục theo bản đồ sở hữu (02-TASK-GRAPH.md), mỗi file ghi TIP chủ.
+// `_base.prisma` (generator + datasource, TIP-002) không thuộc domain nào.
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -20,7 +21,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
 
 describe('prisma stubs', () => {
   it.each(['platform', 'tenant'] as const)('%s: đúng tập file của bản đồ sở hữu', (kind) => {
-    const files = readdirSync(join(ROOT, kind)).filter((f) => f.endsWith('.prisma')).map((f) => f.replace('.prisma', ''));
+    const files = readdirSync(join(ROOT, kind)).filter((f) => f.endsWith('.prisma') && f !== '_base.prisma').map((f) => f.replace('.prisma', ''));
     expect(files.sort()).toEqual(Object.keys(OWNERS[kind]).sort());
   });
 

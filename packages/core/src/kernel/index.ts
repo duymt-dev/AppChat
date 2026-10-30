@@ -5,3 +5,4 @@ export * from './env';
 export * from './logger/logger';
 export * from './logger/nest-logger';
 export * from './kernel.module';
+export * from './tenant/tenant.providers';

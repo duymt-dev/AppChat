@@ -9,18 +9,29 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "eslint src test",
+    "lint": "eslint src test scripts --ignore-pattern src/generated",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:generate": "prisma generate --config prisma.platform.config.ts && prisma generate --config prisma.tenant.config.ts",
+    "db:setup": "tsx scripts/setup-dev.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "postinstall": "pnpm db:generate"
   },
   "dependencies": {
-    "@appchat/shared": "workspace:*"
+    "@appchat/shared": "workspace:*",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "pg": "8.23.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
+    "@types/pg": "^8.23.1",
     "eslint": "10.13.0",
+    "prisma": "7.10.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "tsx": "4.23.15"
   }
 }
