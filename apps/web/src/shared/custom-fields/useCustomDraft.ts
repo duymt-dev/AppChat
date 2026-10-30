@@ -37,7 +37,7 @@ export function useCustomDraft(entity: CustomFieldEntity, initial?: CustomValues
 
   const set = (key: string, v: RawValue) => {
     setEdits((x) => ({ ...x, [key]: v }));
-    setErrors(({ [key]: _, ...rest }) => rest);
+    setErrors((x) => Object.fromEntries(Object.entries(x).filter(([k]) => k !== key)));
   };
 
   const collect = (mode: 'create' | 'update') => {

@@ -84,7 +84,9 @@ const integProto = async (p: Page) => {
 const ST_MAIN = { x: 360, y: 64, width: 1080, height: 836 };
 // D53 / PD-004: app căn giữa cột Cấu hình của Builder AI Agents, prototype L2659 bám lề trái. Ảnh app trả cột về lề trái
 // để vẫn so pixel nội dung thay vì mask cả cột 680.
-const builderLeft = (p: Page) => p.addStyleTag({ content: '[data-testid="agb-col"] { margin: 0 !important; }' });
+const builderLeft = async (p: Page) => {
+  await p.addStyleTag({ content: '[data-testid="agb-col"] { margin: 0 !important; }' });
+};
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
