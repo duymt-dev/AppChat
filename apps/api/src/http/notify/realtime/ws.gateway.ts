@@ -34,6 +34,15 @@ const fail = (ack: unknown, code: string) => void (typeof ack === 'function' && 
 const ok = (ack: unknown, data: unknown) => void (typeof ack === 'function' && (ack as Ack)({ data }));
 const who = (s: { data: unknown }) => s.data as SocketIdentity;
 
+/**
+ * Namespace khác (`/widget` — TIP-017) gắn vào CÙNG server Socket.IO + Redis adapter: provider đăng ký ở constructor (chạy trước mọi
+ * onApplicationBootstrap), gateway gọi khi dựng server; đóng namespace của mình ở hook shutdown riêng.
+ */
+export type NamespaceInstaller = (io: Server) => void;
+const INSTALLERS = new Set<NamespaceInstaller>();
+export const registerNamespace = (fn: NamespaceInstaller) => void INSTALLERS.add(fn);
+export const unregisterNamespace = (fn: NamespaceInstaller) => void INSTALLERS.delete(fn);
+
 export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicationShutdown, OnApplicationShutdown {
   private io?: Server;
   private nsp?: Namespace;
@@ -54,6 +63,7 @@ export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicatio
     const sub = this.redis.duplicate();
     this.clients = [pub, sub];
     this.io = new Server(http, { serveClient: false, adapter: createAdapter(pub, sub) });
+    for (const install of INSTALLERS) install(this.io);
     const nsp = (this.nsp = this.io.of(WS_NAMESPACE));
     nsp.use((socket, next) => {
       authenticate(this.actors, socket.handshake)

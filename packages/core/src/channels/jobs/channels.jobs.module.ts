@@ -1,5 +1,6 @@
 // Worker ROLE=channels của domain `channels` (TIP-014, Blueprint §6): giữ phiên theo lease (ChannelSessions), worker gửi mỗi
-// tài khoản (ChannelSenders), job đăng nhập QR (`channel-login`), lệnh từ API qua Redis pub/sub. Thiếu DB / Redis / khoá → tắt.
+// tài khoản (ChannelSenders), job đăng nhập QR (`channel-login`), lệnh từ API qua Redis pub/sub; kênh không lease (webchat —
+// StatelessChannels). Thiếu DB / Redis / khoá → tắt.
 import { hostname } from 'node:os';
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, type Worker } from 'bullmq';
@@ -18,14 +19,17 @@ import { CHANNEL_REGISTRY, ChannelsModule } from '../channels.module';
 import { readChannelsEnv } from '../channels.env';
 import { ChannelAccounts } from '../services/accounts.service';
 import { CHANNEL_CONTROL, CHANNEL_INBOUND_QUEUE, ChannelControl, type ControlOp } from '../services/control';
-import { ChannelLeases } from './lease';
+import { ChannelLeases, LEASE_HEARTBEAT_MS } from './lease';
 import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
 import { ChannelSessions } from './sessions';
+import { StatelessChannels } from './stateless';
 
 class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private sessions?: ChannelSessions;
   private senders?: ChannelSenders;
+  private stateless?: StatelessChannels;
+  private timer?: NodeJS.Timeout;
   private login?: Worker;
   private inbound?: Queue;
   private sub?: Redis;
@@ -46,7 +50,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
 
   /** Bộ phiên của worker này (test điều khiển trực tiếp). */
   get runtime() {
-    return { sessions: this.sessions, senders: this.senders };
+    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless };
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -73,15 +77,21 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     await this.sub.subscribe(CHANNEL_CONTROL);
     this.sub.on('message', (_ch, raw: string) => {
       try {
-        void sessions.control(JSON.parse(raw) as ControlOp);
+        // Lệnh chạy / dừng: kênh không lease (webchat) mở / đóng worker gửi ngay, không chờ nhịp.
+        void sessions.control(JSON.parse(raw) as ControlOp).finally(() => void this.stateless?.tick());
       } catch {
         /* lệnh hỏng — bỏ */
       }
     });
     sessions.start();
+    // Kênh không lease (webchat): mở / đóng worker gửi theo route, cùng nhịp lease.
+    const stateless = (this.stateless = new StatelessChannels({ platform, registry: this.registry, log: this.log, open: (id, ws, a) => senders.open(id, ws, a), close: (id) => senders.close(id) }));
+    void stateless.tick();
+    this.timer = setInterval(() => void stateless.tick(), LEASE_HEARTBEAT_MS);
   }
 
   async onApplicationShutdown(): Promise<void> {
+    if (this.timer) clearInterval(this.timer);
     await this.sub?.quit().catch(() => undefined);
     await this.login?.close();
     await this.sessions?.shutdown();

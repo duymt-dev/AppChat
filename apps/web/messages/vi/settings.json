@@ -470,6 +470,10 @@
     }
   },
   "widget": {
+    "enabled": "Bật widget trên website",
+    "enabledOn": "Đang chạy — khách nhắn từ website vào Hộp thư",
+    "enabledOff": "Đang tắt — bật để lấy mã nhúng",
+    "embedEmpty": "Bật widget để lấy mã nhúng",
     "cfgT": "Cấu hình · Widget web",
     "name": "Tên Agent hiển thị trên widget",
     "namePh": "VD: Trợ lý AppChat",

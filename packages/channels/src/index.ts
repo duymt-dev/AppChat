@@ -7,3 +7,4 @@ export { FakeZaloTransport, FakeZaloSession, fakeZaloTransport, FAKE_QR_PNG, typ
 export { toRichText, chunkText, renderChunks } from './zalo-personal/render';
 export { normalizeZalo } from './zalo-personal/normalize';
 export type { ZaloTransport, ZaloSession, ZaloCredentials, ZaloRawMessage } from './zalo-personal/transport';
+export { WebchatAdapter, type WidgetPublisher, type WidgetOutMessage } from './webchat/adapter';

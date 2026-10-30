@@ -84,6 +84,12 @@ export interface RolesData {
 }
 
 export interface Widget {
+  /** Widget đang chạy (TIP-017) — tắt = tạm dừng tài khoản webchat. */
+  enabled: boolean;
+  channel_account_id: string | null;
+  public_key: string | null;
+  color: string;
+  allowed_domains: string[];
   name: string;
   greeting: string;
   ai_chat: boolean;

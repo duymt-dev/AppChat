@@ -211,12 +211,13 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
     },
   },
   'webchat.update_widget': {
-    execute: (db, i: Partial<Omit<Widget, 'agent'>> & { agent_id?: string }) => {
+    execute: (db, i: Partial<Omit<Widget, 'agent' | 'prechat'>> & { agent_id?: string; prechat?: boolean }) => {
       const w = db.settingsApps.widget;
       const { agent_id, actions, ...rest } = i;
-      Object.assign(w, rest, agent_id ? { agent: agent_id } : {});
+      Object.assign(w, rest, agent_id !== undefined ? { agent: agent_id } : {});
       if (actions) w.actions = actions.flatMap((a) => w.actions.filter((x) => x.key === a.key).map((x) => ({ ...x, on: a.on })));
-      return { ok: true };
+      w.kpis.running = w.enabled ? 1 : 0;
+      return { ok: true, channel_account_id: w.channel_account_id ?? undefined, public_key: w.public_key ?? undefined };
     },
   },
   'integration.connect': {

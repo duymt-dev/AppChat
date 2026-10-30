@@ -14,6 +14,8 @@ export interface InboundIdentity {
   externalId: string;
   displayName?: string | null;
   phone?: string | null;
+  /** Email khách tự khai (pre-chat widget — TIP-017) — chỉ ghi vào khách nháp mới, không dùng để khớp (không chắc chắn). */
+  email?: string | null;
 }
 
 export interface ResolvedContact {
@@ -39,7 +41,7 @@ export class ContactIdentityService {
       contactId = uuidv7(now.getTime());
       const source = sourceOfChannel(i.channelType);
       await tx.contact.create({
-        data: { id: contactId, code: await nextCode(tx, 'contact'), name: i.displayName?.trim() || i.externalId, phone: i.phone ?? null, phoneNorm: phone, source, lastInteractionAt: now, createdAt: now },
+        data: { id: contactId, code: await nextCode(tx, 'contact'), name: i.displayName?.trim() || i.externalId, phone: i.phone ?? null, phoneNorm: phone, email: i.email ?? null, source, lastInteractionAt: now, createdAt: now },
       });
       await writeTimeline(tx, { contactId, type: 'stage', key: 'created', params: { source }, actor: { type: 'system', id: null }, at: now });
       events.push({ topic: 'contact.created', payload: { contact_id: contactId, owner_user_id: null, source } });

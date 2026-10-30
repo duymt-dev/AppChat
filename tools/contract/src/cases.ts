@@ -35,5 +35,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   // TIP-016: Cài đặt › Thẻ + Câu trả lời mẫu (*.create → Idempotency-Key). Action hội thoại / tin cần hội thoại thật → integration inbox.
   { action: 'tag.create', input: { name: 'Contract thẻ', color: '#2563EB' }, tip: '016', idempotent: true },
   { action: 'canned_reply.create', input: { shortcut: '/contract', title: 'Contract', body: 'Dạ em chào {tên}', category: 'Chào hỏi' }, tip: '016', idempotent: true },
+  // TIP-017: Cài đặt › Trợ lý AI website — bật widget (lần đầu tạo tài khoản webchat) + cấu hình.
+  { action: 'webchat.update_widget', input: { enabled: true, greeting: 'Chào bạn 👋', prechat: true, handoff: 75 }, tip: '017' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

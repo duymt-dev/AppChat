@@ -10,4 +10,10 @@ export const channels = {
     disconnected: 'Tài khoản đã ngắt kết nối',
   },
   defaults: { hours: '08:00–18:00', sla: 'Mặc định' },
+  widget: {
+    name: 'Trợ lý AppChat',
+    greeting: 'Xin chào 👋 Shop có thể giúp gì cho bạn?',
+    account: 'Website Chat',
+    guest: 'Khách web',
+  },
 };

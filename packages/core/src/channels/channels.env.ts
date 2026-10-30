@@ -9,6 +9,10 @@ export const channelsEnv = z
     CHANNEL_SEND_JITTER: z.coerce.number().min(0).max(1).default(1),
     /** Chỉ với `ZALO_TRANSPORT=fake` (E2E http): khách giả nhắn tin này khi phiên bắt đầu. */
     ZALO_FAKE_GREETING: z.string().max(200).optional(),
+    /** Gốc API mà widget nối Socket.IO `/widget` (mã nhúng) — production: URL công khai của API (DC-089). */
+    WIDGET_API_URL: z.string().url().default('http://localhost:4000'),
+    /** URL file widget.js — mặc định `<WIDGET_API_URL>/widget.js` (Blueprint §11: `widget.<domain>` phục vụ widget.js tĩnh + socket `/widget`). */
+    WIDGET_SCRIPT_URL: z.string().url().optional(),
   })
   .superRefine((e, ctx) => {
     if (e.NODE_ENV === 'production' && e.ZALO_TRANSPORT === 'fake') ctx.addIssue({ code: 'custom', path: ['ZALO_TRANSPORT'], message: 'fake cấm ở production' });

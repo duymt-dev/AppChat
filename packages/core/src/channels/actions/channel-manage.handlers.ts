@@ -2,6 +2,7 @@
 // Lệnh tới phiên đang chạy (dừng / chạy lại / đồng bộ) gửi SAU commit qua ChannelControl; route DB nền tảng đồng bộ cùng lúc.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, serverMessages } from '@appchat/shared';
+import { channelRegistry } from '@appchat/channels';
 import type { ActionInput, channelDisconnect, channelPause, channelResume, channelSyncHistory, channelTest, channelUpdateSettings } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
@@ -118,6 +119,8 @@ export class ChannelTestHandler implements Handler<ActionInput<typeof channelTes
     if (row.pausedAt) return { result: { ok: false, message: m.paused } };
     if (row.status === 'connecting' || row.status === 'pending') return { result: { ok: false, message: m.connecting } };
     if (row.status === 'expired') return { result: { ok: false, message: m.expired } };
+    // Kênh không giữ phiên (webchat — khách nối thẳng API): chạy = connected + không tạm dừng.
+    if (channelRegistry.get(row.type)?.manifest.session !== 'lease') return { result: row.status === 'connected' ? { ok: true, message: m.ok } : { ok: false, message: m.error } };
     // Có worker đang giữ lease = phiên sống (worker gia hạn mỗi 10 giây, mất phiên thì nhả lease).
     const held = await need(this.control).held(row.id);
     return { result: held && row.status === 'connected' ? { ok: true, message: m.ok } : { ok: false, message: m.error } };

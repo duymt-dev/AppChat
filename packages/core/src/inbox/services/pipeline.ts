@@ -53,7 +53,7 @@ export class InboundPipeline {
     // 2. Khách
     let contactId = conv0?.contactId ?? null;
     if (!m.isGroup) {
-      const r = await this.identity.resolve(tx, { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null }, at);
+      const r = await this.identity.resolve(tx, { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null, email: m.sender.email ?? null }, at);
       contactId = r.contactId;
       events.push(...r.events);
     }

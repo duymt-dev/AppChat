@@ -470,6 +470,10 @@
     }
   },
   "widget": {
+    "enabled": "Show the widget on your website",
+    "enabledOn": "Running — website visitors land in the Inbox",
+    "enabledOff": "Off — turn on to get the embed code",
+    "embedEmpty": "Turn the widget on to get the embed code",
     "cfgT": "Settings · Web widget",
     "name": "Agent name shown on the widget",
     "namePh": "e.g. AppChat Assistant",

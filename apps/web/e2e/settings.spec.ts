@@ -191,6 +191,12 @@ test.describe('settings', () => {
     await expect(page.getByTestId('st-wg-agent')).toHaveCount(0);
     await page.getByTestId('st-wg-launcher').click();
     await expect(pv).not.toContainText('Xin chào! 👋');
+    // TIP-017: công tắc bật widget + mã nhúng có key thật.
+    await expect(page.getByTestId('st-wg-embed')).toContainText('data-key=');
+    await page.getByTestId('st-wg-enabled').click();
+    await expect(page.getByTestId('st-widget')).toContainText('Đang tắt');
+    await page.getByTestId('st-wg-enabled').click();
+    await expect(page.getByTestId('st-widget')).toContainText('Đang chạy');
   });
 
   test('hồ sơ 360°: danh sách mẫu, gán vai trò, tuỳ chỉnh bố cục tab (REQ-F12, M05)', async ({ page }) => {

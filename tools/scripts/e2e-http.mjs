@@ -1,5 +1,5 @@
 // pnpm e2e:http [spec…] — E2E trên backend thật (D57 / D59 "E2E luồng TIP ở http"): build api + worker, chạy bản build
-// (api cổng 4117, worker ROLE=jobs + ROLE=channels với Zalo giả) với env `.env` máy dev + MAIL_CONSOLE_DIR (đọc OTP / link), rồi Playwright với
+// (api cổng 4117 + /widget.js, worker ROLE=jobs + ROLE=channels với Zalo giả) với env `.env` máy dev + MAIL_CONSOLE_DIR (đọc OTP / link), rồi Playwright với
 // apps/web/playwright.http.config.ts (web `next build` NEXT_PUBLIC_API_MODE=http, rewrite /api → API). Dọn tiến trình khi xong.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -28,11 +28,13 @@ const env = {
   MAIL_CONSOLE_DIR: mailDir,
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'false',
+  // Mã nhúng widget (TIP-017) trỏ về API của lượt E2E; API phục vụ /widget.js từ apps/widget/dist.
+  WIDGET_API_URL: `http://localhost:${API_PORT}`,
 };
 
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });
 if (!process.argv.includes('--no-build')) {
-  const b = run('pnpm', ['turbo', 'run', 'build', '--filter=@appchat/api', '--filter=@appchat/worker']);
+  const b = run('pnpm', ['turbo', 'run', 'build', '--filter=@appchat/api', '--filter=@appchat/worker', '--filter=@appchat/widget']);
   if (b.status !== 0) process.exit(b.status ?? 1);
 }
 
