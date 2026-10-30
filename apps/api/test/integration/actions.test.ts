@@ -40,6 +40,12 @@ describe('POST /v1/actions/:id', () => {
     expect(r).toMatchObject({ status: 403, body: { error: { code: 'FORBIDDEN' } } });
   });
 
+  it('AC3 handler ném scope → 403 SCOPE_FORBIDDEN, không ghi action_log', async () => {
+    const r = await json(await call(h, '/actions/tag.delete', { input: { tag_id: setup.SCOPE_PROBE } }));
+    expect(r).toMatchObject({ status: 403, body: { error: { code: 'SCOPE_FORBIDDEN' } } });
+    expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log WHERE action_id = 'tag.delete'`)).rows[0].c).toBe(0);
+  });
+
   it('AC11 thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant; thiếu user → 401', async () => {
     const r1 = await fetch(`${h.base}/v1/actions/notification.mark_read`, {
       method: 'POST',

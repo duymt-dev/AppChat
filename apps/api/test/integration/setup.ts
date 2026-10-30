@@ -19,6 +19,7 @@ import {
   type ActionLogRow,
   type TenantTx,
 } from '@appchat/core';
+import { AppError } from '@appchat/shared';
 import { MemoryWorkspaceRegistry, TenantProvisioner, tenantDbName } from '@appchat/db';
 import { AppModule } from '../../src/app.module';
 import { EnvelopeErrorFilter } from '../../src/http/kernel/error.filter';
@@ -38,6 +39,7 @@ const readEnv = (f: string): Record<string, string> =>
 export const env: Record<string, string> = { ...readEnv(join(ROOT, '.env')), NODE_ENV: 'test', LOG_LEVEL: 'silent' };
 
 export let calls = 0;
+export const SCOPE_PROBE = '0190f000-0000-7000-8000-00000000aaaa';
 @Injectable()
 @ActionHandler('tag.create')
 export class TestTagCreate {
@@ -56,7 +58,9 @@ export class TestTagCreate {
 @Injectable()
 @ActionHandler('tag.delete')
 export class TestTagDelete {
-  async execute(_ctx: ActionContext, input: { tag_id: string }, tx: TenantTx) {
+  async execute(ctx: ActionContext, input: { tag_id: string }, tx: TenantTx) {
+    // Kiểm scope do handler làm (action-registry §5 bước 3) — bản ghi SCOPE_PROBE coi như của người khác.
+    if (input.tag_id === SCOPE_PROBE && ctx.authz.userId !== SCOPE_PROBE) throw new AppError('SCOPE_FORBIDDEN', 403);
     const before = await tx.notification.findUniqueOrThrow({ where: { id: input.tag_id } });
     await tx.notification.delete({ where: { id: input.tag_id } });
     return { result: { ok: true }, before: { ...before, createdAt: before.createdAt.toISOString() } };
