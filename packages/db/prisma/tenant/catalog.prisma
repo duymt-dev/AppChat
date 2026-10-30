@@ -1,0 +1,3 @@
+// tenant/catalog.prisma — sở hữu: TIP-027 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: product_category, product, product_variant, product_component, stock_movement.
+// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).

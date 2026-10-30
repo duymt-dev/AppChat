@@ -1,0 +1,3 @@
+// tenant/sales-orders.prisma — sở hữu: TIP-031 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: order, order_item.
+// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).

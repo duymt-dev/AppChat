@@ -14,12 +14,14 @@
     "lint:size": "node tools/scripts/lint-size.mjs",
     "lint:tokens": "node tools/scripts/lint-tokens.mjs",
     "lint:masks": "node tools/scripts/lint-masks.mjs",
+    "depcheck": "depcruise apps packages --config .dependency-cruiser.cjs --output-type err --ignore-known .dependency-cruiser-known-violations.json",
     "i18n:check": "node tools/scripts/i18n-check.mjs",
     "parity": "pnpm --filter @appchat/parity run parity",
     "parity:baseline": "pnpm --filter @appchat/parity run baseline",
     "e2e": "pnpm --filter @appchat/web run e2e"
   },
   "devDependencies": {
+    "dependency-cruiser": "18.7.0",
     "eslint": "10.13.0",
     "prettier": "3.9.10",
     "turbo": "2.11.10",

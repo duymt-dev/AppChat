@@ -1,0 +1,3 @@
+// tenant/kernel.prisma — sở hữu: TIP-002 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: action_log, outbox_event, idempotency_key, file, sequence_counter, notification.
+// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).

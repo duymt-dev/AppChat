@@ -32,6 +32,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm i18n:check
+      - run: pnpm depcheck
       - run: pnpm build
       - run: pnpm --filter @appchat/parity exec playwright install --with-deps chromium
       - name: Start app
