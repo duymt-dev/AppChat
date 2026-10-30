@@ -972,7 +972,7 @@ type UiCommand =
 | dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn) |
 | authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
-| misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` |
+| misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` — đã nối (TIP-013, shape `packages/shared/src/api/settings.ts`): `workspace` (mọi thành viên), `members?q=` (`members.manage`; `{ data, total, seat_limit, next_cursor: null }`), `roles` (mọi thành viên), `sla` (`sla.manage`; giờ làm việc thật, chính sách mặc định tới TIP-034), `notifications` (TIP-006), `integrations` (TIP-012) |
 | admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
 
 Bổ sung ver2.1:

@@ -105,7 +105,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 010 | W3 | chờ | — | — | — |
 | 011 | W3 | DONE | `tip/011-auth-onboarding-api` (xếp chồng 009) | 31cc35f | chờ Chủ nhà tạo |
 | 012 | W3 | DONE | `tip/012-integrations` (xếp chồng 011) | 819d2a4 | chờ Chủ nhà tạo |
-| 013 | W3 | chờ | — | — | — |
+| 013 | W3 | DONE | `tip/013-settings-api` (xếp chồng 012) | c040649 | chờ Chủ nhà tạo |
 | 014 | W4 | chờ | — | — | — |
 | 015 | W4 | chờ | — | — | — |
 | 016 | W4 | chờ | — | — | — |
