@@ -1,3 +1,113 @@
 // platform/billing.prisma — sở hữu: TIP-009 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Bảng: plan, subscription, credit_wallet, credit_ledger.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Không Prisma relation xuyên domain (Blueprint §2.1). Viết tay ở migration 009: CHECK ví ≥ 0, index ledger INCLUDE,
+// partial index subscription trial đang chạy (scheduler hết hạn trial).
+
+enum PlanSegment {
+  personal
+  business
+
+  @@map("plan_segment")
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  expired
+  cancelled
+
+  @@map("subscription_status")
+}
+
+enum CreditKind {
+  grant
+  topup
+  usage
+  refund
+  adjust
+  expire
+
+  @@map("credit_kind")
+}
+
+/// Gói AppChat (seed theo prototype — PLAN_SEEDS; Quản trị nền tảng sửa ở TIP-040). Hạn mức null = không giới hạn.
+model Plan {
+  id                  String      @id @db.Uuid
+  key                 String      @unique
+  segment             PlanSegment
+  name                String
+  /// VND; null = Liên hệ (Enterprise).
+  priceMonth          BigInt?     @map("price_month")
+  priceYear           BigInt?     @map("price_year")
+  creditsMonth        BigInt?     @map("credits_month")
+  maxChannels         Int?        @map("max_channels")
+  maxAgents           Int?        @map("max_agents")
+  maxUsers            Int?        @map("max_users")
+  /// { desc, popular, features[] } — chữ hiển thị thẻ gói (prototype).
+  features            Json        @default("{}")
+  isTrialPlan         Boolean     @default(false) @map("is_trial_plan")
+  archiveInactiveDays Int?        @map("archive_inactive_days")
+  active              Boolean     @default(true)
+  sort                Int         @default(0)
+  createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("plan")
+}
+
+/// Một subscription mỗi workspace. trialing → (hết trial) active gói Miễn phí; mua gói → active (TIP-010).
+model Subscription {
+  id                 String             @id @db.Uuid
+  workspaceId        String             @unique @map("workspace_id") @db.Uuid
+  planId             String             @map("plan_id") @db.Uuid
+  status             SubscriptionStatus
+  trialStartedAt     DateTime?          @map("trial_started_at") @db.Timestamptz(6)
+  trialEndsAt        DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
+  currentPeriodStart DateTime           @map("current_period_start") @db.Timestamptz(6)
+  currentPeriodEnd   DateTime?          @map("current_period_end") @db.Timestamptz(6)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("subscription")
+}
+
+/// Ví credit của workspace: plan_balance (reset mỗi kỳ, không cộng dồn) trừ trước, topup_balance (không hết hạn) sau.
+model CreditWallet {
+  workspaceId   String    @id @map("workspace_id") @db.Uuid
+  planBalance   BigInt    @default(0) @map("plan_balance")
+  topupBalance  BigInt    @default(0) @map("topup_balance")
+  /// Ngưỡng "sắp hết" tuỳ chỉnh (credit); null = theo % hạn mức tháng.
+  lowThreshold  BigInt?   @map("low_threshold")
+  /// Bật / tắt cảnh báo (wallet.update_alerts — TIP-039).
+  lowAlert      Boolean   @default(true) @map("low_alert")
+  warn80SentAt  DateTime? @map("warn_80_sent_at") @db.Timestamptz(6)
+  warn95SentAt  DateTime? @map("warn_95_sent_at") @db.Timestamptz(6)
+  exhaustedAt   DateTime? @map("exhausted_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("credit_wallet")
+}
+
+/// Sổ credit — mỗi lần đổi số dư một dòng; unique (workspace, ref_type, ref_id) = khoá idempotent (Blueprint §2.0).
+model CreditLedger {
+  id           String     @id @db.Uuid
+  workspaceId  String     @map("workspace_id") @db.Uuid
+  delta        BigInt
+  balanceAfter BigInt     @map("balance_after")
+  kind         CreditKind
+  refType      String     @map("ref_type")
+  refId        String     @map("ref_id")
+  /// Khoá chữ mô tả (`i18n/server` billing.ledger.<note>) + tham số `meta` — render theo locale người xem; nguồn = khoá nhãn.
+  note         String?
+  meta         Json?
+  source       String?
+  provider     String?
+  model        String?
+  tokensIn     Int?       @map("tokens_in")
+  tokensOut    Int?       @map("tokens_out")
+  runId        String?    @map("run_id")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, refType, refId])
+  @@map("credit_ledger")
+}

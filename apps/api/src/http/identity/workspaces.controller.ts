@@ -1,9 +1,10 @@
 // GET /v1/me · POST /v1/workspaces · GET /v1/workspaces/:id/provisioning · GET /v1/business-lookup/tax/:taxCode (Blueprint §4.2).
-// Route không cần X-Workspace-Id (§4.1: /v1/me) — chỉ cần access token.
+// Route không cần X-Workspace-Id (§4.1: /v1/me) — chỉ cần access token. /me ghép phần gói / trial / ví của billing (TIP-009)
+// ở tầng app để domain identity không phụ thuộc billing.
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { z } from 'zod';
-import { TAX_LOOKUP, WorkspacesService } from '@appchat/core';
+import { BillingReadService, TAX_LOOKUP, WorkspacesService } from '@appchat/core';
 import type { TaxLookupProvider } from '@appchat/integrations';
 import { normalizeTaxCode } from '@appchat/integrations';
 import { AppError } from '@appchat/shared';
@@ -18,11 +19,17 @@ export class WorkspacesController {
     @Inject(WorkspacesService) private readonly workspaces: WorkspacesService,
     @Inject(TAX_LOOKUP) private readonly tax: TaxLookupProvider,
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
+    @Inject(BillingReadService) private readonly billing: BillingReadService,
   ) {}
 
   @Get('me')
   async me(@Req() req: IncomingMessage) {
-    return { data: await this.workspaces.me(await this.actors.user(req)) };
+    const me = await this.workspaces.me(await this.actors.user(req));
+    const b = await this.billing.forMe(
+      me.workspaces.map((w) => w.id),
+      me.current_workspace_id,
+    );
+    return { data: { ...me, workspaces: me.workspaces.map((w) => ({ ...w, ...b.workspaces[w.id] })), billing: b.billing } };
   }
 
   @Post('workspaces')

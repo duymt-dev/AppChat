@@ -26,7 +26,24 @@ export const memberRoleChangedEvent = z.object({ ...base, user_id: z.string().uu
 /** Gỡ thành viên (TIP-013 phát) — ngắt socket của người đó. */
 export const memberRemovedEvent = z.object({ ...base, user_id: z.string().uuid() });
 
+/** Khai báo DN lần đầu (TIP-004 phát) — billing bắt đầu trial (TIP-009). */
+export const workspaceDeclaredEvent = z.object({ ...base, workspace_id: z.string().uuid(), kind: z.string().optional() });
+
+/** Ví credit (TIP-009): chạm ngưỡng 80 / 95% hạn mức tháng, hết, có lại. */
+export const creditsLowEvent = z.object({ ...base, level: z.union([z.literal(80), z.literal(95)]), balance: z.number() });
+export const creditsExhaustedEvent = z.object({ ...base, balance: z.number() });
+export const creditsRestoredEvent = z.object({ ...base, balance: z.number() });
+/** Đổi gói / trạng thái subscription (TIP-009 / 010). */
+export const subscriptionChangedEvent = z.object({ ...base, plan_key: z.string(), status: z.enum(['trialing', 'active', 'expired', 'cancelled']), from_plan_key: z.string().nullable() });
+export const trialExpiredEvent = z.object({ ...base, plan_key: z.string() });
+
 export const EVENT_SCHEMAS = {
+  'workspace.declared': workspaceDeclaredEvent,
+  'credits.low': creditsLowEvent,
+  'credits.exhausted': creditsExhaustedEvent,
+  'credits.restored': creditsRestoredEvent,
+  'subscription.changed': subscriptionChangedEvent,
+  'trial.expired': trialExpiredEvent,
   'notify.requested': notifyRequestedEvent,
   'member.role_changed': memberRoleChangedEvent,
   'member.removed': memberRemovedEvent,

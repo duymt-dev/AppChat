@@ -1,5 +1,5 @@
 // Worker ROLE=jobs thật cho integration TIP-006+: kernel + outbox relay + queue `events` + domain notify (consumer notify /
-// realtime, queue notify-mail). Đồng hồ / emitter thay được để kiểm toast (giờ không làm phiền) và gói realtime.
+// realtime, queue notify-mail) + billing (trial, scheduler hết hạn trial). Đồng hồ / emitter thay được để kiểm toast (giờ không làm phiền) và gói realtime.
 import 'reflect-metadata';
 import { Test, type TestingModule } from '@nestjs/testing';
 import IORedis from 'ioredis';
@@ -10,6 +10,7 @@ import {
   LOGGER,
   MAIL_PROVIDER,
   NotifyJobsModule,
+  BillingJobsModule,
   OutboxJobsModule,
   REALTIME_EMITTER,
   createLogger,
@@ -30,7 +31,7 @@ export interface WorkerHarness {
 }
 
 export async function startWorker(platform: PlatformDb, opts: { clock?: Clock; emitter?: RealtimeEmitter } = {}): Promise<WorkerHarness> {
-  let b = Test.createTestingModule({ imports: [KernelModule.forRoot({ ...env, LOG_LEVEL: 'silent' }), OutboxJobsModule, NotifyJobsModule] })
+  let b = Test.createTestingModule({ imports: [KernelModule.forRoot({ ...env, LOG_LEVEL: 'silent' }), OutboxJobsModule, NotifyJobsModule, BillingJobsModule] })
     .overrideProvider(LOGGER)
     .useValue(createLogger({ level: 'silent' }));
   if (opts.clock) b = b.overrideProvider(CLOCK).useValue(opts.clock);
