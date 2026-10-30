@@ -1092,6 +1092,7 @@ Danh mục action quá lớn để nhồi hết vào prompt, nên Trợ lý ch�
 | `delegate(agent_id \| role, task, context)` | Tạo `ai_run` con (kind=delegate) chạy agent chuyên trách với tool set = tool của agent ∩ quyền người ra lệnh (§3.3b); trả tóm tắt kết quả; hiển thị trong plan |
 | `ui(command: UiCommand)` | Phát `ui.command` tới user (điều hướng, mở drawer, điền form, lọc, highlight) |
 | `query_data(metric, params)` | = `insight.query` (metric định nghĩa sẵn, chỉ đọc); trả bảng/biểu đồ nhỏ ngay trong thẻ trả lời |
+| `render(tree: UiTree)` | (D55) Trả cây giao diện mức 2 cho câu trả lời: khối dựng sẵn, số liệu qua `$ref` tới bước `query_data` / action đọc, nút = `UiCommand` hoặc action, form gắn action. Schema + quy tắc: `standards/ai/generative-ui.md`. Lưu vào `assistant_message.content.parts[]` (`type: ui`) |
 | `plan(steps[])` / `update_step(id, status)` | Cập nhật thẻ kế hoạch |
 
 - **System prompt** gồm: vai trò, quyền của user, màn hiện tại và bản ghi đang xem (từ `context`), danh sách agent đang có, quy tắc xác nhận và hoàn tác. Viết bằng tiếng Việt, trả lời tiếng Việt.
