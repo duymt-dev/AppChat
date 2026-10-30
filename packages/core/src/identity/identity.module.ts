@@ -14,9 +14,15 @@ import { RateLimiter } from '../kernel/rate-limit';
 import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
 import { BusinessProfileUpdateHandler } from './actions/business-profile-update.handler';
+import { InviteRevokeHandler } from './actions/invite-revoke.handler';
+import { MemberInviteHandler } from './actions/member-invite.handler';
+import { MemberRemoveHandler } from './actions/member-remove.handler';
+import { MemberSetRoleHandler } from './actions/member-set-role.handler';
 import { OnboardingToggleStepHandler } from './actions/onboarding-toggle-step.handler';
 import { ProfileUpdateHandler } from './actions/profile-update.handler';
+import { WorkingHoursUpdateHandler } from './actions/working-hours-update.handler';
 import { WorkspaceSwitchHandler } from './actions/workspace-switch.handler';
+import { WorkspaceUpdateHandler } from './actions/workspace-update.handler';
 import { readIdentityEnv, type IdentityEnv } from './identity.env';
 import { BullProvisionQueue, TENANT_QUEUE } from './jobs/tenant-provision.processor';
 import { AccessTokens, jwtKeysFromEnv } from './services/access-tokens';
@@ -26,6 +32,7 @@ import { InvitesService } from './services/invites.service';
 import { OtpService } from './services/otp.service';
 import { SessionsService } from './services/sessions.service';
 import { WorkspacesService } from './services/workspaces.service';
+import { SettingsReadService } from './settings/settings-read.service';
 import { TAX_FIXTURE } from './tax-fixture';
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -103,10 +110,14 @@ const providers: FactoryProvider[] = [
     inject: [opt(PLATFORM_DB), MAIL_PROVIDER, IDENTITY_ENV, CLOCK],
     useFactory: (db: PlatformDb | undefined, m: MailProvider | null, e: IdentityEnv | null, c: Clock) => (db && m && e ? new InvitesService(db, m, e, c) : null),
   },
+  { provide: SettingsReadService, inject: [opt(PLATFORM_DB), CLOCK], useFactory: (db: PlatformDb | undefined, c: Clock) => (db ? new SettingsReadService(db, () => c.now()) : null) },
 ];
 
+// Handler Cài đặt (TIP-013). member.set_role inject PLATFORM_DB tuỳ chọn (undo ghi DB nền tảng).
+const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler];
+
 @Module({
-  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler],
+  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],
   exports: [
     IDENTITY_ENV,
     MAIL_PROVIDER,
@@ -119,6 +130,7 @@ const providers: FactoryProvider[] = [
     AuthService,
     WorkspacesService,
     InvitesService,
+    SettingsReadService,
   ],
 })
 export class IdentityModule {}

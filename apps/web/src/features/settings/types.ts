@@ -40,15 +40,18 @@ export interface Member {
   role: SystemRole;
   dept: string;
   color: string;
-  /** 'online' · '2h' · '3d' · 'never' (lời mời chưa nhận). */
+  /** 'online' · thời điểm hoạt động cuối (ISO; mock: '2h' · '3d') · 'never' (lời mời chưa nhận). */
   last: string;
   status: MemberStatus;
+  /** Dòng là lời mời còn chờ (thu hồi bằng invite.revoke). */
+  invite: boolean;
 }
 
 export interface MembersPage {
   data: Member[];
   total: number;
-  seat_limit: number;
+  /** null = gói không giới hạn người dùng. */
+  seat_limit: number | null;
 }
 
 export type { ChannelAiMode, ChannelAssignMode, ChannelHistoryDays, ChannelAccount, Channel } from './channel-types';

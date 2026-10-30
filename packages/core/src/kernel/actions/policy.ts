@@ -21,7 +21,5 @@ export function decidePolicy({ source, risk, bulk }: ActionPolicyInput): PolicyD
   return base;
 }
 
-/** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7). */
-export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {
-  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId);
-}
+/** Luật Idempotency-Key ở `packages/actions` (FE `useAction` dùng chung — TIP-013). */
+export { requiresIdempotencyKey } from '@appchat/actions';

@@ -41,6 +41,11 @@ export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.Zo
 
 export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => d;
 
+/** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
+export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {
+  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId);
+}
+
 export type ActionInput<D> = D extends ActionDef<infer I, z.ZodTypeAny> ? z.input<I> : never;
 export type ActionOutput<D> = D extends ActionDef<z.ZodTypeAny, infer O> ? z.output<O> : never;
 

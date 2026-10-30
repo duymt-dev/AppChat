@@ -17,5 +17,12 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'integration.connect', input: { provider: 'casso', fields: { api_key: 'ck_contract_1' } }, tip: '012' },
   { action: 'integration.register_interest', input: { provider: 'kiotviet' }, tip: '012' },
   { action: 'integration.disconnect', input: { provider: 'casso' }, tip: '012' },
+  // TIP-013: Cài đặt › Tổng quan / Ngôn ngữ (không đụng business_profile — workspace test chưa khai báo) + Giờ làm việc.
+  { action: 'workspace.update', input: { website: 'https://contract.vn', support_phone: '0281234567', timezone: 'Asia/Ho_Chi_Minh', date_format: 'DD/MM/YYYY' }, tip: '013' },
+  {
+    action: 'working_hours.update',
+    input: { days: [0, 1, 2, 3, 4, 5, 6].map((day) => ({ day, on: day < 5, from: '08:30', to: '17:30' })), pause_sla: true },
+    tip: '013',
+  },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

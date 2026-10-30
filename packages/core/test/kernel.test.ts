@@ -25,7 +25,8 @@ describe('uuidv7', () => {
   });
 
   it('mã hoá timestamp ms ở 48 bit đầu', () => {
-    const ms = Date.UTC(2026, 9, 30, 12, 0, 0);
+    // Mốc phải sau mọi id đã sinh trong tiến trình (uuidv7 đơn điệu: ms nhỏ hơn bị kẹp lên ms gần nhất) — mốc cố định thành bom hẹn giờ.
+    const ms = Date.now();
     const id = uuidv7(ms + 10_000_000);
     const hex = id.replace(/-/g, '').slice(0, 12);
     expect(parseInt(hex, 16)).toBe(ms + 10_000_000);

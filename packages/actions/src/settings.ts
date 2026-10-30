@@ -103,6 +103,7 @@ export const workingHoursUpdate = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['settings'],
+  db: 'platform',
 });
 
 export const slaUpdateDefault = defineAction({

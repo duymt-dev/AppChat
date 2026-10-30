@@ -1,5 +1,6 @@
 // Lời mời thành viên (Blueprint §2.2 `invite`). Token 32 byte, chỉ lưu sha256, hạn 7 ngày (DC-017).
-// TIP-013 cài handler `member.invite` / `invite.revoke` gọi service này; TIP-004 có accept (POST /v1/auth/invite/accept).
+// TIP-013: handler `member.invite` / `invite.revoke` gọi trong PlatformTx của action (`db` = ptx); mời lại cùng email thu hồi lời mời
+// cũ còn chờ (một link hiệu lực / email). TIP-004 có accept (POST /v1/auth/invite/accept).
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
@@ -14,6 +15,8 @@ import { newToken, normalizeEmail, sha256 } from './secrets';
 
 export const INVITE_TTL_MS = 7 * 86_400_000;
 
+type InviteDb = Pick<PlatformDb, 'user' | 'membership' | 'workspace' | 'invite'>;
+
 @Injectable()
 export class InvitesService {
   constructor(
@@ -24,16 +27,17 @@ export class InvitesService {
   ) {}
 
   /** Tạo lời mời + gửi mail. Đã là thành viên active → CONFLICT. Trả token mở (chỉ để test / gửi mail). */
-  async create(workspaceId: string, invitedBy: string, input: { email: string; name?: string; role: string }) {
+  async create(workspaceId: string, invitedBy: string, input: { email: string; name?: string; role: string }, db: InviteDb = this.db) {
     const email = normalizeEmail(input.email);
     const now = this.clock.now();
-    const existing = await this.db.user.findUnique({ where: { email }, select: { id: true, locale: true } });
-    if (existing && (await this.db.membership.findFirst({ where: { workspaceId, userId: existing.id, status: 'active' } }))) {
+    const existing = await db.user.findUnique({ where: { email }, select: { id: true, locale: true } });
+    if (existing && (await db.membership.findFirst({ where: { workspaceId, userId: existing.id, status: 'active' } }))) {
       throw new AppError('CONFLICT', 409, { email: 'already_member' });
     }
-    const ws = await this.db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { name: true, locale: true } });
+    const ws = await db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { name: true, locale: true } });
+    await db.invite.updateMany({ where: { workspaceId, email, acceptedAt: null, revokedAt: null }, data: { revokedAt: now } });
     const token = newToken();
-    const invite = await this.db.invite.create({
+    const invite = await db.invite.create({
       data: {
         id: uuidv7(now.getTime()),
         workspaceId,
@@ -50,8 +54,15 @@ export class InvitesService {
     return { inviteId: invite.id, token };
   }
 
-  async revoke(workspaceId: string, inviteId: string): Promise<void> {
-    const r = await this.db.invite.updateMany({
+  /** Lời mời còn chờ (chưa nhận / thu hồi / hết hạn) — tính vào hạn mức người dùng của gói. */
+  pendingCount(workspaceId: string, now: Date, db: InviteDb = this.db, exceptEmail?: string): Promise<number> {
+    return db.invite.count({
+      where: { workspaceId, acceptedAt: null, revokedAt: null, expiresAt: { gt: now }, ...(exceptEmail ? { email: { not: normalizeEmail(exceptEmail) } } : {}) },
+    });
+  }
+
+  async revoke(workspaceId: string, inviteId: string, db: InviteDb = this.db): Promise<void> {
+    const r = await db.invite.updateMany({
       where: { id: inviteId, workspaceId, acceptedAt: null, revokedAt: null },
       data: { revokedAt: this.clock.now() },
     });
