@@ -5,7 +5,7 @@ import { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry, LoginEvent } from '@appchat/channels';
 import { serverMessages } from '@appchat/shared';
-import { TenantContexts, type TenantDbResolver } from '@appchat/db';
+import { TenantContexts, WorkspaceNotFoundError, type TenantDbResolver } from '@appchat/db';
 import { encryptSecret } from '../../kernel/crypto';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
@@ -33,7 +33,12 @@ export interface LoginDeps {
 }
 
 export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' | 'skipped' | 'failed'> {
-  const db = await d.tenants.get(TenantContexts.system(j.ws, 'channel.login'));
+  // Job còn trong hàng đợi của workspace đã xoá (test / huỷ workspace) → bỏ, không báo lỗi.
+  const db = await d.tenants.get(TenantContexts.system(j.ws, 'channel.login')).catch((err: unknown) => {
+    if (err instanceof WorkspaceNotFoundError) return null;
+    throw err;
+  });
+  if (!db) return 'skipped';
   const row = await db.channelAccount.findUnique({ where: { id: j.account_id } });
   if (!row || row.status !== 'connecting') return 'skipped';
   const adapter = d.registry.get(row.type)?.adapter;
