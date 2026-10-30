@@ -1,11 +1,13 @@
-// Mock Cài đặt › Ứng dụng (Blueprint §4.4 channels / integrations): GET /settings/channels. Chỉ kênh có manifest (zalo_personal / webchat /
-// email) kết nối được; còn lại "Sắp có" (omnichannel-adapter, D28). Kết nối Zalo cá nhân trả QR (channel.zalo.start_login).
+// Mock Cài đặt › Ứng dụng (Blueprint §4.4 channels / integrations): GET /settings/channels — nhóm theo `type`, mỗi nhóm có
+// `accounts[]` (REQ-B09 một kênh nhiều tài khoản); GET /settings/channels/:accountId/stats?days=7 (REQ-B11 khối hiệu suất).
+// Chỉ kênh có manifest (zalo_personal / webchat / email) thêm tài khoản được; còn lại "Sắp có" (omnichannel-adapter, D28).
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 
+export type ChannelAccount = (typeof fixture.channels)[number]['accounts'][number];
 export type SettingsChannel = (typeof fixture.channels)[number];
 export type Connector = (typeof fixture.connectors)[number];
 export type Widget = typeof fixture.widget;
@@ -14,13 +16,35 @@ export interface SettingsAppsState {
   channels: SettingsChannel[];
   connectors: Connector[];
   widget: Widget;
+  seq: number;
 }
 
 export const createSettingsAppsState = (): SettingsAppsState => ({
   channels: structuredClone(fixture.channels),
   connectors: structuredClone(fixture.connectors),
   widget: structuredClone(fixture.widget),
+  seq: 0,
 });
+
+const HEALTH_RANK: Record<string, number> = { down: 0, off: 1, slow: 2, good: 3 };
+
+/** Trạng thái gộp của một loại kênh từ các tài khoản (Blueprint §4.4 L973). */
+const summarize = (c: SettingsChannel) => {
+  const on = c.accounts.filter((a) => a.connected);
+  const worst = on.reduce<SettingsChannel['accounts'][number] | null>(
+    (w, a) => (!w || (HEALTH_RANK[a.health] ?? 0) < (HEALTH_RANK[w.health] ?? 0) ? a : w),
+    null,
+  );
+  return {
+    ...c,
+    connected: on.length > 0,
+    health: worst?.health ?? ('off' as const),
+    convs: on.reduce((n, a) => n + a.convs, 0),
+    frt: worst?.frt ?? '—',
+    account: c.accounts[0]?.name ?? '',
+    agent: c.accounts[0]?.agent ?? '',
+  };
+};
 
 const connector = (db: MockDb, key: string) => {
   const c = db.settingsApps.connectors.find((x) => x.key === key);
@@ -28,15 +52,43 @@ const connector = (db: MockDb, key: string) => {
   return c;
 };
 
-const channel = (db: MockDb, type: string) => {
+const channelByType = (db: MockDb, type: string) => {
   const c = db.settingsApps.channels.find((x) => x.type === type);
   if (!c) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: type });
   if (!c.available) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'coming_soon', fields: { channel: 'coming_soon' } });
   return c;
 };
 
-const connect = (c: SettingsChannel, account: string) => {
-  Object.assign(c, { connected: true, account, health: 'good', frt: '—' });
+const findAccount = (db: MockDb, accountId: string) => {
+  for (const c of db.settingsApps.channels) {
+    const a = c.accounts.find((x) => x.id === accountId);
+    if (a) return { channel: c, account: a };
+  }
+  throw new ApiRequestError(404, { code: 'NOT_FOUND', message: accountId });
+};
+
+const addAccount = (db: MockDb, type: string, name: string): ChannelAccount => {
+  const c = channelByType(db, type);
+  const account: ChannelAccount = {
+    id: `acc_${type}_${++db.settingsApps.seq}`,
+    name,
+    connected: true,
+    convs: 0,
+    frt: '—',
+    health: 'good',
+    agent: '',
+    ai_mode: 'auto',
+    hours: '08:00–18:00',
+    greeting: '',
+    assign_mode: 'round_robin',
+    sla_policy: 'Mặc định',
+    sync_messages: true,
+    sync_auto_create_contact: true,
+    history_days: 30,
+    paused: false,
+  };
+  c.accounts.push(account);
+  return account;
 };
 
 export const settingsAppsRoutes: Record<string, MockRoute> = {
@@ -44,36 +96,85 @@ export const settingsAppsRoutes: Record<string, MockRoute> = {
   '/settings/widget': (db) => db.settingsApps.widget,
   '/settings/channels': (db, p) => {
     const f = String(p.filter ?? 'all');
-    return db.settingsApps.channels.filter((c) => f === 'all' || (f === 'on' ? c.connected : !c.connected));
+    return db.settingsApps.channels.map(summarize).filter((c) => f === 'all' || (f === 'on' ? c.connected : !c.connected));
   },
+};
+
+/** Route có tham số: /settings/channels/:accountId/stats. */
+export const settingsAppsParamRoute = (path: string): MockRoute | null => {
+  const m = path.match(/^\/settings\/channels\/([^/]+)\/stats$/);
+  if (!m) return null;
+  const accountId = m[1]!;
+  return (db) => {
+    const { account } = findAccount(db, accountId);
+    const seed = account.id.split('_').reduce((n, s) => n + s.length, 0);
+    const days = Array.from({ length: 7 }, (_, i) => ({
+      day: i,
+      convs: Math.max(0, Math.round(account.convs / 14) + ((seed + i * 3) % 7) - 3),
+      frt_sec: 30 + ((seed + i * 5) % 90),
+    }));
+    return { account_id: accountId, days, total_convs: days.reduce((n, d) => n + d.convs, 0) };
+  };
 };
 
 export const settingsAppsHandlers: Record<string, MockHandler> = {
   'channel.zalo.start_login': {
     execute: (db, i: { label?: string }) => {
-      const c = channel(db, 'zalo_personal');
-      connect(c, i.label?.trim() || c.account || 'Zalo cá nhân');
-      return { channel_id: c.type, qr: 'zalo://login/qr/mock' };
+      const account = addAccount(db, 'zalo_personal', i.label?.trim() || 'Zalo cá nhân');
+      return { channel_account_id: account.id, qr: 'zalo://login/qr/mock' };
     },
   },
   'channel.email.connect': {
     execute: (db, i: { address: string }) => {
-      const c = channel(db, 'email');
-      connect(c, i.address);
-      return { channel_id: c.type };
+      const account = addAccount(db, 'email', i.address);
+      return { channel_account_id: account.id };
+    },
+  },
+  'channel.test': {
+    execute: (_db, i: { channel_account_id?: string; type?: string; fields?: Record<string, string> }) => {
+      if (i.type === 'email' && i.fields && !i.fields.imap_host?.trim()) {
+        throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'imap_host', fields: { imap_host: 'required' } });
+      }
+      return { ok: true, message: 'Kết nối thành công' };
+    },
+  },
+  'channel.update_settings': {
+    execute: (db, i: { channel_account_id: string; patch: Partial<ChannelAccount> }) => {
+      const { account } = findAccount(db, i.channel_account_id);
+      Object.assign(account, i.patch);
+      return { ok: true };
+    },
+  },
+  'channel.pause': {
+    execute: (db, i: { channel_account_id: string }) => {
+      findAccount(db, i.channel_account_id).account.paused = true;
+      return { ok: true };
+    },
+  },
+  'channel.resume': {
+    execute: (db, i: { channel_account_id: string }) => {
+      findAccount(db, i.channel_account_id).account.paused = false;
+      return { ok: true };
+    },
+  },
+  'channel.sync_history': {
+    execute: (db, i: { channel_account_id: string; history_days: 0 | 7 | 30 | 90 }) => {
+      findAccount(db, i.channel_account_id).account.history_days = i.history_days;
+      return { ok: true };
     },
   },
   'channel.reconnect': {
-    execute: (db, i: { channel_id: string }) => {
-      const c = channel(db, i.channel_id);
-      c.health = 'good';
-      return { channel_id: c.type, status: 'connected' };
+    execute: (db, i: { channel_account_id: string }) => {
+      const { account } = findAccount(db, i.channel_account_id);
+      account.connected = true;
+      account.health = 'good';
+      return { channel_account_id: account.id, status: 'connected' };
     },
   },
   'channel.disconnect': {
-    execute: (db, i: { channel_id: string }) => {
-      const c = channel(db, i.channel_id);
-      Object.assign(c, { connected: false, health: 'off', frt: '—' });
+    execute: (db, i: { channel_account_id: string }) => {
+      const { channel, account } = findAccount(db, i.channel_account_id);
+      channel.accounts = channel.accounts.filter((a) => a.id !== account.id);
       return { ok: true };
     },
   },

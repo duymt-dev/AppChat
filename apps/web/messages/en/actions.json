@@ -493,19 +493,34 @@
   "channel": {
     "zalo": {
       "start_login": {
-        "title": "Connect personal Zalo"
+        "title": "Add personal Zalo account"
       }
     },
     "email": {
       "connect": {
-        "title": "Connect email"
+        "title": "Add email account"
       }
     },
+    "test": {
+      "title": "Test channel connection"
+    },
+    "update_settings": {
+      "title": "Update channel account settings"
+    },
+    "pause": {
+      "title": "Pause channel account"
+    },
+    "resume": {
+      "title": "Resume channel account"
+    },
+    "sync_history": {
+      "title": "Sync channel history"
+    },
     "reconnect": {
-      "title": "Reconnect channel"
+      "title": "Reconnect channel account"
     },
     "disconnect": {
-      "title": "Disconnect channel"
+      "title": "Disconnect channel account"
     }
   },
   "webchat": {

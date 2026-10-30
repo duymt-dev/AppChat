@@ -51,22 +51,7 @@ export interface MembersPage {
   seat_limit: number;
 }
 
-export interface Channel {
-  type: string;
-  name: string;
-  short: string;
-  color: string;
-  connected: boolean;
-  account: string;
-  convs: number;
-  frt: string;
-  health: 'good' | 'slow' | 'down' | 'off';
-  agent: string;
-  group: 'msg' | 'web' | 'shop';
-  label: '' | 'pop' | 'beta';
-  /** Có manifest (kết nối được); false → "Sắp có". */
-  available: boolean;
-}
+export type { ChannelAiMode, ChannelAssignMode, ChannelHistoryDays, ChannelAccount, Channel } from './channel-types';
 
 export interface Connector {
   key: string;

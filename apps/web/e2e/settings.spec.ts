@@ -98,26 +98,60 @@ test.describe('settings', () => {
     await expect(page.locator('[data-ws]').first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
-  test('kênh: kênh chưa có manifest "Sắp có", ngắt kết nối email, lọc Chưa kết nối, kết nối lại (email sai bị chặn)', async ({ page }) => {
+  test('kênh: kênh chưa có manifest "Sắp có", quản lý 2 cấp, ngắt tài khoản email, lọc Chưa kết nối', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(go('channels'));
     await expect(page.getByTestId('st-ch-facebook')).toBeDisabled();
     await page.getByTestId('st-ch-f-on').click();
     await expect(page.locator('[data-channel]')).toHaveCount(3);
+
+    // Quản lý kênh email (đã kết nối) → drawer cấp 1 danh sách tài khoản → mở cấp 2 → Ngắt kết nối.
     await page.getByTestId('st-ch-email').click();
-    await page.getByTestId('st-ch-disconnect').click();
+    const drawer = page.getByTestId('st-ch-drawer');
+    await expect(drawer).toBeVisible();
+    await drawer.getByTestId(/^st-ch-drawer-acct-/).first().click();
+    page.once('dialog', (d) => void d.accept());
+    await drawer.getByTestId('st-ch-drawer-disconnect').click();
+    await expect(drawer.getByTestId(/^st-ch-drawer-acct-/)).toHaveCount(0);
+    await drawer.getByTestId('st-ch-drawer-close').click();
+    await expect(drawer).toHaveCount(0);
     await expect(page.locator('[data-channel]')).toHaveCount(2);
+
     await page.getByTestId('st-ch-f-off').click();
     await expect(page.locator('[data-channel="email"]')).toHaveCount(1);
-    await page.getByTestId('st-ch-f-all').click();
+  });
+
+  test('kênh: thêm tài khoản email qua wizard 3 bước (email sai bị chặn, Kiểm tra kết nối trước khi tiếp tục)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('channels'));
     await page.getByTestId('st-ch-email').click();
-    const m = page.getByTestId('st-ch-modal');
-    await m.getByTestId('st-ch-email').fill('sai');
-    await m.getByTestId('st-ch-modal-save').click();
-    await expect(m).toBeVisible();
-    await m.getByTestId('st-ch-email').fill('hotro@spa.vn');
-    await m.getByTestId('st-ch-modal-save').click();
-    await expect(m).toHaveCount(0);
+    const drawer = page.getByTestId('st-ch-drawer');
+    await expect(drawer).toBeVisible();
+    await drawer.getByTestId(/^st-ch-drawer-acct-/).first().click();
+    page.once('dialog', (d) => void d.accept());
+    await drawer.getByTestId('st-ch-drawer-disconnect').click();
+    await drawer.getByTestId('st-ch-drawer-close').click();
+    await expect(drawer).toHaveCount(0);
+
+    await page.getByTestId('st-ch-email').click();
+    const w = page.getByTestId('st-ch-wizard');
+    await expect(w).toBeVisible();
+    // Chưa Kiểm tra kết nối → Tiếp tục bị khoá.
+    await w.getByTestId('st-ch-wizard-email').fill('sai');
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeDisabled();
+    await w.getByTestId('st-ch-wizard-imap').fill('imap.gmail.com');
+    await w.getByTestId('st-ch-wizard-test').click();
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeEnabled();
+    // Email không hợp lệ → vẫn ở bước 2 (toast lỗi), không nhảy bước.
+    await w.getByTestId('st-ch-wizard-next').click();
+    await expect(w.getByTestId('st-ch-wizard-email')).toBeVisible();
+    await w.getByTestId('st-ch-wizard-email').fill('hotro@spa.vn');
+    await w.getByTestId('st-ch-wizard-next').click();
+    await expect(w.getByTestId('st-ch-wizard-cfg-name')).toBeVisible();
+    await w.getByTestId('st-ch-wizard-next').click();
+    await expect(w).toHaveCount(0);
+
+    await expect(page.locator('[data-channel]')).toHaveCount(16);
     await page.getByTestId('st-ch-f-on').click();
     await expect(page.locator('[data-channel]')).toHaveCount(3);
   });
@@ -189,7 +223,7 @@ test.describe('settings', () => {
     await expect(page.locator('[data-channel]').first()).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await page.getByTestId('st-ch-email').click();
-    await expect(page.getByTestId('st-ch-modal')).toBeVisible();
+    await expect(page.getByTestId('st-ch-drawer')).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await page.goto(go('integrations'));
     await expect(page.locator('[data-connector]').first()).toBeVisible();

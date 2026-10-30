@@ -2,6 +2,7 @@
 // Chỉ kênh có manifest (Zalo cá nhân, Website, Email) liên kết được; còn lại nhãn "Sắp có" (omnichannel-adapter, D28).
 'use client';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
@@ -13,15 +14,24 @@ import { channelsQuery } from '../api';
 import type { Channel } from '../types';
 import { ChannelCard } from './ChannelCard';
 import { ConnectChannelModal } from './ConnectChannelModal';
+import { ManageChannelDrawer } from './ManageChannelDrawer';
+
+const WIDGET = '/settings/web_widget';
 
 const FILTERS = ['all', 'on', 'off'] as const;
 const GROUPS = ['msg', 'web', 'shop'] as const;
 
 function ListRow({ c }: { c: Channel }) {
   const t = useTranslations('settings.channels');
+  const router = useRouter();
   const { styles, cx } = useChannelsStyles();
   const set = useSettingsUi((s) => s.set);
   const can = useCan('channels.manage');
+  const open = () => {
+    if (c.connected) return set({ channelDrawer: { type: c.type, accountId: null } });
+    if (c.type === 'webchat') return router.push(WIDGET);
+    return set({ channelWizard: { type: c.type, step: 2 } });
+  };
   return (
     <div className={cx(useSectionStyles().styles.tr, styles.lGrid)} data-channel={c.type}>
       <div className={styles.lWho}>
@@ -53,7 +63,7 @@ function ListRow({ c }: { c: Channel }) {
             type="button"
             className={c.connected ? styles.btnManage : c.available ? styles.btnConnect : styles.btnSoon}
             disabled={!c.available}
-            onClick={() => set({ channelModal: c.type })}
+            onClick={open}
           >
             {t(c.connected ? 'manage' : c.available ? 'connect' : 'soon')}
           </button>
@@ -126,6 +136,7 @@ export function ChannelsSection() {
         )}
       </PageStates>
       <ConnectChannelModal />
+      <ManageChannelDrawer />
     </>
   );
 }
