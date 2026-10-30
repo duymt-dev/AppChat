@@ -52,7 +52,8 @@ describe('schema + seed', () => {
       await c.end();
       const recorder = { start: async () => undefined, finish: async () => undefined };
       const out = await tenantMigrate({ registry: reg, recorder, migratorUrl: env.MIGRATOR_DATABASE_URL!, concurrency: 1 });
-      expect(out).toMatchObject({ version: '20261030110000_005_authz', done: [ws], failed: [] });
+      // version = migration mới nhất của template (TIP sau thêm migration → không phải sửa test này).
+      expect(out).toMatchObject({ version: readMigrations(TENANT_MIGRATIONS_DIR).at(-1)!.name, done: [ws], failed: [] });
       const c2 = new pg.default.Client({ connectionString: withDatabase(env.MIGRATOR_DATABASE_URL!, dbName) });
       await c2.connect();
       expect((await c2.query(`SELECT to_regclass('team_member') AS t`)).rows[0].t).toBe('team_member');
