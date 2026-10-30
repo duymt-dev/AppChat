@@ -1,8 +1,8 @@
 // GET /v1/billing/summary · /plans · /wallet · /ledger?cursor= (Blueprint §4.4 billing) — thành viên workspace (X-Workspace-Id);
-// ghi (mua gói / nạp credit / cảnh báo ví) là action của TIP-010 / 039. Lịch sử ví render theo locale người xem.
+// TIP-010: /invoices?status=&q= (`billing.manage`). Ghi là action billing.* (TIP-010 / 039). Chữ render theo locale người xem.
 import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { BillingReadService, PLATFORM_DB } from '@appchat/core';
+import { BillingReadService, InvoicesService, PLATFORM_DB } from '@appchat/core';
 import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -13,6 +13,7 @@ export class BillingController {
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
     @Inject(BillingReadService) private readonly read: BillingReadService,
     @Inject(PLATFORM_DB) private readonly platform: PlatformDb,
+    @Inject(InvoicesService) private readonly invoices: InvoicesService,
   ) {}
 
   private async locale(userId: string) {
@@ -43,5 +44,12 @@ export class BillingController {
     const n = limit === undefined ? undefined : Number(limit);
     if (n !== undefined && !Number.isInteger(n)) throw new AppError('VALIDATION_FAILED', 400, { limit: 'invalid' });
     return this.read.ledger(a.workspaceId, await this.locale(a.userId), cursor || undefined, n);
+  }
+
+  @Get('invoices')
+  async list(@Req() req: IncomingMessage, @Query('status') status?: string, @Query('q') q?: string) {
+    const a = await this.actors.resolve(req);
+    if (!a.authz.isOwner && !a.authz.permissions.has('billing.manage')) throw new AppError('FORBIDDEN', 403, { permission: 'billing.manage' });
+    return this.invoices.list(a.workspaceId, await this.locale(a.userId), { status, q: q?.slice(0, 100) });
   }
 }

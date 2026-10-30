@@ -147,9 +147,11 @@ export class ActionExecutor {
       });
       const events = await writeOutbox(tx, ctx.workspaceId, r.events ?? [], now, traceId);
       if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(data), statusCode: 200, createdAt: now } });
-      return { data, events };
+      return { data, events, afterCommit: r.afterCommit };
     });
     if (out.events) await markDirty(this.d.kv, ctx.workspaceId);
+    // Đã commit: lỗi ở đây không đổi kết quả (việc tự idempotent + có scheduler quét lại — HandlerOutcome.afterCommit).
+    if (out.afterCommit) await out.afterCommit().catch(() => undefined);
 
     // 7. kết quả
     return { status: 200, data: out.data };

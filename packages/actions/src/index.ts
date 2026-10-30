@@ -18,6 +18,7 @@ import * as settings from './settings';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as documents from './documents';
+import * as platformAdmin from './platform-admin';
 
 export * from './define';
 export * from './identity';
@@ -40,6 +41,7 @@ export * from './settings';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './documents';
+export * from './platform-admin';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -63,6 +65,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(documents),
+  ...Object.values(platformAdmin),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

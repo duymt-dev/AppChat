@@ -1144,7 +1144,9 @@
       "close": "Đóng",
       "doneT": "Thanh toán thành công",
       "doneS": "Đã ghi nhận <b>{item}</b>. Hệ thống đã đối soát theo <b>{code}</b> và cộng vào tài khoản.",
-      "finish": "Hoàn tất"
+      "finish": "Hoàn tất",
+      "reviewT": "Đang chờ xác nhận",
+      "reviewS": "Đã ghi nhận bạn chuyển khoản cho <b>{code}</b>. Hệ thống tự đối soát khi tiền về (thường trong ~1 phút); nếu ngân hàng chậm, đội AppChat xác nhận thủ công."
     },
     "hero": {
       "current": "GÓI HIỆN TẠI",

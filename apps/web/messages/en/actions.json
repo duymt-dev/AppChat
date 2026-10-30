@@ -671,5 +671,12 @@
     "update_alerts": {
       "title": "Update credit reminders"
     }
+  },
+  "admin": {
+    "invoice": {
+      "confirm_transfer": {
+        "title": "Confirm bank transfer (platform admin)"
+      }
+    }
   }
 }

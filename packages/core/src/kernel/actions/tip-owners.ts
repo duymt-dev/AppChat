@@ -13,6 +13,7 @@ const BY_ID: Record<string, string> = {
   'run.cancel': '023',
   'webchat.update_widget': '017',
   'channel.email.connect': '018',
+  'admin.invoice.confirm_transfer': '010',
 };
 
 const BY_PREFIX: Record<string, string> = {
@@ -52,6 +53,7 @@ const BY_PREFIX: Record<string, string> = {
   ticket: '034',
   loyalty: '036',
   campaign: '037',
+  admin: '040',
 };
 
 export function tipOwnerOf(actionId: string): string | null {

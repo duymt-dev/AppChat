@@ -35,6 +35,8 @@ export const creditsExhaustedEvent = z.object({ ...base, balance: z.number() });
 export const creditsRestoredEvent = z.object({ ...base, balance: z.number() });
 /** Đổi gói / trạng thái subscription (TIP-009 / 010). */
 export const subscriptionChangedEvent = z.object({ ...base, plan_key: z.string(), status: z.enum(['trialing', 'active', 'expired', 'cancelled']), from_plan_key: z.string().nullable() });
+/** Hoá đơn gói AppChat đã thanh toán + ghi nhận (TIP-010) — notify Owner, làm mới màn Gói & ví. */
+export const billingInvoicePaidEvent = z.object({ ...base, invoice_id: z.string().uuid(), code: z.string(), kind: z.enum(['plan', 'credits', 'addon', 'upgrade_proration']), amount: z.string() });
 export const trialExpiredEvent = z.object({ ...base, plan_key: z.string() });
 
 /** Kết nối connector của workspace (TIP-012, Blueprint §2.3): kết nối / ngắt / lỗi gọi ra ngoài (hết lượt thử). */
@@ -51,6 +53,7 @@ export const EVENT_SCHEMAS = {
   'credits.exhausted': creditsExhaustedEvent,
   'credits.restored': creditsRestoredEvent,
   'subscription.changed': subscriptionChangedEvent,
+  'billing.invoice_paid': billingInvoicePaidEvent,
   'trial.expired': trialExpiredEvent,
   'notify.requested': notifyRequestedEvent,
   'member.role_changed': memberRoleChangedEvent,

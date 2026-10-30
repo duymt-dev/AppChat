@@ -1,7 +1,7 @@
 // Mock Gói & thanh toán + Ví AppChat (Blueprint §2.2 plan / subscription / credit_wallet / credit_ledger / billing_invoice, §4.2 billing):
 // GET /billing/summary, /billing/plans, /billing/ledger, /billing/invoices. Ghi: billing.create_invoice (sinh VietQR 15 phút — REQ-L04),
-// billing.report_transfer (→ pending_review), billing.cancel_invoice. Mock: "Tôi đã chuyển khoản" coi như đối soát xong ngay → paid
-// + cộng credit / kích hoạt gói (bản thật do webhook ngân hàng đối soát — Blueprint §4.5).
+// billing.report_transfer, billing.cancel_invoice. Mock: "Tôi đã chuyển khoản" trả `pending_review` như backend (TIP-010) và coi
+// như webhook ngân hàng về ngay → hoá đơn paid + cộng credit / kích hoạt gói trong cùng lệnh (bản thật: §4.7, đối soát bất đồng bộ).
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import { ApiRequestError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
@@ -51,6 +51,21 @@ const priceOf = (db: SettingsBillingState, kind: string, item: string) => {
   return p?.price && p.price !== '0' ? { amount: p.price, credits: 0, label: `Gói ${p.name}` } : undefined;
 };
 
+/** "Webhook ngân hàng" của mock: hoá đơn chờ xác nhận → paid + kích hoạt gói / cộng credit. */
+function settle(s: SettingsBillingState, inv: Invoice) {
+  inv.status = 'paid';
+  delete inv.qr;
+  const plan = [...s.billing.plans.personal, ...s.billing.plans.business].find((x) => inv.kind === 'plan' && x.key === inv.item);
+  if (plan) Object.assign(s.billing.current, { plan_key: plan.key, plan_name: plan.name, status: 'active' });
+  if (inv.kind === 'credit') {
+    const p = s.billing.credit_packs.find((x) => x.key === inv.item);
+    if (p) {
+      s.wallet.topup_balance += p.credits;
+      s.wallet.ledger.unshift({ id: `cl_${s.wallet.ledger.length + 1}`, at: NOW, desc: inv.code, kind: 'topup', source: 'VietQR', delta: p.credits });
+    }
+  }
+}
+
 export const settingsBillingRoutes: Record<string, MockRoute> = {
   '/billing/summary': (db) => {
     const w = db.settingsBilling.wallet;
@@ -93,20 +108,12 @@ export const settingsBillingHandlers: Record<string, MockHandler> = {
   },
   'billing.report_transfer': {
     execute: (db, i: { invoice_id: string }) => {
-      const s = db.settingsBilling;
-      const inv = s.billing.invoices.find((x) => x.id === i.invoice_id);
+      const inv = db.settingsBilling.billing.invoices.find((x) => x.id === i.invoice_id);
       if (!inv) throw notFound();
-      inv.status = 'paid';
-      const plan = [...s.billing.plans.personal, ...s.billing.plans.business].find((x) => inv.kind === 'plan' && x.key === inv.item);
-      if (plan) Object.assign(s.billing.current, { plan_key: plan.key, plan_name: plan.name, status: 'active' });
-      if (inv.kind === 'credit') {
-        const p = s.billing.credit_packs.find((x) => x.key === inv.item);
-        if (p) {
-          s.wallet.topup_balance += p.credits;
-          s.wallet.ledger.unshift({ id: `cl_${s.wallet.ledger.length + 1}`, at: NOW, desc: inv.code, kind: 'topup', source: 'VietQR', delta: p.credits });
-        }
-      }
-      return { invoice_id: inv.id, status: inv.status };
+      if (inv.status === 'paid') return { invoice_id: inv.id, status: 'paid' };
+      if (inv.status !== 'pending' && inv.status !== 'expired' && inv.status !== 'pending_review') throw new ApiRequestError(409, { code: 'CONFLICT', message: inv.status });
+      settle(db.settingsBilling, inv);
+      return { invoice_id: inv.id, status: 'pending_review' };
     },
   },
   'wallet.update_alerts': {
@@ -119,6 +126,7 @@ export const settingsBillingHandlers: Record<string, MockHandler> = {
     execute: (db, i: { invoice_id: string }) => {
       const inv = db.settingsBilling.billing.invoices.find((x) => x.id === i.invoice_id);
       if (!inv) throw notFound();
+      if (inv.status !== 'pending' && inv.status !== 'pending_review') throw new ApiRequestError(409, { code: 'CONFLICT', message: inv.status });
       inv.status = 'cancelled';
       return { ok: true };
     },

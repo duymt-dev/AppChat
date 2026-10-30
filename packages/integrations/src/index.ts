@@ -5,6 +5,8 @@ export * from './ports/mail';
 export * from './ports/tax-lookup';
 export * from './ports/bank-feed';
 export { MockBankFeedProvider, mockSignature } from './connectors/mock/bank-feed';
+export { SepayBankFeed, sepayTime, type SepayWebhookBody } from './connectors/sepay/adapter';
+export { sepayManifest } from './connectors/sepay/manifest';
 export { BrevoMailProvider, type BrevoOptions } from './connectors/brevo/mail';
 export { SmtpMailProvider, type SmtpOptions } from './connectors/smtp/mail';
 export { MemoryMailProvider } from './connectors/mock/console-mail';

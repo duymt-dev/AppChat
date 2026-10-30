@@ -9,5 +9,13 @@ export const billing = {
     adjust: 'Điều chỉnh credit',
     refund: 'Hoàn credit',
   },
+  /** Mô tả dòng hoá đơn gói AppChat (`GET /v1/billing/invoices` — TIP-010). */
+  invoice: {
+    plan_month: 'Gói {plan} · 1 tháng',
+    plan_year: 'Gói {plan} · 12 tháng',
+    credits: 'Nạp {credits} credit',
+    addon_user: 'Mua thêm 1 người dùng',
+    addon_channel: 'Mua thêm 1 kênh kết nối',
+  },
   source: { plan: 'Gói', ai: 'AI', assistant: 'Trợ lý AI', inbox: 'Hộp thư', marketing: 'Marketing', qr: 'VietQR', bank: 'Chuyển khoản', admin: 'Quản trị' },
 } as const;

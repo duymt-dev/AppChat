@@ -24,5 +24,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
     input: { days: [0, 1, 2, 3, 4, 5, 6].map((day) => ({ day, on: day < 5, from: '08:30', to: '17:30' })), pause_sla: true },
     tip: '013',
   },
+  // TIP-010: mua gói credit (money → Idempotency-Key). report / cancel cần invoice_id thật → integration billing-payments.
+  { action: 'billing.create_invoice', input: { kind: 'credit', item: 'credit_1000' }, tip: '010', idempotent: true },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

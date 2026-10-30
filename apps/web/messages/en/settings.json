@@ -1144,7 +1144,9 @@
       "close": "Close",
       "doneT": "Payment received",
       "doneS": "<b>{item}</b> recorded. Matched against <b>{code}</b> and applied to your account.",
-      "finish": "Done"
+      "finish": "Done",
+      "reviewT": "Awaiting confirmation",
+      "reviewS": "We have noted your transfer for <b>{code}</b>. It is matched automatically when the money arrives (usually ~1 minute); if the bank is slow, the AppChat team confirms it manually."
     },
     "hero": {
       "current": "CURRENT PLAN",

@@ -60,3 +60,22 @@ export const walletSchema = z.object({
 });
 
 export const ledgerPageSchema = z.object({ data: z.array(ledgerEntrySchema), next_cursor: z.string().nullable() });
+
+/** `GET /v1/billing/invoices?status=&q=` (TIP-010) — hoá đơn gói AppChat; `qr` chỉ có khi còn chờ thanh toán. */
+export const BILL_INVOICE_STATUSES = ['pending', 'pending_review', 'paid', 'expired', 'cancelled'] as const;
+export const billInvoiceSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  desc: z.string(),
+  date: z.string(),
+  amount: z.string(),
+  method: z.enum(['qr', 'bank_transfer']),
+  status: z.enum(BILL_INVOICE_STATUSES),
+  kind: z.enum(['plan', 'credit', 'addon']),
+  item: z.string(),
+  qr: z
+    .object({ payload: z.string(), amount: z.string(), content: z.string(), expires_at: z.string(), bank: z.string(), account_no: z.string(), account_name: z.string() })
+    .optional(),
+});
+export type BillInvoiceDto = z.infer<typeof billInvoiceSchema>;
+export const billInvoicesPageSchema = z.object({ data: z.array(billInvoiceSchema), next_cursor: z.string().nullable() });

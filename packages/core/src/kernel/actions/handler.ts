@@ -19,6 +19,12 @@ export interface HandlerOutcome<O> {
   before?: unknown;
   after?: unknown;
   events?: { topic: string; payload: Record<string, unknown> }[];
+  /**
+   * Việc chạy SAU khi transaction (nền tảng + tenant) commit — cho bước cần transaction riêng của service khác (vd. kích hoạt gói
+   * sau khi admin xác nhận chuyển khoản — TIP-010). Lỗi không làm hỏng kết quả action đã commit; việc phải tự idempotent + có
+   * đường quét lại (scheduler).
+   */
+  afterCommit?: () => Promise<void>;
 }
 
 export interface ActionHandler<I = unknown, O = unknown> {

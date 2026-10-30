@@ -8,4 +8,8 @@ export { SubscriptionsService, type BillingEventSink } from './services/subscrip
 export { BillingReadService, ledgerDto, LEDGER_PAGE, CREDIT_VND } from './services/billing-read.service';
 export { OutboxBillingSink, walletThresholdListener, trialConsumer } from './events/billing.events';
 export { BILLING_SINK } from './billing.module';
-export { SCHEDULER_QUEUE, TRIAL_EXPIRY_JOB } from './jobs/billing.jobs.module';
+export { SCHEDULER_QUEUE, TRIAL_EXPIRY_JOB, INVOICE_SWEEP_JOB } from './jobs/billing.jobs.module';
+export { InvoicesService, type CreateInvoiceInput } from './payments/invoices.service';
+export { InvoiceFulfiller } from './payments/fulfil';
+export { PlatformBankHook } from './payments/bank-hook.service';
+export { PAYMENTS_ENV, readPaymentsEnv, type PaymentsEnv } from './payments/payments.env';

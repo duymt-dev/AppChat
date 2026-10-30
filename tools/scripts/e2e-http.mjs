@@ -68,7 +68,8 @@ for (;;) {
 const specs = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const r = run('pnpm', ['exec', 'playwright', 'test', '--config', 'playwright.http.config.ts', ...specs], {
   cwd: join(ROOT, 'apps/web'),
-  env: { ...process.env, API_URL: `http://localhost:${API_PORT}`, MAIL_CONSOLE_DIR: mailDir },
+  // Spec billing giả webhook ngân hàng nền tảng (/hooks/payments/mock) bằng cùng khoá HMAC với API (TIP-010).
+  env: { ...process.env, API_URL: `http://localhost:${API_PORT}`, MAIL_CONSOLE_DIR: mailDir, MOCK_BANK_FEED_KEY: env.MOCK_BANK_FEED_KEY ?? 'mock-bank-feed-dev', PLATFORM_BANK_ACCOUNT_NO: env.PLATFORM_BANK_ACCOUNT_NO ?? '0071000888999' },
 });
 stop();
 process.exit(r.status ?? 1);

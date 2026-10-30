@@ -671,5 +671,12 @@
     "update_alerts": {
       "title": "Cập nhật nhắc credit"
     }
+  },
+  "admin": {
+    "invoice": {
+      "confirm_transfer": {
+        "title": "Xác nhận chuyển khoản (quản trị nền tảng)"
+      }
+    }
   }
 }

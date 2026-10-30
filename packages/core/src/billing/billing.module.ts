@@ -4,9 +4,18 @@ import { Module, type OnApplicationBootstrap } from '@nestjs/common';
 import type { Redis } from 'ioredis';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
+import { ENV_SOURCE } from '../kernel/kernel.module';
 import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { OutboxBillingSink, walletThresholdListener } from './events/billing.events';
+import { AdminConfirmTransferHandler } from './actions/admin-confirm-transfer.handler';
+import { BillingCancelInvoiceHandler } from './actions/billing-cancel-invoice.handler';
+import { BillingCreateInvoiceHandler } from './actions/billing-create-invoice.handler';
+import { BillingReportTransferHandler } from './actions/billing-report-transfer.handler';
+import { PlatformBankHook } from './payments/bank-hook.service';
+import { InvoiceFulfiller } from './payments/fulfil';
+import { InvoicesService } from './payments/invoices.service';
+import { PAYMENTS_ENV, readPaymentsEnv, type PaymentsEnv } from './payments/payments.env';
 import { seedPlans } from './seed';
 import { BillingReadService } from './services/billing-read.service';
 import { CreditMeter, PRICE_BOOK, StaticPriceBook, type PriceBook } from './services/credit-meter';
@@ -58,12 +67,34 @@ class BillingBoot implements OnApplicationBootstrap {
       inject: [WalletService, PRICE_BOOK],
       useFactory: (w: WalletService | null, pb: PriceBook) => (w ? new CreditMeter(w, pb) : null),
     },
+    // Thu phí nền tảng (TIP-010): env tài khoản nhận tiền + nguồn đối soát; hoá đơn, ghi nhận, webhook ngân hàng.
+    { provide: PAYMENTS_ENV, inject: [{ token: ENV_SOURCE, optional: true }], useFactory: (src?: Record<string, string | undefined>) => readPaymentsEnv(src ?? {}) },
+    {
+      provide: InvoicesService,
+      inject: [opt(PLATFORM_DB), PAYMENTS_ENV, CLOCK],
+      useFactory: (p: PlatformDb | undefined, e: PaymentsEnv, c: Clock) => (p ? new InvoicesService(p, e, () => c.now()) : null),
+    },
+    {
+      provide: InvoiceFulfiller,
+      inject: [opt(PLATFORM_DB), WalletService, SubscriptionsService, BILLING_SINK, CLOCK],
+      useFactory: (p: PlatformDb | undefined, w: WalletService | null, s: SubscriptionsService | null, k: OutboxBillingSink | null, c: Clock) =>
+        p && w && s && k ? new InvoiceFulfiller(p, w, s, k, () => c.now()) : null,
+    },
+    {
+      provide: PlatformBankHook,
+      inject: [opt(PLATFORM_DB), PAYMENTS_ENV, InvoiceFulfiller, CLOCK],
+      useFactory: (p: PlatformDb | undefined, e: PaymentsEnv, f: InvoiceFulfiller | null, c: Clock) => (p && f ? new PlatformBankHook(p, e, f, () => c.now()) : null),
+    },
+    BillingCreateInvoiceHandler,
+    BillingCancelInvoiceHandler,
+    BillingReportTransferHandler,
+    AdminConfirmTransferHandler,
     {
       provide: BillingBoot,
       inject: [opt(PLATFORM_DB), WalletService, BILLING_SINK],
       useFactory: (p: PlatformDb | undefined, w: WalletService | null, s: OutboxBillingSink | null) => new BillingBoot(p, w, s),
     },
   ],
-  exports: [WalletService, SubscriptionsService, QuotaService, BillingReadService, CreditMeter, PRICE_BOOK, BILLING_SINK],
+  exports: [WalletService, SubscriptionsService, QuotaService, BillingReadService, CreditMeter, PRICE_BOOK, BILLING_SINK, PAYMENTS_ENV, InvoicesService, InvoiceFulfiller, PlatformBankHook],
 })
 export class BillingModule {}
