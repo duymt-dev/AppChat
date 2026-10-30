@@ -106,7 +106,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 011 | W3 | DONE | `tip/011-auth-onboarding-api` (xếp chồng 009) | 31cc35f | chờ Chủ nhà tạo |
 | 012 | W3 | DONE | `tip/012-integrations` (xếp chồng 011) | 819d2a4 | chờ Chủ nhà tạo |
 | 013 | W3 | DONE | `tip/013-settings-api` (xếp chồng 012) | c040649 | chờ Chủ nhà tạo |
-| 014 | W4 | chờ | — | — | — |
+| 014 | W4 | DONE (chưa nghiệm thu Zalo thật — Q-003) | `tip/014-channels-zalo` (xếp chồng 015) | dbc96cb | chờ Chủ nhà tạo |
 | 015 | W4 | DONE | `tip/015-crm-core` (xếp chồng 010) | 9f059e6 | chờ Chủ nhà tạo |
 | 016 | W4 | chờ | — | — | — |
 | 017 | W4 | chờ | — | — | — |
