@@ -27,6 +27,7 @@ import { TenantProvisioner, createPlatformDb, tenantDbName, type PlatformDb } fr
 import { MemoryMailProvider } from '@appchat/integrations';
 import { AppModule } from '../../src/app.module';
 import { EnvelopeErrorFilter } from '../../src/http/kernel/error.filter';
+import { applyPrefix } from '../../src/http/kernel/prefix';
 import { traceMiddleware } from '../../src/middleware/trace.middleware';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..', '..');
@@ -124,6 +125,8 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
   await platform.refreshToken.deleteMany({ where: { userId: { in: users } } });
   await platform.otpCode.deleteMany({ where: { email: { in: emails } } });
   await platform.notificationPref.deleteMany({ where: { userId: { in: users } } });
+  await platform.integrationInterest.deleteMany({ where: { workspaceId: { in: workspaces } } });
+  await platform.tenantIntegrationRoute.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.creditLedger.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.creditWallet.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.subscription.deleteMany({ where: { workspaceId: { in: workspaces } } });
@@ -155,8 +158,8 @@ export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): 
     .overrideProvider(MAIL_PROVIDER)
     .useValue(mail)
     .compile();
-  const app = mod.createNestApplication({ logger: false });
-  app.setGlobalPrefix('v1');
+  const app = mod.createNestApplication({ logger: false, rawBody: true });
+  applyPrefix(app);
   app.use(traceMiddleware(log));
   app.useGlobalFilters(new EnvelopeErrorFilter(log));
   await app.listen(0);

@@ -6,9 +6,10 @@ export const cassoManifest: ConnectorManifest = {
   port: 'bank_feed',
   name: 'Casso',
   logo: 'casso',
+  color: '#1E5BBF',
   group: 'payments',
   status: 'ga',
-  auth: { kind: 'api_key' },
+  auth: { kind: 'api_key', fields: [{ key: 'api_key', secret: true }] },
   webhooks: true,
   modes: ['sandbox', 'live'],
 };

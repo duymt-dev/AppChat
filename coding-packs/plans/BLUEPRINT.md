@@ -427,10 +427,10 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
-| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status) |
+| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status); unique partial (connector_key) WHERE status <> 'disconnected' (DC-044) |
 | `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) |
 | `integration_call_log` | connection_id, op, ref_type, ref_id, idempotency_key, status, latency_ms, error?, created_at | unique(idempotency_key); idx(connection_id, created_at desc) |
-| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id) |
+| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id); partial (connection_id, created_at) WHERE processed_at IS NULL |
 
 - `tenant_bank_feed` (sales) là một `integration_connection` port `bank_feed`; giữ bảng feed riêng cho khớp mã `TT-xxxxxx`, tham chiếu `connection_id`.
 
@@ -475,6 +475,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `kb.suggestion_created` (P1) | suggestion_id | thông báo người có `kb.manage` |
 | `order.imported` / `order.external_updated` | order_id, connection_id | như `order.confirmed` / `completed` / `cancelled` theo trạng thái ánh xạ (kho; loyalty **chỉ khi** bật cho kết nối); timeline (D31) |
 | `integration.connected` / `integration.error` / `integration.disconnected` | connection_id, connector_key | thông báo; metric `integration_connection_status`; trang Nền tảng kết nối |
+| `integration.event_received` | connection_id, connector_key, port, event_id, kind | consumer domain theo port xử lý `integration_event` (TIP-010 / 031 / 032) — TIP-012 |
 | `document.rendered` / `document.render_failed` | ref_type, ref_id, file_id | gắn `file_id` vào chứng từ; WS; lỗi thì thông báo người tạo (D30) |
 
 ---

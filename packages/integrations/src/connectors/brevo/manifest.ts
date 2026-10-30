@@ -6,9 +6,10 @@ export const brevoManifest: ConnectorManifest = {
   port: 'mail',
   name: 'Brevo',
   logo: 'brevo',
+  color: '#0B996E',
   group: 'marketing',
   status: 'ga',
-  auth: { kind: 'api_key' },
+  auth: { kind: 'api_key', fields: [{ key: 'api_key', secret: true }] },
   webhooks: true,
   modes: ['live'],
 };

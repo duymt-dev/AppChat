@@ -1,3 +1,15 @@
 // platform/integrations.prisma — sở hữu: TIP-012 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: integration_interest.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: integration_interest. Không Prisma relation xuyên domain (Blueprint §2.1).
+
+/// Thẻ "Sắp có" → "Đăng ký quan tâm" (D28) — ở DB nền tảng để đội AppChat đếm nhu cầu theo connector trên mọi workspace.
+model IntegrationInterest {
+  workspaceId  String   @map("workspace_id") @db.Uuid
+  connectorKey String   @map("connector_key")
+  userId       String   @map("user_id") @db.Uuid
+  note         String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([workspaceId, connectorKey])
+  @@index([connectorKey])
+  @@map("integration_interest")
+}

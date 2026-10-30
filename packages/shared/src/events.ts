@@ -37,6 +37,14 @@ export const creditsRestoredEvent = z.object({ ...base, balance: z.number() });
 export const subscriptionChangedEvent = z.object({ ...base, plan_key: z.string(), status: z.enum(['trialing', 'active', 'expired', 'cancelled']), from_plan_key: z.string().nullable() });
 export const trialExpiredEvent = z.object({ ...base, plan_key: z.string() });
 
+/** Kết nối connector của workspace (TIP-012, Blueprint §2.3): kết nối / ngắt / lỗi gọi ra ngoài (hết lượt thử). */
+const integrationBase = { ...base, connection_id: z.string().uuid(), connector_key: z.string() };
+export const integrationConnectedEvent = z.object(integrationBase);
+export const integrationDisconnectedEvent = z.object(integrationBase);
+export const integrationErrorEvent = z.object({ ...integrationBase, op: z.string(), error: z.string().max(500) });
+/** Webhook đã xác thực + lưu `integration_event` — consumer domain theo port xử lý (TIP-010 / 031 / 032). */
+export const integrationEventReceivedEvent = z.object({ ...integrationBase, port: z.string(), event_id: z.string().uuid(), kind: z.string() });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -47,5 +55,9 @@ export const EVENT_SCHEMAS = {
   'notify.requested': notifyRequestedEvent,
   'member.role_changed': memberRoleChangedEvent,
   'member.removed': memberRemovedEvent,
+  'integration.connected': integrationConnectedEvent,
+  'integration.disconnected': integrationDisconnectedEvent,
+  'integration.error': integrationErrorEvent,
+  'integration.event_received': integrationEventReceivedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

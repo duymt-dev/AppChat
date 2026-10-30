@@ -22,6 +22,7 @@ export * from './outbox/outbox';
 export * from './outbox/relay';
 export * from './outbox/outbox.jobs.module';
 export * from './rate-limit';
+export * from './crypto';
 export * from './tenant-seeds';
 export * from './events/consumer';
 export * from './events/dispatcher';

@@ -6,11 +6,13 @@ import { brevoManifest } from './connectors/brevo/manifest';
 import { cassoManifest } from './connectors/casso/manifest';
 import { sepayManifest } from './connectors/sepay/manifest';
 import { smtpManifest } from './connectors/smtp/manifest';
+import { MockBankFeedProvider } from './connectors/mock/bank-feed';
 
 export const connectorRegistry = defineConnectors([
   { manifest: brevoManifest }, // adapter: BrevoMailProvider (TIP-004)
   { manifest: smtpManifest }, // adapter: TIP-006 (DC-018)
-  { manifest: sepayManifest }, // adapter: TIP-010
-  { manifest: cassoManifest }, // adapter: TIP-010
+  // Adapter `mock` (sandbox — provider-ports §9) tới khi TIP-010 / 032 gắn adapter thật SePay / Casso (Q-004).
+  { manifest: sepayManifest, adapter: new MockBankFeedProvider(sepayManifest) },
+  { manifest: cassoManifest, adapter: new MockBankFeedProvider(cassoManifest) },
   ...comingSoonConnectors.map((manifest) => ({ manifest })),
 ]);

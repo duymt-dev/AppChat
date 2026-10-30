@@ -1,3 +1,97 @@
 // tenant/integrations.prisma — sở hữu: TIP-012 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Bảng: integration_connection, integration_mapping, integration_call_log, integration_event.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Chuẩn: standards/integrations/provider-ports.md. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Partial / covering index viết SQL trong migration.
+
+enum IntegrationMode {
+  sandbox
+  live
+
+  @@map("integration_mode")
+}
+
+enum IntegrationStatus {
+  connected
+  error
+  disconnected
+
+  @@map("integration_status")
+}
+
+enum IntegrationCallStatus {
+  running
+  succeeded
+  failed
+
+  @@map("integration_call_status")
+}
+
+/// Kết nối connector của workspace. Bí mật (api_key, mật khẩu…) chỉ ở `secret_enc` (AES-256-GCM — ops §2.2), không bao giờ trả API.
+/// Một kết nối đang dùng mỗi connector: unique partial (connector_key) WHERE status <> 'disconnected' (migration).
+model IntegrationConnection {
+  id           String            @id @db.Uuid
+  connectorKey String            @map("connector_key")
+  port         String
+  name         String
+  mode         IntegrationMode   @default(live)
+  status       IntegrationStatus @default(connected)
+  /// Trường không bí mật của form (account_number, host, username…).
+  config       Json              @default("{}")
+  secretEnc    Bytes?            @map("secret_enc")
+  lastSyncAt   DateTime?         @map("last_sync_at") @db.Timestamptz(6)
+  lastError    String?           @map("last_error")
+  createdBy    String?           @map("created_by") @db.Uuid
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([port, status])
+  @@map("integration_connection")
+}
+
+/// Ánh xạ bản ghi nội bộ ↔ id bên ngoài (đơn ↔ hoá đơn điện tử, sản phẩm ↔ SKU) — không thêm cột `misa_id` vào bảng nghiệp vụ.
+model IntegrationMapping {
+  id           String    @id @db.Uuid
+  connectionId String    @map("connection_id") @db.Uuid
+  entity       String
+  localId      String    @map("local_id")
+  externalId   String    @map("external_id")
+  syncedAt     DateTime? @map("synced_at") @db.Timestamptz(6)
+
+  @@unique([connectionId, entity, localId])
+  @@unique([connectionId, entity, externalId])
+  @@map("integration_mapping")
+}
+
+/// Mỗi lần gọi ra ngoài qua queue `integrations` — không ghi secret / payload nhạy cảm (provider-ports §5).
+model IntegrationCallLog {
+  id             String                @id @db.Uuid
+  connectionId   String                @map("connection_id") @db.Uuid
+  op             String
+  refType        String?               @map("ref_type")
+  refId          String?               @map("ref_id")
+  /// `connection_id:op:ref_id` — một lần gọi logic chỉ một dòng.
+  idempotencyKey String                @unique @map("idempotency_key")
+  status         IntegrationCallStatus
+  attempts       Int                   @default(0)
+  latencyMs      Int?                  @map("latency_ms")
+  error          String?
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([connectionId, createdAt(sort: Desc)])
+  @@map("integration_call_log")
+}
+
+/// Sự kiện webhook thô đã xác thực chữ ký — idempotent theo id của provider; xử lý ở consumer domain (processed_at).
+model IntegrationEvent {
+  id              String    @id @db.Uuid
+  connectionId    String    @map("connection_id") @db.Uuid
+  externalEventId String    @map("external_event_id")
+  kind            String
+  payload         Json
+  processedAt     DateTime? @map("processed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([connectionId, externalEventId])
+  @@map("integration_event")
+}

@@ -36,10 +36,20 @@ describe('connectorRegistry', () => {
     expect(keysOf('mail').sort()).toEqual(['brevo', 'mailgun', 'smtp']);
   });
 
-  it('chưa gắn adapter → không connector nào kết nối được', () => {
-    for (const m of connectorRegistry.manifests()) expect(connectorRegistry.isConnectable(m.key)).toBe(false);
-    const reg = defineConnectors([{ manifest: sepayManifest, adapter: { manifest: sepayManifest } }]);
-    expect(reg.isConnectable('sepay')).toBe(true);
+  it('kết nối được ⇔ không "Sắp có" (DC-042); bank_feed có adapter mock (sandbox)', () => {
+    for (const m of connectorRegistry.manifests()) expect(connectorRegistry.isConnectable(m.key)).toBe(RELEASE.includes(m.key));
+    expect(connectorRegistry.isConnectable('nope')).toBe(false);
+    expect(connectorRegistry.get('sepay')?.adapter).toBeDefined();
+    expect(connectorRegistry.get('casso')?.adapter).toBeDefined();
+  });
+
+  it('trường form + màu khớp fixture (thẻ FE đọc từ manifest)', () => {
+    const fx = fixture.connectors as unknown as { key: string; color: string; fields: string[]; name: string }[];
+    for (const m of connectorRegistry.manifests()) {
+      const f = fx.find((c) => c.key === m.key)!;
+      expect({ key: m.key, color: m.color, name: m.name, fields: m.auth.fields.map((x) => x.key) }).toEqual({ key: f.key, color: f.color, name: f.name, fields: f.fields });
+    }
+    expect(connectorRegistry.get('sepay')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['api_key']);
   });
 
   it('trùng key / port lạ / adapter lệch → lỗi lúc define', () => {

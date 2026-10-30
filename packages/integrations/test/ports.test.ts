@@ -1,6 +1,7 @@
 // TIP-004: adapter mail (Brevo) + tax_lookup (VietQR / mock) — fetch giả, không gọi mạng (provider-ports §9).
 import { describe, expect, it } from 'vitest';
-import { BrevoMailProvider, MailSendError, MemoryMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, normalizeTaxCode } from '../src';
+import { BrevoMailProvider, MailSendError, MemoryMailProvider, MockBankFeedProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, mockSignature, normalizeTaxCode } from '../src';
+import { sepayManifest } from '../src/connectors/sepay/manifest';
 
 const msg = { to: 'a@b.vn', subject: 'S', html: '<b>x</b>', text: 'x', tag: 'otp' };
 const jsonRes = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -63,5 +64,26 @@ describe('tax lookup', () => {
     await m.send(msg);
     await m.send({ ...msg, subject: 'S2' });
     expect(m.last('a@b.vn')?.subject).toBe('S2');
+  });
+});
+
+describe('MockBankFeedProvider (TIP-012)', () => {
+  const conn = { id: 'c1', mode: 'sandbox' as const, config: { account_number: '0123' }, secrets: { api_key: 'sk_1' } };
+  const p = new MockBankFeedProvider(sepayManifest);
+  const body = JSON.stringify({ id: 'evt-1', transactions: [{ external_id: 't1', account_number: '0123', amount: '500000', direction: 'in', content: 'TT-000001', occurred_at: '2026-10-30T08:00:00Z' }] });
+
+  it('test(): api_key "bad…" → lỗi, còn lại qua', async () => {
+    await expect(p.test({ ...conn, secrets: { api_key: 'bad' } })).rejects.toThrow();
+    await expect(p.test(conn)).resolves.toBeUndefined();
+  });
+
+  it('verifyWebhook: chữ ký HMAC đúng → event theo id; sai / body hỏng → null; parseTransactions', () => {
+    const ev = p.verifyWebhook(conn, { headers: { 'x-mock-signature': mockSignature('sk_1', body) }, rawBody: body });
+    expect(ev).toMatchObject({ id: 'evt-1', kind: 'transactions' });
+    expect(p.parseTransactions(conn, ev!.payload)).toHaveLength(1);
+    expect(p.verifyWebhook(conn, { headers: { 'x-mock-signature': mockSignature('khac', body) }, rawBody: body })).toBeNull();
+    expect(p.verifyWebhook(conn, { headers: {}, rawBody: body })).toBeNull();
+    const bad = '{x';
+    expect(p.verifyWebhook(conn, { headers: { 'x-mock-signature': mockSignature('sk_1', bad) }, rawBody: bad })).toBeNull();
   });
 });

@@ -6,9 +6,10 @@ export const sepayManifest: ConnectorManifest = {
   port: 'bank_feed',
   name: 'SePay',
   logo: 'sepay',
+  color: '#0E7C66',
   group: 'payments',
   status: 'ga',
-  auth: { kind: 'api_key' },
+  auth: { kind: 'api_key', fields: [{ key: 'api_key', secret: true }, { key: 'account_number' }] },
   webhooks: true,
   modes: ['sandbox', 'live'],
 };

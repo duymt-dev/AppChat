@@ -303,6 +303,7 @@ export const integrationRegisterInterest = defineAction({
   risk: 'write',
   agentGrantable: false,
   invalidates: ['integrations'],
+  db: 'platform',
 });
 
 export const profileLayoutCreate = defineAction({

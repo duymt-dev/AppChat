@@ -3,6 +3,8 @@ export * from './define';
 export { connectorRegistry } from './registry';
 export * from './ports/mail';
 export * from './ports/tax-lookup';
+export * from './ports/bank-feed';
+export { MockBankFeedProvider, mockSignature } from './connectors/mock/bank-feed';
 export { BrevoMailProvider, type BrevoOptions } from './connectors/brevo/mail';
 export { SmtpMailProvider, type SmtpOptions } from './connectors/smtp/mail';
 export { MemoryMailProvider } from './connectors/mock/console-mail';

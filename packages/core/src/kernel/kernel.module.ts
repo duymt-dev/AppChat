@@ -4,6 +4,7 @@ import { Global, Module, type DynamicModule, type Provider } from '@nestjs/commo
 import type { Redis } from 'ioredis';
 import { z } from 'zod';
 import { CLOCK, SystemClock } from './clock';
+import { ENC_KEY, parseEncKey } from './crypto';
 import { createLogger } from './logger/logger';
 import { REDIS, createRedis } from './redis';
 import { ActionsModule } from './actions/actions.module';
@@ -20,7 +21,7 @@ const base: Provider[] = [
 
 const kernelEnv = z.object({
   REDIS_URL: z.string().regex(/^rediss?:\/\//).optional(),
-  /** Khoá chủ 32 byte (base64 / hex) — HMAC confirm_token; TIP sau dùng cho AES-256-GCM (ops §2.2). */
+  /** Khoá chủ 32 byte (base64 / hex) — HMAC confirm_token + AES-256-GCM bí mật của DN (ops §2.2, crypto.ts). */
   APP_ENC_KEY: z.string().min(32).optional(),
 });
 
@@ -51,6 +52,11 @@ export class KernelModule {
         { provide: 'REDIS_CLOSER', inject: [REDIS], useFactory: (r: Redis) => new RedisCloser(r) },
       );
       exports.push(REDIS);
+    }
+    if (k.APP_ENC_KEY) {
+      // Khoá AES-256-GCM cho bí mật của DN (ops §2.2, TIP-012) — sai định dạng thì dừng boot.
+      providers.push({ provide: ENC_KEY, useValue: parseEncKey(k.APP_ENC_KEY) });
+      exports.push(ENC_KEY);
     }
     if (db && k.REDIS_URL) {
       if (!k.APP_ENC_KEY) throw new Error('Biến môi trường không hợp lệ: APP_ENC_KEY');
