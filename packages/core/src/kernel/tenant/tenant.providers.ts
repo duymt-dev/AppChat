@@ -1,8 +1,8 @@
 // Provider DB của kernel (TIP-002): PlatformDb + TenantDbResolver từ env. Registry workspace = port (DC-008):
-// mặc định MemoryWorkspaceRegistry cho tới khi TIP-004 cung cấp adapter Prisma qua token WORKSPACE_REGISTRY.
+// TIP-004: PrismaWorkspaceRegistry đọc bảng `workspace` của DB nền tảng; test thay bằng MemoryWorkspaceRegistry qua override token.
 import type { FactoryProvider, OnApplicationShutdown, Provider } from '@nestjs/common';
 import {
-  MemoryWorkspaceRegistry,
+  PrismaWorkspaceRegistry,
   TenantDbResolver,
   createPlatformDb,
   dbEnv,
@@ -51,7 +51,7 @@ export function dbProviders(env: DbEnv): Provider[] {
   };
   return [
     { provide: DB_ENV, useValue: env },
-    { provide: WORKSPACE_REGISTRY, useValue: new MemoryWorkspaceRegistry() },
+    { provide: WORKSPACE_REGISTRY, inject: [PLATFORM_DB], useFactory: (p: PlatformDb) => new PrismaWorkspaceRegistry(p) },
     platform,
     resolver,
     { provide: 'DB_CLOSER', inject: [PLATFORM_DB, TENANT_RESOLVER], useFactory: (p: PlatformDb, t: TenantDbResolver) => new Closer(p, t) },

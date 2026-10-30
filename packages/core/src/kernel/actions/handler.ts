@@ -1,7 +1,7 @@
 // Hợp đồng handler + decorator đăng ký (Blueprint §3.2). Handler là provider Nest; ActionHandlerRegistry gom lúc boot.
 import 'reflect-metadata';
 import type { ActionPreview } from '@appchat/actions';
-import type { ActionContext, TenantTx } from './action-context';
+import type { ActionContext, PlatformTx, TenantTx } from './action-context';
 
 export interface ActionLogRow {
   id: string;
@@ -22,7 +22,8 @@ export interface HandlerOutcome<O> {
 }
 
 export interface ActionHandler<I = unknown, O = unknown> {
-  execute(ctx: ActionContext, input: I, tx: TenantTx): Promise<HandlerOutcome<O>>;
+  /** `ptx` chỉ có với action `db: 'platform'` — khi đó ghi nghiệp vụ vào ptx; `tx` (tenant) chỉ để đọc nếu cần. */
+  execute(ctx: ActionContext, input: I, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<O>>;
   preview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<ActionPreview>;
   undo?(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void>;
 }

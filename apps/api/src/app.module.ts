@@ -45,9 +45,9 @@ export const DOMAIN_HTTP_MODULES = [
     PlatformHttpModule,
 ];
 
-/** Route kernel (actions / action-logs) chỉ khi env có DB + Redis (Action executor được dựng). */
+/** Route kernel (actions / action-logs) + route identity chỉ khi env có DB + Redis + JWT_SECRET (executor + actor JWT). */
 const withActions = (env: Record<string, string | undefined>) =>
-  env.PLATFORM_DATABASE_URL && env.REDIS_URL ? [KernelHttpModule.register()] : [];
+  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register()] : [];
 
 @Module({})
 export class AppModule {

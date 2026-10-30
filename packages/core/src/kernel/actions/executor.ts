@@ -2,7 +2,7 @@
 // registry → zod → permission → policy → idempotency → transaction (handler + action_log + outbox) → kết quả.
 import type { ActionAccepted, ActionDef, ActionResult } from '@appchat/actions';
 import { AppError, REDACT_CENSOR, REDACT_KEYS } from '@appchat/shared';
-import { TenantContexts, type TenantDbResolver } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { ZodError } from 'zod';
 import type { Clock } from '../clock';
 import { uuidv7 } from '../ids';
@@ -25,6 +25,8 @@ export interface ExecutorDeps {
   confirm: ConfirmTokens;
   kv: KeyValueStore;
   clock: Clock;
+  /** DB nền tảng cho action `db: 'platform'` (identity / member / workspace / billing / admin). */
+  platform?: PlatformDb;
   /** Tạo approval_request cho nguồn agent / task (TIP-021). Chưa có → NOT_IMPLEMENTED. */
   approvals?: ApprovalGateway;
 }
@@ -106,8 +108,15 @@ export class ActionExecutor {
     const traceId = RequestContext.get()?.traceId;
     const logId = uuidv7(now.getTime());
     const undoUntil = def.undo && handler.undo ? new Date(now.getTime() + def.undo.windowSec * 1000) : undefined;
+    // Action `db: 'platform'`: nghiệp vụ commit trên DB nền tảng TRƯỚC, rồi log / outbox / idempotency ở DB tenant
+    // (không có transaction chung hai DB — Blueprint §2.0 "nền tảng trước"). Handler nền tảng phải idempotent theo input.
+    let platformOutcome: Awaited<ReturnType<typeof handler.execute>> | undefined;
+    if (def.db === 'platform') {
+      if (!this.d.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
+      platformOutcome = await this.d.platform.$transaction((ptx) => db.$transaction((tx) => handler.execute(ctx, input, tx, ptx)));
+    }
     const out = await db.$transaction(async (tx) => {
-      const r = await handler.execute(ctx, input, tx);
+      const r = platformOutcome ?? (await handler.execute(ctx, input, tx));
       const output = def.output.parse(r.result) as O;
       const ui = def.uiTarget?.(output as never);
       const data: ActionResult<O> = {

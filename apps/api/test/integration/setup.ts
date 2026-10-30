@@ -1,18 +1,19 @@
-// Dựng API thật trên Postgres 16 + Memurai cho integration TIP-003: 1 workspace provision từ template, dev actor, handler test.
+// Dựng API thật trên Postgres 16 + Memurai cho integration (TIP-003+): workspace thật ở DB nền tảng (registry Prisma —
+// TIP-004), DB tenant provision từ template, user + membership owner, access JWT thật. Mail = console (bộ nhớ).
 // Handler test (`tag.create` / `tag.delete`) ghi vào bảng kernel `notification` — chỉ để thử executor (preview / undo / outbox),
 // handler thật của tag thuộc TIP-016.
 import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { randomUUID } from 'node:crypto';
 import { Injectable, Module, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import {
+  AccessTokens,
   ActionHandler,
   CLOCK,
   FixedClock,
   LOGGER,
-  WORKSPACE_REGISTRY,
+  MAIL_PROVIDER,
   createLogger,
   uuidv7,
   type ActionContext,
@@ -20,10 +21,10 @@ import {
   type TenantTx,
 } from '@appchat/core';
 import { AppError } from '@appchat/shared';
-import { MemoryWorkspaceRegistry, TenantProvisioner, tenantDbName } from '@appchat/db';
+import { TenantProvisioner, createPlatformDb, tenantDbName, type PlatformDb } from '@appchat/db';
+import { MemoryMailProvider } from '@appchat/integrations';
 import { AppModule } from '../../src/app.module';
 import { EnvelopeErrorFilter } from '../../src/http/kernel/error.filter';
-import { DEV_MEMBERS } from '../../src/http/kernel/kernel.http.module';
 import { traceMiddleware } from '../../src/middleware/trace.middleware';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..', '..');
@@ -36,7 +37,15 @@ const readEnv = (f: string): Record<string, string> =>
           .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
       )
     : {};
-export const env: Record<string, string> = { ...readEnv(join(ROOT, '.env')), NODE_ENV: 'test', LOG_LEVEL: 'silent' };
+export const env: Record<string, string> = {
+  ...readEnv(join(ROOT, '.env')),
+  NODE_ENV: 'test',
+  LOG_LEVEL: 'silent',
+  MAIL_PROVIDER: 'console',
+  TAX_LOOKUP_PROVIDER: 'mock',
+  COOKIE_SECURE: 'true',
+  JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',
+};
 
 export let calls = 0;
 export const SCOPE_PROBE = '0190f000-0000-7000-8000-00000000aaaa';
@@ -79,33 +88,64 @@ export interface Harness {
   base: string;
   ws: string;
   user: string;
+  /** Access JWT của owner. */
+  token: string;
   clock: FixedClock;
-  registry: MemoryWorkspaceRegistry;
+  mail: MemoryMailProvider;
+  platform: PlatformDb;
+  /** Thêm user + membership (vai trò) vào workspace của harness → access token. */
+  member(role: string): Promise<{ id: string; token: string }>;
+  /** Access token cho user bất kỳ (không cần membership). */
+  tokenFor(userId: string): string;
+  /** Đăng ký user tạo qua API để dọn khi close. */
+  track(userId: string): void;
   close(): Promise<void>;
 }
 
-export async function startApi(): Promise<Harness> {
-  const ws = randomUUID();
-  const user = randomUUID();
-  const provisioner = new TenantProvisioner({
+export const provisioner = () =>
+  new TenantProvisioner({
     adminUrl: env.PROVISIONER_DATABASE_URL!,
     templateDb: env.TENANT_TEMPLATE_DB ?? 'appchat_tenant_template',
     ownerRole: 'appchat_migrator',
     appRole: 'appchat_tenant_app',
   });
-  const { dbName } = await provisioner.provision(ws);
-  const registry = new MemoryWorkspaceRegistry();
-  registry.upsert({ workspaceId: ws, dbName, dbHost: null, dbStatus: 'active', schemaVersion: null });
-  DEV_MEMBERS.set(ws, new Set([user]));
+
+export const testEmail = (tag: string) => `t-${tag}-${uuidv7().slice(-12)}@test.appchat.vn`;
+
+/** Xoá dữ liệu nền tảng của các user / workspace test (DB tenant drop riêng). */
+export async function cleanupPlatform(platform: PlatformDb, users: string[], workspaces: string[]): Promise<void> {
+  const emails = (await platform.user.findMany({ where: { id: { in: users } }, select: { email: true } })).map((u) => u.email);
+  await platform.membership.deleteMany({ where: { OR: [{ userId: { in: users } }, { workspaceId: { in: workspaces } }] } });
+  await platform.invite.deleteMany({ where: { workspaceId: { in: workspaces } } });
+  await platform.businessProfile.deleteMany({ where: { workspaceId: { in: workspaces } } });
+  await platform.workspace.deleteMany({ where: { id: { in: workspaces } } });
+  await platform.refreshToken.deleteMany({ where: { userId: { in: users } } });
+  await platform.otpCode.deleteMany({ where: { email: { in: emails } } });
+  await platform.user.deleteMany({ where: { id: { in: users } } });
+}
+
+/** `logSink`: bắt log thật của app (mức info) — test AC12 kiểm không có PII. */
+export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): Promise<Harness> {
   const clock = new FixedClock('2026-10-30T08:00:00.000Z');
-  const log = createLogger({ level: 'silent' });
+  const mail = new MemoryMailProvider();
+  const log = opts.logSink ? createLogger({ level: 'info', destination: opts.logSink }) : createLogger({ level: 'silent' });
+  const platform = createPlatformDb(env.PLATFORM_DATABASE_URL!);
+  const prov = provisioner();
+  const ws = uuidv7();
+  const user = uuidv7();
+  const users = [user];
+  await platform.user.create({ data: { id: user, email: testEmail('owner'), name: 'Owner', emailVerifiedAt: clock.now() } });
+  const { dbName } = await prov.provision(ws);
+  await platform.workspace.create({ data: { id: ws, name: 'WS test', slug: `ws-test-${ws.slice(-12)}`, ownerUserId: user, dbName, dbStatus: 'active' } });
+  await platform.membership.create({ data: { workspaceId: ws, userId: user, roleKey: 'owner', joinedAt: clock.now() } });
+
   const mod = await Test.createTestingModule({ imports: [AppModule.forRoot(env), TestHandlersModule] })
     .overrideProvider(CLOCK)
     .useValue(clock)
     .overrideProvider(LOGGER)
     .useValue(log)
-    .overrideProvider(WORKSPACE_REGISTRY)
-    .useValue(registry)
+    .overrideProvider(MAIL_PROVIDER)
+    .useValue(mail)
     .compile();
   const app = mod.createNestApplication({ logger: false });
   app.setGlobalPrefix('v1');
@@ -113,24 +153,42 @@ export async function startApi(): Promise<Harness> {
   app.useGlobalFilters(new EnvelopeErrorFilter(log));
   await app.listen(0);
   const base = (await app.getUrl()).replace('[::1]', '127.0.0.1');
+  const tokens = app.get(AccessTokens);
+  const tokenFor = (id: string) => tokens.issue(id, clock.now().getTime()).token;
   return {
     app,
     base,
     ws,
     user,
+    token: tokenFor(user),
     clock,
-    registry,
+    mail,
+    platform,
+    tokenFor,
+    track: (id) => void users.push(id),
+    async member(role) {
+      const id = uuidv7();
+      users.push(id);
+      await platform.user.create({ data: { id, email: testEmail(role), name: role } });
+      await platform.membership.create({ data: { workspaceId: ws, userId: id, roleKey: role, joinedAt: clock.now() } });
+      return { id, token: tokenFor(id) };
+    },
     close: async () => {
       await app.close();
-      await provisioner.drop(tenantDbName(ws));
+      const owned = await platform.workspace.findMany({ where: { OR: [{ id: ws }, { ownerUserId: { in: users } }] }, select: { id: true } });
+      const wsIds = owned.map((w) => w.id);
+      for (const id of wsIds) await prov.drop(tenantDbName(id));
+      await cleanupPlatform(platform, users, wsIds);
+      await platform.$disconnect();
     },
   };
 }
 
+/** Gọi /v1 với owner (Bearer mới theo đồng hồ test + X-Workspace-Id); header truyền vào ghi đè. */
 export function call(h: Harness, path: string, body?: unknown, headers: Record<string, string> = {}) {
   return fetch(`${h.base}/v1${path}`, {
     method: body === undefined ? 'GET' : 'POST',
-    headers: { 'content-type': 'application/json', 'x-workspace-id': h.ws, 'x-dev-user': h.user, ...headers },
+    headers: { 'content-type': 'application/json', 'x-workspace-id': h.ws, authorization: `Bearer ${h.tokenFor(h.user)}`, ...headers },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }

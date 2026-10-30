@@ -1,15 +1,18 @@
 // TIP-003 AC1–3, 5–8, 11 qua HTTP thật (Postgres 16 + Memurai): POST /v1/actions/:id, undo, idempotency, preview, outbox.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
-import { TenantContexts, TenantDbResolver, withDatabase, tenantDbName } from '@appchat/db';
+import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, withDatabase, tenantDbName } from '@appchat/db';
 import { call, env, startApi, type Harness } from './setup';
 import * as setup from './setup';
 
 let h: Harness;
 let tenant: pg.Client;
+let accountantId: string;
+const accountant = () => h.tokenFor(accountantId);
 
 beforeAll(async () => {
   h = await startApi();
+  accountantId = (await h.member('accountant')).id;
   tenant = new pg.Client({ connectionString: withDatabase(env.PG_ADMIN_URL ?? env.MIGRATOR_DATABASE_URL!, tenantDbName(h.ws)) });
   await tenant.connect();
 });
@@ -36,7 +39,7 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC3 thiếu quyền → 403 FORBIDDEN (accountant không có inbox.manage)', async () => {
-    const r = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' } }, { 'x-dev-role': 'accountant', 'idempotency-key': 'k-forbid' }));
+    const r = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' } }, { authorization: `Bearer ${accountant()}`, 'idempotency-key': 'k-forbid' }));
     expect(r).toMatchObject({ status: 403, body: { error: { code: 'FORBIDDEN' } } });
   });
 
@@ -46,10 +49,10 @@ describe('POST /v1/actions/:id', () => {
     expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log WHERE action_id = 'tag.delete'`)).rows[0].c).toBe(0);
   });
 
-  it('AC11 thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant; thiếu user → 401', async () => {
+  it('AC11 thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant; thiếu / sai token → 401 (TIP-004: JWT + membership)', async () => {
     const r1 = await fetch(`${h.base}/v1/actions/notification.mark_read`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-dev-user': h.user },
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${h.token}` },
       body: JSON.stringify({ input: { ids: 'all' } }),
     });
     expect(r1.status).toBe(403);
@@ -61,6 +64,12 @@ describe('POST /v1/actions/:id', () => {
       body: '{}',
     });
     expect(r3.status).toBe(401);
+    expect((await call(h, '/actions/notification.mark_read', { input: { ids: 'all' } }, { authorization: `Bearer ${h.token}x` })).status).toBe(401);
+    // Hết hạn 15 phút → 401.
+    const old = h.tokenFor(h.user);
+    h.clock.advance(15 * 60_000 + 1);
+    expect((await call(h, '/actions/notification.mark_read', { input: { ids: 'all' } }, { authorization: `Bearer ${old}` })).status).toBe(401);
+    h.clock.set('2026-10-30T08:00:00.000Z');
   });
 
   it('happy path notification.mark_read → 200 + action_log (trace_id) đúng DB tenant', async () => {
@@ -141,7 +150,7 @@ describe('POST /v1/actions/:id', () => {
 
   it('GET /v1/actions lọc theo quyền + có input_schema', async () => {
     const owner = await json(await call(h, '/actions'));
-    const acct = await json(await call(h, '/actions', undefined, { 'x-dev-role': 'accountant' }));
+    const acct = await json(await call(h, '/actions', undefined, { authorization: `Bearer ${accountant()}` }));
     expect(owner.body.data.length).toBeGreaterThan(acct.body.data.length);
     const mr = owner.body.data.find((a: { id: string }) => a.id === 'notification.mark_read');
     expect(mr.input_schema).toMatchObject({ type: 'object' });
@@ -149,7 +158,7 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('tenant resolver của test trỏ đúng DB (sanity)', async () => {
-    const r = new TenantDbResolver({ registry: h.registry, baseUrl: env.TENANT_DATABASE_URL! });
+    const r = new TenantDbResolver({ registry: new PrismaWorkspaceRegistry(h.platform), baseUrl: env.TENANT_DATABASE_URL! });
     const db = await r.get(TenantContexts.system(h.ws, 't'));
     expect((await db.$queryRaw<{ d: string }[]>`SELECT current_database() AS d`)[0]!.d).toBe(tenantDbName(h.ws));
     await r.close();

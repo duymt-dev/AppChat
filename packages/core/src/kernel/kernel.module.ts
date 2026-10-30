@@ -10,6 +10,8 @@ import { ActionsModule } from './actions/actions.module';
 import { DB_ENV, PLATFORM_DB, TENANT_RESOLVER, WORKSPACE_REGISTRY, dbProviders, readDbEnv } from './tenant/tenant.providers';
 
 export const LOGGER = Symbol('LOGGER');
+/** Bản env thô mà forRoot nhận — domain tự parse phần của mình (vd. identity.env.ts), test truyền env riêng. */
+export const ENV_SOURCE = Symbol('ENV_SOURCE');
 
 const base: Provider[] = [
   { provide: CLOCK, useClass: SystemClock },
@@ -36,8 +38,8 @@ export class KernelModule {
   static forRoot(source: Record<string, string | undefined> = process.env): DynamicModule {
     const db = readDbEnv(source);
     const k = kernelEnv.parse(source);
-    const providers: Provider[] = [];
-    const exports: (string | symbol)[] = [];
+    const providers: Provider[] = [{ provide: ENV_SOURCE, useValue: source }];
+    const exports: (string | symbol)[] = [ENV_SOURCE];
     const imports: DynamicModule[] = [];
     if (db) {
       providers.push(...dbProviders(db));

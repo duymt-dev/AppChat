@@ -1,0 +1,81 @@
+// Lời mời thành viên (Blueprint §2.2 `invite`). Token 32 byte, chỉ lưu sha256, hạn 7 ngày (DC-017).
+// TIP-013 cài handler `member.invite` / `invite.revoke` gọi service này; TIP-004 có accept (POST /v1/auth/invite/accept).
+import { Inject, Injectable } from '@nestjs/common';
+import { AppError } from '@appchat/shared';
+import type { PlatformDb } from '@appchat/db';
+import type { MailProvider } from '@appchat/integrations';
+import { CLOCK, type Clock } from '../../kernel/clock';
+import { uuidv7 } from '../../kernel/ids';
+import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
+import type { IdentityEnv } from '../identity.env';
+import { IDENTITY_ENV, MAIL_PROVIDER } from './identity.tokens';
+import { inviteMail } from './mail-templates';
+import { newToken, normalizeEmail, sha256 } from './secrets';
+
+export const INVITE_TTL_MS = 7 * 86_400_000;
+
+@Injectable()
+export class InvitesService {
+  constructor(
+    @Inject(PLATFORM_DB) private readonly db: PlatformDb,
+    @Inject(MAIL_PROVIDER) private readonly mail: MailProvider,
+    @Inject(IDENTITY_ENV) private readonly env: IdentityEnv,
+    @Inject(CLOCK) private readonly clock: Clock,
+  ) {}
+
+  /** Tạo lời mời + gửi mail. Đã là thành viên active → CONFLICT. Trả token mở (chỉ để test / gửi mail). */
+  async create(workspaceId: string, invitedBy: string, input: { email: string; name?: string; role: string }) {
+    const email = normalizeEmail(input.email);
+    const now = this.clock.now();
+    const existing = await this.db.user.findUnique({ where: { email }, select: { id: true, locale: true } });
+    if (existing && (await this.db.membership.findFirst({ where: { workspaceId, userId: existing.id, status: 'active' } }))) {
+      throw new AppError('CONFLICT', 409, { email: 'already_member' });
+    }
+    const ws = await this.db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { name: true, locale: true } });
+    const token = newToken();
+    const invite = await this.db.invite.create({
+      data: {
+        id: uuidv7(now.getTime()),
+        workspaceId,
+        email,
+        name: input.name ?? null,
+        roleKey: input.role,
+        tokenHash: sha256(token),
+        invitedByUserId: invitedBy,
+        expiresAt: new Date(now.getTime() + INVITE_TTL_MS),
+      },
+    });
+    const url = `${this.env.APP_PUBLIC_URL}/invite?token=${encodeURIComponent(token)}`;
+    await this.mail.send(inviteMail(email, existing?.locale ?? ws.locale, ws.name, url));
+    return { inviteId: invite.id, token };
+  }
+
+  async revoke(workspaceId: string, inviteId: string): Promise<void> {
+    const r = await this.db.invite.updateMany({
+      where: { id: inviteId, workspaceId, acceptedAt: null, revokedAt: null },
+      data: { revokedAt: this.clock.now() },
+    });
+    if (r.count !== 1) throw new AppError('NOT_FOUND', 404, { invite_id: 'not_found' });
+  }
+
+  /** Nhận lời mời bằng tài khoản đang đăng nhập; email phải trùng email được mời. */
+  async accept(userId: string, token: string): Promise<{ workspaceId: string; role: string }> {
+    const now = this.clock.now();
+    const inv = await this.db.invite.findUnique({ where: { tokenHash: sha256(token) } });
+    if (!inv) throw new AppError('NOT_FOUND', 404, { token: 'invalid' });
+    if (inv.acceptedAt || inv.revokedAt || inv.expiresAt <= now) throw new AppError('CONFLICT', 409, { token: inv.acceptedAt ? 'used' : inv.revokedAt ? 'revoked' : 'expired' });
+    const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
+    if (user.email !== inv.email) throw new AppError('FORBIDDEN', 403, { email: 'mismatch' });
+    await this.db.$transaction(async (tx) => {
+      const claimed = await tx.invite.updateMany({ where: { id: inv.id, acceptedAt: null, revokedAt: null }, data: { acceptedAt: now } });
+      if (claimed.count !== 1) throw new AppError('CONFLICT', 409, { token: 'used' });
+      await tx.membership.upsert({
+        where: { workspaceId_userId: { workspaceId: inv.workspaceId, userId } },
+        create: { workspaceId: inv.workspaceId, userId, roleKey: inv.roleKey, status: 'active', joinedAt: now },
+        update: { roleKey: inv.roleKey, status: 'active', joinedAt: now },
+      });
+      await tx.user.update({ where: { id: userId }, data: { lastWorkspaceId: inv.workspaceId, emailVerifiedAt: now } });
+    });
+    return { workspaceId: inv.workspaceId, role: inv.roleKey };
+  }
+}

@@ -21,3 +21,4 @@ export * from './actions/actions.module';
 export * from './outbox/outbox';
 export * from './outbox/relay';
 export * from './outbox/outbox.jobs.module';
+export * from './rate-limit';

@@ -41,6 +41,9 @@ importers:
       '@appchat/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@appchat/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@appchat/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -329,6 +332,9 @@ importers:
       '@appchat/db':
         specifier: workspace:*
         version: link:../db
+      '@appchat/integrations':
+        specifier: workspace:*
+        version: link:../integrations
       '@appchat/shared':
         specifier: workspace:*
         version: link:../shared

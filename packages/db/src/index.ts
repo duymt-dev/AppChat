@@ -5,6 +5,7 @@ export type DbSchema = (typeof DB_SCHEMAS)[number];
 
 export * from './errors';
 export * from './registry';
+export * from './workspace-registry';
 export * from './db-name';
 export * from './env';
 export * from './tenant-context';

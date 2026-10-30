@@ -3,10 +3,10 @@
 import { Global, Inject, Module, type DynamicModule, type OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
 import { registry } from '@appchat/actions';
-import type { TenantDbResolver } from '@appchat/db';
+import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../clock';
 import { REDIS, type KeyValueStore } from '../redis';
-import { TENANT_RESOLVER } from '../tenant/tenant.providers';
+import { PLATFORM_DB, TENANT_RESOLVER } from '../tenant/tenant.providers';
 import { AUTHORIZER, type Authorizer } from './action-context';
 import { ConfirmTokens } from './confirm-token';
 import { ContextAuthorizer } from './dev-authorizer';
@@ -52,7 +52,7 @@ export class ActionsModule {
         },
         {
           provide: ActionExecutor,
-          inject: [ActionHandlerRegistry, TENANT_RESOLVER, AUTHORIZER, ConfirmTokens, REDIS, CLOCK],
+          inject: [ActionHandlerRegistry, TENANT_RESOLVER, AUTHORIZER, ConfirmTokens, REDIS, CLOCK, PLATFORM_DB],
           useFactory: (
             handlers: ActionHandlerRegistry,
             resolver: TenantDbResolver,
@@ -60,7 +60,8 @@ export class ActionsModule {
             confirm: ConfirmTokens,
             kv: KeyValueStore,
             clock: Clock,
-          ) => new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock }),
+            platform: PlatformDb,
+          ) => new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform }),
         },
         {
           provide: UndoService,

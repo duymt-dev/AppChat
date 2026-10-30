@@ -1,3 +1,9 @@
 export * from './types';
 export * from './define';
 export { connectorRegistry } from './registry';
+export * from './ports/mail';
+export * from './ports/tax-lookup';
+export { BrevoMailProvider, type BrevoOptions } from './connectors/brevo/mail';
+export { MemoryMailProvider } from './connectors/mock/console-mail';
+export { MockTaxLookupProvider } from './connectors/mock/tax-lookup';
+export { VietQrTaxLookupProvider } from './connectors/vietqr/tax-lookup';

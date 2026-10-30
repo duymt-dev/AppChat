@@ -1,5 +1,111 @@
-// Domain `identity` — user, workspace, membership, invite, auth (OTP, password, tokens), business-profile. Stub TIP-001; TIP 004 điền services / repos / actions / events.
-import { Module } from '@nestjs/common';
+// Domain `identity` — user, workspace, membership, invite, auth (OTP, password, tokens), business-profile (TIP-004).
+// Service dựng bằng factory từ env (ENV_SOURCE): thiếu DB / Redis / JWT_SECRET → service = null (process không cần auth,
+// vd. test health / worker không DB vẫn boot); HTTP controller của identity chỉ đăng ký khi đủ (apps/api).
+import { Module, type FactoryProvider, type OnApplicationShutdown } from '@nestjs/common';
+import { Queue } from 'bullmq';
+import type { Redis } from 'ioredis';
+import type { PlatformDb } from '@appchat/db';
+import { BrevoMailProvider, MemoryMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, type MailProvider } from '@appchat/integrations';
+import { CLOCK, type Clock } from '../kernel/clock';
+import { ENV_SOURCE } from '../kernel/kernel.module';
+import { RateLimiter } from '../kernel/rate-limit';
+import { REDIS } from '../kernel/redis';
+import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
+import { BusinessProfileUpdateHandler } from './actions/business-profile-update.handler';
+import { ProfileUpdateHandler } from './actions/profile-update.handler';
+import { WorkspaceSwitchHandler } from './actions/workspace-switch.handler';
+import { readIdentityEnv, type IdentityEnv } from './identity.env';
+import { BullProvisionQueue, TENANT_QUEUE } from './jobs/tenant-provision.processor';
+import { AccessTokens, jwtKeysFromEnv } from './services/access-tokens';
+import { AuthService } from './services/auth.service';
+import { IDENTITY_ENV, MAIL_PROVIDER, RATE_LIMITER, TAX_LOOKUP, TENANT_PROVISION_QUEUE } from './services/identity.tokens';
+import { InvitesService } from './services/invites.service';
+import { OtpService } from './services/otp.service';
+import { SessionsService } from './services/sessions.service';
+import { WorkspacesService } from './services/workspaces.service';
+import { TAX_FIXTURE } from './tax-fixture';
 
-@Module({})
+const opt = (token: symbol) => ({ token, optional: true });
+type Src = Record<string, string | undefined>;
+
+/** Thư console: dev in mã / link ra stderr để đăng nhập thử (không qua logger có cấu trúc — ops §1.4); test chỉ giữ trong bộ nhớ. */
+const consoleMail = (env: IdentityEnv) =>
+  new MemoryMailProvider(env.NODE_ENV === 'development' ? (m) => process.stderr.write(`[mail:console] ${m.subject}\n${m.text}\n`) : undefined);
+
+const mailFor = (env: IdentityEnv): MailProvider =>
+  env.MAIL_PROVIDER === 'brevo'
+    ? new BrevoMailProvider({ apiKey: env.BREVO_API_KEY!, sender: { email: env.MAIL_FROM_EMAIL, name: env.MAIL_FROM_NAME } })
+    : consoleMail(env);
+
+class QueueCloser implements OnApplicationShutdown {
+  constructor(private readonly q: BullProvisionQueue | null) {}
+  async onApplicationShutdown(): Promise<void> {
+    await this.q?.close();
+  }
+}
+
+const providers: FactoryProvider[] = [
+  { provide: IDENTITY_ENV, inject: [opt(ENV_SOURCE)], useFactory: (src?: Src) => (src ? readIdentityEnv(src) : null) },
+  { provide: MAIL_PROVIDER, inject: [IDENTITY_ENV], useFactory: (env: IdentityEnv | null) => (env ? mailFor(env) : null) },
+  {
+    provide: TAX_LOOKUP,
+    inject: [IDENTITY_ENV],
+    useFactory: (env: IdentityEnv | null) => (env?.TAX_LOOKUP_PROVIDER === 'vietqr' ? new VietQrTaxLookupProvider() : new MockTaxLookupProvider(TAX_FIXTURE, true)),
+  },
+  { provide: RATE_LIMITER, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new RateLimiter(r) : null) },
+  {
+    provide: AccessTokens,
+    inject: [IDENTITY_ENV],
+    useFactory: (env: IdentityEnv | null) => (env ? new AccessTokens(jwtKeysFromEnv(env.JWT_SECRET, env.JWT_SECRETS_OLD, env.JWT_KID)) : null),
+  },
+  {
+    provide: TENANT_PROVISION_QUEUE,
+    inject: [opt(REDIS)],
+    useFactory: (r?: Redis) => (r ? new BullProvisionQueue(new Queue(TENANT_QUEUE, { connection: r.duplicate() })) : null),
+  },
+  { provide: 'IDENTITY_QUEUE_CLOSER', inject: [TENANT_PROVISION_QUEUE], useFactory: (q: BullProvisionQueue | null) => new QueueCloser(q) },
+  {
+    provide: OtpService,
+    inject: [opt(PLATFORM_DB), MAIL_PROVIDER, RATE_LIMITER, CLOCK],
+    useFactory: (db: PlatformDb | undefined, mail: MailProvider | null, rl: RateLimiter | null, c: Clock) => (db && mail && rl ? new OtpService(db, mail, rl, c) : null),
+  },
+  {
+    provide: SessionsService,
+    inject: [opt(PLATFORM_DB), AccessTokens, CLOCK],
+    useFactory: (db: PlatformDb | undefined, a: AccessTokens | null, c: Clock) => (db && a ? new SessionsService(db, a, c) : null),
+  },
+  {
+    provide: AuthService,
+    inject: [opt(PLATFORM_DB), OtpService, SessionsService, MAIL_PROVIDER, IDENTITY_ENV, CLOCK],
+    useFactory: (db: PlatformDb | undefined, o: OtpService | null, s: SessionsService | null, m: MailProvider | null, e: IdentityEnv | null, c: Clock) =>
+      db && o && s && m && e ? new AuthService(db, o, s, m, e, c) : null,
+  },
+  {
+    provide: WorkspacesService,
+    inject: [opt(PLATFORM_DB), TENANT_PROVISION_QUEUE, CLOCK],
+    useFactory: (db: PlatformDb | undefined, q: BullProvisionQueue | null, c: Clock) => (db && q ? new WorkspacesService(db, q, c) : null),
+  },
+  {
+    provide: InvitesService,
+    inject: [opt(PLATFORM_DB), MAIL_PROVIDER, IDENTITY_ENV, CLOCK],
+    useFactory: (db: PlatformDb | undefined, m: MailProvider | null, e: IdentityEnv | null, c: Clock) => (db && m && e ? new InvitesService(db, m, e, c) : null),
+  },
+];
+
+@Module({
+  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler],
+  exports: [
+    IDENTITY_ENV,
+    MAIL_PROVIDER,
+    TAX_LOOKUP,
+    RATE_LIMITER,
+    AccessTokens,
+    TENANT_PROVISION_QUEUE,
+    OtpService,
+    SessionsService,
+    AuthService,
+    WorkspacesService,
+    InvitesService,
+  ],
+})
 export class IdentityModule {}

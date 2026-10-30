@@ -16,6 +16,7 @@
   "dependencies": {
     "@appchat/actions": "workspace:*",
     "@appchat/db": "workspace:*",
+    "@appchat/integrations": "workspace:*",
     "@appchat/shared": "workspace:*",
     "@nestjs/common": "12.3.2",
     "@nestjs/core": "12.3.2",

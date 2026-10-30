@@ -32,6 +32,9 @@ export class EnvelopeErrorFilter implements ExceptionFilter {
     if (status >= 500) this.log.error({ err, code: body.error.code }, 'request failed');
     else this.log.info({ code: body.error.code, status }, 'request rejected');
     res.statusCode = status;
+    // RATE_LIMITED kèm Retry-After (ops §3.2).
+    const retry = body.error.code === 'RATE_LIMITED' ? body.error.fields?.retry_after : undefined;
+    if (retry) res.setHeader('retry-after', retry);
     res.setHeader('content-type', 'application/json; charset=utf-8');
     res.end(JSON.stringify(body));
   }

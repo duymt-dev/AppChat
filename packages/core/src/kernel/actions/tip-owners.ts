@@ -19,7 +19,7 @@ const BY_PREFIX: Record<string, string> = {
   notification: '003',
   profile: '004',
   workspace: '013',
-  business_profile: '011',
+  business_profile: '004',
   member: '013',
   invite: '013',
   working_hours: '013',

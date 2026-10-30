@@ -2,6 +2,7 @@
 export * from './kernel';
 
 export { IdentityModule } from './identity/identity.module';
+export * from './identity/public';
 export { IdentityJobsModule } from './identity/jobs/identity.jobs.module';
 export { AuthzModule } from './authz/authz.module';
 export { AuthzJobsModule } from './authz/jobs/authz.jobs.module';

@@ -8,8 +8,8 @@ import { sepayManifest } from './connectors/sepay/manifest';
 import { smtpManifest } from './connectors/smtp/manifest';
 
 export const connectorRegistry = defineConnectors([
-  { manifest: brevoManifest }, // adapter: TIP-004
-  { manifest: smtpManifest }, // adapter: TIP-004
+  { manifest: brevoManifest }, // adapter: BrevoMailProvider (TIP-004)
+  { manifest: smtpManifest }, // adapter: TIP-006 (DC-018)
   { manifest: sepayManifest }, // adapter: TIP-010
   { manifest: cassoManifest }, // adapter: TIP-010
   ...comingSoonConnectors.map((manifest) => ({ manifest })),

@@ -1,8 +1,9 @@
-// Người gọi + workspace của request (response-envelope §8: thiếu / sai X-Workspace-Id → 403 TRƯỚC khi mở DB tenant).
-// TIP-004 / 005 thay `DevActorResolver` bằng JWT + membership + AuthzContext thật (DC-010). Dev resolver chỉ chạy khi
-// NODE_ENV ≠ production và đọc header `X-Dev-User` (uuid) + `X-Dev-Role` (owner|manager|sales|cs|accountant).
-import { AppError, ROLE_DEFS, type AuthzContext, type PermissionKey } from '@appchat/shared';
+// Người gọi + workspace của request (Blueprint §4.1; response-envelope §8: thiếu / sai X-Workspace-Id → 403 TRƯỚC khi mở DB tenant).
+// TIP-004: Bearer access JWT → user; X-Workspace-Id → membership `active` ở DB nền tảng → AuthzContext từ ROLE_DEFS[role_key].
+// TIP-005 thay phần AuthzContext bằng bảng `role` của DB tenant + cache (DC-010).
+import { AppError, ROLE_DEFS, type AuthzContext, type PermissionKey, type SystemRole } from '@appchat/shared';
 import type { IncomingMessage } from 'node:http';
+import type { AccessTokens, Clock, WorkspacesService } from '@appchat/core';
 
 export interface RequestActor {
   workspaceId: string;
@@ -11,6 +12,9 @@ export interface RequestActor {
 }
 
 export interface ActorResolver {
+  /** Chỉ xác thực user (route không cần workspace: /v1/me, /v1/workspaces, /v1/auth/password/set). */
+  user(req: IncomingMessage): Promise<string>;
+  /** User + membership của X-Workspace-Id. */
   resolve(req: IncomingMessage): Promise<RequestActor>;
 }
 
@@ -21,31 +25,38 @@ const header = (req: IncomingMessage, k: string) => {
   return Array.isArray(v) ? v[0] : v;
 };
 
-export class DevActorResolver implements ActorResolver {
-  /** workspaceId → user được phép (dev / test đăng ký trước; thay cho bảng membership của TIP-004). */
-  constructor(private readonly members: Map<string, Set<string>>) {}
+/** AuthzContext từ vai trò hệ thống (owner / manager / sales / cs / accountant); `custom:*` chờ TIP-005 → không quyền. */
+export function authzOf(userId: string, roleKey: string): AuthzContext {
+  const def = ROLE_DEFS[roleKey as SystemRole];
+  return {
+    userId,
+    isOwner: roleKey === 'owner',
+    permissions: new Set((def?.permissions ?? []) as readonly PermissionKey[]),
+    scope: def?.scope ?? { inbox: 'none', crm: 'none', sales: 'none', booking: 'none', support: 'none', insights: 'none' },
+    teamIds: [],
+  };
+}
+
+export class JwtActorResolver implements ActorResolver {
+  constructor(
+    private readonly tokens: AccessTokens,
+    private readonly workspaces: Pick<WorkspacesService, 'membership'>,
+    private readonly clock: Clock,
+  ) {}
+
+  async user(req: IncomingMessage): Promise<string> {
+    const h = header(req, 'authorization');
+    const claims = h?.startsWith('Bearer ') ? this.tokens.verify(h.slice(7).trim(), this.clock.now().getTime()) : null;
+    if (!claims) throw new AppError('UNAUTHENTICATED', 401);
+    return claims.sub;
+  }
 
   async resolve(req: IncomingMessage): Promise<RequestActor> {
-    if (process.env.NODE_ENV === 'production') throw new AppError('UNAUTHENTICATED', 401);
-    const userId = header(req, 'x-dev-user');
-    if (!userId || !UUID.test(userId)) throw new AppError('UNAUTHENTICATED', 401);
+    const userId = await this.user(req);
     const workspaceId = header(req, 'x-workspace-id');
-    if (!workspaceId || !UUID.test(workspaceId) || !this.members.get(workspaceId)?.has(userId)) {
-      throw new AppError('FORBIDDEN', 403, { workspace: 'not_member' });
-    }
-    const role = (header(req, 'x-dev-role') ?? 'owner') as keyof typeof ROLE_DEFS;
-    const def = ROLE_DEFS[role];
-    if (!def) throw new AppError('FORBIDDEN', 403, { role: 'unknown' });
-    return {
-      workspaceId,
-      userId,
-      authz: {
-        userId,
-        isOwner: role === 'owner',
-        permissions: new Set(def.permissions as readonly PermissionKey[]),
-        scope: def.scope,
-        teamIds: [],
-      },
-    };
+    if (!workspaceId || !UUID.test(workspaceId)) throw new AppError('FORBIDDEN', 403, { workspace: 'missing' });
+    const m = await this.workspaces.membership(userId, workspaceId);
+    if (!m) throw new AppError('FORBIDDEN', 403, { workspace: 'not_member' });
+    return { workspaceId, userId, authz: authzOf(userId, m.roleKey) };
   }
 }

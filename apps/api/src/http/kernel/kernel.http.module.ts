@@ -1,13 +1,12 @@
 // Route kernel (TIP-003): actions + action-logs. Chỉ đăng ký khi kernel có Action executor (env DB + Redis).
+// Người gọi = JwtActorResolver (TIP-004) từ module identity.
 import { Module, type DynamicModule } from '@nestjs/common';
 import { ActionsController } from './actions.controller';
-import { ACTOR_RESOLVER, DevActorResolver, type ActorResolver } from './request-actor';
-
-export const DEV_MEMBERS = new Map<string, Set<string>>();
+import { ActorModule } from './actor.module';
 
 @Module({})
 export class KernelHttpModule {
-  static register(actors: ActorResolver = new DevActorResolver(DEV_MEMBERS)): DynamicModule {
-    return { module: KernelHttpModule, controllers: [ActionsController], providers: [{ provide: ACTOR_RESOLVER, useValue: actors }] };
+  static register(): DynamicModule {
+    return { module: KernelHttpModule, imports: [ActorModule], controllers: [ActionsController] };
   }
 }
