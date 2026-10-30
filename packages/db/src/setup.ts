@@ -53,6 +53,8 @@ async function ensureRoles(admin: pg.Client, passwords: ClusterSetupOptions['pas
   }
   // Provisioner tạo DB với OWNER migrator → phải là thành viên của migrator.
   await admin.query(`GRANT ${quoteIdent(ROLES.migrator)} TO ${quoteIdent(ROLES.provisioner)}`);
+  // DROP DATABASE … WITH (FORCE) phải đuổi được kết nối còn sót của tenant_app (xoá workspace, test).
+  await admin.query(`GRANT pg_signal_backend TO ${quoteIdent(ROLES.provisioner)}`);
 }
 
 async function ensureDb(admin: pg.Client, name: string, owner: string): Promise<boolean> {
