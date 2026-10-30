@@ -16,3 +16,4 @@ export * from './events';
 export * from './billing';
 export * from './identity';
 export * from './support/sla-defaults';
+export * from './crm';

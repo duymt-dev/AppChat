@@ -283,3 +283,49 @@ export const customFieldDelete = defineAction({
   undo: { windowSec: 86_400 },
   invalidates: ['crm'],
 });
+
+/** Một dòng file nhập (cột đã ánh xạ ở client) — Blueprint §3.4 `contact.import` (bulk, theo lô). */
+const importRow = z.object({
+  full_name: z.string().trim().min(1).max(120),
+  phone: z.string().max(30).optional(),
+  email: z.string().max(200).optional(),
+  title: z.string().max(80).optional(),
+  city: z.string().max(60).optional(),
+  district: z.string().max(60).optional(),
+  zalo: z.string().max(30).optional(),
+  source: z.enum(['zalo_personal', 'email', 'website', 'manual', 'referral']).optional(),
+});
+
+export const contactImport = defineAction({
+  id: 'contact.import',
+  module: 'crm',
+  title: 'actions.contact.import.title',
+  description:
+    'Import contacts in one batch (≤ 500 rows). Duplicates (same phone / email) are skipped; rows matching a contact owned by someone else are reported, never revealed. Example: {"rows":[{"full_name":"Trần Bảo","phone":"0938222110"}]}',
+  input: z.object({ rows: z.array(importRow).min(1).max(500) }),
+  output: z.object({ created: z.number().int(), duplicates: z.number().int(), owned: z.number().int(), invalid: z.number().int(), contact_ids: z.array(z.string()) }),
+  permission: 'crm.import',
+  risk: 'write',
+  bulk: true,
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['crm'],
+});
+
+export const contactExport = defineAction({
+  id: 'contact.export',
+  module: 'crm',
+  title: 'actions.contact.export.title',
+  description: 'Export the contacts visible to the caller (same filters as the list) as CSV (read — runs immediately). Example: {"stage":"lead"}',
+  input: z.object({
+    stage: stage.optional(),
+    owner_id: z.string().optional(),
+    q: z.string().max(100).optional(),
+    mine: z.boolean().optional(),
+  }),
+  output: z.object({ file_name: z.string(), mime: z.literal('text/csv'), rows: z.number().int(), content: z.string() }),
+  permission: 'crm.export',
+  risk: 'read',
+  agentGrantable: false,
+  invalidates: [],
+});

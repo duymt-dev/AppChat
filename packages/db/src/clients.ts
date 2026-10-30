@@ -13,3 +13,6 @@ export function createPlatformDb(url: string, max = 10): PlatformDb {
 export function createTenantDb(url: string, max = 3): TenantDb {
   return new TenantClient({ adapter: new PrismaPg({ connectionString: url, max, idleTimeoutMillis: 30_000 }) });
 }
+
+/** Dựng SQL tham số hoá cho `$queryRaw` trên DB tenant (`TenantSql.sql`, `TenantSql.join`) — không nối chuỗi tay. */
+export { Prisma as TenantSql } from './generated/tenant/client';

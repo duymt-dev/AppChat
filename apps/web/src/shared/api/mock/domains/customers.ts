@@ -244,4 +244,28 @@ export const customersHandlers: Record<string, MockHandler> = {
   'contact.send_email': {
     execute: () => ({ ok: true }),
   },
+  // Nhập / xuất (TIP-015): mock tạo khách như contact.create (bỏ dòng trùng), xuất CSV các khách đang thấy.
+  'contact.import': {
+    preview: (_db, i: { rows: unknown[] }) => ({ summary: 'contact.import', count: i.rows.length }),
+    execute: (db, i: { rows: ContactInput[] }) => {
+      const ids: string[] = [];
+      let dup = 0;
+      for (const r of i.rows) {
+        try {
+          ids.push((customersHandlers['contact.create']!.execute as (d: MockDb, x: ContactInput) => { contact_id: string })(db, r).contact_id);
+        } catch {
+          dup++;
+        }
+      }
+      return { created: ids.length, duplicates: dup, owned: 0, invalid: 0, contact_ids: ids };
+    },
+  },
+  'contact.export': {
+    execute: (db) => {
+      const rows = db.customers.contacts.filter((c) => visible(db, c));
+      const CRLF = String.fromCharCode(13, 10);
+      const content = ['Mã KH,Họ tên,Số điện thoại,Email', ...rows.map((c) => [c.code, c.full_name, c.phone, c.email].join(','))].join(CRLF);
+      return { file_name: 'khach-hang.csv', mime: 'text/csv', rows: rows.length, content: String.fromCharCode(0xfeff) + content };
+    },
+  },
 };

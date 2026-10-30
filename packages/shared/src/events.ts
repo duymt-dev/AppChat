@@ -47,6 +47,22 @@ export const integrationErrorEvent = z.object({ ...integrationBase, op: z.string
 /** Webhook đã xác thực + lưu `integration_event` — consumer domain theo port xử lý (TIP-010 / 031 / 032). */
 export const integrationEventReceivedEvent = z.object({ ...integrationBase, port: z.string(), event_id: z.string().uuid(), kind: z.string() });
 
+/** Khách hàng (TIP-015, Blueprint §2.3): timeline, phân khúc marketing, AI task, notify. */
+const contactBase = { ...base, contact_id: z.string().uuid() };
+export const contactCreatedEvent = z.object({ ...contactBase, owner_user_id: z.string().uuid().nullable(), source: z.string() });
+export const contactStageChangedEvent = z.object({ ...contactBase, from: z.string(), to: z.string(), manual: z.boolean() });
+export const contactMergedEvent = z.object({ ...contactBase, merged_ids: z.array(z.string().uuid()) });
+/** Chuyển phụ trách — `move` báo domain hội thoại / báo giá / lịch hẹn chuyển bản ghi đang mở (TIP-016 / 028 / 033). */
+export const contactOwnerChangedEvent = z.object({
+  ...contactBase,
+  from: z.string().uuid().nullable(),
+  to: z.string().uuid(),
+  move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
+});
+export const contactCollaboratorChangedEvent = z.object({ ...contactBase, user_id: z.string().uuid(), role: z.enum(['collaborator', 'watcher']).nullable() });
+export const contactAccessRequestedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid() });
+export const contactAccessDecidedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid(), status: z.enum(['approved', 'rejected']) });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -62,5 +78,12 @@ export const EVENT_SCHEMAS = {
   'integration.disconnected': integrationDisconnectedEvent,
   'integration.error': integrationErrorEvent,
   'integration.event_received': integrationEventReceivedEvent,
+  'contact.created': contactCreatedEvent,
+  'contact.stage_changed': contactStageChangedEvent,
+  'contact.merged': contactMergedEvent,
+  'contact.owner_changed': contactOwnerChangedEvent,
+  'contact.collaborator_changed': contactCollaboratorChangedEvent,
+  'contact.access_requested': contactAccessRequestedEvent,
+  'contact.access_decided': contactAccessDecidedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

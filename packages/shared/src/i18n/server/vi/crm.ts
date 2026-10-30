@@ -1,0 +1,21 @@
+// Chữ crm phía server — tiếng Việt (nguồn): dòng thời gian Hồ sơ 360°, cột file xuất, mô tả preview, cột AI của danh sách.
+export const crm = {
+  timeline: {
+    created: 'Tạo khách hàng · nguồn {source}',
+    stage: 'Đổi giai đoạn: {from} → {to}',
+    owner: 'Chuyển phụ trách cho {to}',
+    merge: 'Gộp {count} hồ sơ trùng vào khách này',
+    note: 'Ghi chú: {body}',
+    email: 'Gửi email: {subject}',
+  },
+  stage: { lead: 'Lead mới', potential: 'Tiềm năng', consulting: 'Đang tư vấn', quote: 'Báo giá', contract: 'Hợp đồng', won: 'Đã mua', lost: 'Thất bại' },
+  ai: { wait: 'Chờ xử lý' },
+  preview: {
+    merge: 'Gộp {count} nhóm khách trùng',
+    import: 'Nhập {count} dòng: tạo {created}, trùng {dup}, của người khác {owned}, lỗi {invalid}',
+  },
+  export: { code: 'Mã KH', name: 'Họ tên', phone: 'Số điện thoại', email: 'Email', stage: 'Giai đoạn', owner: 'Phụ trách', city: 'Tỉnh / thành', source: 'Nguồn', created: 'Ngày tạo' },
+  dup: { phone: 'Số điện thoại', email: 'Email', name: 'Họ tên' },
+  copy: '{name} (bản sao)',
+  system: 'Hệ thống',
+} as const;

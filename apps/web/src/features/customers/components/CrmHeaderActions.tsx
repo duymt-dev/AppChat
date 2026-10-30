@@ -5,6 +5,7 @@ import { AiButton, Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useCrmStyles } from '../styles/crm.styles';
 import { useCrmUi } from '../crm-store';
+import { useExportContacts } from '../hooks/useExportContacts';
 
 export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
   const t = useTranslations('customers');
@@ -15,6 +16,7 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
   const canFields = useCan('crm.fields_manage');
   const canImport = useCan('crm.import');
   const canExport = useCan('crm.export');
+  const exportCsv = useExportContacts();
 
   return (
     <>
@@ -49,7 +51,7 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
         </button>
       ) : null}
       {canExport ? (
-        <button type="button" className={cx(styles.chip, styles.hideMd)}>
+        <button type="button" className={cx(styles.chip, styles.hideMd)} onClick={() => void exportCsv()} data-testid="crm-export">
           <Icon name="ic-download" size={13} color={color.text3} style={{ transform: 'rotate(180deg)' }} />
           {t('export')}
         </button>

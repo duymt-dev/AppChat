@@ -93,6 +93,14 @@
     }
   },
   "contact": {
+    "import": {
+      "title": "Nhập khách hàng",
+      "desc": "Nhập khách hàng từ file theo lô; bỏ qua trùng, báo khách của người khác."
+    },
+    "export": {
+      "title": "Xuất khách hàng",
+      "desc": "Xuất danh sách khách trong phạm vi được xem ra CSV."
+    },
     "create": {
       "title": "Tạo khách hàng",
       "desc": "Tạo khách hàng mới; báo lỗi nếu SĐT / email đã thuộc khách của người khác."

@@ -93,6 +93,14 @@
     }
   },
   "contact": {
+    "import": {
+      "title": "Import customers",
+      "desc": "Import customers from a file in batches; skips duplicates and reports customers owned by others."
+    },
+    "export": {
+      "title": "Export customers",
+      "desc": "Export the customers you can see to CSV."
+    },
     "create": {
       "title": "Create customer",
       "desc": "Create a new contact; fails if the phone / email already belongs to someone else's contact."
