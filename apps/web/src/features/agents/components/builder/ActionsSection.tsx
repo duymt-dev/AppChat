@@ -38,7 +38,7 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
       <div key={a.id} className={styles.row} data-tool={a.id}>
         <div className={styles.rowGrow}>
           <div className={styles.rowT}>{tAll(a.title as never)}</div>
-          <div className={styles.rowD}>{a.description}</div>
+          <div className={styles.rowD}>{tAll(a.title.replace(/\.title$/, '.desc') as never)}</div>
         </div>
         {badge ? (
           <span className={styles.rowBadge} data-testid={`agb-badge-${badge}`}>

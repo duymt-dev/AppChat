@@ -34,7 +34,8 @@
   },
   "follow_up": {
     "complete": {
-      "title": "Follow-up done"
+      "title": "Follow-up done",
+      "desc": "Mark a due customer follow-up as done."
     }
   },
   "conversation": {
@@ -42,13 +43,16 @@
       "title": "Mark as read"
     },
     "set_status": {
-      "title": "Change conversation status"
+      "title": "Change conversation status",
+      "desc": "Close, reopen or snooze a conversation."
     },
     "assign": {
-      "title": "Assign conversation"
+      "title": "Assign conversation",
+      "desc": "Assign a conversation to a team member or another AI Agent."
     },
     "tag": {
-      "title": "Tag conversation"
+      "title": "Tag conversation",
+      "desc": "Add a tag to a conversation."
     },
     "pin": {
       "title": "Pin / unpin"
@@ -60,18 +64,21 @@
       "title": "Change AI mode"
     },
     "handoff": {
-      "title": "Take over conversation"
+      "title": "Take over conversation",
+      "desc": "Take over a conversation the AI handed off; the AI pauses."
     },
     "clear_history": {
       "title": "Clear conversation history"
     },
     "set_tags": {
-      "title": "Set conversation tags"
+      "title": "Set conversation tags",
+      "desc": "Replace all of a conversation's tags with the selected list."
     }
   },
   "message": {
     "send": {
-      "title": "Send message"
+      "title": "Send message",
+      "desc": "Reply to the customer through the conversation's channel."
     },
     "recall": {
       "title": "Recall message"
@@ -87,16 +94,20 @@
   },
   "contact": {
     "create": {
-      "title": "Create customer"
+      "title": "Create customer",
+      "desc": "Create a new contact; fails if the phone / email already belongs to someone else's contact."
     },
     "update": {
-      "title": "Update customer"
+      "title": "Update customer",
+      "desc": "Update a contact's fields."
     },
     "set_stage": {
-      "title": "Change stage"
+      "title": "Change stage",
+      "desc": "Move a contact to another pipeline stage."
     },
     "tag": {
-      "title": "Tag customer"
+      "title": "Tag customer",
+      "desc": "Add or remove a tag on a contact."
     },
     "delete": {
       "title": "Delete customer"
@@ -111,7 +122,8 @@
       "title": "Remove co-owner"
     },
     "transfer_owner": {
-      "title": "Transfer owner"
+      "title": "Transfer owner",
+      "desc": "Propose a new owner for a contact; a manager must approve."
     },
     "request_access": {
       "title": "Request access"
@@ -120,7 +132,8 @@
       "title": "Decide access request"
     },
     "send_email": {
-      "title": "Send email"
+      "title": "Send email",
+      "desc": "Send a standalone email to a contact, outside existing conversations."
     }
   },
   "custom_field": {
@@ -176,7 +189,8 @@
   },
   "ai": {
     "translate": {
-      "title": "Translate message"
+      "title": "Translate message",
+      "desc": "Translate a customer message into Vietnamese."
     }
   },
   "ai_task": {
@@ -218,16 +232,19 @@
   },
   "quote": {
     "create": {
-      "title": "Create quote"
+      "title": "Create quote",
+      "desc": "Create a draft quote; unit prices exclude VAT, tax is per line."
     },
     "update": {
-      "title": "Update quote"
+      "title": "Update quote",
+      "desc": "Edit a draft quote or one awaiting revision: lines, discount, note."
     },
     "delete": {
       "title": "Delete quote"
     },
     "submit_for_approval": {
-      "title": "Submit quote for approval"
+      "title": "Submit quote for approval",
+      "desc": "Send a quote over the approval threshold to the approver."
     },
     "approve": {
       "title": "Approve quote"
@@ -236,16 +253,20 @@
       "title": "Return quote"
     },
     "send": {
-      "title": "Send quote"
+      "title": "Send quote",
+      "desc": "Send the quote to the customer by Zalo or email; quotes over the threshold need approval first."
     },
     "request_revision": {
-      "title": "Create quote revision"
+      "title": "Create quote revision",
+      "desc": "Customer wants changes: create a new draft version that supersedes the old one."
     },
     "mark_accepted": {
-      "title": "Customer accepted quote"
+      "title": "Customer accepted quote",
+      "desc": "Record that the customer accepted the quote."
     },
     "mark_rejected": {
-      "title": "Customer declined quote"
+      "title": "Customer declined quote",
+      "desc": "Record that the customer declined the quote."
     },
     "extend_validity": {
       "title": "Extend quote validity"
@@ -254,21 +275,26 @@
       "title": "Add internal comment"
     },
     "draft_from_content": {
-      "title": "AI quote draft"
+      "title": "AI quote draft",
+      "desc": "AI drafts a quote from a note or chat excerpt, priced from the product catalog."
     }
   },
   "contract": {
     "create": {
-      "title": "Create contract"
+      "title": "Create contract",
+      "desc": "Create a draft contract (service, sale or framework)."
     },
     "create_from_quote": {
-      "title": "Create contract from quote"
+      "title": "Create contract from quote",
+      "desc": "Create a draft contract from an accepted quote."
     },
     "update": {
-      "title": "Update contract"
+      "title": "Update contract",
+      "desc": "Edit a draft contract."
     },
     "submit": {
-      "title": "Submit contract for approval"
+      "title": "Submit contract for approval",
+      "desc": "Submit a draft contract to the Owner for approval."
     },
     "approve_and_sign": {
       "title": "Approve & sign contract"
@@ -283,16 +309,19 @@
       "title": "Send contract for signature"
     },
     "remind_signer": {
-      "title": "Remind signer"
+      "title": "Remind signer",
+      "desc": "Remind the customer to sign a pending contract."
     },
     "extend_sign_link": {
-      "title": "Extend signing link"
+      "title": "Extend signing link",
+      "desc": "Extend the contract signing link by a few days."
     },
     "terminate": {
       "title": "Terminate contract"
     },
     "renew": {
-      "title": "Renew contract"
+      "title": "Renew contract",
+      "desc": "Create a renewal contract that goes through approval and signing again."
     },
     "delete": {
       "title": "Delete contract"
@@ -300,22 +329,28 @@
   },
   "order": {
     "create": {
-      "title": "Create order"
+      "title": "Create order",
+      "desc": "Create a new order, optionally with a deposit."
     },
     "create_from_quote": {
-      "title": "Create order from quote"
+      "title": "Create order from quote",
+      "desc": "Create an order from an accepted quote."
     },
     "create_from_contract": {
-      "title": "Create order from contract"
+      "title": "Create order from contract",
+      "desc": "Create an order from a signed contract."
     },
     "update": {
-      "title": "Update order"
+      "title": "Update order",
+      "desc": "Edit an order while it is new or nothing has been paid."
     },
     "set_deposit": {
-      "title": "Set order deposit"
+      "title": "Set order deposit",
+      "desc": "Turn an order's deposit on or off."
     },
     "confirm": {
-      "title": "Confirm order"
+      "title": "Confirm order",
+      "desc": "Confirm an order so stock is deducted and fulfilment starts."
     },
     "complete": {
       "title": "Complete order"
@@ -324,7 +359,8 @@
       "title": "Cancel order"
     },
     "update_shipping": {
-      "title": "Update shipping"
+      "title": "Update shipping",
+      "desc": "Update an order's shipping details."
     },
     "sync_now": {
       "title": "Sync marketplace orders"
@@ -332,10 +368,12 @@
   },
   "invoice": {
     "create": {
-      "title": "Create payment request"
+      "title": "Create payment request",
+      "desc": "Create a payment request (deposit, installment or full) for an order or customer."
     },
     "send_payment_qr": {
-      "title": "Send payment request with VietQR"
+      "title": "Send payment request with VietQR",
+      "desc": "Send the payment request with a VietQR code; also used as a payment reminder."
     },
     "record_payment": {
       "title": "Record payment"
@@ -349,19 +387,24 @@
   },
   "appointment": {
     "find_slots": {
-      "title": "Find free slots"
+      "title": "Find free slots",
+      "desc": "Find free time slots for a service on a date based on staff schedules."
     },
     "create": {
-      "title": "Book appointment"
+      "title": "Book appointment",
+      "desc": "Book an appointment in a free slot; attaches the customer's active package."
     },
     "confirm": {
-      "title": "Confirm appointment"
+      "title": "Confirm appointment",
+      "desc": "Confirm a pending appointment."
     },
     "reschedule": {
-      "title": "Reschedule appointment"
+      "title": "Reschedule appointment",
+      "desc": "Move an appointment to another free slot."
     },
     "cancel": {
-      "title": "Cancel appointment"
+      "title": "Cancel appointment",
+      "desc": "Cancel an appointment with a reason."
     },
     "check_in": {
       "title": "Check in"
@@ -375,22 +418,28 @@
   },
   "ticket": {
     "search": {
-      "title": "Search tickets"
+      "title": "Search tickets",
+      "desc": "Search tickets by text, status, priority or SLA."
     },
     "create": {
-      "title": "Create ticket"
+      "title": "Create ticket",
+      "desc": "Open a support ticket; SLA due times follow its priority."
     },
     "assign": {
-      "title": "Assign ticket"
+      "title": "Assign ticket",
+      "desc": "Assign a ticket to a team member or an AI Agent."
     },
     "set_status": {
-      "title": "Change ticket status"
+      "title": "Change ticket status",
+      "desc": "Change a ticket's status; waiting on the customer pauses the SLA clock."
     },
     "comment": {
-      "title": "Note / reply on ticket"
+      "title": "Note / reply on ticket",
+      "desc": "Add an internal note or a customer reply on a ticket."
     },
     "close": {
-      "title": "Close ticket"
+      "title": "Close ticket",
+      "desc": "Close a ticket with a reason and record the SLA result."
     },
     "reopen": {
       "title": "Reopen ticket"
@@ -401,12 +450,14 @@
   },
   "segment": {
     "preview": {
-      "title": "Preview segment"
+      "title": "Preview segment",
+      "desc": "Count contacts in a segment before creating a campaign."
     }
   },
   "campaign": {
     "suggest": {
-      "title": "Suggest campaigns"
+      "title": "Suggest campaigns",
+      "desc": "Suggest campaigns with estimated audience and best send time."
     },
     "create": {
       "title": "Create campaign"
@@ -441,7 +492,8 @@
   },
   "loyalty": {
     "get_member": {
-      "title": "View member points"
+      "title": "View member points",
+      "desc": "View a member's points, tier and points expiring soon."
     },
     "adjust_points": {
       "title": "Adjust points"

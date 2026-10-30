@@ -34,7 +34,8 @@
   },
   "follow_up": {
     "complete": {
-      "title": "Đã follow khách"
+      "title": "Đã follow khách",
+      "desc": "Đánh dấu đã liên hệ lại với khách khi việc follow đến hạn."
     }
   },
   "conversation": {
@@ -42,13 +43,16 @@
       "title": "Đánh dấu đã đọc"
     },
     "set_status": {
-      "title": "Đổi trạng thái hội thoại"
+      "title": "Đổi trạng thái hội thoại",
+      "desc": "Đóng, mở lại hoặc tạm hoãn một hội thoại."
     },
     "assign": {
-      "title": "Phân công hội thoại"
+      "title": "Phân công hội thoại",
+      "desc": "Chỉ định hội thoại cho nhân viên hoặc một AI Agent khác."
     },
     "tag": {
-      "title": "Gắn thẻ hội thoại"
+      "title": "Gắn thẻ hội thoại",
+      "desc": "Gắn thêm một thẻ vào hội thoại."
     },
     "pin": {
       "title": "Ghim / bỏ ghim"
@@ -60,18 +64,21 @@
       "title": "Đổi chế độ AI"
     },
     "handoff": {
-      "title": "Nhận xử lý hội thoại"
+      "title": "Nhận xử lý hội thoại",
+      "desc": "Nhận lại hội thoại AI đã chuyển cho người, AI tạm dừng trả lời."
     },
     "clear_history": {
       "title": "Xoá lịch sử hội thoại"
     },
     "set_tags": {
-      "title": "Đặt bộ thẻ hội thoại"
+      "title": "Đặt bộ thẻ hội thoại",
+      "desc": "Thay toàn bộ thẻ của hội thoại bằng danh sách được chọn."
     }
   },
   "message": {
     "send": {
-      "title": "Gửi tin nhắn"
+      "title": "Gửi tin nhắn",
+      "desc": "Trả lời khách bằng tin nhắn qua đúng kênh của hội thoại."
     },
     "recall": {
       "title": "Thu hồi tin nhắn"
@@ -87,16 +94,20 @@
   },
   "contact": {
     "create": {
-      "title": "Tạo khách hàng"
+      "title": "Tạo khách hàng",
+      "desc": "Tạo khách hàng mới; báo lỗi nếu SĐT / email đã thuộc khách của người khác."
     },
     "update": {
-      "title": "Cập nhật khách hàng"
+      "title": "Cập nhật khách hàng",
+      "desc": "Cập nhật các trường thông tin của khách hàng."
     },
     "set_stage": {
-      "title": "Chuyển giai đoạn"
+      "title": "Chuyển giai đoạn",
+      "desc": "Chuyển khách sang giai đoạn khác trong pipeline."
     },
     "tag": {
-      "title": "Gắn tag khách"
+      "title": "Gắn tag khách",
+      "desc": "Thêm hoặc bỏ thẻ trên khách hàng."
     },
     "delete": {
       "title": "Xoá khách hàng"
@@ -111,7 +122,8 @@
       "title": "Gỡ đồng phụ trách"
     },
     "transfer_owner": {
-      "title": "Chuyển phụ trách"
+      "title": "Chuyển phụ trách",
+      "desc": "Đề xuất chuyển người phụ trách khách; cần quản lý duyệt."
     },
     "request_access": {
       "title": "Xin chia sẻ khách"
@@ -120,7 +132,8 @@
       "title": "Duyệt yêu cầu chia sẻ"
     },
     "send_email": {
-      "title": "Gửi email"
+      "title": "Gửi email",
+      "desc": "Gửi email riêng cho khách, không gắn với hội thoại có sẵn."
     }
   },
   "custom_field": {
@@ -176,7 +189,8 @@
   },
   "ai": {
     "translate": {
-      "title": "Dịch tin nhắn"
+      "title": "Dịch tin nhắn",
+      "desc": "Dịch một tin nhắn của khách sang tiếng Việt."
     }
   },
   "ai_task": {
@@ -218,16 +232,19 @@
   },
   "quote": {
     "create": {
-      "title": "Tạo báo giá"
+      "title": "Tạo báo giá",
+      "desc": "Tạo báo giá nháp; đơn giá chưa gồm VAT, thuế tính theo từng dòng."
     },
     "update": {
-      "title": "Cập nhật báo giá"
+      "title": "Cập nhật báo giá",
+      "desc": "Sửa báo giá đang nháp hoặc đang chờ sửa: dòng hàng, chiết khấu, ghi chú."
     },
     "delete": {
       "title": "Xoá báo giá"
     },
     "submit_for_approval": {
-      "title": "Gửi duyệt báo giá"
+      "title": "Gửi duyệt báo giá",
+      "desc": "Gửi báo giá vượt ngưỡng cho người duyệt."
     },
     "approve": {
       "title": "Duyệt báo giá"
@@ -236,16 +253,20 @@
       "title": "Trả lại báo giá"
     },
     "send": {
-      "title": "Gửi báo giá"
+      "title": "Gửi báo giá",
+      "desc": "Gửi báo giá cho khách qua Zalo hoặc email; báo giá vượt ngưỡng phải được duyệt trước."
     },
     "request_revision": {
-      "title": "Tạo bản sửa báo giá"
+      "title": "Tạo bản sửa báo giá",
+      "desc": "Khách muốn sửa: tạo phiên bản mới dạng nháp, bản cũ được thay thế."
     },
     "mark_accepted": {
-      "title": "Khách chốt báo giá"
+      "title": "Khách chốt báo giá",
+      "desc": "Ghi nhận khách đã chốt báo giá."
     },
     "mark_rejected": {
-      "title": "Khách từ chối báo giá"
+      "title": "Khách từ chối báo giá",
+      "desc": "Ghi nhận khách từ chối báo giá."
     },
     "extend_validity": {
       "title": "Gia hạn báo giá"
@@ -254,21 +275,26 @@
       "title": "Thêm trao đổi nội bộ"
     },
     "draft_from_content": {
-      "title": "AI soạn báo giá"
+      "title": "AI soạn báo giá",
+      "desc": "AI soạn báo giá nháp từ ghi chú hoặc đoạn chat, giá lấy theo danh mục sản phẩm."
     }
   },
   "contract": {
     "create": {
-      "title": "Tạo hợp đồng"
+      "title": "Tạo hợp đồng",
+      "desc": "Tạo hợp đồng nháp (dịch vụ, mua bán hoặc khung)."
     },
     "create_from_quote": {
-      "title": "Tạo hợp đồng từ báo giá"
+      "title": "Tạo hợp đồng từ báo giá",
+      "desc": "Tạo hợp đồng nháp từ báo giá khách đã chốt."
     },
     "update": {
-      "title": "Cập nhật hợp đồng"
+      "title": "Cập nhật hợp đồng",
+      "desc": "Sửa hợp đồng đang nháp."
     },
     "submit": {
-      "title": "Trình duyệt hợp đồng"
+      "title": "Trình duyệt hợp đồng",
+      "desc": "Trình hợp đồng nháp cho Chủ doanh nghiệp duyệt."
     },
     "approve_and_sign": {
       "title": "Duyệt & ký hợp đồng"
@@ -283,16 +309,19 @@
       "title": "Gửi ký hợp đồng"
     },
     "remind_signer": {
-      "title": "Nhắc khách ký"
+      "title": "Nhắc khách ký",
+      "desc": "Nhắc khách ký hợp đồng đang chờ ký."
     },
     "extend_sign_link": {
-      "title": "Gia hạn link ký"
+      "title": "Gia hạn link ký",
+      "desc": "Gia hạn link ký hợp đồng thêm vài ngày."
     },
     "terminate": {
       "title": "Chấm dứt hợp đồng"
     },
     "renew": {
-      "title": "Gia hạn hợp đồng"
+      "title": "Gia hạn hợp đồng",
+      "desc": "Tạo hợp đồng gia hạn mới, đi lại bước duyệt và ký."
     },
     "delete": {
       "title": "Xoá hợp đồng"
@@ -300,22 +329,28 @@
   },
   "order": {
     "create": {
-      "title": "Tạo đơn hàng"
+      "title": "Tạo đơn hàng",
+      "desc": "Tạo đơn hàng mới, có thể kèm tiền đặt cọc."
     },
     "create_from_quote": {
-      "title": "Tạo đơn từ báo giá"
+      "title": "Tạo đơn từ báo giá",
+      "desc": "Tạo đơn hàng từ báo giá khách đã chốt."
     },
     "create_from_contract": {
-      "title": "Tạo đơn từ hợp đồng"
+      "title": "Tạo đơn từ hợp đồng",
+      "desc": "Tạo đơn hàng từ hợp đồng đã ký."
     },
     "update": {
-      "title": "Cập nhật đơn hàng"
+      "title": "Cập nhật đơn hàng",
+      "desc": "Sửa đơn hàng khi còn mới hoặc chưa phát sinh thanh toán."
     },
     "set_deposit": {
-      "title": "Đặt cọc đơn hàng"
+      "title": "Đặt cọc đơn hàng",
+      "desc": "Bật hoặc tắt tiền đặt cọc cho đơn hàng."
     },
     "confirm": {
-      "title": "Xác nhận đơn"
+      "title": "Xác nhận đơn",
+      "desc": "Xác nhận đơn để trừ kho và chuẩn bị giao hàng."
     },
     "complete": {
       "title": "Hoàn tất đơn"
@@ -324,7 +359,8 @@
       "title": "Huỷ đơn"
     },
     "update_shipping": {
-      "title": "Cập nhật vận chuyển"
+      "title": "Cập nhật vận chuyển",
+      "desc": "Cập nhật thông tin vận chuyển của đơn hàng."
     },
     "sync_now": {
       "title": "Đồng bộ đơn từ sàn"
@@ -332,10 +368,12 @@
   },
   "invoice": {
     "create": {
-      "title": "Tạo đề nghị thanh toán"
+      "title": "Tạo đề nghị thanh toán",
+      "desc": "Tạo đề nghị thanh toán (cọc, theo đợt hoặc toàn bộ) cho đơn hàng hoặc khách."
     },
     "send_payment_qr": {
-      "title": "Gửi đề nghị thanh toán kèm VietQR"
+      "title": "Gửi đề nghị thanh toán kèm VietQR",
+      "desc": "Gửi đề nghị thanh toán kèm mã VietQR cho khách; cũng dùng để nhắc thanh toán."
     },
     "record_payment": {
       "title": "Ghi nhận thanh toán"
@@ -349,19 +387,24 @@
   },
   "appointment": {
     "find_slots": {
-      "title": "Tìm khung giờ trống"
+      "title": "Tìm khung giờ trống",
+      "desc": "Tìm khung giờ trống cho dịch vụ trong ngày theo lịch nhân viên."
     },
     "create": {
-      "title": "Tạo lịch hẹn"
+      "title": "Tạo lịch hẹn",
+      "desc": "Đặt lịch hẹn vào khung giờ trống, tự gắn gói liệu trình khách đang có."
     },
     "confirm": {
-      "title": "Xác nhận lịch hẹn"
+      "title": "Xác nhận lịch hẹn",
+      "desc": "Xác nhận lịch hẹn đang chờ."
     },
     "reschedule": {
-      "title": "Đổi giờ lịch hẹn"
+      "title": "Đổi giờ lịch hẹn",
+      "desc": "Dời lịch hẹn sang khung giờ trống khác."
     },
     "cancel": {
-      "title": "Huỷ lịch hẹn"
+      "title": "Huỷ lịch hẹn",
+      "desc": "Huỷ lịch hẹn, bắt buộc ghi lý do."
     },
     "check_in": {
       "title": "Khách đã đến"
@@ -375,22 +418,28 @@
   },
   "ticket": {
     "search": {
-      "title": "Tìm ticket"
+      "title": "Tìm ticket",
+      "desc": "Tìm ticket theo nội dung, trạng thái, ưu tiên hoặc SLA."
     },
     "create": {
-      "title": "Tạo ticket"
+      "title": "Tạo ticket",
+      "desc": "Mở ticket hỗ trợ; hạn SLA tính theo mức ưu tiên."
     },
     "assign": {
-      "title": "Gán người phụ trách ticket"
+      "title": "Gán người phụ trách ticket",
+      "desc": "Gán ticket cho nhân viên hoặc AI Agent."
     },
     "set_status": {
-      "title": "Đổi trạng thái ticket"
+      "title": "Đổi trạng thái ticket",
+      "desc": "Chuyển trạng thái ticket; trạng thái chờ khách sẽ dừng đồng hồ SLA."
     },
     "comment": {
-      "title": "Ghi chú / trả lời ticket"
+      "title": "Ghi chú / trả lời ticket",
+      "desc": "Thêm ghi chú nội bộ hoặc trả lời khách trên ticket."
     },
     "close": {
-      "title": "Đóng ticket"
+      "title": "Đóng ticket",
+      "desc": "Đóng ticket kèm lý do, ghi nhận kết quả SLA."
     },
     "reopen": {
       "title": "Mở lại ticket"
@@ -401,12 +450,14 @@
   },
   "segment": {
     "preview": {
-      "title": "Xem trước tệp khách"
+      "title": "Xem trước tệp khách",
+      "desc": "Đếm số khách thuộc tệp trước khi tạo chiến dịch."
     }
   },
   "campaign": {
     "suggest": {
-      "title": "Gợi ý chiến dịch"
+      "title": "Gợi ý chiến dịch",
+      "desc": "Gợi ý chiến dịch kèm số khách dự kiến và thời điểm gửi tốt nhất."
     },
     "create": {
       "title": "Tạo chiến dịch"
@@ -441,7 +492,8 @@
   },
   "loyalty": {
     "get_member": {
-      "title": "Xem điểm thành viên"
+      "title": "Xem điểm thành viên",
+      "desc": "Xem điểm, hạng thành viên và điểm sắp hết hạn của khách."
     },
     "adjust_points": {
       "title": "Điều chỉnh điểm"
