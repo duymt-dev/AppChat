@@ -8,7 +8,7 @@
 Dựng backend `apps/{api,worker}` + `packages/{core,db,ai,channels,integrations}` cho mọi TIP P0 + P1 còn hiệu lực trong `02-TASK-GRAPH.md` (44 TIP, W1 → W9), cài handler cho mọi action đã có trong `packages/actions`, nối từng module FE sang `httpTransport` với contract FE ↔ BE xanh, đến khi `NEXT_PUBLIC_API_MODE=http` chạy được toàn app.
 
 **Dòng ngắn để dán vào `/goal`:**
-`Làm xong backend AppChat theo coding-packs/goals/GOAL-BACKEND.md: lần lượt từng TIP trong 02-TASK-GRAPH.md (W1→W9), viết TIP rồi làm ngay, test đúng nghiệp vụ của TIP, mỗi TIP một nhánh + commit + PR vào dev; câu hỏi mở ghi QUESTIONS.md, lệch spec ghi DEVIATIONS.md, quyết định theo đề xuất ghi DECISIONS.md.`
+`Làm xong backend AppChat theo coding-packs/goals/GOAL-BACKEND.md: lần lượt từng TIP trong 02-TASK-GRAPH.md (W1→W9), viết TIP rồi làm ngay, test theo 3 cổng D59 (khi làm · trước commit · chốt TIP), mỗi TIP một nhánh + commit + PR vào dev; câu hỏi mở ghi QUESTIONS.md, lệch spec ghi DEVIATIONS.md, quyết định theo đề xuất ghi DECISIONS.md.`
 
 ## Đọc trước (theo thứ tự)
 
@@ -35,16 +35,22 @@ Lệch so với **prototype** (UI) vẫn ghi ở sổ riêng `docs/06-prototype/
 1. **Viết TIP rồi làm ngay** (Chủ nhà chốt 2026-10-30, D57): không viết trước cả wave. Sinh `tips/TIP-XXX-<slug>.md` theo khuôn `/vibecode:tip` từ kết quả thật của TIP trước, rồi thi công luôn.
 2. Nhánh `tip/XXX-<slug>` tách từ `origin/dev` mới nhất (TIP phụ thuộc TIP chưa merge → tách từ nhánh TIP đó, ghi "xếp chồng" trong PR).
 3. Thi công đúng `Files touched`; chỉ điền stub domain mình (bản đồ sở hữu ở `02-TASK-GRAPH.md`).
-4. Test **nghiệp vụ của TIP** (dưới), commit ngay khi xanh, `git status --short` sạch.
+4. Test theo **3 cổng D59** (dưới): commit khi cổng "trước commit" xanh; chốt TIP khi cổng "chốt TIP" xanh; `git status --short` sạch.
 5. Viết Completion Report vào `reports/TIP-XXX-completion.md` (khuôn ở BUILDER-HANDOFF), push, báo link tạo PR vào `dev` (chưa đăng nhập `gh` → link `compare/dev...<nhánh>`).
 6. Cập nhật bảng tiến độ ở cuối file này (TIP · trạng thái · SHA · PR).
 
-## Phạm vi test (D39 + D58) — chỉ nghiệp vụ của TIP
+## Cổng test (D59 — thay D58)
 
-- **Chạy:** test của TIP vừa viết (unit + integration với Postgres + Memurai thật, DB tenant từ template), lint + typecheck của package đổi (`pnpm turbo run lint typecheck --filter=<package đổi>`), contract test FE ↔ BE của domain TIP nối, `pnpm e2e <module>` với `NEXT_PUBLIC_API_MODE=http` khi TIP bật `httpTransport` cho module đó.
-- **Không chạy lại:** test cũ của module khác, `pnpm parity --done`, e2e module khác, suite FE toàn bộ. Report ghi "không bị ảnh hưởng — không chạy", không ghi "pass".
-- **Ngoại lệ:** TIP sửa kernel (`packages/core/src/kernel`, `packages/db` resolver / provisioner) chạy thêm test kernel; TIP sửa `packages/actions` / `packages/shared` (khi buộc phải, kèm dòng `DEVIATIONS.md`) chạy thêm typecheck `apps/web`.
-- **Chạy toàn bộ:** chỉ ở cuối wave (W1…W9) và TIP-046.
+| Cổng | Chạy | Không chạy |
+|------|------|-----------|
+| **Khi làm** | Test trực tiếp phần đang sửa (`vitest related <file>`, một file test, một spec) | Full integration / build / E2E sau mỗi sửa nhỏ |
+| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` (unit) + `pnpm depcheck` | — |
+| **Chốt TIP** (trước Completion Report + push) | `pnpm lint` · `pnpm typecheck` · `pnpm test` (unit toàn repo) · integration (Postgres + Memurai thật, DB tenant từ template) · `pnpm depcheck` · `pnpm build` · `pnpm lint:size` · `pnpm i18n:check` khi đổi chuỗi · E2E luồng của TIP ở **cả** `NEXT_PUBLIC_API_MODE=mock` và `http` · `pnpm parity <id>` các màn liên quan · **full E2E hồi quy một lần** (`pnpm e2e`) | — |
+
+- **TIP không có luồng UI** (backend thuần, ví dụ 001–003): ô "E2E luồng TIP" và "parity" ghi `N/A — TIP không có luồng UI`; full E2E hồi quy vẫn chạy (bắt hồi quy FE ở chế độ `mock`).
+- **Sửa code sau cổng chốt** → chạy lại phần bị ảnh hưởng; sửa lớp dùng chung hoặc xuyên domain (kernel, `packages/db` resolver / provisioner, `packages/actions`, `packages/shared`, `packages/ui`, `apps/web/src/shared`) → chạy lại bộ hồi quy tương ứng (`pnpm parity --done`, e2e các module dùng phần đó).
+- **`pnpm depcheck`** = dependency-cruiser: import một chiều (CLAUDE.md §3), không vòng, không import gói chưa khai trong `package.json`. Dựng ở TIP-001.
+- Report ghi đúng lệnh đã chạy + `N passed / M failed` từng cổng; ô cần tài nguyên ngoài ghi "chưa nghiệm thu với provider thật". Cổng "trước commit" đỏ → không commit; cổng "chốt TIP" đỏ → không báo DONE. Ca đỏ **có sẵn từ trước** (đỏ cả trên `origin/dev` khi chạy lại cùng lệnh) không được tính là xanh: ghi tên ca + bằng chứng chạy trên `origin/dev` vào report và `QUESTIONS.md`, không tự tắt / skip test.
 - CI GitHub (`ci.yml` affected) vẫn chạy theo cấu hình repo; đỏ thì sửa trên cùng nhánh.
 
 ## Định nghĩa ĐẠT
@@ -54,7 +60,7 @@ Lệch so với **prototype** (UI) vẫn ghi ở sổ riêng `docs/06-prototype/
 2. Mọi action của domain có handler; không còn `NOT_IMPLEMENTED` trong danh sách của TIP.
 3. Shape đọc đúng contract FE (zod ở `packages/shared/src/api/<domain>.ts`), contract test FE ↔ BE xanh; TIP "nối API" bật `httpTransport` cho module và e2e module chạy http xanh.
 4. Tenant isolation + role isolation có test khi TIP chạm dữ liệu có chủ sở hữu.
-5. Lint / typecheck package đổi xanh; file trong trần dòng (`pnpm lint:size`).
+5. Cổng "chốt TIP" (D59) xanh toàn bộ: lint / typecheck / unit / integration / depcheck / build / full E2E hồi quy; file trong trần dòng (`pnpm lint:size`).
 6. Commit + SHA + Completion Report + ba sổ đã cập nhật.
 
 **Cả goal** — đạt khi:

@@ -88,6 +88,7 @@ messages/<locale>/<module>.json   vi (nguồn) + en
 - Báo DONE kèm **git commit SHA** (`git rev-parse --short HEAD`), không dùng hash file binary.
 - Commit message kết thúc bằng dòng attribution của phiên.
 - **Chỉ test phần bị ảnh hưởng** (D39): test / lint / typecheck theo package đổi (`pnpm turbo run test lint typecheck --filter=...[origin/main]`), `pnpm parity <id>` của màn vừa sửa, `pnpm e2e <module>` của module vừa sửa. Sửa lớp dùng chung (theme, primitive, `shared/*`, schema action, kernel) thì chạy thêm `pnpm parity --done`. Chạy toàn bộ chỉ ở cuối pha, trước merge `main` và gate cuối. Chi tiết: `standards/code/testing.md` §4b.
+- **Cổng test TIP backend (D59, thay D58):** khi làm — chỉ test trực tiếp phần sửa; trước mỗi commit code — lint + typecheck + unit + `pnpm depcheck` của package đổi; chốt TIP — full lint / typecheck / unit / integration / depcheck / build, E2E luồng TIP ở cả `mock` và `http`, parity màn liên quan, full E2E hồi quy một lần. Sửa sau cổng → chạy lại phần ảnh hưởng; sửa dùng chung / xuyên domain → chạy lại bộ hồi quy tương ứng. Chi tiết: `goals/GOAL-BACKEND.md` → Cổng test.
 - Test phải chạy thật, dán output; không báo DONE khi test chưa chạy hoặc còn đỏ. Ô nào thiếu tài nguyên (key LLM, Zalo, SePay, Brevo) thì ghi rõ "chưa nghiệm thu với provider thật".
 
 ## 6. Prototype (chuẩn UI duy nhất)
@@ -115,7 +116,7 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 ## 8. Goal hiện tại
 
-`coding-packs/goals/GOAL-BACKEND.md` — **làm xong backend** (44 TIP, W1 → W9 trong `02-TASK-GRAPH.md`), nối FE sang `httpTransport` (D57). Viết TIP nào làm TIP đó; test chỉ nghiệp vụ của TIP (D58).
+`coding-packs/goals/GOAL-BACKEND.md` — **làm xong backend** (44 TIP, W1 → W9 trong `02-TASK-GRAPH.md`), nối FE sang `httpTransport` (D57). Viết TIP nào làm TIP đó; test theo 3 cổng D59 (khi làm · trước commit · chốt TIP).
 
 - Ba sổ của goal: `coding-packs/QUESTIONS.md` (câu hỏi mở + đề xuất, không đứng chờ) · `DECISIONS.md` (tự chốt theo đề xuất, mã DC-xxx) · `DEVIATIONS.md` (lệch spec, mã DV-xxx). Lệch prototype vẫn ở `docs/06-prototype/DEVIATIONS.md`.
 - Tiến độ: bảng cuối `GOAL-BACKEND.md`. LLM qua 9router (D33) — chờ Chủ nhà cấp (Q-001), trước đó dùng mock model.
