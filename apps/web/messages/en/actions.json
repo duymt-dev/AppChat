@@ -73,6 +73,10 @@
     "set_tags": {
       "title": "Set conversation tags",
       "desc": "Replace all of a conversation's tags with the selected list."
+    },
+    "bulk_update": {
+      "title": "Bulk update conversations",
+      "desc": "Tag, assign, change status or archive many conversations at once."
     }
   },
   "message": {

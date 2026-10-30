@@ -81,8 +81,8 @@ describe('phòng + client → server', () => {
     expect(owner.got.some((g) => g.event === 'notification.new')).toBe(false);
 
     const conv = uuidv7();
-    // Chưa có guard (TIP-016) → NOT_IMPLEMENTED; kế toán không có inbox.view → FORBIDDEN.
-    expect((await ack(a.s, 'conv.join', { conversation_id: conv })).error?.code).toBe('NOT_IMPLEMENTED');
+    // Guard thật của Inbox (TIP-016): hội thoại không tồn tại / ngoài scope → SCOPE_FORBIDDEN; kế toán không có inbox.view → FORBIDDEN.
+    expect((await ack(a.s, 'conv.join', { conversation_id: conv })).error?.code).toBe('SCOPE_FORBIDDEN');
     const k = await connect(acct.token);
     expect((await ack(k.s, 'conv.join', { conversation_id: conv })).error?.code).toBe('FORBIDDEN');
     registerConversationGuard(async ({ userId, conversationId }) => conversationId === conv && userId !== 'nobody');

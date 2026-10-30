@@ -38,6 +38,7 @@ class Closer implements OnApplicationShutdown {
 
 export function channelRegistryFor(src: Record<string, string | undefined>): ChannelRegistry {
   const env = readChannelsEnv(src);
+  if (env.ZALO_TRANSPORT === 'fake' && env.ZALO_FAKE_GREETING) fakeZaloTransport.greeting = env.ZALO_FAKE_GREETING;
   return buildChannelRegistry({ zalo: env.ZALO_TRANSPORT === 'fake' ? fakeZaloTransport : new ZcaTransport() });
 }
 

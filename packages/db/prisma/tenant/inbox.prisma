@@ -1,3 +1,240 @@
 // tenant/inbox.prisma — sở hữu: TIP-016 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Bảng: conversation, message, message_reaction, conversation_participant, conversation_tag, canned_reply, outbox_message.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Không Prisma relation xuyên domain (Blueprint §2.1) — contact / tag / channel_account nối bằng id. Partial / expression index
+// và FK viết SQL trong migration.
+
+enum ConversationKind {
+  direct
+  group
+
+  @@map("conversation_kind")
+}
+
+enum ConversationStatus {
+  open
+  pending
+  snoozed
+  closed
+
+  @@map("conversation_status")
+}
+
+enum AiMode {
+  off
+  copilot
+  auto
+
+  @@map("ai_mode")
+}
+
+enum AiState {
+  idle
+  running
+  waiting_approval
+  handoff
+
+  @@map("ai_state")
+}
+
+enum GroupAiPolicy {
+  mention
+  auto
+  off
+
+  @@map("group_ai_policy")
+}
+
+enum MessageDirection {
+  in
+  out
+
+  @@map("message_direction")
+}
+
+enum SenderType {
+  contact
+  user
+  agent
+  system
+
+  @@map("sender_type")
+}
+
+enum MessageKind {
+  text
+  image
+  file
+  sticker
+  audio
+  note
+  system
+  card
+
+  @@map("message_kind")
+}
+
+enum MessageStatus {
+  queued
+  sent
+  delivered
+  read
+  failed
+
+  @@map("message_status")
+}
+
+enum ReactionActor {
+  user
+  contact
+
+  @@map("reaction_actor")
+}
+
+enum OutboxMessageStatus {
+  pending
+  sending
+  sent
+  failed
+  dead
+
+  @@map("outbox_message_status")
+}
+
+/// Hội thoại theo (tài khoản kênh, thread phía kênh). `channel_type` chép từ tài khoản (lọc theo kênh không cần join).
+/// Ẩn (D50) = `hidden_at`; tạm ẩn = status `snoozed` + `snoozed_until`; tin vào mới mở lại cả ba (đóng / ẩn / tạm ẩn).
+model Conversation {
+  id                 String             @id @db.Uuid
+  channelAccountId   String             @map("channel_account_id") @db.Uuid
+  channelType        String             @map("channel_type")
+  contactId          String?            @map("contact_id") @db.Uuid
+  kind               ConversationKind   @default(direct)
+  externalThreadId   String             @map("external_thread_id")
+  title              String?
+  status             ConversationStatus @default(open)
+  assigneeUserId     String?            @map("assignee_user_id") @db.Uuid
+  /// Agent AI phụ trách (bảng ai_agent thuộc TIP-021 — chưa kiểm tồn tại, như DC-076).
+  assigneeAgentId    String?            @map("assignee_agent_id")
+  teamId             String?            @map("team_id") @db.Uuid
+  aiMode             AiMode             @default(copilot) @map("ai_mode")
+  aiState            AiState            @default(idle) @map("ai_state")
+  handoffReason      String?            @map("handoff_reason")
+  intent             String?
+  lastMessageAt      DateTime           @default(now()) @map("last_message_at") @db.Timestamptz(6)
+  lastMessagePreview String             @default("") @map("last_message_preview")
+  /// Người gửi tin cuối ở hội thoại nhóm (dòng "Hồng Nhung: …").
+  lastSenderName     String?            @map("last_sender_name")
+  unreadCount        Int                @default(0) @map("unread_count")
+  pinned             Boolean            @default(false)
+  archivedAt         DateTime?          @map("archived_at") @db.Timestamptz(6)
+  snoozedUntil       DateTime?          @map("snoozed_until") @db.Timestamptz(6)
+  hiddenAt           DateTime?          @map("hidden_at") @db.Timestamptz(6)
+  pinnedMessageId    String?            @map("pinned_message_id") @db.Uuid
+  groupAiPolicy      GroupAiPolicy?     @map("group_ai_policy")
+  /// "Xoá lịch sử" chỉ trong AppChat — tin trước mốc này không hiện (kênh giữ nguyên).
+  clearedAt          DateTime?          @map("cleared_at") @db.Timestamptz(6)
+  /// Tin khách đầu tiên chưa được phản hồi — tính FRT khi người / agent trả lời (thống kê kênh REQ-B11).
+  frtPendingSince    DateTime?          @map("frt_pending_since") @db.Timestamptz(6)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([channelAccountId, externalThreadId])
+  @@index([assigneeUserId, status, lastMessageAt(sort: Desc)])
+  @@index([contactId])
+  @@map("conversation")
+}
+
+/// Tin nhắn. Tin vào chống trùng bằng unique (channel_account_id, external_msg_id) + `ON CONFLICT DO NOTHING`.
+/// `created_at` = thời điểm gửi phía kênh (tin vào / lịch sử) hoặc lúc tạo (tin ra).
+model Message {
+  id               String            @id @db.Uuid
+  conversationId   String            @map("conversation_id") @db.Uuid
+  channelAccountId String            @map("channel_account_id") @db.Uuid
+  direction        MessageDirection?
+  senderType       SenderType        @map("sender_type")
+  senderId         String?           @map("sender_id")
+  senderName       String?           @map("sender_name")
+  kind             MessageKind       @default(text)
+  body             String            @default("")
+  attachments      Json              @default("[]")
+  externalMsgId    String?           @map("external_msg_id")
+  status           MessageStatus     @default(sent)
+  error            String?
+  runId            String?           @map("run_id") @db.Uuid
+  replyToId        String?           @map("reply_to_id") @db.Uuid
+  forwardedFromId  String?           @map("forwarded_from_id") @db.Uuid
+  recalledAt       DateTime?         @map("recalled_at") @db.Timestamptz(6)
+  deletedAt        DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([channelAccountId, externalMsgId])
+  @@index([conversationId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("message")
+}
+
+/// Cảm xúc trên tin (REQ-C09) — bấm lại = xoá; chỉ kênh có `capabilities.reactions` (OQ-12).
+model MessageReaction {
+  messageId String        @map("message_id") @db.Uuid
+  actorType ReactionActor @map("actor_type")
+  actorId   String        @map("actor_id")
+  emoji     String
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([messageId, actorType, actorId, emoji])
+  @@map("message_reaction")
+}
+
+/// Thành viên hội thoại nhóm (theo id phía kênh); `contact_id` khi đã liên kết khách.
+model ConversationParticipant {
+  conversationId String    @map("conversation_id") @db.Uuid
+  externalId     String    @map("external_id")
+  displayName    String    @default("") @map("display_name")
+  contactId      String?   @map("contact_id") @db.Uuid
+  lastSeenAt     DateTime? @map("last_seen_at") @db.Timestamptz(6)
+
+  @@id([conversationId, externalId])
+  @@map("conversation_participant")
+}
+
+/// Thẻ hội thoại — nguồn thẻ dùng chung bảng `tag` (crm, Blueprint L336).
+model ConversationTag {
+  conversationId String   @map("conversation_id") @db.Uuid
+  tagId          String   @map("tag_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([conversationId, tagId])
+  @@index([tagId])
+  @@map("conversation_tag")
+}
+
+/// Câu trả lời mẫu (Cài đặt › Câu trả lời mẫu; khung nhập gõ "/").
+model CannedReply {
+  id              String   @id @db.Uuid
+  shortcut        String   @unique
+  title           String
+  body            String
+  category        String   @default("")
+  attachments     Json     @default("[]")
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("canned_reply")
+}
+
+/// Hàng đợi gửi tin (events/outbox §7) — tách khỏi outbox_event; ghi cùng transaction với `message`, đẩy vào queue gửi của tài
+/// khoản sau commit (job id = id dòng này → gửi một lần). `payload` = OutboundMessage.
+model OutboxMessage {
+  id               String              @id @db.Uuid
+  messageId        String              @unique @map("message_id") @db.Uuid
+  channelAccountId String              @map("channel_account_id") @db.Uuid
+  payload          Json
+  status           OutboxMessageStatus @default(pending)
+  attempts         Int                 @default(0)
+  nextAttemptAt    DateTime            @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  lastError        String?             @map("last_error")
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, nextAttemptAt])
+  @@map("outbox_message")
+}

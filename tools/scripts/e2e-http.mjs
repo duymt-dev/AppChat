@@ -40,7 +40,7 @@ const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'jobs' }, stdio: 'inherit' }),
   // TIP-014: worker kênh với Zalo giả (Q-003 — chưa có tài khoản Zalo phụ): QR tự "quét" sau 1,5 giây, gửi không trễ.
-  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0' }, stdio: 'inherit' }),
+  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch hẹn' }, stdio: 'inherit' }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();

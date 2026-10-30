@@ -249,3 +249,27 @@ export const noteAdd = defineAction({
   undo: { windowSec: 86_400 },
   invalidates: ['inbox'],
 });
+
+export const conversationBulkUpdate = defineAction({
+  id: 'conversation.bulk_update',
+  module: 'inbox',
+  title: 'actions.conversation.bulk_update.title',
+  description:
+    'Apply one change to many conversations at once (max 100): add tags, assign to a member, change status or archive. Example: {"conversation_ids":["c_lan","c_hieu"],"add_tags":["VIP"]}',
+  input: z
+    .object({
+      conversation_ids: z.array(convId).min(1).max(100),
+      add_tags: z.array(z.string().min(1).max(40)).max(10).optional(),
+      assignee_user_id: z.string().min(1).optional(),
+      status: z.enum(['open', 'pending', 'closed']).optional(),
+      archive: z.boolean().optional(),
+    })
+    .refine((v) => !!v.add_tags?.length || !!v.assignee_user_id || !!v.status || v.archive !== undefined, { message: 'nothing to change' }),
+  output: z.object({ updated: z.number().int() }),
+  permission: 'inbox.reply',
+  risk: 'write',
+  bulk: true,
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['inbox'],
+});

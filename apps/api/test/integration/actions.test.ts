@@ -22,7 +22,7 @@ afterAll(async () => {
   await h?.close();
 });
 
-// Thân phản hồi đọc theo path động (body.data.result.tag_id…) — chỉ trong test.
+// Thân phản hồi đọc theo path động (body.data.result.template_id…) — chỉ trong test.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const json = async (r: Response) => ({ status: r.status, body: (await r.json()) as Record<string, any> });
 
@@ -39,14 +39,14 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC3 thiếu quyền → 403 FORBIDDEN (accountant không có inbox.manage)', async () => {
-    const r = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' } }, { authorization: `Bearer ${accountant()}`, 'idempotency-key': 'k-forbid' }));
+    const r = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'VIP', source: 'rich' } }, { authorization: `Bearer ${accountant()}`, 'idempotency-key': 'k-forbid' }));
     expect(r).toMatchObject({ status: 403, body: { error: { code: 'FORBIDDEN' } } });
   });
 
   it('AC3 handler ném scope → 403 SCOPE_FORBIDDEN, không ghi action_log', async () => {
-    const r = await json(await call(h, '/actions/tag.delete', { input: { tag_id: setup.SCOPE_PROBE } }));
+    const r = await json(await call(h, '/actions/doc_template.delete', { input: { template_id: setup.SCOPE_PROBE } }));
     expect(r).toMatchObject({ status: 403, body: { error: { code: 'SCOPE_FORBIDDEN' } } });
-    expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log WHERE action_id = 'tag.delete'`)).rows[0].c).toBe(0);
+    expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log WHERE action_id = 'doc_template.delete'`)).rows[0].c).toBe(0);
   });
 
   it('AC11 thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant; thiếu / sai token → 401 (TIP-004: JWT + membership)', async () => {
@@ -84,38 +84,38 @@ describe('POST /v1/actions/:id', () => {
 
   it('AC4 assistant + config → 202 preview + confirm_token; gửi lại kèm token → 200; token dùng lại → preview lại', async () => {
     const hdr = { 'x-action-source': 'assistant', 'idempotency-key': 'k-prev-1' };
-    const p = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' } }, hdr));
+    const p = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'VIP', source: 'rich' } }, hdr));
     expect(p.status).toBe(202);
     expect(p.body.data).toMatchObject({ status: 'preview_required', preview: { summary: 'Tạo thẻ VIP' } });
     const token = p.body.data.confirm_token as string;
-    const wrong = await json(await call(h, '/actions/tag.create', { input: { name: 'KHÁC' }, confirm_token: token }, { ...hdr, 'idempotency-key': 'k-prev-2' }));
+    const wrong = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'KHÁC', source: 'rich' }, confirm_token: token }, { ...hdr, 'idempotency-key': 'k-prev-2' }));
     expect(wrong.status).toBe(202); // token gắn input khác → bị tiêu + preview lại
-    const p2 = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' } }, hdr));
-    const ok = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' }, confirm_token: p2.body.data.confirm_token }, hdr));
+    const p2 = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'VIP', source: 'rich' } }, hdr));
+    const ok = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'VIP', source: 'rich' }, confirm_token: p2.body.data.confirm_token }, hdr));
     expect(ok.status).toBe(200);
-    const again = await json(await call(h, '/actions/tag.create', { input: { name: 'VIP' }, confirm_token: p2.body.data.confirm_token }, { ...hdr, 'idempotency-key': 'k-prev-3' }));
+    const again = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'VIP', source: 'rich' }, confirm_token: p2.body.data.confirm_token }, { ...hdr, 'idempotency-key': 'k-prev-3' }));
     expect(again.status).toBe(202);
   });
 
   it('AC5 idempotency: cùng key + body → kết quả cũ, handler 1 lần; khác body → 409; thiếu key (*.create) → 422', async () => {
     const before = setup.calls;
-    const a = await json(await call(h, '/actions/tag.create', { input: { name: 'Idem' } }, { 'idempotency-key': 'k-idem' }));
-    const b = await json(await call(h, '/actions/tag.create', { input: { name: 'Idem' } }, { 'idempotency-key': 'k-idem' }));
+    const a = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'Idem', source: 'rich' } }, { 'idempotency-key': 'k-idem' }));
+    const b = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'Idem', source: 'rich' } }, { 'idempotency-key': 'k-idem' }));
     expect(a.status).toBe(200);
     expect(b).toEqual(a);
     expect(setup.calls - before).toBe(1);
-    expect((await call(h, '/actions/tag.create', { input: { name: 'Khác' } }, { 'idempotency-key': 'k-idem' })).status).toBe(409);
-    const miss = await json(await call(h, '/actions/tag.create', { input: { name: 'NoKey' } }));
+    expect((await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'Khác', source: 'rich' } }, { 'idempotency-key': 'k-idem' })).status).toBe(409);
+    const miss = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'NoKey', source: 'rich' } }));
     expect(miss).toMatchObject({ status: 422, body: { error: { fields: { idempotency_key: 'required' } } } });
   });
 
   it('AC6 thành công → outbox cùng transaction (payload ws + occurred_at); handler ném → rollback (không log, không outbox, không dữ liệu)', async () => {
-    const ok = await json(await call(h, '/actions/tag.create', { input: { name: 'Out' } }, { 'idempotency-key': 'k-out' }));
-    const ev = await tenant.query(`SELECT topic, status, payload FROM outbox_event WHERE payload->>'id' = $1`, [ok.body.data.result.tag_id]);
+    const ok = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'Out', source: 'rich' } }, { 'idempotency-key': 'k-out' }));
+    const ev = await tenant.query(`SELECT topic, status, payload FROM outbox_event WHERE payload->>'id' = $1`, [ok.body.data.result.template_id]);
     expect(ev.rows).toHaveLength(1);
     expect(ev.rows[0]).toMatchObject({ topic: 'tag.created', status: 'pending', payload: { ws: h.ws, occurred_at: '2026-10-30T08:00:00.000Z' } });
     const n0 = (await tenant.query(`SELECT count(*)::int AS c FROM action_log`)).rows[0].c;
-    const boom = await json(await call(h, '/actions/tag.create', { input: { name: 'boom' } }, { 'idempotency-key': 'k-boom' }));
+    const boom = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'boom', source: 'rich' } }, { 'idempotency-key': 'k-boom' }));
     expect(boom.status).toBe(500);
     expect(boom.body.error).toEqual({ code: 'INTERNAL', message: 'Internal error' });
     expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log`)).rows[0].c).toBe(n0);
@@ -124,9 +124,9 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC7 undo: trong hạn → khôi phục + undone; lần 2 → 409; quá hạn → UNDO_EXPIRED; action không undo → UNDO_NOT_SUPPORTED', async () => {
-    const created = await json(await call(h, '/actions/tag.create', { input: { name: 'Undo' } }, { 'idempotency-key': 'k-undo' }));
-    const id = created.body.data.result.tag_id as string;
-    const del = await json(await call(h, '/actions/tag.delete', { input: { tag_id: id } }));
+    const created = await json(await call(h, '/actions/doc_template.create', { input: { kind: 'quote', name: 'Undo', source: 'rich' } }, { 'idempotency-key': 'k-undo' }));
+    const id = created.body.data.result.template_id as string;
+    const del = await json(await call(h, '/actions/doc_template.delete', { input: { template_id: id } }));
     expect(del.status).toBe(200);
     expect(del.body.data.undo_until).toBe('2026-10-31T08:00:00.000Z');
     expect((await tenant.query('SELECT count(*)::int AS c FROM notification WHERE id = $1', [id])).rows[0].c).toBe(0);
@@ -135,15 +135,15 @@ describe('POST /v1/actions/:id', () => {
     expect((await tenant.query('SELECT count(*)::int AS c FROM notification WHERE id = $1', [id])).rows[0].c).toBe(1);
     expect((await call(h, `/action-logs/${del.body.data.action_log_id}/undo`, {})).status).toBe(409);
 
-    const del2 = await json(await call(h, '/actions/tag.delete', { input: { tag_id: id } }));
+    const del2 = await json(await call(h, '/actions/doc_template.delete', { input: { template_id: id } }));
     h.clock.advance(86_400_001);
     expect(await json(await call(h, `/action-logs/${del2.body.data.action_log_id}/undo`, {}))).toMatchObject({ status: 409, body: { error: { code: 'UNDO_EXPIRED' } } });
     expect(await json(await call(h, `/action-logs/${created.body.data.action_log_id}/undo`, {}))).toMatchObject({ status: 409, body: { error: { code: 'UNDO_NOT_SUPPORTED' } } });
   });
 
   it('AC8 action chưa cài → 501 NOT_IMPLEMENTED kèm TIP chủ', async () => {
-    const r = await json(await call(h, '/actions/conversation.assign', { input: { conversation_id: 'c1', user_id: h.user } }));
-    expect(r).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '016' } } } });
+    const r = await json(await call(h, '/actions/campaign.delete', { input: { campaign_id: 'cp1' } }));
+    expect(r).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '037' } } } });
     // action `db: 'platform'` chưa cài (TIP-039) — đi nhánh nền tảng của executor rồi mới 501.
     const p = await json(await call(h, '/actions/wallet.update_alerts', { input: { low_alert: true } }));
     expect(p).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '039' } } } });
@@ -155,7 +155,7 @@ describe('POST /v1/actions/:id', () => {
     expect(owner.body.data.length).toBeGreaterThan(acct.body.data.length);
     const mr = owner.body.data.find((a: { id: string }) => a.id === 'notification.mark_read');
     expect(mr.input_schema).toMatchObject({ type: 'object' });
-    expect(acct.body.data.some((a: { id: string }) => a.id === 'tag.create')).toBe(false);
+    expect(acct.body.data.some((a: { id: string }) => a.id === 'doc_template.create')).toBe(false);
   });
 
   it('tenant resolver của test trỏ đúng DB (sanity)', async () => {

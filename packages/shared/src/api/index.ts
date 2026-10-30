@@ -6,3 +6,4 @@ export * from './integrations';
 export * from './settings';
 export * from './crm';
 export * from './channels';
+export * from './inbox';

@@ -76,6 +76,24 @@ export const contactCollaboratorChangedEvent = z.object({ ...contactBase, user_i
 export const contactAccessRequestedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid() });
 export const contactAccessDecidedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid(), status: z.enum(['approved', 'rejected']) });
 
+/** Hộp thư (TIP-016, Blueprint §2.3): tin vào / gửi xong / gửi lỗi, gán hội thoại, cập nhật hội thoại (realtime). Mang các cột
+ * scope (`assignee_user_id`, `contact_id`) để lọc người nhận realtime theo data scope inbox. */
+const convBase = {
+  ...base,
+  conversation_id: z.string().uuid(),
+  channel_account_id: z.string().uuid(),
+  contact_id: z.string().uuid().nullable(),
+  assignee_user_id: z.string().uuid().nullable(),
+  /** Người phụ trách khách lúc phát — scope own của người nhận realtime. */
+  contact_owner_user_id: z.string().uuid().nullable(),
+};
+export const messageReceivedEvent = z.object({ ...convBase, message_id: z.string().uuid(), new_conversation: z.boolean(), is_group: z.boolean(), mentions_me: z.boolean(), vip: z.boolean(), title: z.string() });
+export const messageSentEvent = z.object({ ...convBase, message_id: z.string().uuid(), sender_type: z.enum(['user', 'agent', 'system']), sender_id: z.string().nullable() });
+export const messageFailedEvent = z.object({ ...convBase, message_id: z.string().uuid(), error: z.string().max(200) });
+export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status']) });
+export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_id: z.string().nullable(), by_user_id: z.string().uuid().nullable(), auto: z.boolean(), title: z.string() });
+export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -100,5 +118,11 @@ export const EVENT_SCHEMAS = {
   'contact.collaborator_changed': contactCollaboratorChangedEvent,
   'contact.access_requested': contactAccessRequestedEvent,
   'contact.access_decided': contactAccessDecidedEvent,
+  'message.received': messageReceivedEvent,
+  'message.sent': messageSentEvent,
+  'message.failed': messageFailedEvent,
+  'message.updated': messageUpdatedEvent,
+  'conversation.assigned': conversationAssignedEvent,
+  'conversation.updated': conversationUpdatedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

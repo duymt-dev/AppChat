@@ -11,6 +11,7 @@ export * from './billing/public';
 export * from './integrations/public';
 export * from './crm/public';
 export * from './channels/public';
+export * from './inbox/public';
 export { AuthzJobsModule } from './authz/jobs/authz.jobs.module';
 export { BillingModule } from './billing/billing.module';
 export { BillingJobsModule } from './billing/jobs/billing.jobs.module';

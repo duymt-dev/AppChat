@@ -30,7 +30,10 @@ export class FakeZaloSession implements ZaloSession {
   /** Tin cũ trả về khi `requestOldMessages`. */
   history: ZaloRawMessage[] = [];
 
-  constructor(readonly ownId: string) {}
+  constructor(
+    readonly ownId: string,
+    private readonly greeting: string | null = null,
+  ) {}
 
   onMessage(cb: (m: ZaloRawMessage) => void) {
     this.msgCb.push(cb);
@@ -43,6 +46,8 @@ export class FakeZaloSession implements ZaloSession {
   }
   start() {
     this.running = true;
+    // Tin chào giả (E2E http — worker chạy tiến trình riêng, test không bơm tin trực tiếp được).
+    if (this.greeting) setTimeout(() => this.inject({ msgId: `greet-${this.ownId}`, uidFrom: 'zl_khach_e2e', dName: 'Khách E2E', text: this.greeting! }), 300);
   }
   stop() {
     this.running = false;
@@ -93,6 +98,8 @@ export class FakeZaloTransport implements ZaloTransport {
   private readonly pending = new Map<string, () => void>();
   /** false → chờ `scan(accountId)`; 'decline' → người dùng từ chối trên điện thoại. */
   autoScan: boolean | 'decline' = true;
+  /** Khách giả nhắn một tin khi phiên bắt đầu (`ZALO_FAKE_GREETING`) — null = tắt. */
+  greeting: string | null = null;
 
   constructor(public scanAfterMs = 1_500) {}
 
@@ -130,7 +137,7 @@ export class FakeZaloTransport implements ZaloTransport {
 
   async login(credentials: ZaloCredentials): Promise<ZaloSession> {
     if (!credentials?.imei || this.revoked.has(credentials.imei)) throw new ChannelAuthError('zalo_login_failed');
-    const s = new FakeZaloSession(credentials.imei);
+    const s = new FakeZaloSession(credentials.imei, this.greeting);
     this.sessions.set(credentials.imei, s);
     return s;
   }
@@ -145,6 +152,7 @@ export class FakeZaloTransport implements ZaloTransport {
     this.revoked.clear();
     this.pending.clear();
     this.autoScan = true;
+    this.greeting = null;
   }
 }
 

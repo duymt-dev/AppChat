@@ -1,5 +1,6 @@
 // Mock Hộp thư (Blueprint §4.4 inbox): GET /conversations, /conversations/:id, /conversations/:id/messages, /conversations/counts,
 // /inbox/accounts, /inbox/connect-channels, /contacts/:id (360). Dữ liệu = prototype L1505–2226, kênh map về zalo_personal / webchat / email.
+import { foldText } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -55,11 +56,36 @@ export const inboxRoutes: Record<string, MockRoute> = {
   '/inbox/connect-channels': () => fixture.connect_channels,
   '/inbox/channels': () => fixture.channels,
   '/canned-replies': () => fixture.canned_replies,
+  '/tags': (db) => db.settingsData.tags.map((t) => ({ id: t.id, name: t.name, color: t.color, emoji: t.emoji })),
   '/booking/slots': () => fixture.slots,
 };
 
-/** Route có tham số: /conversations/:id, /conversations/:id/messages, /contacts/:id, /groups/:id. */
+const plainOf = (s: string) => s.replace(/<[^>]+>/g, '');
+
+/** Tìm trong hội thoại (REQ-C12) — không dấu, lọc người gửi; `ranges` = vị trí khớp trên chữ đã bỏ thẻ. */
+const searchRoute =
+  (id: string): MockRoute =>
+  (db, p) => {
+    const needle = foldText(String(p.q ?? '').trim());
+    const who = String(p.sender ?? 'all');
+    if (!needle) return [];
+    return (db.inbox.messages[id] ?? [])
+      .filter((m) => m.direction && typeof m.body === 'string' && !m.deleted && !m.recalled)
+      .map((m) => {
+        const sender = m.direction === 'in' ? 'contact' : m.agent ? 'agent' : 'user';
+        const body = plainOf(String(m.body));
+        const folded = foldText(body);
+        const ranges: [number, number][] = [];
+        for (let i = folded.indexOf(needle); i >= 0; i = folded.indexOf(needle, i + needle.length)) ranges.push([i, i + needle.length]);
+        return { message_id: m.id, body, sender, time: String(m.time ?? ''), ranges };
+      })
+      .filter((r) => r.ranges.length && (who === 'all' || r.sender === who));
+  };
+
+/** Route có tham số: /conversations/:id, /conversations/:id/messages(/search), /contacts/:id, /groups/:id. */
 export const inboxParamRoute = (path: string): MockRoute | null => {
+  const s = path.match(/^\/conversations\/([^/]+)\/messages\/search$/);
+  if (s) return searchRoute(s[1]!);
   const m = path.match(/^\/(conversations|contacts|groups)\/([^/]+)(\/messages)?$/);
   if (!m) return null;
   const [, kind, id, sub] = m as unknown as [string, string, string, string | undefined];

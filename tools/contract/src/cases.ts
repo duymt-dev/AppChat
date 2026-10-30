@@ -32,5 +32,8 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'profile_layout.assign_role', input: { role: 'cs', layout_id: 'pl_cskh' }, tip: '015' },
   // TIP-014: thêm tài khoản Zalo cá nhân (QR đến qua worker). Quản lý theo channel_account_id → integration channels.
   { action: 'channel.zalo.start_login', input: { label: 'Zalo contract' }, tip: '014' },
+  // TIP-016: Cài đặt › Thẻ + Câu trả lời mẫu (*.create → Idempotency-Key). Action hội thoại / tin cần hội thoại thật → integration inbox.
+  { action: 'tag.create', input: { name: 'Contract thẻ', color: '#2563EB' }, tip: '016', idempotent: true },
+  { action: 'canned_reply.create', input: { shortcut: '/contract', title: 'Contract', body: 'Dạ em chào {tên}', category: 'Chào hỏi' }, tip: '016', idempotent: true },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

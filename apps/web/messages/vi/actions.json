@@ -73,6 +73,10 @@
     "set_tags": {
       "title": "Đặt bộ thẻ hội thoại",
       "desc": "Thay toàn bộ thẻ của hội thoại bằng danh sách được chọn."
+    },
+    "bulk_update": {
+      "title": "Cập nhật hàng loạt hội thoại",
+      "desc": "Gắn thẻ, gán người, đổi trạng thái hoặc lưu trữ nhiều hội thoại một lần."
     }
   },
   "message": {

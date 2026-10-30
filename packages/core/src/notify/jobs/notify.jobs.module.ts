@@ -16,6 +16,7 @@ import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
+import '../events/domain.rules';
 import { notifyConsumer, realtimeConsumer } from '../events/notify.consumers';
 import { NotifyModule } from '../notify.module';
 import { REALTIME_EMITTER, type RealtimeEmitter } from '../realtime/emitter';

@@ -7,6 +7,8 @@ export const channelsEnv = z
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     ZALO_TRANSPORT: z.enum(['zca', 'fake']).default('zca'),
     CHANNEL_SEND_JITTER: z.coerce.number().min(0).max(1).default(1),
+    /** Chỉ với `ZALO_TRANSPORT=fake` (E2E http): khách giả nhắn tin này khi phiên bắt đầu. */
+    ZALO_FAKE_GREETING: z.string().max(200).optional(),
   })
   .superRefine((e, ctx) => {
     if (e.NODE_ENV === 'production' && e.ZALO_TRANSPORT === 'fake') ctx.addIssue({ code: 'custom', path: ['ZALO_TRANSPORT'], message: 'fake cấm ở production' });

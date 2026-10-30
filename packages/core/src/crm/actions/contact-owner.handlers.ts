@@ -8,6 +8,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { uuidv7 } from '../../kernel/ids';
 import { UUID, actorUserId, canManageCollaborators, visibleContact } from '../services/access';
+import { moveOpenConversations, restoreConversationAssignees } from '../../inbox/services/owner-move';
 import { CrmMembers } from '../services/members.service';
 import { writeTimeline } from '../services/timeline.service';
 
@@ -91,24 +92,26 @@ export class ContactTransferOwnerHandler implements Handler<ActionInput<typeof c
     await tx.contactCollaborator.deleteMany({ where: { contactId: c.id, userId: to.id } });
     await tx.contact.update({ where: { id: c.id }, data: { ownerUserId: to.id, updatedAt: now } });
     await writeTimeline(tx, { contactId: c.id, type: 'owner', key: 'owner', params: { to: to.name }, actor: { type: ctx.actor.type, id: actorUserId(ctx) }, at: now });
-    // Hội thoại / báo giá / lịch hẹn chưa có bảng ở TIP-015 — domain chủ (016 / 028 / 033) chuyển theo cờ `move` của event.
-    const moved: Moved = { conversations: 0, quotes: 0, appointments: 0 };
+    // Hội thoại chuyển ngay (TIP-016); báo giá / lịch hẹn chưa có bảng — domain chủ (028 / 033) chuyển theo cờ `move` của event.
+    const conv = input.move.conversations ? await moveOpenConversations(tx, c.id, to.id, c.name) : { moved: 0, before: [], events: [] };
+    const moved: Moved = { conversations: conv.moved, quotes: 0, appointments: 0 };
     return {
       result: { owner_user_id: to.id, moved },
-      before: { id: c.id, owner: c.ownerUserId, collab: prevCollab ? { role: prevCollab.role, added_by: prevCollab.addedBy } : null },
+      before: { id: c.id, owner: c.ownerUserId, collab: prevCollab ? { role: prevCollab.role, added_by: prevCollab.addedBy } : null, convs: conv.before },
       after: { id: c.id, owner: to.id },
       // Thông báo người nhận: chờ loại thông báo crm (Q-012) — consumer notify đọc `contact.owner_changed`.
-      events: c.ownerUserId === to.id ? [] : [{ topic: 'contact.owner_changed', payload: { contact_id: c.id, from: c.ownerUserId, to: to.id, move: input.move } }],
+      events: [...(c.ownerUserId === to.id ? [] : [{ topic: 'contact.owner_changed', payload: { contact_id: c.id, from: c.ownerUserId, to: to.id, move: input.move } }]), ...conv.events],
     };
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as { id: string; owner: string | null; collab: { role: 'collaborator' | 'watcher'; added_by: string | null } | null };
+    const b = log.before as { id: string; owner: string | null; collab: { role: 'collaborator' | 'watcher'; added_by: string | null } | null; convs?: { id: string; assignee: string | null }[] };
     const a = log.after as { owner: string };
     const cur = await tx.contact.findUnique({ where: { id: b.id }, select: { ownerUserId: true } });
     if (cur?.ownerUserId !== a.owner) throw new AppError('CONFLICT', 409, { owner_user_id: 'changed' });
     await tx.contact.update({ where: { id: b.id }, data: { ownerUserId: b.owner } });
     if (b.collab) await tx.contactCollaborator.createMany({ data: [{ contactId: b.id, userId: a.owner, role: b.collab.role, addedBy: b.collab.added_by }], skipDuplicates: true });
+    await restoreConversationAssignees(tx, b.convs ?? [], a.owner);
   }
 }
 

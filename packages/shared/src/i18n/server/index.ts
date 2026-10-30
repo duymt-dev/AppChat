@@ -4,10 +4,12 @@ import { fallbackChain } from '../locales';
 import { billing as enBilling } from './en/billing';
 import { channels as enChannels } from './en/channels';
 import { crm as enCrm } from './en/crm';
+import { inbox as enInbox } from './en/inbox';
 import { notify as enNotify } from './en/notify';
 import { billing as viBilling } from './vi/billing';
 import { channels as viChannels } from './vi/channels';
 import { crm as viCrm } from './vi/crm';
+import { inbox as viInbox } from './vi/inbox';
 import { notify as viNotify } from './vi/notify';
 
 interface Bundle {
@@ -15,11 +17,12 @@ interface Bundle {
   billing: typeof enBilling;
   crm: typeof enCrm;
   channels: typeof enChannels;
+  inbox: typeof enInbox;
 }
 
 const BUNDLES: Record<string, Bundle> = {
-  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels },
-  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels },
+  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox },
+  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox },
 };
 
 /** Bộ chữ server của locale (theo fallback, cuối cùng là vi). */
