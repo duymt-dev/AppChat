@@ -80,6 +80,22 @@
     "handoff": "Ngưỡng bàn giao {n}%",
     "tierTag": "◈ {tier}",
     "toggle": "Bật / tạm dừng {name}",
+    "run": {
+      "title": "Trợ lý AI đang điều phối",
+      "summary": "{total} việc · {running} đang chạy · {needApprove} cần bạn duyệt",
+      "seeDetail": "Xem chi tiết ›",
+      "close": "Đóng",
+      "status": {
+        "running": "Đang chạy",
+        "waiting_approval": "Chờ bạn duyệt",
+        "done": "Hoàn tất"
+      },
+      "action": {
+        "stop": "Dừng",
+        "approveSend": "Duyệt & gửi",
+        "viewResult": "Xem kết quả"
+      }
+    },
     "new": {
       "title": "Tạo tác vụ tự chủ",
       "sub": "Giao một nhiệm vụ nhiều bước — AI tự thực hiện, kiểm tra kết quả và lặp lại tới khi xong.",
@@ -132,7 +148,10 @@
       },
       "prompt": "System prompt",
       "knowHint": "Chọn thư mục / tài liệu RAG gắn cho agent này.",
-      "toolsHint": "Nghiệp vụ agent được phép tự thực thi. Giới hạn nâng cao quản trị tại <b>AI Governance</b>.",
+      "toolsHintReadOnly": "Quyền của agent phụ trách tác vụ này (chỉ xem) — sửa tại Builder AI Agents.",
+      "toolGranted": "Được cấp",
+      "toolNotGranted": "Chưa cấp",
+      "editInBuilder": "Chỉnh trong Builder ›",
       "tokens": "Token hôm nay",
       "costToday": "Chi phí hôm nay",
       "log": "Nhật ký hành động",

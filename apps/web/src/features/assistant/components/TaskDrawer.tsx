@@ -1,6 +1,7 @@
-// Drawer cấu hình tác vụ — prototype L1386–1421 (520px, nền xám): Tính cách & Prompt · Kiến thức · Công cụ & Quyền · Nhật ký & Chi phí.
+// Drawer cấu hình tác vụ — prototype L1386–1421 (520px, nền xám): Tính cách & Prompt · Kiến thức · Công cụ & Quyền (chỉ xem, D51) · Nhật ký & Chi phí.
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color, gradient } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -25,6 +26,7 @@ function Switch({ on, label }: { on: boolean; label: string }) {
 export function TaskDrawer({ data }: { data: AiTasksPayload }) {
   const t = useTranslations('assistant.cw.drawer');
   const tt = useTranslations('assistant');
+  const router = useRouter();
   const { styles, cx } = useDrawerStyles();
   const ui = useAssistantUi();
   const update = useAction('ai_task.update');
@@ -119,15 +121,18 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
           ) : null}
           {tab === 'tools' ? (
             <>
-              <div className={styles.hint}>{t.rich('toolsHint', { b: (c) => <b className={styles.link}>{c}</b> })}</div>
+              <div className={styles.hint}>{t('toolsHintReadOnly')}</div>
               <div className={styles.list}>
                 {d.tools.map((x) => (
-                  <div key={x.label} className={styles.item}>
+                  <div key={x.label} className={styles.item} data-testid="cw-task-tool">
                     <span className={cx(styles.grow, styles.toolLabel)}>{x.label}</span>
-                    <Switch on={x.on} label={x.label} />
+                    <span className={styles.toolState}>{x.on ? t('toolGranted') : t('toolNotGranted')}</span>
                   </div>
                 ))}
               </div>
+              <button type="button" className={styles.link} onClick={() => router.push('/agents')} data-testid="cw-task-builder-link">
+                {t('editInBuilder')}
+              </button>
             </>
           ) : null}
           {tab === 'logs' ? (

@@ -15,6 +15,7 @@ export const loyaltyGetMember = defineAction({
   permission: 'loyalty.view',
   risk: 'read',
   agentGrantable: true,
+  skill: true,
   invalidates: [],
 });
 

@@ -120,4 +120,9 @@ export const usePopStyles = createStyles(({ css, responsive }) => ({
     color: ${color.blue};
     background: ${color.infoBg};
   `,
+  builderLink: css`
+    color: ${color.brandInk};
+    font-weight: ${font.weight.bold};
+    font-size: ${font.scale.s13}px;
+  `,
 }));

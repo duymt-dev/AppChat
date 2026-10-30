@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { registry } from '@appchat/actions';
+import { useRouter } from 'next/navigation';
 import { Icon, color } from '@appchat/ui';
-import { agentsQuery, agentsMetaQuery } from '@/features/agents';
+import { agentsQuery } from '@/features/agents';
+import { channelsQuery, connectorsQuery } from '@/features/settings';
+import { connectorBadge, connectorStatus, groupToolsByModule, MODULE_ACTIONS, SKILL_ACTIONS } from '@/shared/ai/agent-tools';
 import { useComposerStyles } from '../styles/composer.styles';
 import { usePopStyles } from '../styles/popover.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
@@ -17,21 +19,21 @@ const LANGS = ['English', '中文', '한국어', '日本語'] as const;
 
 export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversation; customer: string; onInsert: (text: string) => void }) {
   const t = useTranslations('inbox.composer');
-  const tAll = useTranslations();
+  const tc = useTranslations('common');
+  const router = useRouter();
   const { styles, cx } = useComposerStyles();
   const { styles: ps } = usePopStyles();
   const { styles: base } = useInboxStyles();
   const ui = useInboxUi();
   const agents = useQuery({ ...agentsQuery(), enabled: ui.pop === 'attach' });
-  const meta = useQuery({ ...agentsMetaQuery(), enabled: ui.pop === 'attach' });
+  const channels = useQuery({ ...channelsQuery('all'), enabled: ui.pop === 'attach' }).data ?? [];
+  const connectors = useQuery({ ...connectorsQuery(), enabled: ui.pop === 'attach' }).data ?? [];
+  const { known, connected } = connectorStatus({ channels, connectors });
   /** Agent phụ trách hội thoại chưa gắn `assignee_agent_id` ở FE — tạm lấy agent nhận kênh này làm đại diện (REQ-C11). */
   const repAgent = (agents.data?.data ?? []).find((a) => a.channels.includes(conv.channel)) ?? agents.data?.data[0];
-  const actionIds = new Set(
-    (repAgent?.tools ?? []).map((key) => meta.data?.tools.find((tl) => tl.key === key)?.action_id).filter((id): id is string => !!id),
-  );
-  const tools = registry.filter((a) => actionIds.has(a.id));
-  const byModule = new Map<string, typeof tools>();
-  for (const a of tools) byModule.set(a.module, [...(byModule.get(a.module) ?? []), a]);
+  const grantedIds = repAgent?.tools ?? [];
+  const groups = groupToolsByModule(MODULE_ACTIONS.filter((a) => grantedIds.includes(a.id)), grantedIds);
+  const skillGroup = groupToolsByModule(SKILL_ACTIONS.filter((a) => grantedIds.includes(a.id)), grantedIds)[0];
   const canned = useQuery({ ...cannedQuery(), enabled: ui.pop === 'qr' });
   const slots = useQuery({ ...slotsQuery(), enabled: ui.pop === 'sched' });
   const [slot, setSlot] = useState(0);
@@ -53,19 +55,40 @@ export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversat
               <span className={styles.grow}>{t('attachMenu.screenshot')}</span>
             </button>
             <div className={ps.popHint}>{t('attachMenu.agentTools')}</div>
-            {[...byModule.entries()].map(([mod, items]) => (
-              <div key={mod} className={ps.slot} style={{ cursor: 'default' }}>
+            {groups.map((g) => (
+              <div key={g.key} className={ps.slot} style={{ cursor: 'default' }}>
                 <span className={styles.grow}>
-                  <div className={ps.qrTitle}>{t(`attachMenu.modules.${mod}` as never)}</div>
-                  <div className={ps.qrPreview}>{items.map((a) => tAll(a.title as never)).join(' · ')}</div>
+                  <div className={ps.qrTitle}>
+                    {tc(`modules.${g.key}` as never)} <span className={ps.popHint}>{t('attachMenu.count', { on: g.grantedCount, total: g.actions.length })}</span>
+                  </div>
+                  <div className={ps.qrPreview}>
+                    {g.actions
+                      .map((a) => {
+                        const badge = connectorBadge(a, connected, known);
+                        return badge ? `${t(a.title as never)} (${t(`attachMenu.${badge}` as never)})` : t(a.title as never);
+                      })
+                      .join(' · ')}
+                  </div>
                 </span>
               </div>
             ))}
-            {!tools.length ? <div className={ps.popHint}>{t('attachMenu.noTools')}</div> : null}
+            {skillGroup ? (
+              <div className={ps.slot} style={{ cursor: 'default' }} data-testid="attach-skill-group">
+                <span className={styles.grow}>
+                  <div className={ps.qrTitle}>{t('attachMenu.skillGroup')}</div>
+                  <div className={ps.qrPreview}>{skillGroup.actions.map((a) => `/${a.id} — ${t(a.title as never)}`).join(' · ')}</div>
+                </span>
+              </div>
+            ) : null}
+            {!groups.length && !skillGroup ? <div className={ps.popHint}>{t('attachMenu.noTools')}</div> : null}
             <button type="button" className={ps.slot} disabled>
               <Icon name="ic-globe" size={15} color={color.text4} />
               <span className={styles.grow}>{t('attachMenu.research')}</span>
               <span className={styles.conf}>{t('attachMenu.soon')}</span>
+            </button>
+            <button type="button" className={cx(ps.slot, ps.builderLink)} onClick={() => router.push(`/agents/${repAgent?.id ?? ''}`)}>
+              <Icon name="ic-arrow" size={13} color={color.brandInk} />
+              <span className={styles.grow}>{t('attachMenu.editInBuilder')}</span>
             </button>
           </div>
         </div>

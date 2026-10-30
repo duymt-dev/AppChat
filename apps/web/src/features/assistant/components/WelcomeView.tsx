@@ -9,6 +9,7 @@ import { useAssistantUi } from '../assistant-store';
 import { homeQuery } from '../api';
 import { BotFaceLarge } from './BotFace';
 import { Composer } from './Composer';
+import { RunsOrchestrationBar } from './RunsOrchestrationBar';
 
 /** Carousel như prototype: Chat 2 trang (bước 4, vòng 5) · Cowork 3 trang (bước 2, vòng 6), mỗi trang 4 thẻ. */
 const page = <T,>(items: T[], idx: number, step: number) => {
@@ -59,6 +60,11 @@ export function WelcomeView({ name, onSend }: { name: string; onSend: (text?: st
       <div className={styles.ask}>{t('ask')}</div>
       <div className={styles.composerWrap}>
         <Composer rows={2} full placeholder={t('placeholder')} onSend={() => onSend()} onMode={setMode} testId="asst-composer" />
+        {cowork ? (
+          <div className={cx(styles.wide)} style={{ marginTop: 20 }}>
+            <RunsOrchestrationBar />
+          </div>
+        ) : null}
         <div className={cx(styles.wide, styles.eyebrow, styles.eyebrowTop)}>
           <Icon name={cowork ? 'ic-bot' : 'ic-spark'} size={14} color={accent} strokeWidth={1.9} />
           {cowork ? t('teamTitle') : t('thinkTitle')}

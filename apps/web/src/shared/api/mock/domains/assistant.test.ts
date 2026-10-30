@@ -46,7 +46,7 @@ describe('mock assistant + agents', () => {
 
   it('duyệt: Chủ sở hữu duyệt được; Quản lý không có quyền hoàn tiền → không duyệt được yêu cầu hoàn tiền', async () => {
     await mockTransport.action('approval.approve', { approval_id: 'ap_1' });
-    expect((await mockTransport.get<Approvals>('/approvals')).data).toHaveLength(2);
+    expect((await mockTransport.get<Approvals>('/approvals')).data).toHaveLength(3);
     setMockRole('manager');
     const rows = (await mockTransport.get<Approvals>('/approvals')).data;
     expect(rows.find((a) => a.id === 'ap_3')?.can_decide).toBe(false);

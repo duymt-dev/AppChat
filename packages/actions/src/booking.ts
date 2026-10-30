@@ -26,6 +26,7 @@ export const appointmentFindSlots = defineAction({
   permission: 'booking.view',
   risk: 'read',
   agentGrantable: true,
+  skill: true,
   invalidates: [],
 });
 

@@ -182,6 +182,11 @@
       "title": "Pause / resume task"
     }
   },
+  "run": {
+    "cancel": {
+      "title": "Stop orchestration run"
+    }
+  },
   "product": {
     "create": {
       "title": "Add product"

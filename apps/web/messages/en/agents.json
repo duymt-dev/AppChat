@@ -101,45 +101,11 @@
     },
     "actions": "Actions",
     "actionsSub": "Choose the actions the agent may take during a conversation. Each action only works when enabled.",
-    "tool": {
-      "end_conversation": [
-        "End the conversation",
-        "The agent can end the conversation based on your instructions."
-      ],
-      "assign": [
-        "Assign to staff / team",
-        "Hand the conversation to a person, another AI agent or a team."
-      ],
-      "ticket": [
-        "Create support ticket",
-        "Create a ticket when the customer needs help or complains, with priority & SLA."
-      ],
-      "deal": [
-        "Create & update deals (CRM)",
-        "Capture leads and move deals through the Lead → Won pipeline."
-      ],
-      "booking": [
-        "Book appointments",
-        "Check free slots and book appointments in the calendar."
-      ],
-      "stage": [
-        "Update lifecycle stage",
-        "Update the contact's lifecycle stage based on the conversation."
-      ],
-      "contact": [
-        "Update contact info",
-        "Fill in contact fields automatically."
-      ],
-      "tags": [
-        "Update tags",
-        "Add or remove tags on a contact."
-      ],
-      "note": [
-        "Add internal comment",
-        "Leave an internal comment to share context with other agents."
-      ]
-    },
     "toolOn": "Toggle: {name}",
+    "toolCount": "{on}/{total}",
+    "skillGroup": "AI Skills",
+    "needsConnector": "Needs {name} connected",
+    "comingSoon": "Coming soon",
     "gov": "Human handoff & safety",
     "govTag": "(AI Governance)",
     "govSub": "Run AI safely following ISO 42001 — hand off to staff when needed and stay data-compliant.",

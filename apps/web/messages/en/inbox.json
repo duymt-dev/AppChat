@@ -182,24 +182,11 @@
       "noTools": "The handling agent has no tools granted",
       "research": "Research / web search",
       "soon": "Coming soon",
-      "modules": {
-        "identity": "Identity",
-        "crm": "Customers",
-        "sales": "Sales",
-        "catalog": "Products",
-        "documents": "Documents",
-        "loyalty": "Loyalty",
-        "marketing": "Marketing",
-        "support": "Support",
-        "settings": "Settings",
-        "notifications": "Notifications",
-        "ai": "AI",
-        "billing": "Billing",
-        "inbox": "Inbox",
-        "channels": "Channels",
-        "integrations": "Integrations",
-        "booking": "Booking"
-      }
+      "count": "({on}/{total})",
+      "needs_connector": "needs connector",
+      "coming_soon": "coming soon",
+      "skillGroup": "AI Skills",
+      "editInBuilder": "Edit in Builder ›"
     },
     "modes": {
       "note": "Internal note",

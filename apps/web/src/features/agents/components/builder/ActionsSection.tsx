@@ -1,43 +1,79 @@
-// Hành động (tool → action id trong registry; bỏ các mục OUT: ZNS/SMS, workflow, gọi điện, HTTP) + AI Governance + Nguồn kiến thức
-// — prototype L2364–2398.
+// Tools — danh sách quyền agent (D51, D16): nhóm theo module + nhóm "Kỹ năng AI" (action đọc, `skill`), n/tổng mỗi nhóm,
+// badge "Cần kết nối X" / "Sắp có" khi action cần connector (D51 §3.3b). Đây là NƠI DUY NHẤT bật/tắt quyền agent.
+// + AI Governance + Nguồn kiến thức — prototype L2364–2398.
 'use client';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
+import { channelsQuery, connectorsQuery } from '@/features/settings';
+import { connectorStatus, connectorBadge, groupToolsByModule, AGENT_GRANTABLE, MODULE_ACTIONS, SKILL_ACTIONS } from '@/shared/ai/agent-tools';
 import { useBuilderStyles } from '../../styles/builder.styles';
 import { useSectionStyles } from '../../styles/sections.styles';
-import type { AgentsMeta, Handoff } from '../../types';
+import type { Handoff } from '../../types';
 import type { SectionProps } from './BasicsSection';
 import { Switch } from './Switch';
 
 const GOV = ['grounding', 'pii', 'override', 'audit'] as const;
 const HANDOFF: Handoff[] = ['staff', 'team', 'lead'];
 
-export function ActionsSection({ cfg, patch, toggleTool, meta }: SectionProps & { meta: AgentsMeta; toggleTool: (k: string) => void }) {
+export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { toggleTool: (k: string) => void }) {
   const t = useTranslations('agents.b');
+  const tc = useTranslations('common');
   const router = useRouter();
   const { styles: bs } = useBuilderStyles();
   const { styles } = useSectionStyles();
   const pair = (k: string) => t.raw(k) as [string, string];
+  const channels = useQuery(channelsQuery('all')).data ?? [];
+  const connectors = useQuery(connectorsQuery()).data ?? [];
+  const { known, connected } = connectorStatus({ channels, connectors });
+  const groups = groupToolsByModule(MODULE_ACTIONS, cfg.tools);
+  const skillGroup = groupToolsByModule(SKILL_ACTIONS, cfg.tools)[0];
+
+  const toolRow = (a: (typeof AGENT_GRANTABLE)[number]) => {
+    const badge = connectorBadge(a, connected, known);
+    const on = cfg.tools.includes(a.id);
+    return (
+      <div key={a.id} className={styles.row} data-tool={a.id}>
+        <div className={styles.rowGrow}>
+          <div className={styles.rowT}>{t(a.title as never)}</div>
+          <div className={styles.rowD}>{a.description}</div>
+        </div>
+        {badge ? (
+          <span className={styles.rowBadge} data-testid={`agb-badge-${badge}`}>
+            {badge === 'needs_connector' ? t('needsConnector', { name: a.requiresConnector ?? '' }) : t('comingSoon')}
+          </span>
+        ) : (
+          <Switch on={on} label={t('toolOn', { name: t(a.title as never) })} onToggle={() => toggleTool(a.id)} />
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
       <div className={bs.sec}>
         <div className={bs.h}>{t('actions')}</div>
         <div className={bs.hSub}>{t('actionsSub')}</div>
-        <div className={styles.stack} data-testid="agb-tools">
-          {meta.tools.map((tool) => {
-            const [title, desc] = pair(`tool.${tool.key}`);
-            return (
-              <div key={tool.key} className={styles.row} data-tool={tool.key} data-action-id={tool.action_id}>
-                <div className={styles.rowGrow}>
-                  <div className={styles.rowT}>{title}</div>
-                  <div className={styles.rowD}>{desc}</div>
-                </div>
-                <Switch on={cfg.tools.includes(tool.key)} label={t('toolOn', { name: title })} onToggle={() => toggleTool(tool.key)} />
+        <div className={styles.toolGroups} data-testid="agb-tools">
+          {groups.map((g) => (
+            <div key={g.key} className={styles.toolGroup}>
+              <div className={styles.toolGroupHead}>
+                <span className={styles.toolGroupTitle}>{tc(`modules.${g.key}` as never)}</span>
+                <span className={styles.toolGroupCount}>{t('toolCount', { on: g.grantedCount, total: g.actions.length })}</span>
               </div>
-            );
-          })}
+              <div className={styles.stack}>{g.actions.map(toolRow)}</div>
+            </div>
+          ))}
+          {skillGroup ? (
+            <div className={styles.toolGroup} data-testid="agb-skill-group">
+              <div className={styles.toolGroupHead}>
+                <span className={styles.toolGroupTitle}>{t('skillGroup')}</span>
+                <span className={styles.toolGroupCount}>{t('toolCount', { on: skillGroup.grantedCount, total: skillGroup.actions.length })}</span>
+              </div>
+              <div className={styles.stack}>{skillGroup.actions.map(toolRow)}</div>
+            </div>
+          ) : null}
         </div>
       </div>
       <div className={bs.sec}>

@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { getAction } from '@appchat/actions';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useMe } from '@/shared/shell/useShellData';
@@ -15,6 +16,7 @@ type Draft = AgentConfig & { persona?: string };
 
 export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
   const t = useTranslations('agents');
+  const tAll = useTranslations();
   const router = useRouter();
   const { styles } = useSideStyles();
   const ui = useAgentsUi();
@@ -70,7 +72,7 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
   };
   const name = me?.user.name.split(' ').pop() ?? '';
   const ch = (k: string) => t(`b.channel.${k}` as never);
-  const tool = (k: string) => t.raw(`b.tool.${k}`)?.[0] as string;
+  const tool = (id: string) => (getAction(id) ? tAll(getAction(id)!.title as never) : id);
 
   return (
     <>

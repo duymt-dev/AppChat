@@ -182,6 +182,11 @@
       "title": "Bật / tạm dừng tác vụ"
     }
   },
+  "run": {
+    "cancel": {
+      "title": "Dừng tác vụ đang điều phối"
+    }
+  },
   "product": {
     "create": {
       "title": "Thêm sản phẩm"

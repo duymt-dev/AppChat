@@ -29,6 +29,7 @@ export const ticketSearch = defineAction({
   permission: 'ticket.view',
   risk: 'read',
   agentGrantable: true,
+  skill: true,
   invalidates: [],
 });
 

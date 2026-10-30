@@ -157,6 +157,19 @@ export const agentOptimizePrompt = defineAction({
   invalidates: [],
 });
 
+export const runCancel = defineAction({
+  id: 'run.cancel',
+  module: 'ai',
+  title: 'actions.run.cancel.title',
+  description: 'Stop a running agent orchestration run (Cowork). Example: {"run_id":"run_1"}',
+  input: z.object({ run_id: z.string().min(1) }),
+  output: z.object({ run_id: z.string(), status: z.string() }),
+  permission: 'ai_task.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['runs'],
+});
+
 const approvalId = z.string().min(1);
 
 export const approvalApprove = defineAction({
@@ -248,5 +261,6 @@ export const aiTranslate = defineAction({
   permission: 'inbox.view',
   risk: 'read',
   agentGrantable: true,
+  skill: true,
   invalidates: [],
 });

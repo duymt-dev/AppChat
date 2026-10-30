@@ -130,20 +130,19 @@ PROMPT_TPL = [
     ["Đặt lịch hẹn", "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."],
     ["Hỗ trợ kỹ thuật", "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."],
 ]
-# Hành động agent (L10996) — bỏ mục OUT: Gửi ZNS/SMS, Kích hoạt workflow, Xử lý cuộc gọi, HTTP request (D29). Mỗi mục trỏ action của Registry.
-TOOLS = [["end_conversation", "conversation.close"], ["assign", "conversation.assign"], ["ticket", "ticket.create"], ["deal", "contact.set_stage"], ["booking", "appointment.create"],
-         ["stage", "contact.set_stage"], ["contact", "contact.update"], ["tags", "contact.tag"], ["note", "conversation.add_note"]]
+# Hành động agent (D51, D16) — quyền agent = tập action id thật của Registry (ai_agent.tool_ids, Blueprint §3.3b).
+# bỏ mục OUT: Gửi ZNS/SMS, Kích hoạt workflow, Xử lý cuộc gọi, HTTP request (D29).
+DEFAULT_TOOLS = ["conversation.close", "conversation.assign", "ticket.create", "appointment.create"]
 agents = {
     "taxonomy": [{"group": g, "industries": i} for g, i in AGTAX.items()],
     "templates": templates,
     "agents": [{"id": i, "name": n, "emoji": e, "role": role, "role_label": rl, "status": st, "conversations": conv, "resolve_rate": res, "csat": cs, "persona": p,
-                "model_tier": TIER[m], "version": v, "intents": [0, 2], "channels": ["zalo_personal", "webchat"], "tools": ["end_conversation", "assign", "ticket", "booking"],
+                "model_tier": TIER[m], "version": v, "intents": [0, 2], "channels": ["zalo_personal", "webchat"], "tools": DEFAULT_TOOLS,
                 "language": "vi", "prompt": "", "threshold": 70, "handoff_to": "staff",
                 "governance": {"grounding": True, "pii": True, "override": True, "audit": True}} for i, n, e, role, rl, st, conv, res, cs, p, m, v in my_agents],
     "emojis": ["🤖", "💬", "✨", "🎧", "🛍️", "📞", "🧑‍💼", "📅", "💡", "🛟", "🌸", "⚡"],
     "intents": ["Hỏi giá", "Tư vấn sản phẩm", "Hỗ trợ / CSKH", "Khiếu nại", "Đổi / Trả", "Đặt lịch hẹn", "Theo dõi đơn", "Chăm sóc sau bán"],
     "channels": [{"key": "zalo_personal", "color": "#0068FF"}, {"key": "webchat", "color": "#2DC56A"}, {"key": "email", "color": "#1F8A4D"}],
-    "tools": [{"key": k, "action_id": a} for k, a in TOOLS],
     "prompt_templates": [{"label": l, "text": t} for l, t in PROMPT_TPL],
     "optimize_suffix": "\n\n# ĐỊNH DẠNG TRẢ LỜI\n- Câu ngắn, xuống dòng rõ ràng, dùng bullet khi liệt kê.\n- Mỗi tin tối đa 3–4 câu; chủ động hỏi lại để làm rõ.\n- Kết thúc bằng một câu hỏi mở hoặc đề xuất bước tiếp theo.",
     "test_seed": "Dạ em chào anh/chị! Em là trợ lý AI vừa cấu hình. Em có thể giúp gì cho mình hôm nay ạ?",
@@ -161,7 +160,7 @@ agents = {
     "version_notes": ["Bản đầu tiên", "Thêm kiến thức bảng giá", "Đổi giọng điệu thân thiện hơn", "Hạ ngưỡng bàn giao về 70%"],
     # bản nháp Trợ lý soạn từ mô tả (D29 agent.draft_from_description) — mock trả cấu hình mẫu CSKH
     "ai_draft": {"name": "CSKH Spa", "emoji": "🎧", "role": "cs", "model_tier": "advanced", "channels": ["zalo_personal", "webchat"], "intents": [1, 2, 5],
-                 "tools": ["assign", "ticket", "booking", "note"], "threshold": 80, "prompt_template": 0},
+                 "tools": ["conversation.assign", "ticket.create", "appointment.create", "conversation.tag"], "threshold": 80, "prompt_template": 0},
 }
 for name, data in (("assistant.json", assistant), ("agents.json", agents)):
     with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
