@@ -107,7 +107,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 012 | W3 | DONE | `tip/012-integrations` (xếp chồng 011) | 819d2a4 | chờ Chủ nhà tạo |
 | 013 | W3 | DONE | `tip/013-settings-api` (xếp chồng 012) | c040649 | chờ Chủ nhà tạo |
 | 014 | W4 | chờ | — | — | — |
-| 015 | W4 | chờ | — | — | — |
+| 015 | W4 | DONE | `tip/015-crm-core` (xếp chồng 010) | 9f059e6 | chờ Chủ nhà tạo |
 | 016 | W4 | chờ | — | — | — |
 | 017 | W4 | chờ | — | — | — |
 | 018 | W4 | chờ | — | — | — |
