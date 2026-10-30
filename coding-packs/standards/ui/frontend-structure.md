@@ -1,7 +1,7 @@
 # Frontend — Cấu trúc code (`apps/web`)
 
 > Next.js App Router + Ant Design v6 + Ant Design X + TanStack Query + Zustand + next-intl. Một codebase cho desktop (1440) và mobile web.
-> Đi cùng: `code/file-size-module-layout.md` (trần 400 dòng), `ui/prototype-parity.md`, `i18n/i18n.md`, `actions/action-registry.md`.
+> Đi cùng: `code/file-size-module-layout.md` (trần 400 dòng), `ui/prototype-parity.md`, `ui/interaction-patterns.md` (hành vi khi prototype không vẽ / vẽ sai), `i18n/i18n.md`, `actions/action-registry.md`.
 
 ## 1. Cây thư mục
 
@@ -63,7 +63,7 @@ packages/ui/                              # theme.ts (token prototype), primitiv
     - Breakpoint lấy từ `Grid.useBreakpoint()`, không viết media query tay.
 12. **i18n:** mọi chuỗi qua `t()`; tiền / ngày qua `fmt.*`; lỗi qua `errors.<CODE>`.
 13. **Hiệu năng:**
-    - Bảng lớn dùng virtual (antd Table `virtual`) + cursor infinite query.
+    - 9 bảng danh sách chính dùng `DataTable` + `Pager` (`?page=&limit=`, D42). Danh sách cuộn khác (hội thoại, tin nhắn, timeline, ô chọn) dùng cursor infinite query; rất dài thì antd Table `virtual`.
     - Drawer / modal nặng dùng `next/dynamic`.
     - Không kéo cả `@ant-design/charts` vào bundle chung; import theo màn.
 14. **Đặt tên:**

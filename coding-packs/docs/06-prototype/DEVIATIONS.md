@@ -1,0 +1,22 @@
+# Sổ lệch prototype (PD)
+
+> Luật: `standards/ui/prototype-parity.md` §6b · thước đo: `standards/ui/interaction-patterns.md`.
+> Mỗi chỗ app **cố ý** khác prototype mà chưa có mã D / V / REQ / COMMERCE thì ghi một dòng ở đây. Mask trong `tools/parity/parity.manifest.ts` có `reason` trích `PD-xxx`.
+> Thêm dòng mới ở cuối, không đánh lại số. Dòng bị từ chối giữ lại (trạng thái `từ chối`) để không đề xuất lặp.
+
+## Trạng thái
+
+- `đề xuất` — thợ ghi khi làm. Mức 1: được làm luôn và mask. Mức 3: **chưa** được làm, app vẫn theo prototype.
+- `duyệt` — mức 1: Chủ thầu duyệt lúc verify. Mức 3: Chủ nhà duyệt (ghi mã D vào cột Quyết định), sau đó mới sửa app.
+- `từ chối` — app quay về theo prototype, gỡ mask.
+- `đã gộp` — bản prototype mới đã sửa đúng chỗ này; gỡ mask, baseline chụp lại.
+
+## Sổ
+
+| PD | Màn / ID parity | Vùng (selector / rect) | Prototype đang làm | Trái mục | App làm | Mức | Trạng thái | Quyết định | Ghi bởi |
+|----|-----------------|------------------------|--------------------|----------|---------|-----|------------|------------|---------|
+| PD-001 | `settings:web-widget` (cột xem trước) | mask "PD-001" trong manifest | L7210–7254: `sc-if` khối "Bổ sung kiến thức" đóng thừa `</div></sc-if>` làm cột xem trước vỡ, chỉ còn nhãn "Mã nhúng" | IP-5 (không vỡ bố cục) | Dựng cột xem trước 360 theo L7261–7298 | 1 | duyệt | — (lỗi markup prototype) | F6 · ghi lại khi lập sổ |
+| PD-002 | `tickets:detail` (đồng hồ SLA) | mask "PD-002" trong manifest | Hard-code "2g 14p" theo ưu tiên (`tkdCountdown` L9165) | IP-6.3 (thời gian từ dữ liệu thật) | Tính từ `ttr_due_at` | 1 | duyệt | — | F5 · ghi lại khi lập sổ |
+| PD-003 | `tickets:detail` (Tạo / Cập nhật) | mask "PD-003" trong manifest | Hard-code "5 phút trước · vừa xong" | IP-6.3 | Tính từ `created_at` / `updated_at` | 1 | duyệt | — | F5 · ghi lại khi lập sổ |
+
+> PD-001…003 là các mask đã có từ goal FE (F5, F6) nhưng chưa có mã; ghi vào sổ khi lập để manifest trích được. Các mask còn lại trong manifest đã trích D / COMMERCE / Blueprint / prototype-parity §6, hoặc là trạng thái prototype không vẽ (mức 2: handoff, dock theo màn, mục OUT).

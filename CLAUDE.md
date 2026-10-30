@@ -19,7 +19,7 @@ Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · Nes
 
 | Việc | Đọc thêm |
 |------|----------|
-| Frontend / UI | `standards/ui/frontend-structure.md` · `standards/ui/prototype-parity.md` · `standards/i18n/i18n.md` · Blueprint §7 · prototype (mục 6 dưới) |
+| Frontend / UI | `standards/ui/frontend-structure.md` · `standards/ui/prototype-parity.md` (§6b 4 mức lệch) · `standards/ui/interaction-patterns.md` · sổ `docs/06-prototype/DEVIATIONS.md` · `standards/i18n/i18n.md` · Blueprint §7 · prototype (mục 6 dưới) |
 | Backend / action | `standards/actions/action-registry.md` · `standards/api/response-envelope.md` · `standards/events/outbox.md` · Blueprint §3, §4 |
 | Schema / query | `standards/database/tenant-db.md` · `standards/database/indexing.md` · Blueprint §2 · `02-TASK-GRAPH.md` → Bản đồ sở hữu file |
 | Phân quyền / dữ liệu có chủ sở hữu | `standards/authz/rbac-permissions.md` · Blueprint §3.5 |
@@ -28,6 +28,8 @@ Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · Nes
 | Kênh / tích hợp | `standards/channels/omnichannel-adapter.md` · `standards/integrations/provider-ports.md` · Blueprint §6, §8 |
 | Hạ tầng | Blueprint §11 |
 | Git / PR / CI | `standards/workflow/git-flow-ci.md` |
+| Thiết kế không nói / prototype chưa đủ nghiệp vụ | `standards/domain/gap-filling.md` (thang tra cứu, được tự quyết / phải hỏi, ghi "Giả định đã chọn") |
+| Backend — nghiệp vụ & vận hành | `standards/domain/*` (state-machine, concurrency, money-time-numbering, validation-defaults) · `standards/ops/observability-security.md` |
 
 **Thứ tự ưu tiên khi tài liệu mâu thuẫn:** `COMMERCE-DECISIONS.md` > `BLUEPRINT.md` > `standards/` > `01-REQUIREMENTS-MATRIX.md` (Decisions D01–D51) > `00-PROJECT-CONTEXT.md` (Vision) > `docs/`. Về **hình ảnh UI**: prototype thắng, trừ các ngoại lệ có mã quyết định trong `standards/ui/prototype-parity.md`. **Bản prototype mới (ver2.1 trở đi) không ghi đè hành vi bảng danh sách D42** (cuộn trong khung, header dính, phân trang có số trang) — D43. Mâu thuẫn không giải được → dừng, hỏi (escalation L2).
 

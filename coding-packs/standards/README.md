@@ -15,10 +15,17 @@
 | code | [testing](code/testing.md) | Các tầng test, test cô lập tenant + role, DB thật, báo kết quả trung thực + commit SHA |
 | database | [indexing](database/indexing.md) | Thứ tự composite, INCLUDE, deferred join, cursor, partial / expression index, index cho scope |
 | database | [tenant-db](database/tenant-db.md) | Mỗi workspace một DB, 2 Prisma client, không FK xuyên DB, migration expand-compatible |
+| domain | [gap-filling](domain/gap-filling.md) | Thang tra cứu khi tài liệu im lặng, được tự quyết / phải hỏi, giả định an toàn, luật nghiệp vụ là hàm thuần dùng chung FE mock + BE, contract FE đã có thắng code mới |
+| domain | [state-machine](domain/state-machine.md) | Một bảng chuyển trạng thái mỗi entity (`packages/shared/src/<domain>/state.ts`), compare-and-set, `INVALID_TRANSITION`, danh mục 15 entity |
+| domain | [concurrency](domain/concurrency.md) | Khoá lạc quan `version` / `STALE_VERSION`, khoá dòng cho tiền-kho-điểm, idempotency theo nguồn, cuộc đua người – agent – job |
+| domain | [money-time-numbering](domain/money-time-numbering.md) | Làm tròn VND theo `quoteTotals`, chia đợt, thời hạn theo ngày / giờ theo timezone workspace, `Clock`, mã chứng từ `sequence_counter` |
+| domain | [validation-defaults](domain/validation-defaults.md) | Chuẩn hoá SĐT / email / MST, giới hạn độ dài, mặc định khi tạo, bảng xoá mềm / cứng / action bù, snapshot chứng từ, list & tìm kiếm mặc định |
 | documents | [templates](documents/templates.md) | Mẫu chứng từ rich / DOCX của DN, AI nhận diện biến + AI soạn từ nội dung, số liệu từ bản ghi, bảng kiểm Điều 398 (D30) |
 | events | [outbox](events/outbox.md) | Transactional outbox, relay qua dirty set, consumer idempotent |
 | i18n | [i18n](i18n/i18n.md) | next-intl + ICU, không chuỗi cứng, helper fmt, lỗi theo code, AI theo locale |
+| ops | [observability-security](ops/observability-security.md) | Log pino có `traceId` + redact PII, metric, mã hoá credential AES-256-GCM, upload presign, rate limit, webhook, sanitize HTML, SSRF, audit |
 | integrations | [provider-ports](integrations/provider-ports.md) | Port theo năng lực + ConnectorManifest + registry; SePay / Casso / MISA / Mắt Bão / VNPT / Viettel…; trang Nền tảng kết nối có thẻ "Sắp có" (D28) |
 | workflow | [git-flow-ci](workflow/git-flow-ci.md) | Nhánh việc → PR chỉ vào `dev`; `dev → main` do Chủ nhà; mẫu commit / PR; CI affected + parity + e2e + full; branch protection (D40) |
 | ui | [frontend-structure](ui/frontend-structure.md) | Cây `apps/web` (app chỉ routing, features/<module>/screens·components·hooks), useAction cho ghi, useCan, ui-commands, 5 trạng thái, token-only, responsive |
-| ui | [prototype-parity](ui/prototype-parity.md) | Playwright 1440×900, maxDiffPixelRatio 0.05, manifest + fixture + danh sách ngoại lệ |
+| ui | [prototype-parity](ui/prototype-parity.md) | Playwright 1440×900, maxDiffPixelRatio 0.05, manifest + fixture + danh sách ngoại lệ; 4 mức lệch (§6b) + luật mask |
+| ui | [interaction-patterns](ui/interaction-patterns.md) | Thước đo hành vi / bố cục (IP-x.y) khi prototype không vẽ hoặc vẽ sai; căn cứ duy nhất để ghi lệch `PD-xxx` (sổ `docs/06-prototype/DEVIATIONS.md`) |

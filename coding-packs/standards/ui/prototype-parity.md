@@ -24,7 +24,7 @@
    - Không thêm bậc lẻ (12.1, 12.7, 13.2…). Màu thương hiệu / trạng thái giữ nguyên giá trị prototype.
    - Đưa vào token antd (`packages/ui/theme.ts`) hoặc `antd-style`.
    - **Cấm hard-code màu/px trong component.** Giá trị chưa có token thì thêm token.
-6. **Ngoại lệ có chủ đích** chỉ được khi có mã quyết định (D/V/REQ). Danh sách hiện hành:
+6. **Ngoại lệ có chủ đích** chỉ được khi có mã quyết định (D/V/REQ) hoặc `PD` theo §6b. Danh sách hiện hành:
    - **Module ẩn:** Gọi điện, Quy trình, Báo cáo (D07, D19).
    - **Mục Cài đặt ẩn:** Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API / Playground / Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO / Compliance. "Vai trò & phân quyền" chỉ đọc ở P0 (D27).
    - **Kênh:** chỉ kênh có manifest (`standards/channels/omnichannel-adapter.md`). **Connector:** chỉ connector có manifest, thẻ "Sắp có" (D28).
@@ -33,7 +33,27 @@
    - **Màn danh sách (D42, giữ qua mọi bản prototype — D43):** màn lấp đúng chiều cao vùng nội dung; chỉ thân bảng cuộn (header bảng dính), footer phân trang có số trang (`Pager`, 20 / 50 / 100 dòng) nằm đáy khung bảng; đổi lọc → về trang 1. Prototype cuộn cả màn — ảnh 1440×900 vẫn đo như cũ.
      - Áp cho 9 bảng: Khách hàng, Sản phẩm, Báo giá, Đơn hàng, Đề nghị thanh toán, Hợp đồng, Hỗ trợ, Marketing, thành viên Khách thân thiết; bảng danh sách mới thêm sau này cũng dùng `DataTable` + `ListPager`.
      - Khi chép prototype mới (ver2.1 trở đi) vào `docs/06-prototype/`: chỉ cập nhật **nội dung** bảng (cột, nhãn, màu, dữ liệu mẫu); **không** gỡ cuộn trong khung / header dính / `Pager` dù prototype mới vẫn vẽ cuộn cả màn hoặc footer khác. Muốn đổi phải có quyết định mới của Chủ nhà.
+   - **Ver2.1 (D45):**
+     - Hồ sơ 360° mở form báo giá / hợp đồng đã gửi: theo luật COMMERCE — Nháp → Cập nhật; đã gửi → Tạo phiên bản mới (`quote.request_revision`); hợp đồng đã ký chỉ thêm phụ lục (D46).
+     - Menu ＋ khung nhập: Research / Web search khoá + "Sắp có" (D48); "Quyền của agent" chỉ xem, link sang Builder (D51).
+     - Menu ⋯ hội thoại: submenu Vòng đời = enum `contact.stage` hiện có (D49); Tạo nhóm Zalo khoá "Sắp có" (D50).
+     - AI Agent: quyền chỉ cấu hình ở tab Tools của Builder (nhóm theo module + Kỹ năng AI); danh mục Skills / Connectors / Plugins riêng của prototype không dựng (D51).
+     - Header hội thoại: không có nút video / gọi điện (D07, REQ-C13).
    - **Màn mới không có trong prototype** (không đo pixel, nhưng phải dùng đúng token và pattern): Chờ duyệt, Quản trị nền tảng, trang ký hợp đồng công khai, Mẫu chứng từ (D30), hộp "Xin chia sẻ" / chuyển phụ trách (D32).
+6b. **Prototype im lặng hoặc sai — 4 mức lệch.** Thước đo "sai" là `ui/interaction-patterns.md` (mã `IP-x.y`); không có mục IP nào bị vi phạm thì **không** được gọi là sai, làm đúng prototype. Chỗ lệch chưa có mã D / V / REQ / COMMERCE ghi vào sổ `docs/06-prototype/DEVIATIONS.md` (`PD-xxx`).
+
+| Mức | Loại | Ví dụ | Ai quyết | Thợ làm gì |
+|---|---|---|---|---|
+| 1 | Lỗi hiển thị | chữ tràn / cắt không tooltip, lệch hàng, khoảng cách không theo thang, markup prototype vỡ, giá trị hard-code (thời gian, đếm ngược), tương phản thấp | Chủ thầu (lúc verify) | Sửa luôn bằng token / pattern, mask đúng vùng, ghi `PD` `đề xuất` |
+| 2 | Prototype không vẽ | empty / error / loading / no-permission, chữ cực dài, 500 dòng, đang gửi, realtime, mobile, màn mới | — (không phải lệch) | Làm theo `interaction-patterns.md`; ghi "Giả định đã chọn" trong Completion Report; không cần `PD` |
+| 3 | Sai bố cục / vị trí / luồng | nút chính sai chỗ, nút xoá cạnh nút lưu, modal che dữ liệu cần nhìn, thứ tự bước sai, cùng hành động mỗi màn một chỗ | **Chủ nhà** (sinh mã D) | **Vẫn làm theo prototype**, ghi `PD` `đề xuất` kèm ảnh prototype + phác hoạ đề xuất, làm tiếp không dừng. Chủ nhà duyệt theo lô → có mã D thì mới sửa + mask |
+| 4 | Trái nghiệp vụ / quyền | nút hoặc trạng thái vi phạm COMMERCE / D27 / D51 | Đã có luật (thứ tự ưu tiên CLAUDE.md §2) | Làm theo luật, trích mã (như D46); không cần `PD` nếu mã đã có, chưa có thì escalation L2 |
+
+   - **Mask phải có căn cứ:** mọi `reason` trong `parity.manifest.ts` mở đầu bằng hoặc chứa một mã: `D..` / `V..` / `REQ-..` / `COMMERCE §..` / `Blueprint §..` / `prototype-parity §6` / `PD-xxx` (PD ở trạng thái `duyệt`, hoặc mức 1 `đề xuất`), hoặc ghi rõ "không có trong prototype" (mức 2). PD mức 3 `đề xuất` **không** được mask. CI chặn bằng `pnpm lint:masks` (`tools/scripts/lint-masks.mjs`).
+   - **Không mask để chữa parity.** Lệch vì app làm sai thì sửa app, không thêm mask.
+   - **Chặn tích luỹ:** tổng diện tích mask của một ID vượt **15%** khung so, hoặc sổ có ≥ 10 PD `duyệt` chưa gộp → đề nghị Chủ nhà sửa thẳng prototype (bản mới → `normalize-prototype` → chụp lại baseline, PD chuyển `đã gộp`, gỡ mask).
+   - Completion Report liệt kê PD mới ghi trong TIP / pha (mã, mức, trạng thái).
+
 7. **Ngoại lệ không được làm tăng diện tích lệch ngoài vùng của nó.** Ví dụ ẩn một mục menu thì các mục khác giữ nguyên vị trí như prototype đã bỏ mục đó; vẫn phải dưới 5% sau khi mask vùng ngoại lệ.
 8. **Báo cáo trong Completion Report** cho từng màn × trạng thái: `diffRatio`, ảnh diff (`tests/parity/out/<id>-<state>.diff.png`) và danh sách ngoại lệ đã áp.
 9. **Mobile (< md):** không đo pixel, vì prototype không có bản mobile. Chạy e2e ở **390×844**:
