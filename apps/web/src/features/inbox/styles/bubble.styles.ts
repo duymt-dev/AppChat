@@ -52,6 +52,7 @@ export const useBubbleStyles = createStyles(({ css, responsive }) => ({
   `,
   outAgent: css`
     flex-direction: row-reverse;
+    justify-content: flex-start;
     max-width: 76%;
   `,
   av: css`
