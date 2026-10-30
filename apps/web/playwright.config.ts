@@ -5,6 +5,8 @@ const PORT = Number(process.env.E2E_PORT ?? 3417);
 
 export default defineConfig({
   testDir: './e2e',
+  // e2e/http/ chạy trên backend thật qua `pnpm e2e:http` (playwright.http.config.ts — TIP-011).
+  testIgnore: ['**/http/**'],
   timeout: 60_000,
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
