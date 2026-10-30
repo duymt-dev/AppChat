@@ -1,4 +1,6 @@
 // Kiểu dữ liệu Sản phẩm (Blueprint §2.2 catalog; COMMERCE §2). Tiền là string VND, giá chưa VAT.
+import type { CustomValues } from '@appchat/shared';
+
 export type ProductType = 'physical' | 'service' | 'combo' | 'package' | 'digital' | 'rental';
 
 export interface Product {
@@ -22,6 +24,8 @@ export interface Product {
   tint: string;
   ink: string;
   icon: string;
+  /** Trường tuỳ biến (D56). */
+  custom?: CustomValues;
 }
 
 export interface ProductsMeta {
@@ -34,7 +38,6 @@ export interface ProductsMeta {
   history: [string, string, string][];
   crm_stats: [string, string, string][];
   crm_buyers: [string, string, string][];
-  custom_fields: { key: string; label: string; type: string }[];
 }
 
 export interface ProductFilter {

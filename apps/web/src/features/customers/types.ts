@@ -1,4 +1,5 @@
 // Kiểu dữ liệu Khách hàng (Blueprint §2.2 contact, §4.4 crm; D32 phụ trách + đồng phụ trách).
+import type { CustomValues } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
 export type StageKey = 'all' | 'lead' | 'potential' | 'consulting' | 'quote' | 'contract' | 'won';
@@ -34,6 +35,8 @@ export interface ContactRow {
   web_bg: number;
   my_access: 'owner' | 'collaborator' | 'watcher' | 'scope';
   collaborator_count: number;
+  /** Trường tuỳ biến (D56). */
+  custom?: CustomValues;
 }
 
 export interface CrmStats {
@@ -52,16 +55,6 @@ export interface DupSide {
 export interface Duplicates {
   summary: { groups: number; records: number; auto: number };
   groups: { id: string; pct: number; by: string; a: DupSide; b: DupSide }[];
-}
-
-export interface CustomField {
-  key: string;
-  label: string;
-  type: string;
-  options: string;
-  group: string;
-  required: boolean;
-  visible: boolean;
 }
 
 export interface Member {

@@ -10,6 +10,7 @@ import { useQuoteCellStyles } from './styles/cells.styles';
 import { useQuotesUi } from './quotes-store';
 import { STATUS_TONE } from './status';
 import type { Quote } from './types';
+import { useCustomColumns } from '@/shared/custom-fields';
 
 export function StatusChip({ q }: { q: Quote }) {
   const t = useTranslations('quotes.status');
@@ -146,6 +147,7 @@ export function useQuoteColumns(): TableColumnsType<Quote> {
   const svc = useSvc();
   const stamp = useStamp();
   const { styles } = useQuoteCellStyles();
+  const custom = useCustomColumns<Quote>('quote');
   return [
     {
       key: 'code',
@@ -204,6 +206,7 @@ export function useQuoteColumns(): TableColumnsType<Quote> {
     },
     { key: 'status', title: t('col.status'), width: 110, render: (_, q) => <StatusChip q={q} /> },
     { key: 'ai', title: t('col.ai'), width: 120, render: (_, q) => <AiCell q={q} /> },
+    ...custom,
     {
       key: 'act',
       title: <span className={styles.end}>{t('col.act')}</span>,

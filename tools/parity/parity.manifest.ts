@@ -84,7 +84,9 @@ const integProto = async (p: Page) => {
 const ST_MAIN = { x: 360, y: 64, width: 1080, height: 836 };
 // D53 / PD-004: app căn giữa cột Cấu hình của Builder AI Agents, prototype L2659 bám lề trái. Ảnh app trả cột về lề trái
 // để vẫn so pixel nội dung thay vì mask cả cột 680.
-const builderLeft = (p: Page) => p.addStyleTag({ content: '[data-testid="agb-col"] { margin: 0 !important; }' });
+const builderLeft = async (p: Page) => {
+  await p.addStyleTag({ content: '[data-testid="agb-col"] { margin: 0 !important; }' });
+};
 const expandProto = (p: Page) => p.click('.rail [title="Mở rộng"]');
 const expandApp = (p: Page) => p.click('[data-testid="rail-toggle"]');
 
@@ -469,6 +471,11 @@ export const MANIFEST: ParityEntry[] = [
     proto: (p) => p.locator('.chip', { hasText: 'Trường mở rộng' }).click(),
     app: (p) => p.getByTestId('crm-fields').click(),
     clipTo: { proto: 'div[style*="width: 880px"]', app: '[data-testid="crm-fields-modal"] [role="dialog"]' },
+    // D56: danh sách trường = trường tuỳ biến thật của workspace (cùng Cài đặt › Trường dữ liệu), không phải 7 trường mẫu của prototype.
+    mask: [
+      { x: 690, y: 80, width: 190, height: 36, reason: 'đếm trường theo dữ liệu workspace (D56)' },
+      { x: 0, y: 130, width: 880, height: 559, reason: 'bảng trường + chân modal theo dữ liệu workspace (D56)' },
+    ],
   },
   {
     id: 'customers:360',

@@ -3,6 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Quote, QuoteFilter, QuotesMeta } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
+import { customParams } from '@/shared/custom-fields';
 
 export const quotesQuery = (f: QuoteFilter, pg?: PageState) =>
   queryOptions({
@@ -13,6 +14,7 @@ export const quotesQuery = (f: QuoteFilter, pg?: PageState) =>
         owner_id: f.owner_id,
         returning: f.returning,
         ...(f.q ? { q: f.q } : {}),
+        ...customParams(f.custom),
         ...pg,
       }),
     placeholderData: (prev) => prev,

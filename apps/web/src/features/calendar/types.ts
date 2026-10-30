@@ -1,4 +1,6 @@
 // Kiểu dữ liệu Lịch hẹn — khớp response mock / API Blueprint §4.4 booking (§2.2 appointment, COMMERCE §6).
+import type { CustomValues } from '@appchat/shared';
+
 export type ApptStatus = 'pending' | 'confirmed' | 'in_progress' | 'done' | 'no_show' | 'cancelled';
 export type CalView = 'list' | 'day' | 'week' | 'month';
 
@@ -22,6 +24,8 @@ export interface Appointment {
   package_id: string | null;
   package: { id: string; name: string; used: number; total: number } | null;
   reminders: { kind: string; at: string }[];
+  /** Trường tuỳ biến (D56). */
+  custom?: CustomValues;
 }
 
 export interface Service {
@@ -79,6 +83,7 @@ export interface CalFilter {
   staff_id: string;
   status: string;
   q: string;
+  custom?: Record<string, string>;
 }
 
 export interface Slot {

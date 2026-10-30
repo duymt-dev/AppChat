@@ -11,6 +11,7 @@ import { QuoteLines } from './QuoteLines';
 import { Comments, closeChance, CustType, Ring, avColor, initial } from './parts';
 import { useStamp } from '../columns';
 import type { Quote, QuotesMeta } from '../types';
+import { CustomFieldList } from '@/shared/custom-fields';
 
 const STAGE_KEYS = ['accepted', 'approved', 'sent', 'viewed', 'rejected'];
 const HINT_KEYS = ['sent', 'viewed', 'approved', 'accepted'];
@@ -175,6 +176,7 @@ export function OverviewTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
           </div>
         ))}
       </div>
+      <CustomFieldList entity="quote" values={q.custom} />
       <Comments q={q} />
     </>
   );

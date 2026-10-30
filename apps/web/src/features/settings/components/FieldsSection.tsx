@@ -17,11 +17,14 @@ import { PLACES, type FieldDef, type FieldEntity } from '../types';
 import { RowMenu, type RowMenuItem } from './RowMenu';
 import { FieldModal } from './FieldModal';
 
+/** Prototype có 4 tab đầu; Báo giá, Lịch hẹn thêm theo D56. */
 const MODULES: [FieldEntity, IconName][] = [
   ['contact', 'ic-users'],
   ['ticket', 'ic-ticket'],
   ['order', 'ic-cart'],
   ['product', 'ic-box'],
+  ['quote', 'ic-doc'],
+  ['appointment', 'ic-cal'],
 ];
 const SEP = ' · ';
 const LIST = ', ';

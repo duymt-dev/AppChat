@@ -4,6 +4,7 @@ import auth from '../../../../../../fixtures/prototype-parity/auth.json';
 import type { SystemRole } from '@appchat/shared';
 import { loadSession, saveSession, type MockSession } from './session';
 import { bulkify } from './bulk';
+import { seedCustomValues } from './domains/custom-values';
 import { createDashboardState, type DashboardState } from './domains/dashboard';
 import { createInboxState, type InboxState } from './domains/inbox';
 import { createCustomersState, type CustomersState } from './domains/customers';
@@ -114,6 +115,7 @@ const db: MockDb = {
   docTemplates: createDocTemplatesState(),
 };
 
+seedCustomValues(db);
 if (db.session.bulk) bulkify(db);
 
 type Listener = (event: string) => void;

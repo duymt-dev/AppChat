@@ -41,6 +41,7 @@
      - Header hội thoại: không có nút video / gọi điện (D07, REQ-C13).
      - Drawer "Trợ lý AI · [module]" và màn Trợ lý: kết quả hiện bằng cây giao diện do LLM ghép (thẻ số liệu, bảng, biểu đồ, form) thay bong bóng chữ + 1 nút của prototype (D55, `ai/generative-ui.md`). Parity đo khung drawer + danh sách Phân tích nhanh; vùng kết quả mask theo D55.
      - Builder AI Agents: cột Cấu hình (max 680) căn giữa trong vùng trái, không bám lề trái như prototype L2659 (D53, PD-004).
+     - Trường dữ liệu tuỳ biến (D56, `domain/custom-fields.md`): cột / ô lọc / phần "Thông tin thêm" / khối chi tiết dựng từ định nghĩa của workspace, gắn `data-custom-field`. Prototype không có các trường này (trừ form Sản phẩm L4487) → khi đo (`?parity=1`) app không dựng chúng, chỉ giữ khối form Sản phẩm (`shared/custom-fields/api.ts`). Cài đặt › Trường dữ liệu thêm tab Báo giá, Lịch hẹn sau 4 tab của prototype.
    - **Màn mới không có trong prototype** (không đo pixel, nhưng phải dùng đúng token và pattern): Chờ duyệt, Quản trị nền tảng, trang ký hợp đồng công khai, Mẫu chứng từ (D30), hộp "Xin chia sẻ" / chuyển phụ trách (D32).
 6b. **Prototype im lặng hoặc sai — 4 mức lệch.** Thước đo "sai" là `ui/interaction-patterns.md` (mã `IP-x.y`); không có mục IP nào bị vi phạm thì **không** được gọi là sai, làm đúng prototype. Chỗ lệch chưa có mã D / V / REQ / COMMERCE ghi vào sổ `docs/06-prototype/DEVIATIONS.md` (`PD-xxx`).
 

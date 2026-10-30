@@ -17,6 +17,7 @@ import { apptQuery } from '../api';
 import { STATUS_TONE } from '../status';
 import { hmOf, minOf } from '../dates';
 import type { Appointment, CalendarMeta } from '../types';
+import { CustomFieldList } from '@/shared/custom-fields';
 
 const SP = ' ';
 const initialOf = (name: string) => name.split(SP).at(-1)?.charAt(0) ?? SP;
@@ -250,6 +251,7 @@ export function AppointmentDrawer({ meta }: { meta: CalendarMeta }) {
               {t('detail.packageV', a.package)}
             </div>
           ) : null}
+          <CustomFieldList entity="appointment" values={a.custom} />
         </div>
       ) : null}
     </EntityDrawer>

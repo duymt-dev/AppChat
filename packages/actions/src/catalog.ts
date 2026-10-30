@@ -1,5 +1,6 @@
 // Sản phẩm & dịch vụ (Blueprint §3.4 catalog; COMMERCE-DECISIONS §2). Prototype L5624–5753, L4069–4160.
 import { z } from 'zod';
+import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const productId = z.string().min(1);
@@ -25,7 +26,8 @@ const productFields = z.object({
   rental_unit: z.enum(['hour', 'day', 'week', 'month']).optional(),
   components: z.array(z.object({ name: z.string().min(1), qty: z.number().int().min(1) })).optional(),
   attrs: z.array(z.object({ name: z.string().min(1), values: z.array(z.string().min(1)) })).optional(),
-  custom: z.record(z.string(), z.string()).optional(),
+  /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
+  custom: customValuesSchema.optional(),
 });
 
 export const productCreate = defineAction({

@@ -1,11 +1,10 @@
 // Mock Cài đặt › Dữ liệu (Blueprint §2 custom_field_def, §3.4 inbox tags / canned replies): GET /settings/tags, /settings/replies,
-// /settings/fields?entity. custom_field.* bọc handler Khách hàng để modal "Trường mở rộng" ở CRM và Cài đặt dùng chung trường liên hệ.
+// /settings/fields?entity. custom_field.* là nguồn duy nhất (D56) — modal "Trường mở rộng" ở Khách hàng đọc cùng dữ liệu.
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
-import { customersHandlers } from './customers';
 
 export type SettingsTag = (typeof fixture.tags)[number];
 export type SettingsReply = (typeof fixture.replies)[number];
@@ -125,7 +124,7 @@ export const settingsDataHandlers: Record<string, MockHandler> = {
     execute: (db, i: FieldIn & { entity: string; label: string; type: string }) => {
       const list = fieldsOf(db, i.entity);
       if (list.some((f) => fold(f.label) === fold(i.label))) throw dup('label');
-      const key = i.entity === 'contact' ? (customersHandlers['custom_field.define']!.execute(db, i as never) as { key: string }).key : `cf_${++db.settingsData.seq}`;
+      const key = `cf_${++db.settingsData.seq}`;
       const on = { list: false, kanban: false, form: true, filter: false, detail: true, export: true };
       list.push({ key, label: i.label.trim(), type: i.type, options: i.options ?? '', required: !!i.required, ai: !!i.ai, sys: false,
         visible_in: { ...on, ...i.visible_in }, roles: i.roles ?? [], condition: i.condition ?? '' });
@@ -135,10 +134,6 @@ export const settingsDataHandlers: Record<string, MockHandler> = {
   'custom_field.update': {
     execute: (db, i: { entity: string; fields: FieldIn[]; order?: string[] }) => {
       const list = fieldsOf(db, i.entity);
-      if (i.entity === 'contact') {
-        const flags = i.fields.filter((f) => f.required !== undefined && f.visible !== undefined);
-        if (flags.length) customersHandlers['custom_field.update']!.execute(db, { fields: flags } as never);
-      }
       for (const { key, visible, ...f } of i.fields) {
         const cur = list.find((x) => x.key === key);
         if (!cur) continue;

@@ -3,6 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Order, OrderFilter, OrdersMeta } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
+import { customParams } from '@/shared/custom-fields';
 
 export const ordersQuery = (f: OrderFilter, pg?: PageState) =>
   queryOptions({
@@ -14,6 +15,7 @@ export const ordersQuery = (f: OrderFilter, pg?: PageState) =>
         value: f.value,
         source: f.source,
         ...(f.q ? { q: f.q } : {}),
+        ...customParams(f.custom),
         ...pg,
       }),
     placeholderData: (prev) => prev,

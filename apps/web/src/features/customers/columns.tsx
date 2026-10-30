@@ -6,6 +6,7 @@ import { useCellStyles } from './styles/cells.styles';
 import { useCrmUi } from './crm-store';
 import { useRowMenu } from './hooks/useRowMenu';
 import { AiCell, ChannelCell, NameCell, OwnerCell, StatusCell } from './components/Cells';
+import { useCustomColumns } from '@/shared/custom-fields';
 import type { ContactRow } from './types';
 
 export function RowActions({ c, variant }: { c: ContactRow; variant: 'table' | 'kanban' }) {
@@ -29,6 +30,7 @@ export function useContactColumns(onAiDo: () => void): TableColumnsType<ContactR
   const t = useTranslations('customers');
   const { styles, cx } = useCellStyles();
   const text = (v: string, ...cls: (string | false)[]) => <span className={cx(styles.cell, ...cls)}>{v}</span>;
+  const custom = useCustomColumns<ContactRow>('contact');
   return [
     { key: 'code', title: t('col.code'), width: 100, render: (_, c) => <span className={styles.code}>{c.code}</span> },
     { key: 'name', title: t('col.name'), width: 158, render: (_, c) => <NameCell c={c} /> },
@@ -54,6 +56,7 @@ export function useContactColumns(onAiDo: () => void): TableColumnsType<ContactR
     { key: 'status', title: t('col.status'), width: 108, render: (_, c) => <StatusCell c={c} /> },
     { key: 'owner', title: t('col.owner'), width: 100, render: (_, c) => <OwnerCell c={c} /> },
     { key: 'ai', title: t('col.ai'), width: 128, render: (_, c) => <AiCell c={c} onAiDo={onAiDo} /> },
+    ...custom,
     {
       key: 'actions',
       title: <span className={styles.end}>{t('col.actions')}</span>,

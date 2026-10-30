@@ -9,6 +9,7 @@ import { useCalendarUi } from '../calendar-store';
 import { useTr } from '../hooks/useTr';
 import { STATUSES } from '../status';
 import type { CalView, CalendarMeta } from '../types';
+import { CustomFilterSelects } from '@/shared/custom-fields';
 
 const VIEWS: [CalView, IconName][] = [
   ['list', 'ic-inbox'],
@@ -126,6 +127,12 @@ export function CalendarHeader({ meta }: { meta: CalendarMeta | undefined }) {
             </option>
           ))}
         </select>
+        <CustomFilterSelects
+          entity="appointment"
+          className={styles.select}
+          value={ui.filter.custom}
+          onChange={(custom) => ui.setFilter({ custom })}
+        />
         <span className={styles.grow} />
         <div className={styles.seg} role="tablist">
           {VIEWS.map(([v, ic]) => (

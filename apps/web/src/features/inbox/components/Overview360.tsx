@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
+import { CustomFieldList } from '@/shared/custom-fields';
 import { usePanelStyles } from '../styles/panel.styles';
 import { useCardStyles } from '../styles/card360.styles';
 import { Rich } from './Rich';
@@ -151,6 +152,9 @@ export function Overview360({ c }: { c: Contact360 }) {
         <Timeline items={c.history} />
       </div>
       <ExtraCards c={c} />
+      <div className={styles.card} data-custom-field="p360">
+        <CustomFieldList entity="contact" values={c.custom} />
+      </div>
     </>
   );
 }

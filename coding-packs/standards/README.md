@@ -16,6 +16,7 @@
 | code | [testing](code/testing.md) | Các tầng test, test cô lập tenant + role, DB thật, báo kết quả trung thực + commit SHA |
 | database | [indexing](database/indexing.md) | Thứ tự composite, INCLUDE, deferred join, cursor, partial / expression index, index cho scope |
 | database | [tenant-db](database/tenant-db.md) | Mỗi workspace một DB, 2 Prisma client, không FK xuyên DB, migration expand-compatible |
+| domain | [custom-fields](domain/custom-fields.md) | Trường tuỳ biến 6 thực thể (D56): định nghĩa một nơi, `custom jsonb`, ghi qua create/update + validate theo định nghĩa, hiện theo `visible_in` (form / cột / lọc / chi tiết) |
 | domain | [gap-filling](domain/gap-filling.md) | Thang tra cứu khi tài liệu im lặng, được tự quyết / phải hỏi, giả định an toàn, luật nghiệp vụ là hàm thuần dùng chung FE mock + BE, contract FE đã có thắng code mới |
 | domain | [state-machine](domain/state-machine.md) | Một bảng chuyển trạng thái mỗi entity (`packages/shared/src/<domain>/state.ts`), compare-and-set, `INVALID_TRANSITION`, danh mục 15 entity |
 | domain | [concurrency](domain/concurrency.md) | Khoá lạc quan `version` / `STALE_VERSION`, khoá dòng cho tiền-kho-điểm, idempotency theo nguồn, cuộc đua người – agent – job |

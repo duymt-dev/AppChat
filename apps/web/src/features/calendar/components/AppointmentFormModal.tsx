@@ -12,6 +12,7 @@ import { useCalendarUi } from '../calendar-store';
 import { apptQuery } from '../api';
 import { REMINDERS, initialDraft, useApptForm } from '../hooks/useApptForm';
 import type { Appointment, CalendarMeta } from '../types';
+import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 
 const KEYS = { reminders: 'reminders' } as const;
 const TOOLS = [
@@ -39,6 +40,7 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
   const create = useAction<{ appointment_id: string }>('appointment.create');
   const move = useAction('appointment.reschedule');
   const [err, setErr] = useState('');
+  const cf = useCustomDraft('appointment');
   const close = () => set({ form: null, prefill: null });
   const onError = (e: { error: { code: string } }) => {
     if (e.error.code !== 'CONFLICT') return false;
@@ -52,6 +54,8 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
       if (r) close();
       return;
     }
+    const c = cf.collect('create');
+    if (!c.ok) return;
     const r = await create.run(
       {
         contact_name: f.d.contact_name.trim(),
@@ -63,8 +67,9 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
         status: f.d.status,
         reminder_min: f.d.reminder,
         ...(f.d.note.trim() ? { note: f.d.note.trim() } : {}),
+        ...(c.custom ? { custom: c.custom } : {}),
       },
-      { onError },
+      { onError: (e) => onError(e) || cf.absorb(e.error.fields) },
     );
     if (r) set({ form: null, prefill: null, detail: r.result.appointment_id });
   };
@@ -236,6 +241,7 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
           </>
         )}
       </div>
+      {re ? null : <CustomFieldInputs draft={cf} />}
     </ModalShell>
   );
 }

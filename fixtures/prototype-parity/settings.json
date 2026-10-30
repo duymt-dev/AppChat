@@ -1133,7 +1133,7 @@
         "options": "Đã thanh toán/Đã cọc/Chờ cọc",
         "required": false,
         "ai": false,
-        "sys": false,
+        "sys": true,
         "visible_in": {
           "list": true,
           "kanban": true,
@@ -1211,7 +1211,7 @@
         "options": "Liệu trình/Combo/Gói năm/Dịch vụ lẻ",
         "required": true,
         "ai": false,
-        "sys": false,
+        "sys": true,
         "visible_in": {
           "list": true,
           "kanban": true,
@@ -1249,7 +1249,7 @@
         "options": "",
         "required": false,
         "ai": false,
-        "sys": false,
+        "sys": true,
         "visible_in": {
           "list": false,
           "kanban": false,
@@ -1274,6 +1274,200 @@
           "kanban": false,
           "form": true,
           "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "quote": [
+      {
+        "key": "code",
+        "label": "Mã báo giá",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "contact",
+        "label": "Khách hàng",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "total",
+        "label": "Tổng tiền",
+        "type": "currency",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "consult_channel",
+        "label": "Kênh tư vấn",
+        "type": "picklist",
+        "options": "Tại quầy/Zalo/Gọi điện",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "decision_maker",
+        "label": "Người quyết định",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "appointment": [
+      {
+        "key": "service",
+        "label": "Dịch vụ",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "start_at",
+        "label": "Thời gian",
+        "type": "date",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "staff",
+        "label": "Nhân viên",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "special_request",
+        "label": "Yêu cầu đặc biệt",
+        "type": "textarea",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "skin_type",
+        "label": "Loại da",
+        "type": "picklist",
+        "options": "Da dầu/Da khô/Hỗn hợp/Nhạy cảm",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": true,
           "detail": true,
           "export": true
         },

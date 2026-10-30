@@ -1,5 +1,5 @@
 // Kiểu dữ liệu Đơn hàng — khớp response mock / API Blueprint §4.4 orders (COMMERCE-DECISIONS §4, §4b).
-import type { Discount } from '@appchat/shared';
+import type { CustomValues, Discount } from '@appchat/shared';
 
 export type OrderStatus = 'new' | 'processing' | 'completed' | 'cancelled';
 export type PayStatus = 'unpaid' | 'awaiting_deposit' | 'deposited' | 'partial' | 'paid' | 'refunded';
@@ -70,6 +70,8 @@ export interface Order {
   note: string;
   events: OrderEvent[];
   ai: { hint: string; wait: boolean };
+  /** Trường tuỳ biến (D56). */
+  custom?: CustomValues;
 }
 
 export interface OrderFilter {
@@ -78,6 +80,7 @@ export interface OrderFilter {
   value: string;
   source: string;
   q: string;
+  custom?: Record<string, string>;
 }
 
 export interface OrdersMeta {

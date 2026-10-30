@@ -11,6 +11,7 @@ import { PayText, useSvc, useTr } from '../columns';
 import { ShippingCard } from './ShippingCard';
 import { useOrdersUi } from '../orders-store';
 import type { Order, OrdersMeta } from '../types';
+import { CustomFieldList } from '@/shared/custom-fields';
 
 const EXT_BG: Record<string, string> = { pdf: color.dangerStrong, xlsx: color.okGreen, jpg: color.violet };
 const EV_DOT: Record<string, string> = {
@@ -137,6 +138,7 @@ export function OverviewTab({ o }: { o: Order }) {
         ))}
       </div>
       <ShippingCard o={o} />
+      <CustomFieldList entity="order" values={o.custom} />
     </>
   );
 }

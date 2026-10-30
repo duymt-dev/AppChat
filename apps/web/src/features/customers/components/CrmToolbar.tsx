@@ -8,6 +8,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { useCrmStyles } from '../styles/crm.styles';
 import { useCrmUi } from '../crm-store';
 import { membersQuery } from '../api';
+import { customFilterValue, pickCustomFilter, useCustomFilterFields } from '@/shared/custom-fields';
 
 const BULK: [key: string, icon: IconName, tone: string, route: string][] = [
   ['ticket', 'ic-ticket', color.violet, '/tickets'],
@@ -29,6 +30,7 @@ export function CrmToolbar({ allSelected, onSelectAll }: { allSelected: boolean;
   const canReassign = useCan('crm.reassign');
   const canFields = useCan('crm.fields_manage');
   const f = ui.filter;
+  const cfFilters = useCustomFilterFields('contact');
 
   return (
     <div className={styles.bar} data-testid="crm-toolbar">
@@ -82,13 +84,14 @@ export function CrmToolbar({ allSelected, onSelectAll }: { allSelected: boolean;
         title={t('filter.title')}
         clearLabel={t('filter.clear')}
         applyLabel={t('filter.apply')}
-        value={{ group: f.group, source: f.source, stage: f.stage === 'all' ? '' : f.stage }}
-        onApply={(v) => ui.setFilter({ group: v.group ?? '', source: v.source ?? '', stage: (v.stage || 'all') as never })}
+        value={{ group: f.group, source: f.source, stage: f.stage === 'all' ? '' : f.stage, ...customFilterValue(f.custom) }}
+        onApply={(v) => ui.setFilter({ group: v.group ?? '', source: v.source ?? '', stage: (v.stage || 'all') as never, custom: pickCustomFilter(v) })}
         fields={[
           { key: 'group', label: t('filter.group'), options: [{ value: '', label: t('filter.groupAll') }, ...GROUPS.map((g) => ({ value: g, label: t(`group.${g}`) }))] },
           { key: 'source', label: t('filter.source'), options: [{ value: '', label: t('filter.sourceAll') }, ...SOURCES.map((s) => ({ value: s, label: t(`source.${s}`) }))] },
           { key: 'tags', label: t('filter.tags'), options: [{ value: '', label: t('filter.tagsAll') }] },
           { key: 'stage', label: t('filter.pipeline'), options: [{ value: '', label: t('filter.pipelineAll') }, ...STAGES.map((s) => ({ value: s, label: t(`stages.${s}`) }))] },
+          ...cfFilters,
         ]}
       />
       <button type="button" className={cx(styles.chip, styles.tool, styles.hideMd)}>

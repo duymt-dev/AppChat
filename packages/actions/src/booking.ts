@@ -1,6 +1,7 @@
 // Lịch hẹn (Blueprint §3.4 booking; §2.2 appointment; COMMERCE §6 liệu trình, 8b gợi ý tạo đơn). Prototype L3871–4234.
 // pending → confirmed → in_progress (check-in) → done | no_show; cancelled (lý do bắt buộc); đổi giờ giữ cùng mã, tăng reschedule_count.
 import { z } from 'zod';
+import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const apptId = z.string().min(1);
@@ -47,6 +48,8 @@ export const appointmentCreate = defineAction({
     status: z.enum(['pending', 'confirmed']).optional(),
     reminder_min: z.number().int().min(0).max(10_080).optional(),
     note: z.string().max(2000).optional(),
+    /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
+    custom: customValuesSchema.optional(),
   }),
   output: z.object({ appointment_id: z.string(), code: z.string(), package_id: z.string().nullable() }),
   permission: 'booking.manage',

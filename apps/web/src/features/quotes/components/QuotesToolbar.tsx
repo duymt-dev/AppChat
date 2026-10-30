@@ -12,6 +12,7 @@ import { useQuotesStyles } from '../styles/quotes.styles';
 import { useQuotesUi } from '../quotes-store';
 import { FILTERS } from '../status';
 import type { Quote, QuotesMeta } from '../types';
+import { customFilterValue, pickCustomFilter, useCustomFilterFields } from '@/shared/custom-fields';
 
 export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
   const t = useTranslations('quotes');
@@ -19,6 +20,7 @@ export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
   const { styles, cx } = useQuotesStyles();
   const ui = useQuotesUi();
   const members = useQuery(membersQuery()).data ?? [];
+  const cfFilters = useCustomFilterFields('quote');
   const VIEWS = [
     ['list', 'ic-inbox'],
     ['kanban', 'ic-grid'],
@@ -60,9 +62,20 @@ export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
               { value: 'new', label: t('filter.new') },
             ],
           },
+          ...cfFilters,
         ]}
-        value={{ owner_id: ui.filter.owner_id, returning: ui.filter.returning }}
-        onApply={(v) => ui.setFilter({ owner_id: v.owner_id ?? 'all', returning: v.returning ?? 'all' })}
+        value={{
+          owner_id: ui.filter.owner_id,
+          returning: ui.filter.returning,
+          ...customFilterValue(ui.filter.custom),
+        }}
+        onApply={(v) =>
+          ui.setFilter({
+            owner_id: v.owner_id ?? 'all',
+            returning: v.returning ?? 'all',
+            custom: pickCustomFilter(v),
+          })
+        }
         clearLabel={t('filter.clear')}
         applyLabel={t('filter.apply')}
       />

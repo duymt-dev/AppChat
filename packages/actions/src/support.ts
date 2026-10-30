@@ -1,6 +1,7 @@
 // Hỗ trợ / Ticket (Blueprint §3.4 support; §2.2 ticket). Prototype L4837–4955 + drawer L3276–3360.
 // open → in_progress → waiting (SLA tạm dừng) → closed (lý do bắt buộc); reopen đưa về open và tăng reopened_count.
 import { z } from 'zod';
+import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const ticketId = z.string().min(1);
@@ -54,6 +55,8 @@ export const ticketCreate = defineAction({
     description: z.string().max(5000).optional(),
     /** Tạo từ tin nhắn (menu ⋯ Hộp thư, REQ-C09) — chỉ để truy vết, không bắt buộc tồn tại. */
     source_message_id: z.string().optional(),
+    /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
+    custom: customValuesSchema.optional(),
   }),
   output: z.object({ ticket_id: z.string(), code: z.string() }),
   permission: 'ticket.manage',

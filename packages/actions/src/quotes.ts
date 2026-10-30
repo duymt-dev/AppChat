@@ -1,6 +1,7 @@
 // Báo giá (Blueprint §3.4 sales; COMMERCE-DECISIONS §3, §12). Prototype L4957–5187.
 // Hiệu lực 15 ngày kể từ lúc gửi; vượt ngưỡng (tổng > 20tr / giảm > 5% / hàng ngoài danh mục) thì phải duyệt trước khi gửi.
 import { z } from 'zod';
+import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 import { discount, lineItem } from './sales-schemas';
 
@@ -14,6 +15,8 @@ const fields = z.object({
   payment_terms: z.string().max(2000).optional(),
   note: z.string().max(2000).optional(),
   gift: z.string().max(200).optional(),
+  /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
+  custom: customValuesSchema.optional(),
 });
 const out = z.object({ quote_id: z.string(), code: z.string() });
 const opened = (o: { quote_id: string }) => ({

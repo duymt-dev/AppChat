@@ -2,6 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { Appointment, CalFilter, CalendarMeta, Slot } from './types';
+import { customParams } from '@/shared/custom-fields';
 
 export const apptsQuery = (f: CalFilter, from: string, to: string) =>
   queryOptions({
@@ -14,6 +15,7 @@ export const apptsQuery = (f: CalFilter, from: string, to: string) =>
         staff_id: f.staff_id,
         status: f.status,
         ...(f.q ? { q: f.q } : {}),
+        ...customParams(f.custom),
       }),
     placeholderData: (prev) => prev,
     enabled: !!from,

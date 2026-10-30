@@ -13,6 +13,7 @@ import { PRIORITY_TONE, STATUS_TONE } from '../status';
 import { slaProgress, useDur, useSlaLabel } from '../hooks/useSla';
 import { ChannelDot, Owner } from '../columns';
 import type { Ticket, TicketsMeta } from '../types';
+import { CustomFieldList } from '@/shared/custom-fields';
 
 const MACROS: [key: string, tone: string, icon: IconName][] = [
   ['ack', color.blue, 'ic-check'],
@@ -128,6 +129,7 @@ export function DetailTab({ k }: { k: Ticket }) {
           </div>
         </>
       ) : null}
+      <CustomFieldList entity="ticket" values={k.custom} />
     </>
   );
 }

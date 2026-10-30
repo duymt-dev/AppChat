@@ -1,4 +1,6 @@
 // Kiểu dữ liệu Ticket — khớp mock /tickets (Blueprint §2.2 ticket, §4.4 support).
+import type { CustomValues } from '@appchat/shared';
+
 export type TicketStatus = 'open' | 'in_progress' | 'waiting' | 'closed';
 export type Priority = 'high' | 'medium' | 'low';
 export type SlaState = 'breach' | 'risk' | 'ok';
@@ -51,6 +53,8 @@ export interface Ticket {
   comments: TicketComment[];
   events: TicketEvent[];
   sla: { state: SlaState; left_min: number | null };
+  /** Trường tuỳ biến (D56). */
+  custom?: CustomValues;
 }
 
 export interface TicketsMeta {
@@ -73,4 +77,5 @@ export interface TicketFilter {
   sla: string;
   q: string;
   sort: 'recent' | 'priority';
+  custom?: Record<string, string>;
 }

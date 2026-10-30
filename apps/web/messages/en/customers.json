@@ -229,7 +229,12 @@
       "lookup": "Lookup",
       "tags": "Tags",
       "number": "Number",
-      "date": "Date"
+      "date": "Date",
+      "currency": "Currency",
+      "textarea": "Paragraph",
+      "email": "Email",
+      "phone": "Phone",
+      "file": "File"
     },
     "tipLead": "✶",
     "tipTitle": "Tip:",
@@ -239,7 +244,9 @@
     "cancel": "Cancel",
     "save": "Save",
     "close": "Close",
-    "tipVar": "{{contact.size}}"
+    "tipVar": "{{contact.tier}}",
+    "noOptions": "–",
+    "groupAll": "All industries"
   },
   "p360": {
     "title": "360° profile",

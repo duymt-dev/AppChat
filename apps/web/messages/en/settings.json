@@ -689,7 +689,9 @@
       "contact": "Customers",
       "ticket": "Tickets",
       "order": "Orders",
-      "product": "Products"
+      "product": "Products",
+      "quote": "Quotes",
+      "appointment": "Appointments"
     },
     "search": "Search fields by name / type…",
     "new": "Add field",

@@ -9,6 +9,7 @@ import { useTicketsStyles } from '../styles/tickets.styles';
 import { EMPTY_FILTER, useTicketsUi } from '../tickets-store';
 import { PRIORITIES, SLA_STATES, STATUSES } from '../status';
 import type { TicketFilter, TicketsMeta } from '../types';
+import { CustomFilterSelects } from '@/shared/custom-fields';
 
 type KpiKey = keyof TicketsMeta['counts'];
 const KPI: [KpiKey, IconName, string, Partial<TicketFilter>][] = [
@@ -123,6 +124,12 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
         <Sel k="category" opts={(meta?.categories ?? []).map((c) => [c, c])} />
         <Sel k="assignee" opts={[...(meta?.members ?? []).map((m): [string, string] => [m.id, m.name]), [AGENT, t('agent')]]} testId="tk-f-assignee" />
         <Sel k="sla" opts={SLA_STATES.map((s) => [s, t(`slaState.${s}`)])} testId="tk-f-sla" />
+        <CustomFilterSelects
+          entity="ticket"
+          className={styles.select}
+          value={f.custom}
+          onChange={(custom) => ui.setFilter({ custom })}
+        />
         <span className={styles.grow} />
         <button
           type="button"
