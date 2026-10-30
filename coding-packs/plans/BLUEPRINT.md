@@ -973,7 +973,7 @@ type UiCommand =
 | authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
 | misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` — đã nối (TIP-013, shape `packages/shared/src/api/settings.ts`): `workspace` (mọi thành viên), `members?q=` (`members.manage`; `{ data, total, seat_limit, next_cursor: null }`), `roles` (mọi thành viên), `sla` (`sla.manage`; giờ làm việc thật, chính sách mặc định tới TIP-034), `notifications` (TIP-006), `integrations` (TIP-012) |
-| admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
+| admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` (đã nối — TIP-010, platform admin, không cần X-Workspace-Id) |
 
 Bổ sung ver2.1:
 - inbox: `GET /v1/conversations/:id/messages/search?q=&sender=all|contact|user|agent` (không dấu, trả vị trí để tô — REQ-C12); list hội thoại bỏ `hidden_at` khác null (D50); `GET /v1/conversations/:id/agent-tools` (quyền hiệu lực của agent phụ trách, chỉ đọc — REQ-C11).
@@ -1014,7 +1014,7 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 
 ### 4.7 Webhooks
 
-- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ.
+- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ. — đã nối (TIP-010): provider = `PLATFORM_BANK_FEED` (`mock` HMAC dev / `sepay` header `Authorization: Apikey`), khớp mã `APPCHAT INV…` + số tiền ≥ hoá đơn, ghi nhận ngay trong request (idempotent) + scheduler `billing.invoice-sweep` quét lại (DC-055, DC-057, DC-058).
 - `POST /hooks/integrations/:connector/:connectionId`: webhook connector của DN (D28). Tra `tenant_integration_route` → DB tenant; adapter tự kiểm chữ ký; insert `integration_event` idempotent theo id của provider; trả 200 rồi xử lý trong queue `integrations`.
 - `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
 - `POST /hooks/channels/:provider`: dành cho kênh dùng webhook về sau (Zalo OA, Meta). Hiện chưa dùng.

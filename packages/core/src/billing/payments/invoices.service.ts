@@ -116,6 +116,13 @@ export class InvoicesService {
     return { before: inv.status, status: 'pending_review' };
   }
 
+  /** Một hoá đơn (QR, trạng thái) — `GET /v1/billing/invoices/:id`; không thuộc workspace → 404. */
+  async get(workspaceId: string, locale: string, id: string): Promise<BillInvoiceDto> {
+    const row = await this.db.billingInvoice.findFirst({ where: { id, workspaceId } });
+    if (!row) throw new AppError('NOT_FOUND', 404, { invoice_id: 'not_found' });
+    return (await this.view([row], locale))[0]!;
+  }
+
   async list(workspaceId: string, locale: string, p: { status?: string; q?: string }): Promise<{ data: BillInvoiceDto[]; next_cursor: null }> {
     const status = p.status && p.status !== 'all' ? p.status : undefined;
     const rows = await this.db.billingInvoice.findMany({
@@ -123,6 +130,12 @@ export class InvoicesService {
       orderBy: { createdAt: 'desc' },
       take: 200,
     });
+    const q = (p.q ?? '').trim().toLowerCase();
+    const data = (await this.view(rows, locale)).filter((r) => !q || r.code.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+    return { data, next_cursor: null };
+  }
+
+  private async view(rows: Row[], locale: string): Promise<BillInvoiceDto[]> {
     const plans = new Map((await this.db.plan.findMany({ where: { id: { in: rows.map((r) => r.planId).filter((x): x is string => !!x) } } })).map((x) => [x.id, x.name]));
     const m = serverMessages(locale).billing.invoice as Record<string, string>;
     const desc = (r: Row) => {
@@ -130,9 +143,7 @@ export class InvoicesService {
       if (r.kind === 'addon') return m[r.item] ?? r.item;
       return interpolate(r.months === 12 ? m.plan_year! : m.plan_month!, { plan: plans.get(r.planId ?? '') ?? r.item });
     };
-    const q = (p.q ?? '').trim().toLowerCase();
-    const data = rows
-      .map((r) => ({
+    return rows.map((r) => ({
         id: r.id,
         code: r.code,
         desc: desc(r),
@@ -155,8 +166,6 @@ export class InvoicesService {
               },
             }
           : {}),
-      }))
-      .filter((r) => !q || r.code.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
-    return { data, next_cursor: null };
+    }));
   }
 }

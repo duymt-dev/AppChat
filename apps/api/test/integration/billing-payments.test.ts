@@ -110,6 +110,10 @@ describe('hoá đơn + đối soát', () => {
     const row = page.data.find((i: { id: string }) => i.id === creditId);
     expect(row).toMatchObject({ desc: 'Nạp 1.050 credit', amount: '1000000', kind: 'credit', item: 'credit_1000', method: 'qr', status: 'pending', qr: { bank: penv.PLATFORM_BANK_NAME, account_no: penv.PLATFORM_BANK_ACCOUNT_NO } });
     expect((await invoices('?status=paid')).data).toEqual([]);
+    const one = await json(await call(h, `/billing/invoices/${creditId}`));
+    expect(one.body.data).toEqual(row);
+    expect((await call(h, `/billing/invoices/${uuidv7()}`)).status).toBe(404);
+    expect((await call(h, '/billing/invoices/abc')).status).toBe(404);
     expect((await invoices(`?q=${row.code.slice(-4)}`)).data.map((i: { id: string }) => i.id)).toEqual([creditId]);
     const sales = await h.member('sales');
     expect((await call(h, '/billing/invoices', undefined, as(sales.token))).status).toBe(403);
