@@ -9,7 +9,7 @@ import { REDIS, type KeyValueStore } from '../redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../tenant/tenant.providers';
 import { AUTHORIZER, type Authorizer } from './action-context';
 import { ConfirmTokens } from './confirm-token';
-import { ContextAuthorizer } from './dev-authorizer';
+import { ContextAuthorizer } from './authorizer';
 import { ActionExecutor } from './executor';
 import { actionIdOf } from './handler';
 import { ActionHandlerRegistry } from './handler-registry';
@@ -42,7 +42,7 @@ export class ActionsModule {
       imports: [DiscoveryModule],
       providers: [
         { provide: CONFIRM_SECRET, useValue: opts.confirmSecret },
-        { provide: AUTHORIZER, useClass: ContextAuthorizer },
+        { provide: AUTHORIZER, inject: [PLATFORM_DB], useFactory: (p: PlatformDb) => new ContextAuthorizer(p) },
         { provide: ActionHandlerRegistry, useFactory: () => new ActionHandlerRegistry(registry) },
         HandlerDiscovery,
         {

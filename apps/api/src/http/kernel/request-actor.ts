@@ -1,9 +1,9 @@
 // Người gọi + workspace của request (Blueprint §4.1; response-envelope §8: thiếu / sai X-Workspace-Id → 403 TRƯỚC khi mở DB tenant).
-// TIP-004: Bearer access JWT → user; X-Workspace-Id → membership `active` ở DB nền tảng → AuthzContext từ ROLE_DEFS[role_key].
-// TIP-005 thay phần AuthzContext bằng bảng `role` của DB tenant + cache (DC-010).
-import { AppError, ROLE_DEFS, type AuthzContext, type PermissionKey, type SystemRole } from '@appchat/shared';
+// TIP-004: Bearer access JWT → user; X-Workspace-Id → membership `active` ở DB nền tảng.
+// TIP-005: AuthzContext từ AuthzResolver (Owner theo workspace, vai trò hệ thống / tuỳ biến, uỷ quyền, nhóm, cache Redis).
+import { AppError, type AuthzContext } from '@appchat/shared';
 import type { IncomingMessage } from 'node:http';
-import type { AccessTokens, Clock, WorkspacesService } from '@appchat/core';
+import type { AccessTokens, AuthzResolver, Clock, WorkspacesService } from '@appchat/core';
 
 export interface RequestActor {
   workspaceId: string;
@@ -25,22 +25,11 @@ const header = (req: IncomingMessage, k: string) => {
   return Array.isArray(v) ? v[0] : v;
 };
 
-/** AuthzContext từ vai trò hệ thống (owner / manager / sales / cs / accountant); `custom:*` chờ TIP-005 → không quyền. */
-export function authzOf(userId: string, roleKey: string): AuthzContext {
-  const def = ROLE_DEFS[roleKey as SystemRole];
-  return {
-    userId,
-    isOwner: roleKey === 'owner',
-    permissions: new Set((def?.permissions ?? []) as readonly PermissionKey[]),
-    scope: def?.scope ?? { inbox: 'none', crm: 'none', sales: 'none', booking: 'none', support: 'none', insights: 'none' },
-    teamIds: [],
-  };
-}
-
 export class JwtActorResolver implements ActorResolver {
   constructor(
     private readonly tokens: AccessTokens,
     private readonly workspaces: Pick<WorkspacesService, 'membership'>,
+    private readonly authz: Pick<AuthzResolver, 'resolve'>,
     private readonly clock: Clock,
   ) {}
 
@@ -57,6 +46,6 @@ export class JwtActorResolver implements ActorResolver {
     if (!workspaceId || !UUID.test(workspaceId)) throw new AppError('FORBIDDEN', 403, { workspace: 'missing' });
     const m = await this.workspaces.membership(userId, workspaceId);
     if (!m) throw new AppError('FORBIDDEN', 403, { workspace: 'not_member' });
-    return { workspaceId, userId, authz: authzOf(userId, m.roleKey) };
+    return { workspaceId, userId, authz: await this.authz.resolve(workspaceId, userId, m) };
   }
 }

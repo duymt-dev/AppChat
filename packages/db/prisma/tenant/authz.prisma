@@ -1,3 +1,36 @@
 // tenant/authz.prisma — sở hữu: TIP-005 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Bảng: role, team, team_member.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Không Prisma relation xuyên domain (Blueprint §2.1). Index viết tay ở migration: team_member_user_idx INCLUDE.
+
+/// Vai trò = tập permission + data scope (D27). Vai trò hệ thống (5, seed khi tenant.provision) không sửa / xoá;
+/// vai trò tuỳ biến `custom:*` (P1 — TIP-042). Resolver lấy định nghĩa vai trò hệ thống từ code (DC-024).
+model Role {
+  id          String   @id @db.Uuid
+  key         String   @unique
+  name        String
+  isSystem    Boolean  @default(false) @map("is_system")
+  permissions String[] @default([])
+  dataScope   Json     @default("{}") @map("data_scope")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("role")
+}
+
+/// Nhóm (data scope `team`). UI quản lý Nhóm ở P1; bảng có từ đầu (rbac-permissions §5).
+model Team {
+  id        String   @id @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("team")
+}
+
+model TeamMember {
+  teamId    String   @map("team_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([teamId, userId])
+  @@map("team_member")
+}

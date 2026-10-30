@@ -1,15 +1,16 @@
 // Job `tenant.provision` (Blueprint §1.3 queue `tenant`, §2.0 vòng đời): CREATE DATABASE từ template → db_status active
 // → outbox `workspace.ready` trong DB tenant mới. Idempotent: DB đã có → bỏ qua tạo; registry đã active → không làm lại.
-// Seed mặc định (SLA, loyalty, governance, thẻ / agent mẫu) do TIP chủ từng domain thêm vào bước seed khi cài.
+// Seed mặc định: registry seed của kernel (vai trò hệ thống — TIP-005; SLA, loyalty, governance, mẫu — TIP sau), idempotent.
 import { Inject, Injectable, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker, type Job } from 'bullmq';
 import type { Redis } from 'ioredis';
-import { TenantContexts, TenantProvisioner, type DbEnv, type PlatformDb, type TenantDbResolver } from '@appchat/db';
+import { TenantContexts, TenantProvisioner, createTenantDb, withDatabase, type DbEnv, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS, type KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
+import { runTenantSeeds } from '../../kernel/tenant-seeds';
 import { DB_ENV, PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import type { ProvisionQueue } from '../services/workspaces.service';
 
@@ -23,6 +24,8 @@ export interface ProvisionDeps {
   provisioner: Pick<TenantProvisioner, 'provision'>;
   kv: KeyValueStore;
   clock: Clock;
+  /** Mở client tạm tới DB tenant theo tên (seed trước khi `active`), đóng sau khi chạy. */
+  seedDb: (dbName: string, fn: (db: TenantDb) => Promise<unknown>) => Promise<void>;
 }
 
 /** Một lần provision (gọi từ worker BullMQ hoặc test trực tiếp). */
@@ -32,6 +35,8 @@ export async function provisionWorkspace(d: ProvisionDeps, workspaceId: string):
   if (ws.dbStatus === 'active') return 'already_active';
   const { dbName } = await d.provisioner.provision(workspaceId);
   const now = d.clock.now();
+  // Seed qua client trực tiếp tới DB mới (resolver chỉ mở DB `active`) — xong seed mới đặt active để không ai vào DB thiếu vai trò.
+  await d.seedDb(dbName, async (db) => runTenantSeeds(db, { workspaceId, now }));
   await d.platform.workspace.update({ where: { id: workspaceId }, data: { dbName, dbStatus: 'active', provisionedAt: now } });
   d.resolver.invalidate(workspaceId);
   const tenant = await d.resolver.get(TenantContexts.system(workspaceId, 'tenant.provision'));
@@ -39,6 +44,18 @@ export async function provisionWorkspace(d: ProvisionDeps, workspaceId: string):
   await markDirty(d.kv, workspaceId);
   return 'created';
 }
+
+/** Client tạm tới DB tenant mới (role appchat_tenant_app) cho bước seed — dùng chung worker + test. */
+export const tenantSeedDb =
+  (tenantBaseUrl: string) =>
+  async (dbName: string, fn: (db: TenantDb) => Promise<unknown>): Promise<void> => {
+    const db = createTenantDb(withDatabase(tenantBaseUrl, dbName), 1);
+    try {
+      await fn(db);
+    } finally {
+      await db.$disconnect();
+    }
+  };
 
 /** Producer cho api: `jobId = workspaceId` (không trùng), retry back-off 3 lần (DC-021). */
 export class BullProvisionQueue implements ProvisionQueue {
@@ -85,7 +102,14 @@ export class TenantProvisionWorker implements OnApplicationBootstrap, OnApplicat
       ownerRole: 'appchat_migrator',
       appRole: 'appchat_tenant_app',
     });
-    const deps: ProvisionDeps = { platform: this.platform, resolver: this.resolver, provisioner, kv: this.redis, clock: this.clock };
+    const deps: ProvisionDeps = {
+      platform: this.platform,
+      resolver: this.resolver,
+      provisioner,
+      kv: this.redis,
+      clock: this.clock,
+      seedDb: tenantSeedDb(this.env.TENANT_DATABASE_URL),
+    };
     this.worker = new Worker(
       TENANT_QUEUE,
       async (job: Job<{ workspace_id: string }>) => {

@@ -8,4 +8,4 @@ export { WorkspacesService, type MembershipRow, type ProvisionQueue, type Provis
 export { InvitesService, INVITE_TTL_MS } from './services/invites.service';
 export { IDENTITY_ENV, MAIL_PROVIDER, RATE_LIMITER, TAX_LOOKUP, TENANT_PROVISION_QUEUE } from './services/identity.tokens';
 export { hashPassword, verifyPassword, normalizeEmail, sha256 } from './services/secrets';
-export { provisionWorkspace, BullProvisionQueue, TenantProvisionWorker, TENANT_QUEUE, PROVISION_JOB, type ProvisionDeps } from './jobs/tenant-provision.processor';
+export { provisionWorkspace, tenantSeedDb, BullProvisionQueue, TenantProvisionWorker, TENANT_QUEUE, PROVISION_JOB, type ProvisionDeps } from './jobs/tenant-provision.processor';

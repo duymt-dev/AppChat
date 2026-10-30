@@ -15,6 +15,8 @@ import {
   LOGGER,
   MAIL_PROVIDER,
   createLogger,
+  runTenantSeeds,
+  tenantSeedDb,
   uuidv7,
   type ActionContext,
   type ActionLogRow,
@@ -136,6 +138,8 @@ export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): 
   const users = [user];
   await platform.user.create({ data: { id: user, email: testEmail('owner'), name: 'Owner', emailVerifiedAt: clock.now() } });
   const { dbName } = await prov.provision(ws);
+  // Như job tenant.provision: chạy seed mặc định (vai trò hệ thống…) trước khi active.
+  await tenantSeedDb(env.TENANT_DATABASE_URL!)(dbName, (db) => runTenantSeeds(db, { workspaceId: ws, now: clock.now() }));
   await platform.workspace.create({ data: { id: ws, name: 'WS test', slug: `ws-test-${ws.slice(-12)}`, ownerUserId: user, dbName, dbStatus: 'active' } });
   await platform.membership.create({ data: { workspaceId: ws, userId: user, roleKey: 'owner', joinedAt: clock.now() } });
 

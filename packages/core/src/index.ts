@@ -5,6 +5,7 @@ export { IdentityModule } from './identity/identity.module';
 export * from './identity/public';
 export { IdentityJobsModule } from './identity/jobs/identity.jobs.module';
 export { AuthzModule } from './authz/authz.module';
+export * from './authz/public';
 export { AuthzJobsModule } from './authz/jobs/authz.jobs.module';
 export { BillingModule } from './billing/billing.module';
 export { BillingJobsModule } from './billing/jobs/billing.jobs.module';
