@@ -19,6 +19,13 @@ export const ERROR_CODES = [
   'OTP_INVALID',
   'SIGN_LINK_INVALID',
   'WORKSPACE_UNAVAILABLE',
+  'INVALID_TRANSITION',
+  'STALE_VERSION',
+  'UNDO_EXPIRED',
+  'UNDO_NOT_SUPPORTED',
+  'HAS_DEPENDENCIES',
+  'SLOT_TAKEN',
+  'NOT_IMPLEMENTED',
   'INTERNAL',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];

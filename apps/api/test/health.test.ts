@@ -19,7 +19,7 @@ let app: INestApplication;
 let base: string;
 
 beforeAll(async () => {
-  const mod = await Test.createTestingModule({ imports: [AppModule] })
+  const mod = await Test.createTestingModule({ imports: [AppModule.forRoot({})] })
     .overrideProvider(CLOCK)
     .useValue(new FixedClock('2026-10-30T07:00:00.000Z'))
     .overrideProvider(LOGGER)
