@@ -102,7 +102,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 005 | W2 | DONE | `tip/005-authz` (xếp chồng 004) | 0fcd2e9 | chờ Chủ nhà tạo |
 | 006 | W2 | DONE | `tip/006-realtime-notify` (xếp chồng 005) | 202da08 | chờ Chủ nhà tạo |
 | 009 | W3 | DONE | `tip/009-billing-core` (xếp chồng 006) | 658d8ab | chờ Chủ nhà tạo |
-| 010 | W3 | chờ | — | — | — |
+| 010 | W3 | DONE | `tip/010-billing-payments` (xếp chồng 013) | 7026270 | chờ Chủ nhà tạo |
 | 011 | W3 | DONE | `tip/011-auth-onboarding-api` (xếp chồng 009) | 31cc35f | chờ Chủ nhà tạo |
 | 012 | W3 | DONE | `tip/012-integrations` (xếp chồng 011) | 819d2a4 | chờ Chủ nhà tạo |
 | 013 | W3 | DONE | `tip/013-settings-api` (xếp chồng 012) | c040649 | chờ Chủ nhà tạo |
