@@ -64,6 +64,9 @@
     },
     "clear_history": {
       "title": "Clear conversation history"
+    },
+    "set_tags": {
+      "title": "Set conversation tags"
     }
   },
   "message": {
@@ -169,6 +172,11 @@
     },
     "reject": {
       "title": "Reject request"
+    }
+  },
+  "ai": {
+    "translate": {
+      "title": "Translate message"
     }
   },
   "ai_task": {

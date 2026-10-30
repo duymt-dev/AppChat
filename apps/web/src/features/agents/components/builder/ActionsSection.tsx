@@ -20,6 +20,7 @@ const HANDOFF: Handoff[] = ['staff', 'team', 'lead'];
 export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { toggleTool: (k: string) => void }) {
   const t = useTranslations('agents.b');
   const tc = useTranslations('common');
+  const tAll = useTranslations();
   const router = useRouter();
   const { styles: bs } = useBuilderStyles();
   const { styles } = useSectionStyles();
@@ -36,7 +37,7 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
     return (
       <div key={a.id} className={styles.row} data-tool={a.id}>
         <div className={styles.rowGrow}>
-          <div className={styles.rowT}>{t(a.title as never)}</div>
+          <div className={styles.rowT}>{tAll(a.title as never)}</div>
           <div className={styles.rowD}>{a.description}</div>
         </div>
         {badge ? (
@@ -44,7 +45,7 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
             {badge === 'needs_connector' ? t('needsConnector', { name: a.requiresConnector ?? '' }) : t('comingSoon')}
           </span>
         ) : (
-          <Switch on={on} label={t('toolOn', { name: t(a.title as never) })} onToggle={() => toggleTool(a.id)} />
+          <Switch on={on} label={t('toolOn', { name: tAll(a.title as never) })} onToggle={() => toggleTool(a.id)} />
         )}
       </div>
     );

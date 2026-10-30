@@ -64,6 +64,9 @@
     },
     "clear_history": {
       "title": "Xoá lịch sử hội thoại"
+    },
+    "set_tags": {
+      "title": "Đặt bộ thẻ hội thoại"
     }
   },
   "message": {
@@ -169,6 +172,11 @@
     },
     "reject": {
       "title": "Từ chối yêu cầu"
+    }
+  },
+  "ai": {
+    "translate": {
+      "title": "Dịch tin nhắn"
     }
   },
   "ai_task": {

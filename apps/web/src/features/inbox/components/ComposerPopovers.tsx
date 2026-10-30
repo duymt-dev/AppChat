@@ -20,6 +20,7 @@ const LANGS = ['English', '中文', '한국어', '日本語'] as const;
 export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversation; customer: string; onInsert: (text: string) => void }) {
   const t = useTranslations('inbox.composer');
   const tc = useTranslations('common');
+  const tAll = useTranslations();
   const router = useRouter();
   const { styles, cx } = useComposerStyles();
   const { styles: ps } = usePopStyles();
@@ -65,7 +66,7 @@ export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversat
                     {g.actions
                       .map((a) => {
                         const badge = connectorBadge(a, connected, known);
-                        return badge ? `${t(a.title as never)} (${t(`attachMenu.${badge}` as never)})` : t(a.title as never);
+                        return badge ? `${tAll(a.title as never)} (${t(`attachMenu.${badge}` as never)})` : tAll(a.title as never);
                       })
                       .join(' · ')}
                   </div>
@@ -76,7 +77,7 @@ export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversat
               <div className={ps.slot} style={{ cursor: 'default' }} data-testid="attach-skill-group">
                 <span className={styles.grow}>
                   <div className={ps.qrTitle}>{t('attachMenu.skillGroup')}</div>
-                  <div className={ps.qrPreview}>{skillGroup.actions.map((a) => `/${a.id} — ${t(a.title as never)}`).join(' · ')}</div>
+                  <div className={ps.qrPreview}>{skillGroup.actions.map((a) => `/${a.id} — ${tAll(a.title as never)}`).join(' · ')}</div>
                 </span>
               </div>
             ) : null}
