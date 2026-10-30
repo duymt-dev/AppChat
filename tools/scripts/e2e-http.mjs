@@ -1,5 +1,5 @@
 // pnpm e2e:http [spec…] — E2E trên backend thật (D57 / D59 "E2E luồng TIP ở http"): build api + worker, chạy bản build
-// (api cổng 4117, worker ROLE=jobs) với env `.env` máy dev + MAIL_CONSOLE_DIR (đọc OTP / link), rồi Playwright với
+// (api cổng 4117, worker ROLE=jobs + ROLE=channels với Zalo giả) với env `.env` máy dev + MAIL_CONSOLE_DIR (đọc OTP / link), rồi Playwright với
 // apps/web/playwright.http.config.ts (web `next build` NEXT_PUBLIC_API_MODE=http, rewrite /api → API). Dọn tiến trình khi xong.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -39,6 +39,8 @@ if (!process.argv.includes('--no-build')) {
 const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'jobs' }, stdio: 'inherit' }),
+  // TIP-014: worker kênh với Zalo giả (Q-003 — chưa có tài khoản Zalo phụ): QR tự "quét" sau 1,5 giây, gửi không trễ.
+  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0' }, stdio: 'inherit' }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();

@@ -62,7 +62,7 @@ export function ManageChannelDrawer() {
         channel_account_id: account.id,
         patch: {
           name: draft.name,
-          agent_id: draft.agent,
+          agent_id: draft.agent_id,
           ai_mode: draft.ai_mode,
           hours: draft.hours,
           greeting: draft.greeting,
@@ -231,10 +231,10 @@ export function ManageChannelDrawer() {
             <div className={styles.blockT}>{t('s3')}</div>
             <div>
               <div className={s.label}>{t('info.agent')}</div>
-              <select className={s.select} value={cur?.agent ?? ''} onChange={(e) => patch({ agent: e.target.value })} data-testid="st-ch-drawer-agent">
+              <select className={s.select} value={cur?.agent_id ?? ''} onChange={(e) => patch({ agent_id: e.target.value })} data-testid="st-ch-drawer-agent">
                 <option value="">—</option>
                 {agents.map((a) => (
-                  <option key={a.id} value={a.name}>
+                  <option key={a.id} value={a.id}>
                     {a.name}
                   </option>
                 ))}
@@ -244,7 +244,7 @@ export function ManageChannelDrawer() {
               <div className={s.label}>{t('aiMode')}</div>
               <div className={styles.seg}>
                 {MODES.map((m) => (
-                  <button key={m} type="button" className={cx(styles.segBtn, cur?.ai_mode === m && styles.segOn)} onClick={() => patch({ ai_mode: m })} data-testid={`st-ch-drawer-mode-${m}`}>
+                  <button key={m} type="button" className={cx(styles.segBtn, cur?.ai_mode === m && styles.segOn)} onClick={() => patch({ ai_mode: m })} aria-pressed={cur?.ai_mode === m} data-testid={`st-ch-drawer-mode-${m}`}>
                     {t(`mode.${m}` as never)}
                   </button>
                 ))}
@@ -345,7 +345,7 @@ export function ManageChannelDrawer() {
                 className={s.ghost}
                 onClick={() => {
                   close();
-                  set({ channelWizard: { type: c.type, step: 2 } });
+                  set({ channelWizard: { type: c.type, step: 2, accountId: account.id } });
                 }}
                 data-testid="st-ch-drawer-reconnect"
               >

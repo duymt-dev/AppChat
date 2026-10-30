@@ -7,6 +7,7 @@ export const zaloPersonalManifest: ChannelManifest = {
   icon: 'zalo',
   group: 'chat',
   status: 'ga',
+  display: { name: 'Zalo cá nhân', short: 'Z', color: '#0068FF', group: 'msg', label: '', sort: 2 },
   connect: { kind: 'qr', riskNotice: 'channels.zalo_personal.risk' },
   capabilities: {
     direct: true,

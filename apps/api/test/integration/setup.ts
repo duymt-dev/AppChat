@@ -127,6 +127,7 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
   await platform.notificationPref.deleteMany({ where: { userId: { in: users } } });
   await platform.integrationInterest.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.tenantIntegrationRoute.deleteMany({ where: { workspaceId: { in: workspaces } } });
+  await platform.tenantChannelRoute.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.billingInvoice.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.creditLedger.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.creditWallet.deleteMany({ where: { workspaceId: { in: workspaces } } });

@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { channelRegistry, defineChannels, type ChannelAdapter } from '../src';
+import { FakeZaloTransport, buildChannelRegistry, channelRegistry, defineChannels, type ChannelAdapter } from '../src';
 import { webchatManifest } from '../src/webchat/manifest';
 
 const fixture = JSON.parse(
@@ -13,10 +13,14 @@ const fixture = JSON.parse(
 const RELEASE = ['zalo_personal', 'webchat', 'email'];
 
 describe('channelRegistry', () => {
-  it('đủ 16 type của prototype, không trùng', () => {
+  it('đủ 16 type của prototype, không trùng, đúng thứ tự + hiển thị của trang Kênh', () => {
     const types = channelRegistry.manifests().map((m) => m.type);
     expect(new Set(types).size).toBe(types.length);
-    expect([...types].sort()).toEqual(fixture.channels.map((c) => c.type).sort());
+    expect(types).toEqual(fixture.channels.map((c) => c.type));
+    for (const [i, m] of channelRegistry.manifests().entries()) {
+      const f = fixture.channels[i] as unknown as Record<string, string>;
+      expect(m.display).toMatchObject({ name: f.name, short: f.short, color: f.color, group: f.group, label: f.label });
+    }
   });
 
   it('3 kênh phát hành là ga, còn lại coming_soon', () => {
@@ -35,12 +39,20 @@ describe('channelRegistry', () => {
     expect(['lease', 'webhook', 'poll']).toContain(m.session);
   });
 
-  it('chưa gắn adapter → không kênh nào kết nối được; type lạ → false', () => {
-    for (const m of channelRegistry.manifests()) expect(channelRegistry.isConnectable(m.type)).toBe(false);
+  it('kết nối được theo manifest (DC-068): 3 kênh phát hành; type lạ → false; bản chỉ manifest không có adapter', () => {
+    for (const m of channelRegistry.manifests()) expect(channelRegistry.isConnectable(m.type)).toBe(RELEASE.includes(m.type));
     expect(channelRegistry.isConnectable('nope')).toBe(false);
+    expect(channelRegistry.hasAdapter('zalo_personal')).toBe(false);
   });
 
-  it('kênh ga có adapter → kết nối được; coming_soon có adapter vẫn không', () => {
+  it('buildChannelRegistry({ zalo }) gắn adapter Zalo cá nhân', () => {
+    const reg = buildChannelRegistry({ zalo: new FakeZaloTransport() });
+    expect(reg.hasAdapter('zalo_personal')).toBe(true);
+    expect(reg.get('zalo_personal')!.adapter!.manifest.type).toBe('zalo_personal');
+    expect(reg.hasAdapter('email')).toBe(false);
+  });
+
+  it('kênh ga → kết nối được; coming_soon có adapter vẫn không', () => {
     const adapter = (manifest = webchatManifest): ChannelAdapter => ({
       manifest,
       send: async () => ({ externalMsgId: 'x' }),

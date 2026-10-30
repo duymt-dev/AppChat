@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@appchat/actions": "workspace:*",
+    "@appchat/channels": "workspace:*",
     "@appchat/db": "workspace:*",
     "@appchat/integrations": "workspace:*",
     "@appchat/shared": "workspace:*",

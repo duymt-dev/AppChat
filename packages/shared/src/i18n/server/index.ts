@@ -2,9 +2,11 @@
 // đi theo chuỗi fallback (fallbackChain) — hiện chỉ vi + en.
 import { fallbackChain } from '../locales';
 import { billing as enBilling } from './en/billing';
+import { channels as enChannels } from './en/channels';
 import { crm as enCrm } from './en/crm';
 import { notify as enNotify } from './en/notify';
 import { billing as viBilling } from './vi/billing';
+import { channels as viChannels } from './vi/channels';
 import { crm as viCrm } from './vi/crm';
 import { notify as viNotify } from './vi/notify';
 
@@ -12,11 +14,12 @@ interface Bundle {
   notify: typeof enNotify;
   billing: typeof enBilling;
   crm: typeof enCrm;
+  channels: typeof enChannels;
 }
 
 const BUNDLES: Record<string, Bundle> = {
-  vi: { notify: viNotify, billing: viBilling, crm: viCrm },
-  en: { notify: enNotify, billing: enBilling, crm: enCrm },
+  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels },
+  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels },
 };
 
 /** Bộ chữ server của locale (theo fallback, cuối cùng là vi). */

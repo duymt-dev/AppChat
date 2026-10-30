@@ -7,6 +7,7 @@ export const emailManifest: ChannelManifest = {
   icon: 'mail',
   group: 'email',
   status: 'ga',
+  display: { name: 'Email', short: '@', color: '#1F8A4D', group: 'web', label: '', sort: 13 },
   connect: { kind: 'credentials' },
   capabilities: {
     direct: true,

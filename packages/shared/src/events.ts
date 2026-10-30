@@ -47,6 +47,19 @@ export const integrationErrorEvent = z.object({ ...integrationBase, op: z.string
 /** Webhook đã xác thực + lưu `integration_event` — consumer domain theo port xử lý (TIP-010 / 031 / 032). */
 export const integrationEventReceivedEvent = z.object({ ...integrationBase, port: z.string(), event_id: z.string().uuid(), kind: z.string() });
 
+/** Tài khoản kênh (TIP-014, Blueprint §2.3 / §4.6 `channel.status`): kết nối xong (QR quét / kết nối lại), đổi trạng thái
+ * (tạm dừng / tiếp tục / hết phiên / lỗi / ngắt) — realtime trang Kênh, thông báo `channel_down`, Inbox (TIP-016). */
+const channelBase = { ...base, channel_account_id: z.string().uuid(), type: z.string() };
+export const channelConnectedEvent = z.object({ ...channelBase, name: z.string() });
+export const channelStatusChangedEvent = z.object({
+  ...channelBase,
+  name: z.string(),
+  status: z.enum(['pending', 'connecting', 'connected', 'error', 'disconnected', 'expired']),
+  paused: z.boolean(),
+  /** Lý do khi xấu đi: `expired` (hết phiên) · `send_errors` (lỗi gửi bất thường → tự tạm dừng) · `login_failed`. */
+  reason: z.string().max(60).optional(),
+});
+
 /** Khách hàng (TIP-015, Blueprint §2.3): timeline, phân khúc marketing, AI task, notify. */
 const contactBase = { ...base, contact_id: z.string().uuid() };
 export const contactCreatedEvent = z.object({ ...contactBase, owner_user_id: z.string().uuid().nullable(), source: z.string() });
@@ -78,6 +91,8 @@ export const EVENT_SCHEMAS = {
   'integration.disconnected': integrationDisconnectedEvent,
   'integration.error': integrationErrorEvent,
   'integration.event_received': integrationEventReceivedEvent,
+  'channel.connected': channelConnectedEvent,
+  'channel.status_changed': channelStatusChangedEvent,
   'contact.created': contactCreatedEvent,
   'contact.stage_changed': contactStageChangedEvent,
   'contact.merged': contactMergedEvent,

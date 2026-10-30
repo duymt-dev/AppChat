@@ -30,5 +30,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'contact.create', input: { full_name: 'Khách Contract', phone: '0939111222', city: 'TP.HCM' }, tip: '015', idempotent: true },
   { action: 'custom_field.define', input: { entity: 'contact', label: 'Ghi chú contract', type: 'text' }, tip: '015' },
   { action: 'profile_layout.assign_role', input: { role: 'cs', layout_id: 'pl_cskh' }, tip: '015' },
+  // TIP-014: thêm tài khoản Zalo cá nhân (QR đến qua worker). Quản lý theo channel_account_id → integration channels.
+  { action: 'channel.zalo.start_login', input: { label: 'Zalo contract' }, tip: '014' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

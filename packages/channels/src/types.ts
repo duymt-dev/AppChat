@@ -27,6 +27,8 @@ export interface ChannelManifest {
   };
   rateLimit: { perMinute: number; perDayProactive?: number; jitterMs?: [number, number] };
   session: 'lease' | 'webhook' | 'poll';
+  /** Hiển thị ở Cài đặt › Kênh kết nối (prototype L6141 — tên thương hiệu, ký hiệu logo, màu, nhóm, nhãn "Phổ biến" / "Beta"). */
+  display: { name: string; short: string; color: string; group: 'msg' | 'web' | 'shop'; label: '' | 'pop' | 'beta'; sort: number };
 }
 
 export interface ChannelAccountRuntime {
@@ -53,14 +55,35 @@ export interface NormalizedInbound {
 
 export interface OutboundMessage {
   externalThreadId: string;
+  /** Hội thoại nhóm (Zalo phân biệt thread 1-1 / nhóm khi gửi). */
+  isGroup?: boolean;
   kind: SendKind;
   text?: string;
   attachments?: { url: string; mime: string; name?: string }[];
   replyToExternalMsgId?: string;
+  /** `kind = 'sticker'`: mã sticker theo kênh (Zalo: id / cateId / type). */
+  sticker?: Record<string, number>;
 }
 
 export interface InboundSink {
   push(msg: NormalizedInbound): Promise<void>;
+  /** Phiên đổi sức khoẻ ngoài ý muốn (hết phiên, bị đá, lỗi kết nối) — worker ghi `channel_account.status` + báo Owner. */
+  status?(accountId: string, health: HealthStatus, detail?: string): void;
+}
+
+/** Sự kiện đăng nhập QR (Blueprint §6 Zalo cá nhân): ảnh QR (PNG base64) → đã quét → xong / hết hạn / từ chối. */
+export type LoginEvent =
+  | { type: 'qr'; image: string; expiresAt: string }
+  | { type: 'scanned'; name?: string }
+  | { type: 'expired' }
+  | { type: 'declined' };
+
+export interface LoginResult {
+  /** Credential để đăng nhập lại (worker mã hoá vào `credentials_enc`, không log). */
+  credentials: unknown;
+  /** Id tài khoản phía kênh (uid Zalo) — unique theo `(type, external_id)`. */
+  externalId: string;
+  name: string;
 }
 
 export interface RawWebhook {
@@ -71,6 +94,10 @@ export interface RawWebhook {
 
 export interface ChannelAdapter {
   manifest: ChannelManifest;
+  /** `connect.kind = 'qr'`: phát QR qua `onEvent`, resolve khi quét xong; `signal` huỷ (hết giờ / người dùng bỏ). */
+  beginLogin?(accountId: string, onEvent: (e: LoginEvent) => void, signal: AbortSignal): Promise<LoginResult>;
+  /** Đồng bộ lại tin trong `days` ngày gần nhất (REQ-B11) — tin cũ đi vào sink như tin mới (chống trùng ở DB). */
+  syncHistory?(accountId: string, days: number): Promise<void>;
   start?(account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
   stop?(accountId: string): Promise<void>;
   handleWebhook?(req: RawWebhook, account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
@@ -82,4 +109,20 @@ export interface ChannelAdapter {
 export interface ChannelEntry {
   manifest: ChannelManifest;
   adapter?: ChannelAdapter;
+}
+
+/** Credential sai / hết hạn — worker chuyển tài khoản sang `expired` và báo quét lại (Blueprint §6). */
+export class ChannelAuthError extends Error {
+  constructor(message = 'channel_auth') {
+    super(message);
+    this.name = 'ChannelAuthError';
+  }
+}
+
+/** Tài khoản không có phiên trong worker này (mất lease / chưa chạy) — job gửi thử lại sau. */
+export class ChannelNotRunningError extends Error {
+  constructor(accountId: string) {
+    super(`channel_not_running:${accountId}`);
+    this.name = 'ChannelNotRunningError';
+  }
 }

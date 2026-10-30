@@ -14,6 +14,7 @@
   "dependencies": {
     "@appchat/actions": "workspace:*",
     "@appchat/core": "workspace:*",
+    "zca-js": "2.2.0",
     "@appchat/db": "workspace:*",
     "@appchat/integrations": "workspace:*",
     "@appchat/shared": "workspace:*",
@@ -35,6 +36,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@appchat/channels": "workspace:*",
     "@appchat/contract": "workspace:*",
     "@nestjs/testing": "12.3.2",
     "@swc/core": "1.16.20",

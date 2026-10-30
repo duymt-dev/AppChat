@@ -112,6 +112,8 @@ export const channelZaloStartLogin = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['channels'],
+  // Hạn mức gói `max_channels` kiểm dưới khoá workspace ở DB nền tảng (như member.invite — TIP-014, DC-069).
+  db: 'platform',
 });
 
 export const channelEmailConnect = defineAction({

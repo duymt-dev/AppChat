@@ -7,6 +7,7 @@ export const webchatManifest: ChannelManifest = {
   icon: 'globe',
   group: 'web',
   status: 'ga',
+  display: { name: 'Website Chat', short: '⌘', color: '#2DC56A', group: 'web', label: 'pop', sort: 16 },
   connect: { kind: 'embed' },
   capabilities: {
     direct: true,

@@ -40,6 +40,15 @@ export const membersQuery = (q: string) =>
 export const channelsQuery = (filter: 'all' | 'on' | 'off') =>
   queryOptions({ queryKey: ['channels', 'settings', filter], queryFn: () => transport.get<Channel[]>('/settings/channels', { filter }) });
 
+export interface ChannelLoginState {
+  account_id: string;
+  status: 'starting' | 'waiting' | 'scanned' | 'connected' | 'expired' | 'declined' | 'failed';
+  /** PNG base64 khi `waiting`. */
+  qr: string | null;
+  expires_at: string | null;
+}
+const DONE: ChannelLoginState['status'][] = ['connected', 'expired', 'declined', 'failed'];
+
 export interface ChannelAccountStats {
   account_id: string;
   days: { day: number; convs: number; frt_sec: number }[];
@@ -51,6 +60,15 @@ export const channelAccountStatsQuery = (accountId: string) =>
     queryKey: ['channels', 'settings', 'stats', accountId],
     queryFn: () => transport.get<ChannelAccountStats>(`/settings/channels/${accountId}/stats`, { days: 7 }),
     enabled: !!accountId,
+  });
+
+/** Trạng thái đăng nhập QR của tài khoản Zalo đang kết nối (TIP-014) — poll tới khi `connected` / hết hạn. */
+export const channelLoginQuery = (accountId: string) =>
+  queryOptions({
+    queryKey: ['channels', 'settings', 'login', accountId],
+    queryFn: () => transport.get<ChannelLoginState>(`/settings/channels/${accountId}/login`),
+    enabled: !!accountId,
+    refetchInterval: (q) => (q.state.data && DONE.includes(q.state.data.status) ? false : 1500),
   });
 
 export const connectorsQuery = () =>

@@ -2,7 +2,7 @@
 // zalo_personal: QR (channel.zalo.start_login). email: form IMAP/SMTP + Kiểm tra kết nối (channel.test → channel.email.connect).
 // webchat: không có bước xác thực riêng — mở thẳng trang cấu hình widget. Kênh ngoài manifest / chưa available → "Sắp có" (D04, D28).
 'use client';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { App } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,8 @@ import { agentsQuery } from '@/features/agents';
 import { useSectionStyles } from '../styles/section.styles';
 import { useChannelWizardStyles } from '../styles/channel-wizard.styles';
 import { useSettingsUi } from '../settings-store';
+import { useZaloLogin } from '../hooks/useZaloLogin';
+import { ZaloQrStep } from './ZaloQrStep';
 import { channelsQuery } from '../api';
 import type { ChannelAiMode, ChannelAssignMode } from '../types';
 
@@ -32,7 +34,6 @@ export function ConnectChannelModal() {
   const set = useSettingsUi((x) => x.set);
   const channels = useQuery({ ...channelsQuery('all'), enabled: !!wizard }).data ?? [];
   const agents = useQuery({ ...agentsQuery(), enabled: !!wizard }).data?.data ?? [];
-  const zalo = useAction<{ channel_account_id: string; qr: string }>('channel.zalo.start_login');
   const email = useAction<{ channel_account_id: string }>('channel.email.connect');
   const test = useAction('channel.test');
   const updateSettings = useAction('channel.update_settings');
@@ -43,6 +44,13 @@ export function ConnectChannelModal() {
   const [tested, setTested] = useState(false);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [cfgName, setCfgName] = useState('');
+  const zalo = useZaloLogin(
+    useCallback((id: string) => {
+      setAccountId(id);
+      useSettingsUi.getState().set({ channelWizard: { type: 'zalo_personal', step: 3 } });
+    }, []),
+    wizard?.accountId,
+  );
   const [agentId, setAgentId] = useState('');
   const [aiMode, setAiMode] = useState<ChannelAiMode>('auto');
   const [assignMode, setAssignMode] = useState<ChannelAssignMode>('round_robin');
@@ -59,6 +67,7 @@ export function ConnectChannelModal() {
     setImapHost('');
     setTested(false);
     setAccountId(null);
+    zalo.reset();
     setCfgName('');
     setAgentId('');
     setAiMode('auto');
@@ -95,11 +104,9 @@ export function ConnectChannelModal() {
       set({ channelWizard: { type: c.type, step: 3 } });
       return;
     }
-    const r = await zalo.run(label.trim() ? { label: label.trim() } : {});
-    if (!r) return;
-    setAccountId(r.result.channel_account_id);
-    setCfgName(label.trim() || t('labelPh'));
-    set({ channelWizard: { type: c.type, step: 3 } });
+    // Zalo: tạo tài khoản + chờ quét QR; quét xong hook tự sang bước 3 (tên hiển thị lấy từ backend nếu không đặt).
+    setCfgName(label.trim());
+    await zalo.begin(label.trim());
   };
 
   const finish = async () => {
@@ -165,36 +172,7 @@ export function ConnectChannelModal() {
                 ))}
             </div>
           ) : step === 2 && c?.type === 'zalo_personal' ? (
-            <div className={styles.qrWrap}>
-              <div className={styles.qrBox} aria-label={t('qr')}>
-                <Icon name="ic-grid" size={96} color={color.text} strokeWidth={1.2} />
-              </div>
-              <div className={styles.qrSide}>
-                <div className={styles.qrTitle}>{t('qrApp')}</div>
-                <div className={styles.qrSteps}>
-                  <div className={styles.qrStepRow}>
-                    <b className={styles.qrN}>1</b>
-                    {t('qrStep1')}
-                  </div>
-                  <div className={styles.qrStepRow}>
-                    <b className={styles.qrN}>2</b>
-                    {t('qrStep2')}
-                  </div>
-                  <div className={styles.qrStepRow}>
-                    <b className={styles.qrN}>3</b>
-                    {t('qrStep3')}
-                  </div>
-                </div>
-                <div className={styles.qrWait}>
-                  <span className={styles.qrWaitDot} />
-                  {t('qrWaiting')}
-                </div>
-                <div className={styles.qrLabelField}>
-                  <div className={s.label}>{t('label')}</div>
-                  <input className={s.input} value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t('labelPh')} data-testid="st-ch-wizard-label" />
-                </div>
-              </div>
-            </div>
+            <ZaloQrStep label={label} onLabel={setLabel} qr={zalo.qr} status={zalo.status} failed={zalo.failed} />
           ) : step === 2 && c?.type === 'email' ? (
             <div className={styles.form}>
               <div>
@@ -274,7 +252,7 @@ export function ConnectChannelModal() {
               type="button"
               className={s.primary}
               onClick={next}
-              disabled={nextDisabled || zalo.isPending || email.isPending || updateSettings.isPending}
+              disabled={nextDisabled || (step === 2 && c?.type === 'zalo_personal' && zalo.busy) || email.isPending || updateSettings.isPending}
               data-testid="st-ch-wizard-next"
             >
               {step === 3 ? t('finish') : t('next')}

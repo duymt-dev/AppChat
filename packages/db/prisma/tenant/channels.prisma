@@ -1,3 +1,51 @@
 // tenant/channels.prisma — sở hữu: TIP-014 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: channel_account, ….
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: channel_account, channel_account_stat_daily. Chuẩn: standards/channels/omnichannel-adapter.md.
+// Không Prisma relation xuyên domain (Blueprint §2.1). Partial index viết SQL trong migration.
+
+enum ChannelAccountStatus {
+  pending
+  connecting
+  connected
+  error
+  disconnected
+  expired
+
+  @@map("channel_account_status")
+}
+
+/// Một tài khoản của một loại kênh (REQ-B09: một kênh nhiều tài khoản). `type` = chuỗi registry kênh (không enum — §3 adapter).
+/// Credential chỉ ở `credentials_enc` (AES-256-GCM — ops §2.2), không bao giờ trả API / log.
+/// Một tài khoản kênh đang dùng mỗi (type, external_id): unique partial WHERE status <> 'disconnected' (migration).
+model ChannelAccount {
+  id             String               @id @db.Uuid
+  type           String
+  name           String
+  externalId     String?              @map("external_id")
+  status         ChannelAccountStatus @default(pending)
+  credentialsEnc Bytes?               @map("credentials_enc")
+  /// Cấu hình tài khoản (Blueprint §2.2 + REQ-B11): agent_id, ai_mode, hours, greeting, assign_mode, sla_policy,
+  /// sync_messages, sync_auto_create_contact, history_days, rate_per_minute?, daily_cap?.
+  settings       Json                 @default("{}")
+  pausedAt       DateTime?            @map("paused_at") @db.Timestamptz(6)
+  /// `{ status: connected|degraded|error|expired, detail?, checked_at, failures: [iso…] }` — lỗi gửi bất thường gần đây.
+  health         Json                 @default("{}")
+  lastEventAt    DateTime?            @map("last_event_at") @db.Timestamptz(6)
+  createdBy      String?              @map("created_by") @db.Uuid
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("channel_account")
+}
+
+/// Hiệu suất theo ngày của tài khoản (REQ-B11 khối "Hiệu suất 7 ngày"). Inbox (TIP-016) cộng dồn khi có hội thoại / phản hồi.
+model ChannelAccountStatDaily {
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  day              DateTime @db.Date
+  convs            Int      @default(0)
+  /// Tổng giây phản hồi đầu + số mẫu → FRT trung bình = frt_sum / frt_count.
+  frtSum           BigInt   @default(0) @map("frt_sum")
+  frtCount         Int      @default(0) @map("frt_count")
+
+  @@id([channelAccountId, day])
+  @@map("channel_account_stat_daily")
+}
