@@ -29,13 +29,14 @@ export const kbAddSource = defineAction({
   id: 'kb.add_source',
   module: 'ai',
   title: 'actions.kb.add_source.title',
-  description: 'Add a file or URL to the knowledge base for AI to learn. Example: {"name":"Bảng giá 2026.pdf","folder_id":"f_price","visibility":"all"}',
+  description: 'Add a file or URL to the knowledge base for AI to learn. Example: {"name":"Bảng giá 2026.pdf","folder_id":"f_price","visibility":"public"}',
   input: z.object({
     name: z.string().trim().min(1).max(200),
     folder_id: z.string().optional(),
     url: z.string().url().optional(),
     tags: z.array(z.string().max(30)).max(10).optional(),
-    visibility: z.enum(['all', 'agents', 'staff']).default('all'),
+    /** public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền đọc (D54). */
+    visibility: z.enum(['public', 'internal']).default('public'),
     /** false = chỉ lưu, chưa embedding ("Cho AI học tài liệu này" — prototype L7498). */
     learn: z.boolean().default(true),
   }),

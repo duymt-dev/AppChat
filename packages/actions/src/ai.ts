@@ -19,6 +19,8 @@ const agentConfig = z.object({
   threshold: z.number().int().min(50).max(95).optional(),
   handoff_to: z.enum(['staff', 'team', 'lead']).optional(),
   governance: z.record(z.string(), z.boolean()).optional(),
+  /** Phạm vi kiến thức (D54, rag.md §2): thư mục + thẻ trong kho chung của workspace. */
+  kb_scope: z.object({ folder_ids: z.array(z.string()).max(50), tags: z.array(z.string().max(30)).max(50) }).optional(),
   template_id: z.string().optional(),
 });
 

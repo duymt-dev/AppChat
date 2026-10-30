@@ -1,11 +1,9 @@
 // Tools — danh sách quyền agent (D51, D16): nhóm theo module + nhóm "Kỹ năng AI" (action đọc, `skill`), n/tổng mỗi nhóm,
 // badge "Cần kết nối X" / "Sắp có" khi action cần connector (D51 §3.3b). Đây là NƠI DUY NHẤT bật/tắt quyền agent.
-// + AI Governance + Nguồn kiến thức — prototype L2364–2398.
+// + AI Governance — prototype L2364–2398. Nguồn kiến thức ở KnowledgeSection (D54).
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Icon, color } from '@appchat/ui';
 import { channelsQuery, connectorsQuery } from '@/features/settings';
 import { connectorStatus, connectorBadge, groupToolsByModule, AGENT_GRANTABLE, MODULE_ACTIONS, SKILL_ACTIONS } from '@/shared/ai/agent-tools';
 import { useBuilderStyles } from '../../styles/builder.styles';
@@ -21,7 +19,6 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
   const t = useTranslations('agents.b');
   const tc = useTranslations('common');
   const tAll = useTranslations();
-  const router = useRouter();
   const { styles: bs } = useBuilderStyles();
   const { styles } = useSectionStyles();
   const pair = (k: string) => t.raw(k) as [string, string];
@@ -124,27 +121,6 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
               </div>
             );
           })}
-        </div>
-      </div>
-      <div className={bs.sec}>
-        <div className={bs.h} style={{ marginBottom: 8 }}>
-          {t('kb')}
-        </div>
-        <div className={styles.notice}>
-          <b>{t('kbNoticeB')}</b>
-          <br />
-          {t('kbNotice')}
-        </div>
-        <div className={styles.kb}>
-          <span className={styles.kbIcon}>
-            <Icon name="ic-doc" size={20} color={color.brand} strokeWidth={1.7} />
-          </span>
-          <div className={styles.kbTitle}>{t('kbTitle')}</div>
-          <div className={styles.kbSub}>{t('kbSub')}</div>
-          <button type="button" className={styles.kbBtn} onClick={() => router.push('/settings/rag_data')}>
-            <Icon name="ic-plus" size={14} color={color.white} strokeWidth={2} />
-            {t('kbAdd')}
-          </button>
         </div>
       </div>
     </>

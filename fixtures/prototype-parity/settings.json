@@ -1417,7 +1417,8 @@
         "by": "Trâm",
         "date": "2026-04-18",
         "folder_id": "f_cat",
-        "starred": false
+        "starred": false,
+        "visibility": "public"
       },
       {
         "id": "kb_2",
@@ -1432,7 +1433,8 @@
         "by": "Minh",
         "date": "2026-04-17",
         "folder_id": "f_price",
-        "starred": false
+        "starred": false,
+        "visibility": "public"
       },
       {
         "id": "kb_3",
@@ -1447,7 +1449,8 @@
         "by": "Hương",
         "date": "2026-04-15",
         "folder_id": "f_policy",
-        "starred": false
+        "starred": false,
+        "visibility": "public"
       },
       {
         "id": "kb_4",
@@ -1462,7 +1465,8 @@
         "by": "Trâm",
         "date": "2026-04-14",
         "folder_id": "f_img",
-        "starred": false
+        "starred": false,
+        "visibility": "public"
       },
       {
         "id": "kb_5",
@@ -1478,7 +1482,8 @@
         "by": "AI (from Zalo)",
         "date": "2026-04-12",
         "folder_id": null,
-        "starred": false
+        "starred": false,
+        "visibility": "public"
       },
       {
         "id": "kb_6",
@@ -1494,7 +1499,8 @@
         "by": "Minh",
         "date": "2026-04-10",
         "folder_id": "f_policy",
-        "starred": false
+        "starred": false,
+        "visibility": "internal"
       },
       {
         "id": "kb_7",
@@ -1510,7 +1516,8 @@
         "by": "Huyền",
         "date": "2026-04-08",
         "folder_id": null,
-        "starred": false
+        "starred": false,
+        "visibility": "internal"
       },
       {
         "id": "kb_8",
@@ -1525,7 +1532,8 @@
         "by": "CMO",
         "date": "2026-04-05",
         "folder_id": "f_report",
-        "starred": false
+        "starred": false,
+        "visibility": "internal"
       }
     ]
   },

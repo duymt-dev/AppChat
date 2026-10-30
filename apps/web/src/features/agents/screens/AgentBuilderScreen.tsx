@@ -13,6 +13,7 @@ import { BasicsSection } from '../components/builder/BasicsSection';
 import { GuidanceSection } from '../components/builder/GuidanceSection';
 import { RoutingSection } from '../components/builder/RoutingSection';
 import { ActionsSection } from '../components/builder/ActionsSection';
+import { KnowledgeSection } from '../components/builder/KnowledgeSection';
 import { TestPanel } from '../components/builder/TestPanel';
 import type { AgentConfig, AgentsMeta } from '../types';
 
@@ -51,6 +52,7 @@ function BuilderForm({ seed, meta: m, agentId, title }: FormProps) {
             <GuidanceSection cfg={b.cfg} patch={b.patch} templates={m.prompt_templates} />
             <RoutingSection cfg={b.cfg} meta={m} toggle={(k, v) => b.toggleIn(k, v as never)} />
             <ActionsSection cfg={b.cfg} patch={b.patch} toggleTool={(k) => b.toggleIn('tools', k)} />
+            <KnowledgeSection cfg={b.cfg} patch={b.patch} />
           </div>
         </div>
         <div className={styles.right}>

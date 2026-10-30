@@ -1,5 +1,5 @@
 // Hộp "Tải tài liệu lên" — prototype L7485–7502 (460px): vùng kéo thả / chọn tệp (lấy tên tệp), Tên tài liệu *, Thư mục chứa, Thẻ (dấu phẩy),
-// "Cho AI học tài liệu này" (embedding). Lưu → kb.add_source (learn). Tệp thật đi qua storage port ở backend; FE mock chỉ ghi metadata.
+// "Cho AI học tài liệu này" (embedding), Ai được dùng (public / internal — D54). Lưu → kb.add_source (learn, visibility). Tệp thật đi qua storage port ở backend; FE mock chỉ ghi metadata.
 'use client';
 import { useRef, useState } from 'react';
 import { App } from 'antd';
@@ -14,25 +14,27 @@ import { Switch } from './Switch';
 
 const NONE = '';
 const COMMA = ',';
+const VIS = ['public', 'internal'] as const;
 const ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.md,.txt,.mp4,image/*';
 
 export function RagUploadModal({ folders, folderId }: { folders: { id: string; name: string }[]; folderId: string | null }) {
   const t = useTranslations('settings.rag.modal');
   const { message } = App.useApp();
   const s = useSectionStyles().styles;
-  const { styles } = useRagModalStyles();
+  const { styles, cx } = useRagModalStyles();
   const set = useSettingsUi((u) => u.set);
   const file = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
   const [folder, setFolder] = useState(folderId ?? NONE);
   const [tags, setTags] = useState('');
   const [learn, setLearn] = useState(true);
+  const [vis, setVis] = useState<(typeof VIS)[number]>('public');
   const add = useAction('kb.add_source');
   const close = () => set({ kbUpload: false });
   const save = async () => {
     if (!name.trim()) return void message.error(t('errName'));
     const list = tags.split(COMMA).map((x) => x.trim()).filter(Boolean);
-    const r = await add.run({ name: name.trim(), ...(folder ? { folder_id: folder } : {}), ...(list.length ? { tags: list } : {}), learn });
+    const r = await add.run({ name: name.trim(), ...(folder ? { folder_id: folder } : {}), ...(list.length ? { tags: list } : {}), learn, visibility: vis });
     if (r) close();
   };
   return (
@@ -83,6 +85,25 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
       <div>
         <div className={s.label}>{t('tags')}</div>
         <input className={s.input} value={tags} onChange={(e) => setTags(e.target.value)} placeholder={t('tagsPh')} />
+      </div>
+      <div>
+        <div className={s.label}>{t('visibility')}</div>
+        <div className={styles.seg} role="radiogroup" aria-label={t('visibility')} data-testid="st-rag-vis">
+          {VIS.map((v) => (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={vis === v}
+              className={cx(styles.segBtn, vis === v && styles.segOn)}
+              onClick={() => setVis(v)}
+              data-testid={`st-rag-vis-${v}`}
+            >
+              {t(v === 'public' ? 'visPublic' : 'visInternal')}
+            </button>
+          ))}
+        </div>
+        <div className={cx(s.muted, styles.visHint)}>{t(vis === 'public' ? 'visPublicD' : 'visInternalD')}</div>
       </div>
       <div className={styles.learnRow}>
         <div className={s.grow}>

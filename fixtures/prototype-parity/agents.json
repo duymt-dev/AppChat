@@ -504,6 +504,12 @@
     "pii": true,
     "override": true,
     "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [
+     "f_cat"
+    ],
+    "tags": []
    }
   },
   {
@@ -542,6 +548,10 @@
     "pii": true,
     "override": true,
     "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [],
+    "tags": []
    }
   },
   {
@@ -580,6 +590,13 @@
     "pii": true,
     "override": true,
     "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [
+     "f_cat",
+     "f_price"
+    ],
+    "tags": []
    }
   },
   {
@@ -618,6 +635,13 @@
     "pii": true,
     "override": true,
     "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [
+     "f_cat",
+     "f_policy"
+    ],
+    "tags": []
    }
   },
   {
@@ -656,6 +680,10 @@
     "pii": true,
     "override": true,
     "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [],
+    "tags": []
    }
   },
   {
@@ -694,6 +722,10 @@
     "pii": true,
     "override": true,
     "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [],
+    "tags": []
    }
   }
  ],

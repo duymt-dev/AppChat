@@ -36,6 +36,8 @@ KB_DOCS = [
     ["Báo cáo KPI tháng 3.pptx", "ppt", ["Report"], False, "6.8 MB", "upload", "CMO", "2026-04-05", "f_report"],
 ]
 KB_FOLDERS = [["f_cat", "Catalogues"], ["f_price", "Bảng giá"], ["f_policy", "Policy & Contracts"], ["f_img", "Ảnh sản phẩm"], ["f_report", "Reports"]]
+# D54: visibility 2 giá trị; hợp đồng / báo cáo / quy trình nội bộ = internal, còn lại public.
+KB_INTERNAL = {"Hợp đồng Gia Dụng Sài Gòn.pdf", "FAQ — Quy trình đơn hàng.md", "Báo cáo KPI tháng 3.pptx"}
 KB_NAV = {"all": 412, "learned": 284, "conv": 186, "upload": 128, "star": 24, "trash": 8}
 
 GOV = {
@@ -78,7 +80,7 @@ def build_ai():
             "size": "4.2 GB",
             "docs": [
                 {"id": f"kb_{k + 1}", "name": n, "type": t, "tags": tg, "learned": le, "size": sz, "source": src, "by": by, "date": d,
-                 "folder_id": fo, "starred": False}
+                 "folder_id": fo, "starred": False, "visibility": "internal" if n in KB_INTERNAL else "public"}
                 for k, (n, t, tg, le, sz, src, by, d, fo) in enumerate(KB_DOCS)
             ],
         },

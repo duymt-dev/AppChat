@@ -38,6 +38,9 @@ test.describe('settings · AI', () => {
     const m = page.getByTestId('st-rag-modal');
     await m.getByTestId('st-rag-name').fill('Bảng giá dịch vụ 2026.xlsx');
     await m.getByTestId('st-rag-folder-select').selectOption({ label: 'Bảng giá' });
+    await expect(m.getByTestId('st-rag-vis-public')).toHaveAttribute('aria-checked', 'true');
+    await m.getByTestId('st-rag-vis-internal').click();
+    await expect(m.getByTestId('st-rag-vis')).toContainText('Chỉ nội bộ');
     await m.getByTestId('st-rag-learn').click();
     await m.getByTestId('st-rag-modal-save').click();
     const row = page.locator('[data-doc]').filter({ hasText: 'Bảng giá dịch vụ 2026.xlsx' });

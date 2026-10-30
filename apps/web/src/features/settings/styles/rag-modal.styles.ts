@@ -1,6 +1,7 @@
 // Hộp tải tài liệu RAG + ô tên thư mục — prototype L7487–7499: vùng thả viền đứt 2 bo 12 (icon 42 xanh nhạt), hàng "Cho AI học" công tắc.
+// Chọn visibility public / internal (D54) dùng seg như drawer Quản lý kênh.
 import { createStyles } from 'antd-style';
-import { color, font, radius } from '@appchat/ui';
+import { color, font, radius, shadow } from '@appchat/ui';
 
 export const useRagModalStyles = createStyles(({ css }) => ({
   prompt: css`
@@ -60,5 +61,35 @@ export const useRagModalStyles = createStyles(({ css }) => ({
     font-size: ${font.scale.s14}px;
     color: ${color.text2};
     font-weight: ${font.weight.semibold};
+  `,
+  seg: css`
+    display: flex;
+    padding: 2px;
+    background: ${color.mutedBg};
+    border-radius: ${radius.r10}px;
+    gap: 2px;
+  `,
+  segBtn: css`
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.semibold};
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: ${color.text3};
+    font-family: inherit;
+  `,
+  segOn: css`
+    && {
+      background: ${color.surface};
+      color: ${color.text};
+      box-shadow: ${shadow.cardSoft};
+    }
+  `,
+  visHint: css`
+    margin-top: 4px;
   `,
 }));

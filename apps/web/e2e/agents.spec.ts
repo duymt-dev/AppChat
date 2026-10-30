@@ -88,6 +88,22 @@ test.describe('agents', () => {
     await expect(page.getByTestId('ag-card')).toHaveCount(5);
   });
 
+  test('nguồn kiến thức (D54): chọn thư mục + thẻ, đếm tài liệu public, lưu kb_scope; agent có sẵn mở đúng phạm vi', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(`/agents${Q}`);
+    await page.locator('[data-agent="ag_sales"]').getByTestId('ag-edit').click();
+    const kb = page.getByTestId('agb-kb');
+    await expect(kb.locator('[data-kb-folder][aria-pressed="true"]')).toHaveCount(2);
+    await expect(kb.getByTestId('agb-kb-count')).toContainText('2 tài liệu trong phạm vi · 2 tài liệu');
+    await kb.locator('[data-kb-folder="f_policy"]').click();
+    await expect(kb.getByTestId('agb-kb-count')).toContainText('4 tài liệu trong phạm vi · 3 tài liệu');
+    await kb.locator('[data-kb-tag="FAQ"]').click();
+    await expect(kb.getByTestId('agb-kb-count')).toContainText('5 tài liệu trong phạm vi · 3 tài liệu');
+    await page.getByTestId('agb-publish').click();
+    await page.locator('[data-agent="ag_sales"]').getByTestId('ag-edit').click();
+    await expect(page.getByTestId('agb-kb').locator('[aria-pressed="true"]')).toHaveCount(4);
+  });
+
   test('390: danh sách, drawer Trợ lý, builder — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await page.goto(`/agents${Q}`);

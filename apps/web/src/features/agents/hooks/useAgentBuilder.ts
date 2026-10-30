@@ -21,6 +21,7 @@ export const blankConfig = (): AgentConfig => ({
   threshold: 70,
   handoff_to: 'staff',
   governance: { grounding: true, pii: true, override: true, audit: true },
+  kb_scope: { folder_ids: [], tags: [] },
 });
 
 const CONFIG_KEYS = Object.keys(blankConfig()) as (keyof AgentConfig)[];

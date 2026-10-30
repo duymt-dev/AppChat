@@ -5,6 +5,12 @@ export type Role = 'sales' | 'cs' | 'booking' | 'marketing' | 'accounting' | 'op
 export type Lang = 'vi' | 'en' | 'bilingual' | 'auto';
 export type Handoff = 'staff' | 'team' | 'lead';
 
+/** Phạm vi kiến thức (D54): thư mục + thẻ trong kho chung của workspace. */
+export interface KbScope {
+  folder_ids: string[];
+  tags: string[];
+}
+
 /** Cấu hình agent = các cột bản nháp của ai_agent; xuất bản thì chụp thành ai_agent_version. */
 export interface AgentConfig {
   name: string;
@@ -19,6 +25,7 @@ export interface AgentConfig {
   threshold: number;
   handoff_to: Handoff;
   governance: Record<string, boolean>;
+  kb_scope: KbScope;
   template_id?: string;
 }
 

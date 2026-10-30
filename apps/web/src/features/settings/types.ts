@@ -171,6 +171,8 @@ export interface KbDoc {
   date: string;
   folder_id: string | null;
   starred: boolean;
+  /** D54: public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền. */
+  visibility: 'public' | 'internal';
 }
 
 export interface KbData {

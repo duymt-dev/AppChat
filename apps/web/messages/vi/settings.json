@@ -852,6 +852,11 @@
       "noFolder": "(Không có)",
       "tags": "Thẻ (ngăn cách bởi dấu phẩy)",
       "tagsPh": "VD: Giá sỉ, Hè 2026",
+      "visibility": "Ai được dùng khi AI trả lời",
+      "visPublic": "Khách được xem qua AI",
+      "visPublicD": "Agent trả lời khách được dùng tài liệu này",
+      "visInternal": "Chỉ nội bộ",
+      "visInternalD": "Chỉ Trợ lý AI và agent làm việc cho nhân viên có quyền xem",
       "learn": "Cho AI học tài liệu này",
       "learnD": "Embedding tự động để AI truy hồi khi trả lời",
       "errName": "Nhập tên tài liệu"

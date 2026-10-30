@@ -301,6 +301,17 @@ export const useSectionStyles = createStyles(({ css, responsive }) => ({
     line-height: 1.55;
     margin-bottom: 12px;
   `,
+  scopeLabel: css`
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.bold};
+    color: ${color.text3};
+    margin: 4px 0 8px;
+  `,
+  scopeSum: css`
+    font-size: ${font.scale.s13}px;
+    color: ${color.text3};
+    margin: 12px 0;
+  `,
   kb: css`
     border: 1px solid ${color.border};
     border-radius: ${radius.r12}px;

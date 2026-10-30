@@ -132,6 +132,8 @@ PROMPT_TPL = [
 ]
 # Hành động agent (D51, D16) — quyền agent = tập action id thật của Registry (ai_agent.tool_ids, Blueprint §3.3b).
 # bỏ mục OUT: Gửi ZNS/SMS, Kích hoạt workflow, Xử lý cuộc gọi, HTTP request (D29).
+# D54: phạm vi kiến thức theo agent (thư mục kho chung). Agent không có dòng ở đây = scope rỗng.
+KB_SCOPE = {"ag_service": ["f_cat", "f_policy"], "ag_sales": ["f_cat", "f_price"], "ag_mkt": ["f_cat"]}
 DEFAULT_TOOLS = ["conversation.close", "conversation.assign", "ticket.create", "appointment.create"]
 agents = {
     "taxonomy": [{"group": g, "industries": i} for g, i in AGTAX.items()],
@@ -139,7 +141,8 @@ agents = {
     "agents": [{"id": i, "name": n, "emoji": e, "role": role, "role_label": rl, "status": st, "conversations": conv, "resolve_rate": res, "csat": cs, "persona": p,
                 "model_tier": TIER[m], "version": v, "intents": [0, 2], "channels": ["zalo_personal", "webchat"], "tools": DEFAULT_TOOLS,
                 "language": "vi", "prompt": "", "threshold": 70, "handoff_to": "staff",
-                "governance": {"grounding": True, "pii": True, "override": True, "audit": True}} for i, n, e, role, rl, st, conv, res, cs, p, m, v in my_agents],
+                "governance": {"grounding": True, "pii": True, "override": True, "audit": True},
+                "kb_scope": {"folder_ids": KB_SCOPE.get(i, []), "tags": []}} for i, n, e, role, rl, st, conv, res, cs, p, m, v in my_agents],
     "emojis": ["🤖", "💬", "✨", "🎧", "🛍️", "📞", "🧑‍💼", "📅", "💡", "🛟", "🌸", "⚡"],
     "intents": ["Hỏi giá", "Tư vấn sản phẩm", "Hỗ trợ / CSKH", "Khiếu nại", "Đổi / Trả", "Đặt lịch hẹn", "Theo dõi đơn", "Chăm sóc sau bán"],
     "channels": [{"key": "zalo_personal", "color": "#0068FF"}, {"key": "webchat", "color": "#2DC56A"}, {"key": "email", "color": "#1F8A4D"}],

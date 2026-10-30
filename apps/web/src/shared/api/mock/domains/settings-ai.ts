@@ -88,13 +88,13 @@ export const settingsAiHandlers: Record<string, MockHandler> = {
     },
   },
   'kb.add_source': {
-    execute: (db, i: { name: string; folder_id?: string; tags?: string[]; learn?: boolean }) => {
+    execute: (db, i: { name: string; folder_id?: string; tags?: string[]; learn?: boolean; visibility?: 'public' | 'internal' }) => {
       const id = `kb_n${++db.settingsAi.seq}`;
       const ext = i.name.split('.').pop()?.toLowerCase() ?? '';
       const type = ext in db.settingsAi.kb.types ? ext : ext === 'docx' ? 'doc' : ext === 'xlsx' ? 'xls' : ext === 'pptx' ? 'ppt' : 'pdf';
       db.settingsAi.kb.docs.unshift({
         id, name: i.name, type, tags: i.tags ?? [], learned: i.learn !== false, size: '—', source: 'upload', by: 'Bạn', date: today(),
-        folder_id: i.folder_id ?? null, starred: false,
+        folder_id: i.folder_id ?? null, starred: false, visibility: i.visibility ?? 'public',
       } as KbDoc);
       db.settingsAi.kb.nav.all += 1;
       db.settingsAi.kb.nav.upload += 1;
