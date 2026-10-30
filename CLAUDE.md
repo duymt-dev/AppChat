@@ -115,6 +115,8 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 ## 8. Goal hiện tại
 
-`coding-packs/goals/GOAL-FE-PROTOTYPE.md` — dựng toàn bộ frontend `apps/web` theo prototype bằng mock transport (D38): **xong F0–F7**.
+`coding-packs/goals/GOAL-BACKEND.md` — **làm xong backend** (44 TIP, W1 → W9 trong `02-TASK-GRAPH.md`), nối FE sang `httpTransport` (D57). Viết TIP nào làm TIP đó; test chỉ nghiệp vụ của TIP (D58).
 
-Kế tiếp: đợt **prototype ver2.1** (D45 — Hộp thư · Hồ sơ 360° · AI Agent · Kênh + nút Trợ lý AI; REQ-B09–B11, C09–C13, D16, E14, F11–F12, M05, N15). Nguồn: `00-PROJECT-CONTEXT.md` → SCAN DELTA ver2.1, Blueprint (cập nhật 2026-10-29). Goal chưa viết.
+- Ba sổ của goal: `coding-packs/QUESTIONS.md` (câu hỏi mở + đề xuất, không đứng chờ) · `DECISIONS.md` (tự chốt theo đề xuất, mã DC-xxx) · `DEVIATIONS.md` (lệch spec, mã DV-xxx). Lệch prototype vẫn ở `docs/06-prototype/DEVIATIONS.md`.
+- Tiến độ: bảng cuối `GOAL-BACKEND.md`. LLM qua 9router (D33) — chờ Chủ nhà cấp (Q-001), trước đó dùng mock model.
+- Đã xong: frontend theo prototype bằng mock transport (`goals/GOAL-FE-PROTOTYPE.md`, F0–F7 + ver2.1 D45 + D56).

@@ -1,0 +1,14 @@
+# Câu hỏi mở (goal backend)
+
+> Luật: `goals/GOAL-BACKEND.md` → "Ba sổ của goal". Câu hỏi cần **Chủ nhà** quyết (loại "phải hỏi" ở `standards/domain/gap-filling.md` §2, tài nguyên ngoài, quy tắc nghiệp vụ).
+> Mỗi câu có **đề xuất mặc định**; thợ làm tạm theo đề xuất nếu đảo ngược được (ghi `DECISIONS.md`, trạng thái `tạm theo đề xuất`), không đứng chờ.
+> Chủ nhà trả lời → điền cột "Trả lời", chuyển trạng thái `đã trả lời`, thợ chép sang `DECISIONS.md`. Thêm dòng ở cuối, không đánh lại số.
+
+| Q | Câu hỏi | TIP ảnh hưởng | Đề xuất mặc định | Chặn? | Trạng thái | Trả lời |
+|---|---------|---------------|------------------|-------|-----------|---------|
+| Q-001 | Thông tin **9router**: base URL, API key, tên model chat (cần hỗ trợ tool calling + JSON schema), model rẻ cho phân loại / tóm tắt | 019 (nghiệm thu), 020, 022, 023, 044 | Code + test bằng mock model của AI SDK; nạp 9router bằng `admin.llm_provider.upsert` + `probe` khi có, không sửa code (D33). Key đưa qua env seed, không commit | Không chặn thi công; chặn nghiệm thu "provider thật" | mở | |
+| Q-002 | 9router có model **embedding 1536 chiều** không (vd. `text-embedding-3-small`)? | 020, 043 | Có → route `purpose=embed` sang 9router. Không → embed dùng OpenAI gốc (cần key OpenAI riêng), chat vẫn qua 9router | Không chặn thi công | mở | |
+| Q-003 | 1–2 tài khoản **Zalo cá nhân phụ** cho spike `zca-js` | 014 | Làm 015 trước; 014 dựng adapter + test bằng fake transport, spike chạy khi có tài khoản | Chặn nghiệm thu 014 | mở | |
+| Q-004 | Tài khoản **SePay** (+ tài khoản nhận tiền AppChat) và **Brevo** (+ domain gửi SPF / DKIM / DMARC) | 004, 006, 010, 032 | Adapter `console` (OTP in ra log) và `mock` (webhook giả lập) | Chặn gửi thật / thu tiền thật | mở | |
+| Q-005 | Commit tài liệu D55 (`a3608c4`, form Generative UI sửa được) đang chỉ ở `dev` máy, chưa push; FE Generative UI chưa có goal | 023 | Tách sang nhánh `docs/d55-genui-forms` để Chủ nhà mở PR khi muốn; FE Generative UI làm cùng TIP-023 dưới dạng goal riêng `goal/genui` khi Chủ nhà mở | Không chặn W1–W5 | mở | |
+| Q-006 | VPS + domain production | 045, 046 | Viết `infra/` + chạy thử script trên máy dev ở mức được; deploy thật khi có VPS | Chặn nghiệm thu 045, 046 | mở | |
