@@ -190,7 +190,12 @@ describe('log', () => {
     try {
       const email = testEmail('log');
       const send = (path: string, body: unknown, headers: Record<string, string> = {}) =>
-        fetch(`${hl.base}/v1${path}`, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });
+        fetch(`${hl.base}/v1${path}`, {
+          method: 'POST',
+          // IP giả riêng mỗi lần chạy — bộ đếm 20 / giờ / IP trên Redis còn sống giữa các lần chạy test.
+          headers: { 'content-type': 'application/json', 'x-forwarded-for': `13.${RUN}.0.1`, ...headers },
+          body: JSON.stringify(body),
+        });
       await send('/auth/otp/request', { email, purpose: 'register' });
       const code = /\b(\d{6})\b/.exec(hl.mail.last(email)!.text)![1]!;
       expect((await send('/auth/otp/verify', { email, code: code === '999999' ? '000000' : '999999', purpose: 'register' })).status).toBe(401);

@@ -84,7 +84,10 @@ describe('workspace', () => {
     expect(row.provisionedAt).not.toBeNull();
     const t = new pg.Client({ connectionString: withDatabase(env.MIGRATOR_DATABASE_URL!, row.dbName) });
     await t.connect();
-    const ev = await t.query(`SELECT topic, payload FROM outbox_event WHERE topic = 'workspace.ready'`);
+    // Job đặt `active` rồi mới ghi outbox vào DB tenant (resolver chỉ mở DB active) → chờ event thay vì đọc ngay.
+    const readyEvent = () => t.query(`SELECT topic, payload FROM outbox_event WHERE topic = 'workspace.ready'`);
+    expect(await until(async () => (await readyEvent()).rowCount === 1)).toBe(true);
+    const ev = await readyEvent();
     await t.end();
     expect(ev.rows).toHaveLength(1);
     expect(ev.rows[0].payload).toMatchObject({ ws: ws.id, workspace_id: ws.id });
