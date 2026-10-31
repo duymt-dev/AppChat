@@ -24,5 +24,9 @@ export const ordersQuery = (f: OrderFilter, pg?: PageState) =>
 export const orderQuery = (id: string) =>
   queryOptions({ queryKey: ['orders', 'one', id], queryFn: () => transport.get<Order>(`/orders/${id}`) });
 
-export const ordersMetaQuery = () =>
-  queryOptions({ queryKey: ['orders', 'meta'], queryFn: () => transport.get<OrdersMeta>('/orders/meta') });
+/** `orderId` → kèm thẻ CRM / nhận định / tệp của đơn đó (drawer). */
+export const ordersMetaQuery = (orderId?: string) =>
+  queryOptions({
+    queryKey: ['orders', 'meta', orderId ?? null],
+    queryFn: () => transport.get<OrdersMeta>('/orders/meta', orderId ? { order_id: orderId } : undefined),
+  });

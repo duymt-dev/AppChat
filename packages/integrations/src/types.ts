@@ -41,6 +41,8 @@ export interface ConnectorManifest {
   webhooks?: boolean;
   modes: Array<'sandbox' | 'live'>;
   docsUrl?: string;
+  /** Connector sandbox / test (provider-ports §9) — kết nối được qua action nhưng không hiện ở trang Nền tảng kết nối. */
+  hidden?: boolean;
 }
 
 /** Kết nối của workspace mà adapter nhận (bí mật đã giải mã — chỉ trong bộ nhớ, không log). */

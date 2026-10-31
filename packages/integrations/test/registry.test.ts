@@ -14,7 +14,7 @@ const RELEASE = ['brevo', 'smtp', 'sepay', 'casso'];
 
 describe('connectorRegistry', () => {
   it('17 key = fixture trừ web_widget, không trùng', () => {
-    const keys = connectorRegistry.manifests().map((m) => m.key);
+    const keys = connectorRegistry.listed().map((m) => m.key);
     expect(new Set(keys).size).toBe(keys.length);
     const expected = fixture.connectors.map((c) => c.key).filter((k) => k !== 'web_widget');
     expect([...keys].sort()).toEqual(expected.sort());
@@ -22,14 +22,14 @@ describe('connectorRegistry', () => {
 
   it('trạng thái ga / coming_soon khớp fixture', () => {
     const st = new Map(fixture.connectors.map((c) => [c.key, c.status]));
-    for (const m of connectorRegistry.manifests()) {
+    for (const m of connectorRegistry.listed()) {
       expect(m.status).toBe(st.get(m.key));
       expect(m.status).toBe(RELEASE.includes(m.key) ? 'ga' : 'coming_soon');
     }
   });
 
   it('port thuộc danh sách port của standard; tra theo port', () => {
-    for (const m of connectorRegistry.manifests()) expect(PORT_KEYS).toContain(m.port);
+    for (const m of connectorRegistry.listed()) expect(PORT_KEYS).toContain(m.port);
     const keysOf = (p: PortKey) => connectorRegistry.byPort(p).map((e) => e.manifest.key);
     expect(keysOf('bank_feed').sort()).toEqual(['casso', 'sepay']);
     expect(keysOf('einvoice')).toHaveLength(4);
@@ -37,7 +37,7 @@ describe('connectorRegistry', () => {
   });
 
   it('kết nối được ⇔ không "Sắp có" (DC-042); bank_feed có adapter mock (sandbox)', () => {
-    for (const m of connectorRegistry.manifests()) expect(connectorRegistry.isConnectable(m.key)).toBe(RELEASE.includes(m.key));
+    for (const m of connectorRegistry.listed()) expect(connectorRegistry.isConnectable(m.key)).toBe(RELEASE.includes(m.key));
     expect(connectorRegistry.isConnectable('nope')).toBe(false);
     expect(connectorRegistry.get('sepay')?.adapter).toBeDefined();
     expect(connectorRegistry.get('casso')?.adapter).toBeDefined();
@@ -45,7 +45,7 @@ describe('connectorRegistry', () => {
 
   it('trường form + màu khớp fixture (thẻ FE đọc từ manifest)', () => {
     const fx = fixture.connectors as unknown as { key: string; color: string; fields: string[]; name: string }[];
-    for (const m of connectorRegistry.manifests()) {
+    for (const m of connectorRegistry.listed()) {
       const f = fx.find((c) => c.key === m.key)!;
       expect({ key: m.key, color: m.color, name: m.name, fields: m.auth.fields.map((x) => x.key) }).toEqual({ key: f.key, color: f.color, name: f.name, fields: f.fields });
     }

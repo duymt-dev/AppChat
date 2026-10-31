@@ -15,6 +15,7 @@ export const PAY_TONE: Record<PayStatus, string> = {
   deposited: color.blue,
   partial: color.blue,
   paid: color.brandInk,
+  partially_refunded: color.dangerDeep,
   refunded: color.dangerDeep,
 };
 

@@ -4,7 +4,7 @@ import { createFmt, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 
-export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired';
+export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported';
 type TimelineType = 'message' | 'quote' | 'contract' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge';
 
 export interface TimelineInput {
@@ -35,6 +35,11 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   contract_declined: { icon: 'ic-x', tone: 'muted' },
   contract_terminated: { icon: 'ic-x', tone: 'muted' },
   contract_expired: { icon: 'ic-clock', tone: 'amber' },
+  order_created: { icon: 'ic-cart', tone: 'brand' },
+  order_confirmed: { icon: 'ic-check', tone: 'brand' },
+  order_completed: { icon: 'ic-check', tone: 'ok' },
+  order_cancelled: { icon: 'ic-x', tone: 'muted' },
+  order_imported: { icon: 'ic-cart', tone: 'brand' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {

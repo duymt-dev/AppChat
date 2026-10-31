@@ -1,6 +1,6 @@
 // Worker ROLE=jobs của domain `sales` (TIP-029): scheduler `sales.quote-sweep` mỗi 15 phút trên queue riêng `sales-scheduler` (queue
 // `scheduler` dùng chung thì worker domain khác nhận job này và bỏ qua như đã xong — DC; jobId cố định → một lịch dù nhiều worker) — báo giá quá hạn → `expired`, còn ≤ 2 ngày → nhắc người phụ trách; consumer `sales.quote-owner`
-// (`contact.owner_changed` có move.quotes → chuyển báo giá đang mở cho người mới — COMMERCE §8b). TIP 031, 032 thêm processor.
+// (`contact.owner_changed` có move.quotes → chuyển báo giá đang mở cho người mới — COMMERCE §8b). TIP-031: queue `order-sync` (poll sàn 5 phút) + consumer webhook sàn — order-sync.jobs.ts. TIP 032 thêm processor.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -13,6 +13,8 @@ import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { SalesModule } from '../sales.module';
 import { expireDue, moveOpenQuotes, remindExpiring } from '../quotes/services/quote-system';
+import { OrderSyncService } from '../orders/services/order-sync';
+import { ORDER_SYNC_EVERY_MS, ORDER_SYNC_JOB, ORDER_SYNC_QUEUE, orderSyncConsumer, syncOrders } from './order-sync.jobs';
 
 export const SALES_SCHEDULER_QUEUE = 'sales-scheduler';
 export const QUOTE_SWEEP_JOB = 'sales.quote-sweep';
@@ -49,6 +51,8 @@ export async function sweepQuotes(d: { platform: Pick<PlatformDb, 'workspace'>; 
 class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private queue?: Queue;
   private worker?: Worker;
+  private syncQueue?: Queue;
+  private syncWorker?: Worker;
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -56,6 +60,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
+    @Optional() @Inject(OrderSyncService) private readonly sync: OrderSyncService | null,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -75,12 +80,36 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
       { connection: this.redis.duplicate(), concurrency: 1 },
     );
     this.worker.on('failed', (job, err) => this.log.warn({ err, job: job?.name }, 'sales scheduler lỗi'));
+    await this.startOrderSync();
+  }
+
+  /** Queue riêng `order-sync` (poll sàn có thể chậm — không giữ queue scheduler của báo giá). */
+  private async startOrderSync() {
+    const sync = this.sync;
+    if (!sync || !this.redis || !this.platform || !this.tenants) return;
+    registerEventConsumer(orderSyncConsumer(sync));
+    const deps = { platform: this.platform, tenants: this.tenants, sync, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: ORDER_SYNC_JOB }, 'đồng bộ đơn sàn lỗi ở workspace') };
+    this.syncQueue = new Queue(ORDER_SYNC_QUEUE, { connection: this.redis.duplicate() });
+    await this.syncQueue.upsertJobScheduler(ORDER_SYNC_JOB, { every: ORDER_SYNC_EVERY_MS }, { name: ORDER_SYNC_JOB });
+    this.syncWorker = new Worker(
+      ORDER_SYNC_QUEUE,
+      async (job) => {
+        if (job.name !== ORDER_SYNC_JOB) return;
+        const r = await syncOrders(deps);
+        if (r.imported) this.log.info({ job: ORDER_SYNC_JOB, ...r }, 'đồng bộ đơn sàn');
+      },
+      { connection: this.redis.duplicate(), concurrency: 1 },
+    );
+    this.syncWorker.on('failed', (job, err) => this.log.warn({ err, job: job?.name }, 'order-sync lỗi'));
   }
 
   async onApplicationShutdown(): Promise<void> {
     unregisterEventConsumer('sales.quote-owner');
+    unregisterEventConsumer('sales.order-sync');
     await this.worker?.close();
     await this.queue?.close();
+    await this.syncWorker?.close();
+    await this.syncQueue?.close();
   }
 }
 

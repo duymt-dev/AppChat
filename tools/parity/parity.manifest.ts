@@ -853,6 +853,7 @@ export const MANIFEST: ParityEntry[] = [
   },
   // ===== F4 — Đơn hàng =====
   // COMMERCE §4: 2 trục (Thanh toán = pay_status, Trạng thái = tiến độ); D31: thêm 1 đơn từ sàn (badge nguồn) — mask dòng đó.
+  // D52: mã đơn `DH-290411` thay `SP290411` của prototype (cùng số) — chênh vài ký tự trong cột mã / tiêu đề drawer, nằm trong ngưỡng.
   {
     id: 'orders:list',
     route: '/orders',

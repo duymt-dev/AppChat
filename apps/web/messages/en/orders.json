@@ -31,7 +31,8 @@
     "deposited": "Deposited",
     "partial": "Partially paid",
     "paid": "Paid",
-    "refunded": "Refund pending"
+    "partially_refunded": "Partially refunded",
+    "refunded": "Refunded"
   },
   "payDetail": "{label} · {paid}/{total}",
   "source": {

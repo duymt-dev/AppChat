@@ -32,7 +32,7 @@ export class IntegrationsReadService {
     const wanted = new Set(interests.map((r) => r.connectorKey));
     return [
       WEB_WIDGET,
-      ...this.registry.manifests().map((m) => ({
+      ...this.registry.listed().map((m) => ({
         key: m.key,
         name: m.name,
         group: m.group,

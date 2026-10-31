@@ -1,10 +1,13 @@
-// Domain `sales` — quote (TIP-029), order (031), invoice / customer payment / customer_package / bank feed (032). Báo giá: handler 13
+// Domain `sales` — quote (TIP-029), order (031 — 10 action `order.*`, đọc /v1/orders*, đồng bộ sàn OrderSyncService), invoice / customer payment / customer_package / bank feed (032). Báo giá: handler 13
 // action `quote.*`, đọc cho /v1/quotes*, trang xem công khai, PDF (DocRenderer — TIP-028). Thiếu DB / khoá → service null / 501.
 import { Module } from '@nestjs/common';
+import type { Redis } from 'ioredis';
+import { connectorRegistry } from '@appchat/integrations';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE } from '../kernel/kernel.module';
+import { REDIS } from '../kernel/redis';
 import { FilesService } from '../kernel/files/files.service';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { AiModule } from '../ai/ai.module';
@@ -22,8 +25,15 @@ import { QuoteCommentHandler, QuoteCreateHandler, QuoteDeleteHandler, QuoteUpdat
 import { QuoteDeps } from './quotes/services/quote-deps';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
+import { OrderFromContractHandler, OrderFromQuoteHandler, OrderCreateHandler } from './orders/actions/order-create.handlers';
+import { OrderSetDepositHandler, OrderShippingHandler, OrderUpdateHandler } from './orders/actions/order-edit.handlers';
+import { OrderCancelHandler, OrderCompleteHandler, OrderConfirmHandler } from './orders/actions/order-flow.handlers';
+import { OrderSyncNowHandler } from './orders/actions/order-sync.handler';
+import { OrdersReadService } from './orders/services/orders-read.service';
+import { OrderSyncService } from './orders/services/order-sync';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer) => ({ token, optional: true });
+const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
 
 const HANDLERS = [
   QuoteCreateHandler, QuoteUpdateHandler, QuoteDeleteHandler, QuoteCommentHandler,
@@ -31,6 +41,9 @@ const HANDLERS = [
   QuoteSendHandler, QuoteExtendHandler,
   QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler,
   QuoteDraftFromContentHandler,
+  OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
+  OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
+  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler,
 ];
 
 @Module({
@@ -46,11 +59,23 @@ const HANDLERS = [
       },
     },
     {
+      provide: OrdersReadService,
+      inject: [QuoteDeps, CLOCK],
+      useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new OrdersReadService(d, () => c.now()) : null),
+    },
+    { provide: ORDER_SYNC_KV, inject: [opt(REDIS)], useFactory: (r?: Redis) => r ?? null },
+    {
+      provide: OrderSyncService,
+      inject: [opt(TENANT_RESOLVER), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK],
+      useFactory: (t: TenantDbResolver | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock) =>
+        t && k ? new OrderSyncService({ tenants: t, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
+    },
+    {
       provide: QuotesReadService,
       inject: [QuoteDeps, CLOCK],
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [QuotesReadService, QuoteDeps],
+  exports: [QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService],
 })
 export class SalesModule {}

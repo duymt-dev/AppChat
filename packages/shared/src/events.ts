@@ -124,6 +124,13 @@ export const contractEvent = z.object(contractBase);
 export const contractReasonEvent = z.object({ ...contractBase, reason: z.string().max(500).optional() });
 export const contractSignedEvent = z.object({ ...contractBase, signed_sha256: z.string() });
 
+/** Đơn hàng (TIP-031 — Blueprint §2.3): xác nhận (trừ kho), hoàn tất (giai đoạn Đã mua, điểm — TIP-036 cộng), huỷ (hoàn kho, yêu cầu
+ *  hoàn tiền — TIP-032), đơn sàn nhập / cập nhật (D31). `total` là string VND. */
+const orderBase = { ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), source: z.string(), total: z.string() };
+export const orderEvent = z.object(orderBase);
+export const orderCompletedEvent = z.object({ ...orderBase, points: z.number().int(), net_before_vat: z.string() });
+export const orderCancelledEvent = z.object({ ...orderBase, reason: z.string().max(500), paid_total: z.string(), refund_requested: z.boolean() });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -176,5 +183,11 @@ export const EVENT_SCHEMAS = {
   'contract.expiring': contractEvent,
   'contract.expired': contractEvent,
   'contract.terminated': contractReasonEvent,
+  'order.created': orderEvent,
+  'order.confirmed': orderEvent,
+  'order.completed': orderCompletedEvent,
+  'order.cancelled': orderCancelledEvent,
+  'order.imported': orderEvent,
+  'order.external_updated': orderEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

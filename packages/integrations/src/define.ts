@@ -6,6 +6,8 @@ export interface ConnectorRegistry {
   get(key: string): ConnectorEntry | undefined;
   byPort(port: PortKey): ConnectorEntry[];
   manifests(): ConnectorManifest[];
+  /** Manifest hiện ở trang Nền tảng kết nối (bỏ connector `hidden`). */
+  listed(): ConnectorManifest[];
   /** Kết nối được ⇔ không `coming_soon` (thẻ "Sắp có"); adapter tuỳ chọn — có thì kiểm kết nối / webhook / gọi port (DC-042). */
   isConnectable(key: string): boolean;
 }
@@ -24,6 +26,7 @@ export function defineConnectors(entries: ConnectorEntry[]): ConnectorRegistry {
     get: (key) => byKey.get(key),
     byPort: (port) => entries.filter((e) => e.manifest.port === port),
     manifests: () => entries.map((e) => e.manifest),
+    listed: () => entries.map((e) => e.manifest).filter((m) => !m.hidden),
     isConnectable: (key) => {
       const e = byKey.get(key);
       return !!e && e.manifest.status !== 'coming_soon';

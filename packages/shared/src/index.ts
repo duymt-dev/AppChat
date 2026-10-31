@@ -5,6 +5,7 @@ export * from './api';
 export * from './commerce/quote-math';
 export * from './sales/quote-state';
 export * from './contracts/contract-state';
+export * from './orders/order-state';
 export * from './time/deadline';
 export * from './commerce/vietqr';
 export * from './booking/slots';

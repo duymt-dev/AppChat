@@ -49,7 +49,7 @@ test.describe('orders', () => {
     await form.getByTestId('od-save').click();
 
     const drawer = page.getByTestId('od-drawer');
-    await expect(drawer).toContainText('SP290412');
+    await expect(drawer).toContainText('DH-290412');
     await expect(drawer.getByTestId('od-status')).toHaveText('Mới');
     await expect(drawer.getByTestId('od-pay')).toHaveText('Chờ cọc');
     await drawer.getByTestId('od-confirm').click();
@@ -109,7 +109,7 @@ test.describe('orders', () => {
     await page.getByTestId('q-drawer').getByTestId('q-to-order').click();
     await expect(page).toHaveURL(/\/orders$/);
     const drawer = page.getByTestId('od-drawer');
-    await expect(drawer).toContainText('SP290412');
+    await expect(drawer).toContainText('DH-290412');
     await expect(drawer).toContainText('BG-2041');
     await expect(drawer).toContainText('Từ báo giá');
     await drawer.getByRole('button', { name: 'Đóng' }).first().click();

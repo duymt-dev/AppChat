@@ -31,7 +31,8 @@
     "deposited": "Đã cọc",
     "partial": "Một phần",
     "paid": "Đã thanh toán",
-    "refunded": "Chờ hoàn tiền"
+    "partially_refunded": "Hoàn tiền một phần",
+    "refunded": "Đã hoàn tiền"
   },
   "payDetail": "{label} · {paid}/{total}",
   "source": {
