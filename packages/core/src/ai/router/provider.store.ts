@@ -2,7 +2,7 @@
 // — đọc cache 60 giây (Quản trị nền tảng đổi → hiệu lực trong ≤ 1 phút, `invalidate()` cho thay đổi tại chỗ). Là nguồn cho
 // LlmRouter (@appchat/ai) + credit / mức ở Cài đặt › Mô hình AI (đơn giá trừ credit: DbPriceBook của billing). Seed từ env khi provider chưa có (Q-001 — 9router nạp không sửa code).
 import type { PlatformDb } from '@appchat/db';
-import type { AiTier, ModelPurpose, ProviderConfig, RouteRow, RouterConfigSource } from '@appchat/ai';
+import { MOCK_EMBED_MODEL, MOCK_MODEL, MOCK_PROVIDER, type AiTier, type ModelPurpose, type ProviderConfig, type RouteRow, type RouterConfigSource } from '@appchat/ai';
 import { decryptSecret, encryptSecret } from '../../kernel/crypto';
 import { uuidv7 } from '../../kernel/ids';
 import type { ModelPrice } from '../../billing/public';
@@ -85,6 +85,21 @@ export class ProviderStore implements RouterConfigSource {
       if (out[p.tier] === undefined || c < out[p.tier]!) out[p.tier] = c;
     }
     return out;
+  }
+
+  /** Đơn giá model giả (`AI_ENGINE=mock` — dev / E2E): chat 1 / 3, embed 0,1 credit / 1k token. Có rồi thì giữ. */
+  async seedMockPrices(): Promise<void> {
+    const rows = [
+      { model: MOCK_MODEL, in: 1, out: 3 },
+      { model: MOCK_EMBED_MODEL, in: 0.1, out: 0 },
+    ];
+    for (const r of rows)
+      await this.platform.modelPrice.upsert({
+        where: { providerKey_model: { providerKey: MOCK_PROVIDER, model: r.model } },
+        create: { providerKey: MOCK_PROVIDER, model: r.model, tier: 'standard', creditsPer1kIn: r.in, creditsPer1kOut: r.out },
+        update: {},
+      });
+    this.invalidate();
   }
 
   /** Seed provider + route ba mức + đơn giá từ env khi provider chưa có (không ghi đè cấu hình Quản trị nền tảng). */

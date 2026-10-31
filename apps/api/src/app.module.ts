@@ -19,6 +19,7 @@ import { SupportHttpModule } from './http/support/support.http.module';
 import { MarketingHttpModule } from './http/marketing/marketing.http.module';
 import { LoyaltyHttpModule } from './http/loyalty/loyalty.http.module';
 import { AiHttpModule } from './http/ai/ai.http.module';
+import { FilesHttpModule } from './http/files/files.http.module';
 import { InsightsHttpModule } from './http/insights/insights.http.module';
 import { NotifyHttpModule } from './http/notify/notify.http.module';
 import { PlatformHttpModule } from './http/platform/platform.http.module';
@@ -47,7 +48,7 @@ export const DOMAIN_HTTP_MODULES = [
 
 /** Route kernel (actions / action-logs) + route identity chỉ khi env có DB + Redis + JWT_SECRET (executor + actor JWT). */
 const withActions = (env: Record<string, string | undefined>) =>
-  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register(), AuthzHttpModule.register(), NotifyHttpModule.register(), BillingHttpModule.register(), IntegrationsHttpModule.register(), CrmHttpModule.register(), ChannelsHttpModule.register(), InboxHttpModule.register(), AiHttpModule.register()] : [];
+  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register(), AuthzHttpModule.register(), NotifyHttpModule.register(), BillingHttpModule.register(), IntegrationsHttpModule.register(), CrmHttpModule.register(), ChannelsHttpModule.register(), InboxHttpModule.register(), AiHttpModule.register(), FilesHttpModule.register()] : [];
 
 @Module({})
 export class AppModule {

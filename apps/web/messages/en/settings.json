@@ -874,7 +874,8 @@
       "visInternalD": "Only the AI Assistant and agents working for staff who can see it",
       "learn": "Let AI learn this document",
       "learnD": "Embedded automatically so AI can retrieve it",
-      "errName": "Enter a document name"
+      "errName": "Enter a document name",
+      "errUpload": "Could not upload the file — please try again."
     }
   },
   "gov": {

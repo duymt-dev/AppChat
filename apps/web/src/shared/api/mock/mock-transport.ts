@@ -147,4 +147,9 @@ export const mockTransport: Transport = {
     undoLog.delete(actionLogId);
     mutate((db) => markUndone(db, actionLogId), 'action.undo');
   },
+
+  async upload(file) {
+    // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp.
+    return { file_id: `file_${Date.now().toString(36)}`, name: file.name, size: file.size };
+  },
 };

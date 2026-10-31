@@ -4,6 +4,7 @@
 // undo / outbox); handler thật thuộc TIP-028 (trước đây dùng `tag.*` — TIP-016 đã cài handler thật).
 import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Injectable, Module, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -47,6 +48,9 @@ export const env: Record<string, string> = {
   MAIL_PROVIDER: 'console',
   // Hộp thư kênh Email giả (TIP-018) — integration không đăng nhập IMAP / SMTP thật.
   MAIL_TRANSPORT: 'fake',
+  // Model + embedding giả (TIP-019 / 020, Q-001); tệp tải lên vào thư mục tạm của lượt test.
+  AI_ENGINE: 'mock',
+  FILES_DIR: join(tmpdir(), 'appchat-test-files'),
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'true',
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',

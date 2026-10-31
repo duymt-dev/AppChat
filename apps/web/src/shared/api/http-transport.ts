@@ -16,8 +16,8 @@ export const setWorkspaceHeader = (id: string | null) => {
   workspaceId = id;
 };
 
-const headers = (extra: Record<string, string> = {}): Record<string, string> => ({
-  'content-type': 'application/json',
+const headers = (extra: Record<string, string> = {}, json = true): Record<string, string> => ({
+  ...(json ? { 'content-type': 'application/json' } : {}),
   ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
   ...(workspaceId ? { 'x-workspace-id': workspaceId } : {}),
   ...extra,
@@ -43,7 +43,8 @@ const refresh = (): Promise<boolean> => {
 
 /** Gửi kèm access token; chưa có token hoặc gặp 401 → làm mới một lần rồi gửi lại (trừ chính các lệnh auth). */
 const send = async (path: string, init: RequestInit & { extra?: Record<string, string> } = {}): Promise<Response> => {
-  const go = () => fetch(`${BASE}${path}`, { ...init, credentials: 'include', headers: headers(init.extra) });
+  // FormData: để trình duyệt tự đặt content-type multipart (kèm boundary).
+  const go = () => fetch(`${BASE}${path}`, { ...init, credentials: 'include', headers: headers(init.extra, !(init.body instanceof FormData)) });
   const isAuth = path.startsWith('/auth/');
   if (!accessToken && !isAuth) await refresh();
   const res = await go();
@@ -95,5 +96,11 @@ export const httpTransport: Transport = {
   },
   async undo(actionLogId) {
     await parse(await send(`/action-logs/${actionLogId}/undo`, { method: 'POST' }));
+  },
+  async upload(file, purpose) {
+    const form = new FormData();
+    form.set('purpose', purpose);
+    form.set('file', file, file.name);
+    return (await parse<{ data: never }>(await send('/files', { method: 'POST', body: form }))).data;
   },
 };

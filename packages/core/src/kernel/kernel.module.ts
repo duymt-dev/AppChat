@@ -3,8 +3,10 @@
 import { Global, Module, type DynamicModule, type Provider } from '@nestjs/common';
 import type { Redis } from 'ioredis';
 import { z } from 'zod';
-import { CLOCK, SystemClock } from './clock';
+import { CLOCK, SystemClock, type Clock } from './clock';
 import { ENC_KEY, parseEncKey } from './crypto';
+import { FilesService } from './files/files.service';
+import { LocalStorage, STORAGE, defaultFilesDir, type Storage } from './files/storage';
 import { createLogger } from './logger/logger';
 import { REDIS, createRedis } from './redis';
 import { ActionsModule } from './actions/actions.module';
@@ -23,6 +25,8 @@ const kernelEnv = z.object({
   REDIS_URL: z.string().regex(/^rediss?:\/\//).optional(),
   /** Khoá chủ 32 byte (base64 / hex) — HMAC confirm_token + AES-256-GCM bí mật của DN (ops §2.2, crypto.ts). */
   APP_ENC_KEY: z.string().min(32).optional(),
+  /** Thư mục Storage `local` (Blueprint §11): dev `./.data/files`, prod `/srv/appchat/files`. */
+  FILES_DIR: z.string().min(1).optional(),
 });
 
 class RedisCloser {
@@ -40,7 +44,7 @@ export class KernelModule {
     const db = readDbEnv(source);
     const k = kernelEnv.parse(source);
     const providers: Provider[] = [{ provide: ENV_SOURCE, useValue: source }];
-    const exports: (string | symbol)[] = [ENV_SOURCE];
+    const exports: (string | symbol | typeof FilesService)[] = [ENV_SOURCE];
     const imports: DynamicModule[] = [];
     if (db) {
       providers.push(...dbProviders(db));
@@ -57,6 +61,14 @@ export class KernelModule {
       // Khoá AES-256-GCM cho bí mật của DN (ops §2.2, TIP-012) — sai định dạng thì dừng boot.
       providers.push({ provide: ENC_KEY, useValue: parseEncKey(k.APP_ENC_KEY) });
       exports.push(ENC_KEY);
+    }
+    if (db) {
+      // Tệp tải lên (TIP-020): Storage local + FilesService (bảng `file` của DB tenant).
+      providers.push(
+        { provide: STORAGE, useFactory: () => new LocalStorage(k.FILES_DIR ?? defaultFilesDir()) },
+        { provide: FilesService, inject: [STORAGE, CLOCK], useFactory: (st: Storage, c: Clock) => new FilesService(st, () => c.now()) },
+      );
+      exports.push(STORAGE, FilesService);
     }
     if (db && k.REDIS_URL) {
       if (!k.APP_ENC_KEY) throw new Error('Biến môi trường không hợp lệ: APP_ENC_KEY');

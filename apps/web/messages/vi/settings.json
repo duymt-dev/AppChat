@@ -874,7 +874,8 @@
       "visInternalD": "Chỉ Trợ lý AI và agent làm việc cho nhân viên có quyền xem",
       "learn": "Cho AI học tài liệu này",
       "learnD": "Embedding tự động để AI truy hồi khi trả lời",
-      "errName": "Nhập tên tài liệu"
+      "errName": "Nhập tên tài liệu",
+      "errUpload": "Không tải được tệp lên — thử lại."
     }
   },
   "gov": {

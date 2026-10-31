@@ -95,6 +95,9 @@ export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_
 export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
+/** Nguồn tri thức nạp xong / lỗi (TIP-020) — WS cập nhật trang Dữ liệu RAG; lỗi thì báo người tải lên. */
+export const kbSourceReadyEvent = z.object({ ...base, source_id: z.string().uuid(), chunk_count: z.number().int() });
+export const kbSourceFailedEvent = z.object({ ...base, source_id: z.string().uuid(), error: z.string().max(300), created_by: z.string().uuid().nullable() });
 export const runCancelledEvent = z.object({ ...base, run_id: z.string().uuid(), run_ids: z.array(z.string().uuid()) });
 
 export const EVENT_SCHEMAS = {
@@ -128,5 +131,7 @@ export const EVENT_SCHEMAS = {
   'conversation.assigned': conversationAssignedEvent,
   'conversation.updated': conversationUpdatedEvent,
   'run.cancelled': runCancelledEvent,
+  'kb.source_ready': kbSourceReadyEvent,
+  'kb.source_failed': kbSourceFailedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

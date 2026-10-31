@@ -637,6 +637,13 @@
     "add_source": {
       "title": "Add knowledge source"
     },
+    "update_source": {
+      "title": "Update knowledge source"
+    },
+    "search": {
+      "title": "Search knowledge base",
+      "desc": "Find matching passages in the knowledge base (policies, service descriptions, FAQs) with sources — not for prices, stock or free slots"
+    },
     "remove_source": {
       "title": "Remove knowledge source"
     },

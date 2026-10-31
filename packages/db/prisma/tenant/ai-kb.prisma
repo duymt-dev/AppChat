@@ -1,3 +1,106 @@
 // tenant/ai-kb.prisma — sở hữu: TIP-020 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: Blueprint §2.2 ai-kb.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: Blueprint §2.2 ai-kb — kho tri thức một mỗi workspace (D29, D54): thư mục, nguồn, đoạn (pgvector + trgm), cài đặt ngưỡng.
+// `kb_chunk.embedding` (vector) + `content_norm` (cột sinh f_unaccent) đọc / ghi bằng SQL thô (search.ts / ingest.ts).
+// Không Prisma relation xuyên domain (Blueprint §2.1).
+
+enum KbVisibility {
+  public
+  internal
+
+  @@map("kb_visibility")
+}
+
+enum KbOrigin {
+  upload
+  url
+  text
+  catalog
+  conversation
+  drive
+
+  @@map("kb_origin")
+}
+
+enum KbSourceStatus {
+  pending
+  processing
+  ready
+  failed
+
+  @@map("kb_source_status")
+}
+
+model KbFolder {
+  id         String       @id @db.Uuid
+  name       String
+  parentId   String?      @map("parent_id") @db.Uuid
+  visibility KbVisibility @default(public)
+  sort       Int          @default(0)
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  sources KbSource[]
+
+  @@index([parentId])
+  @@map("kb_folder")
+}
+
+model KbSource {
+  id          String         @id @db.Uuid
+  folderId    String?        @map("folder_id") @db.Uuid
+  origin      KbOrigin
+  /// pdf | docx | xlsx | csv | txt | md | url | text | product (+ đuôi khác chỉ lưu — learn=false)
+  kind        String
+  name        String
+  tags        String[]       @default([])
+  visibility  KbVisibility   @default(public)
+  fileId      String?        @map("file_id") @db.Uuid
+  url         String?
+  productId   String?        @map("product_id") @db.Uuid
+  /// Nội dung văn bản nhập tay (origin=text) — nguồn để ingest lại.
+  body        String?
+  sha256      String?
+  /// false = chỉ lưu tài liệu, không cắt đoạn / embed ("Cho AI học tài liệu này").
+  learn       Boolean        @default(true)
+  starred     Boolean        @default(false)
+  status      KbSourceStatus @default(pending)
+  error       String?
+  chunkCount  Int            @default(0) @map("chunk_count")
+  /// Lần nạp (tăng mỗi lần thêm / học lại) — job id `kb-<id>-<seq>` + khoá trừ credit idempotent.
+  ingestSeq   Int            @default(1) @map("ingest_seq")
+  sizeBytes   BigInt         @default(0) @map("size_bytes")
+  createdBy   String?        @map("created_by") @db.Uuid
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  refreshedAt DateTime?      @map("refreshed_at") @db.Timestamptz(6)
+  deletedAt   DateTime?      @map("deleted_at") @db.Timestamptz(6)
+
+  folder KbFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  chunks KbChunk[]
+
+  @@index([createdAt(sort: Desc)])
+  @@map("kb_source")
+}
+
+model KbChunk {
+  id          String                       @id @db.Uuid
+  sourceId    String                       @map("source_id") @db.Uuid
+  ord         Int
+  content     String
+  embedding   Unsupported("vector(1536)")?
+  embedModel  String                       @map("embed_model")
+  tokenCount  Int                          @default(0) @map("token_count")
+  /// `{ path?: string[], page?: number, row?: number, volatile?: boolean }`
+  meta        Json                         @default("{}")
+
+  source KbSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, ord])
+  @@map("kb_chunk")
+}
+
+/// Một dòng (id = 1): ngưỡng căn cứ của workspace (rag §7).
+model KbSetting {
+  id       Int   @id @default(1) @db.SmallInt
+  minScore Float @default(0.35) @map("min_score") @db.Real
+
+  @@map("kb_setting")
+}

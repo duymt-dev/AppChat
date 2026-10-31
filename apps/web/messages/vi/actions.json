@@ -637,6 +637,13 @@
     "add_source": {
       "title": "Thêm tài liệu tri thức"
     },
+    "update_source": {
+      "title": "Sửa tài liệu tri thức"
+    },
+    "search": {
+      "title": "Tìm trong kho tri thức",
+      "desc": "Tìm đoạn phù hợp trong kho tri thức (chính sách, mô tả dịch vụ, câu hỏi thường gặp) kèm nguồn — không dùng cho giá / tồn / lịch trống"
+    },
     "remove_source": {
       "title": "Xoá tài liệu tri thức"
     },

@@ -3,3 +3,4 @@
 // File luật chỉ phụ thuộc shared + notify (không kéo service / DB của domain). Domain mới có luật → thêm một dòng.
 import '../../channels/events/channels.rules';
 import '../../inbox/events/inbox.rules';
+import '../../ai/events/kb.rules';

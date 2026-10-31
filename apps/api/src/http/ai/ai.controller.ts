@@ -2,7 +2,8 @@
 // rẻ nhất mỗi mức) · GET /v1/runs?root_run_id=&status= (khung "Trợ lý AI đang điều phối" — `assistant.use`). Ghi: ai_settings.update, run.cancel.
 import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { ProviderStore, QuotaService, TENANT_RESOLVER, aiSettingsDto, listRuns, readAiSetting, type RunFilter } from '@appchat/core';
+import { PLATFORM_DB, ProviderStore, QuotaService, TENANT_RESOLVER, aiSettingsDto, listRuns, readAiSetting, readKb, type RunFilter } from '@appchat/core';
+import type { PlatformDb } from '@appchat/db';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, type PermissionKey } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -17,6 +18,7 @@ export class AiController {
     @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver,
     @Inject(QuotaService) private readonly quota: QuotaService,
     @Inject(ProviderStore) private readonly providers: ProviderStore | null,
+    @Inject(PLATFORM_DB) private readonly platform: PlatformDb,
   ) {}
 
   private async db(req: IncomingMessage, perm: PermissionKey) {
@@ -41,5 +43,14 @@ export class AiController {
     if (n !== undefined && (!Number.isInteger(n) || n < 1)) throw new AppError('VALIDATION_FAILED', 400, { limit: 'invalid' });
     const f: RunFilter = { ...(root ? { rootRunId: root } : {}), ...(status && status !== 'all' ? { status: status as RunFilter['status'] } : {}), ...(n ? { limit: n } : {}) };
     return { data: await listRuns(db, f), next_cursor: null };
+  }
+
+  @Get('settings/kb')
+  async kb(@Req() req: IncomingMessage, @Query('nav') nav?: string, @Query('folder') folder?: string, @Query('q') q?: string) {
+    const { db } = await this.db(req, 'kb.manage');
+    if (folder && !UUID.test(folder)) folder = undefined;
+    const names = async (ids: string[]) =>
+      new Map((ids.length ? await this.platform.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, email: true } }) : []).map((u) => [u.id, u.name || u.email]));
+    return { data: await readKb(db, { nav: nav ?? 'all', folder: folder ?? null, q: (q ?? '').slice(0, 100) }, names) };
   }
 }

@@ -183,6 +183,9 @@ export interface KbDoc {
   starred: boolean;
   /** D54: public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền. */
   visibility: 'public' | 'internal';
+  /** http (TIP-020): trạng thái nạp ở worker + lý do lỗi. Mock không có. */
+  status?: 'pending' | 'processing' | 'ready' | 'failed';
+  error?: string;
 }
 
 export interface KbData {

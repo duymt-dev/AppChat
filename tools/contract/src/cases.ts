@@ -42,5 +42,8 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'channel.email.connect', input: { address: 'contract@spa.vn', fields: { imap_host: 'imap.fake.test', imap_port: '993', password: 'app-password-e2e' } }, tip: '018' },
   // TIP-019: Cài đặt › Mô hình AI — mức trong gói (workspace test gói Miễn phí: chỉ tiêu chuẩn) + hạn mức. run.cancel cần run thật → integration ai-runtime.
   { action: 'ai_settings.update', input: { default_tier: 'standard', tasks: { content: 'standard' }, budget: 300000, rate_limit: 8000 }, tip: '019' },
+  // TIP-020: kho tri thức — thư mục (*.create → Idempotency-Key) + tài liệu văn bản (nạp ở worker ROLE=ai). Tệp / tìm / xoá theo id → integration kb.
+  { action: 'kb.folder.create', input: { name: 'Contract thư mục' }, tip: '020', idempotent: true },
+  { action: 'kb.add_source', input: { name: 'Contract chính sách', text: 'Đổi trả trong 7 ngày.', visibility: 'public', tags: ['Policy'] }, tip: '020' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

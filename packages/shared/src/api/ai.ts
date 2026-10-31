@@ -52,3 +52,29 @@ export const runRowSchema = z.object({
   approval_id: z.string().optional(),
 });
 export const runsListSchema = z.object({ data: z.array(runRowSchema) });
+
+/** Trang Dữ liệu RAG (TIP-020, `GET /v1/settings/kb` — FE `features/settings/types.ts` KbData). `status` / `error` thêm cho http. */
+export const kbDocSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  tags: z.array(z.string()),
+  learned: z.boolean(),
+  size: z.string(),
+  source: z.string(),
+  by: z.string(),
+  date: z.string(),
+  folder_id: z.string().nullable(),
+  starred: z.boolean(),
+  visibility: z.enum(['public', 'internal']),
+  status: z.enum(['pending', 'processing', 'ready', 'failed']).optional(),
+  error: z.string().optional(),
+});
+export const kbDataSchema = z.object({
+  types: z.record(z.string(), z.tuple([z.string(), z.string(), z.string()])),
+  folders: z.array(z.object({ id: z.string(), name: z.string() })),
+  nav: z.record(z.string(), z.number().int()),
+  learned_total: z.number().int(),
+  size: z.string(),
+  data: z.array(kbDocSchema),
+});

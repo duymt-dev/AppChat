@@ -6,3 +6,7 @@ export { callKey, resumeMessages, toJson } from './gateway/messages';
 export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } from './router/router';
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';
 export { MOCK_MODEL, MOCK_PROVIDER, echoScript, mockLanguageModel, mockModelSource, staticModelSource, type MockScript, type MockTurn } from './testing/mock-model';
+export { AiSdkEmbedder, EMBED_DIM, type EmbedResult, type Embedder } from './embed/embedder';
+export { CHUNK_MAX_TOKENS, CHUNK_MIN_TOKENS, chunkDocument, hasPrice, tokensOf, type Chunk, type ChunkMeta, type DocBlock } from './kb/chunker';
+export { RRF_K, rrf } from './kb/rrf';
+export { MOCK_EMBED_MODEL, mockEmbedSource, mockEmbeddingModel, mockVector } from './testing/mock-embed';

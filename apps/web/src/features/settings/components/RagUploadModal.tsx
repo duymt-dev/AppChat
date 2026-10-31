@@ -1,11 +1,13 @@
 // Hộp "Tải tài liệu lên" — prototype L7485–7502 (460px): vùng kéo thả / chọn tệp (lấy tên tệp), Tên tài liệu *, Thư mục chứa, Thẻ (dấu phẩy),
-// "Cho AI học tài liệu này" (embedding), Ai được dùng (public / internal — D54). Lưu → kb.add_source (learn, visibility). Tệp thật đi qua storage port ở backend; FE mock chỉ ghi metadata.
+// "Cho AI học tài liệu này" (embedding), Ai được dùng (public / internal — D54). Lưu → tải tệp (`transport.upload`, purpose kb) rồi
+// kb.add_source { file_id, learn, visibility } (TIP-020). Mock: upload trả id giả, chỉ ghi metadata.
 'use client';
 import { useRef, useState } from 'react';
 import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { transport } from '@/shared/api/client';
 import { useSectionStyles } from '../styles/section.styles';
 import { useRagModalStyles } from '../styles/rag-modal.styles';
 import { useSettingsUi } from '../settings-store';
@@ -25,6 +27,8 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
   const set = useSettingsUi((u) => u.set);
   const file = useRef<HTMLInputElement>(null);
   const [name, setName] = useState('');
+  const [picked, setPicked] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [folder, setFolder] = useState(folderId ?? NONE);
   const [tags, setTags] = useState('');
   const [learn, setLearn] = useState(true);
@@ -34,7 +38,18 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
   const save = async () => {
     if (!name.trim()) return void message.error(t('errName'));
     const list = tags.split(COMMA).map((x) => x.trim()).filter(Boolean);
-    const r = await add.run({ name: name.trim(), ...(folder ? { folder_id: folder } : {}), ...(list.length ? { tags: list } : {}), learn, visibility: vis });
+    let fileId: string | undefined;
+    if (picked) {
+      setUploading(true);
+      try {
+        fileId = (await transport.upload(picked, 'kb')).file_id;
+      } catch {
+        return void message.error(t('errUpload'));
+      } finally {
+        setUploading(false);
+      }
+    }
+    const r = await add.run({ name: name.trim(), ...(fileId ? { file_id: fileId } : {}), ...(folder ? { folder_id: folder } : {}), ...(list.length ? { tags: list } : {}), learn, visibility: vis });
     if (r) close();
   };
   return (
@@ -46,7 +61,7 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
       saveLabel={t('save')}
       cancelLabel={t('cancel')}
       closeLabel={t('close')}
-      pending={add.isPending}
+      pending={add.isPending || uploading}
       testId="st-rag-modal"
     >
       <button type="button" className={styles.drop} onClick={() => file.current?.click()}>
@@ -62,7 +77,8 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
         hidden
         accept={ACCEPT}
         onChange={(e) => {
-          const f = e.target.files?.[0];
+          const f = e.target.files?.[0] ?? null;
+          setPicked(f);
           if (f && !name) setName(f.name);
         }}
         data-testid="st-rag-file"

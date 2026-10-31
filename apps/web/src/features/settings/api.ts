@@ -95,6 +95,8 @@ export const kbQuery = (p: { nav: string; folder: string | null; q: string }) =>
     queryKey: ['kb', 'settings', p],
     queryFn: () => transport.get<KbData>('/settings/kb', { nav: p.nav, ...(p.folder ? { folder: p.folder } : {}), ...(p.q ? { q: p.q } : {}) }),
     placeholderData: (prev) => prev,
+    // Tài liệu đang nạp ở worker (http) → hỏi lại tới khi xong (FE chưa có kênh realtime `kb.source`).
+    refetchInterval: (q) => (q.state.data?.data.some((d) => d.status === 'pending' || d.status === 'processing') ? 2000 : false),
   });
 
 export const governanceQuery = () => queryOptions({ queryKey: ['ai', 'governance'], queryFn: () => transport.get<Governance>('/settings/governance') });

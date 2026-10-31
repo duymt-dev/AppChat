@@ -18,6 +18,8 @@ const base = existsSync(envFile)
     )
   : {};
 const mailDir = mkdtempSync(join(tmpdir(), 'appchat-mail-'));
+// Tệp tải lên (TIP-020) của lượt E2E — xoá khi xong.
+const filesDir = mkdtempSync(join(tmpdir(), 'appchat-files-'));
 const env = {
   ...process.env,
   ...base,
@@ -34,6 +36,7 @@ const env = {
   MAIL_TRANSPORT: 'fake',
   // Model giả (TIP-019, Q-001 chưa có key 9router): engine AI SDK thật, câu trả lời theo kịch bản.
   AI_ENGINE: 'mock',
+  FILES_DIR: filesDir,
 };
 
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });
@@ -46,11 +49,14 @@ const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'jobs' }, stdio: 'inherit' }),
   // TIP-014: worker kênh với Zalo giả (Q-003 — chưa có tài khoản Zalo phụ): QR tự "quét" sau 1,5 giây, gửi không trễ.
+  // TIP-020: worker AI — nạp tài liệu kho tri thức (`kb-ingest`, embedding giả).
+  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'ai' }, stdio: 'inherit' }),
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch hẹn', MAIL_FAKE_GREETING: 'Spa còn lịch chiều nay không ạ?' }, stdio: 'inherit' }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();
   rmSync(mailDir, { recursive: true, force: true });
+  rmSync(filesDir, { recursive: true, force: true });
 };
 process.on('SIGINT', () => {
   stop();
