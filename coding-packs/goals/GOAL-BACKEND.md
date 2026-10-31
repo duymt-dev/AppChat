@@ -120,7 +120,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 025 | W6 | DONE (model giả — chưa nghiệm thu LLM thật, Q-001) | `tip/025-inbox` (xếp chồng 024) | 7472aed | chờ tạo (gh chưa đăng nhập) |
 | 026 | W6 | DONE | `tip/026-customers` (xếp chồng 025) | 5d3bdf7 | chờ tạo (gh chưa đăng nhập) |
 | 027 | W6 | DONE | `tip/027-catalog` (xếp chồng 026) | 907f71a | chờ tạo (gh chưa đăng nhập) |
-| 028 | W6 | chờ | — | — | — |
+| 028 | W6 | DONE | `tip/028-doc-templates` (xếp chồng 027) | a3dc174 | chờ tạo (gh chưa đăng nhập) |
 | 029 | W7 | chờ | — | — | — |
 | 030 | W7 | chờ | — | — | — |
 | 031 | W7 | chờ | — | — | — |
