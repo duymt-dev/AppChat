@@ -118,7 +118,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 023 | W6 | DONE (model giả — chưa nghiệm thu LLM thật, Q-001) | `tip/023-assistant` (xếp chồng 022) | 9a0f378 | chờ tạo (gh chưa đăng nhập) |
 | 024 | W6 | DONE (model giả — chưa nghiệm thu LLM thật, Q-001) | `tip/024-agents-ui` (xếp chồng 023) | f386ed2 | chờ tạo (gh chưa đăng nhập) |
 | 025 | W6 | DONE (model giả — chưa nghiệm thu LLM thật, Q-001) | `tip/025-inbox` (xếp chồng 024) | 7472aed | chờ tạo (gh chưa đăng nhập) |
-| 026 | W6 | chờ | — | — | — |
+| 026 | W6 | DONE | `tip/026-customers` (xếp chồng 025) | 5d3bdf7 | chờ tạo (gh chưa đăng nhập) |
 | 027 | W6 | chờ | — | — | — |
 | 028 | W6 | chờ | — | — | — |
 | 029 | W7 | chờ | — | — | — |
