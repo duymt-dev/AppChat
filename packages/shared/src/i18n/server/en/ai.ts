@@ -34,7 +34,7 @@ export const ai: typeof vi = {
   assistant: {
     session: 'New conversation',
     verb: { write: 'Update', send: 'Send', money: 'Money operation', delete: 'Delete', config: 'Change settings', read: 'Look up', create: 'Create' },
-    card: { title: '{verb} {entity}', descEmpty: 'Operation: {action}. Review it, then press Confirm.' },
+    card: { title: '{verb} {entity}', descEmpty: 'AppChat will {action} once you press Confirm.' },
     mode: {
       chat: 'Chat — look up and answer only; no write operations. If the user wants it done, suggest switching to Cowork.',
       cowork: 'Cowork — may find and call any action within the user permissions, plan multi-step work and delegate to specialist agents.',
@@ -44,7 +44,7 @@ export const ai: typeof vi = {
     owner: 'Workspace owner (full access)',
     queryData: 'Metric queries (query_data) arrive in a later release — use read actions via find_actions.',
     cancelled: 'Operation cancelled.',
-    error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant hit an error ({code}). Please try again later.' },
+    error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant could not handle this request yet — please try again later.' },
     entity: {
       agent: 'AI Agent', appointment: 'appointment', product: 'product', category: 'category', stock: 'stock', contract: 'contract', contact: 'customer',
       conversation: 'conversation', message: 'message', note: 'note', invoice: 'payment request', loyalty: 'loyalty points', segment: 'segment',

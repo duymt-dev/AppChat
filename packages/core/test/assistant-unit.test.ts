@@ -54,9 +54,10 @@ describe('thẻ xác nhận', () => {
     expect(lookOf({ id: 'xyz.do', module: 'settings' })).toMatchObject({ route: '/settings' });
   });
 
-  it('mô tả = tóm tắt preview của handler; không có → câu mặc định có id action (DC-128)', () => {
+  it('mô tả = tóm tắt preview của handler; không có → câu mặc định theo tiêu đề, không lộ id action (DC-128, DC-133)', () => {
     expect(confirmCard(def('contact.create'), { summary: 'Tạo khách Lan', risk: 'write' }, 'tk').desc).toBe('Tạo khách Lan');
-    expect(confirmCard(def('contact.create'), { summary: '', risk: 'write' }, 'tk').desc).toContain('contact.create');
+    expect(confirmCard(def('contact.create'), { summary: '', risk: 'write' }, 'tk').desc).toBe('AppChat sẽ tạo khách hàng khi anh/chị bấm Xác nhận.');
+    expect(confirmCard(def('quote.send'), null, 'tk', 'en').desc).toBe('AppChat will send quote once you press Confirm.');
   });
 });
 
@@ -76,6 +77,7 @@ describe('UiCommand + prompt + nhật ký', () => {
     expect(vi).toContain('- route: /quotes\n- quote: q1');
     expect(vi).toContain('Chat — chỉ tra cứu');
     expect(vi).toContain('Chưa có agent nào đang chạy.');
+    expect(vi).toContain('Không nêu mã lỗi, id hay tên kỹ thuật');
     const en = await assistantSystem(noAgents, { text: 'x', mode: 'cowork', session_id: 's', locale: 'en', user_name: 'Lan', role: 'owner' }, owner);
     expect(en).toMatch(/^# APPCHAT ASSISTANT/);
     expect(en).toContain('Workspace owner (full access)');

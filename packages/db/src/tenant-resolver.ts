@@ -37,8 +37,8 @@ export class TenantDbResolver {
     });
   }
 
-  /** Bật dọn client idle định kỳ (api / worker gọi lúc boot). */
-  startSweeper(everyMs = 60_000): void {
+  /** Bật dọn client idle định kỳ (api / worker gọi lúc boot). Chu kỳ mặc định = nửa `idleMs` (≤ 60 giây) — idle ngắn thì quét dày. */
+  startSweeper(everyMs = Math.min(60_000, Math.max(1_000, Math.floor((this.opts.idleMs ?? 600_000) / 2)))): void {
     this.timer ??= setInterval(() => this.clients.sweep(), everyMs);
     this.timer.unref();
   }

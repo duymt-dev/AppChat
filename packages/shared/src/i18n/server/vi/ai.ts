@@ -32,7 +32,7 @@ export const ai = {
   assistant: {
     session: 'Cuộc trò chuyện mới',
     verb: { write: 'Cập nhật', send: 'Gửi', money: 'Thao tác tiền', delete: 'Xoá', config: 'Đổi cấu hình', read: 'Tra cứu', create: 'Tạo' },
-    card: { title: '{verb} {entity}', descEmpty: 'Thao tác: {action}. Kiểm tra rồi bấm Xác nhận.' },
+    card: { title: '{verb} {entity}', descEmpty: 'AppChat sẽ {action} khi anh/chị bấm Xác nhận.' },
     mode: {
       chat: 'Chat — chỉ tra cứu và trả lời; không thực hiện thao tác ghi. Muốn làm thay thì gợi ý người dùng chuyển sang Cowork.',
       cowork: 'Cowork — được tìm và gọi mọi action trong quyền người dùng, lập kế hoạch nhiều bước và giao việc cho agent chuyên trách.',
@@ -42,7 +42,7 @@ export const ai = {
     owner: 'Chủ workspace (toàn quyền)',
     queryData: 'Truy vấn số liệu (query_data) sẽ có ở bản sau — hãy dùng action đọc qua find_actions.',
     cancelled: 'Đã huỷ thao tác.',
-    error: { CREDIT_EXHAUSTED: 'Hết credit AI — nạp thêm ở Cài đặt › Ví & gói để tiếp tục.', generic: 'Trợ lý gặp lỗi ({code}). Anh/chị thử lại sau nhé.' },
+    error: { CREDIT_EXHAUSTED: 'Hết credit AI — nạp thêm ở Cài đặt › Ví & gói để tiếp tục.', generic: 'Trợ lý chưa xử lý được yêu cầu này, anh/chị thử lại sau nhé.' },
     entity: {
       agent: 'AI Agent', appointment: 'lịch hẹn', product: 'sản phẩm', category: 'danh mục', stock: 'tồn kho', contract: 'hợp đồng', contact: 'khách hàng',
       conversation: 'hội thoại', message: 'tin nhắn', note: 'ghi chú', invoice: 'đề nghị thanh toán', loyalty: 'điểm thành viên', segment: 'phân khúc',

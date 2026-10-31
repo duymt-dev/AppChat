@@ -173,6 +173,13 @@ describe('lượt hội thoại (AC3)', () => {
     expect(steps[1]!.output).toMatchObject({ kind: 'error', code: 'FORBIDDEN' });
   });
 
+  it('lỗi model → sự kiện error có mã ở `code`, câu cho người dùng không kèm mã (DC-133)', async () => {
+    const r = await turn([{ error: { statusCode: 400, message: 'bad request' } }], { mode: 'chat', text: 'lỗi?' });
+    const e = r.events[0] as { type: string; code: string; message: string };
+    expect(e).toMatchObject({ type: 'error', code: 'LLM_ERROR', message: 'Trợ lý chưa xử lý được yêu cầu này, anh/chị thử lại sau nhé.' });
+    expect((await (await tenant()).aiRun.findUniqueOrThrow({ where: { id: r.run_id! } })).error).toMatch(/LLM_ERROR/);
+  });
+
   it('ui → sự kiện ui_command; UiCommand sai → lỗi tool, không phát', async () => {
     const script: MockScript = ({ call: n }) =>
       n === 0 ? { tools: [{ tool: 'ui', input: { command: { type: 'navigate', route: '/tickets' } } }, { tool: 'ui', input: { command: { type: 'boom' } } }] } : { text: 'Đã mở Hỗ trợ.' };
@@ -210,6 +217,7 @@ describe('lượt hội thoại (AC3)', () => {
     try {
       const r = await turn([{ text: 'không tới' }], { mode: 'chat', text: 'hết tiền?' });
       expect(r.events).toEqual([expect.objectContaining({ type: 'error', code: 'CREDIT_EXHAUSTED' })]);
+      expect((r.events[0] as { message: string }).message).not.toMatch(/[A-Z]{3,}_/);
     } finally {
       await h.platform.creditWallet.update({ where: { workspaceId: h.ws }, data: { planBalance: before.planBalance, topupBalance: before.topupBalance } });
     }

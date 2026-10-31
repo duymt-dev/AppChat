@@ -3,12 +3,16 @@
 // dòng vừa tạo; hỏi từ Trợ lý thu nhỏ (màn khác) → màn Trợ lý nhận câu hỏi và trả lời. Phiên / tin lưu DB: integration `assistant`.
 import { expect, test } from '@playwright/test';
 import { isMobile } from '../support/mobile';
-import { onboarded } from './support';
+import { onboarded, spoofIp } from './support';
 
 test.describe('Trợ lý AI (http)', () => {
-  test.beforeEach(({ page }) => test.skip(isMobile(page), 'luồng desktop'));
+  test.beforeEach(async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await spoofIp(page);
+  });
 
-  test('hỏi → trả lời; Cowork tạo khách → xác nhận → lưu + mở màn; nhật ký có dòng vừa tạo', async ({ page }) => {
+  // Một workspace cho cả luồng: mỗi lần onboarding tạo một DB tenant (CREATE DATABASE từ template xếp hàng — giữ tải E2E).
+  test('hỏi → trả lời; Cowork tạo khách → xác nhận → lưu + mở màn; nhật ký; Trợ lý thu nhỏ gửi câu hỏi', async ({ page }) => {
     await onboarded(page, 'assistant');
     await page.goto('/assistant');
     await page.getByRole('radio', { name: 'Cowork' }).click();
@@ -33,10 +37,8 @@ test.describe('Trợ lý AI (http)', () => {
     await page.goto('/assistant/actions');
     await page.getByTestId('log-search').fill('lan tro ly');
     await expect(page.getByTestId('action-log')).toContainText('Tạo khách hàng "Lan Trợ Lý"', { timeout: 15_000 });
-  });
 
-  test('Trợ lý thu nhỏ ở màn khác gửi câu hỏi → màn Trợ lý trả lời', async ({ page }) => {
-    await onboarded(page, 'assistantdock');
+    // Trợ lý thu nhỏ ở màn khác → màn Trợ lý nhận câu hỏi (ngữ cảnh = màn gốc) và trả lời.
     await page.goto('/invoices');
     await page.getByTestId('iv-ai-open').click();
     await expect(page.getByTestId('assistant-dock')).toBeVisible();

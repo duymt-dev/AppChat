@@ -95,9 +95,9 @@ const CREATE_CONTACT = /tạo (?:khách hàng|liên hệ)\s+(.+?)\s+((?:\+?84|0)
 
 function assistantTurn(lastUser: string, lastTool: MockCtx['lastTool']): MockTurn {
   if (lastTool) {
-    const out = (lastTool.output ?? {}) as { cancelled?: boolean; error?: { code?: string } };
+    const out = (lastTool.output ?? {}) as { cancelled?: boolean; error?: unknown };
     if (out.cancelled) return { text: 'Đã huỷ thao tác theo yêu cầu.' };
-    if (out.error) return { text: `Không thực hiện được (${out.error.code ?? 'ERROR'}).` };
+    if (out.error) return { text: 'Em chưa thực hiện được yêu cầu này. Anh/chị kiểm tra lại thông tin hoặc thử cách khác nhé.' };
     return { text: lastTool.tool === 'call_action' ? 'Đã lưu khách hàng mới.' : 'Đã xong.' };
   }
   const m = CREATE_CONTACT.exec(lastUser.trim());

@@ -37,6 +37,10 @@ const env = {
   // Model giả (TIP-019, Q-001 chưa có key 9router): engine AI SDK thật, câu trả lời theo kịch bản.
   AI_ENGINE: 'mock',
   FILES_DIR: filesDir,
+  // Mỗi spec onboarding một workspace mới (DB tenant riêng) trên 4 tiến trình: pool tenant nhỏ + đóng client rảnh sau 20 giây để
+  // Postgres dev (max_connections 100) không cạn slot khi chạy toàn bộ song song.
+  TENANT_POOL_MAX: '2',
+  TENANT_CLIENT_IDLE_MS: '20000',
 };
 
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });
@@ -79,7 +83,8 @@ for (;;) {
   await new Promise((r) => setTimeout(r, 500));
 }
 
-const specs = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+// Spec + cờ Playwright (vd. `--workers=2` khi Postgres dev chạm `max_connections`) chuyển thẳng; `--no-build` là cờ của script.
+const specs = process.argv.slice(2).filter((a) => a !== '--no-build');
 const r = run('pnpm', ['exec', 'playwright', 'test', '--config', 'playwright.http.config.ts', ...specs], {
   cwd: join(ROOT, 'apps/web'),
   // Spec billing giả webhook ngân hàng nền tảng (/hooks/payments/mock) bằng cùng khoá HMAC với API (TIP-010).

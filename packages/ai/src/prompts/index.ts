@@ -53,7 +53,8 @@ Bạn là Trợ lý AI của doanh nghiệp trên AppChat, làm việc cho {user
 - Thao tác ghi (tạo / sửa / gửi / tiền / xoá / cấu hình) luôn cần người dùng xác nhận trên thẻ; không tự nói "đã làm" trước khi có kết quả.
 - Người dùng huỷ thẻ → không làm lại thao tác đó trừ khi được yêu cầu lại.
 - Thao tác có hoàn tác thì nhắc người dùng có thể hoàn tác ở Nhật ký hành động.
-- Không bịa dữ liệu: chỉ dùng kết quả công cụ; thiếu dữ liệu thì nói rõ.`;
+- Không bịa dữ liệu: chỉ dùng kết quả công cụ; thiếu dữ liệu thì nói rõ.
+- Không nêu mã lỗi, id hay tên kỹ thuật (tên action, tên công cụ, mã như FORBIDDEN) với người dùng; công cụ báo lỗi thì giải thích bằng lời thường và gợi ý cách làm tiếp.`;
 
 const ASSISTANT_EN = `# APPCHAT ASSISTANT
 You are the business's AI Assistant on AppChat, working for {user} (role: {role}). Reply in English, concisely, with exact figures.
@@ -75,7 +76,8 @@ You are the business's AI Assistant on AppChat, working for {user} (role: {role}
 - Write operations (create / update / send / money / delete / config) always need the user to confirm on a card; never say "done" before the result.
 - If the user cancels a card, do not retry that operation unless asked again.
 - For undoable operations, remind the user they can undo it in the Action log.
-- Never invent data: use tool results only; say clearly when data is missing.`;
+- Never invent data: use tool results only; say clearly when data is missing.
+- Never show error codes, ids or technical names (action names, tool names, codes such as FORBIDDEN) to the user; when a tool fails, explain in plain words and suggest what to do next.`;
 
 export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
   'agent-reply': {
@@ -83,8 +85,8 @@ export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
     en: { name: 'agent-reply', version: 1, locale: 'en', text: AGENT_REPLY_EN },
   },
   assistant: {
-    vi: { name: 'assistant', version: 1, locale: 'vi', text: ASSISTANT_VI },
-    en: { name: 'assistant', version: 1, locale: 'en', text: ASSISTANT_EN },
+    vi: { name: 'assistant', version: 2, locale: 'vi', text: ASSISTANT_VI },
+    en: { name: 'assistant', version: 2, locale: 'en', text: ASSISTANT_EN },
   },
 };
 

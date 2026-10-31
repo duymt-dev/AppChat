@@ -5,7 +5,7 @@
 import { registry } from '@appchat/actions';
 import type { PausedState, ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AI_TIERS, AppError, interpolate, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
+import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import type { KeyValueStore } from '../../kernel/redis';
 import { CONFIRM_TTL_MS } from '../../kernel/actions/confirm-token';
@@ -96,7 +96,8 @@ async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResul
     }
   } else if (r.status === 'failed' || r.status === 'cancelled') {
     const code = r.error?.code ?? r.status.toUpperCase();
-    const message = code === 'CREDIT_EXHAUSTED' ? m.error.CREDIT_EXHAUSTED : interpolate(m.error.generic, { code });
+    // Mã lỗi chỉ ở `code` của sự kiện + log / ai_run.error; câu hiện cho người dùng không kèm mã (DC-133).
+    const message = code === 'CREDIT_EXHAUSTED' ? m.error.CREDIT_EXHAUSTED : m.error.generic;
     events.push({ type: 'error', code, message });
     parts.push({ type: 'text', text: message });
   }

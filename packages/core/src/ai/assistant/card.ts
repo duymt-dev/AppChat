@@ -1,6 +1,6 @@
 // Thẻ xác nhận của Trợ lý (FE `ConfirmEvent` — prototype L1260 ActionCard): dựng từ ActionDef + preview của executor. Handler có
-// `preview` → tóm tắt của handler; chưa có → câu mặc định theo action (DC-128). Route / màu / icon theo đối tượng của action
-// (đúng bảng màu module của prototype — fixture `assistant.json` intents) để nút "Đã lưu vào …" mở đúng màn.
+// `preview` → tóm tắt của handler; chưa có → câu mặc định theo tiêu đề (DC-128). Chữ trên thẻ không có id action (DC-133). Route /
+// màu / icon theo đối tượng của action (bảng màu module của prototype — fixture `assistant.json` intents) để "Đã lưu vào …" mở đúng màn.
 import type { ActionDef, ActionPreview } from '@appchat/actions';
 import type { ConfirmEventDto } from '@appchat/shared';
 import { interpolate, serverMessages } from '@appchat/shared';
@@ -52,9 +52,10 @@ export function confirmCard(def: ActionDef, preview: ActionPreview | null, token
   const m = serverMessages(locale).ai.assistant;
   const look = lookOf(def);
   const verb = /\.create(_and_publish)?$/.test(def.id) ? m.verb.create : m.verb[def.risk];
-  const entity = (m.entity as Record<string, string>)[entityOf(def.id)] ?? def.id;
   const dest = (m.module as Record<string, string>)[def.module] ?? def.module;
+  const entity = (m.entity as Record<string, string>)[entityOf(def.id)] ?? dest;
   const summary = preview?.summary?.trim();
+  const title = interpolate(m.card.title, { verb, entity });
   return {
     type: 'confirm',
     confirm_token: token,
@@ -63,8 +64,9 @@ export function confirmCard(def: ActionDef, preview: ActionPreview | null, token
     color: look.color,
     action_id: def.id,
     route: look.route,
-    title: interpolate(m.card.title, { verb, entity }),
-    desc: summary || interpolate(m.card.descEmpty, { action: def.id }),
+    title,
+    // Không có tóm tắt của handler → câu theo tiêu đề (không đưa id action lên UI — DC-133).
+    desc: summary || interpolate(m.card.descEmpty, { action: title.toLocaleLowerCase(locale) }),
     dest,
   };
 }
