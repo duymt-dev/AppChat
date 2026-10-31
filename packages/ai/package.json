@@ -9,13 +9,21 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "eslint src",
+    "lint": "eslint src test",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "4.0.87",
+    "@ai-sdk/deepseek": "3.0.72",
+    "@ai-sdk/google": "4.0.104",
+    "@ai-sdk/openai": "4.0.101",
+    "@ai-sdk/openai-compatible": "3.0.77",
+    "@ai-sdk/provider": "4.0.33",
     "@appchat/actions": "workspace:*",
-    "@appchat/shared": "workspace:*"
+    "@appchat/shared": "workspace:*",
+    "ai": "7.0.152",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

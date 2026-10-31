@@ -8,3 +8,4 @@ export * from './crm';
 export * from './channels';
 export * from './inbox';
 export * from './webchat';
+export * from './ai';

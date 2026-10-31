@@ -47,7 +47,7 @@ export const DOMAIN_HTTP_MODULES = [
 
 /** Route kernel (actions / action-logs) + route identity chỉ khi env có DB + Redis + JWT_SECRET (executor + actor JWT). */
 const withActions = (env: Record<string, string | undefined>) =>
-  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register(), AuthzHttpModule.register(), NotifyHttpModule.register(), BillingHttpModule.register(), IntegrationsHttpModule.register(), CrmHttpModule.register(), ChannelsHttpModule.register(), InboxHttpModule.register()] : [];
+  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register(), AuthzHttpModule.register(), NotifyHttpModule.register(), BillingHttpModule.register(), IntegrationsHttpModule.register(), CrmHttpModule.register(), ChannelsHttpModule.register(), InboxHttpModule.register(), AiHttpModule.register()] : [];
 
 @Module({})
 export class AppModule {

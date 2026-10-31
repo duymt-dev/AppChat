@@ -1,7 +1,8 @@
 // CreditMeter (Blueprint §5.1 Usage): mỗi bước LLM → credit theo đơn giá model → trừ ví ở DB nền tảng, idempotent theo
 // `(ws, 'ai_step', runId:stepIdx)`; người gọi ghi `ai_run_step.credits` ở DB tenant SAU khi charge thành công.
-// Đơn giá (`model_price`) thuộc TIP-019 → port PriceBook; TIP-009 cài StaticPriceBook (test / chưa có bảng giá).
+// Đơn giá: port PriceBook — `DbPriceBook` đọc `model_price` (TIP-019, cache 60 giây); StaticPriceBook cho test / không có DB.
 import { AppError, creditsFor } from '@appchat/shared';
+import type { PlatformDb } from '@appchat/db';
 import type { WalletChange, WalletService } from './wallet.service';
 
 export interface ModelPrice {
@@ -20,6 +21,24 @@ export class StaticPriceBook implements PriceBook {
   constructor(private readonly prices: Record<string, ModelPrice> = {}) {}
   async price(provider: string, model: string): Promise<ModelPrice | null> {
     return this.prices[`${provider}:${model}`] ?? this.prices['*'] ?? null;
+  }
+}
+
+/** Đơn giá từ `model_price` (DB nền tảng — TIP-019), cache 60 giây: Quản trị nền tảng đổi giá → hiệu lực ≤ 1 phút. */
+export class DbPriceBook implements PriceBook {
+  private cache: { at: number; map: Map<string, ModelPrice> } | null = null;
+
+  constructor(
+    private readonly db: Pick<PlatformDb, 'modelPrice'>,
+    private readonly now: () => number = Date.now,
+  ) {}
+
+  async price(provider: string, model: string): Promise<ModelPrice | null> {
+    if (!this.cache || this.now() - this.cache.at >= 60_000) {
+      const rows = await this.db.modelPrice.findMany({ where: { active: true } });
+      this.cache = { at: this.now(), map: new Map(rows.map((r) => [`${r.providerKey}:${r.model}`, { per1kIn: Number(r.creditsPer1kIn), per1kOut: Number(r.creditsPer1kOut) }])) };
+    }
+    return this.cache.map.get(`${provider}:${model}`) ?? null;
   }
 }
 

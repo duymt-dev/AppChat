@@ -2,7 +2,7 @@
 // WalletService / SubscriptionsService — 010/040) và test. Một dòng re-export ở src/index.ts (facade).
 export { seedPlans } from './seed';
 export { WalletService, type Balance, type LedgerInput, type WalletChange, type WalletFlags, type WalletListener } from './services/wallet.service';
-export { CreditMeter, StaticPriceBook, PRICE_BOOK, type PriceBook, type ModelPrice, type UsageInput } from './services/credit-meter';
+export { CreditMeter, DbPriceBook, StaticPriceBook, PRICE_BOOK, type PriceBook, type ModelPrice, type UsageInput } from './services/credit-meter';
 export { QuotaService, type PlanLimits } from './services/quota.service';
 export { SubscriptionsService, type BillingEventSink } from './services/subscriptions.service';
 export { BillingReadService, ledgerDto, LEDGER_PAGE, CREDIT_VND } from './services/billing-read.service';

@@ -1,3 +1,84 @@
 // platform/ai-config.prisma — sở hữu: TIP-019 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: llm_provider, model_route, model_price.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: llm_provider, model_route, model_price. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Chỉ Quản trị nền tảng sửa (TIP-040 `admin.llm_provider.*` / `admin.model_route.upsert` / `admin.model_price.upsert`); TIP-019 seed từ env.
+
+enum LlmProviderKind {
+  anthropic
+  openai
+  google
+  deepseek
+  openai_compatible
+
+  @@map("llm_provider_kind")
+}
+
+enum LlmProviderStatus {
+  active
+  disabled
+
+  @@map("llm_provider_status")
+}
+
+enum AiTier {
+  standard
+  advanced
+  max
+
+  @@map("ai_tier")
+}
+
+enum ModelPurpose {
+  chat
+  embed
+  rerank
+
+  @@map("model_purpose")
+}
+
+/// Nhà cung cấp LLM (D33): provider gốc qua `@ai-sdk/*`, router OpenRouter / 9router / LiteLLM… = `openai_compatible` (base_url).
+/// Key mã hoá AES-256-GCM (`APP_ENC_KEY`); `capabilities` = { tools, json_schema, streaming, embeddings, vision, reasoning }.
+model LlmProvider {
+  key          String            @id
+  kind         LlmProviderKind
+  name         String
+  baseUrl      String?           @map("base_url")
+  apiKeyEnc    Bytes?            @map("api_key_enc")
+  headers      Json?
+  capabilities Json              @default("{}")
+  status       LlmProviderStatus @default(active)
+  lastProbeAt  DateTime?         @map("last_probe_at") @db.Timestamptz(6)
+  lastError    String?           @map("last_error")
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("llm_provider")
+}
+
+/// Định tuyến theo mức AI + mục đích; fallback theo `priority` tăng dần (trộn provider gốc và router). Tên model chỉ ở đây (D29).
+model ModelRoute {
+  id          String       @id @db.Uuid
+  tier        AiTier
+  purpose     ModelPurpose @default(chat)
+  priority    Int          @default(0)
+  providerKey String       @map("provider_key")
+  model       String
+  params      Json?
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([tier, purpose, priority])
+  @@map("model_route")
+}
+
+/// Đơn giá credit theo model (REQ-L01): credit = ceil((in × per_1k_in + out × per_1k_out) / 1000) — `creditsFor` (@appchat/shared).
+model ModelPrice {
+  providerKey     String   @map("provider_key")
+  model           String
+  tier            AiTier
+  creditsPer1kIn  Decimal  @map("credits_per_1k_in") @db.Decimal(12, 4)
+  creditsPer1kOut Decimal  @map("credits_per_1k_out") @db.Decimal(12, 4)
+  active          Boolean  @default(true)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([providerKey, model])
+  @@map("model_price")
+}

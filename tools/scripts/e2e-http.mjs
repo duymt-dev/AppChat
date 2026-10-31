@@ -32,6 +32,8 @@ const env = {
   WIDGET_API_URL: `http://localhost:${API_PORT}`,
   // Hộp thư kênh Email giả (TIP-018): API kiểm tra / kết nối, worker poll + gửi — không đăng nhập IMAP / SMTP thật.
   MAIL_TRANSPORT: 'fake',
+  // Model giả (TIP-019, Q-001 chưa có key 9router): engine AI SDK thật, câu trả lời theo kịch bản.
+  AI_ENGINE: 'mock',
 };
 
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });

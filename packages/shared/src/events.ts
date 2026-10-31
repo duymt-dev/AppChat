@@ -94,6 +94,9 @@ export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string(
 export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_id: z.string().nullable(), by_user_id: z.string().uuid().nullable(), auto: z.boolean(), title: z.string() });
 export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
 
+/** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
+export const runCancelledEvent = z.object({ ...base, run_id: z.string().uuid(), run_ids: z.array(z.string().uuid()) });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -124,5 +127,6 @@ export const EVENT_SCHEMAS = {
   'message.updated': messageUpdatedEvent,
   'conversation.assigned': conversationAssignedEvent,
   'conversation.updated': conversationUpdatedEvent,
+  'run.cancelled': runCancelledEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

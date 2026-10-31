@@ -18,7 +18,7 @@ import { InvoicesService } from './payments/invoices.service';
 import { PAYMENTS_ENV, readPaymentsEnv, type PaymentsEnv } from './payments/payments.env';
 import { seedPlans } from './seed';
 import { BillingReadService } from './services/billing-read.service';
-import { CreditMeter, PRICE_BOOK, StaticPriceBook, type PriceBook } from './services/credit-meter';
+import { CreditMeter, DbPriceBook, PRICE_BOOK, StaticPriceBook, type PriceBook } from './services/credit-meter';
 import { QuotaService } from './services/quota.service';
 import { SubscriptionsService } from './services/subscriptions.service';
 import { WalletService } from './services/wallet.service';
@@ -60,8 +60,8 @@ class BillingBoot implements OnApplicationBootstrap {
     },
     { provide: QuotaService, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new QuotaService(p) : null) },
     { provide: BillingReadService, inject: [opt(PLATFORM_DB), CLOCK], useFactory: (p: PlatformDb | undefined, c: Clock) => (p ? new BillingReadService(p, () => c.now()) : null) },
-    // Bảng giá model thật ở TIP-019 (model_price) — ghi đè provider này.
-    { provide: PRICE_BOOK, useFactory: () => new StaticPriceBook() },
+    // Đơn giá model (TIP-019): `model_price` ở DB nền tảng; không DB → bảng giá rỗng (model chưa có giá → không chạy).
+    { provide: PRICE_BOOK, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new DbPriceBook(p) : new StaticPriceBook()) },
     {
       provide: CreditMeter,
       inject: [WalletService, PRICE_BOOK],

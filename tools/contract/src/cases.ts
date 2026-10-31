@@ -40,5 +40,7 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   // TIP-018: kênh Email — kiểm tra form + kết nối (HTTP: hộp thư giả `MAIL_TRANSPORT=fake`, mật khẩu đúng = app-password-e2e).
   { action: 'channel.test', input: { type: 'email', fields: { address: 'contract@spa.vn', imap_host: 'imap.fake.test', imap_port: '993', password: 'app-password-e2e' } }, tip: '018' },
   { action: 'channel.email.connect', input: { address: 'contract@spa.vn', fields: { imap_host: 'imap.fake.test', imap_port: '993', password: 'app-password-e2e' } }, tip: '018' },
+  // TIP-019: Cài đặt › Mô hình AI — mức trong gói (workspace test gói Miễn phí: chỉ tiêu chuẩn) + hạn mức. run.cancel cần run thật → integration ai-runtime.
+  { action: 'ai_settings.update', input: { default_tier: 'standard', tasks: { content: 'standard' }, budget: 300000, rate_limit: 8000 }, tip: '019' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];
