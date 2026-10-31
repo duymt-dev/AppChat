@@ -1,4 +1,5 @@
 // Kiểu dữ liệu Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5).
+import type { UiCommand } from '@appchat/actions';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type Mode = 'chat' | 'cowork';
 
@@ -40,7 +41,19 @@ export interface ConfirmEvent {
   dest: string;
 }
 
-export type TurnEvent = { type: 'delta'; text: string } | ConfirmEvent;
+export type TurnEvent =
+  | { type: 'delta'; text: string }
+  | ConfirmEvent
+  | { type: 'ui_command'; command: UiCommand }
+  | { type: 'result'; action_log_id: string; summary: string }
+  | { type: 'error'; code: string; message: string };
+
+/** Ngữ cảnh màn đang mở gửi kèm lượt (Blueprint §4.5 `context`). */
+export interface TurnContext {
+  route: string;
+  entity?: string;
+  id?: string;
+}
 
 export interface ChatMessage {
   id: string;
@@ -48,6 +61,8 @@ export interface ChatMessage {
   text: string;
   card?: ConfirmEvent;
   status?: 'pending' | 'done' | 'cancelled';
+  /** Bản ghi vừa tạo khi xác nhận (ui_target của action) — nút "Đã lưu vào …" mở đúng chỗ. */
+  target?: UiCommand;
 }
 
 export interface AiTask {

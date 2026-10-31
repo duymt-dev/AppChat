@@ -31,4 +31,42 @@ export const ai: typeof vi = {
     rejected: 'The approver rejected this action',
     expired: 'Approval expired',
   },
+  assistant: {
+    session: 'New conversation',
+    verb: { write: 'Update', send: 'Send', money: 'Money operation', delete: 'Delete', config: 'Change settings', read: 'Look up', create: 'Create' },
+    card: { title: '{verb} {entity}', descEmpty: 'Operation: {action}. Review it, then press Confirm.' },
+    mode: {
+      chat: 'Chat — look up and answer only; no write operations. If the user wants it done, suggest switching to Cowork.',
+      cowork: 'Cowork — may find and call any action within the user permissions, plan multi-step work and delegate to specialist agents.',
+    },
+    noContext: 'Unknown (the user is on the Assistant screen).',
+    noAgents: 'No agent is running yet.',
+    owner: 'Workspace owner (full access)',
+    queryData: 'Metric queries (query_data) arrive in a later release — use read actions via find_actions.',
+    cancelled: 'Operation cancelled.',
+    error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant hit an error ({code}). Please try again later.' },
+    entity: {
+      agent: 'AI Agent', appointment: 'appointment', product: 'product', category: 'category', stock: 'stock', contract: 'contract', contact: 'customer',
+      conversation: 'conversation', message: 'message', note: 'note', invoice: 'payment request', loyalty: 'loyalty points', segment: 'segment',
+      campaign: 'campaign', order: 'order', quote: 'quote', kb: 'knowledge base', tag: 'tag', canned_reply: 'canned reply', channel: 'channel',
+      ticket: 'ticket', ai_task: 'AI task', member: 'member', invite: 'invitation', follow_up: 'follow-up', doc_template: 'document template',
+    },
+    module: {
+      ai: 'AI Agents', booking: 'Appointments', catalog: 'Products', sales: 'Sales', crm: 'Customers', documents: 'Document templates', identity: 'Account',
+      notifications: 'Notifications', inbox: 'Inbox', loyalty: 'Loyalty', marketing: 'Marketing', settings: 'Settings', billing: 'Wallet & plan',
+      channels: 'Channels', integrations: 'Integrations', support: 'Support',
+    },
+    think: [
+      { label: 'Brainstorm', desc: 'Campaign, content and offer ideas — explore several directions to choose from.', tag: 'Creative', command: 'Suggest 5 campaign ideas for this month' },
+      { label: 'Plan', desc: 'Weekly / monthly plans, task breakdown, milestones.', tag: 'Planning', command: 'Plan this month of business week by week' },
+      { label: 'Analyse & recommend', desc: 'Read the numbers → insight → recommended actions.', tag: 'Analysis', command: 'Analyse this week of business and suggest what to do' },
+      { label: 'Write content', desc: 'Email, ZNS, call scripts, posts — several variants.', tag: 'Content', command: 'Write 3 variants of a welcome message for new customers' },
+      { label: 'Decide', desc: 'Compare options, pros / cons, pick a direction.', tag: 'Decision', command: 'Compare 2 discount options and recommend one' },
+    ],
+    prompts: [
+      "Summarise today's business", 'Which customers need urgent care?', 'Suggest 3 things to do right now', 'Any anomalies in the data?',
+      'Compare today with yesterday', 'Which alerts should I handle first?', 'Revenue this week vs target?', 'Which conversations could AI not handle?',
+      "Summarise today's appointments", 'New customers in the last 7 days', 'What is the close rate this month?', 'What is overdue right now?',
+    ],
+  },
 };

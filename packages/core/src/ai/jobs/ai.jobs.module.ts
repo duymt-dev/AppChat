@@ -1,6 +1,6 @@
 // BullMQ processor của domain `ai` (worker ROLE=ai). TIP-020: `kb-ingest` (nạp tài liệu kho tri thức). TIP-021: `ai-resume` (chạy
 // action đã duyệt + chạy tiếp run, hết hạn duyệt) — cần handler của mọi domain mà agent gọi được → nạp module domain có action
-// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP 023, 035, 043 thêm processor (ai-task…). Thiếu DB / Redis → không chạy.
+// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP 035, 043 thêm processor (ai-task…). Thiếu DB / Redis → không chạy.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -20,6 +20,7 @@ import { startAiResumeWorker } from './ai-resume.processor';
 import { startAgentReplyWorker } from './agent-reply.processor';
 import type { ReplyJob } from '../reply/reply.queue';
 import { finishResumedTurn, resumeReplySpec, type ReplyDeps } from '../reply/reply.service';
+import { assistantResumeSpec } from '../assistant/turn.service';
 import { registerResumeFinish, registerResumeSpec, type ResumeDeps } from '../approvals/resume';
 import { CreditMeter } from '../../billing/public';
 import { BillingModule } from '../../billing/billing.module';
@@ -79,6 +80,10 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
             return rd ? finishResumedTurn(rd, db, ws, run, r) : null;
           });
         }
+        // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
+        registerResumeSpec('assistant', async (db, run, x, ws) =>
+          assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
+        );
         this.reply = startAgentReplyWorker(redis, reply, this.log);
       }
     }

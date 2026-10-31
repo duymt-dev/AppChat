@@ -145,8 +145,10 @@ export const assistantRoutes: Record<string, MockRoute> = {
   },
   // GET /v1/runs?root_run_id=&status= — khung "Trợ lý AI đang điều phối" ở Cowork (REQ-E14, Blueprint §4.4)
   '/runs': (db, p) => {
+    // status=live (chưa có lượt Cowork) = đang chạy + chờ duyệt — như backend (TIP-023).
+    const live = (s: Run['status']) => s === 'running' || s === 'waiting_approval';
     const rows = db.assistant.runs.filter(
-      (r) => (!p.root_run_id || r.root_run_id === p.root_run_id) && (!p.status || p.status === 'all' || r.status === p.status),
+      (r) => (!p.root_run_id || r.root_run_id === p.root_run_id) && (!p.status || p.status === 'all' || r.status === p.status || (p.status === 'live' && live(r.status))),
     );
     return { data: rows, next_cursor: null };
   },
@@ -171,7 +173,7 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     const text = String(body.text ?? '').trim();
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
-    return { session_id: session, events: scriptReply(db, text) };
+    return { session_id: session, run_id: null, events: scriptReply(db, text) };
   },
   // POST /v1/assistant/confirm — xác nhận thẻ: chạy action đã preview, ghi nhật ký nguồn assistant
   '/assistant/confirm': (db, body) => {
@@ -179,7 +181,7 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     if (!p || p.status !== 'pending') throw new ApiRequestError(409, { code: 'CONFLICT', message: 'CONFIRM_EXPIRED' });
     if (body.decision === 'cancel') {
       p.status = 'cancelled';
-      return { status: 'cancelled' };
+      return { status: 'cancelled', events: [] };
     }
     p.status = 'done';
     const logId = `al_as_${++db.assistant.seq}`;
@@ -187,7 +189,7 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     const row = db.assistant.logs[0]!;
     row.title = p.intent.title;
     row.object = p.intent.dest;
-    return { status: 'done', action_log_id: logId, ui_target: { type: 'navigate', route: p.intent.route } };
+    return { status: 'done', action_log_id: logId, ui_target: { type: 'navigate', route: p.intent.route }, events: [] };
   },
 };
 

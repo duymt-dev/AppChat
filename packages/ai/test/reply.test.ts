@@ -67,12 +67,13 @@ describe('luật chuyển sang người', () => {
 
 describe('kho prompt', () => {
   it('bản TS khớp từng chữ file .md (bỏ dòng đầu), có version; thiếu bản dịch → tiếng Việt; thay biến', () => {
-    for (const locale of ['vi', 'en'] as const) {
-      const md = readFileSync(new URL(`../src/prompts/agent-reply.${locale}.md`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
-      const [head, ...body] = md.trimEnd().split('\n');
-      expect(head).toBe(`<!-- prompt: agent-reply · version: ${PROMPTS['agent-reply']![locale].version} · locale: ${locale} -->`);
-      expect(body.join('\n')).toBe(PROMPTS['agent-reply']![locale].text);
-    }
+    for (const name of Object.keys(PROMPTS))
+      for (const locale of ['vi', 'en'] as const) {
+        const md = readFileSync(new URL(`../src/prompts/${name}.${locale}.md`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+        const [head, ...body] = md.trimEnd().split('\n');
+        expect(head).toBe(`<!-- prompt: ${name} · version: ${PROMPTS[name]![locale].version} · locale: ${locale} -->`);
+        expect(body.join('\n')).toBe(PROMPTS[name]![locale].text);
+      }
     expect(prompt('agent-reply', 'zh').locale).toBe('vi');
     expect(prompt('agent-reply', 'vi', { channel: 'Zalo', contact: 'Chị Lan', hours: '8h–20h' }).text).toContain('trực kênh Zalo của doanh nghiệp, trả lời khách Chị Lan. Giờ hoạt động: 8h–20h.');
   });

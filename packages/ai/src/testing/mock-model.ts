@@ -11,7 +11,16 @@ export type MockTurn =
   | { error: { statusCode: number; message?: string } };
 
 /** Kịch bản theo lượt: mảng cố định, hoặc hàm nhận lời nhắn cuối của người dùng + system (dev / E2E — trả lời theo câu hỏi). */
-export type MockScript = MockTurn[] | ((ctx: { lastUser: string; call: number; system: string }) => MockTurn);
+export type MockScript = MockTurn[] | ((ctx: MockCtx) => MockTurn);
+
+/** Ngữ cảnh một lượt gọi model giả: tin người dùng cuối, system, và kết quả tool ngay trước (bước sau khi tool chạy). */
+export interface MockCtx {
+  lastUser: string;
+  call: number;
+  system: string;
+  /** Tin cuối của prompt là kết quả tool → `{ tool, output }` của tool cuối; không thì null. */
+  lastTool: { tool: string; output: unknown } | null;
+}
 
 export const MOCK_PROVIDER = 'mock';
 export const MOCK_MODEL = 'mock-chat';
@@ -34,6 +43,14 @@ function lastUserText(prompt: unknown): string {
 
 function systemText(prompt: unknown): string {
   return ((prompt ?? []) as { role: string; content: unknown }[]).filter((m) => m.role === 'system').map((m) => (typeof m.content === 'string' ? m.content : '')).join(' ');
+}
+
+function lastToolOf(prompt: unknown): MockCtx['lastTool'] {
+  const msgs = (prompt ?? []) as { role: string; content: unknown }[];
+  const m = msgs[msgs.length - 1];
+  if (!m || m.role !== 'tool' || !Array.isArray(m.content)) return null;
+  const p = (m.content as { type: string; toolName?: string; output?: { type?: string; value?: unknown } }[]).filter((x) => x.type === 'tool-result').pop();
+  return p ? { tool: p.toolName ?? '', output: p.output?.value ?? p.output } : null;
 }
 
 function partsOf(t: Exclude<MockTurn, { error: unknown }>, n: number): unknown[] {
@@ -59,7 +76,7 @@ export function mockLanguageModel(script: MockScript, opts: { provider?: string;
     modelId: opts.model ?? MOCK_MODEL,
     doStream: async (o) => {
       const call = n++;
-      const turn = typeof script === 'function' ? script({ lastUser: lastUserText(o.prompt), call, system: systemText(o.prompt) }) : (script[call] ?? { text: '' });
+      const turn = typeof script === 'function' ? script({ lastUser: lastUserText(o.prompt), call, system: systemText(o.prompt), lastTool: lastToolOf(o.prompt) }) : (script[call] ?? { text: '' });
       if ('error' in turn) throw Object.assign(new Error(turn.error.message ?? `HTTP ${turn.error.statusCode}`), { statusCode: turn.error.statusCode, isRetryable: turn.error.statusCode >= 500 || turn.error.statusCode === 429 });
       return { stream: convertArrayToReadableStream(partsOf(turn, call) as never[]) };
     },
@@ -72,11 +89,29 @@ export function staticModelSource(cands: { provider: string; model: string; hand
   return { candidates: async () => cands as ModelCandidate[] };
 }
 
+/** Lượt Trợ lý (system mở đầu bằng `# TRỢ LÝ APPCHAT` / `# APPCHAT ASSISTANT` — prompt `assistant`): "tạo khách hàng <tên> <sđt>" → `call_action contact.create`. */
+const ASSISTANT_MARKS = ['# TRỢ LÝ APPCHAT', '# APPCHAT ASSISTANT'];
+const CREATE_CONTACT = /tạo (?:khách hàng|liên hệ)\s+(.+?)\s+((?:\+?84|0)\d[\d ]{7,12}\d)\s*$/i;
+
+function assistantTurn(lastUser: string, lastTool: MockCtx['lastTool']): MockTurn {
+  if (lastTool) {
+    const out = (lastTool.output ?? {}) as { cancelled?: boolean; error?: { code?: string } };
+    if (out.cancelled) return { text: 'Đã huỷ thao tác theo yêu cầu.' };
+    if (out.error) return { text: `Không thực hiện được (${out.error.code ?? 'ERROR'}).` };
+    return { text: lastTool.tool === 'call_action' ? 'Đã lưu khách hàng mới.' : 'Đã xong.' };
+  }
+  const m = CREATE_CONTACT.exec(lastUser.trim());
+  if (m) return { tool: 'call_action', input: { action_id: 'contact.create', input: { full_name: m[1]!.trim(), phone: m[2]!.replace(/\s/g, '') } } };
+  return { text: lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?' };
+}
+
 /**
- * Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi — không gọi tool. Lượt agent trực kênh
- * (system có khung output JSON — prompt `agent-reply`) → trả đúng JSON, độ tin cậy 0,9; khách đòi gặp người → `needs_human`.
+ * Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi. Lượt agent trực kênh (system có khung
+ * output JSON — prompt `agent-reply`) → trả đúng JSON, độ tin cậy 0,9; khách đòi gặp người → `needs_human`. Lượt Trợ lý → xem
+ * `assistantTurn`.
  */
-export const echoScript: MockScript = ({ lastUser, system }) => {
+export const echoScript: MockScript = ({ lastUser, system, lastTool }) => {
+  if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(lastUser, lastTool);
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const human = /nhân viên|gặp người|staff|human/i.test(lastUser);

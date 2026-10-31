@@ -1,3 +1,43 @@
 // tenant/ai-assistant.prisma — sở hữu: TIP-023 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: Blueprint §2.2 ai-assistant.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: Blueprint §2.2 ai-assistant — phiên Trợ lý AI của từng người dùng + tin (parts: text / card / ui_command).
+// Không Prisma relation xuyên domain (Blueprint §2.1). Run của lượt: `ai_run.assistant_session_id`.
+
+enum AssistantMode {
+  chat
+  cowork
+
+  @@map("assistant_mode")
+}
+
+enum AssistantRole {
+  user
+  assistant
+  tool
+
+  @@map("assistant_role")
+}
+
+model AssistantSession {
+  id            String        @id @db.Uuid
+  userId        String        @map("user_id") @db.Uuid
+  title         String        @default("")
+  mode          AssistantMode @default(chat)
+  lastMessageAt DateTime      @default(now()) @map("last_message_at") @db.Timestamptz(6)
+  archivedAt    DateTime?     @map("archived_at") @db.Timestamptz(6)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("assistant_session")
+}
+
+/// `content` = `{ parts: [{ type: 'text', text } | { type: 'card', card, status } | { type: 'ui_command', command }] }`.
+model AssistantMessage {
+  id        String        @id @db.Uuid
+  sessionId String        @map("session_id") @db.Uuid
+  role      AssistantRole
+  content   Json          @default("{}")
+  runId     String?       @map("run_id") @db.Uuid
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([sessionId, createdAt])
+  @@map("assistant_message")
+}

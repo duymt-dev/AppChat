@@ -33,3 +33,13 @@ export { governanceDto, readGovernance, defaultGovernance } from './governance/g
 export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';
 export { replyTurn, finishResumedTurn, MAX_TRANSFERS, type ReplyDeps, type TurnOutcome } from './reply/reply.service';
 export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-context';
+// TIP-023 — Trợ lý AI.
+export { AssistantService, type Caller } from './assistant/assistant.service';
+export { assistantTurn, assistantConfirm, assistantResumeSpec, type AssistantDeps, type TurnRequest, type ConfirmRequest } from './assistant/turn.service';
+export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
+export { confirmCard, lookOf } from './assistant/card';
+export { assistantSystem, contextLine, type AssistantContext, type AssistantRunInput } from './assistant/assistant-prompt';
+export { assistantTools, ASSISTANT_TOOLS, type AssistantTurnCtx } from './assistant/meta-tools';
+export { listSessions, sessionMessages, historyMessages, HISTORY_LIMIT } from './assistant/sessions';
+export { listActionLogs, kindOf as logKindOf, LOG_KINDS, LOG_STATUSES, LOG_DAYS, type LogFilter } from './assistant/action-logs.read';
+export { assistantHome } from './assistant/home.read';

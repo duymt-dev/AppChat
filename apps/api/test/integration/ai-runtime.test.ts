@@ -167,7 +167,8 @@ describe('HTTP', () => {
     const r = await get(`/runs?root_run_id=${root.id}`);
     expect(r.status, JSON.stringify(r.body)).toBe(200);
     const list = runsListSchema.parse(r.body);
-    expect(list.data).toEqual([expect.objectContaining({ id: child.id, root_run_id: root.id, task: 'Phân tích đơn', agent: 'sales-agent', status: 'running', pct: 0 })]);
+    expect(list.data).toEqual([expect.objectContaining({ id: child.id, root_run_id: root.id, task: 'Phân tích đơn', agent: '', status: 'running', pct: 0 })]);
+    // Tên agent thật (TIP-023) kiểm ở integration `assistant` (delegate) — id không phải agent → tên rỗng.
     expect((await get(`/runs?root_run_id=${root.id}&status=done`)).body.data).toEqual([]);
     expect((await get('/runs?status=nope')).status).toBe(400);
     expect((await get(`/runs?root_run_id=${root.id}`, sales)).status).toBe(200);

@@ -12,6 +12,8 @@ interface AssistantUi {
   messages: ChatMessage[];
   typing: boolean;
   sessionId?: string;
+  /** Run gốc của lượt Cowork cuối — khung điều phối đọc run con của nó (REQ-E14). */
+  lastRunId: string | null;
   pop: AsstPop;
   popAnchor: { left: number; bottom: number; right: number };
   taskNew: boolean;
@@ -34,6 +36,7 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   draft: '',
   messages: [],
   typing: false,
+  lastRunId: null,
   pop: null,
   popAnchor: { left: 0, bottom: 0, right: 0 },
   taskNew: false,
@@ -47,5 +50,5 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   },
   push: (m) => set((s) => ({ messages: [...s.messages, m] })),
   patchMsg: (id, p) => set((s) => ({ messages: s.messages.map((m) => (m.id === id ? { ...m, ...p } : m)) })),
-  reset: () => set({ messages: [], draft: '', sessionId: undefined, typing: false }),
+  reset: () => set({ messages: [], draft: '', sessionId: undefined, typing: false, lastRunId: null }),
 }));

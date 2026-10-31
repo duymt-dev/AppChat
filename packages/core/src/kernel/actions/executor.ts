@@ -98,8 +98,8 @@ export class ActionExecutor {
 
     const db = await this.d.resolver.get(TenantContexts.system(ctx.workspaceId, `action:${actionId}`));
     if (decision === 'preview' && !(await this.d.confirm.consume(ctx, actionId, input, ctx.confirmToken))) {
-      if (!handler.preview) throw new AppError('PREVIEW_REQUIRED', 422, undefined, `${actionId} cần preview nhưng handler chưa có`);
-      const preview = await db.$transaction((tx) => handler.preview!(ctx, input, tx));
+      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input.
+      const preview = handler.preview ? await db.$transaction((tx) => handler.preview!(ctx, input, tx)) : { summary: '', risk: def.risk };
       const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime());
       return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };
     }

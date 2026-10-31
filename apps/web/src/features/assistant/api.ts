@@ -1,7 +1,8 @@
-// Đọc Trợ lý AI (Blueprint §4.4, §4.5). Ghi qua useAction; lượt chat qua transport.post (SSE ở backend thật).
+// Đọc Trợ lý AI (Blueprint §4.4, §4.5). Ghi qua useAction; lượt chat qua transport.post — JSON một lần (DV-006, chưa SSE).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, Run, TurnEvent } from './types';
+import type { UiCommand } from '@appchat/actions';
+import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, Run, Tier, TurnContext, TurnEvent } from './types';
 
 export const homeQuery = () =>
   queryOptions({ queryKey: ['assistant', 'home'], queryFn: () => transport.get<AssistantHome>('/assistant/home'), staleTime: Infinity });
@@ -25,12 +26,29 @@ export const actionLogsQuery = (f: LogFilter) =>
 export const approvalsQuery = (status: string) =>
   queryOptions({ queryKey: ['approvals', status], queryFn: () => transport.get<{ data: ApprovalRow[] }>('/approvals', { status }) });
 
-/** Runs của khung "Trợ lý AI đang điều phối" — REQ-E14 (Blueprint §4.4, §4.5). */
-export const runsQuery = (rootRunId: string) =>
-  queryOptions({ queryKey: ['runs', rootRunId], queryFn: () => transport.get<{ data: Run[] }>('/runs', { root_run_id: rootRunId }) });
+/** Runs của khung "Trợ lý AI đang điều phối" — REQ-E14: run con của lượt Cowork cuối; chưa có lượt → run đang sống. */
+export const runsQuery = (rootRunId: string | null) =>
+  queryOptions({
+    queryKey: ['runs', rootRunId ?? 'live'],
+    queryFn: () => transport.get<{ data: Run[] }>('/runs', rootRunId ? { root_run_id: rootRunId } : { status: 'live' }),
+  });
 
-export const sendTurn = (text: string, mode: string, sessionId?: string) =>
-  transport.post<{ session_id: string; events: TurnEvent[] }>('/assistant/messages', { text, mode, session_id: sessionId });
+export interface TurnInput {
+  text: string;
+  mode: string;
+  sessionId?: string;
+  tier?: Tier;
+  context?: TurnContext;
+}
+
+export const sendTurn = (q: TurnInput) =>
+  transport.post<{ session_id: string; run_id?: string | null; events: TurnEvent[] }>('/assistant/messages', {
+    text: q.text,
+    mode: q.mode,
+    session_id: q.sessionId,
+    tier: q.tier,
+    context: q.context,
+  });
 
 export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>
-  transport.post<{ status: string; ui_target?: { type: 'navigate'; route: string } }>('/assistant/confirm', { confirm_token: token, decision });
+  transport.post<{ status: string; action_log_id?: string; ui_target?: UiCommand; events?: TurnEvent[] }>('/assistant/confirm', { confirm_token: token, decision });

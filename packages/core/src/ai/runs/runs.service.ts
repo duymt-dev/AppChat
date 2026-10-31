@@ -11,6 +11,7 @@ export const AI_CANCEL_CHANNEL = 'appchat:ai:cancel';
 export type RunRowDto = z.infer<typeof runRowSchema>;
 
 const LIVE = ['queued', 'running', 'waiting_approval'] as const;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface RunFilter {
   rootRunId?: string;
@@ -20,7 +21,7 @@ export interface RunFilter {
 
 const statusOf = (s: string): RunRowDto['status'] => (s === 'waiting_approval' ? 'waiting_approval' : s === 'queued' || s === 'running' ? 'running' : 'done');
 
-export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep'>, f: RunFilter): Promise<RunRowDto[]> {
+export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAgent'>, f: RunFilter): Promise<RunRowDto[]> {
   const status =
     f.status === 'done' ? { notIn: [...LIVE] } : f.status === 'running' ? { in: ['queued' as const, 'running' as const] } : f.status === 'waiting_approval' ? { equals: 'waiting_approval' as const } : f.status === 'live' ? { in: [...LIVE] } : undefined;
   // Theo gốc: chỉ run con (run gốc là chính cuộc trò chuyện của Trợ lý) — index (root_run_id, started_at).
@@ -33,6 +34,9 @@ export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep'>, f: Run
   if (!rows.length) return [];
   const steps = await db.aiRunStep.groupBy({ by: ['runId'], where: { runId: { in: rows.map((r) => r.id) }, type: 'llm' }, _count: { _all: true } });
   const n = new Map(steps.map((s) => [s.runId, s._count._all]));
+  // Tên agent (khung "Trợ lý AI đang điều phối" hiện tên, không hiện id) — agent đã xoá vẫn giữ tên.
+  const ids = [...new Set(rows.map((r) => r.agentId).filter((x): x is string => !!x && UUID.test(x)))];
+  const names = new Map((ids.length ? await db.aiAgent.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : []).map((a) => [a.id, a.name]));
   return rows.map((r) => {
     const max = r.kind === 'assistant' ? MAX_STEPS.assistant : MAX_STEPS.agent;
     const st = statusOf(r.status);
@@ -41,7 +45,7 @@ export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep'>, f: Run
       id: r.id,
       root_run_id: r.rootRunId,
       task: r.title,
-      agent: r.agentId ?? '',
+      agent: r.agentId ? (names.get(r.agentId) ?? '') : '',
       meta: `${n.get(r.id) ?? 0} bước · ${r.creditsUsed} credit`,
       pct: st === 'done' ? 100 : Math.min(95, Math.round(((n.get(r.id) ?? 0) / max) * 100)),
       status: st,
