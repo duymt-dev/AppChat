@@ -3,7 +3,6 @@
   "sub": "Khai báo & đồng bộ sản phẩm/dịch vụ đa kênh — căn cứ bán hàng và cho AI trả lời khách.",
   "search": "Tìm sản phẩm, dịch vụ…",
   "sync": "Đồng bộ kênh",
-  "syncing": "Đang đồng bộ sản phẩm từ các kênh…",
   "add": "Thêm sản phẩm",
   "stats": {
     "total": "Sản phẩm/dịch vụ",
@@ -75,16 +74,8 @@
     "chanCount": "{n} kênh",
     "syncTitle": "Đồng bộ đa kênh",
     "edit": "Sửa sản phẩm",
-    "sync": "Đồng bộ kênh",
     "filesTitle": "Tệp đính kèm",
     "open": "Mở",
-    "upload": "+ Tải tệp lên",
-    "history": {
-      "sale": "Bán gần nhất · 2 đơn hôm nay",
-      "price": "Cập nhật giá bán",
-      "import": "Đồng bộ từ KiotViet",
-      "create": "Tạo sản phẩm"
-    },
     "perf": "Hiệu quả bán hàng",
     "crm": {
       "buyers": "Khách đã mua",
@@ -103,7 +94,15 @@
     "aiCombo": "Gợi ý combo bán kèm",
     "aiAds": "Tạo nội dung quảng cáo",
     "aiDoing": "Trợ lý AI đang chuẩn bị gợi ý…",
-    "spark": "✦"
+    "spark": "✦",
+    "stock": "Tồn kho",
+    "stockLow": "{n} · sắp hết",
+    "adjust": "Điều chỉnh tồn",
+    "noSales": "Chưa có số liệu bán — hiện khi có báo giá / đơn chứa sản phẩm này.",
+    "noBuyers": "Chưa có khách mua sản phẩm này.",
+    "noFiles": "Chưa có tệp đính kèm.",
+    "noHistory": "Chưa có lịch sử.",
+    "by": "{when} · {by}"
   },
   "form": {
     "title": "Thêm sản phẩm",
@@ -209,5 +208,18 @@
     },
     "required": "Nhập tên và giá bán"
   },
-  "unit": "sản phẩm"
+  "unit": "sản phẩm",
+  "stockAdjust": {
+    "title": "Điều chỉnh tồn kho",
+    "close": "Đóng",
+    "cancel": "Huỷ",
+    "save": "Lưu điều chỉnh",
+    "current": "{name} · tồn hiện tại {stock}",
+    "delta": "Số lượng cộng / trừ *",
+    "deltaPh": "VD: 20 hoặc -3",
+    "reason": "Lý do *",
+    "reasonPh": "VD: Nhập kho, kiểm kê",
+    "low": "Tồn còn {stock} — đã chạm ngưỡng cảnh báo."
+  },
+  "synced": "Đã cập nhật danh mục sản phẩm"
 }

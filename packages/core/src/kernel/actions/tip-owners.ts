@@ -8,6 +8,7 @@ const BY_ID: Record<string, string> = {
   'wallet.update_alerts': '039',
   'follow_up.complete': '038',
   'stock.adjust': '027',
+  'stock.get': '027',
   'segment.preview': '037',
   'ai.translate': '022',
   'run.cancel': '019',

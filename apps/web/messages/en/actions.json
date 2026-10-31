@@ -233,6 +233,14 @@
     },
     "archive": {
       "title": "Delete product"
+    },
+    "search": {
+      "title": "Search products / prices",
+      "desc": "Search products / services by name or code with current price and stock"
+    },
+    "get": {
+      "title": "Get product details",
+      "desc": "View one product: description, attributes, combo items, price and stock"
     }
   },
   "category": {
@@ -243,6 +251,10 @@
   "stock": {
     "adjust": {
       "title": "Adjust stock"
+    },
+    "get": {
+      "title": "Check stock",
+      "desc": "View current stock of products (low-stock warning)"
     }
   },
   "quote": {

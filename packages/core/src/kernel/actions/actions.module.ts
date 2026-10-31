@@ -65,8 +65,8 @@ export class ActionsModule {
         },
         {
           provide: UndoService,
-          inject: [ActionHandlerRegistry, TENANT_RESOLVER, CLOCK],
-          useFactory: (h: ActionHandlerRegistry, r: TenantDbResolver, c: Clock) => new UndoService(h, r, c),
+          inject: [ActionHandlerRegistry, TENANT_RESOLVER, CLOCK, REDIS],
+          useFactory: (h: ActionHandlerRegistry, r: TenantDbResolver, c: Clock, kv: KeyValueStore) => new UndoService(h, r, c, kv),
         },
       ],
       exports: [ActionExecutor, UndoService, ActionHandlerRegistry, AUTHORIZER],

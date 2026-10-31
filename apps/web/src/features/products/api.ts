@@ -1,7 +1,7 @@
 // Đọc Sản phẩm (Blueprint §4.4 catalog). Ghi qua useAction (product.* / category.* / stock.adjust).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { Product, ProductFilter, ProductsMeta } from './types';
+import type { Product, ProductActivity, ProductFilter, ProductsMeta } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
 
 export const productsQuery = (f: ProductFilter, pg?: PageState) =>
@@ -22,4 +22,10 @@ export const productsMetaQuery = () =>
   queryOptions({
     queryKey: ['catalog', 'meta'],
     queryFn: () => transport.get<ProductsMeta>('/products/meta'),
+  });
+
+export const productActivityQuery = (id: string) =>
+  queryOptions({
+    queryKey: ['catalog', 'activity', id],
+    queryFn: () => transport.get<ProductActivity[]>(`/products/${id}/activity`),
   });

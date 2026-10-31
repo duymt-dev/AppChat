@@ -1,7 +1,7 @@
 // Sản phẩm & Dịch vụ (orchestrator) — prototype L5624–5753: PageHeader + KPI · nguồn đồng bộ · chip danh mục · (DataTable | KanbanBoard) · drawer / modal.
 'use client';
 import { App } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DataTable, Icon, KanbanBoard, PageHeader, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
@@ -30,6 +30,12 @@ export function ProductsScreen() {
   const t = useTranslations('products');
   const fmt = useFmt();
   const { message } = App.useApp();
+  const qc = useQueryClient();
+  // Kênh bán chưa có connector (D04) → "Đồng bộ" = tải lại danh mục / kênh đã kết nối từ máy chủ.
+  const resync = async () => {
+    await qc.invalidateQueries({ queryKey: ['catalog'] });
+    void message.success(t('synced'));
+  };
   const { styles } = useProductsStyles();
   const ui = useProductsUi();
   const list = useQuery(productsQuery(ui.filter, ui.pg));
@@ -62,7 +68,7 @@ export function ProductsScreen() {
                 data-testid="pd-search"
               />
             </div>
-            <button type="button" className={styles.chip} onClick={() => void message.info(t('syncing'))}>
+            <button type="button" className={styles.chip} onClick={() => void resync()} data-testid="pd-sync">
               <Icon name="ic-refresh" size={14} color={color.text2} strokeWidth={1.9} />
               {t('sync')}
             </button>
@@ -93,7 +99,14 @@ export function ProductsScreen() {
         {ui.layout === 'list' ? (
           <DataTable<Product>
             testId="pd-table"
-            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="pd-table-pager" />}
+            footer={
+              <ListPager
+                meta={list.data?.meta}
+                unit={t('unit')}
+                onChange={ui.setPg}
+                testId="pd-table-pager"
+              />
+            }
             rows={rows}
             columns={columns}
             rowKey={(r) => r.id}

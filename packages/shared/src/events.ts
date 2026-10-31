@@ -106,6 +106,9 @@ export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string(
 /** `edited` = duyệt kèm sửa input (approval.edit_and_approve — TIP-024). */
 export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'edited', 'rejected', 'expired']) });
 
+/** Sản phẩm đổi (TIP-027): tạo / sửa / lưu trữ / khôi phục → consumer `catalog-sync` nạp lại nguồn RAG (không giá / tồn — rag §2). */
+export const productChangedEvent = z.object({ ...base, product_id: z.string().uuid(), change: z.enum(['created', 'updated', 'archived', 'restored', 'deleted']) });
+
 /** Agent trực kênh chuyển hội thoại sang người (TIP-022) — thông báo `ai_escalate`, WS cập nhật hội thoại. */
 export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().nullable(), agent_id: z.string().nullable(), agent: z.string(), reason: z.string().max(40), title: z.string() });
 
@@ -148,5 +151,6 @@ export const EVENT_SCHEMAS = {
   'approval.requested': approvalRequestedEvent,
   'approval.decided': approvalDecidedEvent,
   'ai.handoff': aiHandoffEvent,
+  'product.changed': productChangedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

@@ -5,6 +5,7 @@ export * from './identity';
 export * from './integrations';
 export * from './settings';
 export * from './crm';
+export * from './catalog';
 export * from './channels';
 export * from './inbox';
 export * from './webchat';

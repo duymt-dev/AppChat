@@ -26,6 +26,25 @@ export interface Product {
   icon: string;
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
+  /** TIP-027 — khoá lạc quan (`if_version`) + chi tiết cho form sửa (GET /products/:id). */
+  version?: number;
+  duration_min?: number | null;
+  deposit?: string | null;
+  rental_unit?: string | null;
+  low_stock?: boolean;
+  components?: { id: string; name: string; qty: number }[];
+  attr_defs?: { name: string; values: string[] }[];
+  variants?: { id: string; sku: string; name: string; stock: number }[];
+}
+
+/** Một mục tab Lịch sử (`GET /products/:id/activity`). */
+export interface ProductActivity {
+  id: string;
+  kind: 'create' | 'update' | 'price' | 'archive' | 'restore' | 'stock';
+  text: string;
+  by: string;
+  at: string;
+  when: string;
 }
 
 export interface ProductsMeta {

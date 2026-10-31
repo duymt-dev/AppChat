@@ -72,7 +72,14 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
     const input = { ...toInput(f.d), ...(c.custom ? { custom: c.custom } : {}) };
     const onError = (e: ApiRequestError) => cf.absorb(e.error.fields);
     const res = product
-      ? await update.run({ product_id: product.id, patch: input }, { onError })
+      ? await update.run(
+          {
+            product_id: product.id,
+            patch: input,
+            ...(product.version ? { if_version: product.version } : {}),
+          },
+          { onError },
+        )
       : await create.run(input, { onError });
     if (res) close();
   };
@@ -91,6 +98,7 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
       width={560}
       flush
       dense
+      stacked={!!ui.detail}
       title={
         <>
           {product ? t('editTitle') : t('title')}

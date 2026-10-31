@@ -2,6 +2,8 @@
 import { AppError } from '@appchat/shared';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { Clock } from '../clock';
+import { markDirty } from '../outbox/outbox';
+import type { KeyValueStore } from '../redis';
 import type { ActionContext } from './action-context';
 import type { ActionHandlerRegistry } from './handler-registry';
 
@@ -10,11 +12,13 @@ export class UndoService {
     private readonly handlers: ActionHandlerRegistry,
     private readonly resolver: TenantDbResolver,
     private readonly clock: Clock,
+    /** Undo ghi outbox (vd. `product.changed` khi khôi phục — TIP-027) → đánh dấu workspace cho relay sau commit. */
+    private readonly kv?: KeyValueStore,
   ) {}
 
   async undo(ctx: ActionContext, actionLogId: string): Promise<{ undone: true }> {
     const db = await this.resolver.get(TenantContexts.system(ctx.workspaceId, 'action:undo'));
-    return db.$transaction(async (tx) => {
+    await db.$transaction(async (tx) => {
       const log = await tx.actionLog.findUnique({ where: { id: actionLogId } });
       if (!log) throw new AppError('NOT_FOUND', 404);
       if (log.status === 'undone') throw new AppError('CONFLICT', 409, { status: 'undone' });
@@ -30,7 +34,9 @@ export class UndoService {
         data: { status: 'undone', undoneAt: now, undoneBy: ctx.actor.type === 'user' ? ctx.actor.id : null },
       });
       if (n.count !== 1) throw new AppError('CONFLICT', 409, { status: 'undone' });
-      return { undone: true as const };
     });
+    // Handler undo có thể ghi outbox (không trả danh sách event) → luôn đánh dấu; relay drain workspace rỗng là no-op.
+    if (this.kv) await markDirty(this.kv, ctx.workspaceId);
+    return { undone: true };
   }
 }

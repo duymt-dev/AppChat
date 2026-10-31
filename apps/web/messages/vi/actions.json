@@ -233,6 +233,14 @@
     },
     "archive": {
       "title": "Xoá sản phẩm"
+    },
+    "search": {
+      "title": "Tìm sản phẩm / giá",
+      "desc": "Tìm sản phẩm / dịch vụ theo tên hoặc mã, kèm giá và tồn hiện tại"
+    },
+    "get": {
+      "title": "Xem chi tiết sản phẩm",
+      "desc": "Xem chi tiết một sản phẩm: mô tả, thuộc tính, thành phần combo, giá và tồn"
     }
   },
   "category": {
@@ -243,6 +251,10 @@
   "stock": {
     "adjust": {
       "title": "Điều chỉnh tồn kho"
+    },
+    "get": {
+      "title": "Xem tồn kho",
+      "desc": "Xem tồn kho hiện tại của sản phẩm (cảnh báo sắp hết)"
     }
   },
   "quote": {

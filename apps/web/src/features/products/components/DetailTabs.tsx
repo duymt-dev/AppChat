@@ -1,6 +1,8 @@
 // Nội dung 5 tab drawer sản phẩm — prototype L5703–5748: Tổng quan · CRM · AI · Tệp · Lịch sử.
 'use client';
+import { useState } from 'react';
 import { App } from 'antd';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -8,7 +10,18 @@ import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useDetailStyles } from '../styles/detail.styles';
 import { useProductsUi } from '../products-store';
-import type { Product, ProductsMeta } from '../types';
+import { productActivityQuery } from '../api';
+import { StockAdjustModal } from './StockAdjustModal';
+import type { Product, ProductActivity, ProductsMeta } from '../types';
+
+const KIND_DOT: Record<ProductActivity['kind'], string> = {
+  create: color.text4,
+  update: color.blue,
+  price: color.violet,
+  archive: color.dangerStrong,
+  restore: color.okStrong,
+  stock: color.blue,
+};
 
 const EXT_BG: Record<string, string> = {
   pdf: color.dangerStrong,
@@ -22,9 +35,10 @@ const EXT_BG: Record<string, string> = {
 export function OverviewTab({ p }: { p: Product }) {
   const t = useTranslations('products.detail');
   const fmt = useFmt();
-  const { message } = App.useApp();
   const { styles, cx } = useDetailStyles();
   const canManage = useCan('catalog.manage');
+  const canStock = useCan('stock.adjust');
+  const [adjusting, setAdjusting] = useState(false);
   const set = useProductsUi((s) => s.set);
   const revenue = fmt.moneyShort(String(Number(p.price) * p.sold));
   const tSrc = useTranslations('products.source');
@@ -48,6 +62,12 @@ export function OverviewTab({ p }: { p: Product }) {
           <span>{t('channels')}</span>
           <b>{t('chanCount', { n: p.channels.length })}</b>
         </div>
+        {p.stock !== null ? (
+          <div className={cx(styles.kv, p.low_stock && styles.bInk)} data-testid="pd-stock-value">
+            <span>{t('stock')}</span>
+            <b>{p.low_stock ? t('stockLow', { n: fmt.number(p.stock) }) : fmt.number(p.stock)}</b>
+          </div>
+        ) : null}
       </div>
       <div className={styles.card}>
         <div className={styles.h}>{t('syncTitle')}</div>
@@ -72,15 +92,19 @@ export function OverviewTab({ p }: { p: Product }) {
             {t('edit')}
           </button>
         ) : null}
-        <button
-          type="button"
-          className={cx(styles.act, styles.actPrimary)}
-          onClick={() => void message.info(t('sync'))}
-        >
-          <Icon name="ic-refresh" size={14} color={color.white} strokeWidth={1.9} />
-          {t('sync')}
-        </button>
+        {canStock && p.type === 'physical' ? (
+          <button
+            type="button"
+            className={cx(styles.act, styles.actPrimary)}
+            onClick={() => setAdjusting(true)}
+            data-testid="pd-stock-open"
+          >
+            <Icon name="ic-box" size={14} color={color.white} strokeWidth={1.9} />
+            {t('adjust')}
+          </button>
+        ) : null}
       </div>
+      {adjusting ? <StockAdjustModal p={p} onClose={() => setAdjusting(false)} /> : null}
     </>
   );
 }
@@ -98,6 +122,7 @@ export function CrmTab({ meta }: { meta: ProductsMeta }) {
     <>
       <div className={styles.card}>
         <div className={styles.h}>{t('perf')}</div>
+        {meta.crm_stats.length ? null : <div className={styles.fMeta}>{t('noSales')}</div>}
         <div className={styles.stats}>
           {meta.crm_stats.map(([k, v, c]) => (
             <div key={k}>
@@ -111,6 +136,9 @@ export function CrmTab({ meta }: { meta: ProductsMeta }) {
       </div>
       <div className={cx(styles.card, styles.cardFlush)}>
         <div className={cx(styles.h, styles.hFlush)}>{t('topBuyers')}</div>
+        {meta.crm_buyers.length ? null : (
+          <div className={cx(styles.fMeta, styles.emptyRow)}>{t('noBuyers')}</div>
+        )}
         {meta.crm_buyers.map(([n, m, ini]) => (
           <div key={n} className={styles.buyer}>
             <span className={styles.avatar}>{ini}</span>
@@ -166,6 +194,7 @@ export function FilesTab({ meta }: { meta: ProductsMeta }) {
   return (
     <div className={cx(styles.card, styles.cardFlush)}>
       <div className={cx(styles.h, styles.hFlush)}>{t('filesTitle')}</div>
+      {meta.files.length ? null : <div className={cx(styles.fMeta, styles.emptyRow)}>{t('noFiles')}</div>}
       {meta.files.map(([n, ext, m]) => (
         <div key={n} className={styles.file}>
           <div className={styles.ext} style={{ background: EXT_BG[ext] ?? color.text3 }}>
@@ -180,23 +209,22 @@ export function FilesTab({ meta }: { meta: ProductsMeta }) {
           </button>
         </div>
       ))}
-      <button type="button" className={styles.upload}>
-        {t('upload')}
-      </button>
     </div>
   );
 }
 
-export function HistoryTab({ meta }: { meta: ProductsMeta }) {
-  const t = useTranslations('products.detail.history');
+export function HistoryTab({ p }: { p: Product }) {
+  const t = useTranslations('products.detail');
   const { styles } = useDetailStyles();
+  const items = useQuery(productActivityQuery(p.id)).data ?? [];
   return (
-    <div className={styles.timeline}>
-      {meta.history.map(([k, c, m]) => (
-        <div key={k} className={styles.tlItem}>
-          <span className={styles.tlDot} style={{ background: c }} />
-          <div className={styles.tlT}>{t(k as never)}</div>
-          <div className={styles.tlM}>{m}</div>
+    <div className={styles.timeline} data-testid="pd-history">
+      {items.length ? null : <div className={styles.tlM}>{t('noHistory')}</div>}
+      {items.map((x) => (
+        <div key={x.id} className={styles.tlItem} data-kind={x.kind}>
+          <span className={styles.tlDot} style={{ background: KIND_DOT[x.kind] }} />
+          <div className={styles.tlT}>{x.text}</div>
+          <div className={styles.tlM}>{t('by', { when: x.when, by: x.by })}</div>
         </div>
       ))}
     </div>
