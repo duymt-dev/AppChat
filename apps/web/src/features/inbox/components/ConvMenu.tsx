@@ -38,14 +38,16 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
   const openSub = (s: Exclude<ConvSub, null>) => ui.openConvSub(s);
   const back = () => ui.openConvSub(null as never);
 
-  const MAIN: [key: string, icon: IconName, sub: ConvSub, danger: boolean, onClick?: () => void][] = [
+  type Item = [key: string, icon: IconName, sub: ConvSub, danger: boolean, onClick?: () => void];
+  // "Vòng đời" đổi giai đoạn khách — ẩn khi hội thoại không gắn khách (nhóm / chưa liên kết).
+  const MAIN = ([
     ['close', 'ic-check', null, false, () => { onClose(); void setStatus.run({ conversation_id: conv.id, status: 'closed' }); }],
     ['snooze', 'ic-eye', 'hide', false],
     ['shortcut', 'ic-bolt', 'shortcut', false],
     ['assign', 'ic-users', 'assign', false],
     ['lifecycle', 'ic-flow', 'stage', false],
     ['tag', 'ic-gift', 'tags', false],
-  ];
+  ] satisfies Item[] as Item[]).filter(([key]) => key !== 'lifecycle' || !!conv.contact_id);
   const DIVIDER: [key: string, icon: IconName, danger: boolean, onClick: () => void][] = [
     ['archive', 'ic-inbox', false, () => { onClose(); void archive.run({ conversation_id: conv.id }); }],
     ['hideconv', 'ic-eye', false, () => { onClose(); void hide.run({ conversation_id: conv.id, hidden: true }); }],

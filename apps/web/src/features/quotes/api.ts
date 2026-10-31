@@ -34,6 +34,8 @@ export const latestQuoteByContactQuery = (contactId: string) =>
   queryOptions({
     queryKey: ['quotes', 'by-contact', contactId],
     queryFn: () => transport.get<Paged<Quote>>('/quotes', { contact_id: contactId }),
+    // Hồ sơ 360° ở Hộp thư: module chưa bật / chưa có endpoint → để trống, không gọi lại (TIP-025).
+    retry: false,
     select: (r) => [...r.data].sort((a, b) => b.created_at.localeCompare(a.created_at))[0],
   });
 

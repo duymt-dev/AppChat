@@ -12,8 +12,22 @@ let workspaceId: string | null = null;
 let accessToken: string | null = null;
 let refreshing: Promise<boolean> | null = null;
 
+/** Người nghe đổi phiên (token mới / workspace mới / đăng xuất) — socket realtime kết nối lại với thông tin mới. */
+const listeners = new Set<() => void>();
+const changed = () => {
+  for (const fn of listeners) fn();
+};
+export const onSessionChange = (fn: () => void) => {
+  listeners.add(fn);
+  return () => void listeners.delete(fn);
+};
+/** Thông tin xác thực cho handshake Socket.IO `/ws` (Blueprint §4.6) — cùng token / workspace của request HTTP. */
+export const sessionAuth = () => ({ token: accessToken, workspace_id: workspaceId });
+
 export const setWorkspaceHeader = (id: string | null) => {
+  if (id === workspaceId) return;
   workspaceId = id;
+  changed();
 };
 
 const headers = (extra: Record<string, string> = {}, json = true): Record<string, string> => ({
@@ -32,6 +46,7 @@ const refresh = (): Promise<boolean> => {
         return false;
       }
       accessToken = ((await res.json()) as { data: { access_token: string } }).data.access_token;
+      changed();
       return true;
     })
     .catch(() => false)
@@ -74,10 +89,14 @@ export const httpTransport: Transport = {
     const res = await send(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) });
     const parsed = await parse<{ data?: unknown } | undefined>(res);
     const data = parsed && typeof parsed === 'object' && 'data' in parsed ? parsed.data : parsed;
-    if (ISSUES_TOKEN.has(path)) accessToken = (data as { access_token?: string }).access_token ?? null;
+    if (ISSUES_TOKEN.has(path)) {
+      accessToken = (data as { access_token?: string }).access_token ?? null;
+      changed();
+    }
     if (path === '/auth/logout') {
       accessToken = null;
       workspaceId = null;
+      changed();
     }
     return data as never;
   },

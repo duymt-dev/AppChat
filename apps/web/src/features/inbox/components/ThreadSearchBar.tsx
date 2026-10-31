@@ -1,36 +1,31 @@
-// Tìm trong hội thoại này (REQ-C12) — prototype ver2.1 #3: ô tìm + lọc người gửi + điều hướng kết quả.
+// Tìm trong hội thoại này (REQ-C12) — prototype ver2.1 #3: ô tìm + lọc người gửi + điều hướng kết quả. Tìm ở backend
+// (`/conversations/:id/messages/search` — không dấu, cả tin cũ ngoài trang đang tải; TIP-025), gõ trễ 300ms.
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useChatStyles } from '../styles/chat.styles';
-import { threadQuery } from '../api';
+import { threadSearchQuery } from '../api';
 import { useInboxUi } from '../inbox-store';
-import type { Conversation, Message } from '../types';
+import type { Conversation } from '../types';
 
 const SENDERS = ['all', 'contact', 'user', 'agent'] as const;
 const SENDER_KEY: Record<(typeof SENDERS)[number], string> = { all: 'senderAll', contact: 'senderContact', user: 'senderUser', agent: 'senderAgent' };
 
-const matchesSender = (m: Message, f: (typeof SENDERS)[number]) => {
-  if (f === 'all') return true;
-  if (f === 'contact') return m.direction === 'in';
-  if (f === 'agent') return m.direction === 'out' && !!m.sender?.startsWith('AI');
-  return m.direction === 'out' && !m.sender?.startsWith('AI');
-};
 
 export function ThreadSearchBar({ conv }: { conv: Conversation }) {
   const t = useTranslations('inbox.chat.search2');
   const { styles, cx } = useChatStyles();
   const ui = useInboxUi();
-  const thread = useQuery(threadQuery(conv.id));
   const [active, setActive] = useState(0);
-  const q = ui.searchQuery.trim().toLowerCase();
-
-  const hits = useMemo(() => {
-    if (!q) return [];
-    return (thread.data?.data ?? []).filter((m) => matchesSender(m, ui.searchSender) && (m.body ?? '').toLowerCase().includes(q));
-  }, [thread.data, q, ui.searchSender]);
+  const [q, setQ] = useState(ui.searchQuery.trim());
+  useEffect(() => {
+    const t = setTimeout(() => setQ(ui.searchQuery.trim()), 300);
+    return () => clearTimeout(t);
+  }, [ui.searchQuery]);
+  const found = useQuery(threadSearchQuery(conv.id, q, ui.searchSender)).data;
+  const hits = useMemo(() => found ?? [], [found]);
 
   // Reset vị trí kết quả khi đổi câu/lọc — điều chỉnh state khi render (tránh setState trong effect gây render dồn).
   const [resetKey, setResetKey] = useState('');
@@ -42,7 +37,7 @@ export function ThreadSearchBar({ conv }: { conv: Conversation }) {
 
   useEffect(() => {
     const m = hits[active];
-    if (m) document.getElementById(`msg-${m.id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (m) document.getElementById(`msg-${m.message_id}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }, [active, hits]);
 
   const step = (dir: 1 | -1) => setActive((i) => (hits.length ? (i + dir + hits.length) % hits.length : 0));

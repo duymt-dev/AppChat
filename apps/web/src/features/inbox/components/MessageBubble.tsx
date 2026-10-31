@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useBubbleStyles } from '../styles/bubble.styles';
+import { Attachments } from './Attachments';
 import { MessageMenu } from './MessageMenu';
 import { Rich } from './Rich';
 import type { Conversation, Message } from '../types';
@@ -20,6 +21,8 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   const body = m.body ?? '';
   const text = m.deleted ? <span className={styles.muted}>{t('deleted')}</span> : m.recalled ? <span className={styles.muted}>{t('recalled')}</span> : m.plain ? body : <Rich text={body} />;
   const ticks = m.status === 'read' ? ' ✓✓' : m.status === 'sent' ? ' ✓' : '';
+  // Tin có tệp thật (API): tệp + chữ kèm (nếu có) trong bong bóng thường.
+  const files = !m.deleted && !m.recalled && m.attachments?.length ? <Attachments files={m.attachments} /> : null;
   const isGroup = conv.kind === 'group';
   const avatar = (
     <div className={cx(styles.av, isGroup && styles.avSm)} style={{ background: m.sender_hue ?? conv.hue }}>
@@ -128,7 +131,8 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
                   {m.reply_to.preview}
                 </div>
               ) : null}
-              {text}
+              {files}
+              {body || !files ? text : null}
               {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
               <div className={cx(styles.stamp, styles.stampOut)}>
                 {/* Tin gửi đi hiện tên người gửi (REQ-C13) */}
@@ -147,7 +151,18 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   return (
     <div className={cx(styles.row, isGroup && styles.rowTop)} data-testid="msg-in" id={`msg-${m.id}`}>
       {avatar}
-      {m.kind === 'image' ? (
+      {files ? (
+        <div className={cx(styles.in, isGroup && styles.inGroup)}>
+          {m.sender ? (
+            <div className={styles.sender} style={{ color: m.sender_color }}>
+              {m.sender}
+            </div>
+          ) : null}
+          {files}
+          {body ? text : null}
+          <div className={styles.stamp}>{m.time}</div>
+        </div>
+      ) : m.kind === 'image' ? (
         <div className={cx(styles.in, styles.pad8)}>
           <div className={styles.photo}>{body}</div>
           <div className={styles.stamp}>{m.time}</div>

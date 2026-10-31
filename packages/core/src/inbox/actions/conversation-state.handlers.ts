@@ -17,6 +17,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { writableConversation } from '../services/access';
+import { readMentions } from '../services/mentions';
 import { me, restore, snap, updatedEvent, type ConvSnap } from './kit';
 
 const undoSnap = async (_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) => restore(tx, log.before as ConvSnap);
@@ -24,9 +25,13 @@ const undoSnap = async (_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) =>
 @Injectable()
 @ActionHandler('conversation.mark_read')
 export class ConversationMarkReadHandler implements Handler<ActionInput<typeof conversationMarkRead>, { unread_count: number }> {
+  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationMarkRead>, tx: TenantTx): Promise<HandlerOutcome<{ unread_count: number }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
-    if (c.unreadCount === 0) return { result: { unread_count: 0 } };
+    // Lần @nhắc mình trong hội thoại → đã đọc (thư mục "Nhắc đến tôi" — TIP-025).
+    const mentions = await readMentions(tx, c.id, me(ctx), this.clock.now());
+    if (c.unreadCount === 0) return { result: { unread_count: 0 }, ...(mentions ? { events: [await updatedEvent(tx, c, 'read')] } : {}) };
     await tx.conversation.update({ where: { id: c.id }, data: { unreadCount: 0 } });
     return { result: { unread_count: 0 }, events: [await updatedEvent(tx, c, 'read')] };
   }

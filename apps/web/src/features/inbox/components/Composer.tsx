@@ -1,7 +1,8 @@
 // Ô soạn tin — prototype ver2.1 L2195–2245: Ghi chú nội bộ / Co-pilot / AI tự xử · Quick replies / Đặt lịch hẹn / Dịch ·
 // trích dẫn khi trả lời · dòng "Người gửi" · Gửi. REQ-C13: bỏ chế độ "Trả lời" (ngầm định) và 6 icon công cụ, bỏ "Thả nhanh".
+// TIP-025: chế độ AI hiện tại được đánh dấu, bấm lại chế độ đang bật = Tắt AI; tệp đính kèm (menu ＋ "Thêm tệp"); @nhắc trong ghi chú.
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -9,7 +10,9 @@ import { useCan } from '@/shared/authz/useCan';
 import { useMe } from '@/shared/shell/useShellData';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useInboxUi } from '../inbox-store';
+import { useComposerFiles } from '../hooks/useComposerFiles';
 import { ComposerPopovers } from './ComposerPopovers';
+import { FileChips, MentionPicker, mentionNeedle } from './ComposerExtras';
 import type { ChannelMeta, Conversation } from '../types';
 
 /** 3 icon trang trí còn lại sau khi bỏ 6 icon công cụ (REQ-C13) — không có onClick, giữ đúng số lượng của prototype. */
@@ -33,28 +36,40 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
   const aiMode = useAction('conversation.set_ai_mode');
   const me = useMe();
   const [busy, setBusy] = useState(false);
+  const files = useComposerFiles();
+  const picker = useRef<HTMLInputElement>(null);
+  const mentions = useRef(new Map<string, string>());
   const isNote = ui.composerMode === 'note';
   const customer = conv.kind === 'group' ? conv.title : conv.title.split(' — ')[0]!;
+  const needle = isNote ? mentionNeedle(draft) : null;
 
   const submit = async () => {
     const text = draft.trim();
-    if (!text || busy) return;
+    const withFiles = !isNote && files.ids.length > 0;
+    if ((!text && !withFiles) || busy || !files.ready) return;
     setBusy(true);
+    // Chỉ gửi người còn được nhắc trong chữ (xoá "@Tên" khỏi ô soạn = bỏ nhắc).
+    const ids = [...mentions.current].filter(([, name]) => text.includes(`@${name}`)).map(([id]) => id);
     const res = isNote
-      ? await note.run({ conversation_id: conv.id, text }, { silent: true })
-      : await send.run({ conversation_id: conv.id, text, ...(ui.replyTo ? { reply_to_id: ui.replyTo.id } : {}) }, { silent: true });
+      ? await note.run({ conversation_id: conv.id, text, ...(ids.length ? { mentions: ids } : {}) }, { silent: true })
+      : await send.run({ conversation_id: conv.id, text, ...(ui.replyTo ? { reply_to_id: ui.replyTo.id } : {}), ...(withFiles ? { attachments: files.ids } : {}) }, { silent: true });
     setBusy(false);
     if (res) {
       onDraft('');
       ui.set({ replyTo: null });
+      files.clear();
+      mentions.current.clear();
     }
   };
 
-  const modes: [key: string, icon: IconName, tone: string, onClick: () => void][] = [
+  // Chế độ AI hiện tại sáng lên; bấm lại chế độ đang bật = Tắt AI (người tự xử lý).
+  const setMode = (m: 'copilot' | 'auto') => void aiMode.run({ conversation_id: conv.id, ai_mode: conv.ai_mode === m ? 'off' : m });
+  const modes: [key: 'note' | 'copilot' | 'auto', icon: IconName, tone: string, onClick: () => void][] = [
     ['note', 'ic-doc', isNote ? color.text : color.text3, () => ui.set({ composerMode: isNote ? 'reply' : 'note' })],
-    ['copilot', 'ic-spark', color.brandInk, () => void aiMode.run({ conversation_id: conv.id, ai_mode: 'copilot' })],
-    ['auto', 'ic-bot', color.violetInk, () => void aiMode.run({ conversation_id: conv.id, ai_mode: 'auto' })],
+    ['copilot', 'ic-spark', color.brandInk, () => setMode('copilot')],
+    ['auto', 'ic-bot', color.violetInk, () => setMode('auto')],
   ];
+  const on = (key: string) => (key === 'note' ? isNote : conv.ai_mode === key);
   const tools: [key: 'qr' | 'sched' | 'xl', icon: IconName][] = [
     ['qr', 'ic-bolt'],
     ['sched', 'ic-cal'],
@@ -65,10 +80,20 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
 
   return (
     <div className={styles.wrap} data-testid="composer">
-      <ComposerPopovers conv={conv} customer={customer} onInsert={(v) => (onDraft(v), ui.closePop())} />
+      <ComposerPopovers conv={conv} customer={customer} onInsert={(v) => (onDraft(v), ui.closePop())} onPickFile={() => picker.current?.click()} />
+      <input ref={picker} type="file" multiple hidden onChange={(e) => (void files.add(e.target.files), (e.target.value = ''))} data-testid="composer-file-input" />
+      {needle !== null ? (
+        <MentionPicker
+          needle={needle}
+          onPick={(m) => {
+            mentions.current.set(m.id, m.name);
+            onDraft(draft.replace(/@[\p{L}\d_]*$/u, `@${m.name} `));
+          }}
+        />
+      ) : null}
       <div className={styles.modes}>
         {modes.map(([key, icon, tone, onClick]) => (
-          <button key={key} type="button" className={cx(styles.mode, key === 'note' && isNote && styles.modeOn)} style={{ color: tone }} onClick={onClick} aria-pressed={key === 'note' ? isNote : undefined}>
+          <button key={key} type="button" className={cx(styles.mode, on(key) && styles.modeOn)} style={{ color: tone }} onClick={onClick} aria-pressed={on(key)} data-testid={`mode-${key}`}>
             <Icon name={icon} size={14} color="currentColor" />
             {t(`modes.${key}` as never)}
           </button>
@@ -83,6 +108,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
         ))}
       </div>
       <div className={cx(styles.box, isNote && styles.boxNote)}>
+        {!isNote ? <FileChips files={files.files} onRemove={files.remove} /> : null}
         {ui.replyTo && !isNote ? (
           <div className={styles.replyBar} data-testid="composer-reply">
             <span className={styles.grow}>
@@ -121,7 +147,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
               {t.rich('senderLine', { name: me.data?.user.name.split(' ').at(-1) ?? '', b: (c) => <b style={{ color: channel?.color }}>{c}</b> })}
             </span>
           ) : null}
-          <button type="button" className={styles.send} onClick={() => void submit()} disabled={!draft.trim() || busy} data-testid="composer-send">
+          <button type="button" className={styles.send} onClick={() => void submit()} disabled={(!draft.trim() && (isNote || !files.ids.length)) || busy || !files.ready} data-testid="composer-send">
             <Icon name="ic-send" size={15} color={color.white} />
             {isNote ? t('saveNote') : t('send')}
           </button>

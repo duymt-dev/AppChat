@@ -115,6 +115,9 @@ const ASK_QR = /(?:gửi|cho xin)\s+(?:mã\s+)?QR thanh toán\s+(\S+)/i;
  */
 export const echoScript: MockScript = ({ lastUser, system, lastTool }) => {
   if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(lastUser, lastTool);
+  // Skill dịch (TIP-025 `ai.translate`): tiền tố ngôn ngữ đích + nguyên văn.
+  const xl = /^# TRANSLATE[\s\S]*Target: (vi|en)/.exec(system);
+  if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);

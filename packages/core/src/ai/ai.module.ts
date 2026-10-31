@@ -27,6 +27,7 @@ import { AgentCreateAndPublishHandler, AgentCreateHandler, AgentDeleteHandler, A
 import { AgentDraftHandler, AgentOptimizePromptHandler, AgentTestHandler } from './agents/agent-llm.handlers';
 import { seedAgentTemplates } from './agents/templates.seed';
 import { ApprovalApproveHandler, ApprovalEditAndApproveHandler, ApprovalRejectHandler } from './approvals/approval.handlers';
+import { AiTranslateHandler } from './skills/translate.handler';
 import { ApprovalsInstaller } from './approvals/approvals.installer';
 import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
@@ -117,6 +118,7 @@ class ProviderSeed implements OnModuleInit {
     ApprovalRejectHandler,
     ApprovalEditAndApproveHandler,
     GovernanceUpdateHandler,
+    AiTranslateHandler,
     AssistantService,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService],

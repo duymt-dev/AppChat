@@ -1,8 +1,9 @@
 // Danh sách hội thoại (indexing §3–7): bước 1 lấy `id` theo index (scope + thư mục + lọc, keyset `(last_message_at, id) DESC`
-// — không OFFSET: Hộp thư cuộn vô hạn, cursor ổn định khi có tin mới); bước 2 nạp đủ cột theo PK (deferred join).
+// — không OFFSET: Hộp thư cuộn vô hạn, cursor ổn định khi có tin mới); bước 2 nạp đủ cột theo PK (deferred join). Sắp xếp
+// "chưa đọc trước" (TIP-025) thêm cờ `unread_count > 0` vào đầu keyset.
 // Đếm thư mục (`/conversations/counts`) một truy vấn `count(*) FILTER` trong scope người xem.
 import { TenantSql as Prisma } from '@appchat/db';
-import { foldText, type AuthzContext, type InboxFolder } from '@appchat/shared';
+import { foldText, type AuthzContext, type InboxFolder, type InboxSort } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { UUID, convScopeSql } from '../services/access';
 
@@ -12,6 +13,7 @@ export interface ConvFilter {
   channelAccountId?: string;
   tagId?: string;
   q?: string;
+  sort?: InboxSort;
 }
 
 /** Hội thoại đang hiện ở hộp thư: chưa lưu trữ, không ẩn, không đóng, không đang tạm ẩn. */
@@ -21,6 +23,10 @@ const live = (now: Date) =>
 /** Thẻ hệ thống theo tên (thư mục "VIP", "Khiếu nại" của tab trên) — so không dấu. */
 const tagged = (name: string) =>
   Prisma.sql`EXISTS (SELECT 1 FROM conversation_tag ct JOIN tag t ON t.id = ct.tag_id WHERE ct.conversation_id = cv.id AND f_unaccent(lower(t.name)) = ${name})`;
+
+/** Có lần @nhắc người xem chưa đọc (TIP-025) — index partial `message_mention_unread_idx (user_id, conversation_id)`. */
+const mentioned = (userId: string) =>
+  Prisma.sql`EXISTS (SELECT 1 FROM message_mention mm WHERE mm.user_id = ${userId}::uuid AND mm.conversation_id = cv.id AND mm.read_at IS NULL)`;
 
 function folderSql(authz: AuthzContext, folder: InboxFolder, now: Date): Prisma.Sql {
   switch (folder) {
@@ -32,6 +38,11 @@ function folderSql(authz: AuthzContext, folder: InboxFolder, now: Date): Prisma.
       return Prisma.sql`${live(now)} AND cv.assignee_user_id = ${authz.userId}::uuid`;
     case 'unread':
       return Prisma.sql`${live(now)} AND cv.unread_count > 0`;
+    case 'mention':
+      return Prisma.sql`${live(now)} AND ${mentioned(authz.userId)}`;
+    case 'team':
+      // Đồng đội đang xử lý: đã gán cho người khác (cùng định nghĩa với đếm `team`).
+      return Prisma.sql`${live(now)} AND cv.assignee_user_id IS NOT NULL AND cv.assignee_user_id <> ${authz.userId}::uuid`;
     case 'ai_running':
       return Prisma.sql`${live(now)} AND cv.ai_state = 'running'`;
     case 'ai_pending_approval':
@@ -63,25 +74,29 @@ function where(authz: AuthzContext, f: ConvFilter, now: Date): Prisma.Sql {
   return Prisma.join(parts, ' AND ');
 }
 
-/** Cursor = `<iso last_message_at>_<id>` (base64url). */
-export const encodeCursor = (at: Date, id: string) => Buffer.from(`${at.toISOString()}_${id}`).toString('base64url');
-function decodeCursor(c: string | undefined): { at: Date; id: string } | null {
+/** Cursor = `<cờ chưa đọc 0|1>_<iso last_message_at>_<id>` (base64url); cờ chỉ có nghĩa khi sắp xếp "chưa đọc trước". */
+export const encodeCursor = (at: Date, id: string, unread = 0) => Buffer.from(`${unread}_${at.toISOString()}_${id}`).toString('base64url');
+function decodeCursor(c: string | undefined): { u: number; at: Date; id: string } | null {
   if (!c) return null;
-  const [iso, id] = Buffer.from(c, 'base64url').toString().split('_');
+  const [u, iso, id] = Buffer.from(c, 'base64url').toString().split('_');
   const at = new Date(iso ?? '');
-  return id && UUID.test(id) && !Number.isNaN(at.getTime()) ? { at, id } : null;
+  return (u === '0' || u === '1') && id && UUID.test(id) && !Number.isNaN(at.getTime()) ? { u: Number(u), at, id } : null;
 }
 
 export async function listConversationIds(tx: TenantTx, authz: AuthzContext, f: ConvFilter, now: Date, cursor: string | undefined, limit: number) {
   const after = decodeCursor(cursor);
-  const keyset = after ? Prisma.sql`AND (cv.last_message_at, cv.id) < (${after.at}, ${after.id}::uuid)` : Prisma.empty;
-  const rows = await tx.$queryRaw<{ id: string; at: Date }[]>`
-    SELECT cv.id, cv.last_message_at AS at FROM conversation cv
+  const byUnread = f.sort === 'unread';
+  const flag = Prisma.sql`(cv.unread_count > 0)::int`;
+  let keyset = Prisma.empty;
+  if (after) keyset = byUnread ? Prisma.sql`AND (${flag}, cv.last_message_at, cv.id) < (${after.u}, ${after.at}, ${after.id}::uuid)` : Prisma.sql`AND (cv.last_message_at, cv.id) < (${after.at}, ${after.id}::uuid)`;
+  const order = byUnread ? Prisma.sql`${flag} DESC, cv.last_message_at DESC, cv.id DESC` : Prisma.sql`cv.last_message_at DESC, cv.id DESC`;
+  const rows = await tx.$queryRaw<{ id: string; at: Date; u: number }[]>`
+    SELECT cv.id, cv.last_message_at AS at, ${flag} AS u FROM conversation cv
     WHERE ${where(authz, f, now)} ${keyset}
-    ORDER BY cv.last_message_at DESC, cv.id DESC LIMIT ${limit + 1}`;
+    ORDER BY ${order} LIMIT ${limit + 1}`;
   const page = rows.slice(0, limit);
   const last = page.at(-1);
-  return { ids: page.map((r) => r.id), next: rows.length > limit && last ? encodeCursor(last.at, last.id) : null };
+  return { ids: page.map((r) => r.id), next: rows.length > limit && last ? encodeCursor(last.at, last.id, byUnread ? Number(last.u) : 0) : null };
 }
 
 export interface FolderCounts {
@@ -94,6 +109,7 @@ export interface FolderCounts {
   vip: number;
   complaint: number;
   team: number;
+  mention: number;
   byChannel: Record<string, number>;
 }
 
@@ -109,7 +125,8 @@ export async function folderCounts(tx: TenantTx, authz: AuthzContext, now: Date)
       count(*) FILTER (WHERE cv.ai_state = 'handoff') AS needs_human,
       count(*) FILTER (WHERE ${tagged('vip')}) AS vip,
       count(*) FILTER (WHERE ${tagged('khieu nai')}) AS complaint,
-      count(*) FILTER (WHERE cv.assignee_user_id IS NOT NULL AND cv.assignee_user_id <> ${me}::uuid) AS team
+      count(*) FILTER (WHERE cv.assignee_user_id IS NOT NULL AND cv.assignee_user_id <> ${me}::uuid) AS team,
+      count(*) FILTER (WHERE ${mentioned(me)}) AS mention
     FROM conversation cv WHERE ${convScopeSql(authz)} AND ${live(now)}`;
   const ch = await tx.$queryRaw<{ t: string; n: bigint }[]>`
     SELECT cv.channel_type AS t, count(*) AS n FROM conversation cv WHERE ${convScopeSql(authz)} AND ${live(now)} GROUP BY cv.channel_type`;
@@ -124,6 +141,7 @@ export async function folderCounts(tx: TenantTx, authz: AuthzContext, now: Date)
     vip: n('vip'),
     complaint: n('complaint'),
     team: n('team'),
+    mention: n('mention'),
     byChannel: Object.fromEntries(ch.map((x) => [x.t, Number(x.n)])),
   };
 }

@@ -4,7 +4,7 @@
 import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { InboxReadService, type ConvFilter } from '@appchat/core';
-import { AppError, INBOX_FOLDERS, type InboxFolder } from '@appchat/shared';
+import { AppError, INBOX_FOLDERS, INBOX_SORTS, type InboxFolder, type InboxSort } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 
 const int = (v: string | undefined, field: string) => {
@@ -32,7 +32,9 @@ export class ConversationsController {
     const v = await this.viewer(req);
     const folder = (q.folder ?? 'all') as InboxFolder;
     if (!INBOX_FOLDERS.includes(folder)) throw new AppError('VALIDATION_FAILED', 400, { folder: 'invalid' });
-    const f: ConvFilter = { folder, channel: q.channel || undefined, channelAccountId: q.channel_account_id, tagId: q.tag_id, q: q.q?.slice(0, 100) };
+    // Khoá sắp xếp khác của FE (ưu tiên / VIP / SLA — chưa có dữ liệu) = mới nhất.
+    const sort: InboxSort = INBOX_SORTS.includes(q.sort as InboxSort) ? (q.sort as InboxSort) : 'latest';
+    const f: ConvFilter = { folder, channel: q.channel || undefined, channelAccountId: q.channel_account_id || undefined, tagId: q.tag_id, q: q.q?.slice(0, 100), sort };
     return this.read.list(v, f, q.cursor, int(q.limit, 'limit'));
   }
 

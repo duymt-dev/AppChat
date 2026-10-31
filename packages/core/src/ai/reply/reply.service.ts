@@ -207,8 +207,18 @@ export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string
   // Ngoài khung giờ hoạt động của agent: không trả lời — hội thoại chờ nhân viên như kênh không có agent.
   if (!withinHours(a.cfg.working_hours, d.now())) return 'skipped';
   if (!c.assigneeAgentId) await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: a.agent.id } });
-  const turn = await runAgent(d, db, ws, { ...c, assigneeAgentId: a.agent.id }, a);
-  return decide(d, db, ws, c, turn.run, turn.r, turn.ctx, []);
+  // Lượt tự trả lời đang chạy → thư mục "AI đang xử lý" (TIP-025); `decide` đưa về idle / chờ duyệt / cần người. Gợi ý copilot
+  // không đổi trạng thái (người vẫn đang xử lý).
+  const live = c.aiMode === 'auto' && c.aiState === 'idle';
+  if (live) await setState(d, db, ws, c, { aiState: 'running' }, 'ai_state');
+  const cur = { ...c, assigneeAgentId: a.agent.id, ...(live ? { aiState: 'running' as const } : {}) };
+  try {
+    const turn = await runAgent(d, db, ws, cur, a);
+    return await decide(d, db, ws, cur, turn.run, turn.r, turn.ctx, []);
+  } finally {
+    // Lượt dừng giữa chừng (lỗi / đã gửi) mà còn `running` → về idle; trạng thái khác (chờ duyệt / cần người) giữ nguyên.
+    if (live) await db.conversation.updateMany({ where: { id: c.id, aiState: 'running' }, data: { aiState: 'idle' } });
+  }
 }
 
 /** Sau khi job `ai-resume` chạy tiếp run `agent_reply` / `suggestion` xong: quyết định gửi / chuyển người như lượt thường. */

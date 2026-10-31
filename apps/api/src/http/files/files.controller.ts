@@ -1,15 +1,17 @@
 // Tệp tải lên (Blueprint §4.4 misc): `POST /v1/files` multipart (`file`, `purpose`) ≤ 25MB → `{ file_id, name, size }` — thành viên
 // workspace. Tệp dùng ở action sau (vd. `kb.add_source { file_id }`); `GET /v1/files/:id` tải về (người upload hoặc `kb.manage` khi
-// purpose kb). Tên tệp gốc chỉ lưu metadata, không dùng làm đường dẫn lưu trữ.
-import { Controller, Get, Inject, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+// purpose kb). Tên tệp gốc chỉ lưu metadata, không dùng làm đường dẫn lưu trữ. `GET /v1/files/:id/raw?ws=&sig=` (TIP-025): link ký của
+// tệp đính kèm tin nhắn — không cần đăng nhập (thẻ <img>, worker kênh tải về khi gửi); ảnh hiện inline, loại khác tải xuống.
+import { Controller, Get, Inject, Optional, Param, Post, Query, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { FilesService, MAX_UPLOAD_BYTES, TENANT_RESOLVER } from '@appchat/core';
+import { ENC_KEY, FilesService, MAX_UPLOAD_BYTES, TENANT_RESOLVER, verifyFileSig } from '@appchat/core';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const INLINE = /^image\/(png|jpe?g|gif|webp)$/i;
 
 interface Upload {
   originalname: string;
@@ -24,6 +26,7 @@ export class FilesController {
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
     @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver,
     @Inject(FilesService) private readonly files: FilesService,
+    @Optional() @Inject(ENC_KEY) private readonly key: Buffer | null,
   ) {}
 
   @Post()
@@ -38,6 +41,19 @@ export class FilesController {
     const name = Buffer.from(file.originalname, 'latin1').toString('utf8');
     const f = await this.files.upload(db, a.workspaceId, { name, mime: file.mimetype, body: file.buffer, purpose, uploadedBy: a.userId });
     return { data: { file_id: f.id, name: f.name, size: f.size, mime: f.mime } };
+  }
+
+  @Get(':id/raw')
+  async raw(@Param('id') id: string, @Query('ws') ws: string | undefined, @Query('sig') sig: string | undefined, @Res() res: ServerResponse) {
+    if (!this.key || !UUID.test(id) || !ws || !UUID.test(ws) || !sig || !verifyFileSig(this.key, ws, id, sig)) throw new AppError('NOT_FOUND', 404, { file_id: 'not_found' });
+    const db = await this.tenants.get(TenantContexts.system(ws, 'files.raw'));
+    const f = await this.files.read(db, id);
+    if (!f) throw new AppError('NOT_FOUND', 404, { file_id: 'not_found' });
+    res.setHeader('content-type', f.row.mime);
+    res.setHeader('content-disposition', `${INLINE.test(f.row.mime) ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(f.row.name)}`);
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('cache-control', 'private, max-age=86400');
+    res.end(f.body);
   }
 
   @Get(':id')

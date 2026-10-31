@@ -215,7 +215,11 @@
       "autoHint": "Customer → Vietnamese · You → customer's language",
       "to": "Translate my draft to"
     },
-    "autoBadge": "AUTO"
+    "autoBadge": "AUTO",
+    "fileFailed": "Could not upload {name}",
+    "removeFile": "Remove {name}",
+    "mention": "Mention a teammate",
+    "mentionNone": "No matching teammate"
   },
   "p360": {
     "title": "360° profile",

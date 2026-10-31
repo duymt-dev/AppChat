@@ -139,9 +139,9 @@ export function FolderRail({ counts, channels }: { counts: FolderCounts; channel
         {counts.channels.map(([key, n]) =>
           row(
             `ch_${key}`,
-            channels?.[key].label ?? key,
-            <span className={styles.ch} style={{ background: channels?.[key].color }}>
-              {channels?.[key].short}
+            channels?.[key]?.label ?? key,
+            <span className={styles.ch} style={{ background: channels?.[key]?.color ?? color.text3 }}>
+              {channels?.[key]?.short}
             </span>,
             n,
           ),

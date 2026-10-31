@@ -68,8 +68,9 @@ export class InboxReadService {
       const synced = await tx.channelAccount.count({ where: { status: 'connected' } });
       const total = await tx.conversation.count();
       return {
-        tabs: [['all', n.all, null], ['mine', n.mine, 'brand'], ['mention', 0, 'amber'], ['unread', n.unread, null], ['ai_pending_approval', n.ai_pending_approval, 'violet'], ['vip', n.vip, null], ['complaint', n.complaint, null]],
-        mailbox: [['all', 'ic-inbox', n.all], ['unread', 'ic-mail', n.unread], ['mention', '@', 0], ['starred', 'ic-star', 0], ['mine', 'ic-users', n.mine], ['team', 'ic-users', n.team], ['spam', 'ic-shield', 0]],
+        tabs: [['all', n.all, null], ['mine', n.mine, 'brand'], ['mention', n.mention, 'amber'], ['unread', n.unread, null], ['ai_pending_approval', n.ai_pending_approval, 'violet'], ['vip', n.vip, null], ['complaint', n.complaint, null]],
+        // "Gắn sao" / "Spam" chưa có dữ liệu (DC-140) → không trả về, rail không hiện.
+        mailbox: [['all', 'ic-inbox', n.all], ['unread', 'ic-mail', n.unread], ['mention', '@', n.mention], ['mine', 'ic-users', n.mine], ['team', 'ic-users', n.team]],
         ai: [['ai_running', 'ic-bot', n.ai_running], ['ai_pending_approval', 'ic-spark', n.ai_pending_approval], ['needs_human', 'ic-bell', n.needs_human]],
         channels: Object.entries(n.byChannel),
         saved: [],

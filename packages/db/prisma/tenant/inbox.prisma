@@ -187,6 +187,19 @@ model MessageReaction {
   @@map("message_reaction")
 }
 
+/// @nhắc thành viên trong ghi chú nội bộ (TIP-025, REQ-C05): thư mục "Nhắc đến tôi" = hội thoại có lần nhắc mình chưa đọc
+/// (`read_at` null); mở hội thoại (`conversation.mark_read`) → đánh dấu đã đọc. Người được nhắc là user nền tảng (không FK chéo DB).
+model MessageMention {
+  messageId      String    @map("message_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  readAt         DateTime? @map("read_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([messageId, userId])
+  @@map("message_mention")
+}
+
 /// Thành viên hội thoại nhóm (theo id phía kênh); `contact_id` khi đã liên kết khách.
 model ConversationParticipant {
   conversationId String    @map("conversation_id") @db.Uuid

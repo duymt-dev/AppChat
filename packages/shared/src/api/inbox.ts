@@ -4,8 +4,11 @@
 // Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
 
-export const INBOX_FOLDERS = ['all', 'mine', 'unread', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint'] as const;
+export const INBOX_FOLDERS = ['all', 'mine', 'unread', 'mention', 'team', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint'] as const;
 export type InboxFolder = (typeof INBOX_FOLDERS)[number];
+/** Sắp xếp danh sách (TIP-025): mới nhất (keyset) · chưa đọc trước. Các khoá khác của FE (ưu tiên / VIP / SLA) = mới nhất. */
+export const INBOX_SORTS = ['latest', 'unread'] as const;
+export type InboxSort = (typeof INBOX_SORTS)[number];
 
 export const CONV_TAG_TONES = ['vip', 'channel', 'hot', 'group', 'warn', 'ai', 'violet'] as const;
 export const AI_STATES = ['idle', 'running', 'waiting_approval', 'handoff'] as const;

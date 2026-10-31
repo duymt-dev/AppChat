@@ -10,7 +10,7 @@ import { useComposerStyles } from '../styles/composer.styles';
 import { usePopStyles } from '../styles/popover.styles';
 import { agentToolsQuery } from '../api';
 
-export function AgentToolsMenu({ conversationId, onClose }: { conversationId: string; onClose: () => void }) {
+export function AgentToolsMenu({ conversationId, onClose, onPickFile }: { conversationId: string; onClose: () => void; onPickFile: () => void }) {
   const t = useTranslations('inbox.composer');
   const tc = useTranslations('common');
   const tAll = useTranslations();
@@ -25,7 +25,7 @@ export function AgentToolsMenu({ conversationId, onClose }: { conversationId: st
   return (
     <div className={cx(ps.pop, ps.popNarrow)} data-testid="attach-pop">
       <div className={ps.popBody}>
-        <button type="button" className={cx(ps.slot)} onClick={onClose}>
+        <button type="button" className={cx(ps.slot)} onClick={() => (onClose(), onPickFile())} data-testid="attach-file">
           <Icon name="ic-doc" size={15} color={color.text3} />
           <span className={styles.grow}>{t('attachMenu.file')}</span>
         </button>

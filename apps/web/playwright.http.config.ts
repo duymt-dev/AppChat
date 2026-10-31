@@ -21,6 +21,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}/login`,
     reuseExistingServer: process.env.E2E_REUSE === '1',
     timeout: 300_000,
-    env: { NEXT_PUBLIC_API_MODE: 'http', NEXT_DIST_DIR: '.next-http', API_URL: process.env.API_URL ?? 'http://localhost:4117' },
+    // Socket realtime nối thẳng API của lượt E2E (TIP-025).
+    env: { NEXT_PUBLIC_API_MODE: 'http', NEXT_DIST_DIR: '.next-http', API_URL: process.env.API_URL ?? 'http://localhost:4117', NEXT_PUBLIC_WS_URL: process.env.API_URL ?? 'http://localhost:4117' },
   },
 });

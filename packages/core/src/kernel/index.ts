@@ -29,3 +29,4 @@ export * from './tenant-seeds';
 export * from './events/consumer';
 export * from './events/dispatcher';
 export * from './events/events.runner';
+export * from './files/signed-url';

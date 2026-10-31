@@ -6,9 +6,11 @@ import type { ChannelRegistry } from '@appchat/channels';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { can } from '@appchat/shared';
 import { CLOCK, type Clock } from '../kernel/clock';
+import { ENC_KEY } from '../kernel/crypto';
+import { ENV_SOURCE } from '../kernel/kernel.module';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { registerConversationGuard } from '../notify/realtime/conv-guard';
-import { CHANNEL_REGISTRY, ChannelsModule } from '../channels/channels.module';
+import { CHANNEL_REGISTRY, ChannelsModule, widgetUrlsFor } from '../channels/channels.module';
 import { CrmModule } from '../crm/crm.module';
 import { ContactIdentityService } from '../crm/services/identity.service';
 import './events/inbox.rules';
@@ -30,6 +32,8 @@ import { UUID, canSeeConversation } from './services/access';
 import { InboxMetaService } from './services/meta.service';
 import { InboundPipeline } from './services/pipeline';
 import { InboxReadService } from './services/read.service';
+import type { FileLinks } from './services/attachments';
+import { FILE_LINKS } from './tokens';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -62,6 +66,12 @@ class ConversationGuardInstaller implements OnModuleInit {
   providers: [
     ...HANDLERS,
     ConversationGuardInstaller,
+    {
+      // Link tệp đính kèm trỏ về API public (cùng WIDGET_API_URL — origin API của widget / tệp, Blueprint §11).
+      provide: FILE_LINKS,
+      inject: [opt(ENV_SOURCE), opt(ENC_KEY)],
+      useFactory: (src: Record<string, string | undefined> | undefined, key: Buffer | undefined): FileLinks | null => (key ? { apiBase: widgetUrlsFor(src ?? {}).api, key } : null),
+    },
     {
       provide: InboxReadService,
       inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CLOCK],

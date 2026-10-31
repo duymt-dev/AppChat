@@ -78,6 +78,15 @@ export interface Message {
   reply_to?: { id: string; preview: string };
   /** Tin được chuyển tiếp tới hội thoại này (REQ-C09 "Chuyển tiếp"). */
   forwarded?: boolean;
+  /** Ảnh / tệp của tin (API thật — link ký; TIP-025). */
+  attachments?: MessageAttachment[];
+}
+
+export interface MessageAttachment {
+  url: string;
+  mime: string;
+  name?: string;
+  size?: number;
 }
 
 export interface ThreadData {

@@ -215,7 +215,11 @@
       "autoHint": "Tin khách → tiếng Việt · Tin bạn → ngôn ngữ khách",
       "to": "Dịch tin soạn sang"
     },
-    "autoBadge": "AUTO"
+    "autoBadge": "AUTO",
+    "fileFailed": "Không tải lên được tệp {name}",
+    "removeFile": "Bỏ tệp {name}",
+    "mention": "Nhắc thành viên",
+    "mentionNone": "Không có thành viên khớp"
   },
   "p360": {
     "title": "Hồ sơ 360°",

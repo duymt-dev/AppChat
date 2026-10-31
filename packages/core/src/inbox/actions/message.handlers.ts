@@ -1,7 +1,7 @@
 // message.send · forward · recall · delete · react · pin · note.add (Blueprint §3.4 inbox; REQ-C09, C13). Gửi đi qua outbox
 // (`writeOutgoing` trong transaction → `afterCommit` đẩy hàng đợi gửi của tài khoản). Cảm xúc chỉ kênh `capabilities.reactions`.
 // Thu hồi / cảm xúc ghi trong AppChat; gọi API kênh tương ứng là việc của adapter sau này (Q-014).
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { ChannelRegistry } from '@appchat/channels';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, messageDelete, messageForward, messagePin, messageReact, messageRecall, messageSend, noteAdd } from '@appchat/actions';
@@ -12,6 +12,9 @@ import { uuidv7 } from '../../kernel/ids';
 import { CHANNEL_REGISTRY, ChannelSendQueue } from '../../channels/public';
 import { CrmMembers } from '../../crm/public';
 import { UUID, messageOf, scopeCols, writableConversation } from '../services/access';
+import { resolveAttachments, sendKindOf, type FileLinks } from '../services/attachments';
+import { recordMentions } from '../services/mentions';
+import { FILE_LINKS } from '../tokens';
 import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
 import { me, updatedEvent } from './kit';
 
@@ -41,11 +44,25 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
     @Inject(ChannelSendQueue) private readonly queue: ChannelSendQueue | null,
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(CHANNEL_REGISTRY) private readonly registry: ChannelRegistry,
+    @Optional() @Inject(FILE_LINKS) private readonly links: FileLinks | null,
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof messageSend>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
-    const out = await writeOutgoing(tx, { conv: c, kind: 'text', body: input.text, sender: await senderOf(ctx, this.members, tx), replyToId: input.reply_to_id ?? null, now: this.clock.now() });
+    // Tệp đính kèm (TIP-025): kiểm kênh hỗ trợ trước khi đổi tệp thành link ký.
+    const ids = input.attachments ?? [];
+    if (ids.length) sendKindOf(this.registry, c.channelType, [{ mime: 'application/octet-stream' }]);
+    const files = await resolveAttachments(tx, ctx, this.links ?? null, ids);
+    const out = await writeOutgoing(tx, {
+      conv: c,
+      kind: files.length ? sendKindOf(this.registry, c.channelType, files) : 'text',
+      body: (input.text ?? '').trim(),
+      ...(files.length ? { attachments: files } : {}),
+      sender: await senderOf(ctx, this.members, tx),
+      replyToId: input.reply_to_id ?? null,
+      now: this.clock.now(),
+    });
     const cols = await scopeCols(tx, c);
     return {
       result: { message_id: out.messageId },
@@ -168,7 +185,10 @@ export class NoteAddHandler implements Handler<ActionInput<typeof noteAdd>, { me
     const s = await senderOf(ctx, this.members);
     // Ghi chú nội bộ: không có direction, không gửi kênh, không đổi preview danh sách.
     await tx.message.create({ data: { id, conversationId: c.id, channelAccountId: c.channelAccountId, senderType: s.type, senderId: s.id, senderName: s.name, kind: 'note', body: input.text, status: 'sent', createdAt: now } });
-    return { result: { message_id: id }, after: { id }, events: [await msgEvent(tx, c, id, 'status')] };
+    // @nhắc thành viên (TIP-025) → thư mục "Nhắc đến tôi" + thông báo msg_mention.
+    const m = await recordMentions(tx, this.members, { workspaceId: ctx.workspaceId, conv: c, messageId: id, by: s, userIds: input.mentions ?? [], now });
+    const events = [await msgEvent(tx, c, id, 'status'), ...(m.userIds.length ? [await updatedEvent(tx, c, 'mention')] : []), ...m.events];
+    return { result: { message_id: id }, after: { id }, events };
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

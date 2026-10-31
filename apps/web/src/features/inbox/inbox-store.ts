@@ -17,7 +17,10 @@ interface InboxUiState {
   tab: string;
   tab360: Tab360;
   channel: ChannelType | null;
+  /** Tài khoản kênh đang lọc (id — REQ-B09, gửi `channel_account_id`). */
   account: string | null;
+  /** Ô tìm kiếm danh sách (gửi `q`, không dấu ở backend). */
+  listQuery: string;
   sort: string;
   pop: InboxPop;
   menuFor: string | null;
@@ -47,6 +50,7 @@ interface InboxUiState {
         | 'tab360'
         | 'channel'
         | 'account'
+        | 'listQuery'
         | 'sort'
         | 'modal'
         | 'composerMode'
@@ -70,7 +74,8 @@ interface InboxUiState {
 const wide = () => typeof window === 'undefined' || window.innerWidth > 1180;
 
 export const useInboxUi = create<InboxUiState>((set) => ({
-  selectedId: 'c_lan',
+  // Rỗng = hội thoại đầu danh sách (InboxScreen); `?c=<id>` (thông báo) chọn đúng hội thoại.
+  selectedId: '',
   mobileChat: false,
   folderRail: false,
   show360: wide(),
@@ -78,6 +83,7 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   tab360: 'overview',
   channel: null,
   account: null,
+  listQuery: '',
   sort: 'latest',
   pop: null,
   menuFor: null,

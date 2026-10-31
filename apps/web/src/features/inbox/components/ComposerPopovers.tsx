@@ -14,7 +14,7 @@ import { AgentToolsMenu } from './AgentToolsMenu';
 
 const LANGS = ['English', '中文', '한국어', '日本語'] as const;
 
-export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversation; customer: string; onInsert: (text: string) => void }) {
+export function ComposerPopovers({ conv, customer, onInsert, onPickFile }: { conv: Conversation; customer: string; onInsert: (text: string) => void; onPickFile: () => void }) {
   const t = useTranslations('inbox.composer');
   const { styles, cx } = useComposerStyles();
   const { styles: ps } = usePopStyles();
@@ -29,7 +29,7 @@ export function ComposerPopovers({ conv, customer, onInsert }: { conv: Conversat
   return (
     <>
       <div className={base.veil} onClick={ui.closePop} />
-      {ui.pop === 'attach' ? <AgentToolsMenu conversationId={conv.id} onClose={ui.closePop} /> : null}
+      {ui.pop === 'attach' ? <AgentToolsMenu conversationId={conv.id} onClose={ui.closePop} onPickFile={onPickFile} /> : null}
       {ui.pop === 'qr' ? (
         <div className={ps.pop} data-testid="qr-pop">
           <div className={ps.popHead}>
