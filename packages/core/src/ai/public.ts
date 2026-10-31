@@ -19,7 +19,7 @@ export { listAgents, getAgent, agentVersions, agentTools, conversationAgentTools
 export { configOf, blankConfig, liveAgent, type AgentConfig, type AgentRow } from './agents/agent.store';
 export { agentAuthz } from './agents/agent-authz';
 export { connectedKeys, groupTools, runToolIds, badgeOf } from './agents/agent-tools';
-export { agentSystem, agentToolSpecs, dryRunTools, runOnce } from './agents/agent.runtime';
+export { agentSystem, agentToolSpecs, dryRunTools, runOnce, withinHours } from './agents/agent.runtime';
 export { draftFromText, parseDraft, optimizeLocal } from './agents/agent-draft';
 export { seedAgentTemplates, templateDefaults } from './agents/templates.seed';
 export { AGENT_TEMPLATES } from './agents/catalog';

@@ -207,7 +207,8 @@
     "tabs": {
       "pending": "Đang chờ",
       "approved": "Đã duyệt",
-      "rejected": "Đã từ chối"
+      "rejected": "Đã từ chối",
+      "expired": "Hết hạn"
     },
     "by": "{agent} đề xuất",
     "reason": "Lý do cần duyệt",
@@ -227,8 +228,18 @@
     "status": {
       "approved": "Đã duyệt",
       "rejected": "Đã từ chối",
-      "pending": "Chờ duyệt"
-    }
+      "pending": "Chờ duyệt",
+      "edited": "Đã sửa & duyệt",
+      "expired": "Hết hạn"
+    },
+    "edit": "Sửa & duyệt",
+    "editTitle": "Sửa thông tin trước khi duyệt",
+    "saveApprove": "Lưu & duyệt",
+    "cancel": "Huỷ",
+    "rejectReason": "Lý do từ chối (không bắt buộc)",
+    "confirmReject": "Xác nhận từ chối",
+    "noFields": "Thao tác này không có trường sửa được — duyệt hoặc từ chối.",
+    "noteLabel": "Ghi chú: {note}"
   },
   "nav": {
     "chat": "Trò chuyện",

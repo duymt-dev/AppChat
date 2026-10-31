@@ -17,5 +17,10 @@
   "QUOTE_NEEDS_APPROVAL": "Báo giá vượt ngưỡng — cần duyệt trước khi gửi",
   "INTERNAL": "Lỗi hệ thống, thử lại sau",
   "OTP_INVALID": "Mã OTP không đúng",
-  "SIGN_LINK_INVALID": "Link ký đã hết hạn hoặc không còn hiệu lực"
+  "SIGN_LINK_INVALID": "Link ký đã hết hạn hoặc không còn hiệu lực",
+  "HAS_DEPENDENCIES": "Còn dữ liệu đang dùng mục này — gỡ liên kết trước rồi thử lại",
+  "INVALID_TRANSITION": "Không chuyển được sang trạng thái này từ trạng thái hiện tại",
+  "UNDO_EXPIRED": "Đã quá thời hạn hoàn tác",
+  "UNDO_NOT_SUPPORTED": "Thao tác này không hoàn tác được",
+  "NOT_IMPLEMENTED": "Tính năng này chưa sẵn sàng"
 }

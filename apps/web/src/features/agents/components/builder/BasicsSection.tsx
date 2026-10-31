@@ -1,4 +1,5 @@
-// Cấu hình cơ bản — prototype L2305–2320: biểu tượng (popover 12 emoji), tên, "Hiển thị mô tả", Mức AI (D29 thay "Mô hình AI"), ngôn ngữ.
+// Cấu hình cơ bản — prototype L2305–2320: biểu tượng (popover 12 emoji), tên, "Hiển thị mô tả" (mở vai trò hiển thị + tính cách —
+// thẻ agent hiện vai trò), Mức AI (D29 thay "Mô hình AI"), ngôn ngữ.
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -17,6 +18,7 @@ export function BasicsSection({ cfg, patch, emojis }: SectionProps & { emojis: s
   const t = useTranslations('agents');
   const { styles, cx } = useBuilderStyles();
   const [open, setOpen] = useState(false);
+  const [desc, setDesc] = useState(!!(cfg.role_label || cfg.persona));
 
   return (
     <>
@@ -62,7 +64,21 @@ export function BasicsSection({ cfg, patch, emojis }: SectionProps & { emojis: s
           />
         </div>
       </div>
-      <span className={styles.link}>{t('b.showDesc')}</span>
+      <button type="button" className={styles.link} onClick={() => setDesc((v) => !v)} aria-expanded={desc} data-testid="agb-desc-toggle">
+        {desc ? t('b.hideDesc') : t('b.showDesc')}
+      </button>
+      {desc ? (
+        <div className={styles.two}>
+          <div>
+            <div className={styles.label}>{t('b.roleLabel')}</div>
+            <input className={styles.input} value={cfg.role_label} onChange={(e) => patch({ role_label: e.target.value })} placeholder={t('b.roleLabelPh')} aria-label={t('b.roleLabel')} maxLength={80} data-testid="agb-role-label" />
+          </div>
+          <div>
+            <div className={styles.label}>{t('b.persona')}</div>
+            <input className={styles.input} value={cfg.persona} onChange={(e) => patch({ persona: e.target.value })} placeholder={t('b.personaPh')} aria-label={t('b.persona')} maxLength={500} data-testid="agb-persona" />
+          </div>
+        </div>
+      ) : null}
       <div className={styles.two}>
         <div>
           <div className={styles.label}>{t('b.tier')}</div>

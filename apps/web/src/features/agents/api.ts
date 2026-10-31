@@ -12,8 +12,8 @@ export const agentQuery = (id: string) =>
 export const versionsQuery = (id: string) =>
   queryOptions({ queryKey: ['agents', 'versions', id], queryFn: () => transport.get<{ data: AgentVersion[] }>(`/agents/${id}/versions`) });
 
-export const metaQuery = () =>
-  queryOptions({ queryKey: ['agents-meta'], queryFn: () => transport.get<AgentsMeta>('/agents/meta'), staleTime: Infinity });
+/** Meta Builder: danh mục tĩnh + gợi ý Trợ lý tính từ agent thật — khoá dưới `agents` để mọi action `agent.*` làm mới. */
+export const metaQuery = () => queryOptions({ queryKey: ['agents', 'meta'], queryFn: () => transport.get<AgentsMeta>('/agents/meta') });
 
 export const templatesQuery = (f: TemplateFilter) =>
   queryOptions({

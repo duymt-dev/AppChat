@@ -12,10 +12,16 @@ export interface KbScope {
 }
 
 /** Cấu hình agent = các cột bản nháp của ai_agent; xuất bản thì chụp thành ai_agent_version. */
+export type WorkingHours = 'always' | 'office' | 'custom';
+
 export interface AgentConfig {
   name: string;
   emoji: string;
   role?: Role;
+  role_label: string;
+  persona: string;
+  keywords: string[];
+  working_hours: WorkingHours;
   language: Lang;
   prompt: string;
   intents: number[];
@@ -31,12 +37,10 @@ export interface AgentConfig {
 
 export interface Agent extends AgentConfig {
   id: string;
-  role_label: string;
   status: AgentStatus;
   conversations: number;
   resolve_rate: number;
   csat: number;
-  persona: string;
   version: number;
   dirty?: boolean;
 }
@@ -48,6 +52,15 @@ export interface AgentVersion {
   note: string;
 }
 
+/** Cấu hình mặc định theo vai trò của mẫu (D15) — "Từ mẫu" dựng bản nháp builder từ đây. */
+export interface AgentTemplateDefaults {
+  tools: string[];
+  intents: number[];
+  model_tier: Tier;
+  threshold: number;
+  prompt: string;
+}
+
 export interface AgentTemplate {
   id: string;
   name: string;
@@ -56,6 +69,8 @@ export interface AgentTemplate {
   color: string;
   tint: string;
   icon: string;
+  role: Role;
+  defaults: AgentTemplateDefaults;
 }
 
 export interface AgentsMeta {
@@ -66,7 +81,8 @@ export interface AgentsMeta {
   tools: { key: string; action_id: string }[];
   prompt_templates: { label: string; text: string }[];
   test_seed: string;
-  ai_suggests: { key: string; color: string; title: string; desc: string }[];
+  /** Gợi ý tính từ dữ liệu thật; `ask` = câu hỏi gửi sang Trợ lý (mục khác "create"). */
+  ai_suggests: { key: string; color: string; title: string; desc: string; ask?: string }[];
   template_names: { name: string; tag: string }[];
 }
 

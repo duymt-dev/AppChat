@@ -197,6 +197,9 @@
     },
     "reject": {
       "title": "Reject request"
+    },
+    "edit_and_approve": {
+      "title": "Edit & approve action"
     }
   },
   "ai": {

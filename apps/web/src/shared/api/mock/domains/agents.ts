@@ -50,6 +50,7 @@ export const agentsRoutes: Record<string, MockRoute> = {
         (!group || group.industries.includes(t.tag)) &&
         (!p.industry || p.industry === 'all' || t.tag === p.industry) &&
         (!p.name || p.name === 'all' || t.name === p.name) &&
+        (!p.role || p.role === 'all' || t.role === p.role) &&
         (!q || [t.name, t.desc, t.tag].some((v) => v.toLowerCase().includes(q))),
     );
     return { data: rows, total: rows.length };
@@ -62,7 +63,8 @@ export const agentsRoutes: Record<string, MockRoute> = {
     tools: fixture.tools,
     prompt_templates: fixture.prompt_templates,
     test_seed: fixture.test_seed,
-    ai_suggests: fixture.ai_suggests,
+    // Mục khác "create" mang câu hỏi gửi sang Trợ lý (backend tính từ dữ liệu thật — TIP-024).
+    ai_suggests: fixture.ai_suggests.map((s) => (s.key === 'create' ? s : { ...s, ask: s.title })),
     template_names: fixture.templates.slice(0, 20).map((t) => ({ name: t.name, tag: t.tag })),
   }),
 };

@@ -12,6 +12,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { agentAuthz } from '../agents/agent-authz';
+import { withinHours } from '../agents/agent.runtime';
 import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
 import { buildReplyContext, publishedAgent, type ReplyContext } from './reply-context';
@@ -203,6 +204,8 @@ export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string
   if (!a) return 'skipped';
   // Kênh của agent: rỗng = mọi kênh; có danh sách thì phải chứa loại kênh của hội thoại.
   if (a.cfg.channels.length && !a.cfg.channels.includes(c.channelType)) return 'skipped';
+  // Ngoài khung giờ hoạt động của agent: không trả lời — hội thoại chờ nhân viên như kênh không có agent.
+  if (!withinHours(a.cfg.working_hours, d.now())) return 'skipped';
   if (!c.assigneeAgentId) await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: a.agent.id } });
   const turn = await runAgent(d, db, ws, { ...c, assigneeAgentId: a.agent.id }, a);
   return decide(d, db, ws, c, turn.run, turn.r, turn.ctx, []);

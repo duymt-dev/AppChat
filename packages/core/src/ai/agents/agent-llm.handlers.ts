@@ -56,7 +56,7 @@ export class AgentTestHandler extends LlmHandler implements Handler<ActionInput<
     const connected = await connectedKeys(db);
     const r = await runOnce(db, runner, () => this.clock.now(), ctx.workspaceId, {
       run: { kind: 'agent_reply', title: cfg.name || 'agent.test', tier: cfg.model_tier, agentId: saved?.id ?? null, agentVersion: saved?.publishedVersion ?? null, initiatedByUserId: userOf(ctx), dryRun: true },
-      system: agentSystem(cfg),
+      system: input.channel ? `${agentSystem(cfg)}\n\n# MÔ PHỎNG KÊNH\nKhách đang nhắn qua kênh: ${input.channel}. Trả lời đúng phong cách kênh này.` : agentSystem(cfg),
       prompt: input.text,
       source: 'agent_test',
       tools: (runId) => dryRunTools(agentToolSpecs(need(this.executor, 'ActionExecutor'), runToolIds(cfg.tools, connected), { workspaceId: ctx.workspaceId, agent, commander: ctx.authz, runId, source: 'agent' })),

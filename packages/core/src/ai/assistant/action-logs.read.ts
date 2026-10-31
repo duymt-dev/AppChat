@@ -2,7 +2,8 @@
 // workspace. Theo quyền: người có `audit.view` (Owner) thấy hết; người khác chỉ thấy việc của mình (tự làm hoặc Trợ lý / agent làm
 // thay mình — `on_behalf_of_user_id`). Lọc `kind` (create / update / send / export / delete) · `status` (done / pending / undone) ·
 // `day` (today / yesterday / 7d — theo giờ VN) · `q` (không dấu trên tiêu đề / đối tượng / action). Bỏ action đọc (risk read).
-// Index: `action_log_created_at_cover_idx (created_at DESC) INCLUDE (action_id, actor_type, status)`; deferred join tới hàng đầy đủ.
+// "Đang chờ" = yêu cầu duyệt còn hạn (TIP-024). Index: `action_log_created_at_cover_idx (created_at DESC) INCLUDE (action_id,
+// actor_type, status)` + deferred join tới hàng đầy đủ; chờ duyệt: `approval_request_status_requested_at_idx`.
 import { registry } from '@appchat/actions';
 import { TenantSql, type TenantDb } from '@appchat/db';
 import { can, foldText, interpolate, serverMessages, type ActionLogRowDto, type AuthzContext } from '@appchat/shared';
@@ -49,7 +50,7 @@ function range(day: LogFilter['day'], now: Date): { from?: Date; to?: Date } {
   return {};
 }
 
-type Row = { id: string; action_id: string; risk: string; status: string; source: string; undo_until: Date | null; input: unknown; result: unknown; created_at: Date };
+type Row = { id: string; action_id: string; risk: string; status: string; source: string; undo_until: Date | null; input: unknown; result: unknown; created_at: Date; actor_id: string | null; on_behalf: string | null };
 
 /** Tiêu đề hiển thị: tên / tiêu đề trong kết quả action nếu có; đối tượng = tên module. */
 function titleOf(r: Row, locale: string): { title?: string; object: string } {
@@ -63,43 +64,73 @@ function titleOf(r: Row, locale: string): { title?: string; object: string } {
   return { title: name ? interpolate('{base} "{name}"', { base, name }) : base, object };
 }
 
+/** Loại → điều kiện SQL (cùng luật `kindOf`): lọc trong SQL để `total` và LIMIT đúng theo bộ lọc. */
+function kindSql(kind: Kind | undefined) {
+  const create = TenantSql.sql`action_id ~ '[.]create(_[a-z0-9_]+)?$'`;
+  const exp = TenantSql.sql`(action_id ~ '[.]export$' OR action_id LIKE 'insight.%')`;
+  if (kind === 'delete') return TenantSql.sql`AND risk = 'delete'`;
+  if (kind === 'send') return TenantSql.sql`AND risk = 'send'`;
+  if (kind === 'export') return TenantSql.sql`AND risk NOT IN ('delete','send') AND ${exp}`;
+  if (kind === 'create') return TenantSql.sql`AND risk NOT IN ('delete','send') AND NOT ${exp} AND ${create}`;
+  if (kind === 'update') return TenantSql.sql`AND risk NOT IN ('delete','send') AND NOT ${exp} AND NOT ${create}`;
+  return TenantSql.empty;
+}
+
+/**
+ * Nhật ký = `action_log` (đã chạy / đã hoàn tác) ∪ `approval_request` còn chờ, chưa hết hạn (trạng thái "Đang chờ" — agent xin làm,
+ * chưa chạy). Lọc loại / trạng thái / ngày trong SQL; `q` lọc sau (tiêu đề dựng từ i18n + input). `undoable` chỉ khi người gọi là
+ * người làm (actor / người ra lệnh) hoặc Owner — đúng luật `UndoService`.
+ */
 export async function listActionLogs(db: Pick<TenantDb, '$queryRaw'>, authz: AuthzContext, f: LogFilter, now: Date): Promise<{ data: ActionLogRowDto[]; total: number; next_cursor: null }> {
   const all = authz.isOwner || can(authz, 'audit.view');
   const mine = all ? TenantSql.empty : TenantSql.sql`AND (actor_id = ${authz.userId} OR on_behalf_of_user_id = ${authz.userId}::uuid)`;
+  const mineAp = all ? TenantSql.empty : TenantSql.sql`AND on_behalf_of_user_id = ${authz.userId}::uuid`;
   const { from, to } = range(f.day, now);
-  const status =
-    f.status === 'undone' ? TenantSql.sql`AND status = 'undone'` : f.status === 'done' ? TenantSql.sql`AND status = 'succeeded'` : f.status === 'pending' ? TenantSql.sql`AND false` : TenantSql.empty;
-  const where = TenantSql.sql`risk <> 'read' ${mine} ${status}
-    ${from ? TenantSql.sql`AND created_at >= ${from}` : TenantSql.empty} ${to ? TenantSql.sql`AND created_at < ${to}` : TenantSql.empty}`;
-  // Deferred join: chọn id theo index (created_at DESC), rồi mới đọc cột rộng (result) cho đúng số dòng.
-  const rows = await db.$queryRaw<Row[]>(TenantSql.sql`
-    SELECT l.id, l.action_id, l.risk, l.status, l.source::text AS source, l.undo_until, l.input, l.result, l.created_at
+  const at = (col: string) =>
+    TenantSql.sql`${from ? TenantSql.sql`AND ${TenantSql.raw(col)} >= ${from}` : TenantSql.empty} ${to ? TenantSql.sql`AND ${TenantSql.raw(col)} < ${to}` : TenantSql.empty}`;
+  const status = f.status === 'undone' ? TenantSql.sql`AND status = 'undone'` : f.status === 'done' ? TenantSql.sql`AND status = 'succeeded'` : TenantSql.empty;
+  const logs = f.status !== 'pending';
+  const approvals = !f.status || f.status === 'pending';
+  const where = TenantSql.sql`risk <> 'read' ${mine} ${status} ${kindSql(f.kind)} ${at('created_at')}`;
+  const apWhere = TenantSql.sql`status = 'pending' AND expires_at > ${now} ${mineAp} ${kindSql(f.kind)} ${at('requested_at')}`;
+  // Deferred join: chọn id theo index (created_at DESC), rồi mới đọc cột rộng (input / result) cho đúng số dòng.
+  const rows = logs
+    ? await db.$queryRaw<Row[]>(TenantSql.sql`
+    SELECT l.id, l.action_id, l.risk, l.status, l.source::text AS source, l.undo_until, l.input, l.result, l.created_at, l.actor_id, l.on_behalf_of_user_id::text AS on_behalf
     FROM (SELECT id FROM action_log WHERE ${where} ORDER BY created_at DESC LIMIT ${LIMIT}) s
     JOIN action_log l ON l.id = s.id
-    ORDER BY l.created_at DESC`);
-  const [cnt] = await db.$queryRaw<{ n: bigint }[]>(TenantSql.sql`SELECT count(*) AS n FROM action_log WHERE risk <> 'read' ${mine}`);
+    ORDER BY l.created_at DESC`)
+    : [];
+  const pend = approvals
+    ? await db.$queryRaw<Row[]>(TenantSql.sql`
+    SELECT id, action_id, risk, 'pending' AS status, source, NULL::timestamptz AS undo_until, input, NULL::jsonb AS result, requested_at AS created_at, NULL AS actor_id, on_behalf_of_user_id::text AS on_behalf
+    FROM approval_request WHERE ${apWhere} ORDER BY requested_at DESC LIMIT ${LIMIT}`)
+    : [];
+  const [c1] = logs ? await db.$queryRaw<{ n: bigint }[]>(TenantSql.sql`SELECT count(*) AS n FROM action_log WHERE ${where}`) : [];
+  const [c2] = approvals ? await db.$queryRaw<{ n: bigint }[]>(TenantSql.sql`SELECT count(*) AS n FROM approval_request WHERE ${apWhere}`) : [];
   const locale = f.locale ?? 'vi';
   const q = foldText(f.q ?? '');
   const data: ActionLogRowDto[] = [];
-  for (const r of rows) {
-    const kind = kindOf(r.action_id, r.risk);
-    if (f.kind && f.kind !== kind) continue;
+  const merged = [...pend, ...rows].sort((a, b) => b.created_at.getTime() - a.created_at.getTime()).slice(0, LIMIT);
+  for (const r of merged) {
     const { title, object } = titleOf(r, locale);
     if (q && !foldText(`${title ?? ''} ${object} ${r.action_id}`).includes(q)) continue;
     const undone = r.status === 'undone';
+    const pending = r.status === 'pending';
+    const own = authz.isOwner || r.actor_id === authz.userId || r.on_behalf === authz.userId;
     data.push({
       id: r.id,
-      kind,
+      kind: kindOf(r.action_id, r.risk),
       ...(title ? { title } : {}),
       object,
       day: dayLabel(r.created_at, now),
       time: hhmm(r.created_at),
-      undoable: !undone && !!r.undo_until && r.undo_until > now,
-      status: 'done',
+      undoable: own && !undone && !pending && !!r.undo_until && r.undo_until > now,
+      status: pending ? 'pending' : 'done',
       action_id: r.action_id,
       source: r.source,
       ...(undone ? { undone: true } : {}),
     });
   }
-  return { data, total: Number(cnt?.n ?? 0), next_cursor: null };
+  return { data, total: Number(c1?.n ?? 0) + Number(c2?.n ?? 0), next_cursor: null };
 }

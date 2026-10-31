@@ -29,4 +29,14 @@ describe('mock AI Agents — shape FE ↔ BE', () => {
     expect(issues(z.array(approvalRowSchema), (await mockTransport.get<{ data: unknown[] }>('/approvals', { status: 'all' })).data)).toEqual([]);
     expect(issues(governanceSchema, await mockTransport.get('/settings/governance'))).toEqual([]);
   });
+
+  it('TIP-024: mẫu lọc theo vai trò có defaults; sửa & duyệt → tab Đã duyệt (edited, input đã sửa)', async () => {
+    const cs = (await mockTransport.get<{ data: { role: string; defaults: { tools: string[] } }[] }>('/agent-templates', { role: 'cs' })).data;
+    expect(cs.length).toBeGreaterThan(0);
+    expect(cs.every((t) => t.role === 'cs' && t.defaults.tools.length > 0)).toBe(true);
+    await mockTransport.action('approval.edit_and_approve', { approval_id: 'ap_1', edited_input: { note: 'Chỉ nhóm VIP' } });
+    const approved = (await mockTransport.get<{ data: { id: string; status: string; input: Record<string, unknown> }[] }>('/approvals', { status: 'approved' })).data;
+    expect(approved.find((a) => a.id === 'ap_1')).toMatchObject({ status: 'edited', input: { note: 'Chỉ nhóm VIP' } });
+    expect(issues(z.array(approvalRowSchema), approved)).toEqual([]);
+  });
 });

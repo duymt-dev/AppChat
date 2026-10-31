@@ -105,6 +105,9 @@ function assistantTurn(lastUser: string, lastTool: MockCtx['lastTool']): MockTur
   return { text: lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?' };
 }
 
+/** Lượt agent trực kênh: khách xin "mã QR thanh toán <số>" → agent gọi `invoice.send_payment_qr` (risk send → xin duyệt — TIP-024). */
+const ASK_QR = /(?:gửi|cho xin)\s+(?:mã\s+)?QR thanh toán\s+(\S+)/i;
+
 /**
  * Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi. Lượt agent trực kênh (system có khung
  * output JSON — prompt `agent-reply`) → trả đúng JSON, độ tin cậy 0,9; khách đòi gặp người → `needs_human`. Lượt Trợ lý → xem
@@ -114,6 +117,8 @@ export const echoScript: MockScript = ({ lastUser, system, lastTool }) => {
   if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(lastUser, lastTool);
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
+  const qr = lastTool ? null : ASK_QR.exec(lastUser);
+  if (qr) return { tool: 'invoice__send_payment_qr', input: { invoice_id: qr[1]!, channel: 'email' } };
   const human = /nhân viên|gặp người|staff|human/i.test(lastUser);
   return { text: JSON.stringify({ reply: human ? null : `Dạ, ${echo.charAt(0).toLowerCase()}${echo.slice(1)}`, confidence: human ? 0.4 : 0.9, intent: 'faq', sentiment: 'neutral', needs_human: human ? 'Khách muốn gặp nhân viên' : null }) };
 };

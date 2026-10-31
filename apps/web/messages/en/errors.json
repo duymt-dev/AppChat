@@ -17,5 +17,10 @@
   "QUOTE_NEEDS_APPROVAL": "This quote is over the threshold — get it approved before sending",
   "INTERNAL": "System error, try again later",
   "OTP_INVALID": "Incorrect OTP code",
-  "SIGN_LINK_INVALID": "This signing link has expired or is no longer valid"
+  "SIGN_LINK_INVALID": "This signing link has expired or is no longer valid",
+  "HAS_DEPENDENCIES": "Other data still uses this item — unlink it first, then try again",
+  "INVALID_TRANSITION": "This status change is not allowed from the current status",
+  "UNDO_EXPIRED": "The undo window has passed",
+  "UNDO_NOT_SUPPORTED": "This action cannot be undone",
+  "NOT_IMPLEMENTED": "This feature is not available yet"
 }

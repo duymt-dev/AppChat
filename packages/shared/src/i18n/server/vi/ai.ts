@@ -1,6 +1,17 @@
 // Chữ phía server của domain AI (TIP-021) — tiếng Việt (nguồn): tên agent mặc định, lý do / tiêu đề hàng chờ duyệt.
 export const ai = {
   agent: { unnamed: 'Agent mới', copy: '{name} (bản sao)', assistant: 'Trợ lý AI' },
+  suggest: {
+    create: { title: 'Tạo AI Agent bằng hội thoại', desc: 'Mô tả vai trò, AppChat tự dựng kịch bản + kết nối kênh' },
+    optimize: { title: 'Tối ưu agent tự xử lý thấp', desc: '{name} đang tự xử lý {rate}% · gợi ý cải thiện prompt & kiến thức', empty: 'Chưa có agent nào chạy đủ hội thoại để đánh giá' },
+    routing: { title: 'Kiểm tra quy tắc phân luồng', desc: '{n} agent đang chạy · {kw} agent có từ khoá ưu tiên', empty: 'Chưa có agent nào đang chạy' },
+    report: { title: 'Báo cáo hiệu suất AI Agents', desc: '{n} lượt xử lý hôm nay · chuyển người {handoff}%', empty: 'Hôm nay chưa có lượt xử lý nào' },
+    ask: {
+      optimize: 'Gợi ý cải thiện prompt và kiến thức cho agent {name}',
+      routing: 'Kiểm tra quy tắc phân luồng của các AI Agent đang chạy',
+      report: 'Báo cáo hiệu suất AI Agents hôm nay',
+    },
+  },
   handoff: {
     needs_human: 'AI cần người xử lý: {detail}',
     asked_human: 'Khách muốn gặp nhân viên',
@@ -32,6 +43,7 @@ export const ai = {
   assistant: {
     session: 'Cuộc trò chuyện mới',
     verb: { write: 'Cập nhật', send: 'Gửi', money: 'Thao tác tiền', delete: 'Xoá', config: 'Đổi cấu hình', read: 'Tra cứu', create: 'Tạo' },
+    verbOf: { 'approval.approve': 'Duyệt', 'approval.edit_and_approve': 'Sửa & duyệt', 'approval.reject': 'Từ chối' },
     card: { title: '{verb} {entity}', descEmpty: 'AppChat sẽ {action} khi anh/chị bấm Xác nhận.' },
     mode: {
       chat: 'Chat — chỉ tra cứu và trả lời; không thực hiện thao tác ghi. Muốn làm thay thì gợi ý người dùng chuyển sang Cowork.',
@@ -47,7 +59,7 @@ export const ai = {
       agent: 'AI Agent', appointment: 'lịch hẹn', product: 'sản phẩm', category: 'danh mục', stock: 'tồn kho', contract: 'hợp đồng', contact: 'khách hàng',
       conversation: 'hội thoại', message: 'tin nhắn', note: 'ghi chú', invoice: 'đề nghị thanh toán', loyalty: 'điểm thành viên', segment: 'phân khúc',
       campaign: 'chiến dịch', order: 'đơn hàng', quote: 'báo giá', kb: 'kho tri thức', tag: 'thẻ', canned_reply: 'mẫu trả lời', channel: 'kênh',
-      ticket: 'ticket', ai_task: 'tác vụ AI', member: 'thành viên', invite: 'lời mời', follow_up: 'việc follow', doc_template: 'mẫu chứng từ',
+      ticket: 'ticket', ai_task: 'tác vụ AI', member: 'thành viên', invite: 'lời mời', follow_up: 'việc follow', doc_template: 'mẫu chứng từ', approval: 'yêu cầu',
     },
     module: {
       ai: 'AI Agents', booking: 'Lịch hẹn', catalog: 'Sản phẩm', sales: 'Bán hàng', crm: 'Khách hàng', documents: 'Mẫu chứng từ', identity: 'Tài khoản',

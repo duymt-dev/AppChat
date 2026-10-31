@@ -52,7 +52,10 @@ model AiAgent {
   handoffTo           String            @default("staff") @map("handoff_to")
   governance          Json              @default("{}")
   approvalRules       Json              @default("{}") @map("approval_rules")
+  /// Khung giờ hoạt động `{ mode: always | office | custom }` — `office` = 8:00–17:30 giờ VN (ngoài giờ không trả lời kênh).
   workingHours        Json?             @map("working_hours")
+  /// Từ khoá ưu tiên (Builder › Phân luồng) — đưa vào system prompt; định tuyến nhiều agent theo từ khoá ở TIP-025.
+  keywords            String[]          @default([])
   status              AiAgentStatus     @default(draft)
   templateKey         String?           @map("template_key")
   createdVia          AiAgentCreatedVia @default(manual) @map("created_via")

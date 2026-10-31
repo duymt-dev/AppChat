@@ -27,7 +27,12 @@ export interface AgentConfig {
   governance: Record<string, boolean>;
   kb_scope: { folder_ids: string[]; tags: string[] };
   template_id?: string;
+  keywords: string[];
+  working_hours: WorkingHours;
 }
+
+export type WorkingHours = 'always' | 'office' | 'custom';
+const HOURS: readonly WorkingHours[] = ['always', 'office', 'custom'];
 
 export const DEFAULT_GOVERNANCE = { grounding: true, pii: true, override: true, audit: true };
 
@@ -47,6 +52,8 @@ export const blankConfig = (name = ''): AgentConfig => ({
   handoff_to: 'staff',
   governance: { ...DEFAULT_GOVERNANCE },
   kb_scope: { folder_ids: [], tags: [] },
+  keywords: [],
+  working_hours: 'always',
 });
 
 const GRANTABLE = new Map(registry.filter((a) => a.agentGrantable).map((a) => [a.id, a]));
@@ -91,6 +98,8 @@ export function columnsOf(c: AgentConfig) {
     kbScope: { folder_ids: uniq(c.kb_scope.folder_ids), tags: uniq(c.kb_scope.tags) },
     approvalRules: approvalRulesOf(tools),
     templateKey: c.template_id ?? null,
+    keywords: uniq(c.keywords.map((k) => k.trim()).filter(Boolean)),
+    workingHours: { mode: c.working_hours },
   };
 }
 
@@ -114,8 +123,16 @@ export function configOf(r: AgentRow): AgentConfig {
     governance: (r.governance ?? {}) as Record<string, boolean>,
     kb_scope: { folder_ids: kb.folder_ids ?? [], tags: kb.tags ?? [] },
     ...(r.templateKey ? { template_id: r.templateKey } : {}),
+    keywords: r.keywords,
+    working_hours: hoursOf(r.workingHours),
   };
 }
+
+/** `working_hours` jsonb `{ mode }` → chế độ; thiếu / lạ → luôn hoạt động. */
+export const hoursOf = (v: unknown): WorkingHours => {
+  const m = (v as { mode?: string } | null)?.mode;
+  return HOURS.includes(m as WorkingHours) ? (m as WorkingHours) : 'always';
+};
 
 /** Input zod (các khoá tuỳ chọn) gộp lên cấu hình hiện có. */
 export function merge(base: AgentConfig, patch: Partial<AgentConfig>): AgentConfig {

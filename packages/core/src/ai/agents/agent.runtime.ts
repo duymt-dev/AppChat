@@ -32,9 +32,24 @@ export function agentSystem(c: AgentConfig): string {
     `- Tên: ${c.name}${c.role_label ? ` — ${c.role_label}` : ''}`,
     `- ${LANG[c.language]}`,
     ...(intents.length ? [`- Phụ trách: ${intents.join(', ')}`] : []),
+    ...(c.keywords.length ? [`- Ưu tiên tin nhắn có từ khoá: ${c.keywords.join(', ')}`] : []),
+    ...(c.persona.trim() ? [`- Tính cách: ${c.persona.trim()}`] : []),
     `- Không chắc chắn (độ tin cậy dưới ${c.threshold}%) thì chuyển cho nhân viên, không bịa thông tin.`,
     `- Không tự đưa giá / tồn kho / lịch trống khi chưa tra bằng công cụ.`,
   ].join('\n');
+}
+
+const OFFICE = { from: 8 * 60, to: 17 * 60 + 30 };
+const VN_OFFSET_MIN = 7 * 60;
+
+/**
+ * Agent đang trong khung giờ hoạt động? `office` = 8:00–17:30 giờ VN (gồm 8:00, không gồm 17:30), mọi ngày; `always` / `custom`
+ * (lịch tuỳ chỉnh chưa có màn — DC-136) = luôn hoạt động.
+ */
+export function withinHours(mode: AgentConfig['working_hours'], now: Date): boolean {
+  if (mode !== 'office') return true;
+  const min = (((now.getUTCHours() * 60 + now.getUTCMinutes() + VN_OFFSET_MIN) % 1440) + 1440) % 1440;
+  return min >= OFFICE.from && min < OFFICE.to;
 }
 
 export interface AgentRunCtx {

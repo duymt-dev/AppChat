@@ -197,6 +197,9 @@
     },
     "reject": {
       "title": "Từ chối yêu cầu"
+    },
+    "edit_and_approve": {
+      "title": "Sửa & duyệt hành động"
     }
   },
   "ai": {

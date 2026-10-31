@@ -140,6 +140,10 @@ export interface ApprovalRow {
   reason: string;
   day: string;
   time: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'edited' | 'rejected' | 'expired';
   can_decide: boolean;
+  /** Input agent xin chạy + trường sửa được (nút "Sửa & duyệt"). */
+  input: Record<string, unknown>;
+  fields: { key: string; type: 'string' | 'number' | 'boolean'; required: boolean }[];
+  note?: string;
 }

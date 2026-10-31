@@ -51,7 +51,8 @@ export const lookOf = (def: Pick<ActionDef, 'id' | 'module'>): Look => BY_ENTITY
 export function confirmCard(def: ActionDef, preview: ActionPreview | null, token: string, locale = 'vi'): ConfirmEventDto {
   const m = serverMessages(locale).ai.assistant;
   const look = lookOf(def);
-  const verb = /\.create(_and_publish)?$/.test(def.id) ? m.verb.create : m.verb[def.risk];
+  // Động từ riêng theo action (duyệt / sửa & duyệt / từ chối) → động từ "tạo" → động từ theo risk.
+  const verb = (m.verbOf as Record<string, string>)[def.id] ?? (/\.create(_and_publish)?$/.test(def.id) ? m.verb.create : m.verb[def.risk]);
   const dest = (m.module as Record<string, string>)[def.module] ?? def.module;
   const entity = (m.entity as Record<string, string>)[entityOf(def.id)] ?? dest;
   const summary = preview?.summary?.trim();

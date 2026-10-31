@@ -53,8 +53,9 @@ export class AgentsController {
 
   @Get('agents/meta')
   async meta(@Req() req: IncomingMessage) {
-    await this.db(req, 'agents.manage');
-    return { data: await agentsMeta(this.platform) };
+    const { a, db } = await this.db(req, 'agents.manage');
+    const u = await this.platform.user.findUnique({ where: { id: a.userId }, select: { locale: true } });
+    return { data: await agentsMeta(this.platform, db, this.clock.now(), u?.locale ?? 'vi') };
   }
 
   @Get('agents/:id')
@@ -76,9 +77,9 @@ export class AgentsController {
   }
 
   @Get('agent-templates')
-  async templates(@Req() req: IncomingMessage, @Query('q') q?: string, @Query('group') group?: string, @Query('industry') industry?: string, @Query('name') name?: string) {
+  async templates(@Req() req: IncomingMessage, @Query('q') q?: string, @Query('group') group?: string, @Query('industry') industry?: string, @Query('name') name?: string, @Query('role') role?: string) {
     await this.db(req, 'agents.manage');
-    const r = await listTemplates(this.platform, { q: (q ?? '').slice(0, 100), ...(group ? { group } : {}), ...(industry ? { industry } : {}), ...(name ? { name } : {}) });
+    const r = await listTemplates(this.platform, { q: (q ?? '').slice(0, 100), ...(group ? { group } : {}), ...(industry ? { industry } : {}), ...(name ? { name } : {}), ...(role ? { role } : {}) });
     return { data: { data: r.data, total: r.total } };
   }
 

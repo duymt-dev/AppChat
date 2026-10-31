@@ -12,7 +12,7 @@ import { useSideStyles } from '../styles/side.styles';
 import { useAgentsUi } from '../agents-store';
 import type { AgentConfig, AgentsMeta } from '../types';
 
-type Draft = AgentConfig & { persona?: string };
+type Draft = AgentConfig;
 
 export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
   const t = useTranslations('agents');
@@ -49,9 +49,7 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
   };
   const confirm = async () => {
     if (!draft) return;
-    const cfg: Partial<Draft> = { ...draft };
-    delete cfg.persona;
-    const res = await publish.run(cfg);
+    const res = await publish.run(draft);
     if (res) {
       setDone(draft.name);
       setDraft(null);
@@ -63,11 +61,12 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
     close();
     router.push('/agents/new?from=ai');
   };
-  const pick = (key: string) => {
-    if (key === 'create') setDescribing(true);
+  // Gợi ý khác "create" → hỏi Trợ lý câu soạn sẵn (`ask` từ backend), như Trợ lý thu nhỏ (TIP-023).
+  const pick = (s: AgentsMeta['ai_suggests'][number]) => {
+    if (s.key === 'create') setDescribing(true);
     else {
       close();
-      router.push('/assistant');
+      router.push(s.ask ? `/assistant?${new URLSearchParams({ ask: s.ask, from: '/agents' }).toString()}` : '/assistant');
     }
   };
   const name = me?.user.name.split(' ').pop() ?? '';
@@ -140,7 +139,7 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
           {!asked ? (
             <div className={styles.list}>
               {meta.ai_suggests.map((s) => (
-                <button key={s.key} type="button" className={styles.sug} onClick={() => pick(s.key)} data-testid="ag-ai-sug">
+                <button key={s.key} type="button" className={styles.sug} onClick={() => pick(s)} data-testid="ag-ai-sug">
                   <div className={styles.sugHead}>
                     <span className={styles.sugIcon} style={{ background: `${s.color}18` }}>
                       <Icon name="ic-spark" size={15} color={s.color} />

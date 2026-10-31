@@ -207,7 +207,8 @@
     "tabs": {
       "pending": "Pending",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "expired": "Expired"
     },
     "by": "Proposed by {agent}",
     "reason": "Why approval is needed",
@@ -227,8 +228,18 @@
     "status": {
       "approved": "Approved",
       "rejected": "Rejected",
-      "pending": "Pending"
-    }
+      "pending": "Pending",
+      "edited": "Edited & approved",
+      "expired": "Expired"
+    },
+    "edit": "Edit & approve",
+    "editTitle": "Correct the details before approving",
+    "saveApprove": "Save & approve",
+    "cancel": "Cancel",
+    "rejectReason": "Reason (optional)",
+    "confirmReject": "Confirm reject",
+    "noFields": "Nothing editable here — approve or reject.",
+    "noteLabel": "Note: {note}"
   },
   "nav": {
     "chat": "Conversation",

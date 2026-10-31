@@ -97,6 +97,8 @@ export const agentSchema = z.object({
   governance: z.record(z.string(), z.boolean()),
   kb_scope: z.object({ folder_ids: z.array(z.string()), tags: z.array(z.string()) }),
   template_id: z.string().optional(),
+  keywords: z.array(z.string()),
+  working_hours: z.enum(['always', 'office', 'custom']),
   status: z.enum(['draft', 'active', 'paused']),
   conversations: z.number().int(),
   resolve_rate: z.number(),
@@ -107,7 +109,26 @@ export const agentSchema = z.object({
 });
 export type AgentDto = z.infer<typeof agentSchema>;
 export const agentVersionSchema = z.object({ version: z.number().int(), published_at: z.string(), published_by: z.string(), note: z.string() });
-export const agentTemplateSchema = z.object({ id: z.string(), name: z.string(), desc: z.string(), tag: z.string(), color: z.string(), tint: z.string(), icon: z.string() });
+/** Cấu hình mặc định theo vai trò của mẫu (D15) — Builder "Từ mẫu" dựng bản nháp từ đây. */
+export const agentTemplateDefaultsSchema = z.object({
+  tools: z.array(z.string()),
+  intents: z.array(z.number().int()),
+  model_tier: tier,
+  threshold: z.number().int(),
+  prompt: z.string(),
+});
+export type AgentTemplateDefaultsDto = z.infer<typeof agentTemplateDefaultsSchema>;
+export const agentTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  desc: z.string(),
+  tag: z.string(),
+  color: z.string(),
+  tint: z.string(),
+  icon: z.string(),
+  role: z.enum(['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'custom']),
+  defaults: agentTemplateDefaultsSchema,
+});
 
 /** Quyền agent (D51, `GET /v1/agents/:id/tools` · `/conversations/:id/agent-tools`): nhóm theo module + Kỹ năng AI. */
 export const agentToolSchema = z.object({
@@ -135,8 +156,12 @@ export const approvalRowSchema = z.object({
   reason: z.string(),
   day: z.enum(['today', 'yesterday', '2d', '3d', '7d']),
   time: z.string(),
-  status: z.enum(['pending', 'approved', 'rejected']),
+  status: z.enum(['pending', 'approved', 'edited', 'rejected', 'expired']),
   can_decide: z.boolean(),
+  /** Input agent xin chạy + các trường cấp 1 sửa được (chuỗi / số / boolean của input schema action gốc) — nút "Sửa & duyệt". */
+  input: z.record(z.string(), z.unknown()),
+  fields: z.array(z.object({ key: z.string(), type: z.enum(['string', 'number', 'boolean']), required: z.boolean() })),
+  note: z.string().optional(),
 });
 export type ApprovalRowDto = z.infer<typeof approvalRowSchema>;
 

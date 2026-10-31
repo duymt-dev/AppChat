@@ -3,6 +3,17 @@ import type { ai as vi } from '../vi/ai';
 
 export const ai: typeof vi = {
   agent: { unnamed: 'New agent', copy: '{name} (copy)', assistant: 'AI Assistant' },
+  suggest: {
+    create: { title: 'Create an AI Agent by chatting', desc: 'Describe the role — AppChat builds the script and connects channels' },
+    optimize: { title: 'Improve a low self-resolve agent', desc: '{name} self-resolves {rate}% · prompt & knowledge suggestions', empty: 'No agent has handled enough conversations yet' },
+    routing: { title: 'Review routing rules', desc: '{n} agents running · {kw} with priority keywords', empty: 'No agent is running yet' },
+    report: { title: 'AI Agents performance report', desc: '{n} runs today · {handoff}% handed to staff', empty: 'No runs today yet' },
+    ask: {
+      optimize: 'Suggest prompt and knowledge improvements for agent {name}',
+      routing: 'Review the routing rules of my running AI Agents',
+      report: 'AI Agents performance report for today',
+    },
+  },
   handoff: {
     needs_human: 'AI needs a human: {detail}',
     asked_human: 'Customer asked for a staff member',
@@ -34,6 +45,7 @@ export const ai: typeof vi = {
   assistant: {
     session: 'New conversation',
     verb: { write: 'Update', send: 'Send', money: 'Money operation', delete: 'Delete', config: 'Change settings', read: 'Look up', create: 'Create' },
+    verbOf: { 'approval.approve': 'Approve', 'approval.edit_and_approve': 'Edit & approve', 'approval.reject': 'Reject' },
     card: { title: '{verb} {entity}', descEmpty: 'AppChat will {action} once you press Confirm.' },
     mode: {
       chat: 'Chat — look up and answer only; no write operations. If the user wants it done, suggest switching to Cowork.',
@@ -49,7 +61,7 @@ export const ai: typeof vi = {
       agent: 'AI Agent', appointment: 'appointment', product: 'product', category: 'category', stock: 'stock', contract: 'contract', contact: 'customer',
       conversation: 'conversation', message: 'message', note: 'note', invoice: 'payment request', loyalty: 'loyalty points', segment: 'segment',
       campaign: 'campaign', order: 'order', quote: 'quote', kb: 'knowledge base', tag: 'tag', canned_reply: 'canned reply', channel: 'channel',
-      ticket: 'ticket', ai_task: 'AI task', member: 'member', invite: 'invitation', follow_up: 'follow-up', doc_template: 'document template',
+      ticket: 'ticket', ai_task: 'AI task', member: 'member', invite: 'invitation', follow_up: 'follow-up', doc_template: 'document template', approval: 'request',
     },
     module: {
       ai: 'AI Agents', booking: 'Appointments', catalog: 'Products', sales: 'Sales', crm: 'Customers', documents: 'Document templates', identity: 'Account',

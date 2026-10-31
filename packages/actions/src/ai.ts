@@ -10,6 +10,9 @@ const agentConfig = z.object({
   name: z.string().trim().min(1).max(80),
   emoji: z.string().max(8).optional(),
   role: z.enum(['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'custom']).optional(),
+  /** Nhãn vai trò hiển thị trên thẻ agent ("Tư vấn & chốt đơn") + tính cách — prototype L2280. */
+  role_label: z.string().max(80).optional(),
+  persona: z.string().max(500).optional(),
   language: z.enum(['vi', 'en', 'bilingual', 'auto']).optional(),
   prompt: z.string().max(8000).optional(),
   intents: z.array(z.number().int().min(0)).optional(),
@@ -22,6 +25,9 @@ const agentConfig = z.object({
   /** Phạm vi kiến thức (D54, rag.md §2): thư mục + thẻ trong kho chung của workspace. */
   kb_scope: z.object({ folder_ids: z.array(z.string()).max(50), tags: z.array(z.string().max(30)).max(50) }).optional(),
   template_id: z.string().optional(),
+  /** Phân luồng (prototype L2710): từ khoá ưu tiên + khung giờ hoạt động (giờ hành chính 8:00–17:30 giờ VN). */
+  keywords: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+  working_hours: z.enum(['always', 'office', 'custom']).optional(),
 });
 
 export const agentDraftFromDescription = defineAction({
@@ -140,7 +146,7 @@ export const agentTest = defineAction({
   module: 'ai',
   title: 'actions.agent.test.title',
   description: 'Dry-run one chat turn against the draft config; tool calls are only previewed. Example: {"agent_id":"ag_sales","text":"Giá liệu trình bao nhiêu?"}',
-  input: z.object({ agent_id: agentId.optional(), config: agentConfig.partial().optional(), text: z.string().trim().min(1).max(2000) }),
+  input: z.object({ agent_id: agentId.optional(), config: agentConfig.partial().optional(), text: z.string().trim().min(1).max(2000), channel: z.string().max(40).optional() }),
   output: z.object({ reply: z.string() }),
   permission: 'agents.manage',
   risk: 'read',
@@ -195,6 +201,19 @@ export const approvalReject = defineAction({
   title: 'actions.approval.reject.title',
   description: 'Reject a pending agent action with a reason. Example: {"approval_id":"ap_1","note":"Sai đối tượng"}',
   input: z.object({ approval_id: approvalId, note: z.string().max(500).optional() }),
+  output: z.object({ approval_id: z.string(), status: z.string() }),
+  permission: 'approvals.decide',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['approvals', 'action-logs', 'nav'],
+});
+
+export const approvalEditAndApprove = defineAction({
+  id: 'approval.edit_and_approve',
+  module: 'ai',
+  title: 'actions.approval.edit_and_approve.title',
+  description: 'Correct the input of a pending agent action, then approve it (the corrected input runs exactly once). Example: {"approval_id":"ap_1","edited_input":{"amount":"500000"}}',
+  input: z.object({ approval_id: approvalId, edited_input: z.record(z.string(), z.unknown()), note: z.string().max(500).optional() }),
   output: z.object({ approval_id: z.string(), status: z.string() }),
   permission: 'approvals.decide',
   risk: 'write',

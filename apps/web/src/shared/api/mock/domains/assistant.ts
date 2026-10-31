@@ -15,7 +15,13 @@ export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title'
   source?: 'ui' | 'assistant';
   undone?: boolean;
 };
-type Approval = AssistantFixture['approvals'][number] & { status: 'pending' | 'approved' | 'rejected'; note?: string };
+type Field = { key: string; type: 'string' | 'number' | 'boolean'; required: boolean };
+type Approval = AssistantFixture['approvals'][number] & {
+  status: 'pending' | 'approved' | 'edited' | 'rejected' | 'expired';
+  note?: string;
+  input: Record<string, unknown>;
+  fields: Field[];
+};
 type Intent = AssistantFixture['intents'][number];
 type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled' };
 
@@ -69,12 +75,20 @@ const seedRunApproval = (): Approval => ({
   day: 'today',
   time: '09:40',
   status: 'pending',
+  input: { quote_id: 'q_1024', channel: 'zalo_personal' },
+  fields: [{ key: 'quote_id', type: 'string', required: true }],
 });
+
+/** Input agent xin chạy (fixture prototype chỉ có tiêu đề) — đủ để thử "Sửa & duyệt". */
+const SEED_INPUT: Record<string, Pick<Approval, 'input' | 'fields'>> = {
+  ap_1: { input: { campaign_id: 'cp_flash', note: 'Flash Sale cuối tuần' }, fields: [{ key: 'campaign_id', type: 'string', required: true }, { key: 'note', type: 'string', required: false }] },
+};
+const seedApproval = (a: AssistantFixture['approvals'][number]): Approval => ({ ...a, status: 'pending', ...(SEED_INPUT[a.id] ?? { input: {}, fields: [] }) });
 
 export const createAssistantState = (): AssistantState => ({
   tasks: structuredClone(fixture.tasks),
   logs: structuredClone(fixture.action_logs),
-  approvals: [...fixture.approvals.map((a) => ({ ...a, status: 'pending' as const })), seedRunApproval()],
+  approvals: [...fixture.approvals.map(seedApproval), seedRunApproval()],
   runs: seedRuns(),
   pending: [],
   seq: 0,
@@ -138,7 +152,8 @@ export const assistantRoutes: Record<string, MockRoute> = {
     const status = String(p.status ?? 'pending');
     return {
       data: db.assistant.approvals
-        .filter((a) => status === 'all' || a.status === status)
+        // Tab Đã duyệt gồm cả "sửa & duyệt" (như backend).
+        .filter((a) => status === 'all' || a.status === status || (status === 'approved' && a.status === 'edited'))
         .map((a) => ({ ...a, can_decide: can_(db, 'approvals.decide') && can_(db, a.permission) })),
       next_cursor: null,
     };
@@ -254,6 +269,17 @@ export const assistantHandlers: Record<string, MockHandler> = {
       a.note = i.note;
       const seed = db.assistant.logs.find((l) => l.action_id === a.action_id && l.status === 'pending');
       if (seed) seed.status = 'done';
+      const run = db.assistant.runs.find((r) => r.approval_id === a.id);
+      if (run) run.status = 'done';
+      return { approval_id: a.id, status: a.status };
+    },
+  },
+  'approval.edit_and_approve': {
+    execute: (db, i: { approval_id: string; edited_input: Record<string, unknown>; note?: string }) => {
+      const a = findApproval(db, i.approval_id);
+      a.input = { ...a.input, ...i.edited_input };
+      a.status = 'edited';
+      a.note = i.note;
       const run = db.assistant.runs.find((r) => r.approval_id === a.id);
       if (run) run.status = 'done';
       return { approval_id: a.id, status: a.status };

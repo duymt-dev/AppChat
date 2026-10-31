@@ -1,5 +1,5 @@
 // Tools — danh sách quyền agent (D51, D16): nhóm theo module + nhóm "Kỹ năng AI" (action đọc, `skill`), n/tổng mỗi nhóm,
-// badge "Cần kết nối X" / "Sắp có" khi action cần connector (D51 §3.3b). Đây là NƠI DUY NHẤT bật/tắt quyền agent.
+// badge "Cần kết nối X" / "Sắp có" khi action cần connector, "Bạn chưa có quyền này" khi người tạo thiếu permission (D51 §3.3b). Đây là NƠI DUY NHẤT bật/tắt quyền agent.
 // + AI Governance — prototype L2364–2398. Nguồn kiến thức ở KnowledgeSection (D54).
 'use client';
 import { useQuery } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import { useSectionStyles } from '../../styles/sections.styles';
 import type { Handoff } from '../../types';
 import type { SectionProps } from './BasicsSection';
 import { Switch } from './Switch';
+import { useToolAllowed } from '../../hooks/useToolAllowed';
 
 const GOV = ['grounding', 'pii', 'override', 'audit'] as const;
 const HANDOFF: Handoff[] = ['staff', 'team', 'lead'];
@@ -25,12 +26,14 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
   const channels = useQuery(channelsQuery('all')).data ?? [];
   const connectors = useQuery(connectorsQuery()).data ?? [];
   const { known, connected } = connectorStatus({ channels, connectors });
+  const allowed = useToolAllowed();
   const groups = groupToolsByModule(MODULE_ACTIONS, cfg.tools);
   const skillGroup = groupToolsByModule(SKILL_ACTIONS, cfg.tools)[0];
 
   const toolRow = (a: (typeof AGENT_GRANTABLE)[number]) => {
     const badge = connectorBadge(a, connected, known);
     const on = cfg.tools.includes(a.id);
+    const denied = !allowed(a.id);
     return (
       <div key={a.id} className={styles.row} data-tool={a.id}>
         <div className={styles.rowGrow}>
@@ -40,6 +43,10 @@ export function ActionsSection({ cfg, patch, toggleTool }: SectionProps & { togg
         {badge ? (
           <span className={styles.rowBadge} data-testid={`agb-badge-${badge}`}>
             {badge === 'needs_connector' ? t('needsConnector', { name: a.requiresConnector ?? '' }) : t('comingSoon')}
+          </span>
+        ) : denied ? (
+          <span className={styles.rowBadge} data-testid="agb-badge-denied">
+            {t('noPermission')}
           </span>
         ) : (
           <Switch on={on} label={t('toolOn', { name: tAll(a.title as never) })} onToggle={() => toggleTool(a.id)} />

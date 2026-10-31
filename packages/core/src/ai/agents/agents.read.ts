@@ -2,11 +2,13 @@
 // theo ngành (DB nền tảng `agent_template`), meta Builder, tool (D51). Số liệu: hội thoại = số hội thoại agent đã phục vụ (run
 // `agent_reply` không dry-run), tỉ lệ tự xử lý = run `completed` / (completed + handoff), CSAT = trung bình `ticket.csat` agent
 // phụ trách (chưa có → 0, FE hiện "—"). Danh sách ≤ plan.max_agents dòng (index partial `ai_agent_live_created_idx`).
-import { foldText, type AgentDto, type AgentToolsDto } from '@appchat/shared';
+import { foldText, type AgentDto, type AgentTemplateDefaultsDto, type AgentToolsDto } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import { connectedKeys, groupTools } from './agent-tools';
-import { configOf, liveAgent, type AgentRow } from './agent.store';
-import { AGENT_EMOJIS, AGENT_INTENTS, AGENT_TAXONOMY, AI_SUGGESTS, CHANNEL_COLORS, PROMPT_TEMPLATES, TEST_SEED } from './catalog';
+import { configOf, liveAgent, type AgentConfig, type AgentRow } from './agent.store';
+import { templateDefaults } from './templates.seed';
+import { agentSuggests } from './agent-suggests';
+import { AGENT_EMOJIS, AGENT_INTENTS, AGENT_TAXONOMY, CHANNEL_COLORS, PROMPT_TEMPLATES, TEST_SEED } from './catalog';
 
 type Db = Pick<TenantDb, 'aiAgent' | 'aiAgentVersion' | '$queryRaw' | 'channelAccount' | 'integrationConnection'>;
 
@@ -82,9 +84,19 @@ export async function conversationAgentTools(db: Db, conv: { assigneeAgentId: st
 
 export interface TemplateFilter {
   q?: string;
+  role?: string;
   group?: string;
   industry?: string;
   name?: string;
+}
+
+const ROLES = ['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'custom'] as const;
+const roleOf = (r: string): AgentConfig['role'] => ((ROLES as readonly string[]).includes(r) ? (r as AgentConfig['role']) : 'custom');
+
+/** `agent_template.defaults` (seed theo vai trò — có thể đã sửa ở Quản trị nền tảng) → shape FE; thiếu khoá → mặc định của vai trò. */
+function defaultsOf(role: string, v: unknown): AgentTemplateDefaultsDto {
+  const d = { ...templateDefaults(role), ...((v ?? {}) as Partial<AgentTemplateDefaultsDto>) };
+  return { tools: d.tools, intents: d.intents, model_tier: d.model_tier as AgentTemplateDefaultsDto['model_tier'], threshold: d.threshold, prompt: d.prompt };
 }
 
 /** Mẫu agent (DB nền tảng): lọc Nhóm ngành → Ngành, tên, tìm không dấu trong tên / mô tả / ngành. */
@@ -96,18 +108,19 @@ export async function listTemplates(p: Pick<PlatformDb, 'agentTemplate'>, f: Tem
       ...(g ? { industryGroup: g } : {}),
       ...(f.industry && f.industry !== 'all' ? { industry: f.industry } : {}),
       ...(f.name && f.name !== 'all' ? { name: f.name } : {}),
+      ...(f.role && f.role !== 'all' ? { role: f.role } : {}),
     },
     orderBy: [{ sort: 'asc' }, { key: 'asc' }],
   });
   const q = foldText(f.q ?? '');
   const data = rows
     .filter((t) => !q || [t.name, t.description, t.industry].some((v) => foldText(v).includes(q)))
-    .map((t) => ({ id: t.key, name: t.name, desc: t.description, tag: t.industry, color: t.color, tint: t.tint, icon: t.icon }));
+    .map((t) => ({ id: t.key, name: t.name, desc: t.description, tag: t.industry, color: t.color, tint: t.tint, icon: t.icon, role: roleOf(t.role), defaults: defaultsOf(t.role, t.defaults) }));
   return { data, total: data.length };
 }
 
 /** Meta Builder (`GET /v1/agents/meta`): taxonomy, emoji, ý định, kênh, mẫu prompt, gợi ý, tên mẫu (chọn nhanh). */
-export async function agentsMeta(p: Pick<PlatformDb, 'agentTemplate'>) {
+export async function agentsMeta(p: Pick<PlatformDb, 'agentTemplate'>, db: Pick<TenantDb, 'aiAgent' | '$queryRaw'>, now: Date, locale = 'vi') {
   const names = await p.agentTemplate.findMany({ where: { active: true }, orderBy: [{ sort: 'asc' }], take: 20, select: { name: true, industry: true } });
   return {
     taxonomy: AGENT_TAXONOMY,
@@ -117,7 +130,7 @@ export async function agentsMeta(p: Pick<PlatformDb, 'agentTemplate'>) {
     tools: [] as { key: string; action_id: string }[],
     prompt_templates: PROMPT_TEMPLATES,
     test_seed: TEST_SEED,
-    ai_suggests: AI_SUGGESTS,
+    ai_suggests: await agentSuggests(db, now, locale),
     template_names: names.map((n) => ({ name: n.name, tag: n.industry })),
   };
 }

@@ -156,7 +156,14 @@
     "send": "Gửi",
     "dryRun": "Chạy thử — hành động chỉ xem trước, không thực thi",
     "versions": "Phiên bản",
-    "draftDirty": "Có thay đổi chưa xuất bản"
+    "draftDirty": "Có thay đổi chưa xuất bản",
+    "hideDesc": "Ẩn mô tả",
+    "roleLabel": "Vai trò hiển thị",
+    "roleLabelPh": "VD: Tư vấn & chốt đơn",
+    "persona": "Tính cách",
+    "personaPh": "VD: Thân thiện, xưng \"em\", trả lời ngắn gọn",
+    "noPermission": "Bạn chưa có quyền này",
+    "simChannel": "Kênh mô phỏng"
   },
   "v": {
     "title": "Lịch sử phiên bản · {name}",
