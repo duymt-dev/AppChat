@@ -4,6 +4,7 @@ export { CrmMembers } from './services/members.service';
 export { ContactIdentityService, type InboundIdentity, type ResolvedContact } from './services/identity.service';
 export { scopeSql as crmScopeSql, visibleContact, editableContact, actorUserId } from './services/access';
 export { writeTimeline, type TimelineInput } from './services/timeline.service';
+export { applyStageRule, type StageRule } from './services/stage-rules';
 export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';
 export { fieldDefs } from './services/fields.service';

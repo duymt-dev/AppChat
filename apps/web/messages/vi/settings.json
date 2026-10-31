@@ -1071,6 +1071,8 @@
       "msg_vip": "Tin từ VIP / khách ưu tiên",
       "crm_owner": "Khách được chuyển cho tôi",
       "crm_access": "Xin chia sẻ khách / kết quả duyệt",
+      "quote_approval": "Báo giá chờ tôi duyệt",
+      "quote_expiring": "Báo giá sắp hết hiệu lực",
       "sla_warn": "SLA sắp vi phạm",
       "ai_review": "AI cần duyệt trước khi gửi",
       "ai_escalate": "AI chuyển sang người",

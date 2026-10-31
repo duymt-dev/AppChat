@@ -1,6 +1,14 @@
-// Controller HTTP của domain `sales` nằm trong thư mục này. Stub TIP-001; TIP 029, 031, 032 thêm controller.
-import { Module } from '@nestjs/common';
+// Controller HTTP của domain `sales`: TIP-029 báo giá (/v1/quotes*, /v1/public/quotes/:token). Chỉ gắn khi env đủ DB + Redis +
+// JWT_SECRET (`register`) — như catalog. TIP 031, 032 thêm controller.
+import { Module, type DynamicModule } from '@nestjs/common';
 import { SalesModule } from '@appchat/core';
+import { ActorModule } from '../kernel/actor.module';
+import { PublicQuotesController } from './public-quotes.controller';
+import { QuotesController } from './quotes.controller';
 
 @Module({ imports: [SalesModule] })
-export class SalesHttpModule {}
+export class SalesHttpModule {
+  static register(): DynamicModule {
+    return { module: SalesHttpModule, imports: [SalesModule, ActorModule], controllers: [QuotesController, PublicQuotesController] };
+  }
+}

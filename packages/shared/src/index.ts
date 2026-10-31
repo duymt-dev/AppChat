@@ -3,6 +3,8 @@ export * from './i18n';
 export * from './fmt';
 export * from './api';
 export * from './commerce/quote-math';
+export * from './sales/quote-state';
+export * from './time/deadline';
 export * from './commerce/vietqr';
 export * from './booking/slots';
 export * from './documents/variables';

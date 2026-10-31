@@ -21,6 +21,9 @@ export const NOTIFY_KINDS = {
   // Khách hàng (Q-012 / DC-150): khách được chuyển cho tôi · xin chia sẻ khách + kết quả duyệt.
   crm_owner: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, false, true) },
   crm_access: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, false, true) },
+  // Báo giá (TIP-029): có báo giá chờ tôi duyệt · báo giá tôi phụ trách sắp hết hiệu lực (T-2).
+  quote_approval: { group: 'msg', icon: 'ic-doc', tone: 'warn', defaults: ch(true, true, true) },
+  quote_expiring: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },

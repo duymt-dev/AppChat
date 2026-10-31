@@ -112,6 +112,12 @@ export const productChangedEvent = z.object({ ...base, product_id: z.string().uu
 /** Agent trực kênh chuyển hội thoại sang người (TIP-022) — thông báo `ai_escalate`, WS cập nhật hội thoại. */
 export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().nullable(), agent_id: z.string().nullable(), agent: z.string(), reason: z.string().max(40), title: z.string() });
 
+/** Báo giá đổi trạng thái (TIP-029 — Blueprint §2.3): giai đoạn CRM theo COMMERCE §8, dòng thời gian khách, nhắc hết hạn. */
+const quoteBase = { ...base, quote_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), version: z.number().int() };
+export const quoteSentEvent = z.object({ ...quoteBase, channel: z.string(), valid_until: z.string() });
+export const quoteViewedEvent = z.object(quoteBase);
+export const quoteDecidedEvent = z.object({ ...quoteBase, reason: z.string().max(500).optional() });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -152,5 +158,10 @@ export const EVENT_SCHEMAS = {
   'approval.decided': approvalDecidedEvent,
   'ai.handoff': aiHandoffEvent,
   'product.changed': productChangedEvent,
+  'quote.sent': quoteSentEvent,
+  'quote.viewed': quoteViewedEvent,
+  'quote.accepted': quoteDecidedEvent,
+  'quote.rejected': quoteDecidedEvent,
+  'quote.expired': quoteDecidedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

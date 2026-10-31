@@ -4,7 +4,7 @@ import { createFmt, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 
-export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email';
+export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired';
 type TimelineType = 'message' | 'quote' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge';
 
 export interface TimelineInput {
@@ -25,6 +25,11 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   note: { icon: 'ic-edit', tone: 'muted' },
   email: { icon: 'ic-mail', tone: 'ok' },
   message: { icon: 'ic-inbox', tone: 'zalo' },
+  quote_sent: { icon: 'ic-doc', tone: 'brand' },
+  quote_viewed: { icon: 'ic-mail', tone: 'violet' },
+  quote_accepted: { icon: 'ic-check', tone: 'ok' },
+  quote_rejected: { icon: 'ic-x', tone: 'muted' },
+  quote_expired: { icon: 'ic-clock', tone: 'amber' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {

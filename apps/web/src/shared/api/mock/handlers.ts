@@ -6,7 +6,7 @@ import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
-import { quotesHandlers } from './domains/quotes';
+import { quotesHandlers } from './domains/quotes-actions';
 import { contractsHandlers } from './domains/contracts';
 import { ordersHandlers } from './domains/orders';
 import { invoicesHandlers } from './domains/invoices';

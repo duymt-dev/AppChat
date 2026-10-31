@@ -1071,6 +1071,8 @@
       "msg_vip": "Message from a VIP / priority customer",
       "crm_owner": "Customer assigned to me",
       "crm_access": "Customer share requests / decisions",
+      "quote_approval": "Quotes waiting for my approval",
+      "quote_expiring": "Quotes about to expire",
       "sla_warn": "SLA about to be breached",
       "ai_review": "AI needs approval before sending",
       "ai_escalate": "AI handed off to a human",

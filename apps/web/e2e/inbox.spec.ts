@@ -70,11 +70,11 @@ test.describe('inbox', () => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.locator('[data-conv="c_lan"] button').first().click();
-    // Báo giá đã gửi (BG-2041) → tạo bản sửa, mở form sửa bản mới (quote.request_revision rồi edit).
+    // Báo giá mới nhất (BG-2041) đã duyệt, chưa gửi → không sửa / xin sửa được (QUOTE_FLOW) → mở form tạo báo giá mới điền sẵn khách.
     await page.getByTestId('p360-quote').click();
     const qForm = page.getByTestId('q-form');
     await expect(qForm).toBeVisible();
-    await expect(qForm).toContainText('Sửa báo giá');
+    await expect(qForm).toContainText('Tạo báo giá');
     await qForm.locator('button[aria-label]').first().click();
     await expect(qForm).toHaveCount(0);
     // Hợp đồng đã ký (HD-1180) → mở chi tiết chỉ xem, không phải form sửa.

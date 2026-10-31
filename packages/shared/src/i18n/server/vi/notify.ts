@@ -12,6 +12,8 @@ export const notify = {
       rejected: '{actor} đã từ chối yêu cầu chia sẻ khách {contact}',
       label: 'Xin chia sẻ khách / kết quả duyệt',
     },
+    quote_approval: { title: '{actor} gửi duyệt báo giá {code} · {contact}', label: 'Báo giá chờ tôi duyệt' },
+    quote_expiring: { title: 'Báo giá {code} · {contact} còn {n} ngày hiệu lực', label: 'Báo giá sắp hết hiệu lực' },
     sla_warn: { title: '{count} ticket sắp quá hạn SLA', label: 'SLA sắp vi phạm' },
     ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi' },
     ai_escalate: { title: '{agent} chuyển hội thoại {contact} sang người', label: 'AI chuyển sang người' },

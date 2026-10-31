@@ -12,6 +12,7 @@ export * from './integrations/public';
 export * from './crm/public';
 export * from './catalog/public';
 export * from './documents/public';
+export * from './sales/public';
 export * from './channels/public';
 export * from './inbox/public';
 export * from './ai/public';

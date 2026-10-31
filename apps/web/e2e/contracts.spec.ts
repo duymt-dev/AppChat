@@ -133,6 +133,9 @@ test.describe('contracts', () => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto('/quotes?session=authed,declared,trialSeen');
     await page.locator('[data-quote="q_2041"]').click();
+    // BG-2041 đã duyệt, chưa gửi → gửi khách trước (QUOTE_FLOW: approved chỉ có quote.send), rồi ghi nhận chốt khi chuyển.
+    await page.getByTestId('q-drawer').getByTestId('q-send-zalo').click();
+    await expect(page.getByTestId('q-drawer')).toContainText('Đã gửi');
     await page.getByTestId('q-drawer').getByTestId('q-to-contract').click();
     await expect(page).toHaveURL(/\/contracts$/);
     const drawer = page.getByTestId('ct-drawer');

@@ -10,6 +10,7 @@ import { agentsParamRoute } from './domains/agents';
 import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
+import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { contractsParamRoute } from './domains/contracts';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
@@ -58,6 +59,7 @@ export const mockTransport: Transport = {
       mockRoutes[path] ??
       productsParamRoute(path) ??
       quotesParamRoute(path) ??
+      quotesPublicRoute(path) ??
       contractsParamRoute(path) ??
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
@@ -158,7 +160,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
-    const html = mockBlob(mockDb(), path);
+    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path);
     if (html === null) return fail(404, 'NOT_FOUND', path);
     return new Blob([html], { type: 'text/html' });
   },

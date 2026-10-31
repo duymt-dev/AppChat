@@ -15,6 +15,8 @@ export const notify: Shape<typeof vi> = {
       rejected: '{actor} declined your request to share customer {contact}',
       label: 'Customer share requests / decisions',
     },
+    quote_approval: { title: '{actor} submitted quote {code} · {contact} for approval', label: 'Quotes waiting for my approval' },
+    quote_expiring: { title: 'Quote {code} · {contact} expires in {n} days', label: 'Quotes about to expire' },
     sla_warn: { title: '{count} tickets are about to breach SLA', label: 'SLA about to be breached' },
     ai_review: { title: '{agent} needs your approval before sending', label: 'AI needs approval before sending' },
     ai_escalate: { title: '{agent} handed the conversation with {contact} to a human', label: 'AI handed off to a human' },
