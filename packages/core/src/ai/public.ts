@@ -28,5 +28,8 @@ export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/appr
 export { approvalPermissionOf } from './approvals/approval-permission';
 export { DbApprovalGateway } from './approvals/approval.gateway';
 export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
-export { resumeApproval, registerResumeSpec, type ResumeDeps } from './approvals/resume';
+export { resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
 export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
+export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';
+export { replyTurn, finishResumedTurn, MAX_TRANSFERS, type ReplyDeps, type TurnOutcome } from './reply/reply.service';
+export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-context';

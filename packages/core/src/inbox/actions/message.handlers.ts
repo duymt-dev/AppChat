@@ -11,7 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../kernel/ids';
 import { CHANNEL_REGISTRY, ChannelSendQueue } from '../../channels/public';
 import { CrmMembers } from '../../crm/public';
-import { messageOf, scopeCols, writableConversation } from '../services/access';
+import { UUID, messageOf, scopeCols, writableConversation } from '../services/access';
 import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
 import { me, updatedEvent } from './kit';
 
@@ -23,9 +23,13 @@ async function msgEvent(tx: TenantTx, c: Conv, messageId: string, change: string
 }
 
 /** Tên người gửi hiện trên tin ra ("Người gửi: <tên> (bạn)" — REQ-C13). */
-export async function senderOf(ctx: ActionContext, members: CrmMembers) {
+export async function senderOf(ctx: ActionContext, members: CrmMembers, tx?: Pick<TenantTx, 'aiAgent'>) {
   const id = me(ctx);
-  if (ctx.actor.type === 'agent') return { type: 'agent' as const, id: ctx.actor.id, name: null };
+  if (ctx.actor.type === 'agent') {
+    // Tên agent hiện trên tin ("Agent CSKH") — TIP-022.
+    const a = tx && UUID.test(ctx.actor.id) ? await tx.aiAgent.findUnique({ where: { id: ctx.actor.id }, select: { name: true } }) : null;
+    return { type: 'agent' as const, id: ctx.actor.id, name: a?.name ?? null };
+  }
   const name = id ? ((await members.names([id])).get(id) ?? null) : null;
   return { type: 'user' as const, id, name };
 }
@@ -41,7 +45,7 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
 
   async execute(ctx: ActionContext, input: ActionInput<typeof messageSend>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
-    const out = await writeOutgoing(tx, { conv: c, kind: 'text', body: input.text, sender: await senderOf(ctx, this.members), replyToId: input.reply_to_id ?? null, now: this.clock.now() });
+    const out = await writeOutgoing(tx, { conv: c, kind: 'text', body: input.text, sender: await senderOf(ctx, this.members, tx), replyToId: input.reply_to_id ?? null, now: this.clock.now() });
     const cols = await scopeCols(tx, c);
     return {
       result: { message_id: out.messageId },

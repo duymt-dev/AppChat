@@ -44,6 +44,10 @@ export interface AgentRunCtx {
   commander?: AuthzContext;
   runId: string;
   source: 'agent' | 'task';
+  /** Agent trực kênh: hội thoại đang phục vụ (gửi vào đây không cần duyệt — §3.3). */
+  servedConversationId?: string;
+  /** Biến đổi input trước khi gọi action (khôi phục PII che trong lượt — TIP-022). */
+  mapInput?: (input: unknown) => unknown;
 }
 
 /** ToolSpec cho các action đã lọc (runToolIds): `execute` → ActionExecutor với ngữ cảnh agent của run. */
@@ -55,9 +59,12 @@ export function agentToolSpecs(executor: Pick<ActionExecutor, 'execute'>, ids: r
     ...(r.commander ? { onBehalfOfUserId: r.commander.userId } : {}),
     runId: r.runId,
     stepId: String(stepIdx),
+    ...(r.servedConversationId ? { servedConversationId: r.servedConversationId } : {}),
     authz: agentAuthz(r.agent, r.commander),
   });
-  return ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d).map((d) => actionTool(d, executor, ctxOf));
+  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d).map((d) => actionTool(d, executor, ctxOf));
+  const map = r.mapInput;
+  return map ? specs.map((s) => ({ ...s, execute: (input, meta) => s.execute(map(input), meta) })) : specs;
 }
 
 /**

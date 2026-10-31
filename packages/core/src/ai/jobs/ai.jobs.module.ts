@@ -1,6 +1,6 @@
 // BullMQ processor của domain `ai` (worker ROLE=ai). TIP-020: `kb-ingest` (nạp tài liệu kho tri thức). TIP-021: `ai-resume` (chạy
 // action đã duyệt + chạy tiếp run, hết hạn duyệt) — cần handler của mọi domain mà agent gọi được → nạp module domain có action
-// `agentGrantable`. TIP 022–023, 035, 043 thêm processor (agent-reply, ai-task…). Thiếu DB / Redis → không chạy.
+// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP 023, 035, 043 thêm processor (ai-task…). Thiếu DB / Redis → không chạy.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -17,6 +17,10 @@ import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
 import type { ResumeJob } from '../approvals/resume.queue';
 import { startAiResumeWorker } from './ai-resume.processor';
+import { startAgentReplyWorker } from './agent-reply.processor';
+import type { ReplyJob } from '../reply/reply.queue';
+import { finishResumedTurn, resumeReplySpec, type ReplyDeps } from '../reply/reply.service';
+import { registerResumeFinish, registerResumeSpec, type ResumeDeps } from '../approvals/resume';
 import { CreditMeter } from '../../billing/public';
 import { BillingModule } from '../../billing/billing.module';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -33,6 +37,7 @@ import { startKbIngestWorker } from './kb-ingest.processor';
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private kb?: Worker<KbIngestJob>;
   private resume?: Worker<ResumeJob>;
+  private reply?: Worker<ReplyJob>;
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -61,12 +66,28 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (this.executor && this.platform) {
       const deps = { tenants, executor: this.executor, runner: this.runner, kv: redis, log: this.log, now: () => this.clock.now(), commander: (ws: string, u: string) => this.commander(ws, u) };
       this.resume = startAiResumeWorker(redis, deps, this.log);
+      // TIP-022: agent trực kênh + phần quyết định sau khi run chờ duyệt chạy tiếp.
+      if (this.runner) {
+        const reply: ReplyDeps = { tenants, executor: this.executor, runner: this.runner, embedder: this.embedder, kv: redis, log: this.log, now: () => this.clock.now() };
+        // Hook chạy tiếp dùng deps của lần chạy tiếp (process đang xử lý job), chỉ embedder lấy từ module này.
+        const embedder = this.embedder;
+        const of = (x: ResumeDeps): ReplyDeps | null => (x.runner ? { ...x, runner: x.runner, embedder } : null);
+        for (const kind of ['agent_reply', 'suggestion']) {
+          registerResumeSpec(kind, (db, run, x, ws) => resumeReplySpec(of(x) ?? reply, db, run, ws));
+          registerResumeFinish(kind, async (db, run, r, x, ws) => {
+            const rd = of(x);
+            return rd ? finishResumedTurn(rd, db, ws, run, r) : null;
+          });
+        }
+        this.reply = startAgentReplyWorker(redis, reply, this.log);
+      }
     }
   }
 
   async onApplicationShutdown(): Promise<void> {
     await this.kb?.close();
     await this.resume?.close();
+    await this.reply?.close();
   }
 }
 

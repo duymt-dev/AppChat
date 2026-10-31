@@ -112,12 +112,16 @@ model Conversation {
   title              String?
   status             ConversationStatus @default(open)
   assigneeUserId     String?            @map("assignee_user_id") @db.Uuid
-  /// Agent AI phụ trách (bảng ai_agent thuộc TIP-021 — chưa kiểm tồn tại, như DC-076).
+  /// Agent AI phụ trách (TIP-021 / 022: chuyển agent bằng `transfer_to_agent`).
   assigneeAgentId    String?            @map("assignee_agent_id")
   teamId             String?            @map("team_id") @db.Uuid
   aiMode             AiMode             @default(copilot) @map("ai_mode")
   aiState            AiState            @default(idle) @map("ai_state")
   handoffReason      String?            @map("handoff_reason")
+  /// Câu trả lời agent soạn nhưng không gửi khi chuyển sang người (TIP-022) — nhân viên dùng lại.
+  aiDraft            String?            @map("ai_draft")
+  /// Gợi ý trả lời của copilot `{ text, confidence (0–100), run_id }` — người gửi tin thì xoá.
+  aiSuggestion       Json?              @map("ai_suggestion")
   intent             String?
   lastMessageAt      DateTime           @default(now()) @map("last_message_at") @db.Timestamptz(6)
   lastMessagePreview String             @default("") @map("last_message_preview")

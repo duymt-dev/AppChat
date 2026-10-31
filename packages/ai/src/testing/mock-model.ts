@@ -10,8 +10,8 @@ export type MockTurn =
   | { tools: { tool: string; input: unknown }[]; tokensIn?: number; tokensOut?: number }
   | { error: { statusCode: number; message?: string } };
 
-/** Kịch bản theo lượt: mảng cố định, hoặc hàm nhận lời nhắn cuối của người dùng (dev / E2E — trả lời theo câu hỏi). */
-export type MockScript = MockTurn[] | ((ctx: { lastUser: string; call: number }) => MockTurn);
+/** Kịch bản theo lượt: mảng cố định, hoặc hàm nhận lời nhắn cuối của người dùng + system (dev / E2E — trả lời theo câu hỏi). */
+export type MockScript = MockTurn[] | ((ctx: { lastUser: string; call: number; system: string }) => MockTurn);
 
 export const MOCK_PROVIDER = 'mock';
 export const MOCK_MODEL = 'mock-chat';
@@ -30,6 +30,10 @@ function lastUserText(prompt: unknown): string {
     if (Array.isArray(m.content)) return (m.content as { type: string; text?: string }[]).map((p) => (p.type === 'text' ? (p.text ?? '') : '')).join('');
   }
   return '';
+}
+
+function systemText(prompt: unknown): string {
+  return ((prompt ?? []) as { role: string; content: unknown }[]).filter((m) => m.role === 'system').map((m) => (typeof m.content === 'string' ? m.content : '')).join(' ');
 }
 
 function partsOf(t: Exclude<MockTurn, { error: unknown }>, n: number): unknown[] {
@@ -55,7 +59,7 @@ export function mockLanguageModel(script: MockScript, opts: { provider?: string;
     modelId: opts.model ?? MOCK_MODEL,
     doStream: async (o) => {
       const call = n++;
-      const turn = typeof script === 'function' ? script({ lastUser: lastUserText(o.prompt), call }) : (script[call] ?? { text: '' });
+      const turn = typeof script === 'function' ? script({ lastUser: lastUserText(o.prompt), call, system: systemText(o.prompt) }) : (script[call] ?? { text: '' });
       if ('error' in turn) throw Object.assign(new Error(turn.error.message ?? `HTTP ${turn.error.statusCode}`), { statusCode: turn.error.statusCode, isRetryable: turn.error.statusCode >= 500 || turn.error.statusCode === 429 });
       return { stream: convertArrayToReadableStream(partsOf(turn, call) as never[]) };
     },
@@ -68,8 +72,16 @@ export function staticModelSource(cands: { provider: string; model: string; hand
   return { candidates: async () => cands as ModelCandidate[] };
 }
 
-/** Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi — không gọi tool. */
-export const echoScript: MockScript = ({ lastUser }) => ({ text: lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?' });
+/**
+ * Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi — không gọi tool. Lượt agent trực kênh
+ * (system có khung output JSON — prompt `agent-reply`) → trả đúng JSON, độ tin cậy 0,9; khách đòi gặp người → `needs_human`.
+ */
+export const echoScript: MockScript = ({ lastUser, system }) => {
+  const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
+  if (!system.includes('"needs_human"')) return { text: echo };
+  const human = /nhân viên|gặp người|staff|human/i.test(lastUser);
+  return { text: JSON.stringify({ reply: human ? null : `Dạ, ${echo.charAt(0).toLowerCase()}${echo.slice(1)}`, confidence: human ? 0.4 : 0.9, intent: 'faq', sentiment: 'neutral', needs_human: human ? 'Khách muốn gặp nhân viên' : null }) };
+};
 
 export function mockModelSource(script: MockScript = echoScript): ModelSource {
   const model = mockLanguageModel(script);

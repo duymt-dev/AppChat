@@ -13,7 +13,7 @@ import type { ActionExecutor } from '../../kernel/actions/executor';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import type { AppLogger } from '../../kernel/logger/logger';
-import { MAX_STEPS, type AiRunner, type RunSpec } from '../runs/runner';
+import { MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
 import { agentAuthz } from '../agents/agent-authz';
 import { connectedKeys, runToolIds } from '../agents/agent-tools';
@@ -49,7 +49,13 @@ const agentSpec: SpecFn = async (db, run, d, ws) => {
   const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: ws, agent: { id: a.id, toolIds: cfg.tools }, ...(commander ? { commander } : {}), runId: run.id, source: run.kind === 'task' ? 'task' : 'agent' });
   return { system: agentSystem(cfg), tools, maxSteps: MAX_STEPS.agent, source: run.kind === 'task' ? 'task' : 'agent' };
 };
-for (const k of ['agent_reply', 'delegate', 'consult', 'task']) registerResumeSpec(k, agentSpec);
+for (const k of ['delegate', 'consult', 'task']) registerResumeSpec(k, agentSpec);
+// `agent_reply` / `suggestion`: spec riêng ở reply (TIP-022 — tool lượt trả lời + PII); thiếu đăng ký → agentSpec.
+
+/** Việc sau khi run chạy tiếp xong, theo loại run (TIP-022: agent trực kênh gửi / chuyển người). */
+type FinishFn = (db: TenantDb, run: RunRow, r: RunResult, d: ResumeDeps, ws: string) => Promise<unknown>;
+const FINISH = new Map<string, FinishFn>();
+export const registerResumeFinish = (kind: string, fn: FinishFn) => FINISH.set(kind, fn);
 
 /** Chạy action đã duyệt → kết quả tool. Lỗi nghiệp vụ (hết quyền, sai trạng thái) → `error` cho model biết, run vẫn tiếp. */
 async function executeApproved(d: ResumeDeps, db: TenantDb, ws: string, a: ApprovalRow): Promise<ToolOutcome> {
@@ -112,6 +118,8 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   const run = await db.aiRun.findUnique({ where: { id: a.runId } });
   if (!run || run.status !== 'waiting_approval') return 'done';
   const spec = await (SPECS.get(run.kind) ?? agentSpec)(db, run, d, ws);
-  await d.runner.resume(ws, new RunStore(db, d.now), run.id, outcome, spec);
+  const r = await d.runner.resume(ws, new RunStore(db, d.now), run.id, outcome, spec);
+  const fresh = r ? await db.aiRun.findUnique({ where: { id: run.id } }) : null;
+  if (r && fresh) await FINISH.get(run.kind)?.(db, fresh, r, d, ws);
   return 'done';
 }

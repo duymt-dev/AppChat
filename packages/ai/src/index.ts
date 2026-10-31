@@ -10,3 +10,7 @@ export { AiSdkEmbedder, EMBED_DIM, type EmbedResult, type Embedder } from './emb
 export { CHUNK_MAX_TOKENS, CHUNK_MIN_TOKENS, chunkDocument, hasPrice, tokensOf, type Chunk, type ChunkMeta, type DocBlock } from './kb/chunker';
 export { RRF_K, rrf } from './kb/rrf';
 export { MOCK_EMBED_MODEL, mockEmbedSource, mockEmbeddingModel, mockVector } from './testing/mock-embed';
+export { PROMPTS, prompt, type PromptDoc, type PromptLocale } from './prompts';
+export { PiiMasker, unmaskPii, type PiiMap } from './reply/pii';
+export { agentReplySchema, parseAgentReply, type AgentReply } from './reply/output';
+export { decideHandoff, type HandoffInput, type HandoffReason } from './reply/handoff';

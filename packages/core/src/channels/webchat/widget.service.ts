@@ -97,6 +97,11 @@ async function kpis(db: TenantDb | TenantTx, accountId: string | null, running: 
   return { clicks, chats, running: running ? 1 : 0, total: 1 };
 }
 
+async function agentChoices(db: TenantDb | TenantTx, selected: string | null) {
+  const rows = await db.aiAgent.findMany({ where: { deletedAt: null, OR: [{ status: 'active' }, ...(selected ? [{ id: selected }] : [])] }, orderBy: { createdAt: 'asc' }, take: 50, select: { id: true, name: true } });
+  return { agents: rows.map((r) => r.name), agent_ids: rows.map((r) => r.id), agent: rows.find((r) => r.id === selected)?.name ?? '' };
+}
+
 /** `GET /v1/settings/widget` — chưa bật lần nào thì trả mặc định (`enabled: false`, chưa có mã nhúng). */
 export async function widgetSettings(db: TenantDb | TenantTx, urls: WidgetUrls, locale = 'vi'): Promise<WidgetSettingsDto> {
   const w = await db.webchatWidget.findFirst({ orderBy: { createdAt: 'asc' } });
@@ -117,9 +122,8 @@ export async function widgetSettings(db: TenantDb | TenantTx, urls: WidgetUrls, 
     prechat: w ? prechatOf(w).enabled : DEFAULT_PRECHAT.enabled,
     actions: cfg.actions,
     ai_on: cfg.ai_on,
-    // Danh sách AI Agent = bảng ai_agent (TIP-021); tới lúc đó chỉ có agent đã chọn (DC-076).
-    agents: w?.agentId ? [w.agentId] : [],
-    agent: w?.agentId ?? '',
+    // Agent đang chạy (đã xuất bản, chưa tạm dừng / xoá) + agent đã chọn (TIP-022) — chip hiện tên, chọn gửi id.
+    ...(await agentChoices(db, w?.agentId ?? null)),
     handoff: cfg.handoff,
     knowledge: [...WIDGET_KNOWLEDGE],
     knowledge_on: cfg.knowledge_on,

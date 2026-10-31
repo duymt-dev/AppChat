@@ -18,6 +18,20 @@ export interface InboundResult {
   messageId: string | null;
   conversationId?: string;
   events: OutboxEventInput[];
+  /** Cần agent trực kênh trả lời (TIP-022) — worker đẩy job `agent-reply` sau commit. */
+  agentReply?: boolean;
+}
+
+/**
+ * Có kích agent trực kênh không (Blueprint §5.3): AI bật (auto / copilot), chưa chuyển người / chờ duyệt, có agent (gán hoặc mặc
+ * định của tài khoản); nhóm theo `group_ai_policy` (`mention` = chỉ khi nhắc tài khoản, `off` = không). Tin rỗng (sticker…) vẫn kích.
+ */
+export function wantsAgent(conv: { aiMode: string; aiState: string; assigneeAgentId: string | null; kind: string; groupAiPolicy: string | null }, defaultAgent: string | null, mentionsMe: boolean): boolean {
+  if (conv.aiMode === 'off' || conv.aiState === 'handoff' || conv.aiState === 'waiting_approval') return false;
+  if (!conv.assigneeAgentId && !defaultAgent) return false;
+  if (conv.kind !== 'group') return true;
+  const policy = conv.groupAiPolicy ?? 'mention';
+  return policy === 'auto' || (policy === 'mention' && mentionsMe);
 }
 
 const AI_MODE = { auto: 'auto', suggest: 'copilot', off: 'off' } as const;
@@ -135,7 +149,7 @@ export class InboundPipeline {
     if (isNew && conv.assigneeUserId) {
       events.push({ topic: 'conversation.assigned', payload: { ...base, assignee_agent_id: conv.assigneeAgentId, by_user_id: null, auto: true, title } });
     }
-    return { messageId: msgId, conversationId: conv.id, events };
+    return { messageId: msgId, conversationId: conv.id, events, agentReply: wantsAgent(conv, st.agent_id || null, !!m.mentionsMe) };
   }
 
   /** Khách có thẻ "VIP" (thông báo `msg_vip`). */

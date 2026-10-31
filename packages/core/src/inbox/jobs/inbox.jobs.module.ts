@@ -11,6 +11,7 @@ import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
 import { ChannelsModule } from '../../channels/channels.module';
+import { AgentReplyQueue } from '../../ai/reply/reply.queue';
 import { InboxModule } from '../inbox.module';
 import { InboundPipeline } from '../services/pipeline';
 import { OUTBOX_SWEEP_MS, sendResultSink, startInboundWorker, sweepOutbox, type InboxJobDeps } from './inbound.processor';
@@ -19,6 +20,7 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private worker?: Worker;
   private timer?: NodeJS.Timeout;
   private deps?: InboxJobDeps;
+  private reply?: AgentReplyQueue;
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -38,7 +40,9 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   onApplicationBootstrap(): void {
     const { redis, platform, tenants, send } = this;
     if (!redis || !platform || !tenants || !send) return;
-    const d: InboxJobDeps = { redis, platform, tenants, pipeline: this.pipeline, send, log: this.log, now: () => this.clock.now() };
+    // Tin khách → job `agent-reply` (worker ROLE=ai — TIP-022); queue chỉ là tên Redis, không cần module ai ở worker kênh.
+    const reply = (this.reply = new AgentReplyQueue(redis));
+    const d: InboxJobDeps = { redis, platform, tenants, pipeline: this.pipeline, send, agentReply: (j) => reply.push(j), log: this.log, now: () => this.clock.now() };
     this.deps = d;
     this.worker = startInboundWorker(d);
     registerSendResultSink('inbox', sendResultSink(d));
@@ -49,6 +53,7 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (this.timer) clearInterval(this.timer);
     unregisterSendResultSink('inbox');
     await this.worker?.close();
+    await this.reply?.onApplicationShutdown();
   }
 }
 

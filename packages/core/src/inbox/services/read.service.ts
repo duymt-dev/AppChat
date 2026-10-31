@@ -18,6 +18,12 @@ const MAX_LIMIT = 100;
 const THREAD_PAGE = 50;
 const SENDERS = new Set(['contact', 'user', 'agent']);
 
+/** Gợi ý copilot của agent (TIP-022) lưu ở hội thoại `{ text, confidence (%) }` → thẻ gợi ý ở luồng tin. */
+function suggestionOf(v: unknown): { text: string; confidence: number } | null {
+  const s = v as { text?: unknown; confidence?: unknown } | null;
+  return s && typeof s.text === 'string' && s.text ? { text: s.text, confidence: Number(s.confidence) || 0 } : null;
+}
+
 export class InboxReadService {
   constructor(
     private readonly tenants: TenantDbResolver,
@@ -103,7 +109,7 @@ export class InboxReadService {
       return {
         data: withDays(page.map((m) => ({ at: m.createdAt, dto: toMessage(m, x, p) })), p),
         next_cursor: rows.length > THREAD_PAGE ? (page[0]?.id ?? null) : null,
-        suggestion: null,
+        suggestion: suggestionOf(c.aiSuggestion),
       };
     });
   }

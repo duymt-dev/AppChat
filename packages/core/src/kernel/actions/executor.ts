@@ -85,7 +85,10 @@ export class ActionExecutor {
     if (!(await this.d.authorizer.can(ctx, def.permission))) throw new AppError('FORBIDDEN', 403, { permission: def.permission });
 
     // 4. policy
-    const decision = decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk });
+    // Mọi hội thoại mà input chạm tới (nguồn + đích của chuyển tiếp) phải là hội thoại đang phục vụ.
+    const io = input as { conversation_id?: unknown; target_conversation_id?: unknown };
+    const served = !!ctx.servedConversationId && io.conversation_id === ctx.servedConversationId && (io.target_conversation_id === undefined || io.target_conversation_id === ctx.servedConversationId);
+    const decision = decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served });
     if (decision === 'forbidden') throw new AppError('FORBIDDEN', 403, { source: ctx.source });
     if (ctx.approvalId && !this.d.approvals) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '021' }, 'approval_request chưa cài');
     if (decision === 'approval' && !ctx.approvalId) {

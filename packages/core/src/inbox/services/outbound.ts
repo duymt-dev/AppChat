@@ -2,6 +2,7 @@
 // transaction của action; SAU commit đẩy vào hàng đợi gửi của tài khoản (`ChannelSendQueue`, job id = id outbox → gửi một lần).
 // Kết quả gửi (worker ROLE=channels) về qua `registerSendResultSink('inbox')` → `applySendResult`. Không rẽ nhánh theo kênh.
 import type { OutboundMessage } from '@appchat/channels';
+import { TenantSql } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
@@ -87,7 +88,8 @@ export async function writeOutgoing(tx: TenantTx, o: OutgoingInput): Promise<Out
   }
   await tx.conversation.update({
     where: { id: conv.id },
-    data: { lastMessageAt: now, lastMessagePreview: previewOf(o.kind, o.body), lastSenderName: o.sender.name, unreadCount: 0, frtPendingSince: null, hiddenAt: null },
+    // Người / agent đã trả lời → gợi ý copilot + bản nháp AI hết hiệu lực (TIP-022).
+    data: { lastMessageAt: now, lastMessagePreview: previewOf(o.kind, o.body), lastSenderName: o.sender.name, unreadCount: 0, frtPendingSince: null, hiddenAt: null, aiSuggestion: TenantSql.DbNull },
   });
   return { messageId, outboxId, job: { account_id: conv.channelAccountId, ref_id: outboxId, message } };
 }

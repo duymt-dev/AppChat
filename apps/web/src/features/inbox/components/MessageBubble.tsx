@@ -93,7 +93,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   if (m.direction === 'out') {
     if (m.agent) {
       return (
-        <div className={cx(styles.row, styles.rowTop, styles.out, styles.outAgent)} id={`msg-${m.id}`}>
+        <div className={cx(styles.row, styles.rowTop, styles.out, styles.outAgent)} data-testid="msg-agent" id={`msg-${m.id}`}>
           <div className={cx(styles.av, styles.avAgent)}>
             <Icon name="ic-spark" size={13} strokeWidth={2} color={color.white} />
           </div>

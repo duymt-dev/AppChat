@@ -68,6 +68,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ai_state: c.aiState,
     ai_mode: c.aiMode,
     ...(c.handoffReason ? { handoff_reason: c.handoffReason } : {}),
+    ...(c.aiDraft ? { ai_draft: c.aiDraft } : {}),
     status: c.status,
     pinned_message_id: c.pinnedMessageId,
     hidden: !!c.hiddenAt,

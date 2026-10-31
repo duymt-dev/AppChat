@@ -97,6 +97,8 @@ export interface Widget {
   actions: { key: string; color: string; on: boolean }[];
   ai_on: boolean;
   agents: string[];
+  /** Id agent song song với `agents` (API thật — TIP-022); mock gửi tên. */
+  agent_ids?: string[];
   agent: string;
   handoff: number;
   knowledge: string[];

@@ -18,6 +18,11 @@ export interface ActionContext {
   confirmToken?: string;
   /** Chạy action đã được duyệt (job `ai-resume` — TIP-021): executor bỏ bước policy `approval`, gateway kiểm + đánh dấu đã chạy. */
   approvalId?: string;
+  /**
+   * Agent trực kênh: hội thoại đang phục vụ (TIP-022). Action `send` nhận `conversation_id` trùng giá trị này chạy luôn
+   * (Blueprint §3.3 "chỉ trả lời trong hội thoại đang phục vụ"); gửi nơi khác vẫn qua duyệt.
+   */
+  servedConversationId?: string;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }
@@ -37,6 +42,8 @@ export interface ActionPolicyInput {
   source: ActionSource;
   risk: Risk;
   bulk?: boolean;
+  /** Agent gửi vào chính hội thoại đang phục vụ (§3.3). */
+  servedConversation?: boolean;
 }
 
 export const AUTHORIZER = Symbol('AUTHORIZER');

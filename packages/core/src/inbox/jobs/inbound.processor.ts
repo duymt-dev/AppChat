@@ -17,6 +17,8 @@ export interface InboxJobDeps {
   tenants: TenantDbResolver;
   pipeline: InboundPipeline;
   send: ChannelSendQueue;
+  /** Đẩy job `agent-reply` (TIP-022) sau commit tin khách; vắng (test không có AI) → bỏ qua. */
+  agentReply?: (job: { ws: string; conversation_id: string; message_id: string }) => Promise<void>;
   log: AppLogger;
   now: () => Date;
 }
@@ -41,6 +43,9 @@ export function startInboundWorker(d: InboxJobDeps): Worker<InboundJob> {
       try {
         const r = await d.pipeline.handle(await db(d, ws), ws, message, now);
         if (r.events.length) await markDirty(d.redis, ws);
+        if (r.agentReply && r.messageId && r.conversationId) {
+          await d.agentReply?.({ ws, conversation_id: r.conversationId, message_id: r.messageId }).catch((err: unknown) => d.log.warn({ err, ws }, 'agent-reply enqueue failed'));
+        }
         return r.messageId;
       } catch (err) {
         if (err instanceof DuplicateInbound) return null;

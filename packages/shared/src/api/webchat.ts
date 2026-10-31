@@ -22,7 +22,9 @@ export const widgetSettingsSchema = z.object({
   prechat: z.boolean(),
   actions: z.array(z.object({ key: z.string(), color: z.string(), on: z.boolean() })),
   ai_on: z.boolean(),
+  /** Tên agent đang chạy (chip) — song song với `agent_ids` (TIP-022: chọn agent gửi id). */
   agents: z.array(z.string()),
+  agent_ids: z.array(z.string()).optional(),
   agent: z.string(),
   handoff: z.number().int(),
   knowledge: z.array(z.string()),

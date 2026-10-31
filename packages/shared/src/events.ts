@@ -105,6 +105,9 @@ export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid()
 export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string().uuid(), action_id: z.string(), permission: z.string(), agent: z.string(), title: z.string() });
 export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'rejected', 'expired']) });
 
+/** Agent trực kênh chuyển hội thoại sang người (TIP-022) — thông báo `ai_escalate`, WS cập nhật hội thoại. */
+export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().nullable(), agent_id: z.string().nullable(), agent: z.string(), reason: z.string().max(40), title: z.string() });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -143,5 +146,6 @@ export const EVENT_SCHEMAS = {
   'agent.deleted': agentChangedEvent,
   'approval.requested': approvalRequestedEvent,
   'approval.decided': approvalDecidedEvent,
+  'ai.handoff': aiHandoffEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;
