@@ -30,3 +30,4 @@ export * from './events/consumer';
 export * from './events/dispatcher';
 export * from './events/events.runner';
 export * from './files/signed-url';
+export * from './files/table';

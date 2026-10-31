@@ -17,6 +17,10 @@ export interface ContactInput {
   zalo?: string;
   city?: string;
   district?: string;
+  address?: string;
+  /** YYYY-MM-DD, rỗng = xoá. */
+  birthday?: string;
+  gender?: string;
   source?: string;
   status?: 'active' | 'potential' | 'inactive';
   owner_user_id?: string;
@@ -40,6 +44,9 @@ export function columnsOf(i: ContactInput) {
     ...(i.zalo !== undefined ? { zalo: blank(i.zalo) } : {}),
     ...(i.city !== undefined ? { city: blank(i.city) } : {}),
     ...(i.district !== undefined ? { district: blank(i.district) } : {}),
+    ...(i.address !== undefined ? { address: blank(i.address) } : {}),
+    ...(i.birthday !== undefined ? { birthday: i.birthday ? new Date(`${i.birthday}T00:00:00Z`) : null } : {}),
+    ...(i.gender !== undefined ? { gender: i.gender || null } : {}),
     ...(i.source ? { source: i.source } : {}),
     ...(i.status ? { status: i.status } : {}),
   };

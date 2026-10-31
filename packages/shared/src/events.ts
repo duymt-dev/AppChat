@@ -103,7 +103,8 @@ export const runCancelledEvent = z.object({ ...base, run_id: z.string().uuid(), 
 export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid(), version: z.number().int(), status: z.enum(['draft', 'active', 'paused', 'deleted']) });
 /** Hàng chờ duyệt (TIP-021): tạo → thông báo người duyệt (`ai_review`); quyết / hết hạn → job `ai-resume` chạy tiếp run. */
 export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string().uuid(), action_id: z.string(), permission: z.string(), agent: z.string(), title: z.string() });
-export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'rejected', 'expired']) });
+/** `edited` = duyệt kèm sửa input (approval.edit_and_approve — TIP-024). */
+export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'edited', 'rejected', 'expired']) });
 
 /** Agent trực kênh chuyển hội thoại sang người (TIP-022) — thông báo `ai_escalate`, WS cập nhật hội thoại. */
 export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().nullable(), agent_id: z.string().nullable(), agent: z.string(), reason: z.string().max(40), title: z.string() });

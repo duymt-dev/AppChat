@@ -2,7 +2,8 @@
 import type { CustomValues } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
-export type StageKey = 'all' | 'lead' | 'potential' | 'consulting' | 'quote' | 'contract' | 'won';
+export type StageKey = 'all' | 'lead' | 'potential' | 'consulting' | 'quote' | 'contract' | 'won' | 'lost';
+export type ContactSort = 'recent' | 'name' | 'created' | 'value';
 export type ContactSource = 'zalo_personal' | 'email' | 'website' | 'manual' | 'referral';
 
 export interface ContactRow {
@@ -42,7 +43,20 @@ export interface ContactRow {
 export interface CrmStats {
   stats: { key: string; value: string; color: string; icon: IconName }[];
   stages: { key: StageKey; color: string; count: number }[];
-  tag_defs: { label: string; line: string; bg: string; fg: string }[];
+  tag_defs: { id: string; label: string; line: string; bg: string; fg: string }[];
+}
+
+/** `GET /contacts/board` — kanban theo giai đoạn (đếm theo bộ lọc, ≤ `limit` thẻ / cột). */
+export interface ContactsBoard {
+  columns: { key: Exclude<StageKey, 'all'>; color: string; total: number; rows: ContactRow[] }[];
+  limit: number;
+}
+
+/** `GET /contacts/import-table?file_id=` — bảng sheet đầu của tệp nhập. */
+export interface ImportTable {
+  columns: string[];
+  rows: string[][];
+  total: number;
 }
 
 export interface DupSide {

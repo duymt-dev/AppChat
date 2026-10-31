@@ -9,7 +9,9 @@ import { profileLayoutsQuery, useProfileLayoutUi, ProfileLayoutEditor } from '@/
 import { usePanelStyles } from '../styles/panel.styles';
 import { useInboxUi } from '../inbox-store';
 import { Profile360Actions } from './Profile360Actions';
-import { Profile360Content, TABS_360 as TABS } from './Profile360Content';
+import { Profile360Content } from './Profile360Content';
+import { useProfileTabs } from '../hooks/useProfileTabs';
+import { tabLabel } from './tab-label';
 
 export function Panel360({ contactId }: { contactId: string }) {
   const t = useTranslations('inbox.p360');
@@ -18,6 +20,8 @@ export function Panel360({ contactId }: { contactId: string }) {
   const authz = useAuthz().data;
   const layouts = useQuery(profileLayoutsQuery()).data;
   const openEditor = useProfileLayoutUi((s) => s.open);
+  const tabs = useProfileTabs(contactId);
+  const active = tabs.some((x) => x.key === ui.tab360) ? ui.tab360 : (tabs[0]?.key ?? 'overview');
   const onCustomize = () => {
     const id = authz && layouts ? layouts.role_assignments[authz.role] : undefined;
     if (id) openEditor(id);
@@ -40,14 +44,14 @@ export function Panel360({ contactId }: { contactId: string }) {
       </div>
       <ProfileLayoutEditor />
       <div className={styles.tabs} role="tablist">
-        {TABS.map((k) => (
-          <button key={k} type="button" role="tab" aria-selected={ui.tab360 === k} className={cx(styles.tab, ui.tab360 === k && styles.tabOn)} onClick={() => ui.set({ tab360: k })}>
-            {t(`tabs.${k}`)}
+        {tabs.map((x) => (
+          <button key={x.key} type="button" role="tab" aria-selected={active === x.key} className={cx(styles.tab, active === x.key && styles.tabOn)} onClick={() => ui.set({ tab360: x.key })}>
+            {tabLabel(x, t)}
           </button>
         ))}
       </div>
       <div className={styles.scroll}>
-        <Profile360Content contactId={contactId} tab={ui.tab360} />
+        <Profile360Content contactId={contactId} tab={active} />
       </div>
       <Profile360Actions contactId={contactId} />
     </aside>

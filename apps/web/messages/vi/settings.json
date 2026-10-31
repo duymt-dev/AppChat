@@ -1069,6 +1069,8 @@
       "msg_assigned": "Tin mới được gán cho tôi",
       "msg_mention": "Nhắc đến tôi trong hội thoại",
       "msg_vip": "Tin từ VIP / khách ưu tiên",
+      "crm_owner": "Khách được chuyển cho tôi",
+      "crm_access": "Xin chia sẻ khách / kết quả duyệt",
       "sla_warn": "SLA sắp vi phạm",
       "ai_review": "AI cần duyệt trước khi gửi",
       "ai_escalate": "AI chuyển sang người",

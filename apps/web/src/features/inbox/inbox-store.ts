@@ -4,7 +4,8 @@ import type { ChannelType } from './types';
 
 export type InboxPop = 'convMenu' | 'chatMenu' | 'account' | 'qr' | 'sched' | 'xl' | 'attach' | null;
 export type InboxModal = 'connect' | 'ai' | 'forward' | null;
-export type Tab360 = 'overview' | 'crm' | 'ai' | 'files' | 'history';
+/** Tab mặc định (builtin) hoặc key tab tuỳ biến của bố cục vai trò (TIP-026). */
+export type Tab360 = 'overview' | 'crm' | 'ai' | 'files' | 'history' | (string & {});
 /** Submenu đang mở trong menu ⋯ hội thoại (REQ-C10): null = danh sách chính. */
 export type ConvSub = 'hide' | 'shortcut' | 'assign' | 'stage' | 'tags' | null;
 

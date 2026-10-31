@@ -9,6 +9,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../kernel/ids';
 import { UUID, actorUserId, canManageCollaborators, visibleContact } from '../services/access';
 import { moveOpenConversations, restoreConversationAssignees } from '../../inbox/services/owner-move';
+import { accessDecidedNotify, accessRequestedNotify, ownerChangedNotify } from '../services/crm-notify';
 import { CrmMembers } from '../services/members.service';
 import { writeTimeline } from '../services/timeline.service';
 
@@ -99,8 +100,13 @@ export class ContactTransferOwnerHandler implements Handler<ActionInput<typeof c
       result: { owner_user_id: to.id, moved },
       before: { id: c.id, owner: c.ownerUserId, collab: prevCollab ? { role: prevCollab.role, added_by: prevCollab.addedBy } : null, convs: conv.before },
       after: { id: c.id, owner: to.id },
-      // Thông báo người nhận: chờ loại thông báo crm (Q-012) — consumer notify đọc `contact.owner_changed`.
-      events: [...(c.ownerUserId === to.id ? [] : [{ topic: 'contact.owner_changed', payload: { contact_id: c.id, from: c.ownerUserId, to: to.id, move: input.move } }]), ...conv.events],
+      // Người nhận khách được thông báo `crm_owner` (DC-150).
+      events: [
+        ...(c.ownerUserId === to.id
+          ? []
+          : [{ topic: 'contact.owner_changed', payload: { contact_id: c.id, from: c.ownerUserId, to: to.id, move: input.move } }, ...(await ownerChangedNotify(this.members, { actorId: actorUserId(ctx), to: to.id, contact: c }))]),
+        ...conv.events,
+      ],
     };
   }
 
@@ -118,7 +124,10 @@ export class ContactTransferOwnerHandler implements Handler<ActionInput<typeof c
 @Injectable()
 @ActionHandler('contact.request_access')
 export class ContactRequestAccessHandler implements Handler<ActionInput<typeof contactRequestAccess>, { request_id: string; status: 'pending' }> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+  constructor(
+    @Inject(CrmMembers) private readonly members: CrmMembers,
+    @Inject(CLOCK) private readonly clock: Clock,
+  ) {}
 
   /** Không cần thấy khách (đó là mục đích): chỉ cần khách tồn tại + có người phụ trách khác — id lấy từ lỗi CONTACT_OWNED. */
   async execute(ctx: ActionContext, input: ActionInput<typeof contactRequestAccess>, tx: TenantTx): Promise<HandlerOutcome<{ request_id: string; status: 'pending' }>> {
@@ -136,8 +145,11 @@ export class ContactRequestAccessHandler implements Handler<ActionInput<typeof c
     return {
       result: { request_id: id, status: 'pending' },
       after: { id },
-      // Thông báo người duyệt: chờ loại thông báo crm (Q-012) — consumer notify đọc `contact.access_requested`.
-      events: [{ topic: 'contact.access_requested', payload: { contact_id: c.id, request_id: id, requester_user_id: me } }],
+      // Người duyệt (người phụ trách / crm.reassign) được thông báo `crm_access` (DC-150).
+      events: [
+        { topic: 'contact.access_requested', payload: { contact_id: c.id, request_id: id, requester_user_id: me } },
+        ...(await accessRequestedNotify(this.members, { requesterId: me, ownerId: c.ownerUserId, contact: c })),
+      ],
     };
   }
 }
@@ -145,12 +157,15 @@ export class ContactRequestAccessHandler implements Handler<ActionInput<typeof c
 @Injectable()
 @ActionHandler('contact.decide_access')
 export class ContactDecideAccessHandler implements Handler<ActionInput<typeof contactDecideAccess>, { status: string }> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+  constructor(
+    @Inject(CrmMembers) private readonly members: CrmMembers,
+    @Inject(CLOCK) private readonly clock: Clock,
+  ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactDecideAccess>, tx: TenantTx): Promise<HandlerOutcome<{ status: string }>> {
     const r = UUID.test(input.request_id) ? await tx.contactAccessRequest.findUnique({ where: { id: input.request_id } }) : null;
     if (!r) throw new AppError('NOT_FOUND', 404, { request_id: 'not_found' });
-    const c = await tx.contact.findUniqueOrThrow({ where: { id: r.contactId }, select: { id: true, ownerUserId: true } });
+    const c = await tx.contact.findUniqueOrThrow({ where: { id: r.contactId }, select: { id: true, name: true, ownerUserId: true } });
     if (!canManageCollaborators(ctx.authz, c)) throw forbidOwner();
     if (r.status !== 'pending') throw new AppError('CONFLICT', 409, { status: r.status });
     const now = this.clock.now();
@@ -163,6 +178,7 @@ export class ContactDecideAccessHandler implements Handler<ActionInput<typeof co
       events: [
         { topic: 'contact.access_decided', payload: { contact_id: c.id, request_id: r.id, requester_user_id: r.requesterUserId, status: input.decision } },
         ...(input.decision === 'approved' ? [{ topic: 'contact.collaborator_changed', payload: { contact_id: c.id, user_id: r.requesterUserId, role: 'collaborator' } }] : []),
+        ...(await accessDecidedNotify(this.members, { deciderId: actorUserId(ctx), requesterId: r.requesterUserId, status: input.decision, contact: c })),
       ],
     };
   }

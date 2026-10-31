@@ -15,7 +15,7 @@ import { writeTimeline } from '../services/timeline.service';
 const actor = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
 
 /** Ảnh chụp cột có thể sửa (undo của update). */
-const SNAP = ['name', 'title', 'kind', 'group', 'phone', 'phoneNorm', 'email', 'zalo', 'city', 'district', 'source', 'status', 'ownerUserId', 'custom'] as const;
+const SNAP = ['name', 'title', 'kind', 'group', 'phone', 'phoneNorm', 'email', 'zalo', 'city', 'district', 'address', 'birthday', 'gender', 'source', 'status', 'ownerUserId', 'custom'] as const;
 const snapshot = (c: Record<string, unknown>) => Object.fromEntries(SNAP.map((k) => [k, c[k] ?? null]));
 
 /** Ghi lại khách đã xoá mềm / phục hồi — trùng SĐT với khách tạo sau → 409 (index partial `contact_phone_norm_key`). */

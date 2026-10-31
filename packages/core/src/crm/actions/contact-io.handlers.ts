@@ -8,7 +8,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { actorUserId } from '../services/access';
 import { createContact } from '../services/contacts.service';
-import { listContactIds } from '../repos/contacts.repo';
+import { listContactIds, type ContactFilter } from '../repos/contacts.repo';
 import { CrmMembers } from '../services/members.service';
 
 type ExportIn = ActionInput<typeof contactExport>;
@@ -24,8 +24,9 @@ export class ContactExportHandler implements Handler<ExportIn, ExportOut> {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  private filter(i: ExportIn) {
-    return { stage: i.stage, ownerId: i.owner_id, q: i.q, mine: i.mine };
+  /** Cùng bộ lọc + thứ tự với danh sách (TIP-026 — trước chỉ stage / q / owner / mine). */
+  private filter(i: ExportIn): ContactFilter {
+    return { stage: i.stage, ownerId: i.owner_id, q: i.q, mine: i.mine, status: i.status, group: i.group, source: i.source, tagId: i.tag_id, custom: i.custom, sort: i.sort };
   }
 
   async execute(ctx: ActionContext, input: ExportIn, tx: TenantTx): Promise<HandlerOutcome<ExportOut>> {

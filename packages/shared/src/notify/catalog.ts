@@ -18,6 +18,9 @@ export const NOTIFY_KINDS = {
   msg_assigned: { group: 'msg', icon: 'ic-inbox', tone: 'info', defaults: ch(true, true, true) },
   msg_mention: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, true, true) },
   msg_vip: { group: 'msg', icon: 'ic-star', tone: 'warn', defaults: ch(true, true, true) },
+  // Khách hàng (Q-012 / DC-150): khách được chuyển cho tôi · xin chia sẻ khách + kết quả duyệt.
+  crm_owner: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, false, true) },
+  crm_access: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, false, true) },
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },

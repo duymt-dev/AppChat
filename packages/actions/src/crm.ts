@@ -1,6 +1,6 @@
 // Khách hàng (Blueprint §3.4 crm, D32 phụ trách + đồng phụ trách). Prototype L2451–2984.
 import { z } from 'zod';
-import { customValuesSchema } from '@appchat/shared';
+import { CONTACT_SORTS, customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const contactId = z.string().min(1);
@@ -17,6 +17,10 @@ const contactFields = z.object({
   zalo: z.string().max(30).optional(),
   city: z.string().max(60).optional(),
   district: z.string().max(60).optional(),
+  address: z.string().max(200).optional(),
+  /** YYYY-MM-DD; rỗng = xoá. */
+  birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
+  gender: z.enum(['male', 'female', 'other']).optional().or(z.literal('')),
   source: z.enum(['zalo_personal', 'email', 'website', 'manual', 'referral']).optional(),
   status: z.enum(['active', 'potential', 'inactive']).optional(),
   owner_user_id: userId.optional(),
@@ -293,6 +297,7 @@ const importRow = z.object({
   city: z.string().max(60).optional(),
   district: z.string().max(60).optional(),
   zalo: z.string().max(30).optional(),
+  address: z.string().max(200).optional(),
   source: z.enum(['zalo_personal', 'email', 'website', 'manual', 'referral']).optional(),
 });
 
@@ -316,12 +321,19 @@ export const contactExport = defineAction({
   id: 'contact.export',
   module: 'crm',
   title: 'actions.contact.export.title',
-  description: 'Export the contacts visible to the caller (same filters as the list) as CSV (read — runs immediately). Example: {"stage":"lead"}',
+  description: 'Export the contacts visible to the caller (same filters as the list) as CSV (read — runs immediately). Example: {"stage":"lead","tag_id":"…","sort":"name"}',
   input: z.object({
     stage: stage.optional(),
     owner_id: z.string().optional(),
     q: z.string().max(100).optional(),
     mine: z.boolean().optional(),
+    status: z.enum(['active', 'potential', 'inactive']).optional(),
+    group: z.enum(['vip', 'loyal', 'new', 'potential']).optional(),
+    source: z.string().max(40).optional(),
+    tag_id: z.string().max(64).optional(),
+    /** Trường tuỳ biến: key → giá trị (như `cf.<key>` của danh sách). */
+    custom: z.record(z.string().max(40), z.string().max(100)).optional(),
+    sort: z.enum(CONTACT_SORTS).optional(),
   }),
   output: z.object({ file_name: z.string(), mime: z.literal('text/csv'), rows: z.number().int(), content: z.string() }),
   permission: 'crm.export',

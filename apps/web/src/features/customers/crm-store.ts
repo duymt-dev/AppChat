@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { ContactFilter } from './api';
 
-export type CrmModal = 'create' | 'edit' | 'dedupe' | 'fields' | 'ai' | 'peek' | 'collab' | 'transfer' | null;
+export type CrmModal = 'create' | 'edit' | 'dedupe' | 'fields' | 'ai' | 'peek' | 'collab' | 'transfer' | 'import' | 'bulkTransfer' | null;
 
 interface CrmUiState {
   filter: ContactFilter;
@@ -25,7 +25,7 @@ interface CrmUiState {
   open: (modal: Exclude<CrmModal, null>, target?: string) => void;
 }
 
-export const EMPTY_FILTER: ContactFilter = { stage: 'all', q: '', mine: false, status: '', owner_id: '', group: '', source: '' };
+export const EMPTY_FILTER: ContactFilter = { stage: 'all', q: '', mine: false, status: '', owner_id: '', group: '', source: '', tag_id: '', sort: 'recent' };
 
 export const useCrmUi = create<CrmUiState>((set) => ({
   pg: FIRST_PAGE,

@@ -1,11 +1,14 @@
 // Modal "Cập nhật khách hàng" (prototype L2600–2625, 560px) và "Tạo khách hàng" (L5189–5228, 720px, 3 nhóm trường).
 // Tạo trùng với khách đã có người phụ trách → CONTACT_OWNED: hiện "Đã có người phụ trách" + "Xin chia sẻ" (D32), không lộ dữ liệu khách.
+// Sửa (TIP-026): ô "Phụ trách" giữ như prototype nhưng không lưu qua contact.update (DC-066) — chọn người khác mở "Chuyển phụ trách"
+// điền sẵn người nhận (crm.reassign; không có quyền → ô khoá). Trùng khách của mình → nút mở khách đã có. "—" không điền vào chức danh.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { ModalShell, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { useCan } from '@/shared/authz/useCan';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 import { useFormStyles } from '../styles/form.styles';
 import { useCrmUi } from '../crm-store';
@@ -33,8 +36,10 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
   const create = useAction<{ contact_id: string }>('contact.create');
   const update = useAction('contact.update');
   const request = useAction('contact.request_access');
+  const canReassign = useCan('crm.reassign');
+  const [dup, setDup] = useState('');
   const [d, setD] = useState<Draft>((): Draft => ({
-    ...(contact ? { full_name: contact.full_name, title: contact.title, owner_user_id: contact.owner_user_id, email: contact.email, phone: contact.phone, zalo: contact.zalo, city: contact.city, district: contact.district } : {}),
+    ...(contact ? { full_name: contact.full_name, title: contact.title === '—' ? '' : contact.title, owner_user_id: contact.owner_user_id, email: contact.email, phone: contact.phone, zalo: contact.zalo, city: contact.city, district: contact.district } : {}),
     ...ui.prefill,
   }));
   const [err, setErr] = useState('');
@@ -42,6 +47,11 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
   const [owned, setOwned] = useState<{ id: string; owner: string; sent: boolean } | null>(null);
   const close = () => ui.set({ modal: null, target: null });
   const set = (k: string, v: string) => setD((x) => ({ ...x, [k]: v }));
+  const editOwner = (k: string) => mode === 'edit' && k === 'owner_user_id';
+  const lockOwner = (k: string) => editOwner(k) && !canReassign;
+  const transferTo = (to: string) => {
+    if (contact && to && to !== contact.owner_user_id) ui.set({ modal: 'transfer', target: contact.id, prefill: { to_user_id: to } });
+  };
   const label = (k: string) => (mode === 'edit' ? t(`edit.${EDIT_LABEL[k]}` as never) : t(`form.${CREATE_LABEL[k] ?? k}` as never));
 
   const input = ([k, kind, req, opts]: Spec) => {
@@ -53,7 +63,7 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
           {lab}
         </label>
         {kind === 'pick' || kind === 'member' ? (
-          <select id={`cf-${k}`} className={cls} value={d[k] ?? ''} onChange={(e) => set(k, e.target.value)}>
+          <select id={`cf-${k}`} className={cls} value={d[k] ?? ''} disabled={lockOwner(k)} onChange={(e) => (editOwner(k) ? transferTo(e.target.value) : set(k, e.target.value))}>
             <option value="">{t('form.pick')}</option>
             {kind === 'member'
               ? members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)
@@ -80,7 +90,7 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
     if (mode === 'edit' && contact) {
       const c = cf.collect('update');
       if (!c.ok) return;
-      const patch = { ...Object.fromEntries(EDIT.map(([k]) => [k, d[k] ?? '']).filter(([k, v]) => k !== 'owner_user_id' || v)), ...(c.custom ? { custom: c.custom } : {}) };
+      const patch = { ...Object.fromEntries(EDIT.filter(([k]) => k !== 'owner_user_id').map(([k]) => [k, d[k] ?? ''])), ...(c.custom ? { custom: c.custom } : {}) };
       if (await update.run({ contact_id: contact.id, patch }, { onError: (e) => cf.absorb(e.error.fields) })) close();
       return;
     }
@@ -88,10 +98,16 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
     if (missing.length) return setErr(t('form.missing', { fields: missing.join(', ') }));
     const c = cf.collect('create');
     if (!c.ok) return;
-    const { full_name, phone, email, zalo, city, district, type, group, source, status, owner_user_id, note } = d;
-    const input = { ...Object.fromEntries(Object.entries({ full_name, phone, email, zalo, city, district, type, group, source, status, owner_user_id, note }).filter(([, v]) => v)), ...(c.custom ? { custom: c.custom } : {}) };
+    const { full_name, phone, email, zalo, address, city, district, birthday, gender, type, group, source, status, owner_user_id, note } = d;
+    const fields = { full_name, phone, email, zalo, address, city, district, birthday, gender, type, group, source, status, owner_user_id, note };
+    const input = { ...Object.fromEntries(Object.entries(fields).filter(([, v]) => v)), ...(c.custom ? { custom: c.custom } : {}) };
+    setDup('');
     const res = await create.run(input, {
       onError: (e) => {
+        if (e.error.code === 'CONFLICT' && e.error.fields?.contact_id) {
+          setDup(e.error.fields.contact_id);
+          return true;
+        }
         if (e.error.code !== 'CONTACT_OWNED') return cf.absorb(e.error.fields);
         setOwned({ id: e.error.fields?.contact_id ?? '', owner: e.error.fields?.owner_name ?? '', sent: false });
         return true;
@@ -145,6 +161,15 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
         </div>
       ) : null}
       {err ? <div className={styles.err}>{err}</div> : null}
+      {dup ? (
+        <div className={styles.owned} data-testid="contact-dup">
+          <div className={styles.ownedBody}>{t('owned.mine')}</div>
+          <button type="button" className={cx(styles.btn, styles.primary)} onClick={() => ui.set({ modal: null, target: null, detail: dup })} data-testid="open-dup">
+            {t('owned.open')}
+          </button>
+        </div>
+      ) : null}
+
       {mode === 'edit' ? (
         <div className={styles.grid}>{EDIT.map(input)}</div>
       ) : (

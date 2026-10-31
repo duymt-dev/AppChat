@@ -1,9 +1,9 @@
 // Đọc domain crm cho apps/api (Blueprint §4.4 crm — shape packages/shared/src/api/crm.ts). Mỗi lệnh đọc mở một transaction
 // chỉ-đọc trên DB tenant của workspace (TenantDbResolver) và áp scope crm của người xem (rbac §5 — không có đường vòng).
-import { AppError, STAGE_COLOR, createFmt, tagTone, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
+import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
-import { listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
+import { boardIds, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
 import { UUID, visibleContact } from './access';
 import { contact360 } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
@@ -20,6 +20,8 @@ export interface Viewer {
 }
 
 const MAX_LIMIT = 100;
+/** Số thẻ tối đa mỗi cột kanban (đếm vẫn đủ). */
+export const BOARD_PER_STAGE = 50;
 const TL_PAGE = 30;
 
 export class CrmReadService {
@@ -44,6 +46,15 @@ export class CrmReadService {
     return { locale: u?.locale ?? 'vi', timeZone: ws?.timezone ?? 'Asia/Ho_Chi_Minh' };
   }
 
+  /** Bước 2 deferred join: đủ cột chỉ cho các id đã chọn, giữ thứ tự bước 1. */
+  private async rowsOf(tx: TenantTx, v: Viewer, pl: { locale: string; timeZone: string }, ids: string[]) {
+    const rows = ids.length ? await tx.contact.findMany({ where: { id: { in: ids } }, select: ROW_SELECT }) : [];
+    const order = new Map(ids.map((id, i) => [id, i]));
+    rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
+    const [extras, names] = await Promise.all([loadRowExtras(tx, ids), this.members.names(rows.map((r) => r.ownerUserId))]);
+    return rows.map((r) => toRow(r as ContactRecord, { authz: v.authz, ...pl, names }, extras));
+  }
+
   async list(v: Viewer, f: ContactFilter, page?: number, limit?: number) {
     const lim = Math.min(MAX_LIMIT, Math.max(1, limit ?? 20));
     const paged = page !== undefined;
@@ -51,14 +62,23 @@ export class CrmReadService {
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
       const { ids, total } = await listContactIds(tx, v.authz, f, paged ? { offset: (pg - 1) * lim, limit: lim } : null);
-      // Bước 2 deferred join: đủ cột chỉ cho các id của trang, giữ thứ tự bước 1.
-      const rows = ids.length ? await tx.contact.findMany({ where: { id: { in: ids } }, select: ROW_SELECT }) : [];
-      const order = new Map(ids.map((id, i) => [id, i]));
-      rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
-      const [extras, names] = await Promise.all([loadRowExtras(tx, ids), this.members.names(rows.map((r) => r.ownerUserId))]);
-      const data = rows.map((r) => toRow(r as ContactRecord, { authz: v.authz, ...pl, names }, extras));
+      const data = await this.rowsOf(tx, v, pl, ids);
       const pages = Math.max(1, Math.ceil(total / lim));
       return { data, next_cursor: paged && pg < pages ? String(pg + 1) : null, meta: { total, page: paged ? pg : 1, limit: paged ? lim : data.length } };
+    });
+  }
+
+  /** Kanban (TIP-026): cột theo giai đoạn, đếm theo bộ lọc + scope, ≤ BOARD_PER_STAGE thẻ / cột; "Thất bại" chỉ khi có khách. */
+  async board(v: Viewer, f: ContactFilter) {
+    const pl = await this.place(v);
+    return this.tx(v, async (tx) => {
+      const { ids, counts } = await boardIds(tx, v.authz, f, BOARD_PER_STAGE);
+      const rows = await this.rowsOf(tx, v, pl, ids.map((r) => r.id));
+      const keys = CONTACT_STAGES.filter((k) => k !== 'lost' || (counts.lost ?? 0) > 0);
+      return {
+        columns: keys.map((key) => ({ key, color: key === 'lost' ? STAGE_LOST_COLOR : STAGE_COLOR[key], total: counts[key] ?? 0, rows: rows.filter((r) => r.stage === key) })),
+        limit: BOARD_PER_STAGE,
+      };
     });
   }
 
@@ -69,7 +89,7 @@ export class CrmReadService {
       const counts = await stageCounts(tx, v.authz);
       const total = Object.values(counts).reduce((a, b) => a + b, 0);
       const open = (counts.consulting ?? 0) + (counts.quote ?? 0) + (counts.contract ?? 0);
-      const tags = await tx.tag.findMany({ where: { scope: { in: ['all', 'contact'] } }, orderBy: { createdAt: 'asc' }, take: 20, select: { name: true, color: true } });
+      const tags = await tx.tag.findMany({ where: { scope: { in: ['all', 'contact'] } }, orderBy: { createdAt: 'asc' }, take: 20, select: { id: true, name: true, color: true } });
       return {
         stats: [
           { key: 'total', value: fmt.number(total), color: '#2563EB', icon: 'ic-users' },
@@ -79,7 +99,7 @@ export class CrmReadService {
           { key: 'ltv', value: '0', color: '#C9820B', icon: 'ic-gift' },
         ],
         stages: (Object.keys(STAGE_COLOR) as (keyof typeof STAGE_COLOR)[]).map((key) => ({ key, color: STAGE_COLOR[key], count: key === 'all' ? total : (counts[key] ?? 0) })),
-        tag_defs: tags.map((t) => ({ label: t.name, ...tagTone(t.color) })),
+        tag_defs: tags.map((t) => ({ id: t.id, label: t.name, ...tagTone(t.color) })),
       };
     });
   }

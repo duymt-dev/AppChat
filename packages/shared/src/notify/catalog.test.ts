@@ -6,9 +6,11 @@ import { notifyRequestedEvent } from '../events';
 import { NOTIFY_KINDS, NOTIFY_KIND_KEYS, channelsFor, inQuietHours } from './catalog';
 
 describe('notify catalog', () => {
-  it('đúng 9 loại + nhóm + kênh mặc định như Cài đặt › Thông báo (prototype)', () => {
+  it('9 loại của prototype (Cài đặt › Thông báo) + 2 loại Khách hàng ngoài prototype (DC-150): nhóm + kênh mặc định', () => {
     const fromFixture = fixture.notif.groups.flatMap((g) => g.events.map((e) => ({ ...e, group: g.key })));
-    expect(fromFixture.map((e) => e.key).sort()).toEqual([...NOTIFY_KIND_KEYS].sort());
+    const beyond = ['crm_owner', 'crm_access'];
+    expect(fromFixture.map((e) => e.key).sort()).toEqual(NOTIFY_KIND_KEYS.filter((k) => !beyond.includes(k)).sort());
+    for (const k of beyond) expect(NOTIFY_KINDS[k as keyof typeof NOTIFY_KINDS]).toMatchObject({ group: 'msg', defaults: { desktop: true, email: false, mobile: true } });
     for (const e of fromFixture) {
       const k = NOTIFY_KINDS[e.key as keyof typeof NOTIFY_KINDS];
       expect(k.group).toBe(e.group);

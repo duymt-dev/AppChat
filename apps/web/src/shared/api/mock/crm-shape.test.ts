@@ -4,8 +4,10 @@ import {
   accessRequestsSchema,
   collaboratorsSchema,
   contact360Schema,
+  contactsBoardSchema,
   contactsPageSchema,
   crmStatsSchema,
+  importTableSchema,
   duplicatesSchema,
   fieldsDataSchema,
   membersListSchema,
@@ -22,6 +24,20 @@ describe('mock crm — shape FE ↔ BE', () => {
   it('GET /contacts (D42) + lọc', async () => {
     expect(issues(contactsPageSchema.safeParse(await mockTransport.get('/contacts', { page: 1, limit: 5 })))).toEqual([]);
     expect(issues(contactsPageSchema.safeParse(await mockTransport.get('/contacts')))).toEqual([]);
+  });
+
+  it('TIP-026: tag_id · sort · /contacts/board (cột theo giai đoạn, bỏ lọc stage) · /contacts/import-table', async () => {
+    const stats = crmStatsSchema.parse(await mockTransport.get('/contacts/stats'));
+    const vip = stats.tag_defs.find((d) => d.label === 'VIP')!;
+    const tagged = contactsPageSchema.parse(await mockTransport.get('/contacts', { tag_id: vip.id }));
+    expect(tagged.data.length).toBeGreaterThan(0);
+    expect(tagged.data.every((c) => c.tags.includes('VIP'))).toBe(true);
+    const byName = contactsPageSchema.parse(await mockTransport.get('/contacts', { sort: 'name' })).data.map((c) => c.full_name);
+    expect(byName).toEqual([...byName].sort((a, b) => a.localeCompare(b, 'vi')));
+    const board = contactsBoardSchema.parse(await mockTransport.get('/contacts/board', { stage: 'lead' }));
+    expect(board.columns.map((c) => c.key)).toEqual(['lead', 'potential', 'consulting', 'quote', 'contract', 'won']);
+    expect(board.columns.every((c) => c.rows.every((r) => r.stage === c.key) && c.total >= c.rows.length)).toBe(true);
+    expect(importTableSchema.safeParse(await mockTransport.get('/contacts/import-table', { file_id: 'f' })).success).toBe(true);
   });
 
   it('GET /contacts/stats · /duplicates · /members · /contact-access-requests', async () => {

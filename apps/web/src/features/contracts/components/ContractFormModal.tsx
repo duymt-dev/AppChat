@@ -37,6 +37,8 @@ const ALL_CONTACTS = {
   owner_id: '',
   group: '',
   source: '',
+  tag_id: '',
+  sort: 'recent',
 } as const;
 const ALL_QUOTES = { status: 'all', owner_id: 'all', returning: 'all', q: '' } as const;
 const KINDS: ContractKind[] = ['service', 'sale', 'framework'];

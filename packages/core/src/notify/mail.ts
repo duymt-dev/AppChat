@@ -4,8 +4,15 @@ import type { MailMessage } from '@appchat/integrations';
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
+/** Mẫu tiêu đề: `params.variant` chọn biến thể của loại (vd. crm_access approved / rejected), thiếu → `title`. */
+function titleTemplate(kind: NotifyKind, locale: string, params: Record<string, string | number>): string {
+  const k = serverMessages(locale).notify.kind[kind] as { title: string } & Record<string, string>;
+  const v = typeof params.variant === 'string' && params.variant !== 'label' ? k[params.variant] : undefined;
+  return v ?? k.title;
+}
+
 export function notificationTitle(kind: NotifyKind, locale: string, params: Record<string, string | number>): string {
-  return interpolate(serverMessages(locale).notify.kind[kind].title, params);
+  return interpolate(titleTemplate(kind, locale, params), params);
 }
 
 export function notificationMail(i: {
@@ -19,7 +26,7 @@ export function notificationMail(i: {
 }): MailMessage {
   const m = serverMessages(i.locale).notify;
   const title = notificationTitle(i.kind, i.locale, i.params);
-  const titleHtml = interpolate(m.kind[i.kind].title, i.params, esc);
+  const titleHtml = interpolate(titleTemplate(i.kind, i.locale, i.params), i.params, esc);
   const url = `${i.publicUrl.replace(/\/$/, '')}${i.link ?? '/dashboard'}`;
   const footer = interpolate(m.mail.footer, { label: m.kind[i.kind].label });
   const html = [

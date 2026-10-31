@@ -53,8 +53,21 @@ export const contactsPageSchema = z.object({
 export const crmStatsSchema = z.object({
   stats: z.array(z.object({ key: z.string(), value: z.string(), color: z.string(), icon: z.string() })),
   stages: z.array(z.object({ key: z.string(), color: z.string(), count: z.number().int() })),
-  tag_defs: z.array(z.object({ label: z.string(), line: z.string(), bg: z.string(), fg: z.string() })),
+  tag_defs: z.array(z.object({ id: z.string(), label: z.string(), line: z.string(), bg: z.string(), fg: z.string() })),
 });
+
+/** Sắp xếp danh sách / kanban (TIP-026): tương tác gần nhất (mặc định) · tên A→Z · mới tạo · tổng chi tiêu. */
+export const CONTACT_SORTS = ['recent', 'name', 'created', 'value'] as const;
+export type ContactSort = (typeof CONTACT_SORTS)[number];
+
+/** `GET /contacts/board` — kanban theo giai đoạn: đếm theo bộ lọc + tối đa `limit` thẻ đầu mỗi cột (cột `lost` có khi có khách). */
+export const contactsBoardSchema = z.object({
+  columns: z.array(z.object({ key: stageKey, color: z.string(), total: z.number().int(), rows: z.array(contactRowSchema) })),
+  limit: z.number().int(),
+});
+
+/** `GET /contacts/import-table?file_id=` — bảng đọc từ tệp CSV / XLSX đã tải lên (purpose `import`) để ghép cột ở client. */
+export const importTableSchema = z.object({ columns: z.array(z.string()), rows: z.array(z.array(z.string())), total: z.number().int() });
 
 const dupSide = z.object({ name: z.string(), email: z.string(), phone: z.string(), src: z.string() });
 export const duplicatesSchema = z.object({

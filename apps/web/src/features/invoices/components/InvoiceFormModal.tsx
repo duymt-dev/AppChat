@@ -23,6 +23,8 @@ const ALL_CONTACTS = {
   owner_id: '',
   group: '',
   source: '',
+  tag_id: '',
+  sort: 'recent',
 } as const;
 const ALL_ORDERS = { chip: 'all', owner_id: 'all', value: 'all', source: 'all', q: '' } as const;
 const KINDS: InvoiceKind[] = ['full', 'deposit', 'installment'];

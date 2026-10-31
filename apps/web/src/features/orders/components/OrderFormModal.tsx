@@ -29,6 +29,8 @@ const ALL_CONTACTS = {
   owner_id: '',
   group: '',
   source: '',
+  tag_id: '',
+  sort: 'recent',
 } as const;
 /** Ngày mock cố định của parity (prototype-parity §4). */
 const TODAY = '2026-06-24';

@@ -183,7 +183,9 @@
     "note": "Lời nhắn cho người phụ trách (không bắt buộc)",
     "request": "Xin chia sẻ",
     "sent": "Đã gửi yêu cầu chia sẻ — chờ {owner} duyệt",
-    "close": "Để sau"
+    "close": "Để sau",
+    "mine": "Khách này đã có trong danh sách của bạn.",
+    "open": "Mở hồ sơ khách"
   },
   "dd": {
     "title": "Kiểm tra trùng lặp",
@@ -312,7 +314,36 @@
     "hint": "Doanh số chứng từ đã tạo vẫn ghi cho người phụ trách cũ.",
     "cancel": "Huỷ",
     "submit": "Chuyển phụ trách",
-    "close": "Đóng"
+    "close": "Đóng",
+    "bulkTitle": "Gán phụ trách cho {count} khách",
+    "bulkDone": "Đã chuyển {count} khách"
   },
-  "unit": "khách hàng"
+  "unit": "khách hàng",
+  "sorts": {
+    "recent": "Tương tác gần nhất",
+    "name": "Tên A → Z",
+    "created": "Mới tạo",
+    "value": "Chi tiêu cao nhất"
+  },
+  "importer": {
+    "title": "Nhập khách hàng",
+    "hint": "Chọn tệp CSV hoặc Excel (.xlsx) — hàng đầu là tên cột, đọc sheet đầu tiên.",
+    "pick": "Chọn tệp",
+    "uploadFailed": "Không tải được tệp lên, thử lại sau.",
+    "unreadable": "Không đọc được tệp — chỉ nhận CSV hoặc Excel (.xlsx) có hàng tên cột.",
+    "mapTitle": "Ghép cột ({rows} dòng)",
+    "skip": "— Bỏ qua —",
+    "needName": "Cần ghép một cột vào \"Họ và tên\".",
+    "preview": "Xem trước 5 dòng đầu",
+    "submit": "Nhập {count} khách",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "done": "Xong",
+    "result": {
+      "created": "Đã tạo",
+      "duplicates": "Trùng (bỏ qua)",
+      "owned": "Đã có người phụ trách",
+      "invalid": "Thiếu SĐT / email hoặc sai"
+    }
+  }
 }

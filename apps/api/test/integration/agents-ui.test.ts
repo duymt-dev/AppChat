@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ActionExecutor, REDIS, WalletService, createLogger, replyTurn, resumeApproval, uuidv7, withinHours, type ActionContext, type ResumeDeps } from '@appchat/core';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
-import { actionLogsPageSchema, agentSchema, agentTemplateSchema, approvalRowSchema, authzForRole } from '@appchat/shared';
+import { actionLogsPageSchema, agentSchema, agentTemplateSchema, approvalDecidedEvent, approvalRowSchema, authzForRole } from '@appchat/shared';
 import { z } from 'zod';
 import { call, env, startApi, type Harness } from './setup';
 
@@ -121,6 +121,9 @@ describe('Chờ duyệt (AC2)', () => {
     const target = await newTemplate();
     const r = await act('approval.edit_and_approve', { approval_id: apId, edited_input: { template_id: target }, note: 'Xoá đúng mẫu' });
     expect(r.body.data.result).toEqual({ approval_id: apId, status: 'edited' });
+    // Event `approval.decided` của duyệt kèm sửa hợp schema (consumer realtime parse — sửa ở TIP-026).
+    const ev = await (await tenant()).outboxEvent.findFirstOrThrow({ where: { topic: 'approval.decided', payload: { path: ['approval_id'], equals: apId } } });
+    expect(approvalDecidedEvent.parse(ev.payload).status).toBe('edited');
     expect((await act('approval.approve', { approval_id: apId })).status).toBe(409);
     expect(await resumeApproval(deps(), h.ws, apId, 'decided')).toBe('done');
     const db = await tenant();

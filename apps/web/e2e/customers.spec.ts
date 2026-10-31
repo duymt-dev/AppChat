@@ -45,6 +45,44 @@ test.describe('customers', () => {
     await expect(page.locator('[data-contact="kh_1003"]')).toHaveCount(0);
   });
 
+  test('TIP-026: sắp xếp · lọc thẻ · nhập tệp · đổi Phụ trách → Chuyển phụ trách · 360° theo bố cục vai trò', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.getByTestId('crm-sort').click();
+    await page.getByTestId('crm-sort-name').click();
+    const names = await page.locator('[data-contact] td:nth-child(3)').allInnerTexts();
+    expect(names.length).toBeGreaterThan(1);
+    await page.getByTestId('filter-btn').click();
+    await page.getByTestId('filter-pop').getByLabel('Tags').selectOption({ label: 'VIP' });
+    await page.getByTestId('filter-pop').getByRole('button', { name: 'Áp dụng' }).click();
+    await expect(page.locator('[data-contact="ct_lan"]')).toBeVisible();
+    await expect(page.locator('[data-contact="kh_1002"]')).toHaveCount(0);
+    await page.reload();
+
+    await page.getByTestId('crm-import-open').click();
+    const imp = page.getByTestId('crm-import');
+    await imp.getByTestId('import-file').setInputFiles({ name: 'k.csv', mimeType: 'text/csv', buffer: Buffer.from('a,b\n1,2') });
+    await expect(imp.getByTestId('import-preview').locator('tbody tr')).toHaveCount(2);
+    await imp.getByTestId('import-submit').click();
+    await page.getByRole('button', { name: 'Xác nhận' }).click();
+    await expect(imp.getByTestId('import-result').locator('[data-stat="created"] b')).toHaveText('1');
+    await imp.getByRole('button', { name: 'Xong' }).click();
+
+    await page.locator('[data-contact="kh_1003"] .row-dots').click();
+    await page.getByRole('menuitem', { name: 'Cập nhật khách hàng' }).click();
+    await page.getByTestId('crm-edit').getByLabel('Phụ trách').selectOption({ index: 2 });
+    await expect(page.getByTestId('crm-transfer')).toBeVisible();
+    await expect(page.getByTestId('transfer-to')).not.toHaveValue('');
+    await page.getByTestId('crm-transfer').getByRole('button', { name: 'Huỷ' }).click();
+
+    await setRole(page, 'Sales');
+    await page.locator('[data-contact="ct_lan"]').click();
+    await expect(page.getByTestId('crm-360').getByRole('tab', { name: 'Giao dịch' })).toBeVisible();
+    await expect(page.getByTestId('crm-360').getByRole('tab', { name: 'Tệp' })).toHaveCount(0);
+    await page.getByTestId('crm-360').getByRole('tab', { name: 'Giao dịch' }).click();
+    await expect(page.getByTestId('crm-360').locator('[data-block="quotes"]')).toBeVisible();
+  });
+
   test('kiểm trùng + gộp (xác nhận hàng loạt), trường mở rộng', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);

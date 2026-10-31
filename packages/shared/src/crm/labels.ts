@@ -13,6 +13,9 @@ export const STAGE_COLOR: Record<'all' | Exclude<ContactStage, 'lost'>, string> 
   won: '#22C55E',
 };
 
+/** Cột "Thất bại" của kanban (TIP-026) — chỉ hiện khi có khách ở giai đoạn này. */
+export const STAGE_LOST_COLOR = '#9CA3AF';
+
 export const CONTACT_SOURCES = ['zalo_personal', 'email', 'website', 'manual', 'referral'] as const;
 export type ContactSource = (typeof CONTACT_SOURCES)[number];
 

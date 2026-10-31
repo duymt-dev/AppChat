@@ -45,7 +45,7 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
         </button>
       ) : null}
       {canImport ? (
-        <button type="button" className={cx(styles.chip, styles.hideMd)}>
+        <button type="button" className={cx(styles.chip, styles.hideMd)} onClick={() => ui.open('import')} data-testid="crm-import-open">
           <Icon name="ic-download" size={13} color={color.text3} />
           {t('import')}
         </button>

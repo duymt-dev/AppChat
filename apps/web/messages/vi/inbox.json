@@ -305,7 +305,9 @@
           "body": "Chào {name},\n\nXin xác nhận lịch hẹn của anh/chị. Nếu cần đổi giờ anh/chị nhắn lại giúp em.\n\nTrân trọng."
         }
       }
-    }
+    },
+    "blocksEmpty": "Tab này chưa có khối nào — thêm ở Cài đặt › Hồ sơ 360°.",
+    "blockNoData": "Chưa có dữ liệu"
   },
   "group": {
     "title": "Thông tin nhóm",

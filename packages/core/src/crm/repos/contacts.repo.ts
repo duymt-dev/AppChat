@@ -1,8 +1,9 @@
-// Danh sách khách (D42 — bảng có số trang, indexing §3–7): bước 1 lấy `id` theo index (scope + lọc + sort
-// last_interaction_at DESC, id DESC) có OFFSET / LIMIT; bước 2 nạp đủ cột theo PK cho đúng trang (deferred join).
-// Tìm `q` không dấu dùng đúng biểu thức của index trigram `f_unaccent(lower(name))`.
+// Danh sách khách (D42 — bảng có số trang, indexing §3–7): bước 1 lấy `id` theo index (scope + lọc + sort, id phụ để ổn định)
+// có OFFSET / LIMIT; bước 2 nạp đủ cột theo PK cho đúng trang (deferred join). Sắp xếp (TIP-026): `recent` = tương tác gần nhất
+// (`contact_live_recent_idx`), `name` / `created` / `value` có index partial riêng (migration 026). Kanban: đếm + N thẻ đầu mỗi
+// giai đoạn bằng `row_number() OVER (PARTITION BY stage …)`. Tìm `q` không dấu dùng đúng biểu thức của index trigram.
 import { TenantSql as Prisma } from '@appchat/db';
-import { foldText, normalizePhone, type AuthzContext } from '@appchat/shared';
+import { foldText, normalizePhone, type AuthzContext, type ContactSort } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { scopeSql } from '../services/access';
 
@@ -17,7 +18,16 @@ export interface ContactFilter {
   q?: string;
   /** `cf.<key>` → giá trị (chọn = bằng / chứa phần tử; chữ = chứa). */
   custom?: Record<string, string>;
+  sort?: ContactSort;
 }
+
+const ORDER: Record<ContactSort, Prisma.Sql> = {
+  recent: Prisma.sql`c.last_interaction_at DESC, c.id DESC`,
+  name: Prisma.sql`c.name ASC, c.id ASC`,
+  created: Prisma.sql`c.created_at DESC, c.id DESC`,
+  value: Prisma.sql`c.total_spent DESC, c.id DESC`,
+};
+const orderOf = (f: ContactFilter) => ORDER[f.sort ?? 'recent'] ?? ORDER.recent;
 
 const STAGES = new Set(['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost']);
 const STATUSES = new Set(['active', 'potential', 'inactive']);
@@ -56,7 +66,7 @@ export async function listContactIds(tx: TenantTx, authz: AuthzContext, f: Conta
   const w = where(authz, f);
   const paging = page ? Prisma.sql`LIMIT ${page.limit} OFFSET ${page.offset}` : Prisma.sql`LIMIT 5000`;
   const [ids, total] = await Promise.all([
-    tx.$queryRaw<{ id: string }[]>`SELECT c.id FROM contact c WHERE ${w} ORDER BY c.last_interaction_at DESC, c.id DESC ${paging}`,
+    tx.$queryRaw<{ id: string }[]>`SELECT c.id FROM contact c WHERE ${w} ORDER BY ${orderOf(f)} ${paging}`,
     tx.$queryRaw<{ n: bigint }[]>`SELECT count(*)::bigint AS n FROM contact c WHERE ${w}`,
   ]);
   return { ids: ids.map((r) => r.id), total: Number(total[0]?.n ?? 0) };
@@ -67,4 +77,17 @@ export async function stageCounts(tx: TenantTx, authz: AuthzContext): Promise<Re
   const rows = await tx.$queryRaw<{ stage: string; n: bigint }[]>`
     SELECT c.stage::text AS stage, count(*)::bigint AS n FROM contact c WHERE c.deleted_at IS NULL AND ${scopeSql(authz)} GROUP BY c.stage`;
   return Object.fromEntries(rows.map((r) => [r.stage, Number(r.n)]));
+}
+
+/** Kanban (TIP-026): mỗi giai đoạn đếm theo bộ lọc + `perStage` id đầu theo cùng thứ tự sắp xếp (bỏ lọc `stage` của danh sách). */
+export async function boardIds(tx: TenantTx, authz: AuthzContext, f: ContactFilter, perStage: number) {
+  const w = where(authz, { ...f, stage: undefined });
+  const [ids, counts] = await Promise.all([
+    tx.$queryRaw<{ id: string; stage: string }[]>`
+      SELECT s.id, s.stage FROM (
+        SELECT c.id, c.stage::text AS stage, row_number() OVER (PARTITION BY c.stage ORDER BY ${orderOf(f)}) AS rn FROM contact c WHERE ${w}
+      ) s WHERE s.rn <= ${perStage}`,
+    tx.$queryRaw<{ stage: string; n: bigint }[]>`SELECT c.stage::text AS stage, count(*)::bigint AS n FROM contact c WHERE ${w} GROUP BY c.stage`,
+  ]);
+  return { ids, counts: Object.fromEntries(counts.map((r) => [r.stage, Number(r.n)])) as Record<string, number> };
 }

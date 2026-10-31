@@ -10,7 +10,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useCrmStyles } from '../styles/crm.styles';
 import { useCrmUi } from '../crm-store';
-import { contactsQuery, crmStatsQuery, duplicatesQuery } from '../api';
+import { contactsBoardQuery, contactsQuery, crmStatsQuery, duplicatesQuery } from '../api';
 import { ContactCard, useContactColumns } from '../columns';
 import { CrmHeaderActions } from '../components/CrmHeaderActions';
 import { CrmToolbar } from '../components/CrmToolbar';
@@ -26,7 +26,9 @@ export function CustomersScreen() {
   const { message } = App.useApp();
   const { styles } = useCrmStyles();
   const ui = useCrmUi();
-  const list = useQuery(contactsQuery(ui.filter, ui.pg));
+  const kanban = ui.layout === 'kanban';
+  const list = useQuery({ ...contactsQuery(ui.filter, ui.pg), enabled: !kanban });
+  const board = useQuery({ ...contactsBoardQuery(ui.filter), enabled: kanban });
   const stats = useQuery(crmStatsQuery()).data;
   const dups = useQuery(duplicatesQuery()).data;
   const setStage = useAction('contact.set_stage');
@@ -35,7 +37,8 @@ export function CustomersScreen() {
   const rows = list.data?.data ?? [];
   const aiDo = () => void message.info(t('ai.doing'));
   const columns = useContactColumns(aiDo);
-  const stageCols = (stats?.stages ?? []).filter((s) => s.key !== 'all');
+  const cols = board.data?.columns ?? [];
+  const boardRows = cols.flatMap((c) => c.rows);
 
   return (
     <div className={styles.wrap} data-testid="customers">
@@ -56,9 +59,9 @@ export function CustomersScreen() {
         view={ui.layout}
         onView={(k) => ui.set({ layout: k as 'list' | 'kanban' })}
       />
-      <CrmToolbar allSelected={rows.length > 0 && selected.length === rows.length} onSelectAll={(on) => setSelected(on ? rows.map((r) => r.id) : [])} />
-      <PageStates state={stateOf(list)} onRetry={() => void list.refetch()}>
-        {ui.layout === 'list' ? (
+      <CrmToolbar allSelected={rows.length > 0 && selected.length === rows.length} selected={selected.length} onSelectAll={(on) => setSelected(on ? rows.map((r) => r.id) : [])} />
+      <PageStates state={stateOf(kanban ? board : list)} onRetry={() => void (kanban ? board : list).refetch()}>
+        {!kanban ? (
           <DataTable<ContactRow>
             testId="crm-table"
             footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="crm-table-pager" />}
@@ -75,8 +78,8 @@ export function CustomersScreen() {
         ) : (
           <KanbanBoard<ContactRow>
             testId="crm-kanban"
-            columns={stageCols.map((s) => ({ key: s.key, label: t(`stages.${s.key}`), color: s.color }))}
-            items={rows}
+            columns={cols.map((s) => ({ key: s.key, label: t(`stages.${s.key}`), color: s.color, total: s.total }))}
+            items={boardRows}
             itemKey={(r) => r.id}
             groupBy={(r) => r.stage}
             renderCard={(r) => <KanbanCard c={r} tagDefs={stats?.tag_defs ?? []} />}
@@ -86,7 +89,7 @@ export function CustomersScreen() {
           />
         )}
       </PageStates>
-      <CrmOverlays rows={rows} />
+      <CrmOverlays rows={kanban ? boardRows : rows} selected={rows.filter((r) => selected.includes(r.id))} onBulkDone={() => setSelected([])} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 // Mock Khách hàng (Blueprint §4.4 crm, D32): GET /contacts, /contacts/stats, /contacts/duplicates, /members,
 // /contacts/:id/collaborators, /contact-access-requests. Dữ liệu = prototype L2451–2984 (fixture sinh bởi tools/scripts/fixtures/gen-customers.py).
-import { ApiRequestError, ROLE_DEFS, type CustomValues } from '@appchat/shared';
+// TIP-026: `tag_id` (id thẻ = `tag_<vị trí>` trong tag_defs), `sort`, /contacts/board (kanban), /contacts/import-table (bảng mẫu).
+import { ApiRequestError, ROLE_DEFS, matchCustomFilter, type CustomFieldDef, type CustomValues } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/customers.json';
 import inboxFixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
@@ -49,23 +50,58 @@ const withAccess = (db: MockDb, c: Contact) => {
   return { ...c, my_access: c.owner_user_id === ME ? 'owner' : (mine ?? 'scope'), collaborator_count: collabs.length };
 };
 
-export const customersRoutes: Record<string, MockRoute> = {
-  '/contacts': (db, p) => {
-    const q = String(p.q ?? '').trim().toLowerCase();
-    const rows = db.customers.contacts.filter(
+export const TAG_DEFS = fixture.tag_defs.map((d, i) => ({ id: `tag_${i + 1}`, ...d }));
+const tagLabel = (id: unknown) => TAG_DEFS.find((d) => d.id === id)?.label;
+
+/** Lọc như backend (contacts.repo `where`). Kanban bỏ `stage`; `cf.*` của `/contacts` do withCustomFilters lọc, kanban / xuất lọc tại đây. */
+const filtered = (db: MockDb, p: Record<string, unknown>, o: { stage: boolean; custom: boolean } = { stage: true, custom: false }) => {
+  const q = String(p.q ?? '').trim().toLowerCase();
+  const tag = p.tag_id ? (tagLabel(p.tag_id) ?? '#none') : '';
+  const rows = db.customers.contacts.filter(
       (c) =>
         visible(db, c) &&
-        (!p.stage || p.stage === 'all' || c.stage === p.stage) &&
+        (!o.stage || !p.stage || p.stage === 'all' || c.stage === p.stage) &&
+        (!tag || c.tags.includes(tag)) &&
         (!p.owner_id || c.owner_user_id === p.owner_id) &&
         (!p.status || c.status === p.status) &&
         (!p.group || c.group === p.group) &&
         (!p.source || c.source === p.source) &&
         (!p.mine || c.owner_user_id === ME || (db.customers.collaborators[c.id] ?? []).some((x) => x.user_id === ME)) &&
         (!q || [c.full_name, c.email, c.phone, c.title].some((v) => v.toLowerCase().includes(q))),
-    );
-    return paginate(rows.map((c) => withAccess(db, c)), p);
+  );
+  const cf = !o.custom ? {} : Object.fromEntries(Object.entries(p).filter(([k, v]) => k.startsWith('cf.') && v).map(([k, v]) => [k.slice(3), String(v)]));
+  const defs = Object.keys(cf).length ? ((db.settingsData.fields.contact ?? []) as unknown as CustomFieldDef[]) : [];
+  const kept = defs.length ? rows.filter((c) => matchCustomFilter(defs, (c as { custom?: CustomValues }).custom, cf)) : rows;
+  const by = p.sort === 'name' ? (a: Contact, b: Contact) => a.full_name.localeCompare(b.full_name, 'vi') : p.sort === 'created' ? (a: Contact, b: Contact) => b.code.localeCompare(a.code) : null;
+  return (by ? [...kept].sort(by) : kept).map((c) => withAccess(db, c));
+};
+
+const BOARD_LIMIT = 50;
+const STAGE_KEYS = ['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost'] as const;
+
+export const customersRoutes: Record<string, MockRoute> = {
+  '/contacts': (db, p) => paginate(filtered(db, p), p),
+  '/contacts/board': (db, p) => {
+    const rows = filtered(db, p, { stage: false, custom: true });
+    const color = Object.fromEntries(fixture.stages.map((s) => [s.key, s.color])) as Record<string, string>;
+    return {
+      columns: STAGE_KEYS.filter((k) => k !== 'lost' || rows.some((r) => r.stage === 'lost')).map((key) => {
+        const col = rows.filter((r) => r.stage === key);
+        return { key, color: color[key] ?? '#9CA3AF', total: col.length, rows: col.slice(0, BOARD_LIMIT) };
+      }),
+      limit: BOARD_LIMIT,
+    };
   },
-  '/contacts/stats': () => ({ stats: fixture.stats, stages: fixture.stages, tag_defs: fixture.tag_defs }),
+  // Mock không giữ nội dung tệp tải lên — bảng mẫu cố định (2 dòng, 1 dòng trùng SĐT khách ct_lan của fixture).
+  '/contacts/import-table': () => ({
+    columns: ['Họ và tên', 'Số điện thoại', 'Email'],
+    rows: [
+      ['Trần Bảo', '0938222110', 'bao@example.vn'],
+      ['Nguyễn Thị Lan', '+84 909 123 456', ''],
+    ],
+    total: 2,
+  }),
+  '/contacts/stats': () => ({ stats: fixture.stats, stages: fixture.stages, tag_defs: TAG_DEFS }),
   '/contacts/duplicates': (db) => ({ summary: fixture.duplicates.summary, groups: db.customers.duplicates }),
   '/members': () => fixture.members,
   '/crm/ai': () => ({ runs: fixture.ai_runs, peek: fixture.peek }),
@@ -250,19 +286,28 @@ export const customersHandlers: Record<string, MockHandler> = {
     execute: (db, i: { rows: ContactInput[] }) => {
       const ids: string[] = [];
       let dup = 0;
+      let owned = 0;
       for (const r of i.rows) {
+        // Như backend: trùng SĐT / email với khách có sẵn → của mình = trùng, của người khác = đếm riêng (không tạo).
+        const hit = db.customers.contacts.find((c) => !c.deleted && ((r.phone && norm(c.phone) === norm(r.phone)) || (r.email && c.email.toLowerCase() === r.email.toLowerCase())));
+        if (hit) {
+          if (hit.owner_user_id === ME) dup++;
+          else owned++;
+          continue;
+        }
         try {
           ids.push((customersHandlers['contact.create']!.execute as (d: MockDb, x: ContactInput) => { contact_id: string })(db, r).contact_id);
         } catch {
           dup++;
         }
       }
-      return { created: ids.length, duplicates: dup, owned: 0, invalid: 0, contact_ids: ids };
+      return { created: ids.length, duplicates: dup, owned, invalid: 0, contact_ids: ids };
     },
   },
   'contact.export': {
-    execute: (db) => {
-      const rows = db.customers.contacts.filter((c) => visible(db, c));
+    execute: (db, i: Record<string, unknown> & { custom?: Record<string, string> }) => {
+      const { custom, ...f } = i;
+      const rows = filtered(db, { ...f, ...Object.fromEntries(Object.entries(custom ?? {}).map(([k, v]) => [`cf.${k}`, v])) }, { stage: true, custom: true });
       const CRLF = String.fromCharCode(13, 10);
       const content = ['Mã KH,Họ tên,Số điện thoại,Email', ...rows.map((c) => [c.code, c.full_name, c.phone, c.email].join(','))].join(CRLF);
       return { file_name: 'khach-hang.csv', mime: 'text/csv', rows: rows.length, content: String.fromCharCode(0xfeff) + content };

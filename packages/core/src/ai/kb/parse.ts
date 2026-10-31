@@ -2,6 +2,7 @@
 // HTML → đề mục / đoạn / bảng), xlsx (exceljs, mỗi dòng kèm tên cột), csv, md (đề mục `#`), txt, html / URL (thẻ → khối).
 // Không logic lưu trữ ở đây — ingest.ts gọi rồi cắt đoạn. Định dạng không đọc được → ParseError (nguồn `failed` + lý do).
 import type { DocBlock } from '@appchat/ai';
+import { csvRows, xlsxSheets } from '../../kernel/files/table';
 
 export class ParseError extends Error {
   constructor(
@@ -95,69 +96,20 @@ export function markdownBlocks(md: string): DocBlock[] {
 const textBlocks = (s: string): DocBlock[] =>
   s.replace(/\r\n/g, '\n').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((text) => ({ type: 'para' as const, text }));
 
-/** CSV (RFC 4180 đơn giản: dấu phẩy / chấm phẩy, ngoặc kép) → mỗi dòng một khối kèm tên cột. */
+/** CSV → mỗi dòng một khối kèm tên cột (đọc dòng ở kernel/files/table). */
 export function csvBlocks(csv: string): DocBlock[] {
-  const text = csv.replace(/^﻿/, '');
-  const sep = (text.split('\n')[0] ?? '').split(';').length > (text.split('\n')[0] ?? '').split(',').length ? ';' : ',';
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = '';
-  let q = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]!;
-    if (q) {
-      if (ch === '"' && text[i + 1] === '"') {
-        cell += '"';
-        i++;
-      } else if (ch === '"') q = false;
-      else cell += ch;
-    } else if (ch === '"') q = true;
-    else if (ch === sep) {
-      row.push(cell.trim());
-      cell = '';
-    } else if (ch === '\n' || ch === '\r') {
-      if (ch === '\r' && text[i + 1] === '\n') i++;
-      row.push(cell.trim());
-      if (row.some(Boolean)) rows.push(row);
-      row = [];
-      cell = '';
-    } else cell += ch;
-  }
-  row.push(cell.trim());
-  if (row.some(Boolean)) rows.push(row);
-  const [columns, ...data] = rows;
+  const [columns, ...data] = csvRows(csv);
   if (!columns) return [];
   return data.map((values, i) => ({ type: 'row' as const, columns, values, row: i + 2 }));
 }
 
 async function xlsxBlocks(body: Buffer): Promise<DocBlock[]> {
-  const { default: ExcelJS } = await import('exceljs');
-  const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(body as unknown as ArrayBuffer);
   const out: DocBlock[] = [];
-  const cellText = (v: unknown): string => {
-    if (v === null || v === undefined) return '';
-    if (v instanceof Date) return v.toISOString().slice(0, 10);
-    if (typeof v === 'object') {
-      const o = v as { text?: unknown; result?: unknown; richText?: { text: string }[] };
-      if (o.richText) return o.richText.map((r) => r.text).join('');
-      if (o.text !== undefined) return String(o.text);
-      if (o.result !== undefined) return cellText(o.result);
-      return '';
-    }
-    return String(v);
-  };
-  wb.eachSheet((ws) => {
-    let columns: string[] | null = null;
-    ws.eachRow({ includeEmpty: false }, (r, n) => {
-      const values = (r.values as unknown[]).slice(1).map((v) => cellText(v).trim());
-      if (!columns) {
-        columns = values;
-        return;
-      }
-      if (values.some(Boolean)) out.push({ type: 'row', columns, values, row: n, sheet: ws.name });
-    });
-  });
+  for (const ws of await xlsxSheets(body)) {
+    const [head, ...rest] = ws.rows;
+    if (!head) continue;
+    for (const r of rest) out.push({ type: 'row', columns: head.values, values: r.values, row: r.n, sheet: ws.name });
+  }
   return out;
 }
 
