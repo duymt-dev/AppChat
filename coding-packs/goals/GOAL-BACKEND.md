@@ -111,7 +111,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 016 | W4 | DONE (chưa nghiệm thu Zalo thật — Q-003) | `tip/016-inbox-backend` (xếp chồng 014) | 52018c2 | chờ Chủ nhà tạo |
 | 017 | W4 | DONE | `tip/017-web-widget` (xếp chồng 016) | 0eec696 | chờ Chủ nhà tạo |
 | 018 | W4 | DONE | `tip/018-email-channel` (xếp chồng 017) | 8bbb7a4 | chờ Chủ nhà tạo |
-| 019 | W5 | chờ | — | — | — |
+| 019 | W5 | DONE (chưa nghiệm thu LLM thật — Q-001) | `tip/019-ai-runtime` (xếp chồng 018) | c3fb211 | chờ Chủ nhà tạo |
 | 020 | W5 | chờ | — | — | — |
 | 021 | W5 | chờ | — | — | — |
 | 022 | W5 | chờ | — | — | — |
