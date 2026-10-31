@@ -53,7 +53,9 @@ describe('outbox relay', () => {
     };
     const deps = { resolver, registry, kv: redis, publisher, clock };
     await markDirty(redis, ws);
-    const r1 = await drainDirty(deps);
+    // Set bẩn dùng chung Redis dev (workspace của test khác) — mỗi lượt lấy tối đa 50: gọi tới khi tới lượt workspace này.
+    let r1 = await drainDirty(deps);
+    for (let i = 0; i < 10 && !r1[ws]; i++) r1 = await drainDirty(deps);
     expect(r1[ws]).toEqual({ published: 1, retried: 1, failed: 0 });
     expect(seen).toEqual([ok]);
     expect(await redis.sismember(OUTBOX_DIRTY, ws)).toBe(0);

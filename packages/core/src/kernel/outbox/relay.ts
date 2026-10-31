@@ -1,6 +1,6 @@
 // Outbox relay (events/outbox.md §2, worker ROLE=jobs): drain workspace trong outbox:dirty → publish → published;
 // lỗi retry back-off 2^n giây, tối đa 8 lần rồi failed. Sweep toàn bộ DB làm lưới an toàn (gọi định kỳ 10 phút).
-import { TenantContexts, type TenantDbResolver, type WorkspaceRegistry } from '@appchat/db';
+import { TenantContexts, WorkspaceNotFoundError, type TenantDbResolver, type WorkspaceRegistry } from '@appchat/db';
 import type { Clock } from '../clock';
 import type { KeyValueStore } from '../redis';
 import { OUTBOX_DIRTY } from './outbox';
@@ -60,15 +60,18 @@ export async function drainWorkspace(d: RelayDeps, workspaceId: string): Promise
   return res;
 }
 
-/** Lấy workspace bẩn ra khỏi set và drain từng cái; lỗi một workspace → trả lại set để lần sau thử. */
+/**
+ * Lấy workspace bẩn ra khỏi set và drain từng cái; lỗi một workspace → trả lại set để lần sau thử. Workspace không còn (đã xoá)
+ * thì bỏ hẳn — trả lại sẽ kẹt trong set mãi và chiếm chỗ của workspace thật trong mỗi lượt `max`.
+ */
 export async function drainDirty(d: RelayDeps, max = 50): Promise<Record<string, DrainResult>> {
   const ids = await d.kv.spop(OUTBOX_DIRTY, max);
   const out: Record<string, DrainResult> = {};
   for (const ws of ids) {
     try {
       out[ws] = await drainWorkspace(d, ws);
-    } catch {
-      await d.kv.sadd(OUTBOX_DIRTY, ws);
+    } catch (err) {
+      if (!(err instanceof WorkspaceNotFoundError)) await d.kv.sadd(OUTBOX_DIRTY, ws);
     }
   }
   return out;
