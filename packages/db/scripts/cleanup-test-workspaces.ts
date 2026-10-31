@@ -31,7 +31,7 @@ const ids = target.map((w) => w.id);
 type Del = { deleteMany(a: { where: unknown }): Promise<unknown> };
 const del = (m: string, where: unknown) =>
   ((platform as unknown as Record<string, Del>)[m]!.deleteMany({ where }) as Promise<unknown>).catch((e: Error) => say('xoá lỗi', m, e.message.slice(0, 120)));
-for (const m of ['membership', 'invite', 'businessProfile', 'integrationInterest', 'tenantIntegrationRoute', 'tenantChannelRoute', 'billingInvoice', 'creditLedger', 'creditWallet', 'subscription', 'tenantMigration'])
+for (const m of ['membership', 'invite', 'businessProfile', 'integrationInterest', 'tenantIntegrationRoute', 'tenantChannelRoute', 'tenantSignRoute', 'billingInvoice', 'creditLedger', 'creditWallet', 'subscription', 'tenantMigration'])
   if ((platform as unknown as Record<string, unknown>)[m]) await del(m, { workspaceId: { in: ids } });
 await del('workspace', { id: { in: ids } });
 say(`đã drop ${dropped} DB, xoá ${ids.length} workspace`);

@@ -173,7 +173,8 @@
       "terminated": "Chấm dứt hợp đồng"
     },
     "evMeta": "{at} · {actor}",
-    "system": "Hệ thống"
+    "system": "Hệ thống",
+    "pdfFail": "Chưa tải được PDF hợp đồng, vui lòng thử lại."
   },
   "form": {
     "title": "Tạo hợp đồng",
@@ -217,7 +218,9 @@
     "cancel": "Huỷ",
     "confirm": "Duyệt & ký",
     "needSig": "Vui lòng ký tay trước khi duyệt",
-    "needOtp": "Nhập mã OTP 6 số"
+    "needOtp": "Nhập mã OTP 6 số",
+    "devOtp": "Mã OTP thử nghiệm: {otp}",
+    "otpFail": "Chưa gửi được mã OTP, vui lòng thử lại."
   },
   "send": {
     "title": "Gửi ký cho khách",
@@ -289,7 +292,8 @@
       "otp_ok": "OTP đúng",
       "signed": "Ký"
     },
-    "evMeta": "{at} · IP {ip}"
+    "evMeta": "{at} · IP {ip}",
+    "otpSentEmail": "Mã OTP đã gửi qua email tới {to}"
   },
   "unit": "hợp đồng"
 }

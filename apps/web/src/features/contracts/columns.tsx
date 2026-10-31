@@ -202,7 +202,8 @@ export function useContractColumns(): TableColumnsType<Contract> {
       key: 'at',
       title: t('col.at'),
       width: 98,
-      render: (_, c) => <span className={styles.at}>{fmt.date(c.signed_date)}</span>,
+      // Chưa ký (server trả '') → ngày tạo.
+      render: (_, c) => <span className={styles.at}>{fmt.date(c.signed_date || c.created_at)}</span>,
     },
     {
       key: 'eff',

@@ -44,9 +44,9 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC3 handler ném scope → 403 SCOPE_FORBIDDEN, không ghi action_log', async () => {
-    const r = await json(await call(h, '/actions/contract.delete', { input: { contract_id: setup.SCOPE_PROBE } }));
+    const r = await json(await call(h, '/actions/campaign.delete', { input: { campaign_id: setup.SCOPE_PROBE } }));
     expect(r).toMatchObject({ status: 403, body: { error: { code: 'SCOPE_FORBIDDEN' } } });
-    expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log WHERE action_id = 'contract.delete'`)).rows[0].c).toBe(0);
+    expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log WHERE action_id = 'campaign.delete'`)).rows[0].c).toBe(0);
   });
 
   it('AC11 thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant; thiếu / sai token → 401 (TIP-004: JWT + membership)', async () => {
@@ -126,7 +126,7 @@ describe('POST /v1/actions/:id', () => {
   it('AC7 undo: trong hạn → khôi phục + undone; lần 2 → 409; quá hạn → UNDO_EXPIRED; action không undo → UNDO_NOT_SUPPORTED', async () => {
     const created = await json(await call(h, '/actions/campaign.create', { input: { name: 'Undo', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-undo' }));
     const id = created.body.data.result.campaign_id as string;
-    const del = await json(await call(h, '/actions/contract.delete', { input: { contract_id: id } }));
+    const del = await json(await call(h, '/actions/campaign.submit', { input: { campaign_id: id } }));
     expect(del.status).toBe(200);
     expect(del.body.data.undo_until).toBe('2026-10-31T08:00:00.000Z');
     expect((await tenant.query('SELECT count(*)::int AS c FROM notification WHERE id = $1', [id])).rows[0].c).toBe(0);
@@ -135,15 +135,15 @@ describe('POST /v1/actions/:id', () => {
     expect((await tenant.query('SELECT count(*)::int AS c FROM notification WHERE id = $1', [id])).rows[0].c).toBe(1);
     expect((await call(h, `/action-logs/${del.body.data.action_log_id}/undo`, {})).status).toBe(409);
 
-    const del2 = await json(await call(h, '/actions/contract.delete', { input: { contract_id: id } }));
+    const del2 = await json(await call(h, '/actions/campaign.submit', { input: { campaign_id: id } }));
     h.clock.advance(86_400_001);
     expect(await json(await call(h, `/action-logs/${del2.body.data.action_log_id}/undo`, {}))).toMatchObject({ status: 409, body: { error: { code: 'UNDO_EXPIRED' } } });
     expect(await json(await call(h, `/action-logs/${created.body.data.action_log_id}/undo`, {}))).toMatchObject({ status: 409, body: { error: { code: 'UNDO_NOT_SUPPORTED' } } });
   });
 
   it('AC8 action chưa cài → 501 NOT_IMPLEMENTED kèm TIP chủ', async () => {
-    const r = await json(await call(h, '/actions/campaign.delete', { input: { campaign_id: 'cp1' } }));
-    expect(r).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '037' } } } });
+    const r = await json(await call(h, '/actions/follow_up.complete', { input: { follow_up_id: 'fu1' } }));
+    expect(r).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '038' } } } });
     // action `db: 'platform'` chưa cài (TIP-039) — đi nhánh nền tảng của executor rồi mới 501.
     const p = await json(await call(h, '/actions/wallet.update_alerts', { input: { low_alert: true } }));
     expect(p).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '039' } } } });

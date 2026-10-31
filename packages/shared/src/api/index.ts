@@ -8,6 +8,7 @@ export * from './crm';
 export * from './catalog';
 export * from './documents';
 export * from './quotes';
+export * from './contracts';
 export * from './channels';
 export * from './inbox';
 export * from './webchat';

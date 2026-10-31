@@ -184,9 +184,9 @@ describe('duyệt (approval)', () => {
     now: () => h.clock.now(),
     commander: async () => authzForRole('owner', h.user) as never,
   });
-  /** Tác vụ Cowork (source task) xoá hợp đồng nháp → policy `task × delete` = approval. */
+  /** Tác vụ Cowork (source task) xoá chiến dịch nháp → policy `task × delete` = approval. */
   const taskCtx = (runId?: string): ActionContext => ({ workspaceId: h.ws, source: 'task', actor: { type: 'system', id: 'cowork' }, onBehalfOfUserId: h.user, ...(runId ? { runId } : {}), authz: authzForRole('owner', h.user) as never });
-  /** Bản ghi cho handler test `contract.delete` (bảng kernel `notification` — setup.ts). */
+  /** Bản ghi cho handler test `campaign.delete` (bảng kernel `notification` — setup.ts). */
   const newTemplate = async () => {
     const id = uuidv7();
     await (await tenant()).notification.create({ data: { id, userId: h.user, type: 'tag', title: `mẫu-${id.slice(-6)}` } });
@@ -195,11 +195,11 @@ describe('duyệt (approval)', () => {
 
   it('AC4 action cần duyệt → 202 approval_required + approval_request pending (tiêu đề từ preview) + event + GET /approvals', async () => {
     const tpl = await newTemplate();
-    const out = await executor().execute(taskCtx(), 'contract.delete', { contract_id: tpl });
+    const out = await executor().execute(taskCtx(), 'campaign.delete', { campaign_id: tpl });
     expect(out).toMatchObject({ status: 202, data: { status: 'approval_required' } });
     const apId = (out.data as { approval_id: string }).approval_id;
     const db = await tenant();
-    expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ status: 'pending', actionId: 'contract.delete', permission: 'contract.sign', risk: 'delete', source: 'task' });
+    expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ status: 'pending', actionId: 'campaign.delete', permission: 'campaign.approve', risk: 'delete', source: 'task' });
     expect((await db.outboxEvent.findMany({ where: { topic: 'approval.requested' } })).map((e) => (e.payload as { approval_id: string }).approval_id)).toContain(apId);
     const rows = z.array(approvalRowSchema).parse((await get('/approvals?status=pending')).body.data);
     expect(rows.find((r) => r.id === apId)).toMatchObject({ status: 'pending', can_decide: true, day: 'today' });
@@ -208,7 +208,7 @@ describe('duyệt (approval)', () => {
 
   it('AC4 approve → action chạy đúng một lần (job chạy lại không chạy lần hai); quyết lại 409', async () => {
     const tpl = await newTemplate();
-    const out = await executor().execute(taskCtx(), 'contract.delete', { contract_id: tpl });
+    const out = await executor().execute(taskCtx(), 'campaign.delete', { campaign_id: tpl });
     const apId = (out.data as { approval_id: string }).approval_id;
     expect((await act('approval.approve', { approval_id: apId, note: 'ok' })).body.data.result).toEqual({ approval_id: apId, status: 'approved' });
     expect((await act('approval.reject', { approval_id: apId })).status).toBe(409);
@@ -219,9 +219,9 @@ describe('duyệt (approval)', () => {
     expect(ap.executedAt).not.toBeNull();
     expect(ap.result).toMatchObject({ kind: 'ok' });
     await resumeApproval(deps(), h.ws, apId, 'decided');
-    expect(await db.actionLog.count({ where: { actionId: 'contract.delete', input: { path: ['contract_id'], equals: tpl } } })).toBe(1);
+    expect(await db.actionLog.count({ where: { actionId: 'campaign.delete', input: { path: ['campaign_id'], equals: tpl } } })).toBe(1);
     // Chạy thẳng action với approvalId đã dùng → chặn.
-    await expect(executor().execute({ ...taskCtx(), approvalId: apId }, 'contract.delete', { contract_id: tpl })).rejects.toMatchObject({ code: 'CONFLICT' });
+    await expect(executor().execute({ ...taskCtx(), approvalId: apId }, 'campaign.delete', { campaign_id: tpl })).rejects.toMatchObject({ code: 'CONFLICT' });
   });
 
   it('AC4 run chờ duyệt → approve → run chạy tiếp tới completed; reject → run nhận { rejected }', async () => {
@@ -230,9 +230,9 @@ describe('duyệt (approval)', () => {
     for (const decision of ['approval.approve', 'approval.reject'] as const) {
       const tpl = await newTemplate();
       const run = await store.create({ kind: 'task', tier: 'standard', input: {}, title: `duyệt ${decision}` });
-      const out = await executor().execute(taskCtx(run.id), 'contract.delete', { contract_id: tpl });
+      const out = await executor().execute(taskCtx(run.id), 'campaign.delete', { campaign_id: tpl });
       const apId = (out.data as { approval_id: string }).approval_id;
-      const call0 = { toolCallId: 'c1', toolName: 'contract__delete', input: { contract_id: tpl } };
+      const call0 = { toolCallId: 'c1', toolName: 'campaign__delete', input: { campaign_id: tpl } };
       await store.claim(run.id, ['queued']);
       await store.pause(run.id, { messages: [{ role: 'user', content: 'xoá mẫu' }, { role: 'assistant', content: [{ type: 'tool-call', ...call0 }] }], results: [], pendingToolCall: call0, skipped: [], stepIdx: 1 }, apId);
       expect((await get('/runs?status=waiting_approval')).body.data.find((r: { id: string }) => r.id === run.id)).toMatchObject({ approval_id: apId });
@@ -249,7 +249,7 @@ describe('duyệt (approval)', () => {
     const tpl = await newTemplate();
     const store = new RunStore(await tenant(), () => h.clock.now());
     const run = await store.create({ kind: 'task', tier: 'standard', input: {}, title: 'hết hạn' });
-    const out = await executor().execute(taskCtx(run.id), 'contract.delete', { contract_id: tpl });
+    const out = await executor().execute(taskCtx(run.id), 'campaign.delete', { campaign_id: tpl });
     const apId = (out.data as { approval_id: string }).approval_id;
     expect((await act('approval.approve', { approval_id: apId }, as(sales))).status).toBe(403);
     const db = await tenant();
@@ -266,12 +266,12 @@ describe('duyệt (approval)', () => {
 
   it('AC4 worker ROLE=ai: approve qua API → job ai-resume (queue thật) tự chạy action đã duyệt + ghi kết quả tool', async () => {
     const tpl = await newTemplate();
-    const out = await executor().execute(taskCtx(), 'contract.delete', { contract_id: tpl });
+    const out = await executor().execute(taskCtx(), 'campaign.delete', { campaign_id: tpl });
     const apId = (out.data as { approval_id: string }).approval_id;
     await act('approval.approve', { approval_id: apId });
     const db = await tenant();
     expect(await until(async () => !!(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).result)).toBe(true);
-    // Module worker của test chỉ nạp AiJobsModule — handler test `campaign.create` / `contract.delete` chỉ có ở API harness → kết quả là lỗi NOT_IMPLEMENTED
+    // Module worker của test chỉ nạp AiJobsModule — handler test `campaign.create` / `campaign.delete` chỉ có ở API harness → kết quả là lỗi NOT_IMPLEMENTED
     // được ghi cho model (run vẫn tiếp), không chạy action, không đánh dấu đã chạy.
     expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ result: { kind: 'error', code: 'NOT_IMPLEMENTED' }, executedAt: null });
   });

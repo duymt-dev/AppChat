@@ -118,6 +118,12 @@ export const quoteSentEvent = z.object({ ...quoteBase, channel: z.string(), vali
 export const quoteViewedEvent = z.object(quoteBase);
 export const quoteDecidedEvent = z.object({ ...quoteBase, reason: z.string().max(500).optional() });
 
+/** Hợp đồng đổi trạng thái (TIP-030 — Blueprint §2.3): giai đoạn CRM "Hợp đồng", dòng thời gian, thông báo Owner, nhắc gia hạn. */
+const contractBase = { ...base, contract_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string() };
+export const contractEvent = z.object(contractBase);
+export const contractReasonEvent = z.object({ ...contractBase, reason: z.string().max(500).optional() });
+export const contractSignedEvent = z.object({ ...contractBase, signed_sha256: z.string() });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -163,5 +169,12 @@ export const EVENT_SCHEMAS = {
   'quote.accepted': quoteDecidedEvent,
   'quote.rejected': quoteDecidedEvent,
   'quote.expired': quoteDecidedEvent,
+  'contract.approved': contractEvent,
+  'contract.sent_for_signature': contractEvent,
+  'contract.signed': contractSignedEvent,
+  'contract.declined': contractReasonEvent,
+  'contract.expiring': contractEvent,
+  'contract.expired': contractEvent,
+  'contract.terminated': contractReasonEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

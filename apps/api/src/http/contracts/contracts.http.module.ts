@@ -1,6 +1,14 @@
-// Controller HTTP của domain `contracts` nằm trong thư mục này. Stub TIP-001; TIP 030 thêm controller.
-import { Module } from '@nestjs/common';
+// Controller HTTP của domain `contracts` (TIP-030): /v1/contracts*, trang ký công khai /v1/public/sign/:token. Chỉ gắn khi env đủ DB +
+// Redis + JWT_SECRET (`register`) — như sales.
+import { Module, type DynamicModule } from '@nestjs/common';
 import { ContractsModule } from '@appchat/core';
+import { ActorModule } from '../kernel/actor.module';
+import { ContractsController } from './contracts.controller';
+import { PublicSignController } from './public-sign.controller';
 
 @Module({ imports: [ContractsModule] })
-export class ContractsHttpModule {}
+export class ContractsHttpModule {
+  static register(): DynamicModule {
+    return { module: ContractsHttpModule, imports: [ContractsModule, ActorModule], controllers: [ContractsController, PublicSignController] };
+  }
+}

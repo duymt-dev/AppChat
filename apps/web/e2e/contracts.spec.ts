@@ -75,16 +75,18 @@ test.describe('contracts', () => {
     await drawer.getByTestId('ct-submit').click();
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
 
-    // Duyệt & ký: thiếu chữ ký thì chặn; OTP sai (000000) báo lỗi; đủ thì sang Chờ ký.
+    // Duyệt & ký: gửi OTP email (mock hiện mã thử); thiếu chữ ký thì chặn; OTP sai báo lỗi; đủ thì sang Chờ ký.
     await drawer.getByTestId('ct-approve-sign').click();
     const box = page.getByTestId('ct-approve-box');
+    await box.getByTestId('ct-send-otp').click();
+    await expect(box).toContainText('Mã OTP thử nghiệm: 135790');
     await box.getByTestId('ct-otp').fill('000000');
     await box.getByTestId('ct-approve-ok').click();
     await expect(page.getByText('Vui lòng ký tay trước khi duyệt')).toBeVisible();
     await scribble(page, box.getByTestId('ct-sig'));
     await box.getByTestId('ct-approve-ok').click();
     await expect(page.getByText('Mã OTP không đúng')).toBeVisible();
-    await box.getByTestId('ct-otp').fill('123456');
+    await box.getByTestId('ct-otp').fill('135790');
     await box.getByTestId('ct-approve-ok').click();
     await expect(box).toHaveCount(0);
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ ký');

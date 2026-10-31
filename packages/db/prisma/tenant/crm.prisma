@@ -65,6 +65,7 @@ enum TagScope {
 enum TimelineType {
   message
   quote
+  contract
   order
   invoice
   payment

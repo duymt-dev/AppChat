@@ -24,6 +24,11 @@ export const NOTIFY_KINDS = {
   // Báo giá (TIP-029): có báo giá chờ tôi duyệt · báo giá tôi phụ trách sắp hết hiệu lực (T-2).
   quote_approval: { group: 'msg', icon: 'ic-doc', tone: 'warn', defaults: ch(true, true, true) },
   quote_expiring: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
+  // Hợp đồng (TIP-030): chờ tôi duyệt & ký · khách đã ký / từ chối ký · sắp hết hạn (T-30).
+  contract_approval: { group: 'msg', icon: 'ic-doc', tone: 'warn', defaults: ch(true, true, true) },
+  contract_signed: { group: 'msg', icon: 'ic-check', tone: 'teal', defaults: ch(true, true, true) },
+  contract_declined: { group: 'msg', icon: 'ic-x', tone: 'danger', defaults: ch(true, true, true) },
+  contract_expiring: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },

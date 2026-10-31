@@ -1,7 +1,8 @@
 // Dựng API thật trên Postgres 16 + Memurai cho integration (TIP-003+): workspace thật ở DB nền tảng (registry Prisma —
 // TIP-004), DB tenant provision từ template, user + membership owner, access JWT thật. Mail = console (bộ nhớ).
-// Handler test (`campaign.create` / `contract.delete`) ghi vào bảng kernel `notification` — chỉ để thử executor (preview /
-// undo / outbox); handler thật thuộc TIP-037 / TIP-030 (trước đây dùng `tag.*` rồi `doc_template.*` — TIP-016 / 028 đã cài thật).
+// Handler test (`campaign.create` / `campaign.delete` / `campaign.submit`) ghi vào bảng kernel `notification` — chỉ để thử executor
+// (preview / undo / outbox); handler thật thuộc TIP-037 (trước đây dùng `tag.*`, `doc_template.*`, `contract.delete` — TIP-016 / 028 /
+// 030 đã cài thật). `campaign.delete` (risk delete → task cần duyệt) không có undo trong registry → thử undo qua `campaign.submit`.
 import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -73,23 +74,38 @@ export class TestTagCreate {
   }
 }
 
-@Injectable()
-@ActionHandler('contract.delete')
-export class TestTagDelete {
-  async execute(ctx: ActionContext, input: { contract_id: string }, tx: TenantTx) {
-    // Kiểm scope do handler làm (action-registry §5 bước 3) — bản ghi SCOPE_PROBE coi như của người khác.
-    if (input.contract_id === SCOPE_PROBE && ctx.authz.userId !== SCOPE_PROBE) throw new AppError('SCOPE_FORBIDDEN', 403);
-    const before = await tx.notification.findUniqueOrThrow({ where: { id: input.contract_id } });
-    await tx.notification.delete({ where: { id: input.contract_id } });
-    return { result: { contract_id: input.contract_id }, before: { ...before, createdAt: before.createdAt.toISOString() } };
-  }
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
-    const b = log.before as { id: string; userId: string; type: string; title: string; createdAt: string };
-    await tx.notification.create({ data: { id: b.id, userId: b.userId, type: b.type, title: b.title, createdAt: new Date(b.createdAt) } });
-  }
+/** Xoá bản ghi `notification` theo `campaign_id` (dùng chung cho hai handler test dưới). */
+async function removeProbe(ctx: ActionContext, input: { campaign_id: string }, tx: TenantTx) {
+  // Kiểm scope do handler làm (action-registry §5 bước 3) — bản ghi SCOPE_PROBE coi như của người khác.
+  if (input.campaign_id === SCOPE_PROBE && ctx.authz.userId !== SCOPE_PROBE) throw new AppError('SCOPE_FORBIDDEN', 403);
+  const before = await tx.notification.findUniqueOrThrow({ where: { id: input.campaign_id } });
+  await tx.notification.delete({ where: { id: input.campaign_id } });
+  return { result: { campaign_id: input.campaign_id }, before: { ...before, createdAt: before.createdAt.toISOString() } };
 }
 
-@Module({ providers: [TestTagCreate, TestTagDelete] })
+async function restoreProbe(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
+  const b = log.before as { id: string; userId: string; type: string; title: string; createdAt: string };
+  await tx.notification.create({ data: { id: b.id, userId: b.userId, type: b.type, title: b.title, createdAt: new Date(b.createdAt) } });
+}
+
+@Injectable()
+@ActionHandler('campaign.delete')
+export class TestTagDelete {
+  execute = removeProbe;
+  undo = restoreProbe;
+}
+
+@Injectable()
+@ActionHandler('campaign.submit')
+export class TestTagSubmit {
+  async execute(ctx: ActionContext, input: { campaign_id: string }, tx: TenantTx) {
+    const out = await removeProbe(ctx, input, tx);
+    return { ...out, result: { ...out.result, status: 'pending_approval' } };
+  }
+  undo = restoreProbe;
+}
+
+@Module({ providers: [TestTagCreate, TestTagDelete, TestTagSubmit] })
 class TestHandlersModule {}
 
 export interface Harness {
@@ -134,6 +150,7 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
   await platform.integrationInterest.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.tenantIntegrationRoute.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.tenantChannelRoute.deleteMany({ where: { workspaceId: { in: workspaces } } });
+  await platform.tenantSignRoute.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.billingInvoice.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.creditLedger.deleteMany({ where: { workspaceId: { in: workspaces } } });
   await platform.creditWallet.deleteMany({ where: { workspaceId: { in: workspaces } } });

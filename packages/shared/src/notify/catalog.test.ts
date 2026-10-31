@@ -6,13 +6,14 @@ import { notifyRequestedEvent } from '../events';
 import { NOTIFY_KINDS, NOTIFY_KIND_KEYS, channelsFor, inQuietHours } from './catalog';
 
 describe('notify catalog', () => {
-  it('9 loại của prototype (Cài đặt › Thông báo) + loại ngoài prototype: Khách hàng (DC-150), Báo giá (TIP-029): nhóm + kênh mặc định', () => {
+  it('9 loại của prototype (Cài đặt › Thông báo) + loại ngoài prototype: Khách hàng (DC-150), Báo giá (TIP-029), Hợp đồng (TIP-030): nhóm + kênh mặc định', () => {
     const fromFixture = fixture.notif.groups.flatMap((g) => g.events.map((e) => ({ ...e, group: g.key })));
-    const beyond = ['crm_owner', 'crm_access', 'quote_approval', 'quote_expiring'];
+    const beyond = ['crm_owner', 'crm_access', 'quote_approval', 'quote_expiring', 'contract_approval', 'contract_signed', 'contract_declined', 'contract_expiring'];
     expect(fromFixture.map((e) => e.key).sort()).toEqual(NOTIFY_KIND_KEYS.filter((k) => !beyond.includes(k)).sort());
-    for (const k of ['crm_owner', 'crm_access', 'quote_expiring']) expect(NOTIFY_KINDS[k as keyof typeof NOTIFY_KINDS]).toMatchObject({ group: 'msg', defaults: { desktop: true, email: false, mobile: true } });
+    for (const k of ['crm_owner', 'crm_access', 'quote_expiring', 'contract_expiring']) expect(NOTIFY_KINDS[k as keyof typeof NOTIFY_KINDS]).toMatchObject({ group: 'msg', defaults: { desktop: true, email: false, mobile: true } });
     // Báo giá chờ duyệt: chặn việc gửi khách → mặc định thêm email.
-    expect(NOTIFY_KINDS.quote_approval).toMatchObject({ group: 'msg', defaults: { desktop: true, email: true, mobile: true } });
+    for (const k of ['quote_approval', 'contract_approval', 'contract_signed', 'contract_declined'] as const)
+      expect(NOTIFY_KINDS[k]).toMatchObject({ group: 'msg', defaults: { desktop: true, email: true, mobile: true } });
     for (const e of fromFixture) {
       const k = NOTIFY_KINDS[e.key as keyof typeof NOTIFY_KINDS];
       expect(k.group).toBe(e.group);

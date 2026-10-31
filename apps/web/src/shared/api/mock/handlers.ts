@@ -7,7 +7,7 @@ import { assistantHandlers } from './domains/assistant';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
 import { quotesHandlers } from './domains/quotes-actions';
-import { contractsHandlers } from './domains/contracts';
+import { contractsHandlers } from './domains/contracts-actions';
 import { ordersHandlers } from './domains/orders';
 import { invoicesHandlers } from './domains/invoices';
 import { calendarHandlers } from './domains/calendar';

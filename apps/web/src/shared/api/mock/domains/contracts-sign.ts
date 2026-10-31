@@ -5,7 +5,7 @@ import type { MockPost } from '../auth-routes';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { MOCK_NOW } from './quotes';
-import { deny, logEvent, type Contract } from './contracts';
+import { logEvent, type Contract } from './contracts';
 
 export const OTP_MAX_FAILS = 5;
 /** OTP mock gửi tới khách — hiển thị trong dev, backend thật gửi qua Zalo đang chat / email. */
@@ -14,13 +14,15 @@ const PUBLIC_IP = '113.161.0.24';
 
 const byToken = (db: MockDb, token: string) => {
   const c = db.contracts.contracts.find((x) => x.sign_token === token && !x.deleted);
-  if (!c) throw new ApiRequestError(404, { code: 'SIGN_LINK_INVALID', message: token });
+  if (!c) throw invalid(token);
   return c;
 };
+/** Như server: link giả / đã thay / hết hạn / bị khoá → 410 SIGN_LINK_INVALID. */
+const invalid = (m: string) => new ApiRequestError(410, { code: 'SIGN_LINK_INVALID', message: m });
 const live = (c: Contract) => {
   const expired = !c.sign_link_expires_at || new Date(c.sign_link_expires_at) < new Date(MOCK_NOW);
   if (c.status !== 'pending_signature' || expired || c.otp_fails >= OTP_MAX_FAILS)
-    deny('SIGN_LINK_INVALID', c.code);
+    throw invalid(c.code);
 };
 
 /** Băm giả lập 64 hex (mock — backend tính SHA-256 trên file PDF cuối). */
@@ -67,6 +69,8 @@ export const signParamPost = (path: string): MockPost | undefined => {
   return (db, body) => {
     const c = byToken(db, token);
     if (op === 'open') {
+      const expired = !c.sign_link_expires_at || new Date(c.sign_link_expires_at) < new Date(MOCK_NOW);
+      if (c.status === 'pending_signature' && expired) throw invalid(c.code);
       if (c.status === 'pending_signature') logEvent(c, 'opened', c.contact_name, { ip: PUBLIC_IP });
       return view(c);
     }
@@ -77,6 +81,9 @@ export const signParamPost = (path: string): MockPost | undefined => {
     }
     if (op === 'decline') {
       c.status = 'declined';
+      // Lý do từ chối như server (`declined_reason`) — mock ghi vào ghi chú hợp đồng.
+      const reason = typeof body.reason === 'string' ? body.reason.trim().slice(0, 500) : '';
+      if (reason) c.note = reason;
       logEvent(c, 'declined', c.contact_name, { ip: PUBLIC_IP });
       return view(c);
     }
@@ -85,7 +92,8 @@ export const signParamPost = (path: string): MockPost | undefined => {
     if (body.otp !== MOCK_SIGN_OTP) {
       c.otp_fails += 1;
       logEvent(c, 'otp_fail', c.contact_name, { ip: PUBLIC_IP });
-      deny('OTP_INVALID', String(OTP_MAX_FAILS - c.otp_fails));
+      if (c.otp_fails >= OTP_MAX_FAILS) throw invalid(c.code);
+      throw new ApiRequestError(422, { code: 'OTP_INVALID', message: String(OTP_MAX_FAILS - c.otp_fails) });
     }
     logEvent(c, 'otp_ok', c.contact_name, { ip: PUBLIC_IP });
     c.customer_signature = body.signature_png;

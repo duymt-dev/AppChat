@@ -53,14 +53,15 @@ export async function postToCustomer(
   ctx: ActionContext,
   tx: TenantTx,
   members: CrmMembers,
-  o: { conv: Conv; created: boolean; text: string; file?: { url: string; name: string }; now: Date },
+  o: { conv: Conv; created: boolean; text: string; file?: { url: string; name: string }; now: Date; sender?: { type: 'system'; id: null; name: string | null } },
 ): Promise<{ out: Outgoing; events: { topic: string; payload: Record<string, unknown> }[] }> {
   const out = await writeOutgoing(tx, {
     conv: o.conv,
     kind: o.file ? 'file' : 'text',
     body: o.text,
     ...(o.file ? { attachments: [{ url: o.file.url, mime: 'application/pdf', name: o.file.name }] } : {}),
-    sender: await senderOf(ctx, members, tx),
+    // Tin hệ thống (trang ký công khai — không có người gọi) truyền `sender` sẵn.
+    sender: o.sender ?? (await senderOf(ctx, members, tx)),
     now: o.now,
   });
   if (o.created) out.job.proactive = true;

@@ -31,6 +31,7 @@ export { SalesModule } from './sales/sales.module';
 export { SalesJobsModule } from './sales/jobs/sales.jobs.module';
 export { ContractsModule } from './contracts/contracts.module';
 export { ContractsJobsModule } from './contracts/jobs/contracts.jobs.module';
+export * from './contracts/public';
 export { DocumentsModule } from './documents/documents.module';
 export { DocumentsJobsModule } from './documents/jobs/documents.jobs.module';
 export { IntegrationsModule } from './integrations/integrations.module';

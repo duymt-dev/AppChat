@@ -1,18 +1,20 @@
 // Drawer chi tiết hợp đồng — prototype L5432–5486 (392px, nền xám): đầu tuỳ biến + 5 tab + chân thao tác theo trạng thái (COMMERCE §9).
-// draft → Trình duyệt · pending_approval → Duyệt & ký (Owner) / Yêu cầu sửa · pending_signature → Nhắc ký / Gia hạn link ·
-// signed → "→ Đơn hàng" / Chấm dứt (lý do bắt buộc) · expired → Gia hạn (tạo HĐ mới, đi lại luồng duyệt & ký).
+// Nút theo CONTRACT_FLOW chung với server: draft → Trình duyệt · pending_approval → Duyệt & ký (Owner) / Yêu cầu sửa ·
+// pending_signature → Nhắc ký / Gia hạn link (cần đã gửi ký) · signed → "→ Đơn hàng" / Chấm dứt (lý do bắt buộc) ·
+// expired → Gia hạn (tạo HĐ mới, đi lại luồng duyệt & ký). Thẻ CRM / AI / Tệp đọc meta theo hợp đồng đang mở.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { CONTRACT_FLOW, nextState } from '@appchat/shared';
 import { EntityDrawer, Icon, ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { useContractDetailStyles } from '../styles/detail.styles';
 import { useContractFormStyles } from '../styles/form.styles';
 import { useContractsUi } from '../contracts-store';
-import { contractQuery } from '../api';
+import { contractQuery, contractsMetaQuery } from '../api';
 import { Avatar, useTr } from '../columns';
 import { STATUS_TONE } from '../status';
 import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
@@ -93,63 +95,38 @@ function Footer({ c }: { c: Contract }) {
       {label}
     </button>
   );
-  const acts =
-    c.status === 'draft'
-      ? [
-          btn(
-            'submit',
-            t('submit'),
-            () => void submit.run({ contract_id: c.id }),
-            styles.actPrimary,
-            !canDraft,
-          ),
-        ]
-      : c.status === 'pending_approval'
-        ? [
-            btn(
-              'changes',
-              t('changes'),
-              () => void changes.run({ contract_id: c.id }),
-              styles.actWarn,
-              !canReview,
-            ),
-            btn('approve-sign', t('approveSign'), () => set({ signFor: c.id }), styles.actPrimary, !canSign),
-          ]
-        : c.status === 'pending_signature' || c.status === 'declined'
-          ? [
-              btn(
-                'remind',
-                t('remind'),
-                () => void remind.run({ contract_id: c.id }),
-                undefined,
-                !canDraft || c.status === 'declined',
-              ),
-              btn('extend', t('extend'), () => void extend.run({ contract_id: c.id }), undefined, !canDraft),
-            ]
-          : c.status === 'signed'
-            ? [
-                btn('terminate', t('terminate'), () => setEnding(true), styles.actDanger, !canSign),
-                btn(
-                  'to-order',
-                  t('toOrder'),
-                  () => (set({ detail: null }), router.push(`/orders?from_contract=${c.id}`)),
-                  styles.actPrimary,
-                ),
-              ]
-            : c.status === 'expired'
-              ? [
-                  btn(
-                    'renew',
-                    t('renew'),
-                    async () => {
-                      const r = await renew.run({ contract_id: c.id });
-                      if (r) set({ detail: r.result.contract_id, tab: 'overview' });
-                    },
-                    styles.actPrimary,
-                    !canDraft,
-                  ),
-                ]
-              : [];
+  const can = (action: string) => nextState(CONTRACT_FLOW, c.status, action) !== null;
+  const sent = !!c.sent_at;
+  const acts = [
+    can('contract.submit') && btn('submit', t('submit'), () => void submit.run({ contract_id: c.id }), styles.actPrimary, !canDraft),
+    can('contract.request_changes') &&
+      btn('changes', t('changes'), () => void changes.run({ contract_id: c.id }), styles.actWarn, !canReview),
+    can('contract.approve_and_sign') &&
+      btn('approve-sign', t('approveSign'), () => set({ signFor: c.id }), styles.actPrimary, !canSign),
+    can('contract.remind_signer') &&
+      btn('remind', t('remind'), () => void remind.run({ contract_id: c.id }), undefined, !canDraft || !sent),
+    can('contract.extend_sign_link') &&
+      btn('extend', t('extend'), () => void extend.run({ contract_id: c.id }), undefined, !canDraft || !sent),
+    can('contract.terminate') && btn('terminate', t('terminate'), () => setEnding(true), styles.actDanger, !canSign),
+    c.status === 'signed' &&
+      btn(
+        'to-order',
+        t('toOrder'),
+        () => (set({ detail: null }), router.push(`/orders?from_contract=${c.id}`)),
+        styles.actPrimary,
+      ),
+    c.status === 'expired' &&
+      btn(
+        'renew',
+        t('renew'),
+        async () => {
+          const r = await renew.run({ contract_id: c.id });
+          if (r) set({ detail: r.result.contract_id, tab: 'overview' });
+        },
+        styles.actPrimary,
+        !canDraft,
+      ),
+  ].filter(Boolean);
   if (!acts.length) return null;
   return (
     <div className={styles.foot}>
@@ -195,11 +172,12 @@ function Header({ c }: { c: Contract }) {
   );
 }
 
-export function ContractDrawer({ meta }: { meta: ContractsMeta }) {
+export function ContractDrawer({ meta: base }: { meta: ContractsMeta }) {
   const t = useTranslations('contracts.detail');
   const { styles } = useContractDetailStyles();
   const ui = useContractsUi();
   const c = useQuery({ ...contractQuery(ui.detail ?? ''), enabled: !!ui.detail }).data;
+  const meta = useQuery({ ...contractsMetaQuery(ui.detail ?? ''), enabled: !!ui.detail }).data ?? base;
   return (
     <EntityDrawer
       open={!!ui.detail}

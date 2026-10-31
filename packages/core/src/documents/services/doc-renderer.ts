@@ -62,6 +62,11 @@ export class DocRenderer {
     return fillDocx(zip, data as unknown as Record<string, unknown>);
   }
 
+  /** HTML hoàn chỉnh (đã escape) → PDF — trang chữ ký / chứng nhận ký hợp đồng (TIP-030). */
+  async htmlPdf(html: string): Promise<Buffer> {
+    return this.limit.run(() => this.converter.toPdf(Buffer.from(html, 'utf8'), 'html'));
+  }
+
   async pdf(db: Pick<TenantDb, 'file'>, t: RenderTemplate, data: DocData, locale: string): Promise<Buffer> {
     const input = t.source === 'rich' ? { body: Buffer.from(this.richHtml(t, data, locale), 'utf8'), ext: 'html' as const } : { body: await this.filledDocx(db, t, data, locale), ext: 'docx' as const };
     return this.limit.run(() => this.converter.toPdf(input.body, input.ext));
