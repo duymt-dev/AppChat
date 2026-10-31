@@ -1,7 +1,7 @@
 ### COMPLETION REPORT — TIP-029
 
 **STATUS:** DONE
-**COMMIT:** xem thân PR (`coding-packs/reports/pr/TIP-029.md`) — commit code + commit report / tiến độ trên nhánh `tip/029-quotes` (xếp chồng trên `tip/028-doc-templates`)
+**COMMIT:** `3516f3a` (code) + commit report / tiến độ trên nhánh `tip/029-quotes` (xếp chồng trên `tip/028-doc-templates`)
 
 **KHẢO SÁT ĐẦU TIP:** `sales-quotes.prisma` stub; 14 action `quote.*` trả 501; `QUOTE_FLOW` ở shared có 2 cạnh COMMERCE §3 không cho (`pending_approval → quote.update`, `expired → quote.request_revision`). Màn Báo giá chạy mock đầy đủ (D42 + kanban, editor, drawer, trao đổi nội bộ, bản sửa n+1, AI soạn) nhưng không có trang xem công khai, Tải PDF thật, job hết hạn / nhắc. `DocRenderer` + `DocData` (TIP-028) sẵn để render PDF.
 
