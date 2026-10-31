@@ -112,7 +112,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 017 | W4 | DONE | `tip/017-web-widget` (xếp chồng 016) | 0eec696 | chờ Chủ nhà tạo |
 | 018 | W4 | DONE | `tip/018-email-channel` (xếp chồng 017) | 8bbb7a4 | chờ Chủ nhà tạo |
 | 019 | W5 | DONE (chưa nghiệm thu LLM thật — Q-001) | `tip/019-ai-runtime` (xếp chồng 018) | c3fb211 | chờ Chủ nhà tạo |
-| 020 | W5 | chờ | — | — | — |
+| 020 | W5 | DONE (embedding giả — chưa nghiệm thu model thật, Q-001) | `tip/020-rag-kb` (xếp chồng 019) | 1b4ebf8 | chờ Chủ nhà tạo |
 | 021 | W5 | chờ | — | — | — |
 | 022 | W5 | chờ | — | — | — |
 | 023 | W6 | chờ | — | — | — |

@@ -147,6 +147,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `tenant/crm.prisma` | 015 | `contact`, `contact_identity`, `contact_collaborator`, `contact_access_request`, `tag`, `contact_tag`, `contact_memory`, `timeline_event`, `contact_note`, `custom_field_def`, `profile_layout`, `profile_layout_role` |
 | `tenant/inbox.prisma` | 016 | `conversation`, `message`, `message_reaction`, `conversation_participant`, `conversation_tag`, `canned_reply`, `outbox_message` |
 | `tenant/ai-runs.prisma` · `ai-kb.prisma` · `ai-agents.prisma` · `ai-assistant.prisma` · `ai-tasks.prisma` | 019 · 020 · 021 · 023 · 035 | Blueprint §2.2 ai-* |
+| `core/src/kernel/files/**` + `apps/api/src/http/files/**` (Storage, `POST /v1/files`) | 020 (DV-003) | port `Storage` (local), `FilesService` — TIP sau dùng lại, không sửa |
 | `tenant/catalog.prisma` | 027 | `product_category`, `product`, `product_variant`, `product_component`, `stock_movement` |
 | `tenant/documents.prisma` | 028 | `doc_template` |
 | `tenant/sales-quotes.prisma` | 029 | `quote`, `quote_item` |
