@@ -109,7 +109,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 014 | W4 | DONE (chưa nghiệm thu Zalo thật — Q-003) | `tip/014-channels-zalo` (xếp chồng 015) | dbc96cb | chờ Chủ nhà tạo |
 | 015 | W4 | DONE | `tip/015-crm-core` (xếp chồng 010) | 9f059e6 | chờ Chủ nhà tạo |
 | 016 | W4 | DONE (chưa nghiệm thu Zalo thật — Q-003) | `tip/016-inbox-backend` (xếp chồng 014) | 52018c2 | chờ Chủ nhà tạo |
-| 017 | W4 | chờ | — | — | — |
+| 017 | W4 | DONE | `tip/017-web-widget` (xếp chồng 016) | 0eec696 | chờ Chủ nhà tạo |
 | 018 | W4 | chờ | — | — | — |
 | 019 | W5 | chờ | — | — | — |
 | 020 | W5 | chờ | — | — | — |
