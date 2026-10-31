@@ -1,5 +1,6 @@
 // Đọc hộp thư (Blueprint §4.4 inbox). Ghi chỉ qua useAction (packages/actions/src/inbox.ts).
 import { queryOptions } from '@tanstack/react-query';
+import type { AgentToolsDto } from '@appchat/shared';
 import { transport } from '@/shared/api/client';
 import type { ChannelAccount, ChannelMeta, ChannelType, ConnectChannel, Contact360, Conversation, FolderCounts, GroupInfo, ThreadData } from './types';
 
@@ -52,3 +53,7 @@ export interface Slot {
 
 export const cannedQuery = () => queryOptions({ queryKey: ['inbox', 'canned'], queryFn: () => transport.get<CannedGroup[]>('/canned-replies'), ...staticOpts });
 export const slotsQuery = () => queryOptions({ queryKey: ['booking', 'slots'], queryFn: () => transport.get<Slot[]>('/booking/slots'), ...staticOpts });
+
+/** Quyền hiệu lực của agent phụ trách hội thoại (menu ＋ — REQ-C11, D51; chỉ đọc). */
+export const agentToolsQuery = (conversationId: string) =>
+  queryOptions({ queryKey: ['inbox', 'agent-tools', conversationId], queryFn: () => transport.get<AgentToolsDto>(`/conversations/${conversationId}/agent-tools`) });

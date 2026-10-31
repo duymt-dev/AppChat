@@ -99,6 +99,11 @@ export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string
 export const kbSourceReadyEvent = z.object({ ...base, source_id: z.string().uuid(), chunk_count: z.number().int() });
 export const kbSourceFailedEvent = z.object({ ...base, source_id: z.string().uuid(), error: z.string().max(300), created_by: z.string().uuid().nullable() });
 export const runCancelledEvent = z.object({ ...base, run_id: z.string().uuid(), run_ids: z.array(z.string().uuid()) });
+/** Vòng đời AI Agent (TIP-021): xuất bản / tạm dừng / xoá — làm mới routing agent theo kênh (TIP-022), WS danh sách agent. */
+export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid(), version: z.number().int(), status: z.enum(['draft', 'active', 'paused', 'deleted']) });
+/** Hàng chờ duyệt (TIP-021): tạo → thông báo người duyệt (`ai_review`); quyết / hết hạn → job `ai-resume` chạy tiếp run. */
+export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string().uuid(), action_id: z.string(), permission: z.string(), agent: z.string(), title: z.string() });
+export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'rejected', 'expired']) });
 
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
@@ -133,5 +138,10 @@ export const EVENT_SCHEMAS = {
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,
+  'agent.published': agentChangedEvent,
+  'agent.paused': agentChangedEvent,
+  'agent.deleted': agentChangedEvent,
+  'approval.requested': approvalRequestedEvent,
+  'approval.decided': approvalDecidedEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

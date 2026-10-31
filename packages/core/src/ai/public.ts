@@ -14,3 +14,19 @@ export { searchKb, minScoreOf, KB_CONTEXT, KB_TOP_K, DEFAULT_MIN_SCORE, type KbH
 export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
 export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';
 export { AI_RUNTIME } from './jobs/ai.jobs.module';
+// TIP-021 — AI Agents, hàng chờ duyệt, governance.
+export { listAgents, getAgent, agentVersions, agentTools, conversationAgentTools, listTemplates, agentsMeta, type TemplateFilter } from './agents/agents.read';
+export { configOf, blankConfig, liveAgent, type AgentConfig, type AgentRow } from './agents/agent.store';
+export { agentAuthz } from './agents/agent-authz';
+export { connectedKeys, groupTools, runToolIds, badgeOf } from './agents/agent-tools';
+export { agentSystem, agentToolSpecs, dryRunTools, runOnce } from './agents/agent.runtime';
+export { draftFromText, parseDraft, optimizeLocal } from './agents/agent-draft';
+export { seedAgentTemplates, templateDefaults } from './agents/templates.seed';
+export { AGENT_TEMPLATES } from './agents/catalog';
+export { DB_AGENT_NAMES } from './agents/agent-names';
+export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/approvals.read';
+export { approvalPermissionOf } from './approvals/approval-permission';
+export { DbApprovalGateway } from './approvals/approval.gateway';
+export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
+export { resumeApproval, registerResumeSpec, type ResumeDeps } from './approvals/resume';
+export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';

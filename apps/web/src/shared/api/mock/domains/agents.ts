@@ -85,7 +85,7 @@ const find = (db: MockDb, id: string) => {
 };
 
 const blank = (db: MockDb, cfg: Config): Agent => {
-  if (live(db).length >= MAX_AGENTS) throw new ApiRequestError(409, { code: 'PLAN_LIMIT_REACHED', message: 'max_agents' });
+  if (live(db).length >= MAX_AGENTS) throw new ApiRequestError(402, { code: 'PLAN_LIMIT_REACHED', message: 'max_agents', fields: { resource: 'agents', limit: String(MAX_AGENTS) } });
   const base = fixture.agents[0]!;
   return {
     ...structuredClone(base),

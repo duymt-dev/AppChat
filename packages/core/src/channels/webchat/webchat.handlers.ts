@@ -10,6 +10,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { QuotaService } from '../../billing/public';
+import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { ChannelControl } from '../services/control';
 import { ChannelAccounts, defaultSettings, routeStatusOf, type AccountRow, type AccountStatus, type StatusEvent } from '../services/accounts.service';
 import { DEFAULT_COLOR, configOf, newPublicKey, prechatOf, type WidgetConfig } from './widget.service';
@@ -33,6 +34,7 @@ export class WebchatUpdateWidgetHandler implements Handler<In, Out> {
     const accounts = this.accounts;
     if (!accounts) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'channels chưa cấu hình (PlatformDb)');
     if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'webchat.update_widget cần PlatformTx');
+    await assertAgentAssignable(tx, input.agent_id);
     const now = this.clock.now();
     const t = serverMessages('vi').channels.widget;
     const events: Event[] = [];

@@ -20,7 +20,8 @@ import { readChannelsEnv } from './channels.env';
 import { CHANNEL_REGISTRY, WIDGET_URLS } from './tokens';
 import { ChannelAccounts } from './services/accounts.service';
 import { CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, ChannelControl } from './services/control';
-import { ChannelsReadService, NO_AGENTS } from './services/read.service';
+import { ChannelsReadService } from './services/read.service';
+import { DB_AGENT_NAMES } from '../ai/agents/agent-names';
 import { ChannelSendQueue } from './services/send-queue';
 import { RedisWidgetPublisher } from './webchat/publisher';
 import { VisitorService } from './webchat/visitor.service';
@@ -100,7 +101,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     {
       provide: ChannelsReadService,
       inject: [CHANNEL_REGISTRY, ChannelAccounts, ChannelControl, CLOCK],
-      useFactory: (reg: ChannelRegistry, a: ChannelAccounts | null, c: ChannelControl | null, clock: Clock) => (a ? new ChannelsReadService(reg, a, c, NO_AGENTS, () => clock.now()) : null),
+      useFactory: (reg: ChannelRegistry, a: ChannelAccounts | null, c: ChannelControl | null, clock: Clock) => (a ? new ChannelsReadService(reg, a, c, DB_AGENT_NAMES, () => clock.now()) : null),
     },
     {
       provide: 'CHANNELS_CLOSER',

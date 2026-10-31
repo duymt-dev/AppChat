@@ -124,8 +124,9 @@ export class RunStore {
     return (last?.idx ?? -1) + 1;
   }
 
-  async pause(runId: string, state: PausedState): Promise<void> {
-    await this.db.aiRun.update({ where: { id: runId }, data: { status: 'waiting_approval', state: json(state) } });
+  /** `approvalId` (tool cần duyệt — TIP-021) lưu cùng state → khung điều phối hiện nút Duyệt (`Run.approval_id`). */
+  async pause(runId: string, state: PausedState, approvalId?: string): Promise<void> {
+    await this.db.aiRun.update({ where: { id: runId }, data: { status: 'waiting_approval', state: json({ ...state, ...(approvalId ? { approval_id: approvalId } : {}) }) } });
   }
 
   async finish(runId: string, status: (typeof TERMINAL)[number], data: { output?: unknown; error?: string | null } = {}): Promise<void> {

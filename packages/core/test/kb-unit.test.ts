@@ -29,7 +29,7 @@ describe('parse', () => {
       { type: 'row', columns: ['Tên', 'Thời lượng'], values: ['HIFU', '60 phút'], row: 2 },
       { type: 'row', columns: ['Tên', 'Thời lượng'], values: ['Chăm sóc da; cơ bản', '45 phút'], row: 3 },
     ]);
-  });
+  }, 30_000); // lần đầu nạp thư viện xlsx chậm khi turbo chạy song song nhiều gói
 
   it('md: # đề mục, bảng | |, đoạn theo dòng trống; html bỏ script / nav', () => {
     const md = markdownBlocks('# Giờ mở cửa\n\nThứ 2 – CN: 8h–20h.\n\n| Ngày | Giờ |\n|---|---|\n| Lễ | 9h–17h |\n');

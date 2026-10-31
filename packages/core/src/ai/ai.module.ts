@@ -1,6 +1,8 @@
 // Domain `ai` — runtime AI (TIP-019): cấu hình LLM nền tảng (ProviderStore, cache 60 giây), Agent Gateway (`AiSdkEngine` trên
 // LlmRouter — hoặc model giả `AI_ENGINE=mock`), chạy / chạy tiếp / huỷ run (AiRunner + RunStore), Cài đặt › Mô hình AI, run.cancel.
-// TIP-020: kho tri thức (kb.*, embedder, queue kb-ingest). TIP 021–023, 035, 043 thêm agent / approval / assistant / task. Thiếu DB → service null (route trả 501).
+// TIP-020: kho tri thức (kb.*, embedder, queue kb-ingest). TIP-021: AI Agents (agent.*), hàng chờ duyệt (approval.*, cổng duyệt
+// của executor, queue ai-resume), governance, seed mẫu agent. TIP 022–023, 035, 043 thêm agent trực kênh / assistant / task.
+// Thiếu DB → service null (route trả 501).
 import { Module, type OnModuleInit } from '@nestjs/common';
 import type { Redis } from 'ioredis';
 import { AiSdkEmbedder, AiSdkEngine, LlmRouter, mockEmbedSource, mockModelSource, type AgentEngine, type Embedder } from '@appchat/ai';
@@ -21,6 +23,13 @@ import { RunCancelListener } from './runs/cancel.listener';
 import { RunCancelHandler } from './runs/run-cancel.handler';
 import { AiRunner } from './runs/runner';
 import { AiSettingsUpdateHandler } from './settings/ai-settings.handlers';
+import { AgentCreateAndPublishHandler, AgentCreateHandler, AgentDeleteHandler, AgentPauseHandler, AgentPublishHandler, AgentRollbackHandler, AgentUpdateHandler } from './agents/agent.handlers';
+import { AgentDraftHandler, AgentOptimizePromptHandler, AgentTestHandler } from './agents/agent-llm.handlers';
+import { seedAgentTemplates } from './agents/templates.seed';
+import { ApprovalApproveHandler, ApprovalRejectHandler } from './approvals/approval.handlers';
+import { ApprovalsInstaller } from './approvals/approvals.installer';
+import { ResumeQueue } from './approvals/resume.queue';
+import { GovernanceUpdateHandler } from './governance/governance';
 
 export const AI_ENV = Symbol('AI_ENV');
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
@@ -33,9 +42,12 @@ class ProviderSeed implements OnModuleInit {
     private readonly store: ProviderStore | null,
     private readonly env: AiEnv,
     private readonly log: AppLogger,
+    private readonly platform: PlatformDb | null,
   ) {}
 
   async onModuleInit(): Promise<void> {
+    // Mẫu agent theo ngành (TIP-021, D15) — idempotent theo key, không ghi đè.
+    if (this.platform) await seedAgentTemplates(this.platform).catch((err: unknown) => this.log.warn({ err }, 'agent template seed failed'));
     // `AI_ENGINE=mock` (dev / E2E): đơn giá cho model giả để CreditMeter trừ được (không đè giá đã có).
     if (this.store && this.env.AI_ENGINE === 'mock') await this.store.seedMockPrices().catch((err: unknown) => this.log.warn({ err }, 'mock price seed failed'));
     if (!this.store || !this.env.LLM_SEED_PROVIDER_KEY) return;
@@ -74,7 +86,13 @@ class ProviderSeed implements OnModuleInit {
       inject: [AGENT_ENGINE, CreditMeter, LOGGER],
       useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger) => (engine ? new AiRunner({ engine, meter, log }) : null),
     },
-    { provide: ProviderSeed, inject: [ProviderStore, AI_ENV, LOGGER], useFactory: (s: ProviderStore | null, e: AiEnv, l: AppLogger) => new ProviderSeed(s, e, l) },
+    {
+      provide: ProviderSeed,
+      inject: [ProviderStore, AI_ENV, LOGGER, opt(PLATFORM_DB)],
+      useFactory: (s: ProviderStore | null, e: AiEnv, l: AppLogger, p?: PlatformDb) => new ProviderSeed(s, e, l, p ?? null),
+    },
+    { provide: ResumeQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new ResumeQueue(r) : null) },
+    ApprovalsInstaller,
     { provide: RunCancelListener, inject: [opt(REDIS), AiRunner], useFactory: (r: Redis | undefined, run: AiRunner | null) => new RunCancelListener(r ?? null, run) },
     AiSettingsUpdateHandler,
     RunCancelHandler,
@@ -84,7 +102,20 @@ class ProviderSeed implements OnModuleInit {
     KbRefreshSourceHandler,
     KbFolderCreateHandler,
     KbSearchHandler,
+    AgentCreateHandler,
+    AgentCreateAndPublishHandler,
+    AgentUpdateHandler,
+    AgentPublishHandler,
+    AgentRollbackHandler,
+    AgentPauseHandler,
+    AgentDeleteHandler,
+    AgentTestHandler,
+    AgentDraftHandler,
+    AgentOptimizePromptHandler,
+    ApprovalApproveHandler,
+    ApprovalRejectHandler,
+    GovernanceUpdateHandler,
   ],
-  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue],
+  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue],
 })
 export class AiModule {}

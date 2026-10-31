@@ -8,6 +8,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import { CHANNEL_REGISTRY } from '../tokens';
 import { emailAdapterOf, emailCredentials, verifyMailbox } from '../email/credentials';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
+import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
@@ -36,6 +37,7 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
   async execute(_ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
     const row = await need(this.accounts).live(tx, input.channel_account_id);
     const { name, agent_id, ...rest } = input.patch;
+    await assertAgentAssignable(tx, agent_id);
     const prev = settingsOf(row);
     // `agent_id: ''` = bỏ gán agent (ô chọn "—").
     const next: AccountSettings = { ...prev, ...rest, ...(agent_id !== undefined ? { agent_id: agent_id || null } : {}) };

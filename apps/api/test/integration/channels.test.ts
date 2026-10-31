@@ -170,9 +170,12 @@ describe('kết nối Zalo cá nhân', () => {
   });
 
   it('AC6 update_settings / pause / resume / sync_history / test', async () => {
-    const u = await act('channel.update_settings', { channel_account_id: A, patch: { name: 'Zalo CSKH', agent_id: 'ag_1', ai_mode: 'suggest', hours: '08:00–21:00', greeting: 'Xin chào', assign_mode: 'least_busy', sla_policy: 'VIP', sync_auto_create_contact: false } });
+    // Agent phải tồn tại (TIP-021 — DC-076); tên agent hiện ở tài khoản.
+    const ag = (await act('agent.create', { name: 'Agent Zalo' }, { 'idempotency-key': uuidv7() })).body.data.result.agent_id as string;
+    expect((await act('channel.update_settings', { channel_account_id: A, patch: { agent_id: 'ag_1' } })).status).toBe(404);
+    const u = await act('channel.update_settings', { channel_account_id: A, patch: { name: 'Zalo CSKH', agent_id: ag, ai_mode: 'suggest', hours: '08:00–21:00', greeting: 'Xin chào', assign_mode: 'least_busy', sla_policy: 'VIP', sync_auto_create_contact: false } });
     expect(u.status, JSON.stringify(u.body)).toBe(200);
-    expect((await zalo()).accounts[0]).toMatchObject({ name: 'Zalo CSKH', agent_id: 'ag_1', ai_mode: 'suggest', hours: '08:00–21:00', greeting: 'Xin chào', assign_mode: 'least_busy', sla_policy: 'VIP', sync_auto_create_contact: false });
+    expect((await zalo()).accounts[0]).toMatchObject({ name: 'Zalo CSKH', agent_id: ag, agent: 'Agent Zalo', ai_mode: 'suggest', hours: '08:00–21:00', greeting: 'Xin chào', assign_mode: 'least_busy', sla_policy: 'VIP', sync_auto_create_contact: false });
     expect((await act('channel.update_settings', { channel_account_id: A, patch: { agent_id: '' } })).status).toBe(200);
     expect((await zalo()).accounts[0].agent_id).toBeUndefined();
 

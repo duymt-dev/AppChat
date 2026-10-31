@@ -45,5 +45,8 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   // TIP-020: kho tri thức — thư mục (*.create → Idempotency-Key) + tài liệu văn bản (nạp ở worker ROLE=ai). Tệp / tìm / xoá theo id → integration kb.
   { action: 'kb.folder.create', input: { name: 'Contract thư mục' }, tip: '020', idempotent: true },
   { action: 'kb.add_source', input: { name: 'Contract chính sách', text: 'Đổi trả trong 7 ngày.', visibility: 'public', tags: ['Policy'] }, tip: '020' },
+  // TIP-021: AI Agents — tạo bản nháp (*.create → Idempotency-Key; gói dùng thử ≥ 2 agent) + governance. Vòng đời / duyệt theo id → integration agents.
+  { action: 'agent.create', input: { name: 'Contract Agent', role: 'cs', tools: ['ticket.create'], channels: ['webchat'], threshold: 75 }, tip: '021', idempotent: true },
+  { action: 'governance.update', input: { keywords: ['cấm A'], filter: 'balanced', retention: '180' }, tip: '021' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];

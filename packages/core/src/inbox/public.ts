@@ -4,3 +4,4 @@ export { InboxMetaService } from './services/meta.service';
 export { InboundPipeline } from './services/pipeline';
 export { INBOX_RUNTIME } from './jobs/inbox.jobs.module';
 export type { ConvFilter } from './repos/conversations.repo';
+export { visibleConversation } from './services/access';

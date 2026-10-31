@@ -1,11 +1,13 @@
 // Chữ phía server theo locale người nhận (standards/i18n §8): email, thông báo. vi là nguồn; locale chưa có bản dịch
 // đi theo chuỗi fallback (fallbackChain) — hiện chỉ vi + en.
 import { fallbackChain } from '../locales';
+import { ai as enAi } from './en/ai';
 import { billing as enBilling } from './en/billing';
 import { channels as enChannels } from './en/channels';
 import { crm as enCrm } from './en/crm';
 import { inbox as enInbox } from './en/inbox';
 import { notify as enNotify } from './en/notify';
+import { ai as viAi } from './vi/ai';
 import { billing as viBilling } from './vi/billing';
 import { channels as viChannels } from './vi/channels';
 import { crm as viCrm } from './vi/crm';
@@ -18,11 +20,12 @@ interface Bundle {
   crm: typeof enCrm;
   channels: typeof enChannels;
   inbox: typeof enInbox;
+  ai: typeof enAi;
 }
 
 const BUNDLES: Record<string, Bundle> = {
-  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox },
-  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox },
+  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox, ai: viAi },
+  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox, ai: enAi },
 };
 
 /** Bộ chữ server của locale (theo fallback, cuối cùng là vi). */

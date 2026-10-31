@@ -48,6 +48,7 @@ export const agentCreate = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['agents'],
+  db: 'platform',
   uiTarget: (o) => ({ type: 'open', entity: 'agent', id: o.agent_id, view: 'page' }),
 });
 
@@ -63,6 +64,7 @@ export const agentCreateAndPublish = defineAction({
   agentGrantable: false,
   undo: { windowSec: 86_400 },
   invalidates: ['agents'],
+  db: 'platform',
   uiTarget: (o) => ({ type: 'open', entity: 'agent', id: o.agent_id, view: 'page' }),
 });
 

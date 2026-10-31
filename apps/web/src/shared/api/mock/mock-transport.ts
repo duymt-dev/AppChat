@@ -7,6 +7,7 @@ import { mockRoutes } from './routes';
 import { inboxParamRoute } from './domains/inbox';
 import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
+import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
 import { contractsParamRoute } from './domains/contracts';
@@ -65,6 +66,7 @@ export const mockTransport: Transport = {
       loyaltyParamRoute(path) ??
       settingsAppsParamRoute(path) ??
       signParamRoute(path) ??
+      agentToolsParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??
       inboxParamRoute(path);

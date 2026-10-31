@@ -28,8 +28,13 @@ export interface HandlerOutcome<O> {
 }
 
 export interface ActionHandler<I = unknown, O = unknown> {
+  /**
+   * Việc chậm chạy NGOÀI transaction, trước `execute` (vd. gọi LLM — TIP-021 `agent.test` / `draft_from_description`): kết quả
+   * truyền vào `execute` qua tham số `prepared`. Không ghi DB ở đây (không có action_log / undo).
+   */
+  prepare?(ctx: ActionContext, input: I): Promise<unknown>;
   /** `ptx` chỉ có với action `db: 'platform'` — khi đó ghi nghiệp vụ vào ptx; `tx` (tenant) chỉ để đọc nếu cần. */
-  execute(ctx: ActionContext, input: I, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<O>>;
+  execute(ctx: ActionContext, input: I, tx: TenantTx, ptx?: PlatformTx, prepared?: unknown): Promise<HandlerOutcome<O>>;
   preview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<ActionPreview>;
   undo?(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void>;
 }

@@ -116,7 +116,7 @@ export class AiRunner {
         } else if (e.type === 'paused') {
           const idx = await store.nextIdx(run.id);
           await store.step(run.id, { idx, type: 'tool', actionId: toolActionId(e.state.pendingToolCall.toolName), input: e.state.pendingToolCall.input, output: e.outcome, status: 'paused' });
-          await store.pause(run.id, e.state);
+          await store.pause(run.id, e.state, e.outcome.kind === 'needs_approval' ? e.outcome.approvalId : undefined);
           return { status: 'waiting_approval', text, creditsUsed, paused: e };
         } else if (e.type === 'error') {
           await store.finish(run.id, 'failed', { error: `${e.code}: ${e.message}` });

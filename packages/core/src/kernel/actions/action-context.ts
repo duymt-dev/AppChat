@@ -16,6 +16,8 @@ export interface ActionContext {
   stepId?: string;
   idempotencyKey?: string;
   confirmToken?: string;
+  /** Chạy action đã được duyệt (job `ai-resume` — TIP-021): executor bỏ bước policy `approval`, gateway kiểm + đánh dấu đã chạy. */
+  approvalId?: string;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }

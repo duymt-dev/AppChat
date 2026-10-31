@@ -78,3 +78,80 @@ export const kbDataSchema = z.object({
   size: z.string(),
   data: z.array(kbDocSchema),
 });
+
+/** AI Agents (TIP-021, `GET /v1/agents` · `/agents/:id` — FE `features/agents/types.ts` Agent). Cấu hình = bản nháp. */
+export const agentSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  emoji: z.string(),
+  role: z.enum(['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'custom']),
+  role_label: z.string(),
+  language: z.enum(['vi', 'en', 'bilingual', 'auto']),
+  prompt: z.string(),
+  intents: z.array(z.number().int()),
+  model_tier: tier,
+  tools: z.array(z.string()),
+  channels: z.array(z.string()),
+  threshold: z.number().int(),
+  handoff_to: z.enum(['staff', 'team', 'lead']),
+  governance: z.record(z.string(), z.boolean()),
+  kb_scope: z.object({ folder_ids: z.array(z.string()), tags: z.array(z.string()) }),
+  template_id: z.string().optional(),
+  status: z.enum(['draft', 'active', 'paused']),
+  conversations: z.number().int(),
+  resolve_rate: z.number(),
+  csat: z.number(),
+  persona: z.string(),
+  version: z.number().int(),
+  dirty: z.boolean().optional(),
+});
+export type AgentDto = z.infer<typeof agentSchema>;
+export const agentVersionSchema = z.object({ version: z.number().int(), published_at: z.string(), published_by: z.string(), note: z.string() });
+export const agentTemplateSchema = z.object({ id: z.string(), name: z.string(), desc: z.string(), tag: z.string(), color: z.string(), tint: z.string(), icon: z.string() });
+
+/** Quyền agent (D51, `GET /v1/agents/:id/tools` · `/conversations/:id/agent-tools`): nhóm theo module + Kỹ năng AI. */
+export const agentToolSchema = z.object({
+  id: z.string(),
+  risk: z.string(),
+  granted: z.boolean(),
+  badge: z.enum(['needs_connector', 'coming_soon']).nullable(),
+  connector: z.string().nullable(),
+});
+export const agentToolsSchema = z.object({
+  agent: z.object({ id: z.string(), name: z.string() }).nullable(),
+  groups: z.array(z.object({ key: z.string(), granted: z.number().int(), total: z.number().int(), tools: z.array(agentToolSchema) })),
+});
+export type AgentToolsDto = z.infer<typeof agentToolsSchema>;
+
+/** Hàng chờ duyệt (`GET /v1/approvals?status=` — FE `features/assistant/types.ts` ApprovalRow). */
+export const approvalRowSchema = z.object({
+  id: z.string(),
+  action_id: z.string(),
+  risk: z.string(),
+  permission: z.string(),
+  agent: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  reason: z.string(),
+  day: z.enum(['today', 'yesterday', '2d', '3d', '7d']),
+  time: z.string(),
+  status: z.enum(['pending', 'approved', 'rejected']),
+  can_decide: z.boolean(),
+});
+export type ApprovalRowDto = z.infer<typeof approvalRowSchema>;
+
+/** Cài đặt › AI Governance (`GET /v1/settings/governance` — FE `features/settings/types.ts` Governance). */
+export const governanceSchema = z.object({
+  scopes: z.array(z.object({ key: z.string(), on: z.boolean(), sensitive: z.boolean() })),
+  bounds: z.array(z.object({ key: z.string(), on: z.boolean(), risky: z.boolean() })),
+  keywords: z.array(z.string()),
+  filter: z.enum(['strict', 'balanced', 'relaxed']),
+  long_review: z.boolean(),
+  retention: z.enum(['30', '90', '180', '365']),
+  no_external_train: z.boolean(),
+  anonymize_pii: z.boolean(),
+  residency: z.enum(['sg', 'vn', 'us', 'eu']),
+  applied: z.number().int(),
+  total: z.number().int(),
+});
+export type GovernanceDto = z.infer<typeof governanceSchema>;

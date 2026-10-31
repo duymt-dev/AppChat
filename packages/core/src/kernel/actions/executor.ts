@@ -9,7 +9,7 @@ import { uuidv7 } from '../ids';
 import { RequestContext } from '../request-context';
 import { markDirty, writeOutbox } from '../outbox/outbox';
 import type { KeyValueStore } from '../redis';
-import type { ActionContext, Authorizer } from './action-context';
+import type { ActionContext, Authorizer, TenantTx } from './action-context';
 import type { ConfirmTokens } from './confirm-token';
 import { hashInput } from './confirm-token';
 import type { ActionHandlerRegistry } from './handler-registry';
@@ -32,7 +32,13 @@ export interface ExecutorDeps {
 }
 
 export interface ApprovalGateway {
+  /** Tạo `approval_request` (pending) → id. Handler domain có `preview` thì gateway dùng làm tiêu đề / tóm tắt. */
   request(ctx: ActionContext, def: ActionDef, input: unknown): Promise<string>;
+  /**
+   * Trong transaction của action (`ctx.approvalId`): duyệt phải `approved`, cùng action + input, chưa chạy → đánh dấu đã chạy.
+   * Sai → ném lỗi (transaction huỷ) — action đã duyệt chạy đúng một lần dù job chạy lại.
+   */
+  consume(tx: TenantTx, ctx: ActionContext, actionId: string, input: unknown): Promise<void>;
 }
 
 /** Zod issue → `fields` (path → mã lỗi), client dịch bằng i18n (response-envelope §3). */
@@ -59,6 +65,11 @@ export class ActionExecutor {
     this.defs = new Map(d.registry.map((a) => [a.id, a]));
   }
 
+  /** Gắn gateway duyệt lúc boot (domain `ai` — TIP-021 cài; kernel không phụ thuộc domain). */
+  setApprovals(g: ApprovalGateway): void {
+    this.d.approvals = g;
+  }
+
   async execute<O = unknown>(ctx: ActionContext, actionId: string, rawInput: unknown): Promise<ExecuteOutcome<O>> {
     // 1. registry
     const def = this.defs.get(actionId);
@@ -76,7 +87,8 @@ export class ActionExecutor {
     // 4. policy
     const decision = decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk });
     if (decision === 'forbidden') throw new AppError('FORBIDDEN', 403, { source: ctx.source });
-    if (decision === 'approval') {
+    if (ctx.approvalId && !this.d.approvals) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '021' }, 'approval_request chưa cài');
+    if (decision === 'approval' && !ctx.approvalId) {
       if (!this.d.approvals) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '021' }, 'approval_request chưa cài');
       return { status: 202, data: { status: 'approval_required', approval_id: await this.d.approvals.request(ctx, def, input) } };
     }
@@ -110,13 +122,20 @@ export class ActionExecutor {
     const undoUntil = def.undo && handler.undo ? new Date(now.getTime() + def.undo.windowSec * 1000) : undefined;
     // Action `db: 'platform'`: nghiệp vụ commit trên DB nền tảng TRƯỚC, rồi log / outbox / idempotency ở DB tenant
     // (không có transaction chung hai DB — Blueprint §2.0 "nền tảng trước"). Handler nền tảng phải idempotent theo input.
+    const prepared = handler.prepare ? await handler.prepare(ctx, input) : undefined;
+    const approved = (tx: TenantTx) => (ctx.approvalId ? this.d.approvals!.consume(tx, ctx, actionId, input) : Promise.resolve());
     let platformOutcome: Awaited<ReturnType<typeof handler.execute>> | undefined;
     if (def.db === 'platform') {
       if (!this.d.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
-      platformOutcome = await this.d.platform.$transaction((ptx) => db.$transaction((tx) => handler.execute(ctx, input, tx, ptx)));
+      platformOutcome = await this.d.platform.$transaction((ptx) => db.$transaction(async (tx) => {
+          await approved(tx);
+          return handler.execute(ctx, input, tx, ptx, prepared);
+        }),
+      );
     }
     const out = await db.$transaction(async (tx) => {
-      const r = platformOutcome ?? (await handler.execute(ctx, input, tx));
+      if (!platformOutcome) await approved(tx);
+      const r = platformOutcome ?? (await handler.execute(ctx, input, tx, undefined, prepared));
       const output = def.output.parse(r.result) as O;
       const ui = def.uiTarget?.(output as never);
       const data: ActionResult<O> = {

@@ -4,3 +4,4 @@
 import '../../channels/events/channels.rules';
 import '../../inbox/events/inbox.rules';
 import '../../ai/events/kb.rules';
+import '../../ai/events/agents.rules';
