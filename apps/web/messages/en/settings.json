@@ -1297,6 +1297,10 @@
     "logoutD": "End the current session — workspace data is not affected"
   },
   "doctpl": {
+    "preview": "Preview",
+    "previewT": "Preview with sample data",
+    "previewFail": "Could not create the preview, try again later",
+    "missing": "{n} checklist items to review",
     "kind": {
       "quote": "Quote",
       "contract": "Contract",
@@ -1407,6 +1411,14 @@
       "errType": "Only .docx files are accepted (no .docm macros)",
       "errSize": "File is larger than 10MB",
       "errName": "Enter a template name",
+      "errUpload": "Upload failed, please try again",
+      "errFile": {
+        "not_docx": "This is not a valid Word document (.docx)",
+        "macro": "The file contains macros — save it as a macro-free .docx and upload again",
+        "too_large": "File exceeds 10MB",
+        "empty": "The file has no content to detect",
+        "other": "Could not read this file, try another one"
+      },
       "errFields": "Map at least one field"
     },
     "check": {

@@ -1,5 +1,5 @@
-// DocxUploadWizard (Blueprint §7.3; templates.md §2 `docx`, §4, §8): 1) tải file Word của DN (.docx ≤ 10MB, từ chối .docm / macro)
-// → 2) AI nhận diện biến (doc_template.detect_fields) → FieldMapper: người dùng xem từng vị trí, đổi / bỏ biến, thêm dòng; mức tin cậy thấp
+// DocxUploadWizard (Blueprint §7.3; templates.md §2 `docx`, §4, §8): 1) tải file Word của DN (.docx ≤ 10MB, từ chối .docm / macro;
+// `POST /v1/files` purpose document → file_id — server kiểm macro) → 2) AI nhận diện biến (doc_template.detect_fields) → FieldMapper: người dùng xem từng vị trí, đổi / bỏ biến, thêm dòng; mức tin cậy thấp
 // tô vàng → 3) bảng kiểm pháp lý (cảnh báo, không chặn) → lưu. **Không lưu khi chưa qua bước người xác nhận** (nút Lưu chỉ ở bước 3).
 'use client';
 import { useState } from 'react';
@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { DOC_KINDS, varsForKind } from '@appchat/shared';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { transport } from '@/shared/api/client';
 import { useSectionStyles } from '../styles/section.styles';
 import { useDocModalStyles } from '../styles/doc-modal.styles';
 import type { DetectedField, DocKindKey, DocTemplate } from '../types';
@@ -17,6 +18,7 @@ const MAX = 10 * 1024 * 1024;
 const LOW = 0.7;
 const PCT = 100;
 const STEPS = [1, 2, 3] as const;
+const FILE_ERRS = ['not_docx', 'macro', 'too_large', 'empty'];
 
 export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () => void }) {
   const t = useTranslations('settings.doctpl');
@@ -27,8 +29,10 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
   const [kind, setKind] = useState<DocKindKey>(tpl?.kind ?? 'contract');
   const [name, setName] = useState(tpl?.name ?? '');
   const [file, setFile] = useState(tpl?.file_name ?? '');
+  const [fileId, setFileId] = useState(tpl?.file_id ?? '');
+  const [uploading, setUploading] = useState(false);
   const [fields, setFields] = useState<DetectedField[]>(tpl?.fields.map((f) => ({ ...f, confidence: 1 })) ?? []);
-  const [missing, setMissing] = useState<string[]>([]);
+  const [missing, setMissing] = useState<string[]>(tpl?.checklist_missing ?? []);
   const [err, setErr] = useState('');
   const detect = useAction<{ fields: DetectedField[]; checklist: { key: string; ok: boolean }[] }>('doc_template.detect_fields');
   const create = useAction('doc_template.create');
@@ -40,7 +44,20 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
     setErr('');
     setFile(f.name);
     if (!name) setName(f.name.replace(/\.docx$/i, ''));
-    const r = await detect.run({ kind, file_name: f.name }, { silent: true });
+    setUploading(true);
+    const id = await transport
+      .upload(f, 'document')
+      .then((u) => u.file_id)
+      .catch(() => null)
+      .finally(() => setUploading(false));
+    if (!id) return setErr(tw('errUpload'));
+    setFileId(id);
+    const onError = (e: { error: { fields?: Record<string, string> } }) => {
+      const code = e.error.fields?.file_id ?? '';
+      setErr(tw(`errFile.${FILE_ERRS.includes(code) ? code : 'other'}`));
+      return true;
+    };
+    const r = await detect.run({ kind, file_id: id, file_name: f.name }, { silent: true, onError });
     if (!r) return;
     setFields(r.result.fields);
     setMissing(r.result.checklist.filter((c) => !c.ok).map((c) => c.key));
@@ -50,8 +67,8 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
     if (!name.trim()) return setErr(tw('errName'));
     const payload = fields.map(({ placeholder, variable }) => ({ placeholder, variable }));
     const r = tpl
-      ? await update.run({ template_id: tpl.id, name: name.trim(), fields: payload })
-      : await create.run({ kind, name: name.trim(), source: 'docx', file_name: file, fields: payload });
+      ? await update.run({ template_id: tpl.id, name: name.trim(), fields: payload, if_version: tpl.version })
+      : await create.run({ kind, name: name.trim(), source: 'docx', file_name: file, file_id: fileId, fields: payload });
     if (r) onClose();
   };
   const next = () => (step === 2 ? (fields.length ? setStep(3) : setErr(tw('errFields'))) : void save());
@@ -65,7 +82,7 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
       saveLabel={step === 3 ? tw('save') : tw('next')}
       cancelLabel={tw('cancel')}
       closeLabel={tw('close')}
-      pending={detect.isPending || create.isPending || update.isPending}
+      pending={uploading || detect.isPending || create.isPending || update.isPending}
       testId="doc-docx-modal"
     >
       <div className={styles.steps}>
@@ -90,7 +107,7 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
           </div>
           <div className={styles.drop}>
             <Icon name="ic-doc" size={28} color={color.brandInk} />
-            <div className={styles.dropT}>{detect.isPending ? tw('detecting') : tw('dropT')}</div>
+            <div className={styles.dropT}>{uploading || detect.isPending ? tw('detecting') : tw('dropT')}</div>
             {tw('dropS')}
             <div>
               <label className={styles.pick}>

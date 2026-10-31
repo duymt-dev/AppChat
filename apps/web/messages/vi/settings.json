@@ -1297,6 +1297,10 @@
     "logoutD": "Thoát phiên hiện tại — dữ liệu workspace không bị ảnh hưởng"
   },
   "doctpl": {
+    "preview": "Xem trước",
+    "previewT": "Xem trước với dữ liệu minh hoạ",
+    "previewFail": "Chưa tạo được bản xem trước, thử lại sau",
+    "missing": "{n} mục bảng kiểm cần xem lại",
     "kind": {
       "quote": "Báo giá",
       "contract": "Hợp đồng",
@@ -1407,6 +1411,14 @@
       "errType": "Chỉ nhận file .docx (không nhận file có macro .docm)",
       "errSize": "File vượt quá 10MB",
       "errName": "Nhập tên mẫu",
+      "errUpload": "Tải file lên không thành công, thử lại nhé",
+      "errFile": {
+        "not_docx": "File không phải tài liệu Word (.docx) hợp lệ",
+        "macro": "File có macro — lưu lại thành .docx không macro rồi tải lên",
+        "too_large": "File vượt quá 10MB",
+        "empty": "File không có nội dung để nhận diện",
+        "other": "Chưa đọc được file này, thử lại với file khác"
+      },
       "errFields": "Cần ít nhất một vị trí được gán biến"
     },
     "check": {

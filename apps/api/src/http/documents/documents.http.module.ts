@@ -1,6 +1,13 @@
-// Controller HTTP của domain `documents` nằm trong thư mục này. Stub TIP-001; TIP 028 thêm controller.
-import { Module } from '@nestjs/common';
+// Controller HTTP của domain `documents` (TIP-028): /v1/doc-templates, /v1/doc-templates/:id/preview. Chỉ gắn khi env đủ
+// DB + Redis + JWT_SECRET (`register`) — như catalog.
+import { Module, type DynamicModule } from '@nestjs/common';
 import { DocumentsModule } from '@appchat/core';
+import { ActorModule } from '../kernel/actor.module';
+import { DocTemplatesController } from './doc-templates.controller';
 
 @Module({ imports: [DocumentsModule] })
-export class DocumentsHttpModule {}
+export class DocumentsHttpModule {
+  static register(): DynamicModule {
+    return { module: DocumentsHttpModule, imports: [DocumentsModule, ActorModule], controllers: [DocTemplatesController] };
+  }
+}

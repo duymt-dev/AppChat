@@ -1,3 +1,44 @@
 // tenant/documents.prisma — sở hữu: TIP-028 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: doc_template.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: doc_template (D30 — standards/documents/templates.md). Không Prisma relation xuyên domain (Blueprint §2.1).
+// Mỗi loại tối đa một mẫu mặc định đang dùng (unique partial viết SQL ở migration 028).
+
+enum DocTemplateKind {
+  quote
+  contract
+  payment_request
+  receipt
+
+  @@map("doc_template_kind")
+}
+
+enum DocTemplateSource {
+  rich
+  docx
+
+  @@map("doc_template_source")
+}
+
+model DocTemplate {
+  id              String            @id @db.Uuid
+  kind            DocTemplateKind
+  /// Loại hợp đồng (dịch vụ / mua bán / thuê…) — chỉ với kind=contract (TIP-030 lọc theo loại).
+  contractKind    String?           @map("contract_kind")
+  name            String
+  source          DocTemplateSource
+  /// Thân HTML + biến `{{…}}` của mẫu `rich`.
+  bodyHtml        String?           @map("body_html")
+  /// Tệp Word gốc (bảng `file`, purpose document) của mẫu `docx`.
+  docxFileId      String?           @map("docx_file_id") @db.Uuid
+  /// Vị trí → biến người dùng đã xác nhận `[{ placeholder, variable }]`.
+  fieldMap        Json              @default("[]") @map("field_map")
+  /// Mục bảng kiểm pháp lý `[{ key, ok }]` lúc lưu (cảnh báo, không chặn).
+  checklistResult Json              @default("[]") @map("checklist_result")
+  isDefault       Boolean           @default(false) @map("is_default")
+  version         Int               @default(1)
+  updatedBy       String?           @map("updated_by") @db.Uuid
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?         @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("doc_template")
+}

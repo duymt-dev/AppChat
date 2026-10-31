@@ -22,6 +22,7 @@ import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
+import { docTemplatePreview as mockBlob } from './domains/doc-templates';
 
 const fail = (
   status: number,
@@ -153,5 +154,12 @@ export const mockTransport: Transport = {
   async upload(file) {
     // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp.
     return { file_id: `file_${Date.now().toString(36)}`, name: file.name, size: file.size };
+  },
+
+  async blob(path) {
+    // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
+    const html = mockBlob(mockDb(), path);
+    if (html === null) return fail(404, 'NOT_FOUND', path);
+    return new Blob([html], { type: 'text/html' });
   },
 };

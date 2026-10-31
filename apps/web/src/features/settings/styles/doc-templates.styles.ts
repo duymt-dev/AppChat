@@ -82,6 +82,14 @@ export const useDocTplStyles = createStyles(({ css, responsive }) => ({
     font-weight: ${font.weight.regular};
     font-family: ${font.mono};
   `,
+  warn: css`
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.semibold};
+    color: ${color.amberText};
+  `,
   kind: css`
     font-size: ${font.scale.s13}px;
     color: ${color.text2};

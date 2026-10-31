@@ -31,6 +31,7 @@
     "@socket.io/redis-emitter": "5.1.0",
     "ai": "7.0.152",
     "bullmq": "5.81.5",
+    "docxtemplater": "3.71.1",
     "exceljs": "4.4.0",
     "imapflow": "2.9.1",
     "ioredis": "5.11.1",
@@ -40,6 +41,7 @@
     "pdf-parse": "1.1.4",
     "pg": "8.23.1",
     "pino": "10.4.0",
+    "pizzip": "3.3.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "socket.io": "4.8.4",
@@ -47,8 +49,8 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@appchat/channels": "workspace:*",
     "@appchat/ai": "workspace:*",
+    "@appchat/channels": "workspace:*",
     "@appchat/contract": "workspace:*",
     "@nestjs/testing": "12.3.2",
     "@swc/core": "1.16.20",

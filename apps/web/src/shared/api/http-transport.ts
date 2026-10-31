@@ -122,4 +122,9 @@ export const httpTransport: Transport = {
     form.set('file', file, file.name);
     return (await parse<{ data: never }>(await send('/files', { method: 'POST', body: form }))).data;
   },
+  async blob(path) {
+    const res = await send(path, { extra: { accept: '*/*' } });
+    if (!res.ok) await parse(res);
+    return res.blob();
+  },
 };

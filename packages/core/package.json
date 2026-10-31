@@ -24,11 +24,13 @@
     "@nestjs/core": "12.3.2",
     "@socket.io/redis-emitter": "5.1.0",
     "bullmq": "5.81.5",
+    "docxtemplater": "3.71.1",
     "exceljs": "4.4.0",
     "ioredis": "5.11.1",
     "mammoth": "1.13.0",
     "pdf-parse": "1.1.4",
     "pino": "10.4.0",
+    "pizzip": "3.3.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "zod": "4.6.7"

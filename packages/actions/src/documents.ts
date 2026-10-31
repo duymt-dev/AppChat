@@ -1,5 +1,6 @@
 // Mẫu chứng từ (Blueprint §3.4 sales · doc_template; D30; standards/documents/templates.md).
-// Báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; soạn rich hoặc tải DOCX → AI nhận diện biến → gán biến → bảng kiểm pháp lý.
+// Báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; soạn rich hoặc tải DOCX (`POST /v1/files` purpose document → `file_id`) → AI
+// nhận diện biến → người dùng gán biến → bảng kiểm pháp lý → lưu (TIP-028).
 import { z } from 'zod';
 import { defineAction } from './define';
 
@@ -11,13 +12,15 @@ export const docTemplateCreate = defineAction({
   module: 'documents',
   title: 'actions.doc_template.create.title',
   description:
-    'Create a document template, rich text or uploaded DOCX with mapped variables. Example: {"kind":"contract","name":"HĐ dịch vụ spa","source":"docx","fields":[{"placeholder":"[TÊN KHÁCH]","variable":"customer.name"}]}',
+    'Create a document template, rich text or uploaded DOCX with mapped variables. Example: {"kind":"contract","name":"HĐ dịch vụ spa","source":"docx","file_id":"0190…","fields":[{"placeholder":"BÊN B: ……","variable":"customer.name"}]}',
   input: z.object({
     kind: KIND,
     name: z.string().trim().min(1).max(120),
     source: z.enum(['rich', 'docx']),
     body: z.string().max(100_000).optional(),
     file_name: z.string().max(200).optional(),
+    /** Tệp Word đã tải lên (purpose document) — bắt buộc khi source=docx. */
+    file_id: z.string().optional(),
     fields: z.array(FIELD).max(200).optional(),
     is_default: z.boolean().optional(),
   }),
@@ -39,8 +42,10 @@ export const docTemplateUpdate = defineAction({
     body: z.string().max(100_000).optional(),
     fields: z.array(FIELD).max(200).optional(),
     is_default: z.boolean().optional(),
+    /** Phiên bản đang mở — lệch → STALE_VERSION 409 (concurrency §1). */
+    if_version: z.number().int().positive().optional(),
   }),
-  output: z.object({ template_id: z.string() }),
+  output: z.object({ template_id: z.string(), version: z.number().int() }),
   permission: 'documents.manage',
   risk: 'config',
   agentGrantable: false,
@@ -66,8 +71,8 @@ export const docTemplateDetectFields = defineAction({
   id: 'doc_template.detect_fields',
   module: 'documents',
   title: 'actions.doc_template.detect_fields.title',
-  description: 'AI reads an uploaded DOCX and proposes placeholder → variable mappings plus a legal checklist. Example: {"kind":"contract","file_name":"hop-dong.docx"}',
-  input: z.object({ kind: KIND, file_name: z.string().min(1).max(200) }),
+  description: 'AI reads an uploaded DOCX and proposes placeholder → variable mappings plus a legal checklist. Example: {"kind":"contract","file_id":"0190…"}',
+  input: z.object({ kind: KIND, file_id: z.string().min(1), file_name: z.string().max(200).optional() }),
   output: z.object({
     fields: z.array(FIELD.extend({ confidence: z.number().min(0).max(1) })),
     checklist: z.array(z.object({ key: z.string(), ok: z.boolean() })),

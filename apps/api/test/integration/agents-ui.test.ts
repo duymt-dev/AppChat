@@ -45,7 +45,7 @@ const deps = (): ResumeDeps => ({
   now: () => h.clock.now(),
   commander: async () => authzForRole('owner', h.user) as never,
 });
-/** Tác vụ Cowork (source task) xoá mẫu tài liệu (handler test `doc_template.delete` — setup.ts) → policy `task × delete` = duyệt. */
+/** Tác vụ Cowork (source task) xoá hợp đồng nháp (handler test `contract.delete` — setup.ts) → policy `task × delete` = duyệt. */
 const taskCtx = (): ActionContext => ({ workspaceId: h.ws, source: 'task', actor: { type: 'system', id: 'cowork' }, onBehalfOfUserId: h.user, authz: authzForRole('owner', h.user) as never });
 const newTemplate = async () => {
   const id = uuidv7();
@@ -53,7 +53,7 @@ const newTemplate = async () => {
   return id;
 };
 const askDelete = async () => {
-  const out = await executor().execute(taskCtx(), 'doc_template.delete', { template_id: await newTemplate() });
+  const out = await executor().execute(taskCtx(), 'contract.delete', { contract_id: await newTemplate() });
   return (out.data as { approval_id: string }).approval_id;
 };
 
@@ -115,11 +115,11 @@ describe('Chờ duyệt (AC2)', () => {
   it('Sửa & duyệt: input sửa gộp + kiểm schema; trạng thái edited (tab Đã duyệt); job chạy input đã sửa đúng một lần', async () => {
     const apId = await askDelete();
     const row = z.array(approvalRowSchema).parse((await get('/approvals?status=pending')).body.data).find((r) => r.id === apId)!;
-    expect(row.fields).toEqual([{ key: 'template_id', type: 'string', required: true }]);
-    expect(row.input).toHaveProperty('template_id');
-    expect((await act('approval.edit_and_approve', { approval_id: apId, edited_input: { template_id: '' } })).status).toBe(422);
+    expect(row.fields).toEqual([{ key: 'contract_id', type: 'string', required: true }]);
+    expect(row.input).toHaveProperty('contract_id');
+    expect((await act('approval.edit_and_approve', { approval_id: apId, edited_input: { contract_id: '' } })).status).toBe(422);
     const target = await newTemplate();
-    const r = await act('approval.edit_and_approve', { approval_id: apId, edited_input: { template_id: target }, note: 'Xoá đúng mẫu' });
+    const r = await act('approval.edit_and_approve', { approval_id: apId, edited_input: { contract_id: target }, note: 'Xoá đúng mẫu' });
     expect(r.body.data.result).toEqual({ approval_id: apId, status: 'edited' });
     // Event `approval.decided` của duyệt kèm sửa hợp schema (consumer realtime parse — sửa ở TIP-026).
     const ev = await (await tenant()).outboxEvent.findFirstOrThrow({ where: { topic: 'approval.decided', payload: { path: ['approval_id'], equals: apId } } });
@@ -128,9 +128,9 @@ describe('Chờ duyệt (AC2)', () => {
     expect(await resumeApproval(deps(), h.ws, apId, 'decided')).toBe('done');
     const db = await tenant();
     expect(await db.notification.findUnique({ where: { id: target } })).toBeNull();
-    expect(await db.notification.findUnique({ where: { id: row.input.template_id as string } })).not.toBeNull();
+    expect(await db.notification.findUnique({ where: { id: row.input.contract_id as string } })).not.toBeNull();
     await resumeApproval(deps(), h.ws, apId, 'decided');
-    expect(await db.actionLog.count({ where: { actionId: 'doc_template.delete', input: { path: ['template_id'], equals: target } } })).toBe(1);
+    expect(await db.actionLog.count({ where: { actionId: 'contract.delete', input: { path: ['contract_id'], equals: target } } })).toBe(1);
     const approved = z.array(approvalRowSchema).parse((await get('/approvals?status=approved')).body.data);
     expect(approved.find((x) => x.id === apId)).toMatchObject({ status: 'edited', note: 'Xoá đúng mẫu' });
   });

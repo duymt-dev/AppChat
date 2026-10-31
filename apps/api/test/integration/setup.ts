@@ -1,7 +1,7 @@
 // Dựng API thật trên Postgres 16 + Memurai cho integration (TIP-003+): workspace thật ở DB nền tảng (registry Prisma —
 // TIP-004), DB tenant provision từ template, user + membership owner, access JWT thật. Mail = console (bộ nhớ).
-// Handler test (`doc_template.create` / `doc_template.delete`) ghi vào bảng kernel `notification` — chỉ để thử executor (preview /
-// undo / outbox); handler thật thuộc TIP-028 (trước đây dùng `tag.*` — TIP-016 đã cài handler thật).
+// Handler test (`campaign.create` / `contract.delete`) ghi vào bảng kernel `notification` — chỉ để thử executor (preview /
+// undo / outbox); handler thật thuộc TIP-037 / TIP-030 (trước đây dùng `tag.*` rồi `doc_template.*` — TIP-016 / 028 đã cài thật).
 import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -59,14 +59,14 @@ export const env: Record<string, string> = {
 export let calls = 0;
 export const SCOPE_PROBE = '0190f000-0000-7000-8000-00000000aaaa';
 @Injectable()
-@ActionHandler('doc_template.create')
+@ActionHandler('campaign.create')
 export class TestTagCreate {
   async execute(ctx: ActionContext, input: { name: string }, tx: TenantTx) {
     calls++;
     const id = uuidv7();
     await tx.notification.create({ data: { id, userId: ctx.actor.id, type: 'tag', title: input.name } });
     if (input.name === 'boom') throw new Error('handler lỗi');
-    return { result: { template_id: id }, after: { id }, events: [{ topic: 'tag.created', payload: { id } }] };
+    return { result: { campaign_id: id, code: 'CP-1', est_recipients: 1, est_credits: 0 }, after: { id }, events: [{ topic: 'tag.created', payload: { id } }] };
   }
   async preview(_ctx: ActionContext, input: { name: string }) {
     return { summary: `Tạo thẻ ${input.name}`, risk: 'config' as const };
@@ -74,14 +74,14 @@ export class TestTagCreate {
 }
 
 @Injectable()
-@ActionHandler('doc_template.delete')
+@ActionHandler('contract.delete')
 export class TestTagDelete {
-  async execute(ctx: ActionContext, input: { template_id: string }, tx: TenantTx) {
+  async execute(ctx: ActionContext, input: { contract_id: string }, tx: TenantTx) {
     // Kiểm scope do handler làm (action-registry §5 bước 3) — bản ghi SCOPE_PROBE coi như của người khác.
-    if (input.template_id === SCOPE_PROBE && ctx.authz.userId !== SCOPE_PROBE) throw new AppError('SCOPE_FORBIDDEN', 403);
-    const before = await tx.notification.findUniqueOrThrow({ where: { id: input.template_id } });
-    await tx.notification.delete({ where: { id: input.template_id } });
-    return { result: { ok: true }, before: { ...before, createdAt: before.createdAt.toISOString() } };
+    if (input.contract_id === SCOPE_PROBE && ctx.authz.userId !== SCOPE_PROBE) throw new AppError('SCOPE_FORBIDDEN', 403);
+    const before = await tx.notification.findUniqueOrThrow({ where: { id: input.contract_id } });
+    await tx.notification.delete({ where: { id: input.contract_id } });
+    return { result: { contract_id: input.contract_id }, before: { ...before, createdAt: before.createdAt.toISOString() } };
   }
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
     const b = log.before as { id: string; userId: string; type: string; title: string; createdAt: string };

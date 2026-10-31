@@ -338,7 +338,10 @@ export interface DocTemplate {
   source: 'rich' | 'docx';
   body?: string;
   file_name?: string;
+  file_id?: string;
   fields: { placeholder: string; variable: string }[];
+  /** Mục bảng kiểm pháp lý còn thiếu (cảnh báo). */
+  checklist_missing: string[];
   is_default: boolean;
   version: number;
   updated_by: string;
