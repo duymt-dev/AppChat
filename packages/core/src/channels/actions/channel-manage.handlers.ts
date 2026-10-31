@@ -2,9 +2,11 @@
 // Lệnh tới phiên đang chạy (dừng / chạy lại / đồng bộ) gửi SAU commit qua ChannelControl; route DB nền tảng đồng bộ cùng lúc.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, serverMessages } from '@appchat/shared';
-import { channelRegistry } from '@appchat/channels';
+import { channelRegistry, type ChannelRegistry } from '@appchat/channels';
 import type { ActionInput, channelDisconnect, channelPause, channelResume, channelSyncHistory, channelTest, channelUpdateSettings } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { CHANNEL_REGISTRY } from '../tokens';
+import { emailAdapterOf, emailCredentials, verifyMailbox } from '../email/credentials';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
@@ -109,11 +111,18 @@ export class ChannelTestHandler implements Handler<ActionInput<typeof channelTes
   constructor(
     @Inject(ChannelAccounts) private readonly accounts: ChannelAccounts | null,
     @Inject(ChannelControl) private readonly control: ChannelControl | null,
+    @Inject(CHANNEL_REGISTRY) private readonly registry: ChannelRegistry,
   ) {}
 
   async execute(_ctx: ActionContext, input: ActionInput<typeof channelTest>, tx: TenantTx): Promise<HandlerOutcome<{ ok: boolean; message?: string }>> {
-    // Form nháp (Email IMAP / SMTP trước khi lưu) là TIP-018.
-    if (!('channel_account_id' in input)) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '018' }, `channel.test ${input.type} — TIP-018`);
+    // Form nháp trước khi lưu (REQ-B10): chỉ Email có form — đăng nhập IMAP + SMTP thật (TIP-018).
+    if (!('channel_account_id' in input)) {
+      if (input.type !== 'email') throw new AppError('VALIDATION_FAILED', 422, { type: 'unsupported' });
+      const address = input.fields.address ?? input.fields.user ?? '';
+      const v = await verifyMailbox(emailAdapterOf(this.registry), emailCredentials(address || 'test@invalid.local', input.fields));
+      const e = serverMessages('vi').channels;
+      return { result: v.ok ? { ok: true, message: e.test.ok } : { ok: false, message: e.email[v.reason as 'imap_auth'] } };
+    }
     const row = await need(this.accounts).live(tx, input.channel_account_id);
     const m = serverMessages('vi').channels.test;
     if (row.pausedAt) return { result: { ok: false, message: m.paused } };

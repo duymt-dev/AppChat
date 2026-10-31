@@ -23,7 +23,7 @@ async function msgEvent(tx: TenantTx, c: Conv, messageId: string, change: string
 }
 
 /** Tên người gửi hiện trên tin ra ("Người gửi: <tên> (bạn)" — REQ-C13). */
-async function senderOf(ctx: ActionContext, members: CrmMembers) {
+export async function senderOf(ctx: ActionContext, members: CrmMembers) {
   const id = me(ctx);
   if (ctx.actor.type === 'agent') return { type: 'agent' as const, id: ctx.actor.id, name: null };
   const name = id ? ((await members.names([id])).get(id) ?? null) : null;

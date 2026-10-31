@@ -1,4 +1,4 @@
-// Kênh không giữ phiên (manifest `session != 'lease'` — webchat TIP-017; webhook / poll về sau): không có lease, worker gửi của
+// Kênh không giữ phiên (manifest `session = 'webhook'` — webchat TIP-017; kênh poll — ChannelPollers): không có lease, worker gửi của
 // tài khoản mở ở MỌI worker ROLE=channels khi route `connected` (BullMQ giao mỗi job cho một worker), đóng khi route đổi
 // (tạm dừng / ngắt). Chạy cùng nhịp với ChannelSessions; tin vào của các kênh này do API đẩy thẳng vào `channel-inbound`.
 import type { ChannelAdapter, ChannelRegistry } from '@appchat/channels';
@@ -20,7 +20,7 @@ export class StatelessChannels {
   constructor(private readonly d: StatelessDeps) {}
 
   private types(): string[] {
-    return this.d.registry.manifests().filter((m) => m.session !== 'lease' && this.d.registry.hasAdapter(m.type)).map((m) => m.type);
+    return this.d.registry.manifests().filter((m) => m.session === 'webhook' && this.d.registry.hasAdapter(m.type)).map((m) => m.type);
   }
 
   async tick(): Promise<void> {

@@ -1,6 +1,6 @@
 // Worker ROLE=channels của domain `channels` (TIP-014, Blueprint §6): giữ phiên theo lease (ChannelSessions), worker gửi mỗi
 // tài khoản (ChannelSenders), job đăng nhập QR (`channel-login`), lệnh từ API qua Redis pub/sub; kênh không lease (webchat —
-// StatelessChannels). Thiếu DB / Redis / khoá → tắt.
+// StatelessChannels); kênh poll (email — ChannelPollers, TIP-018). Thiếu DB / Redis / khoá → tắt.
 import { hostname } from 'node:os';
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, type Worker } from 'bullmq';
@@ -22,6 +22,7 @@ import { CHANNEL_CONTROL, CHANNEL_INBOUND_QUEUE, ChannelControl, type ControlOp 
 import { ChannelLeases, LEASE_HEARTBEAT_MS } from './lease';
 import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
+import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
 import { ChannelSessions } from './sessions';
 import { StatelessChannels } from './stateless';
 
@@ -29,7 +30,9 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
   private sessions?: ChannelSessions;
   private senders?: ChannelSenders;
   private stateless?: StatelessChannels;
+  private pollers?: ChannelPollers;
   private timer?: NodeJS.Timeout;
+  private pollTimer?: NodeJS.Timeout;
   private login?: Worker;
   private inbound?: Queue;
   private sub?: Redis;
@@ -50,7 +53,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
 
   /** Bộ phiên của worker này (test điều khiển trực tiếp). */
   get runtime() {
-    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless };
+    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers };
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -78,7 +81,9 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     this.sub.on('message', (_ch, raw: string) => {
       try {
         // Lệnh chạy / dừng: kênh không lease (webchat) mở / đóng worker gửi ngay, không chờ nhịp.
-        void sessions.control(JSON.parse(raw) as ControlOp).finally(() => void this.stateless?.tick());
+        const cmd = JSON.parse(raw) as ControlOp;
+        void sessions.control(cmd).finally(() => void this.stateless?.tick());
+        void this.pollers?.control(cmd).catch((err: unknown) => this.log.warn({ err, account: cmd.account_id }, 'poll channel control failed'));
       } catch {
         /* lệnh hỏng — bỏ */
       }
@@ -88,13 +93,24 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     const stateless = (this.stateless = new StatelessChannels({ platform, registry: this.registry, log: this.log, open: (id, ws, a) => senders.open(id, ws, a), close: (id) => senders.close(id) }));
     void stateless.tick();
     this.timer = setInterval(() => void stateless.tick(), LEASE_HEARTBEAT_MS);
+    // Kênh poll (email): nạp credential + poll theo khoá Redis (mỗi tài khoản một worker / POLL_INTERVAL_MS).
+    const pollers = (this.pollers = new ChannelPollers({
+      platform, tenants, registry: this.registry, redis, inbound: this.inbound, key, log: this.log, now,
+      open: (id, ws, a) => senders.open(id, ws, a),
+      close: (id) => senders.close(id),
+      expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
+    }));
+    void pollers.tick();
+    this.pollTimer = setInterval(() => void pollers.tick(), Math.min(POLL_INTERVAL_MS, LEASE_HEARTBEAT_MS * 3));
   }
 
   async onApplicationShutdown(): Promise<void> {
     if (this.timer) clearInterval(this.timer);
+    if (this.pollTimer) clearInterval(this.pollTimer);
     await this.sub?.quit().catch(() => undefined);
     await this.login?.close();
     await this.sessions?.shutdown();
+    await this.pollers?.shutdown();
     await this.senders?.closeAll();
     await this.inbound?.close();
   }

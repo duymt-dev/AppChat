@@ -6,7 +6,7 @@ import { CLOCK, type Clock } from '../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import './seeds';
 import { ContactAddCollaboratorHandler, ContactDecideAccessHandler, ContactRemoveCollaboratorHandler, ContactRequestAccessHandler, ContactTransferOwnerHandler } from './actions/contact-owner.handlers';
-import { ContactExportHandler, ContactImportHandler, ContactSendEmailHandler } from './actions/contact-io.handlers';
+import { ContactExportHandler, ContactImportHandler } from './actions/contact-io.handlers';
 import { ContactMergeHandler } from './actions/contact-merge.handler';
 import { ContactCreateHandler, ContactDeleteHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
 import { CustomFieldDefineHandler, CustomFieldDeleteHandler, CustomFieldUpdateHandler } from './actions/custom-field.handlers';
@@ -20,7 +20,7 @@ const opt = (token: symbol) => ({ token, optional: true });
 const HANDLERS = [
   ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ContactDeleteHandler, ContactMergeHandler,
   ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
-  ContactExportHandler, ContactImportHandler, ContactSendEmailHandler,
+  ContactExportHandler, ContactImportHandler,
   CustomFieldDefineHandler, CustomFieldUpdateHandler, CustomFieldDeleteHandler,
   ProfileLayoutCreateHandler, ProfileLayoutUpdateHandler, ProfileLayoutDuplicateHandler, ProfileLayoutDeleteHandler, ProfileLayoutAssignRoleHandler,
 ];

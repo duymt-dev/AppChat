@@ -16,4 +16,10 @@ export const channels = {
     account: 'Website Chat',
     guest: 'Khách web',
   },
+  email: {
+    imap_auth: 'Sai email hoặc mật khẩu ứng dụng (IMAP)',
+    smtp_auth: 'Máy chủ gửi thư (SMTP) từ chối đăng nhập',
+    imap_connect: 'Không kết nối được máy chủ IMAP — kiểm tra địa chỉ và cổng',
+    smtp_connect: 'Không kết nối được máy chủ SMTP — kiểm tra địa chỉ và cổng',
+  },
 };

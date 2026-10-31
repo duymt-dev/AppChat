@@ -1,4 +1,4 @@
-// Email (Blueprint §6): IMAP poll 60 giây + SMTP, gom thread theo Message-ID. Form IMAP / SMTP + adapter: TIP-018.
+// Email (Blueprint §6): IMAP poll 60 giây + SMTP, gom thread theo Message-ID (TIP-018). Form kết nối = EMAIL_FIELDS (@appchat/shared).
 import type { ChannelManifest } from '../types';
 
 export const emailManifest: ChannelManifest = {

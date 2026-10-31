@@ -30,6 +30,8 @@ const env = {
   COOKIE_SECURE: 'false',
   // Mã nhúng widget (TIP-017) trỏ về API của lượt E2E; API phục vụ /widget.js từ apps/widget/dist.
   WIDGET_API_URL: `http://localhost:${API_PORT}`,
+  // Hộp thư kênh Email giả (TIP-018): API kiểm tra / kết nối, worker poll + gửi — không đăng nhập IMAP / SMTP thật.
+  MAIL_TRANSPORT: 'fake',
 };
 
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });
@@ -42,7 +44,7 @@ const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'jobs' }, stdio: 'inherit' }),
   // TIP-014: worker kênh với Zalo giả (Q-003 — chưa có tài khoản Zalo phụ): QR tự "quét" sau 1,5 giây, gửi không trễ.
-  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch hẹn' }, stdio: 'inherit' }),
+  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch hẹn', MAIL_FAKE_GREETING: 'Spa còn lịch chiều nay không ạ?' }, stdio: 'inherit' }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();

@@ -120,13 +120,21 @@ export const channelEmailConnect = defineAction({
   id: 'channel.email.connect',
   module: 'channels',
   title: 'actions.channel.email.connect.title',
-  description: 'Connect a new mailbox account (IMAP/SMTP). Example: {"address":"hotro@spa.vn","name":"Hỗ trợ"}',
-  input: z.object({ address: z.string().email(), name: z.string().max(60).optional() }),
+  description:
+    'Connect a new mailbox account (IMAP to receive, SMTP to send); the login is checked for real before saving. Example: {"address":"hotro@spa.vn","name":"Hỗ trợ","fields":{"imap_host":"imap.gmail.com","imap_port":"993","password":"app-password"}}',
+  input: z.object({
+    address: z.string().email(),
+    name: z.string().max(60).optional(),
+    /** Form IMAP / SMTP (emailFormSchema của @appchat/shared — chuỗi như form gửi). */
+    fields: z.record(z.string(), z.string()),
+  }),
   output: z.object({ channel_account_id: z.string() }),
   permission: 'channels.manage',
   risk: 'config',
   agentGrantable: false,
   invalidates: ['channels'],
+  // Hạn mức gói `max_channels` dưới khoá workspace (như channel.zalo.start_login — DC-069).
+  db: 'platform',
 });
 
 export const channelTest = defineAction({

@@ -5,7 +5,7 @@
 import { Module, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import type { Redis } from 'ioredis';
-import { ZcaTransport, buildChannelRegistry, fakeZaloTransport, type ChannelRegistry, type WidgetPublisher } from '@appchat/channels';
+import { ImapMailboxTransport, ZcaTransport, buildChannelRegistry, fakeMailboxTransport, fakeZaloTransport, type ChannelRegistry, type WidgetPublisher } from '@appchat/channels';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENC_KEY } from '../kernel/crypto';
@@ -17,6 +17,7 @@ import './events/channels.rules';
 import { ChannelReconnectHandler, ChannelZaloStartLoginHandler } from './actions/channel-connect.handlers';
 import { ChannelDisconnectHandler, ChannelPauseHandler, ChannelResumeHandler, ChannelSyncHistoryHandler, ChannelTestHandler, ChannelUpdateSettingsHandler } from './actions/channel-manage.handlers';
 import { readChannelsEnv } from './channels.env';
+import { CHANNEL_REGISTRY, WIDGET_URLS } from './tokens';
 import { ChannelAccounts } from './services/accounts.service';
 import { CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, ChannelControl } from './services/control';
 import { ChannelsReadService, NO_AGENTS } from './services/read.service';
@@ -25,14 +26,12 @@ import { RedisWidgetPublisher } from './webchat/publisher';
 import { VisitorService } from './webchat/visitor.service';
 import { VisitorTokens } from './webchat/visitor-token';
 import { WebchatUpdateWidgetHandler } from './webchat/webchat.handlers';
+import { ChannelEmailConnectHandler } from './email/email.handlers';
 import type { WidgetUrls } from './webchat/widget.service';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
-/** Registry kênh có adapter (worker giữ phiên + gửi) — transport Zalo theo `ZALO_TRANSPORT`. */
-export const CHANNEL_REGISTRY = Symbol('CHANNEL_REGISTRY');
-/** URL mã nhúng widget (WIDGET_API_URL / WIDGET_SCRIPT_URL). */
-export const WIDGET_URLS = Symbol('WIDGET_URLS');
+export { CHANNEL_REGISTRY, WIDGET_URLS };
 const LOGIN_QUEUE = Symbol('CHANNEL_LOGIN_QUEUE');
 const INBOUND_QUEUE = Symbol('CHANNEL_INBOUND_QUEUE_PRODUCER');
 
@@ -52,7 +51,14 @@ class Closer implements OnApplicationShutdown {
 export function channelRegistryFor(src: Record<string, string | undefined>, widget?: WidgetPublisher): ChannelRegistry {
   const env = readChannelsEnv(src);
   if (env.ZALO_TRANSPORT === 'fake' && env.ZALO_FAKE_GREETING) fakeZaloTransport.greeting = env.ZALO_FAKE_GREETING;
-  return buildChannelRegistry({ zalo: env.ZALO_TRANSPORT === 'fake' ? fakeZaloTransport : new ZcaTransport(), ...(widget ? { widget } : {}) });
+  if (env.MAIL_TRANSPORT === 'fake' && env.MAIL_FAKE_GREETING) {
+    fakeMailboxTransport.greeting = { from: 'khach.e2e@khach.test', name: 'Khách Email E2E', subject: 'Hỏi lịch hẹn', text: env.MAIL_FAKE_GREETING };
+  }
+  return buildChannelRegistry({
+    zalo: env.ZALO_TRANSPORT === 'fake' ? fakeZaloTransport : new ZcaTransport(),
+    mail: env.MAIL_TRANSPORT === 'fake' ? fakeMailboxTransport : new ImapMailboxTransport(),
+    ...(widget ? { widget } : {}),
+  });
 }
 
 export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUrls {
@@ -72,6 +78,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     ChannelTestHandler,
     ChannelDisconnectHandler,
     WebchatUpdateWidgetHandler,
+    ChannelEmailConnectHandler,
     {
       provide: CHANNEL_REGISTRY,
       inject: [opt(ENV_SOURCE), opt(REDIS)],

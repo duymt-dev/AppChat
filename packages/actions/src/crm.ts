@@ -262,7 +262,7 @@ export const contactSendEmail = defineAction({
     subject: z.string().trim().min(1).max(200),
     body: z.string().trim().min(1).max(5000),
   }),
-  output: z.object({ ok: z.boolean() }),
+  output: z.object({ ok: z.boolean(), conversation_id: z.string().optional() }),
   permission: 'inbox.reply',
   risk: 'send',
   agentGrantable: true,

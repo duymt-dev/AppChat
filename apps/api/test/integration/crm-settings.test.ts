@@ -1,6 +1,6 @@
 // TIP-015 AC9–AC11 trên Postgres 16 + Memurai: trường dữ liệu (custom_field.* + GET /v1/settings/fields), bố cục Hồ sơ 360°
 // (profile_layout.* + GET /v1/settings/profile-layouts), liên kết khách theo kênh (ContactIdentityService — C06),
-// contact.export (CSV đúng scope) / contact.import (preview, trùng, khách của người khác), contact.send_email chưa có kênh.
+// contact.export (CSV đúng scope) / contact.import (preview, trùng, khách của người khác), contact.send_email khi workspace chưa có tài khoản email gửi.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { TenantContexts, TenantDbResolver, PrismaWorkspaceRegistry } from '@appchat/db';
@@ -108,7 +108,7 @@ describe('kênh + nhập / xuất', () => {
     expect(await db.contactIdentity.count({ where: { contactId: r1.contactId } })).toBe(2);
   });
 
-  it('AC11 contact.import (preview → tạo / trùng / của người khác / lỗi) + hoàn tác; contact.export CSV đúng scope; send_email chưa có kênh → 409', async () => {
+  it('AC11 contact.import (preview → tạo / trùng / của người khác / lỗi) + hoàn tác; contact.export CSV đúng scope; send_email chưa có tài khoản email → 409', async () => {
     const own = (await act('contact.create', { full_name: 'Khách của sales', phone: '0988000111' }, { ...idem(), ...as(sales) })).body.data.result.contact_id;
     const rows = [
       { full_name: 'Lê Minh', phone: '0988 000 001', email: 'minh@x.vn' },

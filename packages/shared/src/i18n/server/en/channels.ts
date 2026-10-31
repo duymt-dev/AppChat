@@ -18,4 +18,10 @@ export const channels: typeof vi = {
     account: 'Website Chat',
     guest: 'Web visitor',
   },
+  email: {
+    imap_auth: 'Wrong email or app password (IMAP)',
+    smtp_auth: 'The outgoing mail server (SMTP) rejected the login',
+    imap_connect: 'Cannot reach the IMAP server — check the host and port',
+    smtp_connect: 'Cannot reach the SMTP server — check the host and port',
+  },
 };

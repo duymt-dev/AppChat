@@ -9,3 +9,4 @@ export { VisitorService, type WidgetSession } from './webchat/visitor.service';
 export { VisitorTokens, VISITOR_TTL_SEC } from './webchat/visitor-token';
 export { MemoryWidgetPublisher, RedisWidgetPublisher, visitorRoom } from './webchat/publisher';
 export { widgetSettings, originAllowed, embedCode, type WidgetUrls } from './webchat/widget.service';
+export { emailOutboundExtras, openEmailThread } from './email/threads';

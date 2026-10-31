@@ -45,6 +45,8 @@ export const env: Record<string, string> = {
   NODE_ENV: 'test',
   LOG_LEVEL: 'silent',
   MAIL_PROVIDER: 'console',
+  // Hộp thư kênh Email giả (TIP-018) — integration không đăng nhập IMAP / SMTP thật.
+  MAIL_TRANSPORT: 'fake',
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'true',
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',

@@ -1,5 +1,6 @@
 // Env của domain channels (ops §2.1 — validate lúc boot). Transport Zalo: `zca` (zca-js thật) | `fake` (Q-003 — test / e2e khi
-// chưa có tài khoản Zalo phụ; cấm production). `CHANNEL_SEND_JITTER=0` tắt trễ giống người (chỉ test).
+// chưa có tài khoản Zalo phụ; cấm production). Hộp thư Email: `imap` | `fake` (TIP-018). `CHANNEL_SEND_JITTER=0` tắt trễ giống người
+// (chỉ test).
 import { z } from 'zod';
 
 export const channelsEnv = z
@@ -9,6 +10,10 @@ export const channelsEnv = z
     CHANNEL_SEND_JITTER: z.coerce.number().min(0).max(1).default(1),
     /** Chỉ với `ZALO_TRANSPORT=fake` (E2E http): khách giả nhắn tin này khi phiên bắt đầu. */
     ZALO_FAKE_GREETING: z.string().max(200).optional(),
+    /** Hộp thư Email (TIP-018): `imap` (imapflow + nodemailer thật) | `fake` (bộ nhớ — test / E2E; cấm production). */
+    MAIL_TRANSPORT: z.enum(['imap', 'fake']).default('imap'),
+    /** Chỉ với `MAIL_TRANSPORT=fake` (E2E http): khách giả gửi thư này khi hộp thư được đăng nhập lần đầu. */
+    MAIL_FAKE_GREETING: z.string().max(200).optional(),
     /** Gốc API mà widget nối Socket.IO `/widget` (mã nhúng) — production: URL công khai của API (DC-089). */
     WIDGET_API_URL: z.string().url().default('http://localhost:4000'),
     /** URL file widget.js — mặc định `<WIDGET_API_URL>/widget.js` (Blueprint §11: `widget.<domain>` phục vụ widget.js tĩnh + socket `/widget`). */
@@ -16,6 +21,7 @@ export const channelsEnv = z
   })
   .superRefine((e, ctx) => {
     if (e.NODE_ENV === 'production' && e.ZALO_TRANSPORT === 'fake') ctx.addIssue({ code: 'custom', path: ['ZALO_TRANSPORT'], message: 'fake cấm ở production' });
+    if (e.NODE_ENV === 'production' && e.MAIL_TRANSPORT === 'fake') ctx.addIssue({ code: 'custom', path: ['MAIL_TRANSPORT'], message: 'fake cấm ở production' });
     if (e.NODE_ENV === 'production' && e.CHANNEL_SEND_JITTER < 1) ctx.addIssue({ code: 'custom', path: ['CHANNEL_SEND_JITTER'], message: 'cấm giảm ở production' });
   });
 

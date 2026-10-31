@@ -6,7 +6,7 @@ import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
-import type { ChannelSendQueue, SendResult } from '../../channels/public';
+import { emailOutboundExtras, type ChannelSendQueue, type SendResult } from '../../channels/public';
 import { previewOf } from './view';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
@@ -25,7 +25,7 @@ export interface OutgoingInput {
 export interface Outgoing {
   messageId: string;
   outboxId: string;
-  job: { account_id: string; ref_id: string; message: OutboundMessage };
+  job: { account_id: string; ref_id: string; message: OutboundMessage; proactive?: boolean };
 }
 
 const day0 = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
@@ -56,6 +56,8 @@ export async function writeOutgoing(tx: TenantTx, o: OutgoingInput): Promise<Out
     ...(o.body ? { text: o.body } : {}),
     ...(o.attachments?.length ? { attachments: o.attachments } : {}),
     ...(replyExt ? { replyToExternalMsgId: replyExt } : {}),
+    // Email: người nhận + In-Reply-To / References / tiêu đề của chuỗi (TIP-018); kênh khác không có.
+    ...(await emailOutboundExtras(tx, conv)),
   };
   await tx.message.create({
     data: {

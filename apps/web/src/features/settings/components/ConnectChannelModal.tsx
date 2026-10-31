@@ -1,5 +1,5 @@
 // Wizard kết nối kênh 3 bước dùng chung (REQ-B10, prototype L777–868): chọn kênh → xác thực → cấu hình nhanh.
-// zalo_personal: QR (channel.zalo.start_login). email: form IMAP/SMTP + Kiểm tra kết nối (channel.test → channel.email.connect).
+// zalo_personal: QR (channel.zalo.start_login). email: form IMAP/SMTP (EmailConnectStep) + Kiểm tra kết nối (channel.test → channel.email.connect).
 // webchat: không có bước xác thực riêng — mở thẳng trang cấu hình widget. Kênh ngoài manifest / chưa available → "Sắp có" (D04, D28).
 'use client';
 import { useCallback, useState } from 'react';
@@ -15,6 +15,7 @@ import { useChannelWizardStyles } from '../styles/channel-wizard.styles';
 import { useSettingsUi } from '../settings-store';
 import { useZaloLogin } from '../hooks/useZaloLogin';
 import { ZaloQrStep } from './ZaloQrStep';
+import { EMPTY_EMAIL_FORM, EmailConnectStep, emailFields, type EmailForm } from './EmailConnectStep';
 import { channelsQuery } from '../api';
 import type { ChannelAiMode, ChannelAssignMode } from '../types';
 
@@ -35,13 +36,13 @@ export function ConnectChannelModal() {
   const channels = useQuery({ ...channelsQuery('all'), enabled: !!wizard }).data ?? [];
   const agents = useQuery({ ...agentsQuery(), enabled: !!wizard }).data?.data ?? [];
   const email = useAction<{ channel_account_id: string }>('channel.email.connect');
-  const test = useAction('channel.test');
+  const test = useAction<{ ok: boolean; message?: string }>('channel.test');
   const updateSettings = useAction('channel.update_settings');
 
   const [label, setLabel] = useState('');
-  const [addr, setAddr] = useState('');
-  const [imapHost, setImapHost] = useState('');
+  const [mail, setMail] = useState<EmailForm>(EMPTY_EMAIL_FORM);
   const [tested, setTested] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [cfgName, setCfgName] = useState('');
   const zalo = useZaloLogin(
@@ -63,9 +64,9 @@ export function ConnectChannelModal() {
   const close = () => {
     set({ channelWizard: null });
     setLabel('');
-    setAddr('');
-    setImapHost('');
+    setMail(EMPTY_EMAIL_FORM);
     setTested(false);
+    setTestError(null);
     setAccountId(null);
     zalo.reset();
     setCfgName('');
@@ -87,20 +88,31 @@ export function ConnectChannelModal() {
 
   const back = () => set({ channelWizard: { type: wizard.type, step: (step - 1) as 1 | 2 } });
 
+  const editMail = (patch: Partial<EmailForm>) => {
+    setMail((m) => ({ ...m, ...patch }));
+    setTested(false);
+    setTestError(null);
+  };
+
   const runTest = async () => {
-    if (!imapHost.trim()) return void message.error(t('errTest'));
-    if (await test.run({ type: 'email', fields: { imap_host: imapHost.trim() } })) setTested(true);
+    if (!EMAIL.test(mail.address.trim())) return void message.error(t('errEmail'));
+    if (!mail.imap_host.trim() || !mail.password) return void message.error(t('errTest'));
+    const r = await test.run({ type: 'email', fields: emailFields(mail) });
+    if (!r) return;
+    setTested(r.result.ok);
+    setTestError(r.result.ok ? null : (r.result.message ?? t('testFail')));
   };
 
   const toStep3 = async () => {
     if (!c) return;
     if (c.type === 'email') {
-      if (!EMAIL.test(addr.trim())) return void message.error(t('errEmail'));
+      if (!EMAIL.test(mail.address.trim())) return void message.error(t('errEmail'));
       if (!tested) return void message.error(t('errTest'));
-      const r = await email.run({ address: addr.trim() });
+      const { address, ...fields } = emailFields(mail);
+      const r = await email.run({ address: address!, fields });
       if (!r) return;
       setAccountId(r.result.channel_account_id);
-      setCfgName(addr.trim());
+      setCfgName(mail.address.trim());
       set({ channelWizard: { type: c.type, step: 3 } });
       return;
     }
@@ -174,27 +186,7 @@ export function ConnectChannelModal() {
           ) : step === 2 && c?.type === 'zalo_personal' ? (
             <ZaloQrStep label={label} onLabel={setLabel} qr={zalo.qr} status={zalo.status} failed={zalo.failed} />
           ) : step === 2 && c?.type === 'email' ? (
-            <div className={styles.form}>
-              <div>
-                <div className={s.label}>{t('address')}</div>
-                <input className={s.input} value={addr} type="email" onChange={(e) => setAddr(e.target.value)} placeholder={t('addressPh')} data-testid="st-ch-wizard-email" />
-              </div>
-              <div>
-                <div className={s.label}>{t('imapHost')}</div>
-                <input className={s.input} value={imapHost} onChange={(e) => setImapHost(e.target.value)} placeholder={t('imapHostPh')} data-testid="st-ch-wizard-imap" />
-              </div>
-              <div className={styles.testRow}>
-                <button type="button" className={s.ghost} onClick={() => void runTest()} data-testid="st-ch-wizard-test">
-                  {t('test')}
-                </button>
-                {tested ? (
-                  <span className={styles.testOk}>
-                    <Icon name="ic-check" size={14} color={color.brand} />
-                    {t('tested')}
-                  </span>
-                ) : null}
-              </div>
-            </div>
+            <EmailConnectStep form={mail} onChange={editMail} onTest={() => void runTest()} testing={test.isPending} tested={tested} error={testError} />
           ) : step === 3 ? (
             <div className={styles.form}>
               <div>

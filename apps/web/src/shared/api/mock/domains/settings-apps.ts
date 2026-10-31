@@ -150,7 +150,10 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
     },
   },
   'channel.email.connect': {
-    execute: (db, i: { address: string }) => {
+    execute: (db, i: { address: string; fields?: Record<string, string> }) => {
+      if (!i.fields?.imap_host?.trim() || !i.fields.password) {
+        throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'fields', fields: { imap_host: 'required' } });
+      }
       const account = addAccount(db, 'email', i.address);
       return { channel_account_id: account.id };
     },
@@ -160,6 +163,8 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
       if (i.type === 'email' && i.fields && !i.fields.imap_host?.trim()) {
         throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'imap_host', fields: { imap_host: 'required' } });
       }
+      // Mock: mật khẩu "sai" mô phỏng đăng nhập IMAP thất bại (backend: lý do imap_auth — TIP-018).
+      if (i.type === 'email' && i.fields?.password === 'sai') return { ok: false, message: 'Sai email hoặc mật khẩu ứng dụng (IMAP)' };
       return { ok: true, message: 'Kết nối thành công' };
     },
   },

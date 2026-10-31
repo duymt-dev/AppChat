@@ -264,7 +264,9 @@ describe('kết nối Zalo cá nhân', () => {
     expect(await zalo()).toMatchObject({ connected: false, accounts: [], health: 'off' });
     expect((await act('channel.disconnect', { channel_account_id: A })).status).toBe(404);
     expect((await get(`/settings/channels/${A}/login`)).status).toBe(404);
-    expect((await act('channel.test', { type: 'email', fields: { imap_host: 'imap.gmail.com' } })).body.error).toMatchObject({ code: 'NOT_IMPLEMENTED', fields: { tip: '018' } });
+    // Form Email nháp (TIP-018): thiếu mật khẩu ứng dụng → 422; kênh khác không có form → 422.
+    expect((await act('channel.test', { type: 'email', fields: { imap_host: 'imap.gmail.com' } })).body.error).toMatchObject({ code: 'VALIDATION_FAILED', fields: { password: 'invalid' } });
+    expect((await act('channel.test', { type: 'zalo_personal', fields: {} })).body.error).toMatchObject({ code: 'VALIDATION_FAILED', fields: { type: 'unsupported' } });
   }, 60_000);
 });
 

@@ -143,7 +143,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `tenant/kernel.prisma` | 002 | `action_log`, `outbox_event`, `idempotency_key`, `file`, `sequence_counter`, `notification`; + `event_consumption` (TIP-006 — DC-027) |
 | `tenant/authz.prisma` | 005 | `role`, `team`, `team_member` |
 | `tenant/integrations.prisma` | 012 | `integration_connection`, `integration_mapping`, `integration_call_log`, `integration_event` |
-| `tenant/channels.prisma` · `tenant/channels-webchat.prisma` | 014 · 017 | `channel_account`, … · `webchat_widget` |
+| `tenant/channels.prisma` · `tenant/channels-webchat.prisma` · `tenant/channels-email.prisma` | 014 · 017 · 018 | `channel_account`, … · `webchat_widget` · `email_thread` |
 | `tenant/crm.prisma` | 015 | `contact`, `contact_identity`, `contact_collaborator`, `contact_access_request`, `tag`, `contact_tag`, `contact_memory`, `timeline_event`, `contact_note`, `custom_field_def`, `profile_layout`, `profile_layout_role` |
 | `tenant/inbox.prisma` | 016 | `conversation`, `message`, `message_reaction`, `conversation_participant`, `conversation_tag`, `canned_reply`, `outbox_message` |
 | `tenant/ai-runs.prisma` · `ai-kb.prisma` · `ai-agents.prisma` · `ai-assistant.prisma` · `ai-tasks.prisma` | 019 · 020 · 021 · 023 · 035 | Blueprint §2.2 ai-* |

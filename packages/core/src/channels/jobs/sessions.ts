@@ -104,7 +104,7 @@ export class ChannelSessions {
     try {
       const row = await db.channelAccount.findUnique({ where: { id: accountId } });
       const adapter = row && this.d.registry.get(row.type)?.adapter;
-      if (!row || !adapter?.start || row.status !== 'connected' || row.pausedAt || !row.credentialsEnc) {
+      if (!row || !adapter?.start || adapter.manifest.session !== 'lease' || row.status !== 'connected' || row.pausedAt || !row.credentialsEnc) {
         // Route lệch với tài khoản (đổi trạng thái chưa kịp ghi route) → sửa route theo DB tenant.
         if (row) await this.d.accounts.route(wsId, row, routeStatusOf(row.status as AccountStatus, row.pausedAt));
         await this.d.leases.release(accountId);

@@ -68,3 +68,27 @@ export const channelLoginStateSchema = z.object({
   expires_at: z.string().nullable(),
 });
 export type ChannelLoginStateDto = z.infer<typeof channelLoginStateSchema>;
+
+/**
+ * Form kết nối Email (TIP-018, prototype L11254: Máy chủ IMAP · Cổng · Email · Mật khẩu ứng dụng; SMTP suy từ IMAP khi bỏ trống).
+ * `channel.test` (type email) và `channel.email.connect` nhận cùng các trường dạng chuỗi (form gửi `Record<string, string>`).
+ */
+export const EMAIL_FIELDS = ['imap_host', 'imap_port', 'user', 'password', 'smtp_host', 'smtp_port'] as const;
+
+const host = z.string().trim().toLowerCase().regex(/^[a-z0-9-]+(\.[a-z0-9-]+)+$/);
+const port = z.coerce.number().int().min(1).max(65535);
+
+export const emailFormSchema = z.object({
+  imap_host: host,
+  imap_port: port.default(993),
+  user: z.string().trim().max(120).optional(),
+  password: z.string().min(1).max(200),
+  smtp_host: host.optional(),
+  smtp_port: port.optional(),
+});
+export type EmailForm = z.infer<typeof emailFormSchema>;
+
+/** SMTP mặc định suy từ IMAP: `imap.x` → `smtp.x`, cổng 465 (SSL). */
+export function smtpOf(f: Pick<EmailForm, 'imap_host' | 'smtp_host' | 'smtp_port'>): { smtp_host: string; smtp_port: number } {
+  return { smtp_host: f.smtp_host || f.imap_host.replace(/^imap\./, 'smtp.'), smtp_port: f.smtp_port ?? 465 };
+}

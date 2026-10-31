@@ -63,6 +63,10 @@ export interface OutboundMessage {
   replyToExternalMsgId?: string;
   /** `kind = 'sticker'`: mã sticker theo kênh (Zalo: id / cateId / type). */
   sticker?: Record<string, number>;
+  /** Địa chỉ người nhận khi thread id không phải địa chỉ (email: thread = Message-ID gốc, người nhận = email khách). */
+  externalThreadTo?: string;
+  /** Dữ liệu riêng của kênh do core dựng (email: tiêu đề, In-Reply-To, References — TIP-018). */
+  meta?: Record<string, unknown>;
 }
 
 export interface InboundSink {
@@ -101,6 +105,8 @@ export interface ChannelAdapter {
   start?(account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
   stop?(accountId: string): Promise<void>;
   handleWebhook?(req: RawWebhook, account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
+  /** `session = 'poll'` (email — TIP-018): tin mới từ mốc `cursor` (core lưu nguyên giá trị trả về, lần đầu `null`). */
+  poll?(accountId: string, cursor: unknown, now?: Date): Promise<{ messages: NormalizedInbound[]; cursor: unknown }>;
   send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string }>;
   probe(accountId: string): Promise<HealthStatus>;
 }

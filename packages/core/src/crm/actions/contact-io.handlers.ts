@@ -1,12 +1,12 @@
 // contact.export (crm.export, risk read — chạy ngay, không preview theo policy §3.3 (DC-063); CSV đúng scope) · contact.import (crm.import, bulk → preview, theo lô ≤ 500,
-// chống giành khách: dòng trùng khách của người khác chỉ đếm, không lộ dữ liệu) · contact.send_email (requiresConnector 'email').
+// chống giành khách: dòng trùng khách của người khác chỉ đếm, không lộ dữ liệu). contact.send_email ở inbox (gửi qua kênh Email — TIP-018).
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, SOURCE_STYLE, createFmt, interpolate, normalizePhone, serverMessages, type ContactSource } from '@appchat/shared';
-import type { ActionPreview, ActionInput, contactExport, contactImport, contactSendEmail } from '@appchat/actions';
+import { SOURCE_STYLE, createFmt, interpolate, normalizePhone, serverMessages, type ContactSource } from '@appchat/shared';
+import type { ActionPreview, ActionInput, contactExport, contactImport } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
-import { actorUserId, editableContact } from '../services/access';
+import { actorUserId } from '../services/access';
 import { createContact } from '../services/contacts.service';
 import { listContactIds } from '../repos/contacts.repo';
 import { CrmMembers } from '../services/members.service';
@@ -117,15 +117,5 @@ export class ContactImportHandler implements Handler<ImportIn, ImportOut> {
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await tx.contact.deleteMany({ where: { id: { in: (log.after as { ids: string[] }).ids } } });
-  }
-}
-
-@Injectable()
-@ActionHandler('contact.send_email')
-export class ContactSendEmailHandler implements Handler<ActionInput<typeof contactSendEmail>, { ok: boolean }> {
-  /** Gửi qua kênh Email của workspace (`requiresConnector: 'email'`) — kênh Email là TIP-018; chưa có → 409 rõ lý do. */
-  async execute(ctx: ActionContext, input: ActionInput<typeof contactSendEmail>, tx: TenantTx): Promise<HandlerOutcome<{ ok: boolean }>> {
-    await editableContact(tx, ctx.authz, input.contact_id);
-    throw new AppError('INVALID_STATE', 409, { connector: 'email' }, 'Chưa kết nối kênh Email (TIP-018)');
   }
 }

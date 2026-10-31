@@ -24,6 +24,7 @@ import {
   ConversationSetStatusHandler,
 } from './actions/conversation-state.handlers';
 import { MessageDeleteHandler, MessageForwardHandler, MessagePinHandler, MessageReactHandler, MessageRecallHandler, MessageSendHandler, NoteAddHandler } from './actions/message.handlers';
+import { ContactSendEmailHandler } from './actions/email-send.handlers';
 import { CannedReplyCreateHandler, CannedReplyDeleteHandler, CannedReplyUpdateHandler, TagCreateHandler, TagDeleteHandler, TagUpdateHandler } from './actions/settings.handlers';
 import { UUID, canSeeConversation } from './services/access';
 import { InboxMetaService } from './services/meta.service';
@@ -36,7 +37,7 @@ const HANDLERS = [
   ConversationMarkReadHandler, ConversationSetStatusHandler, ConversationPinHandler, ConversationArchiveHandler, ConversationHideHandler,
   ConversationSetAiModeHandler, ConversationHandoffHandler, ConversationClearHistoryHandler,
   ConversationAssignHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,
-  MessageSendHandler, MessageForwardHandler, MessageRecallHandler, MessageDeleteHandler, MessageReactHandler, MessagePinHandler, NoteAddHandler,
+  MessageSendHandler, ContactSendEmailHandler, MessageForwardHandler, MessageRecallHandler, MessageDeleteHandler, MessageReactHandler, MessagePinHandler, NoteAddHandler,
   TagCreateHandler, TagUpdateHandler, TagDeleteHandler, CannedReplyCreateHandler, CannedReplyUpdateHandler, CannedReplyDeleteHandler,
 ];
 

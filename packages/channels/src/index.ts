@@ -8,3 +8,8 @@ export { toRichText, chunkText, renderChunks } from './zalo-personal/render';
 export { normalizeZalo } from './zalo-personal/normalize';
 export type { ZaloTransport, ZaloSession, ZaloCredentials, ZaloRawMessage } from './zalo-personal/transport';
 export { WebchatAdapter, type WidgetPublisher, type WidgetOutMessage } from './webchat/adapter';
+export { EmailAdapter, type MailCursor, type EmailSendMeta } from './email/adapter';
+export { ImapMailboxTransport } from './email/imap-transport';
+export { FakeMailboxTransport, fakeMailboxTransport, FAKE_MAIL_PASSWORD, FAKE_MAIL_HOST } from './email/fake-transport';
+export { MailAuthError, MailConnectError, type MailCredentials, type MailboxTransport, type ParsedMail, type OutgoingMail } from './email/transport';
+export { normalizeMail, threadRoot, stripQuoted, htmlToText, msgId } from './email/normalize';

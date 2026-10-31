@@ -37,5 +37,8 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'canned_reply.create', input: { shortcut: '/contract', title: 'Contract', body: 'Dạ em chào {tên}', category: 'Chào hỏi' }, tip: '016', idempotent: true },
   // TIP-017: Cài đặt › Trợ lý AI website — bật widget (lần đầu tạo tài khoản webchat) + cấu hình.
   { action: 'webchat.update_widget', input: { enabled: true, greeting: 'Chào bạn 👋', prechat: true, handoff: 75 }, tip: '017' },
+  // TIP-018: kênh Email — kiểm tra form + kết nối (HTTP: hộp thư giả `MAIL_TRANSPORT=fake`, mật khẩu đúng = app-password-e2e).
+  { action: 'channel.test', input: { type: 'email', fields: { address: 'contract@spa.vn', imap_host: 'imap.fake.test', imap_port: '993', password: 'app-password-e2e' } }, tip: '018' },
+  { action: 'channel.email.connect', input: { address: 'contract@spa.vn', fields: { imap_host: 'imap.fake.test', imap_port: '993', password: 'app-password-e2e' } }, tip: '018' },
   { action: 'notification.update_prefs', input: { events: { sla_warn: { desktop: true, email: true, mobile: false } }, dnd: { on: true, from: '22:00', to: '07:00' }, digest: 'weekly' }, tip: '006' },
 ];
