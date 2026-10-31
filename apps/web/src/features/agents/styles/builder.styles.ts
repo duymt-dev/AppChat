@@ -265,6 +265,9 @@ export const useBuilderStyles = createStyles(({ css, responsive }) => ({
     background: none;
     padding: 0;
     font-family: inherit;
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
   `,
   two: css`
     display: grid;
