@@ -124,7 +124,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 029 | W7 | DONE (gửi Zalo / Email qua adapter giả; AI soạn model giả — Q-001) | `tip/029-quotes` (xếp chồng 028) | 3516f3a | chờ tạo (gh chưa đăng nhập) |
 | 030 | W7 | DONE (gửi Zalo / Email qua adapter giả, OTP email console — Q-004; phụ lục + AI soạn nháp hoãn — Q-022) | `tip/030-contracts` (xếp chồng 029) | ce113ee | chờ tạo (gh chưa đăng nhập) |
 | 031 | W7 | DONE (sàn thật P2 — chỉ `mock_marketplace`; khoản thu TIP-032, sổ điểm TIP-036) | `tip/031-orders` (xếp chồng 030) | 20575fb | chờ tạo (gh chưa đăng nhập) |
-| 032 | W7 | chờ | — | — | — |
+| 032 | W7 | DONE (bank feed SePay / Casso qua adapter `mock` — chưa nghiệm thu ngân hàng thật; trừ buổi theo lịch hẹn TIP-033; điểm TIP-036) | `tip/032-payments` (xếp chồng 031) | d0f5e16 | chờ tạo (gh chưa đăng nhập) |
 | 033 | W7 | chờ | — | — | — |
 | 034 | W8 | chờ | — | — | — |
 | 035 | W8 | chờ | — | — | — |
