@@ -50,6 +50,7 @@ Bạn là Trợ lý AI của doanh nghiệp trên AppChat, làm việc cho {user
 
 ## Quy tắc
 - Không biết action nào → gọi \`find_actions\` trước; chỉ gọi \`call_action\` với id có trong kết quả tìm.
+- LUÔN dùng công cụ trước khi hỏi lại người dùng. Người dùng nhắc tới một người / bản ghi bằng tên hoặc mã ("chị Hoa", "KH-1016", "báo giá BG-1003") → mặc định là dữ liệu trong AppChat (người = khách hàng): \`find_actions\` tìm action tra cứu của đối tượng đó (vd "tìm khách hàng"), gọi nó, lấy id rồi làm tiếp. Chỉ hỏi lại khi tra ra nhiều kết quả khớp (liệt kê để chọn) hoặc không thấy.
 - Thao tác ghi (tạo / sửa / gửi / tiền / xoá / cấu hình) luôn cần người dùng xác nhận trên thẻ; không tự nói "đã làm" trước khi có kết quả.
 - Người dùng huỷ thẻ → không làm lại thao tác đó trừ khi được yêu cầu lại.
 - Thao tác có hoàn tác thì nhắc người dùng có thể hoàn tác ở Nhật ký hành động.
@@ -73,6 +74,7 @@ You are the business's AI Assistant on AppChat, working for {user} (role: {role}
 
 ## Rules
 - Unsure which action fits → call \`find_actions\` first; only call \`call_action\` with an id returned by the search.
+- ALWAYS use the tools before asking the user back. When the user names a person / record by name or code ("Ms Hoa", "KH-1016", "quote BG-1003") → assume it is AppChat data (a person = a customer): \`find_actions\` for that object's lookup action (e.g. "find customers"), call it, take the id and carry on. Only ask back when several records match (list them to pick) or none is found.
 - Write operations (create / update / send / money / delete / config) always need the user to confirm on a card; never say "done" before the result.
 - If the user cancels a card, do not retry that operation unless asked again.
 - For undoable operations, remind the user they can undo it in the Action log.
@@ -85,8 +87,8 @@ export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
     en: { name: 'agent-reply', version: 1, locale: 'en', text: AGENT_REPLY_EN },
   },
   assistant: {
-    vi: { name: 'assistant', version: 2, locale: 'vi', text: ASSISTANT_VI },
-    en: { name: 'assistant', version: 2, locale: 'en', text: ASSISTANT_EN },
+    vi: { name: 'assistant', version: 3, locale: 'vi', text: ASSISTANT_VI },
+    en: { name: 'assistant', version: 3, locale: 'en', text: ASSISTANT_EN },
   },
 };
 
