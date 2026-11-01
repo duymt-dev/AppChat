@@ -472,6 +472,10 @@
     }
   },
   "ticket": {
+    "update": {
+      "title": "Edit ticket",
+      "desc": "Edit a ticket’s title, description, category, priority or custom fields."
+    },
     "search": {
       "title": "Search tickets",
       "desc": "Search tickets by text, status, priority or SLA."

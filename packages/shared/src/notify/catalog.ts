@@ -33,7 +33,10 @@ export const NOTIFY_KINDS = {
   payment_received: { group: 'msg', icon: 'ic-dollar', tone: 'teal', defaults: ch(true, false, true) },
   refund_approval: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, true, true) },
   bank_review: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, false, false) },
+  // Ticket (TIP-034): sắp đến hạn SLA (người phụ trách) · quá hạn (leo thang Chủ sở hữu + quản lý) · ticket mới giao cho tôi.
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
+  sla_breach: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, true, true) },
+  ticket_assigned: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, false, true) },
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },
   ai_budget: { group: 'ai', icon: 'ic-dollar', tone: 'danger', defaults: ch(false, true, false) },

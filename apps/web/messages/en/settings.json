@@ -1081,6 +1081,8 @@
       "refund_approval": "Refunds waiting for me / decisions",
       "bank_review": "Bank transactions to reconcile",
       "sla_warn": "SLA about to be breached",
+      "sla_breach": "Ticket breached SLA (escalation)",
+      "ticket_assigned": "Ticket assigned to me",
       "ai_review": "AI needs approval before sending",
       "ai_escalate": "AI handed off to a human",
       "ai_budget": "AI over budget",

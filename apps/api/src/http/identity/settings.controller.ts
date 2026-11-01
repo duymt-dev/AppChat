@@ -1,6 +1,6 @@
-// Đọc Cài đặt (Blueprint §4.4 misc `GET /v1/settings/:section`, TIP-013): workspace (Tổng quan + Ngôn ngữ), members, roles, sla
-// (giờ làm việc). Shape `packages/shared/src/api/settings.ts`. Quyền theo settings registry FE: members → `members.manage`,
-// sla → `sla.manage`; workspace / roles → mọi thành viên (mục không khoá quyền). Ghi qua action workspace.* / member.* / invite.* / working_hours.*.
+// Đọc Cài đặt (Blueprint §4.4 misc `GET /v1/settings/:section`, TIP-013): workspace (Tổng quan + Ngôn ngữ), members, roles
+// (`/settings/sla` chuyển sang support — TIP-034). Shape `packages/shared/src/api/settings.ts`. Quyền theo settings registry FE: members → `members.manage`,
+// workspace / roles → mọi thành viên (mục không khoá quyền). Ghi qua action workspace.* / member.* / invite.* / working_hours.*.
 import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { SettingsReadService, TENANT_RESOLVER } from '@appchat/core';
@@ -39,12 +39,5 @@ export class SettingsController {
   async roles(@Req() req: IncomingMessage) {
     const a = await this.actors.resolve(req);
     return { data: await this.read.roles(a.workspaceId) };
-  }
-
-  @Get('sla')
-  async sla(@Req() req: IncomingMessage) {
-    const a = await this.actors.resolve(req);
-    need(a, 'sla.manage');
-    return { data: await this.read.sla(a.workspaceId) };
   }
 }

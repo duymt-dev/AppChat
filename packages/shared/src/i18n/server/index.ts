@@ -4,6 +4,7 @@ import { fallbackChain } from '../locales';
 import { ai as enAi } from './en/ai';
 import { billing as enBilling } from './en/billing';
 import { booking as enBooking } from './en/booking';
+import { support as enSupport } from './en/support';
 import { catalog as enCatalog } from './en/catalog';
 import { channels as enChannels } from './en/channels';
 import { crm as enCrm } from './en/crm';
@@ -14,6 +15,7 @@ import { sales as enSales } from './en/sales';
 import { ai as viAi } from './vi/ai';
 import { billing as viBilling } from './vi/billing';
 import { booking as viBooking } from './vi/booking';
+import { support as viSupport } from './vi/support';
 import { catalog as viCatalog } from './vi/catalog';
 import { channels as viChannels } from './vi/channels';
 import { crm as viCrm } from './vi/crm';
@@ -33,11 +35,12 @@ interface Bundle {
   documents: typeof enDocuments;
   sales: typeof enSales;
   booking: typeof enBooking;
+  support: typeof enSupport;
 }
 
 const BUNDLES: Record<string, Bundle> = {
-  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox, ai: viAi, catalog: viCatalog, documents: viDocuments, sales: viSales, booking: viBooking },
-  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox, ai: enAi, catalog: enCatalog, documents: enDocuments, sales: enSales, booking: enBooking },
+  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox, ai: viAi, catalog: viCatalog, documents: viDocuments, sales: viSales, booking: viBooking, support: viSupport },
+  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox, ai: enAi, catalog: enCatalog, documents: enDocuments, sales: enSales, booking: enBooking, support: enSupport },
 };
 
 /** Bộ chữ server của locale (theo fallback, cuối cùng là vi). */

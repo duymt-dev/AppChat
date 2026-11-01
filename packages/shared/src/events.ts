@@ -139,6 +139,8 @@ export const paymentRefundEvent = z.object({ ...base, payment_id: z.string().uui
 export const bankTxEvent = z.object({ ...base, bank_tx_id: z.string().uuid(), amount: z.string(), status: z.string(), reason: z.string().nullable() });
 export const packageEvent = z.object({ ...base, package_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull.optional(), total_sessions: z.number().int().optional() });
 export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
+/** Ticket (TIP-034): tạo / đóng / mở lại / SLA sắp đến hạn / quá hạn — consumer notify (leo thang), timeline, CSAT. */
+export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional() });
 
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
@@ -218,5 +220,12 @@ export const EVENT_SCHEMAS = {
   'appointment.no_show': appointmentEvent,
   'appointment.cancelled': appointmentEvent,
   'appointment.expired': appointmentEvent,
+  'ticket.created': ticketEvent,
+  'ticket.assigned': ticketEvent,
+  'ticket.updated': ticketEvent,
+  'ticket.closed': ticketEvent,
+  'ticket.reopened': ticketEvent,
+  'ticket.sla_warning': ticketEvent,
+  'ticket.sla_breached': ticketEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

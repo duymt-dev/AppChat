@@ -10,3 +10,4 @@ export { SettingsReadService, ONLINE_WINDOW_MS } from './settings/settings-read.
 export { IDENTITY_ENV, MAIL_PROVIDER, RATE_LIMITER, TAX_LOOKUP, TENANT_PROVISION_QUEUE } from './services/identity.tokens';
 export { hashPassword, verifyPassword, normalizeEmail, sha256 } from './services/secrets';
 export { provisionWorkspace, tenantSeedDb, BullProvisionQueue, TenantProvisionWorker, TENANT_QUEUE, PROVISION_JOB, type ProvisionDeps } from './jobs/tenant-provision.processor';
+export { workingHoursOf, type WorkingHours } from './settings/workspace-settings';

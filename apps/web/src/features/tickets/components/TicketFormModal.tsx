@@ -2,6 +2,7 @@
 // Nhóm xử lý · Người phụ trách (nhân viên hoặc AI Agent) · Mô tả (thanh định dạng). Kênh theo channel registry (Zalo cá nhân · Web chat · Email).
 'use client';
 import { useState } from 'react';
+import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -47,7 +48,8 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
   const t = useTranslations('tickets');
   const { styles, cx } = useTkFormStyles();
   const set = useTicketsUi((s) => s.set);
-  const create = useAction<{ ticket_id: string }>('ticket.create');
+  const create = useAction<{ ticket_id: string; merged?: boolean }>('ticket.create');
+  const { modal } = App.useApp();
   const [d, setD] = useState({
     title: str(prefill.title),
     company: str(prefill.company),
@@ -56,8 +58,8 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
     category: str(prefill.category) || meta.categories[0]!,
     priority: (str(prefill.priority) || 'high') as Priority,
     status: (str(prefill.status) || 'open') as 'open' | 'in_progress' | 'waiting',
-    team_id: str(prefill.team_id) || meta.teams[0]!.id,
-    owner: str(prefill.assignee_user_id) || meta.members[2]!.id,
+    team_id: str(prefill.team_id) || (meta.teams[0]?.id ?? ''),
+    owner: str(prefill.assignee_user_id) || (meta.members[2] ?? meta.members[0])!.id,
     description: str(prefill.description),
   });
   const [err, setErr] = useState('');
@@ -70,23 +72,42 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
     const agent = d.owner === meta.agent.id;
     const c = cf.collect('create');
     if (!c.ok) return;
-    const r = await create.run(
-      {
-        title: d.title.trim(),
-        ...(d.company.trim() ? { company: d.company.trim() } : {}),
-        ...(d.email ? { email: d.email } : {}),
-        channel: d.channel,
-        category: d.category,
-        priority: d.priority,
-        status: d.status,
-        team_id: agent ? 't_ai' : d.team_id,
-        ...(agent ? { assignee_agent_id: d.owner } : { assignee_user_id: d.owner }),
-        ...(d.description.trim() ? { description: d.description.trim() } : {}),
-        ...(c.custom ? { custom: c.custom } : {}),
-      },
-      { onError: (e) => cf.absorb(e.error.fields) },
-    );
-    if (r) set({ form: false, prefill: null, detail: r.result.ticket_id, tab: 'detail' });
+    const input = {
+      title: d.title.trim(),
+      ...(d.company.trim() ? { company: d.company.trim() } : {}),
+      ...(d.email ? { email: d.email } : {}),
+      ...(str(prefill.contact_id) ? { contact_id: str(prefill.contact_id) } : {}),
+      ...(str(prefill.source_message_id) ? { source_message_id: str(prefill.source_message_id) } : {}),
+      channel: d.channel,
+      category: d.category,
+      priority: d.priority,
+      status: d.status,
+      ...(agent ? { assignee_agent_id: d.owner } : { assignee_user_id: d.owner, ...(d.team_id ? { team_id: d.team_id } : {}) }),
+      ...(d.description.trim() ? { description: d.description.trim() } : {}),
+      ...(c.custom ? { custom: c.custom } : {}),
+    };
+    // REQ-H02: khách đã có ticket còn mở cùng danh mục trong 24 giờ → hỏi gộp vào ticket cũ hay vẫn tạo mới.
+    const send = (on_duplicate?: 'merge' | 'create') =>
+      create.run({ ...input, ...(on_duplicate ? { on_duplicate } : {}) }, {
+        onError: (e) => {
+          const dup = (e.error.fields as Record<string, string> | undefined)?.duplicate_of;
+          if (e.error.code !== 'CONFLICT' || !dup) return cf.absorb(e.error.fields);
+          modal.confirm({
+            title: t('form.dupTitle', { code: dup }),
+            content: t('form.dupHint'),
+            okText: t('form.dupMerge'),
+            cancelText: t('form.dupNew'),
+            onOk: () => void send('merge').then(done),
+            onCancel: () => void send('create').then(done),
+          });
+          return true;
+        },
+      });
+    const done = (r: Awaited<ReturnType<typeof send>>) => {
+      if (r) set({ form: false, prefill: null, detail: r.result.ticket_id, tab: 'detail' });
+    };
+    done(await send());
+
   };
   const field = (label: string, el: React.ReactNode, full?: boolean) => (
     <div className={full ? styles.full : undefined}>

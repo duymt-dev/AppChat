@@ -27,6 +27,8 @@ export const notify = {
     },
     bank_review: { title: 'Giao dịch {amount} cần đối soát', label: 'Giao dịch ngân hàng cần đối soát' },
     sla_warn: { title: '{count} ticket sắp quá hạn SLA', label: 'SLA sắp vi phạm' },
+    sla_breach: { title: 'Ticket {code} đã quá hạn SLA: {title}', label: 'Ticket quá hạn SLA (leo thang)' },
+    ticket_assigned: { title: 'Ticket {code} được giao cho bạn: {title}', label: 'Ticket được giao cho tôi' },
     ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi' },
     ai_escalate: { title: '{agent} chuyển hội thoại {contact} sang người', label: 'AI chuyển sang người' },
     ai_budget: { title: 'AI đã dùng {percent}% ngân sách credit', label: 'AI vượt ngân sách' },

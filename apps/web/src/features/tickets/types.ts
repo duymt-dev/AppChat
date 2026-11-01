@@ -32,6 +32,7 @@ export interface Ticket {
   channel: Channel;
   company: string;
   email: string;
+  contact_id: string | null;
   status: TicketStatus;
   priority: Priority;
   assignee_user_id: string | null;
@@ -48,6 +49,9 @@ export interface Ticket {
   sla_result: 'met' | 'breached' | null;
   close_reason: string | null;
   escalations: number;
+  reopened_count: number;
+  /** Điểm hài lòng 1–5 khách trả lời sau khi đóng (null = chưa có). */
+  csat: number | null;
   created_at: string;
   updated_at: string;
   comments: TicketComment[];

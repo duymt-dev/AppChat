@@ -30,6 +30,8 @@ export const notify: Shape<typeof vi> = {
     },
     bank_review: { title: 'Transaction {amount} needs reconciliation', label: 'Bank transactions to reconcile' },
     sla_warn: { title: '{count} tickets are about to breach SLA', label: 'SLA about to be breached' },
+    sla_breach: { title: 'Ticket {code} breached its SLA: {title}', label: 'Ticket breached SLA (escalation)' },
+    ticket_assigned: { title: 'Ticket {code} was assigned to you: {title}', label: 'Ticket assigned to me' },
     ai_review: { title: '{agent} needs your approval before sending', label: 'AI needs approval before sending' },
     ai_escalate: { title: '{agent} handed the conversation with {contact} to a human', label: 'AI handed off to a human' },
     ai_budget: { title: 'AI has used {percent}% of the credit budget', label: 'AI over budget' },

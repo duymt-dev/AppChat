@@ -170,7 +170,7 @@ export class SettingsReadService {
     };
   }
 
-  /** Giờ làm việc thật; chính sách / leo thang = mặc định tới TIP-034 (bảng sla_policy); dự báo rủi ro = 0 khi chưa có ticket. */
+  /** Giờ làm việc thật + múi giờ; chính sách / leo thang / rủi ro mặc định — support (TIP-034) ghép chính sách thật từ `sla_policy`. */
   async sla(workspaceId: string): Promise<SlaSettingsDto> {
     const ws = await this.db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { settings: true, timezone: true } });
     const wh = workingHoursOf(ws.settings);

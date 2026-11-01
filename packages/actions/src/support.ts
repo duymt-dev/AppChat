@@ -55,16 +55,43 @@ export const ticketCreate = defineAction({
     description: z.string().max(5000).optional(),
     /** Tạo từ tin nhắn (menu ⋯ Hộp thư, REQ-C09) — chỉ để truy vết, không bắt buộc tồn tại. */
     source_message_id: z.string().optional(),
+    /**
+     * Khách đã có ticket còn mở cùng danh mục trong 24 giờ (REQ-H02): `ask` (mặc định) → 409 CONFLICT `{ duplicate_of: mã }` để hỏi gộp;
+     * `merge` → thêm nội dung vào ticket cũ; `create` → vẫn tạo mới.
+     */
+    on_duplicate: z.enum(['ask', 'merge', 'create']).optional(),
     /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
     custom: customValuesSchema.optional(),
   }),
-  output: z.object({ ticket_id: z.string(), code: z.string() }),
+  /** `merged` = đã gộp vào ticket cũ cùng khách + danh mục (on_duplicate=merge). */
+  output: z.object({ ticket_id: z.string(), code: z.string(), merged: z.boolean().optional() }),
   permission: 'ticket.manage',
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
   invalidates: ['tickets'],
   uiTarget: opened,
+});
+
+export const ticketUpdate = defineAction({
+  id: 'ticket.update',
+  module: 'support',
+  title: 'actions.ticket.update.title',
+  description: 'Edit ticket details: title, description, category, priority, custom fields. Example: {"ticket_id":"…","priority":"high"}',
+  input: z.object({
+    ticket_id: ticketId,
+    title: z.string().trim().min(1).max(200).optional(),
+    description: z.string().max(5000).optional(),
+    category: z.string().trim().min(1).max(60).optional(),
+    priority: priority.optional(),
+    custom: customValuesSchema.optional(),
+  }),
+  output: out,
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['tickets'],
 });
 
 export const ticketAssign = defineAction({

@@ -1,6 +1,12 @@
-// Controller HTTP của domain `support` nằm trong thư mục này. Stub TIP-001; TIP 034 thêm controller.
-import { Module } from '@nestjs/common';
+// Controller HTTP của domain `support` (TIP-034): ticket /v1/tickets*. Chỉ gắn khi env đủ DB + Redis + JWT_SECRET (`register`) — như sales.
+import { Module, type DynamicModule } from '@nestjs/common';
 import { SupportModule } from '@appchat/core';
+import { ActorModule } from '../kernel/actor.module';
+import { TicketsController } from './tickets.controller';
 
 @Module({ imports: [SupportModule] })
-export class SupportHttpModule {}
+export class SupportHttpModule {
+  static register(): DynamicModule {
+    return { module: SupportHttpModule, imports: [SupportModule, ActorModule], controllers: [TicketsController] };
+  }
+}

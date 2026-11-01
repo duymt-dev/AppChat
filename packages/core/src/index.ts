@@ -41,6 +41,7 @@ export { BookingModule } from './booking/booking.module';
 export { BookingJobsModule } from './booking/jobs/booking.jobs.module';
 export { SupportModule } from './support/support.module';
 export { SupportJobsModule } from './support/jobs/support.jobs.module';
+export * from './support/public';
 export { MarketingModule } from './marketing/marketing.module';
 export { MarketingJobsModule } from './marketing/jobs/marketing.jobs.module';
 export { LoyaltyModule } from './loyalty/loyalty.module';

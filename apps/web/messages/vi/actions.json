@@ -472,6 +472,10 @@
     }
   },
   "ticket": {
+    "update": {
+      "title": "Sửa ticket",
+      "desc": "Sửa tiêu đề, mô tả, danh mục, ưu tiên hoặc trường tuỳ biến của ticket."
+    },
     "search": {
       "title": "Tìm ticket",
       "desc": "Tìm ticket theo nội dung, trạng thái, ưu tiên hoặc SLA."

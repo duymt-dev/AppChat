@@ -4,7 +4,7 @@ import { createFmt, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 
-export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted' | 'appointment_booked' | 'appointment_rescheduled' | 'appointment_done' | 'appointment_no_show' | 'appointment_cancelled' | 'package_session_used';
+export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted' | 'appointment_booked' | 'appointment_rescheduled' | 'appointment_done' | 'appointment_no_show' | 'appointment_cancelled' | 'package_session_used' | 'ticket_opened' | 'ticket_closed' | 'ticket_reopened';
 type TimelineType = 'message' | 'quote' | 'contract' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge';
 
 export interface TimelineInput {
@@ -55,6 +55,9 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   appointment_no_show: { icon: 'ic-clock', tone: 'amber' },
   appointment_cancelled: { icon: 'ic-x', tone: 'muted' },
   package_session_used: { icon: 'ic-gift', tone: 'brand' },
+  ticket_opened: { icon: 'ic-ticket', tone: 'amber' },
+  ticket_closed: { icon: 'ic-check', tone: 'ok' },
+  ticket_reopened: { icon: 'ic-ticket', tone: 'amber' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {

@@ -43,6 +43,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
       const q = new URLSearchParams({
         tk_title: `Từ tin nhắn: ${(message.body ?? '').slice(0, 40)}…`,
         tk_channel: 'zalo_personal',
+        tk_msg: messageId,
       });
       router.push(`/tickets?${q.toString()}`);
     }],

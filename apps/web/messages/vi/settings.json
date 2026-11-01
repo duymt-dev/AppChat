@@ -1081,6 +1081,8 @@
       "refund_approval": "Hoàn tiền chờ tôi duyệt / kết quả duyệt",
       "bank_review": "Giao dịch ngân hàng cần đối soát",
       "sla_warn": "SLA sắp vi phạm",
+      "sla_breach": "Ticket quá hạn SLA (leo thang)",
+      "ticket_assigned": "Ticket được giao cho tôi",
       "ai_review": "AI cần duyệt trước khi gửi",
       "ai_escalate": "AI chuyển sang người",
       "ai_budget": "AI vượt ngân sách",
