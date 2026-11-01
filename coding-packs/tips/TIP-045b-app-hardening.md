@@ -1,0 +1,38 @@
+# TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
+
+## HEADER
+- TIP-ID: TIP-045b (bổ sung — chèn trước TIP-045 / 046, DC-232)
+- Project: AppChat V2
+- Module: `packages/core/src/kernel/{metrics, http/safe-fetch, files/upload-guard, ratelimit, audit}/**` · `apps/api/src/{main.ts, http/files.controller.ts}` · `packages/core/src/inbox/actions/message.handlers.ts` · `packages/core/src/ai/reply/reply.service.ts` · `packages/core/src/kernel/actions/executor.ts` (202 job) · `packages/core/src/billing/jobs/reconcile.ts` · `packages/actions/src/identity.ts` (`workspace.transfer_ownership`) · serializer CRM
+- Depends on: TIP-003, 005, 006, 009, 014, 016, 020, 022 (đã xong)
+- Priority: P0 · REQ: N06, N07, N08, A05, F01 · Decision: standard `ops/observability-security`, `authz/rbac-permissions` §7–8, `database/tenant-db` §5, `domain/concurrency` §5 §7, `domain/validation-defaults` §4 · DC-232
+- Estimated effort: 20 giờ
+
+## CONTEXT
+Rà standards 2026-11-01: phần **trong code** của `ops/observability-security` ghi "mọi TIP backend phải làm" nhưng không TIP nào làm; TIP-045 chỉ hạ tầng (Prometheus / Grafana cần app mở `/metrics`), TIP-046 chỉ rà soát. Đã kiểm code: không có `prom-client`, `safeFetch`, kiểm magic bytes, rate limit chung (chỉ OTP / widget / ký), CORS, chỗ ghi `platform_audit_log`, `workspace.transfer_ownership`, lọc trường phía server, job đối soát, chuyển `ai_mode` khi người gửi, job cho export / bulk lớn.
+
+## TASK
+1. **Metrics** (`prom-client`, đã nằm trong Blueprint §11): `/metrics` (chỉ localhost / token nội bộ) cho api + worker: `http_request_duration_seconds{route,method,status}`, `action_total{action,source,result}`, `queue_depth{queue}`, `outbox_lag_seconds`, `llm_tokens_total{provider,model,purpose}`, `llm_errors_total`, `channel_account_status{type,status}`, `tenant_pool_clients`. Không nhãn theo workspace / user (cardinality).
+2. **SSRF:** `safeFetch` (chặn private / loopback / link-local / metadata, kiểm sau DNS resolve + sau redirect, timeout, giới hạn byte) — thay mọi `fetch` ra URL do người dùng nhập (`ai/kb/ingest.ts:46`, webhook test, connector probe).
+3. **Tải file:** allowlist mime theo mục đích + magic bytes (`file-type` logic tự viết cho PDF / DOCX / XLSX / PNG / JPG / WebP / MP4 / CSV), giới hạn dung lượng theo loại; `files.controller` từ chối đổi đuôi. (Presign S3 để khi có storage s3 — DV-003 giữ multipart.)
+4. **Rate limit chung** (Redis, sliding window): đọc 600 / phút / user, action 120 / phút / user, trang công khai (xem báo giá / HĐ / ký) 30 / phút / IP; 429 + `Retry-After`, envelope lỗi chuẩn.
+5. **CORS:** chỉ origin app + widget (env), credentials đúng.
+6. **Audit:** `admin.*` ghi `platform_audit_log`; sự kiện nhạy cảm (đăng nhập thiết bị mới, đổi vai trò, mời / xoá thành viên, kết nối / ngắt kênh, xuất dữ liệu, đổi chủ) ghi `action_log` cờ `audit` + thông báo Owner (rbac §7).
+7. **`workspace.transfer_ownership { to_user_id, otp }`** (config, OTP email của Owner hiện tại, người nhận phải là thành viên active; Owner cũ thành admin); FE nút ở Cài đặt → Thành viên (Can `workspace.transfer`).
+8. **Lọc trường theo vai trò phía server:** serializer CRM / chứng từ dùng `fieldsForRole` (đã ở shared) để bỏ trường bị ẩn khỏi response + export + output action đọc (023b).
+9. **Đối soát hằng giờ** DB nền tảng ↔ tenant: membership, hạn mức (kênh, ghế), ví credit vs sổ usage; lệch → log + metric + thông báo admin nền tảng, không tự sửa.
+10. **AI nhường người** (concurrency §5): người gửi tin khi `ai_mode=auto` → chuyển `copilot` (ghi sự kiện); run agent kiểm lại `ai_mode` ngay trước bước gửi, đã đổi → bỏ gửi, lưu nháp.
+11. **Job nặng chạy nền:** export > 5.000 dòng → job + link tải (thông báo); bulk > 50 bản ghi → executor trả 202 `{ job_id }`, tiến độ qua WS; áp `contact.export`, `contact.import`, `*.bulk_update`.
+12. Dọn: giá trị trường tuỳ biến đã xoá giữ 30 ngày rồi job dọn (custom-fields §2); contract test chung `packages/channels/test/contract.test.ts` cho mọi adapter; factory `packages/db/test/factories`.
+
+## ACCEPTANCE CRITERIA
+1. Unit / integration: `safeFetch` chặn 127.0.0.1, 10.x, 169.254.169.254, IPv6 loopback, redirect sang IP nội bộ; file `.exe` đổi tên `.pdf` → 415; rate limit trả 429 đúng ngưỡng (đồng hồ giả); CORS origin lạ bị chặn.
+2. Integration: `/metrics` có đủ metric sau khi gọi 1 action + 1 run model giả; `admin.*` ghi audit; đổi vai trò → thông báo Owner; transfer ownership đủ luồng OTP + vai trò sau đổi.
+3. Integration: sales không nhận trường bị ẩn trong `GET /contacts/:id` và `contact.export`; đối soát phát hiện lệch giả lập; người gửi khi AI auto → `copilot` + run đang chạy không gửi.
+4. Integration: export 6.000 dòng → 202 + job + link; bulk 60 → 202.
+5. Contract test kênh chạy cho zalo / webchat / email (fake transport).
+6. Cổng D59 + full hồi quy (đụng kernel / executor).
+
+## CONSTRAINTS
+- `prom-client` đã nằm trong Blueprint §11 (không phải thư viện mới ngoài stack); `file-type` không thêm — tự kiểm magic bytes.
+- Không đổi hợp đồng API đã có ngoài thêm 202 `{ job_id }` cho job nặng; FE `useAction` xử lý 202 job (thêm trong TIP này nếu chưa có).

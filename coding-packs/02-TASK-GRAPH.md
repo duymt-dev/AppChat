@@ -1,7 +1,7 @@
 # AppChat — Task Graph
 
 > Vibecode Kit v5.0 — BƯỚC 5 (TASK GRAPH) · 2026-10-28
-> **46 TIP**, chia **9 wave** (~656 giờ builder). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
+> **46 TIP + 6 TIP bổ sung (023b, 023c, 032b, 030b, 015b, 045b — 2026-11-01, DC-224…232)**, chia **9 wave** (~656 giờ builder). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
 > Wave là thứ tự phụ thuộc, không phải tuần lịch. Trong một wave, các TIP không phụ thuộc nhau chạy song song được (mỗi TIP một nhánh / worktree riêng).
 
 ---
@@ -41,10 +41,10 @@ W7   027,028,015,016 ─▶ 029 Báo giá ─┬─▶ 030 Hợp đồng + ký �
                                      └─▶ 031 Đơn + kho + khung đồng bộ sàn (012) ─▶ 032 Đề nghị thanh toán + thu tiền (010)
                                                               032 ─▶ 033 Lịch hẹn
                                                    │
-W8   034 Ticket/SLA · 035 Tác vụ tự chủ · 023b Trợ lý phủ đủ action · 023c Generative UI · 036 Loyalty · 037 Marketing · 038 Tổng quan + insights
+W8   034 Ticket/SLA · 035 Tác vụ tự chủ · 023b Trợ lý phủ đủ action · 023c Generative UI · 032b Commerce vá luật · 030b Hợp đồng từ file · 015b Trí nhớ khách · 036 Loyalty · 037 Marketing · 038 Tổng quan + insights
      039 Gói & ví UI · 040 Quản trị nền tảng · 041 Lưu trữ workspace · 042 Vai trò tuỳ biến + nhóm · 043 AI học từ hội thoại
                                                    │
-W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (phụ thuộc tất cả)
+W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (phụ thuộc tất cả)
 ```
 
 **Chuỗi cứng (đường găng):** `001 → 002 → 003 → 004 → 005 → 015 → 016 → 022 → 025` và `003 → 019 → 021 → 023 → 024`. Commerce: `027 → 029 → 031 → 032 → 033`.
@@ -80,6 +80,10 @@ W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (ph
 | 023 | Trợ lý AI: ai-assistant.prisma, meta-tools (`find_actions`, `call_action`, `ui`, `plan`, `query_data`, `delegate`), stream SSE, nối AssistantPage + AssistantDock + ConfirmCard (FE đã có), Chat / Cowork, khung "Trợ lý AI đang điều phối" (`GET /v1/runs?root_run_id=&status=`) | 021, 019 | P0 | 20 | W6 | E02, E04, E05, E06, E07, E10, E11, E12, E14 | ai/agent-gateway, ui/frontend-structure |
 | 023b | Trợ lý toàn năng: khuôn input lồng nhau cho model, ẩn action chưa có handler, mã → id cả agent, ~20 action đọc `search` / `get`, preview "đổi gì" cho mọi action ghi, test bắt buộc phủ action, bộ câu thử 9router thật (`pnpm ai:live`) | 023, 022 | P0 | 16 | W8 (trước 036) | D03, E02, E04, E05, E09, E10 | ai/agent-gateway, actions/action-registry |
 | 023c | Generative UI (D55): `UiTree` + `render` + renderer compact / full, khối `qr`, ô `secret`; 7 drawer Trợ lý theo màn + hộp lệnh Hộp thư nối thật kèm ngữ cảnh (E06); kết nối kênh / connector qua Trợ lý | 023b, 014, 016, 012 | P0 | 24 | W8 (trước 036) | E06, E07, E10, B10, H03 | ai/generative-ui, ui/prototype-parity |
+| 032b | Commerce vá luật đã chốt: ngưỡng duyệt cấu hình được + trần agent, báo giá → một HĐ hoặc một đơn, VietQR ảnh thật + `GET /invoices/:id/qr`, gửi chứng từ qua webchat, `order.send_confirmation` / `receipt.send`, liệu trình khi cọc + nhắc, catalog (danh mục / import / biến thể) | 027, 029, 030, 031, 032, 021 | P0 | 12 | W8 (trước 036) | F03–F08, M01 | domain/state-machine, documents/templates |
+| 030b | Hợp đồng từ file: chọn mẫu theo loại, tải PDF / DOCX có sẵn, tạo từ tệp khách gửi trong hội thoại, phụ lục, AI soạn nháp (đóng Q-022) | 028, 030, 025 | P0 | 12 | W8 (trước 036) | F09, M01, M02 | documents/templates |
+| 015b | Trí nhớ khách AI: `contact.remember` / `forget`, agent tự ghi, tóm tắt 360°, KPI 360° (công nợ, HĐ, đơn / thu gần nhất), "AI gợi ý" | 015, 022, 023b, 029–032 | P0 | 10 | W8 (sau 023b) | F02, F05, D05 | ai/agent-gateway |
+| 045b | Bảo mật & vận hành trong app: `/metrics` prom-client, `safeFetch` SSRF, kiểm file tải lên, rate limit chung, CORS, audit, `workspace.transfer_ownership`, lọc trường theo vai trò phía server, đối soát nền tảng ↔ tenant, AI nhường người, export / bulk lớn chạy job | 003, 005, 006, 009, 014, 016, 020, 022 | P0 | 20 | W9 (trước 045, 046) | N06, N07, N08, A05, F01 | ops/observability-security, authz/rbac-permissions |
 | 024 | Agents UI + hàng chờ duyệt + nhật ký hành động: AgentsPage, TemplateGallery, AgentBuilder, tạo bằng Trợ lý, lịch sử phiên bản, TestChat; assistant/approvals, assistant/actions | 021, 023 | P0 | 16 | W6 | D07, D08, D09, D09b, D15, E09 | ui/prototype-parity, ui/frontend-structure |
 | 025 | Inbox — nối API + realtime cho màn đã có (3 cột, folders, chat, composer, chế độ AI, handoff banner, gợi ý copilot, panel 360°, "Chuyển thành", menu ⋯ tin nhắn / hội thoại ver2.1) | 016, 022 | P0 | 20 | W6 | C01–C05, C07, C08 | ui/prototype-parity, ui/frontend-structure |
 | 026 | Khách hàng — nối API cho màn đã có (bảng có số trang D42 / kanban, Hồ sơ 360° theo `profile_layout`, 6 nút mở form tại chỗ D46, người phụ trách + đồng phụ trách, chuyển phụ trách, xin chia sẻ, trường dữ liệu, thẻ, import / export) | 015 | P0 | 16 | W6 | F01, F01b, F02, F03, F04 | ui/prototype-parity, authz/rbac-permissions |
@@ -92,17 +96,17 @@ W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (ph
 | 033 | Lịch hẹn: booking.prisma, nhân sự, giờ mở cửa, tìm slot + chống trùng (btree_gist), trạng thái, giữ chỗ, nhắc hẹn, trừ buổi liệu trình, gợi ý tạo đơn, trang Lịch | 015, 027, 032 | P0 | 18 | W7 | G01–G05 | database/indexing, ui/prototype-parity |
 | 034 | Ticket & SLA: support.prisma, SLA mặc định, đồng hồ SLA, leo thang, agent tạo ticket, trang Ticket | 015, 016 | P1 | 14 | W8 | H01–H04 | ui/prototype-parity |
 | 035 | Tác vụ tự chủ & chủ động: ai-tasks.prisma, Coworks (ngay / lịch / sự kiện), mẫu follow-up / báo giá treo / nhắc hẹn / sau mua / briefing sáng | 022, 023 | P1 | 12 | W8 | D12, E08, E13 | ai/agent-gateway |
-| 036 | Loyalty: loyalty.prisma, hạng, cộng điểm một lần khi đơn hoàn tất, đổi điểm, điều chỉnh có lý do, trang Khách thân thiết | 031, 032 | P1 | 10 | W8 | J01–J04 | — |
+| 036 | Loyalty: loyalty.prisma, hạng, cộng điểm một lần khi đơn hoàn tất, đổi điểm, điều chỉnh có lý do, trang Khách thân thiết; sổ điểm thật (cộng khi `order.completed`, đảo khi huỷ, hạn 12 tháng, hạng theo quý), `payment.redeem_points` ≤ 50%, sửa quy đổi 1 điểm = 100đ ở 360° | 031, 032 | P1 | 10 | W8 | J01–J04 | — |
 | 037 | Marketing broadcast: marketing.prisma, phân khúc động, AI đề xuất, wizard, duyệt bắt buộc, queue `campaign-send` (throttle Zalo / email), thống kê | 015, 016, 022 | P1 | 18 | W8 | I01–I05 | channels/omnichannel-adapter |
-| 038 | Tổng quan + insights: registry metric, `insight.query`, Dashboard (Việc cần tôi, AI hôm nay, follow-up, onboarding, credit), hiệu suất agent | 022, 023, 029, 031 | P0 | 12 | W8 | K01, E07, D14 | ui/prototype-parity |
-| 039 | Gói & ví UI: trang Gói & thanh toán, popup Nâng cấp, badge trial, cảnh báo credit, luồng mua bằng QR, hết hạn gói | 009, 010, 013 | P0 | 10 | W8 | L05, L06, L07 | ui/prototype-parity |
+| 038 | Tổng quan + insights: registry metric, `insight.query`, Dashboard (Việc cần tôi, AI hôm nay, follow-up, onboarding, credit), hiệu suất agent; `query_data` thật cho Trợ lý; hiệu suất agent đủ (tỉ lệ chốt, credit, `/agents/:id/stats`); \"Xuất Excel\" Báo giá / Đơn / HĐ / Ticket bằng `exceljs` (nút prototype đang giả — Q-024) | 022, 023, 029, 031 | P0 | 12 | W8 | K01, E07, D14 | ui/prototype-parity |
+| 039 | Gói & ví UI: trang Gói & thanh toán, popup Nâng cấp, badge trial, cảnh báo credit, luồng mua bằng QR, hết hạn gói; job cấp lại credit hằng tháng (`period:<ws>:<yyyy-mm>`) | 009, 010, 013 | P0 | 10 | W8 | L05, L06, L07 | ui/prototype-parity |
 | 040 | Quản trị nền tảng: workspaces, gói, đơn giá model, LLM provider (probe), duyệt chuyển khoản, agent template | 009, 010, 019, 021 | P1 | 12 | W8 | L08 | authz/rbac-permissions |
 | 041 | Lưu trữ / khôi phục / xoá workspace (gói Miễn phí 90 ngày) | 002, 009 | P1 | 8 | W8 | A09 | database/tenant-db |
 | 042 | Vai trò tuỳ biến + Nhóm + uỷ quyền + chia lead tự động | 005, 013, 015 | P1 | 12 | W8 | A05b, F01c | authz/rbac-permissions |
 | 043 | AI học từ hội thoại (đề xuất hỏi–đáp có người duyệt) | 020, 016 | P1 | 8 | W8 | D04b | ai/rag |
-| 044 | AI eval gate: harness replay + live, đủ các suite (`assistant-*`, `agent-*`, `rag`, `doc-draft`, `delegate-consult`), báo cáo, CI | 022, 023, 024, 028, 020 | P0 | 16 | W9 | N11 | ai/eval |
+| 044 | AI eval gate: harness replay + live, đủ các suite (`assistant-*`, `agent-*`, `rag`, `doc-draft`, `delegate-consult`, `genui`; gộp bộ `pnpm ai:live`), báo cáo, CI | 022, 023, 024, 028, 020 | P0 | 16 | W9 | N11 | ai/eval |
 | 045 | Hạ tầng production: `infra/` (provision, nginx, systemd + PM2, PgBouncer, pgBackRest, LibreOffice + font), Prometheus / Alertmanager / Grafana / Loki / Alloy, dashboard + alert, deploy `releases/<sha>` | 001 | P0 | 20 | W9 | N01, N06, N08, N09 | Blueprint §11 |
-| 046 | Release hardening: đo p95, rà bảo mật, chạy parity mọi màn, e2e mobile, độ phủ `en`, diễn tập backup / restore | tất cả | P0 | 16 | W9 | N06, N07, N14 | tất cả |
+| 046 | Release hardening: đo p95, rà bảo mật, chạy parity mọi màn, e2e mobile, độ phủ `en`, diễn tập backup / restore; CI `backend-it.yml` (Postgres + Redis service) + e2e http (Q-008), `pnpm smoke:build` (Q-009); rerank + job re-embed khi đổi model embed (rag §6, §10) | tất cả | P0 | 16 | W9 | N06, N07, N14 | tất cả |
 
 **Tổng:** 44 TIP còn hiệu lực (007, 008 huỷ) · ~630 giờ theo ước tính gốc (giảm khi ước lại phần "nối API") · P0: 35 TIP · P1: 9 TIP.
 
@@ -121,8 +125,8 @@ W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (ph
 | W5 | 019 ; rồi 020 ∥ 021 ; rồi 022 | 019 kẹt nếu chưa có key LLM (dùng mock model cho unit, nhưng nghiệm thu cần provider thật) |
 | W6 | 023 ∥ 025 ∥ 026 ∥ 027 ∥ 028 ; rồi 024 | 6 nhánh độc lập về file |
 | W7 | 029 ; rồi 030 ∥ 031 ; rồi 032 ; rồi 033 | Commerce đi theo chuỗi vì cùng luồng tiền |
-| W8 | 034 ∥ 035 ; rồi 023b ; rồi 023c ; rồi 036 ∥ 037 ∥ 038 ∥ 039 ∥ 040 ∥ 041 ∥ 042 ∥ 043 | Toàn bộ độc lập về file; 036 cần 032 xong |
-| W9 | 044 ∥ 045 ; rồi 046 | 045 làm sớm được bất cứ lúc nào khi có VPS (Chủ nhà đang hoãn) |
+| W8 | 034 ∥ 035 ; rồi 023b ; rồi 023c ∥ 032b ∥ 030b ∥ 015b ; rồi 036 ∥ 037 ∥ 038 ∥ 039 ∥ 040 ∥ 041 ∥ 042 ∥ 043 | Toàn bộ độc lập về file; 036 cần 032 xong |
+| W9 | 045b ; rồi 044 ∥ 045 ; rồi 046 | 045 làm sớm được bất cứ lúc nào khi có VPS (Chủ nhà đang hoãn) |
 
 **Tránh đụng file khi chạy song song:** TIP-001 tạo sẵn mọi file tổng hợp **phía backend** (`app.module.ts`, `core/index.ts`, registry kênh / connector, stub prisma). `actions/index.ts`, `nav-config.ts`, `messages/*/<module>.json` đã có từ goal FE. TIP sau **chỉ điền stub của domain mình**; file ngoài domain được phép sửa duy nhất là `packages/shared/src/api/<domain>.ts` + import tương ứng ở `features/<module>` (tách shape đọc — `standards/domain/gap-filling.md` §5). Muốn sửa file của TIP khác → dừng, báo Chủ thầu (escalation L2).
 

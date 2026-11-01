@@ -86,7 +86,7 @@ Ngưỡng duy nhất < 100% là các ô phụ thuộc dịch vụ ngoài (bản 
 
 - Màn FE mới (trừ 017 `apps/widget` và 040 Quản trị nền tảng — hai TIP còn UI thật).
 - Adapter sàn thật Shopee / TikTok / Lazada, MCP, module ẩn (Gọi điện, Quy trình, Báo cáo) — ngoài phạm vi phát hành (BUILDER-HANDOFF Roadmap).
-- Generative UI phía FE của D55 — chạy cùng TIP-023 nếu Chủ nhà mở goal `goal/genui`; không tự làm ở đây (Q-005).
+- ~~Generative UI phía FE của D55~~ — đã đưa vào goal: TIP-023c (DC-228, Chủ nhà 2026-11-01).
 - Push thẳng `dev` / `main`, tự merge PR, tạo PR `dev → main`.
 
 ## Tiến độ
@@ -130,6 +130,10 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 035 | W8 | DONE (model giả — Q-001; gửi tin qua kênh giả — chưa nghiệm thu Zalo / email thật) | `tip/035-ai-tasks` (xếp chồng 034) | 0d1b86b | chờ tạo (gh chưa đăng nhập) |
 | 023b | W8 | đang làm (R1) | `tip/023b-assistant-coverage` | | |
 | 023c | W8 | chờ (sau 023b) | `tip/023c-generative-ui` | | |
+| 032b | W8 | chờ | `tip/032b-commerce-gaps` | | |
+| 030b | W8 | chờ | `tip/030b-contract-files` | | |
+| 015b | W8 | chờ (sau 023b) | `tip/015b-contact-memory` | | |
+| 045b | W9 | chờ (trước 045) | `tip/045b-app-hardening` | | |
 | 036 | W8 | chờ | — | — | — |
 | 037 | W8 | chờ | — | — | — |
 | 038 | W8 | chờ | — | — | — |
