@@ -1,6 +1,6 @@
 # HANDOFF — làm tiếp AppChat (2026-11-01)
 
-> Đọc file này đầu phiên mới, sau `CLAUDE.md`. Ghi trạng thái lúc dừng + việc kế tiếp + câu `/goal` dán nguyên văn.
+> Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
 
 ## 1. Trạng thái lúc dừng (`dev` = commit chứa file này)
 
@@ -16,27 +16,27 @@
 
 ## 2. Việc kế tiếp (theo thứ tự)
 
-1. **Viết đủ TIP** — dán câu `/goal` A (mục 4). Làm tiếp từ sổ đã có, **không dựng lại từ đầu**:
+1. **Viết đủ TIP** — dán câu giao việc A (mục 4). Làm tiếp từ sổ đã có, **không dựng lại từ đầu**:
    - Rà nốt mục "chưa rà hết" của 7 phần (`tools/obligations/parts/`).
    - Gom 220 lỗ hổng vào TIP: mở rộng TIP chờ phù hợp, hoặc TIP bổ sung mới `0XXb` (xếp vào `02-TASK-GRAPH.md`) + đoạn "Bổ sung" trỏ sang TIP mới ở `reports/TIP-0XX-completion.md`. Một số cụm đã thấy: nút FE giả ở báo giá / đơn / hợp đồng (AI từng dòng, tab tệp, chuyển tiếp hàng loạt), Hộp thư (nhóm Zalo, 360° sửa / CSV, chụp màn hình, dịch tự động), Cài đặt (nhật ký hoạt động / AI audit, bảo mật, tài khoản nhận tiền, đặt lịch), Trợ lý (đính kèm, micro, lịch sử phiên); SePay / Casso của DN đang nối adapter giả (thiếu code, không phải thiếu tài khoản); người theo dõi khách không thấy chứng từ của khách; agent tự chuyển chủ khách không qua duyệt; worker `ROLE=ai` không nạp module sales / booking / support / contracts (duyệt xong chạy 501); `/booking/slots` sai route (API là `/calendar/slots`); xoá dữ liệu khách theo yêu cầu (`privacy.erase`); WCAG; OpenAPI `/v1/docs`; `if_version` cho contact / contract / order; `useAction` nuốt 202 `approval_required`.
    - Rà + sửa 6 TIP đã có file; viết file đủ phần cho 036–046 (khuôn: HEADER có "Dòng COVERAGE nhận", CONTEXT có hiện trạng code thật, mục **"Rà trước khi làm"**, TASK, ACCEPTANCE CRITERIA đo được — lệnh test + ca 9router thật cho phần AI, CONSTRAINTS).
    - Một lượt rà độc lập COVERAGE ↔ code ↔ TIP. Commit + push thẳng `dev` (chỉ tài liệu).
-2. **Code tiếp** — sau khi TIP đủ, dán câu `/goal` B: bắt đầu **TIP-023b**, rồi 023c ∥ 032b ∥ 030b ∥ 015b → 036 … 043 → 045b → 044 ∥ 045 → 046.
+2. **Code tiếp** — sau khi TIP đủ, dán câu giao việc B: bắt đầu **TIP-023b**, rồi 023c ∥ 032b ∥ 030b ∥ 015b → 036 … 043 → 045b → 044 ∥ 045 → 046.
 
 ## 3. Lưu ý vận hành
 
-- **Quota:** mỗi agent rà bằng Opus tốn ~250–370k token; lượt dựng sổ vừa rồi ~2,1 triệu. Muốn tiết kiệm: chạy agent rà / viết bằng Sonnet (`model: "sonnet"` trong Agent), giữ phiên chính làm gộp + quyết định.
-- **Agent rà phải ghi file dần** (ghi sớm, mở rộng sau) — lần trước 2 agent chết vì lỗi API mất trắng phần đã rà.
+- **Chi phí:** lượt dựng sổ vừa rồi tốn ~2,1 triệu token (7 lượt rà song song, mỗi lượt ~250–370k). Chia việc theo phần, mỗi phần ghi file dần; dừng giữa chừng vẫn giữ được phần đã rà.
+- **Ghi file dần:** lần trước 2 lượt rà chết vì lỗi API, mất trắng phần đã rà vì chỉ ghi file ở cuối.
 - **Môi trường demo local** (`.data/local/`, gitignore): `run.sh api|jobs|ai|channels|web`, tài khoản demo `demo@appchat.local`, Zalo thật đã đăng nhập, LLM 9router (`cc/claude-haiku-4-5-20251001`, chưa có model embedding — RAG ingest lỗi), Brevo chờ whitelist IP. Chạy integration test phải tắt worker dev trước (chung Redis).
 - **Git:** tài liệu được push thẳng `dev`. Code: nhánh `tip/XXX-*` từ `origin/dev` → PR vào `dev` (`gh pr create --base dev`; kiểm `gh auth status` trước). Không PR vào `main`, không đề cập `dev → main`.
 - **Không đổi** luật trong `plans/COMMERCE-DECISIONS.md` và quyền đã chốt.
 
-## 4. Câu `/goal` (dán nguyên văn)
+## 4. Câu giao việc (dán nguyên văn làm yêu cầu đầu phiên — Claude Code: sau `/goal`; Codex: dán làm prompt)
 
 **A — viết đủ TIP (làm trước):**
 
 ```
-Viết đủ TIP cho phần còn lại của AppChat, chưa code — làm tiếp từ coding-packs/HANDOFF-NEXT.md. Bước 1 (đã có bản nháp): hoàn thiện sổ phủ coding-packs/COVERAGE.md bằng tools/obligations (sửa tools/obligations/parts/part-*.md rồi chạy merge.py, không sửa tay COVERAGE.md) — rà nốt mục "chưa rà hết" của 7 phần; nghĩa vụ của TIP đã DONE phải kiểm bằng code (file:dòng) + test, không tin trạng thái DONE. Bước 2: KHÔNG sửa file TIP đã DONE (001–035); nghĩa vụ chúng chưa đạt → viết TIP bổ sung mới (dạng 0XXb, xếp vào 02-TASK-GRAPH) và ghi đoạn "Bổ sung" trỏ sang TIP mới vào reports/TIP-0XX-completion.md; gán TIP cho cả 220 lỗ hổng. Rà và sửa các TIP chưa làm đã có file (023b, 023c, 032b, 030b, 015b, 045b); viết file đầy đủ cho TIP chưa làm chưa có file (036–046) theo khuôn /vibecode:tip: dòng COVERAGE nhận, CONTEXT có hiện trạng code thật, mục "Rà trước khi làm", TASK, ACCEPTANCE CRITERIA đo được (lệnh test, ca 9router thật cho phần AI), CONSTRAINTS. Bước 3: một lượt rà độc lập COVERAGE ↔ code ↔ TIP. Agent rà / viết dùng Sonnet và ghi file dần. Câu hỏi ghi QUESTIONS.md, quyết định DECISIONS.md. Xong khi mọi dòng COVERAGE có TIP nhận (hoặc loại khỏi phạm vi có mã D / DC), mọi TIP chưa làm có file đủ phần, lượt rà độc lập không còn lỗ hổng; commit và push thẳng dev (chỉ tài liệu).
+Viết đủ TIP cho phần còn lại của AppChat, chưa code — làm tiếp từ coding-packs/HANDOFF-NEXT.md. Bước 1 (đã có bản nháp): hoàn thiện sổ phủ coding-packs/COVERAGE.md bằng tools/obligations (sửa tools/obligations/parts/part-*.md rồi chạy merge.py, không sửa tay COVERAGE.md) — rà nốt mục "chưa rà hết" của 7 phần; nghĩa vụ của TIP đã DONE phải kiểm bằng code (file:dòng) + test, không tin trạng thái DONE. Bước 2: KHÔNG sửa file TIP đã DONE (001–035); nghĩa vụ chúng chưa đạt → viết TIP bổ sung mới (dạng 0XXb, xếp vào 02-TASK-GRAPH) và ghi đoạn "Bổ sung" trỏ sang TIP mới vào reports/TIP-0XX-completion.md; gán TIP cho cả 220 lỗ hổng. Rà và sửa các TIP chưa làm đã có file (023b, 023c, 032b, 030b, 015b, 045b); viết file đầy đủ cho TIP chưa làm chưa có file (036–046) theo khuôn /vibecode:tip: dòng COVERAGE nhận, CONTEXT có hiện trạng code thật, mục "Rà trước khi làm", TASK, ACCEPTANCE CRITERIA đo được (lệnh test, ca 9router thật cho phần AI), CONSTRAINTS. Bước 3: một lượt rà độc lập COVERAGE ↔ code ↔ TIP. Rà theo từng phần, ghi file dần (lỗi giữa chừng không mất phần đã rà). Câu hỏi ghi QUESTIONS.md, quyết định DECISIONS.md. Xong khi mọi dòng COVERAGE có TIP nhận (hoặc loại khỏi phạm vi có mã D / DC), mọi TIP chưa làm có file đủ phần, lượt rà độc lập không còn lỗ hổng; commit và push thẳng dev (chỉ tài liệu).
 ```
 
 **B — code (sau khi A xong):**
