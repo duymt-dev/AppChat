@@ -29,6 +29,7 @@ import { OrderFromContractHandler, OrderFromQuoteHandler, OrderCreateHandler } f
 import { OrderSetDepositHandler, OrderShippingHandler, OrderUpdateHandler } from './orders/actions/order-edit.handlers';
 import { OrderCancelHandler, OrderCompleteHandler, OrderConfirmHandler } from './orders/actions/order-flow.handlers';
 import { OrderSyncNowHandler } from './orders/actions/order-sync.handler';
+import { OrderFromAppointmentHandler } from './orders/actions/order-from-appointment.handler';
 import { OrdersReadService } from './orders/services/orders-read.service';
 import { OrderSyncService } from './orders/services/order-sync';
 import { InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler } from './payments/actions/invoice-write.handlers';
@@ -51,7 +52,7 @@ const HANDLERS = [
   QuoteDraftFromContentHandler,
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
   OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
-  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler,
+  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler,
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,

@@ -9,6 +9,7 @@ export const STATUS_TONE: Record<ApptStatus, [fg: string, bg: string]> = {
   done: [color.slate, color.slateBg],
   no_show: [color.dangerStrong, color.dangerBg],
   cancelled: [color.text4, color.muteBg],
+  expired: [color.text4, color.muteBg],
 };
 
 export const PAY_TONE: Record<string, string> = {

@@ -8,3 +8,4 @@ export { applyStageRule, type StageRule } from './services/stage-rules';
 export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';
 export { fieldDefs } from './services/fields.service';
+export { createContact } from './services/contacts.service';

@@ -1,3 +1,107 @@
 // tenant/booking.prisma — sở hữu: TIP-033 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: staff, business_hours, appointment, ….
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: staff, staff_schedule, business_hours, booking_setting, appointment (Blueprint §2.2 booking, REQ-G01–G05, COMMERCE §6 / 8b).
+// Không Prisma relation xuyên domain (Blueprint §2.1): khách / dịch vụ (product type=service) / hội thoại / đơn lưu id — FK + EXCLUDE
+// chống trùng (btree_gist) + partial index viết tay ở migration 033. `business_hours` / `booking_setting` thêm ngoài Blueprint — DV-015.
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  in_progress
+  done
+  no_show
+  cancelled
+  expired
+
+  @@map("appointment_status")
+}
+
+/// Nhân sự / KTV thực hiện dịch vụ (có thể là thành viên workspace hoặc không). `skills` = id dịch vụ làm được (rỗng = mọi dịch vụ).
+model Staff {
+  id        String   @id @db.Uuid
+  name      String
+  userId    String?  @map("user_id") @db.Uuid
+  role      String   @default("")
+  color     String   @default("")
+  team      String   @default("")
+  room      String   @default("")
+  skills    String[] @default([]) @db.Uuid
+  active    Boolean  @default(true)
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  schedules StaffSchedule[]
+
+  @@map("staff")
+}
+
+/// Ca riêng của nhân sự theo thứ (0 = Thứ Hai). Không có dòng cho thứ đó → theo giờ mở cửa.
+model StaffSchedule {
+  id        String @id @db.Uuid
+  staffId   String @map("staff_id") @db.Uuid
+  weekday   Int
+  startTime String @map("start_time")
+  endTime   String @map("end_time")
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@unique([staffId, weekday])
+  @@map("staff_schedule")
+}
+
+/// Giờ mở cửa nhận lịch theo thứ (0 = Thứ Hai) — 7 dòng; `open = false` là nghỉ.
+model BusinessHours {
+  weekday   Int     @id
+  open      Boolean @default(true)
+  startTime String  @default("08:00") @map("start_time")
+  endTime   String  @default("19:00") @map("end_time")
+
+  @@map("business_hours")
+}
+
+/// Cấu hình lịch hẹn (một dòng): đệm mặc định, bước lưới slot, no-show có trừ buổi liệu trình không (COMMERCE §6).
+model BookingSetting {
+  id               Int      @id @default(1) @db.SmallInt
+  defaultBufferMin Int      @default(10) @map("default_buffer_min")
+  slotStepMin      Int      @default(30) @map("slot_step_min")
+  noShowDeducts    Boolean  @default(false) @map("no_show_deducts")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("booking_setting")
+}
+
+/// Lịch hẹn `LH-…`. `block_end_at` = giờ kết thúc + thời gian đệm của dịch vụ (khoảng chiếm chỗ nhân sự — EXCLUDE khi còn giữ chỗ).
+model Appointment {
+  id              String            @id @db.Uuid
+  code            String            @unique
+  contactId       String            @map("contact_id") @db.Uuid
+  ownerUserId     String?           @map("owner_user_id") @db.Uuid
+  serviceId       String            @map("service_id") @db.Uuid
+  staffId         String            @map("staff_id") @db.Uuid
+  startAt         DateTime          @map("start_at") @db.Timestamptz(6)
+  endAt           DateTime          @map("end_at") @db.Timestamptz(6)
+  blockEndAt      DateTime          @map("block_end_at") @db.Timestamptz(6)
+  status          AppointmentStatus @default(pending)
+  holdExpiresAt   DateTime?         @map("hold_expires_at") @db.Timestamptz(6)
+  rescheduleCount Int               @default(0) @map("reschedule_count")
+  cancelReason    String?           @map("cancel_reason")
+  source          String            @default("staff")
+  conversationId  String?           @map("conversation_id") @db.Uuid
+  packageId       String?           @map("package_id") @db.Uuid
+  orderId         String?           @map("order_id") @db.Uuid
+  note            String            @default("")
+  reminderMin     Int?              @map("reminder_min")
+  remindersSent   Json              @default("[]") @map("reminders_sent")
+  confirmedAt     DateTime?         @map("confirmed_at") @db.Timestamptz(6)
+  checkedInAt     DateTime?         @map("checked_in_at") @db.Timestamptz(6)
+  doneAt          DateTime?         @map("done_at") @db.Timestamptz(6)
+  custom          Json              @default("{}")
+  createdByType   String            @default("user") @map("created_by_type")
+  createdById     String?           @map("created_by_id")
+  version         Int               @default(1)
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?         @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("appointment")
+}

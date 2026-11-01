@@ -363,6 +363,10 @@
       "title": "Create order from quote",
       "desc": "Create an order from an accepted quote."
     },
+    "create_from_appointment": {
+      "title": "Create order from appointment",
+      "desc": "Create an order for a completed service visit outside a package."
+    },
     "create_from_contract": {
       "title": "Create order from contract",
       "desc": "Create an order from a signed contract."
@@ -412,7 +416,31 @@
       "title": "Void payment request"
     }
   },
+  "staff": {
+    "create": {
+      "title": "Add staff",
+      "desc": "Add a staff member who takes appointments, with skills and shifts."
+    },
+    "update": {
+      "title": "Update staff",
+      "desc": "Change a staff member's details, skills or shifts."
+    },
+    "deactivate": {
+      "title": "Deactivate staff",
+      "desc": "Stop taking appointments for a staff member."
+    }
+  },
+  "business_hours": {
+    "update": {
+      "title": "Update business hours",
+      "desc": "Update opening hours, slot step and buffer time."
+    }
+  },
   "appointment": {
+    "list": {
+      "title": "View appointments",
+      "desc": "List appointments within a date range."
+    },
     "find_slots": {
       "title": "Find free slots",
       "desc": "Find free time slots for a service on a date based on staff schedules."

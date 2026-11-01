@@ -138,6 +138,7 @@ export const paymentConfirmedEvent = z.object({ ...base, payment_id: z.string().
 export const paymentRefundEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: uuidOrNull, order_id: uuidOrNull, package_id: uuidOrNull, contact_id: z.string().uuid(), amount: z.string() });
 export const bankTxEvent = z.object({ ...base, bank_tx_id: z.string().uuid(), amount: z.string(), status: z.string(), reason: z.string().nullable() });
 export const packageEvent = z.object({ ...base, package_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull.optional(), total_sessions: z.number().int().optional() });
+export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
 
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
@@ -209,5 +210,13 @@ export const EVENT_SCHEMAS = {
   'package.granted': packageEvent,
   'package.expired': packageEvent,
   'package.changed': packageEvent,
+  'appointment.created': appointmentEvent,
+  'appointment.confirmed': appointmentEvent,
+  'appointment.rescheduled': appointmentEvent,
+  'appointment.checked_in': appointmentEvent,
+  'appointment.completed': appointmentEvent,
+  'appointment.no_show': appointmentEvent,
+  'appointment.cancelled': appointmentEvent,
+  'appointment.expired': appointmentEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

@@ -26,9 +26,10 @@ export interface NewOrder {
   shipping?: Partial<typeof EMPTY_SHIPPING>;
   note?: string;
   custom?: CustomValues;
-  source?: 'manual' | 'quote' | 'contract';
+  source?: 'manual' | 'quote' | 'contract' | 'appointment';
   quote_id?: string;
   contract_id?: string;
+  appointment_id?: string;
   conversation_id?: string | null;
   channel?: string;
 }
@@ -63,6 +64,7 @@ export async function insertOrder(ctx: ActionContext, tx: TenantTx, members: Crm
       contactId: input.contact_id,
       quoteId: input.quote_id ?? null,
       contractId: input.contract_id ?? null,
+      appointmentId: input.appointment_id ?? null,
       conversationId: input.conversation_id ?? null,
       depositRequired: deposit > 0n,
       depositAmount: deposit,
@@ -86,7 +88,7 @@ export async function insertOrder(ctx: ActionContext, tx: TenantTx, members: Crm
 }
 
 /** Hoàn tác tạo: chỉ khi đơn còn `new` (chưa trừ kho / thu tiền) — xoá đơn, gỡ liên kết báo giá. */
-async function undoCreate(log: ActionLogRow, tx: TenantTx) {
+export async function undoCreate(log: ActionLogRow, tx: TenantTx) {
   const id = (log.after as { id: string }).id;
   const o = await tx.order.findUnique({ where: { id }, select: { status: true, paidTotal: true, quoteId: true } });
   if (!o) return;
