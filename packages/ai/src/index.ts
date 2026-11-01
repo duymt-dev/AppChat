@@ -12,5 +12,5 @@ export { RRF_K, rrf } from './kb/rrf';
 export { MOCK_EMBED_MODEL, mockEmbedSource, mockEmbeddingModel, mockVector } from './testing/mock-embed';
 export { PROMPTS, prompt, type PromptDoc, type PromptLocale } from './prompts';
 export { PiiMasker, unmaskPii, type PiiMap } from './reply/pii';
-export { agentReplySchema, parseAgentReply, type AgentReply } from './reply/output';
+export { PLAIN_CONFIDENCE, agentReplySchema, parseAgentReply, type AgentReply } from './reply/output';
 export { decideHandoff, type HandoffInput, type HandoffReason } from './reply/handoff';

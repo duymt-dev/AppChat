@@ -1,7 +1,7 @@
 // TIP-022 AC2 (unit): che / khôi phục PII, đọc output có cấu trúc của agent trực kênh, luật chuyển sang người, kho prompt có version.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { PROMPTS, PiiMasker, decideHandoff, parseAgentReply, prompt, unmaskPii, type HandoffInput } from '../src';
+import { PLAIN_CONFIDENCE, PROMPTS, PiiMasker, decideHandoff, parseAgentReply, prompt, unmaskPii, type HandoffInput } from '../src';
 
 describe('PII', () => {
   it('che CCCD 12 số / CMND 9 số, thẻ 16 số có dấu cách (Luhn), STK; giữ SĐT và tiền', () => {
@@ -30,7 +30,9 @@ describe('output có cấu trúc', () => {
   });
 
   it('không có JSON / JSON lỗi → ok=false, độ tin cậy 0; giá trị lạ → mặc định an toàn', () => {
-    expect(parseAgentReply('Dạ em chào chị')).toMatchObject({ ok: false, confidence: 0 });
+    // Model thật hay trả chữ thường → câu trả lời độ tin cậy thấp (thành gợi ý / nháp, không tự gửi).
+    expect(parseAgentReply(' Dạ em chào chị ')).toMatchObject({ ok: true, reply: 'Dạ em chào chị', confidence: PLAIN_CONFIDENCE });
+    expect(parseAgentReply('   ')).toMatchObject({ ok: false });
     expect(parseAgentReply('{"reply": "x", ')).toMatchObject({ ok: false });
     expect(parseAgentReply('{"reply":"x","confidence":"cao","sentiment":"angry"}')).toMatchObject({ ok: true, confidence: 0, sentiment: 'neutral' });
   });

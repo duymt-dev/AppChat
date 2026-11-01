@@ -198,10 +198,13 @@ describe('một lượt agent (AC3)', () => {
     }
   });
 
-  it('output sai định dạng → handoff "sai định dạng"; hết lỗi model → handoff "gặp lỗi"', async () => {
+  it('chữ thường (model bỏ khung JSON) → nháp độ tin cậy thấp, không tự gửi; JSON hỏng → "sai định dạng"; lỗi model → "gặp lỗi"', async () => {
     const ag = await agent('CSKH lỗi');
+    const plain = await conversation(ag, ['Xin chào']);
+    expect(await replyTurn(deps([{ text: 'Dạ em chào chị' }]), h.ws, plain)).toBe('handoff');
+    expect(await conv(plain)).toMatchObject({ handoffReason: 'AI chưa đủ tự tin (40% < ngưỡng 70%)', aiDraft: 'Dạ em chào chị' });
     const a = await conversation(ag, ['Xin chào']);
-    expect(await replyTurn(deps([{ text: 'Dạ em chào chị' }]), h.ws, a)).toBe('handoff');
+    expect(await replyTurn(deps([{ text: '{"reply": "Dạ em chào' }]), h.ws, a)).toBe('handoff');
     expect((await conv(a)).handoffReason).toBe('AI trả lời sai định dạng');
     const b = await conversation(ag, ['Xin chào']);
     expect(await replyTurn(deps([{ error: { statusCode: 400, message: 'bad' } }]), h.ws, b)).toBe('handoff');

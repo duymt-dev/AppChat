@@ -33,6 +33,8 @@ import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
 import { AssistantService } from './assistant/assistant.service';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
+import { TaskPlace } from './tasks/task-place';
+import { CLOCK, type Clock } from '../kernel/clock';
 
 export const AI_ENV = Symbol('AI_ENV');
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
@@ -86,8 +88,9 @@ class ProviderSeed implements OnModuleInit {
     { provide: KbIngestQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new KbIngestQueue(r) : null) },
     {
       provide: AiRunner,
-      inject: [AGENT_ENGINE, CreditMeter, LOGGER],
-      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger) => (engine ? new AiRunner({ engine, meter, log }) : null),
+      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace],
+      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace) =>
+        engine ? new AiRunner({ engine, meter, log, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone } }) : null,
     },
     {
       provide: ProviderSeed,

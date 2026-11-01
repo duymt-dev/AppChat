@@ -1,5 +1,6 @@
 // Output có cấu trúc của agent trực kênh (agent-gateway §7, Blueprint §5.3 bước 4): `{ reply?, confidence 0–1, intent, sentiment,
-// needs_human? }`. Model có thể bọc trong ```json hoặc kèm chữ — lấy khối JSON cuối cùng; không đọc được → độ tin cậy 0 (handoff).
+// needs_human? }`. Model có thể bọc trong ```json hoặc kèm chữ — lấy khối JSON cuối cùng. Model thật hay trả chữ thường (bỏ khung JSON):
+// coi cả đoạn là câu trả lời với độ tin cậy `PLAIN_CONFIDENCE` (dưới mọi ngưỡng agent → không tự gửi, thành nháp / gợi ý cho người).
 import { z } from 'zod';
 
 export const agentReplySchema = z.object({
@@ -12,6 +13,8 @@ export const agentReplySchema = z.object({
 export type AgentReply = z.infer<typeof agentReplySchema>;
 
 const UNREADABLE: AgentReply = { reply: null, confidence: 0, intent: '', sentiment: 'neutral', needs_human: null };
+/** Độ tin cậy khi model trả chữ thường — thấp hơn ngưỡng nhỏ nhất (50%) để không bao giờ tự gửi. */
+export const PLAIN_CONFIDENCE = 0.4;
 
 function lastJsonObject(text: string): string | null {
   const fenced = [...text.matchAll(/```(?:json)?\s*([\s\S]*?)```/g)].map((m) => m[1]!.trim());
@@ -27,10 +30,17 @@ function lastJsonObject(text: string): string | null {
   return null;
 }
 
-/** Đọc output; `confidence` > 1 hiểu là phần trăm (model hay trả 85). `ok=false` khi không có JSON hợp lệ. */
+/** Chữ thường (không có khung JSON) → câu trả lời độ tin cậy thấp; JSON hỏng / rỗng → `ok=false`. */
+function plain(text: string): (AgentReply & { ok: boolean }) | null {
+  const t = text.trim();
+  if (!t || /[{}]|```/.test(t)) return null;
+  return { ...UNREADABLE, reply: t.slice(0, 4000), confidence: PLAIN_CONFIDENCE, ok: true };
+}
+
+/** Đọc output; `confidence` > 1 hiểu là phần trăm (model hay trả 85). `ok=false` khi không có câu trả lời đọc được. */
 export function parseAgentReply(text: string): AgentReply & { ok: boolean } {
   const raw = lastJsonObject(text);
-  if (!raw) return { ...UNREADABLE, ok: false };
+  if (!raw) return plain(text) ?? { ...UNREADABLE, ok: false };
   let obj: unknown;
   try {
     obj = JSON.parse(raw);

@@ -3,7 +3,7 @@
 // `ai_run_step(tool)`. Tool cần người → `waiting_approval` + `state` (không giữ RAM); `resume` nạp state ở bất kỳ process nào.
 // Huỷ: `run.cancel` đổi trạng thái cả cây + phát lệnh huỷ (pub/sub) → runner đang chạy run đó dừng ở bước kế tiếp.
 import { resumeMessages, type AgentEngine, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
-import { AppError } from '@appchat/shared';
+import { AppError, utcToWall } from '@appchat/shared';
 import type { CreditMeter } from '../../billing/public';
 import type { AppLogger } from '../../kernel/logger/logger';
 import type { RunRow, RunStore } from './run.store';
@@ -31,12 +31,22 @@ export interface RunResult {
   paused?: Extract<RunEvent, { type: 'paused' }>;
 }
 
+const WEEKDAY_VI = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
+
+/** Dòng "bây giờ" cuối system prompt — model không tự biết ngày; "ngày mai", "tuần này", "3 ngày tới" tính từ đây (giờ workspace). */
+export function nowLine(at: Date, timeZone: string): string {
+  const w = utcToWall(at, timeZone);
+  return `# THỜI GIAN HIỆN TẠI\n${WEEKDAY_VI[w.weekday] ?? ''}, ${w.date} ${w.hm} (${timeZone}, ${w.iso.slice(-6)}). Ngày dùng định dạng YYYY-MM-DD khi gọi công cụ.`;
+}
+
 export interface RunnerDeps {
   engine: AgentEngine;
   meter: Pick<CreditMeter, 'assertBalance' | 'charge'> | null;
   log: AppLogger;
   /** Mỗi sự kiện engine (SSE / WS `run.step` — TIP-023 nối). */
   onEvent?: (run: RunRow, e: RunEvent) => void;
+  /** Giờ hiện tại + múi giờ workspace → dòng thời gian trong system prompt; thiếu → không chèn (test đơn vị). */
+  clock?: { now: () => Date; timeZone: (ws: string) => Promise<string> };
 }
 
 export class AiRunner {
@@ -81,7 +91,8 @@ export class AiRunner {
         {
           runId: run.id,
           workspaceId: ws,
-          system: spec.system,
+          // Thời gian ở CUỐI: phần đầu system giữ nguyên (mock model / prompt cache nhận diện theo đầu prompt).
+          system: this.d.clock ? `${spec.system}\n\n${nowLine(this.d.clock.now(), await this.d.clock.timeZone(ws))}` : spec.system,
           messages,
           tools: spec.tools,
           tier: run.tier as 'standard',
