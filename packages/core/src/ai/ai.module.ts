@@ -1,7 +1,7 @@
 // Domain `ai` — runtime AI (TIP-019): cấu hình LLM nền tảng (ProviderStore, cache 60 giây), Agent Gateway (`AiSdkEngine` trên
 // LlmRouter — hoặc model giả `AI_ENGINE=mock`), chạy / chạy tiếp / huỷ run (AiRunner + RunStore), Cài đặt › Mô hình AI, run.cancel.
 // TIP-020: kho tri thức (kb.*, embedder, queue kb-ingest). TIP-021: AI Agents (agent.*), hàng chờ duyệt (approval.*, cổng duyệt
-// của executor, queue ai-resume), governance, seed mẫu agent. TIP-022: agent trực kênh. TIP-023: Trợ lý (AssistantService — lượt, xác nhận, phiên, nhật ký). TIP 035, 043 thêm task.
+// của executor, queue ai-resume), governance, seed mẫu agent. TIP-022: agent trực kênh. TIP-023: Trợ lý (AssistantService — lượt, xác nhận, phiên, nhật ký). TIP-035: tác vụ tự chủ (ai/tasks — ai_task.*, queue ai-task). TIP 043 thêm.
 // Thiếu DB → service null (route trả 501).
 import { Module, type OnModuleInit } from '@nestjs/common';
 import type { Redis } from 'ioredis';
@@ -32,6 +32,7 @@ import { ApprovalsInstaller } from './approvals/approvals.installer';
 import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
 import { AssistantService } from './assistant/assistant.service';
+import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 
 export const AI_ENV = Symbol('AI_ENV');
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
@@ -120,7 +121,8 @@ class ProviderSeed implements OnModuleInit {
     GovernanceUpdateHandler,
     AiTranslateHandler,
     AssistantService,
+    ...TASK_PROVIDERS,
   ],
-  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService],
+  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
 })
 export class AiModule {}

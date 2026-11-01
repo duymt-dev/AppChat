@@ -47,6 +47,14 @@ describe('policy nguồn × rủi ro (Blueprint §3.3)', () => {
     expect(decidePolicy({ source: 'task', risk: 'send', servedConversation: true })).toBe('approval');
   });
 
+  it('tác vụ tắt "hỏi trước khi gửi" → send chạy; delete / money / bulk / nguồn khác vẫn như bảng (TIP-035)', () => {
+    expect(decidePolicy({ source: 'task', risk: 'send', autoSend: true })).toBe('run');
+    expect(decidePolicy({ source: 'task', risk: 'delete', autoSend: true })).toBe('approval');
+    expect(decidePolicy({ source: 'task', risk: 'money', autoSend: true })).toBe('approval');
+    expect(decidePolicy({ source: 'task', risk: 'send', autoSend: true, bulk: true })).toBe('approval');
+    expect(decidePolicy({ source: 'agent', risk: 'send', autoSend: true })).toBe('approval');
+  });
+
   it('Idempotency-Key bắt buộc với send / money / *.create', () => {
     expect(requiresIdempotencyKey('quote.send', 'send')).toBe(true);
     expect(requiresIdempotencyKey('invoice.record_payment', 'money')).toBe(true);

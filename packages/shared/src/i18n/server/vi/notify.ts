@@ -32,6 +32,8 @@ export const notify = {
     ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi' },
     ai_escalate: { title: '{agent} chuyển hội thoại {contact} sang người', label: 'AI chuyển sang người' },
     ai_budget: { title: 'AI đã dùng {percent}% ngân sách credit', label: 'AI vượt ngân sách' },
+    ai_briefing: { title: 'Bản tin sáng: {summary}', label: 'Bản tin sáng của Trợ lý AI' },
+    ai_task_failed: { title: 'Tác vụ "{name}" chưa chạy xong: {reason}', label: 'Tác vụ tự chủ lỗi' },
     channel_down: { title: 'Kênh {channel} bị ngắt kết nối', label: 'Kênh bị ngắt kết nối' },
     billing_invoice: { title: 'Hoá đơn gói mới {code}', label: 'Gói & ví — hoá đơn mới' },
   },

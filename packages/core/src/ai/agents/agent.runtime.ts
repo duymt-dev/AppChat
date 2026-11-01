@@ -61,6 +61,10 @@ export interface AgentRunCtx {
   source: 'agent' | 'task';
   /** Agent trực kênh: hội thoại đang phục vụ (gửi vào đây không cần duyệt — §3.3). */
   servedConversationId?: string;
+  /** Tác vụ Cowork tắt "hỏi trước khi gửi" (TIP-035). */
+  autoSend?: boolean;
+  /** Thu hẹp quyền hiệu lực thêm (tác vụ: data scope theo nhóm dữ liệu đã cấp — TIP-035). */
+  narrow?: (a: AuthzContext) => AuthzContext;
   /** Biến đổi input trước khi gọi action (khôi phục PII che trong lượt — TIP-022). */
   mapInput?: (input: unknown) => unknown;
 }
@@ -74,8 +78,11 @@ export function agentToolSpecs(executor: Pick<ActionExecutor, 'execute'>, ids: r
     ...(r.commander ? { onBehalfOfUserId: r.commander.userId } : {}),
     runId: r.runId,
     stepId: String(stepIdx),
+    // Tác vụ chạy nền: khoá idempotent theo run + bước (send / money / *.create bắt buộc có — chạy lại bước không ghi hai lần).
+    ...(r.source === 'task' ? { idempotencyKey: `task:${r.runId}:${stepIdx}` } : {}),
     ...(r.servedConversationId ? { servedConversationId: r.servedConversationId } : {}),
-    authz: agentAuthz(r.agent, r.commander),
+    ...(r.autoSend ? { autoSend: true } : {}),
+    authz: r.narrow ? r.narrow(agentAuthz(r.agent, r.commander)) : agentAuthz(r.agent, r.commander),
   });
   const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d).map((d) => actionTool(d, executor, ctxOf));
   const map = r.mapInput;

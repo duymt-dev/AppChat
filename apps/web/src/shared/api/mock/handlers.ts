@@ -4,6 +4,7 @@ import { dashboardHandlers } from './domains/dashboard';
 import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
+import { aiTasksHandlers } from './domains/ai-tasks';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
 import { quotesHandlers } from './domains/quotes-actions';
@@ -86,6 +87,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...inboxHandlers,
   ...customersHandlers,
   ...assistantHandlers,
+  ...aiTasksHandlers,
   ...agentsHandlers,
   ...productsHandlers,
   ...quotesHandlers,

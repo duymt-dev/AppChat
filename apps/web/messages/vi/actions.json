@@ -217,6 +217,12 @@
     },
     "pause": {
       "title": "Bật / tạm dừng tác vụ"
+    },
+    "delete": {
+      "title": "Xoá tác vụ tự chủ"
+    },
+    "run_now": {
+      "title": "Chạy tác vụ tự chủ ngay"
     }
   },
   "run": {

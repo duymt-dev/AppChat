@@ -217,6 +217,12 @@
     },
     "pause": {
       "title": "Pause / resume task"
+    },
+    "delete": {
+      "title": "Delete autonomous task"
+    },
+    "run_now": {
+      "title": "Run autonomous task now"
     }
   },
   "run": {

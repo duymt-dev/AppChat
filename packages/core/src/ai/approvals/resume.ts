@@ -110,7 +110,13 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   else if (a.executedAt) outcome = { kind: 'ok', output: { executed: true } };
   else {
     outcome = await executeApproved(d, db, ws, a);
-    await db.approvalRequest.update({ where: { id: a.id }, data: { result: toJson(outcome) as object } });
+    // Hai tiến trình cùng chạy một duyệt (job chạy lại / gọi tay): bên thua nhận CONFLICT vì bên kia đã chốt (`executed_at`) — không
+    // ghi đè kết quả thật, chờ bên thắng ghi kết quả rồi dùng lại (chạy tiếp run vẫn idempotent nhờ claim).
+    if (outcome.kind === 'error' && outcome.code === 'CONFLICT' && (await db.approvalRequest.findUnique({ where: { id: a.id }, select: { executedAt: true } }))?.executedAt) {
+      const won = await winnerResult(db, a.id);
+      if (!won) return 'done';
+      outcome = won;
+    } else await db.approvalRequest.update({ where: { id: a.id }, data: { result: toJson(outcome) as object } });
     a = { ...a, result: outcome as never };
   }
 
@@ -122,4 +128,14 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   const fresh = r ? await db.aiRun.findUnique({ where: { id: run.id } }) : null;
   if (r && fresh) await FINISH.get(run.kind)?.(db, fresh, r, d, ws);
   return 'done';
+}
+
+/** Kết quả do tiến trình đã chốt duyệt ghi (chờ tối đa ~5 giây); không có → null. */
+async function winnerResult(db: TenantDb, id: string): Promise<ToolOutcome | null> {
+  for (let i = 0; i < 50; i++) {
+    const r = await db.approvalRequest.findUnique({ where: { id }, select: { result: true } });
+    if (r?.result) return r.result as unknown as ToolOutcome;
+    await new Promise((ok) => setTimeout(ok, 100));
+  }
+  return null;
 }

@@ -124,7 +124,49 @@
       "hintEmpty": "Enter a name and goal to create the task",
       "cancel": "Cancel",
       "createRun": "Create & run now",
-      "createOnly": "Create task"
+      "createOnly": "Create task",
+      "dataOpt": {
+        "customers": "Customers",
+        "orders": "Orders",
+        "quotes": "Quotes",
+        "invoices": "Payment requests",
+        "conversations": "Conversations",
+        "files": "Attachments"
+      },
+      "toolsOpt": {
+        "read": "Read data",
+        "write": "Create / edit records",
+        "message": "Send messages",
+        "report": "Send me the result",
+        "email": "Send email"
+      },
+      "agent": "AI Agent",
+      "agentAuto": "Running agent (auto)",
+      "agentNone": "No running agent yet",
+      "cron": "Schedule",
+      "crons": {
+        "0": "08:00 every day",
+        "1": "09:00 Monday – Friday",
+        "2": "17:00 every day",
+        "3": "08:00 every Monday"
+      },
+      "event": "On event",
+      "events": {
+        "contact_created": "New customer",
+        "contact_stage_changed": "Customer stage changed",
+        "quote_sent": "Quote sent",
+        "quote_viewed": "Customer viewed quote",
+        "quote_rejected": "Customer rejected quote",
+        "order_created": "New order",
+        "order_completed": "Order completed",
+        "appointment_created": "New appointment",
+        "appointment_completed": "Appointment completed",
+        "appointment_no_show": "Customer no-show",
+        "appointment_cancelled": "Appointment cancelled",
+        "ticket_created": "New ticket",
+        "ticket_sla_breached": "Ticket past SLA",
+        "payment_confirmed": "Payment received"
+      }
     },
     "drawer": {
       "sub": "{role} · ◈ {tier}",
@@ -156,7 +198,12 @@
       "costToday": "Cost today",
       "log": "Action log",
       "close": "Close",
-      "save": "Save configuration"
+      "save": "Save configuration",
+      "run": "Run now",
+      "delete": "Delete task",
+      "deleteConfirm": "Delete this task? Its schedule stops; the log is kept.",
+      "next": "Next run: {at}",
+      "noLogs": "No runs yet."
     }
   },
   "log": {

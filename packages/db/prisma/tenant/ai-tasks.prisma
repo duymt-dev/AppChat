@@ -1,3 +1,51 @@
 // tenant/ai-tasks.prisma — sở hữu: TIP-035 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: Blueprint §2.2 ai-tasks.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: ai_task (Blueprint §2.2 ai-tasks, §5.4). Không Prisma relation xuyên domain (Blueprint §2.1) — FK nội DB viết SQL trong migration.
+
+enum AiTaskTriggerKind {
+  manual
+  schedule
+  event
+
+  @@map("ai_task_trigger")
+}
+
+enum AiTaskStatus {
+  active
+  paused
+
+  @@map("ai_task_status")
+}
+
+/// Tác vụ tự chủ (Cowork — REQ-E13): agent (hoặc Trợ lý cho briefing) chạy theo mục tiêu, ngay / theo lịch / khi có sự kiện, thay mặt
+/// người tạo (`created_by_user_id` — quyền hiệu lực = agent ∩ người này, §3.3b). `data_scope` / `tool_ids` = chip nhóm dữ liệu /
+/// nhóm công cụ (shared `ai-tasks/task-catalog`). `template` = mẫu chủ động (§5.4) — thu đối tượng trước khi giao agent.
+model AiTask {
+  id                String            @id @db.Uuid
+  name              String
+  goal              String
+  prompt            String            @default("")
+  department        String            @default("Vận hành")
+  agentId           String?           @map("agent_id") @db.Uuid
+  template          String?
+  params            Json              @default("{}")
+  trigger           AiTaskTriggerKind
+  cron              String?
+  eventType         String?           @map("event_type")
+  dataScope         String[]          @default([]) @map("data_scope")
+  toolIds           String[]          @default([]) @map("tool_ids")
+  creditLimitPerRun Int               @default(2000) @map("credit_limit_per_run")
+  askBeforeSend     Boolean           @default(true) @map("ask_before_send")
+  modelTier         String            @default("standard") @map("model_tier")
+  status            AiTaskStatus      @default(active)
+  createdByUserId   String            @map("created_by_user_id") @db.Uuid
+  lastRunAt         DateTime?         @map("last_run_at") @db.Timestamptz(6)
+  lastRunStatus     String?           @map("last_run_status")
+  nextRunAt         DateTime?         @map("next_run_at") @db.Timestamptz(6)
+  runCount          Int               @default(0) @map("run_count")
+  version           Int               @default(1)
+  deletedAt         DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("ai_task")
+}

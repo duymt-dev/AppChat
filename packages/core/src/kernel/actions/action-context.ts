@@ -23,6 +23,11 @@ export interface ActionContext {
    * (Blueprint §3.3 "chỉ trả lời trong hội thoại đang phục vụ"); gửi nơi khác vẫn qua duyệt.
    */
   servedConversationId?: string;
+  /**
+   * Tác vụ Cowork tắt "Hỏi xác nhận trước khi gửi ra bên ngoài" (REQ-E13, Blueprint §3.3 dòng `task` — "approval nếu ask_before_send"):
+   * action `send` chạy luôn; delete / money vẫn qua duyệt.
+   */
+  autoSend?: boolean;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }
@@ -44,6 +49,8 @@ export interface ActionPolicyInput {
   bulk?: boolean;
   /** Agent gửi vào chính hội thoại đang phục vụ (§3.3). */
   servedConversation?: boolean;
+  /** Tác vụ không hỏi trước khi gửi (ActionContext.autoSend). */
+  autoSend?: boolean;
 }
 
 export const AUTHORIZER = Symbol('AUTHORIZER');

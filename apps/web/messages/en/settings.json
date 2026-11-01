@@ -1086,6 +1086,8 @@
       "ai_review": "AI needs approval before sending",
       "ai_escalate": "AI handed off to a human",
       "ai_budget": "AI over budget",
+      "ai_briefing": "AI Assistant morning briefing",
+      "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
       "billing_invoice": "Plan & wallet — new invoice"
     },

@@ -18,3 +18,4 @@ export * from './assistant';
 export * from './invoices';
 export * from './calendar';
 export * from './tickets';
+export * from './ai-tasks';

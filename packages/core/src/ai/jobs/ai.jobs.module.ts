@@ -1,6 +1,6 @@
 // BullMQ processor của domain `ai` (worker ROLE=ai). TIP-020: `kb-ingest` (nạp tài liệu kho tri thức). TIP-021: `ai-resume` (chạy
 // action đã duyệt + chạy tiếp run, hết hạn duyệt) — cần handler của mọi domain mà agent gọi được → nạp module domain có action
-// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP 035, 043 thêm processor (ai-task…). Thiếu DB / Redis → không chạy.
+// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP 043 thêm processor. Thiếu DB / Redis → không chạy.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -34,11 +34,16 @@ import { AiModule } from '../ai.module';
 import { KB_EMBEDDER } from '../kb/kb-search.handler';
 import type { KbIngestJob } from '../kb/ingest';
 import { startKbIngestWorker } from './kb-ingest.processor';
+import { WalletService } from '../../billing/public';
+import { TaskPlace } from '../tasks/task-place';
+import { TASK_QUEUE, type TaskQueue } from '../tasks/task.queue';
+import { startTaskWorkers, type TaskWorkers } from '../tasks/task.jobs';
 
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private kb?: Worker<KbIngestJob>;
   private resume?: Worker<ResumeJob>;
   private reply?: Worker<ReplyJob>;
+  private tasks?: TaskWorkers;
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -52,6 +57,9 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Inject(AiRunner) private readonly runner: AiRunner | null,
     @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
     @Inject(AuthzResolver) private readonly authz: AuthzResolver | null,
+    @Inject(TaskPlace) private readonly place: TaskPlace,
+    @Optional() @Inject(TASK_QUEUE) private readonly taskQueue: TaskQueue | null,
+    @Optional() @Inject(WalletService) private readonly wallet: WalletService | null,
   ) {}
 
   /** AuthzContext hiện tại của người ra lệnh (thành viên còn hoạt động) — §3.3b kiểm lại khi chạy action đã duyệt. */
@@ -60,7 +68,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     return m && this.authz ? this.authz.resolve(ws, userId, m) : null;
   }
 
-  onApplicationBootstrap(): void {
+  async onApplicationBootstrap(): Promise<void> {
     const { redis, tenants, files } = this;
     if (!redis || !tenants || !files) return;
     this.kb = startKbIngestWorker(redis, tenants, { files, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
@@ -86,6 +94,13 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
         );
         this.reply = startAgentReplyWorker(redis, reply, this.log);
       }
+      // TIP-035: tác vụ tự chủ — chạy lượt (quyền = agent ∩ người tạo hiện tại) + lịch mỗi phút.
+      if (this.taskQueue) {
+        const place = this.place;
+        const wallet = this.wallet;
+        const td = { ...deps, place: (ws: string) => place.of(ws), userName: (u: string) => place.userName(u), credits: async (ws: string) => (wallet ? (await wallet.balance(ws)).total : null) };
+        this.tasks = await startTaskWorkers(redis, tenants, this.platform, this.taskQueue, td, this.log);
+      }
     }
   }
 
@@ -93,6 +108,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     await this.kb?.close();
     await this.resume?.close();
     await this.reply?.close();
+    await this.tasks?.close();
   }
 }
 

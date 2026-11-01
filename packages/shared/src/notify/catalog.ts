@@ -40,6 +40,8 @@ export const NOTIFY_KINDS = {
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },
   ai_budget: { group: 'ai', icon: 'ic-dollar', tone: 'danger', defaults: ch(false, true, false) },
+  ai_briefing: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, true) },
+  ai_task_failed: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, false, false) },
   channel_down: { group: 'system', icon: 'ic-link', tone: 'danger', defaults: ch(true, true, true) },
   billing_invoice: { group: 'system', icon: 'ic-doc', tone: 'info', defaults: ch(false, true, false) },
 } as const satisfies Record<string, NotifyKindDef>;

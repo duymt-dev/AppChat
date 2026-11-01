@@ -14,9 +14,11 @@ const TABLE: Record<ActionSource, Record<Risk, PolicyDecision>> = {
   task: { read: 'run', write: 'run', send: 'approval', money: 'approval', delete: 'approval', config: 'forbidden' },
 };
 
-export function decidePolicy({ source, risk, bulk, servedConversation }: ActionPolicyInput): PolicyDecision {
+export function decidePolicy({ source, risk, bulk, servedConversation, autoSend }: ActionPolicyInput): PolicyDecision {
   // Agent trực kênh trả lời trong hội thoại đang phục vụ: chạy (§3.3 dòng `agent`, cột send) — gửi nơi khác vẫn duyệt.
   if (source === 'agent' && risk === 'send' && servedConversation && !bulk) return 'run';
+  // Tác vụ Cowork tắt "hỏi trước khi gửi": send chạy (§3.3 dòng `task`); delete / money luôn duyệt.
+  if (source === 'task' && risk === 'send' && autoSend && !bulk) return 'run';
   const base = TABLE[source][risk] as PolicyDecision;
   // bulk luôn preview kèm số bản ghi, kể cả ui (§3.3) — trừ khi nguồn đã bị cấm / phải duyệt.
   if (bulk && base === 'run' && risk !== 'read' && source !== 'system') return 'preview';

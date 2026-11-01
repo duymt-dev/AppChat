@@ -28,5 +28,7 @@ export * from './identity';
 export * from './support/sla-defaults';
 export * from './support/ticket-state';
 export * from './time/business-time';
+export * from './time/cron';
+export * from './ai-tasks/task-catalog';
 export * from './crm';
 export * from './catalog';

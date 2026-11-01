@@ -1086,6 +1086,8 @@
       "ai_review": "AI cần duyệt trước khi gửi",
       "ai_escalate": "AI chuyển sang người",
       "ai_budget": "AI vượt ngân sách",
+      "ai_briefing": "Bản tin sáng của Trợ lý AI",
+      "ai_task_failed": "Tác vụ tự chủ lỗi",
       "channel_down": "Kênh bị ngắt kết nối",
       "billing_invoice": "Gói & ví — hoá đơn mới"
     },

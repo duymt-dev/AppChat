@@ -1,4 +1,4 @@
-// Mock Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5): GET /assistant/home, /ai-tasks, /action-logs, /approvals;
+// Mock Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5): GET /assistant/home, /action-logs, /approvals (tác vụ tự chủ: ai-tasks.ts);
 // POST /assistant/messages (kịch bản thay SSE: trả danh sách event) + /assistant/confirm. Dữ liệu = prototype L1178–1504
 // (fixture sinh bởi tools/scripts/fixtures/gen-assistant.py).
 import { ApiRequestError, can, authzForRole, type PermissionKey } from '@appchat/shared';
@@ -6,9 +6,9 @@ import fixture from '../../../../../../../fixtures/prototype-parity/assistant.js
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { createTasksState, type MockTask } from './ai-tasks';
 
 export type AssistantFixture = typeof fixture;
-type Task = AssistantFixture['tasks'][number] & { goal?: string; prompt?: string };
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
   title?: string;
   object?: string;
@@ -38,7 +38,7 @@ export interface Run {
 }
 
 export interface AssistantState {
-  tasks: Task[];
+  tasks: MockTask[];
   logs: ActionLogRow[];
   approvals: Approval[];
   runs: Run[];
@@ -86,7 +86,7 @@ const SEED_INPUT: Record<string, Pick<Approval, 'input' | 'fields'>> = {
 const seedApproval = (a: AssistantFixture['approvals'][number]): Approval => ({ ...a, status: 'pending', ...(SEED_INPUT[a.id] ?? { input: {}, fields: [] }) });
 
 export const createAssistantState = (): AssistantState => ({
-  tasks: structuredClone(fixture.tasks),
+  tasks: createTasksState(),
   logs: structuredClone(fixture.action_logs),
   approvals: [...fixture.approvals.map(seedApproval), seedRunApproval()],
   runs: seedRuns(),
@@ -115,26 +115,6 @@ export const assistantRoutes: Record<string, MockRoute> = {
     cowork_cards: fixture.cowork_cards,
     prompts: fixture.prompts,
   }),
-  '/ai-tasks': (db) => {
-    const t = db.assistant.tasks;
-    const runs = t.reduce((s, x) => s + x.runs, 0);
-    return {
-      tasks: t,
-      stats: fixture.task_stats.map((s) => ({
-        ...s,
-        value:
-          s.key === 'total' ? String(t.length)
-          : s.key === 'active' ? `${t.filter((x) => x.active).length}/${t.length}`
-          : s.key === 'runs' ? runs.toLocaleString('vi-VN')
-          : fixture.task_kpi[s.key as keyof typeof fixture.task_kpi],
-      })),
-      templates: fixture.task_templates,
-      departments: fixture.departments,
-      data_options: fixture.task_data,
-      tool_options: fixture.task_tools,
-      drawer: fixture.drawer,
-    };
-  },
   '/action-logs': (db, p) => {
     const q = String(p.q ?? '').trim().toLowerCase();
     const rows = db.assistant.logs.filter((l) => {
@@ -208,11 +188,6 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
   },
 };
 
-const findTask = (db: MockDb, id: string) => {
-  const t = db.assistant.tasks.find((x) => x.id === id);
-  if (!t) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
-  return t;
-};
 
 const findApproval = (db: MockDb, id: string) => {
   const a = db.assistant.approvals.find((x) => x.id === id && x.status === 'pending');
@@ -222,46 +197,7 @@ const findApproval = (db: MockDb, id: string) => {
   return a;
 };
 
-const dept = (k: string) => fixture.departments.find((d) => d.key === k) ?? fixture.departments[0]!;
-
 export const assistantHandlers: Record<string, MockHandler> = {
-  'ai_task.create': {
-    execute: (
-      db,
-      i: { name: string; goal: string; department?: string; trigger: 'manual' | 'schedule' | 'event'; data_scope?: string[]; model_tier: string; credit_limit_per_run: number },
-    ) => {
-      const id = `tk_n${++db.assistant.seq}`;
-      const d = dept(i.department ?? 'Vận hành');
-      db.assistant.tasks.unshift({
-        id,
-        name: i.name,
-        role: i.goal.length > 60 ? `${i.goal.slice(0, 60)}…` : i.goal,
-        goal: i.goal,
-        runs: 0,
-        success: '—',
-        cost: '0₫',
-        active: true,
-        model_tier: i.model_tier,
-        department: d.key,
-        channels: (i.data_scope ?? []).slice(0, 2),
-        conf: 70,
-      });
-      return { task_id: id };
-    },
-  },
-  'ai_task.update': {
-    execute: (db, i: { task_id: string; patch: Partial<Task> }) => {
-      Object.assign(findTask(db, i.task_id), i.patch);
-      return { task_id: i.task_id };
-    },
-  },
-  'ai_task.pause': {
-    execute: (db, i: { task_id: string; paused: boolean }) => {
-      const t = findTask(db, i.task_id);
-      t.active = !i.paused;
-      return { task_id: t.id, active: t.active };
-    },
-  },
   'approval.approve': {
     execute: (db, i: { approval_id: string; note?: string }) => {
       const a = findApproval(db, i.approval_id);

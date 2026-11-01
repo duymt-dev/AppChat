@@ -43,3 +43,11 @@ export { assistantTools, ASSISTANT_TOOLS, type AssistantTurnCtx } from './assist
 export { listSessions, sessionMessages, historyMessages, HISTORY_LIMIT } from './assistant/sessions';
 export { listActionLogs, kindOf as logKindOf, LOG_KINDS, LOG_STATUSES, LOG_DAYS, type LogFilter } from './assistant/action-logs.read';
 export { assistantHome } from './assistant/home.read';
+// TIP-035 — Tác vụ tự chủ & chủ động.
+export { TaskPlace, type Place as TaskPlaceInfo } from './tasks/task-place';
+export { TaskQueue, TASK_QUEUE, AI_TASK_QUEUE, type TaskJob } from './tasks/task.queue';
+export { listAiTasks } from './tasks/tasks.read';
+export { runTask, narrowScope, taskToolIds, taskPrompt, type TaskRunDeps } from './tasks/task.runner';
+export { sweepDueTasks, sweepAllTasks, rebuildArmed, taskEventConsumer, enqueueTask, type ArmedSet } from './tasks/task-scheduler';
+export { collectTargets } from './tasks/task-targets';
+export { buildBriefing } from './tasks/task-briefing';

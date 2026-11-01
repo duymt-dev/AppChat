@@ -35,6 +35,8 @@ export const notify: Shape<typeof vi> = {
     ai_review: { title: '{agent} needs your approval before sending', label: 'AI needs approval before sending' },
     ai_escalate: { title: '{agent} handed the conversation with {contact} to a human', label: 'AI handed off to a human' },
     ai_budget: { title: 'AI has used {percent}% of the credit budget', label: 'AI over budget' },
+    ai_briefing: { title: 'Morning briefing: {summary}', label: 'AI Assistant morning briefing' },
+    ai_task_failed: { title: 'Task "{name}" did not finish: {reason}', label: 'Autonomous task failed' },
     channel_down: { title: 'Channel {channel} was disconnected', label: 'Channel disconnected' },
     billing_invoice: { title: 'New plan invoice {code}', label: 'Plan & wallet — new invoice' },
   },
