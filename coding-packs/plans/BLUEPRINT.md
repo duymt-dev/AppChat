@@ -1105,6 +1105,7 @@ Danh mục action quá lớn để nhồi hết vào prompt, nên Trợ lý ch�
 
 - **System prompt** gồm: vai trò, quyền của user, màn hiện tại và bản ghi đang xem (từ `context`), danh sách agent đang có, quy tắc xác nhận và hoàn tác. Viết bằng tiếng Việt, trả lời tiếng Việt.
 - **Chế độ Chat:** chỉ cho dùng `find_actions` với read và `query_data`. **Chế độ Cowork:** mở toàn bộ meta-tools.
+- **Đọc bản ghi (DC-224):** Trợ lý / agent đọc từng bản ghi bằng action `<thực thể>.search` / `get` (risk `read`, cùng truy vấn + `scopeFilter` của màn) qua `call_action`; `query_data` chỉ cho metric tổng hợp. Mã hiển thị (KH-, BG-, DH-…) ở ô `*_id` được đổi sang id trước khi chạy. Mọi action ghi có `preview` (diff / số bản ghi / tiền / người nhận) để thẻ xác nhận nói rõ đổi gì (TIP-023b).
 
 ### 5.3 Agent trực kênh
 

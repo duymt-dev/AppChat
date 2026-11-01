@@ -41,7 +41,7 @@ W7   027,028,015,016 ─▶ 029 Báo giá ─┬─▶ 030 Hợp đồng + ký �
                                      └─▶ 031 Đơn + kho + khung đồng bộ sàn (012) ─▶ 032 Đề nghị thanh toán + thu tiền (010)
                                                               032 ─▶ 033 Lịch hẹn
                                                    │
-W8   034 Ticket/SLA · 035 Tác vụ tự chủ · 036 Loyalty · 037 Marketing · 038 Tổng quan + insights
+W8   034 Ticket/SLA · 035 Tác vụ tự chủ · 023b Trợ lý phủ đủ action · 023c Generative UI · 036 Loyalty · 037 Marketing · 038 Tổng quan + insights
      039 Gói & ví UI · 040 Quản trị nền tảng · 041 Lưu trữ workspace · 042 Vai trò tuỳ biến + nhóm · 043 AI học từ hội thoại
                                                    │
 W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (phụ thuộc tất cả)
@@ -78,6 +78,8 @@ W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (ph
 | 021 | Agents backend: ai-agents.prisma (agent + version, approval, governance), templates.prisma, action `agent.*` (tạo / xuất bản / quay lại / thử giả lập / tạo từ mô tả), `approval.*`; **quyền agent D51:** cờ `skill` / `requiresConnector`, `GET /agents/:id/tools` (nhóm theo module + Kỹ năng AI, badge Cần kết nối / Sắp có), `GET /conversations/:id/agent-tools` | 019, 005 | P0 | 16 | W5 | D03, D05, D07, D09, D09b, D15, D16, C11 | ai/agent-gateway, actions/action-registry |
 | 022 | Agent trực kênh: queue `agent-reply`, lắp ngữ cảnh, output có cấu trúc, handoff, copilot, lọc PII, `transfer_to_agent` / `consult`; quyền hiệu lực = agent ∩ người ra lệnh, kiểm **mỗi lần gọi tool** (Blueprint §3.3b) | 016, 020, 021, 015 | P0 | 16 | W5 | D05, D06, D10, D11, D13, C02 | ai/agent-gateway, ai/rag |
 | 023 | Trợ lý AI: ai-assistant.prisma, meta-tools (`find_actions`, `call_action`, `ui`, `plan`, `query_data`, `delegate`), stream SSE, nối AssistantPage + AssistantDock + ConfirmCard (FE đã có), Chat / Cowork, khung "Trợ lý AI đang điều phối" (`GET /v1/runs?root_run_id=&status=`) | 021, 019 | P0 | 20 | W6 | E02, E04, E05, E06, E07, E10, E11, E12, E14 | ai/agent-gateway, ui/frontend-structure |
+| 023b | Trợ lý toàn năng: khuôn input lồng nhau cho model, ẩn action chưa có handler, mã → id cả agent, ~20 action đọc `search` / `get`, preview "đổi gì" cho mọi action ghi, test bắt buộc phủ action, bộ câu thử 9router thật (`pnpm ai:live`) | 023, 022 | P0 | 16 | W8 (trước 036) | D03, E02, E04, E05, E09, E10 | ai/agent-gateway, actions/action-registry |
+| 023c | Generative UI (D55): `UiTree` + `render` + renderer compact / full, khối `qr`, ô `secret`; 7 drawer Trợ lý theo màn + hộp lệnh Hộp thư nối thật kèm ngữ cảnh (E06); kết nối kênh / connector qua Trợ lý | 023b, 014, 016, 012 | P0 | 24 | W8 (trước 036) | E06, E07, E10, B10, H03 | ai/generative-ui, ui/prototype-parity |
 | 024 | Agents UI + hàng chờ duyệt + nhật ký hành động: AgentsPage, TemplateGallery, AgentBuilder, tạo bằng Trợ lý, lịch sử phiên bản, TestChat; assistant/approvals, assistant/actions | 021, 023 | P0 | 16 | W6 | D07, D08, D09, D09b, D15, E09 | ui/prototype-parity, ui/frontend-structure |
 | 025 | Inbox — nối API + realtime cho màn đã có (3 cột, folders, chat, composer, chế độ AI, handoff banner, gợi ý copilot, panel 360°, "Chuyển thành", menu ⋯ tin nhắn / hội thoại ver2.1) | 016, 022 | P0 | 20 | W6 | C01–C05, C07, C08 | ui/prototype-parity, ui/frontend-structure |
 | 026 | Khách hàng — nối API cho màn đã có (bảng có số trang D42 / kanban, Hồ sơ 360° theo `profile_layout`, 6 nút mở form tại chỗ D46, người phụ trách + đồng phụ trách, chuyển phụ trách, xin chia sẻ, trường dữ liệu, thẻ, import / export) | 015 | P0 | 16 | W6 | F01, F01b, F02, F03, F04 | ui/prototype-parity, authz/rbac-permissions |
@@ -119,7 +121,7 @@ W9   044 AI eval gate · 045 Hạ tầng production · 046 Release hardening (ph
 | W5 | 019 ; rồi 020 ∥ 021 ; rồi 022 | 019 kẹt nếu chưa có key LLM (dùng mock model cho unit, nhưng nghiệm thu cần provider thật) |
 | W6 | 023 ∥ 025 ∥ 026 ∥ 027 ∥ 028 ; rồi 024 | 6 nhánh độc lập về file |
 | W7 | 029 ; rồi 030 ∥ 031 ; rồi 032 ; rồi 033 | Commerce đi theo chuỗi vì cùng luồng tiền |
-| W8 | 034 ∥ 035 ∥ 036 ∥ 037 ∥ 038 ∥ 039 ∥ 040 ∥ 041 ∥ 042 ∥ 043 | Toàn bộ độc lập về file; 036 cần 032 xong |
+| W8 | 034 ∥ 035 ; rồi 023b ; rồi 023c ; rồi 036 ∥ 037 ∥ 038 ∥ 039 ∥ 040 ∥ 041 ∥ 042 ∥ 043 | Toàn bộ độc lập về file; 036 cần 032 xong |
 | W9 | 044 ∥ 045 ; rồi 046 | 045 làm sớm được bất cứ lúc nào khi có VPS (Chủ nhà đang hoãn) |
 
 **Tránh đụng file khi chạy song song:** TIP-001 tạo sẵn mọi file tổng hợp **phía backend** (`app.module.ts`, `core/index.ts`, registry kênh / connector, stub prisma). `actions/index.ts`, `nav-config.ts`, `messages/*/<module>.json` đã có từ goal FE. TIP sau **chỉ điền stub của domain mình**; file ngoài domain được phép sửa duy nhất là `packages/shared/src/api/<domain>.ts` + import tương ứng ở `features/<module>` (tách shape đọc — `standards/domain/gap-filling.md` §5). Muốn sửa file của TIP khác → dừng, báo Chủ thầu (escalation L2).

@@ -42,3 +42,5 @@
 - TIP-038 (`insight.query`) thay `query_data` NOT_IMPLEMENTED; TIP-035 (Cowork tác vụ) dùng lại `delegate` + resume spec `assistant`.
 - Mỗi domain dần thêm `preview` cho handler ghi để thẻ xác nhận có tóm tắt cụ thể (thay câu mặc định — DC-128).
 - `e2e-http.mjs` tự dọn workspace của lượt (Q-017).
+
+**Bổ sung 2026-11-01 (sau chạy 9router thật):** REQ-E06 chưa đạt — 7 drawer "Trợ lý AI · [module]" và hộp lệnh Hộp thư vẫn là bản giả của goal FE (không gọi Trợ lý), FE chỉ gửi `context.route`; Trợ lý thiếu action đọc từng bản ghi, khuôn ô lồng nhau, preview. Báo DONE khi chỉ nghiệm thu bằng model giả là thiếu sót. Làm bù: TIP-023b (phủ action), TIP-023c (genui + Trợ lý theo màn + kết nối qua Trợ lý) — DC-224…228.

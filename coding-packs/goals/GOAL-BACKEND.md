@@ -128,6 +128,8 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 033 | W7 | DONE (nhắc hẹn qua kênh giả — chưa nghiệm thu Zalo thật; màn cấu hình nhân sự / giờ mở cửa chưa có — chỉ action + API) | `tip/033-calendar` (xếp chồng 032) | 5a628fb | chờ tạo (gh chưa đăng nhập) |
 | 034 | W8 | DONE (trả lời / CSAT qua kênh giả — chưa nghiệm thu Zalo / email thật; nhiều chính sách SLA là P3) | `tip/034-tickets` (xếp chồng 033) | 59fd1b3 | chờ tạo (gh chưa đăng nhập) |
 | 035 | W8 | DONE (model giả — Q-001; gửi tin qua kênh giả — chưa nghiệm thu Zalo / email thật) | `tip/035-ai-tasks` (xếp chồng 034) | 0d1b86b | chờ tạo (gh chưa đăng nhập) |
+| 023b | W8 | đang làm (R1) | `tip/023b-assistant-coverage` | | |
+| 023c | W8 | chờ (sau 023b) | `tip/023c-generative-ui` | | |
 | 036 | W8 | chờ | — | — | — |
 | 037 | W8 | chờ | — | — | — |
 | 038 | W8 | chờ | — | — | — |
