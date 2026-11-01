@@ -13,6 +13,7 @@ import { useContractsUi } from '../contracts-store';
 import { initialContractDraft, useContractForm } from '../hooks/useContractForm';
 import { contractQuery } from '../api';
 import type { Contract, ContractKind } from '../types';
+import { todayIso } from '@/shared/time/today';
 
 const toPrefill = (c: Contract): Record<string, unknown> => ({
   contact_id: c.contact_id,
@@ -43,8 +44,8 @@ const ALL_CONTACTS = {
 const ALL_QUOTES = { status: 'all', owner_id: 'all', returning: 'all', q: '' } as const;
 const KINDS: ContractKind[] = ['service', 'sale', 'framework'];
 const DATES = ['signed_date', 'start_date', 'end_date'] as const;
-/** Ngày mock cố định của parity (prototype-parity §4). */
-const TODAY = '2026-06-24';
+/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
+const TODAY = todayIso();
 
 export function ContractFormModal() {
   const ui = useContractsUi();
@@ -100,11 +101,14 @@ function ContractForm({
       mode === 'edit' && editId
         ? await update.run({ contract_id: editId, patch: f.input })
         : quoteId
-          ? await fromQuote.run({ quote_id: quoteId }).then(async (r) =>
-              r && (await update.run({ contract_id: r.result.contract_id, patch: f.input })) ? r : null,
-            )
+          ? await fromQuote
+              .run({ quote_id: quoteId })
+              .then(async (r) =>
+                r && (await update.run({ contract_id: r.result.contract_id, patch: f.input })) ? r : null,
+              )
           : await create.run(f.input);
-    if (res) ui.set({ form: null, prefill: null, editId: null, detail: res.result.contract_id, tab: 'overview' });
+    if (res)
+      ui.set({ form: null, prefill: null, editId: null, detail: res.result.contract_id, tab: 'overview' });
   };
 
   const field = (label: string, node: ReactNode, wide?: boolean) => (
@@ -159,7 +163,10 @@ function ContractForm({
       <div className={styles.section}>
         <div className={styles.sectionTitle}>{t('form.section')}</div>
         <div className={styles.grid}>
-          {field(t('form.code'), <input className={styles.input} value={editCode ?? ''} placeholder={t('form.codePh')} disabled />)}
+          {field(
+            t('form.code'),
+            <input className={styles.input} value={editCode ?? ''} placeholder={t('form.codePh')} disabled />,
+          )}
           {field(
             t('form.number'),
             <input
@@ -192,11 +199,13 @@ function ContractForm({
               onChange={(e) => f.set('quote_id', e.target.value)}
             >
               <option value="">{t('form.lookup')}</option>
-              {quotes.filter((q) => q.status === 'accepted' || q.id === f.d.quote_id).map((q) => (
-                <option key={q.id} value={q.id}>
-                  {`${q.code} · ${q.contact_name}`}
-                </option>
-              ))}
+              {quotes
+                .filter((q) => q.status === 'accepted' || q.id === f.d.quote_id)
+                .map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {`${q.code} · ${q.contact_name}`}
+                  </option>
+                ))}
             </select>,
           )}
           {field(t('form.signed'), date(DATES[0]))}

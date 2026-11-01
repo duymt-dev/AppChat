@@ -47,13 +47,33 @@
     "hint": "These transactions did not match a request with certainty — pick the right request and click Match.",
     "reason": {
       "missing_code": "Missing TT code in transfer content",
-      "amount_mismatch": "Amount differs from amount due"
+      "amount_mismatch": "Amount differs from amount due",
+      "invoice_closed": "The request in the content is already paid or voided"
     },
     "pick": "Match to request",
     "match": "Match",
     "empty": "No transactions left to reconcile",
     "close": "Close",
     "meta": "{at} · {provider}"
+  },
+  "refund": {
+    "open": "Request refund",
+    "title": "Refund request · {code}",
+    "room": "Refundable: {v}",
+    "amount": "Refund amount (VND)",
+    "amountHint": "Leave empty to refund the full refundable amount",
+    "reason": "Refund reason (required)",
+    "send": "Send for approval",
+    "cancel": "Cancel",
+    "over": "Refund amount cannot exceed the refundable amount",
+    "pending": "Refund pending approval {v}",
+    "refunded": "Refunded {v}",
+    "queue": "Refunds awaiting approval ({n})",
+    "queueHint": "Approving records the money as returned to the customer; rejecting needs a reason.",
+    "meta": "{code} · {by} · {at}",
+    "approve": "Approve refund",
+    "reject": "Reject",
+    "rejectNote": "Rejection reason (required)"
   },
   "detail": {
     "close": "Close",
@@ -94,6 +114,7 @@
     "qrContent": "Transfer content",
     "qrHint": "Keep the code {code} in the transfer content so the payment is matched automatically.",
     "void": "Void request",
+    "refundOpen": "Request refund",
     "voidReason": "Reason (required)",
     "voidPaid": "This request already has payments — returning money requires a refund request (Owner approval).",
     "voided": "Voided: {reason}",
@@ -128,7 +149,10 @@
       "sent": "Sent to customer with VietQR",
       "reminded": "Payment reminder sent",
       "payment": "Payment recorded",
-      "void": "Request voided"
+      "void": "Request voided",
+      "refund_requested": "Refund requested",
+      "refunded": "Refunded",
+      "refund_rejected": "Refund rejected"
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",

@@ -2,7 +2,7 @@
 // Hoàn tất = processing → completed: điểm floor(net trước VAT / 10.000) × hệ số hạng ghi trên đơn một lần (sổ điểm + số dư khách —
 // TIP-036 nhận `order.completed`), đơn sàn mặc định 0 điểm (§4b — trừ khi kết nối bật `loyalty_enabled`); khách → Đã mua, tổng chi,
 // lần mua cuối. Huỷ = new / processing → cancelled: bắt buộc lý do, hoàn kho, đã thu tiền → cờ chờ hoàn tiền + event (TIP-032 sinh
-// yêu cầu hoàn tiền Owner duyệt). Huỷ không hoàn tác (Blueprint §3.4).
+// yêu cầu hoàn tiền chờ duyệt — payments/services/order-refund.ts). Huỷ không hoàn tác (Blueprint §3.4).
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, ORDER_FLOW, assertTransition, pointsFor } from '@appchat/shared';
 import type { ActionInput, orderCancel, orderComplete, orderConfirm } from '@appchat/actions';
@@ -13,6 +13,7 @@ import { applyStageRule, writeTimeline } from '../../../crm/public';
 import { lockOrder, visibleOrder, type OrderRecord } from '../order-access';
 import { actorOf, deductStock, logEvent, moveOrder, returnStock, type Actor } from '../services/order-write';
 import { orderPayload } from './order-create.handlers';
+import { refundCancelled } from '../../payments/services/order-refund';
 
 type St = { order_id: string; status: string };
 const POINT_VALUE = 100n;
@@ -52,7 +53,9 @@ export async function cancelOrder(tx: TenantTx, o: OrderRecord, reason: string, 
   await logEvent(tx, o.id, 'cancelled', actor, now, { reason });
   if (refund) await logEvent(tx, o.id, 'refund_requested', actor, now, { amount: paid });
   await writeTimeline(tx, { contactId: o.contactId, type: 'order', key: 'order_cancelled', params: { code: o.code, reason }, actor, ref: { type: 'order', id: o.id }, at: now });
-  return { refund, events: [{ topic: 'order.cancelled', payload: { ...orderPayload(o), reason, paid_total: String(paid), refund_requested: refund } }] };
+  // Đã thu → yêu cầu hoàn tiền chờ duyệt (TIP-032 — COMMERCE §4), cùng transaction với huỷ.
+  const refunds = refund ? await refundCancelled(tx, o, reason, actor, now) : [];
+  return { refund, events: [{ topic: 'order.cancelled', payload: { ...orderPayload(o), reason, paid_total: String(paid), refund_requested: refund } }, ...refunds] };
 }
 
 @Injectable()

@@ -712,5 +712,37 @@
         "title": "Xác nhận chuyển khoản (quản trị nền tảng)"
       }
     }
+  },
+  "payment": {
+    "refund": {
+      "title": "Yêu cầu hoàn tiền"
+    },
+    "refund_approve": {
+      "title": "Duyệt hoàn tiền"
+    },
+    "refund_reject": {
+      "title": "Từ chối hoàn tiền"
+    }
+  },
+  "package": {
+    "extend": {
+      "title": "Gia hạn liệu trình"
+    },
+    "adjust_sessions": {
+      "title": "Điều chỉnh số buổi liệu trình"
+    }
+  },
+  "payment_account": {
+    "update": {
+      "title": "Cập nhật tài khoản nhận tiền"
+    }
+  },
+  "bank_feed": {
+    "connect": {
+      "title": "Kết nối đối soát ngân hàng"
+    },
+    "disconnect": {
+      "title": "Ngắt đối soát ngân hàng"
+    }
   }
 }

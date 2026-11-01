@@ -14,6 +14,7 @@ export interface Payment {
   by: string;
   receipt_code: string;
   auto: boolean;
+  reason?: string;
 }
 
 export interface InvoiceEvent {
@@ -57,6 +58,9 @@ export interface Invoice {
   due_date: string;
   sent_at: string;
   void_reason: string;
+  /** Đã hoàn (đã duyệt) + đang chờ duyệt — tiền string VND. */
+  refunded: string;
+  refund_pending: string;
   payments: Payment[];
   events: InvoiceEvent[];
   ai: { text: string; acts: string[] };
@@ -69,15 +73,30 @@ export interface BankTx {
   content: string;
   occurred_at: string;
   provider: string;
-  reason: 'missing_code' | 'amount_mismatch' | string;
+  reason: 'missing_code' | 'amount_mismatch' | 'invoice_closed' | string;
   suggested_invoice_id: string;
   status: string;
+}
+
+/** Yêu cầu hoàn tiền chờ duyệt (chỉ người có `payment.refund_approve` nhận). */
+export interface RefundRequest {
+  id: string;
+  invoice_id: string | null;
+  invoice_code: string;
+  package_id: string | null;
+  contact_name: string;
+  amount: string;
+  reason: string;
+  by: string;
+  at: string;
 }
 
 export interface InvoicesMeta {
   stats: { total: number; collected: string; pending: string; overdue: string };
   bank_txs: BankTx[];
-  payment_account: { bank: string; bin: string; account_no: string; account_name: string };
+  refunds: RefundRequest[];
+  /** null = chưa khai tài khoản nhận → không sinh VietQR. */
+  payment_account: { bank: string; bin: string; account_no: string; account_name: string } | null;
   crm: { total: number; on_time: string };
-  files: { name: string; ext: string; by: string; at: string; size: string }[];
+  files: { name: string; ext: string; by: string; at: string; size: string; url?: string }[];
 }

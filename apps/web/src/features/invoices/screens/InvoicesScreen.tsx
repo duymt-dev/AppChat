@@ -16,6 +16,7 @@ import { InvoiceCard, useInvoiceColumns, useTr } from '../columns';
 import { InvoiceDrawer } from '../components/InvoiceDrawer';
 import { InvoiceFormModal } from '../components/InvoiceFormModal';
 import { RecordPaymentModal, VoidInvoiceModal } from '../components/PaymentModals';
+import { RefundRequestModal } from '../components/RefundModals';
 import { ReconcileDrawer } from '../components/ReconcileDrawer';
 import type { Invoice } from '../types';
 import { useInvoicesUiCommands } from '../ui-commands';
@@ -59,9 +60,14 @@ export function InvoicesScreen() {
   const open = (i: Invoice) => ui.set({ detail: i.id, tab: 'overview' });
   const val = (k: (typeof STATS)[number][0]) =>
     !meta ? '' : k === 'total' ? String(meta.stats.total) : tr(meta.stats[k]);
-  const pending = meta?.bank_txs.length ?? 0;
+  const pending = (meta?.bank_txs.length ?? 0) + (meta?.refunds.length ?? 0);
   const reconcile = pending ? (
-    <button type="button" className={styles.reconcile} onClick={() => ui.set({ reconcileOpen: true })} data-testid="iv-reconcile-open">
+    <button
+      type="button"
+      className={styles.reconcile}
+      onClick={() => ui.set({ reconcileOpen: true })}
+      data-testid="iv-reconcile-open"
+    >
       <Icon name="ic-bell" size={13} color={color.amberText} />
       {t('reconcile.btn', { n: pending })}
     </button>
@@ -95,7 +101,12 @@ export function InvoicesScreen() {
                 {t('create')}
               </button>
             ) : null}
-            <AiButton label={tc('aiButton')} module={t('title')} onClick={() => setDock(true)} testId="iv-ai-open" />
+            <AiButton
+              label={tc('aiButton')}
+              module={t('title')}
+              onClick={() => setDock(true)}
+              testId="iv-ai-open"
+            />
           </>
         }
       />
@@ -113,7 +124,15 @@ export function InvoicesScreen() {
         <div className={styles.table}>
           <DataTable<Invoice>
             testId="iv-table"
-            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={(pg) => ui.set({ pg })} extra={reconcile} testId="iv-table-pager" />}
+            footer={
+              <ListPager
+                meta={list.data?.meta}
+                unit={t('unit')}
+                onChange={(pg) => ui.set({ pg })}
+                extra={reconcile}
+                testId="iv-table-pager"
+              />
+            }
             rows={rows}
             columns={columns}
             rowKey={(r) => r.id}
@@ -130,6 +149,7 @@ export function InvoicesScreen() {
       <InvoiceFormModal />
       <RecordPaymentModal />
       <VoidInvoiceModal />
+      <RefundRequestModal />
     </div>
   );
 }

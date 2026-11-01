@@ -4,6 +4,7 @@ export * from './fmt';
 export * from './api';
 export * from './commerce/quote-math';
 export * from './sales/quote-state';
+export * from './sales/invoice-state';
 export * from './contracts/contract-state';
 export * from './orders/order-state';
 export * from './time/deadline';

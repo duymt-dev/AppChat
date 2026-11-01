@@ -1,4 +1,4 @@
-// Domain `sales` — quote (TIP-029), order (031 — 10 action `order.*`, đọc /v1/orders*, đồng bộ sàn OrderSyncService), invoice / customer payment / customer_package / bank feed (032). Báo giá: handler 13
+// Domain `sales` — quote (TIP-029), order (031 — 10 action `order.*`, đọc /v1/orders*, đồng bộ sàn OrderSyncService), invoice / customer payment / customer_package / bank feed (032 — 15 handler, /v1/invoices*, webhook tenant-payments). Báo giá: handler 13
 // action `quote.*`, đọc cho /v1/quotes*, trang xem công khai, PDF (DocRenderer — TIP-028). Thiếu DB / khoá → service null / 501.
 import { Module } from '@nestjs/common';
 import type { Redis } from 'ioredis';
@@ -31,6 +31,14 @@ import { OrderCancelHandler, OrderCompleteHandler, OrderConfirmHandler } from '.
 import { OrderSyncNowHandler } from './orders/actions/order-sync.handler';
 import { OrdersReadService } from './orders/services/orders-read.service';
 import { OrderSyncService } from './orders/services/order-sync';
+import { InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler } from './payments/actions/invoice-write.handlers';
+import { InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler } from './payments/actions/invoice-pay.handlers';
+import { PaymentRefundApproveHandler, PaymentRefundHandler, PaymentRefundRejectHandler } from './payments/actions/refund.handlers';
+import { PackageAdjustHandler, PackageExtendHandler } from './payments/actions/package.handlers';
+import { BankFeedConnectHandler, BankFeedDisconnectHandler, PaymentAccountUpdateHandler } from './payments/actions/finance-config.handlers';
+import { InvoicesReadService } from './payments/services/invoices-read.service';
+import { TenantBankHook } from './payments/services/bank-feed';
+import { IntegrationsModule } from '../integrations/integrations.module';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer) => ({ token, optional: true });
 const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
@@ -44,10 +52,13 @@ const HANDLERS = [
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
   OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
   OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler,
+  InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
+  PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler,
+  PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule],
   providers: [
     ...HANDLERS,
     {
@@ -71,11 +82,22 @@ const HANDLERS = [
         t && k ? new OrderSyncService({ tenants: t, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
     },
     {
+      provide: InvoicesReadService,
+      inject: [QuoteDeps, CLOCK],
+      useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new InvoicesReadService(d, () => c.now()) : null),
+    },
+    {
+      provide: TenantBankHook,
+      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK],
+      useFactory: (t: TenantDbResolver | undefined, p: PlatformDb | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock) =>
+        t && p && k ? new TenantBankHook({ tenants: t, platform: p, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
+    },
+    {
       provide: QuotesReadService,
       inject: [QuoteDeps, CLOCK],
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService],
+  exports: [QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
 })
 export class SalesModule {}

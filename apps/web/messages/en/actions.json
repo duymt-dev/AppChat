@@ -712,5 +712,37 @@
         "title": "Confirm bank transfer (platform admin)"
       }
     }
+  },
+  "payment": {
+    "refund": {
+      "title": "Request refund"
+    },
+    "refund_approve": {
+      "title": "Approve refund"
+    },
+    "refund_reject": {
+      "title": "Reject refund"
+    }
+  },
+  "package": {
+    "extend": {
+      "title": "Extend package"
+    },
+    "adjust_sessions": {
+      "title": "Adjust package sessions"
+    }
+  },
+  "payment_account": {
+    "update": {
+      "title": "Update receiving account"
+    }
+  },
+  "bank_feed": {
+    "connect": {
+      "title": "Connect bank reconciliation"
+    },
+    "disconnect": {
+      "title": "Disconnect bank reconciliation"
+    }
   }
 }

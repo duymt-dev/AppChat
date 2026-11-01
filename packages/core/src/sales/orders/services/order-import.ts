@@ -11,6 +11,7 @@ import { ContactIdentityService, writeTimeline } from '../../../crm/public';
 import type { OrderRecord } from '../order-access';
 import { cancelOrder, completeOrder } from '../actions/order-flow.handlers';
 import { orderPayload } from '../actions/order-create.handlers';
+import { recordMarketplacePaid } from '../../payments/services/order-refund';
 import { EMPTY_SHIPPING, deductStock, logEvent, moveOrder, payCols, writeItems, type Actor, type Shipping } from './order-write';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
@@ -69,6 +70,7 @@ async function markPaid(tx: TenantTx, id: string, paid: boolean, now: Date) {
   if (!paid || o.paidTotal >= o.total || o.status === 'cancelled') return;
   await tx.order.update({ where: { id }, data: { paidTotal: o.total, ...payCols({ ...o, paidTotal: o.total }), updatedAt: now } });
   await logEvent(tx, id, 'paid', SYSTEM, now, { amount: o.total - o.paidTotal });
+  await recordMarketplacePaid(tx, o, o.total - o.paidTotal, now);
 }
 
 /** Nhập một đơn sàn. Trả `created` + event cho outbox (người gọi ghi cùng transaction). */

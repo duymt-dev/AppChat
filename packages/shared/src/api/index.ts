@@ -15,3 +15,4 @@ export * from './inbox';
 export * from './webchat';
 export * from './ai';
 export * from './assistant';
+export * from './invoices';

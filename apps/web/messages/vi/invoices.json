@@ -47,13 +47,33 @@
     "hint": "Giao dịch chưa khớp chắc chắn với đề nghị nào — chọn đề nghị đúng rồi bấm Khớp.",
     "reason": {
       "missing_code": "Thiếu mã TT trong nội dung",
-      "amount_mismatch": "Sai số tiền so với còn phải thu"
+      "amount_mismatch": "Sai số tiền so với còn phải thu",
+      "invoice_closed": "Đề nghị trong nội dung đã thu đủ hoặc đã huỷ"
     },
     "pick": "Khớp với đề nghị",
     "match": "Khớp",
     "empty": "Không còn giao dịch cần đối soát",
     "close": "Đóng",
     "meta": "{at} · {provider}"
+  },
+  "refund": {
+    "open": "Yêu cầu hoàn tiền",
+    "title": "Yêu cầu hoàn tiền · {code}",
+    "room": "Còn hoàn được: {v}",
+    "amount": "Số tiền hoàn (đ)",
+    "amountHint": "Để trống = hoàn toàn bộ số còn hoàn được",
+    "reason": "Lý do hoàn (bắt buộc)",
+    "send": "Gửi yêu cầu duyệt",
+    "cancel": "Huỷ",
+    "over": "Số tiền hoàn không được lớn hơn số còn hoàn được",
+    "pending": "Đang chờ duyệt hoàn {v}",
+    "refunded": "Đã hoàn {v}",
+    "queue": "Hoàn tiền chờ duyệt ({n})",
+    "queueHint": "Duyệt xong là tiền được ghi trả lại khách; từ chối cần ghi lý do.",
+    "meta": "{code} · {by} · {at}",
+    "approve": "Duyệt hoàn",
+    "reject": "Từ chối",
+    "rejectNote": "Lý do từ chối (bắt buộc)"
   },
   "detail": {
     "close": "Đóng",
@@ -94,6 +114,7 @@
     "qrContent": "Nội dung CK",
     "qrHint": "Nội dung chuyển khoản phải giữ nguyên mã {code} để hệ thống tự khớp.",
     "void": "Huỷ đề nghị",
+    "refundOpen": "Yêu cầu hoàn tiền",
     "voidReason": "Lý do huỷ (bắt buộc)",
     "voidPaid": "Đề nghị đã có khoản thu — muốn trả lại tiền phải tạo yêu cầu hoàn tiền (Chủ sở hữu duyệt).",
     "voided": "Đã huỷ: {reason}",
@@ -128,7 +149,10 @@
       "sent": "Gửi đề nghị cho khách kèm VietQR",
       "reminded": "Gửi nhắc thanh toán",
       "payment": "Ghi nhận thanh toán",
-      "void": "Huỷ đề nghị"
+      "void": "Huỷ đề nghị",
+      "refund_requested": "Yêu cầu hoàn tiền",
+      "refunded": "Đã hoàn tiền",
+      "refund_rejected": "Từ chối hoàn tiền"
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",

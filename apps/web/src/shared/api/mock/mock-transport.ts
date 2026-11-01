@@ -15,6 +15,7 @@ import { contractPdf, contractsParamRoute } from './domains/contracts';
 import { contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
+import { contactPackagesParamRoute } from './domains/invoices-actions';
 import { calendarParamRoute } from './domains/calendar';
 import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
@@ -64,6 +65,7 @@ export const mockTransport: Transport = {
       contractsParamRoute(path) ??
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
+      contactPackagesParamRoute(path) ??
       calendarParamRoute(path) ??
       ticketsParamRoute(path) ??
       marketingParamRoute(path) ??

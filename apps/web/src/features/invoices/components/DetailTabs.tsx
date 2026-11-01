@@ -20,9 +20,18 @@ const EV_DOT: Record<string, string> = {
   reminded: color.amberDeep,
   payment: color.brand,
   void: color.dangerDeep,
+  refund_requested: color.amberDeep,
+  refunded: color.violet,
+  refund_rejected: color.text4,
 };
 const NONE = '—';
-const IDS = { due: 'iv-due', order: 'iv-order', amount: 'iv-amount' } as const;
+const IDS = {
+  due: 'iv-due',
+  order: 'iv-order',
+  amount: 'iv-amount',
+  refundPending: 'iv-refund-pending',
+  refunded: 'iv-refunded',
+} as const;
 const DOCS = [
   ['docOrders', '/orders'],
   ['docContracts', '/contracts'],
@@ -56,6 +65,14 @@ export function OverviewTab({ i }: { i: Invoice }) {
         {i.kind === 'full' ? null : kv(t('detail.kind'), t(`kind.${i.kind}`))}
         {i.order_code ? kv(t('detail.order'), i.order_code, { id: IDS.order }) : null}
         {kv(t('detail.total'), fmt.money(i.amount), { id: IDS.amount, green: true })}
+        {Number(i.refund_pending) > 0
+          ? kv(t('refund.open'), t('refund.pending', { v: fmt.money(i.refund_pending) }), {
+              id: IDS.refundPending,
+            })
+          : null}
+        {Number(i.refunded) > 0
+          ? kv(t('refund.open'), t('refund.refunded', { v: fmt.money(i.refunded) }), { id: IDS.refunded })
+          : null}
         {i.status === 'void' ? (
           <div className={styles.kv}>
             <b className={styles.danger}>{t('detail.voided', { reason: i.void_reason })}</b>

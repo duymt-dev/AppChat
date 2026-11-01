@@ -131,6 +131,14 @@ export const orderEvent = z.object(orderBase);
 export const orderCompletedEvent = z.object({ ...orderBase, points: z.number().int(), net_before_vat: z.string() });
 export const orderCancelledEvent = z.object({ ...orderBase, reason: z.string().max(500), paid_total: z.string(), refund_requested: z.boolean() });
 
+/** Đề nghị thanh toán / khoản thu / liệu trình (TIP-032 — Blueprint §2.3). Tiền là string VND; hoàn tiền `amount` dương = số hoàn. */
+const uuidOrNull = z.string().uuid().nullable();
+export const invoiceEvent = z.object({ ...base, invoice_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull, code: z.string(), amount: z.string(), status: z.string() });
+export const paymentConfirmedEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: uuidOrNull, order_id: uuidOrNull, contact_id: z.string().uuid(), amount: z.string(), method: z.string(), receipt_code: z.string().nullable(), status: z.string() });
+export const paymentRefundEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: uuidOrNull, order_id: uuidOrNull, package_id: uuidOrNull, contact_id: z.string().uuid(), amount: z.string() });
+export const bankTxEvent = z.object({ ...base, bank_tx_id: z.string().uuid(), amount: z.string(), status: z.string(), reason: z.string().nullable() });
+export const packageEvent = z.object({ ...base, package_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull.optional(), total_sessions: z.number().int().optional() });
+
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
   'credits.low': creditsLowEvent,
@@ -189,5 +197,17 @@ export const EVENT_SCHEMAS = {
   'order.cancelled': orderCancelledEvent,
   'order.imported': orderEvent,
   'order.external_updated': orderEvent,
+  'invoice.created': invoiceEvent,
+  'invoice.sent': invoiceEvent,
+  'invoice.overdue': invoiceEvent,
+  'invoice.voided': invoiceEvent,
+  'payment.confirmed': paymentConfirmedEvent,
+  'payment.refund_requested': paymentRefundEvent,
+  'payment.refunded': paymentRefundEvent,
+  'payment.refund_rejected': paymentRefundEvent,
+  'bank_tx.received': bankTxEvent,
+  'package.granted': packageEvent,
+  'package.expired': packageEvent,
+  'package.changed': packageEvent,
 } as const;
 export type EventTopic = keyof typeof EVENT_SCHEMAS;

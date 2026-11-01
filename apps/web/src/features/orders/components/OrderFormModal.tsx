@@ -14,6 +14,7 @@ import { useOrderFormStyles } from '../styles/form.styles';
 import { useOrdersUi } from '../orders-store';
 import { initialOrderDraft, useOrderForm } from '../hooks/useOrderForm';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
+import { todayIso } from '@/shared/time/today';
 
 const SHIP = [
   ['address', 'addr'],
@@ -32,8 +33,8 @@ const ALL_CONTACTS = {
   tag_id: '',
   sort: 'recent',
 } as const;
-/** Ngày mock cố định của parity (prototype-parity §4). */
-const TODAY = '2026-06-24';
+/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
+const TODAY = todayIso();
 
 export function OrderFormModal() {
   const ui = useOrdersUi();

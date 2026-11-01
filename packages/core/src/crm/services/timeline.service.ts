@@ -4,7 +4,7 @@ import { createFmt, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 
-export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported';
+export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted';
 type TimelineType = 'message' | 'quote' | 'contract' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge';
 
 export interface TimelineInput {
@@ -40,6 +40,15 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   order_completed: { icon: 'ic-check', tone: 'ok' },
   order_cancelled: { icon: 'ic-x', tone: 'muted' },
   order_imported: { icon: 'ic-cart', tone: 'brand' },
+  invoice_sent: { icon: 'ic-send', tone: 'brand' },
+  invoice_paid: { icon: 'ic-check', tone: 'ok' },
+  invoice_void: { icon: 'ic-x', tone: 'muted' },
+  refund_requested: { icon: 'ic-dollar', tone: 'amber' },
+  refund_approved: { icon: 'ic-dollar', tone: 'muted' },
+  refund_rejected: { icon: 'ic-x', tone: 'muted' },
+  package_granted: { icon: 'ic-gift', tone: 'ok' },
+  package_extended: { icon: 'ic-clock', tone: 'brand' },
+  package_adjusted: { icon: 'ic-gift', tone: 'brand' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {

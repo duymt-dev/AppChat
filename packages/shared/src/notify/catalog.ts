@@ -29,6 +29,10 @@ export const NOTIFY_KINDS = {
   contract_signed: { group: 'msg', icon: 'ic-check', tone: 'teal', defaults: ch(true, true, true) },
   contract_declined: { group: 'msg', icon: 'ic-x', tone: 'danger', defaults: ch(true, true, true) },
   contract_expiring: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
+  // Thu tiền (TIP-032): khách đã thanh toán đề nghị của tôi · yêu cầu hoàn tiền chờ tôi duyệt + kết quả duyệt · giao dịch cần đối soát.
+  payment_received: { group: 'msg', icon: 'ic-dollar', tone: 'teal', defaults: ch(true, false, true) },
+  refund_approval: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, true, true) },
+  bank_review: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, false, false) },
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },

@@ -10,6 +10,7 @@ import * as quotes from './quotes';
 import * as contracts from './contracts';
 import * as orders from './orders';
 import * as invoices from './invoices';
+import * as payments from './payments';
 import * as booking from './booking';
 import * as support from './support';
 import * as marketing from './marketing';
@@ -32,6 +33,7 @@ export * from './quotes';
 export * from './contracts';
 export * from './orders';
 export * from './invoices';
+export * from './payments';
 export * from './booking';
 export * from './support';
 export * from './marketing';
@@ -57,6 +59,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contracts),
   ...Object.values(orders),
   ...Object.values(invoices),
+  ...Object.values(payments),
   ...Object.values(booking),
   ...Object.values(support),
   ...Object.values(marketing),

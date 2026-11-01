@@ -9,7 +9,9 @@ const setRole = async (page: Page, label: string) => {
 };
 
 test.describe('invoices', () => {
-  test('danh sách "Đề nghị thanh toán" (COMMERCE §5): mã TT-, 4 thẻ số liệu, tìm không dấu', async ({ page }) => {
+  test('danh sách "Đề nghị thanh toán" (COMMERCE §5): mã TT-, 4 thẻ số liệu, tìm không dấu', async ({
+    page,
+  }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await expect(page.getByText('Đề nghị thanh toán', { exact: true }).first()).toBeVisible();
@@ -23,7 +25,9 @@ test.describe('invoices', () => {
     await expect(page.locator('[data-invoice="inv_2040"]')).toBeVisible();
   });
 
-  test('chi tiết: VietQR = còn phải thu + nội dung mã TT; ghi chú không thay hoá đơn GTGT', async ({ page }) => {
+  test('chi tiết: VietQR = còn phải thu + nội dung mã TT; ghi chú không thay hoá đơn GTGT', async ({
+    page,
+  }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.locator('[data-invoice="inv_2039"]').click();
@@ -34,7 +38,9 @@ test.describe('invoices', () => {
     await expect(qr.getByTestId('iv-qr-amount')).toHaveText('12.000.000₫');
     await expect(qr.getByTestId('iv-qr-content')).toHaveText('TT002039');
     await expect(qr.locator('canvas, svg').first()).toBeVisible();
-    await expect(drawer.getByTestId('iv-not-vat')).toHaveText('Chứng từ này không thay thế hoá đơn giá trị gia tăng');
+    await expect(drawer.getByTestId('iv-not-vat')).toHaveText(
+      'Chứng từ này không thay thế hoá đơn giá trị gia tăng',
+    );
     await drawer.getByRole('button', { name: 'Đóng' }).first().click();
     // đã thu đủ → không còn QR
     await page.locator('[data-invoice="inv_2041"]').click();
@@ -43,7 +49,9 @@ test.describe('invoices', () => {
     await expect(drawer.getByTestId('iv-record')).toBeDisabled();
   });
 
-  test('ghi nhận thanh toán: chặn vượt số còn lại; một phần → đủ → Đã thanh toán + phiếu thu', async ({ page }) => {
+  test('ghi nhận thanh toán: chặn vượt số còn lại; một phần → đủ → Đã thanh toán + phiếu thu', async ({
+    page,
+  }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.locator('[data-invoice="inv_2039"]').click();
@@ -69,7 +77,9 @@ test.describe('invoices', () => {
     await expect(drawer.getByTestId('iv-history')).toContainText('Ghi nhận thanh toán');
   });
 
-  test('từ đơn hàng: tạo đề nghị cọc (≤ đơn còn phải thu) → Nháp → gửi Zalo → ghi nhận → đơn cập nhật đã thu', async ({ page }) => {
+  test('từ đơn hàng: tạo đề nghị cọc (≤ đơn còn phải thu) → Nháp → gửi Zalo → ghi nhận → đơn cập nhật đã thu', async ({
+    page,
+  }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto('/orders?session=authed,declared,trialSeen');
     await page.locator('[data-order="ord_290409"]').click();
@@ -130,7 +140,37 @@ test.describe('invoices', () => {
     await expect(drawer.getByTestId('iv-status')).toHaveText('Đã huỷ');
   });
 
-  test('vai trò Sales: chỉ đề nghị của mình, không ghi nhận / đối soát; Kế toán ghi nhận được', async ({ page }) => {
+  test('hoàn tiền: Kế toán yêu cầu → Chủ sở hữu duyệt ở hàng chờ → đề nghị ghi "Đã hoàn"', async ({
+    page,
+  }) => {
+    test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
+    await page.goto(URL);
+    await setRole(page, 'Kế toán');
+    const drawer = page.getByTestId('iv-drawer');
+    await page.locator('[data-invoice="inv_2038"]').click();
+    await drawer.getByTestId('iv-refund-open').click();
+    await expect(page.getByTestId('iv-refund-ok')).toBeDisabled();
+    await page.getByTestId('iv-refund-amount').fill('99000000');
+    await expect(page.getByTestId('iv-refund-ok')).toBeDisabled();
+    await page.getByTestId('iv-refund-amount').fill('2000000');
+    await page.getByTestId('iv-refund-reason').fill('Khách đổi gói');
+    await page.getByTestId('iv-refund-ok').click();
+    await expect(drawer.getByTestId('iv-refund-pending')).toContainText('2.000.000');
+    await drawer.getByRole('button', { name: 'Đóng' }).first().click();
+    await setRole(page, 'Chủ sở hữu');
+    await page.getByTestId('iv-reconcile-open').click();
+    const queue = page.getByTestId('iv-reconcile');
+    await expect(queue.getByTestId('iv-refund-queue')).toBeVisible();
+    await queue.getByTestId('iv-rf-approve').click();
+    await expect(queue.getByTestId('iv-refund-queue')).toHaveCount(0);
+    await queue.getByRole('button', { name: 'Đóng' }).first().click();
+    await page.locator('[data-invoice="inv_2038"]').click();
+    await expect(drawer.getByTestId('iv-refunded')).toContainText('2.000.000');
+  });
+
+  test('vai trò Sales: chỉ đề nghị của mình, không ghi nhận / đối soát; Kế toán ghi nhận được', async ({
+    page,
+  }) => {
     test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
     await page.goto(URL);
     await setRole(page, 'Sales');
@@ -144,7 +184,9 @@ test.describe('invoices', () => {
     await expect(page.getByTestId('iv-reconcile-open')).toBeVisible();
   });
 
-  test('390: thẻ đề nghị, drawer có VietQR, ghi nhận — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
+  test('390: thẻ đề nghị, drawer có VietQR, ghi nhận — không tràn ngang, vùng chạm ≥ 44px', async ({
+    page,
+  }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await page.goto(URL);
     await expect(page.getByTestId('iv-table').locator('[data-invoice]')).toHaveCount(5);

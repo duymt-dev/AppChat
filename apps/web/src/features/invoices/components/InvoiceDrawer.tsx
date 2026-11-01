@@ -11,6 +11,7 @@ import { invoiceQuery } from '../api';
 import { StatusChip } from '../columns';
 import { avInitial } from '../status';
 import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { refundRoom } from './RefundModals';
 import type { Invoice, InvoicesMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'files', 'history'] as const;
@@ -52,8 +53,24 @@ function Footer({ i }: { i: Invoice }) {
   const { styles, cx } = useInvoiceDetailStyles();
   const set = useInvoicesUi((s) => s.set);
   const canManage = useCan('invoice.manage');
-  // Đã có khoản thu → không huỷ thẳng, phải hoàn tiền (COMMERCE §5).
-  if (!canManage || i.status === 'void' || Number(i.paid_amount) > 0) return null;
+  const canRefund = useCan('payment.refund_request');
+  // Đã có khoản thu → không huỷ thẳng, phải yêu cầu hoàn tiền (COMMERCE §5 — luôn chờ duyệt).
+  if (Number(i.paid_amount) > 0) {
+    if (!canRefund || refundRoom(i) <= 0) return null;
+    return (
+      <div className={styles.foot}>
+        <button
+          type="button"
+          className={styles.act}
+          onClick={() => set({ refundFor: i.id })}
+          data-testid="iv-refund-open"
+        >
+          {t('refundOpen')}
+        </button>
+      </div>
+    );
+  }
+  if (!canManage || i.status === 'void') return null;
   return (
     <div className={styles.foot}>
       <button

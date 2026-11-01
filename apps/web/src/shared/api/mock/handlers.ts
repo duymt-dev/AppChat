@@ -10,6 +10,7 @@ import { quotesHandlers } from './domains/quotes-actions';
 import { contractsHandlers } from './domains/contracts-actions';
 import { ordersHandlers } from './domains/orders-actions';
 import { invoicesHandlers } from './domains/invoices';
+import { invoicesActionHandlers } from './domains/invoices-actions';
 import { calendarHandlers } from './domains/calendar';
 import { ticketsHandlers } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
@@ -91,6 +92,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...contractsHandlers,
   ...ordersHandlers,
   ...invoicesHandlers,
+  ...invoicesActionHandlers,
   ...calendarHandlers,
   ...ticketsHandlers,
   ...marketingHandlers,

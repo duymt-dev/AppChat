@@ -11,6 +11,7 @@ import { quotesRoutes } from './domains/quotes';
 import { contractsRoutes } from './domains/contracts';
 import { ordersRoutes } from './domains/orders';
 import { invoicesRoutes } from './domains/invoices';
+import { invoicesActionRoutes } from './domains/invoices-actions';
 import { calendarRoutes } from './domains/calendar';
 import { ticketsRoutes } from './domains/tickets';
 import { marketingRoutes } from './domains/marketing';
@@ -66,6 +67,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...contractsRoutes,
   ...ordersRoutes,
   ...invoicesRoutes,
+  ...invoicesActionRoutes,
   ...calendarRoutes,
   ...ticketsRoutes,
   ...marketingRoutes,

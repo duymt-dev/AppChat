@@ -14,6 +14,7 @@ import { useInvoiceFormStyles } from '../styles/form.styles';
 import { useInvoicesUi } from '../invoices-store';
 import { initialInvoiceDraft, useInvoiceForm, type OrderPick } from '../hooks/useInvoiceForm';
 import type { InvoiceKind } from '../types';
+import { todayIso } from '@/shared/time/today';
 
 const ALL_CONTACTS = {
   stage: 'all',
@@ -28,8 +29,8 @@ const ALL_CONTACTS = {
 } as const;
 const ALL_ORDERS = { chip: 'all', owner_id: 'all', value: 'all', source: 'all', q: '' } as const;
 const KINDS: InvoiceKind[] = ['full', 'deposit', 'installment'];
-/** Ngày mock cố định của parity (prototype-parity §4). */
-const TODAY = '2026-06-24';
+/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
+const TODAY = todayIso();
 
 export function InvoiceFormModal() {
   const ui = useInvoicesUi();

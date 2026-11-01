@@ -12,7 +12,12 @@ import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.invoices)[number];
 export type InvoiceStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'void';
-export type Payment = Fixed['payments'][number] & { kind: string; method: string; auto: boolean };
+export type Payment = Fixed['payments'][number] & {
+  kind: string;
+  method: string;
+  auto: boolean;
+  reason?: string;
+};
 export interface InvoiceEvent {
   type: string;
   at: string;
@@ -32,9 +37,31 @@ export type Invoice = Omit<Fixed, 'status' | 'payments' | 'events' | 'order_id' 
 };
 export type BankTx = (typeof fixture.bank_txs)[number];
 
+export interface CustomerPackage {
+  id: string;
+  contact_id: string;
+  product_id: string;
+  order_id: string;
+  name: string;
+  total: number;
+  used: number;
+  expires_at: string;
+  status: 'active' | 'exhausted' | 'expired' | 'refunded';
+}
+
 export interface InvoicesState {
   invoices: Invoice[];
   bank_txs: BankTx[];
+  packages: CustomerPackage[];
+  payment_account: typeof fixture.payment_account | null;
+  bank_feeds: {
+    provider: string;
+    feed_id: string;
+    account_no: string;
+    status: string;
+    last_tx_at: string;
+    webhook_path: string;
+  }[];
   seq: number;
   pay_seq: number;
 }
@@ -42,13 +69,34 @@ export interface InvoicesState {
 export const createInvoicesState = (): InvoicesState => ({
   invoices: structuredClone(fixture.invoices) as Invoice[],
   bank_txs: structuredClone(fixture.bank_txs),
+  packages: [
+    {
+      id: 'pkg_lan_1',
+      contact_id: 'ct_lan',
+      product_id: 'prd_combo10',
+      order_id: 'ord_290401',
+      name: 'Liệu trình chăm sóc da 10 buổi',
+      total: 10,
+      used: 3,
+      expires_at: '2026-12-31',
+      status: 'active',
+    },
+  ],
+  payment_account: structuredClone(fixture.payment_account),
+  bank_feeds: [],
   seq: 2041,
   pay_seq: 0,
 });
 
-const NAMES: Record<string, string> = { u_tram: 'Trâm', u_minh: 'Minh', u_huong: 'Hương', u_khoa: 'Khoa' };
-const TODAY = MOCK_NOW.slice(0, 10);
-const addDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+export const NAMES: Record<string, string> = {
+  u_tram: 'Trâm',
+  u_minh: 'Minh',
+  u_huong: 'Hương',
+  u_khoa: 'Khoa',
+};
+export const TODAY = MOCK_NOW.slice(0, 10);
+const addDays = (d: string, n: number) =>
+  new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
 
 /** Trạng thái theo khoản thu + hạn (COMMERCE §5): quá hạn mà chưa đủ → overdue. */
 const restatus = (i: Invoice) => {
@@ -59,39 +107,71 @@ const restatus = (i: Invoice) => {
   else i.status = paid > 0 ? 'partial' : 'sent';
 };
 
-export const enrichInvoice = (i: Invoice) => {
+const refundSum = (i: Invoice, status: string) =>
+  String(
+    i.payments
+      .filter((p) => p.kind === 'refund' && p.status === status)
+      .reduce((a, p) => a + Number(p.amount), 0),
+  );
+
+export const enrichInvoice = (
+  i: Invoice,
+  acc: InvoicesState['payment_account'] = fixture.payment_account,
+) => {
   const left = String(Math.max(0, Number(i.amount) - Number(i.paid_amount)));
-  const acc = fixture.payment_account;
-  const payable = Number(left) > 0 && i.status !== 'draft' && i.status !== 'void';
+  const payable = !!acc && Number(left) > 0 && i.status !== 'draft' && i.status !== 'void';
   return {
     ...i,
     left,
+    refunded: refundSum(i, 'confirmed'),
+    refund_pending: refundSum(i, 'pending'),
     paid_pct: Math.round((Number(i.paid_amount) / Number(i.amount)) * 100),
-    qr: payable ? { ...acc, amount: left, content: i.transfer_code, payload: vietQrPayload({ ...acc, amount: left, content: i.transfer_code }) } : null,
+    qr:
+      payable && acc
+        ? {
+            ...acc,
+            amount: left,
+            content: i.transfer_code,
+            payload: vietQrPayload({ ...acc, amount: left, content: i.transfer_code }),
+          }
+        : null,
   };
 };
 
-const visible = (db: MockDb, i: Invoice) => {
+export const visible = (db: MockDb, i: Invoice) => {
   if (i.deleted) return false;
   const scope = ROLE_DEFS[db.role].scope.sales;
   return scope === 'all' || (scope === 'own' && i.owner_user_id === ME);
 };
-const find = (db: MockDb, id: string) => {
+export const find = (db: MockDb, id: string) => {
   const i = db.invoices.invoices.find((x) => x.id === id && !x.deleted);
   if (!i) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
   return i;
 };
-const deny = (code: ErrorCode, message: string, fields?: Record<string, string>): never => {
+export const deny = (code: ErrorCode, message: string, fields?: Record<string, string>): never => {
   throw new ApiRequestError(409, { code, message, ...(fields ? { fields } : {}) });
 };
-const log = (i: Invoice, type: string, extra: Partial<InvoiceEvent> = {}) =>
+export const log = (i: Invoice, type: string, extra: Partial<InvoiceEvent> = {}) =>
   i.events.push({ type, at: MOCK_NOW, actor: NAMES[ME]!, ...extra });
-const norm = (s: string) =>
-  s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
-    .toLowerCase();
+const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+
+/** Hoàn tiền chờ duyệt (khoản `refund` pending trên đề nghị) — hàng duyệt của Owner / người được uỷ quyền. */
+const pendingRefunds = (db: MockDb) =>
+  db.invoices.invoices.flatMap((i) =>
+    i.payments
+      .filter((p) => p.kind === 'refund' && p.status === 'pending')
+      .map((p) => ({
+        id: p.id,
+        invoice_id: i.id,
+        invoice_code: i.code,
+        package_id: null,
+        contact_name: i.contact_name,
+        amount: p.amount,
+        reason: p.reason ?? '',
+        by: p.by,
+        at: p.at,
+      })),
+  );
 
 export const invoicesRoutes: Record<string, MockRoute> = {
   '/invoices': (db, p) => {
@@ -99,13 +179,15 @@ export const invoicesRoutes: Record<string, MockRoute> = {
     const rows = db.invoices.invoices
       .filter((i) => visible(db, i))
       .filter((i) => !q || [i.code, i.contact_name, i.title, i.owner_name].some((v) => norm(v).includes(q)))
-      .map(enrichInvoice);
+      .map((i) => enrichInvoice(i, db.invoices.payment_account));
     return paginate(rows, p);
   },
   '/invoices/meta': (db) => {
-    const all = db.invoices.invoices.filter((i) => visible(db, i) && i.status !== 'void').map(enrichInvoice);
+    const all = db.invoices.invoices
+      .filter((i) => visible(db, i) && i.status !== 'void')
+      .map((i) => enrichInvoice(i, db.invoices.payment_account));
     const sum = (f: (i: (typeof all)[number]) => string) => String(all.reduce((a, i) => a + Number(f(i)), 0));
-    const canRecord = ROLE_DEFS[db.role].permissions.includes('payment.record');
+    const perms: readonly string[] = ROLE_DEFS[db.role].permissions;
     return {
       stats: {
         total: all.length,
@@ -113,8 +195,11 @@ export const invoicesRoutes: Record<string, MockRoute> = {
         pending: sum((i) => (i.status === 'sent' || i.status === 'partial' ? i.left : '0')),
         overdue: sum((i) => (i.status === 'overdue' ? i.left : '0')),
       },
-      bank_txs: canRecord ? db.invoices.bank_txs.filter((b) => b.status === 'needs_review') : [],
-      payment_account: fixture.payment_account,
+      bank_txs: perms.includes('payment.record')
+        ? db.invoices.bank_txs.filter((b) => b.status === 'needs_review')
+        : [],
+      refunds: perms.includes('payment.refund_approve') ? pendingRefunds(db) : [],
+      payment_account: db.invoices.payment_account,
       crm: fixture.crm,
       files: fixture.files,
     };
@@ -124,7 +209,7 @@ export const invoicesRoutes: Record<string, MockRoute> = {
 export const invoicesParamRoute = (path: string): MockRoute | undefined => {
   const m = path.match(/^\/invoices\/(inv_[^/]+)$/);
   if (!m) return undefined;
-  return (db) => enrichInvoice(find(db, m[1]!));
+  return (db) => enrichInvoice(find(db, m[1]!), db.invoices.payment_account);
 };
 
 /** Ghi khoản thu + phiếu thu; cộng vào đơn liên quan (pay_status đơn tính lại từ paid_total). */
@@ -133,7 +218,12 @@ const addPayment = (db: MockDb, i: Invoice, p: Omit<Payment, 'id' | 'receipt_cod
   if (Number(p.amount) > left)
     deny('VALIDATION_FAILED', `${i.code}: amount > left`, { amount: 'invoice.amount_over' });
   const n = ++db.invoices.pay_seq;
-  const pay: Payment = { ...p, id: `pay_new_${n}`, status: 'confirmed', receipt_code: `PT-${String(9000 + n).padStart(6, '0')}` };
+  const pay: Payment = {
+    ...p,
+    id: `pay_new_${n}`,
+    status: 'confirmed',
+    receipt_code: `PT-${String(9000 + n).padStart(6, '0')}`,
+  };
   i.payments.push(pay);
   i.paid_amount = String(Number(i.paid_amount) + Number(p.amount));
   restatus(i);
@@ -141,7 +231,12 @@ const addPayment = (db: MockDb, i: Invoice, p: Omit<Payment, 'id' | 'receipt_cod
   const o = i.order_id ? db.orders.orders.find((x) => x.id === i.order_id) : undefined;
   if (o) {
     o.paid_total = String(Number(o.paid_total) + Number(p.amount));
-    o.events.push({ type: enrichOrder(o).pay_status === 'paid' ? 'paid' : 'deposit', at: MOCK_NOW, actor: p.by, amount: p.amount });
+    o.events.push({
+      type: enrichOrder(o).pay_status === 'paid' ? 'paid' : 'deposit',
+      at: MOCK_NOW,
+      actor: p.by,
+      amount: p.amount,
+    });
   }
   return pay;
 };
@@ -175,10 +270,12 @@ export const invoicesHandlers: Record<string, MockHandler> = {
       const o = i.order_id ? db.orders.orders.find((x) => x.id === i.order_id && !x.deleted) : undefined;
       if (i.order_id && !o) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.order_id });
       // Đơn sàn thanh toán qua sàn (D31); đơn huỷ không thu thêm.
-      if (o && (o.source === 'marketplace' || o.status === 'cancelled')) deny('INVALID_STATE', `${o.code}: ${o.status}`);
+      if (o && (o.source === 'marketplace' || o.status === 'cancelled'))
+        deny('INVALID_STATE', `${o.code}: ${o.status}`);
       if (o) {
         const left = Number(enrichOrder(o).total) - Number(o.paid_total);
-        if (Number(i.amount) > left) deny('VALIDATION_FAILED', `${o.code}: amount > left`, { amount: 'invoice.amount_over' });
+        if (Number(i.amount) > left)
+          deny('VALIDATION_FAILED', `${o.code}: amount > left`, { amount: 'invoice.amount_over' });
       }
       const contact = db.customers.contacts.find((c) => c.id === i.contact_id);
       const owner = o?.owner_user_id ?? ME;
@@ -231,7 +328,10 @@ export const invoicesHandlers: Record<string, MockHandler> = {
     },
   },
   'invoice.record_payment': {
-    execute: (db, i: { invoice_id: string; amount: string; method: string; reference?: string; paid_at?: string }) => {
+    execute: (
+      db,
+      i: { invoice_id: string; amount: string; method: string; reference?: string; paid_at?: string },
+    ) => {
       const inv = find(db, i.invoice_id);
       if (inv.status === 'void' || inv.status === 'paid') deny('INVALID_STATE', `${inv.code}: ${inv.status}`);
       // Ghi nhận cho đề nghị nháp = khách trả trước khi gửi → coi như đã gửi.
