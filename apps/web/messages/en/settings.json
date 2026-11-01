@@ -335,12 +335,21 @@
       "qrStep2": "Go to the QR scan icon",
       "qrStep3": "Scan the code and confirm sign-in",
       "qrWaiting": "Waiting for scan · code expires in 2 minutes",
+      "qrStart": "Press Continue to generate the QR code",
+      "qrScanned": "Scanned · confirm the login on your phone",
+      "qrExpired": "The code expired or was declined · press Continue for a new one",
       "label": "Account label",
       "labelPh": "e.g. Sales Zalo",
       "scanned": "I have scanned",
-      "imapHost": "IMAP host",
+      "imapHost": "IMAP server",
       "imapHostPh": "imap.gmail.com",
-      "smtpHost": "SMTP host",
+      "imapPort": "Port",
+      "smtpPort": "SMTP port",
+      "smtpOptional": "Outgoing server (SMTP) — leave empty to derive from IMAP: smtp.… port 465",
+      "smtpHostPh": "smtp.gmail.com",
+      "passwordPh": "••••••••",
+      "testFail": "Test failed",
+      "smtpHost": "SMTP server",
       "address": "Mailbox address",
       "addressPh": "cskh@doanhnghiep.vn",
       "username": "Login username",
@@ -348,7 +357,7 @@
       "test": "Test connection",
       "tested": "Connected successfully",
       "errEmail": "Invalid email",
-      "errTest": "IMAP host required",
+      "errTest": "Enter IMAP server, email and app password",
       "openWidget": "Open widget settings",
       "widgetD": "Website chat uses an embedded widget: set the greeting, AI agent and embed code in Website AI widget.",
       "cfgName": "Account name shown in the Inbox",
@@ -467,6 +476,10 @@
     }
   },
   "widget": {
+    "enabled": "Show the widget on your website",
+    "enabledOn": "Running — website visitors land in the Inbox",
+    "enabledOff": "Off — turn on to get the embed code",
+    "embedEmpty": "Turn the widget on to get the embed code",
     "cfgT": "Settings · Web widget",
     "name": "Agent name shown on the widget",
     "namePh": "e.g. AppChat Assistant",
@@ -861,7 +874,8 @@
       "visInternalD": "Only the AI Assistant and agents working for staff who can see it",
       "learn": "Let AI learn this document",
       "learnD": "Embedded automatically so AI can retrieve it",
-      "errName": "Enter a document name"
+      "errName": "Enter a document name",
+      "errUpload": "Could not upload the file — please try again."
     }
   },
   "gov": {
@@ -1055,10 +1069,25 @@
       "msg_assigned": "New message assigned to me",
       "msg_mention": "Mentioned in a conversation",
       "msg_vip": "Message from a VIP / priority customer",
+      "crm_owner": "Customer assigned to me",
+      "crm_access": "Customer share requests / decisions",
+      "quote_approval": "Quotes waiting for my approval",
+      "quote_expiring": "Quotes about to expire",
+      "contract_approval": "Contracts awaiting my approval & signature",
+      "contract_signed": "Customer signed a contract",
+      "contract_declined": "Customer declined / sign link expired",
+      "contract_expiring": "Contracts about to end (renewal reminder)",
+      "payment_received": "Customer paid my payment request",
+      "refund_approval": "Refunds waiting for me / decisions",
+      "bank_review": "Bank transactions to reconcile",
       "sla_warn": "SLA about to be breached",
+      "sla_breach": "Ticket breached SLA (escalation)",
+      "ticket_assigned": "Ticket assigned to me",
       "ai_review": "AI needs approval before sending",
       "ai_escalate": "AI handed off to a human",
       "ai_budget": "AI over budget",
+      "ai_briefing": "AI Assistant morning briefing",
+      "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
       "billing_invoice": "Plan & wallet — new invoice"
     },
@@ -1144,7 +1173,9 @@
       "close": "Close",
       "doneT": "Payment received",
       "doneS": "<b>{item}</b> recorded. Matched against <b>{code}</b> and applied to your account.",
-      "finish": "Done"
+      "finish": "Done",
+      "reviewT": "Awaiting confirmation",
+      "reviewS": "We have noted your transfer for <b>{code}</b>. It is matched automatically when the money arrives (usually ~1 minute); if the bank is slow, the AppChat team confirms it manually."
     },
     "hero": {
       "current": "CURRENT PLAN",
@@ -1279,6 +1310,10 @@
     "logoutD": "End the current session — workspace data is not affected"
   },
   "doctpl": {
+    "preview": "Preview",
+    "previewT": "Preview with sample data",
+    "previewFail": "Could not create the preview, try again later",
+    "missing": "{n} checklist items to review",
     "kind": {
       "quote": "Quote",
       "contract": "Contract",
@@ -1389,6 +1424,14 @@
       "errType": "Only .docx files are accepted (no .docm macros)",
       "errSize": "File is larger than 10MB",
       "errName": "Enter a template name",
+      "errUpload": "Upload failed, please try again",
+      "errFile": {
+        "not_docx": "This is not a valid Word document (.docx)",
+        "macro": "The file contains macros — save it as a macro-free .docx and upload again",
+        "too_large": "File exceeds 10MB",
+        "empty": "The file has no content to detect",
+        "other": "Could not read this file, try another one"
+      },
       "errFields": "Map at least one field"
     },
     "check": {

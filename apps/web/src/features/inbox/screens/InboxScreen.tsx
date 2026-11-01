@@ -7,7 +7,9 @@ import { Empty } from 'antd';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
-import { accountsQuery, channelsQuery, conversationsQuery, countsQuery } from '../api';
+import { accountsQuery, channelsQuery, countsQuery } from '../api';
+import { useConversations } from '../hooks/useConversations';
+import { useConversationRoom } from '../hooks/useConversationRoom';
 import { ChatPanel } from '../components/ChatPanel';
 import { ConnectChannelModal } from '../components/ConnectChannelModal';
 import { ConversationList } from '../components/ConversationList';
@@ -24,13 +26,12 @@ export function InboxScreen() {
   const t = useTranslations('inbox');
   const { styles, cx } = useInboxStyles();
   const ui = useInboxUi();
-  const list = useQuery(conversationsQuery(ui.channel));
+  const { list, convs, conv } = useConversations();
+  useConversationRoom(conv?.id);
   const counts = useQuery(countsQuery()).data;
   const channels = useQuery(channelsQuery()).data;
   const accounts = useQuery(accountsQuery()).data ?? [];
-  const convs = list.data?.data ?? [];
-  const conv = convs.find((c) => c.id === ui.selectedId) ?? convs[0];
-  const unread = convs.reduce((n, c) => n + c.unread, 0);
+  const unread = counts?.mailbox.find(([k]) => k === 'unread')?.[2] ?? convs.reduce((n, c) => n + c.unread, 0);
   const customer = conv ? (conv.kind === 'group' ? conv.title : conv.title.split(' — ')[0]!) : '';
 
   return (
@@ -41,7 +42,11 @@ export function InboxScreen() {
         <PageStates state={stateOf(list)} onRetry={() => void list.refetch()}>
           <ConversationList
             conversations={convs}
+            total={counts?.mailbox.find(([k]) => k === 'all')?.[2] ?? convs.length}
+            hasMore={list.hasNextPage}
+            onMore={() => void list.fetchNextPage()}
             channels={channels}
+            counts={counts}
             accounts={accounts}
             unreadTotal={unread}
             className={cx(ui.mobileChat && conv && styles.hideMobile)}

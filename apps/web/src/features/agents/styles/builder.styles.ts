@@ -261,6 +261,13 @@ export const useBuilderStyles = createStyles(({ css, responsive }) => ({
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    border: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
   `,
   two: css`
     display: grid;

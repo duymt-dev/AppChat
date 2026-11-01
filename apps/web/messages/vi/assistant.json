@@ -124,7 +124,49 @@
       "hintEmpty": "Nhập tên và mục tiêu để tạo tác vụ",
       "cancel": "Huỷ",
       "createRun": "Tạo & chạy ngay",
-      "createOnly": "Tạo tác vụ"
+      "createOnly": "Tạo tác vụ",
+      "dataOpt": {
+        "customers": "Khách hàng",
+        "orders": "Đơn hàng",
+        "quotes": "Báo giá",
+        "invoices": "Đề nghị thanh toán",
+        "conversations": "Hội thoại",
+        "files": "Tệp đính kèm"
+      },
+      "toolsOpt": {
+        "read": "Đọc dữ liệu",
+        "write": "Tạo / sửa bản ghi",
+        "message": "Gửi tin nhắn",
+        "report": "Gửi kết quả cho tôi",
+        "email": "Gửi email"
+      },
+      "agent": "AI Agent thực hiện",
+      "agentAuto": "Agent đang chạy (tự chọn)",
+      "agentNone": "Chưa có agent đang chạy",
+      "cron": "Lịch chạy",
+      "crons": {
+        "0": "08:00 mỗi ngày",
+        "1": "09:00 thứ Hai – thứ Sáu",
+        "2": "17:00 mỗi ngày",
+        "3": "08:00 thứ Hai hằng tuần"
+      },
+      "event": "Khi có sự kiện",
+      "events": {
+        "contact_created": "Có khách hàng mới",
+        "contact_stage_changed": "Khách đổi giai đoạn",
+        "quote_sent": "Đã gửi báo giá",
+        "quote_viewed": "Khách xem báo giá",
+        "quote_rejected": "Khách từ chối báo giá",
+        "order_created": "Có đơn hàng mới",
+        "order_completed": "Đơn hàng hoàn tất",
+        "appointment_created": "Có lịch hẹn mới",
+        "appointment_completed": "Lịch hẹn hoàn thành",
+        "appointment_no_show": "Khách không đến",
+        "appointment_cancelled": "Lịch hẹn bị huỷ",
+        "ticket_created": "Có ticket mới",
+        "ticket_sla_breached": "Ticket quá hạn SLA",
+        "payment_confirmed": "Đã nhận thanh toán"
+      }
     },
     "drawer": {
       "sub": "{role} · ◈ {tier}",
@@ -156,7 +198,12 @@
       "costToday": "Chi phí hôm nay",
       "log": "Nhật ký hành động",
       "close": "Đóng",
-      "save": "Lưu cấu hình"
+      "save": "Lưu cấu hình",
+      "run": "Chạy ngay",
+      "delete": "Xoá tác vụ",
+      "deleteConfirm": "Xoá tác vụ này? Lịch chạy sẽ dừng, nhật ký vẫn giữ.",
+      "next": "Lần chạy kế tiếp: {at}",
+      "noLogs": "Chưa có lượt chạy nào."
     }
   },
   "log": {
@@ -207,7 +254,8 @@
     "tabs": {
       "pending": "Đang chờ",
       "approved": "Đã duyệt",
-      "rejected": "Đã từ chối"
+      "rejected": "Đã từ chối",
+      "expired": "Hết hạn"
     },
     "by": "{agent} đề xuất",
     "reason": "Lý do cần duyệt",
@@ -227,8 +275,18 @@
     "status": {
       "approved": "Đã duyệt",
       "rejected": "Đã từ chối",
-      "pending": "Chờ duyệt"
-    }
+      "pending": "Chờ duyệt",
+      "edited": "Đã sửa & duyệt",
+      "expired": "Hết hạn"
+    },
+    "edit": "Sửa & duyệt",
+    "editTitle": "Sửa thông tin trước khi duyệt",
+    "saveApprove": "Lưu & duyệt",
+    "cancel": "Huỷ",
+    "rejectReason": "Lý do từ chối (không bắt buộc)",
+    "confirmReject": "Xác nhận từ chối",
+    "noFields": "Thao tác này không có trường sửa được — duyệt hoặc từ chối.",
+    "noteLabel": "Ghi chú: {note}"
   },
   "nav": {
     "chat": "Trò chuyện",

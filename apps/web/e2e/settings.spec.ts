@@ -136,16 +136,21 @@ test.describe('settings', () => {
     await page.getByTestId('st-ch-email').click();
     const w = page.getByTestId('st-ch-wizard');
     await expect(w).toBeVisible();
-    // Chưa Kiểm tra kết nối → Tiếp tục bị khoá.
-    await w.getByTestId('st-ch-wizard-email').fill('sai');
+    // Chưa Kiểm tra kết nối → Tiếp tục bị khoá; email sai định dạng → không gọi kiểm tra.
+    await w.getByTestId('st-ch-wizard-address').fill('sai');
     await expect(w.getByTestId('st-ch-wizard-next')).toBeDisabled();
-    await w.getByTestId('st-ch-wizard-imap').fill('imap.gmail.com');
+    await w.getByTestId('st-ch-wizard-imap_host').fill('imap.gmail.com');
+    await w.getByTestId('st-ch-wizard-password').fill('sai');
     await w.getByTestId('st-ch-wizard-test').click();
-    await expect(w.getByTestId('st-ch-wizard-next')).toBeEnabled();
-    // Email không hợp lệ → vẫn ở bước 2 (toast lỗi), không nhảy bước.
-    await w.getByTestId('st-ch-wizard-next').click();
-    await expect(w.getByTestId('st-ch-wizard-email')).toBeVisible();
-    await w.getByTestId('st-ch-wizard-email').fill('hotro@spa.vn');
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeDisabled();
+    // Sai mật khẩu ứng dụng → lý do hiện ngay, vẫn khoá.
+    await w.getByTestId('st-ch-wizard-address').fill('hotro@spa.vn');
+    await w.getByTestId('st-ch-wizard-test').click();
+    await expect(w.getByTestId('st-ch-wizard-test-error')).toBeVisible();
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeDisabled();
+    await w.getByTestId('st-ch-wizard-password').fill('app-password');
+    await w.getByTestId('st-ch-wizard-test').click();
+    await expect(w.getByTestId('st-ch-wizard-tested')).toBeVisible();
     await w.getByTestId('st-ch-wizard-next').click();
     await expect(w.getByTestId('st-ch-wizard-cfg-name')).toBeVisible();
     await w.getByTestId('st-ch-wizard-next').click();
@@ -191,6 +196,12 @@ test.describe('settings', () => {
     await expect(page.getByTestId('st-wg-agent')).toHaveCount(0);
     await page.getByTestId('st-wg-launcher').click();
     await expect(pv).not.toContainText('Xin chào! 👋');
+    // TIP-017: công tắc bật widget + mã nhúng có key thật.
+    await expect(page.getByTestId('st-wg-embed')).toContainText('data-key=');
+    await page.getByTestId('st-wg-enabled').click();
+    await expect(page.getByTestId('st-widget')).toContainText('Đang tắt');
+    await page.getByTestId('st-wg-enabled').click();
+    await expect(page.getByTestId('st-widget')).toContainText('Đang chạy');
   });
 
   test('hồ sơ 360°: danh sách mẫu, gán vai trò, tuỳ chỉnh bố cục tab (REQ-F12, M05)', async ({ page }) => {

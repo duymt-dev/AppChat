@@ -49,7 +49,7 @@ test.describe('orders', () => {
     await form.getByTestId('od-save').click();
 
     const drawer = page.getByTestId('od-drawer');
-    await expect(drawer).toContainText('SP290412');
+    await expect(drawer).toContainText('DH-290412');
     await expect(drawer.getByTestId('od-status')).toHaveText('Mới');
     await expect(drawer.getByTestId('od-pay')).toHaveText('Chờ cọc');
     await drawer.getByTestId('od-confirm').click();
@@ -103,10 +103,13 @@ test.describe('orders', () => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto('/quotes?session=authed,declared,trialSeen');
     await page.locator('[data-quote="q_2041"]').click();
+    // BG-2041 đã duyệt, chưa gửi → gửi khách trước (QUOTE_FLOW: approved chỉ có quote.send), rồi ghi nhận chốt khi chuyển.
+    await page.getByTestId('q-drawer').getByTestId('q-send-zalo').click();
+    await expect(page.getByTestId('q-drawer')).toContainText('Đã gửi');
     await page.getByTestId('q-drawer').getByTestId('q-to-order').click();
     await expect(page).toHaveURL(/\/orders$/);
     const drawer = page.getByTestId('od-drawer');
-    await expect(drawer).toContainText('SP290412');
+    await expect(drawer).toContainText('DH-290412');
     await expect(drawer).toContainText('BG-2041');
     await expect(drawer).toContainText('Từ báo giá');
     await drawer.getByRole('button', { name: 'Đóng' }).first().click();

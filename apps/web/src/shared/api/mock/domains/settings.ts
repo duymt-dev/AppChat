@@ -1,12 +1,12 @@
 // Mock Cài đặt (Blueprint §4.4 settings; §7.2 settings registry): GET /settings/workspace, /settings/members, /settings/roles.
 // Vai trò = 5 vai trò hệ thống §3.5, chỉ đọc ở P0 (D27); ma trận quyền lấy từ ROLE_DEFS. Mời thành viên tạo dòng "Chờ xác nhận".
-import { ApiRequestError, PERMISSIONS, ROLE_DEFS, SYSTEM_ROLES } from '@appchat/shared';
+import { ApiRequestError, PERMISSIONS, ROLE_COLOR, ROLE_DEFS, SYSTEM_ROLES } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 
-export type SettingsMember = (typeof fixture.members)[number];
+export type SettingsMember = (typeof fixture.members)[number] & { invite: boolean };
 type Workspace = typeof fixture.workspace;
 
 export interface SettingsState {
@@ -17,7 +17,7 @@ export interface SettingsState {
 
 export const createSettingsState = (): SettingsState => ({
   workspace: structuredClone(fixture.workspace),
-  members: structuredClone(fixture.members),
+  members: fixture.members.map((m) => ({ ...structuredClone(m), invite: false })),
   seq: 0,
 });
 
@@ -29,7 +29,7 @@ const norm = (s: string) =>
     .toLowerCase();
 
 const member = (db: MockDb, id: string) => {
-  const m = db.settings.members.find((x) => x.id === id);
+  const m = db.settings.members.find((x) => x.id === id && !x.invite);
   if (!m) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
   return m;
 };
@@ -40,13 +40,13 @@ export const settingsRoutes: Record<string, MockRoute> = {
     const q = norm(String(p.q ?? '').trim());
     const rows = db.settings.members.filter((m) => !q || [m.name, m.email, m.dept].some((v) => norm(v).includes(q)));
     const extra = db.settings.members.length - fixture.members.length;
-    return { data: rows, total: fixture.member_total + extra, seat_limit: fixture.seat_limit, next_cursor: null };
+    return { data: rows, total: fixture.member_total + extra, seat_limit: fixture.seat_limit as number | null, next_cursor: null };
   },
   /** Vai trò hệ thống + số người + ma trận permission (chỉ đọc, D27). */
   '/settings/roles': (db) => ({
     roles: SYSTEM_ROLES.map((key) => ({
       key,
-      color: fixture.role_colors[key],
+      color: ROLE_COLOR[key],
       count: db.settings.members.filter((m) => m.role === key).length,
       permissions: ROLE_DEFS[key].permissions,
       scope: ROLE_DEFS[key].scope,
@@ -81,12 +81,14 @@ export const settingsHandlers: Record<string, MockHandler> = {
         color: '#2563EB',
         last: 'never',
         status: 'pending',
+        invite: true,
       });
       return { invite_id: id };
     },
   },
   'invite.revoke': {
     execute: (db, i: { invite_id: string }) => {
+      if (!db.settings.members.some((m) => m.id === i.invite_id && m.invite)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.invite_id });
       db.settings.members = db.settings.members.filter((m) => m.id !== i.invite_id);
       return { ok: true };
     },

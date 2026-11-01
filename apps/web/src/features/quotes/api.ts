@@ -1,6 +1,7 @@
 // Đọc Báo giá (Blueprint §4.4 sales). Ghi qua useAction (quote.*).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
+import type { PublicQuote } from '@appchat/shared';
 import type { Quote, QuoteFilter, QuotesMeta } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
 import { customParams } from '@/shared/custom-fields';
@@ -34,8 +35,18 @@ export const latestQuoteByContactQuery = (contactId: string) =>
   queryOptions({
     queryKey: ['quotes', 'by-contact', contactId],
     queryFn: () => transport.get<Paged<Quote>>('/quotes', { contact_id: contactId }),
+    // Hồ sơ 360° ở Hộp thư: module chưa bật / chưa có endpoint → để trống, không gọi lại (TIP-025).
+    retry: false,
     select: (r) => [...r.data].sort((a, b) => b.created_at.localeCompare(a.created_at))[0],
   });
 
-export const quotesMetaQuery = () =>
-  queryOptions({ queryKey: ['quotes', 'meta'], queryFn: () => transport.get<QuotesMeta>('/quotes/meta') });
+/** KPI + chip + panel AI; `quoteId` → kèm thẻ CRM / hoạt động / việc cần làm / lịch sử của báo giá đó (drawer). */
+export const quotesMetaQuery = (quoteId?: string) =>
+  queryOptions({
+    queryKey: ['quotes', 'meta', quoteId ?? null],
+    queryFn: () => transport.get<QuotesMeta>('/quotes/meta', quoteId ? { quote_id: quoteId } : undefined),
+  });
+
+/** Trang xem công khai (không đăng nhập) — mở link ghi nhận khách đã xem. */
+export const publicQuoteQuery = (token: string) =>
+  queryOptions({ queryKey: ['public-quote', token], queryFn: () => transport.get<PublicQuote>(`/public/quotes/${token}`), retry: false });

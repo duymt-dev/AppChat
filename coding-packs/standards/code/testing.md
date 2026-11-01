@@ -30,5 +30,6 @@
    - **Ngoại lệ — sửa lớp dùng chung** (`packages/ui` theme / primitive, `apps/web/src/shared/*`, `packages/shared`, schema trong `packages/actions`, kernel backend): chạy thêm `pnpm parity --done` (mọi màn đã ✅) và test của các module dùng phần đó.
    - **Chạy toàn bộ** chỉ ở cổng: cuối pha goal FE / cuối wave backend (W1…W9), PR vào `main` (CI `full.yml`), và gate cuối (F7 / TIP-046). CI chi tiết: `workflow/git-flow-ci.md` §4.
    - Report ghi đúng lệnh đã chạy và phạm vi; phần không chạy thì ghi "không bị ảnh hưởng", không ghi "pass".
+4c. **TIP backend — 3 cổng (D59):** khi làm (test trực tiếp phần sửa) · trước mỗi commit code (lint + typecheck + unit + `pnpm depcheck` của package đổi) · chốt TIP (full lint / typecheck / unit / integration / depcheck / build, E2E luồng TIP ở `mock` + `http`, parity màn liên quan, full E2E hồi quy). Chi tiết: `goals/GOAL-BACKEND.md` → Cổng test.
 5. **Báo kết quả trung thực:** Completion Report ghi đúng lệnh đã chạy và `N passed / M failed`. Có test bị skip thì ghi rõ lý do. Không báo DONE khi còn đỏ.
 6. **Commit ngay khi pass:** `git status --short` sạch trước khi báo DONE; báo **git commit SHA**.

@@ -42,8 +42,7 @@ function useFromMessage(meta: TicketsMeta | undefined) {
         category: meta.categories[0]!,
         priority: 'medium',
         status: 'open',
-        team_id: meta.teams[0]!.id,
-        assignee_user_id: meta.members[0]?.id,
+        ...(params.get('tk_msg') ? { source_message_id: params.get('tk_msg')!, on_duplicate: 'create' as const } : {}),
       })
       .then((r) => {
         if (r) set({ detail: r.result.ticket_id, tab: 'detail' });

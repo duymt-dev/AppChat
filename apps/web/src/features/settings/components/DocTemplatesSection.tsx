@@ -1,6 +1,7 @@
 // Mục Mẫu chứng từ (D30, REQ-F06b; standards/documents/templates.md; Blueprint §7.3 settings/doc_templates) — màn mới, không có trong
 // prototype: TemplateList theo loại (báo giá / hợp đồng / đề nghị thanh toán / phiếu thu), "Tạo mẫu" (RichTemplateEditor) và "Tải mẫu DOCX"
-// (DocxUploadWizard), mỗi loại một mẫu mặc định (không xoá được), ⋯ Sửa / Đặt mặc định / Xoá (hoàn tác 24h). Quyền documents.manage.
+// (DocxUploadWizard), mỗi loại một mẫu mặc định (không xoá được), ⋯ Xem trước (PDF dữ liệu minh hoạ) / Sửa / Xoá (hoàn tác 24h), cảnh báo
+// bảng kiểm pháp lý còn thiếu (TIP-028). Quyền documents.manage.
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -12,6 +13,7 @@ import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useSectionStyles } from '../styles/section.styles';
 import { useDocTplStyles } from '../styles/doc-templates.styles';
 import { useSettingsUi } from '../settings-store';
+import { useDocPreview } from '../hooks/useDocPreview';
 import { docTemplatesQuery } from '../api';
 import type { DocTemplate } from '../types';
 import { DocxWizard } from './DocxWizard';
@@ -29,6 +31,7 @@ function Row({ x }: { x: DocTemplate }) {
   const set = useSettingsUi((u) => u.set);
   const upd = useAction('doc_template.update');
   const del = useAction('doc_template.delete');
+  const preview = useDocPreview();
   return (
     <div className={cx(s.tr, styles.grid)} data-doc-tpl={x.id} data-kind={x.kind}>
       <div className={styles.name}>
@@ -38,6 +41,12 @@ function Row({ x }: { x: DocTemplate }) {
         <div className={s.grow}>
           <span>{x.name}</span>
           {x.file_name ? <div className={styles.file}>{x.file_name}</div> : null}
+          {x.checklist_missing.length ? (
+            <div className={styles.warn} data-testid={`doc-missing-${x.id}`}>
+              <Icon name="ic-help" size={11} color={color.amberText} />
+              {t('missing', { n: x.checklist_missing.length })}
+            </div>
+          ) : null}
         </div>
       </div>
       <span className={styles.kind}>{t(`kind.${x.kind}`)}</span>
@@ -62,6 +71,7 @@ function Row({ x }: { x: DocTemplate }) {
         id={`doc:${x.id}`}
         dots="v"
         items={[
+          { key: 'preview', label: t('preview'), icon: 'ic-eye', onClick: () => void preview.open(x.id) },
           { key: 'edit', label: t('edit'), icon: 'ic-edit', onClick: () => set({ docModal: { id: x.id, source: x.source } }) },
           ...(x.is_default ? [] : [{ key: 'del', label: t('del'), icon: 'ic-trash' as const, danger: true, onClick: () => void del.run({ template_id: x.id }) }]),
         ]}

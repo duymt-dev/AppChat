@@ -156,7 +156,14 @@
     "send": "Send",
     "dryRun": "Dry run — actions are previewed only, never executed",
     "versions": "Versions",
-    "draftDirty": "Unpublished changes"
+    "draftDirty": "Unpublished changes",
+    "hideDesc": "Hide description",
+    "roleLabel": "Displayed role",
+    "roleLabelPh": "e.g. Advice & closing",
+    "persona": "Personality",
+    "personaPh": "e.g. Friendly, short answers",
+    "noPermission": "You lack this permission",
+    "simChannel": "Simulated channel"
   },
   "v": {
     "title": "Version history · {name}",

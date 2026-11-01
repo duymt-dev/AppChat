@@ -87,7 +87,7 @@ test.describe('assistant', () => {
     await expect(page.locator('[data-log]')).toHaveCount(1);
   });
 
-  test('chờ duyệt: Chủ sở hữu duyệt; Quản lý không duyệt được hoàn tiền; Sales không thấy mục', async ({ page }) => {
+  test('chờ duyệt: Chủ sở hữu duyệt; Quản lý không duyệt được hoàn tiền, từ chối có lý do, sửa & duyệt; Sales không thấy mục', async ({ page }) => {
     test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
     await page.goto(`/assistant/approvals${Q}`);
     await expect(page.getByTestId('ap-card')).toHaveCount(4);
@@ -96,8 +96,21 @@ test.describe('assistant', () => {
     await setRole(page, 'Quản lý');
     await expect(page.locator('[data-approval="ap_3"]').getByTestId('ap-approve')).toBeDisabled();
     await expect(page.locator('[data-approval="ap_3"]')).toContainText('không có quyền duyệt');
-    await page.locator('[data-approval="ap_2"]').getByTestId('ap-reject').click();
+    const ap2 = page.locator('[data-approval="ap_2"]');
+    await ap2.getByTestId('ap-reject').click();
+    await ap2.getByTestId('ap-reject-note').fill('Sai đối tượng');
+    await ap2.getByTestId('ap-reject-confirm').click();
     await expect(page.getByTestId('ap-card')).toHaveCount(2);
+    // Sửa & duyệt (REQ-D07): sửa trường của input rồi duyệt → sang tab Đã duyệt với nhãn "Đã sửa & duyệt".
+    const ap4 = page.locator('[data-approval="ap_4"]');
+    await ap4.getByTestId('ap-edit').click();
+    await ap4.locator('[data-field="quote_id"]').fill('q_2048');
+    await ap4.getByTestId('ap-edit-save').click();
+    await expect(page.getByTestId('ap-card')).toHaveCount(1);
+    await page.getByRole('tab', { name: 'Đã duyệt' }).click();
+    await expect(page.locator('[data-approval="ap_4"]')).toContainText('Đã sửa & duyệt');
+    await page.getByRole('tab', { name: 'Đã từ chối' }).click();
+    await expect(page.locator('[data-approval="ap_2"]')).toContainText('Sai đối tượng');
     await setRole(page, 'Sales');
     await page.locator('[data-nav="assistant"]').hover();
     await expect(page.getByTestId('flyout-assistant')).not.toContainText('Chờ duyệt');

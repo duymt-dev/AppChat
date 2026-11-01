@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { App } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { getAction, type ActionResult } from '@appchat/actions';
+import { getAction, requiresIdempotencyKey, type ActionResult } from '@appchat/actions';
 import { ApiRequestError } from '@appchat/shared';
 import { transport } from '../api/client';
 import { matchesInvalidation } from '../api/query-keys';
@@ -26,13 +26,15 @@ export function useAction<O = unknown>(id: string) {
   const run = useCallback(
     async (input: unknown, opts: RunOptions = {}): Promise<ActionResult<O> | null> => {
       const def = getAction(id);
+      // Một khoá mỗi lần bấm (dùng lại khi xác nhận preview) — gửi lại do mạng không tạo bản ghi thứ hai.
+      const idem = def && requiresIdempotencyKey(id, def.risk) ? { idempotencyKey: crypto.randomUUID() } : {};
       setPending(true);
       try {
-        let res = await transport.action<O>(id, input);
+        let res = await transport.action<O>(id, input, idem);
         if (res.status === 202 && res.data.status === 'preview_required') {
           const ok = await ask(id, res.data.preview);
           if (!ok) return null;
-          res = await transport.action<O>(id, input, { confirmToken: res.data.confirm_token });
+          res = await transport.action<O>(id, input, { ...idem, confirmToken: res.data.confirm_token });
         }
         if (res.status !== 200) return null;
         const invalidates = def?.invalidates ?? [];

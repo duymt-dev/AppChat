@@ -10,7 +10,9 @@ import * as quotes from './quotes';
 import * as contracts from './contracts';
 import * as orders from './orders';
 import * as invoices from './invoices';
+import * as payments from './payments';
 import * as booking from './booking';
+import * as bookingConfig from './booking-config';
 import * as support from './support';
 import * as marketing from './marketing';
 import * as loyalty from './loyalty';
@@ -18,6 +20,7 @@ import * as settings from './settings';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as documents from './documents';
+import * as platformAdmin from './platform-admin';
 
 export * from './define';
 export * from './identity';
@@ -31,7 +34,9 @@ export * from './quotes';
 export * from './contracts';
 export * from './orders';
 export * from './invoices';
+export * from './payments';
 export * from './booking';
+export * from './booking-config';
 export * from './support';
 export * from './marketing';
 export * from './loyalty';
@@ -40,6 +45,7 @@ export * from './settings';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './documents';
+export * from './platform-admin';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -55,7 +61,9 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contracts),
   ...Object.values(orders),
   ...Object.values(invoices),
+  ...Object.values(payments),
   ...Object.values(booking),
+  ...Object.values(bookingConfig),
   ...Object.values(support),
   ...Object.values(marketing),
   ...Object.values(loyalty),
@@ -63,6 +71,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(documents),
+  ...Object.values(platformAdmin),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

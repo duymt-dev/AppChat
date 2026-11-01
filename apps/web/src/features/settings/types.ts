@@ -40,15 +40,18 @@ export interface Member {
   role: SystemRole;
   dept: string;
   color: string;
-  /** 'online' · '2h' · '3d' · 'never' (lời mời chưa nhận). */
+  /** 'online' · thời điểm hoạt động cuối (ISO; mock: '2h' · '3d') · 'never' (lời mời chưa nhận). */
   last: string;
   status: MemberStatus;
+  /** Dòng là lời mời còn chờ (thu hồi bằng invite.revoke). */
+  invite: boolean;
 }
 
 export interface MembersPage {
   data: Member[];
   total: number;
-  seat_limit: number;
+  /** null = gói không giới hạn người dùng. */
+  seat_limit: number | null;
 }
 
 export type { ChannelAiMode, ChannelAssignMode, ChannelHistoryDays, ChannelAccount, Channel } from './channel-types';
@@ -81,6 +84,12 @@ export interface RolesData {
 }
 
 export interface Widget {
+  /** Widget đang chạy (TIP-017) — tắt = tạm dừng tài khoản webchat. */
+  enabled: boolean;
+  channel_account_id: string | null;
+  public_key: string | null;
+  color: string;
+  allowed_domains: string[];
   name: string;
   greeting: string;
   ai_chat: boolean;
@@ -88,6 +97,8 @@ export interface Widget {
   actions: { key: string; color: string; on: boolean }[];
   ai_on: boolean;
   agents: string[];
+  /** Id agent song song với `agents` (API thật — TIP-022); mock gửi tên. */
+  agent_ids?: string[];
   agent: string;
   handoff: number;
   knowledge: string[];
@@ -174,6 +185,9 @@ export interface KbDoc {
   starred: boolean;
   /** D54: public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền. */
   visibility: 'public' | 'internal';
+  /** http (TIP-020): trạng thái nạp ở worker + lý do lỗi. Mock không có. */
+  status?: 'pending' | 'processing' | 'ready' | 'failed';
+  error?: string;
 }
 
 export interface KbData {
@@ -324,7 +338,10 @@ export interface DocTemplate {
   source: 'rich' | 'docx';
   body?: string;
   file_name?: string;
+  file_id?: string;
   fields: { placeholder: string; variable: string }[];
+  /** Mục bảng kiểm pháp lý còn thiếu (cảnh báo). */
+  checklist_missing: string[];
   is_default: boolean;
   version: number;
   updated_by: string;

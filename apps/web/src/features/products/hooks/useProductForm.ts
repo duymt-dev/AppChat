@@ -52,16 +52,16 @@ export function initialDraft(
     sku: str('sku', p?.code),
     stock: p?.stock != null ? String(p.stock) : '',
     cost: p && p.cost !== '0' ? p.cost : '',
-    duration: '',
+    duration: p?.duration_min != null ? String(p.duration_min) : '',
     staff: '',
     sessions: p?.sessions != null ? String(p.sessions) : '',
     validMonths: p?.valid_days != null ? String(Math.round(p.valid_days / 30)) : '',
     perSession: '',
-    rentUnit: 'day',
-    deposit: '',
+    rentUnit: (p?.rental_unit as ProductDraft['rentUnit']) || 'day',
+    deposit: p?.deposit ?? '',
     available: '',
-    combo: [],
-    attrs: [],
+    combo: (p?.components ?? []).map((c) => ({ name: c.name, value: String(c.qty) })),
+    attrs: (p?.attr_defs ?? []).map((a) => ({ name: a.name, value: a.values.join('/') })),
   };
 }
 

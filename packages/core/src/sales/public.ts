@@ -1,0 +1,20 @@
+// Bề mặt công khai của domain `sales` cho apps (controller api, worker) và domain khác (hợp đồng / đơn TIP-030, 031 tạo từ báo giá).
+export { QuotesReadService, type QuoteViewer } from './quotes/services/quotes-read.service';
+export type { QuoteFilter } from './quotes/repos/quotes.repo';
+export { QuoteDeps } from './quotes/services/quote-deps';
+export { quoteToken, readQuoteToken } from './quotes/services/quote-link';
+export { sweepQuotes, quoteOwnerConsumer, QUOTE_SWEEP_JOB, SALES_SCHEDULER_QUEUE } from './jobs/sales.jobs.module';
+export { expireDue, remindExpiring, markViewed, moveOpenQuotes } from './quotes/services/quote-system';
+export { intentByRules, matchCatalog, parseIntent } from './quotes/services/quote-draft';
+export { customerConversation, postToCustomer, reachCustomer, type QuoteChannel as CustomerChannel } from './quotes/services/quote-send';
+export { OrdersReadService, type OrderViewer } from './orders/services/orders-read.service';
+export type { OrderFilter } from './orders/repos/orders.repo';
+export { OrderSyncService, importBatch } from './orders/services/order-sync';
+export { importExternal } from './orders/services/order-import';
+export { syncOrders, orderSyncConsumer, ORDER_SYNC_QUEUE, ORDER_SYNC_JOB } from './jobs/order-sync.jobs';
+export { InvoicesReadService, type InvoiceViewer } from './payments/services/invoices-read.service';
+export type { InvoiceFilter } from './payments/repos/invoices.repo';
+export { TenantBankHook, webhookPathOf } from './payments/services/bank-feed';
+export { markOverdue, remindDue, packagesOnConfirm } from './payments/services/payment-system';
+export { expireDuePackages, grantPackages } from './payments/services/packages';
+export { sweepPayments, paymentPackagesConsumer, PAYMENT_SWEEP_JOB } from './jobs/payment.jobs';

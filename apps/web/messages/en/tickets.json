@@ -205,6 +205,10 @@
     "close": "Close",
     "required": "Enter a ticket title",
     "emailBad": "Invalid email",
+    "dupTitle": "The customer already has open ticket {code} in this category",
+    "dupHint": "It was opened in the last 24 hours. Merge into the existing ticket to avoid duplicate work?",
+    "dupMerge": "Merge into existing",
+    "dupNew": "Create anyway",
     "tools": {
       "bold": "Bold",
       "italic": "Italic",

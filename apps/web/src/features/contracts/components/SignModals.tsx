@@ -1,5 +1,5 @@
 // "Duyệt & ký" (Owner — OTP email + ký tay, COMMERCE §9 C1 bước 1) và "Gửi ký" (link một lần 7 ngày qua Zalo đang chat / email, bước 2).
-// Mock: OTP email gửi tức thì; mã 000000 bị coi là sai để kiểm luồng lỗi.
+// "Gửi mã": POST /contracts/:id/sign-otp → email người ký (server che địa chỉ); mock hiện mã thử nghiệm.
 'use client';
 import { useState } from 'react';
 import { App } from 'antd';
@@ -7,13 +7,16 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { transport } from '@/shared/api/client';
+import { apiMode } from '@/shared/api/transport';
 import { SignaturePad } from '@/shared/forms/SignaturePad';
 import { useContractFormStyles } from '../styles/form.styles';
 import { useContractsUi } from '../contracts-store';
 import { contractQuery } from '../api';
 import { useTr } from '../columns';
 
-const OWNER_EMAIL = 'owner@annhien.vn';
+/** Mã OTP của mock (domains/contracts-actions.ts MOCK_OWNER_OTP) — chỉ hiện ở chế độ mock. */
+const MOCK_OTP = '135790';
 
 export function ApproveSignModal() {
   const id = useContractsUi((s) => s.signFor);
@@ -32,7 +35,17 @@ function ApproveSign({ id }: { id: string }) {
   const [otp, setOtp] = useState('');
   const [png, setPng] = useState('');
   const [reset, setReset] = useState(0);
+  const [sent, setSent] = useState(false);
   const close = () => set({ signFor: null });
+  const sendOtp = async () => {
+    try {
+      const r = await transport.post<{ sent_to: string }>(`/contracts/${id}/sign-otp`, {});
+      setSent(true);
+      void message.success(t('otpSent', { email: r.sent_to }));
+    } catch {
+      void message.error(t('otpFail'));
+    }
+  };
   const confirm = async () => {
     if (!/^\d{6}$/.test(otp)) return void message.warning(t('needOtp'));
     if (!png) return void message.warning(t('needSig'));
@@ -84,11 +97,13 @@ function ApproveSign({ id }: { id: string }) {
         <button
           type="button"
           className={styles.btn}
-          onClick={() => void message.success(t('otpSent', { email: OWNER_EMAIL }))}
+          onClick={() => void sendOtp()}
+          data-testid="ct-send-otp"
         >
           {t('sendOtp')}
         </button>
       </div>
+      {sent && apiMode() === 'mock' ? <div className={styles.hint}>{t('devOtp', { otp: MOCK_OTP })}</div> : null}
       <div className={styles.hint}>{t('sigHint')}</div>
       <div className={styles.sigHead}>
         <label className={styles.label}>{t('sigLabel')}</label>

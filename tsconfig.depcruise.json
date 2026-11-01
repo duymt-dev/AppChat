@@ -1,0 +1,8 @@
+{
+  "//": "Chỉ cho pnpm depcheck (dependency-cruiser) resolve alias @/ của apps/web — không dùng để build / typecheck.",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["apps/web/src/*"] }
+  },
+  "include": ["apps/web/src/app/layout.tsx"]
+}

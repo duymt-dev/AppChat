@@ -1,8 +1,10 @@
 // Hộp thanh toán hoá đơn gói AppChat — prototype L939–962: VietQR (Napas 247) + số tiền / ngân hàng / STK / chủ TK / nội dung CK;
 // "Tôi đã chuyển khoản" → billing.report_transfer; hoá đơn đã thanh toán → màn "Thanh toán thành công". Chỉ VietQR / chuyển khoản
-// (COMMERCE §10); QR hết hạn 15 phút (REQ-L04). Đọc hoá đơn từ danh sách đã tải (billing.invoices).
+// (COMMERCE §10); QR hết hạn 15 phút (REQ-L04). Đọc hoá đơn từ danh sách đã tải (billing.invoices); khi hoá đơn chưa trả, tải lại
+// mỗi 5 giây để thấy webhook ngân hàng đối soát xong. "Tôi đã chuyển khoản" → "Đang chờ xác nhận" (pending_review — TIP-010).
 'use client';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { QRCode } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -12,17 +14,30 @@ import { useBillingModalStyles } from '../styles/billing-modals.styles';
 import { billInvoicesQuery } from '../api';
 import { useBillingUi } from '../billing-store';
 
+const POLL_MS = 5000;
+
 export function CheckoutModal() {
   const t = useTranslations('settings.billing.checkout');
   const fmt = useFmt();
   const { styles, cx } = useBillingModalStyles();
   const { invoiceId, set } = useBillingUi();
-  const q = useQuery({ ...billInvoicesQuery({ status: 'all', q: '' }), enabled: !!invoiceId });
+  const q = useQuery({
+    ...billInvoicesQuery({ status: 'all', q: '' }),
+    enabled: !!invoiceId,
+    refetchInterval: (query) => (query.state.data?.data.find((i) => i.id === invoiceId)?.status === 'paid' ? false : POLL_MS),
+  });
   const report = useAction('billing.report_transfer');
+  const qc = useQueryClient();
   const inv = q.data?.data.find((i) => i.id === invoiceId);
+  const settled = inv?.status === 'paid';
+  // Đối soát đến từ webhook ngân hàng (không qua action) → tự làm mới gói / ví khi hoá đơn vừa thành paid.
+  useEffect(() => {
+    if (settled) void qc.invalidateQueries({ queryKey: ['billing'], predicate: (x) => x.queryKey[1] !== 'invoices' });
+  }, [settled, qc]);
   if (!invoiceId || !inv) return null;
   const close = () => set({ invoiceId: null });
   const paid = inv.status === 'paid';
+  const review = inv.status === 'pending_review';
   return (
     <div className={styles.veil} onClick={close} data-testid="checkout-modal">
       <div className={cx(styles.box, styles.wide)} role="dialog" aria-modal="true" aria-label={inv.desc} onClick={(e) => e.stopPropagation()}>
@@ -35,6 +50,17 @@ export function CheckoutModal() {
             <div className={styles.doneS}>{t.rich('doneS', { item: inv.desc, code: inv.code, b: (c) => <b>{c}</b> })}</div>
             <button type="button" className={styles.doneBtn} onClick={close}>
               {t('finish')}
+            </button>
+          </div>
+        ) : review ? (
+          <div className={styles.done} data-testid="checkout-review">
+            <div className={cx(styles.doneIc, styles.reviewIc)}>
+              <Icon name="ic-clock" size={30} color={color.amberText} strokeWidth={2.2} />
+            </div>
+            <div className={styles.doneT}>{t('reviewT')}</div>
+            <div className={styles.doneS}>{t.rich('reviewS', { code: inv.code, b: (c) => <b>{c}</b> })}</div>
+            <button type="button" className={styles.doneBtn} onClick={close}>
+              {t('close')}
             </button>
           </div>
         ) : (

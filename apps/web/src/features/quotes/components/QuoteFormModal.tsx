@@ -35,6 +35,8 @@ const ALL_CONTACTS = {
   owner_id: '',
   group: '',
   source: '',
+  tag_id: '',
+  sort: 'recent',
 } as const;
 
 export function QuoteFormModal() {

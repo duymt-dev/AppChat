@@ -24,6 +24,8 @@ export const latestContractByContactQuery = (contactId: string) =>
   queryOptions({
     queryKey: ['contracts', 'by-contact', contactId],
     queryFn: () => transport.get<Paged<Contract>>('/contracts', { contact_id: contactId }),
+    // Hồ sơ 360° ở Hộp thư: module chưa bật / chưa có endpoint → để trống, không gọi lại (TIP-025).
+    retry: false,
     select: (r) => [...r.data].sort((a, b) => b.created_at.localeCompare(a.created_at))[0],
   });
 
@@ -33,10 +35,11 @@ export const contractQuery = (id: string) =>
     queryFn: () => transport.get<Contract>(`/contracts/${id}`),
   });
 
-export const contractsMetaQuery = () =>
+/** KPI + chip + panel AI; kèm `contractId` → thẻ CRM / nhận định / tệp của hợp đồng đó (drawer). */
+export const contractsMetaQuery = (contractId?: string) =>
   queryOptions({
-    queryKey: ['contracts', 'meta'],
-    queryFn: () => transport.get<ContractsMeta>('/contracts/meta'),
+    queryKey: ['contracts', 'meta', contractId ?? null],
+    queryFn: () => transport.get<ContractsMeta>('/contracts/meta', contractId ? { contract_id: contractId } : undefined),
   });
 
 export const signViewQuery = (token: string) =>
@@ -52,5 +55,5 @@ export const signApi = {
     transport.post<{ channel: string; sent_to: string }>(`/public/sign/${token}/otp`, {}),
   sign: (token: string, body: { otp: string; signature_png: string; consent: true }) =>
     transport.post<SignView>(`/public/sign/${token}/sign`, body),
-  decline: (token: string) => transport.post<SignView>(`/public/sign/${token}/decline`, {}),
+  decline: (token: string, reason?: string) => transport.post<SignView>(`/public/sign/${token}/decline`, reason ? { reason } : {}),
 };

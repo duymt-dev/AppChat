@@ -1,5 +1,6 @@
 // Hàng "Cần đối soát" (COMMERCE §5): giao dịch SePay / Casso khớp không chắc chắn (thiếu mã TT, sai số tiền) → người chọn đề nghị → invoice.resolve_bank_match.
-// Chỉ vai trò có `payment.record` (Chủ sở hữu, Quản lý, Kế toán) thấy hàng này — mock lọc theo quyền ở /invoices/meta.
+// Chỉ vai trò có `payment.record` (Chủ sở hữu, Quản lý, Kế toán) thấy hàng này — mock lọc theo quyền ở /invoices/meta. Phía trên là
+// hoàn tiền chờ duyệt (`payment.refund_approve` — TIP-032).
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import { useInvoiceFormStyles } from '../styles/form.styles';
 import { useInvoicePayStyles } from '../styles/pay.styles';
 import { useInvoicesUi } from '../invoices-store';
 import { invoicesQuery } from '../api';
+import { RefundCard } from './RefundModals';
 import type { BankTx, InvoicesMeta } from '../types';
 
 function TxCard({ tx }: { tx: BankTx }) {
@@ -67,6 +69,7 @@ function TxCard({ tx }: { tx: BankTx }) {
 
 export function ReconcileDrawer({ meta }: { meta: InvoicesMeta }) {
   const t = useTranslations('invoices.reconcile');
+  const tr = useTranslations('invoices.refund');
   const { styles: pay } = useInvoicePayStyles();
   const { styles: tab } = useInvoiceTabStyles();
   const ui = useInvoicesUi();
@@ -81,7 +84,16 @@ export function ReconcileDrawer({ meta }: { meta: InvoicesMeta }) {
       testId="iv-reconcile"
       muted
     >
-      {meta.bank_txs.length ? null : (
+      {meta.refunds.length ? (
+        <div className={tab.card} data-testid="iv-refund-queue">
+          <div className={tab.h}>{tr('queue', { n: meta.refunds.length })}</div>
+          <div className={pay.payMeta}>{tr('queueHint')}</div>
+        </div>
+      ) : null}
+      {meta.refunds.map((r) => (
+        <RefundCard key={r.id} r={r} />
+      ))}
+      {meta.bank_txs.length || meta.refunds.length ? null : (
         <div className={tab.card}>
           <div className={pay.empty}>{t('empty')}</div>
         </div>

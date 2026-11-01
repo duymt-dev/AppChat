@@ -45,6 +45,7 @@
     "in_progress": "Arrived",
     "done": "Done",
     "no_show": "No-show",
+    "expired": "Hold expired",
     "cancelled": "Cancelled"
   },
   "pay": {

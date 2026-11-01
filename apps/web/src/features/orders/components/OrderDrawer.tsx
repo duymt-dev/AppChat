@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { ORDER_FLOW, nextState } from '@appchat/shared';
 import { EntityDrawer, Icon, ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
@@ -11,7 +12,7 @@ import { useFmt } from '@/shared/i18n/useFmt';
 import { useOrderDetailStyles } from '../styles/detail.styles';
 import { useOrderFormStyles } from '../styles/form.styles';
 import { useOrdersUi } from '../orders-store';
-import { orderQuery } from '../api';
+import { orderQuery, ordersMetaQuery } from '../api';
 import { Avatar, SourceBadge, useTr } from '../columns';
 import { STATUS_TONE } from '../status';
 import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
@@ -87,19 +88,22 @@ function Footer({ o }: { o: Order }) {
   const canCancel = useCan('order.cancel');
   const confirm = useAction('order.confirm');
   const complete = useAction('order.complete');
-  if (o.status === 'completed' || o.status === 'cancelled') return null;
+  // Nút theo bảng ORDER_FLOW dùng chung với server (trạng thái cuối → không còn thao tác).
+  const can = (a: string) => nextState(ORDER_FLOW, o.status, a) !== null;
+  const [canConfirm, canComplete, canCancelNow] = [can('order.confirm'), can('order.complete'), can('order.cancel')];
+  if (!canCancelNow && !canConfirm && !canComplete) return null;
   return (
     <div className={styles.foot}>
       <button
         type="button"
         className={cx(styles.act, styles.actDanger)}
-        disabled={!canCancel}
+        disabled={!canCancel || !canCancelNow}
         onClick={() => set({ cancelFor: o.id })}
         data-testid="od-cancel-open"
       >
         {t('cancel')}
       </button>
-      {o.status === 'new' ? (
+      {canConfirm ? (
         <button
           type="button"
           className={cx(styles.act, styles.actPrimary)}
@@ -109,7 +113,7 @@ function Footer({ o }: { o: Order }) {
         >
           {t('confirm')}
         </button>
-      ) : (
+      ) : canComplete ? (
         <button
           type="button"
           className={cx(styles.act, styles.actPrimary)}
@@ -119,7 +123,7 @@ function Footer({ o }: { o: Order }) {
         >
           {t('complete')}
         </button>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -161,11 +165,13 @@ function Header({ o }: { o: Order }) {
   );
 }
 
-export function OrderDrawer({ meta }: { meta: OrdersMeta }) {
+export function OrderDrawer({ meta: base }: { meta: OrdersMeta }) {
   const t = useTranslations('orders.detail');
   const { styles } = useOrderDetailStyles();
   const ui = useOrdersUi();
   const o = useQuery({ ...orderQuery(ui.detail ?? ''), enabled: !!ui.detail }).data;
+  // Thẻ CRM / nhận định / tệp theo đơn đang mở.
+  const meta = useQuery({ ...ordersMetaQuery(ui.detail ?? ''), enabled: !!ui.detail }).data ?? base;
   return (
     <EntityDrawer
       open={!!ui.detail}

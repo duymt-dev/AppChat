@@ -2,7 +2,7 @@
 import type { CustomValues, Discount } from '@appchat/shared';
 
 export type OrderStatus = 'new' | 'processing' | 'completed' | 'cancelled';
-export type PayStatus = 'unpaid' | 'awaiting_deposit' | 'deposited' | 'partial' | 'paid' | 'refunded';
+export type PayStatus = 'unpaid' | 'awaiting_deposit' | 'deposited' | 'partial' | 'paid' | 'partially_refunded' | 'refunded';
 export type OrderSource = 'manual' | 'quote' | 'contract' | 'appointment' | 'marketplace' | 'pos';
 /** Chip lọc của prototype — mỗi chip lọc đúng trục của nó (COMMERCE §4). */
 export type OrderChip = 'all' | 'paid' | 'deposit' | 'pending' | 'cancelled';

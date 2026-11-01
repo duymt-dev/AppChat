@@ -2,17 +2,19 @@
 // "Gửi ZBS / Gửi SMS" là kênh OUT (prototype-parity §6) → Gửi Zalo · Gửi Email · Tải PDF.
 // "→ Hợp đồng / → Đơn hàng" chỉ cho báo giá đã chốt (bấm khi đã gửi = ghi nhận khách chốt trước); màn đích tạo bản ghi từ `from_quote`.
 'use client';
-import { App } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { QUOTE_FLOW, nextState } from '@appchat/shared';
 import { EntityDrawer, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useQuoteDetailStyles } from '../styles/detail.styles';
 import { useQuotesUi } from '../quotes-store';
-import { quoteQuery } from '../api';
+import { quoteQuery, quotesMetaQuery } from '../api';
+import { useQuotePdf } from '../hooks/useQuotePdf';
+import { useQuoteSend } from '../hooks/useQuoteSend';
 import { useStamp } from '../columns';
 import { STATUS_TONE } from '../status';
 import { OverviewTab } from './OverviewTab';
@@ -21,7 +23,8 @@ import { CustType, avColor, initial } from './parts';
 import type { Quote, QuotesMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'history'] as const;
-const LIVE = ['sent', 'viewed', 'approved'];
+/** Nút chân drawer bật theo bảng QUOTE_FLOW chung (DC-171) — cùng luật với server / mock. */
+const can = (q: Quote, action: string) => nextState(QUOTE_FLOW, q.status, action) !== null;
 
 function Footer({ q }: { q: Quote }) {
   const t = useTranslations('quotes.detail');
@@ -41,7 +44,7 @@ function Footer({ q }: { q: Quote }) {
     set({ detail: null });
     router.push(`/${kind}?from_quote=${q.id}`);
   };
-  const canConvert = q.status === 'accepted' || LIVE.includes(q.status);
+  const canConvert = q.status === 'accepted' || can(q, 'quote.mark_accepted');
   return (
     <div className={styles.foot}>
       <button
@@ -57,7 +60,7 @@ function Footer({ q }: { q: Quote }) {
       <button
         type="button"
         className={cx(styles.act, styles.actRev)}
-        disabled={!canCreate || ![...LIVE, 'rejected'].includes(q.status)}
+        disabled={!canCreate || !can(q, 'quote.request_revision')}
         onClick={async () => {
           const r = await revision.run({ quote_id: q.id });
           if (r) set({ detail: r.result.quote_id, tab: 'overview' });
@@ -70,7 +73,7 @@ function Footer({ q }: { q: Quote }) {
       <button
         type="button"
         className={cx(styles.act, styles.actRej)}
-        disabled={pending ? !canApprove : !LIVE.includes(q.status)}
+        disabled={pending ? !canApprove : !can(q, 'quote.mark_rejected')}
         onClick={() =>
           void (pending ? rejectInternal.run({ quote_id: q.id }) : reject.run({ quote_id: q.id }))
         }
@@ -106,10 +109,10 @@ function Header({ q }: { q: Quote }) {
   const t = useTranslations('quotes');
   const fmt = useFmt();
   const stamp = useStamp();
-  const { message } = App.useApp();
+  const pdf = useQuotePdf();
   const { styles } = useQuoteDetailStyles();
   const canSend = useCan('quote.send');
-  const send = useAction('quote.send');
+  const send = useQuoteSend();
   const [fg, bg] = STATUS_TONE[q.status];
   return (
     <>
@@ -148,7 +151,7 @@ function Header({ q }: { q: Quote }) {
           type="button"
           className={styles.send}
           disabled={!canSend}
-          onClick={() => void send.run({ quote_id: q.id, channel: 'zalo_personal' })}
+          onClick={() => void send.run(q.id, 'zalo_personal')}
           data-testid="q-send-zalo"
         >
           <span className={styles.dot} />
@@ -158,12 +161,12 @@ function Header({ q }: { q: Quote }) {
           type="button"
           className={styles.send}
           disabled={!canSend}
-          onClick={() => void send.run({ quote_id: q.id, channel: 'email' })}
+          onClick={() => void send.run(q.id, 'email')}
         >
           <Icon name="ic-mail" size={14} color={color.text2} />
           {t('detail.sendEmail')}
         </button>
-        <button type="button" className={styles.send} onClick={() => void message.info(q.code)}>
+        <button type="button" className={styles.send} disabled={pdf.busy} onClick={() => void pdf.open(q.id)} data-testid="q-pdf">
           <Icon name="ic-dl" size={14} color={color.text2} />
           {t('detail.sendPdf')}
         </button>
@@ -172,11 +175,13 @@ function Header({ q }: { q: Quote }) {
   );
 }
 
-export function QuoteDrawer({ meta }: { meta: QuotesMeta }) {
+export function QuoteDrawer({ meta: listMeta }: { meta: QuotesMeta }) {
   const t = useTranslations('quotes.detail');
   const { styles } = useQuoteDetailStyles();
   const ui = useQuotesUi();
   const q = useQuery({ ...quoteQuery(ui.detail ?? ''), enabled: !!ui.detail }).data;
+  // Số liệu riêng của báo giá đang mở (thẻ CRM, hoạt động, việc cần làm, lịch sử); chưa có thì dùng meta của trang.
+  const meta = useQuery({ ...quotesMetaQuery(ui.detail ?? undefined), enabled: !!ui.detail, placeholderData: listMeta }).data ?? listMeta;
   return (
     <EntityDrawer
       open={!!ui.detail}

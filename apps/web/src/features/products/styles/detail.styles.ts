@@ -223,20 +223,8 @@ export const useDetailStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
-  upload: css`
-    margin: 8px 16px;
-    height: 34px;
-    border: 1px dashed ${color.dashLine};
-    border-radius: ${radius.r8}px;
-    display: grid;
-    place-items: center;
-    font-size: ${font.scale.s13}px;
-    font-weight: ${font.weight.bold};
-    color: ${color.brandInk};
-    cursor: pointer;
-    background: transparent;
-    width: calc(100% - 32px);
-    font-family: inherit;
+  emptyRow: css`
+    padding: 8px 16px 12px;
   `,
   timeline: css`
     border-left: 2px solid ${color.border};

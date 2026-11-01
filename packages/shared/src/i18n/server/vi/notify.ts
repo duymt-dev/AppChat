@@ -1,0 +1,45 @@
+// Chữ thông báo phía server — tiếng Việt (nguồn). Tham số `{x}` thay bằng giá trị đã escape khi render email.
+export const notify = {
+  kind: {
+    msg_assigned: { title: 'Hội thoại mới được gán cho bạn: {contact}', label: 'Tin mới được gán cho tôi' },
+    msg_mention: { title: '{actor} nhắc đến bạn trong hội thoại {contact}', label: 'Nhắc đến tôi trong hội thoại' },
+    msg_vip: { title: 'Tin mới từ khách ưu tiên {contact}', label: 'Tin từ VIP / khách ưu tiên' },
+    crm_owner: { title: '{actor} chuyển khách {contact} cho bạn phụ trách', label: 'Khách được chuyển cho tôi' },
+    // Biến thể theo `params.variant` (approved / rejected) — kết quả duyệt gửi người xin.
+    crm_access: {
+      title: '{actor} xin cùng phụ trách khách {contact}',
+      approved: '{actor} đã đồng ý cho bạn cùng phụ trách khách {contact}',
+      rejected: '{actor} đã từ chối yêu cầu chia sẻ khách {contact}',
+      label: 'Xin chia sẻ khách / kết quả duyệt',
+    },
+    quote_approval: { title: '{actor} gửi duyệt báo giá {code} · {contact}', label: 'Báo giá chờ tôi duyệt' },
+    quote_expiring: { title: 'Báo giá {code} · {contact} còn {n} ngày hiệu lực', label: 'Báo giá sắp hết hiệu lực' },
+    contract_approval: { title: '{actor} trình duyệt hợp đồng {code} · {contact}', label: 'Hợp đồng chờ tôi duyệt & ký' },
+    contract_signed: { title: '{contact} đã ký hợp đồng {code}', label: 'Khách đã ký hợp đồng' },
+    contract_declined: { title: 'Hợp đồng {code} · {contact} không được ký: {reason}', label: 'Khách từ chối ký / link ký hết hạn' },
+    contract_expiring: { title: 'Hợp đồng {code} · {contact} hết hạn sau {n} ngày — chào gia hạn', label: 'Hợp đồng sắp hết hạn' },
+    payment_received: { title: '{contact} đã thanh toán {amount} cho {code}', label: 'Khách đã thanh toán đề nghị của tôi' },
+    refund_approval: {
+      title: '{actor} yêu cầu hoàn tiền {amount} · {contact}',
+      approved: '{actor} đã duyệt hoàn tiền {amount} · {contact}',
+      rejected: '{actor} từ chối hoàn tiền {amount} · {contact}',
+      label: 'Hoàn tiền chờ tôi duyệt / kết quả duyệt',
+    },
+    bank_review: { title: 'Giao dịch {amount} cần đối soát', label: 'Giao dịch ngân hàng cần đối soát' },
+    sla_warn: { title: '{count} ticket sắp quá hạn SLA', label: 'SLA sắp vi phạm' },
+    sla_breach: { title: 'Ticket {code} đã quá hạn SLA: {title}', label: 'Ticket quá hạn SLA (leo thang)' },
+    ticket_assigned: { title: 'Ticket {code} được giao cho bạn: {title}', label: 'Ticket được giao cho tôi' },
+    ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi' },
+    ai_escalate: { title: '{agent} chuyển hội thoại {contact} sang người', label: 'AI chuyển sang người' },
+    ai_budget: { title: 'AI đã dùng {percent}% ngân sách credit', label: 'AI vượt ngân sách' },
+    ai_briefing: { title: 'Bản tin sáng: {summary}', label: 'Bản tin sáng của Trợ lý AI' },
+    ai_task_failed: { title: 'Tác vụ "{name}" chưa chạy xong: {reason}', label: 'Tác vụ tự chủ lỗi' },
+    channel_down: { title: 'Kênh {channel} bị ngắt kết nối', label: 'Kênh bị ngắt kết nối' },
+    billing_invoice: { title: 'Hoá đơn gói mới {code}', label: 'Gói & ví — hoá đơn mới' },
+  },
+  mail: {
+    subject: '[{workspace}] {title}',
+    open: 'Xem trên AppChat',
+    footer: 'Bạn nhận email này vì đã bật email cho "{label}". Đổi tại Cài đặt › Thông báo.',
+  },
+} as const;

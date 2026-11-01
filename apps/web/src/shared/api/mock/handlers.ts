@@ -4,12 +4,14 @@ import { dashboardHandlers } from './domains/dashboard';
 import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
+import { aiTasksHandlers } from './domains/ai-tasks';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
-import { quotesHandlers } from './domains/quotes';
-import { contractsHandlers } from './domains/contracts';
-import { ordersHandlers } from './domains/orders';
+import { quotesHandlers } from './domains/quotes-actions';
+import { contractsHandlers } from './domains/contracts-actions';
+import { ordersHandlers } from './domains/orders-actions';
 import { invoicesHandlers } from './domains/invoices';
+import { invoicesActionHandlers } from './domains/invoices-actions';
 import { calendarHandlers } from './domains/calendar';
 import { ticketsHandlers } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
@@ -85,12 +87,14 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...inboxHandlers,
   ...customersHandlers,
   ...assistantHandlers,
+  ...aiTasksHandlers,
   ...agentsHandlers,
   ...productsHandlers,
   ...quotesHandlers,
   ...contractsHandlers,
   ...ordersHandlers,
   ...invoicesHandlers,
+  ...invoicesActionHandlers,
   ...calendarHandlers,
   ...ticketsHandlers,
   ...marketingHandlers,

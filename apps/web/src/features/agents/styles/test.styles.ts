@@ -54,6 +54,21 @@ export const useTestStyles = createStyles(({ css, responsive }) => ({
     cursor: pointer;
     font-family: inherit;
   `,
+  simSelect: css`
+    margin-top: 12px;
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s14}px;
+    font-family: inherit;
+    background: ${color.surface};
+    color: ${color.text};
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
   tabOn: css`
     border-bottom-color: ${color.brand};
     color: ${color.brand};

@@ -1,0 +1,53 @@
+// Bề mặt công khai của domain `ai` (TIP-019) cho apps (controller api, worker) và domain khác (TIP 020–023, 035, 043).
+export { AI_ENV, AGENT_ENGINE } from './ai.module';
+export { readAiEnv, type AiEnv } from './ai.env';
+export { ProviderStore } from './router/provider.store';
+export { RunStore, type NewRun } from './runs/run.store';
+export { AiRunner, MAX_STEPS, DEFAULT_RUN_BUDGET, type RunSpec, type RunResult } from './runs/runner';
+export { actionTool, toolActionId, inputSchemaOf, toolNameOf } from './runs/tools';
+export { AI_CANCEL_CHANNEL, listRuns, publishCancel, type RunFilter, type RunRowDto } from './runs/runs.service';
+export { aiSettingsDto, readAiSetting, tierFor, DEFAULT_RATE_LIMIT, type AiSettingRow } from './settings/ai-settings.service';
+export { KB_EMBEDDER, KbSearchHandler, kbVisibility } from './kb/kb-search.handler';
+export { KbIngestQueue } from './kb/kb.queue';
+export { KB_INGEST_QUEUE, ingestSource, type IngestDeps, type IngestOutcome, type KbIngestJob } from './kb/ingest';
+export { searchKb, minScoreOf, KB_CONTEXT, KB_TOP_K, DEFAULT_MIN_SCORE, type KbHit, type KbSearchInput, type KbSearchResult } from './kb/search';
+export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
+export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';
+export { AI_RUNTIME } from './jobs/ai.jobs.module';
+// TIP-021 — AI Agents, hàng chờ duyệt, governance.
+export { listAgents, getAgent, agentVersions, agentTools, conversationAgentTools, listTemplates, agentsMeta, type TemplateFilter } from './agents/agents.read';
+export { configOf, blankConfig, liveAgent, type AgentConfig, type AgentRow } from './agents/agent.store';
+export { agentAuthz } from './agents/agent-authz';
+export { connectedKeys, groupTools, runToolIds, badgeOf } from './agents/agent-tools';
+export { agentSystem, agentToolSpecs, dryRunTools, runOnce, withinHours } from './agents/agent.runtime';
+export { draftFromText, parseDraft, optimizeLocal } from './agents/agent-draft';
+export { seedAgentTemplates, templateDefaults } from './agents/templates.seed';
+export { AGENT_TEMPLATES } from './agents/catalog';
+export { DB_AGENT_NAMES } from './agents/agent-names';
+export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/approvals.read';
+export { approvalPermissionOf } from './approvals/approval-permission';
+export { DbApprovalGateway } from './approvals/approval.gateway';
+export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
+export { resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
+export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
+export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';
+export { replyTurn, finishResumedTurn, MAX_TRANSFERS, type ReplyDeps, type TurnOutcome } from './reply/reply.service';
+export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-context';
+// TIP-023 — Trợ lý AI.
+export { AssistantService, type Caller } from './assistant/assistant.service';
+export { assistantTurn, assistantConfirm, assistantResumeSpec, type AssistantDeps, type TurnRequest, type ConfirmRequest } from './assistant/turn.service';
+export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
+export { confirmCard, lookOf } from './assistant/card';
+export { assistantSystem, contextLine, type AssistantContext, type AssistantRunInput } from './assistant/assistant-prompt';
+export { assistantTools, ASSISTANT_TOOLS, type AssistantTurnCtx } from './assistant/meta-tools';
+export { listSessions, sessionMessages, historyMessages, HISTORY_LIMIT } from './assistant/sessions';
+export { listActionLogs, kindOf as logKindOf, LOG_KINDS, LOG_STATUSES, LOG_DAYS, type LogFilter } from './assistant/action-logs.read';
+export { assistantHome } from './assistant/home.read';
+// TIP-035 — Tác vụ tự chủ & chủ động.
+export { TaskPlace, type Place as TaskPlaceInfo } from './tasks/task-place';
+export { TaskQueue, TASK_QUEUE, AI_TASK_QUEUE, type TaskJob } from './tasks/task.queue';
+export { listAiTasks } from './tasks/tasks.read';
+export { runTask, narrowScope, taskToolIds, taskPrompt, type TaskRunDeps } from './tasks/task.runner';
+export { sweepDueTasks, sweepAllTasks, rebuildArmed, taskEventConsumer, enqueueTask, type ArmedSet } from './tasks/task-scheduler';
+export { collectTargets } from './tasks/task-targets';
+export { buildBriefing } from './tasks/task-briefing';

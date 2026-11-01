@@ -173,7 +173,8 @@
       "terminated": "Contract terminated"
     },
     "evMeta": "{at} · {actor}",
-    "system": "System"
+    "system": "System",
+    "pdfFail": "Could not download the contract PDF, please try again."
   },
   "form": {
     "title": "New contract",
@@ -217,7 +218,9 @@
     "cancel": "Cancel",
     "confirm": "Approve & sign",
     "needSig": "Please sign before approving",
-    "needOtp": "Enter the 6-digit OTP"
+    "needOtp": "Enter the 6-digit OTP",
+    "devOtp": "Test OTP: {otp}",
+    "otpFail": "Could not send the OTP, please try again."
   },
   "send": {
     "title": "Send for signature",
@@ -289,7 +292,8 @@
       "otp_ok": "OTP verified",
       "signed": "Signed"
     },
-    "evMeta": "{at} · IP {ip}"
+    "evMeta": "{at} · IP {ip}",
+    "otpSentEmail": "OTP sent by email to {to}"
   },
   "unit": "contracts"
 }

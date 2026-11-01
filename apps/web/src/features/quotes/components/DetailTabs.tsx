@@ -8,6 +8,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useQuoteTabStyles } from '../styles/tabs.styles';
 import { useQuoteDetailStyles } from '../styles/detail.styles';
+import { useQuoteSend } from '../hooks/useQuoteSend';
 import { useQuotesUi } from '../quotes-store';
 import { quoteVersionsQuery } from '../api';
 import { useStamp } from '../columns';
@@ -21,7 +22,7 @@ export function CrmTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
   const { styles, cx } = useQuoteTabStyles();
   const d = useQuoteDetailStyles().styles;
   const canSend = useCan('quote.send');
-  const send = useAction('quote.send');
+  const send = useQuoteSend();
   const extend = useAction('quote.extend_validity');
   const sent = ['sent', 'viewed', 'expired'].includes(q.status);
   return (
@@ -43,7 +44,7 @@ export function CrmTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
             type="button"
             className={d.send}
             disabled={!canSend}
-            onClick={() => void send.run({ quote_id: q.id, channel: 'zalo_personal' })}
+            onClick={() => void send.run(q.id, 'zalo_personal')}
           >
             <span className={d.dot} />
             {t('sendZalo')}
@@ -52,7 +53,7 @@ export function CrmTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
             type="button"
             className={d.send}
             disabled={!canSend}
-            onClick={() => void send.run({ quote_id: q.id, channel: 'email' })}
+            onClick={() => void send.run(q.id, 'email')}
           >
             <Icon name="ic-mail" size={14} color={color.text2} />
             {t('sendEmail')}

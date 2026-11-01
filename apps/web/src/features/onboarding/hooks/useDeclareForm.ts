@@ -56,21 +56,25 @@ export function useDeclareForm() {
   const canNext = fields.name.trim().length > 0 && (kind === 'individual' ? digits.length === 12 : digits.length === 10 || digits.length === 13);
 
   const submit = async () => {
-    const res = await run(
-      {
-        kind: kind === 'individual' ? 'individual' : 'enterprise',
-        ...(kind === 'individual' ? { national_id: digits } : { tax_code: digits }),
-        legal_name: fields.name.trim(),
-        address: fields.address.trim() || '—',
-        representative: fields.representative || undefined,
-        phone: fields.phone || undefined,
-        founded_on: fields.founded_on || undefined,
-        legal_status: fields.legal_status || undefined,
-        business_description: field.trim(),
-      },
-      { silent: true },
-    );
-    if (res) await qc.invalidateQueries({ queryKey: authKeys.session });
+    const input = {
+      kind: kind === 'individual' ? 'individual' : 'enterprise',
+      ...(kind === 'individual' ? { national_id: digits } : { tax_code: digits }),
+      legal_name: fields.name.trim(),
+      address: fields.address.trim() || '—',
+      representative: fields.representative || undefined,
+      phone: fields.phone || undefined,
+      founded_on: fields.founded_on || undefined,
+      legal_status: fields.legal_status || undefined,
+      business_description: field.trim(),
+    };
+    // Workspace vừa tạo lúc đăng ký có thể còn đang khởi tạo DB (503 WORKSPACE_UNAVAILABLE, thường < 10 giây) → chờ rồi gửi lại.
+    for (let attempt = 0; attempt < 20; attempt++) {
+      let busy = false;
+      const res = await run(input, { silent: true, onError: (e) => (busy = e.error.code === 'WORKSPACE_UNAVAILABLE') });
+      if (res) await qc.invalidateQueries({ queryKey: authKeys.session });
+      if (!busy) return;
+      await new Promise((r) => setTimeout(r, 1000));
+    }
   };
 
   return { step, setStep, kind, setKind, idNumber, setIdNumber, lookup, looking, doLookup, fields, set, field, setField, showFields, canNext, submit, isPending };

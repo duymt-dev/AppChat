@@ -49,6 +49,8 @@ test.describe('calendar', () => {
     await d.getByTestId('cal-complete').click();
     await expect(d.getByTestId('cal-status')).toHaveText('Hoàn thành');
     await expect(d.getByTestId('cal-suggest')).toContainText('Tạo đơn cho buổi này?');
+    await d.getByTestId('cal-suggest-order').click();
+    await expect(page.getByTestId('od-drawer')).toContainText('Mai Trâm');
   });
 
   test('liệu trình: hoàn thành buổi trong gói → trừ 1 buổi, không gợi ý đơn', async ({ page }) => {

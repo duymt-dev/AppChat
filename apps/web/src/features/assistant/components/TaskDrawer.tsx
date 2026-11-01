@@ -1,4 +1,5 @@
 // Drawer cấu hình tác vụ — prototype L1386–1421 (520px, nền xám): Tính cách & Prompt · Kiến thức · Công cụ & Quyền (chỉ xem, D51) · Nhật ký & Chi phí.
+// TIP-035: dữ liệu theo từng tác vụ (`drawers[id]`), lần chạy kế tiếp, Chạy ngay (`ai_task.run_now`) / Xoá (`ai_task.delete`).
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -29,7 +30,10 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
   const router = useRouter();
   const { styles, cx } = useDrawerStyles();
   const ui = useAssistantUi();
+  const ta = useTranslations('actions');
   const update = useAction('ai_task.update');
+  const runNow = useAction('ai_task.run_now');
+  const remove = useAction('ai_task.delete');
   const [tab, setTab] = useState<Tab>('prompt');
   const [prompt, setPrompt] = useState<string | null>(null);
   const task = data.tasks.find((x) => x.id === ui.taskOpen);
@@ -43,7 +47,13 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
     if (prompt !== null) await update.run({ task_id: task.id, patch: { prompt } });
     close();
   };
-  const d = data.drawer;
+  const d = data.drawers?.[task.id] ?? data.drawer;
+  /** Nhãn công cụ: tên action đã dịch (`actions.<id>.title`); chuỗi không phải action id (dữ liệu mẫu) giữ nguyên. */
+  const toolLabel = (id: string) => (/^[a-z_]+\.[a-z_]+$/.test(id) && ta.has(`${id}.title` as never) ? ta(`${id}.title` as never) : id);
+  const del = async () => {
+    if (!window.confirm(t('deleteConfirm'))) return;
+    if (await remove.run({ task_id: task.id })) close();
+  };
 
   return (
     <div className={styles.veil} onClick={close} data-testid="cw-drawer">
@@ -125,7 +135,7 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
               <div className={styles.list}>
                 {d.tools.map((x) => (
                   <div key={x.label} className={styles.item} data-testid="cw-task-tool">
-                    <span className={cx(styles.grow, styles.toolLabel)}>{x.label}</span>
+                    <span className={cx(styles.grow, styles.toolLabel)}>{toolLabel(x.label)}</span>
                     <span className={styles.toolState}>{x.on ? t('toolGranted') : t('toolNotGranted')}</span>
                   </div>
                 ))}
@@ -148,6 +158,8 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
                 </div>
               </div>
               <div className={styles.label}>{t('log')}</div>
+              {task.next_run_at ? <div className={styles.hint}>{t('next', { at: new Date(task.next_run_at).toLocaleString() })}</div> : null}
+              {d.logs.length ? null : <div className={styles.hint}>{t('noLogs')}</div>}
               <div className={styles.logs}>
                 {d.logs.map((g) => (
                   <div key={g.time} className={styles.log}>
@@ -161,6 +173,12 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
           ) : null}
         </div>
         <div className={styles.foot}>
+          <button type="button" className={styles.btn} onClick={() => void del()} data-testid="cw-drawer-delete">
+            {t('delete')}
+          </button>
+          <button type="button" className={styles.btn} onClick={() => void runNow.run({ task_id: task.id })} data-testid="cw-drawer-run">
+            {t('run')}
+          </button>
           <button type="button" className={styles.btn} onClick={close}>
             {t('close')}
           </button>

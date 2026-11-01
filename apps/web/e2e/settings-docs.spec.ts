@@ -67,6 +67,19 @@ test.describe('settings · Mẫu chứng từ (D30)', () => {
     await expect(page.locator('[data-doc-tpl][data-kind="contract"]')).toHaveCount(2);
   });
 
+  test('TIP-028: cảnh báo bảng kiểm còn thiếu trên dòng; Xem trước mở bản điền dữ liệu minh hoạ', async ({ page, context }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go);
+    await expect(page.locator('[data-doc-tpl="tpl_q1"]').getByTestId('doc-missing-tpl_q1')).toContainText('3 mục');
+    await expect(page.getByTestId('doc-missing-tpl_r1')).toHaveCount(0);
+    await page.locator('[data-doc-tpl="tpl_r1"]').getByTestId('st-row-menu').click();
+    const popup = context.waitForEvent('page');
+    await page.getByRole('menuitem', { name: 'Xem trước' }).click();
+    const tab = await popup;
+    await expect(tab.locator('body')).toContainText('không thay thế hoá đơn giá trị gia tăng');
+    await expect(tab.locator('body')).toContainText('Công ty TNHH Khách Hàng Mẫu');
+  });
+
   test('quyền: Nhân viên kinh doanh không vào được Mẫu chứng từ', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(go);

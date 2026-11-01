@@ -118,6 +118,35 @@ export const useApprovalStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
+  form: css`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    background: ${color.bg};
+  `,
+  label: css`
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.bold};
+    color: ${color.text3};
+  `,
+  input: css`
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s14}px;
+    font-family: inherit;
+    background: ${color.surface};
+    color: ${color.text};
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
   done: css`
     font-size: ${font.scale.s13}px;
     font-weight: ${font.weight.bold};

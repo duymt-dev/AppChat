@@ -134,6 +134,13 @@
     "sendZalo": "Gửi Zalo",
     "sendEmail": "Gửi Email",
     "sendPdf": "Tải PDF",
+    "pdfFail": "Chưa tải được PDF báo giá, vui lòng thử lại.",
+    "sendErr": {
+      "no_conversation_zalo_personal": "Khách chưa nhắn Zalo cho shop — Zalo cá nhân không gửi chủ động được, hãy gửi qua email hoặc chờ khách nhắn.",
+      "no_conversation_email": "Chưa gửi được qua email.",
+      "no_email": "Khách chưa có email — thêm email ở hồ sơ khách rồi gửi lại.",
+      "connector": "Chưa kết nối kênh Email — kết nối ở Cài đặt › Kênh kết nối."
+    },
     "tabs": {
       "overview": "Tổng quan",
       "crm": "CRM",
@@ -299,5 +306,29 @@
     "required": "Chọn khách hàng và nhập nội dung",
     "done": "Đã soạn nháp {code} — {n} dòng ngoài danh mục cần duyệt"
   },
-  "unit": "báo giá"
+  "unit": "báo giá",
+  "public": {
+    "title": "Báo giá {code} · lần {n}",
+    "to": "Kính gửi: {name}",
+    "bizMeta": "MST {tax} · {address}",
+    "expired": "Báo giá đã hết hiệu lực — vui lòng liên hệ để được gia hạn.",
+    "item": "Hàng hoá / dịch vụ",
+    "qty": "SL",
+    "price": "Đơn giá",
+    "disc": "CK",
+    "tax": "Thuế",
+    "amount": "Thành tiền",
+    "pct": "{n}%",
+    "subtotal": "Tạm tính",
+    "discount": "Chiết khấu",
+    "vat": "Thuế GTGT",
+    "total": "Tổng cộng (đã gồm VAT)",
+    "validUntil": "Hiệu lực đến {d}",
+    "terms": "Điều khoản thanh toán: {v}",
+    "gift": "Quà tặng: {v}",
+    "contact": "Đồng ý báo giá hoặc cần điều chỉnh, vui lòng trả lời trong cuộc trò chuyện đã nhận link này.",
+    "pdf": "Tải PDF",
+    "invalidTitle": "Link báo giá không còn hiệu lực",
+    "invalidSub": "Vui lòng liên hệ người gửi để nhận báo giá mới."
+  }
 }

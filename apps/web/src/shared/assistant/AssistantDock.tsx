@@ -1,7 +1,8 @@
 // Trợ lý thu nhỏ (panel phải) — theo bản thu nhỏ của prototype (L2938–2980, "Phiên bản thu nhỏ").
-// F0: khung + greeting; luồng hội thoại kịch bản mock gắn ở F3 (assistant:*).
+// Gửi câu hỏi (TIP-023): mở màn Trợ lý với `?ask=` + `from=` (màn đang đứng làm ngữ cảnh) — shared không import features/assistant.
 'use client';
-import { useRouter } from 'next/navigation';
+import { useState, type FormEvent } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createStyles } from 'antd-style';
 import { Icon, color, font, gradient, layout, radius, shadow, z } from '@appchat/ui';
@@ -150,10 +151,20 @@ export function AssistantDock() {
   const t = useTranslations('shell.dock');
   const tc = useTranslations('common');
   const router = useRouter();
+  const pathname = usePathname();
+  const [text, setText] = useState('');
   const { styles } = useStyles();
   const open = useShellStore((s) => s.dockOpen);
   const setDock = useShellStore((s) => s.setDock);
   if (!open) return null;
+  const ask = (e: FormEvent) => {
+    e.preventDefault();
+    const q = text.trim();
+    if (!q) return;
+    setText('');
+    setDock(false);
+    router.push(`/assistant?${new URLSearchParams({ ask: q, from: pathname })}`);
+  };
   return (
     <>
       <div className={styles.veil} onClick={() => setDock(false)} />
@@ -179,12 +190,12 @@ export function AssistantDock() {
           </div>
         </div>
         <div className={styles.foot}>
-          <div className={styles.input}>
-            <input placeholder={t('placeholder')} />
-            <button type="button" aria-label={t('send')}>
+          <form className={styles.input} onSubmit={ask} data-testid="dock-form">
+            <input placeholder={t('placeholder')} value={text} onChange={(e) => setText(e.target.value)} data-testid="dock-input" />
+            <button type="submit" aria-label={t('send')}>
               <Icon name="ic-send" size={15} color={color.white} />
             </button>
-          </div>
+          </form>
           <div
             className={styles.full}
             onClick={() => {

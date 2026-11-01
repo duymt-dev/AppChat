@@ -1,4 +1,4 @@
-# D40 — affected: lint · typecheck · test của package bị đổi + phụ thuộc; i18n:check; lint:size.
+# D40 — affected: lint · typecheck · test của package bị đổi + phụ thuộc; i18n:check; lint:size; depcheck (D59).
 name: ci
 
 on:
@@ -35,3 +35,4 @@ jobs:
       - run: pnpm i18n:check
       - run: pnpm lint:size
       - run: pnpm lint:masks
+      - run: pnpm depcheck

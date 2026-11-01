@@ -73,6 +73,10 @@
     "set_tags": {
       "title": "Set conversation tags",
       "desc": "Replace all of a conversation's tags with the selected list."
+    },
+    "bulk_update": {
+      "title": "Bulk update conversations",
+      "desc": "Tag, assign, change status or archive many conversations at once."
     }
   },
   "message": {
@@ -93,6 +97,14 @@
     }
   },
   "contact": {
+    "import": {
+      "title": "Import customers",
+      "desc": "Import customers from a file in batches; skips duplicates and reports customers owned by others."
+    },
+    "export": {
+      "title": "Export customers",
+      "desc": "Export the customers you can see to CSV."
+    },
     "create": {
       "title": "Create customer",
       "desc": "Create a new contact; fails if the phone / email already belongs to someone else's contact."
@@ -185,6 +197,9 @@
     },
     "reject": {
       "title": "Reject request"
+    },
+    "edit_and_approve": {
+      "title": "Edit & approve action"
     }
   },
   "ai": {
@@ -202,6 +217,12 @@
     },
     "pause": {
       "title": "Pause / resume task"
+    },
+    "delete": {
+      "title": "Delete autonomous task"
+    },
+    "run_now": {
+      "title": "Run autonomous task now"
     }
   },
   "run": {
@@ -218,6 +239,14 @@
     },
     "archive": {
       "title": "Delete product"
+    },
+    "search": {
+      "title": "Search products / prices",
+      "desc": "Search products / services by name or code with current price and stock"
+    },
+    "get": {
+      "title": "Get product details",
+      "desc": "View one product: description, attributes, combo items, price and stock"
     }
   },
   "category": {
@@ -228,6 +257,10 @@
   "stock": {
     "adjust": {
       "title": "Adjust stock"
+    },
+    "get": {
+      "title": "Check stock",
+      "desc": "View current stock of products (low-stock warning)"
     }
   },
   "quote": {
@@ -336,6 +369,10 @@
       "title": "Create order from quote",
       "desc": "Create an order from an accepted quote."
     },
+    "create_from_appointment": {
+      "title": "Create order from appointment",
+      "desc": "Create an order for a completed service visit outside a package."
+    },
     "create_from_contract": {
       "title": "Create order from contract",
       "desc": "Create an order from a signed contract."
@@ -385,7 +422,31 @@
       "title": "Void payment request"
     }
   },
+  "staff": {
+    "create": {
+      "title": "Add staff",
+      "desc": "Add a staff member who takes appointments, with skills and shifts."
+    },
+    "update": {
+      "title": "Update staff",
+      "desc": "Change a staff member's details, skills or shifts."
+    },
+    "deactivate": {
+      "title": "Deactivate staff",
+      "desc": "Stop taking appointments for a staff member."
+    }
+  },
+  "business_hours": {
+    "update": {
+      "title": "Update business hours",
+      "desc": "Update opening hours, slot step and buffer time."
+    }
+  },
   "appointment": {
+    "list": {
+      "title": "View appointments",
+      "desc": "List appointments within a date range."
+    },
     "find_slots": {
       "title": "Find free slots",
       "desc": "Find free time slots for a service on a date based on staff schedules."
@@ -417,6 +478,10 @@
     }
   },
   "ticket": {
+    "update": {
+      "title": "Edit ticket",
+      "desc": "Edit a ticket’s title, description, category, priority or custom fields."
+    },
     "search": {
       "title": "Search tickets",
       "desc": "Search tickets by text, status, priority or SLA."
@@ -625,6 +690,13 @@
     "add_source": {
       "title": "Add knowledge source"
     },
+    "update_source": {
+      "title": "Update knowledge source"
+    },
+    "search": {
+      "title": "Search knowledge base",
+      "desc": "Find matching passages in the knowledge base (policies, service descriptions, FAQs) with sources — not for prices, stock or free slots"
+    },
     "remove_source": {
       "title": "Remove knowledge source"
     },
@@ -670,6 +742,45 @@
   "wallet": {
     "update_alerts": {
       "title": "Update credit reminders"
+    }
+  },
+  "admin": {
+    "invoice": {
+      "confirm_transfer": {
+        "title": "Confirm bank transfer (platform admin)"
+      }
+    }
+  },
+  "payment": {
+    "refund": {
+      "title": "Request refund"
+    },
+    "refund_approve": {
+      "title": "Approve refund"
+    },
+    "refund_reject": {
+      "title": "Reject refund"
+    }
+  },
+  "package": {
+    "extend": {
+      "title": "Extend package"
+    },
+    "adjust_sessions": {
+      "title": "Adjust package sessions"
+    }
+  },
+  "payment_account": {
+    "update": {
+      "title": "Update receiving account"
+    }
+  },
+  "bank_feed": {
+    "connect": {
+      "title": "Connect bank reconciliation"
+    },
+    "disconnect": {
+      "title": "Disconnect bank reconciliation"
     }
   }
 }

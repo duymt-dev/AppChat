@@ -19,16 +19,17 @@ export function AccountSelect({ accounts, channels }: AccountSelectProps) {
   const ui = useInboxUi();
   const open = ui.pop === 'account';
   const total = accounts.reduce((n, a) => n + a.count, 0);
-  const pick = (name: string | null) => {
-    ui.set({ account: name });
+  const pick = (id: string | null) => {
+    ui.set({ account: id });
     ui.closePop();
   };
+  const current = accounts.find((a) => a.id === ui.account);
 
   return (
     <div className={styles.acct}>
       <button type="button" className={styles.acctBtn} onClick={() => ui.togglePop('account')} aria-expanded={open} data-testid="acct-select">
         <Icon name="ic-users" size={15} color={color.text4} />
-        <span className={styles.acctName}>{ui.account ?? t('allAccounts')}</span>
+        <span className={styles.acctName}>{current?.name ?? t('allAccounts')}</span>
       </button>
       {open ? (
         <>
@@ -41,9 +42,9 @@ export function AccountSelect({ accounts, channels }: AccountSelectProps) {
             </button>
             <div className={styles.sep} />
             {accounts.map((a) => (
-              <button key={a.id} type="button" role="option" aria-selected={ui.account === a.name} className={styles.acctRow} onClick={() => pick(a.name)}>
-                <span className={cx(styles.chBadge, styles.chBadge20)} style={{ background: channels?.[a.channel].color }}>
-                  {channels?.[a.channel].short}
+              <button key={a.id} type="button" role="option" aria-selected={ui.account === a.id} className={styles.acctRow} onClick={() => pick(a.id)}>
+                <span className={cx(styles.chBadge, styles.chBadge20)} style={{ background: channels?.[a.channel]?.color }}>
+                  {channels?.[a.channel]?.short}
                 </span>
                 <span className={styles.acctName}>{a.name}</span>
                 <span className={styles.acctCount}>{a.count}</span>

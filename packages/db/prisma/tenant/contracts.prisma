@@ -1,0 +1,163 @@
+// tenant/contracts.prisma — sở hữu: TIP-030 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: contract, contract_appendix, contract_signer, contract_signature_event, contract_sign_token. Không Prisma relation xuyên domain
+// (Blueprint §2.1): contact / quote / owner / file / conversation lưu id, kiểm ở service. Trạng thái: standards/domain/state-machine.md §4.
+
+enum ContractStatus {
+  draft
+  pending_approval
+  pending_signature
+  signed
+  declined
+  expired
+  terminated
+
+  @@map("contract_status")
+}
+
+enum ContractKind {
+  service
+  sale
+  framework
+
+  @@map("contract_kind")
+}
+
+/// Hợp đồng (Blueprint §2.2, COMMERCE §9 — D25). Owner "Duyệt & ký" (OTP + ký tay) → PDF đóng băng (`file_id` + `file_sha256`);
+/// khách ký trên trang công khai → PDF cuối có chữ ký hai bên + trang chứng nhận (`signed_file_id` + `signed_sha256`), nội dung khoá.
+model Contract {
+  id                  String         @id @db.Uuid
+  code                String         @unique
+  /// Số hợp đồng do DN đặt (vd. 1180/2026/HĐDV) — tuỳ chọn.
+  number              String         @default("")
+  kind                ContractKind   @default(service)
+  contactId           String         @map("contact_id") @db.Uuid
+  /// Báo giá nguồn (→ Hợp đồng) — mỗi báo giá một hợp đồng.
+  quoteId             String?        @unique @map("quote_id") @db.Uuid
+  renewalOfId         String?        @map("renewal_of_id") @db.Uuid
+  title               String         @default("")
+  value               BigInt         @default(0)
+  signedDate          DateTime?      @map("signed_date") @db.Date
+  startDate           DateTime?      @map("start_date") @db.Date
+  endDate             DateTime?      @map("end_date") @db.Date
+  /// Người làm hợp đồng lúc tạo (doanh số — COMMERCE §8b), không đổi theo khách.
+  ownerUserId         String?        @map("owner_user_id") @db.Uuid
+  status              ContractStatus @default(draft)
+  templateId          String?        @map("template_id") @db.Uuid
+  templateVersion     Int?           @map("template_version")
+  /// Tên tệp DN đính kèm (bản gốc tham khảo) — nội dung ký render từ mẫu hợp đồng.
+  fileName            String         @default("") @map("file_name")
+  note                String         @default("")
+  createdByType       String         @default("user") @map("created_by_type")
+  createdById         String?        @map("created_by_id")
+  approvedBy          String?        @map("approved_by") @db.Uuid
+  signedByBusinessAt  DateTime?      @map("signed_by_business_at") @db.Timestamptz(6)
+  signedByCustomerAt  DateTime?      @map("signed_by_customer_at") @db.Timestamptz(6)
+  sentAt              DateTime?      @map("sent_at") @db.Timestamptz(6)
+  sentChannel         String?        @map("sent_channel")
+  conversationId      String?        @map("conversation_id") @db.Uuid
+  signLinkExpiresAt   DateTime?      @map("sign_link_expires_at") @db.Timestamptz(6)
+  /// Đã nhắc gia hạn T-30 (một lần).
+  renewNoticeAt       DateTime?      @map("renew_notice_at") @db.Timestamptz(6)
+  /// PDF đóng băng lúc Duyệt & ký (nội dung + chữ ký Bên A).
+  fileId              String?        @map("file_id") @db.Uuid
+  fileSha256          String?        @map("file_sha256")
+  /// PDF cuối (chữ ký hai bên + trang chứng nhận).
+  signedFileId        String?        @map("signed_file_id") @db.Uuid
+  signedSha256        String?        @map("signed_sha256")
+  declinedReason      String         @default("") @map("declined_reason")
+  terminatedReason    String         @default("") @map("terminated_reason")
+  decidedAt           DateTime?      @map("decided_at") @db.Timestamptz(6)
+  custom              Json           @default("{}")
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt           DateTime?      @map("deleted_at") @db.Timestamptz(6)
+
+  signers ContractSigner[]
+  events  ContractSignatureEvent[]
+  tokens  ContractSignToken[]
+
+  @@map("contract")
+}
+
+/// Phụ lục (COMMERCE §9 "muốn thay đổi phải tạo phụ lục" — cùng luồng duyệt và ký). Mã `HĐ-1180/PL-{k}`.
+model ContractAppendix {
+  id           String         @id @db.Uuid
+  contractId   String         @map("contract_id") @db.Uuid
+  code         String         @unique
+  title        String         @default("")
+  bodyHtml     String?        @map("body_html")
+  status       ContractStatus @default(draft)
+  fileId       String?        @map("file_id") @db.Uuid
+  fileSha256   String?        @map("file_sha256")
+  signedFileId String?        @map("signed_file_id") @db.Uuid
+  signedSha256 String?        @map("signed_sha256")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([contractId])
+  @@map("contract_appendix")
+}
+
+/// Người ký của từng bên. OTP lưu băm (sha256), hiệu lực 10 phút, sai 5 lần khoá.
+model ContractSigner {
+  id                    String    @id @db.Uuid
+  contractId            String    @map("contract_id") @db.Uuid
+  appendixId            String?   @map("appendix_id") @db.Uuid
+  /// business | customer
+  party                 String
+  userId                String?   @map("user_id") @db.Uuid
+  name                  String    @default("")
+  email                 String?
+  phone                 String?
+  /// email | zalo_personal
+  otpChannel            String?   @map("otp_channel")
+  otpHash               String?   @map("otp_hash")
+  otpExpiresAt          DateTime? @map("otp_expires_at") @db.Timestamptz(6)
+  otpFails              Int       @default(0) @map("otp_fails")
+  signatureImageFileId  String?   @map("signature_image_file_id") @db.Uuid
+  signedAt              DateTime? @map("signed_at") @db.Timestamptz(6)
+  ip                    String?
+  userAgent             String?   @map("user_agent")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@unique([contractId, party])
+  @@map("contract_signer")
+}
+
+/// Nhật ký ký — chỉ thêm (UPDATE / DELETE bị thu hồi khỏi vai trò ứng dụng ở migration). Mỗi bước: thời điểm, IP, UA, mã băm tài liệu.
+model ContractSignatureEvent {
+  id         String   @id @db.Uuid
+  contractId String   @map("contract_id") @db.Uuid
+  appendixId String?  @map("appendix_id") @db.Uuid
+  signerId   String?  @map("signer_id") @db.Uuid
+  type       String
+  actorName  String   @default("") @map("actor_name")
+  docSha256  String?  @map("doc_sha256")
+  ip         String?
+  userAgent  String?  @map("user_agent")
+  meta       Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Restrict)
+
+  @@index([contractId, createdAt])
+  @@map("contract_signature_event")
+}
+
+/// Link ký một lần (7 ngày). Token = HMAC(khoá chủ, id) — không lưu token thô; `token_hash` = sha256(token) (định tuyến ở DB nền tảng).
+model ContractSignToken {
+  id         String    @id @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  contractId String    @map("contract_id") @db.Uuid
+  signerId   String    @map("signer_id") @db.Uuid
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt     DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+  @@map("contract_sign_token")
+}

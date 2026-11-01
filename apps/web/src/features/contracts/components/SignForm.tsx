@@ -28,6 +28,7 @@ export function SignForm({
   const { styles, cx } = useSignStyles();
   const [agree, setAgree] = useState(false);
   const [sentTo, setSentTo] = useState('');
+  const [byEmail, setByEmail] = useState(false);
   const [otp, setOtp] = useState('');
   const [png, setPng] = useState('');
   const [reset, setReset] = useState(0);
@@ -48,6 +49,7 @@ export function SignForm({
     try {
       const r = await signApi.otp(token);
       setSentTo(r.sent_to);
+      setByEmail(r.channel === 'email');
     } catch (e) {
       fail(e);
     }
@@ -99,7 +101,7 @@ export function SignForm({
         >
           {t('getOtp')}
         </button>
-        {sentTo ? <span className={styles.hint}>{t('otpSent', { to: sentTo })}</span> : null}
+        {sentTo ? <span className={styles.hint}>{t(byEmail ? 'otpSentEmail' : 'otpSent', { to: sentTo })}</span> : null}
       </div>
       {sentTo && apiMode() === 'mock' ? (
         <div className={styles.dev}>{t('devOtp', { otp: DEV_OTP })}</div>

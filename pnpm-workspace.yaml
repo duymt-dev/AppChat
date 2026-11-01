@@ -2,6 +2,7 @@ packages:
   - apps/*
   - packages/*
   - tools/parity
+  - tools/contract
 autoInstallPeers: true
 strictPeerDependencies: false
 allowBuilds:
@@ -10,6 +11,9 @@ allowBuilds:
   unrs-resolver: true
   '@parcel/watcher': true
   '@swc/core': true
+  '@prisma/engines': true
+  prisma: true
+  msgpackr-extract: false
 minimumReleaseAgeExclude:
   - '@boundaries/elements@3.3.0'
   - eslint-plugin-boundaries@7.4.0

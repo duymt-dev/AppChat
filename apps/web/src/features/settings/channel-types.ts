@@ -12,6 +12,8 @@ export interface ChannelAccount {
   frt: string;
   health: 'good' | 'slow' | 'down' | 'off';
   agent: string;
+  /** Id AI Agent trực (giá trị chọn ở drawer / wizard); `agent` là tên hiển thị. */
+  agent_id?: string;
   ai_mode: ChannelAiMode;
   hours: string;
   greeting: string;

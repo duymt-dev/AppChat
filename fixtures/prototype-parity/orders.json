@@ -2,7 +2,7 @@
   "orders": [
     {
       "id": "ord_290411",
-      "code": "SP290411",
+      "code": "DH-290411",
       "source": "manual",
       "channel": "zalo_personal",
       "external": null,
@@ -67,7 +67,7 @@
     },
     {
       "id": "ord_290410",
-      "code": "SP290410",
+      "code": "DH-290410",
       "source": "manual",
       "channel": "webchat",
       "external": null,
@@ -138,7 +138,7 @@
     },
     {
       "id": "ord_290409",
-      "code": "SP290409",
+      "code": "DH-290409",
       "source": "manual",
       "channel": "zalo_personal",
       "external": null,
@@ -192,7 +192,7 @@
     },
     {
       "id": "ord_290408",
-      "code": "SP290408",
+      "code": "DH-290408",
       "source": "manual",
       "channel": "email",
       "external": null,
@@ -263,7 +263,7 @@
     },
     {
       "id": "ord_290407",
-      "code": "SP290407",
+      "code": "DH-290407",
       "source": "manual",
       "channel": "zalo_personal",
       "external": null,
@@ -323,7 +323,7 @@
     },
     {
       "id": "ord_290405",
-      "code": "SP290405",
+      "code": "DH-290405",
       "source": "marketplace",
       "channel": "marketplace",
       "external": {
@@ -417,7 +417,7 @@
     }
   ],
   "ai_runs": {
-    "risk": "Rà soát 6 đơn hàng: SP290409 (Phương Vy) chờ cọc quá 24h — đề xuất nhắc đặt cọc kèm ưu đãi. SP290407 đã huỷ — nên hỏi lý do để win-back.",
+    "risk": "Rà soát 6 đơn hàng: DH-290409 (Phương Vy) chờ cọc quá 24h — đề xuất nhắc đặt cọc kèm ưu đãi. DH-290407 đã huỷ — nên hỏi lý do để win-back.",
     "upsell": "AI gợi ý upsell: Chị Lan (HIFU 8 buổi) phù hợp combo dưỡng da 4 buổi (+3.2tr, xác suất 71%). Mai Anh nên mời gói năm.",
     "collect": "2 đơn đang chờ thanh toán (Chị Lan còn 6,4tr; Phương Vy chờ cọc 2,85tr). Đề xuất gửi đề nghị thanh toán kèm VietQR + nhắc sau 24h.",
     "analyze": "Doanh thu đã thu tháng này: 59,3tr. Tỉ lệ thanh toán đủ 64%. Đơn huỷ chủ yếu do chậm chốt cọc — đề xuất bật nhắc tự động."

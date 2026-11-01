@@ -1,7 +1,7 @@
 // Modal "Chuyển tiếp tin nhắn" (REQ-C09) — chọn hội thoại khác để chuyển tới.
 'use client';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { App } from 'antd';
 import { Icon, color } from '@appchat/ui';
@@ -16,13 +16,13 @@ export function ForwardModal() {
   const { styles, cx } = useModalStyles();
   const ui = useInboxUi();
   const from = ui.forwardFrom;
-  const list = useQuery(conversationsQuery(null));
+  const list = useInfiniteQuery(conversationsQuery());
   const forward = useAction('message.forward');
   const [q, setQ] = useState('');
   const close = () => ui.set({ modal: null, forwardFrom: null });
 
   if (!from) return null;
-  const rows = (list.data?.data ?? []).filter((c) => c.id !== from.convId && c.title.toLowerCase().includes(q.trim().toLowerCase()));
+  const rows = (list.data?.pages.flatMap((p) => p.data) ?? []).filter((c) => c.id !== from.convId && c.title.toLowerCase().includes(q.trim().toLowerCase()));
 
   const pick = async (targetId: string) => {
     const r = await forward.run({ conversation_id: from.convId, message_id: from.messageId, target_conversation_id: targetId }, { silent: true });

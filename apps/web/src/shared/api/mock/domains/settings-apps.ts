@@ -17,6 +17,8 @@ export interface SettingsAppsState {
   connectors: Connector[];
   widget: Widget;
   seq: number;
+  /** Tài khoản Zalo đang chờ quét QR (TIP-014): lần đọc `/login` đầu trả `waiting`, lần sau coi như đã quét → connected. */
+  pendingLogin: Record<string, number>;
 }
 
 export const createSettingsAppsState = (): SettingsAppsState => ({
@@ -24,7 +26,11 @@ export const createSettingsAppsState = (): SettingsAppsState => ({
   connectors: structuredClone(fixture.connectors),
   widget: structuredClone(fixture.widget),
   seq: 0,
+  pendingLogin: {},
 });
+
+/** PNG 1×1 — QR giả của mock (như transport Zalo giả của backend). */
+const MOCK_QR = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 const HEALTH_RANK: Record<string, number> = { down: 0, off: 1, slow: 2, good: 3 };
 
@@ -67,12 +73,12 @@ const findAccount = (db: MockDb, accountId: string) => {
   throw new ApiRequestError(404, { code: 'NOT_FOUND', message: accountId });
 };
 
-const addAccount = (db: MockDb, type: string, name: string): ChannelAccount => {
+const addAccount = (db: MockDb, type: string, name: string, connected = true): ChannelAccount => {
   const c = channelByType(db, type);
   const account: ChannelAccount = {
     id: `acc_${type}_${++db.settingsApps.seq}`,
     name,
-    connected: true,
+    connected,
     convs: 0,
     frt: '—',
     health: 'good',
@@ -100,8 +106,25 @@ export const settingsAppsRoutes: Record<string, MockRoute> = {
   },
 };
 
-/** Route có tham số: /settings/channels/:accountId/stats. */
+/** Route có tham số: /settings/channels/:accountId/stats · /settings/channels/:accountId/login (trạng thái QR — TIP-014). */
 export const settingsAppsParamRoute = (path: string): MockRoute | null => {
+  const lg = path.match(/^\/settings\/channels\/([^/]+)\/login$/);
+  if (lg) {
+    const id = lg[1]!;
+    return (db) => {
+      const { account } = findAccount(db, id);
+      const seen = db.settingsApps.pendingLogin[id];
+      if (seen === undefined) return { account_id: id, status: account.connected ? 'connected' : 'expired', qr: null, expires_at: null };
+      if (seen === 0) {
+        db.settingsApps.pendingLogin[id] = 1;
+        return { account_id: id, status: 'waiting', qr: MOCK_QR, expires_at: new Date(Date.now() + 100_000).toISOString() };
+      }
+      delete db.settingsApps.pendingLogin[id];
+      account.connected = true;
+      account.health = 'good';
+      return { account_id: id, status: 'connected', qr: null, expires_at: null };
+    };
+  }
   const m = path.match(/^\/settings\/channels\/([^/]+)\/stats$/);
   if (!m) return null;
   const accountId = m[1]!;
@@ -120,12 +143,17 @@ export const settingsAppsParamRoute = (path: string): MockRoute | null => {
 export const settingsAppsHandlers: Record<string, MockHandler> = {
   'channel.zalo.start_login': {
     execute: (db, i: { label?: string }) => {
-      const account = addAccount(db, 'zalo_personal', i.label?.trim() || 'Zalo cá nhân');
-      return { channel_account_id: account.id, qr: 'zalo://login/qr/mock' };
+      const account = addAccount(db, 'zalo_personal', i.label?.trim() || 'Zalo cá nhân', false);
+      account.health = 'slow';
+      db.settingsApps.pendingLogin[account.id] = 0;
+      return { channel_account_id: account.id, qr: `/settings/channels/${account.id}/login` };
     },
   },
   'channel.email.connect': {
-    execute: (db, i: { address: string }) => {
+    execute: (db, i: { address: string; fields?: Record<string, string> }) => {
+      if (!i.fields?.imap_host?.trim() || !i.fields.password) {
+        throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'fields', fields: { imap_host: 'required' } });
+      }
       const account = addAccount(db, 'email', i.address);
       return { channel_account_id: account.id };
     },
@@ -135,13 +163,21 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
       if (i.type === 'email' && i.fields && !i.fields.imap_host?.trim()) {
         throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'imap_host', fields: { imap_host: 'required' } });
       }
+      // Mock: mật khẩu "sai" mô phỏng đăng nhập IMAP thất bại (backend: lý do imap_auth — TIP-018).
+      if (i.type === 'email' && i.fields?.password === 'sai') return { ok: false, message: 'Sai email hoặc mật khẩu ứng dụng (IMAP)' };
       return { ok: true, message: 'Kết nối thành công' };
     },
   },
   'channel.update_settings': {
-    execute: (db, i: { channel_account_id: string; patch: Partial<ChannelAccount> }) => {
+    execute: (db, i: { channel_account_id: string; patch: Partial<ChannelAccount> & { agent_id?: string } }) => {
       const { account } = findAccount(db, i.channel_account_id);
-      Object.assign(account, i.patch);
+      const { agent_id, ...rest } = i.patch;
+      Object.assign(account, rest);
+      // Bản ghi agent_id + tên hiển thị (backend: settings.agent_id; tên từ bảng ai_agent — TIP-021).
+      if (agent_id !== undefined) {
+        const a = agent_id ? db.agents.agents.find((x) => x.id === agent_id) : null;
+        Object.assign(account, { agent_id: agent_id || undefined, agent: a?.name ?? '' });
+      }
       return { ok: true };
     },
   },
@@ -166,9 +202,10 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
   'channel.reconnect': {
     execute: (db, i: { channel_account_id: string }) => {
       const { account } = findAccount(db, i.channel_account_id);
-      account.connected = true;
-      account.health = 'good';
-      return { channel_account_id: account.id, status: 'connected' };
+      account.connected = false;
+      account.health = 'slow';
+      db.settingsApps.pendingLogin[account.id] = 0;
+      return { channel_account_id: account.id, status: 'connecting' };
     },
   },
   'channel.disconnect': {
@@ -179,12 +216,13 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
     },
   },
   'webchat.update_widget': {
-    execute: (db, i: Partial<Omit<Widget, 'agent'>> & { agent_id?: string }) => {
+    execute: (db, i: Partial<Omit<Widget, 'agent' | 'prechat'>> & { agent_id?: string; prechat?: boolean }) => {
       const w = db.settingsApps.widget;
       const { agent_id, actions, ...rest } = i;
-      Object.assign(w, rest, agent_id ? { agent: agent_id } : {});
+      Object.assign(w, rest, agent_id !== undefined ? { agent: agent_id } : {});
       if (actions) w.actions = actions.flatMap((a) => w.actions.filter((x) => x.key === a.key).map((x) => ({ ...x, on: a.on })));
-      return { ok: true };
+      w.kpis.running = w.enabled ? 1 : 0;
+      return { ok: true, channel_account_id: w.channel_account_id ?? undefined, public_key: w.public_key ?? undefined };
     },
   },
   'integration.connect': {

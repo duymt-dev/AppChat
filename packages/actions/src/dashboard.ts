@@ -14,6 +14,7 @@ export const onboardingToggleStep = defineAction({
   risk: 'write',
   agentGrantable: false,
   invalidates: ['dashboard'],
+  db: 'platform',
 });
 
 export const followUpComplete = defineAction({

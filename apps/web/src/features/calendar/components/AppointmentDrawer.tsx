@@ -35,7 +35,7 @@ function Footer({ a }: { a: Appointment }) {
   const complete = useAction<{ package: { used: number; total: number } | null; suggest_order: boolean }>(
     'appointment.complete',
   );
-  if (!can || a.status === 'done' || a.status === 'no_show' || a.status === 'cancelled') return null;
+  if (!can || !(a.status === 'pending' || a.status === 'confirmed' || a.status === 'in_progress')) return null;
   const finish = async () => {
     const r = await complete.run({ appointment_id: a.id });
     if (!r) return;
@@ -148,7 +148,12 @@ export function AppointmentDrawer({ meta }: { meta: CalendarMeta }) {
               <b>{t('detail.suggest')}</b>
               {t('detail.suggestHint')}
               <div>
-                <button type="button" className={styles.sugBtn} onClick={() => router.push('/orders')}>
+                <button
+                  type="button"
+                  className={styles.sugBtn}
+                  onClick={() => router.push(`/orders?from_appointment=${a.id}`)}
+                  data-testid="cal-suggest-order"
+                >
                   {t('detail.suggestBtn')}
                 </button>
               </div>

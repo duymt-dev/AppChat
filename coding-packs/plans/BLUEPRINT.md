@@ -297,8 +297,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 |---|---|---|
 | `plan` | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, archive_inactive_days? (Miễn phí = 90, còn lại null), active, sort | seed theo prototype; sửa được trong trang admin |
 | `subscription` | ws (unique), plan_id, status(trialing\|active\|expired\|cancelled), trial_started_at, trial_ends_at, current_period_start, current_period_end | |
-| `credit_wallet` | ws (pk), plan_balance bigint (reset mỗi kỳ, không cộng dồn), topup_balance bigint (không hết hạn), low_threshold, warn_80_sent_at, warn_95_sent_at | CHECK cả hai ≥ 0; trừ plan_balance trước |
-| `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
+| `credit_wallet` | ws (pk), plan_balance bigint (reset mỗi kỳ, không cộng dồn), topup_balance bigint (không hết hạn), low_threshold, low_alert, warn_80_sent_at, warn_95_sent_at, exhausted_at | CHECK cả hai ≥ 0; trừ plan_balance trước (TIP-009: DC-034) |
+| `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, note? (khoá chữ i18n/server), meta jsonb?, source?, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
 | `model_price` | provider_key, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
 | `llm_provider` | key (unique), kind(anthropic\|openai\|google\|deepseek\|openai_compatible), name, base_url?, api_key_enc bytea, headers jsonb?, capabilities jsonb `{tools, json_schema, streaming, embeddings, vision, reasoning}`, status(active\|disabled), last_probe_at?, last_error? | D33. Router OpenRouter / 9router / LiteLLM… = `openai_compatible`; chỉ Quản trị nền tảng sửa |
 | `model_route` | tier, priority, provider_key → `llm_provider.key`, model, purpose(chat\|embed\|rerank), params jsonb? | fallback theo priority; một tier có thể trộn provider gốc và router |
@@ -427,10 +427,10 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
-| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status) |
+| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status); unique partial (connector_key) WHERE status <> 'disconnected' (DC-044) |
 | `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) |
 | `integration_call_log` | connection_id, op, ref_type, ref_id, idempotency_key, status, latency_ms, error?, created_at | unique(idempotency_key); idx(connection_id, created_at desc) |
-| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id) |
+| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id); partial (connection_id, created_at) WHERE processed_at IS NULL |
 
 - `tenant_bank_feed` (sales) là một `integration_connection` port `bank_feed`; giữ bảng feed riêng cho khớp mã `TT-xxxxxx`, tham chiếu `connection_id`.
 
@@ -443,7 +443,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `idempotency_key` | key, route, request_hash, response jsonb, status_code, created_at. pk(key); TTL 24h (job dọn) |
 | `file` | storage_key, name, mime, size, sha256, uploaded_by, purpose |
 | `sequence_counter` | kind, value | pk(kind) |
-| `notification` | user_id, type, title, body, link, read_at?. idx(user_id, read_at, created_at desc) |
+| `notification` | user_id, type (loại `NOTIFY_KINDS`), title (render theo locale người nhận), body, link, read_at?. idx(user_id, created_at desc, id desc) + partial `WHERE read_at IS NULL` (TIP-006) |
+| `event_consumption` | event_id, consumer, created_at. pk(event_id, consumer) — khoá idempotent consumer `events` (outbox §4, TIP-006 DC-027) |
 
 ### 2.3 Domain events (outbox → BullMQ queue `events`)
 
@@ -465,6 +466,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
 | `subscription.changed` / `trial.expired` | | quota, notify |
+| `notify.requested` | kind, to { user_ids?, permission? }, params, link?, exclude_user_id? | notify: ghi `notification` theo locale người nhận → WS `notification.new` → email theo tuỳ chọn (TIP-006) |
 | `member.role_changed` / `member.removed` | user_id | xoá cache AuthzContext; WS `authz.changed` → FE tải lại `me/authz`; gỡ gán hội thoại khi bị xoá |
 | `contact.owner_changed` / `contact.collaborator_changed` | contact_id, from, to, moved: {conversations, quotes, appointments} | timeline; thông báo hai bên; gán lại hội thoại đang mở (D32) |
 | `contact.access_requested` / `contact.access_decided` | request_id | thông báo owner của khách / Quản lý (Việc cần tôi); thông báo người xin |
@@ -473,6 +475,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `kb.suggestion_created` (P1) | suggestion_id | thông báo người có `kb.manage` |
 | `order.imported` / `order.external_updated` | order_id, connection_id | như `order.confirmed` / `completed` / `cancelled` theo trạng thái ánh xạ (kho; loyalty **chỉ khi** bật cho kết nối); timeline (D31) |
 | `integration.connected` / `integration.error` / `integration.disconnected` | connection_id, connector_key | thông báo; metric `integration_connection_status`; trang Nền tảng kết nối |
+| `integration.event_received` | connection_id, connector_key, port, event_id, kind | consumer domain theo port xử lý `integration_event` (TIP-010 / 031 / 032) — TIP-012 |
 | `document.rendered` / `document.render_failed` | ref_type, ref_id, file_id | gắn `file_id` vào chứng từ; WS; lỗi thì thông báo người tạo (D30) |
 
 ---
@@ -574,6 +577,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `working_hours.update`
 - `profile_layout.create` / `profile_layout.update` / `profile_layout.duplicate` / `profile_layout.delete` / `profile_layout.assign_role` (config, `settings.manage`; mẫu hệ thống không xoá được — REQ-F12, M05)
 - `notification.mark_read` (mọi thành viên, write)
+- `notification.update_prefs` (self, write, `db: 'platform'` — tuỳ chọn thông báo của tôi, bảng nền tảng `notification_pref`; TIP-006)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
 - `team.create` / `team.update` / `team.set_members` (P1)
 - `workspace.transfer_ownership` (owner, OTP)
@@ -913,6 +917,10 @@ POST /v1/auth/logout             (cookie)                                       
 GET  /v1/me                                                                                → { user, workspaces: [{ id, name, role, plan, trial_ends_at }] }
 POST /v1/workspaces              { name }                                                  → { workspace }       (tạo workspace mới; người tạo là owner)
 GET  /v1/business-lookup/tax/:taxCode                                                      → { legal_name, address, representative, phone, founded_on, legal_status } | 404
+GET  /v1/session                 (public)                                                 → { authed, declared, provisioned, trialDaysLeft, trialEndsAt, trialSeen, expiredSeen, workspace_id }   (TIP-011, DC-037)
+POST /v1/session/ack             { notice: 'trial_welcome'|'trial_expired' }  (auth)      → 204
+GET  /v1/workspace/provisioning  (auth, workspace đang dùng)                              → { status: 'running'|'ready'|'failed' }
+GET  /v1/auth/brand?locale=      (public)                                                 → { card, stats }
 ```
 
 ### 4.3 Actions (cổng ghi thống nhất)
@@ -964,8 +972,8 @@ type UiCommand =
 | dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn) |
 | authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
-| misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` |
-| admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
+| misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` — đã nối (TIP-013, shape `packages/shared/src/api/settings.ts`): `workspace` (mọi thành viên), `members?q=` (`members.manage`; `{ data, total, seat_limit, next_cursor: null }`), `roles` (mọi thành viên), `sla` (`sla.manage`; giờ làm việc thật, chính sách mặc định tới TIP-034), `notifications` (TIP-006), `integrations` (TIP-012) |
+| admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` (đã nối — TIP-010, platform admin, không cần X-Workspace-Id) |
 
 Bổ sung ver2.1:
 - inbox: `GET /v1/conversations/:id/messages/search?q=&sender=all|contact|user|agent` (không dấu, trả vị trí để tô — REQ-C12); list hội thoại bỏ `hidden_at` khác null (D50); `GET /v1/conversations/:id/agent-tools` (quyền hiệu lực của agent phụ trách, chỉ đọc — REQ-C11).
@@ -1006,7 +1014,7 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 
 ### 4.7 Webhooks
 
-- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ.
+- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ. — đã nối (TIP-010): provider = `PLATFORM_BANK_FEED` (`mock` HMAC dev / `sepay` header `Authorization: Apikey`), khớp mã `APPCHAT INV…` + số tiền ≥ hoá đơn, ghi nhận ngay trong request (idempotent) + scheduler `billing.invoice-sweep` quét lại (DC-055, DC-057, DC-058).
 - `POST /hooks/integrations/:connector/:connectionId`: webhook connector của DN (D28). Tra `tenant_integration_route` → DB tenant; adapter tự kiểm chữ ký; insert `integration_event` idempotent theo id của provider; trả 200 rồi xử lý trong queue `integrations`.
 - `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
 - `POST /hooks/channels/:provider`: dành cho kênh dùng webhook về sau (Zalo OA, Meta). Hiện chưa dùng.

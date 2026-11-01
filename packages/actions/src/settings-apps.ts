@@ -112,19 +112,29 @@ export const channelZaloStartLogin = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['channels'],
+  // Hạn mức gói `max_channels` kiểm dưới khoá workspace ở DB nền tảng (như member.invite — TIP-014, DC-069).
+  db: 'platform',
 });
 
 export const channelEmailConnect = defineAction({
   id: 'channel.email.connect',
   module: 'channels',
   title: 'actions.channel.email.connect.title',
-  description: 'Connect a new mailbox account (IMAP/SMTP). Example: {"address":"hotro@spa.vn","name":"Hỗ trợ"}',
-  input: z.object({ address: z.string().email(), name: z.string().max(60).optional() }),
+  description:
+    'Connect a new mailbox account (IMAP to receive, SMTP to send); the login is checked for real before saving. Example: {"address":"hotro@spa.vn","name":"Hỗ trợ","fields":{"imap_host":"imap.gmail.com","imap_port":"993","password":"app-password"}}',
+  input: z.object({
+    address: z.string().email(),
+    name: z.string().max(60).optional(),
+    /** Form IMAP / SMTP (emailFormSchema của @appchat/shared — chuỗi như form gửi). */
+    fields: z.record(z.string(), z.string()),
+  }),
   output: z.object({ channel_account_id: z.string() }),
   permission: 'channels.manage',
   risk: 'config',
   agentGrantable: false,
   invalidates: ['channels'],
+  // Hạn mức gói `max_channels` dưới khoá workspace (như channel.zalo.start_login — DC-069).
+  db: 'platform',
 });
 
 export const channelTest = defineAction({
@@ -242,10 +252,15 @@ export const webchatUpdateWidget = defineAction({
   module: 'channels',
   title: 'actions.webchat.update_widget.title',
   description:
-    'Update the website chat widget: display name, greeting, AI chat, pre-chat form, handoff threshold, reply mode, tone. Example: {"name":"Trợ lý Hương Sen","handoff":70}',
+    'Update the website chat widget: turn it on/off, display name, greeting, colour, allowed domains, AI chat, pre-chat form, handoff threshold, reply mode, tone. The first call creates the widget (counts toward the plan channel limit). Example: {"name":"Trợ lý Hương Sen","handoff":70}',
   input: z.object({
+    /** Bật / tắt widget (tắt = tạm dừng tài khoản webchat). Lần cập nhật đầu tiên tự bật. */
+    enabled: z.boolean().optional(),
     name: z.string().trim().min(1).max(40).optional(),
     greeting: z.string().max(300).optional(),
+    color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+    /** Domain được nhúng (vd. `spa.vn`, `*.spa.vn`); rỗng = mọi domain. */
+    allowed_domains: z.array(z.string().trim().toLowerCase().regex(/^(\*\.)?[a-z0-9-]+(\.[a-z0-9-]+)*(:\d+)?$/)).max(20).optional(),
     ai_chat: z.boolean().optional(),
     prechat: z.boolean().optional(),
     agent_id: z.string().optional(),
@@ -259,10 +274,12 @@ export const webchatUpdateWidget = defineAction({
     collect_on: z.array(z.string().max(30)).max(10).optional(),
     actions: z.array(z.object({ key: z.string().max(30), on: z.boolean() })).max(10).optional(),
   }),
-  output: z.object({ ok: z.boolean() }),
+  output: z.object({ ok: z.boolean(), channel_account_id: z.string().optional(), public_key: z.string().optional() }),
   permission: 'channels.manage',
   risk: 'config',
   agentGrantable: false,
+  // Bật widget lần đầu = thêm tài khoản kênh: khoá workspace + hạn mức gói + route ở DB nền tảng (như channel.zalo.start_login).
+  db: 'platform',
   invalidates: ['channels'],
 });
 
@@ -303,6 +320,7 @@ export const integrationRegisterInterest = defineAction({
   risk: 'write',
   agentGrantable: false,
   invalidates: ['integrations'],
+  db: 'platform',
 });
 
 export const profileLayoutCreate = defineAction({

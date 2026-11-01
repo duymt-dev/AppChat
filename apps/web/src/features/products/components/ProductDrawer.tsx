@@ -71,7 +71,7 @@ export function ProductDrawer({ meta }: { meta: ProductsMeta }) {
           {ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
           {ui.tab === 'ai' ? <AiTab /> : null}
           {ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
-          {ui.tab === 'history' ? <HistoryTab meta={meta} /> : null}
+          {ui.tab === 'history' ? <HistoryTab p={p} /> : null}
         </div>
       ) : null}
     </EntityDrawer>

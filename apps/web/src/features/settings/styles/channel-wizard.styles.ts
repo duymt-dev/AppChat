@@ -183,6 +183,11 @@ export const useChannelWizardStyles = createStyles(({ css, responsive }) => ({
     place-items: center;
     flex-shrink: 0;
   `,
+  qrImg: css`
+    width: 168px;
+    height: 168px;
+    image-rendering: pixelated;
+  `,
   qrTitle: css`
     font-size: ${font.scale.s15}px;
     font-weight: ${font.weight.bold};

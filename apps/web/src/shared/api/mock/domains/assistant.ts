@@ -1,4 +1,4 @@
-// Mock Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5): GET /assistant/home, /ai-tasks, /action-logs, /approvals;
+// Mock Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5): GET /assistant/home, /action-logs, /approvals (tác vụ tự chủ: ai-tasks.ts);
 // POST /assistant/messages (kịch bản thay SSE: trả danh sách event) + /assistant/confirm. Dữ liệu = prototype L1178–1504
 // (fixture sinh bởi tools/scripts/fixtures/gen-assistant.py).
 import { ApiRequestError, can, authzForRole, type PermissionKey } from '@appchat/shared';
@@ -6,16 +6,22 @@ import fixture from '../../../../../../../fixtures/prototype-parity/assistant.js
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { createTasksState, type MockTask } from './ai-tasks';
 
 export type AssistantFixture = typeof fixture;
-type Task = AssistantFixture['tasks'][number] & { goal?: string; prompt?: string };
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
   title?: string;
   object?: string;
   source?: 'ui' | 'assistant';
   undone?: boolean;
 };
-type Approval = AssistantFixture['approvals'][number] & { status: 'pending' | 'approved' | 'rejected'; note?: string };
+type Field = { key: string; type: 'string' | 'number' | 'boolean'; required: boolean };
+type Approval = AssistantFixture['approvals'][number] & {
+  status: 'pending' | 'approved' | 'edited' | 'rejected' | 'expired';
+  note?: string;
+  input: Record<string, unknown>;
+  fields: Field[];
+};
 type Intent = AssistantFixture['intents'][number];
 type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled' };
 
@@ -32,7 +38,7 @@ export interface Run {
 }
 
 export interface AssistantState {
-  tasks: Task[];
+  tasks: MockTask[];
   logs: ActionLogRow[];
   approvals: Approval[];
   runs: Run[];
@@ -69,12 +75,20 @@ const seedRunApproval = (): Approval => ({
   day: 'today',
   time: '09:40',
   status: 'pending',
+  input: { quote_id: 'q_1024', channel: 'zalo_personal' },
+  fields: [{ key: 'quote_id', type: 'string', required: true }],
 });
 
+/** Input agent xin chạy (fixture prototype chỉ có tiêu đề) — đủ để thử "Sửa & duyệt". */
+const SEED_INPUT: Record<string, Pick<Approval, 'input' | 'fields'>> = {
+  ap_1: { input: { campaign_id: 'cp_flash', note: 'Flash Sale cuối tuần' }, fields: [{ key: 'campaign_id', type: 'string', required: true }, { key: 'note', type: 'string', required: false }] },
+};
+const seedApproval = (a: AssistantFixture['approvals'][number]): Approval => ({ ...a, status: 'pending', ...(SEED_INPUT[a.id] ?? { input: {}, fields: [] }) });
+
 export const createAssistantState = (): AssistantState => ({
-  tasks: structuredClone(fixture.tasks),
+  tasks: createTasksState(),
   logs: structuredClone(fixture.action_logs),
-  approvals: [...fixture.approvals.map((a) => ({ ...a, status: 'pending' as const })), seedRunApproval()],
+  approvals: [...fixture.approvals.map(seedApproval), seedRunApproval()],
   runs: seedRuns(),
   pending: [],
   seq: 0,
@@ -101,26 +115,6 @@ export const assistantRoutes: Record<string, MockRoute> = {
     cowork_cards: fixture.cowork_cards,
     prompts: fixture.prompts,
   }),
-  '/ai-tasks': (db) => {
-    const t = db.assistant.tasks;
-    const runs = t.reduce((s, x) => s + x.runs, 0);
-    return {
-      tasks: t,
-      stats: fixture.task_stats.map((s) => ({
-        ...s,
-        value:
-          s.key === 'total' ? String(t.length)
-          : s.key === 'active' ? `${t.filter((x) => x.active).length}/${t.length}`
-          : s.key === 'runs' ? runs.toLocaleString('vi-VN')
-          : fixture.task_kpi[s.key as keyof typeof fixture.task_kpi],
-      })),
-      templates: fixture.task_templates,
-      departments: fixture.departments,
-      data_options: fixture.task_data,
-      tool_options: fixture.task_tools,
-      drawer: fixture.drawer,
-    };
-  },
   '/action-logs': (db, p) => {
     const q = String(p.q ?? '').trim().toLowerCase();
     const rows = db.assistant.logs.filter((l) => {
@@ -138,15 +132,18 @@ export const assistantRoutes: Record<string, MockRoute> = {
     const status = String(p.status ?? 'pending');
     return {
       data: db.assistant.approvals
-        .filter((a) => status === 'all' || a.status === status)
+        // Tab Đã duyệt gồm cả "sửa & duyệt" (như backend).
+        .filter((a) => status === 'all' || a.status === status || (status === 'approved' && a.status === 'edited'))
         .map((a) => ({ ...a, can_decide: can_(db, 'approvals.decide') && can_(db, a.permission) })),
       next_cursor: null,
     };
   },
   // GET /v1/runs?root_run_id=&status= — khung "Trợ lý AI đang điều phối" ở Cowork (REQ-E14, Blueprint §4.4)
   '/runs': (db, p) => {
+    // status=live (chưa có lượt Cowork) = đang chạy + chờ duyệt — như backend (TIP-023).
+    const live = (s: Run['status']) => s === 'running' || s === 'waiting_approval';
     const rows = db.assistant.runs.filter(
-      (r) => (!p.root_run_id || r.root_run_id === p.root_run_id) && (!p.status || p.status === 'all' || r.status === p.status),
+      (r) => (!p.root_run_id || r.root_run_id === p.root_run_id) && (!p.status || p.status === 'all' || r.status === p.status || (p.status === 'live' && live(r.status))),
     );
     return { data: rows, next_cursor: null };
   },
@@ -171,7 +168,7 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     const text = String(body.text ?? '').trim();
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
-    return { session_id: session, events: scriptReply(db, text) };
+    return { session_id: session, run_id: null, events: scriptReply(db, text) };
   },
   // POST /v1/assistant/confirm — xác nhận thẻ: chạy action đã preview, ghi nhật ký nguồn assistant
   '/assistant/confirm': (db, body) => {
@@ -179,7 +176,7 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     if (!p || p.status !== 'pending') throw new ApiRequestError(409, { code: 'CONFLICT', message: 'CONFIRM_EXPIRED' });
     if (body.decision === 'cancel') {
       p.status = 'cancelled';
-      return { status: 'cancelled' };
+      return { status: 'cancelled', events: [] };
     }
     p.status = 'done';
     const logId = `al_as_${++db.assistant.seq}`;
@@ -187,15 +184,10 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     const row = db.assistant.logs[0]!;
     row.title = p.intent.title;
     row.object = p.intent.dest;
-    return { status: 'done', action_log_id: logId, ui_target: { type: 'navigate', route: p.intent.route } };
+    return { status: 'done', action_log_id: logId, ui_target: { type: 'navigate', route: p.intent.route }, events: [] };
   },
 };
 
-const findTask = (db: MockDb, id: string) => {
-  const t = db.assistant.tasks.find((x) => x.id === id);
-  if (!t) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
-  return t;
-};
 
 const findApproval = (db: MockDb, id: string) => {
   const a = db.assistant.approvals.find((x) => x.id === id && x.status === 'pending');
@@ -205,46 +197,7 @@ const findApproval = (db: MockDb, id: string) => {
   return a;
 };
 
-const dept = (k: string) => fixture.departments.find((d) => d.key === k) ?? fixture.departments[0]!;
-
 export const assistantHandlers: Record<string, MockHandler> = {
-  'ai_task.create': {
-    execute: (
-      db,
-      i: { name: string; goal: string; department?: string; trigger: 'manual' | 'schedule' | 'event'; data_scope?: string[]; model_tier: string; credit_limit_per_run: number },
-    ) => {
-      const id = `tk_n${++db.assistant.seq}`;
-      const d = dept(i.department ?? 'Vận hành');
-      db.assistant.tasks.unshift({
-        id,
-        name: i.name,
-        role: i.goal.length > 60 ? `${i.goal.slice(0, 60)}…` : i.goal,
-        goal: i.goal,
-        runs: 0,
-        success: '—',
-        cost: '0₫',
-        active: true,
-        model_tier: i.model_tier,
-        department: d.key,
-        channels: (i.data_scope ?? []).slice(0, 2),
-        conf: 70,
-      });
-      return { task_id: id };
-    },
-  },
-  'ai_task.update': {
-    execute: (db, i: { task_id: string; patch: Partial<Task> }) => {
-      Object.assign(findTask(db, i.task_id), i.patch);
-      return { task_id: i.task_id };
-    },
-  },
-  'ai_task.pause': {
-    execute: (db, i: { task_id: string; paused: boolean }) => {
-      const t = findTask(db, i.task_id);
-      t.active = !i.paused;
-      return { task_id: t.id, active: t.active };
-    },
-  },
   'approval.approve': {
     execute: (db, i: { approval_id: string; note?: string }) => {
       const a = findApproval(db, i.approval_id);
@@ -252,6 +205,17 @@ export const assistantHandlers: Record<string, MockHandler> = {
       a.note = i.note;
       const seed = db.assistant.logs.find((l) => l.action_id === a.action_id && l.status === 'pending');
       if (seed) seed.status = 'done';
+      const run = db.assistant.runs.find((r) => r.approval_id === a.id);
+      if (run) run.status = 'done';
+      return { approval_id: a.id, status: a.status };
+    },
+  },
+  'approval.edit_and_approve': {
+    execute: (db, i: { approval_id: string; edited_input: Record<string, unknown>; note?: string }) => {
+      const a = findApproval(db, i.approval_id);
+      a.input = { ...a.input, ...i.edited_input };
+      a.status = 'edited';
+      a.note = i.note;
       const run = db.assistant.runs.find((r) => r.approval_id === a.id);
       if (run) run.status = 'done';
       return { approval_id: a.id, status: a.status };

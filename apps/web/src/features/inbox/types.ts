@@ -78,6 +78,15 @@ export interface Message {
   reply_to?: { id: string; preview: string };
   /** Tin được chuyển tiếp tới hội thoại này (REQ-C09 "Chuyển tiếp"). */
   forwarded?: boolean;
+  /** Ảnh / tệp của tin (API thật — link ký; TIP-025). */
+  attachments?: MessageAttachment[];
+}
+
+export interface MessageAttachment {
+  url: string;
+  mime: string;
+  name?: string;
+  size?: number;
 }
 
 export interface ThreadData {
@@ -164,6 +173,18 @@ export interface Contact360 {
   files: { ext: string; tone: 'red' | 'amber'; name: string; meta: string }[];
   /** Trường tuỳ biến (D56) — khối "Thông tin thêm" cuối tab Tổng quan. */
   custom?: CustomValues;
+  /** Bố cục của vai trò người xem (API thật; mock không có → đọc theo vai trò). */
+  layout?: { id: string; name: string; tabs: LayoutTab[] };
+}
+
+/** Tab Hồ sơ 360° (profile_layout.tabs — Cài đặt › Hồ sơ 360°). */
+export interface LayoutTab {
+  key: string;
+  label: string;
+  enabled: boolean;
+  sort: number;
+  builtin: boolean;
+  blocks: string[];
 }
 
 export interface GroupInfo {

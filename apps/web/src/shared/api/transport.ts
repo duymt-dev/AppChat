@@ -21,6 +21,16 @@ export interface Transport {
   action<O = unknown>(id: string, input: unknown, opts?: ActionCallOptions): Promise<ActionResponse<O>>;
   /** POST /v1/action-logs/:id/undo */
   undo(actionLogId: string): Promise<void>;
+  /** POST /v1/files (multipart ≤ 25MB) → `file_id` dùng ở action sau (vd. `kb.add_source`). Mock: id giả, không giữ nội dung. */
+  upload(file: File, purpose: string): Promise<UploadedFile>;
+  /** GET /v1/<path> trả tệp nhị phân (PDF xem trước — TIP-028). Mock: tệp nhỏ dựng tại chỗ. */
+  blob(path: string): Promise<Blob>;
+}
+
+export interface UploadedFile {
+  file_id: string;
+  name: string;
+  size: number;
 }
 
 export type ApiMode = 'mock' | 'http';

@@ -104,7 +104,7 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
                   {meta?.counts[k] ?? ''}
                 </span>
                 <span className={styles.kpiT} style={{ color: k === 'breach' ? color.dangerStrong : color.okStrong }}>
-                  {meta ? t('trend', { v: meta.trend[k] }) : ''}
+                  {meta?.trend[k] ? t('trend', { v: meta.trend[k] }) : ''}
                 </span>
               </div>
             </div>

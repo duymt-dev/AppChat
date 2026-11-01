@@ -1,0 +1,24 @@
+// platform/templates.prisma — sở hữu: TIP-021 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: agent_template (Blueprint §2.2 L399) — mẫu agent theo ngành (D15), seed idempotent theo `key` lúc boot; Quản trị nền tảng
+// sửa qua `admin.agent_template.upsert` (TIP-040). Không Prisma relation xuyên domain (Blueprint §2.1).
+
+model AgentTemplate {
+  id            String   @id @db.Uuid
+  key           String   @unique
+  role          String
+  industryGroup String?  @map("industry_group")
+  industry      String
+  name          String
+  description   String
+  color         String
+  tint          String
+  icon          String
+  /// Cấu hình mặc định khi tạo agent từ mẫu: tools, intents, model_tier, threshold, prompt.
+  defaults      Json     @default("{}")
+  sort          Int      @default(0)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([active, sort])
+  @@map("agent_template")
+}

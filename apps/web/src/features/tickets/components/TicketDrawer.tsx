@@ -88,9 +88,9 @@ function AiBanner({ k, meta }: { k: Ticket; meta: TicketsMeta }) {
   const me = useMe().data;
   const assign = useAction('ticket.assign');
   const ai = !!k.assignee_agent_id;
-  const meId = meta.members.find((m) => m.name === me?.user.name.split(' ').at(-1))?.id ?? meta.members[0]!.id;
+  const meId = meta.members.find((m) => m.id === me?.user.id)?.id ?? meta.members[0]!.id;
   const toggle = () =>
-    void assign.run(ai ? { ticket_id: k.id, assignee_user_id: meId, team_id: 't_sp1' } : { ticket_id: k.id, assignee_agent_id: meta.agent.id });
+    void assign.run(ai ? { ticket_id: k.id, assignee_user_id: meId } : { ticket_id: k.id, assignee_agent_id: meta.agent.id });
   return (
     <div className={styles.ai}>
       <span className={styles.aiIc}>
@@ -102,7 +102,7 @@ function AiBanner({ k, meta }: { k: Ticket; meta: TicketsMeta }) {
         </div>
         <div className={styles.aiS}>{ai ? t('aiOnSub') : t('aiOffSub')}</div>
       </div>
-      {can && k.status !== 'closed' ? (
+      {can && k.status !== 'closed' && (ai || meta.agent.id) ? (
         <button type="button" className={styles.chip} onClick={toggle} data-testid="tk-takeover">
           <Icon name={ai ? 'ic-users' : 'ic-spark'} size={13} color={color.text3} />
           {ai ? t('takeOver') : t('handAi')}

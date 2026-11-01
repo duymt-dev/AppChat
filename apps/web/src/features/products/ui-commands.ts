@@ -10,13 +10,11 @@ export function useProductsUiCommands() {
   const prefill = useCallback((cmd: UiCommand) => {
     if (cmd.type !== 'prefill') return;
     const { product_id, ...values } = cmd.values;
-    useProductsUi
-      .getState()
-      .set({
-        prefill: values,
-        form: product_id ? 'edit' : 'create',
-        target: product_id ? String(product_id) : null,
-      });
+    useProductsUi.getState().set({
+      prefill: values,
+      form: product_id ? 'edit' : 'create',
+      target: product_id ? String(product_id) : null,
+    });
   }, []);
   const open = useCallback((cmd: UiCommand) => {
     if (cmd.type === 'open') useProductsUi.getState().set({ detail: cmd.id, tab: 'overview' });

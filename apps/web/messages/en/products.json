@@ -3,7 +3,6 @@
   "sub": "Declare and sync products / services across channels — the basis for selling and for AI answers.",
   "search": "Search products, services…",
   "sync": "Sync channels",
-  "syncing": "Syncing products from channels…",
   "add": "Add product",
   "stats": {
     "total": "Products / services",
@@ -75,16 +74,8 @@
     "chanCount": "{n} channels",
     "syncTitle": "Multi-channel sync",
     "edit": "Edit product",
-    "sync": "Sync channels",
     "filesTitle": "Attachments",
     "open": "Open",
-    "upload": "+ Upload file",
-    "history": {
-      "sale": "Latest sale · 2 orders today",
-      "price": "Price updated",
-      "import": "Synced from KiotViet",
-      "create": "Product created"
-    },
     "perf": "Sales performance",
     "crm": {
       "buyers": "Buyers",
@@ -103,7 +94,15 @@
     "aiCombo": "Suggest a bundle",
     "aiAds": "Create ad content",
     "aiDoing": "The AI Assistant is preparing suggestions…",
-    "spark": "✦"
+    "spark": "✦",
+    "stock": "Stock",
+    "stockLow": "{n} · running low",
+    "adjust": "Adjust stock",
+    "noSales": "No sales data yet — shown once quotes / orders include this product.",
+    "noBuyers": "No customers have bought this product yet.",
+    "noFiles": "No attachments yet.",
+    "noHistory": "No history yet.",
+    "by": "{when} · {by}"
   },
   "form": {
     "title": "Add product",
@@ -209,5 +208,18 @@
     },
     "required": "Enter a name and a price"
   },
-  "unit": "products"
+  "unit": "products",
+  "stockAdjust": {
+    "title": "Adjust stock",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save adjustment",
+    "current": "{name} · current stock {stock}",
+    "delta": "Quantity to add / remove *",
+    "deltaPh": "e.g. 20 or -3",
+    "reason": "Reason *",
+    "reasonPh": "e.g. Restock, stocktake",
+    "low": "Stock is {stock} — at or below the warning threshold."
+  },
+  "synced": "Product catalog refreshed"
 }

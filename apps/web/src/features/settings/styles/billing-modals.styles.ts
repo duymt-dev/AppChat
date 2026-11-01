@@ -291,6 +291,9 @@ export const useBillingModalStyles = createStyles(({ css, responsive }) => ({
     place-items: center;
     margin: 0 auto 16px;
   `,
+  reviewIc: css`
+    background: ${color.amberBg};
+  `,
   doneT: css`
     font-size: ${font.scale.s20}px;
     font-weight: ${font.weight.heavy};

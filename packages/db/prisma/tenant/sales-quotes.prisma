@@ -1,0 +1,107 @@
+// tenant/sales-quotes.prisma — sở hữu: TIP-029 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: quote, quote_item, quote_comment, quote_link (link xem công khai). Không Prisma relation xuyên domain (Blueprint §2.1):
+// contact / owner / conversation / file / order lưu id, kiểm ở service. Trạng thái theo standards/domain/state-machine.md §4.
+
+enum QuoteStatus {
+  draft
+  pending_approval
+  approved
+  sent
+  viewed
+  accepted
+  revision_requested
+  rejected
+  expired
+  superseded
+
+  @@map("quote_status")
+}
+
+/// Báo giá (Blueprint §2.2, COMMERCE §3). Mỗi lần sửa sau khi gửi = phiên bản n+1 cùng `code` (D46): bản mới `draft`, bản cũ
+/// `revision_requested` → `superseded` khi bản mới được gửi. Tiền chưa VAT ở dòng; tổng tính bằng `quoteTotals` lúc ghi.
+model Quote {
+  id                String      @id @db.Uuid
+  code              String
+  version           Int         @default(1)
+  /// Bản đầu của chuỗi phiên bản (bản đầu: = id).
+  rootQuoteId       String      @map("root_quote_id") @db.Uuid
+  contactId         String      @map("contact_id") @db.Uuid
+  /// Phụ trách lúc tạo (tính doanh số) — chuyển theo khách khi `contact.owner_changed` có move.quotes (§8b).
+  ownerUserId       String?     @map("owner_user_id") @db.Uuid
+  templateId        String?     @map("template_id") @db.Uuid
+  templateVersion   Int?        @map("template_version")
+  conversationId    String?     @map("conversation_id") @db.Uuid
+  status            QuoteStatus @default(draft)
+  subtotal          BigInt      @default(0)
+  lineDiscountTotal BigInt      @default(0) @map("line_discount_total")
+  /// `{ kind: 'pct' | 'amount', value }` hoặc null.
+  headerDiscount    Json?       @map("header_discount")
+  discountTotal     BigInt      @default(0) @map("discount_total")
+  taxTotal          BigInt      @default(0) @map("tax_total")
+  total             BigInt      @default(0)
+  validDays         Int         @default(15) @map("valid_days")
+  /// = cuối ngày (sent_at + valid_days) theo giờ workspace; null khi chưa gửi.
+  validUntil        DateTime?   @map("valid_until") @db.Timestamptz(6)
+  /// Đã nhắc sắp hết hạn (T-2) cho lần hiệu lực hiện tại.
+  remindedAt        DateTime?   @map("reminded_at") @db.Timestamptz(6)
+  viewedAt          DateTime?   @map("viewed_at") @db.Timestamptz(6)
+  orderId           String?     @map("order_id") @db.Uuid
+  note              String      @default("")
+  gift              String      @default("")
+  paymentTerms      String      @default("") @map("payment_terms")
+  /// Có dòng ngoài danh mục (AI soạn — buộc duyệt, COMMERCE §12).
+  offCatalog        Boolean     @default(false) @map("off_catalog")
+  createdByType     String      @default("user") @map("created_by_type")
+  createdById       String?     @map("created_by_id")
+  approvedBy        String?     @map("approved_by") @db.Uuid
+  sentAt            DateTime?   @map("sent_at") @db.Timestamptz(6)
+  sentChannel       String?     @map("sent_channel")
+  decidedAt         DateTime?   @map("decided_at") @db.Timestamptz(6)
+  /// PDF đóng băng lúc gửi (templates.md §7).
+  fileId            String?     @map("file_id") @db.Uuid
+  fileSha256        String?     @map("file_sha256")
+  custom            Json        @default("{}")
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt         DateTime?   @map("deleted_at") @db.Timestamptz(6)
+
+  items    QuoteItem[]
+  comments QuoteComment[]
+
+  @@unique([code, version])
+  @@map("quote")
+}
+
+model QuoteItem {
+  id         String  @id @db.Uuid
+  quoteId    String  @map("quote_id") @db.Uuid
+  productId  String? @map("product_id") @db.Uuid
+  name       String
+  variant    String  @default("")
+  qty        Decimal @db.Decimal(12, 3)
+  unitPrice  BigInt  @map("unit_price")
+  /// `{ kind: 'pct' | 'amount', value }` hoặc null.
+  discount   Json?
+  taxRate    Int     @map("tax_rate")
+  lineTotal  BigInt  @map("line_total")
+  sort       Int
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId, sort])
+  @@map("quote_item")
+}
+
+/// Trao đổi nội bộ trên báo giá (FE tab Tổng quan). Không gửi cho khách.
+model QuoteComment {
+  id        String   @id @db.Uuid
+  quoteId   String   @map("quote_id") @db.Uuid
+  authorId  String?  @map("author_id") @db.Uuid
+  body      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId, createdAt])
+  @@map("quote_comment")
+}

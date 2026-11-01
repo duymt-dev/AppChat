@@ -45,6 +45,7 @@
     "in_progress": "Đã đến",
     "done": "Hoàn thành",
     "no_show": "No-show",
+    "expired": "Hết giữ chỗ",
     "cancelled": "Đã huỷ"
   },
   "pay": {

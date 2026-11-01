@@ -32,6 +32,19 @@ export interface AuthzContext {
   permissions: ReadonlySet<PermissionKey>;
   scope: Record<ScopeModule, DataScope>;
   teamIds: string[];
+  /** Thành viên các nhóm của user (data scope `team`) — resolver backend điền; FE không cần (TIP-005). */
+  teamUserIds?: readonly string[];
 }
+
+/** Nhóm permission theo module (trang Vai trò & phân quyền, `GET /v1/permissions`) — tiền tố trước dấu chấm. */
+export const PERMISSION_GROUPS: Record<string, PermissionKey[]> = PERMISSIONS.reduce<Record<string, PermissionKey[]>>((acc, p) => {
+  (acc[p.slice(0, p.indexOf('.'))] ??= []).push(p);
+  return acc;
+}, {});
+
+/** Quyền Chủ sở hữu bật riêng cho từng Quản lý (Blueprint §3.5 "uỷ quyền", P0 qua `membership.delegations`). */
+export const DELEGABLE_PERMISSIONS: readonly PermissionKey[] = ['contract.sign', 'payment.refund_approve'];
+
+export const isPermissionKey = (v: string): v is PermissionKey => (PERMISSIONS as readonly string[]).includes(v);
 
 export const can = (ctx: AuthzContext, p: PermissionKey): boolean => ctx.isOwner || ctx.permissions.has(p);

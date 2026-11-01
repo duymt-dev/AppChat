@@ -29,11 +29,15 @@ export const kbAddSource = defineAction({
   id: 'kb.add_source',
   module: 'ai',
   title: 'actions.kb.add_source.title',
-  description: 'Add a file or URL to the knowledge base for AI to learn. Example: {"name":"Bảng giá 2026.pdf","folder_id":"f_price","visibility":"public"}',
+  description:
+    'Add a file (uploaded first via POST /v1/files → file_id), a URL or plain text to the knowledge base for AI to learn. Example: {"name":"Bảng giá 2026.pdf","file_id":"…","folder_id":"…","visibility":"public"}',
   input: z.object({
     name: z.string().trim().min(1).max(200),
     folder_id: z.string().optional(),
+    /** Một trong ba: tệp đã tải lên, URL trang, văn bản nhập tay. Không có → chỉ ghi tài liệu (mock FE cũ). */
+    file_id: z.string().optional(),
     url: z.string().url().optional(),
+    text: z.string().trim().min(1).max(200_000).optional(),
     tags: z.array(z.string().max(30)).max(10).optional(),
     /** public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền đọc (D54). */
     visibility: z.enum(['public', 'internal']).default('public'),
@@ -45,6 +49,46 @@ export const kbAddSource = defineAction({
   risk: 'write',
   agentGrantable: false,
   invalidates: ['kb'],
+});
+
+export const kbUpdateSource = defineAction({
+  id: 'kb.update_source',
+  module: 'ai',
+  title: 'actions.kb.update_source.title',
+  description: 'Move a knowledge source to another folder, change its tags, visibility, name or star. Example: {"source_id":"…","visibility":"internal","tags":["Policy"]}',
+  input: z.object({
+    source_id: z.string().min(1),
+    name: z.string().trim().min(1).max(200).optional(),
+    folder_id: z.string().nullable().optional(),
+    tags: z.array(z.string().max(30)).max(10).optional(),
+    visibility: z.enum(['public', 'internal']).optional(),
+    starred: z.boolean().optional(),
+  }),
+  output: z.object({ ok: z.boolean() }),
+  permission: 'kb.manage',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['kb'],
+});
+
+export const kbSearch = defineAction({
+  id: 'kb.search',
+  module: 'ai',
+  title: 'actions.kb.search.title',
+  description:
+    'Search the business knowledge base (policies, service descriptions, FAQs) and get the best matching passages with sources. Never use it for prices, stock, promotions or free slots — use the read tools for those. If grounded is false, say you do not have the information. Example: {"query":"chính sách đổi trả"}',
+  input: z.object({ query: z.string().trim().min(1).max(500), limit: z.number().int().min(1).max(10).optional() }),
+  output: z.object({
+    grounded: z.boolean(),
+    chunks: z.array(z.object({ chunk_id: z.string(), source_id: z.string(), source_name: z.string(), content: z.string(), path: z.array(z.string()), score: z.number() })),
+    citations: z.array(z.object({ source_id: z.string(), chunk_id: z.string() })),
+  }),
+  permission: 'assistant.use',
+  risk: 'read',
+  agentGrantable: true,
+  skill: true,
+  invalidates: [],
 });
 
 export const kbRemoveSource = defineAction({

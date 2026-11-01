@@ -183,7 +183,9 @@
     "note": "Message to the owner (optional)",
     "request": "Request access",
     "sent": "Access requested — waiting for {owner}",
-    "close": "Later"
+    "close": "Later",
+    "mine": "This customer is already in your list.",
+    "open": "Open customer profile"
   },
   "dd": {
     "title": "Duplicate check",
@@ -312,7 +314,36 @@
     "hint": "Revenue of existing documents stays with the previous owner.",
     "cancel": "Cancel",
     "submit": "Transfer owner",
-    "close": "Close"
+    "close": "Close",
+    "bulkTitle": "Assign {count} customers",
+    "bulkDone": "Transferred {count} customers"
   },
-  "unit": "customers"
+  "unit": "customers",
+  "sorts": {
+    "recent": "Most recent activity",
+    "name": "Name A → Z",
+    "created": "Newest",
+    "value": "Highest spend"
+  },
+  "importer": {
+    "title": "Import customers",
+    "hint": "Choose a CSV or Excel (.xlsx) file — the first row holds column names; the first sheet is read.",
+    "pick": "Choose file",
+    "uploadFailed": "Could not upload the file, please try again.",
+    "unreadable": "Could not read the file — only CSV or Excel (.xlsx) with a header row is supported.",
+    "mapTitle": "Match columns ({rows} rows)",
+    "skip": "— Skip —",
+    "needName": "Match one column to \"Full name\".",
+    "preview": "Preview of the first 5 rows",
+    "submit": "Import {count} customers",
+    "cancel": "Cancel",
+    "close": "Close",
+    "done": "Done",
+    "result": {
+      "created": "Created",
+      "duplicates": "Duplicates (skipped)",
+      "owned": "Owned by someone else",
+      "invalid": "Missing phone / email or invalid"
+    }
+  }
 }

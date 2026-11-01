@@ -1,0 +1,139 @@
+// tenant/sales-orders.prisma — sở hữu: TIP-031 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: order, order_item, order_event (nhật ký tab Lịch sử). Không Prisma relation xuyên domain (Blueprint §2.1): contact / owner /
+// quote / contract / conversation / kết nối sàn lưu id, kiểm ở service. Hai trục trạng thái (COMMERCE §4, state-machine §4).
+
+enum OrderStatus {
+  new
+  processing
+  completed
+  cancelled
+
+  @@map("order_status")
+}
+
+enum PayStatus {
+  unpaid
+  awaiting_deposit
+  deposited
+  partial
+  paid
+  partially_refunded
+  refunded
+
+  @@map("pay_status")
+}
+
+enum OrderSource {
+  manual
+  quote
+  contract
+  appointment
+  marketplace
+  pos
+
+  @@map("order_source")
+}
+
+/// Đơn hàng (Blueprint §2.2, COMMERCE §4 / §4b). `pay_status` là trạng thái TỔNG HỢP (`payStatusOf` từ paid / refunded / cọc) — lưu để
+/// lọc chip theo index; mọi chỗ đổi số đã thu / cọc phải tính lại. Đơn sàn: `locked_lines`, unique (kết nối, mã ngoài).
+model Order {
+  id                   String      @id @db.Uuid
+  code                 String      @unique
+  source               OrderSource @default(manual)
+  /// Kênh khách đặt (hội thoại nguồn) — `marketplace` cho đơn sàn; rỗng = nhập tay.
+  channel              String      @default("")
+  externalConnectionId String?     @map("external_connection_id") @db.Uuid
+  externalId           String?     @map("external_id")
+  platform             String?
+  platformStatus       String?     @map("platform_status")
+  syncedAt             DateTime?   @map("synced_at") @db.Timestamptz(6)
+  lockedLines          Boolean     @default(false) @map("locked_lines")
+  /// Người tạo / phụ trách đơn (doanh số — COMMERCE §8b).
+  ownerUserId          String?     @map("owner_user_id") @db.Uuid
+  contactId            String      @map("contact_id") @db.Uuid
+  /// Báo giá nguồn — mỗi báo giá một đơn.
+  quoteId              String?     @unique @map("quote_id") @db.Uuid
+  /// Hợp đồng nguồn — một hợp đồng sinh được nhiều đơn.
+  contractId           String?     @map("contract_id") @db.Uuid
+  appointmentId        String?     @map("appointment_id") @db.Uuid
+  conversationId       String?     @map("conversation_id") @db.Uuid
+  status               OrderStatus @default(new)
+  payStatus            PayStatus   @default(unpaid) @map("pay_status")
+  depositRequired      Boolean     @default(false) @map("deposit_required")
+  depositAmount        BigInt      @default(0) @map("deposit_amount")
+  /// `{ kind: 'pct' | 'amount', value }` hoặc null.
+  headerDiscount       Json?       @map("header_discount")
+  subtotal             BigInt      @default(0)
+  lineDiscountTotal    BigInt      @default(0) @map("line_discount_total")
+  discountTotal        BigInt      @default(0) @map("discount_total")
+  taxTotal             BigInt      @default(0) @map("tax_total")
+  total                BigInt      @default(0)
+  /// Số đã thu / đã hoàn — TIP-032 (khoản thu) cập nhật; đơn sàn đã thanh toán = total.
+  paidTotal            BigInt      @default(0) @map("paid_total")
+  refundedTotal        BigInt      @default(0) @map("refunded_total")
+  pointsUsed           BigInt      @default(0) @map("points_used")
+  pointsEarned         Int         @default(0) @map("points_earned")
+  /// Huỷ khi đã thu tiền → chờ hoàn tiền (Owner duyệt — TIP-032).
+  refundPending        Boolean     @default(false) @map("refund_pending")
+  /// `{ carrier, tracking, eta, address, receiver, receiver_phone }` — nhập tay (COMMERCE §4).
+  shipping             Json        @default("{}")
+  /// Mã tham chiếu sổ kho của lần trừ kho đang hiệu lực (null = chưa trừ / đã hoàn kho).
+  stockRef             String?     @map("stock_ref")
+  note                 String      @default("")
+  cancelReason         String      @default("") @map("cancel_reason")
+  createdByType        String      @default("user") @map("created_by_type")
+  createdById          String?     @map("created_by_id")
+  confirmedAt          DateTime?   @map("confirmed_at") @db.Timestamptz(6)
+  completedAt          DateTime?   @map("completed_at") @db.Timestamptz(6)
+  cancelledAt          DateTime?   @map("cancelled_at") @db.Timestamptz(6)
+  custom               Json        @default("{}")
+  createdAt            DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt            DateTime?   @map("deleted_at") @db.Timestamptz(6)
+
+  items  OrderItem[]
+  events OrderEvent[]
+
+  @@unique([externalConnectionId, externalId])
+  @@map("order")
+}
+
+model OrderItem {
+  id        String  @id @db.Uuid
+  orderId   String  @map("order_id") @db.Uuid
+  productId String? @map("product_id") @db.Uuid
+  variantId String? @map("variant_id") @db.Uuid
+  name      String
+  variant   String  @default("")
+  qty       Decimal @db.Decimal(12, 3)
+  unitPrice BigInt  @map("unit_price")
+  /// `{ kind: 'pct' | 'amount', value }` hoặc null.
+  discount  Json?
+  taxRate   Int     @map("tax_rate")
+  lineTotal BigInt  @map("line_total")
+  sort      Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, sort])
+  @@map("order_item")
+}
+
+/// Nhật ký đơn (tab Lịch sử): created · imported · confirmed · deposit_set · deposit · paid · completed · cancelled · refund_requested ·
+/// shipping. Chỉ thêm; hoàn tác action xoá đúng dòng nó thêm.
+model OrderEvent {
+  id        String   @id @db.Uuid
+  orderId   String   @map("order_id") @db.Uuid
+  type      String
+  actorType String   @map("actor_type")
+  actorId   String?  @map("actor_id")
+  amount    BigInt?
+  points    Int?
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("order_event")
+}

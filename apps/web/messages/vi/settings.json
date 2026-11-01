@@ -335,12 +335,21 @@
       "qrStep2": "Vào biểu tượng quét mã QR",
       "qrStep3": "Quét mã bên cạnh và xác nhận đăng nhập",
       "qrWaiting": "Đang chờ quét · mã hết hạn sau 2 phút",
+      "qrStart": "Bấm Tiếp tục để tạo mã QR",
+      "qrScanned": "Đã quét · xác nhận đăng nhập trên điện thoại",
+      "qrExpired": "Mã đã hết hạn hoặc bị từ chối · bấm Tiếp tục để tạo mã mới",
       "label": "Tên hiển thị tài khoản",
       "labelPh": "VD: Zalo bán hàng",
       "scanned": "Tôi đã quét mã",
-      "imapHost": "IMAP host",
+      "imapHost": "Máy chủ IMAP",
       "imapHostPh": "imap.gmail.com",
-      "smtpHost": "SMTP host",
+      "imapPort": "Cổng",
+      "smtpPort": "Cổng SMTP",
+      "smtpOptional": "Máy chủ gửi (SMTP) — để trống sẽ suy từ IMAP: smtp.… cổng 465",
+      "smtpHostPh": "smtp.gmail.com",
+      "passwordPh": "••••••••",
+      "testFail": "Kiểm tra thất bại",
+      "smtpHost": "Máy chủ SMTP",
       "address": "Địa chỉ hộp thư",
       "addressPh": "cskh@doanhnghiep.vn",
       "username": "Tài khoản đăng nhập",
@@ -348,7 +357,7 @@
       "test": "Kiểm tra kết nối",
       "tested": "Kết nối thành công",
       "errEmail": "Email không hợp lệ",
-      "errTest": "Thiếu IMAP host",
+      "errTest": "Nhập đủ máy chủ IMAP, email và mật khẩu ứng dụng",
       "openWidget": "Mở cấu hình widget",
       "widgetD": "Website Chat dùng widget nhúng: chỉnh lời chào, AI Agent và lấy mã nhúng ở mục Trợ lý AI website.",
       "cfgName": "Tên tài khoản hiển thị trong Hộp thư",
@@ -467,6 +476,10 @@
     }
   },
   "widget": {
+    "enabled": "Bật widget trên website",
+    "enabledOn": "Đang chạy — khách nhắn từ website vào Hộp thư",
+    "enabledOff": "Đang tắt — bật để lấy mã nhúng",
+    "embedEmpty": "Bật widget để lấy mã nhúng",
     "cfgT": "Cấu hình · Widget web",
     "name": "Tên Agent hiển thị trên widget",
     "namePh": "VD: Trợ lý AppChat",
@@ -861,7 +874,8 @@
       "visInternalD": "Chỉ Trợ lý AI và agent làm việc cho nhân viên có quyền xem",
       "learn": "Cho AI học tài liệu này",
       "learnD": "Embedding tự động để AI truy hồi khi trả lời",
-      "errName": "Nhập tên tài liệu"
+      "errName": "Nhập tên tài liệu",
+      "errUpload": "Không tải được tệp lên — thử lại."
     }
   },
   "gov": {
@@ -1055,10 +1069,25 @@
       "msg_assigned": "Tin mới được gán cho tôi",
       "msg_mention": "Nhắc đến tôi trong hội thoại",
       "msg_vip": "Tin từ VIP / khách ưu tiên",
+      "crm_owner": "Khách được chuyển cho tôi",
+      "crm_access": "Xin chia sẻ khách / kết quả duyệt",
+      "quote_approval": "Báo giá chờ tôi duyệt",
+      "quote_expiring": "Báo giá sắp hết hiệu lực",
+      "contract_approval": "Hợp đồng chờ tôi duyệt & ký",
+      "contract_signed": "Khách đã ký hợp đồng",
+      "contract_declined": "Khách từ chối ký / link ký hết hạn",
+      "contract_expiring": "Hợp đồng sắp hết hạn (nhắc gia hạn)",
+      "payment_received": "Khách đã thanh toán đề nghị của tôi",
+      "refund_approval": "Hoàn tiền chờ tôi duyệt / kết quả duyệt",
+      "bank_review": "Giao dịch ngân hàng cần đối soát",
       "sla_warn": "SLA sắp vi phạm",
+      "sla_breach": "Ticket quá hạn SLA (leo thang)",
+      "ticket_assigned": "Ticket được giao cho tôi",
       "ai_review": "AI cần duyệt trước khi gửi",
       "ai_escalate": "AI chuyển sang người",
       "ai_budget": "AI vượt ngân sách",
+      "ai_briefing": "Bản tin sáng của Trợ lý AI",
+      "ai_task_failed": "Tác vụ tự chủ lỗi",
       "channel_down": "Kênh bị ngắt kết nối",
       "billing_invoice": "Gói & ví — hoá đơn mới"
     },
@@ -1144,7 +1173,9 @@
       "close": "Đóng",
       "doneT": "Thanh toán thành công",
       "doneS": "Đã ghi nhận <b>{item}</b>. Hệ thống đã đối soát theo <b>{code}</b> và cộng vào tài khoản.",
-      "finish": "Hoàn tất"
+      "finish": "Hoàn tất",
+      "reviewT": "Đang chờ xác nhận",
+      "reviewS": "Đã ghi nhận bạn chuyển khoản cho <b>{code}</b>. Hệ thống tự đối soát khi tiền về (thường trong ~1 phút); nếu ngân hàng chậm, đội AppChat xác nhận thủ công."
     },
     "hero": {
       "current": "GÓI HIỆN TẠI",
@@ -1279,6 +1310,10 @@
     "logoutD": "Thoát phiên hiện tại — dữ liệu workspace không bị ảnh hưởng"
   },
   "doctpl": {
+    "preview": "Xem trước",
+    "previewT": "Xem trước với dữ liệu minh hoạ",
+    "previewFail": "Chưa tạo được bản xem trước, thử lại sau",
+    "missing": "{n} mục bảng kiểm cần xem lại",
     "kind": {
       "quote": "Báo giá",
       "contract": "Hợp đồng",
@@ -1389,6 +1424,14 @@
       "errType": "Chỉ nhận file .docx (không nhận file có macro .docm)",
       "errSize": "File vượt quá 10MB",
       "errName": "Nhập tên mẫu",
+      "errUpload": "Tải file lên không thành công, thử lại nhé",
+      "errFile": {
+        "not_docx": "File không phải tài liệu Word (.docx) hợp lệ",
+        "macro": "File có macro — lưu lại thành .docx không macro rồi tải lên",
+        "too_large": "File vượt quá 10MB",
+        "empty": "File không có nội dung để nhận diện",
+        "other": "Chưa đọc được file này, thử lại với file khác"
+      },
       "errFields": "Cần ít nhất một vị trí được gán biến"
     },
     "check": {

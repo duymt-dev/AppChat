@@ -4,6 +4,20 @@ import { PERMISSIONS, type DataScope, type PermissionKey, type ScopeModule } fro
 export const SYSTEM_ROLES = ['owner', 'manager', 'sales', 'cs', 'accountant'] as const;
 export type SystemRole = (typeof SYSTEM_ROLES)[number];
 
+/** Tên hiển thị seed vào bảng `role` (vi — nguồn; UI dịch theo key qua i18n). */
+export const ROLE_NAMES: Record<SystemRole, string> = {
+  owner: 'Chủ sở hữu',
+  manager: 'Quản lý',
+  sales: 'Sales',
+  cs: 'CSKH',
+  accountant: 'Kế toán',
+};
+
+/** Màu nhãn vai trò ở Cài đặt › Vai trò & phân quyền (prototype L6011 — fixture `role_colors`). */
+export const ROLE_COLOR: Record<SystemRole, string> = { owner: '#DC2626', manager: '#7C3AED', sales: '#2DC56A', cs: '#F59E0B', accountant: '#2563EB' };
+
+export const isSystemRole = (v: string): v is SystemRole => (SYSTEM_ROLES as readonly string[]).includes(v);
+
 export interface RoleDef {
   key: SystemRole;
   permissions: readonly PermissionKey[];

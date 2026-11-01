@@ -77,10 +77,12 @@ export function BulkBar({ meta }: { meta: TicketsMeta }) {
           </button>
         ))}
       </Pick>
-      <button type="button" className={styles.bulkAi} onClick={() => void run({ assignee_agent_id: meta.agent.id })} data-testid="tk-bulk-ai">
-        <Icon name="ic-spark" size={14} color={color.white} />
-        {t('bulk.ai')}
-      </button>
+      {meta.agent.id ? (
+        <button type="button" className={styles.bulkAi} onClick={() => void run({ assignee_agent_id: meta.agent.id })} data-testid="tk-bulk-ai">
+          <Icon name="ic-spark" size={14} color={color.white} />
+          {t('bulk.ai')}
+        </button>
+      ) : null}
       <Pick label={t('bulk.priority')} icon="ic-bell" tone={color.text3} open={menu === 'priority'} onToggle={toggle('priority')} testId="tk-bulk-priority">
         {PRIORITIES.map((p) => (
           <button key={p} type="button" role="menuitem" className={b.item} onClick={() => void run({ priority: p })}>

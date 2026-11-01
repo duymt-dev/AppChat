@@ -1,5 +1,6 @@
 // Mục Trợ lý AI website — prototype L7184–7301: 4 KPI, thẻ cấu hình (tên, lời chào, chat AI, pre-chat, nút hành động, AI Agent phụ trách,
-// mã nhúng) + xem trước 360px. Mọi thay đổi ghi qua webchat.update_widget (một lần mỗi thao tác — bật/tắt, chọn, rời ô nhập).
+// mã nhúng) + xem trước 360px. Mọi thay đổi ghi qua webchat.update_widget (một lần mỗi thao tác — bật/tắt, chọn, rời ô nhập);
+// công tắc "Bật widget" (TIP-017): lần bật đầu tạo tài khoản webchat + mã nhúng thật.
 'use client';
 import { useState } from 'react';
 import { App } from 'antd';
@@ -33,6 +34,13 @@ function Config({ w }: { w: Widget }) {
   return (
     <div className={styles.cfg} data-testid="st-widget">
       <div className={styles.cfgT}>{t('cfgT')}</div>
+      <div className={styles.toggle}>
+        <div className={styles.grow}>
+          <div className={styles.tT}>{t('enabled')}</div>
+          <div className={styles.tS}>{t(w.enabled ? 'enabledOn' : 'enabledOff')}</div>
+        </div>
+        <Switch on={w.enabled} onChange={(v) => put({ enabled: v })} label={t('enabled')} testId="st-wg-enabled" />
+      </div>
       <div className={styles.lbl}>{t('name')}</div>
       <input
         className={styles.input}
@@ -98,10 +106,13 @@ function Config({ w }: { w: Widget }) {
       <WidgetAiBox w={w} put={put} />
       <div className={styles.lbl}>{t('embed')}</div>
       <div className={styles.embedWrap}>
-        <pre className={styles.embed}>{w.embed}</pre>
+        <pre className={styles.embed} data-testid="st-wg-embed">
+          {w.embed || t('embedEmpty')}
+        </pre>
         <button
           type="button"
           className={styles.copy}
+          disabled={!w.embed}
           onClick={() => {
             void navigator.clipboard?.writeText(w.embed);
             void message.success(t('copied'));
@@ -139,7 +150,7 @@ export function WidgetSection() {
             ))}
           </div>
           <div className={styles.two}>
-            <Config key={`${q.data.name}|${q.data.greeting}`} w={q.data} />
+            <Config key={`${q.data.name}|${q.data.greeting}|${q.data.public_key ?? ''}`} w={q.data} />
             <WidgetPreview w={q.data} />
           </div>
         </>

@@ -205,6 +205,10 @@
     "close": "Đóng",
     "required": "Nhập tiêu đề ticket",
     "emailBad": "Email không hợp lệ",
+    "dupTitle": "Khách đã có ticket {code} đang mở cùng danh mục",
+    "dupHint": "Ticket này tạo trong 24 giờ qua. Gộp nội dung vào ticket cũ để tránh xử lý trùng?",
+    "dupMerge": "Gộp vào ticket cũ",
+    "dupNew": "Vẫn tạo mới",
     "tools": {
       "bold": "In đậm",
       "italic": "In nghiêng",

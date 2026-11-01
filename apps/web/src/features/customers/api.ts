@@ -1,7 +1,7 @@
 // Đọc Khách hàng (Blueprint §4.4 crm). Ghi chỉ qua useAction (packages/actions/src/crm.ts).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { AccessRequest, Collaborators, ContactRow, CrmAi, CrmStats, Duplicates, Member, StageKey } from './types';
+import type { AccessRequest, Collaborators, ContactRow, ContactSort, ContactsBoard, CrmAi, CrmStats, Duplicates, ImportTable, Member, StageKey } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
 import { customParams } from '@/shared/custom-fields';
 
@@ -13,15 +13,28 @@ export interface ContactFilter {
   owner_id: string;
   group: string;
   source: string;
+  tag_id: string;
+  sort: ContactSort;
   /** Lọc theo trường tuỳ biến (D56): key → giá trị. */
   custom?: Record<string, string>;
 }
 
 const staticOpts = { staleTime: Infinity } as const;
-const clean = ({ custom, ...f }: ContactFilter) => ({ ...Object.fromEntries(Object.entries(f).filter(([, v]) => v !== '' && v !== false && v !== 'all')), ...customParams(custom) });
+/** Bộ lọc → tham số query (bỏ rỗng / 'all' / sort mặc định). */
+export const contactParams = ({ custom, ...f }: ContactFilter) => ({
+  ...Object.fromEntries(Object.entries(f).filter(([k, v]) => v !== '' && v !== false && v !== 'all' && !(k === 'sort' && v === 'recent'))),
+  ...customParams(custom),
+});
 
 export const contactsQuery = (f: ContactFilter, pg?: PageState) =>
-  queryOptions({ queryKey: ['crm', 'contacts', f, pg], queryFn: () => transport.get<Paged<ContactRow>>('/contacts', { ...clean(f), ...pg }) });
+  queryOptions({ queryKey: ['crm', 'contacts', f, pg], queryFn: () => transport.get<Paged<ContactRow>>('/contacts', { ...contactParams(f), ...pg }) });
+
+/** Kanban: bỏ lọc giai đoạn (mỗi cột một giai đoạn). */
+export const contactsBoardQuery = (f: ContactFilter) =>
+  queryOptions({ queryKey: ['crm', 'board', f], queryFn: () => transport.get<ContactsBoard>('/contacts/board', contactParams({ ...f, stage: 'all' })) });
+
+export const importTableQuery = (fileId: string) =>
+  queryOptions({ queryKey: ['crm', 'import-table', fileId], queryFn: () => transport.get<ImportTable>('/contacts/import-table', { file_id: fileId }), enabled: !!fileId, staleTime: Infinity, retry: false });
 
 export const crmStatsQuery = () => queryOptions({ queryKey: ['crm', 'stats'], queryFn: () => transport.get<CrmStats>('/contacts/stats'), ...staticOpts });
 

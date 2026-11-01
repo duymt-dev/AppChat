@@ -1,5 +1,6 @@
 // Mock Hộp thư (Blueprint §4.4 inbox): GET /conversations, /conversations/:id, /conversations/:id/messages, /conversations/counts,
 // /inbox/accounts, /inbox/connect-channels, /contacts/:id (360). Dữ liệu = prototype L1505–2226, kênh map về zalo_personal / webchat / email.
+import { foldText } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -19,6 +20,8 @@ export interface InboxState {
     pinned_message_id: string | null;
   })[];
   messages: Record<string, Msg[]>;
+  /** Hội thoại có ghi chú @nhắc người dùng hiện tại chưa đọc (TIP-025 thư mục "Nhắc đến tôi"). */
+  mentioned: string[];
   /** Bản ghi nhãn trước khi `conversation.set_tags` áp — dùng để hoàn tác. */
   tagBackup: Record<string, { label: string; tone: string }[]>;
   seq: number;
@@ -36,30 +39,95 @@ export const createInboxState = (): InboxState => ({
     pinned_message_id: null,
   })),
   messages: structuredClone(fixture.messages) as Record<string, Msg[]>,
+  mentioned: [],
   tagBackup: {},
   seq: 0,
 });
+
+type Row = InboxState['conversations'][number];
+const PAGE = 50;
+const live = (c: Row) => !c.archived && !c.hidden && c.status !== 'closed';
+/** Thư mục → điều kiện (khớp `conversations.repo.ts`); thư mục chưa có dữ liệu (gắn sao / spam / bộ lọc đã lưu) = tất cả. */
+const FOLDER: Record<string, (c: Row, s: InboxState) => boolean> = {
+  all: live,
+  mine: (c) => live(c) && c.assignee === 'u_tram',
+  unread: (c) => live(c) && c.unread > 0,
+  mention: (c, s) => live(c) && s.mentioned.includes(c.id),
+  team: (c) => live(c) && !!c.assignee && c.assignee !== 'u_tram',
+  ai_running: (c) => live(c) && c.ai_state === 'running',
+  ai_pending_approval: (c) => live(c) && c.ai_state === 'waiting_approval',
+  needs_human: (c) => live(c) && c.ai_state === 'handoff',
+  vip: (c) => live(c) && c.tags.some((t) => t.tone === 'vip'),
+  complaint: (c) => live(c) && c.tags.some((t) => foldText(t.label).includes('khieu nai')),
+  archived: (c) => c.archived,
+  closed: (c) => c.status === 'closed' && !c.archived,
+};
 
 /** ?inbox=empty (parity / e2e `inbox:empty`): workspace chưa có hội thoại nào. */
 const isEmptySeed = () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('inbox') === 'empty';
 
 export const inboxRoutes: Record<string, MockRoute> = {
+  // Cùng tham số với API (TIP-025): folder · channel · channel_account_id · q (không dấu) · sort · cursor (vị trí, 50 / trang).
   '/conversations': (db, p) => {
     if (isEmptySeed()) return { data: [], next_cursor: null };
     const channel = p.channel as string | undefined;
-    const rows = db.inbox.conversations.filter((c) => !c.archived && !c.hidden && c.status !== 'closed' && (!channel || c.channel === channel));
-    return { data: rows, next_cursor: null };
+    const account = fixture.accounts.find((a) => a.id === p.channel_account_id);
+    const q = foldText(String(p.q ?? '').trim());
+    const keep = FOLDER[String(p.folder ?? 'all')] ?? FOLDER.all!;
+    let rows = db.inbox.conversations.filter(
+      (c) =>
+        keep(c, db.inbox) &&
+        (!channel || c.channel === channel) &&
+        (!p.channel_account_id || (!!account && account.channel === c.channel && account.name.endsWith(c.account))) &&
+        (!q || foldText(`${c.title} ${c.preview}`).includes(q)),
+    );
+    if (p.sort === 'unread') rows = [...rows.filter((c) => c.unread > 0), ...rows.filter((c) => c.unread === 0)];
+    const from = Number(p.cursor ?? 0) || 0;
+    const page = rows.slice(from, from + PAGE);
+    return { data: page, next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
   },
-  '/conversations/counts': () => (isEmptySeed() ? { ...fixture.folders, empty: true } : fixture.folders),
+  // Số liệu prototype; "Nhắc đến tôi" cộng các lần @nhắc mới trong phiên mock.
+  '/conversations/counts': (db) => {
+    if (isEmptySeed()) return { ...fixture.folders, empty: true };
+    const n = db.inbox.mentioned.length;
+    if (!n) return fixture.folders;
+    const bump = <T extends unknown[]>(r: T, at: number) => (r[0] === 'mention' ? (r.map((v, i) => (i === at ? Number(v) + n : v)) as T) : r);
+    return { ...fixture.folders, tabs: fixture.folders.tabs.map((r) => bump(r, 1)), mailbox: fixture.folders.mailbox.map((r) => bump(r, 2)) };
+  },
   '/inbox/accounts': () => fixture.accounts,
   '/inbox/connect-channels': () => fixture.connect_channels,
   '/inbox/channels': () => fixture.channels,
   '/canned-replies': () => fixture.canned_replies,
+  '/tags': (db) => db.settingsData.tags.map((t) => ({ id: t.id, name: t.name, color: t.color, emoji: t.emoji })),
   '/booking/slots': () => fixture.slots,
 };
 
-/** Route có tham số: /conversations/:id, /conversations/:id/messages, /contacts/:id, /groups/:id. */
+const plainOf = (s: string) => s.replace(/<[^>]+>/g, '');
+
+/** Tìm trong hội thoại (REQ-C12) — không dấu, lọc người gửi; `ranges` = vị trí khớp trên chữ đã bỏ thẻ. */
+const searchRoute =
+  (id: string): MockRoute =>
+  (db, p) => {
+    const needle = foldText(String(p.q ?? '').trim());
+    const who = String(p.sender ?? 'all');
+    if (!needle) return [];
+    return (db.inbox.messages[id] ?? [])
+      .filter((m) => m.direction && typeof m.body === 'string' && !m.deleted && !m.recalled)
+      .map((m) => {
+        const sender = m.direction === 'in' ? 'contact' : m.agent ? 'agent' : 'user';
+        const body = plainOf(String(m.body));
+        const folded = foldText(body);
+        const ranges: [number, number][] = [];
+        for (let i = folded.indexOf(needle); i >= 0; i = folded.indexOf(needle, i + needle.length)) ranges.push([i, i + needle.length]);
+        return { message_id: m.id, body, sender, time: String(m.time ?? ''), ranges };
+      })
+      .filter((r) => r.ranges.length && (who === 'all' || r.sender === who));
+  };
+
+/** Route có tham số: /conversations/:id, /conversations/:id/messages(/search), /contacts/:id, /groups/:id. */
 export const inboxParamRoute = (path: string): MockRoute | null => {
+  const s = path.match(/^\/conversations\/([^/]+)\/messages\/search$/);
+  if (s) return searchRoute(s[1]!);
   const m = path.match(/^\/(conversations|contacts|groups)\/([^/]+)(\/messages)?$/);
   if (!m) return null;
   const [, kind, id, sub] = m as unknown as [string, string, string, string | undefined];
@@ -79,6 +147,7 @@ export const inboxHandlers: Record<string, MockHandler> = {
   'conversation.mark_read': {
     execute: (db, i: Ci) => {
       conv(db, i.conversation_id).unread = 0;
+      db.inbox.mentioned = db.inbox.mentioned.filter((id) => id !== i.conversation_id);
       return { unread_count: 0 };
     },
   },
@@ -176,24 +245,28 @@ export const inboxHandlers: Record<string, MockHandler> = {
     },
   },
   'message.send': {
-    execute: (db, i: Ci & { text: string; reply_to_id?: string }) => {
+    execute: (db, i: Ci & { text?: string; reply_to_id?: string; attachments?: string[] }) => {
       const id = `ms${++db.inbox.seq}`;
       const list = (db.inbox.messages[i.conversation_id] ??= []);
       const at = list.findIndex((m) => m.kind === 'typing');
       const replyTo = i.reply_to_id ? list.find((m) => m.id === i.reply_to_id) : undefined;
-      const sent: Msg = { id, kind: 'text', direction: 'out', body: i.text, time: 'Vừa xong', status: 'sent', plain: true, sender: 'Trâm' };
+      // Tệp mock (upload giả không giữ nội dung): hiện như tệp, tên = id.
+      const files = (i.attachments ?? []).map((f) => ({ url: '#', mime: 'application/octet-stream', name: f }));
+      const sent: Msg = { id, kind: files.length ? 'file' : 'text', direction: 'out', body: i.text ?? '', time: 'Vừa xong', status: 'sent', plain: true, sender: 'Trâm', ...(files.length ? { attachments: files } : {}) };
       if (replyTo) sent.reply_to = { id: replyTo.id, preview: String(replyTo.body ?? '').slice(0, 80) };
       if (at >= 0) list.splice(at, 0, sent);
       else list.push(sent);
       const c = conv(db, i.conversation_id);
-      c.preview = i.text;
+      c.preview = i.text || (files[0]?.name ?? '');
       c.ai_draft = undefined as never;
       return { message_id: id };
     },
   },
   'note.add': {
-    execute: (db, i: Ci & { text: string }) => {
+    execute: (db, i: Ci & { text: string; mentions?: string[] }) => {
       const id = `mn${++db.inbox.seq}`;
+      // Người dùng mock là Trâm (u_tram): nhắc chính mình không tính; nhắc người khác chỉ lưu (không có hộp thư của họ ở mock).
+      if (i.mentions?.length && !db.inbox.mentioned.includes(i.conversation_id)) db.inbox.mentioned.push(i.conversation_id);
       (db.inbox.messages[i.conversation_id] ??= []).push({ id, kind: 'note', body: i.text, time: 'Vừa xong', plain: true });
       return { message_id: id };
     },
@@ -240,7 +313,12 @@ export const inboxHandlers: Record<string, MockHandler> = {
     },
   },
   'ai.translate': {
-    execute: () => ({ text: 'Hi, does your spa still have a HIFU slot this afternoon?' }),
+    // Như model giả của backend: tiền tố ngôn ngữ đích + nguyên văn (chữ đã bỏ thẻ).
+    execute: (db, i: Mi & { to?: string }) => {
+      const to = i.to ?? 'vi';
+      const m = msg(db, i.conversation_id, i.message_id);
+      return { text: `[${to.toUpperCase()}] ${plainOf(String(m?.body ?? ''))}`, to };
+    },
   },
   'message.forward': {
     execute: (db, i: Mi & { target_conversation_id: string }) => {

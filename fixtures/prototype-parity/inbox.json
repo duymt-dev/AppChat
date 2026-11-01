@@ -392,7 +392,7 @@
    "presence": "vừa truy cập",
    "ai_state": "handoff",
    "handoff_reason": "Khách hỏi số tài khoản để chuyển khoản — cần người xác nhận",
-   "ai_draft": "Dạ anh Hiếu, em gửi lại thông tin chuyển khoản: Vietcombank · 0071 000 888 999 · CÔNG TY TNHH HƯƠNG SEN. Anh ghi nội dung SP290412 giúp em ạ."
+   "ai_draft": "Dạ anh Hiếu, em gửi lại thông tin chuyển khoản: Vietcombank · 0071 000 888 999 · CÔNG TY TNHH HƯƠNG SEN. Anh ghi nội dung DH-290412 giúp em ạ."
   },
   {
    "id": "c_linh",
@@ -403,7 +403,7 @@
    "channel": "webchat",
    "account": "spahuongsen.vn",
    "time": "11:24",
-   "preview": "[Đơn #SP290411] Hàng bao giờ giao được ạ?",
+   "preview": "[Đơn #DH-290411] Hàng bao giờ giao được ạ?",
    "tags": [
     {
      "label": "Order tracking",
@@ -836,7 +836,7 @@
      "value": "48tr"
     },
     "recent_order": {
-     "title": "Đơn #SP290411 · HIFU 8 buổi",
+     "title": "Đơn #DH-290411 · HIFU 8 buổi",
      "status": "Đã cọc"
     },
     "recent_payment": {

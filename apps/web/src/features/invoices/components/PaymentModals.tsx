@@ -12,10 +12,11 @@ import { useInvoiceFormStyles } from '../styles/form.styles';
 import { useInvoicesUi } from '../invoices-store';
 import { invoiceQuery } from '../api';
 import type { Invoice, PayMethod } from '../types';
+import { todayIso } from '@/shared/time/today';
 
 const METHODS: PayMethod[] = ['bank_transfer', 'cash', 'qr', 'card'];
-/** Ngày mock cố định của parity (prototype-parity §4). */
-const TODAY = '2026-06-24';
+/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
+const TODAY = todayIso();
 const digits = (v: string) => v.replace(/\D/g, '');
 
 export function RecordPaymentModal() {

@@ -1,10 +1,12 @@
 // Hàng 6 nút mở form tại chỗ của Hồ sơ 360° (REQ-F11, prototype L2562–2573 — cùng kích thước, nền trắng viền xám).
 // Luật COMMERCE (D46, không đổi): báo giá Nháp → Cập nhật, đã gửi → Tạo phiên bản mới (quote.request_revision rồi sửa bản mới);
+// trạng thái khác (chờ duyệt / đã duyệt chưa gửi / đã chốt / hết hạn…) không sửa được theo QUOTE_FLOW → tạo báo giá mới điền sẵn khách;
 // hợp đồng Nháp → Cập nhật, đã gửi ký → mở chi tiết chỉ xem (ContractDrawer tại chỗ, không rời Hộp thư / Khách hàng);
 // Đơn / Ticket / Lịch hẹn: luôn tạo mới. Gửi email: modal soạn email dùng chung (shared/crm-forms).
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { QUOTE_FLOW, nextState } from '@appchat/shared';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useEmailComposeUi } from '@/shared/crm-forms/email-compose-store';
@@ -26,7 +28,6 @@ const FOOT: [key: string, icon: IconName, tone: string][] = [
   ['ticket', 'ic-ticket', color.amberGold],
   ['booking', 'ic-cal', color.calText],
 ];
-const EDITABLE_QUOTE = new Set(['draft', 'revision_requested']);
 
 /** Hàng nghiệp vụ (báo giá / hợp đồng / đơn) + thanh hành động (email / ticket / đặt lịch) — prototype L2562–2573. */
 export function Profile360Actions({ contactId }: { contactId: string }) {
@@ -39,8 +40,9 @@ export function Profile360Actions({ contactId }: { contactId: string }) {
   const openEmail = useEmailComposeUi((s) => s.open);
 
   const onQuote = async () => {
-    if (!quote) return useQuotesUi.getState().set({ form: 'create', prefill: { contact_id: contactId } });
-    if (EDITABLE_QUOTE.has(quote.status)) return useQuotesUi.getState().set({ form: 'edit', editId: quote.id });
+    const allows = (a: string) => !!quote && nextState(QUOTE_FLOW, quote.status, a) !== null;
+    if (allows('quote.update')) return useQuotesUi.getState().set({ form: 'edit', editId: quote!.id });
+    if (!quote || !allows('quote.request_revision')) return useQuotesUi.getState().set({ form: 'create', prefill: { contact_id: contactId } });
     const res = await requestRevision.run({ quote_id: quote.id });
     if (res) useQuotesUi.getState().set({ form: 'edit', editId: res.result.quote_id });
   };

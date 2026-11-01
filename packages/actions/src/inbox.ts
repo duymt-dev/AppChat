@@ -133,8 +133,11 @@ export const messageSend = defineAction({
   id: 'message.send',
   module: 'inbox',
   title: 'actions.message.send.title',
-  description: 'Send a text reply to the customer in a conversation through its channel. Example: {"conversation_id":"c_lan","text":"Dạ em chào chị"}',
-  input: z.object({ conversation_id: convId, text: z.string().min(1).max(4000), reply_to_id: z.string().optional() }),
+  description:
+    'Send a reply to the customer in a conversation through its channel; optional `attachments` = file_id from POST /files (channel must support files). Example: {"conversation_id":"c_lan","text":"Dạ em chào chị"}',
+  input: z
+    .object({ conversation_id: convId, text: z.string().max(4000).default(''), reply_to_id: z.string().optional(), attachments: z.array(z.string().min(1)).max(10).optional() })
+    .refine((v) => v.text.trim().length > 0 || (v.attachments?.length ?? 0) > 0, { message: 'text_or_attachments', path: ['text'] }),
   output: z.object({ message_id: z.string() }),
   permission: 'inbox.reply',
   risk: 'send',
@@ -240,11 +243,36 @@ export const noteAdd = defineAction({
   id: 'note.add',
   module: 'inbox',
   title: 'actions.note.add.title',
-  description: 'Add an internal note to a conversation (never sent to the customer). Example: {"conversation_id":"c_lan","text":"Khách hẹn chiều"}',
-  input: z.object({ conversation_id: convId, text: z.string().min(1).max(4000) }),
+  description:
+    'Add an internal note to a conversation (never sent to the customer); `mentions` = user ids to notify (@mention). Example: {"conversation_id":"c_lan","text":"Khách hẹn chiều"}',
+  input: z.object({ conversation_id: convId, text: z.string().min(1).max(4000), mentions: z.array(z.string().min(1).max(64)).max(20).optional() }),
   output: z.object({ message_id: z.string() }),
   permission: 'inbox.reply',
   risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['inbox'],
+});
+
+export const conversationBulkUpdate = defineAction({
+  id: 'conversation.bulk_update',
+  module: 'inbox',
+  title: 'actions.conversation.bulk_update.title',
+  description:
+    'Apply one change to many conversations at once (max 100): add tags, assign to a member, change status or archive. Example: {"conversation_ids":["c_lan","c_hieu"],"add_tags":["VIP"]}',
+  input: z
+    .object({
+      conversation_ids: z.array(convId).min(1).max(100),
+      add_tags: z.array(z.string().min(1).max(40)).max(10).optional(),
+      assignee_user_id: z.string().min(1).optional(),
+      status: z.enum(['open', 'pending', 'closed']).optional(),
+      archive: z.boolean().optional(),
+    })
+    .refine((v) => !!v.add_tags?.length || !!v.assignee_user_id || !!v.status || v.archive !== undefined, { message: 'nothing to change' }),
+  output: z.object({ updated: z.number().int() }),
+  permission: 'inbox.reply',
+  risk: 'write',
+  bulk: true,
   agentGrantable: false,
   undo: { windowSec: 86_400 },
   invalidates: ['inbox'],

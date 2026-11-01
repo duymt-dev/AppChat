@@ -10,6 +10,8 @@ export interface KanbanColumn {
   key: string;
   label: string;
   color: string;
+  /** Tổng bản ghi của cột khi màn chỉ nạp một phần (vd. 50 thẻ đầu) — thiếu thì đếm thẻ đang có. */
+  total?: number;
 }
 
 export interface KanbanBoardProps<T> {
@@ -136,7 +138,7 @@ export function KanbanBoard<T>({ columns, items, itemKey, groupBy, renderCard, o
             <div className={styles.head}>
               <span className={styles.dot} style={{ background: col.color }} />
               <span className={styles.title}>{col.label}</span>
-              <span className={styles.count}>{cards.length}</span>
+              <span className={styles.count}>{col.total ?? cards.length}</span>
             </div>
             <div className={styles.cards}>
               {cards.map((it) => (

@@ -5,7 +5,10 @@ import { App } from 'antd';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DataTable, Icon, color } from '@appchat/ui';
+import { getAction } from '@appchat/actions';
+import { ApiRequestError } from '@appchat/shared';
 import { transport } from '@/shared/api/client';
+import { matchesInvalidation } from '@/shared/api/query-keys';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useAssistantStyles } from '../styles/assistant.styles';
 import { useLogStyles } from '../styles/log.styles';
@@ -21,6 +24,7 @@ const DAYS = ['all', 'today', 'yesterday', '7d'] as const;
 
 export function ActionLogScreen() {
   const t = useTranslations('assistant.log');
+  const tAll = useTranslations();
   const { message } = App.useApp();
   const qc = useQueryClient();
   const { styles: page } = useAssistantStyles();
@@ -29,10 +33,17 @@ export function ActionLogScreen() {
   const q = useQuery(actionLogsQuery(f));
   const rows = q.data?.data ?? [];
 
-  // POST /v1/action-logs/:id/undo — hoàn tác theo nhật ký, không phải action mới (Blueprint §4.3)
+  // POST /v1/action-logs/:id/undo — hoàn tác theo nhật ký, không phải action mới (Blueprint §4.3). Làm mới cả dữ liệu action gốc
+  // chạm tới (invalidates của ActionDef); quá hạn / không hỗ trợ / không phải việc của mình → báo theo mã lỗi.
   const undo = async (r: ActionLogRow) => {
-    await transport.undo(r.id);
-    await qc.invalidateQueries({ queryKey: ['action-logs'] });
+    try {
+      await transport.undo(r.id);
+    } catch (e) {
+      message.error(tAll(`errors.${e instanceof ApiRequestError ? e.error.code : 'INTERNAL'}` as never));
+      return;
+    }
+    const inv = getAction(r.action_id)?.invalidates ?? [];
+    await qc.invalidateQueries({ predicate: (q) => q.queryKey[0] === 'action-logs' || matchesInvalidation(inv, q.queryKey) });
     message.success(t('undone', { title: r.title ?? r.action_id }));
   };
   const columns = useLogColumns(undo);

@@ -134,6 +134,13 @@
     "sendZalo": "Send via Zalo",
     "sendEmail": "Send email",
     "sendPdf": "Download PDF",
+    "pdfFail": "Could not load the quote PDF, please try again.",
+    "sendErr": {
+      "no_conversation_zalo_personal": "This customer has not messaged you on Zalo yet — personal Zalo cannot start a chat; send by email or wait for the customer.",
+      "no_conversation_email": "Could not send by email.",
+      "no_email": "This customer has no email — add one to the profile and send again.",
+      "connector": "No Email channel connected — connect one in Settings › Channels."
+    },
     "tabs": {
       "overview": "Overview",
       "crm": "CRM",
@@ -299,5 +306,29 @@
     "required": "Pick a customer and enter content",
     "done": "Drafted {code} — {n} off-catalog lines need approval"
   },
-  "unit": "quotes"
+  "unit": "quotes",
+  "public": {
+    "title": "Quote {code} · version {n}",
+    "to": "To: {name}",
+    "bizMeta": "Tax code {tax} · {address}",
+    "expired": "This quote has expired — please contact us to extend it.",
+    "item": "Item / service",
+    "qty": "Qty",
+    "price": "Unit price",
+    "disc": "Disc.",
+    "tax": "Tax",
+    "amount": "Amount",
+    "pct": "{n}%",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "vat": "VAT",
+    "total": "Total (VAT included)",
+    "validUntil": "Valid until {d}",
+    "terms": "Payment terms: {v}",
+    "gift": "Gift: {v}",
+    "contact": "To accept or ask for changes, reply in the conversation where you received this link.",
+    "pdf": "Download PDF",
+    "invalidTitle": "This quote link is no longer valid",
+    "invalidSub": "Please contact the sender for a new quote."
+  }
 }

@@ -1,0 +1,137 @@
+// tenant/catalog.prisma — sở hữu: TIP-027 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: product_category, product, product_variant, product_component, stock_movement.
+// Không Prisma relation xuyên domain (Blueprint §2.1). FK nội DB + trigram / partial / GIN index viết SQL ở migration 027.
+
+enum ProductType {
+  physical
+  service
+  combo
+  package
+  digital
+  rental
+
+  @@map("product_type")
+}
+
+enum ProductStatus {
+  active
+  draft
+  archived
+
+  @@map("product_status")
+}
+
+enum StockMovementKind {
+  sale
+  return
+  adjust
+  import
+
+  @@map("stock_movement_kind")
+}
+
+model ProductCategory {
+  id        String   @id @db.Uuid
+  name      String
+  /// Màu nhận diện (chip danh mục, kanban) — hex.
+  color     String
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  products Product[]
+
+  @@map("product_category")
+}
+
+model Product {
+  id                String        @id @db.Uuid
+  code              String        @unique
+  name              String
+  type              ProductType
+  categoryId        String?       @map("category_id") @db.Uuid
+  /// Giá chưa VAT (VND, COMMERCE §2).
+  price             BigInt
+  cost              BigInt?
+  unit              String
+  taxRate           Int           @default(8) @map("tax_rate")
+  /// Tồn (chỉ physical — cache của tổng stock_movement, ghi cùng transaction). Null = không quản lý tồn.
+  stock             Int?
+  lowStockThreshold Int?          @map("low_stock_threshold")
+  durationMin       Int?          @map("duration_min")
+  sessions          Int?
+  validDays         Int?          @map("valid_days")
+  deposit           BigInt?
+  rentalUnit        String?       @map("rental_unit")
+  /// Thuộc tính sinh biến thể `[{ name, values[] }]`.
+  attrs             Json          @default("[]")
+  description       String        @default("")
+  status            ProductStatus @default(active)
+  custom            Json          @default("{}")
+  /// Số lượng đã bán (cache — đơn xác nhận cộng, huỷ trừ; TIP-031).
+  sold              Int           @default(0)
+  version           Int           @default(1)
+  createdBy         String?       @map("created_by") @db.Uuid
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt         DateTime?     @map("deleted_at") @db.Timestamptz(6)
+
+  category   ProductCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants   ProductVariant[]
+  components ProductComponent[] @relation("combo")
+  usedIn     ProductComponent[] @relation("child")
+  movements  StockMovement[]
+
+  @@index([status, type])
+  @@map("product")
+}
+
+model ProductVariant {
+  id        String        @id @db.Uuid
+  productId String        @map("product_id") @db.Uuid
+  sku       String
+  name      String
+  attrs     Json          @default("{}")
+  price     BigInt?
+  stock     Int           @default(0)
+  status    ProductStatus @default(active)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_variant")
+}
+
+model ProductComponent {
+  productId String @map("product_id") @db.Uuid
+  childId   String @map("child_id") @db.Uuid
+  qty       Int
+
+  product Product @relation("combo", fields: [productId], references: [id], onDelete: Cascade)
+  child   Product @relation("child", fields: [childId], references: [id], onDelete: Restrict)
+
+  @@id([productId, childId])
+  @@index([childId])
+  @@map("product_component")
+}
+
+/// Sổ kho chỉ thêm (concurrency §3): tồn = tổng qty; unique (ref_type, ref_id, product_id) chống trừ đôi.
+model StockMovement {
+  id        String            @id @db.Uuid
+  productId String            @map("product_id") @db.Uuid
+  variantId String?           @map("variant_id") @db.Uuid
+  kind      StockMovementKind
+  qty       Int
+  /// `order` | `adjust` | `product` (tồn ban đầu) …
+  refType   String            @map("ref_type")
+  refId     String            @map("ref_id")
+  reason    String?
+  actorId   String?           @map("actor_id")
+  createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([refType, refId, productId])
+  @@index([productId, createdAt(sort: Desc)])
+  @@map("stock_movement")
+}

@@ -33,22 +33,26 @@ function useFromSource() {
   const router = useRouter();
   const fromQuote = useAction<{ order_id: string }>('order.create_from_quote');
   const fromContract = useAction<{ order_id: string }>('order.create_from_contract');
+  const fromAppt = useAction<{ order_id: string }>('order.create_from_appointment');
   const set = useOrdersUi((s) => s.set);
   const done = useRef('');
   const quoteId = params.get('from_quote');
   const contractId = params.get('from_contract');
+  const apptId = params.get('from_appointment');
   useEffect(() => {
-    const key = quoteId ?? contractId;
+    const key = quoteId ?? contractId ?? apptId;
     if (!key || done.current === key) return;
     done.current = key;
     const run = quoteId
       ? fromQuote.run({ quote_id: quoteId })
-      : fromContract.run({ contract_id: contractId! });
+      : contractId
+        ? fromContract.run({ contract_id: contractId })
+        : fromAppt.run({ appointment_id: apptId! });
     void run.then((r) => {
       if (r) set({ detail: r.result.order_id, tab: 'overview' });
       router.replace('/orders');
     });
-  }, [quoteId, contractId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [quoteId, contractId, apptId]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 export function OrdersScreen() {

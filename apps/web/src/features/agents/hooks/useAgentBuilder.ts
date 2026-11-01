@@ -7,16 +7,23 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from '@/shared/actions/useAction';
 import { agentQuery, templatesQuery } from '../api';
 import { useAgentsUi } from '../agents-store';
-import type { AgentConfig } from '../types';
+import { useAuthz } from '@/shared/authz/useCan';
+import { useToolAllowed } from './useToolAllowed';
+import type { AgentConfig, AgentTemplate } from '../types';
 
 export const blankConfig = (): AgentConfig => ({
   name: '',
   emoji: '🤖',
+  role: 'custom',
+  role_label: '',
+  persona: '',
+  keywords: [],
+  working_hours: 'always',
   language: 'vi',
   prompt: '',
   intents: [0, 2],
   model_tier: 'advanced',
-  tools: ['conversation.close', 'conversation.assign', 'ticket.create', 'appointment.create'],
+  tools: ['conversation.set_status', 'conversation.assign', 'ticket.create', 'appointment.create'],
   channels: ['zalo_personal', 'webchat'],
   threshold: 70,
   handoff_to: 'staff',
@@ -24,11 +31,17 @@ export const blankConfig = (): AgentConfig => ({
   kb_scope: { folder_ids: [], tags: [] },
 });
 
-const CONFIG_KEYS = Object.keys(blankConfig()) as (keyof AgentConfig)[];
+const CONFIG_KEYS = [...Object.keys(blankConfig()), 'template_id'] as (keyof AgentConfig)[];
 const withConfig = (src: Partial<AgentConfig>): AgentConfig => ({
   ...blankConfig(),
   ...Object.fromEntries(CONFIG_KEYS.filter((k) => src[k] !== undefined).map((k) => [k, src[k]])),
 });
+
+/** Bản nháp "Từ mẫu" (D15): tên, vai trò, tool / ý định / mức AI / ngưỡng / prompt mặc định — tool ngoài quyền người tạo bị bỏ. */
+export function fromTemplate(tpl: AgentTemplate, allowed: (actionId: string) => boolean): AgentConfig {
+  const d = tpl.defaults;
+  return withConfig({ name: tpl.name, role: tpl.role, role_label: tpl.tag, template_id: tpl.id, tools: d.tools.filter(allowed), intents: d.intents, model_tier: d.model_tier, threshold: d.threshold, prompt: d.prompt });
+}
 
 /** Cấu hình ban đầu của builder; null khi còn chờ agent / mẫu. */
 export function useBuilderSeed(agentId?: string): { seed: AgentConfig | null; edit: boolean } {
@@ -37,12 +50,14 @@ export function useBuilderSeed(agentId?: string): { seed: AgentConfig | null; ed
   const fromAi = params.get('from') === 'ai';
   const [handoff] = useState(() => (fromAi ? useAgentsUi.getState().handoff : null));
   const existing = useQuery({ ...agentQuery(agentId ?? ''), enabled: !!agentId });
+  const authz = useAuthz();
+  const allowed = useToolAllowed();
   const templates = useQuery({ ...templatesQuery({ q: '', group: 'all', industry: 'all', name: 'all' }), enabled: !!templateId });
   const edit = !!agentId || !!templateId;
   if (agentId) return { seed: existing.data ? withConfig(existing.data) : null, edit };
   if (templateId) {
     const tpl = templates.data?.data.find((x) => x.id === templateId);
-    return { seed: tpl ? withConfig({ name: tpl.name, template_id: tpl.id }) : null, edit };
+    return { seed: tpl && authz.data ? fromTemplate(tpl, allowed) : null, edit };
   }
   return { seed: handoff ? withConfig(handoff) : blankConfig(), edit };
 }

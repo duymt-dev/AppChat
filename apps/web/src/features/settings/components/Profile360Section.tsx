@@ -55,6 +55,7 @@ function TemplateCard({ tpl, active, roleAssignments, can }: { tpl: ProfileLayou
                 disabled={!can}
                 className={cx(styles.roleChip, on && styles.roleChipOn)}
                 onClick={() => void assign.run({ role: r, layout_id: tpl.id }, { silent: true })}
+                aria-pressed={on}
                 data-testid={`pl-role-${tpl.id}-${r}`}
               >
                 {tr(r)}

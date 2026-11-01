@@ -13,6 +13,8 @@ import { Customer360Drawer } from './Customer360Drawer';
 import { DedupeModal } from './DedupeModal';
 import { FieldsModal } from './FieldsModal';
 import { TransferOwnerModal } from './TransferOwnerModal';
+import { BulkTransferModal } from './BulkTransferModal';
+import { ImportModal } from './ImportModal';
 import type { ContactRow } from '../types';
 
 function AiPeek() {
@@ -51,7 +53,7 @@ function AiPeek() {
   );
 }
 
-export function CrmOverlays({ rows }: { rows: ContactRow[] }) {
+export function CrmOverlays({ rows, selected, onBulkDone }: { rows: ContactRow[]; selected: ContactRow[]; onBulkDone: () => void }) {
   const ui = useCrmUi();
   const target = rows.find((r) => r.id === ui.target);
   return (
@@ -65,6 +67,8 @@ export function CrmOverlays({ rows }: { rows: ContactRow[] }) {
       {ui.modal === 'peek' ? <AiPeek /> : null}
       {ui.modal === 'collab' && ui.target ? <CollaboratorsModal contactId={ui.target} /> : null}
       {ui.modal === 'transfer' && target ? <TransferOwnerModal contact={target} /> : null}
+      {ui.modal === 'bulkTransfer' && selected.length ? <BulkTransferModal contacts={selected} onDone={onBulkDone} /> : null}
+      {ui.modal === 'import' ? <ImportModal /> : null}
     </>
   );
 }

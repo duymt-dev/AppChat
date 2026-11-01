@@ -31,6 +31,28 @@ export const appointmentFindSlots = defineAction({
   invalidates: [],
 });
 
+export const appointmentList = defineAction({
+  id: 'appointment.list',
+  module: 'booking',
+  title: 'actions.appointment.list.title',
+  description:
+    'List appointments in a date range (YYYY-MM-DD, inclusive), optionally by staff / status / customer. Example: {"from":"2026-06-24","to":"2026-06-24","status":"pending"}',
+  input: z.object({
+    from: date,
+    to: date,
+    staff_id: z.string().optional(),
+    status: z.string().optional(),
+    contact_id: z.string().optional(),
+  }),
+  output: z.object({
+    appointments: z.array(z.object({ appointment_id: z.string(), code: z.string(), contact_name: z.string(), service: z.string(), staff: z.string(), start_at: z.string(), status: z.string() })),
+  }),
+  permission: 'booking.view',
+  risk: 'read',
+  agentGrantable: true,
+  invalidates: [],
+});
+
 export const appointmentCreate = defineAction({
   id: 'appointment.create',
   module: 'booking',
@@ -48,6 +70,8 @@ export const appointmentCreate = defineAction({
     status: z.enum(['pending', 'confirmed']).optional(),
     reminder_min: z.number().int().min(0).max(10_080).optional(),
     note: z.string().max(2000).optional(),
+    /** Hội thoại khách đặt lịch (agent / Trợ lý) — nhắc hẹn đi qua đây. */
+    conversation_id: z.string().optional(),
     /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
     custom: customValuesSchema.optional(),
   }),

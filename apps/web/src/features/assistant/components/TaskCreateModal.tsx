@@ -1,29 +1,19 @@
-// Modal "Tạo tác vụ tự chủ" — prototype L1317–1350. Ghi qua `ai_task.create`; "Model thực thi" → mức AI (D29).
+// Modal "Tạo tác vụ tự chủ" — prototype L1317–1350. Ghi qua `ai_task.create`; "Model thực thi" → mức AI (D29). TIP-035: chip dữ liệu /
+// công cụ là key (dịch), mẫu chủ động, agent thực hiện + lịch (cron) / sự kiện (TaskTriggerFields).
 'use client';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon, color, gradient } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useTaskFormStyles } from '../styles/task-form.styles';
 import { useAssistantUi } from '../assistant-store';
+import { useTaskForm, type Trigger } from '../hooks/useTaskForm';
 import type { AiTasksPayload, Tier } from '../types';
+import { TriggerFields } from './TaskTriggerFields';
 
-type Trigger = 'manual' | 'schedule' | 'event';
 const TIERS: Tier[] = ['standard', 'advanced', 'max'];
 const TRIGGERS: Trigger[] = ['manual', 'schedule', 'event'];
 const DATA = 'data';
 const TOOLS = 'tools';
-const initial = () => ({
-  name: '',
-  goal: '',
-  department: 'Vận hành',
-  data: ['Đơn hàng'],
-  tools: ['Đọc dữ liệu', 'Tạo file báo cáo'],
-  trigger: 'manual' as Trigger,
-  tier: 'standard' as Tier,
-  askSend: true,
-  budget: '2.000',
-});
 
 export function TaskCreateModal({ data }: { data: AiTasksPayload }) {
   const open = useAssistantUi((s) => s.taskNew);
@@ -36,31 +26,17 @@ function TaskCreateForm({ data }: { data: AiTasksPayload }) {
   const { styles, cx } = useTaskFormStyles();
   const ui = useAssistantUi();
   const create = useAction<{ task_id: string }>('ai_task.create');
-  const [f, setF] = useState(() => ({ ...initial(), ...(ui.taskPrefill as Partial<ReturnType<typeof initial>>) }));
-  const set = (p: Partial<typeof f>) => setF((s) => ({ ...s, ...p }));
-  const toggle = (k: 'data' | 'tools', v: string) => set({ [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] });
-  const ok = !!(f.name.trim() && f.goal.trim());
+  const { f, set, toggle, pick, input, ok } = useTaskForm(ui.taskPrefill);
   const close = () => ui.set({ taskNew: false, taskPrefill: null });
   const save = async () => {
     if (!ok) return;
-    const res = await create.run({
-      name: f.name.trim(),
-      goal: f.goal.trim(),
-      department: f.department,
-      trigger: f.trigger,
-      data_scope: f.data,
-      tools: f.tools,
-      model_tier: f.tier,
-      ask_before_send: f.askSend,
-      credit_limit_per_run: Number(f.budget.replace(/\D/g, '')) || 0,
-    });
-    if (res) close();
+    if (await create.run(input())) close();
   };
   const chips = (k: 'data' | 'tools', opts: string[]) => (
     <div className={styles.opts}>
       {opts.map((v) => (
-        <button key={v} type="button" aria-pressed={f[k].includes(v)} className={cx(styles.opt, f[k].includes(v) && styles.optOn)} onClick={() => toggle(k, v)}>
-          {v}
+        <button key={v} type="button" aria-pressed={f[k].includes(v)} className={cx(styles.opt, f[k].includes(v) && styles.optOn)} onClick={() => toggle(k, v)} data-chip={v}>
+          {t(`cw.new.${k}Opt.${v}` as never)}
         </button>
       ))}
     </div>
@@ -96,7 +72,7 @@ function TaskCreateForm({ data }: { data: AiTasksPayload }) {
             <div className={styles.quick}>
               <span className={styles.quickLabel}>{t('cw.new.quick')}</span>
               {data.templates.map((tp) => (
-                <button key={tp.label} type="button" className={styles.quickChip} onClick={() => set({ name: tp.name, goal: tp.goal, department: tp.department })}>
+                <button key={tp.label} type="button" className={styles.quickChip} onClick={() => pick(tp)}>
                   {tp.label}
                 </button>
               ))}
@@ -145,6 +121,7 @@ function TaskCreateForm({ data }: { data: AiTasksPayload }) {
               </select>
             </div>
           </div>
+          <TriggerFields f={f} set={set} agents={data.agents} />
           <div className={styles.safety}>
             <div className={styles.safeRow}>
               <Icon name="ic-shield" size={15} color={color.brandInk} strokeWidth={2} />

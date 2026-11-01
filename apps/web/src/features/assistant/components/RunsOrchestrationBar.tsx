@@ -24,14 +24,13 @@ const STATUS_STYLE: Record<Run['status'], { fg: string; bg: string; bar: string 
   done: { fg: '#157A40', bg: '#EDFAF3', bar: '#2DC56A' },
 };
 
-const ROOT_RUN_ID = 'run_root_1';
-
 export function RunsOrchestrationBar() {
   const t = useTranslations('assistant.cw.run');
   const { styles, cx } = useRunsStyles();
   const open = useAssistantUi((s) => s.runsOpen);
   const set = useAssistantUi((s) => s.set);
-  const q = useQuery({ ...runsQuery(ROOT_RUN_ID), enabled: true });
+  const root = useAssistantUi((s) => s.lastRunId);
+  const q = useQuery(runsQuery(root));
   const cancel = useAction('run.cancel');
   const approve = useAction('approval.approve');
   const rows = q.data?.data ?? [];

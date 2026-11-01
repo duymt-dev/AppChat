@@ -28,10 +28,12 @@
     "next-intl": "4.14.9",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "socket.io-client": "4.8.4",
     "zod": "4.6.7",
     "zustand": "5.0.16"
   },
   "devDependencies": {
+    "@appchat/contract": "workspace:*",
     "@playwright/test": "1.64.1",
     "@testing-library/react": "16.3.3",
     "@types/node": "24.19.2",

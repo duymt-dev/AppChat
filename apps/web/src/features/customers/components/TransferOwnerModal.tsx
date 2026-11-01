@@ -20,7 +20,8 @@ export function TransferOwnerModal({ contact }: { contact: ContactRow }) {
   const ui = useCrmUi();
   const members = (useQuery(membersQuery()).data ?? []).filter((m) => m.id !== contact.owner_user_id);
   const transfer = useAction('contact.transfer_owner');
-  const [to, setTo] = useState('');
+  // Mở từ ô "Phụ trách" của form sửa → điền sẵn người nhận.
+  const [to, setTo] = useState(ui.prefill?.to_user_id ?? '');
   const [note, setNote] = useState('');
   const [move, setMove] = useState({ conversations: true, quotes: true, appointments: false });
   const close = () => ui.set({ modal: null, target: null });

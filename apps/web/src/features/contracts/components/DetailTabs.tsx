@@ -9,6 +9,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useContractTabStyles } from '../styles/tabs.styles';
 import { useContractsUi } from '../contracts-store';
+import { useContractPdf } from '../hooks/useContractPdf';
 import { useEff, useTr } from '../columns';
 import type { Contract, ContractsMeta } from '../types';
 
@@ -52,6 +53,7 @@ export function OverviewTab({ c }: { c: Contract }) {
   const sign = useSignState();
   const set = useContractsUi((s) => s.set);
   const canSign = useCan('contract.sign');
+  const pdf = useContractPdf();
   const path = c.sign_token ? `/sign/${c.sign_token}` : '';
   const link = c.sign_token
     ? `${typeof window === 'undefined' ? '' : window.location.origin}/sign/${c.sign_token}`
@@ -114,7 +116,9 @@ export function OverviewTab({ c }: { c: Contract }) {
         <button
           type="button"
           className={cx(styles.btn, styles.btnPrimary)}
-          onClick={() => void message.info(t('pdfDone', { code: c.code }))}
+          disabled={pdf.busy}
+          onClick={() => void pdf.open(c.id)}
+          data-testid="ct-pdf"
         >
           <Icon name="ic-dl" size={15} color={color.white} />
           {t('pdf')}

@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
+import { useFmt } from '@/shared/i18n/useFmt';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useSectionStyles } from '../styles/section.styles';
 import { useMembersStyles } from '../styles/members.styles';
@@ -19,9 +20,11 @@ import { MemberModal } from './MemberModal';
 const BILLING = '/settings/billing';
 const ROW_MENU = 'members';
 const SEP = ' · ';
-const INVITE = 'inv_';
+const UNLIMITED = '∞';
+/** `last` của mock là khoá i18n ('2h' · '3d'); API trả ISO thời điểm hoạt động cuối (TIP-013). */
+const LAST_KEYS = new Set(['online', '2h', '3d', 'never']);
 
-function Row({ m }: { m: Member }) {
+function Row({ m, now }: { m: Member; now: number }) {
   const t = useTranslations('settings.members');
   const tr = useTranslations('settings.roleName');
   const s = useSectionStyles();
@@ -30,8 +33,10 @@ function Row({ m }: { m: Member }) {
   const canManage = useCan('members.manage');
   const remove = useAction('member.remove');
   const revoke = useAction('invite.revoke');
+  const fmt = useFmt();
   const online = m.last === 'online';
-  const invite = m.status === 'pending' && m.id.startsWith(INVITE);
+  const invite = m.invite;
+  const last = LAST_KEYS.has(m.last) ? t(`last.${m.last}`) : fmt.relative(m.last, now);
   const open = ui.menuFor === `${ROW_MENU}:${m.id}`;
   return (
     <div className={cx(s.styles.tr, styles.grid)} data-member={m.id}>
@@ -54,7 +59,7 @@ function Row({ m }: { m: Member }) {
         </span>
       </span>
       <span className={cx(styles.dept, styles.hideM)}>{m.dept}</span>
-      <span className={cx(online ? styles.lastOn : styles.last, styles.hideM)}>{t(`last.${m.last}`)}</span>
+      <span className={cx(online ? styles.lastOn : styles.last, styles.hideM)}>{last}</span>
       <span>
         <span className={styles[`st_${m.status}`]} data-testid="st-member-status">
           {m.status === 'active' ? <span className={styles.stDot} /> : null}
@@ -156,10 +161,10 @@ export function MembersSection() {
               <span />
             </div>
             {q.data.data.map((m) => (
-              <Row key={m.id} m={m} />
+              <Row key={m.id} m={m} now={q.dataUpdatedAt} />
             ))}
             <div className={s.styles.foot}>
-              {t.rich('foot', { n: q.data.total, max: q.data.seat_limit, b: (c) => <b>{c}</b> })}
+              {t.rich('foot', { n: q.data.total, max: q.data.seat_limit ?? UNLIMITED, b: (c) => <b>{c}</b> })}
               {SEP}
               <button type="button" className={s.styles.link} onClick={() => router.push(BILLING)}>
                 {t('upgrade')}

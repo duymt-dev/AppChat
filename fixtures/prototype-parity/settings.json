@@ -332,6 +332,13 @@
     }
   ],
   "widget": {
+    "enabled": true,
+    "channel_account_id": "acc_webchat_1",
+    "public_key": "wk_demo_appchat_w1",
+    "color": "#2DC56A",
+    "allowed_domains": [
+      "appchat.vn"
+    ],
     "name": "Trợ lý AppChat",
     "greeting": "Xin chào 👋 Spa hỗ trợ gì cho mình ạ?",
     "ai_chat": true,
@@ -392,7 +399,7 @@
       "running": 3,
       "total": 4
     },
-    "embed": "<script src=\"https://cdn.appchat.vn/w.js\"\n  data-id=\"w1\" data-pos=\"br\"\n  data-channels=\"zalo,webchat,email\"></script>"
+    "embed": "<script src=\"https://cdn.appchat.vn/w.js\" async\n  data-key=\"wk_demo_appchat_w1\"\n  data-api=\"https://api.appchat.vn\"></script>"
   },
   "connectors": [
     {

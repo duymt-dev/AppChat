@@ -152,12 +152,14 @@ function TypeBlock({ f }: { f: ProductFormApi }) {
                   placeholder={t('comboName')}
                   value={r.name}
                   onChange={(e) => f.combo.edit(i, { name: e.target.value })}
+                  data-testid="pd-combo-name"
                 />
                 <input
                   className={cx(styles.input, styles.inputSm, styles.qty)}
                   placeholder={t('comboQty')}
                   value={r.value}
                   onChange={(e) => f.combo.edit(i, { value: e.target.value.replace(/\D/g, '') })}
+                  data-testid="pd-combo-qty"
                 />
                 <button
                   type="button"

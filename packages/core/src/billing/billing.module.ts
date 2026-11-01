@@ -1,0 +1,100 @@
+// Domain `billing` — plan, subscription, ví credit + sổ, CreditMeter, hạn mức (TIP-009); hoá đơn gói / đối soát (TIP-010).
+// Service dựng bằng factory: thiếu DB nền tảng / DB tenant / Redis → null (process không cần billing vẫn boot).
+import { Module, type OnApplicationBootstrap } from '@nestjs/common';
+import type { Redis } from 'ioredis';
+import type { PlatformDb, TenantDbResolver } from '@appchat/db';
+import { CLOCK, type Clock } from '../kernel/clock';
+import { ENV_SOURCE } from '../kernel/kernel.module';
+import { REDIS } from '../kernel/redis';
+import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
+import { OutboxBillingSink, walletThresholdListener } from './events/billing.events';
+import { AdminConfirmTransferHandler } from './actions/admin-confirm-transfer.handler';
+import { BillingCancelInvoiceHandler } from './actions/billing-cancel-invoice.handler';
+import { BillingCreateInvoiceHandler } from './actions/billing-create-invoice.handler';
+import { BillingReportTransferHandler } from './actions/billing-report-transfer.handler';
+import { PlatformBankHook } from './payments/bank-hook.service';
+import { InvoiceFulfiller } from './payments/fulfil';
+import { InvoicesService } from './payments/invoices.service';
+import { PAYMENTS_ENV, readPaymentsEnv, type PaymentsEnv } from './payments/payments.env';
+import { seedPlans } from './seed';
+import { BillingReadService } from './services/billing-read.service';
+import { CreditMeter, DbPriceBook, PRICE_BOOK, StaticPriceBook, type PriceBook } from './services/credit-meter';
+import { QuotaService } from './services/quota.service';
+import { SubscriptionsService } from './services/subscriptions.service';
+import { WalletService } from './services/wallet.service';
+
+const opt = (token: symbol) => ({ token, optional: true });
+export const BILLING_SINK = Symbol('BILLING_SINK');
+
+/** Seed gói lúc boot (idempotent) + nối ngưỡng ví → event. */
+class BillingBoot implements OnApplicationBootstrap {
+  constructor(
+    private readonly platform: PlatformDb | undefined,
+    private readonly wallet: WalletService | null,
+    private readonly sink: OutboxBillingSink | null,
+  ) {}
+  async onApplicationBootstrap(): Promise<void> {
+    if (!this.platform) return;
+    await seedPlans(this.platform);
+    if (this.wallet && this.sink) this.wallet.onChange(walletThresholdListener(this.platform, this.sink));
+  }
+}
+
+@Module({
+  providers: [
+    {
+      provide: WalletService,
+      inject: [opt(PLATFORM_DB), CLOCK],
+      useFactory: (p: PlatformDb | undefined, c: Clock) => (p ? new WalletService(p, () => c.now()) : null),
+    },
+    {
+      provide: BILLING_SINK,
+      inject: [opt(TENANT_RESOLVER), opt(REDIS), CLOCK],
+      useFactory: (r: TenantDbResolver | undefined, kv: Redis | undefined, c: Clock) => (r && kv ? new OutboxBillingSink(r, kv, () => c.now()) : null),
+    },
+    {
+      provide: SubscriptionsService,
+      inject: [opt(PLATFORM_DB), WalletService, BILLING_SINK, CLOCK],
+      useFactory: (p: PlatformDb | undefined, w: WalletService | null, s: OutboxBillingSink | null, c: Clock) =>
+        p && w && s ? new SubscriptionsService(p, w, s, () => c.now()) : null,
+    },
+    { provide: QuotaService, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new QuotaService(p) : null) },
+    { provide: BillingReadService, inject: [opt(PLATFORM_DB), CLOCK], useFactory: (p: PlatformDb | undefined, c: Clock) => (p ? new BillingReadService(p, () => c.now()) : null) },
+    // Đơn giá model (TIP-019): `model_price` ở DB nền tảng; không DB → bảng giá rỗng (model chưa có giá → không chạy).
+    { provide: PRICE_BOOK, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new DbPriceBook(p) : new StaticPriceBook()) },
+    {
+      provide: CreditMeter,
+      inject: [WalletService, PRICE_BOOK],
+      useFactory: (w: WalletService | null, pb: PriceBook) => (w ? new CreditMeter(w, pb) : null),
+    },
+    // Thu phí nền tảng (TIP-010): env tài khoản nhận tiền + nguồn đối soát; hoá đơn, ghi nhận, webhook ngân hàng.
+    { provide: PAYMENTS_ENV, inject: [{ token: ENV_SOURCE, optional: true }], useFactory: (src?: Record<string, string | undefined>) => readPaymentsEnv(src ?? {}) },
+    {
+      provide: InvoicesService,
+      inject: [opt(PLATFORM_DB), PAYMENTS_ENV, CLOCK],
+      useFactory: (p: PlatformDb | undefined, e: PaymentsEnv, c: Clock) => (p ? new InvoicesService(p, e, () => c.now()) : null),
+    },
+    {
+      provide: InvoiceFulfiller,
+      inject: [opt(PLATFORM_DB), WalletService, SubscriptionsService, BILLING_SINK, CLOCK],
+      useFactory: (p: PlatformDb | undefined, w: WalletService | null, s: SubscriptionsService | null, k: OutboxBillingSink | null, c: Clock) =>
+        p && w && s && k ? new InvoiceFulfiller(p, w, s, k, () => c.now()) : null,
+    },
+    {
+      provide: PlatformBankHook,
+      inject: [opt(PLATFORM_DB), PAYMENTS_ENV, InvoiceFulfiller, CLOCK],
+      useFactory: (p: PlatformDb | undefined, e: PaymentsEnv, f: InvoiceFulfiller | null, c: Clock) => (p && f ? new PlatformBankHook(p, e, f, () => c.now()) : null),
+    },
+    BillingCreateInvoiceHandler,
+    BillingCancelInvoiceHandler,
+    BillingReportTransferHandler,
+    AdminConfirmTransferHandler,
+    {
+      provide: BillingBoot,
+      inject: [opt(PLATFORM_DB), WalletService, BILLING_SINK],
+      useFactory: (p: PlatformDb | undefined, w: WalletService | null, s: OutboxBillingSink | null) => new BillingBoot(p, w, s),
+    },
+  ],
+  exports: [WalletService, SubscriptionsService, QuotaService, BillingReadService, CreditMeter, PRICE_BOOK, BILLING_SINK, PAYMENTS_ENV, InvoicesService, InvoiceFulfiller, PlatformBankHook],
+})
+export class BillingModule {}

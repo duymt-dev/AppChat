@@ -7,7 +7,7 @@ import i18next from 'eslint-plugin-i18next';
 export default [
   ...nextVitals,
   ...nextTs,
-  { ignores: ['.next/**', 'next-env.d.ts', 'playwright-report/**', 'test-results/**'] },
+  { ignores: ['.next/**', '.next-http/**', 'next-env.d.ts', 'playwright-report/**', 'test-results/**'] },
   {
     files: ['src/**/*.{ts,tsx}'],
     plugins: { boundaries },

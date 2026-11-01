@@ -120,6 +120,23 @@ test.describe('quotes', () => {
     await expect(page.getByTestId('q-create')).toBeVisible();
   });
 
+  test('Tải PDF + trang xem công khai (báo giá đã gửi); link sai báo hết hiệu lực', async ({ page, context }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.locator('[data-quote="q_2041"]').click();
+    const popup = context.waitForEvent('page');
+    await page.getByTestId('q-drawer').getByTestId('q-pdf').click();
+    await (await popup).close();
+    // Mock: token công khai = id báo giá (server: token ký HMAC trong tin gửi khách); mock DB nạp lại theo trang → dùng BG-2040 đã gửi.
+    // Luồng gửi → mở link → "Khách đã xem" chạy ở E2E http (quotes.spec.ts).
+    await page.goto('/q/q_2040?session=authed,declared,trialSeen');
+    await expect(page.getByTestId('pq-title')).toContainText('BG-2040');
+    await expect(page.getByTestId('pq-total')).toBeVisible();
+    await expect(page.getByTestId('pq-pdf')).toBeVisible();
+    await page.goto('/q/khong-ton-tai?session=authed,declared,trialSeen');
+    await expect(page.getByTestId('pq-invalid')).toBeVisible();
+  });
+
   test('390: thẻ báo giá, drawer, form toàn màn, không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await page.goto(URL);

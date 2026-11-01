@@ -37,8 +37,8 @@ export function WidgetAiBox({ w, put }: { w: Widget; put: (patch: Record<string,
         <>
           <div className={styles.sLbl}>{t('agent')}</div>
           <div className={styles.chips}>
-            {w.agents.map((a) => (
-              <button key={a} type="button" className={cx(styles.chip, a === w.agent && styles.chipOn)} onClick={() => put({ agent_id: a })} data-testid="st-wg-agent">
+            {w.agents.map((a, i) => (
+              <button key={a} type="button" className={cx(styles.chip, a === w.agent && styles.chipOn)} onClick={() => put({ agent_id: w.agent_ids?.[i] ?? a })} data-testid="st-wg-agent">
                 {a}
               </button>
             ))}

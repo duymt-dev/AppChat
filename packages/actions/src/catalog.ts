@@ -24,6 +24,8 @@ const productFields = z.object({
   valid_days: z.number().int().min(1).optional(),
   deposit: money.optional(),
   rental_unit: z.enum(['hour', 'day', 'week', 'month']).optional(),
+  /** Ngưỡng cảnh báo sắp hết (physical, COMMERCE §2). */
+  low_stock_threshold: z.number().int().min(0).optional(),
   components: z.array(z.object({ name: z.string().min(1), qty: z.number().int().min(1) })).optional(),
   attrs: z.array(z.object({ name: z.string().min(1), values: z.array(z.string().min(1)) })).optional(),
   /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
@@ -51,8 +53,9 @@ export const productUpdate = defineAction({
   module: 'catalog',
   title: 'actions.product.update.title',
   description: 'Update fields of a product. Example: {"product_id":"pd_1","patch":{"price":"12500000"}}',
-  input: z.object({ product_id: productId, patch: productFields.partial() }),
-  output: z.object({ product_id: z.string() }),
+  // `if_version` = version của bản đang mở (concurrency §1) — lệch → STALE_VERSION 409. Tồn sửa qua stock.adjust.
+  input: z.object({ product_id: productId, patch: productFields.omit({ stock: true }).partial(), if_version: z.number().int().optional() }),
+  output: z.object({ product_id: z.string(), version: z.number().int().optional() }),
   permission: 'catalog.manage',
   risk: 'write',
   agentGrantable: false,
@@ -99,10 +102,73 @@ export const stockAdjust = defineAction({
     delta: z.number().int(),
     reason: z.string().trim().min(1).max(200),
   }),
-  output: z.object({ product_id: z.string(), stock: z.number() }),
+  output: z.object({ product_id: z.string(), stock: z.number(), low_stock: z.boolean().optional() }),
   permission: 'stock.adjust',
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
   invalidates: ['catalog'],
+});
+
+const productHit = z.object({
+  product_id: z.string(),
+  code: z.string(),
+  name: z.string(),
+  type: z.string(),
+  category: z.string(),
+  price: z.string(),
+  unit: z.string(),
+  tax_rate: z.number(),
+  stock: z.number().nullable(),
+  status: z.string(),
+});
+
+export const productSearch = defineAction({
+  id: 'product.search',
+  module: 'catalog',
+  title: 'actions.product.search.title',
+  description:
+    'Search active products / services by name or code (no accents needed) and get the CURRENT price (VND, excluding VAT), tax rate, unit and stock. Always use this for prices and stock — never the knowledge base. Example: {"query":"hifu","type":"package"}',
+  input: z.object({ query: z.string().trim().max(100).default(''), type: z.enum(['physical', 'service', 'combo', 'package', 'digital', 'rental']).optional(), limit: z.number().int().min(1).max(20).optional() }),
+  output: z.object({ items: z.array(productHit) }),
+  permission: 'catalog.view',
+  risk: 'read',
+  agentGrantable: true,
+  skill: true,
+  invalidates: [],
+});
+
+export const productGet = defineAction({
+  id: 'product.get',
+  module: 'catalog',
+  title: 'actions.product.get.title',
+  description: 'Get one product with description, attributes, combo components and current price / stock. Example: {"product_id":"…"} or {"code":"SP-1001"}',
+  input: z.object({ product_id: z.string().optional(), code: z.string().max(40).optional() }).refine((v) => !!(v.product_id || v.code), { message: 'product_id_or_code', path: ['product_id'] }),
+  output: productHit.extend({
+    description: z.string(),
+    attrs: z.array(z.object({ name: z.string(), values: z.array(z.string()) })),
+    components: z.array(z.object({ product_id: z.string(), name: z.string(), qty: z.number() })),
+    duration_min: z.number().nullable(),
+    sessions: z.number().nullable(),
+    valid_days: z.number().nullable(),
+  }),
+  permission: 'catalog.view',
+  risk: 'read',
+  agentGrantable: true,
+  skill: true,
+  invalidates: [],
+});
+
+export const stockGet = defineAction({
+  id: 'stock.get',
+  module: 'catalog',
+  title: 'actions.stock.get.title',
+  description: 'Current stock of physical products (negative = oversold, low = at or below the warning threshold). Example: {"product_ids":["…"]}',
+  input: z.object({ product_ids: z.array(z.string().min(1)).min(1).max(50) }),
+  output: z.object({ items: z.array(z.object({ product_id: z.string(), name: z.string(), stock: z.number().nullable(), low: z.boolean() })) }),
+  permission: 'catalog.view',
+  risk: 'read',
+  agentGrantable: true,
+  skill: true,
+  invalidates: [],
 });

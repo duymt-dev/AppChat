@@ -1,0 +1,10 @@
+// tenant/_base.prisma — generator + datasource của DB tenant `ws_*` (TIP-002). URL (template) ở prisma.tenant.config.ts.
+generator client {
+  provider     = "prisma-client"
+  output       = "../../src/generated/tenant"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}

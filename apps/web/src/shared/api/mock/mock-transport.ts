@@ -7,11 +7,15 @@ import { mockRoutes } from './routes';
 import { inboxParamRoute } from './domains/inbox';
 import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
+import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
-import { contractsParamRoute } from './domains/contracts';
+import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
+import { contractPdf, contractsParamRoute } from './domains/contracts';
+import { contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
+import { contactPackagesParamRoute } from './domains/invoices-actions';
 import { calendarParamRoute } from './domains/calendar';
 import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
@@ -21,6 +25,7 @@ import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
+import { docTemplatePreview as mockBlob } from './domains/doc-templates';
 
 const fail = (
   status: number,
@@ -56,15 +61,18 @@ export const mockTransport: Transport = {
       mockRoutes[path] ??
       productsParamRoute(path) ??
       quotesParamRoute(path) ??
+      quotesPublicRoute(path) ??
       contractsParamRoute(path) ??
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
+      contactPackagesParamRoute(path) ??
       calendarParamRoute(path) ??
       ticketsParamRoute(path) ??
       marketingParamRoute(path) ??
       loyaltyParamRoute(path) ??
       settingsAppsParamRoute(path) ??
       signParamRoute(path) ??
+      agentToolsParamRoute(path) ??
       agentsParamRoute(path) ??
       customersParamRoute(path) ??
       inboxParamRoute(path);
@@ -73,7 +81,7 @@ export const mockTransport: Transport = {
   },
 
   async post(path, body) {
-    const handler = mockPosts[path] ?? assistantPosts[path] ?? signParamPost(path);
+    const handler = mockPosts[path] ?? assistantPosts[path] ?? signParamPost(path) ?? contractsPosts(path);
     if (!handler) return fail(404, 'NOT_FOUND', `mock post ${path}`);
     let out: unknown;
     const signEvent = path.match(/^\/public\/sign\/[^/]+\/(sign|decline)$/)?.[1];
@@ -146,5 +154,17 @@ export const mockTransport: Transport = {
     fn?.();
     undoLog.delete(actionLogId);
     mutate((db) => markUndone(db, actionLogId), 'action.undo');
+  },
+
+  async upload(file) {
+    // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp.
+    return { file_id: `file_${Date.now().toString(36)}`, name: file.name, size: file.size };
+  },
+
+  async blob(path) {
+    // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
+    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path);
+    if (html === null) return fail(404, 'NOT_FOUND', path);
+    return new Blob([html], { type: 'text/html' });
   },
 };

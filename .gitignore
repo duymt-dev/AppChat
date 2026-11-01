@@ -4,6 +4,7 @@ node_modules/
 .pnpm-store/
 .turbo/
 .next/
+.next-http/
 dist/
 coverage/
 *.tsbuildinfo
@@ -16,3 +17,7 @@ apps/web/playwright-report/
 .DS_Store
 apps/web/next-env.d.ts
 __pycache__/
+.gate/
+
+# Storage local (TIP-020 — tệp tải lên dev)
+.data/

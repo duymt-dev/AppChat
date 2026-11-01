@@ -73,6 +73,10 @@
     "set_tags": {
       "title": "Đặt bộ thẻ hội thoại",
       "desc": "Thay toàn bộ thẻ của hội thoại bằng danh sách được chọn."
+    },
+    "bulk_update": {
+      "title": "Cập nhật hàng loạt hội thoại",
+      "desc": "Gắn thẻ, gán người, đổi trạng thái hoặc lưu trữ nhiều hội thoại một lần."
     }
   },
   "message": {
@@ -93,6 +97,14 @@
     }
   },
   "contact": {
+    "import": {
+      "title": "Nhập khách hàng",
+      "desc": "Nhập khách hàng từ file theo lô; bỏ qua trùng, báo khách của người khác."
+    },
+    "export": {
+      "title": "Xuất khách hàng",
+      "desc": "Xuất danh sách khách trong phạm vi được xem ra CSV."
+    },
     "create": {
       "title": "Tạo khách hàng",
       "desc": "Tạo khách hàng mới; báo lỗi nếu SĐT / email đã thuộc khách của người khác."
@@ -185,6 +197,9 @@
     },
     "reject": {
       "title": "Từ chối yêu cầu"
+    },
+    "edit_and_approve": {
+      "title": "Sửa & duyệt hành động"
     }
   },
   "ai": {
@@ -202,6 +217,12 @@
     },
     "pause": {
       "title": "Bật / tạm dừng tác vụ"
+    },
+    "delete": {
+      "title": "Xoá tác vụ tự chủ"
+    },
+    "run_now": {
+      "title": "Chạy tác vụ tự chủ ngay"
     }
   },
   "run": {
@@ -218,6 +239,14 @@
     },
     "archive": {
       "title": "Xoá sản phẩm"
+    },
+    "search": {
+      "title": "Tìm sản phẩm / giá",
+      "desc": "Tìm sản phẩm / dịch vụ theo tên hoặc mã, kèm giá và tồn hiện tại"
+    },
+    "get": {
+      "title": "Xem chi tiết sản phẩm",
+      "desc": "Xem chi tiết một sản phẩm: mô tả, thuộc tính, thành phần combo, giá và tồn"
     }
   },
   "category": {
@@ -228,6 +257,10 @@
   "stock": {
     "adjust": {
       "title": "Điều chỉnh tồn kho"
+    },
+    "get": {
+      "title": "Xem tồn kho",
+      "desc": "Xem tồn kho hiện tại của sản phẩm (cảnh báo sắp hết)"
     }
   },
   "quote": {
@@ -336,6 +369,10 @@
       "title": "Tạo đơn từ báo giá",
       "desc": "Tạo đơn hàng từ báo giá khách đã chốt."
     },
+    "create_from_appointment": {
+      "title": "Tạo đơn từ lịch hẹn",
+      "desc": "Tạo đơn hàng cho buổi dịch vụ đã hoàn thành ngoài liệu trình."
+    },
     "create_from_contract": {
       "title": "Tạo đơn từ hợp đồng",
       "desc": "Tạo đơn hàng từ hợp đồng đã ký."
@@ -385,7 +422,31 @@
       "title": "Huỷ đề nghị thanh toán"
     }
   },
+  "staff": {
+    "create": {
+      "title": "Thêm nhân sự",
+      "desc": "Thêm nhân sự nhận lịch hẹn, kỹ năng và ca làm."
+    },
+    "update": {
+      "title": "Cập nhật nhân sự",
+      "desc": "Đổi thông tin, kỹ năng hoặc ca làm của nhân sự."
+    },
+    "deactivate": {
+      "title": "Ngừng nhân sự",
+      "desc": "Ngừng nhận lịch hẹn cho nhân sự."
+    }
+  },
+  "business_hours": {
+    "update": {
+      "title": "Cập nhật giờ mở cửa",
+      "desc": "Cập nhật giờ mở cửa, bước khung giờ và thời gian đệm."
+    }
+  },
   "appointment": {
+    "list": {
+      "title": "Xem lịch hẹn",
+      "desc": "Xem danh sách lịch hẹn theo khoảng ngày."
+    },
     "find_slots": {
       "title": "Tìm khung giờ trống",
       "desc": "Tìm khung giờ trống cho dịch vụ trong ngày theo lịch nhân viên."
@@ -417,6 +478,10 @@
     }
   },
   "ticket": {
+    "update": {
+      "title": "Sửa ticket",
+      "desc": "Sửa tiêu đề, mô tả, danh mục, ưu tiên hoặc trường tuỳ biến của ticket."
+    },
     "search": {
       "title": "Tìm ticket",
       "desc": "Tìm ticket theo nội dung, trạng thái, ưu tiên hoặc SLA."
@@ -625,6 +690,13 @@
     "add_source": {
       "title": "Thêm tài liệu tri thức"
     },
+    "update_source": {
+      "title": "Sửa tài liệu tri thức"
+    },
+    "search": {
+      "title": "Tìm trong kho tri thức",
+      "desc": "Tìm đoạn phù hợp trong kho tri thức (chính sách, mô tả dịch vụ, câu hỏi thường gặp) kèm nguồn — không dùng cho giá / tồn / lịch trống"
+    },
     "remove_source": {
       "title": "Xoá tài liệu tri thức"
     },
@@ -670,6 +742,45 @@
   "wallet": {
     "update_alerts": {
       "title": "Cập nhật nhắc credit"
+    }
+  },
+  "admin": {
+    "invoice": {
+      "confirm_transfer": {
+        "title": "Xác nhận chuyển khoản (quản trị nền tảng)"
+      }
+    }
+  },
+  "payment": {
+    "refund": {
+      "title": "Yêu cầu hoàn tiền"
+    },
+    "refund_approve": {
+      "title": "Duyệt hoàn tiền"
+    },
+    "refund_reject": {
+      "title": "Từ chối hoàn tiền"
+    }
+  },
+  "package": {
+    "extend": {
+      "title": "Gia hạn liệu trình"
+    },
+    "adjust_sessions": {
+      "title": "Điều chỉnh số buổi liệu trình"
+    }
+  },
+  "payment_account": {
+    "update": {
+      "title": "Cập nhật tài khoản nhận tiền"
+    }
+  },
+  "bank_feed": {
+    "connect": {
+      "title": "Kết nối đối soát ngân hàng"
+    },
+    "disconnect": {
+      "title": "Ngắt đối soát ngân hàng"
     }
   }
 }

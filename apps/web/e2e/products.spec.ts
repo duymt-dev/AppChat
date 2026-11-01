@@ -28,7 +28,38 @@ test.describe('products', () => {
     await drawer.getByRole('tab', { name: 'CRM' }).click();
     await expect(drawer).toContainText('Khách mua nhiều nhất');
     await drawer.getByRole('tab', { name: 'Lịch sử' }).click();
-    await expect(drawer).toContainText('Tạo sản phẩm');
+    await expect(drawer.getByTestId('pd-history')).toContainText('Tạo sản phẩm');
+  });
+
+  test('TIP-027: điều chỉnh tồn âm → cảnh báo, lịch sử có mục kho; sửa giá ghi lịch sử', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.locator('[data-product="pd_5"]').click();
+    const drawer = page.getByTestId('pd-drawer');
+    await drawer.getByTestId('pd-stock-open').click();
+    const m = page.getByTestId('pd-stock');
+    await expect(m.getByTestId('pd-stock-save')).toBeDisabled();
+    await m.getByTestId('pd-stock-delta').fill('-999');
+    await m.getByTestId('pd-stock-reason').fill('Kiểm kê');
+    await m.getByTestId('pd-stock-save').click();
+    await expect(page.getByText('đã chạm ngưỡng cảnh báo')).toBeVisible();
+    await expect(drawer.getByTestId('pd-stock-value')).toContainText('sắp hết');
+    await drawer.getByRole('tab', { name: 'Lịch sử' }).click();
+    await expect(drawer.getByTestId('pd-history').locator('[data-kind="stock"]').first()).toContainText(
+      'Kiểm kê',
+    );
+    await drawer.getByRole('tab', { name: 'Tổng quan' }).click();
+    await drawer.getByTestId('pd-edit').click();
+    const form = page.getByTestId('pd-form');
+    await form.getByTestId('pd-f-price').fill('700000');
+    await form.getByTestId('pd-save').click();
+    await expect(form).toHaveCount(0);
+    await drawer.getByRole('tab', { name: 'Lịch sử' }).click();
+    await expect(drawer.getByTestId('pd-history').locator('[data-kind="price"]')).toHaveCount(1);
+    await drawer.getByRole('button', { name: 'Đóng' }).first().click();
+    await page.locator('[data-product="pd_4"]').click();
+    await expect(drawer).toContainText('Khám da soi VISIA');
+    await expect(page.getByTestId('pd-stock-open')).toHaveCount(0);
   });
 
   test('thêm sản phẩm: đổi loại đổi khối nhập, thuộc tính sinh biến thể, danh mục mới, lưu qua action', async ({

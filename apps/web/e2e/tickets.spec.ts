@@ -104,7 +104,7 @@ test.describe('tickets', () => {
     await f.getByTestId('tk-save').click();
     const d = page.getByTestId('tk-drawer');
     await expect(d).toContainText('TKT-2042');
-    await expect(d.getByTestId('tk-sla-left')).toHaveText('Còn 16h');
+    await expect(d.getByTestId('tk-sla-left')).toHaveText('Còn 4h');
     await expect(page.locator('[data-ticket]')).toHaveCount(15);
   });
 
