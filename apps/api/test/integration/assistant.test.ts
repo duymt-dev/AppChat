@@ -117,6 +117,27 @@ describe('lượt hội thoại (AC3)', () => {
     expect(out.every((a) => a.id.startsWith('quote.'))).toBe(true);
   });
 
+  it('mã hiển thị: contact.search tìm "Hoa" → id + mã; contact.update nhận `contact_id` = mã KH; input sai khuôn → lỗi kèm khuôn đúng', async () => {
+    const made = (await act('contact.create', { full_name: 'Nguyễn Hoa Mã', phone: '0912340001' }, idem())).body.data.result as { contact_id: string; code: string };
+    const db = await tenant();
+    // Chat: tìm khách (read) chạy ngay, trả id + mã.
+    const s = await turn(({ call: n }) => (n === 0 ? { tool: 'call_action', input: { action_id: 'contact.search', input: { q: 'hoa ma' } } } : { text: 'ok' }), { mode: 'chat', text: 'tìm chị Hoa' });
+    const found = (await db.aiRunStep.findFirstOrThrow({ where: { runId: s.run_id!, type: 'tool' } })).output as { output: { contacts: { id: string; code: string }[] } };
+    expect(found.output.contacts).toEqual([expect.objectContaining({ id: made.contact_id, code: made.code })]);
+    // Sai khuôn (`id` + trường để ngoài `patch`) → lỗi có khuôn đúng; gọi lại với mã KH trong `contact_id` → thẻ xác nhận.
+    const script: MockScript = ({ call: n }) =>
+      n === 0
+        ? { tool: 'call_action', input: { action_id: 'contact.update', input: { id: made.code, phone: '0912340002' } } }
+        : n === 1
+          ? { tool: 'call_action', input: { action_id: 'contact.update', input: { contact_id: made.code, patch: { phone: '0912340002' } } } }
+          : { text: 'Đã gửi thẻ xác nhận.' };
+    const r = await turn(script, { text: 'sửa số chị Hoa' });
+    const steps = await db.aiRunStep.findMany({ where: { runId: r.run_id!, type: 'tool' }, orderBy: { idx: 'asc' } });
+    expect(steps[0]!.output).toMatchObject({ kind: 'error', code: 'VALIDATION_FAILED', message: expect.stringContaining('"patch"') });
+    expect(steps[1]!.output).toMatchObject({ kind: 'needs_confirmation' });
+    expect(r.events.some((e) => e.type === 'confirm')).toBe(true);
+  });
+
   it('read qua call_action chạy ngay (kb.search) — không có thẻ', async () => {
     const r = await turn(({ call: n }) => (n === 0 ? { tool: 'call_action', input: { action_id: 'kb.search', input: { query: 'giờ mở cửa' } } } : { text: 'Chưa có tài liệu.' }), { mode: 'chat', text: 'giờ mở cửa?' });
     expect(r.events.map((e) => e.type)).toEqual(['delta']);

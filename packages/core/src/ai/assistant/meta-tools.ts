@@ -14,7 +14,8 @@ import type { TenantDb } from '@appchat/db';
 import { AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import type { ActionExecutor } from '../../kernel/actions/executor';
-import { allowedFor, findActions, modeAllows } from './catalog';
+import { allowedFor, briefSchema, findActions, modeAllows } from './catalog';
+import { resolveCodes } from './code-refs';
 import { delegateTool, type DelegateDeps } from './delegate';
 import type { AssistantTurnCtx } from './types';
 
@@ -51,13 +52,19 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
   if (!def || !allowedFor(def, t.authz)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
   if (!modeAllows(def, t.mode)) return err('FORBIDDEN', 'Chế độ Chat chỉ được tra cứu — chuyển sang Cowork để thực hiện thao tác ghi');
   try {
+    // Model nói theo mã hiển thị (KH-1016, BG-1003) → đổi sang id trước khi chạy.
+    const { input } = await resolveCodes(d.db, def.id, i.input ?? {});
     // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước (chạy lại cùng bước không tạo hai lần).
-    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, { idempotencyKey: `assistant:${t.runId}:${stepIdx}` }), def.id, i.input ?? {});
+    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, { idempotencyKey: `assistant:${t.runId}:${stepIdx}` }), def.id, input);
     if (out.status === 200) return ok(out.data.result);
     const a = out.data;
     if (a.status === 'preview_required') return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token };
     return { kind: 'needs_approval', approvalId: a.approval_id };
   } catch (e) {
+    if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
+      // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
+      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(briefSchema(def))}. ${def.description}` };
+    }
     if (e instanceof AppError) return err(e.code, e.fields ? `${e.message} ${JSON.stringify(e.fields)}` : e.message);
     throw e;
   }

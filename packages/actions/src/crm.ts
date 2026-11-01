@@ -29,6 +29,30 @@ const contactFields = z.object({
   custom: customValuesSchema.optional(),
 });
 
+export const contactSearch = defineAction({
+  id: 'contact.search',
+  module: 'crm',
+  title: 'actions.contact.search.title',
+  description:
+    'Find customers by name / phone / email / code (KH-1001), optional stage or group; returns id + code to use in other actions. ' +
+    'Example: {"q":"Lan"} or {"q":"0909100001"} or {"stage":"quote"}',
+  input: z.object({
+    q: z.string().max(120).optional(),
+    stage: stage.optional(),
+    group: z.enum(['vip', 'loyal', 'new', 'potential']).optional(),
+    limit: z.number().int().min(1).max(20).optional(),
+  }),
+  output: z.object({
+    contacts: z.array(z.object({ id: z.string(), code: z.string(), name: z.string(), phone: z.string().nullable(), email: z.string().nullable(), stage: z.string() })),
+    total: z.number(),
+  }),
+  permission: 'crm.view',
+  risk: 'read',
+  agentGrantable: true,
+  skill: true,
+  invalidates: [],
+});
+
 export const contactCreate = defineAction({
   id: 'contact.create',
   module: 'crm',

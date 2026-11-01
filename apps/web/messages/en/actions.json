@@ -146,6 +146,10 @@
     "send_email": {
       "title": "Send email",
       "desc": "Send a standalone email to a contact, outside existing conversations."
+    },
+    "search": {
+      "title": "Find customers",
+      "desc": "Find customers by name, phone, email or customer code."
     }
   },
   "custom_field": {

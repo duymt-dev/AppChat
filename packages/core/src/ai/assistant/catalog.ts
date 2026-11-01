@@ -22,12 +22,23 @@ export function allowedFor(a: ActionDef, authz: AuthzContext): boolean {
 
 export const modeAllows = (a: Pick<ActionDef, 'risk'>, mode: AssistantMode) => mode === 'cowork' || a.risk === 'read';
 
+/** Động từ tiếng Việt (không dấu) của phần sau dấu chấm trong id — "tạo khách hàng" khớp `contact.create`. */
+const VERB_VI: Record<string, string> = {
+  create: 'tao them moi lap', update: 'sua cap nhat doi chinh', delete: 'xoa', search: 'tim tra cuu loc danh sach liet ke', get: 'xem chi tiet tra cuu',
+  list: 'danh sach liet ke xem', send: 'gui', cancel: 'huy', approve: 'duyet', reject: 'tu choi', pause: 'tam dung', resume: 'tiep tuc chay lai',
+  assign: 'giao phan cong', archive: 'luu tru', complete: 'hoan tat xong', confirm: 'xac nhan', comment: 'binh luan ghi chu', tag: 'gan the nhan',
+  set_stage: 'chuyen giai doan doi giai doan', set_status: 'doi trang thai', submit: 'gui duyet trinh duyet', test: 'thu kiem tra', connect: 'ket noi',
+  disconnect: 'ngat ket noi', merge: 'gop', import: 'nhap', export: 'xuat', adjust: 'dieu chinh', find_slots: 'gio trong lich trong tim gio',
+  close: 'dong', reopen: 'mo lai', void: 'huy bo', reschedule: 'doi lich doi gio', record: 'ghi nhan thu tien', refund: 'hoan tien',
+};
+
 /**
  * Chữ tìm kiếm (không dấu) theo 3 tầng, khớp tầng trước thì không xét tầng sau: tên (id + tên đối tượng vi / en) → module
  * (key + tên module vi / en) → mô tả (en, viết cho LLM).
  */
 function tiersOf(a: ActionDef): [string, string, string] {
-  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' ')];
+  const verb = a.id.slice(a.id.indexOf('.') + 1);
+  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? ''];
   const mod: string[] = [a.module];
   for (const l of ['vi', 'en']) {
     const m = serverMessages(l).ai.assistant;

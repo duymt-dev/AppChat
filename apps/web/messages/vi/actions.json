@@ -146,6 +146,10 @@
     "send_email": {
       "title": "Gửi email",
       "desc": "Gửi email riêng cho khách, không gắn với hội thoại có sẵn."
+    },
+    "search": {
+      "title": "Tìm khách hàng",
+      "desc": "Tìm khách theo tên, số điện thoại, email hoặc mã khách."
     }
   },
   "custom_field": {

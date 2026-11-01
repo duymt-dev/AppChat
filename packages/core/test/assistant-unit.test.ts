@@ -23,6 +23,12 @@ describe('find_actions', () => {
     expect(findActions(owner, 'cowork', 'quote', undefined, 50).map((a) => a.id)).toContain('quote.create');
   });
 
+  it('động từ tiếng Việt: "tạo khách hàng" → contact.create; "sửa khách hàng" → contact.update; "tìm khách" (Chat) → contact.search', () => {
+    expect(findActions(owner, 'cowork', 'tạo khách hàng').map((a) => a.id)).toEqual(['contact.create']);
+    expect(findActions(owner, 'cowork', 'sửa khách hàng').map((a) => a.id)).toContain('contact.update');
+    expect(findActions(owner, 'chat', 'tìm khách hàng').map((a) => a.id)).toEqual(['contact.search']);
+  });
+
   it('Chat chỉ action read; Cowork có ghi', () => {
     expect(findActions(owner, 'chat', 'ticket').map((a) => a.id)).toEqual(['ticket.search']);
     expect(findActions(owner, 'cowork', 'ticket', undefined, 50).map((a) => a.id)).toContain('ticket.create');
