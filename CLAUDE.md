@@ -116,7 +116,9 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 ## 8. Goal hiện tại
 
-`coding-packs/goals/GOAL-BACKEND.md` — **làm xong backend** (44 TIP, W1 → W9 trong `02-TASK-GRAPH.md`), nối FE sang `httpTransport` (D57). Viết TIP nào làm TIP đó; test theo 3 cổng D59 (khi làm · trước commit · chốt TIP).
+**Làm tiếp từ `coding-packs/HANDOFF-NEXT.md`** (trạng thái, việc kế tiếp, câu `/goal` dán sẵn). Tóm tắt: TIP 001–035 xong; đang **viết đủ TIP trước** (DC-233, đảo D57) đo bằng sổ phủ `coding-packs/COVERAGE.md` (công cụ `tools/obligations/`), rồi mới code tiếp từ TIP-023b.
+
+`coding-packs/goals/GOAL-BACKEND.md` — **làm xong backend** (W1 → W9 trong `02-TASK-GRAPH.md`, kể cả TIP bổ sung `0XXb`), nối FE sang `httpTransport`. Từ 023b: TIP viết sẵn, rà CONTEXT với code trước khi làm, chốt TIP cập nhật `COVERAGE.md`; test theo 3 cổng D59 (khi làm · trước commit · chốt TIP).
 
 - Ba sổ của goal: `coding-packs/QUESTIONS.md` (câu hỏi mở + đề xuất, không đứng chờ) · `DECISIONS.md` (tự chốt theo đề xuất, mã DC-xxx) · `DEVIATIONS.md` (lệch spec, mã DV-xxx). Lệch prototype vẫn ở `docs/06-prototype/DEVIATIONS.md`.
 - Tiến độ: bảng cuối `GOAL-BACKEND.md`. LLM qua 9router (D33) — chờ Chủ nhà cấp (Q-001), trước đó dùng mock model.

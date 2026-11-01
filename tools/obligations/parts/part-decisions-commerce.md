@@ -1,0 +1,226 @@
+| ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
+|----|----------|-------|----------|------------|------------|
+| COM-2-1 | 6 loại sản phẩm: vật lý · dịch vụ · combo · liệu trình · số · cho thuê | plans/COMMERCE-DECISIONS.md:35 | 027 | ĐẠT | packages/shared/src/api/catalog.ts:5 PRODUCT_TYPES; packages/db/prisma/tenant/catalog.prisma:5 · test apps/api/test/integration/catalog.test.ts "tạo 6 loại" |
+| COM-2-2 | Giá nhập chưa VAT; thuế 0/5/8/10% theo sản phẩm, tính theo từng dòng | plans/COMMERCE-DECISIONS.md:36 | 027 | ĐẠT | packages/actions/src/catalog.ts:17; packages/shared/src/commerce/quote-math.ts:35-60 · test quote-math.test.ts "thuế suất theo từng dòng" |
+| COM-2-3 | Biến thể `product_variant` có SKU / giá / tồn riêng, action `product_variant.*` | plans/COMMERCE-DECISIONS.md:37 | 032b | MỘT PHẦN | Bảng có (catalog.prisma:88), biến thể đi trong `product.update`; registry thiếu `product_variant.{create,update,archive}`, `product.import`, `category.{update,delete}` |
+| COM-2-4 | Bảng giá theo hạng / kênh; luồng thuê / trả | plans/COMMERCE-DECISIONS.md:38 | — | NGOÀI | P2 theo COMMERCE §2 |
+| COM-2-5 | Đơn confirmed → `stock_movement(sale, -n)`; combo trừ theo thành phần | plans/COMMERCE-DECISIONS.md:40 | 031 | ĐẠT | packages/core/src/sales/orders/services/order-write.ts:131 · test orders.test.ts "confirm: trừ kho theo dòng (combo theo thành phần)" |
+| COM-2-6 | Huỷ đơn → `kind=return`; chỉnh tay → `kind=adjust` kèm lý do | plans/COMMERCE-DECISIONS.md:41 | 027, 031 | ĐẠT | order-write.ts:144; catalog/actions/stock.handlers.ts:38 · test orders.test.ts "cancel … hoàn kho", catalog.test.ts "stock.adjust" |
+| COM-2-7 | Cho tồn âm + cảnh báo khi tồn ≤ ngưỡng | plans/COMMERCE-DECISIONS.md:42 | 027 | ĐẠT | catalog.prisma:59 lowStockThreshold · test catalog.test.ts "stock.adjust: cho âm + cờ low_stock" |
+| COM-2-8 | Agent tra tồn trước khi hứa giao; hết hàng báo khách + gợi ý thay thế | plans/COMMERCE-DECISIONS.md:42 | 044 | MỘT PHẦN | Chỉ luật prompt (packages/core/src/ai/agents/agent.runtime.ts:38) + action `stock.get` (catalog/actions/read.handlers.ts:68); không có ca eval / test hành vi agent; gợi ý thay thế chưa có |
+| COM-2-9 | Vật tư tiêu hao, đơn mua hàng, nhà cung cấp | plans/COMMERCE-DECISIONS.md:43 | — | NGOÀI | P2 theo COMMERCE §2 |
+| COM-3-1 | Máy trạng thái báo giá draft→(pending_approval→approved)→sent→viewed→accepted / revision_requested / rejected / expired | plans/COMMERCE-DECISIONS.md:49 | 029 | ĐẠT | packages/shared/src/sales/quote-state.ts · test quote-state.test.ts, quotes.test.ts |
+| COM-3-2 | Ngưỡng duyệt tổng > 20.000.000đ **cấu hình được** | plans/COMMERCE-DECISIONS.md:58 | 032b | MỘT PHẦN | Hằng số packages/shared/src/commerce/quote-math.ts:23 `APPROVAL_TOTAL`; không có cài đặt workspace |
+| COM-3-3 | Giảm giá vượt mức agent tự quyết (5%, AI Governance) → duyệt; Owner trên UI không bị giới hạn | plans/COMMERCE-DECISIONS.md:59 | 032b | MỘT PHẦN | `reasonsOf` (sales/quotes/services/quote-write.ts:98) không truyền `agentMaxPct`; `FORCE_APPROVAL` (ai/governance/governance.ts:34) không ai đọc; ngưỡng 5% áp cho mọi người kể cả Owner (quote-send.handlers.ts:52) |
+| COM-3-4 | Báo giá agent tạo có hàng ngoài danh mục → bắt duyệt | plans/COMMERCE-DECISIONS.md:60 | 029 | ĐẠT | sales/quotes/actions/quote-write.handlers.ts:50 · test quotes.test.ts "AI soạn … off_catalog + buộc duyệt" |
+| COM-3-5 | Chiết khấu theo dòng (% / tiền) và trên tổng; thuế tính sau chiết khấu theo thuế suất dòng | plans/COMMERCE-DECISIONS.md:62 | 029 | ĐẠT | quote-math.ts:35-60 · test quote-math.test.ts "thuế tính sau chiết khấu dòng + chiết khấu tổng" |
+| COM-3-6 | Điểm loyalty không trừ trên báo giá | plans/COMMERCE-DECISIONS.md:64 | 029 | ĐẠT | sales-quotes.prisma không có cột điểm; quoteTotals không có điểm · test quote-math.test.ts |
+| COM-3-7 | `valid_until = sent_at + 15 ngày`, sửa được trên từng báo giá | plans/COMMERCE-DECISIONS.md:65 | 029 | ĐẠT | quote-math.ts:26; quote-send.handlers.ts:59 (`q.validDays`) · test quotes.test.ts "valid_until = cuối ngày (gửi + 15)" |
+| COM-3-8 | Job nhắc còn 2 ngày; quá hạn → `expired` | plans/COMMERCE-DECISIONS.md:65 | 029 | ĐẠT | sales/quotes/services/quote-system.ts:32,54 · test quotes.test.ts "nhắc T-2 một lần; quá hạn → expired" |
+| COM-3-9 | Gửi báo giá PDF **hoặc ảnh** qua kênh hội thoại (mọi kênh, gồm webchat) | plans/COMMERCE-DECISIONS.md:67 | 032b | MỘT PHẦN | Gửi PDF Zalo / email (quote-send.handlers.ts:85); enum kênh chỉ `zalo_personal \| email` (packages/actions/src/quotes.ts:121); không gửi ảnh |
+| COM-3-10 | Link xem báo giá ghi nhận `viewed` | plans/COMMERCE-DECISIONS.md:67 | 029 | ĐẠT | quote-system.ts:17 markViewed · test quotes.test.ts "link xem … viewed + event" |
+| COM-3-11 | AI nhận ý định khách trong chat → `quote.mark_accepted / request_revision / mark_rejected`; tự làm khi tin cậy ≥ 70% | plans/COMMERCE-DECISIONS.md:68-70 | 044 | MỘT PHẦN | Action agentGrantable (actions/quotes.ts:139,153,167); ngưỡng tin cậy chung packages/ai/src/reply/handoff.ts:34 (mặc định 70, agent.store.ts:51); không có test agent gọi đúng action từ câu khách; `ai.detect_intent` không có trong registry |
+| COM-3-12 | Báo giá accepted có 2 nút "→ Hợp đồng" / "→ Đơn hàng", agent gọi được; không tự sinh | plans/COMMERCE-DECISIONS.md:71-72 | 029, 030, 031 | ĐẠT | contracts/actions/contract-write.handlers.ts:83; sales/orders/actions/order-create.handlers.ts:123 · test contracts.test.ts "từ báo giá", orders.test.ts "báo giá chưa chốt 409; đã chốt → đơn" |
+| COM-3-13 | Mỗi báo giá sinh tối đa một HĐ **hoặc** một đơn | plans/COMMERCE-DECISIONS.md:73 | 032b | MỘT PHẦN | Chỉ chặn trùng cùng loại (order-create.handlers.ts:135; contract-write.handlers.ts:94; contracts.prisma `quoteId @unique`) → một báo giá ra được cả HĐ lẫn đơn (Q-025) |
+| COM-4-1 | Đơn hai trục: `status` new→processing→completed / cancelled | plans/COMMERCE-DECISIONS.md:81 | 031 | ĐẠT | packages/shared/src/orders/order-state.ts:6-31 · test order-state.test.ts |
+| COM-4-2 | `pay_status` tổng hợp; "Chờ cọc" chỉ khi `deposit_required` | plans/COMMERCE-DECISIONS.md:82,91 | 031 | ĐẠT | order-state.ts:46-55 payStatusOf · test order-state.test.ts, orders.test.ts "cọc → Chờ cọc" |
+| COM-4-3 | Đơn tạo từ báo giá, từ HĐ đã ký (nhiều đơn), từ lịch hẹn (gợi ý), trực tiếp | plans/COMMERCE-DECISIONS.md:84-87 | 031, 033 | ĐẠT | order-create.handlers.ts:101,123,166; order-from-appointment.handler.ts:18 · test orders.test.ts "đã ký → nhiều đơn", booking.test.ts "gợi ý đơn → order.create_from_appointment (một lần)" |
+| COM-4-4 | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | plans/COMMERCE-DECISIONS.md:86 | — | MỘT PHẦN | Chỉ apps/web/src/features/calendar/components/AppointmentDrawer.tsx:43 (`suggest_order`); Inbox / Trợ lý không có (grep `suggest_order`) |
+| COM-4-5 | Buổi trừ vào liệu trình thì không gợi ý tạo đơn | plans/COMMERCE-DECISIONS.md:86 | 033 | ĐẠT | order-from-appointment.handler.ts:35 · test booking.test.ts "liệu trình … trừ 1 buổi" |
+| COM-4-6 | new → processing = xác nhận đơn: trừ kho + sinh `customer_package` nếu đủ điều kiện | plans/COMMERCE-DECISIONS.md:88 | 031, 032 | ĐẠT | sales/orders/actions/order-flow.handlers.ts:62; payments/services/packages.ts:19 (consumer order.confirmed) · test orders.test.ts confirm, payments.test.ts |
+| COM-4-7 | Cọc theo số tiền **hoặc %** | plans/COMMERCE-DECISIONS.md:90 | — | MỘT PHẦN | Chỉ `deposit_amount` (packages/actions/src/orders.ts:24); không có cọc theo % |
+| COM-4-8 | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | plans/COMMERCE-DECISIONS.md:90 | — | CHƯA | Không có code gợi ý (grep deposit trong orders FE / core) |
+| COM-4-9 | Sửa đơn tự do ở new; processing chỉ khi chưa có khoản thu | plans/COMMERCE-DECISIONS.md:92 | 031 | ĐẠT | order-edit.handlers.ts:77 · test orders.test.ts "processing: sửa dòng khi chưa thu …; đã thu → 409" |
+| COM-4-10 | Huỷ đơn: lý do bắt buộc, hoàn kho, đã thu → yêu cầu hoàn tiền Owner duyệt | plans/COMMERCE-DECISIONS.md:93-97 | 031, 032 | ĐẠT | order-flow.handlers.ts:47-59 · test orders.test.ts "cancel: lý do rỗng 422; hoàn kho; đã thu → chờ hoàn tiền", payments.test.ts |
+| COM-4-11 | Huỷ đơn: đảo điểm đã cộng + trả lại điểm đã dùng | plans/COMMERCE-DECISIONS.md:96 | 036 | CHƯA | Không có sổ điểm (packages/core/src/loyalty/loyalty.module.ts stub) |
+| COM-4-12 | Vận chuyển nhập tay (đơn vị, mã vận đơn, ngày giao) | plans/COMMERCE-DECISIONS.md:98 | 031 | ĐẠT | order-edit.handlers.ts:161 · test orders.test.ts "vận chuyển + hoàn tác"; tích hợp hãng: NGOÀI P2 |
+| COM-4-13 | Chip lọc Tất cả · Đã TT · Đã cọc · Chờ cọc · Đã huỷ, mỗi chip đúng trục; 2 cột trạng thái | plans/COMMERCE-DECISIONS.md:99-101 | 031 | ĐẠT | order-state.ts:58-59; orders/repos/orders.repo.ts:31 · test orders.test.ts "D42 page + chip" |
+| COM-4b-1 | `order.source` + `external_ref`; nhập một lần unique theo kết nối + mã ngoài | plans/COMMERCE-DECISIONS.md:105 | 031 | ĐẠT | sales-orders.prisma:97 @@unique; orders/services/order-import.ts · test orders.test.ts "sync_now … gọi lại idempotent" |
+| COM-4b-2 | Adapter ánh xạ trạng thái sàn về 2 trục, giữ `platform_status` | plans/COMMERCE-DECISIONS.md:106 | 031 | ĐẠT | packages/integrations/src/ports/order-sync.ts mapStatus · test packages/integrations/test/order-sync.test.ts "mapStatus" |
+| COM-4b-3 | Đơn sàn khoá dòng / giá / tổng; chỉ sửa phụ trách, ghi chú, thẻ | plans/COMMERCE-DECISIONS.md:107 | 031 | ĐẠT | order-import.ts:1-4 · test orders.test.ts "đơn sàn: sửa dòng / cọc 409 (locked_lines), ghi chú được" |
+| COM-4b-4 | Đơn sàn đã thu ghi `customer_payment(marketplace)`, không sinh ĐNTT / VietQR; COD paid khi hoàn tất | plans/COMMERCE-DECISIONS.md:108 | 031, 032 | ĐẠT | order-import.ts:68-73 · test payments.test.ts "đơn sàn / đơn huỷ không tạo đề nghị", order-sync.test.ts "COD chỉ đã thu khi hoàn tất" |
+| COM-4b-5 | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | plans/COMMERCE-DECISIONS.md:109 | — | MỘT PHẦN | Đơn sàn vẫn ghi sổ kho (order-import.ts:53); không có cấu hình `stock_master` (chỉ comment order-write.ts:4); đẩy tồn lên sàn P2 |
+| COM-4b-6 | Khớp khách sàn theo `contact_identity(marketplace, buyer_id)` | plans/COMMERCE-DECISIONS.md:110 | 031 | ĐẠT | order-import.ts:93 · test orders.test.ts "khách theo buyer" |
+| COM-4b-7 | Đơn sàn mặc định không tích điểm, bật được trong cấu hình | plans/COMMERCE-DECISIONS.md:111 | 031 | ĐẠT | order-flow.handlers.ts:28-32 (`loyalty_enabled`) · test orders.test.ts "hoàn tất không tích điểm" (bật ở cấu hình loyalty: 036) |
+| COM-4b-8 | Khung port + mock + thẻ "Sắp có" P0; adapter thật sàn / POS P2 | plans/COMMERCE-DECISIONS.md:112 | 031 | ĐẠT | packages/integrations/src/registry.ts:19; coming-soon.ts:8-9 · test order-sync.test.ts "registry"; adapter thật: NGOÀI P2 |
+| COM-5-1 | Tên "Đề nghị thanh toán", mã `TT-000123` | plans/COMMERCE-DECISIONS.md:116 | 032 | ĐẠT | packages/shared/src/codes.ts:8 · test payments.test.ts "TT-001001" |
+| COM-5-2 | PDF ĐNTT / phiếu thu ghi "không thay thế hoá đơn GTGT" (không xoá được) | plans/COMMERCE-DECISIONS.md:117,239 | 028, 032 | ĐẠT | sales/payments/services/invoice-doc.ts:1-3 (renderRich tự chèn) · test documents.test.ts "đề nghị thanh toán / phiếu thu có dòng không thay thế HĐ GTGT" |
+| COM-5-3 | Hoá đơn điện tử thật qua `EInvoiceProvider` | plans/COMMERCE-DECISIONS.md:118 | — | NGOÀI | P2 (Q2); thẻ "Sắp có" packages/integrations/src/coming-soon.ts:14-17 |
+| COM-5-4 | Trạng thái ĐNTT draft → sent → partial → paid; overdue; void | plans/COMMERCE-DECISIONS.md:119 | 032 | ĐẠT | packages/shared/src/sales/invoice-state.ts · test invoice-state.test.ts, payments.test.ts "quá hạn → overdue" |
+| COM-5-5 | Một đơn nhiều ĐNTT (cọc, đợt, phần còn lại) | plans/COMMERCE-DECISIONS.md:120 | 032 | ĐẠT | invoice-write.handlers.ts:39 · test payments.test.ts "vượt còn phải thu 422" |
+| COM-5-6 | Hạn thanh toán mặc định 7 ngày | plans/COMMERCE-DECISIONS.md:121 | 032 | ĐẠT | invoice-write.handlers.ts:61 INVOICE_DUE_DAYS · test payments.test.ts "hạn +7 ngày" |
+| COM-5-7 | Nhắc khách qua kênh của họ ở T-1, T+1, T+7 | plans/COMMERCE-DECISIONS.md:121 | 032 | ĐẠT | payments/services/payment-system.ts:41 remindDue · test payments.test.ts "nhắc T+1 một lần" (T-1 / T+7 không có ca test riêng) |
+| COM-5-8 | Khoản thu kind deposit / payment / refund (âm, luôn duyệt) | plans/COMMERCE-DECISIONS.md:123 | 032 | ĐẠT | migration 032 `payment_kind`; refund.handlers.ts:29,90 · test payments.test.ts "hoàn tiền (luôn duyệt)" |
+| COM-5-9 | Phương thức QR · chuyển khoản · tiền mặt · thẻ | plans/COMMERCE-DECISIONS.md:124 | 032 | ĐẠT | packages/actions/src/invoices.ts:62 · test payments.test.ts record_payment |
+| COM-5-10 | Mỗi khoản thu có phiếu thu PDF | plans/COMMERCE-DECISIONS.md:125 | 032 | ĐẠT | payment-write.ts:59 (PT-); invoices-read.service.ts:136 · test payments.test.ts "phiếu thu PT-" |
+| COM-5-11 | Gửi phiếu thu / xác nhận đơn cho khách qua kênh (`receipt.send`, `order.send_confirmation`) | plans/COMMERCE-DECISIONS.md:125 | 032b | CHƯA | Chỉ tải PDF; action chưa có trong registry |
+| COM-5-12 | Xác nhận tay `invoice.record_payment` | plans/COMMERCE-DECISIONS.md:127 | 032 | ĐẠT | invoice-pay.handlers.ts:26 · test payments.test.ts |
+| COM-5-13 | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | plans/COMMERCE-DECISIONS.md:128 | — | GIẢ | Luồng có (sales/payments/services/bank-feed.ts) nhưng registry gắn `MockBankFeedProvider` cho cả sepay + casso (packages/integrations/src/registry.ts:16-17); `SepayBankFeed` chỉ dùng cho nền tảng qua env; Casso không có adapter thật. Không TIP nào nhận (TIP-012:56 hẹn 010 / 032; 032 DONE vẫn mock) |
+| COM-5-14 | Khớp không chắc (sai tiền, thiếu mã) → hàng "Cần đối soát" | plans/COMMERCE-DECISIONS.md:129 | 032 | ĐẠT | bank-feed.ts:1-4; invoice-pay.handlers.ts:55 · test payments.test.ts "lệch / thiếu mã → Cần đối soát", "resolve_bank_match" |
+| COM-5-15 | Công nợ (phải thu, quá hạn) theo khách ở Hồ sơ 360° và danh sách ĐNTT | plans/COMMERCE-DECISIONS.md:130 | 015b | MỘT PHẦN | 360° `kpis: []` (packages/core/src/crm/services/contact360.ts:52); danh sách chỉ meta theo đề nghị (invoices-read.service.ts:111) |
+| COM-5-16 | ĐNTT "kèm VietQR" — ảnh QR thật trong PDF + `GET /invoices/:id/qr` | plans/COMMERCE-DECISIONS.md:14 | 032b | MỘT PHẦN | Payload VietQR có (shared/commerce/vietqr.ts + vietqr.test.ts) nhưng PDF chỉ dòng chữ (invoice-doc.ts:108); route QR không có |
+| COM-5-17 | Gửi ĐNTT / link ký / báo giá qua webchat | plans/COMMERCE-DECISIONS.md:121,211 | 032b | CHƯA | Enum `zalo_personal \| email`: packages/actions/src/invoices.ts:45, contracts.ts:144, quotes.ts:121 |
+| COM-6-1 | Sản phẩm liệu trình có `sessions`, `valid_days`, dịch vụ áp dụng | plans/COMMERCE-DECISIONS.md:134 | 027, 033 | ĐẠT | catalog.prisma:61-62; dịch vụ = thành phần · test booking.test.ts "dịch vụ + liệu trình (thành phần là dịch vụ)" |
+| COM-6-2 | Sinh `customer_package` khi đơn gói xác nhận và thu đủ | plans/COMMERCE-DECISIONS.md:135 | 032 | ĐẠT | payments/services/packages.ts:19 · test payments.test.ts, booking.test.ts "gói đã thu đủ" |
+| COM-6-3 | Sinh gói khi mới cọc nếu sản phẩm cho phép | plans/COMMERCE-DECISIONS.md:135 | 032b | CHƯA | packages.ts:20 chỉ `payStatus === 'paid'`; không có cờ `grant_on_deposit` |
+| COM-6-4 | Lịch hẹn gói `done` → used+1 + `package_usage`; hoàn tác trả buổi | plans/COMMERCE-DECISIONS.md:137-138 | 033 | ĐẠT | booking/actions/appointment-flow.handlers.ts:86 · test booking.test.ts "hoàn thành trừ 1 buổi (package_usage); hoàn tác trả buổi" |
+| COM-6-5 | No-show mặc định không trừ buổi, bật được trong cấu hình | plans/COMMERCE-DECISIONS.md:139 | 033 | ĐẠT | appointment-flow.handlers.ts:125 (`noShowDeducts`) · test booking.test.ts "không đến … (không trừ buổi)" |
+| COM-6-6 | Tạo lịch cho khách có gói phù hợp → tự chọn gói | plans/COMMERCE-DECISIONS.md:140 | 033 | ĐẠT | test booking.test.ts "tạo lịch tự gắn gói" |
+| COM-6-7 | Nhắc gia hạn khi còn 1 buổi / còn 7 ngày | plans/COMMERCE-DECISIONS.md:141 | 032b | CHƯA | Không có job nhắc (packages.ts chỉ expireDuePackages) |
+| COM-6-8 | Hết hạn → `expired`; Owner gia hạn `package.extend` có log | plans/COMMERCE-DECISIONS.md:142 | 032 | ĐẠT | packages.ts:50; package.handlers.ts:45 · test payments.test.ts "liệu trình: gia hạn" |
+| COM-6-9 | Hoàn tiền gói theo tỉ lệ buổi còn lại, cần duyệt; không chuyển nhượng | plans/COMMERCE-DECISIONS.md:143 | 032 | ĐẠT | refunds.ts · test payments.test.ts "yêu cầu theo liệu trình (tỉ lệ buổi còn lại) → chờ duyệt" |
+| COM-6-10 | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | plans/COMMERCE-DECISIONS.md:144 | — | MỘT PHẦN | API `GET /contacts/:id/packages` có (apps/api/src/http/sales/invoices.controller.ts) nhưng FE features không gọi (chỉ mock test); không có action đọc liệu trình cho agent (023b R2 không liệt kê) |
+| COM-7-1 | Cộng điểm một lần khi đơn `completed`: floor(net trước VAT / 10.000) × hệ số hạng | plans/COMMERCE-DECISIONS.md:148-149 | 036 | MỘT PHẦN | Tính + ghi trên đơn (order-flow.handlers.ts:22-44; order-state.ts:62-67 · test order-state.test.ts pointsFor, orders.test.ts complete); chưa cộng sổ điểm / `points_balance` (DC-186) |
+| COM-7-2 | Hệ số hạng ×1 / ×1 / ×1,5 / ×2 cấu hình được | plans/COMMERCE-DECISIONS.md:150 | 036 | MỘT PHẦN | Hằng số `TIER_MULTIPLIER` order-state.ts:63; `loyalty.update_config` handler null |
+| COM-7-3 | Lịch hẹn hoàn tất không cộng điểm riêng | plans/COMMERCE-DECISIONS.md:151 | 033 | ĐẠT | appointment-flow.handlers.ts:86 không cộng điểm · test booking.test.ts |
+| COM-7-4 | Đổi điểm: 1 điểm = 100đ, khoản thu kind `points`, ≤ 50% giá trị đơn | plans/COMMERCE-DECISIONS.md:152 | 036 | CHƯA | `payment.redeem_points` không có trong registry; 360° quy đổi ×10 (contact360.ts:40) |
+| COM-7-5 | Đảo điểm khi huỷ đơn / hoàn tiền một phần theo tỉ lệ | plans/COMMERCE-DECISIONS.md:153-155 | 036 | CHƯA | Không có sổ điểm |
+| COM-7-6 | Hạn điểm 12 tháng FIFO | plans/COMMERCE-DECISIONS.md:156 | 036 | CHƯA | loyalty module stub |
+| COM-7-7 | Hạng theo điểm 12 tháng, xét lại mỗi quý, ngưỡng 0 / 5.000 / 15.000 / 40.000 | plans/COMMERCE-DECISIONS.md:157 | 036 | CHƯA | loyalty module stub; `/loyalty/*` FE gọi mà API không có (routes.json missing) |
+| COM-7-8 | Voucher / mã giảm giá | plans/COMMERCE-DECISIONS.md:158 | — | NGOÀI | P2 |
+| COM-8-1 | Khách mới từ kênh → Lead mới | plans/COMMERCE-DECISIONS.md:164 | 015, 016 | ĐẠT | test crm-contacts.test.ts "AC2 contact.create … lead", inbox.test.ts AC2 |
+| COM-8-2 | `quote.sent` → Báo giá (nếu thấp hơn) | plans/COMMERCE-DECISIONS.md:165 | 029 | ĐẠT | quote-send.handlers.ts:90 · test quotes.test.ts "giai đoạn Báo giá" |
+| COM-8-3 | HĐ gửi ký / đã ký → Hợp đồng (nếu thấp hơn) | plans/COMMERCE-DECISIONS.md:166,228 | 030 | ĐẠT | contracts/services/public-sign.service.ts:222 · test contracts.test.ts "link ký vào hội thoại, giai đoạn Hợp đồng" |
+| COM-8-4 | BG từ chối / hết hạn, không còn BG mở → Đang tư vấn | plans/COMMERCE-DECISIONS.md:167 | 029 | ĐẠT | quote-system.ts:44 closeLost · test quotes.test.ts "từ chối → lùi giai đoạn về Đang tư vấn" |
+| COM-8-5 | `order.completed` → Đã mua | plans/COMMERCE-DECISIONS.md:168 | 031 | ĐẠT | order-flow.handlers.ts:43 · test orders.test.ts "khách Đã mua" |
+| COM-8-6 | Đã mua không bao giờ bị hạ | plans/COMMERCE-DECISIONS.md:170 | 015 | ĐẠT | crm/services/stage-rules.ts:25 · test orders.test.ts "hoàn tác giữ Đã mua" |
+| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | — | MỘT PHẦN | Code có (stage-rules.ts:26 MANUAL_HOLD_MS); không test nào kiểm `stage_set_manually_at` / cửa sổ 24h |
+| COM-8-8 | Không có pipeline Deal riêng; giai đoạn trên Khách hàng | plans/COMMERCE-DECISIONS.md:172 | 015 | QUY-TẮC | Không có bảng deal; contact360.ts:43 `deal` rỗng |
+| COM-8b-1 | Vai trò trên khách owner / collaborator / watcher | plans/COMMERCE-DECISIONS.md:176 | 015 | ĐẠT | crm/services/access.ts · test crm-contacts.test.ts AC3 |
+| COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | — | MỘT PHẦN | CRM / inbox có watcher; nhưng quote-access.ts:17, orders/order-access.ts:17, contracts/contract-access.ts:17, payments/invoice-access.ts:17, booking/booking-access.ts:17 chỉ `role = 'collaborator'` → watcher không thấy chứng từ / lịch hẹn của khách |
+| COM-8b-3 | Chống giành khách + "Xin chia sẻ" (`contact.request_access`) | plans/COMMERCE-DECISIONS.md:178 | 015 | ĐẠT | crm/actions/contact-owner.handlers.ts:125 · test crm-contacts.test.ts AC2, AC6 |
+| COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | — | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
+| COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | — | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081) |
+| COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 029–031 | ĐẠT | contracts.prisma ownerUserId "không đổi theo khách" · test quotes.test.ts, orders.test.ts (phụ trách = người tạo) |
+| COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042 | CHƯA | P1, TIP-042 |
+| COM-9-1 | Máy trạng thái HĐ draft → pending_approval → pending_signature → signed / declined / expired / terminated | plans/COMMERCE-DECISIONS.md:191-195 | 030 | ĐẠT | packages/shared/src/contracts/contract-state.ts · test contract-state.test.ts, contracts.test.ts |
+| COM-9-2 | Kanban / chip 4 cột; Chờ duyệt gộp Nháp; Từ chối / Chấm dứt chỉ ở "Tất cả" | plans/COMMERCE-DECISIONS.md:198 | 030 | ĐẠT | contract-state.ts:31-33 · test contracts.test.ts "D42 … chip trạng thái" |
+| COM-9-3 | Agent / Trợ lý chỉ soạn nháp; gửi ký cần Owner | plans/COMMERCE-DECISIONS.md:202 | 030 | ĐẠT | packages/actions/src/contracts.ts:107-148 (`agentGrantable: false`, permission `contract.sign`) · test contracts.test.ts "sales không duyệt & ký được" |
+| COM-9-4 | Loại HĐ Dịch vụ / Mua bán / Nguyên tắc; mã `HĐ-` tự sinh | plans/COMMERCE-DECISIONS.md:203-204 | 030 | ĐẠT | contracts.prisma ContractKind; codes.ts:6 · test contracts.test.ts "mã HĐ-1001" |
+| COM-9-5 | Trường "file hợp đồng" tải lên | plans/COMMERCE-DECISIONS.md:204 | 030b | MỘT PHẦN | Chỉ `fileName` (contracts.prisma), nội dung ký render từ mẫu |
+| COM-9-6 | (a) Nội dung sinh từ mẫu **theo loại** | plans/COMMERCE-DECISIONS.md:206 | 030b | MỘT PHẦN | contract-write.handlers.ts:32 lấy mẫu mặc định kind `contract`, không theo loại |
+| COM-9-7 | (a2) Mẫu DOCX DN + AI soạn HĐ từ nội dung (`contract.draft_from_content`) | plans/COMMERCE-DECISIONS.md:207 | 030b | CHƯA | Action không có trong registry |
+| COM-9-8 | (b) Tải lên PDF có sẵn (cả tệp khách gửi trong hội thoại) | plans/COMMERCE-DECISIONS.md:208 | 030b | CHƯA | Không có action / route |
+| COM-9-9 | Owner "Duyệt & ký": OTP email + ký tay, chữ ký chèn PDF | plans/COMMERCE-DECISIONS.md:210 | 030 | ĐẠT | contract-approval.handlers.ts:99 · test contracts.test.ts "Duyệt & ký: … OTP đúng → chờ khách ký" |
+| COM-9-10 | Gửi ký: link một lần, 7 ngày, gia hạn được, qua kênh hội thoại / email | plans/COMMERCE-DECISIONS.md:211 | 030 | ĐẠT | contract-send.handlers.ts:38,122 · test contracts.test.ts "link dùng một lần", "nhắc / gia hạn" (webchat: COM-5-17) |
+| COM-9-11 | Trang ký công khai: xem PDF, tick đồng ý, OTP khách, ký tay | plans/COMMERCE-DECISIONS.md:212 | 030 | ĐẠT | contracts/services/public-sign.service.ts · test contracts.test.ts "mở link → opened … ký → signed" |
+| COM-9-12 | Hoàn tất PDF: chữ ký khách + trang chứng nhận + SHA-256, khoá nội dung | plans/COMMERCE-DECISIONS.md:213-214 | 030 | ĐẠT | contract-sign-pdf.ts:34-66 · test contracts.test.ts "PDF cuối + SHA-256" |
+| COM-9-13 | Gửi PDF đã ký cho cả 2 bên | plans/COMMERCE-DECISIONS.md:215 | 030 | ĐẠT | public-sign.service.ts:224-231 (khách qua hội thoại, DN thông báo + tải) · test contracts.test.ts |
+| COM-9-14 | `contract_signature_event` append-only mọi bước | plans/COMMERCE-DECISIONS.md:216 | 030 | ĐẠT | migration 030 trigger L172-178 · test contracts.test.ts:115-116 |
+| COM-9-15 | Khách "Từ chối ký" → declined, báo Owner | plans/COMMERCE-DECISIONS.md:217 | 030 | ĐẠT | test contracts.test.ts "khách từ chối → declined + thông báo" |
+| COM-9-16 | Ký số CA qua `ESignProvider`; nhãn "Ký số" → "Ký điện tử" | plans/COMMERCE-DECISIONS.md:218 | — | NGOÀI | P2 (C1); nhãn đã đổi apps/web/messages/vi/contracts.json:108 |
+| COM-9-17 | Sau ký khoá nội dung; thay đổi bằng phụ lục `contract_appendix` cùng luồng duyệt + ký | plans/COMMERCE-DECISIONS.md:220-221 | 030b | CHƯA | `contract.create_appendix` không có trong registry (Q-022) |
+| COM-9-18 | HĐ đã ký "→ Đơn hàng", nhiều đơn | plans/COMMERCE-DECISIONS.md:222 | 031 | ĐẠT | order-create.handlers.ts:166 · test orders.test.ts "đã ký → nhiều đơn" |
+| COM-9-19 | T-30 nhắc Owner (thông báo **+ Việc cần tôi**) + gợi ý agent chào gia hạn | plans/COMMERCE-DECISIONS.md:224 | 038 | MỘT PHẦN | Thông báo có (contract-system.ts:52 · test contracts.test.ts "T-30 nhắc gia hạn một lần"); Việc cần tôi = Dashboard 038; gợi ý agent: task-catalog không có trigger `contract.expiring` |
+| COM-9-20 | Qua ngày kết thúc → expired; "Gia hạn" = HĐ mới `renewal_of_id` | plans/COMMERCE-DECISIONS.md:225-226 | 030 | ĐẠT | contract-system.ts:75; contract-write.handlers.ts:170 · test contracts.test.ts "qua ngày kết thúc → expired; renew tạo nháp mới" |
+| COM-9-21 | Chấm dứt chỉ Owner, lý do bắt buộc, timeline | plans/COMMERCE-DECISIONS.md:227 | 030 | ĐẠT | contract-send.handlers.ts:154 (permission contract.sign, OWNER_ONLY) · test contracts.test.ts "terminate … lý do + timeline" |
+| COM-9-22 | Hồ sơ 360° hiển thị HĐ, giá trị hiệu lực, ngày hết hạn gần nhất | plans/COMMERCE-DECISIONS.md:229 | 015b | CHƯA | contact360.ts không đọc hợp đồng |
+| COM-12-1 | `doc_template(kind quote/contract/payment_request/receipt)`, nguồn rich / docx, có version, chứng từ ghi version | plans/COMMERCE-DECISIONS.md:234 | 028 | ĐẠT | documents/services/template-store.ts; sales-quotes.prisma:32 templateVersion · test documents.test.ts |
+| COM-12-2 | AI soạn báo giá: khớp catalog, giá catalog, ngoài DM / giảm > 5% buộc duyệt; chỉ tạo nháp | plans/COMMERCE-DECISIONS.md:236,238 | 029 | ĐẠT | sales/quotes/services/quote-draft.ts; quote-draft.handler.ts:3 · test quotes.test.ts "AI soạn từ nội dung (model giả → bộ luật)" (model thật Q-001) |
+| COM-12-3 | AI soạn HĐ: điền biến, điều khoản mẫu nguyên văn, đề xuất trong khối tô nổi Giữ / Bỏ | plans/COMMERCE-DECISIONS.md:237 | 030b | CHƯA | Không có action / code |
+| COM-12-4 | Bảng kiểm cảnh báo: Điều 398 (HĐ); BG có bên bán + MST + hiệu lực + VAT | plans/COMMERCE-DECISIONS.md:239 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:44 legalChecklist · test template-text.test.ts, documents.test.ts "bảng kiểm" |
+| COM-10-1 | `billing_invoice` có thông tin xuất VAT (MST, tên, địa chỉ, email) | plans/COMMERCE-DECISIONS.md:244 | 010 | ĐẠT | billing/payments/invoices.service.ts:85 · test billing-payments.test.ts AC2 "vat_info"; xuất HĐĐT thật NGOÀI P2 |
+| COM-10-2 | Credit gói không cộng dồn; credit mua thêm không hết hạn; trừ gói trước | plans/COMMERCE-DECISIONS.md:245 | 009 | ĐẠT | billing/services/wallet.service.ts:83-91 (resetPlan DC-034) · test billing.test.ts AC4 "trừ plan trước rồi topup" |
+| COM-10-3 | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | plans/COMMERCE-DECISIONS.md:246 | — | CHƯA | Enum `upgrade_proration` có (billing-payments.prisma:10) nhưng fulfil.ts:39 xử lý như mua gói mới; `billing.create_invoice` chỉ `plan \| credit \| addon` (settings-ai.ts:163); TIP-010:55 chỉ giao UI cho 039 |
+| COM-10-4 | Hạ gói có hiệu lực từ kỳ sau | plans/COMMERCE-DECISIONS.md:246 | — | CHƯA | Không có code (grep downgrade / scheduled) |
+| COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
+| COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
+| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | MỘT PHẦN | Chặn có (`CREDIT_EXHAUSTED` wallet.service.ts:83 · test billing.test.ts AC4/AC5); popup nạp FE chưa thấy (chỉ chuỗi i18n errors.json) |
+| COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
+| D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
+| D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
+| D03 | Trợ lý = orchestrator điều phối agent + copilot điều khiển mọi action UI | 01-REQUIREMENTS-MATRIX.md:253 | 023b | MỘT PHẦN | meta-tools + delegate (packages/core/src/ai/assistant/meta-tools.ts, delegate.ts · test assistant.test.ts:221); phủ đủ action / preview: 023b, theo màn: 023c |
+| D16 | Action-first: một Action Registry cho UI, Trợ lý, agent | 01-REQUIREMENTS-MATRIX.md:254 | 003 | QUY-TẮC | kernel/actions/executor.ts · test packages/actions/src/registry.test.ts; còn 17 lời gọi `transport.post/put/patch` trong apps/web/src/features chưa rà |
+| D04 | Kênh Zalo cá nhân + Web widget + Email | 01-REQUIREMENTS-MATRIX.md:255 | 014, 017, 018 | CHỜ-TK | packages/channels/src/{zalo-personal,webchat,email} · test zalo-adapter.test.ts, webchat.test.ts, email.test.ts; Zalo thật Q-003 |
+| D05 | Zalo cá nhân adapter cô lập, throttle chống khoá | 01-REQUIREMENTS-MATRIX.md:256 | 014 | CHỜ-TK | manifest.ts:22 jitter 2–6s; channels/jobs/send.processor.ts:43 · test channels.test.ts; Q-003 |
+| D06 | Tự chủ theo spec, ép duyệt tiền / HĐ / gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:257 | 003, 021 | ĐẠT | kernel/actions/policy.ts:8-26 · test packages/core/test/actions-unit.test.ts "policy nguồn × rủi ro" (ngưỡng 20M/5% riêng cho agent: COM-3-3) |
+| D07 | Không làm Call Center, Workflow engine | 01-REQUIREMENTS-MATRIX.md:258 | — | NGOÀI | D07 |
+| D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
+| D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | CHƯA | packages/core/src/marketing chỉ module stub; `/campaigns*` FE gọi mà API không có (routes.json missing) |
+| D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | CHƯA | loyalty module stub; `/loyalty/*` thiếu API |
+| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | MỘT PHẦN | Như COM-10-7 |
+| D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | MỘT PHẦN | Seed có (billing/seed.ts · test billing.test.ts AC2); `admin.plan.upsert` chưa có |
+| D11 | RBAC Owner + Member | 01-REQUIREMENTS-MATRIX.md:262 | — | NGOÀI | Thay bằng D27 |
+| D12 | Không Docker | 01-REQUIREMENTS-MATRIX.md:263 | — | QUY-TẮC | Không có Dockerfile trong repo (find) |
+| D13 | ORM Prisma (+ SQL thô cho index) | 01-REQUIREMENTS-MATRIX.md:264 | 002 | QUY-TẮC | packages/db/prisma/{platform,tenant} |
+| D14 | LLM đa nhà cung cấp qua LLM Router | 01-REQUIREMENTS-MATRIX.md:265 | 019 | CHỜ-TK | packages/ai/package.json @ai-sdk/*; packages/ai/src/router · test router.test.ts; Q-001 |
+| D15 | BullMQ + outbox; Postgres FTS unaccent + pg_trgm | 01-REQUIREMENTS-MATRIX.md:309 | 003 | ĐẠT | tenant/bootstrap.sql · test catalog.test.ts "EXPLAIN … product_name_trgm_idx", relay-sequence.test.ts |
+| D17 | AI SDK v7 + lớp nối tự viết, không swarm | 01-REQUIREMENTS-MATRIX.md:266 | 019 | QUY-TẮC | packages/ai/package.json `ai` 7.0.152 |
+| D18 | antd v6 + Ant Design X, token prototype, parity < 5% | 01-REQUIREMENTS-MATRIX.md:275 | — | QUY-TẮC | `pnpm lint:tokens`, `pnpm parity` |
+| D19 | Bỏ module Báo cáo | 01-REQUIREMENTS-MATRIX.md:267 | — | NGOÀI | D19 |
+| D20 | Production native VPS (systemd + PM2, nginx, Prom / Grafana / Loki, pgBackRest) | 01-REQUIREMENTS-MATRIX.md:268 | 045 | CHƯA | Thư mục `infra/` chưa tồn tại; Q-006 |
+| D21 | Mỗi workspace một DB + DB nền tảng | 01-REQUIREMENTS-MATRIX.md:269 | 002 | ĐẠT | packages/db/src/provisioner.ts, tenant-resolver.ts · test packages/db/test/integration/tenant-isolation.test.ts |
+| D22 | vi + en; registry 11 ngôn ngữ | 01-REQUIREMENTS-MATRIX.md:274 | 007 | ĐẠT | packages/shared/src/i18n/locales.ts:13-28 · test locales.test.ts |
+| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | CHƯA | Không có code archive workspace (`admin.workspace.archive` thiếu) |
+| D24 | Commerce theo COMMERCE-DECISIONS | 01-REQUIREMENTS-MATRIX.md:272 | — | QUY-TẮC | Xem các dòng COM-* |
+| D25 | Hợp đồng P0: tuỳ chọn sau BG, Owner duyệt + ký trước, khách ký OTP + tay; CA P2 | 01-REQUIREMENTS-MATRIX.md:270 | 030 | ĐẠT | Xem COM-9-*; test contracts.test.ts |
+| D26 | Phạm vi đợt đầu toàn bộ P0 + P1 | 01-REQUIREMENTS-MATRIX.md:271 | — | QUY-TẮC | Phạm vi |
+| D27a | Permission engine, 5 vai trò, scope Của tôi / Nhóm / Tất cả, AI theo quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:276 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36 · test roles.test.ts, authz.test.ts, role-isolation.harness.ts |
+| D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | CHƯA | `role.*`, `team.*` không có trong registry |
+| D28a | Bật Cài đặt → Nền tảng kết nối P0, registry + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:277 | 012 | ĐẠT | apps/api/src/http/integrations/integrations.controller.ts · test integrations.test.ts |
+| D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | — | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
+| D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | — | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có" |
+| D29a | RAG thư mục + thẻ, public / internal, hybrid + ngưỡng + trích nguồn; agent builder phiên bản | 01-REQUIREMENTS-MATRIX.md:278 | 020, 021 | ĐẠT | test kb.test.ts AC4/AC5, agents.test.ts |
+| D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | CHƯA | `kb.suggestion.*` không có |
+| D30 | Mẫu rich / DOCX DN, AI nhận diện biến, PDF LibreOffice; AI soạn BG / HĐ | 01-REQUIREMENTS-MATRIX.md:279 | 028, 030b | MỘT PHẦN | DOCX + detect_fields + PDF (documents/services/docx.ts, soffice.ts · test documents.test.ts); AI soạn HĐ: COM-12-3 |
+| D31 | Đơn sàn / POS khung + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:280 | 031 | ĐẠT | Xem COM-4b-* |
+| D32 | 1 chính + đồng phụ trách / theo dõi | 01-REQUIREMENTS-MATRIX.md:281 | 015 | MỘT PHẦN | Xem COM-8b-2, COM-8b-4 |
+| D33 | Provider gốc + router OpenAI-compatible, `llm_provider` / `model_route` | 01-REQUIREMENTS-MATRIX.md:282 | 019 | CHỜ-TK | platform/ai-config.prisma:40,58 · test router.test.ts; Q-001 / Q-002 |
+| D34 | Email hệ thống Brevo qua `MailProvider`, SMTP dự phòng | 01-REQUIREMENTS-MATRIX.md:283 | 004 | CHỜ-TK | integrations/src/connectors/brevo/mail.ts · test ports.test.ts, smtp.test.ts; Q-004 |
+| D35a | Ngưỡng eval: an toàn 100%, chọn action ≥ 95%, rubric ≥ 90% | 01-REQUIREMENTS-MATRIX.md:284 | 044 | CHƯA | Chưa có harness eval |
+| D35b | Uỷ quyền ký HĐ / duyệt hoàn tiền cho Quản lý mặc định tắt | 01-REQUIREMENTS-MATRIX.md:284 | 005 | ĐẠT | shared/src/authz/roles.ts:27-31; permissions.ts:46 · test roles.test.ts "manager lacks owner-only and delegated permissions" |
+| D35c | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:284 | — | MỘT PHẦN | Jitter có (manifest.ts:22); manifest không đặt `perDayProactive` → mặc định không giới hạn (DC-073) trái D35 |
+| D35d | Tra MST qua VietQR | 01-REQUIREMENTS-MATRIX.md:284 | 004 | ĐẠT | integrations/src/connectors/vietqr/tax-lookup.ts · test ports.test.ts VietQrTaxLookupProvider |
+| D36 | Blueprint đã duyệt | 01-REQUIREMENTS-MATRIX.md:285 | — | QUY-TẮC | Quy trình |
+| D37 | Không làm MCP ở bản phát hành | 01-REQUIREMENTS-MATRIX.md:286 | — | NGOÀI | D37 |
+| D38 | FE theo prototype trước bằng mock transport | 01-REQUIREMENTS-MATRIX.md:287 | — | QUY-TẮC | Quy trình |
+| D39 | Chỉ test phần bị ảnh hưởng | 01-REQUIREMENTS-MATRIX.md:288 | — | QUY-TẮC | `pnpm turbo run test --filter` |
+| D40 | Git flow dev; CI ci / parity / e2e / full / backend-it | 01-REQUIREMENTS-MATRIX.md:289 | 046 | QUY-TẮC | .github/workflows có ci, e2e, full, parity; `backend-it.yml` chưa có (TIP-046) |
+| D41 | Thang token đều | 01-REQUIREMENTS-MATRIX.md:290 | — | QUY-TẮC | `pnpm lint:tokens`; packages/ui/src/tokens.test.ts |
+| D42 | Bảng danh sách cuộn trong khung, header dính, Pager số trang, API page + limit | 01-REQUIREMENTS-MATRIX.md:291 | 026–034 | ĐẠT | ListPager ở các screens · test orders/quotes/payments/contracts/catalog/support .test.ts "D42" (Loyalty / Marketing: D08b, D08c) |
+| D43 | Prototype mới không ghi đè D42 | 01-REQUIREMENTS-MATRIX.md:292 | — | QUY-TẮC | Quy trình |
+| D44 | Chuẩn hoá prototype về D41 | 01-REQUIREMENTS-MATRIX.md:293 | — | QUY-TẮC | tools/scripts/normalize-prototype.mjs |
+| D45 | Phạm vi đợt ver2.1 | 01-REQUIREMENTS-MATRIX.md:294 | — | QUY-TẮC | Phạm vi |
+| D46 | Hồ sơ 360°: nháp → Cập nhật, BG đã gửi → phiên bản mới, HĐ đã gửi → chi tiết | 01-REQUIREMENTS-MATRIX.md:295 | 025, 026 | ĐẠT | apps/web/src/features/inbox/components/Profile360Actions.tsx:2 · test apps/web/e2e/inbox.spec.ts:69 |
+| D47 | Danh mục công cụ agent cũ | 01-REQUIREMENTS-MATRIX.md:296 | — | NGOÀI | Thay bằng D51 |
+| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | — | MỘT PHẦN | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:58; không có test kiểm khoá |
+| D49 | Submenu Vòng đời = `contact.set_stage` | 01-REQUIREMENTS-MATRIX.md:298 | 025 | ĐẠT | features/inbox/components/ConvMenu.tsx:26 · test apps/web/e2e/inbox.spec.ts "menu hội thoại" |
+| D50a | Ẩn trò chuyện = `conversation.hidden_at`, có tin mới hiện lại | 01-REQUIREMENTS-MATRIX.md:299 | 016 | ĐẠT | inbox/actions/conversation-state.handlers.ts:88 · test inbox.test.ts:136 |
+| D50b | Tạo nhóm Zalo (hết khoá sau TIP-014) | 01-REQUIREMENTS-MATRIX.md:299 | 023b | CHƯA | `conversation.create_group` chưa có |
+| D51 | Quyền tool chỉ ở Builder, nhóm theo module; delegate = agent ∩ người ra lệnh | 01-REQUIREMENTS-MATRIX.md:300 | 021, 024 | ĐẠT | test apps/web/src/shared/ai/agent-tools.test.ts, assistant.test.ts:221 |
+| D52a | Mã đơn `DH-000123`, ticket `TKT-` | 01-REQUIREMENTS-MATRIX.md:301 | 031, 034 | ĐẠT | packages/shared/src/codes.ts:7,11 · test flow.test.ts, orders.test.ts |
+| D52b | Ticket đóng tự mở lại khi khách nhắn trong 7 ngày | 01-REQUIREMENTS-MATRIX.md:301 | 034 | ĐẠT | support/services/support-system.ts:99 · test support.test.ts:151 |
+| D52c | `approval_request` hết hạn 72 giờ (cấu hình được) | 01-REQUIREMENTS-MATRIX.md:301 | 021 | ĐẠT | ai/approvals/approval.gateway.ts:48 · test agents.test.ts:248 |
+| D52d | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | 01-REQUIREMENTS-MATRIX.md:301 | — | CHƯA | APPOINTMENT_FLOW: `expired: {}` terminal (packages/shared/src/booking/appointment-state.ts:42-43) trái state-machine.md:79 |
+| D52e | Huỷ chiến dịch ở mọi trạng thái chưa kết thúc | 01-REQUIREMENTS-MATRIX.md:301 | 037 | CHƯA | Marketing chưa làm |
+| D52f | Chặn xoá agent đang phụ trách kênh / hội thoại mở | 01-REQUIREMENTS-MATRIX.md:301 | 021 | ĐẠT | test agents.test.ts:108 "xoá khi đang gán kênh → 409" |
+| D52g | Báo giá `expired` gia hạn được về `sent` nếu chưa có version mới | 01-REQUIREMENTS-MATRIX.md:301 | 029 | ĐẠT | quote-send.handlers.ts:117-134 · test quotes.test.ts "gia hạn expired → sent" |
+| D53 | Cột Cấu hình Builder căn giữa (`margin: 0 auto`) | 01-REQUIREMENTS-MATRIX.md:302 | 024 | ĐẠT | features/agents/styles/builder.styles.ts:129; tools/parity/parity.manifest.ts:87 builderLeft |
+| D54 | Một kho RAG / workspace, `kb_scope` mỗi agent, public / internal | 01-REQUIREMENTS-MATRIX.md:303 | 020, 021 | ĐẠT | ai/kb/search.ts, agent.store.ts · test kb.test.ts "AC5 … Owner thấy internal, sales chỉ public" |
+| D55 | Generative UI mức 2 (UiTree) cho 8 drawer + màn Trợ lý | 01-REQUIREMENTS-MATRIX.md:304 | 023c | CHƯA | Drawer theo màn còn giả (TIP-023c CONTEXT) |
+| D56a | Trường tuỳ biến nhập / lưu / validate cho 6 thực thể | 01-REQUIREMENTS-MATRIX.md:305 | 015, 027–034 | ĐẠT | validateCustomValues ở crm/catalog/quotes/orders/booking/support handlers · test crm-settings.test.ts AC9a, custom-fields/values.test.ts |
+| D56b | Sửa giá trị tuỳ biến lịch hẹn sau tạo (`appointment.update`) | 01-REQUIREMENTS-MATRIX.md:305 | 023b | CHƯA | `appointment.update` chưa có |
+| D57 | Goal backend một mạch, ba sổ | 01-REQUIREMENTS-MATRIX.md:306 | — | QUY-TẮC | Quy trình |
+| D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
+| D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
+| DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | CHƯA | Không có web push / mobile; không TIP nhận |
+| DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | CHƯA | TIP-038 |
+| DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
+| DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | — | GIẢ | Như COM-5-13 |
+| DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | — | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận |
+| DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | — | CHƯA | Q-014 mở; adapter chưa gọi |
+| DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | — | CHƯA | Một widget mỗi workspace |
+| DC-110 | Parser pptx / OCR ảnh cho RAG (P1) | DECISIONS.md:119 | — | CHƯA | Tệp lưu `learn=false` |
+| DC-151 | Khối 360° của module khác hiện dữ liệu | DECISIONS.md:160 | 015b | MỘT PHẦN | contact360.ts:51-58 crm / ai rỗng |
+| DC-154 | `category.update / delete` | DECISIONS.md:163 | 032b | CHƯA | Registry thiếu |
+| DC-169 | Thêm kênh gửi chứng từ khi có adapter (webchat) | DECISIONS.md:178 | 032b | CHƯA | Như COM-5-17 |
+| DC-186 | Sổ điểm tiêu thụ `order.completed` | DECISIONS.md:195 | 036 | CHƯA | loyalty stub |
+| DC-199 | Liệu trình sinh khi cọc | DECISIONS.md:208 | 032b | CHƯA | Như COM-6-3 |
+| DC-215 | Cấu hình danh mục ticket riêng | DECISIONS.md:224 | — | CHƯA | "để sau"; không TIP nhận |
+| DC-226 | Bộ `pnpm ai:live` 30 câu | DECISIONS.md:235 | 023b | CHƯA | tools/ai-live chưa có |
+
+Ghi chú:
+- Bằng chứng test lấy theo tên ca trong file test (đọc code + tên `it(...)`), không chạy lại test trong lượt rà này.
+- Phát hiện mới ngoài danh sách đã biết: watcher không thấy chứng từ (COM-8b-2); chuyển phụ trách không chuyển lịch hẹn + chỉ báo người nhận (COM-8b-4); SePay / Casso của DN vẫn adapter mock, không TIP nhận (COM-5-13); lịch hẹn `expired` không xác nhận lại được (D52d); cap 200 tin/ngày Zalo không đặt (D35c); nâng / hạ gói giữa kỳ chưa có (COM-10-3/4); cọc theo % (COM-4-7).
+- Ngưỡng 5% áp cả Owner (COM-3-3) — trái Q5, 032b nên sửa cùng.
+CHƯA RÀ HẾT: DC-xxx chỉ quét theo từ khoá (chưa đọc đủ 233 dòng); D16 (17 lời gọi transport.post/put/patch trong features chưa rà); D18 / D41 chưa chạy lint / parity; D29 / D51 / D54 chỉ đối chiếu tên test; COMMERCE §1 Q1–Q8 rà gián tiếp qua §2–§10; không chạy test nào.

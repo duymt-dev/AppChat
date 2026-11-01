@@ -1,0 +1,1658 @@
+[
+ {
+  "id": "agent.draft_from_description",
+  "risk": "read",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:35",
+  "handler": "packages/core/src/ai/agents/agent-llm.handlers.ts:74",
+  "preview": false
+ },
+ {
+  "id": "agent.create",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:48",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:30",
+  "preview": false
+ },
+ {
+  "id": "agent.create_and_publish",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:63",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:41",
+  "preview": true
+ },
+ {
+  "id": "agent.update",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:79",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:65",
+  "preview": false
+ },
+ {
+  "id": "agent.publish",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:93",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:86",
+  "preview": false
+ },
+ {
+  "id": "agent.rollback",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:106",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:98",
+  "preview": false
+ },
+ {
+  "id": "agent.pause",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:119",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:113",
+  "preview": false
+ },
+ {
+  "id": "agent.delete",
+  "risk": "delete",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:132",
+  "handler": "packages/core/src/ai/agents/agent.handlers.ts:130",
+  "preview": false
+ },
+ {
+  "id": "agent.test",
+  "risk": "read",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:146",
+  "handler": "packages/core/src/ai/agents/agent-llm.handlers.ts:38",
+  "preview": false
+ },
+ {
+  "id": "agent.optimize_prompt",
+  "risk": "read",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:159",
+  "handler": "packages/core/src/ai/agents/agent-llm.handlers.ts:99",
+  "preview": false
+ },
+ {
+  "id": "run.cancel",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:172",
+  "handler": "packages/core/src/ai/runs/run-cancel.handler.ts:17",
+  "preview": false
+ },
+ {
+  "id": "approval.approve",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:187",
+  "handler": "packages/core/src/ai/approvals/approval.handlers.ts:74",
+  "preview": false
+ },
+ {
+  "id": "approval.reject",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:200",
+  "handler": "packages/core/src/ai/approvals/approval.handlers.ts:83",
+  "preview": false
+ },
+ {
+  "id": "approval.edit_and_approve",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:213",
+  "handler": "packages/core/src/ai/approvals/approval.handlers.ts:92",
+  "preview": false
+ },
+ {
+  "id": "ai_task.create",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:249",
+  "handler": "packages/core/src/ai/tasks/task.handlers.ts:35",
+  "preview": false
+ },
+ {
+  "id": "ai_task.update",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:264",
+  "handler": "packages/core/src/ai/tasks/task.handlers.ts:106",
+  "preview": false
+ },
+ {
+  "id": "ai_task.pause",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:278",
+  "handler": "packages/core/src/ai/tasks/task.handlers.ts:153",
+  "preview": false
+ },
+ {
+  "id": "ai_task.delete",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:292",
+  "handler": "packages/core/src/ai/tasks/task.handlers.ts:171",
+  "preview": false
+ },
+ {
+  "id": "ai_task.run_now",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:306",
+  "handler": "packages/core/src/ai/tasks/task.handlers.ts:186",
+  "preview": false
+ },
+ {
+  "id": "ai.translate",
+  "risk": "read",
+  "module": "ai",
+  "file": "packages/actions/src/ai.ts:319",
+  "handler": "packages/core/src/ai/skills/translate.handler.ts:22",
+  "preview": false
+ },
+ {
+  "id": "staff.create",
+  "risk": "config",
+  "module": "booking",
+  "file": "packages/actions/src/booking-config.ts:22",
+  "handler": "packages/core/src/booking/actions/booking-config.handlers.ts:50",
+  "preview": false
+ },
+ {
+  "id": "staff.update",
+  "risk": "config",
+  "module": "booking",
+  "file": "packages/actions/src/booking-config.ts:35",
+  "handler": "packages/core/src/booking/actions/booking-config.handlers.ts:70",
+  "preview": false
+ },
+ {
+  "id": "staff.deactivate",
+  "risk": "config",
+  "module": "booking",
+  "file": "packages/actions/src/booking-config.ts:48",
+  "handler": "packages/core/src/booking/actions/booking-config.handlers.ts:90",
+  "preview": false
+ },
+ {
+  "id": "business_hours.update",
+  "risk": "config",
+  "module": "booking",
+  "file": "packages/actions/src/booking-config.ts:61",
+  "handler": "packages/core/src/booking/actions/booking-config.handlers.ts:106",
+  "preview": false
+ },
+ {
+  "id": "order.create_from_appointment",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/booking-config.ts:80",
+  "handler": "packages/core/src/sales/orders/actions/order-from-appointment.handler.ts:18",
+  "preview": false
+ },
+ {
+  "id": "appointment.find_slots",
+  "risk": "read",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:19",
+  "handler": "packages/core/src/booking/actions/appointment-book.handlers.ts:43",
+  "preview": false
+ },
+ {
+  "id": "appointment.list",
+  "risk": "read",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:35",
+  "handler": "packages/core/src/booking/actions/appointment-book.handlers.ts:58",
+  "preview": false
+ },
+ {
+  "id": "appointment.create",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:57",
+  "handler": "packages/core/src/booking/actions/appointment-book.handlers.ts:84",
+  "preview": false
+ },
+ {
+  "id": "appointment.confirm",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:88",
+  "handler": "packages/core/src/booking/actions/appointment-flow.handlers.ts:52",
+  "preview": false
+ },
+ {
+  "id": "appointment.reschedule",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:102",
+  "handler": "packages/core/src/booking/actions/appointment-book.handlers.ts:154",
+  "preview": false
+ },
+ {
+  "id": "appointment.cancel",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:117",
+  "handler": "packages/core/src/booking/actions/appointment-flow.handlers.ts:136",
+  "preview": false
+ },
+ {
+  "id": "appointment.check_in",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:131",
+  "handler": "packages/core/src/booking/actions/appointment-flow.handlers.ts:69",
+  "preview": false
+ },
+ {
+  "id": "appointment.complete",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:145",
+  "handler": "packages/core/src/booking/actions/appointment-flow.handlers.ts:86",
+  "preview": false
+ },
+ {
+  "id": "appointment.mark_no_show",
+  "risk": "write",
+  "module": "booking",
+  "file": "packages/actions/src/booking.ts:163",
+  "handler": "packages/core/src/booking/actions/appointment-flow.handlers.ts:115",
+  "preview": false
+ },
+ {
+  "id": "product.create",
+  "risk": "write",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:36",
+  "handler": "packages/core/src/catalog/actions/product.handlers.ts:24",
+  "preview": false
+ },
+ {
+  "id": "product.update",
+  "risk": "write",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:52",
+  "handler": "packages/core/src/catalog/actions/product.handlers.ts:77",
+  "preview": false
+ },
+ {
+  "id": "product.archive",
+  "risk": "delete",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:67",
+  "handler": "packages/core/src/catalog/actions/product.handlers.ts:126",
+  "preview": false
+ },
+ {
+  "id": "category.create",
+  "risk": "config",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:82",
+  "handler": "packages/core/src/catalog/actions/stock.handlers.ts:15",
+  "preview": false
+ },
+ {
+  "id": "stock.adjust",
+  "risk": "write",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:95",
+  "handler": "packages/core/src/catalog/actions/stock.handlers.ts:28",
+  "preview": false
+ },
+ {
+  "id": "product.search",
+  "risk": "read",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:127",
+  "handler": "packages/core/src/catalog/actions/read.handlers.ts:30",
+  "preview": false
+ },
+ {
+  "id": "product.get",
+  "risk": "read",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:142",
+  "handler": "packages/core/src/catalog/actions/read.handlers.ts:42",
+  "preview": false
+ },
+ {
+  "id": "stock.get",
+  "risk": "read",
+  "module": "catalog",
+  "file": "packages/actions/src/catalog.ts:163",
+  "handler": "packages/core/src/catalog/actions/read.handlers.ts:68",
+  "preview": false
+ },
+ {
+  "id": "contract.create",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:34",
+  "handler": "packages/core/src/contracts/actions/contract-write.handlers.ts:64",
+  "preview": false
+ },
+ {
+  "id": "contract.create_from_quote",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:50",
+  "handler": "packages/core/src/contracts/actions/contract-write.handlers.ts:83",
+  "preview": false
+ },
+ {
+  "id": "contract.update",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:66",
+  "handler": "packages/core/src/contracts/actions/contract-write.handlers.ts:115",
+  "preview": false
+ },
+ {
+  "id": "contract.submit",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:80",
+  "handler": "packages/core/src/contracts/actions/contract-approval.handlers.ts:25",
+  "preview": false
+ },
+ {
+  "id": "contract.approve_and_sign",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:94",
+  "handler": "packages/core/src/contracts/actions/contract-approval.handlers.ts:99",
+  "preview": true
+ },
+ {
+  "id": "contract.request_changes",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:112",
+  "handler": "packages/core/src/contracts/actions/contract-approval.handlers.ts:64",
+  "preview": false
+ },
+ {
+  "id": "contract.reject_internal",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:126",
+  "handler": "packages/core/src/contracts/actions/contract-approval.handlers.ts:77",
+  "preview": false
+ },
+ {
+  "id": "contract.send_for_signature",
+  "risk": "send",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:139",
+  "handler": "packages/core/src/contracts/actions/contract-send.handlers.ts:38",
+  "preview": true
+ },
+ {
+  "id": "contract.remind_signer",
+  "risk": "send",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:153",
+  "handler": "packages/core/src/contracts/actions/contract-send.handlers.ts:98",
+  "preview": false
+ },
+ {
+  "id": "contract.extend_sign_link",
+  "risk": "send",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:166",
+  "handler": "packages/core/src/contracts/actions/contract-send.handlers.ts:122",
+  "preview": false
+ },
+ {
+  "id": "contract.terminate",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:179",
+  "handler": "packages/core/src/contracts/actions/contract-send.handlers.ts:154",
+  "preview": false
+ },
+ {
+  "id": "contract.renew",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:192",
+  "handler": "packages/core/src/contracts/actions/contract-write.handlers.ts:170",
+  "preview": false
+ },
+ {
+  "id": "contract.delete",
+  "risk": "delete",
+  "module": "sales",
+  "file": "packages/actions/src/contracts.ts:208",
+  "handler": "packages/core/src/contracts/actions/contract-write.handlers.ts:150",
+  "preview": false
+ },
+ {
+  "id": "contact.search",
+  "risk": "read",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:33",
+  "handler": "packages/core/src/crm/actions/contact-search.handler.ts:12",
+  "preview": false
+ },
+ {
+  "id": "contact.create",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:57",
+  "handler": "packages/core/src/crm/actions/contact-write.handlers.ts:32",
+  "preview": false
+ },
+ {
+  "id": "contact.update",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:73",
+  "handler": "packages/core/src/crm/actions/contact-write.handlers.ts:59",
+  "preview": false
+ },
+ {
+  "id": "contact.set_stage",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:87",
+  "handler": "packages/core/src/crm/actions/contact-write.handlers.ts:89",
+  "preview": false
+ },
+ {
+  "id": "contact.tag",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:101",
+  "handler": "packages/core/src/crm/actions/contact-write.handlers.ts:131",
+  "preview": false
+ },
+ {
+  "id": "contact.delete",
+  "risk": "delete",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:115",
+  "handler": "packages/core/src/crm/actions/contact-write.handlers.ts:154",
+  "preview": false
+ },
+ {
+  "id": "contact.merge",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:129",
+  "handler": "packages/core/src/crm/actions/contact-merge.handler.ts:40",
+  "preview": true
+ },
+ {
+  "id": "contact.add_collaborator",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:144",
+  "handler": "packages/core/src/crm/actions/contact-owner.handlers.ts:20",
+  "preview": false
+ },
+ {
+  "id": "contact.remove_collaborator",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:158",
+  "handler": "packages/core/src/crm/actions/contact-owner.handlers.ts:56",
+  "preview": false
+ },
+ {
+  "id": "contact.transfer_owner",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:172",
+  "handler": "packages/core/src/crm/actions/contact-owner.handlers.ts:81",
+  "preview": false
+ },
+ {
+  "id": "contact.request_access",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:192",
+  "handler": "packages/core/src/crm/actions/contact-owner.handlers.ts:125",
+  "preview": false
+ },
+ {
+  "id": "contact.decide_access",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:205",
+  "handler": "packages/core/src/crm/actions/contact-owner.handlers.ts:158",
+  "preview": false
+ },
+ {
+  "id": "custom_field.define",
+  "risk": "config",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:229",
+  "handler": "packages/core/src/crm/actions/custom-field.handlers.ts:14",
+  "preview": false
+ },
+ {
+  "id": "custom_field.update",
+  "risk": "config",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:250",
+  "handler": "packages/core/src/crm/actions/custom-field.handlers.ts:27",
+  "preview": false
+ },
+ {
+  "id": "contact.send_email",
+  "risk": "send",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:281",
+  "handler": "packages/core/src/inbox/actions/email-send.handlers.ts:23",
+  "preview": false
+ },
+ {
+  "id": "custom_field.delete",
+  "risk": "delete",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:302",
+  "handler": "packages/core/src/crm/actions/custom-field.handlers.ts:67",
+  "preview": false
+ },
+ {
+  "id": "contact.import",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:329",
+  "handler": "packages/core/src/crm/actions/contact-io.handlers.ts:57",
+  "preview": true
+ },
+ {
+  "id": "contact.export",
+  "risk": "read",
+  "module": "crm",
+  "file": "packages/actions/src/crm.ts:345",
+  "handler": "packages/core/src/crm/actions/contact-io.handlers.ts:20",
+  "preview": false
+ },
+ {
+  "id": "onboarding.toggle_step",
+  "risk": "write",
+  "module": "identity",
+  "file": "packages/actions/src/dashboard.ts:7",
+  "handler": "packages/core/src/identity/actions/onboarding-toggle-step.handler.ts:12",
+  "preview": false
+ },
+ {
+  "id": "follow_up.complete",
+  "risk": "write",
+  "module": "crm",
+  "file": "packages/actions/src/dashboard.ts:21",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "doc_template.create",
+  "risk": "config",
+  "module": "documents",
+  "file": "packages/actions/src/documents.ts:11",
+  "handler": "packages/core/src/documents/actions/doc-template.handlers.ts:26",
+  "preview": true
+ },
+ {
+  "id": "doc_template.update",
+  "risk": "config",
+  "module": "documents",
+  "file": "packages/actions/src/documents.ts:35",
+  "handler": "packages/core/src/documents/actions/doc-template.handlers.ts:60",
+  "preview": false
+ },
+ {
+  "id": "doc_template.delete",
+  "risk": "delete",
+  "module": "documents",
+  "file": "packages/actions/src/documents.ts:57",
+  "handler": "packages/core/src/documents/actions/doc-template.handlers.ts:113",
+  "preview": true
+ },
+ {
+  "id": "doc_template.detect_fields",
+  "risk": "read",
+  "module": "documents",
+  "file": "packages/actions/src/documents.ts:71",
+  "handler": "packages/core/src/documents/actions/doc-template.handlers.ts:138",
+  "preview": false
+ },
+ {
+  "id": "notification.mark_read",
+  "risk": "write",
+  "module": "notifications",
+  "file": "packages/actions/src/identity.ts:6",
+  "handler": "packages/core/src/notify/actions/notification-mark-read.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "profile.update",
+  "risk": "write",
+  "module": "identity",
+  "file": "packages/actions/src/identity.ts:19",
+  "handler": "packages/core/src/identity/actions/profile-update.handler.ts:11",
+  "preview": false
+ },
+ {
+  "id": "workspace.switch",
+  "risk": "write",
+  "module": "identity",
+  "file": "packages/actions/src/identity.ts:37",
+  "handler": "packages/core/src/identity/actions/workspace-switch.handler.ts:12",
+  "preview": false
+ },
+ {
+  "id": "conversation.mark_read",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:8",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:26",
+  "preview": false
+ },
+ {
+  "id": "conversation.set_status",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:21",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:41",
+  "preview": false
+ },
+ {
+  "id": "conversation.assign",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:35",
+  "handler": "packages/core/src/inbox/actions/conversation-assign.handlers.ts:23",
+  "preview": false
+ },
+ {
+  "id": "conversation.tag",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:51",
+  "handler": "packages/core/src/inbox/actions/conversation-assign.handlers.ts:47",
+  "preview": false
+ },
+ {
+  "id": "conversation.pin",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:65",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:58",
+  "preview": false
+ },
+ {
+  "id": "conversation.archive",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:78",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:68",
+  "preview": false
+ },
+ {
+  "id": "conversation.set_ai_mode",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:92",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:96",
+  "preview": false
+ },
+ {
+  "id": "conversation.handoff",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:106",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:110",
+  "preview": false
+ },
+ {
+  "id": "conversation.clear_history",
+  "risk": "delete",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:119",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:125",
+  "preview": false
+ },
+ {
+  "id": "message.send",
+  "risk": "send",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:133",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:41",
+  "preview": false
+ },
+ {
+  "id": "message.recall",
+  "risk": "send",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:149",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:100",
+  "preview": false
+ },
+ {
+  "id": "message.delete",
+  "risk": "delete",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:162",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:115",
+  "preview": false
+ },
+ {
+  "id": "message.react",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:176",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:139",
+  "preview": false
+ },
+ {
+  "id": "message.pin",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:189",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:161",
+  "preview": false
+ },
+ {
+  "id": "message.forward",
+  "risk": "send",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:202",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:76",
+  "preview": false
+ },
+ {
+  "id": "conversation.set_tags",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:215",
+  "handler": "packages/core/src/inbox/actions/conversation-assign.handlers.ts:66",
+  "preview": false
+ },
+ {
+  "id": "conversation.hide",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:229",
+  "handler": "packages/core/src/inbox/actions/conversation-state.handlers.ts:82",
+  "preview": false
+ },
+ {
+  "id": "note.add",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:243",
+  "handler": "packages/core/src/inbox/actions/message.handlers.ts:174",
+  "preview": false
+ },
+ {
+  "id": "conversation.bulk_update",
+  "risk": "write",
+  "module": "inbox",
+  "file": "packages/actions/src/inbox.ts:258",
+  "handler": "packages/core/src/inbox/actions/conversation-assign.handlers.ts:100",
+  "preview": true
+ },
+ {
+  "id": "invoice.create",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/invoices.ts:16",
+  "handler": "packages/core/src/sales/payments/actions/invoice-write.handlers.ts:44",
+  "preview": false
+ },
+ {
+  "id": "invoice.send_payment_qr",
+  "risk": "send",
+  "module": "sales",
+  "file": "packages/actions/src/invoices.ts:40",
+  "handler": "packages/core/src/sales/payments/actions/invoice-write.handlers.ts:104",
+  "preview": true
+ },
+ {
+  "id": "invoice.record_payment",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/invoices.ts:54",
+  "handler": "packages/core/src/sales/payments/actions/invoice-pay.handlers.ts:26",
+  "preview": true
+ },
+ {
+  "id": "invoice.resolve_bank_match",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/invoices.ts:81",
+  "handler": "packages/core/src/sales/payments/actions/invoice-pay.handlers.ts:55",
+  "preview": false
+ },
+ {
+  "id": "invoice.void",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/invoices.ts:96",
+  "handler": "packages/core/src/sales/payments/actions/invoice-write.handlers.ts:166",
+  "preview": false
+ },
+ {
+  "id": "loyalty.get_member",
+  "risk": "read",
+  "module": "loyalty",
+  "file": "packages/actions/src/loyalty.ts:9",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "loyalty.adjust_points",
+  "risk": "money",
+  "module": "loyalty",
+  "file": "packages/actions/src/loyalty.ts:23",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "loyalty.update_config",
+  "risk": "config",
+  "module": "loyalty",
+  "file": "packages/actions/src/loyalty.ts:43",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "segment.preview",
+  "risk": "read",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:23",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.suggest",
+  "risk": "read",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:37",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.create",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:51",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.update",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:78",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.submit",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:96",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.send_test",
+  "risk": "send",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:110",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.approve",
+  "risk": "send",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:123",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.reject",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:137",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.pause",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:150",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.resume",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:163",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.cancel",
+  "risk": "write",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:176",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "campaign.delete",
+  "risk": "delete",
+  "module": "marketing",
+  "file": "packages/actions/src/marketing.ts:189",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "business_profile.update",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/onboarding.ts:6",
+  "handler": "packages/core/src/identity/actions/business-profile-update.handler.ts:14",
+  "preview": false
+ },
+ {
+  "id": "order.create",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:40",
+  "handler": "packages/core/src/sales/orders/actions/order-create.handlers.ts:101",
+  "preview": false
+ },
+ {
+  "id": "order.create_from_quote",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:56",
+  "handler": "packages/core/src/sales/orders/actions/order-create.handlers.ts:123",
+  "preview": false
+ },
+ {
+  "id": "order.create_from_contract",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:72",
+  "handler": "packages/core/src/sales/orders/actions/order-create.handlers.ts:166",
+  "preview": false
+ },
+ {
+  "id": "order.update",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:88",
+  "handler": "packages/core/src/sales/orders/actions/order-edit.handlers.ts:77",
+  "preview": false
+ },
+ {
+  "id": "order.set_deposit",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:103",
+  "handler": "packages/core/src/sales/orders/actions/order-edit.handlers.ts:137",
+  "preview": false
+ },
+ {
+  "id": "order.confirm",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:118",
+  "handler": "packages/core/src/sales/orders/actions/order-flow.handlers.ts:62",
+  "preview": false
+ },
+ {
+  "id": "order.complete",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:133",
+  "handler": "packages/core/src/sales/orders/actions/order-flow.handlers.ts:92",
+  "preview": true
+ },
+ {
+  "id": "order.cancel",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:148",
+  "handler": "packages/core/src/sales/orders/actions/order-flow.handlers.ts:122",
+  "preview": true
+ },
+ {
+  "id": "order.update_shipping",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:162",
+  "handler": "packages/core/src/sales/orders/actions/order-edit.handlers.ts:161",
+  "preview": false
+ },
+ {
+  "id": "order.sync_now",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/orders.ts:177",
+  "handler": "packages/core/src/sales/orders/actions/order-sync.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "payment.refund",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:12",
+  "handler": "packages/core/src/sales/payments/actions/refund.handlers.ts:29",
+  "preview": true
+ },
+ {
+  "id": "payment.refund_approve",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:33",
+  "handler": "packages/core/src/sales/payments/actions/refund.handlers.ts:90",
+  "preview": true
+ },
+ {
+  "id": "payment.refund_reject",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:46",
+  "handler": "packages/core/src/sales/payments/actions/refund.handlers.ts:112",
+  "preview": false
+ },
+ {
+  "id": "package.extend",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:59",
+  "handler": "packages/core/src/sales/payments/actions/package.handlers.ts:45",
+  "preview": false
+ },
+ {
+  "id": "package.adjust_sessions",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:73",
+  "handler": "packages/core/src/sales/payments/actions/package.handlers.ts:75",
+  "preview": false
+ },
+ {
+  "id": "payment_account.update",
+  "risk": "config",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:87",
+  "handler": "packages/core/src/sales/payments/actions/finance-config.handlers.ts:26",
+  "preview": false
+ },
+ {
+  "id": "bank_feed.connect",
+  "risk": "config",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:105",
+  "handler": "packages/core/src/sales/payments/actions/finance-config.handlers.ts:40",
+  "preview": false
+ },
+ {
+  "id": "bank_feed.disconnect",
+  "risk": "config",
+  "module": "sales",
+  "file": "packages/actions/src/payments.ts:119",
+  "handler": "packages/core/src/sales/payments/actions/finance-config.handlers.ts:65",
+  "preview": false
+ },
+ {
+  "id": "admin.invoice.confirm_transfer",
+  "risk": "money",
+  "module": "billing",
+  "file": "packages/actions/src/platform-admin.ts:8",
+  "handler": "packages/core/src/billing/actions/admin-confirm-transfer.handler.ts:15",
+  "preview": false
+ },
+ {
+  "id": "quote.create",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:30",
+  "handler": "packages/core/src/sales/quotes/actions/quote-write.handlers.ts:63",
+  "preview": false
+ },
+ {
+  "id": "quote.update",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:46",
+  "handler": "packages/core/src/sales/quotes/actions/quote-write.handlers.ts:85",
+  "preview": false
+ },
+ {
+  "id": "quote.delete",
+  "risk": "delete",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:60",
+  "handler": "packages/core/src/sales/quotes/actions/quote-write.handlers.ts:126",
+  "preview": true
+ },
+ {
+  "id": "quote.submit_for_approval",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:74",
+  "handler": "packages/core/src/sales/quotes/actions/quote-approval.handlers.ts:19",
+  "preview": false
+ },
+ {
+  "id": "quote.approve",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:88",
+  "handler": "packages/core/src/sales/quotes/actions/quote-approval.handlers.ts:54",
+  "preview": false
+ },
+ {
+  "id": "quote.reject_internal",
+  "risk": "money",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:102",
+  "handler": "packages/core/src/sales/quotes/actions/quote-approval.handlers.ts:67",
+  "preview": false
+ },
+ {
+  "id": "quote.send",
+  "risk": "send",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:116",
+  "handler": "packages/core/src/sales/quotes/actions/quote-send.handlers.ts:36",
+  "preview": true
+ },
+ {
+  "id": "quote.request_revision",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:130",
+  "handler": "packages/core/src/sales/quotes/actions/quote-decide.handlers.ts:82",
+  "preview": false
+ },
+ {
+  "id": "quote.mark_accepted",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:145",
+  "handler": "packages/core/src/sales/quotes/actions/quote-decide.handlers.ts:42",
+  "preview": false
+ },
+ {
+  "id": "quote.mark_rejected",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:159",
+  "handler": "packages/core/src/sales/quotes/actions/quote-decide.handlers.ts:61",
+  "preview": false
+ },
+ {
+  "id": "quote.extend_validity",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:173",
+  "handler": "packages/core/src/sales/quotes/actions/quote-send.handlers.ts:108",
+  "preview": false
+ },
+ {
+  "id": "quote.comment",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:187",
+  "handler": "packages/core/src/sales/quotes/actions/quote-write.handlers.ts:158",
+  "preview": false
+ },
+ {
+  "id": "quote.draft_from_content",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/quotes.ts:202",
+  "handler": "packages/core/src/sales/quotes/actions/quote-draft.handler.ts:21",
+  "preview": false
+ },
+ {
+  "id": "ai_settings.update",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:9",
+  "handler": "packages/core/src/ai/settings/ai-settings.handlers.ts:20",
+  "preview": false
+ },
+ {
+  "id": "kb.add_source",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:29",
+  "handler": "packages/core/src/ai/kb/kb.handlers.ts:33",
+  "preview": false
+ },
+ {
+  "id": "kb.update_source",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:55",
+  "handler": "packages/core/src/ai/kb/kb.handlers.ts:92",
+  "preview": false
+ },
+ {
+  "id": "kb.search",
+  "risk": "read",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:76",
+  "handler": "packages/core/src/ai/kb/kb-search.handler.ts:21",
+  "preview": false
+ },
+ {
+  "id": "kb.remove_source",
+  "risk": "delete",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:95",
+  "handler": "packages/core/src/ai/kb/kb.handlers.ts:117",
+  "preview": false
+ },
+ {
+  "id": "kb.refresh_source",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:109",
+  "handler": "packages/core/src/ai/kb/kb.handlers.ts:137",
+  "preview": false
+ },
+ {
+  "id": "kb.folder.create",
+  "risk": "write",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:122",
+  "handler": "packages/core/src/ai/kb/kb.handlers.ts:160",
+  "preview": false
+ },
+ {
+  "id": "governance.update",
+  "risk": "config",
+  "module": "ai",
+  "file": "packages/actions/src/settings-ai.ts:135",
+  "handler": "packages/core/src/ai/governance/governance.ts:77",
+  "preview": false
+ },
+ {
+  "id": "billing.create_invoice",
+  "risk": "money",
+  "module": "billing",
+  "file": "packages/actions/src/settings-ai.ts:159",
+  "handler": "packages/core/src/billing/actions/billing-create-invoice.handler.ts:14",
+  "preview": false
+ },
+ {
+  "id": "billing.cancel_invoice",
+  "risk": "write",
+  "module": "billing",
+  "file": "packages/actions/src/settings-ai.ts:173",
+  "handler": "packages/core/src/billing/actions/billing-cancel-invoice.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "billing.report_transfer",
+  "risk": "write",
+  "module": "billing",
+  "file": "packages/actions/src/settings-ai.ts:187",
+  "handler": "packages/core/src/billing/actions/billing-report-transfer.handler.ts:15",
+  "preview": false
+ },
+ {
+  "id": "wallet.update_alerts",
+  "risk": "config",
+  "module": "billing",
+  "file": "packages/actions/src/settings-ai.ts:201",
+  "handler": null,
+  "preview": false
+ },
+ {
+  "id": "tag.create",
+  "risk": "config",
+  "module": "inbox",
+  "file": "packages/actions/src/settings-apps.ts:25",
+  "handler": "packages/core/src/inbox/actions/settings.handlers.ts:39",
+  "preview": true
+ },
+ {
+  "id": "tag.update",
+  "risk": "config",
+  "module": "inbox",
+  "file": "packages/actions/src/settings-apps.ts:38",
+  "handler": "packages/core/src/inbox/actions/settings.handlers.ts:59",
+  "preview": false
+ },
+ {
+  "id": "tag.delete",
+  "risk": "delete",
+  "module": "inbox",
+  "file": "packages/actions/src/settings-apps.ts:51",
+  "handler": "packages/core/src/inbox/actions/settings.handlers.ts:85",
+  "preview": false
+ },
+ {
+  "id": "canned_reply.create",
+  "risk": "config",
+  "module": "inbox",
+  "file": "packages/actions/src/settings-apps.ts:65",
+  "handler": "packages/core/src/inbox/actions/settings.handlers.ts:115",
+  "preview": false
+ },
+ {
+  "id": "canned_reply.update",
+  "risk": "config",
+  "module": "inbox",
+  "file": "packages/actions/src/settings-apps.ts:78",
+  "handler": "packages/core/src/inbox/actions/settings.handlers.ts:129",
+  "preview": false
+ },
+ {
+  "id": "canned_reply.delete",
+  "risk": "delete",
+  "module": "inbox",
+  "file": "packages/actions/src/settings-apps.ts:91",
+  "handler": "packages/core/src/inbox/actions/settings.handlers.ts:143",
+  "preview": false
+ },
+ {
+  "id": "channel.zalo.start_login",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:105",
+  "handler": "packages/core/src/channels/actions/channel-connect.handlers.ts:24",
+  "preview": false
+ },
+ {
+  "id": "channel.email.connect",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:120",
+  "handler": "packages/core/src/channels/email/email.handlers.ts:22",
+  "preview": false
+ },
+ {
+  "id": "channel.test",
+  "risk": "read",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:141",
+  "handler": "packages/core/src/channels/actions/channel-manage.handlers.ts:111",
+  "preview": false
+ },
+ {
+  "id": "channel.update_settings",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:158",
+  "handler": "packages/core/src/channels/actions/channel-manage.handlers.ts:30",
+  "preview": false
+ },
+ {
+  "id": "channel.pause",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:185",
+  "handler": "packages/core/src/channels/actions/channel-manage.handlers.ts:50",
+  "preview": false
+ },
+ {
+  "id": "channel.resume",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:198",
+  "handler": "packages/core/src/channels/actions/channel-manage.handlers.ts:68",
+  "preview": false
+ },
+ {
+  "id": "channel.sync_history",
+  "risk": "write",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:211",
+  "handler": "packages/core/src/channels/actions/channel-manage.handlers.ts:88",
+  "preview": false
+ },
+ {
+  "id": "channel.reconnect",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:224",
+  "handler": "packages/core/src/channels/actions/channel-connect.handlers.ts:56",
+  "preview": false
+ },
+ {
+  "id": "channel.disconnect",
+  "risk": "delete",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:237",
+  "handler": "packages/core/src/channels/actions/channel-manage.handlers.ts:142",
+  "preview": false
+ },
+ {
+  "id": "webchat.update_widget",
+  "risk": "config",
+  "module": "channels",
+  "file": "packages/actions/src/settings-apps.ts:251",
+  "handler": "packages/core/src/channels/webchat/webchat.handlers.ts:25",
+  "preview": false
+ },
+ {
+  "id": "integration.connect",
+  "risk": "config",
+  "module": "integrations",
+  "file": "packages/actions/src/settings-apps.ts:287",
+  "handler": "packages/core/src/integrations/actions/integration-connect.handler.ts:14",
+  "preview": false
+ },
+ {
+  "id": "integration.disconnect",
+  "risk": "delete",
+  "module": "integrations",
+  "file": "packages/actions/src/settings-apps.ts:300",
+  "handler": "packages/core/src/integrations/actions/integration-disconnect.handler.ts:12",
+  "preview": false
+ },
+ {
+  "id": "integration.register_interest",
+  "risk": "write",
+  "module": "integrations",
+  "file": "packages/actions/src/settings-apps.ts:313",
+  "handler": "packages/core/src/integrations/actions/integration-register-interest.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "profile_layout.create",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings-apps.ts:327",
+  "handler": "packages/core/src/crm/actions/profile-layout.handlers.ts:27",
+  "preview": false
+ },
+ {
+  "id": "profile_layout.update",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings-apps.ts:340",
+  "handler": "packages/core/src/crm/actions/profile-layout.handlers.ts:42",
+  "preview": false
+ },
+ {
+  "id": "profile_layout.duplicate",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings-apps.ts:353",
+  "handler": "packages/core/src/crm/actions/profile-layout.handlers.ts:53",
+  "preview": false
+ },
+ {
+  "id": "profile_layout.delete",
+  "risk": "delete",
+  "module": "settings",
+  "file": "packages/actions/src/settings-apps.ts:366",
+  "handler": "packages/core/src/crm/actions/profile-layout.handlers.ts:69",
+  "preview": false
+ },
+ {
+  "id": "profile_layout.assign_role",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings-apps.ts:379",
+  "handler": "packages/core/src/crm/actions/profile-layout.handlers.ts:82",
+  "preview": false
+ },
+ {
+  "id": "workspace.update",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings.ts:10",
+  "handler": "packages/core/src/identity/actions/workspace-update.handler.ts:15",
+  "preview": false
+ },
+ {
+  "id": "member.invite",
+  "risk": "send",
+  "module": "settings",
+  "file": "packages/actions/src/settings.ts:35",
+  "handler": "packages/core/src/identity/actions/member-invite.handler.ts:16",
+  "preview": false
+ },
+ {
+  "id": "invite.revoke",
+  "risk": "write",
+  "module": "settings",
+  "file": "packages/actions/src/settings.ts:49",
+  "handler": "packages/core/src/identity/actions/invite-revoke.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "member.set_role",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings.ts:63",
+  "handler": "packages/core/src/identity/actions/member-set-role.handler.ts:19",
+  "preview": false
+ },
+ {
+  "id": "member.remove",
+  "risk": "delete",
+  "module": "settings",
+  "file": "packages/actions/src/settings.ts:78",
+  "handler": "packages/core/src/identity/actions/member-remove.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "working_hours.update",
+  "risk": "config",
+  "module": "settings",
+  "file": "packages/actions/src/settings.ts:92",
+  "handler": "packages/core/src/identity/actions/working-hours-update.handler.ts:13",
+  "preview": false
+ },
+ {
+  "id": "sla.update_default",
+  "risk": "config",
+  "module": "support",
+  "file": "packages/actions/src/settings.ts:110",
+  "handler": "packages/core/src/support/actions/sla-config.handlers.ts:14",
+  "preview": false
+ },
+ {
+  "id": "notification.update_prefs",
+  "risk": "write",
+  "module": "notifications",
+  "file": "packages/actions/src/settings.ts:132",
+  "handler": "packages/core/src/notify/actions/notification-update-prefs.handler.ts:12",
+  "preview": false
+ },
+ {
+  "id": "ticket.search",
+  "risk": "read",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:19",
+  "handler": "packages/core/src/support/actions/sla-config.handlers.ts:64",
+  "preview": false
+ },
+ {
+  "id": "ticket.create",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:38",
+  "handler": "packages/core/src/support/actions/ticket-create.handler.ts:39",
+  "preview": false
+ },
+ {
+  "id": "ticket.update",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:77",
+  "handler": "packages/core/src/support/actions/ticket-edit.handlers.ts:99",
+  "preview": false
+ },
+ {
+  "id": "ticket.assign",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:98",
+  "handler": "packages/core/src/support/actions/ticket-edit.handlers.ts:41",
+  "preview": false
+ },
+ {
+  "id": "ticket.set_status",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:117",
+  "handler": "packages/core/src/support/actions/ticket-flow.handlers.ts:45",
+  "preview": false
+ },
+ {
+  "id": "ticket.comment",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:131",
+  "handler": "packages/core/src/support/actions/ticket-edit.handlers.ts:136",
+  "preview": false
+ },
+ {
+  "id": "ticket.close",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:146",
+  "handler": "packages/core/src/support/actions/ticket-flow.handlers.ts:69",
+  "preview": false
+ },
+ {
+  "id": "ticket.reopen",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:164",
+  "handler": "packages/core/src/support/actions/ticket-flow.handlers.ts:116",
+  "preview": false
+ },
+ {
+  "id": "ticket.bulk_update",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/support.ts:177",
+  "handler": "packages/core/src/support/actions/ticket-edit.handlers.ts:64",
+  "preview": false
+ }
+]
