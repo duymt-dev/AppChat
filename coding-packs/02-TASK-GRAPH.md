@@ -226,3 +226,11 @@ Exact M/C ownership: tips/manifests/TIP-015e-files.md. Retained financial source
 |012c [tenant-mail](tips/TIP-012c-tenant-mail.md)|TenantBrevo/SMTP port, safe transport, approvedsender, durable accepted/unknown, authenticatedcallbacks, Settings/AI/files|After015e/012b/037/023c/045b and bilateral predecessors; before015c/044–046|8 AC, native/security/callback/composition, actualfiles/live8, providercontractspike mandatory; localplanning review/recheck closed, runtime pending|
 
 Exactownership tips/manifests/TIP-012c-files.md; no platformOTP/Inbox replacement. Missingprovidercontract gates affectedlivecapability, not wholeongoal progress.
+
+### Supplemental033b — booking operations and package360 (DC261)
+
+| TIP | Scope | Integration | Acceptance |
+|---|---|---|---|
+|033b [booking-operations](tips/TIP-033b-booking-operations.md)|Expiredreconfirm/reservation/undo, settingsstaff/hours closed-versus-inherit/CAS, scopedpackage360/tool/export-onlyrealfiles|After015e/015f/012c and exactbilateralpredecessors; before015c/044–046|8AC/nativeEXCLUDE/races/scope/configmigration/10kEXPLAIN, mock+http/mobile/parity andlive8; localplanningreview/recheck closed, runtimepending|
+
+Exactownership tips/manifests/TIP-033b-files.md;025b retainsInboxpopover/route,032b packagegrant/reminderpolicy. Currentreadguard crm.view plusexistingrecordscope, no newpermission. No runtimepromotion.

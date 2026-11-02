@@ -39,3 +39,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung015e — chưa triển khai
 
 [TIP-015e](../tips/TIP-015e-contact-merge-integrity.md) nhận merge/dedupe và historical family/package associations, current authority và conditional inverse. Không coi report DONE cũ là chứng minh các phần bổ sung đã đạt.
+
+## Bổ sung033b — chưa triển khai
+
+[TIP-033b](../tips/TIP-033b-booking-operations.md) nhận expired reconfirm, settings nhân sự/giờ mở cửa và closed/inherit/CAS, slot/undo races, package360/read action và AI-first actual CSV/XLSX export. Audit hạ REQ-G01 từ ĐẠT xuống MỘT PHẦN vì config UI và off-day correctness chưa được chứng minh; giữ bằng chứng calendar đã có. Native/runtime/live gates của pack bổ sung chưa chạy.

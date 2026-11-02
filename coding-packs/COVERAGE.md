@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 14 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 70 | 19 | 12 | 1 | 48 | 10 | 5 | 8 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 16 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 7 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 14 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 93 | 1 | 0 | 11 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 35 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 25 |
-| **Tổng** | **546** | **373** | **118** | **41** | **342** | **34** | **66** | **141** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 34 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 23 |
+| **Tổng** | **545** | **376** | **118** | **41** | **343** | **34** | **66** | **135** |
 
-## Lỗ hổng chưa có TIP nhận (141)
+## Lỗ hổng chưa có TIP nhận (135)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -44,7 +44,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
-| REQ-G07e | CHƯA | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
 | REQ-N08b | CHƯA | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | B |
@@ -53,13 +52,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
 | COM-4-8 | CHƯA | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | C |
 | COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
-| COM-6-10 | MỘT PHẦN | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | C |
 | COM-8-7 | MỘT PHẦN | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | C |
 | COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
 | COM-10-4 | CHƯA | Hạ gói có hiệu lực từ kỳ sau | C |
 | D28c | MỘT PHẦN | Connector storage phát hành | C |
 | D48 | MỘT PHẦN | Research / Web search khoá "Sắp có" | C |
-| D52d | CHƯA | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | C |
 | DC-029 | CHƯA | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | C |
 | DC-081 | CHƯA | Owner vắng / ngoài ca → hàng chung | C |
 | DC-086 | CHƯA | Nhiều widget / workspace (P1) | C |
@@ -140,7 +137,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-docs | GIẢ | Cài đặt: chip "Tài liệu hướng dẫn" | F |
 | PRO-settings-tagslearn | GIẢ | Thẻ & nhãn: "Tìm hiểu thêm" | F |
 | PRO-settings-navcounts | GIẢ | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | F |
-| PRO-settings-booking | CHƯA | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | F |
 | PRO-settings-paymentaccount | CHƯA | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | F |
 | PRO-settings-security | CHƯA | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | F |
 | DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
@@ -157,7 +153,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-031-4 | CHƯA | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | G |
 | DEF-031-5 | CHƯA | `db:cleanup-test` tự nạp `.env` | G |
 | DEF-032-3 | MỘT PHẦN | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | G |
-| DEF-033-1 | CHƯA | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | G |
 | DEF-034-1 | GIẢ | Xu hướng KPI ticket (`trend`) so kỳ trước | G |
 | DEF-034-2 | CHƯA | Màn cấu hình danh mục ticket | G |
 | DEF-035-1 | CHƯA | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | G |
@@ -167,7 +162,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-018 | CHƯA | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | G |
 | Q-021 | CHƯA | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | G |
 | DV-001 | CHƯA | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | G |
-| DV-015 | MỘT PHẦN | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | G |
 
 ## A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX)
 
@@ -438,7 +432,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-G07b | Liệu trình sinh khi đã cọc (nếu sản phẩm cho phép) | 01-REQUIREMENTS-MATRIX.md:134 | 032b | CHƯA | packages.ts:20 chỉ `payStatus === 'paid'`; TIP-032b mục 6 |
 | REQ-G07c | Nhắc khi còn 1 buổi / còn 7 ngày hết hạn | 01-REQUIREMENTS-MATRIX.md:134 | 032b | CHƯA | payment-system.ts chỉ quét hết hạn; TIP-032b mục 6 |
 | REQ-G07d | Hết hạn thì khoá, Owner gia hạn tay | 01-REQUIREMENTS-MATRIX.md:134 | 032 | ĐẠT | package.handlers.ts:45 package.extend; test payments.test.ts "liệu trình: gia hạn (gói hết hạn mở lại)" |
-| REQ-G07e | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | 01-REQUIREMENTS-MATRIX.md:134 | — | CHƯA | API `GET /contacts/:id/packages` có nhưng FE chỉ mock dùng (apps/web/src/shared/api/mock/domains/invoices-actions.ts:191), Blocks360 không có khối; không action đọc liệu trình (023b mục 6 không liệt kê) |
+| REQ-G07e | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | 01-REQUIREMENTS-MATRIX.md:134 | 033b | CHƯA | API `GET /contacts/:id/packages` có nhưng FE chỉ mock dùng (apps/web/src/shared/api/mock/domains/invoices-actions.ts:191), Blocks360 không có khối; không action đọc liệu trình (023b mục 6 không liệt kê); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | REQ-F09a | Hợp đồng tạo trực tiếp hoặc từ báo giá đã chấp nhận; 3 loại Dịch vụ / Mua bán / Nguyên tắc | 01-REQUIREMENTS-MATRIX.md:135 | 030 | ĐẠT | packages/actions/src/contracts.ts:14; contract-write.handlers.ts:64, :83; test contracts.test.ts "create", "từ báo giá" |
 | REQ-F09b | Nội dung hợp đồng từ mẫu theo loại hợp đồng | 01-REQUIREMENTS-MATRIX.md:135 | 030b | MỘT PHẦN | contracts/services/contract-doc.ts:45 lấy templateId hoặc mẫu mặc định chung, không theo `contract_kind`; TIP-030b mục 1 |
 | REQ-F09c | Hợp đồng từ PDF / DOCX tải lên hoặc tệp khách gửi trong hội thoại | 01-REQUIREMENTS-MATRIX.md:135 | 030b | CHƯA | contract.create không nhận file; TIP-030b mục 2–3 |
@@ -450,7 +444,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F10 | Giai đoạn khách tự theo chứng từ (gửi BG → Báo giá; HĐ → Hợp đồng; đơn hoàn tất → Đã mua; BG từ chối / hết hạn → Đang tư vấn), không hạ khách đã mua, kéo tay thắng | 01-REQUIREMENTS-MATRIX.md:136 | 029, 030, 031 | ĐẠT | packages/core/src/crm/services/stage-rules.ts:23 (MANUAL_HOLD 24h, không hạ won); gọi ở quote-send.handlers.ts:90, quote-decide.handlers.ts:26, contract-send.handlers.ts:76, order-flow.handlers.ts:43; test quotes.test.ts (:164, :227), contracts.test.ts (:205), orders.test.ts (:155) |
 | REQ-F11 | Hồ sơ 360° — 6 nút mở form tại chỗ theo luật D46 (BG nháp → Cập nhật, đã gửi → phiên bản mới…), cùng kích thước | 01-REQUIREMENTS-MATRIX.md:137 | 015, 026 | ĐẠT | apps/web/src/features/inbox/components/Profile360Actions.tsx:39–47; test apps/web/e2e/inbox.spec.ts "6 nút mở form tại chỗ theo luật COMMERCE (REQ-F11)" |
 | REQ-F12 | Bố cục Hồ sơ 360°: ⚙ Tuỳ chỉnh tab / khối (12 khối), ≥ 1 tab, mẫu gán 5 vai trò, 3 mẫu có sẵn | 01-REQUIREMENTS-MATRIX.md:138 | 015, 026 | ĐẠT | packages/core/src/crm/actions/profile-layout.handlers.ts:27–82; services/layouts.service.ts; test crm-settings.test.ts AC9b, apps/web/e2e/inbox.spec.ts "(REQ-F12)", e2e/http/customers-ui.spec.ts |
-| REQ-G01 | Lịch ngày / tuần / tháng / danh sách; dịch vụ (thời lượng, giá, đệm); nhân sự; giờ mở cửa | 01-REQUIREMENTS-MATRIX.md:143 | 033 | ĐẠT | packages/core/src/booking/actions/booking-config.handlers.ts:50, :106; services/slots.ts; test booking.test.ts "dịch vụ + liệu trình … nhân sự + giờ mở cửa", apps/web/e2e/calendar.spec.ts "4 chế độ xem", e2e/http/calendar.spec.ts |
+| REQ-G01 | Lịch ngày / tuần / tháng / danh sách; dịch vụ (thời lượng, giá, đệm); nhân sự; giờ mở cửa | 01-REQUIREMENTS-MATRIX.md:143 | 033b | MỘT PHẦN | Calendar views have existing evidence, but settings UI absent (registry.ts7–10) and explicit closed days are dropped (booking-config.handlers.ts33–38).033b owns remaining settings/slot correctness, no runtimepromotion |
 | REQ-G02 | Trạng thái lịch: Chờ xác nhận (giữ chỗ 2 giờ) → Xác nhận → Hoàn tất / Không đến (ân hạn 20′) / Dời / Huỷ (bắt buộc lý do) | 01-REQUIREMENTS-MATRIX.md:144 | 033 | ĐẠT | packages/shared/src/booking/appointment-state.ts:6, :24; appointment-flow.handlers.ts:115, :136; test appointment-state.test.ts, booking.test.ts "không đến chỉ sau ân hạn 20 phút", "hết giữ chỗ 2 giờ → expired" |
 | REQ-G03a | Chống trùng lịch theo nhân sự (EXCLUDE ở DB) | 01-REQUIREMENTS-MATRIX.md:145 | 033 | ĐẠT | packages/db/prisma/tenant/migrations/20261101900000_033_booking/migration.sql:115; test booking.test.ts "ràng buộc DB: hai lịch chồng nhau … EXCLUDE" |
 | REQ-G03b | Agent gợi ý slot trống gần nhất | 01-REQUIREMENTS-MATRIX.md:145 | 033 | ĐẠT | appointment-book.handlers.ts:43 find_slots (agentGrantable — packages/actions/src/booking.ts:29); test booking.test.ts "slot: giờ mở cửa ∩ ca riêng …" |
@@ -535,6 +529,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N13 | DoD Action-first: mọi tính năng đăng ký action (schema, quyền, rủi ro, hoàn tác) + có test gọi qua Trợ lý AI | 01-REQUIREMENTS-MATRIX.md:222 | 023b | MỘT PHẦN | Registry + boot check: packages/core/test/actions-unit.test.ts:75; test qua Trợ lý chỉ vài action (assistant.test.ts); 14 action chưa handler; test phủ mọi action = TIP-023b mục R1 |
 | REQ-N14 | Parity UI < 5% mỗi màn / trạng thái chính ở 1440×900 | 01-REQUIREMENTS-MATRIX.md:219 | FE (D38), 046 | QUY-TẮC | tools/parity/parity.manifest.ts; `pnpm parity --all` ở .github/workflows/full.yml:121; parity.yml |
 | REQ-N15 | Nút "Trợ lý AI" một kiểu toàn app (`AiButton` ở packages/ui), tooltip tên module | 01-REQUIREMENTS-MATRIX.md:223 | FE ver2.1 (D45) | ĐẠT | packages/ui/src/primitives/AiButton.tsx; dùng ở 12 màn (apps/web/src/features/*/…Screen / Header); test tools/parity/parity.manifest.ts:149 (`.aibtn` "Trợ lý AI"), apps/web/e2e/agents.spec.ts |
+| BOOKING-CONFIG-CAS | Staff/hours versioned settings preserve inherit/closed and serialize deactivate versus booking | standards/domain/concurrency.md;033bSPEC2/3 | 033b | MỘT PHẦN | booking.prisma Staff/Setting no version; booking-config.handlers.ts33–38 dropsclosed,106+ misses ongoing;033bAC2/3 planned |
+| BOOKING-SLOT-AUTHORITY | Shared authorized exclude, persisted busy buffer, validdate and native reconfirm/undo races | D52d;033bSPEC2/3 | 033b | MỘT PHẦN | slots.ts busy usesendAt/currentbuffer; find_slots forwards rawexclude; appointment-flow.handlers.ts24–60 weakinverse/bareconfirm;033bAC1/2/4/6 planned |
+| BOOKING-PACKAGE-FILES | AI-first/manual actual package CSV/XLSX export, no direct balance/usage import | DC244;COMMERCE6;033bSPEC4/5 | 033b | CHƯA | No current customer_packages transferdataset; new038badapter registered by033b, actualartifact/currentauth AC7/8 not executed |
 
 **Ghi chú / chưa rà hết:**
 
@@ -618,7 +615,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-6-7 | Nhắc gia hạn khi còn 1 buổi / còn 7 ngày | plans/COMMERCE-DECISIONS.md:141 | 032b | CHƯA | Không có job nhắc (packages.ts chỉ expireDuePackages) |
 | COM-6-8 | Hết hạn → `expired`; Owner gia hạn `package.extend` có log | plans/COMMERCE-DECISIONS.md:142 | 032 | ĐẠT | packages.ts:50; package.handlers.ts:45 · test payments.test.ts "liệu trình: gia hạn" |
 | COM-6-9 | Hoàn tiền gói theo tỉ lệ buổi còn lại, cần duyệt; không chuyển nhượng | plans/COMMERCE-DECISIONS.md:143 | 032 | ĐẠT | refunds.ts · test payments.test.ts "yêu cầu theo liệu trình (tỉ lệ buổi còn lại) → chờ duyệt" |
-| COM-6-10 | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | plans/COMMERCE-DECISIONS.md:144 | — | MỘT PHẦN | API `GET /contacts/:id/packages` có (apps/api/src/http/sales/invoices.controller.ts) nhưng FE features không gọi (chỉ mock test); không có action đọc liệu trình cho agent (023b R2 không liệt kê) |
+| COM-6-10 | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | plans/COMMERCE-DECISIONS.md:144 | 033b | MỘT PHẦN | API `GET /contacts/:id/packages` có (apps/api/src/http/sales/invoices.controller.ts) nhưng FE features không gọi (chỉ mock test); không có action đọc liệu trình cho agent (023b R2 không liệt kê); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | COM-7-1 | Cộng điểm một lần khi đơn `completed`: floor(net trước VAT / 10.000) × hệ số hạng | plans/COMMERCE-DECISIONS.md:148-149 | 036 | MỘT PHẦN | Tính + ghi trên đơn (order-flow.handlers.ts:22-44; order-state.ts:62-67 · test order-state.test.ts pointsFor, orders.test.ts complete); chưa cộng sổ điểm / `points_balance` (DC-186) |
 | COM-7-2 | Hệ số hạng ×1 / ×1 / ×1,5 / ×2 cấu hình được | plans/COMMERCE-DECISIONS.md:150 | 036 | MỘT PHẦN | packages/shared/src/orders/order-state.ts:63-67 dùng hằng số, core/src/sales/orders/actions/order-flow.handlers.ts:37 không đọc config; loyalty.update_config chưa handler. TIP-036 TASK 2, AC2 nhận snapshot hệ số, không sửa earn cũ |
 | COM-7-3 | Lịch hẹn hoàn tất không cộng điểm riêng | plans/COMMERCE-DECISIONS.md:151 | 033 | ĐẠT | appointment-flow.handlers.ts:86 không cộng điểm · test booking.test.ts |
@@ -746,7 +743,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D52a | Mã đơn `DH-000123`, ticket `TKT-` | 01-REQUIREMENTS-MATRIX.md:301 | 031, 034 | ĐẠT | packages/shared/src/codes.ts:7,11 · test flow.test.ts, orders.test.ts |
 | D52b | Ticket đóng tự mở lại khi khách nhắn trong 7 ngày | 01-REQUIREMENTS-MATRIX.md:301 | 034 | ĐẠT | support/services/support-system.ts:99 · test support.test.ts:151 |
 | D52c | `approval_request` hết hạn 72 giờ (cấu hình được) | 01-REQUIREMENTS-MATRIX.md:301 | 021 | ĐẠT | ai/approvals/approval.gateway.ts:48 · test agents.test.ts:248 |
-| D52d | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | 01-REQUIREMENTS-MATRIX.md:301 | — | CHƯA | APPOINTMENT_FLOW: `expired: {}` terminal (packages/shared/src/booking/appointment-state.ts:42-43) trái state-machine.md:79 |
+| D52d | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | 01-REQUIREMENTS-MATRIX.md:301 | 033b | CHƯA | APPOINTMENT_FLOW: `expired: {}` terminal (packages/shared/src/booking/appointment-state.ts:42-43) trái state-machine.md:79; TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | D52e | Huỷ chiến dịch ở mọi trạng thái chưa kết thúc | 01-REQUIREMENTS-MATRIX.md:301 | 037 | CHƯA | Marketing chưa làm |
 | D52f | Chặn xoá agent đang phụ trách kênh / hội thoại mở | 01-REQUIREMENTS-MATRIX.md:301 | 021 | ĐẠT | test agents.test.ts:108 "xoá khi đang gán kênh → 409" |
 | D52g | Báo giá `expired` gia hạn được về `sent` nếu chưa có version mới | 01-REQUIREMENTS-MATRIX.md:301 | 029 | ĐẠT | quote-send.handlers.ts:117-134 · test quotes.test.ts "gia hạn expired → sent" |
@@ -1626,7 +1623,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | GIẢ | RagSection.tsx:67 không onClick |
 | PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | — | GIẢ | TagsSection.tsx:83 không onClick |
 | PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | — | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng |
-| PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | — | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ |
+| PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | 033b | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ; TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | PRO-settings-paymentaccount | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | plans/BLUEPRINT.md:1269 | — | CHƯA | Action + API có (DV-014); không FE nào gọi `payment_account.update` |
 | PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | — | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | MỘT PHẦN | Có tab Lịch sử ví (WalletLedger.tsx:1) nhưng không lọc theo module như prototype |
@@ -1727,7 +1724,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-032-1 | Khoản thu `points` + `payment.redeem_points` | reports/TIP-032-completion.md:32 | 036 | CHƯA | `payment.redeem_points` thiếu trong registry; TG row 036 |
 | DEF-032-2 | Trừ buổi liệu trình khi lịch hẹn hoàn tất (`package_usage`) | reports/TIP-032-completion.md:31 | 033 | ĐẠT | booking/services/appointment-write.ts:66-76; test booking.test.ts:4 |
 | DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
-| DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | — | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015) |
+| DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | — | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng |
 | DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | — | CHƯA | Danh mục là text tự do (packages/actions/src/support.ts:49) |
 | DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046 | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn" |
@@ -1769,7 +1766,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DV-012 | Duyệt `ConnectorManifest.hidden` + `mock_marketplace` | DEVIATIONS.md:29 | 031 | ĐẠT | packages/integrations/src/connectors/mock/order-sync.ts:19, define.ts:10; test packages/integrations/test/order-sync.test.ts |
 | DV-013 | Duyệt `bank_tx` / `payment_account` / `package_usage` + `payment.refund_approve` / `refund_reject` | DEVIATIONS.md:30 | 032 | ĐẠT | packages/actions/src/payments.ts:33; test payments.test.ts:268 |
 | DV-014 | Duyệt `/invoices/meta`, PDF phiếu thu, `/settings/payments`, phương thức `points` / `marketplace` | DEVIATIONS.md:31 | 032 | ĐẠT | apps/api/src/http/sales/invoices.controller.ts:39; test payments.test.ts |
-| DV-015 | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | DEVIATIONS.md:32 | — | MỘT PHẦN | Backend ĐẠT (booking.prisma:39,53; calendar.controller.ts:34; booking.test.ts); UI chưa (DEF-033-1) |
+| DV-015 | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | DEVIATIONS.md:32 | 033b | MỘT PHẦN | Backend ĐẠT (booking.prisma:39,53; calendar.controller.ts:34; booking.test.ts); UI chưa (DEF-033-1); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DV-016 | Duyệt `ticket_event` + cột ticket + `/tickets/meta` | DEVIATIONS.md:33 | 034 | ĐẠT | packages/db/prisma/tenant/support.prisma:110; tickets.controller.ts:32; test support.test.ts |
 | DV-017 | Duyệt cột `ai_task` mới + `ai_task.delete` / `run_now` + notify | DEVIATIONS.md:34 | 035 | ĐẠT | packages/actions/src/ai.ts:306; test ai-tasks.test.ts |
 

@@ -81,7 +81,7 @@
 | DEF-032-1 | Khoản thu `points` + `payment.redeem_points` | reports/TIP-032-completion.md:32 | 036 | CHƯA | `payment.redeem_points` thiếu trong registry; TG row 036 |
 | DEF-032-2 | Trừ buổi liệu trình khi lịch hẹn hoàn tất (`package_usage`) | reports/TIP-032-completion.md:31 | 033 | ĐẠT | booking/services/appointment-write.ts:66-76; test booking.test.ts:4 |
 | DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
-| DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | — | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015) |
+| DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | — | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng |
 | DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | — | CHƯA | Danh mục là text tự do (packages/actions/src/support.ts:49) |
 | DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046 | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn" |
@@ -123,7 +123,7 @@
 | DV-012 | Duyệt `ConnectorManifest.hidden` + `mock_marketplace` | DEVIATIONS.md:29 | 031 | ĐẠT | packages/integrations/src/connectors/mock/order-sync.ts:19, define.ts:10; test packages/integrations/test/order-sync.test.ts |
 | DV-013 | Duyệt `bank_tx` / `payment_account` / `package_usage` + `payment.refund_approve` / `refund_reject` | DEVIATIONS.md:30 | 032 | ĐẠT | packages/actions/src/payments.ts:33; test payments.test.ts:268 |
 | DV-014 | Duyệt `/invoices/meta`, PDF phiếu thu, `/settings/payments`, phương thức `points` / `marketplace` | DEVIATIONS.md:31 | 032 | ĐẠT | apps/api/src/http/sales/invoices.controller.ts:39; test payments.test.ts |
-| DV-015 | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | DEVIATIONS.md:32 | — | MỘT PHẦN | Backend ĐẠT (booking.prisma:39,53; calendar.controller.ts:34; booking.test.ts); UI chưa (DEF-033-1) |
+| DV-015 | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | DEVIATIONS.md:32 | 033b | MỘT PHẦN | Backend ĐẠT (booking.prisma:39,53; calendar.controller.ts:34; booking.test.ts); UI chưa (DEF-033-1); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DV-016 | Duyệt `ticket_event` + cột ticket + `/tickets/meta` | DEVIATIONS.md:33 | 034 | ĐẠT | packages/db/prisma/tenant/support.prisma:110; tickets.controller.ts:32; test support.test.ts |
 | DV-017 | Duyệt cột `ai_task` mới + `ai_task.delete` / `run_now` + notify | DEVIATIONS.md:34 | 035 | ĐẠT | packages/actions/src/ai.ts:306; test ai-tasks.test.ts |
 
