@@ -39,3 +39,7 @@
 ## Bổ sung planning 2026-11-02 — TIP-034c
 
 [TIP-034c](../tips/TIP-034c-ticket-bulk.md) owns remaining ticket portion of STD-domain-concurrency-7a (Inbox already025b). Current whole-batch transaction/updated-only/unsafe snapshot undo are not accepted behavior.79 exact files/46 bilateral pairs/8 AC; independent review caught forward retry/in-flight racing undo, corrected with terminal/drained gate and immutable sealed receipts under parent CAS. New canonical bulk undo has actual toast/audit/Assistant wiring; no runtime/native acceptance. See ticket-bulk-planning-audit-2026-11-02.md.
+
+## Bổ sung planning 2026-11-02 — TIP-034d
+
+[TIP-034d](../tips/TIP-034d-ticket-stock-trends.md) receives DEF-034-1, retaining GIẢ until implementation evidence. Existing event history cannot reconstruct all prior ticket stock. The supplement defines real completed daily observations, current authorized surviving cohort, explicit unavailable state, privacy interlock and canonical AI/UI summary.57 exact paths/47 bilateral pairs/8 AC; independent frozen-cohort and actual rollover findings corrected/rechecked, no native/runtime acceptance. See ticket-stock-planning-audit-2026-11-02.md.

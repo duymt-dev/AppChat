@@ -1,6 +1,7 @@
 # TIP-023g — Record-scoped AI entry points across Commerce and operations
 
 ## HEADER
+- **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/tickets.json`, `packages/core/src/authz/fields/history-provenance.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/tickets.json`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/tickets.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `apps/web/messages/en/products.json`, `apps/web/messages/vi/products.json`, `apps/web/src/features/products/components/DetailTabs.tsx`, `apps/web/src/features/products/components/ProductDrawer.tsx`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before027b.

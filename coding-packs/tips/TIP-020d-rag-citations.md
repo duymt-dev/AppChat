@@ -1,6 +1,7 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
+- **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before027b.

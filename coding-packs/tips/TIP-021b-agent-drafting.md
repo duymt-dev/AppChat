@@ -1,6 +1,7 @@
 # TIP-021b — Agent drafting discovers authorized tools before generation
 
 ## HEADER
+- **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`; integrate 021b before034d.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 021b before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/core/src/ai/assistant/discovery/authority.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 021b before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/discovery/authority.ts`; integrate 021b before033c.

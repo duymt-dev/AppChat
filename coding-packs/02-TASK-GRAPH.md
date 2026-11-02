@@ -365,3 +365,9 @@ Product media/formatting and CSV dataset transfer remain separate. No model on o
 | TIP | Scope | Integration order | Gates |
 |---|---|---|---|
 |034c [ticket-bulk](tips/TIP-034c-ticket-bulk.md)|Per-ticket combined atomic patches, typed receipts/progress, native version guard, sealed partial undo and actual result files|After003c/045b/025b/042c/015c/023c/g/038b and exact bilateral predecessors|79 paths,1 remaining standard owner,8 AC; running/cancelled-inflight/retry versus undo-seal native barriers|
+
+### Supplemental034d — actual observed ticket stock trends (DC283)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|034d [ticket-stock-trends](tips/TIP-034d-ticket-stock-trends.md)|Five current-cohort observed deltas, atomic daily projection/privacy cleanup and same canonical Assistant/UI facts|After034b/c/042c/015c/045b/023b/c/g and exact bilateral predecessors|57 paths,1 deferred owner,8 AC; fresh-statement capture/forget and protected-publication native barriers; no fictional history|

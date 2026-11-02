@@ -18,10 +18,10 @@
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 19 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **91** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 18 |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **90** |
 
-## Lỗ hổng chưa có TIP nhận (91)
+## Lỗ hổng chưa có TIP nhận (90)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -110,7 +110,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-031-4 | CHƯA | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | G |
 | DEF-031-5 | CHƯA | `db:cleanup-test` tự nạp `.env` | G |
 | DEF-032-3 | MỘT PHẦN | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | G |
-| DEF-034-1 | GIẢ | Xu hướng KPI ticket (`trend`) so kỳ trước | G |
 | DEF-035-1 | CHƯA | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | G |
 | DEF-035-2 | CHƯA | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | G |
 | Q-010 | CHƯA | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | G |
@@ -1714,7 +1713,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-032-2 | Trừ buổi liệu trình khi lịch hẹn hoàn tất (`package_usage`) | reports/TIP-032-completion.md:31 | 033 | ĐẠT | booking/services/appointment-write.ts:66-76; test booking.test.ts:4 |
 | DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
 | DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
-| DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | — | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng |
+| DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | 034d | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng;034d actual observed prior-date stock/current surviving cohort, privacy interlock and canonical AI read; planning not runtime |
 | DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046 | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn" |
 | DEF-034-4 | Nhiều chính sách SLA + leo thang 4 cấp | reports/TIP-034-completion.md:3 | — | NGOÀI | P3 theo report |

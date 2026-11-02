@@ -1,6 +1,7 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/kernel/actions/undo.service.ts`, `packages/shared/src/index.ts`; integrate 003b before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `packages/shared/src/events.ts`, `packages/shared/src/index.ts`; integrate 003b before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/catalog/actions/product.handlers.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`, `packages/shared/src/index.ts`; integrate 003b before027b.

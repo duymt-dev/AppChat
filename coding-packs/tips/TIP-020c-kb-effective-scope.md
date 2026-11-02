@@ -1,6 +1,7 @@
 # TIP-020c — Effective knowledge scope across agent execution
 
 ## HEADER
+- **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`; integrate 020c before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 020c before034c.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/catalog/events/catalog-sync.ts`; integrate 020c before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`; integrate 020c before032d.
