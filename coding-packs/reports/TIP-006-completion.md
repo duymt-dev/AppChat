@@ -51,3 +51,7 @@
 - TIP-016 đăng ký `registerConversationGuard` (hội thoại trong scope inbox) + luật realtime `message.*` / `conversation.*` với `require.scope`.
 - TIP-013 phát `member.role_changed` / `member.removed` trong action `member.set_role` / `member.remove`; nối trang Cài đặt › Thông báo sang http.
 - TIP-011 nối client Socket.IO phía FE (`auth: { token, workspace_id }`) và chuyển `useEventInvalidation` sang socket khi `apiMode() === 'http'`.
+
+## Bổ sung — rà câu A 2026-11-02
+
+Digest daily/weekly còn thiếu (DEF-006-1/DC030) được nhận cụ thể bởi [TIP-038 task5/AC09](../tips/TIP-038-insights-dashboard.md). Đây là kế hoạch scheduler/prefs/DND/scoped content/mail recovery, không phải đã triển khai hoặc đã nghiệm thu Brevo.

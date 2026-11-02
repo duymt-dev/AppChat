@@ -1,6 +1,8 @@
 # TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
 
 ## HEADER
+- **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
+- **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038. Recheck after incomplete manifests expand.
 - **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
 - **Parallel-safe with TIP-042:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 042. Recheck intersections when incomplete manifests are expanded.

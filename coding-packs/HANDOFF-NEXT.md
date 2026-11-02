@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Checkpoint insights mới nhất:** thêm `TIP-038-insights-dashboard.md` (102 file,10 AC): metric/query_data, dashboard/follow-up/T-30, agent statistics,4 Excel exports và digest daily/weekly. Nhận orphanDEF0061, sổ **1.463 dòng/215 lỗ hổng**; DC241 là đề xuất kỹ thuật, không đổi quyền/commerce. Xem `reports/insights-planning-audit-2026-11-02.md`; chưa code/chưa review độc lập. Tiếp theo039–041/044–046, TIP bổ sung và hoàn thiện6 pending cũ; không bắt đầu câu B.
+
 - **Checkpoint marketing mới nhất:** có `TIP-037-marketing.md` (93 file,10 AC), nhận thêm D35c quota200 tin/ngày; Q-030 đang hỏi Credit mỗi tin hay chỉAI. Bao gồm snapshot duyệt, cooldown48h/unsub, unknown-send recovery, import/export/resend/AI thật; không giả exactly-once. Sổ **1.463 dòng/216 lỗ hổng**. Xem `reports/marketing-planning-audit-2026-11-02.md`; chưa code/chưa independent review.
 
 - **Checkpoint scope mới nhất:** thêm `TIP-042c-record-scope.md` (69 file, 8 AC), gán COM-8b-2; gateQ-029 đang hỏi semantics team nhiều nhóm. Rà thấy helper detail cho owner qua trước none và writable inbox dùng read guard; hạ2 dòng ĐẠT quá rộng. Field-level giữ045b. Sổ **1.462 dòng/217 lỗ hổng**; xem `reports/scope-planning-audit-2026-11-02.md`. Chưa code/chưa independent review.

@@ -1,6 +1,8 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
+- **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
+- **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038. Recheck after incomplete manifests expand.
 - **Additional overlap with TIP-037 caps UI:** sequential, shares `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`; integrate this TIP before 037.
 - **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - **Parallel-safe with TIP-042c:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042c. Recheck after incomplete manifests expand.

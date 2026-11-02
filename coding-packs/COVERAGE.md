@@ -18,10 +18,10 @@
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 93 | 196 | 5 | 4 | 81 | 1 | 0 | 23 |
 | E. standards/* | 157 | 39 | 2 | 6 | 62 | 2 | 40 | 38 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 42 |
-| **Tổng** | **566** | **323** | **118** | **42** | **314** | **34** | **66** | **216** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 41 |
+| **Tổng** | **566** | **323** | **118** | **42** | **314** | **34** | **66** | **215** |
 
-## Lỗ hổng chưa có TIP nhận (216)
+## Lỗ hổng chưa có TIP nhận (215)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -204,7 +204,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
 | DEF-001-2 | CHƯA | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | G |
 | DEF-002-2 | CHƯA | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | G |
-| DEF-006-1 | CHƯA | Job gửi email tóm tắt `digest` daily / weekly (DC-030 hẹn TIP-038) | G |
 | DEF-009-1 | GIẢ | `channels.used` của billing summary đếm `channel_account` thật | G |
 | DEF-009-4 | MỘT PHẦN | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | G |
 | DEF-010-2 | CHƯA | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | G |
@@ -1676,7 +1675,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-004-1 | Bước smoke bản build (`pnpm smoke:build`) trong cổng chốt TIP (Q-009) | reports/TIP-004-completion.md:48 | 046 | CHƯA | package.json không có script `smoke:build`; TG row 046 ghi Q-009 |
 | DEF-004-2 | FE quên mật khẩu gọi đúng `/auth/password/reset-request` của backend | reports/TIP-004-completion.md:49 | 011 | ĐẠT | apps/api/src/http/identity/auth.controller.ts:85; apps/web/src/features/auth/api.ts:47; test apps/web/e2e/http/auth-onboarding.spec.ts:45 |
 | DEF-005-1 | `scopeFilter` nhận `contactIds` collaborator / watcher (TIP-015) | reports/TIP-005-completion.md:44 | 015 | ĐẠT | packages/core/src/authz/scope.ts:2,12; test apps/api/test/integration/crm-contacts.test.ts |
-| DEF-006-1 | Job gửi email tóm tắt `digest` daily / weekly (DC-030 hẹn TIP-038) | reports/TIP-006-completion.md:43 | — | CHƯA | Không có job digest trong packages/core/src (grep `digest` chỉ thấy hash); TG row 038 không ghi digest |
+| DEF-006-1 | Job gửi email tóm tắt `digest` daily / weekly (DC-030 hẹn TIP-038) | reports/TIP-006-completion.md:43 | 038 | CHƯA | TIP-038 task5/AC09 nhận scheduler, prefs/DND/current authz, delivery ledger và mailport; mới là kế hoạch, chưa có runtime digest |
 | DEF-006-2 | Gửi thông báo kênh `mobile` (web push / app) | reports/TIP-006-completion.md:42 | — | NGOÀI | DC-029: chỉ lưu tuỳ chọn, TIP push = P2 |
 | DEF-006-3 | Guard hội thoại + luật realtime `member.role_changed` / `member.removed` + client socket FE | reports/TIP-006-completion.md:51-53 | 013/016/025 | ĐẠT | packages/core/src/inbox/inbox.module.ts:55; notify/events/kernel.rules.ts:17; apps/web/src/shared/realtime/socket.ts; test realtime.test.ts, e2e/http/inbox-live.spec.ts |
 | DEF-009-1 | `channels.used` của billing summary đếm `channel_account` thật | reports/TIP-009-completion.md:32 | — | GIẢ | packages/core/src/billing/services/billing-read.service.ts:73 vẫn `used: 0` cứng (comment "tới TIP-014") |

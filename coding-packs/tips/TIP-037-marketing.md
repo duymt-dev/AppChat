@@ -1,6 +1,8 @@
 # TIP-037 — Marketing broadcast, segmentation, AI suggestions và campaign reporting
 
 ## HEADER
+- **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
+- **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `packages/core/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038. Recheck after incomplete manifests expand.
 - TIP-ID: TIP-037; Project: AppChat V2; Module: marketing; Priority: P1; Estimated: XL (schema/query → lifecycle → dispatch → AI/UI).
 - Depends on:014–018/019/021/022/026,023b/023c; integrate sau015b/020b/030b/032b/036/042/042b/042c/043/045b vì shared files, trước038/044/046.
 - **Gate:** Q-030 chưa chốt cách tính Credit ngoài AI; không tự đặt giá mỗi tin hoặc lấy con số mock làm giá. Các phần khác vẫn lập kế hoạch/kiểm chứng.
