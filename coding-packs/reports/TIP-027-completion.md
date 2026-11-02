@@ -32,3 +32,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-031 dùng `recordMovement` (`kind=sale|return`, `ref_type=order`, combo trừ theo thành phần) + cộng `product.sold`; TIP-029 / 031 trả số cho tab CRM / KPI "Bán trong tháng".
 - Chặn sửa / xoá tay nguồn `origin=catalog` ở Dữ liệu RAG khi màn đó có bộ lọc nguồn.
+
+## Bổ sung planning 2026-11-02 — TIP-027b
+
+Source audit found real media absent and description toolbar inert; original TIP-027 completion is not acceptance of those controls. [TIP-027b](../tips/TIP-027b-product-media-description.md) owns REQ-F05b, PRO-products-files and PRO-products-richtext: private media claims, safe editor/schema and legacy/RAG/import projection.79 exact files/44 bilateral pairs,8 AC. Independent create-undo, validator layering and data-transfer registry/UI findings corrected/rechecked; no production/runtime acceptance. See product-media-planning-audit-2026-11-02.md.

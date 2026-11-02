@@ -1,6 +1,7 @@
 # TIP-043 — Học hỏi–đáp từ hội thoại, người duyệt trước khi vào RAG
 
 ## HEADER
+- **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 043 before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 043 before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 043 before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 043 before020d.

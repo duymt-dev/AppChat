@@ -35,7 +35,7 @@
 | PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | GIẢ | DetailTabs.tsx:231 `message.info('opening')` |
 | PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
 | PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
-| PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | — | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
+| PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | 027b | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
 | PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | 023g | GIẢ | apps/web/src/features/quotes/columns.tsx:57 `message.info(aiDoing)` |
 | PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | 023g | GIẢ | apps/web/src/features/contracts/columns.tsx:72 `message.info` |
 | PRO-orders-rowai | Dòng đơn: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5896 | 023g | GIẢ | apps/web/src/features/orders/columns.tsx:88 `message.info` |
@@ -47,7 +47,7 @@
 | PRO-quotes-bulkfwd | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5364 | — | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:133,141 `message.info`; không có action gán phụ trách báo giá |
 | PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
 | PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |
-| PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | — | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
+| PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | 027b | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
 | PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | 015e | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
 | PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |

@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 12 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 27 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 18 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **97** |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **94** |
 
-## Lỗ hổng chưa có TIP nhận (97)
+## Lỗ hổng chưa có TIP nhận (94)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -36,7 +36,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C10a | MỘT PHẦN | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | A |
 | REQ-E09c | MỘT PHẦN | Hoàn tác trong hạn; đã gửi → ghi đính chính | A |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
-| REQ-F05b | CHƯA | Ảnh sản phẩm | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
@@ -86,11 +85,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
 | STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
 | STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
-| PRO-products-files | GIẢ | Tab Tệp sản phẩm: Mở tệp | F |
 | PRO-quotes-bulkfwd | GIẢ | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | F |
 | PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
-| PRO-products-richtext | GIẢ | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | F |
 | PRO-assistant-taskspark | GIẢ | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | F |
 | PRO-shell-navbadges | GIẢ | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | F |
 | PRO-settings-wsswitch | GIẢ | Tổng quan workspace: nút "Chuyển" sang workspace khác | F |
@@ -363,7 +360,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F03b | Nhập khách từ CSV / XLSX (ghép cột, preview, trùng) + xuất (CSV BOM — DC-063) theo bộ lọc | 01-REQUIREMENTS-MATRIX.md:126 | 015, 026 | ĐẠT | packages/core/src/crm/actions/contact-io.handlers.ts:20, :57; apps/api/src/http/crm/contacts.controller.ts:79 import-table; test crm-settings.test.ts AC11, crm-ui.test.ts "nhập" + "contact.export theo đủ bộ lọc" |
 | REQ-F04 | Trường tuỳ biến cho 6 thực thể (khách, SP, báo giá, đơn, ticket, lịch hẹn), lưu `custom jsonb`, validate theo định nghĩa | 01-REQUIREMENTS-MATRIX.md:127 | 015, 026–034 | ĐẠT | packages/shared/src/custom-fields/values.ts:10; validateCustomValues ở quote-write.ts:114, order-write.ts:80, ticket-create.handler.ts:53, appointment-book.handlers.ts:97, catalog-write.ts:78; test crm-settings.test.ts AC9a, apps/web/e2e/custom-fields.spec.ts |
 | REQ-F05a | Sản phẩm 6 loại, giá chưa VAT, giá vốn, ĐVT, thuế theo dòng, danh mục, biến thể, combo | 01-REQUIREMENTS-MATRIX.md:128 | 027 | ĐẠT | packages/db/prisma/tenant/catalog.prisma:5 (6 loại), :54–56; packages/core/src/catalog/actions/product.handlers.ts:24; test catalog.test.ts "tạo 6 loại", apps/web/e2e/http/products.spec.ts |
-| REQ-F05b | Ảnh sản phẩm | 01-REQUIREMENTS-MATRIX.md:128 | — | CHƯA | catalog.prisma model Product không có cột ảnh; DECISIONS.md:168 DC-159 "Tệp theo sản phẩm (ảnh…) khi có yêu cầu" — không có mã loại khỏi phạm vi |
+| REQ-F05b | Ảnh sản phẩm | 01-REQUIREMENTS-MATRIX.md:128 | 027b | CHƯA | catalog.prisma model Product không có cột ảnh; DECISIONS.md:168 DC-159 "Tệp theo sản phẩm (ảnh…) khi có yêu cầu" — không có mã loại khỏi phạm vi |
 | REQ-F05c | Danh mục sửa / xoá, nhập sản phẩm, action `product_variant.*` riêng | 01-REQUIREMENTS-MATRIX.md:128 | 032b | CHƯA | registry chỉ có `category.create` (actions.json); TIP-032b mục 7 |
 | REQ-F05d | Tồn kho trừ khi đơn xác nhận, hoàn khi huỷ, cho âm kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:128 | 027, 031 | ĐẠT | packages/core/src/sales/orders/services/order-write.ts:131, :142; order-flow.handlers.ts:63 `low_stock`; test orders.test.ts "confirm: trừ kho", "cancel: … hoàn kho", catalog.test.ts "stock.adjust: cho âm" |
 | REQ-F05e | Agent dùng catalog làm nguồn tư vấn / báo giá (product.search / get, RAG mô tả không giá) | 01-REQUIREMENTS-MATRIX.md:128 | 027 | ĐẠT | packages/core/src/catalog/actions/read.handlers.ts:30; catalog/events/catalog-sync.ts; test catalog.test.ts "product.search …", "catalog-sync" |
@@ -1568,7 +1565,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | GIẢ | DetailTabs.tsx:231 `message.info('opening')` |
 | PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
 | PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
-| PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | — | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
+| PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | 027b | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
 | PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | 023g | GIẢ | apps/web/src/features/quotes/columns.tsx:57 `message.info(aiDoing)` |
 | PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | 023g | GIẢ | apps/web/src/features/contracts/columns.tsx:72 `message.info` |
 | PRO-orders-rowai | Dòng đơn: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5896 | 023g | GIẢ | apps/web/src/features/orders/columns.tsx:88 `message.info` |
@@ -1580,7 +1577,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-quotes-bulkfwd | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5364 | — | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:133,141 `message.info`; không có action gán phụ trách báo giá |
 | PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
 | PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |
-| PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | — | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
+| PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | 027b | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
 | PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | 015e | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
 | PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |

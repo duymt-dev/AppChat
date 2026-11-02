@@ -347,3 +347,9 @@ COM-4-7/8 deposit semantics remain separate under Q038/039;033c does not change 
 |032d [commerce-record-files](tips/TIP-032d-commerce-record-files.md)|Real Files tabs, typed private association/claim, current download, immutable generated evidence and AI-artifact consented copy|After023c/f/030b/032c/015c/045b and exact bilateral predecessors|Exact manifest,2 owned prototype IDs,8 AC; native structural validation gate explicit|
 
 Product media/formatting and CSV dataset transfer remain separate. No model on ordinary upload/open, no public URL or malware-scan claim from structural parsing.
+
+### Supplemental027b — product media/description (DC280)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|027b [product-media-description](tips/TIP-027b-product-media-description.md)|Private product images/files and safe structured description; actual editor, legacy plain/RAG projection, AI-first/manual data-transfer compatibility|After032d/023f/g/038b/015c/045b and all exact bilateral predecessors|79-path manifest,3 owned IDs,8 AC; pending-intent/create-undo races and packaged image validator proof|

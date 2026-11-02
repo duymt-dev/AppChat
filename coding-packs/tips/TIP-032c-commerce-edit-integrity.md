@@ -1,6 +1,7 @@
 # TIP-032c: Hợp đồng/đơn hàng — attribution bất biến, sửa và hoàn tác không ghi đè
 
 ## HEADER
+- **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 032c before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/orders.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/orders.json`, `apps/web/src/features/orders/api.ts`, `apps/web/src/features/orders/components/DetailTabs.tsx`, `apps/web/src/features/orders/components/OrderDrawer.tsx`, `apps/web/src/features/orders/types.ts`, `apps/web/src/shared/api/mock/domains/orders.ts`, `packages/actions/src/index.ts`, `packages/core/src/sales/sales.module.ts`, `packages/shared/src/api/orders.ts`, `tools/parity/parity.manifest.ts`; integrate 032c before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/sales/orders/actions/order-from-appointment.handler.ts`, `packages/core/src/sales/sales.module.ts`, `tools/parity/parity.manifest.ts`; integrate 032c before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before020d.
