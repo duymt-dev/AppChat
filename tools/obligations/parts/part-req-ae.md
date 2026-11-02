@@ -63,7 +63,7 @@
 | REQ-B10c | Kết nối kênh qua Trợ lý (QR trong chat) | 02-TASK-GRAPH.md:82 | 023c | CHƯA | Không khối qr / channel.status |
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
-| REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ |
+| REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | MỘT PHẦN | history_days chạy; sync_messages / sync_auto_create_contact không được pipeline.ts đọc Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
@@ -80,7 +80,7 @@
 | REQ-C05b | Câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:67 | 016, 025 | ĐẠT | ComposerPopovers.tsx:33-50; test inbox.test.ts AC8 |
 | REQ-C05c | AI soạn / viết lại trong composer | 01-REQUIREMENTS-MATRIX.md:67 | 023c | GIẢ | InboxAiModal.tsx:13,58 chỉ mở Trợ lý đầy đủ |
 | REQ-C05d | Tự dịch tin gửi đi | 01-REQUIREMENTS-MATRIX.md:67 | — | GIẢ | Popover xl chỉ bật cờ ui.autoXl (ComposerPopovers.tsx:96); submit không dịch |
-| REQ-C05e | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | 01-REQUIREMENTS-MATRIX.md:67 | — | CHƯA | conversation.intent (inbox.prisma:125) không nơi ghi; intent agent (packages/ai/src/reply/output.ts:9) bị bỏ |
+| REQ-C05e | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | 01-REQUIREMENTS-MATRIX.md:67 | 022b | CHƯA | conversation.intent (inbox.prisma:125) không nơi ghi; intent agent (packages/ai/src/reply/output.ts:9) bị bỏ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-C06a | Tự gắn khách theo ID kênh / SĐT | 01-REQUIREMENTS-MATRIX.md:68 | 015, 016 | ĐẠT | crm/services/identity.service.ts:30-55; test inbox.test.ts AC2 |
 | REQ-C06b | Chưa có thì tạo hồ sơ nháp | 01-REQUIREMENTS-MATRIX.md:68 | 015 | ĐẠT | identity.service.ts:40-47; test inbox.test.ts AC2 |
 | REQ-C06c | Khớp không chắc → gợi ý gộp | 01-REQUIREMENTS-MATRIX.md:68 | 015, 026 | ĐẠT | crm/services/crm-read.service.ts:107; test crm-contacts.test.ts AC7 |
@@ -112,7 +112,7 @@
 | REQ-D02b | Định tuyến theo tác vụ / mức, fallback | 01-REQUIREMENTS-MATRIX.md:81 | 019 | ĐẠT | packages/ai/src/router/router.ts:29; test router.test.ts "503 → provider kế" |
 | REQ-D02c | Ẩn tên model | 01-REQUIREMENTS-MATRIX.md:81 | 019 | ĐẠT | test ai-runtime.test.ts AC5 |
 | REQ-D03a | Tools agent ⊆ Action Registry, cấp theo agent | 01-REQUIREMENTS-MATRIX.md:82 | 021 | ĐẠT | ai/agents/agent-tools.ts:57; test agents.test.ts AC2 |
-| REQ-D03b | Bộ tool mặc định Sales đủ (SP / giá / tồn, đơn, lịch, ticket, gửi file…) | 01-REQUIREMENTS-MATRIX.md:82 | — | MỘT PHẦN | templates.seed.ts:9 sales chỉ 4 tool |
+| REQ-D03b | Bộ tool mặc định Sales đủ (SP / giá / tồn, đơn, lịch, ticket, gửi file…) | 01-REQUIREMENTS-MATRIX.md:82 | 022b | MỘT PHẦN | templates.seed.ts:9 sales chỉ 4 tool Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-D04a | Kho RAG thư mục, thẻ, tải PDF/DOCX/XLSX/CSV/TXT/MD | 01-REQUIREMENTS-MATRIX.md:83 | 020 | ĐẠT | ai/kb/parse.ts:18; kb.handlers.ts:33,160; test kb.test.ts AC4, e2e http/rag.spec.ts |
 | REQ-D04a-2 | Nguồn URL, văn bản, danh mục sản phẩm | 01-REQUIREMENTS-MATRIX.md:83 | 020, 027 | ĐẠT | kb.handlers.ts:63-71; catalog/events/catalog-sync.ts; test kb.test.ts, catalog.test.ts:212 |
 | REQ-D04c | Trạng thái index, số đoạn, index lại | 01-REQUIREMENTS-MATRIX.md:83 | 020 | ĐẠT | kb.handlers.ts:137; test kb.test.ts AC6 |
@@ -124,7 +124,7 @@
 | REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | policy.ts:13 send / money → approval; FORCE_APPROVAL (governance.ts:34) chỉ hiển thị |
 | REQ-D06a | Handoff theo các lý do | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | handoff.ts:26; test agent-reply.test.ts |
 | REQ-D06b | Handoff kèm nháp + folder Cần người | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | reply.service.ts:76; test agent-reply.test.ts "độ tin cậy thấp" |
-| REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | — | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) |
+| REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-D07a | Hàng chờ duyệt Duyệt / Sửa / Từ chối | 01-REQUIREMENTS-MATRIX.md:87 | 021, 024 | ĐẠT | approval.handlers.ts:74-92; test agents.test.ts AC4, e2e http/agents-ui.spec.ts:60 |
 | REQ-D07b | Duyệt ở thông báo | 01-REQUIREMENTS-MATRIX.md:87 | 021 | ĐẠT | ai/events/agents.rules.ts:8; test agents.test.ts AC4 |
 | REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | — | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |

@@ -39,3 +39,7 @@
 - TIP-026 (support): CSAT theo agent cho thẻ agent (DC-118); `ai_escalate` → ticket khi khiếu nại.
 - Ghi `contact_memory` tự động từ lượt agent (hiện chỉ đọc) — đề xuất TIP riêng sau TIP-023.
 - Eval suite `agent-reply` (standards/ai/eval.md) khi có key.
+
+## Supplemental agent-channel behavior (2026-11-02)
+
+[TIP022b](../tips/TIP-022b-agent-channel-behavior.md) owns structured schedules, real keyword routing, intent/handoff/complaint behavior and versioned template defaults, preserving current grants and native services. Prior DONE does not prove these deferred behaviors or live model success; completed TIP file unchanged.

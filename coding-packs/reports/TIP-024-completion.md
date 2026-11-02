@@ -34,3 +34,7 @@
 - TIP-025: socket client ở chế độ http (`approval.changed`, `agent.changed` đã phát) thay làm mới 30 giây ở Chờ duyệt; định tuyến nhiều agent theo từ khoá ưu tiên.
 - Lịch hoạt động tuỳ chỉnh (theo ngày / ca) khi có màn — hiện `custom` = 24/7.
 - `GET /agents/:id/stats` + CSAT agent khi ticket có CSAT (TIP-038 hiệu suất agent).
+
+## Supplemental agent-channel behavior (2026-11-02)
+
+[TIP022b](../tips/TIP-022b-agent-channel-behavior.md) owns structured schedules, real keyword routing, intent/handoff/complaint behavior and versioned template defaults, preserving current grants and native services. Prior DONE does not prove these deferred behaviors or live model success; completed TIP file unchanged.

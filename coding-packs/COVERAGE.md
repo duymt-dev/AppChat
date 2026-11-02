@@ -12,16 +12,16 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 28 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 15 | 12 | 1 | 48 | 10 | 5 | 14 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 24 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 11 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 20 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 199 | 5 | 4 | 81 | 1 | 0 | 22 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 200 | 5 | 4 | 81 | 1 | 0 | 21 |
 | E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 39 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 36 |
-| **Tổng** | **557** | **335** | **118** | **41** | **330** | **34** | **66** | **207** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 33 |
+| **Tổng** | **556** | **337** | **118** | **41** | **330** | **34** | **66** | **196** |
 
-## Lỗ hổng chưa có TIP nhận (207)
+## Lỗ hổng chưa có TIP nhận (196)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -34,10 +34,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B04a | CHƯA | Cảnh báo rủi ro khi kết nối Zalo | A |
 | REQ-B05c | CHƯA | Tuỳ chỉnh logo widget | A |
 | REQ-B06b | CHƯA | Gmail OAuth | A |
-| REQ-B11c | MỘT PHẦN | Trả lời tự động: agent, chế độ, giờ, lời chào | A |
 | REQ-B11d | MỘT PHẦN | Phân công & SLA theo tài khoản | A |
 | REQ-C05d | GIẢ | Tự dịch tin gửi đi | A |
-| REQ-C05e | CHƯA | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | A |
 | REQ-C07 | MỘT PHẦN | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | A |
 | REQ-C08b | CHƯA | Multi-select hội thoại trên UI | A |
 | REQ-C09a | MỘT PHẦN | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | A |
@@ -45,8 +43,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C10c | MỘT PHẦN | Phân công nhân viên + agent kèm tải | A |
 | REQ-C11a | GIẢ | Menu ＋: Thêm tệp · Chụp ảnh màn hình | A |
 | REQ-C12 | MỘT PHẦN | Tìm trong hội thoại không dấu, N/M, lọc người gửi | A |
-| REQ-D03b | MỘT PHẦN | Bộ tool mặc định Sales đủ (SP / giá / tồn, đơn, lịch, ticket, gửi file…) | A |
-| REQ-D06c | MỘT PHẦN | Handoff kèm tóm tắt | A |
 | REQ-D07c | CHƯA | Thẻ duyệt trong Inbox | A |
 | REQ-D17c | CHƯA | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | A |
 | REQ-E03d | CHƯA | Đề xuất tái dùng luồng trước | A |
@@ -58,13 +54,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01b-4 | CHƯA | Chuyển phụ trách kèm lịch hẹn (`move.appointments`) chuyển thật | B |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
-| REQ-F06-f | MỘT PHẦN | Khách phản hồi trong chat → AI tự cập nhật trạng thái báo giá (chốt / từ chối) | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
 | REQ-F08f | GIẢ | Adapter bank feed thật cho DN: SePay gắn vào registry tenant, Casso có adapter | B |
 | REQ-G07e | CHƯA | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | B |
 | REQ-G03c | GIẢ | Composer Hộp thư "Đặt lịch" lấy slot thật | B |
-| REQ-G04b | MỘT PHẦN | Khách trả lời "đổi" / "huỷ" → agent xử lý (dời / huỷ lịch) | B |
-| REQ-H02b | MỘT PHẦN | Agent tự tạo ticket khi phát hiện khiếu nại / sự cố | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
 | REQ-N08b | CHƯA | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | B |
@@ -107,7 +100,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
 | BP-5.1-g | CHƯA | Mọi bước phát `run.step` qua WS | D |
 | BP-5.1-j | CHƯA | ai_run_step.meta.provider_cost | D |
-| BP-5.3b-c | CHƯA | Preview cảnh báo khi gắn kênh đang có agent khác | D |
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
@@ -208,11 +200,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
 | DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
 | DEF-021-1 | MỘT PHẦN | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | G |
-| DEF-022-4 | CHƯA | `ai_escalate` (khiếu nại) → tự mở ticket | G |
 | DEF-023-2 | CHƯA | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | G |
 | DEF-023-4 | CHƯA | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | G |
-| DEF-024-1 | GIẢ | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | G |
-| DEF-024-3 | MỘT PHẦN | Định tuyến nhiều agent theo từ khoá ưu tiên | G |
 | DEF-025-1 | MỘT PHẦN | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | G |
 | DEF-025-2 | GIẢ | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | G |
 | DEF-026-2 | CHƯA | Kanban khách > 50 thẻ / cột có "Xem thêm" | G |
@@ -302,7 +291,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B10c | Kết nối kênh qua Trợ lý (QR trong chat) | 02-TASK-GRAPH.md:82 | 023c | CHƯA | Không khối qr / channel.status |
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
-| REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ |
+| REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | MỘT PHẦN | history_days chạy; sync_messages / sync_auto_create_contact không được pipeline.ts đọc Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
@@ -319,7 +308,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C05b | Câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:67 | 016, 025 | ĐẠT | ComposerPopovers.tsx:33-50; test inbox.test.ts AC8 |
 | REQ-C05c | AI soạn / viết lại trong composer | 01-REQUIREMENTS-MATRIX.md:67 | 023c | GIẢ | InboxAiModal.tsx:13,58 chỉ mở Trợ lý đầy đủ |
 | REQ-C05d | Tự dịch tin gửi đi | 01-REQUIREMENTS-MATRIX.md:67 | — | GIẢ | Popover xl chỉ bật cờ ui.autoXl (ComposerPopovers.tsx:96); submit không dịch |
-| REQ-C05e | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | 01-REQUIREMENTS-MATRIX.md:67 | — | CHƯA | conversation.intent (inbox.prisma:125) không nơi ghi; intent agent (packages/ai/src/reply/output.ts:9) bị bỏ |
+| REQ-C05e | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | 01-REQUIREMENTS-MATRIX.md:67 | 022b | CHƯA | conversation.intent (inbox.prisma:125) không nơi ghi; intent agent (packages/ai/src/reply/output.ts:9) bị bỏ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-C06a | Tự gắn khách theo ID kênh / SĐT | 01-REQUIREMENTS-MATRIX.md:68 | 015, 016 | ĐẠT | crm/services/identity.service.ts:30-55; test inbox.test.ts AC2 |
 | REQ-C06b | Chưa có thì tạo hồ sơ nháp | 01-REQUIREMENTS-MATRIX.md:68 | 015 | ĐẠT | identity.service.ts:40-47; test inbox.test.ts AC2 |
 | REQ-C06c | Khớp không chắc → gợi ý gộp | 01-REQUIREMENTS-MATRIX.md:68 | 015, 026 | ĐẠT | crm/services/crm-read.service.ts:107; test crm-contacts.test.ts AC7 |
@@ -351,7 +340,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D02b | Định tuyến theo tác vụ / mức, fallback | 01-REQUIREMENTS-MATRIX.md:81 | 019 | ĐẠT | packages/ai/src/router/router.ts:29; test router.test.ts "503 → provider kế" |
 | REQ-D02c | Ẩn tên model | 01-REQUIREMENTS-MATRIX.md:81 | 019 | ĐẠT | test ai-runtime.test.ts AC5 |
 | REQ-D03a | Tools agent ⊆ Action Registry, cấp theo agent | 01-REQUIREMENTS-MATRIX.md:82 | 021 | ĐẠT | ai/agents/agent-tools.ts:57; test agents.test.ts AC2 |
-| REQ-D03b | Bộ tool mặc định Sales đủ (SP / giá / tồn, đơn, lịch, ticket, gửi file…) | 01-REQUIREMENTS-MATRIX.md:82 | — | MỘT PHẦN | templates.seed.ts:9 sales chỉ 4 tool |
+| REQ-D03b | Bộ tool mặc định Sales đủ (SP / giá / tồn, đơn, lịch, ticket, gửi file…) | 01-REQUIREMENTS-MATRIX.md:82 | 022b | MỘT PHẦN | templates.seed.ts:9 sales chỉ 4 tool Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-D04a | Kho RAG thư mục, thẻ, tải PDF/DOCX/XLSX/CSV/TXT/MD | 01-REQUIREMENTS-MATRIX.md:83 | 020 | ĐẠT | ai/kb/parse.ts:18; kb.handlers.ts:33,160; test kb.test.ts AC4, e2e http/rag.spec.ts |
 | REQ-D04a-2 | Nguồn URL, văn bản, danh mục sản phẩm | 01-REQUIREMENTS-MATRIX.md:83 | 020, 027 | ĐẠT | kb.handlers.ts:63-71; catalog/events/catalog-sync.ts; test kb.test.ts, catalog.test.ts:212 |
 | REQ-D04c | Trạng thái index, số đoạn, index lại | 01-REQUIREMENTS-MATRIX.md:83 | 020 | ĐẠT | kb.handlers.ts:137; test kb.test.ts AC6 |
@@ -363,7 +352,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | policy.ts:13 send / money → approval; FORCE_APPROVAL (governance.ts:34) chỉ hiển thị |
 | REQ-D06a | Handoff theo các lý do | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | handoff.ts:26; test agent-reply.test.ts |
 | REQ-D06b | Handoff kèm nháp + folder Cần người | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | reply.service.ts:76; test agent-reply.test.ts "độ tin cậy thấp" |
-| REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | — | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) |
+| REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-D07a | Hàng chờ duyệt Duyệt / Sửa / Từ chối | 01-REQUIREMENTS-MATRIX.md:87 | 021, 024 | ĐẠT | approval.handlers.ts:74-92; test agents.test.ts AC4, e2e http/agents-ui.spec.ts:60 |
 | REQ-D07b | Duyệt ở thông báo | 01-REQUIREMENTS-MATRIX.md:87 | 021 | ĐẠT | ai/events/agents.rules.ts:8; test agents.test.ts AC4 |
 | REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | — | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |
@@ -475,7 +464,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F06-c | Ngưỡng duyệt cấu hình được theo workspace + trần CK agent từ AI Governance | 01-REQUIREMENTS-MATRIX.md:129 | 032b | CHƯA | quote-math.ts:23 hằng số; TIP-032b mục 1 |
 | REQ-F06-d | Gửi PDF báo giá qua kênh (Zalo / email) + link xem công khai | 01-REQUIREMENTS-MATRIX.md:129 | 029 | ĐẠT | quote-send.handlers.ts:36; apps/api/src/http/sales/public-quotes.controller.ts; test quotes.test.ts "gửi qua Zalo", "gửi email", "link xem", apps/web/e2e/http/quotes.spec.ts |
 | REQ-F06-e | Gửi báo giá qua webchat | 01-REQUIREMENTS-MATRIX.md:129 | 032b | CHƯA | enum `channel` của quote.send chỉ zalo_personal / email; TIP-032b mục 4 |
-| REQ-F06-f | Khách phản hồi trong chat → AI tự cập nhật trạng thái báo giá (chốt / từ chối) | 01-REQUIREMENTS-MATRIX.md:129 | — | MỘT PHẦN | quote.mark_accepted / mark_rejected agentGrantable (packages/actions/src/quotes.ts:153,167) nhưng không có trong tool mặc định agent sales (packages/core/src/ai/agents/templates.seed.ts:9), không luật / test / ca eval nào |
+| REQ-F06-f | Khách phản hồi trong chat → AI tự cập nhật trạng thái báo giá (chốt / từ chối) | 01-REQUIREMENTS-MATRIX.md:129 | 022b | MỘT PHẦN | quote.mark_accepted / mark_rejected agentGrantable (packages/actions/src/quotes.ts:153,167) nhưng không có trong tool mặc định agent sales (packages/core/src/ai/agents/templates.seed.ts:9), không luật / test / ca eval nào Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-F06-g | Báo giá chấp nhận → nút "→ Đơn hàng" / "→ Hợp đồng" | 01-REQUIREMENTS-MATRIX.md:129 | 029, 031 | ĐẠT | apps/web/src/features/orders/screens/OrdersScreen.tsx:34; order-create.handlers.ts:123; test orders.test.ts "báo giá chưa chốt 409; đã chốt → đơn" |
 | REQ-F06-h | Một báo giá chỉ sinh tối đa một HĐ hoặc một đơn | 01-REQUIREMENTS-MATRIX.md:129 | 032b | CHƯA | mỗi phía chỉ chặn trùng loại mình; TIP-032b mục 2 |
 | REQ-F06-i | "Xuất Excel" danh sách Báo giá chạy thật | 01-REQUIREMENTS-MATRIX.md:129 | 038 | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:82 `message.info(t('exporting'))`; Q-024 |
@@ -523,12 +512,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-G03c | Composer Hộp thư "Đặt lịch" lấy slot thật | 01-REQUIREMENTS-MATRIX.md:145 | — | GIẢ | apps/web/src/features/inbox/api.ts:99 gọi `/booking/slots` — routes.json `missing` (API chỉ có /calendar/slots); chỉ chạy với mock |
 | REQ-G03d | Chống trùng theo phòng / thiết bị | 01-REQUIREMENTS-MATRIX.md:145 | — | NGOÀI | Ma trận ghi "theo phòng / thiết bị (P2)" |
 | REQ-G04a | Nhắc hẹn trước 24 giờ và 2 giờ qua kênh khách đã dùng | 01-REQUIREMENTS-MATRIX.md:146 | 033 | ĐẠT | packages/core/src/booking/services/booking-system.ts:49 remindAppointments; test booking.test.ts "nhắc 24h rồi 2h qua Zalo, mỗi mốc một lần" |
-| REQ-G04b | Khách trả lời "đổi" / "huỷ" → agent xử lý (dời / huỷ lịch) | 01-REQUIREMENTS-MATRIX.md:146 | — | MỘT PHẦN | appointment.reschedule/cancel agentGrantable (packages/actions/src/booking.ts:111,125), nhưng packages/core/src/ai/agents/templates.seed.ts:11 thiếu appointment.cancel trong booking defaults. Đây là thiếu code/config, không chỉ thiếu tài khoản. Cần TIP bổ sung, test quyền/tool defaults và ca model thật (Q-001); không tự mở rộng quyền agent đã cấu hình. |
+| REQ-G04b | Khách trả lời "đổi" / "huỷ" → agent xử lý (dời / huỷ lịch) | 01-REQUIREMENTS-MATRIX.md:146 | 022b | MỘT PHẦN | appointment.reschedule/cancel agentGrantable (packages/actions/src/booking.ts:111,125), nhưng packages/core/src/ai/agents/templates.seed.ts:11 thiếu appointment.cancel trong booking defaults. Đây là thiếu code/config, không chỉ thiếu tài khoản. Cần TIP bổ sung, test quyền/tool defaults và ca model thật (Q-001); không tự mở rộng quyền agent đã cấu hình. Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-G05 | Lịch hẹn bắt buộc gắn khách CRM (tạo khách theo SĐT nếu chưa có) | 01-REQUIREMENTS-MATRIX.md:147 | 033 | ĐẠT | appointment-book.handlers.ts:84; booking.prisma:77 contactId bắt buộc; test booking.test.ts "tạo: khách mới theo số điện thoại (CRM)" |
 | REQ-G06 | Danh sách chờ, lịch lặp, dự báo no-show, đặt cọc lịch | 01-REQUIREMENTS-MATRIX.md:148 | — | NGOÀI | Ma trận Priority P2 |
 | REQ-H01 | Ticket: Mở → Đang xử lý → Đang chờ (dừng SLA) → Đóng (lý do) → mở lại; ưu tiên; danh mục; người hoặc AI phụ trách | 01-REQUIREMENTS-MATRIX.md:153 | 034 | ĐẠT | packages/shared/src/support/ticket-state.ts; support/actions/ticket-flow.handlers.ts:45–116; test ticket-state.test.ts, support.test.ts "Đang chờ dừng TTR", "đóng …; mở lại", "giao người / agent" |
 | REQ-H02a | Chống trùng ticket: cùng khách + danh mục trong 24 giờ → hỏi gộp | 01-REQUIREMENTS-MATRIX.md:154 | 034 | ĐẠT | packages/core/src/support/actions/ticket-create.handler.ts:62–68; test support.test.ts "chống trùng 24 giờ" |
-| REQ-H02b | Agent tự tạo ticket khi phát hiện khiếu nại / sự cố | 01-REQUIREMENTS-MATRIX.md:154 | — | MỘT PHẦN | ticket.create có trong tool mặc định agent CSKH (templates.seed.ts:10) nhưng prompt agent chỉ handoff khi khiếu nại (packages/ai/src/prompts/index.ts:18, DC-123); không luật / test agent tạo ticket |
+| REQ-H02b | Agent tự tạo ticket khi phát hiện khiếu nại / sự cố | 01-REQUIREMENTS-MATRIX.md:154 | 022b | MỘT PHẦN | ticket.create có trong tool mặc định agent CSKH (templates.seed.ts:10) nhưng prompt agent chỉ handoff khi khiếu nại (packages/ai/src/prompts/index.ts:18, DC-123); không luật / test agent tạo ticket Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-H03 | SLA mặc định không xoá (FRT ≤10′, TTR ≤4h giờ làm), đồng hồ 3 màu, leo thang nhắc Owner, chỉ áp việc mới | 01-REQUIREMENTS-MATRIX.md:155 | 034 | ĐẠT | packages/core/src/support/services/sla-clock.ts; support-system.ts:34–45; support/seeds.ts; test support.test.ts "tạo: … FRT 10′ / TTR 240′", "sla.update_default chỉ áp ticket mới", "quá hạn … leo thang", apps/web/e2e/settings-ops.spec.ts |
 | REQ-H04a | Danh sách + Kanban 4 cột; KPI (mở / chờ / quá hạn / đóng); CSAT khi đóng | 01-REQUIREMENTS-MATRIX.md:156 | 034 | ĐẠT | packages/core/src/support/services/tickets-read.service.ts; support-system.ts:95 CSAT; test support.test.ts "/tickets D42 + … meta KPI", "đóng … CSAT", apps/web/e2e/tickets.spec.ts "kanban 4 cột", e2e/http/tickets.spec.ts |
 | REQ-H04b | "Xuất Excel" danh sách Ticket chạy thật | 01-REQUIREMENTS-MATRIX.md:156 | 038 | GIẢ | apps/web/src/features/tickets/components/TicketsHeader.tsx:143 `message.info(t('exporting'))`; Q-024 |
@@ -565,7 +554,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-M01a | Settings shell: menu trái chia nhóm + tìm kiếm; trang Tổng quan, Thành viên, Kênh, Widget, Trường dữ liệu, Thẻ, Câu trả lời mẫu, AI Models, Governance, Ví / Gói, Hồ sơ | 01-REQUIREMENTS-MATRIX.md:199 | 013 + TIP domain | ĐẠT | apps/web/src/features/settings/registry.ts:28–74; SettingsShell.tsx:36; test settings.test.ts, ai-runtime.test.ts AC5, webchat.test.ts, crm-settings.test.ts, apps/web/e2e/http/settings.spec.ts, settings-data.spec.ts |
 | REQ-M01b | Nhật ký AI (AI Audit log) + Nhật ký bảo mật đọc dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:199 | 045b | GIẢ | apps/web/src/features/settings/api.ts:104,106 `/settings/audit`, `/settings/ai-audit` — routes.json missing (chỉ mock); không TIP nào nhận route đọc (045b mục 6 chỉ ghi audit) ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | REQ-M01c | Tổng quan workspace: tải logo, vùng nguy hiểm (tạm khoá / xoá workspace) chạy thật | 01-REQUIREMENTS-MATRIX.md:199 | 041 | GIẢ | apps/web/src/features/settings/components/GeneralSection.tsx:128 logo = message.info, :149 vùng nguy hiểm = message.info "Đã gửi yêu cầu"; 041 (lưu trữ / xoá workspace) nhận phần nguy hiểm, logo không ai nhận |
-| REQ-M02a | Giờ làm việc workspace + giờ trực AI của agent | 01-REQUIREMENTS-MATRIX.md:200 | 013, 021 | ĐẠT | packages/core/src/identity/actions/working-hours-update.handler.ts:13; ai/agents/agent.runtime.ts:49 withinHours; test settings.test.ts AC6, agents-ui-unit.test.ts |
+| REQ-M02a | Giờ làm việc workspace + giờ trực AI của agent | 01-REQUIREMENTS-MATRIX.md:200 | 022b | MỘT PHẦN | Workspace human calendar exists, but agent.runtime.ts:43-53 custom always true and fixed office only; channel hours is prompt text. Previous DAT was too broad.022b owns typed schedule/migration/native boundaries. |
 | REQ-M02b | Thông báo in-app + email theo tuỳ chọn, giờ không làm phiền | 01-REQUIREMENTS-MATRIX.md:200 | 006 | ĐẠT | packages/core/src/notify/services/notifier.ts, jobs/notify-mail.processor.ts; test notify.test.ts AC3, AC5, AC6, apps/web/e2e/settings-ops.spec.ts "Thông báo" |
 | REQ-M03a | Trang Nền tảng kết nối: registry + port theo năng lực, thẻ "Sắp có" + "Đăng ký quan tâm", kết nối / ngắt, bí mật mã hoá | 01-REQUIREMENTS-MATRIX.md:201 | 012 | ĐẠT | packages/integrations/src/registry.ts, coming-soon.ts; packages/core/src/integrations/actions/*; test integrations.test.ts AC1–AC10, packages/integrations/test/registry.test.ts, apps/web/e2e/http/integrations.spec.ts |
 | REQ-M03b | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | 01-REQUIREMENTS-MATRIX.md:201 | — | MỘT PHẦN | SMTP thật (packages/integrations/src/connectors/smtp/mail.ts, test smtp.test.ts); storage LocalStorage (DV-003); SePay / Casso của DN là mock (registry.ts:16–17 — xem REQ-F08f) |
@@ -1206,7 +1195,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-5.3-e | Lọc PII trước LLM, khôi phục khi gửi | plans/BLUEPRINT.md:1120 | 022 | ĐẠT | packages/ai/src/reply/pii.ts; test reply.test.ts |
 | BP-5.3b-a | Tạo agent qua Trợ lý: draft_from_description → create_and_publish preview | plans/BLUEPRINT.md:1125 | 021 | ĐẠT | agent-llm.handlers.ts:74, agent.handlers.ts:41-54; test agents.test.ts |
 | BP-5.3b-b | Rào chắn: tool ⊆ quyền ∩ grantable, money/delete vào approval_rules, plan.max_agents | plans/BLUEPRINT.md:1127 | 021 | ĐẠT | agent.store.ts:70-75; agent.handlers.ts:22; test agents.test.ts |
-| BP-5.3b-c | Preview cảnh báo khi gắn kênh đang có agent khác | plans/BLUEPRINT.md:1130 | — | CHƯA | agent.handlers.ts:54 preview không có warnings |
+| BP-5.3b-c | Preview cảnh báo khi gắn kênh đang có agent khác | plans/BLUEPRINT.md:1130 | 022b | CHƯA | agent.handlers.ts:54 preview không có warnings Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | BP-5.3b-d | agent.test dry-run | plans/BLUEPRINT.md:1135 | 021 | ĐẠT | agent.runtime.ts:96-104; test agents.test.ts |
 | BP-5.4-a | ai_task cron/event + 5 mẫu (follow-up, báo giá treo, nhắc hẹn, sau mua, briefing) | plans/BLUEPRINT.md:1137 | 035 | ĐẠT | packages/shared/src/ai-tasks/task-catalog.ts:73; task-targets.ts:42-65; test ai-tasks.test.ts |
 | BP-5.4-b | Zalo: delay 2–6s, cap 200 tin chủ động/ngày cấu hình được | plans/BLUEPRINT.md:1147 | 014 | MỘT PHẦN | manifest.ts:22 jitter có; perDayProactive không đặt → cap mặc định không có (send.processor.ts:43) |
@@ -1233,6 +1222,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014b | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
 | CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |
+| AI-CHANNEL-ATTACHMENT-CONTEXT | Agent distinguishes present attachment from actually readable content and never fabricates extraction | standards/ai/agent-gateway sections7-9; vertical-flow audit2026-11-02 | 022b | MỘT PHẦN | reply-context.ts:46-59 selects body/kind but no attachment metadata, renders [kind].022b typed unreadable metadata and safe handoff; no unapproved OCR/multimodal. |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1723,16 +1713,16 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-022-1 | Ghi `contact_memory` tự động từ lượt agent | reports/TIP-022-completion.md:40 | 015b | CHƯA | Chỉ đọc (ai/reply/reply-context.ts:81); không có `contactMemory.create` |
 | DEF-022-2 | Eval suite `agent-reply` | reports/TIP-022-completion.md:41 | 044 | CHƯA | Không có harness eval; TG row 044 |
 | DEF-022-3 | CSAT theo agent trên thẻ agent | reports/TIP-022-completion.md:39 | 038 | GIẢ | ai/agents/agents.read.ts:40 `csat: 0` cứng |
-| DEF-022-4 | `ai_escalate` (khiếu nại) → tự mở ticket | reports/TIP-022-completion.md:39 | — | CHƯA | Không consumer `ai.handoff` ở support (chỉ thông báo — ai/events/reply.rules.ts:7) |
+| DEF-022-4 | `ai_escalate` (khiếu nại) → tự mở ticket | reports/TIP-022-completion.md:39 | 022b | CHƯA | Không consumer `ai.handoff` ở support (chỉ thông báo — ai/events/reply.rules.ts:7) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | MỘT PHẦN | Chỉ 14 file handler có `preview(` trong packages/core/src |
 | DEF-023-2 | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | reports/TIP-023-completion.md:41 | — | CHƯA | apps/web/src/features/assistant không gọi `/assistant/sessions` |
 | DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | CHƯA | ai/assistant/meta-tools.ts:7 NOT_IMPLEMENTED; `insight.query` không có trong registry |
 | DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | — | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
 | DEF-023-5 | 7 drawer "Trợ lý AI · [module]" + hộp lệnh Hộp thư gọi Trợ lý thật (REQ-E06) | reports/TIP-023-completion.md:46 | 023c | GIẢ | Report bổ sung 2026-11-01; `packages/shared/src/genui` chưa tồn tại |
 | DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | CHƯA | tools/ai-live/ không tồn tại; không script `ai:live` |
-| DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | — | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực |
+| DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | CHƯA | Không có route trong apps/api/src/http/ai; TG row 038 ghi rõ |
-| DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | — | MỘT PHẦN | Từ khoá chỉ chèn prompt (ai/agents/agent.runtime.ts:35), không chọn agent theo từ khoá |
+| DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | 022b | MỘT PHẦN | Từ khoá chỉ chèn prompt (ai/agents/agent.runtime.ts:35), không chọn agent theo từ khoá Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | — | MỘT PHẦN | apps/web/src/features/inbox/components/Profile360Actions.tsx:42-58 mở form và prefill contact_id; apps/web/e2e/inbox.spec.ts:74-101 chỉ kiểm mở form ở mock. e2e/http/inbox.spec.ts chỉ gửi/tag/archive, chưa chứng minh tạo từ Hộp thư rồi đọc lại HTTP đúng contact/scope |
 | DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | — | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |

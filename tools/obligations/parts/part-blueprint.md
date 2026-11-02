@@ -354,7 +354,7 @@
 | BP-5.3-e | Lọc PII trước LLM, khôi phục khi gửi | plans/BLUEPRINT.md:1120 | 022 | ĐẠT | packages/ai/src/reply/pii.ts; test reply.test.ts |
 | BP-5.3b-a | Tạo agent qua Trợ lý: draft_from_description → create_and_publish preview | plans/BLUEPRINT.md:1125 | 021 | ĐẠT | agent-llm.handlers.ts:74, agent.handlers.ts:41-54; test agents.test.ts |
 | BP-5.3b-b | Rào chắn: tool ⊆ quyền ∩ grantable, money/delete vào approval_rules, plan.max_agents | plans/BLUEPRINT.md:1127 | 021 | ĐẠT | agent.store.ts:70-75; agent.handlers.ts:22; test agents.test.ts |
-| BP-5.3b-c | Preview cảnh báo khi gắn kênh đang có agent khác | plans/BLUEPRINT.md:1130 | — | CHƯA | agent.handlers.ts:54 preview không có warnings |
+| BP-5.3b-c | Preview cảnh báo khi gắn kênh đang có agent khác | plans/BLUEPRINT.md:1130 | 022b | CHƯA | agent.handlers.ts:54 preview không có warnings Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | BP-5.3b-d | agent.test dry-run | plans/BLUEPRINT.md:1135 | 021 | ĐẠT | agent.runtime.ts:96-104; test agents.test.ts |
 | BP-5.4-a | ai_task cron/event + 5 mẫu (follow-up, báo giá treo, nhắc hẹn, sau mua, briefing) | plans/BLUEPRINT.md:1137 | 035 | ĐẠT | packages/shared/src/ai-tasks/task-catalog.ts:73; task-targets.ts:42-65; test ai-tasks.test.ts |
 | BP-5.4-b | Zalo: delay 2–6s, cap 200 tin chủ động/ngày cấu hình được | plans/BLUEPRINT.md:1147 | 014 | MỘT PHẦN | manifest.ts:22 jitter có; perDayProactive không đặt → cap mặc định không có (send.processor.ts:43) |
@@ -381,6 +381,7 @@
 | BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014b | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
 | CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |
+| AI-CHANNEL-ATTACHMENT-CONTEXT | Agent distinguishes present attachment from actually readable content and never fabricates extraction | standards/ai/agent-gateway sections7-9; vertical-flow audit2026-11-02 | 022b | MỘT PHẦN | reply-context.ts:46-59 selects body/kind but no attachment metadata, renders [kind].022b typed unreadable metadata and safe handoff; no unapproved OCR/multimodal. |
 
 Ghi chú:
 - ACT: handler/preview từ actions.json; test = grep id trong apps/api/test, packages/*/test (không tính test mock web). Hàng MỘT PHẦN có 'thiếu preview' là nợ preview của 023b (DC-224).

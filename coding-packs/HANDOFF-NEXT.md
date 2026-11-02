@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Latest agent checkpoint:022b115 exact paths/13 owned IDs,19 bilateral pairs.** Local independent review/recheck closed settings mock/DTO and greeting crash-recovery findings. DC249 preserves legacy runtime until explicit schedule/routing/greeting confirmation, no auto grants. Ledger1482/**196 gaps**. See reports/agent-channel-planning-audit-2026-11-02.md. Continue025b/019b/012b and full7part/whole-graph work; no code/runtime or whole-goal completion.
+
 - **Latest Zalo checkpoint:014b134 exact paths/9 owned obligations,18 bilateral pairs.** Provider refs/remote operations/durable chunks/receipts, history side-effect isolation, sync flags and explicit address-book import. Four independent findings fixed and independently rechecked, no remaining blocker in local review. Ledger1481/**207 owner gaps**. See reports/zalo-lifecycle-planning-audit-2026-11-02.md. Continue025b/022b/019b and remaining whole-goal work; docs only.
 
 - **Latest hardening checkpoint:045b349 exact paths/36 owned IDs;032b141 paths.** Four local independent blockers fixed/rechecked: pending approval operation, persisted GenUI revocation, redacted DTO consumers, send reservation vs human takeover. DC248 preserves role permissions while clarifying owner transfer. Ledger1480 rows/**212 unowned gaps**. See reports/hardening-vertical-planning-audit-2026-11-02.md. Next supplemental014b/025b/022b/019b and remaining7-part/full-graph audit. This is NOT whole-goal completion; docs only, no native service/data changes.
