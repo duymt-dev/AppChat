@@ -299,3 +299,11 @@ No new manual/schedule policy: manual busy409 preserved; ownerOnly retarget foll
 |030c [parent-signing](tips/TIP-030c-parent-signing.md)|Private parent signing/Owner OTP, exact generation and source receipts, isolated candidate render/finalize, read-only GET and truthful delivery|After030b/032c/003b/c/006b and exact bilateral predecessors; before final vertical acceptance|71exactpaths/38bilateralpairs/3ownedIDs/8AC; local independent findings rechecked|
 
 Original030 DONE stays unchanged;030b appendix model is not reused for parent signer. No Commerce/permission change; approved retained-document and contact-family lock policy apply.
+
+### Supplemental021b — Agent Builder discovery (DC274)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|021b [agent-drafting](tips/TIP-021b-agent-drafting.md)|Discovery-before-generation, structured current-authorized proposal, protected publication, truthful fallback and explicit human publish|After023e/019b/c/003c/022b and exact bilateral predecessors; no numeric order assumption|54exactpaths/23bilateralpairs/3ownedIDs/8AC; local independent findings corrected/rechecked|
+
+REQ-D17c runtime KB-scope intersection remains separate/unowned; do not claim this drafting plan closes delegated knowledge access. New binding stores validation only, not competing metering.

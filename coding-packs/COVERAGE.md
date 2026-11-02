@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 9 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 148 | 55 | 2 | 6 | 68 | 2 | 40 | 28 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **384** | **118** | **41** | **367** | **34** | **66** | **111** |
+| **Tổng** | **544** | **386** | **118** | **41** | **367** | **34** | **66** | **110** |
 
-## Lỗ hổng chưa có TIP nhận (111)
+## Lỗ hổng chưa có TIP nhận (110)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -61,7 +61,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
-| BP-5.3b-tools-discovery | CHƯA | Agent draft selects tools using current-authorized find_actions before generation | D |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
@@ -1197,7 +1196,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DISCOVERY-CURRENT-AUTHORITY | Semantic ranking/cache filters current implemented/user/selected-agent/active-step set before topK | DC268; TIP023e §2–3 | 023e | CHƯA | catalog.ts82–97 keyword-only; no semantic current-admissible-set cache |
 | DISCOVERY-METERED-CACHE | Explicit confirmed corpus preparation; pinned model/config vectors and root-metered query/cache | DC268; TIP023e §1/4 | 023e | CHƯA | embedder.ts currently fallback; ModelCandidate lacks revision, router handle uses key length; new contracts planned |
 | DISCOVERY-PRIVACY-LINEAGE | Private discovery query/attempt/cache protected across generic history and forget/restore | DC268; TIP023e §3 | 023e | CHƯA | runner.ts126 stores raw call input; protected replay/projection registration planned |
-| BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | — | CHƯA | agent-draft.ts44–49 only post-filters returned IDs; agent-llm.handlers.ts draft generation has no discovery call. Separate from023e finder itself; no owner yet |
+| BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | 021b | CHƯA | agent-draft.ts44–49 only post-filters returned IDs; agent-llm.handlers.ts draft generation has no discovery call. Separate from023e finder itself; TIP021b owns discovery-before-generation with current authorization and protected publication |
+| AGENT-DRAFT-TRUTHFULNESS | Draft generation distinguishes schema-valid model proposal from deterministic fallback; hard safety/accounting stops never become success | agent-llm.handlers.ts82–90; agent-draft.ts95–114; Blueprint5.3b | 021b | MỘT PHẦN | Current fallback can hide failed/malformed model output. TIP021b spec2–3/AC3–5/7 owns same-root billing, bounded schema and protected validation/publication. |
+| AGENT-DRAFT-CONFIRMATION | Generated proposal has no publication authority; current grantable/implemented permissions and human preview enforced at commit | Blueprint5.3b; agent.store.ts65–78; AgentAiDrawer.tsx | 021b | MỘT PHẦN | Existing explicit publish/Builder buttons and grant checks retained; current source/capability/revocation-after-preview and private action boundaries need021b spec3/AC2/6/8. |
 
 **Ghi chú / chưa rà hết:**
 

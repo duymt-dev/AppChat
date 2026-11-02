@@ -1,6 +1,7 @@
 # TIP-025b: Inbox — nối hai chiều Zalo, CRM, Commerce và Trợ lý AI
 
 ## HEADER
+- **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `packages/actions/src/ai.ts`, `packages/core/src/ai/ai.module.ts`; integrate 025b before021b.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/contracts.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 025b before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `apps/worker/src/roles/jobs.module.ts`, `packages/core/src/index.ts`; integrate 025b before006b.
 - **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 025b before003c.

@@ -50,3 +50,7 @@
 ## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
 
 TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.
+
+## Bổ sung — agent drafting2026-11-02
+
+[TIP021b](../tips/TIP-021b-agent-drafting.md) receives missing pre-generation discovery, current candidate filtering, truthful model/fallback and protected publication. Existing post-filter and regex fallback do not satisfy Blueprint5.3b alone. Original DONE unchanged; live/provider acceptance remains pending.
