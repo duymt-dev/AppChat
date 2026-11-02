@@ -1,6 +1,67 @@
-# HANDOFF — làm tiếp AppChat (2026-11-01)
+# HANDOFF — chuyển sang Claude (2026-11-02)
 
 > Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
+
+## BÀN GIAO CHO CLAUDE — DỪNG THEO YÊU CẦU CHỦ NHÀ (2026-11-02)
+
+**Đây là trạng thái mới nhất, ưu tiên hơn các checkpoint lịch sử bên dưới.** Chủ nhà yêu cầu: “dừng và viết handoff đi để tôi chuyển sang claude làm nốt”. Goal Codex đã **paused** theo yêu cầu, KHÔNG complete/blocked. Không tiếp tục nghiên cứu/viết TIP sau lệnh dừng; chỉ hoàn tất handoff này. Các reviewer đều đã kết thúc, không còn việc chạy nền.
+
+### 1. Điểm dừng chính xác
+- Repo `D:\CODING\AppChat_Ver2`, nhánh `dev`. Commit nội dung gần nhất trước handoff: **`2ae6498`**, đã push `origin/dev`; trước khi viết handoff working tree sạch. Commit chứa handoff là commit kế tiếp (`git log -1` để lấy SHA, tránh ghi SHA tự tham chiếu).
+- **Pha đang làm: câu A — CHỈ TÀI LIỆU, viết đủ TIP trước. Chưa được chuyển sang câu B/code.** Không đụng native Postgres5432, Redis/Memurai, tiến trình/cổng demo, dữ liệu hoặc .env/secret. “Native HOLD” không phải giữ code chưa commit.
+- Sổ hiện tại: **1.563 nghĩa vụ, 86 thiếu TIP nhận**. Trạng thái: ĐẠT541; CHỜ-TK41; MỘT PHẦN389; CHƯA374; GIẢ118; NGOÀI34; QUY-TẮC66. Số86 là thiếu owner, KHÔNG phải toàn bộ việc chưa triển khai.
+- Bảy phần COVERAGE vẫn cần đóng các ghi chú “chưa rà hết”; full semantic dependency/file audit và lượt đối chiếu độc lập toàn sổ chưa hoàn tất. Không coi review cục bộ hoặc commit là hoàn thành goal.
+- Ưu tiên của Chủ nhà: **Zalo ↔ CRM ↔ Commerce ↔ Agents/Trợ lý AI theo chiều dọc; AI-first**, có thao tác tay dự phòng, nhập/xuất file thật. Được áp dụng đề xuất kỹ thuật chuẩn không hỏi lại; KHÔNG suy thành quyền đổi luật tiền, COMMERCE hoặc quyền đã chốt.
+
+### 2. Vừa hoàn thành ở mức planning (không phải code)
+- **TIP045:** `tips/TIP-045-native-infrastructure.md`, `tips/manifests/TIP-045-files.md`;186 exact paths,11 future M có TIP tạo trước,42 cặp giao file khai hai chiều,12 AC,19 dòng owner riêng. Commit chính **`028ae6d`**; bổ sung hai owner tại **`2ae6498`**.
+- Hai reviewer độc lập đã tái kiểm bốn lỗ hổng: (1) PgBouncer route reconciler +041 activation ack; (2) Inbox timer/direct sweep/send-result sink phải vào admission/drain; (3) fixed-port rolling deploy phải remove upstream→drain old nginx→replace→private ready→re-add; (4) checkpoint liên cụm PG phải tạo **common frozen cut**, không chỉ khoá xoá file rồi chụp từng DB đang ghi.
+-045 common cut: shared maintenance/storage permit cho mọi direct writer/lifecycle/routing; exclusive permit trước PAUSE toàn bộ router; drain xong mới lấy mọi restore point và file snapshot. Chặn app kết nối PG trực tiếp, topology/restart và orphan helper; chỉ RESUME phần operation sở hữu. Không thu hẹp scope thành một cluster. Đây vẫn là thiết kế cần chứng minh runtime, RPO/RTO/pause impact chưa nghiệm thu.
+- Hai owner bổ sung đã tái kiểm: BP-9-e `/healthz`/`readyz`; DEF-027-2 clone/migrate fixture + domain/outbox write bằng tenant_app. Không tuyên bố đã tìm ra nguyên nhân lịch sử permission-denied chỉ nhờ test clone mới.
+- Report: `reports/native-infrastructure-planning-audit-2026-11-02.md` + `native-infrastructure-source-audit-2026-11-02.md`.
+- Trước đó022c Sales behavior và044 AI eval đã có pack/manifest/review cục bộ; xem các checkpoint và report tương ứng, không dựng lại từ đầu. Các TIP001–035 đã DONE vẫn bất biến.
+
+### 3. Việc kế tiếp — bắt đầu ở đây, không audit lại toàn repo
+1. Đọc **`reports/rag-model-lifecycle-source-audit-2026-11-02.md`** rồi viết full **020e** (tên dự kiến) cho rerank + re-embed. Chưa có TIP020e hoặc manifest! Hiện STD-ai-rag-6b/10b và Q002 vẫn ở046; chỉ chuyển owner khi pack mới thật sự đủ phạm vi/manifest/task/AC.
+   - `ModelPurpose=rerank` hiện chỉ là type; provider factory đang trả language model cho mọi purpose không phải embed, không có reranker thực.
+   - search.ts chỉ RRF/top6, re-embed chỉ comment; không có active index generation/migration job. Không trộn vector của các model khác nhau dù cùng1536 chiều; không mass delete/reinsert làm hỏng citation020d.
+   - Giữ019b usage/budget/unknown receipts và billing groups;040 route authority;020c current scope;020d provenance;015c privacy. Kiểm SDK cài thật, provider rerank capability và đơn vị usage/price trước khi cam kết. Không tự thêm tiền/phí hay suy ai trả chi phí migration.
+2. Đọc **`reports/release-gate-source-audit-2026-11-02.md`** rồi viết full **046**. Chưa có TIP046 đầy đủ! Report đã có inventory độc lập, đường dẫn nguồn và candidate paths.
+   - HTTP runner hiện đọc .env đè env tường minh, default port, chỉ đợi liveness, kill rồi xoá temp ngay; không được tái dùng như isolated release runner nguyên trạng.
+   - backend-it.yml/smoke:build chưa có; full.yml mock-only.044 native fixture harness là future dependency, không phải file hiện có; production bundle smoke phải tách eval bootstrap.
+   - Thiếu measurement harness, automated a11y, browser vi/en proof; i18n checker không phát hiện required locale directory bị xoá. Parity thiếu exact release identity/completeness, empty selection có thể xanh.
+   -046 tiêu thụ044/045 evidence, không nhét logic RAG/backup vào test harness. REQ-N10d chỉ nhận khi đủ gate + ranh giới owner sửa lỗi UI cụ thể. Không tự nới mask Q020; uptime99.9% không suy từ một buổi test.
+3. Tiếp tục **86 dòng thiếu owner** từ COVERAGE và ghi chú cuối7 parts. Gán vào pack đã đủ task/AC hoặc viết supplement thật; không làm owner giả bằng placeholder. Còn các cụm như OpenAPI/error boundary/nav badges, widget/OAuth/availability, document legality/rendering, validation/time/concurrency và nghĩa vụ Commerce chờ policy. Danh sách nguồn trong sổ là chuẩn, không dùng danh sách ví dụ này thay86 dòng.
+4. Hoàn tất full dependency/file audit và review độc lập source↔ledger↔TIP; xử lý phát hiện, không nâng runtime status chỉ vì đã có kế hoạch. Sáu TIP bổ sung cũ đã được mở rộng/review theo từng checkpoint nhưng vẫn thuộc full-audit cuối.
+
+### 4. Quyết định đã duyệt — không hỏi lại/đảo lại
+- Q031/DC242: kỳ theo ngày đăng ký;31→ngày cuối tháng ngắn→trở lại anchor; upgrade tiền/Credit prorate giữ ngày hết kỳ; addon đồng hạn/prorate; không autopay.
+- Q032/DC243: Credit prorate làm tròn **half-up** tới Credit nguyên. Không áp quy tắc này đè quy tắc cọc/chia đợt floor trong COMMERCE/standard.
+- Q033/DC259: giữ chứng từ phát hành/ký và bằng chứng theo quyền tài chính; loại khỏi AI, báo ngoại lệ.
+- Q034/DC260: token một chiều riêng workspace chặn tự tái tạo; muốn hồ sơ mới phải xác nhận riêng, không hồi sinh lịch sử; đây vẫn là ngoại lệ pseudonymous.
+- Q035/DC262: chưa xoá/ẩn danh không đảo ngược khi còn nghĩa vụ mở; không tự huỷ đơn/xoá nợ/hoàn tiền.
+- Q036/DC264: xoá chat riêng nội bộ, ghi chú/memory AI/tệp riêng; giữ mã tối thiểu chống trùng; không xoá tin ngoài Zalo/email.
+- Q037/DC265: cách ly phần dùng chung/chưa rõ chủ thể khỏi AI/xuất/tải để rà; không báo quên hoàn tất khi còn mục chưa xử lý.
+- AI-first nhập/xuất CRM/catalog/quote/order/contract/invoice đã có038b và các IO-*; đây là planning, chưa nghiệm thu file/model thật.
+
+### 5. Gate chưa duyệt / thiếu tài nguyên
+- Q027 loyalty ca biên, Q028 Owner/custom roles, Q029 multi-team scope, Q021 chuyển tiếp và Q038/039 cọc: **chưa duyệt**, không coi im lặng/uỷ quyền kỹ thuật là duyệt tiền/quyền.
+- Q006 host/domain/offsite/MFA/notification/restore resources, Q002 model embed và các provider keys/accounts: thiếu tài nguyên chỉ chặn evidence tương ứng; vẫn viết phần khác được. Q008/009 CI/smoke còn mở trong QUESTIONS, xử lý bằng quyết định kỹ thuật có căn cứ khi viết046, không giả đã có workflow.
+- Không mở lại các quyết định đã duyệt bên trên. Xem QUESTIONS/DECISIONS/COMMERCE bản hiện tại khi cần chi tiết.
+
+### 6. Kiểm tra và cách thao tác đã dùng
+- Sửa **`tools/obligations/parts/part-*.md`**, sinh lại bằng `python -X utf8 tools/obligations/merge.py`; không sửa tay COVERAGE.
+- Đã chạy: ledger merge1563/86, whitespace check;045 validation10 sections/186paths/11futureM/42pairs/19soleowners. Explicit integration-header graph1168edges/53nodes acyclic — **không phải** chứng minh toàn bộ semantic dependency graph.
+- Validator045/refresh script nằm trong `%TEMP%`, KHÔNG là artifact được commit. Claude không cần/phải dựa vào tempfiles: dựng lại kiểm tra từ manifest trong repo. Không chạy refresh cũ mù quáng sau khi có pack successor: script cũ xếp mọi file-share trước045, dễ đảo thứ tự/cycle khi020e/046 được thêm.
+- M path tương lai phải truy được TIP tạo trước; C path không trùng creator; mọi giao file khai **hai phía** và cùng thứ tự tích hợp. Không suy thứ tự theo số TIP.
+- Chỉ docs được commit/push thẳng `dev` theo uỷ quyền. Khi thật sự chuyển câu B: code nhánh tip/XXX-* từ origin/dev→PRdev. Không sửa TIP đã DONE001–035, chỉ supplement+completion append. Không commit secret; giữ modular limits/test riêng/Postgres indexing/action-first.
+
+### 7. Câu giao việc dán cho Claude
+```text
+Đọc toàn bộ CLAUDE.md và mục “BÀN GIAO CHO CLAUDE” mới nhất trong coding-packs/HANDOFF-NEXT.md. Tiếp tục câu A, CHỈ TÀI LIỆU, chưa code và không đụng native HOLD. dev đã có checkpoint2ae6498 và commit handoff kế tiếp; sổ1563 nghĩa vụ/86 thiếu TIP nhận. Bắt đầu từ hai source inventories RAG model lifecycle và release gate: viết đầy đủ020e rồi046, sau đó đóng86 owner gaps và7 phần chưa rà hết; không dựng lại toàn bộ từ đầu. Ưu tiên luồng Zalo↔CRM↔Commerce↔Agents/Trợ lý AI, nhập/xuất AI-first + manual fallback + file thật. Giữ mọi quyết định đã duyệt và các gate policy chưa duyệt trong handoff. Tự áp dụng đề xuất kỹ thuật chuẩn, không tự đổi COMMERCE/quyền. Mỗi pack phải có exact manifest, future-M provenance, giao file hai chiều, task/AC/test cụ thể và review độc lập. Chỉ kết thúc khi đồng thời đủ6 điều kiện:7 phần rà xong; mọi nghĩa vụ có owner hoặc D/DC hợp lệ; mọi pendingTIP đủ phần;6 supplement cũ + toàn bộ dependency/file audit hoàn thiện; review độc lập không còn gap; docs checks đạt, commit/pushdev và tree sạch. Commit/checkpoint không phải điều kiện dừng; không chờ câu hỏi nếu còn phần khác làm được. Báo trung thực planning khác implementation/runtime acceptance.
+```
+
+---
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 - **Next release/RAG source inventories saved:** reports/release-gate-source-audit-2026-11-02.md and rag-model-lifecycle-source-audit-2026-11-02.md. Independent046 inventory confirms unsafe current HTTP runner, missing backend CI/build smoke/performance/a11y and identity-free parity receipts. Next full020e rerank/re-embed functional pack (still046-owned until full pack), then046 release gate; avoid hiding new RAG behavior in test harness. Small045 delta independently rechecked: /healthz alias and clone/migrate tenant_app outbox regression now own BP9e/DEF0272. Ledger1563/**86 unowned**,045186paths/19soleowners. No runtime/code change; all six goal gates still open.
