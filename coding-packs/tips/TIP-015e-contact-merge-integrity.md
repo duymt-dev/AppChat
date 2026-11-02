@@ -1,6 +1,7 @@
 # TIP-015e: Merge/dedupe khách với lineage và quyền hiện tại
 
 ## HEADER
+- **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/send-fence.ts`, `packages/core/src/authz/fields/history-provenance.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/core/src/inbox/services/view.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 015e before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015e before023g.
 - **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`; integrate 015e before021b.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/contracts/services/contracts-read.service.ts`, `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 015e before030c.

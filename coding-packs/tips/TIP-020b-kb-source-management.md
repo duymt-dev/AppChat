@@ -1,6 +1,7 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
+- **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/kb/kb.handlers.ts`, `packages/db/prisma/tenant/ai-kb.prisma`; integrate 020b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before023g.
 - **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`; integrate 020b before021b.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 020b before030c.

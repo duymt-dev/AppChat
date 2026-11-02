@@ -1,6 +1,7 @@
 # TIP-014b: Zalo provider lifecycle, message operations and durable delivery
 
 ## HEADER
+- **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/actions/src/inbox.ts`, `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/inbox/actions/message.handlers.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/core/src/inbox/services/view.ts`, `packages/db/prisma/tenant/inbox.prisma`, `packages/shared/src/api/inbox.ts`; integrate 014b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 014b before023g.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 014b before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `packages/core/src/index.ts`; integrate 014b before006b.

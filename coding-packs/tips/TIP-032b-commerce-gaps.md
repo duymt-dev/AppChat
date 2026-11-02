@@ -1,6 +1,7 @@
 # TIP-032b: Commerce — vá luật đã chốt còn hở: ngưỡng duyệt cấu hình được, báo giá → HĐ hoặc đơn, VietQR ảnh thật, gửi chứng từ qua webchat, gửi xác nhận đơn / phiếu thu, liệu trình khi cọc, catalog còn thiếu
 
 ## HEADER
+- **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`; integrate 032b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `apps/web/messages/en/products.json`, `apps/web/messages/en/quotes.json`, `apps/web/messages/vi/products.json`, `apps/web/messages/vi/quotes.json`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 032b before023g.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/contracts.ts`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 032b before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/catalog/jobs/catalog.jobs.module.ts`, `packages/core/src/index.ts`; integrate 032b before006b.

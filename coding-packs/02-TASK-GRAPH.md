@@ -315,3 +315,11 @@ REQ-D17c runtime KB-scope intersection remains separate/unowned; do not claim th
 |023g [record-ai-entrypoints](tips/TIP-023g-record-ai-entrypoints.md)|Seven real row/tab AI entry groups, typed record contexts, protected product proposals and canonical receipt-driven work|After023c/d/e,019b/c,015c,037/038 and exact bilateral predecessors; no numeric order assumption|95 exact paths,39 bilateral pairs,7 owned IDs,8 AC; local review corrected/rechecked|
 
 Inspect opens without model/charges; task confirmation and existing selected-agent authority remain. Bulk forwarding, attachment tabs, deposit and shift policy remain separate gaps. Runtime proof is still required.
+
+### Supplemental020c — effective knowledge scope (DC276)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|020c [kb-effective-scope](tips/TIP-020c-kb-effective-scope.md)|Trusted source scope through agent/Assistant/task/Builder/consult/resume; current retrieval and dependent output authority|After019b/020b/022b/023d/015c/045b and exact bilateral predecessors|Exact manifest,3 owned IDs,8 AC; local review recorded in planning report|
+
+STD-ai-rag-2/3a downgraded from broad ĐẠT to MỘT PHẦN: existing direct search tests do not prove delegated scope. Citation UI STD-ai-rag-8b remains unowned; no runtime acceptance.

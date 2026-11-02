@@ -151,7 +151,7 @@
 | REQ-D16b | Badge Cần kết nối / Sắp có | 01-REQUIREMENTS-MATRIX.md:97 | 021 | ĐẠT | agent-tools.ts:25-28; test agents.test.ts AC5 |
 | REQ-D17a | kb_scope chọn trong Builder | 01-REQUIREMENTS-MATRIX.md:98 | 020, 021 | ĐẠT | agent.store.ts:98; KnowledgeSection.tsx:22-45; e2e agents.spec.ts:91 |
 | REQ-D17b | Trả lời khách chỉ public trong kb_scope | 01-REQUIREMENTS-MATRIX.md:98 | 022 | ĐẠT | reply-context.ts:86; test agent-reply.test.ts |
-| REQ-D17c | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:98 | — | CHƯA | kb.search bỏ qua kb_scope (kb-search.handler.ts:26); delegate / task không truyền phạm vi |
+| REQ-D17c | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:98 | 020c | CHƯA | kb.search bỏ qua kb_scope (kb-search.handler.ts:26); delegate / task không truyền phạm vi |
 | REQ-D17d | Trợ lý: cả kho trong quyền đọc người hỏi | 01-REQUIREMENTS-MATRIX.md:98 | 020 | ĐẠT | kb-search.handler.ts:15; test kb.test.ts "Owner thấy internal, sales chỉ public" |
 | REQ-E01 | Action Registry dùng chung, một đường thực thi | 01-REQUIREMENTS-MATRIX.md:103 | 003 | ĐẠT | packages/actions/src/define.ts:42; kernel/actions/executor.ts:73; test registry.test.ts, actions.test.ts, actions-unit.test.ts |
 | REQ-E02 | Trợ lý làm mọi action với quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:104 | 023b | MỘT PHẦN | ai/assistant/meta-tools.ts:86-96; test assistant.test.ts; thiếu action đọc search / get, khuôn lồng nhau |

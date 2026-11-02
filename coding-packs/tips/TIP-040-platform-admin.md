@@ -1,6 +1,7 @@
 # TIP-040 — Quản trị nền tảng: quyền, cấu hình, đối soát và UI
 
 ## HEADER
+- **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/runs/runner.ts`, `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 040 before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/ai/runs/runner.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 040 before023g.
 - **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `packages/core/src/ai/runs/runner.ts`; integrate 040 before021b.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 040 before030c.

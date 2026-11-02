@@ -1,6 +1,7 @@
 # TIP-006b — Durable event delivery and AI task fanout
 
 ## HEADER
+- **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/ai/tasks/task.runner.ts`, `packages/core/src/catalog/events/catalog-sync.ts`; integrate 006b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 006b before023g.
 - **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 006b before021b.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/worker/src/roles/ai.module.ts`, `apps/worker/src/roles/jobs.module.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`, `packages/core/src/privacy/services/read-catalog.ts`, `packages/core/src/privacy/services/source-catalog.ts`, `packages/core/src/privacy/services/write-catalog.ts`; integrate 006b before030c.

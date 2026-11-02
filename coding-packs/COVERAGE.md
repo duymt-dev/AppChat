@@ -12,16 +12,16 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 9 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
-| E. standards/* | 148 | 55 | 2 | 6 | 68 | 2 | 40 | 28 |
+| E. standards/* | 146 | 57 | 2 | 6 | 68 | 2 | 40 | 28 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 20 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **386** | **118** | **41** | **367** | **34** | **66** | **102** |
+| **Tổng** | **542** | **388** | **118** | **41** | **367** | **34** | **66** | **101** |
 
-## Lỗ hổng chưa có TIP nhận (102)
+## Lỗ hổng chưa có TIP nhận (101)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -34,7 +34,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B06b | CHƯA | Gmail OAuth | A |
 | REQ-B11d | MỘT PHẦN | Phân công & SLA theo tài khoản | A |
 | REQ-C10a | MỘT PHẦN | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | A |
-| REQ-D17c | CHƯA | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | A |
 | REQ-E09c | MỘT PHẦN | Hoàn tác trong hạn; đã gửi → ghi đính chính | A |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
@@ -285,7 +284,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D16b | Badge Cần kết nối / Sắp có | 01-REQUIREMENTS-MATRIX.md:97 | 021 | ĐẠT | agent-tools.ts:25-28; test agents.test.ts AC5 |
 | REQ-D17a | kb_scope chọn trong Builder | 01-REQUIREMENTS-MATRIX.md:98 | 020, 021 | ĐẠT | agent.store.ts:98; KnowledgeSection.tsx:22-45; e2e agents.spec.ts:91 |
 | REQ-D17b | Trả lời khách chỉ public trong kb_scope | 01-REQUIREMENTS-MATRIX.md:98 | 022 | ĐẠT | reply-context.ts:86; test agent-reply.test.ts |
-| REQ-D17c | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:98 | — | CHƯA | kb.search bỏ qua kb_scope (kb-search.handler.ts:26); delegate / task không truyền phạm vi |
+| REQ-D17c | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:98 | 020c | CHƯA | kb.search bỏ qua kb_scope (kb-search.handler.ts:26); delegate / task không truyền phạm vi |
 | REQ-D17d | Trợ lý: cả kho trong quyền đọc người hỏi | 01-REQUIREMENTS-MATRIX.md:98 | 020 | ĐẠT | kb-search.handler.ts:15; test kb.test.ts "Owner thấy internal, sales chỉ public" |
 | REQ-E01 | Action Registry dùng chung, một đường thực thi | 01-REQUIREMENTS-MATRIX.md:103 | 003 | ĐẠT | packages/actions/src/define.ts:42; kernel/actions/executor.ts:73; test registry.test.ts, actions.test.ts, actions-unit.test.ts |
 | REQ-E02 | Trợ lý làm mọi action với quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:104 | 023b | MỘT PHẦN | ai/assistant/meta-tools.ts:86-96; test assistant.test.ts; thiếu action đọc search / get, khuôn lồng nhau |
@@ -1260,8 +1259,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-genui-12 | Test: unit schema/renderer/tone/quyền/form; fixture ≥ 3 cây mỗi drawer (`genui[]`); e2e | standards/ai/generative-ui.md:38 | 023c | CHƯA | Chưa có |
 | STD-ai-genui-12e | Eval `genui`: schema hợp lệ ≥ 95%, an toàn 100% (ref, xác nhận, tiêm lệnh) | standards/ai/generative-ui.md:42 | 044 | CHƯA | Chưa có suite |
 | STD-ai-rag-1 | Một kho / workspace theo thư mục + thẻ; origin upload/url/text/catalog/conversation/drive(Sắp có) | standards/ai/rag.md:7 | 020 | ĐẠT | packages/core/src/ai/kb/kb.handlers.ts; kb.read.ts:25; test apps/api/test/integration/kb.test.ts:128 |
-| STD-ai-rag-2 | Agent nhận tri thức theo `kb_scope {folder_ids, tags}`; Trợ lý tìm cả kho theo quyền | standards/ai/rag.md:9 | 020, 021 | ĐẠT | packages/core/src/ai/kb/search.ts:57; test kb.test.ts:150 |
-| STD-ai-rag-3a | `visibility` public/internal; agent trực kênh chỉ public; delegate = scope ∩ quyền người ra lệnh | standards/ai/rag.md:13 | 020, 022 | ĐẠT | kb/kb-search.handler.ts:15; test kb.test.ts:150,160 |
+| STD-ai-rag-2 | Agent nhận tri thức theo `kb_scope {folder_ids, tags}`; Trợ lý tìm cả kho theo quyền | standards/ai/rag.md:9 | 020c | MỘT PHẦN | search.ts:55–60 empty agent scope becomes unrestricted; kb-search.handler.ts:26 omits scope; integration kb.test.ts:150–174 only direct filter/visibility tests, no delegate/resume binding |
+| STD-ai-rag-3a | `visibility` public/internal; agent trực kênh chỉ public; delegate = scope ∩ quyền người ra lệnh | standards/ai/rag.md:13 | 020c | MỘT PHẦN | kb-search.handler.ts:15–26 grants internal via kb.manage and omits agent scope; delegate.ts:62/task.runner.ts:121/resume.ts:49 omit scope. Existing direct-search tests do not establish current module rights |
 | STD-ai-rag-3b | Mặc định visibility của thư mục kế thừa xuống tài liệu | standards/ai/rag.md:17 | 020b | MỘT PHẦN | `kb_folder.visibility` có cột (ai-kb.prisma:37) nhưng `kb.add_source` dùng `input.visibility` mặc định 'public' (settings-ai.ts:43, kb.handlers.ts:78), không đọc thư mục |
 | STD-ai-rag-4 | Giá / tồn / KM / lịch / công nợ chỉ qua read action; đoạn có giá `volatile` không vào prompt | standards/ai/rag.md:18 | 020, 027 | ĐẠT | packages/ai/src/kb/chunker.ts:76; catalog/events/catalog-sync.ts:1; test kb.test.ts:95,150, catalog.test.ts:212 |
 | STD-ai-rag-5 | Nạp: parse → cắt đoạn theo cấu trúc 400–800 token chồng 10–15% → embedMany; idempotent sha256; sản phẩm đổi → nạp lại | standards/ai/rag.md:20 | 020, 027 | ĐẠT | chunker.ts:25-26; kb.handlers.ts:53; catalog-sync.ts:76; test kb.test.ts:95,113, catalog.test.ts:212 |

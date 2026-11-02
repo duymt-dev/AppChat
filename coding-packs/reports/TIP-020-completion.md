@@ -47,3 +47,7 @@
 ## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
 
 TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.
+
+## Bổ sung 2026-11-02 — TIP-020c
+
+[Effective knowledge scope](../tips/TIP-020c-kb-effective-scope.md) receives REQ-D17c and STD-ai-rag-2/3a after source review found canonical tools/resume omit scope, empty agent scope becomes unrestricted and current source-module rights are not enforced by visibility alone. Existing integration kb.test.ts150–174 establishes direct filtering only. Original TIP-020 unchanged; runtime evidence still required.
