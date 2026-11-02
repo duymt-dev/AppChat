@@ -1,8 +1,8 @@
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
 | PRO-customers-aidrawer | Drawer "Trợ lý AI · Khách hàng": ô hỏi gửi lượt Trợ lý thật kèm ngữ cảnh (không câu ack soạn sẵn) | docs/06-prototype/AppChat.dc.html:3309 | 023c | GIẢ | apps/web/src/features/customers/components/CrmAiDrawer.tsx:46 `t('ack',{text})`; lệnh nhanh :40 đọc `/crm/ai` runs cố định |
-| PRO-quotes-aidrawer | Drawer "Trợ lý AI · Báo giá" trả lời thật theo bản ghi đang mở | docs/06-prototype/AppChat.dc.html:5329 | 023c | GIẢ | apps/web/src/features/quotes/components/QuoteAiDrawer.tsx:33-37 regex `/giá|combo|…/` → `ackPrice/ackFollow/ack` |
-| PRO-contracts-aidrawer | Drawer "Trợ lý AI · Hợp đồng" trả lời thật | docs/06-prototype/AppChat.dc.html:5716 | 023c | GIẢ | apps/web/src/features/contracts/components/ContractAiDrawer.tsx:32 regex `/hạn|renew/` → `ackRenew/ack` |
+| PRO-quotes-aidrawer | Drawer "Trợ lý AI · Báo giá" trả lời thật theo bản ghi đang mở | docs/06-prototype/AppChat.dc.html:5329 | 023c | GIẢ | apps/web/src/features/quotes/components/QuoteAiDrawer.tsx:33-37 regex `/giá&#124;combo&#124;…/` → `ackPrice/ackFollow/ack` |
+| PRO-contracts-aidrawer | Drawer "Trợ lý AI · Hợp đồng" trả lời thật | docs/06-prototype/AppChat.dc.html:5716 | 023c | GIẢ | apps/web/src/features/contracts/components/ContractAiDrawer.tsx:32 regex `/hạn&#124;renew/` → `ackRenew/ack` |
 | PRO-orders-aidrawer | Drawer "Trợ lý AI · Đơn hàng" trả lời thật | docs/06-prototype/AppChat.dc.html:5862 | 023c | GIẢ | apps/web/src/features/orders/components/OrderAiDrawer.tsx:29-33 regex → `ackPay/ackCancel/ack` |
 | PRO-calendar-aidrawer | Drawer "Trợ lý AI · Lịch hẹn" trả lời thật | docs/06-prototype/AppChat.dc.html:4246 | 023c | GIẢ | apps/web/src/features/calendar/components/CalendarAiDrawer.tsx:37 `setResult(t('ack'))`; :32 `picked` chỉ đổi bộ lọc |
 | PRO-tickets-aidrawer | Drawer "Trợ lý AI · Hỗ trợ" trả lời thật | docs/06-prototype/AppChat.dc.html:5212 | 023c | GIẢ | apps/web/src/features/tickets/components/TicketsAiDrawer.tsx:37 `setResult(t('ack'))` |
@@ -48,7 +48,7 @@
 | PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
 | PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |
 | PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | — | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
-| PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | — | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0|999|test|xxx|9999)/` quyết định kết quả |
+| PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | — | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
 | PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | — | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |
 | PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | — | GIẢ | GroupInfoPanel.tsx:85 không onClick |

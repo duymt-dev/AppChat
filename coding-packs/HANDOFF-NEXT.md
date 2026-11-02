@@ -2,6 +2,14 @@
 
 > Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
 
+## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
+
+- Đã bắt đầu rà nốt phần deferred, ghi bằng chứng tại `reports/coverage-deferred-audit-2026-11-02.md`.
+- Hai dòng ĐẠT thiếu chứng cứ HTTP/DB đã hạ thành MỘT PHẦN; connector Brevo/SMTP workspace không được coi chỉ thiếu tài khoản. Sổ hiện **223 lỗ hổng** (tăng 3 vì rà chính xác hơn, không phải code bị sửa).
+- Unit integrations **22/22**, channels **27/27** xanh; không thay nghiệm thu provider thật. Chỉ sửa Markdown và sinh lại COVERAGE, chưa sửa code/TIP đã DONE.
+- Câu A vẫn còn: rà các phần chưa hết, viết/gán đủ TIP, rà file-overlap, rà độc lập. Chi tiết tiếp nối trong report trên; không bắt đầu câu B.
+- Windows: chạy `python -X utf8 tools/obligations/merge.py` để tránh lỗi console cp1252 khi in tổng tiếng Việt (không cần sửa script).
+
 ## 1. Trạng thái lúc dừng (`dev` = commit chứa file này)
 
 - **Code:** TIP-001 → 035 xong, đã merge `dev` (PR #50 là 035). Sau đó có 2 sửa nhỏ cho demo với model thật, push thẳng `dev` (Chủ nhà cho phép): `bf0bd58` (`contact.search`, mã hiển thị → id, lỗi validation kèm khuôn, động từ tiếng Việt cho `find_actions`), `e7781c9` (prompt Trợ lý v3: tự tra bản ghi trước khi hỏi lại).

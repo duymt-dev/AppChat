@@ -18,10 +18,10 @@
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 95 | 194 | 5 | 4 | 81 | 1 | 0 | 25 |
 | E. standards/* | 160 | 36 | 2 | 6 | 62 | 2 | 40 | 39 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 7 | 6 | 0 | 49 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 25 | 15 | 9 | 14 | 56 | 3 | 0 | 40 |
-| **Tổng** | **573** | **314** | **118** | **43** | **309** | **35** | **66** | **220** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 56 | 3 | 0 | 43 |
+| **Tổng** | **571** | **317** | **118** | **42** | **309** | **35** | **66** | **223** |
 
-## Lỗ hổng chưa có TIP nhận (220)
+## Lỗ hổng chưa có TIP nhận (223)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -216,15 +216,18 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-010-2 | CHƯA | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | G |
 | DEF-012-2 | CHƯA | Action `integration.sync_now` | G |
 | DEF-012-3 | GIẢ | Adapter Casso thật (verifyWebhook / parseTransactions) | G |
+| DEF-012-4 | MỘT PHẦN | Brevo / SMTP workspace gửi thư thật | G |
 | DEF-013-1 | CHƯA | Chuyển phụ trách khách của thành viên bị gỡ | G |
 | DEF-015-1 | MỘT PHẦN | Consumer `contact.owner_changed` chuyển lịch hẹn mở (move.appointments) | G |
 | DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
+| DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
 | DEF-021-1 | MỘT PHẦN | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | G |
 | DEF-022-4 | CHƯA | `ai_escalate` (khiếu nại) → tự mở ticket | G |
 | DEF-023-2 | CHƯA | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | G |
 | DEF-023-4 | CHƯA | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | G |
 | DEF-024-1 | GIẢ | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | G |
 | DEF-024-3 | MỘT PHẦN | Định tuyến nhiều agent theo từ khoá ưu tiên | G |
+| DEF-025-1 | MỘT PHẦN | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | G |
 | DEF-025-2 | GIẢ | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | G |
 | DEF-026-2 | CHƯA | Kanban khách > 50 thẻ / cột có "Xem thêm" | G |
 | DEF-027-1 | CHƯA | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | G |
@@ -1563,8 +1566,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
 | PRO-customers-aidrawer | Drawer "Trợ lý AI · Khách hàng": ô hỏi gửi lượt Trợ lý thật kèm ngữ cảnh (không câu ack soạn sẵn) | docs/06-prototype/AppChat.dc.html:3309 | 023c | GIẢ | apps/web/src/features/customers/components/CrmAiDrawer.tsx:46 `t('ack',{text})`; lệnh nhanh :40 đọc `/crm/ai` runs cố định |
-| PRO-quotes-aidrawer | Drawer "Trợ lý AI · Báo giá" trả lời thật theo bản ghi đang mở | docs/06-prototype/AppChat.dc.html:5329 | 023c | GIẢ | apps/web/src/features/quotes/components/QuoteAiDrawer.tsx:33-37 regex `/giá|combo|…/` → `ackPrice/ackFollow/ack` |
-| PRO-contracts-aidrawer | Drawer "Trợ lý AI · Hợp đồng" trả lời thật | docs/06-prototype/AppChat.dc.html:5716 | 023c | GIẢ | apps/web/src/features/contracts/components/ContractAiDrawer.tsx:32 regex `/hạn|renew/` → `ackRenew/ack` |
+| PRO-quotes-aidrawer | Drawer "Trợ lý AI · Báo giá" trả lời thật theo bản ghi đang mở | docs/06-prototype/AppChat.dc.html:5329 | 023c | GIẢ | apps/web/src/features/quotes/components/QuoteAiDrawer.tsx:33-37 regex `/giá&#124;combo&#124;…/` → `ackPrice/ackFollow/ack` |
+| PRO-contracts-aidrawer | Drawer "Trợ lý AI · Hợp đồng" trả lời thật | docs/06-prototype/AppChat.dc.html:5716 | 023c | GIẢ | apps/web/src/features/contracts/components/ContractAiDrawer.tsx:32 regex `/hạn&#124;renew/` → `ackRenew/ack` |
 | PRO-orders-aidrawer | Drawer "Trợ lý AI · Đơn hàng" trả lời thật | docs/06-prototype/AppChat.dc.html:5862 | 023c | GIẢ | apps/web/src/features/orders/components/OrderAiDrawer.tsx:29-33 regex → `ackPay/ackCancel/ack` |
 | PRO-calendar-aidrawer | Drawer "Trợ lý AI · Lịch hẹn" trả lời thật | docs/06-prototype/AppChat.dc.html:4246 | 023c | GIẢ | apps/web/src/features/calendar/components/CalendarAiDrawer.tsx:37 `setResult(t('ack'))`; :32 `picked` chỉ đổi bộ lọc |
 | PRO-tickets-aidrawer | Drawer "Trợ lý AI · Hỗ trợ" trả lời thật | docs/06-prototype/AppChat.dc.html:5212 | 023c | GIẢ | apps/web/src/features/tickets/components/TicketsAiDrawer.tsx:37 `setResult(t('ack'))` |
@@ -1610,7 +1613,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
 | PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |
 | PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | — | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
-| PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | — | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0|999|test|xxx|9999)/` quyết định kết quả |
+| PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | — | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
 | PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | — | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |
 | PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | — | GIẢ | GroupInfoPanel.tsx:85 không onClick |
@@ -1689,10 +1692,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-012-1 | Action `integration.test` (kiểm tra kết nối connector) | reports/TIP-012-completion.md:37 | 023c | CHƯA | Không có trong registry (51 action thiếu); TIP-023c mục 10 "Kiểm tra kết nối (probe connector)" |
 | DEF-012-2 | Action `integration.sync_now` | reports/TIP-012-completion.md:37 | — | CHƯA | Không có trong packages/actions; không TIP chờ nào ghi |
 | DEF-012-3 | Adapter Casso thật (verifyWebhook / parseTransactions) | reports/TIP-012-completion.md:43 | — | GIẢ | packages/integrations/src/registry.ts:17 gắn `MockBankFeedProvider` cho casso; connectors/casso/ chỉ có manifest.ts — không phải thiếu tài khoản mà thiếu code |
-| DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | — | CHỜ-TK | Q-004; connectors/brevo/mail.ts, test packages/integrations/test/smtp.test.ts |
+| DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | — | MỘT PHẦN | packages/integrations/src/registry.ts:13-14 chỉ manifest; core/src/integrations/services/resolver.ts:25 trả adapter null. BrevoMailProvider chỉ được tạo bằng env nền tảng ở identity.module.ts:54, không chứng minh connector workspace. Unit ports.test.ts / smtp.test.ts xanh, chưa có kiểm chứng gửi bằng secret riêng từng workspace |
 | DEF-013-1 | Chuyển phụ trách khách của thành viên bị gỡ | reports/TIP-013-completion.md:42 | — | CHƯA | identity/actions/member-remove.handler.ts:2 chỉ đặt `removed`; không consumer `member.removed` ở crm |
 | DEF-013-2 | Seed `sla_policy` + đồng hồ SLA theo giờ làm việc workspace | reports/TIP-013-completion.md:41 | 034 | ĐẠT | support/services/sla-clock.ts; test support.test.ts:53 |
-| DEF-014-1 | Zalo cá nhân thật: QR, listener, gửi ảnh / file / sticker, đồng bộ lịch sử | reports/TIP-014-completion.md:49 | — | CHỜ-TK | Q-003; adapter sau `ZaloTransport`, nghiệm thu bằng fake (DC-074) |
+| DEF-014-1 | Zalo cá nhân thật: QR, listener, gửi ảnh / file / sticker, đồng bộ lịch sử | reports/TIP-014-completion.md:49 | — | CHỜ-TK | packages/channels/src/zalo-personal/zca-transport.ts:30-128 có SDK thật; core/src/channels/channels.module.ts:59 chọn bằng env. zalo-adapter.test.ts dùng fake, không chứng minh live. HANDOFF-NEXT §3 nói demo đã đăng nhập nhưng chưa có bằng chứng đủ ca Q-003; không kết luận tài khoản hiện còn thiếu |
 | DEF-014-2 | Cap tin chủ động / ngày Zalo cá nhân (Q-013) | reports/TIP-014-completion.md:55 | 037 | MỘT PHẦN | channels/jobs/send.processor.ts:43 áp `daily_cap`; packages/channels/src/zalo-personal/manifest.ts:22 không có `perDayProactive` mặc định |
 | DEF-015-1 | Consumer `contact.owner_changed` chuyển lịch hẹn mở (move.appointments) | reports/TIP-015-completion.md:53 | — | MỘT PHẦN | Báo giá ĐẠT (quotes.test.ts:309); crm/actions/contact-owner.handlers.ts:98 `appointments: 0`, booking không có consumer |
 | DEF-015-2 | KPI 360° (công nợ, HĐ hiệu lực, đơn / thu gần nhất) + LTV | reports/TIP-015-completion.md:53 | 015b | CHƯA | crm/services/contact360.ts:52-55 `kpis: []`, `recent_order` / `recent_payment` rỗng |
@@ -1701,8 +1704,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-016-1 | Tin vào / gửi thật qua Hộp thư với Zalo cá nhân | reports/TIP-016-completion.md:49 | — | CHỜ-TK | Q-003 |
 | DEF-017-1 | Nginx `widget.<domain>` phục vụ widget.js + proxy socket `/widget` | reports/TIP-017-completion.md:49 | 045 | CHƯA | Thư mục infra/ chưa tồn tại |
 | DEF-017-2 | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | reports/TIP-017-completion.md:50 | — | CHƯA | apps/api/src/http/notify/realtime/ws.gateway.ts:93 chỉ typing nhân viên `/ws`; không phát `agent.status` |
-| DEF-017-3 | `/settings/widget` liệt kê đủ agent thật | reports/TIP-017-completion.md:48 | 022 | ĐẠT | channels/webchat/widget.service.ts:102 (`agents`, `agent_ids`); test apps/web/src/shared/api/mock/widget-shape.test.ts |
-| DEF-018-1 | IMAP / SMTP thật (Gmail mật khẩu ứng dụng, Zoho…) | reports/TIP-018-completion.md:39 | — | CHỜ-TK | Chưa có hộp thư thử của Chủ nhà (không có mã Q riêng; gần Q-004) |
+| DEF-017-3 | `/settings/widget` liệt kê đủ agent thật | reports/TIP-017-completion.md:48 | — | MỘT PHẦN | packages/core/src/channels/webchat/widget.service.ts:103-105 đọc aiAgent active hoặc selected nhưng take:50, không phân trang; mock/widget-shape.test.ts chỉ kiểm mock, webchat.test.ts không assert danh sách agent. Cần test DB agent active/selected/deleted, tenant isolation và >50 agent hoặc chứng minh quota chặn trường hợp này |
+| DEF-018-1 | IMAP / SMTP thật (Gmail mật khẩu ứng dụng, Zoho…) | reports/TIP-018-completion.md:39 | — | CHỜ-TK | packages/channels/src/email/imap-transport.ts:90-161 có verify/fetch/send thật; core/src/channels/channels.module.ts:60 chọn transport thật. email-adapter.test.ts dùng fake, chưa nghiệm thu mailbox thật; Q-004 không thay bằng chứng IMAP |
 | DEF-018-2 | Worker `ROLE=channels` mở ra cổng 993 / 465 / 587 ở VPS | reports/TIP-018-completion.md:42 | 045 | CHƯA | infra/ chưa có |
 | DEF-019-1 | Nghiệm thu LLM thật qua 9router (engine, agent, Trợ lý, dịch, soạn chứng từ) | reports/TIP-019:40; 021:38; 022:35; 024:31; 025:30; 028:27; 029:28; 035:30 | 044 | CHỜ-TK | Q-001 (gộp các TIP AI); report 023 bổ sung 2026-11-01 đã chạy thử 9router thật, ra 023b/023c |
 | DEF-019-2 | Ghi `llm_provider` / `model_route` / `model_price` + `ProviderStore.invalidate()` | reports/TIP-019-completion.md:45 | 040 | CHƯA | admin.llm_provider.* / model_route / model_price thiếu trong registry |
@@ -1723,13 +1726,13 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | — | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực |
 | DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | CHƯA | Không có route trong apps/api/src/http/ai; TG row 038 ghi rõ |
 | DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | — | MỘT PHẦN | Từ khoá chỉ chèn prompt (ai/agents/agent.runtime.ts:35), không chọn agent theo từ khoá |
-| DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | 029/031/033/034 | ĐẠT | apps/web/src/features/inbox/components/Profile360Actions.tsx:13-28; test apps/web/e2e/inbox.spec.ts:74,88,93 |
+| DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | — | MỘT PHẦN | apps/web/src/features/inbox/components/Profile360Actions.tsx:42-58 mở form và prefill contact_id; apps/web/e2e/inbox.spec.ts:74-101 chỉ kiểm mở form ở mock. e2e/http/inbox.spec.ts chỉ gửi/tag/archive, chưa chứng minh tạo từ Hộp thư rồi đọc lại HTTP đúng contact/scope |
 | DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | — | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | CHƯA | apps/web/src/features/inbox/components/Blocks360.tsx:2-3 "chưa có dữ liệu"; 015b chỉ ghi KPI + đơn / thu gần nhất (lịch / ticket / SLA chưa ai nhận) |
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | — | CHƯA | Không có load-more ở features/customers |
 | DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | — | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
-| DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | — | CHƯA | "theo dõi ở TIP hạ tầng" nhưng TG 045 / 045b không ghi |
+| DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | — | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser |
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | — | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |
 | DEF-029-1 | Gửi báo giá / HĐ / đề nghị / nhắc hẹn / CSAT qua Zalo / Email thật | reports/TIP-029:28; 030:29; 032:28; 033:29; 034:29; 035:30 | — | CHỜ-TK | Q-003 / Q-004 (adapter giả) |
@@ -1743,7 +1746,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-031-5 | `db:cleanup-test` tự nạp `.env` | reports/TIP-031-completion.md:25 | — | CHƯA | packages/db/package.json:17 `tsx scripts/cleanup-test-workspaces.ts` không `--env-file` |
 | DEF-032-1 | Khoản thu `points` + `payment.redeem_points` | reports/TIP-032-completion.md:32 | 036 | CHƯA | `payment.redeem_points` thiếu trong registry; TG row 036 |
 | DEF-032-2 | Trừ buổi liệu trình khi lịch hẹn hoàn tất (`package_usage`) | reports/TIP-032-completion.md:31 | 033 | ĐẠT | booking/services/appointment-write.ts:66-76; test booking.test.ts:4 |
-| DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7 dùng ở 4 form (contracts / invoices / orders); không có unit test helper |
+| DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
 | DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | — | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015) |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | — | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng |
 | DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | — | CHƯA | Danh mục là text tự do (packages/actions/src/support.ts:49) |
@@ -1796,4 +1799,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Đã đọc hết phần ISSUES / SUGGESTIONS / STATUS của 33 report (001–035) và mọi dòng mở của QUESTIONS (Q-001…Q-025) + DEVIATIONS (DV-001…DV-017). Bỏ qua: Q-005/007/022 (đã trả lời / đã xử lý), Q-012 (tạm theo đề xuất, crm_owner đã có — shared/notify/catalog.ts:22), gợi ý tuỳ chọn ("nếu cần": presence, topic loyalty.* cho ai_task, phạm vi tri thức riêng tác vụ).
 - CHỜ-TK của LLM thật / Zalo / Email nhiều TIP gộp vào DEF-019-1 và DEF-029-1 (gộp cùng loại, cùng Q).
 - Phát hiện đáng chú ý: Casso chỉ có adapter mock (DEF-012-3, không phải thiếu TK); worker ROLE=ai thiếu module sales/booking/support/contracts cho ai-resume (DEF-021-1); popover Đặt lịch ở Hộp thư gọi route không tồn tại (DEF-025-2); `channels.used` billing cứng 0 (DEF-009-1).
-- CHƯA RÀ HẾT: chưa kiểm sâu code cho DEF-017-3, DEF-025-1 (test chỉ mock E2E), DEF-032-3; chưa kiểm code adapter thật cho các dòng CHỜ-TK (brevo/mail.ts, imap-transport, zca-js transport); DEF-027-2 / DEF-035-1 chưa tái hiện; chưa đối chiếu Blueprint cho DEF-023-4 / DEF-028-1.
+- Rà tiếp 2026-11-02: đã đọc code/test DEF-017-3, DEF-025-1, DEF-032-3 và adapter Brevo/IMAP/Zalo; hạ các khẳng định ĐẠT thiếu chứng cứ, tách connector workspace khỏi email nền tảng. Unit integrations 22/22, channels 27/27; không phải nghiệm thu provider thật.
+- Đã đối chiếu DEF-023-4 với Blueprint:1098 + DC-129 (embedding/cache vẫn là nợ); DEF-028-1 với Blueprint:124,1327 + documents.jobs.module.ts:5 (queue chưa có; DV-007 không xoá nghĩa vụ).
+- CHƯA RÀ HẾT: DEF-027-2 / DEF-035-1 chưa tái hiện runtime; còn phải gán TIP chờ và rà độc lập toàn phần. Chi tiết lượt này: coding-packs/reports/coverage-deferred-audit-2026-11-02.md.
