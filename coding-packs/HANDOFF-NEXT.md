@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Review041 vòng1:** 3 HIGH/4 MEDIUM đã đưa giải pháp cụ thể vào TIP, manifest hiện77 path (1 M tương lai do040 tạo); reviewer đang tái kiểm. Đã bắt đầu đối chiếu standard AI eval/CI để viết044: hiện chưa có harness, cần đủ10 suite, safety100%, action95% (2/3), rubric90%, không dùng27/30 của023b thay release gate. Reviewer thứ hai đang rà sáu TIP cũ; phát hiện chúng chưa có manifest hoàn chỉnh và một số owner COVERAGE chưa có task/AC tương ứng.
+
 - **TIP041 đã bổ sung wiring:** 59 path manifest, 8 nhóm AC, graph row và DC245; xem `reports/workspace-lifecycle-planning-audit-2026-11-02.md`. Kiểm tra path M/C, uniqueness, sections và diff whitespace đạt; chưa runtime. Đã giao reviewer độc lập rà riêng041. Còn044–046, các supplemental, sáu TIP cũ và whole-graph/full independent review; tiếp tục, không coi commit là hoàn thành.
 
 - **Rà độc lập phần còn lại:** đã lưu `reports/independent-remainder-audit-2026-11-02.md`. Đối chiếu lại code và hạ REQ-C12, ACT-doc_template.create, BP-11-b từ ĐẠT xuống MỘT PHẦN; REQ-G04b từ CHỜ-TK xuống MỘT PHẦN vì thiếu tool mặc định. Bỏ owner là TIP đã DONE ở ba dòng còn thiếu để không che lỗ hổng. COVERAGE hiện 1.477 dòng, **215 lỗ hổng**; số tăng phản ánh phát hiện thật. TIP041 đang là bản nháp trong working tree, chưa khép wiring/graph/review; tiếp tục hoàn thiện, không coi checkpoint là điều kiện dừng.

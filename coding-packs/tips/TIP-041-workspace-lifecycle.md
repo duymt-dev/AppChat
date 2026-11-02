@@ -6,9 +6,28 @@
 - **Dòng COVERAGE nhận:** REQ-A09a/A09b; D23; ACT-admin.workspace.archive/restore; DEF-003-1; PRO-settings-dangerzone; REQ-M01c chỉphần nguyhiểm (logo tách owner riêng, khôngclaim cảdòng).
 - **Parallel-safe with:** sequential, shares actions/coreindexes, identity/platformmodule/resolver/settingslocales/Blueprint với cácpendingTIP; metadata hai chiều tính trước tạo. Platform receipt/executor reuse040/045b, không thêm đườngghi.
 - **Files touched:** M/C dưới; chỉdocs câuA, không chạy dump/drop trên demo.
+- M tương lai duy nhất: `apps/web/src/features/platform-admin/screens/AdminScreen.tsx` do040 tạo trước041; không tạo bản thay thế nếu040 chưa tích hợp. Manifest hiện77 file; các file lifecycle mới chia theo trách nhiệm, không gom vào một handler lớn.
 
 | Op | File |
 |---|---|
+| M | `packages/shared/src/notify/catalog.ts` |
+| M | `packages/shared/src/i18n/server/vi/notify.ts` |
+| M | `packages/shared/src/i18n/server/en/notify.ts` |
+| M | `apps/web/src/features/platform-admin/screens/AdminScreen.tsx` |
+| C | `packages/core/src/identity/lifecycle/step-up.ts` |
+| C | `packages/core/src/identity/lifecycle/freeze-requests.ts` |
+| C | `packages/core/src/identity/lifecycle/delivery.ts` |
+| C | `packages/core/src/identity/lifecycle/notification.rules.ts` |
+| C | `packages/core/src/identity/lifecycle/mail-templates.ts` |
+| C | `apps/web/src/features/platform-admin/components/LifecycleRequestsPanel.tsx` |
+| C | `apps/web/src/features/platform-admin/hooks/useLifecycleRequests.ts` |
+| C | `packages/db/src/lifecycle/operation-lock.ts` |
+| M | `apps/api/src/http/kernel/request-actor.ts` |
+| M | `apps/api/src/http/kernel/actions.controller.ts` |
+| M | `packages/core/src/kernel/actions/action-context.ts` |
+| M | `packages/core/src/kernel/actions/authorizer.ts` |
+| C | `packages/core/src/kernel/actions/workspace-lifecycle-context.ts` |
+| C | `apps/api/src/http/identity/lifecycle-actor.ts` |
 | M | `packages/core/src/identity/identity.module.ts` |
 | M | `packages/core/src/kernel/actions/executor.ts` |
 | M | `apps/api/src/http/identity/identity.http.module.ts` |
@@ -86,7 +105,7 @@
 2. Xácđịnhplatformreceipt/lock/actioncontext đã045b/040 tíchhợp. Các thao tác restore/ownerdelete phải chạy khi tenantkhôngmởđược; platformaudit làauthority.
 3. Đối chiếu wiring activity đã chốt ở Task 1 với hook sau045b: `executor.ts` → `activity-event.ts` → outbox → `activity-consumer.ts`; `identity.module.ts` nạp lifecycle module ở API/jobs. Không thay activity bằng timestamp lúc consumer retry; không quét mọi DB không giới hạn.
 4. Khônglogicalexport raw pg_dump: reuse038b data/artifacts, loại credentials/password/auditsecret. Noautoarchive paid/trial vì thấpcredit.
-5. Readlimits/backupencryption/keyrotation/retention từ045; restoredrill dùngfixtures riêng, pathprocessargs khônginpassword.
+5. Hợp đồng archive encryption thuộc041: streaming AES-256-GCM, nonce ngẫu nhiên không tái sử dụng, envelope version/key_id/checksum/size, key ring inject từ cấu hình bí mật045b; giữ key cũ tới khi không còn manifest tham chiếu. Không hard-code key hoặc đưa key vào archive.045 chỉ provision secret/grants/storage và runbook rotation/restore theo hợp đồng này, không là dependency thiết kế ngược. Restore drill dùng fixture riêng, process args không in password.
 
 ## TASK
 ### 1. Durable lifecycle state machine và activity
@@ -101,6 +120,7 @@
 - Internal scheduler/actions trusted source, audit+outbox; khôngGET mutate trực tiếp. Mởworkspacearchived tạo restore-request action serverauthenticatedmembership, coalesce multipleusers, status polling + workspace.ready.
 
 ### 2. Archive protocol: backup phải tốt trước DROP
+- **Fencing external operations:** `operation-lock.ts` giữ PostgreSQL session advisory lock theo workspace trên dedicated connection tới platform (không transaction pool). Mọi provision/restore/delete/archive dùng cùng lock; lease hết hạn chưa đủ cho takeover nếu lock còn giữ. Đọc lại generation/status dưới lock trước mỗi bước ngoài transaction. DROP/CREATE DATABASE chỉ thực hiện trên chính connection đang giữ lock; không dùng subprocess DROP hay pooled connection khác. Mất connection/lock → không phát lệnh destructive, abort dump/restore child, không tiếp tục trên kết nối tự reconnect. Worker mới chỉ chạy khi lấy được lock và đã dừng/quarantine process cũ; không song song restore vào cùng database name. CAS status là lớp bổ sung, không thay lock. Unit và native fault test phải làm worker cũ thức lại sau takeover mà không DROP DB generation mới.
 - Freeze/quiesce tenant: blocknewactions/AI/send040, draininflight bounded, disconnectchannel leases/IMAP, widgetoffline. Heartbeat/lease handoff race phảitest. Chưaquiesce được → khôngdump/drop.
 - Spawn pg_dump -Fc bằng execFile/argv, dbname từvalidatedregistry, hostallowlist, secrets env/PGPASSFILE permissionrestricted; khôngshellconcat. Stream output tới encryptedarchive storage path, checksumsstream; ghi manifestd durable vàreadbackchecksum.
 - pg_restore -l kiểmcatalog theoBlueprint; thêm isolatedrestore-smoke trênfixture test gate, khôngclaim -l đủprovesrestoredata. Chỉdrop sauupload/readback/hash/catalogverify+manifestcommit, registryrecord vẫnđủrecover.
@@ -109,6 +129,8 @@
 - Archivedbackup indefinite; normalfilestorage liênquan phải giữ/reference-manifest, khônggarbagecollect vìtenantDBdropped. Encryptatrest vàkeyretention đủrestore, khônglogsecrets.
 
 ### 3. Restore an toàn
+- **Member lifecycle context (không phải admin context):** `request-actor.ts` có nhánh xác thực JWT + workspace UUID + membership active chỉ từ platform; không gọi AuthzResolver.resolve vì hàm đó mở tenant trước cả nhánh Owner. `lifecycle-actor.ts` tạo capability server-only ràng buộc actor/workspace/action, không giả AuthzContext toàn quyền. ActionsController chỉ chọn nhánh này cho allowlist cố định `workspace.open`, `workspace.delete`, `workspace.freeze_request`; action open chỉ ghi activity/khởi động restore khi trạng thái cho phép. Action delete/freeze_request kiểm Owner trực tiếp từ workspace.ownerUserId và xác thực mới khi cần, không dựa tên role.
+- Context khai báo phân biệt trong `action-context.ts` và helper `workspace-lifecycle-context.ts`, authorizer/executor kiểm action trùng capability trước mọi dispatch. Vẫn cùng ActionExecutor, preview/policy/receipt/audit/platform outbox045b; không raw POST thứ hai. Bất kỳ action khác (CRM/export/admin.*) phải đi đường quyền bình thường; không dùng membership-only để đọc dữ liệu tenant. Không cho header/client source tự tạo capability. HTTP đọc trạng thái lifecycle dùng cùng kiểm membership platform, không mở tenant. Server kiểm membership/Owner lại khi confirm và khi nhận restore request; đã suspended/deleting/tombstone thì open không tự resume/restore.
 - Currentmembership hoặcplatformadmin mớirequest; untrustedpublicvisitor khôngtriggerrestore. Singlejob/generation. CreateemptyverifiedtargetDB, pg_restore roles/ownership policy, grant apppermissions, tenant-migrate currentversion, seedidempotentmissing, integritychecks.
 - KhôngdùngTenantProvisioner.provision(template) rồiđèrestore, khôngrestore vàoDBactivecódata. Partialrestore giữrestoring/failedretrycontrolled, dọnchỉDBtạmđúngjobgeneration; khôngdeleteoriginalarchive.
 - Đặtactive sauallchecks+migrations, publishworkspace.ready platformbridge vàinvalidateallprocesses; frontend“Đangkhôiphục”, progressstep/retry/error, khôngonboardingdeclareremindtrial hoặcresetwallet.
@@ -116,14 +138,18 @@
 - Benchmark <120s freefixture kíchthướcghi rõ, timeoutkhôngfalseactive. Táchthời gianqueue/dumpdownload/restore/migration; largerworkspace SLAreported khôngclaim tấtcả<2phút bằngemptyDB.
 
 ### 4. Owner danger zone và delete
+- **Step-up cụ thể:** thêm `workspace.delete_challenge` vào allowlist membership-only nhưng yêu cầu Owner, source human UI/API. `step-up.ts` tạo challenge platform gắn user/workspace/operation/delete-preview-hash/expected-version, TTL5 phút, OTP email riêng purpose delete_workspace; lưu hash có server secret, tối đa5 lần thử/challenge và rate limit5 challenge/15 phút/user+workspace. Không dùng OTP đăng nhập hoặc token workspace khác. `workspace.delete` consume challenge và ghi delete job/receipt trong cùng platform transaction sau khi xác minh OTP, Owner và preview còn khớp; replay với cùng idempotency trả kết quả cũ, key khác không tiêu lại challenge. Không nhận OTP vào model, không log plaintext; modal dùng ô bí mật và lỗi hết hạn/thử quá mức/preview thay đổi yêu cầu challenge mới.
+- **Freeze request durable:** `workspace.freeze_request` input reason≤500, preview+confirm, unique pending request/workspace, status pending/approved/rejected/cancelled, requester/time/version, audit platform. LifecycleController GET danh sách chỉ platform admin (IDs-first `(status,created_at,id)`), panel LifecycleRequestsPanel gắn AdminScreen040; dùng `admin.workspace.freeze_decide` với request_id/if_version/decision/reason qua Executor. Approve tạo durable intent gọi suspend040, chỉ đánh approved sau suspend xác nhận; retry dùng cùng request id, không tự gọi action trong DB transaction đang giữ lock. Reject không đổi trạng thái workspace. Owner đọc được kết quả yêu cầu của workspace; UI không báo thành công trước durable receipt. Admin permissions vẫn kiểm lại ở mọi bước; nếu workspace deleted/revoked requester thì request thành cancelled với lý do.
 - Áp đềxuấttối thiểuquyền: Owner freeze = gửi yêu cầuplatformadmin, khôngtựarchive/suspend; admin xửlý040. Ownerexport = logicalscopedbusinessdata+allowedfiles038b, khôngrawDBbackup. Ownerdelete explicitworkspaceidentity+freshreauth/OTP+preview consequences, servercheckexactowner; khôngdùngsettings.manage thayOwner.
 - Workspace.delete platformoperation đủauthorizer hiện hữu, không cầntenantlog. Khônggrantagent/assistant quyềndelete; assistantchỉhướngdẫn humanconfirmation. Revokeuser/ownershipbetweenpreviewconfirm fail.
 - Deletionbackup30ngày encrypted, tách archivedbackupindefinite. Workspaceactive dumpverified nhưarchive, archived reuseverifiedmanifest chuyểnretentiontombstone. DROP idempotent rồi revoke routing/memberships/sessions/access; giữminimalplatformtombstone/backupmanifest/job đểrecovery/purge, không orphanarchive vìxoáregistry trướcmanifest.
 - Billingpaidexpired giữ30daydata theo039 khôngđồngnghĩa auto-deletetenant: chỉexplicitdelete ởđây; freeinactivearchive90 khácpolicy. Khôngxoábillingfinancialaudit/logs theoownerdelete nếuretentionbắtbuộc, UI nêu rõretaineddata.
 - Purge chỉbackupdeletion khi now>=expires_at, nohold/reference, securepathallowlist; jobreplay khôngpurgeactivearchive. Khôngcommandbatchcomputedpathra ngoàiarchive root.
+- Khi delete, enumerate **mọi** archive generation và attachment reference của workspace, không chỉ archive_key hiện tại. Tất cả chuyển deletion retention expires_at=deleted_at+30ngày trong transaction tombstone, trừ legal hold có lý do/authority/audit. Shared object chỉ xoá khi không còn reference hợp lệ; hold không âm thầm kéo dài toàn workspace. AC07 phải có archive→restore→archive→delete với hai generation, shared file và hold; sau hạn không còn bản indefinite bị bỏ quên.
 - Logo trongREQM01c khôngthuộclifecycle, gánsupplementalsettings đểkhôngẩnloophole.
 
 ### 5. Wiring, query/index/UI
+- **Delivery rõ ràng:** cảnh báo14 ngày là lifecycle transactional notice, không marketing unsubscribe. `delivery.ts` giữ platform delivery receipt/outbox riêng theo workspace/window/channel; email dùng MAIL_PROVIDER đã cấu hình (export qua identity module), nội dung vi/en tại mail-templates.ts. `notification.rules.ts` đăng ký kind archive_warning với catalog/server locale manifest, tạo tenant notification khi DB còn active; gửi ready sau restore/invalidation, không mở tenant notification lúc DB đã DROP. Trạng thái lỗi/recovery lưu platform và trả qua lifecycle status polling cho user có membership/admin. Email thất bại retry bounded có last_error/next_attempt; acceptance kiểm provider accepted và persisted in-app notice, không coi enqueue là delivered. Không gia hạn deadline từ mỗi retry; cảnh báo chưa giao thành công thì không archive theo lịch, hiện admin cảnh báo để xử lý. Preference marketing không tắt cảnh báo mất truy cập; không gửi PII/secret/archive key qua mail. `workspace.ready` dùng realtime emitter sau restore active và scope membership hiện tại; polling là fallback nếu offline, không mất state vì socket thất bại.
 - Tenantqueue dispatcher duy nhất xửlýprovision/archive/restore/delete theojobname; khôngđặtworkerschỉreturn jobkhác nhưdone. Provisionguard active/provisioning only, archived/deletingreject.
 - StateAPI platform-only trảjobsteps/errorredacted, khôngdump paths/credentials. RESTread/no mutation, actionrequestsameExecutor. Adminbuttons040 gọi041 khihandlerready.
 - Owner DangerModal vàRestoringCard táchfile, i18nvi/en, UI khôngtoast“đãgửi” khichưa durablepersist. Authzguard serverclient, mobile/keyboard/retryfocus.
@@ -139,6 +165,8 @@
 6. **AC06 delete:** Given Owner/nonOwner/revokedOwner/archivedworkspace; When preview/OTP/confirm; Then rolecheckfresh, onlyOwner/adminallowed, encryptedbackup30ngày,tombstonedaccess, noagentdelete.
 7. **AC07 purge/export:** Given indefinitearchive vsdeletedexpiry, foreignpath/tenantfile; When purge/export; Then khôngpurgeindefinite/live, onlyexpiredcorrectkey, logicalexportkhôngsecrets, deniedrequestkhôngartifact.
 8. **AC08 jobs/UI:** Given concurrentprovision/restore/archive, unavailableDB,channelsqueued; When dispatch/UI; Then khôngemptyreprovision/joblost/queuedoutboundsend, state/progress/retry thật vi/en/mobile, realQRreconnect nếuexpired.
+
+**AC04/06 bắt buộc thêm matrix HTTP:** Given tenant DB đã DROP, user còn membership hoặc vừa bị revoke; When open/status/delete/freeze_request và thử contact.search/admin.workspace.restore bằng cùng headers; Then chỉ allowlist đúng quyền chạy được mà không gọi tenant resolver; revoke bị từ chối, nonOwner không delete/freeze, không mint quyền admin; suspended không tự mở lại. Đo spy resolver kết hợp integration DB thật, không chỉ mock toàn bộ actor.
 
 ### Lệnh builder (chưa chạy ởpha docs)
 ```powershell
