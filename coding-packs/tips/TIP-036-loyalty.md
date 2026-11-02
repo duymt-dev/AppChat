@@ -1,6 +1,7 @@
 # TIP-036 — Loyalty: sổ điểm, đổi điểm, hạn điểm, hạng và nối HTTP
 
 ## HEADER
+- **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - **Parallel-safe with TIP-042c:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
 - **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
 - **Parallel-safe with TIP-042:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042. Recheck intersections when incomplete manifests are expanded.

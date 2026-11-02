@@ -1,6 +1,8 @@
 # TIP-042 — Vai trò tuỳ biến, Nhóm và vòng đời cấp/thu hồi quyền
 
 ## HEADER
+- **Additional overlap with TIP-037 caps UI:** sequential, shares `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`; integrate this TIP before 037.
+- **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - **Additional overlap with TIP-042c:** sequential, shares `packages/core/src/authz/services/authz-resolver.ts`; integrate042 before042c and retest role lifecycle/cache with effective writeScope metadata.
 - **Parallel-safe with TIP-042c:** sequential, shares `apps/api/test/integration/authz.test.ts`, `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/authz/public.ts`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
 - **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/src/features/settings/registry.ts`, `apps/web/src/features/settings/screens/SettingsScreen.tsx`, `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.

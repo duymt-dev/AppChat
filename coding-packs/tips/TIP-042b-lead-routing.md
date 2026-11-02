@@ -1,6 +1,8 @@
 # TIP-042b — Chia lead mới và cấu hình routing theo tài khoản kênh
 
 ## HEADER
+- **Additional overlap with TIP-037 caps UI:** sequential, shares `packages/actions/src/settings-apps.ts`, `packages/core/src/channels/services/accounts.service.ts`, `packages/shared/src/api/channels.ts`, `apps/web/src/features/settings/channel-types.ts`, `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`, `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`; integrate this TIP before 037.
+- **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - **Parallel-safe with TIP-042c:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/inbox/services/pipeline.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/core/src/crm/routing/routing.handlers.ts`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
 - TIP-ID: TIP-042b; Project: AppChat V2; Module: CRM lead routing + settings; Priority: P1; Estimated: L.
 - Depends on: 014/015/016/017/018, 042 (team + active membership), 045b (trusted system-action boundary); sau các TIP chung file bên dưới, trước044/046.

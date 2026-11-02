@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-037:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - TIP-ID: TIP-042c; Project: AppChat V2; Module: authz data-access across CRM/inbox/sales/booking/support; Priority: P0 security + P1 team; Estimated: XL.
 - Depends on:005/015/016/029–034,042/042b/045b; tích hợp sau015b/020b/023b/023c/030b/032b/036/043 có shared domain; trước044/046.
 - **Gate:** Q-029 phải chốt semantics team nhiều nhóm trước build phần team/backfill. Không tự biến teamUserIds thành OR team_id để “tương thích” nhưng mở rộng quyền. Watcher/read-write có luật D32 rõ, không chờ để nghiên cứu.

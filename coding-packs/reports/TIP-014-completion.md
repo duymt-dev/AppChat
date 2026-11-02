@@ -57,3 +57,7 @@
 ## Supplemental routing plan (2026-11-02)
 
 [ TIP-042b ](../tips/TIP-042b-lead-routing.md) owns the missing first-owner lead-routing runtime and UI, with opt-in migration, no-steal/CAS and durable event-to-ActionExecutor processing. Assignment settings stored today are not proof of runtime allocation. See [routing audit](routing-planning-audit-2026-11-02.md). SLA selection is not closed by this supplemental TIP.
+
+## Supplemental marketing plan (2026-11-02)
+
+See [TIP-037](../tips/TIP-037-marketing.md) and [marketing audit](marketing-planning-audit-2026-11-02.md): campaign dispatch must share account throttling/caps, persist delivery attempts beyond Redis retention, and distinguish unknown provider outcomes from definite failures. D35c default quota and cap override UI remain pending; this plan does not certify real-provider delivery.

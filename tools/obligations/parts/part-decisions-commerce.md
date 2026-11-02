@@ -172,7 +172,8 @@
 | D34 | Email hệ thống Brevo qua `MailProvider`, SMTP dự phòng | 01-REQUIREMENTS-MATRIX.md:283 | 004 | CHỜ-TK | integrations/src/connectors/brevo/mail.ts · test ports.test.ts, smtp.test.ts; Q-004 |
 | D35a | Ngưỡng eval: an toàn 100%, chọn action ≥ 95%, rubric ≥ 90% | 01-REQUIREMENTS-MATRIX.md:284 | 044 | CHƯA | Chưa có harness eval |
 | D35b | Uỷ quyền ký HĐ / duyệt hoàn tiền cho Quản lý mặc định tắt | 01-REQUIREMENTS-MATRIX.md:284 | 005 | ĐẠT | shared/src/authz/roles.ts:27-31; permissions.ts:46 · test roles.test.ts "manager lacks owner-only and delegated permissions" |
-| D35c | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:284 | — | MỘT PHẦN | Jitter có (manifest.ts:22); manifest không đặt `perDayProactive` → mặc định không giới hạn (DC-073) trái D35 |
+| D35c | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:284 | 037 | MỘT PHẦN | manifest không perDayProactive; send.processor chốtcap khi open và đếm attempts. TIP037 AC5 nối default200/cap retry-safe/UI cảnh báo, không coi jitter là đủ |
+| Q-030 | Chốt Credit dự toán/thu phí marketing ngoài AI | QUESTIONS.md:Q-030; REQ-I04 | 037 | CHƯA | Đã hỏi, chưa trả lời; không tự đặt giá mỗi tin từ số mock |
 | D35d | Tra MST qua VietQR | 01-REQUIREMENTS-MATRIX.md:284 | 004 | ĐẠT | integrations/src/connectors/vietqr/tax-lookup.ts · test ports.test.ts VietQrTaxLookupProvider |
 | D36 | Blueprint đã duyệt | 01-REQUIREMENTS-MATRIX.md:285 | — | QUY-TẮC | Quy trình |
 | D37 | Không làm MCP ở bản phát hành | 01-REQUIREMENTS-MATRIX.md:286 | — | NGOÀI | D37 |

@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Checkpoint marketing mới nhất:** có `TIP-037-marketing.md` (93 file,10 AC), nhận thêm D35c quota200 tin/ngày; Q-030 đang hỏi Credit mỗi tin hay chỉAI. Bao gồm snapshot duyệt, cooldown48h/unsub, unknown-send recovery, import/export/resend/AI thật; không giả exactly-once. Sổ **1.463 dòng/216 lỗ hổng**. Xem `reports/marketing-planning-audit-2026-11-02.md`; chưa code/chưa independent review.
+
 - **Checkpoint scope mới nhất:** thêm `TIP-042c-record-scope.md` (69 file, 8 AC), gán COM-8b-2; gateQ-029 đang hỏi semantics team nhiều nhóm. Rà thấy helper detail cho owner qua trước none và writable inbox dùng read guard; hạ2 dòng ĐẠT quá rộng. Field-level giữ045b. Sổ **1.462 dòng/217 lỗ hổng**; xem `reports/scope-planning-audit-2026-11-02.md`. Chưa code/chưa independent review.
 
 - **Checkpoint routing mới nhất:** đã viết `TIP-042b-lead-routing.md` (44 file, 8 AC), kiểm luồng inbound/contact owner, ghi DC-238 opt-in và định nghĩa tải/lead mới. 042c vẫn chưa có file. REQ-B11d còn SLA nên chưa gán/đánh đạt cả dòng. Sổ vẫn 1.460 dòng/218 lỗ hổng; chưa code, chưa rà độc lập. Xem `reports/routing-planning-audit-2026-11-02.md`.

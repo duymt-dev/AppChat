@@ -42,3 +42,7 @@
 - TIP-044 (hạ tầng): worker `ROLE=channels` cần ra cổng 993 / 465 / 587; không đặt `MAIL_TRANSPORT` (mặc định `imap`).
 - TIP-022 (AI copilot): nội dung thư đã bỏ trích dẫn — agent đọc `message.body`; tiêu đề ở `email_thread.subject`.
 - Q-016: khi có app OAuth Google / Microsoft → thêm `connect.kind: 'oauth'` cho email, transport dùng XOAUTH2.
+
+## Supplemental marketing plan (2026-11-02)
+
+See [TIP-037](../tips/TIP-037-marketing.md) and [marketing audit](marketing-planning-audit-2026-11-02.md): campaign dispatch must share account throttling/caps, persist delivery attempts beyond Redis retention, and distinguish unknown provider outcomes from definite failures. D35c default quota and cap override UI remain pending; this plan does not certify real-provider delivery.

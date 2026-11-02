@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 116 | 22 | 8 | 12 | 23 | 2 | 0 | 29 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 45 | 11 | 21 | 23 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 46 | 11 | 21 | 22 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 93 | 196 | 5 | 4 | 81 | 1 | 0 | 23 |
 | E. standards/* | 157 | 39 | 2 | 6 | 62 | 2 | 40 | 38 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 42 |
-| **Tổng** | **566** | **323** | **118** | **42** | **313** | **34** | **66** | **217** |
+| **Tổng** | **566** | **323** | **118** | **42** | **314** | **34** | **66** | **216** |
 
-## Lỗ hổng chưa có TIP nhận (217)
+## Lỗ hổng chưa có TIP nhận (216)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -83,7 +83,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-10-4 | CHƯA | Hạ gói có hiệu lực từ kỳ sau | C |
 | D28b | GIẢ | SePay / Casso của DN phát hành thật | C |
 | D28c | MỘT PHẦN | Connector storage phát hành | C |
-| D35c | MỘT PHẦN | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | C |
 | D48 | MỘT PHẦN | Research / Web search khoá "Sắp có" | C |
 | D52d | CHƯA | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | C |
 | DC-029 | CHƯA | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | C |
@@ -786,7 +785,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D34 | Email hệ thống Brevo qua `MailProvider`, SMTP dự phòng | 01-REQUIREMENTS-MATRIX.md:283 | 004 | CHỜ-TK | integrations/src/connectors/brevo/mail.ts · test ports.test.ts, smtp.test.ts; Q-004 |
 | D35a | Ngưỡng eval: an toàn 100%, chọn action ≥ 95%, rubric ≥ 90% | 01-REQUIREMENTS-MATRIX.md:284 | 044 | CHƯA | Chưa có harness eval |
 | D35b | Uỷ quyền ký HĐ / duyệt hoàn tiền cho Quản lý mặc định tắt | 01-REQUIREMENTS-MATRIX.md:284 | 005 | ĐẠT | shared/src/authz/roles.ts:27-31; permissions.ts:46 · test roles.test.ts "manager lacks owner-only and delegated permissions" |
-| D35c | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:284 | — | MỘT PHẦN | Jitter có (manifest.ts:22); manifest không đặt `perDayProactive` → mặc định không giới hạn (DC-073) trái D35 |
+| D35c | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:284 | 037 | MỘT PHẦN | manifest không perDayProactive; send.processor chốtcap khi open và đếm attempts. TIP037 AC5 nối default200/cap retry-safe/UI cảnh báo, không coi jitter là đủ |
+| Q-030 | Chốt Credit dự toán/thu phí marketing ngoài AI | QUESTIONS.md:Q-030; REQ-I04 | 037 | CHƯA | Đã hỏi, chưa trả lời; không tự đặt giá mỗi tin từ số mock |
 | D35d | Tra MST qua VietQR | 01-REQUIREMENTS-MATRIX.md:284 | 004 | ĐẠT | integrations/src/connectors/vietqr/tax-lookup.ts · test ports.test.ts VietQrTaxLookupProvider |
 | D36 | Blueprint đã duyệt | 01-REQUIREMENTS-MATRIX.md:285 | — | QUY-TẮC | Quy trình |
 | D37 | Không làm MCP ở bản phát hành | 01-REQUIREMENTS-MATRIX.md:286 | — | NGOÀI | D37 |
