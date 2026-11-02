@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 50 | 11 | 21 | 10 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 110 | 1 | 0 | 5 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 110 | 1 | 0 | 4 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 18 |
-| **Tổng** | **541** | **389** | **118** | **41** | **374** | **34** | **66** | **88** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 17 |
+| **Tổng** | **541** | **389** | **118** | **41** | **374** | **34** | **66** | **86** |
 
-## Lỗ hổng chưa có TIP nhận (88)
+## Lỗ hổng chưa có TIP nhận (86)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -53,7 +53,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-doc_template.create | MỘT PHẦN | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
-| BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
@@ -102,7 +101,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-013-1 | CHƯA | Chuyển phụ trách khách của thành viên bị gỡ | G |
 | DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
 | DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
-| DEF-027-2 | CHƯA | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | G |
 | DEF-028-1 | MỘT PHẦN | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | G |
 | DEF-030-3 | CHƯA | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | G |
 | DEF-031-4 | CHƯA | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | G |
@@ -1118,7 +1116,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-b | helmet | plans/BLUEPRINT.md:1348 | 045b | CHƯA | không có helmet / security header; 045b chỉ nói CORS ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-9-c | Rate limit chung actions | plans/BLUEPRINT.md:1348 | 045b | MỘT PHẦN | kernel/rate-limit.ts chỉ dùng cho auth / ký / widget |
 | BP-9-d | Outbox retry 2^n tối đa 8 rồi dead-letter | plans/BLUEPRINT.md:1344 | 003 | ĐẠT | kernel/outbox/relay.ts:8,46-52; test relay-sequence.test.ts |
-| BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | — | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm |
+| BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | 045 | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm 045 SPEC2.5/AC3/6 explicitly implements /healthz→/v1/health and /readyz→real readiness; both tested with dependency failure, no runtime claim. |
 | BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | — | CHƯA | không file error.tsx / ErrorBoundary trong apps/web/src |
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | CHƯA | prom-client chưa cài |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
@@ -1702,7 +1700,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | CHƯA | apps/web/src/features/inbox/components/Blocks360.tsx:2-3 "chưa có dữ liệu". TIP015b đã bổ sung customer-links/KPI/SLA/CSAT, shared DTO và Blocks360 trong manifest sau review2026-11-02; chỉ kế hoạch, chưa code/nghiệm thu. |
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | 026b | CHƯA | Không có load-more ở features/customers |
 | DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
-| DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | — | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser |
+| DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | 045 | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser 045 SPEC1.5/AC2 production-bootstrap regression covers fresh clone + older migrated fixture domain/outbox write as tenant_app; historical denial root cause remains unproved until reproduced, not cured by superuser. |
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | — | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |
 | DEF-029-1 | Gửi báo giá / HĐ / đề nghị / nhắc hẹn / CSAT qua Zalo / Email thật | reports/TIP-029:28; 030:29; 032:28; 033:29; 034:29; 035:30 | — | CHỜ-TK | Q-003 / Q-004 (adapter giả) |

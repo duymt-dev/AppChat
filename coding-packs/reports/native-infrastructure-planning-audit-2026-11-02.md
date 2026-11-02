@@ -34,3 +34,9 @@ Q006 real host/domain/offsite/MFA/notification/restore resources block only real
 - Both explicitly exclude runtime/production acceptance. Pause availability, multi-cluster recovery and measured RPO/RTO still require implementation/native evidence. This report does not close whole-goal audit.
 
 Final static checks before checkpoint commit: ledger regeneration1563 rows/88 unowned; whitespace check clean; explicit integration-header graph1168 edges/53 nodes acyclic (not full semantic graph proof).
+
+## Small owner delta after infrastructure checkpoint
+- BP-9-e: real nginx /healthz alias to /v1/health plus /readyz alias to actual readiness, negative dependency test distinguishes liveness from readiness (SPEC2.5,AC3/6).
+- DEF-027-2: native fresh-clone + older-migrated fixture domain/outbox write under tenant_app, explicit grants/default-privileges test and no historical-root-cause overclaim (SPEC1.5,AC2).
+- audit_blueprint_remainder independently rechecked these two saved deltas: existing manifest seams suffice, no additional concrete planning gap. No runtime acceptance. Ledger1563/86unowned, manifest remains186paths/11futureM/42pairs,19soleowner rows.
+- Release046 and RAG model lifecycle source inventories saved separately; neither is a full new pack and neither changes owners yet.

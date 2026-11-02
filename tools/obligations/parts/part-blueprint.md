@@ -373,7 +373,7 @@
 | BP-9-b | helmet | plans/BLUEPRINT.md:1348 | 045b | CHƯA | không có helmet / security header; 045b chỉ nói CORS ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-9-c | Rate limit chung actions | plans/BLUEPRINT.md:1348 | 045b | MỘT PHẦN | kernel/rate-limit.ts chỉ dùng cho auth / ký / widget |
 | BP-9-d | Outbox retry 2^n tối đa 8 rồi dead-letter | plans/BLUEPRINT.md:1344 | 003 | ĐẠT | kernel/outbox/relay.ts:8,46-52; test relay-sequence.test.ts |
-| BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | — | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm |
+| BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | 045 | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm 045 SPEC2.5/AC3/6 explicitly implements /healthz→/v1/health and /readyz→real readiness; both tested with dependency failure, no runtime claim. |
 | BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | — | CHƯA | không file error.tsx / ErrorBoundary trong apps/web/src |
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | CHƯA | prom-client chưa cài |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
