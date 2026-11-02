@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Checkpoint routing mới nhất:** đã viết `TIP-042b-lead-routing.md` (44 file, 8 AC), kiểm luồng inbound/contact owner, ghi DC-238 opt-in và định nghĩa tải/lead mới. 042c vẫn chưa có file. REQ-B11d còn SLA nên chưa gán/đánh đạt cả dòng. Sổ vẫn 1.460 dòng/218 lỗ hổng; chưa code, chưa rà độc lập. Xem `reports/routing-planning-audit-2026-11-02.md`.
+
 - **Checkpoint authz mới nhất:** thêm `TIP-042-custom-roles-teams.md` (62 file, 9 AC; chưa ready-to-build vì Q-028). Tách 042b routing và042c scope/serializer vào graph nhưng **chưa viết file**. Hạ hai bằng chứng ĐẠT chưa đủ; sửa Nhóm P1 không còn NGOÀI. Sổ **1.460 dòng, 218 lỗ hổng**; xem `reports/authz-planning-audit-2026-11-02.md`. 042 tích hợp sau045b (consistency hai DB), không dùng số TIP làm thứ tự. Chưa rà độc lập, chưa code.
 
 - **Checkpoint KB mới nhất:** có `TIP-020b-kb-source-management.md` và `TIP-043-kb-conversation-learning.md`; năm nghĩa vụ đã có TIP cụ thể nhận, còn **218 lỗ hổng / 1.459 dòng**. Xem `reports/kb-planning-audit-2026-11-02.md`. Privacy vẫn chưa có TIP; đã dành riêng tên contact.forget, xoá fact 015b dùng contact.memory_forget. Chưa rà độc lập, chưa bắt đầu code.

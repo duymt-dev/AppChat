@@ -52,3 +52,7 @@
 - TIP-017 / 018: adapter webchat / email chỉ cần đẩy `NormalizedInbound` vào `channel-inbound` (pipeline dùng chung) + gửi theo `OutboundMessage`.
 - TIP-022: `message.received` (payload có `is_group`, `mentions_me`, `vip`) là đầu vào agent; `ai_state` / `handoff_reason` do AI đổi; `suggestion` của thread trả từ run copilot.
 - TIP-025: FE chuyển sang `httpTransport` cho Hộp thư — gửi `folder` thay lọc tab ở client, đọc `/messages/search` thay lọc ở client.
+
+## Supplemental routing plan (2026-11-02)
+
+[ TIP-042b ](../tips/TIP-042b-lead-routing.md) owns the missing first-owner lead-routing runtime and UI, with opt-in migration, no-steal/CAS and durable event-to-ActionExecutor processing. Assignment settings stored today are not proof of runtime allocation. See [routing audit](routing-planning-audit-2026-11-02.md). SLA selection is not closed by this supplemental TIP.

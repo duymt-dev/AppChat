@@ -1,6 +1,7 @@
 # TIP-042 — Vai trò tuỳ biến, Nhóm và vòng đời cấp/thu hồi quyền
 
 ## HEADER
+- **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/src/features/settings/registry.ts`, `apps/web/src/features/settings/screens/SettingsScreen.tsx`, `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
 - TIP-ID: TIP-042; Project: AppChat V2; Module: authz / identity / settings; Priority: P1; Estimated: XL.
 - Depends on: 005, 006, 013, 015; tích hợp sau 023b/023c/030b/032b/015b/036/020b/043/045b vì file chung. Phần sửa consistency hai DB của 045b phải có trước nghiệm thu lifecycle ở đây.
 - **Trạng thái thiết kế:** bản đầy đủ cấu trúc, chưa ready-to-build: Q-028 cần chốt biên quyền tuỳ biến/uỷ quyền; không tự mở rộng quyền. Câu A phải hoàn tất trước code.

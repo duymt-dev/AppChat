@@ -52,3 +52,7 @@
 - TIP-018: `contact.send_email` gửi qua kênh Email (bỏ 409).
 - TIP-028 / 033: consumer `contact.owner_changed` (báo giá, lịch hẹn); KPI 360° + LTV ở `/contacts/stats`.
 - TIP AI: cột "AI gợi ý", `/crm/ai`, tóm tắt 360°, `contact.remember`.
+
+## Supplemental routing plan (2026-11-02)
+
+[ TIP-042b ](../tips/TIP-042b-lead-routing.md) owns the missing first-owner lead-routing runtime and UI, with opt-in migration, no-steal/CAS and durable event-to-ActionExecutor processing. Assignment settings stored today are not proof of runtime allocation. See [routing audit](routing-planning-audit-2026-11-02.md). SLA selection is not closed by this supplemental TIP.

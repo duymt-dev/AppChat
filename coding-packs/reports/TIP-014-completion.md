@@ -53,3 +53,7 @@
 - TIP-017 / 018: adapter webchat / email gắn vào `buildChannelRegistry`; `channel.email.connect`, `channel.test` dạng form.
 - TIP-021: cài `AgentNames` (tên agent theo id) + kiểm `agent_id` tồn tại.
 - TIP-037: cap tin chủ động / ngày (Q-013) qua `settings.daily_cap` / manifest.
+
+## Supplemental routing plan (2026-11-02)
+
+[ TIP-042b ](../tips/TIP-042b-lead-routing.md) owns the missing first-owner lead-routing runtime and UI, with opt-in migration, no-steal/CAS and durable event-to-ActionExecutor processing. Assignment settings stored today are not proof of runtime allocation. See [routing audit](routing-planning-audit-2026-11-02.md). SLA selection is not closed by this supplemental TIP.
