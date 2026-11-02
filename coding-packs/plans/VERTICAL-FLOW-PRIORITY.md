@@ -34,3 +34,5 @@ Chủ nhà yêu cầu2026-11-02; áp dụng cho câu A (chỉ tài liệu). Khô
 026b adds grounded CRM360 note/comment/manual-task/opportunity controls and AI-first real files for those datasets. These are not payments, appointments or autonomous AI tasks.015d still needs merge/transfer/delete/restore/forwarding,015c privacy. A local checkpoint does not close the vertical or whole-goal audit.
 
 015d now plans atomic contact ownership across openconversations/currentquotes/upcomingappointments with realAIapproval and immutablequoteattribution. Fullcontract/order attribution bug remains032c, merge/delete/restore015e andprivacy015c still needtheir packs. See ownership source review; no runtimePASS.
+
+032c now specifies contract/order immutable attribution versus responsible assignment, rowCAS and safe inverse across manual/AI/file/conversion paths. It follows015d; contact lifecycle015e/privacy015c remain separate, and the earlier broad015d reservation is superseded by these explicit boundaries. No runtime acceptance.

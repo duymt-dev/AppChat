@@ -1,10 +1,10 @@
-# Contact ownership transfer planning audit ? 2026-11-02
+# Contact ownership transfer planning audit — 2026-11-02
 
-Scope: c?u A, docs only; TIP015d and DC254. No application code, native service, database or provider execution changed.
+Scope: câu A, docs only; TIP015d and DC254. No application code, native service, database or provider execution changed.
 
 ## Source findings and bounded ownership
-- contact-owner.handlers.ts:81?120 returns zero quote/appointment counts while a later sales consumer mutates quote.ownerUserId. Atomic contact/conversation/eligible quote/upcoming appointment transaction replaces asynchronous mutation, via neutral registered ports rather than circular CRM?Sales/Booking imports.
-- policy.ts:9?14 permits AI writes without D32 approval. Declarative trusted-source policy now mandates actual approval; requester/approver/recipient and current contact authority checked at preview/decision/consume/commit.
+- contact-owner.handlers.ts:81–120 returns zero quote/appointment counts while a later sales consumer mutates quote.ownerUserId. Atomic contact/conversation/eligible quote/upcoming appointment transaction replaces asynchronous mutation, via neutral registered ports rather than circular CRM→Sales/Booking imports.
+- policy.ts:9–14 permits AI writes without D32 approval. Declarative trusted-source policy now mandates actual approval; requester/approver/recipient and current contact authority checked at preview/decision/consume/commit.
 - Quote owner is immutable creation attribution under COMMERCE8b; separate operational assigned_user_id with its own assignment revision, current-scope reads and labeled export columns. No retrospective attribution guess, KPI rewrite or permission grants. Contract/order equivalents remain unowned032c.
 - owner-move.ts assignment/event mismatch and field-only undo expose stale AI/ABA. Forward transfer and guarded all-or-conflict undo advance fences/revisions; appointment staff/time/resources remain unchanged.
 - crm-notify.ts recipient-only, actor skip and persisted contact name/link violate both-party/current-scope needs. Ref-based notice binding projects current authority at history/WS/mail dispatch, no queued PII fallback.
@@ -20,8 +20,8 @@ Recheck confirmed all local findings closed at planning level; no new local bloc
 
 ## Actual validation
 - Preflight recomputed all intersections before adding manifest paths and bilateral sequential declarations.
-- Local validator: **161 unique exact M/C paths,16 future M,24 bilateral pairs,9 owned COVERAGE IDs,10 mandatory sections ? PASS**. Future M has predecessor creator provenance; new C paths do not conflict with another creator.
-- `python -X utf8 tools/obligations/merge.py`: **1501 rows /149 unowned gaps**; ??T548, CH?-TK41, M?T PH?N358, CH?A336, GI?118, NGO?I34, QUY-T?C66. No runtime status promoted.
+- Local validator: **161 unique exact M/C paths,16 future M,24 bilateral pairs,9 owned COVERAGE IDs,10 mandatory sections — PASS**. Future M has predecessor creator provenance; new C paths do not conflict with another creator.
+- `python -X utf8 tools/obligations/merge.py`: **1501 rows /149 unowned gaps**; ĐẠT548, CHỜ-TK41, MỘT PHẦN358, CHƯA336, GIẢ118, NGOÀI34, QUY-TẮC66. No runtime status promoted.
 - `git -c core.safecrlf=false diff --check`: PASS. Only documentation and generated ledger changed. AC commands are future execution requirements, not tests run during planning.
 
 ## Continue, not stop

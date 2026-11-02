@@ -40,3 +40,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung2026-11-02 — tenant bank/runtime integration
 
 TIP-012b-bank-connectors.md nhận adapter tenant thật, strict money/account normalization, canonical durable hook/pull/reconnect receipts và payment-event→AI task dispatch dedupe. Existing tests/DONE do not establish these missing/crash seams. Tenant Brevo/SMTP separate012c; no runtime/provider acceptance claimed. See bank-connectors-planning-audit-2026-11-02.md.
+
+## Bổ sung planning032c — 2026-11-02
+
+[TIP032c](../tips/TIP-032c-commerce-edit-integrity.md) receives source-audited contract/order attribution versus operational assignment, rowCAS and guarded inverse defects. Existing completed TIP unchanged; this report does not imply new runtime evidence. Native owner guards/current-scope/retained audit and AI/manual file regression must be executed later. Other-domain CAS remains open.
