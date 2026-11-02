@@ -10,7 +10,7 @@
 - **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `packages/core/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038. Recheck after incomplete manifests expand.
 - TIP-ID: TIP-037; Project: AppChat V2; Module: marketing; Priority: P1; Estimated: XL (schema/query → lifecycle → dispatch → AI/UI).
 - Depends on:014–018/019/021/022/026,023b/023c; integrate sau015b/020b/030b/032b/036/042/042b/042c/043/045b vì shared files, trước038/044/046.
-- **Gate:** Q-030 chưa chốt cách tính Credit ngoài AI; không tự đặt giá mỗi tin hoặc lấy con số mock làm giá. Các phần khác vẫn lập kế hoạch/kiểm chứng.
+- **Credit policy:** Q030 đã đóng theo DC246: chỉ charge AI theo pricebook hiện hữu, không phát sinh per-message tariff; provider fee ngoài hệ thống không được gọi là miễn phí. Không lấy con số mock làm giá.
 - **Dòng COVERAGE nhận:** REQ-I01–I05, REQ-B04c, D08b, D35c, D52e, STD-actions-registry-11d; ACT-segment.preview/create/update/delete, ACT-campaign.suggest/create/update/submit/send_test/approve/reject/pause/resume/cancel/delete; BP-4.4-marketing; BP-4.1-d/STD-api-envelope-2b phần campaigns; PRO-marketing-read/actions/analyze/wizupload/wiztone/detailexport/resend/rowai/recipacts; Q-030.
 - **Parallel-safe with:** sequential; shares `packages/actions/src/index.ts` với015b/020b/023b/023c/030b/032b/036/042/042b/043/045b; `packages/core/src/ai/jobs/ai.jobs.module.ts` với023b/036/043/045b; shared API/core index, locales/Blueprint/parity/deviations có giao với020b/036/042/042b/042c/043. Hai chiều đã ghi trong12 TIP có giao file; mọi TIP đó trước037. Không mở song song với manifest chưa hoàn thiện.
 - **Files touched:** C=create, M=modify, bảng dưới; chưa code cho đến câu A hoàn tất.
@@ -129,7 +129,7 @@
 - ui/frontend-structure.md; ui/prototype-parity.md; ui/interaction-patterns.md; i18n/i18n.md; code/file-size-module-layout.md; code/testing.md; D59.
 
 ## Rà trước khi làm
-1. ChốtQ-030; kiểm pricebook/provider thật, không tự thu tiền theo mock. Đọc Q-013/DC-073 cũ: D35 đã có200/ngày, không giữ vô hạn vì deferred note.
+1. Áp DC246/Q030; kiểm pricebook/provider thật, không tự thu tiền theo mock. Đọc Q-013/DC-073 cũ: D35 đã có200/ngày, không giữ vô hạn vì deferred note.
 2. Rà gateway AI credit/run/step + approval, trusted internal actions045b và scope042c. Action catalog023b chỉ công bố handler thật; không gọi state transition bằng raw controller SQL.
 3. Kiểm channels send retry/crash semantics và provider idempotency. Không hứa exactly-once khi provider không hỗ trợ; unknown outcome phải có trạng thái xử lý, không retry mù.
 4. So mapping sender account email/Zalo: campaign hiện chỉ channel type, cần lựa chọn tài khoản cụ thể, quota/cap/identity phù hợp. Không gửi lạnh tới số điện thoại bất kỳ khi Zalo manifest proactive disallowed.
@@ -175,7 +175,7 @@ Thực hiện trọn luồng từ chọn phân khúc/nhập danh sách, AI đề
 - Gợi ý thời gian “ai_time” thành timestamp timezone rõ trong draft/preview; approve chốt timestamp, không LLM tự đổi lịch sau approve. Empty data/LLM error có state thật và Tạo thủ công luôn dùng được.
 - Variables allowlist theo dữ liệu được phép, escape context email/text; thiếu giá trị fallback rõ trong preview, unknown variable422. AB text_b deterministic50/50 theo hash(campaign,contact), không tự đổi nội dung/chọn thắng rồi gửi đợt2 ngoài snapshot.
 - Validate nội dung sau render theo maxTextLength/capability account (Zalo hiện2000 dù action chung4000); không silenttruncate/chẻ thành nhiều tin ngoài snapshot/cap. Email cần subject; schedule phải ISOoffset và tương lai ở Clock server; schedule đã qua khi approve cần human xác nhận lại thời điểm, không gửi bất ngờ.
-- **Q-030:** est_credits lấy cấu hình giá được duyệt; credit AI theo CreditMeter hiện tại và actual token usage. Không invented send tariff, không dùng 1180 người×mockrate. Nếu chưa có giá per-send, ghi estimate unresolved và chặn nghiệm thu phần charge thay vì trả0 như “miễn phí đã duyệt”. Thiếu credit chặn AI đúngD09, không trả sau/fallback model rẻ.
+- **DC246/Q030:** est_credits chỉ dự toán AI qua model price/ước lượng token có căn cứ, charge actual usage qua CreditMeter một lần. Số tin/người nhận hiển thị riêng, không nhân mockrate hoặc tạo send tariff. Không chạy AI thì AI Credit có thể0 với nhãn đúng, không suy ra provider email/Zalo miễn phí. Usage chưa xác định hiển thị range/unknown, không giá chính xác giả. Thiếu credit chặn AI đúngD09; gửi nội dung đã có vẫn theo channel/billing policy hiện hữu, không tự áp điều kiện AI cho thao tác không gọi model.
 - Read/export data AI dùng quyền người ra lệnh, không đọc bản ghi bị scope/field filter 042c/045b loại. Live023b ca gợi ý/giọng/thu hồi quyền và không tự approve/send.
 
 ### 5. Import/export/resend và reporting
@@ -212,11 +212,11 @@ Thực hiện trọn luồng từ chọn phân khúc/nhập danh sách, AI đề
 - REUSE: ActionExecutor, CreditMeter, AIgateway/router, CRM validation, ChannelSendQueue, outbox/event consumer, storageport/uploadguard, useAction/UiCommand/tokens.
 - Backend≤600 tách ở500, frontend≤400 screens orchestration; marketing.ts không nhồi toàn extras, test riêng; legacy overcap facade1–2 dòng. Không thư viện mới.
 - Đây không phải module Báo cáo D19: reporting chỉ campaign + recipient export đang có prototype. Không mở SMS/ZaloOA/Facebook.
-- Q-030 chưa trả lời thì phần tiền chưa ready-to-build; không ngăn viết các TIP khác.
+- Q030 đã đóng chính sách theo DC246; phần tiền chỉ đạt sau test ledger/estimate, không coi quyết định tài liệu là runtime PASS.
 
 ## Quality Gate: Self-Review
 - Header/93-file manifest/context/standards/task10AC/constraints/checklist và bilateral declarations có.
-- Q-030 còn mở; DC-240 attribution kỹ thuật cần rà upstream trước build; toàn batch overlap/independent review chưa hoàn tất. Không báo implementation DONE.
+- Q030 đã đóng; DC240 attribution kỹ thuật cần rà upstream trước build; toàn batch overlap/independent review chưa hoàn tất. Không báo implementation DONE.
 
 ## ⚠️ BUILDER-CHECKLIST
 - [ ] Rà dependencies/manifest/role-wiring, Q-030 chốt, không source ngoài scope.
@@ -225,4 +225,3 @@ Thực hiện trọn luồng từ chọn phân khúc/nhập danh sách, AI đề
 - [ ] Durable dedupe/cap/unknown recovery, no exactlyonce giả; audit/credit không nhân đôi.
 - [ ] UI fakebuttons/IDs/timers đã bỏ, mockHTTPparity/mobile/i18n/D59 pass; EXPLAIN đủ.
 - [ ] Commit tip/037-* → PRdev, status sạch, GitSHA report; COVERAGE parts/merge, không sửaTIPDONE.
-

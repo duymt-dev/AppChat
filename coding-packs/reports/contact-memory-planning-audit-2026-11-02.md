@@ -29,3 +29,5 @@ Required sections/manifest và whitespace đã kiểm; đang gửi reviewer rà 
 ## Findings vòng review và sửa
 
 Reviewer tìm4 finding: merge/undo vượt cap và mất lock; command integration/HTTP dùng config sai; remember write gắn skill trái D51; runner JSON/--cases chỉ khai một chiều. Đã nhận contact-merge handler + memory/merge helper (manifest73), snapshot undo7 ngày/ordered locks/cap/conflict policy; sửa command integration explicit config và e2e:http; bỏ skill ở remember; bổ sung contract runner/CLI test trong023b. Hai residual nhỏ cũng sửa: AC trigram đúng ngưỡng thay “gần nghĩa”, cấm fallback Contact.aiSummary legacy có thể lộ công nợ. Đang tái kiểm, không coi ghi patch là reviewer đã xác nhận.
+
+Vòng2 reviewer đã xác nhận4 findings +2 minor khép trong tài liệu, kiểm73 path và không thấy cycle015b. Đề nghị nhỏ còn lại về purge receipt đã bổ sung explicit CRM jobs registration, implementation memory/merge.ts và expiry/hold/undo-race/idempotency tests. Chỉ planning review, không runtime PASS; toàn graph và năm TIP cũ còn lại chưa hoàn thiện.

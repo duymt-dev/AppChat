@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **015b đã hoàn thiện cấu trúc và review cục bộ:**73path manifest, owner COVERAGE, standards/preflight/wiring/AC/lệnh thực; review đã sửa cap50 khi merge/undo, config test, D51 skill, runner JSON, cache quyền và purge receipt. Xem `reports/contact-memory-planning-audit-2026-11-02.md`. Năm TIP cũ còn lại vẫn thiếu manifest hoàn chỉnh; chưa whole-graph pass. **Q030 đã đóng theo uỷ quyền →DC246:** chỉ charge AI theo pricebook hiện hữu, không tự tạo giá mỗi tin;037/QUESTIONS/graph/COVERAGE đồng bộ. Chưa runtime, chưa code.
+
 - **Review041 đã khép cục bộ:** reviewer vòng3 xác nhận không còn finding mở sau commit4f5c52a (78 manifest paths), chỉ ở mức planning. Sáu TIP cũ có report riêng `reports/six-pending-tip-independent-audit-2026-11-02.md`; đang sửa task/AC bị thiếu ở015b/023b/023c/030b/032b. **Chưa hoàn thiện exact manifests của sáu file**, chưa whole-graph audit; không được coi các bổ sung task này là xong goal. Việc kế tiếp: manifest/domain wiring sáu TIP,045b consistency;044–046 và supplemental còn thiếu; rà các phần COVERAGE còn mở.
 
 - **Review041 vòng1:** 3 HIGH/4 MEDIUM đã đưa giải pháp cụ thể vào TIP, manifest hiện77 path (1 M tương lai do040 tạo); reviewer đang tái kiểm. Đã bắt đầu đối chiếu standard AI eval/CI để viết044: hiện chưa có harness, cần đủ10 suite, safety100%, action95% (2/3), rubric90%, không dùng27/30 của023b thay release gate. Reviewer thứ hai đang rà sáu TIP cũ; phát hiện chúng chưa có manifest hoàn chỉnh và một số owner COVERAGE chưa có task/AC tương ứng.

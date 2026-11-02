@@ -173,7 +173,9 @@
 | D35a | Ngưỡng eval: an toàn 100%, chọn action ≥ 95%, rubric ≥ 90% | 01-REQUIREMENTS-MATRIX.md:284 | 044 | CHƯA | Chưa có harness eval |
 | D35b | Uỷ quyền ký HĐ / duyệt hoàn tiền cho Quản lý mặc định tắt | 01-REQUIREMENTS-MATRIX.md:284 | 005 | ĐẠT | shared/src/authz/roles.ts:27-31; permissions.ts:46 · test roles.test.ts "manager lacks owner-only and delegated permissions" |
 | D35c | Zalo cá nhân 200 tin chủ động / ngày / tài khoản, jitter 2–6s, chỉnh được kèm cảnh báo | 01-REQUIREMENTS-MATRIX.md:284 | 037 | MỘT PHẦN | manifest không perDayProactive; send.processor chốtcap khi open và đếm attempts. TIP037 AC5 nối default200/cap retry-safe/UI cảnh báo, không coi jitter là đủ |
-| Q-030 | Chốt Credit dự toán/thu phí marketing ngoài AI | QUESTIONS.md:Q-030; REQ-I04 | 037 | CHƯA | Đã hỏi, chưa trả lời; không tự đặt giá mỗi tin từ số mock |
+| Q-030 | Dự toán/thu Credit marketing đúng chính sách đã chốt | QUESTIONS.md:Q-030; DECISIONS.md:DC246; REQ-I04 | 037 | CHƯA | Q030 đóng theo uỷ quyền: chỉ charge AI qua pricebook/CreditMeter hiện hữu, không tạo send tariff; TIP037 đã cập nhật. Chưa code/test estimate/ledger, không suy ra provider ngoài miễn phí. |
+| DC-245 | Owner danger zone least privilege và lifecycle crash recovery | DECISIONS.md:DC245 | 041 | CHƯA | TIP041 đã có member capability/step-up/backup trước DROP, crash sau DROP không false active; review cục bộ khép ở planning, chưa runtime. |
+| DC-246 | Không tạo Credit per-message khi chưa có tariff; tách dự toán AI và phí provider ngoài | DECISIONS.md:DC246 | 037 | CHƯA | TIP037 policy/AC nhận; chưa có marketing runtime chứng minh ledger/estimate. |
 | D35d | Tra MST qua VietQR | 01-REQUIREMENTS-MATRIX.md:284 | 004 | ĐẠT | integrations/src/connectors/vietqr/tax-lookup.ts · test ports.test.ts VietQrTaxLookupProvider |
 | D36 | Blueprint đã duyệt | 01-REQUIREMENTS-MATRIX.md:285 | — | QUY-TẮC | Quy trình |
 | D37 | Không làm MCP ở bản phát hành | 01-REQUIREMENTS-MATRIX.md:286 | — | NGOÀI | D37 |
