@@ -17,11 +17,11 @@
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 148 | 55 | 2 | 6 | 68 | 2 | 40 | 28 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 27 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **386** | **118** | **41** | **367** | **34** | **66** | **110** |
+| **Tổng** | **544** | **386** | **118** | **41** | **367** | **34** | **66** | **109** |
 
-## Lỗ hổng chưa có TIP nhận (110)
+## Lỗ hổng chưa có TIP nhận (109)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -103,7 +103,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
 | PRO-products-richtext | GIẢ | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | F |
-| PRO-assistant-quick | GIẢ | Trợ lý: nút ⚡ lệnh nhanh | F |
 | PRO-assistant-taskspark | GIẢ | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | F |
 | PRO-shell-navbadges | GIẢ | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | F |
 | PRO-settings-wsswitch | GIẢ | Tổng quan workspace: nút "Chuyển" sang workspace khác | F |
@@ -1611,7 +1610,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | 023f | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
 | PRO-assistant-research | Trợ lý: menu ＋ Nghiên cứu / Tìm kiếm | docs/06-prototype/AppChat.dc.html:10208 | — | NGOÀI | D48 (P2 cùng MCP) — nhưng hiện không có nhãn "Sắp có", bấm không phản hồi (ComposerPopovers.tsx:18-19) |
 | PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | 023f | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
-| PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | — | GIẢ | Composer.tsx:50 không onClick |
+| PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | 019c | GIẢ | Composer.tsx:50 không onClick. Independent reconciliation2026-11-02:019c specification4.2/AC1 and exact Composer/UtilityMenu/UtilityHost/mock+HTTP E2E paths receive this wiring; no runtime upgrade. |
 | PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
 | PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | — | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng |
 | PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | — | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing` |

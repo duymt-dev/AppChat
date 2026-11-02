@@ -47,7 +47,7 @@
 - Depends on:019b trusted utility lineage/admission,023b canonical action discovery/worker/currentauthority,023c restricted generation/context,045b provenance/field protection,015e/f family/lifecycle,038b AI-first files. Integrate033b and other declared shared predecessors before this pack; before015c/023d/023e/final044–046.
 - **Files touched:** exact M/C [manifest](manifests/TIP-019c-files.md), future-M provenance included; no wildcard.
 - **Parallel-safe with:** sequential on every declared exact intersection. No new agent grants or second runtime implied.
-- **Dòng COVERAGE nhận:** ACT-ai.detect_intent; ACT-ai.extract_info; ACT-ai.score_lead; ACT-ai.summarize; AI-UTILITY-EVIDENCE; AI-UTILITY-READONLY. COM-3-11 quote confidence/approval remains separate; utility presence alone does not satisfy it.
+- **Dòng COVERAGE nhận:** ACT-ai.detect_intent; ACT-ai.extract_info; ACT-ai.score_lead; ACT-ai.summarize; AI-UTILITY-EVIDENCE; AI-UTILITY-READONLY; PRO-assistant-quick. COM-3-11 quote confidence/approval remains separate; utility presence alone does not satisfy it.
 
 ## CONTEXT
 - Workdir D:/CODING/AppChat_Ver2; native TypeScript/NestJS/Prisma/Next.js/Zod, existing Agent Gateway/SDK and CreditMeter. Blueprint797 declares four missing read+skill actions; actionregistry/core have only ai.translate (ai.ts318–329, skills/translate.handler.ts).

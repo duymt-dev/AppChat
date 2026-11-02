@@ -65,7 +65,7 @@
 | PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | 023f | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
 | PRO-assistant-research | Trợ lý: menu ＋ Nghiên cứu / Tìm kiếm | docs/06-prototype/AppChat.dc.html:10208 | — | NGOÀI | D48 (P2 cùng MCP) — nhưng hiện không có nhãn "Sắp có", bấm không phản hồi (ComposerPopovers.tsx:18-19) |
 | PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | 023f | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
-| PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | — | GIẢ | Composer.tsx:50 không onClick |
+| PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | 019c | GIẢ | Composer.tsx:50 không onClick. Independent reconciliation2026-11-02:019c specification4.2/AC1 and exact Composer/UtilityMenu/UtilityHost/mock+HTTP E2E paths receive this wiring; no runtime upgrade. |
 | PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
 | PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | — | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng |
 | PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | — | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing` |
