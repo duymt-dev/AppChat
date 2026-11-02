@@ -1,6 +1,7 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-039:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 039. Recheck incomplete manifests.
 - TIP-ID: TIP-038; Project: AppChat V2; Module: insights; Priority: P0/P1; Estimated: XL, chia implementation theo metric → dashboard → export → digest.
 - Depends on:006/009/011/021/022/024/029–035; tích hợp sau023b/023c/015b/020b/030b/032b/036/037/042/042b/042c/043/045b vì scope, serializers, jobs và shared files; trước044/046.
 - **Dòng COVERAGE nhận:** REQ-K01a/D07d/D14b/E07/F06-i/F07-e/F09h/H04b; COM-9-19; DC-030; DEF-006-1/022-3/023-3/024-2; Q-024; ACT-follow_up.complete/insight.query; BP-4.4-ai-b/4.4-dashboard/5.2-c; PRO-dashboard-read/followup/calendar-followup/quotes-export/orders-export/contracts-export/tickets-export; STD-domain-customfields-4c; STD-actions-registry-6 phần insight.

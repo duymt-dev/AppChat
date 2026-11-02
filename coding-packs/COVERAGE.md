@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 116 | 22 | 8 | 12 | 23 | 2 | 0 | 29 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 46 | 11 | 21 | 22 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 46 | 11 | 21 | 21 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 93 | 196 | 5 | 4 | 81 | 1 | 0 | 23 |
 | E. standards/* | 157 | 39 | 2 | 6 | 62 | 2 | 40 | 38 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 41 |
-| **Tổng** | **566** | **323** | **118** | **42** | **314** | **34** | **66** | **215** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 58 | 3 | 0 | 38 |
+| **Tổng** | **566** | **324** | **118** | **42** | **315** | **34** | **66** | **211** |
 
-## Lỗ hổng chưa có TIP nhận (215)
+## Lỗ hổng chưa có TIP nhận (211)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -79,7 +79,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8-7 | MỘT PHẦN | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | C |
 | COM-8b-4 | MỘT PHẦN | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | C |
 | COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
-| COM-10-3 | CHƯA | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | C |
 | COM-10-4 | CHƯA | Hạ gói có hiệu lực từ kỳ sau | C |
 | D28b | GIẢ | SePay / Casso của DN phát hành thật | C |
 | D28c | MỘT PHẦN | Connector storage phát hành | C |
@@ -204,9 +203,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
 | DEF-001-2 | CHƯA | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | G |
 | DEF-002-2 | CHƯA | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | G |
-| DEF-009-1 | GIẢ | `channels.used` của billing summary đếm `channel_account` thật | G |
-| DEF-009-4 | MỘT PHẦN | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | G |
-| DEF-010-2 | CHƯA | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | G |
 | DEF-012-2 | CHƯA | Action `integration.sync_now` | G |
 | DEF-012-3 | GIẢ | Adapter Casso thật (verifyWebhook / parseTransactions) | G |
 | DEF-012-4 | MỘT PHẦN | Brevo / SMTP workspace gửi thư thật | G |
@@ -736,7 +732,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-12-4 | Bảng kiểm cảnh báo: Điều 398 (HĐ); BG có bên bán + MST + hiệu lực + VAT | plans/COMMERCE-DECISIONS.md:239 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:44 legalChecklist · test template-text.test.ts, documents.test.ts "bảng kiểm" |
 | COM-10-1 | `billing_invoice` có thông tin xuất VAT (MST, tên, địa chỉ, email) | plans/COMMERCE-DECISIONS.md:244 | 010 | ĐẠT | billing/payments/invoices.service.ts:85 · test billing-payments.test.ts AC2 "vat_info"; xuất HĐĐT thật NGOÀI P2 |
 | COM-10-2 | Credit gói không cộng dồn; credit mua thêm không hết hạn; trừ gói trước | plans/COMMERCE-DECISIONS.md:245 | 009 | ĐẠT | billing/services/wallet.service.ts:83-91 (resetPlan DC-034) · test billing.test.ts AC4 "trừ plan trước rồi topup" |
-| COM-10-3 | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | plans/COMMERCE-DECISIONS.md:246 | — | CHƯA | Enum `upgrade_proration` có (billing-payments.prisma:10) nhưng fulfil.ts:39 xử lý như mua gói mới; `billing.create_invoice` chỉ `plan \| credit \| addon` (settings-ai.ts:163); TIP-010:55 chỉ giao UI cho 039 |
+| COM-10-3 | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | plans/COMMERCE-DECISIONS.md:246 | 039 | CHƯA | fulfil.ts:39 xử lý như mua mới; TIP039 task2/AC03 nhận upgrade giữenddate và chênhplancredit, Q031 chốt phần chi tiết, không tự đổi COMMERCE |
 | COM-10-4 | Hạ gói có hiệu lực từ kỳ sau | plans/COMMERCE-DECISIONS.md:246 | — | CHƯA | Không có code (grep downgrade / scheduled) |
 | COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
 | COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
@@ -1678,12 +1674,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-006-1 | Job gửi email tóm tắt `digest` daily / weekly (DC-030 hẹn TIP-038) | reports/TIP-006-completion.md:43 | 038 | CHƯA | TIP-038 task5/AC09 nhận scheduler, prefs/DND/current authz, delivery ledger và mailport; mới là kế hoạch, chưa có runtime digest |
 | DEF-006-2 | Gửi thông báo kênh `mobile` (web push / app) | reports/TIP-006-completion.md:42 | — | NGOÀI | DC-029: chỉ lưu tuỳ chọn, TIP push = P2 |
 | DEF-006-3 | Guard hội thoại + luật realtime `member.role_changed` / `member.removed` + client socket FE | reports/TIP-006-completion.md:51-53 | 013/016/025 | ĐẠT | packages/core/src/inbox/inbox.module.ts:55; notify/events/kernel.rules.ts:17; apps/web/src/shared/realtime/socket.ts; test realtime.test.ts, e2e/http/inbox-live.spec.ts |
-| DEF-009-1 | `channels.used` của billing summary đếm `channel_account` thật | reports/TIP-009-completion.md:32 | — | GIẢ | packages/core/src/billing/services/billing-read.service.ts:73 vẫn `used: 0` cứng (comment "tới TIP-014") |
+| DEF-009-1 | `channels.used` của billing summary đếm `channel_account` thật | reports/TIP-009-completion.md:32 | 039 | GIẢ | billing-read.service.ts:73 vẫn used0; TIP039 task4/AC07 nhận count theo quota rule, chưa code |
 | DEF-009-2 | `PRICE_BOOK` đọc bảng `model_price` | reports/TIP-009-completion.md:45 | 019 | ĐẠT | billing/billing.module.ts:64 `DbPriceBook`; test apps/api/test/integration/ai-runtime.test.ts |
 | DEF-009-3 | `QuotaService.assert` trước khi thêm thành viên / kênh / agent | reports/TIP-009-completion.md:46 | 013/014/021 | ĐẠT | identity/actions/member-invite.handler.ts:31; channels/actions/channel-connect.handlers.ts:38; ai/agents/agent.handlers.ts:22; test settings.test.ts:116 |
-| DEF-009-4 | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | reports/TIP-009-completion.md:47 | — | MỘT PHẦN | Chỉ handoff từng lượt khi run lỗi credit (ai/reply/reply.service.ts:144); không có consumer topic `credits.exhausted` (billing/events/billing.events.ts:32 chỉ phát) |
+| DEF-009-4 | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | reports/TIP-009-completion.md:47 | 039 | MỘT PHẦN | reply.service.ts:144 chỉ handoff lượt đang chạy; TIP039 task3/AC05 nhận consumer, recheck balance và delayed-event sau topup, chưa code |
 | DEF-010-1 | Job cấp lại credit hằng tháng `period:<ws>:<yyyy-mm>` / gia hạn kỳ | reports/TIP-009-completion.md:44; TIP-010 | 039 | CHƯA | Chỉ có comment billing/services/wallet.service.ts:105; TG row 039 ghi rõ job này |
-| DEF-010-2 | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | reports/TIP-010-completion.md:44 | — | CHƯA | billing/services/quota.service.ts:23 chỉ đọc max của gói; TG row 039 không ghi addon / chênh giá |
+| DEF-010-2 | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | reports/TIP-010-completion.md:44 | 039 | CHƯA | TIP039 task2/AC03–04 nhận entitlements/backfill cảpaidaddon đãfulfilled; Q031 gate tiền/kỳ, chưa code |
+| DEF-010-5 | Replay fulfil cùng invoice không dời kỳ subscription hoặc reset trạng thái mới | billing/services/subscriptions.service.ts:91–105; payments/fulfil.ts:39 | 039 | MỘT PHẦN | activate upsert currentPeriodStart/end trước resetPlan duplicatecheck; ledger idempotent không chứng minh entitlement idempotent. TIP039 task2/AC02 fault/replay, chưa chạy testcase |
+| Q-031 | Kỳ Credit/upgrade chênh Credit/thời hạn addon cần chốt chi tiết tiền | QUESTIONS.md Q031 | 039 | CHƯA | Đã hỏi Chủ nhà, chưa trả lời; task1–2/AC01/03/04 bị gate, không tự đổi COMMERCE |
 | DEF-010-3 | Màn admin đối soát giao dịch nền tảng không khớp (`matched_invoice_id` null) | reports/TIP-010-completion.md:45 | 040 | MỘT PHẦN | Chỉ có apps/api/src/http/billing/admin-transfers.controller.ts:17 (pending_review); không có danh sách giao dịch lệch |
 | DEF-010-4 | SePay nền tảng nhận webhook thật (AC3 với giao dịch thật) | reports/TIP-010-completion.md:32,46 | — | CHỜ-TK | Q-004; packages/integrations/src/connectors/sepay/adapter.ts + test sepay.test.ts |
 | DEF-012-1 | Action `integration.test` (kiểm tra kết nối connector) | reports/TIP-012-completion.md:37 | 023c | CHƯA | Không có trong registry (51 action thiếu); TIP-023c mục 10 "Kiểm tra kết nối (probe connector)" |

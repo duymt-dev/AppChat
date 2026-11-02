@@ -44,3 +44,7 @@
 - TIP-039: áp hạn mức mua thêm (addon user / kênh) vào `QuotaService`; nâng gói giữa kỳ tính chênh.
 - TIP-040 (admin): màn đối soát giao dịch không khớp (`bank_transaction.matched_invoice_id` null) cạnh `GET /v1/admin/transfers`.
 - Khi có SePay (Q-004): đặt `PLATFORM_BANK_FEED=sepay`, `SEPAY_WEBHOOK_KEY`, chạy lại AC3 với giao dịch thật.
+
+## Bổ sung — audit câu A 2026-11-02
+
+[TIP-039](../tips/TIP-039-billing-lifecycle.md) nhận addon/upgrade/period và replay invoice (DEF0101/0102/0105). Audit code thấy activate upsert kỳ trước duplicate ledgercheck; chưa có testcase fault/replay chứng minh kỳ không dời. Addon paid đãfulfilled vẫn cần backfill, không chỉ sweep unfulfilled. Đây là kế hoạch bổ sung, chưa code/nghiệm thu; Q031 gate các chi tiết tiền chưa chốt.

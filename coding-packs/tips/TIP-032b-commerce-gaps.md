@@ -1,6 +1,7 @@
 # TIP-032b: Commerce — vá luật đã chốt còn hở: ngưỡng duyệt cấu hình được, báo giá → HĐ hoặc đơn, VietQR ảnh thật, gửi chứng từ qua webchat, gửi xác nhận đơn / phiếu thu, liệu trình khi cọc, catalog còn thiếu
 
 ## HEADER
+- **Parallel-safe with TIP-039:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 039. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
 - **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038. Recheck after incomplete manifests expand.
 - **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 037. Recheck when incomplete manifests expand.

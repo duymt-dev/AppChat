@@ -45,3 +45,7 @@
 - TIP-019: ghi đè provider `PRICE_BOOK` bằng bản đọc `model_price`.
 - TIP-013 / 014 / 021: gọi `QuotaService.assert` trước khi thêm thành viên / kênh / agent.
 - TIP-016 / 022: consumer `credits.exhausted` chuyển hội thoại `auto` về người.
+
+## Bổ sung — audit câu A 2026-11-02
+
+[TIP-039](../tips/TIP-039-billing-lifecycle.md) nhận DEF0091 (channels.used thật), DEF0094 (consumer hết Credit), monthlyperiod/alerts và Q031. Chưa có code/test consumer; không coi handoff một run là handoff toàn bộ auto conversations. Không sửa bằng chứng cũ thành nghiệm thu phần mới.

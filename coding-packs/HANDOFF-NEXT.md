@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Checkpoint billing mới nhất:** `TIP-039-billing-lifecycle.md` (68 file,10 AC) nhận4 orphan, thêm DEF0105 replayinvoice vàQ031 đang hỏi chi tiết kỳCredit/upgrade/addon. Sổ **1.465 dòng/211 lỗ hổng**. Xem `reports/billing-planning-audit-2026-11-02.md`; chưa source change/test runtime/review độc lập. Tiếp tục040/041/044–046,6pendingcũ và các orphan; không code câuB.
+
 - **Checkpoint insights mới nhất:** thêm `TIP-038-insights-dashboard.md` (102 file,10 AC): metric/query_data, dashboard/follow-up/T-30, agent statistics,4 Excel exports và digest daily/weekly. Nhận orphanDEF0061, sổ **1.463 dòng/215 lỗ hổng**; DC241 là đề xuất kỹ thuật, không đổi quyền/commerce. Xem `reports/insights-planning-audit-2026-11-02.md`; chưa code/chưa review độc lập. Tiếp theo039–041/044–046, TIP bổ sung và hoàn thiện6 pending cũ; không bắt đầu câu B.
 
 - **Checkpoint marketing mới nhất:** có `TIP-037-marketing.md` (93 file,10 AC), nhận thêm D35c quota200 tin/ngày; Q-030 đang hỏi Credit mỗi tin hay chỉAI. Bao gồm snapshot duyệt, cooldown48h/unsub, unknown-send recovery, import/export/resend/AI thật; không giả exactly-once. Sổ **1.463 dòng/216 lỗ hổng**. Xem `reports/marketing-planning-audit-2026-11-02.md`; chưa code/chưa independent review.
