@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 14 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 7 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 14 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 95 | 1 | 0 | 7 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 101 | 1 | 0 | 6 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 34 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 23 |
-| **Tổng** | **545** | **376** | **118** | **41** | **345** | **34** | **66** | **131** |
+| **Tổng** | **545** | **376** | **118** | **41** | **351** | **34** | **66** | **129** |
 
-## Lỗ hổng chưa có TIP nhận (131)
+## Lỗ hổng chưa có TIP nhận (129)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -46,7 +46,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
-| REQ-N08b | CHƯA | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | B |
 | REQ-N10d | CHƯA | WCAG AA (tương phản, aria, bàn phím) có kiểm tự động | B |
 | COM-4-4 | MỘT PHẦN | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | C |
 | COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
@@ -63,7 +62,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
 | DC-215 | CHƯA | Cấu hình danh mục ticket riêng | C |
 | ACT-doc_template.create | MỘT PHẦN | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | D |
-| ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
@@ -511,7 +509,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N06d | TLS ở production | 01-REQUIREMENTS-MATRIX.md:214 | 045 | CHƯA | chưa có `infra/` (nginx) |
 | REQ-N07 | Hiệu năng: tin p95 < 1s, API đọc p95 < 300ms, uptime 99.9% — đo + giám sát | 01-REQUIREMENTS-MATRIX.md:215 | 045b, 046 | CHƯA | chưa có `/metrics` (TIP-045b mục 1), chưa đo p95 (TIP-046) |
 | REQ-N08a | Backup Postgres (PITR / dump hằng ngày), RPO ≤ 5′, RTO ≤ 1h, diễn tập restore | 01-REQUIREMENTS-MATRIX.md:216 | 045, 046 | CHƯA | chưa có `infra/` (pgBackRest) |
-| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | — | CHƯA | packages/shared/src/authz/permissions.ts:5 có privacy.erase nhưng chưa action; DC-235 giữ contact.forget cho ẩn danh, 015b dùng contact.memory_forget cho fact. Vẫn cần TIP privacy riêng, không được coi TIP-043 học KB đã nhận |
+| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | 015c | CHƯA | Blueprint650/833 và quyền privacy.erase có, action/handler chưa có. TIP015c nhận approved DC259/260/262/264/265,297path/10AC; không coi planning là runtime. |
 | REQ-N09a | Log JSON có `traceId` | 01-REQUIREMENTS-MATRIX.md:217 | 001 | ĐẠT | packages/core/src/kernel (pino + traceId); test packages/core/test/logger.test.ts, kernel.test.ts "acceptTraceId" |
 | REQ-N09b | App metrics `/metrics` (API, queue, kênh, AI, credit) | 01-REQUIREMENTS-MATRIX.md:217 | 045b | CHƯA | không có prom-client / route /metrics; TIP-045b mục 1 |
 | REQ-N09c | Prometheus + Alertmanager + Grafana + Loki + Alloy, exporters, dashboard + cảnh báo trong repo | 01-REQUIREMENTS-MATRIX.md:217 | 045 | CHƯA | chưa có `infra/` |
@@ -1005,7 +1003,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
 | ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update ; planning045b contracts annex now specifies task/AC, not runtime evidence |
-| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions; BP = privacy.erase ẩn danh hoá. DC-235 đã sửa tên xoá fact dự kiến ở 015b thành contact.memory_forget; nghĩa vụ privacy vẫn chưa có TIP, không thuộc học KB của 043 |
+| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | 015c | CHƯA | Blueprint650/833 và quyền privacy.erase có, action/handler chưa có. TIP015c nhận approved DC259/260/262/264/265,297path/10AC; không coi planning là runtime. |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
 | ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
@@ -1201,6 +1199,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | MAIL-AI-FILES | AI-first secure setup/probe/approved mail proposals and actual scoped delivery CSV/XLSX, manual noLLM | User AI/filepriority; DC244/246; DC258 | 012c | CHƯA | Planned canonical037/038b/023c flows and live8 cases; no runtime claim |
 | AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | CHƯA | Fourhandlers absent; runner.ts140–141 completesrawgeneration without utilityvalidationfence;019c exactoperation/publication/readgates planned |
 | AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | CHƯA | Existing AgentToolsMenu onlydisplay; no fourutilityruntime/host;019c AC6/7 requireszero businessmutations andreal038b artifacts |
+| PRIVACY-RETENTION | Giữ nguyên chứng từ phát hành/ký theo quyền tài chính hiện có, loại AI và nêu ngoại lệ; không dựng lại bản gốc từ CRM | DC259; invoices-read126–150; contracts.prisma25–66 | 015c | CHƯA | Current missingPDF fallback renders from mutableContact; no privacy disposition guard.015cAC5 preserves originalbytes and denies unproven fallback |
+| PRIVACY-QUARANTINE | Xoá nội dung riêng nội bộ, cách ly dữ liệu nhóm/chung/chưa rõ chủ thể; chưa hoàn tất khi còn unresolved | DC264/265; inbox.prisma152–173;043 provenance | 015c | CHƯA | No subject inventory/erasure/quarantine/review workflow;015c13domain matrix/AC3–4 planned |
+| PRIVACY-ANTI-RECREATE | Workspace-keyed anti-recreation, explicit fresh-profile confirmation/generation, oldreplay cannot restorehistory | DC260; identity.service30–54; pipeline62–70 | 015c | CHƯA | Current phonefallback/upsert andrawthread routing lackterminalprivacy state;015cAC6 includes all ingress/import/freshpermit paths |
+| PRIVACY-PUBLICATION | Fence affected AI/KB/utility/run-list/history/SSE/send/export at admission/publication; knownusage retained, unknowndrain unresolved | DC259/264/265; runs.service28–47;019c | 015c | CHƯA | Generic runlist exposes title; no privacygeneration acrosssource/output.015cAC7/currentprojection inventory includes privateutility generations |
+| PRIVACY-FILE-REPLAY | Current privacy disposition on signedraw/auth/publicdownloads, sharedblobpurge andAI-first/manual actualCSV/XLSX | DC244/264/265; files.controller48–67; signed-url6–16 | 015c | CHƯA | Existing URLsignature/uploaderpermission doesnotverify privacyrevision;015cAC8 realfile/dataset/queue gates planned |
+| PRIVACY-RESTORE-FENCE | Durable versionedexternaljournal prevents tenantbackup/archiverestore from resurrecting forgotten data/permits/oldrouting | DC260/264/265;041 restorecontract | 015c | CHƯA | No privacyjournal/schema/restoregate currently;015cAC9 covers everyrevision/freshprofile/review andmissingkey failclosed |
 
 **Ghi chú / chưa rà hết:**
 

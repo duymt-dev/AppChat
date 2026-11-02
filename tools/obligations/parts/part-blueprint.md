@@ -226,7 +226,7 @@
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
 | ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update ; planning045b contracts annex now specifies task/AC, not runtime evidence |
-| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions; BP = privacy.erase ẩn danh hoá. DC-235 đã sửa tên xoá fact dự kiến ở 015b thành contact.memory_forget; nghĩa vụ privacy vẫn chưa có TIP, không thuộc học KB của 043 |
+| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | 015c | CHƯA | Blueprint650/833 và quyền privacy.erase có, action/handler chưa có. TIP015c nhận approved DC259/260/262/264/265,297path/10AC; không coi planning là runtime. |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
 | ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
@@ -449,3 +449,14 @@ Ghi chú:
 |---|---|---|---|---|---|
 | AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | CHƯA | Fourhandlers absent; runner.ts140–141 completesrawgeneration without utilityvalidationfence;019c exactoperation/publication/readgates planned |
 | AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | CHƯA | Existing AgentToolsMenu onlydisplay; no fourutilityruntime/host;019c AC6/7 requireszero businessmutations andreal038b artifacts |
+
+### Subject privacy boundaries — approvals and source audit2026-11-02
+
+| ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
+|---|---|---|---|---|---|
+| PRIVACY-RETENTION | Giữ nguyên chứng từ phát hành/ký theo quyền tài chính hiện có, loại AI và nêu ngoại lệ; không dựng lại bản gốc từ CRM | DC259; invoices-read126–150; contracts.prisma25–66 | 015c | CHƯA | Current missingPDF fallback renders from mutableContact; no privacy disposition guard.015cAC5 preserves originalbytes and denies unproven fallback |
+| PRIVACY-QUARANTINE | Xoá nội dung riêng nội bộ, cách ly dữ liệu nhóm/chung/chưa rõ chủ thể; chưa hoàn tất khi còn unresolved | DC264/265; inbox.prisma152–173;043 provenance | 015c | CHƯA | No subject inventory/erasure/quarantine/review workflow;015c13domain matrix/AC3–4 planned |
+| PRIVACY-ANTI-RECREATE | Workspace-keyed anti-recreation, explicit fresh-profile confirmation/generation, oldreplay cannot restorehistory | DC260; identity.service30–54; pipeline62–70 | 015c | CHƯA | Current phonefallback/upsert andrawthread routing lackterminalprivacy state;015cAC6 includes all ingress/import/freshpermit paths |
+| PRIVACY-PUBLICATION | Fence affected AI/KB/utility/run-list/history/SSE/send/export at admission/publication; knownusage retained, unknowndrain unresolved | DC259/264/265; runs.service28–47;019c | 015c | CHƯA | Generic runlist exposes title; no privacygeneration acrosssource/output.015cAC7/currentprojection inventory includes privateutility generations |
+| PRIVACY-FILE-REPLAY | Current privacy disposition on signedraw/auth/publicdownloads, sharedblobpurge andAI-first/manual actualCSV/XLSX | DC244/264/265; files.controller48–67; signed-url6–16 | 015c | CHƯA | Existing URLsignature/uploaderpermission doesnotverify privacyrevision;015cAC8 realfile/dataset/queue gates planned |
+| PRIVACY-RESTORE-FENCE | Durable versionedexternaljournal prevents tenantbackup/archiverestore from resurrecting forgotten data/permits/oldrouting | DC260/264/265;041 restorecontract | 015c | CHƯA | No privacyjournal/schema/restoregate currently;015cAC9 covers everyrevision/freshprofile/review andmissingkey failclosed |

@@ -76,3 +76,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung015e — chưa triển khai
 
 [TIP-015e](../tips/TIP-015e-contact-merge-integrity.md) nhận merge/dedupe và historical family/package associations, current authority và conditional inverse. Không coi report DONE cũ là chứng minh các phần bổ sung đã đạt.
+
+## Bổ sung015c — privacy planning, chưa triển khai
+
+[TIP015c](../tips/TIP-015c-contact-privacy.md) nhận contact.forget/REQ-N08b và sáu ranh giới privacy riêng: chứng từ giữ nguyên, nội dung riêng xoá, nhóm/chung cách ly, token chống tái tạo, file/AI publication fences và journal-safe restore. Q033–Q037 đã duyệt;297 exactpaths/10AC. Không thay kết quả test cũ thành bằng chứng tính năng mới.

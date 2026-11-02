@@ -49,3 +49,7 @@ Q037 → DC265: “Duyệt cách ly để rà”. Suspect mixed/shared/group/leg
 | Provider/recipient/backup | Disclose out-of-local scope; restore must reapply fences/tokens before reads/workers/ingress reopen | Do not claim external deletion or regulatory compliance; test restore without touching native demo services/data |
 
 This matrix is planning evidence, not permission to execute erasure. Non-issued financial drafts, free-text audit fields, raw routing IDs and ambiguous legacy references still require exact handling in the TIP. Existing source anchors above and kernel.prisma43–88, inbox.prisma152–173/204–211/243–247, channels-email.prisma7–21, files.service.ts60–64 and contracts.prisma25–26/62–66/102–140 identify critical read/replay boundaries.
+
+## Latest implementation-plan owner (not implementation)
+
+TIP015c-contact-privacy.md and297-path manifest now receive this inventory/policy scope. See privacy-planning-audit-2026-11-02.md for both independent review rounds and corrections. Key additional source findings: invoices-read126–150 fallback renders mutable Contact into historical PDFs; FilesService call sites need trusted purpose propagation; signed raw/public history paths need current disposition; run-list title can leak before cleanup. The earlier statements that015c is unwritten are historical. Runtime/provider/native verification still pending.

@@ -46,3 +46,6 @@ Zalo source identity/message retained → canonical CRM candidate/confirmed merg
 ###012c tenant mail checkpoint
 
 CRM audience →037 approvedsender/content →012b durable tenantmail transport →authenticated deliveryfacts/current suppression →AI/report/file readback. No platformOTP orInbox channel substitution. Localplanning reviewclosed, providercontract/livegates pending; wholegoal remainsactive.
+
+
+015c now owns approved privacy scope after019c: full-family blocker/fence, local private-content erasure, shared quarantine with truthful unresolved status, preserved issued evidence excluded from AI, one-way anti-recreation/fresh-profile generations and versioned journal restore gates.297 exact paths/10AC and two local reviews corrected/rechecked; not runtime acceptance. The earlier missing015c notes are historical. Continue023d/023e/kernel and all six goal conditions, not just this vertical checkpoint.
