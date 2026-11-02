@@ -1,5 +1,7 @@
 ### COMPLETION REPORT — TIP-031
 
+**Bổ sung 2026-11-02 — không đổi kết luận lịch sử:** nghĩa vụ sổ điểm của DEF-031-3/DC-186 được nhận cụ thể bởi [TIP-036](../tips/TIP-036-loyalty.md), TASK 1–3 và AC2–AC5: earn, undo completed/re-complete, cancel/refund, FIFO/expiry/idempotency. Q-027 còn chờ quyết định tiền; không coi pointsEarned trên đơn là sổ điểm đã hoàn thành.
+
 **STATUS:** DONE (adapter sàn thật P2; khoản thu / hoàn tiền TIP-032; sổ điểm TIP-036)
 **COMMIT:** `20575fb` (code) + commit report / tiến độ trên nhánh `tip/031-orders` (xếp chồng trên `tip/030-contracts`)
 

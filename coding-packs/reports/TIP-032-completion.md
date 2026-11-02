@@ -1,5 +1,7 @@
 ### COMPLETION REPORT — TIP-032
 
+**Bổ sung 2026-11-02 — không đổi kết luận lịch sử:** [TIP-036](../tips/TIP-036-loyalty.md) nhận DEF-032-1 / ACT-payment.redeem_points, TASK 3 và AC3–AC5: khoản thu points, cap cộng dồn trên đơn, FIFO, undo/hoàn không trả trùng tiền mặt. Quyết định ca biên Q-027 phải được duyệt trước chốt test tiền; chưa nghiệm thu ở TIP-032.
+
 **STATUS:** DONE (bank feed SePay / Casso qua adapter `mock` — chưa nghiệm thu với ngân hàng thật; gửi Zalo / Email qua adapter giả; sổ điểm TIP-036; trừ buổi theo lịch hẹn TIP-033)
 **COMMIT:** `d0f5e16` (code) + commit report / tiến độ trên nhánh `tip/032-payments` (xếp chồng trên `tip/031-orders`)
 

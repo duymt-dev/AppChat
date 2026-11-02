@@ -16,10 +16,10 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 32 | 3 | 5 | 43 | 11 | 21 | 24 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 95 | 194 | 5 | 4 | 81 | 1 | 0 | 25 |
-| E. standards/* | 160 | 36 | 2 | 6 | 62 | 2 | 40 | 39 |
+| E. standards/* | 159 | 37 | 2 | 6 | 62 | 2 | 40 | 39 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 7 | 6 | 0 | 49 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 56 | 3 | 0 | 43 |
-| **Tổng** | **571** | **317** | **118** | **42** | **309** | **35** | **66** | **223** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 43 |
+| **Tổng** | **570** | **318** | **118** | **42** | **310** | **35** | **66** | **223** |
 
 ## Lỗ hổng chưa có TIP nhận (223)
 
@@ -691,7 +691,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-6-9 | Hoàn tiền gói theo tỉ lệ buổi còn lại, cần duyệt; không chuyển nhượng | plans/COMMERCE-DECISIONS.md:143 | 032 | ĐẠT | refunds.ts · test payments.test.ts "yêu cầu theo liệu trình (tỉ lệ buổi còn lại) → chờ duyệt" |
 | COM-6-10 | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | plans/COMMERCE-DECISIONS.md:144 | — | MỘT PHẦN | API `GET /contacts/:id/packages` có (apps/api/src/http/sales/invoices.controller.ts) nhưng FE features không gọi (chỉ mock test); không có action đọc liệu trình cho agent (023b R2 không liệt kê) |
 | COM-7-1 | Cộng điểm một lần khi đơn `completed`: floor(net trước VAT / 10.000) × hệ số hạng | plans/COMMERCE-DECISIONS.md:148-149 | 036 | MỘT PHẦN | Tính + ghi trên đơn (order-flow.handlers.ts:22-44; order-state.ts:62-67 · test order-state.test.ts pointsFor, orders.test.ts complete); chưa cộng sổ điểm / `points_balance` (DC-186) |
-| COM-7-2 | Hệ số hạng ×1 / ×1 / ×1,5 / ×2 cấu hình được | plans/COMMERCE-DECISIONS.md:150 | 036 | MỘT PHẦN | Hằng số `TIER_MULTIPLIER` order-state.ts:63; `loyalty.update_config` handler null |
+| COM-7-2 | Hệ số hạng ×1 / ×1 / ×1,5 / ×2 cấu hình được | plans/COMMERCE-DECISIONS.md:150 | 036 | MỘT PHẦN | packages/shared/src/orders/order-state.ts:63-67 dùng hằng số, core/src/sales/orders/actions/order-flow.handlers.ts:37 không đọc config; loyalty.update_config chưa handler. TIP-036 TASK 2, AC2 nhận snapshot hệ số, không sửa earn cũ |
 | COM-7-3 | Lịch hẹn hoàn tất không cộng điểm riêng | plans/COMMERCE-DECISIONS.md:151 | 033 | ĐẠT | appointment-flow.handlers.ts:86 không cộng điểm · test booking.test.ts |
 | COM-7-4 | Đổi điểm: 1 điểm = 100đ, khoản thu kind `points`, ≤ 50% giá trị đơn | plans/COMMERCE-DECISIONS.md:152 | 036 | CHƯA | `payment.redeem_points` không có trong registry; 360° quy đổi ×10 (contact360.ts:40) |
 | COM-7-5 | Đảo điểm khi huỷ đơn / hoàn tiền một phần theo tỉ lệ | plans/COMMERCE-DECISIONS.md:153-155 | 036 | CHƯA | Không có sổ điểm |
@@ -1316,7 +1316,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-11 | Index HNSW, GIN trgm, kb_chunk(source_id), kb_source(folder_id,status) partial | standards/ai/rag.md:39 | 020 | ĐẠT | migration 20261031600000_020_ai_kb:96; test kb.test.ts:75 (EXPLAIN) |
 | STD-api-envelope-1 | Thành công `{ data, meta? }`, không trả mảng trần | standards/api/response-envelope.md:7 | 003 | ĐẠT | packages/shared/src/api/envelope.ts; test contract.test.ts |
 | STD-api-envelope-2a | List cursor `{data, next_cursor}`, cursor base64url, limit ≤ 100 | standards/api/response-envelope.md:8 | 003 | ĐẠT | inbox/repos/conversations.repo.ts:78; crm-read.service.ts:22 (MAX_LIMIT 100); test inbox.test.ts |
-| STD-api-envelope-2b | 9 bảng có số trang (D42): `?page=&limit=` → `meta {total,page,limit}`, offset + deferred join | standards/api/response-envelope.md:11 | 015, 027, 029–034 | ĐẠT | crm-read.service.ts:67 + 6 *-read.service; test crm-ui.test.ts:71 (marketing / loyalty → 036, 037) |
+| STD-api-envelope-2b | 9 bảng có số trang (D42): `?page=&limit=` → `meta {total,page,limit}`, offset + deferred join | standards/api/response-envelope.md:11 | 036, 037 | MỘT PHẦN | crm-read.service.ts:67 + 6 *-read.service; test crm-ui.test.ts:71 chỉ chứng minh các domain đã nối. Loyalty HTTP module stub, marketing chưa có; TIP-036 TASK 1/4 và AC7 nhận phần loyalty, 037 nhận phần marketing |
 | STD-api-envelope-3 | Lỗi `{error:{code,message,fields}}`, code trong `packages/shared/src/errors.ts`, fields là mã | standards/api/response-envelope.md:12 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts:26; packages/shared/src/errors.ts |
 | STD-api-envelope-4 | Service ném AppError; filter toàn cục; cấm `res.status().json()` | standards/api/response-envelope.md:16 | 003 | ĐẠT | error.filter.ts:25; grep `res.status(` = 0 |
 | STD-api-envelope-5 | Mã HTTP chuẩn (422/401/403/404/409/402/429+Retry-After/503/500) | standards/api/response-envelope.md:17 | 003 | ĐẠT | error.filter.ts:9,35; test auth.test.ts:86 |
@@ -1670,6 +1670,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
+| Q-027 | Chốt ca biên tiền/điểm: đảo điểm đã dùng, trả lô đã hết hạn, completed chưa đủ tiền | QUESTIONS.md:35 | 036 | CHƯA | TIP-036 gate trước thi công, AC2–AC5; đang hỏi Chủ nhà. Code order-flow.handlers.ts:22-37 tính theo net đơn, chưa chứng minh phù hợp mọi ca thực thu |
 | DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | — | CHƯA | `.dependency-cruiser-known-violations.json` vẫn 99 mục (đếm 2026-11-01) — không giảm sau 25 TIP nối http |
 | DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | — | CHƯA | standards/channels/omnichannel-adapter.md:30 vẫn `'chat'\|'social'\|'email'\|'sms'\|'web'`; code packages/channels/src/types.ts:15 đã có `commerce` (việc tài liệu) |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
@@ -1741,7 +1742,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | — | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger |
 | DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
-| DEF-031-3 | `order.completed` ghi sổ điểm + đảo khi hoàn tác | reports/TIP-031-completion.md:33 | 036 | CHƯA | packages/core/src/loyalty chỉ có module rỗng + jobs/; TG row 036 |
+| DEF-031-3 | `order.completed` ghi sổ điểm + đảo khi hoàn tác | reports/TIP-031-completion.md:33 | 036 | CHƯA | packages/core/src/loyalty/loyalty.module.ts:5 stub; sales/orders/actions/order-flow.handlers.ts:106-118 undo chỉ xoá pointsEarned/tổng chi, không phát reversal loyalty. TIP-036 TASK 2/AC4 nhận undo rồi complete lại, retry và out-of-order |
 | DEF-031-4 | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | reports/TIP-031-completion.md:26; TIP-024:27 | — | CHƯA | tools/scripts/fixtures/gen-assistant.py:137 vẫn `conversation.close` |
 | DEF-031-5 | `db:cleanup-test` tự nạp `.env` | reports/TIP-031-completion.md:25 | — | CHƯA | packages/db/package.json:17 `tsx scripts/cleanup-test-workspaces.ts` không `--env-file` |
 | DEF-032-1 | Khoản thu `points` + `payment.redeem_points` | reports/TIP-032-completion.md:32 | 036 | CHƯA | `payment.redeem_points` thiếu trong registry; TG row 036 |

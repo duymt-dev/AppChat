@@ -10,6 +10,8 @@
 - Nhánh: `tip/023c-generative-ui` từ `origin/dev` (sau khi 023b vào `dev`); một PR mỗi pha.
 
 ## CONTEXT
+
+**Ranh giới tuần tự bổ sung:** sequential, shares `packages/actions/src/index.ts` with TIP-036; 023c xong trước 036. Khi viết file manifest đầy đủ phải giữ quan hệ này, không hiểu bảng W8 cũ là cho phép sửa registry song song.
 - `standards/ai/generative-ui.md` (D55) đã chốt cây giao diện mức 2 nhưng **chưa có dòng code nào** (`packages/shared/src/genui` không tồn tại); TIP-023 để FE genui thành goal riêng (Q-005) và không có TIP nào trong task graph.
 - 7 drawer "Trợ lý AI · [module]" (Khách hàng, Báo giá, Hợp đồng, Đơn hàng, Lịch hẹn, Ticket, Marketing) còn **giả từ goal FE**: ô hỏi trả câu soạn sẵn theo regex, nút lệnh nhanh hiện `ai_runs` do backend đếm theo luật. Hộp lệnh Hộp thư chỉ chuyển sang trang Trợ lý. FE chỉ gửi `context.route` — REQ-E06 đòi màn + bản ghi đang xem + dòng đang chọn.
 - Kết nối kênh / nền tảng đã có action (`channel.zalo.start_login` trả `qr`, `channel.email.connect`, `webchat.update_widget`, `integration.connect`, `bank_feed.connect`) nhưng Trợ lý chỉ nhận chuỗi QR, không hiển thị / theo dõi được; ô mật khẩu / API key nếu gõ vào chat sẽ đi tới LLM và nằm trong lịch sử.

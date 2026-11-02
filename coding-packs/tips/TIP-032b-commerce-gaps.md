@@ -7,6 +7,7 @@
 - Depends on: TIP-027, 029, 030, 031, 032, 021 (governance)
 - Priority: P0 · REQ: F03–F08 (commerce), M01 · Decision: COMMERCE §2, §3, §5, §6, Q2, Q5 · DC-229
 - Estimated effort: 12 giờ
+- **Parallel-safe with:** sequential, shares `packages/core/src/sales/payments/services/payment-write.ts` and `packages/core/src/sales/orders/actions/order-flow.handlers.ts` with TIP-036; hoàn tất 032b trước 036.
 
 ## CONTEXT
 Rà code 2026-11-01 đối chiếu `plans/COMMERCE-DECISIONS.md` (luật đã chốt — không được đổi): luồng lõi báo giá → hợp đồng ký điện tử → đơn → đề nghị thanh toán chạy thật, gửi PDF vào Zalo / email được. Còn hở:

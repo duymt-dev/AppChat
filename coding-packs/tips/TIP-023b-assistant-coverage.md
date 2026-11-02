@@ -8,6 +8,7 @@
 - Priority: P0 · REQ: D03, E02, E04, E05, E09, E10 · Decision: D03, D51, DC-128, DC-224, DC-225, DC-226
 - Estimated effort: 16 giờ (R1 4 · R2 12)
 - Nhánh: `tip/023b-assistant-coverage` từ `origin/dev`; một PR mỗi pha.
+- **Parallel-safe with:** sequential, shares `packages/actions/src/index.ts` and `packages/core/src/ai/jobs/ai.jobs.module.ts` with TIP-036; 023b phải xong trước 036. Preview/worker registration mở rộng ở 036 phải giữ test phủ action của 023b xanh.
 
 ## CONTEXT
 Chạy với 9router thật (2026-11-01) lộ ra Trợ lý chỉ làm được ca model giả đã viết sẵn. Đo trên registry (207 action, 189 ghi):

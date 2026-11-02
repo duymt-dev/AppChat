@@ -96,7 +96,7 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | 033 | Lịch hẹn: booking.prisma, nhân sự, giờ mở cửa, tìm slot + chống trùng (btree_gist), trạng thái, giữ chỗ, nhắc hẹn, trừ buổi liệu trình, gợi ý tạo đơn, trang Lịch | 015, 027, 032 | P0 | 18 | W7 | G01–G05 | database/indexing, ui/prototype-parity |
 | 034 | Ticket & SLA: support.prisma, SLA mặc định, đồng hồ SLA, leo thang, agent tạo ticket, trang Ticket | 015, 016 | P1 | 14 | W8 | H01–H04 | ui/prototype-parity |
 | 035 | Tác vụ tự chủ & chủ động: ai-tasks.prisma, Coworks (ngay / lịch / sự kiện), mẫu follow-up / báo giá treo / nhắc hẹn / sau mua / briefing sáng | 022, 023 | P1 | 12 | W8 | D12, E08, E13 | ai/agent-gateway |
-| 036 | Loyalty: loyalty.prisma, hạng, cộng điểm một lần khi đơn hoàn tất, đổi điểm, điều chỉnh có lý do, trang Khách thân thiết; sổ điểm thật (cộng khi `order.completed`, đảo khi huỷ, hạn 12 tháng, hạng theo quý), `payment.redeem_points` ≤ 50%, sửa quy đổi 1 điểm = 100đ ở 360° | 031, 032 | P1 | 10 | W8 | J01–J04 | — |
+| 036 | [Loyalty — TIP có file](tips/TIP-036-loyalty.md): sổ/FIFO/hạng, redeem ≤50%, undo/refund/idempotency, API thật và AI/tệp thành viên, CRM ×100; gate tiền Q-027 | 031, 032, 023b, 023c, 015b, 032b; tích hợp sau 030b | P1 | XL (4 bước) | W8 | J01–J04, F02d | actions/action-registry, database/indexing, domain/concurrency, domain/money-time-numbering |
 | 037 | Marketing broadcast: marketing.prisma, phân khúc động, AI đề xuất, wizard, duyệt bắt buộc, queue `campaign-send` (throttle Zalo / email), thống kê | 015, 016, 022 | P1 | 18 | W8 | I01–I05 | channels/omnichannel-adapter |
 | 038 | Tổng quan + insights: registry metric, `insight.query`, Dashboard (Việc cần tôi, AI hôm nay, follow-up, onboarding, credit), hiệu suất agent; `query_data` thật cho Trợ lý; hiệu suất agent đủ (tỉ lệ chốt, credit, `/agents/:id/stats`); \"Xuất Excel\" Báo giá / Đơn / HĐ / Ticket bằng `exceljs` (nút prototype đang giả — Q-024) | 022, 023, 029, 031 | P0 | 12 | W8 | K01, E07, D14 | ui/prototype-parity |
 | 039 | Gói & ví UI: trang Gói & thanh toán, popup Nâng cấp, badge trial, cảnh báo credit, luồng mua bằng QR, hết hạn gói; job cấp lại credit hằng tháng (`period:<ws>:<yyyy-mm>`) | 009, 010, 013 | P0 | 10 | W8 | L05, L06, L07 | ui/prototype-parity |
@@ -125,7 +125,7 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | W5 | 019 ; rồi 020 ∥ 021 ; rồi 022 | 019 kẹt nếu chưa có key LLM (dùng mock model cho unit, nhưng nghiệm thu cần provider thật) |
 | W6 | 023 ∥ 025 ∥ 026 ∥ 027 ∥ 028 ; rồi 024 | 6 nhánh độc lập về file |
 | W7 | 029 ; rồi 030 ∥ 031 ; rồi 032 ; rồi 033 | Commerce đi theo chuỗi vì cùng luồng tiền |
-| W8 | 034 ∥ 035 ; rồi 023b ; rồi 023c ∥ 032b ∥ 030b ∥ 015b ; rồi 036 ∥ 037 ∥ 038 ∥ 039 ∥ 040 ∥ 041 ∥ 042 ∥ 043 | Toàn bộ độc lập về file; 036 cần 032 xong |
+| W8 | 034 ∥ 035 ; rồi 023b ; rồi 023c / 032b / 030b / 015b ; rồi 036 ; sau đó 037–043 theo manifest | Không khẳng định toàn bộ độc lập về file: 036 chia sẻ registry/CRM/payments/worker với TIP trước. Chỉ mở song song sau kiểm file-intersection hai phía; xem HEADER từng TIP |
 | W9 | 045b ; rồi 044 ∥ 045 ; rồi 046 | 045 làm sớm được bất cứ lúc nào khi có VPS (Chủ nhà đang hoãn) |
 
 **Tránh đụng file khi chạy song song:** TIP-001 tạo sẵn mọi file tổng hợp **phía backend** (`app.module.ts`, `core/index.ts`, registry kênh / connector, stub prisma). `actions/index.ts`, `nav-config.ts`, `messages/*/<module>.json` đã có từ goal FE. TIP sau **chỉ điền stub của domain mình**; file ngoài domain được phép sửa duy nhất là `packages/shared/src/api/<domain>.ts` + import tương ứng ở `features/<module>` (tách shape đọc — `standards/domain/gap-filling.md` §5). Muốn sửa file của TIP khác → dừng, báo Chủ thầu (escalation L2).
@@ -192,4 +192,4 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 ## TEAM ALLOCATION
 
 - Mô hình OPC: **Chủ nhà** duyệt / quyết; **Chủ thầu** (Claude, phiên thiết kế) viết TIP theo wave, nhận Completion Report, verify; **Thợ** (Claude Code, mỗi TIP một phiên / nhánh) thi công.
-- Mỗi TIP có file riêng `tips/TIP-XXX-<slug>.md`, sinh bằng `/vibecode:tip` **ngay trước khi thi công TIP đó** (D57 — siết cách "theo từng wave" cũ; không viết trước để TIP sau dùng kết quả thật của TIP trước). Tiến độ: `goals/GOAL-BACKEND.md`.
+- Mỗi TIP chờ có file riêng `tips/TIP-XXX-<slug>.md`, viết trước theo **DC-233 (thay D57)**; bắt buộc rà CONTEXT với code trước thi công. Tiến độ: `goals/GOAL-BACKEND.md`. File manifest chia sẻ phải serialize (DC-234), không suy ra song song chỉ từ wave.

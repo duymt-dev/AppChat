@@ -7,6 +7,7 @@
 - Depends on: TIP-015 (khách + 360), TIP-022 (agent trực kênh), TIP-029 / 030 / 031 / 032 (chứng từ cho KPI)
 - Priority: P0 · REQ: F02, F05, D05 · Decision: D10 (Blueprint §2.2 `contact_memory`, §5.3) · DC-231
 - Estimated effort: 10 giờ
+- **Parallel-safe with:** sequential, shares `packages/core/src/crm/services/contact360.ts` and `packages/core/src/ai/reply/reply-context.ts` with TIP-036; hoàn tất 015b trước 036, không chạy cùng worktree.
 
 ## CONTEXT
 - Blueprint §2.2 + §5.3: agent lắp ngữ cảnh có `contact_memory`; AI ghi nhớ sự kiện về khách (sở thích, dị ứng, lịch quen…). Bảng có nhưng **không chỗ nào ghi** (chỉ `contact.merge` dời bản ghi); report TIP-015 / 022 ghi "TIP riêng sau" mà task graph không có.

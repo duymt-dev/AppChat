@@ -9,6 +9,8 @@
 - Estimated effort: 12 giờ
 
 ## CONTEXT
+
+**Ranh giới tuần tự bổ sung:** sequential, shares `packages/actions/src/index.ts` with TIP-036; 030b xong trước 036. Registry action là điểm tích hợp tuần tự, không merge tự động.
 - COMMERCE §9 cho 2 nguồn nội dung hợp đồng: (a) từ mẫu theo loại (Dịch vụ / Mua bán / Nguyên tắc), (b) **tải lên file hợp đồng có sẵn**. Code chỉ có (a) với mẫu mặc định `kind: 'contract'` (`contract-write.handlers.ts:32`, `contract-doc.ts:46`) — cột `contractKind` có nhưng không dùng chọn mẫu; action chỉ nhận `file_name` (`contracts.ts:21`), nút tải lên FE chỉ `message.info` (`DetailTabs.tsx:237`).
 - Không có đường từ tệp khách gửi trong hội thoại sang hợp đồng.
 - Phụ lục (`contract.create_appendix`) + AI soạn (`contract.draft_from_content`) — Blueprint §3.4, D30; TIP-030 dựng bảng `contract_appendix` nhưng chưa mở action (Q-022, DV-010). Prototype không có màn → giao diện tối thiểu theo pattern sẵn có (gap-filling §2: được tự quyết bố cục dùng primitive có sẵn).

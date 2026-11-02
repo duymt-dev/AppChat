@@ -9,6 +9,8 @@
 - Estimated effort: 20 giờ
 
 ## CONTEXT
+
+**Ranh giới tuần tự bổ sung:** sequential, shares `packages/actions/src/index.ts` and `packages/core/src/ai/jobs/ai.jobs.module.ts` with TIP-036; 036 xong trước 045b. Mọi file-overlap khác phải rà lại khi hai manifest được hoàn thiện.
 Rà standards 2026-11-01: phần **trong code** của `ops/observability-security` ghi "mọi TIP backend phải làm" nhưng không TIP nào làm; TIP-045 chỉ hạ tầng (Prometheus / Grafana cần app mở `/metrics`), TIP-046 chỉ rà soát. Đã kiểm code: không có `prom-client`, `safeFetch`, kiểm magic bytes, rate limit chung (chỉ OTP / widget / ký), CORS, chỗ ghi `platform_audit_log`, `workspace.transfer_ownership`, lọc trường phía server, job đối soát, chuyển `ai_mode` khi người gửi, job cho export / bulk lớn.
 
 ## TASK
