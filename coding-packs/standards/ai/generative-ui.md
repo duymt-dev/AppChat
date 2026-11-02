@@ -11,7 +11,7 @@
    - Bố cục: `stack` (dọc), `row` (ngang, tự xuống dòng trên mobile), `section` (tiêu đề + con).
    - Hiển thị: `text`, `stat` (số + nhãn + so sánh), `stat_group`, `table` (cột + dòng, tối đa 20 dòng, dòng bấm được = `UiCommand open`), `list`, `progress`, `badge`, `chart` (`column` | `line` | `funnel`, `@ant-design/charts` lazy).
    - Hành động: `button`, `button_group`, `form` (xem mục 5).
-   - Kết nối (DC-227): `qr` — ảnh QR lấy từ `$ref` (output action nguồn, vd `channel.zalo.start_login`), renderer hỏi trạng thái qua action đọc `channel.status` mỗi 2 giây (`waiting | scanned | connected | expired | failed`); hết hạn → nút "Tạo mã mới" chạy lại action nguồn; `connected` → báo về run để Trợ lý nói tiếp.
+   - Kết nối (DC-227, làm rõ hợp đồng023c): `qr` dùng `$ref` tới typed login handle của account/attempt; output start_login.qr hiện là route, không phải ảnh. Browser đọc QR ephemeral có auth từ login state; không đưa bytes QR vào model/lịch sử. Poll channel.status mỗi2giây, map starting→waiting và declined→failed có reason; giữ native login enum. Hết hạn→reconnect **cùng account**, không start_login tạo account mới. Connected chỉ resume một lần sau server kiểm account/attempt/actor/run, không tin trạng thái client.
    - Màu chỉ được chọn **tone ngữ nghĩa** (`default | brand | success | warning | danger | info`), renderer map sang token `packages/ui/theme.ts`.
 3. **Số liệu không do LLM viết ra.** Mọi giá trị trong `stat`, `table`, `chart`, `progress` phải là **tham chiếu** tới kết quả `query_data` (`insight.query`) hoặc action đọc đã chạy trong run: `{ "$ref": "step:3.rows" }`. Renderer lấy dữ liệu thật từ `ai_run_step.output`; ref không tồn tại → khối hiện "Không có dữ liệu".
    - LLM chỉ viết chữ diễn giải, tiêu đề, nhãn, thứ tự bố cục.
