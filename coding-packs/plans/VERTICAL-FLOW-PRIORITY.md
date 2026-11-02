@@ -42,3 +42,7 @@ Chủ nhà yêu cầu2026-11-02; áp dụng cho câu A (chỉ tài liệu). Khô
 ###015e merge/lineage slice
 
 Zalo source identity/message retained → canonical CRM candidate/confirmed merge → historical Commerce/package associations with current authority → AI context/proposal invalidation. Manual and AI-first actualfiles share038b. Exactmanifest/AC in015e; local planning review/recheck closed, runtime pending; not goal completion.
+
+###012c tenant mail checkpoint
+
+CRM audience →037 approvedsender/content →012b durable tenantmail transport →authenticated deliveryfacts/current suppression →AI/report/file readback. No platformOTP orInbox channel substitution. Localplanning reviewclosed, providercontract/livegates pending; wholegoal remainsactive.

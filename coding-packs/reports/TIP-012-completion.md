@@ -50,3 +50,7 @@
 ## Bổ sung2026-11-02 — tenant bank/runtime integration
 
 TIP-012b-bank-connectors.md nhận adapter tenant thật, strict money/account normalization, canonical durable hook/pull/reconnect receipts và payment-event→AI task dispatch dedupe. Existing tests/DONE do not establish these missing/crash seams. Tenant Brevo/SMTP separate012c; no runtime/provider acceptance claimed. See bank-connectors-planning-audit-2026-11-02.md.
+
+## Bổ sung012c — chưa triển khai
+
+[TIP-012c](../tips/TIP-012c-tenant-mail.md) nhận tenantBrevo/SMTP adapters, sender/receipt/callback safety và EmailMarketing onboarding. Platform MailProvider test không chứng minh tenant connector đã chạy thật.

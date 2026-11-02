@@ -432,3 +432,13 @@ Ghi chú:
 | CRM-MERGE-LINEAGE | Complete family association across commerce, packages/booking/support/loyalty/Inbox; retained source ledger/issued bytes | REQ-F03a; appointment-write.ts:42–55; DC257 | 015e | MỘT PHẦN | Current merge moves only CRM subset; package lookup exact source ID, broader consumers explicitly inventoried in015e |
 | CRM-MERGE-UNDO | Versioned conditional7day inverse under sorted locks, no overwritten new data/forgotten facts/ACL resurrection | contact-merge.handler.ts:94–109;015b memory rules; DC257 | 015e | MỘT PHẦN | Existing inverse moves IDs/clears fields without after-state/current topology proof; planned private receipts and native barriers |
 | CRM-MERGE-AI-FILES | AI-first scoped real candidates/selected preview and actualCSV/XLSX lineage; manual noLLM fallback | User vertical priority; D51/DC244; DC257 | 015e | CHƯA | Rule percentages/UI selection are not AI confidence or real selected-plan execution; future live8 cases and actual038b file readback required |
+
+## Tenant mail delivery audit — DC258
+
+| ID | Nghĩa vụ | Nguồn | TIP | Trạng thái | Bằng chứng |
+|---|---|---|---|---|---|
+| MAIL-TENANT-ISOLATION | Exact tenant connector credential/sender isolation distinct from platform and Inbox, safe SMTP TLS/network | provider-ports; registry13–14; DC258 | 012c | CHƯA | Existing platform MailProvider not tenant ConnectorAdapter; no real tenant registry implementation |
+| MAIL-APPROVED-SENDER | Immutable discriminated campaign sender and current config/authority check without latest-provider fallback |037 approval; resolver20–25; DC258 | 012c | CHƯA | Latest connected port lookup not approved sender contract; campaign action currently channel only |
+| MAIL-DELIVERY-RECEIPT | Durable accepted vs delivered/unknown and safe retry/crash recovery | Brevo mail28–29; SMTP mail; DC258 | 012c | CHƯA | Empty messageId accepted, undifferentiated transport errors; planned typed tenant outcome and012b receipts |
+| MAIL-CALLBACK-SUPPRESSION | Authenticated bound delivery facts, replay/order/late disconnect policy and scoped suppression | webhook.service30/33;037; DC258 | 012c | CHƯA | Disconnected routes rejected; no tenant mail callback/domain handler. Protocol spike required, no invented provider auth |
+| MAIL-AI-FILES | AI-first secure setup/probe/approved mail proposals and actual scoped delivery CSV/XLSX, manual noLLM | User AI/filepriority; DC244/246; DC258 | 012c | CHƯA | Planned canonical037/038b/023c flows and live8 cases; no runtime claim |

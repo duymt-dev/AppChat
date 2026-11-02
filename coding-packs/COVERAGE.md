@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 70 | 19 | 12 | 1 | 48 | 10 | 5 | 8 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 16 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 88 | 1 | 0 | 11 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 93 | 1 | 0 | 11 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 36 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 26 |
-| **Tổng** | **546** | **373** | **118** | **41** | **337** | **34** | **66** | **145** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 35 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 25 |
+| **Tổng** | **546** | **373** | **118** | **41** | **342** | **34** | **66** | **143** |
 
-## Lỗ hổng chưa có TIP nhận (145)
+## Lỗ hổng chưa có TIP nhận (143)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -145,10 +145,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-booking | CHƯA | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | F |
 | PRO-settings-paymentaccount | CHƯA | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | F |
 | PRO-settings-security | CHƯA | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | F |
-| PRO-settings-emailmkt | CHƯA | Mục "Email Marketing" (Brevo onboard) | F |
 | DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
 | DEF-002-2 | CHƯA | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | G |
-| DEF-012-4 | MỘT PHẦN | Brevo / SMTP workspace gửi thư thật | G |
 | DEF-013-1 | CHƯA | Chuyển phụ trách khách của thành viên bị gỡ | G |
 | DEF-015-1 | MỘT PHẦN | Consumer `contact.owner_changed` chuyển lịch hẹn mở (move.appointments) | G |
 | DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
@@ -1205,6 +1203,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | CRM-MERGE-LINEAGE | Complete family association across commerce, packages/booking/support/loyalty/Inbox; retained source ledger/issued bytes | REQ-F03a; appointment-write.ts:42–55; DC257 | 015e | MỘT PHẦN | Current merge moves only CRM subset; package lookup exact source ID, broader consumers explicitly inventoried in015e |
 | CRM-MERGE-UNDO | Versioned conditional7day inverse under sorted locks, no overwritten new data/forgotten facts/ACL resurrection | contact-merge.handler.ts:94–109;015b memory rules; DC257 | 015e | MỘT PHẦN | Existing inverse moves IDs/clears fields without after-state/current topology proof; planned private receipts and native barriers |
 | CRM-MERGE-AI-FILES | AI-first scoped real candidates/selected preview and actualCSV/XLSX lineage; manual noLLM fallback | User vertical priority; D51/DC244; DC257 | 015e | CHƯA | Rule percentages/UI selection are not AI confidence or real selected-plan execution; future live8 cases and actual038b file readback required |
+| MAIL-TENANT-ISOLATION | Exact tenant connector credential/sender isolation distinct from platform and Inbox, safe SMTP TLS/network | provider-ports; registry13–14; DC258 | 012c | CHƯA | Existing platform MailProvider not tenant ConnectorAdapter; no real tenant registry implementation |
+| MAIL-APPROVED-SENDER | Immutable discriminated campaign sender and current config/authority check without latest-provider fallback |037 approval; resolver20–25; DC258 | 012c | CHƯA | Latest connected port lookup not approved sender contract; campaign action currently channel only |
+| MAIL-DELIVERY-RECEIPT | Durable accepted vs delivered/unknown and safe retry/crash recovery | Brevo mail28–29; SMTP mail; DC258 | 012c | CHƯA | Empty messageId accepted, undifferentiated transport errors; planned typed tenant outcome and012b receipts |
+| MAIL-CALLBACK-SUPPRESSION | Authenticated bound delivery facts, replay/order/late disconnect policy and scoped suppression | webhook.service30/33;037; DC258 | 012c | CHƯA | Disconnected routes rejected; no tenant mail callback/domain handler. Protocol spike required, no invented provider auth |
+| MAIL-AI-FILES | AI-first secure setup/probe/approved mail proposals and actual scoped delivery CSV/XLSX, manual noLLM | User AI/filepriority; DC244/246; DC258 | 012c | CHƯA | Planned canonical037/038b/023c flows and live8 cases; no runtime claim |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1632,7 +1635,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | CHƯA | REQ-F01c P1; không có FE; TIP042b AC7, giữ skill/shift/workflow ngoài scope |
 | PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | CHƯA | prototype-parity §6 chỉ loại Phòng ban; Nhóm P1 chưa có UI/action. TIP042 AC5/7; không dùng ngoại lệ Phòng ban để đánh NGOÀI cả Nhóm |
 | PRO-settings-automation | Mục "Cấu hình workflow" | docs/06-prototype/AppChat.dc.html:6486 | — | NGOÀI | D07 (Workflow engine) |
-| PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | — | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |
+| PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | 012c | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1671,7 +1674,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-012-1 | Action `integration.test` (kiểm tra kết nối connector) | reports/TIP-012-completion.md:37 | 023c | CHƯA | Không có trong registry (51 action thiếu); TIP-023c mục 10 "Kiểm tra kết nối (probe connector)" |
 | DEF-012-2 | Action `integration.sync_now` | reports/TIP-012-completion.md:37 | 012b | CHƯA | Không có trong packages/actions; không TIP chờ nào ghi |
 | DEF-012-3 | Adapter Casso thật (verifyWebhook / parseTransactions) | reports/TIP-012-completion.md:43 | 012b | GIẢ | packages/integrations/src/registry.ts:17 gắn `MockBankFeedProvider` cho casso; connectors/casso/ chỉ có manifest.ts — không phải thiếu tài khoản mà thiếu code |
-| DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | — | MỘT PHẦN | packages/integrations/src/registry.ts:13-14 chỉ manifest; core/src/integrations/services/resolver.ts:25 trả adapter null. BrevoMailProvider chỉ được tạo bằng env nền tảng ở identity.module.ts:54, không chứng minh connector workspace. Unit ports.test.ts / smtp.test.ts xanh, chưa có kiểm chứng gửi bằng secret riêng từng workspace |
+| DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | 012c | MỘT PHẦN | packages/integrations/src/registry.ts:13-14 chỉ manifest; core/src/integrations/services/resolver.ts:25 trả adapter null. BrevoMailProvider chỉ được tạo bằng env nền tảng ở identity.module.ts:54, không chứng minh connector workspace. Unit ports.test.ts / smtp.test.ts xanh, chưa có kiểm chứng gửi bằng secret riêng từng workspace |
 | DEF-013-1 | Chuyển phụ trách khách của thành viên bị gỡ | reports/TIP-013-completion.md:42 | — | CHƯA | identity/actions/member-remove.handler.ts:2 chỉ đặt `removed`; không consumer `member.removed` ở crm |
 | DEF-013-2 | Seed `sla_policy` + đồng hồ SLA theo giờ làm việc workspace | reports/TIP-013-completion.md:41 | 034 | ĐẠT | support/services/sla-clock.ts; test support.test.ts:53 |
 | DEF-014-1 | Zalo cá nhân thật: QR, listener, gửi ảnh / file / sticker, đồng bộ lịch sử | reports/TIP-014-completion.md:49 | 014b | CHỜ-TK | packages/channels/src/zalo-personal/zca-transport.ts:30-128 có SDK thật; core/src/channels/channels.module.ts:59 chọn bằng env. zalo-adapter.test.ts dùng fake, không chứng minh live. HANDOFF-NEXT §3 nói demo đã đăng nhập nhưng chưa có bằng chứng đủ ca Q-003; không kết luận tài khoản hiện còn thiếu Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |

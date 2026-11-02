@@ -218,3 +218,11 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 |015e [contact-merge-integrity](tips/TIP-015e-contact-merge-integrity.md)|Scoped real candidates, selected versioned plans, no ACL union, family-aware historical commerce/package/Inbox, conditional7day inverse and AI-first realfiles|After015f and all exact bilateral predecessors; before015c/044–046|8 AC/native race/authority/10kEXPLAIN/actualCSV-XLSX/live8 cases; local planning review/recheck closed, runtime pending|
 
 Exact M/C ownership: tips/manifests/TIP-015e-files.md. Retained financial source refs do not imply permission bypass. No historical DONE TIP edited; independent whole-graph review still required.
+
+### Supplemental012c — tenant mail delivery and Email Marketing (DC258)
+
+| TIP | Scope | Dependency/order | Evidence gate |
+|---|---|---|---|
+|012c [tenant-mail](tips/TIP-012c-tenant-mail.md)|TenantBrevo/SMTP port, safe transport, approvedsender, durable accepted/unknown, authenticatedcallbacks, Settings/AI/files|After015e/012b/037/023c/045b and bilateral predecessors; before015c/044–046|8 AC, native/security/callback/composition, actualfiles/live8, providercontractspike mandatory; localplanning review/recheck closed, runtime pending|
+
+Exactownership tips/manifests/TIP-012c-files.md; no platformOTP/Inbox replacement. Missingprovidercontract gates affectedlivecapability, not wholeongoal progress.
