@@ -43,3 +43,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung033b — chưa triển khai
 
 [TIP-033b](../tips/TIP-033b-booking-operations.md) nhận expired reconfirm, settings nhân sự/giờ mở cửa và closed/inherit/CAS, slot/undo races, package360/read action và AI-first actual CSV/XLSX export. Audit hạ REQ-G01 từ ĐẠT xuống MỘT PHẦN vì config UI và off-day correctness chưa được chứng minh; giữ bằng chứng calendar đã có. Native/runtime/live gates của pack bổ sung chưa chạy.
+
+## Bổ sung 2026-11-02 — TIP-033c
+
+[Appointment order suggestions](../tips/TIP-033c-appointment-order-suggestions.md) receives COM-4-4: transient Calendar suggestion alone does not prove reload-safe Inbox/Assistant surfaces. Existing canonical conversion retained with current preview/confirmation, scoped read and guarded undo; original TIP unchanged. Runtime proof remains required.

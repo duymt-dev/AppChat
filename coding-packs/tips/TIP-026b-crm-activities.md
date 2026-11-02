@@ -1,6 +1,7 @@
 # TIP-026b: CRM360 có thao tác thật — ghi chú, việc chăm sóc, cơ hội và Kanban đủ dữ liệu
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 026b before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 026b before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`; integrate 026b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 026b before023g.

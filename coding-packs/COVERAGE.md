@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 12 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 27 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 20 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **100** |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **99** |
 
-## Lỗ hổng chưa có TIP nhận (100)
+## Lỗ hổng chưa có TIP nhận (99)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -41,7 +41,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
 | REQ-N10d | CHƯA | WCAG AA (tương phản, aria, bàn phím) có kiểm tự động | B |
-| COM-4-4 | MỘT PHẦN | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | C |
 | COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
 | COM-4-8 | CHƯA | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | C |
 | COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
@@ -543,7 +542,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4-1 | Đơn hai trục: `status` new→processing→completed / cancelled | plans/COMMERCE-DECISIONS.md:81 | 031 | ĐẠT | packages/shared/src/orders/order-state.ts:6-31 · test order-state.test.ts |
 | COM-4-2 | `pay_status` tổng hợp; "Chờ cọc" chỉ khi `deposit_required` | plans/COMMERCE-DECISIONS.md:82,91 | 031 | ĐẠT | order-state.ts:46-55 payStatusOf · test order-state.test.ts, orders.test.ts "cọc → Chờ cọc" |
 | COM-4-3 | Đơn tạo từ báo giá, từ HĐ đã ký (nhiều đơn), từ lịch hẹn (gợi ý), trực tiếp | plans/COMMERCE-DECISIONS.md:84-87 | 031, 033 | ĐẠT | order-create.handlers.ts:101,123,166; order-from-appointment.handler.ts:18 · test orders.test.ts "đã ký → nhiều đơn", booking.test.ts "gợi ý đơn → order.create_from_appointment (một lần)" |
-| COM-4-4 | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | plans/COMMERCE-DECISIONS.md:86 | — | MỘT PHẦN | Chỉ apps/web/src/features/calendar/components/AppointmentDrawer.tsx:43 (`suggest_order`); Inbox / Trợ lý không có (grep `suggest_order`) |
+| COM-4-4 | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | plans/COMMERCE-DECISIONS.md:86 | 033c | MỘT PHẦN | Chỉ apps/web/src/features/calendar/components/AppointmentDrawer.tsx:43 (`suggest_order`); Inbox / Trợ lý không có (grep `suggest_order`) |
 | COM-4-5 | Buổi trừ vào liệu trình thì không gợi ý tạo đơn | plans/COMMERCE-DECISIONS.md:86 | 033 | ĐẠT | order-from-appointment.handler.ts:35 · test booking.test.ts "liệu trình … trừ 1 buổi" |
 | COM-4-6 | new → processing = xác nhận đơn: trừ kho + sinh `customer_package` nếu đủ điều kiện | plans/COMMERCE-DECISIONS.md:88 | 031, 032 | ĐẠT | sales/orders/actions/order-flow.handlers.ts:62; payments/services/packages.ts:19 (consumer order.confirmed) · test orders.test.ts confirm, payments.test.ts |
 | COM-4-7 | Cọc theo số tiền **hoặc %** | plans/COMMERCE-DECISIONS.md:90 | — | MỘT PHẦN | Chỉ `deposit_amount` (packages/actions/src/orders.ts:24); không có cọc theo % |

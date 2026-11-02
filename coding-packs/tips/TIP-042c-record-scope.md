@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`, `packages/core/src/inbox/inbox.module.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/db/prisma/tenant/booking.prisma`; integrate 042c before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `packages/core/src/inbox/services/read.service.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/inbox/services/read.service.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before020c.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `packages/core/src/contracts/actions/contract-approval.handlers.ts`, `packages/core/src/contracts/services/contracts-read.service.ts`, `packages/db/prisma/tenant/contracts.prisma`; integrate 042c before030c.

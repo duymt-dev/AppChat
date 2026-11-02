@@ -1,6 +1,7 @@
 # TIP-037 — Marketing broadcast, segmentation, AI suggestions và campaign reporting
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 037 before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 037 before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 037 before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 037 before023g.

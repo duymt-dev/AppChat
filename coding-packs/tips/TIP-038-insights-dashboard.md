@@ -1,6 +1,7 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `apps/web/src/shared/api/mock/domains/calendar.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/booking/services/calendar-read.service.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before020d.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/insights/public.ts`, `packages/core/src/insights/services/follow-ups.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before023g.
 - **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `apps/web/messages/en/agents.json`, `apps/web/messages/vi/agents.json`, `apps/web/src/features/agents/types.ts`; integrate 038 before021b.

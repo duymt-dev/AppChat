@@ -1,6 +1,7 @@
 # TIP-036 — Loyalty: sổ điểm, đổi điểm, hạn điểm, hạng và nối HTTP
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 036 before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `packages/core/src/ai/reply/reply-context.ts`, `packages/shared/src/api/index.ts`; integrate 036 before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/reply/reply-context.ts`; integrate 036 before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`; integrate 036 before023g.

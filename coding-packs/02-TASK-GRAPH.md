@@ -331,3 +331,11 @@ STD-ai-rag-2/3a downgraded from broad ĐẠT to MỘT PHẦN: existing direct se
 |020d [rag-citations](tips/TIP-020d-rag-citations.md)|Validated answer-generation citations, protected publication, actual draft/audit/run detail UI and edited-source/customer-send boundary|After020c/019b/021b/022b/023c/045b and exact bilateral predecessors|Exact manifest,2 owned IDs,8 AC; review in planning report|
 
 STD-ai-rag-8a downgraded: retrieved references are not evidence of answer-step citations. Whole graph semantics and runtime acceptance remain open.
+
+### Supplemental033c — appointment order suggestion (DC278)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|033c [appointment-order-suggestions](tips/TIP-033c-appointment-order-suggestions.md)|Current Calendar/Inbox/Assistant card, closed GenUI schema, price-bound canonical confirmation and duplicate/undo integrity|After033b/032c/023c/045b and exact bilateral predecessors|64 exact paths/41 pairs/1 owned ID/8 AC; local review report|
+
+COM-4-7/8 deposit semantics remain separate under Q038/039;033c does not change them. No runtime proof from planning ownership.

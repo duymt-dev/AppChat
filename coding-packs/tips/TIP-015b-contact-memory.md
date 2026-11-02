@@ -1,6 +1,7 @@
 # TIP-015b: Trí nhớ khách của AI — `contact_memory`, `contact.remember`, tóm tắt Hồ sơ 360°, KPI 360° (công nợ, hợp đồng, đơn / thu gần nhất), cột "AI gợi ý"
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015b before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/reply-tools.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015b before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/reply-tools.ts`; integrate 015b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015b before023g.

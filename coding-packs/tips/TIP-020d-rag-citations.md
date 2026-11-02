@@ -1,6 +1,7 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `apps/web/messages/en/assistant.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/assistant.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/components/ChatPanel.tsx`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/assistant.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/shared/src/api/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before033c.
 - **Parallel-safe with TIP-003b (RAG citations manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/runs/run-events.ts`, `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/ai/runs/runner.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before020d.
 - **Parallel-safe with TIP-003c (RAG citations manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`; integrate 003c before020d.
 - **Parallel-safe with TIP-006b (RAG citations manifest):** sequential, shares `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 006b before020d.

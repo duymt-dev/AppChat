@@ -1,6 +1,7 @@
 # TIP-003c — Canonical private system-transition adapters
 
 ## HEADER
+- **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/discovery/authority.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/booking/booking.module.ts`, `packages/core/src/sales/sales.module.ts`; integrate 003c before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`; integrate 003c before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/agents/agent.handlers.ts`, `packages/core/src/ai/agents/agent.store.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/kb/ingest.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 003c before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/discovery/authority.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/insights/services/follow-ups.ts`, `packages/core/src/kernel/consistency/operation-recovery.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 003c before023g.
