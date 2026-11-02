@@ -1,6 +1,7 @@
 # TIP-030b: Hợp đồng từ file — tải PDF / DOCX hợp đồng có sẵn, từ tệp khách gửi trong hội thoại, chọn mẫu theo loại, phụ lục, AI soạn nháp
 
 ## HEADER
+- **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 030b before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `packages/core/src/ai/ai.module.ts`; integrate 030b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `apps/web/messages/en/contracts.json`, `apps/web/messages/vi/contracts.json`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 030b before023g.
 - **Parallel-safe with TIP-021b (Agent drafting manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`; integrate 030b before021b.

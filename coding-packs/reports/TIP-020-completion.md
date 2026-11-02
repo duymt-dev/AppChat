@@ -51,3 +51,7 @@ TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding 
 ## Bổ sung 2026-11-02 — TIP-020c
 
 [Effective knowledge scope](../tips/TIP-020c-kb-effective-scope.md) receives REQ-D17c and STD-ai-rag-2/3a after source review found canonical tools/resume omit scope, empty agent scope becomes unrestricted and current source-module rights are not enforced by visibility alone. Existing integration kb.test.ts150–174 establishes direct filtering only. Original TIP-020 unchanged; runtime evidence still required.
+
+## Bổ sung 2026-11-02 — TIP-020d
+
+[RAG citations](../tips/TIP-020d-rag-citations.md) receives STD-ai-rag-8a/8b: existing retrieval output does not establish actual answer references or rendered sources in drafts/logs. Scope includes validated answer-generation binding and actual UI hosts, reusing020c current authorization. Original TIP unchanged; future native/live proof required.

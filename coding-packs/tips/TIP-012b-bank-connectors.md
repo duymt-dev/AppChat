@@ -1,6 +1,7 @@
 # TIP-012b: Connector runtime và bank feed thật — tiền khách ↔ Commerce ↔ CRM ↔ AI
 
 ## HEADER
+- **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/core/src/ai/tasks/task.runner.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 012b before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/tasks/task.runner.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 012b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 012b before023g.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 012b before030c.

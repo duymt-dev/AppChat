@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
-| E. standards/* | 146 | 57 | 2 | 6 | 68 | 2 | 40 | 28 |
+| E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 27 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 20 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **542** | **388** | **118** | **41** | **367** | **34** | **66** | **101** |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **100** |
 
-## Lỗ hổng chưa có TIP nhận (101)
+## Lỗ hổng chưa có TIP nhận (100)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -60,7 +60,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
-| STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
 | STD-code-testing-4b | MỘT PHẦN | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | E |
@@ -1267,8 +1266,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-6a | Hybrid: top-20 vector (HNSW + iterative_scan) + top-20 từ khoá → RRF k=60 → top-6 | standards/ai/rag.md:25 | 020 | ĐẠT | packages/ai/src/kb/rrf.ts:2; core/src/ai/kb/search.ts:90; test kb.test.ts:141 |
 | STD-ai-rag-6b | Có `model_route` purpose=rerank thì rerank | standards/ai/rag.md:27 | 046 | CHƯA | Chỉ có kiểu `ModelPurpose 'rerank'` (gateway/types.ts:25), không gọi rerank |
 | STD-ai-rag-7 | Ngưỡng `min_score` theo workspace: không căn cứ thì không bịa | standards/ai/rag.md:29 | 020, 022 | ĐẠT | kb/search.ts:73-79; test kb.test.ts:141 |
-| STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020 | ĐẠT | kb/search.ts:37; kb-search.handler.ts:27 (output lưu ai_run_step); test kb.test.ts:141 |
-| STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | — | CHƯA | grep `citations` trong apps/web/src = 0 |
+| STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020d | MỘT PHẦN | kb/search.ts:122 and kb-search.handler.ts:27 return retrieved refs, not answer citations; runner.ts:112,140 lacks answer linkage; reply/output.ts:6–12 has no citation schema |
+| STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | 020d | CHƯA | grep `citations` trong apps/web/src = 0 |
 | STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | CHƯA | Không có bảng/handler kb_suggestion |
 | STD-ai-rag-10a | Embedding 1536 chiều, provider theo `model_route` purpose=embed; truy vấn chỉ so cùng `embed_model` | standards/ai/rag.md:37 | 020 | CHỜ-TK | migration 020_ai_kb:57 vector(1536); search.ts:94; Q-002 |
 | STD-ai-rag-10b | Đổi model embed → job re-embed toàn kho | standards/ai/rag.md:38 | 046 | CHƯA | Chỉ comment search.ts:84 |

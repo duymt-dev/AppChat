@@ -1,6 +1,7 @@
 # TIP-012c: Tenant Brevo/SMTP và Email Marketing có receipt thật
 
 ## HEADER
+- **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 012c before020d.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/kernel/consistency/operation-recovery.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 012c before023g.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 012c before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/core/src/index.ts`, `packages/core/src/marketing/events/campaign-attribution.ts`; integrate 012c before006b.

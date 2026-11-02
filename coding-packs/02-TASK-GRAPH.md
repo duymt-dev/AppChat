@@ -323,3 +323,11 @@ Inspect opens without model/charges; task confirmation and existing selected-age
 |020c [kb-effective-scope](tips/TIP-020c-kb-effective-scope.md)|Trusted source scope through agent/Assistant/task/Builder/consult/resume; current retrieval and dependent output authority|After019b/020b/022b/023d/015c/045b and exact bilateral predecessors|Exact manifest,3 owned IDs,8 AC; local review recorded in planning report|
 
 STD-ai-rag-2/3a downgraded from broad ĐẠT to MỘT PHẦN: existing direct search tests do not prove delegated scope. Citation UI STD-ai-rag-8b remains unowned; no runtime acceptance.
+
+### Supplemental020d — RAG answer citations (DC277)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|020d [rag-citations](tips/TIP-020d-rag-citations.md)|Validated answer-generation citations, protected publication, actual draft/audit/run detail UI and edited-source/customer-send boundary|After020c/019b/021b/022b/023c/045b and exact bilateral predecessors|Exact manifest,2 owned IDs,8 AC; review in planning report|
+
+STD-ai-rag-8a downgraded: retrieved references are not evidence of answer-step citations. Whole graph semantics and runtime acceptance remain open.
