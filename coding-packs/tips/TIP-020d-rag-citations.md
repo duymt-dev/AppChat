@@ -1,6 +1,7 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
+- **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `apps/web/messages/en/assistant.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/assistant.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/components/ChatPanel.tsx`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/assistant.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/shared/src/api/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before033c.

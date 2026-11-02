@@ -222,7 +222,7 @@
 | DC-169 | Thêm kênh gửi chứng từ khi có adapter (webchat) | DECISIONS.md:178 | 032b | CHƯA | Như COM-5-17 |
 | DC-186 | Sổ điểm tiêu thụ `order.completed` | DECISIONS.md:195 | 036 | CHƯA | loyalty stub |
 | DC-199 | Liệu trình sinh khi cọc | DECISIONS.md:208 | 032b | CHƯA | Như COM-6-3 |
-| DC-215 | Cấu hình danh mục ticket riêng | DECISIONS.md:224 | — | CHƯA | "để sau"; không TIP nhận |
+| DC-215 | Cấu hình danh mục ticket riêng | DECISIONS.md:224 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DC-226 | Bộ `pnpm ai:live` 30 câu | DECISIONS.md:235 | 023b | CHƯA | tools/ai-live chưa có |
 
 Ghi chú:

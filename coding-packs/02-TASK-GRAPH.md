@@ -353,3 +353,9 @@ Product media/formatting and CSV dataset transfer remain separate. No model on o
 | TIP | Scope | Integration order | Gates |
 |---|---|---|---|
 |027b [product-media-description](tips/TIP-027b-product-media-description.md)|Private product images/files and safe structured description; actual editor, legacy plain/RAG projection, AI-first/manual data-transfer compatibility|After032d/023f/g/038b/015c/045b and all exact bilateral predecessors|79-path manifest,3 owned IDs,8 AC; pending-intent/create-undo races and packaged image validator proof|
+
+### Supplemental034b — ticket category suggestions (DC281)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|034b [support-categories](tips/TIP-034b-support-categories.md)|Separate category settings, scoped used labels, free-text/history compatibility, AI/manual atomic dictionary CSV/XLSX transfer|After038b/023b/c/e/015c/042c/045b and exact bilateral predecessors|68 paths,2 owned IDs,8 AC; singleton CAS/undo, current scope and config confirmation; no stock trend/bulk acceptance|

@@ -1,6 +1,7 @@
 # TIP-027b — Private product media and functional formatted descriptions
 
 ## HEADER
+- **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/data-transfer.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/data-transfer.json`, `packages/actions/src/index.ts`, `packages/core/src/data-transfer/services/validation.ts`, `packages/shared/src/api/data-transfer.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/data-transfer/registry.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 027b before034b.
 - **Parallel-safe with TIP-003b (Product media manifest):** sequential, shares `packages/core/src/catalog/actions/product.handlers.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`, `packages/shared/src/index.ts`; integrate 003b before027b.
 - **Parallel-safe with TIP-003c (Product media manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 003c before027b.
 - **Parallel-safe with TIP-006b (Product media manifest):** sequential, shares `packages/core/src/catalog/events/catalog-sync.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 006b before027b.

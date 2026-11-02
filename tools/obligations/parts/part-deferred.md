@@ -83,7 +83,7 @@
 | DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
 | DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | — | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng |
-| DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | — | CHƯA | Danh mục là text tự do (packages/actions/src/support.ts:49) |
+| DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046 | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn" |
 | DEF-034-4 | Nhiều chính sách SLA + leo thang 4 cấp | reports/TIP-034-completion.md:3 | — | NGOÀI | P3 theo report |
 | DEF-035-1 | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | reports/TIP-035-completion.md:25 | — | CHƯA | Chưa sửa (gần Q-010) |

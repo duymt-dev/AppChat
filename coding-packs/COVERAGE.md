@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 12 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 11 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 27 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **94** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 19 |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **92** |
 
-## Lỗ hổng chưa có TIP nhận (94)
+## Lỗ hổng chưa có TIP nhận (92)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -51,7 +51,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-081 | CHƯA | Owner vắng / ngoài ca → hàng chung | C |
 | DC-086 | CHƯA | Nhiều widget / workspace (P1) | C |
 | DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
-| DC-215 | CHƯA | Cấu hình danh mục ticket riêng | C |
 | ACT-doc_template.create | MỘT PHẦN | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
@@ -113,7 +112,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-031-5 | CHƯA | `db:cleanup-test` tự nạp `.env` | G |
 | DEF-032-3 | MỘT PHẦN | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | G |
 | DEF-034-1 | GIẢ | Xu hướng KPI ticket (`trend`) so kỳ trước | G |
-| DEF-034-2 | CHƯA | Màn cấu hình danh mục ticket | G |
 | DEF-035-1 | CHƯA | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | G |
 | DEF-035-2 | CHƯA | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | G |
 | Q-010 | CHƯA | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | G |
@@ -734,7 +732,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-169 | Thêm kênh gửi chứng từ khi có adapter (webchat) | DECISIONS.md:178 | 032b | CHƯA | Như COM-5-17 |
 | DC-186 | Sổ điểm tiêu thụ `order.completed` | DECISIONS.md:195 | 036 | CHƯA | loyalty stub |
 | DC-199 | Liệu trình sinh khi cọc | DECISIONS.md:208 | 032b | CHƯA | Như COM-6-3 |
-| DC-215 | Cấu hình danh mục ticket riêng | DECISIONS.md:224 | — | CHƯA | "để sau"; không TIP nhận |
+| DC-215 | Cấu hình danh mục ticket riêng | DECISIONS.md:224 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DC-226 | Bộ `pnpm ai:live` 30 câu | DECISIONS.md:235 | 023b | CHƯA | tools/ai-live chưa có |
 
 **Ghi chú / chưa rà hết:**
@@ -1718,7 +1716,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
 | DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | — | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng |
-| DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | — | CHƯA | Danh mục là text tự do (packages/actions/src/support.ts:49) |
+| DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046 | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn" |
 | DEF-034-4 | Nhiều chính sách SLA + leo thang 4 cấp | reports/TIP-034-completion.md:3 | — | NGOÀI | P3 theo report |
 | DEF-035-1 | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | reports/TIP-035-completion.md:25 | — | CHƯA | Chưa sửa (gần Q-010) |
