@@ -35,6 +35,25 @@ Chạy với 9router thật (2026-11-01) lộ ra Trợ lý chỉ làm được c
 
 ## TASK
 
+### Rà trước khi làm — ưu tiên luồng dọc (2026-11-02)
+- Đọc `plans/VERTICAL-FLOW-PRIORITY.md`. Các con số207/189/192 ở CONTEXT là snapshot lịch sử, phải xuất lại registry/handler/preview inventory từ checkout build; không dùng hằng số đó làm mẫu số PASS.
+- `ai/jobs/ai.jobs.module.ts` hiện chỉ import Ai/Billing/Authz/Channels/Crm/Inbox.023b phải nhận wiring các module domain đã triển khai để worker ROLE=ai có cùng handler cần thiết với HTTP; test boot process/module thực, không mock một HandlerRegistry đầy đủ rồi coi đã hết501. Cần kiểm vòng import và lifecycle trước khi thêm module.
+- `assistant/catalog.ts` hiện không nhận handler availability; `assistant/meta-tools.ts` gọi resolveCodes trước executor và coi mọi202 không phải preview là approval. Rà đường resolve theo quyền hiện tại trước lookup, không tiết lộ mã của bản ghi ngoài scope; giữ union handling rõ ràng, không dùng nhánh else mặc định cho các loại202 bổ sung bởi032b.
+- Đối chiếu `packages/actions/src/define.ts`: canonical preview là `changes`, không phải `diff`. Schema/card/FE phải dùng cùng contract, dữ liệu nhạy cảm phải bị lọc trước khi tạo preview và trước đưa tới model.
+- Trước build phải hoàn thiện exact manifest và bilateral overlaps cho mọi domain preview/read handler; file hiện vẫn chưa đạt gate manifest đầy đủ. Không được tuyên bố ready-to-build chỉ từ các yêu cầu bổ sung này.
+
+### Hợp đồng xuyên Zalo/CRM/commerce/AI
+- Agent trực Zalo và Trợ lý trong app dùng chung action executor/lookup và domain services, nhưng không đồng nhất policy nguồn gọi: Trợ lý cowork cần xác nhận; agent trực kênh chỉ dùng tools được cấp, quyền giao với người ra lệnh khi có delegation, send/money theo governance đã chốt. Không mở tool chỉ vì action tồn tại.
+- Mỗi action đọc mới có ma trận permission/module scope/field visibility/source; `agentGrantable` không nghĩa tự cấp cho mọi agent. `skill` chỉ bật cho action đọc phù hợp Builder D51, không bật đại trà staff/member/run/channel lookup làm lộ dữ liệu nội bộ cho agent khách hàng.
+- Thử hành trình contact lookup → quote lookup/create preview → confirm/approval → worker resume → readback từ cùng query UI. Lỗi sau duyệt không được chuyển thành thông báo đã tạo/gửi; trả trạng thái thật và ID truy vết. Một readback trong hội thoại không được đọc commerce của khách khác chỉ vì cùng nhân viên phụ trách.
+- Legal checklist foundation (STD-documents-templates-6b): contract preview có payload checklist typed cùng warnings/changes; renderer hiển thị rõ mục thiếu/bắt buộc và không làm mất checklist khi sửa input. Domain030b/032b cấp checklist theo chứng từ và kiểm lại ở execute; không để model tự bịa trạng thái pháp lý. Gán COVERAGE toàn hàng chỉ sau khi cả foundation và domain có manifest/AC cụ thể.
+
+### AC bổ sung cho điểm nối
+- Given HTTP đã tạo một approval commerce hợp lệ, When worker ROLE=ai boot từ module production rồi resume, Then có handler thật, không501; replay không tạo chứng từ thứ hai và đọc lại qua action.get/HTTP trả cùng ID/version. Thu hồi quyền trước resume phải chặn, không trả nội dung chứng từ.
+- Given hai khách cùng tên, một bản ghi ngoài scope, When người dùng/agent yêu cầu báo giá theo tên, Then chỉ dùng các ứng viên được phép và hỏi lại khi còn mơ hồ; không xác nhận sự tồn tại của bản ghi bị ẩn. Given khách đã rõ từ conversation context, Then không tự thay contact_id bằng kết quả tên gần giống.
+- Given preview có legal checklist và người dùng sửa điều khoản/khách/giá, When yêu cầu preview lại, Then checklist và token được tính lại từ dữ liệu mới; confirm cũ bị chặn. Thiếu điều kiện bắt buộc phải bị server chặn dù UI/model gửi confirm trực tiếp.
+- Given action.read thành công nhưng action.write trả approval_required, When AI trả lời và UI render, Then ghi rõ chờ duyệt, không báo đã hoàn tất. Ca này chạy cả Trợ lý và agent resume; các job_accepted sau032b phải có contract riêng, không rơi vào approvalId undefined.
+
 ### Pha R1 — khung + chặn hồi quy
 1. **Schema đầy đủ cho model:** `briefSchema` → khuôn lồng nhau (object → ô con, array → khuôn phần tử, enum → giá trị, `?` tuỳ chọn), giới hạn độ sâu 3 / 40 ô; dùng cho `find_actions` và lỗi `VALIDATION_FAILED` của `call_action`. Mô tả action không có ví dụ → sinh ví dụ tối thiểu từ khuôn.
 2. **Ẩn action chưa có handler:** `find_actions` / `call_action` / tool agent chỉ nhận action có handler đăng ký (`HandlerRegistry.has(id)`); TIP sau cài handler là tự hiện.
@@ -72,4 +91,4 @@ Chạy với 9router thật (2026-11-01) lộ ra Trợ lý chỉ làm được c
 - Không đổi schema input action ghi đã có (L2); thêm action đọc = thêm, không sửa.
 - Không gửi dữ liệu bí mật cho model: output action đọc không có secret / credentials (đã có quy tắc connector).
 - `query_data` vẫn TIP-038; Generative UI + Trợ lý theo màn = TIP-023c.
-- Index: action đọc dùng index list sẵn có; thêm index chỉ khi EXPLAIN cho thấy seq scan (ghi report).
+- Index: action đọc dùng query chung của màn, kiểm predicate/sort/projection với index thực; cột equality trước range/sort, payload SELECT đưa INCLUDE phù hợp, deferred join cho list LIMIT trên bảng rộng. EXPLAIN (ANALYZE, BUFFERS) với dữ liệu đại diện để kiểm chi phí/heap fetch, không coi mọi seq scan là lỗi hoặc chỉ thêm index khi gặp seq scan. Nếu query đổi phải liệt kê migration và AC index trong manifest trước build.
