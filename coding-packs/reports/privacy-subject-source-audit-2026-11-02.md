@@ -25,3 +25,27 @@ Resolve full merged family and terminal erasure generation under015f roots; imme
 
 ## Continue
 Privacy decision gates do not block033b/023d/kernel event integrity and other verticalpacks. Independent sevenpart/wholegraph finalreview remains. No runtimePASS or goalcompletion.
+
+## Policy closure — Q036/Q037 approved
+
+Q036 → DC264: “Duyệt xoá nội dung nội bộ”. Direct private chat content stored in AppChat, notes, AI memory and exclusively subject-owned files must be erased; minimal dedupe record identifiers retained. No remote Zalo/email deletion or change to DC259 issued/signed evidence.
+
+Q037 → DC265: “Duyệt cách ly để rà”. Suspect mixed/shared/group/legacy-unattributed material is excluded from AI/export/download pending separate review, not wholesale deletion of others' content and not a permanent retention exemption. Outstanding items prevent reporting forget complete. All five privacy policy choices now explicitly approved; this does not constitute a complete TIP or runtime acceptance.
+
+## Independent domain matrix to implement in015c
+
+| Domain | Required disposition | Safety / evidence |
+|---|---|---|
+| CRM full merged family | Resolve canonical+member roots, check obligations, establish terminal erasure generation, scrub operational identifiers/custom/notes/activity/memory | No restore/merge inverse/stale writer can cross generation; minimal entity IDs for retained accounting only |
+| Identity ingress | Workspace-keyed canonical identifier/provider/account tokens; new inbound cannot recreate CRM | Separate authorized fresh-profile confirmation and generation, no historic relinking; never log raw identities/token keys |
+| Lifecycle/merge/memory receipts | Erase private undo, candidate/plan and blocked-import PII payloads; invalidate inverses | Keep minimal operation IDs/state/cleanup receipts, not a replayable payload |
+| AI | Fence queued/running/resumed runs before cleanup; clear subject-bound prompts, outputs, steps, cards, approvals, summaries and019c private generations/results | Preserve non-content usage/accounting; no result/history/SSE or resume can republish old content |
+| KB | Use043 message/conversation provenance to disable retrieval immediately, then purge affected exclusive sources/chunks/vectors; quarantine mixed content | Cancel ingest/publication; sanitized text is not evidence of anonymity |
+| Private Inbox | DC264 erases bodies, sender labels, attachments, previews, suggestions and subject-bound email/web visitor metadata | Minimal dedupe without raw body/recipient payload; do not erase remote copies or silently create a fresh CRM profile |
+| Group/shared/unknown | DC265 quarantine suspect artifacts from AI/export/download pending itemized disposition | Do not delete entire group/others' file; unresolved inventory blocks completion |
+| Files/038b | Revoke access first; invalidate parsed rows/plans/previews/exports/caches; purge physical bytes only after shared/retained reference checks | Preserve issued/signed references; queued generation/download capabilities also fenced |
+| Integrations/mail/bank | Scrub or quarantine subject-bound raw events/blocked imports/callback/rendered-mail payloads | Minimal trusted dedupe/accounting receipt; late callbacks cannot restore CRM or enqueue new outreach; workspace connector credentials not deleted |
+| Issued/signed evidence | DC259 retains original bytes/hash/signature evidence under existing human financial authority | Exclude AI/OCR/RAG/utilities/summary/general operational exports, disclose categories; no invented legal retention duration |
+| Provider/recipient/backup | Disclose out-of-local scope; restore must reapply fences/tokens before reads/workers/ingress reopen | Do not claim external deletion or regulatory compliance; test restore without touching native demo services/data |
+
+This matrix is planning evidence, not permission to execute erasure. Non-issued financial drafts, free-text audit fields, raw routing IDs and ambiguous legacy references still require exact handling in the TIP. Existing source anchors above and kernel.prisma43–88, inbox.prisma152–173/204–211/243–247, channels-email.prisma7–21, files.service.ts60–64 and contracts.prisma25–26/62–66/102–140 identify critical read/replay boundaries.
