@@ -46,3 +46,7 @@
 - TIP-010: adapter SePay thật (`verifyWebhook` theo header SePay, `parseTransactions`), consumer `integration.event_received` port `bank_feed`; SePay nền tảng (thu phí AppChat) cấu hình env, không qua bảng tenant.
 - TIP-031 / 032: `registerIntegrationOp('order.pull' …)`, `IntegrationResolver.get(ws, 'order_sync' | 'bank_feed')`; mapping qua `integration_mapping`.
 - TIP-014: dùng `sealSecrets` / `openSecrets` cho `channel_account.credentials_enc`.
+
+## Bổ sung2026-11-02 — tenant bank/runtime integration
+
+TIP-012b-bank-connectors.md nhận adapter tenant thật, strict money/account normalization, canonical durable hook/pull/reconnect receipts và payment-event→AI task dispatch dedupe. Existing tests/DONE do not establish these missing/crash seams. Tenant Brevo/SMTP separate012c; no runtime/provider acceptance claimed. See bank-connectors-planning-audit-2026-11-02.md.

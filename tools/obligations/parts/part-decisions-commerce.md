@@ -55,7 +55,7 @@
 | COM-5-10 | Mỗi khoản thu có phiếu thu PDF | plans/COMMERCE-DECISIONS.md:125 | 032 | ĐẠT | payment-write.ts:59 (PT-); invoices-read.service.ts:136 · test payments.test.ts "phiếu thu PT-" |
 | COM-5-11 | Gửi phiếu thu / xác nhận đơn cho khách qua kênh (`receipt.send`, `order.send_confirmation`) | plans/COMMERCE-DECISIONS.md:125 | 032b | CHƯA | Chỉ tải PDF; action chưa có trong registry |
 | COM-5-12 | Xác nhận tay `invoice.record_payment` | plans/COMMERCE-DECISIONS.md:127 | 032 | ĐẠT | invoice-pay.handlers.ts:26 · test payments.test.ts |
-| COM-5-13 | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | plans/COMMERCE-DECISIONS.md:128 | — | GIẢ | Luồng có (sales/payments/services/bank-feed.ts) nhưng registry gắn `MockBankFeedProvider` cho cả sepay + casso (packages/integrations/src/registry.ts:16-17); `SepayBankFeed` chỉ dùng cho nền tảng qua env; Casso không có adapter thật. Không TIP nào nhận (TIP-012:56 hẹn 010 / 032; 032 DONE vẫn mock) |
+| COM-5-13 | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | plans/COMMERCE-DECISIONS.md:128 | 012b | GIẢ | Luồng có (sales/payments/services/bank-feed.ts) nhưng registry gắn `MockBankFeedProvider` cho cả sepay + casso (packages/integrations/src/registry.ts:16-17); `SepayBankFeed` chỉ dùng cho nền tảng qua env; Casso không có adapter thật. Không TIP nào nhận (TIP-012:56 hẹn 010 / 032; 032 DONE vẫn mock) |
 | COM-5-14 | Khớp không chắc (sai tiền, thiếu mã) → hàng "Cần đối soát" | plans/COMMERCE-DECISIONS.md:129 | 032 | ĐẠT | bank-feed.ts:1-4; invoice-pay.handlers.ts:55 · test payments.test.ts "lệch / thiếu mã → Cần đối soát", "resolve_bank_match" |
 | COM-5-15 | Công nợ (phải thu, quá hạn) theo khách ở Hồ sơ 360° và danh sách ĐNTT | plans/COMMERCE-DECISIONS.md:130 | 015b | MỘT PHẦN | 360° `kpis: []` (packages/core/src/crm/services/contact360.ts:52); danh sách chỉ meta theo đề nghị (invoices-read.service.ts:111) |
 | COM-5-16 | ĐNTT "kèm VietQR" — ảnh QR thật trong PDF + `GET /invoices/:id/qr` | plans/COMMERCE-DECISIONS.md:14 | 032b | MỘT PHẦN | Payload VietQR có (shared/commerce/vietqr.ts + vietqr.test.ts) nhưng PDF chỉ dòng chữ (invoice-doc.ts:108); route QR không có |
@@ -161,7 +161,7 @@
 | D27a | Permission engine, 5 vai trò, scope Của tôi / Nhóm / Tất cả, AI theo quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:276 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36 · test roles.test.ts, authz.test.ts, role-isolation.harness.ts |
 | D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | CHƯA | `role.*`, `team.*` không có trong registry |
 | D28a | Bật Cài đặt → Nền tảng kết nối P0, registry + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:277 | 012 | ĐẠT | apps/api/src/http/integrations/integrations.controller.ts · test integrations.test.ts |
-| D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | — | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
+| D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | 012b | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
 | D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | — | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có" |
 | D29a | RAG thư mục + thẻ, public / internal, hybrid + ngưỡng + trích nguồn; agent builder phiên bản | 01-REQUIREMENTS-MATRIX.md:278 | 020, 021 | ĐẠT | test kb.test.ts AC4/AC5, agents.test.ts |
 | D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | CHƯA | `kb.suggestion.*` không có |
@@ -212,7 +212,7 @@
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | CHƯA | Không có web push / mobile; không TIP nhận |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | CHƯA | TIP-038 |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
-| DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | — | GIẢ | Như COM-5-13 |
+| DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | — | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận |
 | DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | 014b | CHƯA | Q-014 mở; adapter chưa gọi Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | — | CHƯA | Một widget mỗi workspace |

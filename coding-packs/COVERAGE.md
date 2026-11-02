@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 10 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 20 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 206 | 5 | 4 | 82 | 1 | 0 | 14 |
-| E. standards/* | 150 | 46 | 2 | 6 | 63 | 2 | 40 | 37 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 9 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 17 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 210 | 5 | 4 | 82 | 1 | 0 | 12 |
+| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 35 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 39 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 29 |
-| **Tổng** | **552** | **344** | **118** | **41** | **331** | **34** | **66** | **165** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 27 |
+| **Tổng** | **551** | **349** | **118** | **41** | **331** | **34** | **66** | **155** |
 
-## Lỗ hổng chưa có TIP nhận (165)
+## Lỗ hổng chưa có TIP nhận (155)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -47,7 +47,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
-| REQ-F08f | GIẢ | Adapter bank feed thật cho DN: SePay gắn vào registry tenant, Casso có adapter | B |
 | REQ-G07e | CHƯA | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
@@ -57,18 +56,15 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
 | COM-4-8 | CHƯA | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | C |
 | COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
-| COM-5-13 | GIẢ | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | C |
 | COM-6-10 | MỘT PHẦN | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | C |
 | COM-8-7 | MỘT PHẦN | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | C |
 | COM-8b-4 | MỘT PHẦN | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | C |
 | COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
 | COM-10-4 | CHƯA | Hạ gói có hiệu lực từ kỳ sau | C |
-| D28b | GIẢ | SePay / Casso của DN phát hành thật | C |
 | D28c | MỘT PHẦN | Connector storage phát hành | C |
 | D48 | MỘT PHẦN | Research / Web search khoá "Sắp có" | C |
 | D52d | CHƯA | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | C |
 | DC-029 | CHƯA | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | C |
-| DC-058 | GIẢ | Kết nối SePay của DN dùng adapter thật | C |
 | DC-081 | CHƯA | Owner vắng / ngoài ca → hàng chung | C |
 | DC-086 | CHƯA | Nhiều widget / workspace (P1) | C |
 | DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
@@ -80,8 +76,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-ai.summarize | CHƯA | `ai.summarize` có trong registry + handler | D |
 | ACT-contact.add_note | CHƯA | `contact.add_note` có trong registry + handler | D |
 | ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
-| ACT-integration.sync_now | CHƯA | `integration.sync_now` có trong registry + handler | D |
-| ACT-integration.test | CHƯA | `integration.test` có trong registry + handler | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
@@ -113,8 +107,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-events-outbox-5 | MỘT PHẦN | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | E |
 | STD-events-outbox-6 | CHƯA | Thứ tự đảm bảo theo từng entity (group theo entity_id) | E |
 | STD-i18n-4 | MỘT PHẦN | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | E |
-| STD-integrations-ports-1a | GIẢ | BankFeedProvider phát hành SePay (chính) + Casso cho tiền khách của DN | E |
-| STD-integrations-ports-8b | CHƯA | Action `integration.sync_now` và `integration.test` | E |
 | STD-ui-fe-6 | CHƯA | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | E |
 | STD-ui-fe-9 | MỘT PHẦN | 5 trạng thái qua PageStates | E |
 | STD-ui-fe-11 | MỘT PHẦN | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | E |
@@ -165,8 +157,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-emailmkt | CHƯA | Mục "Email Marketing" (Brevo onboard) | F |
 | DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
 | DEF-002-2 | CHƯA | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | G |
-| DEF-012-2 | CHƯA | Action `integration.sync_now` | G |
-| DEF-012-3 | GIẢ | Adapter Casso thật (verifyWebhook / parseTransactions) | G |
 | DEF-012-4 | MỘT PHẦN | Brevo / SMTP workspace gửi thư thật | G |
 | DEF-013-1 | CHƯA | Chuyển phụ trách khách của thành viên bị gỡ | G |
 | DEF-015-1 | MỘT PHẦN | Consumer `contact.owner_changed` chuyển lịch hẹn mở (move.appointments) | G |
@@ -455,7 +445,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F08c | Xác nhận thu tay + hoàn tiền luôn qua duyệt | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | invoice-pay.handlers.ts:26; refund.handlers.ts:29, :90; test payments.test.ts "record_payment", "yêu cầu theo liệu trình … chờ duyệt" |
 | REQ-F08d | VietQR: ảnh QR thật trong PDF + `GET /invoices/:id/qr` + gửi ảnh QR riêng | 01-REQUIREMENTS-MATRIX.md:133 | 032b | MỘT PHẦN | packages/core/src/sales/payments/services/invoice-doc.ts:44 chỉ dòng chữ; route /invoices/:id/qr không có (routes.json); TIP-032b mục 3 |
 | REQ-F08e | Đối soát tự động khi DN kết nối SePay / Casso (webhook, khớp mã, hàng "Cần đối soát") | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | packages/core/src/sales/payments/services/bank-feed.ts:31 TenantBankHook; test payments.test.ts "webhook: chữ ký sai 401 … khớp mã", "resolve_bank_match" |
-| REQ-F08f | Adapter bank feed thật cho DN: SePay gắn vào registry tenant, Casso có adapter | 01-REQUIREMENTS-MATRIX.md:133 | — | GIẢ | packages/integrations/src/registry.ts:16–17 sepay + casso đều `MockBankFeedProvider` dù `SepayBankFeed` đã có (connectors/sepay/adapter.ts:33, chỉ nền tảng dùng); casso chỉ manifest; 032 / 032b không nhận |
+| REQ-F08f | Adapter bank feed thật cho DN: SePay gắn vào registry tenant, Casso có adapter | 01-REQUIREMENTS-MATRIX.md:133 | 012b | GIẢ | packages/integrations/src/registry.ts:16–17 sepay + casso đều `MockBankFeedProvider` dù `SepayBankFeed` đã có (connectors/sepay/adapter.ts:33, chỉ nền tảng dùng); casso chỉ manifest; 032 / 032b không nhận |
 | REQ-F08g | Công nợ theo khách (tổng chưa thu / quá hạn) | 01-REQUIREMENTS-MATRIX.md:133 | 015b | CHƯA | contracts-read.service.ts:76 `debt: '0'`; contact360.ts:52 kpis rỗng; TIP-015b mục 4 |
 | REQ-F08h | Hoá đơn điện tử GTGT | 01-REQUIREMENTS-MATRIX.md:133 | — | NGOÀI | Ma trận "hoá đơn điện tử P2"; REQ-M03b P2; D24 |
 | REQ-G07a | Liệu trình sinh khi đơn có gói được xác nhận và thu đủ; trừ 1 buổi khi lịch hoàn tất; no-show không trừ (cấu hình) | 01-REQUIREMENTS-MATRIX.md:134 | 032, 033 | ĐẠT | packages/core/src/sales/payments/services/packages.ts:20; booking/actions/appointment-flow.handlers.ts:125 noShowDeducts; test booking.test.ts "liệu trình: … trừ 1 buổi", "không đến … không trừ buổi" |
@@ -628,7 +618,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-5-10 | Mỗi khoản thu có phiếu thu PDF | plans/COMMERCE-DECISIONS.md:125 | 032 | ĐẠT | payment-write.ts:59 (PT-); invoices-read.service.ts:136 · test payments.test.ts "phiếu thu PT-" |
 | COM-5-11 | Gửi phiếu thu / xác nhận đơn cho khách qua kênh (`receipt.send`, `order.send_confirmation`) | plans/COMMERCE-DECISIONS.md:125 | 032b | CHƯA | Chỉ tải PDF; action chưa có trong registry |
 | COM-5-12 | Xác nhận tay `invoice.record_payment` | plans/COMMERCE-DECISIONS.md:127 | 032 | ĐẠT | invoice-pay.handlers.ts:26 · test payments.test.ts |
-| COM-5-13 | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | plans/COMMERCE-DECISIONS.md:128 | — | GIẢ | Luồng có (sales/payments/services/bank-feed.ts) nhưng registry gắn `MockBankFeedProvider` cho cả sepay + casso (packages/integrations/src/registry.ts:16-17); `SepayBankFeed` chỉ dùng cho nền tảng qua env; Casso không có adapter thật. Không TIP nào nhận (TIP-012:56 hẹn 010 / 032; 032 DONE vẫn mock) |
+| COM-5-13 | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | plans/COMMERCE-DECISIONS.md:128 | 012b | GIẢ | Luồng có (sales/payments/services/bank-feed.ts) nhưng registry gắn `MockBankFeedProvider` cho cả sepay + casso (packages/integrations/src/registry.ts:16-17); `SepayBankFeed` chỉ dùng cho nền tảng qua env; Casso không có adapter thật. Không TIP nào nhận (TIP-012:56 hẹn 010 / 032; 032 DONE vẫn mock) |
 | COM-5-14 | Khớp không chắc (sai tiền, thiếu mã) → hàng "Cần đối soát" | plans/COMMERCE-DECISIONS.md:129 | 032 | ĐẠT | bank-feed.ts:1-4; invoice-pay.handlers.ts:55 · test payments.test.ts "lệch / thiếu mã → Cần đối soát", "resolve_bank_match" |
 | COM-5-15 | Công nợ (phải thu, quá hạn) theo khách ở Hồ sơ 360° và danh sách ĐNTT | plans/COMMERCE-DECISIONS.md:130 | 015b | MỘT PHẦN | 360° `kpis: []` (packages/core/src/crm/services/contact360.ts:52); danh sách chỉ meta theo đề nghị (invoices-read.service.ts:111) |
 | COM-5-16 | ĐNTT "kèm VietQR" — ảnh QR thật trong PDF + `GET /invoices/:id/qr` | plans/COMMERCE-DECISIONS.md:14 | 032b | MỘT PHẦN | Payload VietQR có (shared/commerce/vietqr.ts + vietqr.test.ts) nhưng PDF chỉ dòng chữ (invoice-doc.ts:108); route QR không có |
@@ -734,7 +724,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D27a | Permission engine, 5 vai trò, scope Của tôi / Nhóm / Tất cả, AI theo quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:276 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36 · test roles.test.ts, authz.test.ts, role-isolation.harness.ts |
 | D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | CHƯA | `role.*`, `team.*` không có trong registry |
 | D28a | Bật Cài đặt → Nền tảng kết nối P0, registry + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:277 | 012 | ĐẠT | apps/api/src/http/integrations/integrations.controller.ts · test integrations.test.ts |
-| D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | — | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
+| D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | 012b | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
 | D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | — | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có" |
 | D29a | RAG thư mục + thẻ, public / internal, hybrid + ngưỡng + trích nguồn; agent builder phiên bản | 01-REQUIREMENTS-MATRIX.md:278 | 020, 021 | ĐẠT | test kb.test.ts AC4/AC5, agents.test.ts |
 | D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | CHƯA | `kb.suggestion.*` không có |
@@ -785,7 +775,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | CHƯA | Không có web push / mobile; không TIP nhận |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | CHƯA | TIP-038 |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
-| DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | — | GIẢ | Như COM-5-13 |
+| DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | — | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận |
 | DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | 014b | CHƯA | Q-014 mở; adapter chưa gọi Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | — | CHƯA | Một widget mỗi workspace |
@@ -1045,8 +1035,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
 | ACT-conversation.untag | `conversation.untag` có trong registry + handler | plans/BLUEPRINT.md:607 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); gỡ thẻ có qua conversation.set_tags (inbox.ts:215), không có id riêng / DV |
 | ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
-| ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP'; 023c nói 'probe connector' nhưng không định nghĩa action |
+| ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | 012b | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
+| ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | 023c | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP'; 023c nói 'probe connector' nhưng không định nghĩa action Planning023c now explicitly owns integration-probe action/handler/AC;012b supplies real bank adapter/worker integration. |
 | ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
@@ -1128,7 +1118,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-billing | /billing/summary, plans, ledger, invoices(+:id) | plans/BLUEPRINT.md:971 | 009/010 | ĐẠT | billing/billing.controller.ts; test billing.test.ts, billing-payments.test.ts |
 | BP-4.4-dashboard | GET /dashboard · /insights/:metric | plans/BLUEPRINT.md:972 | 038 | GIẢ | không route (http/insights stub); FE dashboard/api.ts chỉ mock |
 | BP-4.4-authz | /me/authz, /roles, /permissions, /teams | plans/BLUEPRINT.md:973 | 005 | ĐẠT | authz/authz.controller.ts; test authz.test.ts |
-| BP-4.4-integrations | /integrations/connectors · /integrations/connections/:id · /…/logs | plans/BLUEPRINT.md:974 | 012 | MỘT PHẦN | chỉ /settings/integrations (integrations.controller.ts:18); connection detail + logs không có |
+| BP-4.4-integrations | /integrations/connectors · /integrations/connections/:id · /…/logs | plans/BLUEPRINT.md:974 | 012b | MỘT PHẦN | chỉ /settings/integrations (integrations.controller.ts:18); connection detail + logs không có |
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
 | BP-4.4-admin | /admin/workspaces, /admin/plans, /admin/model-prices, /admin/transfers | plans/BLUEPRINT.md:976 | 040 | MỘT PHẦN | chỉ /admin/transfers (admin-transfers.controller.ts); test billing-payments.test.ts |
 | BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | — | GIẢ | không route API, không TIP nào nhận |
@@ -1196,6 +1186,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | INBOX-FILTER-COUNTS | Current-scope filtered Inbox counters and safe realtime invalidation | plans/BLUEPRINT.md section4.6; vertical-flow audit2026-11-02 | 025b | MỘT PHẦN | conversations.controller.ts:41 counts has no filter; inbox/api.ts:69 static counts key; meta.service.ts:25 count across visible filtering not applied.042c supplies scope foundation,025b filter/count projection and invalidation-only signal; no workspace aggregate broadcast. |
 | AI-ROOT-UTILITY-USAGE | All model utilities/query embeddings in an AI turn share trusted root usage and attempt receipts | standards/ai/agent-gateway sections1/5/6; vertical audit2026-11-02 | 019b | MỘT PHẦN | agent-llm.handlers.ts:58/84/109, translate.handler.ts:44, doc-template.handlers.ts:155, quote-draft.handler.ts:35 omit parentRunId; kb/search.ts:87 discards query embedding tokens.019b plans explicit lineage/metered wrapper; no runtime evidence yet. |
 | AI-RUN-EVENTS | Committed current-scope run.step/run.done with reconnect, truthful statuses and actual detail | plans/BLUEPRINT.md section4.6; bounded child of BP-4.6-b | 019b | CHƯA | runner optional onEvent not wired; shared/events lacks run events; runs.service.ts:21 collapses terminals.019b owns these two events only, remaining broad parent not claimed complete. |
+| BANK-CANONICAL-INGRESS | Both tenant bank hooks and pull converge on durable reconnect-safe transaction identity | provider-ports sections5/6; COMMERCE5; audit2026-11-02 | 012b | MỘT PHẦN | generic webhook.service.ts persists event without bank consumer; tenant bank-feed.ts synchronously writes; bank_tx(feed_id,external_id) can repeat after reconnect.012b receives canonical ingress/action/receipt. |
+| BANK-STRICT-NORMALIZATION | Bank amount/direction/date/account validated fail-closed before financial effect | COMMERCE5; audit2026-11-02 | 012b | MỘT PHẦN | sepay/adapter.ts:51 truncates Number amount and unknown direction becomes in; bank-feed.ts:56 missing account bypasses mismatch check.012b strict parser/binding fixtures required. |
+| CONNECTOR-HEALTH-EVIDENCE | Connector live/sandbox/probe/sync status reflects actual adapter evidence | provider-ports4/9; audit2026-11-02 | 012b | MỘT PHẦN | define.ts allows adapterless connect; registry live tenant bank is mock; connections.service defaults live and marks connected.012b scopes real bank/shared health, mail012c still missing. |
+| AI-TASK-EVENT-ONCE | One durable task run/skip per task and triggering event across dispatcher crash/replay | Blueprint5.4; payment-to-AI vertical audit2026-11-02 | 012b | MỘT PHẦN | ai/tasks/task-scheduler.ts:18–23 busy check then new run/queue has no event receipt; dispatcher records consumption afterwards.012b owns event-dispatch module/schema/recovery; no claim existing queue ID solves source-event duplication. |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1443,17 +1437,17 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-i18n-8 | Email / PDF / thông báo render theo locale người nhận | standards/i18n/i18n.md:18 | 006, 028 | ĐẠT | packages/shared/src/i18n/server/{vi,en}; core/src/notify/mail.ts; test notify.test.ts |
 | STD-i18n-9 | Prompt theo locale `*.vi.md` / `*.en.md` | standards/i18n/i18n.md:19 | 022, 023 | ĐẠT | packages/ai/src/prompts/{assistant,agent-reply}.{vi,en}.md |
 | STD-i18n-10 | Bật ngôn ngữ mới khi phủ ≥ 98%; menu chỉ hiện enabled | standards/i18n/i18n.md:21 | — | QUY-TẮC | `pnpm i18n:check` báo độ phủ ngôn ngữ chưa bật |
-| STD-integrations-ports-1a | BankFeedProvider phát hành SePay (chính) + Casso cho tiền khách của DN | standards/integrations/provider-ports.md:12 | — | GIẢ | packages/integrations/src/registry.ts:16-17 gắn `MockBankFeedProvider` cho cả sepay + casso; bank-feed.ts:38 (tenant) dùng adapter registry → Mock; `SepayBankFeed` (connectors/sepay/adapter.ts:33) chỉ dùng cho thu phí nền tảng (billing/payments/bank-hook.service.ts:24); Casso không có adapter thật |
+| STD-integrations-ports-1a | BankFeedProvider phát hành SePay (chính) + Casso cho tiền khách của DN | standards/integrations/provider-ports.md:12 | 012b | GIẢ | packages/integrations/src/registry.ts:16-17 gắn `MockBankFeedProvider` cho cả sepay + casso; bank-feed.ts:38 (tenant) dùng adapter registry → Mock; `SepayBankFeed` (connectors/sepay/adapter.ts:33) chỉ dùng cho thu phí nền tảng (billing/payments/bank-hook.service.ts:24); Casso không có adapter thật |
 | STD-integrations-ports-1b | TaxLookup VietQR, Mail Brevo / SMTP, Storage local, LLM qua AI SDK | standards/integrations/provider-ports.md:15 | 004, 006, 019, 020 | CHỜ-TK | connectors/vietqr/tax-lookup.ts, brevo/mail.ts, smtp/mail.ts; kernel/files/storage.ts (DV-003); test smtp.test.ts, ports.test.ts — Q-004 / Q-001 |
 | STD-integrations-ports-1c | Port EInvoice / ESign CA / AccountingSync / CommerceSync / SheetSync / Sms | standards/integrations/provider-ports.md:13 | — | NGOÀI | REQ-M03b P2 (adapter thật); thẻ "Sắp có" coming-soon.ts:14 |
 | STD-integrations-ports-2 | Mỗi adapter có ConnectorManifest; trang Nền tảng kết nối đọc manifest, "Sắp có" + Đăng ký quan tâm | standards/integrations/provider-ports.md:25 | 012 | ĐẠT | integrations/src/registry.ts:1; coming-soon.ts; test packages/integrations/test/registry.test.ts, integrations.test.ts:113 |
 | STD-integrations-ports-3 | `integration_connection` mỗi workspace, secret AES-GCM không trả API; webhook tra route nền tảng | standards/integrations/provider-ports.md:26 | 012 | ĐẠT | prisma tenant/integrations.prisma:31; connections.service.ts:72; test integrations.test.ts:92-115 |
 | STD-integrations-ports-4 | Core gọi `IntegrationResolver.get(ws, port)`; chưa kết nối → null / mock | standards/integrations/provider-ports.md:30 | 012 | ĐẠT | core/src/integrations/services/resolver.ts:13 |
-| STD-integrations-ports-5 | Gọi ra ngoài qua queue `integrations` (retry, idempotency, dead-letter) + `integration_call_log` không secret | standards/integrations/provider-ports.md:31 | 012 | ĐẠT | integrations/jobs/integration-call.processor.ts:14; test integrations.test.ts:213 |
+| STD-integrations-ports-5 | Gọi ra ngoài qua queue `integrations` (retry, idempotency, dead-letter) + `integration_call_log` không secret | standards/integrations/provider-ports.md:31 | 012b | MỘT PHẦN | integrations/jobs/integration-call.processor.ts:14; test integrations.test.ts:213 Re-audit2026-11-02: integration-call.processor checks only succeeded receipt, no concurrent claim/unknown recovery; raw provider error persisted/emitted.012b receives durable classified calls and redaction, not proved by existing test. |
 | STD-integrations-ports-6 | Webhook `/hooks/integrations/:connector/:connectionId`, kiểm chữ ký trong adapter, idempotent, 200 nhanh | standards/integrations/provider-ports.md:32 | 012 | ĐẠT | apps/api/src/http/integrations/hooks.controller.ts:11; webhook.service.ts:41; test integrations.test.ts:152 |
 | STD-integrations-ports-7 | Mapping ở `integration_mapping`, không thêm cột `<vendor>_id` | standards/integrations/provider-ports.md:37 | 012 | ĐẠT | prisma tenant/integrations.prisma:52 |
 | STD-integrations-ports-8a | Kết nối / ngắt là action quyền `integrations.manage` | standards/integrations/provider-ports.md:39 | 012 | ĐẠT | actions/src/settings-apps.ts:287,300; test integrations.test.ts:88 |
-| STD-integrations-ports-8b | Action `integration.sync_now` và `integration.test` | standards/integrations/provider-ports.md:39 | — | CHƯA | Không có trong registry (TIP-012:57 "ngoài TIP"); 023c chỉ "Kiểm tra kết nối" kênh / probe, không sync_now |
+| STD-integrations-ports-8b | Action `integration.sync_now` và `integration.test` | standards/integrations/provider-ports.md:39 | 012b | CHƯA | Không có trong registry (TIP-012:57 "ngoài TIP"); 023c chỉ "Kiểm tra kết nối" kênh / probe, không sync_now Planning:023c implements test/form_schema,012b integrates actual probe and sync_now, both task/AC explicit; no runtime yet. |
 | STD-integrations-ports-9 | Adapter hỗ trợ sandbox/live; test contract bằng mock + fixture; live chỉ khi `INTEG_LIVE_<KEY>=1` | standards/integrations/provider-ports.md:42 | 012 | CHỜ-TK | integrations/src/types.ts:42,51; test sepay.test.ts (fixture); chưa có ca live — Q-004 |
 | STD-integrations-ports-D31 | OrderSync: pull/webhook → ExternalOrder, idempotent (connection_id, external_id), mapStatus | standards/integrations/provider-ports.md:46 | 031 | ĐẠT | sales-orders.prisma:97; core/src/sales/jobs/order-sync.jobs.ts:31; test packages/integrations/test/order-sync.test.ts, orders.test.ts (DV-011: không action `order.import_external`) |
 | STD-ops-obs-1.1 | Logger pino JSON; cấm console.log backend | standards/ops/observability-security.md:7 | mọi TIP | QUY-TẮC | `pnpm lint` — `no-console: 2` packages/core, ai, channels, db, apps/api, apps/worker eslint.config.mjs |
@@ -1660,8 +1654,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-010-3 | Màn admin đối soát giao dịch nền tảng không khớp (`matched_invoice_id` null) | reports/TIP-010-completion.md:45 | 040 | MỘT PHẦN | Chỉ có apps/api/src/http/billing/admin-transfers.controller.ts:17 (pending_review); không có danh sách giao dịch lệch |
 | DEF-010-4 | SePay nền tảng nhận webhook thật (AC3 với giao dịch thật) | reports/TIP-010-completion.md:32,46 | — | CHỜ-TK | Q-004; packages/integrations/src/connectors/sepay/adapter.ts + test sepay.test.ts |
 | DEF-012-1 | Action `integration.test` (kiểm tra kết nối connector) | reports/TIP-012-completion.md:37 | 023c | CHƯA | Không có trong registry (51 action thiếu); TIP-023c mục 10 "Kiểm tra kết nối (probe connector)" |
-| DEF-012-2 | Action `integration.sync_now` | reports/TIP-012-completion.md:37 | — | CHƯA | Không có trong packages/actions; không TIP chờ nào ghi |
-| DEF-012-3 | Adapter Casso thật (verifyWebhook / parseTransactions) | reports/TIP-012-completion.md:43 | — | GIẢ | packages/integrations/src/registry.ts:17 gắn `MockBankFeedProvider` cho casso; connectors/casso/ chỉ có manifest.ts — không phải thiếu tài khoản mà thiếu code |
+| DEF-012-2 | Action `integration.sync_now` | reports/TIP-012-completion.md:37 | 012b | CHƯA | Không có trong packages/actions; không TIP chờ nào ghi |
+| DEF-012-3 | Adapter Casso thật (verifyWebhook / parseTransactions) | reports/TIP-012-completion.md:43 | 012b | GIẢ | packages/integrations/src/registry.ts:17 gắn `MockBankFeedProvider` cho casso; connectors/casso/ chỉ có manifest.ts — không phải thiếu tài khoản mà thiếu code |
 | DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | — | MỘT PHẦN | packages/integrations/src/registry.ts:13-14 chỉ manifest; core/src/integrations/services/resolver.ts:25 trả adapter null. BrevoMailProvider chỉ được tạo bằng env nền tảng ở identity.module.ts:54, không chứng minh connector workspace. Unit ports.test.ts / smtp.test.ts xanh, chưa có kiểm chứng gửi bằng secret riêng từng workspace |
 | DEF-013-1 | Chuyển phụ trách khách của thành viên bị gỡ | reports/TIP-013-completion.md:42 | — | CHƯA | identity/actions/member-remove.handler.ts:2 chỉ đặt `removed`; không consumer `member.removed` ở crm |
 | DEF-013-2 | Seed `sla_policy` + đồng hồ SLA theo giờ làm việc workspace | reports/TIP-013-completion.md:41 | 034 | ĐẠT | support/services/sla-clock.ts; test support.test.ts:53 |

@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-012b (Bank integration manifest):** sequential, shares `packages/core/src/sales/payments/services/invoices-read.service.ts`, `packages/db/prisma/tenant/sales-payments.prisma`; integrate 042c before012b.
 - **Parallel-safe with TIP-019b (Runtime integration manifest):** sequential, shares `packages/core/src/notify/realtime/filter.ts`; integrate 042c before019b.
 - **Parallel-safe with TIP-025b (Inbox integration manifest):** sequential, shares `packages/core/src/booking/actions/appointment-book.handlers.ts`, `packages/core/src/contracts/actions/contract-write.handlers.ts`, `packages/core/src/inbox/actions/conversation-assign.handlers.ts`, `packages/core/src/inbox/inbox.module.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-write.handlers.ts`, `packages/core/src/support/actions/ticket-create.handler.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before025b.
 - **Parallel-safe with TIP-022b (agent behavior manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`, `packages/core/src/support/actions/ticket-create.handler.ts`, `packages/db/prisma/tenant/inbox.prisma`, `packages/db/prisma/tenant/support.prisma`; integrate 042c before022b.

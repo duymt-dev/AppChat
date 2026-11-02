@@ -32,3 +32,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-036 (loyalty): thêm topic `loyalty.*` vào `AI_TASK_EVENTS` nếu muốn tác vụ chăm sóc theo hạng.
 - TIP hạ tầng: tổng quát hoá tập "armed" cho mọi job quét tenant.
+
+## Bổ sung2026-11-02 — tenant bank/runtime integration
+
+TIP-012b-bank-connectors.md nhận adapter tenant thật, strict money/account normalization, canonical durable hook/pull/reconnect receipts và payment-event→AI task dispatch dedupe. Existing tests/DONE do not establish these missing/crash seams. Tenant Brevo/SMTP separate012c; no runtime/provider acceptance claimed. See bank-connectors-planning-audit-2026-11-02.md.
