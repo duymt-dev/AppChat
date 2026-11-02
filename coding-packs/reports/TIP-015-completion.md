@@ -68,3 +68,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung planning2026-11-02 — ownership015d
 
 [TIP015d](../tips/TIP-015d-contact-transfer.md) nhận chuyểnphụtrách AI approval, atomic relatedrecords/receipts/counts, quote operationalassignee táchimmutableattribution, guardedundo/bulk vàthôngbáohai bên currentredacted. Khôngthay test cũ thành bằngchứng tínhnăngmới. Merge/delete/restore015e, privacy015c vàorder/contractattribution032c vẫn phải viết; khôngđượcclaimđãđạt.
+
+## Bổ sung015f planning — 2026-11-02
+
+[TIP015f](../tips/TIP-015f-contact-lifecycle.md) owns contact delete/restore dependencies, retained identity after inbound, current deleted projection/AI fence, safe create/import inverse and blocked new externalorders. Historical settlement remains separate from newbusiness; no code/provider/runtime completion implied. Merge015e andprivacy015c still missing.

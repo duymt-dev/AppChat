@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 70 | 19 | 12 | 1 | 48 | 10 | 5 | 9 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 16 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 221 | 5 | 4 | 87 | 1 | 0 | 12 |
-| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 33 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 227 | 5 | 4 | 87 | 1 | 0 | 12 |
+| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 37 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 26 |
-| **Tổng** | **546** | **364** | **118** | **41** | **336** | **34** | **66** | **149** |
+| **Tổng** | **546** | **370** | **118** | **41** | **336** | **34** | **66** | **148** |
 
-## Lỗ hổng chưa có TIP nhận (149)
+## Lỗ hổng chưa có TIP nhận (148)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -99,7 +99,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-state-1 | MỘT PHẦN | Một bảng `defineFlow` mỗi domain cho mọi entity có status (15 entity) | E |
 | STD-domain-state-4 | MỘT PHẦN | Chuyển bởi hệ thống đi qua action `source='system'`, đọc lại trong tx | E |
 | STD-domain-validate-1 | CHƯA | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | E |
-| STD-domain-validate-3a | MỘT PHẦN | Xoá khách: mềm, chặn khi có đơn / HĐ chưa đóng hoặc công nợ → HAS_DEPENDENCIES | E |
 | STD-events-outbox-4 | MỘT PHẦN | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | E |
 | STD-events-outbox-5 | MỘT PHẦN | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | E |
 | STD-events-outbox-6 | CHƯA | Thứ tự đảm bảo theo từng entity (group theo entity_id) | E |
@@ -1199,6 +1198,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COMMERCE-EDIT-UNDO | Contract/order field-specific edit/deposit/shipping inverse checks current scope and after-version, retains audit | actions/action-registry.md:8; DC-255 | 032c | MỘT PHẦN | order-edit.handlers.ts:59–73 restores owner/note/shipping/custom even for deposit undo; shipping undo:177 lacks lock/version |
 | COMMERCE-OPERATIONAL-ASSIGNMENT | Contract/order responsible-person edits use assigned field distinct from immutable sales attribution, including marketplace | COMMERCE4b/8b; DC-255 | 032c | MỘT PHẦN | Existing owner edit supports responsible person but also changes KPI field; no assigned column/DTO/current-scope distinction |
 | COMMERCE-CREATE-UNDO | Create/delete inverse checks version/current authority/dependencies; order history retained by guarded cancel, no hard delete | standards/domain/validation-defaults.md section3; DC-255 | 032c | MỘT PHẦN | order-create.handlers.ts:91–98 hard deletes with status/payment check only; contract-write.handlers.ts:55/161 lacks version/current scope |
+| CRM-SOFTDELETE-IDENTITY | Known deleted identity stays bound; inbound keeps message without silently creating/repointing customer | validation-defaults3; Blueprint6; DC-256 | 015f | MỘT PHẦN | identity.service.ts:29–55 falls through null→phone/create/upsert; pipeline and order-import are both callers |
+| CRM-RESTORE30 | Explicit current-scope/version/generation restore within30days; no merged/erased/identity conflict resurrection | actions/crm.ts:115–126; validation-defaults3; DC-256 | 015f | MỘT PHẦN | contact-delete undo only clears deletedAt; no current-scope restore/list UI or incarnation check |
+| CRM-DELETE-AI-FENCE | Deleted contact blocks queued/resumed CRM-enriched AI and pre-reservation sends, without blocking authorized humanInbox |045b fence contract; DC-256 | 015f | MỘT PHẦN | reply-context.ts:80–101 reads contact/memory without tombstone; pipeline autoenqueue not lifecycle-aware |
+| CRM-CREATE-UNDO | Create/import inverse is guarded soft-delete with preserved audit, no physical cascade of later data | validation-defaults3; DC-256 | 015f | MỘT PHẦN | contact-write.handlers.ts:54 andcontact-io.handlers.ts:120 deleteMany without dependency/version/currentauthority |
+| CRM-DELETE-LIFECYCLE-PROJECTION | Inbox/WS/notice/history show current deleted marker, retain message permissions and suppress stale CRM actions | validation-defaults3; DC-256 | 015f | MỘT PHẦN | read.service.ts:154–167 fetches name without deletedAt; view.ts:49 still shows oldCRMname; UI stale360 actions |
+| COMMERCE-BLOCKED-IMPORT | New externalorder on retained tombstone persists blocked receipt, truthful counts/cursor and retry afterrestore once | provider-ports/order-sync; DC-256 | 015f | MỘT PHẦN | order-import.ts:91–133 blindly uses resolve result for neworder; sync cursor must not lose blocked source event |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1423,7 +1428,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-validate-1 | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | standards/domain/validation-defaults.md:7 | — | CHƯA | Thư mục validate không tồn tại; grep các mã = 0 trong shared/actions/core; normalizePhone (shared/src/crm/phone.ts:5) lưu dạng `0…` không phải E.164; MST regex chỉ ở onboarding.ts:15 |
 | STD-domain-validate-1b | Trùng nghiệp vụ → fields DUPLICATE; khách có owner khác → CONTACT_OWNED | standards/domain/validation-defaults.md:25 | 015 | ĐẠT | contacts.service.ts:60-69; test crm-contacts.test.ts |
 | STD-domain-validate-2 | Mặc định khi tạo do server đặt (owner = người ra lệnh, stage lead, valid_days 15…) | standards/domain/validation-defaults.md:29 | 015, 029, 031–034 | ĐẠT | DC-066; test quotes.test.ts, payments.test.ts:105 (hạn +7 ngày) |
-| STD-domain-validate-3a | Xoá khách: mềm, chặn khi có đơn / HĐ chưa đóng hoặc công nợ → HAS_DEPENDENCIES | standards/domain/validation-defaults.md:43 | — | MỘT PHẦN | crm/actions/contact-write.handlers.ts:154 xoá mềm + undo, không kiểm phụ thuộc (grep HAS_DEPENDENCIES crm = 0) |
+| STD-domain-validate-3a | Xoá khách: mềm, chặn khi có đơn / HĐ chưa đóng hoặc công nợ → HAS_DEPENDENCIES | standards/domain/validation-defaults.md:43 | 015f | MỘT PHẦN | contact-write.handlers.ts:154 lacks dependency guards;015f plans domain-owned unscoped existence predicates, root locking and30day restore. No runtime evidence yet. |
 | STD-domain-validate-3b | Mọi xoá risk delete có preview số bản ghi ảnh hưởng | standards/domain/validation-defaults.md:56 | 023b | MỘT PHẦN | actions.json: 2/17 action delete có preview |
 | STD-domain-validate-3c | Chứng từ lưu snapshot khách / sản phẩm lúc gửi / xác nhận | standards/domain/validation-defaults.md:57 | 029, 031 | ĐẠT | PDF đóng băng (quote-doc.ts:65); dòng quote_item/order_item lưu tên/giá |
 | STD-domain-validate-4a | Tìm `q` không dấu (f_unaccent); lọc lạ bỏ qua; page vượt → trang cuối | standards/domain/validation-defaults.md:61 | mọi TIP | ĐẠT | test crm-ui.test.ts:73,77 |

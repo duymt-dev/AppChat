@@ -69,3 +69,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Supplemental planning2026-11-02 ? TIP025b (not runtime DONE)
 
 See ../tips/TIP-025b-inbox-vertical.md for group/search/bulk/source-context/global contact edit/timeline CSV/scheduling/translation/capture/approval integration and exact manifests. Original completion status does not prove these missing controls.025b preserves existing domain permissions/commerce;026b still must own CRM deal/task/contact-note domain gaps. Independent review/validation tracked in inbox-vertical-planning-audit-2026-11-02.md.
+
+## Bổ sung015f planning — 2026-11-02
+
+[TIP015f](../tips/TIP-015f-contact-lifecycle.md) owns contact delete/restore dependencies, retained identity after inbound, current deleted projection/AI fence, safe create/import inverse and blocked new externalorders. Historical settlement remains separate from newbusiness; no code/provider/runtime completion implied. Merge015e andprivacy015c still missing.
