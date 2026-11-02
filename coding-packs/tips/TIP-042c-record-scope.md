@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-041:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 041. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038b. Recheck incomplete manifests.
 - **Parallel-safe with TIP-040:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 040. Recheck incomplete manifests.
 - **Parallel-safe with TIP-039:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 039. Recheck incomplete manifests.

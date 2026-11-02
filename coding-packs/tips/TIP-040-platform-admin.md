@@ -1,6 +1,7 @@
 # TIP-040 — Quản trị nền tảng: quyền, cấu hình, đối soát và UI
 
 ## HEADER
+- **Parallel-safe with TIP-041:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`, `packages/core/src/platform/platform.module.ts`, `packages/db/prisma/platform/identity.prisma`, `packages/db/src/tenant-resolver.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
 - TIP-ID: TIP-040; Project: AppChat V2; Module: platform; Priority: P1; Estimated: XL (platform context → config/finance → workspaces/UI).
 - Depends on:009/010/019/021; bắt buộc045b platform audit/idempotency/secretredaction/safeFetch,039 entitlement/replay; tích hợp sau038/042c/043 và cácpending sharedTIP, trước041/044/046.

@@ -1,6 +1,7 @@
 # TIP-038b — Nhập/xuất CRM và commerce AI-first, file thật
 
 ## HEADER
+- **Parallel-safe with TIP-041:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
 - TIP-ID: TIP-038b; Project: AppChat V2; Module: data-transfer; Priority: P0; Estimated: XL.
 - **Yêu cầu Chủ nhà:** nhập/xuất dữ liệu các bảng CRM, commerce; cả AI và không AI; xuất file thật. **AI là ưu tiên**, không làm nút AI trang trí hoặc chỉ bàn giao wizard thủ công.
 - Depends on:023b action discovery,023c attachment/GenUI,030b document parsing,032b product.import,038 list exports,042c scopes,045b asyncjobs/fieldmask/file security; integration sau040 và cácpending sharedTIP, trước044/046.
