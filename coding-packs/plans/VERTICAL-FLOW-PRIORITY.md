@@ -49,3 +49,5 @@ CRM audience →037 approvedsender/content →012b durable tenantmail transport 
 
 
 015c now owns approved privacy scope after019c: full-family blocker/fence, local private-content erasure, shared quarantine with truthful unresolved status, preserved issued evidence excluded from AI, one-way anti-recreation/fresh-profile generations and versioned journal restore gates.297 exact paths/10AC and two local reviews corrected/rechecked; not runtime acceptance. The earlier missing015c notes are historical. Continue023d/023e/kernel and all six goal conditions, not just this vertical checkpoint.
+
+023d now plans visible receipt-based Zalo→CRM→Commerce work, pause/edit/resume without duplicate effects and actual selected specialist authority. Prior-flow reuse strips customer/file/execution context; AI-first/manual038b files have real receipts. Local review closed, not runtime or whole-goal closure. Continue023e and remaining cross-domain/coverage work.

@@ -12,16 +12,16 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 14 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 27 | 2 | 0 | 11 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 14 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 101 | 1 | 0 | 6 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 34 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 23 |
-| **Tổng** | **545** | **376** | **118** | **41** | **351** | **34** | **66** | **129** |
+| **Tổng** | **545** | **376** | **118** | **41** | **355** | **34** | **66** | **126** |
 
-## Lỗ hổng chưa có TIP nhận (129)
+## Lỗ hổng chưa có TIP nhận (126)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -35,10 +35,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B11d | MỘT PHẦN | Phân công & SLA theo tài khoản | A |
 | REQ-C10a | MỘT PHẦN | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | A |
 | REQ-D17c | CHƯA | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | A |
-| REQ-E03d | CHƯA | Đề xuất tái dùng luồng trước | A |
-| REQ-E04b | MỘT PHẦN | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | A |
 | REQ-E09c | MỘT PHẦN | Hoàn tác trong hạn; đã gửi → ghi đính chính | A |
-| REQ-E11b | MỘT PHẦN | Chọn agent + cấp độ AI | A |
 | REQ-E12a | GIẢ | Đính kèm tệp / ảnh / email vào lệnh | A |
 | REQ-E12b | GIẢ | Nhập lệnh bằng giọng nói | A |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
@@ -319,9 +316,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E03a | Đọc chạy ngay; ghi hiện thẻ Xác nhận / Huỷ | 01-REQUIREMENTS-MATRIX.md:105 | 023 | ĐẠT | ai/assistant/card.ts; test assistant.test.ts "ghi → thẻ confirm" |
 | REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | MỘT PHẦN | card.ts câu mặc định (DC-128); ChatThread.tsx không nút Sửa |
 | REQ-E03c | Hàng loạt bắt buộc xác nhận số lượng | 01-REQUIREMENTS-MATRIX.md:105 | 003 | ĐẠT | policy.ts:24; test actions-unit.test.ts "bulk luôn preview" |
-| REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | — | CHƯA | Không có code |
+| REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | CHƯA | Không có code |
 | REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023 | ĐẠT | meta-tools.ts:124; delegate.ts; test assistant.test.ts "plan", "delegate" |
-| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | — | MỘT PHẦN | Dừng qua run.cancel; FE không render plan (features/assistant/types.ts:45); không sửa kế hoạch |
+| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; FE không render plan (features/assistant/types.ts:45); không sửa kế hoạch |
 | REQ-E05a | Điều hướng, mở bản ghi, điền form, áp lọc qua command bus | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | apps/web/src/shared/assistant/ui-command-bus.ts; features/*/ui-commands.ts; test ui-command-bus.test.ts, ui-commands.test.tsx |
 | REQ-E05b | Làm nổi bật phần tử | 01-REQUIREMENTS-MATRIX.md:107 | 023c | CHƯA | Không handler highlight đăng ký |
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
@@ -335,7 +332,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | MỘT PHẦN | API /assistant/sessions có (assistant.controller.ts:70; assistant.test.ts); FE không gọi |
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
-| REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | — | MỘT PHẦN | Mức AI ĐẠT; chọn agent chỉ lưu ui.agent (ComposerPopovers.tsx:92), sendTurn không gửi |
+| REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | 023d | MỘT PHẦN | Mức AI ĐẠT; chọn agent chỉ lưu ui.agent (ComposerPopovers.tsx:92), sendTurn không gửi |
 | REQ-E12a | Đính kèm tệp / ảnh / email vào lệnh | 01-REQUIREMENTS-MATRIX.md:114 | — | GIẢ | Mục file không upload; server chỉ nhận tên (assistant-prompt.ts:35) |
 | REQ-E12b | Nhập lệnh bằng giọng nói | 01-REQUIREMENTS-MATRIX.md:114 | — | GIẢ | Nút mic không onClick (features/assistant/components/Composer.tsx:76) |
 | REQ-E13a | Coworks ngay / lịch / sự kiện | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | ai/tasks/task.handlers.ts:35,186; test ai-tasks.test.ts:143,199,228 |
@@ -344,6 +341,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E14a | Khung "Trợ lý AI đang điều phối" + Dừng / Duyệt & gửi | 01-REQUIREMENTS-MATRIX.md:116 | 023 | ĐẠT | RunsOrchestrationBar.tsx:35,108; test ai-runtime.test.ts AC5 |
 | REQ-E14b | Tab Công cụ & Quyền chỉ hiển thị + link Builder | 01-REQUIREMENTS-MATRIX.md:116 | 035 | ĐẠT | TaskDrawer.tsx:132-144; test ai-tasks.test.ts:347 |
 | REQ-E15 | Generative UI mức 2 | 01-REQUIREMENTS-MATRIX.md:117 | 023c | CHƯA | packages/shared/src/genui không tồn tại |
+| PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | CHƯA | Current meta-tools update_step accepts model status; planned single logical claim/reducer only |
+| PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |
+| PLAN-REUSE-PRIVACY | Reuse safe plan structure with fresh authority/inputs, no old customer or execution context | DC267; TIP-023d §4 | 023d | CHƯA | No reusable-plan service; source lineage/015c gates planned |
+| ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | CHƯA | Current card/picker stores name; request omits selection; child binding seam planned |
 
 **Ghi chú / chưa rà hết:**
 

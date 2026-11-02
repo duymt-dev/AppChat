@@ -243,3 +243,11 @@ Exactownership tips/manifests/TIP-033b-files.md;025b retainsInboxpopover/route,0
 |019c [ai-utilities](tips/TIP-019c-ai-utilities.md)|Fourtypedskills, scoped evidence, protectedgeneration/publication, persistentUI andtruthful038bfileboundary|After019b/033b andexactbilateralpredecessors; before015c/023d/023e/044–046|8AC, nativeauthority/publicationbarriers/replay/budget, mock+http/mobile/parity andlive8; localplanningreviewclosed, runtimepending|
 
 Exactownership tips/manifests/TIP-019c-files.md. Notreplacementof015b memory/022b routing, semanticdiscovery023e oreditplans023d; no automaticgrants/businesswrites.
+
+### Supplemental023d — editable plans and selected agents (DC267)
+
+| TIP | Scope | Order | Evidence gate |
+|---|---|---|---|
+|023d [assistant-plans](tips/TIP-023d-assistant-plans.md)|Receipt progress, edit checkpoint/drain/resume, privacy-safe fresh reuse, stable selected agent/child authority|After015c and all exact bilateral predecessors; before023e/044/045/046|119 exact paths,18 futureM,31 bilateral pairs,7 ownedIDs,10AC; two local reviews closed, runtime pending|
+
+Exact manifest tips/manifests/TIP-023d-files.md. One primary-effect claim independent of model call ID; no budget reset or terminal resurrection. AI-first/manual real files reuse038b, not a second parser.
