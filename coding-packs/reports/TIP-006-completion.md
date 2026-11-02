@@ -55,3 +55,7 @@
 ## Bổ sung — rà câu A 2026-11-02
 
 Digest daily/weekly còn thiếu (DEF-006-1/DC030) được nhận cụ thể bởi [TIP-038 task5/AC09](../tips/TIP-038-insights-dashboard.md). Đây là kế hoạch scheduler/prefs/DND/scoped content/mail recovery, không phải đã triển khai hoặc đã nghiệm thu Brevo.
+
+## Bổ sung — event protocol audit2026-11-02
+
+[TIP003b](../tips/TIP-003b-event-protocol.md) receives kernel per-entity ordering/transaction collector/relay/readiness/cutover work. Existing post-handler event_consumption receipt does not prove concurrent/crash effect idempotence; published queue status is not domain completion.003c/006b adapter packs remain required separately. Original DONE TIP unchanged; no new runtime acceptance claimed.

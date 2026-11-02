@@ -51,3 +51,7 @@
 ## Supplemental planning audit (2026-11-02)
 
 See [authz audit](authz-planning-audit-2026-11-02.md), STD-database-tenantdb-5a and [TIP-045b](../tips/TIP-045b-app-hardening.md). Nested platform/tenant transactions and the later audit/outbox/idempotency write require fault/retry verification; comments alone do not prove cross-DB consistency. This is a pending corrective requirement, not a claim of reproduced data corruption.
+
+## Bổ sung — event protocol audit2026-11-02
+
+[TIP003b](../tips/TIP-003b-event-protocol.md) receives kernel per-entity ordering/transaction collector/relay/readiness/cutover work. Existing post-handler event_consumption receipt does not prove concurrent/crash effect idempotence; published queue status is not domain completion.003c/006b adapter packs remain required separately. Original DONE TIP unchanged; no new runtime acceptance claimed.

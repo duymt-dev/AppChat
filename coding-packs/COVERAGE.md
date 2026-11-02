@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
-| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
+| E. standards/* | 148 | 49 | 2 | 6 | 66 | 2 | 40 | 31 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **545** | **376** | **118** | **41** | **362** | **34** | **66** | **115** |
+| **Tổng** | **544** | **378** | **118** | **41** | **365** | **34** | **66** | **114** |
 
-## Lỗ hổng chưa có TIP nhận (115)
+## Lỗ hổng chưa có TIP nhận (114)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -83,7 +83,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-validate-1 | CHƯA | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | E |
 | STD-events-outbox-4 | MỘT PHẦN | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | E |
 | STD-events-outbox-5 | MỘT PHẦN | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | E |
-| STD-events-outbox-6 | CHƯA | Thứ tự đảm bảo theo từng entity (group theo entity_id) | E |
 | STD-i18n-4 | MỘT PHẦN | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | E |
 | STD-ui-fe-6 | CHƯA | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | E |
 | STD-ui-fe-9 | MỘT PHẦN | 5 trạng thái qua PageStates | E |
@@ -1433,10 +1432,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-validate-4b | Xuất theo bộ lọc + scope; > 5.000 dòng chạy job + link qua thông báo | standards/domain/validation-defaults.md:64 | 045b | CHƯA | contacts.repo.ts:67 `LIMIT 5000` cắt cứng; 045b task 11 |
 | STD-events-outbox-1 | Event chỉ qua outbox trong cùng tx + SADD outbox:dirty; cấm queue.add/emit từ handler | standards/events/outbox.md:5 | 003 | ĐẠT | kernel/outbox/outbox.ts:1,6; executor.ts:162-164; test actions.test.ts |
 | STD-events-outbox-2 | Relay drain dirty → BullMQ `events`; sweep 10 phút; retry 2^n tối đa 8 → failed | standards/events/outbox.md:9 | 003 | ĐẠT | outbox/relay.ts:2,8; outbox.jobs.module.ts:53; test relay-sequence.test.ts |
-| STD-events-outbox-3 | Tên `<entity>.<past_tense>` + zod payload trong shared/events.ts (ws, id, occurred_at) | standards/events/outbox.md:13 | mọi TIP | ĐẠT | packages/shared/src/events.ts:1-7 |
+| STD-events-outbox-3 | Tên event + schema payload và định danh entity rõ ràng trong shared/events.ts | standards/events/outbox.md:13 | 003b | MỘT PHẦN | Source audit: workspace.ready (tenant-provision.processor.ts:43) và tag.created (settings.handlers.ts:50) được phát nhưng không có EVENT_SCHEMAS.003b task1/AC1 thêm explicit schemas/map/disposition, kiểm cả HandlerOutcome events; normalized envelope không đoán payload.id. Chưa runtime. |
 | STD-events-outbox-4 | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | standards/events/outbox.md:15 | — | MỘT PHẦN | kernel/events/dispatcher.ts:26 đọc receipt nhưng :35 handle rồi :36 ghi receipt riêng; crash giữa hai bước hoặc hai dispatch đồng thời vẫn gọi effect lại. Chưa chứng minh mọi consumer tự idempotent; không coi unique receipt là exactly-once. Cần TIP bổ sung kernel/consumer audit + fault tests. |
 | STD-events-outbox-5 | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | standards/events/outbox.md:17 | — | MỘT PHẦN | Consumer sales/billing/catalog (payment.jobs.ts:44, sales.jobs.module.ts:33) ghi thẳng tx, không qua executor (chỉ 3 file core có `source: 'system'`) |
-| STD-events-outbox-6 | Thứ tự đảm bảo theo từng entity (group theo entity_id) | standards/events/outbox.md:18 | — | CHƯA | events.runner.ts:37 concurrency 8, jobId = event id, không group theo entity |
+| STD-events-outbox-6 | Thứ tự đảm bảo theo từng entity (group theo entity_id) | standards/events/outbox.md:18 | 003b | CHƯA | events.runner.ts:37 concurrency8, event jobId không tạo FIFO.003b task1/2/4 và AC2/4 nhận typed aggregate, transaction-final sequence và blocked retry head; activation còn gate adapters003c/006b, chưa runtime. |
 | STD-events-outbox-7 | `outbox_message` tách riêng, trạng thái pending/sending/sent/failed/dead | standards/events/outbox.md:19 | 014, 016 | ĐẠT | prisma tenant/inbox.prisma:94-98,243 |
 | STD-events-outbox-8 | Realtime WS là consumer; map room ws/user/conv; lọc quyền trước emit | standards/events/outbox.md:20 | 006 | ĐẠT | notify/realtime/envelope.ts:12, filter.ts, conv-guard.ts:1; test realtime.test.ts:67,109 |
 | STD-events-outbox-9 | Event mới: khai schema + bảng Blueprint + test "action X phát event Y" | standards/events/outbox.md:21 | mọi TIP | QUY-TẮC | 13 file integration test kiểm outbox_event |
@@ -1523,6 +1522,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-workflow-git-4d | Smoke bản build (api + worker khởi động, /v1/health) | standards/workflow/git-flow-ci.md:68 | 046 | CHƯA | Không có script `smoke:build` trong package.json (Q-009) |
 | STD-workflow-git-4e | CI: ubuntu-24.04, Node 24, cache pnpm/.turbo, concurrency cancel-in-progress, font từ repo | standards/workflow/git-flow-ci.md:72 | 001 | ĐẠT | ci.yml:10-29 |
 | STD-workflow-git-5 | Xong đơn vị việc: test → commit → report SHA → rebase → PR; không merge / không PR main | standards/workflow/git-flow-ci.md:84 | mọi TIP | QUY-TẮC | Quy trình |
+| EVT-TRANSACTION-COLLECTOR | Gom mọi outbox trong một transaction, cấp sequence ở terminal flush, không đảo khoá helper/undo | kernel/outbox/outbox.ts:14; executor.ts:170; undo.service.ts:22 | 003b | CHƯA | TIP003b task2/AC2;25writerfiles và undo, staged payload+sorted final allocation. Chưa code. |
+| EVT-RELAY-FENCE | Claim relay bền vững, stale failure không ghi đè success; recover mất Redis/retention | kernel/outbox/relay.ts:35–61 | 003b | MỘT PHẦN | Có retry/sweep, chưa durable claim/CASfailure. TIP003b task3/AC3/8 nhận. |
+| EVT-REGISTRY-READINESS | Worker chỉ consume sau expected registry/version/role đầy đủ, không ACK khi thiếu consumer | kernel/events/dispatcher.ts:24; events.runner.ts:30 | 003b | CHƯA | TIP003b task5/AC7: explicit post-bootstrap start và independent expected manifest; domain adapters còn gate riêng. |
+| EVT-LEGACY-CUTOVER | Giữ protocol/version legacy, không giả thứ tự lịch sử hoặc replay effect unknown | kernel/events/consumer.ts:4; outbox.jobs.module.ts:20 | 003b | CHƯA | TIP003b task5/AC9: scoped authorized cohort fence/reconciliation, no blind replay/mixed-old ACK. Chưa runtime. |
 
 **Ghi chú / chưa rà hết:**
 

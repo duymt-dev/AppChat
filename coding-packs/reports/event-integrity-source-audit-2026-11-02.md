@@ -45,3 +45,7 @@ Concurrent duplicate dispatch; crash before/after effect/receipt/queue publish; 
 
 ## Continue
 No owner/runtime promotion from this audit. Next author bounded exact packs, reconcile already-covered orphan rows independently, then remaining module/standard/prototype/fullgraph work. All six goal conditions remain active; checkpoint is not completion.
+
+## Concrete foundation follow-up
+
+TIP003b now specifies a transaction-scoped collector (all25 direct-writer caller files plus Executor/undo), so nested helper batches allocate sorted sequence only once at outer transaction end. Foundation build precedes003c/006b; activation still requires those actual adapters. Independent review found two currently emitted undeclared topics: workspace.ready at tenant-provision.processor.ts43 and tag.created at inbox/actions/settings.handlers.ts50.003b owns explicit schema/identity/disposition and exhaustive producer tests; STD-events-outbox3 downgraded to MỘT PHẦN rather than trusting old claimed schema coverage. Distinct relay/dispatch/head/receipt lease and fencing fields made explicit. No runtime verification.

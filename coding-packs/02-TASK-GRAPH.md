@@ -267,3 +267,11 @@ Agent-draft use of discovery is an additional unresolved Blueprint5.3b obligatio
 |023f [assistant-input](tips/TIP-023f-assistant-input.md)|Bounded file/image/email artifacts, guarded model hydration, screenshot and browser dictation|After023e/025b and every exact bilateral predecessor; before044/045/046|130exactpaths,8ownedIDs,10AC,33bilateralpairs; native isolation/profile/browser/provider gates still unverified|
 
 Not a replacement for038b business file transfer or025b Inbox capture. Exact manifest tips/manifests/TIP-023f-files.md. Native sandbox profiles are implementation prerequisites, not a statement that Node heap limits isolate untrusted parsing.
+
+### Supplemental003b — durable event protocol (DC270)
+
+|TIP|Scope|Order|Evidence gate|
+|---|---|---|---|
+|003b [event-protocol](tips/TIP-003b-event-protocol.md)|Transaction-final collector, typed aggregate sequence, relay claims, ordered dispatch/receipt ports/readiness/cutover|After023f and exact bilateral predecessors; foundation before003c/006b adapters, then combined activation before044–046|94exactpaths/11futureM/33bilateralpairs/6ownedIDs/10AC; local review corrections rechecked, runtime unverified|
+
+Foundation build has no backward dependency on adapters; v2 activation is separately blocked until actual003c/006b and future consumer capabilities are proven. STD-events-outbox4/5 and STD-domain-state4 are not claimed by foundation. All current25direct-writer files plus undo require transaction collector enrollment. No crossentity ordering or external exactly-once promise.
