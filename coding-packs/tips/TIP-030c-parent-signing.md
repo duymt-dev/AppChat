@@ -1,6 +1,7 @@
 # TIP-030c — Parent contract signing receipts and OTP generation integrity
 
 ## HEADER
+- **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`, `packages/shared/src/api/index.ts`; integrate 030c before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 030c before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `packages/shared/src/api/index.ts`; integrate 030c before020d.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `apps/web/messages/en/contracts.json`, `apps/web/messages/vi/contracts.json`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`, `packages/shared/src/api/index.ts`; integrate 030c before023g.

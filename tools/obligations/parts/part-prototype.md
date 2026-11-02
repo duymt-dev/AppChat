@@ -33,8 +33,8 @@
 | PRO-marketing-recipacts | Bảng người nhận: nút xem / thêm (⋯) | docs/06-prototype/AppChat.dc.html:3869 | 037 | GIẢ | apps/web/src/features/marketing/components/DetailTabs.tsx:126,129 `<button>` không onClick |
 | PRO-contracts-upload | Tab Tệp hợp đồng: Tải tệp lên | docs/06-prototype/AppChat.dc.html:5695 | 030b | GIẢ | apps/web/src/features/contracts/components/DetailTabs.tsx:237 `message.info('uploading')` |
 | PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | GIẢ | DetailTabs.tsx:231 `message.info('opening')` |
-| PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | — | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
-| PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | — | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
+| PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
+| PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
 | PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | — | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
 | PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | 023g | GIẢ | apps/web/src/features/quotes/columns.tsx:57 `message.info(aiDoing)` |
 | PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | 023g | GIẢ | apps/web/src/features/contracts/columns.tsx:72 `message.info` |

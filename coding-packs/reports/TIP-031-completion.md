@@ -45,3 +45,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung015f planning — 2026-11-02
 
 [TIP015f](../tips/TIP-015f-contact-lifecycle.md) owns contact delete/restore dependencies, retained identity after inbound, current deleted projection/AI fence, safe create/import inverse and blocked new externalorders. Historical settlement remains separate from newbusiness; no code/provider/runtime completion implied. Merge015e andprivacy015c still missing.
+
+## Bổ sung 2026-11-02 — TIP-032d
+
+[Order/invoice attachments](../tips/TIP-032d-commerce-record-files.md) receives actual Files tab upload/open gaps; generated invoice/receipt artifacts remain immutable and distinct from user attachments. Same canonical current-authorized actions serve AI and manual paths. Original TIP unchanged, runtime/native structural-validation proof still required.

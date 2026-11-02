@@ -1,6 +1,7 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
+- **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 020b before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before033c.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/kb/kb.handlers.ts`, `packages/db/prisma/tenant/ai-kb.prisma`; integrate 020b before020c.

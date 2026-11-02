@@ -1,6 +1,7 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 003b before032d.
 - **Parallel-safe with TIP-020d (RAG citations manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/runs/run-events.ts`, `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/ai/runs/runner.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before020d.
 - **Parallel-safe with TIP-020c (KB scope manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/kb/ingest.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/runs/run-events.ts`, `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/ai/runs/runner.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before020c.
 - **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/core/src/ai/runs/run-events.ts`, `packages/core/src/ai/runs/run.store.ts`, `packages/core/src/ai/runs/runner.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 003b before023g.

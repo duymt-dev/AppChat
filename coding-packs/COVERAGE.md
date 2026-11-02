@@ -17,11 +17,11 @@
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 12 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 27 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 20 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 18 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **99** |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **97** |
 
-## Lỗ hổng chưa có TIP nhận (99)
+## Lỗ hổng chưa có TIP nhận (97)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -86,8 +86,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
 | STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
 | STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
-| PRO-orders-files | GIẢ | Tab Tệp đơn hàng: Mở / Tải tệp lên | F |
-| PRO-invoices-files | GIẢ | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | F |
 | PRO-products-files | GIẢ | Tab Tệp sản phẩm: Mở tệp | F |
 | PRO-quotes-bulkfwd | GIẢ | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | F |
 | PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
@@ -1568,8 +1566,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-marketing-recipacts | Bảng người nhận: nút xem / thêm (⋯) | docs/06-prototype/AppChat.dc.html:3869 | 037 | GIẢ | apps/web/src/features/marketing/components/DetailTabs.tsx:126,129 `<button>` không onClick |
 | PRO-contracts-upload | Tab Tệp hợp đồng: Tải tệp lên | docs/06-prototype/AppChat.dc.html:5695 | 030b | GIẢ | apps/web/src/features/contracts/components/DetailTabs.tsx:237 `message.info('uploading')` |
 | PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | GIẢ | DetailTabs.tsx:231 `message.info('opening')` |
-| PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | — | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
-| PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | — | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
+| PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
+| PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
 | PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | — | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
 | PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | 023g | GIẢ | apps/web/src/features/quotes/columns.tsx:57 `message.info(aiDoing)` |
 | PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | 023g | GIẢ | apps/web/src/features/contracts/columns.tsx:72 `message.info` |

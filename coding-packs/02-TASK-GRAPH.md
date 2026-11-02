@@ -339,3 +339,11 @@ STD-ai-rag-8a downgraded: retrieved references are not evidence of answer-step c
 |033c [appointment-order-suggestions](tips/TIP-033c-appointment-order-suggestions.md)|Current Calendar/Inbox/Assistant card, closed GenUI schema, price-bound canonical confirmation and duplicate/undo integrity|After033b/032c/023c/045b and exact bilateral predecessors|64 exact paths/41 pairs/1 owned ID/8 AC; local review report|
 
 COM-4-7/8 deposit semantics remain separate under Q038/039;033c does not change them. No runtime proof from planning ownership.
+
+### Supplemental032d — order/invoice attachments (DC279)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|032d [commerce-record-files](tips/TIP-032d-commerce-record-files.md)|Real Files tabs, typed private association/claim, current download, immutable generated evidence and AI-artifact consented copy|After023c/f/030b/032c/015c/045b and exact bilateral predecessors|Exact manifest,2 owned prototype IDs,8 AC; native structural validation gate explicit|
+
+Product media/formatting and CSV dataset transfer remain separate. No model on ordinary upload/open, no public URL or malware-scan claim from structural parsing.
