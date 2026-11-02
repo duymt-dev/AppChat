@@ -66,11 +66,11 @@
 | PRO-assistant-research | Trợ lý: menu ＋ Nghiên cứu / Tìm kiếm | docs/06-prototype/AppChat.dc.html:10208 | — | NGOÀI | D48 (P2 cùng MCP) — nhưng hiện không có nhãn "Sắp có", bấm không phản hồi (ComposerPopovers.tsx:18-19) |
 | PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | — | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
 | PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | — | GIẢ | Composer.tsx:50 không onClick |
-| PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | — | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
+| PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
 | PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | — | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng |
 | PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | — | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing` |
-| PRO-settings-audit | Cài đặt › Audit log đọc `GET /settings/audit` | docs/06-prototype/AppChat.dc.html:7410 | — | GIẢ | apps/web/src/features/settings/api.ts:104; routes.json `missing` |
-| PRO-settings-aiaudit | Cài đặt › AI Audit log đọc `GET /settings/ai-audit` | docs/06-prototype/AppChat.dc.html:7035 | — | GIẢ | settings/api.ts:106; routes.json `missing` |
+| PRO-settings-audit | Cài đặt › Audit log đọc `GET /settings/audit` | docs/06-prototype/AppChat.dc.html:7410 | 045b | GIẢ | apps/web/src/features/settings/api.ts:104; routes.json `missing` |
+| PRO-settings-aiaudit | Cài đặt › AI Audit log đọc `GET /settings/ai-audit` | docs/06-prototype/AppChat.dc.html:7035 | 045b | GIẢ | settings/api.ts:106; routes.json `missing` |
 | PRO-settings-walletalerts | Ví: cảnh báo credit 80/95% lưu `wallet.update_alerts` | docs/06-prototype/AppChat.dc.html:6463 | 039 | GIẢ | apps/web/src/features/settings/components/WalletSection.tsx:30; handler null |
 | PRO-settings-upgradecontact | Popup Nâng cấp / Ví: "Liên hệ" gói Doanh nghiệp gửi yêu cầu thật | docs/06-prototype/AppChat.dc.html:985 | 039 | GIẢ | UpgradeModal.tsx:55, WalletShop.tsx:39 `message.info('contacted')` |
 | PRO-settings-wsswitch | Tổng quan workspace: nút "Chuyển" sang workspace khác | docs/06-prototype/AppChat.dc.html:6192 | — | GIẢ | apps/web/src/features/settings/components/GeneralSection.tsx:112 `message.success('switched')` dù `workspace.switch` có handler (UserMenu.tsx:45) |
