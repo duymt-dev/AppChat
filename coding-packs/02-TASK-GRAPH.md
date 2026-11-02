@@ -210,3 +210,11 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 
 - Mô hình OPC: **Chủ nhà** duyệt / quyết; **Chủ thầu** (Claude, phiên thiết kế) viết TIP theo wave, nhận Completion Report, verify; **Thợ** (Claude Code, mỗi TIP một phiên / nhánh) thi công.
 - Mỗi TIP chờ có file riêng `tips/TIP-XXX-<slug>.md`, viết trước theo **DC-233 (thay D57)**; bắt buộc rà CONTEXT với code trước thi công. Tiến độ: `goals/GOAL-BACKEND.md`. File manifest chia sẻ phải serialize (DC-234), không suy ra song song chỉ từ wave.
+
+### Supplemental015e — merge/dedupe and retained contact lineage (DC257)
+
+| TIP | Scope | Dependency/order | Evidence gate |
+|---|---|---|---|
+|015e [contact-merge-integrity](tips/TIP-015e-contact-merge-integrity.md)|Scoped real candidates, selected versioned plans, no ACL union, family-aware historical commerce/package/Inbox, conditional7day inverse and AI-first realfiles|After015f and all exact bilateral predecessors; before015c/044–046|8 AC/native race/authority/10kEXPLAIN/actualCSV-XLSX/live8 cases; local planning review/recheck closed, runtime pending|
+
+Exact M/C ownership: tips/manifests/TIP-015e-files.md. Retained financial source refs do not imply permission bypass. No historical DONE TIP edited; independent whole-graph review still required.

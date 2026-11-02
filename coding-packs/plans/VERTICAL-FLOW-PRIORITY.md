@@ -38,3 +38,7 @@ Chủ nhà yêu cầu2026-11-02; áp dụng cho câu A (chỉ tài liệu). Khô
 032c now specifies contract/order immutable attribution versus responsible assignment, rowCAS and safe inverse across manual/AI/file/conversion paths. It follows015d; contact lifecycle015e/privacy015c remain separate, and the earlier broad015d reservation is superseded by these explicit boundaries. No runtime acceptance.
 
 015f now receives soft-delete/restore/inbound identity and financial dependency barriers after032c. This separates deletion from still-unwritten015e merge/dedupe/lineage;015c privacy remains separate. Preserve historicalsettlement andmessagehistory without claiming customer restoration.
+
+###015e merge/lineage slice
+
+Zalo source identity/message retained → canonical CRM candidate/confirmed merge → historical Commerce/package associations with current authority → AI context/proposal invalidation. Manual and AI-first actualfiles share038b. Exactmanifest/AC in015e; local planning review/recheck closed, runtime pending; not goal completion.

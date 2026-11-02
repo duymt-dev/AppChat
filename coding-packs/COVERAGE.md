@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 70 | 19 | 12 | 1 | 48 | 10 | 5 | 9 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 70 | 19 | 12 | 1 | 48 | 10 | 5 | 8 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 16 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 227 | 5 | 4 | 87 | 1 | 0 | 12 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 88 | 1 | 0 | 11 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 37 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 36 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 26 |
-| **Tổng** | **546** | **370** | **118** | **41** | **336** | **34** | **66** | **148** |
+| **Tổng** | **546** | **373** | **118** | **41** | **337** | **34** | **66** | **145** |
 
-## Lỗ hổng chưa có TIP nhận (148)
+## Lỗ hổng chưa có TIP nhận (145)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -44,7 +44,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E12a | GIẢ | Đính kèm tệp / ảnh / email vào lệnh | A |
 | REQ-E12b | GIẢ | Nhập lệnh bằng giọng nói | A |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
-| REQ-F03a | MỘT PHẦN | Kiểm trùng (SĐT / email / MST / ID kênh) + gộp hồ sơ có preview + hoàn tác | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
 | REQ-G07e | CHƯA | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | B |
@@ -68,7 +67,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-086 | CHƯA | Nhiều widget / workspace (P1) | C |
 | DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
 | DC-215 | CHƯA | Cấu hình danh mục ticket riêng | C |
-| ACT-contact.merge | MỘT PHẦN | `contact.merge` (write, bulk) — handler qua ActionExecutor | D |
 | ACT-doc_template.create | MỘT PHẦN | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | D |
 | ACT-ai.detect_intent | CHƯA | `ai.detect_intent` có trong registry + handler | D |
 | ACT-ai.extract_info | CHƯA | `ai.extract_info` có trong registry + handler | D |
@@ -126,7 +124,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
 | PRO-products-richtext | GIẢ | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | F |
-| PRO-customers-dedupe | GIẢ | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | F |
 | PRO-assistant-plusfile | GIẢ | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | F |
 | PRO-assistant-plusscreenshot | GIẢ | Trợ lý: menu ＋ "Chụp ảnh màn hình" | F |
 | PRO-assistant-mic | GIẢ | Trợ lý: nút giọng nói | F |
@@ -403,7 +400,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F02b | Hồ sơ 360°: tóm tắt AI thật | 01-REQUIREMENTS-MATRIX.md:125 | 015b | CHƯA | contact360.ts:43 chỉ đọc cột `aiSummary` (không ai ghi); ai.bars/signals/nba rỗng :59 |
 | REQ-F02c | Hồ sơ 360°: đơn / báo giá / lịch hẹn / ticket / công nợ / thu gần nhất | 01-REQUIREMENTS-MATRIX.md:125 | 015b | CHƯA | contact360.ts:52–55 `kpis: []`, recent_order / recent_payment rỗng, `tasks: []`; apps/web/src/features/inbox/components/Blocks360.tsx:2 "khối module khác hiện chưa có dữ liệu" |
 | REQ-F02d | Hồ sơ 360°: hạng loyalty + giá trị điểm đúng 1 điểm = 100đ | 01-REQUIREMENTS-MATRIX.md:125 | 036 | MỘT PHẦN | contact360.ts:40 `pointsBalance * 10n` (sai, COMMERCE §7 = 100đ); `points_balance` không được cộng ở completeOrder |
-| REQ-F03a | Kiểm trùng (SĐT / email / MST / ID kênh) + gộp hồ sơ có preview + hoàn tác | 01-REQUIREMENTS-MATRIX.md:126 | — | MỘT PHẦN | Basic merge exists but contact-merge.handler.ts:49–78 lacks root/version and unions ACL;94–109 undo overwrites later state. Business relation inventory/identity-after-delete and DedupeModal selection unresolved. See crm-lifecycle-source-audit-2026-11-02;015e not yet written. |
+| REQ-F03a | Kiểm trùng (SĐT / email / MST / ID kênh) + gộp hồ sơ có preview + hoàn tác | 01-REQUIREMENTS-MATRIX.md:126 | 015e | MỘT PHẦN | Basic merge exists but contact-merge.handler.ts:49–78 lacks root/version and unions ACL;94–109 undo overwrites later state. Business relation inventory/identity-after-delete and DedupeModal selection unresolved. See crm-lifecycle-source-audit-2026-11-02;015e written: guarded selected plan/ACL equality/lineage/conditional inverse, not implemented. |
 | REQ-F03b | Nhập khách từ CSV / XLSX (ghép cột, preview, trùng) + xuất (CSV BOM — DC-063) theo bộ lọc | 01-REQUIREMENTS-MATRIX.md:126 | 015, 026 | ĐẠT | packages/core/src/crm/actions/contact-io.handlers.ts:20, :57; apps/api/src/http/crm/contacts.controller.ts:79 import-table; test crm-settings.test.ts AC11, crm-ui.test.ts "nhập" + "contact.export theo đủ bộ lọc" |
 | REQ-F04 | Trường tuỳ biến cho 6 thực thể (khách, SP, báo giá, đơn, ticket, lịch hẹn), lưu `custom jsonb`, validate theo định nghĩa | 01-REQUIREMENTS-MATRIX.md:127 | 015, 026–034 | ĐẠT | packages/shared/src/custom-fields/values.ts:10; validateCustomValues ở quote-write.ts:114, order-write.ts:80, ticket-create.handler.ts:53, appointment-book.handlers.ts:97, catalog-write.ts:78; test crm-settings.test.ts AC9a, apps/web/e2e/custom-fields.spec.ts |
 | REQ-F05a | Sản phẩm 6 loại, giá chưa VAT, giá vốn, ĐVT, thuế theo dòng, danh mục, biến thể, combo | 01-REQUIREMENTS-MATRIX.md:128 | 027 | ĐẠT | packages/db/prisma/tenant/catalog.prisma:5 (6 loại), :54–56; packages/core/src/catalog/actions/product.handlers.ts:24; test catalog.test.ts "tạo 6 loại", apps/web/e2e/http/products.spec.ts |
@@ -854,7 +851,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-contact.set_stage | `contact.set_stage` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:627 | 023b | MỘT PHẦN | packages/core/src/crm/actions/contact-write.handlers.ts:89; test crm-contacts.test.ts, crm-ui.test.ts; thiếu preview (DC-224) |
 | ACT-contact.tag | `contact.tag` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:638 | 023b | MỘT PHẦN | packages/core/src/crm/actions/contact-write.handlers.ts:131; test crm-contacts.test.ts, crm-ui.test.ts; thiếu preview (DC-224) |
 | ACT-contact.delete | `contact.delete` (delete) — handler qua ActionExecutor | plans/BLUEPRINT.md:647 | 023b | MỘT PHẦN | packages/core/src/crm/actions/contact-write.handlers.ts:154; test crm-contacts.test.ts, engine.test.ts; thiếu preview (DC-224) |
-| ACT-contact.merge | `contact.merge` (write, bulk) — handler qua ActionExecutor | plans/BLUEPRINT.md:643 | — | MỘT PHẦN | Basic merge exists but contact-merge.handler.ts:49–78 lacks root/version and unions ACL;94–109 undo overwrites later state. Business relation inventory/identity-after-delete and DedupeModal selection unresolved. See crm-lifecycle-source-audit-2026-11-02;015e not yet written. |
+| ACT-contact.merge | `contact.merge` (write, bulk) — handler qua ActionExecutor | plans/BLUEPRINT.md:643 | 015e | MỘT PHẦN | Basic merge exists but contact-merge.handler.ts:49–78 lacks root/version and unions ACL;94–109 undo overwrites later state. Business relation inventory/identity-after-delete and DedupeModal selection unresolved. See crm-lifecycle-source-audit-2026-11-02;015e written: guarded selected plan/ACL equality/lineage/conditional inverse, not implemented. |
 | ACT-contact.add_collaborator | `contact.add_collaborator` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:644 | 023b | MỘT PHẦN | packages/core/src/crm/actions/contact-owner.handlers.ts:20; test crm-contacts.test.ts, inbox.test.ts; thiếu preview (DC-224) |
 | ACT-contact.remove_collaborator | `contact.remove_collaborator` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:644 | 023b | MỘT PHẦN | packages/core/src/crm/actions/contact-owner.handlers.ts:56; test crm-contacts.test.ts; thiếu preview (DC-224) |
 | ACT-contact.transfer_owner | `contact.transfer_owner` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:645 | 023b | MỘT PHẦN | packages/core/src/crm/actions/contact-owner.handlers.ts:81; test crm-contacts.test.ts, crm-ui.test.ts; thiếu preview (DC-224) |
@@ -1204,6 +1201,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | CRM-CREATE-UNDO | Create/import inverse is guarded soft-delete with preserved audit, no physical cascade of later data | validation-defaults3; DC-256 | 015f | MỘT PHẦN | contact-write.handlers.ts:54 andcontact-io.handlers.ts:120 deleteMany without dependency/version/currentauthority |
 | CRM-DELETE-LIFECYCLE-PROJECTION | Inbox/WS/notice/history show current deleted marker, retain message permissions and suppress stale CRM actions | validation-defaults3; DC-256 | 015f | MỘT PHẦN | read.service.ts:154–167 fetches name without deletedAt; view.ts:49 still shows oldCRMname; UI stale360 actions |
 | COMMERCE-BLOCKED-IMPORT | New externalorder on retained tombstone persists blocked receipt, truthful counts/cursor and retry afterrestore once | provider-ports/order-sync; DC-256 | 015f | MỘT PHẦN | order-import.ts:91–133 blindly uses resolve result for neworder; sync cursor must not lose blocked source event |
+| CRM-MERGE-AUTHORITY | Same current family owner/ACL guard, no grant union; current document authority and pending-request safety | D32; contact-merge.handler.ts:68–78; DC257 | 015e | MỘT PHẦN | Existing merge unions ACL/auto-adds source owner; current plan rejects mismatch and keeps canonical relationship policy separate from immutable attribution |
+| CRM-MERGE-LINEAGE | Complete family association across commerce, packages/booking/support/loyalty/Inbox; retained source ledger/issued bytes | REQ-F03a; appointment-write.ts:42–55; DC257 | 015e | MỘT PHẦN | Current merge moves only CRM subset; package lookup exact source ID, broader consumers explicitly inventoried in015e |
+| CRM-MERGE-UNDO | Versioned conditional7day inverse under sorted locks, no overwritten new data/forgotten facts/ACL resurrection | contact-merge.handler.ts:94–109;015b memory rules; DC257 | 015e | MỘT PHẦN | Existing inverse moves IDs/clears fields without after-state/current topology proof; planned private receipts and native barriers |
+| CRM-MERGE-AI-FILES | AI-first scoped real candidates/selected preview and actualCSV/XLSX lineage; manual noLLM fallback | User vertical priority; D51/DC244; DC257 | 015e | CHƯA | Rule percentages/UI selection are not AI confidence or real selected-plan execution; future live8 cases and actual038b file readback required |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1587,7 +1588,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
 | PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |
 | PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | — | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
-| PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | — | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
+| PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | 015e | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
 | PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |
 | PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | 025b | GIẢ | GroupInfoPanel.tsx:85 không onClick |

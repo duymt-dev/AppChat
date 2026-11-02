@@ -72,3 +72,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung015f planning — 2026-11-02
 
 [TIP015f](../tips/TIP-015f-contact-lifecycle.md) owns contact delete/restore dependencies, retained identity after inbound, current deleted projection/AI fence, safe create/import inverse and blocked new externalorders. Historical settlement remains separate from newbusiness; no code/provider/runtime completion implied. Merge015e andprivacy015c still missing.
+
+## Bổ sung015e — chưa triển khai
+
+[TIP-015e](../tips/TIP-015e-contact-merge-integrity.md) nhận merge/dedupe và historical family/package associations, current authority và conditional inverse. Không coi report DONE cũ là chứng minh các phần bổ sung đã đạt.
