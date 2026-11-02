@@ -84,7 +84,7 @@
 | COM-8-4 | BG từ chối / hết hạn, không còn BG mở → Đang tư vấn | plans/COMMERCE-DECISIONS.md:167 | 029 | ĐẠT | quote-system.ts:44 closeLost · test quotes.test.ts "từ chối → lùi giai đoạn về Đang tư vấn" |
 | COM-8-5 | `order.completed` → Đã mua | plans/COMMERCE-DECISIONS.md:168 | 031 | ĐẠT | order-flow.handlers.ts:43 · test orders.test.ts "khách Đã mua" |
 | COM-8-6 | Đã mua không bao giờ bị hạ | plans/COMMERCE-DECISIONS.md:170 | 015 | ĐẠT | crm/services/stage-rules.ts:25 · test orders.test.ts "hoàn tác giữ Đã mua" |
-| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | — | MỘT PHẦN | Code có (stage-rules.ts:26 MANUAL_HOLD_MS); không test nào kiểm `stage_set_manually_at` / cửa sổ 24h |
+| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | 015g | MỘT PHẦN | stage-rules.ts:26 checks24h but31 CAS omits manual timestamp/version;015g atomic family/version/hold, guarded undo and real producer boundary/ABA tests; planning not runtime |
 | COM-8-8 | Không có pipeline Deal riêng; giai đoạn trên Khách hàng | plans/COMMERCE-DECISIONS.md:172 | 015 | QUY-TẮC | Không có bảng deal; contact360.ts:43 `deal` rỗng |
 | COM-8b-1 | Vai trò trên khách owner / collaborator / watcher | plans/COMMERCE-DECISIONS.md:176 | 015 | ĐẠT | crm/services/access.ts · test crm-contacts.test.ts AC3 |
 | COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | 042c | MỘT PHẦN | quote/order/contract/invoice/booking helpers chỉ role collaborator; TIP042c AC2 mở đọc có kiểm permission, không mở ghi |

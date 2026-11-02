@@ -80,3 +80,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung015c — privacy planning, chưa triển khai
 
 [TIP015c](../tips/TIP-015c-contact-privacy.md) nhận contact.forget/REQ-N08b và sáu ranh giới privacy riêng: chứng từ giữ nguyên, nội dung riêng xoá, nhóm/chung cách ly, token chống tái tạo, file/AI publication fences và journal-safe restore. Q033–Q037 đã duyệt;297 exactpaths/10AC. Không thay kết quả test cũ thành bằng chứng tính năng mới.
+
+## Bổ sung planning 2026-11-02 — TIP-015g
+
+[TIP-015g](../tips/TIP-015g-crm-stage-hold.md) receives COM-8-7 without status promotion. Existing24h check is not atomic against a manual ABA; identical-stage action currently no-ops and is preserved. Shared canonical family/version guard and conditional touched-field undo cover actual quote/contract/order/system producers.26 exact paths/18 pairs/8 AC; independent local review checked, lossless timestamp undo clarified; runtime not accepted. See crm-stage-hold-planning-audit-2026-11-02.md.

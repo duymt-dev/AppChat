@@ -1,6 +1,7 @@
 # TIP-003c — Canonical private system-transition adapters
 
 ## HEADER
+- **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/sales/quotes/services/quote-system.ts`, `packages/core/src/sales/system/handlers.ts`; integrate 003c before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`, `packages/core/src/support/support.module.ts`; integrate 003c before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/define.ts`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/core/src/kernel/actions/actions.module.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`, `packages/core/src/support/support.module.ts`; integrate 003c before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/support/support.module.ts`; integrate 003c before034b.

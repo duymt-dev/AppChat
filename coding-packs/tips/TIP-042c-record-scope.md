@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`; integrate 042c before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/support/services/tickets-read.service.ts`; integrate 042c before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/support/services/tickets-read.service.ts`, `packages/core/src/support/ticket-access.ts`; integrate 042c before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/support/services/tickets-read.service.ts`; integrate 042c before034b.

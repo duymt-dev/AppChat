@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 11 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 10 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 18 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **90** |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **89** |
 
-## Lỗ hổng chưa có TIP nhận (90)
+## Lỗ hổng chưa có TIP nhận (89)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -43,7 +43,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
 | COM-4-8 | CHƯA | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | C |
 | COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
-| COM-8-7 | MỘT PHẦN | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | C |
 | COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
 | D28c | MỘT PHẦN | Connector storage phát hành | C |
 | D48 | MỘT PHẦN | Research / Web search khoá "Sắp có" | C |
@@ -592,7 +591,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8-4 | BG từ chối / hết hạn, không còn BG mở → Đang tư vấn | plans/COMMERCE-DECISIONS.md:167 | 029 | ĐẠT | quote-system.ts:44 closeLost · test quotes.test.ts "từ chối → lùi giai đoạn về Đang tư vấn" |
 | COM-8-5 | `order.completed` → Đã mua | plans/COMMERCE-DECISIONS.md:168 | 031 | ĐẠT | order-flow.handlers.ts:43 · test orders.test.ts "khách Đã mua" |
 | COM-8-6 | Đã mua không bao giờ bị hạ | plans/COMMERCE-DECISIONS.md:170 | 015 | ĐẠT | crm/services/stage-rules.ts:25 · test orders.test.ts "hoàn tác giữ Đã mua" |
-| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | — | MỘT PHẦN | Code có (stage-rules.ts:26 MANUAL_HOLD_MS); không test nào kiểm `stage_set_manually_at` / cửa sổ 24h |
+| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | 015g | MỘT PHẦN | stage-rules.ts:26 checks24h but31 CAS omits manual timestamp/version;015g atomic family/version/hold, guarded undo and real producer boundary/ABA tests; planning not runtime |
 | COM-8-8 | Không có pipeline Deal riêng; giai đoạn trên Khách hàng | plans/COMMERCE-DECISIONS.md:172 | 015 | QUY-TẮC | Không có bảng deal; contact360.ts:43 `deal` rỗng |
 | COM-8b-1 | Vai trò trên khách owner / collaborator / watcher | plans/COMMERCE-DECISIONS.md:176 | 015 | ĐẠT | crm/services/access.ts · test crm-contacts.test.ts AC3 |
 | COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | 042c | MỘT PHẦN | quote/order/contract/invoice/booking helpers chỉ role collaborator; TIP042c AC2 mở đọc có kiểm permission, không mở ghi |

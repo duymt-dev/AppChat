@@ -371,3 +371,9 @@ Product media/formatting and CSV dataset transfer remain separate. No model on o
 | TIP | Scope | Integration order | Gates |
 |---|---|---|---|
 |034d [ticket-stock-trends](tips/TIP-034d-ticket-stock-trends.md)|Five current-cohort observed deltas, atomic daily projection/privacy cleanup and same canonical Assistant/UI facts|After034b/c/042c/015c/045b/023b/c/g and exact bilateral predecessors|57 paths,1 deferred owner,8 AC; fresh-statement capture/forget and protected-publication native barriers; no fictional history|
+
+### Supplemental015g — atomic manual-stage24h hold (DC284)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|015g [crm-stage-hold](tips/TIP-015g-crm-stage-hold.md)|Canonical family/version/24h atomic stage guard, no-op compatibility and conditional manual undo across real Commerce triggers|After025b/015c/e/f/032c/003c/030c and exact bilateral predecessors|26 paths,1 owned Commerce invariant,8 AC; native ABA/exact cutoff/undo/source transaction matrix|
