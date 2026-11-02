@@ -1,6 +1,21 @@
 # TIP-040 — Quản trị nền tảng: quyền, cấu hình, đối soát và UI
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 040 before014c.
+- **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/actions/useAction.ts`; integrate 040 before001c.
+- **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 040 before022d.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 040 before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/actions/useAction.ts`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 040 before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 040 before003f.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 040 before003g.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 040 before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `packages/db/prisma/platform/identity.prisma`, `tools/parity/parity.manifest.ts`; integrate 040 before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/db/src/tenant-resolver.ts`; integrate 040 before006c.
+- **Parallel-safe with TIP-011b (coverage-closure manifest):** sequential, shares `coding-packs/docs/06-prototype/DEVIATIONS.md`; integrate 040 before011b.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 040 before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 040 before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 040 before031b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/router/provider.store.ts`, `packages/core/src/platform/services/provider-probe.ts`; integrate 040 before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/index.ts`; integrate 040 before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 040 before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 040 before034d.

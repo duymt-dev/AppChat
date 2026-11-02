@@ -1,6 +1,14 @@
 # TIP-023g — Record-scoped AI entry points across Commerce and operations
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023g before014c.
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/ai/assistant.controller.ts`; integrate 023g before003i.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023g before046.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023g before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 023g before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023g before013b.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/orders.json`, `apps/web/messages/vi/orders.json`; integrate 023g before033d.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 023g before020e.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/assistant/turn.service.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 023g before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/tickets.json`, `packages/core/src/authz/fields/history-provenance.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/tickets.json`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before034c.

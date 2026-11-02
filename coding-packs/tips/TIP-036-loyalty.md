@@ -1,6 +1,13 @@
 # TIP-036 — Loyalty: sổ điểm, đổi điểm, hạn điểm, hạng và nối HTTP
 
 ## HEADER
+- **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/features/loyalty/components/MemberTabs.tsx`; integrate 036 before001b.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 036 before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 036 before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 036 before003h.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 036 before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 036 before031b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate 036 before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate 036 before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/reply/reply-context.ts`; integrate 036 before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-flow.handlers.ts`; integrate 036 before015g.

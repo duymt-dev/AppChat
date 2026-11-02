@@ -1,6 +1,11 @@
 # TIP-045: Native production deployment, observability and verifiable recovery
 
 ## HEADER
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `.github/workflows/ci.yml`, `coding-packs/standards/workflow/git-flow-ci.md`, `package.json`, `pnpm-lock.yaml`; integrate 045 before046.
+- **Parallel-safe with TIP-003d (coverage-closure manifest):** sequential, shares `apps/api/src/bootstrap.ts`; integrate 003d before045.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/sessions.ts`; integrate 003g before045.
+- **Parallel-safe with TIP-012d (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/files/storage.ts`; integrate 012d before045.
+- **Parallel-safe with TIP-035c (coverage-closure manifest):** sequential, shares `packages/db/package.json`; integrate 035c before045.
 - **Parallel-safe with TIP-003b (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `apps/worker/src/main.ts`, `apps/worker/src/start-events.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/identity/jobs/tenant-provision.processor.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/events/events.runner.ts`, `packages/core/src/kernel/outbox/outbox.jobs.module.ts`; integrate 003b before045.
 - **Parallel-safe with TIP-003c (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/index.ts`; integrate 003c before045.
 - **Parallel-safe with TIP-006b (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/index.ts`; integrate 006b before045.

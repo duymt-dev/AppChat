@@ -1,6 +1,20 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before014c.
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/ai/agents.controller.ts`, `packages/core/src/booking/services/calendar-read.service.ts`; integrate 038 before003i.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before046.
+- **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/features/dashboard/components/AgentsSection.tsx`; integrate 038 before001b.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 038 before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 038 before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 038 before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 038 before006c.
+- **Parallel-safe with TIP-011b (coverage-closure manifest):** sequential, shares `coding-packs/docs/06-prototype/DEVIATIONS.md`; integrate 038 before011b.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 038 before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/features/contracts/components/ContractsToolbar.tsx`, `apps/web/src/features/orders/components/OrdersToolbar.tsx`, `apps/web/src/features/quotes/components/QuotesToolbar.tsx`; integrate 038 before031b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/shared/src/api/ai.ts`; integrate 038 before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/index.ts`; integrate 038 before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 038 before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/features/tickets/components/TicketsHeader.tsx`, `apps/web/src/shared/api/mock/domains/tickets.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before034d.

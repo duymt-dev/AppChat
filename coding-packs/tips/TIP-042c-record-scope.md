@@ -1,6 +1,13 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 042c before003i.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/crm.prisma`; integrate 042c before003e.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 042c before013c.
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `packages/core/src/support/actions/ticket-create.handler.ts`; integrate 042c before014c.
+- **Parallel-safe with TIP-028b (coverage-closure manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`, `packages/db/prisma/tenant/sales-payments.prisma`; integrate 042c before028b.
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/services/order-import.ts`; integrate 042c before031c.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 042c before033d.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate 042c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`; integrate 042c before015g.

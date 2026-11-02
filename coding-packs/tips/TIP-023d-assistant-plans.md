@@ -1,6 +1,19 @@
 # TIP-023d — Kế hoạch Cowork có thể sửa/tái dùng và chọn agent thật
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023d before014c.
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/ai/assistant.controller.ts`; integrate 023d before003i.
+- **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/delegate.ts`; integrate 023d before019d.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023d before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 023d before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 023d before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 023d before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023d before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 023d before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023d before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 023d before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 023d before031b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/ai/src/gateway/types.ts`, `packages/ai/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 023d before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`; integrate 023d before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/ai/src/index.ts`, `packages/core/src/ai/agents/agent.runtime.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/assistant/delegate.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/assistant/turn.service.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 023d before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023d before034d.

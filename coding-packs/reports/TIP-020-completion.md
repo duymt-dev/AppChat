@@ -55,3 +55,7 @@ TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding 
 ## Bổ sung 2026-11-02 — TIP-020d
 
 [RAG citations](../tips/TIP-020d-rag-citations.md) receives STD-ai-rag-8a/8b: existing retrieval output does not establish actual answer references or rendered sources in drafts/logs. Scope includes validated answer-generation binding and actual UI hosts, reusing020c current authorization. Original TIP unchanged; future native/live proof required.
+
+## Bổ sung — TIP-020f (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-020f](../tips/TIP-020f-kb-parsers.md): DC-110. File TIP gốc không sửa (DC-233).

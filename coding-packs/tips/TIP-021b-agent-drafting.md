@@ -1,6 +1,9 @@
 # TIP-021b — Agent drafting discovers authorized tools before generation
 
 ## HEADER
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/actions/src/ai.ts`; integrate 021b before003e.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/core/src/ai/agents/agent.handlers.ts`; integrate 021b before003h.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/ai/src/gateway/types.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 021b before020e.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 021b before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`; integrate 021b before034d.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 021b before027b.

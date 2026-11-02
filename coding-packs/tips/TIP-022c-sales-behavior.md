@@ -1,6 +1,12 @@
 # TIP-022c: Sales Agent — tồn kho có căn cứ và ý định báo giá trước tác động
 
 ## HEADER
+- **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/delegate.ts`; integrate 022c before019d.
+- **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 022c before022d.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 022c before003g.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 022c before006c.
+- **Parallel-safe with TIP-016b (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/public.ts`; integrate 022c before016b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/ai/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 022c before020e.
 - **Parallel-safe with TIP-003b (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before022c.
 - **Parallel-safe with TIP-003c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 003c before022c.
 - **Parallel-safe with TIP-006b (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/tasks/task.runner.ts`; integrate 006b before022c.

@@ -1,6 +1,18 @@
 # TIP-032c: Hợp đồng/đơn hàng — attribution bất biến, sửa và hoàn tác không ghi đè
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before014c.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 032c before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `apps/web/src/features/contracts/components/ContractFormModal.tsx`, `apps/web/src/features/orders/components/OrderFormModal.tsx`; integrate 032c before003f.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `apps/web/src/features/contracts/components/ContractFormModal.tsx`, `apps/web/src/features/orders/components/OrderFormModal.tsx`; integrate 032c before003g.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before004b.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 032c before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/features/contracts/components/ContractsToolbar.tsx`, `apps/web/src/features/orders/components/OrdersToolbar.tsx`, `packages/actions/src/contracts.ts`, `packages/actions/src/orders.ts`; integrate 032c before031b.
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/services/order-import.ts`, `packages/core/src/sales/orders/services/order-write.ts`; integrate 032c before031c.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/orders.json`, `apps/web/messages/vi/orders.json`, `apps/web/src/features/orders/components/OrderFormModal.tsx`, `apps/web/src/features/orders/hooks/useOrderForm.ts`, `packages/actions/src/orders.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/orders/actions/order-edit.handlers.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 032c before033d.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 032c before020e.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 032c before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-flow.handlers.ts`; integrate 032c before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 032c before034d.

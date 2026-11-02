@@ -1,6 +1,20 @@
 # TIP-034c — Ticket bulk outcomes, atomic item changes and guarded partial undo
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034c before014c.
+- **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/actions/useAction.ts`; integrate 034c before001c.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034c before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/errors.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/errors.json`, `apps/web/src/shared/actions/useAction.ts`, `packages/actions/src/index.ts`, `packages/actions/src/support.ts`, `packages/core/src/support/actions/ticket-edit.handlers.ts`; integrate 034c before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/errors.json`, `apps/web/messages/vi/errors.json`, `packages/shared/src/index.ts`; integrate 034c before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 034c before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034c before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 034c before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034c before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 034c before013c.
+- **Parallel-safe with TIP-016b (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 034c before016b.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 034c before031b.
+- **Parallel-safe with TIP-035c (coverage-closure manifest):** sequential, shares `packages/core/src/support/jobs/support.jobs.module.ts`; integrate 034c before035c.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/kernel/actions/tip-owners.ts`; integrate 034c before020e.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/kernel/actions/action-context.ts`; integrate 034c before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/tickets.json`, `apps/web/src/features/tickets/types.ts`, `apps/web/src/shared/api/mock/domains/tickets.ts`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/tip-owners.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`, `packages/core/src/support/public.ts`, `packages/core/src/support/services/tickets-read.service.ts`, `packages/core/src/support/support.module.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/api/tickets.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 034c before034d.
 - **Parallel-safe with TIP-003b (Ticket bulk manifest):** sequential, shares `packages/core/src/kernel/actions/undo.service.ts`, `packages/shared/src/index.ts`; integrate 003b before034c.

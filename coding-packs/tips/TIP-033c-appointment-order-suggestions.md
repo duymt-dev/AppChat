@@ -1,6 +1,15 @@
 # TIP-033c — Appointment-to-order suggestions across Calendar, Inbox and Assistant
 
 ## HEADER
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`; integrate 033c before013c.
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 033c before003i.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 033c before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/booking/actions/appointment-flow.handlers.ts`; integrate 033c before003e.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 033c before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 033c before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 033c before013b.
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`; integrate 033c before014c.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`; integrate 033c before020e.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/meta-tools.ts`; integrate 033c before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034c.

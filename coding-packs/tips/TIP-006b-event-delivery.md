@@ -1,6 +1,12 @@
 # TIP-006b — Durable event delivery and AI task fanout
 
 ## HEADER
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 006b before003e.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/core/src/notify/realtime/emitter.ts`; integrate 006b before006c.
+- **Parallel-safe with TIP-012d (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 006b before012d.
+- **Parallel-safe with TIP-016b (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before016b.
+- **Parallel-safe with TIP-017b (coverage-closure manifest):** sequential, shares `apps/api/src/http/notify/realtime/ws.gateway.ts`; integrate 006b before017b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate 006b before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/index.ts`; integrate 006b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/tasks/task.runner.ts`; integrate 006b before022c.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before034c.

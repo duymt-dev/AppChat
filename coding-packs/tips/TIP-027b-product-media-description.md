@@ -1,6 +1,16 @@
 # TIP-027b — Private product media and functional formatted descriptions
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 027b before014c.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 027b before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 027b before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `apps/web/src/features/products/components/ProductFormModal.tsx`, `packages/shared/src/index.ts`; integrate 027b before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 027b before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 027b before004b.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 027b before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 027b before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 027b before031b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 027b before020e.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/catalog/actions/read.handlers.ts`, `packages/core/src/catalog/catalog.module.ts`; integrate 027b before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 027b before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/data-transfer.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/data-transfer.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/shared/src/api/data-transfer.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/data-transfer/registry.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 027b before034c.

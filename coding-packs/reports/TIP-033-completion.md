@@ -47,3 +47,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung 2026-11-02 — TIP-033c
 
 [Appointment order suggestions](../tips/TIP-033c-appointment-order-suggestions.md) receives COM-4-4: transient Calendar suggestion alone does not prove reload-safe Inbox/Assistant surfaces. Existing canonical conversion retained with current preview/confirmation, scoped read and guarded undo; original TIP unchanged. Runtime proof remains required.
+
+## Bổ sung — TIP-033d (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-033d](../tips/TIP-033d-order-deposit.md): COM-4-7, COM-4-8, STD-domain-money-1.4. File TIP gốc không sửa (DC-233).

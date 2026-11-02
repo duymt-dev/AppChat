@@ -47,3 +47,11 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - Thêm "smoke bản build" vào D59 cổng chốt TIP cho TIP backend (bắt lỗi đóng gói như trên).
 - TIP-011 nối FE: `features/auth/api.ts` đang gọi `/auth/password/reset-request` và đọc `needs_declare` từ `otp/verify` — backend trả `needs_declare` ở `GET /v1/me`; `GET /session` / `/session/ack` của mock không có ở backend (trial thuộc TIP-009).
+
+## Bổ sung — TIP-004b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-004b](../tips/TIP-004b-auth-security.md): PRO-settings-security, Q-018. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-004c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-004c](../tips/TIP-004c-mail-provider-webhooks.md): BP-8-b. File TIP gốc không sửa (DC-233).

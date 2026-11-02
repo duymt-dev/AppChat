@@ -44,3 +44,7 @@
 - TIP-013: nối Cài đặt sang http, kiểm bằng `pnpm e2e:http <spec>`; nối socket `/ws` ở FE (token trong bộ nhớ của transport).
 - TIP-038: Dashboard đọc `workspace.settings.onboarding_steps`.
 - CI: job `e2e-http` cần Postgres + Redis (Q-008).
+
+## Bổ sung — TIP-011b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-011b](../tips/TIP-011b-industry-taxonomy.md): REQ-A02d. File TIP gốc không sửa (DC-233).

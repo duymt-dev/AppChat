@@ -49,3 +49,11 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung 2026-11-02 — TIP-032d
 
 [Order/invoice attachments](../tips/TIP-032d-commerce-record-files.md) receives actual Files tab upload/open gaps; generated invoice/receipt artifacts remain immutable and distinct from user attachments. Same canonical current-authorized actions serve AI and manual paths. Original TIP unchanged, runtime/native structural-validation proof still required.
+
+## Bổ sung — TIP-031b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-031b](../tips/TIP-031b-commerce-bulk.md): PRO-quotes-bulkfwd, PRO-contracts-bulkfwd, PRO-orders-bulkfwd, Q-021. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-031c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-031c](../tips/TIP-031c-stock-master.md): COM-4b-5, REQ-F07b-3. File TIP gốc không sửa (DC-233).

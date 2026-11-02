@@ -48,3 +48,7 @@
 - TIP-021: `agents` của `/settings/widget` hiện chỉ có agent đã chọn — thay bằng danh sách `ai_agent`.
 - TIP-044: nginx `widget.<domain>` phục vụ `apps/widget/dist/widget.js` + proxy socket `/widget`; đặt `WIDGET_API_URL` / `WIDGET_SCRIPT_URL`.
 - Typing indicator / `agent.status` (Blueprint §4.6) chưa phát — làm cùng copilot (TIP-022) khi có trạng thái agent.
+
+## Bổ sung — TIP-017b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-017b](../tips/TIP-017b-web-widget.md): REQ-B05c, PRO-settings-widgetacts, DC-086, DEF-017-2, DEF-017-3. File TIP gốc không sửa (DC-233).

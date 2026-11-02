@@ -1,6 +1,22 @@
 # TIP-023c: Generative UI (D55) + Trợ lý theo màn có ngữ cảnh + kết nối kênh / nền tảng qua Trợ lý (QR Zalo trong chat, form có ô bí mật)
 
 ## HEADER
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/ai/assistant.controller.ts`; integrate 023c before003i.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `apps/web/package.json`, `pnpm-lock.yaml`, `tools/parity/parity.manifest.ts`; integrate 023c before046.
+- **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/features/quotes/screens/QuotesScreen.tsx`; integrate 023c before001c.
+- **Parallel-safe with TIP-003d (coverage-closure manifest):** sequential, shares `apps/api/src/http/kernel/kernel.http.module.ts`; integrate 023c before003d.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/actions/useAction.ts`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 023c before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/common.json`, `apps/web/messages/vi/common.json`, `packages/shared/src/index.ts`; integrate 023c before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/core/src/channels/services/control.ts`, `packages/shared/src/index.ts`; integrate 023c before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `tools/parity/parity.manifest.ts`; integrate 023c before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 023c before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `tools/parity/parity.manifest.ts`; integrate 023c before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 023c before013c.
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`; integrate 023c before014c.
+- **Parallel-safe with TIP-017b (coverage-closure manifest):** sequential, shares `packages/actions/src/settings-apps.ts`; integrate 023c before017b.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 023c before031b.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/orders.json`, `apps/web/messages/vi/orders.json`; integrate 023c before033d.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/ai/src/gateway/types.ts`, `packages/ai/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate 023c before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`, `packages/core/src/kernel/kernel.module.ts`, `pnpm-lock.yaml`; integrate 023c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/ai/src/index.ts`, `packages/ai/src/prompts/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/assistant/pending-action.ts`, `packages/core/src/ai/assistant/turn.service.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/shared/src/i18n/server/en/ai.ts`, `packages/shared/src/i18n/server/vi/ai.ts`; integrate 023c before022c.
 - **Parallel-safe with TIP-044 (AI release eval manifest):** sequential, shares `pnpm-lock.yaml`; integrate 023c before044.

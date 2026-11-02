@@ -36,3 +36,11 @@
 ## Bổ sung2026-11-02 — tenant bank/runtime integration
 
 TIP-012b-bank-connectors.md nhận adapter tenant thật, strict money/account normalization, canonical durable hook/pull/reconnect receipts và payment-event→AI task dispatch dedupe. Existing tests/DONE do not establish these missing/crash seams. Tenant Brevo/SMTP separate012c; no runtime/provider acceptance claimed. See bank-connectors-planning-audit-2026-11-02.md.
+
+## Bổ sung — TIP-035b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-035b](../tips/TIP-035b-task-sparkline.md): PRO-assistant-taskspark. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-035c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-035c](../tips/TIP-035c-test-ops-hygiene.md): DEF-031-4, DEF-031-5, DEF-035-1, DEF-035-2, Q-010. File TIP gốc không sửa (DC-233).

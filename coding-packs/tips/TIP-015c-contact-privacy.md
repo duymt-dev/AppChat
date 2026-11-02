@@ -1,6 +1,25 @@
 # TIP-015c — Quên khách xuyên Zalo, CRM, Commerce và AI
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015c before014c.
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/action-logs.read.ts`, `packages/core/src/ai/kb/kb.read.ts`, `packages/core/src/booking/services/calendar-read.service.ts`; integrate 015c before003i.
+- **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/policy.ts`; integrate 015c before019d.
+- **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 015c before022d.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015c before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/crm.ts`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 015c before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`, `packages/shared/src/index.ts`; integrate 015c before003f.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 015c before003g.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 015c before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015c before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/notify/realtime/emitter.ts`; integrate 015c before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015c before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/inbox/services/pipeline.ts`; integrate 015c before013c.
+- **Parallel-safe with TIP-017b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/webchat/publisher.ts`; integrate 015c before017b.
+- **Parallel-safe with TIP-020f (coverage-closure manifest):** sequential, shares `packages/core/src/ai/kb/ingest.ts`; integrate 015c before020f.
+- **Parallel-safe with TIP-028b (coverage-closure manifest):** sequential, shares `packages/core/src/documents/services/doc-renderer.ts`, `packages/core/src/sales/payments/services/invoice-doc.ts`; integrate 015c before028b.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 015c before031b.
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/services/order-import.ts`; integrate 015c before031c.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/kb/ingest.ts`, `packages/core/src/ai/kb/kb.read.ts`, `packages/core/src/ai/kb/search.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 015c before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/channels/jobs/poller.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/privacy/restore-gate.ts`, `packages/db/src/lifecycle/restore.ts`; integrate 015c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/send-fence.ts`, `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/channels/operations/provider-event.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 015c before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/crm/actions/contact-write.handlers.ts`, `packages/core/src/crm/lifecycle/lock.ts`; integrate 015c before015g.

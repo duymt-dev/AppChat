@@ -54,3 +54,7 @@ TIP-012b-bank-connectors.md nhận adapter tenant thật, strict money/account n
 ## Bổ sung012c — chưa triển khai
 
 [TIP-012c](../tips/TIP-012c-tenant-mail.md) nhận tenantBrevo/SMTP adapters, sender/receipt/callback safety và EmailMarketing onboarding. Platform MailProvider test không chứng minh tenant connector đã chạy thật.
+
+## Bổ sung — TIP-012d (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-012d](../tips/TIP-012d-storage-connector.md): D28c, REQ-M03b. File TIP gốc không sửa (DC-233).

@@ -1,6 +1,6 @@
-# COVERAGE — sổ phủ nghĩa vụ (bản nháp 1, 2026-11-01)
+# COVERAGE — sổ phủ nghĩa vụ (bản 2, 2026-11-03)
 
-> Thước đo hoàn thành của phần còn lại (DC-233): mỗi nghĩa vụ trong tài liệu một dòng — nguồn · TIP nhận · trạng thái · bằng chứng code. Dựng bằng 7 lượt rà đối chiếu code (không tin trạng thái DONE). **Bản nháp:** các lượt rà dừng sớm theo lệnh Chủ nhà (hết quota) — mục "Chưa rà hết" cuối mỗi phần liệt kê chỗ chưa đối chiếu sâu. Công cụ ở `tools/obligations/` (xem `README.md` ở đó): `actions.mjs`, `routes.mjs` sinh dữ liệu tự động; các phần rà ở `parts/part-*.md`; `merge.py` gộp thành file này — sửa phần rồi chạy lại, không sửa tay file này.
+> Thước đo hoàn thành của phần còn lại (DC-233): mỗi nghĩa vụ trong tài liệu một dòng — nguồn · TIP nhận · trạng thái · bằng chứng code. Dựng bằng 7 lượt rà đối chiếu code (không tin trạng thái DONE); rà nốt và đóng lỗ hổng 2026-11-02/03 (`coding-packs/reports/coverage-closure-audit-2026-11-02.md`). Ghi chú cuối mỗi phần nêu phạm vi đã rà. Công cụ ở `tools/obligations/` (xem `README.md` ở đó): `actions.mjs`, `routes.mjs` sinh dữ liệu tự động; các phần rà ở `parts/part-*.md`; `merge.py` gộp thành file này — sửa phần rồi chạy lại, không sửa tay file này.
 
 ## Quy ước trạng thái
 
@@ -12,107 +12,21 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 50 | 11 | 21 | 10 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 110 | 1 | 0 | 4 |
-| E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 17 |
-| **Tổng** | **541** | **389** | **118** | **41** | **374** | **34** | **66** | **86** |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 49 | 12 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 90 | 241 | 5 | 4 | 114 | 3 | 0 | 0 |
+| E. standards/* | 146 | 65 | 2 | 6 | 69 | 2 | 43 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 0 |
+| **Tổng** | **545** | **405** | **118** | **41** | **378** | **37** | **69** | **0** |
 
-## Lỗ hổng chưa có TIP nhận (86)
+## Lỗ hổng chưa có TIP nhận (0)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
 | ID | Trạng thái | Nghĩa vụ | Phần |
 |---|---|---|---|
-| REQ-A02d | MỘT PHẦN | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | A |
-| REQ-A05f | CHƯA | Mời thành viên bằng SĐT | A |
-| REQ-B04a | CHƯA | Cảnh báo rủi ro khi kết nối Zalo | A |
-| REQ-B05c | CHƯA | Tuỳ chỉnh logo widget | A |
-| REQ-B06b | CHƯA | Gmail OAuth | A |
-| REQ-B11d | MỘT PHẦN | Phân công & SLA theo tài khoản | A |
-| REQ-C10a | MỘT PHẦN | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | A |
-| REQ-E09c | MỘT PHẦN | Hoàn tác trong hạn; đã gửi → ghi đính chính | A |
-| REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
-| REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
-| REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
-| REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
-| REQ-N10d | CHƯA | WCAG AA (tương phản, aria, bàn phím) có kiểm tự động | B |
-| COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
-| COM-4-8 | CHƯA | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | C |
-| COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
-| COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
-| D28c | MỘT PHẦN | Connector storage phát hành | C |
-| D48 | MỘT PHẦN | Research / Web search khoá "Sắp có" | C |
-| DC-029 | CHƯA | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | C |
-| DC-081 | CHƯA | Owner vắng / ngoài ca → hàng chung | C |
-| DC-086 | CHƯA | Nhiều widget / workspace (P1) | C |
-| DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
-| ACT-doc_template.create | MỘT PHẦN | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | D |
-| BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
-| BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
-| BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
-| STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
-| STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
-| STD-code-testing-4b | MỘT PHẦN | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | E |
-| STD-database-indexing-8 | MỘT PHẦN | Không `SELECT *` trong list API | E |
-| STD-database-indexing-9 | CHƯA | Không N+1; repo list có test đếm số query | E |
-| STD-documents-templates-2b | MỘT PHẦN | Chứng từ ghi `template_id` + `template_version` đã dùng | E |
-| STD-documents-templates-6b | CHƯA | Kết quả bảng kiểm hiện trong preview của action gửi / duyệt | E |
-| STD-domain-concurrency-1a | MỘT PHẦN | Cột `version` + `if_version` → STALE_VERSION cho contact, product, quote, contract, order, invoice, appointment, ticket, campaign, ai_agent, doc_templ | E |
-| STD-domain-concurrency-1b | CHƯA | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | E |
-| STD-domain-concurrency-T | MỘT PHẦN | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | E |
-| STD-domain-money-1.4 | CHƯA | Chia đợt / cọc theo %: làm tròn xuống, đợt cuối nhận phần dư | E |
-| STD-domain-money-1.7 | MỘT PHẦN | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | E |
-| STD-domain-money-2.2 | MỘT PHẦN | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | E |
-| STD-domain-money-2.5 | CHƯA | Mốc nhắc (T-2 báo giá, T-1/T+1/T+7 đề nghị, lịch hẹn 24h) gửi trong giờ làm việc, ngoài giờ dời | E |
-| STD-domain-state-1 | MỘT PHẦN | Một bảng `defineFlow` mỗi domain cho mọi entity có status (15 entity) | E |
-| STD-domain-validate-1 | CHƯA | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | E |
-| STD-i18n-4 | MỘT PHẦN | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | E |
-| STD-ui-fe-6 | CHƯA | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | E |
-| STD-ui-fe-9 | MỘT PHẦN | 5 trạng thái qua PageStates | E |
-| STD-ui-fe-11 | MỘT PHẦN | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | E |
-| STD-ui-fe-13b | CHƯA | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | E |
-| STD-ui-ip-3.2 | CHƯA | Validate bằng zodRule khi rời ô / bấm nút; lỗi theo `errors.<CODE>`; cuộn tới lỗi đầu | E |
-| STD-ui-ip-3.4 | CHƯA | Đóng form đã sửa chưa lưu → hỏi xác nhận bỏ thay đổi | E |
-| STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
-| STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
-| STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
-| PRO-quotes-bulkfwd | GIẢ | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | F |
-| PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
-| PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
-| PRO-assistant-taskspark | GIẢ | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | F |
-| PRO-shell-navbadges | GIẢ | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | F |
-| PRO-settings-wsswitch | GIẢ | Tổng quan workspace: nút "Chuyển" sang workspace khác | F |
-| PRO-settings-wsbuy | GIẢ | Tổng quan workspace: "Mua thêm workspace" | F |
-| PRO-settings-logo | GIẢ | Tổng quan workspace: Đổi logo (tải PNG/SVG) | F |
-| PRO-settings-membersfilter | GIẢ | Thành viên: Lọc theo vai trò / trạng thái | F |
-| PRO-settings-membersexport | GIẢ | Thành viên: Xuất danh sách | F |
-| PRO-settings-widgetacts | GIẢ | Widget web: thêm / sửa nút hành động | F |
-| PRO-settings-docs | GIẢ | Cài đặt: chip "Tài liệu hướng dẫn" | F |
-| PRO-settings-tagslearn | GIẢ | Thẻ & nhãn: "Tìm hiểu thêm" | F |
-| PRO-settings-navcounts | GIẢ | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | F |
-| PRO-settings-paymentaccount | CHƯA | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | F |
-| PRO-settings-security | CHƯA | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | F |
-| DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
-| DEF-002-2 | CHƯA | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | G |
-| DEF-013-1 | CHƯA | Chuyển phụ trách khách của thành viên bị gỡ | G |
-| DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
-| DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
-| DEF-028-1 | MỘT PHẦN | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | G |
-| DEF-030-3 | CHƯA | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | G |
-| DEF-031-4 | CHƯA | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | G |
-| DEF-031-5 | CHƯA | `db:cleanup-test` tự nạp `.env` | G |
-| DEF-032-3 | MỘT PHẦN | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | G |
-| DEF-035-1 | CHƯA | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | G |
-| DEF-035-2 | CHƯA | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | G |
-| Q-010 | CHƯA | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | G |
-| Q-017 | MỘT PHẦN | `e2e-http.mjs` tự dọn workspace test sau lượt | G |
-| Q-018 | CHƯA | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | G |
-| Q-021 | CHƯA | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | G |
-| DV-001 | CHƯA | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | G |
 
 ## A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX)
 
@@ -125,7 +39,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A02a | Popup khai báo bắt buộc, không đóng được trước khi khai báo | 01-REQUIREMENTS-MATRIX.md:35 | 011 | ĐẠT | apps/web/src/features/onboarding/components/OnboardingGate.tsx:32 (không nút đóng); test onboarding.test.ts AC2/AC3; e2e http/auth-onboarding.spec.ts |
 | REQ-A02b | DN / Hộ KD: tra MST rồi tự điền | 01-REQUIREMENTS-MATRIX.md:35 | 004, 011 | ĐẠT | packages/integrations/src/connectors/vietqr/tax-lookup.ts:14; apps/api/src/http/identity/workspaces.controller.ts:51; test ports.test.ts, workspaces.test.ts AC11 |
 | REQ-A02c | Cá nhân: nhập VNeID (12 số) + nhập tay | 01-REQUIREMENTS-MATRIX.md:35 | 004, 011 | ĐẠT | packages/actions/src/onboarding.ts:16,25; DeclareStepInfo.tsx:55; test workspaces.test.ts AC9 |
-| REQ-A02d | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | 01-REQUIREMENTS-MATRIX.md:35 | — | MỘT PHẦN | Chỉ ô mô tả tự do (DeclareBusinessModal.tsx:32, onboarding.ts:23) theo prototype ver2.1; không taxonomy, không mã quyết định bỏ |
+| REQ-A02d | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | 01-REQUIREMENTS-MATRIX.md:35 | 011b | MỘT PHẦN | Chỉ ô mô tả tự do (DeclareBusinessModal.tsx:32, onboarding.ts:23) theo prototype ver2.1; không taxonomy, không mã quyết định bỏ; TIP-011b nhận (2026-11-02) |
 | REQ-A03a | Mỗi workspace một DB riêng, tạo tự động khi đăng ký | 01-REQUIREMENTS-MATRIX.md:36 | 002, 004 | ĐẠT | packages/db/src/provisioner.ts:35; test packages/db/test/integration/tenant-isolation.test.ts, workspaces.test.ts AC7 |
 | REQ-A03b | Migration áp cho mọi DB tenant | 01-REQUIREMENTS-MATRIX.md:36 | 002 | ĐẠT | packages/db/src/tenant-migrate.ts:28; test tenant-migrate.test.ts |
 | REQ-A03c | Test tự động chống rò dữ liệu giữa tenant | 01-REQUIREMENTS-MATRIX.md:36 | 002 | ĐẠT | test tenant-isolation.test.ts "(d) 2 workspace ghi song song" |
@@ -135,7 +49,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A05c | AI chạy đúng quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:38 | 021, 022, 023 | ĐẠT | packages/core/src/ai/assistant/delegate.ts:1-4; test assistant.test.ts "quyền: sales…", ai-tasks.test.ts "quyền" |
 | REQ-A05d | Trang Vai trò & phân quyền chỉ đọc | 01-REQUIREMENTS-MATRIX.md:38 | 013 | ĐẠT | apps/web/src/features/settings/components/RolesSection.tsx:29; test settings.test.ts AC8, e2e roles.spec.ts |
 | REQ-A05e | Mời thành viên bằng email | 01-REQUIREMENTS-MATRIX.md:38 | 013 | ĐẠT | identity/actions/member-invite.handler.ts:23; test settings.test.ts AC2, workspaces.test.ts AC10 |
-| REQ-A05f | Mời thành viên bằng SĐT | 01-REQUIREMENTS-MATRIX.md:38 | — | CHƯA | packages/actions/src/settings.ts:39 input chỉ email; MemberModal.tsx:12 |
+| REQ-A05f | Mời thành viên bằng SĐT | 01-REQUIREMENTS-MATRIX.md:38 | 013b | CHƯA | packages/actions/src/settings.ts:39 input chỉ email; MemberModal.tsx:12; TIP-013b nhận (2026-11-02) |
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
 | REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
 | REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
@@ -160,17 +74,17 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
 | REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
-| REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | — | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n |
+| REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n; TIP-014c nhận (2026-11-02) |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
 | REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | MỘT PHẦN | send.processor.ts:43 chỉ tin chủ động, không số mặc định (Q-013) |
 | REQ-B04d | Tự ngắt khi bị chặn | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | sessions.ts:149; test channels.test.ts AC8/AC9 — Q-003 |
 | REQ-B05a | Widget JS nhúng, realtime | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | apps/widget/src/main.ts:55; test webchat.test.ts, apps/widget/test/ui.test.ts, e2e http/webchat.spec.ts |
 | REQ-B05b | Tuỳ chỉnh màu, lời chào | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | packages/actions/src/settings-apps.ts:256-261; test webchat.test.ts AC2 |
-| REQ-B05c | Tuỳ chỉnh logo widget | 01-REQUIREMENTS-MATRIX.md:52 | — | CHƯA | webchat.update_widget không có ô logo (settings-apps.ts:256-275) |
+| REQ-B05c | Tuỳ chỉnh logo widget | 01-REQUIREMENTS-MATRIX.md:52 | 017b | CHƯA | webchat.update_widget không có ô logo (settings-apps.ts:256-275); TIP-017b nhận (2026-11-02) |
 | REQ-B05d | Form thu lead (pre-chat) | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | channels/webchat/widget.service.ts:48; test webchat.test.ts AC3+AC4 |
 | REQ-B05e | Chọn AI Agent trực widget | 01-REQUIREMENTS-MATRIX.md:52 | 017, 022 | ĐẠT | settings-apps.ts:266; e2e http/agent-reply.spec.ts |
 | REQ-B06a | Email IMAP + SMTP | 01-REQUIREMENTS-MATRIX.md:53 | 018 | ĐẠT | packages/channels/src/email/imap-transport.ts:122; test email.test.ts, email-adapter.test.ts, smtp.test.ts |
-| REQ-B06b | Gmail OAuth | 01-REQUIREMENTS-MATRIX.md:53 | — | CHƯA | Không nhánh OAuth; Q-016 mở |
+| REQ-B06b | Gmail OAuth | 01-REQUIREMENTS-MATRIX.md:53 | 018b | CHƯA | Không nhánh OAuth; Q-016 mở; TIP-018b nhận (2026-11-02) |
 | REQ-B06c | Gom email theo thread | 01-REQUIREMENTS-MATRIX.md:53 | 018 | ĐẠT | channels/email/threads.ts:19; test email.test.ts AC3/AC4 |
 | REQ-B07 | Trang Kênh kết nối: danh sách, sức khoẻ, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:54 | 014 | ĐẠT | channel-manage.handlers.ts:142; test channels.test.ts AC5/AC9/AC10, e2e http/channels.spec.ts |
 | REQ-B08 | Zalo OA / FB / IG / Telegram / WhatsApp / TikTok | 01-REQUIREMENTS-MATRIX.md:55 | — | NGOÀI | P2 theo ma trận, D04 |
@@ -182,7 +96,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
 | REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
-| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc |
+| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc; TIP-014c nhận (2026-11-02) |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | MỘT PHẦN | history_days chạy; sync_messages / sync_auto_create_contact không được pipeline.ts đọc Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-C01a | Inbox 3 cột chạy API thật | 01-REQUIREMENTS-MATRIX.md:63 | 016, 025 | ĐẠT | features/inbox/screens/InboxScreen.tsx; e2e http/inbox.spec.ts, http/inbox-live.spec.ts |
@@ -211,7 +125,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C09c | Dịch tin | 01-REQUIREMENTS-MATRIX.md:71 | 025 | CHỜ-TK | ai/skills/translate.handler.ts:22; test inbox-ui.test.ts "ai.translate (model giả)" — Q-001 |
 | REQ-C09d | Tạo ticket từ tin | 01-REQUIREMENTS-MATRIX.md:71 | 025, 034 | ĐẠT | MessageMenu.tsx:41-48; TicketsScreen.tsx:45; test support.test.ts (source_message_id) |
 | REQ-C09e | Thu hồi / Xoá có xác nhận | 01-REQUIREMENTS-MATRIX.md:71 | 016 | ĐẠT | message.handlers.ts:100,115; test inbox.test.ts AC6 |
-| REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | — | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định |
+| REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | 014c | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định; TIP-014c nhận (2026-11-02) |
 | REQ-C10b | Phím tắt chèn câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:110-119; e2e inbox.spec.ts:23 |
 | REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | 025b | MỘT PHẦN | ConvMenu.tsx:121-140 không hiện tải |
 | REQ-C10d | Vòng đời = contact.stage (D49) | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:16,143; test crm-contacts.test.ts |
@@ -288,7 +202,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E08 | Briefing đầu ngày | 01-REQUIREMENTS-MATRIX.md:110 | 035 | ĐẠT | ai/tasks/task-briefing.ts; test ai-tasks.test.ts:330 |
 | REQ-E09a | Ghi mọi action Trợ lý / agent (ai, input, trước/sau) | 01-REQUIREMENTS-MATRIX.md:111 | 003, 024 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:50-54; test assistant.test.ts, agents-ui.test.ts |
 | REQ-E09b | Lọc theo loại | 01-REQUIREMENTS-MATRIX.md:111 | 024 | ĐẠT | ai/assistant/action-logs.read.ts:12; test agents-ui.test.ts |
-| REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | — | MỘT PHẦN | Undo ĐẠT; không cơ chế đính chính |
+| REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | 003e | MỘT PHẦN | Undo ĐẠT; không cơ chế đính chính; TIP-003e nhận (2026-11-02) |
 | REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | MỘT PHẦN | API /assistant/sessions có (assistant.controller.ts:70; assistant.test.ts); FE không gọi |
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
@@ -316,7 +230,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - REQ-A02d: prototype ver2.1 đổi sang mô tả tự do, chưa có mã quyết định bỏ taxonomy.
 - REQ-A07b / REQ-D07d: FE gọi route không có ở API (routes.json missing).
 - Dừng sớm theo lệnh điều phối (hết quota) — một số ô chưa kiểm sâu.
-- CHƯA RÀ HẾT: REQ-D04 (nguồn Drive "Sắp có"), REQ-D09b (gợi ý tạo agent khi thiếu — D29), REQ-B11 (giờ trực / lời chào kiểm sâu), REQ-C12 (phím ↑↓)
+- Đã rà nốt 2026-11-02: REQ-D04 tách D04a–f (D04b → 043, D04e CHỜ-TK); REQ-D09b tách a/b ĐẠT; REQ-B11 tách a/b ĐẠT, c → 022b, d → 042b + 014c; REQ-C12 → 025b (thread search/phím).
 
 ## B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX)
 
@@ -341,7 +255,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01b-3 | Chuyển phụ trách (Quản lý) kèm hội thoại / báo giá đang mở, ghi timeline | 01-REQUIREMENTS-MATRIX.md:123 | 015d | MỘT PHẦN | contact-owner.handlers.ts:97 trảquotes0; quote-system.ts:85 đổiowner attribution; owner-move.ts:8–20 eventagentnull khácDB. Test cũ chưa chứng minh atomic/undo đúng;015d nhận |
 | REQ-F01b-4 | Chuyển phụ trách kèm lịch hẹn (`move.appointments`) chuyển thật | 01-REQUIREMENTS-MATRIX.md:123 | 015d | CHƯA | contact-owner.handlers.ts:97 `appointments: 0` cứng; packages/core/src/booking không có consumer `contact.owner_changed` |
 | REQ-F01b-5 | Tin mới tự gán cho người phụ trách của khách | 01-REQUIREMENTS-MATRIX.md:123 | 016 | ĐẠT | packages/core/src/inbox/services/pipeline.ts:108; test inbox.test.ts AC2 |
-| REQ-F01b-6 | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | 01-REQUIREMENTS-MATRIX.md:123 | — | CHƯA | DECISIONS.md:90 DC-081 hoãn "chưa có dữ liệu ca"; pipeline.ts:108 không kiểm ca / vắng |
+| REQ-F01b-6 | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | 01-REQUIREMENTS-MATRIX.md:123 | 013c | CHƯA | DECISIONS.md:90 DC-081 hoãn "chưa có dữ liệu ca"; pipeline.ts:108 không kiểm ca / vắng; TIP-013c nhận (2026-11-02) |
 | REQ-F01b-7 | Doanh số ghi theo `owner_user_id` lúc tạo chứng từ | 01-REQUIREMENTS-MATRIX.md:123 | 032c | MỘT PHẦN | Quote side015d; contract-write.handlers.ts:129?144 and order-edit.handlers.ts:34,63,117 still mutate attribution.032c specifies native immutable guard, separate assigned field, CAS/inverse and KPI/export tests; planning only. |
 | REQ-F01c | Chia lead tự động: thủ công / vòng tròn / theo kênh / theo tải | 01-REQUIREMENTS-MATRIX.md:124 | 042b | CHƯA | `assign_mode` chỉ lưu (accounts.service.ts:18); TIP042b AC1–8 đã viết, chưa code; opt-in/no-steal, không nhầm cấu hình với runtime |
 | REQ-F02a | Hồ sơ 360°: thông tin, timeline đa kênh, ghi chú, trường tuỳ biến, bố cục theo vai trò | 01-REQUIREMENTS-MATRIX.md:125 | 015, 026 | ĐẠT | packages/core/src/crm/services/contact360.ts:14; timeline.service.ts; test crm-contacts.test.ts AC8, apps/web/e2e/http/customers.spec.ts |
@@ -376,7 +290,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F07-e | "Xuất Excel" danh sách Đơn hàng chạy thật | 01-REQUIREMENTS-MATRIX.md:131 | 038 | GIẢ | apps/web/src/features/orders/components/OrdersToolbar.tsx:96 `message.info(t('exporting'))`; Q-024 |
 | REQ-F07b-1 | Khung `OrderSyncProvider` + mock, ánh xạ trạng thái sàn về 2 trục, nhập một lần, khách theo buyer id | 01-REQUIREMENTS-MATRIX.md:132 | 031 | ĐẠT | packages/integrations/src/ports/order-sync.ts:43; packages/core/src/sales/orders/services/order-import.ts:93; test packages/integrations/test/order-sync.test.ts, orders.test.ts "sync_now", "webhook" |
 | REQ-F07b-2 | Đơn sàn khoá dòng / giá, thanh toán qua sàn không sinh đề nghị, tích điểm mặc định tắt | 01-REQUIREMENTS-MATRIX.md:132 | 031, 032 | ĐẠT | order-flow.handlers.ts:27 earns(); invoice-write.handlers.ts:55; test orders.test.ts "đơn sàn: sửa dòng / cọc 409 … không tích điểm", payments.test.ts "đơn sàn … không tạo đề nghị" |
-| REQ-F07b-3 | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | 01-REQUIREMENTS-MATRIX.md:132 | — | CHƯA | chỉ có chú thích order-write.ts:4; manifest mock (packages/integrations/src/connectors/mock/order-sync.ts:16) không có trường stock_master; không đọc ở đâu |
+| REQ-F07b-3 | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | 01-REQUIREMENTS-MATRIX.md:132 | 031c | CHƯA | chỉ có chú thích order-write.ts:4; manifest mock (packages/integrations/src/connectors/mock/order-sync.ts:16) không có trường stock_master; không đọc ở đâu; TIP-031c nhận (2026-11-02) |
 | REQ-F07b-4 | Adapter thật Sapo / Shopee / TikTok Shop / Lazada / Haravan / KiotViet / WooCommerce | 01-REQUIREMENTS-MATRIX.md:132 | — | NGOÀI | Ma trận ghi "adapter thật: P2"; 02-TASK-GRAPH.md:181 "adapter thật P2 (ngoài 46 TIP)" |
 | REQ-F08a | Đề nghị thanh toán cọc / đợt / toàn bộ, hạn 7 ngày, phiếu thu PDF, không thay hoá đơn GTGT | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | packages/db/prisma/tenant/sales-payments.prisma:7–9; invoice-write.handlers.ts:44; apps/api/src/http/sales/invoices.controller.ts (receipts pdf); test payments.test.ts "create: TT-… hạn +7 ngày", "record_payment … phiếu thu PT-", documents.test.ts |
 | REQ-F08b | Nhắc công nợ T-1 / T+1 / T+7 mỗi mốc một lần | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | packages/core/src/sales/payments/services/payment-system.ts:41 remindDue; test payments.test.ts "quá hạn → overdue; nhắc T+1 một lần" |
@@ -454,7 +368,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-M02a | Giờ làm việc workspace + giờ trực AI của agent | 01-REQUIREMENTS-MATRIX.md:200 | 022b | MỘT PHẦN | Workspace human calendar exists, but agent.runtime.ts:43-53 custom always true and fixed office only; channel hours is prompt text. Previous DAT was too broad.022b owns typed schedule/migration/native boundaries. |
 | REQ-M02b | Thông báo in-app + email theo tuỳ chọn, giờ không làm phiền | 01-REQUIREMENTS-MATRIX.md:200 | 006 | ĐẠT | packages/core/src/notify/services/notifier.ts, jobs/notify-mail.processor.ts; test notify.test.ts AC3, AC5, AC6, apps/web/e2e/settings-ops.spec.ts "Thông báo" |
 | REQ-M03a | Trang Nền tảng kết nối: registry + port theo năng lực, thẻ "Sắp có" + "Đăng ký quan tâm", kết nối / ngắt, bí mật mã hoá | 01-REQUIREMENTS-MATRIX.md:201 | 012 | ĐẠT | packages/integrations/src/registry.ts, coming-soon.ts; packages/core/src/integrations/actions/*; test integrations.test.ts AC1–AC10, packages/integrations/test/registry.test.ts, apps/web/e2e/http/integrations.spec.ts |
-| REQ-M03b | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | 01-REQUIREMENTS-MATRIX.md:201 | — | MỘT PHẦN | SMTP thật (packages/integrations/src/connectors/smtp/mail.ts, test smtp.test.ts); storage LocalStorage (DV-003); SePay / Casso của DN là mock (registry.ts:16–17 — xem REQ-F08f) |
+| REQ-M03b | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | 01-REQUIREMENTS-MATRIX.md:201 | 012d | MỘT PHẦN | SMTP thật (packages/integrations/src/connectors/smtp/mail.ts, test smtp.test.ts); storage LocalStorage (DV-003); SePay / Casso của DN là mock (registry.ts:16–17 — xem REQ-F08f); TIP-012d nhận (2026-11-02) |
 | REQ-M03c | Adapter thật hoá đơn điện tử / ký số CA / kế toán / TMĐT / Google Sheets / webhook HMAC / API key | 01-REQUIREMENTS-MATRIX.md:202 | — | NGOÀI | REQ-M03b Priority P2 |
 | REQ-M04 | Phòng ban, sơ đồ tổ chức, KPI, phân ca | 01-REQUIREMENTS-MATRIX.md:203 | — | NGOÀI | Ma trận Priority P3 |
 | REQ-M05 | Cài đặt → Hồ sơ 360°: danh sách mẫu, gán vai trò, sửa / nhân bản / xoá, tạo mẫu, "Xem như vai trò" | 01-REQUIREMENTS-MATRIX.md:204 | 015, 026 | ĐẠT | apps/web/src/features/settings/components/Profile360Section.tsx:102; profile-layout.handlers.ts; test crm-settings.test.ts AC9b, apps/web/e2e/http/customers.spec.ts "→ bố cục Hồ sơ 360°" |
@@ -464,7 +378,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N02b | Partial / expression index / INCLUDE bằng SQL thô trong migration; query theo quy tắc index | 01-REQUIREMENTS-MATRIX.md:210 | mọi TIP | QUY-TẮC | migration *.sql viết tay (vd 20261101900000_033_booking/migration.sql); kiểm bằng ca EXPLAIN trong crm-contacts / catalog / quotes / orders / support / booking .test.ts |
 | REQ-N02c | PgBouncer | 01-REQUIREMENTS-MATRIX.md:210 | 045 | CHƯA | chưa có `infra/` |
 | REQ-N03a | REST `/v1`, cursor pagination, `Idempotency-Key`, lỗi chuẩn hoá envelope | 01-REQUIREMENTS-MATRIX.md:211 | 003 | ĐẠT | apps/api/src/http/kernel/actions.controller.ts:37; apps/api/src/http/inbox/conversations.controller.ts:38 cursor; test actions.test.ts AC1–AC5, notify.test.ts AC2 (cursor) |
-| REQ-N03b | OpenAPI tự sinh (Blueprint `/v1/docs`) | 01-REQUIREMENTS-MATRIX.md:211 | — | CHƯA | không có openapi / swagger trong apps/api (chỉ `GET /v1/actions` trả input_schema — actions.controller.ts:41); không TIP nào nhận |
+| REQ-N03b | OpenAPI tự sinh (Blueprint `/v1/docs`) | 01-REQUIREMENTS-MATRIX.md:211 | 003d | CHƯA | không có openapi / swagger trong apps/api (chỉ `GET /v1/actions` trả input_schema — actions.controller.ts:41); không TIP nào nhận; TIP-003d nhận (2026-11-02) |
 | REQ-N04 | Realtime Socket.IO, room theo workspace / hội thoại, presence + typing | 01-REQUIREMENTS-MATRIX.md:212 | 006 | ĐẠT | apps/api/src/http/notify/realtime/ws.gateway.ts:85, :93; test realtime.test.ts AC7–AC9 |
 | REQ-N05 | BullMQ + outbox; domain events nội bộ; consumer idempotent | 01-REQUIREMENTS-MATRIX.md:213 | 003, 006 | ĐẠT | packages/core/src/kernel/outbox/outbox.ts; test relay-sequence.test.ts, notify.test.ts AC4 (event_consumption chạy một lần), actions.test.ts AC6 |
 | REQ-N06a | JWT ngắn hạn + refresh xoay vòng | 01-REQUIREMENTS-MATRIX.md:214 | 004 | ĐẠT | packages/core/src/identity/services/access-tokens.ts:5 (15 phút); test auth.test.ts AC6 "refresh xoay vòng" |
@@ -480,7 +394,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N10a | i18n next-intl + ICU, phát hành vi + en, registry 11 ngôn ngữ | 01-REQUIREMENTS-MATRIX.md:218 | FE (D38) | ĐẠT | apps/web/messages/{vi,en}; packages/shared/src/i18n/locales.ts; test locales.test.ts, `pnpm i18n:check` (ci.yml:35) |
 | REQ-N10b | Ant Design v6, một codebase desktop 1440 + mobile web responsive | 01-REQUIREMENTS-MATRIX.md:218 | FE (D38) | ĐẠT | apps/web/package.json antd 6.6.8; test apps/web/e2e/mobile-sweep.spec.ts, các ca "390: …" trong e2e/*.spec.ts |
 | REQ-N10c | Đủ 5 trạng thái UI (loading / empty / error / ready / no-permission) | 01-REQUIREMENTS-MATRIX.md:218 | FE (D38) | QUY-TẮC | apps/web/src/shared/states/PageStates.tsx; standards/ui/interaction-patterns.md:51; kiểm qua e2e + parity |
-| REQ-N10d | WCAG AA (tương phản, aria, bàn phím) có kiểm tự động | 01-REQUIREMENTS-MATRIX.md:218 | — | CHƯA | không có axe / jsx-a11y trong repo; TIP-046 không nêu WCAG |
+| REQ-N10d | WCAG AA (tương phản, aria, bàn phím) có kiểm tự động | 01-REQUIREMENTS-MATRIX.md:218 | 001c, 046 | CHƯA | không có axe / jsx-a11y trong repo; TIP-046 không nêu WCAG; TIP-001c nhận (2026-11-02); 046 đo axe/bàn phím, 001c sửa |
 | REQ-N11a | Unit + integration + e2e Playwright luồng chính + test cô lập tenant | 01-REQUIREMENTS-MATRIX.md:220 | mọi TIP | ĐẠT | apps/api/test/integration/*.test.ts; apps/web/e2e/*.spec.ts + e2e/http; packages/db/test/integration/tenant-isolation.test.ts "(d) 2 workspace ghi song song" |
 | REQ-N11b | AI eval set Trợ lý (đúng action / tham số / quyền / mức xác nhận) + agent trực kênh, replay + live | 01-REQUIREMENTS-MATRIX.md:220 | 044, 023b | CHƯA | `packages/ai/eval` chưa tồn tại; chỉ unit find_actions (packages/core/test/assistant-unit.test.ts) |
 | REQ-N12 | File BE ≤ 600, FE ≤ 400 dòng; test file riêng; commit kèm SHA | 01-REQUIREMENTS-MATRIX.md:221 | mọi TIP | QUY-TẮC | `pnpm lint:size` (tools/scripts/lint-size.mjs:18–19) chạy ở .github/workflows/ci.yml:36 |
@@ -534,8 +448,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4-4 | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | plans/COMMERCE-DECISIONS.md:86 | 033c | MỘT PHẦN | Chỉ apps/web/src/features/calendar/components/AppointmentDrawer.tsx:43 (`suggest_order`); Inbox / Trợ lý không có (grep `suggest_order`) |
 | COM-4-5 | Buổi trừ vào liệu trình thì không gợi ý tạo đơn | plans/COMMERCE-DECISIONS.md:86 | 033 | ĐẠT | order-from-appointment.handler.ts:35 · test booking.test.ts "liệu trình … trừ 1 buổi" |
 | COM-4-6 | new → processing = xác nhận đơn: trừ kho + sinh `customer_package` nếu đủ điều kiện | plans/COMMERCE-DECISIONS.md:88 | 031, 032 | ĐẠT | sales/orders/actions/order-flow.handlers.ts:62; payments/services/packages.ts:19 (consumer order.confirmed) · test orders.test.ts confirm, payments.test.ts |
-| COM-4-7 | Cọc theo số tiền **hoặc %** | plans/COMMERCE-DECISIONS.md:90 | — | MỘT PHẦN | Chỉ `deposit_amount` (packages/actions/src/orders.ts:24); không có cọc theo % |
-| COM-4-8 | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | plans/COMMERCE-DECISIONS.md:90 | — | CHƯA | Không có code gợi ý (grep deposit trong orders FE / core) |
+| COM-4-7 | Cọc theo số tiền **hoặc %** | plans/COMMERCE-DECISIONS.md:90 | 033d | MỘT PHẦN | Chỉ `deposit_amount` (packages/actions/src/orders.ts:24); không có cọc theo %; TIP-033d nhận (2026-11-02); phần % chờ Q-038 (cờ tắt) |
+| COM-4-8 | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | plans/COMMERCE-DECISIONS.md:90 | 033d | CHƯA | Không có code gợi ý (grep deposit trong orders FE / core); TIP-033d nhận (2026-11-02); gợi ý ngưỡng / no-show chờ Q-039 (cờ tắt), gợi ý cọc sản phẩm làm ngay |
 | COM-4-9 | Sửa đơn tự do ở new; processing chỉ khi chưa có khoản thu | plans/COMMERCE-DECISIONS.md:92 | 031 | ĐẠT | order-edit.handlers.ts:77 · test orders.test.ts "processing: sửa dòng khi chưa thu …; đã thu → 409" |
 | COM-4-10 | Huỷ đơn: lý do bắt buộc, hoàn kho, đã thu → yêu cầu hoàn tiền Owner duyệt | plans/COMMERCE-DECISIONS.md:93-97 | 031, 032 | ĐẠT | order-flow.handlers.ts:47-59 · test orders.test.ts "cancel: lý do rỗng 422; hoàn kho; đã thu → chờ hoàn tiền", payments.test.ts |
 | COM-4-11 | Huỷ đơn: đảo điểm đã cộng + trả lại điểm đã dùng | plans/COMMERCE-DECISIONS.md:96 | 036 | CHƯA | Không có sổ điểm (packages/core/src/loyalty/loyalty.module.ts stub) |
@@ -545,7 +459,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4b-2 | Adapter ánh xạ trạng thái sàn về 2 trục, giữ `platform_status` | plans/COMMERCE-DECISIONS.md:106 | 031 | ĐẠT | packages/integrations/src/ports/order-sync.ts mapStatus · test packages/integrations/test/order-sync.test.ts "mapStatus" |
 | COM-4b-3 | Đơn sàn khoá dòng / giá / tổng; chỉ sửa phụ trách, ghi chú, thẻ | plans/COMMERCE-DECISIONS.md:107 | 031 | ĐẠT | order-import.ts:1-4 · test orders.test.ts "đơn sàn: sửa dòng / cọc 409 (locked_lines), ghi chú được" |
 | COM-4b-4 | Đơn sàn đã thu ghi `customer_payment(marketplace)`, không sinh ĐNTT / VietQR; COD paid khi hoàn tất | plans/COMMERCE-DECISIONS.md:108 | 031, 032 | ĐẠT | order-import.ts:68-73 · test payments.test.ts "đơn sàn / đơn huỷ không tạo đề nghị", order-sync.test.ts "COD chỉ đã thu khi hoàn tất" |
-| COM-4b-5 | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | plans/COMMERCE-DECISIONS.md:109 | — | MỘT PHẦN | Đơn sàn vẫn ghi sổ kho (order-import.ts:53); không có cấu hình `stock_master` (chỉ comment order-write.ts:4); đẩy tồn lên sàn P2 |
+| COM-4b-5 | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | plans/COMMERCE-DECISIONS.md:109 | 031c | MỘT PHẦN | Đơn sàn vẫn ghi sổ kho (order-import.ts:53); không có cấu hình `stock_master` (chỉ comment order-write.ts:4); đẩy tồn lên sàn P2; TIP-031c nhận (2026-11-02) |
 | COM-4b-6 | Khớp khách sàn theo `contact_identity(marketplace, buyer_id)` | plans/COMMERCE-DECISIONS.md:110 | 031 | ĐẠT | order-import.ts:93 · test orders.test.ts "khách theo buyer" |
 | COM-4b-7 | Đơn sàn mặc định không tích điểm, bật được trong cấu hình | plans/COMMERCE-DECISIONS.md:111 | 031 | ĐẠT | order-flow.handlers.ts:28-32 (`loyalty_enabled`) · test orders.test.ts "hoàn tất không tích điểm" (bật ở cấu hình loyalty: 036) |
 | COM-4b-8 | Khung port + mock + thẻ "Sắp có" P0; adapter thật sàn / POS P2 | plans/COMMERCE-DECISIONS.md:112 | 031 | ĐẠT | packages/integrations/src/registry.ts:19; coming-soon.ts:8-9 · test order-sync.test.ts "registry"; adapter thật: NGOÀI P2 |
@@ -598,7 +512,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-029 | Chốt semantics team_id với owner nhiều nhóm và backfill không mở rộng quyền | QUESTIONS.md:Q-029; BLUEPRINT §2.2/§3.5 | 042c | CHƯA | Đã hỏi, chưa trả lời; không tự OR teamUserIds và team_id |
 | COM-8b-3 | Chống giành khách + "Xin chia sẻ" (`contact.request_access`) | plans/COMMERCE-DECISIONS.md:178 | 015 | ĐẠT | crm/actions/contact-owner.handlers.ts:125 · test crm-contacts.test.ts AC2, AC6 |
 | COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | 015d | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
-| COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | — | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081) |
+| COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | 013c | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081); TIP-013c nhận (2026-11-02) |
 | COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 032c | MỘT PHẦN | Quote side015d; contract-write.handlers.ts:129?144 and order-edit.handlers.ts:34,63,117 still mutate attribution.032c specifies native immutable guard, separate assigned field, CAS/inverse and KPI/export tests; planning only. |
 | COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | CHƯA | TIP042b AC2–6, giữ chủ cũ/không đổi doanh số, CAS/idempotent; chưa code |
 | Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | CHƯA | Đã hỏi, chưa trả lời; TIP042 chưa ready-to-build, không tự nới quyền riêng Owner |
@@ -668,12 +582,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | CHƯA | `role.*`, `team.*` không có trong registry |
 | D28a | Bật Cài đặt → Nền tảng kết nối P0, registry + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:277 | 012 | ĐẠT | apps/api/src/http/integrations/integrations.controller.ts · test integrations.test.ts |
 | D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | 012b | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
-| D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | — | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có" |
+| D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | 012d | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có"; TIP-012d nhận (2026-11-02) |
 | D29a | RAG thư mục + thẻ, public / internal, hybrid + ngưỡng + trích nguồn; agent builder phiên bản | 01-REQUIREMENTS-MATRIX.md:278 | 020, 021 | ĐẠT | test kb.test.ts AC4/AC5, agents.test.ts |
 | D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | CHƯA | `kb.suggestion.*` không có |
 | D30 | Mẫu rich / DOCX DN, AI nhận diện biến, PDF LibreOffice; AI soạn BG / HĐ | 01-REQUIREMENTS-MATRIX.md:279 | 028, 030b | MỘT PHẦN | DOCX + detect_fields + PDF (documents/services/docx.ts, soffice.ts · test documents.test.ts); AI soạn HĐ: COM-12-3 |
 | D31 | Đơn sàn / POS khung + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:280 | 031 | ĐẠT | Xem COM-4b-* |
-| D32 | 1 chính + đồng phụ trách / theo dõi | 01-REQUIREMENTS-MATRIX.md:281 | 015 | MỘT PHẦN | Xem COM-8b-2, COM-8b-4 |
+| D32 | 1 chính + đồng phụ trách / theo dõi | 01-REQUIREMENTS-MATRIX.md:281 | 015, 013c | MỘT PHẦN | Xem COM-8b-2, COM-8b-4; TIP-013c nhận (2026-11-02) |
 | D33 | Provider gốc + router OpenAI-compatible, `llm_provider` / `model_route` | 01-REQUIREMENTS-MATRIX.md:282 | 019 | CHỜ-TK | platform/ai-config.prisma:40,58 · test router.test.ts; Q-001 / Q-002 |
 | D34 | Email hệ thống Brevo qua `MailProvider`, SMTP dự phòng | 01-REQUIREMENTS-MATRIX.md:283 | 004 | CHỜ-TK | integrations/src/connectors/brevo/mail.ts · test ports.test.ts, smtp.test.ts; Q-004 |
 | D35a | Ngưỡng eval: an toàn 100%, chọn action ≥ 95%, rubric ≥ 90% | 01-REQUIREMENTS-MATRIX.md:284 | 044 | CHƯA | Chưa có harness eval |
@@ -695,7 +609,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D45 | Phạm vi đợt ver2.1 | 01-REQUIREMENTS-MATRIX.md:294 | — | QUY-TẮC | Phạm vi |
 | D46 | Hồ sơ 360°: nháp → Cập nhật, BG đã gửi → phiên bản mới, HĐ đã gửi → chi tiết | 01-REQUIREMENTS-MATRIX.md:295 | 025, 026 | ĐẠT | apps/web/src/features/inbox/components/Profile360Actions.tsx:2 · test apps/web/e2e/inbox.spec.ts:69 |
 | D47 | Danh mục công cụ agent cũ | 01-REQUIREMENTS-MATRIX.md:296 | — | NGOÀI | Thay bằng D51 |
-| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | — | MỘT PHẦN | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:58; không có test kiểm khoá |
+| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | 014c | MỘT PHẦN | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:58; không có test kiểm khoá; TIP-014c nhận (2026-11-02) |
 | D49 | Submenu Vòng đời = `contact.set_stage` | 01-REQUIREMENTS-MATRIX.md:298 | 025 | ĐẠT | features/inbox/components/ConvMenu.tsx:26 · test apps/web/e2e/inbox.spec.ts "menu hội thoại" |
 | D50a | Ẩn trò chuyện = `conversation.hidden_at`, có tin mới hiện lại | 01-REQUIREMENTS-MATRIX.md:299 | 016 | ĐẠT | inbox/actions/conversation-state.handlers.ts:88 · test inbox.test.ts:136 |
 | D50b | Tạo nhóm Zalo (hết khoá sau TIP-014) | 01-REQUIREMENTS-MATRIX.md:299 | 023b | CHƯA | `conversation.create_group` chưa có |
@@ -715,14 +629,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D57 | Goal backend một mạch, ba sổ | 01-REQUIREMENTS-MATRIX.md:306 | — | QUY-TẮC | Quy trình |
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
-| DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | CHƯA | Không có web push / mobile; không TIP nhận |
+| DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | NGOÀI | DC-029 chốt: kênh `mobile` chỉ lưu tuỳ chọn, gửi đẩy là TIP push P2 (REQ-M02 phát hành chỉ in-app + email; D37 MCP/P2). Không thuộc bản phát hành |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | CHƯA | TIP-038 |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
-| DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | — | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận |
+| DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | 013c | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận; TIP-013c nhận (2026-11-02) |
 | DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | 014b | CHƯA | Q-014 mở; adapter chưa gọi Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
-| DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | — | CHƯA | Một widget mỗi workspace |
-| DC-110 | Parser pptx / OCR ảnh cho RAG (P1) | DECISIONS.md:119 | — | CHƯA | Tệp lưu `learn=false` |
+| DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | 017b | CHƯA | Một widget mỗi workspace; TIP-017b nhận (2026-11-02) |
+| DC-110 | Parser pptx / OCR ảnh cho RAG (P1) | DECISIONS.md:119 | 020f | CHƯA | Tệp lưu `learn=false`; TIP-020f nhận (2026-11-02) |
 | DC-151 | Khối 360° của module khác hiện dữ liệu | DECISIONS.md:160 | 015b | MỘT PHẦN | contact360.ts:51-58 crm / ai rỗng |
 | DC-154 | `category.update / delete` | DECISIONS.md:163 | 032b | CHƯA | Registry thiếu |
 | DC-169 | Thêm kênh gửi chứng từ khi có adapter (webchat) | DECISIONS.md:178 | 032b | CHƯA | Như COM-5-17 |
@@ -737,7 +651,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Bằng chứng test lấy theo tên ca trong file test (đọc code + tên `it(...)`), không chạy lại test trong lượt rà này.
 - Phát hiện mới ngoài danh sách đã biết: watcher không thấy chứng từ (COM-8b-2); chuyển phụ trách không chuyển lịch hẹn + chỉ báo người nhận (COM-8b-4); SePay / Casso của DN vẫn adapter mock, không TIP nhận (COM-5-13); lịch hẹn `expired` không xác nhận lại được (D52d); cap 200 tin/ngày Zalo không đặt (D35c); nâng / hạ gói giữa kỳ chưa có (COM-10-3/4); cọc theo % (COM-4-7).
 - Ngưỡng 5% áp cả Owner (COM-3-3) — trái Q5, 032b nên sửa cùng.
-- CHƯA RÀ HẾT: DC-xxx chỉ quét theo từ khoá (chưa đọc đủ 233 dòng); D16 (17 lời gọi transport.post/put/patch trong features chưa rà); D18 / D41 chưa chạy lint / parity; D29 / D51 / D54 chỉ đối chiếu tên test; COMMERCE §1 Q1–Q8 rà gián tiếp qua §2–§10; không chạy test nào.
+- Đã rà nốt 2026-11-02: đọc đủ 291 DC (script lọc cột Lựa chọn/Đảo ngược tìm việc bị hoãn — mỗi DC hoãn đã có dòng: DC-029 NGOÀI, DC-081 → 013c, DC-086 → 017b, DC-110 → 020f, DC-131 → PRO-assistant-sessions 023c; còn lại là cơ chế chạy thử mock/fake có Q tài nguyên). D16: 17 lời gọi transport.post còn lại đều là ngoại lệ hợp lệ (auth chưa phiên, /public/sign công khai, lượt chat Trợ lý DV-006, contracts sign-otp gửi OTP không ghi nghiệp vụ, logout) — không có ghi nghiệp vụ ngoài Executor. D18/D41 là QUY-TẮC kiểm bằng lint:tokens + parity (046 chạy đủ). D29/D51/D54 đối chiếu tên test, bằng chứng runtime đầy đủ thuộc 044. COMMERCE Q1–Q8 rà qua §2–§10.
 
 ## D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11)
 
@@ -818,7 +732,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-contact.export | `contact.export` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:649 | 015 | ĐẠT | packages/core/src/crm/actions/contact-io.handlers.ts:20; test crm-settings.test.ts, crm-ui.test.ts — BP 'luôn preview' — handler không preview |
 | ACT-onboarding.toggle_step | `onboarding.toggle_step` (write) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 023b | MỘT PHẦN | packages/core/src/identity/actions/onboarding-toggle-step.handler.ts:12; test onboarding.test.ts; thiếu preview (DC-224) — không có trong Blueprint §3.4 (chưa bổ sung) |
 | ACT-follow_up.complete | `follow_up.complete` (write) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 038 | CHƯA | packages/actions/src/dashboard.ts:21 chỉ ActionDef, handler null → 501 NOT_IMPLEMENTED (tip-owners.ts) — không có trong Blueprint §3.4 (chưa bổ sung) |
-| ACT-doc_template.create | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | plans/BLUEPRINT.md:691 | — | MỘT PHẦN | TIP028 đã có create handler (packages/core/src/documents/actions/doc-template.handlers.ts:26) và documents.test.ts; packages/actions/src/documents.ts:11–33 không khai báo undo, create handler không có undo như update/delete (:99/:129). Thiếu contract undo 24h; cần TIP bổ sung nhận, không đánh ĐẠT theo CRUD đơn thuần. |
+| ACT-doc_template.create | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | plans/BLUEPRINT.md:691 | 028b | MỘT PHẦN | TIP028 đã có create handler (packages/core/src/documents/actions/doc-template.handlers.ts:26) và documents.test.ts; packages/actions/src/documents.ts:11–33 không khai báo undo, create handler không có undo như update/delete (:99/:129). Thiếu contract undo 24h; cần TIP bổ sung nhận, không đánh ĐẠT theo CRUD đơn thuần.; TIP-028b nhận (2026-11-02) |
 | ACT-doc_template.update | `doc_template.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:691 | 023b | MỘT PHẦN | packages/core/src/documents/actions/doc-template.handlers.ts:60; test documents.test.ts; thiếu preview (DC-224) |
 | ACT-doc_template.delete | `doc_template.delete` (delete) — handler qua ActionExecutor | plans/BLUEPRINT.md:691 | 028 | ĐẠT | packages/core/src/documents/actions/doc-template.handlers.ts:113; test documents.test.ts — risk code=delete, BP=config |
 | ACT-doc_template.detect_fields | `doc_template.detect_fields` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:692 | 028 | ĐẠT | packages/core/src/documents/actions/doc-template.handlers.ts:138; test documents.test.ts |
@@ -986,7 +900,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
 | ACT-message.unreact | `message.unreact` có trong registry + handler | plans/BLUEPRINT.md:617 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); message.react gửi lại cùng emoji = gỡ (inbox.ts:176; inbox.test.ts:261), không DV |
-| ACT-order.import_external | `order.import_external` có trong registry + handler | plans/BLUEPRINT.md:695 | 031 | MỘT PHẦN | Không có trong packages/actions (actions.json); DV-011: không là action, OrderSyncService trong job (sales/jobs/order-sync.jobs.ts) — test order-sync.test.ts, orders.test.ts |
+| ACT-order.import_external | `order.import_external` có trong registry + handler | plans/BLUEPRINT.md:695 | 031 | NGOÀI | Không có trong packages/actions (actions.json); DV-011: không là action, OrderSyncService trong job (sales/jobs/order-sync.jobs.ts) — test order-sync.test.ts, orders.test.ts; DV-011: nhập đơn sàn là việc hệ thống (OrderSyncService), không khai action; đã chấp nhận lệch có ghi — nghĩa vụ action loại theo DV-011 (2026-11-02) |
 | ACT-payment.redeem_points | `payment.redeem_points` có trong registry + handler | plans/BLUEPRINT.md:713 | 036 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-product.import | `product.import` có trong registry + handler | plans/BLUEPRINT.md:664 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-product_variant.archive | `product_variant.archive` có trong registry + handler | plans/BLUEPRINT.md:662 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
@@ -1009,28 +923,28 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-3.2-d | Action `db:'platform'` chạy transaction DB nền tảng, action_log vẫn ở DB tenant | plans/BLUEPRINT.md:531 | 003 | ĐẠT | executor.ts:131-138; test settings.test.ts, billing-payments.test.ts |
 | BP-3.2-e | admin.* ghi `platform_audit_log` | plans/BLUEPRINT.md:531 | 045b | CHƯA | không có chỗ ghi platform_audit_log (TIP-045b CONTEXT xác nhận) |
 | BP-3.3-a | Bảng policy nguồn × risk (ui/assistant/agent/task) | plans/BLUEPRINT.md:541 | 003 | ĐẠT | packages/core/src/kernel/actions/policy.ts:8-15; test actions-unit.test.ts:31 |
-| BP-3.3-b | bulk=true luôn preview kèm số bản ghi kể cả ui | plans/BLUEPRINT.md:548 | 003 | MỘT PHẦN | policy.ts:24 có; nhưng ticket.bulk_update thiếu `bulk:true` trong ActionDef (packages/actions/src/support.ts:177) → không preview |
-| BP-3.3-c | Agent write: chạy nếu được cấp VÀ confidence ≥ ngưỡng, không thì approval | plans/BLUEPRINT.md:545 | 022 | MỘT PHẦN | policy.ts:14 agent.write='run' không xét confidence; confidence chỉ dùng quyết handoff trả lời (reply.service.ts:173) — không DC ghi lệch |
+| BP-3.3-b | bulk=true luôn preview kèm số bản ghi kể cả ui | plans/BLUEPRINT.md:548 | 003, 003i | MỘT PHẦN | policy.ts:24 có; nhưng ticket.bulk_update thiếu `bulk:true` trong ActionDef (packages/actions/src/support.ts:177) → không preview; TIP-003i nhận (2026-11-02) |
+| BP-3.3-c | Agent write: chạy nếu được cấp VÀ confidence ≥ ngưỡng, không thì approval | plans/BLUEPRINT.md:545 | 022, 019d | MỘT PHẦN | policy.ts:14 agent.write='run' không xét confidence; confidence chỉ dùng quyết handoff trả lời (reply.service.ts:173) — không DC ghi lệch; TIP-019d nhận (2026-11-02) |
 | BP-3.3-d | Agent send: chỉ hội thoại đang phục vụ, gửi khác → approval | plans/BLUEPRINT.md:545 | 022 | ĐẠT | policy.ts:19, executor.ts:89-91 (servedConversationId); test actions-unit.test.ts:42, agent-reply.test.ts |
 | BP-3.3-e | Task: send approval nếu ask_before_send; delete luôn approval; config cấm; write trong data_scope | plans/BLUEPRINT.md:546 | 035 | ĐẠT | policy.ts:15,21; task.runner.ts:38,128 narrowScope; test actions-unit.test.ts:50, ai-tasks.test.ts |
 | BP-3.3b-a | Quyền agent = tool_ids, chỉ sửa ở Builder (agent.update) | plans/BLUEPRINT.md:552 | 021 | ĐẠT | packages/core/src/ai/agents/agent-authz.ts:9-15, agent.store.ts:70; test agents.test.ts |
 | BP-3.3b-b | delegate / Cowork: quyền = tool_ids ∩ permission + scope người ra lệnh, kiểm mỗi lần gọi tool | plans/BLUEPRINT.md:554 | 022/035 | ĐẠT | agent-authz.ts:16-19; agent.runtime.ts:85 (ctx dựng mỗi bước); task.runner.ts:46; test ai-tasks.test.ts:297 ("người tạo mất quyền"), assistant.test.ts |
 | BP-3.3b-c | Tool ngoài giao không vào run; gọi vẫn bị → FORBIDDEN, run tiếp tục | plans/BLUEPRINT.md:556 | 022 | ĐẠT | agent-tools.ts:57 runToolIds; test agent-reply.test.ts:277 |
 | BP-3.3b-d | action_log.on_behalf_of_user_id = người ra lệnh, actor_type=agent | plans/BLUEPRINT.md:557 | 022 | ĐẠT | agent.runtime.ts:76-78, executor.ts:156-158; test agents.test.ts, assistant.test.ts |
-| BP-3.3b-e | delegate lồng nhau: run con kế thừa giao run cha, độ sâu ≤ 2 | plans/BLUEPRINT.md:558 | 023 | MỘT PHẦN | delegate.ts:41 DEPTH_LIMIT có; delegate.ts:62 truyền commander=t.authz của người dùng, không ∩ quyền agent cha; test assistant.test.ts |
-| BP-3.3b-f | kb.search trong run giao: kb_scope agent ∩ quyền đọc người ra lệnh; agent trực kênh chỉ public | plans/BLUEPRINT.md:559 | 020/022 | MỘT PHẦN | kb-search.handler.ts:15-17 visibility đúng; kb_scope của agent KHÔNG áp khi gọi kb.search qua tool (chỉ áp ở reply-context.ts:86); test kb.test.ts, agent-reply.test.ts |
+| BP-3.3b-e | delegate lồng nhau: run con kế thừa giao run cha, độ sâu ≤ 2 | plans/BLUEPRINT.md:558 | 023, 019d | MỘT PHẦN | delegate.ts:41 DEPTH_LIMIT có; delegate.ts:62 truyền commander=t.authz của người dùng, không ∩ quyền agent cha; test assistant.test.ts; TIP-019d nhận (2026-11-02) |
+| BP-3.3b-f | kb.search trong run giao: kb_scope agent ∩ quyền đọc người ra lệnh; agent trực kênh chỉ public | plans/BLUEPRINT.md:559 | 020/022, 019d | MỘT PHẦN | kb-search.handler.ts:15-17 visibility đúng; kb_scope của agent KHÔNG áp khi gọi kb.search qua tool (chỉ áp ở reply-context.ts:86); test kb.test.ts, agent-reply.test.ts; TIP-019d nhận (2026-11-02) |
 | BP-3.3b-g | requiresConnector: chưa kết nối → badge, không vào run; chưa manifest → Sắp có | plans/BLUEPRINT.md:560 | 021 | ĐẠT | agent-tools.ts:25-29,59; test agents.test.ts (GET /agents/:id/tools) |
 | BP-3.3b-h | Governance ép approval: báo giá > 20M, giảm ngoài chính sách, hoàn tiền, gửi hàng loạt, hợp đồng | plans/BLUEPRINT.md:562 | 032b | MỘT PHẦN | FORCE_APPROVAL ở governance.ts:34 không ai đọc; ngưỡng cứng quote-math.ts:23; hoàn tiền luôn duyệt qua refund_approve (DV-013) |
 | BP-3.3b-i | Từ cấm: chặn nội dung, đặt handoff | plans/BLUEPRINT.md:563 | 022 | ĐẠT | packages/ai/src/reply/handoff.ts:30; reply-context.ts:115; test reply.test.ts:62 |
 | BP-3.5-a | Danh mục permission đủ theo bảng §3.5 | plans/BLUEPRINT.md:826 | 005 | ĐẠT | packages/shared/src/authz/permissions.ts:2-21; test roles.test.ts, authz.test.ts |
 | BP-3.5-b | 5 vai trò hệ thống (owner/manager/sales/cs/accountant) + data scope mặc định | plans/BLUEPRINT.md:867 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36-68; test roles.test.ts, authz.test.ts |
-| BP-3.5-c | CSKH crm: đọc all, SỬA chỉ own + chỉ thông tin liên hệ | plans/BLUEPRINT.md:831 | 015 | MỘT PHẦN | roles.ts:57 scope crm='all' + crm.edit → access.ts:38 cho sửa mọi khách mọi trường; không kiểm own/contact-only |
+| BP-3.5-c | CSKH crm: đọc all, SỬA chỉ own + chỉ thông tin liên hệ | plans/BLUEPRINT.md:831 | 015, 042c | MỘT PHẦN | roles.ts:57 scope crm='all' + crm.edit → access.ts:38 cho sửa mọi khách mọi trường; không kiểm own/contact-only; 042c writeScope "CSKH all-read/own-write" (TIP-042c:163) nhận phần sửa chỉ khách của mình; giới hạn trường liên hệ qua field policy 045b (2026-11-02) |
 | BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | MỘT PHẦN | authz-resolver.ts:103 có đọc; apps/api/test/integration/authz.test.ts:116 chỉ update DB trực tiếp rồi GET, không chứng minh luồng Owner grant/revoke; 042 AC8, gate Q-028 |
 | BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015, 042c | MỘT PHẦN | CRM có grants nhưng order/quote/contract/invoice/booking helpers chỉ collaborator; không suy test crm-contacts sang cả tài liệu. TIP042c AC2/3 |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |
 | BP-4.1-b | Header Bearer JWT + X-Workspace-Id, sai → 401/403 trước khi mở DB tenant | plans/BLUEPRINT.md:885 | 004 | ĐẠT | apps/api/src/http/kernel/request-actor.ts:45; test actions.test.ts AC11 |
-| BP-4.1-c | Cursor base64(sortKey,id), limit ≤100 mặc định 30 cho mọi list | plans/BLUEPRINT.md:887 | 003 | MỘT PHẦN | chỉ billing-read.service.ts:22 có cursor base64url; nhiều list trả `next_cursor:null` (action-logs.read.ts:135) |
+| BP-4.1-c | Cursor base64(sortKey,id), limit ≤100 mặc định 30 cho mọi list | plans/BLUEPRINT.md:887 | 003, 003i | MỘT PHẦN | chỉ billing-read.service.ts:22 có cursor base64url; nhiều list trả `next_cursor:null` (action-logs.read.ts:135); TIP-003i nhận (2026-11-02) |
 | BP-4.1-d | 9 list có số trang `?page=&limit=` + meta.total (D42) | plans/BLUEPRINT.md:888 | 015/027/029–034, 036, 037 | MỘT PHẦN | 7/9 có (contacts, products, quotes, orders, invoices, contracts, tickets — test catalog.test.ts:81…); loyalty members (036), campaigns (037) CHƯA |
 | BP-4.1-e | Idempotency-Key bắt buộc với send/money/*.create | plans/BLUEPRINT.md:905 | 003 | ĐẠT | policy.ts:29 requiresIdempotencyKey; executor.ts:109; test actions-unit.test.ts:58, actions.test.ts AC5 |
 | BP-4.2-a | Auth OTP request/verify, password login/set/reset, refresh xoay family, logout, rate 5/15m/email | plans/BLUEPRINT.md:910 | 004 | ĐẠT | apps/api/src/http/identity/auth.controller.ts; sessions.service.ts:1; otp.service.ts:19; test auth.test.ts |
@@ -1038,23 +952,23 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.2-c | GET /session, POST /session/ack, GET /workspace/provisioning, GET /auth/brand | plans/BLUEPRINT.md:920 | 011 | ĐẠT | identity/session.controller.ts; test onboarding.test.ts |
 | BP-4.3-a | GET /v1/actions lọc quyền + input_schema · POST /v1/actions/:id (200 / 202 preview / 202 approval) | plans/BLUEPRINT.md:929 | 003 | ĐẠT | apps/api/src/http/kernel/actions.controller.ts:41-60; test actions.test.ts |
 | BP-4.3-b | POST /action-logs/:id/undo (UNDO_EXPIRED / UNDO_NOT_SUPPORTED) | plans/BLUEPRINT.md:936 | 003 | ĐẠT | kernel/actions/undo.service.ts:26-28; test actions.test.ts AC7 |
-| BP-4.3-c | GET /action-logs?actor_type=&action_id=&module=&from=&to=&cursor= | plans/BLUEPRINT.md:937 | 024 | MỘT PHẦN | ai/assistant.controller.ts:81 chỉ kind/status/day/q (shape FE), next_cursor luôn null; test actions.test.ts |
+| BP-4.3-c | GET /action-logs?actor_type=&action_id=&module=&from=&to=&cursor= | plans/BLUEPRINT.md:937 | 024, 003i | MỘT PHẦN | ai/assistant.controller.ts:81 chỉ kind/status/day/q (shape FE), next_cursor luôn null; test actions.test.ts; TIP-003i nhận (2026-11-02) |
 | BP-4.3-d | Action ghi có handler đều có preview (thẻ "đổi gì") | plans/BLUEPRINT.md:5.2 | 023b | MỘT PHẦN | 17/175 handler ghi có preview (actions.json); còn lại thẻ tối thiểu DC-128 (executor.ts:102) |
 | BP-4.4-inbox | /conversations (+counts, :id, messages, messages/search, agent-tools), /canned-replies, /tags | plans/BLUEPRINT.md:959 | 016/025 | ĐẠT | apps/api/src/http/inbox/conversations.controller.ts, inbox-meta.controller.ts; test inbox.test.ts, inbox-ui.test.ts |
 | BP-4.4-crm | /contacts (+:id 360 + layout, timeline, duplicates, collaborators), /contact-access-requests | plans/BLUEPRINT.md:960 | 015/026 | ĐẠT | crm/contacts.controller.ts; test crm-contacts.test.ts, crm-ui.test.ts |
-| BP-4.4-crm-b | GET /custom-fields?entity= · /profile-layouts · /profile-layouts/:id?as_role= | plans/BLUEPRINT.md:980 | 015 | MỘT PHẦN | thay bằng /settings/fields, /settings/profile-layouts (crm-settings.controller.ts:16,24); không có /:id?as_role=; không DV ghi |
+| BP-4.4-crm-b | GET /custom-fields?entity= · /profile-layouts · /profile-layouts/:id?as_role= | plans/BLUEPRINT.md:980 | 015, 003i | MỘT PHẦN | thay bằng /settings/fields, /settings/profile-layouts (crm-settings.controller.ts:16,24); không có /:id?as_role=; không DV ghi; TIP-003i nhận (2026-11-02) |
 | BP-4.4-catalog | /products, /products/:id, /categories | plans/BLUEPRINT.md:961 | 027 | ĐẠT | catalog/products.controller.ts; test catalog.test.ts |
 | BP-4.4-contracts | /contracts (+:id, pdf), /doc-templates, public sign (get/otp/sign/decline) | plans/BLUEPRINT.md:962 | 028/030 | ĐẠT | contracts/contracts.controller.ts, public-sign.controller.ts; test contracts.test.ts, documents.test.ts (DV-009) |
 | BP-4.4-sales | /quotes (+:id, pdf), /orders (+:id), /invoices (+:id) | plans/BLUEPRINT.md:963 | 029/031/032 | ĐẠT | sales/{quotes,orders,invoices}.controller.ts; test quotes.test.ts, orders.test.ts, payments.test.ts |
 | BP-4.4-sales-qr | GET /invoices/:id/qr (ảnh VietQR) | plans/BLUEPRINT.md:963 | 032b | CHƯA | routes.json không có |
-| BP-4.4-booking | /appointments, /appointments/:id, /staff, /booking/slots | plans/BLUEPRINT.md:964 | 033 | MỘT PHẦN | DV-015: thay bằng /calendar*; FE Inbox vẫn gọi /booking/slots (apps/web/src/features/inbox/api.ts:99) → chỉ mock trả lời |
+| BP-4.4-booking | /appointments, /appointments/:id, /staff, /booking/slots | plans/BLUEPRINT.md:964 | 033, 025b | MỘT PHẦN | DV-015: thay bằng /calendar*; FE Inbox vẫn gọi /booking/slots (apps/web/src/features/inbox/api.ts:99) → chỉ mock trả lời; 025b SPEC (TIP-025b:79,136) sửa FE /booking/slots → /calendar/slots; tên route /calendar* giữ theo DV-015 (2026-11-02) |
 | BP-4.4-support | /tickets, /tickets/:id, /tickets/counts, /sla-policies | plans/BLUEPRINT.md:965 | 034 | ĐẠT | support/tickets.controller.ts (DV-016: counts/sla-policies → /tickets/meta, /settings/sla); test support.test.ts |
 | BP-4.4-marketing | /segments, POST /segments/preview, /campaigns(+:id, meta), /campaign-suggestions | plans/BLUEPRINT.md:966 | 037 | GIẢ | không route API (http/marketing trống); FE marketing/api.ts chỉ chạy mock |
 | BP-4.4-loyalty | /loyalty/config, /loyalty/members(+:id ledger), overview, lookup | plans/BLUEPRINT.md:967 | 036 | GIẢ | không route API; FE loyalty/api.ts chỉ chạy mock |
 | BP-4.4-ai | /agents (+:id, versions, tools), /agent-templates, /approvals, /governance, /runs?root_run_id=&status=, /ai-tasks | plans/BLUEPRINT.md:968 | 021/023/035 | ĐẠT | http/ai/{agents,ai,tasks}.controller.ts; test agents.test.ts, ai-runtime.test.ts, ai-tasks.test.ts |
 | BP-4.4-ai-b | GET /agents/:id/stats | plans/BLUEPRINT.md:968 | 038 | CHƯA | routes.json không có |
 | BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | 019b | CHƯA | không route, không TIP nhắc |
-| BP-4.4-ai-d | GET /kb/folders · /kb/sources | plans/BLUEPRINT.md:968 | 020 | MỘT PHẦN | TIP-020:15 hứa nhưng không có route; chỉ /settings/kb (ai.controller.ts:48) |
+| BP-4.4-ai-d | GET /kb/folders · /kb/sources | plans/BLUEPRINT.md:968 | 020, 003i | MỘT PHẦN | TIP-020:15 hứa nhưng không có route; chỉ /settings/kb (ai.controller.ts:48); TIP-003i nhận (2026-11-02) |
 | BP-4.4-ai-e | GET /kb/suggestions (P1) | plans/BLUEPRINT.md:968 | 043 | CHƯA | không route |
 | BP-4.4-assistant | /assistant/sessions?q= · /assistant/sessions/:id/messages | plans/BLUEPRINT.md:969 | 023 | ĐẠT | http/ai/assistant.controller.ts:70-75; test assistant.test.ts |
 | BP-4.4-channels | /channels (theo type + accounts[]), /channels/:id, /channels/:id/stats, /webchat/widget | plans/BLUEPRINT.md:970 | 014/017 | ĐẠT | dưới /settings/channels*, /settings/widget (channels.controller.ts:10; DC-070); test channels.test.ts, webchat.test.ts — lệch đường không có DV |
@@ -1064,14 +978,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-integrations | /integrations/connectors · /integrations/connections/:id · /…/logs | plans/BLUEPRINT.md:974 | 012b | MỘT PHẦN | chỉ /settings/integrations (integrations.controller.ts:18); connection detail + logs không có |
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
 | BP-4.4-admin | /admin/workspaces, /admin/plans, /admin/model-prices, /admin/transfers | plans/BLUEPRINT.md:976 | 040 | MỘT PHẦN | chỉ /admin/transfers (admin-transfers.controller.ts); test billing-payments.test.ts |
-| BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | — | GIẢ | không route API, không TIP nào nhận |
+| BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | 016b | GIẢ | không route API, không TIP nào nhận; TIP-016b nhận (2026-11-02) |
 | BP-4.4-fe-audit | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | apps/web/src/features/settings/api.ts:104 | 045b | GIẢ | không route API; 045b chỉ ghi audit, không có màn đọc ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-4.5-a | POST /assistant/messages SSE (session/delta/plan/step/confirm/ui_command/result/error/done) | plans/BLUEPRINT.md:987 | 023c | MỘT PHẦN | assistant.controller.ts:40 trả JSON một lần (DV-006); SSE ở 023c bước 6a; test assistant.test.ts |
 | BP-4.5-b | POST /assistant/confirm | plans/BLUEPRINT.md:998 | 023 | ĐẠT | assistant.controller.ts:57; test assistant.test.ts |
-| BP-4.5-c | POST /runs/:id/cancel | plans/BLUEPRINT.md:999 | 019 | MỘT PHẦN | không route; chỉ action run.cancel (run-cancel.handler.ts:17); test ai-runtime.test.ts |
+| BP-4.5-c | POST /runs/:id/cancel | plans/BLUEPRINT.md:999 | 019, 003i | MỘT PHẦN | không route; chỉ action run.cancel (run-cancel.handler.ts:17); test ai-runtime.test.ts; TIP-003i nhận (2026-11-02) |
 | BP-4.6-a | /ws: JWT + workspace, room ws/user/conv, conv.join/leave/typing, Redis adapter | plans/BLUEPRINT.md:1005 | 006 | ĐẠT | apps/api/src/http/notify/realtime/ws.gateway.ts:65-121; test realtime.test.ts |
-| BP-4.6-b | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | plans/BLUEPRINT.md:1008 | — | CHƯA | grep không thấy phát các event này; khung điều phối poll GET /runs |
-| BP-4.6-c | /widget: public_key + visitor_token, visitor.hello, message.send, server message.new / typing / agent.status | plans/BLUEPRINT.md:1010 | 017 | MỘT PHẦN | widget.gateway.ts:70-78, publisher.ts:18 chỉ message.new; typing / agent.status không phát; test webchat.test.ts |
+| BP-4.6-b | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | plans/BLUEPRINT.md:1008 | 006c | CHƯA | grep không thấy phát các event này; khung điều phối poll GET /runs; TIP-006c nhận (2026-11-02) |
+| BP-4.6-c | /widget: public_key + visitor_token, visitor.hello, message.send, server message.new / typing / agent.status | plans/BLUEPRINT.md:1010 | 017, 017b | MỘT PHẦN | widget.gateway.ts:70-78, publisher.ts:18 chỉ message.new; typing / agent.status không phát; test webchat.test.ts; TIP-017b nhận (2026-11-02) |
 | BP-4.7-a | POST /hooks/payments/:provider (gói AppChat) | plans/BLUEPRINT.md:1017 | 010 | CHỜ-TK | billing/payments-hook.controller.ts; test billing-payments.test.ts (mock HMAC) — Q-004 SePay thật |
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
@@ -1091,7 +1005,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-5.2-d | render(UiTree) — Generative UI | plans/BLUEPRINT.md:1103 | 023c | CHƯA | packages/shared/src/genui không tồn tại |
 | BP-5.2-e | Đọc bản ghi bằng action search/get + mã → id | plans/BLUEPRINT.md:1108 | 023b | MỘT PHẦN | code-refs.ts 8 thực thể; chỉ contact/product/ticket.search, appointment.list có |
 | BP-5.3-a | Debounce 3s, job id agent-reply:{conv} | plans/BLUEPRINT.md:1114 | 022 | ĐẠT | core/ai/reply/reply.queue.ts:8,27; test agent-reply.test.ts |
-| BP-5.3-b | Ngữ cảnh: 20 tin, khách rút gọn, contact_memory, top-6 kb public trong kb_scope, giờ mở cửa | plans/BLUEPRINT.md:1115 | 022 | MỘT PHẦN | reply-context.ts:13,81,86,93 có; contact_memory không ai ghi (015b) |
+| BP-5.3-b | Ngữ cảnh: 20 tin, khách rút gọn, contact_memory, top-6 kb public trong kb_scope, giờ mở cửa | plans/BLUEPRINT.md:1115 | 022, 022b, 015b | MỘT PHẦN | reply-context.ts:13,81,86,93 có; contact_memory không ai ghi (015b); 022b ngữ cảnh/lịch, 015b ghi contact_memory (2026-11-02) |
 | BP-5.3-c | Output cấu trúc + luật handoff (confidence, đòi người, lặp 3, tiêu cực, từ cấm) | plans/BLUEPRINT.md:1117 | 022 | ĐẠT | packages/ai/src/reply/{output,handoff}.ts; test reply.test.ts, agent-reply.test.ts |
 | BP-5.3-d | Copilot chỉ gợi ý | plans/BLUEPRINT.md:1119 | 022 | ĐẠT | reply.service.ts:178 (DC-125); test agent-reply.test.ts |
 | BP-5.3-e | Lọc PII trước LLM, khôi phục khi gửi | plans/BLUEPRINT.md:1120 | 022 | ĐẠT | packages/ai/src/reply/pii.ts; test reply.test.ts |
@@ -1100,25 +1014,43 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-5.3b-c | Preview cảnh báo khi gắn kênh đang có agent khác | plans/BLUEPRINT.md:1130 | 022b | CHƯA | agent.handlers.ts:54 preview không có warnings Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | BP-5.3b-d | agent.test dry-run | plans/BLUEPRINT.md:1135 | 021 | ĐẠT | agent.runtime.ts:96-104; test agents.test.ts |
 | BP-5.4-a | ai_task cron/event + 5 mẫu (follow-up, báo giá treo, nhắc hẹn, sau mua, briefing) | plans/BLUEPRINT.md:1137 | 035 | ĐẠT | packages/shared/src/ai-tasks/task-catalog.ts:73; task-targets.ts:42-65; test ai-tasks.test.ts |
-| BP-5.4-b | Zalo: delay 2–6s, cap 200 tin chủ động/ngày cấu hình được | plans/BLUEPRINT.md:1147 | 014 | MỘT PHẦN | manifest.ts:22 jitter có; perDayProactive không đặt → cap mặc định không có (send.processor.ts:43) |
+| BP-5.4-b | Zalo: delay 2–6s, cap 200 tin chủ động/ngày cấu hình được | plans/BLUEPRINT.md:1147 | 014, 022d | MỘT PHẦN | manifest.ts:22 jitter có; perDayProactive không đặt → cap mặc định không có (send.processor.ts:43); TIP-022d nhận (2026-11-02) |
 | BP-6-a | Lease Redis lease:channel:{id} TTL 30s heartbeat 10s | plans/BLUEPRINT.md:1165 | 014 | ĐẠT | core/channels/jobs/lease.ts:6-7; test channels.test.ts |
 | BP-6-b | Zalo: QR login, credentials mã hoá, chia đoạn ≤ 2000, tự pause sau 3 lỗi/10 phút | plans/BLUEPRINT.md:1168 | 014 | CHỜ-TK | zalo-personal/render.ts:46; send.processor.ts:12-13; crypto.ts:21; test zalo-adapter.test.ts, channels.test.ts — Q-003 |
 | BP-6-c | Webchat widget ≤ 40KB gz, prechat, allowed_domains | plans/BLUEPRINT.md:1173 | 017 | ĐẠT | apps/widget/dist/widget.js (16.9KB gz), visitor.service.ts:11; test webchat.test.ts, apps/widget/test |
 | BP-6-d | Email IMAP poll 60s + SMTP, gom thread Message-ID/In-Reply-To | plans/BLUEPRINT.md:1174 | 018 | ĐẠT | packages/channels/src/email/{adapter,normalize}.ts; test email-adapter.test.ts, email.test.ts |
 | BP-6-e | Inbound pipeline ON CONFLICT dedupe → resolve contact → outbox message.received | plans/BLUEPRINT.md:1175 | 016 | ĐẠT | core/inbox/services/pipeline.ts:2,60,122; test inbox.test.ts |
 | BP-8-a | VietQR tự sinh payload + render ảnh `qrcode` | plans/BLUEPRINT.md:1321 | 032b | MỘT PHẦN | payload packages/shared/src/commerce/vietqr.ts; ảnh QR không có (qrcode chưa cài) |
-| BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004 | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có |
+| BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004, 004c | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có; TIP-004c nhận (2026-11-02) |
 | BP-8-c | Storage `s3` qua env | plans/BLUEPRINT.md:1324 | 045b | CHƯA | chỉ LocalStorage (DV-003) |
 | BP-8-d | PDF rich bằng @react-pdf/renderer | plans/BLUEPRINT.md:1325 | 028 | NGOÀI | DV-007: dùng LibreOffice cho cả rich |
-| BP-8-e | Ports EInvoice/ESign/AccountingSync/SheetSync/Sms/Storage | plans/BLUEPRINT.md:1322 | 012 | MỘT PHẦN | ports/ chỉ bank-feed, mail, order-sync, tax-lookup; còn lại "Sắp có" |
+| BP-8-e | Ports EInvoice/ESign/AccountingSync/SheetSync/Sms/Storage | plans/BLUEPRINT.md:1322 | 012, 012d | MỘT PHẦN | ports/ chỉ bank-feed, mail, order-sync, tax-lookup; còn lại "Sắp có"; TIP-012d nhận (2026-11-02) |
 | BP-8-f | Auth: access token trong memory, 401 → refresh một lần | plans/BLUEPRINT.md:1331 | 011 | ĐẠT | apps/web/src/shared/api/http-transport.ts:2,40; e2e http auth-onboarding.spec.ts |
 | BP-9-a | argon2id, JWT HS256 xoay khoá, refresh cookie SameSite=Lax | plans/BLUEPRINT.md:1348 | 004 | ĐẠT | identity/services/secrets.ts:1, access-tokens.ts:29; http-util.ts:21; test identity-unit.test.ts, auth.test.ts |
 | BP-9-b | helmet | plans/BLUEPRINT.md:1348 | 045b | CHƯA | không có helmet / security header; 045b chỉ nói CORS ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-9-c | Rate limit chung actions | plans/BLUEPRINT.md:1348 | 045b | MỘT PHẦN | kernel/rate-limit.ts chỉ dùng cho auth / ký / widget |
 | BP-9-d | Outbox retry 2^n tối đa 8 rồi dead-letter | plans/BLUEPRINT.md:1344 | 003 | ĐẠT | kernel/outbox/relay.ts:8,46-52; test relay-sequence.test.ts |
 | BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | 045 | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm 045 SPEC2.5/AC3/6 explicitly implements /healthz→/v1/health and /readyz→real readiness; both tested with dependency failure, no runtime claim. |
-| BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | — | CHƯA | không file error.tsx / ErrorBoundary trong apps/web/src |
+| BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | 001b | CHƯA | không file error.tsx / ErrorBoundary trong apps/web/src; TIP-001b nhận (2026-11-02) |
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | CHƯA | prom-client chưa cài |
+| BP-8-g | Tra cứu MST qua `TaxLookupProvider` VietQR + mock; lỗi thì nhập tay (D35) | plans/BLUEPRINT.md:1322 | 011 | ĐẠT | packages/integrations/src/connectors/vietqr/tax-lookup.ts; test apps/api/test/integration/workspaces.test.ts:202 |
+| BP-8-h | Excel import/export bằng `exceljs` | plans/BLUEPRINT.md:1328 | 026, 038b | MỘT PHẦN | packages/core/src/kernel/files/table.ts (đọc xlsx), test crm-ui.test.ts:182 (nhập khách); xuất Excel thật các module → 038 (4 list), 038b (6 domain) |
+| BP-8-i | Parse RAG: pdf-parse, mammoth, exceljs/csv, fetch URL + readability | plans/BLUEPRINT.md:1329 | 020, 020f | MỘT PHẦN | parse.ts:35 htmlBlocks bằng regex (không readability — lọc script/nav/footer thủ công, chấp nhận vì không thêm thư viện); pptx/OCR → 020f |
+| BP-9-h | Web LCP < 2.5s desktop / 3s mobile 4G; JS ban đầu ≤ 300KB gz mỗi route | plans/BLUEPRINT.md:1341 | 001b, 046 | CHƯA | Chưa đo; 046 SPEC3 đo + báo cáo, 001b tách chunk drawer nặng |
+| BP-9-i | Danh sách > 100 dòng phải virtual; ảnh dùng next/image | plans/BLUEPRINT.md:1341 | 001b | MỘT PHẦN | D42 bảng phân trang số trang ≤ 100 dòng/trang (apps/web/src/shared/list/ListPager.tsx) nên không cần virtual cho 9 bảng; còn `<img>` thô ở AuthLayout.tsx:25, Attachments.tsx:42 (data/blob URL được miễn) — 001b rà |
+| BP-9-j | API ghi p95 < 500ms; AI trả lời kênh p50 < 8s; DB list chính < 100ms ở 1M bản ghi/tenant | plans/BLUEPRINT.md:1343-1344 | 046 | CHƯA | 046 SPEC3 kịch bản đo (thêm ghi p95 và AI p50 với provider thật hoặc ghi chưa nghiệm thu) |
+| BP-10-K1 | pgvector trên Windows dev | plans/BLUEPRINT.md:1360 | 002 | ĐẠT | Đã xử lý 2026-10-28 (pgvector 0.8.1 MSVC); migration 020 tạo vector + HNSW chạy trong integration kb.test.ts |
+| BP-10-K2 | zca-js không chính thức: adapter cô lập, pin version, health probe, cảnh báo Owner | plans/BLUEPRINT.md:1361 | 014, 014b, 014c | MỘT PHẦN | packages/channels/package.json:21 pin `zca-js` 2.2.0; adapter cô lập packages/channels/src/zalo-personal; health/cảnh báo Owner → 014b lifecycle, cảnh báo rủi ro khi kết nối → 014c |
+| BP-10-K3 | DB-per-tenant: PgBouncer transaction, pool nhỏ, LRU client, đo RAM/latency 200 tenant | plans/BLUEPRINT.md:1362 | 002, 045, 046 | MỘT PHẦN | packages/db/src/lru.ts:1 LRU client có; PgBouncer + route reconciler → 045; đo 200 tenant → 046 SPEC3 |
+| BP-10-K4 | Kiểm `usage` AI SDK v7 khi stream nhiều bước + test hợp đồng CreditMeter | plans/BLUEPRINT.md:1363 | 019, 019b | MỘT PHẦN | 019b nhận usage receipts / unknown usage (STD-ai-gateway-5/6) |
+| BP-10-K5 | Chốt phiên bản Prisma/Next/Nest ghi tech-stack | plans/BLUEPRINT.md:1371 | 001 | ĐẠT | coding-packs/product/tech-stack.md; package.json pin phiên bản |
+| BP-10-K6 | Single VPS: backup offsite + restore thử, runbook dựng lại < 1 giờ | plans/BLUEPRINT.md:1365 | 045 | CHƯA | 045 BP-11-a-4/5 (checkpoint offsite, drill RPO/RTO) |
+| BP-10-K7 | Theo dõi số DB / kích thước; > 500 DB hoặc đĩa > 70% thêm cluster | plans/BLUEPRINT.md:1364 | 045 | CHƯA | 045 cảnh báo tenant DB + routing nhiều cluster (packages/db/src/routing/reconciler.ts theo manifest 045) |
+| BP-10-K8 | LibreOffice DOCX→PDF lệch bố cục/font: spike 5 mẫu, cài font | plans/BLUEPRINT.md:1366 | 028, 045 | MỘT PHẦN | Spike DV-007/008/009 (TIP-028); cài font production → 045 provision |
+| BP-10-K9 | API sàn TMĐT cần đăng ký app đối tác; adapter thật P2 | plans/BLUEPRINT.md:1367 | 031 | NGOÀI | REQ-F07b adapter sàn P2; OQ-10 Chủ nhà đăng ký |
+| BP-10-K10 | AI nhận diện biến DOCX / soạn số liệu: người xác nhận field map, số liệu từ bản ghi, eval doc-draft | plans/BLUEPRINT.md:1368 | 028, 030b, 044 | MỘT PHẦN | Xác nhận field map có (DocxWizard); eval `doc-draft` → 044 |
+| BP-10-K11 | Scope own + collaborator làm chậm list lớn: EXPLAIN, denormalize khi p95 > 300ms | plans/BLUEPRINT.md:1369 | 042c, 046 | MỘT PHẦN | 042c scope SQL + EXPLAIN; đo p95 1M dòng → 046 |
+| BP-10-K12 | HNSW kèm filter giảm recall: iterative_scan, eval rag | plans/BLUEPRINT.md:1370 | 020, 044 | MỘT PHẦN | packages/core/src/ai/kb/search.ts:91 `hnsw.iterative_scan = relaxed_order`; eval rag → 044 |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
 | BP-11-a-1 | Six provisioned Grafana dashboards use real bounded metric/log sources | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.3–4/AC7; exact six JSON files and native query evidence required |
 | BP-11-a-2 | Exact alert thresholds, independent uptime and email+Telegram delivery | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.5–6/AC8; rule edge tests plus actual approved delivery, not config-only proof |
@@ -1188,7 +1120,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Ghi chú:
 - ACT: handler/preview từ actions.json; test = grep id trong apps/api/test, packages/*/test (không tính test mock web). Hàng MỘT PHẦN có 'thiếu preview' là nợ preview của 023b (DC-224).
 - Lệch ActionDef ↔ Blueprint (risk / agent / undo) ghi trong cột Bằng chứng; không có DV / DC nào ghi các lệch đó.
-- CHƯA RÀ HẾT: §3.4 cột Undo/permission từng action chưa đối chiếu đủ (chỉ so risk/agent/undo/bulk bằng script); §4.6 chưa đọc payload của từng event; §9 NFR web (LCP, bundle, virtual list, a11y, 5 trạng thái UI, i18n) và API p95 chưa rà; §10 rủi ro K1–K12 chưa có dòng riêng; §11.4 dashboards/alerts và §11.5 bảo mật VPS chỉ gộp vào BP-11-a (infra chưa có); §8 tra MST, Excel, parse RAG (readability) chưa có dòng.
+- Đã rà nốt 2026-11-02 (đóng ghi chú "chưa rà hết"): §3.4 so risk/agent/undo/permission 193 dòng bảng bằng script (`/tmp`, kết quả trong reports/coverage-closure-audit-2026-11-02.md) — lệch còn lại là undo 24h ở action xoá/ai_task (code chặt hơn Blueprint, không giảm an toàn) và permission chi tiết ghi chú trong cột risk (message.react/pin, set_tags, collaborator) khớp DC đã chốt; doc_template.create undo → 028b; 31 action thiếu đều có dòng ACT có TIP nhận. §4.6 payload: run.step/run.done 019b, conversation.counts 025b, credits.changed/ui.command 006c, widget typing/agent.status 017b. §9: thêm BP-9-h/i/j. §10: thêm BP-10-K1…K12. §11.4/11.5: BP-11-a-1…3 (045). §8: thêm BP-8-g/h/i.
 
 ## E. standards/*
 
@@ -1257,13 +1189,13 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-4 | Giá / tồn / KM / lịch / công nợ chỉ qua read action; đoạn có giá `volatile` không vào prompt | standards/ai/rag.md:18 | 020, 027 | ĐẠT | packages/ai/src/kb/chunker.ts:76; catalog/events/catalog-sync.ts:1; test kb.test.ts:95,150, catalog.test.ts:212 |
 | STD-ai-rag-5 | Nạp: parse → cắt đoạn theo cấu trúc 400–800 token chồng 10–15% → embedMany; idempotent sha256; sản phẩm đổi → nạp lại | standards/ai/rag.md:20 | 020, 027 | ĐẠT | chunker.ts:25-26; kb.handlers.ts:53; catalog-sync.ts:76; test kb.test.ts:95,113, catalog.test.ts:212 |
 | STD-ai-rag-6a | Hybrid: top-20 vector (HNSW + iterative_scan) + top-20 từ khoá → RRF k=60 → top-6 | standards/ai/rag.md:25 | 020 | ĐẠT | packages/ai/src/kb/rrf.ts:2; core/src/ai/kb/search.ts:90; test kb.test.ts:141 |
-| STD-ai-rag-6b | Có `model_route` purpose=rerank thì rerank | standards/ai/rag.md:27 | 046 | CHƯA | Chỉ có kiểu `ModelPurpose 'rerank'` (gateway/types.ts:25), không gọi rerank |
+| STD-ai-rag-6b | Có `model_route` purpose=rerank thì rerank | standards/ai/rag.md:27 | 020e | CHƯA | Chỉ có kiểu `ModelPurpose 'rerank'` (gateway/types.ts:25), không gọi rerank; TIP-020e SPEC2–3/AC1–7 (chuyển từ 046) |
 | STD-ai-rag-7 | Ngưỡng `min_score` theo workspace: không căn cứ thì không bịa | standards/ai/rag.md:29 | 020, 022 | ĐẠT | kb/search.ts:73-79; test kb.test.ts:141 |
 | STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020d | MỘT PHẦN | kb/search.ts:122 and kb-search.handler.ts:27 return retrieved refs, not answer citations; runner.ts:112,140 lacks answer linkage; reply/output.ts:6–12 has no citation schema |
 | STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | 020d | CHƯA | grep `citations` trong apps/web/src = 0 |
 | STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | CHƯA | Không có bảng/handler kb_suggestion |
 | STD-ai-rag-10a | Embedding 1536 chiều, provider theo `model_route` purpose=embed; truy vấn chỉ so cùng `embed_model` | standards/ai/rag.md:37 | 020 | CHỜ-TK | migration 020_ai_kb:57 vector(1536); search.ts:94; Q-002 |
-| STD-ai-rag-10b | Đổi model embed → job re-embed toàn kho | standards/ai/rag.md:38 | 046 | CHƯA | Chỉ comment search.ts:84 |
+| STD-ai-rag-10b | Đổi model embed → job re-embed toàn kho | standards/ai/rag.md:38 | 020e | CHƯA | Chỉ comment search.ts:84; TIP-020e SPEC2–3/AC1–7 (chuyển từ 046) |
 | STD-ai-rag-11 | Index HNSW, GIN trgm, kb_chunk(source_id), kb_source(folder_id,status) partial | standards/ai/rag.md:39 | 020 | ĐẠT | migration 20261031600000_020_ai_kb:96; test kb.test.ts:75 (EXPLAIN) |
 | STD-api-envelope-1 | Thành công `{ data, meta? }`, không trả mảng trần | standards/api/response-envelope.md:7 | 003 | ĐẠT | packages/shared/src/api/envelope.ts; test contract.test.ts |
 | STD-api-envelope-2a | List cursor `{data, next_cursor}`, cursor base64url, limit ≤ 100 | standards/api/response-envelope.md:8 | 003 | ĐẠT | inbox/repos/conversations.repo.ts:78; crm-read.service.ts:22 (MAX_LIMIT 100); test inbox.test.ts |
@@ -1275,7 +1207,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-api-envelope-8 | Thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant | standards/api/response-envelope.md:23 | 004 | ĐẠT | apps/api/src/http/kernel/request-actor.ts:1; test actions.test.ts:52 |
 | STD-api-envelope-9 | Tiền string VND, thời gian ISO có offset, id uuid, snake_case | standards/api/response-envelope.md:24 | mọi TIP | QUY-TẮC | Zod shape packages/shared/src/api/*.ts; `pnpm --filter @appchat/contract test` |
 | STD-api-envelope-10a | Contract zod ở packages/actions + packages/shared/src/api/<domain>.ts, FE dùng chung | standards/api/response-envelope.md:29 | 003+ | ĐẠT | packages/shared/src/api/ (21 domain); tools/contract/src/check.ts; test contract.test.ts |
-| STD-api-envelope-10b | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | standards/api/response-envelope.md:29 | — | CHƯA | grep `openapi` trong packages/apps = 0; không TIP nào nhận |
+| STD-api-envelope-10b | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | standards/api/response-envelope.md:29 | 003d | CHƯA | grep `openapi` trong packages/apps = 0; không TIP nào nhận; TIP-003d nhận (2026-11-02) |
 | STD-api-envelope-11 | Mã nghiệp vụ dùng chung INVALID_TRANSITION / STALE_VERSION / HAS_DEPENDENCIES / SLOT_TAKEN / DUPLICATE | standards/api/response-envelope.md:31 | 003 | ĐẠT | packages/shared/src/errors.ts:26; envelope.ts:23 |
 | STD-authz-rbac-1 | Code chỉ kiểm permission, không kiểm tên vai trò | standards/authz/rbac-permissions.md:8 | mọi TIP | ĐẠT | grep `role === 'owner'` trong core/api = 0 (members.service.ts:25 chỉ sắp xếp hiển thị); packages/shared/src/authz |
 | STD-authz-rbac-2 | Executor kiểm `ActionDef.permission` trước handler; UI dùng cùng `can()` | standards/authz/rbac-permissions.md:11 | 005 | ĐẠT | executor.ts:83; apps/web/src/shared/authz; test authz.test.ts |
@@ -1293,7 +1225,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-authz-rbac-D32c | `contact_collaborator(user_id, contact_id)` index cho scope own | standards/authz/rbac-permissions.md:44 | 015 | ĐẠT | migration 20261031000000_015_crm:226 |
 | STD-authz-rbac-plan | Giới hạn user theo `plan.max_users` | standards/authz/rbac-permissions.md:65 | 009 | ĐẠT | billing/services/quota.service.ts:23; test billing.test.ts |
 | STD-channels-adapter-1 | Mọi kênh qua ChannelAdapter; core không import SDK kênh (zca-js, imapflow) | standards/channels/omnichannel-adapter.md:8 | mọi TIP | QUY-TẮC | `pnpm depcheck` (.dependency-cruiser.cjs `no-non-package-json`; SDK chỉ ở packages/channels/package.json:18-21) |
-| STD-channels-adapter-2 | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | standards/channels/omnichannel-adapter.md:9 | — | MỘT PHẦN | Cần rà từng UI/AI consumer manifest để chứng minh toàn nghĩa vụ. Bằng chứng cũ poller.ts:105 là worker core, không phải UI/AI nên đã bỏ như một kết luận vi phạm dòng này; chưa nâng ĐẠT khi thiếu audit đúng phạm vi. |
+| STD-channels-adapter-2 | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | standards/channels/omnichannel-adapter.md:9 | 014c | MỘT PHẦN | Cần rà từng UI/AI consumer manifest để chứng minh toàn nghĩa vụ. Bằng chứng cũ poller.ts:105 là worker core, không phải UI/AI nên đã bỏ như một kết luận vi phạm dòng này; chưa nâng ĐẠT khi thiếu audit đúng phạm vi.; TIP-014c nhận (2026-11-02) |
 | STD-channels-adapter-3 | `channel_account.type` là text theo registry, không enum Postgres | standards/channels/omnichannel-adapter.md:10 | 014 | ĐẠT | packages/db/prisma/tenant/channels.prisma:21; test packages/channels/test/registry.test.ts |
 | STD-channels-adapter-4 | Inbound → NormalizedInbound; outbound nhận OutboundMessage; adapter tự render | standards/channels/omnichannel-adapter.md:13 | 014 | ĐẠT | packages/channels/src/types.ts:42,56; test zalo-render.test.ts, zalo-adapter.test.ts |
 | STD-channels-adapter-5 | UNIQUE(channel_account_id, external_msg_id) chống trùng | standards/channels/omnichannel-adapter.md:14 | 016 | ĐẠT | packages/db/prisma/tenant/inbox.prisma:173; test inbox.test.ts |
@@ -1312,10 +1244,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-code-filesize-7 | Stub backend sẵn cho mọi domain (module, prisma, registry) | standards/code/file-size-module-layout.md:17 | 001 | ĐẠT | packages/db/prisma/{platform,tenant}/*.prisma; test modules.test.ts, packages/db/test/prisma-stubs.test.ts |
 | STD-code-testing-1 | Test ở file riêng (`*.test.ts`, `apps/web/e2e/*.spec.ts`, tools/parity) | standards/code/testing.md:5 | mọi TIP | QUY-TẮC | Quy ước; `pnpm test` (turbo) — không có lint chặn test inline |
 | STD-code-testing-2 | Integration chạy Postgres + Redis thật, DB tenant mỗi suite, không mock DB | standards/code/testing.md:11 | 002+ | ĐẠT | apps/api/test/integration/setup.ts; packages/db/test/integration/tenant-isolation.test.ts |
-| STD-code-testing-2c | Contract test: adapter kênh, connector, registry action, API đọc FE↔BE | standards/code/testing.md:12 | 003, 012 | MỘT PHẦN | registry.test.ts, integrations/test/registry.test.ts, contract.test.ts có; contract chung kênh → 045b |
+| STD-code-testing-2c | Contract test: adapter kênh, connector, registry action, API đọc FE↔BE | standards/code/testing.md:12 | 003, 012, 003e | MỘT PHẦN | registry.test.ts, integrations/test/registry.test.ts, contract.test.ts có; contract chung kênh → 045b; TIP-003e nhận (2026-11-02) |
 | STD-code-testing-3 | Test bắt buộc theo loại thay đổi (role-/tenant-isolation, e2e http, state/concurrency) | standards/code/testing.md:16 | mọi TIP | QUY-TẮC | `pnpm turbo run test --filter=...[origin/dev]` + `pnpm e2e:http` (tools/scripts/e2e-http.mjs) |
 | STD-code-testing-4a | Factory dữ liệu test ở `packages/db/test/factories` | standards/code/testing.md:25 | 045b | CHƯA | Thư mục không tồn tại; 045b task 12 |
-| STD-code-testing-4b | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | standards/code/testing.md:25 | — | MỘT PHẦN | FixedClock có; channels/jobs/send.processor.ts:50,103 và sessions.ts:81–123 còn đồng hồ thực. Bỏ kết luận WalletService vi phạm production: billing.module.ts:48 đã inject () => c.now(); constructor fallback không đủ chứng minh bypass. Cần audit callsites còn lại và lint/test, không giữ số13 chưa phân loại. |
+| STD-code-testing-4b | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | standards/code/testing.md:25 | 003g | MỘT PHẦN | FixedClock có; channels/jobs/send.processor.ts:50,103 và sessions.ts:81–123 còn đồng hồ thực. Bỏ kết luận WalletService vi phạm production: billing.module.ts:48 đã inject () => c.now(); constructor fallback không đủ chứng minh bypass. Cần audit callsites còn lại và lint/test, không giữ số13 chưa phân loại.; TIP-003g nhận (2026-11-02) |
 | STD-code-testing-4bc | Phạm vi test theo phần bị ảnh hưởng (D39) + 3 cổng TIP backend (D59) | standards/code/testing.md:26 | mọi TIP | QUY-TẮC | `pnpm turbo run test lint typecheck --filter=...[origin/main]`, `pnpm depcheck`, `pnpm parity <id>`, `pnpm e2e <module>` |
 | STD-code-testing-5 | Báo kết quả trung thực, commit SHA, git status sạch trước DONE | standards/code/testing.md:34 | mọi TIP | QUY-TẮC | Quy trình (Completion Report); `git status --short` |
 | STD-database-indexing-1 | Composite index cột `=` trước, range/sort sau; tenant không có workspace_id đầu index | standards/database/indexing.md:7 | mọi TIP | ĐẠT | migration 015_crm:264, 016 conversation_assignee_..._idx:157; EXPLAIN trong kb.test.ts:75, orders.test.ts |
@@ -1325,8 +1257,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-database-indexing-5 | Partial index cho deleted_at / outbox pending / unread | standards/database/indexing.md:22 | mọi TIP | ĐẠT | migration 029_quotes:109, 030_contracts:153, kernel partial (tenant/kernel.prisma:4) |
 | STD-database-indexing-6 | Expression index đúng biểu thức (lower, phone_norm, f_unaccent trgm) | standards/database/indexing.md:23 | mọi TIP | ĐẠT | 16 file core dùng `f_unaccent`; test tenant-isolation.test.ts:44, kb.test.ts:75 |
 | STD-database-indexing-7 | List scope `own` có index bắt đầu owner/assignee | standards/database/indexing.md:27 | mọi TIP | ĐẠT | contact_owner_recent_idx, quote/contract/order_live_owner_idx, invoice_owner_idx, appointment_owner_start_idx, ticket_assignee_idx |
-| STD-database-indexing-8 | Không `SELECT *` trong list API | standards/database/indexing.md:28 | — | MỘT PHẦN | crm/services/contact-view.ts:26 tuân thủ; packages/core/src/ai/tasks/tasks.read.ts:137 `SELECT r.*` trong list lượt chạy tác vụ |
-| STD-database-indexing-9 | Không N+1; repo list có test đếm số query | standards/database/indexing.md:29 | — | CHƯA | Không có test đếm query nào (grep `$on('query'`/query count = 0) |
+| STD-database-indexing-8 | Không `SELECT *` trong list API | standards/database/indexing.md:28 | 003g | MỘT PHẦN | crm/services/contact-view.ts:26 tuân thủ; packages/core/src/ai/tasks/tasks.read.ts:137 `SELECT r.*` trong list lượt chạy tác vụ; TIP-003g nhận (2026-11-02) |
+| STD-database-indexing-9 | Không N+1; repo list có test đếm số query | standards/database/indexing.md:29 | 003g | CHƯA | Không có test đếm query nào (grep `$on('query'`/query count = 0); TIP-003g nhận (2026-11-02) |
 | STD-database-indexing-10 | Vector hnsw trên kb_chunk.embedding, lọc trước cosine sau | standards/database/indexing.md:30 | 020 | ĐẠT | migration 020_ai_kb; search.ts:90 |
 | STD-database-indexing-R | TIP có list ghi index + EXPLAIN vào Completion Report | standards/database/indexing.md:3 | mọi TIP | QUY-TẮC | Quy trình; 25/35 report trong coding-packs/reports có EXPLAIN |
 | STD-database-tenantdb-1 | Hai DB, hai Prisma client (platform / tenant) | standards/database/tenant-db.md:7 | 002 | ĐẠT | packages/db/prisma.{platform,tenant}.config.ts; test packages/db/test/resolver.test.ts |
@@ -1341,20 +1273,20 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-database-tenantdb-T | Test: X-Workspace-Id ngoài membership 403; resolver từ chối thiếu ctx; 2 workspace song song cô lập | standards/database/tenant-db.md:34 | 002, 004 | ĐẠT | tenant-isolation.test.ts:85,94; actions.test.ts:52 |
 | STD-documents-templates-1 | Số liệu chỉ từ bản ghi; mẫu chỉ chứa biến; bảng hàng từ `{{#items}}` | standards/documents/templates.md:7 | 028 | ĐẠT | packages/shared/src/documents/render.ts; test variables.test.ts, documents.test.ts |
 | STD-documents-templates-2a | Bảng `doc_template` kind quote/contract/payment_request/receipt, nguồn rich + docx (LibreOffice) | standards/documents/templates.md:10 | 028 | ĐẠT | prisma tenant/documents.prisma:14-31; core/src/documents/services/soffice.ts:12 (DV-007: rich cũng qua LibreOffice, render trong API) |
-| STD-documents-templates-2b | Chứng từ ghi `template_id` + `template_version` đã dùng | standards/documents/templates.md:13 | — | MỘT PHẦN | Có ở sales-quotes.prisma:32, contracts.prisma:46; thiếu ở invoice / receipt (sales-payments.prisma) |
+| STD-documents-templates-2b | Chứng từ ghi `template_id` + `template_version` đã dùng | standards/documents/templates.md:13 | 028b | MỘT PHẦN | Có ở sales-quotes.prisma:32, contracts.prisma:46; thiếu ở invoice / receipt (sales-payments.prisma); TIP-028b nhận (2026-11-02) |
 | STD-documents-templates-3 | Registry biến chuẩn có i18n; biến lạ báo lỗi khi lưu | standards/documents/templates.md:14 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:1; test variables.test.ts, documents.test.ts |
 | STD-documents-templates-4 | AI nhận diện biến DOCX (generateObject), người xác nhận trước khi lưu | standards/documents/templates.md:24 | 028 | CHỜ-TK | doc-template.handlers.ts:138; test documents.test.ts (model giả) — Q-001 |
 | STD-documents-templates-5a | `quote.draft_from_content`: giá từ catalog, dòng ngoài danh mục `off_catalog` buộc duyệt | standards/documents/templates.md:28 | 029 | CHỜ-TK | sales/quotes/actions/quote-draft.handler.ts:21; test quotes.test.ts (model giả) — Q-001 |
 | STD-documents-templates-5b | `contract.draft_from_content`: giữ nguyên văn điều khoản, khối `ai_suggested` Giữ/Bỏ | standards/documents/templates.md:32 | 030b | CHƯA | grep `ai_suggested` = 0; DV-010, Q-022 |
 | STD-documents-templates-6a | Bảng kiểm Điều 398 / báo giá / dòng "không thay thế hoá đơn GTGT" (tự chèn, không xoá) | standards/documents/templates.md:36 | 028 | ĐẠT | shared/src/documents/render.ts:41; template-store.ts:27; test template-text.test.ts:28 |
-| STD-documents-templates-6b | Kết quả bảng kiểm hiện trong preview của action gửi / duyệt | standards/documents/templates.md:40 | — | CHƯA | `legalChecklist` chỉ gọi ở doc-template handlers/template-store; quote.send / contract.submit preview không có (023b task 7 không nêu bảng kiểm) |
+| STD-documents-templates-6b | Kết quả bảng kiểm hiện trong preview của action gửi / duyệt | standards/documents/templates.md:40 | 028b | CHƯA | `legalChecklist` chỉ gọi ở doc-template handlers/template-store; quote.send / contract.submit preview không có (023b task 7 không nêu bảng kiểm); TIP-028b nhận (2026-11-02) |
 | STD-documents-templates-7a | Báo giá sent / HĐ từ pending_signature: PDF đóng băng `file_id` + `sha256` | standards/documents/templates.md:42 | 029, 030 | ĐẠT | quote-send.handlers.ts:86; services/quote-doc.ts:65; contracts.prisma:62-66; test quotes.test.ts, contracts.test.ts |
 | STD-documents-templates-7b | HĐ đã ký chỉ đổi bằng phụ lục | standards/documents/templates.md:43 | 030b | CHƯA | `contract.create_appendix` chưa có (DV-010) |
 | STD-documents-templates-8a | DOCX ≤ 10MB, từ chối macro / .docm, không chạy field code | standards/documents/templates.md:45 | 028 | ĐẠT | core/src/documents/services/docx.ts:11-24; test documents.test.ts |
 | STD-documents-templates-8b | LibreOffice chạy user riêng, không mạng, thư mục tạm mỗi job | standards/documents/templates.md:46 | 045 | MỘT PHẦN | soffice.ts:2 thư mục hồ sơ riêng + timeout; user riêng / chặn mạng là việc systemd (TIP-045, Q-006) |
 | STD-documents-templates-9 | Eval suite `doc-draft` | standards/documents/templates.md:47 | 044 | CHƯA | Chưa có |
-| STD-domain-concurrency-1a | Cột `version` + `if_version` → STALE_VERSION cho contact, product, quote, contract, order, invoice, appointment, ticket, campaign, ai_agent, doc_template, profile_layout | standards/domain/concurrency.md:8 | — | MỘT PHẦN | if_version chỉ ở product (product.handlers.ts:86) + doc_template (doc-template.handlers.ts:69); không có cột version ở crm/contracts/sales-orders (contact, contract, order, profile_layout); ticket/appointment/invoice có cột nhưng không nhận if_version; campaign → 037 |
-| STD-domain-concurrency-1b | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | standards/domain/concurrency.md:9 | — | CHƯA | grep STALE_VERSION trong apps/web/src chỉ ở mock; không có xử lý UI / chuỗi errors.STALE_VERSION |
+| STD-domain-concurrency-1a | Cột `version` + `if_version` → STALE_VERSION cho contact, product, quote, contract, order, invoice, appointment, ticket, campaign, ai_agent, doc_template, profile_layout | standards/domain/concurrency.md:8 | 003e | MỘT PHẦN | if_version chỉ ở product (product.handlers.ts:86) + doc_template (doc-template.handlers.ts:69); không có cột version ở crm/contracts/sales-orders (contact, contract, order, profile_layout); ticket/appointment/invoice có cột nhưng không nhận if_version; campaign → 037; TIP-003e nhận (2026-11-02) |
+| STD-domain-concurrency-1b | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | standards/domain/concurrency.md:9 | 003e | CHƯA | grep STALE_VERSION trong apps/web/src chỉ ở mock; không có xử lý UI / chuỗi errors.STALE_VERSION; TIP-003e nhận (2026-11-02) |
 | STD-domain-concurrency-2 | Chuyển trạng thái compare-and-set, 0 dòng → INVALID_TRANSITION | standards/domain/concurrency.md:11 | 003+ | ĐẠT | sales/quotes/services/quote-system.ts:42 `updateMany where status`; test quotes.test.ts, orders.test.ts |
 | STD-domain-concurrency-3 | Tiền/kho/credit/buổi: FOR UPDATE, sổ cái chỉ thêm, unique chống trừ đôi (điểm tách dòng riêng) | standards/domain/concurrency.md:12 | 009, 027, 032, 033 | ĐẠT | Bằng chứng hiện có: migration027:104 stock_movement unique,032:159,205; catalog.test.ts:142, billing.test.ts:98. Không dùng dòng này khẳng định loyalty đã triển khai. |
 | STD-domain-concurrency-3-loyalty | Điểm loyalty: transaction/khoá/sổ append-only/unique chống cộng-trừ đôi | standards/domain/concurrency.md:12 | 036 | CHƯA | TIP036 có kế hoạch ledger/FIFO/idempotency; code chưa có. Tách khỏi dòng tiền/kho cũ để không che phần thiếu bằng trạng thái ĐẠT. |
@@ -1366,7 +1298,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-7b | Lô > 50 bản ghi chạy job, trả 202 + job id | standards/domain/concurrency.md:24 | 045b | CHƯA | executor.ts:18 chỉ 202 preview/approval; 045b task 11 |
 | STD-domain-concurrency-8 | Lịch hẹn chống trùng bằng EXCLUDE USING gist → SLOT_TAKEN | standards/domain/concurrency.md:25 | 033 | ĐẠT | migration 20261101900000_033_booking; test booking.test.ts |
 | STD-domain-concurrency-9 | Realtime chỉ invalidate / patch cache | standards/domain/concurrency.md:26 | 006 | ĐẠT | apps/web/src/shared/realtime |
-| STD-domain-concurrency-T | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | standards/domain/concurrency.md:30 | — | MỘT PHẦN | Có: catalog.test.ts:142 (kho), billing.test.ts:98, relay-sequence.test.ts:84, webhook trùng integrations.test.ts:152; thiếu ca song song if_version / chuyển trạng thái |
+| STD-domain-concurrency-T | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | standards/domain/concurrency.md:30 | 003e | MỘT PHẦN | Có: catalog.test.ts:142 (kho), billing.test.ts:98, relay-sequence.test.ts:84, webhook trùng integrations.test.ts:152; thiếu ca song song if_version / chuyển trạng thái; TIP-003e nhận (2026-11-02) |
 | STD-domain-customfields-1 | Định nghĩa một nơi `custom_field_def`; key `cf_<n>` tự sinh; sys không đổi kiểu / xoá | standards/domain/custom-fields.md:7 | 015 | ĐẠT | crm/services/fields.service.ts:90; DC-061; test crm-settings.test.ts (key theo nhãn — keyFromLabel, không phải `cf_<n>`) |
 | STD-domain-customfields-2a | Cột `custom jsonb` + GIN jsonb_path_ops cho 6 thực thể | standards/domain/custom-fields.md:10 | 015, 027, 029, 031, 033, 034 | ĐẠT | migrations 015:269, 027:120, 029:109, 031:129, 033:131, 034:103 |
 | STD-domain-customfields-2b | Xoá trường: giữ giá trị 30 ngày (undo) rồi job dọn | standards/domain/custom-fields.md:12 | 045b | CHƯA | crm/actions/custom-field.handlers.ts:67 không có job dọn; 045b task 12 |
@@ -1385,25 +1317,25 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-money-1.1 | Tiền số nguyên VND: DB bigint, JSON string, không float / toFixed | standards/domain/money-time-numbering.md:7 | mọi TIP | ĐẠT | prisma tenant bigint; shared/src/api zod money string |
 | STD-domain-money-1.2 | Làm tròn half-up theo thứ tự `quoteTotals()`; mọi chỗ tính tiền chứng từ gọi chung | standards/domain/money-time-numbering.md:8 | 029, 031, 032 | ĐẠT | packages/shared/src/commerce/quote-math.ts; 10 file core dùng; test quote-math.test.ts |
 | STD-domain-money-1.3 | qty numeric(12,3); thuế suất 0/5/8/10/null | standards/domain/money-time-numbering.md:15 | 029, 031 | ĐẠT | sales-quotes.prisma:81, sales-orders.prisma:108 |
-| STD-domain-money-1.4 | Chia đợt / cọc theo %: làm tròn xuống, đợt cuối nhận phần dư | standards/domain/money-time-numbering.md:16 | — | CHƯA | Không có hàm chia đợt theo % (invoice.create nhận `amount` tay — actions/src/invoices.ts:24) |
+| STD-domain-money-1.4 | Chia đợt / cọc theo %: làm tròn xuống, đợt cuối nhận phần dư | standards/domain/money-time-numbering.md:16 | 033d | CHƯA | Không có hàm chia đợt theo % (invoice.create nhận `amount` tay — actions/src/invoices.ts:24); TIP-033d nhận (2026-11-02) |
 | STD-domain-money-1.5 | Điểm floor; đổi điểm ≤ 50% đơn, bội 100đ | standards/domain/money-time-numbering.md:17 | 036 | CHƯA | `payment.redeem_points` chưa có |
 | STD-domain-money-1.6 | Hoàn tiền một phần / theo buổi làm tròn xuống | standards/domain/money-time-numbering.md:18 | 032 | ĐẠT | shared/src/sales/invoice-state.ts:88 (chia bigint); test invoice-state.test.ts:52 |
-| STD-domain-money-1.7 | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | standards/domain/money-time-numbering.md:19 | — | MỘT PHẦN | fmt.money dùng rộng; không có `MoneyInput` (apps/web/src/shared/forms chỉ SignaturePad.tsx) |
+| STD-domain-money-1.7 | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | standards/domain/money-time-numbering.md:19 | 003f | MỘT PHẦN | fmt.money dùng rộng; không có `MoneyInput` (apps/web/src/shared/forms chỉ SignaturePad.tsx); TIP-003f nhận (2026-11-02) |
 | STD-domain-money-2.1 | Lưu UTC; ngày nghiệp vụ theo timezone workspace | standards/domain/money-time-numbering.md:23 | mọi TIP | ĐẠT | shared/src/time/wall-clock.ts, deadline.ts; test deadline.test.ts, wall-clock.test.ts |
-| STD-domain-money-2.2 | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | standards/domain/money-time-numbering.md:24 | — | MỘT PHẦN | Xem callsites đã xác minh ở STD-code-testing-4b; bỏ số13 và WalletService chưa chứng minh. Cần audit/lint business-time khác thời gian đo performance, không sửa máy móc mọi new Date dùng parse timestamp. |
+| STD-domain-money-2.2 | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | standards/domain/money-time-numbering.md:24 | 003g | MỘT PHẦN | Xem callsites đã xác minh ở STD-code-testing-4b; bỏ số13 và WalletService chưa chứng minh. Cần audit/lint business-time khác thời gian đo performance, không sửa máy móc mọi new Date dùng parse timestamp.; TIP-003g nhận (2026-11-02) |
 | STD-domain-money-2.3 | Hạn theo ngày = 23:59:59.999 ngày (mốc+N) theo tz | standards/domain/money-time-numbering.md:25 | 029, 032 | ĐẠT | shared/src/time/deadline.ts; test deadline.test.ts |
-| STD-domain-money-2.5 | Mốc nhắc (T-2 báo giá, T-1/T+1/T+7 đề nghị, lịch hẹn 24h) gửi trong giờ làm việc, ngoài giờ dời | standards/domain/money-time-numbering.md:27 | — | CHƯA | sales/payments/services/payment-system.ts:41 `remindDue` + quote remindExpiring không xét business_hours; job chạy `every` cố định (sales.jobs.module.ts:90) |
-| STD-domain-money-2.7 | Giờ làm việc từ settings; SLA + mốc nhắc dùng chung `businessTime` | standards/domain/money-time-numbering.md:29 | 034 | MỘT PHẦN | addBusinessMinutes chỉ dùng ở support/services/sla-clock.ts; test business-time.test.ts |
+| STD-domain-money-2.5 | Mốc nhắc (T-2 báo giá, T-1/T+1/T+7 đề nghị, lịch hẹn 24h) gửi trong giờ làm việc, ngoài giờ dời | standards/domain/money-time-numbering.md:27 | 003g | CHƯA | sales/payments/services/payment-system.ts:41 `remindDue` + quote remindExpiring không xét business_hours; job chạy `every` cố định (sales.jobs.module.ts:90); TIP-003g nhận (2026-11-02) |
+| STD-domain-money-2.7 | Giờ làm việc từ settings; SLA + mốc nhắc dùng chung `businessTime` | standards/domain/money-time-numbering.md:29 | 034, 013c | MỘT PHẦN | addBusinessMinutes chỉ dùng ở support/services/sla-clock.ts; test business-time.test.ts; TIP-013c nhận (2026-11-02) |
 | STD-domain-money-3.1 | Mã sinh trong tx bằng `sequence_counter` UPDATE…RETURNING, rollback không nhảy số | standards/domain/money-time-numbering.md:35 | 003 | ĐẠT | packages/core/src/kernel/sequence.ts:5; test relay-sequence.test.ts:84 |
 | STD-domain-money-3.2 | `formatCode(kind,n)` đúng bảng KH/SP/BG/HĐ/DH/TT/PT/LH/TKT/CD; bắt đầu 1000 | standards/domain/money-time-numbering.md:36 | 003 | ĐẠT | packages/shared/src/codes.ts:2-26; test shared/src/state/flow.test.ts |
-| STD-domain-state-1 | Một bảng `defineFlow` mỗi domain cho mọi entity có status (15 entity) | standards/domain/state-machine.md:8 | — | MỘT PHẦN | Có 6 flow (quote, order, contract, invoice, appointment, ticket); thiếu customer_payment, customer_package, conversation, channel_account, ai_agent, kb_source, approval_request (kiểm inline: approval.handlers.ts:46, agent.handlers.ts:120); campaign → 037 |
+| STD-domain-state-1 | Một bảng `defineFlow` mỗi domain cho mọi entity có status (15 entity) | standards/domain/state-machine.md:8 | 003h | MỘT PHẦN | Có 6 flow (quote, order, contract, invoice, appointment, ticket); thiếu customer_payment, customer_package, conversation, channel_account, ai_agent, kb_source, approval_request (kiểm inline: approval.handlers.ts:46, agent.handlers.ts:120); campaign → 037; TIP-003h nhận (2026-11-02) |
 | STD-domain-state-2 | Handler `assertTransition` + CAS; sai → INVALID_TRANSITION 409 | standards/domain/state-machine.md:9 | 029–034 | ĐẠT | 13 file core dùng assertTransition; test quotes/orders/contracts/payments/booking/support.test.ts |
 | STD-domain-state-3 | FE dùng cùng bảng để vô hiệu nút + tooltip; mock gọi assertTransition | standards/domain/state-machine.md:10 | 029–034 | ĐẠT | features/quotes/components/QuoteDrawer.tsx, OrderDrawer.tsx, ContractDrawer.tsx; mock contracts-actions.ts |
 | STD-domain-state-4 | Chuyển bởi hệ thống đi qua action `source='system'`, đọc lại trong tx | standards/domain/state-machine.md:11 | 003c | MỘT PHẦN | Đọc lại có (quote-system.ts:37); nhưng job ghi thẳng `tx.quote.updateMany` + outbox, không qua ActionExecutor (không action_log) — quote expire, invoice overdue, package expire |
 | STD-domain-state-5 | Trạng thái suy ra (pay_status, invoice partial/paid/overdue) tính lại cùng tx | standards/domain/state-machine.md:12 | 031, 032 | ĐẠT | invoiceStatusOf (DC-193); test invoice-state.test.ts, payments.test.ts |
 | STD-domain-state-7 | Chuyển có nghĩa phát event `<entity>.<past>` + timeline_event | standards/domain/state-machine.md:14 | 029–034 | ĐẠT | crm/services/timeline.service.ts:7; quote-system.ts:45; test quotes.test.ts |
 | STD-domain-state-T | `state.test.ts` mọi cặp (trạng thái × action) | standards/domain/state-machine.md:30 | 029–034 | ĐẠT | shared/src/{sales,orders,contracts,booking,support}/*-state.test.ts (6 flow) |
-| STD-domain-validate-1 | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | standards/domain/validation-defaults.md:7 | — | CHƯA | Thư mục validate không tồn tại; grep các mã = 0 trong shared/actions/core; normalizePhone (shared/src/crm/phone.ts:5) lưu dạng `0…` không phải E.164; MST regex chỉ ở onboarding.ts:15 |
+| STD-domain-validate-1 | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | standards/domain/validation-defaults.md:7 | 003f | CHƯA | Thư mục validate không tồn tại; grep các mã = 0 trong shared/actions/core; normalizePhone (shared/src/crm/phone.ts:5) lưu dạng `0…` không phải E.164; MST regex chỉ ở onboarding.ts:15; TIP-003f nhận (2026-11-02) |
 | STD-domain-validate-1b | Trùng nghiệp vụ → fields DUPLICATE; khách có owner khác → CONTACT_OWNED | standards/domain/validation-defaults.md:25 | 015 | ĐẠT | contacts.service.ts:60-69; test crm-contacts.test.ts |
 | STD-domain-validate-2 | Mặc định khi tạo do server đặt (owner = người ra lệnh, stage lead, valid_days 15…) | standards/domain/validation-defaults.md:29 | 015, 029, 031–034 | ĐẠT | DC-066; test quotes.test.ts, payments.test.ts:105 (hạn +7 ngày) |
 | STD-domain-validate-3a | Xoá khách: mềm, chặn khi có đơn / HĐ chưa đóng hoặc công nợ → HAS_DEPENDENCIES | standards/domain/validation-defaults.md:43 | 015f | MỘT PHẦN | contact-write.handlers.ts:154 lacks dependency guards;015f plans domain-owned unscoped existence predicates, root locking and30day restore. No runtime evidence yet. |
@@ -1423,7 +1355,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-i18n-1 | Không chuỗi hiển thị cứng trong JSX; lint i18next mức error | standards/i18n/i18n.md:7 | mọi TIP | QUY-TẮC | `pnpm lint` — apps/web/eslint.config.mjs `i18next/no-literal-string` 2 |
 | STD-i18n-2 | Key theo module `messages/<locale>/<module>.json`; en đủ key trước merge | standards/i18n/i18n.md:10 | mọi TIP | QUY-TẮC | `pnpm i18n:check` — chạy 2026-11-01: vi/en 4719 key 100%; CI ci.yml:35 |
 | STD-i18n-3 | Không nối chuỗi; ICU plural | standards/i18n/i18n.md:11 | mọi TIP | QUY-TẮC | Review (không có lint riêng) |
-| STD-i18n-4 | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | standards/i18n/i18n.md:12 | — | MỘT PHẦN | Vi phạm: features/settings/components/ChannelsSection.tsx:50, ManageChannelDrawer.tsx:130,169,191, WidgetSection.tsx:134, features/assistant/components/TaskDrawer.tsx:161 (loyalty / marketing → 036, 037); không lint |
+| STD-i18n-4 | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | standards/i18n/i18n.md:12 | 001b | MỘT PHẦN | Vi phạm: features/settings/components/ChannelsSection.tsx:50, ManageChannelDrawer.tsx:130,169,191, WidgetSection.tsx:134, features/assistant/components/TaskDrawer.tsx:161 (loyalty / marketing → 036, 037); không lint; TIP-001b nhận (2026-11-02) |
 | STD-i18n-5 | Lỗi server trả code; client dịch `errors.<CODE>` | standards/i18n/i18n.md:13 | mọi TIP | ĐẠT | apps/web/messages/vi/errors.json; useAction.ts |
 | STD-i18n-7 | Locale: user → workspace → Accept-Language → vi; không vào URL; antd/dayjs đồng bộ | standards/i18n/i18n.md:15 | 006 | ĐẠT | packages/shared/src/i18n/locales.ts:39; apps/web/src/i18n/request.ts:1; test locales.test.ts:10 |
 | STD-i18n-8 | Email / PDF / thông báo render theo locale người nhận | standards/i18n/i18n.md:18 | 006, 028 | ĐẠT | packages/shared/src/i18n/server/{vi,en}; core/src/notify/mail.ts; test notify.test.ts |
@@ -1468,31 +1400,43 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-fe-3 | Import một chiều app → features → shared; không import features/b/components; không core/db | standards/ui/frontend-structure.md:40 | mọi TIP | QUY-TẮC | `pnpm lint` — eslint-plugin-boundaries + no-restricted-imports (apps/web/eslint.config.mjs); `pnpm depcheck` web-no-backend |
 | STD-ui-fe-4 | Đọc TanStack Query, ghi chỉ `useAction`; cấm fetch/axios POST trong component | standards/ui/frontend-structure.md:44 | mọi TIP | QUY-TẮC | `pnpm lint` (cấm axios); grep `method: 'POST'` trong features = 0; apps/web/src/shared/actions/useAction.ts:1 |
 | STD-ui-fe-5 | Không state server song song; Zustand chỉ UI state | standards/ui/frontend-structure.md:48 | mọi TIP | QUY-TẮC | Review |
-| STD-ui-fe-6 | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | standards/ui/frontend-structure.md:49 | — | CHƯA | apps/web/src/shared/forms chỉ có SignaturePad.tsx; grep zodRule / MoneyInput / PhoneInput = 0 |
+| STD-ui-fe-6 | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | standards/ui/frontend-structure.md:49 | 003f | CHƯA | apps/web/src/shared/forms chỉ có SignaturePad.tsx; grep zodRule / MoneyInput / PhoneInput = 0; TIP-003f nhận (2026-11-02) |
 | STD-ui-fe-7 | Phân quyền UI bằng useCan / `<Can>`; scope từ useScope | standards/ui/frontend-structure.md:50 | mọi TIP | ĐẠT | apps/web/src/shared/authz; e2e apps/web/e2e/roles.spec.ts |
 | STD-ui-fe-8 | Module khai `ui-commands.ts` (prefill / open / filter / highlight) | standards/ui/frontend-structure.md:53 | mọi TIP | ĐẠT | 14/17 features có ui-commands.ts (thiếu auth / dashboard / onboarding — không có form tạo nghiệp vụ); test shared/assistant/ui-command-bus.test.ts, agents/ui-commands.test.tsx |
-| STD-ui-fe-9 | 5 trạng thái qua PageStates | standards/ui/frontend-structure.md:54 | — | MỘT PHẦN | PageStates.tsx:17–21 chỉ sinh empty khi có predicate, không tự sinh no-permission; QuotesScreen.tsx:87 và ProductsScreen.tsx:98 gọi stateOf(list) không predicate. Dùng component ở42 file không chứng minh đủ trạng thái; cần UI supplemental và matrix tests. |
+| STD-ui-fe-9 | 5 trạng thái qua PageStates | standards/ui/frontend-structure.md:54 | 001c | MỘT PHẦN | PageStates.tsx:17–21 chỉ sinh empty khi có predicate, không tự sinh no-permission; QuotesScreen.tsx:87 và ProductsScreen.tsx:98 gọi stateOf(list) không predicate. Dùng component ở42 file không chứng minh đủ trạng thái; cần UI supplemental và matrix tests.; TIP-001c nhận (2026-11-02) |
 | STD-ui-fe-10 | Chỉ token theme; cấm hard-code màu / px, CSS rời | standards/ui/frontend-structure.md:55 | mọi TIP | QUY-TẮC | `pnpm lint:tokens` (tools/scripts/lint-tokens.mjs) — chạy 2026-11-01: 630 file đúng thang |
-| STD-ui-fe-11 | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | standards/ui/frontend-structure.md:59 | — | MỘT PHẦN | Dùng helper token `responsive.md` (shell.styles.ts:16); còn 7 `@media` tay: features/agents/styles/agents.styles.ts:157, dashboard/components/AgentsSection.tsx:30,33, inbox (3); useBreakpoint = 0 |
+| STD-ui-fe-11 | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | standards/ui/frontend-structure.md:59 | 001b | MỘT PHẦN | Dùng helper token `responsive.md` (shell.styles.ts:16); còn 7 `@media` tay: features/agents/styles/agents.styles.ts:157, dashboard/components/AgentsSection.tsx:30,33, inbox (3); useBreakpoint = 0; TIP-001b nhận (2026-11-02) |
 | STD-ui-fe-13a | 9 bảng chính DataTable + Pager (D42); danh sách khác cursor infinite | standards/ui/frontend-structure.md:66 | mọi TIP | ĐẠT | e2e apps/web/e2e/list-scroll.spec.ts |
-| STD-ui-fe-13b | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | standards/ui/frontend-structure.md:67 | — | CHƯA | grep `next/dynamic` / `lazy(` trong apps/web/src = 0 |
+| STD-ui-fe-13b | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | standards/ui/frontend-structure.md:67 | 001b | CHƯA | grep `next/dynamic` / `lazy(` trong apps/web/src = 0; TIP-001b nhận (2026-11-02) |
 | STD-ui-fe-15 | Test: vitest + Testing Library cho logic, Playwright desktop + 390, parity | standards/ui/frontend-structure.md:73 | mọi TIP | QUY-TẮC | `pnpm --filter @appchat/web test`, `pnpm e2e <module>`, `pnpm parity <id>` |
 | STD-ui-ip-1.5 | Thiếu quyền → ẩn; sai trạng thái → vô hiệu + tooltip từ bảng chuyển trạng thái | standards/ui/interaction-patterns.md:16 | mọi TIP | ĐẠT | QuoteDrawer.tsx / OrderDrawer.tsx / ContractDrawer.tsx dùng flow; e2e roles.spec.ts |
-| STD-ui-ip-1.6 | "Sắp có": khoá + nhãn, không toast giả | standards/ui/interaction-patterns.md:17 | mọi TIP | MỘT PHẦN | Thẻ connector / kênh đúng; drawer AI theo màn còn giả (→ 023c), Xuất Excel giả (→ 038) |
-| STD-ui-ip-3.2 | Validate bằng zodRule khi rời ô / bấm nút; lỗi theo `errors.<CODE>`; cuộn tới lỗi đầu | standards/ui/interaction-patterns.md:35 | — | CHƯA | Không có zodRule (xem STD-ui-fe-6) |
-| STD-ui-ip-3.4 | Đóng form đã sửa chưa lưu → hỏi xác nhận bỏ thay đổi | standards/ui/interaction-patterns.md:37 | — | CHƯA | grep isDirty / discard / "Bỏ thay đổi" trong form + messages = 0 |
+| STD-ui-ip-1.6 | "Sắp có": khoá + nhãn, không toast giả | standards/ui/interaction-patterns.md:17 | mọi TIP, 001c | MỘT PHẦN | Thẻ connector / kênh đúng; drawer AI theo màn còn giả (→ 023c), Xuất Excel giả (→ 038); TIP-001c nhận (2026-11-02) |
+| STD-ui-ip-1.1-5 | Một nút chính mỗi vùng, vị trí cố định, nút nguy hiểm tách, cùng hành động cùng nhãn, thiếu quyền ẩn / sai trạng thái vô hiệu + tooltip | standards/ui/interaction-patterns.md:8-16 | mọi TIP, 003h | QUY-TẮC | Kiểm theo parity + review từng TIP màn; `allowedActions` từ flow (003h) thay điều kiện cứng cho nút theo trạng thái |
+| STD-ui-ip-2 | Chọn khung hiển thị (drawer / modal / màn / popover) theo bảng IP-2 | standards/ui/interaction-patterns.md:19-30 | mọi TIP | QUY-TẮC | Quy tắc thiết kế; kiểm bằng parity với prototype |
+| STD-ui-ip-3.1 | Nhãn trên ô, 1 cột ≤ md / 2 cột ≥ lg, bắt buộc có `*` | standards/ui/interaction-patterns.md:34 | 003f | MỘT PHẦN | 9 FormModal tự dựng; 003f chuẩn hoá form kit |
+| STD-ui-ip-3.3 | Nút chính loading khi gửi, chặn bấm lặp; lỗi server giữ dữ liệu đã nhập | standards/ui/interaction-patterns.md:36 | 003 | ĐẠT | apps/web/src/shared/actions/useAction.ts (busy + giữ form, 102 file dùng useAction); e2e module |
+| STD-ui-ip-3.6 | Mở form từ ngữ cảnh điền sẵn khách / hội thoại / sản phẩm | standards/ui/interaction-patterns.md:39 | 025b, 026b | MỘT PHẦN | initialValues ở 125 chỗ; điền sẵn từ Hộp thư / 360° còn thiếu một phần → 025b form-prefill registration, 026b |
+| STD-ui-ip-4.4 | Thao tác > 1s hiện trạng thái tại chỗ, không khoá cả màn | standards/ui/interaction-patterns.md:46 | 003, 001c | MỘT PHẦN | useAction loading tại nút; skeleton dòng → ma trận trạng thái 001c |
+| STD-ui-ip-4.5 | Cập nhật lạc quan chỉ cho thao tác nhẹ đảo được, lỗi thì trả lại | standards/ui/interaction-patterns.md:47 | 001c | CHƯA | grep onMutate/optimistic = 0; TIP-001c SPEC 4 (useAction optimistic cho ghim / đã đọc / reaction) |
+| STD-ui-ip-5-rt | Bản ghi đang mở bị đổi → cập nhật tại chỗ; bị xoá / mất quyền → đóng drawer + toast | standards/ui/interaction-patterns.md:55 | 006c, 001c | MỘT PHẦN | event-invalidation.ts:42 invalidate query (cập nhật tại chỗ); đóng drawer khi xoá / mất quyền chưa có → 001c trạng thái forbidden + 006c sự kiện |
+| STD-ui-ip-6.1-3 | Cắt chữ + tooltip; nút icon có tooltip + aria-label; thời gian tương đối < 7 ngày | standards/ui/interaction-patterns.md:59-61 | 001b, 001c | MỘT PHẦN | fmt.relative có (packages/shared/src/fmt/index.ts:52); aria-label ở 128 file; ellipsis 4 chỗ; rà toàn bộ nút icon → axe 001c/046 |
+| STD-ui-ip-7.1-3 | Esc theo lớp, focus ô đầu / trả focus, tương phản 4.5:1, không chỉ dùng màu | standards/ui/interaction-patterns.md:66-68 | 001c | MỘT PHẦN | antd mặc định Esc/focus trap; tương phản + kiểm bàn phím → 001c SPEC WCAG, đo 046 |
+| STD-ui-ip-7.5 | < md: drawer bottom, bảng mobileCard, menu ⋯ thành action sheet | standards/ui/interaction-patterns.md:70 | 001c | MỘT PHẦN | DataTable mobileCard (CustomersScreen.tsx:75, ContractsScreen.tsx:123); drawer bottom / action sheet chưa thống nhất → ma trận mobile 001c |
+| STD-ui-ip-8 | Cùng thực thể cùng primitive / nhãn; bảng D42; prototype lệch chọn màn chủ + ghi PD | standards/ui/interaction-patterns.md:74-76 | mọi TIP | QUY-TẮC | D42/D43 parity + review |
+| STD-ui-ip-3.2 | Validate bằng zodRule khi rời ô / bấm nút; lỗi theo `errors.<CODE>`; cuộn tới lỗi đầu | standards/ui/interaction-patterns.md:35 | 003f | CHƯA | Không có zodRule (xem STD-ui-fe-6); TIP-003f nhận (2026-11-02) |
+| STD-ui-ip-3.4 | Đóng form đã sửa chưa lưu → hỏi xác nhận bỏ thay đổi | standards/ui/interaction-patterns.md:37 | 003f | CHƯA | grep isDirty / discard / "Bỏ thay đổi" trong form + messages = 0; TIP-003f nhận (2026-11-02) |
 | STD-ui-ip-4.1 | Ghi qua useAction: toast + Hoàn tác khi có undo; lỗi theo error.code | standards/ui/interaction-patterns.md:43 | 003 | ĐẠT | useAction.ts:41-52 |
 | STD-ui-ip-4.2 | Risk send/money/delete/config/bulk → ConfirmActionHost preview; không window.confirm | standards/ui/interaction-patterns.md:44 | 003 | ĐẠT | useAction.ts:34; shared/actions/ConfirmActionHost.tsx |
 | STD-ui-ip-4.3 | `approval_required` → toast "Đã gửi duyệt", không báo thành công | standards/ui/interaction-patterns.md:45 | 023b | CHƯA | useAction.ts:39 `if (res.status !== 200) return null` — 202 approval_required im lặng; grep approval_required trong apps/web/src = 0; planning update: TIP023b SPECIFICATIONS A/B, exact manifest and targeted per-action/custom-schema/useAction-approval tests now own the gap. Runtime not verified. |
-| STD-ui-ip-5 | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | standards/ui/interaction-patterns.md:51 | — | MỘT PHẦN | Có PageStates nhưng apps/web/e2e/mobile-sweep.spec.ts chỉ kiểm routes/overflow/target size; chưa chứng minh mọi màn/panel có loading/empty/error/retry/permission và dữ liệu cực trị. Cần TIP UI implementation + matrix tests riêng, không dùng sweep layout thay bằng chứng trạng thái. |
-| STD-ui-ip-7.4 | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | standards/ui/interaction-patterns.md:69 | — | MỘT PHẦN | mobile-sweep.spec.ts kiểm overflow và height nút/tab đang thấy; không đo width hay mọi target. Phần overflow có test, touch-target toàn bộ cần UI audit/test bổ sung. |
+| STD-ui-ip-5 | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | standards/ui/interaction-patterns.md:51 | 001c | MỘT PHẦN | Có PageStates nhưng apps/web/e2e/mobile-sweep.spec.ts chỉ kiểm routes/overflow/target size; chưa chứng minh mọi màn/panel có loading/empty/error/retry/permission và dữ liệu cực trị. Cần TIP UI implementation + matrix tests riêng, không dùng sweep layout thay bằng chứng trạng thái.; TIP-001c nhận (2026-11-02) |
+| STD-ui-ip-7.4 | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | standards/ui/interaction-patterns.md:69 | 001c | MỘT PHẦN | mobile-sweep.spec.ts kiểm overflow và height nút/tab đang thấy; không đo width hay mọi target. Phần overflow có test, touch-target toàn bộ cần UI audit/test bổ sung.; TIP-001c nhận (2026-11-02) |
 | STD-ui-ip-use | Prototype sai → PD-xxx trích IP-x.y; không vẽ → "Giả định đã chọn" | standards/ui/interaction-patterns.md:80 | mọi TIP | QUY-TẮC | `pnpm lint:masks` kiểm PD trong sổ docs/06-prototype/DEVIATIONS.md |
 | STD-ui-parity-2 | Đo Playwright 1440×900, dpr 1, pixelmatch threshold 0.1, maxDiffPixelRatio 0.05, tắt animation | standards/ui/prototype-parity.md:8 | goal FE | ĐẠT | tools/parity/src/capture.ts:57,109; compare.ts:38; parity.manifest.ts:36 |
 | STD-ui-parity-3 | Manifest màn đo (id, route, protoState, states, mask, exceptions) | standards/ui/prototype-parity.md:12 | goal FE | ĐẠT | tools/parity/parity.manifest.ts |
 | STD-ui-parity-5 | Giá trị snap về thang token D41 | standards/ui/prototype-parity.md:18 | mọi TIP | QUY-TẮC | `pnpm lint:tokens` |
 | STD-ui-parity-6b | Mọi mask có căn cứ mã; PD mức 3 đề xuất không mask | standards/ui/prototype-parity.md:55 | mọi TIP | QUY-TẮC | `pnpm lint:masks` — chạy 2026-11-01: 42 mask, 7 PD đều có căn cứ; CI ci.yml:37 |
 | STD-ui-parity-6c | Tổng diện tích mask một ID > 15% → đề nghị sửa prototype | standards/ui/prototype-parity.md:57 | — | QUY-TẮC | lint-masks.mjs không đo diện tích — kiểm tay |
-| STD-ui-parity-9 | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | standards/ui/prototype-parity.md:62 | — | MỘT PHẦN | playwright.config.ts:17 có viewport; mobile-sweep chỉ overflow/height, không đủ chứng minh width hoặc action chính từng màn. Giữ bằng chứng hẹp, cần matrix domain E2E và touch audit. |
+| STD-ui-parity-9 | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | standards/ui/prototype-parity.md:62 | 001c | MỘT PHẦN | playwright.config.ts:17 có viewport; mobile-sweep chỉ overflow/height, không đủ chứng minh width hoặc action chính từng màn. Giữ bằng chứng hẹp, cần matrix domain E2E và touch audit.; TIP-001c nhận (2026-11-02) |
 | STD-ui-parity-10 | Đang làm `pnpm parity <id>`; sửa lớp dùng chung `pnpm parity --done`; CI trước main | standards/ui/prototype-parity.md:66 | mọi TIP | QUY-TẮC | `pnpm parity <id>` / `--done` / `--changed` (tools/parity/src/cli.ts:1); parity.yml, full.yml:42 |
 | STD-workflow-git-1 | Nhánh việc từ origin/dev, PR chỉ vào dev, không push dev/main, không tự merge | standards/workflow/git-flow-ci.md:15 | mọi TIP | QUY-TẮC | Quy trình (D40); branch protection do Chủ nhà bật |
 | STD-workflow-git-2 | Commit `<type>(<scope>): …` + attribution; không commit secret / build / parity out | standards/workflow/git-flow-ci.md:24 | mọi TIP | QUY-TẮC | Không có commitlint — review |
@@ -1523,7 +1467,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Orphan của lần rà 2026-11-01 đã xác nhận có chủ: 045b (metrics, safeFetch, magic bytes, rate limit chung, CORS, platform_audit_log, transfer_ownership, lọc trường server, đối soát, ai_mode→copilot, export>5000/bulk>50, dọn custom field 30 ngày, contract test kênh, factories); 046 (rerank, re-embed, backend-it.yml, smoke:build); 044 (eval, gồm genui); 023c (genui); 023b (preview mọi action ghi, test phủ action).
 - Phát hiện mới đáng chú ý nhất: bank feed SePay / Casso **của DN** chạy bằng `MockBankFeedProvider` gắn cứng trong registry (không phải thiếu tài khoản), và `contact.transfer_owner` cho agent chạy thẳng không qua duyệt (trái D32).
 - Đã chạy lint:size / lint:masks / lint:tokens / i18n:check ngày 2026-11-01: đều xanh.
-- CHƯA RÀ HẾT (mở lại sau review độc lập2026-11-02): interaction-patterns §2/3.3/3.6/4.4–5/5 realtime/6/7.1–3,5 chưa tách đủ nghĩa vụ; outbox consumer idempotency và UI five-state còn overclaim đã hạ trạng thái. Đọc đủ28 file không đồng nghĩa mọi nghĩa vụ đã có atomic row/code/test; cần khép findings trước bỏ ghi chú này.
+- Đã rà nốt 2026-11-02: interaction-patterns tách đủ IP-1…IP-8 (thêm STD-ui-ip-1.1-5, 2, 3.1, 3.3, 3.6, 4.4, 4.5, 5-rt, 6.1-3, 7.1-3, 7.5, 8) có TIP nhận; outbox idempotency (STD-events-outbox-4/5 → 006b/003c), five-state (001c) đã hạ trạng thái + có TIP; mọi dòng chưa đạt có TIP chờ nhận (máy kiểm merge.py: 0 lỗ hổng).
 
 ## F. Prototype in-scope — nút / màn FE giả hoặc thiếu
 
@@ -1573,9 +1517,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-customers-rowai | Dòng khách: nút ⚡ "Giao AI" | docs/06-prototype/AppChat.dc.html:2886 | 015b | GIẢ | apps/web/src/features/customers/screens/CustomersScreen.tsx:38 `aiDo = message.info` |
 | PRO-invoices-aiacts | Tab AI đề nghị thanh toán: nút hành động AI gợi ý chạy thật | docs/06-prototype/AppChat.dc.html:5646 | 023g | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:169 `message.info(aiDoing)` |
 | PRO-products-aiacts | Chi tiết sản phẩm: "Gợi ý combo" / "Tạo chiến dịch" AI | docs/06-prototype/AppChat.dc.html:6111 | 023g | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:177,181 `message.info(aiDoing)` |
-| PRO-quotes-bulkfwd | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5364 | — | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:133,141 `message.info`; không có action gán phụ trách báo giá |
-| PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
-| PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |
+| PRO-quotes-bulkfwd | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5364 | 031b | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:133,141 `message.info`; không có action gán phụ trách báo giá; TIP-031b nhận (2026-11-02) |
+| PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | 031b | GIẢ | ContractsToolbar.tsx:120,128 `message.info`; TIP-031b nhận (2026-11-02) |
+| PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | 031b | GIẢ | OrdersToolbar.tsx:161,169 `message.info`; TIP-031b nhận (2026-11-02) |
 | PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | 027b | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
 | PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | 015e | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
@@ -1596,27 +1540,27 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | 023f | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
 | PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | 019c | GIẢ | Composer.tsx:50 không onClick. Independent reconciliation2026-11-02:019c specification4.2/AC1 and exact Composer/UtilityMenu/UtilityHost/mock+HTTP E2E paths receive this wiring; no runtime upgrade. |
 | PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
-| PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | — | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng |
-| PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | — | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing` |
+| PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | 035b | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng; TIP-035b nhận (2026-11-02) |
+| PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | 016b | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing`; TIP-016b nhận (2026-11-02) |
 | PRO-settings-audit | Cài đặt › Audit log đọc `GET /settings/audit` | docs/06-prototype/AppChat.dc.html:7410 | 045b | GIẢ | apps/web/src/features/settings/api.ts:104; routes.json `missing` |
 | PRO-settings-aiaudit | Cài đặt › AI Audit log đọc `GET /settings/ai-audit` | docs/06-prototype/AppChat.dc.html:7035 | 045b | GIẢ | settings/api.ts:106; routes.json `missing` |
 | PRO-settings-walletalerts | Ví: cảnh báo credit 80/95% lưu `wallet.update_alerts` | docs/06-prototype/AppChat.dc.html:6463 | 039 | GIẢ | apps/web/src/features/settings/components/WalletSection.tsx:30; handler null |
 | PRO-settings-upgradecontact | Popup Nâng cấp / Ví: "Liên hệ" gói Doanh nghiệp gửi yêu cầu thật | docs/06-prototype/AppChat.dc.html:985 | 039 | GIẢ | UpgradeModal.tsx:55, WalletShop.tsx:39 `message.info('contacted')` |
-| PRO-settings-wsswitch | Tổng quan workspace: nút "Chuyển" sang workspace khác | docs/06-prototype/AppChat.dc.html:6192 | — | GIẢ | apps/web/src/features/settings/components/GeneralSection.tsx:112 `message.success('switched')` dù `workspace.switch` có handler (UserMenu.tsx:45) |
-| PRO-settings-wsbuy | Tổng quan workspace: "Mua thêm workspace" | docs/06-prototype/AppChat.dc.html:6192 | — | GIẢ | GeneralSection.tsx:91 `message.info('buySoon')` |
-| PRO-settings-logo | Tổng quan workspace: Đổi logo (tải PNG/SVG) | docs/06-prototype/AppChat.dc.html:6204 | — | GIẢ | GeneralSection.tsx:128 `message.info('logoSoon')` |
+| PRO-settings-wsswitch | Tổng quan workspace: nút "Chuyển" sang workspace khác | docs/06-prototype/AppChat.dc.html:6192 | 013b | GIẢ | apps/web/src/features/settings/components/GeneralSection.tsx:112 `message.success('switched')` dù `workspace.switch` có handler (UserMenu.tsx:45); TIP-013b nhận (2026-11-02) |
+| PRO-settings-wsbuy | Tổng quan workspace: "Mua thêm workspace" | docs/06-prototype/AppChat.dc.html:6192 | 013b | GIẢ | GeneralSection.tsx:91 `message.info('buySoon')`; TIP-013b nhận (2026-11-02) |
+| PRO-settings-logo | Tổng quan workspace: Đổi logo (tải PNG/SVG) | docs/06-prototype/AppChat.dc.html:6204 | 013b | GIẢ | GeneralSection.tsx:128 `message.info('logoSoon')`; TIP-013b nhận (2026-11-02) |
 | PRO-settings-dangerzone | Vùng nguy hiểm: Đóng băng / Xuất dữ liệu / Xoá workspace | docs/06-prototype/AppChat.dc.html:6220 | 041 | GIẢ | GeneralSection.tsx:149 `message.info('dz.requested')`; chưa có action |
-| PRO-settings-membersfilter | Thành viên: Lọc theo vai trò / trạng thái | docs/06-prototype/AppChat.dc.html:6231 | — | GIẢ | MembersSection.tsx:124 `message.info('filterSoon')` |
-| PRO-settings-membersexport | Thành viên: Xuất danh sách | docs/06-prototype/AppChat.dc.html:6232 | — | GIẢ | MembersSection.tsx:128 `message.success('exported')` không tải file |
-| PRO-settings-widgetacts | Widget web: thêm / sửa nút hành động | docs/06-prototype/AppChat.dc.html:7585 | — | GIẢ | WidgetSection.tsx:72,91 `message.info('addActionSoon')` |
+| PRO-settings-membersfilter | Thành viên: Lọc theo vai trò / trạng thái | docs/06-prototype/AppChat.dc.html:6231 | 013b | GIẢ | MembersSection.tsx:124 `message.info('filterSoon')`; TIP-013b nhận (2026-11-02) |
+| PRO-settings-membersexport | Thành viên: Xuất danh sách | docs/06-prototype/AppChat.dc.html:6232 | 013b | GIẢ | MembersSection.tsx:128 `message.success('exported')` không tải file; TIP-013b nhận (2026-11-02) |
+| PRO-settings-widgetacts | Widget web: thêm / sửa nút hành động | docs/06-prototype/AppChat.dc.html:7585 | 017b | GIẢ | WidgetSection.tsx:72,91 `message.info('addActionSoon')`; TIP-017b nhận (2026-11-02) |
 | PRO-settings-slanew | SLA: tạo chính sách mới theo kênh / hạng | docs/06-prototype/AppChat.dc.html:7394 | — | NGOÀI | REQ-H05 P3; SlaSection.tsx:41 nút disabled + tooltip |
-| PRO-settings-docs | Cài đặt: chip "Tài liệu hướng dẫn" | docs/06-prototype/AppChat.dc.html:6128 | — | GIẢ | SettingsShell.tsx:40 `message.info('docsSoon')` |
+| PRO-settings-docs | Cài đặt: chip "Tài liệu hướng dẫn" | docs/06-prototype/AppChat.dc.html:6128 | 013b | GIẢ | SettingsShell.tsx:40 `message.info('docsSoon')`; TIP-013b nhận (2026-11-02) |
 | PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | GIẢ | RagSection.tsx:67 không onClick |
-| PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | — | GIẢ | TagsSection.tsx:83 không onClick |
-| PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | — | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng |
+| PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | 013b | GIẢ | TagsSection.tsx:83 không onClick; TIP-013b nhận (2026-11-02) |
+| PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | 013b | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng; TIP-013b nhận (2026-11-02) |
 | PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | 033b | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ; TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
-| PRO-settings-paymentaccount | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | plans/BLUEPRINT.md:1269 | — | CHƯA | Action + API có (DV-014); không FE nào gọi `payment_account.update` |
-| PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | — | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance) |
+| PRO-settings-paymentaccount | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | plans/BLUEPRINT.md:1269 | 013b | CHƯA | Action + API có (DV-014); không FE nào gọi `payment_account.update`; TIP-013b nhận (2026-11-02) |
+| PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | 004b | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance); TIP-004b nhận (2026-11-02) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | MỘT PHẦN | Có tab Lịch sử ví (WalletLedger.tsx:1) nhưng không lọc theo module như prototype |
 | PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | CHƯA | REQ-F01c P1; không có FE; TIP042b AC7, giữ skill/shift/workflow ngoài scope |
 | PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | CHƯA | prototype-parity §6 chỉ loại Phòng ban; Nhóm P1 chưa có UI/action. TIP042 AC5/7; không dùng ngoại lệ Phòng ban để đánh NGOÀI cả Nhóm |
@@ -1628,17 +1572,17 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Ghi chú:
 - Trạng thái "GIẢ" cho route `missing` / handler null: FE chạy được chỉ ở chế độ mock (`NEXT_PUBLIC_API_MODE=mock`).
 - Màn có module FE đầy đủ cho mọi màn in-scope trong CLAUDE.md §6; màn ẩn (workflow, callcenter, reports) không có FE — đúng D07/D19.
-- CHƯA RÀ HẾT: agents (Builder/TestPanel/VersionsDrawer chi tiết), calendar (AppointmentDrawer/FormModal), tickets (TicketDrawer/DetailTabs), quotes/orders/invoices form modal, settings channels (ManageChannelDrawer, ConnectChannelModal), DocTemplates, Profile360, Rag upload, shell (NotificationsPopover/UserMenu/MobileTabBar), dashboard widgets ngoài UpdatesWidget, kiểm `.raw()` i18n làm dữ liệu ở các màn còn lại.
+- Đã rà nốt 2026-11-02 bằng quét tự động `message.info|success|warning(` + nút không onClick trên agents/calendar/tickets/quotes/orders/invoices/settings/shell/dashboard/customers/products/contracts/assistant: mọi điều khiển giả tìm thấy đều đã có dòng PRO-* có TIP nhận (023c/023g/030b/031b/032d/027b/036/038/041/013b/016b/017b). `t.raw()` 12 chỗ chỉ đọc mảng nhãn i18n (thứ trong tuần, bước wizard, mẫu nhắc) — không dùng i18n làm dữ liệu nghiệp vụ, không vi phạm.
 
 ## G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở
 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
 | Q-027 | Chốt ca biên tiền/điểm: đảo điểm đã dùng, trả lô đã hết hạn, completed chưa đủ tiền | QUESTIONS.md:35 | 036 | CHƯA | TIP-036 gate trước thi công, AC2–AC5; đang hỏi Chủ nhà. Code order-flow.handlers.ts:22-37 tính theo net đơn, chưa chứng minh phù hợp mọi ca thực thu |
-| DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | — | CHƯA | `.dependency-cruiser-known-violations.json` vẫn 99 mục (đếm 2026-11-01) — không giảm sau 25 TIP nối http |
+| DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | 001b | CHƯA | `.dependency-cruiser-known-violations.json` vẫn 99 mục (đếm 2026-11-01) — không giảm sau 25 TIP nối http; TIP-001b nhận (2026-11-02) |
 | DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | 014b | CHƯA | standards/channels/omnichannel-adapter.md:30 vẫn `'chat'\ Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |'social'\|'email'\|'sms'\|'web'`; code packages/channels/src/types.ts:15 đã có `commerce` (việc tài liệu) |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
-| DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | — | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ |
+| DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | 006c | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ; TIP-006c nhận (2026-11-02) |
 | DEF-003-1 | Provisioner có `pg_signal_backend` khi xoá workspace ở production | reports/TIP-003-completion.md:36 | 041 | MỘT PHẦN | packages/db/src/setup.ts:57 cấp ở db:setup (dev); luồng xoá workspace prod chưa có (TIP-041), infra/ chưa có |
 | DEF-004-1 | Bước smoke bản build (`pnpm smoke:build`) trong cổng chốt TIP (Q-009) | reports/TIP-004-completion.md:48 | 046 | CHƯA | package.json không có script `smoke:build`; TG row 046 ghi Q-009 |
 | DEF-004-2 | FE quên mật khẩu gọi đúng `/auth/password/reset-request` của backend | reports/TIP-004-completion.md:49 | 011 | ĐẠT | apps/api/src/http/identity/auth.controller.ts:85; apps/web/src/features/auth/api.ts:47; test apps/web/e2e/http/auth-onboarding.spec.ts:45 |
@@ -1661,7 +1605,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-012-2 | Action `integration.sync_now` | reports/TIP-012-completion.md:37 | 012b | CHƯA | Không có trong packages/actions; không TIP chờ nào ghi |
 | DEF-012-3 | Adapter Casso thật (verifyWebhook / parseTransactions) | reports/TIP-012-completion.md:43 | 012b | GIẢ | packages/integrations/src/registry.ts:17 gắn `MockBankFeedProvider` cho casso; connectors/casso/ chỉ có manifest.ts — không phải thiếu tài khoản mà thiếu code |
 | DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | 012c | MỘT PHẦN | packages/integrations/src/registry.ts:13-14 chỉ manifest; core/src/integrations/services/resolver.ts:25 trả adapter null. BrevoMailProvider chỉ được tạo bằng env nền tảng ở identity.module.ts:54, không chứng minh connector workspace. Unit ports.test.ts / smtp.test.ts xanh, chưa có kiểm chứng gửi bằng secret riêng từng workspace |
-| DEF-013-1 | Chuyển phụ trách khách của thành viên bị gỡ | reports/TIP-013-completion.md:42 | — | CHƯA | identity/actions/member-remove.handler.ts:2 chỉ đặt `removed`; không consumer `member.removed` ở crm |
+| DEF-013-1 | Chuyển phụ trách khách của thành viên bị gỡ | reports/TIP-013-completion.md:42 | 013c | CHƯA | identity/actions/member-remove.handler.ts:2 chỉ đặt `removed`; không consumer `member.removed` ở crm; TIP-013c nhận (2026-11-02) |
 | DEF-013-2 | Seed `sla_policy` + đồng hồ SLA theo giờ làm việc workspace | reports/TIP-013-completion.md:41 | 034 | ĐẠT | support/services/sla-clock.ts; test support.test.ts:53 |
 | DEF-014-1 | Zalo cá nhân thật: QR, listener, gửi ảnh / file / sticker, đồng bộ lịch sử | reports/TIP-014-completion.md:49 | 014b | CHỜ-TK | packages/channels/src/zalo-personal/zca-transport.ts:30-128 có SDK thật; core/src/channels/channels.module.ts:59 chọn bằng env. zalo-adapter.test.ts dùng fake, không chứng minh live. HANDOFF-NEXT §3 nói demo đã đăng nhập nhưng chưa có bằng chứng đủ ca Q-003; không kết luận tài khoản hiện còn thiếu Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DEF-014-2 | Cap tin chủ động / ngày Zalo cá nhân (Q-013) | reports/TIP-014-completion.md:55 | 037 | MỘT PHẦN | channels/jobs/send.processor.ts:43 áp `daily_cap`; packages/channels/src/zalo-personal/manifest.ts:22 không có `perDayProactive` mặc định |
@@ -1671,8 +1615,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-015-4 | `contact.remember` + tóm tắt 360° bằng AI | reports/TIP-015-completion.md:54 | 015b | CHƯA | Không có action `contact.remember` trong packages/actions |
 | DEF-016-1 | Tin vào / gửi thật qua Hộp thư với Zalo cá nhân | reports/TIP-016-completion.md:49 | 014b | CHỜ-TK | Q-003 Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DEF-017-1 | Nginx `widget.<domain>` phục vụ widget.js + proxy socket `/widget` | reports/TIP-017-completion.md:49 | 045 | CHƯA | Thư mục infra/ chưa tồn tại |
-| DEF-017-2 | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | reports/TIP-017-completion.md:50 | — | CHƯA | apps/api/src/http/notify/realtime/ws.gateway.ts:93 chỉ typing nhân viên `/ws`; không phát `agent.status` |
-| DEF-017-3 | `/settings/widget` liệt kê đủ agent thật | reports/TIP-017-completion.md:48 | — | MỘT PHẦN | packages/core/src/channels/webchat/widget.service.ts:103-105 đọc aiAgent active hoặc selected nhưng take:50, không phân trang; mock/widget-shape.test.ts chỉ kiểm mock, webchat.test.ts không assert danh sách agent. Cần test DB agent active/selected/deleted, tenant isolation và >50 agent hoặc chứng minh quota chặn trường hợp này |
+| DEF-017-2 | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | reports/TIP-017-completion.md:50 | 017b | CHƯA | apps/api/src/http/notify/realtime/ws.gateway.ts:93 chỉ typing nhân viên `/ws`; không phát `agent.status`; TIP-017b nhận (2026-11-02) |
+| DEF-017-3 | `/settings/widget` liệt kê đủ agent thật | reports/TIP-017-completion.md:48 | 017b | MỘT PHẦN | packages/core/src/channels/webchat/widget.service.ts:103-105 đọc aiAgent active hoặc selected nhưng take:50, không phân trang; mock/widget-shape.test.ts chỉ kiểm mock, webchat.test.ts không assert danh sách agent. Cần test DB agent active/selected/deleted, tenant isolation và >50 agent hoặc chứng minh quota chặn trường hợp này; TIP-017b nhận (2026-11-02) |
 | DEF-018-1 | IMAP / SMTP thật (Gmail mật khẩu ứng dụng, Zoho…) | reports/TIP-018-completion.md:39 | — | CHỜ-TK | packages/channels/src/email/imap-transport.ts:90-161 có verify/fetch/send thật; core/src/channels/channels.module.ts:60 chọn transport thật. email-adapter.test.ts dùng fake, chưa nghiệm thu mailbox thật; Q-004 không thay bằng chứng IMAP |
 | DEF-018-2 | Worker `ROLE=channels` mở ra cổng 993 / 465 / 587 ở VPS | reports/TIP-018-completion.md:42 | 045 | CHƯA | infra/ chưa có |
 | DEF-019-1 | Nghiệm thu LLM thật qua 9router (engine, agent, Trợ lý, dịch, soạn chứng từ) | reports/TIP-019:40; 021:38; 022:35; 024:31; 025:30; 028:27; 029:28; 035:30 | 044 | CHỜ-TK | Q-001 (gộp các TIP AI); report 023 bổ sung 2026-11-01 đã chạy thử 9router thật, ra 023b/023c |
@@ -1701,49 +1645,49 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | 026b | CHƯA | Không có load-more ở features/customers |
 | DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
 | DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | 045 | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser 045 SPEC1.5/AC2 production-bootstrap regression covers fresh clone + older migrated fixture domain/outbox write as tenant_app; historical denial root cause remains unproved until reproduced, not cured by superuser. |
-| DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | — | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment) |
+| DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | 028b | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment); TIP-028b nhận (2026-11-02) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |
 | DEF-029-1 | Gửi báo giá / HĐ / đề nghị / nhắc hẹn / CSAT qua Zalo / Email thật | reports/TIP-029:28; 030:29; 032:28; 033:29; 034:29; 035:30 | — | CHỜ-TK | Q-003 / Q-004 (adapter giả) |
 | DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | CHƯA | Bảng packages/db/prisma/tenant/contracts.prisma:83 có; action không có trong registry |
 | DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | CHƯA | Không có trong packages/actions |
-| DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | — | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger |
+| DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | 003e | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger; TIP-003e nhận (2026-11-02) |
 | DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
 | DEF-031-3 | `order.completed` ghi sổ điểm + đảo khi hoàn tác | reports/TIP-031-completion.md:33 | 036 | CHƯA | packages/core/src/loyalty/loyalty.module.ts:5 stub; sales/orders/actions/order-flow.handlers.ts:106-118 undo chỉ xoá pointsEarned/tổng chi, không phát reversal loyalty. TIP-036 TASK 2/AC4 nhận undo rồi complete lại, retry và out-of-order |
-| DEF-031-4 | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | reports/TIP-031-completion.md:26; TIP-024:27 | — | CHƯA | tools/scripts/fixtures/gen-assistant.py:137 vẫn `conversation.close` |
-| DEF-031-5 | `db:cleanup-test` tự nạp `.env` | reports/TIP-031-completion.md:25 | — | CHƯA | packages/db/package.json:17 `tsx scripts/cleanup-test-workspaces.ts` không `--env-file` |
+| DEF-031-4 | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | reports/TIP-031-completion.md:26; TIP-024:27 | 035c | CHƯA | tools/scripts/fixtures/gen-assistant.py:137 vẫn `conversation.close`; TIP-035c nhận (2026-11-02) |
+| DEF-031-5 | `db:cleanup-test` tự nạp `.env` | reports/TIP-031-completion.md:25 | 035c | CHƯA | packages/db/package.json:17 `tsx scripts/cleanup-test-workspaces.ts` không `--env-file`; TIP-035c nhận (2026-11-02) |
 | DEF-032-1 | Khoản thu `points` + `payment.redeem_points` | reports/TIP-032-completion.md:32 | 036 | CHƯA | `payment.redeem_points` thiếu trong registry; TG row 036 |
 | DEF-032-2 | Trừ buổi liệu trình khi lịch hẹn hoàn tất (`package_usage`) | reports/TIP-032-completion.md:31 | 033 | ĐẠT | booking/services/appointment-write.ts:66-76; test booking.test.ts:4 |
-| DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | — | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24 |
+| DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | 003g | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24; TIP-003g nhận (2026-11-02) |
 | DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | 034d | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng;034d actual observed prior-date stock/current surviving cohort, privacy interlock and canonical AI read; planning not runtime |
 | DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
-| DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046 | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn" |
+| DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046, 001c | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn"; TIP-001c nhận (2026-11-02) |
 | DEF-034-4 | Nhiều chính sách SLA + leo thang 4 cấp | reports/TIP-034-completion.md:3 | — | NGOÀI | P3 theo report |
-| DEF-035-1 | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | reports/TIP-035-completion.md:25 | — | CHƯA | Chưa sửa (gần Q-010) |
-| DEF-035-2 | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | reports/TIP-035-completion.md:27,34 | — | CHƯA | support/jobs/support.jobs.module.ts:31, booking/jobs/booking.jobs.module.ts:35, contracts/jobs/contracts.jobs.module.ts:21, sales/jobs/{sales.jobs.module.ts:42, payment.jobs.ts:26, order-sync.jobs.ts:14} quét mọi workspace active |
+| DEF-035-1 | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | reports/TIP-035-completion.md:25 | 035c | CHƯA | Chưa sửa (gần Q-010); TIP-035c nhận (2026-11-02) |
+| DEF-035-2 | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | reports/TIP-035-completion.md:27,34 | 035c | CHƯA | support/jobs/support.jobs.module.ts:31, booking/jobs/booking.jobs.module.ts:35, contracts/jobs/contracts.jobs.module.ts:21, sales/jobs/{sales.jobs.module.ts:42, payment.jobs.ts:26, order-sync.jobs.ts:14} quét mọi workspace active; TIP-035c nhận (2026-11-02) |
 | Q-001 | Nạp 9router (base URL, key, model) qua env / `admin.llm_provider.upsert`, chạy nghiệm thu AI thật | QUESTIONS.md:9 | 044 | CHỜ-TK | Q-001 mở |
-| Q-002 | Route `purpose=embed` sang model 1536 chiều (9router hoặc OpenAI) | QUESTIONS.md:10 | 046 | CHỜ-TK | Q-002 mở; TG 046 "re-embed khi đổi model" |
+| Q-002 | Route `purpose=embed` sang model 1536 chiều (9router hoặc OpenAI) | QUESTIONS.md:10 | 020e | CHỜ-TK | Q-002 mở; TG 046 "re-embed khi đổi model"; TIP-020e AC9 — cơ chế ở 020e, model thật vẫn chờ Q-002 |
 | Q-003 | Spike `zca-js` với tài khoản Zalo phụ | QUESTIONS.md:11 | — | CHỜ-TK | Q-003 mở |
 | Q-004 | SePay + Brevo (domain SPF / DKIM / DMARC) thật | QUESTIONS.md:12 | — | CHỜ-TK | Q-004 mở |
 | Q-006 | VPS + domain để deploy / nghiệm thu 045, 046 | QUESTIONS.md:14 | 045 | CHỜ-TK | Q-006 mở |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
-| Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | — | CHƯA | Không có commit fix flaky trong git log |
+| Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |
 | Q-011 | Trial cho mời thành viên? (mặc định giữ luật gói) | QUESTIONS.md:19 | 013 | ĐẠT | Mặc định = hành vi hiện tại: 402 PLAN_LIMIT_REACHED — test settings.test.ts:116; đổi chỉ khi Chủ nhà quyết |
 | Q-013 | Cap 100 tin chủ động / tài khoản Zalo / ngày, Owner chỉnh ở drawer kênh | QUESTIONS.md:21 | 037 | MỘT PHẦN | send.processor.ts:43 có cơ chế; manifest Zalo chưa đặt số; drawer chưa có ô |
 | Q-014 | `ChannelAdapter.recall?` / `react?` thực hiện thu hồi / cảm xúc phía Zalo | QUESTIONS.md:22 | 014b | CHƯA | packages/channels/src/types.ts:22 chỉ cờ `reactions`, không có hàm recall / react Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | Q-015 | Nhiều widget / workspace (`widget_id`) | QUESTIONS.md:23 | 017 | ĐẠT | Mặc định một widget (DC-086) = code hiện tại; mở rộng là P1 nếu Chủ nhà duyệt — test webchat.test.ts |
 | Q-016 | Gmail / Outlook OAuth (XOAUTH2) cho kênh email | QUESTIONS.md:24 | — | CHỜ-TK | Cần app OAuth của Chủ nhà; REQ-B06 P1 |
-| Q-017 | `e2e-http.mjs` tự dọn workspace test sau lượt | QUESTIONS.md:25 | — | MỘT PHẦN | `db:cleanup-test` có (packages/db/package.json:17); tools/scripts/e2e-http.mjs không gọi dọn |
-| Q-018 | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | QUESTIONS.md:26 | — | CHƯA | identity/services/sessions.service.ts:45-49 thu hồi cả family ngay |
+| Q-017 | `e2e-http.mjs` tự dọn workspace test sau lượt | QUESTIONS.md:25 | 046 | MỘT PHẦN | `db:cleanup-test` có (packages/db/package.json:17); tools/scripts/e2e-http.mjs không gọi dọn; TIP-046 SPEC1 runner release dọn đúng tài nguyên mình tạo (2026-11-02) |
+| Q-018 | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | QUESTIONS.md:26 | 004b | CHƯA | identity/services/sessions.service.ts:45-49 thu hồi cả family ngay; TIP-004b nhận (2026-11-02) |
 | Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | 025b | CHƯA | Backend `conversation.bulk_update` có; features/inbox không có UI bulk |
-| Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046 | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh |
-| Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | — | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận |
+| Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046, 014c | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh; TIP-014c nhận (2026-11-02) |
+| Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | 031b | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận; TIP-031b nhận (2026-11-02) |
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | CHƯA | tools/ai-live/ chưa có |
 | Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | GIẢ | message.info: features/quotes/components/QuotesToolbar.tsx:82, orders/OrdersToolbar.tsx:96, contracts/ContractsToolbar.tsx:69, tickets/TicketsHeader.tsx:143 |
 | Q-025 | Chặn chéo: báo giá đã sinh đơn không sinh HĐ và ngược lại | QUESTIONS.md:33 | 032b | CHƯA | TIP-032b mục 2 |
-| DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | — | CHƯA | Baseline vẫn 99 (xem DEF-001-1) |
+| DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | CHƯA | Baseline vẫn 99 (xem DEF-001-1); TIP-001b nhận (2026-11-02) |
 | DV-002 | Duyệt `platform/notify.prisma` + `event_consumption` + thư viện socket.io / nodemailer | DEVIATIONS.md:19 | 006 | ĐẠT | packages/db/prisma/platform/notify.prisma:7; tenant/kernel.prisma:137; test notify.test.ts |
 | DV-003 | Duyệt Storage / `POST /v1/files` ở kernel (s3 sau) | DEVIATIONS.md:20 | 020 | ĐẠT | apps/api/src/http/files/files.controller.ts:32; test documents.test.ts, inbox-ui.test.ts |
 | DV-004 | Duyệt `prepare` ngoài transaction + `/agents/meta` + `/settings/governance` | DEVIATIONS.md:21 | 021 | ĐẠT | kernel/actions/handler.ts:35; test agents.test.ts |
@@ -1769,4 +1713,4 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Phát hiện đáng chú ý: Casso chỉ có adapter mock (DEF-012-3, không phải thiếu TK); worker ROLE=ai thiếu module sales/booking/support/contracts cho ai-resume (DEF-021-1); popover Đặt lịch ở Hộp thư gọi route không tồn tại (DEF-025-2); `channels.used` billing cứng 0 (DEF-009-1).
 - Rà tiếp 2026-11-02: đã đọc code/test DEF-017-3, DEF-025-1, DEF-032-3 và adapter Brevo/IMAP/Zalo; hạ các khẳng định ĐẠT thiếu chứng cứ, tách connector workspace khỏi email nền tảng. Unit integrations 22/22, channels 27/27; không phải nghiệm thu provider thật.
 - Đã đối chiếu DEF-023-4 với Blueprint:1098 + DC-129 (embedding/cache vẫn là nợ); DEF-028-1 với Blueprint:124,1327 + documents.jobs.module.ts:5 (queue chưa có; DV-007 không xoá nghĩa vụ).
-- CHƯA RÀ HẾT: DEF-027-2 / DEF-035-1 chưa tái hiện runtime; còn phải gán TIP chờ và rà độc lập toàn phần. Chi tiết lượt này: coding-packs/reports/coverage-deferred-audit-2026-11-02.md.
+- Đã rà nốt 2026-11-02: DEF-027-2 → 045 (clone/migrate fixture + outbox bằng tenant_app; không tuyên bố đã tìm ra nguyên nhân lịch sử), DEF-035-1 → 035c (sửa tận gốc, repeat-each 20); mọi DEF/Q/DV mở đã có TIP nhận hoặc NGOÀI có mã (merge.py: 0 lỗ hổng).

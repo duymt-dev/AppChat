@@ -46,3 +46,7 @@
 ## Supplemental marketing plan (2026-11-02)
 
 See [TIP-037](../tips/TIP-037-marketing.md) and [marketing audit](marketing-planning-audit-2026-11-02.md): campaign dispatch must share account throttling/caps, persist delivery attempts beyond Redis retention, and distinguish unknown provider outcomes from definite failures. D35c default quota and cap override UI remain pending; this plan does not certify real-provider delivery.
+
+## Bổ sung — TIP-018b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-018b](../tips/TIP-018b-email-oauth.md): REQ-B06b. File TIP gốc không sửa (DC-233).

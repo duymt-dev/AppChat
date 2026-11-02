@@ -45,3 +45,11 @@
 ## Supplemental planning audit (2026-11-02)
 
 See [TIP-042](../tips/TIP-042-custom-roles-teams.md) and [authz audit](authz-planning-audit-2026-11-02.md): custom role/team lifecycle, settings DTO, invite/assignment/undo and delegation management remain pending. Existing resolver tests are not evidence of an Owner grant/revoke UI flow. Q-028 remains open; no implementation status change is implied.
+
+## Bổ sung — TIP-013b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-013b](../tips/TIP-013b-settings-workspace.md): PRO-settings-wsswitch, PRO-settings-wsbuy, PRO-settings-logo, PRO-settings-membersfilter, PRO-settings-membersexport, PRO-settings-navcounts, PRO-settings-paymentaccount, PRO-settings-docs, PRO-settings-tagslearn, REQ-A05f. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-013c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-013c](../tips/TIP-013c-owner-availability.md): REQ-F01b-6, COM-8b-5, DC-081, DEF-013-1. File TIP gốc không sửa (DC-233).

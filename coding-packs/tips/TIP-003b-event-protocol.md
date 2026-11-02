@@ -1,6 +1,15 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/executor.ts`; integrate 003b before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before003f.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/sales/payments/services/payment-system.ts`; integrate 003b before003g.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before003h.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/billing/services/wallet.service.ts`, `packages/shared/src/events.ts`; integrate 003b before006c.
+- **Parallel-safe with TIP-012d (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 003b before012d.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`; integrate 003b before013c.
+- **Parallel-safe with TIP-020f (coverage-closure manifest):** sequential, shares `packages/core/src/ai/kb/ingest.ts`; integrate 003b before020f.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/core/src/ai/kb/ingest.ts`; integrate 003b before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `apps/worker/src/main.ts`, `apps/worker/src/start-events.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/identity/jobs/tenant-provision.processor.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/events/events.runner.ts`, `packages/core/src/kernel/outbox/outbox.jobs.module.ts`; integrate 003b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/sales/quotes/services/quote-system.ts`; integrate 003b before015g.

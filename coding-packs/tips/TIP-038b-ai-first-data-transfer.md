@@ -1,6 +1,18 @@
 # TIP-038b — Nhập/xuất CRM và commerce AI-first, file thật
 
 ## HEADER
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before014c.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `packages/core/src/data-transfer/adapters/orders.ts`; integrate 038b before033d.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 038b before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 038b before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 038b before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before004b.
+- **Parallel-safe with TIP-011b (coverage-closure manifest):** sequential, shares `coding-packs/docs/06-prototype/DEVIATIONS.md`; integrate 038b before011b.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 038b before013c.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 038b before031b.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate 038b before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/index.ts`; integrate 038b before045.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038b before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/data-transfer.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/data-transfer.json`, `packages/actions/src/index.ts`, `packages/core/src/data-transfer/data-transfer.module.ts`, `packages/core/src/data-transfer/data-transfer.providers.ts`, `packages/core/src/data-transfer/services/planner.ts`, `packages/core/src/data-transfer/types.ts`, `packages/shared/src/api/data-transfer.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/data-transfer/registry.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038b before034c.
@@ -44,6 +56,7 @@
 - **Parallel-safe with TIP-041:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
 - TIP-ID: TIP-038b; Project: AppChat V2; Module: data-transfer; Priority: P0; Estimated: XL.
 - **Yêu cầu Chủ nhà:** nhập/xuất dữ liệu các bảng CRM, commerce; cả AI và không AI; xuất file thật. **AI là ưu tiên**, không làm nút AI trang trí hoặc chỉ bàn giao wizard thủ công.
+- **Parallel-safe with TIP-039 (bilateral audit 2026-11-02):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 039 before038b.
 - Depends on:023b action discovery,023c attachment/GenUI,030b document parsing,032b product.import,038 list exports,042c scopes,045b asyncjobs/fieldmask/file security; integration sau040 và cácpending sharedTIP, trước044/046.
 - **Dòng COVERAGE nhận:** IO-CRM, IO-CATALOG, IO-QUOTE, IO-ORDER, IO-CONTRACT, IO-INVOICE, IO-AI-FIRST, IO-MANUAL, IO-FILES, IO-SAFETY, IO-RETRY. Ma trận/task/AC bên dưới là ownership cụ thể, không chỉ giao “mọi bảng”.
 - **Parallel-safe with:** sequential, shares actions/core/shared indexes và Blueprint với015b/020b/023b/023c/030b/032b/036–040/042/042b/042c/043/045b; ai.jobs.module với023b/023c/036/037/038/043/045b; ChatThread với023c. Hai chiều tính trước tạo; pendingmanifest mởrộng phải tínhlại.

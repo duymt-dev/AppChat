@@ -63,3 +63,7 @@ Digest daily/weekly còn thiếu (DEF-006-1/DC030) được nhận cụ thể b�
 ## Bổ sung — durable delivery2026-11-02
 
 [TIP006b](../tips/TIP-006b-event-delivery.md) receives notification delivery/current-authority/WS recovery plus consumer fanout shared seams. Deterministic IDs and retained Bull jobs do not prove external exactly-once or recover lost enqueue. Original DONE remains historical; no new runtime acceptance.
+
+## Bổ sung — TIP-006c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-006c](../tips/TIP-006c-realtime-events.md): BP-4.6-b, DEF-002-2. File TIP gốc không sửa (DC-233).

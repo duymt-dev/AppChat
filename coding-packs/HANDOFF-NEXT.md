@@ -2,6 +2,16 @@
 
 > Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
 
+## CÂU A XONG — SẴN SÀNG CÂU B (2026-11-03)
+
+**Trạng thái mới nhất, ưu tiên hơn mọi mục bên dưới.**
+- Câu A (viết đủ TIP, chỉ tài liệu) **đã khép**: sổ `COVERAGE.md` 1.593 dòng, **0 lỗ hổng** (mọi dòng CHƯA / GIẢ / MỘT PHẦN có TIP nhận hoặc mã D/DC); 7 phần đã rà hết (không còn "chưa rà hết").
+- TIP mới đợt này: **020e** (rerank + re-embed hai khe), **046** (release gate) viết tay; 28 TIP bổ sung sinh từ `tools/obligations/supplements/supp_*.py`: 001b 001c 003d 003e 003f 003g 003h 003i 004b 004c 006c 011b 012d 013b 013c 014c 016b 017b 018b 019d 020f 022d 028b 031b 031c 033d 035b 035c (DC-290). Sửa TIP bổ sung = sửa file `supp_*.py` rồi chạy `python -X utf8 tools/obligations/gen-supplements.py tools/obligations/supplements/supp_*.py` (idempotent, giữ header hai phía).
+- Kiểm máy: `manifests.py --check` 0 M mồ côi / 0 C trùng; `--order` 1.909 cạnh, 0 vấn đề, 0 vòng; `merge.py` 0 lỗ hổng.
+- Rà độc lập: `reports/coverage-closure-audit-2026-11-02.md` — 3 HIGH / 12 MEDIUM / 10 LOW, **đã sửa hết** (mục "Đã xử lý"); quyết định mới DC-292 (bảng chỉ thêm + undo, đính chính), DC-293 (bảo mật đăng nhập), DC-294 (bucket S3 workspace), DC-295 (mask parity lưới kênh). Q-026, Q-020 đã xử lý.
+- **Cổng chính sách còn mở — không tự quyết, phần phụ thuộc đã khoá sau cờ tắt hoặc giữ MỘT PHẦN:** Q-021 (Chuyển tiếp), Q-027, Q-028, Q-029, Q-038 (cọc %), Q-039 (gợi ý cọc), Q-040, Q-041 (đơn giá rerank). Tài nguyên còn chờ: Q-001/002 (LLM 9router), Q-003 (Zalo), Q-004 (SePay/Brevo), Q-006 (host).
+- **Việc kế tiếp: câu B — code từ TIP-023b** theo `goals/GOAL-BACKEND.md` (thứ tự `02-TASK-GRAPH.md`, cổng test D59, mỗi TIP một nhánh `tip/XXX-*` + PR vào `dev`). Mỗi TIP: rà CONTEXT với mã thật trước khi làm, `manifests.py <tip>` tính lại giao file, chốt TIP cập nhật parts + `merge.py`.
+
 ## BÀN GIAO CHO CLAUDE — DỪNG THEO YÊU CẦU CHỦ NHÀ (2026-11-02)
 
 **Đây là trạng thái mới nhất, ưu tiên hơn các checkpoint lịch sử bên dưới.** Chủ nhà yêu cầu: “dừng và viết handoff đi để tôi chuyển sang claude làm nốt”. Goal Codex đã **paused** theo yêu cầu, KHÔNG complete/blocked. Không tiếp tục nghiên cứu/viết TIP sau lệnh dừng; chỉ hoàn tất handoff này. Các reviewer đều đã kết thúc, không còn việc chạy nền.

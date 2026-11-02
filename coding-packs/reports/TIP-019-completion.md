@@ -51,3 +51,7 @@ TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding 
 ## Bổ sung019c — chưa triển khai
 
 [TIP-019c](../tips/TIP-019c-ai-utilities.md) nhận ai.summarize/detect_intent/extract_info/score_lead, source-scoped evidence, restricted metered generation và protected publication/result UI. Khác contact.summarize015b; không ghi business state. Runtime/native/live chưa chạy, không sửa kết luận lịch sử thành bằng chứng cho phần mới.
+
+## Bổ sung — TIP-019d (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-019d](../tips/TIP-019d-agent-authority.md): BP-3.3-c, BP-3.3b-e, BP-3.3b-f. File TIP gốc không sửa (DC-233).

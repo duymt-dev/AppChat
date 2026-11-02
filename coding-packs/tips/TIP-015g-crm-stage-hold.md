@@ -1,6 +1,8 @@
 # TIP-015g — Atomic CRM manual-stage hold across Commerce triggers
 
 ## HEADER
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/crm/crm.module.ts`; integrate 015g before013c.
+- **Parallel-safe with TIP-028b (coverage-closure manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`; integrate 015g before028b.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`; integrate 015g before022c.
 - **Parallel-safe with TIP-003b (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/sales/quotes/services/quote-system.ts`; integrate 003b before015g.
 - **Parallel-safe with TIP-003c (CRM stage hold manifest):** sequential, shares `packages/core/src/sales/quotes/services/quote-system.ts`, `packages/core/src/sales/system/handlers.ts`; integrate 003c before015g.

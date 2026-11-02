@@ -68,3 +68,11 @@
 ## Supplemental Zalo lifecycle plan (2026-11-02)
 
 [TIP014b](../tips/TIP-014b-zalo-lifecycle.md) owns missing provider operation/receipt/history/contact-sync contracts and real lifecycle evidence, plus standard/type reconciliation. Existing completion status is not live-provider proof. No source or native data/service changes in this planning phase.
+
+## Bổ sung — TIP-001b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-001b](../tips/TIP-001b-web-architecture.md): DEF-001-1, DV-001, BP-9-f, STD-ui-fe-11, STD-ui-fe-13b, STD-i18n-4. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-001c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-001c](../tips/TIP-001c-ui-states-mobile.md): STD-ui-fe-9, STD-ui-ip-5, STD-ui-ip-7.4, STD-ui-parity-9, REQ-N10d. File TIP gốc không sửa (DC-233).

@@ -29,3 +29,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-029 / 030 / 032 dựng `DocData` từ bản ghi + `DocRenderer.pdf`, lưu PDF đóng băng (`file` + sha256) qua queue `doc-render` (ROLE=jobs) khi gửi / chuyển ký; tài khoản nhận tiền của DN (`business.bank_account`) điền khi TIP-032 có cấu hình thu tiền.
 - TIP hạ tầng: systemd cho LibreOffice (user `appchat-render`, không mạng) + `SOFFICE_PATH` + bộ font (Plus Jakarta Sans, Times New Roman, DejaVu).
+
+## Bổ sung — TIP-028b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-028b](../tips/TIP-028b-document-integrity.md): DEF-028-1, STD-documents-templates-2b, STD-documents-templates-6b, ACT-doc_template.create. File TIP gốc không sửa (DC-233).

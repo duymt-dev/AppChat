@@ -1,6 +1,20 @@
 # TIP-015e: Merge/dedupe khách với lineage và quyền hiện tại
 
 ## HEADER
+- **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 015e before003i.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015e before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/crm.ts`, `packages/actions/src/index.ts`, `packages/core/src/booking/actions/appointment-flow.handlers.ts`, `packages/core/src/kernel/actions/executor.ts`, `packages/core/src/support/actions/ticket-edit.handlers.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 015e before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`, `packages/shared/src/index.ts`; integrate 015e before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 015e before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015e before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/shared/src/events.ts`; integrate 015e before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015e before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 015e before013c.
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `packages/core/src/support/actions/ticket-create.handler.ts`; integrate 015e before014c.
+- **Parallel-safe with TIP-016b (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 015e before016b.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 015e before031b.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-create.handlers.ts`; integrate 015e before033d.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 015e before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`, `packages/core/src/kernel/kernel.module.ts`; integrate 015e before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/send-fence.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 015e before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/lifecycle/family.ts`, `packages/core/src/crm/lifecycle/lock.ts`, `packages/core/src/crm/public.ts`, `packages/core/src/crm/services/stage-rules.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`; integrate 015e before015g.

@@ -59,3 +59,27 @@ See [authz audit](authz-planning-audit-2026-11-02.md), STD-database-tenantdb-5a 
 ## Bổ sung — private system adapters2026-11-02
 
 [TIP003c](../tips/TIP-003c-system-actions.md) receives system transitions/consumer business effects, private admission before prepare and durable trigger receipts. Bank ingress and public quote locator seams explicitly covered. Original TIP stays DONE unchanged; this supplemental plan is not runtime acceptance.
+
+## Bổ sung — TIP-003d (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-003d](../tips/TIP-003d-openapi.md): REQ-N03b, STD-api-envelope-10b. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-003e (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-003e](../tips/TIP-003e-action-integrity.md): STD-domain-concurrency-1a, STD-domain-concurrency-1b, STD-domain-concurrency-T, DEF-030-3, REQ-E09c. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-003f (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-003f](../tips/TIP-003f-validation-forms.md): STD-domain-validate-1, STD-ui-fe-6, STD-ui-ip-3.2, STD-ui-ip-3.4, STD-domain-money-1.7. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-003g (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-003g](../tips/TIP-003g-time-query-hygiene.md): STD-code-testing-4b, STD-domain-money-2.2, STD-domain-money-2.5, DEF-032-3, STD-database-indexing-8, STD-database-indexing-9. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-003h (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-003h](../tips/TIP-003h-state-flows.md): STD-domain-state-1. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-003i (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-003i](../tips/TIP-003i-api-contract-gaps.md): BP-4.1-c, BP-4.3-c, BP-4.4-ai-d, BP-4.5-c, BP-4.4-crm-b, BP-3.3-b. File TIP gốc không sửa (DC-233).

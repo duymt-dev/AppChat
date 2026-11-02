@@ -28,9 +28,9 @@ for fn, title in PARTS:
     total.update(c)
     sections.append((title, rows, c, tail))
 out = []
-out.append('# COVERAGE — sổ phủ nghĩa vụ (bản nháp 1, 2026-11-01)\n')
+out.append('# COVERAGE — sổ phủ nghĩa vụ (bản 2, 2026-11-03)\n')
 out.append('> Thước đo hoàn thành của phần còn lại (DC-233): mỗi nghĩa vụ trong tài liệu một dòng — nguồn · TIP nhận · trạng thái · bằng chứng code. '
-           'Dựng bằng 7 lượt rà đối chiếu code (không tin trạng thái DONE). **Bản nháp:** các lượt rà dừng sớm theo lệnh Chủ nhà (hết quota) — mục "Chưa rà hết" cuối mỗi phần liệt kê chỗ chưa đối chiếu sâu. '
+           'Dựng bằng 7 lượt rà đối chiếu code (không tin trạng thái DONE); rà nốt và đóng lỗ hổng 2026-11-02/03 (`coding-packs/reports/coverage-closure-audit-2026-11-02.md`). Ghi chú cuối mỗi phần nêu phạm vi đã rà. '
            'Công cụ ở `tools/obligations/` (xem `README.md` ở đó): `actions.mjs`, `routes.mjs` sinh dữ liệu tự động; các phần rà ở `parts/part-*.md`; `merge.py` gộp thành file này — sửa phần rồi chạy lại, không sửa tay file này.\n')
 out.append('## Quy ước trạng thái\n')
 out.append('`ĐẠT` có code + test (bằng chứng file:dòng) · `MỘT PHẦN` có code nhưng thiếu ý · `GIẢ` chỉ chạy nhờ mock / regex / `message.info` do code · `CHỜ-TK` code xong, thiếu tài khoản provider thật (Q) · `CHƯA` chưa có code · `NGOÀI` loại khỏi phạm vi có mã quyết định · `QUY-TẮC` luật quy trình kiểm bằng lint / CI.\n')

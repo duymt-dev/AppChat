@@ -1,6 +1,21 @@
 # TIP-025b: Inbox — nối hai chiều Zalo, CRM, Commerce và Trợ lý AI
 
 ## HEADER
+- **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/channels/src/zalo-personal/manifest.ts`; integrate 025b before022d.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 025b before046.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/ai.ts`, `packages/actions/src/crm.ts`, `packages/actions/src/index.ts`, `packages/actions/src/support.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 025b before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `apps/web/src/features/customers/components/ContactFormModal.tsx`, `apps/web/src/features/tickets/components/TicketFormModal.tsx`, `packages/actions/src/crm.ts`, `packages/shared/src/index.ts`; integrate 025b before003f.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/actions/conversation-state.handlers.ts`, `packages/shared/src/index.ts`; integrate 025b before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 025b before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/shared/src/events.ts`; integrate 025b before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 025b before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/crm/crm.module.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 025b before013c.
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/components/ConvMenu.tsx`, `packages/core/src/support/actions/ticket-create.handler.ts`; integrate 025b before014c.
+- **Parallel-safe with TIP-016b (coverage-closure manifest):** sequential, shares `apps/api/src/http/inbox/inbox-meta.controller.ts`, `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/core/src/inbox/public.ts`; integrate 025b before016b.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/contracts.ts`, `packages/actions/src/orders.ts`, `packages/actions/src/quotes.ts`; integrate 025b before031b.
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/services/order-write.ts`; integrate 025b before031c.
+- **Parallel-safe with TIP-033d (coverage-closure manifest):** sequential, shares `apps/web/src/features/orders/hooks/useOrderForm.ts`, `packages/actions/src/orders.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`; integrate 025b before033d.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/ai.module.ts`; integrate 025b before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`; integrate 025b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/channels/operations/operation-service.ts`, `packages/core/src/inbox/actions/message.handlers.ts`, `packages/core/src/inbox/public.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 025b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/crm/actions/contact-write.handlers.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/public.ts`; integrate 025b before015g.

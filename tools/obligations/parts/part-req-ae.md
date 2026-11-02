@@ -7,7 +7,7 @@
 | REQ-A02a | Popup khai báo bắt buộc, không đóng được trước khi khai báo | 01-REQUIREMENTS-MATRIX.md:35 | 011 | ĐẠT | apps/web/src/features/onboarding/components/OnboardingGate.tsx:32 (không nút đóng); test onboarding.test.ts AC2/AC3; e2e http/auth-onboarding.spec.ts |
 | REQ-A02b | DN / Hộ KD: tra MST rồi tự điền | 01-REQUIREMENTS-MATRIX.md:35 | 004, 011 | ĐẠT | packages/integrations/src/connectors/vietqr/tax-lookup.ts:14; apps/api/src/http/identity/workspaces.controller.ts:51; test ports.test.ts, workspaces.test.ts AC11 |
 | REQ-A02c | Cá nhân: nhập VNeID (12 số) + nhập tay | 01-REQUIREMENTS-MATRIX.md:35 | 004, 011 | ĐẠT | packages/actions/src/onboarding.ts:16,25; DeclareStepInfo.tsx:55; test workspaces.test.ts AC9 |
-| REQ-A02d | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | 01-REQUIREMENTS-MATRIX.md:35 | — | MỘT PHẦN | Chỉ ô mô tả tự do (DeclareBusinessModal.tsx:32, onboarding.ts:23) theo prototype ver2.1; không taxonomy, không mã quyết định bỏ |
+| REQ-A02d | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | 01-REQUIREMENTS-MATRIX.md:35 | 011b | MỘT PHẦN | Chỉ ô mô tả tự do (DeclareBusinessModal.tsx:32, onboarding.ts:23) theo prototype ver2.1; không taxonomy, không mã quyết định bỏ; TIP-011b nhận (2026-11-02) |
 | REQ-A03a | Mỗi workspace một DB riêng, tạo tự động khi đăng ký | 01-REQUIREMENTS-MATRIX.md:36 | 002, 004 | ĐẠT | packages/db/src/provisioner.ts:35; test packages/db/test/integration/tenant-isolation.test.ts, workspaces.test.ts AC7 |
 | REQ-A03b | Migration áp cho mọi DB tenant | 01-REQUIREMENTS-MATRIX.md:36 | 002 | ĐẠT | packages/db/src/tenant-migrate.ts:28; test tenant-migrate.test.ts |
 | REQ-A03c | Test tự động chống rò dữ liệu giữa tenant | 01-REQUIREMENTS-MATRIX.md:36 | 002 | ĐẠT | test tenant-isolation.test.ts "(d) 2 workspace ghi song song" |
@@ -17,7 +17,7 @@
 | REQ-A05c | AI chạy đúng quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:38 | 021, 022, 023 | ĐẠT | packages/core/src/ai/assistant/delegate.ts:1-4; test assistant.test.ts "quyền: sales…", ai-tasks.test.ts "quyền" |
 | REQ-A05d | Trang Vai trò & phân quyền chỉ đọc | 01-REQUIREMENTS-MATRIX.md:38 | 013 | ĐẠT | apps/web/src/features/settings/components/RolesSection.tsx:29; test settings.test.ts AC8, e2e roles.spec.ts |
 | REQ-A05e | Mời thành viên bằng email | 01-REQUIREMENTS-MATRIX.md:38 | 013 | ĐẠT | identity/actions/member-invite.handler.ts:23; test settings.test.ts AC2, workspaces.test.ts AC10 |
-| REQ-A05f | Mời thành viên bằng SĐT | 01-REQUIREMENTS-MATRIX.md:38 | — | CHƯA | packages/actions/src/settings.ts:39 input chỉ email; MemberModal.tsx:12 |
+| REQ-A05f | Mời thành viên bằng SĐT | 01-REQUIREMENTS-MATRIX.md:38 | 013b | CHƯA | packages/actions/src/settings.ts:39 input chỉ email; MemberModal.tsx:12; TIP-013b nhận (2026-11-02) |
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
 | REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
 | REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
@@ -42,17 +42,17 @@
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
 | REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
-| REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | — | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n |
+| REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n; TIP-014c nhận (2026-11-02) |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
 | REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | MỘT PHẦN | send.processor.ts:43 chỉ tin chủ động, không số mặc định (Q-013) |
 | REQ-B04d | Tự ngắt khi bị chặn | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | sessions.ts:149; test channels.test.ts AC8/AC9 — Q-003 |
 | REQ-B05a | Widget JS nhúng, realtime | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | apps/widget/src/main.ts:55; test webchat.test.ts, apps/widget/test/ui.test.ts, e2e http/webchat.spec.ts |
 | REQ-B05b | Tuỳ chỉnh màu, lời chào | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | packages/actions/src/settings-apps.ts:256-261; test webchat.test.ts AC2 |
-| REQ-B05c | Tuỳ chỉnh logo widget | 01-REQUIREMENTS-MATRIX.md:52 | — | CHƯA | webchat.update_widget không có ô logo (settings-apps.ts:256-275) |
+| REQ-B05c | Tuỳ chỉnh logo widget | 01-REQUIREMENTS-MATRIX.md:52 | 017b | CHƯA | webchat.update_widget không có ô logo (settings-apps.ts:256-275); TIP-017b nhận (2026-11-02) |
 | REQ-B05d | Form thu lead (pre-chat) | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | channels/webchat/widget.service.ts:48; test webchat.test.ts AC3+AC4 |
 | REQ-B05e | Chọn AI Agent trực widget | 01-REQUIREMENTS-MATRIX.md:52 | 017, 022 | ĐẠT | settings-apps.ts:266; e2e http/agent-reply.spec.ts |
 | REQ-B06a | Email IMAP + SMTP | 01-REQUIREMENTS-MATRIX.md:53 | 018 | ĐẠT | packages/channels/src/email/imap-transport.ts:122; test email.test.ts, email-adapter.test.ts, smtp.test.ts |
-| REQ-B06b | Gmail OAuth | 01-REQUIREMENTS-MATRIX.md:53 | — | CHƯA | Không nhánh OAuth; Q-016 mở |
+| REQ-B06b | Gmail OAuth | 01-REQUIREMENTS-MATRIX.md:53 | 018b | CHƯA | Không nhánh OAuth; Q-016 mở; TIP-018b nhận (2026-11-02) |
 | REQ-B06c | Gom email theo thread | 01-REQUIREMENTS-MATRIX.md:53 | 018 | ĐẠT | channels/email/threads.ts:19; test email.test.ts AC3/AC4 |
 | REQ-B07 | Trang Kênh kết nối: danh sách, sức khoẻ, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:54 | 014 | ĐẠT | channel-manage.handlers.ts:142; test channels.test.ts AC5/AC9/AC10, e2e http/channels.spec.ts |
 | REQ-B08 | Zalo OA / FB / IG / Telegram / WhatsApp / TikTok | 01-REQUIREMENTS-MATRIX.md:55 | — | NGOÀI | P2 theo ma trận, D04 |
@@ -64,7 +64,7 @@
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
 | REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
-| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc |
+| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc; TIP-014c nhận (2026-11-02) |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | MỘT PHẦN | history_days chạy; sync_messages / sync_auto_create_contact không được pipeline.ts đọc Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-C01a | Inbox 3 cột chạy API thật | 01-REQUIREMENTS-MATRIX.md:63 | 016, 025 | ĐẠT | features/inbox/screens/InboxScreen.tsx; e2e http/inbox.spec.ts, http/inbox-live.spec.ts |
@@ -93,7 +93,7 @@
 | REQ-C09c | Dịch tin | 01-REQUIREMENTS-MATRIX.md:71 | 025 | CHỜ-TK | ai/skills/translate.handler.ts:22; test inbox-ui.test.ts "ai.translate (model giả)" — Q-001 |
 | REQ-C09d | Tạo ticket từ tin | 01-REQUIREMENTS-MATRIX.md:71 | 025, 034 | ĐẠT | MessageMenu.tsx:41-48; TicketsScreen.tsx:45; test support.test.ts (source_message_id) |
 | REQ-C09e | Thu hồi / Xoá có xác nhận | 01-REQUIREMENTS-MATRIX.md:71 | 016 | ĐẠT | message.handlers.ts:100,115; test inbox.test.ts AC6 |
-| REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | — | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định |
+| REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | 014c | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định; TIP-014c nhận (2026-11-02) |
 | REQ-C10b | Phím tắt chèn câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:110-119; e2e inbox.spec.ts:23 |
 | REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | 025b | MỘT PHẦN | ConvMenu.tsx:121-140 không hiện tải |
 | REQ-C10d | Vòng đời = contact.stage (D49) | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:16,143; test crm-contacts.test.ts |
@@ -170,7 +170,7 @@
 | REQ-E08 | Briefing đầu ngày | 01-REQUIREMENTS-MATRIX.md:110 | 035 | ĐẠT | ai/tasks/task-briefing.ts; test ai-tasks.test.ts:330 |
 | REQ-E09a | Ghi mọi action Trợ lý / agent (ai, input, trước/sau) | 01-REQUIREMENTS-MATRIX.md:111 | 003, 024 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:50-54; test assistant.test.ts, agents-ui.test.ts |
 | REQ-E09b | Lọc theo loại | 01-REQUIREMENTS-MATRIX.md:111 | 024 | ĐẠT | ai/assistant/action-logs.read.ts:12; test agents-ui.test.ts |
-| REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | — | MỘT PHẦN | Undo ĐẠT; không cơ chế đính chính |
+| REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | 003e | MỘT PHẦN | Undo ĐẠT; không cơ chế đính chính; TIP-003e nhận (2026-11-02) |
 | REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | MỘT PHẦN | API /assistant/sessions có (assistant.controller.ts:70; assistant.test.ts); FE không gọi |
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
@@ -198,4 +198,4 @@ Ghi chú:
 - REQ-A02d: prototype ver2.1 đổi sang mô tả tự do, chưa có mã quyết định bỏ taxonomy.
 - REQ-A07b / REQ-D07d: FE gọi route không có ở API (routes.json missing).
 - Dừng sớm theo lệnh điều phối (hết quota) — một số ô chưa kiểm sâu.
-CHƯA RÀ HẾT: REQ-D04 (nguồn Drive "Sắp có"), REQ-D09b (gợi ý tạo agent khi thiếu — D29), REQ-B11 (giờ trực / lời chào kiểm sâu), REQ-C12 (phím ↑↓)
+Đã rà nốt 2026-11-02: REQ-D04 tách D04a–f (D04b → 043, D04e CHỜ-TK); REQ-D09b tách a/b ĐẠT; REQ-B11 tách a/b ĐẠT, c → 022b, d → 042b + 014c; REQ-C12 → 025b (thread search/phím).

@@ -65,3 +65,7 @@ See [TIP-037](../tips/TIP-037-marketing.md) and [marketing audit](marketing-plan
 ## Supplemental Zalo lifecycle plan (2026-11-02)
 
 [TIP014b](../tips/TIP-014b-zalo-lifecycle.md) owns missing provider operation/receipt/history/contact-sync contracts and real lifecycle evidence, plus standard/type reconciliation. Existing completion status is not live-provider proof. No source or native data/service changes in this planning phase.
+
+## Bổ sung — TIP-014c (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-014c](../tips/TIP-014c-channel-consistency.md): REQ-B04a, REQ-B11d, STD-channels-adapter-2, REQ-C10a, D48. File TIP gốc không sửa (DC-233).

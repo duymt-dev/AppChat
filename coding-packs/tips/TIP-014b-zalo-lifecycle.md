@@ -1,6 +1,24 @@
 # TIP-014b: Zalo provider lifecycle, message operations and durable delivery
 
 ## HEADER
+- **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/channels/src/zalo-personal/manifest.ts`, `packages/core/src/channels/jobs/send.processor.ts`; integrate 014b before022d.
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 014b before046.
+- **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 014b before001b.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 014b before003e.
+- **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 014b before003f.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/channels/jobs/sessions.ts`; integrate 014b before003g.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/core/src/channels/services/control.ts`, `packages/shared/src/index.ts`; integrate 014b before003h.
+- **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/api.ts`, `tools/parity/parity.manifest.ts`; integrate 014b before004b.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/shared/src/events.ts`; integrate 014b before006c.
+- **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/api.ts`, `tools/parity/parity.manifest.ts`; integrate 014b before013b.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `packages/core/src/inbox/services/pipeline.ts`; integrate 014b before013c.
+- **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 014b before014c.
+- **Parallel-safe with TIP-017b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/settings-apps.ts`; integrate 014b before017b.
+- **Parallel-safe with TIP-018b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 014b before018b.
+- **Parallel-safe with TIP-028b (coverage-closure manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`; integrate 014b before028b.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 014b before031b.
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 014b before031c.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/api.ts`; integrate 014b before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/channels/jobs/channels.jobs.module.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/inbox/jobs/inbox.jobs.module.ts`, `packages/core/src/index.ts`; integrate 014b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/channels/operations/operation-service.ts`, `packages/core/src/channels/operations/provider-event.ts`, `packages/core/src/inbox/actions/message.handlers.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 014b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/crm/public.ts`; integrate 014b before015g.

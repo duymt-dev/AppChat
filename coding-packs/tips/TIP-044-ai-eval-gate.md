@@ -1,6 +1,8 @@
 # TIP-044 — Evidence-based AI release eval: ten suites, replay and live
 
 ## HEADER
+- **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `.github/workflows/ci.yml`, `coding-packs/standards/workflow/git-flow-ci.md`, `package.json`, `pnpm-lock.yaml`; integrate 044 before046.
+- **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `.dependency-cruiser.cjs`; integrate 001b before044.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `.github/workflows/ci.yml`, `coding-packs/standards/workflow/git-flow-ci.md`, `package.json`, `pnpm-lock.yaml`; integrate 044 before045.
 - **Parallel-safe with TIP-023b (AI release eval manifest):** sequential, shares `fixtures/ai-eval/live-seed.mjs`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `tools/ai-live/package.json`, `tools/ai-live/src/cases.ts`, `tools/ai-live/src/cli.ts`, `tools/ai-live/src/report.ts`, `tools/ai-live/src/runner.ts`, `tools/ai-live/src/safety.ts`, `tools/ai-live/test/cases-cli.test.ts`, `tools/ai-live/test/safety.test.ts`, `tools/ai-live/tsconfig.json`; integrate 023b before044.
 - **Parallel-safe with TIP-023c (AI release eval manifest):** sequential, shares `pnpm-lock.yaml`; integrate 023c before044.

@@ -1,6 +1,17 @@
 # TIP-003c — Canonical private system-transition adapters
 
 ## HEADER
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 003c before031c.
+- **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/ai/runs/tools.ts`; integrate 003c before019d.
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 003c before003e.
+- **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/sales/jobs/sales.jobs.module.ts`, `packages/core/src/sales/payments/services/payment-system.ts`; integrate 003c before003g.
+- **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/core/src/ai/agents/agent.handlers.ts`; integrate 003c before003h.
+- **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/meta-tools.ts`; integrate 003c before006c.
+- **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 003c before013c.
+- **Parallel-safe with TIP-020f (coverage-closure manifest):** sequential, shares `packages/core/src/ai/kb/ingest.ts`; integrate 003c before020f.
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 003c before031b.
+- **Parallel-safe with TIP-035c (coverage-closure manifest):** sequential, shares `packages/core/src/booking/jobs/booking.jobs.module.ts`, `packages/core/src/contracts/jobs/contracts.jobs.module.ts`, `packages/core/src/sales/jobs/order-sync.jobs.ts`, `packages/core/src/sales/jobs/payment.jobs.ts`, `packages/core/src/sales/jobs/sales.jobs.module.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`; integrate 003c before035c.
+- **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/kb/ingest.ts`; integrate 003c before020e.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/index.ts`; integrate 003c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 003c before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/sales/quotes/services/quote-system.ts`, `packages/core/src/sales/system/handlers.ts`; integrate 003c before015g.

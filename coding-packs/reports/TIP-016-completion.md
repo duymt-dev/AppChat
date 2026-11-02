@@ -73,3 +73,7 @@ See ../tips/TIP-025b-inbox-vertical.md for group/search/bulk/source-context/glob
 ## Bổ sung015f planning — 2026-11-02
 
 [TIP015f](../tips/TIP-015f-contact-lifecycle.md) owns contact delete/restore dependencies, retained identity after inbound, current deleted projection/AI fence, safe create/import inverse and blocked new externalorders. Historical settlement remains separate from newbusiness; no code/provider/runtime completion implied. Merge015e andprivacy015c still missing.
+
+## Bổ sung — TIP-016b (2026-11-02)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-016b](../tips/TIP-016b-nav-badges.md): BP-4.4-fe-nav, PRO-shell-navbadges. File TIP gốc không sửa (DC-233).
