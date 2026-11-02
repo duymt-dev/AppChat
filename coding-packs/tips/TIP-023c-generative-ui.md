@@ -1,6 +1,8 @@
 # TIP-023c: Generative UI (D55) + Trợ lý theo màn có ngữ cảnh + kết nối kênh / nền tảng qua Trợ lý (QR Zalo trong chat, form có ô bí mật)
 
 ## HEADER
+- **Parallel-safe with TIP-023b (complete manifest intersection):** sequential, shares `apps/web/src/features/assistant/components/ChatThread.tsx`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023b before TIP-023c.
+- **Parallel-safe with TIP-023b (exact manifest audit):** sequential, shares `apps/web/src/features/assistant/components/ChatThread.tsx`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023b before TIP-023c. Recompute on later manifest expansion; this is not whole-graph parallel clearance.
 - **Parallel-safe with TIP-032b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023c before TIP-032b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-015b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023c before TIP-015b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-041:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.

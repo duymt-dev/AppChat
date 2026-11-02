@@ -1,6 +1,8 @@
 # TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
 
 ## HEADER
+- **Parallel-safe with TIP-023b (complete manifest intersection):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/inbox/actions/message.handlers.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate TIP-023b before TIP-045b.
+- **Parallel-safe with TIP-023b (exact manifest audit):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/inbox/actions/message.handlers.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate TIP-023b before TIP-045b. Recompute on later manifest expansion; this is not whole-graph parallel clearance.
 - **Parallel-safe with TIP-032b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate TIP-032b before TIP-045b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-015b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-015b before TIP-045b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-041:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.

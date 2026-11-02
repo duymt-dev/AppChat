@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **023b đã có exact578-path manifest**,184 COVERAGE IDs, ma trận test riêng190 action hiện hữu+26 action mới/read/system result,17 overlap hai chiều, specs/standards/preflight/AC/lệnh/checklist. Review độc lập tìm4 lỗi wiring đã sửa (barrels, runtime prompt registry, HTTP runs scope, task cũ mâu thuẫn); đang chờ tái kiểm, chưa PASS. Xem `reports/assistant-vertical-planning-audit-2026-11-02.md`. COVERAGE1.480 dòng/**218** thiếu owner. Tiếp tục023c/030b manifests và điểm nối channels/inbox/runtime; không triển khai code, không coi checkpoint là kết thúc.
+
 - **Ưu tiên mới của Chủ nhà: rà theo chiều dọc Zalo ↔ CRM ↔ Commerce ↔ Agents/Trợ lý AI**, không chỉ hoàn thiện từng module riêng. Xem `plans/VERTICAL-FLOW-PRIORITY.md`; đây là thứ tự ưu tiên, không thu hẹp sáu điều kiện kết thúc câu A. Chưa triển khai code.
 - **032b đã có137 manifest paths và17 cặp overlap hai chiều.** Reviewer tái kiểm xác nhận7 findings vòng1 đã xử lý ở mức planning; vẫn còn nghĩa vụ template snapshot, chia đợt, giờ làm việc và legal checklist cần owner cụ thể. Standards review đã sửa overclaim; COVERAGE hiện1.480 dòng/221 nghĩa vụ thiếu owner. Bốn TIP cũ023b/023c/030b/045b vẫn cần manifest hoàn chỉnh. Không coi review cục bộ là full-goal PASS.
 

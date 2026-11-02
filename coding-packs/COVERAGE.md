@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 15 | 12 | 1 | 48 | 10 | 5 | 15 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 21 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 198 | 5 | 4 | 81 | 1 | 0 | 25 |
-| E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 44 |
+| E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 41 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 38 |
-| **Tổng** | **557** | **334** | **118** | **41** | **330** | **34** | **66** | **221** |
+| **Tổng** | **557** | **334** | **118** | **41** | **330** | **34** | **66** | **218** |
 
-## Lỗ hổng chưa có TIP nhận (221)
+## Lỗ hổng chưa có TIP nhận (218)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -118,7 +118,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
-| STD-actions-registry-12 | MỘT PHẦN | Mỗi action có file test riêng `*.action.test.ts`: happy, 403, SCOPE_FORBIDDEN, policy từng nguồn, idempotency, undo, INVALID_TRANSITION/STALE | E |
 | STD-ai-gateway-5 | MỘT PHẦN | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | E |
 | STD-ai-gateway-11a | MỘT PHẦN | Mỗi bước ghi `ai_run_step` + phát `run.step` qua WS để Owner xem trực tiếp | E |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
@@ -136,7 +135,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-7a | MỘT PHẦN | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | E |
 | STD-domain-concurrency-T | MỘT PHẦN | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | E |
 | STD-domain-customfields-4b | CHƯA | Thẻ Kanban hiện tối đa 2 trường tuỳ biến | E |
-| STD-domain-customfields-6 | CHƯA | `find_actions` trả input schema kèm định nghĩa trường `ai = true` của workspace | E |
 | STD-domain-money-1.4 | CHƯA | Chia đợt / cọc theo %: làm tròn xuống, đợt cuối nhận phần dư | E |
 | STD-domain-money-1.7 | MỘT PHẦN | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | E |
 | STD-domain-money-2.2 | MỘT PHẦN | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | E |
@@ -158,7 +156,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-fe-13b | CHƯA | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | E |
 | STD-ui-ip-3.2 | CHƯA | Validate bằng zodRule khi rời ô / bấm nút; lỗi theo `errors.<CODE>`; cuộn tới lỗi đầu | E |
 | STD-ui-ip-3.4 | CHƯA | Đóng form đã sửa chưa lưu → hỏi xác nhận bỏ thay đổi | E |
-| STD-ui-ip-4.3 | CHƯA | `approval_required` → toast "Đã gửi duyệt", không báo thành công | E |
 | STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
 | STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
 | STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
@@ -1275,7 +1272,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-actions-registry-11c | Governance cứng: hoàn tiền luôn duyệt | standards/actions/action-registry.md:37 | 032 | ĐẠT | packages/core/src/sales/payments/services/refunds.ts:1 (pending → payment.refund_approve); approval-permission.ts:9; test payments.test.ts |
 | STD-actions-registry-11d | Governance cứng: gửi hàng loạt (chiến dịch) luôn duyệt | standards/actions/action-registry.md:38 | 037 | CHƯA | campaign.* chưa có handler (actions.json); policy.ts:24 bulk→preview |
 | STD-actions-registry-11e | Governance cứng: gửi hợp đồng luôn qua duyệt + Owner ký trước | standards/actions/action-registry.md:39 | 030 | ĐẠT | packages/core/src/contracts/actions/contract-approval.handlers.ts:99; test contracts.test.ts |
-| STD-actions-registry-12 | Mỗi action có file test riêng `*.action.test.ts`: happy, 403, SCOPE_FORBIDDEN, policy từng nguồn, idempotency, undo, INVALID_TRANSITION/STALE | standards/actions/action-registry.md:40 | — | MỘT PHẦN | Không có file `*.action.test.ts` nào; ca nằm rải trong apps/api/test/integration/<domain>.test.ts, không đủ ma trận cho từng action (023b chỉ test phủ handler/preview/tra cứu) |
+| STD-actions-registry-12 | Mỗi action có file test riêng `*.action.test.ts`: happy, 403, SCOPE_FORBIDDEN, policy từng nguồn, idempotency, undo, INVALID_TRANSITION/STALE | standards/actions/action-registry.md:40 | 023b | MỘT PHẦN | Không có file `*.action.test.ts` nào; ca nằm rải trong apps/api/test/integration/<domain>.test.ts, không đủ ma trận cho từng action (023b chỉ test phủ handler/preview/tra cứu); planning update: TIP023b SPECIFICATIONS A/B, exact manifest and targeted per-action/custom-schema/useAction-approval tests now own the gap. Runtime not verified. |
 | STD-actions-registry-13 | Action FE dựng sẵn là contract; BE cài đúng schema, đổi = L2 | standards/actions/action-registry.md:48 | mọi TIP | QUY-TẮC | `pnpm --filter @appchat/contract test` + apps/api/test/integration/contract.test.ts (harness mock vs HTTP) |
 | STD-ai-gateway-0 | Mọi lời gọi model dùng AI SDK (generate/stream/tool/embed/rerank) | standards/ai/agent-gateway.md:7 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts; test packages/ai/test/engine.test.ts |
 | STD-ai-gateway-1 | Cấm import `ai` / `@ai-sdk/*` ngoài packages/ai | standards/ai/agent-gateway.md:9 | mọi TIP | QUY-TẮC | `pnpm lint` — no-restricted-imports trong packages/core/eslint.config.mjs:11, apps/api, apps/worker, packages/channels |
@@ -1439,7 +1436,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-customfields-4a | Hiện theo visible_in: form / list / filter (`cf.<key>`, lọc trước phân trang) / detail | standards/domain/custom-fields.md:17 | 026 | ĐẠT | apps/web/src/shared/custom-fields/*; apps/api/src/http/crm/contacts.controller.ts:30 (+5 controller); test apps/web/e2e/custom-fields.spec.ts |
 | STD-domain-customfields-4b | Thẻ Kanban hiện tối đa 2 trường tuỳ biến | standards/domain/custom-fields.md:23 | — | CHƯA | features/customers/components/KanbanCard.tsx không đọc custom |
 | STD-domain-customfields-4c | Xuất Excel thêm cột trường tuỳ biến | standards/domain/custom-fields.md:23 | 038 | CHƯA | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket → 038 (Q-024) |
-| STD-domain-customfields-6 | `find_actions` trả input schema kèm định nghĩa trường `ai = true` của workspace | standards/domain/custom-fields.md:26 | — | CHƯA | grep custom trong core/src/ai/assistant/catalog.ts, meta-tools.ts = 0; 023b / 023c không nêu |
+| STD-domain-customfields-6 | `find_actions` trả input schema kèm định nghĩa trường `ai = true` của workspace | standards/domain/custom-fields.md:26 | 023b | CHƯA | grep custom trong core/src/ai/assistant/catalog.ts, meta-tools.ts = 0; 023b / 023c không nêu; planning update: TIP023b SPECIFICATIONS A/B, exact manifest and targeted per-action/custom-schema/useAction-approval tests now own the gap. Runtime not verified. |
 | STD-domain-customfields-7 | Unit validate customValues + e2e tạo trường → cột/form/lọc/chi tiết | standards/domain/custom-fields.md:27 | 015, 026 | ĐẠT | values.test.ts:51; apps/web/e2e/custom-fields.spec.ts |
 | STD-domain-gapfill-1 | Thang tra cứu + được tự quyết / phải hỏi (L2) | standards/domain/gap-filling.md:6 | mọi TIP | QUY-TẮC | Quy trình; sổ QUESTIONS.md / DECISIONS.md / DEVIATIONS.md |
 | STD-domain-gapfill-3 | Không nút chết: không toast giả, không TODO trong handler | standards/domain/gap-filling.md:33 | mọi TIP | QUY-TẮC | grep `TODO` packages/core/src = 0; review (còn drawer AI giả → 023c, Xuất Excel giả → 038) |
@@ -1547,7 +1544,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-ip-3.4 | Đóng form đã sửa chưa lưu → hỏi xác nhận bỏ thay đổi | standards/ui/interaction-patterns.md:37 | — | CHƯA | grep isDirty / discard / "Bỏ thay đổi" trong form + messages = 0 |
 | STD-ui-ip-4.1 | Ghi qua useAction: toast + Hoàn tác khi có undo; lỗi theo error.code | standards/ui/interaction-patterns.md:43 | 003 | ĐẠT | useAction.ts:41-52 |
 | STD-ui-ip-4.2 | Risk send/money/delete/config/bulk → ConfirmActionHost preview; không window.confirm | standards/ui/interaction-patterns.md:44 | 003 | ĐẠT | useAction.ts:34; shared/actions/ConfirmActionHost.tsx |
-| STD-ui-ip-4.3 | `approval_required` → toast "Đã gửi duyệt", không báo thành công | standards/ui/interaction-patterns.md:45 | — | CHƯA | useAction.ts:39 `if (res.status !== 200) return null` — 202 approval_required im lặng; grep approval_required trong apps/web/src = 0 |
+| STD-ui-ip-4.3 | `approval_required` → toast "Đã gửi duyệt", không báo thành công | standards/ui/interaction-patterns.md:45 | 023b | CHƯA | useAction.ts:39 `if (res.status !== 200) return null` — 202 approval_required im lặng; grep approval_required trong apps/web/src = 0; planning update: TIP023b SPECIFICATIONS A/B, exact manifest and targeted per-action/custom-schema/useAction-approval tests now own the gap. Runtime not verified. |
 | STD-ui-ip-5 | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | standards/ui/interaction-patterns.md:51 | — | MỘT PHẦN | Có PageStates nhưng apps/web/e2e/mobile-sweep.spec.ts chỉ kiểm routes/overflow/target size; chưa chứng minh mọi màn/panel có loading/empty/error/retry/permission và dữ liệu cực trị. Cần TIP UI implementation + matrix tests riêng, không dùng sweep layout thay bằng chứng trạng thái. |
 | STD-ui-ip-7.4 | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | standards/ui/interaction-patterns.md:69 | — | MỘT PHẦN | mobile-sweep.spec.ts kiểm overflow và height nút/tab đang thấy; không đo width hay mọi target. Phần overflow có test, touch-target toàn bộ cần UI audit/test bổ sung. |
 | STD-ui-ip-use | Prototype sai → PD-xxx trích IP-x.y; không vẽ → "Giả định đã chọn" | standards/ui/interaction-patterns.md:80 | mọi TIP | QUY-TẮC | `pnpm lint:masks` kiểm PD trong sổ docs/06-prototype/DEVIATIONS.md |

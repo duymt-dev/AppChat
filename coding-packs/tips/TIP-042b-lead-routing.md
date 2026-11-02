@@ -1,6 +1,9 @@
 # TIP-042b — Chia lead mới và cấu hình routing theo tài khoản kênh
 
 ## HEADER
+- **Parallel-safe with TIP-023b (complete manifest intersection):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/channels/actions/channel-manage.handlers.ts`, `packages/core/src/crm/crm.module.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-023b before TIP-042b.
+- **Parallel-safe with TIP-023b (public API wiring):** sequential, shares `packages/shared/src/api/index.ts`; integrate TIP-023b before TIP-042b.
+- **Parallel-safe with TIP-023b (exact manifest audit):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/channels/actions/channel-manage.handlers.ts`, `packages/core/src/crm/crm.module.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-023b before TIP-042b. Recompute on later manifest expansion; this is not whole-graph parallel clearance.
 - **Parallel-safe with TIP-032b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/registry.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-042b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-015b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/jobs/crm.jobs.module.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-042b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-041:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
@@ -163,4 +166,3 @@ Cấp chủ phụ trách đầu tiên cho lead mới theo rule cấu hình đã 
 - [ ] Không đổi D32/commerce, active permission chặn quyền cũ; EXPLAIN và file caps đúng.
 - [ ] Mock/HTTP/parity/mobile/i18n/D59 pass; thiếu provider ghi rõ.
 - [ ] Commit nhánh tip/042b-* → PR dev, status sạch, Git SHA thật; cập nhật parts rồi merge COVERAGE.
-
