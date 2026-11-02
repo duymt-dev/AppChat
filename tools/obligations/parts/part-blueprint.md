@@ -343,7 +343,7 @@
 | BP-5.1-i | LLM Router: model_route theo tier, fallback 5xx/429/timeout, cache llm_provider 60s, capabilities | plans/BLUEPRINT.md:1081 | 019 | CHỜ-TK | packages/ai/src/router/router.ts:29-58; provider.store.ts:11; test router.test.ts — Q-001 |
 | BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | 019b | CHƯA | grep không thấy provider_cost |
 | BP-5.2-a | Meta-tools find_actions / call_action / ui / plan / update_step / delegate; Chat chỉ đọc | plans/BLUEPRINT.md:1098 | 023 | ĐẠT | core/ai/assistant/meta-tools.ts:24,53,120; test assistant-unit.test.ts, assistant.test.ts |
-| BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023 | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
+| BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023e | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
 | BP-5.2-c | query_data = insight.query | plans/BLUEPRINT.md:1102 | 038 | CHƯA | meta-tools.ts:117 trả NOT_IMPLEMENTED |
 | BP-5.2-d | render(UiTree) — Generative UI | plans/BLUEPRINT.md:1103 | 023c | CHƯA | packages/shared/src/genui không tồn tại |
 | BP-5.2-e | Đọc bản ghi bằng action search/get + mã → id | plans/BLUEPRINT.md:1108 | 023b | MỘT PHẦN | code-refs.ts 8 thực thể; chỉ contact/product/ticket.search, appointment.list có |
@@ -460,3 +460,8 @@ Ghi chú:
 | PRIVACY-PUBLICATION | Fence affected AI/KB/utility/run-list/history/SSE/send/export at admission/publication; knownusage retained, unknowndrain unresolved | DC259/264/265; runs.service28–47;019c | 015c | CHƯA | Generic runlist exposes title; no privacygeneration acrosssource/output.015cAC7/currentprojection inventory includes privateutility generations |
 | PRIVACY-FILE-REPLAY | Current privacy disposition on signedraw/auth/publicdownloads, sharedblobpurge andAI-first/manual actualCSV/XLSX | DC244/264/265; files.controller48–67; signed-url6–16 | 015c | CHƯA | Existing URLsignature/uploaderpermission doesnotverify privacyrevision;015cAC8 realfile/dataset/queue gates planned |
 | PRIVACY-RESTORE-FENCE | Durable versionedexternaljournal prevents tenantbackup/archiverestore from resurrecting forgotten data/permits/oldrouting | DC260/264/265;041 restorecontract | 015c | CHƯA | No privacyjournal/schema/restoregate currently;015cAC9 covers everyrevision/freshprofile/review andmissingkey failclosed |
+
+| DISCOVERY-CURRENT-AUTHORITY | Semantic ranking/cache filters current implemented/user/selected-agent/active-step set before topK | DC268; TIP023e §2–3 | 023e | CHƯA | catalog.ts82–97 keyword-only; no semantic current-admissible-set cache |
+| DISCOVERY-METERED-CACHE | Explicit confirmed corpus preparation; pinned model/config vectors and root-metered query/cache | DC268; TIP023e §1/4 | 023e | CHƯA | embedder.ts currently fallback; ModelCandidate lacks revision, router handle uses key length; new contracts planned |
+| DISCOVERY-PRIVACY-LINEAGE | Private discovery query/attempt/cache protected across generic history and forget/restore | DC268; TIP023e §3 | 023e | CHƯA | runner.ts126 stores raw call input; protected replay/projection registration planned |
+| BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | — | CHƯA | agent-draft.ts44–49 only post-filters returned IDs; agent-llm.handlers.ts draft generation has no discovery call. Separate from023e finder itself; no owner yet |

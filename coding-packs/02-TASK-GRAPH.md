@@ -251,3 +251,11 @@ Exactownership tips/manifests/TIP-019c-files.md. Notreplacementof015b memory/022
 |023d [assistant-plans](tips/TIP-023d-assistant-plans.md)|Receipt progress, edit checkpoint/drain/resume, privacy-safe fresh reuse, stable selected agent/child authority|After015c and all exact bilateral predecessors; before023e/044/045/046|119 exact paths,18 futureM,31 bilateral pairs,7 ownedIDs,10AC; two local reviews closed, runtime pending|
 
 Exact manifest tips/manifests/TIP-023d-files.md. One primary-effect claim independent of model call ID; no budget reset or terminal resurrection. AI-first/manual real files reuse038b, not a second parser.
+
+### Supplemental023e — semantic action discovery (DC268)
+
+| TIP | Scope | Order | Evidence gate |
+|---|---|---|---|
+|023e [action-discovery](tips/TIP-023e-action-discovery.md)|Versioned metadata corpus, explicit metered preparation, current-authority semantic ranking/cache and private query projection|After023d and all exact bilateral predecessors; before044/045/046|69 exact paths/14futureM/32bilateral pairs/5ownedIDs/8AC, local review; runtime pending|
+
+Agent-draft use of discovery is an additional unresolved Blueprint5.3b obligation, not implicitly closed by the finder implementation. Exactmanifest tips/manifests/TIP-023e-files.md; no new default model or tariff.

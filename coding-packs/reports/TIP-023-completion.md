@@ -52,3 +52,7 @@ TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding 
 ## Bổ sung2026-11-02 — plans/selected-agent gap
 
 TIP-023d-assistant-plans.md receives REQ-E03d/E04b/E11b and four explicit execution/privacy obligations. Current raw model plan status/name-only agent picker is not evidence of real progress or selected routing.119 exact paths/10AC, local independent findings corrected/rechecked; no implementation/runtime promotion. Semantic discovery remains023e.
+
+## Bổ sung2026-11-02 — semantic action discovery
+
+TIP023e receives DEF0234/BP5.2b and three explicit authority/meter/cache/privacy obligations. Keyword-only DC129 baseline is not semantic discovery. Explicit confirmed catalog build and private source-bound queries reuse019b; no runtime acceptance or new tariff. Agent-draft semantic tool selection remains separately unowned.

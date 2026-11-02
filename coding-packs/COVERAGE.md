@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 27 | 2 | 0 | 11 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 14 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 101 | 1 | 0 | 6 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 34 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 23 |
-| **Tổng** | **545** | **376** | **118** | **41** | **355** | **34** | **66** | **126** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 22 |
+| **Tổng** | **545** | **376** | **118** | **41** | **359** | **34** | **66** | **126** |
 
 ## Lỗ hổng chưa có TIP nhận (126)
 
@@ -64,6 +64,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
+| BP-5.3b-tools-discovery | CHƯA | Agent draft selects tools using current-authorized find_actions before generation | D |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
@@ -137,7 +138,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
 | DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
 | DEF-023-2 | CHƯA | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | G |
-| DEF-023-4 | CHƯA | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | G |
 | DEF-027-2 | CHƯA | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | G |
 | DEF-028-1 | MỘT PHẦN | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | G |
 | DEF-030-3 | CHƯA | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | G |
@@ -1121,7 +1121,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-5.1-i | LLM Router: model_route theo tier, fallback 5xx/429/timeout, cache llm_provider 60s, capabilities | plans/BLUEPRINT.md:1081 | 019 | CHỜ-TK | packages/ai/src/router/router.ts:29-58; provider.store.ts:11; test router.test.ts — Q-001 |
 | BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | 019b | CHƯA | grep không thấy provider_cost |
 | BP-5.2-a | Meta-tools find_actions / call_action / ui / plan / update_step / delegate; Chat chỉ đọc | plans/BLUEPRINT.md:1098 | 023 | ĐẠT | core/ai/assistant/meta-tools.ts:24,53,120; test assistant-unit.test.ts, assistant.test.ts |
-| BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023 | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
+| BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023e | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
 | BP-5.2-c | query_data = insight.query | plans/BLUEPRINT.md:1102 | 038 | CHƯA | meta-tools.ts:117 trả NOT_IMPLEMENTED |
 | BP-5.2-d | render(UiTree) — Generative UI | plans/BLUEPRINT.md:1103 | 023c | CHƯA | packages/shared/src/genui không tồn tại |
 | BP-5.2-e | Đọc bản ghi bằng action search/get + mã → id | plans/BLUEPRINT.md:1108 | 023b | MỘT PHẦN | code-refs.ts 8 thực thể; chỉ contact/product/ticket.search, appointment.list có |
@@ -1206,6 +1206,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRIVACY-PUBLICATION | Fence affected AI/KB/utility/run-list/history/SSE/send/export at admission/publication; knownusage retained, unknowndrain unresolved | DC259/264/265; runs.service28–47;019c | 015c | CHƯA | Generic runlist exposes title; no privacygeneration acrosssource/output.015cAC7/currentprojection inventory includes privateutility generations |
 | PRIVACY-FILE-REPLAY | Current privacy disposition on signedraw/auth/publicdownloads, sharedblobpurge andAI-first/manual actualCSV/XLSX | DC244/264/265; files.controller48–67; signed-url6–16 | 015c | CHƯA | Existing URLsignature/uploaderpermission doesnotverify privacyrevision;015cAC8 realfile/dataset/queue gates planned |
 | PRIVACY-RESTORE-FENCE | Durable versionedexternaljournal prevents tenantbackup/archiverestore from resurrecting forgotten data/permits/oldrouting | DC260/264/265;041 restorecontract | 015c | CHƯA | No privacyjournal/schema/restoregate currently;015cAC9 covers everyrevision/freshprofile/review andmissingkey failclosed |
+| DISCOVERY-CURRENT-AUTHORITY | Semantic ranking/cache filters current implemented/user/selected-agent/active-step set before topK | DC268; TIP023e §2–3 | 023e | CHƯA | catalog.ts82–97 keyword-only; no semantic current-admissible-set cache |
+| DISCOVERY-METERED-CACHE | Explicit confirmed corpus preparation; pinned model/config vectors and root-metered query/cache | DC268; TIP023e §1/4 | 023e | CHƯA | embedder.ts currently fallback; ModelCandidate lacks revision, router handle uses key length; new contracts planned |
+| DISCOVERY-PRIVACY-LINEAGE | Private discovery query/attempt/cache protected across generic history and forget/restore | DC268; TIP023e §3 | 023e | CHƯA | runner.ts126 stores raw call input; protected replay/projection registration planned |
+| BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | — | CHƯA | agent-draft.ts44–49 only post-filters returned IDs; agent-llm.handlers.ts draft generation has no discovery call. Separate from023e finder itself; no owner yet |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1700,7 +1704,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | MỘT PHẦN | Chỉ 14 file handler có `preview(` trong packages/core/src |
 | DEF-023-2 | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | reports/TIP-023-completion.md:41 | — | CHƯA | apps/web/src/features/assistant không gọi `/assistant/sessions` |
 | DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | CHƯA | ai/assistant/meta-tools.ts:7 NOT_IMPLEMENTED; `insight.query` không có trong registry |
-| DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | — | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
+| DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
 | DEF-023-5 | 7 drawer "Trợ lý AI · [module]" + hộp lệnh Hộp thư gọi Trợ lý thật (REQ-E06) | reports/TIP-023-completion.md:46 | 023c | GIẢ | Report bổ sung 2026-11-01; `packages/shared/src/genui` chưa tồn tại |
 | DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | CHƯA | tools/ai-live/ không tồn tại; không script `ai:live` |
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |

@@ -54,7 +54,7 @@
 | DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | MỘT PHẦN | Chỉ 14 file handler có `preview(` trong packages/core/src |
 | DEF-023-2 | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | reports/TIP-023-completion.md:41 | — | CHƯA | apps/web/src/features/assistant không gọi `/assistant/sessions` |
 | DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | CHƯA | ai/assistant/meta-tools.ts:7 NOT_IMPLEMENTED; `insight.query` không có trong registry |
-| DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | — | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
+| DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
 | DEF-023-5 | 7 drawer "Trợ lý AI · [module]" + hộp lệnh Hộp thư gọi Trợ lý thật (REQ-E06) | reports/TIP-023-completion.md:46 | 023c | GIẢ | Report bổ sung 2026-11-01; `packages/shared/src/genui` chưa tồn tại |
 | DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | CHƯA | tools/ai-live/ không tồn tại; không script `ai:live` |
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |

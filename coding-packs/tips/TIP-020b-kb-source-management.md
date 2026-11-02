@@ -1,6 +1,7 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
+- **Parallel-safe with TIP-023e (Action discovery manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before023e.
 - **Parallel-safe with TIP-023d (Assistant plans manifest):** sequential, shares `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before023d.
 - **Parallel-safe with TIP-015c (Privacy manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/kb/kb.read.ts`, `packages/shared/src/api/index.ts`; integrate 020b before015c.
 - **Parallel-safe with TIP-019c (AI utilities manifest):** sequential, shares `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before019c.
