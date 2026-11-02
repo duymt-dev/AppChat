@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-015b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/contracts/services/contracts-read.service.ts`, `packages/core/src/sales/payments/services/invoices-read.service.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate TIP-015b before TIP-042c. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-041:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 041. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038b. Recheck incomplete manifests.
 - **Parallel-safe with TIP-040:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 040. Recheck incomplete manifests.

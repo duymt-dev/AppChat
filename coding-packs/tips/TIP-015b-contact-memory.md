@@ -1,29 +1,136 @@
 # TIP-015b: Trí nhớ khách của AI — `contact_memory`, `contact.remember`, tóm tắt Hồ sơ 360°, KPI 360° (công nợ, hợp đồng, đơn / thu gần nhất), cột "AI gợi ý"
 
 ## HEADER
-- **Parallel-safe with TIP-041:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
-- **Parallel-safe with TIP-038b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
-- **Parallel-safe with TIP-040:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 040. Recheck incomplete manifests.
-- **Parallel-safe with TIP-039:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 039. Recheck incomplete manifests.
-- **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
-- **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038. Recheck after incomplete manifests expand.
-- **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 037. Recheck when incomplete manifests expand.
-- **Parallel-safe with TIP-042c:** sequential, shares `packages/db/prisma/tenant/crm.prisma`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
-- **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
-- **Parallel-safe with TIP-042:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 042. Recheck intersections when incomplete manifests are expanded.
-- **Parallel-safe with TIP-020b:** sequential, shares `packages/actions/src/index.ts`; integrate 020b after 036, before 043/045b. For 043 also shares `packages/db/prisma/tenant/ai-kb.prisma`, `packages/core/src/ai/ai.module.ts`, `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/src/features/settings/components/RagSection.tsx`, `apps/web/src/shared/api/mock/domains/settings-ai.ts`, settings/action locale files.
-- **Parallel-safe with TIP-043:** sequential, shares `packages/actions/src/index.ts` and (where applicable) `packages/core/src/ai/jobs/ai.jobs.module.ts`; TIP-043 integrates after 015b/023b/023c/030b/032b/036 and before 045b.
+- **Parallel-safe with TIP-020b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate TIP-015b before TIP-020b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-023b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023b before TIP-015b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-023c:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023c before TIP-015b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-030b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-030b before TIP-015b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-032b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-032b before TIP-015b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-036:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/crm/services/contact360.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate TIP-015b before TIP-036. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-037:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-037. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-038:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-038. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-038b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-038b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-039:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-039. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-040:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-040. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-041:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate TIP-015b before TIP-041. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-042:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-042. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-042b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/jobs/crm.jobs.module.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-042b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-042c:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/contracts/services/contracts-read.service.ts`, `packages/core/src/sales/payments/services/invoices-read.service.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate TIP-015b before TIP-042c. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-043:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/ai/src/prompts/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-015b before TIP-043. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-045b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-015b before TIP-045b. Recompute after incomplete manifests expand.
 - TIP-ID: TIP-015b (bổ sung TIP-015 / 022 — chèn sau TIP-023b, DC-231)
+- **Dòng COVERAGE nhận:** REQ-D10a/D10b; REQ-F01-c/F02b/F02c/F08g; PRO-customers-rowai; DEF-015-2/015-3/015-4/022-1/026-1; COM-5-15/9-22; DC-151; ACT-contact.remember. Không nhận contact.forget/privacy.erase hoặc ai.summarize tổng quát.
 - Project: AppChat V2
 - Module: `packages/db/prisma/tenant/crm.prisma` (`contact_memory` đã có bảng) · `packages/core/src/crm/services/contact360.ts` · `packages/core/src/ai/reply/{reply-context, reply-tools}.ts` · `packages/actions/src/crm.ts` · FE `features/customers/components/Profile*`
-- Depends on: TIP-015 (khách + 360), TIP-022 (agent trực kênh), TIP-029 / 030 / 031 / 032 (chứng từ cho KPI)
+- Depends on: TIP-015/022/029/030/031/032/033/034/035; tích hợp sau023b/023c/030b/032b vì UI, action contract và dữ liệu chung; trước036/020b/043/045b và các TIP chia sẻ file phía sau. Không chờ036 cho điểm, không chờ044 để tạo ba ca live.
 - Priority: P0 · REQ: F02, F05, D05 · Decision: D10 (Blueprint §2.2 `contact_memory`, §5.3) · DC-231
-- Estimated effort: 10 giờ
+- Estimated effort: XL (memory lifecycle, scoped summary, KPI/links, UI + live cases); không dùng ước lượng10 giờ cũ làm giới hạn phạm vi.
 - **Parallel-safe with:** sequential, shares `packages/core/src/crm/services/contact360.ts` and `packages/core/src/ai/reply/reply-context.ts` with TIP-036; hoàn tất 015b trước 036, không chạy cùng worktree.
 
+### Files touched (exact manifest)
+
+| Op | File |
+|---|---|
+| M | `packages/actions/src/index.ts` |
+| M | `packages/core/src/index.ts` |
+| M | `packages/db/prisma/tenant/crm.prisma` |
+| M | `packages/shared/src/api/crm.ts` |
+| M | `packages/shared/src/api/index.ts` |
+| M | `packages/shared/src/index.ts` |
+| M | `packages/shared/src/events.ts` |
+| M | `packages/core/src/crm/crm.module.ts` |
+| M | `packages/core/src/crm/public.ts` |
+| M | `packages/core/src/crm/jobs/crm.jobs.module.ts` |
+| M | `packages/core/src/crm/services/contact360.ts` |
+| M | `packages/core/src/crm/services/contact-view.ts` |
+| M | `packages/core/src/crm/services/crm-read.service.ts` |
+| M | `packages/core/src/contracts/services/contracts-read.service.ts` |
+| M | `packages/core/src/sales/payments/services/invoices-read.service.ts` |
+| M | `packages/core/src/ai/reply/reply-context.ts` |
+| M | `packages/core/src/ai/reply/reply-tools.ts` |
+| M | `packages/core/src/ai/jobs/ai.jobs.module.ts` |
+| M | `apps/api/src/http/crm/contacts.controller.ts` |
+| M | `apps/web/src/features/customers/screens/CustomersScreen.tsx` |
+| M | `apps/web/src/features/customers/components/Customer360Drawer.tsx` |
+| M | `apps/web/src/features/customers/components/Cells.tsx` |
+| M | `apps/web/src/features/customers/api.ts` |
+| M | `apps/web/src/features/customers/types.ts` |
+| M | `apps/web/src/features/inbox/components/Blocks360.tsx` |
+| M | `apps/web/src/features/inbox/components/Profile360Content.tsx` |
+| M | `apps/web/messages/vi/customers.json` |
+| M | `apps/web/messages/en/customers.json` |
+| M | `apps/web/messages/vi/inbox.json` |
+| M | `apps/web/messages/en/inbox.json` |
+| M | `apps/web/messages/vi/actions.json` |
+| M | `apps/web/messages/en/actions.json` |
+| M | `packages/shared/src/i18n/server/vi/crm.ts` |
+| M | `packages/shared/src/i18n/server/en/crm.ts` |
+| M | `tools/parity/parity.manifest.ts` |
+| M | `coding-packs/plans/BLUEPRINT.md` |
+| M | `apps/web/src/shared/api/mock/domains/customers.ts` |
+| M | `apps/web/src/shared/api/mock/domains/inbox.ts` |
+| M | `packages/ai/src/prompts/index.ts` |
+| C | `packages/actions/src/contact-memory.ts` |
+| C | `packages/shared/src/api/contact-memory.ts` |
+| C | `packages/db/prisma/tenant/migrations/20261102001510_contact_memory/migration.sql` |
+| C | `packages/core/src/crm/memory/memory.module.ts` |
+| C | `packages/core/src/crm/memory/memory.providers.ts` |
+| C | `packages/core/src/crm/memory/handlers.ts` |
+| C | `packages/core/src/crm/memory/repository.ts` |
+| C | `packages/core/src/crm/memory/normalize.ts` |
+| C | `packages/core/src/crm/memory/summary.ts` |
+| C | `packages/core/src/crm/memory/revision.ts` |
+| C | `packages/core/src/crm/memory/summary-consumer.ts` |
+| C | `packages/core/src/crm/memory/read.ts` |
+| C | `packages/core/src/crm/insights/customer-kpis.ts` |
+| C | `packages/core/src/crm/insights/customer-debt.ts` |
+| C | `packages/core/src/crm/insights/customer-links.ts` |
+| C | `packages/core/src/crm/insights/next-action.ts` |
+| C | `packages/core/src/crm/insights/read.ts` |
+| C | `packages/ai/src/prompts/contact-summary.vi.md` |
+| C | `packages/ai/src/prompts/contact-summary.en.md` |
+| C | `apps/web/src/shared/contact-memory/MemoryPanel.tsx` |
+| C | `apps/web/src/shared/contact-memory/useContactMemory.ts` |
+| C | `apps/web/src/shared/contact-memory/api.ts` |
+| C | `apps/web/src/features/customers/hooks/useAssignContactAi.ts` |
+| C | `packages/core/test/contact-memory.test.ts` |
+| C | `packages/core/test/contact-insights.test.ts` |
+| C | `apps/api/test/integration/contact-memory.test.ts` |
+| C | `apps/web/src/shared/contact-memory/MemoryPanel.test.tsx` |
+| C | `apps/web/e2e/http/contact-memory.spec.ts` |
+| C | `apps/web/e2e/contact-memory.spec.ts` |
+| C | `tools/parity/modules/contact-memory.ts` |
+| C | `fixtures/ai-eval/contact-memory.json` |
+| C | `coding-packs/reports/TIP-015b-completion.md` |
+
 ## CONTEXT
+- Working directory: D:/CODING/AppChat_Ver2; stack theo BUILDER-HANDOFF: NestJS/Prisma, Postgres16 native/pg_trgm, AI SDK qua AgentEngine, React/TanStack Query. Không Docker, không thêm thư viện.
 - Blueprint §2.2 + §5.3: agent lắp ngữ cảnh có `contact_memory`; AI ghi nhớ sự kiện về khách (sở thích, dị ứng, lịch quen…). Bảng có nhưng **không chỗ nào ghi** (chỉ `contact.merge` dời bản ghi); report TIP-015 / 022 ghi "TIP riêng sau" mà task graph không có.
 - Hồ sơ 360°: `kpis: []`, `recent_order` / `recent_payment` rỗng, không có công nợ / hợp đồng hiệu lực (`contact360.ts`); quy đổi điểm sai `×10` (TIP-036 sửa).
+- Schema crm.prisma:203–213 chỉ có fact/sourceRunId/confidence/createdAt; reply-context.ts:81 đã đọc10 fact nhưng chưa writer. ContactsController:130–134 trả `/crm/ai` rỗng, contact-view.ts:89 gợi ý wait; không coi các phần này đã xong vì có DTO.
+
+## APPLICABLE STANDARDS
+- actions/action-registry; api/response-envelope; authz/rbac-permissions; database/tenant-db và indexing; events/outbox.
+- ai/agent-gateway, ai/eval; domain/concurrency, money-time-numbering, validation-defaults; code/testing, file-size-module-layout.
+- ui/frontend-structure, prototype-parity, interaction-patterns; i18n/i18n; ops/observability-security; workflow/git-flow-ci. Luật COMMERCE giữ nguyên, không tự định nghĩa lại công nợ/LTV/điểm.
+
+## Rà trước khi làm
+1. Kiểm CONTEXT với code sau023b/023c/030b/032b, chốt shape ActionPreview/360 và hook mở assistant hiện hữu. Không tạo luồng assistant thứ hai chỉ cho nút Giao AI.
+2. Kiểm tên event thực và registration CrmModule/CrmJobsModule/AI jobs; module memory không import ngược AiModule gây vòng DI. Inject gateway/runtime adapter qua factory, mọi model call qua packages/ai; mọi ghi memory qua Executor.
+3. Migration thêm updated_at/provenance, contact memory revision và summary cache scoped; backfill updated_at=created_at, provenance không biết để null, không bịa agent nguồn. Không thêm workspace_id vào tenant tables. Kê index trong migration, không sửa schema đã có ở TIP DONE.
+4. Truy vấn contract/order/invoice/appointment/ticket/task phải kiểm quyền module và scope từng bản ghi, không dùng quyền crm.view để mở toàn bộ chứng từ. Rà hiện trạng field-level045b để interface không làm lộ tiền cho CS.
+5. tools/ai-live chưa có tại thời điểm viết. Fixture JSON mới thuộc015b;023b phải cung cấp runner có `--cases <path>` trước khi build015b,044 nhận fixture vào harness release sau. Không tự ghi report model thật nếu thiếu key.
+
+## SPECIFICATIONS — hợp đồng dữ liệu và wiring
+- Action `contact.remember`/`contact.memory_forget`: crm.edit + writable contact scope; watcher chỉ đọc. Agent chỉ được nhớ nếu tool được cấp/published và contact đúng conversation đang phục vụ; không thêm meta-tool ghi bypass registry. Không tự bật tool cho agent đã cấu hình. Copilot không commit memory chỉ vì model đề xuất. Forget là xoá fact, không privacy.erase; undo không vượt scope/cap50.
+- Validate UUID, fact trim1–1000 ký tự, confidence hữu hạn0..1, nguồn từ server. Cấm credential/thẻ/CCCD trong fact kể cả governance PII tắt; message prompt injection không thành quyền viết. Foreign/forbidden trả lỗi trước đọc fact; VALIDATION_FAILED422, NOT_FOUND404 hoặc FORBIDDEN403 theo quy ước tránh leak; stale edit409, undo quá hạn theo kernel. Dùng undo window24h cho memory_forget, giữ snapshot đã redacted/audit đúng policy.
+- `memory.module.ts` đăng ký handlers/read/summary/repository; CrmModule import và public export cho controller/AI. `crm.jobs.module.ts` nạp summary-consumer, AI jobs nạp CrmModule để có handler khi resume. Helper memory độc lập, không nhét vào contact360 hoặc reply-context.
+- `crm/insights/read.ts` thay hard-code `/crm/ai`: scoped run counts và bounded peek thật từ ai_run/step, không gọi model theo mỗi GET/list row. next-action trả suggestion/provenance/status, model chỉ chạy theo action yêu cầu với credit quota; fallback rule phải ghi rõ là rule, không giả model.
+- KPI công nợ gồm phải thu còn lại/quá hạn không cộng double invoice partial pay; thống nhất customer-debt helper cho contact360, contracts-read và invoice list meta. LTV là thu ròng confirmed (refund âm đúng một lần); đơn huỷ không tự xoá tiền đã thu nếu chưa có refund, không cộng draft quote/order làm doanh thu. Contract giá trị hiệu lực/expiry theo signed status, không cộng phụ lục hai lần; booking/ticket/SLA/CSAT/task lấy dữ liệu hiện có, unavailable khác0.
+- `customer-links.ts` cung cấp bounded links tới quote/order/appointment/ticket/task và tình trạng SLA/CSAT cho Blocks360; shared DTO mở rộng tương thích, mock/http cùng schema. MemoryPanel nằm shared để customer/inbox dùng cùng API/hook, không import chéo feature component.
+- Snapshot summary chỉ chứa trường user được xem. `revision.ts` đọc snapshot có thứ tự ổn định gồm memory/timeline/linked entities và aggregate KPI, hash snapshot+scope+prompt/locale để kiểm cache. Event revision chỉ là hint invalidation, không là bằng chứng cache còn đúng khi event chậm/thiếu. Trước publish model result đọc lại fingerprint; lệch thì bỏ cache result và trả retry state, không vòng gọi model vô hạn. Tối đa một regeneration/request, lỗi provider hiện retry/fallback và không xoá summary hợp lệ của revision khác.
+- SQL: memory(contact_id,updated_at DESC,id) INCLUDE(confidence,source_run_id); deferred IDs-first lấy tối đa20 fact trước text. Normalized fact biểu thức/trigram index khớp câu lọc; khóa contact rồi tìm tương tự trên tối đa50 dòng. Đọc recent chứng từ equality contact/status trước sort_time/id, INCLUDE payload nhỏ; partial deleted/status indexes theo query. Aggregates không bị giới hạn bởi LIMIT recent; count queries cố định theo domain, không N+1 mỗi contact. Thêm EXPLAIN ANALYZE BUFFERS với seed lớn, so sánh own/all; không thêm index trùng sẵn có.
+- tools/parity/parity.manifest.ts đã vượt trần: chỉ1–2 dòng facade đăng ký module contact-memory.ts mới. Tất cả logic/screens/memory test tách riêng theo manifest; file backend≥500 phải tách trước bổ sung.
 
 ## TASK
 1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, skill): ghi `contact_memory` với provenance run/step/actor từ context tin cậy, không tin provenance do model gửi. Bảng hiện tại chưa có updated_at/step/actor, phải có migration trong manifest hoàn thiện. Chống trùng **văn bản** sau chuẩn hoá: trigram≥0.9, không tuyên bố đây là hiểu gần nghĩa. Trong transaction khoá contact trước đọc/ghi memory; tương đồng thì cập nhật timestamp/provenance, không thêm dòng. Cap50 áp cả khi51 request đồng thời; eviction chọn confidence thấp nhất, rồi updated_at cũ nhất, rồi id để thứ tự tất định. `contact.memory_forget { memory_id }` (xoá, có undo); undo cũng kiểm scope hiện tại và cap50, không lặng lẽ hồi sinh thành51 fact.
@@ -50,3 +157,27 @@
 ## CONSTRAINTS
 - Không lưu số CCCD / thẻ / mật khẩu vào memory (bộ lọc PII).
 - Không tự gửi khách dựa trên gợi ý.
+- LTV trong TIP này là **tổng thu ròng đã xác nhận của khách** (payment/deposit confirmed + refund âm), không đồng nhất doanh thu đơn với tiền đã thu. Ghi nhãn/tooltip nguồn và dùng cùng định nghĩa sales.collected của038 khi tích hợp sau; không đợi038 để build015b. Đơn huỷ không tự làm biến mất khoản thu confirmed nếu chưa có refund, không trừ refund hai lần.
+- Chỉ thêm summary/cache projection, không ghi lại giá/tiền/công nợ ledger. Mọi mutation fact/undo qua ActionExecutor; không nới quyền của agent, collaborator hoặc watcher.
+
+## Lệnh nghiệm thu builder (chưa chạy trong pha tài liệu)
+```powershell
+pnpm --filter @appchat/core exec vitest run test/contact-memory.test.ts test/contact-insights.test.ts
+pnpm --filter @appchat/api exec vitest run test/integration/contact-memory.test.ts
+pnpm --filter @appchat/web exec vitest run src/shared/contact-memory/MemoryPanel.test.tsx
+pnpm --filter @appchat/web exec playwright test e2e/contact-memory.spec.ts
+pnpm --filter @appchat/web exec playwright test e2e/http/contact-memory.spec.ts
+pnpm ai:live --cases fixtures/ai-eval/contact-memory.json
+pnpm i18n:check
+pnpm parity contact-memory
+pnpm parity --done
+```
+`ai:live --cases` là hợp đồng runner023b cần bổ sung trước implementation, không khẳng định script đã tồn tại. Fixture chỉ dùng ephemeral workspace, không tenant demo. Tests DB thật cho cap/concurrency/undo/scope, không mock Prisma thay bằng chứng. Ghi kết quả từng ca live và model/prompt/hash/tokens; safety100%, không dùng mock làm nghiệm thu live. Cổng D59 theo BUILDER-HANDOFF trước commit và chốt TIP; không chạy full suite trong pha docs.
+
+## BUILDER-CHECKLIST
+- [ ] Đối chiếu71 đường dẫn manifest; M hiện có, C chưa có; cập nhật theo prerequisite đã merge trước khi code.
+- [ ] Action-first, tenant isolation và writable/read scope của memory/summary/KPI qua API/agent đều có negative tests.
+- [ ] Migration/backfill/provenance/cap50/undo và EXPLAIN/query count được chứng minh bằng Postgres thật.
+- [ ] Summary không stale/leak, CRM AI endpoint/nút Giao AI không fake; bộ ca live3 case có evidence.
+- [ ] Không buộc015b chờ036/038/044, không sửa monolith parity ngoài facade; UI mock/http/vi/en/mobile/parity được kiểm.
+- [ ] Report ghi rõ runtime chưa chạy hoặc fail nếu có; D59, commit SHA sạch và PR chỉ vào dev khi thi công.
