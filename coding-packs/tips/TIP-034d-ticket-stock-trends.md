@@ -1,6 +1,7 @@
 # TIP-034d — Observed ticket stock trends, current cohort and honest AI summary
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate 034d before045.
 - **Parallel-safe with TIP-003b (Ticket stock manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before034d.
 - **Parallel-safe with TIP-003c (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`, `packages/core/src/support/support.module.ts`; integrate 003c before034d.
 - **Parallel-safe with TIP-012b (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 012b before034d.

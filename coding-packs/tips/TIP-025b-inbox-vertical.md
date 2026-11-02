@@ -1,6 +1,7 @@
 # TIP-025b: Inbox — nối hai chiều Zalo, CRM, Commerce và Trợ lý AI
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`; integrate 025b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/channels/operations/operation-service.ts`, `packages/core/src/inbox/actions/message.handlers.ts`, `packages/core/src/inbox/public.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 025b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/crm/actions/contact-write.handlers.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/public.ts`; integrate 025b before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/domains/tickets.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 025b before034d.

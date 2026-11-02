@@ -1,6 +1,7 @@
 # TIP-019c: Bounded read-only AI utility skills
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`; integrate 019c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/agents/agent.runtime.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/shared/src/i18n/server/en/ai.ts`, `packages/shared/src/i18n/server/vi/ai.ts`; integrate 019c before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/core/src/authz/fields/history-provenance.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019c before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019c before034c.

@@ -1,6 +1,7 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `apps/worker/src/main.ts`, `apps/worker/src/start-events.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/identity/jobs/tenant-provision.processor.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/events/events.runner.ts`, `packages/core/src/kernel/outbox/outbox.jobs.module.ts`; integrate 003b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/sales/quotes/services/quote-system.ts`; integrate 003b before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before034d.

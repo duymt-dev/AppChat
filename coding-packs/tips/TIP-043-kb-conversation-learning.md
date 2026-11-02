@@ -1,6 +1,7 @@
 # TIP-043 — Học hỏi–đáp từ hội thoại, người duyệt trước khi vào RAG
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate 043 before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/ai/src/index.ts`, `packages/ai/src/prompts/index.ts`, `packages/core/src/ai/ai.module.ts`; integrate 043 before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 043 before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 043 before034c.

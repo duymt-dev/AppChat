@@ -1,6 +1,7 @@
 # TIP-030b: Hợp đồng từ file — tải PDF / DOCX hợp đồng có sẵn, từ tệp khách gửi trong hội thoại, chọn mẫu theo loại, phụ lục, AI soạn nháp
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`; integrate 030b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/ai/src/index.ts`, `packages/ai/src/prompts/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 030b before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 030b before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 030b before034c.

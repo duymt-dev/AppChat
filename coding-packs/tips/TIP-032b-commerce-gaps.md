@@ -1,6 +1,7 @@
 # TIP-032b: Commerce — vá luật đã chốt còn hở: ngưỡng duyệt cấu hình được, báo giá → HĐ hoặc đơn, VietQR ảnh thật, gửi chứng từ qua webchat, gửi xác nhận đơn / phiếu thu, liệu trình khi cọc, catalog còn thiếu
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `package.json`, `packages/core/src/index.ts`, `pnpm-lock.yaml`; integrate 032b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/catalog/catalog.module.ts`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 032b before022c.
 - **Parallel-safe with TIP-044 (AI release eval manifest):** sequential, shares `package.json`, `pnpm-lock.yaml`; integrate 032b before044.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`; integrate 032b before015g.

@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 50 | 11 | 21 | 10 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 110 | 1 | 0 | 5 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 18 |
-| **Tổng** | **541** | **389** | **118** | **41** | **369** | **34** | **66** | **89** |
+| **Tổng** | **541** | **389** | **118** | **41** | **374** | **34** | **66** | **88** |
 
-## Lỗ hổng chưa có TIP nhận (89)
+## Lỗ hổng chưa có TIP nhận (88)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -55,7 +55,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
-| BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
 | STD-code-testing-4b | MỘT PHẦN | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | E |
@@ -1123,7 +1122,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | — | CHƯA | không file error.tsx / ErrorBoundary trong apps/web/src |
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | CHƯA | prom-client chưa cài |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
-| BP-11-b | Log pino JSON có traceId, redact PII; traceId nginx → api → job | plans/BLUEPRINT.md:1458 | — | MỘT PHẦN | TIP001 có kernel/logger/logger.ts:23–24 redaction/context, middleware/trace.middleware.ts:8, outbox.ts:28 và logger.test.ts. Rà 2026-11-02: infra/ chưa tồn tại; chưa chứng minh nginx → api → job xuyên tiến trình. Cần TIP045 cụ thể cho proxy/log pipeline và test propagation; không coi unit logger là bằng chứng toàn tuyến. |
+| BP-11-a-1 | Six provisioned Grafana dashboards use real bounded metric/log sources | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.3–4/AC7; exact six JSON files and native query evidence required |
+| BP-11-a-2 | Exact alert thresholds, independent uptime and email+Telegram delivery | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.5–6/AC8; rule edge tests plus actual approved delivery, not config-only proof |
+| BP-11-a-3 | Native host/private listeners/SSH/TLS/least privilege and operator MFA hardening | plans/BLUEPRINT.md §11.5 | 045 | CHƯA | TIP045 SPEC1/3.6,AC1/2/6/12; no native Grafana local-user2FA assumption |
+| BP-11-a-4 | Offsite PG+WAL and files have a complete consistent recoverable checkpoint | plans/BLUEPRINT.md §11.1–4; REQ-N08a | 045 | CHƯA | TIP045 SPEC4.1–7/AC9; restore point+file snapshot+keys+durable journal reference, not unrelated copies |
+| BP-11-a-5 | Isolated restore drill measures RPO/RTO and enforces latest privacy journal before reopening | plans/BLUEPRINT.md §11.2–4; REQ-N08a;015c | 045 | CHƯA | TIP045 SPEC4.8–11/AC10–11; external effects remain quarantined and owned target mandatory |
+| BP-11-b | Log pino JSON có traceId, redact PII; traceId nginx → api → job | plans/BLUEPRINT.md:1458 | 045/045b | MỘT PHẦN | TIP045 SPEC3/AC7 owns nginx→API→job→Loki trace proof;045b app instrumentation. Existing logger unit is not cross-process evidence; runtime remains partial |
 | BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014b | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
 | CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |

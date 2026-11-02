@@ -1,6 +1,7 @@
 # TIP-026b: CRM360 có thao tác thật — ghi chú, việc chăm sóc, cơ hội và Kanban đủ dữ liệu
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`; integrate 026b before045.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/crm/actions/contact-write.handlers.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/public.ts`; integrate 026b before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 026b before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/data-transfer.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/data-transfer.json`, `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/actions/src/index.ts`, `packages/core/src/data-transfer/data-transfer.providers.ts`, `packages/core/src/data-transfer/services/planner.ts`, `packages/core/src/data-transfer/types.ts`, `packages/shared/src/api/data-transfer.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/data-transfer/registry.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 026b before034c.

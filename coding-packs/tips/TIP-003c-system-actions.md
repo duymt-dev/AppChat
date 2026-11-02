@@ -1,6 +1,7 @@
 # TIP-003c — Canonical private system-transition adapters
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/index.ts`; integrate 003c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 003c before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/sales/quotes/services/quote-system.ts`, `packages/core/src/sales/system/handlers.ts`; integrate 003c before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`, `packages/core/src/support/support.module.ts`; integrate 003c before034d.

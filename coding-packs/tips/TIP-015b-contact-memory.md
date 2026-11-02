@@ -1,6 +1,7 @@
 # TIP-015b: Trí nhớ khách của AI — `contact_memory`, `contact.remember`, tóm tắt Hồ sơ 360°, KPI 360° (công nợ, hợp đồng, đơn / thu gần nhất), cột "AI gợi ý"
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/index.ts`; integrate 015b before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/ai/src/prompts/index.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/reply-tools.ts`; integrate 015b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/public.ts`; integrate 015b before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015b before034d.

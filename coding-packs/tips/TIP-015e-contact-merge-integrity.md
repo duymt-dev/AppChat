@@ -1,6 +1,7 @@
 # TIP-015e: Merge/dedupe khách với lineage và quyền hiện tại
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`, `packages/core/src/kernel/kernel.module.ts`; integrate 015e before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/send-fence.ts`, `packages/core/src/kernel/actions/action-context.ts`; integrate 015e before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/lifecycle/family.ts`, `packages/core/src/crm/lifecycle/lock.ts`, `packages/core/src/crm/public.ts`, `packages/core/src/crm/services/stage-rules.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`; integrate 015e before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/authz/fields/history-provenance.ts`, `packages/core/src/support/services/tickets-read.service.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015e before034d.

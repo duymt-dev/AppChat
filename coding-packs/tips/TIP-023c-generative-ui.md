@@ -1,6 +1,7 @@
 # TIP-023c: Generative UI (D55) + Trợ lý theo màn có ngữ cảnh + kết nối kênh / nền tảng qua Trợ lý (QR Zalo trong chat, form có ô bí mật)
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `packages/core/src/index.ts`, `packages/core/src/kernel/kernel.module.ts`, `pnpm-lock.yaml`; integrate 023c before045.
 - **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/ai/src/index.ts`, `packages/ai/src/prompts/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/assistant/pending-action.ts`, `packages/core/src/ai/assistant/turn.service.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/shared/src/i18n/server/en/ai.ts`, `packages/shared/src/i18n/server/vi/ai.ts`; integrate 023c before022c.
 - **Parallel-safe with TIP-044 (AI release eval manifest):** sequential, shares `pnpm-lock.yaml`; integrate 023c before044.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/tickets.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023c before034d.

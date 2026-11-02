@@ -1,6 +1,7 @@
 # TIP-032d — Real order and invoice attachment tabs
 
 ## HEADER
+- **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `apps/worker/tsup.config.ts`; integrate 032d before045.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 032d before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 032d before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 032d before034b.
