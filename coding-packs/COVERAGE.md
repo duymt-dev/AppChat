@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 116 | 22 | 8 | 12 | 23 | 2 | 0 | 29 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 32 | 3 | 5 | 43 | 11 | 21 | 24 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 95 | 194 | 5 | 4 | 81 | 1 | 0 | 25 |
-| E. standards/* | 159 | 37 | 2 | 6 | 62 | 2 | 40 | 39 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 7 | 6 | 0 | 49 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 43 |
-| **Tổng** | **570** | **318** | **118** | **42** | **310** | **35** | **66** | **223** |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 95 | 194 | 5 | 4 | 81 | 1 | 0 | 23 |
+| E. standards/* | 159 | 37 | 2 | 6 | 62 | 2 | 40 | 38 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 7 | 6 | 0 | 48 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 42 |
+| **Tổng** | **570** | **318** | **118** | **42** | **310** | **35** | **66** | **218** |
 
-## Lỗ hổng chưa có TIP nhận (223)
+## Lỗ hổng chưa có TIP nhận (218)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -105,8 +105,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-conversation.untag | MỘT PHẦN | `conversation.untag` có trong registry + handler | D |
 | ACT-integration.sync_now | CHƯA | `integration.sync_now` có trong registry + handler | D |
 | ACT-integration.test | CHƯA | `integration.test` có trong registry + handler | D |
-| ACT-kb.folder.delete | CHƯA | `kb.folder.delete` có trong registry + handler | D |
-| ACT-kb.folder.update | CHƯA | `kb.folder.update` có trong registry + handler | D |
 | ACT-message.unpin | MỘT PHẦN | `message.unpin` có trong registry + handler | D |
 | ACT-message.unreact | MỘT PHẦN | `message.unreact` có trong registry + handler | D |
 | BP-4.4-ai-c | CHƯA | GET /runs/:id (+steps) | D |
@@ -121,7 +119,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | STD-actions-registry-12 | MỘT PHẦN | Mỗi action có file test riêng `*.action.test.ts`: happy, 403, SCOPE_FORBIDDEN, policy từng nguồn, idempotency, undo, INVALID_TRANSITION/STALE | E |
 | STD-ai-gateway-11a | MỘT PHẦN | Mỗi bước ghi `ai_run_step` + phát `run.step` qua WS để Owner xem trực tiếp | E |
-| STD-ai-rag-3b | MỘT PHẦN | Mặc định visibility của thư mục kế thừa xuống tài liệu | E |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-authz-rbac-D32b | MỘT PHẦN | Chuyển phụ trách chỉ `crm.reassign`; Agent / Trợ lý chỉ **đề xuất (approval)** | E |
@@ -200,7 +197,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-membersexport | GIẢ | Thành viên: Xuất danh sách | F |
 | PRO-settings-widgetacts | GIẢ | Widget web: thêm / sửa nút hành động | F |
 | PRO-settings-docs | GIẢ | Cài đặt: chip "Tài liệu hướng dẫn" | F |
-| PRO-settings-ragdownload | GIẢ | Dữ liệu RAG: nút tải tệp nguồn | F |
 | PRO-settings-tagslearn | GIẢ | Thẻ & nhãn: "Tìm hiểu thêm" | F |
 | PRO-settings-navcounts | GIẢ | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | F |
 | PRO-settings-booking | CHƯA | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | F |
@@ -230,7 +226,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-025-1 | MỘT PHẦN | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | G |
 | DEF-025-2 | GIẢ | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | G |
 | DEF-026-2 | CHƯA | Kanban khách > 50 thẻ / cột có "Xem thêm" | G |
-| DEF-027-1 | CHƯA | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | G |
 | DEF-027-2 | CHƯA | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | G |
 | DEF-028-1 | MỘT PHẦN | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | G |
 | DEF-030-3 | CHƯA | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | G |
@@ -592,7 +587,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N06d | TLS ở production | 01-REQUIREMENTS-MATRIX.md:214 | 045 | CHƯA | chưa có `infra/` (nginx) |
 | REQ-N07 | Hiệu năng: tin p95 < 1s, API đọc p95 < 300ms, uptime 99.9% — đo + giám sát | 01-REQUIREMENTS-MATRIX.md:215 | 045b, 046 | CHƯA | chưa có `/metrics` (TIP-045b mục 1), chưa đo p95 (TIP-046) |
 | REQ-N08a | Backup Postgres (PITR / dump hằng ngày), RPO ≤ 5′, RTO ≤ 1h, diễn tập restore | 01-REQUIREMENTS-MATRIX.md:216 | 045, 046 | CHƯA | chưa có `infra/` (pgBackRest) |
-| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | — | CHƯA | quyền `privacy.erase` có (packages/shared/src/authz/permissions.ts:5) nhưng không action; Blueprint §3.4 `contact.forget` ẩn danh hoá; TIP-015 giao TIP-043 (không có trong 043), TIP-015b dùng lại tên cho xoá fact trí nhớ, TIP-045b không nêu |
+| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | — | CHƯA | packages/shared/src/authz/permissions.ts:5 có privacy.erase nhưng chưa action; DC-235 giữ contact.forget cho ẩn danh, 015b dùng contact.memory_forget cho fact. Vẫn cần TIP privacy riêng, không được coi TIP-043 học KB đã nhận |
 | REQ-N09a | Log JSON có `traceId` | 01-REQUIREMENTS-MATRIX.md:217 | 001 | ĐẠT | packages/core/src/kernel (pino + traceId); test packages/core/test/logger.test.ts, kernel.test.ts "acceptTraceId" |
 | REQ-N09b | App metrics `/metrics` (API, queue, kênh, AI, credit) | 01-REQUIREMENTS-MATRIX.md:217 | 045b | CHƯA | không có prom-client / route /metrics; TIP-045b mục 1 |
 | REQ-N09c | Prometheus + Alertmanager + Grafana + Loki + Alloy, exporters, dashboard + cảnh báo trong repo | 01-REQUIREMENTS-MATRIX.md:217 | 045 | CHƯA | chưa có `infra/` |
@@ -1077,7 +1072,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | — | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
 | ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | — | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update |
-| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions (actions.json); BP = privacy.erase ẩn danh hoá; 015b `contact.forget{memory_id}` là xoá fact, khác nghĩa; TIP-015:60 đẩy sang 043 nhưng 043 không ghi |
+| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions; BP = privacy.erase ẩn danh hoá. DC-235 đã sửa tên xoá fact dự kiến ở 015b thành contact.memory_forget; nghĩa vụ privacy vẫn chưa có TIP, không thuộc học KB của 043 |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
 | ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
@@ -1088,8 +1083,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
 | ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP'; 023c nói 'probe connector' nhưng không định nghĩa action |
-| ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | — | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
@@ -1302,7 +1297,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-1 | Một kho / workspace theo thư mục + thẻ; origin upload/url/text/catalog/conversation/drive(Sắp có) | standards/ai/rag.md:7 | 020 | ĐẠT | packages/core/src/ai/kb/kb.handlers.ts; kb.read.ts:25; test apps/api/test/integration/kb.test.ts:128 |
 | STD-ai-rag-2 | Agent nhận tri thức theo `kb_scope {folder_ids, tags}`; Trợ lý tìm cả kho theo quyền | standards/ai/rag.md:9 | 020, 021 | ĐẠT | packages/core/src/ai/kb/search.ts:57; test kb.test.ts:150 |
 | STD-ai-rag-3a | `visibility` public/internal; agent trực kênh chỉ public; delegate = scope ∩ quyền người ra lệnh | standards/ai/rag.md:13 | 020, 022 | ĐẠT | kb/kb-search.handler.ts:15; test kb.test.ts:150,160 |
-| STD-ai-rag-3b | Mặc định visibility của thư mục kế thừa xuống tài liệu | standards/ai/rag.md:17 | — | MỘT PHẦN | `kb_folder.visibility` có cột (ai-kb.prisma:37) nhưng `kb.add_source` dùng `input.visibility` mặc định 'public' (settings-ai.ts:43, kb.handlers.ts:78), không đọc thư mục |
+| STD-ai-rag-3b | Mặc định visibility của thư mục kế thừa xuống tài liệu | standards/ai/rag.md:17 | 020b | MỘT PHẦN | `kb_folder.visibility` có cột (ai-kb.prisma:37) nhưng `kb.add_source` dùng `input.visibility` mặc định 'public' (settings-ai.ts:43, kb.handlers.ts:78), không đọc thư mục |
 | STD-ai-rag-4 | Giá / tồn / KM / lịch / công nợ chỉ qua read action; đoạn có giá `volatile` không vào prompt | standards/ai/rag.md:18 | 020, 027 | ĐẠT | packages/ai/src/kb/chunker.ts:76; catalog/events/catalog-sync.ts:1; test kb.test.ts:95,150, catalog.test.ts:212 |
 | STD-ai-rag-5 | Nạp: parse → cắt đoạn theo cấu trúc 400–800 token chồng 10–15% → embedMany; idempotent sha256; sản phẩm đổi → nạp lại | standards/ai/rag.md:20 | 020, 027 | ĐẠT | chunker.ts:25-26; kb.handlers.ts:53; catalog-sync.ts:76; test kb.test.ts:95,113, catalog.test.ts:212 |
 | STD-ai-rag-6a | Hybrid: top-20 vector (HNSW + iterative_scan) + top-20 từ khoá → RRF k=60 → top-6 | standards/ai/rag.md:25 | 020 | ĐẠT | packages/ai/src/kb/rrf.ts:2; core/src/ai/kb/search.ts:90; test kb.test.ts:141 |
@@ -1647,7 +1642,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-widgetacts | Widget web: thêm / sửa nút hành động | docs/06-prototype/AppChat.dc.html:7585 | — | GIẢ | WidgetSection.tsx:72,91 `message.info('addActionSoon')` |
 | PRO-settings-slanew | SLA: tạo chính sách mới theo kênh / hạng | docs/06-prototype/AppChat.dc.html:7394 | — | NGOÀI | REQ-H05 P3; SlaSection.tsx:41 nút disabled + tooltip |
 | PRO-settings-docs | Cài đặt: chip "Tài liệu hướng dẫn" | docs/06-prototype/AppChat.dc.html:6128 | — | GIẢ | SettingsShell.tsx:40 `message.info('docsSoon')` |
-| PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | — | GIẢ | RagSection.tsx:67 không onClick |
+| PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | GIẢ | RagSection.tsx:67 không onClick |
 | PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | — | GIẢ | TagsSection.tsx:83 không onClick |
 | PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | — | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng |
 | PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | — | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ |
@@ -1732,7 +1727,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | CHƯA | apps/web/src/features/inbox/components/Blocks360.tsx:2-3 "chưa có dữ liệu"; 015b chỉ ghi KPI + đơn / thu gần nhất (lịch / ticket / SLA chưa ai nhận) |
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | — | CHƯA | Không có load-more ở features/customers |
-| DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | — | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
+| DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
 | DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | — | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser |
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | — | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |

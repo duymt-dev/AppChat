@@ -1,5 +1,7 @@
 ### COMPLETION REPORT — TIP-020
 
+**Bổ sung 2026-11-02:** [TIP-020b](../tips/TIP-020b-kb-source-management.md) nhận folder update/delete, kế thừa visibility và nút tải nguồn; [TIP-043](../tips/TIP-043-kb-conversation-learning.md) nhận học từ hội thoại có người duyệt. Report cũ không chứng minh các phần này đã làm; AC cụ thể nằm trong hai TIP mới.
+
 **STATUS:** DONE (embedding giả — chưa nghiệm thu với model embedding thật, Q-001)
 **COMMIT:** `1b4ebf8` (code) trên nhánh `tip/020-rag-kb` (xếp chồng trên `tip/019-ai-runtime`) — SHA cuối ở bảng tiến độ `goals/GOAL-BACKEND.md`
 

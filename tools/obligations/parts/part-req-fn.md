@@ -140,7 +140,7 @@
 | REQ-N06d | TLS ở production | 01-REQUIREMENTS-MATRIX.md:214 | 045 | CHƯA | chưa có `infra/` (nginx) |
 | REQ-N07 | Hiệu năng: tin p95 < 1s, API đọc p95 < 300ms, uptime 99.9% — đo + giám sát | 01-REQUIREMENTS-MATRIX.md:215 | 045b, 046 | CHƯA | chưa có `/metrics` (TIP-045b mục 1), chưa đo p95 (TIP-046) |
 | REQ-N08a | Backup Postgres (PITR / dump hằng ngày), RPO ≤ 5′, RTO ≤ 1h, diễn tập restore | 01-REQUIREMENTS-MATRIX.md:216 | 045, 046 | CHƯA | chưa có `infra/` (pgBackRest) |
-| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | — | CHƯA | quyền `privacy.erase` có (packages/shared/src/authz/permissions.ts:5) nhưng không action; Blueprint §3.4 `contact.forget` ẩn danh hoá; TIP-015 giao TIP-043 (không có trong 043), TIP-015b dùng lại tên cho xoá fact trí nhớ, TIP-045b không nêu |
+| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | — | CHƯA | packages/shared/src/authz/permissions.ts:5 có privacy.erase nhưng chưa action; DC-235 giữ contact.forget cho ẩn danh, 015b dùng contact.memory_forget cho fact. Vẫn cần TIP privacy riêng, không được coi TIP-043 học KB đã nhận |
 | REQ-N09a | Log JSON có `traceId` | 01-REQUIREMENTS-MATRIX.md:217 | 001 | ĐẠT | packages/core/src/kernel (pino + traceId); test packages/core/test/logger.test.ts, kernel.test.ts "acceptTraceId" |
 | REQ-N09b | App metrics `/metrics` (API, queue, kênh, AI, credit) | 01-REQUIREMENTS-MATRIX.md:217 | 045b | CHƯA | không có prom-client / route /metrics; TIP-045b mục 1 |
 | REQ-N09c | Prometheus + Alertmanager + Grafana + Loki + Alloy, exporters, dashboard + cảnh báo trong repo | 01-REQUIREMENTS-MATRIX.md:217 | 045 | CHƯA | chưa có `infra/` |

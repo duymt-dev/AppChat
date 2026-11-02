@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Checkpoint KB mới nhất:** có `TIP-020b-kb-source-management.md` và `TIP-043-kb-conversation-learning.md`; năm nghĩa vụ đã có TIP cụ thể nhận, còn **218 lỗ hổng / 1.459 dòng**. Xem `reports/kb-planning-audit-2026-11-02.md`. Privacy vẫn chưa có TIP; đã dành riêng tên contact.forget, xoá fact 015b dùng contact.memory_forget. Chưa rà độc lập, chưa bắt đầu code.
+
 - **Checkpoint mới nhất:** đã viết `tips/TIP-036-loyalty.md` (63 file manifest, 10 AC), có gate Q-027 đang hỏi Chủ nhà; chưa rà độc lập. Xem `reports/tip-036-planning-audit-2026-11-02.md`. Sổ hiện 1.459 dòng, 223 lỗ hổng; tiếp theo viết 037–046 và TIP bổ sung, đồng thời rà các phần chưa hết.
 
 - Đã bắt đầu rà nốt phần deferred, ghi bằng chứng tại `reports/coverage-deferred-audit-2026-11-02.md`.

@@ -1,5 +1,7 @@
 ### COMPLETION REPORT — TIP-027
 
+**Bổ sung 2026-11-02:** [TIP-020b](../tips/TIP-020b-kb-source-management.md) nhận DEF-027-1, guard nguồn origin catalog ở server/UI (TASK 2, AC4); đồng bộ sản phẩm vẫn hoạt động. Không sửa file TIP-027 đã DONE.
+
 **STATUS:** DONE
 **COMMIT:** `907f71a` (code) + commit report / tiến độ trên nhánh `tip/027-catalog` (xếp chồng trên `tip/026-customers`)
 

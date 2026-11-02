@@ -1,7 +1,7 @@
 # AppChat — Task Graph
 
 > Vibecode Kit v5.0 — BƯỚC 5 (TASK GRAPH) · 2026-10-28
-> **46 TIP + 6 TIP bổ sung (023b, 023c, 032b, 030b, 015b, 045b — 2026-11-01, DC-224…232)**, chia **9 wave** (~656 giờ builder). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
+> **46 TIP + 7 TIP bổ sung (023b, 023c, 032b, 030b, 015b, 045b, 020b — DC-224…236)**, chia **9 wave** (ước lượng cũ ~656 giờ cần rà lại sau khi đủ TIP). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
 > Wave là thứ tự phụ thuộc, không phải tuần lịch. Trong một wave, các TIP không phụ thuộc nhau chạy song song được (mỗi TIP một nhánh / worktree riêng).
 
 ---
@@ -103,7 +103,8 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | 040 | Quản trị nền tảng: workspaces, gói, đơn giá model, LLM provider (probe), duyệt chuyển khoản, agent template | 009, 010, 019, 021 | P1 | 12 | W8 | L08 | authz/rbac-permissions |
 | 041 | Lưu trữ / khôi phục / xoá workspace (gói Miễn phí 90 ngày) | 002, 009 | P1 | 8 | W8 | A09 | database/tenant-db |
 | 042 | Vai trò tuỳ biến + Nhóm + uỷ quyền + chia lead tự động | 005, 013, 015 | P1 | 12 | W8 | A05b, F01c | authz/rbac-permissions |
-| 043 | AI học từ hội thoại (đề xuất hỏi–đáp có người duyệt) | 020, 016 | P1 | 8 | W8 | D04b | ai/rag |
+| 043 | [Học từ hội thoại có người duyệt](tips/TIP-043-kb-conversation-learning.md): pending không vào RAG, PII, CAS/retry/credit, API + review UI | 020, 020b, 016, 022, 023b; tích hợp sau 036 | P1 | L | W8 | D04b | ai/rag, ai/agent-gateway, events/outbox |
+| 020b | [Quản lý nguồn RAG](tips/TIP-020b-kb-source-management.md): folder update/delete, kế thừa visibility phía server, catalog guard, tải nguồn thật | 020, 027, 023b; tích hợp sau 036, trước 043 | P0 | M | W8 | D04a, D04d | ai/rag, database/indexing, actions/action-registry |
 | 044 | AI eval gate: harness replay + live, đủ các suite (`assistant-*`, `agent-*`, `rag`, `doc-draft`, `delegate-consult`, `genui`; gộp bộ `pnpm ai:live`), báo cáo, CI | 022, 023, 024, 028, 020 | P0 | 16 | W9 | N11 | ai/eval |
 | 045 | Hạ tầng production: `infra/` (provision, nginx, systemd + PM2, PgBouncer, pgBackRest, LibreOffice + font), Prometheus / Alertmanager / Grafana / Loki / Alloy, dashboard + alert, deploy `releases/<sha>` | 001 | P0 | 20 | W9 | N01, N06, N08, N09 | Blueprint §11 |
 | 046 | Release hardening: đo p95, rà bảo mật, chạy parity mọi màn, e2e mobile, độ phủ `en`, diễn tập backup / restore; CI `backend-it.yml` (Postgres + Redis service) + e2e http (Q-008), `pnpm smoke:build` (Q-009); rerank + job re-embed khi đổi model embed (rag §6, §10) | tất cả | P0 | 16 | W9 | N06, N07, N14 | tất cả |

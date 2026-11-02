@@ -1,6 +1,8 @@
 # TIP-015b: Trí nhớ khách của AI — `contact_memory`, `contact.remember`, tóm tắt Hồ sơ 360°, KPI 360° (công nợ, hợp đồng, đơn / thu gần nhất), cột "AI gợi ý"
 
 ## HEADER
+- **Parallel-safe with TIP-020b:** sequential, shares `packages/actions/src/index.ts`; integrate 020b after 036, before 043/045b. For 043 also shares `packages/db/prisma/tenant/ai-kb.prisma`, `packages/core/src/ai/ai.module.ts`, `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/src/features/settings/components/RagSection.tsx`, `apps/web/src/shared/api/mock/domains/settings-ai.ts`, settings/action locale files.
+- **Parallel-safe with TIP-043:** sequential, shares `packages/actions/src/index.ts` and (where applicable) `packages/core/src/ai/jobs/ai.jobs.module.ts`; TIP-043 integrates after 015b/023b/023c/030b/032b/036 and before 045b.
 - TIP-ID: TIP-015b (bổ sung TIP-015 / 022 — chèn sau TIP-023b, DC-231)
 - Project: AppChat V2
 - Module: `packages/db/prisma/tenant/crm.prisma` (`contact_memory` đã có bảng) · `packages/core/src/crm/services/contact360.ts` · `packages/core/src/ai/reply/{reply-context, reply-tools}.ts` · `packages/actions/src/crm.ts` · FE `features/customers/components/Profile*`
@@ -14,7 +16,7 @@
 - Hồ sơ 360°: `kpis: []`, `recent_order` / `recent_payment` rỗng, không có công nợ / hợp đồng hiệu lực (`contact360.ts`); quy đổi điểm sai `×10` (TIP-036 sửa).
 
 ## TASK
-1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, skill): ghi `contact_memory` (nguồn run / bước, người hoặc agent); chống trùng gần nghĩa (cùng khách, fact chuẩn hoá không dấu trùng ≥ 0.9 trigram → cập nhật `updated_at`, không thêm dòng); tối đa 50 fact / khách (cũ nhất có độ tin thấp bị thay). `contact.forget { memory_id }` (xoá, có undo).
+1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, skill): ghi `contact_memory` (nguồn run / bước, người hoặc agent); chống trùng gần nghĩa (cùng khách, fact chuẩn hoá không dấu trùng ≥ 0.9 trigram → cập nhật `updated_at`, không thêm dòng); tối đa 50 fact / khách (cũ nhất có độ tin thấp bị thay). `contact.memory_forget { memory_id }` (xoá, có undo).
 2. **Agent trực kênh tự ghi:** tool `remember` cho agent (sau mỗi lượt, model đề xuất fact mới từ tin khách; chỉ fact về khách, không ghi PII nhạy cảm theo bộ lọc PII sẵn có của TIP-022). Lắp ngữ cảnh đọc ≤ 20 fact mới nhất.
 3. **Tóm tắt 360°:** `contact.summarize { contact_id }` (read, skill) → 3–5 dòng từ timeline + memory + chứng từ; cache theo `updated_at` khách, hiện ở đầu Hồ sơ 360° (khối "AI tóm tắt") và trong `contact.get` của 023b.
 4. **KPI 360° thật:** công nợ (đề nghị thanh toán chưa thu, quá hạn), hợp đồng hiệu lực + giá trị, đơn gần nhất, khoản thu gần nhất, điểm (sau 036) — điền `kpis[]`, `recent_order`, `recent_payment` đúng shape FE.

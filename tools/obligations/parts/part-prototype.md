@@ -82,7 +82,7 @@
 | PRO-settings-widgetacts | Widget web: thêm / sửa nút hành động | docs/06-prototype/AppChat.dc.html:7585 | — | GIẢ | WidgetSection.tsx:72,91 `message.info('addActionSoon')` |
 | PRO-settings-slanew | SLA: tạo chính sách mới theo kênh / hạng | docs/06-prototype/AppChat.dc.html:7394 | — | NGOÀI | REQ-H05 P3; SlaSection.tsx:41 nút disabled + tooltip |
 | PRO-settings-docs | Cài đặt: chip "Tài liệu hướng dẫn" | docs/06-prototype/AppChat.dc.html:6128 | — | GIẢ | SettingsShell.tsx:40 `message.info('docsSoon')` |
-| PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | — | GIẢ | RagSection.tsx:67 không onClick |
+| PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | GIẢ | RagSection.tsx:67 không onClick |
 | PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | — | GIẢ | TagsSection.tsx:83 không onClick |
 | PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | — | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng |
 | PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | — | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ |

@@ -1,6 +1,8 @@
 # TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
 
 ## HEADER
+- **Parallel-safe with TIP-020b:** sequential, shares `packages/actions/src/index.ts`; integrate 020b after 036, before 043/045b. For 043 also shares `packages/db/prisma/tenant/ai-kb.prisma`, `packages/core/src/ai/ai.module.ts`, `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/src/features/settings/components/RagSection.tsx`, `apps/web/src/shared/api/mock/domains/settings-ai.ts`, settings/action locale files.
+- **Parallel-safe with TIP-043:** sequential, shares `packages/actions/src/index.ts` and (where applicable) `packages/core/src/ai/jobs/ai.jobs.module.ts`; TIP-043 integrates after 015b/023b/023c/030b/032b/036 and before 045b.
 - TIP-ID: TIP-045b (bổ sung — chèn trước TIP-045 / 046, DC-232)
 - Project: AppChat V2
 - Module: `packages/core/src/kernel/{metrics, http/safe-fetch, files/upload-guard, ratelimit, audit}/**` · `apps/api/src/{main.ts, http/files.controller.ts}` · `packages/core/src/inbox/actions/message.handlers.ts` · `packages/core/src/ai/reply/reply.service.ts` · `packages/core/src/kernel/actions/executor.ts` (202 job) · `packages/core/src/billing/jobs/reconcile.ts` · `packages/actions/src/identity.ts` (`workspace.transfer_ownership`) · serializer CRM
