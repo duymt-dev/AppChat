@@ -6,7 +6,7 @@ Chủ nhà yêu cầu2026-11-02; áp dụng cho câu A (chỉ tài liệu). Khô
 
 | Luồng | Hợp đồng tích hợp / ca nghiệm thu cần có | TIP liên quan và tình trạng |
 |---|---|---|
-| Kết nối Zalo bằng Trợ lý → nhận tin | QR hết hạn/đăng nhập lại; secret không qua model; webhook/poll replay không tạo trùng tin/khách; xác định đúng tenant, channel, conversation, contact | 023c; supplemental channels014b còn phải viết, không coi019/014 DONE là bằng chứng đủ |
+| Kết nối Zalo bằng Trợ lý → nhận tin | QR hết hạn/đăng nhập lại; secret không qua model; webhook/poll replay không tạo trùng tin/khách; xác định đúng tenant, channel, conversation, contact | 023c; 014b now has provider/session/receipt/history manifest and acceptance; not implemented, không coi019/014 DONE là bằng chứng đủ |
 | Tin Zalo ↔ hồ sơ CRM | Nhận diện khách không nhập nhằng; mở360 đúng khách từ hội thoại; cập nhật hồ sơ/fact hiển thị ngược lại; merge/undo không mất history; watcher chỉ đọc, không được ghi | 015b,042c; supplemental inbox025b và CRM còn phải viết |
 | Ngữ cảnh khách ↔ Agent/Trợ lý | Người dùng hỏi trong hội thoại hoặc360 → tra dữ liệu theo scope, nhớ fact đúng provenance; không có agent thì gợi ý tạo, không tự tạo agent tạm; handoff/coplay không tự gửi | 023b/023c/015b; supplemental runtime022b và assistant UX023d còn phải viết |
 | AI ↔ báo giá → hợp đồng/đơn | Tra catalog/variant, điền khách; preview có checklist; sửa preview làm mất hiệu lực confirm cũ; duyệt đúng ngưỡng; quote conversion race không sinh cả hợp đồng và đơn trái luật | 023b,023c,030b,032b; không lấy tool schema có tên thay handler thực |
@@ -26,3 +26,7 @@ Chủ nhà yêu cầu2026-11-02; áp dụng cho câu A (chỉ tài liệu). Khô
 ## Quy tắc ưu tiên và không bỏ phạm vi
 
 Ưu tiên khép023b →023c →030b/032b →015b và các supplemental ở điểm nối phía trên; thứ tự build cuối cùng phải tuân DAG thực và file-overlap, không suy ra chạy song song từ dấu mũi tên.044 nhận gate eval tổng hợp, không nhận thay phần implementation thiếu owner. Sau luồng dọc vẫn phải rà hết7 phần, gán toàn bộ nghĩa vụ còn lại, hoàn thiện mọi TIP và review độc lập trước khi kết thúc câu A.
+
+## Zalo seam checkpoint2026-11-02
+
+014b provides durable message-operation/provider receipt and history/sync boundaries after045b;025b must consume its capabilities and status rather than recreate queues. Full group UI and agent/runtime behavior remain pending. See reports/zalo-lifecycle-planning-audit-2026-11-02.md; no real-provider acceptance claimed.

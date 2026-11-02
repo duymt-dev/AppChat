@@ -64,3 +64,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - Standard omnichannel-adapter: bổ sung `reactions` và `group: 'commerce'` vào khối hợp đồng cho khớp code.
 - TIP gỡ vòng barrel FE: khi TIP nối API module X, đổi import chéo sang `@/features/<m>/api` hoặc component dùng chung ở `shared/` và xoá dòng baseline tương ứng.
+
+## Supplemental Zalo lifecycle plan (2026-11-02)
+
+[TIP014b](../tips/TIP-014b-zalo-lifecycle.md) owns missing provider operation/receipt/history/contact-sync contracts and real lifecycle evidence, plus standard/type reconciliation. Existing completion status is not live-provider proof. No source or native data/service changes in this planning phase.

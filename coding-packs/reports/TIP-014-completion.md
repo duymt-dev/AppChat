@@ -61,3 +61,7 @@
 ## Supplemental marketing plan (2026-11-02)
 
 See [TIP-037](../tips/TIP-037-marketing.md) and [marketing audit](marketing-planning-audit-2026-11-02.md): campaign dispatch must share account throttling/caps, persist delivery attempts beyond Redis retention, and distinguish unknown provider outcomes from definite failures. D35c default quota and cap override UI remain pending; this plan does not certify real-provider delivery.
+
+## Supplemental Zalo lifecycle plan (2026-11-02)
+
+[TIP014b](../tips/TIP-014b-zalo-lifecycle.md) owns missing provider operation/receipt/history/contact-sync contracts and real lifecycle evidence, plus standard/type reconciliation. Existing completion status is not live-provider proof. No source or native data/service changes in this planning phase.

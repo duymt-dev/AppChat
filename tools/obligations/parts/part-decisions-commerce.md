@@ -214,7 +214,7 @@
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | — | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | — | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận |
-| DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | — | CHƯA | Q-014 mở; adapter chưa gọi |
+| DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | 014b | CHƯA | Q-014 mở; adapter chưa gọi Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | — | CHƯA | Một widget mỗi workspace |
 | DC-110 | Parser pptx / OCR ảnh cho RAG (P1) | DECISIONS.md:119 | — | CHƯA | Tệp lưu `learn=false` |
 | DC-151 | Khối 360° của module khác hiện dữ liệu | DECISIONS.md:160 | 015b | MỘT PHẦN | contact360.ts:51-58 crm / ai rỗng |

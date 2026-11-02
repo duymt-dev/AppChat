@@ -60,3 +60,7 @@
 ## Supplemental record-scope audit (2026-11-02)
 
 See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.
+
+## Supplemental Zalo lifecycle plan (2026-11-02)
+
+[TIP014b](../tips/TIP-014b-zalo-lifecycle.md) owns missing provider operation/receipt/history/contact-sync contracts and real lifecycle evidence, plus standard/type reconciliation. Existing completion status is not live-provider proof. No source or native data/service changes in this planning phase.

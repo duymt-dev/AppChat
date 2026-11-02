@@ -378,8 +378,9 @@
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | CHƯA | prom-client chưa cài |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
 | BP-11-b | Log pino JSON có traceId, redact PII; traceId nginx → api → job | plans/BLUEPRINT.md:1458 | — | MỘT PHẦN | TIP001 có kernel/logger/logger.ts:23–24 redaction/context, middleware/trace.middleware.ts:8, outbox.ts:28 và logger.test.ts. Rà 2026-11-02: infra/ chưa tồn tại; chưa chứng minh nginx → api → job xuyên tiến trình. Cần TIP045 cụ thể cho proxy/log pipeline và test propagation; không coi unit logger là bằng chứng toàn tuyến. |
-| BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014 | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm |
+| BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014b | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
+| CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |
 
 Ghi chú:
 - ACT: handler/preview từ actions.json; test = grep id trong apps/api/test, packages/*/test (không tính test mock web). Hàng MỘT PHẦN có 'thiếu preview' là nợ preview của 023b (DC-224).

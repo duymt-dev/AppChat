@@ -12,16 +12,16 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 30 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 28 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 15 | 12 | 1 | 48 | 10 | 5 | 14 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 21 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 198 | 5 | 4 | 81 | 1 | 0 | 22 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 20 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 199 | 5 | 4 | 81 | 1 | 0 | 22 |
 | E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 39 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 38 |
-| **Tổng** | **557** | **334** | **118** | **41** | **330** | **34** | **66** | **212** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 36 |
+| **Tổng** | **557** | **335** | **118** | **41** | **330** | **34** | **66** | **207** |
 
-## Lỗ hổng chưa có TIP nhận (212)
+## Lỗ hổng chưa có TIP nhận (207)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -30,14 +30,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A02d | MỘT PHẦN | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | A |
 | REQ-A05f | CHƯA | Mời thành viên bằng SĐT | A |
 | REQ-A07b | GIẢ | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | A |
-| REQ-B02d | CHƯA | Đồng bộ danh bạ Zalo | A |
 | REQ-B03b | MỘT PHẦN | AI nhóm 3 chế độ đổi được | A |
 | REQ-B04a | CHƯA | Cảnh báo rủi ro khi kết nối Zalo | A |
 | REQ-B05c | CHƯA | Tuỳ chỉnh logo widget | A |
 | REQ-B06b | CHƯA | Gmail OAuth | A |
 | REQ-B11c | MỘT PHẦN | Trả lời tự động: agent, chế độ, giờ, lời chào | A |
 | REQ-B11d | MỘT PHẦN | Phân công & SLA theo tài khoản | A |
-| REQ-B11e | MỘT PHẦN | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | A |
 | REQ-C05d | GIẢ | Tự dịch tin gửi đi | A |
 | REQ-C05e | CHƯA | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | A |
 | REQ-C07 | MỘT PHẦN | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | A |
@@ -88,7 +86,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-029 | CHƯA | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | C |
 | DC-058 | GIẢ | Kết nối SePay của DN dùng adapter thật | C |
 | DC-081 | CHƯA | Owner vắng / ngoài ca → hàng chung | C |
-| DC-083 | CHƯA | Thu hồi / thả cảm xúc phía Zalo thật | C |
 | DC-086 | CHƯA | Nhiều widget / workspace (P1) | C |
 | DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
 | DC-215 | CHƯA | Cấu hình danh mục ticket riêng | C |
@@ -202,7 +199,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-security | CHƯA | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | F |
 | PRO-settings-emailmkt | CHƯA | Mục "Email Marketing" (Brevo onboard) | F |
 | DEF-001-1 | CHƯA | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | G |
-| DEF-001-2 | CHƯA | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | G |
 | DEF-002-2 | CHƯA | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | G |
 | DEF-012-2 | CHƯA | Action `integration.sync_now` | G |
 | DEF-012-3 | GIẢ | Adapter Casso thật (verifyWebhook / parseTransactions) | G |
@@ -232,7 +228,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-035-1 | CHƯA | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | G |
 | DEF-035-2 | CHƯA | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | G |
 | Q-010 | CHƯA | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | G |
-| Q-014 | CHƯA | `ChannelAdapter.recall?` / `react?` thực hiện thu hồi / cảm xúc phía Zalo | G |
 | Q-017 | MỘT PHẦN | `e2e-http.mjs` tự dọn workspace test sau lượt | G |
 | Q-018 | CHƯA | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | G |
 | Q-019 | CHƯA | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | G |
@@ -281,7 +276,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B02a | Zalo cá nhân kết nối QR | 01-REQUIREMENTS-MATRIX.md:49 | 014 | CHỜ-TK | channels/actions/channel-connect.handlers.ts:24; zalo-personal/zca-transport.ts:77; test channels.test.ts AC3 — Q-003 |
 | REQ-B02b | Credential mã hoá, tự kết nối lại | 01-REQUIREMENTS-MATRIX.md:49 | 014 | CHỜ-TK | channels/jobs/sessions.ts; test channels.test.ts AC3/AC9 — Q-003 |
 | REQ-B02c | Nhận / gửi 1-1 text, ảnh, file, sticker | 01-REQUIREMENTS-MATRIX.md:49 | 014, 016 | CHỜ-TK | zalo-personal/adapter.ts:101-114; test zalo-adapter.test.ts — Q-003 |
-| REQ-B02d | Đồng bộ danh bạ Zalo | 01-REQUIREMENTS-MATRIX.md:49 | — | CHƯA | Không gọi danh sách bạn bè trong zca-transport.ts / adapter.ts |
+| REQ-B02d | Đồng bộ danh bạ Zalo | 01-REQUIREMENTS-MATRIX.md:49 | 014b | CHƯA | Không gọi danh sách bạn bè trong zca-transport.ts / adapter.ts Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | REQ-B02e | Đồng bộ tin gần đây | 01-REQUIREMENTS-MATRIX.md:49 | 014 | CHỜ-TK | adapter.ts:95; channel-manage.handlers.ts:88; test channels.test.ts AC6 — Q-003 |
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
@@ -309,7 +304,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
 | REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ |
 | REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc |
-| REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | — | MỘT PHẦN | history_days chạy; sync_messages / sync_auto_create_contact không được pipeline.ts đọc |
+| REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | MỘT PHẦN | history_days chạy; sync_messages / sync_auto_create_contact không được pipeline.ts đọc Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-C01a | Inbox 3 cột chạy API thật | 01-REQUIREMENTS-MATRIX.md:63 | 016, 025 | ĐẠT | features/inbox/screens/InboxScreen.tsx; e2e http/inbox.spec.ts, http/inbox-live.spec.ts |
 | REQ-C01b | Realtime WebSocket | 01-REQUIREMENTS-MATRIX.md:63 | 006, 025 | ĐẠT | test inbox.test.ts AC9, inbox-ui.test.ts "realtime", e2e http/inbox-live.spec.ts |
@@ -834,7 +829,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | — | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | — | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận |
-| DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | — | CHƯA | Q-014 mở; adapter chưa gọi |
+| DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | 014b | CHƯA | Q-014 mở; adapter chưa gọi Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DC-086 | Nhiều widget / workspace (P1) | DECISIONS.md:95 | — | CHƯA | Một widget mỗi workspace |
 | DC-110 | Parser pptx / OCR ảnh cho RAG (P1) | DECISIONS.md:119 | — | CHƯA | Tệp lưu `learn=false` |
 | DC-151 | Khối 360° của module khác hiện dữ liệu | DECISIONS.md:160 | 015b | MỘT PHẦN | contact360.ts:51-58 crm / ai rỗng |
@@ -1235,8 +1230,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | CHƯA | prom-client chưa cài |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
 | BP-11-b | Log pino JSON có traceId, redact PII; traceId nginx → api → job | plans/BLUEPRINT.md:1458 | — | MỘT PHẦN | TIP001 có kernel/logger/logger.ts:23–24 redaction/context, middleware/trace.middleware.ts:8, outbox.ts:28 và logger.test.ts. Rà 2026-11-02: infra/ chưa tồn tại; chưa chứng minh nginx → api → job xuyên tiến trình. Cần TIP045 cụ thể cho proxy/log pipeline và test propagation; không coi unit logger là bằng chứng toàn tuyến. |
-| BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014 | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm |
+| BP-11-c | Worker SIGTERM: ngừng nhận job, nhả lease Zalo | plans/BLUEPRINT.md:1434 | 014b | MỘT PHẦN | apps/worker/src/main.ts:12 enableShutdownHooks; sessions.ts:100 release; không test tắt có kiểm Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
+| CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1679,7 +1675,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 |---|---|---|---|---|---|
 | Q-027 | Chốt ca biên tiền/điểm: đảo điểm đã dùng, trả lô đã hết hạn, completed chưa đủ tiền | QUESTIONS.md:35 | 036 | CHƯA | TIP-036 gate trước thi công, AC2–AC5; đang hỏi Chủ nhà. Code order-flow.handlers.ts:22-37 tính theo net đơn, chưa chứng minh phù hợp mọi ca thực thu |
 | DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | — | CHƯA | `.dependency-cruiser-known-violations.json` vẫn 99 mục (đếm 2026-11-01) — không giảm sau 25 TIP nối http |
-| DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | — | CHƯA | standards/channels/omnichannel-adapter.md:30 vẫn `'chat'\|'social'\|'email'\|'sms'\|'web'`; code packages/channels/src/types.ts:15 đã có `commerce` (việc tài liệu) |
+| DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | 014b | CHƯA | standards/channels/omnichannel-adapter.md:30 vẫn `'chat'\ Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |'social'\|'email'\|'sms'\|'web'`; code packages/channels/src/types.ts:15 đã có `commerce` (việc tài liệu) |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
 | DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | — | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ |
 | DEF-003-1 | Provisioner có `pg_signal_backend` khi xoá workspace ở production | reports/TIP-003-completion.md:36 | 041 | MỘT PHẦN | packages/db/src/setup.ts:57 cấp ở db:setup (dev); luồng xoá workspace prod chưa có (TIP-041), infra/ chưa có |
@@ -1706,13 +1702,13 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-012-4 | Brevo / SMTP workspace gửi thư thật | reports/TIP-012-completion.md:43 | — | MỘT PHẦN | packages/integrations/src/registry.ts:13-14 chỉ manifest; core/src/integrations/services/resolver.ts:25 trả adapter null. BrevoMailProvider chỉ được tạo bằng env nền tảng ở identity.module.ts:54, không chứng minh connector workspace. Unit ports.test.ts / smtp.test.ts xanh, chưa có kiểm chứng gửi bằng secret riêng từng workspace |
 | DEF-013-1 | Chuyển phụ trách khách của thành viên bị gỡ | reports/TIP-013-completion.md:42 | — | CHƯA | identity/actions/member-remove.handler.ts:2 chỉ đặt `removed`; không consumer `member.removed` ở crm |
 | DEF-013-2 | Seed `sla_policy` + đồng hồ SLA theo giờ làm việc workspace | reports/TIP-013-completion.md:41 | 034 | ĐẠT | support/services/sla-clock.ts; test support.test.ts:53 |
-| DEF-014-1 | Zalo cá nhân thật: QR, listener, gửi ảnh / file / sticker, đồng bộ lịch sử | reports/TIP-014-completion.md:49 | — | CHỜ-TK | packages/channels/src/zalo-personal/zca-transport.ts:30-128 có SDK thật; core/src/channels/channels.module.ts:59 chọn bằng env. zalo-adapter.test.ts dùng fake, không chứng minh live. HANDOFF-NEXT §3 nói demo đã đăng nhập nhưng chưa có bằng chứng đủ ca Q-003; không kết luận tài khoản hiện còn thiếu |
+| DEF-014-1 | Zalo cá nhân thật: QR, listener, gửi ảnh / file / sticker, đồng bộ lịch sử | reports/TIP-014-completion.md:49 | 014b | CHỜ-TK | packages/channels/src/zalo-personal/zca-transport.ts:30-128 có SDK thật; core/src/channels/channels.module.ts:59 chọn bằng env. zalo-adapter.test.ts dùng fake, không chứng minh live. HANDOFF-NEXT §3 nói demo đã đăng nhập nhưng chưa có bằng chứng đủ ca Q-003; không kết luận tài khoản hiện còn thiếu Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DEF-014-2 | Cap tin chủ động / ngày Zalo cá nhân (Q-013) | reports/TIP-014-completion.md:55 | 037 | MỘT PHẦN | channels/jobs/send.processor.ts:43 áp `daily_cap`; packages/channels/src/zalo-personal/manifest.ts:22 không có `perDayProactive` mặc định |
 | DEF-015-1 | Consumer `contact.owner_changed` chuyển lịch hẹn mở (move.appointments) | reports/TIP-015-completion.md:53 | — | MỘT PHẦN | Báo giá ĐẠT (quotes.test.ts:309); crm/actions/contact-owner.handlers.ts:98 `appointments: 0`, booking không có consumer |
 | DEF-015-2 | KPI 360° (công nợ, HĐ hiệu lực, đơn / thu gần nhất) + LTV | reports/TIP-015-completion.md:53 | 015b | CHƯA | crm/services/contact360.ts:52-55 `kpis: []`, `recent_order` / `recent_payment` rỗng |
 | DEF-015-3 | Cột "AI gợi ý" + `/crm/ai` có dữ liệu thật | reports/TIP-015-completion.md:54 | 015b | GIẢ | apps/api/src/http/crm/contacts.controller.ts:133 trả `{ runs: {}, peek: [] }` cứng |
 | DEF-015-4 | `contact.remember` + tóm tắt 360° bằng AI | reports/TIP-015-completion.md:54 | 015b | CHƯA | Không có action `contact.remember` trong packages/actions |
-| DEF-016-1 | Tin vào / gửi thật qua Hộp thư với Zalo cá nhân | reports/TIP-016-completion.md:49 | — | CHỜ-TK | Q-003 |
+| DEF-016-1 | Tin vào / gửi thật qua Hộp thư với Zalo cá nhân | reports/TIP-016-completion.md:49 | 014b | CHỜ-TK | Q-003 Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | DEF-017-1 | Nginx `widget.<domain>` phục vụ widget.js + proxy socket `/widget` | reports/TIP-017-completion.md:49 | 045 | CHƯA | Thư mục infra/ chưa tồn tại |
 | DEF-017-2 | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | reports/TIP-017-completion.md:50 | — | CHƯA | apps/api/src/http/notify/realtime/ws.gateway.ts:93 chỉ typing nhân viên `/ws`; không phát `agent.status` |
 | DEF-017-3 | `/settings/widget` liệt kê đủ agent thật | reports/TIP-017-completion.md:48 | — | MỘT PHẦN | packages/core/src/channels/webchat/widget.service.ts:103-105 đọc aiAgent active hoặc selected nhưng take:50, không phân trang; mock/widget-shape.test.ts chỉ kiểm mock, webchat.test.ts không assert danh sách agent. Cần test DB agent active/selected/deleted, tenant isolation và >50 agent hoặc chứng minh quota chặn trường hợp này |
@@ -1775,7 +1771,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | — | CHƯA | Không có commit fix flaky trong git log |
 | Q-011 | Trial cho mời thành viên? (mặc định giữ luật gói) | QUESTIONS.md:19 | 013 | ĐẠT | Mặc định = hành vi hiện tại: 402 PLAN_LIMIT_REACHED — test settings.test.ts:116; đổi chỉ khi Chủ nhà quyết |
 | Q-013 | Cap 100 tin chủ động / tài khoản Zalo / ngày, Owner chỉnh ở drawer kênh | QUESTIONS.md:21 | 037 | MỘT PHẦN | send.processor.ts:43 có cơ chế; manifest Zalo chưa đặt số; drawer chưa có ô |
-| Q-014 | `ChannelAdapter.recall?` / `react?` thực hiện thu hồi / cảm xúc phía Zalo | QUESTIONS.md:22 | — | CHƯA | packages/channels/src/types.ts:22 chỉ cờ `reactions`, không có hàm recall / react |
+| Q-014 | `ChannelAdapter.recall?` / `react?` thực hiện thu hồi / cảm xúc phía Zalo | QUESTIONS.md:22 | 014b | CHƯA | packages/channels/src/types.ts:22 chỉ cờ `reactions`, không có hàm recall / react Planned014b: provider lifecycle/commands/history/contacts/receipts and native/live acceptance; no runtime promotion. |
 | Q-015 | Nhiều widget / workspace (`widget_id`) | QUESTIONS.md:23 | 017 | ĐẠT | Mặc định một widget (DC-086) = code hiện tại; mở rộng là P1 nếu Chủ nhà duyệt — test webchat.test.ts |
 | Q-016 | Gmail / Outlook OAuth (XOAUTH2) cho kênh email | QUESTIONS.md:24 | — | CHỜ-TK | Cần app OAuth của Chủ nhà; REQ-B06 P1 |
 | Q-017 | `e2e-http.mjs` tự dọn workspace test sau lượt | QUESTIONS.md:25 | — | MỘT PHẦN | `db:cleanup-test` có (packages/db/package.json:17); tools/scripts/e2e-http.mjs không gọi dọn |
