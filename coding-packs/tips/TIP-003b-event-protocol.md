@@ -1,6 +1,7 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/tasks/task.runner.ts`; integrate 003b before022c.
 - **Parallel-safe with TIP-015g (CRM stage hold manifest):** sequential, shares `packages/core/src/contracts/services/public-sign.service.ts`, `packages/core/src/sales/quotes/services/quote-system.ts`; integrate 003b before015g.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/kernel/actions/undo.service.ts`, `packages/shared/src/index.ts`; integrate 003b before034c.

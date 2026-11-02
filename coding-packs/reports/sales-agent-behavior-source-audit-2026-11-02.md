@@ -17,3 +17,7 @@ Candidate022c Sales-agent stock and quote-intent behavior (not written/owned yet
 Bind intent to exact source message/revision,served customer,quote ID/version,intent/confidence; threshold70% fixed Commerce, not configurable generic reply threshold. Below70 no mutation before asking/handoff.>=70 still current grants/risk/approval and no automatic tool grant. Alternatives use real current scoped catalog/stock, not reserve inventory or guarantee unchanged availability.
 
 Native cases:69.99/70/70.01,all3 intents,multiple quote/wrong customer/just browsing,revoke/recall/replay,zero/negative/unavailable stock,real available alternatives, mutation count0 before admission and receipt before success claim. Existing Commerce remains authoritative.
+
+## Follow-through checkpoint
+
+Full functional TIP022c now drafted with83 exact paths and39 bilateral intersections; its two parent IDs are assigned, not marked implemented. Earlier candidate/not-written wording records source-audit time. Planning validation and independent findings are tracked in sales-agent-behavior-planning-audit-2026-11-02.md.

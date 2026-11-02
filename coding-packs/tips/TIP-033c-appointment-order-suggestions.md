@@ -1,6 +1,7 @@
 # TIP-033c — Appointment-to-order suggestions across Calendar, Inbox and Assistant
 
 ## HEADER
+- **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/assistant/meta-tools.ts`; integrate 033c before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034b.

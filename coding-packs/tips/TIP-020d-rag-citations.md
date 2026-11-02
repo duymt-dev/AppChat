@@ -1,6 +1,7 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
+- **Parallel-safe with TIP-022c (Sales agent behavior manifest):** sequential, shares `apps/web/src/features/inbox/hooks/useAiDraftBinding.ts`, `packages/ai/src/reply/output.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/assistant/delegate.ts`, `packages/core/src/ai/assistant/turn.service.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/ai/reply/reply-tools.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/ai/reply/send-fence.ts`, `packages/core/src/ai/tasks/task.runner.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 020d before022c.
 - **Parallel-safe with TIP-034d (Ticket stock manifest):** sequential, shares `packages/core/src/authz/fields/history-provenance.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034d.
 - **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/ai/assistant/genui/history.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before034b.

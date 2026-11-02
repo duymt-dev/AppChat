@@ -47,3 +47,7 @@
 ## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
 
 TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.
+
+## Bổ sung2026-11-02 — Sales stock / customer-intent admission, chưa triển khai
+
+[TIP-022c](../tips/TIP-022c-sales-behavior.md) nhận COM-2-8/COM-3-11: stock-before-promise + real alternatives và confidence>=70% BEFORE accepted/revision/rejected effects, including handler/resume/receipt/current-source gate. Existing final reply confidence check is too late to guard tools already executed. TIP022 original remains unchanged; prior DONE/live claims do not prove this supplement. See sales-agent-behavior-planning-audit-2026-11-02.md.
