@@ -31,6 +31,8 @@
 
 | Op | File |
 |---|---|
+| M | `packages/core/src/crm/actions/contact-merge.handler.ts` |
+| C | `packages/core/src/crm/memory/merge.ts` |
 | M | `packages/actions/src/index.ts` |
 | M | `packages/core/src/index.ts` |
 | M | `packages/db/prisma/tenant/crm.prisma` |
@@ -125,6 +127,7 @@
 - Action `contact.remember`/`contact.memory_forget`: crm.edit + writable contact scope; watcher chỉ đọc. Agent chỉ được nhớ nếu tool được cấp/published và contact đúng conversation đang phục vụ; không thêm meta-tool ghi bypass registry. Không tự bật tool cho agent đã cấu hình. Copilot không commit memory chỉ vì model đề xuất. Forget là xoá fact, không privacy.erase; undo không vượt scope/cap50.
 - Validate UUID, fact trim1–1000 ký tự, confidence hữu hạn0..1, nguồn từ server. Cấm credential/thẻ/CCCD trong fact kể cả governance PII tắt; message prompt injection không thành quyền viết. Foreign/forbidden trả lỗi trước đọc fact; VALIDATION_FAILED422, NOT_FOUND404 hoặc FORBIDDEN403 theo quy ước tránh leak; stale edit409, undo quá hạn theo kernel. Dùng undo window24h cho memory_forget, giữ snapshot đã redacted/audit đúng policy.
 - `memory.module.ts` đăng ký handlers/read/summary/repository; CrmModule import và public export cho controller/AI. `crm.jobs.module.ts` nạp summary-consumer, AI jobs nạp CrmModule để có handler khi resume. Helper memory độc lập, không nhét vào contact360 hoặc reply-context.
+- **Merge/undo cũng phải giữ cap:** contact-merge.handler.ts:71/:100 hiện chuyển memory bằng updateMany. Thay phần memory bằng helper memory/merge.ts trong cùng transaction; khoá mọi contact liên quan theo UUID tăng dần trước đọc/move để tránh deadlock. Preview hiện số fact sau dedupe, số sẽ ra khỏi active set; nếu>50 giữ50 theo confidence/time/id, lưu snapshot lossless của hai phía và provenance/IDs trong bảng receipt riêng (migration crm.prisma), không nhét facts vào log public. Snapshot chỉ phục vụ undo7 ngày hiện có của contact.merge, không đọc vào model; purge sau hết cửa sổ và không hold. Undo khôi phục đúng phía dưới cùng lock và kiểm receipt/revision: nếu fact đã bị người sửa/xoá sau merge hoặc khôi phục làm vượt50 thì trả STALE_VERSION, không ghi đè fact mới hoặc hồi sinh fact đã forget; giữ snapshot cho tới hết hạn để xử lý conflict. Test merge50+50, merge đồng thời remember, inverse pair merge tránh deadlock, undo sau thay đổi và retry receipt. `memory_forget` undo khi cap đầy cũng trả conflict, không tự xoá fact khác.
 - `crm/insights/read.ts` thay hard-code `/crm/ai`: scoped run counts và bounded peek thật từ ai_run/step, không gọi model theo mỗi GET/list row. next-action trả suggestion/provenance/status, model chỉ chạy theo action yêu cầu với credit quota; fallback rule phải ghi rõ là rule, không giả model.
 - KPI công nợ gồm phải thu còn lại/quá hạn không cộng double invoice partial pay; thống nhất customer-debt helper cho contact360, contracts-read và invoice list meta. LTV là thu ròng confirmed (refund âm đúng một lần); đơn huỷ không tự xoá tiền đã thu nếu chưa có refund, không cộng draft quote/order làm doanh thu. Contract giá trị hiệu lực/expiry theo signed status, không cộng phụ lục hai lần; booking/ticket/SLA/CSAT/task lấy dữ liệu hiện có, unavailable khác0.
 - `customer-links.ts` cung cấp bounded links tới quote/order/appointment/ticket/task và tình trạng SLA/CSAT cho Blocks360; shared DTO mở rộng tương thích, mock/http cùng schema. MemoryPanel nằm shared để customer/inbox dùng cùng API/hook, không import chéo feature component.
@@ -133,7 +136,7 @@
 - tools/parity/parity.manifest.ts đã vượt trần: chỉ1–2 dòng facade đăng ký module contact-memory.ts mới. Tất cả logic/screens/memory test tách riêng theo manifest; file backend≥500 phải tách trước bổ sung.
 
 ## TASK
-1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, skill): ghi `contact_memory` với provenance run/step/actor từ context tin cậy, không tin provenance do model gửi. Bảng hiện tại chưa có updated_at/step/actor, phải có migration trong manifest hoàn thiện. Chống trùng **văn bản** sau chuẩn hoá: trigram≥0.9, không tuyên bố đây là hiểu gần nghĩa. Trong transaction khoá contact trước đọc/ghi memory; tương đồng thì cập nhật timestamp/provenance, không thêm dòng. Cap50 áp cả khi51 request đồng thời; eviction chọn confidence thấp nhất, rồi updated_at cũ nhất, rồi id để thứ tự tất định. `contact.memory_forget { memory_id }` (xoá, có undo); undo cũng kiểm scope hiện tại và cap50, không lặng lẽ hồi sinh thành51 fact.
+1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, không skill): ghi `contact_memory` với provenance run/step/actor từ context tin cậy, không tin provenance do model gửi. skill chỉ dành cho action read theo D51. Bảng hiện tại chưa có updated_at/step/actor, phải có migration trong manifest hoàn thiện. Chống trùng **văn bản** sau chuẩn hoá: trigram≥0.9, không tuyên bố đây là hiểu gần nghĩa. Trong transaction khoá contact trước đọc/ghi memory; tương đồng thì cập nhật timestamp/provenance, không thêm dòng. Cap50 áp cả khi51 request đồng thời; eviction chọn confidence thấp nhất, rồi updated_at cũ nhất, rồi id để thứ tự tất định. `contact.memory_forget { memory_id }` (xoá, có undo); undo cũng kiểm scope hiện tại và cap50, không lặng lẽ hồi sinh thành51 fact.
 2. **Agent trực kênh tự ghi:** tool `remember` cho agent (sau mỗi lượt, model đề xuất fact mới từ tin khách; chỉ fact về khách, không ghi PII nhạy cảm theo bộ lọc PII sẵn có của TIP-022). Lắp ngữ cảnh đọc ≤ 20 fact mới nhất.
 3. **Tóm tắt 360°:** `contact.summarize { contact_id }` (read, skill) → 3–5 dòng từ timeline + memory + chứng từ, hiện ở khối AI tóm tắt và contact.get023b. Cache theo tenant/contact/actor-scope-revision/data-revision/prompt-version/locale; không dùng riêng contact.updated_at. Data revision tăng qua event idempotent khi memory/timeline/quote/order/contract/payment/appointment/ticket/task đổi; đối chiếu revision trước lưu kết quả model để không publish summary cũ khi dữ liệu vừa đổi. Recheck quyền khi đọc cache; không dùng summary Owner cho sales bị ẩn công nợ. Cache miss/error có fallback dữ liệu thật, không giả summary.
 4. **KPI 360° thật:** công nợ (đề nghị thanh toán chưa thu, quá hạn), hợp đồng hiệu lực + giá trị, đơn gần nhất, khoản thu gần nhất; đủ liên kết quote/appointment/ticket/task theo REQ-F02c. Sửa debt ở contracts-read.service cùng công thức nguồn, không chỉ sửa contact360 rồi để endpoint hợp đồng trả0. Điền kpis/recent_order/recent_payment theo shared schema; phân biệt0 thật với unavailable. **Không phụ thuộc ngược036:**015b giữ interface điểm hiện có và không nghiệm thu điểm mới;036 nhận tích hợp loyalty cùng retest KPI/consumer015b.
@@ -141,7 +144,7 @@
 6. FE: khối "AI ghi nhớ" trong Hồ sơ 360° (xem / xoá fact), i18n.
 
 ## ACCEPTANCE CRITERIA
-1. Integration: agent (model giả) gặp "em dị ứng tinh dầu sả" → `contact_memory` có fact; lượt sau ngữ cảnh chứa fact; trùng gần nghĩa không thêm dòng; sales chỉ thấy memory khách trong scope.
+1. Integration: agent (model giả) gặp "em dị ứng tinh dầu sả" → contact_memory có fact; lượt sau ngữ cảnh chứa fact; fixture normalized trigram≥0.9 không thêm dòng, fixture ngay dưới0.9 không bị gộp chỉ vì model nói gần nghĩa; sales chỉ thấy memory khách trong scope.
 2. Integration: 360° có công nợ / HĐ / đơn / thu đúng số với dữ liệu seed; EXPLAIN các truy vấn KPI dùng index.
 3. Unit: chuẩn hoá fact, chọn fact bị thay khi đầy.
 4. Model thật: bộ `pnpm ai:live` thêm 3 ca ghi nhớ / dùng lại trí nhớ.
@@ -150,6 +153,7 @@
 ### AC bổ sung bắt buộc sau review độc lập
 - Given51 request nhớ đồng thời cùng contact, When transaction hoàn tất, Then cap≤50, không duplicate chuẩn hoá, eviction tất định; malformed confidence/fact/foreign memory ID bị chặn trước ghi.
 - Given memory hoặc payment đổi khi model đang tóm tắt, When response trở về hoặc cache được đọc bởi user scope thấp hơn, Then không trả dữ liệu stale/vượt quyền; forget/undo tăng revision đúng một lần kể cả event replay.
+- Given legacy Contact.aiSummary chứa công nợ do Owner tạo, When CS mở360 lúc scoped cache miss/provider error, Then tuyệt đối không fallback sang aiSummary dùng chung tại contact360.ts:42; trả summary unavailable/dữ liệu đã lọc. Migration chỉ invalidate cache legacy, không tái xuất nội dung cũ sang scoped cache.
 - Given cùng khách có quote/appointment/ticket/task/contract/order/payment trong fixture, When mở360 và endpoint hợp đồng, Then số liệu/công nợ cùng nguồn, links đúng entity và scope; không lấy điểm036 làm điều kiện chốt015b.
 - Given nút Giao AI, When bấm rồi huỷ xác nhận, Then mở đúng contact context nhưng không phát sinh ghi/gửi; đổi quyền sau mở panel phải bị server từ chối.
 - Live3 ca cố định: ghi fact dị ứng không nhạy cảm → lượt sau dùng đúng fact; diễn đạt lại không tạo fact mâu thuẫn tự suy đoán; yêu cầu nhớ CCCD/thẻ/mật khẩu bị chặn và không xuất hiện ở DB/context/log. Ghi expected facts và trace/assertions vào bộ ca, không chỉ chấm câu trả lời nghe hợp lý.
@@ -163,10 +167,10 @@
 ## Lệnh nghiệm thu builder (chưa chạy trong pha tài liệu)
 ```powershell
 pnpm --filter @appchat/core exec vitest run test/contact-memory.test.ts test/contact-insights.test.ts
-pnpm --filter @appchat/api exec vitest run test/integration/contact-memory.test.ts
+pnpm --filter @appchat/api exec vitest run --config vitest.integration.config.ts test/integration/contact-memory.test.ts
 pnpm --filter @appchat/web exec vitest run src/shared/contact-memory/MemoryPanel.test.tsx
 pnpm --filter @appchat/web exec playwright test e2e/contact-memory.spec.ts
-pnpm --filter @appchat/web exec playwright test e2e/http/contact-memory.spec.ts
+pnpm e2e:http contact-memory
 pnpm ai:live --cases fixtures/ai-eval/contact-memory.json
 pnpm i18n:check
 pnpm parity contact-memory
@@ -175,7 +179,7 @@ pnpm parity --done
 `ai:live --cases` là hợp đồng runner023b cần bổ sung trước implementation, không khẳng định script đã tồn tại. Fixture chỉ dùng ephemeral workspace, không tenant demo. Tests DB thật cho cap/concurrency/undo/scope, không mock Prisma thay bằng chứng. Ghi kết quả từng ca live và model/prompt/hash/tokens; safety100%, không dùng mock làm nghiệm thu live. Cổng D59 theo BUILDER-HANDOFF trước commit và chốt TIP; không chạy full suite trong pha docs.
 
 ## BUILDER-CHECKLIST
-- [ ] Đối chiếu71 đường dẫn manifest; M hiện có, C chưa có; cập nhật theo prerequisite đã merge trước khi code.
+- [ ] Đối chiếu73 đường dẫn manifest; M hiện có, C chưa có; cập nhật theo prerequisite đã merge trước khi code.
 - [ ] Action-first, tenant isolation và writable/read scope của memory/summary/KPI qua API/agent đều có negative tests.
 - [ ] Migration/backfill/provenance/cap50/undo và EXPLAIN/query count được chứng minh bằng Postgres thật.
 - [ ] Summary không stale/leak, CRM AI endpoint/nút Giao AI không fake; bộ ca live3 case có evidence.

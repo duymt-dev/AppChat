@@ -17,7 +17,7 @@ Chỉ sửa tài liệu. Không mutation DB, không gọi model, không chạy t
 
 ## Manifest và dependency
 
--71 đường dẫn duy nhất, M hiện có/C chưa có đã kiểm bằng filesystem. Không thêm source.
+-73 đường dẫn duy nhất, M hiện có/C chưa có đã kiểm bằng filesystem. Không thêm source.
 -17 cặp giao file đã được khai sequential hai chiều trước thêm manifest. Các TIP cũ còn thiếu manifest nên whole-graph chưa đạt.
 -015b sau023b/023c/030b/032b, trước036 và nhánh sau; loyalty036 và release eval044 tích hợp sau, không dependency ngược. Runner023b phải hỗ trợ `--cases`; hiện chưa có, không báo đã chạy lệnh.
 - Parity manifest legacy chỉ facade1–2 dòng, logic ở module mới.
@@ -25,3 +25,7 @@ Chỉ sửa tài liệu. Không mutation DB, không gọi model, không chạy t
 ## Gate hiện tại
 
 Required sections/manifest và whitespace đã kiểm; đang gửi reviewer rà lại. Chưa claim cục bộ review PASS hoặc ready-to-build toàn graph. Các task/AC mới không thay thế validation runtime của builder.
+
+## Findings vòng review và sửa
+
+Reviewer tìm4 finding: merge/undo vượt cap và mất lock; command integration/HTTP dùng config sai; remember write gắn skill trái D51; runner JSON/--cases chỉ khai một chiều. Đã nhận contact-merge handler + memory/merge helper (manifest73), snapshot undo7 ngày/ordered locks/cap/conflict policy; sửa command integration explicit config và e2e:http; bỏ skill ở remember; bổ sung contract runner/CLI test trong023b. Hai residual nhỏ cũng sửa: AC trigram đúng ngưỡng thay “gần nghĩa”, cấm fallback Contact.aiSummary legacy có thể lộ công nợ. Đang tái kiểm, không coi ghi patch là reviewer đã xác nhận.
