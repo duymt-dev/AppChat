@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 30 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 15 | 12 | 1 | 48 | 10 | 5 | 15 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 15 | 12 | 1 | 48 | 10 | 5 | 14 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 21 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 198 | 5 | 4 | 81 | 1 | 0 | 25 |
-| E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 41 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 198 | 5 | 4 | 81 | 1 | 0 | 22 |
+| E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 39 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 38 |
-| **Tổng** | **557** | **334** | **118** | **41** | **330** | **34** | **66** | **218** |
+| **Tổng** | **557** | **334** | **118** | **41** | **330** | **34** | **66** | **212** |
 
-## Lỗ hổng chưa có TIP nhận (218)
+## Lỗ hổng chưa có TIP nhận (212)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -67,7 +67,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-G03c | GIẢ | Composer Hộp thư "Đặt lịch" lấy slot thật | B |
 | REQ-G04b | MỘT PHẦN | Khách trả lời "đổi" / "huỷ" → agent xử lý (dời / huỷ lịch) | B |
 | REQ-H02b | MỘT PHẦN | Agent tự tạo ticket khi phát hiện khiếu nại / sự cố | B |
-| REQ-M01b | GIẢ | Nhật ký AI (AI Audit log) + Nhật ký bảo mật đọc dữ liệu thật | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
 | REQ-N08b | CHƯA | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | B |
@@ -99,7 +98,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-ai.score_lead | CHƯA | `ai.score_lead` có trong registry + handler | D |
 | ACT-ai.summarize | CHƯA | `ai.summarize` có trong registry + handler | D |
 | ACT-contact.add_note | CHƯA | `contact.add_note` có trong registry + handler | D |
-| ACT-contact.bulk_update | CHƯA | `contact.bulk_update` có trong registry + handler | D |
 | ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
 | ACT-conversation.unhide | MỘT PHẦN | `conversation.unhide` có trong registry + handler | D |
 | ACT-conversation.untag | MỘT PHẦN | `conversation.untag` có trong registry + handler | D |
@@ -109,12 +107,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-message.unreact | MỘT PHẦN | `message.unreact` có trong registry + handler | D |
 | BP-4.4-ai-c | CHƯA | GET /runs/:id (+steps) | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
-| BP-4.4-fe-audit | GIẢ | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
 | BP-5.1-g | CHƯA | Mọi bước phát `run.step` qua WS | D |
 | BP-5.1-j | CHƯA | ai_run_step.meta.provider_cost | D |
 | BP-5.3b-c | CHƯA | Preview cảnh báo khi gắn kênh đang có agent khác | D |
-| BP-9-b | CHƯA | helmet | D |
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
@@ -131,7 +127,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-documents-templates-6b | CHƯA | Kết quả bảng kiểm hiện trong preview của action gửi / duyệt | E |
 | STD-domain-concurrency-1a | MỘT PHẦN | Cột `version` + `if_version` → STALE_VERSION cho contact, product, quote, contract, order, invoice, appointment, ticket, campaign, ai_agent, doc_templ | E |
 | STD-domain-concurrency-1b | CHƯA | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | E |
-| STD-domain-concurrency-5b | MỘT PHẦN | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | E |
 | STD-domain-concurrency-7a | MỘT PHẦN | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | E |
 | STD-domain-concurrency-T | MỘT PHẦN | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | E |
 | STD-domain-customfields-4b | CHƯA | Thẻ Kanban hiện tối đa 2 trường tuỳ biến | E |
@@ -149,7 +144,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-i18n-4 | MỘT PHẦN | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | E |
 | STD-integrations-ports-1a | GIẢ | BankFeedProvider phát hành SePay (chính) + Casso cho tiền khách của DN | E |
 | STD-integrations-ports-8b | CHƯA | Action `integration.sync_now` và `integration.test` | E |
-| STD-ops-obs-1.3b | MỘT PHẦN | traceId truyền vào job BullMQ (`data.trace_id`), `ai_run`, worker → kênh (truy xuyên HTTP → worker) | E |
 | STD-ui-fe-6 | CHƯA | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | E |
 | STD-ui-fe-9 | MỘT PHẦN | 5 trạng thái qua PageStates | E |
 | STD-ui-fe-11 | MỘT PHẦN | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | E |
@@ -574,7 +568,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-L07e | Nâng gói giữa kỳ tính chênh theo ngày | 01-REQUIREMENTS-MATRIX.md:193 | 039 | CHƯA | enum upgrade_proration có nhưngchưaluồngtạo; TIP039 task2/AC03 vàDC242 đãnêu rõupgrade, không dùng kếhoạch làmproof runtime |
 | REQ-L08 | Trang quản trị nền tảng: tenant, gói, giá, đối soát chuyển khoản, đơn giá model | 01-REQUIREMENTS-MATRIX.md:194 | 040 | MỘT PHẦN | chỉ admin.invoice.confirm_transfer (packages/core/src/billing/actions/admin-confirm-transfer.handler.ts:15) + GET /admin/transfers (test billing-payments.test.ts AC6); không route nhóm (admin) ở apps/web/src/app; admin.plan / model_price / llm_provider / workspace.* thiếu |
 | REQ-M01a | Settings shell: menu trái chia nhóm + tìm kiếm; trang Tổng quan, Thành viên, Kênh, Widget, Trường dữ liệu, Thẻ, Câu trả lời mẫu, AI Models, Governance, Ví / Gói, Hồ sơ | 01-REQUIREMENTS-MATRIX.md:199 | 013 + TIP domain | ĐẠT | apps/web/src/features/settings/registry.ts:28–74; SettingsShell.tsx:36; test settings.test.ts, ai-runtime.test.ts AC5, webchat.test.ts, crm-settings.test.ts, apps/web/e2e/http/settings.spec.ts, settings-data.spec.ts |
-| REQ-M01b | Nhật ký AI (AI Audit log) + Nhật ký bảo mật đọc dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:199 | — | GIẢ | apps/web/src/features/settings/api.ts:104,106 `/settings/audit`, `/settings/ai-audit` — routes.json missing (chỉ mock); không TIP nào nhận route đọc (045b mục 6 chỉ ghi audit) |
+| REQ-M01b | Nhật ký AI (AI Audit log) + Nhật ký bảo mật đọc dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:199 | 045b | GIẢ | apps/web/src/features/settings/api.ts:104,106 `/settings/audit`, `/settings/ai-audit` — routes.json missing (chỉ mock); không TIP nào nhận route đọc (045b mục 6 chỉ ghi audit) ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | REQ-M01c | Tổng quan workspace: tải logo, vùng nguy hiểm (tạm khoá / xoá workspace) chạy thật | 01-REQUIREMENTS-MATRIX.md:199 | 041 | GIẢ | apps/web/src/features/settings/components/GeneralSection.tsx:128 logo = message.info, :149 vùng nguy hiểm = message.info "Đã gửi yêu cầu"; 041 (lưu trữ / xoá workspace) nhận phần nguy hiểm, logo không ai nhận |
 | REQ-M02a | Giờ làm việc workspace + giờ trực AI của agent | 01-REQUIREMENTS-MATRIX.md:200 | 013, 021 | ĐẠT | packages/core/src/identity/actions/working-hours-update.handler.ts:13; ai/agents/agent.runtime.ts:49 withinHours; test settings.test.ts AC6, agents-ui-unit.test.ts |
 | REQ-M02b | Thông báo in-app + email theo tuỳ chọn, giờ không làm phiền | 01-REQUIREMENTS-MATRIX.md:200 | 006 | ĐẠT | packages/core/src/notify/services/notifier.ts, jobs/notify-mail.processor.ts; test notify.test.ts AC3, AC5, AC6, apps/web/e2e/settings-ops.spec.ts "Thông báo" |
@@ -1088,7 +1082,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-category.delete | `category.delete` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | — | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
-| ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | — | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update |
+| ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions; BP = privacy.erase ẩn danh hoá. DC-235 đã sửa tên xoá fact dự kiến ở 015b thành contact.memory_forget; nghĩa vụ privacy vẫn chưa có TIP, không thuộc học KB của 043 |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
@@ -1185,7 +1179,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
 | BP-4.4-admin | /admin/workspaces, /admin/plans, /admin/model-prices, /admin/transfers | plans/BLUEPRINT.md:976 | 040 | MỘT PHẦN | chỉ /admin/transfers (admin-transfers.controller.ts); test billing-payments.test.ts |
 | BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | — | GIẢ | không route API, không TIP nào nhận |
-| BP-4.4-fe-audit | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | apps/web/src/features/settings/api.ts:104 | — | GIẢ | không route API; 045b chỉ ghi audit, không có màn đọc |
+| BP-4.4-fe-audit | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | apps/web/src/features/settings/api.ts:104 | 045b | GIẢ | không route API; 045b chỉ ghi audit, không có màn đọc ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-4.5-a | POST /assistant/messages SSE (session/delta/plan/step/confirm/ui_command/result/error/done) | plans/BLUEPRINT.md:987 | 023c | MỘT PHẦN | assistant.controller.ts:40 trả JSON một lần (DV-006); SSE ở 023c bước 6a; test assistant.test.ts |
 | BP-4.5-b | POST /assistant/confirm | plans/BLUEPRINT.md:998 | 023 | ĐẠT | assistant.controller.ts:57; test assistant.test.ts |
 | BP-4.5-c | POST /runs/:id/cancel | plans/BLUEPRINT.md:999 | 019 | MỘT PHẦN | không route; chỉ action run.cancel (run-cancel.handler.ts:17); test ai-runtime.test.ts |
@@ -1233,7 +1227,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-8-e | Ports EInvoice/ESign/AccountingSync/SheetSync/Sms/Storage | plans/BLUEPRINT.md:1322 | 012 | MỘT PHẦN | ports/ chỉ bank-feed, mail, order-sync, tax-lookup; còn lại "Sắp có" |
 | BP-8-f | Auth: access token trong memory, 401 → refresh một lần | plans/BLUEPRINT.md:1331 | 011 | ĐẠT | apps/web/src/shared/api/http-transport.ts:2,40; e2e http auth-onboarding.spec.ts |
 | BP-9-a | argon2id, JWT HS256 xoay khoá, refresh cookie SameSite=Lax | plans/BLUEPRINT.md:1348 | 004 | ĐẠT | identity/services/secrets.ts:1, access-tokens.ts:29; http-util.ts:21; test identity-unit.test.ts, auth.test.ts |
-| BP-9-b | helmet | plans/BLUEPRINT.md:1348 | — | CHƯA | không có helmet / security header; 045b chỉ nói CORS |
+| BP-9-b | helmet | plans/BLUEPRINT.md:1348 | 045b | CHƯA | không có helmet / security header; 045b chỉ nói CORS ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-9-c | Rate limit chung actions | plans/BLUEPRINT.md:1348 | 045b | MỘT PHẦN | kernel/rate-limit.ts chỉ dùng cho auth / ký / widget |
 | BP-9-d | Outbox retry 2^n tối đa 8 rồi dead-letter | plans/BLUEPRINT.md:1344 | 003 | ĐẠT | kernel/outbox/relay.ts:8,46-52; test relay-sequence.test.ts |
 | BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | — | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm |
@@ -1421,7 +1415,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-3-loyalty | Điểm loyalty: transaction/khoá/sổ append-only/unique chống cộng-trừ đôi | standards/domain/concurrency.md:12 | 036 | CHƯA | TIP036 có kế hoạch ledger/FIFO/idempotency; code chưa có. Tách khỏi dòng tiền/kho cũ để không che phần thiếu bằng trạng thái ĐẠT. |
 | STD-domain-concurrency-4 | Idempotency theo nguồn: Idempotency-Key / (provider, external_id) / (event_id, consumer) | standards/domain/concurrency.md:16 | 003, 010, 012 | ĐẠT | executor.ts:108; kernel/events/dispatcher.ts:36; sales-orders.prisma:97; test integrations.test.ts:152 |
 | STD-domain-concurrency-5a | Người gửi khi ai_mode=auto → chuyển copilot cùng tx; run kiểm ai_mode trước khi gửi | standards/domain/concurrency.md:21 | 045b | CHƯA | Không có trong inbox message handlers; 045b task 10 |
-| STD-domain-concurrency-5b | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | standards/domain/concurrency.md:22 | — | MỘT PHẦN | Chỉ dedupe debounce BullMQ (ai/reply/reply.queue.ts:27) + aiState (reply.service.ts:212); worker concurrency 8 (agent-reply.processor.ts:31), không khoá; 045b task 10 không nêu |
+| STD-domain-concurrency-5b | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | standards/domain/concurrency.md:22 | 045b | MỘT PHẦN | Chỉ dedupe debounce BullMQ (ai/reply/reply.queue.ts:27) + aiState (reply.service.ts:212); worker concurrency 8 (agent-reply.processor.ts:31), không khoá; 045b task 10 không nêu ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | STD-domain-concurrency-6 | Đua người – job hết hạn: CAS thắng; job đọc lại trong tx | standards/domain/concurrency.md:23 | 029 | ĐẠT | quote-system.ts:36-43; test quotes.test.ts |
 | STD-domain-concurrency-7a | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | standards/domain/concurrency.md:24 | — | MỘT PHẦN | conversation.bulk_update / ticket.bulk_update output `{ updated: number }` (actions/src/inbox.ts:272, support.ts:187) |
 | STD-domain-concurrency-7b | Lô > 50 bản ghi chạy job, trả 202 + job id | standards/domain/concurrency.md:24 | 045b | CHƯA | executor.ts:18 chỉ 202 preview/approval; 045b task 11 |
@@ -1506,7 +1500,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ops-obs-1.1 | Logger pino JSON; cấm console.log backend | standards/ops/observability-security.md:7 | mọi TIP | QUY-TẮC | `pnpm lint` — `no-console: 2` packages/core, ai, channels, db, apps/api, apps/worker eslint.config.mjs |
 | STD-ops-obs-1.2 | Mỗi dòng log có level, time, msg, traceId, ws, userId, source, job | standards/ops/observability-security.md:8 | 001 | ĐẠT | kernel/logger/logger.ts:23; test packages/core/test/logger.test.ts:48,56 |
 | STD-ops-obs-1.3a | traceId nhận X-Request-Id / sinh uuidv7, trả header; vào action_log, outbox | standards/ops/observability-security.md:9 | 001, 003 | ĐẠT | apps/api/src/middleware/trace.middleware.ts:8-11; executor.ts:120,160; outbox.ts:28 |
-| STD-ops-obs-1.3b | traceId truyền vào job BullMQ (`data.trace_id`), `ai_run`, worker → kênh (truy xuyên HTTP → worker) | standards/ops/observability-security.md:9 | — | MỘT PHẦN | relay publish có traceId (relay.ts:41) nhưng worker không `RequestContext.run` với nó (chỉ trace.middleware.ts:11); ai_run không có cột trace_id (ai-runs.prisma); send/reply/integration queue không mang trace_id; 045b không nêu |
+| STD-ops-obs-1.3b | traceId truyền vào job BullMQ (`data.trace_id`), `ai_run`, worker → kênh (truy xuyên HTTP → worker) | standards/ops/observability-security.md:9 | 045b | MỘT PHẦN | relay publish có traceId (relay.ts:41) nhưng worker không `RequestContext.run` với nó (chỉ trace.middleware.ts:11); ai_run không có cột trace_id (ai-runs.prisma); send/reply/integration queue không mang trace_id; 045b không nêu ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | STD-ops-obs-1.4 | Redact PII / bí mật theo `shared/src/log/redact.ts` | standards/ops/observability-security.md:10 | 001 | ĐẠT | packages/shared/src/log/redact.ts; executor.ts:52; test logger.test.ts:31,41, actions-unit.test.ts:147 |
 | STD-ops-obs-1.5 | Mức log error/warn/info/debug đúng nghĩa; debug tắt prod | standards/ops/observability-security.md:11 | mọi TIP | QUY-TẮC | env LOG_LEVEL (kernel/env.ts:6); review |
 | STD-ops-obs-1.6 | `/metrics` nội bộ: http, action, job, queue_depth, outbox_lag, llm_tokens, channel_send | standards/ops/observability-security.md:12 | 045b | CHƯA | Không có prom-client; 045b task 1 |

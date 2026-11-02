@@ -225,7 +225,7 @@
 | ACT-category.delete | `category.delete` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | — | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
-| ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | — | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update |
+| ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions; BP = privacy.erase ẩn danh hoá. DC-235 đã sửa tên xoá fact dự kiến ở 015b thành contact.memory_forget; nghĩa vụ privacy vẫn chưa có TIP, không thuộc học KB của 043 |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
@@ -322,7 +322,7 @@
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
 | BP-4.4-admin | /admin/workspaces, /admin/plans, /admin/model-prices, /admin/transfers | plans/BLUEPRINT.md:976 | 040 | MỘT PHẦN | chỉ /admin/transfers (admin-transfers.controller.ts); test billing-payments.test.ts |
 | BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | — | GIẢ | không route API, không TIP nào nhận |
-| BP-4.4-fe-audit | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | apps/web/src/features/settings/api.ts:104 | — | GIẢ | không route API; 045b chỉ ghi audit, không có màn đọc |
+| BP-4.4-fe-audit | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | apps/web/src/features/settings/api.ts:104 | 045b | GIẢ | không route API; 045b chỉ ghi audit, không có màn đọc ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-4.5-a | POST /assistant/messages SSE (session/delta/plan/step/confirm/ui_command/result/error/done) | plans/BLUEPRINT.md:987 | 023c | MỘT PHẦN | assistant.controller.ts:40 trả JSON một lần (DV-006); SSE ở 023c bước 6a; test assistant.test.ts |
 | BP-4.5-b | POST /assistant/confirm | plans/BLUEPRINT.md:998 | 023 | ĐẠT | assistant.controller.ts:57; test assistant.test.ts |
 | BP-4.5-c | POST /runs/:id/cancel | plans/BLUEPRINT.md:999 | 019 | MỘT PHẦN | không route; chỉ action run.cancel (run-cancel.handler.ts:17); test ai-runtime.test.ts |
@@ -370,7 +370,7 @@
 | BP-8-e | Ports EInvoice/ESign/AccountingSync/SheetSync/Sms/Storage | plans/BLUEPRINT.md:1322 | 012 | MỘT PHẦN | ports/ chỉ bank-feed, mail, order-sync, tax-lookup; còn lại "Sắp có" |
 | BP-8-f | Auth: access token trong memory, 401 → refresh một lần | plans/BLUEPRINT.md:1331 | 011 | ĐẠT | apps/web/src/shared/api/http-transport.ts:2,40; e2e http auth-onboarding.spec.ts |
 | BP-9-a | argon2id, JWT HS256 xoay khoá, refresh cookie SameSite=Lax | plans/BLUEPRINT.md:1348 | 004 | ĐẠT | identity/services/secrets.ts:1, access-tokens.ts:29; http-util.ts:21; test identity-unit.test.ts, auth.test.ts |
-| BP-9-b | helmet | plans/BLUEPRINT.md:1348 | — | CHƯA | không có helmet / security header; 045b chỉ nói CORS |
+| BP-9-b | helmet | plans/BLUEPRINT.md:1348 | 045b | CHƯA | không có helmet / security header; 045b chỉ nói CORS ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | BP-9-c | Rate limit chung actions | plans/BLUEPRINT.md:1348 | 045b | MỘT PHẦN | kernel/rate-limit.ts chỉ dùng cho auth / ký / widget |
 | BP-9-d | Outbox retry 2^n tối đa 8 rồi dead-letter | plans/BLUEPRINT.md:1344 | 003 | ĐẠT | kernel/outbox/relay.ts:8,46-52; test relay-sequence.test.ts |
 | BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | — | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm |

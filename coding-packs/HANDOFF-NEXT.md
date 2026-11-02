@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Latest hardening checkpoint:045b349 exact paths/36 owned IDs;032b141 paths.** Four local independent blockers fixed/rechecked: pending approval operation, persisted GenUI revocation, redacted DTO consumers, send reservation vs human takeover. DC248 preserves role permissions while clarifying owner transfer. Ledger1480 rows/**212 unowned gaps**. See reports/hardening-vertical-planning-audit-2026-11-02.md. Next supplemental014b/025b/022b/019b and remaining7-part/full-graph audit. This is NOT whole-goal completion; docs only, no native service/data changes.
+
 - **Latest contract checkpoint:030b155-path manifest /20 owned IDs**,16 bilateral exact-table intersections; local independent review findings fixed, including two-stage AI proposal (no debit during preview), subtype templates, native isolation launchers and private public-sign capability. See reports/contract-files-planning-audit-2026-11-02.md. Goal still incomplete:1480 rows/218 owner gaps. Next045b exact manifest,032b job-accepted consumers, supplemental owner TIPs and full7part review. No code/runtime/service changes.
 
 - **Latest checkpoint:023c272-path manifest /33 owned IDs**, local independent recheck closed chart, lease/fencing, approval finalizer, vault recovery and draft-only tool isolation findings. See reports/genui-vertical-planning-audit-2026-11-02.md.023b local recheck also closed; neither means whole-goal PASS. Ledger1480/218 gaps unchanged. Continue030b/045b and remaining supplemental/whole-graph work; docs only, native services untouched.
