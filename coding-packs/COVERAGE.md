@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 116 | 22 | 8 | 12 | 23 | 2 | 0 | 29 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 32 | 3 | 5 | 43 | 11 | 21 | 24 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 95 | 194 | 5 | 4 | 81 | 1 | 0 | 23 |
-| E. standards/* | 159 | 37 | 2 | 6 | 62 | 2 | 40 | 38 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 7 | 6 | 0 | 48 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 32 | 3 | 5 | 44 | 11 | 21 | 24 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 94 | 195 | 5 | 4 | 81 | 1 | 0 | 23 |
+| E. standards/* | 158 | 38 | 2 | 6 | 62 | 2 | 40 | 38 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 42 |
-| **Tổng** | **570** | **318** | **118** | **42** | **310** | **35** | **66** | **218** |
+| **Tổng** | **568** | **320** | **118** | **42** | **312** | **34** | **66** | **218** |
 
 ## Lỗ hổng chưa có TIP nhận (218)
 
@@ -271,7 +271,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
 | REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
 | REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
-| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 042, 045b | MỘT PHẦN | packages/shared/src/custom-fields/values.ts fieldsForRole chỉ FE dùng; server chưa lọc |
+| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 042c, 045b | MỘT PHẦN | packages/shared/src/custom-fields/values.ts fieldsForRole chỉ FE dùng; server chưa lọc; 042c chưa có file |
 | REQ-A06a | Trial 15 ngày Cá nhân Pro + 10.000 credit | 01-REQUIREMENTS-MATRIX.md:40 | 009 | ĐẠT | packages/core/src/billing/services/subscriptions.service.ts:31; test billing.test.ts AC3 |
 | REQ-A06b | Màn chào mừng 2 nút + badge "Còn X ngày" | 01-REQUIREMENTS-MATRIX.md:40 | 011 | ĐẠT | OnboardingGate.tsx:34; apps/web/src/shared/shell/RailFoot.tsx:22; test onboarding.test.ts AC4, e2e http/auth-onboarding.spec.ts |
 | REQ-A06c | Hết hạn → gói Miễn phí, thông báo đóng được, dữ liệu giữ | 01-REQUIREMENTS-MATRIX.md:40 | 009, 011 | ĐẠT | subscriptions.service.ts:69-76; TrialExpired.tsx:21; test billing.test.ts AC7, onboarding.test.ts AC5 |
@@ -457,7 +457,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01b-5 | Tin mới tự gán cho người phụ trách của khách | 01-REQUIREMENTS-MATRIX.md:123 | 016 | ĐẠT | packages/core/src/inbox/services/pipeline.ts:108; test inbox.test.ts AC2 |
 | REQ-F01b-6 | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | 01-REQUIREMENTS-MATRIX.md:123 | — | CHƯA | DECISIONS.md:90 DC-081 hoãn "chưa có dữ liệu ca"; pipeline.ts:108 không kiểm ca / vắng |
 | REQ-F01b-7 | Doanh số ghi theo `owner_user_id` lúc tạo chứng từ | 01-REQUIREMENTS-MATRIX.md:123 | 029, 030, 031 | ĐẠT | packages/core/src/sales/quotes/services/quote-write.ts:106, contracts/services/contract-write.ts:37, order-create.handlers.ts:47; test quotes.test.ts "create: … phụ trách = người tạo", contracts.test.ts "create: … phụ trách = người tạo" |
-| REQ-F01c | Chia lead tự động: thủ công / vòng tròn / theo kênh / theo tải | 01-REQUIREMENTS-MATRIX.md:124 | 042 | CHƯA | `assign_mode` chỉ lưu trong cài đặt kênh (packages/core/src/channels/services/accounts.service.ts:18), không nơi nào đọc |
+| REQ-F01c | Chia lead tự động: thủ công / vòng tròn / theo kênh / theo tải | 01-REQUIREMENTS-MATRIX.md:124 | 042b | CHƯA | `assign_mode` chỉ lưu trong cài đặt kênh (packages/core/src/channels/services/accounts.service.ts:18), không nơi nào đọc; 042b chưa có file |
 | REQ-F02a | Hồ sơ 360°: thông tin, timeline đa kênh, ghi chú, trường tuỳ biến, bố cục theo vai trò | 01-REQUIREMENTS-MATRIX.md:125 | 015, 026 | ĐẠT | packages/core/src/crm/services/contact360.ts:14; timeline.service.ts; test crm-contacts.test.ts AC8, apps/web/e2e/http/customers.spec.ts |
 | REQ-F02b | Hồ sơ 360°: tóm tắt AI thật | 01-REQUIREMENTS-MATRIX.md:125 | 015b | CHƯA | contact360.ts:43 chỉ đọc cột `aiSummary` (không ai ghi); ai.bars/signals/nba rỗng :59 |
 | REQ-F02c | Hồ sơ 360°: đơn / báo giá / lịch hẹn / ticket / công nợ / thu gần nhất | 01-REQUIREMENTS-MATRIX.md:125 | 015b | CHƯA | contact360.ts:52–55 `kpis: []`, recent_order / recent_payment rỗng, `tasks: []`; apps/web/src/features/inbox/components/Blocks360.tsx:2 "khối module khác hiện chưa có dữ liệu" |
@@ -707,7 +707,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | — | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
 | COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | — | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081) |
 | COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 029–031 | ĐẠT | contracts.prisma ownerUserId "không đổi theo khách" · test quotes.test.ts, orders.test.ts (phụ trách = người tạo) |
-| COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042 | CHƯA | P1, TIP-042 |
+| COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | CHƯA | P1, TIP-042b chưa có file; không coi nhãn owner là đã có AC |
+| Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | CHƯA | Đã hỏi, chưa trả lời; TIP042 chưa ready-to-build, không tự nới quyền riêng Owner |
 | COM-9-1 | Máy trạng thái HĐ draft → pending_approval → pending_signature → signed / declined / expired / terminated | plans/COMMERCE-DECISIONS.md:191-195 | 030 | ĐẠT | packages/shared/src/contracts/contract-state.ts · test contract-state.test.ts, contracts.test.ts |
 | COM-9-2 | Kanban / chip 4 cột; Chờ duyệt gộp Nháp; Từ chối / Chấm dứt chỉ ở "Tất cả" | plans/COMMERCE-DECISIONS.md:198 | 030 | ĐẠT | contract-state.ts:31-33 · test contracts.test.ts "D42 … chip trạng thái" |
 | COM-9-3 | Agent / Trợ lý chỉ soạn nháp; gửi ký cần Owner | plans/COMMERCE-DECISIONS.md:202 | 030 | ĐẠT | packages/actions/src/contracts.ts:107-148 (`agentGrantable: false`, permission `contract.sign`) · test contracts.test.ts "sales không duyệt & ký được" |
@@ -1128,7 +1129,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-3.5-a | Danh mục permission đủ theo bảng §3.5 | plans/BLUEPRINT.md:826 | 005 | ĐẠT | packages/shared/src/authz/permissions.ts:2-21; test roles.test.ts, authz.test.ts |
 | BP-3.5-b | 5 vai trò hệ thống (owner/manager/sales/cs/accountant) + data scope mặc định | plans/BLUEPRINT.md:867 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36-68; test roles.test.ts, authz.test.ts |
 | BP-3.5-c | CSKH crm: đọc all, SỬA chỉ own + chỉ thông tin liên hệ | plans/BLUEPRINT.md:831 | 015 | MỘT PHẦN | roles.ts:57 scope crm='all' + crm.edit → access.ts:38 cho sửa mọi khách mọi trường; không kiểm own/contact-only |
-| BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005 | ĐẠT | permissions.ts:46; authz-resolver.ts:103; test authz.test.ts:116 |
+| BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | MỘT PHẦN | authz-resolver.ts:103 có đọc; apps/api/test/integration/authz.test.ts:116 chỉ update DB trực tiếp rồi GET, không chứng minh luồng Owner grant/revoke; 042 AC8, gate Q-028 |
 | BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015 | ĐẠT | packages/core/src/authz/scope.ts:2-20; crm/services/access.ts:19-38; test crm-contacts.test.ts |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |
@@ -1326,7 +1327,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-authz-rbac-3 | Danh mục permission ở `packages/shared/src/authz/permissions.ts` | standards/authz/rbac-permissions.md:12 | 005 | ĐẠT | packages/shared/src/authz/permissions.ts |
 | STD-authz-rbac-4 | Vai trò = permissions + data_scope ở DB tenant; 5 vai trò hệ thống seed, không sửa/xoá | standards/authz/rbac-permissions.md:15 | 005 | ĐẠT | packages/shared/src/authz/roles.ts; test roles.test.ts, authz.test.ts |
 | STD-authz-rbac-5a | `scopeFilter(ctx, module)` own/team/all áp mọi list/get; own gồm collaborator/watcher (D32) | standards/authz/rbac-permissions.md:19 | 005, 015 | ĐẠT | packages/core/src/authz/scope.ts:20; 13 file *-access.ts; test role-isolation.harness.ts, crm-contacts.test.ts |
-| STD-authz-rbac-5b | Scope `team` theo `team_id` (bảng team/team_member có, UI Nhóm P1) | standards/authz/rbac-permissions.md:21 | 042 | MỘT PHẦN | scope.ts:26 lọc theo teamUserIds; quote/contract/order/invoice/appointment không có cột team_id (tenant-db §9) |
+| STD-authz-rbac-5b | Scope `team` theo `team_id` (bảng team/team_member có, UI Nhóm P1) | standards/authz/rbac-permissions.md:21 | 042c | MỘT PHẦN | scope.ts:26 lọc theo teamUserIds; quote/contract/order/invoice/appointment không có cột team_id (tenant-db §9); 042c chưa có file, không coi đã khép |
 | STD-authz-rbac-6 | AI chạy đúng quyền người ra lệnh / agent tool_ids / task = creator ∩ scope | standards/authz/rbac-permissions.md:24 | 021–023, 035 | ĐẠT | agent-authz.ts:3; ai/tasks/task.store.ts; test ai-tasks.test.ts |
 | STD-authz-rbac-7a | Mỗi workspace đúng một Owner luôn có mọi permission | standards/authz/rbac-permissions.md:28 | 005 | ĐẠT | scope.ts:21 (`isOwner`); DC-025 |
 | STD-authz-rbac-7b | `workspace.transfer_ownership` (config, OTP) | standards/authz/rbac-permissions.md:28 | 045b | CHƯA | Không có trong packages/actions; 045b task 7 |
@@ -1376,11 +1377,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-database-tenantdb-1 | Hai DB, hai Prisma client (platform / tenant) | standards/database/tenant-db.md:7 | 002 | ĐẠT | packages/db/prisma.{platform,tenant}.config.ts; test packages/db/test/resolver.test.ts |
 | STD-database-tenantdb-2 | Bảng tenant không workspace_id, không RLS | standards/database/tenant-db.md:11 | 002 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:4 |
 | STD-database-tenantdb-4 | Chỉ lấy DB tenant qua `TenantDbResolver.get(ctx)`; cấm `new PrismaClient` tay | standards/database/tenant-db.md:13 | mọi TIP | ĐẠT | grep `new PrismaClient` ngoài packages/db/src = 0; test resolver.test.ts |
-| STD-database-tenantdb-5a | Thao tác 2 DB: nền tảng trước, khoá idempotent | standards/database/tenant-db.md:16 | 003, 009 | ĐẠT | executor.ts:125-136; billing/services/credit-meter.ts:2 |
+| STD-database-tenantdb-5a | Thao tác 2 DB: nền tảng trước, khoá idempotent | standards/database/tenant-db.md:16 | 003, 009, 045b | MỘT PHẦN | executor.ts:133-137 nested tenant transaction kết thúc trước platform commit; log/outbox/idempotency ghi ở transaction tenant sau:139-170. Chưa có bằng chứng fault/retry toàn bộ cross-DB handler; 045b phải kiểm/correct trước042, không suy từ comment là atomic |
 | STD-database-tenantdb-5b | Job đối soát nền tảng ↔ tenant hằng giờ | standards/database/tenant-db.md:18 | 045b | CHƯA | grep reconcile job = 0; 045b task 9 |
 | STD-database-tenantdb-6 | Migration `<ts>_<tip>_<desc>`, expand-compatible, deploy platform → template → tenant-migrate | standards/database/tenant-db.md:19 | 002 | ĐẠT | packages/db/prisma/tenant/migrations/20261031000000_015_crm; db/src/platform-recorder.ts:12; test tenant-migrate.test.ts |
 | STD-database-tenantdb-8 | Cột chuẩn id uuid(v7), timestamptz, bigint VND, text cho loại mở rộng | standards/database/tenant-db.md:24 | mọi TIP | ĐẠT | kernel/ids.ts; prisma tenant/*.prisma |
-| STD-database-tenantdb-9 | Bảng có chủ sở hữu có owner_user_id/assignee + `team_id` nullable | standards/database/tenant-db.md:28 | 042 | MỘT PHẦN | owner_user_id có đủ 8 bảng; team_id chỉ crm/support/inbox (thiếu quote, contract, order, invoice, appointment) |
+| STD-database-tenantdb-9 | Bảng có chủ sở hữu có owner_user_id/assignee + `team_id` nullable | standards/database/tenant-db.md:28 | 042c | MỘT PHẦN | owner_user_id có đủ 8 bảng; team_id chỉ crm/support/inbox (thiếu quote, contract, order, invoice, appointment); 042c chưa có file |
 | STD-database-tenantdb-10 | Role Postgres app / provisioner / migrator tách quyền | standards/database/tenant-db.md:30 | 002 | ĐẠT | packages/db/src/env.ts:7-13; test tenant-isolation.test.ts:52,117 |
 | STD-database-tenantdb-T | Test: X-Workspace-Id ngoài membership 403; resolver từ chối thiếu ctx; 2 workspace song song cô lập | standards/database/tenant-db.md:34 | 002, 004 | ĐẠT | tenant-isolation.test.ts:85,94; actions.test.ts:52 |
 | STD-documents-templates-1 | Số liệu chỉ từ bản ghi; mẫu chỉ chứa biến; bảng hàng từ `{{#items}}` | standards/documents/templates.md:7 | 028 | ĐẠT | packages/shared/src/documents/render.ts; test variables.test.ts, documents.test.ts |
@@ -1649,8 +1650,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-paymentaccount | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | plans/BLUEPRINT.md:1269 | — | CHƯA | Action + API có (DV-014); không FE nào gọi `payment_account.update` |
 | PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | — | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | MỘT PHẦN | Có tab Lịch sử ví (WalletLedger.tsx:1) nhưng không lọc theo module như prototype |
-| PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042 | CHƯA | REQ-F01c P1; không có FE |
-| PRO-settings-teams | Mục "Phòng ban / Nhóm" | docs/06-prototype/AppChat.dc.html:6709 | 042 | NGOÀI | prototype-parity §6 ẩn "Phòng ban"; Nhóm (team) P1 → 042 |
+| PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | CHƯA | REQ-F01c P1; không có FE; 042b chưa có file |
+| PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | CHƯA | prototype-parity §6 chỉ loại Phòng ban; Nhóm P1 chưa có UI/action. TIP042 AC5/7; không dùng ngoại lệ Phòng ban để đánh NGOÀI cả Nhóm |
 | PRO-settings-automation | Mục "Cấu hình workflow" | docs/06-prototype/AppChat.dc.html:6486 | — | NGOÀI | D07 (Workflow engine) |
 | PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | — | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |
 

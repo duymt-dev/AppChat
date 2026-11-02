@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Checkpoint authz mới nhất:** thêm `TIP-042-custom-roles-teams.md` (62 file, 9 AC; chưa ready-to-build vì Q-028). Tách 042b routing và042c scope/serializer vào graph nhưng **chưa viết file**. Hạ hai bằng chứng ĐẠT chưa đủ; sửa Nhóm P1 không còn NGOÀI. Sổ **1.460 dòng, 218 lỗ hổng**; xem `reports/authz-planning-audit-2026-11-02.md`. 042 tích hợp sau045b (consistency hai DB), không dùng số TIP làm thứ tự. Chưa rà độc lập, chưa code.
+
 - **Checkpoint KB mới nhất:** có `TIP-020b-kb-source-management.md` và `TIP-043-kb-conversation-learning.md`; năm nghĩa vụ đã có TIP cụ thể nhận, còn **218 lỗ hổng / 1.459 dòng**. Xem `reports/kb-planning-audit-2026-11-02.md`. Privacy vẫn chưa có TIP; đã dành riêng tên contact.forget, xoá fact 015b dùng contact.memory_forget. Chưa rà độc lập, chưa bắt đầu code.
 
 - **Checkpoint mới nhất:** đã viết `tips/TIP-036-loyalty.md` (63 file manifest, 10 AC), có gate Q-027 đang hỏi Chủ nhà; chưa rà độc lập. Xem `reports/tip-036-planning-audit-2026-11-02.md`. Sổ hiện 1.459 dòng, 223 lỗ hổng; tiếp theo viết 037–046 và TIP bổ sung, đồng thời rà các phần chưa hết.

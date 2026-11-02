@@ -47,3 +47,7 @@
 
 **SUGGESTIONS FOR CHỦ THẦU:**
 - Registry workspace vẫn cache trong process 60s; khi có nhiều tiến trình api, TIP-004 nên invalidate qua Redis pub/sub.
+
+## Supplemental planning audit (2026-11-02)
+
+See [authz audit](authz-planning-audit-2026-11-02.md), STD-database-tenantdb-5a and [TIP-045b](../tips/TIP-045b-app-hardening.md). Nested platform/tenant transactions and the later audit/outbox/idempotency write require fault/retry verification; comments alone do not prove cross-DB consistency. This is a pending corrective requirement, not a claim of reproduced data corruption.

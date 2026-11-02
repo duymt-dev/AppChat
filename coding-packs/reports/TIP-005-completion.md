@@ -42,3 +42,7 @@
 
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-015 (CRM) cấp `contactIds` collaborator cho `scopeFilter` (index `contact_collaborator(user_id, contact_id)`) và thêm ca role-isolation vào `role-isolation.harness.ts`.
+
+## Supplemental planning audit (2026-11-02)
+
+See [TIP-042](../tips/TIP-042-custom-roles-teams.md) and [authz audit](authz-planning-audit-2026-11-02.md): custom role/team lifecycle, settings DTO, invite/assignment/undo and delegation management remain pending. Existing resolver tests are not evidence of an Owner grant/revoke UI flow. Q-028 remains open; no implementation status change is implied.

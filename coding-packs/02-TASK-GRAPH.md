@@ -1,7 +1,7 @@
 # AppChat — Task Graph
 
 > Vibecode Kit v5.0 — BƯỚC 5 (TASK GRAPH) · 2026-10-28
-> **46 TIP + 7 TIP bổ sung (023b, 023c, 032b, 030b, 015b, 045b, 020b — DC-224…236)**, chia **9 wave** (ước lượng cũ ~656 giờ cần rà lại sau khi đủ TIP). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
+> **46 TIP + 9 TIP bổ sung (023b, 023c, 032b, 030b, 015b, 045b, 020b, 042b, 042c — DC-224…237)**, chia **9 wave** (ước lượng cũ ~656 giờ cần rà lại sau khi đủ TIP). Phạm vi = toàn bộ P0 + P1 (RRI D26). Thiết kế: `plans/BLUEPRINT.md` (đã duyệt 2026-10-28), quy tắc commerce: `plans/COMMERCE-DECISIONS.md`, chuẩn code: `standards/README.md`.
 > Wave là thứ tự phụ thuộc, không phải tuần lịch. Trong một wave, các TIP không phụ thuộc nhau chạy song song được (mỗi TIP một nhánh / worktree riêng).
 
 ---
@@ -102,7 +102,9 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | 039 | Gói & ví UI: trang Gói & thanh toán, popup Nâng cấp, badge trial, cảnh báo credit, luồng mua bằng QR, hết hạn gói; job cấp lại credit hằng tháng (`period:<ws>:<yyyy-mm>`) | 009, 010, 013 | P0 | 10 | W8 | L05, L06, L07 | ui/prototype-parity |
 | 040 | Quản trị nền tảng: workspaces, gói, đơn giá model, LLM provider (probe), duyệt chuyển khoản, agent template | 009, 010, 019, 021 | P1 | 12 | W8 | L08 | authz/rbac-permissions |
 | 041 | Lưu trữ / khôi phục / xoá workspace (gói Miễn phí 90 ngày) | 002, 009 | P1 | 8 | W8 | A09 | database/tenant-db |
-| 042 | Vai trò tuỳ biến + Nhóm + uỷ quyền + chia lead tự động | 005, 013, 015 | P1 | 12 | W8 | A05b, F01c | authz/rbac-permissions |
+| 042 | [Vai trò tuỳ biến + Nhóm + lifecycle quyền](tips/TIP-042-custom-roles-teams.md); gate Q-028, chưa ready-to-build | 005, 006, 013, 015; tích hợp sau 043/045b và các TIP chung registry | P1 | XL | W8 | A05b (roles/teams), D27, D35 | authz/rbac-permissions, database/tenant-db |
+| 042b | Chia lead tự động: thủ công / vòng tròn / kênh / tải, routing UI — **chưa có file TIP, còn phải viết** | 015, 016, 042; rà giao file trước thi công | P1 | cần ước lại | W8 | F01c, B11d (assignment), COM-8b-7 | authz/rbac-permissions, channels/omnichannel-adapter |
+| 042c | Scope team_id + serializer field-level server — **chưa có file TIP, còn phải viết**; phối hợp 045b, không đổi D32 | 042, 045b và các domain nghiệp vụ liên quan | P1 | cần ước lại | W8 | A05b (fields), STD-authz-rbac-5b, STD-database-tenantdb-9 | authz/rbac-permissions, database/indexing |
 | 043 | [Học từ hội thoại có người duyệt](tips/TIP-043-kb-conversation-learning.md): pending không vào RAG, PII, CAS/retry/credit, API + review UI | 020, 020b, 016, 022, 023b; tích hợp sau 036 | P1 | L | W8 | D04b | ai/rag, ai/agent-gateway, events/outbox |
 | 020b | [Quản lý nguồn RAG](tips/TIP-020b-kb-source-management.md): folder update/delete, kế thừa visibility phía server, catalog guard, tải nguồn thật | 020, 027, 023b; tích hợp sau 036, trước 043 | P0 | M | W8 | D04a, D04d | ai/rag, database/indexing, actions/action-registry |
 | 044 | AI eval gate: harness replay + live, đủ các suite (`assistant-*`, `agent-*`, `rag`, `doc-draft`, `delegate-consult`, `genui`; gộp bộ `pnpm ai:live`), báo cáo, CI | 022, 023, 024, 028, 020 | P0 | 16 | W9 | N11 | ai/eval |

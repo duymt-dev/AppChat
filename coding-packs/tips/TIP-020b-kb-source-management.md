@@ -1,6 +1,7 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
+- **Parallel-safe with TIP-042:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042. Recheck intersections when incomplete manifests are expanded.
 - TIP-ID: TIP-020b; Project: AppChat V2; Module: AI/KB source management; Priority: P0; Estimated: M.
 - Depends on: 020, 027, 023b; tích hợp sau 036 (registry/i18n), trước 043 và 045b. Không sửa TIP-020 đã DONE.
 - **Dòng COVERAGE nhận:** ACT-kb.folder.delete, ACT-kb.folder.update, STD-ai-rag-3b, DEF-027-1, PRO-settings-ragdownload.

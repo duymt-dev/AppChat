@@ -1,6 +1,7 @@
 # TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
 
 ## HEADER
+- **Parallel-safe with TIP-042:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 042. Recheck intersections when incomplete manifests are expanded.
 - **Parallel-safe with TIP-020b:** sequential, shares `packages/actions/src/index.ts`; integrate 020b after 036, before 043/045b. For 043 also shares `packages/db/prisma/tenant/ai-kb.prisma`, `packages/core/src/ai/ai.module.ts`, `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/src/features/settings/components/RagSection.tsx`, `apps/web/src/shared/api/mock/domains/settings-ai.ts`, settings/action locale files.
 - **Parallel-safe with TIP-043:** sequential, shares `packages/actions/src/index.ts` and (where applicable) `packages/core/src/ai/jobs/ai.jobs.module.ts`; TIP-043 integrates after 015b/023b/023c/030b/032b/036 and before 045b.
 - TIP-ID: TIP-045b (bổ sung — chèn trước TIP-045 / 046, DC-232)
@@ -16,6 +17,8 @@
 Rà standards 2026-11-01: phần **trong code** của `ops/observability-security` ghi "mọi TIP backend phải làm" nhưng không TIP nào làm; TIP-045 chỉ hạ tầng (Prometheus / Grafana cần app mở `/metrics`), TIP-046 chỉ rà soát. Đã kiểm code: không có `prom-client`, `safeFetch`, kiểm magic bytes, rate limit chung (chỉ OTP / widget / ký), CORS, chỗ ghi `platform_audit_log`, `workspace.transfer_ownership`, lọc trường phía server, job đối soát, chuyển `ai_mode` khi người gửi, job cho export / bulk lớn.
 
 ## TASK
+**Bổ sung khảo sát 2026-11-02 — dependency của042:** nhận STD-database-tenantdb-5a cùng5b. `kernel/actions/executor.ts:133-137` lồng tenant transaction bên trong platform; tenant log/outbox/idempotency lại ghi ở transaction sau:139-170. Không lấy comment “platform trước” làm bằng chứng atomic. Khi hoàn thiện manifest045b, tách module consistency/reconciliation riêng (facade ở kernel), kiểm fault ở từng commit và retry cho member.invite/set_role/accept/undo. 042 không được đi trước nền này rồi tự vá kernel ngoài manifest. Đây là yêu cầu còn phải thiết kế/kiểm thử, không báo đã sửa.
+
 1. **Metrics** (`prom-client`, đã nằm trong Blueprint §11): `/metrics` (chỉ localhost / token nội bộ) cho api + worker: `http_request_duration_seconds{route,method,status}`, `action_total{action,source,result}`, `queue_depth{queue}`, `outbox_lag_seconds`, `llm_tokens_total{provider,model,purpose}`, `llm_errors_total`, `channel_account_status{type,status}`, `tenant_pool_clients`. Không nhãn theo workspace / user (cardinality).
 2. **SSRF:** `safeFetch` (chặn private / loopback / link-local / metadata, kiểm sau DNS resolve + sau redirect, timeout, giới hạn byte) — thay mọi `fetch` ra URL do người dùng nhập (`ai/kb/ingest.ts:46`, webhook test, connector probe).
 3. **Tải file:** allowlist mime theo mục đích + magic bytes (`file-type` logic tự viết cho PDF / DOCX / XLSX / PNG / JPG / WebP / MP4 / CSV), giới hạn dung lượng theo loại; `files.controller` từ chối đổi đuôi. (Presign S3 để khi có storage s3 — DV-003 giữ multipart.)

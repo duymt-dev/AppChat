@@ -282,7 +282,7 @@
 | BP-3.5-a | Danh mục permission đủ theo bảng §3.5 | plans/BLUEPRINT.md:826 | 005 | ĐẠT | packages/shared/src/authz/permissions.ts:2-21; test roles.test.ts, authz.test.ts |
 | BP-3.5-b | 5 vai trò hệ thống (owner/manager/sales/cs/accountant) + data scope mặc định | plans/BLUEPRINT.md:867 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36-68; test roles.test.ts, authz.test.ts |
 | BP-3.5-c | CSKH crm: đọc all, SỬA chỉ own + chỉ thông tin liên hệ | plans/BLUEPRINT.md:831 | 015 | MỘT PHẦN | roles.ts:57 scope crm='all' + crm.edit → access.ts:38 cho sửa mọi khách mọi trường; không kiểm own/contact-only |
-| BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005 | ĐẠT | permissions.ts:46; authz-resolver.ts:103; test authz.test.ts:116 |
+| BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | MỘT PHẦN | authz-resolver.ts:103 có đọc; apps/api/test/integration/authz.test.ts:116 chỉ update DB trực tiếp rồi GET, không chứng minh luồng Owner grant/revoke; 042 AC8, gate Q-028 |
 | BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015 | ĐẠT | packages/core/src/authz/scope.ts:2-20; crm/services/access.ts:19-38; test crm-contacts.test.ts |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |

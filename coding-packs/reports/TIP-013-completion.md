@@ -41,3 +41,7 @@
 - TIP-034: seed `sla_policy` từ `SLA_DEFAULT`, đồng hồ SLA đọc `workspace.settings.working_hours` + `timezone`; `GET /settings/sla` đổi `policy` / `escalation` sang bảng, `risk` từ ticket.
 - TIP-015: chuyển phụ trách khách của thành viên bị gỡ (hiện chỉ đặt membership `removed`).
 - TIP-016: presence Socket.IO thay "hoạt động cuối" nếu cần chính xác hơn (giữ shape `last`).
+
+## Supplemental planning audit (2026-11-02)
+
+See [TIP-042](../tips/TIP-042-custom-roles-teams.md) and [authz audit](authz-planning-audit-2026-11-02.md): custom role/team lifecycle, settings DTO, invite/assignment/undo and delegation management remain pending. Existing resolver tests are not evidence of an Owner grant/revoke UI flow. Q-028 remains open; no implementation status change is implied.
