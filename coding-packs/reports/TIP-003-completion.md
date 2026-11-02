@@ -55,3 +55,7 @@ See [authz audit](authz-planning-audit-2026-11-02.md), STD-database-tenantdb-5a 
 ## Bổ sung — event protocol audit2026-11-02
 
 [TIP003b](../tips/TIP-003b-event-protocol.md) receives kernel per-entity ordering/transaction collector/relay/readiness/cutover work. Existing post-handler event_consumption receipt does not prove concurrent/crash effect idempotence; published queue status is not domain completion.003c/006b adapter packs remain required separately. Original DONE TIP unchanged; no new runtime acceptance claimed.
+
+## Bổ sung — private system adapters2026-11-02
+
+[TIP003c](../tips/TIP-003c-system-actions.md) receives system transitions/consumer business effects, private admission before prepare and durable trigger receipts. Bank ingress and public quote locator seams explicitly covered. Original TIP stays DONE unchanged; this supplemental plan is not runtime acceptance.

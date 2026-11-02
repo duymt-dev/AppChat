@@ -1,6 +1,7 @@
 # TIP-041 — Archive, restore và xoá workspace an toàn
 
 ## HEADER
+- **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 041 before003c.
 - **Parallel-safe with TIP-003b (Event protocol manifest):** sequential, shares `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/identity/jobs/tenant-provision.processor.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`, `packages/shared/src/index.ts`; integrate 041 before003b.
 - **Parallel-safe with TIP-023f (Assistant input manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 041 before023f.
 - **Parallel-safe with TIP-023e (Action discovery manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 041 before023e.

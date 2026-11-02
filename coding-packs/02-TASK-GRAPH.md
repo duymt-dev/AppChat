@@ -275,3 +275,11 @@ Not a replacement for038b business file transfer or025b Inbox capture. Exact man
 |003b [event-protocol](tips/TIP-003b-event-protocol.md)|Transaction-final collector, typed aggregate sequence, relay claims, ordered dispatch/receipt ports/readiness/cutover|After023f and exact bilateral predecessors; foundation before003c/006b adapters, then combined activation before044–046|94exactpaths/11futureM/33bilateralpairs/6ownedIDs/10AC; local review corrections rechecked, runtime unverified|
 
 Foundation build has no backward dependency on adapters; v2 activation is separately blocked until actual003c/006b and future consumer capabilities are proven. STD-events-outbox4/5 and STD-domain-state4 are not claimed by foundation. All current25direct-writer files plus undo require transaction collector enrollment. No crossentity ordering or external exactly-once promise.
+
+### Supplemental003c — private system adapters (DC271)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|003c [system-actions](tips/TIP-003c-system-actions.md)|Canonical private transitions, early admission gate, durable source receipts, current domain predicates and narrow sender capabilities|After003b and exact bilateral predecessors; before006b/030c integration and combined v2 activation|138exactpaths/36bilateralpairs/4ownedIDs/8AC; local review corrected, runtime unverified|
+
+No dependency back-edge from003b foundation to003c implementation; activation is a separate gate.006b owns projection/delivery/task fanout,030c parent signing. Existing action IDs/policies remain authoritative; no internal tool grant through AI discovery.
