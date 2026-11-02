@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Latest contract checkpoint:030b155-path manifest /20 owned IDs**,16 bilateral exact-table intersections; local independent review findings fixed, including two-stage AI proposal (no debit during preview), subtype templates, native isolation launchers and private public-sign capability. See reports/contract-files-planning-audit-2026-11-02.md. Goal still incomplete:1480 rows/218 owner gaps. Next045b exact manifest,032b job-accepted consumers, supplemental owner TIPs and full7part review. No code/runtime/service changes.
+
 - **Latest checkpoint:023c272-path manifest /33 owned IDs**, local independent recheck closed chart, lease/fencing, approval finalizer, vault recovery and draft-only tool isolation findings. See reports/genui-vertical-planning-audit-2026-11-02.md.023b local recheck also closed; neither means whole-goal PASS. Ledger1480/218 gaps unchanged. Continue030b/045b and remaining supplemental/whole-graph work; docs only, native services untouched.
 
 - **023b đã có exact578-path manifest**,184 COVERAGE IDs, ma trận test riêng190 action hiện hữu+26 action mới/read/system result,17 overlap hai chiều, specs/standards/preflight/AC/lệnh/checklist. Review độc lập tìm4 lỗi wiring đã sửa (barrels, runtime prompt registry, HTTP runs scope, task cũ mâu thuẫn); đang chờ tái kiểm, chưa PASS. Xem `reports/assistant-vertical-planning-audit-2026-11-02.md`. COVERAGE1.480 dòng/**218** thiếu owner. Tiếp tục023c/030b manifests và điểm nối channels/inbox/runtime; không triển khai code, không coi checkpoint là kết thúc.

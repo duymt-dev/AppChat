@@ -1,0 +1,161 @@
+# TIP-030b exact file manifest
+
+155 paths. M=modify existing; C=create absent.023c kernel file-access guard is reused, not duplicated. Parity1405-line legacy file may only import/re-export new module in1-2 lines. Other new logic stays in bounded domain modules; tests separate.
+
+| Mode | Path | Purpose |
+|---|---|---|
+| M | `packages/actions/src/contracts.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/actions/src/documents.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/actions/src/index.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/index.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/contracts.module.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/public.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/actions/contract-write.handlers.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/actions/contract-approval.handlers.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/services/contract-doc.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/services/contract-view.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/services/contracts-read.service.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/services/contract-write.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/services/contract-deps.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/contracts/jobs/contracts.jobs.module.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/documents/services/template-store.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/documents/actions/doc-template.handlers.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/documents/services/soffice.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/documents/documents.module.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/documents/public.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/ai/ai.module.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/core/src/ai/jobs/ai.jobs.module.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/ai/src/prompts/index.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/ai/src/index.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/db/prisma/tenant/contracts.prisma` | Existing facade/runtime/UI wiring |
+| M | `packages/db/prisma/tenant/documents.prisma` | Existing facade/runtime/UI wiring |
+| M | `packages/shared/src/api/contracts.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/shared/src/api/documents.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/shared/src/api/index.ts` | Existing facade/runtime/UI wiring |
+| M | `packages/shared/src/index.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/api/src/http/contracts/contracts.http.module.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/api/src/http/contracts/contracts.controller.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/components/DetailTabs.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/components/ContractFormModal.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/components/ContractDrawer.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/hooks/useContractForm.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/api.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/types.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/ui-commands.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/contracts/screens/ContractsScreen.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/inbox/components/Attachments.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/inbox/components/MessageBubble.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/inbox/ui-commands.ts` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/settings/components/DocTemplatesSection.tsx` | Existing facade/runtime/UI wiring |
+| M | `apps/web/src/features/settings/components/RichTemplateModal.tsx` | Existing facade/runtime/UI wiring |
+| M | `tools/parity/parity.manifest.ts` | Existing facade/runtime/UI wiring |
+| C | `packages/actions/src/contract-files.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/actions/src/contract-appendix.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/shared/src/api/contract-files.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/shared/src/api/contract-appendix.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/source.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/attachment-source.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/artifact-store.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/extraction.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/draft-content.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/suggestions.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/files/read.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/actions/contract-file.handlers.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/actions/contract-draft.handler.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/actions/contract-suggestion.handler.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/appendix.module.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/write.handlers.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/approval.handlers.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/send.handlers.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/public.handlers.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/read.service.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/signing.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/tokens.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/events.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/artifacts.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/contracts/appendix/expiry.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/documents/services/contract-template.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/documents/security/document-guard.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/documents/security/docx-container.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/documents/security/pdf-inspection.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/src/documents/security/render-isolation.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/ai/src/prompts/contract-files.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/db/prisma/tenant/contract-appendix-signing.prisma` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/db/prisma/tenant/migrations/20261102003020_contract_files/migration.sql` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/api/src/http/contracts/contract-files.controller.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/api/src/http/contracts/appendix-sign.controller.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/files/ContractFilesTab.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/files/ContractSourceStep.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/files/ExtractionPreview.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/files/AiSuggestions.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/appendix/AppendixTab.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/appendix/AppendixForm.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/appendix/AppendixApproval.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/screens/AppendixSignScreen.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/hooks/useContractSource.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/hooks/useContractSuggestions.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/hooks/useAppendixSign.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/inbox/components/AttachmentContractMenu.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/inbox/hooks/useAttachmentContract.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/app/(public)/sign/appendix/[token]/page.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/test/contract-file-source.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/test/contract-file-extraction.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/test/contract-draft-suggestions.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/test/contract-appendix-sign.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/test/document-container-security.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `packages/core/test/contract-template-kind.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/api/test/integration/contract-files.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/api/test/integration/contract-appendix.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/worker/test/integration/contract-draft-tools.test.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/files/ContractSourceStep.test.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/contracts/components/files/AiSuggestions.test.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/src/features/inbox/hooks/useAttachmentContract.test.tsx` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/e2e/contract-files.spec.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `apps/web/e2e/http/contract-files.spec.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `tools/parity/modules/contract-files.ts` | Bounded contract files/appendix domain module or dedicated test |
+| C | `fixtures/ai-eval/contract-files.json` | Bounded contract files/appendix domain module or dedicated test |
+| C | `fixtures/contracts/files/README.md` | Bounded contract files/appendix domain module or dedicated test |
+| C | `fixtures/contracts/files/build-fixtures.ts` | Bounded contract files/appendix domain module or dedicated test |
+| M | `apps/web/messages/vi/actions.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/vi/contracts.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/vi/inbox.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/vi/settings.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/en/actions.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/en/contracts.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/en/inbox.json` | Localized contract file/appendix/AI feedback |
+| M | `apps/web/messages/en/settings.json` | Localized contract file/appendix/AI feedback |
+| C | `apps/api/test/integration/actions/contract.inspect_file.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.create_from_attachment.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.attach_file.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.draft_from_content.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.resolve_suggestion.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.create_appendix.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_update.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_submit.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_approve_and_sign.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_send.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_request_changes.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_public_otp.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_public_sign.action.test.ts` | Action matrix and negative permission/state coverage |
+| C | `apps/api/test/integration/actions/contract.appendix_public_decline.action.test.ts` | Action matrix and negative permission/state coverage |
+| M | `apps/web/src/shared/api/mock/domains/contracts.ts` | Mock or server feedback extension |
+| M | `apps/web/src/shared/api/mock/domains/doc-templates.ts` | Mock or server feedback extension |
+| M | `packages/shared/src/i18n/server/vi/sales.ts` | Mock or server feedback extension |
+| M | `packages/shared/src/i18n/server/en/sales.ts` | Mock or server feedback extension |
+| C | `packages/core/src/contracts/files/parse-worker.ts` | Isolated bounded document parsing worker |
+| C | `packages/core/src/contracts/appendix/public.service.ts` | Token-authorized executor adapter and read facade |
+| C | `packages/core/src/contracts/appendix/owner-otp.handler.ts` | Existing Owner step-up policy for appendix signing |
+| C | `apps/api/test/integration/actions/contract.appendix_owner_otp.action.test.ts` | Owner step-up action matrix |
+| M | `packages/core/src/documents/services/documents-read.service.ts` | Include contract_kind in existing list DTO |
+| M | `apps/web/src/features/settings/components/DocxWizard.tsx` | Contract type in DOCX template wizard |
+| C | `packages/core/src/contracts/actions/contract-draft-prepare.handler.ts` | Explicit metered read utility creates proposal, separate from business preview |
+| C | `packages/core/src/contracts/appendix/capability.ts` | Private unforgeable context capability for public token executor |
+| C | `packages/core/test/appendix-public-capability.test.ts` | Reject forged public API actor/token capabilities |
+| C | `apps/api/test/integration/actions/contract.prepare_draft.action.test.ts` | Proposal utility action matrix |
+| C | `tools/sandbox/render-linux.sh` | Native restricted-user network-isolated renderer launcher |
+| C | `tools/sandbox/render-windows.ps1` | Native restricted-token AppContainer renderer launcher, hidden process |
+| C | `tools/sandbox/README.md` | Provisioned identities/ACLs and fail-closed validation |
+| C | `packages/core/test/render-isolation.test.ts` | Native network/filesystem/process-tree isolation conformance |
+| M | `apps/web/src/features/settings/types.ts` | Local template subtype interface |
+| M | `packages/core/src/ai/assistant/catalog.ts` | Hide public appendix internal actions from all assistant discovery |
+| C | `packages/core/test/appendix-catalog.test.ts` | Discovery and direct invocation fail closed |
