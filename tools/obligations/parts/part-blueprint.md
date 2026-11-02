@@ -232,8 +232,8 @@
 | ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
 | ACT-conversation.get | `conversation.get` có trong registry + handler | plans/BLUEPRINT.md:603 | 023b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-conversation.search | `conversation.search` có trong registry + handler | plans/BLUEPRINT.md:602 | 023b | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
-| ACT-conversation.untag | `conversation.untag` có trong registry + handler | plans/BLUEPRINT.md:607 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); gỡ thẻ có qua conversation.set_tags (inbox.ts:215), không có id riêng / DV |
+| ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
+| ACT-conversation.untag | `conversation.untag` có trong registry + handler | plans/BLUEPRINT.md:607 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); gỡ thẻ có qua conversation.set_tags (inbox.ts:215), không có id riêng / DV |
 | ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
 | ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP'; 023c nói 'probe connector' nhưng không định nghĩa action |
@@ -241,8 +241,8 @@
 | ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
-| ACT-message.unreact | `message.unreact` có trong registry + handler | plans/BLUEPRINT.md:617 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); message.react gửi lại cùng emoji = gỡ (inbox.ts:176; inbox.test.ts:261), không DV |
+| ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
+| ACT-message.unreact | `message.unreact` có trong registry + handler | plans/BLUEPRINT.md:617 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); message.react gửi lại cùng emoji = gỡ (inbox.ts:176; inbox.test.ts:261), không DV |
 | ACT-order.import_external | `order.import_external` có trong registry + handler | plans/BLUEPRINT.md:695 | 031 | MỘT PHẦN | Không có trong packages/actions (actions.json); DV-011: không là action, OrderSyncService trong job (sales/jobs/order-sync.jobs.ts) — test order-sync.test.ts, orders.test.ts |
 | ACT-payment.redeem_points | `payment.redeem_points` có trong registry + handler | plans/BLUEPRINT.md:713 | 036 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-product.import | `product.import` có trong registry + handler | plans/BLUEPRINT.md:664 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
@@ -382,6 +382,9 @@
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
 | CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |
 | AI-CHANNEL-ATTACHMENT-CONTEXT | Agent distinguishes present attachment from actually readable content and never fabricates extraction | standards/ai/agent-gateway sections7-9; vertical-flow audit2026-11-02 | 022b | MỘT PHẦN | reply-context.ts:46-59 selects body/kind but no attachment metadata, renders [kind].022b typed unreadable metadata and safe handoff; no unapproved OCR/multimodal. |
+
+| INBOX-BULK-RESULTS | Inbox bulk independent per-record outcomes, durable retry and version-aware undo | standards/domain/concurrency section7; Q019 | 025b | MỘT PHẦN | conversation-assign.handlers.ts:107-150 bulk runs one transaction and returns updated count; one denied row aborts batch.025b receives Inbox portion; ticket bulk in STD-domain-concurrency-7a still needs independent owner. |
+| INBOX-FILTER-COUNTS | Current-scope filtered Inbox counters and safe realtime invalidation | plans/BLUEPRINT.md section4.6; vertical-flow audit2026-11-02 | 025b | MỘT PHẦN | conversations.controller.ts:41 counts has no filter; inbox/api.ts:69 static counts key; meta.service.ts:25 count across visible filtering not applied.042c supplies scope foundation,025b filter/count projection and invalidation-only signal; no workspace aggregate broadcast. |
 
 Ghi chú:
 - ACT: handler/preview từ actions.json; test = grep id trong apps/api/test, packages/*/test (không tính test mock web). Hàng MỘT PHẦN có 'thiếu preview' là nợ preview của 023b (DC-224).

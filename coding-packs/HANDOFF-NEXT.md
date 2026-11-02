@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Latest Inbox checkpoint:025b237 exact paths/27 owned IDs,20 bilateral pairs.** Local independent review/recheck closed actual contact CAS, global form-prefill registration and minimal transfer context. DC250 closes Q019 design under delegation. Ledger1484/**171 gaps**; see reports/inbox-vertical-planning-audit-2026-11-02.md. Continue019b runtime,012b bank adapters,026b CRM and whole7part/graph/review; no code/runtime or goal completion.019b read-only audit already identified shared-root budget, tenant accounting crash/replay, run detail/events and persistent stop/transfer lineage.
+
 - **Latest agent checkpoint:022b115 exact paths/13 owned IDs,19 bilateral pairs.** Local independent review/recheck closed settings mock/DTO and greeting crash-recovery findings. DC249 preserves legacy runtime until explicit schedule/routing/greeting confirmation, no auto grants. Ledger1482/**196 gaps**. See reports/agent-channel-planning-audit-2026-11-02.md. Continue025b/019b/012b and full7part/whole-graph work; no code/runtime or whole-goal completion.
 
 - **Latest Zalo checkpoint:014b134 exact paths/9 owned obligations,18 bilateral pairs.** Provider refs/remote operations/durable chunks/receipts, history side-effect isolation, sync flags and explicit address-book import. Four independent findings fixed and independently rechecked, no remaining blocker in local review. Ledger1481/**207 owner gaps**. See reports/zalo-lifecycle-planning-audit-2026-11-02.md. Continue025b/022b/019b and remaining whole-goal work; docs only.

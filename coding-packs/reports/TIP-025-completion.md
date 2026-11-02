@@ -33,3 +33,8 @@
 - TIP hạ tầng: nginx chuyển `/socket.io` (Upgrade) sang API; `WIDGET_API_URL` là origin public cho link tệp.
 - Màn Chờ duyệt / Nhật ký đã nhận `approval.changed` qua socket — có thể bỏ làm mới 30 giây (giữ làm lưới an toàn).
 - "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket chạy khi TIP-029 / 031 / 033 / 034 xong (hiện 501 "Tính năng này chưa sẵn sàng").
+
+
+## Supplemental planning2026-11-02 ? TIP025b (not runtime DONE)
+
+See ../tips/TIP-025b-inbox-vertical.md for group/search/bulk/source-context/global contact edit/timeline CSV/scheduling/translation/capture/approval integration and exact manifests. Original completion status does not prove these missing controls.025b preserves existing domain permissions/commerce;026b still must own CRM deal/task/contact-note domain gaps. Independent review/validation tracked in inbox-vertical-planning-audit-2026-11-02.md.

@@ -12,16 +12,16 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 24 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 11 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 10 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 20 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 200 | 5 | 4 | 81 | 1 | 0 | 21 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 202 | 5 | 4 | 81 | 1 | 0 | 17 |
 | E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 39 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 33 |
-| **Tổng** | **556** | **337** | **118** | **41** | **330** | **34** | **66** | **196** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 39 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 30 |
+| **Tổng** | **556** | **339** | **118** | **41** | **330** | **34** | **66** | **171** |
 
-## Lỗ hổng chưa có TIP nhận (196)
+## Lỗ hổng chưa có TIP nhận (171)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -30,20 +30,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A02d | MỘT PHẦN | Chọn lĩnh vực theo taxonomy ngành 2 cấp, 10 nhóm | A |
 | REQ-A05f | CHƯA | Mời thành viên bằng SĐT | A |
 | REQ-A07b | GIẢ | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | A |
-| REQ-B03b | MỘT PHẦN | AI nhóm 3 chế độ đổi được | A |
 | REQ-B04a | CHƯA | Cảnh báo rủi ro khi kết nối Zalo | A |
 | REQ-B05c | CHƯA | Tuỳ chỉnh logo widget | A |
 | REQ-B06b | CHƯA | Gmail OAuth | A |
 | REQ-B11d | MỘT PHẦN | Phân công & SLA theo tài khoản | A |
 | REQ-C05d | GIẢ | Tự dịch tin gửi đi | A |
-| REQ-C07 | MỘT PHẦN | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | A |
-| REQ-C08b | CHƯA | Multi-select hội thoại trên UI | A |
-| REQ-C09a | MỘT PHẦN | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | A |
 | REQ-C10a | MỘT PHẦN | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | A |
-| REQ-C10c | MỘT PHẦN | Phân công nhân viên + agent kèm tải | A |
-| REQ-C11a | GIẢ | Menu ＋: Thêm tệp · Chụp ảnh màn hình | A |
-| REQ-C12 | MỘT PHẦN | Tìm trong hội thoại không dấu, N/M, lọc người gửi | A |
-| REQ-D07c | CHƯA | Thẻ duyệt trong Inbox | A |
 | REQ-D17c | CHƯA | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | A |
 | REQ-E03d | CHƯA | Đề xuất tái dùng luồng trước | A |
 | REQ-E04b | MỘT PHẦN | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | A |
@@ -57,7 +49,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
 | REQ-F08f | GIẢ | Adapter bank feed thật cho DN: SePay gắn vào registry tenant, Casso có adapter | B |
 | REQ-G07e | CHƯA | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | B |
-| REQ-G03c | GIẢ | Composer Hộp thư "Đặt lịch" lấy slot thật | B |
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
 | REQ-N08b | CHƯA | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | B |
@@ -89,12 +80,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-ai.summarize | CHƯA | `ai.summarize` có trong registry + handler | D |
 | ACT-contact.add_note | CHƯA | `contact.add_note` có trong registry + handler | D |
 | ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
-| ACT-conversation.unhide | MỘT PHẦN | `conversation.unhide` có trong registry + handler | D |
-| ACT-conversation.untag | MỘT PHẦN | `conversation.untag` có trong registry + handler | D |
 | ACT-integration.sync_now | CHƯA | `integration.sync_now` có trong registry + handler | D |
 | ACT-integration.test | CHƯA | `integration.test` có trong registry + handler | D |
-| ACT-message.unpin | MỘT PHẦN | `message.unpin` có trong registry + handler | D |
-| ACT-message.unreact | MỘT PHẦN | `message.unreact` có trong registry + handler | D |
 | BP-4.4-ai-c | CHƯA | GET /runs/:id (+steps) | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
@@ -157,17 +144,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
 | PRO-products-richtext | GIẢ | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | F |
 | PRO-customers-dedupe | GIẢ | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | F |
-| PRO-inbox-groupacts | GIẢ | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | F |
-| PRO-inbox-grouplink | GIẢ | Thông tin nhóm: Link tham gia (sao chép) | F |
-| PRO-inbox-groupboard | GIẢ | Nhóm: Bảng tin (tin ghim, ghi chú) + "Xem tất cả" ảnh / tệp | F |
-| PRO-inbox-grouppolicy | GIẢ | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | F |
-| PRO-inbox-360edit | GIẢ | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | F |
 | PRO-inbox-360deal | GIẢ | Hồ sơ 360°: "+ Thêm" cơ hội / deal | F |
-| PRO-inbox-360csv | GIẢ | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | F |
 | PRO-inbox-360tasknote | GIẢ | Hồ sơ 360°: "+ Thêm việc" / "+ Thêm ghi chú" | F |
-| PRO-inbox-schedslots | GIẢ | Composer "Đặt lịch": slot gợi ý từ API | F |
-| PRO-inbox-autoxl | GIẢ | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | F |
-| PRO-inbox-screenshot | GIẢ | Menu ＋ khung nhập: Chụp ảnh màn hình | F |
 | PRO-assistant-plusfile | GIẢ | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | F |
 | PRO-assistant-plusscreenshot | GIẢ | Trợ lý: menu ＋ "Chụp ảnh màn hình" | F |
 | PRO-assistant-mic | GIẢ | Trợ lý: nút giọng nói | F |
@@ -202,8 +180,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-021-1 | MỘT PHẦN | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | G |
 | DEF-023-2 | CHƯA | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | G |
 | DEF-023-4 | CHƯA | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | G |
-| DEF-025-1 | MỘT PHẦN | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | G |
-| DEF-025-2 | GIẢ | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | G |
 | DEF-026-2 | CHƯA | Kanban khách > 50 thẻ / cột có "Xem thêm" | G |
 | DEF-027-2 | CHƯA | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | G |
 | DEF-028-1 | MỘT PHẦN | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | G |
@@ -219,7 +195,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-010 | CHƯA | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | G |
 | Q-017 | MỘT PHẦN | `e2e-http.mjs` tự dọn workspace test sau lượt | G |
 | Q-018 | CHƯA | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | G |
-| Q-019 | CHƯA | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | G |
 | Q-021 | CHƯA | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | G |
 | DV-001 | CHƯA | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | G |
 | DV-015 | MỘT PHẦN | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | G |
@@ -269,7 +244,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B02e | Đồng bộ tin gần đây | 01-REQUIREMENTS-MATRIX.md:49 | 014 | CHỜ-TK | adapter.ts:95; channel-manage.handlers.ts:88; test channels.test.ts AC6 — Q-003 |
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
-| REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | — | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
+| REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
 | REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | — | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
 | REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | MỘT PHẦN | send.processor.ts:43 chỉ tin chủ động, không số mặc định (Q-013) |
@@ -312,26 +287,26 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C06a | Tự gắn khách theo ID kênh / SĐT | 01-REQUIREMENTS-MATRIX.md:68 | 015, 016 | ĐẠT | crm/services/identity.service.ts:30-55; test inbox.test.ts AC2 |
 | REQ-C06b | Chưa có thì tạo hồ sơ nháp | 01-REQUIREMENTS-MATRIX.md:68 | 015 | ĐẠT | identity.service.ts:40-47; test inbox.test.ts AC2 |
 | REQ-C06c | Khớp không chắc → gợi ý gộp | 01-REQUIREMENTS-MATRIX.md:68 | 015, 026 | ĐẠT | crm/services/crm-read.service.ts:107; test crm-contacts.test.ts AC7 |
-| REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | — | MỘT PHẦN | Profile360Actions.tsx:52-55 mở form chỉ có contact_id; quote / order không nhận conversation_id; chỉ e2e mock inbox.spec.ts:69 |
+| REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | 025b | MỘT PHẦN | Profile360Actions.tsx:52-55 mở form chỉ có contact_id; quote / order không nhận conversation_id; chỉ e2e mock inbox.spec.ts:69 |
 | REQ-C08a | Thao tác hàng loạt hội thoại (backend) | 01-REQUIREMENTS-MATRIX.md:70 | 016 | ĐẠT | conversation-assign.handlers.ts:100; test inbox.test.ts AC5 |
-| REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | — | CHƯA | FE không gọi conversation.bulk_update; Q-019 mở |
+| REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | 025b | CHƯA | FE không gọi conversation.bulk_update; Q-019 mở |
 | REQ-C08c | Tìm không dấu | 01-REQUIREMENTS-MATRIX.md:70 | 016, 025 | ĐẠT | test inbox.test.ts AC7, e2e http/inbox-live.spec.ts:41 |
-| REQ-C09a | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | 01-REQUIREMENTS-MATRIX.md:71 | — | MỘT PHẦN | Backend ĐẠT (message.handlers.ts:148; inbox.test.ts AC6); FE hiện mọi kênh (MessageMenu.tsx:76) |
+| REQ-C09a | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | 01-REQUIREMENTS-MATRIX.md:71 | 025b | MỘT PHẦN | Backend ĐẠT (message.handlers.ts:148; inbox.test.ts AC6); FE hiện mọi kênh (MessageMenu.tsx:76) |
 | REQ-C09b | Trả lời trích · Sao chép · Chuyển tiếp · Ghim | 01-REQUIREMENTS-MATRIX.md:71 | 016, 025 | ĐẠT | MessageMenu.tsx:35-38; message.handlers.ts:76,161; test inbox.test.ts AC3/AC6 |
 | REQ-C09c | Dịch tin | 01-REQUIREMENTS-MATRIX.md:71 | 025 | CHỜ-TK | ai/skills/translate.handler.ts:22; test inbox-ui.test.ts "ai.translate (model giả)" — Q-001 |
 | REQ-C09d | Tạo ticket từ tin | 01-REQUIREMENTS-MATRIX.md:71 | 025, 034 | ĐẠT | MessageMenu.tsx:41-48; TicketsScreen.tsx:45; test support.test.ts (source_message_id) |
 | REQ-C09e | Thu hồi / Xoá có xác nhận | 01-REQUIREMENTS-MATRIX.md:71 | 016 | ĐẠT | message.handlers.ts:100,115; test inbox.test.ts AC6 |
 | REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | — | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định |
 | REQ-C10b | Phím tắt chèn câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:110-119; e2e inbox.spec.ts:23 |
-| REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | — | MỘT PHẦN | ConvMenu.tsx:121-140 không hiện tải |
+| REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | 025b | MỘT PHẦN | ConvMenu.tsx:121-140 không hiện tải |
 | REQ-C10d | Vòng đời = contact.stage (D49) | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:16,143; test crm-contacts.test.ts |
 | REQ-C10e | Gắn nhiều thẻ, tạo thẻ mới | 01-REQUIREMENTS-MATRIX.md:72 | 016, 025 | ĐẠT | ConvMenu.tsx:168; test inbox.test.ts AC5 |
 | REQ-C10f | Lưu trữ · Ẩn trò chuyện · Xoá lịch sử | 01-REQUIREMENTS-MATRIX.md:72 | 016 | ĐẠT | conversation-state.handlers.ts:68,82,125; test inbox.test.ts AC5 |
 | REQ-C10g | Tạo nhóm "Sắp có" | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:189 (D50) |
-| REQ-C11a | Menu ＋: Thêm tệp · Chụp ảnh màn hình | 01-REQUIREMENTS-MATRIX.md:73 | — | GIẢ | "Chụp ảnh màn hình" chỉ đóng menu (AgentToolsMenu.tsx:32) |
+| REQ-C11a | Menu ＋: Thêm tệp · Chụp ảnh màn hình | 01-REQUIREMENTS-MATRIX.md:73 | 025b | GIẢ | "Chụp ảnh màn hình" chỉ đóng menu (AgentToolsMenu.tsx:32) |
 | REQ-C11b | Quyền của agent chỉ xem, nhóm module + Kỹ năng AI, badge, link Builder | 01-REQUIREMENTS-MATRIX.md:73 | 021, 025 | ĐẠT | AgentToolsMenu.tsx:36-64; test agents.test.ts AC5 |
 | REQ-C11c | Research / Web search "Sắp có" (D48) | 01-REQUIREMENTS-MATRIX.md:73 | 025 | ĐẠT | AgentToolsMenu.tsx:56-59 |
-| REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | — | MỘT PHẦN | Backend TIP016/025 có search (conversations.controller.ts:57; read.service.ts:119; inbox.test.ts AC7). Rà lại 2026-11-02: apps/web/src/features/inbox/components/ThreadSearchBar.tsx:37–40 chỉ cuộn DOM đã tải; :54–57 chỉ Escape/Enter, thiếu phím lên/xuống và tải tin cũ để định vị. Chưa có TIP bổ sung nhận phần thiếu; không dùng TIP đã DONE làm owner sửa lỗi. |
+| REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | 025b | MỘT PHẦN | Backend TIP016/025 có search (conversations.controller.ts:57; read.service.ts:119; inbox.test.ts AC7). Rà lại 2026-11-02: apps/web/src/features/inbox/components/ThreadSearchBar.tsx:37–40 chỉ cuộn DOM đã tải; :54–57 chỉ Escape/Enter, thiếu phím lên/xuống và tải tin cũ để định vị. Chưa có TIP bổ sung nhận phần thiếu; không dùng TIP đã DONE làm owner sửa lỗi. |
 | REQ-C13 | Header + khung nhập ver2.1 | 01-REQUIREMENTS-MATRIX.md:75 | 025 | ĐẠT | ChatHeader.tsx:27; Composer.tsx:147; MessageBubble.tsx:139; e2e inbox.spec.ts |
 | REQ-D01a | Agent runtime sau Agent Gateway | 01-REQUIREMENTS-MATRIX.md:80 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:35; test packages/ai/test/engine.test.ts |
 | REQ-D01b | Ngữ cảnh → RAG → tools → trả lời, bất đồng bộ trong worker | 01-REQUIREMENTS-MATRIX.md:80 | 022 | ĐẠT | ai/reply/reply.service.ts; test agent-reply.test.ts "worker ROLE=ai" |
@@ -355,7 +330,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-D07a | Hàng chờ duyệt Duyệt / Sửa / Từ chối | 01-REQUIREMENTS-MATRIX.md:87 | 021, 024 | ĐẠT | approval.handlers.ts:74-92; test agents.test.ts AC4, e2e http/agents-ui.spec.ts:60 |
 | REQ-D07b | Duyệt ở thông báo | 01-REQUIREMENTS-MATRIX.md:87 | 021 | ĐẠT | ai/events/agents.rules.ts:8; test agents.test.ts AC4 |
-| REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | — | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |
+| REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | 025b | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |
 | REQ-D07d | Thẻ duyệt ở Tổng quan | 01-REQUIREMENTS-MATRIX.md:87 | 038 | GIẢ | GET /dashboard missing ở API |
 | REQ-D08a | Nhật ký run (prompt, nguồn, tools, token, credit) | 01-REQUIREMENTS-MATRIX.md:88 | 019 | ĐẠT | ai/runs/run.store.ts; test ai-runtime.test.ts AC4 |
 | REQ-D08b | Hoàn tác nhóm cho phép | 01-REQUIREMENTS-MATRIX.md:88 | 003, 024 | ĐẠT | kernel/actions/undo.service.ts:19; test actions.test.ts AC7 |
@@ -509,7 +484,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-G02 | Trạng thái lịch: Chờ xác nhận (giữ chỗ 2 giờ) → Xác nhận → Hoàn tất / Không đến (ân hạn 20′) / Dời / Huỷ (bắt buộc lý do) | 01-REQUIREMENTS-MATRIX.md:144 | 033 | ĐẠT | packages/shared/src/booking/appointment-state.ts:6, :24; appointment-flow.handlers.ts:115, :136; test appointment-state.test.ts, booking.test.ts "không đến chỉ sau ân hạn 20 phút", "hết giữ chỗ 2 giờ → expired" |
 | REQ-G03a | Chống trùng lịch theo nhân sự (EXCLUDE ở DB) | 01-REQUIREMENTS-MATRIX.md:145 | 033 | ĐẠT | packages/db/prisma/tenant/migrations/20261101900000_033_booking/migration.sql:115; test booking.test.ts "ràng buộc DB: hai lịch chồng nhau … EXCLUDE" |
 | REQ-G03b | Agent gợi ý slot trống gần nhất | 01-REQUIREMENTS-MATRIX.md:145 | 033 | ĐẠT | appointment-book.handlers.ts:43 find_slots (agentGrantable — packages/actions/src/booking.ts:29); test booking.test.ts "slot: giờ mở cửa ∩ ca riêng …" |
-| REQ-G03c | Composer Hộp thư "Đặt lịch" lấy slot thật | 01-REQUIREMENTS-MATRIX.md:145 | — | GIẢ | apps/web/src/features/inbox/api.ts:99 gọi `/booking/slots` — routes.json `missing` (API chỉ có /calendar/slots); chỉ chạy với mock |
+| REQ-G03c | Composer Hộp thư "Đặt lịch" lấy slot thật | 01-REQUIREMENTS-MATRIX.md:145 | 025b | GIẢ | apps/web/src/features/inbox/api.ts:99 gọi `/booking/slots` — routes.json `missing` (API chỉ có /calendar/slots); chỉ chạy với mock |
 | REQ-G03d | Chống trùng theo phòng / thiết bị | 01-REQUIREMENTS-MATRIX.md:145 | — | NGOÀI | Ma trận ghi "theo phòng / thiết bị (P2)" |
 | REQ-G04a | Nhắc hẹn trước 24 giờ và 2 giờ qua kênh khách đã dùng | 01-REQUIREMENTS-MATRIX.md:146 | 033 | ĐẠT | packages/core/src/booking/services/booking-system.ts:49 remindAppointments; test booking.test.ts "nhắc 24h rồi 2h qua Zalo, mỗi mốc một lần" |
 | REQ-G04b | Khách trả lời "đổi" / "huỷ" → agent xử lý (dời / huỷ lịch) | 01-REQUIREMENTS-MATRIX.md:146 | 022b | MỘT PHẦN | appointment.reschedule/cancel agentGrantable (packages/actions/src/booking.ts:111,125), nhưng packages/core/src/ai/agents/templates.seed.ts:11 thiếu appointment.cancel trong booking defaults. Đây là thiếu code/config, không chỉ thiếu tài khoản. Cần TIP bổ sung, test quyền/tool defaults và ca model thật (Q-001); không tự mở rộng quyền agent đã cấu hình. Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
@@ -1073,8 +1048,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
 | ACT-conversation.get | `conversation.get` có trong registry + handler | plans/BLUEPRINT.md:603 | 023b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-conversation.search | `conversation.search` có trong registry + handler | plans/BLUEPRINT.md:602 | 023b | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
-| ACT-conversation.untag | `conversation.untag` có trong registry + handler | plans/BLUEPRINT.md:607 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); gỡ thẻ có qua conversation.set_tags (inbox.ts:215), không có id riêng / DV |
+| ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
+| ACT-conversation.untag | `conversation.untag` có trong registry + handler | plans/BLUEPRINT.md:607 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); gỡ thẻ có qua conversation.set_tags (inbox.ts:215), không có id riêng / DV |
 | ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
 | ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | — | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP'; 023c nói 'probe connector' nhưng không định nghĩa action |
@@ -1082,8 +1057,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
-| ACT-message.unreact | `message.unreact` có trong registry + handler | plans/BLUEPRINT.md:617 | — | MỘT PHẦN | Không có trong packages/actions (actions.json); message.react gửi lại cùng emoji = gỡ (inbox.ts:176; inbox.test.ts:261), không DV |
+| ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
+| ACT-message.unreact | `message.unreact` có trong registry + handler | plans/BLUEPRINT.md:617 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); message.react gửi lại cùng emoji = gỡ (inbox.ts:176; inbox.test.ts:261), không DV |
 | ACT-order.import_external | `order.import_external` có trong registry + handler | plans/BLUEPRINT.md:695 | 031 | MỘT PHẦN | Không có trong packages/actions (actions.json); DV-011: không là action, OrderSyncService trong job (sales/jobs/order-sync.jobs.ts) — test order-sync.test.ts, orders.test.ts |
 | ACT-payment.redeem_points | `payment.redeem_points` có trong registry + handler | plans/BLUEPRINT.md:713 | 036 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-product.import | `product.import` có trong registry + handler | plans/BLUEPRINT.md:664 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
@@ -1223,6 +1198,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-11-d | 4 role PG tách biệt, app qua PgBouncer | plans/BLUEPRINT.md:1488 | 002/045 | MỘT PHẦN | packages/db/src/setup.ts, env.ts có role; PgBouncer thuộc infra (045) |
 | CH-PROVIDER-RECEIPTS | Provider delivery/read receipts are evidence-based, monotonic and account/part scoped | plans/BLUEPRINT.md section6; vertical-flow planning audit2026-11-02 | 014b | MỘT PHẦN | zca-transport.ts:37-46 only message/old_messages/closed listeners; outbound.ts:112-115 marks sent from send ACK. Installed SDK has delivered/seen events; no current receipt ingestion.014b specifies part mapping, late/dedup events and group recipient evidence. |
 | AI-CHANNEL-ATTACHMENT-CONTEXT | Agent distinguishes present attachment from actually readable content and never fabricates extraction | standards/ai/agent-gateway sections7-9; vertical-flow audit2026-11-02 | 022b | MỘT PHẦN | reply-context.ts:46-59 selects body/kind but no attachment metadata, renders [kind].022b typed unreadable metadata and safe handoff; no unapproved OCR/multimodal. |
+| INBOX-BULK-RESULTS | Inbox bulk independent per-record outcomes, durable retry and version-aware undo | standards/domain/concurrency section7; Q019 | 025b | MỘT PHẦN | conversation-assign.handlers.ts:107-150 bulk runs one transaction and returns updated count; one denied row aborts batch.025b receives Inbox portion; ticket bulk in STD-domain-concurrency-7a still needs independent owner. |
+| INBOX-FILTER-COUNTS | Current-scope filtered Inbox counters and safe realtime invalidation | plans/BLUEPRINT.md section4.6; vertical-flow audit2026-11-02 | 025b | MỘT PHẦN | conversations.controller.ts:41 counts has no filter; inbox/api.ts:69 static counts key; meta.service.ts:25 count across visible filtering not applied.042c supplies scope foundation,025b filter/count projection and invalidation-only signal; no workspace aggregate broadcast. |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1608,17 +1585,17 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | — | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
 | PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | — | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | CHƯA | apps/web/src/features/inbox/components/ConvMenu.tsx:54 `() => undefined` + nhãn comingSoon :189; chưa có `conversation.create_group` |
-| PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | — | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |
-| PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | — | GIẢ | GroupInfoPanel.tsx:85 không onClick |
-| PRO-inbox-groupboard | Nhóm: Bảng tin (tin ghim, ghi chú) + "Xem tất cả" ảnh / tệp | docs/06-prototype/AppChat.dc.html:2284 | — | GIẢ | apps/web/src/features/inbox/components/GroupSections.tsx:45,52,70,88 không onClick |
-| PRO-inbox-grouppolicy | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | docs/06-prototype/AppChat.dc.html:2106 | — | GIẢ | GroupSections.tsx:37,109 chỉ `useState`, không action |
-| PRO-inbox-360edit | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | docs/06-prototype/AppChat.dc.html:2386 | — | GIẢ | apps/web/src/features/inbox/components/Overview360.tsx:75 không onClick |
+| PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |
+| PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | 025b | GIẢ | GroupInfoPanel.tsx:85 không onClick |
+| PRO-inbox-groupboard | Nhóm: Bảng tin (tin ghim, ghi chú) + "Xem tất cả" ảnh / tệp | docs/06-prototype/AppChat.dc.html:2284 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupSections.tsx:45,52,70,88 không onClick |
+| PRO-inbox-grouppolicy | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | docs/06-prototype/AppChat.dc.html:2106 | 025b | GIẢ | GroupSections.tsx:37,109 chỉ `useState`, không action |
+| PRO-inbox-360edit | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | docs/06-prototype/AppChat.dc.html:2386 | 025b | GIẢ | apps/web/src/features/inbox/components/Overview360.tsx:75 không onClick |
 | PRO-inbox-360deal | Hồ sơ 360°: "+ Thêm" cơ hội / deal | docs/06-prototype/AppChat.dc.html:2402 | — | GIẢ | Overview360.tsx:121 không onClick |
-| PRO-inbox-360csv | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | docs/06-prototype/AppChat.dc.html:2413 | — | GIẢ | Overview360.tsx:148, Tabs360.tsx:139 không onClick |
+| PRO-inbox-360csv | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | docs/06-prototype/AppChat.dc.html:2413 | 025b | GIẢ | Overview360.tsx:148, Tabs360.tsx:139 không onClick |
 | PRO-inbox-360tasknote | Hồ sơ 360°: "+ Thêm việc" / "+ Thêm ghi chú" | docs/06-prototype/AppChat.dc.html:2429 | — | GIẢ | apps/web/src/features/inbox/components/ExtraCards.tsx:18,35 không onClick; `contact.add_note` chưa có trong registry |
-| PRO-inbox-schedslots | Composer "Đặt lịch": slot gợi ý từ API | docs/06-prototype/AppChat.dc.html:2169 | — | GIẢ | apps/web/src/features/inbox/api.ts:99 `GET /booking/slots` (routes.json `missing`; API có `/calendar/slots`) |
-| PRO-inbox-autoxl | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | docs/06-prototype/AppChat.dc.html:2213 | — | GIẢ | apps/web/src/features/inbox/components/ComposerPopovers.tsx:97,106 chỉ đổi state `autoXl`/`lang`, không ai đọc |
-| PRO-inbox-screenshot | Menu ＋ khung nhập: Chụp ảnh màn hình | docs/06-prototype/AppChat.dc.html:2231 | — | GIẢ | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:32 `onClick={onClose}` |
+| PRO-inbox-schedslots | Composer "Đặt lịch": slot gợi ý từ API | docs/06-prototype/AppChat.dc.html:2169 | 025b | GIẢ | apps/web/src/features/inbox/api.ts:99 `GET /booking/slots` (routes.json `missing`; API có `/calendar/slots`) |
+| PRO-inbox-autoxl | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | docs/06-prototype/AppChat.dc.html:2213 | 025b | GIẢ | apps/web/src/features/inbox/components/ComposerPopovers.tsx:97,106 chỉ đổi state `autoXl`/`lang`, không ai đọc |
+| PRO-inbox-screenshot | Menu ＋ khung nhập: Chụp ảnh màn hình | docs/06-prototype/AppChat.dc.html:2231 | 025b | GIẢ | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:32 `onClick={onClose}` |
 | PRO-assistant-plusfile | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | docs/06-prototype/AppChat.dc.html:10199 | — | GIẢ | apps/web/src/features/assistant/components/ComposerPopovers.tsx:38-42 `pick('file')` chỉ đóng menu |
 | PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | — | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
 | PRO-assistant-research | Trợ lý: menu ＋ Nghiên cứu / Tìm kiếm | docs/06-prototype/AppChat.dc.html:10208 | — | NGOÀI | D48 (P2 cùng MCP) — nhưng hiện không có nhãn "Sắp có", bấm không phản hồi (ComposerPopovers.tsx:18-19) |
@@ -1723,8 +1700,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | CHƯA | Không có route trong apps/api/src/http/ai; TG row 038 ghi rõ |
 | DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | 022b | MỘT PHẦN | Từ khoá chỉ chèn prompt (ai/agents/agent.runtime.ts:35), không chọn agent theo từ khoá Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
-| DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | — | MỘT PHẦN | apps/web/src/features/inbox/components/Profile360Actions.tsx:42-58 mở form và prefill contact_id; apps/web/e2e/inbox.spec.ts:74-101 chỉ kiểm mở form ở mock. e2e/http/inbox.spec.ts chỉ gửi/tag/archive, chưa chứng minh tạo từ Hộp thư rồi đọc lại HTTP đúng contact/scope |
-| DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | — | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
+| DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | 025b | MỘT PHẦN | apps/web/src/features/inbox/components/Profile360Actions.tsx:42-58 mở form và prefill contact_id; apps/web/e2e/inbox.spec.ts:74-101 chỉ kiểm mở form ở mock. e2e/http/inbox.spec.ts chỉ gửi/tag/archive, chưa chứng minh tạo từ Hộp thư rồi đọc lại HTTP đúng contact/scope |
+| DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | 025b | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | CHƯA | apps/web/src/features/inbox/components/Blocks360.tsx:2-3 "chưa có dữ liệu". TIP015b đã bổ sung customer-links/KPI/SLA/CSAT, shared DTO và Blocks360 trong manifest sau review2026-11-02; chỉ kế hoạch, chưa code/nghiệm thu. |
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | — | CHƯA | Không có load-more ở features/customers |
@@ -1766,7 +1743,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-016 | Gmail / Outlook OAuth (XOAUTH2) cho kênh email | QUESTIONS.md:24 | — | CHỜ-TK | Cần app OAuth của Chủ nhà; REQ-B06 P1 |
 | Q-017 | `e2e-http.mjs` tự dọn workspace test sau lượt | QUESTIONS.md:25 | — | MỘT PHẦN | `db:cleanup-test` có (packages/db/package.json:17); tools/scripts/e2e-http.mjs không gọi dọn |
 | Q-018 | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | QUESTIONS.md:26 | — | CHƯA | identity/services/sessions.service.ts:45-49 thu hồi cả family ngay |
-| Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | — | CHƯA | Backend `conversation.bulk_update` có; features/inbox không có UI bulk |
+| Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | 025b | CHƯA | Backend `conversation.bulk_update` có; features/inbox không có UI bulk |
 | Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046 | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh |
 | Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | — | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận |
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | CHƯA | tools/ai-live/ chưa có |

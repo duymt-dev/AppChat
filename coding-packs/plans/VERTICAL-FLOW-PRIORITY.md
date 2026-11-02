@@ -29,4 +29,4 @@ Chủ nhà yêu cầu2026-11-02; áp dụng cho câu A (chỉ tài liệu). Khô
 
 ## Zalo seam checkpoint2026-11-02
 
-014b provides durable message-operation/provider receipt and history/sync boundaries after045b;025b must consume its capabilities and status rather than recreate queues. Full group UI and agent/runtime behavior remain pending. See reports/zalo-lifecycle-planning-audit-2026-11-02.md; no real-provider acceptance claimed.
+014b provides durable message-operation/provider receipt and history/sync boundaries after045b;025b consumes its capabilities and status rather than recreating queues.022b now plans schedules/routing/turn outcomes;025b now plans group UI, search, bulk, canonical CRM/commerce linkage, booking, approval cards and real timeline CSV.019b runtime and012b bank providers still need TIPs. See reports/zalo-lifecycle-planning-audit-2026-11-02.md and reports/inbox-vertical-planning-audit-2026-11-02.md; no runtime or real-provider acceptance claimed.

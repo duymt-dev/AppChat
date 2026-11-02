@@ -64,3 +64,8 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Supplemental Zalo lifecycle plan (2026-11-02)
 
 [TIP014b](../tips/TIP-014b-zalo-lifecycle.md) owns missing provider operation/receipt/history/contact-sync contracts and real lifecycle evidence, plus standard/type reconciliation. Existing completion status is not live-provider proof. No source or native data/service changes in this planning phase.
+
+
+## Supplemental planning2026-11-02 ? TIP025b (not runtime DONE)
+
+See ../tips/TIP-025b-inbox-vertical.md for group/search/bulk/source-context/global contact edit/timeline CSV/scheduling/translation/capture/approval integration and exact manifests. Original completion status does not prove these missing controls.025b preserves existing domain permissions/commerce;026b still must own CRM deal/task/contact-note domain gaps. Independent review/validation tracked in inbox-vertical-planning-audit-2026-11-02.md.
