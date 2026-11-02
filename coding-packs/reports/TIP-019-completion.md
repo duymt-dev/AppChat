@@ -47,3 +47,7 @@
 ## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
 
 TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.
+
+## Bổ sung019c — chưa triển khai
+
+[TIP-019c](../tips/TIP-019c-ai-utilities.md) nhận ai.summarize/detect_intent/extract_info/score_lead, source-scoped evidence, restricted metered generation và protected publication/result UI. Khác contact.summarize015b; không ghi business state. Runtime/native/live chưa chạy, không sửa kết luận lịch sử thành bằng chứng cho phần mới.

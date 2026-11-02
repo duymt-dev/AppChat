@@ -234,3 +234,11 @@ Exactownership tips/manifests/TIP-012c-files.md; no platformOTP/Inbox replacemen
 |033b [booking-operations](tips/TIP-033b-booking-operations.md)|Expiredreconfirm/reservation/undo, settingsstaff/hours closed-versus-inherit/CAS, scopedpackage360/tool/export-onlyrealfiles|After015e/015f/012c and exactbilateralpredecessors; before015c/044–046|8AC/nativeEXCLUDE/races/scope/configmigration/10kEXPLAIN, mock+http/mobile/parity andlive8; localplanningreview/recheck closed, runtimepending|
 
 Exactownership tips/manifests/TIP-033b-files.md;025b retainsInboxpopover/route,032b packagegrant/reminderpolicy. Currentreadguard crm.view plusexistingrecordscope, no newpermission. No runtimepromotion.
+
+### Supplemental019c — read-only AI utility skills (DC263)
+
+| TIP | Scope | Integration | Acceptance |
+|---|---|---|---|
+|019c [ai-utilities](tips/TIP-019c-ai-utilities.md)|Fourtypedskills, scoped evidence, protectedgeneration/publication, persistentUI andtruthful038bfileboundary|After019b/033b andexactbilateralpredecessors; before015c/023d/023e/044–046|8AC, nativeauthority/publicationbarriers/replay/budget, mock+http/mobile/parity andlive8; localplanningreviewclosed, runtimepending|
+
+Exactownership tips/manifests/TIP-019c-files.md. Notreplacementof015b memory/022b routing, semanticdiscovery023e oreditplans023d; no automaticgrants/businesswrites.

@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 14 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 7 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 14 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 93 | 1 | 0 | 11 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 95 | 1 | 0 | 7 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 34 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 23 |
-| **Tổng** | **545** | **376** | **118** | **41** | **343** | **34** | **66** | **135** |
+| **Tổng** | **545** | **376** | **118** | **41** | **345** | **34** | **66** | **131** |
 
-## Lỗ hổng chưa có TIP nhận (135)
+## Lỗ hổng chưa có TIP nhận (131)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -63,10 +63,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-110 | CHƯA | Parser pptx / OCR ảnh cho RAG (P1) | C |
 | DC-215 | CHƯA | Cấu hình danh mục ticket riêng | C |
 | ACT-doc_template.create | MỘT PHẦN | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | D |
-| ACT-ai.detect_intent | CHƯA | `ai.detect_intent` có trong registry + handler | D |
-| ACT-ai.extract_info | CHƯA | `ai.extract_info` có trong registry + handler | D |
-| ACT-ai.score_lead | CHƯA | `ai.score_lead` có trong registry + handler | D |
-| ACT-ai.summarize | CHƯA | `ai.summarize` có trong registry + handler | D |
 | ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
@@ -1001,10 +997,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-admin.workspace.restore | `admin.workspace.restore` có trong registry + handler | plans/BLUEPRINT.md:817 | 041 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-admin.workspace.resume | `admin.workspace.resume` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-admin.workspace.suspend | `admin.workspace.suspend` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.extract_info | `ai.extract_info` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.score_lead | `ai.score_lead` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json); 015b chỉ có contact.summarize (khác id) |
+| ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.extract_info | `ai.extract_info` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.score_lead | `ai.score_lead` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json); 015b chỉ có contact.summarize (khác id);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
 | ACT-category.delete | `category.delete` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
@@ -1203,6 +1199,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | MAIL-DELIVERY-RECEIPT | Durable accepted vs delivered/unknown and safe retry/crash recovery | Brevo mail28–29; SMTP mail; DC258 | 012c | CHƯA | Empty messageId accepted, undifferentiated transport errors; planned typed tenant outcome and012b receipts |
 | MAIL-CALLBACK-SUPPRESSION | Authenticated bound delivery facts, replay/order/late disconnect policy and scoped suppression | webhook.service30/33;037; DC258 | 012c | CHƯA | Disconnected routes rejected; no tenant mail callback/domain handler. Protocol spike required, no invented provider auth |
 | MAIL-AI-FILES | AI-first secure setup/probe/approved mail proposals and actual scoped delivery CSV/XLSX, manual noLLM | User AI/filepriority; DC244/246; DC258 | 012c | CHƯA | Planned canonical037/038b/023c flows and live8 cases; no runtime claim |
+| AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | CHƯA | Fourhandlers absent; runner.ts140–141 completesrawgeneration without utilityvalidationfence;019c exactoperation/publication/readgates planned |
+| AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | CHƯA | Existing AgentToolsMenu onlydisplay; no fourutilityruntime/host;019c AC6/7 requireszero businessmutations andreal038b artifacts |
 
 **Ghi chú / chưa rà hết:**
 

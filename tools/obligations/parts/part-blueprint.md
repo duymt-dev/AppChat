@@ -218,10 +218,10 @@
 | ACT-admin.workspace.restore | `admin.workspace.restore` có trong registry + handler | plans/BLUEPRINT.md:817 | 041 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-admin.workspace.resume | `admin.workspace.resume` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-admin.workspace.suspend | `admin.workspace.suspend` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.extract_info | `ai.extract_info` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.score_lead | `ai.score_lead` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json); 015b chỉ có contact.summarize (khác id) |
+| ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.extract_info | `ai.extract_info` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.score_lead | `ai.score_lead` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json); 015b chỉ có contact.summarize (khác id);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
 | ACT-category.delete | `category.delete` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
@@ -442,3 +442,10 @@ Ghi chú:
 | MAIL-DELIVERY-RECEIPT | Durable accepted vs delivered/unknown and safe retry/crash recovery | Brevo mail28–29; SMTP mail; DC258 | 012c | CHƯA | Empty messageId accepted, undifferentiated transport errors; planned typed tenant outcome and012b receipts |
 | MAIL-CALLBACK-SUPPRESSION | Authenticated bound delivery facts, replay/order/late disconnect policy and scoped suppression | webhook.service30/33;037; DC258 | 012c | CHƯA | Disconnected routes rejected; no tenant mail callback/domain handler. Protocol spike required, no invented provider auth |
 | MAIL-AI-FILES | AI-first secure setup/probe/approved mail proposals and actual scoped delivery CSV/XLSX, manual noLLM | User AI/filepriority; DC244/246; DC258 | 012c | CHƯA | Planned canonical037/038b/023c flows and live8 cases; no runtime claim |
+
+### AI utility boundaries — source audit2026-11-02
+
+| ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
+|---|---|---|---|---|---|
+| AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | CHƯA | Fourhandlers absent; runner.ts140–141 completesrawgeneration without utilityvalidationfence;019c exactoperation/publication/readgates planned |
+| AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | CHƯA | Existing AgentToolsMenu onlydisplay; no fourutilityruntime/host;019c AC6/7 requireszero businessmutations andreal038b artifacts |
