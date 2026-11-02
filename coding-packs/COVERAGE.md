@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 8 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 10 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 50 | 11 | 21 | 12 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 18 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **89** |
+| **Tổng** | **541** | **389** | **118** | **41** | **369** | **34** | **66** | **91** |
 
-## Lỗ hổng chưa có TIP nhận (89)
+## Lỗ hổng chưa có TIP nhận (91)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -40,6 +40,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-M03b | MỘT PHẦN | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | B |
 | REQ-N03b | CHƯA | OpenAPI tự sinh (Blueprint `/v1/docs`) | B |
 | REQ-N10d | CHƯA | WCAG AA (tương phản, aria, bàn phím) có kiểm tự động | B |
+| COM-2-8 | MỘT PHẦN | Agent tra tồn trước khi hứa giao; hết hàng báo khách + gợi ý thay thế | C |
+| COM-3-11 | MỘT PHẦN | AI nhận ý định khách trong chat → `quote.mark_accepted / request_revision / mark_rejected`; tự làm khi tin cậy ≥ 70% | C |
 | COM-4-7 | MỘT PHẦN | Cọc theo số tiền **hoặc %** | C |
 | COM-4-8 | CHƯA | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | C |
 | COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
@@ -514,7 +516,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-2-5 | Đơn confirmed → `stock_movement(sale, -n)`; combo trừ theo thành phần | plans/COMMERCE-DECISIONS.md:40 | 031 | ĐẠT | packages/core/src/sales/orders/services/order-write.ts:131 · test orders.test.ts "confirm: trừ kho theo dòng (combo theo thành phần)" |
 | COM-2-6 | Huỷ đơn → `kind=return`; chỉnh tay → `kind=adjust` kèm lý do | plans/COMMERCE-DECISIONS.md:41 | 027, 031 | ĐẠT | order-write.ts:144; catalog/actions/stock.handlers.ts:38 · test orders.test.ts "cancel … hoàn kho", catalog.test.ts "stock.adjust" |
 | COM-2-7 | Cho tồn âm + cảnh báo khi tồn ≤ ngưỡng | plans/COMMERCE-DECISIONS.md:42 | 027 | ĐẠT | catalog.prisma:59 lowStockThreshold · test catalog.test.ts "stock.adjust: cho âm + cờ low_stock" |
-| COM-2-8 | Agent tra tồn trước khi hứa giao; hết hàng báo khách + gợi ý thay thế | plans/COMMERCE-DECISIONS.md:42 | 044 | MỘT PHẦN | Chỉ luật prompt (packages/core/src/ai/agents/agent.runtime.ts:38) + action `stock.get` (catalog/actions/read.handlers.ts:68); không có ca eval / test hành vi agent; gợi ý thay thế chưa có |
+| COM-2-8 | Agent tra tồn trước khi hứa giao; hết hàng báo khách + gợi ý thay thế | plans/COMMERCE-DECISIONS.md:42 | — | MỘT PHẦN | Prompt-only stock rule; functional stock-before-promise/real alternatives not owned by022b/023b;044 only COM-2-8-eval, runtime supplement still required |
+| COM-2-8-eval | Eval/regression: stock read precedes delivery promise; zero/negative/unavailable stock and scoped real alternatives | COM-2-8; standards/ai/eval.md | 044 | CHƯA | TIP044 agent-reply04/05 + deterministic native receipt ordering/live evidence; parent runtime remains open |
 | COM-2-9 | Vật tư tiêu hao, đơn mua hàng, nhà cung cấp | plans/COMMERCE-DECISIONS.md:43 | — | NGOÀI | P2 theo COMMERCE §2 |
 | COM-3-1 | Máy trạng thái báo giá draft→(pending_approval→approved)→sent→viewed→accepted / revision_requested / rejected / expired | plans/COMMERCE-DECISIONS.md:49 | 029 | ĐẠT | packages/shared/src/sales/quote-state.ts · test quote-state.test.ts, quotes.test.ts |
 | COM-3-2 | Ngưỡng duyệt tổng > 20.000.000đ **cấu hình được** | plans/COMMERCE-DECISIONS.md:58 | 032b | MỘT PHẦN | Hằng số packages/shared/src/commerce/quote-math.ts:23 `APPROVAL_TOTAL`; không có cài đặt workspace |
@@ -526,7 +529,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-3-8 | Job nhắc còn 2 ngày; quá hạn → `expired` | plans/COMMERCE-DECISIONS.md:65 | 029 | ĐẠT | sales/quotes/services/quote-system.ts:32,54 · test quotes.test.ts "nhắc T-2 một lần; quá hạn → expired" |
 | COM-3-9 | Gửi báo giá PDF **hoặc ảnh** qua kênh hội thoại (mọi kênh, gồm webchat) | plans/COMMERCE-DECISIONS.md:67 | 032b | MỘT PHẦN | Gửi PDF Zalo / email (quote-send.handlers.ts:85); enum kênh chỉ `zalo_personal \| email` (packages/actions/src/quotes.ts:121); không gửi ảnh |
 | COM-3-10 | Link xem báo giá ghi nhận `viewed` | plans/COMMERCE-DECISIONS.md:67 | 029 | ĐẠT | quote-system.ts:17 markViewed · test quotes.test.ts "link xem … viewed + event" |
-| COM-3-11 | AI nhận ý định khách trong chat → `quote.mark_accepted / request_revision / mark_rejected`; tự làm khi tin cậy ≥ 70% | plans/COMMERCE-DECISIONS.md:68-70 | 044 | MỘT PHẦN | Action agentGrantable (actions/quotes.ts:139,153,167); ngưỡng tin cậy chung packages/ai/src/reply/handoff.ts:34 (mặc định 70, agent.store.ts:51); không có test agent gọi đúng action từ câu khách; `ai.detect_intent` không có trong registry |
+| COM-3-11 | AI nhận ý định khách trong chat → `quote.mark_accepted / request_revision / mark_rejected`; tự làm khi tin cậy ≥ 70% | plans/COMMERCE-DECISIONS.md:68-70 | — | MỘT PHẦN | reply.service.ts131 tools execute before final confidence171; handoff threshold does not guard prior quote effects.022b lacks full revision/70% pre-effect contract;044 only COM-3-11-eval |
+| COM-3-11-eval | Eval/regression: all three quote intents, exact customer/quote source, confidence69.99/70/70.01 before mutation | COM-3-11; standards/ai/eval.md | 044 | CHƯA | TIP044 agent-reply06/07 and governance06 require actual effect ordering/receipts; parent functional owner still open |
 | COM-3-12 | Báo giá accepted có 2 nút "→ Hợp đồng" / "→ Đơn hàng", agent gọi được; không tự sinh | plans/COMMERCE-DECISIONS.md:71-72 | 029, 030, 031 | ĐẠT | contracts/actions/contract-write.handlers.ts:83; sales/orders/actions/order-create.handlers.ts:123 · test contracts.test.ts "từ báo giá", orders.test.ts "báo giá chưa chốt 409; đã chốt → đơn" |
 | COM-3-13 | Mỗi báo giá sinh tối đa một HĐ **hoặc** một đơn | plans/COMMERCE-DECISIONS.md:73 | 032b | MỘT PHẦN | Chỉ chặn trùng cùng loại (order-create.handlers.ts:135; contract-write.handlers.ts:94; contracts.prisma `quoteId @unique`) → một báo giá ra được cả HĐ lẫn đơn (Q-025) |
 | COM-4-1 | Đơn hai trục: `status` new→processing→completed / cancelled | plans/COMMERCE-DECISIONS.md:81 | 031 | ĐẠT | packages/shared/src/orders/order-state.ts:6-31 · test order-state.test.ts |
