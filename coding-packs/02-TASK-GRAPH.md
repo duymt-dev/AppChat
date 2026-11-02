@@ -283,3 +283,11 @@ Foundation build has no backward dependency on adapters; v2 activation is separa
 |003c [system-actions](tips/TIP-003c-system-actions.md)|Canonical private transitions, early admission gate, durable source receipts, current domain predicates and narrow sender capabilities|After003b and exact bilateral predecessors; before006b/030c integration and combined v2 activation|138exactpaths/36bilateralpairs/4ownedIDs/8AC; local review corrected, runtime unverified|
 
 No dependency back-edge from003b foundation to003c implementation; activation is a separate gate.006b owns projection/delivery/task fanout,030c parent signing. Existing action IDs/policies remain authoritative; no internal tool grant through AI discovery.
+
+### Supplemental006b — event delivery/fanout (DC272)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|006b [event-delivery](tips/TIP-006b-event-delivery.md)|Durable notification/mail/WS/catalog handoffs, stable fanout, atomic task occurrences and current authority|After003b/003c and exact bilateral predecessors; combined activation before044–046|73exactpaths/32bilateralpairs/4ownedIDs/8AC; bounded independent review corrected/rechecked|
+
+No new manual/schedule policy: manual busy409 preserved; ownerOnly retarget follows019b rather than broadcast cohort. Whole STD-events-outbox4 runtime proof requires foundation and all real consumer adapters, not only planning ownership.

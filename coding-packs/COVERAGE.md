@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
-| E. standards/* | 148 | 50 | 2 | 6 | 68 | 2 | 40 | 30 |
+| E. standards/* | 148 | 53 | 2 | 6 | 68 | 2 | 40 | 29 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **379** | **118** | **41** | **367** | **34** | **66** | **113** |
+| **Tổng** | **544** | **382** | **118** | **41** | **367** | **34** | **66** | **112** |
 
-## Lỗ hổng chưa có TIP nhận (113)
+## Lỗ hổng chưa có TIP nhận (112)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -80,7 +80,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-money-2.5 | CHƯA | Mốc nhắc (T-2 báo giá, T-1/T+1/T+7 đề nghị, lịch hẹn 24h) gửi trong giờ làm việc, ngoài giờ dời | E |
 | STD-domain-state-1 | MỘT PHẦN | Một bảng `defineFlow` mỗi domain cho mọi entity có status (15 entity) | E |
 | STD-domain-validate-1 | CHƯA | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | E |
-| STD-events-outbox-4 | MỘT PHẦN | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | E |
 | STD-i18n-4 | MỘT PHẦN | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | E |
 | STD-ui-fe-6 | CHƯA | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | E |
 | STD-ui-fe-9 | MỘT PHẦN | 5 trạng thái qua PageStates | E |
@@ -1432,7 +1431,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-events-outbox-1 | Event chỉ qua outbox trong cùng tx + SADD outbox:dirty; cấm queue.add/emit từ handler | standards/events/outbox.md:5 | 003 | ĐẠT | kernel/outbox/outbox.ts:1,6; executor.ts:162-164; test actions.test.ts |
 | STD-events-outbox-2 | Relay drain dirty → BullMQ `events`; sweep 10 phút; retry 2^n tối đa 8 → failed | standards/events/outbox.md:9 | 003 | ĐẠT | outbox/relay.ts:2,8; outbox.jobs.module.ts:53; test relay-sequence.test.ts |
 | STD-events-outbox-3 | Tên event + schema payload và định danh entity rõ ràng trong shared/events.ts | standards/events/outbox.md:13 | 003b | MỘT PHẦN | Source audit: workspace.ready (tenant-provision.processor.ts:43) và tag.created (settings.handlers.ts:50) được phát nhưng không có EVENT_SCHEMAS.003b task1/AC1 thêm explicit schemas/map/disposition, kiểm cả HandlerOutcome events; normalized envelope không đoán payload.id. Chưa runtime. |
-| STD-events-outbox-4 | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | standards/events/outbox.md:15 | — | MỘT PHẦN | kernel/events/dispatcher.ts:26 đọc receipt nhưng :35 handle rồi :36 ghi receipt riêng; crash giữa hai bước hoặc hai dispatch đồng thời vẫn gọi effect lại. Chưa chứng minh mọi consumer tự idempotent; không coi unique receipt là exactly-once. Cần TIP bổ sung kernel/consumer audit + fault tests. |
+| STD-events-outbox-4 | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | standards/events/outbox.md:15 | 006b | MỘT PHẦN | kernel/events/dispatcher.ts:26 đọc receipt nhưng :35 handle rồi :36 ghi receipt riêng; crash giữa hai bước hoặc hai dispatch đồng thời vẫn gọi effect lại. Chưa chứng minh mọi consumer tự idempotent; không coi unique receipt là exactly-once. Cần TIP bổ sung kernel/consumer audit + fault tests. |
 | STD-events-outbox-5 | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | standards/events/outbox.md:17 | 003c | MỘT PHẦN | Consumer sales/billing/catalog (payment.jobs.ts:44, sales.jobs.module.ts:33) ghi thẳng tx, không qua executor (chỉ 3 file core có `source: 'system'`) |
 | STD-events-outbox-6 | Thứ tự đảm bảo theo từng entity (group theo entity_id) | standards/events/outbox.md:18 | 003b | CHƯA | events.runner.ts:37 concurrency8, event jobId không tạo FIFO.003b task1/2/4 và AC2/4 nhận typed aggregate, transaction-final sequence và blocked retry head; activation còn gate adapters003c/006b, chưa runtime. |
 | STD-events-outbox-7 | `outbox_message` tách riêng, trạng thái pending/sending/sent/failed/dead | standards/events/outbox.md:19 | 014, 016 | ĐẠT | prisma tenant/inbox.prisma:94-98,243 |
@@ -1528,6 +1527,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DOCSIGN-PRIVATE-ATOMICITY | Parent contract public/Owner OTP signing uses canonical verified capability and exact OTP/document generation, with durable failed-attempt receipt | public-sign.service.ts otp/sign/systemCtx; contract-approval.handlers.ts123–143; DV009 | — | MỘT PHẦN | Existing sign flow works in integration fixtures but parent writes bypass private canonical adapter; Owner prepare verifies OTP then execute consumes any non-null hash, failure counters based on stale snapshot.030b covers appendix only. system-action-source-audit reserves030c; no exact pack or runtime closure yet. |
 | SYS-PRIVATE-ADMISSION | Private system actions require source-bound server capability before prepare; never public, assistant or agent-grant authority | source audit system-action-source-audit-2026-11-02.md; ActionExecutor and catalogs | 003c | CHƯA | TIP003c specification1/AC1; all API/tool/Builder/discovery surfaces and old stored grants. No implementation yet. |
 | SYS-TRIGGER-RECEIPTS | Durable source-generation receipt makes system effect, audit and outbox atomic across event/scheduler retries | system-action-source-audit-2026-11-02.md; domain system services | 003c | CHƯA | TIP003c specification3–5/AC2–8; current predicates, conservative unknown and platform bridge; no fabricated Owner. No runtime proof. |
+| EVT-DURABLE-DELIVERY | Notification/mail/realtime and catalog ingest handoffs persist before enqueue, preserve unknown and current source authority | notifier.ts69–92; notify-mail.processor.ts16–28; catalog-sync.ts65–81 | 006b | MỘT PHẦN | TIP006b specs1/3/4,AC1–5/8; deterministic notification exists but queue/authority/crash gaps remain. |
+| EVT-FANOUT-SNAPSHOT | Event fanout selects stable cohort, pages all targets and applies current eligibility with durable per-target receipts | task-scheduler.ts81–82; recipients.ts23–42 | 006b | MỘT PHẦN | TIP006b spec2/AC3/6;257-target/native barriers and symbolic currentOwner exception. Current first100 is incomplete. |
+| TASK-OCCURRENCE-ATOMICITY | Scheduled occurrence, busy result or run admission, dispatch intent and next due cursor commit atomically; manual busy guard preserved | task-scheduler.ts18–36; task.handlers.ts194–197 | 006b | MỘT PHẦN | TIP006b spec5/AC6–7; task-root lock, explicit trigger generation and019b nonterminal states. No runtime repair yet. |
 
 **Ghi chú / chưa rà hết:**
 

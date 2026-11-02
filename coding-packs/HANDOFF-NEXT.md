@@ -3,6 +3,7 @@
 > Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
+- **006b delivery/fanout planned:**73 paths,32 bilateral pairs,4 obligations,8 AC; independent review findings rechecked closed. Ledger1552/**112unowned**. Next030c parent signing, then remaining packs/seven-section/whole-graph audit.003c checkpoint1855734 pushed; docs only, no runtime.
 - **003c private adapters planned:**138 exact paths,36 bilateral overlaps,4 owned obligations,8 AC; local independent findings fixed/rechecked. Ledger1549/**113unowned**. No runtime/source/native changes. Continue006b delivery/task fanout and030c parent signing, then all remaining coverage/whole-goal audit. User asks faster batching and fewer repetitive reviews; checkpoints are not stop conditions.
 - **System adapter source follow-up:** saved reports/system-action-source-audit-2026-11-02.md (parent+independent inventory).003c canonical private system adapters,006b projection/delivery/fanout and030c parent signing are candidate next packs, not yet assigned. New DOCSIGN-PRIVATE-ATOMICITY gap: parent OTP/signature is not covered by appendix-only030b; exact OTP-generation consumption and failed-attempt concurrency need explicit plan. Ledger1547/**115unowned**; no runtimepromotion. Continue exactpacks and six goal conditions.
 

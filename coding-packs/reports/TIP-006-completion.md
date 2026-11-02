@@ -59,3 +59,7 @@ Digest daily/weekly còn thiếu (DEF-006-1/DC030) được nhận cụ thể b�
 ## Bổ sung — event protocol audit2026-11-02
 
 [TIP003b](../tips/TIP-003b-event-protocol.md) receives kernel per-entity ordering/transaction collector/relay/readiness/cutover work. Existing post-handler event_consumption receipt does not prove concurrent/crash effect idempotence; published queue status is not domain completion.003c/006b adapter packs remain required separately. Original DONE TIP unchanged; no new runtime acceptance claimed.
+
+## Bổ sung — durable delivery2026-11-02
+
+[TIP006b](../tips/TIP-006b-event-delivery.md) receives notification delivery/current-authority/WS recovery plus consumer fanout shared seams. Deterministic IDs and retained Bull jobs do not prove external exactly-once or recover lost enqueue. Original DONE remains historical; no new runtime acceptance.
