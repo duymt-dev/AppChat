@@ -3,7 +3,7 @@
 ## Phạm vi và trạng thái
 
 Chỉ tài liệu, chưa chạy archive/restore/delete, chưa thay dịch vụ hoặc DB demo.
-TIP041 hiện có 77 đường dẫn manifest duy nhất và 8 nhóm AC (mở rộng sau review); không đồng nghĩa ready-to-build của toàn graph hoặc đã nghiệm thu.
+TIP041 hiện có 78 đường dẫn manifest duy nhất và 8 nhóm AC (mở rộng sau review); không đồng nghĩa ready-to-build của toàn graph hoặc đã nghiệm thu.
 
 ## Bằng chứng hiện trạng
 
@@ -47,3 +47,5 @@ Reviewer `/root/audit_blueprint_remainder` phát hiện 3 HIGH và4 MEDIUM; khô
 | MEDIUM041 phụ thuộc thiết kế045 ngược | Encryption/keyring contract ở041/045b;045 chỉ deployment | Kiểm graph và integration contract |
 
 Đã gửi reviewer kiểm lại sau sửa. Đây là trạng thái “đã sửa tài liệu, chờ tái kiểm”, không tự đóng finding chỉ vì đã viết giải pháp. M future `AdminScreen.tsx` thuộc prerequisite040 được khai rõ; không tính là đường dẫn hiện có.
+
+Vòng2 reviewer xác nhận5/7 finding đã xử lý ở mức kế hoạch. Hai residual đã sửa tiếp: lock/DROP đặt trên target-cluster maintenance connection chuẩn (không mặc định platform cluster); MailProviderModule riêng được cả IdentityModule/LifecycleModule import, kèm boot test API/jobs. AC06 bỏ từ adminallowed mơ hồ: workspace.delete chỉ exact Owner, không suy diễn quyền xoá từ platform-admin. Chưa có xác nhận reviewer vòng3 tại thời điểm ghi dòng này.
