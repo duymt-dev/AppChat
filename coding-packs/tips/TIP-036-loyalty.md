@@ -1,6 +1,7 @@
 # TIP-036 — Loyalty: sổ điểm, đổi điểm, hạn điểm, hạng và nối HTTP
 
 ## HEADER
+- **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 036 before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate 036 before006b.
 - **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `apps/api/src/app.module.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/actions/src/loyalty-system.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/loyalty/actions/ledger-system.handlers.ts`, `packages/core/src/loyalty/events/order-consumer.ts`, `packages/core/src/loyalty/events/payment-consumer.ts`, `packages/core/src/loyalty/jobs/loyalty.scheduler.ts`; integrate 036 before003c.
 - **Parallel-safe with TIP-003b (Event protocol manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 036 before003b.

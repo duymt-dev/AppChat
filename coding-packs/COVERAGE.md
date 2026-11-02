@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
-| E. standards/* | 148 | 53 | 2 | 6 | 68 | 2 | 40 | 29 |
+| E. standards/* | 148 | 55 | 2 | 6 | 68 | 2 | 40 | 28 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **382** | **118** | **41** | **367** | **34** | **66** | **112** |
+| **Tổng** | **544** | **384** | **118** | **41** | **367** | **34** | **66** | **111** |
 
-## Lỗ hổng chưa có TIP nhận (112)
+## Lỗ hổng chưa có TIP nhận (111)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -90,7 +90,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
 | STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
 | STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
-| DOCSIGN-PRIVATE-ATOMICITY | MỘT PHẦN | Parent contract public/Owner OTP signing uses canonical verified capability and exact OTP/document generation, with durable failed-attempt receipt | E |
 | PRO-orders-files | GIẢ | Tab Tệp đơn hàng: Mở / Tải tệp lên | F |
 | PRO-invoices-files | GIẢ | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | F |
 | PRO-products-files | GIẢ | Tab Tệp sản phẩm: Mở tệp | F |
@@ -1524,12 +1523,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | EVT-RELAY-FENCE | Claim relay bền vững, stale failure không ghi đè success; recover mất Redis/retention | kernel/outbox/relay.ts:35–61 | 003b | MỘT PHẦN | Có retry/sweep, chưa durable claim/CASfailure. TIP003b task3/AC3/8 nhận. |
 | EVT-REGISTRY-READINESS | Worker chỉ consume sau expected registry/version/role đầy đủ, không ACK khi thiếu consumer | kernel/events/dispatcher.ts:24; events.runner.ts:30 | 003b | CHƯA | TIP003b task5/AC7: explicit post-bootstrap start và independent expected manifest; domain adapters còn gate riêng. |
 | EVT-LEGACY-CUTOVER | Giữ protocol/version legacy, không giả thứ tự lịch sử hoặc replay effect unknown | kernel/events/consumer.ts:4; outbox.jobs.module.ts:20 | 003b | CHƯA | TIP003b task5/AC9: scoped authorized cohort fence/reconciliation, no blind replay/mixed-old ACK. Chưa runtime. |
-| DOCSIGN-PRIVATE-ATOMICITY | Parent contract public/Owner OTP signing uses canonical verified capability and exact OTP/document generation, with durable failed-attempt receipt | public-sign.service.ts otp/sign/systemCtx; contract-approval.handlers.ts123–143; DV009 | — | MỘT PHẦN | Existing sign flow works in integration fixtures but parent writes bypass private canonical adapter; Owner prepare verifies OTP then execute consumes any non-null hash, failure counters based on stale snapshot.030b covers appendix only. system-action-source-audit reserves030c; no exact pack or runtime closure yet. |
+| DOCSIGN-PRIVATE-ATOMICITY | Parent contract public/Owner OTP signing uses canonical verified capability and exact OTP/document generation, with durable failed-attempt receipt | public-sign.service.ts otp/sign/systemCtx; contract-approval.handlers.ts123–143; DV009 | 030c | MỘT PHẦN | Existing sign flow works in integration fixtures but parent writes bypass private canonical adapter; Owner prepare verifies OTP then execute consumes any non-null hash, failure counters based on stale snapshot.030b covers appendix only. system-action-source-audit reserves030c; TIP030c now owns the concrete plan; no runtime closure. |
 | SYS-PRIVATE-ADMISSION | Private system actions require source-bound server capability before prepare; never public, assistant or agent-grant authority | source audit system-action-source-audit-2026-11-02.md; ActionExecutor and catalogs | 003c | CHƯA | TIP003c specification1/AC1; all API/tool/Builder/discovery surfaces and old stored grants. No implementation yet. |
 | SYS-TRIGGER-RECEIPTS | Durable source-generation receipt makes system effect, audit and outbox atomic across event/scheduler retries | system-action-source-audit-2026-11-02.md; domain system services | 003c | CHƯA | TIP003c specification3–5/AC2–8; current predicates, conservative unknown and platform bridge; no fabricated Owner. No runtime proof. |
 | EVT-DURABLE-DELIVERY | Notification/mail/realtime and catalog ingest handoffs persist before enqueue, preserve unknown and current source authority | notifier.ts69–92; notify-mail.processor.ts16–28; catalog-sync.ts65–81 | 006b | MỘT PHẦN | TIP006b specs1/3/4,AC1–5/8; deterministic notification exists but queue/authority/crash gaps remain. |
 | EVT-FANOUT-SNAPSHOT | Event fanout selects stable cohort, pages all targets and applies current eligibility with durable per-target receipts | task-scheduler.ts81–82; recipients.ts23–42 | 006b | MỘT PHẦN | TIP006b spec2/AC3/6;257-target/native barriers and symbolic currentOwner exception. Current first100 is incomplete. |
 | TASK-OCCURRENCE-ATOMICITY | Scheduled occurrence, busy result or run admission, dispatch intent and next due cursor commit atomically; manual busy guard preserved | task-scheduler.ts18–36; task.handlers.ts194–197 | 006b | MỘT PHẦN | TIP006b spec5/AC6–7; task-root lock, explicit trigger generation and019b nonterminal states. No runtime repair yet. |
+| DOCSIGN-READONLY-GET | Public sign GET/PDF never records opened or signing writes; POSTopen uses stable visit identity | public-sign.controller.ts26–35; public-sign.service.ts102–110; DV009 | 030c | MỘT PHẦN | Both GET and POST currently call writing open service despite read-only comment. TIP030c spec1/5,AC1/8 includes SignScreen mount/refetch identity. |
+| DOCSIGN-ATTEMPT-RECOVERY | Parent signature rendering/finalization/delivery uses durable generation-bound receipts, protected candidates and conservative external unknown | contract-approval.handlers.ts123–143; public-sign.service.ts render/store/finalize; contract-system.ts96–114 | 030c | MỘT PHẦN | Existing native PDF flow needs source/OTP-generation CAS and crash-safe canonical receipts. TIP030c spec2–5/AC3–8; no runtime proof. |
 
 **Ghi chú / chưa rà hết:**
 

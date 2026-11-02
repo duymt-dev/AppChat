@@ -1,6 +1,7 @@
 # TIP-022b: Agent trực kênh — schedules, routing, handoff and CRM/commerce outcomes
 
 ## HEADER
+- **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 022b before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`; integrate 022b before006b.
 - **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/agents/agent.handlers.ts`, `packages/core/src/ai/agents/agent.store.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/action-context.ts`, `packages/core/src/support/jobs/support.jobs.module.ts`, `packages/core/src/support/support.module.ts`; integrate 022b before003c.
 - **Parallel-safe with TIP-003b (Event protocol manifest):** sequential, shares `packages/core/src/ai/approvals/resume.ts`, `packages/core/src/ai/reply/reply.service.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/core/src/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/index.ts`; integrate 022b before003b.

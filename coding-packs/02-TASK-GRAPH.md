@@ -291,3 +291,11 @@ No dependency back-edge from003b foundation to003c implementation; activation is
 |006b [event-delivery](tips/TIP-006b-event-delivery.md)|Durable notification/mail/WS/catalog handoffs, stable fanout, atomic task occurrences and current authority|After003b/003c and exact bilateral predecessors; combined activation before044–046|73exactpaths/32bilateralpairs/4ownedIDs/8AC; bounded independent review corrected/rechecked|
 
 No new manual/schedule policy: manual busy409 preserved; ownerOnly retarget follows019b rather than broadcast cohort. Whole STD-events-outbox4 runtime proof requires foundation and all real consumer adapters, not only planning ownership.
+
+### Supplemental030c — parent signing integrity (DC273)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|030c [parent-signing](tips/TIP-030c-parent-signing.md)|Private parent signing/Owner OTP, exact generation and source receipts, isolated candidate render/finalize, read-only GET and truthful delivery|After030b/032c/003b/c/006b and exact bilateral predecessors; before final vertical acceptance|71exactpaths/38bilateralpairs/3ownedIDs/8AC; local independent findings rechecked|
+
+Original030 DONE stays unchanged;030b appendix model is not reused for parent signer. No Commerce/permission change; approved retained-document and contact-family lock policy apply.

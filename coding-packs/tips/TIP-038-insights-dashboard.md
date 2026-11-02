@@ -1,6 +1,7 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 038 before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/tasks/task-scheduler.ts`, `packages/core/src/index.ts`; integrate 038 before006b.
 - **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/actions/src/insights.ts`, `packages/core/src/ai/assistant/meta-tools.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/core/src/insights/actions/follow-up.handlers.ts`, `packages/core/src/insights/jobs/follow-up.consumer.ts`, `packages/core/src/insights/services/follow-ups.ts`; integrate 038 before003c.
 - **Parallel-safe with TIP-003b (Event protocol manifest):** sequential, shares `packages/core/src/index.ts`, `packages/shared/src/index.ts`; integrate 038 before003b.

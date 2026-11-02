@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `packages/core/src/contracts/actions/contract-approval.handlers.ts`, `packages/core/src/contracts/services/contracts-read.service.ts`, `packages/db/prisma/tenant/contracts.prisma`; integrate 042c before030c.
 - **Parallel-safe with TIP-006b (Event delivery manifest):** sequential, shares `packages/core/src/notify/realtime/filter.ts`; integrate 042c before006b.
 - **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `packages/core/src/sales/quotes/services/quote-send.ts`, `packages/core/src/sales/quotes/services/quotes-read.service.ts`; integrate 042c before003c.
 - **Parallel-safe with TIP-003b (Event protocol manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`; integrate 042c before003b.
