@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
-| E. standards/* | 148 | 49 | 2 | 6 | 66 | 2 | 40 | 31 |
+| E. standards/* | 148 | 50 | 2 | 6 | 66 | 2 | 40 | 32 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **378** | **118** | **41** | **365** | **34** | **66** | **114** |
+| **Tổng** | **544** | **379** | **118** | **41** | **365** | **34** | **66** | **115** |
 
-## Lỗ hổng chưa có TIP nhận (114)
+## Lỗ hổng chưa có TIP nhận (115)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -93,6 +93,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
 | STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
 | STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
+| DOCSIGN-PRIVATE-ATOMICITY | MỘT PHẦN | Parent contract public/Owner OTP signing uses canonical verified capability and exact OTP/document generation, with durable failed-attempt receipt | E |
 | PRO-orders-files | GIẢ | Tab Tệp đơn hàng: Mở / Tải tệp lên | F |
 | PRO-invoices-files | GIẢ | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | F |
 | PRO-products-files | GIẢ | Tab Tệp sản phẩm: Mở tệp | F |
@@ -1526,6 +1527,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | EVT-RELAY-FENCE | Claim relay bền vững, stale failure không ghi đè success; recover mất Redis/retention | kernel/outbox/relay.ts:35–61 | 003b | MỘT PHẦN | Có retry/sweep, chưa durable claim/CASfailure. TIP003b task3/AC3/8 nhận. |
 | EVT-REGISTRY-READINESS | Worker chỉ consume sau expected registry/version/role đầy đủ, không ACK khi thiếu consumer | kernel/events/dispatcher.ts:24; events.runner.ts:30 | 003b | CHƯA | TIP003b task5/AC7: explicit post-bootstrap start và independent expected manifest; domain adapters còn gate riêng. |
 | EVT-LEGACY-CUTOVER | Giữ protocol/version legacy, không giả thứ tự lịch sử hoặc replay effect unknown | kernel/events/consumer.ts:4; outbox.jobs.module.ts:20 | 003b | CHƯA | TIP003b task5/AC9: scoped authorized cohort fence/reconciliation, no blind replay/mixed-old ACK. Chưa runtime. |
+| DOCSIGN-PRIVATE-ATOMICITY | Parent contract public/Owner OTP signing uses canonical verified capability and exact OTP/document generation, with durable failed-attempt receipt | public-sign.service.ts otp/sign/systemCtx; contract-approval.handlers.ts123–143; DV009 | — | MỘT PHẦN | Existing sign flow works in integration fixtures but parent writes bypass private canonical adapter; Owner prepare verifies OTP then execute consumes any non-null hash, failure counters based on stale snapshot.030b covers appendix only. system-action-source-audit reserves030c; no exact pack or runtime closure yet. |
 
 **Ghi chú / chưa rà hết:**
 
