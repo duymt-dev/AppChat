@@ -3,7 +3,7 @@
 ## HEADER
 - TIP-ID: TIP-039; Project: AppChat V2; Module: billing; Priority: P0; Estimated: XL.
 - Depends on:009/010/011/013/014/021; tích hợp sau038/042c/043/045b và các pending TIP dùng shared indexes/locales, trước040/041/044/046.
-- **Gate Q-031:** chưa chốt calendar/30-day credit period, phần credit upgrade prorate hay đủ chênh, thời hạn addon. Không tự quyết giá/quyền; khóa riêng các nhánh tiền này, không chặn viết pack khác.
+- **Q-031 đã duyệt — DC242:** tháng theo ngày đăng ký; upgrade tiền/Credit chênh prorate thời gian còn lại; addon đồnghạn gói và prorate. Không còn gate3quyếtđịnh này; vẫn cần kiểm rounding/annualprice/migration bằng numericAC, không tự đổi giá/quyền.
 - **Dòng COVERAGE nhận:** REQ-L03b/L05a/L05b/L05c/L06/L07c/L07d/L07e; COM-10-3/10-7; D09; DC056; DEF0091/0094/0101/0102/0105; ACT-wallet.update_alerts; PRO-settings-walletalerts/upgradecontact/tokenusage; Q031. L05a/L06 regression, không viết lại phần đã chạy.
 - **Parallel-safe with:** sequential, shares `packages/actions/src/index.ts` với015b/020b/023b/023c/030b/032b/036/037/038/042/042b/043/045b; `coding-packs/plans/BLUEPRINT.md` với042c; settings locales/shared API/parity giao nhiều TIP trên. Đã tính giao và ghi hai chiều14 pendingTIP trước tạo. Chưa bảo đảm manifest6 TIP cũ đầy đủ: tính lại trước build.
 - **Files touched:** bảng M=modify/C=create; chỉ làm sau câu A hoàn tất.
@@ -94,7 +94,7 @@
 Đọc `coding-packs/standards/`: actions/action-registry; events/outbox; api/response-envelope; database/tenant-db,indexing; authz/rbac-permissions; domain/money-time-numbering,concurrency,state-machine,validation-defaults,gap-filling; documents/templates; integrations/provider-ports; ops/observability-security; ui/frontend-structure,prototype-parity,interaction-patterns; i18n/i18n; code/file-size-module-layout,testing; workflow/git-flow-ci. Mọi tên trên là file .md.
 
 ## Rà trước khi làm
-1. Chốt Q031 và bổ sung ví dụ số tiền/credit/period mong đợi vào task/AC trước coding phần đó. Không lấy im lặng làm phê duyệt.
+1. Áp DC242 đã duyệt và numericfixtures dưới đây. Đối chiếu phép làm tròn/annual price trong standard; chi tiết ảnh hưởng tiền chưa có quy tắc phải ghi rõ và hỏi, không suy ra lời duyệt mọi giá từ Q031.
 2. Đối chiếu policy expiration30ngày ở REQ-L07d với041 free90dayarchive; không drop tenant từ billing job.
 3. Kiểm045b platform action bridge/invalidation/authz snapshots; reuse transactional wallet APIs, không nested tx deadlock hoặc postcommit event không durable.
 4. Đọc quota callers invite/connect/agent và counting convention; channels summary dùng đúng tập quota, không chỉ connected nếu pending đã chiếmslot.
@@ -107,15 +107,15 @@
 ### 1. Platform entitlement schema và monthly jobs
 - Schema platform billing-lifecycle: SubscriptionAddon (id,workspace_id,invoice_id unique,resource,quantity,starts_at,ends_at,status); billing period grant receipt (workspace,period identity unique,period_start/end,plan_snapshot,credits,ledger_ref,status); sales inquiry (id,workspace,requester,contact consent/details,status,created_at). Subscription thêm next_grant_at, pending_plan_id/effective_at, expiry/grace timestamps và version. Invoice lưu immutable pricing/entitlement snapshot cần cho upgrade/addon. Tenant không thêm workspace_id.
 - Phân biệt paid subscription entitlement_end với credit allocation boundary; gói năm không cấp12tháng ngay. Grant expire plan remainder rồi cấp đúng một monthlyquota, không động topup. Due scheduler stable pagination/CAS, ledger+periodreceipt+advance mốc trong cùng platformtx; outbox bridge045b durable sau commit.
-- Q031 quyết calendar hay30days: key legacy period:<ws>:<yyyy-mm> chỉ dùng nếu một allocation/mộtmonth; nếu30day phải identity anchored period_start/version, mappingmigration tránh duplicate. Không regrant cả kỳ đã mua ban đầu qua invoice.
+- DC242 chọn tháng theo ngày đăng ký: lưu anchor_day/timezone, ngày31→ngàycuối tháng ngắn rồi phục hồi31 kỳsau; không cộng30ngày. Identity anchored period_start/version có mapping với keylegacy period:<ws>:<yyyy-mm> để tránh duplicate. Không regrant cả kỳ đã mua ban đầu qua invoice; không hồi tố thayenddate invoicepaidcũ khi migration.
 - Catchup downtime tính kỳ hiện tại, không tích luỹ nhiều tháng plan credit; ledger ghi expire/grant rõ và receipts cho skipped periods, không giả usage. Race charge/renewal/upgrade dùng lock order workspace→subscription→wallet; transaction retry bounded.
 - Internal lifecycle actions qua Executor/internal trusted context, không public/agentGrantable; schema/version/audit/outbox; queue dedicated billing-scheduler hoặc dispatcher chuẩn045b, không worker nhậnjob lạ rồi return thành công.
 
 ### 2. Fulfil, upgrade/downgrade và addons
 - Sửa activate idempotency: receipt unique invoice_id kiểm dưới cùnglock trước sửa subscription; replay không dời ngày, không đổi plan, không reset credit. Fulfil invoice paid bằng snapshot đã xác nhận, không đọc giá gói mới để ghi lại lịch sử.
 - Upgrade không gọi activate mua mới: server preview tiền chênh theo ngày còn lại, rounding theo standard, source/targetprice/period snapshot, quote expiry và version; confirm qua billing.create_invoice hoặc dedicated action có preview. Client không gửi giá authoritative. Khi tiền về sau period/plan change phải vào reconciliation có lý do, không âm thầm cấp sai gói hoặc mất tiền.
-- COMMERCE giữ end-date hiện hành khi nâng giữa kỳ, cộng ngay credit chênh vào **plan bucket**, không reset phần đã dùng/không topup vĩnh viễn. Sốcredit chênh và pricing annual fraction cần Q031; không suy diễn từ giá tháng nếu năm có giảm. Hạ gói ghi pending_plan kỳ sau, cancellation pending qua action; không xoá resource vượt quota lúc hạ.
-- Addon paid cấp entitlement idempotent invoice_id, quota(base + active addons), null base vẫn unlimited; expiry theo Q031. Backfill **tất cả paid addon kể cả fulfilledAt đã có**, bounded dryrun/review, xác nhận item/sốlượng/thời hạn từ snapshot/catalog historical, ambiguous invoices đưa reconciliation không tự đoán.
+- DC242 giữ end-date hiện hành khi nâng giữa kỳ, cộng credit chênh theo tỷlệ thời gian còn lại vào **plan bucket**, không reset phần đã dùng/không topup vĩnh viễn. Annual money dùng giá năm snapshot và tỷlệ paidterm còn lại, không nhân giá tháng bỏ discount; Credit chỉ prorate kỳallocation tháng hiện tại, tháng kế nhận quota mới, không cấp trướccredit12tháng. Hạ gói ghi pending_plan kỳ sau, cancellation pending qua action; không xoá resource vượt quota lúc hạ.
+- Addon paid cấp entitlement idempotent invoice_id, quota(base + active addons), null base vẫn unlimited; DC242 expiry cùng kỳgói, thu đúng phần thời gian còn lại. Backfill **tất cả paid addon kể cả fulfilledAt đã có**, bounded dryrun/review, xác nhận item/sốlượng/thời hạn từ snapshot/catalog historical, ambiguous invoices đưa reconciliation không tự đoán.
 - Đúng hạn kỳ pending downgrade được áp một lần. Expired paid subscription chuyển state expired, chặn tăng entitlement/AI theo policy đã chốt, cho Owner gia hạn và giữ dữ liệu30ngày; không tự xoá sau30ngày ở039.041 nhận retention/archive/delete. Không “tự gia hạn bằng tiền” khi chỉ tạo invoice; QR phải paidverified mới active.
 - Scope admin confirmation ở040;039 chỉ reuse010, không cho Owner tự đánh invoice paid.
 
@@ -141,6 +141,8 @@
 - Migrationbackfill có dryrun counters, không tự lịchgrant cho archived/deleted workspaces; healthmetrics due/lag/failedreconciliation, logs chỉ IDs/correlation và amount theo policy, không bankpayload/customerVAT/email.
 
 ## ACCEPTANCE CRITERIA
+
+**Numeric fixtures DC242:** đăng ký31/01/2027 cùnggiờ workspace → kỳtiếp28/02/2027 →31/03/2027; nămnhuận dùng29/02. Monthlyterm01/04→01/05, upgrade16/04 cùnggiờ: còn15/30ngày; chênhgiá600.000đ → thu300.000đ, chênhquota10.000Credit → cộng5.000Creditplan, topup vàplanđãcòn giữnguyên, end01/05. Addon giá300.000đ/tháng mua cùngmốc →150.000đ vàhết01/05. Đây là dữliệutest không thay catalogprice. Thêm fractionalrounding/annual/DST/repeatedupgrade cases trướcaccept theo standard; không lấy vídụ chia hết làmproof rounding.
 1. **AC01 periods** — Given gói năm/trial/free,2workers và downtime; When due/resetreplay; Then mỗi approvedperiod đúng1grant, expireplan không rollover, topup nguyên, không doublegrant activation. Q031 phải có literal expected dates/credits trước accept.
 2. **AC02 invoice replay** — Given paid invoice đã activate; When fulfil lại ngàyhôm sau/crash giữaactivate và fulfilledAt; Then periodStart/end/plan/balance nguyên và1receipt, notificationbridge recover.
 3. **AC03 plan changes** — Given active tháng/năm còn ngày và usage; When preview/paidupgrade/downgrade; Then tiền/credit theo ví dụQ031 được duyệt, giữenddate, khôngresetused; downgrade kỳsau, changedversion/latepayment không silently wronggrant.
@@ -163,7 +165,7 @@ pnpm parity --done
 Rà scripts/paritysettingsID/config môi trường hiện tại trước chạy. Mock vàHTTP, 1440×900/390×844; D59 lint/typecheck/unit/depcheck trướccommit và fullgate chốtTIP. Providerbank thiếukey ghi chưanghiệmthu thật, mockkhông thay SePay. Không featureLLM mới, nhưng gateway credit live9router exhaustion→topup→newrun phải smoke thật nếu sửa gate; không tự tiêu tiền/account ngoài cho test.
 
 ## CONSTRAINTS
-- Không đổi COMMERCE/permissions/pricing khiQ031 chưa trả lời; khôngAutoPay/modelcheap/debtcredit. Không ghi dữliệu/source trong câuA.
+- Không đổi COMMERCE/permissions/catalogpricing; áp DC242 đãduyệt, khôngAutoPay/modelcheap/debtcredit. Không ghi dữliệu/source trong câuA.
 - Billing nền tảng khác invoicekhách/sales; không ghép hai sổ hoặc đổiquyền finance. Owner không platformadmin.
 - REUSE wallet locks/ledger,045b bridge/202,010 providerpayments,042c scope,011 trial;041 mới destructive lifecycle,040 adminUI.
 - Backend200–400/tách500/trần600; frontend150–250/trần400; test riêng; UIhosts không nhồi AppShell/useAction.
