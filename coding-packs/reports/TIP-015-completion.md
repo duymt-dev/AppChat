@@ -60,3 +60,7 @@
 ## Supplemental record-scope audit (2026-11-02)
 
 See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.
+
+## Bổ sung planning2026-11-02 — CRM360 controls026b
+
+[TIP026b](../tips/TIP-026b-crm-activities.md) nhận notes/comments, manual follow-up tasks, opportunities, Kanban>50/customfields và stage/profilelayoutCAS; AI-first nhập/xuất3dataset qua038b. Exact manifest và AC riêng; không thay kết quả runtime cũ.015d vẫn phải nhận merge/owner-transfer/delete/restore;015c privacy chưa viết.

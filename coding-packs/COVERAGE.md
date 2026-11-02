@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 9 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 17 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 210 | 5 | 4 | 82 | 1 | 0 | 12 |
-| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 35 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 39 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 27 |
-| **Tổng** | **551** | **349** | **118** | **41** | **331** | **34** | **66** | **155** |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 212 | 5 | 4 | 86 | 1 | 0 | 11 |
+| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 34 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 37 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 26 |
+| **Tổng** | **551** | **351** | **118** | **41** | **335** | **34** | **66** | **150** |
 
-## Lỗ hổng chưa có TIP nhận (155)
+## Lỗ hổng chưa có TIP nhận (150)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -74,7 +74,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-ai.extract_info | CHƯA | `ai.extract_info` có trong registry + handler | D |
 | ACT-ai.score_lead | CHƯA | `ai.score_lead` có trong registry + handler | D |
 | ACT-ai.summarize | CHƯA | `ai.summarize` có trong registry + handler | D |
-| ACT-contact.add_note | CHƯA | `contact.add_note` có trong registry + handler | D |
 | ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
@@ -94,7 +93,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-1b | CHƯA | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | E |
 | STD-domain-concurrency-7a | MỘT PHẦN | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | E |
 | STD-domain-concurrency-T | MỘT PHẦN | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | E |
-| STD-domain-customfields-4b | CHƯA | Thẻ Kanban hiện tối đa 2 trường tuỳ biến | E |
 | STD-domain-money-1.4 | CHƯA | Chia đợt / cọc theo %: làm tròn xuống, đợt cuối nhận phần dư | E |
 | STD-domain-money-1.7 | MỘT PHẦN | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | E |
 | STD-domain-money-2.2 | MỘT PHẦN | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | E |
@@ -131,8 +129,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
 | PRO-products-richtext | GIẢ | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | F |
 | PRO-customers-dedupe | GIẢ | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | F |
-| PRO-inbox-360deal | GIẢ | Hồ sơ 360°: "+ Thêm" cơ hội / deal | F |
-| PRO-inbox-360tasknote | GIẢ | Hồ sơ 360°: "+ Thêm việc" / "+ Thêm ghi chú" | F |
 | PRO-assistant-plusfile | GIẢ | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | F |
 | PRO-assistant-plusscreenshot | GIẢ | Trợ lý: menu ＋ "Chụp ảnh màn hình" | F |
 | PRO-assistant-mic | GIẢ | Trợ lý: nút giọng nói | F |
@@ -164,7 +160,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
 | DEF-023-2 | CHƯA | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | G |
 | DEF-023-4 | CHƯA | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | G |
-| DEF-026-2 | CHƯA | Kanban khách > 50 thẻ / cột có "Xem thêm" | G |
 | DEF-027-2 | CHƯA | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | G |
 | DEF-028-1 | MỘT PHẦN | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | G |
 | DEF-030-3 | CHƯA | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | G |
@@ -1024,7 +1019,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | — | CHƯA | Không có trong packages/actions (actions.json); 015b chỉ có contact.summarize (khác id) |
 | ACT-category.delete | `category.delete` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | — | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
+| ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | CHƯA | Không có trong packages/actions (actions.json); ghi chú chỉ qua contact.create(note) — contact-write.handlers.ts:44 |
 | ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | — | CHƯA | Không có trong packages/actions; BP = privacy.erase ẩn danh hoá. DC-235 đã sửa tên xoá fact dự kiến ở 015b thành contact.memory_forget; nghĩa vụ privacy vẫn chưa có TIP, không thuộc học KB của 043 |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
@@ -1190,6 +1185,12 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BANK-STRICT-NORMALIZATION | Bank amount/direction/date/account validated fail-closed before financial effect | COMMERCE5; audit2026-11-02 | 012b | MỘT PHẦN | sepay/adapter.ts:51 truncates Number amount and unknown direction becomes in; bank-feed.ts:56 missing account bypasses mismatch check.012b strict parser/binding fixtures required. |
 | CONNECTOR-HEALTH-EVIDENCE | Connector live/sandbox/probe/sync status reflects actual adapter evidence | provider-ports4/9; audit2026-11-02 | 012b | MỘT PHẦN | define.ts allows adapterless connect; registry live tenant bank is mock; connections.service defaults live and marks connected.012b scopes real bank/shared health, mail012c still missing. |
 | AI-TASK-EVENT-ONCE | One durable task run/skip per task and triggering event across dispatcher crash/replay | Blueprint5.4; payment-to-AI vertical audit2026-11-02 | 012b | MỘT PHẦN | ai/tasks/task-scheduler.ts:18–23 busy check then new run/queue has no event receipt; dispatcher records consumption afterwards.012b owns event-dispatch module/schema/recovery; no claim existing queue ID solves source-event duplication. |
+| CRM-ACTIVITY-COMMENTS | Ghi chú và comment nội bộ riêng, author/provenance thật; note không giả thành comment, không gửi kênh | DC-253; prototype2400–2445; TIP026b spec1–3 | 026b | CHƯA | crm/services/contact360.ts:49–54 dùng older notes làm comments; ExtraCards.tsx chưa composer/action; mới kế hoạch, không runtime |
+| CRM-ACTIVITY-TASKS | Việc chăm sóc khách thủ công: CRUD/state/due/assignee/current scope/CAS, không phải ai_task hay lịch hẹn | DC-253; TIP026b spec1–3 | 026b | CHƯA | contact360.ts:46 tasks=[]; tenant CRM schema không ContactTask, ExtraCards.tsx checkbox giảicon |
+| CRM-ACTIVITY-OPPORTUNITY | Cơ hội nhiều bản ghi: giá trị dự kiến/stage/xác suất/ngày dự kiến có nguồn, không đổi doanh thu/chứng từ | DC-253; TIP026b spec1–3 | 026b | CHƯA | contact360.ts:44 deal rỗng; Overview360.tsx:121 Add không handler; chưa Opportunity schema |
+| CRM-ACTIVITY-TRANSFER | AI-first + manual nhập/xuất CSV/XLSX thật cho note/comment/task/opportunity qua038b cùng quyền/preview/receipts | DC-244; DC-253; TIP026b spec5 | 026b | CHƯA | New CRM datasets chưa tồn tại;038b pipeline còn pending. Không coi export contacts cũ là đủ |
+| CRM-STAGE-CAS | contact.set_stage và kéo Kanban truyền if_version, race/undo không ghi đè sửa sau | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | actions/crm.ts:109 input chưaif_version; contact-write.handlers.ts:97 đọc rồiupdate.025b tạo version nền,026b nhận stage |
+| CRM-LAYOUT-CAS | profile_layout version/CAS, autosave serial/draft giữ khi409, delete/assign atomic fallback | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | profile-layout.handlers.ts:47–50 update chưaCAS; ProfileLayoutEditor.tsx:59–66 gửi mỗi edit. Fallbackdelete đã có:74–76 |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1381,7 +1382,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-customfields-3a | create/update 6 thực thể nhận `custom`, validate bằng `validateCustomValues` → 422 `custom.cf_x` | standards/domain/custom-fields.md:13 | 015+ | ĐẠT | 7 file core gọi validateCustomValues; test shared/src/custom-fields/values.test.ts |
 | STD-domain-customfields-3b | Sửa giá trị trường của lịch hẹn sau tạo (`appointment.update`) | standards/domain/custom-fields.md:13 | 023b | CHƯA | Không có `appointment.update`; 023b task 8 (ticket.update đã có) |
 | STD-domain-customfields-4a | Hiện theo visible_in: form / list / filter (`cf.<key>`, lọc trước phân trang) / detail | standards/domain/custom-fields.md:17 | 026 | ĐẠT | apps/web/src/shared/custom-fields/*; apps/api/src/http/crm/contacts.controller.ts:30 (+5 controller); test apps/web/e2e/custom-fields.spec.ts |
-| STD-domain-customfields-4b | Thẻ Kanban hiện tối đa 2 trường tuỳ biến | standards/domain/custom-fields.md:23 | — | CHƯA | features/customers/components/KanbanCard.tsx không đọc custom |
+| STD-domain-customfields-4b | Thẻ Kanban hiện tối đa 2 trường tuỳ biến | standards/domain/custom-fields.md:23 | 026b | CHƯA | features/customers/components/KanbanCard.tsx không đọc custom |
 | STD-domain-customfields-4c | Xuất Excel thêm cột trường tuỳ biến | standards/domain/custom-fields.md:23 | 038 | CHƯA | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket → 038 (Q-024) |
 | STD-domain-customfields-6 | `find_actions` trả input schema kèm định nghĩa trường `ai = true` của workspace | standards/domain/custom-fields.md:26 | 023b | CHƯA | grep custom trong core/src/ai/assistant/catalog.ts, meta-tools.ts = 0; 023b / 023c không nêu; planning update: TIP023b SPECIFICATIONS A/B, exact manifest and targeted per-action/custom-schema/useAction-approval tests now own the gap. Runtime not verified. |
 | STD-domain-customfields-7 | Unit validate customValues + e2e tạo trường → cột/form/lọc/chi tiết | standards/domain/custom-fields.md:27 | 015, 026 | ĐẠT | values.test.ts:51; apps/web/e2e/custom-fields.spec.ts |
@@ -1580,9 +1581,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-inbox-groupboard | Nhóm: Bảng tin (tin ghim, ghi chú) + "Xem tất cả" ảnh / tệp | docs/06-prototype/AppChat.dc.html:2284 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupSections.tsx:45,52,70,88 không onClick |
 | PRO-inbox-grouppolicy | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | docs/06-prototype/AppChat.dc.html:2106 | 025b | GIẢ | GroupSections.tsx:37,109 chỉ `useState`, không action |
 | PRO-inbox-360edit | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | docs/06-prototype/AppChat.dc.html:2386 | 025b | GIẢ | apps/web/src/features/inbox/components/Overview360.tsx:75 không onClick |
-| PRO-inbox-360deal | Hồ sơ 360°: "+ Thêm" cơ hội / deal | docs/06-prototype/AppChat.dc.html:2402 | — | GIẢ | Overview360.tsx:121 không onClick |
+| PRO-inbox-360deal | Hồ sơ 360°: "+ Thêm" cơ hội / deal | docs/06-prototype/AppChat.dc.html:2402 | 026b | GIẢ | Overview360.tsx:121 không onClick |
 | PRO-inbox-360csv | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | docs/06-prototype/AppChat.dc.html:2413 | 025b | GIẢ | Overview360.tsx:148, Tabs360.tsx:139 không onClick |
-| PRO-inbox-360tasknote | Hồ sơ 360°: "+ Thêm việc" / "+ Thêm ghi chú" | docs/06-prototype/AppChat.dc.html:2429 | — | GIẢ | apps/web/src/features/inbox/components/ExtraCards.tsx:18,35 không onClick; `contact.add_note` chưa có trong registry |
+| PRO-inbox-360tasknote | Hồ sơ 360°: "+ Thêm việc" / "+ Thêm ghi chú" | docs/06-prototype/AppChat.dc.html:2429 | 026b | GIẢ | apps/web/src/features/inbox/components/ExtraCards.tsx:18,35 không onClick; `contact.add_note` chưa có trong registry |
 | PRO-inbox-schedslots | Composer "Đặt lịch": slot gợi ý từ API | docs/06-prototype/AppChat.dc.html:2169 | 025b | GIẢ | apps/web/src/features/inbox/api.ts:99 `GET /booking/slots` (routes.json `missing`; API có `/calendar/slots`) |
 | PRO-inbox-autoxl | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | docs/06-prototype/AppChat.dc.html:2213 | 025b | GIẢ | apps/web/src/features/inbox/components/ComposerPopovers.tsx:97,106 chỉ đổi state `autoXl`/`lang`, không ai đọc |
 | PRO-inbox-screenshot | Menu ＋ khung nhập: Chụp ảnh màn hình | docs/06-prototype/AppChat.dc.html:2231 | 025b | GIẢ | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:32 `onClick={onClose}` |
@@ -1694,7 +1695,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | 025b | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | CHƯA | apps/web/src/features/inbox/components/Blocks360.tsx:2-3 "chưa có dữ liệu". TIP015b đã bổ sung customer-links/KPI/SLA/CSAT, shared DTO và Blocks360 trong manifest sau review2026-11-02; chỉ kế hoạch, chưa code/nghiệm thu. |
-| DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | — | CHƯA | Không có load-more ở features/customers |
+| DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | 026b | CHƯA | Không có load-more ở features/customers |
 | DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
 | DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | — | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser |
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | — | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment) |

@@ -3,6 +3,7 @@
 > Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
+- **Latest CRM360 checkpoint:026b146 exact paths/25 futureM/23 bilateral pairs/11 owned IDs.** Notes/comments/manual tasks/opportunities, AI-first+manual actualCSV/XLSX, paged Kanban and stage/layoutCAS. Two independent HIGH findings fixed/rechecked: typed timeline/projection and immutable transfer dataset identity. DC253; ledger1496/**150 gaps**. See reports/crm-activities-planning-audit-2026-11-02.md. Continue015d CRM lifecycle/015c privacy/012c tenant mail and full7part/graph/review; not runtime or goal completion.015d source audit identified quote owner attribution mutation, merge ACL union/undo/lineage and package-use seams; no015dTIP yet.
 
 - **Latest bank checkpoint:012b126 exact paths/15 owned IDs,22 bilateral pairs.** Independent findings fixed/rechecked: strict provider/account normalization, both hooks/canonical receipts, reconnect dedupe, finance binding UI, probe prepare boundary and actual AI event-dispatch receipt. Read probes ephemeral, confirmed connect durable; Casso live requires authoritative contract spike. DC252; ledger1490/**155 gaps**. See reports/bank-connectors-planning-audit-2026-11-02.md. Continue012c tenant mail/026b CRM and whole7part/graph/review; not runtime or goal completion.
 

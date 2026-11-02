@@ -39,3 +39,7 @@
 ## Supplemental planning2026-11-02 ? TIP025b (not runtime DONE)
 
 See ../tips/TIP-025b-inbox-vertical.md for group/search/bulk/source-context/global contact edit/timeline CSV/scheduling/translation/capture/approval integration and exact manifests. Original completion status does not prove these missing controls.025b preserves existing domain permissions/commerce;026b still must own CRM deal/task/contact-note domain gaps. Independent review/validation tracked in inbox-vertical-planning-audit-2026-11-02.md.
+
+## Bổ sung planning2026-11-02 — CRM360 controls026b
+
+[TIP026b](../tips/TIP-026b-crm-activities.md) nhận notes/comments, manual follow-up tasks, opportunities, Kanban>50/customfields và stage/profilelayoutCAS; AI-first nhập/xuất3dataset qua038b. Exact manifest và AC riêng; không thay kết quả runtime cũ.015d vẫn phải nhận merge/owner-transfer/delete/restore;015c privacy chưa viết.

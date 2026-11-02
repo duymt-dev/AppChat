@@ -1,6 +1,7 @@
 # TIP-042b — Chia lead mới và cấu hình routing theo tài khoản kênh
 
 ## HEADER
+- **Parallel-safe with TIP-026b (CRM activity manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/index.ts`, `packages/actions/src/settings-apps.ts`, `packages/core/src/crm/crm.module.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 042b before026b.
 - **Parallel-safe with TIP-012b (Bank integration manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/index.ts`, `packages/actions/src/settings-apps.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 042b before012b.
 - **Parallel-safe with TIP-019b (Runtime integration manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 042b before019b.
 - **Parallel-safe with TIP-025b (Inbox integration manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/crm/crm.module.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 042b before025b.
