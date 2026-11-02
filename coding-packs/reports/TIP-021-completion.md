@@ -46,3 +46,7 @@
 ## Supplemental agent-channel behavior (2026-11-02)
 
 [TIP022b](../tips/TIP-022b-agent-channel-behavior.md) owns structured schedules, real keyword routing, intent/handoff/complaint behavior and versioned template defaults, preserving current grants and native services. Prior DONE does not prove these deferred behaviors or live model success; completed TIP file unchanged.
+
+## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
+
+TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.

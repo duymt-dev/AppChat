@@ -38,3 +38,9 @@
     - Chỉ provider `active` + đã `probe` OK mới được route. `capabilities` (tools, json_schema, streaming, embeddings) quyết định dùng cho việc gì; agent có tool chỉ route tới model hỗ trợ tool calling.
     - Fallback khi gặp 5xx / 429 / timeout 30s, theo `model_route.priority` (trộn được provider gốc và router).
     - Không hard-code tên model trong code; model chỉ nằm trong `model_route`.
+
+## Runtime clarification — DC251 / TIP019b (planning, not implemented)
+
+Shared budget is a soft usage guard across all descendant model/embedding work, not a hard monetary cap. Check positive wallet before every actual attempt; settled known usage stops subsequent model calls and business tools when exhausted. Attempt receipts retain original prices and existing aggregate logical-step/ingest-revision ceil, not a new per-batch surcharge. Platform charge then tenant charged-step/counters remains required and recoverable; known-unbilled/unknown usage are not fabricated zero-cost success.
+
+Narrow safety clarification to rule12 fallback: configured candidate order and fallback for definite retryable rejection remain. When timeout/crash leaves provider acceptance or usage genuinely unknown, quarantine/reconcile that attempt before another dispatch; absence of output/expired lease alone is not proof no request executed. No blind retry or claim of exactly-once remote execution. This technical clarification changes neither COMMERCE tariff nor wallet debt/partial-debit policy.

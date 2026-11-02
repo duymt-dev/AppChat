@@ -15,13 +15,13 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 10 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 20 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 202 | 5 | 4 | 81 | 1 | 0 | 17 |
-| E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 39 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 206 | 5 | 4 | 82 | 1 | 0 | 14 |
+| E. standards/* | 150 | 46 | 2 | 6 | 63 | 2 | 40 | 37 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 39 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 30 |
-| **Tổng** | **556** | **339** | **118** | **41** | **330** | **34** | **66** | **171** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 29 |
+| **Tổng** | **552** | **344** | **118** | **41** | **331** | **34** | **66** | **165** |
 
-## Lỗ hổng chưa có TIP nhận (171)
+## Lỗ hổng chưa có TIP nhận (165)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -82,16 +82,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-contact.forget | CHƯA | `contact.forget` có trong registry + handler | D |
 | ACT-integration.sync_now | CHƯA | `integration.sync_now` có trong registry + handler | D |
 | ACT-integration.test | CHƯA | `integration.test` có trong registry + handler | D |
-| BP-4.4-ai-c | CHƯA | GET /runs/:id (+steps) | D |
 | BP-4.4-fe-nav | GIẢ | GET /nav/badges (FE shell) | D |
 | BP-4.6-b | CHƯA | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | D |
-| BP-5.1-g | CHƯA | Mọi bước phát `run.step` qua WS | D |
-| BP-5.1-j | CHƯA | ai_run_step.meta.provider_cost | D |
 | BP-9-e | MỘT PHẦN | /healthz, /readyz | D |
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
-| STD-ai-gateway-5 | MỘT PHẦN | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | E |
-| STD-ai-gateway-11a | MỘT PHẦN | Mỗi bước ghi `ai_run_step` + phát `run.step` qua WS để Owner xem trực tiếp | E |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
 | STD-authz-rbac-D32b | MỘT PHẦN | Chuyển phụ trách chỉ `crm.reassign`; Agent / Trợ lý chỉ **đề xuất (approval)** | E |
@@ -177,7 +172,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-015-1 | MỘT PHẦN | Consumer `contact.owner_changed` chuyển lịch hẹn mở (move.appointments) | G |
 | DEF-017-2 | CHƯA | Typing indicator / `agent.status` tới widget (Blueprint §4.6) | G |
 | DEF-017-3 | MỘT PHẦN | `/settings/widget` liệt kê đủ agent thật | G |
-| DEF-021-1 | MỘT PHẦN | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | G |
 | DEF-023-2 | CHƯA | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | G |
 | DEF-023-4 | CHƯA | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | G |
 | DEF-026-2 | CHƯA | Kanban khách > 50 thẻ / cột có "Xem thêm" | G |
@@ -1126,7 +1120,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-loyalty | /loyalty/config, /loyalty/members(+:id ledger), overview, lookup | plans/BLUEPRINT.md:967 | 036 | GIẢ | không route API; FE loyalty/api.ts chỉ chạy mock |
 | BP-4.4-ai | /agents (+:id, versions, tools), /agent-templates, /approvals, /governance, /runs?root_run_id=&status=, /ai-tasks | plans/BLUEPRINT.md:968 | 021/023/035 | ĐẠT | http/ai/{agents,ai,tasks}.controller.ts; test agents.test.ts, ai-runtime.test.ts, ai-tasks.test.ts |
 | BP-4.4-ai-b | GET /agents/:id/stats | plans/BLUEPRINT.md:968 | 038 | CHƯA | routes.json không có |
-| BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | — | CHƯA | không route, không TIP nhắc |
+| BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | 019b | CHƯA | không route, không TIP nhắc |
 | BP-4.4-ai-d | GET /kb/folders · /kb/sources | plans/BLUEPRINT.md:968 | 020 | MỘT PHẦN | TIP-020:15 hứa nhưng không có route; chỉ /settings/kb (ai.controller.ts:48) |
 | BP-4.4-ai-e | GET /kb/suggestions (P1) | plans/BLUEPRINT.md:968 | 043 | CHƯA | không route |
 | BP-4.4-assistant | /assistant/sessions?q= · /assistant/sessions/:id/messages | plans/BLUEPRINT.md:969 | 023 | ĐẠT | http/ai/assistant.controller.ts:70-75; test assistant.test.ts |
@@ -1150,14 +1144,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
 | BP-5.1-a | AiSdkEngine (streamText) chạy tool qua ToolSpec → ActionExecutor | plans/BLUEPRINT.md:1052 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:5; agent.runtime.ts:73; test engine.test.ts |
 | BP-5.1-b | Dừng run khi needs_* → lưu state jsonb, chạy tiếp bằng job ai-resume, idempotent | plans/BLUEPRINT.md:1054 | 021 | ĐẠT | engine.ts:94-95; core/ai/approvals/resume.ts:85-120, resume.queue.ts:22; test agents.test.ts, agent-reply.test.ts |
-| BP-5.1-c | Approval quá 72h → expired, run handoff, BÁO OWNER | plans/BLUEPRINT.md:1061 | 021 | MỘT PHẦN | approval.gateway.ts:48 + resume.ts:96-102 có expire + handoff; không thông báo Owner (agents.rules.ts chỉ WS) |
-| BP-5.1-d | Loop guard 3 lần · maxSteps 8/16 · budget | plans/BLUEPRINT.md:1062 | 019 | ĐẠT | engine.ts:10,50-51,89; runs/runner.ts:12; test engine.test.ts |
-| BP-5.1-e | transfer_to_agent ≤ 3/lượt, A→B→A → người · consult chỉ read · độ sâu ≤ 2 | plans/BLUEPRINT.md:1067 | 022 | ĐẠT | reply.service.ts:153; reply-tools.ts:91-100; test agent-reply.test.ts |
-| BP-5.1-f | Ngân sách credit chung cả cây run | plans/BLUEPRINT.md:1072 | 023 | MỘT PHẦN | delegate.ts:46 có; consult dùng CONSULT_BUDGET riêng (reply-tools.ts:110) không trừ gốc |
-| BP-5.1-g | Mọi bước phát `run.step` qua WS | plans/BLUEPRINT.md:1073 | — | CHƯA | xem BP-4.6-b |
-| BP-5.1-h | CreditMeter trừ credit mỗi bước, idempotent (ws,'ai_step',run:step), CREDIT_EXHAUSTED | plans/BLUEPRINT.md:1080 | 019 | ĐẠT | packages/core/src/billing/services/credit-meter.ts; test ai-runtime.test.ts, billing.test.ts, engine.test.ts:77 |
+| BP-5.1-c | Approval quá 72h → expired, run handoff, BÁO OWNER | plans/BLUEPRINT.md:1061 | 019b | MỘT PHẦN | approval.gateway.ts:48 + resume.ts:96-102 có expire + handoff; không thông báo Owner (agents.rules.ts chỉ WS) |
+| BP-5.1-d | Loop guard 3 lần · maxSteps 8/16 · budget | plans/BLUEPRINT.md:1062 | 019b | MỘT PHẦN | engine.ts:10,50-51,89; runs/runner.ts:12; test engine.test.ts Re-audit2026-11-02: engine can execute tools after usage exceeds budget; runner treats max_steps/loop_guard/budget as completed.019b durable gate/stop reason tests pending. |
+| BP-5.1-e | transfer_to_agent ≤ 3/lượt, A→B→A → người · consult chỉ read · độ sâu ≤ 2 | plans/BLUEPRINT.md:1067 | 019b | MỘT PHẦN | reply.service.ts:153; reply-tools.ts:91-100; test agent-reply.test.ts Re-audit2026-11-02: finishResumedTurn resets transfer ancestry; consult40 budget separate.019b owns persisted lineage and root budget, not proved by current single-turn tests. |
+| BP-5.1-f | Ngân sách credit chung cả cây run | plans/BLUEPRINT.md:1072 | 019b | MỘT PHẦN | delegate.ts:46 có; consult dùng CONSULT_BUDGET riêng (reply-tools.ts:110) không trừ gốc |
+| BP-5.1-g | Mọi bước phát `run.step` qua WS | plans/BLUEPRINT.md:1073 | 019b | CHƯA | xem BP-4.6-b |
+| BP-5.1-h | CreditMeter trừ credit mỗi bước, idempotent (ws,'ai_step',run:step), CREDIT_EXHAUSTED | plans/BLUEPRINT.md:1080 | 019b | MỘT PHẦN | packages/core/src/billing/services/credit-meter.ts; test ai-runtime.test.ts, billing.test.ts, engine.test.ts:77 Re-audit2026-11-02: wallet duplicate is safe but tenant counters/repriced receipt are not crash-atomic.019b receives stable usage settlement/recovery; existing paid ledger never rewritten. |
 | BP-5.1-i | LLM Router: model_route theo tier, fallback 5xx/429/timeout, cache llm_provider 60s, capabilities | plans/BLUEPRINT.md:1081 | 019 | CHỜ-TK | packages/ai/src/router/router.ts:29-58; provider.store.ts:11; test router.test.ts — Q-001 |
-| BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | — | CHƯA | grep không thấy provider_cost |
+| BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | 019b | CHƯA | grep không thấy provider_cost |
 | BP-5.2-a | Meta-tools find_actions / call_action / ui / plan / update_step / delegate; Chat chỉ đọc | plans/BLUEPRINT.md:1098 | 023 | ĐẠT | core/ai/assistant/meta-tools.ts:24,53,120; test assistant-unit.test.ts, assistant.test.ts |
 | BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023 | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
 | BP-5.2-c | query_data = insight.query | plans/BLUEPRINT.md:1102 | 038 | CHƯA | meta-tools.ts:117 trả NOT_IMPLEMENTED |
@@ -1200,6 +1194,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | AI-CHANNEL-ATTACHMENT-CONTEXT | Agent distinguishes present attachment from actually readable content and never fabricates extraction | standards/ai/agent-gateway sections7-9; vertical-flow audit2026-11-02 | 022b | MỘT PHẦN | reply-context.ts:46-59 selects body/kind but no attachment metadata, renders [kind].022b typed unreadable metadata and safe handoff; no unapproved OCR/multimodal. |
 | INBOX-BULK-RESULTS | Inbox bulk independent per-record outcomes, durable retry and version-aware undo | standards/domain/concurrency section7; Q019 | 025b | MỘT PHẦN | conversation-assign.handlers.ts:107-150 bulk runs one transaction and returns updated count; one denied row aborts batch.025b receives Inbox portion; ticket bulk in STD-domain-concurrency-7a still needs independent owner. |
 | INBOX-FILTER-COUNTS | Current-scope filtered Inbox counters and safe realtime invalidation | plans/BLUEPRINT.md section4.6; vertical-flow audit2026-11-02 | 025b | MỘT PHẦN | conversations.controller.ts:41 counts has no filter; inbox/api.ts:69 static counts key; meta.service.ts:25 count across visible filtering not applied.042c supplies scope foundation,025b filter/count projection and invalidation-only signal; no workspace aggregate broadcast. |
+| AI-ROOT-UTILITY-USAGE | All model utilities/query embeddings in an AI turn share trusted root usage and attempt receipts | standards/ai/agent-gateway sections1/5/6; vertical audit2026-11-02 | 019b | MỘT PHẦN | agent-llm.handlers.ts:58/84/109, translate.handler.ts:44, doc-template.handlers.ts:155, quote-draft.handler.ts:35 omit parentRunId; kb/search.ts:87 discards query embedding tokens.019b plans explicit lineage/metered wrapper; no runtime evidence yet. |
+| AI-RUN-EVENTS | Committed current-scope run.step/run.done with reconnect, truthful statuses and actual detail | plans/BLUEPRINT.md section4.6; bounded child of BP-4.6-b | 019b | CHƯA | runner optional onEvent not wired; shared/events lacks run events; runs.service.ts:21 collapses terminals.019b owns these two events only, remaining broad parent not claimed complete. |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1236,14 +1232,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-gateway-2 | Tool = action qua ActionExecutor; mọi tool một kiểu `ToolSpec` có `origin` | standards/ai/agent-gateway.md:11 | 019 | ĐẠT | packages/ai/src/gateway/types.ts:20; test engine.test.ts:49,99 |
 | STD-ai-gateway-3 | Trợ lý theo quyền user; agent theo tool_ids ∩ agentGrantable; `find_actions` lọc theo quyền | standards/ai/agent-gateway.md:16 | 021, 023 | ĐẠT | packages/core/src/ai/assistant/catalog.ts:18,78; test assistant-unit.test.ts, agents.test.ts |
 | STD-ai-gateway-4 | Run dừng ghi `ai_run.state` + approval trong 1 tx; chạy tiếp bằng job `ai-resume` idempotent | standards/ai/agent-gateway.md:20 | 019, 021 | ĐẠT | packages/core/src/ai/runs/runner.ts:3; approvals/resume.queue.ts:22; test ai-runtime.test.ts, agents.test.ts |
-| STD-ai-gateway-5 | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | standards/ai/agent-gateway.md:23 | — | MỘT PHẦN | MaxSteps/loop/depth có ở runner/engine/delegate và tests019/022/023; reply/reply-tools.ts:19,110 consult dùng budget40 riêng, runs/runner.ts:100 dùng budget của run hiện tại. Chưa chứng minh shared root budget atomic cho cả cây; cần supplemental AI runtime, không lấy engine single-run test làm bằng chứng tree budget. |
-| STD-ai-gateway-6 | Mỗi bước LLM: kiểm balance > 0 rồi `CreditMeter.charge` idempotent trước khi ghi `ai_run_step.credits` | standards/ai/agent-gateway.md:28 | 019 | ĐẠT | runs/runner.ts:110-113; billing/services/credit-meter.ts:57; test ai-runtime.test.ts |
+| STD-ai-gateway-5 | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | standards/ai/agent-gateway.md:23 | 019b | MỘT PHẦN | MaxSteps/loop/depth có ở runner/engine/delegate và tests019/022/023; reply/reply-tools.ts:19,110 consult dùng budget40 riêng, runs/runner.ts:100 dùng budget của run hiện tại. Chưa chứng minh shared root budget atomic cho cả cây; cần supplemental AI runtime, không lấy engine single-run test làm bằng chứng tree budget. |
+| STD-ai-gateway-6 | Mỗi bước LLM: kiểm balance > 0 rồi `CreditMeter.charge` idempotent trước khi ghi `ai_run_step.credits` | standards/ai/agent-gateway.md:28 | 019b | MỘT PHẦN | runs/runner.ts:110-113; billing/services/credit-meter.ts:57; test ai-runtime.test.ts Re-audit2026-11-02: wallet idempotency does not make runner tenant step+counter atomic; credit-meter recalculates price on duplicate.019b receives receipt/recovery tests; not runtime PASS. |
 | STD-ai-gateway-7 | Output agent trực kênh có cấu trúc zod; handoff khi confidence thấp/khiếu nại/lặp/từ cấm | standards/ai/agent-gateway.md:29 | 022 | ĐẠT | packages/ai/src/reply/output.ts:1, handoff.ts:5; test packages/ai/test/reply.test.ts |
 | STD-ai-gateway-8 | Prompt trong kho `packages/ai/prompts/<name>.<locale>.md` có version | standards/ai/agent-gateway.md:31 | 022, 023 | ĐẠT | packages/ai/src/prompts/assistant.vi.md:1, prompts/index.ts:1 (DV-005); test reply.test.ts |
 | STD-ai-gateway-9 | Che CCCD / số thẻ / STK trước khi gửi LLM, khôi phục khi gửi ra | standards/ai/agent-gateway.md:32 | 022 | ĐẠT | packages/ai/src/reply/pii.ts:1; test reply.test.ts |
 | STD-ai-gateway-10 | Trợ lý theo user.locale; agent theo ai_agent.language (auto = contact.locale) | standards/ai/agent-gateway.md:33 | 022, 023 | ĐẠT | packages/core/src/ai/reply/reply-context.ts:92; test agent-reply.test.ts |
 | STD-ai-gateway-10b | Agent chạy bản đã xuất bản; chat thử bản nháp + dryRun; Trợ lý tạo agent qua `agent.create_and_publish` có preview | standards/ai/agent-gateway.md:34 | 021, 024 | ĐẠT | reply-context.ts:37; agents/agent.runtime.ts:96; actions.json agent.create_and_publish preview=true; test agents.test.ts |
-| STD-ai-gateway-11a | Mỗi bước ghi `ai_run_step` + phát `run.step` qua WS để Owner xem trực tiếp | standards/ai/agent-gateway.md:35 | — | MỘT PHẦN | Bước ghi DB (run.store.ts); `onEvent` runner.ts:47 không nối WS, events.ts không có `run.step` (TIP-023 hoãn); 023c chỉ làm SSE trợ lý, không WS cho run agent / Cowork |
+| STD-ai-gateway-11a | Mỗi bước ghi `ai_run_step` + phát `run.step` qua WS để Owner xem trực tiếp | standards/ai/agent-gateway.md:35 | 019b | MỘT PHẦN | Bước ghi DB (run.store.ts); `onEvent` runner.ts:47 không nối WS, events.ts không có `run.step` (TIP-023 hoãn); 023c chỉ làm SSE trợ lý, không WS cho run agent / Cowork |
 | STD-ai-gateway-11b | Metric latency / token / lỗi theo provider + model | standards/ai/agent-gateway.md:35 | 045b | CHƯA | Không có prom-client; 045b task 1 (`llm_tokens_total`, `llm_errors_total`) |
 | STD-ai-gateway-11c | `run.cancel` huỷ cả cây run | standards/ai/agent-gateway.md:35 | 019 | ĐẠT | packages/core/src/ai/runs/run-cancel.handler.ts:1, cancel.listener.ts; test ai-runtime.test.ts:120 |
 | STD-ai-gateway-12a | Provider trong `llm_provider` (key mã hoá), gốc hoặc openai_compatible; route theo capabilities | standards/ai/agent-gateway.md:37 | 019 | CHỜ-TK | packages/ai/src/router/router.ts:1; test router.test.ts:21,59 — Q-001 (9router chưa cấp) |
@@ -1685,7 +1681,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-019-2 | Ghi `llm_provider` / `model_route` / `model_price` + `ProviderStore.invalidate()` | reports/TIP-019-completion.md:45 | 040 | CHƯA | admin.llm_provider.* / model_route / model_price thiếu trong registry |
 | DEF-020-1 | Embedding thật + chỉnh `min_score` bằng eval rag | reports/TIP-020-completion.md:37 | 044 | CHỜ-TK | Q-001 / Q-002 |
 | DEF-020-2 | Tải URL ngoài thật (fetch trang) qua `safeFetch` chống SSRF | reports/TIP-020-completion.md:37 | 045b | CHƯA | TIP-045b mục 2 (`ai/kb/ingest.ts:46`) |
-| DEF-021-1 | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | reports/TIP-021-completion.md:33 | — | MỘT PHẦN | ai/jobs/ai.jobs.module.ts:117 chỉ import Billing/Authz/Channels/Crm/Inbox → action duyệt của domain khác rơi `NotImplementedHandler` (kernel/actions/handler-registry.ts:41) ở worker |
+| DEF-021-1 | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | reports/TIP-021-completion.md:33 | 019b | MỘT PHẦN | ai/jobs/ai.jobs.module.ts:117 chỉ import Billing/Authz/Channels/Crm/Inbox → action duyệt của domain khác rơi `NotImplementedHandler` (kernel/actions/handler-registry.ts:41) ở worker |
 | DEF-021-2 | CRUD `agent_template` nền tảng | reports/TIP-021-completion.md:44 | 040 | CHƯA | admin.agent_template.upsert thiếu trong registry |
 | DEF-022-1 | Ghi `contact_memory` tự động từ lượt agent | reports/TIP-022-completion.md:40 | 015b | CHƯA | Chỉ đọc (ai/reply/reply-context.ts:81); không có `contactMemory.create` |
 | DEF-022-2 | Eval suite `agent-reply` | reports/TIP-022-completion.md:41 | 044 | CHƯA | Không có harness eval; TG row 044 |

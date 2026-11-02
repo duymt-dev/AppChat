@@ -43,3 +43,7 @@
 - TIP-021 (agent + duyệt): `ApprovalGateway` quyết định → gọi `AiRunner.resume(ws, store, runId, outcome, spec)` (idempotent); job `ai-resume` đặt ở `AiJobsModule`; `max_credits` theo agent ghi vào `ai_run.max_credits`.
 - TIP-023 (Trợ lý): `AiRunner` có `onEvent` cho SSE / WS `run.step`; tool từ action dùng `actionTool(def, executor, ctxOf)`.
 - TIP-040 (Quản trị LLM): ghi `llm_provider` / `model_route` / `model_price` → gọi `ProviderStore.invalidate()` (process khác tự nạp sau ≤ 60 giây).
+
+## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
+
+TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.

@@ -43,3 +43,7 @@
 - TIP-022 (agent trực kênh): `searchKb(db, embedder, { query, visibility: ['public'], folderIds, tags })` + `grounded=false` → handoff / hỏi lại; ghi `citations` vào `ai_run_step.output`.
 - TIP-027 (catalog): re-ingest mô tả sản phẩm `origin=catalog` theo event `product.*` (bỏ giá — DC-105).
 - TIP 024 / 028 / 030: dùng `POST /v1/files` + `FilesService` cho đính kèm / chứng từ.
+
+## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
+
+TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.

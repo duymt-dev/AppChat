@@ -45,7 +45,7 @@
 | DEF-019-2 | Ghi `llm_provider` / `model_route` / `model_price` + `ProviderStore.invalidate()` | reports/TIP-019-completion.md:45 | 040 | CHƯA | admin.llm_provider.* / model_route / model_price thiếu trong registry |
 | DEF-020-1 | Embedding thật + chỉnh `min_score` bằng eval rag | reports/TIP-020-completion.md:37 | 044 | CHỜ-TK | Q-001 / Q-002 |
 | DEF-020-2 | Tải URL ngoài thật (fetch trang) qua `safeFetch` chống SSRF | reports/TIP-020-completion.md:37 | 045b | CHƯA | TIP-045b mục 2 (`ai/kb/ingest.ts:46`) |
-| DEF-021-1 | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | reports/TIP-021-completion.md:33 | — | MỘT PHẦN | ai/jobs/ai.jobs.module.ts:117 chỉ import Billing/Authz/Channels/Crm/Inbox → action duyệt của domain khác rơi `NotImplementedHandler` (kernel/actions/handler-registry.ts:41) ở worker |
+| DEF-021-1 | Worker `ROLE=ai` nạp handler mọi domain agent gọi được (sales, booking, support, contracts, catalog) cho `ai-resume` | reports/TIP-021-completion.md:33 | 019b | MỘT PHẦN | ai/jobs/ai.jobs.module.ts:117 chỉ import Billing/Authz/Channels/Crm/Inbox → action duyệt của domain khác rơi `NotImplementedHandler` (kernel/actions/handler-registry.ts:41) ở worker |
 | DEF-021-2 | CRUD `agent_template` nền tảng | reports/TIP-021-completion.md:44 | 040 | CHƯA | admin.agent_template.upsert thiếu trong registry |
 | DEF-022-1 | Ghi `contact_memory` tự động từ lượt agent | reports/TIP-022-completion.md:40 | 015b | CHƯA | Chỉ đọc (ai/reply/reply-context.ts:81); không có `contactMemory.create` |
 | DEF-022-2 | Eval suite `agent-reply` | reports/TIP-022-completion.md:41 | 044 | CHƯA | Không có harness eval; TG row 044 |

@@ -44,3 +44,7 @@
 - `e2e-http.mjs` tự dọn workspace của lượt (Q-017).
 
 **Bổ sung 2026-11-01 (sau chạy 9router thật):** REQ-E06 chưa đạt — 7 drawer "Trợ lý AI · [module]" và hộp lệnh Hộp thư vẫn là bản giả của goal FE (không gọi Trợ lý), FE chỉ gửi `context.route`; Trợ lý thiếu action đọc từng bản ghi, khuôn ô lồng nhau, preview. Báo DONE khi chỉ nghiệm thu bằng model giả là thiếu sót. Làm bù: TIP-023b (phủ action), TIP-023c (genui + Trợ lý theo màn + kết nối qua Trợ lý) — DC-224…228.
+
+## Bổ sung2026-11-02 — runtime integrity, chưa triển khai
+
+TIP-019b-runtime-integrity.md nhận shared-root usage, utility/query-embedding lineage, crash-safe original-price settlement, durable resume/transfer/stop states và scoped detail/events. Rà lại cho thấy test hiện hữu không chứng minh các cửa sổ crash/cây run; xem runtime-integrity-planning-audit-2026-11-02.md. Không sửa TIP đã DONE hoặc coi kế hoạch là runtime PASS.

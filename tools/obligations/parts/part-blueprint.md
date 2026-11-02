@@ -310,7 +310,7 @@
 | BP-4.4-loyalty | /loyalty/config, /loyalty/members(+:id ledger), overview, lookup | plans/BLUEPRINT.md:967 | 036 | GIẢ | không route API; FE loyalty/api.ts chỉ chạy mock |
 | BP-4.4-ai | /agents (+:id, versions, tools), /agent-templates, /approvals, /governance, /runs?root_run_id=&status=, /ai-tasks | plans/BLUEPRINT.md:968 | 021/023/035 | ĐẠT | http/ai/{agents,ai,tasks}.controller.ts; test agents.test.ts, ai-runtime.test.ts, ai-tasks.test.ts |
 | BP-4.4-ai-b | GET /agents/:id/stats | plans/BLUEPRINT.md:968 | 038 | CHƯA | routes.json không có |
-| BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | — | CHƯA | không route, không TIP nhắc |
+| BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | 019b | CHƯA | không route, không TIP nhắc |
 | BP-4.4-ai-d | GET /kb/folders · /kb/sources | plans/BLUEPRINT.md:968 | 020 | MỘT PHẦN | TIP-020:15 hứa nhưng không có route; chỉ /settings/kb (ai.controller.ts:48) |
 | BP-4.4-ai-e | GET /kb/suggestions (P1) | plans/BLUEPRINT.md:968 | 043 | CHƯA | không route |
 | BP-4.4-assistant | /assistant/sessions?q= · /assistant/sessions/:id/messages | plans/BLUEPRINT.md:969 | 023 | ĐẠT | http/ai/assistant.controller.ts:70-75; test assistant.test.ts |
@@ -334,14 +334,14 @@
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
 | BP-5.1-a | AiSdkEngine (streamText) chạy tool qua ToolSpec → ActionExecutor | plans/BLUEPRINT.md:1052 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:5; agent.runtime.ts:73; test engine.test.ts |
 | BP-5.1-b | Dừng run khi needs_* → lưu state jsonb, chạy tiếp bằng job ai-resume, idempotent | plans/BLUEPRINT.md:1054 | 021 | ĐẠT | engine.ts:94-95; core/ai/approvals/resume.ts:85-120, resume.queue.ts:22; test agents.test.ts, agent-reply.test.ts |
-| BP-5.1-c | Approval quá 72h → expired, run handoff, BÁO OWNER | plans/BLUEPRINT.md:1061 | 021 | MỘT PHẦN | approval.gateway.ts:48 + resume.ts:96-102 có expire + handoff; không thông báo Owner (agents.rules.ts chỉ WS) |
-| BP-5.1-d | Loop guard 3 lần · maxSteps 8/16 · budget | plans/BLUEPRINT.md:1062 | 019 | ĐẠT | engine.ts:10,50-51,89; runs/runner.ts:12; test engine.test.ts |
-| BP-5.1-e | transfer_to_agent ≤ 3/lượt, A→B→A → người · consult chỉ read · độ sâu ≤ 2 | plans/BLUEPRINT.md:1067 | 022 | ĐẠT | reply.service.ts:153; reply-tools.ts:91-100; test agent-reply.test.ts |
-| BP-5.1-f | Ngân sách credit chung cả cây run | plans/BLUEPRINT.md:1072 | 023 | MỘT PHẦN | delegate.ts:46 có; consult dùng CONSULT_BUDGET riêng (reply-tools.ts:110) không trừ gốc |
-| BP-5.1-g | Mọi bước phát `run.step` qua WS | plans/BLUEPRINT.md:1073 | — | CHƯA | xem BP-4.6-b |
-| BP-5.1-h | CreditMeter trừ credit mỗi bước, idempotent (ws,'ai_step',run:step), CREDIT_EXHAUSTED | plans/BLUEPRINT.md:1080 | 019 | ĐẠT | packages/core/src/billing/services/credit-meter.ts; test ai-runtime.test.ts, billing.test.ts, engine.test.ts:77 |
+| BP-5.1-c | Approval quá 72h → expired, run handoff, BÁO OWNER | plans/BLUEPRINT.md:1061 | 019b | MỘT PHẦN | approval.gateway.ts:48 + resume.ts:96-102 có expire + handoff; không thông báo Owner (agents.rules.ts chỉ WS) |
+| BP-5.1-d | Loop guard 3 lần · maxSteps 8/16 · budget | plans/BLUEPRINT.md:1062 | 019b | MỘT PHẦN | engine.ts:10,50-51,89; runs/runner.ts:12; test engine.test.ts Re-audit2026-11-02: engine can execute tools after usage exceeds budget; runner treats max_steps/loop_guard/budget as completed.019b durable gate/stop reason tests pending. |
+| BP-5.1-e | transfer_to_agent ≤ 3/lượt, A→B→A → người · consult chỉ read · độ sâu ≤ 2 | plans/BLUEPRINT.md:1067 | 019b | MỘT PHẦN | reply.service.ts:153; reply-tools.ts:91-100; test agent-reply.test.ts Re-audit2026-11-02: finishResumedTurn resets transfer ancestry; consult40 budget separate.019b owns persisted lineage and root budget, not proved by current single-turn tests. |
+| BP-5.1-f | Ngân sách credit chung cả cây run | plans/BLUEPRINT.md:1072 | 019b | MỘT PHẦN | delegate.ts:46 có; consult dùng CONSULT_BUDGET riêng (reply-tools.ts:110) không trừ gốc |
+| BP-5.1-g | Mọi bước phát `run.step` qua WS | plans/BLUEPRINT.md:1073 | 019b | CHƯA | xem BP-4.6-b |
+| BP-5.1-h | CreditMeter trừ credit mỗi bước, idempotent (ws,'ai_step',run:step), CREDIT_EXHAUSTED | plans/BLUEPRINT.md:1080 | 019b | MỘT PHẦN | packages/core/src/billing/services/credit-meter.ts; test ai-runtime.test.ts, billing.test.ts, engine.test.ts:77 Re-audit2026-11-02: wallet duplicate is safe but tenant counters/repriced receipt are not crash-atomic.019b receives stable usage settlement/recovery; existing paid ledger never rewritten. |
 | BP-5.1-i | LLM Router: model_route theo tier, fallback 5xx/429/timeout, cache llm_provider 60s, capabilities | plans/BLUEPRINT.md:1081 | 019 | CHỜ-TK | packages/ai/src/router/router.ts:29-58; provider.store.ts:11; test router.test.ts — Q-001 |
-| BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | — | CHƯA | grep không thấy provider_cost |
+| BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | 019b | CHƯA | grep không thấy provider_cost |
 | BP-5.2-a | Meta-tools find_actions / call_action / ui / plan / update_step / delegate; Chat chỉ đọc | plans/BLUEPRINT.md:1098 | 023 | ĐẠT | core/ai/assistant/meta-tools.ts:24,53,120; test assistant-unit.test.ts, assistant.test.ts |
 | BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023 | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
 | BP-5.2-c | query_data = insight.query | plans/BLUEPRINT.md:1102 | 038 | CHƯA | meta-tools.ts:117 trả NOT_IMPLEMENTED |
@@ -390,3 +390,6 @@ Ghi chú:
 - ACT: handler/preview từ actions.json; test = grep id trong apps/api/test, packages/*/test (không tính test mock web). Hàng MỘT PHẦN có 'thiếu preview' là nợ preview của 023b (DC-224).
 - Lệch ActionDef ↔ Blueprint (risk / agent / undo) ghi trong cột Bằng chứng; không có DV / DC nào ghi các lệch đó.
 - CHƯA RÀ HẾT: §3.4 cột Undo/permission từng action chưa đối chiếu đủ (chỉ so risk/agent/undo/bulk bằng script); §4.6 chưa đọc payload của từng event; §9 NFR web (LCP, bundle, virtual list, a11y, 5 trạng thái UI, i18n) và API p95 chưa rà; §10 rủi ro K1–K12 chưa có dòng riêng; §11.4 dashboards/alerts và §11.5 bảo mật VPS chỉ gộp vào BP-11-a (infra chưa có); §8 tra MST, Excel, parse RAG (readability) chưa có dòng.
+
+| AI-ROOT-UTILITY-USAGE | All model utilities/query embeddings in an AI turn share trusted root usage and attempt receipts | standards/ai/agent-gateway sections1/5/6; vertical audit2026-11-02 | 019b | MỘT PHẦN | agent-llm.handlers.ts:58/84/109, translate.handler.ts:44, doc-template.handlers.ts:155, quote-draft.handler.ts:35 omit parentRunId; kb/search.ts:87 discards query embedding tokens.019b plans explicit lineage/metered wrapper; no runtime evidence yet. |
+| AI-RUN-EVENTS | Committed current-scope run.step/run.done with reconnect, truthful statuses and actual detail | plans/BLUEPRINT.md section4.6; bounded child of BP-4.6-b | 019b | CHƯA | runner optional onEvent not wired; shared/events lacks run events; runs.service.ts:21 collapses terminals.019b owns these two events only, remaining broad parent not claimed complete. |

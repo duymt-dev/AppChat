@@ -1,6 +1,7 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
+- **Parallel-safe with TIP-019b (Runtime integration manifest):** sequential, shares `apps/api/src/http/ai/ai.http.module.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before019b.
 - **Parallel-safe with TIP-025b (Inbox integration manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before025b.
 - **Parallel-safe with TIP-022b (agent behavior manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/ai.module.ts`, `packages/shared/src/api/index.ts`; integrate 020b before022b.
 - **Parallel-safe with TIP-014b (Zalo lifecycle manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 020b before014b.
