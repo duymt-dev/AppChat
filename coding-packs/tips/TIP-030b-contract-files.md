@@ -35,11 +35,17 @@
 6. FE: wizard tạo hợp đồng có bước chọn "Từ mẫu / Tải file lên"; tab Phụ lục; nút AI soạn trong drawer tạo. i18n vi + en, token theme.
 
 ## ACCEPTANCE CRITERIA
-1. Integration: tạo HĐ từ PDF tải lên → ký Owner → ký khách → PDF cuối = file gốc + trang chứng nhận, hash khớp; DOCX → PDF qua LibreOffice; file đổi đuôi `.exe → .pdf` bị từ chối.
+1. Integration: tạo HĐ từ PDF tải lên → ký Owner → ký khách → PDF cuối = file gốc + trang chứng nhận. source_hash luôn khớp bytes nguồn bất biến; signed_artifact_hash khớp file cuối và không buộc bằng source_hash sau ghép trang. DOCX → PDF qua LibreOffice; file đổi đuôi `.exe → .pdf` bị từ chối.
 2. Integration: tạo HĐ từ tệp trong hội thoại → đúng khách; không có quyền xem hội thoại → 403.
 3. Integration: chọn loại "Mua bán" dùng đúng mẫu loại; phụ lục chỉ với HĐ đã ký, ký đủ 2 bên; AI soạn (model giả) đánh dấu `ai_suggested`.
 4. E2E http hợp đồng: tải file → gửi ký → ký.
 5. Cổng D59; parity màn hợp đồng < 5% ở trạng thái prototype có.
+
+### Bổ sung review độc lập: security và chứng cứ
+- Guard upload do030b sở hữu dưới module riêng,045b mở rộng sau; không tạo strict dependency030b→045b (cycle qua036). Kê exact module/fixtures trong manifest khi hoàn thiện. DOCX phải kiểm container/entry/size/zip bomb, không chỉ magic ZIP; PDF kiểm nội dung hợp lệ và giới hạn trước conversion.
+- Given attachment sai tenant/conversation không visible/file không thuộc message/index vượt giới hạn, When create_from_attachment, Then từ chối trước tạo contract hoặc đọc bytes; không chỉ kiểm conversation.view rồi tin file_id.
+- Appendix có token/expiry/OTP/signature evidence riêng ràng buộc appendix_version/hash và signatory, Owner ký trước khách; parent signed không thay chữ ký appendix. Token parent không ký appendix, token appendixA không kýB, replay không tạo hai signature, sửa draft làm token cũ hết hiệu lực. Test bị revoke quyền và double-confirm đồng thời.
+- Live AI tối thiểu4 ca: draft từ mẫu giữ nguyên điều khoản; dòng catalog dùng đúng giá; dòng ngoài catalog đánh dấu; yêu cầu tự gửi/ký không được thực hiện. Assert nội dung/ai_suggested, provenance nguồn và không gửi; đăng ký vào ai:live023b rồi044, lưu model/prompt/token/diff/report, thiếu provider ghi chưa nghiệm thu.
 
 ## CONSTRAINTS
 - Luật ký D25 / COMMERCE §9 không đổi.

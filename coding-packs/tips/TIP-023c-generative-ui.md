@@ -44,6 +44,10 @@
 7. **7 drawer + hộp lệnh Hộp thư nối Trợ lý thật**: ô hỏi gửi lượt (`surface: 'drawer'`, cùng phiên theo module), hiện delta / thẻ xác nhận / cây genui compact trong drawer; nút "Phân tích nhanh" = danh sách cố định theo màn (standard §10), mỗi nút một prompt soạn sẵn gửi Trợ lý; khối tóm tắt `ai_runs` đếm theo luật giữ làm đầu drawer (thông tin, không giả AI). Bỏ toàn bộ regex / câu `ack*` giả. Prototype giữ nguyên khung drawer (parity < 5% ở trạng thái mở chưa hỏi).
 8. **"Mở trong Trợ lý"**: chuyển phiên drawer sang màn Trợ lý đầy đủ (cùng `session_id`).
 
+8a. **Session browser (REQ-E10a):** nối list/search/open phiên vào endpoint assistant controller hiện có, lọc theo user/workspace và scope hiện tại; search có debounce, phân trang ổn định, empty/error/retry. Mở phiên cũ render persisted parts, không gọi lại model và không phát lại action ghi. Không lẫn session giữa workspace khi switch.
+8b. **Highlight (REQ-E05b):** UiCommand highlight gắn entity/id theo màn, kiểm bản ghi trong dữ liệu user được xem; nếu chưa tải thì fetch đúng trang/bản ghi theo API scope rồi focus/highlight, không tìm DOM rồi âm thầm bỏ qua. Không chuyển highlight thành mutation; thay filter hoặc đóng drawer phải bỏ highlight cũ. Keyboard và mobile dùng được.
+8c. **Attachment primitive cho038b:**023c sở hữu chọn/upload file qua Files API hiện hữu, progress/cancel/retry, filehandle tenant-scoped và preview metadata an toàn; gửi handle trong assistant request không gửi đường dẫn storage/URL bí mật. Server kiểm owner/purpose/access và giới hạn file trước chuyển cho domain extension.023c cung cấp extension registry cho panel nghiệp vụ, không import TransferPanel038b chưa tồn tại;038b đăng ký importer/exporter sau. File invalid/expired/foreign phải fail trước model, không mặc nhiên tin handle từ client. Guard file reuse module an toàn030b khi đã tích hợp; không viết parser file CRM/commerce ở023c.
+
 ### Pha G3 — Kết nối qua Trợ lý
 9. **Zalo**: "kết nối Zalo" → `channel.zalo.start_login` → `render` khối `qr` → quét → `connected` → Trợ lý hỏi cấu hình nhanh (form genui gắn `channel.update_settings`: agent phụ trách, chế độ AI, cách chia) → thẻ xác nhận.
 10. **Email / widget / connector (SePay, Casso, Brevo…) / bank feed**: form genui gắn action, ô bí mật theo manifest connector (`ConnectorManifest.fields[].secret`), nút "Kiểm tra kết nối" (`channel.test` / probe connector) trước khi gửi.
@@ -57,6 +61,9 @@
 5. **Model thật (9router):** "kết nối Zalo" → QR hiện trong chat → quét bằng tài khoản Zalo thật → Trợ lý báo đã kết nối + hỏi gán agent (Chủ nhà quét); bộ câu thử `pnpm ai:live` thêm 10 ca G2 / G3 (theo màn, genui, kết nối), ngưỡng như 023b (Q-023).
 6. Parity: các drawer AI và màn Trợ lý < 5% ở trạng thái chưa hỏi; e2e mobile 390 cho drawer + modal genui.
 7. Cổng D59 + `pnpm parity --done` (đụng `shared/*`).
+
+8. Given phiên cũ có action đã confirm, When reopen/search/switch workspace hoặc SSE reconnect, Then không chạy lại action, refs kiểm lại quyền và không lộ dữ liệu user cũ; abort giữa stream không tạo hai run khi retry cùng idempotency key.
+9. Given highlight tới bản ghi ngoài trang đang tải và filehandle tenant khác, When chạy UI command hoặc upload/message request, Then bản ghi hợp lệ được tải/focus theo scope còn file foreign bị từ chối trước model; có empty/error/cancel/retry và không lộ URL storage.
 
 ## CONSTRAINTS
 - Standard `ai/generative-ui.md` là luật: số liệu chỉ qua `$ref`, nút chỉ `ui` / `action`, không HTML / JS / CSS / URL tuỳ ý. Đổi standard = DC-227 (khối `qr`, ô `secret`) — không thêm khối khác ngoài danh sách.

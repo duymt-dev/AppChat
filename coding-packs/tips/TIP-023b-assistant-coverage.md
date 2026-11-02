@@ -49,6 +49,12 @@ Chạy với 9router thật (2026-11-01) lộ ra Trợ lý chỉ làm được c
 8. **Action ghi còn thiếu theo Blueprint / D50:** `appointment.update` (sửa giờ / dịch vụ / nhân sự / ghi chú / trường tuỳ biến — custom-fields §3), `conversation.create_group` (tạo nhóm Zalo — D50 hết khoá "Sắp có" vì TIP-014 xong; `zca-js` tạo nhóm, nhóm thành hội thoại mới) + bỏ "Sắp có" ở `ConvMenu`.
 9. **Ghi sổ:** Blueprint §5.2 thêm dòng "Đọc bản ghi = action `search` / `get` (risk read) qua `call_action`; `query_data` chỉ metric tổng hợp" (DC-224); TIP-023 report ghi khoảng trống E06 → TIP-023c.
 
+### Bổ sung review độc lập: thẻ Sửa và an toàn
+- REQ-E03b: thẻ preview phải có nút **Sửa** mở form theo input schema; giữ kiểu object/array/enum và lỗi từng field. Submit sửa chỉ yêu cầu preview mới, không thực thi action; input đổi làm token cũ mất hiệu lực, confirm mới gắn actor/action/input/version/TTL. Nếu bản ghi hoặc quyền đổi giữa preview/confirm thì báo conflict/forbidden và không thực thi input cũ. Không cho sửa field secret vào chat history.
+- Shape preview phải tương thích ActionPreview hiện hữu trong packages/actions/src/define.ts (hiện là changes); chọn một shared contract, không để backend trả diff trong khi FE đọc changes. Khi hoàn thiện manifest phải liệt kê define.ts, assistant/card.ts/service/types và FE ChatThread/types; không tự mở thêm đường ghi ngoài Executor.
+- Given người dùng sửa phone trong thẻ rồi bấm confirm cũ, When server nhận, Then token/input mismatch bị chặn; confirm mới thực hiện đúng một lần với diff mới. Given role bị thu hồi hoặc request replay, Then không bypass scope và không ghi lặp.
+- Gate27/30 của bộ câu thử023b không cho phép bỏ qua lỗi an toàn: **zero authorization leak, zero unconfirmed write** ở mọi lượt. Ba lỗi cho phép theo tỷ lệ chỉ là lựa chọn/diễn đạt không vi phạm quyền hoặc policy;044 giữ release thresholds riêng, không hạ xuống27/30.
+
 ## ACCEPTANCE CRITERIA
 1. Unit `assistant-coverage.test.ts` xanh với danh sách nợ preview **rỗng** cuối R2; miễn trừ ô id có lý do từng dòng.
 2. Unit catalog: `briefSchema(contact.update)` có `patch.phone`; `quote.create` có `items[].product_id`, `items[].qty`; action không handler không xuất hiện trong `find_actions`.

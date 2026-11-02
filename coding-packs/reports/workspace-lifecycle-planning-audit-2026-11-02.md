@@ -49,3 +49,5 @@ Reviewer `/root/audit_blueprint_remainder` phát hiện 3 HIGH và4 MEDIUM; khô
 Đã gửi reviewer kiểm lại sau sửa. Đây là trạng thái “đã sửa tài liệu, chờ tái kiểm”, không tự đóng finding chỉ vì đã viết giải pháp. M future `AdminScreen.tsx` thuộc prerequisite040 được khai rõ; không tính là đường dẫn hiện có.
 
 Vòng2 reviewer xác nhận5/7 finding đã xử lý ở mức kế hoạch. Hai residual đã sửa tiếp: lock/DROP đặt trên target-cluster maintenance connection chuẩn (không mặc định platform cluster); MailProviderModule riêng được cả IdentityModule/LifecycleModule import, kèm boot test API/jobs. AC06 bỏ từ adminallowed mơ hồ: workspace.delete chỉ exact Owner, không suy diễn quyền xoá từ platform-admin. Chưa có xác nhận reviewer vòng3 tại thời điểm ghi dòng này.
+
+**Vòng3:** reviewer đã kiểm commit `4f5c52a`, xác nhận các residual target-cluster lock, mail DI và quyền delete đã khép ở mức planning; không còn finding mở trong phạm vi review041 này. Không chạy runtime và không xác nhận toàn goal. Whole-graph/manifest audit sau khi sáu TIP cũ hoàn thiện vẫn bắt buộc.

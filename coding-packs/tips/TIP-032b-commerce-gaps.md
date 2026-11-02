@@ -44,11 +44,17 @@ Rà code 2026-11-01 đối chiếu `plans/COMMERCE-DECISIONS.md` (luật đã ch
 
 ## ACCEPTANCE CRITERIA
 1. Integration: đổi ngưỡng → báo giá 25M không cần duyệt khi ngưỡng 30M; agent giảm 6% → duyệt dù Owner giảm 6% không bị chặn bởi trần agent; báo giá đã sinh HĐ → `order.create` từ báo giá trả `QUOTE_ALREADY_CONVERTED` (và ngược lại); đơn từ HĐ vẫn tạo được.
-2. Integration: PDF đề nghị thanh toán có ảnh QR (kiểm byte PNG trong PDF); `GET /invoices/:id/qr` 200 / 403 theo scope; `invoice.send_payment_qr` qua webchat ghi tin có link; `order.send_confirmation` + `receipt.send` ghi tin hội thoại + đẩy hàng gửi kênh (fake transport).
+2. Integration: render PDF đề nghị thanh toán và decode QR, assert đúng tài khoản/số tiền/nội dung VietQR (không tìm byte PNG vì PDF có thể mã hoá lại ảnh); `GET /invoices/:id/qr` 200 / 403 theo scope; `invoice.send_payment_qr` qua webchat ghi tin có link; `order.send_confirmation` + `receipt.send` ghi tin hội thoại + đẩy hàng gửi kênh (fake transport).
 3. Integration: cọc đơn có sản phẩm `grant_on_deposit` → liệu trình sinh ngay; job nhắc chạy đúng mốc.
 4. Integration catalog: import 3 dòng CSV + 1 dòng lỗi → báo dòng lỗi; xoá danh mục còn sản phẩm → 409.
 5. Unit `quote-math` với ngưỡng tham số; mock FE cập nhật shape; E2E http Báo giá / Đơn xanh.
 6. Cổng D59.
+
+### Bổ sung review độc lập
+- REQ-D05b không được khép bằng quote threshold đơn lẻ. Matrix phải có quote discount/large quote, refund, contract và bulk_send: ghi action IDs thực từ registry, policy/governance hiện tại và owner triển khai từng nhánh.032b nhận kiểm chéo matrix; marketing gửi hàng loạt037 là dependency nghiệm thu phần bulk, không là dependency bắt032b chờ037 để build. Giữ phần bulk chưa đạt trong COVERAGE cho tới037, không hạ luật duyệt20M/5%.
+- Given quote chưa convert, When contract và order convert đồng thời, Then một winner và một QUOTE_ALREADY_CONVERTED, không hai chứng từ; retry winner cùng idempotency không tạo thêm.
+- Given partial deposit/paid/refund/cancel và event duplicate, When grant package/reminder job retry, Then chính sách grant_on_deposit được giữ, không grant hai lần hoặc nhân notification; unique source-order-item/grant-kind và reminder/package/mốc, transaction/outbox cùng nghiệp vụ. Không tự thu hồi buổi đã dùng ngoài luật COMMERCE.
+- Import deterministic có preview validation toàn file, stable row IDs và lỗi từng dòng trước confirm. Khi confirm cho phép chọn các dòng hợp lệ để commit theo từng row receipt, báo partial success rõ; retry chỉ chạy dòng chưa thành công, không nhập lại dòng đã commit. Test500/501 định tuyến sync/job, malformed XLSX, duplicate rows, stale catalog refs, scope/permission thay đổi.038b dùng cùng importer/receipt, không tạo đường ghi thứ hai.
 
 ## CONSTRAINTS
 - `COMMERCE-DECISIONS.md` không đổi: chỉ làm cho code khớp luật; mặc định ngưỡng giữ 20M / 5%.

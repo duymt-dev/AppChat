@@ -26,11 +26,11 @@
 - Hồ sơ 360°: `kpis: []`, `recent_order` / `recent_payment` rỗng, không có công nợ / hợp đồng hiệu lực (`contact360.ts`); quy đổi điểm sai `×10` (TIP-036 sửa).
 
 ## TASK
-1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, skill): ghi `contact_memory` (nguồn run / bước, người hoặc agent); chống trùng gần nghĩa (cùng khách, fact chuẩn hoá không dấu trùng ≥ 0.9 trigram → cập nhật `updated_at`, không thêm dòng); tối đa 50 fact / khách (cũ nhất có độ tin thấp bị thay). `contact.memory_forget { memory_id }` (xoá, có undo).
+1. **`contact.remember { contact_id, fact, confidence? }`** (risk write, agentGrantable, skill): ghi `contact_memory` với provenance run/step/actor từ context tin cậy, không tin provenance do model gửi. Bảng hiện tại chưa có updated_at/step/actor, phải có migration trong manifest hoàn thiện. Chống trùng **văn bản** sau chuẩn hoá: trigram≥0.9, không tuyên bố đây là hiểu gần nghĩa. Trong transaction khoá contact trước đọc/ghi memory; tương đồng thì cập nhật timestamp/provenance, không thêm dòng. Cap50 áp cả khi51 request đồng thời; eviction chọn confidence thấp nhất, rồi updated_at cũ nhất, rồi id để thứ tự tất định. `contact.memory_forget { memory_id }` (xoá, có undo); undo cũng kiểm scope hiện tại và cap50, không lặng lẽ hồi sinh thành51 fact.
 2. **Agent trực kênh tự ghi:** tool `remember` cho agent (sau mỗi lượt, model đề xuất fact mới từ tin khách; chỉ fact về khách, không ghi PII nhạy cảm theo bộ lọc PII sẵn có của TIP-022). Lắp ngữ cảnh đọc ≤ 20 fact mới nhất.
-3. **Tóm tắt 360°:** `contact.summarize { contact_id }` (read, skill) → 3–5 dòng từ timeline + memory + chứng từ; cache theo `updated_at` khách, hiện ở đầu Hồ sơ 360° (khối "AI tóm tắt") và trong `contact.get` của 023b.
-4. **KPI 360° thật:** công nợ (đề nghị thanh toán chưa thu, quá hạn), hợp đồng hiệu lực + giá trị, đơn gần nhất, khoản thu gần nhất, điểm (sau 036) — điền `kpis[]`, `recent_order`, `recent_payment` đúng shape FE.
-5. **Cột / khối "AI gợi ý"** ở danh sách khách (prototype) = hành động tiếp theo gợi ý từ memory + giai đoạn (rule + model rẻ, cache ngày), không tự gửi.
+3. **Tóm tắt 360°:** `contact.summarize { contact_id }` (read, skill) → 3–5 dòng từ timeline + memory + chứng từ, hiện ở khối AI tóm tắt và contact.get023b. Cache theo tenant/contact/actor-scope-revision/data-revision/prompt-version/locale; không dùng riêng contact.updated_at. Data revision tăng qua event idempotent khi memory/timeline/quote/order/contract/payment/appointment/ticket/task đổi; đối chiếu revision trước lưu kết quả model để không publish summary cũ khi dữ liệu vừa đổi. Recheck quyền khi đọc cache; không dùng summary Owner cho sales bị ẩn công nợ. Cache miss/error có fallback dữ liệu thật, không giả summary.
+4. **KPI 360° thật:** công nợ (đề nghị thanh toán chưa thu, quá hạn), hợp đồng hiệu lực + giá trị, đơn gần nhất, khoản thu gần nhất; đủ liên kết quote/appointment/ticket/task theo REQ-F02c. Sửa debt ở contracts-read.service cùng công thức nguồn, không chỉ sửa contact360 rồi để endpoint hợp đồng trả0. Điền kpis/recent_order/recent_payment theo shared schema; phân biệt0 thật với unavailable. **Không phụ thuộc ngược036:**015b giữ interface điểm hiện có và không nghiệm thu điểm mới;036 nhận tích hợp loyalty cùng retest KPI/consumer015b.
+5. **Cột / khối AI gợi ý và nút Giao AI:** gợi ý bước tiếp theo từ memory + giai đoạn, cache theo revision như summary (TTL tối đa ngày), không tự gửi. Bấm Giao AI mở assistant với contact id đã kiểm scope và prompt đề xuất; chỉ tạo draft/run theo luồng hiện hữu, mọi ghi/gửi tiếp vẫn preview/confirm/policy. Nút phải nối cả danh sách khách và ngữ cảnh360 theo prototype; không toast giả, không cấp agent quyền mới.
 6. FE: khối "AI ghi nhớ" trong Hồ sơ 360° (xem / xoá fact), i18n.
 
 ## ACCEPTANCE CRITERIA
@@ -39,6 +39,13 @@
 3. Unit: chuẩn hoá fact, chọn fact bị thay khi đầy.
 4. Model thật: bộ `pnpm ai:live` thêm 3 ca ghi nhớ / dùng lại trí nhớ.
 5. Cổng D59; parity Hồ sơ 360° < 5%.
+
+### AC bổ sung bắt buộc sau review độc lập
+- Given51 request nhớ đồng thời cùng contact, When transaction hoàn tất, Then cap≤50, không duplicate chuẩn hoá, eviction tất định; malformed confidence/fact/foreign memory ID bị chặn trước ghi.
+- Given memory hoặc payment đổi khi model đang tóm tắt, When response trở về hoặc cache được đọc bởi user scope thấp hơn, Then không trả dữ liệu stale/vượt quyền; forget/undo tăng revision đúng một lần kể cả event replay.
+- Given cùng khách có quote/appointment/ticket/task/contract/order/payment trong fixture, When mở360 và endpoint hợp đồng, Then số liệu/công nợ cùng nguồn, links đúng entity và scope; không lấy điểm036 làm điều kiện chốt015b.
+- Given nút Giao AI, When bấm rồi huỷ xác nhận, Then mở đúng contact context nhưng không phát sinh ghi/gửi; đổi quyền sau mở panel phải bị server từ chối.
+- Live3 ca cố định: ghi fact dị ứng không nhạy cảm → lượt sau dùng đúng fact; diễn đạt lại không tạo fact mâu thuẫn tự suy đoán; yêu cầu nhớ CCCD/thẻ/mật khẩu bị chặn và không xuất hiện ở DB/context/log. Ghi expected facts và trace/assertions vào bộ ca, không chỉ chấm câu trả lời nghe hợp lý.
 
 ## CONSTRAINTS
 - Không lưu số CCCD / thẻ / mật khẩu vào memory (bộ lọc PII).
