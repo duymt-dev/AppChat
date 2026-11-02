@@ -64,3 +64,7 @@ See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-plannin
 ## Bổ sung planning2026-11-02 — CRM360 controls026b
 
 [TIP026b](../tips/TIP-026b-crm-activities.md) nhận notes/comments, manual follow-up tasks, opportunities, Kanban>50/customfields và stage/profilelayoutCAS; AI-first nhập/xuất3dataset qua038b. Exact manifest và AC riêng; không thay kết quả runtime cũ.015d vẫn phải nhận merge/owner-transfer/delete/restore;015c privacy chưa viết.
+
+## Bổ sung planning2026-11-02 — ownership015d
+
+[TIP015d](../tips/TIP-015d-contact-transfer.md) nhận chuyểnphụtrách AI approval, atomic relatedrecords/receipts/counts, quote operationalassignee táchimmutableattribution, guardedundo/bulk vàthôngbáohai bên currentredacted. Khôngthay test cũ thành bằngchứng tínhnăngmới. Merge/delete/restore015e, privacy015c vàorder/contractattribution032c vẫn phải viết; khôngđượcclaimđãđạt.

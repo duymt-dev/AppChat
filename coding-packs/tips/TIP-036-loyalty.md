@@ -1,6 +1,7 @@
 # TIP-036 — Loyalty: sổ điểm, đổi điểm, hạn điểm, hạng và nối HTTP
 
 ## HEADER
+- **Parallel-safe with TIP-015d (CRM ownership manifest):** sequential, shares `apps/api/src/app.module.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 036 before015d.
 - **Parallel-safe with TIP-026b (CRM activity manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/crm/services/contact360.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 036 before026b.
 - **Parallel-safe with TIP-012b (Bank integration manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 036 before012b.
 - **Parallel-safe with TIP-019b (Runtime integration manifest):** sequential, shares `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 036 before019b.

@@ -13,15 +13,15 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 23 | 2 | 0 | 16 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 73 | 16 | 12 | 1 | 48 | 10 | 5 | 9 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 17 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 212 | 5 | 4 | 86 | 1 | 0 | 11 |
-| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 34 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 71 | 18 | 12 | 1 | 48 | 10 | 5 | 9 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 17 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 88 | 216 | 5 | 4 | 87 | 1 | 0 | 11 |
+| E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 33 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 37 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 26 |
-| **Tổng** | **551** | **351** | **118** | **41** | **335** | **34** | **66** | **150** |
+| **Tổng** | **548** | **358** | **118** | **41** | **336** | **34** | **66** | **149** |
 
-## Lỗ hổng chưa có TIP nhận (150)
+## Lỗ hổng chưa có TIP nhận (149)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -43,8 +43,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E11b | MỘT PHẦN | Chọn agent + cấp độ AI | A |
 | REQ-E12a | GIẢ | Đính kèm tệp / ảnh / email vào lệnh | A |
 | REQ-E12b | GIẢ | Nhập lệnh bằng giọng nói | A |
-| REQ-F01b-4 | CHƯA | Chuyển phụ trách kèm lịch hẹn (`move.appointments`) chuyển thật | B |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
+| REQ-F01b-7 | MỘT PHẦN | Doanh số ghi theo `owner_user_id` lúc tạo chứng từ | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
 | REQ-G07e | CHƯA | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | B |
@@ -58,8 +58,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4b-5 | MỘT PHẦN | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | C |
 | COM-6-10 | MỘT PHẦN | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | C |
 | COM-8-7 | MỘT PHẦN | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | C |
-| COM-8b-4 | MỘT PHẦN | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | C |
 | COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
+| COM-8b-6 | MỘT PHẦN | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | C |
 | COM-10-4 | CHƯA | Hạ gói có hiệu lực từ kỳ sau | C |
 | D28c | MỘT PHẦN | Connector storage phát hành | C |
 | D48 | MỘT PHẦN | Research / Web search khoá "Sắp có" | C |
@@ -82,7 +82,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
-| STD-authz-rbac-D32b | MỘT PHẦN | Chuyển phụ trách chỉ `crm.reassign`; Agent / Trợ lý chỉ **đề xuất (approval)** | E |
 | STD-channels-adapter-2 | MỘT PHẦN | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | E |
 | STD-code-testing-4b | MỘT PHẦN | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | E |
 | STD-database-indexing-8 | MỘT PHẦN | Không `SELECT *` trong list API | E |
@@ -395,11 +394,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01-c | Cột "AI gợi ý" + nút "Giao AI" ở danh sách khách chạy thật (không phải toast) | 01-REQUIREMENTS-MATRIX.md:122 | 015b | GIẢ | apps/web/src/features/customers/screens/CustomersScreen.tsx:38 `aiDo = message.info`; packages/core/src/crm/services/contact-view.ts:89 ai luôn `kind:'wait'`; TIP-015b mục 5 |
 | REQ-F01b-1 | 1 người phụ trách chính + đồng phụ trách / theo dõi; scope "Của tôi" gồm khách đồng phụ trách | 01-REQUIREMENTS-MATRIX.md:123 | 015, 026 | ĐẠT | packages/core/src/crm/actions/contact-owner.handlers.ts:20; test crm-contacts.test.ts AC3, apps/web/e2e/customers.spec.ts "D32: đồng phụ trách" |
 | REQ-F01b-2 | Chống giành khách: trùng của người khác chỉ báo "Đã có người phụ trách" + "Xin chia sẻ" (duyệt / từ chối) | 01-REQUIREMENTS-MATRIX.md:123 | 015, 026 | ĐẠT | contact-owner.handlers.ts:125 request_access, :158 decide_access; test crm-contacts.test.ts AC2 + AC6, apps/web/e2e/customers.spec.ts "D32: tạo khách trùng" |
-| REQ-F01b-3 | Chuyển phụ trách (Quản lý) kèm hội thoại / báo giá đang mở, ghi timeline | 01-REQUIREMENTS-MATRIX.md:123 | 015, 029 | ĐẠT | contact-owner.handlers.ts:81; packages/core/src/sales/jobs/sales.jobs.module.ts:30 quoteOwnerConsumer; test crm-contacts.test.ts AC5, inbox.test.ts AC10, quotes.test.ts "chuyển phụ trách khách kèm báo giá" |
-| REQ-F01b-4 | Chuyển phụ trách kèm lịch hẹn (`move.appointments`) chuyển thật | 01-REQUIREMENTS-MATRIX.md:123 | — | CHƯA | contact-owner.handlers.ts:97 `appointments: 0` cứng; packages/core/src/booking không có consumer `contact.owner_changed` |
+| REQ-F01b-3 | Chuyển phụ trách (Quản lý) kèm hội thoại / báo giá đang mở, ghi timeline | 01-REQUIREMENTS-MATRIX.md:123 | 015d | MỘT PHẦN | contact-owner.handlers.ts:97 trảquotes0; quote-system.ts:85 đổiowner attribution; owner-move.ts:8–20 eventagentnull khácDB. Test cũ chưa chứng minh atomic/undo đúng;015d nhận |
+| REQ-F01b-4 | Chuyển phụ trách kèm lịch hẹn (`move.appointments`) chuyển thật | 01-REQUIREMENTS-MATRIX.md:123 | 015d | CHƯA | contact-owner.handlers.ts:97 `appointments: 0` cứng; packages/core/src/booking không có consumer `contact.owner_changed` |
 | REQ-F01b-5 | Tin mới tự gán cho người phụ trách của khách | 01-REQUIREMENTS-MATRIX.md:123 | 016 | ĐẠT | packages/core/src/inbox/services/pipeline.ts:108; test inbox.test.ts AC2 |
 | REQ-F01b-6 | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | 01-REQUIREMENTS-MATRIX.md:123 | — | CHƯA | DECISIONS.md:90 DC-081 hoãn "chưa có dữ liệu ca"; pipeline.ts:108 không kiểm ca / vắng |
-| REQ-F01b-7 | Doanh số ghi theo `owner_user_id` lúc tạo chứng từ | 01-REQUIREMENTS-MATRIX.md:123 | 029, 030, 031 | ĐẠT | packages/core/src/sales/quotes/services/quote-write.ts:106, contracts/services/contract-write.ts:37, order-create.handlers.ts:47; test quotes.test.ts "create: … phụ trách = người tạo", contracts.test.ts "create: … phụ trách = người tạo" |
+| REQ-F01b-7 | Doanh số ghi theo `owner_user_id` lúc tạo chứng từ | 01-REQUIREMENTS-MATRIX.md:123 | — | MỘT PHẦN | Create ghiowner nhưng update/undo còn đổi: quote-write.handlers.ts:98–112; contracts/actions/contract-write.handlers.ts:129–144; sales/orders/actions/order-edit.handlers.ts:34,63,117.015d chỉfixquote;032c fullattribution chưa viết, không gán xong cảnghĩavụ |
 | REQ-F01c | Chia lead tự động: thủ công / vòng tròn / theo kênh / theo tải | 01-REQUIREMENTS-MATRIX.md:124 | 042b | CHƯA | `assign_mode` chỉ lưu (accounts.service.ts:18); TIP042b AC1–8 đã viết, chưa code; opt-in/no-steal, không nhầm cấu hình với runtime |
 | REQ-F02a | Hồ sơ 360°: thông tin, timeline đa kênh, ghi chú, trường tuỳ biến, bố cục theo vai trò | 01-REQUIREMENTS-MATRIX.md:125 | 015, 026 | ĐẠT | packages/core/src/crm/services/contact360.ts:14; timeline.service.ts; test crm-contacts.test.ts AC8, apps/web/e2e/http/customers.spec.ts |
 | REQ-F02b | Hồ sơ 360°: tóm tắt AI thật | 01-REQUIREMENTS-MATRIX.md:125 | 015b | CHƯA | contact360.ts:43 chỉ đọc cột `aiSummary` (không ai ghi); ai.bars/signals/nba rỗng :59 |
@@ -649,9 +648,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8b-2-write | Watcher chỉ đọc, không biến grant đọc thành ghi trong inbox/chứng từ | plans/COMMERCE-DECISIONS.md:176-177; rbac-permissions D32 | 042c | MỘT PHẦN | inbox/services/access.ts:62-67 writable chỉ gọi canSee (có watcher); lockOrder/Contract/Appointment gọi visible nên phải tách mode trước khi mở watcher. TIP042c AC3 |
 | Q-029 | Chốt semantics team_id với owner nhiều nhóm và backfill không mở rộng quyền | QUESTIONS.md:Q-029; BLUEPRINT §2.2/§3.5 | 042c | CHƯA | Đã hỏi, chưa trả lời; không tự OR teamUserIds và team_id |
 | COM-8b-3 | Chống giành khách + "Xin chia sẻ" (`contact.request_access`) | plans/COMMERCE-DECISIONS.md:178 | 015 | ĐẠT | crm/actions/contact-owner.handlers.ts:125 · test crm-contacts.test.ts AC2, AC6 |
-| COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | — | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
+| COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | 015d | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
 | COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | — | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081) |
-| COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 029–031 | ĐẠT | contracts.prisma ownerUserId "không đổi theo khách" · test quotes.test.ts, orders.test.ts (phụ trách = người tạo) |
+| COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | — | MỘT PHẦN | Create ghiowner nhưng update/undo còn đổi: quote-write.handlers.ts:98–112; contracts/actions/contract-write.handlers.ts:129–144; sales/orders/actions/order-edit.handlers.ts:34,63,117.015d chỉfixquote;032c fullattribution chưa viết, không gán xong cảnghĩavụ |
 | COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | CHƯA | TIP042b AC2–6, giữ chủ cũ/không đổi doanh số, CAS/idempotent; chưa code |
 | Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | CHƯA | Đã hỏi, chưa trả lời; TIP042 chưa ready-to-build, không tự nới quyền riêng Owner |
 | COM-9-1 | Máy trạng thái HĐ draft → pending_approval → pending_signature → signed / declined / expired / terminated | plans/COMMERCE-DECISIONS.md:191-195 | 030 | ĐẠT | packages/shared/src/contracts/contract-state.ts · test contract-state.test.ts, contracts.test.ts |
@@ -1191,6 +1190,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | CRM-ACTIVITY-TRANSFER | AI-first + manual nhập/xuất CSV/XLSX thật cho note/comment/task/opportunity qua038b cùng quyền/preview/receipts | DC-244; DC-253; TIP026b spec5 | 026b | CHƯA | New CRM datasets chưa tồn tại;038b pipeline còn pending. Không coi export contacts cũ là đủ |
 | CRM-STAGE-CAS | contact.set_stage và kéo Kanban truyền if_version, race/undo không ghi đè sửa sau | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | actions/crm.ts:109 input chưaif_version; contact-write.handlers.ts:97 đọc rồiupdate.025b tạo version nền,026b nhận stage |
 | CRM-LAYOUT-CAS | profile_layout version/CAS, autosave serial/draft giữ khi409, delete/assign atomic fallback | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | profile-layout.handlers.ts:47–50 update chưaCAS; ProfileLayoutEditor.tsx:59–66 gửi mỗi edit. Fallbackdelete đã có:74–76 |
+| CRM-TRANSFER-ATOMIC | Chuyển một khách + selected openconversation/currentquote/upcomingappointment +counts/receipt atomic, không asyncold-event overwrite | COMMERCE8b; DC-254; TIP015d spec2 | 015d | MỘT PHẦN | contact-owner.handlers.ts:97 vàsales.jobs.module.ts:30–37 fan-outquotes trả0 trước effect; booking chưaconsumer; mới planning |
+| CRM-TRANSFER-UNDO | Undo24h currentauthority/after-assignment-version/generation; all-or-conflict, không ABA hay hồi sinh grant/AIepoch | DC-254; TIP015d spec4 | 015d | MỘT PHẦN | contact-owner.handlers.ts:112–120 chỉcontact/conversations; owner-move.ts:25 chỉcompareuser; quoteasync khôngreverse receipt |
+| CRM-TRANSFER-NOTICE | Thông báo cảhai bên có currentprojection tại inapp/WS/maildelivery, formerowner mấtquyền khôngnhậnPII | COMMERCE179; DC-254; TIP015d spec5 | 015d | MỘT PHẦN | crm-notify.ts:7–12 chỉngườinhận vàstoredname; notify-mail.processor.ts:26 renderparams cũ |
+| QUOTE-OPERATIONAL-OWNER | quote.assigned_user_id tách attributionowner bấtbiến; scope/filter/reminder/export/KPI và revision đúngnghĩa | COMMERCE181; DC-254; TIP015d spec3 | 015d | CHƯA | sales-quotes.prisma chỉowner; quote-system.ts:85 chuyểnowner; quote.version làdocumentrevision khôngrowversion |
+| CRM-TRANSFER-BULK | Bulktransfer AI approval/privatechildrecipe, >50job, atomic từngcontact vàper-itemtruthfuloutcomes | standards/domain/concurrency7; TIP015d spec4 | 015d | MỘT PHẦN | BulkTransferModal.tsx:31–38 looptruthy vàtoastsuccess; chưa canonicalbulktransfer/privateparentreceipt |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1298,7 +1302,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-authz-rbac-8 | Field-level: serializer lọc trường theo `visible_roles` phía server | standards/authz/rbac-permissions.md:30 | 045b | CHƯA | `fieldsForRole` chỉ ở shared/custom-fields/values.ts:43 (FE); 045b task 8 |
 | STD-authz-rbac-9 | Kiểm 2 lớp (guard + repo scope); test role-isolation kèm tenant-isolation | standards/authz/rbac-permissions.md:31 | 005 | ĐẠT | apps/api/test/integration/role-isolation.harness.ts:1; authz.test.ts |
 | STD-authz-rbac-D32a | Chống giành khách: trùng khách có owner → CONTACT_OWNED 409 + "Xin chia sẻ" | standards/authz/rbac-permissions.md:41 | 015 | ĐẠT | crm/services/contacts.service.ts:69; contact-owner.handlers.ts:125; test crm-contacts.test.ts |
-| STD-authz-rbac-D32b | Chuyển phụ trách chỉ `crm.reassign`; Agent / Trợ lý chỉ **đề xuất (approval)** | standards/authz/rbac-permissions.md:42 | — | MỘT PHẦN | `contact.transfer_owner` permission crm.reassign nhưng risk `write` + agentGrantable (packages/actions/src/crm.ts:172-186) → policy.ts:13 nguồn agent chạy thẳng, assistant chỉ preview; không ép approval |
+| STD-authz-rbac-D32b | Chuyển phụ trách chỉ `crm.reassign`; Agent / Trợ lý chỉ **đề xuất (approval)** | standards/authz/rbac-permissions.md:42 | 015d | MỘT PHẦN | `contact.transfer_owner` permission crm.reassign nhưng risk `write` + agentGrantable (packages/actions/src/crm.ts:172-186) → policy.ts:13 nguồn agent chạy thẳng, assistant chỉ preview; không ép approval |
 | STD-authz-rbac-D32c | `contact_collaborator(user_id, contact_id)` index cho scope own | standards/authz/rbac-permissions.md:44 | 015 | ĐẠT | migration 20261031000000_015_crm:226 |
 | STD-authz-rbac-plan | Giới hạn user theo `plan.max_users` | standards/authz/rbac-permissions.md:65 | 009 | ĐẠT | billing/services/quota.service.ts:23; test billing.test.ts |
 | STD-channels-adapter-1 | Mọi kênh qua ChannelAdapter; core không import SDK kênh (zca-js, imapflow) | standards/channels/omnichannel-adapter.md:8 | mọi TIP | QUY-TẮC | `pnpm depcheck` (.dependency-cruiser.cjs `no-non-package-json`; SDK chỉ ở packages/channels/package.json:18-21) |

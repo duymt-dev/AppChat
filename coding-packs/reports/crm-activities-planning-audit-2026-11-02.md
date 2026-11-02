@@ -29,3 +29,7 @@ Recheck confirmed both findings closed at planning level, no new local blocker. 
 ## Still required
 
 015d must own source-audited transfer approval/immutable sales attribution/merge relation handling/deletion/restore/Q021;015c privacy has separate retention/anti-resurrection inventory. These are not hidden inside026b.012c tenant mail, further supplemental TIPs,044–046, seven-part coverage completion and whole dependency/overlap review remain. Continue after this checkpoint; commit does not complete the goal.
+
+## Subsequent boundary clarification (015d planning)
+
+Ownership transfer is015d only; merge/delete/restore015e, privacy015c and forwardingQ021 remain separate unowned work until their packs exist. The earlier remaining-work paragraph reserved015d too broadly; it is not a claim these lifecycle gaps are now covered.026b retains its original146 paths; the later015d pair adds a24th sequential intersection.

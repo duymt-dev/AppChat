@@ -34,3 +34,7 @@
 ## Supplemental record-scope audit (2026-11-02)
 
 See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.
+
+## Bổ sung planning2026-11-02 — ownership015d
+
+[TIP015d](../tips/TIP-015d-contact-transfer.md) nhận chuyểnphụtrách AI approval, atomic relatedrecords/receipts/counts, quote operationalassignee táchimmutableattribution, guardedundo/bulk vàthôngbáohai bên currentredacted. Khôngthay test cũ thành bằngchứng tínhnăngmới. Merge/delete/restore015e, privacy015c vàorder/contractattribution032c vẫn phải viết; khôngđượcclaimđãđạt.
