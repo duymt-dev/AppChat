@@ -1,6 +1,8 @@
 # TIP-023c: Generative UI (D55) + Trợ lý theo màn có ngữ cảnh + kết nối kênh / nền tảng qua Trợ lý (QR Zalo trong chat, form có ô bí mật)
 
 ## HEADER
+- **Parallel-safe with TIP-038b:** sequential, shares `apps/web/src/features/assistant/components/ChatThread.tsx`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
+- **Parallel-safe with TIP-040:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 040. Recheck incomplete manifests.
 - **Parallel-safe with TIP-039:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 039. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
 - **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038. Recheck after incomplete manifests expand.
@@ -61,3 +63,7 @@
 - Thư viện mới: không (antd, `@ant-design/charts` đã trong stack D55; QR vẽ bằng ảnh data URL có sẵn từ adapter Zalo).
 - Frontend: file ≤ 400 dòng, drawer chỉ là orchestrator; i18n vi + en.
 - Kênh / connector ngoài manifest vẫn "Sắp có" (D04 / D28); Brevo thật chờ whitelist IP (Q-004).
+
+## Nhập/xuất AI-first — DC244
+
+Attachment/GenUI của023c phải cho [TIP038b](TIP-038b-ai-first-data-transfer.md) dùng filehandle và typed mapping/preview/progress/download.038b nhận nghiệp vụ nhập/xuất, không để model tựrenderHTML/fileURL hoặc bỏ userconfirmation. Khi hoàn thiện manifest023c, nối TransferPanel host qua approvedUIcommand, khôngimport featurechéo.

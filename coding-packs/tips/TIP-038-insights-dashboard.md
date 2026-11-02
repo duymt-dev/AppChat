@@ -1,6 +1,8 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-038b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
+- **Parallel-safe with TIP-040:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 040. Recheck incomplete manifests.
 - **Parallel-safe with TIP-039:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 039. Recheck incomplete manifests.
 - TIP-ID: TIP-038; Project: AppChat V2; Module: insights; Priority: P0/P1; Estimated: XL, chia implementation theo metric → dashboard → export → digest.
 - Depends on:006/009/011/021/022/024/029–035; tích hợp sau023b/023c/015b/020b/030b/032b/036/037/042/042b/042c/043/045b vì scope, serializers, jobs và shared files; trước044/046.
@@ -10,6 +12,7 @@
 
 | Op | File |
 |---|---|
+| C | `tools/parity/modules/insights.ts` |
 | M | `packages/shared/src/i18n/server/index.ts` |
 | C | `packages/shared/src/i18n/server/vi/insights.ts` |
 | C | `packages/shared/src/i18n/server/en/insights.ts` |
@@ -186,7 +189,7 @@ Các đường dẫn dưới `coding-packs/standards/`, đuôi .md. Quyền sett
 - Tenant insights.prisma chứa FollowUp, ExportJob(+snapshot chunks nếu cần), DigestDelivery; không workspace_id. Migration áp template và existing tenant theo runner chuẩn; graph ownership bổ sung vì claim cũ038 “không bảng mới” không còn đúng.
 - Index follow_up(status,due_at,id) INCLUDE(contact_id,version), partial pending; digest(user_id,cadence,period_start) unique + (state,next_attempt_at,id) partial actionable; export(requested_by,created_at DESC,id) INCLUDE(state,expires_at). Scope queries thêm equality owner/team trước sort nếu access path cần. Source metric index agent_id/assignee_agent_id trước created_at/closed_at, INCLUDE select payload nhỏ; kiểm existing index trước thêm. Ghi EXPLAIN ANALYZE BUFFERS với realistic fixtures, không include JSONB rộng.
 - Route/controller thin, providers bind dependencies rõ; API module/ai jobs read và ROLEjobs processors boot-tested, không vòng import AI↔Insights (metric chỉ đọc DB + contracts/public).
-- Errors: VALIDATION_ERROR/403/no-scope; ID không visible trả NOT_FOUND theo convention; STALE_VERSION409; export too large validation; expired410; provider unavailable503 hoặc durable failed/unknown. GET không làm mutation; failure một widget không làm rò dữ liệu widget khác.
+- Errors: VALIDATION_FAILED/403/no-scope; ID không visible trả NOT_FOUND theo convention; STALE_VERSION409; export too large validation; expired410; provider unavailable503 hoặc durable failed/unknown. GET không làm mutation; failure một widget không làm rò dữ liệu widget khác.
 - Events follow_up.completed/undone + export/digest job transition qua outbox; internal ActionDefs schema/permission guard không agentGrantable. Locale errors/actionlabels đầy đủ, telemetry correlationId không prompt/file/email payload.
 
 ## ACCEPTANCE CRITERIA
@@ -215,6 +218,7 @@ Rà package scripts/test config trước chạy, ghi lệnh thực và output. T
 Live9router: hỏi thu thực tháng này vs đơn đã đặt, CSAT agent, khách cần chăm sóc; model gọi query_data thật, không SQL, nguồn đúng, user own không thấy other; revoke giữa2toolcalls bị từ chối. Brevo/SMTP digest thiếu tài nguyên ghi CHỜ-TK, không console=providerproof.
 
 ## CONSTRAINTS
+- `tools/parity/parity.manifest.ts` đang vượt trần: chỉ facade1–2dòng; logicparity mới ở `tools/parity/modules/insights.ts`, không mở rộng monolith.
 - Chỉ code sau câu A hoàn tất; không sửa commerce/permissions/tariff, không Reports module, không autonomous outreach.
 - Action-first kể cả internal writes, no direct GET effects; tenant resolver, scope+fieldmask không thể thiếu ở aggregate/export/mail.
 - Backend200–400, tách khi500/trần600; frontend150–250/trần400; test riêng. New panels/hooks không nhồi DashboardScreen/AgentCard.
@@ -227,3 +231,7 @@ Live9router: hỏi thu thực tháng này vs đơn đã đặt, CSAT agent, khá
 - [ ] Mock/HTTP + parity/mobile/i18n + live9router/provider tình trạng trung thực.
 - [ ] Error/permission/undo/idempotency/job recovery không giả; D59 pass trước commit.
 - [ ] Completion report mapping từng COVERAGE row, SHA git sạch, PR dev; không đánh ĐẠT bằng tài liệu.
+
+## Ranh giới xuất dữ liệu AI-first — DC244
+
+038 sở hữu backend4list export/snapshot/artifact. [TIP038b](TIP-038b-ai-first-data-transfer.md) nhận natural-language orchestration, mở rộng CRM/catalog/invoice và header/items, nhập6domain, tài liệuPDF/DOCX theo capability. Không duplicate exporthandlers hoặc coi luồng manual038 là đủ nghiệm thu AI-first.

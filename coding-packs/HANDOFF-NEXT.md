@@ -4,6 +4,9 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Nhập/xuất AI-first đã được ghi:** TIP038b và11 dòng IO-* nhận6domain CRM/catalog/quote/order/contract/invoice, luồngAI ưu tiên+manualfallback, filethật và12ca live model. DC244 ghi yêu cầu mới;032b/038/023c cóboundary links. Không coi viếtTIP là đãcode/nghiệmthuAI.
+- **Checkpoint platform/review:** cóTIP040 (81file/10AC), partialindependentreview038/039 đã sửa findings; Q032 half-up được Chủ nhà duyệt →DC243, đãđóng cùngQ031. CònTIP041/044–046, supplemental/orphans vàfullindependentreview; câuA chưa xong.
+
 - **Q031 đã duyệt sau checkpoint billing:** DC242 chốt tháng theo ngàyđăngký (31→ngàycuối→31), upgrade tiền/Credit prorate giữenddate, addon đồnghạn/prorate, khôngautopay. Đã cậpnhật TIP039 và numericfixtures; Q031 đóng, không còn gate3điểm này. Những checkpoint ghi “đang hỏiQ031” bên dưới là lịch sử.
 
 - **Checkpoint billing mới nhất:** `TIP-039-billing-lifecycle.md` (68 file,10 AC) nhận4 orphan, thêm DEF0105 replayinvoice vàQ031 đang hỏi chi tiết kỳCredit/upgrade/addon. Sổ **1.465 dòng/211 lỗ hổng**. Xem `reports/billing-planning-audit-2026-11-02.md`; chưa source change/test runtime/review độc lập. Tiếp tục040/041/044–046,6pendingcũ và các orphan; không code câuB.

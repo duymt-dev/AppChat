@@ -1,6 +1,8 @@
 # TIP-032b: Commerce — vá luật đã chốt còn hở: ngưỡng duyệt cấu hình được, báo giá → HĐ hoặc đơn, VietQR ảnh thật, gửi chứng từ qua webchat, gửi xác nhận đơn / phiếu thu, liệu trình khi cọc, catalog còn thiếu
 
 ## HEADER
+- **Parallel-safe with TIP-038b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
+- **Parallel-safe with TIP-040:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 040. Recheck incomplete manifests.
 - **Parallel-safe with TIP-039:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 039. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
 - **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038. Recheck after incomplete manifests expand.
@@ -51,3 +53,7 @@ Rà code 2026-11-01 đối chiếu `plans/COMMERCE-DECISIONS.md` (luật đã ch
 - `COMMERCE-DECISIONS.md` không đổi: chỉ làm cho code khớp luật; mặc định ngưỡng giữ 20M / 5%.
 - Gửi Zalo / email thật chưa nghiệm thu (Q-003, Q-004) — fake transport; ghi rõ trong report.
 - `qrcode` đã nằm trong Blueprint §8 (VietQR render) — không phải lệch.
+
+## Ranh giới nhập/xuất AI-first — DC244
+
+032b giữ product.import deterministic (CSV/XLSX, validation, jobs). [TIP038b](TIP-038b-ai-first-data-transfer.md) dùng lại để làm luồng AI ưu tiên: file→mapping→preview→xác nhận, sửa bằng hội thoại, file kết quả/lỗi. Không dựng importer thứ hai hoặc tự cấp quyền/đổi tồn kho. Ma trận IO-CATALOG và AC01/05/10 ở038b là nghiệm thu AI thật.

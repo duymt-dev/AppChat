@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 116 | 22 | 8 | 12 | 23 | 2 | 0 | 29 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 48 | 10 | 5 | 14 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 46 | 11 | 21 | 21 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 93 | 196 | 5 | 4 | 81 | 1 | 0 | 23 |
 | E. standards/* | 157 | 39 | 2 | 6 | 62 | 2 | 40 | 38 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 58 | 3 | 0 | 38 |
-| **Tổng** | **566** | **324** | **118** | **42** | **315** | **34** | **66** | **211** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 38 |
+| **Tổng** | **566** | **324** | **118** | **42** | **327** | **34** | **66** | **211** |
 
 ## Lỗ hổng chưa có TIP nhận (211)
 
@@ -440,6 +440,17 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
+| IO-CRM | Khách hàng/customfields: nhập và xuất XLSX/CSV, AI-first và thủ công | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/task2–4/AC01/04/05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-CATALOG | Sản phẩm/dịch vụ/biến thể: AI mapping, import032b và XLSX/CSV export | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC01/04/05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-QUOTE | Báo giá+items: nhập nháp, xuất bảng/filechứngtừ, cả AI và thủ công | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-ORDER | Đơn+items: nhập nháp không trừ kho/ghi thu, xuất XLSX/CSV và chứng từ hỗ trợ | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/06; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-CONTRACT | Hợp đồng metadata/PDF/DOCX nhập nháp, xuất bảng và file nguồn/đãký giữ nguyên | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/08; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-INVOICE | Đề nghị thanh toán: nhập nháp theođơn/đợt, xuất bảng/PDF, không tựghi payment | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/06; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-AI-FIRST | AI là luồng ưu tiên: hiểufile/yêucầu, mapping, sửa bằng hội thoại, live model thật | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task2–3/AC01–04/09–10; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-MANUAL | Thủ công độc lập không LLM, dùng cùngvalidation/permission/backend vớiAI | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task4/AC05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-FILES | File tải thật, lỗi theo dòng, XLSX/CSVZIP/PDF/DOCX theo capability, authenticated download | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task3/5/AC03/08; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-SAFETY | Không vượt quyền/fieldmask, không promptinjection/SQL, không importpaid/signed/ledger tùyý | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task1/2/5/AC06; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-RETRY | Preview hash/version, confirm thật, retry/cancel/partial/reimport không duplicate | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task1/2/5/AC03/07; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
 | REQ-F01-a | Danh sách khách D42 (page+limit), lọc giai đoạn / thẻ / trường tuỳ biến, sắp xếp, tìm không dấu | 01-REQUIREMENTS-MATRIX.md:122 | 015, 026 | ĐẠT | packages/core/src/crm/repos/contacts.repo.ts:53 (f_unaccent LIKE); test apps/api/test/integration/crm-contacts.test.ts (AC8), crm-ui.test.ts (sort + EXPLAIN), apps/web/e2e/http/customers-ui.spec.ts |
 | REQ-F01-b | Kanban khách theo giai đoạn (Lead mới → … → Đã mua, + Thất bại), kéo đổi giai đoạn | 01-REQUIREMENTS-MATRIX.md:122 | 015, 026 | ĐẠT | packages/core/src/crm/repos/contacts.repo.ts:83 boardIds; contact-write.handlers.ts:89 set_stage; test crm-ui.test.ts "kanban /contacts/board", apps/web/e2e/customers.spec.ts |
 | REQ-F01-c | Cột "AI gợi ý" + nút "Giao AI" ở danh sách khách chạy thật (không phải toast) | 01-REQUIREMENTS-MATRIX.md:122 | 015b | GIẢ | apps/web/src/features/customers/screens/CustomersScreen.tsx:38 `aiDo = message.info`; packages/core/src/crm/services/contact-view.ts:89 ai luôn `kind:'wait'`; TIP-015b mục 5 |
@@ -553,7 +564,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-L07b | Credit gói không cộng dồn (reset mỗi kỳ), credit mua thêm không hết hạn | 01-REQUIREMENTS-MATRIX.md:193 | 009 | ĐẠT | wallet.service.ts:104 resetPlan (expire plan rồi grant), topup riêng; test billing.test.ts AC4 "trừ plan trước rồi topup", AC3 |
 | REQ-L07c | Job cấp lại credit gói hằng tháng (`period:<ws>:<yyyy-mm>`) | 01-REQUIREMENTS-MATRIX.md:193 | 039 | CHƯA | chỉ trial / activate gọi resetPlan (subscriptions.service.ts:41,69,94); không job kỳ tháng |
 | REQ-L07d | Hết hạn gói trả phí: popup gia hạn, dữ liệu giữ 30 ngày | 01-REQUIREMENTS-MATRIX.md:193 | 039 | CHƯA | subscriptions.service.ts chỉ expireTrials (:50); không quét hết hạn gói trả phí, không popup gia hạn |
-| REQ-L07e | Nâng gói giữa kỳ tính chênh theo ngày | 01-REQUIREMENTS-MATRIX.md:193 | 039 | CHƯA | enum `upgrade_proration` (packages/db/prisma/platform/billing-payments.prisma:10) không nơi nào tạo; dòng TIP-039 ở 02-TASK-GRAPH.md:102 không nêu |
+| REQ-L07e | Nâng gói giữa kỳ tính chênh theo ngày | 01-REQUIREMENTS-MATRIX.md:193 | 039 | CHƯA | enum upgrade_proration có nhưngchưaluồngtạo; TIP039 task2/AC03 vàDC242 đãnêu rõupgrade, không dùng kếhoạch làmproof runtime |
 | REQ-L08 | Trang quản trị nền tảng: tenant, gói, giá, đối soát chuyển khoản, đơn giá model | 01-REQUIREMENTS-MATRIX.md:194 | 040 | MỘT PHẦN | chỉ admin.invoice.confirm_transfer (packages/core/src/billing/actions/admin-confirm-transfer.handler.ts:15) + GET /admin/transfers (test billing-payments.test.ts AC6); không route nhóm (admin) ở apps/web/src/app; admin.plan / model_price / llm_provider / workspace.* thiếu |
 | REQ-M01a | Settings shell: menu trái chia nhóm + tìm kiếm; trang Tổng quan, Thành viên, Kênh, Widget, Trường dữ liệu, Thẻ, Câu trả lời mẫu, AI Models, Governance, Ví / Gói, Hồ sơ | 01-REQUIREMENTS-MATRIX.md:199 | 013 + TIP domain | ĐẠT | apps/web/src/features/settings/registry.ts:28–74; SettingsShell.tsx:36; test settings.test.ts, ai-runtime.test.ts AC5, webchat.test.ts, crm-settings.test.ts, apps/web/e2e/http/settings.spec.ts, settings-data.spec.ts |
 | REQ-M01b | Nhật ký AI (AI Audit log) + Nhật ký bảo mật đọc dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:199 | — | GIẢ | apps/web/src/features/settings/api.ts:104,106 `/settings/audit`, `/settings/ai-audit` — routes.json missing (chỉ mock); không TIP nào nhận route đọc (045b mục 6 chỉ ghi audit) |
@@ -1679,9 +1690,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-009-3 | `QuotaService.assert` trước khi thêm thành viên / kênh / agent | reports/TIP-009-completion.md:46 | 013/014/021 | ĐẠT | identity/actions/member-invite.handler.ts:31; channels/actions/channel-connect.handlers.ts:38; ai/agents/agent.handlers.ts:22; test settings.test.ts:116 |
 | DEF-009-4 | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | reports/TIP-009-completion.md:47 | 039 | MỘT PHẦN | reply.service.ts:144 chỉ handoff lượt đang chạy; TIP039 task3/AC05 nhận consumer, recheck balance và delayed-event sau topup, chưa code |
 | DEF-010-1 | Job cấp lại credit hằng tháng `period:<ws>:<yyyy-mm>` / gia hạn kỳ | reports/TIP-009-completion.md:44; TIP-010 | 039 | CHƯA | Chỉ có comment billing/services/wallet.service.ts:105; TG row 039 ghi rõ job này |
-| DEF-010-2 | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | reports/TIP-010-completion.md:44 | 039 | CHƯA | TIP039 task2/AC03–04 nhận entitlements/backfill cảpaidaddon đãfulfilled; Q031 gate tiền/kỳ, chưa code |
+| DEF-010-2 | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | reports/TIP-010-completion.md:44 | 039 | CHƯA | TIP039 task2/AC03–04 nhận entitlements/backfill cảpaidaddon đãfulfilled; DC242/Q031 đãduyệt, Q032 chỉroundingCredit; chưa code |
 | DEF-010-5 | Replay fulfil cùng invoice không dời kỳ subscription hoặc reset trạng thái mới | billing/services/subscriptions.service.ts:91–105; payments/fulfil.ts:39 | 039 | MỘT PHẦN | activate upsert currentPeriodStart/end trước resetPlan duplicatecheck; ledger idempotent không chứng minh entitlement idempotent. TIP039 task2/AC02 fault/replay, chưa chạy testcase |
 | Q-031 | Kỳ Credit/upgrade chênh Credit/thời hạn addon theo quyếtđịnh Chủ nhà | QUESTIONS.md Q031; DC242 | 039 | CHƯA | Đãduyệt: thángngàyđăngký, upgradeprorate tiền/Credit, addonđồnghạn/prorate. TIP039 task1–2/AC01/03/04 cófixture; CHƯA là runtimechưacode, không còn câu hỏi mở |
+| Q-032 | Quy tắc làm tròn Credit lẻ sau prorate | QUESTIONS.md Q032; independent review038/039 | 039 | CHƯA | DC243 half-up đã được Chủ nhà duyệt; literal fixture10.000×10/31→3.226, runtime chưa code |
 | DEF-010-3 | Màn admin đối soát giao dịch nền tảng không khớp (`matched_invoice_id` null) | reports/TIP-010-completion.md:45 | 040 | MỘT PHẦN | Chỉ có apps/api/src/http/billing/admin-transfers.controller.ts:17 (pending_review); không có danh sách giao dịch lệch |
 | DEF-010-4 | SePay nền tảng nhận webhook thật (AC3 với giao dịch thật) | reports/TIP-010-completion.md:32,46 | — | CHỜ-TK | Q-004; packages/integrations/src/connectors/sepay/adapter.ts + test sepay.test.ts |
 | DEF-012-1 | Action `integration.test` (kiểm tra kết nối connector) | reports/TIP-012-completion.md:37 | 023c | CHƯA | Không có trong registry (51 action thiếu); TIP-023c mục 10 "Kiểm tra kết nối (probe connector)" |

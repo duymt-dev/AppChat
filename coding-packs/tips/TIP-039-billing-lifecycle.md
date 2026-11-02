@@ -1,6 +1,8 @@
 # TIP-039 — Billing lifecycle, ví và gói chạy thật
 
 ## HEADER
+- **Parallel-safe with TIP-038b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
+- **Parallel-safe with TIP-040:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/actions/useAction.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/db/prisma/platform/billing.prisma`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate this TIP before 040. Recheck incomplete manifests.
 - TIP-ID: TIP-039; Project: AppChat V2; Module: billing; Priority: P0; Estimated: XL.
 - Depends on:009/010/011/013/014/021; tích hợp sau038/042c/043/045b và các pending TIP dùng shared indexes/locales, trước040/041/044/046.
 - **Q-031 đã duyệt — DC242:** tháng theo ngày đăng ký; upgrade tiền/Credit chênh prorate thời gian còn lại; addon đồnghạn gói và prorate. Không còn gate3quyếtđịnh này; vẫn cần kiểm rounding/annualprice/migration bằng numericAC, không tự đổi giá/quyền.
@@ -10,6 +12,7 @@
 
 | Op | File |
 |---|---|
+| C | `tools/parity/modules/billing.ts` |
 | M | `packages/db/prisma/platform/billing.prisma` |
 | M | `packages/db/prisma/platform/billing-payments.prisma` |
 | M | `packages/actions/src/settings-ai.ts` |
@@ -88,7 +91,7 @@
 - `billing/jobs/billing.jobs.module.ts:16–58` queue scheduler, chỉ trial/invoice; comment bỏ job lạ không bảo đảm xử lý đúng nếu nhiều worker khác chungqueue. Sales/booking hiện đã queue riêng, không khẳng định bug đang xảy ra nhưng phải kiểm routing.
 - `billing/events/billing.events.ts` phát credits.exhausted/restored; không consumer chuyển toàn bộ auto conversations về human. reply.service chỉ xử lý lượt đang chạy.
 - `wallet.service.ts:190+` claim flag sau commit rồi listener tới tenant outbox: crash tại giữa có thể mất notify.045b chịu bridge crossDB;039 phải fault-test usecase billing, không tuyên bố atomic bằng comment.
-- SoT COMMERCE §10: không cộng dồn plan, topup không hết hạn, nâng giữa kỳ tiền theo ngày+credit chênh, hạ kỳ sau, QR/chuyển khoản duy nhất, không autopay. DC034 30ngày là đề xuất cũ, key period yyyy-mm chưa đủ nếu2 kỳ30ngày rơi cùng tháng; Q031 phải giải trước cấp tiền.
+- SoT COMMERCE §10: không cộng dồn plan, topup không hết hạn, nâng giữa kỳ tiền theo ngày+credit chênh, hạ kỳ sau, QR/chuyển khoản duy nhất, không autopay. DC242 đã thay phần30ngày trảphí của đềxuất DC034 bằngthángtheoanchor; giữmigrationreceipts khôngdoublegrant. Q031/Q032 đã đóng; DC242/DC243 là quyết định đã duyệt.
 
 ## APPLICABLE STANDARDS
 Đọc `coding-packs/standards/`: actions/action-registry; events/outbox; api/response-envelope; database/tenant-db,indexing; authz/rbac-permissions; domain/money-time-numbering,concurrency,state-machine,validation-defaults,gap-filling; documents/templates; integrations/provider-ports; ops/observability-security; ui/frontend-structure,prototype-parity,interaction-patterns; i18n/i18n; code/file-size-module-layout,testing; workflow/git-flow-ci. Mọi tên trên là file .md.
@@ -132,7 +135,7 @@
 - Gói/quota/cảnh báo/trial badges/upgrade popup/BillingSection dùng live refetch/invalidation saupaid; fake pending_review không paid; trường hợp renew, expired, limited, unknown provider có CTA thật. Không thay prototype bằng màn mới; modals/hooks extracted, vi/en, keyboard/mobile.
 - Liên hệ Doanh nghiệp → ContactSalesModal, validated name/email/phone/message+consent; action billing.contact_sales permission billing.manage, risk write, rate-limit/idempotency; platform salesInquiry persistent và operator notification qua outbox. Success nghĩa request đã nhận, không giả “đã ký hợp đồng”. Không gửi secret/PII vào logs hoặcLLM.
 - GET /billing/invoices/:id/pdf authenticated billing.manage + workspace equality, dùng immutable snapshot invoice/VAT/status/amount paidAt; ReactPDF template song ngữ, download proper headers/privatecache. Đây là chứng từ nền tảng, **không hoá đơn điện tử VAT**, thể hiện disclaimer và đội vận hành xuất VAT thủ công; no publiclink. Read render không cần write action nếu khôngpersist artifact.
-- BillInvoiceTable thêm download; QR/status flow010 regression. Mọi ghiFE useAction, mock cùng outputshape, không toast thay chức năng. Muaaddon chưa đủ policy Q031 phải gate rõ, không lén charge xong không entitlement.
+- BillInvoiceTable thêm download; QR/status flow010 regression. Mọi ghiFE useAction, mock cùng outputshape, không toast thay chức năng. Addon theoDC242 đãduyệt: không charge xong thiếuentitlement.
 
 ### 5. Failure, SQL, observability
 - Unique(invoice_id), unique(workspace_id,period_key), (workspace_id,resource,status,ends_at) INCLUDE(quantity), (status,next_grant_at,id) INCLUDE(workspace_id) partial active; invoices paid unfulfilled partialindex; ledger indexes theo filtered query. EXPLAIN BUFFERS với fixtures đủ lớn, không INCLUDE rộngJSONB, deferredjoin cho paged invoice/ledger.
@@ -142,8 +145,10 @@
 
 ## ACCEPTANCE CRITERIA
 
+**Fractional Credit — DC243 đã duyệt:** tính bằng số hữu tỷ/decimal, làm tròn half-up một lần ở kết quả Credit nguyên; 10.000×10/31 →3.226; 1×1/2 →1; 1×1/3 →0. Không áp quy tắc này để đổi `ceil` của usage token hoặc `floor` điểm loyalty. Replay invoice giữ kết quả snapshot, không làm tròn lại rồi cộng lần hai.
+
 **Numeric fixtures DC242:** đăng ký31/01/2027 cùnggiờ workspace → kỳtiếp28/02/2027 →31/03/2027; nămnhuận dùng29/02. Monthlyterm01/04→01/05, upgrade16/04 cùnggiờ: còn15/30ngày; chênhgiá600.000đ → thu300.000đ, chênhquota10.000Credit → cộng5.000Creditplan, topup vàplanđãcòn giữnguyên, end01/05. Addon giá300.000đ/tháng mua cùngmốc →150.000đ vàhết01/05. Đây là dữliệutest không thay catalogprice. Thêm fractionalrounding/annual/DST/repeatedupgrade cases trướcaccept theo standard; không lấy vídụ chia hết làmproof rounding.
-1. **AC01 periods** — Given gói năm/trial/free,2workers và downtime; When due/resetreplay; Then mỗi approvedperiod đúng1grant, expireplan không rollover, topup nguyên, không doublegrant activation. Q031 phải có literal expected dates/credits trước accept.
+1. **AC01 periods** — Given gói năm/trial/free,2workers và downtime; When due/resetreplay; Then mỗi approvedperiod đúng1grant, expireplan không rollover, topup nguyên, không doublegrant activation. Kiểm numericfixtures DC242/DC243.
 2. **AC02 invoice replay** — Given paid invoice đã activate; When fulfil lại ngàyhôm sau/crash giữaactivate và fulfilledAt; Then periodStart/end/plan/balance nguyên và1receipt, notificationbridge recover.
 3. **AC03 plan changes** — Given active tháng/năm còn ngày và usage; When preview/paidupgrade/downgrade; Then tiền/credit theo ví dụQ031 được duyệt, giữenddate, khôngresetused; downgrade kỳsau, changedversion/latepayment không silently wronggrant.
 4. **AC04 addons** — Given paidaddon cũ fulfilledAt và mới, duplicatebankevents; When backfill/fulfil/quotaassert; Then một entitlement/invoice, base+activeaddons đúng, expiry/renewal đúngQ031; ambiguous không đoán và không cấp vượtquota.
@@ -165,6 +170,7 @@ pnpm parity --done
 Rà scripts/paritysettingsID/config môi trường hiện tại trước chạy. Mock vàHTTP, 1440×900/390×844; D59 lint/typecheck/unit/depcheck trướccommit và fullgate chốtTIP. Providerbank thiếukey ghi chưanghiệmthu thật, mockkhông thay SePay. Không featureLLM mới, nhưng gateway credit live9router exhaustion→topup→newrun phải smoke thật nếu sửa gate; không tự tiêu tiền/account ngoài cho test.
 
 ## CONSTRAINTS
+- `tools/parity/parity.manifest.ts` vượttrần: chỉfacade1–2dòng, logicmới ở `tools/parity/modules/billing.ts`.
 - Không đổi COMMERCE/permissions/catalogpricing; áp DC242 đãduyệt, khôngAutoPay/modelcheap/debtcredit. Không ghi dữliệu/source trong câuA.
 - Billing nền tảng khác invoicekhách/sales; không ghép hai sổ hoặc đổiquyền finance. Owner không platformadmin.
 - REUSE wallet locks/ledger,045b bridge/202,010 providerpayments,042c scope,011 trial;041 mới destructive lifecycle,040 adminUI.
@@ -172,7 +178,7 @@ Rà scripts/paritysettingsID/config môi trường hiện tại trước chạy.
 - Không source secrets/logsensitive, không giữuncommittedcode khi báoDONE.
 
 ## BUILDER-CHECKLIST
-- [ ] Q031 được chốt và numericAC bổ sung, exactmanifest/overlap cập nhật.
+- [ ] DC242/Q031 đãduyệt được áp đúng; DC243 roundingCredit vàfractionalnumericAC được áp dụng, exactmanifest/overlap cập nhật.
 - [ ] AC01–10 proof thật, moneyfault/replay/tenantroles/SQLplans.
 - [ ] UI khôngtoastgiả; mock/http/mobile/parity/i18n regression.
 - [ ] Provider/liveAI evidence trung thực; D59 trướccommit/chốtTIP.

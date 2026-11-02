@@ -30,3 +30,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - Khối 360° của báo giá / đơn / lịch hẹn / ticket hiện "Chưa có dữ liệu" — TIP-029 … 034 trả dữ liệu vào `/contacts/:id` để khối có nội dung.
 - Kanban > 50 thẻ / cột: thêm "Xem thêm" khi có workspace thật đủ lớn.
+
+## Bổ sung — yêu cầu nhập/xuất AI-first
+
+[TIP038b](../tips/TIP-038b-ai-first-data-transfer.md) nhận IO-CRM và luồng model thật file→mapping→preview→commit/exportfile; kết quả manual hiện hữu không chứng minh AI-first đã đạt. Không thay đổi trạng thái test cũ.

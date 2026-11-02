@@ -1,6 +1,8 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-038b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038b. Recheck incomplete manifests.
+- **Parallel-safe with TIP-040:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 040. Recheck incomplete manifests.
 - **Parallel-safe with TIP-039:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 039. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/booking/services/calendar-read.service.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
 - **Parallel-safe with TIP-038:** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038. Recheck after incomplete manifests expand.
