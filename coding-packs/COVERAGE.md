@@ -17,11 +17,11 @@
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
 | E. standards/* | 148 | 55 | 2 | 6 | 68 | 2 | 40 | 28 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 27 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 20 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **544** | **386** | **118** | **41** | **367** | **34** | **66** | **109** |
+| **Tổng** | **544** | **386** | **118** | **41** | **367** | **34** | **66** | **102** |
 
-## Lỗ hổng chưa có TIP nhận (109)
+## Lỗ hổng chưa có TIP nhận (102)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -92,13 +92,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-orders-files | GIẢ | Tab Tệp đơn hàng: Mở / Tải tệp lên | F |
 | PRO-invoices-files | GIẢ | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | F |
 | PRO-products-files | GIẢ | Tab Tệp sản phẩm: Mở tệp | F |
-| PRO-quotes-rowai | GIẢ | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | F |
-| PRO-contracts-rowai | GIẢ | Dòng hợp đồng: nút ⚡ "AI xử lý" | F |
-| PRO-orders-rowai | GIẢ | Dòng đơn: nút ⚡ "AI xử lý" | F |
-| PRO-calendar-rowai | GIẢ | Dòng lịch hẹn: nút ✦ AI xử lý | F |
-| PRO-tickets-rowpeek | GIẢ | Dòng ticket: ✦ gợi ý AI (mở tab AI / chạy gợi ý) | F |
-| PRO-invoices-aiacts | GIẢ | Tab AI đề nghị thanh toán: nút hành động AI gợi ý chạy thật | F |
-| PRO-products-aiacts | GIẢ | Chi tiết sản phẩm: "Gợi ý combo" / "Tạo chiến dịch" AI | F |
 | PRO-quotes-bulkfwd | GIẢ | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | F |
 | PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
@@ -1581,14 +1574,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | — | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
 | PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | — | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
 | PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | — | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
-| PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | — | GIẢ | apps/web/src/features/quotes/columns.tsx:57 `message.info(aiDoing)` |
-| PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | — | GIẢ | apps/web/src/features/contracts/columns.tsx:72 `message.info` |
-| PRO-orders-rowai | Dòng đơn: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5896 | — | GIẢ | apps/web/src/features/orders/columns.tsx:88 `message.info` |
-| PRO-calendar-rowai | Dòng lịch hẹn: nút ✦ AI xử lý | docs/06-prototype/AppChat.dc.html:4304 | — | GIẢ | apps/web/src/features/calendar/components/ListView.tsx:29 `message.info` |
-| PRO-tickets-rowpeek | Dòng ticket: ✦ gợi ý AI (mở tab AI / chạy gợi ý) | docs/06-prototype/AppChat.dc.html:5255 | — | GIẢ | apps/web/src/features/tickets/columns.tsx:67 `message.info(aiPeekMsg)` |
+| PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | 023g | GIẢ | apps/web/src/features/quotes/columns.tsx:57 `message.info(aiDoing)` |
+| PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | 023g | GIẢ | apps/web/src/features/contracts/columns.tsx:72 `message.info` |
+| PRO-orders-rowai | Dòng đơn: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5896 | 023g | GIẢ | apps/web/src/features/orders/columns.tsx:88 `message.info` |
+| PRO-calendar-rowai | Dòng lịch hẹn: nút ✦ AI xử lý | docs/06-prototype/AppChat.dc.html:4304 | 023g | GIẢ | apps/web/src/features/calendar/components/ListView.tsx:29 `message.info` |
+| PRO-tickets-rowpeek | Dòng ticket: ✦ gợi ý AI (mở tab AI / chạy gợi ý) | docs/06-prototype/AppChat.dc.html:5255 | 023g | GIẢ | apps/web/src/features/tickets/columns.tsx:67 `message.info(aiPeekMsg)` |
 | PRO-customers-rowai | Dòng khách: nút ⚡ "Giao AI" | docs/06-prototype/AppChat.dc.html:2886 | 015b | GIẢ | apps/web/src/features/customers/screens/CustomersScreen.tsx:38 `aiDo = message.info` |
-| PRO-invoices-aiacts | Tab AI đề nghị thanh toán: nút hành động AI gợi ý chạy thật | docs/06-prototype/AppChat.dc.html:5646 | — | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:169 `message.info(aiDoing)` |
-| PRO-products-aiacts | Chi tiết sản phẩm: "Gợi ý combo" / "Tạo chiến dịch" AI | docs/06-prototype/AppChat.dc.html:6111 | — | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:177,181 `message.info(aiDoing)` |
+| PRO-invoices-aiacts | Tab AI đề nghị thanh toán: nút hành động AI gợi ý chạy thật | docs/06-prototype/AppChat.dc.html:5646 | 023g | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:169 `message.info(aiDoing)` |
+| PRO-products-aiacts | Chi tiết sản phẩm: "Gợi ý combo" / "Tạo chiến dịch" AI | docs/06-prototype/AppChat.dc.html:6111 | 023g | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:177,181 `message.info(aiDoing)` |
 | PRO-quotes-bulkfwd | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5364 | — | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:133,141 `message.info`; không có action gán phụ trách báo giá |
 | PRO-contracts-bulkfwd | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5734 | — | GIẢ | ContractsToolbar.tsx:120,128 `message.info` |
 | PRO-orders-bulkfwd | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5880 | — | GIẢ | OrdersToolbar.tsx:161,169 `message.info` |

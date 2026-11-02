@@ -60,3 +60,7 @@ TIP023e receives DEF0234/BP5.2b and three explicit authority/meter/cache/privacy
 ## Bổ sung2026-11-02 — actual attachment/voice controls
 
 TIP023f receives REQ-E12a/b, Assistant file/screenshot/mic prototype controls and three explicit input integrity obligations.023c metadata handles are not actual content reading.130paths/10AC, local independent corrections; native sandbox/browser/real model verification later. No runtime completion.
+
+## Bổ sung 2026-11-02 — TIP-023g
+
+Original completion does not prove the seven prototype row/tab AI handlers. [TIP-023g](../tips/TIP-023g-record-ai-entrypoints.md) owns those explicit gaps with95 exact paths, protected publication and native/mock/http/live AC. Local planning review rechecked; no runtime acceptance and no change to original TIP-023.

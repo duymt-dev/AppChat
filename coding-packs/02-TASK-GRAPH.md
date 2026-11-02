@@ -307,3 +307,11 @@ Original030 DONE stays unchanged;030b appendix model is not reused for parent si
 |021b [agent-drafting](tips/TIP-021b-agent-drafting.md)|Discovery-before-generation, structured current-authorized proposal, protected publication, truthful fallback and explicit human publish|After023e/019b/c/003c/022b and exact bilateral predecessors; no numeric order assumption|54exactpaths/23bilateralpairs/3ownedIDs/8AC; local independent findings corrected/rechecked|
 
 REQ-D17c runtime KB-scope intersection remains separate/unowned; do not claim this drafting plan closes delegated knowledge access. New binding stores validation only, not competing metering.
+
+### Supplemental023g — record-scoped AI entry points (DC275)
+
+| TIP | Scope | Integration | Evidence |
+|---|---|---|---|
+|023g [record-ai-entrypoints](tips/TIP-023g-record-ai-entrypoints.md)|Seven real row/tab AI entry groups, typed record contexts, protected product proposals and canonical receipt-driven work|After023c/d/e,019b/c,015c,037/038 and exact bilateral predecessors; no numeric order assumption|95 exact paths,39 bilateral pairs,7 owned IDs,8 AC; local review corrected/rechecked|
+
+Inspect opens without model/charges; task confirmation and existing selected-agent authority remain. Bulk forwarding, attachment tabs, deposit and shift policy remain separate gaps. Runtime proof is still required.

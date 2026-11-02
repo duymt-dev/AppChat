@@ -1,6 +1,7 @@
 # TIP-039 — Billing lifecycle, ví và gói chạy thật
 
 ## HEADER
+- **Parallel-safe with TIP-023g (Record AI manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 039 before023g.
 - **Parallel-safe with TIP-030c (Parent signing manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 039 before030c.
 - **Parallel-safe with TIP-003c (System actions manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/billing-lifecycle.ts`, `packages/actions/src/index.ts`, `packages/core/src/billing/actions/lifecycle.handlers.ts`, `packages/core/src/billing/billing.module.ts`, `packages/core/src/billing/events/billing.events.ts`, `packages/core/src/billing/events/credit-handoff.consumer.ts`, `packages/core/src/billing/jobs/billing.jobs.module.ts`, `packages/core/src/billing/jobs/lifecycle.runner.ts`, `packages/core/src/billing/payments/fulfil.ts`, `packages/core/src/billing/services/subscriptions.service.ts`; integrate 039 before003c.
 - **Parallel-safe with TIP-003b (Event protocol manifest):** sequential, shares `packages/core/src/billing/events/billing.events.ts`, `packages/core/src/billing/services/wallet.service.ts`, `packages/shared/src/index.ts`; integrate 039 before003b.
