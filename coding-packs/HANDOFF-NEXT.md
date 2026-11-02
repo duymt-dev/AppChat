@@ -4,6 +4,8 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Rà độc lập phần còn lại:** đã lưu `reports/independent-remainder-audit-2026-11-02.md`. Đối chiếu lại code và hạ REQ-C12, ACT-doc_template.create, BP-11-b từ ĐẠT xuống MỘT PHẦN; REQ-G04b từ CHỜ-TK xuống MỘT PHẦN vì thiếu tool mặc định. Bỏ owner là TIP đã DONE ở ba dòng còn thiếu để không che lỗ hổng. COVERAGE hiện 1.477 dòng, **215 lỗ hổng**; số tăng phản ánh phát hiện thật. TIP041 đang là bản nháp trong working tree, chưa khép wiring/graph/review; tiếp tục hoàn thiện, không coi checkpoint là điều kiện dừng.
+
 - **Nhập/xuất AI-first đã được ghi:** TIP038b và11 dòng IO-* nhận6domain CRM/catalog/quote/order/contract/invoice, luồngAI ưu tiên+manualfallback, filethật và12ca live model. DC244 ghi yêu cầu mới;032b/038/023c cóboundary links. Không coi viếtTIP là đãcode/nghiệmthuAI.
 - **Checkpoint platform/review:** cóTIP040 (81file/10AC), partialindependentreview038/039 đã sửa findings; Q032 half-up được Chủ nhà duyệt →DC243, đãđóng cùngQ031. CònTIP041/044–046, supplemental/orphans vàfullindependentreview; câuA chưa xong.
 

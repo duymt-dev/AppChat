@@ -103,7 +103,7 @@
 | REQ-C11a | Menu ＋: Thêm tệp · Chụp ảnh màn hình | 01-REQUIREMENTS-MATRIX.md:73 | — | GIẢ | "Chụp ảnh màn hình" chỉ đóng menu (AgentToolsMenu.tsx:32) |
 | REQ-C11b | Quyền của agent chỉ xem, nhóm module + Kỹ năng AI, badge, link Builder | 01-REQUIREMENTS-MATRIX.md:73 | 021, 025 | ĐẠT | AgentToolsMenu.tsx:36-64; test agents.test.ts AC5 |
 | REQ-C11c | Research / Web search "Sắp có" (D48) | 01-REQUIREMENTS-MATRIX.md:73 | 025 | ĐẠT | AgentToolsMenu.tsx:56-59 |
-| REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | 016, 025 | ĐẠT | apps/api/src/http/inbox/conversations.controller.ts:57; inbox/services/read.service.ts:119; test inbox.test.ts AC7 |
+| REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | — | MỘT PHẦN | Backend TIP016/025 có search (conversations.controller.ts:57; read.service.ts:119; inbox.test.ts AC7). Rà lại 2026-11-02: apps/web/src/features/inbox/components/ThreadSearchBar.tsx:37–40 chỉ cuộn DOM đã tải; :54–57 chỉ Escape/Enter, thiếu phím lên/xuống và tải tin cũ để định vị. Chưa có TIP bổ sung nhận phần thiếu; không dùng TIP đã DONE làm owner sửa lỗi. |
 | REQ-C13 | Header + khung nhập ver2.1 | 01-REQUIREMENTS-MATRIX.md:75 | 025 | ĐẠT | ChatHeader.tsx:27; Composer.tsx:147; MessageBubble.tsx:139; e2e inbox.spec.ts |
 | REQ-D01a | Agent runtime sau Agent Gateway | 01-REQUIREMENTS-MATRIX.md:80 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:35; test packages/ai/test/engine.test.ts |
 | REQ-D01b | Ngữ cảnh → RAG → tools → trả lời, bất đồng bộ trong worker | 01-REQUIREMENTS-MATRIX.md:80 | 022 | ĐẠT | ai/reply/reply.service.ts; test agent-reply.test.ts "worker ROLE=ai" |
