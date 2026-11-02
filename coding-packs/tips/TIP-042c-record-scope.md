@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-032b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/contracts/actions/contract-write.handlers.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/orders/services/order-import.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`, `packages/core/src/sales/quotes/services/quote-send.ts`, `packages/db/prisma/tenant/sales-orders.prisma`, `packages/db/prisma/tenant/sales-payments.prisma`, `packages/db/prisma/tenant/sales-quotes.prisma`; integrate TIP-032b before TIP-042c. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-015b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/contracts/services/contracts-read.service.ts`, `packages/core/src/sales/payments/services/invoices-read.service.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate TIP-015b before TIP-042c. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-041:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 041. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038b:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 038b. Recheck incomplete manifests.

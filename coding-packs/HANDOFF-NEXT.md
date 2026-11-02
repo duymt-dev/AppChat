@@ -4,6 +4,9 @@
 
 ## Tiếp tục câu A — checkpoint 2026-11-02 (chưa xong)
 
+- **Ưu tiên mới của Chủ nhà: rà theo chiều dọc Zalo ↔ CRM ↔ Commerce ↔ Agents/Trợ lý AI**, không chỉ hoàn thiện từng module riêng. Xem `plans/VERTICAL-FLOW-PRIORITY.md`; đây là thứ tự ưu tiên, không thu hẹp sáu điều kiện kết thúc câu A. Chưa triển khai code.
+- **032b đã có137 manifest paths và17 cặp overlap hai chiều.** Reviewer tái kiểm xác nhận7 findings vòng1 đã xử lý ở mức planning; vẫn còn nghĩa vụ template snapshot, chia đợt, giờ làm việc và legal checklist cần owner cụ thể. Standards review đã sửa overclaim; COVERAGE hiện1.480 dòng/221 nghĩa vụ thiếu owner. Bốn TIP cũ023b/023c/030b/045b vẫn cần manifest hoàn chỉnh. Không coi review cục bộ là full-goal PASS.
+
 - **015b đã hoàn thiện cấu trúc và review cục bộ:**73path manifest, owner COVERAGE, standards/preflight/wiring/AC/lệnh thực; review đã sửa cap50 khi merge/undo, config test, D51 skill, runner JSON, cache quyền và purge receipt. Xem `reports/contact-memory-planning-audit-2026-11-02.md`. Năm TIP cũ còn lại vẫn thiếu manifest hoàn chỉnh; chưa whole-graph pass. **Q030 đã đóng theo uỷ quyền →DC246:** chỉ charge AI theo pricebook hiện hữu, không tự tạo giá mỗi tin;037/QUESTIONS/graph/COVERAGE đồng bộ. Chưa runtime, chưa code.
 
 - **Review041 đã khép cục bộ:** reviewer vòng3 xác nhận không còn finding mở sau commit4f5c52a (78 manifest paths), chỉ ở mức planning. Sáu TIP cũ có report riêng `reports/six-pending-tip-independent-audit-2026-11-02.md`; đang sửa task/AC bị thiếu ở015b/023b/023c/030b/032b. **Chưa hoàn thiện exact manifests của sáu file**, chưa whole-graph audit; không được coi các bổ sung task này là xong goal. Việc kế tiếp: manifest/domain wiring sáu TIP,045b consistency;044–046 và supplemental còn thiếu; rà các phần COVERAGE còn mở.

@@ -1,6 +1,7 @@
 # TIP-041 — Archive, restore và xoá workspace an toàn
 
 ## HEADER
+- **Parallel-safe with TIP-032b:** sequential, shares `apps/api/src/http/kernel/actions.controller.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/i18n/server/en/notify.ts`, `packages/shared/src/i18n/server/vi/notify.ts`, `packages/shared/src/index.ts`, `packages/shared/src/notify/catalog.ts`; integrate TIP-032b before TIP-041. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-015b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate TIP-015b before TIP-041. Recompute after incomplete manifests expand.
 - TIP-ID: TIP-041; Project: AppChat V2; Module: workspace-lifecycle; Priority: P1; Estimated: XL.
 - Depends on:002/004/006/009/011/014;045b platform context/outbox/security;040 admin suspend;039 billing;038b owner logical export. Integrate sau040/038b vàpendingTIP chungfile, trước045 deployment gate/046.

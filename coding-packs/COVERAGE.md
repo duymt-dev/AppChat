@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 15 | 12 | 1 | 48 | 10 | 5 | 15 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 48 | 11 | 21 | 21 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 91 | 198 | 5 | 4 | 81 | 1 | 0 | 25 |
-| E. standards/* | 157 | 39 | 2 | 6 | 62 | 2 | 40 | 38 |
+| E. standards/* | 151 | 45 | 2 | 6 | 63 | 2 | 40 | 44 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 38 |
-| **Tổng** | **563** | **328** | **118** | **41** | **329** | **34** | **66** | **215** |
+| **Tổng** | **557** | **334** | **118** | **41** | **330** | **34** | **66** | **221** |
 
-## Lỗ hổng chưa có TIP nhận (215)
+## Lỗ hổng chưa có TIP nhận (221)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -119,6 +119,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-f | CHƯA | Web ErrorBoundary theo route | D |
 | BP-11-b | MỘT PHẦN | Log pino JSON có traceId, redact PII; traceId nginx → api → job | D |
 | STD-actions-registry-12 | MỘT PHẦN | Mỗi action có file test riêng `*.action.test.ts`: happy, 403, SCOPE_FORBIDDEN, policy từng nguồn, idempotency, undo, INVALID_TRANSITION/STALE | E |
+| STD-ai-gateway-5 | MỘT PHẦN | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | E |
 | STD-ai-gateway-11a | MỘT PHẦN | Mỗi bước ghi `ai_run_step` + phát `run.step` qua WS để Owner xem trực tiếp | E |
 | STD-ai-rag-8b | CHƯA | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | E |
 | STD-api-envelope-10b | CHƯA | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | E |
@@ -144,6 +145,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-state-4 | MỘT PHẦN | Chuyển bởi hệ thống đi qua action `source='system'`, đọc lại trong tx | E |
 | STD-domain-validate-1 | CHƯA | Hàm chuẩn hoá `packages/shared/src/validate/` + mã PHONE/EMAIL/TAX_CODE/NATIONAL_ID/URL/AMOUNT/QTY/PERCENT/COLOR_INVALID, phone_norm E.164 | E |
 | STD-domain-validate-3a | MỘT PHẦN | Xoá khách: mềm, chặn khi có đơn / HĐ chưa đóng hoặc công nợ → HAS_DEPENDENCIES | E |
+| STD-events-outbox-4 | MỘT PHẦN | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | E |
 | STD-events-outbox-5 | MỘT PHẦN | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | E |
 | STD-events-outbox-6 | CHƯA | Thứ tự đảm bảo theo từng entity (group theo entity_id) | E |
 | STD-i18n-4 | MỘT PHẦN | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | E |
@@ -151,11 +153,15 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-integrations-ports-8b | CHƯA | Action `integration.sync_now` và `integration.test` | E |
 | STD-ops-obs-1.3b | MỘT PHẦN | traceId truyền vào job BullMQ (`data.trace_id`), `ai_run`, worker → kênh (truy xuyên HTTP → worker) | E |
 | STD-ui-fe-6 | CHƯA | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | E |
+| STD-ui-fe-9 | MỘT PHẦN | 5 trạng thái qua PageStates | E |
 | STD-ui-fe-11 | MỘT PHẦN | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | E |
 | STD-ui-fe-13b | CHƯA | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | E |
 | STD-ui-ip-3.2 | CHƯA | Validate bằng zodRule khi rời ô / bấm nút; lỗi theo `errors.<CODE>`; cuộn tới lỗi đầu | E |
 | STD-ui-ip-3.4 | CHƯA | Đóng form đã sửa chưa lưu → hỏi xác nhận bỏ thay đổi | E |
 | STD-ui-ip-4.3 | CHƯA | `approval_required` → toast "Đã gửi duyệt", không báo thành công | E |
+| STD-ui-ip-5 | MỘT PHẦN | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | E |
+| STD-ui-ip-7.4 | MỘT PHẦN | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | E |
+| STD-ui-parity-9 | MỘT PHẦN | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | E |
 | PRO-orders-files | GIẢ | Tab Tệp đơn hàng: Mở / Tải tệp lên | F |
 | PRO-invoices-files | GIẢ | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | F |
 | PRO-products-files | GIẢ | Tab Tệp sản phẩm: Mở tệp | F |
@@ -1276,7 +1282,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-gateway-2 | Tool = action qua ActionExecutor; mọi tool một kiểu `ToolSpec` có `origin` | standards/ai/agent-gateway.md:11 | 019 | ĐẠT | packages/ai/src/gateway/types.ts:20; test engine.test.ts:49,99 |
 | STD-ai-gateway-3 | Trợ lý theo quyền user; agent theo tool_ids ∩ agentGrantable; `find_actions` lọc theo quyền | standards/ai/agent-gateway.md:16 | 021, 023 | ĐẠT | packages/core/src/ai/assistant/catalog.ts:18,78; test assistant-unit.test.ts, agents.test.ts |
 | STD-ai-gateway-4 | Run dừng ghi `ai_run.state` + approval trong 1 tx; chạy tiếp bằng job `ai-resume` idempotent | standards/ai/agent-gateway.md:20 | 019, 021 | ĐẠT | packages/core/src/ai/runs/runner.ts:3; approvals/resume.queue.ts:22; test ai-runtime.test.ts, agents.test.ts |
-| STD-ai-gateway-5 | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | standards/ai/agent-gateway.md:23 | 019, 022, 023 | ĐẠT | runs/runner.ts:12; engine.ts:10,89; assistant/delegate.ts:42; reply/reply.service.ts:22; test engine.test.ts:63,71, agent-reply.test.ts |
+| STD-ai-gateway-5 | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | standards/ai/agent-gateway.md:23 | — | MỘT PHẦN | MaxSteps/loop/depth có ở runner/engine/delegate và tests019/022/023; reply/reply-tools.ts:19,110 consult dùng budget40 riêng, runs/runner.ts:100 dùng budget của run hiện tại. Chưa chứng minh shared root budget atomic cho cả cây; cần supplemental AI runtime, không lấy engine single-run test làm bằng chứng tree budget. |
 | STD-ai-gateway-6 | Mỗi bước LLM: kiểm balance > 0 rồi `CreditMeter.charge` idempotent trước khi ghi `ai_run_step.credits` | standards/ai/agent-gateway.md:28 | 019 | ĐẠT | runs/runner.ts:110-113; billing/services/credit-meter.ts:57; test ai-runtime.test.ts |
 | STD-ai-gateway-7 | Output agent trực kênh có cấu trúc zod; handoff khi confidence thấp/khiếu nại/lặp/từ cấm | standards/ai/agent-gateway.md:29 | 022 | ĐẠT | packages/ai/src/reply/output.ts:1, handoff.ts:5; test packages/ai/test/reply.test.ts |
 | STD-ai-gateway-8 | Prompt trong kho `packages/ai/prompts/<name>.<locale>.md` có version | standards/ai/agent-gateway.md:31 | 022, 023 | ĐẠT | packages/ai/src/prompts/assistant.vi.md:1, prompts/index.ts:1 (DV-005); test reply.test.ts |
@@ -1351,7 +1357,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-authz-rbac-D32c | `contact_collaborator(user_id, contact_id)` index cho scope own | standards/authz/rbac-permissions.md:44 | 015 | ĐẠT | migration 20261031000000_015_crm:226 |
 | STD-authz-rbac-plan | Giới hạn user theo `plan.max_users` | standards/authz/rbac-permissions.md:65 | 009 | ĐẠT | billing/services/quota.service.ts:23; test billing.test.ts |
 | STD-channels-adapter-1 | Mọi kênh qua ChannelAdapter; core không import SDK kênh (zca-js, imapflow) | standards/channels/omnichannel-adapter.md:8 | mọi TIP | QUY-TẮC | `pnpm depcheck` (.dependency-cruiser.cjs `no-non-package-json`; SDK chỉ ở packages/channels/package.json:18-21) |
-| STD-channels-adapter-2 | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | standards/channels/omnichannel-adapter.md:9 | — | MỘT PHẦN | Phần lớn đọc manifest; còn rẽ nhánh core/src/channels/jobs/poller.ts:105 `manifest.type === 'email'` (thiếu capability thread) |
+| STD-channels-adapter-2 | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | standards/channels/omnichannel-adapter.md:9 | — | MỘT PHẦN | Cần rà từng UI/AI consumer manifest để chứng minh toàn nghĩa vụ. Bằng chứng cũ poller.ts:105 là worker core, không phải UI/AI nên đã bỏ như một kết luận vi phạm dòng này; chưa nâng ĐẠT khi thiếu audit đúng phạm vi. |
 | STD-channels-adapter-3 | `channel_account.type` là text theo registry, không enum Postgres | standards/channels/omnichannel-adapter.md:10 | 014 | ĐẠT | packages/db/prisma/tenant/channels.prisma:21; test packages/channels/test/registry.test.ts |
 | STD-channels-adapter-4 | Inbound → NormalizedInbound; outbound nhận OutboundMessage; adapter tự render | standards/channels/omnichannel-adapter.md:13 | 014 | ĐẠT | packages/channels/src/types.ts:42,56; test zalo-render.test.ts, zalo-adapter.test.ts |
 | STD-channels-adapter-5 | UNIQUE(channel_account_id, external_msg_id) chống trùng | standards/channels/omnichannel-adapter.md:14 | 016 | ĐẠT | packages/db/prisma/tenant/inbox.prisma:173; test inbox.test.ts |
@@ -1373,7 +1379,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-code-testing-2c | Contract test: adapter kênh, connector, registry action, API đọc FE↔BE | standards/code/testing.md:12 | 003, 012 | MỘT PHẦN | registry.test.ts, integrations/test/registry.test.ts, contract.test.ts có; contract chung kênh → 045b |
 | STD-code-testing-3 | Test bắt buộc theo loại thay đổi (role-/tenant-isolation, e2e http, state/concurrency) | standards/code/testing.md:16 | mọi TIP | QUY-TẮC | `pnpm turbo run test --filter=...[origin/dev]` + `pnpm e2e:http` (tools/scripts/e2e-http.mjs) |
 | STD-code-testing-4a | Factory dữ liệu test ở `packages/db/test/factories` | standards/code/testing.md:25 | 045b | CHƯA | Thư mục không tồn tại; 045b task 12 |
-| STD-code-testing-4b | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | standards/code/testing.md:25 | — | MỘT PHẦN | FixedClock có (kernel.test.ts:3); còn 13 chỗ `Date.now()/new Date()` trong core (channels/jobs/send.processor.ts:50,103; sessions.ts:81-123; billing/services/wallet.service.ts:62; identity/jobs/tenant-provision.processor.ts:117); không lint chặn |
+| STD-code-testing-4b | Đồng hồ cố định qua `Clock`, không `Date.now()` trực tiếp | standards/code/testing.md:25 | — | MỘT PHẦN | FixedClock có; channels/jobs/send.processor.ts:50,103 và sessions.ts:81–123 còn đồng hồ thực. Bỏ kết luận WalletService vi phạm production: billing.module.ts:48 đã inject () => c.now(); constructor fallback không đủ chứng minh bypass. Cần audit callsites còn lại và lint/test, không giữ số13 chưa phân loại. |
 | STD-code-testing-4bc | Phạm vi test theo phần bị ảnh hưởng (D39) + 3 cổng TIP backend (D59) | standards/code/testing.md:26 | mọi TIP | QUY-TẮC | `pnpm turbo run test lint typecheck --filter=...[origin/main]`, `pnpm depcheck`, `pnpm parity <id>`, `pnpm e2e <module>` |
 | STD-code-testing-5 | Báo kết quả trung thực, commit SHA, git status sạch trước DONE | standards/code/testing.md:34 | mọi TIP | QUY-TẮC | Quy trình (Completion Report); `git status --short` |
 | STD-database-indexing-1 | Composite index cột `=` trước, range/sort sau; tenant không có workspace_id đầu index | standards/database/indexing.md:7 | mọi TIP | ĐẠT | migration 015_crm:264, 016 conversation_assignee_..._idx:157; EXPLAIN trong kb.test.ts:75, orders.test.ts |
@@ -1414,7 +1420,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-1a | Cột `version` + `if_version` → STALE_VERSION cho contact, product, quote, contract, order, invoice, appointment, ticket, campaign, ai_agent, doc_template, profile_layout | standards/domain/concurrency.md:8 | — | MỘT PHẦN | if_version chỉ ở product (product.handlers.ts:86) + doc_template (doc-template.handlers.ts:69); không có cột version ở crm/contracts/sales-orders (contact, contract, order, profile_layout); ticket/appointment/invoice có cột nhưng không nhận if_version; campaign → 037 |
 | STD-domain-concurrency-1b | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | standards/domain/concurrency.md:9 | — | CHƯA | grep STALE_VERSION trong apps/web/src chỉ ở mock; không có xử lý UI / chuỗi errors.STALE_VERSION |
 | STD-domain-concurrency-2 | Chuyển trạng thái compare-and-set, 0 dòng → INVALID_TRANSITION | standards/domain/concurrency.md:11 | 003+ | ĐẠT | sales/quotes/services/quote-system.ts:42 `updateMany where status`; test quotes.test.ts, orders.test.ts |
-| STD-domain-concurrency-3 | Tiền/kho/điểm/credit/buổi: FOR UPDATE, sổ cái chỉ thêm, unique chống trừ đôi | standards/domain/concurrency.md:12 | 009, 027, 032, 033 | ĐẠT | 20 file FOR UPDATE; migration 027:104 stock_movement unique, 032:159,205; test catalog.test.ts:142, billing.test.ts:98 (loyalty_txn → 036) |
+| STD-domain-concurrency-3 | Tiền/kho/credit/buổi: FOR UPDATE, sổ cái chỉ thêm, unique chống trừ đôi (điểm tách dòng riêng) | standards/domain/concurrency.md:12 | 009, 027, 032, 033 | ĐẠT | Bằng chứng hiện có: migration027:104 stock_movement unique,032:159,205; catalog.test.ts:142, billing.test.ts:98. Không dùng dòng này khẳng định loyalty đã triển khai. |
+| STD-domain-concurrency-3-loyalty | Điểm loyalty: transaction/khoá/sổ append-only/unique chống cộng-trừ đôi | standards/domain/concurrency.md:12 | 036 | CHƯA | TIP036 có kế hoạch ledger/FIFO/idempotency; code chưa có. Tách khỏi dòng tiền/kho cũ để không che phần thiếu bằng trạng thái ĐẠT. |
 | STD-domain-concurrency-4 | Idempotency theo nguồn: Idempotency-Key / (provider, external_id) / (event_id, consumer) | standards/domain/concurrency.md:16 | 003, 010, 012 | ĐẠT | executor.ts:108; kernel/events/dispatcher.ts:36; sales-orders.prisma:97; test integrations.test.ts:152 |
 | STD-domain-concurrency-5a | Người gửi khi ai_mode=auto → chuyển copilot cùng tx; run kiểm ai_mode trước khi gửi | standards/domain/concurrency.md:21 | 045b | CHƯA | Không có trong inbox message handlers; 045b task 10 |
 | STD-domain-concurrency-5b | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | standards/domain/concurrency.md:22 | — | MỘT PHẦN | Chỉ dedupe debounce BullMQ (ai/reply/reply.queue.ts:27) + aiState (reply.service.ts:212); worker concurrency 8 (agent-reply.processor.ts:31), không khoá; 045b task 10 không nêu |
@@ -1447,7 +1454,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-money-1.6 | Hoàn tiền một phần / theo buổi làm tròn xuống | standards/domain/money-time-numbering.md:18 | 032 | ĐẠT | shared/src/sales/invoice-state.ts:88 (chia bigint); test invoice-state.test.ts:52 |
 | STD-domain-money-1.7 | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | standards/domain/money-time-numbering.md:19 | — | MỘT PHẦN | fmt.money dùng rộng; không có `MoneyInput` (apps/web/src/shared/forms chỉ SignaturePad.tsx) |
 | STD-domain-money-2.1 | Lưu UTC; ngày nghiệp vụ theo timezone workspace | standards/domain/money-time-numbering.md:23 | mọi TIP | ĐẠT | shared/src/time/wall-clock.ts, deadline.ts; test deadline.test.ts, wall-clock.test.ts |
-| STD-domain-money-2.2 | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | standards/domain/money-time-numbering.md:24 | — | MỘT PHẦN | 13 vi phạm (xem STD-code-testing-4b); không có lint `no-restricted-syntax` |
+| STD-domain-money-2.2 | Đồng hồ chỉ qua `Clock`; cấm Date.now()/new Date() trong service/handler/job | standards/domain/money-time-numbering.md:24 | — | MỘT PHẦN | Xem callsites đã xác minh ở STD-code-testing-4b; bỏ số13 và WalletService chưa chứng minh. Cần audit/lint business-time khác thời gian đo performance, không sửa máy móc mọi new Date dùng parse timestamp. |
 | STD-domain-money-2.3 | Hạn theo ngày = 23:59:59.999 ngày (mốc+N) theo tz | standards/domain/money-time-numbering.md:25 | 029, 032 | ĐẠT | shared/src/time/deadline.ts; test deadline.test.ts |
 | STD-domain-money-2.5 | Mốc nhắc (T-2 báo giá, T-1/T+1/T+7 đề nghị, lịch hẹn 24h) gửi trong giờ làm việc, ngoài giờ dời | standards/domain/money-time-numbering.md:27 | — | CHƯA | sales/payments/services/payment-system.ts:41 `remindDue` + quote remindExpiring không xét business_hours; job chạy `every` cố định (sales.jobs.module.ts:90) |
 | STD-domain-money-2.7 | Giờ làm việc từ settings; SLA + mốc nhắc dùng chung `businessTime` | standards/domain/money-time-numbering.md:29 | 034 | MỘT PHẦN | addBusinessMinutes chỉ dùng ở support/services/sla-clock.ts; test business-time.test.ts |
@@ -1471,7 +1478,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-events-outbox-1 | Event chỉ qua outbox trong cùng tx + SADD outbox:dirty; cấm queue.add/emit từ handler | standards/events/outbox.md:5 | 003 | ĐẠT | kernel/outbox/outbox.ts:1,6; executor.ts:162-164; test actions.test.ts |
 | STD-events-outbox-2 | Relay drain dirty → BullMQ `events`; sweep 10 phút; retry 2^n tối đa 8 → failed | standards/events/outbox.md:9 | 003 | ĐẠT | outbox/relay.ts:2,8; outbox.jobs.module.ts:53; test relay-sequence.test.ts |
 | STD-events-outbox-3 | Tên `<entity>.<past_tense>` + zod payload trong shared/events.ts (ws, id, occurred_at) | standards/events/outbox.md:13 | mọi TIP | ĐẠT | packages/shared/src/events.ts:1-7 |
-| STD-events-outbox-4 | Consumer idempotent `(event_id, consumer)` | standards/events/outbox.md:15 | 003 | ĐẠT | kernel/events/dispatcher.ts:26,36 |
+| STD-events-outbox-4 | Consumer idempotent `(event_id, consumer)` kể cả crash/replay đồng thời | standards/events/outbox.md:15 | — | MỘT PHẦN | kernel/events/dispatcher.ts:26 đọc receipt nhưng :35 handle rồi :36 ghi receipt riêng; crash giữa hai bước hoặc hai dispatch đồng thời vẫn gọi effect lại. Chưa chứng minh mọi consumer tự idempotent; không coi unique receipt là exactly-once. Cần TIP bổ sung kernel/consumer audit + fault tests. |
 | STD-events-outbox-5 | Consumer có thay đổi nghiệp vụ chạy qua Action `source='system'` | standards/events/outbox.md:17 | — | MỘT PHẦN | Consumer sales/billing/catalog (payment.jobs.ts:44, sales.jobs.module.ts:33) ghi thẳng tx, không qua executor (chỉ 3 file core có `source: 'system'`) |
 | STD-events-outbox-6 | Thứ tự đảm bảo theo từng entity (group theo entity_id) | standards/events/outbox.md:18 | — | CHƯA | events.runner.ts:37 concurrency 8, jobId = event id, không group theo entity |
 | STD-events-outbox-7 | `outbox_message` tách riêng, trạng thái pending/sending/sent/failed/dead | standards/events/outbox.md:19 | 014, 016 | ĐẠT | prisma tenant/inbox.prisma:94-98,243 |
@@ -1528,7 +1535,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-fe-6 | Form antd + `zodRule(schema)` từ packages/actions; tiền `MoneyInput`, SĐT `PhoneInput` | standards/ui/frontend-structure.md:49 | — | CHƯA | apps/web/src/shared/forms chỉ có SignaturePad.tsx; grep zodRule / MoneyInput / PhoneInput = 0 |
 | STD-ui-fe-7 | Phân quyền UI bằng useCan / `<Can>`; scope từ useScope | standards/ui/frontend-structure.md:50 | mọi TIP | ĐẠT | apps/web/src/shared/authz; e2e apps/web/e2e/roles.spec.ts |
 | STD-ui-fe-8 | Module khai `ui-commands.ts` (prefill / open / filter / highlight) | standards/ui/frontend-structure.md:53 | mọi TIP | ĐẠT | 14/17 features có ui-commands.ts (thiếu auth / dashboard / onboarding — không có form tạo nghiệp vụ); test shared/assistant/ui-command-bus.test.ts, agents/ui-commands.test.tsx |
-| STD-ui-fe-9 | 5 trạng thái qua PageStates | standards/ui/frontend-structure.md:54 | mọi TIP | ĐẠT | apps/web/src/shared/states/PageStates.tsx; dùng ở 42 file |
+| STD-ui-fe-9 | 5 trạng thái qua PageStates | standards/ui/frontend-structure.md:54 | — | MỘT PHẦN | PageStates.tsx:17–21 chỉ sinh empty khi có predicate, không tự sinh no-permission; QuotesScreen.tsx:87 và ProductsScreen.tsx:98 gọi stateOf(list) không predicate. Dùng component ở42 file không chứng minh đủ trạng thái; cần UI supplemental và matrix tests. |
 | STD-ui-fe-10 | Chỉ token theme; cấm hard-code màu / px, CSS rời | standards/ui/frontend-structure.md:55 | mọi TIP | QUY-TẮC | `pnpm lint:tokens` (tools/scripts/lint-tokens.mjs) — chạy 2026-11-01: 630 file đúng thang |
 | STD-ui-fe-11 | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | standards/ui/frontend-structure.md:59 | — | MỘT PHẦN | Dùng helper token `responsive.md` (shell.styles.ts:16); còn 7 `@media` tay: features/agents/styles/agents.styles.ts:157, dashboard/components/AgentsSection.tsx:30,33, inbox (3); useBreakpoint = 0 |
 | STD-ui-fe-13a | 9 bảng chính DataTable + Pager (D42); danh sách khác cursor infinite | standards/ui/frontend-structure.md:66 | mọi TIP | ĐẠT | e2e apps/web/e2e/list-scroll.spec.ts |
@@ -1541,15 +1548,15 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-ip-4.1 | Ghi qua useAction: toast + Hoàn tác khi có undo; lỗi theo error.code | standards/ui/interaction-patterns.md:43 | 003 | ĐẠT | useAction.ts:41-52 |
 | STD-ui-ip-4.2 | Risk send/money/delete/config/bulk → ConfirmActionHost preview; không window.confirm | standards/ui/interaction-patterns.md:44 | 003 | ĐẠT | useAction.ts:34; shared/actions/ConfirmActionHost.tsx |
 | STD-ui-ip-4.3 | `approval_required` → toast "Đã gửi duyệt", không báo thành công | standards/ui/interaction-patterns.md:45 | — | CHƯA | useAction.ts:39 `if (res.status !== 200) return null` — 202 approval_required im lặng; grep approval_required trong apps/web/src = 0 |
-| STD-ui-ip-5 | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | standards/ui/interaction-patterns.md:51 | mọi TIP | ĐẠT | PageStates (42 file); e2e mobile-sweep.spec.ts |
-| STD-ui-ip-7.4 | Vùng chạm ≥ 44px ở < md; không tràn ngang 390 | standards/ui/interaction-patterns.md:69 | mọi TIP | ĐẠT | e2e apps/web/e2e/mobile-sweep.spec.ts:1,18 |
+| STD-ui-ip-5 | Mỗi màn + panel đủ 5 trạng thái; empty phân biệt chưa có / lọc rỗng; dữ liệu cực trị | standards/ui/interaction-patterns.md:51 | — | MỘT PHẦN | Có PageStates nhưng apps/web/e2e/mobile-sweep.spec.ts chỉ kiểm routes/overflow/target size; chưa chứng minh mọi màn/panel có loading/empty/error/retry/permission và dữ liệu cực trị. Cần TIP UI implementation + matrix tests riêng, không dùng sweep layout thay bằng chứng trạng thái. |
+| STD-ui-ip-7.4 | Vùng chạm ≥44×44 ở <md; không tràn ngang390 | standards/ui/interaction-patterns.md:69 | — | MỘT PHẦN | mobile-sweep.spec.ts kiểm overflow và height nút/tab đang thấy; không đo width hay mọi target. Phần overflow có test, touch-target toàn bộ cần UI audit/test bổ sung. |
 | STD-ui-ip-use | Prototype sai → PD-xxx trích IP-x.y; không vẽ → "Giả định đã chọn" | standards/ui/interaction-patterns.md:80 | mọi TIP | QUY-TẮC | `pnpm lint:masks` kiểm PD trong sổ docs/06-prototype/DEVIATIONS.md |
 | STD-ui-parity-2 | Đo Playwright 1440×900, dpr 1, pixelmatch threshold 0.1, maxDiffPixelRatio 0.05, tắt animation | standards/ui/prototype-parity.md:8 | goal FE | ĐẠT | tools/parity/src/capture.ts:57,109; compare.ts:38; parity.manifest.ts:36 |
 | STD-ui-parity-3 | Manifest màn đo (id, route, protoState, states, mask, exceptions) | standards/ui/prototype-parity.md:12 | goal FE | ĐẠT | tools/parity/parity.manifest.ts |
 | STD-ui-parity-5 | Giá trị snap về thang token D41 | standards/ui/prototype-parity.md:18 | mọi TIP | QUY-TẮC | `pnpm lint:tokens` |
 | STD-ui-parity-6b | Mọi mask có căn cứ mã; PD mức 3 đề xuất không mask | standards/ui/prototype-parity.md:55 | mọi TIP | QUY-TẮC | `pnpm lint:masks` — chạy 2026-11-01: 42 mask, 7 PD đều có căn cứ; CI ci.yml:37 |
 | STD-ui-parity-6c | Tổng diện tích mask một ID > 15% → đề nghị sửa prototype | standards/ui/prototype-parity.md:57 | — | QUY-TẮC | lint-masks.mjs không đo diện tích — kiểm tay |
-| STD-ui-parity-9 | Mobile < md e2e 390×844: không tràn ngang, chạm ≥ 44, action chính chạy | standards/ui/prototype-parity.md:62 | mọi TIP | ĐẠT | apps/web/playwright.config.ts:17; e2e mobile-sweep.spec.ts |
+| STD-ui-parity-9 | Mobile <md e2e390×844: không tràn ngang, chạm≥44×44, action chính chạy | standards/ui/prototype-parity.md:62 | — | MỘT PHẦN | playwright.config.ts:17 có viewport; mobile-sweep chỉ overflow/height, không đủ chứng minh width hoặc action chính từng màn. Giữ bằng chứng hẹp, cần matrix domain E2E và touch audit. |
 | STD-ui-parity-10 | Đang làm `pnpm parity <id>`; sửa lớp dùng chung `pnpm parity --done`; CI trước main | standards/ui/prototype-parity.md:66 | mọi TIP | QUY-TẮC | `pnpm parity <id>` / `--done` / `--changed` (tools/parity/src/cli.ts:1); parity.yml, full.yml:42 |
 | STD-workflow-git-1 | Nhánh việc từ origin/dev, PR chỉ vào dev, không push dev/main, không tự merge | standards/workflow/git-flow-ci.md:15 | mọi TIP | QUY-TẮC | Quy trình (D40); branch protection do Chủ nhà bật |
 | STD-workflow-git-2 | Commit `<type>(<scope>): …` + attribution; không commit secret / build / parity out | standards/workflow/git-flow-ci.md:24 | mọi TIP | QUY-TẮC | Không có commitlint — review |
@@ -1568,7 +1575,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 - Orphan của lần rà 2026-11-01 đã xác nhận có chủ: 045b (metrics, safeFetch, magic bytes, rate limit chung, CORS, platform_audit_log, transfer_ownership, lọc trường server, đối soát, ai_mode→copilot, export>5000/bulk>50, dọn custom field 30 ngày, contract test kênh, factories); 046 (rerank, re-embed, backend-it.yml, smoke:build); 044 (eval, gồm genui); 023c (genui); 023b (preview mọi action ghi, test phủ action).
 - Phát hiện mới đáng chú ý nhất: bank feed SePay / Casso **của DN** chạy bằng `MockBankFeedProvider` gắn cứng trong registry (không phải thiếu tài khoản), và `contact.transfer_owner` cho agent chạy thẳng không qua duyệt (trái D32).
 - Đã chạy lint:size / lint:masks / lint:tokens / i18n:check ngày 2026-11-01: đều xanh.
-- CHƯA RÀ HẾT: không còn — đã rà đủ 28 file standards (README chỉ là mục lục).
+- CHƯA RÀ HẾT (mở lại sau review độc lập2026-11-02): interaction-patterns §2/3.3/3.6/4.4–5/5 realtime/6/7.1–3,5 chưa tách đủ nghĩa vụ; outbox consumer idempotency và UI five-state còn overclaim đã hạ trạng thái. Đọc đủ28 file không đồng nghĩa mọi nghĩa vụ đã có atomic row/code/test; cần khép findings trước bỏ ghi chú này.
 
 ## F. Prototype in-scope — nút / màn FE giả hoặc thiếu
 

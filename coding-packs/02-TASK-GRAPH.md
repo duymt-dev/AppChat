@@ -15,6 +15,10 @@
 > 4. **D42:** 9 list có số trang (`?page=&limit=` + `meta.total`) thuộc 015 (khách hàng), 027 (sản phẩm), 029 (báo giá), 030 (hợp đồng), 031 (đơn), 032 (đề nghị thanh toán), 034 (ticket), 036 (thành viên loyalty), 037 (marketing).
 > 5. **Giờ ước tính** ở bảng dưới là con số gốc (trước khi có FE); Chủ thầu ước lại khi sinh TIP từng wave.
 
+## Vertical-flow priority (2026-11-02)
+
+Owner requests Zalo ? CRM ? Commerce ? Agents/Assistant integration first. See [vertical journey and acceptance boundaries](plans/VERTICAL-FLOW-PRIORITY.md). This prioritizes remaining planning; it does not remove other obligations or override dependencies/file-overlap constraints.
+
 ## DEPENDENCY GRAPH
 
 ```
@@ -80,7 +84,7 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | 023 | Trợ lý AI: ai-assistant.prisma, meta-tools (`find_actions`, `call_action`, `ui`, `plan`, `query_data`, `delegate`), stream SSE, nối AssistantPage + AssistantDock + ConfirmCard (FE đã có), Chat / Cowork, khung "Trợ lý AI đang điều phối" (`GET /v1/runs?root_run_id=&status=`) | 021, 019 | P0 | 20 | W6 | E02, E04, E05, E06, E07, E10, E11, E12, E14 | ai/agent-gateway, ui/frontend-structure |
 | 023b | Trợ lý toàn năng: khuôn input lồng nhau cho model, ẩn action chưa có handler, mã → id cả agent, ~20 action đọc `search` / `get`, preview "đổi gì" cho mọi action ghi, test bắt buộc phủ action, bộ câu thử 9router thật (`pnpm ai:live`) | 023, 022 | P0 | 16 | W8 (trước 036) | D03, E02, E04, E05, E09, E10 | ai/agent-gateway, actions/action-registry |
 | 023c | Generative UI (D55): `UiTree` + `render` + renderer compact / full, khối `qr`, ô `secret`; 7 drawer Trợ lý theo màn + hộp lệnh Hộp thư nối thật kèm ngữ cảnh (E06); kết nối kênh / connector qua Trợ lý | 023b, 014, 016, 012 | P0 | 24 | W8 (trước 036) | E06, E07, E10, B10, H03 | ai/generative-ui, ui/prototype-parity |
-| 032b | Commerce vá luật đã chốt: ngưỡng duyệt cấu hình được + trần agent, báo giá → một HĐ hoặc một đơn, VietQR ảnh thật + `GET /invoices/:id/qr`, gửi chứng từ qua webchat, `order.send_confirmation` / `receipt.send`, liệu trình khi cọc + nhắc, catalog (danh mục / import / biến thể) | 027, 029, 030, 031, 032, 021 | P0 | 12 | W8 (trước 036) | F03–F08, M01 | domain/state-machine, documents/templates |
+| 032b | [Commerce vá luật](tips/TIP-032b-commerce-gaps.md): governance/conversion, QR/ảnh/webchat/public artifact, package snapshots/reminders, catalog archive/import;202 job foundation;137path | 027/029/030/031/032/021; sau023b/023c/030b, trước015b/036/045b;037 nhận bulk và038b nhận AI transfer sau | P0 | XL | W8 | F05c,F06-c/e/h,F08d,G07b/c,COM2–6;D05b matrix chưa khép bulk037 | domain/state-machine, documents/templates, actions/action-registry |
 | 030b | Hợp đồng từ file: chọn mẫu theo loại, tải PDF / DOCX có sẵn, tạo từ tệp khách gửi trong hội thoại, phụ lục, AI soạn nháp (đóng Q-022) | 028, 030, 025 | P0 | 12 | W8 (trước 036) | F09, M01, M02 | documents/templates |
 | 015b | [Trí nhớ khách +360 thật](tips/TIP-015b-contact-memory.md): contact.remember/memory_forget, scoped summary, KPI/debt/LTV/links, CRM AI endpoint và Giao AI;73path | 015/022/029–035; sau023b/023c/030b/032b do giao file, trước036/020b/043/045b; không chờ036/038/044 | P0 | XL | W8 | D10a/b,F01-c,F02b/c,F08g,DEF0152/3/4,DEF0221/0261,COM5-15/9-22 | ai/agent-gateway, authz/rbac-permissions, database/indexing |
 | 045b | Bảo mật & vận hành trong app: `/metrics` prom-client, `safeFetch` SSRF, kiểm file tải lên, rate limit chung, CORS, audit, `workspace.transfer_ownership`, lọc trường theo vai trò phía server, đối soát nền tảng ↔ tenant, AI nhường người, export / bulk lớn chạy job | 003, 005, 006, 009, 014, 016, 020, 022 | P0 | 20 | W9 (trước 045, 046) | N06, N07, N08, A05, F01 | ops/observability-security, authz/rbac-permissions |

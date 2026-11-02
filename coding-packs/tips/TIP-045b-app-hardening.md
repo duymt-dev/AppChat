@@ -1,6 +1,7 @@
 # TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
 
 ## HEADER
+- **Parallel-safe with TIP-032b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate TIP-032b before TIP-045b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-015b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-015b before TIP-045b. Recompute after incomplete manifests expand.
 - **Parallel-safe with TIP-041:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
 - **Parallel-safe with TIP-038b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
@@ -26,6 +27,8 @@
 Rà standards 2026-11-01: phần **trong code** của `ops/observability-security` ghi "mọi TIP backend phải làm" nhưng không TIP nào làm; TIP-045 chỉ hạ tầng (Prometheus / Grafana cần app mở `/metrics`), TIP-046 chỉ rà soát. Đã kiểm code: không có `prom-client`, `safeFetch`, kiểm magic bytes, rate limit chung (chỉ OTP / widget / ký), CORS, chỗ ghi `platform_audit_log`, `workspace.transfer_ownership`, lọc trường phía server, job đối soát, chuyển `ai_mode` khi người gửi, job cho export / bulk lớn.
 
 ## TASK
+
+**Nền202 trước045b:** TIP032b nhận ActionAccepted `job_accepted`, helper kernel và useAction accepted state/callback cho importer>500;045b reuse/mở rộng sang mọi bulk/export, không tạo union/dispatcher thứ hai và không kéo032b phụ thuộc ngược045b. Khi hoàn thiện manifest045b phải nhận tests regression cả preview_required/approval_required/job_accepted. Chưa coi foundation này đã được triển khai.
 **Ranh giới với042c (2026-11-02):** 045b tiếp tục sở hữu REQ-A05b-3/STD-authz-rbac-8 cho field visibility;042c chỉ row-scope/read-write. Khi hoàn thiện manifest045b, nhận rõ `crm/services/contact-view.ts`, `contact360.ts`, custom payload6 thực thể, cf.* filter/count side-channel, AI context/export/preview/realtime. Không chỉ gọi fieldsForRole ở FE; không cần042c làm prerequisite ngược (045b trước042), nhưng phải retest tích hợp sau042c. Các path này còn phải chia module và ghi manifest chính xác, chưa coi task paragraph là bộ TIP hoàn chỉnh.
 
 **Bổ sung khảo sát 2026-11-02 — dependency của042:** nhận STD-database-tenantdb-5a cùng5b. `kernel/actions/executor.ts:133-137` lồng tenant transaction bên trong platform; tenant log/outbox/idempotency lại ghi ở transaction sau:139-170. Không lấy comment “platform trước” làm bằng chứng atomic. Khi hoàn thiện manifest045b, tách module consistency/reconciliation riêng (facade ở kernel), kiểm fault ở từng commit và retry cho member.invite/set_role/accept/undo. 042 không được đi trước nền này rồi tự vá kernel ngoài manifest. Đây là yêu cầu còn phải thiết kế/kiểm thử, không báo đã sửa.

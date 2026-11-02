@@ -1,28 +1,176 @@
 # TIP-032b: Commerce — vá luật đã chốt còn hở: ngưỡng duyệt cấu hình được, báo giá → HĐ hoặc đơn, VietQR ảnh thật, gửi chứng từ qua webchat, gửi xác nhận đơn / phiếu thu, liệu trình khi cọc, catalog còn thiếu
 
 ## HEADER
-- **Parallel-safe with TIP-015b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-032b before TIP-015b. Recompute after incomplete manifests expand.
-- **Parallel-safe with TIP-041:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 041. Recheck incomplete manifests.
-- **Parallel-safe with TIP-038b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038b. Recheck incomplete manifests.
-- **Parallel-safe with TIP-040:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 040. Recheck incomplete manifests.
-- **Parallel-safe with TIP-039:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 039. Recheck incomplete manifests.
-- **Parallel-safe with TIP-038 (expanded manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038; recheck after remaining manifests expand.
-- **Parallel-safe with TIP-038:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 038. Recheck after incomplete manifests expand.
-- **Parallel-safe with TIP-037:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate this TIP before 037. Recheck when incomplete manifests expand.
-- **Parallel-safe with TIP-042c:** sequential, shares `packages/core/src/contracts/actions/contract-write.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
-- **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
-- **Parallel-safe with TIP-042:** sequential, shares `packages/actions/src/index.ts`; integrate this TIP before 042. Recheck intersections when incomplete manifests are expanded.
-- **Parallel-safe with TIP-020b:** sequential, shares `packages/actions/src/index.ts`; integrate 020b after 036, before 043/045b. For 043 also shares `packages/db/prisma/tenant/ai-kb.prisma`, `packages/core/src/ai/ai.module.ts`, `apps/api/src/http/ai/ai.http.module.ts`, `apps/web/src/features/settings/components/RagSection.tsx`, `apps/web/src/shared/api/mock/domains/settings-ai.ts`, settings/action locale files.
-- **Parallel-safe with TIP-043:** sequential, shares `packages/actions/src/index.ts` and (where applicable) `packages/core/src/ai/jobs/ai.jobs.module.ts`; TIP-043 integrates after 015b/023b/023c/030b/032b/036 and before 045b.
+- **Parallel-safe with TIP-015b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-015b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-020b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate TIP-032b before TIP-020b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-023b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023b before TIP-032b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-023c:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-023c before TIP-032b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-030b:** sequential, shares `packages/actions/src/contracts.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`; integrate TIP-030b before TIP-032b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-036:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/payments/services/payment-write.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate TIP-032b before TIP-036. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-037:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-037. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-038:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/domains/quotes.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-038. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-038b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-038b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-039:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/actions/useAction.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-039. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-040:** sequential, shares `apps/api/src/http/kernel/actions.controller.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/actions/useAction.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-040. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-041:** sequential, shares `apps/api/src/http/kernel/actions.controller.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/i18n/server/en/notify.ts`, `packages/shared/src/i18n/server/vi/notify.ts`, `packages/shared/src/index.ts`, `packages/shared/src/notify/catalog.ts`; integrate TIP-032b before TIP-041. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-042:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/registry.ts`, `apps/web/src/shared/api/mock/domains/settings.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/api/settings.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-042. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-042b:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/registry.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-042b. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-042c:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/contracts/actions/contract-send.handlers.ts`, `packages/core/src/contracts/actions/contract-write.handlers.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/orders/services/order-import.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`, `packages/core/src/sales/quotes/services/quote-send.ts`, `packages/db/prisma/tenant/sales-orders.prisma`, `packages/db/prisma/tenant/sales-payments.prisma`, `packages/db/prisma/tenant/sales-quotes.prisma`; integrate TIP-032b before TIP-042c. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-043:** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`, `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate TIP-032b before TIP-043. Recompute after incomplete manifests expand.
+- **Parallel-safe with TIP-045b:** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/jobs/ai.jobs.module.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate TIP-032b before TIP-045b. Recompute after incomplete manifests expand.
 - TIP-ID: TIP-032b (bổ sung TIP-027 / 029 / 031 / 032 — chèn trước TIP-036, DC-229)
+- **Dòng COVERAGE nhận:** REQ-D05b (matrix, phần bulk giao037), REQ-F05c/F06-c/F06-e/F06-h/F08d/G07b/G07c; COM-2-3, COM-3-2/3/9/13, COM-5-11/16/17, COM-6-3/7; DC-154/169/199; ACT-category.update/delete, ACT-product.import, ACT-product_variant.create/update/archive; BP-3.3b-h, BP-4.4-sales-qr, BP-8-a; Q025. Không nhận adapter ngân hàng thật (REQ-F08f), loyalty032→036 hoặc AI-first transfer038b.
 - Project: AppChat V2
 - Module: `packages/shared/src/commerce/quote-math.ts` · `packages/core/src/sales/{quotes,orders,payments}/**` · `packages/core/src/contracts/actions/contract-write.handlers.ts` · `packages/core/src/catalog/**` · `packages/actions/src/{quotes,contracts,invoices,orders,catalog}.ts` · `packages/core/src/ai/governance/governance.ts` · route `GET /v1/invoices/:id/qr`
-- Depends on: TIP-027, 029, 030, 031, 032, 021 (governance)
+- Depends on:027/029/030/031/032/021; tích hợp sau023b/023c/030b vì action/preview/upload/UI chung, trước015b/036/020b/043/045b.037 nhận matrix bulk còn lại sau;038b nhận AI mapping sau. Không bắt032b chờ045b/037/038b tạo cycle.
 - Priority: P0 · REQ: F03–F08 (commerce), M01 · Decision: COMMERCE §2, §3, §5, §6, Q2, Q5 · DC-229
-- Estimated effort: 12 giờ
+- Estimated effort: XL; chia domain settings/policy, document delivery, packages, catalog jobs; không dùng ước lượng12 giờ cũ để bỏ phạm vi.
 - **Parallel-safe with:** sequential, shares `packages/core/src/sales/payments/services/payment-write.ts` and `packages/core/src/sales/orders/actions/order-flow.handlers.ts` with TIP-036; hoàn tất 032b trước 036.
 
+### Files touched (exact manifest)
+
+| Op | File |
+|---|---|
+| M | `apps/web/src/shared/api/mock/domains/quotes.ts` |
+| C | `apps/web/src/features/quotes/components/QuoteDeliveryModal.tsx` |
+| C | `packages/shared/src/api/product-import.ts` |
+| M | `packages/db/prisma/tenant/sales-orders.prisma` |
+| M | `packages/core/src/sales/orders/services/order-write.ts` |
+| M | `packages/core/src/sales/payments/actions/package.handlers.ts` |
+| M | `packages/core/src/catalog/services/catalog-read.service.ts` |
+| M | `packages/core/src/sales/orders/services/order-import.ts` |
+| M | `apps/web/src/features/quotes/components/QuoteDrawer.tsx` |
+| M | `apps/web/src/features/quotes/components/DetailTabs.tsx` |
+| M | `apps/api/src/http/catalog/catalog.http.module.ts` |
+| C | `packages/db/prisma/platform/commerce-links.prisma` |
+| C | `packages/db/prisma/platform/migrations/20261102003220_commerce_links/migration.sql` |
+| C | `apps/api/src/http/catalog/product-import.controller.ts` |
+| C | `packages/core/src/catalog/import/status.ts` |
+| M | `packages/actions/src/define.ts` |
+| M | `packages/core/src/kernel/actions/executor.ts` |
+| M | `packages/core/src/kernel/actions/handler.ts` |
+| M | `apps/web/src/shared/actions/useAction.ts` |
+| M | `apps/web/src/shared/api/http-transport.ts` |
+| M | `apps/api/src/http/kernel/actions.controller.ts` |
+| C | `packages/core/src/kernel/actions/job-accepted.ts` |
+| C | `apps/web/src/shared/actions/useAction.accepted.test.tsx` |
+| C | `packages/core/test/action-job-accepted.test.ts` |
+| M | `package.json` |
+| M | `pnpm-lock.yaml` |
+| M | `packages/core/package.json` |
+| M | `packages/actions/src/index.ts` |
+| M | `packages/actions/src/quotes.ts` |
+| M | `packages/actions/src/contracts.ts` |
+| M | `packages/actions/src/invoices.ts` |
+| M | `packages/actions/src/orders.ts` |
+| M | `packages/actions/src/catalog.ts` |
+| M | `packages/shared/src/commerce/quote-math.ts` |
+| M | `packages/shared/src/api/catalog.ts` |
+| M | `packages/shared/src/api/settings.ts` |
+| M | `packages/shared/src/api/index.ts` |
+| M | `packages/shared/src/index.ts` |
+| M | `packages/shared/src/events.ts` |
+| M | `packages/shared/src/notify/catalog.ts` |
+| M | `packages/shared/src/i18n/server/vi/sales.ts` |
+| M | `packages/shared/src/i18n/server/en/sales.ts` |
+| M | `packages/shared/src/i18n/server/vi/notify.ts` |
+| M | `packages/shared/src/i18n/server/en/notify.ts` |
+| M | `packages/db/prisma/tenant/catalog.prisma` |
+| M | `packages/db/prisma/tenant/sales-quotes.prisma` |
+| M | `packages/db/prisma/tenant/sales-payments.prisma` |
+| M | `packages/core/src/index.ts` |
+| M | `packages/core/src/kernel/actions/policy.ts` |
+| M | `packages/core/src/ai/governance/governance.ts` |
+| M | `packages/core/src/ai/jobs/ai.jobs.module.ts` |
+| M | `packages/core/src/sales/sales.module.ts` |
+| M | `packages/core/src/sales/jobs/sales.jobs.module.ts` |
+| M | `packages/core/src/sales/jobs/payment.jobs.ts` |
+| M | `packages/core/src/sales/quotes/services/quote-write.ts` |
+| M | `packages/core/src/sales/quotes/services/quote-send.ts` |
+| M | `packages/core/src/sales/quotes/actions/quote-send.handlers.ts` |
+| M | `packages/core/src/contracts/actions/contract-write.handlers.ts` |
+| M | `packages/core/src/sales/orders/actions/order-create.handlers.ts` |
+| M | `packages/core/src/sales/orders/actions/order-flow.handlers.ts` |
+| M | `packages/core/src/sales/payments/services/invoice-doc.ts` |
+| M | `packages/core/src/sales/payments/services/invoice-send.ts` |
+| M | `packages/core/src/sales/payments/services/packages.ts` |
+| M | `packages/core/src/sales/payments/services/payment-write.ts` |
+| M | `packages/core/src/sales/payments/services/payment-system.ts` |
+| M | `packages/core/src/catalog/catalog.module.ts` |
+| M | `packages/core/src/catalog/jobs/catalog.jobs.module.ts` |
+| M | `packages/core/src/catalog/services/catalog-write.ts` |
+| M | `packages/core/src/catalog/services/product-view.ts` |
+| M | `packages/core/src/catalog/actions/product.handlers.ts` |
+| M | `apps/api/src/http/sales/sales.http.module.ts` |
+| M | `apps/api/src/http/sales/invoices.controller.ts` |
+| M | `apps/web/src/features/settings/registry.ts` |
+| M | `apps/web/src/features/products/components/ProductFormModal.tsx` |
+| M | `apps/web/src/features/products/hooks/useProductForm.ts` |
+| M | `apps/web/src/features/products/screens/ProductsScreen.tsx` |
+| M | `apps/web/src/features/products/api.ts` |
+| M | `apps/web/src/shared/api/mock/domains/products.ts` |
+| M | `apps/web/src/shared/api/mock/domains/settings.ts` |
+| M | `apps/web/messages/vi/products.json` |
+| M | `apps/web/messages/en/products.json` |
+| M | `apps/web/messages/vi/settings.json` |
+| M | `apps/web/messages/en/settings.json` |
+| M | `apps/web/messages/vi/actions.json` |
+| M | `apps/web/messages/en/actions.json` |
+| M | `apps/web/messages/vi/quotes.json` |
+| M | `apps/web/messages/en/quotes.json` |
+| M | `tools/parity/parity.manifest.ts` |
+| M | `coding-packs/plans/BLUEPRINT.md` |
+| M | `coding-packs/docs/06-prototype/DEVIATIONS.md` |
+| M | `packages/core/src/contracts/actions/contract-send.handlers.ts` |
+| M | `apps/web/src/features/quotes/hooks/useQuoteSend.ts` |
+| C | `packages/actions/src/commerce-settings.ts` |
+| C | `packages/actions/src/catalog-operations.ts` |
+| C | `packages/actions/src/commerce-delivery.ts` |
+| C | `packages/shared/src/api/commerce-settings.ts` |
+| C | `packages/shared/src/api/public-commerce-document.ts` |
+| C | `packages/db/prisma/tenant/commerce-settings.prisma` |
+| C | `packages/db/prisma/tenant/migrations/20261102003210_commerce_gaps/migration.sql` |
+| C | `packages/core/src/sales/settings/settings.module.ts` |
+| C | `packages/core/src/sales/settings/settings.handler.ts` |
+| C | `packages/core/src/sales/settings/settings.service.ts` |
+| C | `packages/core/src/sales/quotes/services/conversion-lock.ts` |
+| C | `packages/core/src/sales/quotes/services/quote-image.ts` |
+| C | `packages/core/src/sales/documents/public-document.ts` |
+| C | `packages/core/src/sales/documents/public-token.ts` |
+| C | `packages/core/src/sales/documents/document-link.ts` |
+| C | `packages/core/src/sales/payments/services/invoice-qr.ts` |
+| C | `packages/core/src/sales/payments/services/package-reminders.ts` |
+| C | `packages/core/src/sales/payments/events/package-notification.rules.ts` |
+| C | `packages/core/src/sales/orders/actions/order-confirmation.handler.ts` |
+| C | `packages/core/src/sales/payments/actions/receipt-send.handler.ts` |
+| C | `packages/core/src/catalog/actions/category.handlers.ts` |
+| C | `packages/core/src/catalog/actions/variant.handlers.ts` |
+| C | `packages/core/src/catalog/import/import.handler.ts` |
+| C | `packages/core/src/catalog/import/parse.ts` |
+| C | `packages/core/src/catalog/import/validate.ts` |
+| C | `packages/core/src/catalog/import/receipt.ts` |
+| C | `packages/core/src/catalog/import/processor.ts` |
+| C | `packages/core/src/catalog/services/variants.ts` |
+| C | `apps/api/src/http/sales/commerce-settings.controller.ts` |
+| C | `apps/api/src/http/sales/public-document.controller.ts` |
+| C | `apps/web/src/app/(public)/documents/[token]/page.tsx` |
+| C | `apps/web/src/features/public-documents/screens/PublicDocumentScreen.tsx` |
+| C | `apps/web/src/features/public-documents/api.ts` |
+| C | `apps/web/src/features/settings/components/SalesPolicySection.tsx` |
+| C | `apps/web/src/features/settings/hooks/useSalesPolicy.ts` |
+| C | `apps/web/src/features/products/components/ProductImportModal.tsx` |
+| C | `apps/web/src/features/products/hooks/useProductImport.ts` |
+| C | `packages/core/test/commerce-policy.test.ts` |
+| C | `packages/core/test/commerce-delivery.test.ts` |
+| C | `packages/core/test/catalog-operations.test.ts` |
+| C | `apps/api/test/integration/commerce-gaps.test.ts` |
+| C | `apps/web/e2e/commerce-gaps.spec.ts` |
+| C | `apps/web/e2e/http/commerce-gaps.spec.ts` |
+| C | `tools/parity/modules/commerce-gaps.ts` |
+| C | `coding-packs/reports/TIP-032b-completion.md` |
+
 ## CONTEXT
+Workspace D:/CODING/AppChat_Ver2. Stack theo BUILDER-HANDOFF: NestJS/Prisma/Postgres16 native, BullMQ, Next.js, exceljs, DocRenderer/LibreOffice. qrcode có trong Blueprint nhưng chưa dependency; chỉ bổ sung theo manifest package/lock khi thi công, không cài trong pha docs.
 Rà code 2026-11-01 đối chiếu `plans/COMMERCE-DECISIONS.md` (luật đã chốt — không được đổi): luồng lõi báo giá → hợp đồng ký điện tử → đơn → đề nghị thanh toán chạy thật, gửi PDF vào Zalo / email được. Còn hở:
 - **Ngưỡng duyệt** 20M / 5% là hằng số (`shared/src/commerce/quote-math.ts:23`), COMMERCE Q5 đòi "cấu hình được"; agent tối đa 5% theo AI Governance chưa áp (`quote-write.ts:98` không nhận `agentMaxPct`; `FORCE_APPROVAL` ở `governance.ts:34` không ai đọc).
 - **Báo giá sinh tối đa một HĐ hoặc một đơn** (COMMERCE §3): mỗi phía chỉ chặn trùng loại mình → một báo giá ra được cả HĐ lẫn đơn. (Đơn từ HĐ đã ký vẫn được — COMMERCE §4.)
@@ -32,6 +180,59 @@ Rà code 2026-11-01 đối chiếu `plans/COMMERCE-DECISIONS.md` (luật đã ch
 - **Liệu trình**: chỉ sinh khi đơn `paid` (`packages.ts:20`), COMMERCE §6 cho phép từ khi cọc nếu sản phẩm bật; thiếu nhắc còn 1 buổi / còn 7 ngày hết hạn.
 - **Catalog** (Blueprint §3.4): thiếu `category.update / delete`, `product.import`, `product_variant.*` (biến thể đang đi trong `product.update`).
 - **Hồ sơ 360°** quy đổi điểm sai: `pointsBalance * 10n` (`crm/services/contact360.ts:40`) — COMMERCE §7: 1 điểm = 100đ (sửa ở TIP-036, ghi ở đây để không sót).
+
+## APPLICABLE STANDARDS
+- plans/COMMERCE-DECISIONS.md §2–6/Q2/Q5; standards/actions/action-registry, authz/rbac-permissions, api/response-envelope.
+- database/tenant-db/indexing; domain/concurrency/state-machine/money-time-numbering/validation-defaults; events/outbox.
+- documents/templates; integrations/provider-ports; channels/omnichannel-adapter; ops/observability-security.
+- ui/frontend-structure/prototype-parity/interaction-patterns; i18n/i18n; code/testing/file-size-module-layout; workflow/git-flow-ci.
+
+## Rà trước khi làm
+1. Rà action schemas/preview sau023b, secret/file guard sau023c/030b, không đổi shape đang dùng mà thiếu contract test. Build phase chỉ đúng137 file manifest; nếu source prerequisite đổi thì cập nhật manifest và overlap trước code.
+2. Xác minh schema ProductVariant/CustomerPackage/Payment/Quote, named unique constraints và existing indexes trước migration. Không duplicate product.import ở038b;032b deterministic engine là authority.
+3. Kiểm SalesModule hiện import AiModule/CrmModule; không thêm module mới import ngược SalesModule. SettingsModule độc lập; domain factories inject gateway/clock/outgoing thay import vòng.
+4. Chốt public artifact routing bằng token service cùng host/tenant registry pattern đã có của public quotes/sign; không đọc tenant từ URL/input chưa xác thực. Token không thay quyền gửi tài liệu.
+5. QR/PDF/ảnh tests cần renderer+decoder trong môi trường nghiệm thu. Không dùng kiểm byte PNG thay decode; thư viện/binary ngoài stack phải ghi deviation trước thêm dependency, không làm nhẹ AC để qua test. Không chạy gửi kênh/provider thật khi chưa có fixture account tách demo.
+
+## SPECIFICATIONS — nhiệm vụ cụ thể và ranh giới
+### Settings/governance/conversion
+| Nhánh | Action/authority giữ nguyên | Owner triển khai/nghiệm thu |
+|---|---|---|
+| Báo giá vượt ngưỡng/discount ngoài quyền/hàng ngoài catalog | quote.send + quote.send permission; agentGrantable hiện có nhưng phải qua threshold/domain approval; không miễn bằng servedConversation |032b policy/handler/tests |
+| Hợp đồng gửi ký | contract.send_for_signature + contract.sign; Owner-first và review/sign hiện hữu, không biến agent approval thành chữ ký Owner |032b gửi/webchat/policy;030b file/appendix |
+| Đề nghị hoàn tiền | payment.refund + payment.refund_request; agentGrantable=false giữ nguyên, chưa confirmed khi chỉ tạo request |032b regression/governance |
+| Duyệt/từ chối hoàn tiền | payment.refund_approve/payment.refund_reject + authority đã khai trong registry; live delegations theo D35, không nâng quyền qua assistant |032b regression nguồn/approval/replay;042 lifecycle delegation sau |
+| Marketing gửi hàng loạt | campaign.approve/pause/resume và dispatch037, không autoSend bỏ snapshot approval |037;032b không claim khép REQ-D05b toàn bộ trước037 |
+- CommerceSettings singleton tenant có version, approval_total_vnd BigInt≥0, approval_discount_pct0..100; seed20M/5, migrate không ghi đè config cũ. sales_settings.update risk config, Owner hiện tại kiểm bằng owner authority không tên role, preview diff/if_version, outbox invalidate. UI SalesPolicySection đăng ký settings registry, vi/en/mock/http.
+- quote-math nhận threshold từ service, không đọc DB trong shared. Total threshold áp theo COMMERCE; agent discount ceiling áp agent/task effective governance, không dùng trần agent chặn Owner UI. Hàng ngoài catalog do agent tạo vẫn phải duyệt. Test20M/20M+1,5%/5%+epsilon, rounding VND half-up và config mới sau preview phải re-evaluate.
+- FORCE_APPROVAL không chỉ UI: domain policy/preview đọc governance và ép approval cho quote.send/contract.send_for_signature/refund request tương ứng; không cho servedConversation hoặc task autoSend vượt domain approval. Refund vẫn đường request→approve hiện hữu, không bật refund auto-execute. Campaign bulk test thuộc037 theo matrix, không tuyên bố032b đã khép mọi nhánh.
+- conversion-lock.ts dùng cùng quote row lock/CAS cho contract-write và order-create (không chỉ order-flow), kiểm quyền trước trả mã chứng từ xung đột. Quote đã tạo HĐ không tạo đơn trực tiếp; đơn từ HĐ signed vẫn được. Replay giữ kết quả cũ. Query xem contract/order sau lock nằm cùng transaction để chống write skew.
+
+### Delivery và public artifact
+- Routing public token cụ thể: platform commerce-links.prisma lưu token_hash unique + workspace_id/document_id/document_kind/version/purpose/expires_at/revoked_at; không lưu nội dung/giá trị/filebytes. Token chỉ phát sau tenant artifact durable; nếu platform route insert fail, gửi không enqueue và retry cùng source receipt phục hồi, không phát link chưa route. Public GET hash lookup platform trước để xác thực đúng workspace, sau đó TenantDbResolver + document status/version/artifact checks. Không tìm token bằng quét mọi tenant. Token raw chỉ trả cho delivery/browser cần link, redacted trong audit/AI traces/application logs; outgoing customer message/attachment retains the functional link under existing message-access permissions; revoke/expiry platform từ chối trước đọc tenant.
+- invoice-qr.ts tái dùng payload VietQR từ invoice snapshot/bank đã chọn; không lấy số tiền mới khác snapshot khi retry. QR PNG route read kiểm invoice scope, no-store nếu chứa dữ liệu riêng; PDF đóng băng, không đổi lịch sử sau config bank thay đổi.
+- order-confirmation/receipt-send handlers dùng registry+Executor+preview recipient/channel+Idempotency-Key, Outgoing/outbox hiện có; không gọi adapter trực tiếp trong transaction. Unknown send không tự gửi lại vô hạn; lưu receipt trạng thái và reconciliation theo adapter.
+- public-token.ts lưu hash token random, workspace/document/version/purpose/expiry/revokedAt; link public read-only, không directory listing/SQL tuỳ ý hoặc file path do người dùng đặt. PublicDocumentController dùng token→verified workspace→TenantDbResolver, đọc đúng artifact/version, không mở tenant từ querystring. Rate limit, expiry/revoke/deleted workspace, safe headers/no inline executable; lỗi không lộ storage key. Trang public chỉ preview/download, không lộ internal notes/PII ngoài tài liệu được gửi.
+- quote-image.ts tạo ảnh từ cùng frozen document; nếu môi trường không render được ảnh thì AC chưa đạt, không đổi thành chỉ gửi PDF. UI useQuoteSend truyền format rõ; adapter capability chọn đường gửi hợp lệ, ghi message/outbox link/attachment đầy đủ.
+
+### Packages/reminders/catalog
+- Snapshot OrderItem gồm grant_on_deposit/sessions/valid_days/product_type/snapshot_at; giữ ổn định từ khi order confirmed, draft edit cập nhật snapshot và if_version theo writer. Không tra Product hiện tại để đổi package đã grant. Hai dòng cùng product mới có source order_item riêng; migration CustomerPackage thêm source_kind/order_item_id nullable, partial unique order_item_id cho bản mới, giữ unique(order_id,product_id) chỉ cho source_kind=legacy_product. Legacy package không tự chia/nhân gói khi thiếu mapping; khi đã có legacy(order,product), subsequent payment replay không grant thêm từng item. Backfill snapshot chỉ từ dữ liệu lịch sử đủ bằng chứng; chưa rõ thì flag reconciliation, không lấy catalog hiện tại làm lịch sử. Test catalog đổi, hai dòng cùng product, legacy replay cọc→paid và grant mới đúng một lần.
+- Expiry version tăng cùng transaction của package.extend và undo/restore; pending reminder của revision cũ phải bỏ khi worker kiểm version trước tạo notice. Test extend→undo→retry/expired→active không gửi reminder cũ. Import receipt unique(import_id,row_id) duy nhất; payload_hash là dữ liệu kiểm mismatch409, không tham gia unique làm cùng row chạy lần hai.
+- QuoteDeliveryModal là component chọn kênh/format dùng chung bởi QuoteDrawer/DetailTabs; mock quotes nhận cùng fields. quote-send.ts phải tạo danh sách ảnh MIME image/png/jpeg đúng từng trang, receipt gắn source version+format+page index; retry không mất/nhân trang. HTTP E2E thao tác selector thật, không chỉ test gọi action trực tiếp.
+- OrderItem snapshot field thuộc sales-orders.prisma, ghi trong order-write.ts writeItems; order.import cũng dùng canonical writer và phải reject archived SKU như catalog picker. CustomerPackage expiryVersion thuộc sales-payments.prisma, package.extend/restore trong package.handlers.ts tăng version khi expiry thay đổi và invalidate reminder receipt đúng mốc; không chỉ sửa sweep.
+- QuoteDrawer/DetailTabs dùng chung useQuoteSend với selector channel+format (PDF/ảnh) và preview; không giữ hai nút cố định chỉZalo/email rồi claim webchat/ảnh đã có UI. catalog-read.service loại archived variants khỏi lựa chọn mới, nhưng history get theo ID không làm mất dòng cũ.
+- ProductImportController đăng ký CatalogHttpModule: GET /product-imports/:id/status, /rows và /errors artifact có schema/pagination, kiểm tenant+current actor quyền product quản lý theo registry; worker/service status.ts là authority. `product.import_cancel` khai catalog-operations.ts risk write, preview nếu đã có row committed, CAS running→cancelling; `product.import_retry` chỉ retry failed/unstarted với cùng manifest/row receipts và kiểm lại quyền. Không custom POST bypass Executor. Polling GET không enqueue hoặc retry job.
+- Snapshot grant_on_deposit trên order item lúc chốt đơn để đổi catalog sau này không thay grant đã phát. Khi payment confirmed cọc đủ điều kiện hoặc order confirmed đã có tiền, cùng helper grant idempotent theo order/item; không chỉ hook paid. Cancel/refund theo COMMERCE, không tự rút buổi đã dùng ngoài luật; concurrent webhook/order confirmation chỉ một grant.
+- package-reminders.ts chạy từ payment sweep scheduler và event usage, dùng Clock/timezone; nhắc mốc remaining1 và expiry T-7, unique package/milestone/expiry-version. Ghi thông báo phụ trách và gợi ý liên hệ khách; thao tác gửi khách qua policy/action không bypass approval. Extend đổi expiry version; retry không nhân notification, current owner check lúc delivery. Rules đăng ký từ SalesJobsModule; catalog/server locales có manifest.
+- CatalogOperations handlers đăng ký CatalogModule và worker AI/jobs. Variant SKU unique, giá string VND không âm; archived variant vẫn giữ references, cập nhật stock chỉ qua stock action. category delete kiểm FK/children/products trong transaction, conflict trả409 có safe reason.
+- ProductImport job giữ file handle/hash/mapping revision/actor/scope/idempotency, không lưu path người dùng. Parse XLSX/CSV bounded size/rows/cells, chống zip bomb/formula injection khi xuất lỗi; không evaluate formula. Validate deterministic, preview row-level error trước confirm; worker recheck quyền và row references ngay trước mutation. Nhập qua canonical product actions/service dưới Executor, không raw write bypass.
+- Job progress/results phân trang, download error file qua file guard; row receipt unique(import_id,row_id), retry mismatch409. Không đo success bằng số dòng đã parse. Cancel dừng dòng chưa commit, không rollback dòng đã thành công và không replay chúng.
+
+### Action202 foundation do032b nhận trước045b
+- product.import>500 dùng durable job request/outbox commit rồi trả202 `job_accepted` với job_id/action_log_id/status_url; ActionAccepted union ởdefine.ts thêm discriminant, handler/executor helper job-accepted.ts không tạo executor thứ hai. Không đánh action thành công hoàn tất khi chỉ enqueue; receipt truy lại được dù HTTP mất response.
+- useAction thêm trạng thái/callback accepted riêng cho preview_required/approval_required/job_accepted; giữ compatible API cho caller cũ, không toast hoàn tất cho202 hoặc trảnull im lặng rồi mất job. ProductImport hook lưu handle để polling/retry; transport giữ status/discriminant. Tests đi preview→confirm→job và approval→resume, không double-enqueue.045b dùng lại nền này rồi mở rộng mọi bulk/export, không tạo union hoặc helper cạnh tranh.
+- Index import(actor_id,status,created_at,id), rowreceipt(import_id,row_id)unique, pending jobs(status,next_attempt_at,id)partial; publictoken hashunique INCLUDE workspace/document/version/expiry; package reminders(package_id,milestone,expiry_version)unique; scan package status/expiry equality trước range. Deferred IDs-first cho list wide/import errors, EXPLAIN theo fixtures lớn, không N+1 mỗi row/list.
+- Parity manifest legacy chỉ facade1–2 dòng sang commerce-gaps.ts. Màn/settings/importmodal là orchestrator; core helpers/test files riêng, không phình file≥500 backend hoặc400 FE.
 
 ## TASK
 1. **Ngưỡng duyệt cấu hình được:** cột `approval_total_vnd`, `approval_discount_pct` trong cài đặt bán hàng của workspace (mặc định 20.000.000 / 5 — seed, không đổi luật); action `sales_settings.update` (Owner); `approvalReasons` đọc cấu hình; nguồn `agent` / `task` áp thêm `agent_max_discount_pct` từ AI Governance (vượt → bắt duyệt), Owner trên UI không bị chặn bởi trần agent.
@@ -63,6 +264,30 @@ Rà code 2026-11-01 đối chiếu `plans/COMMERCE-DECISIONS.md` (luật đã ch
 - `COMMERCE-DECISIONS.md` không đổi: chỉ làm cho code khớp luật; mặc định ngưỡng giữ 20M / 5%.
 - Gửi Zalo / email thật chưa nghiệm thu (Q-003, Q-004) — fake transport; ghi rõ trong report.
 - `qrcode` đã nằm trong Blueprint §8 (VietQR render) — không phải lệch.
+
+## Lệnh builder và acceptance gates (chưa chạy trong pha docs)
+```powershell
+pnpm --filter @appchat/core exec vitest run test/commerce-policy.test.ts test/commerce-delivery.test.ts test/catalog-operations.test.ts test/action-job-accepted.test.ts
+pnpm --filter @appchat/api exec vitest run --config vitest.integration.config.ts test/integration/commerce-gaps.test.ts
+pnpm --filter @appchat/web exec vitest run src/shared/actions/useAction.accepted.test.tsx
+pnpm --filter @appchat/web exec playwright test e2e/commerce-gaps.spec.ts
+pnpm e2e:http commerce-gaps
+pnpm i18n:check
+pnpm parity commerce-gaps
+pnpm parity --done
+```
+- Given duplicate/concurrent request hoặc worker restart giữa row commit/receipt/HTTP response, When import/delivery retry, Then một effect/row, job handle không mất, pending/partial/error rõ, không202 bị nuốt. Kernel test kiểm forged HTTP source=system bị chặn, không tự nới quyền để job chạy.
+- Given Owner/nonOwner/agent/task và threshold20M/5%, When preview→config/permission đổi→confirm/resume, Then luật hiện tại recheck, no unapproved send; legal/financial assertions đúng từng boundary.37 chịu ca marketing bulk riêng.
+- Given token expired/revoked/wrong-purpose/other-workspace và invoice đã đổi version, When public download/QR, Then không đọc artifact không được cấp, không lộ storage key; native test document-image/QR đọc được payload thực.
+- Mọi suite có Postgres thật cho locks/idempotency/FK/row receipts, không mock DB làm chứng cứ. EXPLAIN và query-count ghi report; credentials/provider demo không bị động tới. D59 trướccommit/chốtTIP theo BUILDER-HANDOFF; không báo runtime PASS từ việc đọc tài liệu.
+
+## BUILDER-CHECKLIST
+- [ ] Exact137 manifest paths đối chiếu prerequisite; registry/module/jobs/HTTP/mock/locales/parity đều wired.
+- [ ] Không đổi COMMERCE20M/5%/15ngày/Owner-first/oneQuote-oneConversion; settings chỉ theo quyền đã chốt.
+- [ ] Concurrency/replay/partial import/202 và forged source có negative tests; mọi ghi qua Executor/outbox.
+- [ ] PDF/QR/ảnh/public token và kênh thật có evidence đúng phạm vi; thiếu provider ghi CHỜ-TK, không gửi vào tenant demo.
+- [ ] Không hard-delete variant lịch sử, không ghi trực tiếp stock qua import, không sai gift/package/refund rule.
+- [ ] Sourcecaps/migration/index/EXPLAIN/D59 đạt, report/COVERAGE cập nhật bằng bằng chứng; Git SHA sạch/PRdev khi build.
 
 ## Ranh giới nhập/xuất AI-first — DC244
 
