@@ -1,6 +1,7 @@
 # TIP-019b: Runtime AI — ngân sách chung, usage bền vững và trạng thái thật
 
 ## HEADER
+- **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019b before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019b before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019b before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019b before032d.

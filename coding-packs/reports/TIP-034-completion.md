@@ -35,3 +35,7 @@
 ## Bổ sung planning 2026-11-02 — TIP-034b
 
 [TIP-034b](../tips/TIP-034b-support-categories.md) receives deferred category configuration DC215/DEF-034-2. It preserves free-text history while adding real settings, scoped used-label suggestions and AI-first/manual file transfer through canonical config confirmation. Independent local review and explicit event-wiring delta checked;68 exact paths/44 pairs/8 AC, runtime not tested. DEF-034-1 trend and ticket bulk result repair remain open; prior completion does not prove either. See support-categories-planning-audit-2026-11-02.md and support-remainder-source-audit-2026-11-02.md.
+
+## Bổ sung planning 2026-11-02 — TIP-034c
+
+[TIP-034c](../tips/TIP-034c-ticket-bulk.md) owns remaining ticket portion of STD-domain-concurrency-7a (Inbox already025b). Current whole-batch transaction/updated-only/unsafe snapshot undo are not accepted behavior.79 exact files/46 bilateral pairs/8 AC; independent review caught forward retry/in-flight racing undo, corrected with terminal/drained gate and immutable sealed receipts under parent CAS. New canonical bulk undo has actual toast/audit/Assistant wiring; no runtime/native acceptance. See ticket-bulk-planning-audit-2026-11-02.md.

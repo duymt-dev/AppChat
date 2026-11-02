@@ -16,12 +16,12 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 5 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 11 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 232 | 5 | 4 | 105 | 1 | 0 | 6 |
-| E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 27 |
+| E. standards/* | 145 | 58 | 2 | 6 | 68 | 2 | 40 | 26 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 16 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 19 |
-| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **92** |
+| **Tổng** | **541** | **389** | **118** | **41** | **367** | **34** | **66** | **91** |
 
-## Lỗ hổng chưa có TIP nhận (92)
+## Lỗ hổng chưa có TIP nhận (91)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -66,7 +66,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-documents-templates-6b | CHƯA | Kết quả bảng kiểm hiện trong preview của action gửi / duyệt | E |
 | STD-domain-concurrency-1a | MỘT PHẦN | Cột `version` + `if_version` → STALE_VERSION cho contact, product, quote, contract, order, invoice, appointment, ticket, campaign, ai_agent, doc_templ | E |
 | STD-domain-concurrency-1b | CHƯA | FE gửi if_version; nhận 409 hiện "vừa được người khác cập nhật" + Tải lại | E |
-| STD-domain-concurrency-7a | MỘT PHẦN | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | E |
 | STD-domain-concurrency-T | MỘT PHẦN | Test song song: cùng if_version, cùng chuyển trạng thái, webhook lặp, trừ kho song song | E |
 | STD-domain-money-1.4 | CHƯA | Chia đợt / cọc theo %: làm tròn xuống, đợt cuối nhận phần dư | E |
 | STD-domain-money-1.7 | MỘT PHẦN | Hiển thị tiền chỉ `fmt.money`, nhập `MoneyInput` | E |
@@ -1361,7 +1360,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-5a | Người gửi khi ai_mode=auto → chuyển copilot cùng tx; run kiểm ai_mode trước khi gửi | standards/domain/concurrency.md:21 | 045b | CHƯA | Không có trong inbox message handlers; 045b task 10 |
 | STD-domain-concurrency-5b | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | standards/domain/concurrency.md:22 | 045b | MỘT PHẦN | Chỉ dedupe debounce BullMQ (ai/reply/reply.queue.ts:27) + aiState (reply.service.ts:212); worker concurrency 8 (agent-reply.processor.ts:31), không khoá; 045b task 10 không nêu ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | STD-domain-concurrency-6 | Đua người – job hết hạn: CAS thắng; job đọc lại trong tx | standards/domain/concurrency.md:23 | 029 | ĐẠT | quote-system.ts:36-43; test quotes.test.ts |
-| STD-domain-concurrency-7a | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | standards/domain/concurrency.md:24 | — | MỘT PHẦN | conversation.bulk_update / ticket.bulk_update output `{ updated: number }` (actions/src/inbox.ts:272, support.ts:187) |
+| STD-domain-concurrency-7a | Bulk xử lý từng bản ghi, trả kết quả theo id `ok / error.code` | standards/domain/concurrency.md:24 | 034c | MỘT PHẦN | Ticket bulk still one transaction/updated-only (support.ts177; ticket-edit.handlers73–103);034c owns remaining ticket per-ID/atomic-item/partial-undo slice. Inbox counterpart is INBOX-BULK-RESULTS/025b. No runtime acceptance. |
 | STD-domain-concurrency-7b | Lô > 50 bản ghi chạy job, trả 202 + job id | standards/domain/concurrency.md:24 | 045b | CHƯA | executor.ts:18 chỉ 202 preview/approval; 045b task 11 |
 | STD-domain-concurrency-8 | Lịch hẹn chống trùng bằng EXCLUDE USING gist → SLOT_TAKEN | standards/domain/concurrency.md:25 | 033 | ĐẠT | migration 20261101900000_033_booking; test booking.test.ts |
 | STD-domain-concurrency-9 | Realtime chỉ invalidate / patch cache | standards/domain/concurrency.md:26 | 006 | ĐẠT | apps/web/src/shared/realtime |

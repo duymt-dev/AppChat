@@ -1,6 +1,7 @@
 # TIP-006b — Durable event delivery and AI task fanout
 
 ## HEADER
+- **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/core/src/catalog/events/catalog-sync.ts`, `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 006b before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/core/src/kernel/privacy/cleanup.ts`, `packages/core/src/kernel/privacy/inventory.ts`; integrate 006b before032d.

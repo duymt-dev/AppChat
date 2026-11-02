@@ -1,6 +1,7 @@
 # TIP-033c — Appointment-to-order suggestions across Calendar, Inbox and Assistant
 
 ## HEADER
+- **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before034b.
 - **Parallel-safe with TIP-027b (Product media manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before027b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/discovery/authority.ts`, `packages/core/src/ai/assistant/genui/extension-registry.ts`, `packages/core/src/ai/assistant/genui/history.ts`, `packages/core/src/ai/assistant/genui/refs.ts`, `packages/core/src/ai/assistant/genui/submit.ts`, `packages/core/src/sales/sales.module.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before032d.

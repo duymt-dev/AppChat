@@ -359,3 +359,9 @@ Product media/formatting and CSV dataset transfer remain separate. No model on o
 | TIP | Scope | Integration order | Gates |
 |---|---|---|---|
 |034b [support-categories](tips/TIP-034b-support-categories.md)|Separate category settings, scoped used labels, free-text/history compatibility, AI/manual atomic dictionary CSV/XLSX transfer|After038b/023b/c/e/015c/042c/045b and exact bilateral predecessors|68 paths,2 owned IDs,8 AC; singleton CAS/undo, current scope and config confirmation; no stock trend/bulk acceptance|
+
+### Supplemental034c — ticket bulk outcomes/undo (DC282)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|034c [ticket-bulk](tips/TIP-034c-ticket-bulk.md)|Per-ticket combined atomic patches, typed receipts/progress, native version guard, sealed partial undo and actual result files|After003c/045b/025b/042c/015c/023c/g/038b and exact bilateral predecessors|79 paths,1 remaining standard owner,8 AC; running/cancelled-inflight/retry versus undo-seal native barriers|

@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-034c (Ticket bulk manifest):** sequential, shares `packages/core/src/support/services/tickets-read.service.ts`, `packages/core/src/support/ticket-access.ts`; integrate 042c before034c.
 - **Parallel-safe with TIP-034b (Support categories manifest):** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/support/services/tickets-read.service.ts`; integrate 042c before034b.
 - **Parallel-safe with TIP-032d (Commerce files manifest):** sequential, shares `packages/core/src/sales/payments/services/invoices-read.service.ts`; integrate 042c before032d.
 - **Parallel-safe with TIP-033c (Appointment order manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`, `packages/core/src/inbox/inbox.module.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/db/prisma/tenant/booking.prisma`; integrate 042c before033c.
