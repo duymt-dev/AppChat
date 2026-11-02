@@ -31,3 +31,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-031: `order.create_from_contract` đọc `contract` đã ký (`signed`), dòng hàng từ báo giá nguồn (`contractDocData`); `contracts/public.ts` đã export phần cần.
 - Phụ lục (Q-022): bảng + cột `appendix_id` ở người ký / nhật ký / token đã có — dùng lại `issueLink` / `PublicSignService` với `appendix_id`.
+
+## Supplemental record-scope audit (2026-11-02)
+
+See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.

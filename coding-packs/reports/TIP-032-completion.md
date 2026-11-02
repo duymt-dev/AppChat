@@ -32,3 +32,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-033: trừ buổi liệu trình khi lịch hẹn hoàn tất → `package_usage` (unique theo `appointment_id`) + `customer_package.used_sessions`; huỷ hoàn tất → `reverted_at`; event `package.changed` đã có.
 - TIP-036: khoản thu `points` (method `points`) + `redeem_points`; tiêu thụ `order.completed` ghi sổ điểm.
+
+## Supplemental record-scope audit (2026-11-02)
+
+See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.

@@ -21,7 +21,7 @@
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
 | REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
 | REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
-| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 042c, 045b | MỘT PHẦN | packages/shared/src/custom-fields/values.ts fieldsForRole chỉ FE dùng; server chưa lọc; 042c chưa có file |
+| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 045b | MỘT PHẦN | custom-fields/values.ts fieldsForRole chưa áp serializer;042c chỉ scope bản ghi.045b nhận custom/system fields + filter/AI/export, không coi FE ẩn là an toàn |
 | REQ-A06a | Trial 15 ngày Cá nhân Pro + 10.000 credit | 01-REQUIREMENTS-MATRIX.md:40 | 009 | ĐẠT | packages/core/src/billing/services/subscriptions.service.ts:31; test billing.test.ts AC3 |
 | REQ-A06b | Màn chào mừng 2 nút + badge "Còn X ngày" | 01-REQUIREMENTS-MATRIX.md:40 | 011 | ĐẠT | OnboardingGate.tsx:34; apps/web/src/shared/shell/RailFoot.tsx:22; test onboarding.test.ts AC4, e2e http/auth-onboarding.spec.ts |
 | REQ-A06c | Hết hạn → gói Miễn phí, thông báo đóng được, dữ liệu giữ | 01-REQUIREMENTS-MATRIX.md:40 | 009, 011 | ĐẠT | subscriptions.service.ts:69-76; TrialExpired.tsx:21; test billing.test.ts AC7, onboarding.test.ts AC5 |

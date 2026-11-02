@@ -14,14 +14,14 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 116 | 22 | 8 | 12 | 23 | 2 | 0 | 29 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 14 | 12 | 2 | 37 | 10 | 5 | 14 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 32 | 3 | 5 | 44 | 11 | 21 | 24 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 94 | 195 | 5 | 4 | 81 | 1 | 0 | 23 |
-| E. standards/* | 158 | 38 | 2 | 6 | 62 | 2 | 40 | 38 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 103 | 33 | 3 | 5 | 45 | 11 | 21 | 23 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 93 | 196 | 5 | 4 | 81 | 1 | 0 | 23 |
+| E. standards/* | 157 | 39 | 2 | 6 | 62 | 2 | 40 | 38 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 48 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 18 | 9 | 13 | 57 | 3 | 0 | 42 |
-| **Tổng** | **568** | **320** | **118** | **42** | **312** | **34** | **66** | **218** |
+| **Tổng** | **566** | **323** | **118** | **42** | **313** | **34** | **66** | **217** |
 
-## Lỗ hổng chưa có TIP nhận (218)
+## Lỗ hổng chưa có TIP nhận (217)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -77,7 +77,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-5-13 | GIẢ | Đối soát tự động SePay / Casso của DN qua webhook `/hooks/tenant-payments/:provider/:feedId`, khớp `TT-` | C |
 | COM-6-10 | MỘT PHẦN | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | C |
 | COM-8-7 | MỘT PHẦN | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | C |
-| COM-8b-2 | MỘT PHẦN | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | C |
 | COM-8b-4 | MỘT PHẦN | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | C |
 | COM-8b-5 | MỘT PHẦN | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | C |
 | COM-10-3 | CHƯA | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | C |
@@ -271,7 +270,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
 | REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
 | REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
-| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 042c, 045b | MỘT PHẦN | packages/shared/src/custom-fields/values.ts fieldsForRole chỉ FE dùng; server chưa lọc; 042c chưa có file |
+| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 045b | MỘT PHẦN | custom-fields/values.ts fieldsForRole chưa áp serializer;042c chỉ scope bản ghi.045b nhận custom/system fields + filter/AI/export, không coi FE ẩn là an toàn |
 | REQ-A06a | Trial 15 ngày Cá nhân Pro + 10.000 credit | 01-REQUIREMENTS-MATRIX.md:40 | 009 | ĐẠT | packages/core/src/billing/services/subscriptions.service.ts:31; test billing.test.ts AC3 |
 | REQ-A06b | Màn chào mừng 2 nút + badge "Còn X ngày" | 01-REQUIREMENTS-MATRIX.md:40 | 011 | ĐẠT | OnboardingGate.tsx:34; apps/web/src/shared/shell/RailFoot.tsx:22; test onboarding.test.ts AC4, e2e http/auth-onboarding.spec.ts |
 | REQ-A06c | Hết hạn → gói Miễn phí, thông báo đóng được, dữ liệu giữ | 01-REQUIREMENTS-MATRIX.md:40 | 009, 011 | ĐẠT | subscriptions.service.ts:69-76; TrialExpired.tsx:21; test billing.test.ts AC7, onboarding.test.ts AC5 |
@@ -702,7 +701,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | — | MỘT PHẦN | Code có (stage-rules.ts:26 MANUAL_HOLD_MS); không test nào kiểm `stage_set_manually_at` / cửa sổ 24h |
 | COM-8-8 | Không có pipeline Deal riêng; giai đoạn trên Khách hàng | plans/COMMERCE-DECISIONS.md:172 | 015 | QUY-TẮC | Không có bảng deal; contact360.ts:43 `deal` rỗng |
 | COM-8b-1 | Vai trò trên khách owner / collaborator / watcher | plans/COMMERCE-DECISIONS.md:176 | 015 | ĐẠT | crm/services/access.ts · test crm-contacts.test.ts AC3 |
-| COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | — | MỘT PHẦN | CRM / inbox có watcher; nhưng quote-access.ts:17, orders/order-access.ts:17, contracts/contract-access.ts:17, payments/invoice-access.ts:17, booking/booking-access.ts:17 chỉ `role = 'collaborator'` → watcher không thấy chứng từ / lịch hẹn của khách |
+| COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | 042c | MỘT PHẦN | quote/order/contract/invoice/booking helpers chỉ role collaborator; TIP042c AC2 mở đọc có kiểm permission, không mở ghi |
+| COM-8b-2-write | Watcher chỉ đọc, không biến grant đọc thành ghi trong inbox/chứng từ | plans/COMMERCE-DECISIONS.md:176-177; rbac-permissions D32 | 042c | MỘT PHẦN | inbox/services/access.ts:62-67 writable chỉ gọi canSee (có watcher); lockOrder/Contract/Appointment gọi visible nên phải tách mode trước khi mở watcher. TIP042c AC3 |
+| Q-029 | Chốt semantics team_id với owner nhiều nhóm và backfill không mở rộng quyền | QUESTIONS.md:Q-029; BLUEPRINT §2.2/§3.5 | 042c | CHƯA | Đã hỏi, chưa trả lời; không tự OR teamUserIds và team_id |
 | COM-8b-3 | Chống giành khách + "Xin chia sẻ" (`contact.request_access`) | plans/COMMERCE-DECISIONS.md:178 | 015 | ĐẠT | crm/actions/contact-owner.handlers.ts:125 · test crm-contacts.test.ts AC2, AC6 |
 | COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | — | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
 | COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | — | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081) |
@@ -1130,7 +1131,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-3.5-b | 5 vai trò hệ thống (owner/manager/sales/cs/accountant) + data scope mặc định | plans/BLUEPRINT.md:867 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36-68; test roles.test.ts, authz.test.ts |
 | BP-3.5-c | CSKH crm: đọc all, SỬA chỉ own + chỉ thông tin liên hệ | plans/BLUEPRINT.md:831 | 015 | MỘT PHẦN | roles.ts:57 scope crm='all' + crm.edit → access.ts:38 cho sửa mọi khách mọi trường; không kiểm own/contact-only |
 | BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | MỘT PHẦN | authz-resolver.ts:103 có đọc; apps/api/test/integration/authz.test.ts:116 chỉ update DB trực tiếp rồi GET, không chứng minh luồng Owner grant/revoke; 042 AC8, gate Q-028 |
-| BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015 | ĐẠT | packages/core/src/authz/scope.ts:2-20; crm/services/access.ts:19-38; test crm-contacts.test.ts |
+| BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015, 042c | MỘT PHẦN | CRM có grants nhưng order/quote/contract/invoice/booking helpers chỉ collaborator; không suy test crm-contacts sang cả tài liệu. TIP042c AC2/3 |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |
 | BP-4.1-b | Header Bearer JWT + X-Workspace-Id, sai → 401/403 trước khi mở DB tenant | plans/BLUEPRINT.md:885 | 004 | ĐẠT | apps/api/src/http/kernel/request-actor.ts:45; test actions.test.ts AC11 |
@@ -1326,8 +1327,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-authz-rbac-2 | Executor kiểm `ActionDef.permission` trước handler; UI dùng cùng `can()` | standards/authz/rbac-permissions.md:11 | 005 | ĐẠT | executor.ts:83; apps/web/src/shared/authz; test authz.test.ts |
 | STD-authz-rbac-3 | Danh mục permission ở `packages/shared/src/authz/permissions.ts` | standards/authz/rbac-permissions.md:12 | 005 | ĐẠT | packages/shared/src/authz/permissions.ts |
 | STD-authz-rbac-4 | Vai trò = permissions + data_scope ở DB tenant; 5 vai trò hệ thống seed, không sửa/xoá | standards/authz/rbac-permissions.md:15 | 005 | ĐẠT | packages/shared/src/authz/roles.ts; test roles.test.ts, authz.test.ts |
-| STD-authz-rbac-5a | `scopeFilter(ctx, module)` own/team/all áp mọi list/get; own gồm collaborator/watcher (D32) | standards/authz/rbac-permissions.md:19 | 005, 015 | ĐẠT | packages/core/src/authz/scope.ts:20; 13 file *-access.ts; test role-isolation.harness.ts, crm-contacts.test.ts |
-| STD-authz-rbac-5b | Scope `team` theo `team_id` (bảng team/team_member có, UI Nhóm P1) | standards/authz/rbac-permissions.md:21 | 042c | MỘT PHẦN | scope.ts:26 lọc theo teamUserIds; quote/contract/order/invoice/appointment không có cột team_id (tenant-db §9); 042c chưa có file, không coi đã khép |
+| STD-authz-rbac-5a | `scopeFilter(ctx, module)` own/team/all áp mọi list/get; own gồm collaborator/watcher (D32) | standards/authz/rbac-permissions.md:19 | 005, 015, 042c | MỘT PHẦN | order-access.ts:36-45/contract-access.ts:36-45 detail owner==me trước gate none trong khi list FALSE; watcher bị loại khỏi sales/booking. Test CRM không chứng minh mọi domain;042c AC1–4 |
+| STD-authz-rbac-5b | Scope `team` theo `team_id` (bảng team/team_member có, UI Nhóm P1) | standards/authz/rbac-permissions.md:21 | 042c | MỘT PHẦN | scope.ts:26 lọc theo teamUserIds; thiếu team_id5 bảng; TIP042c đã viết, gateQ-029 chưa trả lời |
 | STD-authz-rbac-6 | AI chạy đúng quyền người ra lệnh / agent tool_ids / task = creator ∩ scope | standards/authz/rbac-permissions.md:24 | 021–023, 035 | ĐẠT | agent-authz.ts:3; ai/tasks/task.store.ts; test ai-tasks.test.ts |
 | STD-authz-rbac-7a | Mỗi workspace đúng một Owner luôn có mọi permission | standards/authz/rbac-permissions.md:28 | 005 | ĐẠT | scope.ts:21 (`isOwner`); DC-025 |
 | STD-authz-rbac-7b | `workspace.transfer_ownership` (config, OTP) | standards/authz/rbac-permissions.md:28 | 045b | CHƯA | Không có trong packages/actions; 045b task 7 |
@@ -1381,7 +1382,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-database-tenantdb-5b | Job đối soát nền tảng ↔ tenant hằng giờ | standards/database/tenant-db.md:18 | 045b | CHƯA | grep reconcile job = 0; 045b task 9 |
 | STD-database-tenantdb-6 | Migration `<ts>_<tip>_<desc>`, expand-compatible, deploy platform → template → tenant-migrate | standards/database/tenant-db.md:19 | 002 | ĐẠT | packages/db/prisma/tenant/migrations/20261031000000_015_crm; db/src/platform-recorder.ts:12; test tenant-migrate.test.ts |
 | STD-database-tenantdb-8 | Cột chuẩn id uuid(v7), timestamptz, bigint VND, text cho loại mở rộng | standards/database/tenant-db.md:24 | mọi TIP | ĐẠT | kernel/ids.ts; prisma tenant/*.prisma |
-| STD-database-tenantdb-9 | Bảng có chủ sở hữu có owner_user_id/assignee + `team_id` nullable | standards/database/tenant-db.md:28 | 042c | MỘT PHẦN | owner_user_id có đủ 8 bảng; team_id chỉ crm/support/inbox (thiếu quote, contract, order, invoice, appointment); 042c chưa có file |
+| STD-database-tenantdb-9 | Bảng có chủ sở hữu có owner_user_id/assignee + `team_id` nullable | standards/database/tenant-db.md:28 | 042c | MỘT PHẦN | team_id chỉ crm/support/inbox; TIP042c AC5 thêm5 bảng còn thiếu + propagation/backfill gateQ-029; chưa code |
 | STD-database-tenantdb-10 | Role Postgres app / provisioner / migrator tách quyền | standards/database/tenant-db.md:30 | 002 | ĐẠT | packages/db/src/env.ts:7-13; test tenant-isolation.test.ts:52,117 |
 | STD-database-tenantdb-T | Test: X-Workspace-Id ngoài membership 403; resolver từ chối thiếu ctx; 2 workspace song song cô lập | standards/database/tenant-db.md:34 | 002, 004 | ĐẠT | tenant-isolation.test.ts:85,94; actions.test.ts:52 |
 | STD-documents-templates-1 | Số liệu chỉ từ bản ghi; mẫu chỉ chứa biến; bảng hàng từ `{{#items}}` | standards/documents/templates.md:7 | 028 | ĐẠT | packages/shared/src/documents/render.ts; test variables.test.ts, documents.test.ts |

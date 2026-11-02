@@ -33,3 +33,7 @@
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-032: khoản thu cập nhật `order.paid_total` / `refunded_total` rồi gọi `payCols` (`core/src/sales/orders/services/order-write.ts`) để giữ `pay_status`; tiêu thụ `order.cancelled` có `refund_requested` để sinh yêu cầu hoàn tiền; đơn sàn đã thu → `customer_payment(method = marketplace)`.
 - TIP-036: tiêu thụ `order.completed` (`points`, `net_before_vat`) ghi sổ điểm; hoàn tác hoàn tất cần đảo điểm.
+
+## Supplemental record-scope audit (2026-11-02)
+
+See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.

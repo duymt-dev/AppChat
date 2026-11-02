@@ -46,3 +46,7 @@
 ## Supplemental planning audit (2026-11-02)
 
 See [TIP-042](../tips/TIP-042-custom-roles-teams.md) and [authz audit](authz-planning-audit-2026-11-02.md): custom role/team lifecycle, settings DTO, invite/assignment/undo and delegation management remain pending. Existing resolver tests are not evidence of an Owner grant/revoke UI flow. Q-028 remains open; no implementation status change is implied.
+
+## Supplemental record-scope audit (2026-11-02)
+
+See [TIP-042c](../tips/TIP-042c-record-scope.md) and [scope audit](scope-planning-audit-2026-11-02.md): read/write separation for watcher grants, list/detail parity for scope none, and team_id propagation need verification/correction. Q-029 gates multi-team semantics. Existing CRM tests do not prove all business-document paths; no implementation completion is implied by this plan.

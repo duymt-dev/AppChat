@@ -1,12 +1,14 @@
 # TIP-042 — Vai trò tuỳ biến, Nhóm và vòng đời cấp/thu hồi quyền
 
 ## HEADER
+- **Additional overlap with TIP-042c:** sequential, shares `packages/core/src/authz/services/authz-resolver.ts`; integrate042 before042c and retest role lifecycle/cache with effective writeScope metadata.
+- **Parallel-safe with TIP-042c:** sequential, shares `apps/api/test/integration/authz.test.ts`, `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/authz/public.ts`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
 - **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/src/features/settings/registry.ts`, `apps/web/src/features/settings/screens/SettingsScreen.tsx`, `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
 - TIP-ID: TIP-042; Project: AppChat V2; Module: authz / identity / settings; Priority: P1; Estimated: XL.
 - Depends on: 005, 006, 013, 015; tích hợp sau 023b/023c/030b/032b/015b/036/020b/043/045b vì file chung. Phần sửa consistency hai DB của 045b phải có trước nghiệm thu lifecycle ở đây.
 - **Trạng thái thiết kế:** bản đầy đủ cấu trúc, chưa ready-to-build: Q-028 cần chốt biên quyền tuỳ biến/uỷ quyền; không tự mở rộng quyền. Câu A phải hoàn tất trước code.
 - **Dòng COVERAGE nhận:** REQ-A05b-1, REQ-A05b-2, D27b, ACT-role.create, ACT-role.update, ACT-role.delete, ACT-team.create, ACT-team.update, ACT-team.set_members, PRO-settings-teams; bổ sung kiểm BP-3.5-d, Q-028.
-- **Ranh giới:** chia lead chuyển 042b; scope theo team_id và field-level serializer chuyển 042c (bảo mật dùng chung vẫn phối hợp 045b). Chưa coi hai TIP mới này hoàn chỉnh chỉ vì đã có dòng task graph.
+- **Ranh giới:** chia lead chuyển042b; scope bản ghi theo team_id/read-write chuyển042c; field-level serializer vẫn045b. Hai file042b/042c đã có, chưa coi là implementation hoàn tất hoặc independent review pass.
 - **Parallel-safe with:** sequential, shares `packages/actions/src/index.ts` with 015b/020b/023b/023c/030b/032b/036/043/045b; 042 integrates after those TIPs. Also shares `packages/shared/src/api/index.ts`, settings/action locales, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md` with 020b/043; `packages/shared/src/index.ts` and action locales/Blueprint with 036/043; `tools/parity/parity.manifest.ts` with 043. Bilateral declarations inserted in all nine existing pending TIPs before writing 042. No parallel claim for future or incomplete manifests.
 - **Files touched:** C=create, M=modify, không wildcard. Report/COVERAGE cập nhật theo quy trình chốt TIP; không sửa TIP DONE.
 

@@ -1,6 +1,7 @@
 # TIP-042b — Chia lead mới và cấu hình routing theo tài khoản kênh
 
 ## HEADER
+- **Parallel-safe with TIP-042c:** sequential, shares `coding-packs/plans/BLUEPRINT.md`, `packages/core/src/inbox/services/pipeline.ts`, `packages/db/prisma/tenant/crm.prisma`, `packages/core/src/crm/routing/routing.handlers.ts`; integrate this TIP before 042c. Recheck after incomplete manifests expand.
 - TIP-ID: TIP-042b; Project: AppChat V2; Module: CRM lead routing + settings; Priority: P1; Estimated: L.
 - Depends on: 014/015/016/017/018, 042 (team + active membership), 045b (trusted system-action boundary); sau các TIP chung file bên dưới, trước044/046.
 - **Dòng COVERAGE nhận:** REQ-F01c, COM-8b-7, PRO-settings-routing; REQ-B11d chỉ phần assignment (SLA vẫn còn thiếu, không được đánh ĐẠT cả dòng).
