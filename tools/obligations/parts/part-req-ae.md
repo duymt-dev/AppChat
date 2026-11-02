@@ -175,8 +175,8 @@
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
 | REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | 023d | MỘT PHẦN | Mức AI ĐẠT; chọn agent chỉ lưu ui.agent (ComposerPopovers.tsx:92), sendTurn không gửi |
-| REQ-E12a | Đính kèm tệp / ảnh / email vào lệnh | 01-REQUIREMENTS-MATRIX.md:114 | — | GIẢ | Mục file không upload; server chỉ nhận tên (assistant-prompt.ts:35) |
-| REQ-E12b | Nhập lệnh bằng giọng nói | 01-REQUIREMENTS-MATRIX.md:114 | — | GIẢ | Nút mic không onClick (features/assistant/components/Composer.tsx:76) |
+| REQ-E12a | Đính kèm tệp / ảnh / email vào lệnh | 01-REQUIREMENTS-MATRIX.md:114 | 023f | GIẢ | Mục file không upload; server chỉ nhận tên (assistant-prompt.ts:35) |
+| REQ-E12b | Nhập lệnh bằng giọng nói | 01-REQUIREMENTS-MATRIX.md:114 | 023f | GIẢ | Nút mic không onClick (features/assistant/components/Composer.tsx:76) |
 | REQ-E13a | Coworks ngay / lịch / sự kiện | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | ai/tasks/task.handlers.ts:35,186; test ai-tasks.test.ts:143,199,228 |
 | REQ-E13b | Giới hạn công cụ / dữ liệu / credit | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | test ai-tasks.test.ts:246 |
 | REQ-E13c | Hỏi trước khi xoá / gửi (bật tắt) | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | policy.ts:14,21; test ai-tasks.test.ts:257,282 |
@@ -188,6 +188,10 @@
 | PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |
 | PLAN-REUSE-PRIVACY | Reuse safe plan structure with fresh authority/inputs, no old customer or execution context | DC267; TIP-023d §4 | 023d | CHƯA | No reusable-plan service; source lineage/015c gates planned |
 | ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | CHƯA | Current card/picker stores name; request omits selection; child binding seam planned |
+
+| INPUT-MODEL-CONTENT | Actual bounded file/image/email content with truthful source locators reaches compatible model | DC269; TIP023f §2–3 | 023f | CHƯA | prompt.ts35 only names; existing PDF parser loses pages and CSV renumbers; new source adapters planned |
+| INPUT-CURRENT-HYDRATION | Every initial/history/resume/selected-child provider call hydrates current-authorized private source references | DC269; TIP023f §3 | 023f | CHƯA | Current history text-only, model route lacks required vision filter; no content hydration proof |
+| INPUT-DRAFT-RECOVERY | Upload/parse/send replay preserves draft and privacy-fenced artifact state; capture/dictation never autosend | DC269; TIP023f §1/4 | 023f | CHƯA | Existing controls inert; artifact-backed recovery/native sandbox/browser lifecycle planned |
 
 Ghi chú:
 - Mock / adapter giả do thiếu tài khoản → CHỜ-TK (Q-001 LLM, Q-002 embed, Q-003 Zalo, Q-004 Brevo); GIẢ chỉ khi code tự giả.

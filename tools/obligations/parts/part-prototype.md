@@ -61,10 +61,10 @@
 | PRO-inbox-schedslots | Composer "Đặt lịch": slot gợi ý từ API | docs/06-prototype/AppChat.dc.html:2169 | 025b | GIẢ | apps/web/src/features/inbox/api.ts:99 `GET /booking/slots` (routes.json `missing`; API có `/calendar/slots`) |
 | PRO-inbox-autoxl | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | docs/06-prototype/AppChat.dc.html:2213 | 025b | GIẢ | apps/web/src/features/inbox/components/ComposerPopovers.tsx:97,106 chỉ đổi state `autoXl`/`lang`, không ai đọc |
 | PRO-inbox-screenshot | Menu ＋ khung nhập: Chụp ảnh màn hình | docs/06-prototype/AppChat.dc.html:2231 | 025b | GIẢ | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:32 `onClick={onClose}` |
-| PRO-assistant-plusfile | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | docs/06-prototype/AppChat.dc.html:10199 | — | GIẢ | apps/web/src/features/assistant/components/ComposerPopovers.tsx:38-42 `pick('file')` chỉ đóng menu |
-| PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | — | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
+| PRO-assistant-plusfile | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | docs/06-prototype/AppChat.dc.html:10199 | 023f | GIẢ | apps/web/src/features/assistant/components/ComposerPopovers.tsx:38-42 `pick('file')` chỉ đóng menu |
+| PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | 023f | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
 | PRO-assistant-research | Trợ lý: menu ＋ Nghiên cứu / Tìm kiếm | docs/06-prototype/AppChat.dc.html:10208 | — | NGOÀI | D48 (P2 cùng MCP) — nhưng hiện không có nhãn "Sắp có", bấm không phản hồi (ComposerPopovers.tsx:18-19) |
-| PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | — | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
+| PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | 023f | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
 | PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | — | GIẢ | Composer.tsx:50 không onClick |
 | PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
 | PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | — | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng |

@@ -259,3 +259,11 @@ Exact manifest tips/manifests/TIP-023d-files.md. One primary-effect claim indepe
 |023e [action-discovery](tips/TIP-023e-action-discovery.md)|Versioned metadata corpus, explicit metered preparation, current-authority semantic ranking/cache and private query projection|After023d and all exact bilateral predecessors; before044/045/046|69 exact paths/14futureM/32bilateral pairs/5ownedIDs/8AC, local review; runtime pending|
 
 Agent-draft use of discovery is an additional unresolved Blueprint5.3b obligation, not implicitly closed by the finder implementation. Exactmanifest tips/manifests/TIP-023e-files.md; no new default model or tariff.
+
+### Supplemental023f — actual Assistant content input (DC269)
+
+|TIP|Scope|Order|Evidence gate|
+|---|---|---|---|
+|023f [assistant-input](tips/TIP-023f-assistant-input.md)|Bounded file/image/email artifacts, guarded model hydration, screenshot and browser dictation|After023e/025b and every exact bilateral predecessor; before044/045/046|130exactpaths,8ownedIDs,10AC,33bilateralpairs; native isolation/profile/browser/provider gates still unverified|
+
+Not a replacement for038b business file transfer or025b Inbox capture. Exact manifest tips/manifests/TIP-023f-files.md. Native sandbox profiles are implementation prerequisites, not a statement that Node heap limits isolate untrusted parsing.

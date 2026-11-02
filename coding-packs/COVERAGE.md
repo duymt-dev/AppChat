@@ -12,16 +12,16 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 27 | 2 | 0 | 11 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 115 | 23 | 8 | 12 | 30 | 2 | 0 | 9 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 69 | 22 | 12 | 1 | 49 | 10 | 5 | 6 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 102 | 34 | 3 | 5 | 48 | 11 | 21 | 13 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 87 | 230 | 5 | 4 | 105 | 1 | 0 | 7 |
 | E. standards/* | 149 | 47 | 2 | 6 | 63 | 2 | 40 | 32 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 31 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 0 | 1 | 79 | 0 | 8 | 5 | 0 | 28 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 23 | 19 | 9 | 13 | 59 | 3 | 0 | 20 |
-| **Tổng** | **545** | **376** | **118** | **41** | **359** | **34** | **66** | **120** |
+| **Tổng** | **545** | **376** | **118** | **41** | **362** | **34** | **66** | **115** |
 
-## Lỗ hổng chưa có TIP nhận (120)
+## Lỗ hổng chưa có TIP nhận (115)
 
 Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng ở dòng cùng ID trong phần tương ứng.
 
@@ -36,8 +36,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C10a | MỘT PHẦN | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | A |
 | REQ-D17c | CHƯA | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | A |
 | REQ-E09c | MỘT PHẦN | Hoàn tác trong hạn; đã gửi → ghi đính chính | A |
-| REQ-E12a | GIẢ | Đính kèm tệp / ảnh / email vào lệnh | A |
-| REQ-E12b | GIẢ | Nhập lệnh bằng giọng nói | A |
 | REQ-F01b-6 | CHƯA | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | B |
 | REQ-F05b | CHƯA | Ảnh sản phẩm | B |
 | REQ-F07b-3 | CHƯA | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | B |
@@ -110,9 +108,6 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-contracts-bulkfwd | GIẢ | Thanh chọn nhiều hợp đồng: Chuyển tiếp / Gán phụ trách | F |
 | PRO-orders-bulkfwd | GIẢ | Thanh chọn nhiều đơn: Chuyển tiếp / Gán phụ trách | F |
 | PRO-products-richtext | GIẢ | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | F |
-| PRO-assistant-plusfile | GIẢ | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | F |
-| PRO-assistant-plusscreenshot | GIẢ | Trợ lý: menu ＋ "Chụp ảnh màn hình" | F |
-| PRO-assistant-mic | GIẢ | Trợ lý: nút giọng nói | F |
 | PRO-assistant-quick | GIẢ | Trợ lý: nút ⚡ lệnh nhanh | F |
 | PRO-assistant-taskspark | GIẢ | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | F |
 | PRO-shell-navbadges | GIẢ | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | F |
@@ -327,8 +322,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
 | REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | 023d | MỘT PHẦN | Mức AI ĐẠT; chọn agent chỉ lưu ui.agent (ComposerPopovers.tsx:92), sendTurn không gửi |
-| REQ-E12a | Đính kèm tệp / ảnh / email vào lệnh | 01-REQUIREMENTS-MATRIX.md:114 | — | GIẢ | Mục file không upload; server chỉ nhận tên (assistant-prompt.ts:35) |
-| REQ-E12b | Nhập lệnh bằng giọng nói | 01-REQUIREMENTS-MATRIX.md:114 | — | GIẢ | Nút mic không onClick (features/assistant/components/Composer.tsx:76) |
+| REQ-E12a | Đính kèm tệp / ảnh / email vào lệnh | 01-REQUIREMENTS-MATRIX.md:114 | 023f | GIẢ | Mục file không upload; server chỉ nhận tên (assistant-prompt.ts:35) |
+| REQ-E12b | Nhập lệnh bằng giọng nói | 01-REQUIREMENTS-MATRIX.md:114 | 023f | GIẢ | Nút mic không onClick (features/assistant/components/Composer.tsx:76) |
 | REQ-E13a | Coworks ngay / lịch / sự kiện | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | ai/tasks/task.handlers.ts:35,186; test ai-tasks.test.ts:143,199,228 |
 | REQ-E13b | Giới hạn công cụ / dữ liệu / credit | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | test ai-tasks.test.ts:246 |
 | REQ-E13c | Hỏi trước khi xoá / gửi (bật tắt) | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | policy.ts:14,21; test ai-tasks.test.ts:257,282 |
@@ -339,6 +334,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |
 | PLAN-REUSE-PRIVACY | Reuse safe plan structure with fresh authority/inputs, no old customer or execution context | DC267; TIP-023d §4 | 023d | CHƯA | No reusable-plan service; source lineage/015c gates planned |
 | ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | CHƯA | Current card/picker stores name; request omits selection; child binding seam planned |
+| INPUT-MODEL-CONTENT | Actual bounded file/image/email content with truthful source locators reaches compatible model | DC269; TIP023f §2–3 | 023f | CHƯA | prompt.ts35 only names; existing PDF parser loses pages and CSV renumbers; new source adapters planned |
+| INPUT-CURRENT-HYDRATION | Every initial/history/resume/selected-child provider call hydrates current-authorized private source references | DC269; TIP023f §3 | 023f | CHƯA | Current history text-only, model route lacks required vision filter; no content hydration proof |
+| INPUT-DRAFT-RECOVERY | Upload/parse/send replay preserves draft and privacy-fenced artifact state; capture/dictation never autosend | DC269; TIP023f §1/4 | 023f | CHƯA | Existing controls inert; artifact-backed recovery/native sandbox/browser lifecycle planned |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1600,10 +1598,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-inbox-schedslots | Composer "Đặt lịch": slot gợi ý từ API | docs/06-prototype/AppChat.dc.html:2169 | 025b | GIẢ | apps/web/src/features/inbox/api.ts:99 `GET /booking/slots` (routes.json `missing`; API có `/calendar/slots`) |
 | PRO-inbox-autoxl | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | docs/06-prototype/AppChat.dc.html:2213 | 025b | GIẢ | apps/web/src/features/inbox/components/ComposerPopovers.tsx:97,106 chỉ đổi state `autoXl`/`lang`, không ai đọc |
 | PRO-inbox-screenshot | Menu ＋ khung nhập: Chụp ảnh màn hình | docs/06-prototype/AppChat.dc.html:2231 | 025b | GIẢ | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:32 `onClick={onClose}` |
-| PRO-assistant-plusfile | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | docs/06-prototype/AppChat.dc.html:10199 | — | GIẢ | apps/web/src/features/assistant/components/ComposerPopovers.tsx:38-42 `pick('file')` chỉ đóng menu |
-| PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | — | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
+| PRO-assistant-plusfile | Trợ lý: menu ＋ "Thêm tệp" đính kèm vào lệnh (E12) | docs/06-prototype/AppChat.dc.html:10199 | 023f | GIẢ | apps/web/src/features/assistant/components/ComposerPopovers.tsx:38-42 `pick('file')` chỉ đóng menu |
+| PRO-assistant-plusscreenshot | Trợ lý: menu ＋ "Chụp ảnh màn hình" | docs/06-prototype/AppChat.dc.html:10200 | 023f | GIẢ | ComposerPopovers.tsx:15,38-42 không làm gì |
 | PRO-assistant-research | Trợ lý: menu ＋ Nghiên cứu / Tìm kiếm | docs/06-prototype/AppChat.dc.html:10208 | — | NGOÀI | D48 (P2 cùng MCP) — nhưng hiện không có nhãn "Sắp có", bấm không phản hồi (ComposerPopovers.tsx:18-19) |
-| PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | — | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
+| PRO-assistant-mic | Trợ lý: nút giọng nói | docs/06-prototype/AppChat.dc.html:1504 | 023f | GIẢ | apps/web/src/features/assistant/components/Composer.tsx:76 không onClick |
 | PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | — | GIẢ | Composer.tsx:50 không onClick |
 | PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | CHƯA | API có GET /assistant/sessions (DC-131) nhưng FE không có màn / route (`app/(app)/assistant/*` chỉ actions, approvals, cowork) |
 | PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | — | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng |

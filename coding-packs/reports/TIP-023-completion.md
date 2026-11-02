@@ -56,3 +56,7 @@ TIP-023d-assistant-plans.md receives REQ-E03d/E04b/E11b and four explicit execut
 ## Bổ sung2026-11-02 — semantic action discovery
 
 TIP023e receives DEF0234/BP5.2b and three explicit authority/meter/cache/privacy obligations. Keyword-only DC129 baseline is not semantic discovery. Explicit confirmed catalog build and private source-bound queries reuse019b; no runtime acceptance or new tariff. Agent-draft semantic tool selection remains separately unowned.
+
+## Bổ sung2026-11-02 — actual attachment/voice controls
+
+TIP023f receives REQ-E12a/b, Assistant file/screenshot/mic prototype controls and three explicit input integrity obligations.023c metadata handles are not actual content reading.130paths/10AC, local independent corrections; native sandbox/browser/real model verification later. No runtime completion.
