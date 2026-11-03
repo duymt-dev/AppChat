@@ -88,8 +88,9 @@ test.describe('quotes', () => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.getByTestId('q-ai-open').click();
+    // TIP-023c G2: nút nghiệp vụ gửi lượt Trợ lý thật → cây GenUI gọn trong drawer (không còn câu trả lời mẫu).
     await page.getByTestId('q-ai-sugg').click();
-    await expect(page.getByTestId('q-ai-result')).toContainText('HIFU 8 buổi');
+    await expect(page.getByTestId('q-ai').getByTestId('genui')).toContainText('HIFU 8 buổi');
     await page.getByTestId('q-ai-draft').click();
     const modal = page.getByTestId('q-draft');
     await modal.getByTestId('q-draft-contact').selectOption('ct_lan');

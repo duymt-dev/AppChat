@@ -421,5 +421,213 @@
     "upsell": "AI gợi ý upsell: Chị Lan (HIFU 8 buổi) phù hợp combo dưỡng da 4 buổi (+3.2tr, xác suất 71%). Mai Anh nên mời gói năm.",
     "collect": "2 đơn đang chờ thanh toán (Chị Lan còn 6,4tr; Phương Vy chờ cọc 2,85tr). Đề xuất gửi đề nghị thanh toán kèm VietQR + nhắc sau 24h.",
     "analyze": "Doanh thu đã thu tháng này: 59,3tr. Tỉ lệ thanh toán đủ 64%. Đơn huỷ chủ yếu do chậm chốt cọc — đề xuất bật nhắc tự động."
-  }
+  },
+  "genui": [
+    {
+      "key": "risk",
+      "re": "rủi ro|rà soát",
+      "lead": "Đơn hàng cần chú ý:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "code",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "order",
+                "id_key": "id"
+              }
+            },
+            {
+              "type": "button",
+              "label": "Lọc đơn chờ cọc",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "orders",
+                  "filter": {
+                    "chip": "deposit"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "rows": [
+            {
+              "id": "ord_290409",
+              "code": "DH-290409",
+              "note": "Phương Vy · chờ cọc 26 giờ"
+            },
+            {
+              "id": "ord_290407",
+              "code": "DH-290407",
+              "note": "Đã huỷ · nên hỏi lý do"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "collect",
+      "re": "phải thu|thanh toán|cọc|thu tiền",
+      "lead": "Đơn còn phải thu:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Đơn còn nợ",
+                  "value": {
+                    "$ref": "step:1.count"
+                  },
+                  "format": "number",
+                  "tone": "warning"
+                },
+                {
+                  "type": "stat",
+                  "label": "Số tiền còn thu",
+                  "value": {
+                    "$ref": "step:1.due"
+                  },
+                  "format": "money"
+                }
+              ]
+            },
+            {
+              "type": "table",
+              "columns": [
+                {
+                  "key": "code",
+                  "label": "Đơn"
+                },
+                {
+                  "key": "customer",
+                  "label": "Khách"
+                },
+                {
+                  "key": "due",
+                  "label": "Còn thu",
+                  "format": "money"
+                }
+              ],
+              "rows": {
+                "$ref": "step:1.rows"
+              },
+              "open": {
+                "entity": "order",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 2,
+          "due": 9250000,
+          "rows": [
+            {
+              "id": "ord_290411",
+              "code": "DH-290411",
+              "customer": "Chị Lan",
+              "due": 6400000
+            },
+            {
+              "id": "ord_290409",
+              "code": "DH-290409",
+              "customer": "Phương Vy",
+              "due": 2850000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "analyze",
+      "re": "doanh thu|phân tích",
+      "lead": "Doanh thu đơn hàng tháng này:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Đã thu",
+                  "value": {
+                    "$ref": "step:1.paid"
+                  },
+                  "format": "money",
+                  "tone": "success"
+                },
+                {
+                  "type": "stat",
+                  "label": "Thanh toán đủ",
+                  "value": {
+                    "$ref": "step:1.rate"
+                  },
+                  "format": "percent"
+                }
+              ]
+            },
+            {
+              "type": "chart",
+              "kind": "line",
+              "title": "Đã thu theo tuần",
+              "data": {
+                "$ref": "step:1.by_week"
+              },
+              "x": "week",
+              "y": "amount",
+              "format": "money"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "paid": 59300000,
+          "rate": 64,
+          "by_week": [
+            {
+              "week": "T1",
+              "amount": 12400000
+            },
+            {
+              "week": "T2",
+              "amount": 15800000
+            },
+            {
+              "week": "T3",
+              "amount": 17200000
+            },
+            {
+              "week": "T4",
+              "amount": 13900000
+            }
+          ]
+        }
+      }
+    }
+  ]
 }

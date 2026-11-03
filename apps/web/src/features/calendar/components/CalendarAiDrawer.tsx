@@ -1,10 +1,11 @@
-// Panel "Trợ lý AI · Lịch hẹn" — prototype L4157–4184 (bkAiSuggests L11116). Mock: không gọi LLM; "Gọi xác nhận khách chờ" lọc Chờ xác nhận,
-// "Lấp khung giờ trống" mở form tạo lịch, "Mở Trợ lý AI đầy đủ" mở dock Trợ lý.
+// Panel "Trợ lý AI · Lịch hẹn" — prototype L4157–4184 (bkAiSuggests L11116). TIP-023c G2: mỗi thẻ gửi prompt soạn sẵn tới Trợ lý THẬT
+// (surface drawer); "Gọi xác nhận khách chờ" lọc thêm Chờ xác nhận, "Lấp khung giờ trống" chỉ mở form tạo lịch; "Mở Trợ lý AI đầy đủ"
+// mở màn Trợ lý cùng phiên.
 'use client';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient, type IconName } from '@appchat/ui';
-import { useShellStore } from '@/shared/shell/shell-store';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useMe } from '@/shared/shell/useShellData';
 import { useCalAiStyles } from '../styles/ai.styles';
 import { useCalendarUi } from '../calendar-store';
@@ -21,20 +22,13 @@ export function CalendarAiDrawer({ meta }: { meta: CalendarMeta }) {
   const t = useTranslations('calendar.aiPanel');
   const { styles } = useCalAiStyles();
   const ui = useCalendarUi();
-  const setDock = useShellStore((s) => s.setDock);
   const me = useMe().data;
-  const [result, setResult] = useState('');
-  const [draft, setDraft] = useState('');
+  const { asst, draft, setDraft, send, ask } = useDrawerAsk('calendar');
   const close = () => ui.set({ aiOpen: false });
-  const run = (k: string, title: string) => {
+  const run = (k: string) => {
     if (k === 'confirm') ui.setFilter({ status: 'pending' });
-    if (k === 'gap') ui.set({ aiOpen: false, form: 'create', prefill: { date: meta.today } });
-    setResult(t('picked', { t: title }));
-  };
-  const send = () => {
-    if (!draft.trim()) return;
-    setDraft('');
-    setResult(t('ack'));
+    if (k === 'gap') return ui.set({ aiOpen: false, form: 'create', prefill: { date: meta.today } });
+    ask(t(`prompts.${k}` as never));
   };
   return (
     <EntityDrawer
@@ -55,12 +49,13 @@ export function CalendarAiDrawer({ meta }: { meta: CalendarMeta }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder={t('ph')}
+              aria-label={t('ph')}
             />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={16} color={color.white} strokeWidth={2} />
             </button>
           </div>
-          <button type="button" className={styles.full} onClick={() => (close(), setDock(true))}>
+          <button type="button" className={styles.full} onClick={() => (close(), asst.openFull())} data-testid="cal-ai-full">
             <Icon name="ic-spark" size={14} color={color.violetInk} />
             {t('full')}
           </button>
@@ -78,7 +73,7 @@ export function CalendarAiDrawer({ meta }: { meta: CalendarMeta }) {
           {meta.ai.map(([k, title, desc]) => {
             const [ic, c] = LOOK[k] ?? LOOK.report!;
             return (
-              <button key={k} type="button" className={styles.card} onClick={() => run(k, title)} data-testid={`cal-ai-${k}`}>
+              <button key={k} type="button" className={styles.card} onClick={() => run(k)} disabled={asst.typing} data-testid={`cal-ai-${k}`}>
                 <div className={styles.cardH}>
                   <span className={styles.cardIc} style={{ background: `${c}18` }}>
                     <Icon name={ic} size={15} color={c} />
@@ -90,7 +85,7 @@ export function CalendarAiDrawer({ meta }: { meta: CalendarMeta }) {
             );
           })}
         </div>
-        {result ? <div className={styles.result}>{result}</div> : null}
+        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} testId="cal-ai-msgs" />
       </div>
     </EntityDrawer>
   );

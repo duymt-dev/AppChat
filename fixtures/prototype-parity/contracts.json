@@ -367,5 +367,169 @@
     "draft": "Đã soạn dự thảo hợp đồng từ báo giá đã duyệt: thông tin bên A/B, phạm vi dịch vụ, giá trị, điều khoản thanh toán 50% cọc, hiệu lực 6 tháng. Bấm \"Tạo hợp đồng\" để lưu nháp.",
     "renew": "2 hợp đồng sắp hết hạn trong 30 ngày (Cty Bảo An còn 11 tháng — chưa cần; Mai Anh đã hết). Đề xuất chiến dịch gia hạn qua Zalo / Email.",
     "analyze": "Tổng giá trị hợp đồng đang hiệu lực: 60.8tr. Tỉ lệ ký thành công 68%. Hợp đồng rớt chủ yếu do chậm gửi ký — đề xuất bật nhắc tự động sau 24h."
-  }
+  },
+  "genui": [
+    {
+      "key": "risk",
+      "re": "rủi ro|rà soát",
+      "lead": "Rà soát rủi ro hợp đồng:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Đã hết hạn",
+                  "value": {
+                    "$ref": "step:1.expired"
+                  },
+                  "format": "number",
+                  "tone": "danger"
+                },
+                {
+                  "type": "stat",
+                  "label": "Chờ ký > 24h",
+                  "value": {
+                    "$ref": "step:1.waiting"
+                  },
+                  "format": "number",
+                  "tone": "warning"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "code",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "contract",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "expired": 1,
+          "waiting": 1,
+          "rows": [
+            {
+              "id": "ctr_1178",
+              "code": "HĐ-1178",
+              "note": "Mai Anh · hết hạn 10/06"
+            },
+            {
+              "id": "ctr_1181",
+              "code": "HĐ-1181",
+              "note": "Phương Vy · chờ ký 30 giờ"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "renew",
+      "re": "hết hạn|gia hạn",
+      "lead": "Hợp đồng cần gia hạn:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Sắp / đã hết hạn",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number",
+              "tone": "warning"
+            },
+            {
+              "type": "button",
+              "label": "Lọc hợp đồng hết hạn",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "contracts",
+                  "filter": {
+                    "status": "expired"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 2
+        }
+      }
+    },
+    {
+      "key": "analyze",
+      "re": "phân tích|giá trị|tỉ lệ ký",
+      "lead": "Tổng quan hợp đồng:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Giá trị hiệu lực",
+                  "value": {
+                    "$ref": "step:1.value"
+                  },
+                  "format": "money"
+                },
+                {
+                  "type": "stat",
+                  "label": "Tỉ lệ ký",
+                  "value": {
+                    "$ref": "step:1.rate"
+                  },
+                  "format": "percent",
+                  "tone": "success"
+                }
+              ]
+            },
+            {
+              "type": "progress",
+              "label": "Đã ký / tổng gửi",
+              "value": {
+                "$ref": "step:1.signed"
+              },
+              "max": {
+                "$ref": "step:1.sent"
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "value": 60800000,
+          "rate": 68,
+          "signed": 17,
+          "sent": 25
+        }
+      }
+    }
+  ]
 }

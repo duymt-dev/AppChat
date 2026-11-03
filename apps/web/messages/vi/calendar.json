@@ -169,7 +169,10 @@
     "ph": "Hỏi trợ lý về lịch hẹn…",
     "send": "Gửi",
     "full": "Mở Trợ lý AI đầy đủ →",
-    "ack": "Dạ em đã ghi nhận, em xử lý lịch hẹn giúp mình ngay ạ.",
-    "picked": "Đang thực hiện: {t}"
+    "prompts": {
+      "confirm": "Liệt kê lịch hẹn đang chờ xác nhận và soạn lời nhắc xác nhận cho khách.",
+      "follow": "Liệt kê follow-up đến hạn hôm nay và đề xuất tin chăm sóc theo giai đoạn.",
+      "report": "Báo cáo lịch hẹn hôm nay: số lịch, đã xác nhận, giờ dùng và doanh thu dự kiến."
+    }
   }
 }

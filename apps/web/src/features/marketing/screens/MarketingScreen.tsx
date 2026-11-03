@@ -17,9 +17,11 @@ import { MarketingAiDrawer } from '../components/MarketingAiDrawer';
 import type { Campaign } from '../types';
 import { useMarketingUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 export function MarketingScreen() {
   useMarketingUiCommands();
+  useAssistantContext();
   const t = useTranslations('marketing');
   const { styles } = useMarketingStyles();
   const ui = useMarketingUi();

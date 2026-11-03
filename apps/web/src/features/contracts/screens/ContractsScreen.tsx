@@ -20,6 +20,7 @@ import { KANBAN, chipOf } from '../status';
 import type { Contract } from '../types';
 import { useContractsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -47,6 +48,7 @@ function useFromQuote() {
 
 export function ContractsScreen() {
   useContractsUiCommands();
+  useAssistantContext();
   useFromQuote();
   const t = useTranslations('contracts');
   const tc = useTranslations('common');

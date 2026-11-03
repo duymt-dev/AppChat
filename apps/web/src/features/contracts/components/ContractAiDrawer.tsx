@@ -1,9 +1,13 @@
-// Panel "Trợ lý AI · Hợp đồng" — prototype L5413–5428. Mock: kết quả mẫu từ /contracts/meta (không gọi LLM).
+// Panel "Trợ lý AI · Hợp đồng" — prototype L5413–5428. TIP-023c G2: nút nghiệp vụ = prompt soạn sẵn gửi
+// Trợ lý THẬT (surface drawer, ngữ cảnh bản ghi đang mở / dòng chọn); khung tóm tắt = số liệu đếm theo luật của `/contracts/meta.ai_runs`
+// (thông tin, không phải câu trả lời AI). Ô hỏi gửi lượt thật.
 // "Soạn dự thảo hợp đồng" mở form tạo hợp đồng (AI chỉ soạn nháp — COMMERCE §9 / §12).
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient } from '@appchat/ui';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useContractAiStyles } from '../styles/ai.styles';
 import { useContractsUi } from '../contracts-store';
 import type { ContractsMeta } from '../types';
@@ -20,16 +24,12 @@ export function ContractAiDrawer({ meta }: { meta: ContractsMeta }) {
   const { styles } = useContractAiStyles();
   const ui = useContractsUi();
   const [result, setResult] = useState('');
-  const [draft, setDraft] = useState('');
+  const { asst, draft, setDraft, send, ask } = useDrawerAsk('contracts');
   const run = (k: string) => {
-    if (k === 'draft') ui.set({ form: 'create', prefill: null });
+    // "Soạn dự thảo" mở form tạo hợp đồng (AI chỉ soạn nháp — COMMERCE §9 / §12), không giả kết quả.
+    if (k === 'draft') return ui.set({ aiOpen: false, form: 'create', prefill: null });
     setResult(meta.ai_runs[k] ?? '');
-  };
-  const send = () => {
-    const text = draft.trim().toLowerCase();
-    if (!text) return;
-    setDraft('');
-    setResult(/hạn|gia hạn|renew|expir/.test(text) ? t('ackRenew') : t('ack'));
+    ask(t(`prompts.${k}` as never));
   };
   return (
     <EntityDrawer
@@ -50,6 +50,7 @@ export function ContractAiDrawer({ meta }: { meta: ContractsMeta }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder={t('ph')}
+              aria-label={t('ph')}
             />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={14} color={color.white} />
@@ -67,6 +68,7 @@ export function ContractAiDrawer({ meta }: { meta: ContractsMeta }) {
               type="button"
               className={styles.run}
               onClick={() => run(k)}
+              disabled={asst.typing}
               data-testid={`ct-ai-${k}`}
             >
               <span className={styles.runIc}>
@@ -81,6 +83,7 @@ export function ContractAiDrawer({ meta }: { meta: ContractsMeta }) {
             {result}
           </div>
         ) : null}
+        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} onOpenFull={asst.openFull} testId="ct-ai-msgs" />
       </div>
     </EntityDrawer>
   );

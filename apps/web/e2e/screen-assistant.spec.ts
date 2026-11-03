@@ -47,6 +47,42 @@ test.describe('screen-assistant', () => {
     await expect(preview).toBeHidden();
   });
 
+  // Mỗi drawer theo màn: nút nhanh → lượt thật → cây compact; nút ui lọc bảng của màn; "Mở trong Trợ lý" cùng phiên.
+  const DRAWERS = [
+    { m: 'quotes', open: 'q-ai-open', drawer: 'q-ai', run: 'q-ai-followup', text: 'BG-2040' },
+    { m: 'contracts', open: 'ct-ai-open', drawer: 'ct-ai', run: 'ct-ai-risk', text: 'HĐ-1178' },
+    { m: 'orders', open: 'od-ai-open', drawer: 'od-ai', run: 'od-ai-collect', text: 'DH-290411' },
+    { m: 'calendar', open: 'cal-ai-open', drawer: 'cal-ai', run: 'cal-ai-report', text: 'Doanh thu dự kiến' },
+    { m: 'tickets', open: 'tk-ai-open', drawer: 'tk-ai', run: 'tk-ai-route', text: 'TKT-2040' },
+  ];
+  for (const d of DRAWERS)
+    test(`${d.m}: nút nhanh → cây compact trong drawer, Mở trong Trợ lý cùng phiên`, async ({ page }) => {
+      test.skip(isMobile(page), 'luồng desktop');
+      await page.goto(`/${d.m}?session=authed,declared,trialSeen`);
+      await page.getByTestId(d.open).click();
+      const drawer = page.getByTestId(d.drawer);
+      await drawer.getByTestId(d.run).click();
+      const ui = drawer.getByTestId('genui');
+      await expect(ui).toHaveAttribute('data-mode', 'compact');
+      await expect(ui).toContainText(d.text);
+      await expect(drawer.getByTestId('screen-ai-user')).toHaveCount(1);
+      const full = drawer.getByTestId('screen-ai-open-full').or(drawer.getByTestId(`${d.drawer}-full`));
+      await full.first().click();
+      await expect(page).toHaveURL(/\/assistant$/);
+      await expect(page.getByTestId('genui')).toContainText(d.text);
+    });
+
+  test('marketing: ô hỏi gửi lượt thật → cây compact', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto('/marketing?session=authed,declared,trialSeen');
+    await page.getByTestId('mk-ai-open').click();
+    const drawer = page.getByTestId('mk-ai');
+    const box = drawer.getByRole('textbox');
+    await box.fill('Chiến dịch nào đang tạm dừng?');
+    await box.press('Enter');
+    await expect(drawer.getByTestId('genui')).toContainText('Win-back khách ngủ đông');
+  });
+
   test('mobile: drawer không tràn ngang khi có cây', async ({ page }) => {
     test.skip(!isMobile(page), 'mobile');
     const drawer = await openDrawer(page);

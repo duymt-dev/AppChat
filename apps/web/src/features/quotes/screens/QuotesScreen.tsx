@@ -17,6 +17,7 @@ import { KANBAN } from '../status';
 import type { Quote } from '../types';
 import { useQuotesUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -27,6 +28,7 @@ const KPI = [
 
 export function QuotesScreen() {
   useQuotesUiCommands();
+  useAssistantContext();
   const t = useTranslations('quotes');
   const tc = useTranslations('common');
   const { styles } = useQuotesStyles();

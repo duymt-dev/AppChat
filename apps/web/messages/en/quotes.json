@@ -291,9 +291,11 @@
     "result": "AI result",
     "ph": "Ask the AI Assistant about quotes…",
     "send": "Send",
-    "ackPrice": "I'll suggest a package that fits the budget plus the best discount to lift the close rate.",
-    "ackFollow": "I'll review unanswered quotes and draft automatic reminders for you.",
-    "ack": "Noted your request about quotes — on it."
+    "prompts": {
+      "sugg": "Suggest suitable packages / combos and pricing for the customer of the open quote (or selected quotes) based on purchase history.",
+      "followup": "List sent quotes with no customer response for more than 3 days and suggest how to follow up.",
+      "analyze": "Analyse the quote close rate: accepted / rejected / expired counts and the main reasons for losses."
+    }
   },
   "draft": {
     "title": "AI quote draft from text",

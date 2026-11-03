@@ -242,8 +242,11 @@
       "renew": "Nhắc gia hạn",
       "analyze": "Phân tích tỉ lệ ký"
     },
-    "ack": "Đã ghi nhận — trợ lý sẽ rà soát hợp đồng liên quan và gợi ý bước tiếp theo.",
-    "ackRenew": "Có 1 hợp đồng đã hết hạn (HĐ-1178). Đề xuất tạo bản gia hạn và gửi duyệt."
+    "prompts": {
+      "risk": "Rà soát rủi ro hợp đồng: hợp đồng sắp / đã hết hạn, chờ ký quá lâu, thiếu điều khoản.",
+      "renew": "Liệt kê hợp đồng sắp hết hạn trong 30 ngày và đề xuất gia hạn.",
+      "analyze": "Phân tích hợp đồng: tổng giá trị đang hiệu lực, tỉ lệ ký thành công và lý do rớt."
+    }
   },
   "sign": {
     "title": "Ký hợp đồng điện tử",

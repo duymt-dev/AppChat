@@ -230,8 +230,12 @@
     "ph": "Ask the assistant about tickets…",
     "send": "Send",
     "full": "Open full AI Assistant →",
-    "picked": "Applied: {t}",
-    "ack": "Noted — the assistant will answer in the full dock."
+    "prompts": {
+      "overdue": "Summarise tickets past SLA and due today, and suggest a handling order.",
+      "reply": "Suggest a reply for the open complaint ticket (empathy + resolution).",
+      "route": "Classify backlog tickets and suggest a handling team by category and priority.",
+      "report": "Report SLA this week: AI self-resolve rate, average handling time, number of breaches."
+    }
   },
   "agent": "AI Agent",
   "unit": "tickets"

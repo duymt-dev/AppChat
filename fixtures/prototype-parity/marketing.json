@@ -983,5 +983,172 @@
         ]
       ]
     }
+  ],
+  "genui": [
+    {
+      "key": "perf",
+      "re": "hiệu quả|tỉ lệ mở",
+      "lead": "Hiệu quả chiến dịch đang chạy:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "table",
+              "columns": [
+                {
+                  "key": "name",
+                  "label": "Chiến dịch"
+                },
+                {
+                  "key": "open",
+                  "label": "Tỉ lệ mở",
+                  "format": "percent"
+                },
+                {
+                  "key": "conv",
+                  "label": "Chuyển đổi",
+                  "format": "percent"
+                }
+              ],
+              "rows": {
+                "$ref": "step:1.rows"
+              },
+              "open": {
+                "entity": "campaign",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "rows": [
+            {
+              "id": "cp_2101",
+              "name": "Nhắc tái khám tháng 6",
+              "open": 62,
+              "conv": 9.4
+            },
+            {
+              "id": "cp_2103",
+              "name": "VIP giữ chân",
+              "open": 58,
+              "conv": 7.1
+            },
+            {
+              "id": "cp_2106",
+              "name": "Flash Sale cuối tuần",
+              "open": 41,
+              "conv": 5.2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "budget",
+      "re": "ngân sách|chi phí",
+      "lead": "Chi phí gửi tháng này:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Đã dùng",
+                  "value": {
+                    "$ref": "step:1.spent"
+                  },
+                  "format": "money"
+                },
+                {
+                  "type": "stat",
+                  "label": "Ngân sách",
+                  "value": {
+                    "$ref": "step:1.budget"
+                  },
+                  "format": "money"
+                }
+              ]
+            },
+            {
+              "type": "progress",
+              "label": "Đã dùng / ngân sách",
+              "value": {
+                "$ref": "step:1.spent"
+              },
+              "max": {
+                "$ref": "step:1.budget"
+              },
+              "tone": "warning"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "spent": 3850000,
+          "budget": 5000000
+        }
+      }
+    },
+    {
+      "key": "paused",
+      "re": "tạm dừng",
+      "lead": "Chiến dịch đang tạm dừng:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "name",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "campaign",
+                "id_key": "id"
+              }
+            },
+            {
+              "type": "button",
+              "label": "Lọc chiến dịch tạm dừng",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "campaigns",
+                  "filter": {
+                    "status": "paused"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "rows": [
+            {
+              "id": "cp_2105",
+              "name": "Win-back khách ngủ đông",
+              "note": "Tạm dừng 3 ngày · chờ duyệt nội dung"
+            }
+          ]
+        }
+      }
+    }
   ]
 }

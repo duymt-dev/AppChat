@@ -14,9 +14,11 @@ import { AppointmentDrawer } from '../components/AppointmentDrawer';
 import { CancelApptModal } from '../components/CancelApptModal';
 import { CalendarAiDrawer } from '../components/CalendarAiDrawer';
 import { useCalendarUiCommands } from '../ui-commands';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 export function CalendarScreen() {
   useCalendarUiCommands();
+  useAssistantContext();
   const { styles } = useCalendarStyles();
   const ui = useCalendarUi();
   const meta = useQuery(calendarMetaQuery()).data;

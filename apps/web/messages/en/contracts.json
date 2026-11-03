@@ -242,8 +242,11 @@
       "renew": "Renewal reminders",
       "analyze": "Analyse signing rate"
     },
-    "ack": "Noted — the assistant will review related contracts and suggest next steps.",
-    "ackRenew": "One contract has expired (HĐ-1178). Suggest creating a renewal and submitting it."
+    "prompts": {
+      "risk": "Review contract risks: contracts expiring or expired, waiting too long for signature, missing terms.",
+      "renew": "List contracts expiring within 30 days and suggest renewals.",
+      "analyze": "Analyse contracts: total active value, signing success rate and reasons for losses."
+    }
   },
   "sign": {
     "title": "Sign contract electronically",

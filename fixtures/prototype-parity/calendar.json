@@ -597,5 +597,160 @@
       "Báo cáo lịch hẹn hôm nay",
       "6 lịch · 4 xác nhận · utilization 6.4h · doanh thu 3.6tr"
     ]
+  ],
+  "genui": [
+    {
+      "key": "confirm",
+      "re": "đang chờ xác nhận|gọi xác nhận",
+      "lead": "Lịch hẹn đang chờ xác nhận:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Chờ xác nhận",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number",
+              "tone": "warning"
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "name",
+              "subtitle_key": "time",
+              "open": {
+                "entity": "appointment",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 1,
+          "rows": [
+            {
+              "id": "ap_1215",
+              "name": "Vũ Mai Trâm",
+              "time": "16:30 hôm nay"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "follow",
+      "re": "follow|chăm sóc",
+      "lead": "Follow-up đến hạn hôm nay:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Đến hạn",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number"
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "name",
+              "subtitle_key": "note"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 2,
+          "rows": [
+            {
+              "name": "Nguyễn Thị Lan",
+              "note": "Sau liệu trình HIFU buổi 3"
+            },
+            {
+              "name": "Phạm Thị Linh",
+              "note": "Nhắc tái khám da"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "report",
+      "re": "báo cáo lịch|lịch hẹn hôm nay:",
+      "lead": "Lịch hẹn hôm nay:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Lịch hẹn",
+                  "value": {
+                    "$ref": "step:1.total"
+                  },
+                  "format": "number"
+                },
+                {
+                  "type": "stat",
+                  "label": "Đã xác nhận",
+                  "value": {
+                    "$ref": "step:1.confirmed"
+                  },
+                  "format": "number",
+                  "tone": "success"
+                },
+                {
+                  "type": "stat",
+                  "label": "Doanh thu dự kiến",
+                  "value": {
+                    "$ref": "step:1.revenue"
+                  },
+                  "format": "money"
+                }
+              ]
+            },
+            {
+              "type": "progress",
+              "label": "Công suất",
+              "value": {
+                "$ref": "step:1.hours"
+              },
+              "max": {
+                "$ref": "step:1.open_hours"
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "total": 6,
+          "confirmed": 4,
+          "revenue": 3600000,
+          "hours": 6.4,
+          "open_hours": 10
+        }
+      }
+    }
   ]
 }

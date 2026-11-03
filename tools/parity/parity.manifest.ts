@@ -1107,6 +1107,56 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-campaign]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
+  // TIP-023c G2: drawer Trợ lý theo màn ở trạng thái mở chưa hỏi (khung prototype giữ nguyên).
+  {
+    id: 'quotes:ai',
+    route: '/quotes',
+    protoStorage: quotes,
+    proto: (p) => p.locator('[title="Trợ lý AI · Báo giá"]').first().click(),
+    app: (p) => p.locator('[data-testid="q-ai-open"]').click(),
+    appWait: '[data-quote]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // TIP-023c G2: drawer Trợ lý theo màn ở trạng thái mở chưa hỏi (khung prototype giữ nguyên).
+  {
+    id: 'contracts:ai',
+    route: '/contracts',
+    protoStorage: contracts,
+    proto: (p) => p.locator('[title="Trợ lý AI · Hợp đồng"]').first().click(),
+    app: (p) => p.locator('[data-testid="ct-ai-open"]').click(),
+    appWait: '[data-contract]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // TIP-023c G2: drawer Trợ lý theo màn ở trạng thái mở chưa hỏi (khung prototype giữ nguyên).
+  {
+    id: 'orders:ai',
+    route: '/orders',
+    protoStorage: orders,
+    proto: (p) => p.locator('[title="Trợ lý AI · Đơn hàng"]').first().click(),
+    app: (p) => p.locator('[data-testid="od-ai-open"]').click(),
+    appWait: '[data-order]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // TIP-023c G2: drawer Trợ lý theo màn ở trạng thái mở chưa hỏi (khung prototype giữ nguyên).
+  {
+    id: 'calendar:ai',
+    route: '/calendar',
+    protoStorage: calendar,
+    proto: (p) => p.locator('[title="Trợ lý AI · Lịch hẹn"]').first().click(),
+    app: (p) => p.locator('[data-testid="cal-ai-open"]').click(),
+    appWait: '[data-appt]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // TIP-023c G2: drawer Trợ lý theo màn ở trạng thái mở chưa hỏi (khung prototype giữ nguyên).
+  {
+    id: 'tickets:ai',
+    route: '/tickets',
+    protoStorage: tickets,
+    proto: (p) => p.locator('[title="Trợ lý AI · Tickets"]').first().click(),
+    app: (p) => p.locator('[data-testid="tk-ai-open"]').click(),
+    appWait: '[data-ticket]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
   {
     id: 'loyalty:overview',
     route: '/loyalty',

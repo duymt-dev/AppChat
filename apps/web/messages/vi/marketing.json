@@ -157,12 +157,7 @@
     "titleAi": "Chiến dịch từ đề xuất AI",
     "sub": "Gửi tin tới khách hàng qua Zalo cá nhân hoặc Email — chọn từ phân khúc có sẵn hoặc danh sách đã lưu.",
     "close": "Đóng",
-    "steps": [
-      "Kênh gửi",
-      "Người nhận",
-      "Nội dung",
-      "Lên lịch & gửi"
-    ],
+    "steps": ["Kênh gửi", "Người nhận", "Nội dung", "Lên lịch & gửi"],
     "aiBox": "AI đã điền sẵn từ đề xuất — kiểm tra & phê duyệt",
     "aiK": {
       "name": "Tên chiến dịch",
@@ -357,8 +352,7 @@
     "go": "Tạo chiến dịch này",
     "ph": "Hỏi trợ lý về chiến dịch…",
     "send": "Gửi",
-    "full": "Mở Trợ lý AI đầy đủ →",
-    "ack": "Đã ghi nhận — Trợ lý sẽ trả lời trong dock đầy đủ."
+    "full": "Mở Trợ lý AI đầy đủ →"
   },
   "from": "Từ ngày",
   "to": "Đến ngày",

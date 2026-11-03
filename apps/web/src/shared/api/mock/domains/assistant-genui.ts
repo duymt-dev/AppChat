@@ -3,7 +3,13 @@
 // (`surface: drawer`) tìm cây của module theo route trước, rồi tới cây chung của màn Trợ lý.
 import { walkTree, type GenUiPart, type UiTree } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/assistant.json';
+import calendar from '../../../../../../../fixtures/prototype-parity/calendar.json';
+import contracts from '../../../../../../../fixtures/prototype-parity/contracts.json';
 import customers from '../../../../../../../fixtures/prototype-parity/customers.json';
+import marketing from '../../../../../../../fixtures/prototype-parity/marketing.json';
+import orders from '../../../../../../../fixtures/prototype-parity/orders.json';
+import quotes from '../../../../../../../fixtures/prototype-parity/quotes.json';
+import tickets from '../../../../../../../fixtures/prototype-parity/tickets.json';
 
 interface GenUiFixture {
   re: string;
@@ -13,8 +19,14 @@ interface GenUiFixture {
 }
 
 /** Cây theo module (route đầu) — mỗi module ≥ 3 cây compact (standard §12). */
-const BY_MODULE: Record<string, readonly GenUiFixture[]> = {
+export const BY_MODULE: Record<string, readonly GenUiFixture[]> = {
   customers: customers.genui,
+  quotes: quotes.genui,
+  contracts: contracts.genui,
+  orders: orders.genui,
+  calendar: calendar.genui,
+  tickets: tickets.genui,
+  marketing: marketing.genui,
 };
 
 let seq = 0;

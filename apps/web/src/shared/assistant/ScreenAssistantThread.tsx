@@ -78,6 +78,16 @@ const useStyles = createStyles(({ css }) => ({
     font-size: ${font.size.caption}px;
     font-weight: ${font.weight.semibold};
   `,
+  open: css`
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: ${color.violetInk};
+    font-size: ${font.size.caption}px;
+    font-weight: ${font.weight.semibold};
+    cursor: pointer;
+  `,
   muted: css`
     font-size: ${font.size.caption}px;
     color: ${color.text4};
@@ -90,9 +100,11 @@ export interface ScreenAssistantThreadProps {
   onDecide: (m: ScreenMsg, d: 'confirm' | 'cancel') => void;
   onUi: (cmd: UiCommand) => void;
   testId?: string;
+  /** "Mở trong Trợ lý" (cùng phiên) — hiện khi đã có tin, cho drawer không có nút mở đầy đủ ở chân. */
+  onOpenFull?: () => void;
 }
 
-export function ScreenAssistantThread({ msgs, typing, onDecide, onUi, testId }: ScreenAssistantThreadProps) {
+export function ScreenAssistantThread({ msgs, typing, onDecide, onUi, testId, onOpenFull }: ScreenAssistantThreadProps) {
   const t = useTranslations('common.screenAi');
   const { styles } = useStyles();
   if (!msgs.length && !typing) return null;
@@ -117,6 +129,11 @@ export function ScreenAssistantThread({ msgs, typing, onDecide, onUi, testId }: 
         <div className={styles.muted} data-testid="screen-ai-typing">
           {t('thinking')}
         </div>
+      ) : null}
+      {onOpenFull && msgs.length && !typing ? (
+        <button type="button" className={styles.open} onClick={onOpenFull} data-testid="screen-ai-open-full">
+          {t('openFull')}
+        </button>
       ) : null}
     </div>
   );

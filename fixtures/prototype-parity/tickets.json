@@ -958,5 +958,194 @@
       "Báo cáo SLA tuần này",
       "82% AI tự xử · thời gian xử lý TB 1.4h · 1 vi phạm SLA"
     ]
+  ],
+  "genui": [
+    {
+      "key": "overdue",
+      "re": "quá hạn|sla",
+      "lead": "Ticket quá hạn và sắp đến hạn:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Quá hạn",
+                  "value": {
+                    "$ref": "step:1.breach"
+                  },
+                  "format": "number",
+                  "tone": "danger"
+                },
+                {
+                  "type": "stat",
+                  "label": "Sắp đến hạn",
+                  "value": {
+                    "$ref": "step:1.soon"
+                  },
+                  "format": "number",
+                  "tone": "warning"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "code",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "ticket",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "breach": 1,
+          "soon": 3,
+          "rows": [
+            {
+              "id": "tk_2041",
+              "code": "TKT-2041",
+              "note": "Quá hạn 2 giờ · khiếu nại trị liệu"
+            },
+            {
+              "id": "tk_2039",
+              "code": "TKT-2039",
+              "note": "Còn 40 phút"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "route",
+      "re": "phân loại|định tuyến|nhóm xử lý",
+      "lead": "Đề xuất định tuyến ticket tồn:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "table",
+              "columns": [
+                {
+                  "key": "code",
+                  "label": "Ticket"
+                },
+                {
+                  "key": "team",
+                  "label": "Nhóm đề xuất"
+                },
+                {
+                  "key": "priority",
+                  "label": "Ưu tiên"
+                }
+              ],
+              "rows": {
+                "$ref": "step:1.rows"
+              },
+              "open": {
+                "entity": "ticket",
+                "id_key": "id"
+              }
+            },
+            {
+              "type": "button",
+              "label": "Sắp ưu tiên cao trước",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "tickets",
+                  "filter": {
+                    "sort": "priority"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "rows": [
+            {
+              "id": "tk_2040",
+              "code": "TKT-2040",
+              "team": "Kỹ thuật",
+              "priority": "Cao"
+            },
+            {
+              "id": "tk_2038",
+              "code": "TKT-2038",
+              "team": "CSKH",
+              "priority": "Thường"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "report",
+      "re": "báo cáo|tuần này",
+      "lead": "SLA tuần này:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "AI tự xử",
+                  "value": {
+                    "$ref": "step:1.ai_rate"
+                  },
+                  "format": "percent",
+                  "tone": "success"
+                },
+                {
+                  "type": "stat",
+                  "label": "Xử lý TB (giờ)",
+                  "value": {
+                    "$ref": "step:1.avg_hours"
+                  },
+                  "format": "number"
+                },
+                {
+                  "type": "stat",
+                  "label": "Vi phạm",
+                  "value": {
+                    "$ref": "step:1.breaches"
+                  },
+                  "format": "number",
+                  "tone": "danger"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "ai_rate": 82,
+          "avg_hours": 1.4,
+          "breaches": 1
+        }
+      }
+    }
   ]
 }

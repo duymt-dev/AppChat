@@ -169,7 +169,10 @@
     "ph": "Ask the assistant about bookings…",
     "send": "Send",
     "full": "Open the full AI Assistant →",
-    "ack": "Noted — I'll take care of the bookings right away.",
-    "picked": "Working on: {t}"
+    "prompts": {
+      "confirm": "List appointments awaiting confirmation and draft confirmation reminders for customers.",
+      "follow": "List follow-ups due today and suggest care messages by stage.",
+      "report": "Report today's appointments: count, confirmed, utilised hours and expected revenue."
+    }
   }
 }

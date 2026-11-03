@@ -291,9 +291,11 @@
     "result": "Kết quả AI",
     "ph": "Hỏi Trợ lý AI về báo giá…",
     "send": "Gửi",
-    "ackPrice": "Dạ em đề xuất gói phù hợp ngân sách khách + mức chiết khấu tối ưu để tăng tỉ lệ chốt ạ.",
-    "ackFollow": "Dạ em rà các báo giá chưa phản hồi và soạn tin nhắc tự động giúp anh/chị nhé.",
-    "ack": "Dạ em đã ghi nhận yêu cầu về báo giá, em xử lý ngay ạ."
+    "prompts": {
+      "sugg": "Gợi ý gói / combo và mức giá phù hợp cho khách của báo giá đang mở (hoặc các báo giá đang chọn) dựa trên lịch sử mua.",
+      "followup": "Liệt kê các báo giá đã gửi mà khách chưa phản hồi quá 3 ngày và đề xuất cách nhắc.",
+      "analyze": "Phân tích tỉ lệ chốt báo giá: số chấp nhận / từ chối / hết hạn và lý do rớt chính."
+    }
   },
   "draft": {
     "title": "AI soạn báo giá từ nội dung",

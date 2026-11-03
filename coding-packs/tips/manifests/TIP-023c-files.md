@@ -303,3 +303,6 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | M | `apps/web/src/shared/api/mock/domains/assistant-genui.ts` | Amend (G2): cây theo module (route của drawer) |
 | M | `apps/web/src/shared/api/mock/routes.ts` | Amend (G2): đăng ký route phiên mock |
 | M | `fixtures/prototype-parity/customers.json` | Amend (G2): `genui[]` 3 cây compact cho drawer Khách hàng (standard §12) |
+| M | `apps/web/e2e/quotes.spec.ts` | Amend (G2): nút "Gợi ý giá" không còn kết quả mẫu — kiểm cây GenUI của lượt thật trong drawer |
+| M | `apps/web/src/features/quotes/styles/ai.styles.ts` | Amend (G2): khoảng cách luồng hội thoại trong drawer Báo giá |
+| C | `apps/web/src/shared/assistant/useDrawerAsk.ts` | Amend (G2): ô hỏi + prompt nút nhanh dùng chung cho 6 drawer (tránh lặp state nháp / gửi ở mỗi drawer) |
