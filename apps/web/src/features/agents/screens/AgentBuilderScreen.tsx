@@ -16,6 +16,7 @@ import { ActionsSection } from '../components/builder/ActionsSection';
 import { KnowledgeSection } from '../components/builder/KnowledgeSection';
 import { TestPanel } from '../components/builder/TestPanel';
 import type { AgentConfig, AgentsMeta } from '../types';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 interface FormProps {
   seed: AgentConfig;
@@ -28,6 +29,7 @@ function BuilderForm({ seed, meta: m, agentId, title }: FormProps) {
   const t = useTranslations('agents.b');
   const { styles } = useBuilderStyles();
   const b = useAgentBuilder(seed, agentId);
+  useAssistantContext(agentId);
 
   return (
     <>

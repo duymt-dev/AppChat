@@ -17,9 +17,11 @@ import { AgentCard } from '../components/AgentCard';
 import { AgentAiDrawer } from '../components/AgentAiDrawer';
 import { VersionsDrawer } from '../components/VersionsDrawer';
 import { useAgentsUiCommands } from '../ui-commands';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 export function AgentsScreen() {
   useAgentsUiCommands();
+  useAssistantContext();
   const t = useTranslations('agents');
   const tc = useTranslations('common');
   const router = useRouter();
