@@ -11,6 +11,7 @@ import { actorUserId, editableContact } from '../services/access';
 import { assertNoDuplicate, checkCustom, columnsOf, createContact, fieldRole } from '../services/contacts.service';
 import { CrmMembers } from '../services/members.service';
 import { writeTimeline } from '../services/timeline.service';
+import * as pv from './previews/contact-write.handlers.preview';
 
 const actor = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
 
@@ -35,6 +36,10 @@ export class ContactCreateHandler implements Handler<ActionInput<typeof contactC
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof contactCreate>) {
+    return pv.createPreview(input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactCreate>, tx: TenantTx): Promise<HandlerOutcome<{ contact_id: string; code: string }>> {
     const now = this.clock.now();
@@ -63,6 +68,10 @@ export class ContactUpdateHandler implements Handler<ActionInput<typeof contactU
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactUpdate>, tx: TenantTx) {
+    return pv.updatePreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof contactUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ contact_id: string }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
     const { owner_user_id, custom, ...rest } = input.patch;
@@ -89,6 +98,10 @@ export class ContactUpdateHandler implements Handler<ActionInput<typeof contactU
 @ActionHandler('contact.set_stage')
 export class ContactSetStageHandler implements Handler<ActionInput<typeof contactSetStage>, { stage: string }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactSetStage>, tx: TenantTx) {
+    return pv.setStagePreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactSetStage>, tx: TenantTx): Promise<HandlerOutcome<{ stage: string }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
@@ -132,6 +145,10 @@ async function tagNames(tx: TenantTx, contactId: string) {
 export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>, { tags: string[] }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactTag>, tx: TenantTx) {
+    return pv.tagPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof contactTag>, tx: TenantTx): Promise<HandlerOutcome<{ tags: string[] }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
     const now = this.clock.now();
@@ -154,6 +171,10 @@ export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>
 @ActionHandler('contact.delete')
 export class ContactDeleteHandler implements Handler<ActionInput<typeof contactDelete>, { deleted: boolean }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx) {
+    return pv.deletePreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx): Promise<HandlerOutcome<{ deleted: boolean }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);

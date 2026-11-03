@@ -55,6 +55,8 @@ export const env: Record<string, string> = {
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'true',
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',
+  // Link tuyệt đối trong email thông báo — cố định, không theo cổng web demo của `.env`.
+  APP_PUBLIC_URL: 'http://localhost:3000',
 };
 // Hàng đợi BullMQ không có prefix theo môi trường: worker demo / dev chạy cùng Memurai DB 0 sẽ lấy mất job của test (đăng nhập Zalo giả
 // bị worker ZALO_TRANSPORT=zca nhận). Test dùng DB Redis riêng (mặc định 15) — không đụng dữ liệu demo.
