@@ -15,6 +15,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `coding-packs/reports/TIP-023b-completion.md` | Builder evidence report only after implementation |
 | M | `coding-packs/DEVIATIONS.md` | DV-021 thư viện `yaml` cho tools/ai-live |
 | M | `coding-packs/DECISIONS.md` | DC-306 quyền action đọc, DC-307 tìm mã HĐ |
+| M | `coding-packs/docs/06-prototype/DEVIATIONS.md` | PD-008 thẻ xác nhận Trợ lý có khối "đổi gì" + nút Sửa (amend khi thi công) |
 | M | `apps/api/src/http/inbox/inbox.http.module.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/core/src/ai/assistant/sessions.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/ai/src/gateway/engine.ts` | Canonical paused state and group HTTP registration |

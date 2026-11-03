@@ -1,6 +1,7 @@
 // Danh sách màn × trạng thái đo parity (standards/ui/prototype-parity §3). ID = ID dòng trong coding-packs/reports/goal-fe-prototype.md.
 import type { Page } from '@playwright/test';
 import { protoOverrideVals, protoSetState } from './protoState';
+import { ASSISTANT_COVERAGE } from './manifests/assistant-coverage';
 
 export interface Rect {
   x: number;
@@ -1402,4 +1403,5 @@ export const MANIFEST: ParityEntry[] = [
     clipTo: { proto: 'div[style*="width: 440px"]', app: '[data-testid="st-int-modal"] [role="dialog"]' },
     mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
   },
+  ...ASSISTANT_COVERAGE,
 ];
