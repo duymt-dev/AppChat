@@ -20,6 +20,27 @@ test.describe('inbox', () => {
     await expect(input).toHaveValue(/khung 14:00/);
   });
 
+  test('AI viết lại nháp (REQ-C05c): đề xuất → Thay nháp, không tự gửi; đổi hội thoại bỏ đề xuất', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    const input = page.getByTestId('composer-input');
+    await expect(page.getByTestId('thread').getByTestId('msg-out').first()).toBeVisible();
+    const sent = await page.getByTestId('thread').getByTestId('msg-out').count();
+    await input.fill('Giá gói 500k nhé');
+    await page.getByTestId('ai-draft-ask').click();
+    const card = page.getByTestId('ai-draft-proposal');
+    await expect(card).toBeVisible();
+    await expect(card.getByTestId('ai-draft-text')).toContainText('Dạ, giá gói 500k nhé ạ.');
+    await expect(input).toHaveValue('Giá gói 500k nhé');
+    await card.getByTestId('ai-draft-replace').click();
+    await expect(input).toHaveValue('Dạ, giá gói 500k nhé ạ.');
+    await expect(page.getByTestId('thread').getByTestId('msg-out')).toHaveCount(sent);
+    await page.getByTestId('ai-draft-ask').click();
+    await expect(page.getByTestId('ai-draft-proposal')).toBeVisible();
+    await page.locator('[data-conv="g_vip"] button').first().click();
+    await expect(page.getByTestId('ai-draft-proposal')).toHaveCount(0);
+  });
+
   test('menu hội thoại + menu tin nhắn + bỏ ghim', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);

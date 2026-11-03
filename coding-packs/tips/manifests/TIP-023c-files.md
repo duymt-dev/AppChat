@@ -336,3 +336,19 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | M | `apps/api/test/integration/genui-context.test.ts` | Amend (G2 8c): tệp người khác / không có trong workspace → 422 trước model, ai_run.input chỉ metadata |
 | M | `apps/web/messages/vi/assistant.json` | Amend (G2 8c): `assistant.attachments.*` (vi + en) |
 
+| C | `apps/api/test/integration/inbox-assistant-draft.test.ts` | Amend (G3): REQ-C05c trên API thật — đề xuất không action / tin / đổi ai_mode, canary ghi chú nội bộ, ngoài scope → 404 không run |
+| C | `apps/web/src/features/inbox/components/AssistantDraftBar.tsx` | Amend (G3): nút AI soạn / viết lại + thẻ đề xuất (Thay / Chèn / Bỏ, xung đột) — tách khỏi Composer (legacy) |
+| C | `apps/web/src/shared/api/mock/domains/integration-probe.ts` | Amend (G3): mock `integration.form_schema` / `integration.test` cùng luật core |
+| C | `apps/web/src/shared/genui/GenUiSkeleton.tsx` | Amend (G3): khung xương cây đang stream (inert, chỉ loại khối) |
+| C | `apps/web/src/shared/genui/GenUiSkeleton.test.tsx` | Amend (G3): khung xương không có phần tử tương tác / chữ |
+| C | `apps/web/src/shared/genui/blocks/ConnectionTest.tsx` | Amend (G3 mục 10): nút "Kiểm tra kết nối" trong form kết nối |
+| C | `apps/web/src/shared/genui/blocks/ConnectionTest.test.tsx` | Amend (G3): probe đúng action, ẩn khi không quyền, không gửi form |
+| C | `apps/web/src/shared/genui/connection-probe.ts` | Amend (G3): bảng tĩnh form kết nối → action thăm dò (model không chọn) |
+| C | `packages/ai/src/prompts/inbox-draft.vi.md` | Amend (G3): prompt nháp Hộp thư v1 (kho prompt, agent-gateway §8) |
+| C | `packages/ai/src/prompts/inbox-draft.en.md` | Amend (G3): bản en |
+| M | `packages/ai/src/testing/mock-model.ts` | Amend (G3): model giả trả nháp Hộp thư; input `render` phát theo mảnh (tool-input delta) |
+| C | `packages/core/src/ai/assistant/genui/skeleton-feed.ts` | Amend (G3): `ui_skeleton` lên luồng bền theo thứ tự, trước cây đã kiểm |
+| M | `packages/core/src/integrations/services/connections.service.ts` | Amend (G3): tách `splitFields` dùng chung cho probe (không lưu) |
+| M | `packages/core/src/integrations/services/resolver.ts` | Amend (G3): `byConnector` — kết nối đang dùng của connector cho `integration.test` |
+| M | `tools/contract/src/cases.ts` | Amend (G3): ca contract FE ↔ BE cho 2 action probe |
+| M | `tools/obligations/actions.json` | Amend (G3): sinh lại sổ action (2 action mới) |

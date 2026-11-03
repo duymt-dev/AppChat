@@ -1,5 +1,5 @@
 // TIP-023c G1 AC4 — E2E chế độ http (pnpm e2e:http): GenUI trên backend thật (model giả `AI_ENGINE=mock`, hộp thư giả). "kết nối email …"
-// → Trợ lý render form `channel.email.connect` (ô mật khẩu trống, dạng password) → nhập mật khẩu → Kết nối → thẻ xem trước (intent: nguồn
+// → Trợ lý render form `channel.email.connect` (ô mật khẩu trống, dạng password) → Kiểm tra kết nối (sai → lỗi, đúng → hợp lệ; G3) → Kết nối → thẻ xem trước (intent: nguồn
 // assistant) → Xác nhận (vault, không gửi lại mật khẩu) → kênh mới ở Cài đặt. Mật khẩu không còn trong DOM sau khi gửi.
 import { expect, test } from '@playwright/test';
 import { isMobile } from '../support/mobile';
@@ -28,7 +28,13 @@ test.describe('GenUI (http)', () => {
     await expect(secret).toHaveAttribute('type', 'password');
     await expect(secret).toHaveValue('');
     await form.locator('[data-field="fields.imap_host"]').fill('imap.fake.test');
+    // "Kiểm tra kết nối" (G3 mục 10): sai mật khẩu → báo lỗi, không lưu gì; đúng → hợp lệ. Rồi mới gửi.
+    await secret.fill('wrong-password');
+    await form.getByTestId('genui-form-test').click();
+    await expect(form.getByTestId('genui-form-test-result')).toContainText('mật khẩu', { timeout: 20_000 });
     await secret.fill(PASSWORD);
+    await form.getByTestId('genui-form-test').click();
+    await expect(form.getByTestId('genui-form-test-result')).toContainText(/hoạt động|hợp lệ/i, { timeout: 20_000 });
     await form.getByTestId('genui-form-submit').click();
 
     const preview = page.getByRole('dialog', { name: 'Xác nhận thao tác' });
