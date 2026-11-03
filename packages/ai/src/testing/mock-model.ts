@@ -92,14 +92,35 @@ export function staticModelSource(cands: { provider: string; model: string; hand
 /** Lượt Trợ lý (system mở đầu bằng `# TRỢ LÝ APPCHAT` / `# APPCHAT ASSISTANT` — prompt `assistant`): "tạo khách hàng <tên> <sđt>" → `call_action contact.create`. */
 const ASSISTANT_MARKS = ['# TRỢ LÝ APPCHAT', '# APPCHAT ASSISTANT'];
 const CREATE_CONTACT = /tạo (?:khách hàng|liên hệ)\s+(.+?)\s+((?:\+?84|0)\d[\d ]{7,12}\d)\s*$/i;
+/** GenUI (TIP-023c): "kết nối email <địa chỉ>" → `render` form `channel.email.connect`, ô mật khẩu để trống (người dùng tự nhập). */
+const CONNECT_EMAIL = /kết nối email\s+(\S+@\S+)/i;
+
+const emailForm = (address: string): MockTurn => ({
+  tool: 'render',
+  input: {
+    tree: {
+      version: 1,
+      root: {
+        type: 'form',
+        action_id: 'channel.email.connect',
+        title: 'Kết nối email',
+        submit_label: 'Kết nối',
+        fields: [{ name: 'address', label: 'Email', value: address }, { name: 'fields.imap_host', label: 'Máy chủ IMAP' }, { name: 'fields.imap_port', label: 'Cổng', value: '993' }, { name: 'fields.password', label: 'Mật khẩu ứng dụng' }],
+      },
+    },
+  },
+});
 
 function assistantTurn(lastUser: string, lastTool: MockCtx['lastTool']): MockTurn {
   if (lastTool) {
     const out = (lastTool.output ?? {}) as { cancelled?: boolean; error?: unknown };
     if (out.cancelled) return { text: 'Đã huỷ thao tác theo yêu cầu.' };
     if (out.error) return { text: 'Em chưa thực hiện được yêu cầu này. Anh/chị kiểm tra lại thông tin hoặc thử cách khác nhé.' };
+    if (lastTool.tool === 'render') return { text: 'Anh/chị điền mật khẩu ứng dụng rồi bấm Kết nối nhé.' };
     return { text: lastTool.tool === 'call_action' ? 'Đã lưu khách hàng mới.' : 'Đã xong.' };
   }
+  const mail = CONNECT_EMAIL.exec(lastUser.trim());
+  if (mail) return emailForm(mail[1]!);
   const m = CREATE_CONTACT.exec(lastUser.trim());
   if (m) return { tool: 'call_action', input: { action_id: 'contact.create', input: { full_name: m[1]!.trim(), phone: m[2]!.replace(/\s/g, '') } } };
   return { text: lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?' };
