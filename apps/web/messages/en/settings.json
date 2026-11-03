@@ -1310,6 +1310,14 @@
     "logoutD": "End the current session — workspace data is not affected"
   },
   "doctpl": {
+    "contractKind": {
+      "label": "Contract type",
+      "any": "Any type (generic template)",
+      "service": "Service",
+      "sale": "Sale",
+      "framework": "Framework",
+      "locked": "Default template — make another template the default before changing its type"
+    },
     "preview": "Preview",
     "previewT": "Preview with sample data",
     "previewFail": "Could not create the preview, try again later",

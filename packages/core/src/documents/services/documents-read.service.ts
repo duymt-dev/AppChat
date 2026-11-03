@@ -51,6 +51,7 @@ export class DocumentsReadService {
       fields: (r.fieldMap ?? []) as { placeholder: string; variable: string }[],
       checklist_missing: missingOf(r.checklistResult),
       is_default: r.isDefault,
+      contract_kind: (r.contractKind ?? null) as DocTemplateRow['contract_kind'],
       version: r.version,
       updated_by: (r.updatedBy && names.get(r.updatedBy)) || system,
       updated_at: r.updatedAt.toISOString(),

@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../kernel/ids';
 import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, actorUserId } from '../../crm/public';
+import { pickContractTemplate } from '../../documents/public';
 import { lockContract } from '../contract-access';
 import { createPreview, deletePreview, fromQuotePreview, renewPreview, updatePreview } from './previews/contract-write.handlers.preview';
 import { actorNameOf, checkContractParties, checkDates, fieldCols, logSignEvent, type ContractFields } from '../services/contract-write';
@@ -30,7 +31,8 @@ async function insertContract(ctx: ActionContext, tx: TenantTx, members: CrmMemb
   checkDates(cols.startDate, cols.endDate);
   const id = uuidv7(now.getTime());
   const code = await nextCode(tx, 'contract');
-  const tpl = await tx.docTemplate.findFirst({ where: { kind: 'contract', isDefault: true, deletedAt: null }, select: { id: true, version: true } });
+  // Mẫu theo loại hợp đồng → mặc định chung (TIP-030b spec 8). Chưa có mẫu nào vẫn tạo nháp được; duyệt / render báo `template_id: missing`.
+  const tpl = await pickContractTemplate(tx, input.kind ?? 'service');
   await tx.contract.create({
     data: {
       id,

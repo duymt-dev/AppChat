@@ -23,6 +23,8 @@ export const docTemplateCreate = defineAction({
     file_id: z.string().optional(),
     fields: z.array(FIELD).max(200).optional(),
     is_default: z.boolean().optional(),
+    /** Loại hợp đồng của mẫu (chỉ kind=contract; rỗng = mẫu chung mọi loại) — mặc định tách theo loại (TIP-030b). */
+    contract_kind: z.enum(['service', 'sale', 'framework']).nullable().optional(),
   }),
   output: z.object({ template_id: z.string() }),
   permission: 'documents.manage',
@@ -42,6 +44,8 @@ export const docTemplateUpdate = defineAction({
     body: z.string().max(100_000).optional(),
     fields: z.array(FIELD).max(200).optional(),
     is_default: z.boolean().optional(),
+    /** Đổi loại hợp đồng của mẫu (null = mẫu chung); mẫu đang là mặc định không đổi được nhóm (bỏ mặc định ở nhóm cũ trước). */
+    contract_kind: z.enum(['service', 'sale', 'framework']).nullable().optional(),
     /** Phiên bản đang mở — lệch → STALE_VERSION 409 (concurrency §1). */
     if_version: z.number().int().positive().optional(),
   }),

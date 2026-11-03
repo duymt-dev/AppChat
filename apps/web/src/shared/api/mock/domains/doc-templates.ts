@@ -25,7 +25,7 @@ type Field = DocTemplate['fields'][number];
 
 const AT = '2026-06-20T10:00:00+07:00';
 const NOT_VAT = NOT_VAT_LINE.vi;
-const tpl = (t: Omit<DocTemplate, 'checklist_missing'>): DocTemplate => ({ ...t, checklist_missing: [] });
+const tpl = (t: Omit<DocTemplate, 'checklist_missing' | 'contract_kind'> & { contract_kind?: DocTemplate['contract_kind'] }): DocTemplate => ({ contract_kind: null, ...t, checklist_missing: [] });
 const SEED: DocTemplate[] = [
   tpl({ id: 'tpl_q1', kind: 'quote', name: 'Báo giá chuẩn', source: 'rich', body: '<h2>BÁO GIÁ {{doc.code}}</h2><p>Kính gửi: {{customer.name}}</p>{{#items}}<p>{{name}} · {{amount}}</p>{{/items}}<p>Hiệu lực đến {{doc.valid_until}}</p>', fields: [], is_default: true, version: 3, updated_by: 'Thùy Trâm', updated_at: AT }),
   tpl({ id: 'tpl_q2', kind: 'quote', name: 'Báo giá liệu trình spa', source: 'docx', file_name: 'bao-gia-lieu-trinh.docx', file_id: 'file_q2', fields: [{ placeholder: 'Kính gửi: ……', variable: 'customer.name' }, { placeholder: 'Bảng dịch vụ', variable: 'items' }, { placeholder: 'Tổng cộng: ……', variable: 'totals.total' }], is_default: false, version: 1, updated_by: 'Thùy Trâm', updated_at: '2026-06-12T15:30:00+07:00' }),
@@ -95,8 +95,14 @@ const checkFields = (kind: DocKind, fields: Field[] = []) => {
   const bad = validateTemplateVars(kind, fields.map((f) => f.variable));
   if (bad.length) throw invalid('fields', `unknown_vars:${bad.join(',')}`);
 };
+/** Mặc định theo nhóm (loại chứng từ + loại hợp đồng; rỗng = chung) — như unique partial của server (TIP-030b). */
 const setDefault = (db: Db, t: DocTemplate) => {
-  for (const x of live(db)) if (x.kind === t.kind) x.is_default = x.id === t.id;
+  for (const x of live(db)) if (x.kind === t.kind && x.contract_kind === t.contract_kind) x.is_default = x.id === t.id;
+};
+const contractKindOf = (kind: DocKind, v: DocTemplate['contract_kind'] | undefined): DocTemplate['contract_kind'] => {
+  if (!v) return null;
+  if (kind !== 'contract') throw invalid('contract_kind', 'contract_only');
+  return v;
 };
 
 export const docTemplatesRoutes: Record<string, MockRoute> = {
@@ -136,7 +142,7 @@ export function docTemplatePreview(db: Db, path: string): string | null {
   return htmlPage(t.name, renderRich(t.kind as DocKind, `<h2>${t.file_name ?? t.name}</h2><table>${rows}</table>`, SAMPLE, NOT_VAT));
 }
 
-type In = { kind: DocKind; name: string; source: 'rich' | 'docx'; body?: string; file_name?: string; file_id?: string; fields?: Field[]; is_default?: boolean };
+type In = { kind: DocKind; name: string; source: 'rich' | 'docx'; body?: string; file_name?: string; file_id?: string; fields?: Field[]; is_default?: boolean; contract_kind?: DocTemplate['contract_kind'] };
 
 export const docTemplatesHandlers: Record<string, MockHandler> = {
   'doc_template.create': {
@@ -156,17 +162,18 @@ export const docTemplatesHandlers: Record<string, MockHandler> = {
         fields: i.source === 'docx' ? (i.fields ?? []) : [],
         checklist_missing: body !== undefined ? missingOfRich(i.kind, body) : missingOfDocx(i.kind),
         is_default: false,
+        contract_kind: contractKindOf(i.kind, i.contract_kind),
         version: 1,
         updated_by: db.shell.me.user.name,
         updated_at: new Date().toISOString(),
       };
       db.docTemplates.list.push(t);
-      if (i.is_default) setDefault(db, t);
+      if (i.is_default || !live(db).some((x) => x.is_default && x.kind === t.kind && x.contract_kind === t.contract_kind)) setDefault(db, t);
       return { template_id: t.id };
     },
   },
   'doc_template.update': {
-    execute: (db, i: { template_id: string; name?: string; body?: string; fields?: Field[]; is_default?: boolean; if_version?: number }) => {
+    execute: (db, i: { template_id: string; name?: string; body?: string; fields?: Field[]; is_default?: boolean; if_version?: number; contract_kind?: DocTemplate['contract_kind'] }) => {
       const t = find(db, i.template_id);
       if (i.if_version !== undefined && i.if_version !== t.version) throw new ApiRequestError(409, { code: 'STALE_VERSION', message: t.id });
       const kind = t.kind as DocKind;
@@ -181,6 +188,11 @@ export const docTemplatesHandlers: Record<string, MockHandler> = {
         checkFields(kind, i.fields);
         t.fields = i.fields;
         changed = true;
+      }
+      if (i.contract_kind !== undefined) {
+        const next = contractKindOf(kind, i.contract_kind);
+        if (next !== t.contract_kind && t.is_default) throw invalid('contract_kind', 'default_locked');
+        t.contract_kind = next;
       }
       if (i.is_default) setDefault(db, t);
       if (changed) t.version += 1;

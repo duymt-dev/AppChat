@@ -1310,6 +1310,14 @@
     "logoutD": "Thoát phiên hiện tại — dữ liệu workspace không bị ảnh hưởng"
   },
   "doctpl": {
+    "contractKind": {
+      "label": "Loại hợp đồng",
+      "any": "Mọi loại (mẫu chung)",
+      "service": "Dịch vụ",
+      "sale": "Mua bán",
+      "framework": "Nguyên tắc",
+      "locked": "Mẫu mặc định — đặt mẫu khác làm mặc định trước khi đổi loại"
+    },
     "preview": "Xem trước",
     "previewT": "Xem trước với dữ liệu minh hoạ",
     "previewFail": "Chưa tạo được bản xem trước, thử lại sau",

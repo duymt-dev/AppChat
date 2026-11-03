@@ -343,6 +343,8 @@ export interface DocTemplate {
   /** Mục bảng kiểm pháp lý còn thiếu (cảnh báo). */
   checklist_missing: string[];
   is_default: boolean;
+  /** Loại hợp đồng của mẫu hợp đồng — null = mẫu chung (TIP-030b). */
+  contract_kind: 'service' | 'sale' | 'framework' | null;
   version: number;
   updated_by: string;
   updated_at: string;

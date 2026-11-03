@@ -159,3 +159,5 @@
 | M | `apps/web/src/features/settings/types.ts` | Local template subtype interface |
 | M | `packages/core/src/ai/assistant/catalog.ts` | Hide public appendix internal actions from all assistant discovery |
 | C | `packages/core/test/appendix-catalog.test.ts` | Discovery and direct invocation fail closed |
+| C | `apps/web/src/features/settings/components/ContractKindSelect.tsx` | Amend (F1): ô chọn loại hợp đồng dùng chung cho mẫu rich + DOCX (giữ RichTemplateModal / DocxWizard dưới trần) |
+| M | `apps/api/test/integration/documents.test.ts` | Amend (F1): index mặc định chia nhóm (chung / theo loại hợp đồng) thay index kind-only của 028 |

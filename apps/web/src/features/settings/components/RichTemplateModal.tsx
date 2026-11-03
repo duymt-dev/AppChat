@@ -10,6 +10,7 @@ import { useAction } from '@/shared/actions/useAction';
 import { useSectionStyles } from '../styles/section.styles';
 import { useDocModalStyles } from '../styles/doc-modal.styles';
 import type { DocKindKey, DocTemplate } from '../types';
+import { ContractKindSelect, type ContractKindValue } from './ContractKindSelect';
 import { FormModal } from './FormModal';
 import { LegalChecklist } from './LegalChecklist';
 
@@ -31,6 +32,7 @@ export function RichTemplateModal({ tpl, onClose }: { tpl?: DocTemplate; onClose
   const [name, setName] = useState(tpl?.name ?? '');
   const [body, setBody] = useState(tpl?.body ?? '');
   const [def, setDef] = useState(false);
+  const [ck, setCk] = useState<ContractKindValue>(tpl?.contract_kind ?? null);
   const [err, setErr] = useState('');
   const create = useAction('doc_template.create');
   const update = useAction('doc_template.update');
@@ -40,8 +42,8 @@ export function RichTemplateModal({ tpl, onClose }: { tpl?: DocTemplate; onClose
     if (bad.length) return setErr(tm('errVars', { v: bad.join(', ') }));
     setErr('');
     const r = tpl
-      ? await update.run({ template_id: tpl.id, name: name.trim(), body, if_version: tpl.version, ...(def ? { is_default: true } : {}) })
-      : await create.run({ kind, name: name.trim(), source: 'rich', body, is_default: def });
+      ? await update.run({ template_id: tpl.id, name: name.trim(), body, if_version: tpl.version, ...(def ? { is_default: true } : {}), ...(kind === 'contract' && ck !== tpl.contract_kind ? { contract_kind: ck } : {}) })
+      : await create.run({ kind, name: name.trim(), source: 'rich', body, is_default: def, ...(kind === 'contract' && ck ? { contract_kind: ck } : {}) });
     if (r) onClose();
   };
   return (
@@ -73,6 +75,7 @@ export function RichTemplateModal({ tpl, onClose }: { tpl?: DocTemplate; onClose
           </select>
         </div>
       </div>
+      {kind === 'contract' ? <ContractKindSelect value={ck} onChange={setCk} locked={!!tpl?.is_default} testId="doc-contract-kind" /> : null}
       <div>
         <div className={s.label}>{tm('vars')}</div>
         <div className={styles.vars}>

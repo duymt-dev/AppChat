@@ -22,6 +22,13 @@ enum ContractKind {
   @@map("contract_kind")
 }
 
+enum ContractSource {
+  template
+  file
+
+  @@map("contract_source")
+}
+
 /// Hợp đồng (Blueprint §2.2, COMMERCE §9 — D25). Owner "Duyệt & ký" (OTP + ký tay) → PDF đóng băng (`file_id` + `file_sha256`);
 /// khách ký trên trang công khai → PDF cuối có chữ ký hai bên + trang chứng nhận (`signed_file_id` + `signed_sha256`), nội dung khoá.
 model Contract {
@@ -46,6 +53,20 @@ model Contract {
   templateVersion     Int?           @map("template_version")
   /// Tên tệp DN đính kèm (bản gốc tham khảo) — nội dung ký render từ mẫu hợp đồng.
   fileName            String         @default("") @map("file_name")
+  /// Nguồn nội dung ký (TIP-030b): `template` render từ mẫu, `file` = PDF / DOCX tải lên (bản gốc bất biến).
+  source              ContractSource @default(template)
+  sourceFileId        String?        @map("source_file_id") @db.Uuid
+  /// SHA-256 bytes nguồn — luôn khớp tệp nguồn, không đổi sau ghép trang chữ ký.
+  sourceHash          String?        @map("source_hash")
+  sourceMime          String?        @map("source_mime")
+  /// DOCX → PDF đóng băng trước khi duyệt (PDF nguồn dùng nguyên bản, cột rỗng).
+  renderedUnsignedFileId String?     @map("rendered_unsigned_file_id") @db.Uuid
+  renderedUnsignedHash   String?     @map("rendered_unsigned_hash")
+  /// Tăng mỗi lần thay tệp nguồn khi còn nháp (`contract.attach_file` — CAS `if_source_version`).
+  sourceVersion       Int            @default(1) @map("source_version")
+  /// Tin + vị trí tệp trong hội thoại khi tạo từ tệp khách gửi (`contract.create_from_attachment`).
+  originMessageId     String?        @map("origin_message_id") @db.Uuid
+  originAttachmentIdx Int?           @map("origin_attachment_idx")
   note                String         @default("")
   createdByType       String         @default("user") @map("created_by_type")
   createdById         String?        @map("created_by_id")

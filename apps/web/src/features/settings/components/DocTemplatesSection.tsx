@@ -49,7 +49,10 @@ function Row({ x }: { x: DocTemplate }) {
           ) : null}
         </div>
       </div>
-      <span className={styles.kind}>{t(`kind.${x.kind}`)}</span>
+      <span className={styles.kind}>
+        {t(`kind.${x.kind}`)}
+        {x.contract_kind ? ` · ${t(`contractKind.${x.contract_kind}`)}` : null}
+      </span>
       <span>
         <span className={cx(styles.src, x.source === 'rich' ? styles.rich : styles.docx)}>{t(`source.${x.source}`)}</span>
       </span>

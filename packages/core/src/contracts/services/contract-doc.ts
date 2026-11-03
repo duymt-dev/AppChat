@@ -4,7 +4,7 @@
 // ký hai bên + trang chứng nhận (`contract-sign-pdf.ts`).
 import type { TenantDb } from '@appchat/db';
 import { AppError, createFmt, interpolate, quoteTotals, serverMessages, vndWords, type DocData, type Discount } from '@appchat/shared';
-import { businessData } from '../../documents/public';
+import { businessData, pickContractTemplate, type ContractKind } from '../../documents/public';
 import type { ContractRecord } from '../contract-access';
 import type { ContractDeps } from './contract-deps';
 
@@ -41,8 +41,10 @@ export async function contractDocData(db: Db, d: ContractDeps, ws: string, c: Co
 /** PDF nội dung hợp đồng theo mẫu (ghi trên hợp đồng → mặc định loại contract). */
 export async function renderContractPdf(db: Db, d: ContractDeps, ws: string, c: ContractRecord) {
   if (!d.renderer) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '028' }, 'DocRenderer chưa cấu hình');
-  const byDefault = { kind: 'contract' as const, isDefault: true, deletedAt: null };
-  const t = (c.templateId ? await db.docTemplate.findFirst({ where: { id: c.templateId } }) : null) ?? (await db.docTemplate.findFirst({ where: byDefault }));
+  // Mẫu ghi trên hợp đồng (cả khi đã xoá mềm — nội dung đã chọn lúc tạo) → mẫu theo loại hợp đồng → mặc định chung (TIP-030b spec 8).
+  const picked = c.templateId ? null : await pickContractTemplate(db, c.kind as ContractKind);
+  const id = c.templateId ?? picked?.id;
+  const t = id ? await db.docTemplate.findFirst({ where: { id } }) : null;
   if (!t) throw new AppError('INVALID_STATE', 409, { template_id: 'missing' });
   const doc = await contractDocData(db, d, ws, c);
   const pdf = await d.renderer.pdf(db, { kind: t.kind, name: t.name, source: t.source, bodyHtml: t.bodyHtml, docxFileId: t.docxFileId, fieldMap: t.fieldMap }, doc.data, doc.locale);
