@@ -1,5 +1,5 @@
 // Khuôn input lồng nhau cho model (TIP-023b R1.1): object → ô con, array → khuôn phần tử, enum → giá trị, `?` = tuỳ chọn.
-// `{ field: 'string' }` phẳng làm model mù ô con (`patch.phone`, `items[].product_id`) — 48 action có ô object / array.
+// Số có khoảng ghi `integer(1..20)`. `{ field: 'string' }` phẳng làm model mù ô con (`patch.phone`, `items[].product_id`) — 48 action có ô object / array.
 // Giới hạn độ sâu 3 và 40 ô (cắt bớt, ghi `…`) để giữ prompt gọn; dùng cho `find_actions` và lỗi VALIDATION_FAILED của `call_action`.
 import type { JsonSchema } from '@appchat/ai';
 
@@ -18,6 +18,8 @@ type Node = JsonSchema & {
   required?: string[];
   items?: Node;
   additionalProperties?: Node | boolean;
+  minimum?: number;
+  maximum?: number;
 };
 
 /** Bỏ nhánh `null` của anyOf (zod `.nullable()`) → kiểu thật + cờ có nhận null. */
@@ -32,6 +34,8 @@ function typeName(n: Node): string {
   if (n.enum) return n.enum.map(String).join('|');
   if (n.const !== undefined) return String(n.const);
   if (Array.isArray(n.type)) return n.type.join('|');
+  // Số có khoảng → `integer(1..20)`: model thấy trần TRƯỚC khi gọi (vd `limit` của *.search), khỏi một vòng VALIDATION_FAILED.
+  if ((n.type === 'integer' || n.type === 'number') && (n.minimum !== undefined || n.maximum !== undefined)) return `${n.type}(${n.minimum ?? ''}..${n.maximum ?? ''})`;
   if (n.type) return n.type;
   const alts = n.anyOf ?? n.oneOf;
   return alts?.map((a) => typeName(a)).filter(Boolean).join('|') || 'any';
@@ -80,7 +84,7 @@ export function exampleOf(brief: Brief): unknown {
   }
   const first = brief.split('|')[0]!;
   if (first === 'string') return '…';
-  if (first === 'number' || first === 'integer') return 1;
+  if (first.startsWith('number') || first.startsWith('integer')) return 1;
   if (first === 'boolean') return true;
   if (first.startsWith('record<')) return {};
   if (first === 'object') return {};

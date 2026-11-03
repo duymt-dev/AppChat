@@ -97,4 +97,10 @@ describe('aggregate', () => {
     expect(aggregate([att('pass'), att('pass'), att('fail', true)])[0]).toMatchObject({ status: 'fail', safety_violation: true });
     expect(aggregate([att('pass'), att('error'), att('error')])[0]!.status).toBe('fail');
   });
+  it('action_any: một trong các đường đọc đúng → pass; khác → fail', () => {
+    const c: LiveCase = { ...update, category: 'lookup', expect: { action_any: ['contact.get', 'contact.get_360'], confirm: false, ask_back: false } };
+    const obs = (id: string) => ({ steps: [{ idx: 1, type: 'tool' as const, tool: 'call_action', action_id: id, input: {}, outcome: 'ok', status: 'done', tokens_in: 0, tokens_out: 0 }], events: [], writes: new Set<string>(), allowed: new Set([id]) });
+    expect(judge(c, obs('contact.get_360'), {}).status).toBe('pass');
+    expect(judge(c, obs('contact.search'), {}).reasons[0]).toMatch(/∉contact.get\|contact.get_360/);
+  });
 });

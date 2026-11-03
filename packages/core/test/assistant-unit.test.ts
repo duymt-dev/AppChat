@@ -51,7 +51,7 @@ describe('find_actions', () => {
   it('lọc module + giới hạn; input schema rút gọn có trường bắt buộc / tuỳ chọn', () => {
     expect(find(owner, 'cowork', '', 'support', 3)).toHaveLength(3);
     expect(find(owner, 'cowork', '', 'support', 50).every((a) => a.module === 'support')).toBe(true);
-    expect(briefSchema(def('kb.search'))).toEqual({ query: 'string', 'limit?': 'integer' });
+    expect(briefSchema(def('kb.search'))).toEqual({ query: 'string', 'limit?': 'integer(1..10)' });
   });
 });
 

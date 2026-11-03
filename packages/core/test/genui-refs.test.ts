@@ -37,6 +37,13 @@ describe('render', () => {
     expect(second).toMatchObject({ kind: 'ok', output: { ui: { root: { type: 'text', tone: 'warning' } } } });
   });
 
+  it('cây gửi dạng chuỗi JSON → parse rồi kiểm đầy đủ (hợp lệ ok; chuỗi rác / sai schema vẫn bị từ chối)', async () => {
+    const good = JSON.stringify(tree({ type: 'stat', label: 'Tổng', value: { $ref: 'step:2.total' } }));
+    expect(await tool().execute({ tree: good }, { stepIdx: 5, toolCallId: 'c' })).toMatchObject({ kind: 'ok', output: { ui: { root: { type: 'stat' } } } });
+    expect(await tool().execute({ tree: '{not json' }, { stepIdx: 5, toolCallId: 'c' })).toMatchObject({ kind: 'error', code: 'VALIDATION_FAILED' });
+    expect(await tool().execute({ tree: JSON.stringify(tree({ type: 'stat', label: 'x', value: 1000 })) }, { stepIdx: 5, toolCallId: 'c' })).toMatchObject({ kind: 'error' });
+  });
+
   it('ref tới bước không tồn tại → lỗi nêu bước hợp lệ', async () => {
     const out = await tool().execute({ tree: tree({ type: 'stat', label: 'x', value: { $ref: 'step:9.total' } }) }, { stepIdx: 5, toolCallId: 'c' });
     expect(out).toMatchObject({ kind: 'error', message: expect.stringContaining('valid: 2, 4') });

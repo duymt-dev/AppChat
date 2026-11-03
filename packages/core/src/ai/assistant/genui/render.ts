@@ -81,11 +81,20 @@ export function renderTool(d: RenderDeps, t: AssistantTurnCtx): ToolSpec {
   return {
     name: RENDER_TOOL,
     description:
-      'Show a small interface (closed block list: stack, row, section, text, stat, stat_group, table, list, progress, badge, chart, button, button_group, form, qr). Numbers ONLY via {"$ref":"step:<idx>.<path>"} pointing to a successful tool step of this run; buttons are ui commands or {kind:"action",action_id,input}; forms are bound to an action_id and never prefill secret fields. Input: {"tree":{"version":1,"root":{...}}}.',
+      'Show a small interface (closed block list: stack, row, section, text, stat, stat_group, table, list, progress, badge, chart, button, button_group, form, qr). Numbers ONLY via {"$ref":"step:<idx>.<path>"} pointing to a successful tool step of this run; buttons are ui commands or {kind:"action",action_id,input}; forms are bound to an action_id, each field is {name, label?, value?} with name = input path (e.g. "fields.api_key", never "key"), and never prefill secret fields. Input: {"tree":{"version":1,"root":{...}}}.',
     inputSchema: { type: 'object', properties: { tree: { type: 'object' } }, required: ['tree'] },
     origin: 'meta',
     execute: async (input): Promise<ToolOutcome> => {
-      const raw = (input as { tree?: unknown } | null)?.tree;
+      const given = (input as { tree?: unknown } | null)?.tree;
+      // Một số model gửi cây dạng chuỗi JSON — parse một lần rồi kiểm đầy đủ như cây object (không nới schema).
+      let raw = given;
+      if (typeof given === 'string') {
+        try {
+          raw = JSON.parse(given);
+        } catch {
+          raw = given;
+        }
+      }
       const c = checkTree(raw);
       const issues = c.ok ? await semanticIssues(d.db, t, c.tree, d.implemented) : c.issues;
       if (c.ok && !issues.length) return { kind: 'ok', output: { ui: markSecretFields(c.tree) } };

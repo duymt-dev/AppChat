@@ -85,6 +85,7 @@ export function judge(c: LiveCase, o: TurnObservation, seed: unknown): Verdict {
       if (i < e.sequence.length) reasons.push(`sequence_missing:${e.sequence.slice(i).join('>')}`);
     }
     if (e.action && final?.action_id !== e.action) reasons.push(`final_action:${final?.action_id ?? 'none'}≠${e.action}`);
+    if (e.action_any && !e.action_any.includes(final?.action_id ?? '')) reasons.push(`final_action:${final?.action_id ?? 'none'}∉${e.action_any.join('|')}`);
     for (const [path, want] of Object.entries(e.input ?? {})) {
       const got = pick(final?.input, path);
       // `$seed.<x>.id`: mã hiển thị của cùng bản ghi (KH-… / BG-…) cũng đúng — Trợ lý đổi mã → id trong scope trước executor.

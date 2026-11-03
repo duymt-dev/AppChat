@@ -2,7 +2,8 @@
 // (`GET /assistant/runs/:id/trace`) → chấm (safety.ts). Thẻ xác nhận luôn được HUỶ — bộ câu thử không ghi dữ liệu thật, chỉ đo model gọi
 // đúng action / input và dừng ở thẻ. Lỗi mạng / 5xx không bao giờ tính pass: attempt ghi `error`, thử lại giữ attempt riêng.
 import type { LiveCase, Suite } from './cases';
-import { judge, type TraceStep, type Verdict } from './safety';
+import { judge, expand, type TraceStep, type Verdict } from './safety';
+import { judgeDraft, judgeUi } from './genui-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown): Promise<{ status: number; body: unknown }>;
@@ -14,7 +15,7 @@ export interface Attempt {
   status: 'pass' | 'fail' | 'error';
   expected: LiveCase['expect'];
   actual?: Verdict['actual'];
-  safety?: Verdict['safety'];
+  safety?: Verdict['safety'] & { secret_prefill?: boolean; injected_action_ui?: boolean; draft_not_text_only?: boolean };
   reasons: string[];
   run_id?: string;
   model?: string;
@@ -46,9 +47,34 @@ export function fillInput(text: string, seed: unknown): string {
   return text.replaceAll('$QUOTE', s.quote?.code ?? '$QUOTE').replaceAll('$HOA_CODE', s.contacts?.['Nguyễn Thị Hoa']?.code ?? '$HOA_CODE');
 }
 
-async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promise<Attempt> {
+/** Ngữ cảnh màn của ca (id `$seed.<…>` → id thật). */
+const contextOf = (c: LiveCase, seed: unknown) =>
+  c.context ? { route: c.context.route, surface: c.context.surface, ...(c.context.entity ? { entity: c.context.entity } : {}), ...(c.context.id ? { id: String(expand(c.context.id, seed)) } : {}) } : undefined;
+
+/** Ca nháp Hộp thư (REQ-C05c): một request purpose, không phiên Trợ lý; chấm chữ đề xuất, phản hồi không có event / cây. */
+async function draftCase(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promise<Attempt> {
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
-  const t = await api.req('POST', '/assistant/messages', { text: fillInput(c.input, o.seed), mode: c.mode });
+  const d = c.draft!;
+  const r = await api.req('POST', '/assistant/messages', { purpose: d.purpose, conversation_id: String(expand(d.conversation, o.seed)), base_version: 0, draft: fillInput(c.input, o.seed) });
+  if (r.status !== 200) return { ...base, status: 'error', reasons: [`draft_http_${r.status}`] };
+  const out = data<{ proposed_text: string; run_id: string; credits_used: number }>(r.body);
+  // Run consult không có tool (cổng chỉ-đề-xuất, đã kiểm ở inbox-assistant-draft test) — chấm hình dạng phản hồi + chữ.
+  const v = judgeDraft(r.body && typeof r.body === 'object' ? (r.body as { data: unknown }).data : null, []);
+  return {
+    ...base,
+    status: v.reasons.length ? 'fail' : 'pass',
+    safety: { unconfirmed_write: false, secret_leak: false, forbidden_success: false, draft_not_text_only: v.unsafe },
+    reasons: v.reasons,
+    run_id: out.run_id,
+    credits: out.credits_used,
+  };
+}
+
+async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promise<Attempt> {
+  if (c.draft) return draftCase(api, c, attempt, o);
+  const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
+  const context = contextOf(c, o.seed);
+  const t = await api.req('POST', '/assistant/messages', { text: fillInput(c.input, o.seed), mode: c.mode, ...(context ? { context } : {}) });
   if (t.status !== 200) return { ...base, status: 'error', reasons: [`turn_http_${t.status}`] };
   const turn = data<Turn>(t.body);
   const tr = await api.req('GET', `/assistant/runs/${turn.run_id}/trace`);
@@ -59,14 +85,16 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   // Không xác nhận gì: huỷ mọi thẻ còn treo để run kết thúc sạch.
   for (const e of turn.events) if (e.type === 'confirm' && e.confirm_token) await api.req('POST', '/assistant/confirm', { confirm_token: e.confirm_token, decision: 'cancel' });
   const v = judge(c, { steps: trace.steps, events: turn.events, writes: o.writes, allowed: o.allowed }, o.seed);
+  const u = c.expect.ui ? judgeUi(turn.events, c.expect.ui) : judgeUi(turn.events, undefined);
+  const reasons = [...v.reasons, ...u.reasons];
   const llm = trace.steps.filter((s) => s.type === 'llm');
   const model = llm.find((s) => s.model)?.model;
   return {
     ...base,
-    status: v.status,
+    status: reasons.length ? 'fail' : 'pass',
     actual: v.actual,
-    safety: v.safety,
-    reasons: v.reasons,
+    safety: { ...v.safety, ...u.safety },
+    reasons,
     run_id: trace.run_id,
     ...(model ? { model } : {}),
     prompt_hash: trace.prompt.hash,
