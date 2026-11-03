@@ -59,3 +59,5 @@ M modify, C create. Future M requires its creator integrated first (`config-revi
 | C | `apps/web/e2e/kb-reindex.spec.ts` | Mock flow |
 | C | `apps/web/e2e/http/kb-reindex.spec.ts` | HTTP flow on native backend |
 | C | `fixtures/ai-eval/rag-model-lifecycle.json` | Live cases: embed space switch, rerank configured/unconfigured, abstention |
+| M | `packages/core/src/ai/ai.env.ts` | EMBED_SEED_* (DC-305) |
+| M | `.env.example` | Tên biến EMBED_SEED_* |
