@@ -76,7 +76,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 |---|-----|------|-----------|-------|-----|----|
 | 1 | [023b](../tips/TIP-023b-assistant-coverage.md) | W8 | DONE | `tip/023b-assistant-coverage` | `d373fea` | [#51](https://github.com/duymt-dev/AppChat/pull/51) |
 | 2 | [023c](../tips/TIP-023c-generative-ui.md) | W8 | DONE | `tip/023c-generative-ui` · `tip/023c-g2-screen-assistant` · `tip/023c-g3-connect-via-assistant` · `tip/023c-close` | `2dd87b0` (G1) · `b9222ed` (G2) · `bac0f02` (G3) · `2d72765` (chốt) | [#52](https://github.com/duymt-dev/AppChat/pull/52) (G1, xếp chồng #51) · [#53](https://github.com/duymt-dev/AppChat/pull/53) (G2) · [#54](https://github.com/duymt-dev/AppChat/pull/54) (G3) · [#55](https://github.com/duymt-dev/AppChat/pull/55) (chốt, xếp chồng #54) |
-| 3 | [030b](../tips/TIP-030b-contract-files.md) | W8 | đang làm (F1 tệp + mẫu theo loại) | `tip/030b-contract-files` | | |
+| 3 | [030b](../tips/TIP-030b-contract-files.md) | W8 | đang làm (F1 xong → F2 AI soạn) | `tip/030b-contract-files` | `6181c85` (F1) | [#56](https://github.com/duymt-dev/AppChat/pull/56) (F1, xếp chồng #55) |
 | 4 | [032b](../tips/TIP-032b-commerce-gaps.md) | W8 | chờ | `tip/032b-commerce-gaps` | | |
 | 5 | [015b](../tips/TIP-015b-contact-memory.md) | W8 | chờ | `tip/015b-contact-memory` | | |
 | 6 | [036](../tips/TIP-036-loyalty.md) | W8 | chờ | `tip/036-loyalty` | | |
