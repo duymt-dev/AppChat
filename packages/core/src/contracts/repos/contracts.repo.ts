@@ -35,7 +35,8 @@ function where(authz: AuthzContext, f: ContractFilter): Prisma.Sql {
   const q = f.q?.trim();
   if (q) {
     const like = `%${foldText(q).replace(/[\\%_]/g, (x) => `\\${x}`)}%`;
-    parts.push(Prisma.sql`(lower(c.code) LIKE ${like} OR f_unaccent(lower(c.title)) LIKE ${like}
+    // Mã HĐ-… có chữ Đ: so trên mã đã bỏ dấu (như `foldText` của từ khoá) — `lower(code)` giữ `đ` nên không bao giờ khớp `hd`.
+    parts.push(Prisma.sql`(f_unaccent(lower(c.code)) LIKE ${like} OR f_unaccent(lower(c.title)) LIKE ${like}
       OR EXISTS (SELECT 1 FROM contact k WHERE k.id = c.contact_id AND f_unaccent(lower(k.name)) LIKE ${like}))`);
   }
   return Prisma.join(parts, ' AND ');

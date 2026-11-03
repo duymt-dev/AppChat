@@ -22,6 +22,9 @@ import { QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler } from './
 import { QuoteDraftFromContentHandler } from './quotes/actions/quote-draft.handler';
 import { QuoteExtendHandler, QuoteSendHandler } from './quotes/actions/quote-send.handlers';
 import { QuoteCommentHandler, QuoteCreateHandler, QuoteDeleteHandler, QuoteUpdateHandler } from './quotes/actions/quote-write.handlers';
+import { QuoteGetHandler, QuoteSearchHandler } from './quotes/actions/quote-read.handlers';
+import { OrderGetHandler, OrderSearchHandler } from './orders/actions/order-read.handlers';
+import { InvoiceGetHandler, InvoiceSearchHandler } from './payments/actions/invoice-read.handlers';
 import { QuoteDeps } from './quotes/services/quote-deps';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
@@ -56,6 +59,8 @@ const HANDLERS = [
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler,
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,
+  // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
+  QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
 ];
 
 @Module({

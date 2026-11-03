@@ -23,6 +23,7 @@ import { SalesModule } from '../sales/sales.module';
 import { ContractApproveAndSignHandler, ContractRejectInternalHandler, ContractRequestChangesHandler, ContractSubmitHandler } from './actions/contract-approval.handlers';
 import { ContractExtendLinkHandler, ContractRemindHandler, ContractSendHandler, ContractTerminateHandler } from './actions/contract-send.handlers';
 import { ContractCreateHandler, ContractDeleteHandler, ContractFromQuoteHandler, ContractRenewHandler, ContractUpdateHandler } from './actions/contract-write.handlers';
+import { ContractGetHandler, ContractSearchHandler } from './actions/contract-read.handlers';
 import { ContractDeps, contractEnvFor } from './services/contract-deps';
 import { ContractsReadService } from './services/contracts-read.service';
 import { PublicSignService } from './services/public-sign.service';
@@ -33,6 +34,7 @@ const HANDLERS = [
   ContractCreateHandler, ContractFromQuoteHandler, ContractUpdateHandler, ContractDeleteHandler, ContractRenewHandler,
   ContractSubmitHandler, ContractRequestChangesHandler, ContractRejectInternalHandler, ContractApproveAndSignHandler,
   ContractSendHandler, ContractRemindHandler, ContractExtendLinkHandler, ContractTerminateHandler,
+  ContractSearchHandler, ContractGetHandler,
 ];
 
 @Module({

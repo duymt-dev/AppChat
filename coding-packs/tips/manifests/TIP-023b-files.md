@@ -14,6 +14,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/ai/test/assistant-prompt-runtime.test.ts` | Runtime prompt version/content matches approved prompt changes |
 | C | `coding-packs/reports/TIP-023b-completion.md` | Builder evidence report only after implementation |
 | M | `coding-packs/DEVIATIONS.md` | DV-021 thư viện `yaml` cho tools/ai-live |
+| M | `coding-packs/DECISIONS.md` | DC-306 quyền action đọc, DC-307 tìm mã HĐ |
 | M | `apps/api/src/http/inbox/inbox.http.module.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/core/src/ai/assistant/sessions.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/ai/src/gateway/engine.ts` | Canonical paused state and group HTTP registration |
@@ -405,6 +406,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/channels/webchat/webchat.handlers.ts` | Domain preview for webchat.update_widget |
 | M | `packages/core/src/contracts/actions/contract-approval.handlers.ts` | Domain preview for contract.submit, contract.request_changes, contract.reject_internal, contract.approve_and_sign |
 | C | `packages/core/src/contracts/actions/contract-read.handlers.ts` | Bounded reads sharing UI query services |
+| M | `packages/core/src/contracts/repos/contracts.repo.ts` | Tìm theo mã HĐ-… (bỏ dấu cả mã) — lỗi sẵn có lộ ra ở contract.search |
 | M | `packages/core/src/contracts/actions/contract-send.handlers.ts` | Domain preview for contract.send_for_signature, contract.remind_signer, contract.extend_sign_link, contract.terminate |
 | M | `packages/core/src/contracts/actions/contract-write.handlers.ts` | Domain preview for contract.create, contract.create_from_quote, contract.update, contract.delete, contract.renew |
 | C | `packages/core/src/contracts/actions/previews/contract-approval.handlers.preview.ts` | Scoped preview helper for packages/core/src/contracts/actions/contract-approval.handlers.ts |

@@ -100,7 +100,7 @@ const SCREENS: Record<string, string> = {
   'settings/kb': 'kb.source_search',
 };
 /** Nợ màn (R2) — chỉ được giảm. */
-const SCREEN_DEBT = new Set(['quotes', 'contracts', 'orders', 'invoices', 'conversations', 'agents', 'settings/members', 'tags', 'doc-templates', 'settings/channels', 'runs', 'settings/kb']);
+const SCREEN_DEBT = new Set(['conversations', 'agents', 'settings/members', 'tags', 'doc-templates', 'settings/channels', 'runs', 'settings/kb']);
 
 const hasRead = (entity: string) => ['search', 'get', 'list'].some((v) => IMPLEMENTED.has(`${entity}.${v}`));
 const hasPath = (entity: string) => CODE_REF_ENTITIES.includes(entity) || hasRead(entity);

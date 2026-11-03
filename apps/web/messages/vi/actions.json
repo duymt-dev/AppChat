@@ -314,6 +314,14 @@
     "draft_from_content": {
       "title": "AI soạn báo giá",
       "desc": "AI soạn báo giá nháp từ ghi chú hoặc đoạn chat, giá lấy theo danh mục sản phẩm."
+    },
+    "search": {
+      "title": "Tìm báo giá",
+      "desc": "Tra báo giá theo mã, khách hoặc trạng thái."
+    },
+    "get": {
+      "title": "Xem báo giá",
+      "desc": "Đọc chi tiết một báo giá: dòng hàng, tổng tiền, hiệu lực."
     }
   },
   "contract": {
@@ -362,6 +370,14 @@
     },
     "delete": {
       "title": "Xoá hợp đồng"
+    },
+    "search": {
+      "title": "Tìm hợp đồng",
+      "desc": "Tra hợp đồng theo mã, khách hoặc trạng thái."
+    },
+    "get": {
+      "title": "Xem hợp đồng",
+      "desc": "Đọc một hợp đồng: trạng thái, giá trị, ngày, tiến độ ký."
     }
   },
   "order": {
@@ -405,6 +421,14 @@
     },
     "sync_now": {
       "title": "Đồng bộ đơn từ sàn"
+    },
+    "search": {
+      "title": "Tìm đơn hàng",
+      "desc": "Tra đơn theo mã, khách hoặc trạng thái thanh toán."
+    },
+    "get": {
+      "title": "Xem đơn hàng",
+      "desc": "Đọc chi tiết một đơn: dòng hàng, tổng tiền, đã thu."
     }
   },
   "invoice": {
@@ -424,6 +448,14 @@
     },
     "void": {
       "title": "Huỷ đề nghị thanh toán"
+    },
+    "search": {
+      "title": "Tìm đề nghị thanh toán",
+      "desc": "Tra đề nghị thanh toán theo mã, khách, đơn hoặc trạng thái."
+    },
+    "get": {
+      "title": "Xem đề nghị thanh toán",
+      "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
     }
   },
   "staff": {

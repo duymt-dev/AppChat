@@ -314,6 +314,14 @@
     "draft_from_content": {
       "title": "AI quote draft",
       "desc": "AI drafts a quote from a note or chat excerpt, priced from the product catalog."
+    },
+    "search": {
+      "title": "Find quotes",
+      "desc": "Look up quotes by code, customer or status."
+    },
+    "get": {
+      "title": "View quote",
+      "desc": "Read one quote: lines, totals, validity."
     }
   },
   "contract": {
@@ -362,6 +370,14 @@
     },
     "delete": {
       "title": "Delete contract"
+    },
+    "search": {
+      "title": "Find contracts",
+      "desc": "Look up contracts by code, customer or status."
+    },
+    "get": {
+      "title": "View contract",
+      "desc": "Read one contract: status, value, dates, signing progress."
     }
   },
   "order": {
@@ -405,6 +421,14 @@
     },
     "sync_now": {
       "title": "Sync marketplace orders"
+    },
+    "search": {
+      "title": "Find orders",
+      "desc": "Look up orders by code, customer or payment state."
+    },
+    "get": {
+      "title": "View order",
+      "desc": "Read one order: lines, totals, amount paid."
     }
   },
   "invoice": {
@@ -424,6 +448,14 @@
     },
     "void": {
       "title": "Void payment request"
+    },
+    "search": {
+      "title": "Find payment requests",
+      "desc": "Look up payment requests by code, customer, order or status."
+    },
+    "get": {
+      "title": "View payment request",
+      "desc": "Read one payment request: amount, paid, due date."
     }
   },
   "staff": {

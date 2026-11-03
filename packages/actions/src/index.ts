@@ -21,6 +21,8 @@ import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as documents from './documents';
 import * as platformAdmin from './platform-admin';
+import * as salesReads from './reads/sales';
+import * as contractReads from './reads/contracts';
 
 export * from './define';
 export * from './identity';
@@ -46,6 +48,8 @@ export * from './settings-apps';
 export * from './settings-ai';
 export * from './documents';
 export * from './platform-admin';
+export * from './reads/sales';
+export * from './reads/contracts';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -72,6 +76,9 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settingsAi),
   ...Object.values(documents),
   ...Object.values(platformAdmin),
+  // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).
+  ...Object.values(salesReads),
+  ...Object.values(contractReads),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);
