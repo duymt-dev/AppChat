@@ -30,10 +30,17 @@ export const modeAllows = (a: Pick<ActionDef, 'risk'>, mode: AssistantMode) => m
 const VERB_VI: Record<string, string> = {
   create: 'tao them moi lap', update: 'sua cap nhat doi chinh', delete: 'xoa', search: 'tim tra cuu loc danh sach liet ke', get: 'xem chi tiet tra cuu',
   list: 'danh sach liet ke xem', send: 'gui', cancel: 'huy', approve: 'duyet', reject: 'tu choi', pause: 'tam dung', resume: 'tiep tuc chay lai',
-  assign: 'giao phan cong', archive: 'luu tru', complete: 'hoan tat xong', confirm: 'xac nhan', comment: 'binh luan ghi chu', tag: 'gan the nhan',
+  assign: 'giao phan cong', archive: 'luu tru ngung ban ngung su dung an', complete: 'hoan tat xong', confirm: 'xac nhan', comment: 'binh luan ghi chu', tag: 'gan the nhan',
   set_stage: 'chuyen giai doan doi giai doan', set_status: 'doi trang thai', submit: 'gui duyet trinh duyet', test: 'thu kiem tra', connect: 'ket noi',
   disconnect: 'ngat ket noi', merge: 'gop', import: 'nhap', export: 'xuat', adjust: 'dieu chinh', find_slots: 'gio trong lich trong tim gio',
-  close: 'dong', reopen: 'mo lai', void: 'huy bo', reschedule: 'doi lich doi gio', record: 'ghi nhan thu tien', refund: 'hoan tien',
+  close: 'dong', reopen: 'mo lai', extend: 'gia han keo dai', void: 'huy bo', reschedule: 'doi lich doi gio', record: 'ghi nhan thu tien', refund: 'hoan tien',
+};
+
+/** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
+const ENTITY_VI: Record<string, string> = {
+  product: 'dich vu goi lieu trinh hang hoa mat hang gia ban', stock: 'kho ton kho con hang nhap kho', contact: 'khach nguoi lien he so dien thoai',
+  quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
+  tag: 'nhan the', invoice: 'thanh toan thu tien',
 };
 
 /**
@@ -42,7 +49,7 @@ const VERB_VI: Record<string, string> = {
  */
 function tiersOf(a: ActionDef): [string, string, string] {
   const verb = a.id.slice(a.id.indexOf('.') + 1);
-  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? ''];
+  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? '', ENTITY_VI[entityOf(a.id)] ?? ''];
   const mod: string[] = [a.module];
   for (const l of ['vi', 'en']) {
     const m = serverMessages(l).ai.assistant;
@@ -80,15 +87,29 @@ export interface FoundAction {
 export function findActions(authz: AuthzContext, mode: AssistantMode, query: string, module?: string, limit = FIND_LIMIT, implemented: Implemented = () => false): FoundAction[] {
   const words = foldText(query).split(/[^a-z0-9_]+/).filter((w) => w.length > 1);
   const tiers: ActionDef[][] = [[], [], []];
+  const candidates: ActionDef[] = [];
   for (const a of registry) {
     if (module && a.module !== module) continue;
     if (!allowedFor(a, authz) || !modeAllows(a, mode) || !implemented(a.id)) continue;
+    candidates.push(a);
     const [name, mod, desc] = INDEX.get(a.id)!;
     const has = (text: string) => words.every((w) => text.includes(w));
     if (has(name)) tiers[0]!.push(a);
     else if (has(`${name} ${mod}`)) tiers[1]!.push(a);
     else if (has(`${name} ${mod} ${desc}`)) tiers[2]!.push(a);
   }
-  const hit = tiers.find((t) => t.length) ?? [];
+  // Không action nào khớp đủ mọi từ (câu tự nhiên có từ ngoài chỉ mục, vd. "sửa giá dịch vụ") → xếp theo số từ khớp, cần ≥ một nửa.
+  const hit = tiers.find((t) => t.length) ?? (words.length > 1 ? ranked(words, candidates) : []);
   return hit.slice(0, limit).map((a) => ({ id: a.id, module: a.module, risk: a.risk, description: a.description, input: briefSchema(a) }));
+}
+
+/** Điểm = số từ khớp ở tên (×2) hoặc module / mô tả (×1); giữ action đạt ≥ một nửa số từ ở tên + module + mô tả, điểm cao trước. */
+function ranked(words: string[], candidates: ActionDef[]): ActionDef[] {
+  const scored = candidates.map((a) => {
+    const [name, mod, desc] = INDEX.get(a.id)!;
+    const all = `${name} ${mod} ${desc}`;
+    const matched = words.filter((w) => all.includes(w));
+    return { a, n: matched.length, score: matched.reduce((t, w) => t + (name.includes(w) ? 2 : 1), 0) };
+  });
+  return scored.filter((x) => x.n * 2 >= words.length).sort((x, y) => y.score - x.score).map((x) => x.a);
 }

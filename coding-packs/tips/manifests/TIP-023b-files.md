@@ -571,6 +571,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/test/assistant-custom-schema.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-implemented-tools.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-run-trace.test.ts` | Vết run chỉ của người gọi, bí mật đã che (R1.4) |
+| C | `packages/core/test/assistant-find-synonyms.test.ts` | find_actions: từ đồng nghĩa đối tượng (dịch vụ / gói = product) + xếp hạng dự phòng — lỗi hệ thống do ai:live phát hiện |
 | M | `packages/core/test/assistant-unit.test.ts` | find_actions fail-closed theo handler thật + khuôn schema lồng nhau (R1.1/R1.2) |
 | C | `packages/core/test/assistant-preview-edit.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/group-request-state.test.ts` | Explicit integration seam |

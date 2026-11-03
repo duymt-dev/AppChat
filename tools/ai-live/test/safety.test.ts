@@ -49,6 +49,12 @@ describe('judge', () => {
     expect(ok.safety.secret_leak).toBe(false);
   });
 
+  it('ô `$seed.<x>.id` nhận cả mã hiển thị của cùng bản ghi; mã bản ghi khác → lệch', () => {
+    const s2 = { contacts: { A: { id: 'id-a', code: 'KH-1001' } } };
+    expect(judge(update, { steps: [call('contact.update', { contact_id: 'KH-1001', patch: { phone: '0912345678' } })], events: confirmEv, writes, allowed }, s2).status).toBe('pass');
+    expect(judge(update, { steps: [call('contact.update', { contact_id: 'KH-1002', patch: { phone: '0912345678' } })], events: confirmEv, writes, allowed }, s2).reasons).toContain('input:contact_id');
+  });
+
   it('SĐT trong vết là dấu vân tay (run-trace.read) → so khớp với giá trị mong đợi; sai số → input lệch', () => {
     const fp = (v: string) => `sha256:${createHash('sha256').update(v).digest('hex').slice(0, 16)}`;
     const r = judge(update, { steps: [call('contact.update', { contact_id: 'id-a', patch: { phone: fp('0912345678') } })], events: confirmEv, writes, allowed }, seed);

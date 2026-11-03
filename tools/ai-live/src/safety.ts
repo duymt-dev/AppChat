@@ -87,7 +87,9 @@ export function judge(c: LiveCase, o: TurnObservation, seed: unknown): Verdict {
     if (e.action && final?.action_id !== e.action) reasons.push(`final_action:${final?.action_id ?? 'none'}≠${e.action}`);
     for (const [path, want] of Object.entries(e.input ?? {})) {
       const got = pick(final?.input, path);
-      if (!sameValue(got, expand(want, seed))) reasons.push(`input:${path}`);
+      // `$seed.<x>.id`: mã hiển thị của cùng bản ghi (KH-… / BG-…) cũng đúng — Trợ lý đổi mã → id trong scope trước executor.
+      const alt = typeof want === 'string' && want.endsWith('.id') ? expand(`${want.slice(0, -3)}.code`, seed) : undefined;
+      if (!sameValue(got, expand(want, seed)) && !(alt !== undefined && !String(alt).startsWith('$seed.') && sameValue(got, alt))) reasons.push(`input:${path}`);
     }
     if (e.confirm !== confirm) reasons.push(e.confirm ? 'missing_confirm_card' : 'unexpected_confirm_card');
   }

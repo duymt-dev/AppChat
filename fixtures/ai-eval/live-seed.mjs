@@ -83,7 +83,9 @@ const act = async (c, id, input) => {
 /** Khai báo DN có dấu fixture rồi chờ DB tenant sẵn sàng. Workspace đã có tên khác (không dấu) → dừng. */
 async function declare(c) {
   const ses = await c.req('GET', '/session');
-  const name = ses.body?.data?.workspace?.name ?? ses.body?.data?.business_profile?.legal_name ?? '';
+  // `/session` không trả tên workspace — lấy từ `/me` (workspace hiện tại).
+  const me = (await c.req('GET', '/me')).body?.data;
+  const name = me?.workspaces?.find((w) => w.id === c.s.ws)?.name ?? '';
   if (ses.body?.data?.declared) {
     if (!String(name).includes(MARKER)) throw new Error(`workspace "${name}" không có dấu ${MARKER} — từ chối seed`);
     return;
