@@ -2,7 +2,9 @@
 // (run_id, idx) — chạy lại cùng bước không thêm dòng), dừng chờ người (`waiting_approval` + `state`), kết thúc, huỷ cả cây.
 import type { TenantDb } from '@appchat/db';
 import { toJson, type PausedState } from '@appchat/ai';
+import { getAction } from '@appchat/actions';
 import { uuidv7 } from '../../kernel/ids';
+import { maskToolInput } from '../../kernel/actions/secret-fields';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
@@ -101,7 +103,8 @@ export class RunStore {
         type: s.type,
         status: s.status ?? 'ok',
         actionId: s.actionId ?? null,
-        input: json(s.input ?? {}),
+        // Ô bí mật (ActionDef.secret) không bao giờ nằm trong bước run (TIP-023c) — kể cả lời gọi bị chặn.
+        input: json(s.type === 'tool' ? maskToolInput(s.actionId ?? null, s.input ?? {}, getAction) : (s.input ?? {})),
         output: s.output === undefined ? undefined : json(s.output),
         provider: s.provider ?? null,
         model: s.model ?? null,

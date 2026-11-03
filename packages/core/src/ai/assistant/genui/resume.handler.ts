@@ -2,11 +2,13 @@
 // duy nhất (resume.ts) → ghi bước `tool` kết quả kết nối vào run để lượt kế tiếp của Trợ lý đọc (hỏi cấu hình nhanh). Không tự chạy
 // model ở đây (không runner thứ hai trong request): FE gửi tiếp một lượt "đã kết nối" bằng session cũ; run nhận receipt làm ngữ cảnh.
 import { Inject, Injectable, Optional } from '@nestjs/common';
+import type { Redis } from 'ioredis';
 import type { ActionInput, assistantResume } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { ChannelControl } from '../../../channels/services/control';
+import { REDIS } from '../../../kernel/redis';
 import { verifyExternal } from './resume';
 
 type Out = { resumed: boolean; status: string };
@@ -16,8 +18,14 @@ type Out = { resumed: boolean; status: string };
 export class AssistantResumeHandler implements Handler<ActionInput<typeof assistantResume>, Out> {
   constructor(
     @Inject(CLOCK) private readonly clock: Clock,
-    @Optional() @Inject(ChannelControl) private readonly control: ChannelControl | null = null,
-  ) {}
+    @Optional() @Inject(ChannelControl) control: ChannelControl | null = null,
+    @Optional() @Inject(REDIS) redis: Redis | null = null,
+  ) {
+    // AiModule không import ChannelsModule: đọc trạng thái đăng nhập thẳng từ Redis (chỉ đọc — không cần hàng đợi login).
+    this.control = control ?? (redis ? new ChannelControl(redis, null) : null);
+  }
+
+  private readonly control: ChannelControl | null;
 
   async execute(ctx: ActionContext, i: ActionInput<typeof assistantResume>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     // Người gọi phải là chủ run (không tin `onBehalfOf` từ client — actor là người dùng của request).

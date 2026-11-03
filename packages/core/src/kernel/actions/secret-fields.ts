@@ -60,3 +60,19 @@ export function secretValuesPresent(def: Pick<ActionDef, 'secret'>, input: unkno
     return v !== undefined && v !== null && v !== '';
   });
 }
+
+/**
+ * Input bước tool trước khi ghi `ai_run_step` (TIP-023c hợp đồng 3): `call_action` (`{action_id, input}`) hoặc tool action trực tiếp
+ * → che ô bí mật theo ActionDef; meta-tool khác giữ nguyên. Model gõ mật khẩu vào lời gọi bị chặn (SECRET_FIELD) nhưng bước vẫn được
+ * ghi — giá trị không được nằm lại trong DB.
+ */
+export function maskToolInput(actionId: string | null, input: unknown, lookup: (id: string) => Pick<ActionDef, 'secret'> | undefined): unknown {
+  if (!actionId || !input || typeof input !== 'object') return input;
+  if (actionId === 'call_action') {
+    const o = input as { action_id?: unknown; input?: unknown };
+    const def = typeof o.action_id === 'string' ? lookup(o.action_id) : undefined;
+    return def ? { ...o, input: maskSecrets(def, o.input) } : input;
+  }
+  const def = lookup(actionId);
+  return def ? maskSecrets(def, input) : input;
+}

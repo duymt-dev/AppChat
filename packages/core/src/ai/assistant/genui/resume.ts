@@ -31,8 +31,10 @@ export async function verifyExternal(db: Db, control: Pick<ChannelControl, 'logi
   const req = await db.assistantRequest.findUnique({ where: { runId: q.runId }, select: { executionState: true } });
   if (req && ['cancelled', 'failed', 'succeeded'].includes(req.executionState)) return { verified: false, status: req.executionState };
   const st = await channelStatusOf(db, control, q.channelAccountId);
-  // Chỉ tin trạng thái server: lần hiện hành phải đúng attempt người dùng thấy, và đã connected.
-  if (st.login?.attempt && st.login.attempt !== q.attempt) return { verified: false, status: 'stale_attempt' };
+  // Chỉ tin trạng thái server: lần hiện hành phải ĐÚNG attempt người dùng thấy, và đã connected. Không đọc được attempt hiện hành
+  // (không có control / trạng thái đã hết hạn) → không xác minh được → không tiếp tục (đóng an toàn — DC-314).
+  if (!st.login?.attempt) return { verified: false, status: 'unverifiable' };
+  if (st.login.attempt !== q.attempt) return { verified: false, status: 'stale_attempt' };
   if (st.account_status !== 'connected') return { verified: false, status: st.login?.status ?? st.account_status };
   const result = { channel_account_id: st.channel_account_id, status: 'connected' as const, name: st.name };
   const key = { runId: q.runId, node: q.node.slice(0, 40), attempt: q.attempt.slice(0, 80) };

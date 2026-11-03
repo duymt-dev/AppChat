@@ -4,8 +4,8 @@ import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { getAction } from '@appchat/actions';
 import type { TenantDb } from '@appchat/db';
-import { authzForRole } from '@appchat/shared';
-import { maskSecrets, secretPaths, secretValuesPresent, stripSecrets } from '../src/kernel/actions/secret-fields';
+import { authzForRole, REDACT_CENSOR } from '@appchat/shared';
+import { maskSecrets, maskToolInput, secretPaths, secretValuesPresent, stripSecrets } from '../src/kernel/actions/secret-fields';
 import { mergeSecrets, SecretVault } from '../src/kernel/actions/secret-vault';
 import { assistantTools, type AssistantTurnCtx } from '../src/ai/assistant/meta-tools';
 import type { AiRunner } from '../src/ai/runs/runner';
@@ -99,5 +99,16 @@ describe('SecretVault', () => {
   it('mergeSecrets ghép theo đường dẫn; chặn __proto__', () => {
     expect(mergeSecrets({ fields: { imap_host: 'x' } }, { 'fields.password': 'p' })).toEqual({ fields: { imap_host: 'x', password: 'p' } });
     expect(() => mergeSecrets({}, { '__proto__.polluted': 'x' })).toThrow();
+  });
+});
+
+describe('maskToolInput (ai_run_step.input)', () => {
+  it('call_action → che ô bí mật của action bên trong; tool action trực tiếp → che; meta-tool khác giữ nguyên', () => {
+    const viaMeta = maskToolInput('call_action', { action_id: 'channel.email.connect', input: { address: 'a@b.vn', fields: { imap_host: 'h', password: SENTINEL } } }, getAction);
+    expect(JSON.stringify(viaMeta)).not.toContain(SENTINEL);
+    expect(viaMeta).toMatchObject({ action_id: 'channel.email.connect', input: { address: 'a@b.vn', fields: { imap_host: 'h', password: REDACT_CENSOR } } });
+    expect(JSON.stringify(maskToolInput('channel.email.connect', { address: 'a@b.vn', fields: { password: SENTINEL } }, getAction))).not.toContain(SENTINEL);
+    expect(maskToolInput('find_actions', { query: 'x' }, getAction)).toEqual({ query: 'x' });
+    expect(maskToolInput('call_action', { action_id: 'contact.search', input: { q: 'Lan' } }, getAction)).toEqual({ action_id: 'contact.search', input: { q: 'Lan' } });
   });
 });
