@@ -31,7 +31,10 @@ const hit = (p: ProductRecord, cats: Map<string, { name: string }>) => ({
 @ActionHandler('product.search')
 export class ProductSearchHandler implements Handler<ActionInput<typeof productSearch>, SearchOut> {
   async execute(_ctx: ActionContext, input: ActionInput<typeof productSearch>, tx: TenantTx): Promise<HandlerOutcome<SearchOut>> {
-    const ids = await searchProductIds(tx, input.query ?? '', input.type, input.limit ?? 10);
+    let ids = await searchProductIds(tx, input.query ?? '', input.type, input.limit ?? 10);
+    // Lời nói "gói" dùng cho cả dịch vụ lẫn liệu trình: service ↔ package không ra gì mà tên khớp loại kia → trả loại kia (dòng có `type` thật).
+    const sibling = input.type === 'package' ? 'service' : input.type === 'service' ? 'package' : null;
+    if (!ids.length && sibling && input.query?.trim()) ids = await searchProductIds(tx, input.query, sibling, input.limit ?? 10);
     const [rows, cats] = await Promise.all([tx.product.findMany({ where: { id: { in: ids } }, select: PRODUCT_SELECT }), categoryMap(tx)]);
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);

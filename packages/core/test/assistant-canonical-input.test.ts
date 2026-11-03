@@ -65,6 +65,14 @@ describe('call_action → preview mang input chuẩn hoá', () => {
     await call.execute({ action_id: 'quote.create', input: { contact_id: 'KH-1016', note: 'KH-1016', items: [{ product_id: 'SP-0007', name: 'A', qty: 1, unit_price: '1000', tax_rate: 8 }] } }, { stepIdx: 0, toolCallId: 'c' });
     expect(calls[0]!.input).toMatchObject({ contact_id: ID_A, note: 'KH-1016', items: [{ product_id: ID_B }] });
   });
+
+  it('mảng mã `<thực thể>_ids` (stock.get.product_ids) đổi từng phần tử; mã lạ giữ nguyên', async () => {
+    const db = { product: { findFirst: async ({ where }: { where: { code: string } }) => (where.code === 'SP-0007' ? { id: ID_B } : null) } } as unknown as TenantDb;
+    const { executor, calls } = recorder(() => ({ status: 200, data: { result: { items: [] }, action_log_id: 'l' } }));
+    const call = assistantTools({ db, executor, runner: {} as AiRunner, now: () => new Date() }, t).find((x) => x.name === 'call_action')!;
+    await call.execute({ action_id: 'stock.get', input: { product_ids: ['SP-0007', 'SP-9999'] } }, { stepIdx: 0, toolCallId: 'c' });
+    expect(calls[0]!.input).toEqual({ product_ids: [ID_B, 'SP-9999'] });
+  });
 });
 
 describe('assistantConfirm chạy đúng snapshot', () => {

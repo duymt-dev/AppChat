@@ -20,6 +20,11 @@ describe('product.search', () => {
     expect((await m.act({ query: 'hifu', type: 'physical' })).body.data.result.items).toEqual([]);
   });
 
+  it('"gói" cho dịch vụ: lọc package không ra → trả service cùng tên (type thật); không lan sang loại khác', async () => {
+    expect((await m.act({ query: 'hifu', type: 'package' })).body.data.result.items).toEqual([expect.objectContaining({ product_id: p, type: 'service' })]);
+    expect((await m.act({ query: 'không có tên này', type: 'package' })).body.data.result.items).toEqual([]);
+  });
+
   it('403: người ngoài workspace', async () => {
     expect((await m.act({ query: 'hifu' }, { id: 'x', token: m.h.tokenFor('0190f000-0000-7000-8000-0000000000aa') })).status).toBe(403);
   });

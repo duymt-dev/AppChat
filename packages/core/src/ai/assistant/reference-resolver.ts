@@ -1,4 +1,4 @@
-// Mã hiển thị → id theo đường dẫn schema (TIP-023b SPEC A.3, R1.6): chỉ ô khai trong input schema của action — `<thực thể>_id` ở mọi tầng
+// Mã hiển thị → id theo đường dẫn schema (TIP-023b SPEC A.3, R1.6): chỉ ô khai trong input schema của action — `<thực thể>_id` / `_ids` ở mọi tầng
 // (`items[].product_id`, `patch.owner_user_id` không có bảng mã thì bỏ qua) và `id` ở gốc (= `<thực thể của action>_id`). Chuỗi tự do
 // (ghi chú "KH-123") không bị đổi. Tra theo mã trong scope của người gọi: bản ghi ngoài scope coi như không có → giữ nguyên mã (handler trả
 // 404 như mã sai — không xác nhận sự tồn tại của bản ghi bị ẩn).
@@ -47,8 +47,11 @@ function walk(n: Node | undefined, at: string[], out: RefPath[], depth: number) 
   for (const alt of n.anyOf ?? n.oneOf ?? []) walk(alt, at, out, depth);
   if (n.items) walk(n.items, [...at, '[]'], out, depth + 1);
   for (const [k, v] of Object.entries(n.properties ?? {})) {
+    // `<thực thể>_id` (một mã) hoặc `<thực thể>_ids` (mảng mã — vd. `stock.get.product_ids`).
+    const many = k.endsWith('_ids') && LOOKUPS[k.slice(0, -4)] ? k.slice(0, -4) : null;
     const entity = k.endsWith('_id') ? k.slice(0, -3) : null;
-    if (entity && LOOKUPS[entity]) out.push({ path: [...at, k], entity });
+    if (many) out.push({ path: [...at, k, '[]'], entity: many });
+    else if (entity && LOOKUPS[entity]) out.push({ path: [...at, k], entity });
     else walk(v, [...at, k], out, depth + 1);
   }
 }
