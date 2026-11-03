@@ -39,6 +39,8 @@ export interface TurnInput {
   sessionId?: string;
   tier?: Tier;
   context?: TurnContext;
+  /** Khoá idempotent của lượt (TIP-023c) — gửi lại do mạng → cùng run, không gọi model lần hai. */
+  requestId?: string;
 }
 
 export const sendTurn = (q: TurnInput) =>
@@ -48,6 +50,7 @@ export const sendTurn = (q: TurnInput) =>
     session_id: q.sessionId,
     tier: q.tier,
     context: q.context,
+    ...(q.requestId ? { request_id: q.requestId } : {}),
   });
 
 export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>

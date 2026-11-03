@@ -5,6 +5,8 @@ import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useThreadStyles } from '../styles/thread.styles';
 import { useAssistantUi } from '../assistant-store';
+import type { UiCommand } from '@appchat/actions';
+import { GenUiRenderer } from '@/shared/genui';
 import type { ChatMessage } from '../types';
 import { ActionPreviewCard } from './ActionPreviewCard';
 import { BotFaceSmall } from './BotFace';
@@ -14,9 +16,13 @@ export interface ChatThreadProps {
   onSend: () => void;
   onDecide: (m: ChatMessage, d: 'confirm' | 'cancel') => void;
   onOpen: (m: ChatMessage) => void;
+  /** Lệnh UI từ nút của cây GenUI (đổi màn / lọc / tô sáng — không đổi dữ liệu). */
+  onUi: (cmd: UiCommand) => void;
+  /** Kết quả ngoài đã xác minh (QR đã kết nối) → gửi tiếp lượt cho Trợ lý. */
+  onExternal?: (e: { node: string; status: 'connected' }) => void;
 }
 
-export function ChatThread({ onSend, onDecide, onOpen }: ChatThreadProps) {
+export function ChatThread({ onSend, onDecide, onOpen, onUi, onExternal }: ChatThreadProps) {
   const t = useTranslations('assistant');
   const { styles } = useThreadStyles();
   const { messages, typing } = useAssistantUi();
@@ -43,9 +49,13 @@ export function ChatThread({ onSend, onDecide, onOpen }: ChatThreadProps) {
                 </span>
                 <div className={styles.aiCol}>
                   <div className={styles.aiName}>{t('ai')}</div>
-                  <div className={styles.ai} data-testid="asst-ai-msg">
-                    {m.card ? t('confirmLead') : m.text}
-                  </div>
+                  {m.ui ? (
+                    <GenUiRenderer part={m.ui} mode="full" onUi={onUi} onExternal={onExternal} />
+                  ) : (
+                    <div className={styles.ai} data-testid="asst-ai-msg">
+                      {m.card ? t('confirmLead') : m.text}
+                    </div>
+                  )}
                   {m.card ? <ActionPreviewCard m={m} onDecide={onDecide} onOpen={onOpen} /> : null}
                 </div>
               </div>

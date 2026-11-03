@@ -320,5 +320,6 @@
       "negative_stock": "Stock will go negative"
     },
     "unset": "Not set"
-  }
+  },
+  "genuiConnected": "Connected."
 }

@@ -1,6 +1,6 @@
 // Kiểu dữ liệu Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5).
 import type { UiCommand } from '@appchat/actions';
-import type { ActionPreviewDto, AiTaskRowDto, AiTasksPayloadDto } from '@appchat/shared';
+import type { ActionPreviewDto, AiTaskRowDto, AiTasksPayloadDto, GenUiPart } from '@appchat/shared';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type Mode = 'chat' | 'cowork';
 
@@ -55,13 +55,17 @@ export type TurnEvent =
   | ConfirmEvent
   | { type: 'ui_command'; command: UiCommand }
   | { type: 'result'; action_log_id: string; summary: string }
-  | { type: 'error'; code: string; message: string };
+  | { type: 'error'; code: string; message: string }
+  | GenUiPart;
 
 /** Ngữ cảnh màn đang mở gửi kèm lượt (Blueprint §4.5 `context`). */
 export interface TurnContext {
   route: string;
   entity?: string;
   id?: string;
+  selection?: string[];
+  /** Khung hiện câu trả lời (D55 §9): drawer theo màn → cây gọn; màn Trợ lý → đầy đủ. */
+  surface?: 'drawer' | 'assistant';
 }
 
 export interface ChatMessage {
@@ -73,6 +77,8 @@ export interface ChatMessage {
   status?: 'pending' | 'done' | 'cancelled' | 'approval';
   /** Bản ghi vừa tạo khi xác nhận (ui_target của action) — nút "Đã lưu vào …" mở đúng chỗ. */
   target?: UiCommand;
+  /** Cây GenUI của lượt (TIP-023c) — chỉ cây + refs đã lọc + intent; ô bí mật không bao giờ nằm ở đây. */
+  ui?: GenUiPart;
 }
 
 /** Tác vụ tự chủ + màn Coworks — cùng shape `GET /v1/ai-tasks` (packages/shared/src/api/ai-tasks.ts, TIP-035). */

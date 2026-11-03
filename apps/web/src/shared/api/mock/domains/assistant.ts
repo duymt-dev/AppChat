@@ -7,6 +7,7 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
+import { genUiReply } from './assistant-genui';
 
 export type AssistantFixture = typeof fixture;
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
@@ -169,6 +170,8 @@ export const assistantRoutes: Record<string, MockRoute> = {
 /** Kịch bản trả lời (omiIntent / omiReply L8340–8366): ý định có action → thẻ xác nhận; còn lại → câu trả lời mẫu. */
 export const scriptReply = (db: MockDb, text: string) => {
   const low = text.toLowerCase();
+  const ui = genUiReply(low);
+  if (ui) return ui;
   const intent = fixture.intents.find((i) => new RegExp(i.re).test(low));
   if (intent) {
     const token = `cf_${++db.assistant.seq}`;

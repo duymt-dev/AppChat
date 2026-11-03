@@ -2,6 +2,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useMe } from '@/shared/shell/useShellData';
 import { useCan } from '@/shared/authz/useCan';
 import { PageStates } from '@/shared/states/PageStates';
@@ -17,6 +18,7 @@ import { useAssistantUiCommands } from '../ui-commands';
 export function AssistantScreen() {
   useAssistantUiCommands();
   const { styles } = useAssistantStyles();
+  const t = useTranslations('assistant');
   const { data: me } = useMe();
   const allowed = useCan('assistant.use');
   const ui = useAssistantUi();
@@ -40,7 +42,7 @@ export function AssistantScreen() {
       <AssistantTopBar onNewChat={inChat ? ui.reset : undefined} />
       <PageStates state={allowed ? 'ready' : 'no-permission'}>
         {inChat ? (
-          <ChatThread onSend={() => void chat.send()} onDecide={(m, d) => void chat.decide(m, d)} onOpen={chat.openResult} />
+          <ChatThread onSend={() => void chat.send()} onDecide={(m, d) => void chat.decide(m, d)} onOpen={chat.openResult} onUi={chat.runUi} onExternal={() => void chat.send(t('genuiConnected'))} />
         ) : (
           <WelcomeView name={name} onSend={(text) => void chat.send(text)} />
         )}
