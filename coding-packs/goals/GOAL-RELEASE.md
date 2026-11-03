@@ -7,7 +7,7 @@
 Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
 
 **Câu dán vào `/goal`:**
-`Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046), mỗi TIP rà "Rà trước khi làm" với code thật, nhánh tip/XXX-<slug> từ origin/dev, làm đúng manifest, test 3 cổng D59, commit, gh pr create --base dev, cập nhật COVERAGE (parts + merge.py) và bảng tiến độ; câu hỏi mới ghi QUESTIONS.md kèm đề xuất, quyết định kỹ thuật ghi DECISIONS.md, lệch spec ghi DEVIATIONS.md; không dừng chờ trả lời trừ luật tiền / quyền / pháp lý / xoá dữ liệu.`
+`Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046), mỗi TIP rà "Rà trước khi làm" với code thật, nhánh tip/XXX-<slug> từ origin/dev, làm đúng manifest, đọc và đối chiếu mọi standard TIP ghi tên, test 3 cổng D59, commit, gh pr create --base dev, cập nhật COVERAGE (parts + merge.py) và bảng tiến độ; câu hỏi mới ghi QUESTIONS.md kèm đề xuất, quyết định kỹ thuật ghi DECISIONS.md, lệch spec ghi DEVIATIONS.md; không dừng chờ trả lời trừ luật tiền / quyền / pháp lý / xoá dữ liệu.`
 
 ## Đọc trước (theo thứ tự)
 
@@ -22,8 +22,9 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 1. **Rà trước khi làm** (mục cùng tên trong TIP): đọc lại mọi file trong manifest trên `origin/dev` mới nhất; code lệch CONTEXT → sửa TIP (dòng "Rà lại <ngày>") rồi mới làm. `python -X utf8 tools/obligations/manifests.py <tip>` tính lại giao file; thêm path → cập nhật manifest + header hai phía (`--sync <tip>`), `--check` + `--order` sạch.
 2. Nhánh `tip/XXX-<slug>` từ `origin/dev` mới nhất (bảng ghi sẵn tên). TIP trước chưa merge → tách từ nhánh đó, ghi "xếp chồng" trong PR.
 3. Thi công đúng manifest; file ngoài manifest = sửa manifest trước. Ghi chỉ qua `ActionExecutor`; không đổi luật COMMERCE / quyền / đơn giá Credit.
+3b. **Đối chiếu standards:** đọc mọi file trong mục `APPLICABLE STANDARDS` của TIP (danh mục `standards/README.md`) trước khi viết code của phần đó; luật máy không kiểm (thứ tự composite index, deferred join, envelope `{ data }` / `{ error }`, preview risk send/money/delete/config, test §12 mỗi action…) soát tay khi tự review diff.
 4. Test **3 cổng D59** (bảng dưới). Đỏ → không commit / không báo DONE.
-5. `reports/TIP-XXX-completion.md` (khuôn BUILDER-HANDOFF) · cập nhật `tools/obligations/parts/*.md` (trạng thái + bằng chứng file:dòng + test) → `python -X utf8 tools/obligations/merge.py` · `git status --short` sạch.
+5. `reports/TIP-XXX-completion.md` (khuôn BUILDER-HANDOFF, có mục **Đối chiếu standards**: mỗi standard TIP ghi tên → file:dòng tuân thủ hoặc mã DV khi lệch) · cập nhật `tools/obligations/parts/*.md` (trạng thái + bằng chứng file:dòng + test) → `python -X utf8 tools/obligations/merge.py` · `git status --short` sạch.
 6. `git push -u origin <nhánh>` → `gh pr create --base dev` (thân PR theo `standards/workflow/git-flow-ci.md`). Không PR vào `main`, không tự merge.
 7. Cập nhật bảng tiến độ dưới (trạng thái · SHA · PR) — commit tài liệu này trên `dev`.
 
@@ -34,7 +35,7 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 | Cổng | Chạy |
 |------|------|
 | **Khi làm** | Test trực tiếp phần đang sửa (một file test, một spec) |
-| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` + `pnpm depcheck` |
+| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` + `pnpm depcheck` + `pnpm lint:size` · `pnpm lint:tokens` · `pnpm lint:masks` · `pnpm i18n:check` (ba script gốc không nằm trong lint của package) |
 | **Chốt TIP** | `pnpm lint` · `pnpm typecheck` · `pnpm test` · integration (Postgres + Memurai thật) · `pnpm depcheck` · `pnpm build` · `pnpm lint:size` · `pnpm i18n:check` khi đổi chuỗi · E2E luồng TIP ở **cả** `mock` và `http` · `pnpm parity <id>` màn liên quan · full E2E hồi quy một lần |
 
 Sửa lớp dùng chung (kernel, `packages/{db,actions,shared,ui}`, `apps/web/src/shared`) → chạy thêm hồi quy tương ứng (`pnpm parity --done`, e2e module dùng phần đó). Ca đỏ có sẵn trên `origin/dev` không tính là xanh: ghi tên + bằng chứng vào report và `QUESTIONS.md`, không skip.
