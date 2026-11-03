@@ -1,0 +1,90 @@
+// Chạy một suite qua HTTP thật (TIP-023b R1.4 · SPEC E): mỗi ca một phiên Trợ lý mới → `POST /assistant/messages` → vết run
+// (`GET /assistant/runs/:id/trace`) → chấm (safety.ts). Thẻ xác nhận luôn được HUỶ — bộ câu thử không ghi dữ liệu thật, chỉ đo model gọi
+// đúng action / input và dừng ở thẻ. Lỗi mạng / 5xx không bao giờ tính pass: attempt ghi `error`, thử lại giữ attempt riêng.
+import type { LiveCase, Suite } from './cases';
+import { judge, type TraceStep, type Verdict } from './safety';
+
+export interface Api {
+  req(method: string, path: string, body?: unknown): Promise<{ status: number; body: unknown }>;
+}
+
+export interface Attempt {
+  case_id: string;
+  attempt: number;
+  status: 'pass' | 'fail' | 'error';
+  expected: LiveCase['expect'];
+  actual?: Verdict['actual'];
+  safety?: Verdict['safety'];
+  reasons: string[];
+  run_id?: string;
+  model?: string;
+  prompt_hash?: string;
+  prompt_version?: number;
+  tokens: { in: number; out: number };
+  credits?: number;
+}
+
+export interface RunOptions {
+  /** Số lần chạy mỗi ca (eval.md §4: 3, đạt khi ≥ 2/3); mặc định 1. */
+  attempts: number;
+  seed: unknown;
+  writes: ReadonlySet<string>;
+  allowed: ReadonlySet<string>;
+  log?: (line: string) => void;
+}
+
+type Turn = { session_id: string; run_id: string; events: { type: string; action_id?: string; confirm_token?: string; text?: string }[] };
+type Trace = { run_id: string; prompt: { version: number; hash: string }; credits: number; steps: TraceStep[] };
+
+const data = <T>(b: unknown) => (b as { data: T }).data;
+
+/** Chỗ trống trong câu hỏi (mã chỉ biết sau seed): `$QUOTE` = mã báo giá seed, `$HOA_CODE` = mã KH Nguyễn Thị Hoa. */
+export function fillInput(text: string, seed: unknown): string {
+  const s = (seed ?? {}) as { quote?: { code?: string }; contacts?: Record<string, { code?: string }> };
+  return text.replaceAll('$QUOTE', s.quote?.code ?? '$QUOTE').replaceAll('$HOA_CODE', s.contacts?.['Nguyễn Thị Hoa']?.code ?? '$HOA_CODE');
+}
+
+async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promise<Attempt> {
+  const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
+  const t = await api.req('POST', '/assistant/messages', { text: fillInput(c.input, o.seed), mode: c.mode });
+  if (t.status !== 200) return { ...base, status: 'error', reasons: [`turn_http_${t.status}`] };
+  const turn = data<Turn>(t.body);
+  const tr = await api.req('GET', `/assistant/runs/${turn.run_id}/trace`);
+  if (tr.status !== 200) return { ...base, status: 'error', reasons: [`trace_http_${tr.status}`], run_id: turn.run_id };
+  const trace = data<Trace>(tr.body);
+  // Không xác nhận gì: huỷ mọi thẻ còn treo để run kết thúc sạch.
+  for (const e of turn.events) if (e.type === 'confirm' && e.confirm_token) await api.req('POST', '/assistant/confirm', { confirm_token: e.confirm_token, decision: 'cancel' });
+  const v = judge(c, { steps: trace.steps, events: turn.events, writes: o.writes, allowed: o.allowed }, o.seed);
+  const llm = trace.steps.filter((s) => s.type === 'llm');
+  const model = llm.find((s) => s.model)?.model;
+  return {
+    ...base,
+    status: v.status,
+    actual: v.actual,
+    safety: v.safety,
+    reasons: v.reasons,
+    run_id: trace.run_id,
+    ...(model ? { model } : {}),
+    prompt_hash: trace.prompt.hash,
+    prompt_version: trace.prompt.version,
+    tokens: { in: llm.reduce((n, s) => n + s.tokens_in, 0), out: llm.reduce((n, s) => n + s.tokens_out, 0) },
+    credits: trace.credits,
+  };
+}
+
+export async function runSuite(api: Api, suite: Suite, o: RunOptions): Promise<Attempt[]> {
+  const out: Attempt[] = [];
+  for (const c of suite.cases) {
+    for (let a = 1; a <= o.attempts; a++) {
+      let r: Attempt;
+      try {
+        r = await one(api, c, a, o);
+      } catch (e) {
+        r = { case_id: c.id, attempt: a, status: 'error', expected: c.expect, reasons: [`network:${(e as Error).message.slice(0, 120)}`], tokens: { in: 0, out: 0 } };
+      }
+      out.push(r);
+      o.log?.(`${r.status === 'pass' ? '✓' : r.status === 'fail' ? '✗' : '!'} ${c.id}#${a} ${r.reasons.join(' ')}`);
+    }
+  }
+  return out;
+}

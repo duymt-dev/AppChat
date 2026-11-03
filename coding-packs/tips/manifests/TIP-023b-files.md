@@ -13,6 +13,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `apps/api/src/http/ai/ai.controller.ts` | Pass authority to shared scoped listRuns query |
 | C | `packages/ai/test/assistant-prompt-runtime.test.ts` | Runtime prompt version/content matches approved prompt changes |
 | C | `coding-packs/reports/TIP-023b-completion.md` | Builder evidence report only after implementation |
+| M | `coding-packs/DEVIATIONS.md` | DV-021 thư viện `yaml` cho tools/ai-live |
 | M | `apps/api/src/http/inbox/inbox.http.module.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/core/src/ai/assistant/sessions.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/ai/src/gateway/engine.ts` | Canonical paused state and group HTTP registration |
@@ -324,6 +325,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/ai/assistant/reference-resolver.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/src/ai/assistant/schema-brief.ts` | Extracted implementation or targeted evidence |
 | M | `packages/core/src/ai/assistant/turn.service.ts` | Runtime/contract/wiring |
+| C | `packages/core/src/ai/assistant/run-trace.read.ts` | GET /assistant/runs/:id/trace cho tools/ai-live (R1.4) |
 | M | `packages/core/src/ai/assistant/types.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/ai/governance/governance.ts` | Domain preview for governance.update |
 | C | `packages/core/src/ai/governance/previews/governance.preview.ts` | Scoped preview helper for packages/core/src/ai/governance/governance.ts |
@@ -543,6 +545,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/test/assistant-coverage.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-custom-schema.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-implemented-tools.test.ts` | Extracted implementation or targeted evidence |
+| C | `packages/core/test/assistant-run-trace.test.ts` | Vết run chỉ của người gọi, bí mật đã che (R1.4) |
 | M | `packages/core/test/assistant-unit.test.ts` | find_actions fail-closed theo handler thật + khuôn schema lồng nhau (R1.1/R1.2) |
 | C | `packages/core/test/assistant-preview-edit.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/group-request-state.test.ts` | Explicit integration seam |

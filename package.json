@@ -19,7 +19,8 @@
     "parity": "pnpm --filter @appchat/parity run parity",
     "parity:baseline": "pnpm --filter @appchat/parity run baseline",
     "e2e": "pnpm --filter @appchat/web run e2e",
-    "e2e:http": "node tools/scripts/e2e-http.mjs"
+    "e2e:http": "node tools/scripts/e2e-http.mjs",
+    "ai:live": "pnpm --filter @appchat/ai-live run live"
   },
   "devDependencies": {
     "dependency-cruiser": "18.7.0",

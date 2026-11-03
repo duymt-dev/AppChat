@@ -12,6 +12,7 @@ import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.provide
 import { AiRunner } from '../runs/runner';
 import { listActionLogs, type LogFilter } from './action-logs.read';
 import { assistantHome } from './home.read';
+import { runTrace } from './run-trace.read';
 import { listSessions, sessionMessages } from './sessions';
 import { assistantConfirm, assistantTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
 
@@ -75,6 +76,11 @@ export class AssistantService {
 
   async messages(c: Caller, id: string) {
     return sessionMessages(await this.db(c), c.userId, id);
+  }
+
+  /** Vết run của chính người gọi (bộ câu thử model thật — TIP-023b R1.4). */
+  async trace(c: Caller, runId: string) {
+    return runTrace(await this.db(c), c.userId, runId);
   }
 
   async actionLogs(c: Caller, f: Omit<LogFilter, 'locale'>) {

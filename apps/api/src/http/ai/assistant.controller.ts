@@ -1,5 +1,5 @@
 // Trợ lý AI (TIP-023, Blueprint §4.4 assistant, §4.5): POST /v1/assistant/messages (lượt — JSON một lần, DV-006) · POST
-// /v1/assistant/confirm · GET /v1/assistant/home · /assistant/sessions?q= · /assistant/sessions/:id/messages · GET /v1/action-logs.
+// /v1/assistant/confirm · GET /v1/assistant/home · /assistant/sessions?q= · /assistant/sessions/:id/messages · /assistant/runs/:id/trace · GET /v1/action-logs.
 // Cần `assistant.use` (nhật ký: mọi thành viên — theo quyền: của mình hoặc hết với `audit.view`).
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
@@ -75,6 +75,11 @@ export class AssistantController {
   @Get('assistant/sessions/:id/messages')
   async messages(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.svc.messages(await this.caller(req, 'assistant.use'), id), next_cursor: null };
+  }
+
+  @Get('assistant/runs/:id/trace')
+  async trace(@Req() req: IncomingMessage, @Param('id') id: string) {
+    return { data: await this.svc.trace(await this.caller(req, 'assistant.use'), id) };
   }
 
   @Get('action-logs')
