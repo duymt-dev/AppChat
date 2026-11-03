@@ -30,7 +30,6 @@ export const PREVIEW_DEBT: ReadonlySet<string> = new Set([
   'payment_account.update',
   'product.archive', 'product.create', 'product.update',
   'profile.update',
-  'quote.approve', 'quote.comment', 'quote.create', 'quote.draft_from_content', 'quote.extend_validity', 'quote.mark_accepted', 'quote.mark_rejected', 'quote.reject_internal', 'quote.request_revision', 'quote.submit_for_approval', 'quote.update',
   'run.cancel',
   'staff.create', 'staff.deactivate', 'staff.update',
   'stock.adjust',

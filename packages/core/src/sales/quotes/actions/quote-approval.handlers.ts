@@ -11,6 +11,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { CrmMembers, actorUserId } from '../../../crm/public';
 import { lockQuote } from '../quote-access';
 import { moveStatus } from '../services/quote-write';
+import { approvePreview, rejectInternalPreview, submitPreview } from '../previews/quote-approval.handlers.preview';
 
 type Out = { quote_id: string; status: string };
 const cut = (s: string) => s.slice(0, 200);
@@ -48,6 +49,10 @@ export class QuoteSubmitHandler implements Handler<ActionInput<typeof quoteSubmi
       ],
     };
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteSubmit>, tx: TenantTx) {
+    return submitPreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -60,6 +65,10 @@ export class QuoteApproveHandler implements Handler<ActionInput<typeof quoteAppr
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.approve');
     await moveStatus(tx, q, to, { approvedBy: actorUserId(ctx) }, this.clock.now());
     return { result: { quote_id: q.id, status: to } };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteApprove>, tx: TenantTx) {
+    return approvePreview(ctx, tx, input);
   }
 }
 
@@ -76,5 +85,9 @@ export class QuoteRejectInternalHandler implements Handler<ActionInput<typeof qu
     const reason = input.reason?.trim();
     if (reason) await tx.quoteComment.create({ data: { id: uuidv7(now.getTime()), quoteId: q.id, authorId: actorUserId(ctx), body: reason, createdAt: now } });
     return { result: { quote_id: q.id, status: to } };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteRejectInternal>, tx: TenantTx) {
+    return rejectInternalPreview(ctx, tx, input);
   }
 }

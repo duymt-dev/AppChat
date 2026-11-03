@@ -18,6 +18,7 @@ import { freezeQuotePdf, renderQuotePdf } from '../services/quote-doc';
 import { QuoteDeps } from '../services/quote-deps';
 import { pdfLinkOf, quoteLinkOf } from '../services/quote-env';
 import { customerConversation, postToCustomer, reachCustomer } from '../services/quote-send';
+import { extendPreview, sendPreview } from '../previews/quote-send.handlers.preview';
 import { hasNewerVersion, moveStatus, reasonsOf, validUntilOf } from '../services/quote-write';
 
 type SendIn = ActionInput<typeof quoteSend>;
@@ -96,9 +97,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
   }
 
   async preview(ctx: ActionContext, input: SendIn, tx: TenantTx) {
-    const q = await visibleQuote(tx, ctx.authz, input.quote_id);
-    const c = await tx.contact.findUnique({ where: { id: q.contactId }, select: { name: true } });
-    return { summary: `${q.code} · ${c?.name ?? ''} · ${createFmt({ locale: 'vi' }).money(String(q.total))}`, risk: 'send' as const };
+    return sendPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
   }
 }
 
@@ -132,6 +131,10 @@ export class QuoteExtendHandler implements Handler<ExtendIn, { quote_id: string;
     const text = interpolate(serverMessages(locale).sales.quote.extended, { code: q.code, valid_until: createFmt({ locale, timeZone }).date(validUntil), link: quoteLinkOf(this.d.need('env'), ctx.workspaceId, q.id) });
     const sent = await postToCustomer(ctx, tx, this.members, { conv, created: false, text, now });
     return { result: out, before, events: sent.events, afterCommit: () => enqueueOutgoing(this.queue, ctx.workspaceId, sent.out) };
+  }
+
+  async preview(ctx: ActionContext, input: ExtendIn, tx: TenantTx) {
+    return extendPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

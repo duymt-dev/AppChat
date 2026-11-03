@@ -12,6 +12,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { nextCode } from '../../../kernel/sequence';
 import { CrmMembers, actorUserId } from '../../../crm/public';
 import { lockQuote, visibleQuote } from '../quote-access';
+import { commentPreview, createPreview, deletePreview, updatePreview } from '../previews/quote-write.handlers.preview';
 import { checkParties, checkQuoteCustom, creatorOf, linesOf, resolveLines, totalCols, writeLines, type LineIn, type QuoteFieldsIn } from '../services/quote-write';
 
 type CreateIn = ActionInput<typeof quoteCreate>;
@@ -72,6 +73,10 @@ export class QuoteCreateHandler implements Handler<CreateIn, { quote_id: string;
     return { result: { quote_id: q.id, code: q.code }, after: { id: q.id } };
   }
 
+  async preview(ctx: ActionContext, input: CreateIn, tx: TenantTx) {
+    return createPreview(ctx, tx, this.members, input);
+  }
+
   /** Hoàn tác trong 24h, khi báo giá chưa gửi (Blueprint §3.4) — xoá hẳn bản nháp. */
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const id = (log.after as { id: string }).id;
@@ -120,6 +125,10 @@ export class QuoteUpdateHandler implements Handler<UpdateIn, { quote_id: string 
     });
     return { result: { quote_id: q.id }, after: { id: q.id } };
   }
+
+  async preview(ctx: ActionContext, input: UpdateIn, tx: TenantTx) {
+    return updatePreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -140,8 +149,7 @@ export class QuoteDeleteHandler implements Handler<ActionInput<typeof quoteDelet
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof quoteDelete>, tx: TenantTx) {
-    const q = await visibleQuote(tx, ctx.authz, input.quote_id);
-    return { summary: `${q.code} · L${q.version}`, risk: 'delete' as const };
+    return deletePreview(ctx, tx, input);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
@@ -165,6 +173,10 @@ export class QuoteCommentHandler implements Handler<ActionInput<typeof quoteComm
     const id = uuidv7(now.getTime());
     await tx.quoteComment.create({ data: { id, quoteId: q.id, authorId: actorUserId(ctx), body: input.text, createdAt: now } });
     return { result: { quote_id: q.id }, after: { id } };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteComment>, tx: TenantTx) {
+    return commentPreview(ctx, tx, input);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
