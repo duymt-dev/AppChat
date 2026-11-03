@@ -58,6 +58,17 @@ describe('dọn sự kiện stream', () => {
     expect(await redis.sismember(EVENTS_ARMED_KEY, h.ws)).toBe(0);
   });
 
+  it('workspace đã xoá trong tập armed → bỏ khỏi tập, không báo lỗi lặp', async () => {
+    const redis = h.app.get(REDIS, { strict: false });
+    const gone = uuidv7();
+    await redis.sadd(EVENTS_ARMED_KEY, gone);
+    const armed = { list: async () => [gone], remove: async (ws: string) => void (await redis.srem(EVENTS_ARMED_KEY, ws)) };
+    const errors: unknown[] = [];
+    await pruneArmedEvents(armed, (ws) => resolver.get(TenantContexts.system(ws, 't')), () => new Date(), (_ws, e) => errors.push(e));
+    expect(errors).toEqual([]);
+    expect(await redis.sismember(EVENTS_ARMED_KEY, gone)).toBe(0);
+  });
+
   it('EXPLAIN lô xoá dùng index expires_at', async () => {
     const ws = await h.platform.workspace.findUniqueOrThrow({ where: { id: h.ws } });
     const c = new pg.Client({ connectionString: env.TENANT_DATABASE_URL!.replace(/\/[^/?]*(\?|$)/, `/${ws.dbName}$1`) });

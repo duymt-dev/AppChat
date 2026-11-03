@@ -12,6 +12,7 @@ const channel = (runId: string) => `appchat:assistant:run:${runId}`;
 
 type Caller = Parameters<AssistantService['replay']>[0];
 
+/** Trả về khi luồng đã đóng. */
 export async function pipeRunStream(svc: AssistantService, redis: Redis, req: IncomingMessage, res: ServerResponse, a: Caller, id: string, cursor?: string): Promise<void> {
   const signer = svc.cursors();
   const after = cursor ? signer.verify(id, a.userId, cursor) : 0;
@@ -33,12 +34,15 @@ export async function pipeRunStream(svc: AssistantService, redis: Redis, req: In
   };
   const sub = redis.duplicate();
   const hb = setInterval(() => res.write(': hb\n\n'), GENUI_STREAM.heartbeatMs);
+  let finished: () => void = () => undefined;
+  const done = new Promise<void>((r) => (finished = r));
   const end = () => {
     if (closed) return;
     closed = true;
     clearInterval(hb);
     void sub.quit().catch(() => undefined);
     res.end();
+    finished();
   };
   req.on('close', end);
 
@@ -67,4 +71,6 @@ export async function pipeRunStream(svc: AssistantService, redis: Redis, req: In
     const again = await svc.replay(a, id, last);
     if (again.events !== 'reset_required' && !again.events.length) end();
   }
+  // Giữ handler tới khi luồng đóng (done / reset / client ngắt / quá tải) — controller `passthrough` không được kết thúc response sớm.
+  await done;
 }

@@ -3,7 +3,7 @@
 // rồi nhận lease (fence + 1, nguyên tử) và CHỐT lượt `failed` đúng một lần: ghi tin lỗi vào phiên + sự kiện `error` + `done` lên sổ
 // stream (SSE / mở lại phiên không treo), run → failed. KHÔNG gọi lại model / tool: bước tool đã chạy có thể đã ghi (biên nhận theo khoá
 // idempotent của bước) — chạy mù lại là ghi đôi. Tiến trình cũ quay lại: fence cũ → không ghi / chốt được. Lượt đã huỷ giữ nguyên huỷ.
-import { TenantSql, type TenantDb } from '@appchat/db';
+import { TenantSql, WorkspaceNotFoundError, type TenantDb } from '@appchat/db';
 import { serverMessages } from '@appchat/shared';
 import { RunStore } from '../../runs/run.store';
 import { appendMessage } from '../sessions';
@@ -84,7 +84,9 @@ export async function recoverArmedTurns(d: RecoveryDeps, armed: ArmedTurns, tena
       total += r.recovered;
       if (!r.active) await armed.remove(ws);
     } catch (err) {
-      onError(ws, err);
+      // Workspace đã xoá (test / huỷ đăng ký) → bỏ khỏi tập, không cảnh báo lặp mỗi lượt.
+      if (err instanceof WorkspaceNotFoundError) await armed.remove(ws);
+      else onError(ws, err);
     }
   }
   return total;

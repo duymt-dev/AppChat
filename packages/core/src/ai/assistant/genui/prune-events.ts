@@ -2,7 +2,7 @@
 // xoá theo lô (index `assistant_event_expires_at_idx` (expires_at, id)), mỗi lô ≤ 500 dòng, tối đa 20 lô mỗi workspace mỗi lượt — lượt
 // sau làm tiếp (checkpoint = chính `expires_at` còn lại). Tin / lịch sử phiên (`assistant_message`) KHÔNG bị xoá theo TTL stream.
 // Không quét mọi tenant: chỉ workspace trong tập `assistant:events:armed` (đánh dấu khi ghi sự kiện); dọn sạch thì bỏ khỏi tập. Giờ theo Clock.
-import type { TenantDb } from '@appchat/db';
+import { WorkspaceNotFoundError, type TenantDb } from '@appchat/db';
 import { EventStore } from './event-store';
 
 export const PRUNE_BATCH = 500;
@@ -39,7 +39,9 @@ export async function pruneArmedEvents(armed: ArmedEvents, tenant: (ws: string) 
       total += r.deleted;
       if (!r.remaining) await armed.remove(ws);
     } catch (err) {
-      onError(ws, err);
+      // Workspace đã xoá (test / huỷ đăng ký) → bỏ khỏi tập, không cảnh báo lặp mỗi lượt.
+      if (err instanceof WorkspaceNotFoundError) await armed.remove(ws);
+      else onError(ws, err);
     }
   }
   return total;

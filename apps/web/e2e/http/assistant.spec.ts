@@ -38,13 +38,17 @@ test.describe('Trợ lý AI (http)', () => {
     await page.getByTestId('log-search').fill('lan tro ly');
     await expect(page.getByTestId('action-log')).toContainText('Tạo khách hàng "Lan Trợ Lý"', { timeout: 15_000 });
 
-    // Trợ lý thu nhỏ ở màn khác → màn Trợ lý nhận câu hỏi (ngữ cảnh = màn gốc) và trả lời.
+    // Trợ lý thu nhỏ ở màn khác (TIP-023c G2): gửi lượt thật ngay trong dock (ngữ cảnh = màn gốc, qua SSE + worker ROLE=ai);
+    // "Mở trong Trợ lý" → màn Trợ lý đầy đủ nạp lại cùng phiên (không gọi model).
     await page.goto('/invoices');
     await page.getByTestId('iv-ai-open').click();
-    await expect(page.getByTestId('assistant-dock')).toBeVisible();
-    await page.getByTestId('dock-input').fill('Khách nào cần chăm sóc?');
-    await page.getByTestId('dock-input').press('Enter');
-    await expect(page).toHaveURL(/\/assistant$/, { timeout: 15_000 });
+    const dock = page.getByTestId('assistant-dock');
+    await expect(dock).toBeVisible();
+    await dock.getByTestId('dock-input').fill('Khách nào cần chăm sóc?');
+    await dock.getByTestId('dock-input').press('Enter');
+    await expect(dock.getByTestId('dock-msgs')).toContainText('Đã nhận: Khách nào cần chăm sóc?', { timeout: 20_000 });
+    await dock.getByTestId('dock-full').click();
+    await expect(page).toHaveURL(/\/assistant/, { timeout: 15_000 });
     await expect(page.getByTestId('asst-ai-msg').last()).toContainText('Đã nhận: Khách nào cần chăm sóc?', { timeout: 20_000 });
   });
 });
