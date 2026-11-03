@@ -84,4 +84,21 @@ describe('agentToolSpecs — authz đọc lại mỗi lời gọi', () => {
     expect(await tool!.execute({ title: 'x' }, { stepIdx: 1, toolCallId: 'c2' })).toEqual({ kind: 'error', code: 'FORBIDDEN', message: 'tool_revoked' });
     expect(seen).toHaveLength(1);
   });
+
+  it('AC3: tool agent nhận mã KH → executor nhận id (cùng resolveCodes với Trợ lý)', async () => {
+    const CT = '7c1e2b8a-0000-4000-8000-0000000000c1';
+    const { db } = rig();
+    const withContact = { ...(db as object), contact: { findFirst: async ({ where }: { where: { code: string } }) => (where.code === 'KH-1016' ? { id: CT } : null) } } as never;
+    const inputs: unknown[] = [];
+    const executor: ToolExecutor = {
+      isImplemented: () => true,
+      execute: async (_ctx: ActionContext, _id: string, input: unknown) => {
+        inputs.push(input);
+        return { status: 200, data: { result: { ok: true }, action_log_id: 'l' } } as never;
+      },
+    };
+    const [tool] = agentToolSpecs(executor, ['ticket.create'], { workspaceId: 'ws', agent: { id: AG, toolIds: SNAP }, runId: 'r', source: 'agent', db: withContact });
+    await tool!.execute({ title: 'x', contact_id: 'KH-1016' }, { stepIdx: 0, toolCallId: 'c1' });
+    expect(inputs[0]).toMatchObject({ contact_id: CT });
+  });
 });
