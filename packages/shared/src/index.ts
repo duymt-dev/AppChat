@@ -32,3 +32,4 @@ export * from './time/cron';
 export * from './ai-tasks/task-catalog';
 export * from './crm';
 export * from './catalog';
+export * from './genui';
