@@ -11,6 +11,7 @@ import { AiModule } from '../ai/ai.module';
 import { CrmModule } from '../crm/crm.module';
 import { CrmMembers } from '../crm/public';
 import { DocTemplateCreateHandler, DocTemplateDeleteHandler, DocTemplateDetectHandler, DocTemplateUpdateHandler } from './actions/doc-template.handlers';
+import { DocTemplateSearchHandler } from './actions/template-read.handler';
 import { DocRenderer, PDF_CONVERTER } from './services/doc-renderer';
 import { DocumentsReadService } from './services/documents-read.service';
 import { SofficeConverter, sofficePath, type PdfConverter } from './services/soffice';
@@ -20,6 +21,7 @@ const opt = (token: symbol | typeof FilesService) => ({ token, optional: true })
 @Module({
   imports: [CrmModule, AiModule],
   providers: [
+    DocTemplateSearchHandler,
     DocTemplateCreateHandler,
     DocTemplateUpdateHandler,
     DocTemplateDeleteHandler,

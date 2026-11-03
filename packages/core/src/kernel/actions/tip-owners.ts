@@ -12,6 +12,7 @@ const BY_ID: Record<string, string> = {
   'segment.preview': '037',
   'ai.translate': '022',
   'run.cancel': '019',
+  'run.search': '019',
   'webchat.update_widget': '017',
   'channel.email.connect': '018',
   'admin.invoice.confirm_transfer': '010',

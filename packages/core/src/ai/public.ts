@@ -5,7 +5,7 @@ export { ProviderStore } from './router/provider.store';
 export { RunStore, type NewRun } from './runs/run.store';
 export { AiRunner, MAX_STEPS, DEFAULT_RUN_BUDGET, type RunSpec, type RunResult } from './runs/runner';
 export { actionTool, toolActionId, inputSchemaOf, toolNameOf } from './runs/tools';
-export { AI_CANCEL_CHANNEL, listRuns, publishCancel, type RunFilter, type RunRowDto } from './runs/runs.service';
+export { AI_CANCEL_CHANNEL, listRuns, publishCancel, runScope, type RunFilter, type RunRowDto } from './runs/runs.service';
 export { aiSettingsDto, readAiSetting, tierFor, DEFAULT_RATE_LIMIT, type AiSettingRow } from './settings/ai-settings.service';
 export { KB_EMBEDDER, KbSearchHandler, kbVisibility } from './kb/kb-search.handler';
 export { KbIngestQueue } from './kb/kb.queue';

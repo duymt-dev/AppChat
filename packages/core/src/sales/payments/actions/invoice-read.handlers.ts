@@ -1,11 +1,12 @@
 // invoice.search / invoice.get (TIP-023b R2 · DC-224): Trợ lý / agent đọc đề nghị thanh toán (≠ hoá đơn GTGT). Cùng `listInvoiceIds`
 // (scope + lọc như màn) và `visibleInvoice` (ngoài scope → NOT_FOUND). Không trả số tài khoản / QR / tệp chứng từ; tiền là string VND.
 import { Injectable } from '@nestjs/common';
-import type { ActionInput, invoiceGet, invoiceSearch } from '@appchat/actions';
+import type { ActionInput, invoiceGet, invoiceSearch, packageSearch } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { contactsOf } from '../../quotes/services/quote-view';
-import { visibleInvoice, type InvoiceRecord } from '../invoice-access';
+import { inSalesScope, visibleInvoice, type InvoiceRecord } from '../invoice-access';
+import { visibleContact } from '../../../crm/public';
 import { listInvoiceIds } from '../repos/invoices.repo';
 
 function hit(v: InvoiceRecord, contact: string) {
@@ -47,5 +48,26 @@ export class InvoiceGetHandler implements Handler<ActionInput<typeof invoiceGet>
         payments: pays.map((p) => ({ amount: String(p.amount), method: p.method, paid_at: p.paidAt.toISOString() })),
       },
     };
+  }
+}
+
+type PackageOut = { packages: { id: string; name: string; used_sessions: number; total_sessions: number; expires_at: string | null; status: string }[] };
+
+@Injectable()
+@ActionHandler('package.search')
+export class PackageSearchHandler implements Handler<ActionInput<typeof packageSearch>, PackageOut> {
+  async execute(ctx: ActionContext, i: ActionInput<typeof packageSearch>, tx: TenantTx): Promise<HandlerOutcome<PackageOut>> {
+    // Như tab Liệu trình của hồ sơ khách: khách ngoài scope → NOT_FOUND; từng gói áp scope bán hàng theo người phụ trách đơn sinh ra gói.
+    const { contact } = await visibleContact(tx, ctx.authz, i.contact_id);
+    const rows = await tx.customerPackage.findMany({ where: { contactId: contact.id, ...(i.status ? { status: i.status } : {}) }, orderBy: { createdAt: 'desc' }, take: 100 });
+    const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, ownerUserId: true } }) : [];
+    const owner = new Map(orders.map((o) => [o.id, o.ownerUserId]));
+    const packages: PackageOut['packages'] = [];
+    for (const p of rows) {
+      if (packages.length >= (i.limit ?? 10)) break;
+      if (await inSalesScope(tx, ctx.authz, owner.get(p.orderId) ?? null, p.contactId))
+        packages.push({ id: p.id, name: p.name, used_sessions: p.usedSessions, total_sessions: p.totalSessions, expires_at: p.expiresAt?.toISOString() ?? null, status: p.status });
+    }
+    return { result: { packages } };
   }
 }

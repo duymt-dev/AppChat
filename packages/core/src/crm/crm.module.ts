@@ -10,7 +10,7 @@ import { ContactExportHandler, ContactImportHandler } from './actions/contact-io
 import { ContactMergeHandler } from './actions/contact-merge.handler';
 import { ContactCreateHandler, ContactDeleteHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
 import { ContactSearchHandler } from './actions/contact-search.handler';
-import { ContactGet360Handler, ContactGetHandler } from './actions/contact-read.handlers';
+import { ContactGet360Handler, ContactGetHandler, ProfileLayoutSearchHandler } from './actions/contact-read.handlers';
 import { CustomFieldDefineHandler, CustomFieldDeleteHandler, CustomFieldUpdateHandler } from './actions/custom-field.handlers';
 import { ProfileLayoutAssignRoleHandler, ProfileLayoutCreateHandler, ProfileLayoutDeleteHandler, ProfileLayoutDuplicateHandler, ProfileLayoutUpdateHandler } from './actions/profile-layout.handlers';
 import { CrmReadService } from './services/crm-read.service';
@@ -27,7 +27,7 @@ const HANDLERS = [
   ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
   ContactExportHandler, ContactImportHandler,
   CustomFieldDefineHandler, CustomFieldUpdateHandler, CustomFieldDeleteHandler,
-  ProfileLayoutCreateHandler, ProfileLayoutUpdateHandler, ProfileLayoutDuplicateHandler, ProfileLayoutDeleteHandler, ProfileLayoutAssignRoleHandler,
+  ProfileLayoutSearchHandler, ProfileLayoutCreateHandler, ProfileLayoutUpdateHandler, ProfileLayoutDuplicateHandler, ProfileLayoutDeleteHandler, ProfileLayoutAssignRoleHandler,
 ];
 
 @Module({

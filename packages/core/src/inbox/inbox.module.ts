@@ -37,7 +37,10 @@ import { FILE_LINKS } from './tokens';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
+import { CannedReplySearchHandler, ConversationGetHandler, ConversationSearchHandler, TagSearchHandler } from './actions/conversation-read.handlers';
+
 const HANDLERS = [
+  ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler,
   ConversationMarkReadHandler, ConversationSetStatusHandler, ConversationPinHandler, ConversationArchiveHandler, ConversationHideHandler,
   ConversationSetAiModeHandler, ConversationHandoffHandler, ConversationClearHistoryHandler,
   ConversationAssignHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,

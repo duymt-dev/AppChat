@@ -78,7 +78,7 @@ const EXEMPT: Record<string, string> = {
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */
-const LOOKUP_DEBT = new Set(['agent', 'ai_task', 'canned_reply', 'channel_account', 'conversation', 'kb_source', 'member', 'package', 'profile_layout', 'run', 'tag']);
+const LOOKUP_DEBT = new Set<string>([]);
 
 /** Màn danh sách (route GET apps/api) → action đọc tương ứng. */
 const SCREENS: Record<string, string> = {
@@ -100,9 +100,11 @@ const SCREENS: Record<string, string> = {
   'settings/kb': 'kb.source_search',
 };
 /** Nợ màn (R2) — chỉ được giảm. */
-const SCREEN_DEBT = new Set(['conversations', 'agents', 'settings/members', 'tags', 'doc-templates', 'settings/channels', 'runs', 'settings/kb']);
+const SCREEN_DEBT = new Set<string>([]);
 
-const hasRead = (entity: string) => ['search', 'get', 'list'].some((v) => IMPLEMENTED.has(`${entity}.${v}`));
+/** Thực thể mà action đọc mang tên khác (tài khoản kênh tra bằng `channel.search`, nguồn KB bằng `kb.source_search`). */
+const READ_ALIAS: Record<string, string> = { channel_account: 'channel.search', kb_source: 'kb.source_search' };
+const hasRead = (entity: string) => (READ_ALIAS[entity] ? IMPLEMENTED.has(READ_ALIAS[entity]!) : ['search', 'get', 'list'].some((v) => IMPLEMENTED.has(`${entity}.${v}`)));
 const hasPath = (entity: string) => CODE_REF_ENTITIES.includes(entity) || hasRead(entity);
 
 describe('phủ Trợ lý — ô id có đường tra', () => {

@@ -26,6 +26,11 @@ import * as contractReads from './reads/contracts';
 import * as crmReads from './reads/crm';
 import * as supportReads from './reads/support';
 import * as bookingReads from './reads/booking';
+import * as inboxReads from './reads/inbox';
+import * as aiReads from './reads/ai';
+import * as identityReads from './reads/identity';
+import * as channelReads from './reads/channels';
+import * as documentReads from './reads/documents';
 
 export * from './define';
 export * from './identity';
@@ -56,6 +61,11 @@ export * from './reads/contracts';
 export * from './reads/crm';
 export * from './reads/support';
 export * from './reads/booking';
+export * from './reads/inbox';
+export * from './reads/ai';
+export * from './reads/identity';
+export * from './reads/channels';
+export * from './reads/documents';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -88,6 +98,11 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(crmReads),
   ...Object.values(supportReads),
   ...Object.values(bookingReads),
+  ...Object.values(inboxReads),
+  ...Object.values(aiReads),
+  ...Object.values(identityReads),
+  ...Object.values(channelReads),
+  ...Object.values(documentReads),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

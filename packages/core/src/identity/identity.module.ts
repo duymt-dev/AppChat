@@ -17,6 +17,7 @@ import { BusinessProfileUpdateHandler } from './actions/business-profile-update.
 import { InviteRevokeHandler } from './actions/invite-revoke.handler';
 import { MemberInviteHandler } from './actions/member-invite.handler';
 import { MemberRemoveHandler } from './actions/member-remove.handler';
+import { MemberSearchHandler } from './actions/member-read.handler';
 import { MemberSetRoleHandler } from './actions/member-set-role.handler';
 import { OnboardingToggleStepHandler } from './actions/onboarding-toggle-step.handler';
 import { ProfileUpdateHandler } from './actions/profile-update.handler';
@@ -114,7 +115,7 @@ const providers: FactoryProvider[] = [
 ];
 
 // Handler Cài đặt (TIP-013). member.set_role inject PLATFORM_DB tuỳ chọn (undo ghi DB nền tảng).
-const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler];
+const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler, MemberSearchHandler];
 
 @Module({
   providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],

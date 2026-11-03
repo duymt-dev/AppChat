@@ -2,8 +2,8 @@
 // lịch hẹn kế tiếp bằng helper scope của từng domain (chỉ phụ thuộc kernel). Khách ngoài scope crm → NOT_FOUND (`visibleContact`); mỗi số đếm
 // áp scope + quyền module của chính nó — không có quyền → 0, không lộ bản ghi của người khác chỉ vì cùng khách (TIP-023b "readback").
 import { Inject, Injectable } from '@nestjs/common';
-import type { ActionInput, contactGet, contactGet360 } from '@appchat/actions';
-import type { AuthzContext, PermissionKey } from '@appchat/shared';
+import type { ActionInput, contactGet, contactGet360, profileLayoutSearch } from '@appchat/actions';
+import { SYSTEM_LAYOUTS, foldText, type AuthzContext, type PermissionKey } from '@appchat/shared';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -81,3 +81,18 @@ export class ContactGet360Handler implements Handler<ActionInput<typeof contactG
   }
 }
 
+
+type LayoutOut = { layouts: { id: string; name: string; is_system: boolean }[] };
+
+@Injectable()
+@ActionHandler('profile_layout.search')
+export class ProfileLayoutSearchHandler implements Handler<ActionInput<typeof profileLayoutSearch>, LayoutOut> {
+  async execute(_ctx: ActionContext, i: ActionInput<typeof profileLayoutSearch>, tx: TenantTx): Promise<HandlerOutcome<LayoutOut>> {
+    // Action đọc không ghi: workspace chưa bù seed (trước TIP-015) vẫn thấy 3 mẫu hệ thống từ hằng số, không upsert ở đây.
+    const rows = await tx.profileLayout.findMany({ orderBy: [{ isSystem: 'desc' }, { createdAt: 'asc' }], take: 200, select: { id: true, name: true, isSystem: true } });
+    const seen = new Set(rows.map((r) => r.id));
+    const all = [...SYSTEM_LAYOUTS.filter((l) => !seen.has(l.id)).map((l) => ({ id: l.id, name: l.name, is_system: true })), ...rows.map((r) => ({ id: r.id, name: r.name, is_system: r.isSystem }))];
+    const f = foldText(i.q ?? '');
+    return { result: { layouts: all.filter((l) => !f || foldText(l.name).includes(f)).slice(0, i.limit ?? 10) } };
+  }
+}

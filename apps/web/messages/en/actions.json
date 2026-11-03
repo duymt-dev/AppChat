@@ -77,6 +77,14 @@
     "bulk_update": {
       "title": "Bulk update conversations",
       "desc": "Tag, assign, change status or archive many conversations at once."
+    },
+    "search": {
+      "title": "Find conversations",
+      "desc": "Look up conversations by customer, text, folder or channel."
+    },
+    "get": {
+      "title": "View conversation",
+      "desc": "Read one conversation with up to 20 latest messages."
     }
   },
   "message": {
@@ -201,6 +209,10 @@
     },
     "optimize_prompt": {
       "title": "Optimise instructions"
+    },
+    "search": {
+      "title": "Find AI agents",
+      "desc": "Look up agents by name or role."
     }
   },
   "approval": {
@@ -235,11 +247,19 @@
     },
     "run_now": {
       "title": "Run autonomous task now"
+    },
+    "search": {
+      "title": "Find AI tasks",
+      "desc": "Look up AI tasks by name."
     }
   },
   "run": {
     "cancel": {
       "title": "Stop orchestration run"
+    },
+    "search": {
+      "title": "List AI runs",
+      "desc": "List recent AI runs and their status."
     }
   },
   "product": {
@@ -632,6 +652,10 @@
     },
     "remove": {
       "title": "Remove member"
+    },
+    "search": {
+      "title": "Find members",
+      "desc": "Look up active members by name or email."
     }
   },
   "invite": {
@@ -658,6 +682,10 @@
     },
     "delete": {
       "title": "Delete tag"
+    },
+    "search": {
+      "title": "Find tags",
+      "desc": "Look up tags by name."
     }
   },
   "canned_reply": {
@@ -669,6 +697,10 @@
     },
     "delete": {
       "title": "Delete canned reply"
+    },
+    "search": {
+      "title": "Find quick replies",
+      "desc": "Look up quick replies by shortcut or title."
     }
   },
   "channel": {
@@ -702,6 +734,10 @@
     },
     "disconnect": {
       "title": "Disconnect channel account"
+    },
+    "search": {
+      "title": "Find channel accounts",
+      "desc": "Look up connected Zalo / email / web chat accounts."
     }
   },
   "webchat": {
@@ -735,6 +771,10 @@
     },
     "assign_role": {
       "title": "Assign template to role"
+    },
+    "search": {
+      "title": "Find profile layouts",
+      "desc": "Look up customer profile layouts by name."
     }
   },
   "ai_settings": {
@@ -763,6 +803,10 @@
       "create": {
         "title": "Create knowledge folder"
       }
+    },
+    "source_search": {
+      "title": "Find knowledge sources",
+      "desc": "Look up knowledge-base sources by name or tag."
     }
   },
   "governance": {
@@ -793,6 +837,10 @@
     },
     "detect_fields": {
       "title": "Detect template fields"
+    },
+    "search": {
+      "title": "Find document templates",
+      "desc": "Look up quote / contract / payment request templates."
     }
   },
   "wallet": {
@@ -824,6 +872,10 @@
     },
     "adjust_sessions": {
       "title": "Adjust package sessions"
+    },
+    "search": {
+      "title": "Find customer packages",
+      "desc": "Look up packages: sessions used, expiry, status."
     }
   },
   "payment_account": {

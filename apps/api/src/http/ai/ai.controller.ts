@@ -2,7 +2,7 @@
 // rẻ nhất mỗi mức) · GET /v1/runs?root_run_id=&status= (khung "Trợ lý AI đang điều phối" — `assistant.use`). Ghi: ai_settings.update, run.cancel.
 import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { PLATFORM_DB, ProviderStore, QuotaService, TENANT_RESOLVER, aiSettingsDto, listRuns, readAiSetting, readKb, type RunFilter } from '@appchat/core';
+import { PLATFORM_DB, ProviderStore, QuotaService, TENANT_RESOLVER, aiSettingsDto, listRuns, readAiSetting, readKb, runScope, type RunFilter } from '@appchat/core';
 import type { PlatformDb } from '@appchat/db';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, type PermissionKey } from '@appchat/shared';
@@ -36,12 +36,12 @@ export class AiController {
 
   @Get('runs')
   async runs(@Req() req: IncomingMessage, @Query('root_run_id') root?: string, @Query('status') status?: string, @Query('limit') limit?: string) {
-    const { db } = await this.db(req, 'assistant.use');
+    const { a, db } = await this.db(req, 'assistant.use');
     if (root && !UUID.test(root)) return { data: [], next_cursor: null };
     if (status && status !== 'all' && !(STATUSES as readonly string[]).includes(status)) throw new AppError('VALIDATION_FAILED', 400, { status: 'invalid' });
     const n = limit === undefined ? undefined : Number(limit);
     if (n !== undefined && (!Number.isInteger(n) || n < 1)) throw new AppError('VALIDATION_FAILED', 400, { limit: 'invalid' });
-    const f: RunFilter = { ...(root ? { rootRunId: root } : {}), ...(status && status !== 'all' ? { status: status as RunFilter['status'] } : {}), ...(n ? { limit: n } : {}) };
+    const f: RunFilter = { ...runScope(a.authz), ...(root ? { rootRunId: root } : {}), ...(status && status !== 'all' ? { status: status as RunFilter['status'] } : {}), ...(n ? { limit: n } : {}) };
     return { data: await listRuns(db, f), next_cursor: null };
   }
 

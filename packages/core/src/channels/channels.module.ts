@@ -26,6 +26,7 @@ import { ChannelSendQueue } from './services/send-queue';
 import { RedisWidgetPublisher } from './webchat/publisher';
 import { VisitorService } from './webchat/visitor.service';
 import { VisitorTokens } from './webchat/visitor-token';
+import { ChannelSearchHandler } from './actions/channel-read.handler';
 import { WebchatUpdateWidgetHandler } from './webchat/webchat.handlers';
 import { ChannelEmailConnectHandler } from './email/email.handlers';
 import type { WidgetUrls } from './webchat/widget.service';
@@ -70,6 +71,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
 
 @Module({
   providers: [
+    ChannelSearchHandler,
     ChannelZaloStartLoginHandler,
     ChannelReconnectHandler,
     ChannelUpdateSettingsHandler,

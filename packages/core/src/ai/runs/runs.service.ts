@@ -15,6 +15,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface RunFilter {
   rootRunId?: string;
+  /** Người không có `ai.governance`: chỉ run cây do mình khởi tạo (DC-308) — không lộ tiêu đề lệnh / agent của người khác. */
+  initiatedBy?: string;
   status?: 'live' | 'running' | 'waiting_approval' | 'done';
   limit?: number;
 }
@@ -26,7 +28,7 @@ export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAge
     f.status === 'done' ? { notIn: [...LIVE] } : f.status === 'running' ? { in: ['queued' as const, 'running' as const] } : f.status === 'waiting_approval' ? { equals: 'waiting_approval' as const } : f.status === 'live' ? { in: [...LIVE] } : undefined;
   // Theo gốc: chỉ run con (run gốc là chính cuộc trò chuyện của Trợ lý) — index (root_run_id, started_at).
   const rows = await db.aiRun.findMany({
-    where: { ...(f.rootRunId ? { rootRunId: f.rootRunId, parentRunId: { not: null } } : {}), ...(status ? { status } : {}) },
+    where: { ...(f.rootRunId ? { rootRunId: f.rootRunId, parentRunId: { not: null } } : {}), ...(status ? { status } : {}), ...(f.initiatedBy ? { initiatedByUserId: f.initiatedBy } : {}) },
     orderBy: { startedAt: f.rootRunId ? 'asc' : 'desc' },
     take: Math.min(f.limit ?? 50, 100),
     select: { id: true, rootRunId: true, kind: true, title: true, agentId: true, status: true, state: true, creditsUsed: true },
@@ -53,6 +55,10 @@ export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAge
     };
   });
 }
+
+/** Phạm vi đọc run theo quyền hiện tại: `ai.governance` (Chủ / Quản lý) thấy cả workspace, còn lại chỉ run mình khởi tạo. */
+export const runScope = (a: { isOwner: boolean; userId: string; permissions: ReadonlySet<string> }): Pick<RunFilter, 'initiatedBy'> =>
+  a.isOwner || a.permissions.has('ai.governance') ? {} : { initiatedBy: a.userId };
 
 export async function publishCancel(redis: Pick<Redis, 'publish'> | null | undefined, runIds: string[]): Promise<void> {
   if (redis && runIds.length) await redis.publish(AI_CANCEL_CHANNEL, JSON.stringify({ run_ids: runIds }));

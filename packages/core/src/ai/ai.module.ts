@@ -18,6 +18,8 @@ import { readAiEnv, type AiEnv } from './ai.env';
 import { ProviderStore } from './router/provider.store';
 import { KbAddSourceHandler, KbFolderCreateHandler, KbRefreshSourceHandler, KbRemoveSourceHandler, KbUpdateSourceHandler } from './kb/kb.handlers';
 import { KB_EMBEDDER, KbSearchHandler } from './kb/kb-search.handler';
+import { AgentSearchHandler, AiTaskSearchHandler, KbSourceSearchHandler } from './agents/agent-read.handlers';
+import { RunSearchHandler } from './runs/run-read.handler';
 import { KbIngestQueue } from './kb/kb.queue';
 import { RunCancelListener } from './runs/cancel.listener';
 import { RunCancelHandler } from './runs/run-cancel.handler';
@@ -108,6 +110,11 @@ class ProviderSeed implements OnModuleInit {
     KbRefreshSourceHandler,
     KbFolderCreateHandler,
     KbSearchHandler,
+    // Đọc cấu hình AI cho Trợ lý (TIP-023b R2).
+    AgentSearchHandler,
+    KbSourceSearchHandler,
+    AiTaskSearchHandler,
+    RunSearchHandler,
     AgentCreateHandler,
     AgentCreateAndPublishHandler,
     AgentUpdateHandler,

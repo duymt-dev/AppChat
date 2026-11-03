@@ -77,6 +77,14 @@
     "bulk_update": {
       "title": "Cập nhật hàng loạt hội thoại",
       "desc": "Gắn thẻ, gán người, đổi trạng thái hoặc lưu trữ nhiều hội thoại một lần."
+    },
+    "search": {
+      "title": "Tìm hội thoại",
+      "desc": "Tra hội thoại theo tên khách, nội dung, thư mục hoặc kênh."
+    },
+    "get": {
+      "title": "Xem hội thoại",
+      "desc": "Đọc một hội thoại cùng tối đa 20 tin gần nhất."
     }
   },
   "message": {
@@ -201,6 +209,10 @@
     },
     "optimize_prompt": {
       "title": "Tối ưu hướng dẫn"
+    },
+    "search": {
+      "title": "Tìm AI Agent",
+      "desc": "Tra agent theo tên hoặc vai trò."
     }
   },
   "approval": {
@@ -235,11 +247,19 @@
     },
     "run_now": {
       "title": "Chạy tác vụ tự chủ ngay"
+    },
+    "search": {
+      "title": "Tìm tác vụ AI",
+      "desc": "Tra tác vụ AI theo tên."
     }
   },
   "run": {
     "cancel": {
       "title": "Dừng tác vụ đang điều phối"
+    },
+    "search": {
+      "title": "Xem việc AI đang chạy",
+      "desc": "Liệt kê các lượt AI gần đây và trạng thái."
     }
   },
   "product": {
@@ -632,6 +652,10 @@
     },
     "remove": {
       "title": "Xoá thành viên"
+    },
+    "search": {
+      "title": "Tìm thành viên",
+      "desc": "Tra thành viên đang hoạt động theo tên hoặc email."
     }
   },
   "invite": {
@@ -658,6 +682,10 @@
     },
     "delete": {
       "title": "Xoá thẻ"
+    },
+    "search": {
+      "title": "Tìm thẻ",
+      "desc": "Tra thẻ theo tên."
     }
   },
   "canned_reply": {
@@ -669,6 +697,10 @@
     },
     "delete": {
       "title": "Xoá câu trả lời mẫu"
+    },
+    "search": {
+      "title": "Tìm câu trả lời mẫu",
+      "desc": "Tra câu trả lời nhanh theo phím tắt hoặc tiêu đề."
     }
   },
   "channel": {
@@ -702,6 +734,10 @@
     },
     "disconnect": {
       "title": "Ngắt kết nối tài khoản kênh"
+    },
+    "search": {
+      "title": "Tìm tài khoản kênh",
+      "desc": "Tra tài khoản Zalo / email / web chat đã kết nối."
     }
   },
   "webchat": {
@@ -735,6 +771,10 @@
     },
     "assign_role": {
       "title": "Gán mẫu cho vai trò"
+    },
+    "search": {
+      "title": "Tìm mẫu hồ sơ 360°",
+      "desc": "Tra mẫu hồ sơ khách theo tên."
     }
   },
   "ai_settings": {
@@ -763,6 +803,10 @@
       "create": {
         "title": "Tạo thư mục tri thức"
       }
+    },
+    "source_search": {
+      "title": "Tìm tài liệu kho tri thức",
+      "desc": "Tra nguồn trong kho tri thức theo tên hoặc thẻ."
     }
   },
   "governance": {
@@ -793,6 +837,10 @@
     },
     "detect_fields": {
       "title": "AI nhận diện biến mẫu"
+    },
+    "search": {
+      "title": "Tìm mẫu chứng từ",
+      "desc": "Tra mẫu báo giá / hợp đồng / đề nghị thanh toán."
     }
   },
   "wallet": {
@@ -824,6 +872,10 @@
     },
     "adjust_sessions": {
       "title": "Điều chỉnh số buổi liệu trình"
+    },
+    "search": {
+      "title": "Tìm liệu trình của khách",
+      "desc": "Tra liệu trình: số buổi đã dùng, hạn, trạng thái."
     }
   },
   "payment_account": {

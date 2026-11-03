@@ -32,6 +32,10 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/api/test/integration/actions/agent.publish.action.test.ts` | Per-action matrix: agent.publish |
 | C | `apps/api/test/integration/actions/agent.rollback.action.test.ts` | Per-action matrix: agent.rollback |
 | C | `apps/api/test/integration/actions/agent.search.action.test.ts` | Per-action matrix agent.search |
+| C | `apps/api/test/integration/actions/ai_task.search.action.test.ts` | Per-action matrix ai_task.search |
+| C | `apps/api/test/integration/actions/canned_reply.search.action.test.ts` | Per-action matrix canned_reply.search |
+| C | `apps/api/test/integration/actions/package.search.action.test.ts` | Per-action matrix package.search |
+| C | `apps/api/test/integration/actions/profile_layout.search.action.test.ts` | Per-action matrix profile_layout.search |
 | C | `apps/api/test/integration/actions/agent.test.action.test.ts` | Per-action matrix: agent.test |
 | C | `apps/api/test/integration/actions/agent.update.action.test.ts` | Per-action matrix: agent.update |
 | C | `apps/api/test/integration/actions/ai_settings.update.action.test.ts` | Per-action matrix: ai_settings.update |
@@ -310,6 +314,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/ai/agents/previews/agent-llm.handlers.preview.ts` | Scoped preview helper for packages/core/src/ai/agents/agent-llm.handlers.ts |
 | C | `packages/core/src/ai/agents/previews/agent.handlers.preview.ts` | Scoped preview helper for packages/core/src/ai/agents/agent.handlers.ts |
 | M | `packages/core/src/ai/ai.module.ts` | Runtime/contract/wiring |
+| M | `packages/core/src/ai/public.ts` | Export `runScope` (DC-308) for the runs route |
 | M | `packages/core/src/ai/approvals/approval.handlers.ts` | Domain preview for approval.approve, approval.reject, approval.edit_and_approve |
 | C | `packages/core/src/ai/approvals/previews/approval.handlers.preview.ts` | Scoped preview helper for packages/core/src/ai/approvals/approval.handlers.ts |
 | M | `packages/core/src/ai/approvals/resume.ts` | Runtime/contract/wiring |
