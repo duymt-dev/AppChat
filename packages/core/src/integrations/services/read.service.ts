@@ -2,6 +2,7 @@
 // (lối tắt kênh webchat — DC-006) + mọi manifest; `connected` theo DB tenant, `interest` theo DB nền tảng.
 import type { ConnectorDto } from '@appchat/shared';
 import type { ConnectorRegistry } from '@appchat/integrations';
+import { formFields } from './form-schema';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 
 /** Thẻ "Trợ lý AI" (prototype Nền tảng kết nối) mở Cài đặt › Web widget; luôn sẵn — widget là kênh của workspace. */
@@ -41,6 +42,7 @@ export class IntegrationsReadService {
         connected: on.has(m.key),
         opens: null,
         fields: m.auth.fields.map((f) => f.key),
+        auth: formFields({ manifest: m }),
         interest: wanted.has(m.key),
       })),
     ];

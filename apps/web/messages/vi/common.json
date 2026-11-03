@@ -81,7 +81,20 @@
       "alt": "Mã QR đăng nhập Zalo"
     },
     "loadingBlock": "Đang dựng giao diện…",
-    "expandMore": "Mở rộng (+{n})"
+    "expandMore": "Mở rộng (+{n})",
+    "probe": {
+      "button": "Kiểm tra kết nối",
+      "ok": "Kết nối hợp lệ",
+      "failed": {
+        "rejected": "Thông tin đăng nhập không đúng",
+        "timeout": "Nhà cung cấp không phản hồi trong 10 giây"
+      },
+      "unsupported": {
+        "coming_soon": "Kết nối này sắp có",
+        "no_test": "Nhà cung cấp chưa hỗ trợ kiểm tra trước"
+      },
+      "not_connected": "Chưa có kết nối để kiểm tra"
+    }
   },
   "screenAi": {
     "thinking": "Trợ lý đang soạn…",

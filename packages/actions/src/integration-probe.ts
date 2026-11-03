@@ -4,15 +4,9 @@
 // (provider + fields, ô bí mật qua đường bí mật — executor che) hoặc kết nối hiện có của workspace. Cả hai: integrations.manage, risk read,
 // agentGrantable=false, không đổi kết nối.
 import { z } from 'zod';
+import { authFieldSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
-const formField = z.object({
-  key: z.string(),
-  secret: z.boolean(),
-  optional: z.boolean(),
-  type: z.enum(['string', 'email', 'url', 'number']),
-  max: z.number().int().positive().optional(),
-});
 
 export const integrationFormSchema = defineAction({
   id: 'integration.form_schema',
@@ -25,7 +19,7 @@ export const integrationFormSchema = defineAction({
     name: z.string(),
     status: z.enum(['ga', 'beta', 'coming_soon']),
     auth_kind: z.string(),
-    fields: z.array(formField),
+    fields: z.array(authFieldSchema),
     testable: z.boolean(),
   }),
   permission: 'integrations.manage',

@@ -1,21 +1,24 @@
 // Metadata form kết nối + thăm dò connector (TIP-023c G3, DEF-012-1). Nguồn tin cậy duy nhất là `ConnectorManifest.auth.fields`
 // (+ phép chiếu zod được hỗ trợ của `auth.schema`: string / email / url / số, max length) — không đọc giá trị credential, không trả
-// schema thực thi, không để model tự phân loại ô bí mật. Hình zod lạ → bỏ qua ràng buộc (giữ `string`) thay vì đoán.
+// schema thực thi, không để model tự phân loại ô bí mật. Hình zod ngoài danh sách → lỗi cấu hình (UnsupportedAuthSchema), không đoán.
 // Thăm dò: gọi `adapter.test` với bản nháp (không lưu) hoặc kết nối hiện có, giới hạn 10 giây; lỗi adapter được làm sạch (không trả
 // thông điệp provider). Không có adapter / `coming_soon` → `unsupported` rõ ràng, không bao giờ `ok`. Không gọi URL tuỳ ý.
 import type { AuthField, ConnectionCtx, ConnectorEntry, ConnectorRegistry } from '@appchat/integrations';
-import { AppError } from '@appchat/shared';
+import { AppError, type AuthFieldDto } from '@appchat/shared';
 
 export const PROBE_TIMEOUT_MS = 10_000;
 
-export type FieldType = 'string' | 'email' | 'url' | 'number';
-export interface FormField {
-  key: string;
-  secret: boolean;
-  optional: boolean;
-  type: FieldType;
-  max?: number;
+export type FormField = AuthFieldDto;
+type FieldType = FormField['type'];
+
+/** Manifest khai `auth.schema` có hình ngoài phép chiếu hỗ trợ — lỗi của connector, không phải của người dùng. */
+export class UnsupportedAuthSchema extends Error {
+  constructor(readonly provider: string, readonly field: string) {
+    super(`auth.schema ${provider}.${field}: unsupported shape`);
+  }
 }
+
+const KNOWN_CHECKS = new Set(['string_format', 'max_length', 'min_length']);
 
 interface ZodLike {
   type?: string;
@@ -24,26 +27,34 @@ interface ZodLike {
   shape?: Record<string, ZodLike>;
 }
 
-/** Phép chiếu đã hỗ trợ của một ô zod → kiểu + max; hình khác → string, không ràng buộc. */
-function project(z: ZodLike | undefined): Pick<FormField, 'type' | 'max'> {
-  let d = z?._zod?.def;
+/** Phép chiếu đã hỗ trợ của một ô zod → kiểu + max; không có schema → string; hình khác → null (người gọi từ chối). */
+function project(z: ZodLike | undefined): Pick<FormField, 'type' | 'max'> | null {
+  if (!z) return { type: 'string' };
+  let d = z._zod?.def;
   if (d?.type === 'optional' && d.innerType) d = d.innerType._zod?.def;
-  if (!d) return { type: 'string' };
-  if (d.type === 'number') return { type: 'number' };
-  if (d.type !== 'string') return { type: 'string' };
+  if (d?.type === 'number') return (d.checks ?? []).length ? null : { type: 'number' };
+  if (d?.type !== 'string') return null;
   let type: FieldType = 'string';
   let max: number | undefined;
   for (const c of d.checks ?? []) {
     const cd = c._zod?.def;
-    if (cd?.check === 'string_format' && (cd.format === 'email' || cd.format === 'url')) type = cd.format;
-    if (cd?.check === 'max_length' && typeof cd.maximum === 'number') max = cd.maximum;
+    if (!cd?.check || !KNOWN_CHECKS.has(cd.check)) return null;
+    if (cd.check === 'string_format') {
+      if (cd.format !== 'email' && cd.format !== 'url') return null;
+      type = cd.format;
+    }
+    if (cd.check === 'max_length' && typeof cd.maximum === 'number') max = cd.maximum;
   }
   return max ? { type, max } : { type };
 }
 
 export function formFields(e: ConnectorEntry): FormField[] {
   const shape = (e.manifest.auth.schema as ZodLike | undefined)?.shape;
-  return e.manifest.auth.fields.map((f: AuthField) => ({ key: f.key, secret: !!f.secret, optional: !!f.optional, ...project(shape?.[f.key]) }));
+  return e.manifest.auth.fields.map((f: AuthField) => {
+    const p = project(shape?.[f.key]);
+    if (!p) throw new UnsupportedAuthSchema(e.manifest.key, f.key);
+    return { key: f.key, secret: !!f.secret, optional: !!f.optional, ...p };
+  });
 }
 
 /** Connector có trong registry hay 404 (không lộ chi tiết). */

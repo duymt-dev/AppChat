@@ -153,6 +153,8 @@ export const channelTest = defineAction({
   risk: 'read',
   agentGrantable: false,
   invalidates: [],
+  // Form nháp từ GenUI mang mật khẩu thật (TIP-023c G3) — che ở action_log / hash, model không được điền.
+  secret: { paths: ['fields.password'] },
 });
 
 export const channelUpdateSettings = defineAction({

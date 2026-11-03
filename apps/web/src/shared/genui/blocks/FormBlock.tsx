@@ -1,6 +1,6 @@
 // Khối `form` (standard §5): gắn đúng một action; ô dựng theo kiểu trong schema action, điền sẵn đã validate (sai → trống + cảnh báo).
 // Ô bí mật dạng password, không điền sẵn, gửi thẳng action (vault ở lần xác nhận) rồi xoá. Gửi = intent server ký → thẻ xác nhận.
-// Compact ≤ 4 ô + "Mở rộng"; không có intent (không quyền) → ẩn cả form.
+// Compact ≤ 4 ô + "Mở rộng"; không có intent (không quyền) → ẩn cả form. Form kết nối có nút "Kiểm tra kết nối" (ConnectionTest).
 'use client';
 import { Alert, Button, Input, InputNumber, Select, Switch } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -10,6 +10,7 @@ import { useGenUiStyles } from '../genui.styles';
 import { useGenUiIntent } from '../hooks/useGenUiIntent';
 import { isSecret, kindAt, useSecretForm } from '../hooks/useSecretForm';
 import type { BlockOf, BlockProps } from '../types';
+import { ConnectionTest } from './ConnectionTest';
 import { ExpandMore } from './ExpandMore';
 
 export function FormBlock({ block, path }: BlockProps<BlockOf<'form'>>) {
@@ -71,6 +72,7 @@ export function FormBlock({ block, path }: BlockProps<BlockOf<'form'>>) {
         );
       })}
       <ExpandMore hidden={block.fields.length - shown.length} />
+      <ConnectionTest actionId={block.action_id} build={f.build} />
       <Button type="primary" htmlType="submit" loading={isPending} data-testid="genui-form-submit">
         {block.submit_label ?? t('submit')}
       </Button>

@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { connectorRegistry, type ConnectorEntry } from '@appchat/integrations';
-import { connectorEntry, formFields, probe } from '../src/integrations/services/form-schema';
+import { connectorEntry, formFields, probe, UnsupportedAuthSchema } from '../src/integrations/services/form-schema';
 
 const conn = { id: 'draft', mode: 'sandbox' as const, config: {}, secrets: {} };
 const entry = (test?: () => Promise<void>, schema?: z.ZodObject): ConnectorEntry =>
@@ -23,8 +23,8 @@ const entry = (test?: () => Promise<void>, schema?: z.ZodObject): ConnectorEntry
   }) as unknown as ConnectorEntry;
 
 describe('formFields', () => {
-  it('lấy bí mật / tuỳ chọn từ manifest; zod string-url / email / max / number, hình lạ → string', () => {
-    const schema = z.object({ host: z.string().url().max(200), email: z.string().email().optional(), port: z.number(), pass: z.string(), odd: z.array(z.string()) });
+  it('lấy bí mật / tuỳ chọn từ manifest; zod string-url / email / max / number; ô không có schema → string', () => {
+    const schema = z.object({ host: z.string().url().max(200), email: z.string().email().optional(), port: z.number(), pass: z.string() });
     expect(formFields(entry(undefined, schema))).toEqual([
       { key: 'host', secret: false, optional: false, type: 'url', max: 200 },
       { key: 'email', secret: false, optional: true, type: 'email' },
@@ -32,6 +32,11 @@ describe('formFields', () => {
       { key: 'pass', secret: true, optional: false, type: 'string' },
       { key: 'odd', secret: false, optional: false, type: 'string' },
     ]);
+  });
+
+  it('hình zod ngoài phép chiếu (mảng, regex, uuid, number có ràng buộc) → từ chối, không đoán', () => {
+    for (const odd of [z.array(z.string()), z.string().regex(/x/), z.string().uuid(), z.number().int()])
+      expect(() => formFields(entry(undefined, z.object({ odd })))).toThrow(UnsupportedAuthSchema);
   });
 
   it('registry thật: sepay có api_key bí mật; provider lạ → 404', () => {

@@ -81,7 +81,20 @@
       "alt": "Zalo login QR code"
     },
     "loadingBlock": "Building the interface…",
-    "expandMore": "Expand (+{n})"
+    "expandMore": "Expand (+{n})",
+    "probe": {
+      "button": "Test connection",
+      "ok": "Connection is valid",
+      "failed": {
+        "rejected": "The credentials were rejected",
+        "timeout": "The provider did not respond within 10 seconds"
+      },
+      "unsupported": {
+        "coming_soon": "This connection is coming soon",
+        "no_test": "This provider does not support a pre-check"
+      },
+      "not_connected": "No connection to test yet"
+    }
   },
   "screenAi": {
     "thinking": "The Assistant is writing…",

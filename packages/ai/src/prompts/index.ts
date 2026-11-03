@@ -95,6 +95,9 @@ const GENUI_VI = `# GIAO DIỆN TRONG CÂU TRẢ LỜI (công cụ \`render\`)
 - Nút: \`{"kind":"ui","command":{…}}\` (navigate / open / prefill / filter / highlight — không đổi dữ liệu) hoặc \`{"kind":"action","action_id","input"}\` (người dùng vẫn phải xác nhận trên thẻ). Chỉ dùng action có trong kết quả \`find_actions\`.
 - Form gắn đúng một \`action_id\`; chọn ô cần hiện + giá trị điền sẵn đúng khuôn. Ô mật khẩu / API key / token: KHÔNG BAO GIỜ điền giá trị, để người dùng tự nhập. Người dùng gõ bí mật vào chat → không nhắc lại, mời dùng form.
 - Kết nối Zalo cá nhân: gọi \`channel.zalo.start_login\` (cần xác nhận) → sau khi có \`channel_account_id\`, gọi \`channel.status\` rồi render khối \`{"type":"qr","login":{"$ref":"step:<idx bước channel.status>"}}\`. Không đọc / nhắc lại ảnh QR.
+- Zalo đã \`connected\` → hỏi cấu hình nhanh bằng form gắn \`channel.update_settings\` (\`channel_account_id\` điền sẵn; agent phụ trách, chế độ AI, cách chia) — người dùng xác nhận trên thẻ.
+- Kết nối email / connector (SePay, Casso, Brevo…): gọi \`integration.form_schema\` (connector) trước để biết ô nào cần + ô nào bí mật, rồi render form gắn \`channel.email.connect\` / \`integration.connect\` / \`bank_feed.connect\` chỉ với các ô đó; form tự có nút "Kiểm tra kết nối". Connector "Sắp có" → nói rõ, không dựng form.
+- Quản lý kênh ("kênh nào đang lỗi", "ngắt Zalo số 2", "tạm dừng email hỗ trợ"): \`channel.search\` tìm đúng tài khoản → \`channel.pause\` / \`channel.resume\` / \`channel.disconnect\` theo \`channel_account_id\` (thẻ xác nhận). Nhiều tài khoản khớp → hỏi lại, không đoán.
 - Kết quả cùng loại bản ghi với màn đang mở (vd khách hàng ở màn Khách hàng): ưu tiên nút \`filter\` / \`highlight\` lên bảng của màn + tóm tắt số lượng, không vẽ lại cả bảng.
 - \`render\` báo lỗi → sửa đúng chỗ báo và gọi lại một lần.`;
 
@@ -106,6 +109,9 @@ const GENUI_EN = `# INTERFACE IN ANSWERS (\`render\` tool)
 - Buttons: \`{"kind":"ui","command":{…}}\` (navigate / open / prefill / filter / highlight — no data change) or \`{"kind":"action","action_id","input"}\` (the user still confirms on a card). Only actions returned by \`find_actions\`.
 - A form is bound to exactly one \`action_id\`; pick the fields to show and valid prefilled values. Password / API key / token fields: NEVER prefill — the user types them. If the user types a secret in chat, do not repeat it; offer the form instead.
 - Connecting personal Zalo: call \`channel.zalo.start_login\` (needs confirmation) → once you have \`channel_account_id\`, call \`channel.status\` and render \`{"type":"qr","login":{"$ref":"step:<idx of channel.status>"}}\`. Never read out or repeat the QR image.
+- Once Zalo is \`connected\` → ask for the quick setup with a form bound to \`channel.update_settings\` (\`channel_account_id\` prefilled; assigned agent, AI mode, routing) — the user confirms on a card.
+- Connecting email / a connector (SePay, Casso, Brevo…): call \`integration.form_schema\` (connectors) first to learn which fields are needed and which are secret, then render a form bound to \`channel.email.connect\` / \`integration.connect\` / \`bank_feed.connect\` with exactly those fields; the form has its own "Test connection" button. A "coming soon" connector → say so, do not build a form.
+- Managing channels ("which channel is failing", "disconnect Zalo number 2", "pause the support mailbox"): \`channel.search\` to find the exact account → \`channel.pause\` / \`channel.resume\` / \`channel.disconnect\` by \`channel_account_id\` (confirmation card). Several accounts match → ask, do not guess.
 - Results of the same record type as the open screen (e.g. customers on the Customers screen): prefer \`filter\` / \`highlight\` buttons on that screen's table plus a count summary instead of redrawing the table.
 - If \`render\` returns an error, fix exactly what it reports and call it again once.`;
 
@@ -120,8 +126,8 @@ export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
   },
   /** Luật giao diện do Trợ lý ghép (TIP-023c, D55) — nối sau prompt `assistant`; biến `{surface}` (drawer | assistant) + `{screen}`. */
   genui: {
-    vi: { name: 'genui', version: 1, locale: 'vi', text: GENUI_VI },
-    en: { name: 'genui', version: 1, locale: 'en', text: GENUI_EN },
+    vi: { name: 'genui', version: 2, locale: 'vi', text: GENUI_VI },
+    en: { name: 'genui', version: 2, locale: 'en', text: GENUI_EN },
   },
 };
 
