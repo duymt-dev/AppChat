@@ -313,3 +313,4 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/web/src/features/assistant/hooks/useAssistantSessions.test.tsx` | Amend (G2.8a): debounce + tải thêm theo cursor + khoá theo workspace |
 | C | `apps/web/src/features/assistant/styles/sessions.styles.ts` | Amend (G2.8a): style trình duyệt phiên |
 | M | `coding-packs/docs/06-prototype/DEVIATIONS.md` | Amend (G2.8a): PD-009 trình duyệt phiên (prototype không vẽ) |
+| C | `apps/api/test/integration/genui-context.test.ts` | Amend (G2.6): Sales gửi id khách người khác trong context → bị bỏ trước prompt / ai_run.input; Owner giữ đủ |

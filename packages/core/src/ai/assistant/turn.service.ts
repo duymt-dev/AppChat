@@ -18,6 +18,7 @@ import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { readBack } from './action-readback';
+import { resolveContext } from './genui/context';
 import { EventStore } from './genui/event-store';
 import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
@@ -144,6 +145,9 @@ export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnReque
     if (c.kind === 'replay') return { session_id: c.row.sessionId, run_id: c.row.runId, events: await replayEvents(db, c.row.runId, (p) => presentUi(db, d.intents ?? null, viewer, p)) };
   }
   await appendMessage(db, session.id, 'user', [{ type: 'text', text: q.text }], null, now);
+  const t: AssistantTurnCtx = { ws: q.ws, runId, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
+  // Ngữ cảnh màn là gợi ý: chỉ bản ghi người gọi đọc được (quyền hiện hành) mới vào prompt / ai_run.input.
+  const context = await resolveContext(d.executor, t, q.context);
   const input: AssistantRunInput = {
     text: q.text,
     mode: q.mode,
@@ -151,12 +155,11 @@ export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnReque
     locale: q.locale,
     user_name: q.userName,
     role: q.role,
-    ...(q.context ? { context: q.context } : {}),
+    ...(context ? { context } : {}),
     ...(q.attachments?.length ? { attachments: q.attachments } : {}),
   };
   const store = new RunStore(db, d.now);
   const run = await store.create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier: await tierOf(d, db, q.ws, q.tier), input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
   const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null);
   const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
