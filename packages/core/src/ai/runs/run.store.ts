@@ -9,6 +9,8 @@ export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUniqu
 export type RunKind = RunRow['kind'];
 
 export interface NewRun {
+  /** Id cấp sẵn (sổ yêu cầu Trợ lý claim trước khi tạo run — TIP-023c); vắng → sinh mới. */
+  id?: string;
   kind: RunKind;
   title?: string;
   tier: string;
@@ -51,7 +53,7 @@ export class RunStore {
 
   async create(r: NewRun): Promise<RunRow> {
     const now = this.now();
-    const id = uuidv7(now.getTime());
+    const id = r.id ?? uuidv7(now.getTime());
     const parent = r.parentRunId ? await this.db.aiRun.findUnique({ where: { id: r.parentRunId }, select: { rootRunId: true, depth: true } }) : null;
     return this.db.aiRun.create({
       data: {

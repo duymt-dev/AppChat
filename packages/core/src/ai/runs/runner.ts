@@ -20,6 +20,8 @@ export interface RunSpec {
   maxSteps: number;
   /** Nguồn hiển thị ở lịch sử ví (assistant, inbox, marketing…). */
   source: string;
+  /** Sự kiện engine của riêng lượt này (Trợ lý stream delta — TIP-023c); không ảnh hưởng ghi run. */
+  onEvent?: (e: RunEvent) => void;
 }
 
 export interface RunResult {
@@ -120,6 +122,7 @@ export class AiRunner {
       );
       for await (const e of events) {
         this.d.onEvent?.(run, e);
+        spec.onEvent?.(e);
         if (e.type === 'delta') text += e.text;
         else if (e.type === 'tool_result' && e.outcome.kind !== 'needs_confirmation' && e.outcome.kind !== 'needs_approval') {
           const idx = await store.nextIdx(run.id);

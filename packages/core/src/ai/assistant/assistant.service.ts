@@ -9,6 +9,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import { ActionExecutor, implementedBy } from '../../kernel/actions/executor';
 import { GenUiIntents } from '../../kernel/actions/genui-intent';
 import { REDIS, type KeyValueStore } from '../../kernel/redis';
+import type { Publisher } from './genui/stream';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
 import { listActionLogs, type LogFilter } from './action-logs.read';
@@ -16,6 +17,7 @@ import { editPreview } from './edit-preview';
 import { assistantHome } from './home.read';
 import { runTrace } from './run-trace.read';
 import { presentUi } from './genui/history';
+import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
 import { listSessions, sessionMessages } from './sessions';
 import { assistantConfirm, assistantTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
@@ -39,6 +41,19 @@ export class AssistantService {
     @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null = null,
   ) {}
 
+  /** Redis của kernel (ioredis) có `publish` — dùng phát sự kiện lượt; KeyValueStore tối thiểu không có thì bỏ phát (chỉ ghi sổ). */
+  private publisher(): Publisher | null {
+    const r = this.kv as Partial<Publisher> | null;
+    return r && typeof r.publish === 'function' ? (r as Publisher) : null;
+  }
+
+  /** Ký / kiểm cursor SSE (gắn run + người xem). Khoá dẫn xuất riêng, không dùng chung khoá intent. */
+  private signer: CursorSigner | null = null;
+  cursors(): CursorSigner {
+    if (!this.intents) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'APP_ENC_KEY chưa cấu hình');
+    return (this.signer ??= new CursorSigner(this.intents.derive('sse-cursor')));
+  }
+
   private db(c: Caller): Promise<TenantDb> {
     if (!this.tenants) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'Tenant DB chưa cấu hình');
     return this.tenants.get(TenantContexts.fromMembership(c.workspaceId, c.userId));
@@ -47,7 +62,7 @@ export class AssistantService {
   private deps(): AssistantDeps {
     if (!this.executor || !this.runner || !this.kv) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, 'AI runtime chưa cấu hình');
     const quota = this.quota;
-    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free') };
+    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free') };
   }
 
   /** Tên, locale, vai trò của người gọi (system prompt + ngôn ngữ trả lời). */
@@ -90,6 +105,17 @@ export class AssistantService {
     const db = await this.db(c);
     const implemented = this.executor ? implementedBy(this.executor) : () => false;
     return sessionMessages(db, c.userId, id, 100, (p) => presentUi(db, this.intents, { ws: c.workspaceId, userId: c.userId, authz: c.authz, implemented }, p));
+  }
+
+  /**
+   * Replay sự kiện của run cho SSE: run phải là lượt Trợ lý của chính người gọi (không thì 404 — không lộ run người khác). Trả
+   * `reset_required` khi sự kiện đã hết hạn / bị dọn (client dựng lại từ lịch sử tin, không chạy lại).
+   */
+  async replay(c: Caller, runId: string, afterSeq: number) {
+    const db = await this.db(c);
+    const run = await db.aiRun.findUnique({ where: { id: runId }, select: { kind: true, initiatedByUserId: true, status: true } });
+    if (!run || run.kind !== 'assistant' || run.initiatedByUserId !== c.userId) throw new AppError('NOT_FOUND', 404, { run_id: 'not_found' });
+    return { status: run.status, events: await new EventStore(db, () => this.clock.now()).after(runId, afterSeq) };
   }
 
   /** Giá trị `$ref` của cây đã lưu theo quyền HIỆN HÀNH (run của người khác → unavailable, không lộ tồn tại). */

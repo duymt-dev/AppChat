@@ -1,9 +1,11 @@
 // AiSdkEngine (Blueprint §5.1): vòng bước tự viết quanh `streamText` của AI SDK v7 — mỗi bước một lời gọi model (tool khai không
 // `execute`), engine tự chạy tool qua ToolSpec. Nhờ vậy: dừng đúng chỗ khi tool cần người (`paused` + state đủ chạy tiếp ở process
 // khác), loop guard (cùng tool + input lần thứ 3), maxSteps, ngân sách credit cả run, huỷ bằng signal, fallback provider khi
-// bước lỗi 5xx / 429 / timeout trước khi có chữ nào ra. Usage từng bước → hook trừ credit (spike K4).
+// bước lỗi 5xx / 429 / timeout trước khi có chữ nào ra. Usage từng bước → hook trừ credit (spike K4). Delta phát NGAY khi model trả
+// (liveStep — TIP-023c, đóng DV-006), không đợi bước xong; đã phát chữ thì không fallback sang provider khác (không trộn hai câu).
 import { jsonSchema, streamText, tool, type ModelMessage, type ToolSet } from 'ai';
 import { isFallbackError } from '../router/router';
+import { liveStep } from './delta-stream';
 import { callKey, countCalls, resultPart, toJson } from './messages';
 import type { AgentEngine, ModelCandidate, ModelSource, RunEvent, RunMessage, RunRequest, StopReason, ToolCallRef, ToolOutcome, ToolSpec } from './types';
 
@@ -55,16 +57,17 @@ export class AiSdkEngine implements AgentEngine {
         return yield { type: 'error', code: errOf(err).code ?? 'STEP_REJECTED', message: errOf(err).message ?? 'step_rejected', stepIdx: step };
       }
 
-      const deltas: string[] = [];
       let r: StepResult;
       try {
-        r = await this.step(req, messages, tools, signal, (d) => deltas.push(d));
+        const live = liveStep<string, StepResult>((emit) => this.step(req, messages, tools, signal, emit));
+        let it = await live.next();
+        for (; !it.done; it = await live.next()) yield { type: 'delta', stepIdx: step, text: it.value };
+        r = it.value;
       } catch (err) {
         if (signal.aborted) return yield done('cancelled');
         const code = err instanceof EngineError ? err.code : 'LLM_ERROR';
         return yield { type: 'error', code, message: String(errOf(err).message ?? err).slice(0, 300), stepIdx: step };
       }
-      for (const d of deltas) yield { type: 'delta', stepIdx: step, text: d };
       text = r.text;
       messages.push(...r.messages);
       const usage = { stepIdx: step, provider: r.candidate.provider, model: r.candidate.model, tokensIn: r.tokensIn, tokensOut: r.tokensOut, latencyMs: r.latencyMs };
@@ -107,14 +110,15 @@ export class AiSdkEngine implements AgentEngine {
     if (!candidates.length) throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
     let last: unknown;
     for (const c of candidates) {
-      const out: string[] = [];
+      let emitted = 0;
       try {
-        const r = await this.once(c, req.system, messages, tools, signal, (d) => out.push(d));
-        out.forEach(onDelta);
-        return r;
+        return await this.once(c, req.system, messages, tools, signal, (d) => {
+          emitted++;
+          onDelta(d);
+        });
       } catch (err) {
         last = err;
-        if (signal.aborted || out.length || !isFallbackError(err)) throw err;
+        if (signal.aborted || emitted || !isFallbackError(err)) throw err;
       }
     }
     throw last;

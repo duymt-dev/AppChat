@@ -90,7 +90,8 @@ describe('lượt hội thoại (AC3)', () => {
     expect(seen[0]!.system).toMatch(/# TRỢ LÝ APPCHAT/);
     expect(seen[0]!.system).toContain('route: /inbox');
     expect(seen[0]!.system).toContain('Chủ workspace');
-    expect(seen[0]!.tools.sort()).toEqual(['call_action', 'find_actions', 'query_data', 'ui']);
+    // TIP-023c: Chat có thêm `render` (giao diện do Trợ lý ghép — chỉ hiển thị, nút ghi vẫn qua xác nhận).
+    expect(seen[0]!.tools.sort()).toEqual(['call_action', 'find_actions', 'query_data', 'render', 'ui']);
     const db = await tenant();
     const s = await db.assistantSession.findUniqueOrThrow({ where: { id: r.session_id } });
     expect(s).toMatchObject({ userId: h.user, mode: 'chat', title: 'Tóm tắt hôm nay' });

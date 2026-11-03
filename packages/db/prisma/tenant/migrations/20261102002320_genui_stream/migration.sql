@@ -1,5 +1,5 @@
 -- TIP-023c (D55, DC-227): sổ yêu cầu lượt Trợ lý (idempotent + lease có fence), sổ sự kiện stream (run + seq, replay 24h), biên nhận kết
--- quả ngoài (QR) duy nhất theo run + node + attempt. Phiên / tin: keyset + expression index cho trình duyệt phiên (REQ-E10a).
+-- quả ngoài (QR) duy nhất theo run + node + attempt. Tin của phiên: index keyset (created_at, id) cho trình duyệt phiên (REQ-E10a).
 -- Không có workspace_id (DB riêng mỗi workspace).
 
 -- CreateEnum
@@ -65,9 +65,8 @@ CREATE TABLE "assistant_receipt" (
 
 CREATE UNIQUE INDEX "assistant_receipt_run_id_node_attempt_key" ON "assistant_receipt" ("run_id", "node", "attempt");
 
--- Trình duyệt phiên (REQ-E10a): keyset (last_message_at, id) theo người, chỉ phiên chưa lưu trữ; tiêu đề / chế độ đọc từ leaf.
-CREATE INDEX "assistant_session_user_keyset_idx" ON "assistant_session" ("user_id", "last_message_at" DESC, "id" DESC) INCLUDE ("title", "mode")
-    WHERE "archived_at" IS NULL;
--- Tin của phiên: keyset (created_at, id) — thay index (session_id, created_at) cũ để có tie-break id.
-DROP INDEX IF EXISTS "assistant_message_session_id_created_at_idx";
+-- Trình duyệt phiên (REQ-E10a): keyset (last_message_at, id) dùng `assistant_session_user_recent_idx` của 023 (user_id, last_message_at DESC)
+-- INCLUDE (title, mode) WHERE archived_at IS NULL — tie-break id chỉ sắp lại các dòng trùng thời điểm (incremental sort), không thêm index.
+-- Tin của phiên: keyset (created_at, id) — tie-break id cho trang ổn định. Giữ index (session_id, created_at) của 023 (test / EXPLAIN
+-- TIP-023 tham chiếu tên); planner chọn index keyset khi ORDER BY có id.
 CREATE INDEX "assistant_message_session_keyset_idx" ON "assistant_message" ("session_id", "created_at", "id");

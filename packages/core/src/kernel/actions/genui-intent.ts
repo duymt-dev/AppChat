@@ -44,6 +44,11 @@ export class GenUiIntents {
     private readonly secret: string,
   ) {}
 
+  /** Khoá dẫn xuất cho mục đích khác của GenUI (vd. cursor SSE) — không dùng chung khoá ký intent. */
+  derive(purpose: string): string {
+    return createHmac('sha256', this.secret).update(`derive:${purpose}`).digest('hex');
+  }
+
   private mac(s: Omit<Stored, 'mac'>): string {
     return createHmac('sha256', this.secret)
       .update(`${s.workspaceId}|${s.userId}|${s.runId}|${s.node}|${s.actionId}|${s.digest ?? ''}|${(s.fields ?? []).join(',')}`)

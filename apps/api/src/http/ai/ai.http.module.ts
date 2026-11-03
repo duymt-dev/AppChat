@@ -8,11 +8,12 @@ import { AiController } from './ai.controller';
 import { AgentsController } from './agents.controller';
 import { AssistantController } from './assistant.controller';
 import { AssistantUiController } from './assistant-ui.controller';
+import { AssistantStreamController } from './assistant-stream.controller';
 import { AiTasksController } from './tasks.controller';
 
 @Module({ imports: [AiModule] })
 export class AiHttpModule {
   static register(): DynamicModule {
-    return { module: AiHttpModule, imports: [AiModule, BillingModule, ChannelsModule, ActorModule], controllers: [AiController, AgentsController, AssistantController, AssistantUiController, AiTasksController] };
+    return { module: AiHttpModule, imports: [AiModule, BillingModule, ChannelsModule, ActorModule], controllers: [AiController, AgentsController, AssistantController, AssistantUiController, AssistantStreamController, AiTasksController] };
   }
 }

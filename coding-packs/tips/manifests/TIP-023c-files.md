@@ -277,3 +277,4 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/api/test/integration/actions/integration.form_schema.action.test.ts` | Action matrix metadata scoping |
 | C | `packages/core/src/ai/assistant/genui/execution-lease.ts` | Fenced request lease and external wait checkpoint |
 | M | `packages/core/src/kernel/actions/tip-owners.ts` | Amend (thi công): `assistant.resume` → TIP chủ `023` cho kiểm tra boot "mọi action có handler hoặc TIP chủ" (test TIP-003 đòi 3 chữ số) |
+| M | `apps/api/test/integration/assistant.test.ts` | Amend (thi công): danh sách tool chế độ Chat có thêm `render` (GenUI chỉ hiển thị; nút ghi vẫn qua xác nhận) |

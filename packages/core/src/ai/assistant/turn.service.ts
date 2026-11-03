@@ -7,6 +7,7 @@ import type { ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import { uuidv7 } from '../../kernel/ids';
 import type { GenUiIntents } from '../../kernel/actions/genui-intent';
 import type { KeyValueStore } from '../../kernel/redis';
 import { DEFAULT_RUN_BUDGET, MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
@@ -17,7 +18,11 @@ import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { readBack } from './action-readback';
+import { EventStore } from './genui/event-store';
 import { presentUi, uiPartsOf } from './genui/history';
+import { RequestStore, requestHash } from './genui/request-store';
+import { RunStream, type Publisher } from './genui/stream';
+import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
 import { appendMessage, historyMessages, markCard, openSession, type Part } from './sessions';
 
@@ -32,6 +37,8 @@ export interface AssistantDeps {
   planKey(ws: string): Promise<string>;
   /** Ký intent cho node action của cây GenUI (TIP-023c); thiếu → nút / form action bị ẩn. */
   intents?: GenUiIntents | null;
+  /** Phát sự kiện lượt (Redis pub/sub) cho SSE — sự kiện luôn ghi sổ trước (TIP-023c). */
+  pub?: Publisher | null;
 }
 
 export interface TurnRequest {
@@ -47,6 +54,8 @@ export interface TurnRequest {
   context?: AssistantContext;
   tier?: AiTierKey;
   attachments?: { id: string; name: string }[];
+  /** Khoá idempotent của lượt (TIP-023c): cùng khoá + cùng input → cùng run; khác input → 409. */
+  requestId?: string;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -114,10 +123,26 @@ async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResul
   return events;
 }
 
-/** `POST /assistant/messages`. */
+/** `POST /assistant/messages`. Sự kiện ghi sổ + phát (SSE) trong lúc chạy; JSON trả cùng run khi xong / dừng chờ. */
 export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnRequest): Promise<AssistantTurnDto> {
   const now = d.now();
+  const viewer = { ws: q.ws, userId: q.userId, authz: q.authz, implemented: implementedBy(d.executor) };
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null });
+  const ledger = new RequestStore(db, d.now);
+  if (q.requestId) {
+    const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
+    if (prev) {
+      // Gửi lại cùng yêu cầu (mạng rớt, F5, tab khác): cùng run — không tạo tin / run mới, không gọi lại model.
+      const r = await ledger.claim({ userId: q.userId, requestId: q.requestId, sessionId: prev.sessionId, runId: prev.runId, inputHash: hash });
+      return { session_id: r.row.sessionId, run_id: r.row.runId, events: await replayEvents(db, r.row.runId, (p) => presentUi(db, d.intents ?? null, viewer, p)) };
+    }
+  }
   const session = await openSession(db, q.userId, q.mode, q.text, q.sessionId, now);
+  const runId = uuidv7(now.getTime());
+  if (q.requestId) {
+    const c = await ledger.claim({ userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash });
+    if (c.kind === 'replay') return { session_id: c.row.sessionId, run_id: c.row.runId, events: await replayEvents(db, c.row.runId, (p) => presentUi(db, d.intents ?? null, viewer, p)) };
+  }
   await appendMessage(db, session.id, 'user', [{ type: 'text', text: q.text }], null, now);
   const input: AssistantRunInput = {
     text: q.text,
@@ -130,11 +155,22 @@ export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnReque
     ...(q.attachments?.length ? { attachments: q.attachments } : {}),
   };
   const store = new RunStore(db, d.now);
-  const run = await store.create({ kind: 'assistant', title: q.text.slice(0, 200), tier: await tierOf(d, db, q.ws, q.tier), input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
+  const run = await store.create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier: await tierOf(d, db, q.ws, q.tier), input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
   const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
-  const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id) });
-  return { session_id: session.id, run_id: run.id, events: await eventsOf(d, db, run, r, 0, q.locale, session.id, { ws: q.ws, authz: q.authz }) };
+  const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null);
+  const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
+  const events = await eventsOf(d, db, run, r, 0, q.locale, session.id, { ws: q.ws, authz: q.authz });
+  await finishStream(live, events, r, session.id);
+  return { session_id: session.id, run_id: run.id, events };
+}
+
+/** Phát phần còn lại của lượt lên luồng (delta đã phát trực tiếp) + `done`. */
+async function finishStream(live: RunStream, events: TurnEventDto[], r: RunResult, sessionId: string): Promise<void> {
+  for (const e of events) if (e.type !== 'delta') await live.emit(e);
+  const status = r.status === 'waiting_approval' ? 'waiting_approval' : r.status === 'completed' ? 'completed' : r.status;
+  await live.emit({ type: 'done', status, session_id: sessionId });
+  await live.close();
 }
 
 export interface ConfirmRequest {
@@ -188,7 +224,9 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
   const r = await d.runner.resume(q.ws, store, run.id, outcome, spec);
   const fresh = (await store.get(run.id)) ?? run;
+  const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null);
   const events = r ? await eventsOf(d, db, fresh, r, fromIdx, input.locale, input.session_id, { ws: q.ws, authz: q.authz }) : [];
+  if (r) await finishStream(live, events, r, input.session_id);
   if (done && logId) events.unshift({ type: 'result', action_log_id: logId, summary: def ? confirmCard(def, null, q.token, input.locale).title : call.action_id });
   const target = ui ?? (def && done ? { type: 'navigate' as const, route: confirmCard(def, null, q.token).route } : undefined);
   const status = done ? ('done' as const) : approvalId ? ('approval_required' as const) : ('cancelled' as const);

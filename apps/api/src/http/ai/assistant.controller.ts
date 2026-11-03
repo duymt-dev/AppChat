@@ -1,5 +1,5 @@
 // Trợ lý AI (TIP-023, Blueprint §4.4 assistant, §4.5): POST /v1/assistant/messages (lượt — JSON một lần, DV-006) · POST
-// /v1/assistant/confirm · POST /v1/assistant/preview-edit · GET /v1/assistant/home · /assistant/sessions?q= · /assistant/sessions/:id/messages · /assistant/runs/:id/trace · GET /v1/action-logs.
+// /v1/assistant/confirm · POST /v1/assistant/preview-edit (SSE: assistant-stream.controller — GET /assistant/runs/:id/stream) · GET /v1/assistant/home · /assistant/sessions?q= · /assistant/sessions/:id/messages · /assistant/runs/:id/trace · GET /v1/action-logs.
 // Cần `assistant.use` (nhật ký: mọi thành viên — theo quyền: của mình hoặc hết với `audit.view`).
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
@@ -18,6 +18,8 @@ const turnBody = z.object({
     .object({ route: z.string().max(300).optional(), entity: z.string().max(40).optional(), id: z.string().max(80).optional(), selection: z.array(z.string().max(80)).max(50).optional() })
     .optional(),
   attachments: z.array(z.object({ id: z.string().max(80), name: z.string().max(200) })).max(10).optional(),
+  /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */
+  request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
 });
 const editBody = z.object({ confirm_token: z.string().min(1).max(200), input: z.record(z.string(), z.unknown()) });
 const confirmBody = z.object({ confirm_token: z.string().min(1).max(200), decision: z.enum(['confirm', 'cancel']), run_id: z.string().optional() });
@@ -51,6 +53,7 @@ export class AssistantController {
         ...(b.tier ? { tier: b.tier } : {}),
         ...(b.context ? { context: b.context } : {}),
         ...(b.attachments ? { attachments: b.attachments } : {}),
+        ...(b.request_id ? { requestId: b.request_id } : {}),
       }),
     };
   }
