@@ -19,6 +19,7 @@ import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { readBack } from './action-readback';
 import { resolveContext } from './genui/context';
+import { resolveAttachments } from './genui/attachments';
 import { EventStore } from './genui/event-store';
 import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
@@ -155,6 +156,8 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const t: AssistantTurnCtx = { ws: q.ws, runId, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   // Ngữ cảnh màn là gợi ý: chỉ bản ghi người gọi đọc được (quyền hiện hành) mới vào prompt / ai_run.input.
   const context = await resolveContext(d.executor, t, q.context);
+  // Tệp đính kèm: guard server trước model (tenant / người tải / purpose / hạn / mime / size) — tên client gửi không được tin.
+  const attachments = await resolveAttachments(db, q.userId, (q.attachments ?? []).map((a) => a.id), now);
   const tier = await tierOf(d, db, q.ws, q.tier);
   try {
     const sessionId = await db.$transaction(async (tx) => {
@@ -169,7 +172,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
         user_name: q.userName,
         role: q.role,
         ...(context ? { context } : {}),
-        ...(q.attachments?.length ? { attachments: q.attachments } : {}),
+        ...(attachments.length ? { attachments } : {}),
       };
       await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
       await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);

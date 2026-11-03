@@ -68,3 +68,35 @@ describe('ngữ cảnh màn theo quyền hiện hành', () => {
     expect(await ask(h.user, 'owner', { route: '/marketing', entity: 'campaign', id: 'cp_1' })).toEqual({ route: '/marketing' });
   });
 });
+
+describe('tệp đính kèm qua guard server (TIP-023c 8c / AC 9)', () => {
+  const upload = async (by: string, name: string, mime = 'application/pdf') => {
+    const id = uuidv7();
+    await (await tenant()).file.create({ data: { id, storageKey: `t/${id}`, name, mime, size: 10n, uploadedBy: by, purpose: 'attachment', createdAt: h.clock.now() } });
+    return id;
+  };
+  const turn = async (userId: string, role: 'sales' | 'owner', attachments: { id: string; name: string }[], text: string) =>
+    assistantTurn(deps(), await tenant(), { ws: h.ws, userId, authz: authzForRole(role, userId), userName: role, locale: 'vi', role, mode: 'chat', text, requestId: `req-${uuidv7()}`, attachments });
+
+  it('tệp người khác tải lên → 422 trước model, không tạo tin / run; tệp của mình → chỉ metadata trong ai_run.input (tên server)', async () => {
+    const foreign = await upload(h.user, 'cua-owner.pdf');
+    const own = await upload(sales.id, 'bao-gia-that.pdf');
+    const db = await tenant();
+    const runs = await db.aiRun.count();
+    const err = await turn(sales.id, 'sales', [{ id: foreign, name: 'gia-mao.pdf' }], 'đọc tệp của người khác').catch((e: unknown) => e);
+    expect(err).toMatchObject({ httpStatus: 422, fields: { [`attachments.${foreign}`]: 'forbidden' } });
+    expect(await db.aiRun.count()).toBe(runs);
+    expect(await db.assistantMessage.count({ where: { content: { path: ['parts', '0', 'text'], equals: 'đọc tệp của người khác' } } })).toBe(0);
+
+    const r = await turn(sales.id, 'sales', [{ id: own, name: 'ten-client-gui.pdf' }], 'tóm tắt tệp');
+    const input = (await db.aiRun.findUniqueOrThrow({ where: { id: r.run_id! } })).input as { attachments?: unknown[] };
+    expect(input.attachments).toEqual([{ id: own, name: 'bao-gia-that.pdf', mime: 'application/pdf', size: 10 }]);
+    expect(JSON.stringify(input)).not.toContain(`t/${own}`);
+  });
+
+  it('id tệp không có trong workspace (workspace khác / bịa) → 422 not_found', async () => {
+    const ghost = uuidv7();
+    await expect(turn(h.user, 'owner', [{ id: ghost, name: 'x.pdf' }], 'tệp lạ')).rejects.toMatchObject({ httpStatus: 422, fields: { [`attachments.${ghost}`]: 'not_found' } });
+  });
+});
+

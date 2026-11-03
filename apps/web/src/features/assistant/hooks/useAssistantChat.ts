@@ -8,6 +8,7 @@ import type { UiCommand } from '@appchat/actions';
 import { dispatchUiCommand } from '@/shared/assistant/ui-command-bus';
 import { confirmTurn } from '../api';
 import { useAssistantStream } from './useAssistantStream';
+import { useAttachStore } from './useAssistantAttachments';
 import { useAssistantUi } from '../assistant-store';
 import type { ChatMessage, TurnEvent } from '../types';
 
@@ -52,12 +53,16 @@ export function useAssistantChat() {
   const send = useCallback(
     async (raw?: string, from?: string) => {
       const text = (raw ?? useAssistantUi.getState().draft).trim();
-      if (!text) return;
+      const files = useAttachStore.getState().items;
+      // Tệp còn đang tải / lỗi → chưa gửi (chip hiện trạng thái; người dùng thử lại hoặc bỏ).
+      if (!text || files.some((f) => f.status !== 'ready')) return;
+      const attachments = files.map((f) => ({ id: f.file_id!, name: f.name }));
       const { push, set, mode, sessionId, tier } = useAssistantUi.getState();
       push({ id: mid(), role: 'user', text });
       set({ draft: '', typing: true, pop: null });
+      useAttachStore.getState().set(() => []);
       try {
-        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId: `req-${crypto.randomUUID()}` }), new Promise((r) => setTimeout(r, TYPING_MS))]);
+        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId: `req-${crypto.randomUUID()}`, ...(attachments.length ? { attachments } : {}) }), new Promise((r) => setTimeout(r, TYPING_MS))]);
         show(turn.events);
         useAssistantUi.getState().set({ sessionId: turn.session_id, ...(mode === 'cowork' && turn.run_id ? { lastRunId: turn.run_id } : {}) });
         if (mode === 'cowork') await qc.invalidateQueries({ queryKey: ['runs'] });

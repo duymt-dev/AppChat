@@ -1,10 +1,12 @@
 // Ô soạn của Trợ lý — prototype L1201–1222 (màn chào), L1294–1311 (đáy hội thoại), L1404–1419 (Cowork).
-// Mức AI thay tên model (D29). Enter gửi, Shift+Enter xuống dòng.
+// Mức AI thay tên model (D29). Enter gửi, Shift+Enter xuống dòng, Ctrl+U thêm tệp (TIP-023c 8c — hàng tệp phía trên ô soạn).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useAssistantUi } from '../assistant-store';
+import { useAssistantAttachments } from '../hooks/useAssistantAttachments';
+import { AssistantAttachments, openAttachPicker } from './AssistantAttachments';
 import type { Mode } from '../types';
 
 const MODES: Mode[] = ['chat', 'cowork'];
@@ -25,9 +27,11 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
   const { styles, cx } = useComposerStyles();
   const ui = useAssistantUi();
   const setMode = (m: Mode) => (onMode ? onMode(m) : ui.set({ mode: m, pop: null }));
+  const att = useAssistantAttachments();
 
   return (
     <div className={styles.box} data-testid={testId}>
+      <AssistantAttachments items={att.items} onAdd={att.add} onRemove={att.remove} onRetry={att.retry} />
       <textarea
         className={styles.area}
         rows={rows}
@@ -36,7 +40,10 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
         aria-label={placeholder}
         onChange={(e) => ui.set({ draft: e.target.value })}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
+          if (e.key.toLowerCase() === 'u' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            openAttachPicker();
+          } else if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             onSend();
           }

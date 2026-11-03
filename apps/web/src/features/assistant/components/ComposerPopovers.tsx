@@ -7,6 +7,7 @@ import { Icon, color, layout, type IconName } from '@appchat/ui';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useAssistantUi } from '../assistant-store';
 import { homeQuery } from '../api';
+import { openAttachPicker } from './AssistantAttachments';
 import type { Tier } from '../types';
 
 const TIERS: Tier[] = ['max', 'advanced', 'standard'];
@@ -38,6 +39,7 @@ export function ComposerPopovers() {
   const pick = (key: string) => {
     if (key === 'pickAgent') return ui.set({ pop: 'agent' });
     close();
+    if (key === 'file' || key === 'fileShort') return openAttachPicker();
     if (ROUTE[key]) router.push(ROUTE[key]);
   };
   const left = ui.pop === 'tier' ? Math.max(12, ui.popAnchor.right - layout.popTier) : ui.popAnchor.left;

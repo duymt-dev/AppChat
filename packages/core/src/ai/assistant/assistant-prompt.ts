@@ -24,7 +24,8 @@ export interface AssistantRunInput {
   user_name: string;
   role: string;
   context?: AssistantContext;
-  attachments?: { id: string; name: string }[];
+  /** Tệp đã qua guard server (genui/attachments.ts) — chỉ metadata, không nội dung / URL. */
+  attachments?: { id: string; name: string; mime?: string; size?: number; handlers?: string[] }[];
 }
 
 const AGENTS_IN_PROMPT = 12;
@@ -34,7 +35,7 @@ export function contextLine(c: AssistantContext | undefined, attachments: Assist
   if (c?.route) lines.push(`- route: ${c.route.slice(0, 200)}`);
   if (c?.entity && c.id) lines.push(`- ${c.entity.slice(0, 40)}: ${c.id.slice(0, 80)}`);
   if (c?.selection?.length) lines.push(`- selection: ${c.selection.slice(0, 20).join(', ')}`);
-  if (attachments?.length) lines.push(`- attachments: ${attachments.map((a) => a.name).join(', ')}`);
+  if (attachments?.length) lines.push(`- attachments: ${attachments.map((a) => `${a.name.slice(0, 120)}${a.mime ? ` (${a.mime})` : ''}${a.handlers?.length ? ` → ${a.handlers.join('/')}` : ''}`).join(', ')}`);
   return lines.length ? lines.join('\n') : fallback;
 }
 

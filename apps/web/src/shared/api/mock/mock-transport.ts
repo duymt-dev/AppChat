@@ -170,9 +170,10 @@ export const mockTransport: Transport = {
     mutate((db) => markUndone(db, actionLogId), 'action.undo');
   },
 
-  async upload(file) {
-    // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp.
-    return { file_id: `file_${Date.now().toString(36)}`, name: file.name, size: file.size };
+  async upload(file, _purpose, signal) {
+    // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp. Huỷ trước khi xong → AbortError như fetch.
+    if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
+    return { file_id: nextId('file'), name: file.name, size: file.size };
   },
 
   async blob(path) {

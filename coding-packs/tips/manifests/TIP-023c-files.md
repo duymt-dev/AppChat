@@ -326,4 +326,13 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/web/src/shared/assistant/turn-stream.ts` | Amend (G2, đóng DV-006): lượt qua SSE dùng chung (màn Trợ lý / drawer / Dock), nối lại theo cursor, gom frame thành sự kiện |
 | M | `apps/web/src/features/assistant/api.ts` | Amend (G2): bỏ `sendTurn` JSON (lượt đi qua turn-stream) |
 | M | `apps/web/src/features/assistant/types.ts` | Amend (G2): `ChatMessage.live` — bong bóng đang nhận chữ qua luồng |
+| C | `apps/web/src/features/assistant/styles/attachments.styles.ts` | Amend (G2 8c): chip tệp đính kèm theo token |
+| C | `apps/web/src/features/assistant/hooks/useAssistantAttachments.test.tsx` | Amend (G2 8c): tải / lỗi → thử lại / huỷ khi đang tải / từ chối sớm |
+| M | `apps/web/src/features/assistant/components/Composer.tsx` | Amend (G2 8c): hàng tệp phía trên ô soạn + Ctrl+U |
+| M | `apps/web/src/features/assistant/components/ComposerPopovers.tsx` | Amend (G2 8c): "Thêm tệp" mở hộp chọn tệp |
+| M | `apps/web/src/features/assistant/hooks/useAssistantChat.ts` | Amend (G2): lượt qua SSE + gửi kèm tệp đã sẵn sàng |
+| M | `apps/web/e2e/assistant.spec.ts` | Amend (G2 8c): đính kèm desktop + 390 |
+| M | `packages/core/src/ai/assistant/assistant-prompt.ts` | Amend (G2 8c): ngữ cảnh tệp = metadata đã kiểm (tên server, mime, extension) |
+| M | `apps/api/test/integration/genui-context.test.ts` | Amend (G2 8c): tệp người khác / không có trong workspace → 422 trước model, ai_run.input chỉ metadata |
+| M | `apps/web/messages/vi/assistant.json` | Amend (G2 8c): `assistant.attachments.*` (vi + en) |
 

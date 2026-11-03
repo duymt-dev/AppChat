@@ -338,5 +338,11 @@
       "chat": "Chat",
       "cowork": "Cowork"
     }
+  },
+  "attachments": {
+    "uploading": "Uploading…",
+    "retry": "Retry",
+    "cancel": "Cancel upload",
+    "remove": "Remove {name}"
   }
 }

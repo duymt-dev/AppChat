@@ -338,5 +338,11 @@
       "chat": "Chat",
       "cowork": "Cowork"
     }
+  },
+  "attachments": {
+    "uploading": "Đang tải…",
+    "retry": "Thử lại",
+    "cancel": "Huỷ tải lên",
+    "remove": "Bỏ tệp {name}"
   }
 }
