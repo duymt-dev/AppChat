@@ -14,7 +14,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/ai/test/assistant-prompt-runtime.test.ts` | Runtime prompt version/content matches approved prompt changes |
 | C | `coding-packs/reports/TIP-023b-completion.md` | Builder evidence report only after implementation |
 | M | `coding-packs/DEVIATIONS.md` | DV-021 thư viện `yaml` cho tools/ai-live |
-| M | `coding-packs/QUESTIONS.md` | Q-044 seed báo giá cho ca gia hạn ai:live; Q-045 test token sales-unit chập chờn |
+| M | `coding-packs/QUESTIONS.md` | Q-044 seed báo giá cho ca gia hạn ai:live; Q-045 test token sales-unit chập chờn; Q-046 Redis riêng cho ai:live |
 | M | `coding-packs/DECISIONS.md` | DC-306 quyền action đọc, DC-307 tìm mã HĐ |
 | M | `coding-packs/docs/06-prototype/DEVIATIONS.md` | PD-008 thẻ xác nhận Trợ lý có khối "đổi gì" + nút Sửa (amend khi thi công) |
 | M | `tools/scripts/e2e-http.mjs` | Lượt `e2e:http` dùng Redis DB test (DC-310) — không chung hàng đợi / rate-limit với tiến trình demo |

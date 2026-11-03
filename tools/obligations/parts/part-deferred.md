@@ -56,7 +56,7 @@
 | DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | CHƯA | ai/assistant/meta-tools.ts:7 NOT_IMPLEMENTED; `insight.query` không có trong registry |
 | DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
 | DEF-023-5 | 7 drawer "Trợ lý AI · [module]" + hộp lệnh Hộp thư gọi Trợ lý thật (REQ-E06) | reports/TIP-023-completion.md:46 | 023c | GIẢ | Report bổ sung 2026-11-01; `packages/shared/src/genui` chưa tồn tại |
-| DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | CHƯA | tools/ai-live/ không tồn tại; không script `ai:live` |
+| DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | ĐẠT | Action đọc search/get (packages/actions/src/reads/*) + khuôn lồng nhau (schema-brief.ts) + pnpm ai:live 27/30 (reports/ai-live-2026-11-03.md) |
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | GIẢ | ai/agents/agent.runtime.ts:50 chỉ xét `office`; `custom` = luôn trực Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | CHƯA | Không có route trong apps/api/src/http/ai; TG row 038 ghi rõ |
 | DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | 022b | MỘT PHẦN | Từ khoá chỉ chèn prompt (ai/agents/agent.runtime.ts:35), không chọn agent theo từ khoá Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
@@ -106,7 +106,7 @@
 | Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | 025b | CHƯA | Backend `conversation.bulk_update` có; features/inbox không có UI bulk |
 | Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046, 014c | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh; TIP-014c nhận (2026-11-02) |
 | Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | 031b | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận; TIP-031b nhận (2026-11-02); Chủ nhà 2026-11-03: duyệt → DC-296 |
-| Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | CHƯA | tools/ai-live/ chưa có; Chủ nhà 2026-11-03: đóng câu hỏi (DC-226) |
+| Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | ĐẠT | Ngưỡng ≥ 27/30 + 0 vi phạm an toàn đạt: 27/30, an toàn 0 (reports/ai-live-2026-11-03.md); 3 ca fail đã phân loại (model chọn đường khác / seed Q-044 / dấu "Huế") |
 | Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | GIẢ | message.info: features/quotes/components/QuotesToolbar.tsx:82, orders/OrdersToolbar.tsx:96, contracts/ContractsToolbar.tsx:69, tickets/TicketsHeader.tsx:143; Chủ nhà 2026-11-03: đóng câu hỏi (038) |
 | Q-025 | Chặn chéo: báo giá đã sinh đơn không sinh HĐ và ngược lại | QUESTIONS.md:33 | 032b | CHƯA | TIP-032b mục 2; Chủ nhà 2026-11-03: đóng câu hỏi (032b) |
 | DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | CHƯA | Baseline vẫn 99 (xem DEF-001-1); TIP-001b nhận (2026-11-02) |
