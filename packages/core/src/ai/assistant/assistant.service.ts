@@ -16,6 +16,7 @@ import { editPreview } from './edit-preview';
 import { assistantHome } from './home.read';
 import { runTrace } from './run-trace.read';
 import { presentUi } from './genui/history';
+import { resolveRefs } from './genui/refs';
 import { listSessions, sessionMessages } from './sessions';
 import { assistantConfirm, assistantTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
 
@@ -89,6 +90,11 @@ export class AssistantService {
     const db = await this.db(c);
     const implemented = this.executor ? implementedBy(this.executor) : () => false;
     return sessionMessages(db, c.userId, id, 100, (p) => presentUi(db, this.intents, { ws: c.workspaceId, userId: c.userId, authz: c.authz, implemented }, p));
+  }
+
+  /** Giá trị `$ref` của cây đã lưu theo quyền HIỆN HÀNH (run của người khác → unavailable, không lộ tồn tại). */
+  async refs(c: Caller, runId: string, refs: string[]) {
+    return resolveRefs(await this.db(c), { runId, userId: c.userId, authz: c.authz, refs });
   }
 
   /** Vết run của chính người gọi (bộ câu thử model thật — TIP-023b R1.4). */

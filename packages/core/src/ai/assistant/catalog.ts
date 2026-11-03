@@ -14,7 +14,7 @@ export const FIND_LIMIT = 8;
 const HIDDEN = /^(admin\.|workspace\.switch$|approval\.|billing\.)/;
 
 /** Callback chỉ nguồn system (worker) — không ai gọi bằng lời / UI nên không cần preview hay đường tra id. */
-export const SYSTEM_ONLY = new Set(['channel.group_result']);
+export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume']);
 
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 

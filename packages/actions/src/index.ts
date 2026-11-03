@@ -34,8 +34,10 @@ import * as aiReads from './reads/ai';
 import * as identityReads from './reads/identity';
 import * as channelReads from './reads/channels';
 import * as documentReads from './reads/documents';
+import * as assistantUi from './assistant-ui';
 
 export * from './define';
+export * from './assistant-ui';
 export * from './identity';
 export * from './onboarding';
 export * from './dashboard';
@@ -111,6 +113,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(aiReads),
   ...Object.values(identityReads),
   ...Object.values(channelReads),
+  ...Object.values(assistantUi),
   ...Object.values(documentReads),
 ] as ActionDef[];
 

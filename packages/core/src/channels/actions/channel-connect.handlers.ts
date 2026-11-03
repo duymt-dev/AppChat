@@ -48,7 +48,9 @@ export class ChannelZaloStartLoginHandler implements Handler<ActionInput<typeof 
       // QR đến sau qua WS `channel.zalo.qr` / GET …/login (zca-js sinh QR mất vài giây) — `qr` là đường đọc trạng thái.
       result: { channel_account_id: id, qr: `/settings/channels/${id}/login` },
       after: { id, type: row.type, name },
-      afterCommit: () => control.startLogin({ ws: ctx.workspaceId, account_id: id, user_id: userOf(ctx) }),
+      afterCommit: async () => {
+        await control.startLogin({ ws: ctx.workspaceId, account_id: id, user_id: userOf(ctx) });
+      },
     };
   }
 

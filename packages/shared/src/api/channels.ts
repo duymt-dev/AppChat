@@ -60,14 +60,46 @@ export const channelAccountStatsSchema = z.object({
   total_convs: z.number().int(),
 });
 
-/** Trạng thái đăng nhập QR của một tài khoản đang kết nối. `qr` = PNG base64 khi `waiting`. */
+export const LOGIN_STATUSES = ['starting', 'waiting', 'scanned', 'connected', 'expired', 'declined', 'failed'] as const;
+/** Trạng thái đăng nhập QR của một tài khoản đang kết nối. `qr` = PNG base64 khi `waiting`. `attempt` = lần kết nối (start / reconnect —
+ *  TIP-023c): sự kiện của lần cũ không ghi đè lần mới; `rev` tăng mỗi lần đổi trạng thái của cùng lần. */
 export const channelLoginStateSchema = z.object({
   account_id: z.string(),
-  status: z.enum(['starting', 'waiting', 'scanned', 'connected', 'expired', 'declined', 'failed']),
+  status: z.enum(LOGIN_STATUSES),
   qr: z.string().nullable(),
   expires_at: z.string().nullable(),
+  attempt: z.string().optional(),
+  rev: z.number().int().optional(),
 });
 export type ChannelLoginStateDto = z.infer<typeof channelLoginStateSchema>;
+
+/** `channel.status` (TIP-023c, khối `qr`): trạng thái đã làm sạch cho Trợ lý — KHÔNG có ảnh QR (ảnh lấy riêng qua `qr_ref` có auth). */
+export const GENUI_LOGIN_STATUSES = ['waiting', 'scanned', 'connected', 'expired', 'failed'] as const;
+export const channelStatusSchema = z.object({
+  channel_account_id: z.string(),
+  type: z.string(),
+  name: z.string(),
+  account_status: z.string(),
+  login: z
+    .object({
+      attempt: z.string().nullable(),
+      status: z.enum(GENUI_LOGIN_STATUSES),
+      reason: z.enum(['declined', 'timeout', 'duplicate', 'unknown']).optional(),
+      expires_at: z.string().nullable(),
+      /** Đường đọc ảnh QR (có auth, chỉ khi `waiting`) — không phải ảnh; không đưa vào model / lịch sử. */
+      qr_ref: z.string().nullable(),
+      terminal: z.boolean(),
+    })
+    .nullable(),
+});
+export type ChannelStatusDto = z.infer<typeof channelStatusSchema>;
+
+/** Native 7 trạng thái → 5 trạng thái của khối `qr` (standard §2 DC-227): starting→waiting, declined→failed(reason). */
+export function genUiLoginStatus(s: ChannelLoginStateDto['status']): { status: (typeof GENUI_LOGIN_STATUSES)[number]; reason?: 'declined' } {
+  if (s === 'starting') return { status: 'waiting' };
+  if (s === 'declined') return { status: 'failed', reason: 'declined' };
+  return { status: s };
+}
 
 /**
  * Form kết nối Email (TIP-018, prototype L11254: Máy chủ IMAP · Cổng · Email · Mật khẩu ứng dụng; SMTP suy từ IMAP khi bỏ trống).

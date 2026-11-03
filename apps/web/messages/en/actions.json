@@ -750,6 +750,9 @@
     },
     "group_result": {
       "title": "Group creation result (system)"
+    },
+    "status": {
+      "title": "Check channel connection status"
     }
   },
   "webchat": {
@@ -907,6 +910,11 @@
     "search": {
       "title": "Find services",
       "desc": "Look up bookable services by name or code."
+    }
+  },
+  "assistant": {
+    "resume": {
+      "title": "Resume assistant turn"
     }
   }
 }

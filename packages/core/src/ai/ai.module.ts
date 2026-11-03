@@ -35,6 +35,7 @@ import { ApprovalsInstaller } from './approvals/approvals.installer';
 import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
 import { AssistantService } from './assistant/assistant.service';
+import { AssistantResumeHandler } from './assistant/genui/resume.handler';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 import { TaskPlace } from './tasks/task-place';
 import { CLOCK, type Clock } from '../kernel/clock';
@@ -132,6 +133,8 @@ class ProviderSeed implements OnModuleInit {
     GovernanceUpdateHandler,
     AiTranslateHandler,
     AssistantService,
+    // GenUI (TIP-023c): tiếp tục lượt sau kết quả ngoài đã kiểm phía server (khối qr).
+    AssistantResumeHandler,
     ...TASK_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],

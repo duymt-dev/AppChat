@@ -16,6 +16,7 @@ const BY_ID: Record<string, string> = {
   'webchat.update_widget': '017',
   'channel.email.connect': '018',
   'admin.invoice.confirm_transfer': '010',
+  'assistant.resume': '023',
 };
 
 const BY_PREFIX: Record<string, string> = {

@@ -41,9 +41,12 @@ export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' |
   if (!db) return 'skipped';
   const row = await db.channelAccount.findUnique({ where: { id: j.account_id } });
   if (!row || row.status !== 'connecting') return 'skipped';
+  // Đã có lần kết nối mới hơn (quét lại) → job này cũ, bỏ.
+  const cur = await d.control.login(row.id);
+  if (j.attempt && cur?.attempt && cur.attempt !== j.attempt) return 'skipped';
   const adapter = d.registry.get(row.type)?.adapter;
   const set = (status: Parameters<ChannelControl['setLogin']>[0]['status'], qr: string | null = null, expires: string | null = null) =>
-    d.control.setLogin({ account_id: row.id, status, qr, expires_at: expires });
+    d.control.setLogin({ account_id: row.id, status, qr, expires_at: expires, ...(j.attempt ? { attempt: j.attempt } : {}) });
   if (!adapter?.beginLogin) {
     await set('failed');
     return 'failed';
@@ -56,7 +59,7 @@ export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' |
     last = e.type;
     if (e.type === 'qr') {
       void set('waiting', e.image, e.expiresAt);
-      if (j.user_id) d.emitter.publish({ ws: j.ws, rooms: [rooms.user(j.user_id)], event: 'channel.zalo.qr', data: { account_id: row.id, qr_png_base64: e.image, expires_at: e.expiresAt }, require: { permission: 'channels.manage' } });
+      if (j.user_id) d.emitter.publish({ ws: j.ws, rooms: [rooms.user(j.user_id)], event: 'channel.zalo.qr', data: { account_id: row.id, qr_png_base64: e.image, expires_at: e.expiresAt, ...(j.attempt ? { attempt: j.attempt } : {}) }, require: { permission: 'channels.manage' } });
     } else if (e.type === 'scanned') void set('scanned');
     else void set(e.type);
   };

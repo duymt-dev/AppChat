@@ -5,7 +5,8 @@ import { AppError, type ChannelAccountDto, type ChannelLoginStateDto, type Setti
 import type { ChannelRegistry } from '@appchat/channels';
 import type { TenantDb } from '@appchat/db';
 import { ChannelAccounts, UUID, settingsOf, type AccountHealth, type AccountRow } from './accounts.service';
-import type { ChannelControl } from './control';
+import type { ChannelControl } from './control';import { qrImageOf } from './login-attempt';
+
 
 type Health = ChannelAccountDto['health'];
 const RANK: Record<Health, number> = { down: 0, off: 1, slow: 2, good: 3 };
@@ -80,6 +81,11 @@ export class ChannelsReadService {
       return { day: i, convs: s?.convs ?? 0, frt_sec: s && s.frtCount ? Math.round(Number(s.frtSum) / s.frtCount) : 0 };
     });
     return { account_id: row.id, days: out, total_convs: out.reduce((t, d) => t + d.convs, 0) };
+  }
+
+  /** Ảnh QR của đúng lần đăng nhập đang chờ (khối `qr` của Trợ lý — TIP-023c): lần khác / hết hạn → 404. */
+  async loginQr(db: TenantDb, accountId: string, attempt: string) {
+    return qrImageOf(db, this.control, accountId, attempt);
   }
 
   /** Trạng thái QR: Redis (worker ghi) — hết TTL thì suy từ trạng thái tài khoản. */

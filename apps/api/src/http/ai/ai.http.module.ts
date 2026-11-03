@@ -2,16 +2,17 @@
 // (assistant/*, action-logs); TIP-035 ai-tasks; 043 thêm.
 // Chỉ gắn khi env đủ DB + Redis + JWT_SECRET (`register`) — như billing / channels / inbox.
 import { Module, type DynamicModule } from '@nestjs/common';
-import { AiModule, BillingModule } from '@appchat/core';
+import { AiModule, BillingModule, ChannelsModule } from '@appchat/core';
 import { ActorModule } from '../kernel/actor.module';
 import { AiController } from './ai.controller';
 import { AgentsController } from './agents.controller';
 import { AssistantController } from './assistant.controller';
+import { AssistantUiController } from './assistant-ui.controller';
 import { AiTasksController } from './tasks.controller';
 
 @Module({ imports: [AiModule] })
 export class AiHttpModule {
   static register(): DynamicModule {
-    return { module: AiHttpModule, imports: [AiModule, BillingModule, ActorModule], controllers: [AiController, AgentsController, AssistantController, AiTasksController] };
+    return { module: AiHttpModule, imports: [AiModule, BillingModule, ChannelsModule, ActorModule], controllers: [AiController, AgentsController, AssistantController, AssistantUiController, AiTasksController] };
   }
 }

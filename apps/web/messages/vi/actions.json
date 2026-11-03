@@ -750,6 +750,9 @@
     },
     "group_result": {
       "title": "Kết quả tạo nhóm (hệ thống)"
+    },
+    "status": {
+      "title": "Xem trạng thái kết nối kênh"
     }
   },
   "webchat": {
@@ -907,6 +910,11 @@
     "search": {
       "title": "Tìm dịch vụ",
       "desc": "Tra dịch vụ đặt lịch được theo tên hoặc mã."
+    }
+  },
+  "assistant": {
+    "resume": {
+      "title": "Tiếp tục lượt Trợ lý"
     }
   }
 }
