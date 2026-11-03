@@ -21,6 +21,7 @@ import { lockInvoice, visibleInvoice } from '../invoice-access';
 import { invoiceDocData, renderDocPdf, savePdf } from '../services/invoice-doc';
 import { invoiceText, postInvoice } from '../services/invoice-send';
 import { localDay } from '../services/payment-write';
+import { createPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
 
 const DAY = 86_400_000;
 type St = { invoice_id: string; status: string };
@@ -92,6 +93,10 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
     if (!i) return;
     if (i.status !== 'draft' || i.payments.length) throw new AppError('CONFLICT', 409, { invoice_id: 'changed' });
     await tx.invoice.delete({ where: { id } });
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof invoiceCreate>, tx: TenantTx) {
+    return createPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
   }
 }
 
@@ -176,5 +181,9 @@ export class InvoiceVoidHandler implements Handler<ActionInput<typeof invoiceVoi
     await tx.invoice.update({ where: { id: i.id }, data: { status: to, voidReason: input.reason, voidedAt: now, voidedById: actor.id, version: { increment: 1 }, updatedAt: now } });
     await writeTimeline(tx, { contactId: i.contactId, type: 'invoice', key: 'invoice_void', params: { code: i.code, reason: input.reason }, actor, ref: { type: 'invoice', id: i.id }, at: now });
     return { result: { invoice_id: i.id, status: to }, events: [{ topic: 'invoice.voided', payload: invoicePayload({ ...i, status: to }) }] };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof invoiceVoid>, tx: TenantTx) {
+    return voidPreview(ctx, tx, input);
   }
 }

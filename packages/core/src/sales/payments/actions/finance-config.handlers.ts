@@ -12,6 +12,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { actorUserId } from '../../../crm/public';
 import { ConnectionsService } from '../../../integrations/public';
 import { webhookPathOf } from '../services/bank-feed';
+import { accountPreview, connectPreview, disconnectPreview } from '../previews/finance-config.handlers.preview';
 
 const need = (c: ConnectionsService | null) => {
   if (!c) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'integrations chưa cấu hình (APP_ENC_KEY)');
@@ -33,6 +34,10 @@ export class PaymentAccountUpdateHandler implements Handler<ActionInput<typeof p
     await tx.paymentAccount.upsert({ where: { id: 1 }, create: { id: 1, ...data }, update: data });
     const view = (a: { bank: string; bankBin: string; accountNo: string; accountName: string } | null) => (a ? { bank: a.bank, bin: a.bankBin, account_no: a.accountNo, account_name: a.accountName } : null);
     return { result: { ok: true }, before: view(prev), after: view(data) };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof paymentAccountUpdate>, tx: TenantTx) {
+    return accountPreview(tx, input);
   }
 }
 
@@ -59,6 +64,10 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
       events: [{ topic: 'integration.connected', payload: { connection_id: row.id, connector_key: row.connectorKey } }],
     };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof bankFeedConnect>, tx: TenantTx) {
+    return connectPreview(tx, this.connections, input);
+  }
 }
 
 @Injectable()
@@ -79,5 +88,9 @@ export class BankFeedDisconnectHandler implements Handler<ActionInput<typeof ban
       before: { provider: input.provider, feed_id: feed?.id ?? null },
       events: [{ topic: 'integration.disconnected', payload: { connection_id: row.id, connector_key: row.connectorKey } }],
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof bankFeedDisconnect>, tx: TenantTx) {
+    return disconnectPreview(tx, input);
   }
 }

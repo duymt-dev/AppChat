@@ -12,6 +12,7 @@ import { actorOf } from '../../orders/services/order-write';
 import { QuoteDeps } from '../../quotes/services/quote-deps';
 import { UUID, inSalesScope } from '../invoice-access';
 import { packageStatusOf } from '../services/packages';
+import { adjustPreview, extendPreview } from '../previews/package.handlers.preview';
 
 const DAY = 86_400_000;
 type Snap = { id: string; total: number; expires_at: string | null; status: 'active' | 'exhausted' | 'expired' | 'refunded'; extended_by: string | null };
@@ -69,6 +70,10 @@ export class PackageExtendHandler implements Handler<ActionInput<typeof packageE
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await restore(tx, log, this.clock.now());
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof packageExtend>, tx: TenantTx) {
+    return extendPreview(ctx, tx, input, this.clock.now());
+  }
 }
 
 @Injectable()
@@ -92,5 +97,9 @@ export class PackageAdjustHandler implements Handler<ActionInput<typeof packageA
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await restore(tx, log, this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof packageAdjustSessions>, tx: TenantTx) {
+    return adjustPreview(ctx, tx, input, this.clock.now());
   }
 }

@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { CrmMembers, actorUserId } from '../../../crm/public';
 import { actorOf } from '../../orders/services/order-write';
 import { UUID, inSalesScope, lockInvoice } from '../invoice-access';
+import { rejectPreview } from '../previews/refund.handlers.preview';
 import { approveRefund, invoiceRefundable, lockPendingRefund, packageRefundable, refundMethodOf, rejectRefund, requestRefund, type RefundRow } from '../services/refunds';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
@@ -122,5 +123,9 @@ export class PaymentRefundRejectHandler implements Handler<ActionInput<typeof pa
     const events = await rejectRefund(tx, p, actorOf(ctx), input.note, this.clock.now());
     const params = await refundNotice(tx, this.members, p, actorUserId(ctx));
     return { result: { payment_id: p.id, status: 'failed' }, events: [...events, ...decidedNotice(p, 'rejected', params, actorUserId(ctx))] };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof paymentRefundReject>, tx: TenantTx) {
+    return rejectPreview(ctx, tx, input);
   }
 }
