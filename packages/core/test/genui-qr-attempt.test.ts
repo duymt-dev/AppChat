@@ -45,7 +45,7 @@ describe('channel.status DTO', () => {
     await r.control.setLogin({ account_id: ACC, status: 'waiting', qr: 'PNGDATA', expires_at: '2026-11-03T10:00:00Z', attempt: a });
     const st = await channelStatusOf(r.db, r.control, ACC);
     expect(JSON.stringify(st)).not.toContain('PNGDATA');
-    expect(st.login).toMatchObject({ status: 'waiting', attempt: a, qr_ref: `/settings/channels/${ACC}/login/qr?attempt=${a}` });
+    expect(st.login).toMatchObject({ status: 'waiting', attempt: a, qr_ref: `/assistant/ui/qr/${ACC}?attempt=${a}` });
     expect(loginDto(ACC, { account_id: ACC, status: 'declined', qr: null, expires_at: null, attempt: a }, 'connecting')).toMatchObject({ status: 'failed', reason: 'declined', terminal: true });
   });
 

@@ -18,7 +18,7 @@ export function loginDto(accountId: string, s: ChannelLoginStateDto | null, acco
     return null;
   }
   const g = genUiLoginStatus(s.status);
-  const ref = g.status === 'waiting' && s.qr && s.attempt ? `/settings/channels/${accountId}/login/qr?attempt=${encodeURIComponent(s.attempt)}` : null;
+  const ref = g.status === 'waiting' && s.qr && s.attempt ? `/assistant/ui/qr/${accountId}?attempt=${encodeURIComponent(s.attempt)}` : null;
   return { attempt: s.attempt ?? null, status: g.status, ...(g.reason ? { reason: g.reason } : {}), expires_at: s.expires_at, qr_ref: ref, terminal: TERMINAL.has(g.status) };
 }
 
