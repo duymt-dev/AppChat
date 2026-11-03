@@ -35,6 +35,7 @@ import * as identityReads from './reads/identity';
 import * as channelReads from './reads/channels';
 import * as documentReads from './reads/documents';
 import * as assistantUi from './assistant-ui';
+import * as integrationProbe from './integration-probe';
 
 export * from './define';
 export * from './assistant-ui';
@@ -74,6 +75,7 @@ export * from './reads/ai';
 export * from './reads/identity';
 export * from './reads/channels';
 export * from './reads/documents';
+export * from './integration-probe';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -115,6 +117,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(channelReads),
   ...Object.values(assistantUi),
   ...Object.values(documentReads),
+  // TIP-023c G3 (DEF-012-1): metadata form + thăm dò connector, không đổi kết nối.
+  ...Object.values(integrationProbe),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

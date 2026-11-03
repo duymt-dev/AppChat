@@ -18,6 +18,7 @@ import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
 import { settingsAppsHandlers } from './domains/settings-apps';
+import { integrationProbeHandlers } from './domains/integration-probe';
 import { assistantUiHandlers } from './domains/assistant-ui';
 import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
@@ -102,6 +103,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...loyaltyHandlers,
   ...settingsHandlers,
   ...settingsAppsHandlers,
+  ...integrationProbeHandlers,
   ...assistantUiHandlers,
   ...profileLayoutHandlers,
   ...settingsDataHandlers,

@@ -22,6 +22,18 @@ export function connectionCtx(row: ConnectionRow, key: Buffer): ConnectionCtx {
   };
 }
 
+/** Tách trường theo manifest: thiếu trường bắt buộc → 422 `{ [field]: 'required' }`; trường lạ bỏ qua. */
+export function splitFields(e: ConnectorEntry, fields: Record<string, string>) {
+  const config: Record<string, string> = {};
+  const secrets: Record<string, string> = {};
+  for (const f of e.manifest.auth.fields) {
+    const v = fields[f.key]?.trim() ?? '';
+    if (!v && !f.optional) throw new AppError('VALIDATION_FAILED', 422, { [f.key]: 'required' });
+    if (v) (f.secret ? secrets : config)[f.key] = v;
+  }
+  return { config, secrets };
+}
+
 export class ConnectionsService {
   constructor(
     private readonly registry: ConnectorRegistry,
@@ -37,16 +49,8 @@ export class ConnectionsService {
     return e;
   }
 
-  /** Tách trường theo manifest: thiếu trường bắt buộc → 422 `{ [field]: 'required' }`; trường lạ bỏ qua. */
   split(e: ConnectorEntry, fields: Record<string, string>) {
-    const config: Record<string, string> = {};
-    const secrets: Record<string, string> = {};
-    for (const f of e.manifest.auth.fields) {
-      const v = fields[f.key]?.trim() ?? '';
-      if (!v && !f.optional) throw new AppError('VALIDATION_FAILED', 422, { [f.key]: 'required' });
-      if (v) (f.secret ? secrets : config)[f.key] = v;
-    }
-    return { config, secrets };
+    return splitFields(e, fields);
   }
 
   async connect(tx: TenantTx, ws: string, userId: string, provider: string, fields: Record<string, string>) {

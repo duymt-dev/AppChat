@@ -2,7 +2,7 @@
 // Chưa kết nối → null — nghiệp vụ phải chạy được khi chưa có connector (vd. không hoá đơn điện tử thì chỉ có Đề nghị thanh toán).
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { ConnectionCtx, ConnectorAdapter, ConnectorRegistry, PortKey } from '@appchat/integrations';
-import { connectionCtx } from './connections.service';
+import { IN_USE, connectionCtx } from './connections.service';
 
 export interface ResolvedConnection<A extends ConnectorAdapter = ConnectorAdapter> {
   connectorKey: string;
@@ -23,5 +23,12 @@ export class IntegrationResolver {
     if (!row) return null;
     const adapter = (this.registry.get(row.connectorKey)?.adapter as A | undefined) ?? null;
     return { connectorKey: row.connectorKey, adapter, conn: connectionCtx(row, this.key) };
+  }
+
+  /** Kết nối đang dùng của một connector (bí mật giải trong bộ nhớ) — cho `integration.test` (không ghi). */
+  async byConnector(workspaceId: string, connectorKey: string): Promise<ConnectionCtx | null> {
+    const db = await this.tenants.get(TenantContexts.system(workspaceId, `integration:${connectorKey}`));
+    const row = await db.integrationConnection.findFirst({ where: { connectorKey, ...IN_USE }, select: { id: true, mode: true, config: true, secretEnc: true } });
+    return row ? connectionCtx(row, this.key) : null;
   }
 }

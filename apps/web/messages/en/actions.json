@@ -769,6 +769,12 @@
     },
     "register_interest": {
       "title": "Register interest in integration"
+    },
+    "form_schema": {
+      "title": "Read platform connection form"
+    },
+    "test": {
+      "title": "Test platform connection"
     }
   },
   "profile_layout": {

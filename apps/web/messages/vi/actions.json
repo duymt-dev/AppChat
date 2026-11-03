@@ -769,6 +769,12 @@
     },
     "register_interest": {
       "title": "Đăng ký quan tâm kết nối"
+    },
+    "form_schema": {
+      "title": "Xem form kết nối nền tảng"
+    },
+    "test": {
+      "title": "Kiểm tra kết nối nền tảng"
     }
   },
   "profile_layout": {
