@@ -10,6 +10,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { kindOf } from './parse';
 import { KbIngestQueue } from './kb.queue';
+import { addPreview, folderPreview, refreshPreview, removePreview, updatePreview } from './previews/kb.handlers.preview';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const uuid = (v: string | undefined | null, field: string) => {
@@ -86,6 +87,10 @@ export class KbAddSourceHandler implements Handler<ActionInput<typeof kbAddSourc
       ...(queue ? { afterCommit: () => queue.push(ctx.workspaceId, [{ id, seq: 1 }]) } : {}),
     };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbAddSource>, tx: TenantTx) {
+    return addPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -111,6 +116,10 @@ export class KbUpdateSourceHandler implements Handler<ActionInput<typeof kbUpdat
     const b = log.before as { id: string; name: string; folder_id: string | null; tags: string[]; visibility: 'public' | 'internal'; starred: boolean };
     await tx.kbSource.updateMany({ where: { id: b.id, deletedAt: null }, data: { name: b.name, folderId: b.folder_id, tags: b.tags, visibility: b.visibility, starred: b.starred } });
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbUpdateSource>, tx: TenantTx) {
+    return updatePreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -130,6 +139,10 @@ export class KbRemoveSourceHandler implements Handler<ActionInput<typeof kbRemov
     // Trong lúc đã xoá, cùng tệp được tải lên lại → khôi phục sẽ trùng unique sha256.
     if (s?.sha256 && (await tx.kbSource.findFirst({ where: { sha256: s.sha256, deletedAt: null, NOT: { id } }, select: { id: true } }))) throw new AppError('CONFLICT', 409, { source_id: 'duplicate' });
     await tx.kbSource.update({ where: { id }, data: { deletedAt: null } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbRemoveSource>, tx: TenantTx) {
+    return removePreview(tx, input);
   }
 }
 
@@ -154,6 +167,10 @@ export class KbRefreshSourceHandler implements Handler<ActionInput<typeof kbRefr
     const queue = this.queue;
     return { result: { queued: ids.length }, after: { ids }, ...(queue && ids.length ? { afterCommit: () => queue.push(ctx.workspaceId, jobs) } : {}) };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbRefreshSource>, tx: TenantTx) {
+    return refreshPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -168,5 +185,9 @@ export class KbFolderCreateHandler implements Handler<ActionInput<typeof kbFolde
     const id = uuidv7();
     await tx.kbFolder.create({ data: { id, name, sort: Math.max(-1, ...all.map((f) => f.sort)) + 1, createdAt: this.clock.now() } });
     return { result: { folder_id: id }, after: { id, name } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbFolderCreate>, tx: TenantTx) {
+    return folderPreview(tx, input);
   }
 }

@@ -16,6 +16,7 @@ import { AiRunner } from '../../ai/runs/runner';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { detectByRules, detectPrompt, parseDetected, type DetectedField } from '../services/detect';
 import { checkDocxFields, checkRich, docxParas, liveTemplate, makeDefault } from '../services/template-store';
+import { updatePreview } from './previews/doc-template.handlers.preview';
 
 const need = <T>(v: T | null | undefined, what: string): T => {
   if (!v) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '028' }, `${what} chưa cấu hình`);
@@ -106,6 +107,10 @@ export class DocTemplateUpdateHandler implements Handler<ActionInput<typeof docT
     }
     // Hoàn tác nội dung = một phiên bản mới mang nội dung cũ (chứng từ đã phát hành giữ bản PDF đóng băng — templates.md §7).
     await tx.docTemplate.update({ where: { id: b.id }, data: { name: b.name, bodyHtml: b.bodyHtml, fieldMap: b.fieldMap, checklistResult: b.checklistResult, version: { increment: 1 } } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateUpdate>, tx: TenantTx) {
+    return updatePreview(tx, this.files, input);
   }
 }
 

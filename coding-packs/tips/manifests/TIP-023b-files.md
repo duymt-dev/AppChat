@@ -338,6 +338,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/ai/assistant/run-trace.read.ts` | GET /assistant/runs/:id/trace cho tools/ai-live (R1.4) |
 | M | `packages/core/src/ai/assistant/types.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/ai/governance/governance.ts` | Domain preview for governance.update |
+| C | `packages/core/src/ai/governance/governance.store.ts` | Governance catalog + DTO + read split from the handler so the preview helper imports it without a cycle |
 | C | `packages/core/src/ai/governance/previews/governance.preview.ts` | Scoped preview helper for packages/core/src/ai/governance/governance.ts |
 | C | `packages/core/src/ai/jobs/ai-domain-handlers.module.ts` | Extracted implementation or targeted evidence |
 | M | `packages/core/src/ai/jobs/ai.jobs.module.ts` | Runtime/contract/wiring |
