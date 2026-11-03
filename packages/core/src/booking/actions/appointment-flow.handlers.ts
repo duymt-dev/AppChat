@@ -13,6 +13,7 @@ import { BookingPlace } from '../services/booking-place';
 import { bookingSetting } from '../services/slots';
 import { lockAppointment, type AppointmentRecord } from '../booking-access';
 import { eventOf, guarded, revertSession, step, timeline, useSession } from '../services/appointment-write';
+import { cancelPreview, checkInPreview, completePreview, confirmPreview, noShowPreview } from './previews/appointment-flow.handlers.preview';
 
 type Out = { appointment_id: string; status: string };
 type Snap = { id: string; status: AppointmentStatusKey; hold: string | null; confirmed_at: string | null; checked_in_at: string | null; done_at: string | null };
@@ -63,6 +64,10 @@ export class AppointmentConfirmHandler extends FlowBase implements Handler<Actio
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
     await restore(tx, log, 'confirmed', this.clock.now());
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentConfirm>, tx: TenantTx) {
+    return confirmPreview(ctx, tx, input, (await this.place.of(ctx.workspaceId)).timeZone);
+  }
 }
 
 @Injectable()
@@ -79,6 +84,10 @@ export class AppointmentCheckInHandler extends FlowBase implements Handler<Actio
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
     await restore(tx, log, 'in_progress', this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentCheckIn>, tx: TenantTx) {
+    return checkInPreview(ctx, tx, input, (await this.place.of(ctx.workspaceId)).timeZone);
   }
 }
 
@@ -109,6 +118,10 @@ export class AppointmentCompleteHandler extends FlowBase implements Handler<Acti
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
     await restore(tx, log, 'done', this.clock.now());
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentComplete>, tx: TenantTx) {
+    return completePreview(ctx, tx, input, (await this.place.of(ctx.workspaceId)).timeZone);
+  }
 }
 
 @Injectable()
@@ -130,6 +143,10 @@ export class AppointmentNoShowHandler extends FlowBase implements Handler<Action
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
     await restore(tx, log, 'no_show', this.clock.now());
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentMarkNoShow>, tx: TenantTx) {
+    return noShowPreview(ctx, tx, input, this.clock.now(), (await this.place.of(ctx.workspaceId)).timeZone);
+  }
 }
 
 @Injectable()
@@ -148,5 +165,9 @@ export class AppointmentCancelHandler extends FlowBase implements Handler<Action
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
     await restore(tx, log, 'cancelled', this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentCancel>, tx: TenantTx) {
+    return cancelPreview(ctx, tx, input, (await this.place.of(ctx.workspaceId)).timeZone);
   }
 }

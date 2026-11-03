@@ -15,6 +15,7 @@ import { BookingPlace } from '../services/booking-place';
 import { UUID, bookingScopeSql, lockAppointment } from '../booking-access';
 import { slotsFor, serviceOf } from '../services/slots';
 import { eventOf, guarded, matchingPackage, step, timeline } from '../services/appointment-write';
+import { createPreview, reschedulePreview } from './previews/appointment-book.handlers.preview';
 
 type CreateIn = ActionInput<typeof appointmentCreate>;
 const actorOf = (ctx: ActionContext) => ({ type: ctx.actor.type, id: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx) });
@@ -148,6 +149,10 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
     if (a.status !== 'pending' && a.status !== 'confirmed') throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });
     await tx.appointment.update({ where: { id }, data: { deletedAt: this.clock.now() } });
   }
+
+  async preview(ctx: ActionContext, input: CreateIn, tx: TenantTx) {
+    return createPreview(ctx, tx, input, this.clock.now(), (await this.place.of(ctx.workspaceId)).timeZone);
+  }
 }
 
 @Injectable()
@@ -202,5 +207,9 @@ export class AppointmentRescheduleHandler implements Handler<ActionInput<typeof 
         data: { staffId: b.staff_id, startAt: new Date(b.start_at), endAt: new Date(b.end_at), blockEndAt: new Date(b.block_end_at), holdExpiresAt: b.hold ? new Date(b.hold) : null, remindersSent: b.reminders, rescheduleCount: { decrement: 1 }, updatedAt: this.clock.now() },
       }),
     );
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentReschedule>, tx: TenantTx) {
+    return reschedulePreview(ctx, tx, input, this.clock.now(), (await this.place.of(ctx.workspaceId)).timeZone);
   }
 }
