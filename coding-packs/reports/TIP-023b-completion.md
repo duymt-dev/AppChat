@@ -24,7 +24,7 @@
   6. Cổng D59 — **pass** (trừ Q-042 dưới).
 - **Chốt TIP:**
   - `pnpm turbo run lint typecheck test build` **49/49** task (unit: core 183 · web 164 · shared 103 · channels 31 · ai 29 · ai-live 26 · integrations 22 · db 18 · worker 7 · api 5 · widget 5 · contract 4 · actions 3 · ui 2).
-  - `pnpm depcheck` 0 error / 40 warning (= baseline) · `lint:size` 2010 file không vượt trần · `lint:tokens` xanh · `i18n:check` 100% (4815 key vi / en).
+  - `pnpm depcheck` 0 error / 40 warning (= baseline) · `lint:size` 2010 file không vượt trần · `lint:tokens` xanh · `lint:masks` 42 mask / 8 PD có căn cứ · `i18n:check` 100% (4815 key vi / en).
   - Integration api: **1154 / 1165** (259 file). 11 đỏ → chạy riêng 7 file sau khi dừng mọi tiến trình phụ của thợ: **61 / 66**; 5 ca còn đỏ đều là phiên Zalo giả bị `expired` / tạm dừng (agent-reply AC4, channels AC8 / AC9, inbox AC6 + quét outbox) — worker `channels` của bộ demo native (ZALO_TRANSPORT=zca) đọc cùng `appchat_platform` và nhận tài khoản giả của test (**Q-042**, có từ trước 023b; bằng chứng cổng cuối lấy ở CI runner sạch — DC-289). 6 ca kia (onboarding, notify, integrations, product.search) là do jobs worker `ai:live` của thợ cùng Redis DB 15 — đã dừng, xanh khi chạy lại; tách DB riêng cho ai:live (**Q-046**).
   - Integration worker: **2 / 2** (`ai-commerce-resume` — tiến trình `dist/main.js` ROLE=ai thật; khởi động lại + job lặp không chạy lần hai; người ra lệnh bị thu hồi → FORBIDDEN).
   - E2E: mock `assistant` + `assistant-vertical` 6 passed; http `assistant` + `assistant-vertical` 2 passed (cổng 4217 / 3518, Redis DB 15, không worker kênh — không đụng demo); **full hồi quy mock 229 passed · 0 failed · 203 skipped**.
@@ -43,7 +43,28 @@
 **GIẢ ĐỊNH ĐÃ CHỌN:** DC-306 … DC-313 (`DECISIONS.md`). **Lệch prototype:** PD-008 (thẻ xem trước có khối "đổi gì" + Sửa). **Lệch spec:** DV-021 (`yaml` cho tools/ai-live), DV-022.
 - Contract FE ↔ BE: assistant (preview / edit / approval) — zod `packages/shared/src/api/assistant.ts` dùng chung, test web + api xanh.
 
-**ĐỐI CHIẾU STANDARDS:** action-registry §4 / §7a / §12 (mô tả + ví dụ, preview mọi action ghi, ma trận theo action) · response-envelope (202 `preview_required` / `approval_required`) · interaction-patterns §4.3 (toast chờ duyệt) · custom-fields §3b / §6 · validation-defaults §3b (preview xoá) · ai/eval (30 ca bất biến, ca bổ sung báo cáo riêng, lỗi hạ tầng không tính pass) · tenant-db / rbac (scope mọi action đọc, mã ngoài scope không lộ) · file-size (không file vượt trần) · i18n (vi + en).
+**ĐỐI CHIẾU STANDARDS** (mục APPLICABLE STANDARDS của TIP; luật máy không kiểm soát tay khi review diff):
+
+| Standard | Tuân thủ (file:dòng / test) | Lệch |
+|---|---|---|
+| `actions/action-registry.md` §1–13 | Mọi ghi qua executor; preview mọi action ghi có handler (`packages/core/test/assistant-coverage.debt.ts:3` rỗng); mô tả có ví dụ / ví dụ sinh từ khuôn (`packages/core/src/ai/assistant/catalog.ts` `exampleInput`); §12 ma trận riêng 220 file `apps/api/test/integration/actions/*.action.test.ts`, ô không áp dụng qua `na()` (`helpers/action-matrix.ts:87`); mục lục `fixtures/action-matrix.ts` | — |
+| `authz/rbac-permissions.md` D32 / D51 | Quyền hiện hành mỗi lần agent gọi tool (`packages/core/src/ai/agents/current-authority.ts:40`); mã ngoài scope không đổi id (`reference-resolver.ts` `lookup` + `visible*`); action đọc giữ permission route (`packages/actions/src/reads/*`) | — |
+| `ai/agent-gateway.md` | Chỉ action có handler thật lộ cho model (`catalog.ts` `findActions(..., implemented)`); tool agent ∩ quyền người ra lệnh (`agent.runtime.ts:85`) | — |
+| `ai/eval.md` | 30 ca bất biến + mix kiểm (`tools/ai-live/src/cases.ts` `loadDefault`); ca bổ sung báo cáo riêng (`--cases`); lỗi mạng / provider = `error`, không pass (`tools/ai-live/src/runner.ts` `INFRA`); an toàn chấm trước (`safety.ts` `judge`) | — |
+| `domain/custom-fields.md` §3b / §6 | `custom-schema.ts:53` `withCustomSchema` (ai = true, theo vai trò); chặn ô không ai trước executor (`aiCustomErrors`); `appointment.update` nhận custom | — |
+| `api/response-envelope.md` | 202 `preview_required` / `approval_required` xử lý cạn (`read-dispatch.ts` `acceptedOutcome` + `never`; `apps/web/src/shared/actions/useAction.ts:2`) | — |
+| `database/tenant-db.md` | Action đọc qua `TenantDbResolver` + `scopeFilter` của màn; không `workspace_id` ở bảng mới | — |
+| `database/indexing.md` | `conversation_group_request_account_idx (channel_account_id, status, created_at, id) INCLUDE (requester_id)` + partial pending (`migrations/20261102002310_assistant_groups/migration.sql:33`); action đọc dùng `list*Ids` + deferred join sẵn có | — |
+| `events/outbox.md` | `conversation.create_group` ghi yêu cầu + outbox cùng transaction (`inbox/actions/conversation-create-group.handler.ts:52`) | — |
+| `domain/concurrency.md` · `state-machine.md` | `appointment.update` khoá dòng + `if_version`, EXCLUDE ở DB (`booking/actions/appointment-update.handler.ts:2`); nhóm Zalo `unknown` không gọi lại (`channels/jobs/create-group.processor.ts:3`) | — |
+| `domain/validation-defaults.md` · `money-time-numbering.md` | Preview xoá có tên + mã + hệ quả; tiền string VND trong output / preview | — |
+| `documents/templates.md` | Không đổi luật commerce; preview chứng từ không render / gửi | — |
+| `channels/omnichannel-adapter.md` · `integrations/provider-ports.md` | `createGroup` sau adapter + capability (`packages/channels/src/zalo-personal/adapter.ts:123`); worker giữ lease | — |
+| `ops/observability-security.md` | Model không nhận bí mật (`read-dispatch.ts:10` SECRET, `safeForModel`); vết ai:live che bí mật, SĐT / email thành dấu vân tay (`run-trace.read.ts:19`) | — |
+| `ui/frontend-structure.md` · `interaction-patterns.md` §4.3 · `prototype-parity.md` · `i18n/i18n.md` | Modal / hook / component tách (`features/assistant/{components,hooks}`); toast chờ duyệt; parity `assistant:card-preview` 0,06%; i18n 100% | PD-008 |
+| `code/file-size-module-layout.md` · `code/testing.md` | `lint:size` 2010 file không vượt trần; test ở file riêng | — |
+| `workflow/git-flow-ci.md` | Nhánh `tip/023b-assistant-coverage` từ `origin/dev`, rebase trước PR, PR vào `dev` | — |
+| Thư viện ngoài stack | `yaml` cho `tools/ai-live` | DV-021 |
 
 **SUGGESTIONS FOR CHỦ THẦU:**
 - TIP-023c: Trợ lý theo màn / Generative UI dùng `readback` + thẻ `changes` đã có.
