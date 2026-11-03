@@ -26,6 +26,8 @@ export interface Matrix {
   undo(logId: string, who?: Who): Promise<Res>;
   /** DB tenant (system) — chỉ để dựng dữ liệu không có action tạo (hội thoại / run từ kênh, pipeline). */
   db(): Promise<TenantDb>;
+  /** Hội thoại web chat dựng ở DB (+ một tin khách vào) — pipeline kênh kiểm ở inbox test. */
+  conv(o?: { title?: string; contactId?: string; assignee?: string; body?: string; channel?: 'webchat' | 'zalo_personal' }): Promise<{ id: string; account: string; message: string }>;
   close(): Promise<void>;
 }
 
@@ -38,6 +40,7 @@ export async function matrix(actionId: string): Promise<Matrix> {
   const h = await startApi();
   const [sales, cs] = [await h.member('sales'), await h.member('cs')];
   let resolver: TenantDbResolver | undefined;
+  const db = () => (resolver ??= new TenantDbResolver({ registry: new PrismaWorkspaceRegistry(h.platform), baseUrl: env.TENANT_DATABASE_URL! })).get(TenantContexts.system(h.ws, 'matrix'));
   const post = (id: string, input: unknown, who?: Who, headers: Record<string, string> = {}) => call(h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...as(who), ...headers }).then(json);
   return {
     h,
@@ -59,7 +62,20 @@ export async function matrix(actionId: string): Promise<Matrix> {
       if (r.status !== 200) throw new Error(`seed ${id} ${r.status} ${JSON.stringify(r.body).slice(0, 300)}`);
       return r.body.data.result;
     },
-    db: () => (resolver ??= new TenantDbResolver({ registry: new PrismaWorkspaceRegistry(h.platform), baseUrl: env.TENANT_DATABASE_URL! })).get(TenantContexts.system(h.ws, 'matrix')),
+    db,
+    async conv(o = {}) {
+      const t = await db();
+      const type = o.channel ?? 'webchat';
+      const account = (await t.channelAccount.findFirst({ where: { type }, select: { id: true } }))?.id ?? uuidv7();
+      await t.channelAccount.upsert({ where: { id: account }, create: { id: account, type, name: type, status: 'connected' }, update: {} });
+      const id = uuidv7();
+      const message = uuidv7();
+      h.clock.advance(1000);
+      const at = h.clock.now();
+      await t.conversation.create({ data: { id, channelAccountId: account, channelType: type, externalThreadId: `t-${id}`, title: o.title ?? 'Khách web', contactId: o.contactId ?? null, assigneeUserId: o.assignee ?? null, unreadCount: 1, lastMessageAt: at } });
+      await t.message.create({ data: { id: message, conversationId: id, channelAccountId: account, direction: 'in', senderType: 'contact', senderId: 'k', kind: 'text', body: o.body ?? 'Chào shop', externalMsgId: uuidv7(), status: 'delivered', createdAt: at } });
+      return { id, account, message };
+    },
     close: async () => {
       await resolver?.close();
       await h.close();

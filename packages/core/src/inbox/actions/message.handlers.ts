@@ -17,6 +17,7 @@ import { recordMentions } from '../services/mentions';
 import { FILE_LINKS } from '../tokens';
 import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
 import { me, updatedEvent } from './kit';
+import * as pv from './previews/message.handlers.preview';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 const SEND_KINDS = new Set(['text', 'image', 'file', 'sticker', 'audio', 'card']);
@@ -47,6 +48,10 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
     @Inject(CHANNEL_REGISTRY) private readonly registry: ChannelRegistry,
     @Optional() @Inject(FILE_LINKS) private readonly links: FileLinks | null,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof messageSend>, tx: TenantTx) {
+    return pv.sendPreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof messageSend>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
@@ -81,6 +86,10 @@ export class MessageForwardHandler implements Handler<ActionInput<typeof message
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof messageForward>, tx: TenantTx) {
+    return pv.forwardPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof messageForward>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string }>> {
     const src = await writableConversation(tx, ctx.authz, input.conversation_id);
     const m = await messageOf(tx, src.id, input.message_id);
@@ -101,6 +110,10 @@ export class MessageForwardHandler implements Handler<ActionInput<typeof message
 export class MessageRecallHandler implements Handler<ActionInput<typeof messageRecall>, { recalled: boolean }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof messageRecall>, tx: TenantTx) {
+    return pv.recallPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof messageRecall>, tx: TenantTx): Promise<HandlerOutcome<{ recalled: boolean }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     const m = await messageOf(tx, c.id, input.message_id);
@@ -115,6 +128,10 @@ export class MessageRecallHandler implements Handler<ActionInput<typeof messageR
 @ActionHandler('message.delete')
 export class MessageDeleteHandler implements Handler<ActionInput<typeof messageDelete>, { deleted: boolean }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof messageDelete>, tx: TenantTx) {
+    return pv.deletePreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof messageDelete>, tx: TenantTx): Promise<HandlerOutcome<{ deleted: boolean }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
@@ -143,6 +160,10 @@ export class MessageReactHandler implements Handler<ActionInput<typeof messageRe
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof messageReact>, tx: TenantTx) {
+    return pv.reactPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof messageReact>, tx: TenantTx): Promise<HandlerOutcome<{ emoji: string | null }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     if (!this.registry.get(c.channelType)?.manifest.capabilities.reactions) throw new AppError('INVALID_STATE', 409, { channel: 'reactions_unsupported' });
@@ -160,6 +181,10 @@ export class MessageReactHandler implements Handler<ActionInput<typeof messageRe
 @Injectable()
 @ActionHandler('message.pin')
 export class MessagePinHandler implements Handler<ActionInput<typeof messagePin>, { pinned: boolean }> {
+  async preview(ctx: ActionContext, input: ActionInput<typeof messagePin>, tx: TenantTx) {
+    return pv.pinPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof messagePin>, tx: TenantTx): Promise<HandlerOutcome<{ pinned: boolean }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     const m = await messageOf(tx, c.id, input.message_id);
@@ -177,6 +202,10 @@ export class NoteAddHandler implements Handler<ActionInput<typeof noteAdd>, { me
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof noteAdd>, tx: TenantTx) {
+    return pv.notePreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof noteAdd>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
