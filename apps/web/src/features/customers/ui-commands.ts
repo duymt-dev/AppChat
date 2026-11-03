@@ -1,4 +1,5 @@
-// UiCommand của Khách hàng (frontend-structure §8): prefill form tạo / sửa, mở drawer 360°, lọc danh sách.
+// UiCommand của Khách hàng (frontend-structure §8): prefill form tạo / sửa, mở drawer 360°, lọc danh sách, tô sáng một khách
+// (`contact:<id>` — màn tự focus dòng nếu đang tải, chưa tải thì mở 360° lấy bản ghi theo scope; không phải mutation).
 'use client';
 import { useCallback } from 'react';
 import type { UiCommand } from '@appchat/actions';
@@ -22,7 +23,13 @@ export function useCustomersUiCommands() {
   const filter = useCallback((cmd: UiCommand) => {
     if (cmd.type === 'filter') useCrmUi.getState().setFilter(cmd.filter as Partial<ContactFilter>);
   }, []);
+  const highlight = useCallback((cmd: UiCommand) => {
+    if (cmd.type !== 'highlight') return;
+    const [entity, id] = cmd.target.split(':');
+    if (entity === 'contact' && id) useCrmUi.getState().set({ highlight: id });
+  }, []);
   useUiCommand('prefill:contact.form', prefill);
+  useUiCommand('highlight', highlight);
   useUiCommand('open:contact', open);
   useUiCommand('filter:contacts', filter);
 }

@@ -82,5 +82,17 @@
     },
     "loadingBlock": "Đang dựng giao diện…",
     "expandMore": "Mở rộng (+{n})"
+  },
+  "screenAi": {
+    "thinking": "Trợ lý đang soạn…",
+    "error": "Chưa gửi được — kiểm tra kết nối rồi thử lại.",
+    "confirmLead": "Em chuẩn bị thực hiện — anh/chị xác nhận giúp em:",
+    "confirm": "Xác nhận",
+    "cancel": "Huỷ",
+    "done": "Đã thực hiện",
+    "cancelled": "Đã huỷ — không thực hiện",
+    "approval": "Đã gửi duyệt — chưa thực hiện",
+    "count": "{n} bản ghi",
+    "openFull": "Mở trong Trợ lý"
   }
 }

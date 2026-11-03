@@ -268,18 +268,17 @@
       "assign": "Reassign by region",
       "upsell": "Upsell ideas for loyal customers"
     },
-    "acts": {
-      "pipeline": "Open Kanban",
-      "churn": "Create win-back campaign",
-      "dedupe": "Open merge table",
-      "assign": "Apply assignment",
-      "upsell": "Create upsell list"
-    },
     "ask": "Ask about customers…",
     "send": "Send",
-    "ack": "Noted: \"{text}\". Analysing 8,420 profiles to suggest the right actions.",
     "full": "Open full AI Assistant →",
-    "close": "Close"
+    "close": "Close",
+    "prompts": {
+      "pipeline": "Analyse the customer pipeline by stage: number of customers, value and conversion between stages.",
+      "churn": "Find customers at risk of churning (inactive for a long time, buying less) and suggest what to do.",
+      "dedupe": "Review duplicate customers (same phone / email) and suggest merges.",
+      "assign": "Suggest reassigning the selected customers by region and staff workload.",
+      "upsell": "Suggest upsell products / services for loyal customers."
+    }
   },
   "peek": {
     "title": "Customer · AI hints",

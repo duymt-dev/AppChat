@@ -82,5 +82,17 @@
     },
     "loadingBlock": "Building the interface…",
     "expandMore": "Expand (+{n})"
+  },
+  "screenAi": {
+    "thinking": "The Assistant is writing…",
+    "error": "Could not send — check your connection and try again.",
+    "confirmLead": "Ready to run — please confirm:",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "done": "Done",
+    "cancelled": "Cancelled — nothing was run",
+    "approval": "Sent for approval — not run yet",
+    "count": "{n} records",
+    "openFull": "Open in Assistant"
   }
 }

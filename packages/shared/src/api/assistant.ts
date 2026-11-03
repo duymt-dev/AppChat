@@ -100,6 +100,7 @@ export type ActionPreviewDto = z.infer<typeof previewSchema>;
 export type AssistantEditDto = z.infer<typeof assistantEditSchema>;
 export type TurnEventDto = z.infer<typeof turnEventSchema>;
 export type AssistantTurnDto = z.infer<typeof assistantTurnSchema>;
+export type AssistantConfirmDto = z.infer<typeof assistantConfirmSchema>;
 export type AssistantHomeDto = z.infer<typeof assistantHomeSchema>;
 export type AssistantSessionDto = z.infer<typeof assistantSessionSchema>;
 export type AssistantMessageDto = z.infer<typeof assistantMessageSchema>;

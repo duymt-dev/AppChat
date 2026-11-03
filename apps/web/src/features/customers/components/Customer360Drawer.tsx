@@ -15,7 +15,7 @@ export function Customer360Drawer() {
   const tabs = useProfileTabs(ui.detail ?? '');
   const active = tabs.some((x) => x.key === tab) ? tab : (tabs[0]?.key ?? 'overview');
   const close = () => {
-    ui.set({ detail: null });
+    ui.set({ detail: null, highlight: null });
     setTab('overview');
   };
 

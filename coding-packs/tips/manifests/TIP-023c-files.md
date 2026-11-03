@@ -292,3 +292,14 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `packages/core/src/ai/assistant/genui/execution-lease.ts` | Fenced request lease and external wait checkpoint |
 | M | `packages/core/src/kernel/actions/tip-owners.ts` | Amend (thi công): `assistant.resume` → TIP chủ `023` cho kiểm tra boot "mọi action có handler hoặc TIP chủ" (test TIP-003 đòi 3 chữ số) |
 | M | `apps/api/test/integration/assistant.test.ts` | Amend (thi công): danh sách tool chế độ Chat có thêm `render` (GenUI chỉ hiển thị; nút ghi vẫn qua xác nhận) |
+| C | `apps/web/e2e/screen-assistant.spec.ts` | Amend (G2): E2E drawer theo màn — cây compact, lọc / tô sáng, xem trước action, "Mở trong Trợ lý" cùng phiên, mobile 390 |
+| C | `apps/web/src/features/assistant/hooks/useOpenThread.ts` | Amend (G2): `/assistant?thread=` nạp lại phiên drawer (không gọi model) — tách khỏi AssistantScreen để giữ orchestrator gọn |
+| C | `apps/web/src/features/customers/hooks/useHighlight.ts` | Amend (G2): highlight REQ-E05b — dòng có trên trang → focus; chưa tải → mở 360° qua API scope |
+| M | `apps/web/src/features/customers/components/Customer360Drawer.tsx` | Amend (G2): đóng drawer bỏ highlight cũ (REQ-E05b) |
+| M | `apps/web/src/features/customers/ui-commands.test.tsx` | Amend (G2): highlight contact / bỏ khi đổi bộ lọc |
+| M | `packages/ui/src/primitives/DataTable.tsx` | Amend (G2): prop `highlightKey` — viền nhấn + cuộn tới + focus bàn phím (primitive dùng chung, không nghiệp vụ) |
+| C | `apps/web/src/shared/api/mock/domains/assistant-sessions.ts` | Amend (G2): mock phiên + `/assistant/sessions/:id/messages` như server |
+| C | `apps/web/src/shared/api/mock/domains/assistant-genui.test.ts` | Amend (G2): cây fixture hợp lệ theo module + mock phiên |
+| M | `apps/web/src/shared/api/mock/domains/assistant-genui.ts` | Amend (G2): cây theo module (route của drawer) |
+| M | `apps/web/src/shared/api/mock/routes.ts` | Amend (G2): đăng ký route phiên mock |
+| M | `fixtures/prototype-parity/customers.json` | Amend (G2): `genui[]` 3 cây compact cho drawer Khách hàng (standard §12) |

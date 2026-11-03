@@ -1,7 +1,21 @@
-// Mock lượt Trợ lý có cây GenUI (TIP-023c G1): câu hỏi khớp `fixtures/.../assistant.json → genui[]` → chữ dẫn + phần `ui` (cây + refs
-// mẫu + intent cho mọi node action — mock coi người xem có quyền; transport mock bắt xem trước khi có intent như server).
+// Mock lượt Trợ lý có cây GenUI (TIP-023c G1/G2): câu hỏi khớp `fixtures/.../<module>.json → genui[]` → chữ dẫn + phần `ui` (cây + refs
+// mẫu + intent cho mọi node action — mock coi người xem có quyền; transport mock bắt xem trước khi có intent như server). Drawer theo màn
+// (`surface: drawer`) tìm cây của module theo route trước, rồi tới cây chung của màn Trợ lý.
 import { walkTree, type GenUiPart, type UiTree } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/assistant.json';
+import customers from '../../../../../../../fixtures/prototype-parity/customers.json';
+
+interface GenUiFixture {
+  re: string;
+  lead: string;
+  tree: unknown;
+  refs: unknown;
+}
+
+/** Cây theo module (route đầu) — mỗi module ≥ 3 cây compact (standard §12). */
+const BY_MODULE: Record<string, readonly GenUiFixture[]> = {
+  customers: customers.genui,
+};
 
 let seq = 0;
 
@@ -14,8 +28,11 @@ function intentsOf(tree: UiTree): Record<string, string> {
   return out;
 }
 
-export function genUiReply(low: string) {
-  const hit = fixture.genui.find((g) => new RegExp(g.re).test(low));
+const moduleOf = (route?: string) => route?.split(/[/?#]/)[1] ?? '';
+
+export function genUiReply(low: string, route?: string) {
+  const pick = (list: readonly GenUiFixture[] | undefined) => list?.find((g) => new RegExp(g.re).test(low));
+  const hit = pick(BY_MODULE[moduleOf(route)]) ?? pick(fixture.genui);
   if (!hit) return null;
   const tree = hit.tree as UiTree;
   const part: GenUiPart = { type: 'ui', tree, run_id: `run_mock_${++seq}`, refs: hit.refs as Record<string, unknown>, intents: intentsOf(tree) };

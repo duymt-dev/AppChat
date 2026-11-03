@@ -20,8 +20,10 @@ interface CrmUiState {
   filterOpen: boolean;
   /** Giá trị Trợ lý điền sẵn cho form tạo / sửa (UiCommand prefill `contact.form`). */
   prefill: Record<string, string> | null;
+  /** Khách Trợ lý tô sáng (UiCommand highlight) — đổi bộ lọc / đóng drawer thì bỏ. */
+  highlight: string | null;
   setFilter: (p: Partial<ContactFilter>) => void;
-  set: (p: Partial<Pick<CrmUiState, 'layout' | 'modal' | 'target' | 'detail' | 'menuFor' | 'tagFor' | 'filterOpen' | 'prefill'>>) => void;
+  set: (p: Partial<Pick<CrmUiState, 'layout' | 'modal' | 'target' | 'detail' | 'menuFor' | 'tagFor' | 'filterOpen' | 'prefill' | 'highlight'>>) => void;
   open: (modal: Exclude<CrmModal, null>, target?: string) => void;
 }
 
@@ -38,8 +40,9 @@ export const useCrmUi = create<CrmUiState>((set) => ({
   tagFor: null,
   filterOpen: false,
   prefill: null,
+  highlight: null,
   setPg: (pg) => set({ pg }),
-  setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 } })),
+  setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 }, highlight: null })),
   set: (p) => set(p),
   open: (modal, target) => set({ modal, target: target ?? null, menuFor: null, tagFor: null, prefill: null }),
 }));

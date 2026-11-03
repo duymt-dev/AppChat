@@ -8,6 +8,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
 import { genUiReply } from './assistant-genui';
+import { recordTurn } from './assistant-sessions';
 
 export type AssistantFixture = typeof fixture;
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
@@ -168,9 +169,9 @@ export const assistantRoutes: Record<string, MockRoute> = {
 };
 
 /** Kịch bản trả lời (omiIntent / omiReply L8340–8366): ý định có action → thẻ xác nhận; còn lại → câu trả lời mẫu. */
-export const scriptReply = (db: MockDb, text: string) => {
+export const scriptReply = (db: MockDb, text: string, route?: string) => {
   const low = text.toLowerCase();
-  const ui = genUiReply(low);
+  const ui = genUiReply(low, route);
   if (ui) return ui;
   const intent = fixture.intents.find((i) => new RegExp(i.re).test(low));
   if (intent) {
@@ -189,7 +190,9 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     const text = String(body.text ?? '').trim();
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
-    return { session_id: session, run_id: null, events: scriptReply(db, text) };
+    const events = scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
+    recordTurn(session, String(body.mode ?? 'chat'), text, events as never);
+    return { session_id: session, run_id: null, events };
   },
   // POST /v1/assistant/preview-edit — Sửa thẻ: chỉ xem trước lại, token cũ mất hiệu lực (REQ-E03b)
   '/assistant/preview-edit': (db, body) => {

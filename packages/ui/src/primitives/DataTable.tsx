@@ -2,7 +2,7 @@
 // < md: thay bảng bằng danh sách thẻ `mobileCard` (frontend-structure §6). Không biết nghiệp vụ, không i18n — nhãn do màn truyền vào.
 // ≥ md (D42): khung bảng lấp phần cao còn lại của màn (`ListPage`), chỉ thân bảng cuộn, header dính; `footer` (Pager) nằm đáy khung.
 'use client';
-import type { Key, ReactNode } from 'react';
+import { useEffect, useRef, type Key, type ReactNode } from 'react';
 import { ConfigProvider, Empty, Grid, Table, type TableColumnsType } from 'antd';
 import { createStyles } from 'antd-style';
 import { color, font, radius, shadow } from '../tokens';
@@ -26,6 +26,8 @@ export interface DataTableProps<T> {
   testId?: string;
   /** Footer trong khung bảng (Pager). */
   footer?: ReactNode;
+  /** Dòng được Trợ lý tô sáng (UiCommand highlight — REQ-E05b): viền nhấn + cuộn tới + focus bàn phím. */
+  highlightKey?: string | null;
 }
 
 const useStyles = createStyles(({ css, responsive }) => ({
@@ -85,6 +87,14 @@ const useStyles = createStyles(({ css, responsive }) => ({
   clickable: css`
     cursor: pointer;
   `,
+  highlight: css`
+    outline: 2px solid ${color.brand};
+    outline-offset: -2px;
+    background: ${color.brandBgSoft};
+    > td {
+      background: ${color.brandBgSoft} !important;
+    }
+  `,
   cards: css`
     display: flex;
     flex-direction: column;
@@ -126,10 +136,19 @@ const TABLE_THEME = {
   },
 } as const;
 
-export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowClick, selection, mobileCard, emptyText, rowProps, testId, footer }: DataTableProps<T>) {
+export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowClick, selection, mobileCard, emptyText, rowProps, testId, footer, highlightKey }: DataTableProps<T>) {
   const { styles, cx } = useStyles();
   const screens = Grid.useBreakpoint();
   const mobile = screens.md === false;
+  const boxRef = useRef<HTMLDivElement>(null);
+  const shown = !!highlightKey && rows.some((r) => rowKey(r) === highlightKey);
+  useEffect(() => {
+    if (!shown || !highlightKey) return;
+    const el = boxRef.current?.querySelector<HTMLElement>(`[data-hl="${CSS.escape(highlightKey)}"]`);
+    el?.scrollIntoView?.({ block: 'nearest' });
+    el?.focus({ preventScroll: true });
+  }, [shown, highlightKey]);
+  const hl = (r: T) => (highlightKey && rowKey(r) === highlightKey ? { 'data-hl': highlightKey, 'data-highlighted': 'true', tabIndex: -1 } : {});
   const empty = (
     <div className={styles.empty} data-testid={testId ? `${testId}-empty` : undefined}>
       <Empty description={emptyText} />
@@ -158,10 +177,10 @@ export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowCl
 
   if (mobile && mobileCard) {
     return (
-      <div className={styles.cards} data-testid={testId}>
+      <div className={styles.cards} data-testid={testId} ref={boxRef}>
         {rows.length
           ? rows.map((r) => (
-              <div key={rowKey(r)} className={styles.card} onClick={() => onRowClick?.(r)} {...rowProps?.(r)}>
+              <div key={rowKey(r)} className={cx(styles.card, highlightKey === rowKey(r) && styles.highlight)} onClick={() => onRowClick?.(r)} {...rowProps?.(r)} {...hl(r)}>
                 {mobileCard(r)}
               </div>
             ))
@@ -172,7 +191,7 @@ export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowCl
   }
 
   return (
-    <div className={styles.box} data-testid={testId}>
+    <div className={styles.box} data-testid={testId} ref={boxRef}>
       <div className={styles.scroll} data-testid={testId ? `${testId}-scroll` : undefined}>
         <ConfigProvider theme={TABLE_THEME}>
           <Table<T>
@@ -184,8 +203,8 @@ export function DataTable<T>({ rows, columns, rowKey, loading, minWidth, onRowCl
           style={minWidth ? { minWidth } : undefined}
           locale={{ emptyText: empty }}
           columns={selection ? [selectColumn, ...columns] : columns}
-          rowClassName={() => cx(onRowClick && styles.clickable)}
-          onRow={(r) => ({ onClick: () => onRowClick?.(r), ...rowProps?.(r) })}
+          rowClassName={(r) => cx(onRowClick && styles.clickable, highlightKey === rowKey(r) && styles.highlight)}
+          onRow={(r) => ({ onClick: () => onRowClick?.(r), ...rowProps?.(r), ...hl(r) })}
           />
         </ConfigProvider>
       </div>

@@ -5,6 +5,7 @@ import { dashboardRoutes } from './domains/dashboard';
 import { inboxRoutes } from './domains/inbox';
 import { customersRoutes } from './domains/customers';
 import { assistantRoutes } from './domains/assistant';
+import { assistantSessionRoutes } from './domains/assistant-sessions';
 import { aiTasksRoutes } from './domains/ai-tasks';
 import { agentsRoutes } from './domains/agents';
 import { productsRoutes } from './domains/products';
@@ -62,6 +63,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...inboxRoutes,
   ...customersRoutes,
   ...assistantRoutes,
+  ...assistantSessionRoutes,
   ...aiTasksRoutes,
   ...agentsRoutes,
   ...productsRoutes,

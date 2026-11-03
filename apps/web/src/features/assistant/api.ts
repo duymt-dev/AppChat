@@ -2,7 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { UiCommand } from '@appchat/actions';
-import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, ConfirmEvent, Run, Tier, TurnContext, TurnEvent } from './types';
+import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, ChatMessage, ConfirmEvent, Run, Tier, TurnContext, TurnEvent } from './types';
 
 export const homeQuery = () =>
   queryOptions({ queryKey: ['assistant', 'home'], queryFn: () => transport.get<AssistantHome>('/assistant/home'), staleTime: Infinity });
@@ -58,3 +58,7 @@ export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>
 
 /** Sửa thẻ xem trước (REQ-E03b): chỉ xem trước lại → thẻ mới (token mới); token cũ mất hiệu lực. */
 export const editPreview = (token: string, input: Record<string, unknown>) => transport.post<{ card: ConfirmEvent }>('/assistant/preview-edit', { confirm_token: token, input });
+
+/** Tin của một phiên (cũ → mới) — "Mở trong Trợ lý" từ drawer nạp lại cùng phiên, không gọi model (TIP-023c G2). */
+export const sessionMessages = (id: string) =>
+  transport.get<{ data: (Omit<ChatMessage, 'target'> & { run_id: string | null })[] }>(`/assistant/sessions/${encodeURIComponent(id)}/messages`);

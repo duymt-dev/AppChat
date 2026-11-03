@@ -268,18 +268,17 @@
       "assign": "Phân công lại theo khu vực",
       "upsell": "Gợi ý upsell cho khách thân thiết"
     },
-    "acts": {
-      "pipeline": "Mở dạng Kanban",
-      "churn": "Tạo chiến dịch win-back",
-      "dedupe": "Mở bảng hợp nhất",
-      "assign": "Áp dụng phân công",
-      "upsell": "Tạo danh sách upsell"
-    },
     "ask": "Hỏi trợ lý về khách hàng…",
     "send": "Gửi",
-    "ack": "Đã ghi nhận: \"{text}\". Mình đang phân tích trên 8.420 hồ sơ và sẽ đề xuất hành động phù hợp.",
     "full": "Mở Trợ lý AI đầy đủ →",
-    "close": "Đóng"
+    "close": "Đóng",
+    "prompts": {
+      "pipeline": "Phân tích pipeline khách hàng theo giai đoạn: số khách, giá trị và tỷ lệ chuyển giữa các giai đoạn.",
+      "churn": "Tìm khách có nguy cơ rời bỏ (lâu không tương tác, giảm mua) và đề xuất việc nên làm.",
+      "dedupe": "Rà soát khách hàng trùng lặp (trùng số điện thoại / email) và đề xuất gộp.",
+      "assign": "Đề xuất phân công lại khách đang chọn theo khu vực và khối lượng việc của nhân viên.",
+      "upsell": "Gợi ý sản phẩm / dịch vụ upsell cho khách thân thiết."
+    }
   },
   "peek": {
     "title": "Khách hàng · AI gợi ý",

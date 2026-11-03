@@ -688,5 +688,267 @@
     "role": "watcher"
    }
   ]
- }
+ },
+ "genui": [
+  {
+   "key": "pipeline",
+   "re": "pipeline|giai đoạn",
+   "lead": "Pipeline khách hàng hiện tại:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "stack",
+     "children": [
+      {
+       "type": "stat_group",
+       "stats": [
+        {
+         "type": "stat",
+         "label": "Đang theo dõi",
+         "value": {
+          "$ref": "step:1.total"
+         },
+         "format": "number"
+        },
+        {
+         "type": "stat",
+         "label": "Giá trị",
+         "value": {
+          "$ref": "step:1.value"
+         },
+         "format": "money"
+        },
+        {
+         "type": "stat",
+         "label": "Tỷ lệ chốt",
+         "value": {
+          "$ref": "step:1.win"
+         },
+         "format": "percent",
+         "tone": "success"
+        }
+       ]
+      },
+      {
+       "type": "chart",
+       "kind": "funnel",
+       "title": "Theo giai đoạn",
+       "data": {
+        "$ref": "step:1.stages"
+       },
+       "x": "stage",
+       "y": "count"
+      },
+      {
+       "type": "button",
+       "label": "Xem dạng Kanban",
+       "on": {
+        "kind": "ui",
+        "command": {
+         "type": "navigate",
+         "route": "/customers?layout=kanban"
+        }
+       }
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "total": 8420,
+     "value": 1286000000,
+     "win": 18.4,
+     "stages": [
+      {
+       "stage": "Tiềm năng",
+       "count": 3120
+      },
+      {
+       "stage": "Quan tâm",
+       "count": 2410
+      },
+      {
+       "stage": "Báo giá",
+       "count": 1280
+      },
+      {
+       "stage": "Chốt",
+       "count": 1610
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": "churn",
+   "re": "rời bỏ|churn|nguy cơ",
+   "lead": "Khách có nguy cơ rời bỏ — em lọc ngay trên bảng:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "stack",
+     "children": [
+      {
+       "type": "stat",
+       "label": "Nguy cơ cao",
+       "value": {
+        "$ref": "step:1.count"
+       },
+       "format": "number",
+       "tone": "danger"
+      },
+      {
+       "type": "list",
+       "items": {
+        "$ref": "step:1.top"
+       },
+       "title_key": "name",
+       "subtitle_key": "reason",
+       "open": {
+        "entity": "contact",
+        "id_key": "id"
+       }
+      },
+      {
+       "type": "button_group",
+       "buttons": [
+        {
+         "type": "button",
+         "label": "Lọc trên bảng",
+         "tone": "brand",
+         "on": {
+          "kind": "ui",
+          "command": {
+           "type": "filter",
+           "table": "contacts",
+           "filter": {
+            "status": "inactive"
+           }
+          }
+         }
+        },
+        {
+         "type": "button",
+         "label": "Tô sáng chị Lan",
+         "on": {
+          "kind": "ui",
+          "command": {
+           "type": "highlight",
+           "target": "contact:ct_lan"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "count": 37,
+     "top": [
+      {
+       "id": "ct_lan",
+       "name": "Nguyễn Thị Lan",
+       "reason": "62 ngày chưa quay lại"
+      },
+      {
+       "id": "kh_1002",
+       "name": "Nguyễn Trung Hiếu",
+       "reason": "Giảm 40% chi tiêu"
+      },
+      {
+       "id": "kh_1003",
+       "name": "Phạm Thị Linh",
+       "reason": "Huỷ 2 lịch gần nhất"
+      },
+      {
+       "id": "kh_1004",
+       "name": "Fowler Ashley",
+       "reason": "Không phản hồi Zalo"
+      },
+      {
+       "id": "kh_1005",
+       "name": "Trần Minh Khoa",
+       "reason": "Gói sắp hết hạn"
+      },
+      {
+       "id": "kh_1006",
+       "name": "Rodriguez J.",
+       "reason": "Đánh giá thấp lần trước"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": "dedupe",
+   "re": "trùng|gộp|dedupe",
+   "lead": "Em tìm thấy các nhóm khách trùng:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "section",
+     "title": "Khách trùng",
+     "children": [
+      {
+       "type": "table",
+       "columns": [
+        {
+         "key": "name",
+         "label": "Khách"
+        },
+        {
+         "key": "match",
+         "label": "Trùng theo"
+        },
+        {
+         "key": "n",
+         "label": "Số hồ sơ",
+         "format": "number"
+        }
+       ],
+       "rows": {
+        "$ref": "step:1.groups"
+       }
+      },
+      {
+       "type": "button",
+       "label": "Gắn thẻ VIP cho chị Lan",
+       "on": {
+        "kind": "action",
+        "action_id": "contact.tag",
+        "input": {
+         "contact_id": "ct_lan",
+         "tag": "VIP",
+         "op": "add"
+        }
+       }
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "groups": [
+      {
+       "name": "Nguyễn Thị Lan",
+       "match": "SĐT",
+       "n": 2
+      },
+      {
+       "name": "Trần Minh Khoa",
+       "match": "Email",
+       "n": 2
+      },
+      {
+       "name": "Phạm Thị Linh",
+       "match": "SĐT",
+       "n": 3
+      }
+     ]
+    }
+   }
+  }
+ ]
 }

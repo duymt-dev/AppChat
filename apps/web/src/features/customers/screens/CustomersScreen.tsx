@@ -15,6 +15,8 @@ import { ContactCard, useContactColumns } from '../columns';
 import { CrmHeaderActions } from '../components/CrmHeaderActions';
 import { CrmToolbar } from '../components/CrmToolbar';
 import { CrmOverlays } from '../components/CrmOverlays';
+import { useAssistantContext } from '../hooks/useAssistantContext';
+import { useHighlight } from '../hooks/useHighlight';
 import { KanbanCard } from '../components/KanbanCard';
 import type { ContactRow, StageKey } from '../types';
 import { useCustomersUiCommands } from '../ui-commands';
@@ -34,7 +36,9 @@ export function CustomersScreen() {
   const setStage = useAction('contact.set_stage');
   const canEdit = useCan('crm.edit');
   const [selected, setSelected] = useState<Key[]>([]);
+  useAssistantContext(selected);
   const rows = list.data?.data ?? [];
+  const highlight = useHighlight(kanban ? [] : rows, kanban ? board.isSuccess : list.isSuccess);
   const aiDo = () => void message.info(t('ai.doing'));
   const columns = useContactColumns(aiDo);
   const cols = board.data?.columns ?? [];
@@ -72,6 +76,7 @@ export function CustomersScreen() {
             selection={{ keys: selected, onChange: setSelected }}
             onRowClick={(r) => ui.set({ detail: r.id })}
             rowProps={(r) => ({ 'data-contact': r.id })}
+            highlightKey={highlight}
             mobileCard={(r) => <ContactCard c={r} />}
             emptyText={t('empty')}
           />

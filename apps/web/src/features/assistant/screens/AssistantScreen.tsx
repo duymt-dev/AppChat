@@ -14,6 +14,7 @@ import { WelcomeView } from '../components/WelcomeView';
 import { ChatThread } from '../components/ChatThread';
 import { ComposerPopovers } from '../components/ComposerPopovers';
 import { useAssistantUiCommands } from '../ui-commands';
+import { useOpenThread } from '../hooks/useOpenThread';
 
 export function AssistantScreen() {
   useAssistantUiCommands();
@@ -23,6 +24,7 @@ export function AssistantScreen() {
   const allowed = useCan('assistant.use');
   const ui = useAssistantUi();
   const chat = useAssistantChat();
+  useOpenThread(allowed);
   // Câu hỏi gửi từ Trợ lý thu nhỏ (`?ask=&from=`): gửi một lần với ngữ cảnh màn gốc, rồi bỏ tham số khỏi URL.
   const params = useSearchParams();
   const router = useRouter();
