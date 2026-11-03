@@ -157,4 +157,15 @@ describe('runner + báo cáo', () => {
     expect(s.passed).toBe(0);
     expect(renderMarkdown(s, xs, '2026-11-03')).toContain('| r-a | 2 | error |');
   });
+
+  it('provider đứt stream (sự kiện error LLM_ERROR) → error hạ tầng, không tính model chọn sai', async () => {
+    const api: Api = {
+      async req(_m, path) {
+        if (path === '/assistant/messages') return { status: 200, body: { data: { session_id: 's', run_id: 'run-2', events: [{ type: 'error', code: 'LLM_ERROR', message: 'x' }] } } };
+        return { status: 200, body: { data: { run_id: 'run-2', prompt: { version: 4, hash: 'h' }, credits: 0, steps: [] } } };
+      },
+    };
+    const [a] = await runSuite(api, suite, { attempts: 1, seed: {}, writes: new Set(), allowed: new Set() });
+    expect(a).toMatchObject({ status: 'error', reasons: ['infra:LLM_ERROR'], run_id: 'run-2' });
+  });
 });

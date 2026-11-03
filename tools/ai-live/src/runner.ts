@@ -33,7 +33,9 @@ export interface RunOptions {
   log?: (line: string) => void;
 }
 
-type Turn = { session_id: string; run_id: string; events: { type: string; action_id?: string; confirm_token?: string; text?: string }[] };
+type Turn = { session_id: string; run_id: string; events: { type: string; action_id?: string; confirm_token?: string; text?: string; code?: string }[] };
+/** Lỗi phía provider / hạ tầng trong lượt (stream đứt, hết credit, timeout) — không phải model chọn sai, ghi `error` riêng. */
+const INFRA = new Set(['LLM_ERROR', 'LLM_TIMEOUT', 'CREDIT_EXHAUSTED', 'PROVIDER_UNAVAILABLE']);
 type Trace = { run_id: string; prompt: { version: number; hash: string }; credits: number; steps: TraceStep[] };
 
 const data = <T>(b: unknown) => (b as { data: T }).data;
@@ -52,6 +54,8 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   const tr = await api.req('GET', `/assistant/runs/${turn.run_id}/trace`);
   if (tr.status !== 200) return { ...base, status: 'error', reasons: [`trace_http_${tr.status}`], run_id: turn.run_id };
   const trace = data<Trace>(tr.body);
+  const infra = turn.events.find((e) => e.type === 'error' && e.code && INFRA.has(e.code));
+  if (infra) return { ...base, status: 'error', reasons: [`infra:${infra.code}`], run_id: turn.run_id };
   // Không xác nhận gì: huỷ mọi thẻ còn treo để run kết thúc sạch.
   for (const e of turn.events) if (e.type === 'confirm' && e.confirm_token) await api.req('POST', '/assistant/confirm', { confirm_token: e.confirm_token, decision: 'cancel' });
   const v = judge(c, { steps: trace.steps, events: turn.events, writes: o.writes, allowed: o.allowed }, o.seed);

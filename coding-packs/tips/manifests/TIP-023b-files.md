@@ -20,6 +20,8 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `tools/scripts/e2e-http.mjs` | Lượt `e2e:http` dùng Redis DB test (DC-310) — không chung hàng đợi / rate-limit với tiến trình demo |
 | C | `coding-packs/reports/ai-live-2026-11-03.md` | Báo cáo `pnpm ai:live` 30 ca (model thật 9router) — AC5 |
 | C | `coding-packs/reports/ai-live-2026-11-03.json` | Bản máy đọc của báo cáo ai:live (attempt / safety / model / prompt hash) |
+| C | `coding-packs/reports/ai-live-assistant-vertical-2026-11-03.md` | Suite bổ sung `--cases fixtures/ai-eval/assistant-vertical.json` (không cổng, báo cáo riêng) |
+| C | `coding-packs/reports/ai-live-assistant-vertical-2026-11-03.json` | Bản máy đọc của suite luồng dọc |
 | M | `apps/api/src/http/inbox/inbox.http.module.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/core/src/ai/assistant/sessions.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/ai/src/gateway/engine.ts` | Canonical paused state and group HTTP registration |
