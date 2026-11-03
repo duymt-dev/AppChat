@@ -44,6 +44,10 @@ export { listSessions, sessionMessages, historyMessages, HISTORY_LIMIT } from '.
 export { listSessionsPage, encodeSessionCursor, decodeSessionCursor } from './assistant/session-list';
 export { EventStore, EVENT_TTL_MS } from './assistant/genui/event-store';
 export { pruneArmedEvents, pruneWorkspaceEvents, EVENTS_ARMED_KEY, PRUNE_BATCH } from './assistant/genui/prune-events';
+export { recoverTurn, recoverArmedTurns, staleTurns, ASSISTANT_ARMED_KEY } from './assistant/genui/recovery';
+export { ExecutionLease, execStateOf } from './assistant/genui/execution-lease';
+export { RequestStore, LEASE_MS } from './assistant/genui/request-store';
+export { RunStream } from './assistant/genui/stream';
 export { listActionLogs, kindOf as logKindOf, LOG_KINDS, LOG_STATUSES, LOG_DAYS, type LogFilter } from './assistant/action-logs.read';
 export { assistantHome } from './assistant/home.read';
 // TIP-035 — Tác vụ tự chủ & chủ động.

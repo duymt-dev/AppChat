@@ -24,6 +24,8 @@ import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
 import { RunStream, type Publisher } from './genui/stream';
 import { EVENTS_ARMED_KEY } from './genui/prune-events';
+import { ExecutionLease, execStateOf } from './genui/execution-lease';
+import { ASSISTANT_ARMED_KEY } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
 import { appendMessage, historyMessages, markCard, openSession, type Part } from './sessions';
@@ -162,12 +164,21 @@ export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnReque
   const store = new RunStore(db, d.now);
   const run = await store.create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier: await tierOf(d, db, q.ws, q.tier), input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
-  const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null);
-  await armEvents(d, q.ws);
-  const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
-  const events = await eventsOf(d, db, run, r, 0, q.locale, session.id, { ws: q.ws, authz: q.authz });
-  await finishStream(live, events, r, session.id);
-  return { session_id: session.id, run_id: run.id, events };
+  // Lượt có request_id: giữ lease có fence trên sổ yêu cầu — mất lease (bị thu hồi) thì không ghi / chốt đè (genui/execution-lease.ts).
+  const lease = q.requestId ? await ExecutionLease.acquire(db, d.now, run.id) : null;
+  if (lease) await Promise.resolve(d.kv.sadd?.(ASSISTANT_ARMED_KEY, q.ws)).catch(() => 0);
+  try {
+    const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null, lease ? () => lease.holds() : null);
+    await armEvents(d, q.ws);
+    const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
+    const events = await eventsOf(d, db, run, r, 0, q.locale, session.id, { ws: q.ws, authz: q.authz });
+    await finishStream(live, events, r, session.id);
+    await lease?.finish(execStateOf(r.status));
+    return { session_id: session.id, run_id: run.id, events };
+  } finally {
+    // Lỗi giữa lượt: dừng gia hạn — lease hết hạn để job thu hồi chốt lượt (không treo spinner).
+    lease?.stop();
+  }
 }
 
 /** Workspace có sự kiện stream → job dọn 24h ghé (không quét mọi tenant). Lỗi Redis không chặn lượt. */

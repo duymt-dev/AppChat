@@ -20,12 +20,15 @@ export class RunStream {
     private readonly runId: string,
     private readonly store: EventStore | null,
     private readonly pub: Publisher | null,
+    /** Fence của lượt (sổ yêu cầu): false → tiến trình đã mất lease, không ghi / phát thêm (TIP-023c "Fenced recovery"). */
+    private readonly guard: (() => Promise<boolean>) | null = null,
   ) {}
 
   private write(e: StreamEvent): Promise<unknown> {
     if (!this.store) return Promise.resolve();
     // Thứ tự ghi = thứ tự phát (seq tăng). Lỗi ghi không làm hỏng lượt (lịch sử tin vẫn là nguồn thật) — chỉ mất replay của sự kiện đó.
     this.chain = this.chain.then(async () => {
+      if (this.guard && !(await this.guard())) return;
       const seq = await this.store!.append(this.runId, e);
       await this.pub?.publish(runChannel(this.runId), JSON.stringify({ seq, event: e }));
     }).catch(() => undefined);
