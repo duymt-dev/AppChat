@@ -184,9 +184,20 @@ export const scriptReply = (db: MockDb, text: string, route?: string) => {
   return [{ type: 'delta' as const, text: reply }];
 };
 
+/** Nháp Hộp thư (REQ-C05c) — như server: chỉ chữ đề xuất, không event / lệnh UI; hội thoại lạ → 404, viết lại cần nháp. */
+const inboxDraft = (db: MockDb, body: Record<string, unknown>) => {
+  const id = String(body.conversation_id ?? '');
+  if (!db.inbox.conversations.some((c) => c.id === id)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: 'conversation', fields: { conversation_id: 'not_found' } });
+  const draft = String(body.draft ?? '').trim();
+  if (body.purpose === 'inbox_rewrite' && !draft) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'draft', fields: { draft: 'required' } });
+  const text = body.purpose === 'inbox_rewrite' ? `Dạ, ${draft.charAt(0).toLowerCase()}${draft.slice(1)} ạ.` : 'Dạ em chào anh/chị, em có thể hỗ trợ gì thêm ạ?';
+  return { purpose: body.purpose, conversation_id: id, base_version: Number(body.base_version ?? 0), proposed_text: text, run_id: `run_draft_${++db.assistant.seq}`, credits_used: 1 };
+};
+
 export const assistantPosts: Record<string, (db: MockDb, body: Record<string, unknown>) => unknown> = {
   // POST /v1/assistant/messages — mock: không stream, trả cả danh sách event của lượt
   '/assistant/messages': (db, body) => {
+    if (body.purpose === 'inbox_compose' || body.purpose === 'inbox_rewrite') return inboxDraft(db, body);
     const text = String(body.text ?? '').trim();
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);

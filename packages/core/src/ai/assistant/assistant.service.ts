@@ -27,6 +27,7 @@ import { sessionMessages } from './sessions';
 import { listSessionsPage } from './session-list';
 import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
 import { waitDone } from './genui/turn-wait';
+import { draftReply, type DraftRequest } from './genui/inbox-draft';
 
 export interface Caller {
   workspaceId: string;
@@ -122,6 +123,14 @@ export class AssistantService {
   private redis(): Redis | null {
     const r = this.kv as Partial<Redis> | null;
     return r && typeof r.duplicate === 'function' ? (r as Redis) : null;
+  }
+
+  /** Soạn / viết lại tin Hộp thư (REQ-C05c): run consult không tool, chỉ trả bản đề xuất — không ghi nghiệp vụ, không qua meta-tools. */
+  async draft(c: Caller, q: Pick<DraftRequest, 'purpose' | 'conversationId' | 'baseVersion' | 'draft' | 'instruction'>) {
+    if (!this.runner) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, 'AI runtime chưa cấu hình');
+    const db = await this.db(c);
+    const p = await this.profile(c);
+    return draftReply(db, this.runner, () => this.clock.now(), { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale });
   }
 
   async confirm(c: Caller, q: Pick<ConfirmRequest, 'token' | 'decision'>) {

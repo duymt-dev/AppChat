@@ -48,6 +48,7 @@ export { recoverTurn, recoverArmedTurns, staleTurns, ASSISTANT_ARMED_KEY } from 
 export { ExecutionLease, execStateOf } from './assistant/genui/execution-lease';
 export { RequestStore, LEASE_MS } from './assistant/genui/request-store';
 export { RunStream } from './assistant/genui/stream';
+export { draftReply, transcript, DRAFT_MAX, type DraftProposal, type DraftPurpose } from './assistant/genui/inbox-draft';
 export { listActionLogs, kindOf as logKindOf, LOG_KINDS, LOG_STATUSES, LOG_DAYS, type LogFilter } from './assistant/action-logs.read';
 export { assistantHome } from './assistant/home.read';
 // TIP-035 — Tác vụ tự chủ & chủ động.

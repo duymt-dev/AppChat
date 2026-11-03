@@ -1,4 +1,4 @@
-// Trợ lý AI (TIP-023, Blueprint §4.4 assistant, §4.5): POST /v1/assistant/messages (lượt — JSON chờ cùng run, hoặc SSE theo Accept) · POST
+// Trợ lý AI (TIP-023, Blueprint §4.4 assistant, §4.5): POST /v1/assistant/messages (lượt — JSON chờ cùng run, hoặc SSE theo Accept; `purpose` inbox_* → bản nháp Hộp thư) · POST
 // /v1/assistant/confirm · POST /v1/assistant/preview-edit (SSE: assistant-stream.controller — GET /assistant/runs/:id/stream) · GET /v1/assistant/home · /assistant/sessions?q= · /assistant/sessions/:id/messages · /assistant/runs/:id/trace · GET /v1/action-logs.
 // Cần `assistant.use` (nhật ký: mọi thành viên — theo quyền: của mình hoặc hết với `audit.view`).
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req, Res } from '@nestjs/common';
@@ -22,6 +22,14 @@ const turnBody = z.object({
   attachments: z.array(z.object({ id: z.string().max(80), name: z.string().max(200) })).max(10).optional(),
   /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */
   request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
+});
+/** Soạn / viết lại tin Hộp thư (REQ-C05c) — cùng endpoint, rẽ theo `purpose` sang cổng chỉ-đề-xuất (không meta-tools). */
+const draftBody = z.object({
+  purpose: z.enum(['inbox_compose', 'inbox_rewrite']),
+  conversation_id: z.string().uuid(),
+  base_version: z.number().int().min(0),
+  draft: z.string().max(8000).default(''),
+  instruction: z.string().trim().max(300).optional(),
 });
 const editBody = z.object({ confirm_token: z.string().min(1).max(200), input: z.record(z.string(), z.unknown()) });
 const confirmBody = z.object({ confirm_token: z.string().min(1).max(200), decision: z.enum(['confirm', 'cancel']), run_id: z.string().optional() });
@@ -48,6 +56,10 @@ export class AssistantController {
   @HttpCode(200)
   async send(@Req() req: IncomingMessage, @Res({ passthrough: true }) res: ServerResponse, @Body() body: unknown) {
     const c = await this.caller(req, 'assistant.use');
+    if (body && typeof body === 'object' && 'purpose' in body) {
+      const d = parseBody(draftBody, body);
+      return { data: await this.svc.draft(c, { purpose: d.purpose, conversationId: d.conversation_id, baseVersion: d.base_version, draft: d.draft, ...(d.instruction ? { instruction: d.instruction } : {}) }) };
+    }
     const b = parseBody(turnBody, body);
     const q = {
       text: b.text,

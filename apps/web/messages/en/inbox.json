@@ -220,7 +220,23 @@
     "fileFailed": "Could not upload {name}",
     "removeFile": "Remove {name}",
     "mention": "Mention a teammate",
-    "mentionNone": "No matching teammate"
+    "mentionNone": "No matching teammate",
+    "aiDraft": {
+      "compose": "AI compose",
+      "rewrite": "AI rewrite",
+      "pending": "AI is drafting…",
+      "cancel": "Cancel",
+      "error": "Could not draft a reply.",
+      "retry": "Retry",
+      "dismiss": "Dismiss",
+      "composed": "AI draft",
+      "rewritten": "AI rewrite",
+      "badge": "draft — not sent",
+      "conflictBadge": "draft changed",
+      "conflict": "You edited the draft while AI was writing — choose replace or insert.",
+      "replace": "Replace draft",
+      "insert": "Insert"
+    }
   },
   "p360": {
     "title": "360° profile",

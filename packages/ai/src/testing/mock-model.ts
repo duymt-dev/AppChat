@@ -139,6 +139,11 @@ export const echoScript: MockScript = ({ lastUser, system, lastTool }) => {
   // Skill dịch (TIP-025 `ai.translate`): tiền tố ngôn ngữ đích + nguyên văn.
   const xl = /^# TRANSLATE[\s\S]*Target: (vi|en)/.exec(system);
   if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };
+  // Nháp Hộp thư (TIP-023c REQ-C05c): không tool — chỉ chữ; viết lại = "Dạ " + nháp, soạn = câu chào theo tin khách cuối.
+  if (/^# (SOẠN NHÁP TIN NHẮN|INBOX MESSAGE DRAFT)/.test(system)) {
+    const draft = /BẢN NHÁP:\n([\s\S]*)$/.exec(lastUser)?.[1]?.trim() ?? '';
+    return { text: /Task: rewrite|Việc: rewrite/.test(system) ? `Dạ, ${draft}` : 'Dạ em chào anh/chị, em có thể hỗ trợ gì ạ?' };
+  }
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);

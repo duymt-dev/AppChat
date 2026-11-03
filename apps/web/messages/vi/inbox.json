@@ -220,7 +220,23 @@
     "fileFailed": "Không tải lên được tệp {name}",
     "removeFile": "Bỏ tệp {name}",
     "mention": "Nhắc thành viên",
-    "mentionNone": "Không có thành viên khớp"
+    "mentionNone": "Không có thành viên khớp",
+    "aiDraft": {
+      "compose": "AI soạn",
+      "rewrite": "AI viết lại",
+      "pending": "AI đang soạn nháp…",
+      "cancel": "Huỷ",
+      "error": "Không soạn được nháp.",
+      "retry": "Thử lại",
+      "dismiss": "Bỏ",
+      "composed": "AI soạn nháp",
+      "rewritten": "AI viết lại nháp",
+      "badge": "nháp — chưa gửi",
+      "conflictBadge": "nháp đã đổi",
+      "conflict": "Bạn đã sửa nháp trong lúc AI soạn — chọn thay hay chèn thêm.",
+      "replace": "Thay nháp",
+      "insert": "Chèn thêm"
+    }
   },
   "p360": {
     "title": "Hồ sơ 360°",

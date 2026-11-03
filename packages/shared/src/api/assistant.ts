@@ -78,6 +78,18 @@ export const assistantMessageSchema = z.object({
   run_id: z.string().nullable(),
 });
 
+/** Bản nháp Hộp thư (TIP-023c REQ-C05c) — `POST /assistant/messages` với `purpose`; chỉ đề xuất chữ, không UI / lệnh / action. */
+export const assistantDraftPurposeSchema = z.enum(['inbox_compose', 'inbox_rewrite']);
+export const assistantDraftSchema = z.object({
+  purpose: assistantDraftPurposeSchema,
+  conversation_id: z.string(),
+  base_version: z.number().int(),
+  proposed_text: z.string().max(8000),
+  run_id: z.string(),
+  credits_used: z.number(),
+});
+export type AssistantDraftDto = z.infer<typeof assistantDraftSchema>;
+
 /** Nhật ký hành động (ActionLogScreen) — `GET /v1/action-logs`. */
 export const actionLogRowSchema = z.object({
   id: z.string(),
