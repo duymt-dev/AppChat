@@ -116,10 +116,10 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 ## 8. Goal hiện tại
 
-**Làm tiếp từ `coding-packs/HANDOFF-NEXT.md`** (trạng thái, việc kế tiếp, câu `/goal` dán sẵn). Tóm tắt: TIP 001–035 xong; đang **viết đủ TIP trước** (DC-233, đảo D57) đo bằng sổ phủ `coding-packs/COVERAGE.md` (công cụ `tools/obligations/`), rồi mới code tiếp từ TIP-023b.
+**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **83 TIP chưa DONE** (023b → … → 046) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
 
-`coding-packs/goals/GOAL-BACKEND.md` — **làm xong backend** (W1 → W9 trong `02-TASK-GRAPH.md`, kể cả TIP bổ sung `0XXb`), nối FE sang `httpTransport`. Từ 023b: TIP viết sẵn, rà CONTEXT với code trước khi làm, chốt TIP cập nhật `COVERAGE.md`; test theo 3 cổng D59 (khi làm · trước commit · chốt TIP).
-
-- Ba sổ của goal: `coding-packs/QUESTIONS.md` (câu hỏi mở + đề xuất, không đứng chờ) · `DECISIONS.md` (tự chốt theo đề xuất, mã DC-xxx) · `DEVIATIONS.md` (lệch spec, mã DV-xxx). Lệch prototype vẫn ở `docs/06-prototype/DEVIATIONS.md`.
-- Tiến độ: bảng cuối `GOAL-BACKEND.md`. LLM qua 9router (D33) — chờ Chủ nhà cấp (Q-001), trước đó dùng mock model.
-- Đã xong: frontend theo prototype bằng mock transport (`goals/GOAL-FE-PROTOTYPE.md`, F0–F7 + ver2.1 D45 + D56).
+- Câu A (viết đủ TIP) đã khép 2026-11-03: sổ phủ `coding-packs/COVERAGE.md` 0 lỗ hổng, mọi câu hỏi chính sách đã duyệt (DC-296…303). Câu hỏi còn mở chỉ là tài nguyên (Q-002 credit OpenAI, Q-004 SePay/Brevo, Q-006 VPS).
+- Mỗi TIP: rà "Rà trước khi làm" với code thật → nhánh `tip/XXX-<slug>` → đúng manifest `tips/manifests/TIP-XXX-files.md` → 3 cổng D59 → commit → `gh pr create --base dev` (`gh` đã đăng nhập) → cập nhật `tools/obligations/parts/*.md` + `merge.py` + bảng tiến độ.
+- Ba sổ: `coding-packs/QUESTIONS.md` (câu hỏi + đề xuất, không đứng chờ) · `DECISIONS.md` (DC-xxx) · `DEVIATIONS.md` (DV-xxx). Lệch prototype ở `docs/06-prototype/DEVIATIONS.md`.
+- LLM chat qua 9router (`LLM_SEED_*`, đã kiểm); embed qua OpenAI (`EMBED_SEED_*`, DC-305). `infra/` viết trước khi có VPS (DC-304), script mặc định `plan`.
+- Lịch sử: TIP 001–035 ở `goals/GOAL-BACKEND.md`; frontend theo prototype ở `goals/GOAL-FE-PROTOTYPE.md`.

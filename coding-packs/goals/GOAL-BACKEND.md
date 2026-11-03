@@ -1,5 +1,7 @@
 # GOAL — Backend đầy đủ (W1 → W9)
 
+> **Đã thay bằng [`GOAL-RELEASE.md`](GOAL-RELEASE.md) từ 2026-11-03.** File này giữ làm lịch sử TIP 001–035 (bảng tiến độ có SHA / nhánh). Không dùng thứ tự hay câu `/goal` dưới đây cho phần còn lại.
+
 > Chốt 2026-10-30 (Chủ nhà: "đặt goal để làm xong luôn backend"). Đọc `CLAUDE.md` và `coding-packs/BUILDER-HANDOFF.md` trước.
 > Frontend đã xong theo prototype bằng mock transport (`goals/GOAL-FE-PROTOTYPE.md`, ver2.1 D45, D56). Goal này dựng backend thật và nối FE sang `httpTransport`.
 
