@@ -547,6 +547,10 @@
     "get": {
       "title": "Xem lịch hẹn",
       "desc": "Đọc một lịch hẹn: khách, dịch vụ, nhân sự, giờ, trạng thái."
+    },
+    "update": {
+      "title": "Sửa lịch hẹn",
+      "desc": "Sửa giờ, dịch vụ, nhân sự, ghi chú, nhắc hẹn hoặc trường tuỳ biến của lịch hẹn còn mở."
     }
   },
   "ticket": {

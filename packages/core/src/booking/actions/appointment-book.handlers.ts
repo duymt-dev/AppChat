@@ -14,19 +14,13 @@ import { CrmMembers, actorUserId, createContact, editableContact, fieldDefs } fr
 import { BookingPlace } from '../services/booking-place';
 import { UUID, bookingScopeSql, lockAppointment } from '../booking-access';
 import { slotsFor, serviceOf } from '../services/slots';
+import { assertSlot } from '../services/appointment-edit';
 import { eventOf, guarded, matchingPackage, step, timeline } from '../services/appointment-write';
 import { createPreview, reschedulePreview } from './previews/appointment-book.handlers.preview';
 
 type CreateIn = ActionInput<typeof appointmentCreate>;
 const actorOf = (ctx: ActionContext) => ({ type: ctx.actor.type, id: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx) });
 const sourceOf = (ctx: ActionContext) => (ctx.actor.type === 'agent' ? 'agent' : ctx.source === 'assistant' ? 'assistant' : 'staff');
-
-/** Slot (giờ bắt đầu + nhân sự) phải nằm trong danh sách trống — ngoài giờ / sai lưới / nhân sự không làm được → CONFLICT. */
-async function assertSlot(tx: TenantTx, q: { serviceId: string; staffId: string; date: string; start: string; excludeId?: string; timeZone: string; now: Date }) {
-  if (!UUID.test(q.staffId) || !(await tx.staff.findFirst({ where: { id: q.staffId, active: true }, select: { id: true } }))) throw new AppError('NOT_FOUND', 404, { staff_id: 'not_found' });
-  const slots = await slotsFor(tx, q);
-  if (!slots.some((s) => s.start === q.start && s.staff_ids.includes(q.staffId))) throw new AppError('CONFLICT', 409, { start: 'slot_taken' });
-}
 
 /** Khách của lịch: id có sẵn (phải sửa được) hoặc tìm / tạo theo số điện thoại + tên. */
 async function contactFor(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: CreateIn, now: Date) {

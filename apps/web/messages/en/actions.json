@@ -547,6 +547,10 @@
     "get": {
       "title": "View appointment",
       "desc": "Read one appointment: customer, service, staff, time, status."
+    },
+    "update": {
+      "title": "Edit appointment",
+      "desc": "Edit time, service, staff, note, reminder or custom fields of an open appointment."
     }
   },
   "ticket": {

@@ -13,6 +13,7 @@ import * as invoices from './invoices';
 import * as payments from './payments';
 import * as booking from './booking';
 import * as bookingConfig from './booking-config';
+import * as bookingUpdate from './booking-update';
 import * as support from './support';
 import * as marketing from './marketing';
 import * as loyalty from './loyalty';
@@ -47,6 +48,7 @@ export * from './invoices';
 export * from './payments';
 export * from './booking';
 export * from './booking-config';
+export * from './booking-update';
 export * from './support';
 export * from './marketing';
 export * from './loyalty';
@@ -84,6 +86,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(payments),
   ...Object.values(booking),
   ...Object.values(bookingConfig),
+  ...Object.values(bookingUpdate),
   ...Object.values(support),
   ...Object.values(marketing),
   ...Object.values(loyalty),
