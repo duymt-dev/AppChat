@@ -1,12 +1,12 @@
 # TIP-031c — Bên giữ tồn chuẩn theo kết nối bán hàng (stock_master appchat / external)
 
 ## HEADER
-- **Parallel-safe with TIP-003c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 003c before031c.
-- **Parallel-safe with TIP-035c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 031c before035c.
 - TIP-ID: TIP-031c; Project: AppChat V2; Module: order sync + catalog stock; Priority: P1; Estimated: M. TIP bổ sung cho TIP-031 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 027b, 012 order-sync port đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-031c-files.md) — 9 paths (2 C). M path tương lai phải do TIP tạo trước tích hợp xong.
 - **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
+- **Parallel-safe with TIP-003c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 003c before031c.
+- **Parallel-safe with TIP-035c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 031c before035c.
 - **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 004b before031c.
 - **Parallel-safe with TIP-013b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 013b before031c.
 - **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 013c before031c.

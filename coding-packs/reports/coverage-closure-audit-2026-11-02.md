@@ -92,3 +92,5 @@ Mọi phát hiện đã sửa trong dữ liệu sinh (`tools/obligations/supplem
 | 25 | 020e | `billed_units` đặt dưới `providerMetadata['openai-compatible']`. |
 
 **Kết luận sau sửa: ĐẠT để chuyển câu B.** Cổng chính sách còn mở (không tự quyết): Q-021, Q-027, Q-028, Q-029, Q-038, Q-039, Q-040, Q-041. TIP chạm các cổng này đã khoá phần phụ thuộc sau cờ tắt hoặc giữ dòng MỘT PHẦN.
+
+**Cập nhật 2026-11-03:** Chủ nhà duyệt cả tám cổng theo đề xuất (DC-296…303). 031b làm Chuyển tiếp ở bốn thanh chọn (`record.forward_list`); 033d bật cọc % và gợi ý theo ngưỡng/no-show; 036/042/042c/020e bỏ trạng thái chờ.

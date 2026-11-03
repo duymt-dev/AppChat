@@ -50,7 +50,7 @@
 - **Parallel-safe with TIP-037:** sequential, shares `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 037. Recheck when incomplete manifests expand.
 - TIP-ID: TIP-042c; Project: AppChat V2; Module: authz data-access across CRM/inbox/sales/booking/support; Priority: P0 security + P1 team; Estimated: XL.
 - Depends on:005/015/016/029–034,042/042b/045b; tích hợp sau015b/020b/023b/023c/030b/032b/036/043 có shared domain; trước044/046.
-- **Gate:** Q-029 phải chốt semantics team nhiều nhóm trước build phần team/backfill. Không tự biến teamUserIds thành OR team_id để “tương thích” nhưng mở rộng quyền. Watcher/read-write có luật D32 rõ, không chờ để nghiên cứu.
+- **Q-029 → DC-299 (Chủ nhà 2026-11-03):** scope team theo `team_id` của từng bản ghi; own/collaborator giữ D32; backfill chỉ từ lineage rõ, mơ hồ để null. Không tự biến teamUserIds thành OR team_id để “tương thích” nhưng mở rộng quyền. Watcher/read-write có luật D32 rõ, không chờ để nghiên cứu.
 - **Dòng COVERAGE nhận:** STD-authz-rbac-5a, STD-authz-rbac-5b, STD-database-tenantdb-9, BP-3.5-e, COM-8b-2, COM-8b-2-write, Q-029. Field-level REQ-A05b-3/STD-authz-rbac-8 ở045b, không nhận trùng một phần mà bỏ sót.
 - **Parallel-safe with:** sequential. Shares crm.prisma with015b/036/042b; contacts.service.ts with032b/036; quote-write.handlers.ts with032b; Blueprint with020b/036/042/042b/043; authz/public.ts + integration/authz.test.ts with042; pipeline.ts + future routing.handlers.ts with042b. Các TIP này đã có khai báo ngược chính xác; chưa mở parallel với TIP manifest chưa đủ.
 - **Files touched:** bảng M/C dưới. M routing.handlers.ts do042b tạo trước, chưa tồn tại lúc lập TIP. Chỉ tài liệu, không cho phép code khi câu A chưa hoàn tất.
@@ -146,7 +146,7 @@
 - domain/custom-fields.md là boundary045b, không tự coi visible_in là quyền dữ liệu ở đây.
 
 ## Rà trước khi làm
-1. Chốt Q-029 và cập nhật bảng truth-table trước sửa predicate/migration. Ghi rõ row team_id null, owner nhiều team, owner đổi team, record có team khác owner, group conversation không contact.
+1. Ghi bảng truth-table theo DC-299 trước sửa predicate/migration. Ghi rõ row team_id null, owner nhiều team, owner đổi team, record có team khác owner, group conversation không contact.
 2. Sau rebase chạy inventory mọi visible*/lock*/scopeSql caller, kể cả read action mới023b và worker ai. Manifest ghi code hiện có; dependency tạo thêm caller thì bổ sung manifest/overlap trước sửa, không sửa rộng không ghi nhận.
 3. Đo file lines; các domain file chỉ thay call/import facade, không nhét generic policy vào từng handler/monolith. Helpers data-access/ chuyên biệt, test riêng.
 4. Kiểm event schema/realtime: không chỉ sửa filter rồi payload vẫn thiếu teamId/contact grant. API socket join và event emit phải dựa policy hiện hành, không tin payload client.
@@ -165,12 +165,12 @@ Chuẩn hoá cùng một policy cho SQL list/count/search, get/detail, action wr
 - Không mở quyền support bằng contact relationship nếu chuẩn không yêu cầu; giữ assignee/created_by semantics ticket hiện có trừ Q-029 team. Ghi bảng module-specific; tránh generic helper vô tình lan quyền CRM vào ticket.
 - Ngoài quyền đọc:404 không payload bản ghi; ghi đã thấy nhưng thiếu write:403 SCOPE_FORBIDDEN; scope none không leak mã/tên khách ở error. API/UI/AI cùng kết quả.
 
-### 2. Team schema và propagation (gate Q-029)
+### 2. Team schema và propagation (DC-299)
 - Thêm nullable teamId vào Quote/Contract/Order/Invoice/Appointment, giữ cột đã có ởContact/Conversation/Ticket. Không thêm workspace_id tenant, không relation Prisma xuyên file. SQL FK trong cùng tenant nếu cần; no FK platform user.
-- **Chưa được tự chốt:** team-based row access hay dynamic member-owned access. Khi Q-029 trả lời, ghi một predicate duy nhất cho scopeSql/inScope/guards; không OR cả hai để tránh migration khó. Không chọn “team đầu tiên” khi owner nhiều team.
+- **DC-299:** team-based row access theo `team_id` bản ghi (không dynamic member-owned). Ghi một predicate duy nhất cho scopeSql/inScope/guards; không OR cả hai để tránh migration khó. Không chọn “team đầu tiên” khi owner nhiều team.
 - Backfill dùng bằng chứng nguồn rõ: invoice từ order, order từ quote/contract khi lineage tồn tại, conversation từ contact nếu phù hợp quyết định; chỉ suy từ owner khi mapping được quyết định cho phép và không mơ hồ. Nếu mơ hồ để null + báo count để xử lý theo policy đã duyệt, không bịa team.
 - New records dùng team-snapshot helper: quote/contract/order/invoice/appointment theo nguồn và owner đúng COMMERCE; contact/inbox/support theo assignment. Manifest bao gồm create, clone/revision, import, pipeline và routing042b, không chỉ một HTTP create.
-- Chuyển phụ trách không sửa owner_user_id lịch sử chứng từ/doanh số. team_id scope không là doanh số. Propagation khi chuyển owner phải theo Q-029, giữ option move hội thoại hiện có; undo CAS không phục hồi team cũ nếu người khác đổi tiếp.
+- Chuyển phụ trách không sửa owner_user_id lịch sử chứng từ/doanh số. team_id scope không là doanh số. Propagation khi chuyển owner phải theo DC-299, giữ option move hội thoại hiện có; undo CAS không phục hồi team cũ nếu người khác đổi tiếp.
 - Nullable additive + feature gate khi schema chưa migrate, không query cột thiếu; code mới một version cũ chạy được theo tenant-db §6. Không sử dụng fallback rộng hơn để che thiếu migration.
 - Index theo list thực: equality team_id trước status/range/sort + id tie-break; partial WHERE team_id IS NOT NULL và deleted_at IS NULL khi bảng có deleted_at. INCLUDE chỉ payload nhỏ/id/owner/contact, không custom JSON. Không duplicate index; mỗi domain ghi EXPLAIN cho own/team/collaborator/watchers.
 - Contact grants query dùng index(user_id,contact_id) INCLUDE(role) nếu chưa covering; EXISTS/ID subquery trước payload, không fetch tất cả record để lọc trong JS; count và pagination cùng scope.
@@ -215,10 +215,10 @@ Chuẩn hoá cùng một policy cho SQL list/count/search, get/detail, action wr
 
 ## Quality Gate: Self-Review
 - Header/manifest/context/tasks8AC/constraints/checklist có đủ.
-- Chưa ready-to-build phần team: Q-029; manifest có1 M từ dependency042b; full batch overlap chưa thể chốt khi TIP khác chưa đủ file. Independent review chưa chạy.
+- Phần team theo DC-299; manifest có1 M từ dependency042b; full batch overlap chưa thể chốt khi TIP khác chưa đủ file. Independent review chưa chạy.
 
 ## ⚠️ BUILDER-CHECKLIST
-- [ ] Q-029 chốt + truth-table được ghi; manifest caller/source/realtime sau dependencies đã rà.
+- [ ] Truth-table DC-299 được ghi; manifest caller/source/realtime sau dependencies đã rà.
 - [ ] AC1–8 test thật, ghi kết quả từng module/action; không suy từ test CRM sang mọi chứng từ.
 - [ ] Không watcher write/none detail bypass; tenant/role isolation, AI mỗi tool quyền hiện tại.
 - [ ] Team backfill/creation/undo không đổi owner doanh số; EXPLAIN/index/late join đúng.

@@ -81,7 +81,7 @@
 
 ## APPLICABLE STANDARDS
 - `standards/ai/rag.md` §6 (rerank khi có route), §10 (đổi model embed → job re-embed, chỉ so cùng `embed_model`), §11 (index); `ai/agent-gateway.md` §0 (mọi lời gọi qua AI SDK, kể cả `rerank`), §5–6 (metering); `ai/eval.md`; `actions/action-registry.md`; `authz/rbac-permissions.md` (`kb.manage`); `database/tenant-db.md`, `indexing.md`; `domain/concurrency.md`; `events/outbox.md`; `ops/observability-security.md`; `ui/*`, `i18n/i18n.md`; `code/testing.md`; D33/D35, DC-251, DC-288.
-- Không đổi luật tiền / quyền / COMMERCE. Không tự tạo đơn giá mới (Q-041).
+- Không đổi luật tiền / quyền / COMMERCE. Không tự tạo đơn giá mới (DC-303).
 
 ## Rà trước khi làm
 1. Xác nhận 019b `metered-embedding.ts`/usage receipts, 023e `config-revision.ts` + pinned candidate, 040 `provider-probe.ts`, 020c writer fences/`source_generation`, 020d citation binding, 015c privacy inventory đã tích hợp thật (đọc mã, không tin trạng thái). Thiếu → dừng, ghi Q, không tạo bản sao.
@@ -107,12 +107,12 @@ Cho kho tri thức đổi model embedding mà không trộn vector khác không 
 6. Route đổi lần nữa khi đang building (A→B→C): generation B `superseded` khi người dùng xác nhận reindex sang C; không trộn. Workspace `suspended/archived` (041): job dừng, giữ cursor, chạy tiếp khi mở lại qua event hiện có.
 7. Lỗi Credit / ngân sách / quyền / unknown usage (019b) → `failed` với lý do riêng, không coi là thành công; lỗi provider xác định → `failed: provider_unavailable`, khe cũ giữ.
 8. Quên / xoá nguồn (015c / 020b): cleanup xoá cả `embedding_b` của nguồn; ghi muộn của lô đã cầm nội dung bị chặn bởi kiểm `source_generation` ở bước 3. Inventory 015c liệt kê khe B + cursor.
-9. Ingest thường tiếp tục charge `source:'kb'` như hiện có; reindex charge cùng nguồn ví `kb` chỉ sau khi người có `kb.manage` xác nhận preview (Q-040 chỉ hỏi Chủ nhà có muốn miễn phí reindex không; đề xuất mặc định: tính như ingest).
+9. Ingest thường tiếp tục charge `source:'kb'` như hiện có; reindex charge cùng nguồn ví `kb` chỉ sau khi người có `kb.manage` xác nhận preview (DC-302: tính như ingest, không miễn phí — Chủ nhà duyệt 2026-11-03).
 
 ### 3. Rerank
 1. `ProviderCapabilities.rerank?: boolean`; `buildModel(purpose='rerank')` → `factory.rerankingModel(id)`; provider không có → lỗi kiểu `RERANK_UNSUPPORTED`, router bỏ candidate. Cấm ép LanguageModel làm reranker.
 2. `compatible-reranker.ts`: `RerankingModelV4` cho `openai_compatible` gọi `POST {base}/rerank` (schema Cohere/Jina: `model, query, documents, top_n`) bằng fetch có timeout; trả `ranking[{index, relevanceScore}]` + `providerMetadata['openai-compatible'].billed_units` (đặt dưới namespace provider theo quy ước AI SDK) nếu có. Không thêm thư viện. Chỉ bật khi spike (Rà 3) xác nhận endpoint.
-3. `metered-rerank.ts`: qua 019b attempt receipts. `RerankResult` không có usage → chỉ dùng `providerMetadata['openai-compatible'].billed_units` provider trả. **Chưa có đơn giá đã duyệt cho đơn vị rerank (Q-041)** → 040 probe từ chối kích hoạt route `rerank`; search giữ RRF với `rerank: 'not_configured'`. Không coi là miễn phí.
+3. `metered-rerank.ts`: qua 019b attempt receipts. `RerankResult` không có usage → chỉ dùng `providerMetadata['openai-compatible'].billed_units` provider trả. **Chưa có đơn giá cho đơn vị rerank (DC-303: chỉ bật khi Chủ nhà cấp provider + giá)** → 040 probe từ chối kích hoạt route `rerank`; search giữ RRF với `rerank: 'not_configured'`. Không coi là miễn phí.
 4. `rerank-stage.ts`: ứng viên = hợp nhất vector top20 + từ khoá top20 khử trùng (≤40) đã qua scope 020c, gửi `content` đã che PII; chỉ chấp nhận `index` trong [0, n) không trùng; sai / thiếu → `rerank: 'invalid_result'`, dùng thứ tự RRF. Timeout 3s → `rerank: 'timeout'`, RRF. Lỗi Credit / ngân sách / quyền → dừng lượt như 019b (không nuốt). Lấy top6 sau rerank. Điểm rerank **không** thay ngưỡng `min_score` (grounded giữ luật rag §7).
 5. Không gọi mạng khi đang giữ transaction tenant hoặc khoá nguồn.
 

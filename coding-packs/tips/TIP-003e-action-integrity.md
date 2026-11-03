@@ -1,12 +1,12 @@
 # TIP-003e — if_version cho mọi entity còn thiếu, bảng chỉ thêm, đính chính hành động đã gửi
 
 ## HEADER
-- **Parallel-safe with TIP-006b (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 006b before003e.
-- **Parallel-safe with TIP-012d (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 003e before012d.
 - TIP-ID: TIP-003e; Project: AppChat V2; Module: kernel + domain concurrency; Priority: P0; Estimated: L. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 032c (quote/contract/order CAS), 015d/015f/025b/026b (contact + profile_layout CAS), 027b (product), 033b (appointment CAS), 034c (ticket bulk/version DTO) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-003e-files.md) — 23 paths (10 C). M path tương lai phải do TIP tạo trước tích hợp xong.
 - **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
+- **Parallel-safe with TIP-006b (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 006b before003e.
+- **Parallel-safe with TIP-012d (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 003e before012d.
 - **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/actions/useAction.ts`; integrate 003e before001c.
 - **Parallel-safe with TIP-003b (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/executor.ts`; integrate 003b before003e.
 - **Parallel-safe with TIP-003c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/executor.ts`; integrate 003c before003e.

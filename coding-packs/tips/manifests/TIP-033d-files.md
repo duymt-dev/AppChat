@@ -10,7 +10,7 @@ M modify, C create. Không wildcard; test file riêng.
 | C | `packages/core/src/sales/orders/services/deposit-suggest.ts` | Gợi ý |
 | C | `packages/shared/src/commerce/split.ts` | splitByPercent |
 | C | `packages/shared/src/commerce/split.test.ts` | Unit |
-| M | `apps/web/src/features/orders/hooks/useOrderForm.ts` | So sánh BigInt; mode % sau cờ |
+| M | `apps/web/src/features/orders/hooks/useOrderForm.ts` | So sánh BigInt; mode % |
 | M | `apps/web/src/shared/api/mock/domains/orders-actions.ts` | Mock deposit mode + set_deposit |
 | M | `packages/core/src/data-transfer/adapters/orders.ts` | Import/export deposit mode |
 | M | `apps/web/src/features/orders/components/OrderFormModal.tsx` | UI cọc |

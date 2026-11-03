@@ -1,6 +1,7 @@
 # TIP-033c — Appointment-to-order suggestions across Calendar, Inbox and Assistant
 
 ## HEADER
+- **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 033c before031b.
 - **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`; integrate 033c before013c.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 033c before003i.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 033c before046.

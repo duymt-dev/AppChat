@@ -1,11 +1,11 @@
 # TIP-012d — Connector storage phát hành (S3-compatible) cho tệp workspace
 
 ## HEADER
-- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 003e before012d.
 - TIP-ID: TIP-012d; Project: AppChat V2; Module: integrations storage; Priority: P1; Estimated: M. TIP bổ sung cho TIP-012 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 045b (adapter S3 platform + file security + `kernel/http/safe-fetch.ts`) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-012d-files.md) — 15 paths (10 C). M path tương lai phải do TIP tạo trước tích hợp xong.
 - **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
+- **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 003e before012d.
 - **Parallel-safe with TIP-003b (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 003b before012d.
 - **Parallel-safe with TIP-006b (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 006b before012d.
 - **Parallel-safe with TIP-012b (coverage-closure manifest):** sequential, shares `packages/integrations/src/registry.ts`; integrate 012b before012d.

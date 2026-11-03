@@ -1,11 +1,11 @@
 # TIP-035c — Vệ sinh kiểm thử & job quét: generator fixture, db:cleanup-test, E2E chập chờn, tập workspace "armed"
 
 ## HEADER
-- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 031c before035c.
 - TIP-ID: TIP-035c; Project: AppChat V2; Module: test tooling + tenant sweeps; Priority: P1; Estimated: M. TIP bổ sung cho TIP-035 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 003c, 006b, 041 (lifecycle), 045b đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-035c-files.md) — 17 paths (4 C). M path tương lai phải do TIP tạo trước tích hợp xong.
 - **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
+- **Parallel-safe with TIP-031c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 031c before035c.
 - **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/sales.jobs.module.ts`; integrate 003g before035c.
 - **Parallel-safe with TIP-012b (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/sales.jobs.module.ts`; integrate 012b before035c.
 - **Parallel-safe with TIP-015d (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/sales.jobs.module.ts`; integrate 015d before035c.

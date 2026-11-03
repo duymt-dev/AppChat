@@ -15,6 +15,11 @@ M modify, C create. Không wildcard; test file riêng.
 | M | `apps/web/src/features/contracts/components/ContractsToolbar.tsx` | Nút thật |
 | M | `apps/web/src/features/quotes/components/QuotesToolbar.tsx` | Nút thật |
 | C | `apps/web/src/shared/list/BulkAssignModal.tsx` | Modal chọn người + kết quả |
+| C | `apps/web/src/shared/list/ForwardListModal.tsx` | Chọn thành viên + ghi chú |
+| M | `apps/web/src/features/customers/components/CrmToolbar.tsx` | Nút Chuyển tiếp |
+| C | `packages/actions/src/record-forward.ts` | record.forward_list |
+| C | `packages/core/src/notify/actions/record-forward.handler.ts` | Thông báo + link lọc |
+| M | `packages/actions/src/index.ts` | Export record.forward_list |
 | M | `apps/web/messages/vi/actions.json` | bulk_assign |
 | M | `apps/web/messages/en/actions.json` | bulk_assign |
 | C | `apps/api/test/integration/commerce-bulk.test.ts` | Integration |

@@ -65,13 +65,13 @@
 - **Parallel-safe with TIP-043:** sequential, shares `packages/actions/src/index.ts` and (where applicable) `packages/core/src/ai/jobs/ai.jobs.module.ts`; TIP-043 integrates after 015b/023b/023c/030b/032b/036 and before 045b.
 - TIP-ID: TIP-036
 - Project: AppChat V2
-- Trạng thái tài liệu: đủ khung để rà; **chưa chốt gate Q-027 và chưa rà độc lập**, không phải lệnh bắt đầu code.
+- Trạng thái tài liệu: đủ khung để rà; **gate Q-027 đã chốt → DC-297 (Chủ nhà 2026-11-03)**; chưa rà độc lập, không phải lệnh bắt đầu code.
 - Module: loyalty; tích hợp orders/payments/CRM/agent theo COMMERCE §7.
 - Priority: P1; REQ-J01–J04, REQ-F02d; D24, D27, D31, D32, D42, D51, DC-186.
 - Depends on: 015, 031, 032, 023b, 023c, 015b, 032b; tích hợp sau 030b để không đụng registry. Không chờ 044 để tự test.
 - Estimated: XL, chia 4 bước commit (schema/ledger → payment/events → API/UI → nghiệm thu); một TIP, không bỏ bước cuối.
 - **Dòng COVERAGE nhận:** REQ-J01, REQ-J02, REQ-J03, REQ-J04, REQ-F02d; COM-4-11, COM-7-1, COM-7-2, COM-7-4, COM-7-5, COM-7-6, COM-7-7; D08c, DC-186; ACT-loyalty.get_member, ACT-loyalty.adjust_points, ACT-loyalty.update_config, ACT-payment.redeem_points; BP-4.4-loyalty; phần loyalty của BP-4.1-d và STD-api-envelope-2b; STD-domain-money-1.5; DEF-031-3, DEF-032-1; PRO-loyalty-read, PRO-loyalty-adjust, PRO-loyalty-config, PRO-loyalty-memberacts, PRO-loyalty-files.
-- Gate bổ sung nhận: Q-027; không coi câu hỏi tiền là nghĩa vụ đã đạt.
+- Gate bổ sung nhận: Q-027 (đã chốt DC-297); dòng chỉ ĐẠT khi AC theo DC-297 pass.
 - **Parallel-safe with:** sequential. Shares `packages/core/src/crm/services/contact360.ts` và `packages/core/src/ai/reply/reply-context.ts` với 015b; `packages/core/src/sales/payments/services/payment-write.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts` với 032b; `packages/actions/src/index.ts` với 023b/023c/030b/045b; `packages/core/src/ai/jobs/ai.jobs.module.ts` với 023b/045b. 023b/023c/030b/015b/032b trước 036, 045b sau 036. Các TIP 037–046 chưa có manifest không được mặc nhiên coi độc lập; rà giao file trước thi công.
 - **Files touched:** danh sách dưới là ranh giới file, C=create, M=modify. Không sửa code trong phiên viết TIP này.
 
@@ -169,7 +169,7 @@
 2. Kiểm đường migration hiện dùng; timestamp trên là tên dự kiến cố định, nếu đã tồn tại phải cập nhật manifest trước code. Không chạy migration vào tenant demo.
 3. Đọc đầy đủ schema invoice/payment/order, payload `order.completed`, `order.cancelled`, refund và undo thực tế. Thêm field optional/định nghĩa action mới trong TIP; không âm thầm thay permission hay enum cũ.
 4. Kiểm các file M/C; file mà TIP trước đã tạo thì đổi C thành M sau khi đọc. Rà intersection với mọi TIP mới phát sinh, serialize shared registry/module/i18n.
-5. **Gate tiền/điểm Q-027:** phải có quyết định được duyệt cho hoàn điểm đã hết hạn, đảo điểm đã tiêu hết, và căn cứ earn khi completed nhưng chưa trả đủ. Không suy diễn từ mock; chưa chốt thì giữ các AC tiền liên quan chưa đạt, không báo DONE.
+5. **Q-027 → DC-297 (đã duyệt):** (a) đảo earn khi điểm đã tiêu hết → bút toán nợ đầy đủ, số dư có thể âm, chặn đổi điểm tới khi dương; (b) trả điểm khi lô gốc hết hạn → giữ hạn gốc; (c) completed chưa thu đủ → earn theo thực thu snapshot lúc completed, không earn lần hai.
 
 ## TASK
 Hoàn thiện một domain loyalty dùng chung cho UI, agent và sự kiện commerce. Tạo sổ điểm atomic/idempotent, nối màn hiện có sang API thật và thay mọi nút giả trong phạm vi; không thay chương trình điểm đã chốt.
@@ -210,7 +210,7 @@ Hoàn thiện một domain loyalty dùng chung cho UI, agent và sự kiện com
 | AC1 | Given tenant mới/cũ, When seed chạy hai lần, Then đúng 1 config và không đổi ledger; 2 tenant cô lập. Migration DB thật + test schema/index. |
 | AC2 | Given base 19.999đ, hạng Vàng, When completed, Then floor(1×1,5)=1 điểm; 20.000đ →3; retry event 10 lần →1 earn; appointment.done không earn. Config hệ số đổi chỉ ảnh hưởng đơn sau. |
 | AC3 | Given order 100.000đ và 1.000 điểm, When đổi 500 điểm, Then thu 50.000đ; 501 bị chặn. Hai invoice/request cùng đơn tổng không vượt 500; thiếu điểm/công nợ thì toàn transaction rollback. |
-| AC4 | Given earn/đổi/undo/refund, When duplicate hoặc out-of-order, Then tổng ledger/cache khớp; undo rồi complete lại không mất/nhân điểm; refund 2 lần một phần không đảo quá earn gốc. Ca Q-027 phải có expected được duyệt trước chạy. |
+| AC4 | Given earn/đổi/undo/refund, When duplicate hoặc out-of-order, Then tổng ledger/cache khớp; undo rồi complete lại không mất/nhân điểm; refund 2 lần một phần không đảo quá earn gốc. Ca Q-027 dùng expected theo DC-297. |
 | AC5 | Given hai lô hạn khác nhau, When redeem/expire cạnh tranh, Then FIFO, không double spend; job Clock qua hạn 12 tháng và đầu quý cập nhật đúng một lần; restart tiếp tục được. |
 | AC6 | Given 5 vai trò và 2 tenant, When GET/action/lookup/file/agent truy cập, Then đúng permission và own/team/all; watcher chỉ đọc; agent không adjust/config; secret/PII ngoài scope không xuất hiện trong preview/error. |
 | AC7 | Given members có đủ ba trang và filter tier/q, When HTTP + mock đọc, Then parse cùng zod/meta.total; count đúng scope; query có EXPLAIN và không N+1. |

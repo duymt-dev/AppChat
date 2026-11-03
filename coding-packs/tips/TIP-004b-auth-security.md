@@ -1,11 +1,11 @@
 # TIP-004b — Bảo mật tài khoản: 2FA TOTP, chính sách mật khẩu, khoá sau N lần sai, làm mới phiên nhiều tab
 
 ## HEADER
-- **Parallel-safe with TIP-011b (coverage-closure manifest):** sequential, shares `coding-packs/docs/06-prototype/DEVIATIONS.md`; integrate 004b before011b.
 - TIP-ID: TIP-004b; Project: AppChat V2; Module: identity security; Priority: P0; Estimated: L. TIP bổ sung cho TIP-004 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 045b (platform audit), 041/042 chung identity; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-004b-files.md) — 27 paths (10 C). M path tương lai phải do TIP tạo trước tích hợp xong.
 - **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
+- **Parallel-safe with TIP-011b (coverage-closure manifest):** sequential, shares `coding-packs/docs/06-prototype/DEVIATIONS.md`; integrate 004b before011b.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/identity/settings.controller.ts`; integrate 003i before004b.
 - **Parallel-safe with TIP-004c (coverage-closure manifest):** sequential, shares `packages/core/src/identity/services/auth.service.ts`; integrate 004b before004c.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 004b before046.

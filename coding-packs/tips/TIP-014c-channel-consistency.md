@@ -1,6 +1,10 @@
 # TIP-014c — Kênh: cảnh báo rủi ro Zalo, SLA theo tài khoản, UI chỉ đọc manifest, tạm ẩn hội thoại đúng mốc
 
 ## HEADER
+- TIP-ID: TIP-014c; Project: AppChat V2; Module: channels + inbox snooze; Priority: P0; Estimated: M. TIP bổ sung cho TIP-014 (đã DONE, không sửa file gốc — DC-233).
+- Depends on: 014b, 022b, 025b, 034b, 042b đã tích hợp; trước 044/045/046.
+- **Files touched:** [exact M/C manifest](manifests/TIP-014c-files.md) — 16 paths (4 C). M path tương lai phải do TIP tạo trước tích hợp xong.
+- **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
 - **Parallel-safe with TIP-015c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015c before014c.
 - **Parallel-safe with TIP-019b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 019b before014c.
 - **Parallel-safe with TIP-023d (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023d before014c.
@@ -14,10 +18,6 @@
 - **Parallel-safe with TIP-038 (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before014c.
 - **Parallel-safe with TIP-038b (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before014c.
 - **Parallel-safe with TIP-040 (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 040 before014c.
-- TIP-ID: TIP-014c; Project: AppChat V2; Module: channels + inbox snooze; Priority: P0; Estimated: M. TIP bổ sung cho TIP-014 (đã DONE, không sửa file gốc — DC-233).
-- Depends on: 014b, 022b, 025b, 034b, 042b đã tích hợp; trước 044/045/046.
-- **Files touched:** [exact M/C manifest](manifests/TIP-014c-files.md) — 16 paths (4 C). M path tương lai phải do TIP tạo trước tích hợp xong.
-- **Parallel-safe with:** tuần tự với mọi TIP chung file (dòng khai hai phía bên dưới, máy kiểm `python -X utf8 tools/obligations/manifests.py --order`).
 - **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/services/accounts.service.ts`; integrate 014c before022d.
 - **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 001b before014c.
 - **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 004b before014c.

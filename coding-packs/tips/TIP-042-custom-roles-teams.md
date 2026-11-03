@@ -68,7 +68,7 @@
 - **Parallel-safe with TIP-042b:** sequential, shares `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `apps/web/src/features/settings/registry.ts`, `apps/web/src/features/settings/screens/SettingsScreen.tsx`, `apps/web/messages/vi/settings.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/en/actions.json`, `tools/parity/parity.manifest.ts`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md`; integrate this TIP before 042b; recheck after incomplete manifests are expanded.
 - TIP-ID: TIP-042; Project: AppChat V2; Module: authz / identity / settings; Priority: P1; Estimated: XL.
 - Depends on: 005, 006, 013, 015; tích hợp sau 023b/023c/030b/032b/015b/036/020b/043/045b vì file chung. Phần sửa consistency hai DB của 045b phải có trước nghiệm thu lifecycle ở đây.
-- **Trạng thái thiết kế:** bản đầy đủ cấu trúc, chưa ready-to-build: Q-028 cần chốt biên quyền tuỳ biến/uỷ quyền; không tự mở rộng quyền. Câu A phải hoàn tất trước code.
+- **Trạng thái thiết kế:** bản đầy đủ cấu trúc; Q-028 đã chốt → DC-298 (Chủ nhà 2026-11-03); không tự mở rộng quyền. Câu A phải hoàn tất trước code.
 - **Dòng COVERAGE nhận:** REQ-A05b-1, REQ-A05b-2, D27b, ACT-role.create, ACT-role.update, ACT-role.delete, ACT-team.create, ACT-team.update, ACT-team.set_members, PRO-settings-teams; bổ sung kiểm BP-3.5-d, Q-028.
 - **Ranh giới:** chia lead chuyển042b; scope bản ghi theo team_id/read-write chuyển042c; field-level serializer vẫn045b. Hai file042b/042c đã có, chưa coi là implementation hoàn tất hoặc independent review pass.
 - **Parallel-safe with:** sequential, shares `packages/actions/src/index.ts` with 015b/020b/023b/023c/030b/032b/036/043/045b; 042 integrates after those TIPs. Also shares `packages/shared/src/api/index.ts`, settings/action locales, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `coding-packs/plans/BLUEPRINT.md` with 020b/043; `packages/shared/src/index.ts` and action locales/Blueprint with 036/043; `tools/parity/parity.manifest.ts` with 043. Bilateral declarations inserted in all nine existing pending TIPs before writing 042. No parallel claim for future or incomplete manifests.
@@ -162,7 +162,7 @@
 - Khi nghiệm thu quyền AI: ai/agent-gateway.md, ai/eval.md; dùng harness 023b, không thêm đường ghi từ LLM.
 
 ## Rà trước khi làm
-1. Chốt Q-028 rồi ghi policy được duyệt vào custom-role-policy; không lấy đề xuất dưới đây làm phê duyệt. Kiểm role-name literals chỉ dùng phân loại template/identity, không thay can(permission).
+1. Ghi policy DC-298 vào custom-role-policy. Kiểm role-name literals chỉ dùng phân loại template/identity, không thay can(permission).
 2. Rà 045b: thao tác platform trước + durable reconciliation có thực sự chạy? Không tuyên bố nested transaction platform/tenant là atomic. Nếu chưa có thì dừng AC lifecycle lỗi hai DB, không viết bypass kernel.
 3. Đối chiếu route /roles và /settings/roles, serializer, mock, MemberDraft và UI badge. Đo dòng file; nếu chạm monolith thì facade 1–2 dòng, module mới chứa logic. Điều chỉnh manifest trước sửa ngoài phạm vi.
 4. Rà authz tại API, socket, AI tool và resume approval sau dependency023b; mọi lần gọi phải resolve quyền hiện tại. Không sửa run để tin snapshot role cũ.
@@ -176,7 +176,7 @@ Mở quản trị vai trò và nhóm P1 trên engine hiện có, nối cả đư
 2. `role.update`: role_key + if_version + name?/permissions?/data_scope?; `role.delete`: role_key + if_version. permission roles.manage; risk config/config/delete; agentGrantable false; invalidates roles/members/me. Chạy Executor, audit before/after, preview đúng policy; không REST write.
 3. Năm role hệ thống giữ ROLE_DEFS nguồn thật DC-024; cấm update/delete và cấm ghi đè key bằng tên Owner. Custom key immutable. Chưa grant quyền thì tập rỗng; không fallback manager khi DB thiếu.
 4. Validate permission theo danh mục đóng; không lặng lọc key sai. Scope chỉ own/team/all/none cho SCOPE_MODULES; không nhận module lạ hoặc thiếu module rồi nới thành all. Data scope team vận hành đầy đủ sau042c.
-5. **Gate Q-028:** đề xuất giữ sáu quyền riêng Owner không grant cho custom role, clone Owner bỏ các quyền này có thông báo; contract.sign/payment.refund_approve chỉ bật rõ theo D35. Bản thực thi phải dùng quyết định được duyệt, không silently clone toàn PERMISSIONS rồi tạo Owner thứ hai. Phần UI uỷ quyền phải chỉ đúng đối tượng/quyền D35, không generic membership.delegations editor.
+5. **Q-028 → DC-298 (đã duyệt):** giữ sáu quyền riêng Owner không grant cho custom role, clone Owner bỏ các quyền này có thông báo; contract.sign/payment.refund_approve chỉ bật rõ theo D35. Người không phải Owner có members.manage không gán được vai trò cao hơn quyền của chính mình; không silently clone toàn PERMISSIONS rồi tạo Owner thứ hai. Phần UI uỷ quyền phải chỉ đúng đối tượng/quyền D35, không generic membership.delegations editor.
 6. Mở rộng role string schema của member.invite/set_role tương thích bốn giá trị cũ và custom:*; kiểm role tồn tại trong đúng tenant ở handler, accept invite và undo. Non-Owner có members.manage không được dùng một custom role đặc quyền để tự nâng quyền hoặc cấp quá quyền được phép gán. Không tin permission/key client gửi.
 7. Xoá mềm role (deletedAt) sau kiểm không có membership active và lời mời chưa hết hạn đang tham chiếu; conflict trả số lượng, không âm thầm đổi tất cả thành sales. Tombstone không được resolve, gán, mời, nhận lời mời hay undo phục hồi ngầm. Việc role bị xoá đua với assignment phải fail-closed và reconcile; không có FK giả xuyên hai DB.
 8. Grant/revoke D35 P1 lưu bằng role tuỳ biến theo Blueprint, không chỉnh ROLE_DEFS manager. Migration/đọc phải xử lý membership.delegations cũ rõ ràng: không mất grant hợp lệ, không để grant cũ sống lại sau revoke/đổi role. Chốt cách chuyển cùng Q-028; không thêm action ghi delegations thô.
@@ -213,7 +213,7 @@ Mở quản trị vai trò và nhóm P1 trên engine hiện có, nối cả đư
 5. **Team:** Given ba thành viên hai team; When set_members/lead rồi đổi membership; Then tập thay atomic, lead invariant, foreign/inactive member422, version conflict409, removed user không còn mở rộng scope. Không tạo quyền chỉ vì lead.
 6. **Revocation:** Given cache nóng trên hai API process và AI worker, event worker bị trì hoãn; When role quyền hoặc team bị thu hồi và commit; Then request/tool kế tiếp đọc revision mới, không chờ TTL60s/event; Redis unavailable vẫn fail-closed hoặc đọc DB. Socket nhận refresh khi event tiếp tục; không thêm quyền do duplicate event.
 7. **API/FE:** Given custom roles + teams; When mở hai endpoint roles rồi CRUD bằng mock và HTTP; Then zod contract xanh, cùng dữ liệu hiệu lực, số lượng đúng, system/custom labels đúng, modal CAS/retry/error hoạt động, desktop/mobile/keyboard pass.
-8. **Delegation + AI:** Given quyết định Q-028 đã chốt, manager trước/sau grant/revoke D35; When HTTP và Trợ lý gọi action ký/hoàn sau preview/approval; Then allow/deny đúng user hiện tại, revoke không bị membership.delegations cũ ghi đè. Agent chỉ có tool_ids không được gọi role/team action agentGrantable=false.
+8. **Delegation + AI:** Given policy DC-298, manager trước/sau grant/revoke D35; When HTTP và Trợ lý gọi action ký/hoàn sau preview/approval; Then allow/deny đúng user hiện tại, revoke không bị membership.delegations cũ ghi đè. Agent chỉ có tool_ids không được gọi role/team action agentGrantable=false.
 9. **Migration/performance:** Given schema trước/sau migration và hai workspace; When deploy/migrate/read/rollback app một version; Then role hệ thống không đổi, custom thiếu role fail-closed, no cross-tenant, EXPLAIN list/revision/membership có index phù hợp, không N+1.
 
 ### Lệnh nghiệm thu (builder chạy thật, lượt lập TIP này chưa chạy)
@@ -226,7 +226,7 @@ Mở quản trị vai trò và nhóm P1 trên engine hiện có, nối cả đư
 - Dán lệnh/output thực và EXPLAIN vào report; không chạy integration trên demo đang dùng chung Redis, dùng tài nguyên cô lập.
 
 ## CONSTRAINTS
-- DO NOT: sửa ROLE_DEFS, chuyển Owner, cho custom role tự cấp Owner-only khi Q-028 chưa chốt; role-name authorization; thêm team.manage; department hierarchy; SQL bypass resolver; cache grants stale; source/client tự nhận system.
+- DO NOT: sửa ROLE_DEFS, chuyển Owner, cho custom role cấp Owner-only (DC-298); role-name authorization; thêm team.manage; department hierarchy; SQL bypass resolver; cache grants stale; source/client tự nhận system.
 - REUSE: ActionExecutor, can, AuthzResolver, ROLE_DEFS, TenantDbResolver, outbox/realtime rules, FormModal/PageStates/useAction, D59.
 - SKIP: lead routing042b, team_id nghiệp vụ + field serializers042c, privacy.erase riêng, hạ tầng045, broad hardening045b. Không vì có Nhóm mà đánh ĐẠT toàn scope.
 - File trần backend600 (tách ở500), frontend400, route120; test riêng, facade cho legacy monolith; không thêm thư viện.
@@ -234,10 +234,10 @@ Mở quản trị vai trò và nhóm P1 trên engine hiện có, nối cả đư
 
 ## Quality Gate: Self-Review
 - Có header, manifest, context code, standards, task/validation/errors,9 AC, checklist và ranh giới tuần tự.
-- Chưa đạt ready-to-build: Q-028; full batch overlap còn chờ manifest các TIP; independent review chưa chạy. Không đánh DONE hoặc ĐẠT vì tài liệu này tồn tại.
+- Q-028 đã chốt (DC-298); full batch overlap còn chờ manifest các TIP; independent review chưa chạy. Không đánh DONE hoặc ĐẠT vì tài liệu này tồn tại.
 
 ## ⚠️ BUILDER-CHECKLIST
-- [ ] Q-028 được trả lời, policy/AC cập nhật; prerequisites và manifest đã rà, không file ngoài scope.
+- [ ] Policy/AC theo DC-298; prerequisites và manifest đã rà, không file ngoài scope.
 - [ ] AC1–9 có kết quả từng ca; lệnh/test output thật, model thật riêng; thiếu tài nguyên ghi rõ.
 - [ ] Role/team mutations chỉ qua Executor; system roles bất biến; Owner duy nhất; API/worker không tin cache cũ.
 - [ ] Tenant isolation, không FK xuyên DB; lỗi commit/retry/reconcile không nâng quyền; EXPLAIN/index đủ.
