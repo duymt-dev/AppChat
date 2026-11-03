@@ -1,6 +1,6 @@
 // Kiểu dữ liệu Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5).
 import type { UiCommand } from '@appchat/actions';
-import type { AiTaskRowDto, AiTasksPayloadDto } from '@appchat/shared';
+import type { ActionPreviewDto, AiTaskRowDto, AiTasksPayloadDto } from '@appchat/shared';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type Mode = 'chat' | 'cowork';
 
@@ -40,7 +40,15 @@ export interface ConfirmEvent {
   title: string;
   desc: string;
   dest: string;
+  /** ActionPreview chuẩn của backend (`changes` trước / sau) — thẻ hiện đổi gì (TIP-023b R2.8). */
+  preview?: ActionPreview;
+  /** Input đã chuẩn hoá (đã bỏ ô bí mật) — form Sửa điền sẵn (REQ-E03b). */
+  input?: Record<string, unknown>;
+  /** Khuôn input lồng nhau — form Sửa giữ kiểu object / array / enum. */
+  schema?: Record<string, unknown>;
 }
+
+export type ActionPreview = ActionPreviewDto;
 
 export type TurnEvent =
   | { type: 'delta'; text: string }
@@ -61,7 +69,8 @@ export interface ChatMessage {
   role: 'user' | 'ai';
   text: string;
   card?: ConfirmEvent;
-  status?: 'pending' | 'done' | 'cancelled';
+  /** `approval`: đã xác nhận nhưng thao tác chuyển sang chờ duyệt — chưa thực hiện. */
+  status?: 'pending' | 'done' | 'cancelled' | 'approval';
   /** Bản ghi vừa tạo khi xác nhận (ui_target của action) — nút "Đã lưu vào …" mở đúng chỗ. */
   target?: UiCommand;
 }

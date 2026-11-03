@@ -69,7 +69,10 @@ export function useAssistantChat() {
     async (m: ChatMessage, decision: 'confirm' | 'cancel') => {
       if (!m.card) return;
       const res = await confirmTurn(m.card.confirm_token, decision);
-      ui.patchMsg(m.id, { status: res.status === 'done' ? 'done' : 'cancelled', ...(res.ui_target ? { target: res.ui_target } : {}) });
+      // Chuyển sang chờ duyệt (governance) ≠ đã xong: thẻ ghi rõ chưa thực hiện, không mở "Đã lưu vào …".
+      const status = res.status === 'done' ? 'done' : res.status === 'approval_required' ? 'approval' : 'cancelled';
+      ui.patchMsg(m.id, { status, ...(res.ui_target ? { target: res.ui_target } : {}) });
+      if (status === 'approval') await qc.invalidateQueries({ queryKey: ['approvals'] });
       show((res.events ?? []).filter((e) => e.type !== 'ui_command'));
       if (res.status === 'done') await qc.invalidateQueries({ queryKey: ['action-logs'] });
       return res;

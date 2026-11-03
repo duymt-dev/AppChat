@@ -293,5 +293,32 @@
     "actions": "Nhật ký hành động",
     "cowork": "Tác vụ tự chủ",
     "approvals": "Chờ duyệt"
+  },
+  "preview": {
+    "edit": "Sửa",
+    "editTitle": "Sửa: {title}",
+    "editHint": "Sửa thông tin rồi bấm Xem trước lại — AppChat chưa thực thi cho tới khi anh/chị bấm Xác nhận trên thẻ mới.",
+    "repreview": "Xem trước lại",
+    "close": "Đóng",
+    "addRow": "+ Thêm dòng",
+    "removeRow": "Bỏ dòng",
+    "failed": "Không xem trước lại được ({code}). Thẻ cũ vẫn giữ nguyên.",
+    "more": "… và {n} thay đổi khác",
+    "count": "{n} bản ghi",
+    "approval": "Đã gửi duyệt — thao tác chưa thực hiện cho tới khi người có quyền duyệt.",
+    "warn": {
+      "uses_credit": "Dùng credit AI",
+      "dry_run": "Chạy thử — không ghi dữ liệu",
+      "invites_customers": "Khách sẽ nhận lời mời vào nhóm",
+      "previous_unknown": "Lần tạo trước chưa rõ kết quả — nhóm cũ có thể đã tồn tại",
+      "needs_approval": "Cần người có quyền duyệt",
+      "goes_live": "Chạy thật ngay sau khi lưu",
+      "reminders_reset": "Nhắc lịch sẽ gửi lại theo giờ mới",
+      "notify_customer": "Khách sẽ nhận thông báo",
+      "new_contact": "Tạo khách hàng mới",
+      "low_stock": "Tồn kho thấp",
+      "negative_stock": "Tồn kho sẽ âm"
+    },
+    "unset": "Không chọn"
   }
 }

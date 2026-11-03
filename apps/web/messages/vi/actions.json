@@ -21,6 +21,7 @@
     }
   },
   "done": "Đã thực hiện: {title}",
+  "approvalSent": "Đã gửi duyệt: {title} — chưa thực hiện cho tới khi được duyệt",
   "previewTitle": "Xác nhận thao tác",
   "business_profile": {
     "update": {

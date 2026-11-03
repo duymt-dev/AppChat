@@ -267,6 +267,8 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `apps/web/src/features/assistant/hooks/useAssistantChat.ts` | Runtime/contract/wiring |
 | C | `apps/web/src/features/assistant/hooks/useEditActionPreview.ts` | Extracted implementation or targeted evidence |
 | M | `apps/web/src/features/assistant/types.ts` | Runtime/contract/wiring |
+| M | `apps/web/src/features/assistant/styles/thread.styles.ts` | Build amendment 2026-11-03: style token của ActionPreviewCard (đổi gì / cảnh báo) — không CSS rời |
+| M | `apps/web/src/features/assistant/styles/approval.styles.ts` | Build amendment 2026-11-03: lỗi từng ô của form Sửa (EditActionPreviewModal dùng chung form style duyệt) |
 | M | `apps/web/src/features/inbox/components/ConvMenu.tsx` | Runtime/contract/wiring |
 | C | `apps/web/src/features/inbox/components/CreateGroupModal.tsx` | Extracted implementation or targeted evidence |
 | C | `apps/web/src/features/inbox/hooks/useCreateGroup.ts` | Extracted implementation or targeted evidence |

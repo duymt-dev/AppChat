@@ -23,7 +23,24 @@ type Approval = AssistantFixture['approvals'][number] & {
   fields: Field[];
 };
 type Intent = AssistantFixture['intents'][number];
-type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled' };
+type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled'; input: Record<string, unknown> };
+
+/** Input mẫu của thẻ theo ý định (form Sửa — REQ-E03b) + khuôn như backend (schema-brief). */
+const INTENT_INPUT: Record<string, { input: Record<string, unknown>; schema: Record<string, unknown> }> = {
+  quote: { input: { contact_id: 'KH-1016', items: [{ name: 'HIFU nâng cơ', qty: 8, unit_price: '1500000', tax_rate: 8 }] }, schema: { contact_id: 'string', items: [{ name: 'string', qty: 'number', unit_price: 'string', 'tax_rate?': 'number' }] } },
+  ticket: { input: { title: 'Khách báo lỗi', priority: 'normal' }, schema: { title: 'string', 'priority?': 'low|normal|high|urgent' } },
+};
+const inputOf = (i: Intent) => structuredClone(INTENT_INPUT[i.key]?.input ?? {});
+
+/** Thẻ xác nhận theo hợp đồng backend: preview chuẩn (`changes`), input đã chuẩn hoá, khuôn cho form Sửa. */
+const cardOf = (token: string, intent: Intent, input: Record<string, unknown>) => ({
+  type: 'confirm' as const,
+  confirm_token: token,
+  ...intent,
+  preview: { summary: intent.desc, risk: 'write', changes: [{ entity: intent.action_id.split('.')[0]!, after: input }] },
+  input,
+  ...(INTENT_INPUT[intent.key] ? { schema: INTENT_INPUT[intent.key]!.schema } : {}),
+});
 
 /** Hàng "Trợ lý AI đang điều phối" ở Cowork (REQ-E14) — nguồn GET /v1/runs?root_run_id=&status=. */
 export interface Run {
@@ -155,8 +172,9 @@ export const scriptReply = (db: MockDb, text: string) => {
   const intent = fixture.intents.find((i) => new RegExp(i.re).test(low));
   if (intent) {
     const token = `cf_${++db.assistant.seq}`;
-    db.assistant.pending.push({ token, intent, status: 'pending' });
-    return [{ type: 'confirm' as const, confirm_token: token, ...intent }];
+    const input = inputOf(intent);
+    db.assistant.pending.push({ token, intent, status: 'pending', input });
+    return [cardOf(token, intent, input)];
   }
   const reply = fixture.replies.find((r) => new RegExp(r.re).test(low))?.text ?? fixture.fallback;
   return [{ type: 'delta' as const, text: reply }];
@@ -169,6 +187,17 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
     return { session_id: session, run_id: null, events: scriptReply(db, text) };
+  },
+  // POST /v1/assistant/preview-edit — Sửa thẻ: chỉ xem trước lại, token cũ mất hiệu lực (REQ-E03b)
+  '/assistant/preview-edit': (db, body) => {
+    const p = db.assistant.pending.find((x) => x.token === body.confirm_token);
+    if (!p || p.status !== 'pending') throw new ApiRequestError(409, { code: 'CONFLICT', message: 'CONFIRM_EXPIRED' });
+    const input = (body.input ?? {}) as Record<string, unknown>;
+    if (p.intent.key === 'ticket' && !String(input.title ?? '').trim()) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'title', fields: { title: 'required' } });
+    p.status = 'cancelled';
+    const token = `cf_${++db.assistant.seq}`;
+    db.assistant.pending.push({ token, intent: p.intent, status: 'pending', input });
+    return { card: cardOf(token, p.intent, input) };
   },
   // POST /v1/assistant/confirm — xác nhận thẻ: chạy action đã preview, ghi nhật ký nguồn assistant
   '/assistant/confirm': (db, body) => {

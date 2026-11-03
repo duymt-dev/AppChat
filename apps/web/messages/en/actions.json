@@ -21,6 +21,7 @@
     }
   },
   "done": "Done: {title}",
+  "approvalSent": "Sent for approval: {title} — nothing runs until it is approved",
   "previewTitle": "Confirm action",
   "business_profile": {
     "update": {

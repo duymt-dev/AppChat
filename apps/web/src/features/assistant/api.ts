@@ -2,7 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { UiCommand } from '@appchat/actions';
-import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, Run, Tier, TurnContext, TurnEvent } from './types';
+import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, ConfirmEvent, Run, Tier, TurnContext, TurnEvent } from './types';
 
 export const homeQuery = () =>
   queryOptions({ queryKey: ['assistant', 'home'], queryFn: () => transport.get<AssistantHome>('/assistant/home'), staleTime: Infinity });
@@ -51,4 +51,7 @@ export const sendTurn = (q: TurnInput) =>
   });
 
 export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>
-  transport.post<{ status: string; action_log_id?: string; ui_target?: UiCommand; events?: TurnEvent[] }>('/assistant/confirm', { confirm_token: token, decision });
+  transport.post<{ status: string; action_log_id?: string; approval_id?: string; ui_target?: UiCommand; events?: TurnEvent[] }>('/assistant/confirm', { confirm_token: token, decision });
+
+/** Sửa thẻ xem trước (REQ-E03b): chỉ xem trước lại → thẻ mới (token mới); token cũ mất hiệu lực. */
+export const editPreview = (token: string, input: Record<string, unknown>) => transport.post<{ card: ConfirmEvent }>('/assistant/preview-edit', { confirm_token: token, input });
