@@ -32,6 +32,7 @@ import { AiModule } from '../ai.module';
 import { KB_EMBEDDER } from '../kb/kb-search.handler';
 import type { KbIngestJob } from '../kb/ingest';
 import { startKbIngestWorker } from './kb-ingest.processor';
+import { startAssistantEventsPrune } from './assistant-events.processor';
 import { WalletService } from '../../billing/public';
 import { TaskPlace } from '../tasks/task-place';
 import { TASK_QUEUE, type TaskQueue } from '../tasks/task.queue';
@@ -42,6 +43,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private resume?: Worker<ResumeJob>;
   private reply?: Worker<ReplyJob>;
   private tasks?: TaskWorkers;
+  private events?: { close(): Promise<void> };
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -70,6 +72,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     const { redis, tenants, files } = this;
     if (!redis || !tenants || !files) return;
     this.kb = startKbIngestWorker(redis, tenants, { files, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
+    // TIP-023c: dọn sổ sự kiện stream Trợ lý quá 24h (chỉ workspace đã đánh dấu).
+    this.events = await startAssistantEventsPrune(redis, tenants, () => this.clock.now(), this.log);
     if (this.executor && this.platform) {
       const deps = { tenants, executor: this.executor, runner: this.runner, kv: redis, log: this.log, now: () => this.clock.now(), commander: (ws: string, u: string) => this.commander(ws, u) };
       this.resume = startAiResumeWorker(redis, deps, this.log);
@@ -107,6 +111,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     await this.resume?.close();
     await this.reply?.close();
     await this.tasks?.close();
+    await this.events?.close();
   }
 }
 

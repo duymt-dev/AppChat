@@ -62,6 +62,8 @@ export class EventStore {
       ORDER BY e.seq`);
     const now = this.now().getTime();
     if (rows.length && rows[0]!.seq !== afterSeq + 1) return 'reset_required';
+    // Trang rỗng: chưa có sự kiện mới HAY cả run đã bị dọn? Sự kiện tại cursor không còn → dọn rồi (client dựng lại từ lịch sử tin).
+    if (!rows.length && afterSeq > 0 && !(await this.db.assistantEvent.findUnique({ where: { runId_seq: { runId, seq: afterSeq } }, select: { id: true } }))) return 'reset_required';
     if (rows.some((r) => r.expires_at.getTime() < now)) return 'reset_required';
     return rows.map((r) => ({ seq: r.seq, event: r.payload }));
   }
