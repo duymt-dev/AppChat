@@ -52,14 +52,16 @@ async function sse(runId: string, token: string, cursor?: string): Promise<{ sta
     signal: AbortSignal.timeout(10_000),
   });
   if (r.status !== 200) return { status: r.status, frames: [] };
-  const text = await r.text();
-  const frames = text
+  return { status: 200, frames: framesOf(await r.text()) };
+}
+
+/** Thân SSE → các frame `data:` (đã kiểm schema). */
+const framesOf = (text: string): StreamFrame[] =>
+  text
     .split('\n\n')
     .map((b) => b.split('\n').find((l) => l.startsWith('data: ')))
     .filter((l): l is string => !!l)
     .map((l) => streamFrameSchema.parse(JSON.parse(l.slice(6))));
-  return { status: 200, frames };
-}
 
 describe('sổ sự kiện + SSE', () => {
   it('lượt ghi sổ (delta … done); SSE replay đủ, kết thúc ở done; cursor nối lại chỉ nhận phần sau', async () => {
@@ -98,6 +100,31 @@ describe('sổ sự kiện + SSE', () => {
     const foreign = signer.sign(r.run_id!, other.id, 1);
     expect((await sse(r.run_id!, await tokenOf(h.user), foreign)).status).toBe(403);
     expect(mine.frames.length).toBeGreaterThan(0);
+  });
+
+  it('POST /assistant/messages + Accept SSE → frame của run tới done; header phiên / run; cùng request_id → cùng run', async () => {
+    const token = await tokenOf(h.user);
+    const rid = `req-${uuidv7()}`;
+    const post = () =>
+      fetch(`${h.base}/v1/assistant/messages`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${token}`, 'x-workspace-id': h.ws, accept: 'text/event-stream', 'content-type': 'application/json' },
+        body: JSON.stringify({ text: 'chào qua luồng', mode: 'chat', request_id: rid }),
+        signal: AbortSignal.timeout(20_000),
+      });
+    const r = await post();
+    expect(r.status).toBe(200);
+    expect(r.headers.get('content-type')).toContain('text/event-stream');
+    const runId = r.headers.get('x-assistant-run')!;
+    expect(r.headers.get('x-assistant-session')).toBeTruthy();
+    const frames = framesOf(await r.text());
+    expect(frames.every((f) => f.run_id === runId)).toBe(true);
+    expect(frames.at(-1)!.event.type).toBe('done');
+    expect(frames.some((f) => f.event.type === 'delta')).toBe(true);
+    const again = await post();
+    expect(again.headers.get('x-assistant-run')).toBe(runId);
+    await again.text();
+    expect(await (await tenant()).aiRun.count({ where: { assistantSessionId: again.headers.get('x-assistant-session')! } })).toBe(1);
   });
 
   it('migration genui_stream: bảng + unique + EXPLAIN replay / phiên dùng index', async () => {

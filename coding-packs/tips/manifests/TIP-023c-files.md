@@ -322,3 +322,8 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | M | `packages/core/src/ai/jobs/ai.jobs.module.ts` | Amend (G2): đăng ký worker `assistant-turn` + prune / recover (1–2 dòng mỗi việc) |
 | M | `packages/core/src/ai/public.ts` | Amend (G2): export recovery / lease / RequestStore / RunStream cho test worker |
 | M | `apps/api/test/integration/setup.ts` | Amend (G2, DC-316): harness API không có worker → `ASSISTANT_DISPATCH=inline` |
+| C | `apps/api/src/http/ai/run-stream.ts` | Amend (G2, đóng DV-006): đường ống SSE dùng chung cho `GET /runs/:id/stream` và `POST /assistant/messages` (Accept SSE) — tách khỏi controller |
+| C | `apps/web/src/shared/assistant/turn-stream.ts` | Amend (G2, đóng DV-006): lượt qua SSE dùng chung (màn Trợ lý / drawer / Dock), nối lại theo cursor, gom frame thành sự kiện |
+| M | `apps/web/src/features/assistant/api.ts` | Amend (G2): bỏ `sendTurn` JSON (lượt đi qua turn-stream) |
+| M | `apps/web/src/features/assistant/types.ts` | Amend (G2): `ChatMessage.live` — bong bóng đang nhận chữ qua luồng |
+

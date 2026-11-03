@@ -35,7 +35,7 @@ export { replyTurn, finishResumedTurn, MAX_TRANSFERS, type ReplyDeps, type TurnO
 export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-context';
 // TIP-023 — Trợ lý AI.
 export { AssistantService, type Caller } from './assistant/assistant.service';
-export { assistantTurn, assistantConfirm, assistantResumeSpec, type AssistantDeps, type TurnRequest, type ConfirmRequest } from './assistant/turn.service';
+export { assistantTurn, assistantConfirm, assistantResumeSpec, prepareTurn, runTurn, replayTurn, TURN_REQUESTED, type AssistantDeps, type TurnRequest, type ConfirmRequest, type PreparedTurn } from './assistant/turn.service';
 export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, SYSTEM_ONLY, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
 export { confirmCard, lookOf } from './assistant/card';
 export { assistantSystem, contextLine, type AssistantContext, type AssistantRunInput } from './assistant/assistant-prompt';

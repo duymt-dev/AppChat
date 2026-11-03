@@ -2,7 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { UiCommand } from '@appchat/actions';
-import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, ChatMessage, ConfirmEvent, Run, Tier, TurnContext, TurnEvent } from './types';
+import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, ChatMessage, ConfirmEvent, Run, TurnEvent } from './types';
 
 export const homeQuery = () =>
   queryOptions({ queryKey: ['assistant', 'home'], queryFn: () => transport.get<AssistantHome>('/assistant/home'), staleTime: Infinity });
@@ -31,26 +31,6 @@ export const runsQuery = (rootRunId: string | null) =>
   queryOptions({
     queryKey: ['runs', rootRunId ?? 'live'],
     queryFn: () => transport.get<{ data: Run[] }>('/runs', rootRunId ? { root_run_id: rootRunId } : { status: 'live' }),
-  });
-
-export interface TurnInput {
-  text: string;
-  mode: string;
-  sessionId?: string;
-  tier?: Tier;
-  context?: TurnContext;
-  /** Khoá idempotent của lượt (TIP-023c) — gửi lại do mạng → cùng run, không gọi model lần hai. */
-  requestId?: string;
-}
-
-export const sendTurn = (q: TurnInput) =>
-  transport.post<{ session_id: string; run_id?: string | null; events: TurnEvent[] }>('/assistant/messages', {
-    text: q.text,
-    mode: q.mode,
-    session_id: q.sessionId,
-    tier: q.tier,
-    context: q.context,
-    ...(q.requestId ? { request_id: q.requestId } : {}),
   });
 
 export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>

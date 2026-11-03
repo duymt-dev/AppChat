@@ -1,5 +1,7 @@
 // Transport chung cho mọi màn (GOAL-FE-PROTOTYPE §Kiến trúc mock). Đổi mock ↔ http bằng NEXT_PUBLIC_API_MODE.
 import type { ActionAccepted, ActionResult } from '@appchat/actions';
+import type { StreamFrame } from '@appchat/shared';
+import type { StreamOutcome } from './sse-client';
 
 export type QueryParams = Record<string, string | number | boolean | undefined | null>;
 
@@ -29,6 +31,11 @@ export interface Transport {
   upload(file: File, purpose: string): Promise<UploadedFile>;
   /** GET /v1/<path> trả tệp nhị phân (PDF xem trước — TIP-028). Mock: tệp nhỏ dựng tại chỗ. */
   blob(path: string): Promise<Blob>;
+  /**
+   * Luồng SSE (TIP-023c, `Accept: text/event-stream`): POST khi có `body` (lượt Trợ lý), GET khi không (nối lại theo cursor). Frame theo
+   * thứ tự seq → `onFrame`. Mock: phát lại sự kiện của lượt kịch bản thành frame (không có server).
+   */
+  stream(path: string, body: unknown, onFrame: (f: StreamFrame) => void, signal?: AbortSignal): Promise<StreamOutcome>;
 }
 
 export interface UploadedFile {

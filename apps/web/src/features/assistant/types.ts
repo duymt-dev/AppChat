@@ -79,6 +79,8 @@ export interface ChatMessage {
   target?: UiCommand;
   /** Cây GenUI của lượt (TIP-023c) — chỉ cây + refs đã lọc + intent; ô bí mật không bao giờ nằm ở đây. */
   ui?: GenUiPart;
+  /** Bong bóng đang nhận chữ qua luồng (SSE) — gỡ khi lượt xong, thay bằng tin chuẩn. */
+  live?: boolean;
 }
 
 /** Tác vụ tự chủ + màn Coworks — cùng shape `GET /v1/ai-tasks` (packages/shared/src/api/ai-tasks.ts, TIP-035). */

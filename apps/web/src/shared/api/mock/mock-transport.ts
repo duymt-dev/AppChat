@@ -1,6 +1,6 @@
 // Mock transport: đúng envelope Blueprint §4.1 + mock ActionExecutor áp policy nguồn `ui` (Blueprint §3.3).
 import { getAction } from '@appchat/actions';
-import { ApiRequestError, can, ROLE_DEFS, type PermissionKey } from '@appchat/shared';
+import { ApiRequestError, can, ROLE_DEFS, type PermissionKey, type StreamFrame } from '@appchat/shared';
 import type { Transport } from '../transport';
 import { mockHandlers } from './handlers';
 import { mockRoutes } from './routes';
@@ -180,5 +180,14 @@ export const mockTransport: Transport = {
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path);
     if (html === null) return fail(404, 'NOT_FOUND', path);
     return new Blob([html], { type: 'text/html' });
+  },
+
+  async stream(path, body, onFrame) {
+    // Mock không có SSE: lượt kịch bản trả cả danh sách event → phát thành frame theo thứ tự rồi `done` (cùng hợp đồng http).
+    const turn = (await mockTransport.post<{ session_id: string; run_id: string | null; events: StreamFrame['event'][] }>(path, body)) ?? { session_id: '', run_id: null, events: [] };
+    const run = turn.run_id ?? nextId('run');
+    const events: StreamFrame['event'][] = [...turn.events, { type: 'done', status: 'completed', session_id: turn.session_id }];
+    events.forEach((event, i) => onFrame({ run_id: run, seq: i + 1, cursor: `mock-${i + 1}`, event }));
+    return { finished: true, cursor: `mock-${events.length}` };
   },
 };

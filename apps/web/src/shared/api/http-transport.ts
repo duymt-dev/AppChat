@@ -3,6 +3,7 @@
 // rồi gọi lại. `X-Workspace-Id` = workspace đang dùng (GET /session → workspace_id; đổi bằng workspace.switch).
 import { ApiRequestError, type ErrorEnvelope } from '@appchat/shared';
 import type { Transport } from './transport';
+import { readSse } from './sse-client';
 
 const BASE = '/api/v1';
 /** Lệnh trả access token mới (đăng nhập / xác thực / làm mới). */
@@ -127,5 +128,10 @@ export const httpTransport: Transport = {
     const res = await send(path, { extra: { accept: '*/*' } });
     if (!res.ok) await parse(res);
     return res.blob();
+  },
+  async stream(path, body, onFrame, signal) {
+    const res = await send(path, { method: body === undefined ? 'GET' : 'POST', body: body === undefined ? undefined : JSON.stringify(body), extra: { accept: 'text/event-stream' }, signal });
+    if (!res.ok || !res.body) await parse(res);
+    return readSse(res.body!, onFrame, signal);
   },
 };

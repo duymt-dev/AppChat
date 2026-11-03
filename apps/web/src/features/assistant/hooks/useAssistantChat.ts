@@ -1,12 +1,13 @@
-// Gửi lượt chat + xác nhận thẻ (Blueprint §4.5). Lượt trả JSON một lần `{ session_id, run_id, events }` (DV-006): chữ / thẻ xác nhận /
-// lỗi → bong bóng; `ui_command` → UI Command Bus (không có handler → điều hướng). Gửi kèm màn đang mở (`context`) + mức AI.
+// Gửi lượt chat + xác nhận thẻ (Blueprint §4.5). Lượt đọc qua SSE (useAssistantStream — chữ hiện dần, đóng DV-006), xong thì
+// `{ session_id, run_id, events }`: chữ / thẻ xác nhận / lỗi → bong bóng; `ui_command` → UI Command Bus (không có handler → điều hướng). Gửi kèm màn đang mở (`context`) + mức AI.
 'use client';
 import { useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { UiCommand } from '@appchat/actions';
 import { dispatchUiCommand } from '@/shared/assistant/ui-command-bus';
-import { confirmTurn, sendTurn } from '../api';
+import { confirmTurn } from '../api';
+import { useAssistantStream } from './useAssistantStream';
 import { useAssistantUi } from '../assistant-store';
 import type { ChatMessage, TurnEvent } from '../types';
 
@@ -24,6 +25,7 @@ export function useAssistantChat() {
   const router = useRouter();
   const pathname = usePathname();
   const ui = useAssistantUi();
+  const stream = useAssistantStream();
 
   const runUi = useCallback(
     (cmd: UiCommand) => {
@@ -55,7 +57,7 @@ export function useAssistantChat() {
       push({ id: mid(), role: 'user', text });
       set({ draft: '', typing: true, pop: null });
       try {
-        const [turn] = await Promise.all([sendTurn({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId: `req-${crypto.randomUUID()}` }), new Promise((r) => setTimeout(r, TYPING_MS))]);
+        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId: `req-${crypto.randomUUID()}` }), new Promise((r) => setTimeout(r, TYPING_MS))]);
         show(turn.events);
         useAssistantUi.getState().set({ sessionId: turn.session_id, ...(mode === 'cowork' && turn.run_id ? { lastRunId: turn.run_id } : {}) });
         if (mode === 'cowork') await qc.invalidateQueries({ queryKey: ['runs'] });
@@ -63,7 +65,7 @@ export function useAssistantChat() {
         useAssistantUi.getState().set({ typing: false });
       }
     },
-    [pathname, qc, show],
+    [pathname, qc, show, stream],
   );
 
   const decide = useCallback(

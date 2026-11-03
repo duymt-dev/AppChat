@@ -7,7 +7,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'zustand';
 import type { ConfirmEventDto, GenUiPart, TurnEventDto, UiCommand } from '@appchat/shared';
-import { postConfirm, postTurn, type AssistantMode } from './assistant-client';
+import { postConfirm, type AssistantMode } from './assistant-client';
+import { streamTurn } from './turn-stream';
 import { currentScreen, toTurnContext } from './screen-context';
 import { dispatchUiCommand } from './ui-command-bus';
 import { useMe } from '../shell/useShellData';
@@ -99,7 +100,8 @@ export function useScreenAssistant(module: string, mode: AssistantMode = 'cowork
       const t = useScreenThreads.getState().threads[module] ?? EMPTY;
       patch(module, (cur) => ({ msgs: [...cur.msgs, { id: mid(), role: 'user', text }], typing: true }));
       try {
-        const turn = await postTurn({ text, mode, sessionId: t.sessionId, context: toTurnContext(currentScreen(), 'drawer', pathname) });
+        // Qua SSE (đóng DV-006): xong lượt mới hiện tin chuẩn — drawer gọn, không cần bong bóng gõ dần.
+        const turn = await streamTurn({ text, mode, sessionId: t.sessionId, context: toTurnContext(currentScreen(), 'drawer', pathname) });
         const { msgs, commands } = messagesOf(turn.events);
         patch(module, (cur) => ({ sessionId: turn.session_id, msgs: [...cur.msgs, ...msgs] }));
         commands.forEach(runUi);

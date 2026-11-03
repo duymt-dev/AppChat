@@ -25,7 +25,7 @@ import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
 import { sessionMessages } from './sessions';
 import { listSessionsPage } from './session-list';
-import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
+import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
 import { waitDone } from './genui/turn-wait';
 
 export interface Caller {
@@ -89,16 +89,34 @@ export class AssistantService {
    */
   async turn(c: Caller, q: Omit<TurnRequest, 'ws' | 'userId' | 'authz' | 'userName' | 'locale' | 'role'>) {
     const deps = this.deps();
-    const p = await this.profile(c);
     const db = await this.db(c);
-    const req: TurnRequest = { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
+    const req = await this.request(c, q);
     if (this.env?.ASSISTANT_DISPATCH === 'inline' || !this.kv) return assistantTurn(deps, db, req);
-    const t = await prepareTurn(deps, db, { ...req, requestId: q.requestId ?? `srv-${uuidv7()}` });
-    if (t.kind === 'queued') {
-      await markDirty(this.kv, c.workspaceId).catch(() => undefined);
-      await waitDone(db, this.redis(), t.run_id);
-    }
+    const t = await this.claim(c, q);
+    if (t.kind === 'queued') await waitDone(db, this.redis(), t.run_id);
     return replayTurn(deps, db, req, t, { commands: t.kind === 'queued' });
+  }
+
+  /**
+   * Bước claim của lượt (SSE: `POST /assistant/messages` + `Accept: text/event-stream`): claim + outbox → ROLE=ai chạy; controller nối
+   * luồng run ngay. `inline` (không có hàng đợi) → chạy lượt trong tiến trình rồi trả run (luồng phát lại từ sổ).
+   */
+  async claim(c: Caller, q: Omit<TurnRequest, 'ws' | 'userId' | 'authz' | 'userName' | 'locale' | 'role'>): Promise<PreparedTurn> {
+    const deps = this.deps();
+    const db = await this.db(c);
+    const req = await this.request(c, q);
+    if (this.env?.ASSISTANT_DISPATCH === 'inline' || !this.kv) {
+      const r = await assistantTurn(deps, db, req);
+      return { kind: 'replay', session_id: r.session_id, run_id: r.run_id ?? '' };
+    }
+    const t = await prepareTurn(deps, db, { ...req, requestId: q.requestId ?? `srv-${uuidv7()}` });
+    if (t.kind === 'queued') await markDirty(this.kv, c.workspaceId).catch(() => undefined);
+    return t;
+  }
+
+  private async request(c: Caller, q: Omit<TurnRequest, 'ws' | 'userId' | 'authz' | 'userName' | 'locale' | 'role'>): Promise<TurnRequest> {
+    const p = await this.profile(c);
+    return { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
   }
 
   private redis(): Redis | null {
