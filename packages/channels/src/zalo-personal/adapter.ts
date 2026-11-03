@@ -1,6 +1,6 @@
 // ChannelAdapter Zalo cá nhân (Blueprint §6, thiết kế theo OpenClaw `zalouser`): QR login → credential, giữ phiên (listener
-// 1-1 + nhóm), gửi chữ (rich text, chia đoạn) / ảnh / file / sticker, probe, đồng bộ tin cũ. Giới hạn tốc độ + lease ở worker.
-import { ChannelAuthError, ChannelNotRunningError, type ChannelAccountRuntime, type ChannelAdapter, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage } from '../types';
+// 1-1 + nhóm), gửi chữ (rich text, chia đoạn) / ảnh / file / sticker, probe, đồng bộ tin cũ, tạo nhóm (TIP-023b). Giới hạn tốc độ + lease ở worker.
+import { ChannelAuthError, ChannelNotRunningError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage } from '../types';
 import { zaloPersonalManifest } from './manifest';
 import { normalizeZalo } from './normalize';
 import { renderChunks } from './render';
@@ -113,6 +113,17 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
       let last = '';
       for (const part of renderChunks(msg.text ?? '', max)) last = await session.sendText(msg.externalThreadId, group, part.msg, part.styles);
       return { externalMsgId: last };
+    } catch (err) {
+      if (err instanceof ChannelAuthError) await this.stop(accountId);
+      throw err;
+    }
+  }
+
+  /** Tạo nhóm từ uid đã biết. Không có phiên → ChannelNotRunningError trước khi gọi Zalo (thử lại an toàn). */
+  async createGroup(accountId: string, req: CreateGroupRequest): Promise<CreateGroupResult> {
+    const { session } = this.session(accountId);
+    try {
+      return await session.createGroup(req.name, req.members);
     } catch (err) {
       if (err instanceof ChannelAuthError) await this.stop(accountId);
       throw err;

@@ -71,6 +71,12 @@ class ZcaSession implements ZaloSession {
   async sendSticker(threadId: string, isGroup: boolean, sticker: { id: number; cateId: number; type: number }): Promise<string> {
     return String((await this.api.sendSticker(sticker, threadId, thread(isGroup))).msgId);
   }
+
+  async createGroup(name: string, members: string[]): Promise<{ groupId: string; added: string[]; failed: string[] }> {
+    const r = await this.api.createGroup({ name, members });
+    if (!r.groupId) throw new Error('zalo_group_no_id');
+    return { groupId: String(r.groupId), added: r.sucessMembers ?? [], failed: r.errorMembers ?? [] };
+  }
 }
 
 export class ZcaTransport implements ZaloTransport {

@@ -18,6 +18,8 @@ export interface ChannelManifest {
   capabilities: {
     direct: boolean;
     group: boolean;
+    /** Tạo nhóm mới từ khách đã biết (TIP-023b SPEC D) — riêng với `group` (nhận / gửi tin nhóm); chỉ true khi adapter có `createGroup`. */
+    createGroup?: boolean;
     mentions: boolean;
     reactions: boolean;
     send: SendKind[];
@@ -109,6 +111,24 @@ export interface ChannelAdapter {
   poll?(accountId: string, cursor: unknown, now?: Date): Promise<{ messages: NormalizedInbound[]; cursor: unknown }>;
   send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string }>;
   probe(accountId: string): Promise<HealthStatus>;
+  /**
+   * `capabilities.createGroup`: tạo nhóm với các id phía kênh đã biết. Chưa chạy phiên → ChannelNotRunningError TRƯỚC khi gọi nhà cung
+   * cấp (an toàn để thử lại); lỗi khác có thể đã tạo nhóm phía kênh — core ghi `unknown`, không tự thử lại.
+   */
+  createGroup?(accountId: string, req: CreateGroupRequest): Promise<CreateGroupResult>;
+}
+
+export interface CreateGroupRequest {
+  name: string;
+  /** Id phía kênh của thành viên (Zalo: uid) — chỉ định danh đã biết trên tài khoản này. */
+  members: string[];
+}
+
+export interface CreateGroupResult {
+  /** Id nhóm phía kênh = `external_thread_id` của hội thoại nhóm. */
+  groupId: string;
+  added: string[];
+  failed: string[];
 }
 
 /** Một mục registry: manifest luôn có; adapter gắn khi TIP chủ kênh làm xong. */

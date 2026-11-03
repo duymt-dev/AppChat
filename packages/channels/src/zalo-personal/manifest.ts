@@ -12,6 +12,7 @@ export const zaloPersonalManifest: ChannelManifest = {
   capabilities: {
     direct: true,
     group: true,
+    createGroup: true,
     mentions: true,
     reactions: true,
     send: ['text', 'image', 'file', 'sticker'],
