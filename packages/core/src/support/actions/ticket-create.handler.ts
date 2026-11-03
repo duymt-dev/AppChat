@@ -15,6 +15,7 @@ import { CrmMembers, actorUserId, fieldDefs, visibleContact } from '../../crm/pu
 import { UUID, inSupportScope } from '../ticket-access';
 import { SlaCalendar, defaultPolicy, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, timeline } from '../services/ticket-write';
+import { createPreview } from './previews/ticket-create.handler.preview';
 
 type In = ActionInput<typeof ticketCreate>;
 type Out = { ticket_id: string; code: string; merged?: boolean };
@@ -43,6 +44,10 @@ export class TicketCreateHandler implements Handler<In, Out> {
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return createPreview(tx, ctx.authz, this.members, input, this.clock.now());
+  }
 
   async execute(ctx: ActionContext, input: In, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
