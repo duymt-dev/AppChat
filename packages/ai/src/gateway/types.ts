@@ -92,6 +92,8 @@ export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cance
 
 export type RunEvent =
   | { type: 'delta'; stepIdx: number; text: string }
+  /** Input tool đang đến dần (chưa kiểm, chưa chạy) — chỉ để dựng khung xương GenUI; không bao giờ là lệnh. */
+  | { type: 'tool_input'; stepIdx: number; toolCallId: string; toolName: string; delta: string }
   | { type: 'tool_call'; stepIdx: number; call: ToolCallRef }
   | { type: 'tool_result'; stepIdx: number; call: ToolCallRef; outcome: ToolOutcome; latencyMs: number }
   | { type: 'usage'; usage: UsageInfo; credits: number }

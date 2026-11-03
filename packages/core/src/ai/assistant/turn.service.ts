@@ -25,6 +25,8 @@ import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
 import { writeOutbox } from '../../kernel/outbox/outbox';
 import { RunStream, type Publisher } from './genui/stream';
+import { SkeletonFeed } from './genui/skeleton-feed';
+import { RENDER_TOOL } from './genui/render';
 import { EVENTS_ARMED_KEY } from './genui/prune-events';
 import { ExecutionLease, execStateOf } from './genui/execution-lease';
 import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
@@ -221,7 +223,13 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
     }
     const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
     const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
-    const r = await d.runner.start(ws, store, run, { ...spec, messages: await historyMessages(db, input.session_id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
+    const skeletons = new SkeletonFeed(live);
+    const r = await d.runner.start(ws, store, run, {
+      ...spec,
+      messages: await historyMessages(db, input.session_id),
+      onEvent: (e) => (e.type === 'delta' ? live.delta(e.text) : e.type === 'tool_input' && e.toolName === RENDER_TOOL ? skeletons.push(e.toolCallId, e.delta) : undefined),
+    });
+    await skeletons.settle();
     const events = await eventsOf(d, db, run, r, 0, input.locale, input.session_id, { ws, authz });
     await finishStream(live, events, r, input.session_id);
     await lease.finish(execStateOf(r.status));

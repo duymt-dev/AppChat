@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { AssistantTurnDto } from '@appchat/shared';
 import { streamTurn } from '@/shared/assistant/turn-stream';
 import type { TurnRequest } from '@/shared/assistant/assistant-client';
+import type { SkeletonNode } from '@/shared/genui';
 import { useAssistantUi } from '../assistant-store';
 
 let seq = 0;
@@ -23,17 +24,19 @@ export function useAssistantStream() {
     const id = liveId();
     let shown = false;
     const ui = useAssistantUi.getState;
+    const show = (p: { text?: string; skeleton?: SkeletonNode }) => {
+      if (!shown) {
+        ui().push({ id, role: 'ai', text: '', live: true, ...p });
+        ui().set({ typing: false });
+        shown = true;
+      } else ui().patchMsg(id, p);
+    };
     try {
       return await streamTurn(
         q,
         {
-          onText: (text) => {
-            if (!shown) {
-              ui().push({ id, role: 'ai', text, live: true });
-              ui().set({ typing: false });
-              shown = true;
-            } else ui().patchMsg(id, { text });
-          },
+          onText: (text) => show({ text }),
+          onSkeleton: (skeleton) => show({ skeleton }),
         },
         ac.signal,
       );

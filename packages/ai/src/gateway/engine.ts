@@ -22,6 +22,9 @@ export class EngineError extends Error {
   }
 }
 
+/** Mảnh phát khi bước đang chạy: chữ, hoặc input tool đang đến dần (TIP-023c structured stream — chỉ để dựng khung xương). */
+type Live = string | { toolCallId: string; toolName: string; delta: string };
+
 interface StepResult {
   text: string;
   calls: ToolCallRef[];
@@ -59,9 +62,10 @@ export class AiSdkEngine implements AgentEngine {
 
       let r: StepResult;
       try {
-        const live = liveStep<string, StepResult>((emit) => this.step(req, messages, tools, signal, emit));
+        const live = liveStep<Live, StepResult>((emit) => this.step(req, messages, tools, signal, emit));
         let it = await live.next();
-        for (; !it.done; it = await live.next()) yield { type: 'delta', stepIdx: step, text: it.value };
+        for (; !it.done; it = await live.next())
+          yield typeof it.value === 'string' ? { type: 'delta', stepIdx: step, text: it.value } : { type: 'tool_input', stepIdx: step, ...it.value };
         r = it.value;
       } catch (err) {
         if (signal.aborted) return yield done('cancelled');
@@ -105,7 +109,7 @@ export class AiSdkEngine implements AgentEngine {
   }
 
   /** Một bước model: thử lần lượt các ứng viên; chuyển ứng viên khi lỗi đáng chuyển và chưa có chữ nào phát ra. */
-  private async step(req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: string) => void): Promise<StepResult> {
+  private async step(req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
     const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0 });
     if (!candidates.length) throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
     let last: unknown;
@@ -124,7 +128,7 @@ export class AiSdkEngine implements AgentEngine {
     throw last;
   }
 
-  private async once(c: ModelCandidate, system: string, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: string) => void): Promise<StepResult> {
+  private async once(c: ModelCandidate, system: string, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
     const t0 = Date.now();
     const s = streamText({
       model: c.handle as never,
@@ -139,10 +143,15 @@ export class AiSdkEngine implements AgentEngine {
     const calls: ToolCallRef[] = [];
     let tokensIn = 0;
     let tokensOut = 0;
+    const inputs = new Map<string, string>();
     for await (const p of s.fullStream) {
       if (p.type === 'text-delta') {
         text += p.text;
         onDelta(p.text);
+      } else if (p.type === 'tool-input-start') inputs.set(p.id, p.toolName);
+      else if (p.type === 'tool-input-delta') {
+        const name = inputs.get(p.id);
+        if (name) onDelta({ toolCallId: p.id, toolName: name, delta: p.delta });
       } else if (p.type === 'tool-call') calls.push({ toolCallId: p.toolCallId, toolName: p.toolName, input: p.input });
       else if (p.type === 'finish-step') {
         tokensIn += p.usage.inputTokens ?? 0;

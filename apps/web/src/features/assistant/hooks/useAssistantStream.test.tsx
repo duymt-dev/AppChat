@@ -1,5 +1,5 @@
 // Lượt Trợ lý qua SSE (TIP-023c 6a): chữ hiện dần trong bong bóng tạm rồi gỡ khi xong; rớt mạng → nối lại theo cursor (không gửi lại
-// lượt); hết lần nối mà chưa `done` → lỗi rõ (không giả câu trả lời); frame gom thành sự kiện như JSON cũ.
+// lượt); hết lần nối mà chưa `done` → lỗi rõ (không giả câu trả lời); frame gom thành sự kiện như JSON cũ; khung xương chỉ ở bong bóng live.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
 import type { StreamFrame } from '@appchat/shared';
@@ -33,6 +33,24 @@ describe('useAssistantStream', () => {
     await act(async () => void (out = await result.current.run(q)));
     expect(texts).toEqual(['Chào ', 'Chào anh']);
     expect(out).toEqual({ session_id: 's1', run_id: 'run_1', events: [{ type: 'delta', text: 'Chào anh' }] });
+    expect(useAssistantUi.getState().messages.some((m) => m.live)).toBe(false);
+  });
+
+  it('ui_skeleton → bong bóng live mang khung xương (không vào sự kiện kết quả); cây thật thay thế khi xong', async () => {
+    const skel: unknown[] = [];
+    const ui = { type: 'ui' as const, tree: { version: 1 as const, root: { type: 'text' as const, text: 'xong' } }, run_id: 'run_1', refs: {} };
+    vi.spyOn(transport, 'stream').mockImplementation(async (_p, _b, onFrame) => {
+      onFrame(f(1, { type: 'ui_skeleton', call_id: 'c1', root: { type: 'stack', children: [{ type: 'stat' }] }, blocks: 2 }));
+      skel.push(useAssistantUi.getState().messages.find((m) => m.live)?.skeleton);
+      onFrame(f(2, ui));
+      onFrame(f(3, { type: 'done', status: 'completed', session_id: 's1' }));
+      return { finished: true, cursor: 'c3' };
+    });
+    const { result } = renderHook(() => useAssistantStream());
+    let out: Awaited<ReturnType<typeof result.current.run>> | undefined;
+    await act(async () => void (out = await result.current.run(q)));
+    expect(skel).toEqual([{ type: 'stack', children: [{ type: 'stat' }] }]);
+    expect(out?.events).toEqual([ui]);
     expect(useAssistantUi.getState().messages.some((m) => m.live)).toBe(false);
   });
 

@@ -63,7 +63,14 @@ function partsOf(t: Exclude<MockTurn, { error: unknown }>, n: number): unknown[]
   const calls = 'tool' in t ? [{ tool: t.tool, input: t.input }] : t.tools;
   return [
     ...head,
-    ...calls.map((c, i) => ({ type: 'tool-call', toolCallId: `call_${n}_${i}`, toolName: c.tool, input: JSON.stringify(c.input ?? {}) })),
+    ...calls.flatMap((c, i) => {
+      const id = `call_${n}_${i}`;
+      const input = JSON.stringify(c.input ?? {});
+      // `render` (GenUI): input đến theo mảnh như provider thật → engine phát `tool_input` (khung xương — TIP-023c 6a).
+      const chunks = c.tool === 'render' ? (input.match(/[\s\S]{1,48}/g) ?? []).map((delta) => ({ type: 'tool-input-delta', id, delta })) : [];
+      const stream = chunks.length ? [{ type: 'tool-input-start', id, toolName: c.tool }, ...chunks, { type: 'tool-input-end', id }] : [];
+      return [...stream, { type: 'tool-call', toolCallId: id, toolName: c.tool, input }];
+    }),
     { type: 'finish', finishReason: { unified: 'tool-calls', raw: 'tool_calls' }, usage: usage(tin, t.tokensOut ?? 20) },
   ];
 }

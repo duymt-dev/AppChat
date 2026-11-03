@@ -14,3 +14,4 @@ export { PROMPTS, prompt, type PromptDoc, type PromptLocale } from './prompts';
 export { PiiMasker, unmaskPii, type PiiMap } from './reply/pii';
 export { PLAIN_CONFIDENCE, agentReplySchema, parseAgentReply, type AgentReply } from './reply/output';
 export { decideHandoff, type HandoffInput, type HandoffReason } from './reply/handoff';
+export { TreeSkeletonStream, skeletonOf, type SkeletonNode, type UiSkeleton } from './genui/structured-stream';

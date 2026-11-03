@@ -3,6 +3,7 @@
 // `GET /assistant/runs/:id/stream?cursor=` (≤ 3 lần), KHÔNG gửi lại lượt (cùng request_id vẫn là cùng run nếu phải gửi lại).
 import type { AssistantTurnDto, StreamFrame, TurnEventDto } from '@appchat/shared';
 import { transport } from '../api/client';
+import type { SkeletonNode } from '../genui';
 import { newRequestId, type TurnRequest } from './assistant-client';
 
 const RECONNECTS = 3;
@@ -10,6 +11,8 @@ const RECONNECTS = 3;
 export interface TurnStreamHandlers {
   /** Chữ mới của lượt (đã ghép) — cập nhật bong bóng đang gõ. */
   onText?: (text: string) => void;
+  /** Khung xương cây GenUI đang dựng (`ui_skeleton`) — chỉ loại khối, không tương tác; cây thật đến trong `events`. */
+  onSkeleton?: (root: SkeletonNode) => void;
 }
 
 /** Gom frame của một run thành sự kiện lượt (delta liền nhau gộp). `done` / `reset_required` trả riêng. */
@@ -20,6 +23,7 @@ export function collect(frames: readonly StreamFrame[]): { events: TurnEventDto[
   for (const { event } of frames) {
     if (event.type === 'done') sessionId = event.session_id;
     else if (event.type === 'reset_required') reset = true;
+    else if (event.type === 'ui_skeleton') continue;
     else {
       const last = events.at(-1);
       if (event.type === 'delta' && last?.type === 'delta') last.text += event.text;
@@ -36,6 +40,7 @@ export async function streamTurn(q: TurnRequest, h: TurnStreamHandlers = {}, sig
   const onFrame = (f: StreamFrame) => {
     frames.push(f);
     if (f.event.type === 'delta') h.onText?.((text += f.event.text));
+    else if (f.event.type === 'ui_skeleton') h.onSkeleton?.(f.event.root);
   };
   const body = { text: q.text, mode: q.mode, session_id: q.sessionId, tier: q.tier, context: q.context, ...(q.attachments?.length ? { attachments: q.attachments } : {}), request_id: q.requestId ?? newRequestId() };
   let out = await transport.stream('/assistant/messages', body, onFrame, signal);

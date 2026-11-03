@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useThreadStyles } from '../styles/thread.styles';
 import { useAssistantUi } from '../assistant-store';
 import type { UiCommand } from '@appchat/actions';
-import { GenUiRenderer } from '@/shared/genui';
+import { GenUiRenderer, GenUiSkeleton } from '@/shared/genui';
 import type { ChatMessage } from '../types';
 import { ActionPreviewCard } from './ActionPreviewCard';
 import { BotFaceSmall } from './BotFace';
@@ -51,6 +51,8 @@ export function ChatThread({ onSend, onDecide, onOpen, onUi, onExternal }: ChatT
                   <div className={styles.aiName}>{t('ai')}</div>
                   {m.ui ? (
                     <GenUiRenderer part={m.ui} mode="full" onUi={onUi} onExternal={onExternal} />
+                  ) : m.skeleton && !m.text ? (
+                    <GenUiSkeleton root={m.skeleton} />
                   ) : (
                     <div className={styles.ai} data-testid="asst-ai-msg">
                       {m.card ? t('confirmLead') : m.text}

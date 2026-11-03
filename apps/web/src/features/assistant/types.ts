@@ -1,6 +1,7 @@
 // Kiểu dữ liệu Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5).
 import type { UiCommand } from '@appchat/actions';
 import type { ActionPreviewDto, AiTaskRowDto, AiTasksPayloadDto, GenUiPart } from '@appchat/shared';
+import type { SkeletonNode } from '@/shared/genui';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type Mode = 'chat' | 'cowork';
 
@@ -81,6 +82,8 @@ export interface ChatMessage {
   ui?: GenUiPart;
   /** Bong bóng đang nhận chữ qua luồng (SSE) — gỡ khi lượt xong, thay bằng tin chuẩn. */
   live?: boolean;
+  /** Khung xương cây đang dựng trong bong bóng live (không tương tác). */
+  skeleton?: SkeletonNode;
 }
 
 /** Tác vụ tự chủ + màn Coworks — cùng shape `GET /v1/ai-tasks` (packages/shared/src/api/ai-tasks.ts, TIP-035). */

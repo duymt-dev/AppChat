@@ -78,6 +78,21 @@ describe('sổ sự kiện + SSE', () => {
     expect(tail.frames.map((f) => f.seq)).toEqual([2]);
   });
 
+  it('render: khung xương (ui_skeleton) lên sổ TRƯỚC cây ui đã kiểm; khung xương không mang chữ / ref / nút', async () => {
+    const tree = { version: 1, root: { type: 'stack', children: [{ type: 'text', text: 'SKEL-CANARY tổng hợp' }, { type: 'badge', text: 'mới', tone: 'brand' }] } };
+    const r = await turn([{ tool: 'render', input: { tree } }, { text: 'Xong.' }], { text: 'vẽ khối', requestId: `req-${uuidv7()}` });
+    const { frames } = await sse(r.run_id!, h.tokenFor(h.user));
+    const kinds = frames.map((f) => f.event.type);
+    const firstSkel = kinds.indexOf('ui_skeleton');
+    expect(firstSkel, kinds.join(',')).toBeGreaterThanOrEqual(0);
+    expect(firstSkel).toBeLessThan(kinds.indexOf('ui'));
+    const skels = frames.filter((f) => f.event.type === 'ui_skeleton');
+    expect(skels.at(-1)!.event).toMatchObject({ root: { type: 'stack', children: [{ type: 'text' }, { type: 'badge' }] } });
+    expect(JSON.stringify(skels)).not.toContain('SKEL-CANARY');
+    // JSON (client cũ) không chứa khung xương — chỉ cây đã kiểm.
+    expect(r.events.some((e) => (e as { type: string }).type === 'ui_skeleton')).toBe(false);
+  });
+
   it('request_id trùng + cùng input → cùng run, không gọi model lần hai; khác input → 409', async () => {
     const rid = `req-${uuidv7()}`;
     const a = await turn([{ text: 'một' }], { text: 'hỏi A', requestId: rid });
