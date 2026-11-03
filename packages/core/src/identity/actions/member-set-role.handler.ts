@@ -8,6 +8,8 @@ import type { PlatformDb } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
+import { needPlatform } from './previews/platform-read';
+import { setRolePreview } from './previews/member-set-role.handler.preview';
 import { writeOutbox } from '../../kernel/outbox/outbox';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { activeMember } from './member-guard';
@@ -46,5 +48,9 @@ export class MemberSetRoleHandler implements Handler<Input, Output> {
     });
     if (n.count !== 1) throw new AppError('CONFLICT', 409, { role: 'changed' });
     await writeOutbox(tx, ctx.workspaceId, [{ topic: 'member.role_changed', payload: { user_id: before.user_id, role_key: before.role } }], this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: Input) {
+    return setRolePreview(needPlatform(this.platform, 'member.set_role'), ctx.workspaceId, input);
   }
 }

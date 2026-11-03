@@ -1,11 +1,15 @@
 // business_profile.update (db platform, settings.manage) — khai báo DN / hộ KD / cá nhân sau đăng ký (REQ-A02, DC-019).
 // Lần đầu ghi declared_at (+ đổi tên workspace tự tạo — TIP-011); cập nhật sau giữ declared_at cũ.
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
+import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, businessProfileUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { needPlatform } from './previews/platform-read';
+import { businessProfilePreview } from './previews/business-profile-update.handler.preview';
+import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 
 type Input = ActionInput<typeof businessProfileUpdate>;
 type Output = { workspace_id: string; declared_at: string };
@@ -13,7 +17,10 @@ type Output = { workspace_id: string; declared_at: string };
 @Injectable()
 @ActionHandler('business_profile.update')
 export class BusinessProfileUpdateHandler implements Handler<Input, Output> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+  constructor(
+    @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
+    @Inject(CLOCK) private readonly clock: Clock,
+  ) {}
 
   async execute(ctx: ActionContext, input: Input, _tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<Output>> {
     if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'business_profile.update cần PlatformTx');
@@ -53,5 +60,9 @@ export class BusinessProfileUpdateHandler implements Handler<Input, Output> {
       after: { kind: row.kind, legal_name: row.legalName },
       events: before ? [] : [{ topic: 'workspace.declared', payload: { workspace_id: ws, kind: row.kind } }],
     };
+  }
+
+  async preview(ctx: ActionContext, input: Input) {
+    return businessProfilePreview(needPlatform(this.platform, 'business_profile.update'), ctx.workspaceId, input);
   }
 }

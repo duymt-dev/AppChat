@@ -453,10 +453,12 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/identity/actions/onboarding-toggle-step.handler.ts` | Domain preview for onboarding.toggle_step |
 | C | `packages/core/src/identity/actions/previews/business-profile-update.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/business-profile-update.handler.ts |
 | C | `packages/core/src/identity/actions/previews/invite-revoke.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/invite-revoke.handler.ts |
+| M | `packages/core/src/identity/actions/member-guard.ts` | `activeMember` accepts a read-only platform client (`workspace` + `membership`) so the member previews reuse the same 404 / 422 checks |
 | C | `packages/core/src/identity/actions/previews/member-invite.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/member-invite.handler.ts |
 | C | `packages/core/src/identity/actions/previews/member-remove.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/member-remove.handler.ts |
 | C | `packages/core/src/identity/actions/previews/member-set-role.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/member-set-role.handler.ts |
 | C | `packages/core/src/identity/actions/previews/onboarding-toggle-step.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/onboarding-toggle-step.handler.ts |
+| C | `packages/core/src/identity/actions/previews/platform-read.ts` | Shared platform-DB read for identity / notify previews (PLATFORM_DB optional) |
 | C | `packages/core/src/identity/actions/previews/profile-update.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/profile-update.handler.ts |
 | C | `packages/core/src/identity/actions/previews/working-hours-update.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/working-hours-update.handler.ts |
 | C | `packages/core/src/identity/actions/previews/workspace-switch.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/workspace-switch.handler.ts |
