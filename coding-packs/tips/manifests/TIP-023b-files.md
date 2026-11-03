@@ -31,6 +31,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/api/test/integration/actions/agent.pause.action.test.ts` | Per-action matrix: agent.pause |
 | C | `apps/api/test/integration/actions/agent.publish.action.test.ts` | Per-action matrix: agent.publish |
 | C | `apps/api/test/integration/actions/agent.rollback.action.test.ts` | Per-action matrix: agent.rollback |
+| M | `apps/api/test/integration/setup.ts` | Isolate test Redis DB (DC-310) |
 | C | `apps/api/test/integration/actions/agent.search.action.test.ts` | Per-action matrix agent.search |
 | C | `apps/api/test/integration/actions/ai_task.search.action.test.ts` | Per-action matrix ai_task.search |
 | C | `apps/api/test/integration/actions/canned_reply.search.action.test.ts` | Per-action matrix canned_reply.search |
@@ -492,6 +493,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/kernel/actions/executor.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/kernel/actions/handler-registry.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/kernel/actions/handler.ts` | Current authority, scoped shared query, preview or transport wiring |
+| C | `packages/core/src/kernel/actions/preview-kit.ts` | Shared canonical preview builder (diff / created / removed) used by domain preview helpers |
 | M | `packages/core/src/kernel/actions/policy.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/kernel/actions/tip-owners.ts` | TIP chủ cho domain `service` (service.search) |
 | M | `packages/core/src/kernel/kernel.module.ts` | Current authority, scoped shared query, preview or transport wiring |

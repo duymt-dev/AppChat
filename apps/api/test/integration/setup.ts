@@ -56,6 +56,9 @@ export const env: Record<string, string> = {
   COOKIE_SECURE: 'true',
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',
 };
+// Hàng đợi BullMQ không có prefix theo môi trường: worker demo / dev chạy cùng Memurai DB 0 sẽ lấy mất job của test (đăng nhập Zalo giả
+// bị worker ZALO_TRANSPORT=zca nhận). Test dùng DB Redis riêng (mặc định 15) — không đụng dữ liệu demo.
+env.REDIS_URL = env.TEST_REDIS_URL ?? (env.REDIS_URL ?? 'redis://127.0.0.1:6379/0').replace(/\/\d+$/, '') + '/15';
 
 export let calls = 0;
 export const SCOPE_PROBE = '0190f000-0000-7000-8000-00000000aaaa';

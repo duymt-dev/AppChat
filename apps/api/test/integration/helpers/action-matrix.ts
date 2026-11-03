@@ -16,8 +16,14 @@ export interface Matrix {
   sales: Who;
   cs: Who;
   act(input: unknown, who?: Who, headers?: Record<string, string>): Promise<Res>;
+  /** Gọi với Idempotency-Key cố định (ô idempotency: gọi hai lần cùng khoá). */
+  actWithKey(key: string, input: unknown, who?: Who): Promise<Res>;
   /** Gọi action khác để dựng dữ liệu (luôn qua executor). */
   seed(id: string, input: unknown, who?: Who): Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  /** Nguồn assistant: lấy preview (202) rồi xác nhận bằng confirm_token — trả cả preview lẫn kết quả. */
+  confirm(input: unknown, who?: Who): Promise<{ preview: any; done: Res }>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  /** Hoàn tác theo action_log_id (POST /v1/action-logs/:id/undo). */
+  undo(logId: string, who?: Who): Promise<Res>;
   /** DB tenant (system) — chỉ để dựng dữ liệu không có action tạo (hội thoại / run từ kênh, pipeline). */
   db(): Promise<TenantDb>;
   close(): Promise<void>;
@@ -39,6 +45,15 @@ export async function matrix(actionId: string): Promise<Matrix> {
     sales,
     cs,
     act: (input, who, headers) => post(actionId, input, who, headers),
+    actWithKey: (key, input, who) => call(h, `/actions/${actionId}`, { input }, { 'idempotency-key': key, ...as(who) }).then(json),
+    async confirm(input, who) {
+      const src = { 'x-action-source': 'assistant' };
+      const pv = await post(actionId, input, who, src);
+      if (pv.status !== 202 || pv.body.data?.status !== 'preview_required') throw new Error(`preview ${actionId} ${pv.status} ${JSON.stringify(pv.body).slice(0, 300)}`);
+      const done = await call(h, `/actions/${actionId}`, { input, confirm_token: pv.body.data.confirm_token }, { 'idempotency-key': uuidv7(), ...as(who), ...src }).then(json);
+      return { preview: pv.body.data.preview, done };
+    },
+    undo: (logId, who) => call(h, `/action-logs/${logId}/undo`, {}, as(who)).then(json),
     async seed(id, input, who) {
       const r = await post(id, input, who);
       if (r.status !== 200) throw new Error(`seed ${id} ${r.status} ${JSON.stringify(r.body).slice(0, 300)}`);
