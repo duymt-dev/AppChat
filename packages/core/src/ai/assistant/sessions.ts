@@ -6,6 +6,7 @@ import { TenantSql, type TenantDb } from '@appchat/db';
 import { AppError, foldText, type AssistantMessageDto, type AssistantSessionDto, type ConfirmEventDto, type UiCommandDto } from '@appchat/shared';
 import { uuidv7 } from '../../kernel/ids';
 import type { AssistantMode } from './catalog';
+import type { StoredUiPart } from './genui/history';
 
 export const HISTORY_LIMIT = 30;
 const SESSIONS_LIMIT = 50;
@@ -13,7 +14,7 @@ const TITLE_MAX = 80;
 
 /** Trạng thái thẻ: `approval` = đã xác nhận nhưng governance chuyển sang duyệt — chưa thực hiện. */
 export type CardStatus = 'pending' | 'done' | 'cancelled' | 'approval';
-export type Part = { type: 'text'; text: string } | { type: 'card'; card: ConfirmEventDto; status: CardStatus } | { type: 'ui_command'; command: UiCommandDto };
+export type Part = { type: 'text'; text: string } | { type: 'card'; card: ConfirmEventDto; status: CardStatus } | { type: 'ui_command'; command: UiCommandDto } | StoredUiPart;
 type Db = Pick<TenantDb, 'assistantSession' | 'assistantMessage' | '$queryRaw'>;
 type Row = Awaited<ReturnType<TenantDb['assistantMessage']['findMany']>>[number];
 
@@ -77,7 +78,7 @@ export async function historyMessages(db: Db, sessionId: string): Promise<RunMes
   const out: RunMessage[] = [];
   for (const r of await recent(db, sessionId, HISTORY_LIMIT)) {
     const text = partsOf(r.content)
-      .map((p) => (p.type === 'text' ? p.text : p.type === 'card' ? `[${p.card.action_id}: ${p.card.title} — ${p.status}]` : ''))
+      .map((p) => (p.type === 'text' ? p.text : p.type === 'card' ? `[${p.card.action_id}: ${p.card.title} — ${p.status}]` : p.type === 'ui' ? '[ui]' : ''))
       .filter(Boolean)
       .join('\n');
     if (text) out.push({ role: r.role === 'user' ? 'user' : 'assistant', content: text });
@@ -87,7 +88,7 @@ export async function historyMessages(db: Db, sessionId: string): Promise<RunMes
 
 const dto = (r: Row): AssistantMessageDto[] =>
   partsOf(r.content)
-    .filter((p) => p.type !== 'ui_command')
+    .filter((p) => p.type !== 'ui_command' && p.type !== 'ui')
     .map((p, i) => ({
       id: `${r.id}:${i}`,
       role: r.role === 'user' ? ('user' as const) : ('ai' as const),
@@ -96,10 +97,29 @@ const dto = (r: Row): AssistantMessageDto[] =>
       run_id: r.runId,
     }));
 
+/** Dựng phần `ui` đã lưu cho người xem (refs + intent theo quyền hiện hành — genui/history.ts). */
+export type UiPresenter = (p: StoredUiPart) => Promise<NonNullable<AssistantMessageDto['ui']>>;
+
 /** `GET /assistant/sessions/:id/messages` — tin của phiên (cũ → mới), mỗi phần thành một bong bóng như FE hiển thị. */
-export async function sessionMessages(db: Db, userId: string, id: string, limit = 100): Promise<AssistantMessageDto[]> {
+export async function sessionMessages(db: Db, userId: string, id: string, limit = 100, ui?: UiPresenter): Promise<AssistantMessageDto[]> {
   await ownSession(db, userId, id);
-  return (await recent(db, id, Math.min(limit, 200))).flatMap(dto);
+  const out: AssistantMessageDto[] = [];
+  for (const r of await recent(db, id, Math.min(limit, 200))) {
+    const parts = partsOf(r.content);
+    const plain = dto(r);
+    let k = 0;
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i]!;
+      if (p.type === 'ui_command') continue;
+      if (p.type === 'ui') {
+        // Mở lại phiên: không gọi model, không chạy action — chỉ đọc lại ref + ký lại intent theo quyền hiện hành.
+        if (ui) out.push({ id: `${r.id}:ui${i}`, role: 'ai', text: '', ui: await ui(p), run_id: r.runId });
+        continue;
+      }
+      out.push(plain[k++]!);
+    }
+  }
+  return out;
 }
 
 /** `GET /assistant/sessions?q=` — phiên chưa lưu trữ của người gọi, mới nhất trước; `q` tìm không dấu theo tiêu đề. */

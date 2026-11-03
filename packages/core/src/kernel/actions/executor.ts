@@ -14,6 +14,7 @@ import type { ConfirmTokens } from './confirm-token';
 import { hashInput } from './confirm-token';
 import type { ActionHandlerRegistry } from './handler-registry';
 import { decidePolicy, requiresIdempotencyKey } from './policy';
+import { maskSecrets } from './secret-fields';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -119,7 +120,8 @@ export class ActionExecutor {
     const key = ctx.idempotencyKey;
     if (!key && requiresIdempotencyKey(actionId, def.risk)) throw new AppError('VALIDATION_FAILED', 422, { idempotency_key: 'required' });
     const route = `action:${actionId}`;
-    const reqHash = hashInput({ actionId, input, actor: ctx.actor });
+    // Hash idempotency không chứa bí mật thô (hash mật khẩu ngắn dò ngược được) — ô bí mật che trước (TIP-023c hợp đồng 3).
+    const reqHash = hashInput({ actionId, input: maskSecrets(def, input), actor: ctx.actor });
     if (key) {
       const prev = await db.idempotencyKey.findUnique({ where: { key } });
       if (prev) {
@@ -168,7 +170,8 @@ export class ActionExecutor {
           actorId: ctx.actor.id,
           onBehalfOfUserId: ctx.onBehalfOfUserId ?? null,
           runId: ctx.runId ?? null,
-          input: redactDeep(json(input)) as object,
+          // Ô bí mật theo ActionDef / manifest connector (DC-227) che trước, rồi khoá PII chung (ops §1.4).
+          input: redactDeep(maskSecrets(def, json(input))) as object,
           before: json(r.before),
           after: json(r.after),
           result: json(output),

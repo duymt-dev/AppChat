@@ -1,5 +1,13 @@
 // Export mọi Nest module của core (Blueprint §1.2). Đăng ký sẵn ở TIP-001 — TIP sau KHÔNG sửa file này.
 export * from './kernel';
+export * from './kernel/actions/genui-intent';
+export * from './kernel/actions/secret-vault';
+export * from './kernel/actions/secret-fields';
+// GenUI (TIP-023c): gửi action từ node cây Trợ lý, render / refs / phần ui đã lưu.
+export { runGenUiAction, genUiCtx, type GenUiSubmitDeps } from './ai/assistant/genui/submit';
+export { renderTool, markSecretFields, errorTree, RENDER_TOOL } from './ai/assistant/genui/render';
+export { resolveRefs, REF_UNAVAILABLE } from './ai/assistant/genui/refs';
+export { presentUi, intentsFor, uiPartsOf, type StoredUiPart } from './ai/assistant/genui/history';
 
 export { IdentityModule } from './identity/identity.module';
 export * from './identity/public';

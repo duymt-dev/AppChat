@@ -6,7 +6,8 @@ import { registry } from '@appchat/actions';
 import type { ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
-import type { ToolExecutor } from '../../kernel/actions/executor';
+import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import type { GenUiIntents } from '../../kernel/actions/genui-intent';
 import type { KeyValueStore } from '../../kernel/redis';
 import { DEFAULT_RUN_BUDGET, MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
@@ -16,6 +17,7 @@ import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { readBack } from './action-readback';
+import { presentUi, uiPartsOf } from './genui/history';
 import { bindToken, takePending } from './pending-action';
 import { appendMessage, historyMessages, markCard, openSession, type Part } from './sessions';
 
@@ -28,6 +30,8 @@ export interface AssistantDeps {
   now: () => Date;
   /** Gói của workspace (hạ mức AI vượt gói). */
   planKey(ws: string): Promise<string>;
+  /** Ký intent cho node action của cây GenUI (TIP-023c); thiếu → nút / form action bị ẩn. */
+  intents?: GenUiIntents | null;
 }
 
 export interface TurnRequest {
@@ -67,8 +71,8 @@ export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
-/** Sự kiện của một đoạn chạy: ui_command (bước tool `ui` từ `fromIdx`), chữ, thẻ xác nhận / lỗi. Lưu thành tin của Trợ lý. */
-async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string): Promise<TurnEventDto[]> {
+/** Sự kiện của một đoạn chạy: ui_command (bước tool `ui` từ `fromIdx`), cây GenUI, chữ, thẻ xác nhận / lỗi. Lưu thành tin của Trợ lý. */
+async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
   const m = serverMessages(locale).ai.assistant;
   const events: TurnEventDto[] = [];
   const parts: Part[] = [];
@@ -78,6 +82,11 @@ async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResul
     if (!cmd) continue;
     events.push({ type: 'ui_command', command: cmd });
     parts.push({ type: 'ui_command', command: cmd });
+  }
+  // Cây GenUI: lưu cây + run (không lưu payload ref); sự kiện kèm refs + intent theo người xem (genui/history.ts).
+  for (const ui of await uiPartsOf(db, run.id, fromIdx)) {
+    events.push(await presentUi(db, d.intents ?? null, { ws: viewer.ws, userId: run.initiatedByUserId ?? '', authz: viewer.authz, implemented: implementedBy(d.executor) }, ui));
+    parts.push(ui);
   }
   const text = r.text.trim();
   if (text) {
@@ -125,7 +134,7 @@ export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnReque
   const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
   const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id) });
-  return { session_id: session.id, run_id: run.id, events: await eventsOf(d, db, run, r, 0, q.locale, session.id) };
+  return { session_id: session.id, run_id: run.id, events: await eventsOf(d, db, run, r, 0, q.locale, session.id, { ws: q.ws, authz: q.authz }) };
 }
 
 export interface ConfirmRequest {
@@ -179,7 +188,7 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
   const r = await d.runner.resume(q.ws, store, run.id, outcome, spec);
   const fresh = (await store.get(run.id)) ?? run;
-  const events = r ? await eventsOf(d, db, fresh, r, fromIdx, input.locale, input.session_id) : [];
+  const events = r ? await eventsOf(d, db, fresh, r, fromIdx, input.locale, input.session_id, { ws: q.ws, authz: q.authz }) : [];
   if (done && logId) events.unshift({ type: 'result', action_log_id: logId, summary: def ? confirmCard(def, null, q.token, input.locale).title : call.action_id });
   const target = ui ?? (def && done ? { type: 'navigate' as const, route: confirmCard(def, null, q.token).route } : undefined);
   const status = done ? ('done' as const) : approvalId ? ('approval_required' as const) : ('cancelled' as const);

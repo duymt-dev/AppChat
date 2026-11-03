@@ -43,6 +43,7 @@ export const ai: typeof vi = {
     expired: 'Approval expired',
   },
   assistant: {
+    genui: { renderFailed: 'The assistant could not build the view for this result — press Retry or ask in another way.', secretInChat: 'Your message seems to contain a password or secret key — that part was not stored. Please type it into the secure field of the connection form instead of the chat.' },
     session: 'New conversation',
     verb: { write: 'Update', send: 'Send', money: 'Money operation', delete: 'Delete', config: 'Change settings', read: 'Look up', create: 'Create' },
     verbOf: { 'approval.approve': 'Approve', 'approval.edit_and_approve': 'Edit & approve', 'approval.reject': 'Reject' },

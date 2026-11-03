@@ -37,6 +37,17 @@ export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.Zo
   invalidates: string[];
   db?: 'platform';
   uiTarget?: (o: z.infer<O>) => UiCommand;
+  /**
+   * Ô bí mật trong input (DC-227, TIP-023c): `paths` = đường dẫn chấm cố định (`fields.password`); `connector` = ô dưới `fields`
+   * theo `ConnectorManifest.auth.fields[].secret` của provider ở ô `provider`. Executor che trong action_log; Trợ lý không nhận giá
+   * trị từ model (chỉ form trình duyệt gửi thẳng); form GenUI hiện ô password.
+   */
+  secret?: SecretSpec;
+}
+
+export interface SecretSpec {
+  paths?: string[];
+  connector?: { provider: string; fields: string };
 }
 
 export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => d;

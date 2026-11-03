@@ -6,6 +6,7 @@
 //   plan(steps) / update_step      — `ai_run.plan` (thẻ kế hoạch).
 //   query_data(metric, params)     — NOT_IMPLEMENTED tới TIP-038 (`insight.query`).
 //   delegate(role|agent_id, task)  — run con `delegate` (delegate.ts).
+//   render(tree)                   — cây GenUI (genui/render.ts — TIP-023c): khối đóng, số liệu chỉ `$ref`, nút / form qua intent.
 // Chế độ Chat: find_actions (chỉ read) + call_action (chỉ read) + query_data + ui. Cowork: đủ.
 import { registry } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
@@ -14,10 +15,12 @@ import type { TenantDb } from '@appchat/db';
 import { AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
 import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
 import { resolveCodes } from './code-refs';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
+import { renderTool } from './genui/render';
 import { dispatchOutcome } from './read-dispatch';
 import type { AssistantTurnCtx } from './types';
 
@@ -59,6 +62,9 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
   // Action chưa có handler thật: chặn trước executor, như action không tồn tại (không lộ cho model — TIP-023b R1.2).
   if (!def || !allowedFor(def, t.authz) || !implementedBy(d.executor)(def.id)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
   if (!modeAllows(def, t.mode)) return err('FORBIDDEN', 'Chế độ Chat chỉ được tra cứu — chuyển sang Cowork để thực hiện thao tác ghi');
+  // Ô bí mật (DC-227): model không bao giờ mang giá trị — người dùng nhập ở form GenUI gửi thẳng executor từ trình duyệt.
+  const leaked = secretValuesPresent(def, i.input ?? {});
+  if (leaked.length) return err('SECRET_FIELD', `Không gửi ô bí mật (${leaked.join(', ')}) qua công cụ — dựng form bằng render với action_id ${def.id}, để người dùng tự nhập.`);
   try {
     // Model nói theo mã hiển thị (KH-1016, BG-1003) → đổi sang id trước khi chạy.
     const { input } = await resolveCodes(d.db, def.id, i.input ?? {}, t.authz);
@@ -67,7 +73,7 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
     if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
     // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
     const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
-    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), input);
+    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), stripSecrets(def, input));
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
@@ -127,6 +133,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async () => err('NOT_IMPLEMENTED', m.queryData),
     },
+    renderTool({ db: d.db, implemented: implementedBy(d.executor) }, t),
   ];
   if (t.mode === 'chat') return tools;
   return [

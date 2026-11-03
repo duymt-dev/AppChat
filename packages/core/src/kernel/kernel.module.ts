@@ -10,6 +10,8 @@ import { LocalStorage, STORAGE, defaultFilesDir, type Storage } from './files/st
 import { createLogger } from './logger/logger';
 import { REDIS, createRedis } from './redis';
 import { ActionsModule } from './actions/actions.module';
+import { GenUiIntents } from './actions/genui-intent';
+import { SecretVault } from './actions/secret-vault';
 import { DB_ENV, PLATFORM_DB, TENANT_RESOLVER, WORKSPACE_REGISTRY, dbProviders, readDbEnv } from './tenant/tenant.providers';
 
 export const LOGGER = Symbol('LOGGER');
@@ -44,7 +46,7 @@ export class KernelModule {
     const db = readDbEnv(source);
     const k = kernelEnv.parse(source);
     const providers: Provider[] = [{ provide: ENV_SOURCE, useValue: source }];
-    const exports: (string | symbol | typeof FilesService)[] = [ENV_SOURCE];
+    const exports: (string | symbol | typeof FilesService | typeof GenUiIntents | typeof SecretVault)[] = [ENV_SOURCE];
     const imports: DynamicModule[] = [];
     if (db) {
       providers.push(...dbProviders(db));
@@ -73,6 +75,13 @@ export class KernelModule {
     if (db && k.REDIS_URL) {
       if (!k.APP_ENC_KEY) throw new Error('Biến môi trường không hợp lệ: APP_ENC_KEY');
       imports.push(ActionsModule.forRoot({ confirmSecret: k.APP_ENC_KEY }));
+      // GenUI (TIP-023c): intent ký cho node action của cây Trợ lý + vault bí mật ngắn hạn giữa preview và confirm.
+      const secret = k.APP_ENC_KEY;
+      providers.push(
+        { provide: GenUiIntents, inject: [REDIS], useFactory: (r: Redis) => new GenUiIntents(r, `genui:${secret}`) },
+        { provide: SecretVault, inject: [REDIS, ENC_KEY], useFactory: (r: Redis, key: Buffer) => new SecretVault(r, key) },
+      );
+      exports.push(GenUiIntents, SecretVault);
     }
     return { module: KernelModule, global: true, imports, providers, exports: [...exports, ...imports] };
   }

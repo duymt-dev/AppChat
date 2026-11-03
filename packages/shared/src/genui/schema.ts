@@ -3,9 +3,16 @@
 // của run; model chỉ viết chữ, nhãn, bố cục. Nút: `ui` (UiCommand) hoặc `action` (đi qua executor + xác nhận — server phát intent).
 // Form gắn `action_id`; ô `secret` do server đánh dấu theo ActionDef / manifest connector — cây của model không được điền giá trị.
 import { z } from 'zod';
-import { uiCommandSchema } from '../api/assistant';
 import { GENUI_LIMITS as L } from './limits';
 import { refSchema, type GenUiRef } from './refs';
+
+export const uiCommandSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('navigate'), route: z.string().startsWith('/').max(300) }),
+  z.object({ type: z.literal('open'), entity: z.string().max(40), id: z.string().max(80), view: z.enum(['drawer', 'page']).optional() }),
+  z.object({ type: z.literal('prefill'), form: z.string().max(60), values: z.record(z.string(), z.unknown()) }),
+  z.object({ type: z.literal('filter'), table: z.string().max(60), filter: z.record(z.string(), z.unknown()) }),
+  z.object({ type: z.literal('highlight'), target: z.string().max(120) }),
+]);
 
 export const TONES = ['default', 'brand', 'success', 'warning', 'danger', 'info'] as const;
 export const FORMATS = ['text', 'number', 'money', 'percent', 'date', 'datetime'] as const;
@@ -193,3 +200,13 @@ export function refsOf(root: UiBlock): string[] {
   });
   return [...out];
 }
+
+/** Phần `ui` của tin Trợ lý: cây + run + dữ liệu ref đã lọc theo người xem + intent đã ký cho từng node action (path → handle). */
+export const genUiPartSchema = z.object({
+  type: z.literal('ui'),
+  tree: uiTreeSchema,
+  run_id: z.string(),
+  refs: z.record(z.string(), z.unknown()),
+  intents: z.record(z.string(), z.string()).optional(),
+});
+export type GenUiPart = z.infer<typeof genUiPartSchema>;

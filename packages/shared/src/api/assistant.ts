@@ -5,13 +5,7 @@ import { z } from 'zod';
 const tier = z.enum(['standard', 'advanced', 'max']);
 export const assistantModeSchema = z.enum(['chat', 'cowork']);
 
-const uiCommandSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('navigate'), route: z.string().startsWith('/').max(300) }),
-  z.object({ type: z.literal('open'), entity: z.string().max(40), id: z.string().max(80), view: z.enum(['drawer', 'page']).optional() }),
-  z.object({ type: z.literal('prefill'), form: z.string().max(60), values: z.record(z.string(), z.unknown()) }),
-  z.object({ type: z.literal('filter'), table: z.string().max(60), filter: z.record(z.string(), z.unknown()) }),
-  z.object({ type: z.literal('highlight'), target: z.string().max(120) }),
-]);
+import { genUiPartSchema, uiCommandSchema } from '../genui/schema';
 export { uiCommandSchema };
 
 /** ActionPreview (canonical — `changes`, không `diff`). */
@@ -49,6 +43,8 @@ export const turnEventSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('ui_command'), command: uiCommandSchema }),
   z.object({ type: z.literal('result'), action_log_id: z.string(), summary: z.string() }),
   z.object({ type: z.literal('error'), code: z.string(), message: z.string() }),
+  /** Cây GenUI (TIP-023c, D55): cây + run + giá trị ref đã lọc theo người xem + intent đã ký theo node. */
+  genUiPartSchema,
 ]);
 
 export const assistantTurnSchema = z.object({ session_id: z.string(), run_id: z.string().nullable(), events: z.array(turnEventSchema) });
@@ -77,6 +73,8 @@ export const assistantMessageSchema = z.object({
   text: z.string(),
   card: confirmEventSchema.optional(),
   status: z.enum(['pending', 'done', 'cancelled', 'approval']).optional(),
+  /** Phần giao diện GenUI đã lưu — mở lại phiên dựng lại từ dữ liệu bước (không gọi model, TIP-023c). */
+  ui: genUiPartSchema.optional(),
   run_id: z.string().nullable(),
 });
 

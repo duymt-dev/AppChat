@@ -6,7 +6,8 @@ import { TenantContexts } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import { QuotaService } from '../../billing/public';
 import { CLOCK, type Clock } from '../../kernel/clock';
-import { ActionExecutor } from '../../kernel/actions/executor';
+import { ActionExecutor, implementedBy } from '../../kernel/actions/executor';
+import { GenUiIntents } from '../../kernel/actions/genui-intent';
 import { REDIS, type KeyValueStore } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
@@ -14,6 +15,7 @@ import { listActionLogs, type LogFilter } from './action-logs.read';
 import { editPreview } from './edit-preview';
 import { assistantHome } from './home.read';
 import { runTrace } from './run-trace.read';
+import { presentUi } from './genui/history';
 import { listSessions, sessionMessages } from './sessions';
 import { assistantConfirm, assistantTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
 
@@ -33,6 +35,7 @@ export class AssistantService {
     @Optional() @Inject(REDIS) private readonly kv: KeyValueStore | null,
     @Inject(QuotaService) private readonly quota: QuotaService | null,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null = null,
   ) {}
 
   private db(c: Caller): Promise<TenantDb> {
@@ -43,7 +46,7 @@ export class AssistantService {
   private deps(): AssistantDeps {
     if (!this.executor || !this.runner || !this.kv) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, 'AI runtime chưa cấu hình');
     const quota = this.quota;
-    return { executor: this.executor, runner: this.runner, kv: this.kv, now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free') };
+    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free') };
   }
 
   /** Tên, locale, vai trò của người gọi (system prompt + ngôn ngữ trả lời). */
@@ -83,7 +86,9 @@ export class AssistantService {
   }
 
   async messages(c: Caller, id: string) {
-    return sessionMessages(await this.db(c), c.userId, id);
+    const db = await this.db(c);
+    const implemented = this.executor ? implementedBy(this.executor) : () => false;
+    return sessionMessages(db, c.userId, id, 100, (p) => presentUi(db, this.intents, { ws: c.workspaceId, userId: c.userId, authz: c.authz, implemented }, p));
   }
 
   /** Vết run của chính người gọi (bộ câu thử model thật — TIP-023b R1.4). */

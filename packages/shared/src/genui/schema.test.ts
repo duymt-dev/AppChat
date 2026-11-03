@@ -19,7 +19,7 @@ const SAMPLES: Record<string, UiBlock> = {
   badge: { type: 'badge', text: 'VIP', tone: 'brand' },
   chart: { type: 'chart', kind: 'column', data: ref('step:4.rows'), x: 'day', y: 'revenue' },
   button: { type: 'button', label: 'Mở', on: { kind: 'ui', command: { type: 'navigate', route: '/quotes' } } },
-  button_group: { type: 'button_group', buttons: [{ type: 'button', label: 'Gắn thẻ', on: { kind: 'action', action_id: 'contact.add_tags', input: { ids: ['x'] } } }] },
+  button_group: { type: 'button_group', buttons: [{ type: 'button', label: 'Gắn thẻ', on: { kind: 'action', action_id: 'contact.tag', input: { ids: ['x'] } } }] },
   form: { type: 'form', action_id: 'channel.email.connect', fields: [{ name: 'imap_host', value: 'imap.x.vn' }, { name: 'password', secret: true }] },
   qr: { type: 'qr', login: ref('step:1.login') },
 };
