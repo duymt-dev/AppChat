@@ -4,17 +4,18 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError } from '@appchat/shared';
-import type { ActionInput, agentDraftFromDescription, agentOptimizePrompt, agentTest } from '@appchat/actions';
+import type { ActionInput, ActionPreview, agentDraftFromDescription, agentOptimizePrompt, agentTest } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
-import type { ActionContext } from '../../kernel/actions/action-context';
+import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { AiRunner } from '../runs/runner';
 import { connectedKeys, runToolIds } from './agent-tools';
 import { agentSystem, agentToolSpecs, dryRunTools, runOnce } from './agent.runtime';
 import { blankConfig, configOf, liveAgent, merge, type AgentConfig } from './agent.store';
 import { draftFromText, optimizeLocal, parseDraft, DRAFT_SYSTEM, OPTIMIZE_SYSTEM } from './agent-draft';
+import { draftPreview, optimizePreview, testPreview } from './previews/agent-llm.handlers.preview';
 
 const need = <T>(v: T | null, what: string): T => {
   if (!v) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, `${what} chưa cấu hình`);
@@ -68,6 +69,10 @@ export class AgentTestHandler extends LlmHandler implements Handler<ActionInput<
   async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<{ reply: string }>> {
     return { result: { reply: String(prepared ?? '') } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentTest>, tx: TenantTx): Promise<ActionPreview> {
+    return testPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -93,6 +98,10 @@ export class AgentDraftHandler extends LlmHandler implements Handler<ActionInput
   async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<{ draft: AgentConfig }>> {
     return { result: { draft: prepared as AgentConfig } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentDraftFromDescription>): Promise<ActionPreview> {
+    return draftPreview(input);
+  }
 }
 
 @Injectable()
@@ -116,5 +125,9 @@ export class AgentOptimizePromptHandler extends LlmHandler implements Handler<Ac
 
   async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<{ prompt: string }>> {
     return { result: { prompt: String(prepared ?? '') } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentOptimizePrompt>): Promise<ActionPreview> {
+    return optimizePreview(input);
   }
 }

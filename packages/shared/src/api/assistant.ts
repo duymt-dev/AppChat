@@ -14,6 +14,15 @@ const uiCommandSchema = z.discriminatedUnion('type', [
 ]);
 export { uiCommandSchema };
 
+/** ActionPreview (canonical — `changes`, không `diff`). */
+export const previewSchema = z.object({
+  summary: z.string(),
+  risk: z.string(),
+  count: z.number().optional(),
+  changes: z.array(z.object({ entity: z.string(), id: z.string().optional(), before: z.record(z.string(), z.unknown()).optional(), after: z.record(z.string(), z.unknown()).optional() })).optional(),
+  warnings: z.array(z.string()).optional(),
+});
+
 /** Thẻ xác nhận (ChatThread ActionCard) — dựng từ preview của handler hoặc ActionDef. */
 export const confirmEventSchema = z.object({
   type: z.literal('confirm'),
@@ -26,6 +35,12 @@ export const confirmEventSchema = z.object({
   title: z.string(),
   desc: z.string(),
   dest: z.string(),
+  /** ActionPreview chuẩn (`packages/actions` define.ts) — thẻ hiện đổi gì (TIP-023b R2.8); thẻ cũ lưu trước 023b không có. */
+  preview: previewSchema.optional(),
+  /** Input đã chuẩn hoá mà token gắn (đã bỏ ô bí mật) — form Sửa điền sẵn (REQ-E03b). */
+  input: z.record(z.string(), z.unknown()).optional(),
+  /** Khuôn input lồng nhau (schema-brief) — form Sửa giữ kiểu object / array / enum. */
+  schema: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const turnEventSchema = z.discriminatedUnion('type', [
@@ -39,11 +54,15 @@ export const turnEventSchema = z.discriminatedUnion('type', [
 export const assistantTurnSchema = z.object({ session_id: z.string(), run_id: z.string().nullable(), events: z.array(turnEventSchema) });
 
 export const assistantConfirmSchema = z.object({
-  status: z.enum(['done', 'cancelled']),
+  status: z.enum(['done', 'cancelled', 'approval_required']),
   action_log_id: z.string().optional(),
+  approval_id: z.string().optional(),
   ui_target: uiCommandSchema.optional(),
   events: z.array(turnEventSchema),
 });
+
+/** `POST /assistant/preview-edit`: sửa input của thẻ → xem trước lại (không thực thi) → thẻ mới, token cũ mất hiệu lực. */
+export const assistantEditSchema = z.object({ card: confirmEventSchema });
 
 export const assistantHomeSchema = z.object({
   think_cards: z.array(z.object({ label: z.string(), desc: z.string(), color: z.string(), icon: z.string(), tag: z.string(), command: z.string() })),
@@ -57,7 +76,7 @@ export const assistantMessageSchema = z.object({
   role: z.enum(['user', 'ai']),
   text: z.string(),
   card: confirmEventSchema.optional(),
-  status: z.enum(['pending', 'done', 'cancelled']).optional(),
+  status: z.enum(['pending', 'done', 'cancelled', 'approval']).optional(),
   run_id: z.string().nullable(),
 });
 
@@ -79,6 +98,8 @@ export const actionLogsPageSchema = z.object({ data: z.array(actionLogRowSchema)
 
 export type UiCommandDto = z.infer<typeof uiCommandSchema>;
 export type ConfirmEventDto = z.infer<typeof confirmEventSchema>;
+export type ActionPreviewDto = z.infer<typeof previewSchema>;
+export type AssistantEditDto = z.infer<typeof assistantEditSchema>;
 export type TurnEventDto = z.infer<typeof turnEventSchema>;
 export type AssistantTurnDto = z.infer<typeof assistantTurnSchema>;
 export type AssistantHomeDto = z.infer<typeof assistantHomeSchema>;

@@ -11,7 +11,9 @@ export const HISTORY_LIMIT = 30;
 const SESSIONS_LIMIT = 50;
 const TITLE_MAX = 80;
 
-export type Part = { type: 'text'; text: string } | { type: 'card'; card: ConfirmEventDto; status: 'pending' | 'done' | 'cancelled' } | { type: 'ui_command'; command: UiCommandDto };
+/** Trạng thái thẻ: `approval` = đã xác nhận nhưng governance chuyển sang duyệt — chưa thực hiện. */
+export type CardStatus = 'pending' | 'done' | 'cancelled' | 'approval';
+export type Part = { type: 'text'; text: string } | { type: 'card'; card: ConfirmEventDto; status: CardStatus } | { type: 'ui_command'; command: UiCommandDto };
 type Db = Pick<TenantDb, 'assistantSession' | 'assistantMessage' | '$queryRaw'>;
 type Row = Awaited<ReturnType<TenantDb['assistantMessage']['findMany']>>[number];
 
@@ -46,12 +48,23 @@ export async function appendMessage(db: Db, sessionId: string, role: 'user' | 'a
 }
 
 /** Đổi trạng thái thẻ (pending → done / cancelled) trong tin đã lưu theo confirm_token. */
-export async function markCard(db: Db, runId: string, token: string, status: 'done' | 'cancelled'): Promise<void> {
+export async function markCard(db: Db, runId: string, token: string, status: Exclude<CardStatus, 'pending'>): Promise<void> {
   const rows = await db.assistantMessage.findMany({ where: { runId, role: 'assistant' }, select: { id: true, content: true } });
   for (const r of rows) {
     const parts = partsOf(r.content);
     if (!parts.some((p) => p.type === 'card' && p.card.confirm_token === token)) continue;
     const next = parts.map((p) => (p.type === 'card' && p.card.confirm_token === token ? { ...p, status } : p));
+    await db.assistantMessage.update({ where: { id: r.id }, data: { content: { parts: next } as object } });
+  }
+}
+
+/** Thẻ đã Sửa: thay thẻ của token cũ bằng thẻ mới (token mới) trong tin đã lưu — vẫn `pending`. */
+export async function replaceCard(db: Db, runId: string, token: string, card: ConfirmEventDto): Promise<void> {
+  const rows = await db.assistantMessage.findMany({ where: { runId, role: 'assistant' }, select: { id: true, content: true } });
+  for (const r of rows) {
+    const parts = partsOf(r.content);
+    if (!parts.some((p) => p.type === 'card' && p.card.confirm_token === token)) continue;
+    const next = parts.map((p) => (p.type === 'card' && p.card.confirm_token === token ? { ...p, card } : p));
     await db.assistantMessage.update({ where: { id: r.id }, data: { content: { parts: next } as object } });
   }
 }

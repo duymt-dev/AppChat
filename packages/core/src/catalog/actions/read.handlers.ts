@@ -2,12 +2,13 @@
 // không bao giờ từ RAG (rag §2). Sản phẩm lưu trữ không trả; `search` chỉ trả sản phẩm đang bán.
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
-import type { ActionInput, ActionOutput, productGet, productSearch, stockGet } from '@appchat/actions';
+import type { ActionInput, ActionOutput, ActionPreview, productGet, productSearch, stockGet } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { searchProductIds } from '../repos/products.repo';
 import { UUID, lowOf } from '../services/catalog-write';
 import { attrsOf, categoryMap, PRODUCT_SELECT, type ProductRecord } from '../services/product-view';
+import { getPreview, searchPreview, stockPreview } from './previews/read.handlers.preview';
 
 type SearchOut = ActionOutput<typeof productSearch>;
 type GetOut = ActionOutput<typeof productGet>;
@@ -36,6 +37,10 @@ export class ProductSearchHandler implements Handler<ActionInput<typeof productS
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     return { result: { items: rows.map((r) => hit(r as ProductRecord, cats.map)) } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof productSearch>): Promise<ActionPreview> {
+    return searchPreview(input);
+  }
 }
 
 @Injectable()
@@ -62,6 +67,10 @@ export class ProductGetHandler implements Handler<ActionInput<typeof productGet>
       },
     };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof productGet>, tx: TenantTx): Promise<ActionPreview> {
+    return getPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -76,5 +85,9 @@ export class StockGetHandler implements Handler<ActionInput<typeof stockGet>, St
       return r ? [{ product_id: r.id, name: r.name, stock: r.stock, low: lowOf(r.stock, r.lowStockThreshold) }] : [];
     });
     return { result: { items } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof stockGet>, tx: TenantTx): Promise<ActionPreview> {
+    return stockPreview(tx, input);
   }
 }

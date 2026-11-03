@@ -27,9 +27,19 @@ function recorder(respond: (ctx: ActionContext) => unknown) {
   return { executor, calls };
 }
 
+/** DB giả: KH-1016 → ID_A, phụ trách bởi `owner`; scope crm của sales (own) chỉ thấy khách mình phụ trách. */
+const contactDb = (owner: string) =>
+  ({
+    contact: {
+      findFirst: async ({ where }: { where: { code: string } }) => (where.code === 'KH-1016' ? { id: ID_A } : null),
+      findUnique: async ({ where }: { where: { id: string } }) => (where.id === ID_A ? { id: ID_A, ownerUserId: owner, deletedAt: null } : null),
+    },
+    contactCollaborator: { findUnique: async () => null },
+  }) as unknown as TenantDb;
+
 describe('call_action → preview mang input chuẩn hoá', () => {
   it('KH-1016 đổi sang id một lần; needs_confirmation.canonicalInput = input đã gửi executor; khoá idem theo lời gọi', async () => {
-    const db = { contact: { findFirst: async ({ where }: { where: { code: string } }) => (where.code === 'KH-1016' ? { id: ID_A } : null) } } as unknown as TenantDb;
+    const db = contactDb('u9');
     const { executor, calls } = recorder(() => ({ status: 202, data: { status: 'preview_required', preview: { summary: 'Sửa SĐT', risk: 'write' }, confirm_token: 'tok' } }));
     const tools: ToolSpec[] = assistantTools({ db, executor, runner: {} as AiRunner, now: () => new Date() }, t);
     const call = tools.find((x) => x.name === 'call_action')!;
@@ -38,6 +48,22 @@ describe('call_action → preview mang input chuẩn hoá', () => {
     expect(calls[0]!.input).toEqual({ contact_id: ID_A, patch: { phone: '0901111222' } });
     expect(calls[0]!.ctx.idempotencyKey).toBe(assistantIdemKey('run1', 3, 'call-9'));
     expect(out).toEqual({ kind: 'needs_confirmation', preview: { summary: 'Sửa SĐT', risk: 'write' }, confirmToken: 'tok', canonicalInput: calls[0]!.input });
+  });
+
+  it('mã của khách ngoài scope → giữ nguyên mã (không lộ id / sự tồn tại); executor tự trả 404 như mã sai', async () => {
+    const { executor, calls } = recorder(() => ({ status: 200, data: { result: {}, action_log_id: 'l' } }));
+    const sales: AssistantTurnCtx = { ...t, userId: 'u2', authz: authzForRole('sales', 'u2') };
+    const call = assistantTools({ db: contactDb('u9'), executor, runner: {} as AiRunner, now: () => new Date() }, sales).find((x) => x.name === 'call_action')!;
+    await call.execute({ action_id: 'contact.get', input: { contact_id: 'KH-1016' } }, { stepIdx: 0, toolCallId: 'c' });
+    expect(calls[0]!.input).toEqual({ contact_id: 'KH-1016' });
+  });
+
+  it('mã lồng trong mảng (`items[].product_id`) đổi theo đường dẫn schema; ghi chú giống mã không đổi', async () => {
+    const db = { ...contactDb('u1'), product: { findFirst: async ({ where }: { where: { code: string } }) => (where.code === 'SP-0007' ? { id: ID_B } : null) } } as unknown as TenantDb;
+    const { executor, calls } = recorder(() => ({ status: 202, data: { status: 'preview_required', preview: { summary: '', risk: 'write' }, confirm_token: 'tok' } }));
+    const call = assistantTools({ db, executor, runner: {} as AiRunner, now: () => new Date() }, t).find((x) => x.name === 'call_action')!;
+    await call.execute({ action_id: 'quote.create', input: { contact_id: 'KH-1016', note: 'KH-1016', items: [{ product_id: 'SP-0007', name: 'A', qty: 1, unit_price: '1000', tax_rate: 8 }] } }, { stepIdx: 0, toolCallId: 'c' });
+    expect(calls[0]!.input).toMatchObject({ contact_id: ID_A, note: 'KH-1016', items: [{ product_id: ID_B }] });
   });
 });
 

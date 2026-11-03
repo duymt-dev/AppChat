@@ -1,10 +1,11 @@
 // contact.search (agent / Trợ lý): tìm khách theo tên / SĐT / email / mã KH, lọc giai đoạn / nhóm — cùng điều kiện + scope với danh sách
 // Khách hàng (`listContactIds`, index trigram f_unaccent(name) / phone_norm / code), trả id + mã để gọi action khác.
 import { Injectable } from '@nestjs/common';
-import type { ActionInput, contactSearch } from '@appchat/actions';
+import type { ActionInput, ActionPreview, contactSearch } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { listContactIds } from '../repos/contacts.repo';
+import { searchPreview } from './previews/contact-search.handler.preview';
 
 type Out = { contacts: { id: string; code: string; name: string; phone: string | null; email: string | null; stage: string }[]; total: number };
 
@@ -20,5 +21,9 @@ export class ContactSearchHandler implements Handler<ActionInput<typeof contactS
       return r ? [{ id: r.id, code: r.code, name: r.name, phone: r.phone, email: r.email, stage: r.stage }] : [];
     });
     return { result: { contacts, total } };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactSearch>, tx: TenantTx): Promise<ActionPreview> {
+    return searchPreview(ctx, input, tx);
   }
 }

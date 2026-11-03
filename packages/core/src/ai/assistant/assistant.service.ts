@@ -11,6 +11,7 @@ import { REDIS, type KeyValueStore } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
 import { listActionLogs, type LogFilter } from './action-logs.read';
+import { editPreview } from './edit-preview';
 import { assistantHome } from './home.read';
 import { runTrace } from './run-trace.read';
 import { listSessions, sessionMessages } from './sessions';
@@ -64,6 +65,13 @@ export class AssistantService {
 
   async confirm(c: Caller, q: Pick<ConfirmRequest, 'token' | 'decision'>) {
     return assistantConfirm(this.deps(), await this.db(c), { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz });
+  }
+
+  /** Sửa thẻ xem trước (REQ-E03b): chỉ xem trước lại → thẻ mới, token cũ mất hiệu lực. */
+  async editPreview(c: Caller, token: string, input: Record<string, unknown>) {
+    const d = this.deps();
+    const p = await this.profile(c);
+    return editPreview({ executor: d.executor, kv: d.kv, now: d.now }, await this.db(c), { ws: c.workspaceId, userId: c.userId, authz: c.authz, role: p.role, token, input });
   }
 
   async home(c: Caller) {

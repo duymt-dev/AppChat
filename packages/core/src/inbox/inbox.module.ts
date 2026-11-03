@@ -38,7 +38,8 @@ import { FILE_LINKS } from './tokens';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
-import { CannedReplySearchHandler, ConversationGetHandler, ConversationSearchHandler, TagSearchHandler } from './actions/conversation-read.handlers';
+import { CannedReplySearchHandler, ConversationGetHandler, ConversationSearchHandler } from './actions/conversation-read.handlers';
+import { TagSearchHandler } from './actions/tag-read.handler';
 
 const HANDLERS = [
   ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler,

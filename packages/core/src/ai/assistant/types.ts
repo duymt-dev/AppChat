@@ -9,4 +9,6 @@ export interface AssistantTurnCtx {
   authz: AuthzContext;
   mode: AssistantMode;
   locale: string;
+  /** Khoá vai trò của người dùng (`owner` / roleKey) — quyền thấy / ghi trường tuỳ biến (D56). Vắng → chỉ Owner được hết. */
+  role?: string;
 }

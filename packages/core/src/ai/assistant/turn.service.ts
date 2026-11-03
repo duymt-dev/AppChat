@@ -3,12 +3,11 @@
 // `{ session_id, run_id, events }` một lần (FE chưa đọc SSE — DV-006). `POST /assistant/confirm`: chạy action với confirm_token
 // (executor tiêu thụ — đúng một lần) hoặc huỷ → nối kết quả vào run → chạy tiếp → events. Credit trừ như mọi run; hết ví → `error`.
 import { registry } from '@appchat/actions';
-import type { PausedState, ToolOutcome } from '@appchat/ai';
+import type { ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
 import type { ToolExecutor } from '../../kernel/actions/executor';
 import type { KeyValueStore } from '../../kernel/redis';
-import { CONFIRM_TTL_MS } from '../../kernel/actions/confirm-token';
 import { DEFAULT_RUN_BUDGET, MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
 import { readAiSetting, tierFor } from '../settings/ai-settings.service';
@@ -16,10 +15,11 @@ import { assistantSystem, type AssistantContext, type AssistantRunInput } from '
 import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
+import { readBack } from './action-readback';
+import { bindToken, takePending } from './pending-action';
 import { appendMessage, historyMessages, markCard, openSession, type Part } from './sessions';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
-const cfKey = (token: string) => `assistant:confirm:${token}`;
 
 export interface AssistantDeps {
   executor: ToolExecutor;
@@ -63,7 +63,7 @@ function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string)
 export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow, ws: string, authz: AuthzContext | null): Promise<Omit<RunSpec, 'messages'>> {
   const input = run.input as unknown as AssistantRunInput;
   if (!authz || !run.initiatedByUserId) return { system: '', tools: [], maxSteps: MAX_STEPS.assistant, source: 'assistant' };
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
@@ -89,8 +89,8 @@ async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResul
     const call = r.paused!.state.pendingToolCall.input as { action_id?: string };
     const def = DEFS.get(call.action_id ?? '');
     if (def) {
-      const card = confirmCard(def, paused.preview, paused.confirmToken, locale);
-      await d.kv.set(cfKey(paused.confirmToken), run.id, 'PX', CONFIRM_TTL_MS);
+      const card = confirmCard(def, paused.preview, paused.confirmToken, locale, r.paused!.state.canonicalInput ?? (call as { input?: unknown }).input ?? {});
+      await bindToken(d.kv, paused.confirmToken, run.id);
       events.push(card);
       parts.push({ type: 'card', card, status: 'pending' });
     }
@@ -122,7 +122,7 @@ export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnReque
   };
   const store = new RunStore(db, d.now);
   const run = await store.create({ kind: 'assistant', title: q.text.slice(0, 200), tier: await tierOf(d, db, q.ws, q.tier), input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
   const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id) });
   return { session_id: session.id, run_id: run.id, events: await eventsOf(d, db, run, r, 0, q.locale, session.id) };
@@ -138,24 +138,16 @@ export interface ConfirmRequest {
 
 /** `POST /assistant/confirm`: token lạ / hết hạn → 409; run của người khác → 404. */
 export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: ConfirmRequest) {
-  const runId = await d.kv.getdel(cfKey(q.token));
-  if (!runId) throw new AppError('CONFLICT', 409, { confirm_token: 'expired' }, 'CONFIRM_EXPIRED');
+  const { run, state, input: canonical } = await takePending(d.kv, db, d.now, q.userId, q.token);
   const store = new RunStore(db, d.now);
-  const run = await store.get(runId);
-  if (!run || run.kind !== 'assistant' || run.initiatedByUserId !== q.userId) {
-    // Không phải người tạo: trả token lại cho chủ (đoán token của người khác không làm mất thẻ của họ).
-    if (run) await d.kv.set(cfKey(q.token), runId, 'PX', CONFIRM_TTL_MS);
-    throw new AppError('NOT_FOUND', 404, { confirm_token: 'not_found' });
-  }
-  if (run.status !== 'waiting_approval' || !run.state) throw new AppError('CONFLICT', 409, { confirm_token: 'expired' }, 'CONFIRM_EXPIRED');
   const input = run.input as unknown as AssistantRunInput;
-  const state = run.state as unknown as PausedState;
   const call = state.pendingToolCall.input as { action_id: string; input?: unknown };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role };
 
   let outcome: ToolOutcome;
   let logId: string | undefined;
   let ui: UiCommandDto | undefined;
+  let approvalId: string | undefined;
   if (q.decision === 'cancel') outcome = { kind: 'ok', output: { cancelled: true } };
   else {
     try {
@@ -163,11 +155,17 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
       const stepIdx = state.stepIdx - 1;
       const idem = DEFS.get(call.action_id)?.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(run.id, stepIdx, state.pendingToolCall.toolCallId) };
       const ctx = assistantActionCtx(t, stepIdx, { confirmToken: q.token, ...idem });
-      const out = await d.executor.execute(ctx, call.action_id, state.canonicalInput ?? call.input ?? {});
+      const out = await d.executor.execute(ctx, call.action_id, canonical);
       if (out.status === 200) {
-        outcome = { kind: 'ok', output: out.data.result };
         logId = out.data.action_log_id;
         ui = out.data.ui_target as UiCommandDto | undefined;
+        // Đọc lại bản ghi vừa ghi bằng action get (cùng query + scope của màn) → model trả lời theo trạng thái thật.
+        const readback = await readBack(d.executor, t, stepIdx, ui);
+        outcome = { kind: 'ok', output: readback ? { result: out.data.result, readback } : out.data.result };
+      } else if (out.data.status === 'approval_required') {
+        // Governance đẩy sang duyệt (vd. vượt ngưỡng): CHƯA thực hiện — model / thẻ nói rõ đang chờ duyệt, không báo đã xong.
+        approvalId = out.data.approval_id;
+        outcome = { kind: 'ok', output: { status: 'approval_required', approval_id: approvalId } };
       } else outcome = { kind: 'error', code: 'CONFIRM_EXPIRED', message: 'Xác nhận đã hết hạn' };
     } catch (e) {
       if (!(e instanceof AppError)) throw e;
@@ -175,7 +173,7 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
     }
   }
   const done = q.decision === 'confirm' && !!logId;
-  await markCard(db, run.id, q.token, done ? 'done' : 'cancelled');
+  await markCard(db, run.id, q.token, done ? 'done' : approvalId ? 'approval' : 'cancelled');
   const def = DEFS.get(call.action_id);
   const fromIdx = await store.nextIdx(run.id);
   const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
@@ -184,5 +182,6 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const events = r ? await eventsOf(d, db, fresh, r, fromIdx, input.locale, input.session_id) : [];
   if (done && logId) events.unshift({ type: 'result', action_log_id: logId, summary: def ? confirmCard(def, null, q.token, input.locale).title : call.action_id });
   const target = ui ?? (def && done ? { type: 'navigate' as const, route: confirmCard(def, null, q.token).route } : undefined);
-  return { status: done ? ('done' as const) : ('cancelled' as const), ...(logId ? { action_log_id: logId } : {}), ...(target ? { ui_target: target } : {}), events };
+  const status = done ? ('done' as const) : approvalId ? ('approval_required' as const) : ('cancelled' as const);
+  return { status, ...(logId ? { action_log_id: logId } : {}), ...(approvalId ? { approval_id: approvalId } : {}), ...(target ? { ui_target: target } : {}), events };
 }

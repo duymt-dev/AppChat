@@ -11,7 +11,8 @@ import { BusinessHoursUpdateHandler, StaffCreateHandler, StaffDeactivateHandler,
 import { BookingPlace } from './services/booking-place';
 import { CalendarReadService } from './services/calendar-read.service';
 
-import { AppointmentGetHandler, ServiceSearchHandler, StaffSearchHandler } from './actions/booking-read.handlers';
+import { AppointmentGetHandler } from './actions/booking-read.handlers';
+import { ServiceSearchHandler, StaffSearchHandler } from './actions/booking-reference-read.handlers';
 import { AppointmentUpdateHandler } from './actions/appointment-update.handler';
 
 const HANDLERS = [

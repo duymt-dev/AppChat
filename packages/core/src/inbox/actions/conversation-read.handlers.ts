@@ -1,9 +1,9 @@
-// conversation.search / conversation.get · tag.search (TIP-023b R2 · DC-224): Trợ lý / agent đọc Hộp thư. Danh sách dùng chung
+// conversation.search / conversation.get · canned_reply.search (TIP-023b R2 · DC-224): Trợ lý / agent đọc Hộp thư. Danh sách dùng chung
 // `listConversationIds` (scope inbox + thư mục + từ khoá như màn) rồi lọc khách nếu có; chi tiết dùng `visibleConversation` (ngoài scope →
-// NOT_FOUND) và ≤ 20 tin gần nhất — tin đã thu hồi / xoá không trả nội dung, không trả tệp / URL. Thẻ: danh mục chung (không data scope).
+// NOT_FOUND) và ≤ 20 tin gần nhất — tin đã thu hồi / xoá không trả nội dung, không trả tệp / URL. Thẻ: tag-read.handler.ts.
 import { Inject, Injectable } from '@nestjs/common';
 import { foldText } from '@appchat/shared';
-import type { ActionInput, cannedReplySearch, conversationGet, conversationSearch, tagSearch } from '@appchat/actions';
+import type { ActionInput, cannedReplySearch, conversationGet, conversationSearch } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -76,19 +76,6 @@ export class ConversationGetHandler implements Handler<ActionInput<typeof conver
         messages: msgs.reverse().map((m) => ({ id: m.id, direction: m.direction, sender: m.senderType, kind: m.kind, text: m.deletedAt || m.recalledAt ? '' : m.body, at: m.createdAt.toISOString() })),
       },
     };
-  }
-}
-
-type TagOut = { tags: { id: string; name: string; scope: string }[] };
-
-@Injectable()
-@ActionHandler('tag.search')
-export class TagSearchHandler implements Handler<ActionInput<typeof tagSearch>, TagOut> {
-  async execute(_ctx: ActionContext, i: ActionInput<typeof tagSearch>, tx: TenantTx): Promise<HandlerOutcome<TagOut>> {
-    // Danh mục thẻ nhỏ (vài chục / workspace) — lọc bỏ dấu sau khi đọc, như Cài đặt › Thẻ.
-    const f = foldText(i.q ?? '');
-    const rows = await tx.tag.findMany({ orderBy: { name: 'asc' }, take: 500, select: { id: true, name: true, scope: true } });
-    return { result: { tags: rows.filter((t) => !f || foldText(t.name).includes(f)).slice(0, i.limit ?? 10) } };
   }
 }
 

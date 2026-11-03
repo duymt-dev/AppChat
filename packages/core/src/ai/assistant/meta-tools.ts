@@ -16,7 +16,9 @@ import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
 import { resolveCodes } from './code-refs';
+import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
+import { dispatchOutcome } from './read-dispatch';
 import type { AssistantTurnCtx } from './types';
 
 export type { AssistantTurnCtx } from './types';
@@ -27,6 +29,8 @@ const DEFS = new Map(registry.map((a) => [a.id, a]));
 const ok = (output: unknown): ToolOutcome => ({ kind: 'ok', output });
 const err = (code: string, message: string): ToolOutcome => ({ kind: 'error', code, message });
 const STEP_STATUS = ['pending', 'running', 'done', 'failed', 'skipped'] as const;
+/** Vai trò cho trường tuỳ biến: Owner luôn `owner`; vắng roleKey → vai trò hẹp nhất (không thấy trường giới hạn vai trò). */
+const roleOf = (t: AssistantTurnCtx) => (t.authz.isOwner ? 'owner' : (t.role ?? 'member'));
 
 
 export interface MetaDeps extends DelegateDeps {
@@ -57,18 +61,18 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
   if (!modeAllows(def, t.mode)) return err('FORBIDDEN', 'Chế độ Chat chỉ được tra cứu — chuyển sang Cowork để thực hiện thao tác ghi');
   try {
     // Model nói theo mã hiển thị (KH-1016, BG-1003) → đổi sang id trước khi chạy.
-    const { input } = await resolveCodes(d.db, def.id, i.input ?? {});
+    const { input } = await resolveCodes(d.db, def.id, i.input ?? {}, t.authz);
+    // Trường tuỳ biến: Trợ lý chỉ ghi trường `ai = true` của workspace (D56) — kiểu / bắt buộc domain kiểm lại lúc execute.
+    const notAi = await aiCustomErrors(d.db, def, input, roleOf(t));
+    if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
     // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
     const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
-    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input);
-    if (out.status === 200) return ok(out.data.result);
-    const a = out.data;
-    if (a.status === 'preview_required') return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token, canonicalInput: input };
-    return { kind: 'needs_approval', approvalId: a.approval_id };
+    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), input);
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
-      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(briefSchema(def))}, ví dụ ${JSON.stringify(exampleInput(def))}. ${def.description}` };
+      const brief = await withCustomSchema(d.db, def, briefSchema(def), roleOf(t));
+      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(brief)}, ví dụ ${JSON.stringify(exampleInput(def))}. ${def.description}` };
     }
     if (e instanceof AppError) return err(e.code, e.fields ? `${e.message} ${JSON.stringify(e.fields)}` : e.message);
     throw e;
@@ -94,7 +98,9 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async (input) => {
         const i = (input ?? {}) as { query?: unknown; module?: unknown };
-        return ok({ actions: findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined, undefined, implementedBy(d.executor)) });
+        const found = findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined, undefined, implementedBy(d.executor));
+        // Ô `custom` → trường tuỳ biến hiện hành của workspace mà người dùng được ghi (SPEC A.5).
+        return ok({ actions: await Promise.all(found.map(async (a) => ({ ...a, input: await withCustomSchema(d.db, a, a.input, roleOf(t)) }))) });
       },
     },
     {

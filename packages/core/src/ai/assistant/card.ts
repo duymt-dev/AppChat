@@ -4,7 +4,8 @@
 import type { ActionDef, ActionPreview } from '@appchat/actions';
 import type { ConfirmEventDto } from '@appchat/shared';
 import { interpolate, serverMessages } from '@appchat/shared';
-import { entityOf } from './catalog';
+import { briefSchema, entityOf } from './catalog';
+import { presentInput } from './pending-action';
 
 type Look = { route: string; color: string; icon: string };
 
@@ -47,8 +48,11 @@ const FALLBACK: Look = { route: '/settings', color: '#6E48E6', icon: 'ic-cog' };
 
 export const lookOf = (def: Pick<ActionDef, 'id' | 'module'>): Look => BY_ENTITY[entityOf(def.id)] ?? BY_MODULE[def.module] ?? FALLBACK;
 
-/** Thẻ xác nhận phẳng cho FE (key = action, route / màu / icon theo đối tượng, tiêu đề "Tạo khách hàng", mô tả = preview). */
-export function confirmCard(def: ActionDef, preview: ActionPreview | null, token: string, locale = 'vi'): ConfirmEventDto {
+/**
+ * Thẻ xác nhận phẳng cho FE (key = action, route / màu / icon theo đối tượng, tiêu đề "Tạo khách hàng", mô tả = preview). Có `input` (thẻ
+ * chờ xác nhận) → kèm preview chuẩn (đổi gì), input đã bỏ ô bí mật và khuôn input cho form Sửa (REQ-E03b).
+ */
+export function confirmCard(def: ActionDef, preview: ActionPreview | null, token: string, locale = 'vi', input?: unknown): ConfirmEventDto {
   const m = serverMessages(locale).ai.assistant;
   const look = lookOf(def);
   // Động từ riêng theo action (duyệt / sửa & duyệt / từ chối) → động từ "tạo" → động từ theo risk.
@@ -69,5 +73,7 @@ export function confirmCard(def: ActionDef, preview: ActionPreview | null, token
     // Không có tóm tắt của handler → câu theo tiêu đề (không đưa id action lên UI — DC-133).
     desc: summary || interpolate(m.card.descEmpty, { action: title.toLocaleLowerCase(locale) }),
     dest,
+    ...(preview ? { preview } : {}),
+    ...(input !== undefined ? { input: presentInput(input) ?? {}, schema: briefSchema(def) } : {}),
   };
 }
