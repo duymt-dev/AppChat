@@ -9,9 +9,7 @@ import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';
 import { AuthzModule } from '../../authz/authz.module';
 import { AuthzResolver } from '../../authz/services/authz-resolver';
-import { ChannelsModule } from '../../channels/channels.module';
-import { CrmModule } from '../../crm/crm.module';
-import { InboxModule } from '../../inbox/inbox.module';
+import { AiDomainHandlersModule } from './ai-domain-handlers.module';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
@@ -114,5 +112,6 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
 
 export const AI_RUNTIME = AiJobsRunner;
 
-@Module({ imports: [AiModule, BillingModule, AuthzModule, ChannelsModule, CrmModule, InboxModule], providers: [AiJobsRunner] })
+// Handler domain như API (TIP-023b): chạy tiếp run sau duyệt / agent / tác vụ không gặp NOT_IMPLEMENTED.
+@Module({ imports: [AiModule, BillingModule, AuthzModule, AiDomainHandlersModule], providers: [AiJobsRunner] })
 export class AiJobsModule {}

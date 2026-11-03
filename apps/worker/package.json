@@ -8,7 +8,8 @@
     "start": "node dist/main.js",
     "lint": "eslint src test",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.87",
@@ -42,6 +43,9 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@appchat/db": "workspace:*",
+    "@appchat/shared": "workspace:*",
+    "@nestjs/testing": "12.3.2",
     "@swc/core": "1.16.20",
     "@types/node": "24.19.2",
     "eslint": "10.13.0",

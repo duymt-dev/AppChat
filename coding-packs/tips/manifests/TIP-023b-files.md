@@ -279,6 +279,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/worker/test/integration/ai-commerce-resume.test.ts` | Extracted implementation or targeted evidence |
 | C | `apps/worker/test/integration/fixtures/ai-process.ts` | Explicit integration seam |
 | M | `apps/worker/vitest.config.ts` | Runtime/contract/wiring |
+| M | `apps/worker/package.json` | Build amendment 2026-11-03: script `test:integration` + devDependencies workspace `@appchat/db` / `@appchat/shared` + `@nestjs/testing` (đã có ở core / api, cùng phiên bản) cho integration process ROLE=ai |
 | C | `apps/worker/vitest.integration.config.ts` | Extracted implementation or targeted evidence |
 | C | `fixtures/ai-eval/assistant-vertical.json` | Extracted implementation or targeted evidence |
 | C | `fixtures/ai-eval/live-seed.mjs` | Extracted implementation or targeted evidence |
