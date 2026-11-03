@@ -134,7 +134,7 @@
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
-| D03 | Trợ lý = orchestrator điều phối agent + copilot điều khiển mọi action UI | 01-REQUIREMENTS-MATRIX.md:253 | 023b | MỘT PHẦN | meta-tools + delegate (packages/core/src/ai/assistant/meta-tools.ts, delegate.ts · test assistant.test.ts:221); phủ đủ action / preview: 023b, theo màn: 023c |
+| D03 | Trợ lý = orchestrator điều phối agent + copilot điều khiển mọi action UI | 01-REQUIREMENTS-MATRIX.md:253 | 023c | MỘT PHẦN | 023b xong: mọi action có handler gọi được qua call_action + preview + Sửa thẻ (assistant-vertical.test.ts, e2e http assistant-vertical); còn Trợ lý theo màn / Generative UI → 023c |
 | D16 | Action-first: một Action Registry cho UI, Trợ lý, agent | 01-REQUIREMENTS-MATRIX.md:254 | 003 | QUY-TẮC | kernel/actions/executor.ts · test packages/actions/src/registry.test.ts; còn 17 lời gọi `transport.post/put/patch` trong apps/web/src/features chưa rà |
 | D04 | Kênh Zalo cá nhân + Web widget + Email | 01-REQUIREMENTS-MATRIX.md:255 | 014, 017, 018 | CHỜ-TK | packages/channels/src/{zalo-personal,webchat,email} · test zalo-adapter.test.ts, webchat.test.ts, email.test.ts; Zalo thật Q-003 |
 | D05 | Zalo cá nhân adapter cô lập, throttle chống khoá | 01-REQUIREMENTS-MATRIX.md:256 | 014 | CHỜ-TK | manifest.ts:22 jitter 2–6s; channels/jobs/send.processor.ts:43 · test channels.test.ts; Q-003 |
@@ -194,7 +194,7 @@
 | D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | 014c | MỘT PHẦN | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:58; không có test kiểm khoá; TIP-014c nhận (2026-11-02) |
 | D49 | Submenu Vòng đời = `contact.set_stage` | 01-REQUIREMENTS-MATRIX.md:298 | 025 | ĐẠT | features/inbox/components/ConvMenu.tsx:26 · test apps/web/e2e/inbox.spec.ts "menu hội thoại" |
 | D50a | Ẩn trò chuyện = `conversation.hidden_at`, có tin mới hiện lại | 01-REQUIREMENTS-MATRIX.md:299 | 016 | ĐẠT | inbox/actions/conversation-state.handlers.ts:88 · test inbox.test.ts:136 |
-| D50b | Tạo nhóm Zalo (hết khoá sau TIP-014) | 01-REQUIREMENTS-MATRIX.md:299 | 023b | CHƯA | `conversation.create_group` chưa có |
+| D50b | Tạo nhóm Zalo (hết khoá sau TIP-014) | 01-REQUIREMENTS-MATRIX.md:299 | 023b | ĐẠT | conversation.create_group (durable request + group worker): packages/core/src/inbox/…; test conversation-groups.test.ts + apps/api/test/integration/actions/conversation.create_group.action.test.ts |
 | D51 | Quyền tool chỉ ở Builder, nhóm theo module; delegate = agent ∩ người ra lệnh | 01-REQUIREMENTS-MATRIX.md:300 | 021, 024 | ĐẠT | test apps/web/src/shared/ai/agent-tools.test.ts, assistant.test.ts:221 |
 | D52a | Mã đơn `DH-000123`, ticket `TKT-` | 01-REQUIREMENTS-MATRIX.md:301 | 031, 034 | ĐẠT | packages/shared/src/codes.ts:7,11 · test flow.test.ts, orders.test.ts |
 | D52b | Ticket đóng tự mở lại khi khách nhắn trong 7 ngày | 01-REQUIREMENTS-MATRIX.md:301 | 034 | ĐẠT | support/services/support-system.ts:99 · test support.test.ts:151 |
@@ -207,7 +207,7 @@
 | D54 | Một kho RAG / workspace, `kb_scope` mỗi agent, public / internal | 01-REQUIREMENTS-MATRIX.md:303 | 020, 021 | ĐẠT | ai/kb/search.ts, agent.store.ts · test kb.test.ts "AC5 … Owner thấy internal, sales chỉ public" |
 | D55 | Generative UI mức 2 (UiTree) cho 8 drawer + màn Trợ lý | 01-REQUIREMENTS-MATRIX.md:304 | 023c | CHƯA | Drawer theo màn còn giả (TIP-023c CONTEXT) |
 | D56a | Trường tuỳ biến nhập / lưu / validate cho 6 thực thể | 01-REQUIREMENTS-MATRIX.md:305 | 015, 027–034 | ĐẠT | validateCustomValues ở crm/catalog/quotes/orders/booking/support handlers · test crm-settings.test.ts AC9a, custom-fields/values.test.ts |
-| D56b | Sửa giá trị tuỳ biến lịch hẹn sau tạo (`appointment.update`) | 01-REQUIREMENTS-MATRIX.md:305 | 023b | CHƯA | `appointment.update` chưa có |
+| D56b | Sửa giá trị tuỳ biến lịch hẹn sau tạo (`appointment.update`) | 01-REQUIREMENTS-MATRIX.md:305 | 023b | ĐẠT | appointment.update packages/actions/src/booking-update.ts; test appointment-update.test.ts + apps/api/test/integration/actions/appointment.update.action.test.ts |
 | D57 | Goal backend một mạch, ba sổ | 01-REQUIREMENTS-MATRIX.md:306 | — | QUY-TẮC | Quy trình |
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |

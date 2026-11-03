@@ -51,7 +51,7 @@
 | DEF-022-2 | Eval suite `agent-reply` | reports/TIP-022-completion.md:41 | 044 | CHƯA | Không có harness eval; TG row 044 |
 | DEF-022-3 | CSAT theo agent trên thẻ agent | reports/TIP-022-completion.md:39 | 038 | GIẢ | ai/agents/agents.read.ts:40 `csat: 0` cứng |
 | DEF-022-4 | `ai_escalate` (khiếu nại) → tự mở ticket | reports/TIP-022-completion.md:39 | 022b | CHƯA | Không consumer `ai.handoff` ở support (chỉ thông báo — ai/events/reply.rules.ts:7) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
-| DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | MỘT PHẦN | Chỉ 14 file handler có `preview(` trong packages/core/src |
+| DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | ĐẠT | PREVIEW_DEBT rỗng (packages/core/test/assistant-coverage.test.ts) |
 | DEF-023-2 | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | reports/TIP-023-completion.md:41 | 023c | CHƯA | apps/web/src/features/assistant không gọi `/assistant/sessions` |
 | DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | CHƯA | ai/assistant/meta-tools.ts:7 NOT_IMPLEMENTED; `insight.query` không có trong registry |
 | DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |

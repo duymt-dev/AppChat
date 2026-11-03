@@ -154,9 +154,9 @@
 | REQ-D17c | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:98 | 020c | CHƯA | kb.search bỏ qua kb_scope (kb-search.handler.ts:26); delegate / task không truyền phạm vi |
 | REQ-D17d | Trợ lý: cả kho trong quyền đọc người hỏi | 01-REQUIREMENTS-MATRIX.md:98 | 020 | ĐẠT | kb-search.handler.ts:15; test kb.test.ts "Owner thấy internal, sales chỉ public" |
 | REQ-E01 | Action Registry dùng chung, một đường thực thi | 01-REQUIREMENTS-MATRIX.md:103 | 003 | ĐẠT | packages/actions/src/define.ts:42; kernel/actions/executor.ts:73; test registry.test.ts, actions.test.ts, actions-unit.test.ts |
-| REQ-E02 | Trợ lý làm mọi action với quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:104 | 023b | MỘT PHẦN | ai/assistant/meta-tools.ts:86-96; test assistant.test.ts; thiếu action đọc search / get, khuôn lồng nhau |
+| REQ-E02 | Trợ lý làm mọi action với quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:104 | 023b | ĐẠT | meta-tools.ts quyền hiện tại mỗi lần gọi; action đọc search/get; khuôn lồng nhau (catalog.ts briefSchema); test assistant-vertical.test.ts (scope sales → 404) |
 | REQ-E03a | Đọc chạy ngay; ghi hiện thẻ Xác nhận / Huỷ | 01-REQUIREMENTS-MATRIX.md:105 | 023 | ĐẠT | ai/assistant/card.ts; test assistant.test.ts "ghi → thẻ confirm" |
-| REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | MỘT PHẦN | card.ts câu mặc định (DC-128); ChatThread.tsx không nút Sửa |
+| REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | ĐẠT | ActionPreviewCard.tsx (changes trước → sau, Sửa) + EditActionPreviewModal.tsx; POST /assistant/preview-edit (edit-preview.ts); test assistant-preview-edit.test.ts, e2e http assistant-vertical (PD-008, DC-312) |
 | REQ-E03c | Hàng loạt bắt buộc xác nhận số lượng | 01-REQUIREMENTS-MATRIX.md:105 | 003 | ĐẠT | policy.ts:24; test actions-unit.test.ts "bulk luôn preview" |
 | REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | CHƯA | Không có code |
 | REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023 | ĐẠT | meta-tools.ts:124; delegate.ts; test assistant.test.ts "plan", "delegate" |
