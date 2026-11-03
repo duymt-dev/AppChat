@@ -539,9 +539,11 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/test/agent-current-authority.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/appointment-update.test.ts` | Explicit integration seam |
 | C | `packages/core/test/assistant-canonical-input.test.ts` | Extracted implementation or targeted evidence |
+| C | `packages/core/test/assistant-coverage.debt.ts` | Danh sách nợ preview R1 (chỉ giảm, R2 = rỗng) tách khỏi test |
 | C | `packages/core/test/assistant-coverage.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-custom-schema.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-implemented-tools.test.ts` | Extracted implementation or targeted evidence |
+| M | `packages/core/test/assistant-unit.test.ts` | find_actions fail-closed theo handler thật + khuôn schema lồng nhau (R1.1/R1.2) |
 | C | `packages/core/test/assistant-preview-edit.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/group-request-state.test.ts` | Explicit integration seam |
 | M | `packages/db/prisma/tenant/channels.prisma` | Runtime/contract/wiring |

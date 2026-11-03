@@ -45,6 +45,16 @@ export class ActionHandlerRegistry {
     return this;
   }
 
+  /**
+   * Action có handler thật — Trợ lý / agent chỉ thấy và gọi được các action này (TIP-023b R1.2). Chưa load → false (fail closed);
+   * `get` vẫn trả NotImplementedHandler cho action còn thiếu nên không dùng `get` / `has` để kiểm.
+   */
+  isImplemented(id: string): boolean {
+    if (!this.loaded) return false;
+    const h = this.map.get(id);
+    return !!h && !(h instanceof NotImplementedHandler);
+  }
+
   get(id: string): ActionHandler | undefined {
     return this.map.get(id);
   }

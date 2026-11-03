@@ -5,7 +5,7 @@
 import { can, type PermissionKey } from '@appchat/shared';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import { connectedKeys, runToolIds } from '../agents/agent-tools';
 import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
 import { publishedAgent } from '../reply/reply-context';
@@ -16,7 +16,7 @@ import type { AssistantTurnCtx } from './types';
 
 export interface DelegateDeps {
   db: TenantDb;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner;
   now: () => Date;
 }
@@ -59,7 +59,7 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
     agentVersion: a.version,
     maxCredits: left,
   });
-  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: a.agent.id, toolIds: a.cfg.tools }, commander: t.authz, runId: row.id, source: 'agent' });
+  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: a.agent.id, toolIds: a.cfg.tools }, commander: t.authz, runId: row.id, source: 'agent', db: d.db });
   const system = `${agentSystem(a.cfg)}\n\nTrợ lý AI của doanh nghiệp giao việc cho bạn thay mặt người dùng. Làm đúng việc được giao, trả lời bằng bản tóm tắt ngắn kết quả.`;
   const prompt = context ? `${task}\n\nNgữ cảnh: ${context}` : task;
   const r = await d.runner.start(t.ws, store, row, { system, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'assistant' });

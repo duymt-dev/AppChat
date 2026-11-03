@@ -6,10 +6,11 @@ import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
 import type { ActionContext } from '../../kernel/actions/action-context';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import { resolveCodes } from '../assistant/code-refs';
 import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type NewRun } from '../runs/run.store';
-import { actionTool } from '../runs/tools';
+import { actionTool, toolActionId } from '../runs/tools';
 import { agentAuthz } from './agent-authz';
 import type { AgentConfig } from './agent.store';
 import { AGENT_INTENTS } from './catalog';
@@ -67,26 +68,40 @@ export interface AgentRunCtx {
   narrow?: (a: AuthzContext) => AuthzContext;
   /** Biến đổi input trước khi gọi action (khôi phục PII che trong lượt — TIP-022). */
   mapInput?: (input: unknown) => unknown;
+  /** DB tenant của run — có thì đổi mã hiển thị (KH-1016, BG-1003) → id như Trợ lý (TIP-023b R1.5). */
+  db?: TenantDb;
 }
 
-/** ToolSpec cho các action đã lọc (runToolIds): `execute` → ActionExecutor với ngữ cảnh agent của run. */
-export function agentToolSpecs(executor: Pick<ActionExecutor, 'execute'>, ids: readonly string[], r: AgentRunCtx): ToolSpec[] {
-  const ctxOf = (stepIdx: number): ActionContext => ({
+/**
+ * ToolSpec cho các action đã lọc (runToolIds): `execute` → ActionExecutor với ngữ cảnh agent của run. Chỉ action có handler thật
+ * (TIP-023b R1.2); thứ tự input: khôi phục PII (`mapInput`) → mã → id (`resolveCodes`) → executor validate.
+ */
+export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r: AgentRunCtx): ToolSpec[] {
+  const ctxOf = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => ({
     workspaceId: r.workspaceId,
     source: r.source,
     actor: { type: 'agent', id: r.agent.id },
     ...(r.commander ? { onBehalfOfUserId: r.commander.userId } : {}),
     runId: r.runId,
     stepId: String(stepIdx),
-    // Tác vụ chạy nền: khoá idempotent theo run + bước (send / money / *.create bắt buộc có — chạy lại bước không ghi hai lần).
-    ...(r.source === 'task' ? { idempotencyKey: `task:${r.runId}:${stepIdx}` } : {}),
+    // Khoá idempotent theo nguồn + run + lời gọi tool (một bước có thể gọi nhiều tool); id lời gọi nằm trong trạng thái run nên giữ
+    // nguyên qua retry / resume — chạy lại không ghi / gửi hai lần, input khác cùng khoá → CONFLICT (TIP-023b R1.5).
+    ...(def.risk === 'read' ? {} : { idempotencyKey: `${r.source}:${r.runId}:${stepIdx}:${toolCallId}` }),
     ...(r.servedConversationId ? { servedConversationId: r.servedConversationId } : {}),
     ...(r.autoSend ? { autoSend: true } : {}),
     authz: r.narrow ? r.narrow(agentAuthz(r.agent, r.commander)) : agentAuthz(r.agent, r.commander),
   });
-  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d).map((d) => actionTool(d, executor, ctxOf));
-  const map = r.mapInput;
-  return map ? specs.map((s) => ({ ...s, execute: (input, meta) => s.execute(map(input), meta) })) : specs;
+  const has = implementedBy(executor);
+  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id)).map((d) => actionTool(d, executor, (i, c) => ctxOf(d, i, c)));
+  const { mapInput: map, db } = r;
+  if (!map && !db) return specs;
+  return specs.map((s) => ({
+    ...s,
+    execute: async (input, meta) => {
+      const restored = map ? map(input) : input;
+      return s.execute(db ? (await resolveCodes(db, toolActionId(s.name), restored)).input : restored, meta);
+    },
+  }));
 }
 
 /**

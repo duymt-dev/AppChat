@@ -5,7 +5,7 @@
 import { registry } from '@appchat/actions';
 import { unmaskPii, type PiiMap, type ToolOutcome, type ToolSpec } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import { connectedKeys, runToolIds } from '../agents/agent-tools';
 import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
 import type { AgentConfig } from '../agents/agent.store';
@@ -22,7 +22,7 @@ const ROLES = ['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'cust
 
 export interface ReplyToolDeps {
   db: TenantDb;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner;
   now: () => Date;
 }
@@ -109,7 +109,7 @@ async function consult(d: ReplyToolDeps, t: ReplyTurn, i: { role?: unknown; ques
     conversationId: t.conversationId,
     maxCredits: CONSULT_BUDGET,
   });
-  const tools = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: target.agent.id, toolIds: target.cfg.tools }, runId: row.id, source: 'agent' });
+  const tools = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: target.agent.id, toolIds: target.cfg.tools }, runId: row.id, source: 'agent', db: d.db });
   const system = `${agentSystem(target.cfg)}\n\nĐồng nghiệp AI hỏi ý kiến bạn. Trả lời ngắn gọn, chỉ dựa trên dữ liệu tra được; không gửi gì cho khách.`;
   const r = await d.runner.start(t.ws, store, row, { system, messages: [{ role: 'user', content: question }], tools, maxSteps: MAX_STEPS.agent, source: 'inbox' });
   return r.status === 'completed' ? ok({ agent: target.agent.name, answer: r.text.slice(0, 2000) }) : err('CONSULT_FAILED', r.error?.message ?? r.status);
@@ -125,6 +125,7 @@ export async function replyTools(d: ReplyToolDeps, t: ReplyTurn): Promise<ToolSp
     source: 'agent',
     servedConversationId: t.conversationId,
     mapInput: (input) => unmaskPii(input, t.pii),
+    db: d.db,
   }).map((s) => {
     const id = s.name.replaceAll('__', '.');
     if (!t.dryRun || RISK.get(id) === 'read') return s;

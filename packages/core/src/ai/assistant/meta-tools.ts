@@ -13,8 +13,8 @@ import { toJson } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
-import type { ActionExecutor } from '../../kernel/actions/executor';
-import { allowedFor, briefSchema, findActions, modeAllows } from './catalog';
+import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
 import { resolveCodes } from './code-refs';
 import { delegateTool, type DelegateDeps } from './delegate';
 import type { AssistantTurnCtx } from './types';
@@ -31,7 +31,7 @@ const STEP_STATUS = ['pending', 'running', 'done', 'failed', 'skipped'] as const
 
 export interface MetaDeps extends DelegateDeps {
   db: TenantDb;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
 }
 
 /** Ngữ cảnh action của Trợ lý: quyền = quyền người dùng (§3.3b), run / bước để log nối về run. */
@@ -46,24 +46,29 @@ export const assistantActionCtx = (t: AssistantTurnCtx, stepIdx: number, extra: 
   ...extra,
 });
 
-async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number): Promise<ToolOutcome> {
+/** Khoá idempotent của lời gọi Trợ lý: run + bước + id lời gọi (một bước gọi nhiều action); action đọc không cần khoá. */
+export const assistantIdemKey = (runId: string, stepIdx: number, toolCallId: string) => `assistant:${runId}:${stepIdx}:${toolCallId}`;
+
+async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number, toolCallId: string): Promise<ToolOutcome> {
   const i = (raw ?? {}) as { action_id?: unknown; input?: unknown };
   const def = typeof i.action_id === 'string' ? DEFS.get(i.action_id) : undefined;
-  if (!def || !allowedFor(def, t.authz)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
+  // Action chưa có handler thật: chặn trước executor, như action không tồn tại (không lộ cho model — TIP-023b R1.2).
+  if (!def || !allowedFor(def, t.authz) || !implementedBy(d.executor)(def.id)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
   if (!modeAllows(def, t.mode)) return err('FORBIDDEN', 'Chế độ Chat chỉ được tra cứu — chuyển sang Cowork để thực hiện thao tác ghi');
   try {
     // Model nói theo mã hiển thị (KH-1016, BG-1003) → đổi sang id trước khi chạy.
     const { input } = await resolveCodes(d.db, def.id, i.input ?? {});
-    // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước (chạy lại cùng bước không tạo hai lần).
-    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, { idempotencyKey: `assistant:${t.runId}:${stepIdx}` }), def.id, input);
+    // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
+    const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
+    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input);
     if (out.status === 200) return ok(out.data.result);
     const a = out.data;
-    if (a.status === 'preview_required') return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token };
+    if (a.status === 'preview_required') return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token, canonicalInput: input };
     return { kind: 'needs_approval', approvalId: a.approval_id };
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
-      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(briefSchema(def))}. ${def.description}` };
+      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(briefSchema(def))}, ví dụ ${JSON.stringify(exampleInput(def))}. ${def.description}` };
     }
     if (e instanceof AppError) return err(e.code, e.fields ? `${e.message} ${JSON.stringify(e.fields)}` : e.message);
     throw e;
@@ -89,7 +94,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async (input) => {
         const i = (input ?? {}) as { query?: unknown; module?: unknown };
-        return ok({ actions: findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined) });
+        return ok({ actions: findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined, undefined, implementedBy(d.executor)) });
       },
     },
     {
@@ -97,7 +102,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       description: 'Run an action found with find_actions. Read actions return data now; any other action shows a confirmation card to the user and waits.',
       inputSchema: { type: 'object', properties: { action_id: { type: 'string' }, input: { type: 'object' } }, required: ['action_id', 'input'] },
       origin: 'meta',
-      execute: (input, meta) => callAction(d, t, input, meta.stepIdx),
+      execute: (input, meta) => callAction(d, t, input, meta.stepIdx, meta.toolCallId),
     },
     {
       name: ASSISTANT_TOOLS.ui,

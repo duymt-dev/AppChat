@@ -23,6 +23,9 @@ const LOOKUPS: Record<string, Lookup> = {
   product: byCode((db, code) => db.product.findFirst({ where: { code }, select: { id: true } })),
 };
 
+/** Thực thể đổi được mã → id (test phủ Trợ lý — TIP-023b R1.3). */
+export const CODE_REF_ENTITIES: readonly string[] = Object.keys(LOOKUPS);
+
 const norm = (v: string) => v.trim().toUpperCase().replace(/^([A-ZĐ]+)(\d)/, '$1-$2');
 
 /** Đổi mã → id trong input (một tầng); trả input mới + danh sách ô đã đổi (ghi vào bước run để soát). */

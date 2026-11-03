@@ -9,7 +9,7 @@ import { toJson } from '@appchat/ai';
 import { AppError, serverMessages, type AuthzContext } from '@appchat/shared';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import type { ActionContext } from '../../kernel/actions/action-context';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import type { AppLogger } from '../../kernel/logger/logger';
@@ -22,7 +22,7 @@ import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
 
 export interface ResumeDeps {
   tenants: TenantDbResolver;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner | null;
   kv: KeyValueStore;
   log: AppLogger;
@@ -46,7 +46,7 @@ const agentSpec: SpecFn = async (db, run, d, ws) => {
   const cfg = merge(blankConfig(), (v?.config ?? {}) as Partial<AgentConfig>);
   const commander = run.initiatedByUserId ? ((await d.commander(ws, run.initiatedByUserId)) ?? undefined) : undefined;
   const ids = runToolIds(cfg.tools, await connectedKeys(db));
-  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: ws, agent: { id: a.id, toolIds: cfg.tools }, ...(commander ? { commander } : {}), runId: run.id, source: run.kind === 'task' ? 'task' : 'agent' });
+  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: ws, agent: { id: a.id, toolIds: cfg.tools }, ...(commander ? { commander } : {}), runId: run.id, source: run.kind === 'task' ? 'task' : 'agent', db });
   return { system: agentSystem(cfg), tools, maxSteps: MAX_STEPS.agent, source: run.kind === 'task' ? 'task' : 'agent' };
 };
 for (const k of ['delegate', 'consult', 'task']) registerResumeSpec(k, agentSpec);

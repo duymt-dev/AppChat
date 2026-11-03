@@ -6,7 +6,7 @@ import { registry } from '@appchat/actions';
 import type { PausedState, ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import type { KeyValueStore } from '../../kernel/redis';
 import { CONFIRM_TTL_MS } from '../../kernel/actions/confirm-token';
 import { DEFAULT_RUN_BUDGET, MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
@@ -15,14 +15,14 @@ import { readAiSetting, tierFor } from '../settings/ai-settings.service';
 import { assistantSystem, type AssistantContext, type AssistantRunInput } from './assistant-prompt';
 import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
-import { ASSISTANT_TOOLS, assistantActionCtx, assistantTools, type AssistantTurnCtx } from './meta-tools';
+import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { appendMessage, historyMessages, markCard, openSession, type Part } from './sessions';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
 const cfKey = (token: string) => `assistant:confirm:${token}`;
 
 export interface AssistantDeps {
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner;
   kv: KeyValueStore;
   now: () => Date;
@@ -159,8 +159,11 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   if (q.decision === 'cancel') outcome = { kind: 'ok', output: { cancelled: true } };
   else {
     try {
-      const ctx = assistantActionCtx(t, state.stepIdx - 1, { confirmToken: q.token, idempotencyKey: `assistant:${run.id}:${state.stepIdx - 1}` });
-      const out = await d.executor.execute(ctx, call.action_id, call.input ?? {});
+      // Chạy đúng input chuẩn hoá đã gắn token lúc xem trước (mã đã đổi → id); không tra lại mã → tránh đổi đích giữa hai bước.
+      const stepIdx = state.stepIdx - 1;
+      const idem = DEFS.get(call.action_id)?.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(run.id, stepIdx, state.pendingToolCall.toolCallId) };
+      const ctx = assistantActionCtx(t, stepIdx, { confirmToken: q.token, ...idem });
+      const out = await d.executor.execute(ctx, call.action_id, state.canonicalInput ?? call.input ?? {});
       if (out.status === 200) {
         outcome = { kind: 'ok', output: out.data.result };
         logId = out.data.action_log_id;

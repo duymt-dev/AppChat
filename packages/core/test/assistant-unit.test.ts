@@ -5,6 +5,9 @@ import { describe, expect, it } from 'vitest';
 import { registry } from '@appchat/actions';
 import { authzForRole, uiCommandSchema } from '@appchat/shared';
 import { allowedFor, briefSchema, findActions, modeAllows } from '../src/ai/assistant/catalog';
+
+// Mọi action coi như đã có handler — lọc "chưa cài" kiểm ở assistant-implemented-tools.test.ts.
+const find = (...a: Parameters<typeof findActions>) => findActions(a[0], a[1], a[2], a[3], a[4], () => true);
 import { confirmCard, lookOf } from '../src/ai/assistant/card';
 import { assistantSystem, contextLine } from '../src/ai/assistant/assistant-prompt';
 import { kindOf } from '../src/ai/assistant/action-logs.read';
@@ -16,37 +19,37 @@ const noAgents = { aiAgent: { findMany: async () => [] } } as never;
 
 describe('find_actions', () => {
   it('không dấu: "bao gia" → chỉ quote.*; "khach hang" → contact.*; tiếng Anh "quote" cũng được', () => {
-    const q = findActions(owner, 'cowork', 'bao gia');
+    const q = find(owner, 'cowork', 'bao gia');
     expect(q.length).toBeGreaterThan(0);
     expect(q.every((a) => a.id.startsWith('quote.'))).toBe(true);
-    expect(findActions(owner, 'cowork', 'Khách Hàng').every((a) => a.id.startsWith('contact.'))).toBe(true);
-    expect(findActions(owner, 'cowork', 'quote', undefined, 50).map((a) => a.id)).toContain('quote.create');
+    expect(find(owner, 'cowork', 'Khách Hàng').every((a) => a.id.startsWith('contact.'))).toBe(true);
+    expect(find(owner, 'cowork', 'quote', undefined, 50).map((a) => a.id)).toContain('quote.create');
   });
 
   it('động từ tiếng Việt: "tạo khách hàng" → contact.create; "sửa khách hàng" → contact.update; "tìm khách" (Chat) → contact.search', () => {
-    expect(findActions(owner, 'cowork', 'tạo khách hàng').map((a) => a.id)).toEqual(['contact.create']);
-    expect(findActions(owner, 'cowork', 'sửa khách hàng').map((a) => a.id)).toContain('contact.update');
-    expect(findActions(owner, 'chat', 'tìm khách hàng').map((a) => a.id)).toEqual(['contact.search']);
+    expect(find(owner, 'cowork', 'tạo khách hàng').map((a) => a.id)).toEqual(['contact.create']);
+    expect(find(owner, 'cowork', 'sửa khách hàng').map((a) => a.id)).toContain('contact.update');
+    expect(find(owner, 'chat', 'tìm khách hàng').map((a) => a.id)).toEqual(['contact.search']);
   });
 
   it('Chat chỉ action read; Cowork có ghi', () => {
-    expect(findActions(owner, 'chat', 'ticket').map((a) => a.id)).toEqual(['ticket.search']);
-    expect(findActions(owner, 'cowork', 'ticket', undefined, 50).map((a) => a.id)).toContain('ticket.create');
+    expect(find(owner, 'chat', 'ticket').map((a) => a.id)).toEqual(['ticket.search']);
+    expect(find(owner, 'cowork', 'ticket', undefined, 50).map((a) => a.id)).toContain('ticket.create');
     expect(modeAllows(def('contact.create'), 'chat')).toBe(false);
     expect(modeAllows(def('kb.search'), 'chat')).toBe(true);
   });
 
   it('quyền: sales không thấy agent.* / member.*; mọi người không thấy admin / approval / billing / workspace.switch', () => {
-    expect(findActions(sales, 'cowork', 'agent', undefined, 50).filter((a) => a.id.startsWith('agent.'))).toEqual([]);
+    expect(find(sales, 'cowork', 'agent', undefined, 50).filter((a) => a.id.startsWith('agent.'))).toEqual([]);
     expect(allowedFor(def('member.invite'), sales)).toBe(false);
     expect(allowedFor(def('quote.create'), sales)).toBe(true);
     for (const id of ['approval.approve', 'billing.create_invoice', 'workspace.switch', 'admin.invoice.confirm_transfer']) expect(allowedFor(def(id), owner), id).toBe(false);
   });
 
   it('lọc module + giới hạn; input schema rút gọn có trường bắt buộc / tuỳ chọn', () => {
-    expect(findActions(owner, 'cowork', '', 'support', 3)).toHaveLength(3);
-    expect(findActions(owner, 'cowork', '', 'support', 50).every((a) => a.module === 'support')).toBe(true);
-    expect(briefSchema(def('kb.search'))).toEqual({ query: 'string', limit: 'integer?' });
+    expect(find(owner, 'cowork', '', 'support', 3)).toHaveLength(3);
+    expect(find(owner, 'cowork', '', 'support', 50).every((a) => a.module === 'support')).toBe(true);
+    expect(briefSchema(def('kb.search'))).toEqual({ query: 'string', 'limit?': 'integer' });
   });
 });
 

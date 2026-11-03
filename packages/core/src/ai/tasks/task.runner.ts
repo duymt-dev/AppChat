@@ -6,7 +6,7 @@
 // Kết quả (công cụ `report`) → tin trong phiên Trợ lý Cowork của người tạo; lỗi → thông báo `ai_task_failed`. Không giữ gì trong RAM.
 import type { TenantDb } from '@appchat/db';
 import { AI_TASK_TEMPLATES, SCOPE_MODULES, aiTaskAllows, aiTaskScopeModules, can, interpolate, serverMessages, type AiTaskTemplate, type AuthzContext, type PermissionKey } from '@appchat/shared';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import { writeOutbox, markDirty } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import type { AppLogger } from '../../kernel/logger/logger';
@@ -22,7 +22,7 @@ import { collectTargets, type Target } from './task-targets';
 import type { TaskRow } from './task.store';
 
 export interface TaskRunDeps {
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner | null;
   kv: KeyValueStore;
   log: AppLogger;
@@ -126,6 +126,7 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
     source: 'task',
     ...(t.askBeforeSend ? {} : { autoSend: true }),
     narrow: (x) => narrowScope(x, t.dataScope),
+    db,
   });
   await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(job.event ? { event: job.event.topic } : {}) } } });
   let r: RunResult;

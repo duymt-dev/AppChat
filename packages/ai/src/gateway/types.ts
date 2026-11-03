@@ -9,7 +9,8 @@ export type JsonSchema = Record<string, unknown>;
 
 export type ToolOutcome =
   | { kind: 'ok'; output: unknown }
-  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string }
+  /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
+  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown }
   | { kind: 'needs_approval'; approvalId: string }
   | { kind: 'error'; code: string; message: string };
 
@@ -52,6 +53,8 @@ export interface PausedState {
   /** Tool cùng bước, sau tool đang chờ — chưa chạy (trả `skipped` khi chạy tiếp). */
   skipped: ToolCallRef[];
   stepIdx: number;
+  /** Input chuẩn hoá của lời gọi đang chờ xác nhận — lưu cùng run, không phụ thuộc RAM (chạy tiếp ở process khác). */
+  canonicalInput?: unknown;
 }
 
 export interface UsageInfo {

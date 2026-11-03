@@ -7,7 +7,7 @@ import { decideHandoff, parseAgentReply, unmaskPii, type Embedder, type HandoffR
 import { TenantContexts, TenantSql, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { AppLogger } from '../../kernel/logger/logger';
@@ -24,7 +24,7 @@ const TURN_BUDGET = 60;
 
 export interface ReplyDeps {
   tenants: TenantDbResolver;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner;
   embedder: Embedder | null;
   kv: KeyValueStore;

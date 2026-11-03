@@ -58,6 +58,12 @@ export function redactDeep(v: unknown, depth = 0): unknown {
 
 const json = (v: unknown) => (v === undefined ? undefined : (JSON.parse(JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x))) as object));
 
+/** Cổng tool cho Trợ lý / agent: chạy action + biết action nào có handler thật. Thiếu `isImplemented` → coi như chưa (fail closed). */
+export type ToolExecutor = Pick<ActionExecutor, 'execute'> & Partial<Pick<ActionExecutor, 'isImplemented'>>;
+
+/** Action có handler thật theo executor; không biết → false. */
+export const implementedBy = (e: ToolExecutor) => (actionId: string) => e.isImplemented?.(actionId) ?? false;
+
 export class ActionExecutor {
   private readonly defs: Map<string, ActionDef>;
 
@@ -68,6 +74,11 @@ export class ActionExecutor {
   /** Gắn gateway duyệt lúc boot (domain `ai` — TIP-021 cài; kernel không phụ thuộc domain). */
   setApprovals(g: ApprovalGateway): void {
     this.d.approvals = g;
+  }
+
+  /** Action có handler thật — danh mục Trợ lý / tool agent lọc theo đây (TIP-023b R1.2). */
+  isImplemented(actionId: string): boolean {
+    return this.d.handlers.isImplemented(actionId);
   }
 
   async execute<O = unknown>(ctx: ActionContext, actionId: string, rawInput: unknown): Promise<ExecuteOutcome<O>> {

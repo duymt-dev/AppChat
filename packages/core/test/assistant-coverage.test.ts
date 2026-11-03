@@ -1,0 +1,161 @@
+// TIP-023b R1.3 — chặn hồi quy phủ Trợ lý (chạy trong cổng trước commit của mọi TIP sau):
+//   1. mỗi ô `<thực thể>_id` của action có handler thật có đường tra (mã → id ở code-refs, hoặc action đọc `<thực thể>.search|get|list`);
+//   2. mỗi action ghi có handler thật có `preview()` — danh sách nợ chỉ được giảm (R2 xong = rỗng);
+//   3. mỗi màn danh sách (route GET ở apps/api) có action đọc tương ứng.
+// Nợ là danh sách đóng: thêm action / ô mới mà thiếu đường tra / preview → đỏ; trả nợ mà quên xoá khỏi danh sách → đỏ.
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { registry } from '@appchat/actions';
+import type { JsonSchema } from '@appchat/ai';
+import { CODE_REF_ENTITIES } from '../src/ai/assistant/code-refs';
+import { inputSchemaOf } from '../src/ai/runs/tools';
+import { PREVIEW_DEBT } from './assistant-coverage.debt';
+
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.ts') ? [join(d, f)] : []));
+
+/** Handler thật trong source (`@ActionHandler('id')`) + có `preview(` trong thân lớp — quét tĩnh, không cần boot Nest. */
+function handlers(): Map<string, { preview: boolean }> {
+  const out = new Map<string, { preview: boolean }>();
+  for (const f of walk(join(__dirname, '../src'))) {
+    for (const part of readFileSync(f, 'utf8').split("@ActionHandler('").slice(1)) {
+      const id = part.slice(0, part.indexOf("'"));
+      if (id) out.set(id, { preview: /\basync\s+preview\s*\(\s*_?ctx\b/.test(part) });
+    }
+  }
+  return out;
+}
+
+const H = handlers();
+const DEFS = registry.filter((a) => H.has(a.id));
+const IMPLEMENTED = new Set(DEFS.map((a) => a.id));
+
+/** Đường dẫn mọi ô `*_id` / `id` trong input (lồng object / array / anyOf). */
+function idFields(s: JsonSchema, path = ''): string[] {
+  const o = s as { properties?: Record<string, JsonSchema>; items?: JsonSchema; anyOf?: JsonSchema[] };
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(o.properties ?? {})) {
+    if (k === 'id' || k.endsWith('_id')) out.push(`${path}${k}`);
+    out.push(...idFields(v, `${path}${k}.`));
+  }
+  if (o.items) out.push(...idFields(o.items, `${path}[].`));
+  for (const x of o.anyOf ?? []) out.push(...idFields(x, path));
+  return out;
+}
+
+/** Tên ô → thực thể tra (ô người / agent / mẫu không mang tên thực thể). */
+const ALIAS: Record<string, string> = {
+  owner_user_id: 'member',
+  assignee_user_id: 'member',
+  to_user_id: 'member',
+  user_id: 'member',
+  owner_id: 'member',
+  assignee_agent_id: 'agent',
+  reply_id: 'canned_reply',
+  layout_id: 'profile_layout',
+  source_id: 'kb_source',
+  task_id: 'ai_task',
+  target_conversation_id: 'conversation',
+};
+
+/** Ô id người dùng không nói ra / không phải tham chiếu thực thể — miễn trừ, kèm lý do. */
+const EXEMPT: Record<string, string> = {
+  approval_id: 'duyệt mở từ hàng chờ duyệt / thông báo, không gọi theo tên',
+  bank_tx_id: 'giao dịch ngân hàng chọn trong màn đối soát, không có mã người dùng nói',
+  invite_id: 'lời mời chọn ở Cài đặt › Thành viên',
+  message_id: 'tin cụ thể — model lấy từ conversation.get, người dùng không đọc id tin',
+  reply_to_id: 'tin được trả lời — cùng lý do message_id',
+  source_message_id: 'tin nguồn của ticket — cùng lý do message_id',
+  request_id: 'yêu cầu truy cập mở từ thông báo',
+  payment_id: 'yêu cầu hoàn tiền mở từ hàng chờ duyệt',
+  file_id: 'tệp vừa tải lên trong lượt (đính kèm), không tra theo tên',
+  folder_id: 'thư mục KB chọn trong màn KB',
+  national_id: 'số CCCD / MST — giá trị, không phải tham chiếu thực thể',
+  workspace_id: 'workspace của chính người dùng (danh sách ở session)',
+  exclude_id: 'lịch hẹn đang dời (đã có trong ngữ cảnh lượt)',
+  template_id: 'mẫu agent / mẫu tài liệu — danh mục cố định trả trong meta của màn',
+  team_id: 'Teams là P1 (AA-v21-9) — chưa có màn',
+};
+
+/** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */
+const LOOKUP_DEBT = new Set(['agent', 'ai_task', 'canned_reply', 'channel_account', 'conversation', 'kb_source', 'member', 'package', 'profile_layout', 'run', 'service', 'staff', 'tag']);
+
+/** Màn danh sách (route GET apps/api) → action đọc tương ứng. */
+const SCREENS: Record<string, string> = {
+  contacts: 'contact.search',
+  quotes: 'quote.search',
+  contracts: 'contract.search',
+  orders: 'order.search',
+  invoices: 'invoice.search',
+  tickets: 'ticket.search',
+  calendar: 'appointment.list',
+  products: 'product.search',
+  conversations: 'conversation.search',
+  agents: 'agent.search',
+  'settings/members': 'member.search',
+  tags: 'tag.search',
+  'doc-templates': 'doc_template.search',
+  'settings/channels': 'channel.search',
+  runs: 'run.search',
+  'settings/kb': 'kb.source_search',
+};
+/** Nợ màn (R2) — chỉ được giảm. */
+const SCREEN_DEBT = new Set(['quotes', 'contracts', 'orders', 'invoices', 'conversations', 'agents', 'settings/members', 'tags', 'doc-templates', 'settings/channels', 'runs', 'settings/kb']);
+
+const hasRead = (entity: string) => ['search', 'get', 'list'].some((v) => IMPLEMENTED.has(`${entity}.${v}`));
+const hasPath = (entity: string) => CODE_REF_ENTITIES.includes(entity) || hasRead(entity);
+
+describe('phủ Trợ lý — ô id có đường tra', () => {
+  const entities = new Map<string, string[]>();
+  for (const d of DEFS) {
+    for (const f of idFields(inputSchemaOf(d))) {
+      const leaf = f.split('.').pop()!;
+      const name = leaf === 'id' ? `${d.id.split('.')[0]}_id` : leaf;
+      if (EXEMPT[name]) continue;
+      const e = ALIAS[name] ?? name.slice(0, -3);
+      entities.set(e, [...(entities.get(e) ?? []), `${d.id}:${f}`]);
+    }
+  }
+
+  it('mọi thực thể có mã → id hoặc action đọc, trừ nợ R2', () => {
+    const missing = [...entities.keys()].filter((e) => !hasPath(e) && !LOOKUP_DEBT.has(e)).map((e) => `${e} ← ${entities.get(e)!.join(', ')}`);
+    expect(missing).toEqual([]);
+  });
+
+  it('nợ đường tra không chứa thực thể đã có đường tra / không còn dùng (xoá khỏi danh sách)', () => {
+    expect([...LOOKUP_DEBT].filter((e) => hasPath(e) || !entities.has(e))).toEqual([]);
+  });
+});
+
+describe('phủ Trợ lý — action ghi có preview', () => {
+  const writes = DEFS.filter((d) => d.risk !== 'read');
+
+  it('action ghi thiếu preview đều nằm trong danh sách nợ', () => {
+    expect(writes.filter((d) => !H.get(d.id)!.preview && !PREVIEW_DEBT.has(d.id)).map((d) => d.id)).toEqual([]);
+  });
+
+  it('nợ preview không chứa action đã có preview / không còn handler', () => {
+    expect([...PREVIEW_DEBT].filter((id) => !IMPLEMENTED.has(id) || H.get(id)!.preview)).toEqual([]);
+  });
+});
+
+describe('phủ Trợ lý — màn danh sách có action đọc', () => {
+  const routes = new Set<string>();
+  for (const f of walk(join(__dirname, '../../../apps/api/src/http'))) {
+    const s = readFileSync(f, 'utf8');
+    const base = /@Controller\('([^']*)'\)/.exec(s)?.[1] ?? '';
+    for (const m of s.matchAll(/@Get\((?:'([^']*)')?\)/g)) routes.add([base, m[1] ?? ''].filter(Boolean).join('/'));
+  }
+
+  it('mỗi màn trong bảng có route GET thật ở apps/api', () => {
+    expect(Object.keys(SCREENS).filter((r) => !routes.has(r))).toEqual([]);
+  });
+
+  it('màn có action đọc (đã khai + có handler), trừ nợ R2', () => {
+    expect(Object.entries(SCREENS).filter(([r, a]) => !IMPLEMENTED.has(a) && !SCREEN_DEBT.has(r)).map(([r, a]) => `${r} → ${a}`)).toEqual([]);
+  });
+
+  it('nợ màn không chứa màn đã có action đọc', () => {
+    expect([...SCREEN_DEBT].filter((r) => IMPLEMENTED.has(SCREENS[r]!))).toEqual([]);
+  });
+});
