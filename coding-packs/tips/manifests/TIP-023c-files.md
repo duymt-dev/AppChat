@@ -316,3 +316,9 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/api/test/integration/genui-context.test.ts` | Amend (G2.6): Sales gửi id khách người khác trong context → bị bỏ trước prompt / ai_run.input; Owner giữ đủ |
 | C | `packages/core/src/ai/jobs/assistant-events.processor.ts` | Amend (G2): worker + scheduler `assistant-events.prune` (15 phút) — tách khỏi ai.jobs.module (đăng ký 1 dòng) |
 | C | `apps/api/test/integration/genui-prune.test.ts` | Amend (G2): dọn 24h theo lô + Clock, giữ assistant_message, rời tập armed, reset_required sau dọn, EXPLAIN index expires_at |
+| C | `packages/core/src/ai/assistant/genui/turn-wait.ts` | Amend (G2, DC-316): API chờ `done` của run trên sổ (subscribe trước, đọc lại 1s, ≤ 120s) — JSON client chờ cùng run |
+| C | `apps/worker/test/integration/assistant-turn-queue.test.ts` | Amend (G2, DC-316): API claim → outbox → ROLE=jobs → ROLE=ai thật; cùng request_id cùng run / 409; mất membership → failed một lần |
+| M | `packages/core/src/ai/ai.env.ts` | Amend (G2, DC-316): `ASSISTANT_DISPATCH=queue|inline` + token `AI_ENV` (tránh import vòng service ↔ module) |
+| M | `packages/core/src/ai/jobs/ai.jobs.module.ts` | Amend (G2): đăng ký worker `assistant-turn` + prune / recover (1–2 dòng mỗi việc) |
+| M | `packages/core/src/ai/public.ts` | Amend (G2): export recovery / lease / RequestStore / RunStream cho test worker |
+| M | `apps/api/test/integration/setup.ts` | Amend (G2, DC-316): harness API không có worker → `ASSISTANT_DISPATCH=inline` |

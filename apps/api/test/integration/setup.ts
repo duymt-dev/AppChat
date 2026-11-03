@@ -51,6 +51,8 @@ export const env: Record<string, string> = {
   MAIL_TRANSPORT: 'fake',
   // Model + embedding giả (TIP-019 / 020, Q-001); tệp tải lên vào thư mục tạm của lượt test.
   AI_ENGINE: 'mock',
+  // Lượt Trợ lý chạy trong tiến trình API (không có worker ROLE=ai ở harness này) — đường queue có test riêng ở apps/worker (DC-316).
+  ASSISTANT_DISPATCH: 'inline',
   FILES_DIR: join(tmpdir(), 'appchat-test-files'),
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'true',

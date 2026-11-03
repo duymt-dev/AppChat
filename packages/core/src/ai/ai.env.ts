@@ -8,6 +8,8 @@ export const aiEnv = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     AI_ENGINE: z.enum(['sdk', 'mock']).default('sdk'),
+    /** Lượt Trợ lý: `queue` — API claim + outbox, ROLE=ai chạy (TIP-023c); `inline` — chạy ngay trong API (test integration không có worker). */
+    ASSISTANT_DISPATCH: z.enum(['queue', 'inline']).default('queue'),
     LLM_SEED_PROVIDER_KEY: z.string().regex(/^[a-z0-9_-]{2,40}$/).optional(),
     LLM_SEED_KIND: z.enum(['anthropic', 'openai', 'google', 'deepseek', 'openai_compatible']).default('openai_compatible'),
     LLM_SEED_BASE_URL: z.string().url().optional(),
@@ -23,6 +25,8 @@ export const aiEnv = z
   });
 
 export type AiEnv = z.infer<typeof aiEnv>;
+/** Token DI của env ai (AiModule cấp). */
+export const AI_ENV = Symbol('AI_ENV');
 
 /** Sai cấu hình → dừng boot, chỉ nêu tên biến (không in giá trị). */
 export function readAiEnv(source: Record<string, string | undefined>): AiEnv {

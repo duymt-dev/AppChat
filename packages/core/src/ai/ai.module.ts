@@ -35,12 +35,14 @@ import { ApprovalsInstaller } from './approvals/approvals.installer';
 import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
 import { AssistantService } from './assistant/assistant.service';
+import { TurnQueue, TurnRequestInstaller } from './assistant/genui/turn-request.consumer';
 import { AssistantResumeHandler } from './assistant/genui/resume.handler';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 import { TaskPlace } from './tasks/task-place';
 import { CLOCK, type Clock } from '../kernel/clock';
 
-export const AI_ENV = Symbol('AI_ENV');
+export { AI_ENV } from './ai.env';
+import { AI_ENV } from './ai.env';
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -135,6 +137,9 @@ class ProviderSeed implements OnModuleInit {
     AssistantService,
     // GenUI (TIP-023c): tiếp tục lượt sau kết quả ngoài đã kiểm phía server (khối qr).
     AssistantResumeHandler,
+    // Lượt Trợ lý chạy ở ROLE=ai: outbox `assistant.turn_requested` → consumer → queue `assistant-turn` (thiếu Redis → null).
+    { provide: TurnQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new TurnQueue(r) : null) },
+    TurnRequestInstaller,
     ...TASK_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],

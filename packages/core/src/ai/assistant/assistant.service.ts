@@ -9,6 +9,10 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import { ActionExecutor, implementedBy } from '../../kernel/actions/executor';
 import { GenUiIntents } from '../../kernel/actions/genui-intent';
 import { REDIS, type KeyValueStore } from '../../kernel/redis';
+import { markDirty } from '../../kernel/outbox/outbox';
+import { uuidv7 } from '../../kernel/ids';
+import type { Redis } from 'ioredis';
+import { AI_ENV, type AiEnv } from '../ai.env';
 import type { Publisher } from './genui/stream';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
@@ -21,7 +25,8 @@ import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
 import { sessionMessages } from './sessions';
 import { listSessionsPage } from './session-list';
-import { assistantConfirm, assistantTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
+import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
+import { waitDone } from './genui/turn-wait';
 
 export interface Caller {
   workspaceId: string;
@@ -40,6 +45,7 @@ export class AssistantService {
     @Inject(QuotaService) private readonly quota: QuotaService | null,
     @Inject(CLOCK) private readonly clock: Clock,
     @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null = null,
+    @Optional() @Inject(AI_ENV) private readonly env: Pick<AiEnv, 'ASSISTANT_DISPATCH'> | null = null,
   ) {}
 
   /** Redis của kernel (ioredis) có `publish` — dùng phát sự kiện lượt; KeyValueStore tối thiểu không có thì bỏ phát (chỉ ghi sổ). */
@@ -77,10 +83,27 @@ export class AssistantService {
     return { name: u?.name ?? '', locale: u?.locale ?? 'vi', role: c.authz.isOwner ? 'owner' : (m?.roleKey ?? 'member') };
   }
 
+  /**
+   * `POST /assistant/messages`. `queue` (mặc định): claim + outbox trong một transaction, ROLE=ai chạy; API chờ `done` trên sổ rồi trả
+   * JSON dựng từ tin đã lưu (client SSE nối `GET /assistant/runs/:id/stream` ngay khi có run_id). `inline`: chạy trong tiến trình (test).
+   */
   async turn(c: Caller, q: Omit<TurnRequest, 'ws' | 'userId' | 'authz' | 'userName' | 'locale' | 'role'>) {
     const deps = this.deps();
     const p = await this.profile(c);
-    return assistantTurn(deps, await this.db(c), { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role });
+    const db = await this.db(c);
+    const req: TurnRequest = { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
+    if (this.env?.ASSISTANT_DISPATCH === 'inline' || !this.kv) return assistantTurn(deps, db, req);
+    const t = await prepareTurn(deps, db, { ...req, requestId: q.requestId ?? `srv-${uuidv7()}` });
+    if (t.kind === 'queued') {
+      await markDirty(this.kv, c.workspaceId).catch(() => undefined);
+      await waitDone(db, this.redis(), t.run_id);
+    }
+    return replayTurn(deps, db, req, t, { commands: t.kind === 'queued' });
+  }
+
+  private redis(): Redis | null {
+    const r = this.kv as Partial<Redis> | null;
+    return r && typeof r.duplicate === 'function' ? (r as Redis) : null;
   }
 
   async confirm(c: Caller, q: Pick<ConfirmRequest, 'token' | 'decision'>) {

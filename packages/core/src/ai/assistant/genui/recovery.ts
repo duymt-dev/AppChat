@@ -31,6 +31,22 @@ export async function staleTurns(db: Pick<Db, '$queryRaw'>, now: Date, limit = R
     ORDER BY lease_until, id LIMIT ${limit}`);
 }
 
+/**
+ * Chốt lượt `failed` dưới lease đang giữ: tin lỗi chung vào phiên + `error` (mã) + `done` lên sổ stream, run → failed, sổ yêu cầu →
+ * failed. Dùng cho lượt mồ côi (thu hồi) và lượt lỗi giữa chừng ở worker (genui/turn.service). Mất lease → không ghi gì.
+ */
+export async function failTurn(d: RecoveryDeps, db: Db, lease: ExecutionLease, runId: string, sessionId: string, code: string): Promise<boolean> {
+  if (!(await lease.holds())) return false;
+  const message = serverMessages(d.locale ?? 'vi').ai.assistant.error.generic;
+  const live = new RunStream(runId, new EventStore(db, d.now), d.pub, () => lease.holds());
+  await appendMessage(db, sessionId, 'assistant', [{ type: 'text', text: message }], runId, d.now());
+  await live.emit({ type: 'error', code, message });
+  await live.emit({ type: 'done', status: 'failed', session_id: sessionId });
+  await live.close();
+  await new RunStore(db, d.now).finish(runId, 'failed', { error: code });
+  return lease.finish('failed');
+}
+
 /** Chốt một lượt mồ côi. 'skipped' khi người khác vừa nhận lại / đã kết thúc. */
 export async function recoverTurn(d: RecoveryDeps, db: Db, runId: string): Promise<'recovered' | 'skipped'> {
   const lease = await ExecutionLease.acquire(db, d.now, runId);
@@ -40,15 +56,7 @@ export async function recoverTurn(d: RecoveryDeps, db: Db, runId: string): Promi
     const run = await db.aiRun.findUnique({ where: { id: runId }, select: { status: true } });
     if (!req || !run) return (await lease.finish('failed')) ? 'recovered' : 'skipped';
     if (run.status === 'cancelled') return (await lease.finish('cancelled')) ? 'recovered' : 'skipped';
-    const message = serverMessages(d.locale ?? 'vi').ai.assistant.error.generic;
-    const live = new RunStream(runId, new EventStore(db, d.now), d.pub, () => lease.holds());
-    if (!(await lease.holds())) return 'skipped';
-    await appendMessage(db, req.sessionId, 'assistant', [{ type: 'text', text: message }], runId, d.now());
-    await live.emit({ type: 'error', code: 'WORKER_LOST', message });
-    await live.emit({ type: 'done', status: 'failed', session_id: req.sessionId });
-    await live.close();
-    if (run.status === 'running' || run.status === 'queued') await new RunStore(db, d.now).finish(runId, 'failed', { error: 'WORKER_LOST' });
-    return (await lease.finish('failed')) ? 'recovered' : 'skipped';
+    return (await failTurn(d, db, lease, runId, req.sessionId, 'WORKER_LOST')) ? 'recovered' : 'skipped';
   } finally {
     lease.stop();
   }

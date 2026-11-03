@@ -22,13 +22,17 @@ import { resolveContext } from './genui/context';
 import { EventStore } from './genui/event-store';
 import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
+import { writeOutbox } from '../../kernel/outbox/outbox';
 import { RunStream, type Publisher } from './genui/stream';
 import { EVENTS_ARMED_KEY } from './genui/prune-events';
 import { ExecutionLease, execStateOf } from './genui/execution-lease';
-import { ASSISTANT_ARMED_KEY } from './genui/recovery';
+import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
-import { appendMessage, historyMessages, markCard, openSession, type Part } from './sessions';
+import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
+
+/** Outbox: lượt đã claim, chờ ROLE=ai chạy (genui/turn-request.consumer). */
+export const TURN_REQUESTED = 'assistant.turn_requested';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
 
@@ -63,7 +67,7 @@ export interface TurnRequest {
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
-async function tierOf(d: AssistantDeps, db: TenantDb, ws: string, want?: AiTierKey): Promise<AiTierKey> {
+async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: string, want?: AiTierKey): Promise<AiTierKey> {
   const plan = await d.planKey(ws);
   if (!want) return tierFor(await readAiSetting(db), null, plan);
   for (let i = AI_TIERS.indexOf(want); i >= 0; i--) if (tierAllowed(AI_TIERS[i]!, plan)) return AI_TIERS[i]!;
@@ -85,7 +89,7 @@ export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow
 }
 
 /** Sự kiện của một đoạn chạy: ui_command (bước tool `ui` từ `fromIdx`), cây GenUI, chữ, thẻ xác nhận / lỗi. Lưu thành tin của Trợ lý. */
-async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
+async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | 'now'>, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
   const m = serverMessages(locale).ai.assistant;
   const events: TurnEventDto[] = [];
   const parts: Part[] = [];
@@ -127,58 +131,124 @@ async function eventsOf(d: AssistantDeps, db: TenantDb, run: RunRow, r: RunResul
   return events;
 }
 
-/** `POST /assistant/messages`. Sự kiện ghi sổ + phát (SSE) trong lúc chạy; JSON trả cùng run khi xong / dừng chờ. */
-export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnRequest): Promise<AssistantTurnDto> {
+export type PreparedTurn = { kind: 'replay' | 'queued'; session_id: string; run_id: string };
+
+/**
+ * Bước 1 của lượt (API): kiểm ngữ cảnh theo quyền hiện hành, rồi TRONG MỘT transaction — phiên, claim sổ yêu cầu, tin người dùng, run
+ * `queued`, outbox `assistant.turn_requested` (consumer đẩy job `assistant-turn` cho ROLE=ai). request_id đã có → `replay` (cùng run).
+ */
+export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'planKey'>, db: TenantDb, q: TurnRequest & { requestId: string }): Promise<PreparedTurn> {
   const now = d.now();
-  const viewer = { ws: q.ws, userId: q.userId, authz: q.authz, implemented: implementedBy(d.executor) };
   const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null });
   const ledger = new RequestStore(db, d.now);
-  if (q.requestId) {
+  const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
-    if (prev) {
-      // Gửi lại cùng yêu cầu (mạng rớt, F5, tab khác): cùng run — không tạo tin / run mới, không gọi lại model.
-      const r = await ledger.claim({ userId: q.userId, requestId: q.requestId, sessionId: prev.sessionId, runId: prev.runId, inputHash: hash });
-      return { session_id: r.row.sessionId, run_id: r.row.runId, events: await replayEvents(db, r.row.runId, (p) => presentUi(db, d.intents ?? null, viewer, p)) };
-    }
-  }
-  const session = await openSession(db, q.userId, q.mode, q.text, q.sessionId, now);
+    if (!prev) return null;
+    // Gửi lại cùng yêu cầu (mạng rớt, F5, tab khác): cùng run — không tạo tin / run mới, không gọi lại model. Khác input → 409.
+    const r = await ledger.claim({ userId: q.userId, requestId: q.requestId, sessionId: prev.sessionId, runId: prev.runId, inputHash: hash });
+    return { kind: 'replay', session_id: r.row.sessionId, run_id: r.row.runId };
+  };
+  const again = await replay();
+  if (again) return again;
+  if (q.sessionId) await ownSession(db, q.userId, q.sessionId);
   const runId = uuidv7(now.getTime());
-  if (q.requestId) {
-    const c = await ledger.claim({ userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash });
-    if (c.kind === 'replay') return { session_id: c.row.sessionId, run_id: c.row.runId, events: await replayEvents(db, c.row.runId, (p) => presentUi(db, d.intents ?? null, viewer, p)) };
-  }
-  await appendMessage(db, session.id, 'user', [{ type: 'text', text: q.text }], null, now);
   const t: AssistantTurnCtx = { ws: q.ws, runId, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   // Ngữ cảnh màn là gợi ý: chỉ bản ghi người gọi đọc được (quyền hiện hành) mới vào prompt / ai_run.input.
   const context = await resolveContext(d.executor, t, q.context);
-  const input: AssistantRunInput = {
-    text: q.text,
-    mode: q.mode,
-    session_id: session.id,
-    locale: q.locale,
-    user_name: q.userName,
-    role: q.role,
-    ...(context ? { context } : {}),
-    ...(q.attachments?.length ? { attachments: q.attachments } : {}),
-  };
-  const store = new RunStore(db, d.now);
-  const run = await store.create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier: await tierOf(d, db, q.ws, q.tier), input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
-  const spec = specFor(d, db, t, await assistantSystem(db, input, q.authz));
-  // Lượt có request_id: giữ lease có fence trên sổ yêu cầu — mất lease (bị thu hồi) thì không ghi / chốt đè (genui/execution-lease.ts).
-  const lease = q.requestId ? await ExecutionLease.acquire(db, d.now, run.id) : null;
-  if (lease) await Promise.resolve(d.kv.sadd?.(ASSISTANT_ARMED_KEY, q.ws)).catch(() => 0);
+  const tier = await tierOf(d, db, q.ws, q.tier);
   try {
-    const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null, lease ? () => lease.holds() : null);
-    await armEvents(d, q.ws);
-    const r = await d.runner.start(q.ws, store, run, { ...spec, messages: await historyMessages(db, session.id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
-    const events = await eventsOf(d, db, run, r, 0, q.locale, session.id, { ws: q.ws, authz: q.authz });
-    await finishStream(live, events, r, session.id);
-    await lease?.finish(execStateOf(r.status));
-    return { session_id: session.id, run_id: run.id, events };
-  } finally {
-    // Lỗi giữa lượt: dừng gia hạn — lease hết hạn để job thu hồi chốt lượt (không treo spinner).
-    lease?.stop();
+    const sessionId = await db.$transaction(async (tx) => {
+      const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
+      await tx.assistantRequest.create({ data: { id: uuidv7(now.getTime()), userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash, createdAt: now, updatedAt: now } });
+      await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }], null, now);
+      const input: AssistantRunInput = {
+        text: q.text,
+        mode: q.mode,
+        session_id: session.id,
+        locale: q.locale,
+        user_name: q.userName,
+        role: q.role,
+        ...(context ? { context } : {}),
+        ...(q.attachments?.length ? { attachments: q.attachments } : {}),
+      };
+      await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
+      await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);
+      return session.id;
+    });
+    return { kind: 'queued', session_id: sessionId, run_id: runId };
+  } catch (e) {
+    // Hai request trùng cùng lúc: unique (user, request_id) chặn một — bên thua đọc lại (cùng run hoặc 409).
+    const r = await replay();
+    if (r) return r;
+    throw e;
   }
+}
+
+export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub'>;
+
+/**
+ * Bước 2 của lượt (worker ROLE=ai; trong tiến trình khi không có hàng đợi): nhận lease có fence → chạy run `queued` với quyền HIỆN HÀNH
+ * của người ra lệnh → ghi sổ sự kiện + tin → chốt. Run đã chạy / người khác giữ lease → null (job lặp không chạy lại model). Lỗi giữa
+ * lượt hoặc người ra lệnh mất quyền → chốt `failed` đúng một lần (genui/recovery.failTurn), không treo spinner.
+ */
+export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: string, authz: AuthzContext | null): Promise<AssistantTurnDto | null> {
+  const store = new RunStore(db, d.now);
+  const run = await store.get(runId);
+  if (!run || run.kind !== 'assistant' || !run.initiatedByUserId) return null;
+  const input = run.input as unknown as AssistantRunInput;
+  const lease = await ExecutionLease.acquire(db, d.now, run.id);
+  if (!lease) return null;
+  await Promise.resolve(d.kv.sadd?.(ASSISTANT_ARMED_KEY, ws)).catch(() => 0);
+  await armEvents(d, ws);
+  const live = new RunStream(run.id, new EventStore(db, d.now), d.pub ?? null, () => lease.holds());
+  const fail = (code: string) => failTurn({ now: d.now, pub: d.pub ?? null, locale: input.locale }, db, lease, run.id, input.session_id, code);
+  try {
+    if (run.status !== 'queued') {
+      // Huỷ khi còn chờ (run.cancel): đóng luồng cho client, sổ yêu cầu → cancelled. Trạng thái khác: đã chạy ở nơi khác.
+      if (run.status === 'cancelled') {
+        await live.emit({ type: 'done', status: 'cancelled', session_id: input.session_id });
+        await live.close();
+        await lease.finish('cancelled');
+      }
+      return null;
+    }
+    if (!authz) {
+      await fail('FORBIDDEN');
+      return null;
+    }
+    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
+    const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
+    const r = await d.runner.start(ws, store, run, { ...spec, messages: await historyMessages(db, input.session_id), onEvent: (e) => e.type === 'delta' && live.delta(e.text) });
+    const events = await eventsOf(d, db, run, r, 0, input.locale, input.session_id, { ws, authz });
+    await finishStream(live, events, r, input.session_id);
+    await lease.finish(execStateOf(r.status));
+    return { session_id: input.session_id, run_id: run.id, events };
+  } catch (e) {
+    await live.close().catch(() => undefined);
+    await fail(e instanceof AppError ? e.code : 'INTERNAL').catch(() => false);
+    throw e;
+  } finally {
+    lease.stop();
+  }
+}
+
+/** Lượt trong tiến trình (test / không có hàng đợi): bước 1 + bước 2 liền nhau, cùng hợp đồng JSON. */
+export async function assistantTurn(d: AssistantDeps, db: TenantDb, q: TurnRequest): Promise<AssistantTurnDto> {
+  const p = await prepareTurn(d, db, { ...q, requestId: q.requestId ?? `srv-${uuidv7()}` });
+  if (p.kind === 'replay') return replayTurn(d, db, q, p);
+  return (await runTurn(d, db, q.ws, p.run_id, q.authz)) ?? replayTurn(d, db, q, p);
+}
+
+/** Kết quả của run đã claim, dựng từ tin đã lưu (không gọi model, không chạy action). */
+export async function replayTurn(
+  d: Pick<AssistantDeps, 'executor' | 'intents'>,
+  db: TenantDb,
+  q: Pick<TurnRequest, 'ws' | 'userId' | 'authz'>,
+  p: { session_id: string; run_id: string },
+  o: { commands?: boolean } = {},
+): Promise<AssistantTurnDto> {
+  const viewer = { ws: q.ws, userId: q.userId, authz: q.authz, implemented: implementedBy(d.executor) };
+  return { session_id: p.session_id, run_id: p.run_id, events: await replayEvents(db, p.run_id, (part) => presentUi(db, d.intents ?? null, viewer, part), o) };
 }
 
 /** Workspace có sự kiện stream → job dọn 24h ghé (không quét mọi tenant). Lỗi Redis không chặn lượt. */
