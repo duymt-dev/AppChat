@@ -30,6 +30,11 @@ import { ChannelSearchHandler } from './actions/channel-read.handler';
 import { WebchatUpdateWidgetHandler } from './webchat/webchat.handlers';
 import { ChannelEmailConnectHandler } from './email/email.handlers';
 import type { WidgetUrls } from './webchat/widget.service';
+import { ChannelGroupResultHandler } from './actions/group-result.handler';
+import { GroupRequestQueue } from './jobs/create-group.processor';
+import { groupRequestConsumer } from './events/group-request.consumer';
+import { GroupRead } from './services/group-read';
+import { registerEventConsumer, unregisterEventConsumer } from '../kernel/events/consumer';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -42,11 +47,13 @@ class Closer implements OnApplicationShutdown {
     private readonly q: Queue | null,
     private readonly send: ChannelSendQueue | null,
     private readonly inbound: Queue | null,
+    private readonly groups: GroupRequestQueue | null,
   ) {}
   async onApplicationShutdown(): Promise<void> {
     await this.q?.close();
     await this.inbound?.close();
     await this.send?.close();
+    await this.groups?.close();
   }
 }
 
@@ -82,6 +89,21 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     ChannelDisconnectHandler,
     WebchatUpdateWidgetHandler,
     ChannelEmailConnectHandler,
+    ChannelGroupResultHandler,
+    {
+      // Hàng đợi tạo nhóm theo tài khoản + consumer outbox `channel.group_requested` (chạy ở tiến trình có queue `events`).
+      provide: GroupRequestQueue,
+      inject: [opt(REDIS)],
+      useFactory: (r?: Redis) => {
+        if (!r) return null;
+        const q = new GroupRequestQueue(r.duplicate());
+        const c = groupRequestConsumer(q);
+        unregisterEventConsumer(c.name);
+        registerEventConsumer(c);
+        return q;
+      },
+    },
+    { provide: GroupRead, inject: [opt(TENANT_RESOLVER)], useFactory: (t?: TenantDbResolver) => (t ? new GroupRead(t) : null) },
     {
       provide: CHANNEL_REGISTRY,
       inject: [opt(ENV_SOURCE), opt(REDIS)],
@@ -107,10 +129,10 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     },
     {
       provide: 'CHANNELS_CLOSER',
-      inject: [LOGIN_QUEUE, ChannelSendQueue, INBOUND_QUEUE],
-      useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null) => new Closer(q, s, i),
+      inject: [LOGIN_QUEUE, ChannelSendQueue, INBOUND_QUEUE, GroupRequestQueue],
+      useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null, g: GroupRequestQueue | null) => new Closer(q, s, i, g),
     },
   ],
-  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService],
+  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead],
 })
 export class ChannelsModule {}

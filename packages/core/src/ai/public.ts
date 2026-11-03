@@ -36,7 +36,7 @@ export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-contex
 // TIP-023 — Trợ lý AI.
 export { AssistantService, type Caller } from './assistant/assistant.service';
 export { assistantTurn, assistantConfirm, assistantResumeSpec, type AssistantDeps, type TurnRequest, type ConfirmRequest } from './assistant/turn.service';
-export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
+export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, SYSTEM_ONLY, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
 export { confirmCard, lookOf } from './assistant/card';
 export { assistantSystem, contextLine, type AssistantContext, type AssistantRunInput } from './assistant/assistant-prompt';
 export { assistantTools, ASSISTANT_TOOLS, type AssistantTurnCtx } from './assistant/meta-tools';

@@ -13,11 +13,14 @@ export const FIND_LIMIT = 8;
 /** Action Trợ lý không bao giờ gọi: quản trị nền tảng, chuyển workspace, quyết định duyệt thay người, xác nhận chuyển khoản gói. */
 const HIDDEN = /^(admin\.|workspace\.switch$|approval\.|billing\.)/;
 
+/** Callback chỉ nguồn system (worker) — không ai gọi bằng lời / UI nên không cần preview hay đường tra id. */
+export const SYSTEM_ONLY = new Set(['channel.group_result']);
+
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 
 /** Người dùng gọi được (quyền + Owner); `self` luôn được, `platform_admin` không qua Trợ lý. */
 export function allowedFor(a: ActionDef, authz: AuthzContext): boolean {
-  if (HIDDEN.test(a.id) || a.permission === 'platform_admin') return false;
+  if (HIDDEN.test(a.id) || SYSTEM_ONLY.has(a.id) || a.permission === 'platform_admin') return false;
   return a.permission === 'self' || can(authz, a.permission as PermissionKey);
 }
 

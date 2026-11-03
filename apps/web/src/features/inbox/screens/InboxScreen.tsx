@@ -15,6 +15,7 @@ import { ConnectChannelModal } from '../components/ConnectChannelModal';
 import { ConversationList } from '../components/ConversationList';
 import { FolderRail } from '../components/FolderRail';
 import { ForwardModal } from '../components/ForwardModal';
+import { CreateGroupModal } from '../components/CreateGroupModal';
 import { GroupInfoPanel } from '../components/GroupInfoPanel';
 import { InboxAiModal } from '../components/InboxAiModal';
 import { Panel360 } from '../components/Panel360';
@@ -66,6 +67,7 @@ export function InboxScreen() {
       {ui.modal === 'connect' ? <ConnectChannelModal /> : null}
       {ui.modal === 'ai' ? <InboxAiModal customer={customer} /> : null}
       {ui.modal === 'forward' ? <ForwardModal /> : null}
+      {ui.modal === 'group' ? <CreateGroupModal /> : null}
     </div>
   );
 }

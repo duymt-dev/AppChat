@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import type { ChannelType } from './types';
 
 export type InboxPop = 'convMenu' | 'chatMenu' | 'account' | 'qr' | 'sched' | 'xl' | 'attach' | null;
-export type InboxModal = 'connect' | 'ai' | 'forward' | null;
+export type InboxModal = 'connect' | 'ai' | 'forward' | 'group' | null;
 /** Tab mặc định (builtin) hoặc key tab tuỳ biến của bố cục vai trò (TIP-026). */
 export type Tab360 = 'overview' | 'crm' | 'ai' | 'files' | 'history' | (string & {});
 /** Submenu đang mở trong menu ⋯ hội thoại (REQ-C10): null = danh sách chính. */
@@ -29,6 +29,8 @@ interface InboxUiState {
   modal: InboxModal;
   /** Tin đang được chuyển tiếp — nguồn cho modal "Chuyển tiếp" (REQ-C09). */
   forwardFrom: { convId: string; messageId: string } | null;
+  /** Hội thoại mở modal "Tạo nhóm" (TIP-023b) — thành viên đầu tiên + tài khoản kênh. */
+  groupFrom: string | null;
   composerMode: 'reply' | 'note';
   autoXl: boolean;
   /** Bản nháp composer (Trợ lý điền qua UiCommand prefill `inbox.composer`). */
@@ -62,6 +64,7 @@ interface InboxUiState {
         | 'searchQuery'
         | 'searchSender'
         | 'forwardFrom'
+        | 'groupFrom'
       >
     >,
   ) => void;
@@ -91,6 +94,7 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   convSub: null,
   modal: null,
   forwardFrom: null,
+  groupFrom: null,
   composerMode: 'reply',
   autoXl: false,
   draft: '',

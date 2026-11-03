@@ -10,3 +10,6 @@ export { VisitorTokens, VISITOR_TTL_SEC } from './webchat/visitor-token';
 export { MemoryWidgetPublisher, RedisWidgetPublisher, visitorRoom } from './webchat/publisher';
 export { widgetSettings, originAllowed, embedCode, type WidgetUrls } from './webchat/widget.service';
 export { emailOutboundExtras, openEmailThread } from './email/threads';
+export { planGroup, requestDto, type GroupPlan, type Participant as GroupParticipant } from './services/group-requests';
+export { GroupRead } from './services/group-read';
+export { GroupCreators, GroupRequestQueue, groupQueueName, GROUP_TIMEOUT_MS, type GroupJob } from './jobs/create-group.processor';

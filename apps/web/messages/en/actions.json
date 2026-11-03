@@ -85,6 +85,10 @@
     "get": {
       "title": "View conversation",
       "desc": "Read one conversation with up to 20 latest messages."
+    },
+    "create_group": {
+      "title": "Create Zalo group",
+      "desc": "Create a new Zalo group on one account, inviting customers from that account's 1-1 conversations."
     }
   },
   "message": {
@@ -742,6 +746,9 @@
     "search": {
       "title": "Find channel accounts",
       "desc": "Look up connected Zalo / email / web chat accounts."
+    },
+    "group_result": {
+      "title": "Group creation result (system)"
     }
   },
   "webchat": {

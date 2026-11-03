@@ -12,6 +12,7 @@ export * from './contracts';
 export * from './orders';
 export * from './channels';
 export * from './inbox';
+export * from './conversation-groups';
 export * from './webchat';
 export * from './ai';
 export * from './assistant';

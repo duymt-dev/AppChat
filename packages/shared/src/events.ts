@@ -93,6 +93,9 @@ export const messageFailedEvent = z.object({ ...convBase, message_id: z.string()
 export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status']) });
 export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_id: z.string().nullable(), by_user_id: z.string().uuid().nullable(), auto: z.boolean(), title: z.string() });
 export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
+/** Tạo nhóm kênh (TIP-023b SPEC D): yêu cầu đã lưu → consumer đẩy tới worker giữ phiên; kết quả (succeeded / failed / unknown) → realtime người yêu cầu. */
+export const groupRequestedEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid(), requester_id: z.string().uuid().nullable(), status: z.string(), conversation_id: z.string().uuid().nullable() });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
 /** Nguồn tri thức nạp xong / lỗi (TIP-020) — WS cập nhật trang Dữ liệu RAG; lỗi thì báo người tải lên. */
@@ -172,6 +175,8 @@ export const EVENT_SCHEMAS = {
   'message.updated': messageUpdatedEvent,
   'conversation.assigned': conversationAssignedEvent,
   'conversation.updated': conversationUpdatedEvent,
+  'channel.group_requested': groupRequestedEvent,
+  'channel.group_result': groupResultEvent,
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,

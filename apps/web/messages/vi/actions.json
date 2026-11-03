@@ -85,6 +85,10 @@
     "get": {
       "title": "Xem hội thoại",
       "desc": "Đọc một hội thoại cùng tối đa 20 tin gần nhất."
+    },
+    "create_group": {
+      "title": "Tạo nhóm Zalo",
+      "desc": "Tạo nhóm Zalo mới trên một tài khoản, mời khách từ các hội thoại 1-1 của chính tài khoản đó."
     }
   },
   "message": {
@@ -742,6 +746,9 @@
     "search": {
       "title": "Tìm tài khoản kênh",
       "desc": "Tra tài khoản Zalo / email / web chat đã kết nối."
+    },
+    "group_result": {
+      "title": "Kết quả tạo nhóm (hệ thống)"
     }
   },
   "webchat": {

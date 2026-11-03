@@ -87,7 +87,8 @@
     "tagsHint": "Tap to select · applies to the customer",
     "tagsNewPh": "New tag…",
     "tagsAdd": "+ Add",
-    "tagsDone": "Done · {n} tags"
+    "tagsDone": "Done · {n} tags",
+    "groupUnsupported": "This channel cannot create groups yet"
   },
   "chat": {
     "back": "Back to list",
@@ -388,6 +389,22 @@
       "mention": "Move to @Mention tab",
       "assign": "Hand over · @Trâm",
       "vip": "Tag as VIP"
+    }
+  },
+  "createGroup": {
+    "title": "Create Zalo group",
+    "close": "Close",
+    "name": "Group name",
+    "members": "Selected members: {count}",
+    "notice": "Selected customers will be invited to a new Zalo group. Only customers who have messaged this account can be chosen.",
+    "submit": "Create group",
+    "open": "Open group",
+    "status": {
+      "queued": "Waiting for the Zalo account…",
+      "running": "Creating the group on Zalo…",
+      "succeeded": "Group created.",
+      "failed": "Could not create the group.",
+      "unknown": "Outcome unknown — the group may already exist on Zalo. Check Zalo before trying again."
     }
   }
 }

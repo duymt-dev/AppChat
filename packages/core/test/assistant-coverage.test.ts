@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { registry } from '@appchat/actions';
 import type { JsonSchema } from '@appchat/ai';
 import { CODE_REF_ENTITIES } from '../src/ai/assistant/code-refs';
+import { SYSTEM_ONLY } from '../src/ai/assistant/catalog';
 import { inputSchemaOf } from '../src/ai/runs/tools';
 import { PREVIEW_DEBT } from './assistant-coverage.debt';
 
@@ -27,7 +28,8 @@ function handlers(): Map<string, { preview: boolean }> {
 }
 
 const H = handlers();
-const DEFS = registry.filter((a) => H.has(a.id));
+// Callback system-only (worker) không đi qua Trợ lý / UI — ngoài phạm vi phủ.
+const DEFS = registry.filter((a) => H.has(a.id) && !SYSTEM_ONLY.has(a.id));
 const IMPLEMENTED = new Set(DEFS.map((a) => a.id));
 
 /** Đường dẫn mọi ô `*_id` / `id` trong input (lồng object / array / anyOf). */

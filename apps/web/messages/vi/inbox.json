@@ -87,7 +87,8 @@
     "tagsHint": "Chạm để chọn · áp dụng cho khách",
     "tagsNewPh": "Tạo thẻ mới…",
     "tagsAdd": "+ Thêm",
-    "tagsDone": "Xong · gắn {n} thẻ"
+    "tagsDone": "Xong · gắn {n} thẻ",
+    "groupUnsupported": "Kênh này chưa hỗ trợ tạo nhóm"
   },
   "chat": {
     "back": "Quay lại danh sách",
@@ -388,6 +389,22 @@
       "mention": "Chuyển sang Tab @Mention",
       "assign": "Chuyển agent · @Trâm",
       "vip": "Gắn tag VIP"
+    }
+  },
+  "createGroup": {
+    "title": "Tạo nhóm Zalo",
+    "close": "Đóng",
+    "name": "Tên nhóm",
+    "members": "Thành viên đã chọn: {count}",
+    "notice": "Khách được chọn sẽ nhận lời mời vào nhóm mới trên Zalo. Chỉ chọn được khách đã nhắn với tài khoản này.",
+    "submit": "Tạo nhóm",
+    "open": "Mở nhóm",
+    "status": {
+      "queued": "Đang chờ tài khoản Zalo xử lý…",
+      "running": "Đang tạo nhóm trên Zalo…",
+      "succeeded": "Đã tạo nhóm.",
+      "failed": "Không tạo được nhóm.",
+      "unknown": "Chưa rõ kết quả — nhóm có thể đã được tạo trên Zalo. Kiểm tra Zalo trước khi tạo lại."
     }
   }
 }

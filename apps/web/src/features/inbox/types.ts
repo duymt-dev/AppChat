@@ -9,6 +9,8 @@ export interface ChannelMeta {
   label: string;
   short: string;
   color: string;
+  /** Adapter thật tạo được nhóm (TIP-023b) — không suy từ việc kênh có hội thoại nhóm. */
+  create_group?: boolean;
 }
 
 export interface ConvTag {
@@ -47,6 +49,7 @@ export interface Conversation {
   pinned_message_id?: string | null;
   /** Ẩn khỏi danh sách cho đến khi có tin mới (D50 `conversation.hide`). */
   hidden?: boolean;
+  channel_account_id?: string;
 }
 
 export interface Message {
