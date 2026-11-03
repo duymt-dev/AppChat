@@ -74,7 +74,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 
 | # | TIP | Wave | Trạng thái | Nhánh | SHA | PR |
 |---|-----|------|-----------|-------|-----|----|
-| 1 | [023b](../tips/TIP-023b-assistant-coverage.md) | W8 | chờ | `tip/023b-assistant-coverage` | | |
+| 1 | [023b](../tips/TIP-023b-assistant-coverage.md) | W8 | DONE | `tip/023b-assistant-coverage` | `d373fea` | [#51](https://github.com/duymt-dev/AppChat/pull/51) |
 | 2 | [023c](../tips/TIP-023c-generative-ui.md) | W8 | chờ | `tip/023c-generative-ui` | | |
 | 3 | [030b](../tips/TIP-030b-contract-files.md) | W8 | chờ | `tip/030b-contract-files` | | |
 | 4 | [032b](../tips/TIP-032b-commerce-gaps.md) | W8 | chờ | `tip/032b-commerce-gaps` | | |
