@@ -33,8 +33,10 @@ export function toTurnContext(r: ScreenRegistration | null, surface: ScreenConte
   const selection = (r.selection ?? []).filter(Boolean).slice(0, SELECTION_MAX).map(cleanId);
   return {
     route: r.route,
-    ...(r.entity && r.id ? { entity: r.entity.slice(0, 40), id: cleanId(r.id) } : {}),
-    ...(selection.length ? { selection } : {}),
+    // `entity` đi kèm cả khi chỉ có dòng chọn (không mở bản ghi) — thiếu nó server không biết kiểm dòng chọn bằng action get nào.
+    ...(r.entity && (r.id || selection.length) ? { entity: r.entity.slice(0, 40) } : {}),
+    ...(r.entity && r.id ? { id: cleanId(r.id) } : {}),
+    ...(r.entity && selection.length ? { selection } : {}),
     ...(surface ? { surface } : {}),
   };
 }

@@ -352,3 +352,30 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | M | `packages/core/src/integrations/services/resolver.ts` | Amend (G3): `byConnector` — kết nối đang dùng của connector cho `integration.test` |
 | M | `tools/contract/src/cases.ts` | Amend (G3): ca contract FE ↔ BE cho 2 action probe |
 | M | `tools/obligations/actions.json` | Amend (G3): sinh lại sổ action (2 action mới) |
+| M | `apps/web/e2e/http/assistant.spec.ts` | Amend (G2, bổ sung dòng khi chốt): chờ lượt qua SSE / ROLE=ai |
+| M | `apps/web/e2e/inbox.spec.ts` | Amend (G3, bổ sung dòng khi chốt): AI viết lại trong ô soạn (mock) |
+| M | `apps/web/src/features/agents/screens/AgentBuilderScreen.tsx` | Amend (G2, bổ sung dòng khi chốt): đăng ký ngữ cảnh màn Agents (id agent đang dựng) |
+| C | `apps/web/e2e/http/screen-assistant.spec.ts` | Amend (chốt): AC4 http — báo giá đang mở (hỏi qua Trợ lý thu nhỏ), 3 dòng chọn → 3 thẻ VIP, Phân tích nhanh → Mở rộng |
+| M | `packages/ai/src/testing/mock-model.ts` | Amend (chốt): luật model giả cho AC4 (chỉ id ngữ cảnh server đã lọc) |
+| C | `packages/ai/test/mock-screen-script.test.ts` | Amend (chốt): unit cho luật model giả AC4 |
+| M | `coding-packs/DECISIONS.md` | Amend (chốt): DC-317 stack ai:live, DC-318 sửa hệ thống từ model thật |
+| M | `coding-packs/DEVIATIONS.md` | Amend (chốt): DV-023 gắn thẻ nhiều khách = mỗi khách một thẻ xác nhận (bulk ở 045b) |
+| M | `coding-packs/QUESTIONS.md` | Amend (chốt): Q-046 đã giải (DC-317) |
+| C | `coding-packs/reports/ai-live-genui-screen-2026-11-03.md` | Amend (chốt): báo cáo ai:live genui-screen (AC5) |
+| C | `coding-packs/reports/ai-live-genui-screen-2026-11-03.json` | Amend (chốt): dữ liệu thô báo cáo ai:live genui-screen |
+| C | `fixtures/ai-eval/genui-seed.mjs` | Amend (chốt): seed riêng suite genui-screen (báo giá, kênh lỗi, ghi chú tiêm lệnh, hội thoại nháp) |
+| M | `packages/core/src/ai/assistant/schema-brief.ts` | Amend (chốt): khoảng số `integer(1..20)` trong khuôn input (DC-318) |
+| M | `packages/core/test/assistant-unit.test.ts` | Amend (chốt): khuôn input có khoảng số |
+| M | `tools/ai-live/package.json` | Amend (chốt): `socket.io-client` (cùng bản web / widget) cho ca connect-zalo-qr |
+| M | `tools/ai-live/src/cases.ts` | Amend (chốt): hạng mục genui / connect / draft, `expect.ui`, `context`, `draft` |
+| M | `tools/ai-live/src/cli.ts` | Amend (chốt): seed genui + cổng 9/10 cho suite genui-screen |
+| C | `tools/ai-live/src/genui-judge.ts` | Amend (chốt): chấm cây UI / nháp |
+| M | `tools/ai-live/src/report.ts` | Amend (chốt): cờ an toàn mới vào báo cáo |
+| M | `tools/ai-live/src/runner.ts` | Amend (chốt): ngữ cảnh ca, ca nháp, chấm cây |
+| M | `tools/ai-live/src/safety.ts` | Amend (chốt): `secret_prefill`, `injected_action_ui`, `draft_not_text_only`, `action_any` |
+| C | `tools/ai-live/test/genui-judge.test.ts` | Amend (chốt): unit chấm cây / nháp |
+| M | `tools/ai-live/test/safety.test.ts` | Amend (chốt): unit cờ an toàn mới |
+| C | `tools/scripts/ai-live-stack.mjs` | Amend (chốt): stack ai:live riêng (DC-317) |
+| M | `packages/ui/src/tokens.ts` | Amend (chốt): `z.dock` / `z.dockVeil` nổi trên drawer antd — Trợ lý thu nhỏ dùng được khi đang mở chi tiết bản ghi (DC-319, E2E http bắt) |
+| M | `apps/web/src/shared/assistant/screen-context.ts` | Amend (chốt): gửi `entity` khi chỉ có dòng chọn (DC-320, E2E http bắt) |
+| M | `apps/web/src/shared/assistant/screen-context.test.tsx` | Amend (chốt): ca chỉ chọn dòng |

@@ -30,6 +30,8 @@ describe('screen-context', () => {
     expect(ctx).toMatchObject({ route: '/customers', entity: 'contact', surface: 'drawer' });
     expect(toTurnContext(null, 'drawer', '/inbox')).toEqual({ route: '/inbox', surface: 'drawer' });
     expect(toTurnContext({ module: 'm', route: '/m', entity: 'contact' }, undefined, '/')).toEqual({ route: '/m' });
+    // Chỉ chọn dòng (không mở bản ghi) → vẫn gửi entity để server kiểm dòng chọn (E2E http AC4 bắt).
+    expect(toTurnContext({ module: 'm', route: '/m', entity: 'contact', id: null, selection: ['a', 'b'] }, 'drawer', '/')).toEqual({ route: '/m', entity: 'contact', selection: ['a', 'b'], surface: 'drawer' });
   });
 
   it('messagesOf: delta gộp, thẻ chờ xác nhận, cây ui riêng, lệnh UI tách ra (không thành tin)', () => {
