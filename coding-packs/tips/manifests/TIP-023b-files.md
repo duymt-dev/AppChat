@@ -371,6 +371,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/billing/actions/previews/billing-cancel-invoice.handler.preview.ts` | Scoped preview helper for packages/core/src/billing/actions/billing-cancel-invoice.handler.ts |
 | C | `packages/core/src/billing/actions/previews/billing-create-invoice.handler.preview.ts` | Scoped preview helper for packages/core/src/billing/actions/billing-create-invoice.handler.ts |
 | C | `packages/core/src/billing/actions/previews/billing-report-transfer.handler.preview.ts` | Scoped preview helper for packages/core/src/billing/actions/billing-report-transfer.handler.ts |
+| M | `packages/core/src/billing/payments/invoices.service.ts` | Read-only `quote()` (price + reusable pending invoice) for the billing.create_invoice preview |
 | M | `packages/core/src/booking/actions/appointment-book.handlers.ts` | Domain preview for appointment.find_slots, appointment.list, appointment.create, appointment.reschedule |
 | M | `packages/core/src/booking/actions/appointment-flow.handlers.ts` | Domain preview for appointment.confirm, appointment.check_in, appointment.complete, appointment.mark_no_show, appointment.cancel |
 | C | `packages/core/src/booking/actions/appointment-update.handler.ts` | Extracted implementation or targeted evidence |
@@ -498,6 +499,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/kernel/actions/handler-registry.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/kernel/actions/handler.ts` | Current authority, scoped shared query, preview or transport wiring |
 | C | `packages/core/src/kernel/actions/preview-kit.ts` | Shared canonical preview builder (diff / created / removed) used by domain preview helpers |
+| C | `packages/core/src/kernel/tenant/platform-read.ts` | `needPlatform` — optional PLATFORM_DB guard shared by previews of `db: 'platform'` actions (501 when unset) |
 | M | `packages/core/src/kernel/actions/policy.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/kernel/actions/tip-owners.ts` | TIP chủ cho domain `service` (service.search) |
 | M | `packages/core/src/kernel/kernel.module.ts` | Current authority, scoped shared query, preview or transport wiring |

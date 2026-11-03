@@ -1,11 +1,15 @@
 // admin.invoice.confirm_transfer (db platform, platform_admin, money) — duyệt chuyển khoản thủ công (REQ-L04): hoá đơn còn chờ
 // (pending / pending_review / expired) → paid (method bank_transfer, confirmed_by) rồi ghi nhận (kích hoạt gói / cộng credit) SAU
 // commit (`afterCommit`). Hoá đơn thuộc workspace bất kỳ; action_log nằm ở workspace admin đang đứng (DC-054). Đã paid / huỷ → 409.
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
+import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, adminInvoiceConfirmTransfer } from '@appchat/actions';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { confirmTransferPreview } from './previews/admin-confirm-transfer.handler.preview';
+import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
+import { needPlatform } from '../../kernel/tenant/platform-read';
 import { InvoiceFulfiller } from '../payments/fulfil';
 
 type Input = ActionInput<typeof adminInvoiceConfirmTransfer>;
@@ -14,7 +18,10 @@ type Output = { invoice_id: string; status: 'paid' };
 @Injectable()
 @ActionHandler('admin.invoice.confirm_transfer')
 export class AdminConfirmTransferHandler implements Handler<Input, Output> {
-  constructor(@Inject(InvoiceFulfiller) private readonly fulfiller: InvoiceFulfiller | null) {}
+  constructor(
+    @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
+    @Inject(InvoiceFulfiller) private readonly fulfiller: InvoiceFulfiller | null,
+  ) {}
 
   async execute(ctx: ActionContext, input: Input, _tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<Output>> {
     if (!ptx || !this.fulfiller) throw new AppError('INTERNAL', 500, undefined, 'admin.invoice.confirm_transfer cần PlatformTx + InvoiceFulfiller');
@@ -30,5 +37,9 @@ export class AdminConfirmTransferHandler implements Handler<Input, Output> {
       before: { invoice_id: inv.id, workspace_id: inv.workspaceId, status: inv.status },
       after: { invoice_id: inv.id, workspace_id: inv.workspaceId, status: 'paid', note: input.note ?? null },
     };
+  }
+
+  async preview(_ctx: ActionContext, input: Input) {
+    return confirmTransferPreview(needPlatform(this.platform, 'admin.invoice.confirm_transfer'), input);
   }
 }

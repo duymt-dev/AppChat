@@ -5,6 +5,7 @@ import { AppError } from '@appchat/shared';
 import type { ActionInput, integrationConnect } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { connectPreview } from './previews/integration-connect.handler.preview';
 import { ConnectionsService } from '../services/connections.service';
 
 type Input = ActionInput<typeof integrationConnect>;
@@ -26,5 +27,9 @@ export class IntegrationConnectHandler implements Handler<Input, Output> {
       after: view,
       events: [{ topic: 'integration.connected', payload: { connection_id: row.id, connector_key: row.connectorKey } }],
     };
+  }
+
+  async preview(_ctx: ActionContext, input: Input, tx: TenantTx) {
+    return connectPreview(tx, this.connections, input);
   }
 }

@@ -51,6 +51,17 @@ export class InvoicesService {
     return { amount, credits: null, planId: p.id, months };
   }
 
+  /** Preview mua (TIP-023b): giá + hoá đơn `pending` cùng mặt hàng còn hạn sẽ được dùng lại — chỉ đọc, không khoá / không sinh mã. */
+  async quote(tx: Pick<PlatformTx, 'plan' | 'billingInvoice'>, workspaceId: string, i: CreateInvoiceInput) {
+    const pr = await this.price(tx as PlatformTx, i);
+    const open = await tx.billingInvoice.findFirst({
+      where: { workspaceId, kind: DB_KIND[i.kind], item: i.item, months: pr.months, status: 'pending', expiresAt: { gt: this.now() } },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, code: true },
+    });
+    return { ...pr, open };
+  }
+
   /** Tạo hoá đơn — cùng mặt hàng còn hoá đơn `pending` chưa hết hạn → trả lại hoá đơn đó (bấm Mua hai lần không sinh hai QR). */
   async create(tx: PlatformTx, workspaceId: string, userId: string, i: CreateInvoiceInput): Promise<Row> {
     const now = this.now();
