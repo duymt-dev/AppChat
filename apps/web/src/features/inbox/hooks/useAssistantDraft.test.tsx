@@ -3,7 +3,7 @@
 // bị bỏ.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { useAssistantDraft } from './useAssistantDraft';
+import { draftVersion, useAssistantDraft } from './useAssistantDraft';
 
 const post = vi.fn();
 vi.mock('@/shared/api/client', () => ({ transport: { post: (...a: unknown[]) => post(...a), action: vi.fn(), get: vi.fn() } }));
@@ -26,10 +26,11 @@ describe('useAssistantDraft', () => {
   beforeEach(() => post.mockReset());
 
   it('viết lại → đề xuất; Thay mới đổi nháp; không có action nào được gọi', async () => {
-    post.mockResolvedValueOnce(reply('c1', 0));
+    const v = draftVersion('giá 500k');
+    post.mockResolvedValueOnce(reply('c1', v));
     const { result, onDraft } = setup();
     await act(async () => result.current.rewrite());
-    expect(post).toHaveBeenCalledWith('/assistant/messages', { purpose: 'inbox_rewrite', conversation_id: 'c1', base_version: 0, draft: 'giá 500k' });
+    expect(post).toHaveBeenCalledWith('/assistant/messages', { purpose: 'inbox_rewrite', conversation_id: 'c1', base_version: v, draft: 'giá 500k' });
     expect(result.current.proposal).toEqual({ purpose: 'inbox_rewrite', text: 'Dạ, giá 500k ạ.', conflict: false });
     expect(onDraft).not.toHaveBeenCalled();
     act(() => result.current.replace());
@@ -43,7 +44,7 @@ describe('useAssistantDraft', () => {
     const { result, rerender, onDraft } = setup();
     act(() => result.current.rewrite());
     rerender({ conv: 'c1', draft: 'giá 500k, có ship' });
-    await act(async () => d.resolve(reply('c1', 0)));
+    await act(async () => d.resolve(reply('c1', draftVersion('giá 500k'))));
     expect(result.current.proposal?.conflict).toBe(true);
     expect(onDraft).not.toHaveBeenCalled();
     act(() => result.current.insert());
@@ -67,9 +68,9 @@ describe('useAssistantDraft', () => {
     const { result } = setup('c1', '');
     await act(async () => result.current.compose());
     expect(result.current.error).toBe(true);
-    post.mockResolvedValueOnce({ ...reply('c1', 0, 'Dạ em chào chị'), purpose: 'inbox_compose' });
+    post.mockResolvedValueOnce({ ...reply('c1', draftVersion(''), 'Dạ em chào chị'), purpose: 'inbox_compose' });
     await act(async () => result.current.retry());
-    expect(result.current.proposal?.text).toBe('Dạ em chào chị');
+    expect(result.current.proposal).toEqual({ purpose: 'inbox_compose', text: 'Dạ em chào chị', conflict: false });
     act(() => result.current.dismiss());
     const d = deferred<ReturnType<typeof reply>>();
     post.mockReturnValueOnce(d.promise);
