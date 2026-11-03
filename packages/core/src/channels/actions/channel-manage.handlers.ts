@@ -12,6 +12,7 @@ import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
+import { disconnectPreview, pausePreview, resumePreview, syncHistoryPreview, updateSettingsPreview } from './previews/channel-manage.handlers.preview';
 
 type Ok = { ok: boolean };
 
@@ -44,6 +45,10 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
     await tx.channelAccount.update({ where: { id: row.id }, data: { settings: { ...next }, ...(name ? { name } : {}), updatedAt: this.clock.now() } });
     return { result: { ok: true }, before: { id: row.id, name: row.name, settings: prev }, after: { id: row.id, name: name ?? row.name, settings: next } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx) {
+    return updateSettingsPreview(need(this.accounts), tx, input);
+  }
 }
 
 @Injectable()
@@ -61,6 +66,10 @@ export class ChannelPauseHandler implements Handler<ActionInput<typeof channelPa
     if (row.pausedAt) return { result: { ok: true } };
     const { row: next, event } = await accounts.setStatus(tx, row, { pausedAt: this.clock.now() }, this.clock.now(), 'paused');
     return { result: { ok: true }, after: { id: row.id, paused: true }, events: event ? [event] : [], afterCommit: sync(accounts, need(this.control), ctx.workspaceId, next, 'stop') };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelPause>, tx: TenantTx) {
+    return pausePreview(need(this.accounts), tx, input);
   }
 }
 
@@ -81,6 +90,10 @@ export class ChannelResumeHandler implements Handler<ActionInput<typeof channelR
     const { row: next, event } = await accounts.setStatus(tx, row, { pausedAt: null, health: { status: 'connected' } }, this.clock.now());
     const op = next.status === 'connected' ? 'start' : undefined;
     return { result: { ok: true }, after: { id: row.id, paused: false }, events: event ? [event] : [], afterCommit: sync(accounts, need(this.control), ctx.workspaceId, next, op) };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelResume>, tx: TenantTx) {
+    return resumePreview(need(this.accounts), tx, input);
   }
 }
 
@@ -104,6 +117,10 @@ export class ChannelSyncHistoryHandler implements Handler<ActionInput<typeof cha
       after: { id: row.id, history_days: input.history_days, requested: run },
       afterCommit: run ? () => control.send({ op: 'sync', account_id: row.id, days: input.history_days }) : undefined,
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx) {
+    return syncHistoryPreview(need(this.accounts), tx, input);
   }
 }
 
@@ -162,5 +179,9 @@ export class ChannelDisconnectHandler implements Handler<ActionInput<typeof chan
         await control.clearLogin(row.id);
       },
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelDisconnect>, tx: TenantTx) {
+    return disconnectPreview(need(this.accounts), tx, input);
   }
 }

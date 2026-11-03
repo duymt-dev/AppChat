@@ -14,6 +14,7 @@ import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { ChannelControl } from '../services/control';
 import { ChannelAccounts, defaultSettings, routeStatusOf, type AccountRow, type AccountStatus, type StatusEvent } from '../services/accounts.service';
 import { DEFAULT_COLOR, configOf, newPublicKey, prechatOf, type WidgetConfig } from './widget.service';
+import { widgetPreview } from './previews/webchat.handlers.preview';
 
 type In = ActionInput<typeof webchatUpdateWidget>;
 type Out = { ok: boolean; channel_account_id?: string; public_key?: string };
@@ -118,5 +119,9 @@ export class WebchatUpdateWidgetHandler implements Handler<In, Out> {
       // Worker ROLE=channels mở / đóng worker gửi của tài khoản ngay (không chờ nhịp 10 giây).
       ...(control && events.length ? { afterCommit: () => control.send({ op: running ? 'start' : 'stop', account_id: acc.id }) } : {}),
     };
+  }
+
+  async preview(_ctx: ActionContext, input: In, tx: TenantTx) {
+    return widgetPreview(tx, input);
   }
 }

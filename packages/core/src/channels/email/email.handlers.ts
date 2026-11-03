@@ -15,6 +15,7 @@ import { CHANNEL_REGISTRY } from '../tokens';
 import { ChannelAccounts, defaultSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
 import { emailAdapterOf, emailCredentials, verifyMailbox } from './credentials';
+import { emailConnectPreview } from './previews/email.handlers.preview';
 
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
 
@@ -72,5 +73,9 @@ export class ChannelEmailConnectHandler implements Handler<ActionInput<typeof ch
       events: [{ topic: 'channel.connected', payload: { channel_account_id: id, type: 'email', name } }],
       ...(control ? { afterCommit: () => control.send({ op: 'start', account_id: id }) } : {}),
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelEmailConnect>, tx: TenantTx) {
+    return emailConnectPreview(tx, input);
   }
 }

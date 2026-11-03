@@ -7,12 +7,10 @@ export const PREVIEW_DEBT: ReadonlySet<string> = new Set([
   'ai_task.create', 'ai_task.delete', 'ai_task.pause', 'ai_task.run_now', 'ai_task.update',
   'approval.approve', 'approval.edit_and_approve', 'approval.reject',
   'billing.cancel_invoice', 'billing.create_invoice', 'billing.report_transfer',
-  'channel.disconnect', 'channel.email.connect', 'channel.pause', 'channel.reconnect', 'channel.resume', 'channel.sync_history', 'channel.update_settings', 'channel.zalo.start_login',
   'contact.send_email',
   'doc_template.update',
   'governance.update',
   'integration.connect', 'integration.disconnect', 'integration.register_interest',
   'kb.add_source', 'kb.folder.create', 'kb.refresh_source', 'kb.remove_source', 'kb.update_source',
   'run.cancel',
-  'webchat.update_widget',
 ]);

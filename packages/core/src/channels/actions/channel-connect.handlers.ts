@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { QuotaService } from '../../billing/public';
 import { ChannelAccounts, defaultSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
+import { reconnectPreview, startLoginPreview } from './previews/channel-connect.handlers.preview';
 
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
 
@@ -50,6 +51,10 @@ export class ChannelZaloStartLoginHandler implements Handler<ActionInput<typeof 
       afterCommit: () => control.startLogin({ ws: ctx.workspaceId, account_id: id, user_id: userOf(ctx) }),
     };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelZaloStartLogin>) {
+    return startLoginPreview(input);
+  }
 }
 
 @Injectable()
@@ -80,5 +85,9 @@ export class ChannelReconnectHandler implements Handler<ActionInput<typeof chann
         await control.startLogin({ ws: ctx.workspaceId, account_id: row.id, user_id: userOf(ctx) });
       },
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelReconnect>, tx: TenantTx) {
+    return reconnectPreview(need(this.accounts), tx, input);
   }
 }
