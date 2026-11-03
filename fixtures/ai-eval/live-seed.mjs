@@ -88,12 +88,15 @@ async function declare(c) {
     if (!String(name).includes(MARKER)) throw new Error(`workspace "${name}" không có dấu ${MARKER} — từ chối seed`);
     return;
   }
-  const profile = { kind: 'household', legal_name: `Spa Thử AI ${MARKER}`, address: '1 Đường Thử, Quận 1, TP.HCM', representative: 'Người Thử', phone: '0900000000', business_description: 'Spa thử nghiệm cho bộ câu AI' };
-  for (let i = 0; i < 90; i++) {
+  const profile = { kind: 'household', tax_code: '0300000001', legal_name: `Spa Thử AI ${MARKER}`, address: '1 Đường Thử, Quận 1, TP.HCM', representative: 'Người Thử', phone: '0900000000', business_description: 'Spa thử nghiệm cho bộ câu AI' };
+  let declared = false;
+  for (let i = 0; i < 90 && !declared; i++) {
     const r = await c.req('POST', '/actions/business_profile.update', { input: profile }, { 'idempotency-key': randomUUID() });
-    if (r.status === 200) break;
-    await sleep(1000);
+    declared = r.status === 200;
+    if (!declared) await sleep(1000);
   }
+  // Không khai báo được (DB tenant chưa provision — thiếu worker jobs?) → dừng: workspace chưa khai báo không có trial credit, mọi ca sẽ fail giả.
+  if (!declared) throw new Error('business_profile.update không thành công sau 90 giây — kiểm worker ROLE=jobs cùng Redis với API');
   for (let i = 0; i < 60; i++) {
     if ((await c.req('GET', '/workspace/provisioning')).body?.data?.status === 'ready') break;
     await sleep(1000);

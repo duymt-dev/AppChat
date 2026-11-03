@@ -5,6 +5,7 @@
 // Thoát ≠ 0 khi suite lỗi (rỗng / schema sai / ca lạ / ngoài repo) — không bao giờ rơi về bộ mặc định.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { CasesError, DEFAULT_COUNT, REPO_ROOT, selectSuite, type Suite } from './cases';
 import { renderMarkdown, summarize } from './report';
 import { runSuite } from './runner';
@@ -50,7 +51,7 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
   const password = env.AI_LIVE_PASSWORD ?? '';
   if (!email || !password) throw new CasesError('AI_LIVE_EMAIL / AI_LIVE_PASSWORD chưa đặt');
   // Seed fixture là .mjs dùng chung với TIP-044 — nạp động (không đưa vào typecheck của gói).
-  const seedMod = (await import(join(REPO_ROOT, 'fixtures', 'ai-eval', 'live-seed.mjs'))) as {
+  const seedMod = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'live-seed.mjs')).href)) as {
     client(api: string, email: string): { req(m: string, p: string, b?: unknown): Promise<{ status: number; body: unknown }> };
     signIn(c: unknown, o: { email: string; password: string; mailDir?: string }): Promise<void>;
     seed(c: unknown): Promise<unknown>;
