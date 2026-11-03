@@ -1,12 +1,16 @@
 // Trợ lý thu nhỏ (panel phải) — theo bản thu nhỏ của prototype (L2938–2980, "Phiên bản thu nhỏ").
-// Gửi câu hỏi (TIP-023): mở màn Trợ lý với `?ask=` + `from=` (màn đang đứng làm ngữ cảnh) — shared không import features/assistant.
+// TIP-023c G2: gửi lượt Trợ lý THẬT ngay trong dock (surface drawer, ngữ cảnh màn hiện hành do feature đăng ký) — chữ / thẻ xác nhận /
+// cây GenUI gọn; cùng phiên với drawer của module đang đứng. "Mở Trợ lý AI đầy đủ" mở màn Trợ lý cùng phiên.
 'use client';
-import { useState, type FormEvent } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { type FormEvent } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createStyles } from 'antd-style';
 import { Icon, color, font, gradient, layout, radius, shadow, z } from '@appchat/ui';
 import { useShellStore } from '../shell/shell-store';
+import { ScreenAssistantThread } from './ScreenAssistantThread';
+import { useDrawerAsk } from './useDrawerAsk';
+import { useScreenContextStore } from './screen-context';
 
 const useStyles = createStyles(({ css, responsive }) => ({
   veil: css`
@@ -148,22 +152,22 @@ const useStyles = createStyles(({ css, responsive }) => ({
 }));
 
 export function AssistantDock() {
+  const open = useShellStore((s) => s.dockOpen);
+  return open ? <DockPanel /> : null;
+}
+
+function DockPanel() {
   const t = useTranslations('shell.dock');
   const tc = useTranslations('common');
-  const router = useRouter();
   const pathname = usePathname();
-  const [text, setText] = useState('');
   const { styles } = useStyles();
-  const open = useShellStore((s) => s.dockOpen);
   const setDock = useShellStore((s) => s.setDock);
-  if (!open) return null;
+  // Cùng phiên với drawer của module đang đứng (màn chưa đăng ký ngữ cảnh → module theo route).
+  const mod = useScreenContextStore((s) => s.current?.module) ?? (pathname.split('/')[1] || 'dashboard');
+  const { asst, draft, setDraft, send } = useDrawerAsk(mod);
   const ask = (e: FormEvent) => {
     e.preventDefault();
-    const q = text.trim();
-    if (!q) return;
-    setText('');
-    setDock(false);
-    router.push(`/assistant?${new URLSearchParams({ ask: q, from: pathname })}`);
+    send();
   };
   return (
     <>
@@ -188,10 +192,11 @@ export function AssistantDock() {
             </span>
             <div>{t('greeting')}</div>
           </div>
+          <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} testId="dock-msgs" />
         </div>
         <div className={styles.foot}>
           <form className={styles.input} onSubmit={ask} data-testid="dock-form">
-            <input placeholder={t('placeholder')} value={text} onChange={(e) => setText(e.target.value)} data-testid="dock-input" />
+            <input placeholder={t('placeholder')} aria-label={t('placeholder')} value={draft} onChange={(e) => setDraft(e.target.value)} data-testid="dock-input" />
             <button type="submit" aria-label={t('send')}>
               <Icon name="ic-send" size={15} color={color.white} />
             </button>
@@ -200,8 +205,9 @@ export function AssistantDock() {
             className={styles.full}
             onClick={() => {
               setDock(false);
-              router.push('/assistant');
+              asst.openFull();
             }}
+            data-testid="dock-full"
           >
             <Icon name="ic-spark" size={14} />
             {t('openFull')}

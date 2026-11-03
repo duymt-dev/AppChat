@@ -389,6 +389,17 @@
       "mention": "Chuyển sang Tab @Mention",
       "assign": "Chuyển agent · @Trâm",
       "vip": "Gắn tag VIP"
+    },
+    "prompts": {
+      "new": "Tạo hội thoại mới với khách {name}.",
+      "invite": "Mời thành viên vào hội thoại với {name}.",
+      "summary": "Tóm tắt 30 tin nhắn cuối của hội thoại với {name}.",
+      "draft": "Soạn phản hồi gợi ý cho tin nhắn mới nhất của {name} (chỉ soạn nháp, không gửi).",
+      "translate": "Dịch tin nhắn mới nhất của {name} sang tiếng Anh.",
+      "intent": "Phát hiện ý định của khách {name} trong hội thoại này.",
+      "mention": "Chuyển hội thoại với {name} sang tab @Mention.",
+      "assign": "Chuyển hội thoại với {name} cho Trâm phụ trách.",
+      "vip": "Gắn tag VIP cho khách {name}."
     }
   },
   "createGroup": {

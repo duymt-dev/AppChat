@@ -389,6 +389,17 @@
       "mention": "Move to @Mention tab",
       "assign": "Hand over · @Trâm",
       "vip": "Tag as VIP"
+    },
+    "prompts": {
+      "new": "Create a new conversation with {name}.",
+      "invite": "Invite a member to the conversation with {name}.",
+      "summary": "Summarise the last 30 messages of the conversation with {name}.",
+      "draft": "Draft a suggested reply to {name}'s latest message (draft only, do not send).",
+      "translate": "Translate {name}'s latest message into English.",
+      "intent": "Detect {name}'s intent in this conversation.",
+      "mention": "Move the conversation with {name} to the @Mention tab.",
+      "assign": "Assign the conversation with {name} to Trâm.",
+      "vip": "Tag {name} as VIP."
     }
   },
   "createGroup": {

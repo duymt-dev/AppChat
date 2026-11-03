@@ -83,6 +83,27 @@ test.describe('screen-assistant', () => {
     await expect(drawer.getByTestId('genui')).toContainText('Win-back khách ngủ đông');
   });
 
+  test('dock (Ctrl+K) gửi lượt thật cùng phiên drawer của màn; Hộp thư: lệnh nhanh gửi prompt có ngữ cảnh hội thoại', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await expect(page.locator('[data-contact]').first()).toBeVisible();
+    await page.keyboard.press('Control+k');
+    const dock = page.getByTestId('assistant-dock');
+    await dock.getByTestId('dock-input').fill('Tìm khách có nguy cơ rời bỏ');
+    await dock.getByTestId('dock-input').press('Enter');
+    await expect(dock.getByTestId('genui')).toHaveAttribute('data-mode', 'compact');
+    await dock.getByTestId('dock-full').click();
+    await expect(page).toHaveURL(/\/assistant$/);
+    await expect(page.getByTestId('genui')).toContainText('37');
+
+    await page.goto('/inbox?session=authed,declared,trialSeen');
+    await page.getByTestId('inbox-ai-open').click();
+    const box = page.getByTestId('inbox-ai-modal');
+    await box.getByTestId('inbox-ai-summary').click();
+    await expect(box.getByTestId('screen-ai-user')).toContainText('Tóm tắt 30 tin nhắn cuối');
+    await expect(box.getByTestId('screen-ai-msg').first()).not.toBeEmpty();
+  });
+
   test('mobile: drawer không tràn ngang khi có cây', async ({ page }) => {
     test.skip(!isMobile(page), 'mobile');
     const drawer = await openDrawer(page);
