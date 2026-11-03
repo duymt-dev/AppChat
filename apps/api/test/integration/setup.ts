@@ -59,6 +59,8 @@ export const env: Record<string, string> = {
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',
   // Link tuyệt đối trong email thông báo — cố định, không theo cổng web demo của `.env`.
   APP_PUBLIC_URL: 'http://localhost:3000',
+  // Launcher đổi DOCX cô lập (TIP-030b, DC-321) — chỉ khi người chạy test đặt trong shell; vắng → đường đóng an toàn 501.
+  ...Object.fromEntries(['RENDER_ISOLATION_LAUNCHER', 'RENDER_ISOLATION_WINDOWS_MODE'].flatMap((k) => (process.env[k] ? [[k, process.env[k]!]] : []))),
 };
 // Hàng đợi BullMQ không có prefix theo môi trường: worker demo / dev chạy cùng Memurai DB 0 sẽ lấy mất job của test (đăng nhập Zalo giả
 // bị worker ZALO_TRANSPORT=zca nhận). Test dùng DB Redis riêng (mặc định 15) — không đụng dữ liệu demo.

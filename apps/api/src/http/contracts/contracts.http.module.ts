@@ -3,12 +3,13 @@
 import { Module, type DynamicModule } from '@nestjs/common';
 import { ContractsModule } from '@appchat/core';
 import { ActorModule } from '../kernel/actor.module';
+import { ContractFilesController } from './contract-files.controller';
 import { ContractsController } from './contracts.controller';
 import { PublicSignController } from './public-sign.controller';
 
 @Module({ imports: [ContractsModule] })
 export class ContractsHttpModule {
   static register(): DynamicModule {
-    return { module: ContractsHttpModule, imports: [ContractsModule, ActorModule], controllers: [ContractsController, PublicSignController] };
+    return { module: ContractsHttpModule, imports: [ContractsModule, ActorModule], controllers: [ContractsController, ContractFilesController, PublicSignController] };
   }
 }

@@ -41,6 +41,11 @@ export interface Contract {
   terminated_reason: string;
   note: string;
   file_name: string;
+  /** Nguồn nội dung ký (TIP-030b): mẫu theo loại / tệp tải lên (hash bytes gốc). */
+  source?: 'template' | 'file';
+  source_hash?: string | null;
+  source_version?: number;
+  origin_message_id?: string | null;
   events: SignEvent[];
   ai: { hint: string; wait: boolean };
 }
@@ -84,4 +89,34 @@ export interface SignView {
   sha256: string | null;
   otp_left: number;
   certificate: SignEvent[];
+}
+
+/** Giá trị đề xuất từ tệp (contract.inspect_file) — `null` = không đọc được / mơ hồ, người dùng nhập tay. */
+export interface Proposed<T = string> {
+  value: T;
+  confidence: number;
+  source: string;
+}
+
+export interface Inspection {
+  file_id: string;
+  name: string;
+  type: 'pdf' | 'docx';
+  pages: number | null;
+  sha256: string;
+  extraction: 'ok' | 'partial' | 'unavailable';
+  fields: { party_b: Proposed | null; value: Proposed | null; start_date: Proposed | null; end_date: Proposed | null; title: Proposed | null };
+}
+
+/** Tệp của hợp đồng (GET /contracts/:id/files) — nguồn / bản chưa ký / bản đã ký. */
+export interface ContractFileRow {
+  id: string;
+  role: 'source' | 'unsigned' | 'signed';
+  name: string;
+  mime: string;
+  ext: string;
+  size: number;
+  sha256: string;
+  at: string;
+  by: string;
 }

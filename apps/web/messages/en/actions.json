@@ -362,6 +362,18 @@
       "title": "Create contract",
       "desc": "Create a draft contract (service, sale or framework)."
     },
+    "inspect_file": {
+      "title": "Read contract file",
+      "desc": "Check a PDF / DOCX file and propose contract values."
+    },
+    "attach_file": {
+      "title": "Attach contract file",
+      "desc": "Attach or replace the signing file of a draft contract."
+    },
+    "create_from_attachment": {
+      "title": "Create contract from customer file",
+      "desc": "Create a draft contract from a PDF / DOCX in a conversation."
+    },
     "create_from_quote": {
       "title": "Create contract from quote",
       "desc": "Create a draft contract from an accepted quote."

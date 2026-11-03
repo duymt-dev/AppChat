@@ -161,3 +161,10 @@
 | C | `packages/core/test/appendix-catalog.test.ts` | Discovery and direct invocation fail closed |
 | C | `apps/web/src/features/settings/components/ContractKindSelect.tsx` | Amend (F1): ô chọn loại hợp đồng dùng chung cho mẫu rich + DOCX (giữ RichTemplateModal / DocxWizard dưới trần) |
 | M | `apps/api/test/integration/documents.test.ts` | Amend (F1): index mặc định chia nhóm (chung / theo loại hợp đồng) thay index kind-only của 028 |
+| C | `packages/core/src/contracts/actions/contract-create.ts` | Amend (F1): insertContract / undoCreate dùng chung cho contract.create + create_from_attachment (giữ contract-write.handlers dưới trần) |
+| C | `apps/web/src/features/contracts/styles/source.styles.ts` | Amend (F1): style bước nguồn tệp / bảng đề xuất (token) |
+| C | `apps/web/src/features/contracts/hooks/useContractFiles.ts` | Amend (F1): query tab Tệp + tải tệp có kiểm scope + gắn tệp (attach_file) |
+| M | `apps/web/src/shared/api/mock/domains/contracts-actions.ts` | Amend (F1): mock inspect_file / attach_file / create_from_attachment + contract.create { source } |
+| M | `apps/web/src/shared/api/mock/mock-transport.ts` | Amend (F1): route GET /contracts/:id/files, tải tệp mock, ghi tên tệp đã upload cho guard giả |
+| M | `apps/api/test/integration/setup.ts` | Amend (F1): chuyển RENDER_ISOLATION_LAUNCHER / _WINDOWS_MODE vào env test (DOCX cô lập) |
+| M | `packages/core/src/inbox/public.ts` | Amend (F1): xuất writableConversation — kiểm scope hội thoại trước khi đọc tệp đính kèm |

@@ -130,6 +130,8 @@
     }
   },
   "thread": {
+      "contractFromFile": "Tạo hợp đồng từ tệp",
+      "contractCreating": "Đang tạo hợp đồng…",
     "insight": "AI phân tích:",
     "confidence": "· tin {pct}%",
     "note": "Ghi chú nội bộ",

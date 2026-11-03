@@ -153,7 +153,15 @@
       "esign": "Ký điện tử",
       "customer": "Khách gửi"
     },
+    "fileRole": {
+      "source": "Bản gốc",
+      "unsigned": "Bản chưa ký",
+      "signed": "Đã ký"
+    },
+    "fileFail": "Không tải được tệp",
     "ev": {
+      "created_from_attachment": "Tạo hợp đồng từ tệp khách gửi",
+      "source_attached": "Gắn tệp nội dung ký",
       "created": "Tạo hợp đồng",
       "created_from_quote": "Tạo hợp đồng từ báo giá",
       "submitted": "Trình duyệt",
@@ -297,6 +305,52 @@
     },
     "evMeta": "{at} · IP {ip}",
     "otpSentEmail": "Mã OTP đã gửi qua email tới {to}"
+  },
+  "source": {
+    "title": "Nguồn nội dung",
+    "template": "Từ mẫu",
+    "file": "Tải file lên",
+    "templateHint": "Nội dung ký theo mẫu của loại hợp đồng (Cài đặt › Mẫu chứng từ).",
+    "fileHint": "PDF hoặc DOCX — PDF dùng nguyên bản để ký, DOCX được đổi sang PDF.",
+    "uploading": "Đang tải tệp lên…",
+    "inspecting": "Đang kiểm tra tệp…",
+    "ready": "Nguồn ký: {name}",
+    "useTemplate": "Dùng mẫu theo loại",
+    "retry": "Thử lại",
+    "notReady": "Tệp hợp đồng chưa kiểm tra xong — chọn lại hoặc dùng mẫu theo loại.",
+    "unavailable": "Không đọc được chữ trong tệp (bản quét?) — vui lòng nhập tay các ô.",
+    "missing": "Không đọc được — nhập tay",
+    "from": "Từ tệp: \"{text}\"",
+    "use": "Dùng",
+    "col": {
+      "field": "Ô",
+      "value": "Giá trị đọc từ tệp"
+    },
+    "field": {
+      "title": "Tiêu đề",
+      "party_b": "Bên B",
+      "value": "Giá trị",
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày kết thúc"
+    },
+    "err": {
+      "failed": "Không kiểm tra được tệp.",
+      "upload_failed": "Tải tệp lên không thành công.",
+      "too_large": "Tệp quá lớn (PDF ≤ 25MB, DOCX ≤ 10MB).",
+      "unsupported_type": "Chỉ nhận PDF hoặc DOCX (nội dung tệp không đúng loại).",
+      "not_pdf": "Tệp không phải PDF hợp lệ.",
+      "not_docx": "Tệp không phải DOCX hợp lệ.",
+      "encrypted": "Tệp đã đặt mật khẩu / mã hoá — gỡ mật khẩu rồi tải lại.",
+      "macro": "Tệp có macro — lưu lại dạng DOCX không macro.",
+      "active_content": "PDF có nội dung tự chạy (JavaScript / hành động) — không nhận.",
+      "embedded_file": "PDF có tệp đính kèm bên trong — không nhận.",
+      "embedded_object": "Tệp có đối tượng nhúng — không nhận.",
+      "external_relationship": "Tệp tải nội dung từ mạng ngoài — không nhận.",
+      "field_code": "Tệp có trường tự chạy (DDE / INCLUDE) — không nhận.",
+      "zip_bomb": "Tệp nén bất thường — không nhận.",
+      "path_traversal": "Tệp có cấu trúc không an toàn — không nhận.",
+      "too_many_pages": "PDF quá 200 trang."
+    }
   },
   "unit": "hợp đồng"
 }

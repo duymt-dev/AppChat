@@ -36,6 +36,13 @@ function useFromQuote() {
   const set = useContractsUi((s) => s.set);
   const done = useRef('');
   const quoteId = params.get('from_quote');
+  // `?open=<id>` — mở drawer hợp đồng vừa tạo từ tệp trong Hộp thư (TIP-030b).
+  const openId = params.get('open');
+  useEffect(() => {
+    if (!openId) return;
+    set({ detail: openId, tab: 'files' });
+    router.replace('/contracts');
+  }, [openId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!quoteId || done.current === quoteId) return;
     done.current = quoteId;

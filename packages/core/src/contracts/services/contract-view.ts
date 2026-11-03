@@ -96,6 +96,10 @@ export function toContractRow(c: ContractRecord, x: { contact?: Contact; events:
     terminated_reason: c.terminatedReason,
     note: c.note,
     file_name: c.fileName,
+    source: c.source,
+    source_hash: c.sourceHash,
+    source_version: c.sourceVersion,
+    origin_message_id: c.originMessageId,
     events: x.events.map((e) => ({ type: e.type, at: e.createdAt.toISOString(), actor: e.actorName, ...(e.ip ? { ip: e.ip } : {}), ...(e.docSha256 ? { doc_sha256: e.docSha256 } : {}) })),
     ai: hintOf(c, ctx, !!x.token),
   };

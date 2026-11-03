@@ -8,60 +8,17 @@ import type { ActionInput, contractCreate, contractCreateFromQuote, contractDele
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
-import { uuidv7 } from '../../kernel/ids';
-import { nextCode } from '../../kernel/sequence';
+import { TenantContexts } from '@appchat/db';
 import { CrmMembers, actorUserId } from '../../crm/public';
-import { pickContractTemplate } from '../../documents/public';
+import type { GuardedDocument } from '../../documents/public';
 import { lockContract } from '../contract-access';
 import { createPreview, deletePreview, fromQuotePreview, renewPreview, updatePreview } from './previews/contract-write.handlers.preview';
-import { actorNameOf, checkContractParties, checkDates, fieldCols, logSignEvent, type ContractFields } from '../services/contract-write';
+import { checkDates, fieldCols } from '../services/contract-write';
+import { ContractDeps } from '../services/contract-deps';
+import { guardUpload, sourceCols } from '../files/source';
+import { insertContract, undoCreate } from './contract-create';
 
 type Out = { contract_id: string; code: string };
-
-interface NewContract extends ContractFields {
-  contact_id: string;
-  quote_id?: string;
-  renewal_of_id?: string;
-}
-
-/** Tạo bản nháp (create / create_from_quote / renew). */
-async function insertContract(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: NewContract, now: Date, event: string) {
-  const { ownerUserId } = await checkContractParties(ctx, tx, members, { contactId: input.contact_id, ownerUserId: input.owner_user_id });
-  const cols = fieldCols(input);
-  checkDates(cols.startDate, cols.endDate);
-  const id = uuidv7(now.getTime());
-  const code = await nextCode(tx, 'contract');
-  // Mẫu theo loại hợp đồng → mặc định chung (TIP-030b spec 8). Chưa có mẫu nào vẫn tạo nháp được; duyệt / render báo `template_id: missing`.
-  const tpl = await pickContractTemplate(tx, input.kind ?? 'service');
-  await tx.contract.create({
-    data: {
-      id,
-      code,
-      contactId: input.contact_id,
-      quoteId: input.quote_id ?? null,
-      renewalOfId: input.renewal_of_id ?? null,
-      ownerUserId,
-      templateId: tpl?.id ?? null,
-      templateVersion: tpl?.version ?? null,
-      ...cols,
-      createdByType: ctx.actor.type === 'user' ? 'user' : ctx.actor.type,
-      createdById: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx),
-      createdAt: now,
-      updatedAt: now,
-    },
-  });
-  await logSignEvent(tx, { contractId: id, type: event, actorName: await actorNameOf(ctx, members), at: now });
-  return { id, code };
-}
-
-/** Hoàn tác tạo: chỉ khi vẫn là nháp — nhật ký ký là chỉ thêm nên xoá mềm thay vì xoá dòng. */
-async function undoCreate(log: ActionLogRow, tx: TenantTx, now: Date) {
-  const id = (log.after as { id: string }).id;
-  const c = await tx.contract.findUnique({ where: { id }, select: { status: true, quoteId: true } });
-  if (c && c.status !== 'draft') throw new AppError('INVALID_TRANSITION', 409, { status: c.status });
-  // Gỡ liên kết báo giá để báo giá tạo được hợp đồng lại (unique quote_id).
-  await tx.contract.updateMany({ where: { id }, data: { deletedAt: now, quoteId: null } });
-}
 
 @Injectable()
 @ActionHandler('contract.create')
@@ -69,11 +26,25 @@ export class ContractCreateHandler implements Handler<ActionInput<typeof contrac
   constructor(
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(ContractDeps) private readonly d: ContractDeps,
   ) {}
 
-  async execute(ctx: ActionContext, input: ActionInput<typeof contractCreate>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
+  /** Nguồn tệp (TIP-030b spec 2): guard truy cập + kiểm bytes ngoài transaction trước khi tạo. */
+  async prepare(ctx: ActionContext, input: ActionInput<typeof contractCreate>): Promise<GuardedDocument | null> {
+    if (input.source?.type !== 'file') return null;
+    const me = actorUserId(ctx);
+    if (!me) throw new AppError('FORBIDDEN', 403, { actor: 'user_required' });
+    const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'contract.create'));
+    return guardUpload(db, this.d.need('files'), me, input.source.file_id, this.clock.now());
+  }
+
+  async execute(ctx: ActionContext, input: ActionInput<typeof contractCreate>, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<Out>> {
     if (input.quote_id) throw new AppError('VALIDATION_FAILED', 422, { quote_id: 'use_create_from_quote' });
-    const c = await insertContract(ctx, tx, this.members, input, this.clock.now(), 'created');
+    const g = prepared as GuardedDocument | null | undefined;
+    if (input.source?.type === 'file' && !g) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_found' });
+    const fields = { ...input, source: undefined };
+    const c = await insertContract(ctx, tx, this.members, g ? { ...fields, file_name: fields.file_name ?? g.name } : fields, this.clock.now(), 'created', g ? sourceCols(g) : undefined);
+    if (g) await tx.file.updateMany({ where: { id: g.fileId }, data: { confirmed: true } });
     return { result: { contract_id: c.id, code: c.code }, after: { id: c.id } };
   }
 

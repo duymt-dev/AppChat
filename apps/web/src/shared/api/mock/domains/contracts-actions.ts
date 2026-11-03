@@ -7,7 +7,7 @@ import type { MockPost } from '../auth-routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW, enrich as enrichQuote } from './quotes';
-import { deny, findContract, logEvent, visible, type Contract } from './contracts';
+import { bad, deny, fileSource, findContract, logEvent, mockGuard, visible, type Contract } from './contracts';
 
 const DAY = 86_400_000;
 /** OTP "Duyệt & ký" của mock (server gửi email tới người ký). */
@@ -109,11 +109,73 @@ export const contractsPosts: (path: string) => MockPost | undefined = (path) => 
   };
 };
 
+/** Tin có tệp trong hội thoại mock (id tin + chỉ số) → khách của hội thoại + tệp. */
+export function attachmentOf(db: MockDb, messageId: string, idx: number) {
+  for (const conv of db.inbox.conversations) {
+    const m = (db.inbox.messages[conv.id] ?? []).find((x) => x.id === messageId);
+    if (!m) continue;
+    const a = (m.attachments as { url: string; name?: string }[] | undefined)?.[idx];
+    if (!a) throw bad({ attachment_idx: 'out_of_range' });
+    const fileId = /[?&]mock_file=([^&]+)/.exec(a.url)?.[1];
+    if (!fileId) throw bad({ attachment: 'not_stored' });
+    return { contactId: (conv as { contact_id?: string | null }).contact_id ?? null, fileId, name: a.name ?? '' };
+  }
+  throw new ApiRequestError(404, { code: 'NOT_FOUND', message: messageId });
+}
+
 export const contractsHandlers: Record<string, MockHandler> = {
+  // Hợp đồng từ tệp (TIP-030b): inspect (đề xuất cố định — server đọc chữ thật), attach (chỉ nháp, CAS source_version), tạo từ tệp đính kèm.
+  'contract.inspect_file': {
+    execute: (_db, i: { file_id: string }) => {
+      const g = mockGuard(i.file_id);
+      // Mock: đề xuất cố định (server đọc chữ thật trong worker giới hạn).
+      const p = (value: string, source: string) => ({ value, confidence: 0.8, source });
+      return {
+        file_id: i.file_id,
+        name: g.name,
+        type: g.type,
+        pages: g.type === 'pdf' ? 2 : null,
+        sha256: g.sha256,
+        extraction: 'ok',
+        fields: {
+          title: p('HỢP ĐỒNG DỊCH VỤ', 'HỢP ĐỒNG DỊCH VỤ'),
+          party_b: p('Nguyễn Văn An', 'Bên B: Nguyễn Văn An'),
+          value: p('12500000', 'Giá trị hợp đồng: 12.500.000 đồng'),
+          start_date: p('2026-12-01', 'Thời hạn: từ 01/12/2026 đến 30/11/2027'),
+          end_date: p('2027-11-30', 'Thời hạn: từ 01/12/2026 đến 30/11/2027'),
+        },
+      };
+    },
+  },
+  'contract.attach_file': {
+    execute: (db, i: { contract_id: string; file_id: string; if_source_version: number }) => {
+      const c = findContract(db, i.contract_id);
+      if (!visible(db, c)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: c.id });
+      if (c.status !== 'draft') throw new ApiRequestError(409, { code: 'INVALID_TRANSITION', message: c.status });
+      const v = c.source_version ?? 1;
+      if (v !== i.if_source_version) throw new ApiRequestError(409, { code: 'CONFLICT', message: 'source_version', fields: { source_version: String(v) } });
+      Object.assign(c, fileSource(i.file_id), { source_version: v + 1 });
+      logEvent(c, 'source_attached', 'Trâm');
+      return { contract_id: c.id, source_version: v + 1 };
+    },
+  },
   'contract.create': {
-    execute: (db, i: Fields & { contact_id: string }) => {
+    execute: (db, i: Fields & { contact_id: string; source?: { type: 'template' } | { type: 'file'; file_id: string } }) => {
       if (i.quote_id) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'quote_id', fields: { quote_id: 'use_create_from_quote' } });
-      const c = insert(db, i);
+      const { source, ...fields } = i;
+      // Nguồn tệp (TIP-030b): guard giả theo tên trước khi tạo.
+      const c = insert(db, fields, source?.type === 'file' ? { ...fileSource(source.file_id), source_version: 1 } : {});
+      return { contract_id: c.id, code: c.code };
+    },
+    undo: drop,
+  },
+  'contract.create_from_attachment': {
+    execute: (db, i: { message_id: string; attachment_idx: number; contact_id?: string; kind?: Contract['kind']; value?: string; title?: string }) => {
+      const a = attachmentOf(db, i.message_id, i.attachment_idx);
+      const contactId = i.contact_id ?? a.contactId;
+      if (!contactId) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'contact_id', fields: { contact_id: 'required' } });
+      const c = insert(db, { contact_id: contactId, kind: i.kind ?? 'service', value: i.value ?? '0', title: i.title ?? a.name.replace(/\.(pdf|docx)$/i, '') }, { ...fileSource(a.fileId), source_version: 1, origin_message_id: i.message_id });
+      c.events = [{ type: 'created_from_attachment', at: c.created_at, actor: 'Trâm' }];
       return { contract_id: c.id, code: c.code };
     },
     undo: drop,

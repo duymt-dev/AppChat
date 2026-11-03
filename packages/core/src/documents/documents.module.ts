@@ -15,6 +15,7 @@ import { DocTemplateSearchHandler } from './actions/template-read.handler';
 import { DocRenderer, PDF_CONVERTER } from './services/doc-renderer';
 import { DocumentsReadService } from './services/documents-read.service';
 import { SofficeConverter, sofficePath, type PdfConverter } from './services/soffice';
+import { ISOLATED_CONVERTER, LauncherConverter, isolationLauncher } from './security/render-isolation';
 
 const opt = (token: symbol | typeof FilesService) => ({ token, optional: true });
 
@@ -27,6 +28,15 @@ const opt = (token: symbol | typeof FilesService) => ({ token, optional: true })
     DocTemplateDeleteHandler,
     DocTemplateDetectHandler,
     { provide: PDF_CONVERTER, inject: [opt(ENV_SOURCE)], useFactory: (src?: Record<string, string | undefined>) => new SofficeConverter(sofficePath(src ?? process.env)) },
+    // DOCX hợp đồng không tin cậy (TIP-030b spec 6, DC-321): chỉ đổi qua launcher cô lập; chưa cấu hình → 501 khi dùng.
+    {
+      provide: ISOLATED_CONVERTER,
+      inject: [opt(ENV_SOURCE)],
+      useFactory: (src?: Record<string, string | undefined>) => {
+        const env = src ?? process.env;
+        return new LauncherConverter(isolationLauncher(env), sofficePath(env));
+      },
+    },
     {
       provide: DocRenderer,
       inject: [PDF_CONVERTER, opt(FilesService)],
@@ -39,6 +49,6 @@ const opt = (token: symbol | typeof FilesService) => ({ token, optional: true })
         r && p && m ? new DocumentsReadService(r, p, m, d, () => c.now()) : null,
     },
   ],
-  exports: [DocRenderer, DocumentsReadService, PDF_CONVERTER],
+  exports: [DocRenderer, DocumentsReadService, PDF_CONVERTER, ISOLATED_CONVERTER],
 })
 export class DocumentsModule {}

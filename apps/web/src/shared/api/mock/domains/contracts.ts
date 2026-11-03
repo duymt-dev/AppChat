@@ -1,6 +1,7 @@
 // Mock Hợp đồng (Blueprint §4.4 contracts; COMMERCE-DECISIONS §9 — D25): GET /contracts?status=&owner_id=&value=&q=, /contracts/meta, /contracts/:id.
 // Dữ liệu = prototype L7795 (fixture sinh bởi tools/scripts/fixtures/gen-contracts.py). Ghi: contracts-actions.ts · trang ký công khai:
-// contracts-sign.ts.
+// contracts-sign.ts. Hợp đồng từ tệp (TIP-030b): guard giả theo tên (mock không có bytes; tên chứa "virus" / "macro" → từ chối như
+// guard server), GET /contracts/:id/files + tải tệp (HTML minh hoạ).
 import { ApiRequestError, ROLE_DEFS, htmlPage, type ErrorCode } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/contracts.json';
 import type { MockRoute } from '../routes';
@@ -47,6 +48,12 @@ export type Contract = Omit<
   business_signature?: string | null;
   customer_signature?: string | null;
   deleted?: boolean;
+  /** Nguồn nội dung ký (TIP-030b). */
+  source?: 'template' | 'file';
+  source_file_id?: string | null;
+  source_hash?: string | null;
+  source_version?: number;
+  origin_message_id?: string | null;
 };
 
 export interface ContractsState {
@@ -140,4 +147,51 @@ export function contractPdf(db: MockDb, path: string): string | null {
   if (!m) return null;
   const c = db.contracts.contracts.find((x) => (x.id === m[1] || x.sign_token === m[1]) && !x.deleted);
   return c ? htmlPage(c.code, `<h1>${c.code}</h1><p>${c.title}</p><p>${c.contact_name} · ${c.value}</p>`) : null;
+}
+
+/** Tệp đã "tải lên" ở mock (transport.upload chỉ trả id) — tên giữ theo id để guard giả + danh sách tệp. */
+export const mockUploads = new Map<string, { name: string; size: number }>();
+
+export const bad = (fields: Record<string, string>) => new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: Object.keys(fields)[0]!, fields });
+
+/** Guard giả theo tên tệp (server kiểm bytes thật). */
+export function mockGuard(fileId: string) {
+  const f = mockUploads.get(fileId);
+  if (!f) throw bad({ file_id: 'not_found' });
+  const ext = /\.(pdf|docx)$/i.exec(f.name)?.[1]?.toLowerCase();
+  if (!ext || /virus|\.exe/i.test(f.name)) throw bad({ file: 'unsupported_type' });
+  if (/macro/i.test(f.name)) throw bad({ file: 'macro' });
+  return { ...f, type: ext as 'pdf' | 'docx', sha256: `mock${fileId.replace(/\W/g, '').padEnd(60, '0')}`.slice(0, 64) };
+}
+
+export const fileSource = (fileId: string) => {
+  const g = mockGuard(fileId);
+  return { source: 'file' as const, source_file_id: fileId, source_hash: g.sha256, file_name: g.name };
+};
+
+const extOf = (n: string) => (/\.([a-z0-9]{2,5})$/i.exec(n)?.[1] ?? 'pdf').toLowerCase();
+
+export const contractFilesParamRoute = (path: string): MockRoute | undefined => {
+  const m = path.match(/^\/contracts\/(ctr_[^/]+)\/files$/);
+  if (!m) return undefined;
+  return (db) => {
+    const c = findContract(db, m[1]!);
+    if (!visible(db, c)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: c.id });
+    const out = [];
+    if (c.source_file_id) {
+      const f = mockUploads.get(c.source_file_id);
+      out.push({ id: c.source_file_id, role: 'source', name: f?.name ?? c.file_name, mime: extOf(c.file_name) === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', ext: extOf(f?.name ?? c.file_name), size: f?.size ?? 0, sha256: c.source_hash ?? '', at: MOCK_NOW, by: 'Trâm' });
+    }
+    if (c.signed_sha256) out.push({ id: `signed_${c.id}`, role: 'signed', name: `${c.code} - đã ký.pdf`, mime: 'application/pdf', ext: 'pdf', size: 327_680, sha256: c.signed_sha256, at: c.signed_by_customer_at ?? MOCK_NOW, by: '' });
+    return out;
+  };
+};
+
+/** Tải tệp của hợp đồng ở mock: trang HTML minh hoạ (không có bytes thật). */
+export function contractFileBlob(db: MockDb, path: string): string | null {
+  const m = path.match(/^\/contracts\/(ctr_[^/]+)\/files\/([^/]+)$/);
+  if (!m) return null;
+  const c = db.contracts.contracts.find((x) => x.id === m[1] && !x.deleted) as Contract | undefined;
+  if (!c || (c.source_file_id !== m[2] && `signed_${c.id}` !== m[2])) return null;
+  return `<!doctype html><meta charset="utf-8"><title>${c.code}</title><h1>${c.code}</h1><p>${c.file_name}</p>`;
 }

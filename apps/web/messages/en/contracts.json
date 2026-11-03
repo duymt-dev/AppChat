@@ -153,7 +153,15 @@
       "esign": "E-signature",
       "customer": "Sent by customer"
     },
+    "fileRole": {
+      "source": "Original",
+      "unsigned": "Unsigned",
+      "signed": "Signed"
+    },
+    "fileFail": "Could not load the file",
     "ev": {
+      "created_from_attachment": "Contract created from customer file",
+      "source_attached": "Signing file attached",
       "created": "Contract created",
       "created_from_quote": "Created from quote",
       "submitted": "Submitted for approval",
@@ -297,6 +305,52 @@
     },
     "evMeta": "{at} · IP {ip}",
     "otpSentEmail": "OTP sent by email to {to}"
+  },
+  "source": {
+    "title": "Content source",
+    "template": "From template",
+    "file": "Upload file",
+    "templateHint": "Signing content follows the template for this contract type (Settings › Document templates).",
+    "fileHint": "PDF or DOCX — a PDF is signed as-is, a DOCX is converted to PDF.",
+    "uploading": "Uploading file…",
+    "inspecting": "Checking file…",
+    "ready": "Signing source: {name}",
+    "useTemplate": "Use type template",
+    "retry": "Retry",
+    "notReady": "The contract file is not checked yet — pick it again or use the type template.",
+    "unavailable": "No readable text in the file (scanned?) — please fill the fields manually.",
+    "missing": "Not readable — enter manually",
+    "from": "From file: \"{text}\"",
+    "use": "Use",
+    "col": {
+      "field": "Field",
+      "value": "Value read from file"
+    },
+    "field": {
+      "title": "Title",
+      "party_b": "Party B",
+      "value": "Value",
+      "start_date": "Start date",
+      "end_date": "End date"
+    },
+    "err": {
+      "failed": "Could not check the file.",
+      "upload_failed": "Upload failed.",
+      "too_large": "File too large (PDF ≤ 25MB, DOCX ≤ 10MB).",
+      "unsupported_type": "Only PDF or DOCX (file content is not that type).",
+      "not_pdf": "Not a valid PDF.",
+      "not_docx": "Not a valid DOCX.",
+      "encrypted": "File is password-protected / encrypted — remove the password and upload again.",
+      "macro": "File contains macros — save it as a macro-free DOCX.",
+      "active_content": "PDF contains auto-run content (JavaScript / actions) — not accepted.",
+      "embedded_file": "PDF contains embedded files — not accepted.",
+      "embedded_object": "File contains embedded objects — not accepted.",
+      "external_relationship": "File loads content from external links — not accepted.",
+      "field_code": "File contains auto-run fields (DDE / INCLUDE) — not accepted.",
+      "zip_bomb": "Abnormal compressed file — not accepted.",
+      "path_traversal": "Unsafe file structure — not accepted.",
+      "too_many_pages": "PDF exceeds 200 pages."
+    }
   },
   "unit": "contracts"
 }

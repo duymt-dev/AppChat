@@ -362,6 +362,18 @@
       "title": "Tạo hợp đồng",
       "desc": "Tạo hợp đồng nháp (dịch vụ, mua bán hoặc khung)."
     },
+    "inspect_file": {
+      "title": "Đọc tệp hợp đồng",
+      "desc": "Kiểm tra tệp PDF / DOCX và đề xuất giá trị hợp đồng."
+    },
+    "attach_file": {
+      "title": "Gắn tệp hợp đồng",
+      "desc": "Gắn hoặc thay tệp nội dung ký của hợp đồng nháp."
+    },
+    "create_from_attachment": {
+      "title": "Tạo hợp đồng từ tệp khách gửi",
+      "desc": "Tạo hợp đồng nháp từ tệp PDF / DOCX trong hội thoại."
+    },
     "create_from_quote": {
       "title": "Tạo hợp đồng từ báo giá",
       "desc": "Tạo hợp đồng nháp từ báo giá khách đã chốt."

@@ -130,6 +130,8 @@
     }
   },
   "thread": {
+      "contractFromFile": "Create contract from file",
+      "contractCreating": "Creating contract…",
     "insight": "AI insight:",
     "confidence": "· {pct}% confidence",
     "note": "Internal note",

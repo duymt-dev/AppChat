@@ -11,7 +11,7 @@ import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
-import { contractPdf, contractsParamRoute } from './domains/contracts';
+import { contractFileBlob, contractFilesParamRoute, contractPdf, contractsParamRoute, mockUploads } from './domains/contracts';
 import { contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
@@ -66,6 +66,7 @@ export const mockTransport: Transport = {
       quotesParamRoute(path) ??
       quotesPublicRoute(path) ??
       contractsParamRoute(path) ??
+      contractFilesParamRoute(path) ??
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
       contactPackagesParamRoute(path) ??
@@ -173,12 +174,15 @@ export const mockTransport: Transport = {
   async upload(file, _purpose, signal) {
     // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp. Huỷ trước khi xong → AbortError như fetch.
     if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
-    return { file_id: nextId('file'), name: file.name, size: file.size };
+    const id = nextId('file');
+    // Tên theo id để guard giả của hợp đồng từ tệp (TIP-030b) kiểm loại / tên.
+    mockUploads.set(id, { name: file.name, size: file.size });
+    return { file_id: id, name: file.name, size: file.size };
   },
 
   async blob(path) {
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
-    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path);
+    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path);
     if (html === null) return fail(404, 'NOT_FOUND', path);
     return new Blob([html], { type: 'text/html' });
   },

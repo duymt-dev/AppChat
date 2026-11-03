@@ -16,7 +16,7 @@ import { ChannelSendQueue, widgetUrlsFor } from '../channels/public';
 import { CrmModule } from '../crm/crm.module';
 import { CrmMembers } from '../crm/public';
 import { DocumentsModule } from '../documents/documents.module';
-import { DocRenderer } from '../documents/public';
+import { DocRenderer, ISOLATED_CONVERTER, type IsolatedConverter } from '../documents/public';
 import { IdentityModule } from '../identity/identity.module';
 import { MAIL_PROVIDER, RATE_LIMITER } from '../identity/services/identity.tokens';
 import { SalesModule } from '../sales/sales.module';
@@ -24,6 +24,7 @@ import { ContractApproveAndSignHandler, ContractRejectInternalHandler, ContractR
 import { ContractExtendLinkHandler, ContractRemindHandler, ContractSendHandler, ContractTerminateHandler } from './actions/contract-send.handlers';
 import { ContractCreateHandler, ContractDeleteHandler, ContractFromQuoteHandler, ContractRenewHandler, ContractUpdateHandler } from './actions/contract-write.handlers';
 import { ContractGetHandler, ContractSearchHandler } from './actions/contract-read.handlers';
+import { ContractAttachFileHandler, ContractFromAttachmentHandler, ContractInspectFileHandler } from './actions/contract-file.handlers';
 import { ContractDeps, contractEnvFor } from './services/contract-deps';
 import { ContractsReadService } from './services/contracts-read.service';
 import { PublicSignService } from './services/public-sign.service';
@@ -35,6 +36,7 @@ const HANDLERS = [
   ContractSubmitHandler, ContractRequestChangesHandler, ContractRejectInternalHandler, ContractApproveAndSignHandler,
   ContractSendHandler, ContractRemindHandler, ContractExtendLinkHandler, ContractTerminateHandler,
   ContractSearchHandler, ContractGetHandler,
+  ContractInspectFileHandler, ContractAttachFileHandler, ContractFromAttachmentHandler,
 ];
 
 @Module({
@@ -43,7 +45,7 @@ const HANDLERS = [
     ...HANDLERS,
     {
       provide: ContractDeps,
-      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), opt(DocRenderer), opt(FilesService), opt(ENV_SOURCE), opt(ENC_KEY), CrmMembers, opt(MAIL_PROVIDER), opt(RATE_LIMITER), opt(REDIS)],
+      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), opt(DocRenderer), opt(FilesService), opt(ENV_SOURCE), opt(ENC_KEY), CrmMembers, opt(MAIL_PROVIDER), opt(RATE_LIMITER), opt(REDIS), opt(ISOLATED_CONVERTER)],
       useFactory: (
         r: TenantDbResolver | undefined,
         p: PlatformDb | undefined,
@@ -55,9 +57,12 @@ const HANDLERS = [
         mail: MailProvider | null | undefined,
         limiter: RateLimiter | null | undefined,
         redis: Redis | undefined,
+        iso: IsolatedConverter | undefined,
       ) => {
         const env = src ?? process.env;
-        return new ContractDeps(r ?? null, p ?? null, d ?? null, f ?? null, contractEnvFor(env, key, widgetUrlsFor(env).api), m, mail ?? null, limiter ?? null, redis ?? null);
+        const deps = new ContractDeps(r ?? null, p ?? null, d ?? null, f ?? null, contractEnvFor(env, key, widgetUrlsFor(env).api), m, mail ?? null, limiter ?? null, redis ?? null);
+        deps.isolated = iso ?? null;
+        return deps;
       },
     },
     {

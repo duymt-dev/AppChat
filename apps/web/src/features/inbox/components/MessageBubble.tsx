@@ -22,7 +22,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   const text = m.deleted ? <span className={styles.muted}>{t('deleted')}</span> : m.recalled ? <span className={styles.muted}>{t('recalled')}</span> : m.plain ? body : <Rich text={body} />;
   const ticks = m.status === 'read' ? ' ✓✓' : m.status === 'sent' ? ' ✓' : '';
   // Tin có tệp thật (API): tệp + chữ kèm (nếu có) trong bong bóng thường.
-  const files = !m.deleted && !m.recalled && m.attachments?.length ? <Attachments files={m.attachments} /> : null;
+  const files = !m.deleted && !m.recalled && m.attachments?.length ? <Attachments files={m.attachments} messageId={m.direction === 'in' ? m.id : undefined} /> : null;
   const isGroup = conv.kind === 'group';
   const avatar = (
     <div className={cx(styles.av, isGroup && styles.avSm)} style={{ background: m.sender_hue ?? conv.hue }}>

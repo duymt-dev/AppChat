@@ -9,6 +9,7 @@ export * from './catalog';
 export * from './documents';
 export * from './quotes';
 export * from './contracts';
+export * from './contract-files';
 export * from './orders';
 export * from './channels';
 export * from './inbox';

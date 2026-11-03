@@ -196,7 +196,7 @@ export function ContractDrawer({ meta: base }: { meta: ContractsMeta }) {
         {c && ui.tab === 'overview' ? <OverviewTab c={c} /> : null}
         {c && ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
         {c && ui.tab === 'ai' ? <AiTab meta={meta} /> : null}
-        {c && ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
+        {c && ui.tab === 'files' ? <FilesTab c={c} meta={meta} /> : null}
         {c && ui.tab === 'history' ? <HistoryTab c={c} /> : null}
       </div>
     </EntityDrawer>
