@@ -10,26 +10,13 @@ import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { applyStageRule, writeTimeline } from '../../../crm/public';
-import { lockOrder, visibleOrder, type OrderRecord } from '../order-access';
+import { lockOrder, type OrderRecord } from '../order-access';
 import { actorOf, deductStock, logEvent, moveOrder, returnStock, type Actor } from '../services/order-write';
 import { orderPayload } from './order-create.handlers';
 import { refundCancelled } from '../../payments/services/order-refund';
+import { cancelPreview, completePreview, confirmPreview, earns, netBeforeVat } from '../previews/order-flow.handlers.preview';
 
 type St = { order_id: string; status: string };
-const POINT_VALUE = 100n;
-
-/** Net trước VAT đã trừ phần trả bằng điểm (COMMERCE §7 — 1 điểm = 100đ). */
-const netBeforeVat = (o: Pick<OrderRecord, 'subtotal' | 'discountTotal' | 'pointsUsed'>) => {
-  const v = o.subtotal - o.discountTotal - o.pointsUsed * POINT_VALUE;
-  return v > 0n ? v : 0n;
-};
-
-/** Đơn sàn chỉ tích điểm khi kết nối bật `loyalty_enabled` (§4b). */
-async function earns(tx: TenantTx, o: Pick<OrderRecord, 'source' | 'externalConnectionId'>) {
-  if (o.source !== 'marketplace') return true;
-  const c = o.externalConnectionId ? await tx.integrationConnection.findUnique({ where: { id: o.externalConnectionId }, select: { config: true } }) : null;
-  return String((c?.config as Record<string, unknown> | null)?.loyalty_enabled ?? 'false') === 'true';
-}
 
 /** Hoàn tất (dùng chung action + đồng bộ sàn): điểm, khách Đã mua / tổng chi / lần mua cuối, timeline, event. */
 export async function completeOrder(tx: TenantTx, o: OrderRecord, actor: Actor, now: Date) {
@@ -86,6 +73,10 @@ export class OrderConfirmHandler implements Handler<ActionInput<typeof orderConf
     await moveOrder(tx, o, 'new', { confirmedAt: null }, now);
     await tx.orderEvent.deleteMany({ where: { id: b.event } });
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderConfirm>, tx: TenantTx) {
+    return confirmPreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -101,8 +92,7 @@ export class OrderCompleteHandler implements Handler<ActionInput<typeof orderCom
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderComplete>, tx: TenantTx) {
-    const o = await visibleOrder(tx, ctx.authz, input.order_id);
-    return { summary: `${o.code} · ${String(o.total)}`, risk: 'money' as const };
+    return completePreview(ctx, tx, input);
   }
 
   /** Về `processing`: bỏ điểm ghi trên đơn + trừ lại tổng chi; giai đoạn Đã mua giữ nguyên (không bao giờ hạ — §8). */
@@ -131,7 +121,6 @@ export class OrderCancelHandler implements Handler<ActionInput<typeof orderCance
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderCancel>, tx: TenantTx) {
-    const o = await visibleOrder(tx, ctx.authz, input.order_id);
-    return { summary: `${o.code} · ${input.reason.trim()}`, risk: 'money' as const };
+    return cancelPreview(ctx, tx, input);
   }
 }

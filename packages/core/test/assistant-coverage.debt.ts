@@ -23,7 +23,6 @@ export const PREVIEW_DEBT: ReadonlySet<string> = new Set([
   'member.invite', 'member.remove', 'member.set_role',
   'notification.mark_read', 'notification.update_prefs',
   'onboarding.toggle_step',
-  'order.confirm', 'order.create', 'order.create_from_appointment', 'order.create_from_contract', 'order.create_from_quote', 'order.set_deposit', 'order.sync_now', 'order.update', 'order.update_shipping',
   'package.adjust_sessions', 'package.extend',
   'payment.refund_reject',
   'payment_account.update',

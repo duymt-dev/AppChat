@@ -11,6 +11,7 @@ import { CrmMembers } from '../../../crm/public';
 import { inSalesScope } from '../../payments/invoice-access';
 import { UUID } from '../order-access';
 import { insertOrder, undoCreate } from './order-create.handlers';
+import { fromAppointmentPreview } from '../previews/order-from-appointment.handler.preview';
 
 type Out = { order_id: string; code: string };
 
@@ -58,5 +59,9 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
     const { appointment_id } = log.after as { appointment_id: string };
     await tx.appointment.updateMany({ where: { id: appointment_id }, data: { orderId: null } });
     await undoCreate(log, tx);
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromAppointment>, tx: TenantTx) {
+    return fromAppointmentPreview(ctx, tx, this.members, input);
   }
 }

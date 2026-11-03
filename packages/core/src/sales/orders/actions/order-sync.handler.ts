@@ -3,9 +3,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, orderSyncNow } from '@appchat/actions';
-import type { ActionContext } from '../../../kernel/actions/action-context';
+import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { OrderSyncService } from '../services/order-sync';
+import { syncPreview } from '../previews/order-sync.handler.preview';
 
 type Out = { imported: number };
 
@@ -22,5 +23,9 @@ export class OrderSyncNowHandler implements Handler<ActionInput<typeof orderSync
 
   async execute(_ctx: ActionContext, _input: ActionInput<typeof orderSyncNow>, _tx: unknown, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<Out>> {
     return { result: prepared as Out };
+  }
+
+  async preview(_ctx: ActionContext, _input: ActionInput<typeof orderSyncNow>, tx: TenantTx) {
+    return syncPreview(tx);
   }
 }

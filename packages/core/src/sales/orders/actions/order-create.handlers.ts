@@ -13,6 +13,7 @@ import { nextCode } from '../../../kernel/sequence';
 import { CrmMembers, writeTimeline } from '../../../crm/public';
 import { checkParties, creatorOf, linesOf, resolveLines, type LineIn } from '../../quotes/services/quote-write';
 import { UUID } from '../order-access';
+import { createPreview, fromContractPreview, fromQuotePreview } from '../previews/order-create.handlers.preview';
 import { EMPTY_SHIPPING, actorOf, checkOrderCustom, logEvent, payCols, totalCols, totalsOf, writeItems, type Actor } from '../services/order-write';
 
 type Out = { order_id: string; code: string };
@@ -117,6 +118,10 @@ export class OrderCreateHandler implements Handler<ActionInput<typeof orderCreat
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx);
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreate>, tx: TenantTx) {
+    return createPreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -160,6 +165,10 @@ export class OrderFromQuoteHandler implements Handler<ActionInput<typeof orderCr
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx);
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromQuote>, tx: TenantTx) {
+    return fromQuotePreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -197,6 +206,10 @@ export class OrderFromContractHandler implements Handler<ActionInput<typeof orde
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx);
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromContract>, tx: TenantTx) {
+    return fromContractPreview(ctx, tx, this.members, input);
   }
 }
 
