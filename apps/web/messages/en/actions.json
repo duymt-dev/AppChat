@@ -150,6 +150,14 @@
     "search": {
       "title": "Find customers",
       "desc": "Find customers by name, phone, email or customer code."
+    },
+    "get": {
+      "title": "View customer",
+      "desc": "Read one customer profile summary."
+    },
+    "get_360": {
+      "title": "Customer 360",
+      "desc": "Customer profile with open quotes, orders, unpaid requests, tickets and the next appointment."
     }
   },
   "custom_field": {
@@ -470,6 +478,10 @@
     "deactivate": {
       "title": "Deactivate staff",
       "desc": "Stop taking appointments for a staff member."
+    },
+    "search": {
+      "title": "Find staff",
+      "desc": "Look up active staff by name or skill."
     }
   },
   "business_hours": {
@@ -511,6 +523,10 @@
     },
     "mark_no_show": {
       "title": "Mark no-show"
+    },
+    "get": {
+      "title": "View appointment",
+      "desc": "Read one appointment: customer, service, staff, time, status."
     }
   },
   "ticket": {
@@ -547,6 +563,10 @@
     },
     "bulk_update": {
       "title": "Bulk update tickets"
+    },
+    "get": {
+      "title": "View ticket",
+      "desc": "Read one ticket: status, priority, SLA due times, assignee."
     }
   },
   "segment": {
@@ -817,6 +837,12 @@
     },
     "disconnect": {
       "title": "Disconnect bank reconciliation"
+    }
+  },
+  "service": {
+    "search": {
+      "title": "Find services",
+      "desc": "Look up bookable services by name or code."
     }
   }
 }

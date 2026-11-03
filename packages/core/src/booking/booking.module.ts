@@ -11,10 +11,13 @@ import { BusinessHoursUpdateHandler, StaffCreateHandler, StaffDeactivateHandler,
 import { BookingPlace } from './services/booking-place';
 import { CalendarReadService } from './services/calendar-read.service';
 
+import { AppointmentGetHandler, ServiceSearchHandler, StaffSearchHandler } from './actions/booking-read.handlers';
+
 const HANDLERS = [
   AppointmentFindSlotsHandler, AppointmentListHandler, AppointmentCreateHandler, AppointmentRescheduleHandler,
   AppointmentConfirmHandler, AppointmentCheckInHandler, AppointmentCompleteHandler, AppointmentNoShowHandler, AppointmentCancelHandler,
   StaffCreateHandler, StaffUpdateHandler, StaffDeactivateHandler, BusinessHoursUpdateHandler,
+  AppointmentGetHandler, StaffSearchHandler, ServiceSearchHandler,
 ];
 
 @Module({

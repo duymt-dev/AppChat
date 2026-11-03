@@ -289,6 +289,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/actions/src/reads/inbox.ts` | Domain read action definitions |
 | C | `packages/actions/src/reads/sales.ts` | Domain read action definitions |
 | C | `packages/actions/src/reads/support.ts` | Domain read action definitions |
+| M | `packages/actions/src/registry.test.ts` | ID cho phép chữ số sau dấu chấm (`contact.get_360` — action-registry §6) |
 | M | `packages/ai/src/gateway/types.ts` | Runtime/contract/wiring |
 | M | `packages/ai/src/prompts/assistant.en.md` | Runtime/contract/wiring |
 | M | `packages/ai/src/prompts/assistant.vi.md` | Runtime/contract/wiring |
@@ -487,6 +488,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/kernel/actions/handler-registry.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/kernel/actions/handler.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/kernel/actions/policy.ts` | Current authority, scoped shared query, preview or transport wiring |
+| M | `packages/core/src/kernel/actions/tip-owners.ts` | TIP chủ cho domain `service` (service.search) |
 | M | `packages/core/src/kernel/kernel.module.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/notify/actions/notification-mark-read.handler.ts` | Domain preview for notification.mark_read |
 | M | `packages/core/src/notify/actions/notification-update-prefs.handler.ts` | Domain preview for notification.update_prefs |

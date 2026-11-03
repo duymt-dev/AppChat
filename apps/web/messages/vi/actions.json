@@ -150,6 +150,14 @@
     "search": {
       "title": "Tìm khách hàng",
       "desc": "Tìm khách theo tên, số điện thoại, email hoặc mã khách."
+    },
+    "get": {
+      "title": "Xem khách hàng",
+      "desc": "Đọc hồ sơ rút gọn của một khách."
+    },
+    "get_360": {
+      "title": "Xem tổng quan khách",
+      "desc": "Hồ sơ khách kèm số báo giá, đơn, đề nghị thanh toán, ticket đang mở và lịch hẹn kế tiếp."
     }
   },
   "custom_field": {
@@ -470,6 +478,10 @@
     "deactivate": {
       "title": "Ngừng nhân sự",
       "desc": "Ngừng nhận lịch hẹn cho nhân sự."
+    },
+    "search": {
+      "title": "Tìm nhân sự",
+      "desc": "Tra nhân sự đang làm theo tên hoặc kỹ năng."
     }
   },
   "business_hours": {
@@ -511,6 +523,10 @@
     },
     "mark_no_show": {
       "title": "Đánh dấu không đến"
+    },
+    "get": {
+      "title": "Xem lịch hẹn",
+      "desc": "Đọc một lịch hẹn: khách, dịch vụ, nhân sự, giờ, trạng thái."
     }
   },
   "ticket": {
@@ -547,6 +563,10 @@
     },
     "bulk_update": {
       "title": "Cập nhật hàng loạt ticket"
+    },
+    "get": {
+      "title": "Xem ticket",
+      "desc": "Đọc một ticket: trạng thái, ưu tiên, hạn SLA, người phụ trách."
     }
   },
   "segment": {
@@ -817,6 +837,12 @@
     },
     "disconnect": {
       "title": "Ngắt đối soát ngân hàng"
+    }
+  },
+  "service": {
+    "search": {
+      "title": "Tìm dịch vụ",
+      "desc": "Tra dịch vụ đặt lịch được theo tên hoặc mã."
     }
   }
 }

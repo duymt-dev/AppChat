@@ -33,7 +33,9 @@ describe('find_actions', () => {
   });
 
   it('Chat chỉ action read; Cowork có ghi', () => {
-    expect(find(owner, 'chat', 'ticket').map((a) => a.id)).toEqual(['ticket.search']);
+    const chat = find(owner, 'chat', 'ticket');
+    expect(chat.map((a) => a.id)).toEqual(expect.arrayContaining(['ticket.search', 'ticket.get']));
+    expect(chat.every((a) => a.risk === 'read')).toBe(true);
     expect(find(owner, 'cowork', 'ticket', undefined, 50).map((a) => a.id)).toContain('ticket.create');
     expect(modeAllows(def('contact.create'), 'chat')).toBe(false);
     expect(modeAllows(def('kb.search'), 'chat')).toBe(true);

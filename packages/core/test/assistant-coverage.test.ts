@@ -78,7 +78,7 @@ const EXEMPT: Record<string, string> = {
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */
-const LOOKUP_DEBT = new Set(['agent', 'ai_task', 'canned_reply', 'channel_account', 'conversation', 'kb_source', 'member', 'package', 'profile_layout', 'run', 'service', 'staff', 'tag']);
+const LOOKUP_DEBT = new Set(['agent', 'ai_task', 'canned_reply', 'channel_account', 'conversation', 'kb_source', 'member', 'package', 'profile_layout', 'run', 'tag']);
 
 /** Màn danh sách (route GET apps/api) → action đọc tương ứng. */
 const SCREENS: Record<string, string> = {

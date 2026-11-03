@@ -10,6 +10,7 @@ import { ContactExportHandler, ContactImportHandler } from './actions/contact-io
 import { ContactMergeHandler } from './actions/contact-merge.handler';
 import { ContactCreateHandler, ContactDeleteHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
 import { ContactSearchHandler } from './actions/contact-search.handler';
+import { ContactGet360Handler, ContactGetHandler } from './actions/contact-read.handlers';
 import { CustomFieldDefineHandler, CustomFieldDeleteHandler, CustomFieldUpdateHandler } from './actions/custom-field.handlers';
 import { ProfileLayoutAssignRoleHandler, ProfileLayoutCreateHandler, ProfileLayoutDeleteHandler, ProfileLayoutDuplicateHandler, ProfileLayoutUpdateHandler } from './actions/profile-layout.handlers';
 import { CrmReadService } from './services/crm-read.service';
@@ -20,6 +21,8 @@ const opt = (token: symbol) => ({ token, optional: true });
 
 const HANDLERS = [
   ContactSearchHandler,
+  ContactGetHandler,
+  ContactGet360Handler,
   ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ContactDeleteHandler, ContactMergeHandler,
   ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
   ContactExportHandler, ContactImportHandler,
