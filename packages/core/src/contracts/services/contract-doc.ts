@@ -3,10 +3,12 @@
 // được đóng băng (`file_id` + `file_sha256`) — sửa mẫu sau đó không đổi chứng từ. Khách ký xong: bản cuối = PDF đóng băng + trang chữ
 // ký hai bên + trang chứng nhận (`contract-sign-pdf.ts`).
 import type { TenantDb } from '@appchat/db';
-import { AppError, createFmt, interpolate, quoteTotals, serverMessages, vndWords, type DocData, type Discount } from '@appchat/shared';
+import { AppError, createFmt, htmlPage, interpolate, quoteTotals, serverMessages, vndWords, type DocData, type Discount } from '@appchat/shared';
 import { businessData, pickContractTemplate, type ContractKind } from '../../documents/public';
 import type { ContractRecord } from '../contract-access';
 import type { ContractDeps } from './contract-deps';
+import { mergePdfs } from './contract-sign-pdf';
+import { keptHtml } from '../files/suggestions';
 
 type Db = Pick<TenantDb, 'quoteItem' | 'quote' | 'contact' | 'product' | 'docTemplate' | 'file'>;
 
@@ -47,7 +49,10 @@ export async function renderContractPdf(db: Db, d: ContractDeps, ws: string, c: 
   const t = id ? await db.docTemplate.findFirst({ where: { id } }) : null;
   if (!t) throw new AppError('INVALID_STATE', 409, { template_id: 'missing' });
   const doc = await contractDocData(db, d, ws, c);
-  const pdf = await d.renderer.pdf(db, { kind: t.kind, name: t.name, source: t.source, bodyHtml: t.bodyHtml, docxFileId: t.docxFileId, fieldMap: t.fieldMap }, doc.data, doc.locale);
+  const body = await d.renderer.pdf(db, { kind: t.kind, name: t.name, source: t.source, bodyHtml: t.bodyHtml, docxFileId: t.docxFileId, fieldMap: t.fieldMap }, doc.data, doc.locale);
+  // Điều khoản AI đã Giữ (TIP-030b spec 11): trang riêng sau thân mẫu — mẫu render nguyên văn, khối bỏ không xuất hiện.
+  const kept = keptHtml(c.aiSuggestions, serverMessages(doc.locale).sales.contract.keptClauses);
+  const pdf = kept ? await mergePdfs([body, await d.renderer.htmlPdf(htmlPage(c.code, kept))]) : body;
   return { pdf, doc, templateId: t.id, templateVersion: t.version };
 }
 

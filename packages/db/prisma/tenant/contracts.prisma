@@ -67,6 +67,9 @@ model Contract {
   /// Tin + vị trí tệp trong hội thoại khi tạo từ tệp khách gửi (`contract.create_from_attachment`).
   originMessageId     String?        @map("origin_message_id") @db.Uuid
   originAttachmentIdx Int?           @map("origin_attachment_idx")
+  /// AI soạn (TIP-030b F2): đề xuất đã dùng + khối `ai_suggested` [{id, text, status pending|kept|discarded, version}] — submit chặn khi còn pending.
+  draftProposalId     String?        @unique @map("draft_proposal_id") @db.Uuid
+  aiSuggestions       Json           @default("[]") @map("ai_suggestions")
   note                String         @default("")
   createdByType       String         @default("user") @map("created_by_type")
   createdById         String?        @map("created_by_id")
@@ -181,4 +184,34 @@ model ContractSignToken {
 
   @@index([contractId])
   @@map("contract_sign_token")
+}
+
+/// Đề xuất AI soạn hợp đồng (TIP-030b F2 spec 9) — sản phẩm của `contract.prepare_draft` (model qua gateway + meter), BẤT BIẾN: nội dung
+/// + khối gợi ý + hash nguồn (mẫu, báo giá, tệp). `contract.draft_from_content` chỉ đọc đề xuất này (không gọi model) rồi tạo đúng MỘT
+/// nháp (`consumed_contract_id`). Hết hạn 24h; cùng người + `request_key` → trả lại đề xuất cũ (khác nội dung yêu cầu → 409).
+model ContractDraftProposal {
+  id                 String    @id @db.Uuid
+  requestActor       String    @map("request_actor")
+  requestKey         String    @map("request_key")
+  requestHash        String    @map("request_hash")
+  contactId          String    @map("contact_id") @db.Uuid
+  quoteId            String?   @map("quote_id") @db.Uuid
+  kind               ContractKind
+  /// Đề xuất có cấu trúc: tiêu đề, giá trị (VND string), ngày, dòng (giá từ catalog / ngoài catalog đánh dấu), biến mẫu.
+  content            Json
+  /// Khối gợi ý AI [{id, text}] — vào hợp đồng ở trạng thái pending.
+  suggestions        Json      @default("[]")
+  /// Nguồn: mẫu {id, version, hash} · báo giá {id, updated_at} · tệp {id, sha256}.
+  sources            Json      @default("{}")
+  contentHash        String    @map("content_hash")
+  runId              String?   @map("run_id") @db.Uuid
+  model              String?
+  promptVersion      Int?      @map("prompt_version")
+  expiresAt          DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedContractId String?   @unique @map("consumed_contract_id") @db.Uuid
+  consumedAt         DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([requestActor, requestKey])
+  @@map("contract_draft_proposal")
 }

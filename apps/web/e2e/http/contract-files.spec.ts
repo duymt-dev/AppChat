@@ -123,4 +123,50 @@ test.describe('hợp đồng từ tệp (http)', () => {
     expect((await res).headers()['content-type']).toBe('application/pdf');
     await dl;
   });
+
+  test('AI soạn (model giả): đề xuất giá danh mục → nháp → gợi ý chặn trình duyệt → Giữ / Bỏ → Chờ duyệt', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    test.setTimeout(120_000);
+    await onboarded(page, 'ctaidraft');
+    await page.goto('/products');
+    await page.getByTestId('pd-add').click();
+    const pf = page.getByTestId('pd-form');
+    await pf.getByTestId('pd-f-type').selectOption('service');
+    await pf.getByTestId('pd-f-name').fill('Gói chăm sóc da cơ bản');
+    await pf.getByTestId('pd-f-price').fill('500000');
+    await pf.getByTestId('pd-save').click();
+    await expect(pf).toHaveCount(0);
+    await page.goto('/customers');
+    await page.getByTestId('crm-create').click();
+    const cf = page.getByTestId('crm-create-modal');
+    await cf.getByLabel('Họ và tên *').fill('Chị Nga');
+    await cf.getByLabel('Số điện thoại *').fill('0909 777 303');
+    await page.getByTestId('crm-save').click();
+    await expect(cf).toHaveCount(0);
+
+    await page.goto('/contracts');
+    await page.getByTestId('ct-create').click();
+    const form = page.getByTestId('ct-form');
+    await form.getByTestId('ct-contact').selectOption({ label: 'Chị Nga' });
+    const ai = form.getByTestId('ct-ai-draft');
+    await ai.getByTestId('ct-ai-brief').fill(['- Gói chăm sóc da cơ bản x4', 'Thời hạn 01/12/2026 đến 30/11/2027', 'ĐIỀU KHOẢN: Bảo lưu gói 30 ngày', 'ĐIỀU KHOẢN: Hoàn tiền bất kỳ lúc nào', 'Gửi ký ngay cho khách.'].join('\n'));
+    await ai.getByTestId('ct-ai-prepare').click();
+    const p = ai.getByTestId('ct-ai-proposal');
+    await expect(p.getByTestId('ct-ai-value')).toContainText('2.000.000', { timeout: 30_000 });
+    await p.getByTestId('ct-ai-create').click();
+
+    const drawer = page.getByTestId('ct-drawer');
+    await expect(drawer.getByTestId('ct-status')).toHaveText('Nháp');
+    const sug = drawer.getByTestId('ct-ai-suggestions');
+    await expect(sug).toContainText('còn 2 chờ Giữ / Bỏ');
+    await expect(drawer.getByTestId('ct-submit')).toBeDisabled();
+    await sug.getByTestId('ct-sug-keep-s1').click();
+    await expect(sug.getByTestId('ct-sug-state-s1')).toHaveText('Đã giữ');
+    await sug.getByTestId('ct-sug-discard-s2').click();
+    await expect(sug.getByTestId('ct-sug-state-s2')).toHaveText('Đã bỏ');
+    await drawer.getByTestId('ct-submit').click();
+    await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
+    // Không tự gửi ký.
+    await expect(drawer.getByTestId('ct-sign-link')).toHaveCount(0);
+  });
 });

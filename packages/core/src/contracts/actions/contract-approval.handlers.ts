@@ -12,6 +12,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { CrmMembers, actorUserId } from '../../crm/public';
 import { lockContract, visibleContract, type ContractRecord } from '../contract-access';
 import { freezeFileSource } from '../files/artifact-store';
+import { assertResolved } from '../files/suggestions';
 import { ContractDeps } from '../services/contract-deps';
 import { renderContractPdf, storeContractPdf } from '../services/contract-doc';
 import { sameOtp } from '../services/sign-link';
@@ -35,6 +36,8 @@ export class ContractSubmitHandler implements Handler<ActionInput<typeof contrac
     const c = await lockContract(tx, ctx.authz, input.contract_id);
     const to = assertTransition(CONTRACT_FLOW, c.status, 'contract.submit');
     if (c.value <= 0n) throw new AppError('VALIDATION_FAILED', 422, { value: 'required' });
+    // Cổng bắt buộc (TIP-030b spec 11): còn khối gợi ý AI chưa Giữ / Bỏ → không trình duyệt.
+    assertResolved(c.aiSuggestions);
     const now = this.clock.now();
     await moveContract(tx, c, to, {}, now);
     const actor = await actorNameOf(ctx, this.members);

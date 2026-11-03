@@ -168,3 +168,30 @@
 | M | `apps/web/src/shared/api/mock/mock-transport.ts` | Amend (F1): route GET /contracts/:id/files, tải tệp mock, ghi tên tệp đã upload cho guard giả |
 | M | `apps/api/test/integration/setup.ts` | Amend (F1): chuyển RENDER_ISOLATION_LAUNCHER / _WINDOWS_MODE vào env test (DOCX cô lập) |
 | M | `packages/core/src/inbox/public.ts` | Amend (F1): xuất writableConversation — kiểm scope hội thoại trước khi đọc tệp đính kèm |
+| C | `packages/actions/src/contract-draft.ts` | Amend (F2): schema contract.prepare_draft / draft_from_content / resolve_suggestion (giữ sales-schemas dưới trần) |
+| M | `packages/actions/src/sales-schemas.ts` | Amend (F2): draftLine / draftSuggestion dùng chung |
+| C | `packages/db/prisma/tenant/migrations/20261102003021_contract_ai_draft/migration.sql` | Amend (F2): bảng contract_draft_proposal + trigger bất biến + cột contract.draft_proposal_id / ai_suggestions |
+| C | `packages/ai/src/prompts/contract-draft.vi.md` | Amend (F2): prompt soạn nháp (thay `prompts/contract-files.ts` — theo mẫu `.md` + registry hiện có) |
+| C | `packages/ai/src/prompts/contract-draft.en.md` | Amend (F2): như trên, bản en |
+| C | `packages/ai/test/contract-draft-prompt.test.ts` | Amend (F2): registry khớp file .md, luật cốt lõi |
+| M | `packages/ai/src/testing/mock-model.ts` | Amend (F2): kịch bản model giả `# SOẠN NHÁP HỢP ĐỒNG` cho integration / E2E http |
+| M | `packages/core/src/sales/public.ts` | Amend (F2): xuất visibleQuote — kiểm báo giá nguồn trước khi gọi model |
+| M | `packages/core/src/sales/quotes/services/quote-draft.ts` | Amend (F2, ai:live): matchCatalog không nhân số nằm trong tên gói ("… 10 buổi") thành số lượng |
+| C | `packages/core/test/quote-draft-match.test.ts` | Amend (F2): test matchCatalog số trong tên / số lượng thật |
+| M | `packages/core/test/assistant-coverage.test.ts` | Amend (F2): miễn trừ proposal_id / suggestion_id (id phiên, không có mã người dùng nói) |
+| C | `apps/web/src/features/contracts/components/draft/AiDraftPanel.tsx` | Amend (F2): khung soạn AI trong form tạo (thay vị trí `components/files/`) |
+| C | `apps/web/src/features/contracts/components/draft/AiSuggestions.tsx` | Amend (F2): thay `components/files/AiSuggestions.tsx` (đúng nhóm draft) |
+| C | `apps/web/src/features/contracts/components/draft/AiSuggestions.test.tsx` | Amend (F2): thay `components/files/AiSuggestions.test.tsx` |
+| C | `apps/web/src/features/contracts/hooks/useContractDraft.ts` | Amend (F2): hook hai bước prepare → draft_from_content, request_key theo nội dung |
+| C | `apps/web/src/features/contracts/styles/draft.styles.ts` | Amend (F2): style khung soạn / khối gợi ý (token) |
+| C | `apps/web/src/shared/api/mock/domains/contracts-draft.ts` | Amend (F2): mock hai bước + cổng trình duyệt (không import store / contracts — tránh vòng depcheck) |
+| M | `apps/api/test/integration/helpers/action-matrix.ts` | Amend (F2): `credit(n)` nạp ví cho test action gọi model |
+| M | `apps/api/package.json` | Amend (F2): devDependency `@types/pdf-parse` 1.1.5 (cùng bản core) cho test AC3 đọc chữ PDF |
+| M | `pnpm-lock.yaml` | Amend (F2): khoá devDependency trên |
+| M | `tools/ai-live/src/cases.ts` | Amend (F2): category `contract`, ô `contract` / `expect.contract` |
+| M | `tools/ai-live/src/runner.ts` | Amend (F2): chuyển ca contract sang contract-judge |
+| M | `tools/ai-live/src/cli.ts` | Amend (F2): cổng suite contract-files 4/4 |
+| C | `tools/ai-live/src/contract-judge.ts` | Amend (F2): chấm ca AI soạn hợp đồng (giá danh mục, ngoài danh mục, gợi ý, không gửi / ký, mẫu không đổi) |
+| C | `tools/ai-live/test/contract-judge.test.ts` | Amend (F2): test bộ chấm |
+| C | `coding-packs/reports/ai-live-contract-files-2026-11-03.md` | Amend (F2): báo cáo ai:live model thật 4/4 |
+| C | `coding-packs/reports/ai-live-contract-files-2026-11-03.json` | Amend (F2): dữ liệu báo cáo trên |

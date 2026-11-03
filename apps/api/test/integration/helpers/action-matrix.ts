@@ -3,7 +3,7 @@
 // · idempotency · (undo / trạng thái khi áp dụng). Ô không áp dụng khai lý do theo ActionDef (`na`) — không skip âm thầm.
 import { getAction, type ActionDef } from '@appchat/actions';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, type TenantDb } from '@appchat/db';
-import { uuidv7 } from '@appchat/core';
+import { WalletService, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from '../setup';
 
 export type Who = { id: string; token: string };
@@ -26,6 +26,8 @@ export interface Matrix {
   undo(logId: string, who?: Who): Promise<Res>;
   /** DB tenant (system) — chỉ để dựng dữ liệu không có action tạo (hội thoại / run từ kênh, pipeline). */
   db(): Promise<TenantDb>;
+  /** Nạp Credit cho workspace thử (action gọi model giả — AI_ENGINE=mock, đơn giá seed sẵn). */
+  credit(n: number): Promise<void>;
   /** Hội thoại web chat dựng ở DB (+ một tin khách vào) — pipeline kênh kiểm ở inbox test. */
   conv(o?: { title?: string; contactId?: string; assignee?: string; body?: string; channel?: 'webchat' | 'zalo_personal' }): Promise<{ id: string; account: string; message: string }>;
   close(): Promise<void>;
@@ -63,6 +65,9 @@ export async function matrix(actionId: string): Promise<Matrix> {
       return r.body.data.result;
     },
     db,
+    async credit(n) {
+      await h.app.get(WalletService, { strict: false }).topup(h.ws, n, { refType: 'test', refId: uuidv7() });
+    },
     async conv(o = {}) {
       const t = await db();
       const type = o.channel ?? 'webchat';

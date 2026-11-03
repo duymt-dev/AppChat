@@ -43,6 +43,7 @@ export const sales: Shape<typeof vi> = {
     signedPdfName: 'Contract-{code}-signed.pdf',
     declineDefault: 'Customer declined to sign',
     linkExpired: 'Signing link expired',
+    keptClauses: 'Additional clauses (approved)',
     kind: { service: 'Service contract', sale: 'Sales contract', framework: 'Framework contract' },
     cert: {
       title: 'E-SIGNATURE CERTIFICATE',

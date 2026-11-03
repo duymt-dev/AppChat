@@ -423,6 +423,18 @@
     "get": {
       "title": "View contract",
       "desc": "Read one contract: status, value, dates, signing progress."
+    },
+    "prepare_draft": {
+      "desc": "AI reads the request and proposes draft contract content (catalog prices) — no contract is created yet.",
+      "title": "Prepare contract proposal (AI)"
+    },
+    "draft_from_content": {
+      "desc": "Create one draft contract from a prepared AI proposal — no new AI call.",
+      "title": "Create draft contract from AI proposal"
+    },
+    "resolve_suggestion": {
+      "desc": "Keep or discard one AI-suggested clause of a draft contract.",
+      "title": "Keep / discard AI-suggested clause"
     }
   },
   "order": {

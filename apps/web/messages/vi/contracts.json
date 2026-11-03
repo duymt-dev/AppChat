@@ -178,7 +178,10 @@
       "signed": "Ký điện tử hoàn tất",
       "declined": "Khách từ chối ký",
       "expired": "Hết hạn",
-      "terminated": "Chấm dứt hợp đồng"
+      "terminated": "Chấm dứt hợp đồng",
+      "created_by_ai": "Tạo nháp từ đề xuất AI",
+      "ai_suggestion_kept": "Giữ điều khoản AI gợi ý",
+      "ai_suggestion_discarded": "Bỏ điều khoản AI gợi ý"
     },
     "evMeta": "{at} · {actor}",
     "system": "Hệ thống",
@@ -352,5 +355,35 @@
       "too_many_pages": "PDF quá 200 trang."
     }
   },
-  "unit": "hợp đồng"
+  "unit": "hợp đồng",
+  "draft": {
+    "title": "AI soạn hợp đồng",
+    "hint": "Mô tả dịch vụ / hàng, số lượng, thời hạn. Giá lấy từ danh mục; AI không sửa điều khoản mẫu và không tự gửi / ký.",
+    "briefPh": "Ví dụ: Liệu trình trị mụn 10 buổi, từ 01/12/2026 đến 30/11/2027, thêm bảo hành 30 ngày",
+    "prepare": "Soạn đề xuất (dùng AI)",
+    "preparing": "Đang soạn…",
+    "needContact": "Chọn khách hàng trước.",
+    "fTitle": "Tiêu đề",
+    "fValue": "Giá trị (theo danh mục)",
+    "fTerm": "Thời hạn",
+    "offCatalog": "ngoài danh mục — nhập giá",
+    "suggestions": "{n} điều khoản AI gợi ý — Giữ / Bỏ sau khi tạo nháp.",
+    "create": "Tạo nháp từ đề xuất",
+    "err": {
+      "credit": "Hết Credit AI — nạp thêm để soạn.",
+      "not_found": "Không tìm thấy khách / báo giá trong phạm vi của bạn.",
+      "failed": "Chưa soạn được — thử lại."
+    },
+    "sTitle": "Điều khoản AI gợi ý",
+    "pending": "còn {n} chờ Giữ / Bỏ",
+    "aiTag": "AI",
+    "keep": "Giữ",
+    "discard": "Bỏ",
+    "conflict": "Điều khoản vừa được người khác xử lý — đã tải lại.",
+    "state": {
+      "pending": "Chờ xử lý",
+      "kept": "Đã giữ",
+      "discarded": "Đã bỏ"
+    }
+  }
 }

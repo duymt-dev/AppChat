@@ -40,6 +40,7 @@ export const sales = {
     signedPdfName: 'Hop-dong-{code}-da-ky.pdf',
     declineDefault: 'Khách từ chối ký',
     linkExpired: 'Link ký hết hạn',
+    keptClauses: 'Điều khoản bổ sung (đã duyệt)',
     kind: { service: 'Hợp đồng dịch vụ', sale: 'Hợp đồng mua bán', framework: 'Hợp đồng nguyên tắc' },
     cert: {
       title: 'TRANG CHỨNG NHẬN KÝ ĐIỆN TỬ',

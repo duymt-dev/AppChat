@@ -178,7 +178,10 @@
       "signed": "E-signature completed",
       "declined": "Customer declined",
       "expired": "Expired",
-      "terminated": "Contract terminated"
+      "terminated": "Contract terminated",
+      "created_by_ai": "Draft created from AI proposal",
+      "ai_suggestion_kept": "AI-suggested clause kept",
+      "ai_suggestion_discarded": "AI-suggested clause discarded"
     },
     "evMeta": "{at} · {actor}",
     "system": "System",
@@ -352,5 +355,35 @@
       "too_many_pages": "PDF exceeds 200 pages."
     }
   },
-  "unit": "contracts"
+  "unit": "contracts",
+  "draft": {
+    "title": "AI contract draft",
+    "hint": "Describe services / goods, quantities and term. Prices come from the catalog; AI never edits template clauses or sends / signs.",
+    "briefPh": "e.g. Acne treatment 10 sessions, from 01/12/2026 to 30/11/2027, add a 30-day warranty",
+    "prepare": "Prepare proposal (uses AI)",
+    "preparing": "Preparing…",
+    "needContact": "Pick a customer first.",
+    "fTitle": "Title",
+    "fValue": "Value (from catalog)",
+    "fTerm": "Term",
+    "offCatalog": "off-catalog — enter a price",
+    "suggestions": "{n} AI-suggested clauses — keep / discard after creating the draft.",
+    "create": "Create draft from proposal",
+    "err": {
+      "credit": "Out of AI credits — top up to draft.",
+      "not_found": "Customer / quote not found within your scope.",
+      "failed": "Could not prepare — try again."
+    },
+    "sTitle": "AI-suggested clauses",
+    "pending": "{n} awaiting keep / discard",
+    "aiTag": "AI",
+    "keep": "Keep",
+    "discard": "Discard",
+    "conflict": "This clause was just handled by someone else — reloaded.",
+    "state": {
+      "pending": "Pending",
+      "kept": "Kept",
+      "discarded": "Discarded"
+    }
+  }
 }

@@ -70,3 +70,37 @@ test.describe('hợp đồng từ tệp (mock)', () => {
     await expect(drawer.getByTestId('ct-files')).toContainText('Bản gốc');
   });
 });
+
+// TIP-030b F2 — AI soạn hai bước (mock): brief → đề xuất (giá danh mục, dòng ngoài danh mục) → tạo nháp → điều khoản gợi ý chặn trình duyệt
+// → Giữ / Bỏ → trình duyệt được.
+test.describe('AI soạn hợp đồng (mock)', () => {
+  test('đề xuất → nháp → gợi ý chặn trình duyệt → Giữ / Bỏ → Chờ duyệt', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.getByTestId('ct-create').click();
+    const form = page.getByTestId('ct-form');
+    const ai = form.getByTestId('ct-ai-draft');
+    await expect(ai.getByTestId('ct-ai-prepare')).toBeDisabled();
+    await form.getByTestId('ct-contact').selectOption('ct_lan');
+    await ai.getByTestId('ct-ai-brief').fill(['- HIFU nâng cơ 8 buổi x1', '- Gói massage đá nóng x2', 'Thời hạn 01/12/2026 đến 30/11/2027', 'ĐIỀU KHOẢN: Bảo lưu gói 30 ngày', 'ĐIỀU KHOẢN: Hoàn tiền bất kỳ lúc nào'].join('\n'));
+    await ai.getByTestId('ct-ai-prepare').click();
+    const p = ai.getByTestId('ct-ai-proposal');
+    await expect(p.getByTestId('ct-ai-line')).toHaveCount(2);
+    await expect(p.getByTestId('ct-ai-line').nth(1)).toContainText('ngoài danh mục');
+    await expect(p.getByTestId('ct-ai-value')).toContainText('12.800.000');
+    await expect(p).toContainText('2 điều khoản AI gợi ý');
+    await p.getByTestId('ct-ai-create').click();
+
+    const drawer = page.getByTestId('ct-drawer');
+    await expect(drawer.getByTestId('ct-status')).toHaveText('Nháp');
+    const sug = drawer.getByTestId('ct-ai-suggestions');
+    await expect(sug).toContainText('còn 2 chờ Giữ / Bỏ');
+    await expect(drawer.getByTestId('ct-submit')).toBeDisabled();
+    await sug.getByTestId('ct-sug-keep-s1').click();
+    await sug.getByTestId('ct-sug-discard-s2').click();
+    await expect(sug.getByTestId('ct-sug-state-s1')).toHaveText('Đã giữ');
+    await expect(sug.getByTestId('ct-sug-state-s2')).toHaveText('Đã bỏ');
+    await drawer.getByTestId('ct-submit').click();
+    await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
+  });
+});

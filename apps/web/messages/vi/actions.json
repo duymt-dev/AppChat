@@ -423,6 +423,18 @@
     "get": {
       "title": "Xem hợp đồng",
       "desc": "Đọc một hợp đồng: trạng thái, giá trị, ngày, tiến độ ký."
+    },
+    "prepare_draft": {
+      "desc": "AI đọc yêu cầu và đề xuất nội dung hợp đồng nháp (giá theo danh mục) — chưa tạo hợp đồng.",
+      "title": "Soạn đề xuất hợp đồng (AI)"
+    },
+    "draft_from_content": {
+      "desc": "Tạo một hợp đồng nháp từ đề xuất AI đã soạn — không gọi AI lần nữa.",
+      "title": "Tạo hợp đồng nháp từ đề xuất AI"
+    },
+    "resolve_suggestion": {
+      "desc": "Giữ hoặc bỏ một điều khoản do AI gợi ý trong hợp đồng nháp.",
+      "title": "Giữ / bỏ điều khoản AI gợi ý"
     }
   },
   "order": {

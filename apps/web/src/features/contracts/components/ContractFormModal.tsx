@@ -16,6 +16,7 @@ import type { Contract, ContractKind } from '../types';
 import { todayIso } from '@/shared/time/today';
 import { useContractSource } from '../hooks/useContractSource';
 import { ContractFileInput, ContractSourceStep } from './files/ContractSourceStep';
+import { AiDraftPanel } from './draft/AiDraftPanel';
 
 const toPrefill = (c: Contract): Record<string, unknown> => ({
   contact_id: c.contact_id,
@@ -288,6 +289,14 @@ function ContractForm({
         </div>
       </div>
       <ContractSourceStep src={src} onUse={useValue} />
+      {mode === 'create' && src.kind !== 'file' ? (
+        <AiDraftPanel
+          contactId={f.d.contact_id}
+          kind={f.d.kind}
+          quoteId={f.d.quote_id || undefined}
+          onCreated={(id) => ui.set({ form: null, prefill: null, editId: null, detail: id, tab: 'overview' })}
+        />
+      ) : null}
     </ModalShell>
   );
 }

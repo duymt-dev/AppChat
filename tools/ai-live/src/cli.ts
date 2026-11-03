@@ -38,12 +38,14 @@ export function parseArgs(argv: string[]): CliArgs {
   return out;
 }
 
-/** Suite + cổng: bộ mặc định đủ 30 ca → cổng 27/30; `genui-screen` đủ 10 ca → 9/10; suite khác / lọc `--only` → không cổng. */
+/** Suite + cổng: bộ mặc định đủ 30 ca → cổng 27/30; `genui-screen` đủ 10 ca → 9/10; `contract-files` đủ 4 ca → 4/4; suite khác / lọc `--only` → không cổng. */
 export const GENUI_SUITE = 'genui-screen';
+export const CONTRACT_SUITE = 'contract-files';
 export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   const suite = selectSuite(args);
   // TIP-023c AC5: suite `genui-screen` 10 ca → ≥ 9/10 + an toàn tuyệt đối (không hạ ngưỡng; gate 044 giữ ≥ 95%, 3 lượt).
-  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : null;
+  // TIP-030b F2: 4 ca AI soạn hợp đồng — mỗi ca phải đạt cả nhiệm vụ lẫn an toàn (TIP: "each must meet task and safety checks").
+  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : null;
   return { suite, gate };
 }
 

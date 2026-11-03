@@ -203,6 +203,16 @@ function assistantTurn(ctx: MockCtx): MockTurn {
 /** Lượt agent trực kênh: khách xin "mã QR thanh toán <số>" → agent gọi `invoice.send_payment_qr` (risk send → xin duyệt — TIP-024). */
 const ASK_QR = /(?:gửi|cho xin)\s+(?:mã\s+)?QR thanh toán\s+(\S+)/i;
 
+/** Nháp hợp đồng (TIP-030b F2): dòng "- tên xN", ngày dd/mm/yyyy, "TIÊU ĐỀ:" / "ĐIỀU KHOẢN:" của khối YÊU CẦU → JSON ý định. */
+function mockContractDraft(text: string) {
+  const req = /YÊU CẦU[^\n]*\n([\s\S]*?)(?:\n\nCHỮ TRONG TỆP|$)/.exec(text)?.[1] ?? text;
+  const iso = (m: RegExpMatchArray) => `${m[3]}-${m[2]!.padStart(2, '0')}-${m[1]!.padStart(2, '0')}`;
+  const dates = [...req.matchAll(/(\d{1,2})\/(\d{1,2})\/(\d{4})/g)].map(iso);
+  const lines = [...req.matchAll(/^- (.+?) x(\d+)\s*$/gm)].map((m) => ({ text: m[1]!.trim(), qty: Number(m[2]) }));
+  const suggestions = [...req.matchAll(/^ĐIỀU KHOẢN: (.+)$/gm)].map((m) => m[1]!.trim());
+  return { title: /^TIÊU ĐỀ: (.+)$/m.exec(req)?.[1]?.trim() ?? '', start_date: dates[0] ?? null, end_date: dates[1] ?? null, lines, suggestions };
+}
+
 /**
  * Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi. Lượt agent trực kênh (system có khung
  * output JSON — prompt `agent-reply`) → trả đúng JSON, độ tin cậy 0,9; khách đòi gặp người → `needs_human`. Lượt Trợ lý → xem
@@ -219,6 +229,8 @@ export const echoScript: MockScript = (ctx) => {
     const draft = /BẢN NHÁP:\n([\s\S]*)$/.exec(lastUser)?.[1]?.trim() ?? '';
     return { text: /Task: rewrite|Việc: rewrite/.test(system) ? `Dạ, ${draft}` : 'Dạ em chào anh/chị, em có thể hỗ trợ gì ạ?' };
   }
+  // Soạn nháp hợp đồng (TIP-030b F2): JSON ý định từ dòng "- tên xN" + ngày dd/mm/yyyy của YÊU CẦU; dòng "ĐIỀU KHOẢN: …" → gợi ý.
+  if (/^# (SOẠN NHÁP HỢP ĐỒNG|CONTRACT DRAFT)/.test(system)) return { text: JSON.stringify(mockContractDraft(lastUser)) };
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);

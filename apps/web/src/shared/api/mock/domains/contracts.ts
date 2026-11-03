@@ -54,6 +54,9 @@ export type Contract = Omit<
   source_hash?: string | null;
   source_version?: number;
   origin_message_id?: string | null;
+  /** AI soạn (TIP-030b F2). */
+  draft_proposal_id?: string | null;
+  ai_suggestions?: { id: string; text: string; status: 'pending' | 'kept' | 'discarded'; version: number }[];
 };
 
 export interface ContractsState {

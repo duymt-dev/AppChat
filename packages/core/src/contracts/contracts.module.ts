@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { MailProvider } from '@appchat/integrations';
 import type { Redis } from 'ioredis';
+import { AiModule } from '../ai/ai.module';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE } from '../kernel/kernel.module';
@@ -25,6 +26,9 @@ import { ContractExtendLinkHandler, ContractRemindHandler, ContractSendHandler, 
 import { ContractCreateHandler, ContractDeleteHandler, ContractFromQuoteHandler, ContractRenewHandler, ContractUpdateHandler } from './actions/contract-write.handlers';
 import { ContractGetHandler, ContractSearchHandler } from './actions/contract-read.handlers';
 import { ContractAttachFileHandler, ContractFromAttachmentHandler, ContractInspectFileHandler } from './actions/contract-file.handlers';
+import { ContractPrepareDraftHandler } from './actions/contract-draft-prepare.handler';
+import { ContractDraftFromContentHandler } from './actions/contract-draft.handler';
+import { ContractResolveSuggestionHandler } from './actions/contract-suggestion.handler';
 import { ContractDeps, contractEnvFor } from './services/contract-deps';
 import { ContractsReadService } from './services/contracts-read.service';
 import { PublicSignService } from './services/public-sign.service';
@@ -37,10 +41,12 @@ const HANDLERS = [
   ContractSendHandler, ContractRemindHandler, ContractExtendLinkHandler, ContractTerminateHandler,
   ContractSearchHandler, ContractGetHandler,
   ContractInspectFileHandler, ContractAttachFileHandler, ContractFromAttachmentHandler,
+  // AI soạn hai bước (TIP-030b F2) — AiRunner từ AiModule (gateway + meter).
+  ContractPrepareDraftHandler, ContractDraftFromContentHandler, ContractResolveSuggestionHandler,
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, SalesModule, IdentityModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, SalesModule, IdentityModule, AiModule],
   providers: [
     ...HANDLERS,
     {

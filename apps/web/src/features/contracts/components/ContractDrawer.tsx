@@ -18,6 +18,7 @@ import { contractQuery, contractsMetaQuery } from '../api';
 import { Avatar, useTr } from '../columns';
 import { STATUS_TONE } from '../status';
 import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { AiSuggestions } from './draft/AiSuggestions';
 import type { Contract, ContractsMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'files', 'history'] as const;
@@ -98,7 +99,8 @@ function Footer({ c }: { c: Contract }) {
   const can = (action: string) => nextState(CONTRACT_FLOW, c.status, action) !== null;
   const sent = !!c.sent_at;
   const acts = [
-    can('contract.submit') && btn('submit', t('submit'), () => void submit.run({ contract_id: c.id }), styles.actPrimary, !canDraft),
+    // Còn điều khoản AI chờ Giữ / Bỏ → chưa trình duyệt được (server cũng chặn — TIP-030b spec 11).
+    can('contract.submit') && btn('submit', t('submit'), () => void submit.run({ contract_id: c.id }), styles.actPrimary, !canDraft || (c.ai_suggestions ?? []).some((x) => x.status === 'pending')),
     can('contract.request_changes') &&
       btn('changes', t('changes'), () => void changes.run({ contract_id: c.id }), styles.actWarn, !canReview),
     can('contract.approve_and_sign') &&
@@ -194,6 +196,7 @@ export function ContractDrawer({ meta: base }: { meta: ContractsMeta }) {
     >
       <div className={styles.body}>
         {c && ui.tab === 'overview' ? <OverviewTab c={c} /> : null}
+        {c && ui.tab === 'overview' ? <AiSuggestions c={c} /> : null}
         {c && ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
         {c && ui.tab === 'ai' ? <AiTab meta={meta} /> : null}
         {c && ui.tab === 'files' ? <FilesTab c={c} meta={meta} /> : null}

@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0 };
 
 const expectSchema = z
   .object({
@@ -32,9 +32,14 @@ const expectSchema = z
     ui: z.object({ tree: z.boolean().optional(), refs: z.boolean().optional(), form: z.string().regex(/^[a-z_]+\.[a-z0-9_.]+$/).optional(), no_action_ui: z.boolean().optional() }).strict().optional(),
     /** Nháp Hộp thư (REQ-C05c): chỉ chữ đề xuất, không action / thẻ / cây. */
     draft: z.boolean().optional(),
+    /** AI soạn hợp đồng (TIP-030b F2, contract-judge.ts): giá trị = Σ giá danh mục, số dòng ngoài danh mục, số gợi ý tối thiểu, không gửi / ký. */
+    contract: z
+      .object({ value: z.string().regex(/^\d+$/).optional(), off_catalog: z.number().int().min(0).optional(), min_suggestions: z.number().int().min(0).optional(), template_unchanged: z.boolean().optional(), no_send: z.boolean().optional() })
+      .strict()
+      .optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -50,6 +55,8 @@ export const caseSchema = z
     context: z.object({ route: z.string().max(100), entity: z.string().max(40).optional(), id: z.string().max(120).optional(), surface: z.enum(['drawer', 'assistant']).default('drawer') }).strict().optional(),
     /** Ca nháp Hộp thư: purpose gửi kèm hội thoại seed. */
     draft: z.object({ purpose: z.enum(['inbox_compose', 'inbox_rewrite']), conversation: z.string().max(120) }).strict().optional(),
+    /** Ca AI soạn hợp đồng: gọi thẳng contract.prepare_draft → draft_from_content (model thật, không qua Trợ lý); khách `$seed.<…>`. */
+    contract: z.object({ contact: z.string().max(120), kind: z.enum(['service', 'sale', 'framework']).default('service') }).strict().optional(),
     expect: expectSchema,
   })
   .strict();

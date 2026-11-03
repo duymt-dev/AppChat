@@ -8,6 +8,7 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW, enrich as enrichQuote } from './quotes';
 import { bad, deny, fileSource, findContract, logEvent, mockGuard, visible, type Contract } from './contracts';
+import { assertResolved, contractDraftHandlers } from './contracts-draft';
 
 const DAY = 86_400_000;
 /** OTP "Duyệt & ký" của mock (server gửi email tới người ký). */
@@ -124,6 +125,8 @@ export function attachmentOf(db: MockDb, messageId: string, idx: number) {
 }
 
 export const contractsHandlers: Record<string, MockHandler> = {
+  // AI soạn hai bước (TIP-030b F2) — contracts-draft.ts.
+  ...contractDraftHandlers({ insert, findContract, visible }),
   // Hợp đồng từ tệp (TIP-030b): inspect (đề xuất cố định — server đọc chữ thật), attach (chỉ nháp, CAS source_version), tạo từ tệp đính kèm.
   'contract.inspect_file': {
     execute: (_db, i: { file_id: string }) => {
@@ -212,7 +215,13 @@ export const contractsHandlers: Record<string, MockHandler> = {
       return { contract_id: c.id };
     },
   },
-  'contract.submit': move('contract.submit', 'submitted'),
+  'contract.submit': {
+    execute: (db: MockDb, i: { contract_id: string }) => {
+      // Cổng AI soạn (TIP-030b F2): còn điều khoản gợi ý chờ Giữ / Bỏ → không trình duyệt.
+      assertResolved(mine(db, i.contract_id));
+      return move('contract.submit', 'submitted').execute(db, i);
+    },
+  },
   'contract.request_changes': move('contract.request_changes', 'changes_requested'),
   'contract.reject_internal': move('contract.reject_internal', 'rejected_internal'),
   'contract.approve_and_sign': {

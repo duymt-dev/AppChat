@@ -6,6 +6,7 @@ export { quoteToken, readQuoteToken } from './quotes/services/quote-link';
 export { sweepQuotes, quoteOwnerConsumer, QUOTE_SWEEP_JOB, SALES_SCHEDULER_QUEUE } from './jobs/sales.jobs.module';
 export { expireDue, remindExpiring, markViewed, moveOpenQuotes } from './quotes/services/quote-system';
 export { intentByRules, matchCatalog, parseIntent } from './quotes/services/quote-draft';
+export { visibleQuote } from './quotes/quote-access';
 export { customerConversation, postToCustomer, reachCustomer, type QuoteChannel as CustomerChannel } from './quotes/services/quote-send';
 export { OrdersReadService, type OrderViewer } from './orders/services/orders-read.service';
 export type { OrderFilter } from './orders/repos/orders.repo';

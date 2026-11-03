@@ -19,3 +19,8 @@ export const lineItem = z.object({
   tax_rate: z.union([z.literal(0), z.literal(5), z.literal(8), z.literal(10)]),
   discount: discount.nullable().optional(),
 });
+
+// AI soạn hợp đồng (TIP-030b F2, contract-draft.ts).
+/** Dòng hàng đề xuất: giá luôn từ catalog (`product_id`); dòng ngoài catalog `off_catalog` + giá 0 — người dùng nhập. */
+export const draftLine = z.object({ name: z.string(), qty: z.number(), unit_price: money, product_id: z.string().nullable(), off_catalog: z.boolean() });
+export const draftSuggestion = z.object({ id: z.string(), text: z.string().max(2000) });

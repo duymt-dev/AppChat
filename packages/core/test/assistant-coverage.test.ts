@@ -77,6 +77,8 @@ const EXEMPT: Record<string, string> = {
   exclude_id: 'lịch hẹn đang dời (đã có trong ngữ cảnh lượt)',
   template_id: 'mẫu agent / mẫu tài liệu — danh mục cố định trả trong meta của màn',
   team_id: 'Teams là P1 (AA-v21-9) — chưa có màn',
+  proposal_id: 'đề xuất soạn HĐ — lấy từ kết quả contract.prepare_draft cùng lượt, sống 24h, không có mã người dùng nói',
+  suggestion_id: 'gợi ý điều khoản AI — đọc từ ai_suggestions của contract.get',
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */

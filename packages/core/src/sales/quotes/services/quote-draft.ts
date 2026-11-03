@@ -65,6 +65,9 @@ export function intentByRules(content: string): Intent {
 const STOP = new Set(['goi', 'buoi', 'lan', 'combo', 'dich', 'vu', 'san', 'pham', 'cho', 'cua', 'them', 'lay']);
 const words = (s: string) => foldText(s).split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
 
+const nums = (s: string): string[] => s.match(/\d+/g) ?? [];
+const inName = (name: string, l: Intent['lines'][number]) => l.qty > 1 && nums(name).includes(String(l.qty)) && nums(l.text).filter((n) => n === String(l.qty)).length <= 1;
+
 /** Khớp một dòng ý định với sản phẩm đang bán: mọi từ khoá (tối đa 3 từ đầu) của tên sản phẩm có trong dòng; dài hơn thắng. */
 export async function matchCatalog(tx: TenantTx, intent: Intent): Promise<{ items: LineIn[]; discount: Discount | null; offCatalog: number }> {
   const products = await tx.product.findMany({ where: { deletedAt: null, status: 'active' }, select: { id: true, name: true, price: true, taxRate: true, sessions: true }, take: 2000 });
@@ -75,8 +78,8 @@ export async function matchCatalog(tx: TenantTx, intent: Intent): Promise<{ item
     const have = new Set(words(l.text));
     const hit = keyed.filter((x) => x.keys.every((k) => have.has(k))).sort((a, b) => b.keys.length - a.keys.length)[0]?.p;
     if (hit) {
-      // Gói nhiều buổi bán theo gói: "8 buổi" của gói 8 buổi = 1 gói.
-      const qty = hit.sessions && hit.sessions === l.qty ? 1 : l.qty;
+      // Gói nhiều buổi bán theo gói: "8 buổi" của gói 8 buổi = 1 gói; số nằm sẵn trong tên ("trị mụn 10 buổi") mà dòng chỉ nhắc một lần = 1 gói.
+      const qty = (hit.sessions && hit.sessions === l.qty) || inName(hit.name, l) ? 1 : l.qty;
       items.push({ product_id: hit.id, name: hit.name, qty, unit_price: String(hit.price), tax_rate: hit.taxRate });
     } else {
       off++;

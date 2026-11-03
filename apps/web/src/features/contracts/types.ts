@@ -46,6 +46,9 @@ export interface Contract {
   source_hash?: string | null;
   source_version?: number;
   origin_message_id?: string | null;
+  /** AI soạn (TIP-030b F2): khối gợi ý chờ Giữ / Bỏ — còn `pending` thì không trình duyệt được. */
+  draft_proposal_id?: string | null;
+  ai_suggestions?: AiSuggestion[];
   events: SignEvent[];
   ai: { hint: string; wait: boolean };
 }
@@ -119,4 +122,27 @@ export interface ContractFileRow {
   sha256: string;
   at: string;
   by: string;
+}
+
+export interface AiSuggestion {
+  id: string;
+  text: string;
+  status: 'pending' | 'kept' | 'discarded';
+  version: number;
+}
+
+/** Đề xuất AI soạn (contract.prepare_draft) — bất biến; giá dòng luôn từ catalog, dòng ngoài catalog `off_catalog`. */
+export interface DraftProposal {
+  proposal_id: string;
+  content_hash: string;
+  expires_at: string;
+  title: string;
+  value: string;
+  start_date: string | null;
+  end_date: string | null;
+  lines: { name: string; qty: number; unit_price: string; product_id: string | null; off_catalog: boolean }[];
+  suggestions: { id: string; text: string }[];
+  off_catalog: number;
+  run_id: string | null;
+  model: string | null;
 }
