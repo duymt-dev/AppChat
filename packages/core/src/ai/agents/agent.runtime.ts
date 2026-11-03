@@ -12,6 +12,7 @@ import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type NewRun } from '../runs/run.store';
 import { actionTool, toolActionId } from '../runs/tools';
 import { agentAuthz } from './agent-authz';
+import { currentAuthority } from './current-authority';
 import type { AgentConfig } from './agent.store';
 import { AGENT_INTENTS } from './catalog';
 
@@ -68,8 +69,13 @@ export interface AgentRunCtx {
   narrow?: (a: AuthzContext) => AuthzContext;
   /** Biến đổi input trước khi gọi action (khôi phục PII che trong lượt — TIP-022). */
   mapInput?: (input: unknown) => unknown;
-  /** DB tenant của run — có thì đổi mã hiển thị (KH-1016, BG-1003) → id như Trợ lý (TIP-023b R1.5). */
+  /** DB tenant của run — có thì đổi mã hiển thị (KH-1016, BG-1003) → id như Trợ lý (TIP-023b R1.5) + kiểm quyền hiện hành mỗi lần gọi. */
   db?: TenantDb;
+  /**
+   * Quyền hiện hành mỗi lần gọi tool (TIP-023b SPEC A): `commander` đọc lại người ra lệnh ban đầu (mất quyền → chặn, không rơi về quyền
+   * agent); `draft` = chat thử cấu hình nháp. Vắng → người ra lệnh lấy từ `commander` tĩnh (lượt đồng bộ trong request).
+   */
+  authority?: { commanderId?: string; commander?: (ws: string, userId: string) => Promise<AuthzContext | null>; draft?: boolean };
 }
 
 /**
@@ -77,6 +83,8 @@ export interface AgentRunCtx {
  * (TIP-023b R1.2); thứ tự input: khôi phục PII (`mapInput`) → mã → id (`resolveCodes`) → executor validate.
  */
 export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r: AgentRunCtx): ToolSpec[] {
+  // Quyền đã đọc lại cho lời gọi đang chạy (khoá bước + id lời gọi) — ctxOf dùng thay bản dựng lúc bắt đầu run.
+  const live = new Map<string, AuthzContext>();
   const ctxOf = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => ({
     workspaceId: r.workspaceId,
     source: r.source,
@@ -89,11 +97,35 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
     ...(def.risk === 'read' ? {} : { idempotencyKey: `${r.source}:${r.runId}:${stepIdx}:${toolCallId}` }),
     ...(r.servedConversationId ? { servedConversationId: r.servedConversationId } : {}),
     ...(r.autoSend ? { autoSend: true } : {}),
-    authz: r.narrow ? r.narrow(agentAuthz(r.agent, r.commander)) : agentAuthz(r.agent, r.commander),
+    authz: ((a: AuthzContext) => (r.narrow ? r.narrow(a) : a))(live.get(`${stepIdx}:${toolCallId}`) ?? agentAuthz(r.agent, r.commander)),
   });
   const has = implementedBy(executor);
-  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id)).map((d) => actionTool(d, executor, (i, c) => ctxOf(d, i, c)));
   const { mapInput: map, db } = r;
+  const commanderId = r.authority?.commanderId ?? r.commander?.userId;
+  const readCommander = r.authority?.commander ?? (r.commander ? async () => r.commander! : undefined);
+  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id)).map((d) => {
+    const tool = actionTool(d, executor, (i, c) => ctxOf(d, i, c));
+    if (!db) return tool;
+    // SPEC A: mỗi lời gọi đọc lại agent / grant đã xuất bản / connector / người ra lệnh — thu hồi có hiệu lực ngay lần gọi kế.
+    const guarded: ToolSpec = {
+      ...tool,
+      execute: async (input, meta) => {
+        const cur = await currentAuthority({
+          db, ws: r.workspaceId, agentId: r.agent.id, def: d, snapshot: r.agent.toolIds,
+          ...(commanderId ? { commanderId } : {}), ...(readCommander ? { commander: readCommander } : {}), ...(r.authority?.draft ? { draft: true } : {}),
+        });
+        if (!cur.ok) return { kind: 'error', code: cur.code, message: cur.reason };
+        const key = `${meta.stepIdx}:${meta.toolCallId}`;
+        live.set(key, cur.authz);
+        try {
+          return await tool.execute(input, meta);
+        } finally {
+          live.delete(key);
+        }
+      },
+    };
+    return guarded;
+  });
   if (!map && !db) return specs;
   return specs.map((s) => ({
     ...s,

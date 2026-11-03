@@ -46,7 +46,11 @@ const agentSpec: SpecFn = async (db, run, d, ws) => {
   const cfg = merge(blankConfig(), (v?.config ?? {}) as Partial<AgentConfig>);
   const commander = run.initiatedByUserId ? ((await d.commander(ws, run.initiatedByUserId)) ?? undefined) : undefined;
   const ids = runToolIds(cfg.tools, await connectedKeys(db));
-  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: ws, agent: { id: a.id, toolIds: cfg.tools }, ...(commander ? { commander } : {}), runId: run.id, source: run.kind === 'task' ? 'task' : 'agent', db });
+  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, {
+    workspaceId: ws, agent: { id: a.id, toolIds: cfg.tools }, ...(commander ? { commander } : {}), runId: run.id, source: run.kind === 'task' ? 'task' : 'agent', db,
+    // Người ra lệnh ban đầu đọc lại mỗi lần gọi (SPEC A) — đã rời workspace thì chặn, không chạy bằng quyền agent.
+    ...(run.initiatedByUserId ? { authority: { commanderId: run.initiatedByUserId, commander: d.commander } } : {}),
+  });
   return { system: agentSystem(cfg), tools, maxSteps: MAX_STEPS.agent, source: run.kind === 'task' ? 'task' : 'agent' };
 };
 for (const k of ['delegate', 'consult', 'task']) registerResumeSpec(k, agentSpec);
