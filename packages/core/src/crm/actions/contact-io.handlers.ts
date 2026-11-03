@@ -1,7 +1,7 @@
 // contact.export (crm.export, risk read — chạy ngay, không preview theo policy §3.3 (DC-063); CSV đúng scope) · contact.import (crm.import, bulk → preview, theo lô ≤ 500,
 // chống giành khách: dòng trùng khách của người khác chỉ đếm, không lộ dữ liệu). contact.send_email ở inbox (gửi qua kênh Email — TIP-018).
 import { Inject, Injectable } from '@nestjs/common';
-import { SOURCE_STYLE, createFmt, interpolate, normalizePhone, serverMessages, type ContactSource } from '@appchat/shared';
+import { SOURCE_STYLE, createFmt, serverMessages, type ContactSource } from '@appchat/shared';
 import type { ActionPreview, ActionInput, contactExport, contactImport } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
@@ -10,6 +10,7 @@ import { actorUserId } from '../services/access';
 import { createContact } from '../services/contacts.service';
 import { listContactIds, type ContactFilter } from '../repos/contacts.repo';
 import { CrmMembers } from '../services/members.service';
+import { classifyImport, importPreview } from './previews/contact-io.handlers.preview';
 
 type ExportIn = ActionInput<typeof contactExport>;
 type ExportOut = { file_name: string; mime: 'text/csv'; rows: number; content: string };
@@ -61,46 +62,15 @@ export class ContactImportHandler implements Handler<ImportIn, ImportOut> {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  /** Phân loại dòng: thiếu SĐT + email / email sai → invalid; trùng trong file hoặc với khách có sẵn → dup / owned. */
-  private async classify(ctx: ActionContext, rows: ImportIn['rows'], tx: TenantTx) {
-    const me = actorUserId(ctx);
-    const seen = new Set<string>();
-    const out: { row: ImportIn['rows'][number]; kind: 'create' | 'dup' | 'owned' | 'invalid' }[] = [];
-    for (const row of rows) {
-      const phone = normalizePhone(row.phone);
-      const email = row.email?.trim().toLowerCase() || null;
-      if ((!phone && !email) || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-        out.push({ row, kind: 'invalid' });
-        continue;
-      }
-      const keys = [phone && `p:${phone}`, email && `e:${email}`].filter((k): k is string => !!k);
-      if (keys.some((k) => seen.has(k))) {
-        out.push({ row, kind: 'dup' });
-        continue;
-      }
-      keys.forEach((k) => seen.add(k));
-      const or = [...(phone ? [{ phoneNorm: phone }] : []), ...(email ? [{ email }] : [])];
-      const hit = await tx.contact.findFirst({ where: { deletedAt: null, OR: or }, select: { ownerUserId: true } });
-      out.push({ row, kind: !hit ? 'create' : hit.ownerUserId && hit.ownerUserId !== me ? 'owned' : 'dup' });
-    }
-    return out;
-  }
-
   async preview(ctx: ActionContext, input: ImportIn, tx: TenantTx): Promise<ActionPreview> {
-    const c = await this.classify(ctx, input.rows, tx);
-    const n = (k: string) => c.filter((x) => x.kind === k).length;
-    return {
-      summary: interpolate(serverMessages('vi').crm.preview.import, { count: c.length, created: n('create'), dup: n('dup'), owned: n('owned'), invalid: n('invalid') }),
-      risk: 'write',
-      count: n('create'),
-    };
+    return importPreview(ctx, tx, input);
   }
 
   async execute(ctx: ActionContext, input: ImportIn, tx: TenantTx): Promise<HandlerOutcome<ImportOut>> {
     const now = this.clock.now();
     const me = actorUserId(ctx);
     const roleKey = await this.members.roleOf(ctx.workspaceId, me);
-    const rows = await this.classify(ctx, input.rows, tx);
+    const rows = await classifyImport(ctx, input.rows, tx);
     const ids: string[] = [];
     for (const r of rows.filter((x) => x.kind === 'create')) {
       const { source, ...rest } = r.row;

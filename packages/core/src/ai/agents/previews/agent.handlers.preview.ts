@@ -13,6 +13,13 @@ export function createPreview(ctx: ActionContext, i: ActionInput<typeof agentCre
   return preview('config', cfg.name, { count: 1, changes: [created('ai_agent', { name: cfg.name, channels: cfg.channels, tools: cfg.tools, threshold: cfg.threshold })] });
 }
 
+/** Tạo + xuất bản ngay: như tạo, agent vào hoạt động ở v1 (nhận hội thoại kênh đã gắn) — cảnh báo `goes_live`. */
+export function createAndPublishPreview(ctx: ActionContext, i: ActionInput<typeof agentCreate>): ActionPreview {
+  const p = createPreview(ctx, i);
+  const [c] = p.changes!;
+  return { ...p, summary: line(p.summary, 'v1'), changes: [{ ...c!, after: { ...c!.after, status: 'active', version: 1 } }], warnings: ['goes_live'] };
+}
+
 export async function updatePreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof agentUpdate>): Promise<ActionPreview> {
   const a = await liveAgent(tx, i.agent_id);
   const cur = configOf(a);

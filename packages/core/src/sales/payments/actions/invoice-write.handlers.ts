@@ -21,7 +21,7 @@ import { lockInvoice, visibleInvoice } from '../invoice-access';
 import { invoiceDocData, renderDocPdf, savePdf } from '../services/invoice-doc';
 import { invoiceText, postInvoice } from '../services/invoice-send';
 import { localDay } from '../services/payment-write';
-import { createPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
+import { createPreview, sendPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
 
 const DAY = 86_400_000;
 type St = { invoice_id: string; status: string };
@@ -161,9 +161,7 @@ export class InvoiceSendHandler implements Handler<SendIn, St> {
   }
 
   async preview(ctx: ActionContext, input: SendIn, tx: TenantTx) {
-    const i = await visibleInvoice(tx, ctx.authz, input.invoice_id);
-    const c = await tx.contact.findUnique({ where: { id: i.contactId }, select: { name: true } });
-    return { summary: `${i.code} · ${c?.name ?? ''} · ${createFmt({ locale: 'vi' }).money(String(i.amount - i.paidAmount))}`, risk: 'send' as const };
+    return sendPreview(ctx, tx, input);
   }
 }
 

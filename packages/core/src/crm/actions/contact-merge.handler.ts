@@ -2,13 +2,14 @@
 // Chuyển identity / thẻ / ghi chú / timeline / trí nhớ AI / collaborator của bản phụ sang bản chính; bản phụ xoá mềm +
 // `merged_into_id`. Ghi lại id đã chuyển để hoàn tác trả đúng về bản phụ.
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, interpolate, serverMessages } from '@appchat/shared';
+import { AppError } from '@appchat/shared';
 import type { ActionPreview, ActionInput, contactMerge } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { UUID, actorUserId, editableContact } from '../services/access';
 import { writeTimeline } from '../services/timeline.service';
+import { mergePreview } from './previews/contact-merge.handler.preview';
 
 type Input = ActionInput<typeof contactMerge>;
 
@@ -41,9 +42,8 @@ const FILL = ['email', 'zalo', 'title', 'city', 'district', 'taxCode', 'address'
 export class ContactMergeHandler implements Handler<Input, { merged: number }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
-  async preview(_ctx: ActionContext, input: Input): Promise<ActionPreview> {
-    const n = pairs(input.group_ids).length;
-    return { summary: interpolate(serverMessages('vi').crm.preview.merge, { count: n }), risk: 'write', count: n };
+  async preview(ctx: ActionContext, input: Input, tx: TenantTx): Promise<ActionPreview> {
+    return mergePreview(ctx, tx, input);
   }
 
   async execute(ctx: ActionContext, input: Input, tx: TenantTx): Promise<HandlerOutcome<{ merged: number }>> {

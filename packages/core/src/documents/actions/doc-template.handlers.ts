@@ -16,7 +16,7 @@ import { AiRunner } from '../../ai/runs/runner';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { detectByRules, detectPrompt, parseDetected, type DetectedField } from '../services/detect';
 import { checkDocxFields, checkRich, docxParas, liveTemplate, makeDefault } from '../services/template-store';
-import { updatePreview } from './previews/doc-template.handlers.preview';
+import { createPreview, deletePreview, updatePreview } from './previews/doc-template.handlers.preview';
 
 const need = <T>(v: T | null | undefined, what: string): T => {
   if (!v) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '028' }, `${what} chưa cấu hình`);
@@ -52,8 +52,8 @@ export class DocTemplateCreateHandler implements Handler<ActionInput<typeof docT
     return { result: { template_id: id }, after: { id, kind, source: input.source } };
   }
 
-  async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateCreate>) {
-    return { summary: input.name, risk: 'config' as const };
+  async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateCreate>, tx: TenantTx) {
+    return createPreview(tx, this.files, input);
   }
 }
 
@@ -127,8 +127,7 @@ export class DocTemplateDeleteHandler implements Handler<ActionInput<typeof docT
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateDelete>, tx: TenantTx) {
-    const t = await liveTemplate(tx, input.template_id);
-    return { summary: t.name, risk: 'delete' as const };
+    return deletePreview(tx, input);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

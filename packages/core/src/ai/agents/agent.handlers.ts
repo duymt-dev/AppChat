@@ -10,7 +10,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { agentEvent, assertTools, blankConfig, columnsOf, configOf, countLive, liveAgent, merge, publishDraft, type AgentConfig, type AgentRow } from './agent.store';
-import { createPreview, deletePreview, pausePreview, publishPreview, rollbackPreview, updatePreview } from './previews/agent.handlers.preview';
+import { createAndPublishPreview, createPreview, deletePreview, pausePreview, publishPreview, rollbackPreview, updatePreview } from './previews/agent.handlers.preview';
 
 type Cfg = ActionInput<typeof agentCreate>;
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
@@ -54,9 +54,8 @@ export class AgentCreateAndPublishHandler implements Handler<Cfg, { agent_id: st
     return { result: { agent_id: a.id, version }, after: { id: a.id }, events: [{ topic: 'agent.published', payload: agentEvent(a, version, 'active') }] };
   }
 
-  async preview(_ctx: ActionContext, input: Cfg) {
-    const tools = input.tools ?? [];
-    return { summary: input.name, risk: 'config' as const, count: 1, changes: [{ entity: 'ai_agent', after: { name: input.name, channels: input.channels ?? [], tools, threshold: input.threshold ?? 70 } }] };
+  async preview(ctx: ActionContext, input: Cfg) {
+    return createAndPublishPreview(ctx, input);
   }
 
   /** Hoàn tác = tạm dừng + xoá mềm (Blueprint §3.4) — lịch sử run giữ nguyên. */

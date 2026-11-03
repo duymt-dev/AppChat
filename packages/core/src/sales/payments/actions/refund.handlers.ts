@@ -11,7 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { CrmMembers, actorUserId } from '../../../crm/public';
 import { actorOf } from '../../orders/services/order-write';
 import { UUID, inSalesScope, lockInvoice } from '../invoice-access';
-import { rejectPreview } from '../previews/refund.handlers.preview';
+import { approvePreview, rejectPreview, requestPreview } from '../previews/refund.handlers.preview';
 import { approveRefund, invoiceRefundable, lockPendingRefund, packageRefundable, refundMethodOf, rejectRefund, requestRefund, type RefundRow } from '../services/refunds';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
@@ -71,8 +71,8 @@ export class PaymentRefundHandler implements Handler<ActionInput<typeof paymentR
     return { result: { payment_id: out.paymentId, status: 'pending', amount: String(r.amount) }, events: [...out.events, notify] };
   }
 
-  async preview(_ctx: ActionContext, input: ActionInput<typeof paymentRefund>) {
-    return { summary: input.amount ? money(BigInt(input.amount)) : input.reason, risk: 'money' as const };
+  async preview(ctx: ActionContext, input: ActionInput<typeof paymentRefund>, tx: TenantTx) {
+    return requestPreview(ctx, tx, input);
   }
 }
 
@@ -103,9 +103,8 @@ export class PaymentRefundApproveHandler implements Handler<ActionInput<typeof p
     return { result: { payment_id: p.id, status: 'confirmed' }, events: [...events, ...decidedNotice(p, 'approved', params, actorUserId(ctx))] };
   }
 
-  async preview(_ctx: ActionContext, input: ActionInput<typeof paymentRefundApprove>, tx: TenantTx) {
-    const p = await tx.customerPayment.findUnique({ where: { id: UUID.test(input.payment_id) ? input.payment_id : '00000000-0000-0000-0000-000000000000' }, select: { amount: true } });
-    return { summary: p ? money(-p.amount) : '', risk: 'money' as const };
+  async preview(ctx: ActionContext, input: ActionInput<typeof paymentRefundApprove>, tx: TenantTx) {
+    return approvePreview(ctx, tx, input);
   }
 }
 
