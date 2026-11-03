@@ -2,6 +2,17 @@
 
 > Đọc file này đầu phiên mới, sau quy tắc dự án (`CLAUDE.md` — Codex đọc qua `AGENTS.md`). Ghi trạng thái lúc dừng + việc kế tiếp + câu giao việc dán nguyên văn. Dùng được với mọi công cụ (Codex, Claude Code…).
 
+## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
+
+**Mới nhất, ưu tiên hơn mọi mục bên dưới.** Goal đặt lại 2026-11-03 (câu `/goal` trong phiên): làm tuần tự không dừng giữa TIP; TIP trước chưa merge thì nhánh xếp chồng; chỉ dừng khi 046 đạt / luật tiền-quyền-pháp lý-xoá dữ liệu / lỗi test trong phạm vi không sửa được.
+- **023b DONE** — PR #51 (`d373fea`), chưa merge.
+- **023c đang làm** — nhánh `tip/023c-generative-ui` **xếp chồng trên #51**. Pha G1 (một PR mỗi pha G1 / G2 / G3). Đã commit:
+  - `3141e79` shared `genui/` (UiTree đóng, `$ref` đóng, giới hạn §8, khung stream).
+  - `939982d` ô bí mật (ActionDef.secret + manifest connector; executor che log + hash idem), intent GenUI ký (`x-genui-intent` → nguồn assistant, preview/confirm), vault AES-256-GCM (ack sau commit), meta-tool `render`, refs theo quyền hiện hành, phần `ui` lưu cây + run.
+  - `b73ffb9` QR attempt + `channel.status` + `assistant.resume` (receipt unique) + migration `20261102002320_genui_stream` (sổ yêu cầu có fence, sổ sự kiện 24h, receipt, keyset phiên / tin) — **đã áp lên template test**; DB workspace demo cần `tenant-migrate` khi Chủ nhà chạy lại demo.
+  - **Còn của G1:** stream SSE engine → runner → event store → HTTP (bỏ buffer 2 tầng của engine), prompt genui vi / en, renderer FE `shared/genui/**` + `@ant-design/charts`, `useAction` mang intent / vault, `genui-stream-recovery`, integration `genui*.test.ts`, rồi PR G1.
+  - Sau G1: G2 (context màn, 8 drawer + InboxAiModal + Dock, trình duyệt phiên, highlight, attachment guard) → G3 (Zalo QR qua Trợ lý, form connector + `integration.form_schema` / `integration.test`, inbox compose / rewrite) → chốt TIP → 030b.
+
 ## GOAL MỚI — GOAL-RELEASE (2026-11-03)
 
 **Trạng thái mới nhất, ưu tiên hơn mọi mục bên dưới.**
