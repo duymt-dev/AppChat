@@ -13,6 +13,7 @@ import { RunStore } from '../runs/run.store';
 import { TaskPlace } from './task-place';
 import { TASK_QUEUE, type TaskQueue } from './task.queue';
 import { assertTier, liveTask, nextRunOf, resolveAgent, restoreData, snapOf, triggerCols, type TaskSnap } from './task.store';
+import { createPreview, deletePreview, pausePreview, runNowPreview, updatePreview } from './previews/task.handlers.preview';
 
 type CreateIn = ActionInput<typeof aiTaskCreate>;
 
@@ -82,6 +83,10 @@ export class AiTaskCreateHandler implements Handler<CreateIn, { task_id: string;
     const { task_id } = log.result as { task_id: string };
     await tx.aiTask.updateMany({ where: { id: task_id, deletedAt: null }, data: { deletedAt: this.clock.now(), status: 'paused', nextRunAt: null } });
   }
+
+  async preview(ctx: ActionContext, i: CreateIn, tx: TenantTx) {
+    return createPreview(tx, i, this.quota ? (await this.quota.limits(ctx.workspaceId)).planKey : null);
+  }
 }
 
 /** Đặt lại ảnh chụp trước (sửa / tạm dừng / xoá); lịch tính lại theo giờ hiện tại. */
@@ -147,6 +152,10 @@ export class AiTaskUpdateHandler extends RestoreUndo implements Handler<ActionIn
     });
     return { result: { task_id: t.id }, before: snapOf(t), after: snapOf(u), afterCommit: armAfter(this.queue, ctx.workspaceId, u) };
   }
+
+  async preview(ctx: ActionContext, i: ActionInput<typeof aiTaskUpdate>, tx: TenantTx) {
+    return updatePreview(ctx, tx, i, this.quota ? (await this.quota.limits(ctx.workspaceId)).planKey : null);
+  }
 }
 
 @Injectable()
@@ -165,6 +174,10 @@ export class AiTaskPauseHandler extends RestoreUndo implements Handler<ActionInp
     const u = await tx.aiTask.update({ where: { id: t.id }, data: { status, nextRunAt: nextRunOf({ ...t, status }, now, tz), updatedAt: now, version: { increment: 1 } } });
     return { result: { task_id: t.id, active: status === 'active' }, before: snapOf(t), after: snapOf(u), afterCommit: armAfter(this.queue, ctx.workspaceId, u) };
   }
+
+  async preview(ctx: ActionContext, i: ActionInput<typeof aiTaskPause>, tx: TenantTx) {
+    return pausePreview(ctx, tx, i);
+  }
 }
 
 @Injectable()
@@ -179,6 +192,10 @@ export class AiTaskDeleteHandler extends RestoreUndo implements Handler<ActionIn
     const now = this.clock.now();
     await tx.aiTask.update({ where: { id: t.id }, data: { deletedAt: now, nextRunAt: null, updatedAt: now, version: { increment: 1 } } });
     return { result: { task_id: t.id }, before: snapOf(t) };
+  }
+
+  async preview(ctx: ActionContext, i: ActionInput<typeof aiTaskDelete>, tx: TenantTx) {
+    return deletePreview(ctx, tx, i);
   }
 }
 
@@ -197,5 +214,9 @@ export class AiTaskRunNowHandler implements Handler<ActionInput<typeof aiTaskRun
     if (live) throw new AppError('CONFLICT', 409, { task_id: 'running' });
     const runId = await queueRun(tx, () => this.clock.now(), t, 'manual');
     return { result: { task_id: t.id, run_id: runId }, afterCommit: pushAfter(this.queue, ctx.workspaceId, t.id, runId) };
+  }
+
+  async preview(ctx: ActionContext, i: ActionInput<typeof aiTaskRunNow>, tx: TenantTx) {
+    return runNowPreview(ctx, tx, i);
   }
 }

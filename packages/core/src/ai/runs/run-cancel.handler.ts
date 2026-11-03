@@ -10,6 +10,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { RunStore } from './run.store';
 import { publishCancel } from './runs.service';
+import { cancelPreview } from './previews/run-cancel.handler.preview';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -33,5 +34,9 @@ export class RunCancelHandler implements Handler<ActionInput<typeof runCancel>, 
       events: ids.length ? [{ topic: 'run.cancelled', payload: { run_id: run.id, run_ids: ids } }] : [],
       ...(ids.length ? { afterCommit: () => publishCancel(this.redis, ids) } : {}),
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof runCancel>, tx: TenantTx) {
+    return cancelPreview(tx, input);
   }
 }

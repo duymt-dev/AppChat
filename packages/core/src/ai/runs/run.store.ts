@@ -41,7 +41,7 @@ export interface StepRecord {
 }
 
 const json = (v: unknown) => toJson(v) as object;
-const TERMINAL = ['completed', 'failed', 'cancelled', 'handoff'] as const;
+export const TERMINAL = ['completed', 'failed', 'cancelled', 'handoff'] as const;
 
 export class RunStore {
   constructor(

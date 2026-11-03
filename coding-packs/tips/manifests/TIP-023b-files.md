@@ -249,6 +249,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/api/test/integration/fixtures/action-matrix.ts` | Extracted implementation or targeted evidence |
 | C | `apps/api/test/integration/helpers/action-matrix.ts` | Extracted implementation or targeted evidence |
 | C | `apps/api/test/integration/helpers/channel-fixtures.ts` | Channel-account + Team-plan fixtures shared by the channel action matrix tests |
+| C | `apps/api/test/integration/helpers/ai-fixtures.ts` | Agent / run / approval fixtures shared by the AI action matrix tests |
 | C | `apps/web/e2e/assistant-vertical.spec.ts` | Extracted implementation or targeted evidence |
 | C | `apps/web/e2e/http/assistant-vertical.spec.ts` | Extracted implementation or targeted evidence |
 | M | `apps/web/messages/en/actions.json` | UI labels |

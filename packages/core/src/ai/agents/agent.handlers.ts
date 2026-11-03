@@ -10,6 +10,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { agentEvent, assertTools, blankConfig, columnsOf, configOf, countLive, liveAgent, merge, publishDraft, type AgentConfig, type AgentRow } from './agent.store';
+import { createPreview, deletePreview, pausePreview, publishPreview, rollbackPreview, updatePreview } from './previews/agent.handlers.preview';
 
 type Cfg = ActionInput<typeof agentCreate>;
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
@@ -34,6 +35,10 @@ export class AgentCreateHandler implements Handler<Cfg, { agent_id: string }> {
   async execute(ctx: ActionContext, input: Cfg, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ agent_id: string }>> {
     const a = await createAgent(ctx, input, tx, ptx, this.clock.now());
     return { result: { agent_id: a.id }, after: { id: a.id } };
+  }
+
+  async preview(ctx: ActionContext, input: Cfg) {
+    return createPreview(ctx, input);
   }
 }
 
@@ -80,6 +85,10 @@ export class AgentUpdateHandler implements Handler<ActionInput<typeof agentUpdat
     const b = log.before as { id: string; config: AgentConfig; dirty: boolean };
     await tx.aiAgent.updateMany({ where: { id: b.id, deletedAt: null }, data: { ...columnsOf(b.config), draftDirty: b.dirty } });
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof agentUpdate>, tx: TenantTx) {
+    return updatePreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -91,6 +100,10 @@ export class AgentPublishHandler implements Handler<ActionInput<typeof agentPubl
     const a = await liveAgent(tx, input.agent_id);
     const { version } = await publishDraft(tx, a, userOf(ctx), input.note?.trim() ?? '', this.clock.now());
     return { result: { agent_id: a.id, version }, after: { id: a.id, version }, events: [{ topic: 'agent.published', payload: agentEvent(a, version, 'active') }] };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentPublish>, tx: TenantTx) {
+    return publishPreview(tx, input);
   }
 }
 
@@ -106,6 +119,10 @@ export class AgentRollbackHandler implements Handler<ActionInput<typeof agentRol
     const cfg = merge(blankConfig(), v.config as Partial<AgentConfig>);
     const { version } = await publishDraft(tx, a, userOf(ctx), `↩ v${input.version}`, this.clock.now(), cfg);
     return { result: { agent_id: a.id, version }, after: { id: a.id, version, from: input.version }, events: [{ topic: 'agent.published', payload: agentEvent(a, version, 'active') }] };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentRollback>, tx: TenantTx) {
+    return rollbackPreview(tx, input);
   }
 }
 
@@ -124,6 +141,10 @@ export class AgentPauseHandler implements Handler<ActionInput<typeof agentPause>
     const events = input.paused ? [{ topic: 'agent.paused', payload: agentEvent(a, a.publishedVersion, 'paused') }] : [{ topic: 'agent.published', payload: agentEvent(a, a.publishedVersion, 'active') }];
     return { result: { agent_id: a.id, status }, before: { id: a.id, status: a.status }, after: { id: a.id, status }, events };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentPause>, tx: TenantTx) {
+    return pausePreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -141,6 +162,10 @@ export class AgentDeleteHandler implements Handler<ActionInput<typeof agentDelet
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const { id } = log.before as { id: string };
     await tx.aiAgent.updateMany({ where: { id }, data: { deletedAt: null } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof agentDelete>, tx: TenantTx) {
+    return deletePreview(tx, input, assertNoDependencies);
   }
 }
 
