@@ -6,6 +6,10 @@ export type QueryParams = Record<string, string | number | boolean | undefined |
 export interface ActionCallOptions {
   confirmToken?: string;
   idempotencyKey?: string;
+  /** Handle server ký cho node action của cây GenUI (TIP-023c) → header `x-genui-intent`; server tự đặt nguồn assistant + xác nhận. */
+  genuiIntent?: string;
+  /** Xác nhận form GenUI có ô bí mật: handle vault server trả ở 202 — thay cho giá trị bí mật (không gửi lại). */
+  secretVault?: string;
 }
 
 export type ActionResponse<O = unknown> =

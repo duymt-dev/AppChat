@@ -21,11 +21,13 @@ import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
 import { loyaltyParamRoute } from './domains/loyalty';
 import { settingsAppsParamRoute } from './domains/settings-apps';
+import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 import { docTemplatePreview as mockBlob } from './domains/doc-templates';
+import { claimVault, genUiNeedsPreview, putVault, splitSecrets } from './genui-vault';
 
 const fail = (
   status: number,
@@ -71,6 +73,7 @@ export const mockTransport: Transport = {
       marketingParamRoute(path) ??
       loyaltyParamRoute(path) ??
       settingsAppsParamRoute(path) ??
+      assistantUiParamRoute(path) ??
       signParamRoute(path) ??
       agentToolsParamRoute(path) ??
       agentsParamRoute(path) ??
@@ -81,7 +84,7 @@ export const mockTransport: Transport = {
   },
 
   async post(path, body) {
-    const handler = mockPosts[path] ?? assistantPosts[path] ?? signParamPost(path) ?? contractsPosts(path);
+    const handler = mockPosts[path] ?? assistantPosts[path] ?? assistantUiPosts[path] ?? signParamPost(path) ?? contractsPosts(path);
     if (!handler) return fail(404, 'NOT_FOUND', `mock post ${path}`);
     let out: unknown;
     const signEvent = path.match(/^\/public\/sign\/[^/]+\/(sign|decline)$/)?.[1];
@@ -98,6 +101,12 @@ export const mockTransport: Transport = {
     const def = getAction(id);
     const handler = mockHandlers[id];
     if (!def || !handler) return fail(404, 'ACTION_NOT_FOUND', id);
+    // GenUI: lần xác nhận mang vault → ghép ô bí mật trước khi validate.
+    if (opts?.secretVault) {
+      const merged = claimVault(opts.secretVault, input);
+      if (!merged) return fail(409, 'CONFLICT', 'RE_ENTRY_REQUIRED');
+      input = merged;
+    }
     const parsed = def.input.safeParse(input);
     if (!parsed.success) return fail(422, 'VALIDATION_FAILED', parsed.error.message);
     if (
@@ -108,11 +117,13 @@ export const mockTransport: Transport = {
       return fail(403, 'FORBIDDEN', id);
     }
 
-    const inputHash = JSON.stringify(parsed.data);
-    if (def.bulk && !(opts?.confirmToken && confirmTokens.get(opts.confirmToken) === inputHash)) {
+    const { plain, secrets } = splitSecrets(def, parsed.data);
+    const inputHash = JSON.stringify(plain);
+    if ((def.bulk || genUiNeedsPreview(def, opts?.genuiIntent)) && !(opts?.confirmToken && confirmTokens.get(opts.confirmToken) === inputHash)) {
       const token = nextId('ct');
       confirmTokens.set(token, inputHash);
       const p = handler.preview?.(mockDb(), parsed.data as never) ?? { summary: id };
+      const vault = opts?.genuiIntent ? putVault(secrets) : undefined;
       return {
         status: 202,
         data: {
@@ -120,6 +131,7 @@ export const mockTransport: Transport = {
           preview: { ...p, risk: def.risk },
           confirm_token: token,
           expires_at: new Date(Date.now() + 600_000).toISOString(),
+          ...(vault ? { secret_vault: vault } : {}),
         },
       };
     }

@@ -1,6 +1,8 @@
 // Đường ghi duy nhất của FE (frontend-structure §4): 202 preview → ConfirmActionHost, invalidates, toast + Hoàn tác, lỗi theo code.
 // 202 approval_required (TIP-023b SPEC B.4): toast "đã gửi duyệt", `onAccepted` + `accepted` riêng, invalidate danh sách duyệt; `run` vẫn trả
 // null (không giả kết quả thành công cho consumer đợi 200). Loại 202 khác (032b job_accepted) phải thêm nhánh — switch exhaustive.
+// GenUI (TIP-023c): `genui.intent` = handle server ký cho node → header `x-genui-intent` (server đặt nguồn assistant → xem trước / xác
+// nhận như Trợ lý). Form có ô bí mật: 202 trả `secret_vault`; lần xác nhận gửi vault + input ĐÃ BỎ ô bí mật (không gửi lại giá trị).
 'use client';
 import { useCallback, useState } from 'react';
 import { App } from 'antd';
@@ -18,6 +20,20 @@ export interface RunOptions {
   onError?: (e: ApiRequestError) => boolean;
   /** 202 đã nhận nhưng CHƯA thực hiện (chờ duyệt) — màn tự cập nhật trạng thái chờ nếu cần. */
   onAccepted?: (a: Exclude<ActionAccepted, { status: 'preview_required' }>) => void;
+  /** Gửi từ node GenUI: handle intent + đường dẫn ô bí mật của form (bỏ khỏi input ở lần xác nhận). */
+  genui?: { intent: string; secretPaths?: string[] };
+}
+
+/** Bản sao input không có các ô bí mật (`fields.password`). */
+export function withoutPaths(input: unknown, paths: string[]): unknown {
+  if (!paths.length || !input || typeof input !== 'object') return input;
+  const out = structuredClone(input) as Record<string, unknown>;
+  for (const p of paths) {
+    const keys = p.split('.');
+    const parent = keys.slice(0, -1).reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), out);
+    if (parent && typeof parent === 'object') delete (parent as Record<string, unknown>)[keys.at(-1)!];
+  }
+  return out;
 }
 
 const never = (x: never): never => {
@@ -36,7 +52,10 @@ export function useAction<O = unknown>(id: string) {
     async (input: unknown, opts: RunOptions = {}): Promise<ActionResult<O> | null> => {
       const def = getAction(id);
       // Một khoá mỗi lần bấm (dùng lại khi xác nhận preview) — gửi lại do mạng không tạo bản ghi thứ hai.
-      const idem = def && requiresIdempotencyKey(id, def.risk) ? { idempotencyKey: crypto.randomUUID() } : {};
+      const idem = {
+        ...(def && requiresIdempotencyKey(id, def.risk) ? { idempotencyKey: crypto.randomUUID() } : {}),
+        ...(opts.genui ? { genuiIntent: opts.genui.intent } : {}),
+      };
       setPending(true);
       setAccepted(null);
       try {
@@ -44,7 +63,10 @@ export function useAction<O = unknown>(id: string) {
         if (res.status === 202 && res.data.status === 'preview_required') {
           const ok = await ask(id, res.data.preview);
           if (!ok) return null;
-          res = await transport.action<O>(id, input, { ...idem, confirmToken: res.data.confirm_token });
+          const vault = (res.data as { secret_vault?: string }).secret_vault;
+          res = vault
+            ? await transport.action<O>(id, withoutPaths(input, opts.genui?.secretPaths ?? []), { ...idem, confirmToken: res.data.confirm_token, secretVault: vault })
+            : await transport.action<O>(id, input, { ...idem, confirmToken: res.data.confirm_token });
         }
         if (res.status !== 200) {
           const a = res.data;

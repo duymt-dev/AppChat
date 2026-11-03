@@ -58,5 +58,29 @@
     "channels": "Kênh",
     "integrations": "Kết nối",
     "booking": "Lịch hẹn"
+  },
+  "genui": {
+    "noData": "Không có dữ liệu",
+    "expand": "Mở rộng",
+    "seeAll": "Xem đầy đủ",
+    "modalTitle": "Trợ lý AI",
+    "submit": "Gửi",
+    "renderFailed": "Không hiển thị được phần giao diện này.",
+    "secretHint": "Nhập trực tiếp — giá trị không gửi cho Trợ lý.",
+    "prefillInvalid": "Giá trị gợi ý không hợp lệ, vui lòng nhập lại.",
+    "reEnter": "Phiên nhập đã hết hạn, vui lòng nhập lại ô bí mật.",
+    "qr": {
+      "title": "Quét mã bằng Zalo trên điện thoại",
+      "waiting": "Mở Zalo → Quét mã QR",
+      "scanned": "Đã quét — xác nhận đăng nhập trên điện thoại",
+      "connected": "Đã kết nối",
+      "expired": "Mã đã hết hạn",
+      "failed": "Kết nối không thành công",
+      "declined": "Bạn đã từ chối đăng nhập trên điện thoại",
+      "regenerate": "Tạo mã mới",
+      "alt": "Mã QR đăng nhập Zalo"
+    },
+    "loadingBlock": "Đang dựng giao diện…",
+    "expandMore": "Mở rộng (+{n})"
   }
 }

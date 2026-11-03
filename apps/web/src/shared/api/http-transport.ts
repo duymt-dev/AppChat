@@ -106,8 +106,9 @@ export const httpTransport: Transport = {
       extra: {
         'x-action-source': 'ui',
         ...(opts?.idempotencyKey ? { 'idempotency-key': opts.idempotencyKey } : {}),
+        ...(opts?.genuiIntent ? { 'x-genui-intent': opts.genuiIntent } : {}),
       },
-      body: JSON.stringify({ input, confirm_token: opts?.confirmToken }),
+      body: JSON.stringify({ input, confirm_token: opts?.confirmToken, ...(opts?.secretVault ? { secret_vault: opts.secretVault } : {}) }),
     });
     const body = await parse<{ data: never }>(res);
     if (id === 'workspace.switch' && res.status === 200) setWorkspaceHeader((body.data as { result: { workspace_id: string } }).result.workspace_id);

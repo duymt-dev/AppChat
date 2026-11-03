@@ -161,6 +161,18 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/web/src/shared/genui/hooks/useSecretForm.ts` | New bounded module/DTO/component |
 | C | `apps/web/src/shared/genui/registry.ts` | New bounded module/DTO/component |
 | C | `apps/web/src/shared/genui/types.ts` | New bounded module/DTO/component |
+| M | `apps/web/src/shared/api/mock/handlers.ts` | Register mock GenUI handlers (amended G1) |
+| C | `apps/web/src/shared/api/mock/domains/assistant-ui.ts` | Mock channel.status attempt lifecycle, QR image route, assistant.resume, ui/refs (amended G1; settings-apps.ts at size budget) |
+| C | `apps/web/src/shared/api/mock/genui-vault.ts` | Mock server policy: intent forces preview, secret vault consume-once (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/ChartView.tsx` | Lazy-loaded @ant-design/charts view split from ChartBlock (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/ExpandMore.tsx` | Shared compact "Expand" control (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/NoData.tsx` | Shared unavailable-ref placeholder (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/test-utils.tsx` | Test-only render helper for block tests (amended G1) |
+| C | `apps/web/src/shared/genui/context.ts` | Renderer context (refs/intents/mode) (amended G1) |
+| C | `apps/web/src/shared/genui/format.ts` | Value formatting via fmt + ref reader (amended G1) |
+| C | `apps/web/src/shared/genui/genui-transport.test.ts` | Acceptance evidence: intent preview, vault, QR attempt via mock transport (amended G1) |
+| C | `apps/web/src/shared/genui/genui.styles.ts` | Token-only styles + tone map (amended G1) |
+| C | `apps/web/src/shared/genui/index.ts` | Public entry for features (amended G1) |
 | C | `apps/worker/test/integration/assistant-turn-recovery.test.ts` | Acceptance evidence including negative/replay cases |
 | C | `coding-packs/reports/TIP-023c-completion.md` | New bounded module/DTO/component |
 | C | `fixtures/ai-eval/genui-screen.json` | New bounded module/DTO/component |

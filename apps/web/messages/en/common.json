@@ -58,5 +58,29 @@
     "channels": "Channels",
     "integrations": "Integrations",
     "booking": "Appointments"
+  },
+  "genui": {
+    "noData": "No data",
+    "expand": "Expand",
+    "seeAll": "See all",
+    "modalTitle": "AI Assistant",
+    "submit": "Submit",
+    "renderFailed": "This part of the interface could not be shown.",
+    "secretHint": "Typed here only — never sent to the Assistant.",
+    "prefillInvalid": "The suggested value is invalid, please re-enter it.",
+    "reEnter": "Your entry expired, please re-enter the secret fields.",
+    "qr": {
+      "title": "Scan with Zalo on your phone",
+      "waiting": "Open Zalo → Scan QR code",
+      "scanned": "Scanned — confirm the login on your phone",
+      "connected": "Connected",
+      "expired": "The code has expired",
+      "failed": "Connection failed",
+      "declined": "You declined the login on your phone",
+      "regenerate": "New code",
+      "alt": "Zalo login QR code"
+    },
+    "loadingBlock": "Building the interface…",
+    "expandMore": "Expand (+{n})"
   }
 }
