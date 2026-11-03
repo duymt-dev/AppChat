@@ -189,6 +189,7 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `packages/ai/src/prompts/genui.vi.md` | New bounded module/DTO/component |
 | M | `packages/ai/src/prompts/index.ts` | Runtime/HTTP/transport/current UI wiring |
 | C | `packages/ai/test/delta-stream.test.ts` | Acceptance evidence including negative/replay cases |
+| C | `packages/ai/test/genui-prompt.test.ts` | Acceptance evidence: genui prompt registry = .md, core rules (amended G1) |
 | C | `packages/ai/test/genui-structured-stream.test.ts` | Acceptance evidence including negative/replay cases |
 | M | `packages/core/src/ai/ai.module.ts` | Runtime/HTTP/transport/current UI wiring |
 | M | `packages/core/src/ai/assistant/assistant-prompt.ts` | Runtime/HTTP/transport/current UI wiring |

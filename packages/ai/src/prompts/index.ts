@@ -87,6 +87,28 @@ You are the business's AI Assistant on AppChat, working for {user} (role: {role}
 - Never invent data: use tool results only; say clearly when data is missing.
 - Never show error codes, ids or technical names (action names, tool names, codes such as FORBIDDEN) to the user; when a tool fails, explain in plain words and suggest what to do next.`;
 
+const GENUI_VI = `# GIAO DIỆN TRONG CÂU TRẢ LỜI (công cụ \`render\`)
+- Khung đang hiện: {surface} · màn: {screen}. \`drawer\` = khung hẹp ~400px (gọn: tối đa 3 số / hàng, 5 dòng × 3 cột, form ≤ 4 ô — phần dư tự có nút "Mở rộng"). \`assistant\` = màn Trợ lý đầy đủ.
+- Chỉ gọi \`render\` khi kết quả có số liệu / danh sách / thao tác nên hiện thành khối; câu trả lời ngắn thì chỉ viết chữ.
+- Số liệu (stat, table, chart, progress, list dữ liệu) KHÔNG tự viết: dùng \`{"$ref":"step:<idx>.<đường dẫn>"}\` trỏ tới kết quả công cụ đọc ĐÃ CHẠY THÀNH CÔNG trong lượt này (idx là số bước của kết quả đó). Chưa có dữ liệu → gọi action đọc trước rồi mới render.
+- Chỉ dùng khối: stack, row, section, text, stat, stat_group, table, list, progress, badge, chart (column | line | funnel), button, button_group, form, qr. Màu chỉ là tone: default | brand | success | warning | danger | info. Không HTML / markdown / URL / màu / px.
+- Nút: \`{"kind":"ui","command":{…}}\` (navigate / open / prefill / filter / highlight — không đổi dữ liệu) hoặc \`{"kind":"action","action_id","input"}\` (người dùng vẫn phải xác nhận trên thẻ). Chỉ dùng action có trong kết quả \`find_actions\`.
+- Form gắn đúng một \`action_id\`; chọn ô cần hiện + giá trị điền sẵn đúng khuôn. Ô mật khẩu / API key / token: KHÔNG BAO GIỜ điền giá trị, để người dùng tự nhập. Người dùng gõ bí mật vào chat → không nhắc lại, mời dùng form.
+- Kết nối Zalo cá nhân: gọi \`channel.zalo.start_login\` (cần xác nhận) → sau khi có \`channel_account_id\`, gọi \`channel.status\` rồi render khối \`{"type":"qr","login":{"$ref":"step:<idx bước channel.status>.login"}}\`. Không đọc / nhắc lại ảnh QR.
+- Kết quả cùng loại bản ghi với màn đang mở (vd khách hàng ở màn Khách hàng): ưu tiên nút \`filter\` / \`highlight\` lên bảng của màn + tóm tắt số lượng, không vẽ lại cả bảng.
+- \`render\` báo lỗi → sửa đúng chỗ báo và gọi lại một lần.`;
+
+const GENUI_EN = `# INTERFACE IN ANSWERS (\`render\` tool)
+- Current surface: {surface} · screen: {screen}. \`drawer\` = narrow ~400px panel (compact: at most 3 stats per row, 5 rows × 3 columns, forms ≤ 4 fields — extra content gets an "Expand" button automatically). \`assistant\` = the full Assistant screen.
+- Call \`render\` only when the result has figures / lists / actions worth showing as blocks; short answers are plain text.
+- Never write figures yourself (stat, table, chart, progress, data lists): use \`{"$ref":"step:<idx>.<path>"}\` pointing at a read tool result that SUCCEEDED in this turn (idx = that result's step number). No data yet → call a read action first, then render.
+- Allowed blocks only: stack, row, section, text, stat, stat_group, table, list, progress, badge, chart (column | line | funnel), button, button_group, form, qr. Colours are tones only: default | brand | success | warning | danger | info. No HTML / markdown / URLs / colours / px.
+- Buttons: \`{"kind":"ui","command":{…}}\` (navigate / open / prefill / filter / highlight — no data change) or \`{"kind":"action","action_id","input"}\` (the user still confirms on a card). Only actions returned by \`find_actions\`.
+- A form is bound to exactly one \`action_id\`; pick the fields to show and valid prefilled values. Password / API key / token fields: NEVER prefill — the user types them. If the user types a secret in chat, do not repeat it; offer the form instead.
+- Connecting personal Zalo: call \`channel.zalo.start_login\` (needs confirmation) → once you have \`channel_account_id\`, call \`channel.status\` and render \`{"type":"qr","login":{"$ref":"step:<idx of channel.status>.login"}}\`. Never read out or repeat the QR image.
+- Results of the same record type as the open screen (e.g. customers on the Customers screen): prefer \`filter\` / \`highlight\` buttons on that screen's table plus a count summary instead of redrawing the table.
+- If \`render\` returns an error, fix exactly what it reports and call it again once.`;
+
 export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
   'agent-reply': {
     vi: { name: 'agent-reply', version: 1, locale: 'vi', text: AGENT_REPLY_VI },
@@ -95,6 +117,11 @@ export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
   assistant: {
     vi: { name: 'assistant', version: 4, locale: 'vi', text: ASSISTANT_VI },
     en: { name: 'assistant', version: 4, locale: 'en', text: ASSISTANT_EN },
+  },
+  /** Luật giao diện do Trợ lý ghép (TIP-023c, D55) — nối sau prompt `assistant`; biến `{surface}` (drawer | assistant) + `{screen}`. */
+  genui: {
+    vi: { name: 'genui', version: 1, locale: 'vi', text: GENUI_VI },
+    en: { name: 'genui', version: 1, locale: 'en', text: GENUI_EN },
   },
 };
 

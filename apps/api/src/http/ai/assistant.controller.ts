@@ -15,7 +15,7 @@ const turnBody = z.object({
   session_id: z.string().uuid().optional(),
   tier: z.enum(AI_TIERS).optional(),
   context: z
-    .object({ route: z.string().max(300).optional(), entity: z.string().max(40).optional(), id: z.string().max(80).optional(), selection: z.array(z.string().max(80)).max(50).optional() })
+    .object({ route: z.string().max(300).optional(), entity: z.string().max(40).optional(), id: z.string().max(80).optional(), selection: z.array(z.string().max(80)).max(50).optional(), surface: z.enum(['drawer', 'assistant']).optional() })
     .optional(),
   attachments: z.array(z.object({ id: z.string().max(80), name: z.string().max(200) })).max(10).optional(),
   /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */

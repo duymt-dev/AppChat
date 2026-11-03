@@ -11,6 +11,8 @@ export interface AssistantContext {
   entity?: string;
   id?: string;
   selection?: string[];
+  /** Khung đang hiện câu trả lời (TIP-023c, D55): `drawer` (khung hẹp theo màn) → cây gọn; mặc định `assistant`. */
+  surface?: 'drawer' | 'assistant';
 }
 
 /** Lưu ở `ai_run.input` của run `assistant` — đủ dựng lại system prompt + tool khi chạy tiếp. */
@@ -51,9 +53,14 @@ export async function agentsLine(db: Pick<TenantDb, 'aiAgent'>, none: string): P
   return rows.length ? rows.map((a) => `- ${a.name} (role: ${a.role}, id: ${a.id})`).join('\n') : none;
 }
 
+/** Màn đang mở = đoạn đầu của route (`/customers/123` → `customers`). */
+export function screenOf(route: string | undefined): string {
+  return route?.split(/[/?#]/).find(Boolean)?.slice(0, 40) ?? 'assistant';
+}
+
 export async function assistantSystem(db: Pick<TenantDb, 'aiAgent'>, input: AssistantRunInput, authz: AuthzContext): Promise<string> {
   const m = serverMessages(input.locale).ai.assistant;
-  return prompt('assistant', input.locale, {
+  const base = prompt('assistant', input.locale, {
     user: input.user_name,
     role: input.role,
     mode: input.mode,
@@ -62,4 +69,8 @@ export async function assistantSystem(db: Pick<TenantDb, 'aiAgent'>, input: Assi
     context: contextLine(input.context, input.attachments, m.noContext),
     agents: await agentsLine(db, m.noAgents),
   }).text;
+  const ui = prompt('genui', input.locale, { surface: input.context?.surface ?? 'assistant', screen: screenOf(input.context?.route) }).text;
+  return `${base}
+
+${ui}`;
 }
