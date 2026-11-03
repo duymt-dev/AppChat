@@ -41,6 +41,8 @@ const env = {
   // Postgres dev (max_connections 100) không cạn slot khi chạy toàn bộ song song.
   TENANT_POOL_MAX: '2',
   TENANT_CLIENT_IDLE_MS: '20000',
+  // Redis DB riêng của test (DC-310, mặc định 15): worker của lượt E2E không lấy job BullMQ / khoá rate-limit của tiến trình demo DB 0.
+  REDIS_URL: process.env.E2E_REDIS_URL ?? base.TEST_REDIS_URL ?? (base.REDIS_URL ?? 'redis://127.0.0.1:6379/0').replace(/\/\d+$/, '') + '/15',
 };
 
 const run = (cmd, args, opts = {}) => spawnSync(cmd, args, { stdio: 'inherit', shell: true, cwd: ROOT, ...opts });
@@ -49,13 +51,17 @@ if (!process.argv.includes('--no-build')) {
   if (b.status !== 0) process.exit(b.status ?? 1);
 }
 
+// Worker theo vai trò (mặc định đủ jobs, ai, channels). `E2E_WORKERS=jobs,ai` bỏ worker kênh khi spec không cần — Redis DB test không chung
+// lease với tiến trình demo, nên worker Zalo giả không được nhận phiên tài khoản kênh thật của demo trên cùng Postgres.
+const ROLES = new Set((process.env.E2E_WORKERS ?? 'jobs,ai,channels').split(',').map((r) => r.trim()));
+const worker = (role, extra = {}) => (ROLES.has(role) ? [spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: role, ...extra }, stdio: 'inherit' })] : []);
 const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
-  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'jobs' }, stdio: 'inherit' }),
-  // TIP-014: worker kênh với Zalo giả (Q-003 — chưa có tài khoản Zalo phụ): QR tự "quét" sau 1,5 giây, gửi không trễ.
+  ...worker('jobs'),
   // TIP-020: worker AI — nạp tài liệu kho tri thức (`kb-ingest`, embedding giả).
-  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'ai' }, stdio: 'inherit' }),
-  spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: 'channels', ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch hẹn', MAIL_FAKE_GREETING: 'Spa còn lịch chiều nay không ạ?' }, stdio: 'inherit' }),
+  ...worker('ai'),
+  // TIP-014: worker kênh với Zalo giả (Q-003 — chưa có tài khoản Zalo phụ): QR tự "quét" sau 1,5 giây, gửi không trễ.
+  ...worker('channels', { ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch hẹn', MAIL_FAKE_GREETING: 'Spa còn lịch chiều nay không ạ?' }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();
