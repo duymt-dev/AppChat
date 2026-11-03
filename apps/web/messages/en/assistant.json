@@ -321,5 +321,22 @@
     },
     "unset": "Not set"
   },
-  "genuiConnected": "Connected."
+  "genuiConnected": "Connected.",
+  "sessions": {
+    "open": "History",
+    "title": "Chat history",
+    "close": "Close",
+    "search": "Search by title…",
+    "loading": "Loading…",
+    "empty": "No conversations yet.",
+    "noMatch": "No matching conversations.",
+    "error": "Could not load the list.",
+    "retry": "Retry",
+    "more": "Load more",
+    "untitled": "(Untitled)",
+    "mode": {
+      "chat": "Chat",
+      "cowork": "Cowork"
+    }
+  }
 }

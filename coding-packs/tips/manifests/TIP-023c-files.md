@@ -306,3 +306,10 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | M | `apps/web/e2e/quotes.spec.ts` | Amend (G2): nút "Gợi ý giá" không còn kết quả mẫu — kiểm cây GenUI của lượt thật trong drawer |
 | M | `apps/web/src/features/quotes/styles/ai.styles.ts` | Amend (G2): khoảng cách luồng hội thoại trong drawer Báo giá |
 | C | `apps/web/src/shared/assistant/useDrawerAsk.ts` | Amend (G2): ô hỏi + prompt nút nhanh dùng chung cho 6 drawer (tránh lặp state nháp / gửi ở mỗi drawer) |
+| C | `packages/core/src/ai/assistant/session-list.ts` | Amend (G2.8a): keyset (last_message_at, id) + tìm trigram cho trình duyệt phiên — tách khỏi sessions.ts (giữ trần) |
+| M | `packages/core/src/ai/public.ts` | Amend (G2.8a): export listSessionsPage / cursor helpers |
+| C | `apps/api/test/integration/assistant-sessions.test.ts` | Amend (G2.8a): keyset ổn định khi có phiên mới, tie-break id, tìm không dấu, người khác / lưu trữ ẩn, cursor hỏng 422, EXPLAIN |
+| C | `apps/web/src/features/assistant/components/HistoryButton.tsx` | Amend (G2.8a): nút "Lịch sử" thanh Trợ lý (PD-009) |
+| C | `apps/web/src/features/assistant/hooks/useAssistantSessions.test.tsx` | Amend (G2.8a): debounce + tải thêm theo cursor + khoá theo workspace |
+| C | `apps/web/src/features/assistant/styles/sessions.styles.ts` | Amend (G2.8a): style trình duyệt phiên |
+| M | `coding-packs/docs/06-prototype/DEVIATIONS.md` | Amend (G2.8a): PD-009 trình duyệt phiên (prototype không vẽ) |

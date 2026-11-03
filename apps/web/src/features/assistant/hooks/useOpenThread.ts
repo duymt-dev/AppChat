@@ -17,6 +17,9 @@ export function useOpenThread(allowed: boolean) {
     void sessionMessages(thread)
       .then((r) => useAssistantUi.getState().set({ messages: r.data.map((m) => ({ id: m.id, role: m.role, text: m.text, card: m.card, status: m.status, ui: m.ui })), sessionId: thread, mode: 'cowork', draft: '' }))
       .catch(() => undefined)
-      .finally(() => router.replace('/assistant'));
+      .finally(() => {
+        opened.current = null;
+        router.replace('/assistant');
+      });
   }, [thread, allowed, router]);
 }

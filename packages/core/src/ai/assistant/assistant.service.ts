@@ -19,7 +19,8 @@ import { runTrace } from './run-trace.read';
 import { presentUi } from './genui/history';
 import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
-import { listSessions, sessionMessages } from './sessions';
+import { sessionMessages } from './sessions';
+import { listSessionsPage } from './session-list';
 import { assistantConfirm, assistantTurn, type AssistantDeps, type ConfirmRequest, type TurnRequest } from './turn.service';
 
 export interface Caller {
@@ -97,8 +98,9 @@ export class AssistantService {
     return assistantHome(await this.db(c), (await this.profile(c)).locale);
   }
 
-  async sessions(c: Caller, q: string) {
-    return listSessions(await this.db(c), c.userId, q);
+  /** Trình duyệt phiên (REQ-E10a): keyset theo người gọi; `cursor` / `limit` tuỳ chọn. */
+  async sessions(c: Caller, q: string, page: { cursor?: string; limit?: number } = {}) {
+    return listSessionsPage(await this.db(c), c.userId, { q, ...page });
   }
 
   async messages(c: Caller, id: string) {

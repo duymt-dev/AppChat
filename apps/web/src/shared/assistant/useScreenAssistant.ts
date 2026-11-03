@@ -2,7 +2,7 @@
 // màn hiện hành) và nhận chữ / thẻ xác nhận / cây GenUI gọn. Một phiên mỗi module (giữ khi đóng / mở lại drawer); "Mở trong Trợ lý"
 // chuyển sang màn Trợ lý đầy đủ cùng `session_id`. Lệnh UI chạy qua UI Command Bus; sự kiện phát lại không chạy lại action.
 'use client';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'zustand';
@@ -10,6 +10,7 @@ import type { ConfirmEventDto, GenUiPart, TurnEventDto, UiCommand } from '@appch
 import { postConfirm, postTurn, type AssistantMode } from './assistant-client';
 import { currentScreen, toTurnContext } from './screen-context';
 import { dispatchUiCommand } from './ui-command-bus';
+import { useMe } from '../shell/useShellData';
 
 export interface ScreenMsg {
   id: string;
@@ -30,7 +31,10 @@ interface Thread {
 }
 
 interface ScreenAssistantState {
+  /** Workspace của các phiên đang giữ — đổi workspace thì bỏ hết (không lẫn phiên giữa workspace). */
+  ws: string;
   threads: Record<string, Thread>;
+  bindWorkspace: (ws: string) => void;
   patch: (module: string, p: Partial<Thread> | ((t: Thread) => Partial<Thread>)) => void;
   reset: () => void;
 }
@@ -39,7 +43,9 @@ const EMPTY: Thread = { msgs: [], typing: false };
 
 /** Phiên theo module — reset khi đổi workspace (không lẫn phiên giữa workspace). */
 export const useScreenThreads = create<ScreenAssistantState>((set) => ({
+  ws: '',
   threads: {},
+  bindWorkspace: (ws) => set((s) => (s.ws === ws ? s : { ws, threads: {} })),
   patch: (module, p) => set((s) => {
     const cur = s.threads[module] ?? EMPTY;
     return { threads: { ...s.threads, [module]: { ...cur, ...(typeof p === 'function' ? p(cur) : p) } } };
@@ -71,8 +77,12 @@ export function useScreenAssistant(module: string, mode: AssistantMode = 'cowork
   const router = useRouter();
   const pathname = usePathname();
   const qc = useQueryClient();
+  const ws = useMe().data?.current_workspace_id ?? '';
   const thread = useScreenThreads((s) => s.threads[module] ?? EMPTY);
   const patch = useScreenThreads((s) => s.patch);
+  useEffect(() => {
+    if (ws) useScreenThreads.getState().bindWorkspace(ws);
+  }, [ws]);
 
   const runUi = useCallback(
     (cmd: UiCommand) => {

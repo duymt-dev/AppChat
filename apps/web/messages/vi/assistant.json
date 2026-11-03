@@ -321,5 +321,22 @@
     },
     "unset": "Không chọn"
   },
-  "genuiConnected": "Đã kết nối xong."
+  "genuiConnected": "Đã kết nối xong.",
+  "sessions": {
+    "open": "Lịch sử",
+    "title": "Lịch sử trò chuyện",
+    "close": "Đóng",
+    "search": "Tìm theo tiêu đề…",
+    "loading": "Đang tải…",
+    "empty": "Chưa có cuộc trò chuyện nào.",
+    "noMatch": "Không có cuộc trò chuyện khớp.",
+    "error": "Không tải được danh sách.",
+    "retry": "Thử lại",
+    "more": "Tải thêm",
+    "untitled": "(Không tiêu đề)",
+    "mode": {
+      "chat": "Chat",
+      "cowork": "Cowork"
+    }
+  }
 }

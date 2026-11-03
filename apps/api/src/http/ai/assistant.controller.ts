@@ -80,8 +80,9 @@ export class AssistantController {
   }
 
   @Get('assistant/sessions')
-  async sessions(@Req() req: IncomingMessage, @Query('q') q?: string) {
-    return { data: await this.svc.sessions(await this.caller(req, 'assistant.use'), (q ?? '').slice(0, 100)), next_cursor: null };
+  async sessions(@Req() req: IncomingMessage, @Query('q') q?: string, @Query('cursor') cursor?: string, @Query('limit') limit?: string) {
+    const n = Number(limit);
+    return this.svc.sessions(await this.caller(req, 'assistant.use'), (q ?? '').slice(0, 100), { ...(cursor ? { cursor: cursor.slice(0, 200) } : {}), ...(Number.isInteger(n) && n > 0 ? { limit: n } : {}) });
   }
 
   @Get('assistant/sessions/:id/messages')

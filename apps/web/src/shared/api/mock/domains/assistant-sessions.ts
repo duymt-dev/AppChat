@@ -2,8 +2,10 @@
 // tiêu đề) và /assistant/sessions/:id/messages (cũ → mới, mỗi phần một bong bóng như server) — "Mở trong Trợ lý" nạp lại phiên của
 // drawer mà không gọi model. Trạng thái thẻ đọc lại từ hàng chờ xác nhận hiện hành.
 import { ApiRequestError } from '@appchat/shared';
-import type { MockRoute } from '../routes';
-import type { MockDb } from '../store';
+
+/** Chỉ phần state cần đọc (trạng thái thẻ) — không import store / routes để tránh vòng phụ thuộc mock. */
+type Db = { assistant: { pending: { token: string; status: string }[] } };
+type Route = (db: Db, params: Record<string, unknown>) => unknown;
 
 type Event = { type: string; text?: string; confirm_token?: string; [k: string]: unknown };
 interface Msg {
@@ -40,20 +42,28 @@ export function recordTurn(session: string, mode: string, text: string, events: 
 
 export const resetSessions = () => sessions.clear();
 
-const statusOf = (db: MockDb, token?: string) => {
+const statusOf = (db: Db, token?: string) => {
   const st = db.assistant.pending.find((p) => p.token === token)?.status;
   return st === 'done' ? 'done' : st === 'cancelled' ? 'cancelled' : 'pending';
 };
 
-export const assistantSessionRoutes: Record<string, MockRoute> = {
+export const assistantSessionRoutes: Record<string, Route> = {
+  // Keyset như server: (last_message_at, id) giảm dần; cursor = vị trí của dòng cuối trang trước.
   '/assistant/sessions': (_db, p) => {
     const q = String(p.q ?? '').trim().toLowerCase();
-    const rows = [...sessions.values()].filter((s) => !q || s.title.toLowerCase().includes(q)).sort((a, b) => b.last.localeCompare(a.last));
-    return { data: rows.map((s) => ({ id: s.id, title: s.title, mode: s.mode, last_message_at: s.last })), next_cursor: null };
+    const limit = Math.min(Number(p.limit) || 30, 50);
+    const key = (s: Session) => `${s.last}|${s.id}`;
+    const after = p.cursor ? atob(String(p.cursor)) : null;
+    const rows = [...sessions.values()]
+      .filter((s) => !q || s.title.toLowerCase().includes(q))
+      .sort((a, b) => key(b).localeCompare(key(a)))
+      .filter((s) => !after || key(s) < after);
+    const page = rows.slice(0, limit);
+    return { data: page.map((s) => ({ id: s.id, title: s.title, mode: s.mode, last_message_at: s.last })), next_cursor: rows.length > limit ? btoa(key(page.at(-1)!)) : null };
   },
 };
 
-export const assistantSessionParamRoute = (path: string): MockRoute | null => {
+export const assistantSessionParamRoute = (path: string): Route | null => {
   const m = path.match(/^\/assistant\/sessions\/([^/]+)\/messages$/);
   if (!m) return null;
   return (db) => {

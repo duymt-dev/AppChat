@@ -43,3 +43,16 @@ describe('screen-context', () => {
     expect(commands).toEqual([{ type: 'highlight', target: 'contact:ct_lan' }]);
   });
 });
+
+describe('phiên drawer theo workspace', () => {
+  it('đổi workspace → bỏ mọi phiên drawer (không lẫn giữa workspace); cùng workspace giữ nguyên', async () => {
+    const { useScreenThreads } = await import('./useScreenAssistant');
+    const st = useScreenThreads.getState();
+    st.bindWorkspace('ws_a');
+    st.patch('customers', { sessionId: 'as_1', msgs: [{ id: 'm', role: 'user', text: 'x' }] });
+    useScreenThreads.getState().bindWorkspace('ws_a');
+    expect(useScreenThreads.getState().threads.customers?.sessionId).toBe('as_1');
+    useScreenThreads.getState().bindWorkspace('ws_b');
+    expect(useScreenThreads.getState().threads).toEqual({});
+  });
+});

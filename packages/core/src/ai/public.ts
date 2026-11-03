@@ -41,6 +41,7 @@ export { confirmCard, lookOf } from './assistant/card';
 export { assistantSystem, contextLine, type AssistantContext, type AssistantRunInput } from './assistant/assistant-prompt';
 export { assistantTools, ASSISTANT_TOOLS, type AssistantTurnCtx } from './assistant/meta-tools';
 export { listSessions, sessionMessages, historyMessages, HISTORY_LIMIT } from './assistant/sessions';
+export { listSessionsPage, encodeSessionCursor, decodeSessionCursor } from './assistant/session-list';
 export { listActionLogs, kindOf as logKindOf, LOG_KINDS, LOG_STATUSES, LOG_DAYS, type LogFilter } from './assistant/action-logs.read';
 export { assistantHome } from './assistant/home.read';
 // TIP-035 — Tác vụ tự chủ & chủ động.

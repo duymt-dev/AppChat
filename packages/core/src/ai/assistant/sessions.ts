@@ -2,11 +2,12 @@
 // (text / card + trạng thái / ui_command). Lịch sử đưa vào model = ≤ 30 tin gần nhất (chữ + tóm tắt thẻ) — không gửi lại JSON thô.
 // Tìm phiên không dấu theo tiêu đề: `f_unaccent(lower(title)) LIKE` (index trigram `assistant_session_title_trgm_idx`).
 import type { RunMessage } from '@appchat/ai';
-import { TenantSql, type TenantDb } from '@appchat/db';
-import { AppError, foldText, type AssistantMessageDto, type AssistantSessionDto, type ConfirmEventDto, type UiCommandDto } from '@appchat/shared';
+import type { TenantDb } from '@appchat/db';
+import { AppError, type AssistantMessageDto, type AssistantSessionDto, type ConfirmEventDto, type UiCommandDto } from '@appchat/shared';
 import { uuidv7 } from '../../kernel/ids';
 import type { AssistantMode } from './catalog';
 import type { StoredUiPart } from './genui/history';
+import { listSessionsPage } from './session-list';
 
 export const HISTORY_LIMIT = 30;
 const SESSIONS_LIMIT = 50;
@@ -122,16 +123,7 @@ export async function sessionMessages(db: Db, userId: string, id: string, limit 
   return out;
 }
 
-/** `GET /assistant/sessions?q=` — phiên chưa lưu trữ của người gọi, mới nhất trước; `q` tìm không dấu theo tiêu đề. */
+/** `GET /assistant/sessions?q=` — trang đầu (giữ chữ ký cũ); phân trang keyset ở session-list.ts. */
 export async function listSessions(db: Db, userId: string, q = ''): Promise<AssistantSessionDto[]> {
-  const term = foldText(q).slice(0, 100);
-  const rows = term
-    ? await db.$queryRaw<{ id: string; title: string; mode: 'chat' | 'cowork'; last_message_at: Date }[]>(TenantSql.sql`
-        SELECT id, title, mode, last_message_at FROM assistant_session
-        WHERE user_id = ${userId}::uuid AND archived_at IS NULL AND f_unaccent(lower(title)) LIKE ${`%${term.replace(/[%_\\]/g, '\\$&')}%`}
-        ORDER BY last_message_at DESC LIMIT ${SESSIONS_LIMIT}`)
-    : (
-        await db.assistantSession.findMany({ where: { userId, archivedAt: null }, orderBy: { lastMessageAt: 'desc' }, take: SESSIONS_LIMIT, select: { id: true, title: true, mode: true, lastMessageAt: true } })
-      ).map((s) => ({ id: s.id, title: s.title, mode: s.mode, last_message_at: s.lastMessageAt }));
-  return rows.map((s) => ({ id: s.id, title: s.title, mode: s.mode, last_message_at: s.last_message_at.toISOString() }));
+  return (await listSessionsPage(db, userId, { q, limit: SESSIONS_LIMIT })).data;
 }

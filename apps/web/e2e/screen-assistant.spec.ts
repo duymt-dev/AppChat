@@ -104,6 +104,35 @@ test.describe('screen-assistant', () => {
     await expect(box.getByTestId('screen-ai-msg').first()).not.toBeEmpty();
   });
 
+  test('lịch sử trò chuyện: tìm theo tiêu đề, mở lại phiên → tin + cây dựng lại, không gọi model', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    const drawer = await openDrawer(page);
+    await drawer.getByTestId('crm-ai-run-pipeline').click();
+    await expect(drawer.getByTestId('genui')).toBeVisible();
+    // Điều hướng phía client (mock giữ phiên trong bộ nhớ trang): "Mở trong Trợ lý" rồi "Cuộc trò chuyện mới".
+    await drawer.getByTestId('crm-ai-full').click();
+    await expect(page).toHaveURL(/\/assistant$/);
+    await page.getByTestId('asst-new-chat').click();
+    await page.getByTestId('asst-composer').locator('textarea').fill('Doanh thu tuần này so với mục tiêu?');
+    await page.getByTestId('asst-composer').locator('textarea').press('Enter');
+    await expect(page.getByTestId('genui')).toBeVisible();
+    await page.getByTestId('asst-history').click();
+    const box = page.getByTestId('asst-sessions');
+    await expect(box.getByTestId('asst-session')).toHaveCount(2);
+    await box.getByTestId('asst-sessions-search').fill('pipeline');
+    await expect(box.getByTestId('asst-session')).toHaveCount(1);
+    await box.getByTestId('asst-session').click();
+    await expect(page).toHaveURL(/\/assistant$/);
+    await expect(page.getByTestId('genui')).toContainText('8.420');
+    await expect(page.getByText('Phân tích pipeline khách hàng theo giai đoạn', { exact: false }).first()).toBeVisible();
+    // Mở lại = chỉ nạp tin đã lưu: đúng 1 câu hỏi + trả lời cũ, không có lượt mới.
+    await expect(page.getByTestId('asst-user-msg')).toHaveCount(1);
+    await expect(page.getByText('Pipeline khách hàng hiện tại:')).toHaveCount(1);
+    await page.getByTestId('asst-history').click();
+    await box.getByTestId('asst-sessions-search').fill('khong-co-dau-vet');
+    await expect(box.getByTestId('asst-sessions-empty')).toBeVisible();
+  });
+
   test('mobile: drawer không tràn ngang khi có cây', async ({ page }) => {
     test.skip(!isMobile(page), 'mobile');
     const drawer = await openDrawer(page);
