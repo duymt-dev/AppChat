@@ -88,6 +88,13 @@ describe('--cases suite bổ sung', () => {
     expect(() => resolveCasesPath('tools/ai-live/src/cases.ts')).toThrow(/file_type/);
   });
 
+  it('suite luồng dọc fixtures/ai-eval/assistant-vertical.json nạp được, không đổi mẫu số 30', () => {
+    const s = selectSuite({ cases: 'fixtures/ai-eval/assistant-vertical.json' });
+    expect(s.suite).toBe('assistant-vertical');
+    expect(s.cases.length).toBeGreaterThanOrEqual(8);
+    expect(loadDefault().cases).toHaveLength(DEFAULT_COUNT);
+  });
+
   it('tham số lạ / thiếu giá trị → lỗi', () => {
     expect(() => parseArgs(['--case', 'x'])).toThrow(/unknown_arg/);
     expect(() => parseArgs(['--cases'])).toThrow(/missing_value/);
