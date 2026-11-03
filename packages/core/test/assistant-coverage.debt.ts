@@ -14,7 +14,6 @@ export const PREVIEW_DEBT: ReadonlySet<string> = new Set([
   'category.create',
   'channel.disconnect', 'channel.email.connect', 'channel.pause', 'channel.reconnect', 'channel.resume', 'channel.sync_history', 'channel.update_settings', 'channel.zalo.start_login',
   'contact.send_email',
-  'contract.create', 'contract.create_from_quote', 'contract.delete', 'contract.extend_sign_link', 'contract.reject_internal', 'contract.remind_signer', 'contract.renew', 'contract.request_changes', 'contract.submit', 'contract.terminate', 'contract.update',
   'doc_template.update',
   'governance.update',
   'integration.connect', 'integration.disconnect', 'integration.register_interest',

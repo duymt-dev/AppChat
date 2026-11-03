@@ -12,6 +12,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, actorUserId } from '../../crm/public';
 import { lockContract } from '../contract-access';
+import { createPreview, deletePreview, fromQuotePreview, renewPreview, updatePreview } from './previews/contract-write.handlers.preview';
 import { actorNameOf, checkContractParties, checkDates, fieldCols, logSignEvent, type ContractFields } from '../services/contract-write';
 
 type Out = { contract_id: string; code: string };
@@ -77,6 +78,10 @@ export class ContractCreateHandler implements Handler<ActionInput<typeof contrac
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx, this.clock.now());
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractCreate>, tx: TenantTx) {
+    return createPreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -108,6 +113,10 @@ export class ContractFromQuoteHandler implements Handler<ActionInput<typeof cont
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx, this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractCreateFromQuote>, tx: TenantTx) {
+    return fromQuotePreview(ctx, tx, this.members, input);
   }
 }
 
@@ -144,6 +153,10 @@ export class ContractUpdateHandler implements Handler<ActionInput<typeof contrac
       data: { number: b.number as string, kind: b.kind as 'service', title: b.title as string, value: BigInt(b.value), signedDate: d(b.signedDate), startDate: d(b.startDate), endDate: d(b.endDate), fileName: b.fileName as string, note: b.note as string, ownerUserId: (b.ownerUserId as string | null) ?? null },
     });
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractUpdate>, tx: TenantTx) {
+    return updatePreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -163,6 +176,10 @@ export class ContractDeleteHandler implements Handler<ActionInput<typeof contrac
     // Báo giá đã có hợp đồng khác trong lúc chờ → khôi phục không kèm liên kết báo giá.
     const taken = b.quote_id ? await tx.contract.findFirst({ where: { quoteId: b.quote_id }, select: { id: true } }) : null;
     await tx.contract.update({ where: { id: b.id }, data: { deletedAt: null, quoteId: taken ? null : b.quote_id } });
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractDelete>, tx: TenantTx) {
+    return deletePreview(ctx, tx, input);
   }
 }
 
@@ -191,5 +208,9 @@ export class ContractRenewHandler implements Handler<ActionInput<typeof contract
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx, this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractRenew>, tx: TenantTx) {
+    return renewPreview(ctx, tx, this.members, input);
   }
 }

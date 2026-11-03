@@ -15,6 +15,7 @@ import { ContractDeps } from '../services/contract-deps';
 import { renderContractPdf, storeContractPdf } from '../services/contract-doc';
 import { sameOtp } from '../services/sign-link';
 import { actorNameOf, logSignEvent, moveContract } from '../services/contract-write';
+import { approveSignPreview, rejectInternalPreview, requestChangesPreview, submitPreview } from './previews/contract-approval.handlers.preview';
 
 type Out = { contract_id: string; status: string };
 const cut = (s: string) => s.slice(0, 200);
@@ -49,6 +50,10 @@ export class ContractSubmitHandler implements Handler<ActionInput<typeof contrac
       ],
     };
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractSubmit>, tx: TenantTx) {
+    return submitPreview(ctx, tx, input);
+  }
 }
 
 /** Trả về nháp (yêu cầu sửa / từ chối nội bộ) — lý do ghi vào nhật ký hợp đồng. */
@@ -71,6 +76,10 @@ export class ContractRequestChangesHandler implements Handler<ActionInput<typeof
   async execute(ctx: ActionContext, input: ActionInput<typeof contractRequestChanges>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     return { result: await backToDraft(ctx, tx, this.members, input.contract_id, 'contract.request_changes', 'changes_requested', input.reason, this.clock.now()) };
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractRequestChanges>, tx: TenantTx) {
+    return requestChangesPreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -83,6 +92,10 @@ export class ContractRejectInternalHandler implements Handler<ActionInput<typeof
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractRejectInternal>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     return { result: await backToDraft(ctx, tx, this.members, input.contract_id, 'contract.reject_internal', 'rejected_internal', input.reason, this.clock.now()) };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractRejectInternal>, tx: TenantTx) {
+    return rejectInternalPreview(ctx, tx, input);
   }
 }
 
@@ -153,7 +166,6 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
   }
 
   async preview(ctx: ActionContext, input: SignIn, tx: TenantTx) {
-    const c = await visibleContract(tx, ctx.authz, input.contract_id);
-    return { summary: `${c.code} · ${c.title}`, risk: 'money' as const };
+    return approveSignPreview(ctx, tx, input);
   }
 }

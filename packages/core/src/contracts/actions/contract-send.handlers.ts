@@ -19,6 +19,7 @@ import { ContractDeps } from '../services/contract-deps';
 import { issueLink, liveToken, saveLink, type IssuedLink } from '../services/contract-link';
 import { signUrl } from '../services/sign-link';
 import { actorNameOf, logSignEvent, moveContract } from '../services/contract-write';
+import { extendPreview, remindPreview, sendPreview, terminatePreview } from './previews/contract-send.handlers.preview';
 
 const actorOf = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
 
@@ -82,8 +83,7 @@ export class ContractSendHandler implements Handler<SendIn, SendOut> {
   }
 
   async preview(ctx: ActionContext, input: SendIn, tx: TenantTx) {
-    const c = await visibleContract(tx, ctx.authz, input.contract_id);
-    return { summary: `${c.code} · ${c.title}`, risk: 'send' as const };
+    return sendPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
   }
 }
 
@@ -115,6 +115,10 @@ export class ContractRemindHandler implements Handler<ActionInput<typeof contrac
     const sent = await notifyCustomer(ctx, tx, this.d, this.members, c, text, now);
     await logSignEvent(tx, { contractId: c.id, type: 'reminded', actorName: await actorNameOf(ctx, this.members), at: now });
     return { result: { contract_id: c.id }, events: sent.events, afterCommit: () => enqueueOutgoing(this.queue, ctx.workspaceId, sent.out) };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractRemindSigner>, tx: TenantTx) {
+    return remindPreview(ctx, tx, input, this.clock.now());
   }
 }
 
@@ -148,6 +152,10 @@ export class ContractExtendLinkHandler implements Handler<ActionInput<typeof con
     const sent = await notifyCustomer(ctx, tx, this.d, this.members, c, interpolate(m.extended, { code: c.code, expires: fmt.date(expiresAt), link: signUrl(this.d.need('env').appBase, live.token) }), now);
     return { result, events: sent.events, afterCommit: () => enqueueOutgoing(this.queue, ctx.workspaceId, sent.out) };
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractExtendSignLink>, tx: TenantTx) {
+    return extendPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
+  }
 }
 
 @Injectable()
@@ -170,5 +178,9 @@ export class ContractTerminateHandler implements Handler<ActionInput<typeof cont
       result: { contract_id: c.id, status: to },
       events: [{ topic: 'contract.terminated', payload: { contract_id: c.id, contact_id: c.contactId, code: c.code, reason } }],
     };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractTerminate>, tx: TenantTx) {
+    return terminatePreview(ctx, tx, input);
   }
 }
