@@ -75,7 +75,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | # | TIP | Wave | Trạng thái | Nhánh | SHA | PR |
 |---|-----|------|-----------|-------|-----|----|
 | 1 | [023b](../tips/TIP-023b-assistant-coverage.md) | W8 | DONE | `tip/023b-assistant-coverage` | `d373fea` | [#51](https://github.com/duymt-dev/AppChat/pull/51) |
-| 2 | [023c](../tips/TIP-023c-generative-ui.md) | W8 | chờ | `tip/023c-generative-ui` | | |
+| 2 | [023c](../tips/TIP-023c-generative-ui.md) | W8 | đang làm (G1 PR, G2 tiếp) | `tip/023c-generative-ui` | `2dd87b0` (G1) | [#52](https://github.com/duymt-dev/AppChat/pull/52) (G1, xếp chồng #51) |
 | 3 | [030b](../tips/TIP-030b-contract-files.md) | W8 | chờ | `tip/030b-contract-files` | | |
 | 4 | [032b](../tips/TIP-032b-commerce-gaps.md) | W8 | chờ | `tip/032b-commerce-gaps` | | |
 | 5 | [015b](../tips/TIP-015b-contact-memory.md) | W8 | chờ | `tip/015b-contact-memory` | | |
