@@ -13,7 +13,7 @@ async function upload(name: string, body: Buffer, mime: string, who?: Who) {
   form.set('purpose', 'document');
   form.set('file', new Blob([new Uint8Array(body)], { type: mime }), name);
   const r = await fetch(`${m.h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': m.h.ws, authorization: `Bearer ${who ? who.token : m.h.tokenFor(m.h.user)}` }, body: form });
-  return ((await r.json()) as { data: { file_id: string } }).data.file_id;
+  return ((await r.json()) as { data?: { file_id: string } }).data?.file_id as string;
 }
 
 beforeAll(async () => {
@@ -32,12 +32,13 @@ describe('contract.inspect_file', () => {
     expect(await (await m.db()).contract.count()).toBe(0);
   });
 
-  it('403 cs · tệp người khác → forbidden · .exe đổi đuôi → unsupported_type · macro / JavaScript bị từ chối', async () => {
+  it('403 cs · tệp người khác → forbidden · .exe đổi đuôi / macro bị chặn ở cổng tải tệp · JavaScript bị từ chối', async () => {
     const f = await upload('hd.pdf', pdf(), 'application/pdf');
     expect((await m.act({ file_id: f }, m.cs)).status).toBe(403);
     expect((await m.act({ file_id: f }, m.sales)).body.error.fields).toEqual({ file_id: 'forbidden' });
-    expect((await m.act({ file_id: await upload('x.pdf', badPdf.renamedExe(), 'application/pdf') })).body.error.fields).toEqual({ file: 'unsupported_type' });
-    expect((await m.act({ file_id: await upload('m.docx', badDocx.macro(), DOCX) })).body.error.fields).toEqual({ file: 'macro' });
+    // TIP-045b: .exe đổi đuôi .pdf và gói có macro bị cổng tải tệp chặn trước khi có file_id.
+    expect(await upload('x.pdf', badPdf.renamedExe(), 'application/pdf')).toBeUndefined();
+    expect(await upload('m.docx', badDocx.macro(), DOCX)).toBeUndefined();
     expect((await m.act({ file_id: await upload('j.pdf', badPdf.javascript(), 'application/pdf') })).body.error.fields).toEqual({ file: 'active_content' });
     expect((await m.act({ file_id: 'not-a-uuid' })).body.error.fields).toEqual({ file_id: 'not_found' });
   });

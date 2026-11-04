@@ -5,6 +5,7 @@
 // thực thi (oleObject / activeX / .exe / .bin), không field code tự chạy (DDE / INCLUDETEXT / INCLUDEPICTURE trỏ ra ngoài).
 import PizZip from 'pizzip';
 import { AppError } from '@appchat/shared';
+import { checkZipShape, zipEntries as readZip, ZipRefusedError, type ZipEntry } from '../../kernel/files/zip-guard';
 
 export const DOCX_LIMITS = { maxBytes: 10 * 1024 * 1024, entries: 2000, expanded: 100 * 1024 * 1024, perEntry: 20 * 1024 * 1024, ratio: 100 } as const;
 
@@ -14,59 +15,17 @@ const refuse = (reason: DocxRefusal): never => {
   throw new AppError('VALIDATION_FAILED', 422, { file: reason });
 };
 
-const EOCD_SIG = 0x06054b50;
-const CEN_SIG = 0x02014b50;
-
-interface Entry {
-  name: string;
-  compressed: number;
-  size: number;
+/** Central directory DOCX (giữ tên cũ cho test / chỗ gọi) — đọc bằng zip-guard của kernel, lỗi đổi về lý do DOCX. */
+export function zipEntries(buf: Uint8Array): ZipEntry[] {
+  return asDocx(() => readZip(buf, DOCX_LIMITS.entries));
 }
 
-/** Đọc central directory (không giải nén). ZIP64 / đa đĩa → coi là không hợp lệ (DOCX ≤ 10MB không cần). */
-export function zipEntries(buf: Uint8Array): Entry[] {
-  const v = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
-  // EOCD ở cuối, có thể kèm comment ≤ 65535 byte.
-  let eocd = -1;
-  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 22 - 0xffff); i--) {
-    if (v.getUint32(i, true) === EOCD_SIG) {
-      eocd = i;
-      break;
-    }
-  }
-  if (eocd < 0) refuse('not_docx');
-  const count = v.getUint16(eocd + 10, true);
-  const cdSize = v.getUint32(eocd + 12, true);
-  const cdOff = v.getUint32(eocd + 16, true);
-  if (count === 0xffff || cdOff === 0xffffffff || cdOff + cdSize > buf.length) refuse('not_docx');
-  if (count > DOCX_LIMITS.entries) refuse('zip_bomb');
-  const out: Entry[] = [];
-  let p = cdOff;
-  const dec = new TextDecoder('utf-8', { fatal: false });
-  for (let n = 0; n < count; n++) {
-    if (p + 46 > buf.length || v.getUint32(p, true) !== CEN_SIG) refuse('not_docx');
-    const compressed = v.getUint32(p + 20, true);
-    const size = v.getUint32(p + 24, true);
-    const nameLen = v.getUint16(p + 28, true);
-    const extraLen = v.getUint16(p + 30, true);
-    const commentLen = v.getUint16(p + 32, true);
-    if (compressed === 0xffffffff || size === 0xffffffff) refuse('zip_bomb');
-    out.push({ name: dec.decode(buf.subarray(p + 46, p + 46 + nameLen)), compressed, size });
-    p += 46 + nameLen + extraLen + commentLen;
-  }
-  return out;
-}
-
-/** Giới hạn trước inflate: tổng / từng entry / tỷ lệ nén / tên entry an toàn. */
-export function checkZipShape(entries: readonly Entry[]): void {
-  let total = 0;
-  for (const e of entries) {
-    if (e.name.startsWith('/') || e.name.includes('\\') || /^[a-z]:/i.test(e.name) || e.name.split('/').includes('..')) refuse('path_traversal');
-    if (e.size > DOCX_LIMITS.perEntry) refuse('zip_bomb');
-    if (e.compressed > 0 && e.size / e.compressed > DOCX_LIMITS.ratio) refuse('zip_bomb');
-    if (e.compressed === 0 && e.size > 0) refuse('zip_bomb');
-    total += e.size;
-    if (total > DOCX_LIMITS.expanded) refuse('zip_bomb');
+function asDocx<T>(fn: () => T): T {
+  try {
+    return fn();
+  } catch (e) {
+    if (e instanceof ZipRefusedError) return refuse(e.reason === 'not_zip' ? 'not_docx' : e.reason);
+    throw e;
   }
 }
 
@@ -83,7 +42,7 @@ export function inspectDocx(body: Uint8Array): PizZip {
   if (body.length >= 8 && body[0] === 0xd0 && body[1] === 0xcf && body[2] === 0x11 && body[3] === 0xe0) refuse('encrypted');
   if (!(body[0] === 0x50 && body[1] === 0x4b)) refuse('not_docx');
   const entries = zipEntries(body);
-  checkZipShape(entries);
+  asDocx(() => checkZipShape(entries, DOCX_LIMITS));
   let zip: PizZip;
   try {
     zip = new PizZip(body);

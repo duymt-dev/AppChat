@@ -15,13 +15,14 @@ async function upload(name: string, body: Buffer) {
   form.set('purpose', 'document');
   form.set('file', new Blob([new Uint8Array(body)]), name);
   const r = await fetch(`${m.h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': m.h.ws, authorization: `Bearer ${m.h.token}` }, body: form });
-  return ((await r.json()) as { data: { file_id: string } }).data.file_id;
+  return ((await r.json()) as { data?: { file_id: string } }).data?.file_id as string;
 }
 
 beforeAll(async () => {
   m = await matrix('doc_template.detect_fields');
   docx = await upload('hop-dong-spa.docx', fx('hop-dong-spa.docx'));
-  txt = await upload('ghi-chu.txt', Buffer.from('xin chao'));
+  // Tệp purpose document không phải DOCX (PDF) — qua cổng tải tệp (TIP-045b chặn .txt với purpose document) rồi bị lớp mẫu từ chối.
+  txt = await upload('ghi-chu.pdf', Buffer.from('%PDF-1.4 x'));
 }, 120_000);
 afterAll(() => m?.close());
 

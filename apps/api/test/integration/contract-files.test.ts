@@ -95,11 +95,14 @@ const as = (u: { id: string }) => ({ authorization: `Bearer ${h.tokenFor(u.id)}`
 const actAs = (id: string, input: unknown, who: { id: string }) => call(h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...as(who) }).then(json);
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
-async function upload(name: string, body: Buffer, mime: string, who?: { id: string }, purpose = 'document') {
+function rawUpload(name: string, body: Buffer, mime: string, who?: { id: string }, purpose = 'document') {
   const form = new FormData();
   form.set('purpose', purpose);
   form.set('file', new Blob([new Uint8Array(body)], { type: mime }), name);
-  const r = await fetch(`${h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${h.tokenFor(who ? who.id : h.user)}` }, body: form });
+  return fetch(`${h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${h.tokenFor(who ? who.id : h.user)}` }, body: form });
+}
+async function upload(name: string, body: Buffer, mime: string, who?: { id: string }, purpose = 'document') {
+  const r = await rawUpload(name, body, mime, who, purpose);
   expect(r.status).toBe(201);
   return ((await r.json()) as { data: { file_id: string } }).data.file_id;
 }
@@ -127,10 +130,10 @@ describe('hợp đồng từ tệp PDF tải lên (AC1)', () => {
     const r = ok(await act('contract.inspect_file', { file_id: fileId })).result as unknown as { type: string; pages: number; sha256: string; fields: { value: { value: string } | null } };
     expect(r).toMatchObject({ type: 'pdf', pages: 2, sha256: sha(src) });
     expect(r.fields.value?.value).toBe('7500000');
-    const exe = await upload('virus.pdf', badPdf.renamedExe(), 'application/pdf');
-    const bad = await act('contract.create', { contact_id: contact, kind: 'service', value: '1000000', source: { type: 'file', file_id: exe } });
-    expect(bad.status).toBe(422);
-    expect(bad.body.error?.fields).toMatchObject({ file: 'unsupported_type' });
+    // TIP-045b: .exe đổi đuôi .pdf bị cổng tải tệp chặn ngay ở POST /v1/files (415) — không có file_id để tạo hợp đồng.
+    const exe = await rawUpload('virus.pdf', badPdf.renamedExe(), 'application/pdf');
+    expect(exe.status).toBe(415);
+    expect(((await exe.json()) as { error: { fields: Record<string, string> } }).error.fields).toEqual({ file: 'executable' });
     const js = await upload('js.pdf', badPdf.javascript(), 'application/pdf');
     expect((await act('contract.inspect_file', { file_id: js })).body.error?.fields).toMatchObject({ file: 'active_content' });
     expect(await (await tenant()).contract.count({ where: { contactId: contact } })).toBe(0);
@@ -197,8 +200,10 @@ describe('hợp đồng từ DOCX (spec 6)', () => {
     const r = ok(await act('contract.inspect_file', { file_id: f })).result as unknown as { type: string; fields: { party_b: { value: string } | null } };
     expect(r.type).toBe('docx');
     expect(r.fields.party_b?.value).toBe('Nguyễn Văn An');
-    const macro = await upload('m.docx', badDocx.macro(), DOCX);
-    expect((await act('contract.inspect_file', { file_id: macro })).body.error?.fields).toMatchObject({ file: 'macro' });
+    // TIP-045b: gói có vbaProject bị cổng tải tệp chặn (422 macro) trước khi có file_id; lớp domain vẫn có unit test riêng.
+    const macro = await rawUpload('m.docx', badDocx.macro(), DOCX);
+    expect(macro.status).toBe(422);
+    expect(((await macro.json()) as { error: { fields: Record<string, string> } }).error.fields).toEqual({ file: 'macro' });
     const id = ok(await act('contract.create', { contact_id: contact, kind: 'service', value: '3000000', source: { type: 'file', file_id: f } })).result.contract_id;
     const res = await approve(id);
     const c = await (await tenant()).contract.findUniqueOrThrow({ where: { id } });

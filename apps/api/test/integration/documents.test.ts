@@ -45,7 +45,7 @@ async function upload(name: string, body: Buffer) {
   form.set('purpose', 'document');
   form.set('file', new Blob([new Uint8Array(body)]), name);
   const r = await fetch(`${h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${h.token}` }, body: form });
-  return (await json(r)).body.data.file_id as string;
+  return (await json(r)).body.data?.file_id as string;
 }
 
 describe('migration 028 + danh sách', () => {
@@ -147,10 +147,9 @@ describe('mẫu DOCX', () => {
 
     const z = new PizZip(fx('hop-dong-spa.docx'));
     z.file('word/vbaProject.bin', 'x');
-    const macro = await upload('mau.docx', z.generate({ type: 'nodebuffer' }));
-    expect((await act('doc_template.detect_fields', { kind: 'contract', file_id: macro })).body.error.fields).toEqual({ file_id: 'macro' });
-    const txt = await upload('mau.docm', Buffer.from('x'));
-    expect((await act('doc_template.detect_fields', { kind: 'contract', file_id: txt })).body.error.fields).toEqual({ file_id: 'not_docx' });
+    // TIP-045b: macro trong gói DOCX và đuôi .docm bị chặn ngay ở cổng tải tệp — không có file_id (lớp domain có unit test riêng).
+    expect(await upload('mau.docx', z.generate({ type: 'nodebuffer' }))).toBeUndefined();
+    expect(await upload('mau.docm', Buffer.from('x'))).toBeUndefined();
   });
 
   it('PDF xem trước: rich + docx (LibreOffice) → application/pdf; sales không xem được', async () => {

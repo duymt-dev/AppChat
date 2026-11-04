@@ -58,10 +58,12 @@ describe('nhập sản phẩm — biên và lỗi tệp', () => {
     expect(job.body.data.status).toBe('job_accepted');
   });
 
-  it('XLSX hỏng → 422 unreadable; SKU lặp trong tệp → dòng sau lỗi, dòng đầu tạo', async () => {
-    const bad = await act('product.import', { file_id: await upload('hong.xlsx', 'PK\u0003\u0004 không phải zip', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), mapping: MAP });
-    expect(bad.status).toBe(422);
-    expect(bad.body.error.fields).toMatchObject({ file_id: 'unreadable' });
+  it('XLSX hỏng → 415 ở cổng tải tệp (TIP-045b); SKU lặp trong tệp → dòng sau lỗi, dòng đầu tạo', async () => {
+    const form = new FormData();
+    form.set('purpose', 'import');
+    form.set('file', new Blob([new Uint8Array(Buffer.from('PK\u0003\u0004 không phải zip'))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'hong.xlsx');
+    const bad = await fetch(`${h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': h.ws, ...bearer(h.tokenFor(h.user)) }, body: form });
+    expect(bad.status).toBe(415);
     const r = ok(await confirmed({ file_id: await upload('lap.csv', 'Tên,Giá,Mã\nA,1000,DUP-1\nB,2000,dup-1\n'), mapping: MAP })).result;
     const errs = (await json(await call(h, `/product-imports/${r.import_id}/errors`))).body.data;
     expect(errs).toEqual([expect.objectContaining({ row_no: 2, error: 'sku:duplicate_in_file' })]);

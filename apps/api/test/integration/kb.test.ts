@@ -6,6 +6,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Test, type TestingModule } from '@nestjs/testing';
 import pg from 'pg';
+import PizZip from 'pizzip';
 import { AiJobsModule, CLOCK, KernelModule, LOGGER, WalletService, createLogger, searchKb, uuidv7 } from '@appchat/core';
 import { AiSdkEmbedder, mockEmbedSource } from '@appchat/ai';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
@@ -119,10 +120,18 @@ describe('nạp tài liệu', () => {
     const k = await act('kb.add_source', { name: 'Hợp đồng mẫu.md', file_id: keep.body.data.file_id, learn: false, visibility: 'internal' });
     expect(await ready(k.body.data.result.source_id)).toBe(true);
     expect(await (await tenant()).kbSource.findUniqueOrThrow({ where: { id: k.body.data.result.source_id } })).toMatchObject({ status: 'ready', chunkCount: 0 });
+    // TIP-045b: tệp không phải DOCX mang đuôi .docx bị cổng tải tệp chặn (415) trước khi thành nguồn.
     const bad = await upload('hỏng.docx', 'không phải docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    const b = await act('kb.add_source', { name: 'hỏng.docx', file_id: bad.body.data.file_id });
+    expect(bad.status).toBe(415);
+    expect(bad.body.error.fields).toEqual({ file: 'type_mismatch' });
+    // Gói DOCX hợp lệ về hình dạng nhưng nội dung hỏng vẫn qua cổng → ingest báo failed (lớp parse).
+    const z = new PizZip();
+    z.file('[Content_Types].xml', '<Types/>');
+    z.file('word/document.xml', 'không phải xml');
+    const broken = await upload('hỏng-2.docx', z.generate({ type: 'nodebuffer' }) as Buffer, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    const b = await act('kb.add_source', { name: 'hỏng-2.docx', file_id: broken.body.data.file_id });
     expect(await ready(b.body.data.result.source_id)).toBe(true);
-    expect(await (await tenant()).kbSource.findUniqueOrThrow({ where: { id: b.body.data.result.source_id } })).toMatchObject({ status: 'failed', error: expect.stringMatching(/hỏng|đọc/) });
+    expect(await (await tenant()).kbSource.findUniqueOrThrow({ where: { id: b.body.data.result.source_id } })).toMatchObject({ status: 'failed' });
   });
 
   it('AC4 văn bản nhập tay + internal + thư mục', async () => {

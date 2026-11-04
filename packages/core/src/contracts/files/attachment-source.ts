@@ -8,7 +8,7 @@ import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { FileAccessRule } from '../../kernel/files/file-access';
 import type { FilesService } from '../../kernel/files/files.service';
-import { verifyFileSig } from '../../kernel/files/signed-url';
+import { parseSignedFileUrl } from '../../kernel/files/signed-url';
 import { CONTRACT_DOCX, CONTRACT_PDF, PDF_LIMITS, guardContractFile, type GuardedDocument } from '../../documents/public';
 import { writableConversation } from '../../inbox/public';
 
@@ -28,19 +28,7 @@ interface Links {
 
 /** `file_id` từ link ký nội bộ; link ngoài / sai origin / sai workspace / sai chữ ký → null. */
 export function storedFileId(url: string, links: Links, ws: string): string | null {
-  let u: URL;
-  let base: URL;
-  try {
-    u = new URL(url);
-    base = new URL(links.apiBase);
-  } catch {
-    return null;
-  }
-  if (u.origin !== base.origin) return null;
-  const m = /^\/v1\/files\/([0-9a-f-]{36})\/raw$/i.exec(u.pathname.slice(base.pathname.replace(/\/$/, '').length));
-  const sig = u.searchParams.get('sig');
-  if (!m || u.searchParams.get('ws') !== ws || !sig) return null;
-  return verifyFileSig(links.key, ws, m[1]!, sig) ? m[1]!.toLowerCase() : null;
+  return parseSignedFileUrl(url, links.apiBase, links.key, ws)?.fileId ?? null;
 }
 
 export interface AttachmentRef {

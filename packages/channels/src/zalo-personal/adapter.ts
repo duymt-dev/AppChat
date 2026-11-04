@@ -6,19 +6,13 @@ import { normalizeZalo } from './normalize';
 import { renderChunks } from './render';
 import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, type ZaloSession, type ZaloTransport } from './transport';
 
-/** Tải tệp đính kèm (URL đã ký của file store) thành Buffer để upload lên Zalo. */
+/** Tải tệp đính kèm (URL đã ký của file store) thành Buffer để upload lên kênh. Core cấp bản an toàn (`attachmentFetcher` — đọc Storage
+ *  cho link ký nội bộ, safeFetch cho URL ngoài); gói kênh không tự `fetch` URL (TIP-045b, chặn SSRF). */
 export type FileFetcher = (url: string) => Promise<Buffer>;
 
-const MAX_FILE = 25 * 1024 * 1024;
-
-export const fetchFile: FileFetcher = async (url) => {
-  const r = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-  if (!r.ok) throw new Error(`attachment_http_${r.status}`);
-  const len = Number(r.headers.get('content-length') ?? 0);
-  if (len > MAX_FILE) throw new Error('attachment_too_large');
-  const buf = Buffer.from(await r.arrayBuffer());
-  if (buf.length > MAX_FILE) throw new Error('attachment_too_large');
-  return buf;
+/** Mặc định khi không được cấp FileFetcher: từ chối (fail closed) — không có đường tải URL tuỳ ý. */
+export const refuseFileFetch: FileFetcher = async () => {
+  throw new Error('attachment_fetcher_not_configured');
 };
 
 interface Running {
@@ -41,7 +35,7 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
 
   constructor(
     private readonly transport: ZaloTransport,
-    private readonly files: FileFetcher = fetchFile,
+    private readonly files: FileFetcher = refuseFileFetch,
   ) {}
 
   async beginLogin(accountId: string, onEvent: (e: LoginEvent) => void, signal: AbortSignal): Promise<LoginResult> {
