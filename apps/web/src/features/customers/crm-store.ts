@@ -22,8 +22,10 @@ interface CrmUiState {
   prefill: Record<string, string> | null;
   /** Khách Trợ lý tô sáng (UiCommand highlight) — đổi bộ lọc / đóng drawer thì bỏ. */
   highlight: string | null;
+  /** Câu đề xuất của "Giao AI" (TIP-015b) — điền sẵn ô hỏi của drawer Trợ lý, người dùng xem rồi mới gửi (không tự gửi). */
+  aiDraft: string | null;
   setFilter: (p: Partial<ContactFilter>) => void;
-  set: (p: Partial<Pick<CrmUiState, 'layout' | 'modal' | 'target' | 'detail' | 'menuFor' | 'tagFor' | 'filterOpen' | 'prefill' | 'highlight'>>) => void;
+  set: (p: Partial<Pick<CrmUiState, 'layout' | 'modal' | 'target' | 'detail' | 'menuFor' | 'tagFor' | 'filterOpen' | 'prefill' | 'highlight' | 'aiDraft'>>) => void;
   open: (modal: Exclude<CrmModal, null>, target?: string) => void;
 }
 
@@ -41,6 +43,7 @@ export const useCrmUi = create<CrmUiState>((set) => ({
   filterOpen: false,
   prefill: null,
   highlight: null,
+  aiDraft: null,
   setPg: (pg) => set({ pg }),
   setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 }, highlight: null })),
   set: (p) => set(p),

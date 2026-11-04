@@ -184,6 +184,10 @@
     "memory_list": {
       "title": "Xem AI ghi nhớ",
       "desc": "Liệt kê các điều AI ghi nhớ về một khách (mới nhất trước, tối đa 50) kèm mã để xoá đúng điều."
+    },
+    "summarize": {
+      "title": "Tóm tắt Hồ sơ khách",
+      "desc": "Tóm tắt 3–5 ý về một khách từ dữ liệu bạn được xem (ghi nhớ, lịch sử, công nợ, hợp đồng, đơn, lịch hẹn, ticket)."
     }
   },
   "custom_field": {

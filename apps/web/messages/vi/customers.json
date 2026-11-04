@@ -106,7 +106,7 @@
     "hint": "✦ {hint}",
     "do": "Giao AI Agent xử lý ngay",
     "peek": "Xem gợi ý AI",
-    "doing": "AI Agent đang xử lý: gửi tin chăm sóc lại cho khách"
+    "assign": "Giao AI chăm sóc khách {name} ({code}) — gợi ý: {hint}. Đề xuất bước tiếp theo, soạn tin chăm sóc và hỏi tôi xác nhận trước khi gửi."
   },
   "coOwner": "Đồng phụ trách",
   "watcher": "Theo dõi",

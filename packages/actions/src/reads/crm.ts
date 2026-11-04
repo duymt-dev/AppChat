@@ -37,7 +37,7 @@ export const contactGet360 = defineAction({
   id: 'contact.get_360',
   module: 'crm',
   title: 'actions.contact.get_360.title',
-  description: 'Customer 360 summary: profile plus counts of open quotes / orders / unpaid payment requests (only those the caller may see) and the next appointment. Example: {"contact_id":"KH-1016"}',
+  description: 'Customer 360 summary: profile, remembered facts (allergies, preferences — use them when serving the customer), counts of open quotes / orders / unpaid payment requests (only those the caller may see) and the next appointment. Example: {"contact_id":"KH-1016"}',
   input: z.object({ contact_id: z.string().min(1) }),
   output: profile.extend({
     open_quotes: z.number().int(),
@@ -45,6 +45,8 @@ export const contactGet360 = defineAction({
     unpaid_invoices: z.number().int(),
     open_tickets: z.number().int(),
     next_appointment: z.object({ id: z.string(), code: z.string(), start_at: z.string(), status: z.string() }).nullable(),
+    /** Trí nhớ khách (TIP-015b): ≤ 20 fact mới nhất — lượt Trợ lý sau dùng lại. */
+    memory: z.array(z.string()),
   }),
   permission: 'crm.view',
   risk: 'read',

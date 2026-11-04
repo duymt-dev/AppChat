@@ -137,8 +137,8 @@
 | REQ-D09d | Chat thử giả lập | 01-REQUIREMENTS-MATRIX.md:89 | 021 | ĐẠT | agent-llm.handlers.ts:38; test agents.test.ts AC3 |
 | REQ-D09b-a | 3 cách tạo agent | 01-REQUIREMENTS-MATRIX.md:90 | 021, 024 | ĐẠT | agent.handlers.ts:41; agent-llm.handlers.ts:74; e2e http/agents-ui.spec.ts:15 |
 | REQ-D09b-b | Tools ⊆ quyền ∩ agentGrantable; max_agents | 01-REQUIREMENTS-MATRIX.md:90 | 021 | ĐẠT | test agents.test.ts AC2/AC3 |
-| REQ-D10a | Agent đọc 360° (mua, hẹn, ghi chú, hạng) | 01-REQUIREMENTS-MATRIX.md:91 | 015b | MỘT PHẦN | reply-context.ts:79-80 chỉ tên / nhóm / giai đoạn + memory |
-| REQ-D10b | Agent ghi sự kiện về khách | 01-REQUIREMENTS-MATRIX.md:91 | 015b | CHƯA | Không chỗ ghi contact_memory |
+| REQ-D10a | Agent đọc 360° (mua, hẹn, ghi chú, hạng) | 01-REQUIREMENTS-MATRIX.md:91 | 015b | ĐẠT | reply-context.ts đọc 20 fact (recentFacts) + Trợ lý contact.get_360 trả memory (DC-344); ai:live mem-allergy-recall 3/3 |
+| REQ-D10b | Agent ghi sự kiện về khách | 01-REQUIREMENTS-MATRIX.md:91 | 015b | ĐẠT | contact.remember (agentGrantable, trần 50 + chống trùng trigram, chặn CCCD / thẻ / mật khẩu — normalize.ts sensitive); contact-memory.test.ts; ai:live mem-pii-refused 3/3 |
 | REQ-D11a | Lọc PII trước prompt | 01-REQUIREMENTS-MATRIX.md:92 | 022 | ĐẠT | packages/ai/src/reply/pii.ts:28; test reply.test.ts, agent-reply.test.ts "PII" |
 | REQ-D11b | Guardrail + từ cấm | 01-REQUIREMENTS-MATRIX.md:92 | 021, 022 | ĐẠT | governance.ts:31; test agent-reply.test.ts "từ cấm" |
 | REQ-D12 | Chủ động theo lịch, tôn trọng giới hạn Zalo | 01-REQUIREMENTS-MATRIX.md:93 | 035 | ĐẠT | ai/tasks/task-scheduler.ts, task-targets.ts; test ai-tasks.test.ts:199,257,312 |

@@ -231,6 +231,11 @@ export const echoScript: MockScript = (ctx) => {
   }
   // Soạn nháp hợp đồng (TIP-030b F2): JSON ý định từ dòng "- tên xN" + ngày dd/mm/yyyy của YÊU CẦU; dòng "ĐIỀU KHOẢN: …" → gợi ý.
   if (/^# (SOẠN NHÁP HỢP ĐỒNG|CONTRACT DRAFT)/.test(system)) return { text: JSON.stringify(mockContractDraft(lastUser)) };
+  // Tóm tắt Hồ sơ khách (TIP-015b): 3–5 dòng gạch đầu của khối DỮ LIỆU nguyên văn — test kiểm tóm tắt chỉ chứa dữ liệu người xem được thấy.
+  if (/^# (TÓM TẮT HỒ SƠ KHÁCH|CUSTOMER PROFILE SUMMARY)/.test(system)) {
+    const bullets = lastUser.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2)).slice(0, 5);
+    return { text: JSON.stringify({ bullets: bullets.length ? bullets : [lastUser.split('\n')[1] ?? ''] }) };
+  }
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);

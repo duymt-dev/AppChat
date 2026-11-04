@@ -29,7 +29,18 @@ export function CrmAiDrawer() {
   const me = useMe().data;
   const asst = useScreenAssistant('customers');
   const [draft, setDraft] = useState('');
-  const close = () => ui.set({ modal: null });
+  // "Giao AI" (useAssignContactAi) điền sẵn câu đề xuất — mỗi câu mới chép vào ô nhập đúng một lần (điều chỉnh state lúc render, không
+  // effect); người dùng xem / sửa rồi mới gửi.
+  const [seeded, setSeeded] = useState<string | null>(null);
+  if (ui.modal === 'ai' && ui.aiDraft && ui.aiDraft !== seeded) {
+    setSeeded(ui.aiDraft);
+    setDraft(ui.aiDraft);
+  }
+  const close = () => {
+    setDraft('');
+    setSeeded(null);
+    ui.set({ modal: null, aiDraft: null });
+  };
 
   /** Nút cố định theo màn = prompt soạn sẵn gửi Trợ lý (standard §10). */
   const run = (key: string) => void asst.send(t(`prompts.${key}` as never));
@@ -63,7 +74,7 @@ export function CrmAiDrawer() {
       footer={
         <div className={styles.foot}>
           <div className={styles.ask}>
-            <input className={styles.input} value={draft} placeholder={t('ask')} aria-label={t('ask')} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} />
+            <input className={styles.input} value={draft} placeholder={t('ask')} aria-label={t('ask')} data-testid="crm-ai-ask" onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={16} color={color.white} strokeWidth={2} />
             </button>

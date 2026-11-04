@@ -106,7 +106,7 @@
     "hint": "✦ {hint}",
     "do": "Hand to AI Agent now",
     "peek": "View AI hints",
-    "doing": "AI Agent is working: sending a care message to the customer"
+    "assign": "Have AI take care of {name} ({code}) — suggestion: {hint}. Propose the next step, draft a follow-up and ask me to confirm before sending."
   },
   "coOwner": "Co-owner",
   "watcher": "Watching",

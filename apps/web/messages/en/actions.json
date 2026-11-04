@@ -184,6 +184,10 @@
     "memory_list": {
       "title": "View AI memory",
       "desc": "List what the AI remembers about one customer (newest first, up to 50) with ids to forget a specific fact."
+    },
+    "summarize": {
+      "title": "Summarise customer",
+      "desc": "Summarise one customer in 3–5 points from data you may see (memory, history, receivables, contracts, orders, appointments, tickets)."
     }
   },
   "custom_field": {

@@ -130,8 +130,8 @@
     }
   },
   "thread": {
-      "contractFromFile": "Tạo hợp đồng từ tệp",
-      "contractCreating": "Đang tạo hợp đồng…",
+    "contractFromFile": "Tạo hợp đồng từ tệp",
+    "contractCreating": "Đang tạo hợp đồng…",
     "insight": "AI phân tích:",
     "confidence": "· tin {pct}%",
     "note": "Ghi chú nội bộ",
@@ -326,7 +326,18 @@
       }
     },
     "blocksEmpty": "Tab này chưa có khối nào — thêm ở Cài đặt › Hồ sơ 360°.",
-    "blockNoData": "Chưa có dữ liệu"
+    "blockNoData": "Chưa có dữ liệu",
+    "blockDenied": "Bạn không có quyền xem mục này",
+    "slaMet": "Đạt SLA",
+    "slaBreached": "Trễ SLA",
+    "csatScore": "{n}/5",
+    "linkStatus": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "open": "Mở",
+      "in_progress": "Đang xử lý",
+      "waiting": "Chờ khách"
+    }
   },
   "group": {
     "title": "Thông tin nhóm",

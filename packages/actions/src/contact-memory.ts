@@ -58,3 +58,23 @@ export const contactMemoryForget = defineAction({
   undo: { windowSec: 86_400 },
   invalidates: ['crm'],
 });
+
+export const contactSummarize = defineAction({
+  id: 'contact.summarize',
+  module: 'crm',
+  title: 'actions.contact.summarize.title',
+  description:
+    'Summarise one customer in 3–5 bullets from what the caller may see (memory, timeline, receivables, contracts, orders, appointments, tickets). Cached per viewer scope; `refresh` regenerates once. Example: {"contact_id":"…"}',
+  input: z.object({ contact_id: z.string().min(1), refresh: z.boolean().optional() }),
+  output: z.object({
+    bullets: z.array(z.string()),
+    source: z.enum(['model', 'rule']),
+    status: z.enum(['fresh', 'cached', 'retry']),
+    generated_at: z.string(),
+  }),
+  permission: 'crm.view',
+  risk: 'read',
+  agentGrantable: true,
+  skill: true,
+  invalidates: [],
+});

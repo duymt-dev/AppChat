@@ -41,7 +41,7 @@
 | PRO-orders-rowai | Dòng đơn: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5896 | 023g | GIẢ | apps/web/src/features/orders/columns.tsx:88 `message.info` |
 | PRO-calendar-rowai | Dòng lịch hẹn: nút ✦ AI xử lý | docs/06-prototype/AppChat.dc.html:4304 | 023g | GIẢ | apps/web/src/features/calendar/components/ListView.tsx:29 `message.info` |
 | PRO-tickets-rowpeek | Dòng ticket: ✦ gợi ý AI (mở tab AI / chạy gợi ý) | docs/06-prototype/AppChat.dc.html:5255 | 023g | GIẢ | apps/web/src/features/tickets/columns.tsx:67 `message.info(aiPeekMsg)` |
-| PRO-customers-rowai | Dòng khách: nút ⚡ "Giao AI" | docs/06-prototype/AppChat.dc.html:2886 | 015b | GIẢ | apps/web/src/features/customers/screens/CustomersScreen.tsx:38 `aiDo = message.info` |
+| PRO-customers-rowai | Dòng khách: nút ⚡ "Giao AI" | docs/06-prototype/AppChat.dc.html:2886 | 015b | ĐẠT | columns.tsx AiCell ⚡ → useAssignContactAi → drawer Trợ lý điền sẵn câu, không tự gửi (DC-343); e2e/contact-memory.spec.ts + e2e/http/contact-memory.spec.ts |
 | PRO-invoices-aiacts | Tab AI đề nghị thanh toán: nút hành động AI gợi ý chạy thật | docs/06-prototype/AppChat.dc.html:5646 | 023g | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:169 `message.info(aiDoing)` |
 | PRO-products-aiacts | Chi tiết sản phẩm: "Gợi ý combo" / "Tạo chiến dịch" AI | docs/06-prototype/AppChat.dc.html:6111 | 023g | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:177,181 `message.info(aiDoing)` |
 | PRO-quotes-bulkfwd | Thanh chọn nhiều báo giá: Chuyển tiếp / Gán phụ trách | docs/06-prototype/AppChat.dc.html:5364 | 031b | GIẢ | apps/web/src/features/quotes/components/QuotesToolbar.tsx:133,141 `message.info`; không có action gán phụ trách báo giá; TIP-031b nhận (2026-11-02) |

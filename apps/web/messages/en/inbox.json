@@ -130,8 +130,8 @@
     }
   },
   "thread": {
-      "contractFromFile": "Create contract from file",
-      "contractCreating": "Creating contract…",
+    "contractFromFile": "Create contract from file",
+    "contractCreating": "Creating contract…",
     "insight": "AI insight:",
     "confidence": "· {pct}% confidence",
     "note": "Internal note",
@@ -326,7 +326,18 @@
       }
     },
     "blocksEmpty": "This tab has no blocks yet — add them in Settings › 360° profile.",
-    "blockNoData": "No data yet"
+    "blockNoData": "No data yet",
+    "blockDenied": "You do not have access to this section",
+    "slaMet": "SLA met",
+    "slaBreached": "SLA breached",
+    "csatScore": "{n}/5",
+    "linkStatus": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "open": "Open",
+      "in_progress": "In progress",
+      "waiting": "Waiting on customer"
+    }
   },
   "group": {
     "title": "Group info",

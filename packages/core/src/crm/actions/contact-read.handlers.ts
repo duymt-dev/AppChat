@@ -8,6 +8,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { visibleContact } from '../services/access';
+import { recentFacts } from '../memory/read';
 import { bookingScopeSql } from '../../booking/booking-access';
 import { supportScopeSql } from '../../support/ticket-access';
 import { quoteScopeSql } from '../../sales/quotes/quote-access';
@@ -56,7 +57,7 @@ export class ContactGet360Handler implements Handler<ActionInput<typeof contactG
     const a = ctx.authz;
     const id = c.id;
     // Index: quote (contact_id) · order / invoice (contact_id) · ticket (contact_id) · appointment (contact_id, start_at).
-    const [quotes, orders, invoices, tickets, next] = await Promise.all([
+    const [quotes, orders, invoices, tickets, next, facts] = await Promise.all([
       can(a, 'quote.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM quote q WHERE q.contact_id = ${id}::uuid AND q.deleted_at IS NULL AND q.status IN ('draft','pending_approval','approved','sent','viewed','revision_requested') AND ${quoteScopeSql(a)}`) : 0,
       can(a, 'order.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM "order" o WHERE o.contact_id = ${id}::uuid AND o.deleted_at IS NULL AND o.status IN ('new','processing') AND ${orderScopeSql(a)}`) : 0,
       can(a, 'invoice.manage') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM invoice i WHERE i.contact_id = ${id}::uuid AND i.status IN ('sent','partial','overdue') AND ${invoiceScopeSql(a)}`) : 0,
@@ -66,6 +67,8 @@ export class ContactGet360Handler implements Handler<ActionInput<typeof contactG
             WHERE a.contact_id = ${id}::uuid AND a.deleted_at IS NULL AND a.start_at >= ${now} AND a.status IN ('pending','confirmed') AND ${bookingScopeSql(a)}
             ORDER BY a.start_at ASC LIMIT 1`
         : Promise.resolve([]),
+      // Trí nhớ khách (TIP-015b): cùng quyền crm.view với contact.memory_list — lượt Trợ lý sau dùng lại fact (dị ứng, sở thích).
+      recentFacts(tx, id, 20),
     ]);
     const nx = next[0];
     return {
@@ -76,6 +79,7 @@ export class ContactGet360Handler implements Handler<ActionInput<typeof contactG
         unpaid_invoices: invoices,
         open_tickets: tickets,
         next_appointment: nx ? { id: nx.id, code: nx.code, start_at: nx.start_at.toISOString(), status: nx.status } : null,
+        memory: facts.map((f) => f.fact),
       },
     };
   }

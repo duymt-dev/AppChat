@@ -113,5 +113,25 @@
     "zalo_personal": "Zalo",
     "email": "Email",
     "webchat": "Web chat"
+  },
+  "contactMemory": {
+    "title": "AI memory",
+    "count": "{n}/{cap}",
+    "empty": "The AI has not remembered anything about this customer yet.",
+    "loading": "Loading…",
+    "forget": "Forget this fact",
+    "source": {
+      "agent": "AI agent",
+      "user": "Staff",
+      "system": "System"
+    },
+    "summary": "AI summary",
+    "summarize": "Summarise",
+    "refresh": "Summarise again",
+    "summarizing": "Summarising…",
+    "summaryHint": "Press \"Summarise\" for an AI summary of the data you may see.",
+    "retry": "Customer data just changed — press \"Summarise again\".",
+    "byModel": "AI summary of the data you may see",
+    "byRule": "Automatic digest of the figures (no AI)"
   }
 }

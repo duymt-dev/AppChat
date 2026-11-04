@@ -1,4 +1,4 @@
-import type { CustomValues } from '@appchat/shared';
+import type { ContactInsightsDto, CustomValues } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
 export type ChannelType = 'zalo_personal' | 'webchat' | 'email';
@@ -178,6 +178,8 @@ export interface Contact360 {
   custom?: CustomValues;
   /** Bố cục của vai trò người xem (API thật; mock không có → đọc theo vai trò). */
   layout?: { id: string; name: string; tabs: LayoutTab[] };
+  /** Số liệu thật theo quyền người xem (TIP-015b) — null = không xem được (khác 0 / rỗng). */
+  insights?: ContactInsightsDto;
 }
 
 /** Tab Hồ sơ 360° (profile_layout.tabs — Cài đặt › Hồ sơ 360°). */

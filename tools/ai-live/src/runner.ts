@@ -5,6 +5,7 @@ import type { LiveCase, Suite } from './cases';
 import { judge, expand, type TraceStep, type Verdict } from './safety';
 import { judgeDraft, judgeUi } from './genui-judge';
 import { contractCase } from './contract-judge';
+import { memoryCase } from './memory-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown): Promise<{ status: number; body: unknown }>;
@@ -74,6 +75,7 @@ async function draftCase(api: Api, c: LiveCase, attempt: number, o: RunOptions):
 async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promise<Attempt> {
   if (c.draft) return draftCase(api, c, attempt, o);
   if (c.contract) return contractCase(api, c, attempt, o);
+  if (c.memory) return memoryCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
   const context = contextOf(c, o.seed);
   const t = await api.req('POST', '/assistant/messages', { text: fillInput(c.input, o.seed), mode: c.mode, ...(context ? { context } : {}) });

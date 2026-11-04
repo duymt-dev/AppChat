@@ -9,6 +9,8 @@ import { contact360 } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
 import { nextActions } from '../insights/next-action';
 import { crmAi, insights360 } from '../insights/read';
+import { recentFacts, sourceOf } from '../memory/read';
+import { MEMORY_CAP } from '../memory/normalize';
 import { duplicateGroups } from './duplicates.service';
 import { fieldsData } from './fields.service';
 import { layoutForRole, layoutsData } from './layouts.service';
@@ -126,6 +128,19 @@ export class CrmReadService {
         insights360(tx, v.authz, id, { ...pl, now: this.now() }),
       ]);
       return { ...p360, crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
+    });
+  }
+
+  /** `GET /v1/contacts/:id/memory` (TIP-015b): khối "AI ghi nhớ" — cùng dữ liệu action contact.memory_list. */
+  async memory(v: Viewer, id: string) {
+    return this.tx(v, async (tx) => {
+      const { contact, access } = await visibleContact(tx, v.authz, id);
+      const rows = await recentFacts(tx, contact.id, MEMORY_CAP);
+      return {
+        items: rows.map((r) => ({ memory_id: r.id, fact: r.fact, confidence: r.confidence, source: sourceOf(r.actor_type), updated_at: r.updated_at.toISOString() })),
+        cap: MEMORY_CAP,
+        can_edit: access !== 'watcher' && (v.authz.isOwner || v.authz.permissions.has('crm.edit')),
+      };
     });
   }
 

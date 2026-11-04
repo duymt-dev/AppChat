@@ -30,7 +30,7 @@ export async function recentFacts(db: Pick<TenantDb, '$queryRaw'>, contactId: st
     ORDER BY m.updated_at DESC, m.id DESC`;
 }
 
-const source = (t: string | null): Fact['source'] => (t === 'agent' || t === 'user' ? t : 'system');
+export const sourceOf = (t: string | null): Fact['source'] => (t === 'agent' || t === 'user' ? t : 'system');
 
 @Injectable()
 @ActionHandler('contact.memory_list')
@@ -40,7 +40,7 @@ export class ContactMemoryListHandler implements Handler<ActionInput<typeof cont
     const rows = await recentFacts(tx, contact.id, MEMORY_CAP);
     return {
       result: {
-        items: rows.map((r) => ({ memory_id: r.id, fact: r.fact, confidence: r.confidence, source: source(r.actor_type), updated_at: r.updated_at.toISOString() })),
+        items: rows.map((r) => ({ memory_id: r.id, fact: r.fact, confidence: r.confidence, source: sourceOf(r.actor_type), updated_at: r.updated_at.toISOString() })),
         cap: MEMORY_CAP,
         can_edit: access !== 'watcher' && ctx.authz.permissions.has('crm.edit'),
       },

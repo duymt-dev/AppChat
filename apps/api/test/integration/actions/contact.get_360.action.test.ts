@@ -1,4 +1,4 @@
-// Ma trận contact.get_360 (TIP-023b R2): happy (số đếm báo giá / đơn / đề nghị thanh toán / ticket mở + lịch hẹn kế tiếp) · mỗi số đếm áp
+// Ma trận contact.get_360 (TIP-023b R2): happy (số đếm báo giá / đơn / đề nghị thanh toán / ticket mở + lịch hẹn kế tiếp + trí nhớ khách TIP-015b) · mỗi số đếm áp
 // scope + quyền của người gọi: cs (crm all, sales none, không quote.view) thấy khách nhưng đếm bán hàng = 0 — không lộ chứng từ người khác
 // chỉ vì cùng khách · sales own → 404 với khách người khác · nguồn assistant. Idempotency / undo / trạng thái: không áp dụng (risk read).
 import 'reflect-metadata';
@@ -16,6 +16,7 @@ beforeAll(async () => {
   await m.seed('quote.create', { contact_id: lan, items: [item] });
   await m.seed('order.create', { contact_id: lan, items: [item] });
   await m.seed('ticket.create', { title: 'Khách hỏi lịch', contact_id: lan, channel: 'webchat', category: 'Khác', priority: 'medium' });
+  await m.seed('contact.remember', { contact_id: lan, fact: 'Dị ứng tinh dầu sả' });
 }, 120_000);
 afterAll(() => m?.close());
 
@@ -23,7 +24,7 @@ describe('contact.get_360', () => {
   it('happy (owner): hồ sơ + số đếm', async () => {
     const r = await m.act({ contact_id: lan });
     expect(r.status, JSON.stringify(r.body)).toBe(200);
-    expect(r.body.data.result).toMatchObject({ id: lan, name: 'Chị Lan 360', open_quotes: 1, open_orders: 1, unpaid_invoices: 0, open_tickets: 1, next_appointment: null });
+    expect(r.body.data.result).toMatchObject({ id: lan, name: 'Chị Lan 360', open_quotes: 1, open_orders: 1, unpaid_invoices: 0, open_tickets: 1, next_appointment: null, memory: ['Dị ứng tinh dầu sả'] });
   });
 
   it('cs: thấy khách (crm all) nhưng không quyền / scope bán hàng → đếm bán hàng = 0', async () => {

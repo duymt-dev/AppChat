@@ -113,5 +113,25 @@
     "zalo_personal": "Zalo",
     "email": "Email",
     "webchat": "Web chat"
+  },
+  "contactMemory": {
+    "title": "AI ghi nhớ",
+    "count": "{n}/{cap}",
+    "empty": "AI chưa ghi nhớ điều gì về khách này.",
+    "loading": "Đang tải…",
+    "forget": "Xoá điều AI ghi nhớ",
+    "source": {
+      "agent": "AI Agent",
+      "user": "Nhân viên",
+      "system": "Hệ thống"
+    },
+    "summary": "AI tóm tắt",
+    "summarize": "Tóm tắt",
+    "refresh": "Tóm tắt lại",
+    "summarizing": "Đang tóm tắt…",
+    "summaryHint": "Bấm \"Tóm tắt\" để AI tóm tắt hồ sơ từ dữ liệu bạn được xem.",
+    "retry": "Dữ liệu khách vừa thay đổi — bấm \"Tóm tắt lại\".",
+    "byModel": "Do AI tóm tắt từ dữ liệu bạn được xem",
+    "byRule": "Tổng hợp tự động từ số liệu (không dùng AI)"
   }
 }
