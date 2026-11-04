@@ -42,6 +42,12 @@ export const crm = {
     ticket_opened: 'Mở ticket {code}: {title}',
     ticket_closed: 'Đóng ticket {code} ({reason})',
     ticket_reopened: 'Mở lại ticket {code}',
+    loyalty_earn: 'Tích {points} điểm (đơn {code})',
+    loyalty_redeem: 'Dùng {points} điểm = {amount} (đề nghị {code})',
+    loyalty_adjust: 'Điều chỉnh {points} điểm: {reason}',
+    loyalty_reverse: 'Đảo {points} điểm (đơn {code})',
+    loyalty_expire: '{points} điểm hết hạn',
+    loyalty_tier: 'Đổi hạng: {from} → {to}',
   },
   stage: { lead: 'Lead mới', potential: 'Tiềm năng', consulting: 'Đang tư vấn', quote: 'Báo giá', contract: 'Hợp đồng', won: 'Đã mua', lost: 'Thất bại' },
   ai: {

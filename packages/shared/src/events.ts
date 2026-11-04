@@ -1,6 +1,7 @@
 // Domain event dùng chung (standards/events/outbox.md §3): tên `<entity>.<past_tense>` + zod payload. Payload luôn có `ws`
 // + `occurred_at` (writeOutbox thêm). TIP domain thêm event của mình vào đây khi phát (và bảng Blueprint §2.3).
 import { z } from 'zod';
+import { LOYALTY_EVENT_SCHEMAS } from './loyalty/events';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
 
@@ -233,6 +234,7 @@ export const EVENT_SCHEMAS = {
   'payment.refund_requested': paymentRefundEvent,
   'payment.refunded': paymentRefundEvent,
   'payment.refund_rejected': paymentRefundEvent,
+  ...LOYALTY_EVENT_SCHEMAS,
   'bank_tx.received': bankTxEvent,
   'package.granted': packageEvent,
   'package.expired': packageEvent,

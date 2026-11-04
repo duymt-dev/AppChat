@@ -54,6 +54,7 @@ export { MarketingModule } from './marketing/marketing.module';
 export { MarketingJobsModule } from './marketing/jobs/marketing.jobs.module';
 export { LoyaltyModule } from './loyalty/loyalty.module';
 export { LoyaltyJobsModule } from './loyalty/jobs/loyalty.jobs.module';
+export * from './loyalty/public';
 export { AiModule } from './ai/ai.module';
 export { AiJobsModule } from './ai/jobs/ai.jobs.module';
 export { InsightsModule } from './insights/insights.module';

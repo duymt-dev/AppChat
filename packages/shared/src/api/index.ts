@@ -26,3 +26,4 @@ export * from './ai-tasks';
 export * from './commerce-settings';
 export * from './public-commerce-document';
 export * from './product-import';
+export * from './loyalty';

@@ -13,6 +13,7 @@ import { DocumentsModule } from '../../documents/documents.module';
 import { IdentityModule } from '../../identity/identity.module';
 import { InboxModule } from '../../inbox/inbox.module';
 import { IntegrationsModule } from '../../integrations/integrations.module';
+import { LoyaltyModule } from '../../loyalty/loyalty.module';
 import { NotifyModule } from '../../notify/notify.module';
 import { SalesModule } from '../../sales/sales.module';
 import { SupportModule } from '../../support/support.module';
@@ -31,6 +32,7 @@ export const AI_DOMAIN_MODULES = [
   IntegrationsModule,
   BookingModule,
   SupportModule,
+  LoyaltyModule,
   NotifyModule,
 ];
 

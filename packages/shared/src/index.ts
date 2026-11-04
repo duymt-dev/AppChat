@@ -33,3 +33,5 @@ export * from './ai-tasks/task-catalog';
 export * from './crm';
 export * from './catalog';
 export * from './genui';
+export * from './loyalty/math';
+export * from './loyalty/events';
