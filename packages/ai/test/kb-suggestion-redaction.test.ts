@@ -53,10 +53,10 @@ describe('sensitiveLeft', () => {
 const md = (locale: string) => readFileSync(new URL(`../src/prompts/kb-suggestion.${locale}.md`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 describe('prompt kb-suggestion', () => {
-  it('version 1 ở vi / en; registry khớp file .md', () => {
+  it('version 2 ở vi / en (mã tin ngắn m<số> — DC-353); registry khớp file .md', () => {
     for (const locale of ['vi', 'en'] as const) {
       const [head, ...body] = md(locale).trimEnd().split('\n');
-      expect(head).toBe(`<!-- prompt: kb-suggestion · version: 1 · locale: ${locale} -->`);
+      expect(head).toBe(`<!-- prompt: kb-suggestion · version: 2 · locale: ${locale} -->`);
       expect(body.join('\n')).toBe(PROMPTS['kb-suggestion']![locale].text);
     }
   });

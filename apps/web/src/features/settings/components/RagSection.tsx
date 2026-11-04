@@ -2,10 +2,12 @@
 // nav (tất cả · AI đã học · từ hội thoại · do bạn upload · gắn sao · thùng rác + số), thư mục, thẻ "AI Knowledge" + "Train lại";
 // bảng tệp (badge loại, thẻ, "Đã học", size, nguồn, người tạo, ngày, ⋯ Học lại / Xoá). Ghi: kb.add_source / remove_source /
 // refresh_source / folder.create. Thùng rác giữ 30 ngày (undo của kb.remove_source). TIP-020b: nút tải thật (useKbDownload), nguồn catalog
-// không xoá (khoá + giải thích — server cũng chặn), sửa / xoá thư mục ở KbFolderEditor.
+// không xoá (khoá + giải thích — server cũng chặn), sửa / xoá thư mục ở KbFolderEditor. TIP-043: mục "Chờ duyệt" (người có kb.manage) →
+// KbSuggestionsPanel (hàng chờ học từ hội thoại).
 'use client';
+import { useEffect } from 'react';
 import { App } from 'antd';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
@@ -23,6 +25,8 @@ import { RowMenu } from './RowMenu';
 import { RagUploadModal } from './RagUploadModal';
 import { KbFolderEditor } from './KbFolderEditor';
 import { useKbDownload } from '../hooks/useKbDownload';
+import { useKbPendingCount } from '../hooks/useKbSuggestions';
+import { KbSuggestionsPanel } from './KbSuggestionsPanel';
 
 const NAV: [string, IconName][] = [
   ['all', 'ic-doc'],
@@ -33,6 +37,7 @@ const NAV: [string, IconName][] = [
   ['trash', 'ic-trash'],
 ];
 const SEP = ' · ';
+const REVIEW = 'review';
 const PRODUCTS = '/products';
 
 function DocRow({ d, kb, can }: { d: KbDoc; kb: KbData; can: boolean }) {
@@ -105,6 +110,13 @@ export function RagSection() {
   const refresh = useAction('kb.refresh_source');
   const folder = useAction('kb.folder.create');
   const kb = q.data;
+  const pending = useKbPendingCount();
+  const sp = useSearchParams();
+  const setUi = ui.set;
+  // Link thông báo `ai_review` (kb) → /settings/rag_data?nav=review mở thẳng hàng chờ.
+  useEffect(() => {
+    if (sp.get('nav') === REVIEW) setUi({ kbNav: REVIEW, kbFolder: null });
+  }, [sp, setUi]);
   const folderName = kb?.folders.find((f) => f.id === ui.kbFolder)?.name;
   const newFolder = () => {
     let name = '';
@@ -156,6 +168,13 @@ export function RagSection() {
                     </button>
                   );
                 })}
+                {can ? (
+                  <button type="button" className={cx(styles.nav, ui.kbNav === REVIEW && !ui.kbFolder && styles.navOn)} onClick={() => ui.set({ kbNav: REVIEW, kbFolder: null })} data-testid="st-rag-nav-review">
+                    <Icon name="ic-check" size={16} color={ui.kbNav === REVIEW ? color.brand : color.text4} />
+                    <span className={styles.grow}>{t('nav.review')}</span>
+                    <span className={styles.navN}>{pending}</span>
+                  </button>
+                ) : null}
                 <div className={styles.sep} />
                 <div className={styles.fHead}>{t('folders')}</div>
                 {kb.folders.map((f) => (
@@ -188,6 +207,9 @@ export function RagSection() {
                 ) : null}
               </div>
             </div>
+            {ui.kbNav === REVIEW && can ? (
+              <KbSuggestionsPanel folders={kb.folders} />
+            ) : (
             <div className={styles.table} data-testid="st-rag">
               <div className={styles.tHead}>
                 <div className={styles.tT}>{folderName ?? t(`nav.${ui.kbNav}`)}</div>
@@ -209,6 +231,7 @@ export function RagSection() {
               ))}
               {kb.data.length === 0 ? <div className={styles.empty}>{t(ui.kbNav === 'trash' ? 'trashEmpty' : 'empty')}</div> : null}
             </div>
+            )}
           </div>
         ) : null}
       </PageStates>

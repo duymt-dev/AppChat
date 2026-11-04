@@ -830,7 +830,55 @@
       "conv": "Từ hội thoại",
       "upload": "Do bạn upload",
       "star": "Đánh dấu sao",
-      "trash": "Thùng rác"
+      "trash": "Thùng rác",
+      "review": "Chờ duyệt"
+    },
+    "review": {
+      "heading": "AI đã học — chờ duyệt",
+      "tab": {
+        "pending": "Chờ duyệt",
+        "approved": "Đã duyệt",
+        "rejected": "Đã từ chối"
+      },
+      "chip": {
+        "pending": "Chờ duyệt",
+        "rejected": "Đã từ chối",
+        "learning": "Đang học",
+        "learned": "Đã học",
+        "failed": "Lỗi nạp"
+      },
+      "empty": {
+        "pending": "Chưa có đề xuất nào cần duyệt.",
+        "approved": "Chưa duyệt đề xuất nào.",
+        "rejected": "Chưa từ chối đề xuất nào."
+      },
+      "more": "Xem thêm",
+      "title": "Duyệt đề xuất tri thức",
+      "close": "Đóng",
+      "question": "Câu hỏi",
+      "answer": "Câu trả lời",
+      "original": "Bản AI đề xuất",
+      "folder": "Thư mục",
+      "noFolder": "Không thư mục",
+      "visibility": "Ai được dùng",
+      "vis": {
+        "inherit": "Theo thư mục",
+        "public": "Khách & nhân viên",
+        "internal": "Chỉ nội bộ"
+      },
+      "reason": "Lý do từ chối (tuỳ chọn)",
+      "reasonPh": "VD: Thông tin đã cũ",
+      "approve": "Duyệt vào kho",
+      "reject": "Từ chối",
+      "cancel": "Huỷ",
+      "sensitive": "Còn số điện thoại, email hoặc thông tin riêng của khách — xoá trước khi duyệt.",
+      "conflict": "Đề xuất này vừa được người khác xử lý — đã tải lại hàng chờ.",
+      "doneApproved": "Đã duyệt bởi {by}.",
+      "doneRejected": "Đã từ chối bởi {by} · Lý do: {reason}",
+      "err": {
+        "required": "Không được để trống.",
+        "too_long": "Quá dài."
+      }
     },
     "folders": "THƯ MỤC",
     "knowT": "AI Knowledge",

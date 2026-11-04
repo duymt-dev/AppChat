@@ -1,6 +1,7 @@
 // Job đề xuất tri thức từ một hội thoại đã đóng (TIP-043, rag §9) — chạy ở ROLE=ai, ngoài transaction:
 // 1. Hội thoại còn `closed` + tin cuối = mốc cutoff (mở lại / có tin mới → bỏ, job mới theo mốc mới sẽ chạy khi đóng lại).
 // 2. Lấy ≤ 100 tin văn bản gần mốc (bỏ ghi chú nội bộ / hệ thống / đã xoá / thu hồi / tệp không chữ), che PII (không bảng khôi phục).
+//    Tin gửi model mang mã ngắn `[m<số>]` — server đổi lại mã thật trước khi kiểm cặp.
 // 3. Gọi model MỘT lần qua AiRunner (run kind `suggestion`, gateway + meter + ngân sách credit, không tool) với prompt `kb-suggestion`.
 // 4. Kiểm cặp ở server (mã tin thuộc tập đã gửi, khách xác nhận, không dữ liệu biến động / PII) → `kb.suggestion.propose` qua Executor.
 // Model lỗi / hết credit / sai khung → run failed (lý do đã rút gọn), KHÔNG ghi đề xuất nửa vời; retry job dùng lại run đã xong theo mốc.
@@ -30,6 +31,15 @@ const RUN_TITLE = 'kb.suggestion';
 /** Trần credit một lượt đề xuất (một lời gọi model, không tool). */
 export const SUGGEST_MAX_CREDITS = 20;
 const LABEL = { vi: { contact: 'KHÁCH', user: 'NHÂN VIÊN', agent: 'AGENT' }, en: { contact: 'CUSTOMER', user: 'STAFF', agent: 'AGENT' } } as const;
+
+/** Mã tin ngắn gửi model (`m1`, `m2`… theo thứ tự) — model chép sai UUID dài (ai:live TIP-043, DC-353); server đổi lại mã thật. */
+export const msgRef = (i: number) => `m${i + 1}`;
+
+/** Mã model trả → mã tin thật: nhận `m3` / `[m3]` / `m:3` / `[m:3]`; mã lạ giữ nguyên để kiểm cặp loại (`unknown_message`). */
+export function resolveRef(raw: string, msgs: readonly InputMessage[]): string {
+  const m = /^\[?m:?(\d{1,3})\]?$/i.exec(raw.trim());
+  return (m && msgs[Number(m[1]) - 1]?.id) || raw;
+}
 
 /** JSON `{pairs:[…]}` trong câu trả lời model; sai khung → null. */
 export function parsePairs(text: string): ProposedPair[] | null {
@@ -77,7 +87,7 @@ export async function proposeFromConversation(d: ProposeDeps, db: TenantDb, ws: 
   if (!msgs?.some((m) => m.sender === 'contact') || !msgs.some((m) => m.sender !== 'contact')) return { status: 'skipped', reason: 'no_exchange' };
   const locale = (await d.locale(ws)) === 'en' ? 'en' : 'vi';
   const pii = { ...(await piiContext(db, conversationId)), locale };
-  const lines = msgs.map((m) => `[m:${m.id}] ${LABEL[locale][m.sender]}: ${redactForKnowledge(m.body, pii).replace(/\s+/g, ' ').slice(0, 1000)}`);
+  const lines = msgs.map((m, i) => `[${msgRef(i)}] ${LABEL[locale][m.sender]}: ${redactForKnowledge(m.body, pii).replace(/\s+/g, ' ').slice(0, 1000)}`);
   let runId = done?.id;
   let text = done?.status === 'completed' ? (((done.output ?? {}) as { text?: string }).text ?? '') : null;
   if (done?.status === 'failed') return { status: 'failed', reason: (done.error ?? 'model_failed').slice(0, 120), run_id: done.id };
@@ -94,7 +104,7 @@ export async function proposeFromConversation(d: ProposeDeps, db: TenantDb, ws: 
     if (r.status !== 'completed') return { status: 'failed', reason: (r.error?.code ?? r.status).slice(0, 120), run_id: r.runId };
     text = r.text;
   }
-  const pairs = parsePairs(text);
+  const pairs = parsePairs(text)?.map((p) => ({ ...p, source_message_ids: p.source_message_ids.map((r) => resolveRef(r, msgs)) }));
   if (!pairs) return { status: 'failed', reason: 'bad_output', ...(runId ? { run_id: runId } : {}) };
   const checked = checkPairs(conversationId, pairs, msgs, pii);
   const out = await d.executor.execute(sysCtx(ws, `kb-suggest:${conversationId}:${cutoffId}`), 'kb.suggestion.propose', {

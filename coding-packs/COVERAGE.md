@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 125 | 18 | 6 | 13 | 26 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 126 | 18 | 6 | 13 | 25 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 90 | 15 | 11 | 1 | 36 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 139 | 20 | 3 | 5 | 26 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 274 | 79 | 4 | 4 | 93 | 3 | 0 | 0 |
-| E. standards/* | 170 | 59 | 1 | 6 | 52 | 2 | 43 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 140 | 20 | 3 | 5 | 25 | 12 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 277 | 79 | 4 | 4 | 90 | 3 | 0 | 0 |
+| E. standards/* | 171 | 59 | 1 | 6 | 51 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 19 | 1 | 62 | 0 | 6 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 43 | 18 | 7 | 13 | 42 | 3 | 0 | 0 |
-| **Tổng** | **860** | **210** | **94** | **42** | **281** | **37** | **69** | **0** |
+| **Tổng** | **866** | **210** | **94** | **42** | **275** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -151,7 +151,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D04d | public / internal | 01-REQUIREMENTS-MATRIX.md:83 | 020 | ĐẠT | kb-search.handler.ts:15; test kb.test.ts AC5 |
 | REQ-D04e | Hybrid + không dấu + ngưỡng căn cứ + trích nguồn | 01-REQUIREMENTS-MATRIX.md:83 | 020 | CHỜ-TK | ai/kb/search.ts:77; test kb.test.ts AC5 (embed giả) — Q-002 |
 | REQ-D04f | Giá / tồn / lịch không lấy từ RAG | 01-REQUIREMENTS-MATRIX.md:83 | 020, 027 | ĐẠT | test kb.test.ts "đoạn có giá không bao giờ ra" |
-| REQ-D04b | AI học từ hội thoại, người duyệt | 01-REQUIREMENTS-MATRIX.md:84 | 043 | CHƯA | kb.suggestion.* không có |
+| REQ-D04b | AI học từ hội thoại, người duyệt | 01-REQUIREMENTS-MATRIX.md:84 | 043 | ĐẠT | Học từ hội thoại đóng → đề xuất đã che PII → duyệt / từ chối ở Dữ liệu RAG; e2e kb-suggestions mock + http; ai:live 5/5 (TIP-043) |
 | REQ-D05a | Tự làm khi tin cậy ≥ 70% | 01-REQUIREMENTS-MATRIX.md:85 | 022 | ĐẠT | packages/ai/src/reply/handoff.ts:26; test reply.test.ts, agent-reply.test.ts |
 | REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | Báo giá > ngưỡng / giảm ngoài chính sách / hoàn tiền / HĐ ép duyệt (FORCE_APPROVAL DC-329, commerce-gaps.test.ts); phần gửi hàng loạt nghiệm thu ở 037 — không hạ luật 20M / 5% |
 | REQ-D06a | Handoff theo các lý do | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | handoff.ts:26; test agent-reply.test.ts |
@@ -584,7 +584,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | 012b | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
 | D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | 012d | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có"; TIP-012d nhận (2026-11-02) |
 | D29a | RAG thư mục + thẻ, public / internal, hybrid + ngưỡng + trích nguồn; agent builder phiên bản | 01-REQUIREMENTS-MATRIX.md:278 | 020, 021 | ĐẠT | test kb.test.ts AC4/AC5, agents.test.ts |
-| D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | CHƯA | `kb.suggestion.*` không có |
+| D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | ĐẠT | Hàng chờ kb_suggestion + người duyệt kb.manage (approve/reject), consumer kb-suggest khi hội thoại đóng, UI Dữ liệu RAG › Chờ duyệt (PD-013); ai:live 5/5 coding-packs/reports/ai-live-kb-suggestion-2026-11-04.md (TIP-043) |
 | D30 | Mẫu rich / DOCX DN, AI nhận diện biến, PDF LibreOffice; AI soạn BG / HĐ | 01-REQUIREMENTS-MATRIX.md:279 | 028, 030b | ĐẠT | DOCX + detect_fields + PDF (documents/services/docx.ts, soffice.ts · test documents.test.ts); AI soạn HĐ hai bước (TIP-030b F2, DC-322/323); AI soạn BG (029) |
 | D31 | Đơn sàn / POS khung + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:280 | 031 | ĐẠT | Xem COM-4b-* |
 | D32 | 1 chính + đồng phụ trách / theo dõi | 01-REQUIREMENTS-MATRIX.md:281 | 015, 013c | MỘT PHẦN | Xem COM-8b-2, COM-8b-4; TIP-013c nhận (2026-11-02) |
@@ -896,8 +896,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | 023c | ĐẠT | packages/core/src/integrations/actions/integration-test.handler.ts:3 (probe ở prepare, không ghi kết nối) + integration-form-schema.handler.ts; test apps/api/test/integration/actions/integration.test.action.test.ts, integration.form_schema.action.test.ts, packages/core/test/integration-form-probe.test.ts; probe adapter thật SePay/Casso/Brevo chờ 012b (Q-004) |
 | ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | ĐẠT | packages/actions/src/kb-folders.ts + packages/core/src/ai/kb/folder.handlers.ts KbFolderDeleteHandler (rỗng mới xoá, CAS, undo); ma trận apps/api/test/integration/actions/kb.folder.delete.action.test.ts; kb-management.test.ts |
 | ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | ĐẠT | packages/actions/src/kb-folders.ts + folder.handlers.ts KbFolderUpdateHandler (trùng tên, vòng cha, CAS, undo); ma trận actions/kb.folder.update.action.test.ts; kb-management.test.ts (CAS đồng thời) |
-| ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | ĐẠT | packages/actions/src/kb-suggestions.ts + packages/core/src/ai/kb/suggestions/suggestion.handlers.ts (kb.manage, CAS if_version, che PII lại → 422 sensitive_data, nguồn origin conversation kế thừa thư mục, event + ingest afterCommit); ma trận actions/kb.suggestion.approve.action.test.ts; kb-suggestions(.contract).test.ts; UI KbSuggestionReview (TIP-043) |
+| ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | ĐẠT | packages/actions/src/kb-suggestions.ts + suggestion.handlers.ts (kb.manage, CAS, lý do ≤300, không tạo nguồn); ma trận actions/kb.suggestion.reject.action.test.ts; contract test; UI drawer Từ chối (TIP-043) |
 | ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
 | ACT-message.unreact | `message.unreact` có trong registry + handler | plans/BLUEPRINT.md:617 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); message.react gửi lại cùng emoji = gỡ (inbox.ts:176; inbox.test.ts:261), không DV |
 | ACT-order.import_external | `order.import_external` có trong registry + handler | plans/BLUEPRINT.md:695 | 031 | NGOÀI | Không có trong packages/actions (actions.json); DV-011: không là action, OrderSyncService trong job (sales/jobs/order-sync.jobs.ts) — test order-sync.test.ts, orders.test.ts; DV-011: nhập đơn sàn là việc hệ thống (OrderSyncService), không khai action; đã chấp nhận lệch có ghi — nghĩa vụ action loại theo DV-011 (2026-11-02) |
@@ -969,7 +969,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-ai-b | GET /agents/:id/stats | plans/BLUEPRINT.md:968 | 038 | CHƯA | routes.json không có |
 | BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | 019b | CHƯA | không route, không TIP nhắc |
 | BP-4.4-ai-d | GET /kb/folders · /kb/sources | plans/BLUEPRINT.md:968 | 020, 003i | MỘT PHẦN | TIP-020:15 hứa nhưng không có route; chỉ /settings/kb (ai.controller.ts:48); TIP-003i nhận (2026-11-02) |
-| BP-4.4-ai-e | GET /kb/suggestions (P1) | plans/BLUEPRINT.md:968 | 043 | CHƯA | không route |
+| BP-4.4-ai-e | GET /kb/suggestions (P1) | plans/BLUEPRINT.md:968 | 043 | ĐẠT | apps/api/src/http/ai/kb-suggestions.controller.ts GET /v1/kb/suggestions (+/:id; cursor, meta.pending, covering index + deferred join, EXPLAIN .data/gate/043-explain-kb-suggestion.txt); kb-suggestions.contract.test.ts zod chung (TIP-043) |
 | BP-4.4-assistant | /assistant/sessions?q= · /assistant/sessions/:id/messages | plans/BLUEPRINT.md:969 | 023 | ĐẠT | http/ai/assistant.controller.ts:70-75; test assistant.test.ts |
 | BP-4.4-channels | /channels (theo type + accounts[]), /channels/:id, /channels/:id/stats, /webchat/widget | plans/BLUEPRINT.md:970 | 014/017 | ĐẠT | dưới /settings/channels*, /settings/widget (channels.controller.ts:10; DC-070); test channels.test.ts, webchat.test.ts — lệch đường không có DV |
 | BP-4.4-billing | /billing/summary, plans, ledger, invoices(+:id) | plans/BLUEPRINT.md:971 | 009/010 | ĐẠT | billing/billing.controller.ts; test billing.test.ts, billing-payments.test.ts |
@@ -1193,7 +1193,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-7 | Ngưỡng `min_score` theo workspace: không căn cứ thì không bịa | standards/ai/rag.md:29 | 020, 022 | ĐẠT | kb/search.ts:73-79; test kb.test.ts:141 |
 | STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020d | MỘT PHẦN | kb/search.ts:122 and kb-search.handler.ts:27 return retrieved refs, not answer citations; runner.ts:112,140 lacks answer linkage; reply/output.ts:6–12 has no citation schema |
 | STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | 020d | CHƯA | grep `citations` trong apps/web/src = 0 |
-| STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | CHƯA | Không có bảng/handler kb_suggestion |
+| STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | ĐẠT | kb_suggestion (che PII hai lớp, sensitiveLeft, fingerprint), duyệt kb.manage tạo nguồn conversation; packages/ai/src/kb/suggestion-redaction.ts, core/ai/kb/suggestions/*; DC-353 (TIP-043) |
 | STD-ai-rag-10a | Embedding 1536 chiều, provider theo `model_route` purpose=embed; truy vấn chỉ so cùng `embed_model` | standards/ai/rag.md:37 | 020 | CHỜ-TK | migration 020_ai_kb:57 vector(1536); search.ts:94; Q-002 |
 | STD-ai-rag-10b | Đổi model embed → job re-embed toàn kho | standards/ai/rag.md:38 | 020e | CHƯA | Chỉ comment search.ts:84; TIP-020e SPEC2–3/AC1–7 (chuyển từ 046) |
 | STD-ai-rag-11 | Index HNSW, GIN trgm, kb_chunk(source_id), kb_source(folder_id,status) partial | standards/ai/rag.md:39 | 020 | ĐẠT | migration 20261031600000_020_ai_kb:96; test kb.test.ts:75 (EXPLAIN) |

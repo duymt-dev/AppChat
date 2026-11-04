@@ -23,6 +23,7 @@ import { settingsAppsRoutes } from './domains/settings-apps';
 import { profileLayoutRoutes } from './domains/profile-layout';
 import { settingsDataRoutes } from './domains/settings-data';
 import { settingsAiRoutes } from './domains/settings-ai';
+import { kbSuggestionRoutes } from './domains/kb-suggestions';
 import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
 import { docTemplatesRoutes } from './domains/doc-templates';
@@ -81,6 +82,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...profileLayoutRoutes,
   ...settingsDataRoutes,
   ...settingsAiRoutes,
+  ...kbSuggestionRoutes,
   ...settingsOpsRoutes,
   ...settingsBillingRoutes,
   ...docTemplatesRoutes,

@@ -830,7 +830,55 @@
       "conv": "From conversations",
       "upload": "Uploaded by you",
       "star": "Starred",
-      "trash": "Trash"
+      "trash": "Trash",
+      "review": "To review"
+    },
+    "review": {
+      "heading": "AI learned — awaiting review",
+      "tab": {
+        "pending": "To review",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "chip": {
+        "pending": "To review",
+        "rejected": "Rejected",
+        "learning": "Learning",
+        "learned": "Learned",
+        "failed": "Load failed"
+      },
+      "empty": {
+        "pending": "No suggestions to review.",
+        "approved": "No approved suggestions yet.",
+        "rejected": "No rejected suggestions yet."
+      },
+      "more": "Load more",
+      "title": "Review knowledge suggestion",
+      "close": "Close",
+      "question": "Question",
+      "answer": "Answer",
+      "original": "AI suggestion",
+      "folder": "Folder",
+      "noFolder": "No folder",
+      "visibility": "Who can use it",
+      "vis": {
+        "inherit": "Folder default",
+        "public": "Customers & staff",
+        "internal": "Internal only"
+      },
+      "reason": "Reason for rejecting (optional)",
+      "reasonPh": "E.g. Outdated information",
+      "approve": "Add to knowledge base",
+      "reject": "Reject",
+      "cancel": "Cancel",
+      "sensitive": "Still contains a phone number, email or private customer data — remove it before approving.",
+      "conflict": "Someone else just handled this suggestion — the queue was reloaded.",
+      "doneApproved": "Approved by {by}.",
+      "doneRejected": "Rejected by {by} · Reason: {reason}",
+      "err": {
+        "required": "Required.",
+        "too_long": "Too long."
+      }
     },
     "folders": "FOLDERS",
     "knowT": "AI Knowledge",

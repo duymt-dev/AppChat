@@ -1273,6 +1273,17 @@ export const MANIFEST: ParityEntry[] = [
     proto: settingsProto,
     clip: ST_MAIN,
   },
+  // TIP-043 / PD-013: hàng chờ "Chờ duyệt" (khung tab + danh sách đề xuất) không có trong prototype — so nav trái + đầu màn với
+  // trạng thái Tất cả tệp, mask khung nội dung bên phải.
+  {
+    id: 'settings:rag-review',
+    route: '/settings/rag_data?nav=review',
+    protoStorage: settings('rag_data'),
+    appWait: '[data-testid="st-kbsug"] [data-sug]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+    mask: [{ x: 648, y: 216, width: 762, height: 632, reason: 'PD-013 hàng chờ học từ hội thoại (TIP-043) — prototype không có' }],
+  },
   {
     id: 'settings:ai-gov',
     route: '/settings/ai_gov',

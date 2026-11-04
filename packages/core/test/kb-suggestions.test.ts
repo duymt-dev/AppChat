@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { getAction } from '@appchat/actions';
 import { SYSTEM_ONLY } from '../src/ai/assistant/catalog';
 import { checkPairs, fingerprintOf, reviewText, sourceBody, type InputMessage } from '../src/ai/kb/suggestions/suggestion.rules';
+import { msgRef, parsePairs, resolveRef } from '../src/ai/kb/suggestions/suggestion.service';
 
 const C = 'c0000000-0000-4000-8000-000000000001';
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -64,6 +65,23 @@ describe('checkPairs', () => {
     expect(r.rejected).toEqual(['duplicate']);
     const many = Array.from({ length: 8 }, (_, k) => ({ question: `Câu ${k}?`, answer: `Đáp ${k}.`, source_message_ids: [id(1), id(2)] }));
     expect(checkPairs(C, many, msgs, ctx).pairs).toHaveLength(5);
+  });
+});
+
+describe('mã tin ngắn gửi model (DC-353)', () => {
+  const msgs: InputMessage[] = [
+    { id: 'aaaaaaaa-0000-7000-8000-000000000001', sender: 'contact', body: 'Hỏi' },
+    { id: 'aaaaaaaa-0000-7000-8000-000000000002', sender: 'user', body: 'Đáp' },
+  ];
+  it('m<số> / [m<số>] / m:<số> → mã thật; mã ngoài tập / bịa giữ nguyên để bị loại', () => {
+    expect(msgs.map((_, i) => msgRef(i))).toEqual(['m1', 'm2']);
+    for (const r of ['m2', '[m2]', 'm:2', '[m:2]', ' M2 ']) expect(resolveRef(r, msgs)).toBe(msgs[1]!.id);
+    expect(resolveRef('m9', msgs)).toBe('m9');
+    expect(resolveRef('m:aaaaaaaa-0000', msgs)).toBe('m:aaaaaaaa-0000');
+    const pairs = parsePairs('```json {"pairs":[{"question":"Hỏi","answer":"Đáp","source_message_ids":["m1","[m2]","m9"]}]} ```')!;
+    const ids = pairs[0]!.source_message_ids.map((r) => resolveRef(r, msgs));
+    expect(checkPairs('c', [{ ...pairs[0]!, source_message_ids: ids }], msgs, ctx).rejected).toEqual(['unknown_message']);
+    expect(checkPairs('c', [{ ...pairs[0]!, source_message_ids: ids.slice(0, 2) }], msgs, ctx).pairs).toHaveLength(1);
   });
 });
 

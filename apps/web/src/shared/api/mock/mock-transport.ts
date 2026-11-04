@@ -22,6 +22,7 @@ import { calendarParamRoute } from './domains/calendar';
 import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
 import { loyaltyFileBlob, loyaltyParamRoute } from './domains/loyalty';
+import { kbSuggestionParamRoute } from './domains/kb-suggestions';
 import { kbSourceBlob } from './domains/kb-folders';
 import { settingsAppsParamRoute } from './domains/settings-apps';
 import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui';
@@ -80,6 +81,7 @@ export const mockTransport: Transport = {
       ticketsParamRoute(path) ??
       marketingParamRoute(path) ??
       loyaltyParamRoute(path) ??
+      kbSuggestionParamRoute(path) ??
       settingsAppsParamRoute(path) ??
       assistantUiParamRoute(path) ??
       assistantSessionParamRoute(path) ??

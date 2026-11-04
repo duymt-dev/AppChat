@@ -67,7 +67,7 @@
 | STD-ai-rag-7 | Ngưỡng `min_score` theo workspace: không căn cứ thì không bịa | standards/ai/rag.md:29 | 020, 022 | ĐẠT | kb/search.ts:73-79; test kb.test.ts:141 |
 | STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020d | MỘT PHẦN | kb/search.ts:122 and kb-search.handler.ts:27 return retrieved refs, not answer citations; runner.ts:112,140 lacks answer linkage; reply/output.ts:6–12 has no citation schema |
 | STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | 020d | CHƯA | grep `citations` trong apps/web/src = 0 |
-| STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | CHƯA | Không có bảng/handler kb_suggestion |
+| STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | ĐẠT | kb_suggestion (che PII hai lớp, sensitiveLeft, fingerprint), duyệt kb.manage tạo nguồn conversation; packages/ai/src/kb/suggestion-redaction.ts, core/ai/kb/suggestions/*; DC-353 (TIP-043) |
 | STD-ai-rag-10a | Embedding 1536 chiều, provider theo `model_route` purpose=embed; truy vấn chỉ so cùng `embed_model` | standards/ai/rag.md:37 | 020 | CHỜ-TK | migration 020_ai_kb:57 vector(1536); search.ts:94; Q-002 |
 | STD-ai-rag-10b | Đổi model embed → job re-embed toàn kho | standards/ai/rag.md:38 | 020e | CHƯA | Chỉ comment search.ts:84; TIP-020e SPEC2–3/AC1–7 (chuyển từ 046) |
 | STD-ai-rag-11 | Index HNSW, GIN trgm, kb_chunk(source_id), kb_source(folder_id,status) partial | standards/ai/rag.md:39 | 020 | ĐẠT | migration 20261031600000_020_ai_kb:96; test kb.test.ts:75 (EXPLAIN) |
