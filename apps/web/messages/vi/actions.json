@@ -766,6 +766,9 @@
     },
     "review_tier": {
       "title": "Xét hạng theo quý (hệ thống)"
+    },
+    "attach_file": {
+      "title": "Đính kèm tệp cho thành viên"
     }
   },
   "member": {

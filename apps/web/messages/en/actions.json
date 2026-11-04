@@ -766,6 +766,9 @@
     },
     "review_tier": {
       "title": "Quarterly tier review (system)"
+    },
+    "attach_file": {
+      "title": "Attach a file to a member"
     }
   },
   "member": {

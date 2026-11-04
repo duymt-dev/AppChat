@@ -17,5 +17,12 @@ export const loyalty = {
     fraud: 'Points recovered (wrong grant / fraud)',
     other: 'Other reason',
   },
+  overview: {
+    earn: '{vnd}₫ = 1 point',
+    mult: '{tier} × {m}',
+    months: '{n} months',
+    calc: { big_order: '+ 1,000 points', birthday: '+ 500 points', signup: '+ 200 points', referral: '+ 300 points', rating: '+ 100 points', package: '× 1.2 points' },
+    exp: { m1: '1 month', m6: '6 months', m12: '12 months' },
+  },
   tier: { member: 'Member', silver: 'Silver', gold: 'Gold', diamond: 'Diamond' },
 };

@@ -8,6 +8,9 @@ import { visibleContact } from '../../crm/public';
 import { ledgerPage, type LedgerRowDb } from '../repos/ledger.repo';
 import { memberAggs, memberIds, type MemberAgg, type MemberFilter } from '../repos/member.repo';
 import { configDto, readConfig } from './config.service';
+import { loyaltyOverview } from './overview.service';
+import { memberFile, memberFiles } from './member-files.service';
+import type { FilesService } from '../../kernel/files/files.service';
 
 export interface Viewer {
   workspaceId: string;
@@ -50,6 +53,7 @@ export class MemberReadService {
     private readonly tenants: TenantDbResolver,
     private readonly platform: Pick<PlatformDb, 'user' | 'workspace'>,
     private readonly now: () => Date,
+    private readonly storage: FilesService | null = null,
   ) {}
 
   /** Bổ sung locale người xem (→ workspace → vi) + múi giờ workspace. */
@@ -155,6 +159,20 @@ export class MemberReadService {
       const last = page.at(-1);
       return { data: page.map((r) => this.row(v, r, codes, fmt)), next_cursor: rows.length > lim && last ? encodeCursor(last.created_at, last.id) : null };
     });
+  }
+
+  /** Tổng quan theo scope người xem (số thật — overview.service). */
+  async overview(v: LoyaltyViewer) {
+    return this.tx(v, (tx) => loyaltyOverview(tx, v.authz, this.now(), v.locale, v.timeZone));
+  }
+
+  async files(v: LoyaltyViewer, contactId: string) {
+    return this.tx(v, (tx) => memberFiles(tx, v.authz, contactId, v.locale, v.timeZone));
+  }
+
+  async file(v: LoyaltyViewer, contactId: string, fileId: string) {
+    if (!this.storage) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'Storage chưa cấu hình');
+    return memberFile(await this.tenants.get(TenantContexts.fromMembership(v.workspaceId, v.userId)), this.storage, v.authz, contactId, fileId);
   }
 
   /** Tra theo SĐT (hộp "Thêm thành viên"): chỉ trong scope; ngoài scope → như không có (không lộ tồn tại / tên). */

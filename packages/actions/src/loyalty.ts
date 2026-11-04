@@ -56,3 +56,18 @@ export const loyaltyUpdateConfig = defineAction({
   agentGrantable: false,
   invalidates: ['loyalty'],
 });
+
+export const loyaltyAttachFile = defineAction({
+  id: 'loyalty.attach_file',
+  module: 'loyalty',
+  title: 'actions.loyalty.attach_file.title',
+  description:
+    'Attach a file the user just uploaded (purpose attachment) to a member profile (tab Files). Needs edit rights on the customer; the file must be uploaded by the same user and not attached elsewhere. Example: {"contact_id":"<uuid>","file_id":"<uuid>"}',
+  input: z.object({ contact_id: z.string().min(1), file_id: z.string().min(1) }),
+  output: z.object({ contact_id: z.string(), file_id: z.string(), name: z.string() }),
+  permission: 'crm.edit',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['loyalty'],
+});

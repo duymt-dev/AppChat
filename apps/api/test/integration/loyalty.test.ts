@@ -2,10 +2,12 @@
 // + lô FIFO + số dư + timeline cùng transaction, hoàn tác ghi bù (không xoá sổ), điều chỉnh âm trả đúng lô khi hoàn tác; trừ quá số dư
 // 422; quyền: CS (không loyalty.adjust) 403, Kế toán (loyalty.adjust, không crm.edit) được, sales ngoài scope 404; update_config chỉ
 // hệ số / bật tắt / đơn sàn, đủ 4 hạng; đọc /loyalty/* theo zod chung, scope, lookup ngoài scope không lộ; EXPLAIN index sổ / danh sách.
+// P3: /loyalty/overview số thật theo scope (churn J05 rỗng); tệp thành viên — attach_file chỉ tệp chính mình tải, mở qua route loyalty
+// kiểm scope + liên kết (sales ngoài scope / thành viên khác → 404); CRM 360° quy đổi ×100.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
-import { loyaltyConfigSchema, loyaltyLedgerPageSchema, loyaltyMemberSchema, loyaltyMembersPageSchema } from '@appchat/shared';
+import { loyaltyConfigSchema, loyaltyLedgerPageSchema, loyaltyMemberFileSchema, loyaltyMemberSchema, loyaltyMembersPageSchema, loyaltyOverviewSchema } from '@appchat/shared';
 import { runTenantSeeds, tenantSeedDb, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
@@ -113,6 +115,50 @@ describe('đọc /loyalty/*', () => {
     expect((await get(`/loyalty/members/${lan}`, sales)).status).toBe(404);
     expect((await get('/loyalty/lookup?phone=0909360001', sales)).body.data).toEqual({ member: null, contact: null });
     expect((await get('/loyalty/lookup?phone=0909360001')).body.data.member.contact_id).toBe(lan);
+  });
+});
+
+async function upload(name: string, who?: { id: string }) {
+  const form = new FormData();
+  form.set('purpose', 'attachment');
+  form.set('file', new Blob([new Uint8Array(Buffer.from('%PDF-1.4 loyalty'))], { type: 'application/pdf' }), name);
+  const r = await fetch(`${h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${h.tokenFor(who ? who.id : h.user)}` }, body: form });
+  expect(r.status).toBe(201);
+  return ((await r.json()) as { data: { file_id: string } }).data.file_id;
+}
+
+describe('P3 overview + tệp thành viên + 360°', () => {
+  it('overview: zod chung, điểm phát hành tháng này = tổng điều chỉnh dương; churn rỗng (J05 P2); sales ngoài scope thấy 0', async () => {
+    const r = await get('/loyalty/overview');
+    expect(loyaltyOverviewSchema.safeParse(r.body.data).success, JSON.stringify(r.body)).toBe(true);
+    expect(r.body.data.churn).toEqual([]);
+    // Tháng này: điều chỉnh dương 200 + 500 + 10 (mục adjust_points) = 710.
+    expect(r.body.data.overview[0]).toEqual(['issued', '710', 'pts', expect.any(String)]);
+    expect(r.body.data.rules.filter((x: string[]) => x[5] === 'on').map((x: string[]) => x[0])).toEqual(['earn', 'tier_mult']);
+    expect((await get('/loyalty/overview', sales)).body.data.overview[0][1]).toBe('0');
+  });
+
+  it('attach_file: tệp của mình → danh sách + tải bytes; tệp người khác 422; sales ngoài scope / thành viên khác 404', async () => {
+    const f = await upload('Phiếu quà.pdf');
+    expect((await act('loyalty.attach_file', { contact_id: lan, file_id: f })).status).toBe(200);
+    const list = await get(`/loyalty/members/${lan}/files`);
+    expect(list.body.data).toHaveLength(1);
+    expect(loyaltyMemberFileSchema.safeParse(list.body.data[0]).success).toBe(true);
+    const bytes = await call(h, `/loyalty/members/${lan}/files/${f}`, undefined, {});
+    expect(bytes.status).toBe(200);
+    expect(Buffer.from(await bytes.arrayBuffer()).toString()).toContain('%PDF');
+    const other = await upload('cua-ke-toan.pdf', acc);
+    expect((await act('loyalty.attach_file', { contact_id: lan, file_id: other })).status).toBe(422);
+    expect((await act('loyalty.attach_file', { contact_id: lan, file_id: f })).status).toBe(409);
+    expect((await call(h, `/loyalty/members/${lan}/files/${f}`, undefined, as(sales))).status).toBe(404);
+    const bao = (await act('contact.create', { full_name: 'Anh Bảo Tệp', phone: '0909360002' })).body.data.result.contact_id;
+    expect((await call(h, `/loyalty/members/${bao}/files/${f}`, undefined, {})).status).toBe(404);
+  });
+
+  it('CRM 360°: giá trị điểm = điểm × 100đ', async () => {
+    const c = await get(`/contacts/${lan}`);
+    expect(c.status, JSON.stringify(c.body).slice(0, 200)).toBe(200);
+    expect(c.body.data.points_value).toBe(String(Number(c.body.data.points) * 100));
   });
 });
 

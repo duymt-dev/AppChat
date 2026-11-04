@@ -1156,7 +1156,8 @@ export const MANIFEST: ParityEntry[] = [
     protoStorage: loyalty,
     appWait: '[data-member]',
     proto: (p) => p.locator('.cmpwrap').nth(2).scrollIntoViewIfNeeded(),
-    app: (p) => p.getByTestId('ly-rules').scrollIntoViewIfNeeded(),
+    // Thẻ churn "Sắp có" (TIP-036) thấp hơn → thẻ quy tắc chạm mép 900px; cuộn đáy thẻ vào khung để clip không bị cắt 1px.
+    app: (p) => p.getByTestId('ly-rules').evaluate((el) => el.scrollIntoView({ block: 'end' })),
     clipTo: { proto: '.cmpwrap >> nth=2', app: '[data-testid="ly-rules"]' },
   },
   {

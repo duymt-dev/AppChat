@@ -102,6 +102,24 @@ test.describe('loyalty', () => {
     await expect(page.getByTestId('ly-adj-phone')).toHaveValue('0903 123 456');
   });
 
+  test('TIP-036: tab Tệp tải lên → có trong danh sách; tab AI gửi lượt Trợ lý; churn "Sắp có" không có nút giả', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await expect(page.getByTestId('ly-churn-soon')).toBeVisible();
+    await expect(page.getByTestId('ly-churn').getByRole('button')).toHaveCount(0);
+    await page.locator('[data-member="ct_ha"]').click();
+    const d = page.getByTestId('ly-drawer');
+    await d.getByRole('tab', { name: 'Tệp' }).click();
+    await expect(d.locator('[data-file]')).toHaveCount(0);
+    await d.getByTestId('ly-file-input').setInputFiles({ name: 'Phiếu quà.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 loyalty') });
+    await expect(d.locator('[data-file]')).toHaveCount(1);
+    await expect(d.locator('[data-file]')).toContainText('Phiếu quà.pdf');
+    await d.getByRole('tab', { name: 'AI' }).click();
+    await expect(d.getByTestId('ly-ai-insight')).toBeVisible();
+    await d.getByTestId('ly-ai-act-keep').click();
+    await expect(d.getByTestId('ly-ai-msgs')).toBeVisible();
+  });
+
   test('390: thẻ thành viên, drawer, hộp ghi điểm — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await page.goto(URL);

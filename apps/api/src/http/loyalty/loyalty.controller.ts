@@ -1,8 +1,9 @@
 // Đọc Khách thân thiết (TIP-036, Blueprint §4.4 loyalty — shape packages/shared/src/api/loyalty.ts): /v1/loyalty/config,
 // /loyalty/members?tier=&q=&page=&limit= (D42), /loyalty/members/:contactId, /loyalty/members/:contactId/ledger?cursor=&limit=,
-// /loyalty/lookup?phone=. Quyền `loyalty.view`; scope crm áp trong service (ngoài scope → 404 / lookup rỗng). Ghi qua action loyalty.*.
-import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
-import type { IncomingMessage } from 'node:http';
+// /loyalty/lookup?phone=, /loyalty/overview (số thật theo scope), /loyalty/members/:contactId/files (+ /:fileId tải bytes — kiểm scope khách
+// + liên kết trước Storage). Quyền `loyalty.view`; scope crm áp trong service (ngoài scope → 404 / lookup rỗng). Ghi qua action loyalty.*.
+import { Controller, Get, Inject, Param, Query, Req, Res } from '@nestjs/common';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { MemberReadService } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -38,6 +39,26 @@ export class LoyaltyController {
     const tier = q.tier ?? 'all';
     if (!TIERS.has(tier)) throw new AppError('VALIDATION_FAILED', 400, { tier: 'invalid' });
     return this.read.members(await this.viewer(req), { tier, q: q.q?.slice(0, 100) }, int(q.page, 'page', 1), int(q.limit, 'limit', 20));
+  }
+
+  @Get('loyalty/overview')
+  async overview(@Req() req: IncomingMessage) {
+    return { data: await this.read.overview(await this.viewer(req)) };
+  }
+
+  @Get('loyalty/members/:id/files')
+  async files(@Req() req: IncomingMessage, @Param('id') id: string) {
+    return { data: await this.read.files(await this.viewer(req), id) };
+  }
+
+  @Get('loyalty/members/:id/files/:fileId')
+  async file(@Req() req: IncomingMessage, @Param('id') id: string, @Param('fileId') fileId: string, @Res() res: ServerResponse) {
+    const f = await this.read.file(await this.viewer(req), id, fileId);
+    res.setHeader('content-type', f.row.mime);
+    res.setHeader('content-disposition', `attachment; filename*=UTF-8''${encodeURIComponent(f.row.name)}`);
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('cache-control', 'no-store');
+    res.end(f.body);
   }
 
   @Get('loyalty/lookup')

@@ -55,17 +55,12 @@
   "churn": {
     "title": "Cảnh báo khách sắp rời bỏ",
     "sub": "AI phát hiện dấu hiệu giảm tương tác · điểm hoặc gói sắp hết hạn",
-    "export": "Xuất danh sách",
-    "exporting": "Đang xuất danh sách khách sắp rời bỏ…",
-    "aiAll": "Giao AI chăm sóc tất cả",
-    "aiAllDone": "Đã giao AI Agent chăm sóc {n} khách",
     "col": {
       "name": "Thành viên",
       "tier": "Hạng",
       "risk": "Mức rủi ro",
       "signal": "Dấu hiệu",
-      "last": "Lần cuối",
-      "act": "Hành động"
+      "last": "Lần cuối"
     },
     "risk": {
       "high": "Cao",
@@ -73,10 +68,7 @@
       "low": "Thấp"
     },
     "score": "{n}/100",
-    "offer": "Tặng ưu đãi",
-    "offerDone": "Đã mở wizard chiến dịch ưu đãi cho {name}",
-    "assign": "Giao AI",
-    "assignDone": "AI Agent sẽ chăm sóc {name}"
+    "soonD": "Chấm điểm rủi ro rời bỏ đang được phát triển — sẽ có ở bản sau."
   },
   "rules": {
     "title": "Quy tắc tích điểm",
@@ -248,27 +240,39 @@
       "diamond": "Quà sinh nhật · ưu tiên đặt lịch · CSKH riêng · tích điểm ×2"
     },
     "aiT": "AI phân tích thành viên",
-    "aiD": "Thành viên tích điểm đều đặn, tần suất 2–3 lần/tháng. Còn <b>{n}</b> điểm để lên hạng kế tiếp — nên gợi ý ưu đãi riêng trong 30 ngày.",
+    "aiD": "Còn <b>{n}</b> điểm tích để lên hạng <b>{t}</b> — gợi ý ưu đãi riêng trong 30 ngày.",
     "aiMax": "Thành viên hạng cao nhất, chi tiêu ổn định — ưu tiên chăm sóc cá nhân hoá để giữ hạng.",
     "aiActs": "Gợi ý hành động",
-    "act": [
-      "Gửi ưu đãi giữ hạng qua Zalo cá nhân",
-      "Đặt lịch chăm sóc định kỳ",
-      "Nhắc điểm sắp hết hạn"
-    ],
-    "actDone": "Đã giao AI Agent: {a}",
     "files": "Tệp đính kèm",
     "openFile": "Mở",
     "upload": "+ Tải tệp lên",
-    "uploaded": "Đã tải tệp lên hồ sơ",
     "kind": {
       "earn": "Tích điểm",
       "redeem": "Dùng điểm",
       "adjust": "Điều chỉnh",
       "expire": "Hết hạn",
-      "reverse": "Đảo điểm"
+      "reverse": "Đảo điểm",
+      "restore": "Trả lại điểm"
     },
-    "noHistory": "Chưa có giao dịch điểm"
+    "noHistory": "Chưa có giao dịch điểm",
+    "acts": {
+      "keep": {
+        "label": "Gợi ý ưu đãi giữ / lên hạng",
+        "prompt": "Khách {name} ({phone}) đang hạng {tier}, có {points} điểm, {expiring} điểm sắp hết hạn. Đề xuất ưu đãi giữ hạng / lên hạng phù hợp, chưa gửi cho khách."
+      },
+      "care": {
+        "label": "Đặt lịch chăm sóc định kỳ",
+        "prompt": "Đề xuất lịch chăm sóc định kỳ cho khách {name} ({phone}), hạng {tier}. Chỉ đề xuất, chờ tôi xác nhận."
+      },
+      "expiring": {
+        "label": "Soạn nhắc điểm sắp hết hạn",
+        "prompt": "Soạn tin nhắc khách {name} ({phone}) rằng {expiring} điểm sắp hết hạn (số dư {points} điểm). Chỉ soạn nháp, không tự gửi."
+      }
+    },
+    "openFail": "Không mở được tệp",
+    "uploadFail": "Không tải được tệp lên",
+    "filesFail": "Không tải được danh sách tệp",
+    "noFiles": "Chưa có tệp đính kèm"
   },
   "unit": "thành viên"
 }

@@ -55,17 +55,12 @@
   "churn": {
     "title": "Churn alerts",
     "sub": "AI detected falling engagement · points or packages expiring",
-    "export": "Export list",
-    "exporting": "Exporting at-risk customers…",
-    "aiAll": "Hand all to AI care",
-    "aiAllDone": "AI agent will care for {n} customers",
     "col": {
       "name": "Member",
       "tier": "Tier",
       "risk": "Risk",
       "signal": "Signal",
-      "last": "Last seen",
-      "act": "Actions"
+      "last": "Last seen"
     },
     "risk": {
       "high": "High",
@@ -73,10 +68,7 @@
       "low": "Low"
     },
     "score": "{n}/100",
-    "offer": "Send offer",
-    "offerDone": "Opened an offer campaign for {name}",
-    "assign": "Assign AI",
-    "assignDone": "AI agent will care for {name}"
+    "soonD": "Churn risk scoring is coming in a later release."
   },
   "rules": {
     "title": "Earning rules",
@@ -248,27 +240,39 @@
       "diamond": "Birthday gift · priority booking · dedicated care · earn ×2"
     },
     "aiT": "AI member analysis",
-    "aiD": "Steady earner, 2–3 visits a month. <b>{n}</b> points to the next tier — suggest a personal offer within 30 days.",
+    "aiD": "<b>{n}</b> more earned points to reach <b>{t}</b> — suggest a personal offer within 30 days.",
     "aiMax": "Top-tier member with steady spending — prioritise personal care to keep the tier.",
     "aiActs": "Suggested actions",
-    "act": [
-      "Send a tier-keeping offer via Zalo personal",
-      "Schedule periodic care",
-      "Remind about expiring points"
-    ],
-    "actDone": "Assigned to the AI agent: {a}",
     "files": "Attachments",
     "openFile": "Open",
     "upload": "+ Upload file",
-    "uploaded": "File uploaded to the profile",
     "kind": {
       "earn": "Earned",
       "redeem": "Redeemed",
       "adjust": "Adjusted",
       "expire": "Expired",
-      "reverse": "Reversed"
+      "reverse": "Reversed",
+      "restore": "Points returned"
     },
-    "noHistory": "No point transactions yet"
+    "noHistory": "No point transactions yet",
+    "acts": {
+      "keep": {
+        "label": "Suggest a keep / upgrade offer",
+        "prompt": "Customer {name} ({phone}) is {tier} with {points} points, {expiring} points expiring soon. Suggest a suitable keep-tier / upgrade offer; do not send it to the customer yet."
+      },
+      "care": {
+        "label": "Plan regular care",
+        "prompt": "Suggest a regular care schedule for customer {name} ({phone}), tier {tier}. Only suggest; wait for my confirmation."
+      },
+      "expiring": {
+        "label": "Draft an expiring points reminder",
+        "prompt": "Draft a message reminding customer {name} ({phone}) that {expiring} points expire soon (balance {points} points). Draft only, do not send."
+      }
+    },
+    "openFail": "Could not open the file",
+    "uploadFail": "Could not upload the file",
+    "filesFail": "Could not load the files",
+    "noFiles": "No attachments yet"
   },
   "unit": "members"
 }

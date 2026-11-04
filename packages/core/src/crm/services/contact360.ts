@@ -37,7 +37,8 @@ export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promi
     email: k.email ?? '',
     role: k.title ?? '',
     points: String(k.pointsBalance),
-    points_value: String(k.pointsBalance * 10n),
+    // 1 điểm = 100đ (COMMERCE §7 — TIP-036; trước đây ×10 sai luật).
+    points_value: String(k.pointsBalance * 100n),
     journey: { stage: m.stage[k.stage], hint: '' },
     // Không đọc `contact.ai_summary` cũ (chung mọi vai trò — có thể lộ công nợ); tóm tắt theo phạm vi người xem ở contact.summarize (TIP-015b).
     ai_summary: { badge: '', close_pct: 0, bullets: [] },

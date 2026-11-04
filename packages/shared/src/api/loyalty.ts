@@ -61,6 +61,29 @@ export const loyaltyLookupSchema = z.object({
   contact: z.object({ id: z.string(), name: z.string() }).nullable(),
 });
 
+/** Tổng quan: `overview` [key, giá trị, đơn vị, xu hướng]; `churn` (J05 — P2, rỗng ở P0); `rules` [key, sự kiện, điều kiện, cách tính, hạn,
+ *  on | off | soon]; `files` (tệp chung cũ — rỗng; tệp theo thành viên ở `/members/:id/files`). */
+export const loyaltyOverviewSchema = z.object({
+  now: z.string(),
+  overview: z.array(z.tuple([z.string(), z.string(), z.string(), z.string()])),
+  churn: z.array(z.tuple([z.string(), z.string(), z.string(), z.string(), z.number(), z.string(), z.string()])),
+  rules: z.array(z.tuple([z.string(), z.string(), z.string(), z.string(), z.string(), z.string()])),
+  files: z.array(z.tuple([z.string(), z.string(), z.string()])),
+});
+
+export const loyaltyMemberFileSchema = z.object({
+  file_id: z.string(),
+  name: z.string(),
+  ext: z.string(),
+  mime: z.string(),
+  size: z.number().int(),
+  created_by: z.string().nullable(),
+  created_at: z.string(),
+  at: z.string(),
+});
+
+export type LoyaltyOverviewDto = z.infer<typeof loyaltyOverviewSchema>;
+export type LoyaltyMemberFileDto = z.infer<typeof loyaltyMemberFileSchema>;
 export type LoyaltyConfigDto = z.infer<typeof loyaltyConfigSchema>;
 export type LoyaltyLedgerRowDto = z.infer<typeof loyaltyLedgerRowSchema>;
 export type LoyaltyMemberDto = z.infer<typeof loyaltyMemberSchema>;

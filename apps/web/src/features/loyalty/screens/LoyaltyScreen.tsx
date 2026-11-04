@@ -62,10 +62,10 @@ export function LoyaltyScreen() {
             <MemberTable rows={list.data?.data ?? []} meta={list.data?.meta} />
             <ChurnCard data={ov.data} />
             <RulesCard data={ov.data} />
-            <MemberDrawer data={ov.data} />
           </>
         ) : null}
       </PageStates>
+      <MemberDrawer />
       <AdjustPointsModal />
       <ConfigModal />
       <SimulatorModal />
