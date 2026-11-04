@@ -7,7 +7,7 @@
 Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
 
 **Câu dán vào `/goal`:**
-`Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046), mỗi TIP rà "Rà trước khi làm" với code thật, nhánh tip/XXX-<slug> từ origin/dev, làm đúng manifest, đọc và đối chiếu mọi standard TIP ghi tên, test 3 cổng D59, commit, gh pr create --base dev, cập nhật COVERAGE (parts + merge.py) và bảng tiến độ; câu hỏi mới ghi QUESTIONS.md kèm đề xuất, quyết định kỹ thuật ghi DECISIONS.md, lệch spec ghi DEVIATIONS.md; không dừng chờ trả lời trừ luật tiền / quyền / pháp lý / xoá dữ liệu.`
+`Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046) tới khi TIP-046 đạt. Mỗi TIP: rà "Rà trước khi làm" với code thật; làm đúng manifest (tips/manifests/TIP-XXX-files.md); đọc và đối chiếu mọi standard TIP ghi tên, completion report có bảng "Đối chiếu standards" (file:dòng hoặc mã DV); test theo mục "Cổng test" của GOAL-RELEASE.md; commit; gh pr create --base dev; cập nhật COVERAGE (tools/obligations/parts + merge.py) và bảng tiến độ GOAL-RELEASE.md. TIP nhiều pha thì một PR mỗi pha. Test CHỈ trong phạm vi TIP thay đổi: cổng commit chạy lint/typecheck/unit của package đổi + depcheck + lint:size, lint:tokens, lint:masks, i18n:check; cổng chốt (một lần mỗi TIP) chạy lint/typecheck/unit/build của package đổi, integration CHỈ các file test của domain/action TIP chạm, E2E mock + http CHỈ spec của module TIP, parity màn TIP sửa; sửa lớp dùng chung (kernel, packages/db|actions|shared|ui, apps/web/src/shared) thì thêm E2E mock các module dùng phần đó + parity --done. KHÔNG chạy full integration hay full E2E hồi quy ở TIP thường — chỉ chạy ở TIP-046. Sau rebase chỉ chạy lại phần bị ảnh hưởng. Ca đỏ trong phạm vi TIP mà đã đỏ sẵn trên origin/dev hoặc là lỗi môi trường đã ghi sổ (vd Q-042, Q-010) thì chạy riêng chứng minh rồi ghi report — không tính là cổng đỏ. Thiếu provider thật (Zalo, SePay, Brevo, VPS, credit) ghi "chưa nghiệm thu với provider thật", không dừng. ai:live: lỗi hạ tầng provider chạy lại, lỗi hệ thống phải sửa, không hạ ngưỡng. Nhánh: tip/XXX-<slug> từ origin/dev; nếu PR TIP trước chưa merge thì tách xếp chồng từ nhánh TIP trước. Trước mỗi PR: git fetch, PR trước đã merge thì rebase lên origin/dev, chưa merge thì rebase lên nhánh TIP trước; thân PR ghi "xếp chồng trên #N — merge #N trước". Mở PR xong là sang ngay pha / TIP kế trong cùng lượt — KHÔNG dừng để tóm tắt hay chờ phản hồi; tiến độ ghi vào bảng tiến độ và coding-packs/HANDOFF-NEXT.md, không báo qua chat. Câu hỏi mới ghi QUESTIONS.md kèm đề xuất rồi làm tiếp theo đề xuất; quyết định kỹ thuật ghi DECISIONS.md; lệch spec ghi DEVIATIONS.md. Chỉ dừng khi: (1) TIP-046 đạt; (2) cần quyết định về luật tiền / quyền / pháp lý / xoá dữ liệu; (3) lỗi test thuộc phạm vi TIP mà đã thử sửa không được — ghi rõ lý do vào HANDOFF-NEXT.md.`
 
 ## Đọc trước (theo thứ tự)
 
@@ -23,22 +23,27 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 2. Nhánh `tip/XXX-<slug>` từ `origin/dev` mới nhất (bảng ghi sẵn tên). TIP trước chưa merge → tách từ nhánh đó, ghi "xếp chồng" trong PR.
 3. Thi công đúng manifest; file ngoài manifest = sửa manifest trước. Ghi chỉ qua `ActionExecutor`; không đổi luật COMMERCE / quyền / đơn giá Credit.
 3b. **Đối chiếu standards:** đọc mọi file trong mục `APPLICABLE STANDARDS` của TIP (danh mục `standards/README.md`) trước khi viết code của phần đó; luật máy không kiểm (thứ tự composite index, deferred join, envelope `{ data }` / `{ error }`, preview risk send/money/delete/config, test §12 mỗi action…) soát tay khi tự review diff.
-4. Test **3 cổng D59** (bảng dưới). Đỏ → không commit / không báo DONE.
+4. Test theo **Cổng test** (mục dưới) — **chỉ phạm vi TIP thay đổi**. Cổng commit đỏ → không commit; cổng chốt đỏ → không báo DONE.
 5. `reports/TIP-XXX-completion.md` (khuôn BUILDER-HANDOFF, có mục **Đối chiếu standards**: mỗi standard TIP ghi tên → file:dòng tuân thủ hoặc mã DV khi lệch) · cập nhật `tools/obligations/parts/*.md` (trạng thái + bằng chứng file:dòng + test) → `python -X utf8 tools/obligations/merge.py` · `git status --short` sạch.
 6. `git push -u origin <nhánh>` → `gh pr create --base dev` (thân PR theo `standards/workflow/git-flow-ci.md`). Không PR vào `main`, không tự merge.
 7. Cập nhật bảng tiến độ dưới (trạng thái · SHA · PR) — commit tài liệu này trên `dev`.
 
 **Không dừng chờ trả lời:** câu hỏi mới ghi `QUESTIONS.md` + đề xuất, làm theo đề xuất ở phạm vi đảo ngược được (cờ / cấu hình / adapter mock), ghi DC. Chỉ BLOCKED khi đề xuất không đảo ngược được (luật tiền, quyền, pháp lý, xoá dữ liệu, bảo mật) — khi đó làm TIP kế tiếp không phụ thuộc.
 
-## Cổng test (D59)
+## Cổng test (D59 — chỉ phạm vi TIP)
 
-| Cổng | Chạy |
-|------|------|
-| **Khi làm** | Test trực tiếp phần đang sửa (một file test, một spec) |
-| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` + `pnpm depcheck` + `pnpm lint:size` · `pnpm lint:tokens` · `pnpm lint:masks` · `pnpm i18n:check` (ba script gốc không nằm trong lint của package) |
-| **Chốt TIP** | `pnpm lint` · `pnpm typecheck` · `pnpm test` · integration (Postgres + Memurai thật) · `pnpm depcheck` · `pnpm build` · `pnpm lint:size` · `pnpm i18n:check` khi đổi chuỗi · E2E luồng TIP ở **cả** `mock` và `http` · `pnpm parity <id>` màn liên quan · full E2E hồi quy một lần |
+**Nguyên tắc:** chỉ test phần TIP thay đổi. "Phần thay đổi" = package có file đổi so với nhánh nền (`origin/dev`, hoặc nhánh TIP trước khi xếp chồng) + domain / action / màn mà TIP chạm. **Full integration và full E2E hồi quy chỉ chạy ở TIP-046**, không chạy ở TIP thường.
 
-Sửa lớp dùng chung (kernel, `packages/{db,actions,shared,ui}`, `apps/web/src/shared`) → chạy thêm hồi quy tương ứng (`pnpm parity --done`, e2e module dùng phần đó). Ca đỏ có sẵn trên `origin/dev` không tính là xanh: ghi tên + bằng chứng vào report và `QUESTIONS.md`, không skip.
+| Cổng | Chạy | Không chạy |
+|------|------|-----------|
+| **Khi làm** | File test / spec trực tiếp phần đang sửa | build, integration, E2E rộng |
+| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` · `pnpm depcheck` · `pnpm lint:size` · `pnpm lint:tokens` · `pnpm lint:masks` · `pnpm i18n:check` | package không đổi |
+| **Chốt TIP** (một lần, ở pha cuối, trước report) | `pnpm turbo run lint typecheck test build --filter=...[<nhánh nền>]` (package đổi + package phụ thuộc nó) · integration **chỉ** `apps/api/test/integration/<domain>*.test.ts` của domain TIP chạm + `apps/api/test/integration/actions/<action id>.action.test.ts` của action TIP thêm / sửa (+ `apps/worker/test/integration/*` liên quan nếu TIP sửa worker) · `pnpm depcheck` · `lint:size` · `lint:tokens` · `lint:masks` · `i18n:check` · E2E **chỉ spec module TIP** ở `mock` (`pnpm e2e <module>`) và `http` (`pnpm e2e:http <spec>`) · `pnpm parity <id>` màn TIP sửa | `pnpm test:integration` toàn bộ · `pnpm e2e` toàn bộ · `parity --done` (trừ khi sửa lớp dùng chung) |
+
+- **Sửa lớp dùng chung** (kernel, `packages/{db,actions,shared,ui}`, `apps/web/src/shared`) → thêm E2E mock các module dùng phần đó + `pnpm parity --done`; sửa kernel action / executor → thêm integration `actions/*` của kernel. Vẫn không chạy full integration / full E2E.
+- **TIP nhiều pha:** mỗi pha qua cổng commit; cổng chốt chạy một lần ở pha cuối. **Sau rebase** chỉ chạy lại phần bị ảnh hưởng.
+- **Ca đỏ có sẵn:** ca trong phạm vi TIP nhưng đã đỏ trên `origin/dev`, hoặc lỗi môi trường đã ghi sổ (Q-042 phiên Zalo giả, Q-010 E2E chập chờn) → chạy riêng chứng minh, ghi tên + bằng chứng vào report (và `QUESTIONS.md` nếu mới); không tính là cổng đỏ, không skip test.
+- **TIP-046 (cổng phát hành)** là nơi duy nhất chạy full: `pnpm test:integration` toàn bộ · `pnpm e2e` toàn bộ · `pnpm e2e:http` toàn bộ · `pnpm parity --done`.
 
 ## Định nghĩa ĐẠT
 
