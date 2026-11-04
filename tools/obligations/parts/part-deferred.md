@@ -70,8 +70,8 @@
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | 028b | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment); TIP-028b nhận (2026-11-02) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |
 | DEF-029-1 | Gửi báo giá / HĐ / đề nghị / nhắc hẹn / CSAT qua Zalo / Email thật | reports/TIP-029:28; 030:29; 032:28; 033:29; 034:29; 035:30 | — | CHỜ-TK | Q-003 / Q-004 (adapter giả) |
-| DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | CHƯA | Bảng packages/db/prisma/tenant/contracts.prisma:83 có; action không có trong registry |
-| DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | CHƯA | Không có trong packages/actions |
+| DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | ĐẠT | Đã làm ở TIP-030b F3 — xem COM-9-17 / ACT-contract.create_appendix |
+| DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | ĐẠT | Đã làm ở TIP-030b F2 — xem ACT-contract.draft_from_content |
 | DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | 003e | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger; TIP-003e nhận (2026-11-02) |
 | DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
@@ -118,7 +118,7 @@
 | DV-007 | Duyệt LibreOffice cho mẫu rich + docxtemplater / pizzip + preview trong API | DEVIATIONS.md:24 | 028 | ĐẠT | documents/services/doc-renderer.ts:40; test documents.test.ts (queue doc-render xem DEF-028-1) |
 | DV-008 | Duyệt `/quotes/meta`, link công khai, queue `sales-scheduler` | DEVIATIONS.md:25 | 029 | ĐẠT | apps/api/src/http/sales/public-quotes.controller.ts:1; test quotes.test.ts |
 | DV-009 | Duyệt `pdf-lib` + endpoint ký / OTP + `contracts-scheduler` | DEVIATIONS.md:26 | 030 | ĐẠT | contracts/services/contract-sign-pdf.ts:3; test contracts.test.ts |
-| DV-010 | Làm phụ lục + AI soạn nháp HĐ | DEVIATIONS.md:27 | 030b | CHƯA | Xem DEF-030-1/2 |
+| DV-010 | Làm phụ lục + AI soạn nháp HĐ | DEVIATIONS.md:27 | 030b | ĐẠT | Đóng: phụ lục (F3) + AI soạn nháp (F2) ở TIP-030b |
 | DV-011 | Duyệt cột đơn mới + `order_event`; `order.import_external` không là action | DEVIATIONS.md:28 | 031 | ĐẠT | packages/db/prisma/tenant/sales-orders.prisma:124; test orders.test.ts |
 | DV-012 | Duyệt `ConnectorManifest.hidden` + `mock_marketplace` | DEVIATIONS.md:29 | 031 | ĐẠT | packages/integrations/src/connectors/mock/order-sync.ts:19, define.ts:10; test packages/integrations/test/order-sync.test.ts |
 | DV-013 | Duyệt `bank_tx` / `payment_account` / `package_usage` + `payment.refund_approve` / `refund_reject` | DEVIATIONS.md:30 | 032 | ĐẠT | packages/actions/src/payments.ts:33; test payments.test.ts:268 |

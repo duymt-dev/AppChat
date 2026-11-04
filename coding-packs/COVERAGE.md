@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 123 | 19 | 6 | 13 | 27 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 70 | 21 | 12 | 1 | 49 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 107 | 33 | 3 | 5 | 45 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 256 | 80 | 5 | 4 | 109 | 3 | 0 | 0 |
-| E. standards/* | 164 | 61 | 1 | 6 | 56 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 10 | 1 | 71 | 0 | 6 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 30 | 18 | 8 | 13 | 54 | 3 | 0 | 0 |
-| **Tổng** | **760** | **233** | **106** | **42** | **346** | **37** | **69** | **0** |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 74 | 19 | 12 | 1 | 47 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 114 | 30 | 3 | 5 | 41 | 12 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 258 | 80 | 5 | 4 | 107 | 3 | 0 | 0 |
+| E. standards/* | 166 | 61 | 1 | 6 | 54 | 2 | 43 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 12 | 1 | 69 | 0 | 6 | 5 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 33 | 18 | 8 | 13 | 51 | 3 | 0 | 0 |
+| **Tổng** | **780** | **228** | **104** | **42** | **333** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -282,7 +282,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F06b-1 | Mẫu chứng từ của DN: rich + tải DOCX, AI nhận diện biến, người xác nhận; 4 loại mẫu | 01-REQUIREMENTS-MATRIX.md:130 | 028 | ĐẠT | packages/core/src/documents/actions/doc-template.handlers.ts:26, :138; test documents.test.ts, apps/web/e2e/http/documents.spec.ts |
 | REQ-F06b-2 | Bảng kiểm Điều 398 BLDS cho hợp đồng (cảnh báo, không chặn) | 01-REQUIREMENTS-MATRIX.md:130 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:41; test variables.test.ts "bảng kiểm: hợp đồng theo Điều 398" |
 | REQ-F06b-3 | AI soạn báo giá từ nội dung: giá từ catalog, dòng ngoài danh mục đánh dấu + buộc duyệt | 01-REQUIREMENTS-MATRIX.md:130 | 029 | ĐẠT | packages/core/src/sales/quotes/services/quote-draft.ts:17; quote-draft.handler.ts:21; test quotes.test.ts "AI soạn từ nội dung", sales-unit.test.ts |
-| REQ-F06b-4 | AI soạn hợp đồng nháp từ nội dung (đoạn AI đề xuất tô nổi) | 01-REQUIREMENTS-MATRIX.md:130 | 030b | CHƯA | `contract.draft_from_content` không có trong registry (FORMAT.md danh sách thiếu); TIP-030b mục 5 |
+| REQ-F06b-4 | AI soạn hợp đồng nháp từ nội dung (đoạn AI đề xuất tô nổi) | 01-REQUIREMENTS-MATRIX.md:130 | 030b | ĐẠT | contract.prepare_draft → draft_from_content, khối AI tô nổi Giữ / Bỏ (AiDraftPanel.tsx, AiSuggestions.tsx); ai:live 4/4 (TIP-030b F2) |
 | REQ-F07-a | Đơn: tạo trực tiếp / từ báo giá / từ lịch hẹn hoàn tất / từ hợp đồng đã ký | 01-REQUIREMENTS-MATRIX.md:131 | 031, 033 | ĐẠT | order-create.handlers.ts:101, :123, :166; order-from-appointment.handler.ts:18; test orders.test.ts, booking.test.ts "vòng đời ngoài gói … order.create_from_appointment" |
 | REQ-F07-b | Hai trục trạng thái tiến độ + thanh toán (Chờ cọc chỉ đơn cần cọc) | 01-REQUIREMENTS-MATRIX.md:131 | 031 | ĐẠT | packages/shared/src/orders/order-state.ts; test order-state.test.ts, orders.test.ts "create: … cọc → Chờ cọc" |
 | REQ-F07-c | Huỷ đơn đã thu → sinh yêu cầu hoàn tiền có duyệt | 01-REQUIREMENTS-MATRIX.md:131 | 031, 032 | ĐẠT | packages/core/src/sales/orders/actions/order-flow.handlers.ts:47 cancelOrder → refundCancelled; test orders.test.ts "cancel", payments.test.ts "huỷ đơn đã thu → yêu cầu hoàn toàn bộ" |
@@ -306,10 +306,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-G07d | Hết hạn thì khoá, Owner gia hạn tay | 01-REQUIREMENTS-MATRIX.md:134 | 032 | ĐẠT | package.handlers.ts:45 package.extend; test payments.test.ts "liệu trình: gia hạn (gói hết hạn mở lại)" |
 | REQ-G07e | Liệu trình hiển thị ở Hồ sơ 360° và agent đọc được | 01-REQUIREMENTS-MATRIX.md:134 | 033b | CHƯA | API `GET /contacts/:id/packages` có nhưng FE chỉ mock dùng (apps/web/src/shared/api/mock/domains/invoices-actions.ts:191), Blocks360 không có khối; không action đọc liệu trình (023b mục 6 không liệt kê); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
 | REQ-F09a | Hợp đồng tạo trực tiếp hoặc từ báo giá đã chấp nhận; 3 loại Dịch vụ / Mua bán / Nguyên tắc | 01-REQUIREMENTS-MATRIX.md:135 | 030 | ĐẠT | packages/actions/src/contracts.ts:14; contract-write.handlers.ts:64, :83; test contracts.test.ts "create", "từ báo giá" |
-| REQ-F09b | Nội dung hợp đồng từ mẫu theo loại hợp đồng | 01-REQUIREMENTS-MATRIX.md:135 | 030b | MỘT PHẦN | contracts/services/contract-doc.ts:45 lấy templateId hoặc mẫu mặc định chung, không theo `contract_kind`; TIP-030b mục 1 |
-| REQ-F09c | Hợp đồng từ PDF / DOCX tải lên hoặc tệp khách gửi trong hội thoại | 01-REQUIREMENTS-MATRIX.md:135 | 030b | CHƯA | contract.create không nhận file; TIP-030b mục 2–3 |
+| REQ-F09b | Nội dung hợp đồng từ mẫu theo loại hợp đồng | 01-REQUIREMENTS-MATRIX.md:135 | 030b | ĐẠT | Mẫu theo loại hợp đồng (contract-doc.ts chọn mẫu theo contract_kind → mặc định loại → mặc định chung) (TIP-030b F1.1) |
+| REQ-F09c | Hợp đồng từ PDF / DOCX tải lên hoặc tệp khách gửi trong hội thoại | 01-REQUIREMENTS-MATRIX.md:135 | 030b | ĐẠT | PDF / DOCX tải lên + từ tệp trong hội thoại (contract.create_from_attachment) (TIP-030b F1.2–F1.3) |
 | REQ-F09d | Owner duyệt + ký trước (OTP), rồi gửi khách ký điện tử: link + OTP + ký tay, lưu vết, trang chứng nhận, SHA-256 | 01-REQUIREMENTS-MATRIX.md:135 | 030 | ĐẠT | contract-approval.handlers.ts:99; contracts/services/public-sign.service.ts; contract-sign-pdf.ts; test contracts.test.ts "Duyệt & ký", "mở link → … SHA-256", contracts-unit.test.ts, apps/web/e2e/http/contracts.spec.ts |
-| REQ-F09e | Đã ký thì khoá; thay đổi qua phụ lục | 01-REQUIREMENTS-MATRIX.md:135 | 030b | MỘT PHẦN | bảng contract_appendix có (contracts.prisma:98) nhưng không action `contract.create_appendix` (registry thiếu); FE tab Phụ lục / tải tệp là message.info (apps/web/src/features/contracts/components/DetailTabs.tsx:237); TIP-030b mục 4 |
+| REQ-F09e | Đã ký thì khoá; thay đổi qua phụ lục | 01-REQUIREMENTS-MATRIX.md:135 | 030b | ĐẠT | Đã ký khoá; thay đổi qua phụ lục ký riêng (packages/core/src/contracts/appendix/*) (TIP-030b F3) |
 | REQ-F09f | Sinh đơn từ hợp đồng; nhắc gia hạn T-30; tự hết hạn | 01-REQUIREMENTS-MATRIX.md:135 | 030, 031 | ĐẠT | order-create.handlers.ts:166; contract-system.ts; test orders.test.ts "hợp đồng … đã ký → nhiều đơn", contracts.test.ts "T-30 nhắc gia hạn một lần; qua ngày kết thúc → expired" |
 | REQ-F09g | Ký số CA | 01-REQUIREMENTS-MATRIX.md:135 | — | NGOÀI | D25 (01-REQUIREMENTS-MATRIX.md:270) "ký số CA P2" |
 | REQ-F09h | "Xuất Excel" danh sách Hợp đồng chạy thật | 01-REQUIREMENTS-MATRIX.md:135 | 038 | GIẢ | apps/web/src/features/contracts/components/ContractsToolbar.tsx:69 `message.info(t('exporting'))`; Q-024 |
@@ -520,10 +520,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-9-2 | Kanban / chip 4 cột; Chờ duyệt gộp Nháp; Từ chối / Chấm dứt chỉ ở "Tất cả" | plans/COMMERCE-DECISIONS.md:198 | 030 | ĐẠT | contract-state.ts:31-33 · test contracts.test.ts "D42 … chip trạng thái" |
 | COM-9-3 | Agent / Trợ lý chỉ soạn nháp; gửi ký cần Owner | plans/COMMERCE-DECISIONS.md:202 | 030 | ĐẠT | packages/actions/src/contracts.ts:107-148 (`agentGrantable: false`, permission `contract.sign`) · test contracts.test.ts "sales không duyệt & ký được" |
 | COM-9-4 | Loại HĐ Dịch vụ / Mua bán / Nguyên tắc; mã `HĐ-` tự sinh | plans/COMMERCE-DECISIONS.md:203-204 | 030 | ĐẠT | contracts.prisma ContractKind; codes.ts:6 · test contracts.test.ts "mã HĐ-1001" |
-| COM-9-5 | Trường "file hợp đồng" tải lên | plans/COMMERCE-DECISIONS.md:204 | 030b | MỘT PHẦN | Chỉ `fileName` (contracts.prisma), nội dung ký render từ mẫu |
-| COM-9-6 | (a) Nội dung sinh từ mẫu **theo loại** | plans/COMMERCE-DECISIONS.md:206 | 030b | MỘT PHẦN | contract-write.handlers.ts:32 lấy mẫu mặc định kind `contract`, không theo loại |
-| COM-9-7 | (a2) Mẫu DOCX DN + AI soạn HĐ từ nội dung (`contract.draft_from_content`) | plans/COMMERCE-DECISIONS.md:207 | 030b | CHƯA | Action không có trong registry |
-| COM-9-8 | (b) Tải lên PDF có sẵn (cả tệp khách gửi trong hội thoại) | plans/COMMERCE-DECISIONS.md:208 | 030b | CHƯA | Không có action / route |
+| COM-9-5 | Trường "file hợp đồng" tải lên | plans/COMMERCE-DECISIONS.md:204 | 030b | ĐẠT | contract.create source=file + contract.attach_file (packages/core/src/contracts/files/source.ts, actions/contract-file.handlers.ts); FE ContractFilesTab.tsx; test apps/api/test/integration/contract-files.test.ts (TIP-030b F1) |
+| COM-9-6 | (a) Nội dung sinh từ mẫu **theo loại** | plans/COMMERCE-DECISIONS.md:206 | 030b | ĐẠT | Mẫu theo loại service/sale/framework, default nhóm (kind, contract_kind) — packages/core/src/contracts/services/contract-doc.ts; test core contract-template-kind.test.ts (TIP-030b F1.1, 82a7eba) |
+| COM-9-7 | (a2) Mẫu DOCX DN + AI soạn HĐ từ nội dung (`contract.draft_from_content`) | plans/COMMERCE-DECISIONS.md:207 | 030b | ĐẠT | contract.prepare_draft → contract.draft_from_content (DC-322), mẫu DOCX DN qua documents/; ai:live contract-files 4/4 (reports/ai-live-contract-files-2026-11-03.md) (TIP-030b F2) |
+| COM-9-8 | (b) Tải lên PDF có sẵn (cả tệp khách gửi trong hội thoại) | plans/COMMERCE-DECISIONS.md:208 | 030b | ĐẠT | PDF / DOCX tải lên (files/source.ts, document-guard.ts, render-isolation.ts — DC-321) + contract.create_from_attachment (files/attachment-source.ts, inbox AttachmentContractMenu.tsx); E2E http contract-files (TIP-030b F1.2–F1.3, 6181c85) |
 | COM-9-9 | Owner "Duyệt & ký": OTP email + ký tay, chữ ký chèn PDF | plans/COMMERCE-DECISIONS.md:210 | 030 | ĐẠT | contract-approval.handlers.ts:99 · test contracts.test.ts "Duyệt & ký: … OTP đúng → chờ khách ký" |
 | COM-9-10 | Gửi ký: link một lần, 7 ngày, gia hạn được, qua kênh hội thoại / email | plans/COMMERCE-DECISIONS.md:211 | 030 | ĐẠT | contract-send.handlers.ts:38,122 · test contracts.test.ts "link dùng một lần", "nhắc / gia hạn" (webchat: COM-5-17) |
 | COM-9-11 | Trang ký công khai: xem PDF, tick đồng ý, OTP khách, ký tay | plans/COMMERCE-DECISIONS.md:212 | 030 | ĐẠT | contracts/services/public-sign.service.ts · test contracts.test.ts "mở link → opened … ký → signed" |
@@ -532,7 +532,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-9-14 | `contract_signature_event` append-only mọi bước | plans/COMMERCE-DECISIONS.md:216 | 030 | ĐẠT | migration 030 trigger L172-178 · test contracts.test.ts:115-116 |
 | COM-9-15 | Khách "Từ chối ký" → declined, báo Owner | plans/COMMERCE-DECISIONS.md:217 | 030 | ĐẠT | test contracts.test.ts "khách từ chối → declined + thông báo" |
 | COM-9-16 | Ký số CA qua `ESignProvider`; nhãn "Ký số" → "Ký điện tử" | plans/COMMERCE-DECISIONS.md:218 | — | NGOÀI | P2 (C1); nhãn đã đổi apps/web/messages/vi/contracts.json:108 |
-| COM-9-17 | Sau ký khoá nội dung; thay đổi bằng phụ lục `contract_appendix` cùng luồng duyệt + ký | plans/COMMERCE-DECISIONS.md:220-221 | 030b | CHƯA | `contract.create_appendix` không có trong registry (Q-022) |
+| COM-9-17 | Sau ký khoá nội dung; thay đổi bằng phụ lục `contract_appendix` cùng luồng duyệt + ký | plans/COMMERCE-DECISIONS.md:220-221 | 030b | ĐẠT | Phụ lục ký riêng: chỉ HĐ signed, Owner ký trước OTP riêng, link khách riêng gắn version + hash (packages/core/src/contracts/appendix/*, DC-325/326/327); E2E http contract-files (phụ lục PL-1) (TIP-030b F3, b07fe87) |
 | COM-9-18 | HĐ đã ký "→ Đơn hàng", nhiều đơn | plans/COMMERCE-DECISIONS.md:222 | 031 | ĐẠT | order-create.handlers.ts:166 · test orders.test.ts "đã ký → nhiều đơn" |
 | COM-9-19 | T-30 nhắc Owner (thông báo **+ Việc cần tôi**) + gợi ý agent chào gia hạn | plans/COMMERCE-DECISIONS.md:224 | 038 | MỘT PHẦN | Thông báo có (contract-system.ts:52 · test contracts.test.ts "T-30 nhắc gia hạn một lần"); Việc cần tôi = Dashboard 038; gợi ý agent: task-catalog không có trigger `contract.expiring` |
 | COM-9-20 | Qua ngày kết thúc → expired; "Gia hạn" = HĐ mới `renewal_of_id` | plans/COMMERCE-DECISIONS.md:225-226 | 030 | ĐẠT | contract-system.ts:75; contract-write.handlers.ts:170 · test contracts.test.ts "qua ngày kết thúc → expired; renew tạo nháp mới" |
@@ -540,7 +540,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-9-22 | Hồ sơ 360° hiển thị HĐ, giá trị hiệu lực, ngày hết hạn gần nhất | plans/COMMERCE-DECISIONS.md:229 | 015b | CHƯA | contact360.ts không đọc hợp đồng |
 | COM-12-1 | `doc_template(kind quote/contract/payment_request/receipt)`, nguồn rich / docx, có version, chứng từ ghi version | plans/COMMERCE-DECISIONS.md:234 | 028 | ĐẠT | documents/services/template-store.ts; sales-quotes.prisma:32 templateVersion · test documents.test.ts |
 | COM-12-2 | AI soạn báo giá: khớp catalog, giá catalog, ngoài DM / giảm > 5% buộc duyệt; chỉ tạo nháp | plans/COMMERCE-DECISIONS.md:236,238 | 029 | ĐẠT | sales/quotes/services/quote-draft.ts; quote-draft.handler.ts:3 · test quotes.test.ts "AI soạn từ nội dung (model giả → bộ luật)" (model thật Q-001) |
-| COM-12-3 | AI soạn HĐ: điền biến, điều khoản mẫu nguyên văn, đề xuất trong khối tô nổi Giữ / Bỏ | plans/COMMERCE-DECISIONS.md:237 | 030b | CHƯA | Không có action / code |
+| COM-12-3 | AI soạn HĐ: điền biến, điều khoản mẫu nguyên văn, đề xuất trong khối tô nổi Giữ / Bỏ | plans/COMMERCE-DECISIONS.md:237 | 030b | ĐẠT | Điều khoản mẫu nguyên văn, khối ai_suggested Giữ / Bỏ chặn trình duyệt (files/suggestions.ts, actions/contract-suggestion.handler.ts, DC-323); FE components/draft/AiSuggestions.tsx (TIP-030b F2) |
 | COM-12-4 | Bảng kiểm cảnh báo: Điều 398 (HĐ); BG có bên bán + MST + hiệu lực + VAT | plans/COMMERCE-DECISIONS.md:239 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:44 legalChecklist · test template-text.test.ts, documents.test.ts "bảng kiểm" |
 | COM-10-1 | `billing_invoice` có thông tin xuất VAT (MST, tên, địa chỉ, email) | plans/COMMERCE-DECISIONS.md:244 | 010 | ĐẠT | billing/payments/invoices.service.ts:85 · test billing-payments.test.ts AC2 "vat_info"; xuất HĐĐT thật NGOÀI P2 |
 | COM-10-2 | Credit gói không cộng dồn; credit mua thêm không hết hạn; trừ gói trước | plans/COMMERCE-DECISIONS.md:245 | 009 | ĐẠT | billing/services/wallet.service.ts:83-91 (resetPlan DC-034) · test billing.test.ts AC4 "trừ plan trước rồi topup" |
@@ -585,7 +585,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | 012d | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có"; TIP-012d nhận (2026-11-02) |
 | D29a | RAG thư mục + thẻ, public / internal, hybrid + ngưỡng + trích nguồn; agent builder phiên bản | 01-REQUIREMENTS-MATRIX.md:278 | 020, 021 | ĐẠT | test kb.test.ts AC4/AC5, agents.test.ts |
 | D29b | Học từ hội thoại có người duyệt (P1) | 01-REQUIREMENTS-MATRIX.md:278 | 043 | CHƯA | `kb.suggestion.*` không có |
-| D30 | Mẫu rich / DOCX DN, AI nhận diện biến, PDF LibreOffice; AI soạn BG / HĐ | 01-REQUIREMENTS-MATRIX.md:279 | 028, 030b | MỘT PHẦN | DOCX + detect_fields + PDF (documents/services/docx.ts, soffice.ts · test documents.test.ts); AI soạn HĐ: COM-12-3 |
+| D30 | Mẫu rich / DOCX DN, AI nhận diện biến, PDF LibreOffice; AI soạn BG / HĐ | 01-REQUIREMENTS-MATRIX.md:279 | 028, 030b | ĐẠT | DOCX + detect_fields + PDF (documents/services/docx.ts, soffice.ts · test documents.test.ts); AI soạn HĐ hai bước (TIP-030b F2, DC-322/323); AI soạn BG (029) |
 | D31 | Đơn sàn / POS khung + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:280 | 031 | ĐẠT | Xem COM-4b-* |
 | D32 | 1 chính + đồng phụ trách / theo dõi | 01-REQUIREMENTS-MATRIX.md:281 | 015, 013c | MỘT PHẦN | Xem COM-8b-2, COM-8b-4; TIP-013c nhận (2026-11-02) |
 | D33 | Provider gốc + router OpenAI-compatible, `llm_provider` / `model_route` | 01-REQUIREMENTS-MATRIX.md:282 | 019 | CHỜ-TK | platform/ai-config.prisma:40,58 · test router.test.ts; Q-001 / Q-002 |
@@ -885,8 +885,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | CHƯA | Không có trong packages/actions (actions.json); FE BulkTransferModal gọi transfer_owner từng khách; 045b chỉ nói job cho *.bulk_update ; planning045b contracts annex now specifies task/AC, not runtime evidence |
 | ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | 015c | CHƯA | Blueprint650/833 và quyền privacy.erase có, action/handler chưa có. TIP015c nhận approved DC259/260/262/264/265,297path/10AC; không coi planning là runtime. |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
-| ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | CHƯA | Không có trong packages/actions (actions.json); DV-010 |
+| ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | ĐẠT | packages/actions/src/contract-appendix.ts (create_appendix + appendix_update/submit/request_changes/owner_otp/approve_and_sign/send + 3 public); handler packages/core/src/contracts/appendix/write.handlers.ts; test apps/api/test/integration/contract-appendix.test.ts (9) + 10 matrix action (TIP-030b F3, b07fe87) |
+| ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | ĐẠT | packages/actions/src/contracts.ts + packages/core/src/contracts/actions/contract-draft.handler.ts (chỉ đọc đề xuất bất biến từ contract.prepare_draft — DC-322); test contract.draft_from_content / prepare_draft action matrix (TIP-030b F2, 9467d52) |
 | ACT-conversation.get | `conversation.get` có trong registry + handler | plans/BLUEPRINT.md:603 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/conversation.get.action.test.ts |
 | ACT-conversation.search | `conversation.search` có trong registry + handler | plans/BLUEPRINT.md:602 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/conversation.search.action.test.ts |
 | ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
@@ -1277,11 +1277,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-documents-templates-3 | Registry biến chuẩn có i18n; biến lạ báo lỗi khi lưu | standards/documents/templates.md:14 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:1; test variables.test.ts, documents.test.ts |
 | STD-documents-templates-4 | AI nhận diện biến DOCX (generateObject), người xác nhận trước khi lưu | standards/documents/templates.md:24 | 028 | CHỜ-TK | doc-template.handlers.ts:138; test documents.test.ts (model giả) — Q-001 |
 | STD-documents-templates-5a | `quote.draft_from_content`: giá từ catalog, dòng ngoài danh mục `off_catalog` buộc duyệt | standards/documents/templates.md:28 | 029 | CHỜ-TK | sales/quotes/actions/quote-draft.handler.ts:21; test quotes.test.ts (model giả) — Q-001 |
-| STD-documents-templates-5b | `contract.draft_from_content`: giữ nguyên văn điều khoản, khối `ai_suggested` Giữ/Bỏ | standards/documents/templates.md:32 | 030b | CHƯA | grep `ai_suggested` = 0; DV-010, Q-022 |
+| STD-documents-templates-5b | `contract.draft_from_content`: giữ nguyên văn điều khoản, khối `ai_suggested` Giữ/Bỏ | standards/documents/templates.md:32 | 030b | ĐẠT | Điều khoản mẫu giữ nguyên văn (snapshot hash), khối ai_suggested Giữ / Bỏ, submit chặn khi còn pending (DC-323) (TIP-030b F2) |
 | STD-documents-templates-6a | Bảng kiểm Điều 398 / báo giá / dòng "không thay thế hoá đơn GTGT" (tự chèn, không xoá) | standards/documents/templates.md:36 | 028 | ĐẠT | shared/src/documents/render.ts:41; template-store.ts:27; test template-text.test.ts:28 |
 | STD-documents-templates-6b | Kết quả bảng kiểm hiện trong preview của action gửi / duyệt | standards/documents/templates.md:40 | 028b | CHƯA | `legalChecklist` chỉ gọi ở doc-template handlers/template-store; quote.send / contract.submit preview không có (023b task 7 không nêu bảng kiểm); TIP-028b nhận (2026-11-02) |
 | STD-documents-templates-7a | Báo giá sent / HĐ từ pending_signature: PDF đóng băng `file_id` + `sha256` | standards/documents/templates.md:42 | 029, 030 | ĐẠT | quote-send.handlers.ts:86; services/quote-doc.ts:65; contracts.prisma:62-66; test quotes.test.ts, contracts.test.ts |
-| STD-documents-templates-7b | HĐ đã ký chỉ đổi bằng phụ lục | standards/documents/templates.md:43 | 030b | CHƯA | `contract.create_appendix` chưa có (DV-010) |
+| STD-documents-templates-7b | HĐ đã ký chỉ đổi bằng phụ lục | standards/documents/templates.md:43 | 030b | ĐẠT | HĐ signed → chỉ contract.create_appendix (attach_file chặn sau pending_signature) (TIP-030b F1/F3) |
 | STD-documents-templates-8a | DOCX ≤ 10MB, từ chối macro / .docm, không chạy field code | standards/documents/templates.md:45 | 028 | ĐẠT | core/src/documents/services/docx.ts:11-24; test documents.test.ts |
 | STD-documents-templates-8b | LibreOffice chạy user riêng, không mạng, thư mục tạm mỗi job | standards/documents/templates.md:46 | 045 | MỘT PHẦN | soffice.ts:2 thư mục hồ sơ riêng + timeout; user riêng / chặn mạng là việc systemd (TIP-045, Q-006) |
 | STD-documents-templates-9 | Eval suite `doc-draft` | standards/documents/templates.md:47 | 044 | CHƯA | Chưa có |
@@ -1504,8 +1504,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-marketing-resend | Chi tiết chiến dịch: Gửi lại cho khách chưa đọc | docs/06-prototype/AppChat.dc.html:4174 | 037 | GIẢ | CampaignDetail.tsx:108 `message.success('resendDone')` |
 | PRO-marketing-rowai | Dòng chiến dịch: nút ⚡ AI xử lý + ✦ gợi ý | docs/06-prototype/AppChat.dc.html:3863 | 037 | GIẢ | apps/web/src/features/marketing/columns.tsx:87,98 `message.info` |
 | PRO-marketing-recipacts | Bảng người nhận: nút xem / thêm (⋯) | docs/06-prototype/AppChat.dc.html:3869 | 037 | GIẢ | apps/web/src/features/marketing/components/DetailTabs.tsx:126,129 `<button>` không onClick |
-| PRO-contracts-upload | Tab Tệp hợp đồng: Tải tệp lên | docs/06-prototype/AppChat.dc.html:5695 | 030b | GIẢ | apps/web/src/features/contracts/components/DetailTabs.tsx:237 `message.info('uploading')` |
-| PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | GIẢ | DetailTabs.tsx:231 `message.info('opening')` |
+| PRO-contracts-upload | Tab Tệp hợp đồng: Tải tệp lên | docs/06-prototype/AppChat.dc.html:5695 | 030b | ĐẠT | apps/web/src/features/contracts/components/files/ContractFilesTab.tsx — tải tệp lên gắn nguồn ký (contract.attach_file, chỉ nháp); E2E mock contract-files (TIP-030b F1) |
+| PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | ĐẠT | ContractFilesTab.tsx mở / tải bytes thật qua GET /contracts/:id/files/:fid (fetch có xác thực); E2E http contract-files kiểm content-type application/pdf (TIP-030b F1) |
 | PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
 | PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
 | PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | 027b | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
@@ -1648,8 +1648,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | 028b | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment); TIP-028b nhận (2026-11-02) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |
 | DEF-029-1 | Gửi báo giá / HĐ / đề nghị / nhắc hẹn / CSAT qua Zalo / Email thật | reports/TIP-029:28; 030:29; 032:28; 033:29; 034:29; 035:30 | — | CHỜ-TK | Q-003 / Q-004 (adapter giả) |
-| DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | CHƯA | Bảng packages/db/prisma/tenant/contracts.prisma:83 có; action không có trong registry |
-| DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | CHƯA | Không có trong packages/actions |
+| DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | ĐẠT | Đã làm ở TIP-030b F3 — xem COM-9-17 / ACT-contract.create_appendix |
+| DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | ĐẠT | Đã làm ở TIP-030b F2 — xem ACT-contract.draft_from_content |
 | DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | 003e | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger; TIP-003e nhận (2026-11-02) |
 | DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
@@ -1696,7 +1696,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DV-007 | Duyệt LibreOffice cho mẫu rich + docxtemplater / pizzip + preview trong API | DEVIATIONS.md:24 | 028 | ĐẠT | documents/services/doc-renderer.ts:40; test documents.test.ts (queue doc-render xem DEF-028-1) |
 | DV-008 | Duyệt `/quotes/meta`, link công khai, queue `sales-scheduler` | DEVIATIONS.md:25 | 029 | ĐẠT | apps/api/src/http/sales/public-quotes.controller.ts:1; test quotes.test.ts |
 | DV-009 | Duyệt `pdf-lib` + endpoint ký / OTP + `contracts-scheduler` | DEVIATIONS.md:26 | 030 | ĐẠT | contracts/services/contract-sign-pdf.ts:3; test contracts.test.ts |
-| DV-010 | Làm phụ lục + AI soạn nháp HĐ | DEVIATIONS.md:27 | 030b | CHƯA | Xem DEF-030-1/2 |
+| DV-010 | Làm phụ lục + AI soạn nháp HĐ | DEVIATIONS.md:27 | 030b | ĐẠT | Đóng: phụ lục (F3) + AI soạn nháp (F2) ở TIP-030b |
 | DV-011 | Duyệt cột đơn mới + `order_event`; `order.import_external` không là action | DEVIATIONS.md:28 | 031 | ĐẠT | packages/db/prisma/tenant/sales-orders.prisma:124; test orders.test.ts |
 | DV-012 | Duyệt `ConnectorManifest.hidden` + `mock_marketplace` | DEVIATIONS.md:29 | 031 | ĐẠT | packages/integrations/src/connectors/mock/order-sync.ts:19, define.ts:10; test packages/integrations/test/order-sync.test.ts |
 | DV-013 | Duyệt `bank_tx` / `payment_account` / `package_usage` + `payment.refund_approve` / `refund_reject` | DEVIATIONS.md:30 | 032 | ĐẠT | packages/actions/src/payments.ts:33; test payments.test.ts:268 |

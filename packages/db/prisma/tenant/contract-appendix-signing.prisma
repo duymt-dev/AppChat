@@ -1,4 +1,5 @@
-// tenant/contract-appendix-signing.prisma — sở hữu: TIP-030b F3. Ký phụ lục hợp đồng TÁCH khỏi ký hợp đồng cha (TIP spec 14):
+// tenant/contract-appendix-signing.prisma — sở hữu: TIP-030b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// F3 — ký phụ lục hợp đồng TÁCH khỏi ký hợp đồng cha (TIP spec 14):
 // `contract_signer` unique (contract_id, party) và `contract_sign_token` không gắn phụ lục nên không dùng lại. Mỗi bản ghi ràng buộc
 // appendix_id + appendix_version + document_hash (+ party) — sửa nháp (version mới) / đổi tài liệu làm token / OTP cũ hết hiệu lực.
 // Nhật ký ký chỉ thêm (trigger chặn UPDATE / DELETE / TRUNCATE ở migration).
