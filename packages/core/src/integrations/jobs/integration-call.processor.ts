@@ -1,7 +1,8 @@
 // Queue `integrations` (provider-ports §5, Blueprint §1.3): mọi lệnh gọi ra ngoài chạy bất đồng bộ — retry back-off, idempotency
 // `(connection_id, op, ref_id)`, ghi `integration_call_log` (op, ref, trạng thái, độ trễ, lỗi — KHÔNG secret / payload).
 // Domain đăng ký handler theo `op` (`registerIntegrationOp`); hết lượt thử → `failed` + outbox `integration.error`.
-import { Queue, Worker, type Job } from 'bullmq';
+import { type Job } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { ConnectionCtx, ConnectorAdapter, ConnectorRegistry } from '@appchat/integrations';

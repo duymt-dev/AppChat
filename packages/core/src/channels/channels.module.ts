@@ -3,7 +3,7 @@
 // Registry có adapter dựng theo env (Zalo thật / giả; webchat qua redis-emitter). Thiếu DB / Redis → service null (action trả 501).
 // Luật thông báo / realtime nạp khi import module này.
 import { Module, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { ImapMailboxTransport, ZcaTransport, buildChannelRegistry, fakeMailboxTransport, fakeZaloTransport, type ChannelRegistry, type FileFetcher, type WidgetPublisher } from '@appchat/channels';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';

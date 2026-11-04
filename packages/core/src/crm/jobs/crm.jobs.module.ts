@@ -1,7 +1,7 @@
 // Worker ROLE=jobs của domain `crm`. TIP-015b: scheduler `crm.memory-receipt-purge` mỗi giờ trên queue riêng `crm-scheduler` — xoá biên nhận
 // gộp trí nhớ hết cửa sổ hoàn tác 7 ngày (lô id trước, SKIP LOCKED; replay idempotent). Lỗi một workspace không chặn workspace khác.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';

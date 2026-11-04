@@ -2,7 +2,8 @@
 // Thứ tự an toàn: khoá request (queued → running + attempted_at, commit) → gọi nhà cung cấp → báo kết quả qua `channel.group_result`
 // (executor, nguồn system). Request đã `running` mà job chạy lại (sập sau attempt) → `unknown`, KHÔNG gọi lại. Chưa có phiên trước khi
 // ghi attempt → job thử lại sau. Treo quá GROUP_TIMEOUT_MS → unknown (Zalo có thể đã tạo nhóm).
-import { Queue, UnrecoverableError, Worker } from 'bullmq';
+import { UnrecoverableError } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { ChannelNotRunningError, type ChannelAdapter } from '@appchat/channels';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';

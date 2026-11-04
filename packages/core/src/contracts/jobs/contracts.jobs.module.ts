@@ -2,7 +2,7 @@
 // (như sales — DC-173): link ký quá hạn → `declined`, T-30 nhắc gia hạn (một lần), qua ngày kết thúc → `expired`. Lỗi một workspace
 // (DB chưa nâng migration…) không chặn workspace khác.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';

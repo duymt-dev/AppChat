@@ -1,6 +1,7 @@
 // Queue `notify-mail` (worker ROLE=jobs): gửi email thông báo theo locale người nhận (i18n §8). jobId = `mail-<notification_id>`
 // → không gửi trùng khi consumer chạy lại; lỗi provider → retry back-off.
-import { Queue, Worker, type Job } from 'bullmq';
+import { type Job } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { PlatformDb } from '@appchat/db';
 import type { MailProvider } from '@appchat/integrations';

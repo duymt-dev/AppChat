@@ -2,7 +2,7 @@
 // `scheduler` dùng chung thì worker domain khác nhận job này và bỏ qua như đã xong — DC; jobId cố định → một lịch dù nhiều worker) — báo giá quá hạn → `expired`, còn ≤ 2 ngày → nhắc người phụ trách; consumer `sales.quote-owner`
 // (`contact.owner_changed` có move.quotes → chuyển báo giá đang mở cho người mới — COMMERCE §8b). TIP-031: queue `order-sync` (poll sàn 5 phút) + consumer webhook sàn — order-sync.jobs.ts. TIP 032 thêm processor.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';

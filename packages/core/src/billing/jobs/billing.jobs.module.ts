@@ -2,7 +2,7 @@
 // trial (BullMQ repeatable queue `scheduler`, job `billing.trial-expiry` mỗi 10 phút; jobId cố định → một lịch dù nhiều worker).
 // TIP-010: job `billing.invoice-sweep` mỗi phút — QR quá 15 phút → expired; hoá đơn paid chưa ghi nhận → ghi nhận (DC-055).
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { registerEventConsumer, unregisterEventConsumer } from '../../kernel/events/consumer';
 import { LOGGER } from '../../kernel/kernel.module';

@@ -1,7 +1,7 @@
 // Job đăng nhập QR (queue `channel-login`, ROLE=channels — Blueprint §6 Zalo cá nhân): adapter.beginLogin → QR (Redis cho
 // `/settings/channels/:id/login` + WS `channel.zalo.qr` tới người bấm) → quét → credential mã hoá vào `credentials_enc`, tên /
 // uid Zalo, `connected` + route + outbox `channel.connected`; worker nhận phiên ngay (claim). Hết hạn / từ chối → `expired`.
-import { Worker } from 'bullmq';
+import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry, LoginEvent } from '@appchat/channels';
 import { serverMessages } from '@appchat/shared';

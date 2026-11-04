@@ -3,7 +3,7 @@
 // (jobId cố định → một lịch dù nhiều worker): hết hạn FIFO + xét hạng đầu quý. Mọi ghi qua ActionExecutor nguồn system. Chỉ bật khi có
 // Redis + DB nền tảng + executor.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { ActionExecutor } from '../../kernel/actions/executor';

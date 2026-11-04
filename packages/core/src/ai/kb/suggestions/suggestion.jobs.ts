@@ -2,7 +2,7 @@
 // lần; worker ROLE=ai chạy `proposeFromConversation` (model ngoài transaction). Consumer `kb-suggest` của queue `events` đăng ký ở mọi tiến
 // trình có queue (chỉ ROLE=jobs có worker `events` nên chỉ ở đó chạy thật) — `KbSuggestInstaller`. Không quét toàn DB theo lịch.
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Worker } from 'bullmq';
+import { Worker } from '../../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { eventConsumers, registerEventConsumer, unregisterEventConsumer, type EventConsumer } from '../../../kernel/events/consumer';

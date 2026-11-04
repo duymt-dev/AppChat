@@ -33,6 +33,7 @@
     "bullmq": "5.81.5",
     "docxtemplater": "3.71.1",
     "exceljs": "4.4.0",
+    "helmet": "8.3.0",
     "imapflow": "2.9.1",
     "ioredis": "5.11.1",
     "mailparser": "3.12.4",

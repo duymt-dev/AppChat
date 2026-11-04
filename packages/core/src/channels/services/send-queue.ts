@@ -1,7 +1,7 @@
 // Gửi tin qua kênh (omnichannel-adapter §6, Blueprint §1.3 queue `send:<channel_account_id>`): luôn qua hàng đợi của tài khoản,
 // không gửi đồng bộ trong request. Tên queue `chsend-<id>` (BullMQ cấm `:`). Producer cho Inbox / chiến dịch (TIP-016 / 037);
 // kết quả trả về qua SendResultSink do domain gọi đăng ký (ghi `message.status`, `external_msg_id`).
-import { Queue } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { OutboundMessage } from '@appchat/channels';
 

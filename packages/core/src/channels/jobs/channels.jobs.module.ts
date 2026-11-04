@@ -3,7 +3,8 @@
 // StatelessChannels); kênh poll (email — ChannelPollers, TIP-018); worker tạo nhóm theo phiên (GroupCreators — TIP-023b). Thiếu DB / Redis / khoá → tắt.
 import { hostname } from 'node:os';
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, type Worker } from 'bullmq';
+import { type Worker } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry } from '@appchat/channels';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';

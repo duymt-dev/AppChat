@@ -1,5 +1,5 @@
 // Queue `kb-suggest` (TIP-043): jobId `kbsug-<hội thoại>-<mốc>` — đẩy lặp (event lặp / relay chạy lại) chỉ còn một job; thử lại 3 lần.
-import { Queue } from 'bullmq';
+import { Queue } from '../../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 
 export const KB_SUGGEST_QUEUE = 'kb-suggest';

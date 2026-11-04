@@ -1,7 +1,7 @@
 // Worker ROLE=ai: job lịch của lượt Trợ lý (TIP-023c SPEC vận hành + "Fenced recovery") — `assistant-events.prune` mỗi 15 phút dọn sự
 // kiện stream quá 24h (genui/prune-events.ts); `assistant-turns.recover` mỗi phút chốt lượt mồ côi có lease hết hạn (genui/recovery.ts).
 // Chỉ workspace đã đánh dấu; scheduler upsert idempotent, concurrency 1; giờ theo Clock.
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { AppLogger } from '../../kernel/logger/logger';

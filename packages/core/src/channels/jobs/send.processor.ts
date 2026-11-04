@@ -1,7 +1,8 @@
 // Worker gửi của MỘT tài khoản (mở khi worker giữ phiên, đóng khi nhả — chỉ nơi có phiên mới gửi được). Chống khoá
 // (Blueprint §6, REQ-B04): limiter `perMinute` của manifest / `settings.rate_per_minute`, trễ ngẫu nhiên `jitterMs` trước mỗi
 // tin (giống người thật), cap/ngày cho tin chủ động; lỗi bất thường ≥ 3 lần / 10 phút → tự tạm dừng + báo Owner.
-import { UnrecoverableError, Worker } from 'bullmq';
+import { UnrecoverableError } from 'bullmq';
+import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { ChannelAuthError, type ChannelAdapter } from '@appchat/channels';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';

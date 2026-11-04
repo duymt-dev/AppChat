@@ -31,6 +31,7 @@ import { AppModule } from '../../src/app.module';
 import { EnvelopeErrorFilter } from '../../src/http/kernel/error.filter';
 import { applyPrefix } from '../../src/http/kernel/prefix';
 import { traceMiddleware } from '../../src/middleware/trace.middleware';
+import { applySecurity } from '../../src/http/kernel/security.middleware';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..', '..');
 const readEnv = (f: string): Record<string, string> =>
@@ -168,7 +169,10 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
 }
 
 /** `logSink`: bắt log thật của app (mức info) — test AC12 kiểm không có PII. */
-export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): Promise<Harness> {
+/** Ngưỡng nới cho bộ test nghiệp vụ (mỗi file dồn hàng trăm lệnh của một user); `realRateLimits` dùng ngưỡng thật (TIP-045b AC). */
+const RELAXED_RATE = { read: { name: 'api:read', limit: 100_000, windowMs: 60_000 }, action: { name: 'api:action', limit: 100_000, windowMs: 60_000 }, public: { name: 'api:public', limit: 100_000, windowMs: 60_000 } };
+
+export async function startApi(opts: { logSink?: NodeJS.WritableStream; realRateLimits?: boolean } = {}): Promise<Harness> {
   const clock = new FixedClock('2026-10-30T08:00:00.000Z');
   const mail = new MemoryMailProvider();
   const log = opts.logSink ? createLogger({ level: 'info', destination: opts.logSink }) : createLogger({ level: 'silent' });
@@ -195,6 +199,7 @@ export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): 
   const app = mod.createNestApplication({ logger: false, rawBody: true });
   applyPrefix(app);
   app.use(traceMiddleware(log));
+  applySecurity(app, env, opts.realRateLimits ? undefined : RELAXED_RATE);
   app.useGlobalFilters(new EnvelopeErrorFilter(log));
   await app.listen(0);
   const base = (await app.getUrl()).replace('[::1]', '127.0.0.1');

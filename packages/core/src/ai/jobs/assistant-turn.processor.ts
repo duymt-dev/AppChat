@@ -1,6 +1,6 @@
 // Worker ROLE=ai: processor queue `assistant-turn` (TIP-023c SPEC vận hành) — chạy lượt Trợ lý đã claim ở API (runTurn: lease có fence,
 // quyền HIỆN HÀNH của người ra lệnh, sự kiện ghi sổ trước khi phát SSE). Job lặp / run đã chạy → bỏ qua (không gọi lại model).
-import { Worker } from 'bullmq';
+import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';

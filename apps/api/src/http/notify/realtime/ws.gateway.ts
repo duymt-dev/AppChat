@@ -2,7 +2,7 @@
 // Handshake JWT + workspace → room `ws:{id}` + `user:{id}`; client → server: `conv.join` / `conv.leave` / `typing` /
 // `presence.list` (ack `{ data } | { error }`). Worker phát `RT_EVENT` qua redis-emitter → mỗi node lọc socket của mình theo
 // quyền (allowedFor) rồi mới emit (outbox §8).
-import { Inject, type BeforeApplicationShutdown, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Optional, type BeforeApplicationShutdown, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { createAdapter } from '@socket.io/redis-adapter';
 import type { Server as HttpServer } from 'node:http';
@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { AppError, can } from '@appchat/shared';
 import {
   AuthzResolver,
+  ENV_SOURCE,
   LOGGER,
   REDIS,
   RT_EVENT,
@@ -26,6 +27,7 @@ import {
 } from '@appchat/core';
 import { ACTOR_RESOLVER, type ActorResolver } from '../../kernel/request-actor';
 import { authenticate, connectError } from './ws.auth';
+import { allowedOrigins, wsOriginAllowed } from '../../kernel/cors-policy';
 
 type Ack = (r: { data: unknown } | { error: { code: string } }) => void;
 const convInput = z.object({ conversation_id: z.uuid() });
@@ -55,6 +57,7 @@ export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicatio
     @Inject(AuthzResolver) private readonly authz: AuthzResolver,
     @Inject(REDIS) private readonly redis: Redis,
     @Inject(LOGGER) private readonly log: AppLogger,
+    @Optional() @Inject(ENV_SOURCE) private readonly envSource?: Record<string, string | undefined>,
   ) {}
 
   onApplicationBootstrap(): void {
@@ -63,9 +66,12 @@ export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicatio
     const sub = this.redis.duplicate();
     this.clients = [pub, sub];
     this.io = new Server(http, { serveClient: false, adapter: createAdapter(pub, sub) });
+    // Origin socket `/ws` khớp CORS HTTP (TIP-045b): chỉ origin app khai trong env; `/widget` kiểm theo cấu hình widget từng workspace.
+    const origins = allowedOrigins(this.envSource ?? process.env);
     for (const install of INSTALLERS) install(this.io);
     const nsp = (this.nsp = this.io.of(WS_NAMESPACE));
     nsp.use((socket, next) => {
+      if (!wsOriginAllowed(origins, socket.handshake.headers.origin)) return next(connectError(new AppError('FORBIDDEN', 403, { origin: 'not_allowed' })));
       authenticate(this.actors, socket.handshake)
         .then((id) => {
           socket.data = id;

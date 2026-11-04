@@ -11,6 +11,7 @@ import { AUTHORIZER, type Authorizer } from './action-context';
 import { ConfirmTokens } from './confirm-token';
 import { ContextAuthorizer } from './authorizer';
 import { ActionExecutor } from './executor';
+import { instrumentExecutor } from '../metrics/collectors';
 import { actionIdOf } from './handler';
 import { ActionHandlerRegistry } from './handler-registry';
 import { UndoService } from './undo.service';
@@ -61,7 +62,12 @@ export class ActionsModule {
             kv: KeyValueStore,
             clock: Clock,
             platform: PlatformDb,
-          ) => new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform }),
+          ) => {
+            const ex = new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform });
+            // Đếm action_total{action,source,result} (TIP-045b) — action ngoài registry ghi `unknown`.
+            const ids = new Set(registry.map((a) => a.id));
+            return instrumentExecutor(ex, (id) => ids.has(id));
+          },
         },
         {
           provide: UndoService,

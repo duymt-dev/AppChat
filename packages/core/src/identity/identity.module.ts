@@ -4,7 +4,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Module, type FactoryProvider, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { PlatformDb } from '@appchat/db';
 import { BrevoMailProvider, MemoryMailProvider, SmtpMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, type MailProvider } from '@appchat/integrations';

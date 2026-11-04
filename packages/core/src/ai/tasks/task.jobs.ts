@@ -2,7 +2,7 @@
 // mỗi phút (tác vụ tới giờ → đẩy; chỉ mở DB workspace trong tập `ai-task:armed` — không chạm mọi tenant mỗi phút). Consumer sự kiện `ai-tasks` đăng ký ở mọi tiến trình có queue (chỉ ROLE=jobs có worker `events`
 // nên chỉ ở đó chạy thật) — `TaskEventsInstaller`.
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';

@@ -1,6 +1,6 @@
 // Queue `ai-resume` (worker ROLE=ai — Blueprint §5.1): sau khi người quyết, job chạy action đã duyệt (đúng một lần) rồi chạy tiếp
 // run; job trễ tới `expires_at` → hết hạn duyệt (72 giờ — D52) nếu vẫn chờ. Job id cố định theo duyệt → đẩy hai lần chỉ một job.
-import { Queue } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 
 export const AI_RESUME_QUEUE = 'ai-resume';

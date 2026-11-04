@@ -2,7 +2,8 @@
 // → outbox `workspace.ready` trong DB tenant mới. Idempotent: DB đã có → bỏ qua tạo; registry đã active → không làm lại.
 // Seed mặc định: registry seed của kernel (vai trò hệ thống — TIP-005; SLA, loyalty, governance, mẫu — TIP sau), idempotent.
 import { Inject, Injectable, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker, type Job } from 'bullmq';
+import { type Job } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, TenantProvisioner, createTenantDb, withDatabase, type DbEnv, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';

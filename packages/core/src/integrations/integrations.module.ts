@@ -1,7 +1,7 @@
 // Domain `integrations` (TIP-012, provider-ports): kết nối connector của workspace (bí mật AES-256-GCM), resolver theo port,
 // đọc trang Nền tảng kết nối, webhook router, queue `integrations` (producer). Thiếu khoá / DB / Redis → service null.
 import { Module, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { connectorRegistry } from '@appchat/integrations';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';

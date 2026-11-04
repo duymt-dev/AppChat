@@ -2,7 +2,7 @@
 // transaction với claim; consumer `assistant-turn` (ROLE=jobs, queue `events`) đẩy job `assistant-turn` với jobId ổn định theo run →
 // relay / consumer chạy lại chỉ còn MỘT job. Worker ROLE=ai chạy lượt (jobs/assistant-turn.processor.ts). Không có runner ở controller.
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { eventConsumers, registerEventConsumer, unregisterEventConsumer, type EventConsumer } from '../../../kernel/events/consumer';
 import { TURN_REQUESTED } from '../turn.service';

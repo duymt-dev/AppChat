@@ -2,7 +2,7 @@
 // publish sang BullMQ queue `events` (jobId = event id → không trùng khi relay chạy lại); EventsRunner (TIP-006) chạy consumer.
 // Chỉ bật khi có DB + Redis.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { TenantDbResolver, WorkspaceRegistry } from '@appchat/db';
 import { CLOCK, type Clock } from '../clock';
