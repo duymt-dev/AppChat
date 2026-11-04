@@ -5,6 +5,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, agentCreate, agentDelete, agentPause, agentPublish, agentRollback, agentUpdate } from '@appchat/actions';
 import { QuotaService } from '../../billing/public';
+import { openReservations, reserveQuota } from '../../kernel/consistency/handler-adapter';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
@@ -16,15 +17,29 @@ type Cfg = ActionInput<typeof agentCreate>;
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
 const CREATED_VIA = { ui: 'manual', api: 'manual', system: 'manual', assistant: 'assistant', agent: 'assistant', task: 'assistant' } as const;
 
-/** Tạo dòng `ai_agent` (bản nháp) sau khi kiểm hạn mức gói + tool. Khoá workspace ở DB nền tảng: hai lần tạo song song không lọt hạn mức. */
-async function createAgent(ctx: ActionContext, input: Cfg, tx: TenantTx, ptx: PlatformTx | undefined, now: Date): Promise<AgentRow> {
+/**
+ * Pha nền tảng (TIP-045b): khoá workspace + kiểm hạn mức gói (agent đang có + chỗ đang giữ) + giữ chỗ, kiểm tool — tenant chỉ đọc.
+ * Tạo dòng `ai_agent` ở pha tenant (`applyTenant`) với id tất định sinh ở đây.
+ */
+async function reserveAgent(ctx: ActionContext, input: Cfg, tx: TenantTx, ptx: PlatformTx | undefined, now: Date) {
   if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'agent.create cần PlatformTx');
   await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-  await new QuotaService(ptx).assert(ctx.workspaceId, 'agents', await countLive(tx));
+  await new QuotaService(ptx).assert(ctx.workspaceId, 'agents', (await countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'agents')));
+  await reserveQuota(ptx, ctx, 'agents', now);
   const cfg = merge(blankConfig(), input as Partial<AgentConfig>);
   assertTools(cfg.tools, ctx.authz);
   const via = cfg.template_id ? 'template' : CREATED_VIA[ctx.source];
-  return tx.aiAgent.create({ data: { id: uuidv7(now.getTime()), ...columnsOf(cfg), createdVia: via, createdBy: userOf(ctx), draftDirty: true, createdAt: now, updatedAt: now } });
+  return { id: uuidv7(now.getTime()), cfg, via, by: userOf(ctx), at: now.toISOString() };
+}
+
+type AgentPlan = Awaited<ReturnType<typeof reserveAgent>>;
+
+/** Pha tenant: tạo bản nháp (id tất định — áp lại thấy đã có thì dùng lại). */
+async function insertAgent(tx: TenantTx, p: AgentPlan): Promise<AgentRow> {
+  const found = await tx.aiAgent.findUnique({ where: { id: p.id } });
+  if (found) return found;
+  const at = new Date(p.at);
+  return tx.aiAgent.create({ data: { id: p.id, ...columnsOf(p.cfg), createdVia: p.via as 'manual', createdBy: p.by, draftDirty: true, createdAt: at, updatedAt: at } });
 }
 
 @Injectable()
@@ -33,8 +48,13 @@ export class AgentCreateHandler implements Handler<Cfg, { agent_id: string }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: Cfg, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ agent_id: string }>> {
-    const a = await createAgent(ctx, input, tx, ptx, this.clock.now());
-    return { result: { agent_id: a.id }, after: { id: a.id } };
+    const p = await reserveAgent(ctx, input, tx, ptx, this.clock.now());
+    return { result: { agent_id: p.id }, after: { id: p.id }, tenantPlan: { ...p } };
+  }
+
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const a = await insertAgent(tx, plan as unknown as AgentPlan);
+    return { result: { agent_id: a.id } };
   }
 
   async preview(ctx: ActionContext, input: Cfg) {
@@ -48,10 +68,15 @@ export class AgentCreateAndPublishHandler implements Handler<Cfg, { agent_id: st
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: Cfg, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ agent_id: string; version: number }>> {
-    const now = this.clock.now();
-    const a = await createAgent(ctx, input, tx, ptx, now);
-    const { version } = await publishDraft(tx, a, userOf(ctx), '', now);
-    return { result: { agent_id: a.id, version }, after: { id: a.id }, events: [{ topic: 'agent.published', payload: agentEvent(a, version, 'active') }] };
+    const p = await reserveAgent(ctx, input, tx, ptx, this.clock.now());
+    return { result: { agent_id: p.id, version: 1 }, after: { id: p.id }, tenantPlan: { ...p } };
+  }
+
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const p = plan as unknown as AgentPlan;
+    const a = await insertAgent(tx, p);
+    const { version } = a.publishedVersion > 0 ? { version: a.publishedVersion } : await publishDraft(tx, a, p.by, '', new Date(p.at));
+    return { result: { agent_id: a.id, version }, events: [{ topic: 'agent.published', payload: agentEvent(a, version, 'active') }] };
   }
 
   async preview(ctx: ActionContext, input: Cfg) {

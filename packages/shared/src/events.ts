@@ -109,6 +109,9 @@ export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid()
 /** Hàng chờ duyệt (TIP-021): tạo → thông báo người duyệt (`ai_review`); quyết / hết hạn → job `ai-resume` chạy tiếp run. */
 export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string().uuid(), action_id: z.string(), permission: z.string(), agent: z.string(), title: z.string() });
 /** `edited` = duyệt kèm sửa input (approval.edit_and_approve — TIP-024). */
+/** Thao tác nền tảng có duyệt AI đã áp xong phần workspace (TIP-045b annex A1) — kernel phát chung, consumer AI chạy tiếp run. */
+export const operationCompletedEvent = z.object({ ...base, operation_id: z.string().uuid(), action_id: z.string(), approval_id: z.string().uuid().nullable(), run_id: z.string().uuid().nullable() });
+
 export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'edited', 'rejected', 'expired']) });
 
 /** Sản phẩm đổi (TIP-027): tạo / sửa / lưu trữ / khôi phục → consumer `catalog-sync` nạp lại nguồn RAG (không giá / tồn — rag §2). */
@@ -206,6 +209,7 @@ export const EVENT_SCHEMAS = {
   'agent.deleted': agentChangedEvent,
   'approval.requested': approvalRequestedEvent,
   'approval.decided': approvalDecidedEvent,
+  'operation.completed': operationCompletedEvent,
   'ai.handoff': aiHandoffEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,

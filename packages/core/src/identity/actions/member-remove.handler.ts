@@ -5,6 +5,7 @@ import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, memberRemove } from '@appchat/actions';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
+import { bumpAuthzEpoch } from '../../kernel/consistency/handler-adapter';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { needPlatform } from './previews/platform-read';
 import { removePreview } from './previews/member-remove.handler.preview';
@@ -23,6 +24,8 @@ export class MemberRemoveHandler implements Handler<Input, { ok: boolean }> {
     if (ctx.actor.type === 'user' && input.user_id === ctx.actor.id) throw new AppError('VALIDATION_FAILED', 422, { user_id: 'self' });
     const m = await activeMember(ptx, ctx.workspaceId, input.user_id);
     await ptx.membership.update({ where: { workspaceId_userId: { workspaceId: ctx.workspaceId, userId: m.userId } }, data: { status: 'removed' } });
+    // Quyền của người bị gỡ hết ngay (TIP-045b): phiên bản quyền tăng cùng transaction — socket / AI / tệp kiểm membership + epoch hiện tại.
+    await bumpAuthzEpoch(ptx, ctx.workspaceId);
     return {
       result: { ok: true },
       before: { user_id: m.userId, role: m.roleKey, status: 'active' },

@@ -81,4 +81,9 @@ export interface ActionPreview {
 export type ActionAccepted =
   | { status: 'preview_required'; preview: ActionPreview; confirm_token: string; expires_at: string }
   | { status: 'approval_required'; approval_id: string }
-  | { status: 'job_accepted'; job_id: string; action_log_id: string; status_url: string };
+  | { status: 'job_accepted'; job_id: string; action_log_id: string; status_url: string }
+  /**
+   * Action `db: 'platform'` đã commit ở DB nền tảng nhưng pha tenant chưa áp (TIP-045b annex A1): KHÔNG phải thành công, không phải
+   * việc nền xếp hàng — hệ thống tự khôi phục; gửi lại cùng Idempotency-Key trả kết quả khi xong (không tạo thay đổi mới).
+   */
+  | { status: 'operation_pending'; operation_id: string; action_log_id: string; status_url: string };

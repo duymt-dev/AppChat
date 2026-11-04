@@ -87,6 +87,13 @@ export function useAction<O = unknown>(id: string) {
               if (!opts.silent && def) message.info(t('actions.jobAccepted', { title: t(def.title as never) }));
               return null;
             }
+            case 'operation_pending': {
+              // TIP-045b: đã ghi ở nền tảng, phần workspace đang hoàn tất — không báo thành công, không bấm lại (gửi lại cùng khoá an toàn).
+              setAccepted(a);
+              opts.onAccepted?.(a);
+              if (!opts.silent && def) message.info(t('actions.operationPending', { title: t(def.title as never) }));
+              return null;
+            }
             default:
               return never(a);
           }

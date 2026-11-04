@@ -30,6 +30,21 @@ export interface HandlerOutcome<O> {
    * `result` vẫn qua output schema + action_log (yêu cầu đã nhận); trạng thái hoàn tất là của bản ghi job.
    */
   accepted?: { jobId: string; statusUrl: string };
+  /**
+   * Chỉ action `db: 'platform'` (TIP-045b annex A1): kế hoạch JSON cho pha tenant (`applyTenant`) — lưu ở sổ thao tác nền tảng cùng
+   * commit, khôi phục chạy lại đúng pha còn thiếu. Id tài nguyên tenant phải tất định (sinh ở pha nền tảng).
+   */
+  tenantPlan?: Record<string, unknown>;
+  /** Chỉ action `db: 'platform'`: hiệu ứng ngoài (thư…) ghi bền cùng commit nền tảng, gửi sau commit (kernel/consistency/platform-effects). */
+  effects?: { kind: string; payload: Record<string, unknown>; ttlMs: number }[];
+}
+
+/** Kết quả pha tenant của action nền tảng: kết quả cuối (nếu khác pha nền tảng), after / event ghi cùng action_log. */
+export interface TenantApplied<O> {
+  result?: O;
+  before?: unknown;
+  after?: unknown;
+  events?: { topic: string; payload: Record<string, unknown> }[];
 }
 
 export interface ActionHandler<I = unknown, O = unknown> {
@@ -38,10 +53,19 @@ export interface ActionHandler<I = unknown, O = unknown> {
    * truyền vào `execute` qua tham số `prepared`. Không ghi DB ở đây (không có action_log / undo).
    */
   prepare?(ctx: ActionContext, input: I): Promise<unknown>;
-  /** `ptx` chỉ có với action `db: 'platform'` — khi đó ghi nghiệp vụ vào ptx; `tx` (tenant) chỉ để đọc nếu cần. */
+  /**
+   * `ptx` chỉ có với action `db: 'platform'` — khi đó ghi nghiệp vụ vào ptx; `tx` là bản tenant CHỈ ĐỌC (ghi → lỗi): ghi tenant đi qua
+   * `tenantPlan` + `applyTenant` (TIP-045b — không còn transaction tenant lồng trong transaction nền tảng).
+   */
   execute(ctx: ActionContext, input: I, tx: TenantTx, ptx?: PlatformTx, prepared?: unknown): Promise<HandlerOutcome<O>>;
+  /** Action nền tảng có ghi tenant: áp `tenantPlan` trong transaction tenant (cùng action_log + outbox + biên nhận). Không dựa vào `ctx.authz`. */
+  applyTenant?(ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx): Promise<TenantApplied<O>>;
+  /** Action nền tảng: ghi nền tảng SAU khi tenant đã áp (route kênh / widget / ngân hàng) — idempotent, khôi phục chạy lại. */
+  finalizePlatform?(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx, read: TenantTx): Promise<void>;
   preview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<ActionPreview>;
   undo?(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void>;
+  /** Hoàn tác action nền tảng = thao tác MỚI có điều kiện (kernel/consistency/undo-operation) — ghi ptx, event ghi outbox tenant. */
+  undoPlatform?(ctx: ActionContext, log: ActionLogRow, ptx: PlatformTx): Promise<{ events?: { topic: string; payload: Record<string, unknown> }[] }>;
 }
 
 const ACTION_ID = Symbol('appchat.action-id');

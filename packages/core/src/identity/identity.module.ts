@@ -30,6 +30,7 @@ import { AccessTokens, jwtKeysFromEnv } from './services/access-tokens';
 import { AuthService } from './services/auth.service';
 import { IDENTITY_ENV, MAIL_PROVIDER, RATE_LIMITER, TAX_LOOKUP, TENANT_PROVISION_QUEUE } from './services/identity.tokens';
 import { InvitesService } from './services/invites.service';
+import { InviteEffectsInstaller } from './services/invite-effects';
 import { OtpService } from './services/otp.service';
 import { SessionsService } from './services/sessions.service';
 import { WorkspacesService } from './services/workspaces.service';
@@ -118,7 +119,7 @@ const providers: FactoryProvider[] = [
 const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler, MemberSearchHandler];
 
 @Module({
-  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],
+  providers: [...providers, InviteEffectsInstaller, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],
   exports: [
     IDENTITY_ENV,
     MAIL_PROVIDER,

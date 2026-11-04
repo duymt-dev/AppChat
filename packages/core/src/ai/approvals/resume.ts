@@ -86,6 +86,9 @@ async function executeApproved(d: ResumeDeps, db: TenantDb, ws: string, a: Appro
     // Đã duyệt → việc nền được nhận (TIP-032b): báo đang chạy + handle; duyệt đã tiêu thụ cùng transaction ghi việc, chạy lại cùng khoá
     // `approval:<id>` trả lại handle (idempotency 202) — không xếp việc lần hai, không phải vòng duyệt.
     if (out.data.status === 'job_accepted') return { kind: 'job_accepted', jobId: out.data.job_id, actionLogId: out.data.action_log_id, statusUrl: out.data.status_url };
+    // Thao tác nền tảng commit, tenant chưa áp (TIP-045b): run GIỮ waiting_approval — khôi phục áp xong thì phát `operation.completed`,
+    // consumer AI chạy lại job này và đọc kết quả chuẩn đã lưu cùng lúc tiêu thụ duyệt (không chạy lại action, không APPROVAL_LOOP).
+    if (out.data.status === 'operation_pending') return { kind: 'operation_pending', operationId: out.data.operation_id, actionLogId: out.data.action_log_id, statusUrl: out.data.status_url };
     return { kind: 'error', code: 'APPROVAL_LOOP', message: 'Action vẫn cần duyệt' };
   } catch (err) {
     if (err instanceof AppError) return { kind: 'error', code: err.code, message: err.message };
@@ -115,8 +118,12 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   let outcome: ToolOutcome;
   if (a.status === 'rejected') outcome = { kind: 'ok', output: { rejected: true, note: a.decisionNote ?? serverMessages('vi').ai.approval.rejected } };
   else if (a.result) outcome = a.result as unknown as ToolOutcome;
-  else if (a.executedAt) outcome = { kind: 'ok', output: { executed: true } };
-  else {
+  else if (a.executedAt) {
+    // Đã tiêu thụ mà chưa có kết quả (bản ghi cũ trước TIP-045b): KHÔNG bịa thành công — chạy lại cùng khoá `approval:<id>` lấy kết quả
+    // chuẩn từ sổ thao tác / idempotency; vẫn không có → giữ chờ.
+    outcome = await executeApproved(d, db, ws, a);
+    if (outcome.kind === 'error' && outcome.code === 'CONFLICT') return 'skipped';
+  } else {
     outcome = await executeApproved(d, db, ws, a);
     // Hai tiến trình cùng chạy một duyệt (job chạy lại / gọi tay): bên thua nhận CONFLICT vì bên kia đã chốt (`executed_at`) — không
     // ghi đè kết quả thật, chờ bên thắng ghi kết quả rồi dùng lại (chạy tiếp run vẫn idempotent nhờ claim).
@@ -124,9 +131,13 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
       const won = await winnerResult(db, a.id);
       if (!won) return 'done';
       outcome = won;
+    } else if (outcome.kind === 'operation_pending') {
+      // Phần workspace chưa áp: run giữ waiting_approval (không ghi kết quả, không chạy tiếp model).
+      return 'skipped';
     } else await db.approvalRequest.update({ where: { id: a.id }, data: { result: toJson(outcome) as object } });
     a = { ...a, result: outcome as never };
   }
+  if (outcome.kind === 'operation_pending') return 'skipped';
 
   if (!a.runId || !d.runner) return 'done';
   const run = await db.aiRun.findUnique({ where: { id: a.runId } });

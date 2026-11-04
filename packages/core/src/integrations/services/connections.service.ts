@@ -83,6 +83,39 @@ export class ConnectionsService {
     return { row, existed: !!existing };
   }
 
+  /**
+   * Kiểm + mã hoá trước, KHÔNG ghi (action nền tảng — TIP-045b: pha nền tảng chỉ đọc tenant). Trả bản ghi đã mã hoá cho pha tenant.
+   */
+  async prepareConnect(read: Pick<TenantTx, 'integrationConnection'>, provider: string, fields: Record<string, string>) {
+    const e = this.entry(provider);
+    const { config, secrets } = this.split(e, fields);
+    const mode = e.manifest.modes.includes('live') ? ('live' as const) : ('sandbox' as const);
+    const existing = await read.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE }, select: { id: true } });
+    const id = existing?.id ?? uuidv7(this.now().getTime());
+    if (e.adapter?.test) {
+      try {
+        await e.adapter.test({ id, mode, config, secrets });
+      } catch {
+        throw new AppError('VALIDATION_FAILED', 422, { provider: 'test_failed' });
+      }
+    }
+    return { id, provider, name: e.manifest.name, port: e.manifest.port, mode, config, secretEnc: Buffer.from(sealSecrets(secrets, this.key)).toString('base64') };
+  }
+
+  /** Pha tenant của `prepareConnect`: upsert kết nối theo id đã chọn (áp lại an toàn). */
+  async applyConnect(tx: TenantTx, userId: string, p: Awaited<ReturnType<ConnectionsService['prepareConnect']>>) {
+    const data = { name: p.name, port: p.port, mode: p.mode, status: 'connected' as const, config: p.config, secretEnc: new Uint8Array(Buffer.from(p.secretEnc, 'base64')), lastError: null };
+    const existing = await tx.integrationConnection.findUnique({ where: { id: p.id }, select: { id: true } });
+    return existing
+      ? tx.integrationConnection.update({ where: { id: p.id }, data })
+      : tx.integrationConnection.create({ data: { id: p.id, connectorKey: p.provider, createdBy: userId, ...data } });
+  }
+
+  /** Route webhook trong transaction nền tảng của người gọi. */
+  async routeIn(ptx: Pick<PlatformDb, 'tenantIntegrationRoute'>, ws: string, connectionId: string, connectorKey: string, status: string) {
+    await ptx.tenantIntegrationRoute.upsert({ where: { connectionId }, create: { connectionId, workspaceId: ws, connectorKey, status }, update: { status } });
+  }
+
   async disconnect(tx: TenantTx, ws: string, provider: string) {
     const row = await tx.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE } });
     if (!row) throw new AppError('NOT_FOUND', 404, { provider: 'not_connected' });

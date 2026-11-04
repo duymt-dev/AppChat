@@ -58,7 +58,11 @@ export class AuthzResolver {
   ) {}
 
   async resolve(workspaceId: string, userId: string, m: MembershipInput): Promise<AuthzContext> {
-    const key = this.cache ? await this.cacheKey(workspaceId, userId, m) : null;
+    // Ranh giới bảo mật là DB nền tảng (TIP-045b): owner + `authz_epoch` đọc mỗi lần (khoá chính, rẻ) — cache Redis khoá theo epoch nên
+    // đổi vai trò / gỡ thành viên / đổi chủ có hiệu lực ngay cả khi Redis / relay chậm hoặc mất. Workspace không còn → không quyền.
+    const ws = await this.platform.workspace.findUnique({ where: { id: workspaceId }, select: { ownerUserId: true, authzEpoch: true } });
+    if (!ws) return { userId, isOwner: false, permissions: new Set(), scope: NONE, teamIds: [], teamUserIds: [] };
+    const key = this.cache ? await this.cacheKey(workspaceId, userId, m, ws) : null;
     const hit = key ? await this.cache!.get(key) : null;
     const data: Cached = hit ? (JSON.parse(hit) as Cached) : await this.load(workspaceId, userId, m);
     if (key && !hit) await this.cache!.set(key, JSON.stringify(data), 'EX', AUTHZ_CACHE_TTL_SEC);
@@ -70,9 +74,10 @@ export class AuthzResolver {
     await this.cache?.incr(`authz:ver:${workspaceId}`);
   }
 
-  private async cacheKey(ws: string, userId: string, m: MembershipInput): Promise<string> {
+  private async cacheKey(ws: string, userId: string, m: MembershipInput, w: { ownerUserId: string; authzEpoch: number }): Promise<string> {
     const ver = (await this.cache!.get(`authz:ver:${ws}`)) ?? '0';
-    return `authz:${ws}:${ver}:${userId}:${m.roleKey}:${[...m.delegations].sort().join(',')}`;
+    const owner = w.ownerUserId === userId ? 'o' : 'm';
+    return `authz:${ws}:e${w.authzEpoch}:${ver}:${owner}:${userId}:${m.roleKey}:${[...m.delegations].sort().join(',')}`;
   }
 
   private async load(workspaceId: string, userId: string, m: MembershipInput): Promise<Cached> {

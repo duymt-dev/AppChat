@@ -17,9 +17,9 @@ export class ResumeQueue {
     this.q = new Queue<ResumeJob>(AI_RESUME_QUEUE, { connection: redis.duplicate() });
   }
 
-  /** Đã quyết → chạy ngay. */
-  async push(ws: string, approvalId: string): Promise<void> {
-    await this.q.add('decided', { ws, approval_id: approvalId }, { jobId: `ap-${approvalId}`, attempts: 5, backoff: { type: 'exponential', delay: 3_000 }, removeOnComplete: 1000, removeOnFail: 1000 });
+  /** Đã quyết → chạy ngay. `jobKey` khác (vd. `op-<thao tác>` — TIP-045b) = lượt tiếp tục sau khi thao tác nền tảng áp xong. */
+  async push(ws: string, approvalId: string, jobKey?: string): Promise<void> {
+    await this.q.add('decided', { ws, approval_id: approvalId }, { jobId: jobKey ? `ap-${approvalId}-${jobKey}` : `ap-${approvalId}`, attempts: 5, backoff: { type: 'exponential', delay: 3_000 }, removeOnComplete: 1000, removeOnFail: 1000 });
   }
 
   /** Hẹn kiểm hết hạn đúng lúc `expires_at`. */

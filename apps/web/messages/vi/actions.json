@@ -23,6 +23,7 @@
   "done": "Đã thực hiện: {title}",
   "approvalSent": "Đã gửi duyệt: {title} — chưa thực hiện cho tới khi được duyệt",
   "jobAccepted": "Đã nhận: {title} — đang chạy nền, kết quả cập nhật khi xong",
+  "operationPending": "Đang hoàn tất: {title} — hệ thống tự hoàn tất phần còn lại, không cần thao tác lại",
   "previewTitle": "Xác nhận thao tác",
   "business_profile": {
     "update": {

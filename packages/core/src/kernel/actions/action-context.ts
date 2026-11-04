@@ -28,6 +28,8 @@ export interface ActionContext {
    * action `send` chạy luôn; delete / money vẫn qua duyệt.
    */
   autoSend?: boolean;
+  /** Action `db: 'platform'`: id thao tác xuyên DB (TIP-045b) — handler dùng cho đặt chỗ hạn mức / id tất định. */
+  operationId?: string;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }

@@ -1,7 +1,7 @@
 // ActionExecutor — cổng ghi duy nhất (action-registry §5). Thứ tự không đổi:
 // registry → zod → permission → policy → idempotency → transaction (handler + action_log + outbox) → kết quả.
 import type { ActionAccepted, ActionDef, ActionResult } from '@appchat/actions';
-import { AppError, REDACT_CENSOR, REDACT_KEYS } from '@appchat/shared';
+import { AppError } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { ZodError } from 'zod';
 import type { Clock } from '../clock';
@@ -16,6 +16,8 @@ import type { ActionHandlerRegistry } from './handler-registry';
 import { decidePolicy, requiresIdempotencyKey } from './policy';
 import { maskSecrets } from './secret-fields';
 import { acceptedResponse, replayAccepted } from './job-accepted';
+import { redactDeep, toLogJson } from './executor-redact';
+import type { PlatformOperations } from '../consistency/platform-operation';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -29,6 +31,8 @@ export interface ExecutorDeps {
   clock: Clock;
   /** DB nền tảng cho action `db: 'platform'` (identity / member / workspace / billing / admin). */
   platform?: PlatformDb;
+  /** Sổ thao tác xuyên DB cho action `db: 'platform'` (TIP-045b) — cài khi có PlatformDb. */
+  operations?: PlatformOperations;
   /** Tạo approval_request cho nguồn agent / task (TIP-021). Chưa có → NOT_IMPLEMENTED. */
   approvals?: ApprovalGateway;
 }
@@ -40,7 +44,9 @@ export interface ApprovalGateway {
    * Trong transaction của action (`ctx.approvalId`): duyệt phải `approved`, cùng action + input, chưa chạy → đánh dấu đã chạy.
    * Sai → ném lỗi (transaction huỷ) — action đã duyệt chạy đúng một lần dù job chạy lại.
    */
-  consume(tx: TenantTx, ctx: ActionContext, actionId: string, input: unknown): Promise<void>;
+  consume(tx: TenantTx, ctx: ActionContext, actionId: string, input: unknown, inputHash?: string): Promise<void>;
+  /** Lưu kết quả chuẩn của action đã duyệt cùng transaction tiêu thụ (thao tác nền tảng — TIP-045b). */
+  record?(tx: TenantTx, ctx: ActionContext, output: unknown): Promise<void>;
 }
 
 /** Zod issue → `fields` (path → mã lỗi), client dịch bằng i18n (response-envelope §3). */
@@ -50,15 +56,8 @@ export function zodFields(err: ZodError): Record<string, string> {
   return out;
 }
 
-const SECRET = new Set<string>(REDACT_KEYS);
-/** Che PII trong input trước khi ghi action_log (ops §1.4, §4). */
-export function redactDeep(v: unknown, depth = 0): unknown {
-  if (depth > 6 || v === null || typeof v !== 'object') return v;
-  if (Array.isArray(v)) return v.map((x) => redactDeep(x, depth + 1));
-  return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, SECRET.has(k) ? REDACT_CENSOR : redactDeep(x, depth + 1)]));
-}
-
-const json = (v: unknown) => (v === undefined ? undefined : (JSON.parse(JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x))) as object));
+export { redactDeep } from './executor-redact';
+const json = toLogJson;
 
 /** Cổng tool cho Trợ lý / agent: chạy action + biết action nào có handler thật. Thiếu `isImplemented` → coi như chưa (fail closed). */
 export type ToolExecutor = Pick<ActionExecutor, 'execute'> & Partial<Pick<ActionExecutor, 'isImplemented'>>;
@@ -76,6 +75,11 @@ export class ActionExecutor {
   /** Gắn gateway duyệt lúc boot (domain `ai` — TIP-021 cài; kernel không phụ thuộc domain). */
   setApprovals(g: ApprovalGateway): void {
     this.d.approvals = g;
+  }
+
+  /** Cổng duyệt đã gắn (thao tác nền tảng tiêu thụ duyệt ở pha tenant — TIP-045b). */
+  approvalGateway(): ApprovalGateway | undefined {
+    return this.d.approvals;
   }
 
   /** Action có handler thật — danh mục Trợ lý / tool agent lọc theo đây (TIP-023b R1.2). */
@@ -117,6 +121,10 @@ export class ActionExecutor {
     const route = `action:${actionId}`;
     // Hash idempotency không chứa bí mật thô (hash mật khẩu ngắn dò ngược được) — ô bí mật che trước (TIP-023c hợp đồng 3).
     const reqHash = hashInput({ actionId, input: maskSecrets(def, input), actor: ctx.actor });
+    if (key && def.db === 'platform' && this.d.operations) {
+      const again = await this.d.operations.replay<O>(ctx, def, handler, reqHash, key);
+      if (again) return again;
+    }
     if (key) {
       const prev = await db.idempotencyKey.findUnique({ where: { key } });
       if (prev) {
@@ -142,22 +150,26 @@ export class ActionExecutor {
     const traceId = RequestContext.get()?.traceId;
     const logId = uuidv7(now.getTime());
     const undoUntil = def.undo && handler.undo ? new Date(now.getTime() + def.undo.windowSec * 1000) : undefined;
-    // Action `db: 'platform'`: nghiệp vụ commit trên DB nền tảng TRƯỚC, rồi log / outbox / idempotency ở DB tenant
-    // (không có transaction chung hai DB — Blueprint §2.0 "nền tảng trước"). Handler nền tảng phải idempotent theo input.
     const prepared = handler.prepare ? await handler.prepare(ctx, input) : undefined;
-    const approved = (tx: TenantTx) => (ctx.approvalId ? this.d.approvals!.consume(tx, ctx, actionId, input) : Promise.resolve());
-    let platformOutcome: Awaited<ReturnType<typeof handler.execute>> | undefined;
+    // Action `db: 'platform'` (TIP-045b annex A1): sổ thao tác xuyên DB — nền tảng commit trước, tenant áp sau với biên nhận, khôi phục
+    // theo pha; không còn transaction tenant lồng trong transaction nền tảng. Idempotency theo sổ (workspace + actor + khoá).
     if (def.db === 'platform') {
-      if (!this.d.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
-      platformOutcome = await this.d.platform.$transaction((ptx) => db.$transaction(async (tx) => {
-          await approved(tx);
-          return handler.execute(ctx, input, tx, ptx, prepared);
-        }),
-      );
+      if (!this.d.operations) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
+      let after: (() => Promise<void>) | undefined;
+      const r = await this.d.operations.run<O>(ctx, def, handler, input, prepared, {
+        inputHash: reqHash,
+        logInput: redactDeep(maskSecrets(def, json(input))),
+        idempotencyKey: key,
+        undoUntil: def.undo && (handler.undo || handler.undoPlatform) ? new Date(now.getTime() + def.undo.windowSec * 1000) : undefined,
+        afterCommit: (fn) => (after = fn),
+      });
+      if (after) await after().catch(() => undefined);
+      return r;
     }
+    const approved = (tx: TenantTx) => (ctx.approvalId ? this.d.approvals!.consume(tx, ctx, actionId, input) : Promise.resolve());
     const out = await db.$transaction(async (tx) => {
-      if (!platformOutcome) await approved(tx);
-      const r = platformOutcome ?? (await handler.execute(ctx, input, tx, undefined, prepared));
+      await approved(tx);
+      const r = await handler.execute(ctx, input, tx, undefined, prepared);
       const output = def.output.parse(r.result) as O;
       const ui = def.uiTarget?.(output as never);
       const data: ActionResult<O> = {

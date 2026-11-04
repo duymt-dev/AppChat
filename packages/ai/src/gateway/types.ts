@@ -14,6 +14,8 @@ export type ToolOutcome =
   | { kind: 'needs_approval'; approvalId: string }
   /** Việc nền đã nhận (202 `job_accepted`, TIP-032b): CHƯA xong — model chỉ báo đang chạy + handle; bước cần kết quả cuối không được mở. */
   | { kind: 'job_accepted'; jobId: string; actionLogId: string; statusUrl: string }
+  /** Thao tác nền tảng đã commit, phần workspace chưa áp xong (202 `operation_pending`, TIP-045b): CHƯA thành công — hệ thống tự hoàn tất. */
+  | { kind: 'operation_pending'; operationId: string; actionLogId: string; statusUrl: string }
   | { kind: 'error'; code: string; message: string };
 
 export interface ToolSpec {

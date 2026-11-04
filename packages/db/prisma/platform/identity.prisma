@@ -104,6 +104,8 @@ model Workspace {
   name          String
   slug          String            @unique
   ownerUserId   String            @map("owner_user_id") @db.Uuid
+  /// Phiên bản quyền (TIP-045b): tăng CÙNG transaction mỗi khi vai trò / thành viên / chủ đổi — cache quyền khoá theo số này.
+  authzEpoch    Int               @default(0) @map("authz_epoch")
   timezone      String            @default("Asia/Ho_Chi_Minh")
   locale        String            @default("vi")
   status        WorkspaceStatus   @default(active)

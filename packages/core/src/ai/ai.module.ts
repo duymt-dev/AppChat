@@ -34,6 +34,7 @@ import { seedAgentTemplates } from './agents/templates.seed';
 import { ApprovalApproveHandler, ApprovalEditAndApproveHandler, ApprovalRejectHandler } from './approvals/approval.handlers';
 import { AiTranslateHandler } from './skills/translate.handler';
 import { ApprovalsInstaller } from './approvals/approvals.installer';
+import { OperationContinuationInstaller } from './approvals/operation-continuation';
 import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
 import { AssistantService } from './assistant/assistant.service';
@@ -107,6 +108,8 @@ class ProviderSeed implements OnModuleInit {
     },
     { provide: ResumeQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new ResumeQueue(r) : null) },
     ApprovalsInstaller,
+    // TIP-045b: thao tác nền tảng đã duyệt áp xong → tiếp tục run (consumer `operation.completed`).
+    OperationContinuationInstaller,
     { provide: RunCancelListener, inject: [opt(REDIS), AiRunner], useFactory: (r: Redis | undefined, run: AiRunner | null) => new RunCancelListener(r ?? null, run) },
     AiSettingsUpdateHandler,
     RunCancelHandler,

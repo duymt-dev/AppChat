@@ -1,6 +1,6 @@
 // member.invite (db platform, members.manage, risk send → Idempotency-Key) — Cài đặt › Thành viên › Mời thành viên.
 // Hạn mức `users` của gói = thành viên active + lời mời còn chờ (trừ lời mời cũ cùng email sẽ bị thay) — vượt → 402
-// PLAN_LIMIT_REACHED (TIP-009). Lời mời + thư gửi trong PlatformTx: thư lỗi → không có lời mời mồ côi.
+// PLAN_LIMIT_REACHED (TIP-009). Thư mời là hiệu ứng bền ghi cùng commit nền tảng, gửi sau commit (TIP-045b) — không gửi trong transaction.
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
@@ -12,7 +12,8 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { needPlatform } from './previews/platform-read';
 import { invitePreview } from './previews/member-invite.handler.preview';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
-import { InvitesService } from '../services/invites.service';
+import { INVITE_TTL_MS, InvitesService } from '../services/invites.service';
+import { INVITE_MAIL_EFFECT, type InviteMailPayload } from '../services/invite-effects';
 
 type Input = ActionInput<typeof memberInvite>;
 
@@ -34,8 +35,15 @@ export class MemberInviteHandler implements Handler<Input, { invite_id: string }
     const pending = await this.invites.pendingCount(ws, this.clock.now(), ptx, input.email);
     // QuotaService chỉ đọc subscription / plan — dựng trên ptx (cùng transaction, không kéo BillingModule vào identity).
     await new QuotaService(ptx).assert(ws, 'users', members + pending);
-    const { inviteId } = await this.invites.create(ws, ctx.actor.id, input, ptx);
-    return { result: { invite_id: inviteId }, after: { invite_id: inviteId, role: input.role } };
+    // Id lời mời = id thao tác (TIP-045b): pha nền tảng chạy lại không tạo lời mời / token thứ hai.
+    const inv = await this.invites.create(ws, ctx.actor.id, input, ptx, ctx.operationId);
+    const mail: InviteMailPayload | null = inv.token ? { to: inv.email, locale: inv.locale, workspace: inv.workspace, token: inv.token } : null;
+    return {
+      result: { invite_id: inv.inviteId },
+      after: { invite_id: inv.inviteId, role: input.role },
+      // Thư gửi SAU commit từ hiệu ứng bền (token chỉ trong payload mã hoá, hạn = hạn lời mời) — lỗi gửi không mất lời mời, quét lại.
+      ...(mail ? { effects: [{ kind: INVITE_MAIL_EFFECT, payload: { ...mail }, ttlMs: INVITE_TTL_MS }] } : {}),
+    };
   }
 
   async preview(ctx: ActionContext, input: Input) {
