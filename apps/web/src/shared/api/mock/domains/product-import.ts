@@ -47,6 +47,8 @@ function parse(fileId: string, m: Mapping) {
     if (i < 0) throw bad({ [`mapping.${k}`]: 'column_not_found' });
     return i;
   };
+  // Như server: mọi cột đã ánh xạ phải có trong tệp (kể cả cột mock không dùng).
+  for (const k of Object.keys(m)) at(k);
   const [iName, iPrice, iSku] = [at('name'), at('price'), at('sku')];
   return { name: f.name, rows: lines.map((l) => l.split(',').map((c) => c.trim())).map((c) => ({ name: c[iName] ?? '', price: (c[iPrice] ?? '').replace(/[.\sđ]/g, ''), sku: iSku >= 0 ? (c[iSku] ?? '') : '' })) };
 }

@@ -121,7 +121,7 @@
 | REQ-D04f | Giá / tồn / lịch không lấy từ RAG | 01-REQUIREMENTS-MATRIX.md:83 | 020, 027 | ĐẠT | test kb.test.ts "đoạn có giá không bao giờ ra" |
 | REQ-D04b | AI học từ hội thoại, người duyệt | 01-REQUIREMENTS-MATRIX.md:84 | 043 | CHƯA | kb.suggestion.* không có |
 | REQ-D05a | Tự làm khi tin cậy ≥ 70% | 01-REQUIREMENTS-MATRIX.md:85 | 022 | ĐẠT | packages/ai/src/reply/handoff.ts:26; test reply.test.ts, agent-reply.test.ts |
-| REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | policy.ts:13 send / money → approval; FORCE_APPROVAL (governance.ts:34) chỉ hiển thị |
+| REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | Báo giá > ngưỡng / giảm ngoài chính sách / hoàn tiền / HĐ ép duyệt (FORCE_APPROVAL DC-329, commerce-gaps.test.ts); phần gửi hàng loạt nghiệm thu ở 037 — không hạ luật 20M / 5% |
 | REQ-D06a | Handoff theo các lý do | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | handoff.ts:26; test agent-reply.test.ts |
 | REQ-D06b | Handoff kèm nháp + folder Cần người | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | reply.service.ts:76; test agent-reply.test.ts "độ tin cậy thấp" |
 | REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |

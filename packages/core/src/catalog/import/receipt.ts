@@ -47,7 +47,7 @@ export async function writeRow(tx: TenantTx, importId: string, r: ValidRow | Row
     await receipt(tx, importId, r.rowNo, r.hash, 'failed', p.id, 'sku:archived', now);
     return 'failed';
   }
-  if (p && p.type !== r.type) {
+  if (p && r.typeGiven && p.type !== r.type) {
     await receipt(tx, importId, r.rowNo, r.hash, 'failed', p.id, 'type:immutable', now);
     return 'failed';
   }

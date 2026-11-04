@@ -1,5 +1,5 @@
 // Modal "Nhập từ tệp" (TIP-032b) — không có prototype: dùng ModalShell + token của form sản phẩm. Bước: chọn tệp CSV / XLSX → ánh xạ cột
-// (tên cột tiêu đề, mặc định gợi ý theo tên thường gặp) → Nhập (xem trước qua ConfirmActionHost) → tiến độ + số tạo / cập nhật / lỗi.
+// (tên cột tiêu đề; CSV gợi ý theo dòng đầu — cột tuỳ chọn không có trong tệp để trống) → Nhập (xem trước qua ConfirmActionHost) → tiến độ + số tạo / cập nhật / lỗi.
 // Đang chạy: Huỷ (dòng đã ghi giữ nguyên); lỗi / đã huỷ: Chạy lại (chỉ dòng chưa ghi).
 'use client';
 import { useState } from 'react';
@@ -12,6 +12,14 @@ import { useProductImport, type ImportMapping } from '../hooks/useProductImport'
 
 const FIELDS = ['name', 'price', 'sku', 'type', 'category', 'unit', 'tax_rate'] as const;
 const DEFAULTS: Record<(typeof FIELDS)[number], string> = { name: 'Tên', price: 'Giá', sku: 'Mã', type: 'Loại', category: 'Danh mục', unit: 'Đơn vị', tax_rate: 'Thuế' };
+const REQUIRED = new Set(['name', 'price']);
+
+/** Gợi ý ánh xạ theo tiêu đề tệp: cột bắt buộc giữ tên gợi ý, cột tuỳ chọn chỉ điền khi tệp có cột đó (server 422 nếu ánh xạ cột không có). */
+const fit = (header: string[] | null) => {
+  if (!header) return Object.fromEntries(FIELDS.map((k) => [k, REQUIRED.has(k) ? DEFAULTS[k] : ''])) as Record<string, string>;
+  const has = (n: string) => header.find((h) => h.toLowerCase() === n.toLowerCase());
+  return Object.fromEntries(FIELDS.map((k) => [k, has(DEFAULTS[k]) ?? (REQUIRED.has(k) ? DEFAULTS[k] : '')])) as Record<string, string>;
+};
 
 export function ProductImportModal() {
   const t = useTranslations('products.import');
@@ -73,7 +81,7 @@ export function ProductImportModal() {
             disabled={imp.uploading}
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) void imp.upload(f);
+              if (f) void imp.upload(f).then((h) => setMap(fit(h)));
             }}
             data-testid="pd-import-file"
           />

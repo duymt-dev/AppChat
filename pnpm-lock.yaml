@@ -125,6 +125,9 @@ importers:
       pizzip:
         specifier: 3.3.0
         version: 3.3.0
+      qrcode:
+        specifier: 1.5.4
+        version: 1.5.4
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
@@ -401,6 +404,9 @@ importers:
       pizzip:
         specifier: 3.3.0
         version: 3.3.0
+      qrcode:
+        specifier: 1.5.4
+        version: 1.5.4
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2

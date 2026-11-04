@@ -18,6 +18,8 @@ export type ValidRow = {
   price: string;
   sku?: string;
   type: (typeof TYPES)[number];
+  /** Tệp có ghi loại (ô trống → `physical` khi tạo mới; cập nhật theo SKU giữ loại hiện có). */
+  typeGiven: boolean;
   category?: string;
   unit?: string;
   taxRate?: 0 | 5 | 8 | 10;
@@ -59,6 +61,7 @@ export function validateRow(r: RawRow): ValidRow | RowError {
     name,
     price: String(BigInt(priceText)),
     type,
+    typeGiven: !!typeText,
     ...(sku ? { sku } : {}),
     ...(c.category?.trim() ? { category: c.category.trim().slice(0, 60) } : {}),
     ...(c.unit?.trim() ? { unit: c.unit.trim().slice(0, 20) } : {}),

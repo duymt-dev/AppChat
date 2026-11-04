@@ -12,6 +12,12 @@ export type ImportMapping = { name: string; price: string; sku?: string; type?: 
 
 const POLL_MS = 2000;
 
+const csvHeader = (text: string) =>
+  (text.replace(/^\uFEFF/, '').split(/\r?\n/)[0] ?? '')
+    .split(',')
+    .map((c) => c.trim().replace(/^"|"$/g, ''))
+    .filter(Boolean);
+
 export const productImportQuery = (id: string | null) => ({
   queryKey: ['catalog', 'import', id],
   queryFn: () => transport.get<ProductImportStatus>(`/product-imports/${id}`),
@@ -28,12 +34,14 @@ export function useProductImport() {
   const [importId, setImportId] = useState<string | null>(null);
   const status = useQuery({ ...productImportQuery(importId), refetchInterval: (q) => (q.state.data && importDone(q.state.data.status) ? false : POLL_MS) });
 
-  const upload = async (f: File) => {
+  /** Tải tệp; CSV trả tiêu đề cột (dòng đầu) để modal chỉ ánh xạ cột có thật — XLSX không đọc ở trình duyệt (null). */
+  const upload = async (f: File): Promise<string[] | null> => {
     setUploading(true);
     try {
       const up = await transport.upload(f, 'import');
       setFile({ id: up.file_id, name: up.name });
       setImportId(null);
+      return /\.csv$/i.test(f.name) ? csvHeader(await f.slice(0, 4096).text()) : null;
     } finally {
       setUploading(false);
     }
