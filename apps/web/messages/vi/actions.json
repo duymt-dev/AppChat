@@ -172,6 +172,18 @@
     "get_360": {
       "title": "Xem tổng quan khách",
       "desc": "Hồ sơ khách kèm số báo giá, đơn, đề nghị thanh toán, ticket đang mở và lịch hẹn kế tiếp."
+    },
+    "remember": {
+      "title": "Ghi nhớ về khách",
+      "desc": "Lưu một điều bền vững khách nói về chính họ (sở thích, dị ứng…) vào trí nhớ AI; trùng thì làm mới, tối đa 50 điều."
+    },
+    "memory_forget": {
+      "title": "Xoá ghi nhớ AI",
+      "desc": "Xoá một điều AI đã ghi nhớ về khách; hoàn tác trong 24 giờ."
+    },
+    "memory_list": {
+      "title": "Xem AI ghi nhớ",
+      "desc": "Liệt kê các điều AI ghi nhớ về một khách (mới nhất trước, tối đa 50) kèm mã để xoá đúng điều."
     }
   },
   "custom_field": {

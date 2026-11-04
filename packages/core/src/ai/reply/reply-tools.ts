@@ -115,9 +115,24 @@ async function consult(d: ReplyToolDeps, t: ReplyTurn, i: { role?: unknown; ques
   return r.status === 'completed' ? ok({ agent: target.agent.name, answer: r.text.slice(0, 2000) }) : err('CONSULT_FAILED', r.error?.message ?? r.status);
 }
 
+/** Ghi nhớ (TIP-015b): khách lấy từ hội thoại đang phục vụ (server), không tin `contact_id` model gửi; hội thoại chưa gắn khách → để trống (422/403). */
+const REMEMBER = 'contact__remember';
+
+/** Bỏ `contact_id` khỏi schema model thấy; mọi lời gọi gắn khách của hội thoại đang phục vụ (executor vẫn kiểm lại). */
+function bindServed(s: ToolSpec, contactId: string): ToolSpec {
+  const sc = s.inputSchema as { properties?: Record<string, unknown>; required?: string[] };
+  const properties = Object.fromEntries(Object.entries(sc.properties ?? {}).filter(([k]) => k !== 'contact_id'));
+  return {
+    ...s,
+    inputSchema: { ...sc, properties, required: (sc.required ?? []).filter((k) => k !== 'contact_id') },
+    execute: (input, meta) => s.execute({ ...(input && typeof input === 'object' ? input : {}), contact_id: contactId }, meta),
+  };
+}
+
 /** Bộ tool đầy đủ của lượt: action (đã lọc) + tool phối hợp. Copilot: action ghi trả `dry_run` (không thay đổi dữ liệu). */
 export async function replyTools(d: ReplyToolDeps, t: ReplyTurn): Promise<ToolSpec[]> {
   const ids = runToolIds(t.cfg.tools, await connectedKeys(d.db)).filter((id) => id !== 'message.send');
+  const served = ids.includes('contact.remember') ? (await d.db.conversation.findUnique({ where: { id: t.conversationId }, select: { contactId: true } }))?.contactId ?? '' : '';
   const actions = agentToolSpecs(d.executor, ids, {
     workspaceId: t.ws,
     agent: t.agent,
@@ -130,6 +145,6 @@ export async function replyTools(d: ReplyToolDeps, t: ReplyTurn): Promise<ToolSp
     const id = s.name.replaceAll('__', '.');
     if (!t.dryRun || RISK.get(id) === 'read') return s;
     return { ...s, execute: async (input: unknown): Promise<ToolOutcome> => ok({ dry_run: true, would_call: id, input }) };
-  });
+  }).map((s) => (s.name === REMEMBER ? bindServed(s, served) : s));
   return [...actions, ...metaTools(d, t)];
 }

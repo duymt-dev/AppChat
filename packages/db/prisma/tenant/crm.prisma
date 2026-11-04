@@ -199,17 +199,67 @@ model ContactTag {
   @@map("contact_tag")
 }
 
-/// Điều AI nhớ về khách (D10) — `contact.remember` (TIP AI ghi), ngữ cảnh agent kênh (§5.3).
+/// Điều AI nhớ về khách (D10) — `contact.remember` / `contact.memory_forget` (TIP-015b), ngữ cảnh agent kênh (§5.3). Trần 50 / khách.
 model ContactMemory {
+  id           String   @id @db.Uuid
+  contactId    String   @map("contact_id") @db.Uuid
+  fact         String
+  /// Chuẩn hoá (bỏ dấu, thường, gộp khoảng trắng / dấu câu) — so trùng văn bản bằng pg_trgm similarity ≥ 0.9.
+  factNorm     String   @map("fact_norm")
+  sourceRunId  String?  @map("source_run_id") @db.Uuid
+  sourceStepId String?  @map("source_step_id") @db.Uuid
+  actorType    String?  @map("actor_type")
+  actorId      String?  @map("actor_id")
+  confidence   Float    @default(1) @db.Real
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@index([contactId, updatedAt(sort: Desc), id(sort: Desc)], map: "contact_memory_contact_recent_idx")
+  @@map("contact_memory")
+}
+
+/// Bản sửa của khách (TIP-015b): tăng trong cùng transaction với thay đổi — khoá cache tóm tắt / gợi ý.
+model ContactRevision {
+  contactId String   @id @map("contact_id") @db.Uuid
+  memoryRev BigInt   @default(0) @map("memory_rev")
+  dataRev   BigInt   @default(0) @map("data_rev")
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("contact_revision")
+}
+
+/// Biên nhận gộp khách cho trí nhớ (hoàn tác 7 ngày) — ảnh chụp fact hai phía, không đọc vào model.
+model ContactMemoryMerge {
   id          String   @id @db.Uuid
-  contactId   String   @map("contact_id") @db.Uuid
-  fact        String
-  sourceRunId String?  @map("source_run_id") @db.Uuid
-  confidence  Float    @default(1) @db.Real
+  primaryId   String   @map("primary_id") @db.Uuid
+  dupId       String   @map("dup_id") @db.Uuid
+  primaryRows Json     @map("primary_rows")
+  dupRows     Json     @map("dup_rows")
+  afterRev    BigInt   @map("after_rev")
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  @@index([contactId, createdAt(sort: Desc)])
-  @@map("contact_memory")
+  @@index([expiresAt, id], map: "contact_memory_merge_expiry_idx")
+  @@map("contact_memory_merge")
+}
+
+/// Cache tóm tắt 360° / gợi ý bước tiếp theo theo phạm vi người xem (TIP-015b).
+model ContactSummaryCache {
+  contactId   String   @map("contact_id") @db.Uuid
+  kind        String
+  scopeKey    String   @map("scope_key")
+  locale      String
+  fingerprint String
+  dataRev     BigInt   @map("data_rev")
+  body        Json
+  source      String
+  runId       String?  @map("run_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@id([contactId, kind, scopeKey, locale])
+  @@index([expiresAt], map: "contact_summary_cache_expiry_idx")
+  @@map("contact_summary_cache")
 }
 
 /// Dòng thời gian đa kênh của khách (Hồ sơ 360° — F02). Domain khác ghi qua `TimelineService` / consumer event.

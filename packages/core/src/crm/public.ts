@@ -9,3 +9,7 @@ export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';
 export { fieldDefs } from './services/fields.service';
 export { createContact } from './services/contacts.service';
+export { ContactMemoryModule } from './memory/memory.module';
+export { MEMORY_CAP, normFact } from './memory/normalize';
+export { purgeMergeReceipts, MERGE_UNDO_MS } from './memory/merge';
+export { recentFacts } from './memory/read';

@@ -9,9 +9,16 @@ import { agentSystem } from '../agents/agent.runtime';
 import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
 import { readGovernance } from '../governance/governance';
 import { searchKb, type KbSearchResult } from '../kb/search';
+import { recentFacts } from '../../crm/public';
 
 export const HISTORY = 20;
-const MEMORY = 10;
+/** Fact trí nhớ khách vào ngữ cảnh: 20 fact cập nhật gần nhất (TIP-015b; trần lưu 50). */
+export const MEMORY = 20;
+
+/** Hướng dẫn tool ghi nhớ (chỉ khi agent được cấp `contact.remember`). */
+const REMEMBER_RULE =
+  '# GHI NHỚ\nKhi khách nêu thông tin bền vững về chính họ (sở thích, dị ứng, lịch quen, người liên hệ), gọi tool contact__remember với một câu ngắn. ' +
+  'Chỉ ghi điều khách nói rõ, không suy đoán; không ghi lại điều đã có trong mục Ghi nhớ. Tuyệt đối không ghi số CCCD / CMND, số thẻ, mật khẩu, mã OTP.';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique']>>>;
 type Agent = NonNullable<Awaited<ReturnType<TenantDb['aiAgent']['findUnique']>>>;
@@ -78,7 +85,7 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
   const previous = customer.slice(0, Math.max(0, customer.length - msgs.slice(lastOut + 1).filter((m) => m.direction === 'in').length)).reverse().map((m) => foldText(m.body));
 
   const contact = c.contactId ? await db.contact.findUnique({ where: { id: c.contactId }, select: { name: true, group: true, locale: true, stage: true } }) : null;
-  const memory = c.contactId ? await db.contactMemory.findMany({ where: { contactId: c.contactId }, orderBy: { createdAt: 'desc' }, take: MEMORY, select: { fact: true } }) : [];
+  const memory = c.contactId ? await recentFacts(db, c.contactId, MEMORY) : [];
   const account = await db.channelAccount.findUnique({ where: { id: c.channelAccountId } });
   const st = account ? settingsOf(account) : null;
 
@@ -99,6 +106,7 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
     '# KHÁCH',
     `- Tên: ${mask(contact?.name ?? '')}${contact?.group ? ` · nhóm ${contact.group}` : ''}${contact?.stage ? ` · giai đoạn ${contact.stage}` : ''}`,
     ...memory.map((m) => `- Ghi nhớ: ${mask(m.fact)}`),
+    ...(a.cfg.tools.includes('contact.remember') && c.contactId ? ['', REMEMBER_RULE] : []),
     ...(st?.greeting ? ['', `# LỜI CHÀO CỦA KÊNH\n${st.greeting}`] : []),
     '',
     '# TÀI LIỆU',

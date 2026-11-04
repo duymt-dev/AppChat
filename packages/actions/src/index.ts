@@ -7,6 +7,7 @@ import * as crm from './crm';
 import * as ai from './ai';
 import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
+import * as contactMemory from './contact-memory';
 import * as quotes from './quotes';
 import * as contracts from './contracts';
 import * as contractFiles from './contract-files';
@@ -53,6 +54,7 @@ export * from './crm';
 export * from './ai';
 export * from './catalog';
 export * from './catalog-operations';
+export * from './contact-memory';
 export * from './quotes';
 export * from './contracts';
 export * from './contract-files';
@@ -100,6 +102,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(ai),
   ...Object.values(catalog),
   ...Object.values(catalogOperations),
+  ...Object.values(contactMemory),
   ...Object.values(quotes),
   ...Object.values(contracts),
   ...Object.values(contractFiles),

@@ -172,6 +172,18 @@
     "get_360": {
       "title": "Customer 360",
       "desc": "Customer profile with open quotes, orders, unpaid requests, tickets and the next appointment."
+    },
+    "remember": {
+      "title": "Remember about customer",
+      "desc": "Save a lasting fact the customer said about themselves (preferences, allergies…) to AI memory; duplicates are refreshed, up to 50 facts."
+    },
+    "memory_forget": {
+      "title": "Forget AI memory",
+      "desc": "Delete one fact the AI remembered about the customer; undo within 24 hours."
+    },
+    "memory_list": {
+      "title": "View AI memory",
+      "desc": "List what the AI remembers about one customer (newest first, up to 50) with ids to forget a specific fact."
     }
   },
   "custom_field": {

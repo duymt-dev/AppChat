@@ -239,6 +239,8 @@ export const EVENT_SCHEMAS = {
   'package.changed': packageEvent,
   'package.reminder_due': packageReminderDueEvent,
   'product.import_requested': z.object({ ...base, import_id: z.string().uuid() }),
+  /** Trí nhớ / dữ liệu tóm tắt của khách đổi (TIP-015b) — chỉ là gợi ý làm mới cache; bản sửa thật ở contact_revision. */
+  'contact.memory_changed': z.object({ ...base, contact_id: z.string().uuid(), memory_rev: z.number().int() }),
   'appointment.created': appointmentEvent,
   'appointment.confirmed': appointmentEvent,
   'appointment.rescheduled': appointmentEvent,

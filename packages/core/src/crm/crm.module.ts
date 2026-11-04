@@ -13,6 +13,7 @@ import { ContactSearchHandler } from './actions/contact-search.handler';
 import { ContactGet360Handler, ContactGetHandler, ProfileLayoutSearchHandler } from './actions/contact-read.handlers';
 import { CustomFieldDefineHandler, CustomFieldDeleteHandler, CustomFieldUpdateHandler } from './actions/custom-field.handlers';
 import { ProfileLayoutAssignRoleHandler, ProfileLayoutCreateHandler, ProfileLayoutDeleteHandler, ProfileLayoutDuplicateHandler, ProfileLayoutUpdateHandler } from './actions/profile-layout.handlers';
+import { ContactMemoryModule } from './memory/memory.module';
 import { CrmReadService } from './services/crm-read.service';
 import { ContactIdentityService } from './services/identity.service';
 import { CrmMembers } from './services/members.service';
@@ -31,6 +32,7 @@ const HANDLERS = [
 ];
 
 @Module({
+  imports: [ContactMemoryModule],
   providers: [
     ...HANDLERS,
     { provide: CrmMembers, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new CrmMembers(p) : null) },

@@ -33,7 +33,7 @@ export { ChannelsJobsModule } from './channels/jobs/channels.jobs.module';
 export { InboxModule } from './inbox/inbox.module';
 export { InboxJobsModule } from './inbox/jobs/inbox.jobs.module';
 export { CrmModule } from './crm/crm.module';
-export { CrmJobsModule } from './crm/jobs/crm.jobs.module';
+export { CrmJobsModule, purgeMemoryReceipts, MEMORY_RECEIPT_PURGE_JOB } from './crm/jobs/crm.jobs.module';
 export { CatalogModule } from './catalog/catalog.module';
 export { CatalogJobsModule } from './catalog/jobs/catalog.jobs.module';
 export { SalesModule } from './sales/sales.module';
