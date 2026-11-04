@@ -18,6 +18,7 @@ import { freezeQuotePdf, renderQuotePdf } from '../services/quote-doc';
 import { QuoteDeps } from '../services/quote-deps';
 import { pdfLinkOf, quoteLinkOf } from '../services/quote-env';
 import { customerConversation, postToCustomer, reachCustomer } from '../services/quote-send';
+import { quoteDelivery } from '../services/quote-image';
 import { extendPreview, sendPreview } from '../previews/quote-send.handlers.preview';
 import { hasNewerVersion, moveStatus, reasonsOf, validUntilOf } from '../services/quote-write';
 
@@ -29,6 +30,10 @@ interface Prepared {
   text: string;
   validUntil: string;
   total: string;
+  /** Ảnh trang (format image) theo thứ tự trang; rỗng = gửi PDF. */
+  pages: { fileId: string; name: string }[];
+  /** Link công khai xem / tải PDF (webchat). */
+  link: string | null;
 }
 
 const actorOf = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
@@ -70,7 +75,8 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
       valid_until: r.doc.data.doc.valid_until ?? '',
       link: quoteLinkOf(env, ctx.workspaceId, q.id),
     });
-    return { ...f, text, validUntil: validUntil.toISOString(), total: r.doc.data.totals.total ?? '' };
+    const extra = await quoteDelivery(ctx, db, this.d, q, { ...f, pdf: r.pdf }, input, now, validUntil);
+    return { ...f, text, validUntil: validUntil.toISOString(), total: r.doc.data.totals.total ?? '', ...extra };
   }
 
   async execute(ctx: ActionContext, input: SendIn, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<{ quote_id: string; valid_until: string }>> {
@@ -81,9 +87,14 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
     const now = this.clock.now();
     const contact = await tx.contact.findUniqueOrThrow({ where: { id: q.contactId }, select: { id: true, name: true, email: true, ownerUserId: true } });
     const target = await customerConversation(tx, contact, input.channel, `${q.code} · ${contact.name}`, now);
-    await tx.file.updateMany({ where: { id: p.fileId }, data: { confirmed: true } });
+    await tx.file.updateMany({ where: { id: { in: [p.fileId, ...p.pages.map((x) => x.fileId)] } }, data: { confirmed: true } });
     const env = this.d.need('env');
-    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: p.text, file: { url: pdfLinkOf(env, ctx.workspaceId, p.fileId), name: p.name }, now });
+    const attachments = p.pages.length
+      ? p.pages.map((x) => ({ url: pdfLinkOf(env, ctx.workspaceId, x.fileId), mime: 'image/png', name: x.name }))
+      : [{ url: pdfLinkOf(env, ctx.workspaceId, p.fileId), mime: 'application/pdf', name: p.name }];
+    const text = p.link ? `${p.text}
+${p.link}` : p.text;
+    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text, attachments, now });
     await moveStatus(tx, q, to, { sentAt: now, sentChannel: input.channel, validUntil: new Date(p.validUntil), remindedAt: null, conversationId: target.conv.id, fileId: p.fileId, fileSha256: p.sha256 }, now);
     // Bản trước của chuỗi (khách đã xin sửa) → bản cũ.
     await tx.quote.updateMany({ where: { rootQuoteId: q.rootQuoteId, version: { lt: q.version }, status: 'revision_requested', deletedAt: null }, data: { status: 'superseded', updatedAt: now } });
@@ -91,7 +102,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
     const stage = await applyStageRule(tx, { contactId: q.contactId, mode: 'raise', to: 'quote', actor: actorOf(ctx), now });
     return {
       result: { quote_id: q.id, valid_until: p.validUntil },
-      events: [{ topic: 'quote.sent', payload: { quote_id: q.id, contact_id: q.contactId, code: q.code, version: q.version, channel: input.channel, valid_until: p.validUntil } }, ...sent.events, ...stage],
+      events: [{ topic: 'quote.sent', payload: { quote_id: q.id, contact_id: q.contactId, code: q.code, version: q.version, channel: input.channel, format: input.format ?? 'pdf', pages: p.pages.length, valid_until: p.validUntil } }, ...sent.events, ...stage],
       afterCommit: () => enqueueOutgoing(this.queue, ctx.workspaceId, sent.out),
     };
   }

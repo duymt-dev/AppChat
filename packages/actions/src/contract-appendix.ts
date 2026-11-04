@@ -4,6 +4,7 @@
 // (capability niêm phong trong core) — ẩn khỏi Trợ lý / agent, gọi thẳng /actions (kể cả Owner) bị từ chối.
 import { z } from 'zod';
 import { defineAction } from './define';
+import { docChannel } from './sales-schemas';
 
 const id = z.string().min(1);
 const signedMoney = z.string().regex(/^-?\d+$/);
@@ -106,7 +107,7 @@ export const contractAppendixSend = defineAction({
   module: 'sales',
   title: 'actions.contract.appendix_send.title',
   description: 'Send the customer a one-time 7-day signing link for an Owner-signed appendix (Zalo chat / email). Never agent-run.',
-  input: z.object({ appendix_id: id, channel: z.enum(['zalo_personal', 'email']) }),
+  input: z.object({ appendix_id: id, channel: docChannel }),
   output: z.object({ appendix_id: z.string(), sign_url: z.string(), expires_at: z.string() }),
   permission: 'contract.sign',
   risk: 'send',

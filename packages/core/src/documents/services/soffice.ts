@@ -19,7 +19,12 @@ export const sofficePath = (src: Record<string, string | undefined>) =>
 
 export interface PdfConverter {
   toPdf(input: Buffer, ext: 'html' | 'docx'): Promise<Buffer>;
+  /** Một trang PDF (đã tách sẵn, do chính hệ thống render) → PNG A4 150 dpi (TIP-032b — báo giá dạng ảnh). */
+  pageToPng?(pagePdf: Buffer): Promise<Buffer>;
 }
+
+/** A4 ở 150 dpi — đủ đọc chữ 10pt trên điện thoại, ảnh ~150–400 KB / trang. */
+export const PAGE_PX = { width: 1240, height: 1754 };
 
 export class SofficeConverter implements PdfConverter {
   constructor(
@@ -35,6 +40,21 @@ export class SofficeConverter implements PdfConverter {
       const filter = 'pdf:writer_pdf_Export';
       await this.run(['--headless', '--norestore', '--nolockcheck', `-env:UserInstallation=${pathToFileURL(join(dir, 'profile')).href}`, '--convert-to', filter, '--outdir', join(dir, 'out'), src]);
       return await readFile(join(dir, 'out', 'doc.pdf')).catch(() => {
+        throw new AppError('INTERNAL', 502, { render: 'failed' });
+      });
+    } finally {
+      await rm(dir, { recursive: true, force: true }).catch(() => undefined);
+    }
+  }
+
+  async pageToPng(pagePdf: Buffer): Promise<Buffer> {
+    const dir = await mkdtemp(join(tmpdir(), 'appchat-render-'));
+    try {
+      const src = join(dir, 'page.pdf');
+      await writeFile(src, pagePdf);
+      const size = JSON.stringify({ PixelWidth: { type: 'long', value: String(PAGE_PX.width) }, PixelHeight: { type: 'long', value: String(PAGE_PX.height) } });
+      await this.run(['--headless', '--norestore', '--nolockcheck', `-env:UserInstallation=${pathToFileURL(join(dir, 'profile')).href}`, '--infilter=draw_pdf_import', '--convert-to', `png:draw_png_Export:${size}`, '--outdir', join(dir, 'out'), src]);
+      return await readFile(join(dir, 'out', 'page.png')).catch(() => {
         throw new AppError('INTERNAL', 502, { render: 'failed' });
       });
     } finally {

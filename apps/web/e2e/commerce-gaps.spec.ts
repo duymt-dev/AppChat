@@ -71,3 +71,34 @@ test.describe('commerce-gaps — chính sách bán hàng (TIP-032b P1)', () => {
     await expect(page.getByTestId('q-drawer').getByTestId('q-to-order')).toBeEnabled();
   });
 });
+
+test.describe('commerce-gaps — gửi chứng từ (TIP-032b P2)', () => {
+  test('báo giá: Gửi khác → chọn Website chat + Ảnh từng trang → gửi; đơn: Gửi xác nhận đơn; đề nghị: kênh Web chat + gửi phiếu thu', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(`/quotes${S}`);
+    await page.locator('[data-quote="q_2041"]').click();
+    await page.getByTestId('q-drawer').getByTestId('q-send-more').click();
+    const dlg = page.getByTestId('q-delivery');
+    await expect(dlg.getByTestId('q-delivery-webchat')).toHaveAttribute('aria-checked', 'true');
+    await dlg.getByTestId('q-delivery-image').click();
+    await expect(dlg).toContainText('đủ trang');
+    await dlg.getByTestId('q-delivery-send').click();
+    await expect(dlg).toHaveCount(0);
+    await expect(page.getByTestId('q-drawer')).toContainText('Đã gửi');
+    await page.keyboard.press('Escape');
+    await nav(page, '/orders');
+    await page.locator('[data-order="ord_290411"]').click();
+    const od = page.getByTestId('od-drawer');
+    await od.getByTestId('od-send-channel').selectOption('email');
+    await od.getByTestId('od-send-confirmation').click();
+    await expect(page.getByText('Gửi xác nhận đơn cho khách')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await nav(page, '/invoices');
+    await page.locator('[data-invoice="inv_2039"]').click();
+    const iv = page.getByTestId('iv-drawer');
+    await iv.getByTestId('iv-send-channel').selectOption('webchat');
+    await expect(iv.getByTestId('iv-send-channel')).toHaveValue('webchat');
+    await iv.getByTestId('iv-receipt-send').first().click();
+    await expect(page.getByText('Gửi phiếu thu cho khách')).toBeVisible();
+  });
+});

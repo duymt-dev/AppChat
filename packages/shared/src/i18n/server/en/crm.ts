@@ -25,6 +25,8 @@ export const crm: Shape<typeof vi> = {
     order_completed: 'Completed order {code} · {total}',
     order_cancelled: 'Cancelled order {code}: {reason}',
     order_imported: 'Imported order {code} from {platform} · {total}',
+    order_confirmation_sent: 'Sent order confirmation {code} via {channel}',
+    receipt_sent: 'Sent receipt {code} via {channel}',
     invoice_sent: 'Sent payment request {code} · {amount}',
     invoice_paid: 'Collected {amount} for {code} · receipt {receipt}',
     invoice_void: 'Voided payment request {code}: {reason}',

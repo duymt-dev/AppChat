@@ -107,5 +107,11 @@
     "approval": "Đã gửi duyệt — chưa thực hiện",
     "count": "{n} bản ghi",
     "openFull": "Mở trong Trợ lý"
+  },
+  "docChannel": {
+    "label": "Kênh gửi",
+    "zalo_personal": "Zalo",
+    "email": "Email",
+    "webchat": "Web chat"
   }
 }

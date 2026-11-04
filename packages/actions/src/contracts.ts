@@ -3,7 +3,7 @@
 // Agent / Trợ lý chỉ soạn nháp; duyệt & ký, gửi ký, chấm dứt cần `contract.sign` (mặc định chỉ Chủ sở hữu).
 import { z } from 'zod';
 import { defineAction } from './define';
-import { money } from './sales-schemas';
+import { docChannel, money } from './sales-schemas';
 
 const contractId = z.string().min(1);
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -149,7 +149,7 @@ export const contractSendForSignature = defineAction({
   title: 'actions.contract.send_for_signature.title',
   description:
     'Send the one-time signing link (7 days) to the customer over the conversation channel or email. Only after the business has signed.',
-  input: z.object({ contract_id: contractId, channel: z.enum(['zalo_personal', 'email']) }),
+  input: z.object({ contract_id: contractId, channel: docChannel }),
   output: z.object({ contract_id: z.string(), sign_url: z.string(), expires_at: z.string() }),
   permission: 'contract.sign',
   risk: 'send',

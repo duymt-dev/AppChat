@@ -526,6 +526,10 @@
     "get": {
       "title": "View order",
       "desc": "Read one order: lines, totals, amount paid."
+    },
+    "send_confirmation": {
+      "title": "Send order confirmation",
+      "desc": "Send the order confirmation PDF (items, total, paid / left) to the customer conversation."
     }
   },
   "invoice": {
@@ -991,6 +995,12 @@
     "update": {
       "title": "Update sales policy",
       "desc": "Change the workspace quote approval thresholds (total, discount %) — Owner only."
+    }
+  },
+  "receipt": {
+    "send": {
+      "title": "Send receipt",
+      "desc": "Send the receipt PDF of a confirmed payment to the customer conversation."
     }
   }
 }

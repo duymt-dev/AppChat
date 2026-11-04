@@ -29,6 +29,9 @@ import { QuoteDeps } from './quotes/services/quote-deps';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
 import { SalesSettingsModule } from './settings/settings.module';
+import { SalesDocumentsModule } from './documents/documents.module';
+import { OrderSendConfirmationHandler } from './orders/actions/order-confirmation.handler';
+import { ReceiptSendHandler } from './payments/actions/receipt-send.handler';
 import { OrderFromContractHandler, OrderFromQuoteHandler, OrderCreateHandler } from './orders/actions/order-create.handlers';
 import { OrderSetDepositHandler, OrderShippingHandler, OrderUpdateHandler } from './orders/actions/order-edit.handlers';
 import { OrderCancelHandler, OrderCompleteHandler, OrderConfirmHandler } from './orders/actions/order-flow.handlers';
@@ -62,10 +65,12 @@ const HANDLERS = [
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,
   // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
+  // Gửi chứng từ cho khách (TIP-032b P2).
+  OrderSendConfirmationHandler, ReceiptSendHandler,
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule, SalesDocumentsModule],
   providers: [
     ...HANDLERS,
     {
@@ -105,6 +110,6 @@ const HANDLERS = [
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [SalesSettingsModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
+  exports: [SalesSettingsModule, SalesDocumentsModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
 })
 export class SalesModule {}

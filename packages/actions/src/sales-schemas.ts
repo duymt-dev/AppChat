@@ -4,6 +4,10 @@ import { z } from 'zod';
 /** Tiền là string VND (Blueprint §4.1). */
 export const money = z.string().regex(/^\d+$/);
 
+/** Kênh gửi chứng từ cho khách (TIP-032b P2): Zalo cá nhân, email, website chat — webchat gửi tin + link xem / tải công khai có hạn. */
+export const DOC_CHANNELS = ['zalo_personal', 'email', 'webchat'] as const;
+export const docChannel = z.enum(DOC_CHANNELS);
+
 export const discount = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('pct'), value: z.number().min(0).max(100) }),
   z.object({ kind: z.literal('amount'), value: money }),

@@ -1,6 +1,9 @@
 // Chữ báo giá phía server — tiếng Việt (nguồn): tin gửi khách kèm link xem, gợi ý một dòng ở cột AI (luật theo trạng thái / hạn),
 // kết quả mẫu của panel Trợ lý AI · Báo giá (luật trên dữ liệu thật, không gọi LLM), tên tệp PDF.
+import { salesDelivery } from './sales-delivery';
+
 export const sales = {
+  delivery: salesDelivery,
   quote: {
     message: 'Kính gửi {customer}, {business} gửi báo giá {code} (lần {version}) — tổng {total}, hiệu lực đến {valid_until}. Xem chi tiết: {link}',
     extended: 'Báo giá {code} được gia hạn hiệu lực đến {valid_until}. Xem lại: {link}',

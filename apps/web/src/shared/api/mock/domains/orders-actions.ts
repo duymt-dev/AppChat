@@ -8,6 +8,7 @@ import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import type { QuoteItem } from './quotes';
 import { NAMES, deny, enrichOrder, findOrder, logOrder, type Order, type OrderStatus } from './orders';
+import { sendOrderConfirmation } from './commerce-delivery';
 
 const step = (o: Order, action: string): OrderStatus => {
   try {
@@ -226,4 +227,5 @@ export const ordersHandlers: Record<string, MockHandler> = {
     // Mock OrderSyncProvider: chưa có kết nối sàn thật (adapter P2) — không có đơn mới.
     execute: () => ({ imported: 0 }),
   },
+  'order.send_confirmation': { execute: (db, i: { order_id: string; channel?: string }) => sendOrderConfirmation(findOrder(db, i.order_id), i.channel) },
 };

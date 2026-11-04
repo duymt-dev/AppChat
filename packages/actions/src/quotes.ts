@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
-import { discount, lineItem } from './sales-schemas';
+import { discount, docChannel, lineItem } from './sales-schemas';
 
 const quoteId = z.string().min(1);
 const fields = z.object({
@@ -117,8 +117,9 @@ export const quoteSend = defineAction({
   module: 'sales',
   title: 'actions.quote.send.title',
   description:
-    'Send the quote to the customer over a channel (zalo_personal | email); sets valid_until = sent_at + valid_days. Fails with QUOTE_NEEDS_APPROVAL over threshold. Example: {"quote_id":"q_2041","channel":"zalo_personal"}',
-  input: z.object({ quote_id: quoteId, channel: z.enum(['zalo_personal', 'email']) }),
+    'Send the quote to the customer over a channel (zalo_personal | email | webchat) as a PDF (default) or page images (format: "image"); sets valid_until = sent_at + valid_days. Fails with QUOTE_NEEDS_APPROVAL over threshold. Example: {"quote_id":"q_2041","channel":"zalo_personal"}',
+  // format: PDF (mặc định) hoặc ảnh từng trang render từ cùng PDF đóng băng (COMMERCE §3 "PDF hoặc ảnh" — TIP-032b P2).
+  input: z.object({ quote_id: quoteId, channel: docChannel, format: z.enum(['pdf', 'image']).default('pdf') }),
   output: z.object({ quote_id: z.string(), valid_until: z.string() }),
   permission: 'quote.send',
   risk: 'send',

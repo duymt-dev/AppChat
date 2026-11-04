@@ -4,7 +4,7 @@
 // (chữ). Huỷ: chỉ khi chưa có khoản thu (đã thu → hoàn tiền), bắt buộc lý do.
 import { Inject, Injectable } from '@nestjs/common';
 import { TenantContexts } from '@appchat/db';
-import { AppError, INVOICE_DUE_DAYS, INVOICE_FLOW, assertTransition, createFmt, interpolate, serverMessages } from '@appchat/shared';
+import { AppError, INVOICE_DUE_DAYS, INVOICE_FLOW, assertTransition, createFmt } from '@appchat/shared';
 import type { ActionInput, invoiceCreate, invoiceSendPaymentQr, invoiceVoid } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
@@ -18,7 +18,7 @@ import { lockOrder } from '../../orders/order-access';
 import { actorOf } from '../../orders/services/order-write';
 import { QuoteDeps } from '../../quotes/services/quote-deps';
 import { lockInvoice, visibleInvoice } from '../invoice-access';
-import { invoiceDocData, renderDocPdf, savePdf } from '../services/invoice-doc';
+import { prepareInvoiceDelivery, type InvoiceDelivery } from '../services/invoice-delivery';
 import { invoiceText, postInvoice } from '../services/invoice-send';
 import { localDay } from '../services/payment-write';
 import { createPreview, sendPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
@@ -101,9 +101,8 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
 }
 
 type SendIn = ActionInput<typeof invoiceSendPaymentQr>;
-interface Prepared {
-  file: { fileId: string; name: string } | null;
-}
+type Prepared = InvoiceDelivery;
+const NONE: Prepared = { file: null, qrFileId: null, link: null };
 
 @Injectable()
 @ActionHandler('invoice.send_payment_qr')
@@ -115,27 +114,25 @@ export class InvoiceSendHandler implements Handler<SendIn, St> {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  /** Lần gửi đầu: render + lưu PDF (ngoài transaction — LibreOffice chậm). Nhắc: không PDF. */
+  /** Lần gửi đầu: PDF có VietQR + ảnh QR + link công khai webchat (ngoài transaction — LibreOffice chậm). Nhắc: không render lại. */
   async prepare(ctx: ActionContext, input: SendIn): Promise<Prepared> {
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'invoice.send_payment_qr'));
     const i = await db.$transaction((tx) => visibleInvoice(tx, ctx.authz, input.invoice_id));
     assertTransition(INVOICE_FLOW, i.status, 'invoice.send_payment_qr');
-    if (i.status !== 'draft' && i.fileId) return { file: null };
-    const doc = await invoiceDocData(db, this.d.doc(), ctx.workspaceId, { ...i, sentAt: this.clock.now() });
-    const pdf = await renderDocPdf(db, this.d.doc(), 'payment_request', doc.data, doc.locale);
-    const name = interpolate(serverMessages(doc.locale).sales.invoice.pdfName, { code: i.code });
-    return { file: await savePdf(db, this.d.doc(), ctx.workspaceId, name, pdf, actorUserId(ctx)) };
+    if (i.status !== 'draft' && i.fileId) return NONE;
+    return prepareInvoiceDelivery(ctx, db, this.d, i, input.channel, this.clock.now());
   }
 
   async execute(ctx: ActionContext, input: SendIn, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<St>> {
-    const p = (prepared ?? { file: null }) as Prepared;
+    const p = (prepared ?? NONE) as Prepared;
     const i = await lockInvoice(tx, ctx.authz, input.invoice_id);
     const to = assertTransition(INVOICE_FLOW, i.status, 'invoice.send_payment_qr');
     const now = this.clock.now();
     const first = i.status === 'draft';
     const text = await invoiceText(tx, this.d, ctx.workspaceId, i, first ? 'first' : 'remind', now);
-    const sent = await postInvoice(ctx, tx, this.d, this.members, i, { channel: input.channel, text, ...(p.file ? { file: p.file } : {}), now });
-    if (p.file) await tx.file.updateMany({ where: { id: p.file.fileId }, data: { confirmed: true } });
+    const sent = await postInvoice(ctx, tx, this.d, this.members, i, { channel: input.channel, text, ...(p.file ? { file: p.file } : {}), qrFileId: p.qrFileId, link: p.link, now });
+    const files = [p.file?.fileId, p.qrFileId].filter((x): x is string => !!x);
+    if (files.length) await tx.file.updateMany({ where: { id: { in: files } }, data: { confirmed: true } });
     const actor = actorOf(ctx);
     const reminders = first ? (i.remindersSent as unknown[]) : [...(i.remindersSent as unknown[]), { key: 'manual', at: now.toISOString(), channel: input.channel, by: actor.id }];
     await tx.invoice.update({

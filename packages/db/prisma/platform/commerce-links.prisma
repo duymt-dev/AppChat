@@ -1,0 +1,22 @@
+// platform/commerce-links.prisma — sở hữu: TIP-032b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Link công khai xem / tải chứng từ đã gửi khách (báo giá, đề nghị thanh toán, hợp đồng, xác nhận đơn, phiếu thu) — TIP-032b P2.
+// Chỉ lưu băm token + định tuyến workspace + chứng từ / version / mục đích / hạn; không lưu nội dung, số tiền hay bytes tệp.
+// Trang công khai tra băm ở đây trước (đúng workspace) rồi mới mở DB tenant qua TenantDbResolver — không quét tenant theo token.
+
+model CommerceLink {
+  tokenHash    String    @id @map("token_hash")
+  workspaceId  String    @map("workspace_id") @db.Uuid
+  documentKind String    @map("document_kind")
+  documentId   String    @map("document_id") @db.Uuid
+  version      Int
+  /// Tệp đóng băng đã gửi (đúng artifact) — trang công khai chỉ đọc tệp này.
+  fileId       String    @map("file_id") @db.Uuid
+  purpose      String
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([workspaceId, documentKind, documentId, createdAt(sort: Desc)], map: "commerce_link_document_idx")
+  @@index([expiresAt], map: "commerce_link_expires_idx")
+  @@map("commerce_link")
+}

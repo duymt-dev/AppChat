@@ -107,5 +107,11 @@
     "approval": "Sent for approval — not run yet",
     "count": "{n} records",
     "openFull": "Open in Assistant"
+  },
+  "docChannel": {
+    "label": "Channel",
+    "zalo_personal": "Zalo",
+    "email": "Email",
+    "webchat": "Web chat"
   }
 }

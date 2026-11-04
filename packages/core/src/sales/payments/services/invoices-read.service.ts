@@ -9,7 +9,9 @@ import type { QuoteDeps } from '../../quotes/services/quote-deps';
 import { UUID, inSalesScope, visibleInvoice } from '../invoice-access';
 import { invoiceStats, listInvoiceIds, type InvoiceFilter } from '../repos/invoices.repo';
 import { webhookPathOf } from './bank-feed';
-import { invoiceDocData, receiptDocData, renderDocPdf, savePdf } from './invoice-doc';
+import { invoiceDocData, renderDocPdf } from './invoice-doc';
+import { ensureReceiptPdf } from './receipt-file';
+import { qrPng, readInvoiceQr } from './invoice-qr';
 import { invoiceActorIds, paymentsByInvoice, toInvoiceRow, type InvoiceViewCtx } from './invoice-view';
 
 export interface InvoiceViewer {
@@ -132,25 +134,23 @@ export class InvoicesReadService {
     return { name: interpolate(serverMessages(doc.locale).sales.invoice.pdfName, { code: i.code }), pdf: await renderDocPdf(db, this.d.doc(), 'payment_request', doc.data, doc.locale) };
   }
 
+  /** Ảnh VietQR (PNG) của số còn phải thu — chưa có tài khoản nhận / đã thu đủ / đã huỷ → 404 (TIP-032b P2). */
+  async qr(v: InvoiceViewer, id: string): Promise<Buffer> {
+    const db = await this.db(v);
+    const i = await db.$transaction((tx) => visibleInvoice(tx, v.authz, id));
+    const qr = i.status === 'void' ? null : await readInvoiceQr(db, i);
+    if (!qr) throw new AppError('NOT_FOUND', 404, { qr: i.status === 'void' ? 'void' : 'unavailable' });
+    return qrPng(qr.payload);
+  }
+
   /** PDF phiếu thu của một khoản thu: lần đầu render + lưu (`receipt_file_id`), sau đó trả bản đã lưu. */
   async receipt(v: InvoiceViewer, paymentId: string): Promise<{ name: string; pdf: Buffer }> {
     const db = await this.db(v);
     const p = UUID.test(paymentId) ? await db.customerPayment.findUnique({ where: { id: paymentId } }) : null;
     if (!p || !p.invoiceId || !p.receiptCode) throw new AppError('NOT_FOUND', 404, { payment_id: 'not_found' });
     const i = await db.$transaction((tx) => visibleInvoice(tx, v.authz, p.invoiceId!));
-    const stored = p.receiptFileId && this.d.files ? await this.d.files.read(db, p.receiptFileId) : null;
-    if (stored) return { name: stored.row.name, pdf: stored.body };
-    const doc = await receiptDocData(db, this.d.doc(), v.workspaceId, i, p);
-    const pdf = await renderDocPdf(db, this.d.doc(), 'receipt', doc.data, doc.locale);
-    const name = interpolate(serverMessages(doc.locale).sales.invoice.receiptName, { code: p.receiptCode });
-    if (this.d.files) {
-      const f = await savePdf(db, this.d.doc(), v.workspaceId, name, pdf, null);
-      await db.$transaction(async (tx) => {
-        await tx.file.updateMany({ where: { id: f.fileId }, data: { confirmed: true } });
-        await tx.customerPayment.updateMany({ where: { id: p.id, receiptFileId: null }, data: { receiptFileId: f.fileId } });
-      });
-    }
-    return { name, pdf };
+    const r = await ensureReceiptPdf(db, this.d, v.workspaceId, i, p);
+    return { name: r.name, pdf: r.pdf };
   }
 
   /** Cài đặt thanh toán (`finance.manage` — controller kiểm): tài khoản nhận + bank feed. */

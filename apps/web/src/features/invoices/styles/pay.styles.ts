@@ -81,6 +81,22 @@ export const useInvoicePayStyles = createStyles(({ css }) => ({
     font-size: ${font.scale.s13}px;
     color: ${color.text4};
   `,
+  /** Nút gửi phiếu thu cho khách ở cuối dòng khoản thu (TIP-032b P2). */
+  paySend: css`
+    width: 32px;
+    height: 32px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    background: ${color.surface};
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  `,
   payCard: css`
     padding: 6px 16px;
   `,

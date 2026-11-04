@@ -36,16 +36,27 @@ const lookup = (scope: Record<string, unknown>, path: string): string => {
 const fill = (html: string, scope: Record<string, unknown>) =>
   html.replace(/\{\{\s*([a-z_][a-z0-9_.]*)\s*\}\}/gi, (_m, p: string) => esc(lookup(scope, p.toLowerCase())));
 
+/** Ảnh VietQR đã sinh ở server (`payment.vietqr_img` — chỉ nhận `data:image/png;base64`, không link ngoài — templates.md §8). */
+const QR_MARK = '<!--appchat:vietqr-->';
+const qrImg = (data: DocData) => {
+  const src = data.payment?.vietqr_img ?? '';
+  return /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(src) ? `<img src="${src}" alt="VietQR" style="width:42mm;height:42mm">` : '';
+};
+
 /**
  * Thân HTML của mẫu → HTML đã điền: vòng `{{#items}}…{{/items}}` lặp theo dòng hàng (cột dòng + biến chung), biến khác thay bằng
  * chữ đã escape. Đề nghị thanh toán / phiếu thu thiếu dòng "không thay thế hoá đơn GTGT" → tự chèn cuối (templates.md §6).
  */
 export function renderRich(kind: DocKind, body: string, data: DocData, notVatLine: string): string {
   const base = data as unknown as Record<string, unknown>;
+  // Đề nghị thanh toán có ảnh QR: đặt ngay sau `{{payment.vietqr}}`; mẫu không có biến này → thêm khối ảnh cuối (trước dòng GTGT).
+  const img = kind === 'payment_request' ? qrImg(data) : '';
+  if (img) body = /\{\{\s*payment\.vietqr\s*\}\}/i.test(body) ? body.replace(/\{\{\s*payment\.vietqr\s*\}\}/gi, (m) => `${m}<br>${QR_MARK}`) : `${body}<p>${QR_MARK}</p>`;
   let html = body.replace(/\{\{\s*#items\s*\}\}([\s\S]*?)\{\{\s*\/items\s*\}\}/gi, (_m, inner: string) =>
     data.items.map((it) => fill(inner, { ...base, ...it })).join(''),
   );
   html = fill(html, base);
+  if (img) html = html.split(QR_MARK).join(img);
   if (NOT_VAT_KINDS.includes(kind) && !hasNotVatLine(kind, html.replace(/<[^>]+>/g, ' '))) html += `<p>${esc(notVatLine)}</p>`;
   return html;
 }

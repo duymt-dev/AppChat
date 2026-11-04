@@ -2,7 +2,7 @@
 // draft → sent → partial → paid; quá hạn chưa đủ → overdue; huỷ → void. Không thay thế hoá đơn GTGT (e-invoice qua EInvoiceProvider ở P2).
 import { z } from 'zod';
 import { defineAction } from './define';
-import { money } from './sales-schemas';
+import { docChannel, money } from './sales-schemas';
 
 const invoiceId = z.string().min(1);
 const opened = (o: { invoice_id: string }) => ({
@@ -42,7 +42,7 @@ export const invoiceSendPaymentQr = defineAction({
   title: 'actions.invoice.send_payment_qr.title',
   description:
     'Send the payment request with a VietQR (amount left + transfer content = code) to the customer on their channel; draft → sent. Also used to re-send a reminder. Example: {"invoice_id":"inv_2040","channel":"zalo_personal"}',
-  input: z.object({ invoice_id: invoiceId, channel: z.enum(['zalo_personal', 'email']) }),
+  input: z.object({ invoice_id: invoiceId, channel: docChannel }),
   output: z.object({ invoice_id: z.string(), status: z.string() }),
   permission: 'invoice.manage',
   risk: 'send',

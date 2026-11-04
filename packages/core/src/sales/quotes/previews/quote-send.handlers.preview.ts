@@ -8,6 +8,7 @@ import { line, preview, updated } from '../../../kernel/actions/preview-kit';
 import { reachCustomer } from '../services/quote-send';
 import { hasNewerVersion, reasonsOf, validUntilOf } from '../services/quote-write';
 import { flowOf, label } from './quote-write.handlers.preview';
+import { canSendImages } from '../services/quote-image';
 
 const iso = (d: Date | null) => d?.toISOString() ?? null;
 
@@ -17,11 +18,12 @@ export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInp
     const reasons = await reasonsOf(tx, q, ctx);
     if (reasons.length) throw new AppError('QUOTE_NEEDS_APPROVAL', 409, Object.fromEntries(reasons.map((r) => [r, 'over_threshold'])));
   }
+  if (i.format === 'image' && !canSendImages(i.channel)) throw new AppError('VALIDATION_FAILED', 422, { format: 'channel_no_image' });
   const reach = await reachCustomer(tx, await tx.contact.findUniqueOrThrow({ where: { id: q.contactId }, select: { id: true, email: true } }), i.channel);
   const recipient = reach.conv ? (reach.conv.title ?? contact) : reach.to;
   const total = String(q.total);
   return preview('send', line(label(q), contact, createFmt({ locale: 'vi' }).money(total)), {
-    changes: updated('quote', q.id, { status: q.status, valid_until: iso(q.validUntil) }, { status: to, channel: i.channel, to: recipient, total, valid_until: validUntilOf(now, q.validDays, timeZone).toISOString() }),
+    changes: updated('quote', q.id, { status: q.status, valid_until: iso(q.validUntil) }, { status: to, channel: i.channel, format: i.format ?? 'pdf', to: recipient, total, valid_until: validUntilOf(now, q.validDays, timeZone).toISOString() }),
     ...(reach.conv ? {} : { warnings: ['new_email_thread'] }),
   });
 }

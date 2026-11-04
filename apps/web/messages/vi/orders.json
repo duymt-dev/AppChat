@@ -172,7 +172,8 @@
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",
-    "system": "Hệ thống"
+    "system": "Hệ thống",
+    "sendConfirmation": "Gửi xác nhận đơn"
   },
   "form": {
     "title": "Tạo đơn bán hàng",

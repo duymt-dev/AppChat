@@ -117,7 +117,7 @@ export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().
 
 /** Báo giá đổi trạng thái (TIP-029 — Blueprint §2.3): giai đoạn CRM theo COMMERCE §8, dòng thời gian khách, nhắc hết hạn. */
 const quoteBase = { ...base, quote_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), version: z.number().int() };
-export const quoteSentEvent = z.object({ ...quoteBase, channel: z.string(), valid_until: z.string() });
+export const quoteSentEvent = z.object({ ...quoteBase, channel: z.string(), format: z.enum(['pdf', 'image']).optional(), pages: z.number().int().optional(), valid_until: z.string() });
 export const quoteViewedEvent = z.object(quoteBase);
 export const quoteDecidedEvent = z.object({ ...quoteBase, reason: z.string().max(500).optional() });
 
@@ -141,6 +141,10 @@ export const paymentConfirmedEvent = z.object({ ...base, payment_id: z.string().
 export const paymentRefundEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: uuidOrNull, order_id: uuidOrNull, package_id: uuidOrNull, contact_id: z.string().uuid(), amount: z.string() });
 export const bankTxEvent = z.object({ ...base, bank_tx_id: z.string().uuid(), amount: z.string(), status: z.string(), reason: z.string().nullable() });
 export const packageEvent = z.object({ ...base, package_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull.optional(), total_sessions: z.number().int().optional() });
+/** Gửi chứng từ cho khách (TIP-032b P2) + đổi chính sách bán hàng (P1 — FE làm mới ngưỡng duyệt). */
+export const orderConfirmationSentEvent = z.object({ ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), channel: z.string() });
+export const receiptSentEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string().nullable(), channel: z.string() });
+export const salesSettingsUpdatedEvent = z.object({ ...base, version: z.number().int(), approval_total_vnd: z.string(), approval_discount_pct: z.number().int() });
 export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
 /** Ticket (TIP-034): tạo / đóng / mở lại / SLA sắp đến hạn / quá hạn — consumer notify (leo thang), timeline, CSAT. */
 export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional() });
@@ -209,6 +213,9 @@ export const EVENT_SCHEMAS = {
   'invoice.sent': invoiceEvent,
   'invoice.overdue': invoiceEvent,
   'invoice.voided': invoiceEvent,
+  'order.confirmation_sent': orderConfirmationSentEvent,
+  'receipt.sent': receiptSentEvent,
+  'sales_settings.updated': salesSettingsUpdatedEvent,
   'payment.confirmed': paymentConfirmedEvent,
   'payment.refund_requested': paymentRefundEvent,
   'payment.refunded': paymentRefundEvent,

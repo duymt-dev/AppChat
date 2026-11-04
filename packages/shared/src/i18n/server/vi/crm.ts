@@ -22,6 +22,8 @@ export const crm = {
     order_completed: 'Hoàn tất đơn {code} · {total}',
     order_cancelled: 'Huỷ đơn {code}: {reason}',
     order_imported: 'Nhập đơn {code} từ {platform} · {total}',
+    order_confirmation_sent: 'Gửi xác nhận đơn {code} qua {channel}',
+    receipt_sent: 'Gửi phiếu thu {code} qua {channel}',
     invoice_sent: 'Gửi đề nghị thanh toán {code} · {amount}',
     invoice_paid: 'Thu {amount} cho {code} · phiếu thu {receipt}',
     invoice_void: 'Huỷ đề nghị thanh toán {code}: {reason}',

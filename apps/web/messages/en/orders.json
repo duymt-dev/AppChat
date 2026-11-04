@@ -172,7 +172,8 @@
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",
-    "system": "System"
+    "system": "System",
+    "sendConfirmation": "Send confirmation"
   },
   "form": {
     "title": "New sales order",

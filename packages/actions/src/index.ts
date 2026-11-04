@@ -12,6 +12,7 @@ import * as contractFiles from './contract-files';
 import * as contractDraft from './contract-draft';
 import * as contractAppendix from './contract-appendix';
 import * as commerceSettings from './commerce-settings';
+import * as commerceDelivery from './commerce-delivery';
 import * as orders from './orders';
 import * as invoices from './invoices';
 import * as payments from './payments';
@@ -56,6 +57,7 @@ export * from './contract-files';
 export * from './contract-draft';
 export * from './contract-appendix';
 export * from './commerce-settings';
+export * from './commerce-delivery';
 export * from './orders';
 export * from './invoices';
 export * from './payments';
@@ -101,6 +103,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contractDraft),
   ...Object.values(contractAppendix),
   ...Object.values(commerceSettings),
+  ...Object.values(commerceDelivery),
   ...Object.values(orders),
   ...Object.values(invoices),
   ...Object.values(payments),

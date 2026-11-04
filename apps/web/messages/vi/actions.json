@@ -526,6 +526,10 @@
     "get": {
       "title": "Xem đơn hàng",
       "desc": "Đọc chi tiết một đơn: dòng hàng, tổng tiền, đã thu."
+    },
+    "send_confirmation": {
+      "title": "Gửi xác nhận đơn cho khách",
+      "desc": "Gửi PDF xác nhận đơn (dòng hàng, tổng, đã thu / còn lại) vào hội thoại của khách."
     }
   },
   "invoice": {
@@ -991,6 +995,12 @@
     "update": {
       "title": "Cập nhật chính sách bán hàng",
       "desc": "Đổi ngưỡng duyệt báo giá của workspace (tổng tiền, % giảm giá) — chỉ Chủ sở hữu."
+    }
+  },
+  "receipt": {
+    "send": {
+      "title": "Gửi phiếu thu cho khách",
+      "desc": "Gửi PDF phiếu thu của một khoản đã thu vào hội thoại của khách."
     }
   }
 }

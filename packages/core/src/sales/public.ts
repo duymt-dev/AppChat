@@ -21,3 +21,6 @@ export { TenantBankHook, webhookPathOf } from './payments/services/bank-feed';
 export { markOverdue, remindDue, packagesOnConfirm } from './payments/services/payment-system';
 export { expireDuePackages, grantPackages } from './payments/services/packages';
 export { sweepPayments, paymentPackagesConsumer, PAYMENT_SWEEP_JOB } from './jobs/payment.jobs';
+export { PublicDocumentService } from './documents/public-document';
+export { issueDocumentLink, type DocumentKind } from './documents/document-link';
+export { redactLink } from './documents/public-token';
