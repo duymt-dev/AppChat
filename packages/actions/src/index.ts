@@ -31,6 +31,7 @@ import * as loyaltyPayments from './loyalty-payments';
 import * as settings from './settings';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
+import * as kbFolders from './kb-folders';
 import * as documents from './documents';
 import * as platformAdmin from './platform-admin';
 import * as salesReads from './reads/sales';
@@ -81,6 +82,7 @@ export * from './loyalty-payments';
 export * from './settings';
 export * from './settings-apps';
 export * from './settings-ai';
+export * from './kb-folders';
 export * from './documents';
 export * from './platform-admin';
 export * from './reads/sales';
@@ -130,6 +132,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settings),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
+  ...Object.values(kbFolders),
   ...Object.values(documents),
   ...Object.values(platformAdmin),
   // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).

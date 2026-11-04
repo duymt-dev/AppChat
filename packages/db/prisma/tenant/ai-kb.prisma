@@ -36,6 +36,8 @@ model KbFolder {
   parentId   String?      @map("parent_id") @db.Uuid
   visibility KbVisibility @default(public)
   sort       Int          @default(0)
+  /// CAS cho kb.folder.update / delete (TIP-020b). Tên duy nhất theo f_unaccent(lower(btrim(name))) — index SQL `kb_folder_name_key`.
+  version    Int          @default(1)
   createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   sources KbSource[]

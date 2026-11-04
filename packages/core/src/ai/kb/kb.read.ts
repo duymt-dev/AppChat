@@ -60,7 +60,7 @@ const navWhere: Record<KbNav, Prisma.Sql> = {
 export async function readKb(db: Db, f: { nav: string; folder: string | null; q: string }, names: (ids: string[]) => Promise<Map<string, string>>): Promise<KbDataDto> {
   const nav = (KB_NAV as readonly string[]).includes(f.nav) ? (f.nav as KbNav) : 'all';
   const [folders, [c]] = await Promise.all([
-    db.kbFolder.findMany({ orderBy: [{ sort: 'asc' }, { createdAt: 'asc' }], select: { id: true, name: true } }),
+    db.kbFolder.findMany({ orderBy: [{ sort: 'asc' }, { createdAt: 'asc' }], select: { id: true, name: true, visibility: true, parentId: true, version: true } }),
     db.$queryRaw<CountRow[]>`
       SELECT count(*) FILTER (WHERE deleted_at IS NULL) AS all,
              count(*) FILTER (WHERE deleted_at IS NULL AND status = 'ready' AND chunk_count > 0) AS learned,
@@ -82,7 +82,7 @@ export async function readKb(db: Db, f: { nav: string; folder: string | null; q:
   const who = await names([...new Set(rows.map((r) => r.created_by).filter((x): x is string => !!x))]);
   return {
     types: TYPES,
-    folders,
+    folders: folders.map((f) => ({ id: f.id, name: f.name, visibility: f.visibility, parent_id: f.parentId, version: f.version })),
     nav: { all: Number(c!.all), learned: Number(c!.learned), conv: Number(c!.conv), upload: Number(c!.upload), star: Number(c!.star), trash: Number(c!.trash) },
     learned_total: Number(c!.learned),
     size: fmtSize(Number(c!.size ?? 0)),
@@ -100,6 +100,7 @@ export async function readKb(db: Db, f: { nav: string; folder: string | null; q:
       starred: r.starred,
       visibility: r.visibility,
       status: r.status as 'pending' | 'processing' | 'ready' | 'failed',
+      origin: r.origin as KbDataDto['data'][number]['origin'],
       ...(r.error ? { error: r.error } : {}),
     })),
   };

@@ -23,6 +23,7 @@ import { assistantUiHandlers } from './domains/assistant-ui';
 import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
 import { settingsAiHandlers } from './domains/settings-ai';
+import { kbFolderHandlers } from './domains/kb-folders';
 import { settingsOpsHandlers } from './domains/settings-ops';
 import { settingsBillingHandlers } from './domains/settings-billing';
 import { docTemplatesHandlers } from './domains/doc-templates';
@@ -108,6 +109,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...profileLayoutHandlers,
   ...settingsDataHandlers,
   ...settingsAiHandlers,
+  ...kbFolderHandlers,
   ...settingsOpsHandlers,
   ...settingsBillingHandlers,
   ...docTemplatesHandlers,

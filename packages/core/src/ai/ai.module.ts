@@ -16,7 +16,8 @@ import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
 import { readAiEnv, type AiEnv } from './ai.env';
 import { ProviderStore } from './router/provider.store';
-import { KbAddSourceHandler, KbFolderCreateHandler, KbRefreshSourceHandler, KbRemoveSourceHandler, KbUpdateSourceHandler } from './kb/kb.handlers';
+import { KbAddSourceHandler, KbRefreshSourceHandler, KbRemoveSourceHandler, KbUpdateSourceHandler } from './kb/kb.handlers';
+import { KbFolderCreateHandler, KbFolderDeleteHandler, KbFolderUpdateHandler } from './kb/folder.handlers';
 import { KB_EMBEDDER, KbSearchHandler } from './kb/kb-search.handler';
 import { AgentSearchHandler, AiTaskSearchHandler } from './agents/agent-read.handlers';
 import { KbSourceSearchHandler } from './kb/source-read.handler';
@@ -113,6 +114,8 @@ class ProviderSeed implements OnModuleInit {
     KbRemoveSourceHandler,
     KbRefreshSourceHandler,
     KbFolderCreateHandler,
+    KbFolderUpdateHandler,
+    KbFolderDeleteHandler,
     KbSearchHandler,
     // Đọc cấu hình AI cho Trợ lý (TIP-023b R2).
     AgentSearchHandler,

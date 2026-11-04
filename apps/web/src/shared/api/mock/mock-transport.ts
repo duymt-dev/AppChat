@@ -22,6 +22,7 @@ import { calendarParamRoute } from './domains/calendar';
 import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
 import { loyaltyFileBlob, loyaltyParamRoute } from './domains/loyalty';
+import { kbSourceBlob } from './domains/kb-folders';
 import { settingsAppsParamRoute } from './domains/settings-apps';
 import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
@@ -191,6 +192,9 @@ export const mockTransport: Transport = {
   },
 
   async blob(path) {
+    // Tải nguồn KB (TIP-020b): tệp → HTML có tên; URL / catalog → JSON mô tả như server.
+    const kb = kbSourceBlob(mockDb(), path);
+    if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? publicDocumentPdf(path);
     if (html === null) return fail(404, 'NOT_FOUND', path);

@@ -1,6 +1,7 @@
 // Runtime AI (TIP-019): mức AI (D29 — ẩn tên model), mức theo gói (bảng so sánh gói "Mức AI"), Cài đặt › Mô hình AI
 // (`GET /v1/settings/ai` — FE `features/settings/types.ts` AiSettings), hàng "Trợ lý AI đang điều phối" (`GET /v1/runs` — FE Run).
 import { z } from 'zod';
+import { KB_ORIGINS, kbFolderSchema } from './kb-management';
 
 export const AI_TIERS = ['standard', 'advanced', 'max'] as const;
 export type AiTierKey = (typeof AI_TIERS)[number];
@@ -69,10 +70,12 @@ export const kbDocSchema = z.object({
   visibility: z.enum(['public', 'internal']),
   status: z.enum(['pending', 'processing', 'ready', 'failed']).optional(),
   error: z.string().optional(),
+  /** TIP-020b: nguồn gốc — `catalog` đồng bộ từ sản phẩm (không sửa / xoá trực tiếp). */
+  origin: z.enum(KB_ORIGINS).optional(),
 });
 export const kbDataSchema = z.object({
   types: z.record(z.string(), z.tuple([z.string(), z.string(), z.string()])),
-  folders: z.array(z.object({ id: z.string(), name: z.string() })),
+  folders: z.array(kbFolderSchema),
   nav: z.record(z.string(), z.number().int()),
   learned_total: z.number().int(),
   size: z.string(),

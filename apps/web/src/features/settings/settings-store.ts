@@ -36,6 +36,8 @@ interface SettingsUi {
   kbFolder: string | null;
   kbQ: string;
   kbUpload: boolean;
+  /** Drawer sửa thư mục KB (TIP-020b) — id thư mục đang sửa. */
+  kbFolderEdit: string | null;
   docKind: string;
   /** Hộp mẫu: `{ source }` = tạo mới; có id = sửa. */
   docModal: { id?: string; source: 'rich' | 'docx' } | null;
@@ -63,6 +65,7 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   kbFolder: null,
   kbQ: '',
   kbUpload: false,
+  kbFolderEdit: null,
   docKind: 'all',
   docModal: null,
   set: (p) => setState(p),

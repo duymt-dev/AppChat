@@ -188,11 +188,22 @@ export interface KbDoc {
   /** http (TIP-020): trạng thái nạp ở worker + lý do lỗi. Mock không có. */
   status?: 'pending' | 'processing' | 'ready' | 'failed';
   error?: string;
+  /** TIP-020b: `catalog` = đồng bộ từ sản phẩm — không sửa / xoá trực tiếp. */
+  origin?: 'upload' | 'url' | 'text' | 'catalog' | 'conversation' | 'drive';
+}
+
+/** Thư mục KB (TIP-020b): visibility = mặc định cho nguồn mới thêm vào; version cho CAS sửa / xoá. */
+export interface KbFolder {
+  id: string;
+  name: string;
+  visibility?: 'public' | 'internal';
+  parent_id?: string | null;
+  version?: number;
 }
 
 export interface KbData {
   types: Record<string, [string, string, string]>;
-  folders: { id: string; name: string }[];
+  folders: KbFolder[];
   nav: Record<string, number>;
   learned_total: number;
   size: string;

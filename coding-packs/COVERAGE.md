@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 125 | 18 | 6 | 13 | 26 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 90 | 15 | 11 | 1 | 36 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 139 | 20 | 3 | 5 | 26 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 272 | 79 | 4 | 4 | 95 | 3 | 0 | 0 |
-| E. standards/* | 169 | 60 | 1 | 6 | 52 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 18 | 1 | 63 | 0 | 6 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 42 | 18 | 7 | 13 | 43 | 3 | 0 | 0 |
-| **Tổng** | **855** | **211** | **95** | **42** | **284** | **37** | **69** | **0** |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 274 | 79 | 4 | 4 | 93 | 3 | 0 | 0 |
+| E. standards/* | 170 | 59 | 1 | 6 | 52 | 2 | 43 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 19 | 1 | 62 | 0 | 6 | 5 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 43 | 18 | 7 | 13 | 42 | 3 | 0 | 0 |
+| **Tổng** | **860** | **210** | **94** | **42** | **281** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -894,8 +894,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | 012b | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
 | ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | 023c | ĐẠT | packages/core/src/integrations/actions/integration-test.handler.ts:3 (probe ở prepare, không ghi kết nối) + integration-form-schema.handler.ts; test apps/api/test/integration/actions/integration.test.action.test.ts, integration.form_schema.action.test.ts, packages/core/test/integration-form-probe.test.ts; probe adapter thật SePay/Casso/Brevo chờ 012b (Q-004) |
-| ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | ĐẠT | packages/actions/src/kb-folders.ts + packages/core/src/ai/kb/folder.handlers.ts KbFolderDeleteHandler (rỗng mới xoá, CAS, undo); ma trận apps/api/test/integration/actions/kb.folder.delete.action.test.ts; kb-management.test.ts |
+| ACT-kb.folder.update | `kb.folder.update` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | ĐẠT | packages/actions/src/kb-folders.ts + folder.handlers.ts KbFolderUpdateHandler (trùng tên, vòng cha, CAS, undo); ma trận actions/kb.folder.update.action.test.ts; kb-management.test.ts (CAS đồng thời) |
 | ACT-kb.suggestion.approve | `kb.suggestion.approve` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-kb.suggestion.reject | `kb.suggestion.reject` có trong registry + handler | plans/BLUEPRINT.md:794 | 043 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-message.unpin | `message.unpin` có trong registry + handler | plans/BLUEPRINT.md:618 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); có qua message.pin{pinned:false} (inbox.ts:189), không DV |
@@ -1185,7 +1185,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-1 | Một kho / workspace theo thư mục + thẻ; origin upload/url/text/catalog/conversation/drive(Sắp có) | standards/ai/rag.md:7 | 020 | ĐẠT | packages/core/src/ai/kb/kb.handlers.ts; kb.read.ts:25; test apps/api/test/integration/kb.test.ts:128 |
 | STD-ai-rag-2 | Agent nhận tri thức theo `kb_scope {folder_ids, tags}`; Trợ lý tìm cả kho theo quyền | standards/ai/rag.md:9 | 020c | MỘT PHẦN | search.ts:55–60 empty agent scope becomes unrestricted; kb-search.handler.ts:26 omits scope; integration kb.test.ts:150–174 only direct filter/visibility tests, no delegate/resume binding |
 | STD-ai-rag-3a | `visibility` public/internal; agent trực kênh chỉ public; delegate = scope ∩ quyền người ra lệnh | standards/ai/rag.md:13 | 020c | MỘT PHẦN | kb-search.handler.ts:15–26 grants internal via kb.manage and omits agent scope; delegate.ts:62/task.runner.ts:121/resume.ts:49 omit scope. Existing direct-search tests do not establish current module rights |
-| STD-ai-rag-3b | Mặc định visibility của thư mục kế thừa xuống tài liệu | standards/ai/rag.md:17 | 020b | MỘT PHẦN | `kb_folder.visibility` có cột (ai-kb.prisma:37) nhưng `kb.add_source` dùng `input.visibility` mặc định 'public' (settings-ai.ts:43, kb.handlers.ts:78), không đọc thư mục |
+| STD-ai-rag-3b | Mặc định visibility của thư mục kế thừa xuống tài liệu | standards/ai/rag.md:17 | 020b | ĐẠT | packages/core/src/ai/kb/source-policy.ts resolveVisibility (bỏ trống → thư mục, server resolve trong transaction; parser không default); test kb-management.test.ts AC3, packages/core/test/kb-source-policy.test.ts |
 | STD-ai-rag-4 | Giá / tồn / KM / lịch / công nợ chỉ qua read action; đoạn có giá `volatile` không vào prompt | standards/ai/rag.md:18 | 020, 027 | ĐẠT | packages/ai/src/kb/chunker.ts:76; catalog/events/catalog-sync.ts:1; test kb.test.ts:95,150, catalog.test.ts:212 |
 | STD-ai-rag-5 | Nạp: parse → cắt đoạn theo cấu trúc 400–800 token chồng 10–15% → embedMany; idempotent sha256; sản phẩm đổi → nạp lại | standards/ai/rag.md:20 | 020, 027 | ĐẠT | chunker.ts:25-26; kb.handlers.ts:53; catalog-sync.ts:76; test kb.test.ts:95,113, catalog.test.ts:212 |
 | STD-ai-rag-6a | Hybrid: top-20 vector (HNSW + iterative_scan) + top-20 từ khoá → RRF k=60 → top-6 | standards/ai/rag.md:25 | 020 | ĐẠT | packages/ai/src/kb/rrf.ts:2; core/src/ai/kb/search.ts:90; test kb.test.ts:141 |
@@ -1555,7 +1555,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-widgetacts | Widget web: thêm / sửa nút hành động | docs/06-prototype/AppChat.dc.html:7585 | 017b | GIẢ | WidgetSection.tsx:72,91 `message.info('addActionSoon')`; TIP-017b nhận (2026-11-02) |
 | PRO-settings-slanew | SLA: tạo chính sách mới theo kênh / hạng | docs/06-prototype/AppChat.dc.html:7394 | — | NGOÀI | REQ-H05 P3; SlaSection.tsx:41 nút disabled + tooltip |
 | PRO-settings-docs | Cài đặt: chip "Tài liệu hướng dẫn" | docs/06-prototype/AppChat.dc.html:6128 | 013b | GIẢ | SettingsShell.tsx:40 `message.info('docsSoon')`; TIP-013b nhận (2026-11-02) |
-| PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | GIẢ | RagSection.tsx:67 không onClick |
+| PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | ĐẠT | RagSection.tsx nút ⬇ → hooks/useKbDownload.ts → GET /v1/kb/sources/:id/download (kb-management.controller.ts); e2e apps/web/e2e/kb-management.spec.ts + http/kb-management.spec.ts (sha256 khớp) |
 | PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | 013b | GIẢ | TagsSection.tsx:83 không onClick; TIP-013b nhận (2026-11-02) |
 | PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | 013b | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng; TIP-013b nhận (2026-11-02) |
 | PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | 033b | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ; TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
@@ -1643,7 +1643,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | ĐẠT | Blocks360.tsx → LinkBlock (LinkBlocks360.tsx) dữ liệu thật từ insights.links; e2e/customers.spec.ts, parity customers:360 3,35% |
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | 026b | CHƯA | Không có load-more ở features/customers |
-| DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | CHƯA | ai/kb/kb.handlers.ts không kiểm `origin` catalog |
+| DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | ĐẠT | source-policy.ts assertEditable trong update / remove / undo (kb.handlers.ts) + preview; test kb-management.test.ts AC4 (CONFLICT, catalog-sync vẫn cập nhật một nguồn) |
 | DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | 045 | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser 045 SPEC1.5/AC2 production-bootstrap regression covers fresh clone + older migrated fixture domain/outbox write as tenant_app; historical denial root cause remains unproved until reproduced, not cured by superuser. |
 | DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | 028b | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment); TIP-028b nhận (2026-11-02) |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |

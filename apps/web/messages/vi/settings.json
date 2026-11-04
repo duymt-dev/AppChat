@@ -856,6 +856,26 @@
     "del": "Chuyển vào thùng rác",
     "empty": "Chưa có tệp nào ở đây.",
     "trashEmpty": "Thùng rác trống — tệp xoá được giữ 30 ngày.",
+    "catalogLocked": "Đồng bộ từ sản phẩm — sửa ở Sản phẩm",
+    "dlForbidden": "Bạn không có quyền tải tài liệu này.",
+    "dlMissing": "Không tìm thấy tệp gốc của tài liệu này.",
+    "dlFail": "Không tải được — thử lại.",
+    "dlCatalog": "Tài liệu này đồng bộ từ sản phẩm — xem và sửa ở màn Sản phẩm.",
+    "folderEdit": {
+      "open": "Sửa thư mục {n}",
+      "title": "Sửa thư mục",
+      "close": "Đóng",
+      "name": "Tên thư mục",
+      "parent": "Nằm trong",
+      "top": "(Cấp ngoài cùng)",
+      "visibility": "Mặc định cho tài liệu mới",
+      "public": "Khách được xem qua AI",
+      "internal": "Chỉ nội bộ",
+      "visD": "Áp cho tài liệu thêm vào sau — tài liệu đã có giữ nguyên quyền của chúng.",
+      "del": "Xoá thư mục",
+      "cancel": "Huỷ",
+      "save": "Lưu"
+    },
     "modal": {
       "title": "Tải tài liệu lên",
       "save": "Tải lên & học",
@@ -877,7 +897,8 @@
       "learn": "Cho AI học tài liệu này",
       "learnD": "Embedding tự động để AI truy hồi khi trả lời",
       "errName": "Nhập tên tài liệu",
-      "errUpload": "Không tải được tệp lên — thử lại."
+      "errUpload": "Không tải được tệp lên — thử lại.",
+      "visInherited": "(theo mặc định của thư mục)"
     }
   },
   "gov": {

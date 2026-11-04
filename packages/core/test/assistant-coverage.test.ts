@@ -72,6 +72,7 @@ const EXEMPT: Record<string, string> = {
   payment_id: 'yêu cầu hoàn tiền mở từ hàng chờ duyệt',
   file_id: 'tệp vừa tải lên trong lượt (đính kèm), không tra theo tên',
   folder_id: 'thư mục KB chọn trong màn KB',
+  parent_id: 'thư mục KB cha — chọn trong drawer Sửa thư mục của màn KB (TIP-020b), cùng lý do folder_id',
   national_id: 'số CCCD / MST — giá trị, không phải tham chiếu thực thể',
   workspace_id: 'workspace của chính người dùng (danh sách ở session)',
   exclude_id: 'lịch hẹn đang dời (đã có trong ngữ cảnh lượt)',

@@ -1,6 +1,7 @@
 // Hộp "Tải tài liệu lên" — prototype L7485–7502 (460px): vùng kéo thả / chọn tệp (lấy tên tệp), Tên tài liệu *, Thư mục chứa, Thẻ (dấu phẩy),
 // "Cho AI học tài liệu này" (embedding), Ai được dùng (public / internal — D54). Lưu → tải tệp (`transport.upload`, purpose kb) rồi
-// kb.add_source { file_id, learn, visibility } (TIP-020). Mock: upload trả id giả, chỉ ghi metadata.
+// kb.add_source { file_id, learn, visibility? } (TIP-020). TIP-020b: chưa chọn "Ai được dùng" → KHÔNG gửi visibility — server kế thừa
+// mặc định của thư mục (không thư mục → public); gợi ý hiện mặc định đang áp. Mock: upload trả id giả, chỉ ghi metadata.
 'use client';
 import { useRef, useState } from 'react';
 import { App } from 'antd';
@@ -13,13 +14,14 @@ import { useRagModalStyles } from '../styles/rag-modal.styles';
 import { useSettingsUi } from '../settings-store';
 import { FormModal } from './FormModal';
 import { Switch } from './Switch';
+import type { KbFolder } from '../types';
 
 const NONE = '';
 const COMMA = ',';
 const VIS = ['public', 'internal'] as const;
 const ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.md,.txt,.mp4,image/*';
 
-export function RagUploadModal({ folders, folderId }: { folders: { id: string; name: string }[]; folderId: string | null }) {
+export function RagUploadModal({ folders, folderId }: { folders: KbFolder[]; folderId: string | null }) {
   const t = useTranslations('settings.rag.modal');
   const { message } = App.useApp();
   const s = useSectionStyles().styles;
@@ -32,7 +34,10 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
   const [folder, setFolder] = useState(folderId ?? NONE);
   const [tags, setTags] = useState('');
   const [learn, setLearn] = useState(true);
-  const [vis, setVis] = useState<(typeof VIS)[number]>('public');
+  /** null = chưa chọn → kế thừa thư mục. */
+  const [vis, setVis] = useState<(typeof VIS)[number] | null>(null);
+  const inherited = folders.find((f) => f.id === folder)?.visibility ?? 'public';
+  const shown = vis ?? inherited;
   const add = useAction('kb.add_source');
   const close = () => set({ kbUpload: false });
   const save = async () => {
@@ -49,7 +54,7 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
         setUploading(false);
       }
     }
-    const r = await add.run({ name: name.trim(), ...(fileId ? { file_id: fileId } : {}), ...(folder ? { folder_id: folder } : {}), ...(list.length ? { tags: list } : {}), learn, visibility: vis });
+    const r = await add.run({ name: name.trim(), ...(fileId ? { file_id: fileId } : {}), ...(folder ? { folder_id: folder } : {}), ...(list.length ? { tags: list } : {}), learn, ...(vis ? { visibility: vis } : {}) });
     if (r) close();
   };
   return (
@@ -110,8 +115,8 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
               key={v}
               type="button"
               role="radio"
-              aria-checked={vis === v}
-              className={cx(styles.segBtn, vis === v && styles.segOn)}
+              aria-checked={shown === v}
+              className={cx(styles.segBtn, shown === v && styles.segOn)}
               onClick={() => setVis(v)}
               data-testid={`st-rag-vis-${v}`}
             >
@@ -119,7 +124,10 @@ export function RagUploadModal({ folders, folderId }: { folders: { id: string; n
             </button>
           ))}
         </div>
-        <div className={cx(s.muted, styles.visHint)}>{t(vis === 'public' ? 'visPublicD' : 'visInternalD')}</div>
+        <div className={cx(s.muted, styles.visHint)} data-testid="st-rag-vis-hint">
+          {t(shown === 'public' ? 'visPublicD' : 'visInternalD')}
+          {vis ? null : ` ${t('visInherited')}`}
+        </div>
       </div>
       <div className={styles.learnRow}>
         <div className={s.grow}>

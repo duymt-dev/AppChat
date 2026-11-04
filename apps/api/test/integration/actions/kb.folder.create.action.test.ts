@@ -20,6 +20,8 @@ describe('kb.folder.create', () => {
     const { preview, done } = await m.confirm({ name: 'Bảng giá' });
     expect(preview).toEqual({ summary: 'Bảng giá', risk: 'write', changes: [{ entity: 'kb_folder', after: { name: 'Bảng giá' } }] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
+    // TIP-020b: output thêm version (CAS cho kb.folder.update / delete).
+    expect(done.body.data.result).toMatchObject({ folder_id: expect.any(String), version: 1 });
     expect((await m.act({ name: 'bang gia' }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ name: 'duplicate' });
   });
 

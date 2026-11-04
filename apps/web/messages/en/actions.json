@@ -942,6 +942,14 @@
     "folder": {
       "create": {
         "title": "Create knowledge folder"
+      },
+      "update": {
+        "title": "Edit knowledge folder",
+        "desc": "Rename, move or change the default access for new documents in a folder."
+      },
+      "delete": {
+        "title": "Delete knowledge folder",
+        "desc": "Delete an empty folder (no documents incl. trash, no sub-folders)."
       }
     },
     "source_search": {

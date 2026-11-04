@@ -942,6 +942,14 @@
     "folder": {
       "create": {
         "title": "Tạo thư mục tri thức"
+      },
+      "update": {
+        "title": "Sửa thư mục tri thức",
+        "desc": "Đổi tên, thư mục cha hoặc quyền mặc định cho tài liệu mới của thư mục."
+      },
+      "delete": {
+        "title": "Xoá thư mục tri thức",
+        "desc": "Xoá thư mục rỗng (không còn tài liệu, kể cả thùng rác, và không có thư mục con)."
       }
     },
     "source_search": {

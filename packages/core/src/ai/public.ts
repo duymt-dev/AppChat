@@ -12,6 +12,7 @@ export { KbIngestQueue } from './kb/kb.queue';
 export { KB_INGEST_QUEUE, ingestSource, type IngestDeps, type IngestOutcome, type KbIngestJob } from './kb/ingest';
 export { searchKb, minScoreOf, KB_CONTEXT, KB_TOP_K, DEFAULT_MIN_SCORE, type KbHit, type KbSearchInput, type KbSearchResult } from './kb/search';
 export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
+export { sourceDownload, safeName as kbSafeName, type KbDownload } from './kb/source-download';
 export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';
 export { AI_RUNTIME } from './jobs/ai.jobs.module';
 // TIP-021 — AI Agents, hàng chờ duyệt, governance.
