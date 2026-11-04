@@ -6,3 +6,4 @@ import '../../inbox/events/inbox.rules';
 import '../../ai/events/kb.rules';
 import '../../ai/events/agents.rules';
 import '../../ai/events/reply.rules';
+import '../../sales/payments/events/package-notification.rules';

@@ -21,6 +21,8 @@ export interface Product {
   stock: number | null;
   sessions: number | null;
   valid_days: number | null;
+  /** TIP-032b — liệu trình sinh khi mới cọc. */
+  grant_on_deposit?: boolean;
   tint: string;
   ink: string;
   icon: string;

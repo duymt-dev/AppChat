@@ -6,7 +6,7 @@ import { lowOf, type Attr } from './catalog-write';
 
 export const PRODUCT_SELECT = {
   id: true, code: true, name: true, type: true, categoryId: true, price: true, cost: true, unit: true, taxRate: true, stock: true,
-  lowStockThreshold: true, durationMin: true, sessions: true, validDays: true, deposit: true, rentalUnit: true, attrs: true,
+  lowStockThreshold: true, durationMin: true, sessions: true, validDays: true, grantOnDeposit: true, deposit: true, rentalUnit: true, attrs: true,
   description: true, status: true, custom: true, sold: true, version: true,
 } as const;
 
@@ -25,6 +25,7 @@ export interface ProductRecord {
   durationMin: number | null;
   sessions: number | null;
   validDays: number | null;
+  grantOnDeposit: boolean;
   deposit: bigint | null;
   rentalUnit: string | null;
   attrs: unknown;
@@ -83,6 +84,7 @@ export function toRow(p: ProductRecord, v: ViewCtx, parts = 0): ProductRowDto {
     stock: p.stock,
     sessions: p.sessions,
     valid_days: p.validDays,
+    grant_on_deposit: p.grantOnDeposit,
     tint,
     ink,
     icon,

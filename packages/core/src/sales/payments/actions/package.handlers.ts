@@ -1,6 +1,6 @@
 // package.extend · adjust_sessions (COMMERCE §6, state-machine §8): gia hạn từ hạn hiện tại (hoặc hôm nay nếu đã hết hạn) → gói hết hạn
 // mở lại; chỉnh tổng buổi (≥ đã dùng, bắt buộc lý do) → trạng thái tính lại (hết buổi / đang dùng). Ghi timeline (log) + hoàn tác 24 giờ.
-// Gói đã hoàn tiền không sửa. Quyền `package.manage` + data scope sales theo đơn sinh gói.
+// Gói đã hoàn tiền không sửa. Hạn đổi (gia hạn / hoàn tác) tăng `expiry_version` — nhắc T-7 theo bản hạn mới (TIP-032b). Quyền `package.manage` + data scope sales theo đơn sinh gói.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, createFmt } from '@appchat/shared';
 import type { ActionInput, packageAdjustSessions, packageExtend } from '@appchat/actions';
@@ -39,7 +39,10 @@ async function restore(tx: TenantTx, log: ActionLogRow, now: Date) {
   await tx.$queryRaw`SELECT 1 FROM customer_package WHERE id = ${b.id}::uuid FOR UPDATE`;
   const p = await tx.customerPackage.findUnique({ where: { id: b.id } });
   if (!p || p.status === 'refunded' || p.usedSessions > b.total) throw new AppError('CONFLICT', 409, { package_id: 'changed' });
-  await tx.customerPackage.update({ where: { id: b.id }, data: { totalSessions: b.total, expiresAt: b.expires_at ? new Date(b.expires_at) : null, status: b.status, extendedBy: b.extended_by, updatedAt: now } });
+  // Hạn đổi lại → bản hạn mới: nhắc T-7 đã gửi cho bản hạn đang bị hoàn tác không chặn nhắc của hạn khôi phục (TIP-032b).
+  const expiresAt = b.expires_at ? new Date(b.expires_at) : null;
+  const moved = (expiresAt?.getTime() ?? null) !== (p.expiresAt?.getTime() ?? null);
+  await tx.customerPackage.update({ where: { id: b.id }, data: { totalSessions: b.total, expiresAt, status: b.status, extendedBy: b.extended_by, ...(moved ? { expiryVersion: { increment: 1 } } : {}), updatedAt: now } });
 }
 
 @Injectable()
@@ -57,7 +60,7 @@ export class PackageExtendHandler implements Handler<ActionInput<typeof packageE
     const expiresAt = new Date(from.getTime() + input.days * DAY);
     const actor = actorOf(ctx);
     const status = packageStatusOf({ ...p, expiresAt }, now);
-    await tx.customerPackage.update({ where: { id: p.id }, data: { expiresAt, status, extendedBy: actor.id && UUID.test(actor.id) ? actor.id : null, note: input.note ?? p.note, updatedAt: now } });
+    await tx.customerPackage.update({ where: { id: p.id }, data: { expiresAt, status, extendedBy: actor.id && UUID.test(actor.id) ? actor.id : null, note: input.note ?? p.note, expiryVersion: { increment: 1 }, updatedAt: now } });
     const { locale, timeZone } = await this.d.place(ctx.workspaceId);
     await writeTimeline(tx, { contactId: p.contactId, type: 'payment', key: 'package_extended', params: { name: p.name, date: createFmt({ locale, timeZone }).date(expiresAt) }, actor, ref: { type: 'package', id: p.id }, at: now });
     return {

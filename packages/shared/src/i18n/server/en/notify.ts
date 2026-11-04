@@ -29,6 +29,11 @@ export const notify: Shape<typeof vi> = {
       label: 'Refunds waiting for me / decisions',
     },
     bank_review: { title: 'Transaction {amount} needs reconciliation', label: 'Bank transactions to reconcile' },
+    package_reminder: {
+      title: 'Package {name} · {contact} expires in {n} days — suggest a renewal',
+      remaining: 'Package {name} · {contact} has 1 session left — suggest buying more',
+      label: 'Packages running out / about to expire',
+    },
     sla_warn: { title: '{count} tickets are about to breach SLA', label: 'SLA about to be breached' },
     sla_breach: { title: 'Ticket {code} breached its SLA: {title}', label: 'Ticket breached SLA (escalation)' },
     ticket_assigned: { title: 'Ticket {code} was assigned to you: {title}', label: 'Ticket assigned to me' },

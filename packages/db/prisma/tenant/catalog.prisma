@@ -62,6 +62,8 @@ model Product {
   validDays         Int?          @map("valid_days")
   deposit           BigInt?
   rentalUnit        String?       @map("rental_unit")
+  /// Liệu trình cho dùng khi mới cọc (COMMERCE §6, TIP-032b).
+  grantOnDeposit    Boolean       @default(false) @map("grant_on_deposit")
   /// Thuộc tính sinh biến thể `[{ name, values[] }]`.
   attrs             Json          @default("[]")
   description       String        @default("")

@@ -102,3 +102,37 @@ test.describe('commerce-gaps — gửi chứng từ (TIP-032b P2)', () => {
     await expect(page.getByText('Gửi phiếu thu cho khách')).toBeVisible();
   });
 });
+
+test.describe('commerce-gaps — trang chứng từ công khai (TIP-032b P2)', () => {
+  test('khách mở link → thấy loại + mã chứng từ, nút Tải PDF (vùng chạm ≥ 44px); link hỏng → thẻ không còn hiệu lực', async ({ page }) => {
+    await page.goto('/documents/payment_request~DNTT-2039');
+    await expect(page.getByTestId('pd-title')).toHaveText('Đề nghị thanh toán DNTT-2039');
+    const btn = page.getByTestId('pd-pdf');
+    await expect(btn).toBeVisible();
+    expect((await btn.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.goto('/documents/khong-hop-le');
+    await expect(page.getByTestId('pd-invalid')).toBeVisible();
+  });
+});
+
+test.describe('commerce-gaps — liệu trình khi cọc (TIP-032b P3)', () => {
+  test('thêm sản phẩm loại liệu trình: bật "Cho dùng khi khách mới cọc" → lưu → mở lại sửa thấy đã bật', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(`/products${S}`);
+    await page.getByTestId('pd-add').click();
+    const form = page.getByTestId('pd-form');
+    await form.getByTestId('pd-f-name').fill('Liệu trình cọc dùng ngay E2E');
+    await form.getByTestId('pd-f-type').selectOption('package');
+    await form.getByTestId('pd-f-price').fill('6000000');
+    const flag = form.getByTestId('pf-grant-on-deposit');
+    await expect(flag).not.toBeChecked();
+    await flag.check();
+    await form.getByTestId('pd-save').click();
+    await expect(form).toBeHidden();
+    await page.getByTestId('pd-search').fill('cọc dùng ngay E2E');
+    await page.getByText('Liệu trình cọc dùng ngay E2E').first().click();
+    await page.getByTestId('pd-drawer').getByTestId('pd-edit').click();
+    await expect(page.getByTestId('pd-form').getByTestId('pf-grant-on-deposit')).toBeChecked();
+  });
+});

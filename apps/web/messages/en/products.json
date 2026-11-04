@@ -162,6 +162,7 @@
     "validPh": "12",
     "perSession": "Price per session (VND)",
     "perSessionPh": "1.600.000",
+    "grantOnDeposit": "Usable after deposit (grant the package once the deposit is paid)",
     "rentSec": "Rental",
     "rentUnit": "Time unit",
     "rentUnits": {

@@ -14,6 +14,7 @@ export type Product = Omit<Fixed, 'stock' | 'sessions' | 'valid_days'> & {
   stock: number | null;
   sessions: number | null;
   valid_days: number | null;
+  grant_on_deposit?: boolean;
   deleted?: boolean;
   sku?: string;
   duration_min?: number;
@@ -172,6 +173,7 @@ export const productsHandlers: Record<string, MockHandler> = {
         stock: i.stock ?? (i.type === 'physical' ? 0 : null),
         sessions: i.sessions ?? null,
         valid_days: i.valid_days ?? null,
+        grant_on_deposit: i.grant_on_deposit ?? false,
         components: i.components,
         attr_defs: i.attrs,
         version: 1,

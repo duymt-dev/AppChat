@@ -77,7 +77,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (!this.redis || !this.platform || !this.tenants) return;
     const now = () => this.clock.now();
     registerEventConsumer(quoteOwnerConsumer(now));
-    registerEventConsumer(paymentPackagesConsumer(now));
+    registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
     const deps = { platform: this.platform, tenants: this.tenants, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };
     const pay = {
       ...deps,
@@ -94,7 +94,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
       async (job) => {
         if (job.name === PAYMENT_SWEEP_JOB) {
           const r = await sweepPayments(pay);
-          if (r.overdue || r.reminded || r.expired) this.log.info({ job: PAYMENT_SWEEP_JOB, ...r }, 'quét khoản thu');
+          if (r.overdue || r.reminded || r.expired || r.packageReminders) this.log.info({ job: PAYMENT_SWEEP_JOB, ...r }, 'quét khoản thu');
           return;
         }
         if (job.name !== QUOTE_SWEEP_JOB) return;

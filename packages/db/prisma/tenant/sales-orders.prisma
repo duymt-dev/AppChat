@@ -112,6 +112,12 @@ model OrderItem {
   taxRate   Int     @map("tax_rate")
   lineTotal BigInt  @map("line_total")
   sort      Int
+  /// Ảnh chụp liệu trình lúc ghi dòng (TIP-032b) — sinh gói đọc ở đây, không tra danh mục hiện tại.
+  productType      String?   @map("product_type")
+  packageSessions  Int?      @map("package_sessions")
+  packageValidDays Int?      @map("package_valid_days")
+  grantOnDeposit   Boolean   @default(false) @map("grant_on_deposit")
+  snapshotAt       DateTime? @map("snapshot_at") @db.Timestamptz(6)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 

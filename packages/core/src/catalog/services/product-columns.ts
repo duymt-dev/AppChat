@@ -10,6 +10,7 @@ export interface ColumnInput {
   duration_min?: number;
   sessions?: number;
   valid_days?: number;
+  grant_on_deposit?: boolean;
   deposit?: string;
   rental_unit?: 'hour' | 'day' | 'week' | 'month';
   low_stock_threshold?: number;
@@ -25,6 +26,7 @@ export function columnsOf(i: ColumnInput) {
     ...(i.duration_min !== undefined ? { durationMin: i.duration_min || null } : {}),
     ...(i.sessions !== undefined ? { sessions: i.sessions } : {}),
     ...(i.valid_days !== undefined ? { validDays: i.valid_days } : {}),
+    ...(i.grant_on_deposit !== undefined ? { grantOnDeposit: i.grant_on_deposit } : {}),
     ...(i.deposit !== undefined ? { deposit: i.deposit === '' ? null : BigInt(i.deposit) } : {}),
     ...(i.rental_unit !== undefined ? { rentalUnit: i.rental_unit } : {}),
     ...(i.low_stock_threshold !== undefined ? { lowStockThreshold: i.low_stock_threshold } : {}),
@@ -45,6 +47,7 @@ export interface ProductSnapshot {
   durationMin: number | null;
   sessions: number | null;
   validDays: number | null;
+  grantOnDeposit?: boolean;
   deposit: string | null;
   rentalUnit: string | null;
   lowStockThreshold: number | null;
@@ -60,7 +63,7 @@ export async function snapshot(tx: TenantTx, p: Row): Promise<ProductSnapshot> {
   return {
     id: p.id, code: p.code, name: p.name, categoryId: p.categoryId, price: String(p.price), cost: p.cost === null ? null : String(p.cost),
     unit: p.unit, taxRate: p.taxRate, status: p.status === 'draft' ? 'draft' : 'active', description: p.description, durationMin: p.durationMin,
-    sessions: p.sessions, validDays: p.validDays, deposit: p.deposit === null ? null : String(p.deposit), rentalUnit: p.rentalUnit,
+    sessions: p.sessions, validDays: p.validDays, grantOnDeposit: p.grantOnDeposit ?? false, deposit: p.deposit === null ? null : String(p.deposit), rentalUnit: p.rentalUnit,
     lowStockThreshold: p.lowStockThreshold, attrs: p.attrs, custom: p.custom, components,
   };
 }

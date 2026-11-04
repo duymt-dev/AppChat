@@ -33,6 +33,8 @@ export const NOTIFY_KINDS = {
   payment_received: { group: 'msg', icon: 'ic-dollar', tone: 'teal', defaults: ch(true, false, true) },
   refund_approval: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, true, true) },
   bank_review: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, false, false) },
+  // Liệu trình (TIP-032b): khách còn 1 buổi / gói còn 7 ngày tới hạn — gợi ý gia hạn / mua thêm.
+  package_reminder: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
   // Ticket (TIP-034): sắp đến hạn SLA (người phụ trách) · quá hạn (leo thang Chủ sở hữu + quản lý) · ticket mới giao cho tôi.
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   sla_breach: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, true, true) },

@@ -29,6 +29,8 @@ export const productRowSchema = z.object({
   stock: z.number().int().nullable(),
   sessions: z.number().int().nullable(),
   valid_days: z.number().int().nullable(),
+  /** TIP-032b — liệu trình sinh khi mới cọc. */
+  grant_on_deposit: z.boolean().optional(),
   tint: z.string(),
   ink: z.string(),
   icon: z.string(),

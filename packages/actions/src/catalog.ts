@@ -22,6 +22,8 @@ const productFields = z.object({
   duration_min: z.number().int().min(0).optional(),
   sessions: z.number().int().min(1).optional(),
   valid_days: z.number().int().min(1).optional(),
+  /** Liệu trình cho dùng khi mới cọc (COMMERCE §6) — chỉ loại package. */
+  grant_on_deposit: z.boolean().optional(),
   deposit: money.optional(),
   rental_unit: z.enum(['hour', 'day', 'week', 'month']).optional(),
   /** Ngưỡng cảnh báo sắp hết (physical, COMMERCE §2). */

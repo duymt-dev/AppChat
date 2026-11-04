@@ -24,6 +24,7 @@ export const MODULES = [
   'marketing',
   'loyalty',
   'settings',
+  'documents',
 ] as const;
 
 type Messages = Record<string, unknown>;

@@ -11,6 +11,7 @@ import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
+import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
 import { contractFileBlob, contractFilesParamRoute, contractPdf, contractsParamRoute, mockUploads } from './domains/contracts';
 import { appendixMock, contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
@@ -65,6 +66,7 @@ export const mockTransport: Transport = {
       productsParamRoute(path) ??
       quotesParamRoute(path) ??
       quotesPublicRoute(path) ??
+      publicDocumentRoute(path) ??
       contractsParamRoute(path) ??
       contractFilesParamRoute(path) ??
       appendixMock.route(path) ??
@@ -183,7 +185,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
-    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path);
+    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? publicDocumentPdf(path);
     if (html === null) return fail(404, 'NOT_FOUND', path);
     return new Blob([html], { type: 'text/html' });
   },

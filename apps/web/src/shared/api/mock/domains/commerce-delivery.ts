@@ -40,3 +40,29 @@ export function sendReceipt(invoices: { contact_id: string; payments: Pay[] }[],
   sent.push({ kind: 'receipt', ref: p.id, channel: ch });
   return { payment_id: p.id, receipt_code: p.receipt_code, message_id: `msg_rc_${sent.length}`, conversation_id: `conv_${inv.contact_id}`, channel: ch };
 }
+
+/** Token công khai ở mock = `<loại>~<mã>` (server: token ký HMAC + bảng commerce_link). Loại lạ / thiếu mã → 410 như server. */
+const KINDS = ['quote', 'payment_request', 'contract', 'order_confirmation', 'receipt'] as const;
+const parseToken = (token: string) => {
+  const [kind, code] = decodeURIComponent(token).split('~');
+  if (!code || !(KINDS as readonly string[]).includes(kind ?? '')) throw new ApiRequestError(410, { code: 'SIGN_LINK_INVALID', message: 'link' });
+  return { kind: kind as (typeof KINDS)[number], code };
+};
+
+/** GET /public/documents/:token (mock). */
+export const publicDocumentRoute = (path: string) => {
+  const m = path.match(/^\/public\/documents\/([^/]+)$/);
+  if (!m) return undefined;
+  return () => {
+    const { kind, code } = parseToken(m[1]!);
+    return { kind, code, version: 1, business: 'Spa Hoa Sen', file_name: `${code}.pdf`, expires_at: '2026-12-01T00:00:00.000Z' };
+  };
+};
+
+/** GET /public/documents/:token/pdf → HTML (mock không có LibreOffice). */
+export const publicDocumentPdf = (path: string): string | null => {
+  const m = path.match(/^\/public\/documents\/([^/]+)\/pdf$/);
+  if (!m) return null;
+  const { code } = parseToken(m[1]!);
+  return `<!doctype html><meta charset="utf-8"><title>${code}</title><p>${code}</p>`;
+};

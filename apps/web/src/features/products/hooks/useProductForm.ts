@@ -24,6 +24,7 @@ export interface ProductDraft {
   sessions: string;
   validMonths: string;
   perSession: string;
+  grantOnDeposit: boolean;
   rentUnit: 'hour' | 'day' | 'week' | 'month';
   deposit: string;
   available: string;
@@ -57,6 +58,7 @@ export function initialDraft(
     sessions: p?.sessions != null ? String(p.sessions) : '',
     validMonths: p?.valid_days != null ? String(Math.round(p.valid_days / 30)) : '',
     perSession: '',
+    grantOnDeposit: pre.grant_on_deposit != null ? !!pre.grant_on_deposit : !!p?.grant_on_deposit,
     rentUnit: (p?.rental_unit as ProductDraft['rentUnit']) || 'day',
     deposit: p?.deposit ?? '',
     available: '',
@@ -113,6 +115,7 @@ export function toInput(d: ProductDraft) {
       ? {
           sessions: sessions && sessions > 0 ? sessions : undefined,
           valid_days: months && months > 0 ? months * 30 : undefined,
+          grant_on_deposit: d.grantOnDeposit,
         }
       : {}),
     ...(d.type === 'rental' ? { rental_unit: d.rentUnit, deposit: d.deposit || undefined } : {}),

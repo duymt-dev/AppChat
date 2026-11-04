@@ -1082,6 +1082,7 @@
       "payment_received": "Customer paid my payment request",
       "refund_approval": "Refunds waiting for me / decisions",
       "bank_review": "Bank transactions to reconcile",
+      "package_reminder": "Packages running out / about to expire",
       "sla_warn": "SLA about to be breached",
       "sla_breach": "Ticket breached SLA (escalation)",
       "ticket_assigned": "Ticket assigned to me",

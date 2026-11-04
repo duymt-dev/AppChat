@@ -26,6 +26,11 @@ export const notify = {
       label: 'Hoàn tiền chờ tôi duyệt / kết quả duyệt',
     },
     bank_review: { title: 'Giao dịch {amount} cần đối soát', label: 'Giao dịch ngân hàng cần đối soát' },
+    package_reminder: {
+      title: 'Liệu trình {name} · {contact} còn {n} ngày tới hạn — gợi ý gia hạn',
+      remaining: 'Liệu trình {name} · {contact} còn 1 buổi — gợi ý mua thêm',
+      label: 'Liệu trình sắp hết buổi / tới hạn',
+    },
     sla_warn: { title: '{count} ticket sắp quá hạn SLA', label: 'SLA sắp vi phạm' },
     sla_breach: { title: 'Ticket {code} đã quá hạn SLA: {title}', label: 'Ticket quá hạn SLA (leo thang)' },
     ticket_assigned: { title: 'Ticket {code} được giao cho bạn: {title}', label: 'Ticket được giao cho tôi' },

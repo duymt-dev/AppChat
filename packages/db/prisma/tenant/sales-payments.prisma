@@ -1,5 +1,5 @@
 // tenant/sales-payments.prisma — sở hữu: TIP-032 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: payment_account, tenant_bank_feed, bank_tx, invoice, customer_payment, customer_package, package_usage (Blueprint §2.2,
+// Bảng: payment_account, tenant_bank_feed, bank_tx, invoice, customer_payment, customer_package, package_usage, package_reminder (Blueprint §2.2,
 // COMMERCE §5 / §6). Không Prisma relation xuyên domain (Blueprint §2.1): khách / đơn / sản phẩm / kết nối lưu id — FK + CHECK +
 // partial index viết tay ở migration 032. `bank_tx` (giao dịch ngân hàng vào) thêm ngoài Blueprint — DV-013.
 
@@ -206,12 +206,17 @@ model CustomerPackage {
   status        PackageStatus @default(active)
   extendedBy    String?       @map("extended_by") @db.Uuid
   note          String        @default("")
+  /// `legacy_product` (gói cũ theo đơn + sản phẩm) | `order_item` (mỗi dòng đơn một gói) — unique partial ở migration 032b.
+  sourceKind    String        @default("legacy_product") @map("source_kind")
+  orderItemId   String?       @map("order_item_id") @db.Uuid
+  /// Tăng khi hạn đổi (gia hạn / hoàn tác) — nhắc T-7 một lần mỗi bản hạn.
+  expiryVersion Int           @default(1) @map("expiry_version")
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  usages PackageUsage[]
+  usages    PackageUsage[]
+  reminders PackageReminder[]
 
-  @@unique([orderId, productId])
   @@map("customer_package")
 }
 
@@ -226,4 +231,18 @@ model PackageUsage {
   package CustomerPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
 
   @@map("package_usage")
+}
+
+/// Biên nhận nhắc liệu trình (TIP-032b): còn 1 buổi / còn 7 ngày tới hạn — một lần mỗi (gói, mốc, bản hạn).
+model PackageReminder {
+  id            String   @id @db.Uuid
+  packageId     String   @map("package_id") @db.Uuid
+  milestone     String
+  expiryVersion Int      @map("expiry_version")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  package CustomerPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, milestone, expiryVersion], map: "package_reminder_key")
+  @@map("package_reminder")
 }

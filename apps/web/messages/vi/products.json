@@ -162,6 +162,7 @@
     "validPh": "12",
     "perSession": "Giá mỗi buổi (đ)",
     "perSessionPh": "1.600.000",
+    "grantOnDeposit": "Cho dùng khi khách mới cọc (sinh liệu trình ngay khi đã cọc)",
     "rentSec": "Cho thuê",
     "rentUnit": "Đơn vị thời gian",
     "rentUnits": {

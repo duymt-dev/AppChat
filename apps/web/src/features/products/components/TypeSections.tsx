@@ -100,6 +100,10 @@ function TypeBlock({ f }: { f: ProductFormApi }) {
               [t('perSession'), 'perSession', t('perSessionPh'), true],
             ]}
           />
+          <label className={styles.check}>
+            <input type="checkbox" checked={f.d.grantOnDeposit} onChange={(e) => f.set('grantOnDeposit', e.target.checked)} data-testid="pf-grant-on-deposit" />
+            {t('grantOnDeposit')}
+          </label>
         </Sec>
       );
     case 'rental':

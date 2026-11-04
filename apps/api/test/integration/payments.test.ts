@@ -84,7 +84,7 @@ describe('migration 032', () => {
   it('bảng + index; EXPLAIN danh sách D42 / quét hạn', async () => {
     const db = await tenant();
     const idx = (await db.$queryRaw<{ indexname: string }[]>`SELECT indexname FROM pg_indexes WHERE tablename IN ('invoice', 'customer_payment', 'bank_tx', 'customer_package')`).map((r) => r.indexname);
-    expect(idx).toEqual(expect.arrayContaining(['invoice_recent_idx', 'invoice_owner_idx', 'invoice_contact_idx', 'invoice_open_due_idx', 'invoice_code_key', 'customer_payment_bank_tx_id_key', 'customer_payment_receipt_code_key', 'bank_tx_feed_id_external_id_key', 'bank_tx_review_idx', 'customer_package_order_id_product_id_key']));
+    expect(idx).toEqual(expect.arrayContaining(['invoice_recent_idx', 'invoice_owner_idx', 'invoice_contact_idx', 'invoice_open_due_idx', 'invoice_code_key', 'customer_payment_bank_tx_id_key', 'customer_payment_receipt_code_key', 'bank_tx_feed_id_external_id_key', 'bank_tx_review_idx', 'customer_package_legacy_key', 'customer_package_order_item_key']));
     const dbName = (await h.platform.workspace.findUniqueOrThrow({ where: { id: h.ws } })).dbName;
     const c = new pg.Client({ connectionString: env.TENANT_DATABASE_URL!.replace(/\/[^/?]*(\?|$)/, `/${dbName}$1`) });
     await c.connect();

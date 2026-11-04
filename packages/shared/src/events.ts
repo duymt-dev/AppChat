@@ -141,6 +141,19 @@ export const paymentConfirmedEvent = z.object({ ...base, payment_id: z.string().
 export const paymentRefundEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: uuidOrNull, order_id: uuidOrNull, package_id: uuidOrNull, contact_id: z.string().uuid(), amount: z.string() });
 export const bankTxEvent = z.object({ ...base, bank_tx_id: z.string().uuid(), amount: z.string(), status: z.string(), reason: z.string().nullable() });
 export const packageEvent = z.object({ ...base, package_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull.optional(), total_sessions: z.number().int().optional() });
+/** Nhắc liệu trình (TIP-032b P3): còn 1 buổi / còn 7 ngày tới hạn — một lần mỗi (gói, mốc, bản hạn). */
+export const packageReminderDueEvent = z.object({
+  ...base,
+  package_id: z.string().uuid(),
+  contact_id: z.string().uuid(),
+  order_id: z.string().uuid(),
+  milestone: z.enum(['remaining_1', 'expiry_t7']),
+  expiry_version: z.number().int(),
+  owner_user_id: uuidOrNull,
+  name: z.string(),
+  contact: z.string(),
+  days: z.number().int().nullable(),
+});
 /** Gửi chứng từ cho khách (TIP-032b P2) + đổi chính sách bán hàng (P1 — FE làm mới ngưỡng duyệt). */
 export const orderConfirmationSentEvent = z.object({ ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), channel: z.string() });
 export const receiptSentEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string().nullable(), channel: z.string() });
@@ -224,6 +237,7 @@ export const EVENT_SCHEMAS = {
   'package.granted': packageEvent,
   'package.expired': packageEvent,
   'package.changed': packageEvent,
+  'package.reminder_due': packageReminderDueEvent,
   'appointment.created': appointmentEvent,
   'appointment.confirmed': appointmentEvent,
   'appointment.rescheduled': appointmentEvent,

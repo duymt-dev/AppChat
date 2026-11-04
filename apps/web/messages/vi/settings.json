@@ -1082,6 +1082,7 @@
       "payment_received": "Khách đã thanh toán đề nghị của tôi",
       "refund_approval": "Hoàn tiền chờ tôi duyệt / kết quả duyệt",
       "bank_review": "Giao dịch ngân hàng cần đối soát",
+      "package_reminder": "Liệu trình sắp hết buổi / tới hạn",
       "sla_warn": "SLA sắp vi phạm",
       "sla_breach": "Ticket quá hạn SLA (leo thang)",
       "ticket_assigned": "Ticket được giao cho tôi",
