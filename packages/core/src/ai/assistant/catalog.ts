@@ -10,8 +10,11 @@ import { exampleOf, schemaBrief, type Brief } from './schema-brief';
 export type AssistantMode = 'chat' | 'cowork';
 export const FIND_LIMIT = 8;
 
-/** Action Trợ lý không bao giờ gọi: quản trị nền tảng, chuyển workspace, quyết định duyệt thay người, xác nhận chuyển khoản gói. */
-const HIDDEN = /^(admin\.|workspace\.switch$|approval\.|billing\.)/;
+/**
+ * Action Trợ lý không bao giờ gọi: quản trị nền tảng, chuyển workspace, đổi Chủ sở hữu (OTP chỉ ở UI — TIP-045b A3), quyết định duyệt
+ * thay người, xác nhận chuyển khoản gói.
+ */
+const HIDDEN = /^(admin\.|workspace\.(switch|request_transfer_otp|transfer_ownership)$|approval\.|billing\.)/;
 
 /**
  * Callback chỉ nguồn system (worker) — không ai gọi bằng lời / UI nên không cần preview hay đường tra id. Trang ký công khai phụ lục

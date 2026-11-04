@@ -164,6 +164,29 @@
     "menu": "Actions",
     "edit": "Edit",
     "remove": "Remove member",
+    "transfer": {
+      "open": "Transfer ownership",
+      "title": "Transfer workspace ownership",
+      "to": "Transfer to",
+      "pick": "Choose an active member",
+      "them": "the recipient",
+      "consequence": "{name} becomes the only Owner (full access, plan & billing, contract signing). You become a Manager as soon as you confirm. This cannot be undone — to switch back, {name} must transfer it to you with a new code.",
+      "send": "Send confirmation code",
+      "sent": "A 6-digit code was sent to {to} (valid for 10 minutes).",
+      "otp": "Confirmation code",
+      "typeName": "Type \"{name}\" to confirm",
+      "confirm": "Transfer ownership",
+      "cancel": "Cancel",
+      "close": "Close",
+      "err": {
+        "pick": "Choose a recipient",
+        "format": "The code has 6 digits",
+        "confirm": "The name does not match",
+        "invalid": "Incorrect code",
+        "expired": "The code expired or was used — send a new one",
+        "stale": "The recipient or permissions changed — send a new code"
+      }
+    },
     "revoke": "Revoke invite",
     "foot": "{n} members · Your plan supports up to <b>{max} seats</b>",
     "upgrade": "Upgrade plan",
@@ -1161,7 +1184,8 @@
       "ai_briefing": "AI Assistant morning briefing",
       "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
-      "billing_invoice": "Plan & wallet — new invoice"
+      "billing_invoice": "Plan & wallet — new invoice",
+      "owner_transfer": "Workspace ownership transfer"
     },
     "prefsT": "Notification preferences",
     "dnd": "Do Not Disturb",

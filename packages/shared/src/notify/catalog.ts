@@ -46,6 +46,8 @@ export const NOTIFY_KINDS = {
   ai_task_failed: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, false, false) },
   channel_down: { group: 'system', icon: 'ic-link', tone: 'danger', defaults: ch(true, true, true) },
   billing_invoice: { group: 'system', icon: 'ic-doc', tone: 'info', defaults: ch(false, true, false) },
+  // Bảo mật (TIP-045b): đổi Chủ sở hữu — báo cả Owner cũ lẫn mới.
+  owner_transfer: { group: 'system', icon: 'ic-shield', tone: 'warn', defaults: ch(true, true, true) },
 } as const satisfies Record<string, NotifyKindDef>;
 
 export type NotifyKind = keyof typeof NOTIFY_KINDS;

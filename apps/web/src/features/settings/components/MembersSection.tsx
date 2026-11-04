@@ -16,6 +16,7 @@ import { useSettingsUi } from '../settings-store';
 import { membersQuery } from '../api';
 import type { Member } from '../types';
 import { MemberModal } from './MemberModal';
+import { OwnershipTransferModal } from './OwnershipTransferModal';
 
 const BILLING = '/settings/billing';
 const ROW_MENU = 'members';
@@ -112,6 +113,7 @@ export function MembersSection() {
   const { styles, cx } = useMembersStyles();
   const ui = useSettingsUi();
   const canManage = useCan('members.manage');
+  const canTransfer = useCan('workspace.transfer_ownership');
   const q = useQuery(membersQuery(ui.memberQ));
   return (
     <>
@@ -129,6 +131,12 @@ export function MembersSection() {
           <Icon name="ic-download" size={14} color={color.text3} />
           {t('export')}
         </button>
+        {canTransfer ? (
+          <button type="button" className={cx(s.styles.ghost, styles.hideM)} onClick={() => ui.set({ transferOpen: true })} data-testid="st-transfer">
+            <Icon name="ic-shield" size={14} color={color.text3} />
+            {t('transfer.open')}
+          </button>
+        ) : null}
         {canManage ? (
           <button type="button" className={s.styles.primary} onClick={() => ui.set({ memberModal: { name: '', email: '', role: 'sales' } })} data-testid="st-invite">
             <Icon name="ic-plus" size={14} color={color.white} strokeWidth={2} />
@@ -174,6 +182,7 @@ export function MembersSection() {
         ) : null}
       </PageStates>
       <MemberModal />
+      {canTransfer && q.data ? <OwnershipTransferModal members={q.data.data} /> : null}
     </>
   );
 }

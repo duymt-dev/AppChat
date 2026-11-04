@@ -18,6 +18,12 @@
     },
     "update": {
       "title": "Update workspace info"
+    },
+    "request_transfer_otp": {
+      "title": "Send ownership transfer code"
+    },
+    "transfer_ownership": {
+      "title": "Transfer workspace ownership"
     }
   },
   "done": "Done: {title}",

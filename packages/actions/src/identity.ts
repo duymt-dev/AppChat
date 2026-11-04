@@ -47,3 +47,37 @@ export const workspaceSwitch = defineAction({
   db: 'platform',
   uiTarget: () => ({ type: 'navigate', route: '/dashboard' }),
 });
+
+/**
+ * Đổi Chủ sở hữu (TIP-045b annex A3) — bước 1: gửi OTP tới email đã xác minh của Owner hiện tại, gắn với người nhận + phiên bản quyền.
+ * Chỉ chính Owner (`workspace.owner_user_id`) gọi được từ UI; không agent / Trợ lý.
+ */
+export const workspaceRequestTransferOtp = defineAction({
+  id: 'workspace.request_transfer_otp',
+  module: 'settings',
+  title: 'actions.workspace.request_transfer_otp.title',
+  description: 'Owner only, UI only: email a one-time code to the current Owner to confirm transferring ownership to an active member. Never agent-run.',
+  input: z.object({ to_user_id: z.string().min(1) }),
+  output: z.object({ sent_to: z.string(), expires_at: z.string() }),
+  permission: 'workspace.transfer_ownership',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: [],
+  db: 'platform',
+});
+
+/** Bước 2: xác nhận OTP → đổi Owner nguyên tử (Owner cũ thành manager). Không hoàn tác chung — đổi lại là một lần chuyển có OTP khác. */
+export const workspaceTransferOwnership = defineAction({
+  id: 'workspace.transfer_ownership',
+  module: 'settings',
+  title: 'actions.workspace.transfer_ownership.title',
+  description: 'Owner only, UI only: transfer workspace ownership to an active member with the emailed code; the former Owner becomes manager. Never agent-run.',
+  input: z.object({ to_user_id: z.string().min(1), otp: z.string().regex(/^\d{6}$/) }),
+  output: z.object({ owner_user_id: z.string(), previous_owner_role: z.literal('manager') }),
+  permission: 'workspace.transfer_ownership',
+  risk: 'config',
+  agentGrantable: false,
+  secret: { paths: ['otp'] },
+  invalidates: ['members', 'me', 'workspace'],
+  db: 'platform',
+});

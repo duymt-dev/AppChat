@@ -164,6 +164,29 @@
     "menu": "Thao tác",
     "edit": "Sửa thông tin",
     "remove": "Xoá thành viên",
+    "transfer": {
+      "open": "Chuyển quyền Chủ sở hữu",
+      "title": "Chuyển quyền Chủ sở hữu",
+      "to": "Chuyển cho",
+      "pick": "Chọn thành viên đang hoạt động",
+      "them": "người nhận",
+      "consequence": "{name} sẽ là Chủ sở hữu duy nhất (toàn quyền, gói & thanh toán, ký hợp đồng). Bạn trở thành Quản lý ngay khi xác nhận. Không hoàn tác được — muốn đổi lại, {name} phải chuyển cho bạn bằng mã mới.",
+      "send": "Gửi mã xác nhận",
+      "sent": "Đã gửi mã 6 số tới {to} (hiệu lực 10 phút).",
+      "otp": "Mã xác nhận",
+      "typeName": "Gõ lại \"{name}\" để xác nhận",
+      "confirm": "Chuyển quyền",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "err": {
+        "pick": "Chọn người nhận",
+        "format": "Mã gồm 6 chữ số",
+        "confirm": "Tên gõ lại chưa khớp",
+        "invalid": "Mã không đúng",
+        "expired": "Mã đã hết hạn hoặc đã dùng — gửi mã mới",
+        "stale": "Người nhận hoặc quyền đã thay đổi — gửi mã mới"
+      }
+    },
     "revoke": "Thu hồi lời mời",
     "foot": "{n} thành viên · Gói của bạn hỗ trợ tối đa <b>{max} seat</b>",
     "upgrade": "Nâng cấp plan",
@@ -1161,7 +1184,8 @@
       "ai_briefing": "Bản tin sáng của Trợ lý AI",
       "ai_task_failed": "Tác vụ tự chủ lỗi",
       "channel_down": "Kênh bị ngắt kết nối",
-      "billing_invoice": "Gói & ví — hoá đơn mới"
+      "billing_invoice": "Gói & ví — hoá đơn mới",
+      "owner_transfer": "Đổi Chủ sở hữu workspace"
     },
     "prefsT": "Tuỳ chọn nhận thông báo",
     "dnd": "Không làm phiền (Do Not Disturb)",

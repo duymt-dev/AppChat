@@ -25,7 +25,14 @@ export const FORCE_APPROVAL_ACTIONS: ReadonlySet<string> = new Set([
   'campaign.approve',
 ]);
 
+/**
+ * Action chỉ người bấm ở UI (TIP-045b annex A3 — đổi Chủ sở hữu bằng OTP email): mọi nguồn khác bị cấm TRƯỚC xem trước / duyệt — Trợ lý
+ * không dựng thẻ xác nhận, agent / tác vụ / API không xin hay nhập mã.
+ */
+export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_transfer_otp', 'workspace.transfer_ownership']);
+
 export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId }: ActionPolicyInput): PolicyDecision {
+  if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';
   if ((source === 'agent' || source === 'task') && actionId && FORCE_APPROVAL_ACTIONS.has(actionId)) return TABLE[source][risk] === 'forbidden' ? 'forbidden' : 'approval';
   // Agent trực kênh trả lời trong hội thoại đang phục vụ: chạy (§3.3 dòng `agent`, cột send) — gửi nơi khác vẫn duyệt.
   if (source === 'agent' && risk === 'send' && servedConversation && !bulk) return 'run';

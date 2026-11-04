@@ -14,6 +14,8 @@ export interface MemberDraft {
 interface SettingsUi {
   memberQ: string;
   memberModal: MemberDraft | null;
+  /** Hộp chuyển quyền Chủ sở hữu (TIP-045b A3). */
+  transferOpen: boolean;
   menuFor: string | null;
   chanFilter: 'all' | 'on' | 'off';
   chanView: 'cards' | 'list';
@@ -47,6 +49,7 @@ interface SettingsUi {
 export const useSettingsUi = create<SettingsUi>((setState) => ({
   memberQ: '',
   memberModal: null,
+  transferOpen: false,
   menuFor: null,
   chanFilter: 'all',
   chanView: 'cards',

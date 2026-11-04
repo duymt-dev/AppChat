@@ -24,6 +24,8 @@ import { ProfileUpdateHandler } from './actions/profile-update.handler';
 import { WorkingHoursUpdateHandler } from './actions/working-hours-update.handler';
 import { WorkspaceSwitchHandler } from './actions/workspace-switch.handler';
 import { WorkspaceUpdateHandler } from './actions/workspace-update.handler';
+import { WorkspaceRequestTransferOtpHandler } from './actions/workspace-transfer-otp.handler';
+import { WorkspaceTransferOwnershipHandler } from './actions/workspace-transfer.handler';
 import { readIdentityEnv, type IdentityEnv } from './identity.env';
 import { BullProvisionQueue, TENANT_QUEUE } from './jobs/tenant-provision.processor';
 import { AccessTokens, jwtKeysFromEnv } from './services/access-tokens';
@@ -116,7 +118,7 @@ const providers: FactoryProvider[] = [
 ];
 
 // Handler Cài đặt (TIP-013). member.set_role inject PLATFORM_DB tuỳ chọn (undo ghi DB nền tảng).
-const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler, MemberSearchHandler];
+const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler, MemberSearchHandler, WorkspaceRequestTransferOtpHandler, WorkspaceTransferOwnershipHandler];
 
 @Module({
   providers: [...providers, InviteEffectsInstaller, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],

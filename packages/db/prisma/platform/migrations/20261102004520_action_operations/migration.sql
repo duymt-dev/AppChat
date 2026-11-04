@@ -67,3 +67,20 @@ CREATE INDEX "platform_effect_pending_idx" ON "platform_effect" ("next_attempt_a
 
 -- Audit nền tảng theo workspace có thứ tự ổn định (annex E): created_at DESC, id DESC.
 CREATE INDEX "platform_audit_log_ws_page_idx" ON "platform_audit_log" ("workspace_id", "created_at" DESC, "id" DESC);
+
+-- Annex A3: OTP đổi Chủ sở hữu — băm, hạn 10 phút, sai 5 lần khoá; ràng buộc workspace / Owner / người nhận / authz_epoch.
+CREATE TABLE "owner_transfer_otp" (
+  "id"                    UUID           NOT NULL PRIMARY KEY,
+  "workspace_id"          UUID           NOT NULL,
+  "owner_user_id"         UUID           NOT NULL,
+  "target_user_id"        UUID           NOT NULL,
+  "authz_epoch"           INTEGER        NOT NULL,
+  "code_hash"             TEXT           NOT NULL,
+  "attempts"              INTEGER        NOT NULL DEFAULT 0,
+  "expires_at"            TIMESTAMPTZ(6) NOT NULL,
+  "consumed_at"           TIMESTAMPTZ(6),
+  "consumed_operation_id" UUID,
+  "created_at"            TIMESTAMPTZ(6) NOT NULL DEFAULT now()
+);
+-- Mã còn sống của workspace (xin mã mới huỷ mã cũ): = workspace, chỉ dòng chưa tiêu.
+CREATE INDEX "owner_transfer_otp_open_idx" ON "owner_transfer_otp" ("workspace_id", "created_at" DESC) WHERE "consumed_at" IS NULL;

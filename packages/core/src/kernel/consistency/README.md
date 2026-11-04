@@ -30,7 +30,7 @@ còn hợp lệ sau khi nền tảng đã áp; cần người / action được 
 
 | Lớp | Action |
 |-----|--------|
-| Nền tảng thuần + biên nhận tenant | admin.invoice.confirm_transfer · billing.create_invoice · billing.cancel_invoice · billing.report_transfer · business_profile.update · integration.register_interest · invite.revoke · member.invite (thư = hiệu ứng) · member.remove (epoch) · member.set_role (epoch, undoPlatform) · notification.update_prefs · onboarding.toggle_step · profile.update · working_hours.update · workspace.switch · workspace.update |
+| Nền tảng thuần + biên nhận tenant | admin.invoice.confirm_transfer · billing.create_invoice · billing.cancel_invoice · billing.report_transfer · business_profile.update · integration.register_interest · invite.revoke · member.invite (thư = hiệu ứng) · member.remove (epoch) · member.set_role (epoch, undoPlatform) · notification.update_prefs · onboarding.toggle_step · profile.update · working_hours.update · workspace.request_transfer_otp (mã = hiệu ứng) · workspace.switch · workspace.transfer_ownership (epoch, OTP tiêu cùng commit) · workspace.update |
 | Giữ chỗ hạn mức / ghi tenant qua applyTenant | agent.create · agent.create_and_publish · channel.zalo.start_login · channel.email.connect · webchat.update_widget · bank_feed.connect · bank_feed.disconnect |
 | Đọc | member.search |
 | Chưa cài (NOT_IMPLEMENTED, TIP chủ) | wallet.update_alerts (039 — phải theo cùng giao thức khi cài) |

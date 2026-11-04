@@ -17,6 +17,7 @@ import { ticketsHandlers } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
+import { ownershipTransferHandlers } from './domains/ownership-transfer';
 import { settingsAppsHandlers } from './domains/settings-apps';
 import { integrationProbeHandlers } from './domains/integration-probe';
 import { assistantUiHandlers } from './domains/assistant-ui';
@@ -104,6 +105,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...marketingHandlers,
   ...loyaltyHandlers,
   ...settingsHandlers,
+  ...ownershipTransferHandlers,
   ...settingsAppsHandlers,
   ...integrationProbeHandlers,
   ...assistantUiHandlers,

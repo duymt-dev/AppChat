@@ -18,6 +18,12 @@
     },
     "update": {
       "title": "Cập nhật thông tin workspace"
+    },
+    "request_transfer_otp": {
+      "title": "Gửi mã đổi Chủ sở hữu"
+    },
+    "transfer_ownership": {
+      "title": "Chuyển quyền Chủ sở hữu"
     }
   },
   "done": "Đã thực hiện: {title}",

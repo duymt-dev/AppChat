@@ -84,3 +84,22 @@ model PlatformEffect {
   @@unique([operationId, kind])
   @@map("platform_effect")
 }
+
+/// Mã OTP đổi Chủ sở hữu (TIP-045b annex A3): gửi email đã xác minh của Owner hiện tại, chỉ lưu sha256, hạn 10 phút, sai 5 lần khoá.
+/// Ràng buộc workspace + Owner cũ + người nhận + `authz_epoch` lúc xin mã — quyền / chủ đổi sau đó thì mã chết. Tiêu mã cùng commit
+/// nền tảng của `workspace.transfer_ownership` (ghi id thao tác tiêu). Không lưu mã thô; không vào audit / model.
+model OwnerTransferOtp {
+  id                  String    @id @db.Uuid
+  workspaceId         String    @map("workspace_id") @db.Uuid
+  ownerUserId         String    @map("owner_user_id") @db.Uuid
+  targetUserId        String    @map("target_user_id") @db.Uuid
+  authzEpoch          Int       @map("authz_epoch")
+  codeHash            String    @map("code_hash")
+  attempts            Int       @default(0)
+  expiresAt           DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt          DateTime? @map("consumed_at") @db.Timestamptz(6)
+  consumedOperationId String?   @map("consumed_operation_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("owner_transfer_otp")
+}

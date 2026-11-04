@@ -4,6 +4,7 @@ export * from './billing';
 export * from './identity';
 export * from './integrations';
 export * from './settings';
+export * from './ownership-transfer';
 export * from './crm';
 export * from './contact-memory';
 export * from './catalog';
