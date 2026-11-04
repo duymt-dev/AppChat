@@ -10,6 +10,7 @@ import * as quotes from './quotes';
 import * as contracts from './contracts';
 import * as contractFiles from './contract-files';
 import * as contractDraft from './contract-draft';
+import * as contractAppendix from './contract-appendix';
 import * as orders from './orders';
 import * as invoices from './invoices';
 import * as payments from './payments';
@@ -52,6 +53,7 @@ export * from './quotes';
 export * from './contracts';
 export * from './contract-files';
 export * from './contract-draft';
+export * from './contract-appendix';
 export * from './orders';
 export * from './invoices';
 export * from './payments';
@@ -95,6 +97,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contracts),
   ...Object.values(contractFiles),
   ...Object.values(contractDraft),
+  ...Object.values(contractAppendix),
   ...Object.values(orders),
   ...Object.values(invoices),
   ...Object.values(payments),

@@ -1,0 +1,74 @@
+// tenant/contract-appendix-signing.prisma — sở hữu: TIP-030b F3. Ký phụ lục hợp đồng TÁCH khỏi ký hợp đồng cha (TIP spec 14):
+// `contract_signer` unique (contract_id, party) và `contract_sign_token` không gắn phụ lục nên không dùng lại. Mỗi bản ghi ràng buộc
+// appendix_id + appendix_version + document_hash (+ party) — sửa nháp (version mới) / đổi tài liệu làm token / OTP cũ hết hiệu lực.
+// Nhật ký ký chỉ thêm (trigger chặn UPDATE / DELETE / TRUNCATE ở migration).
+
+/// Người ký của từng bên trên một phụ lục. OTP băm (sha256), 10 phút, sai 5 lần khoá.
+model AppendixSigner {
+  id                   String    @id @db.Uuid
+  appendixId           String    @map("appendix_id") @db.Uuid
+  /// business | customer
+  party                String
+  /// Version + digest phụ lục lúc OTP / ký — lệch hiện tại → không ký.
+  appendixVersion      Int       @map("appendix_version")
+  documentHash         String?   @map("document_hash")
+  userId               String?   @map("user_id") @db.Uuid
+  name                 String    @default("")
+  email                String?
+  phone                String?
+  /// email | zalo_personal
+  otpChannel           String?   @map("otp_channel")
+  otpHash              String?   @map("otp_hash")
+  otpExpiresAt         DateTime? @map("otp_expires_at") @db.Timestamptz(6)
+  otpFails             Int       @default(0) @map("otp_fails")
+  signatureImageFileId String?   @map("signature_image_file_id") @db.Uuid
+  signedAt             DateTime? @map("signed_at") @db.Timestamptz(6)
+  ip                   String?
+  userAgent            String?   @map("user_agent")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  appendix ContractAppendix @relation(fields: [appendixId], references: [id], onDelete: Restrict)
+
+  @@unique([appendixId, party])
+  @@map("appendix_signer")
+}
+
+/// Link ký phụ lục một lần (7 ngày). Token = HMAC(khoá chủ, "appendix:<id>") — không lưu token thô; `token_hash` = sha256(token)
+/// (định tuyến workspace ở DB nền tảng `tenant_sign_route`). Gắn đúng phụ lục + version + digest + người ký.
+model AppendixSignToken {
+  id              String    @id @db.Uuid
+  tokenHash       String    @unique @map("token_hash")
+  appendixId      String    @map("appendix_id") @db.Uuid
+  appendixVersion Int       @map("appendix_version")
+  documentHash    String    @map("document_hash")
+  signerId        String    @map("signer_id") @db.Uuid
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt          DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  appendix ContractAppendix @relation(fields: [appendixId], references: [id], onDelete: Restrict)
+
+  @@index([appendixId])
+  @@map("appendix_sign_token")
+}
+
+/// Nhật ký ký phụ lục — chỉ thêm. Mỗi bước: thời điểm, IP, UA, digest tài liệu, version phụ lục.
+model AppendixSignatureEvent {
+  id              String   @id @db.Uuid
+  appendixId      String   @map("appendix_id") @db.Uuid
+  appendixVersion Int      @map("appendix_version")
+  signerId        String?  @map("signer_id") @db.Uuid
+  type            String
+  party           String?
+  actorName       String   @default("") @map("actor_name")
+  docSha256       String?  @map("doc_sha256")
+  ip              String?
+  userAgent       String?  @map("user_agent")
+  meta            Json     @default("{}")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  appendix ContractAppendix @relation(fields: [appendixId], references: [id], onDelete: Restrict)
+
+  @@index([appendixId, createdAt, id])
+  @@map("appendix_signature_event")
+}

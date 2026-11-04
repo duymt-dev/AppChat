@@ -435,6 +435,46 @@
     "resolve_suggestion": {
       "desc": "Keep or discard one AI-suggested clause of a draft contract.",
       "title": "Keep / discard AI-suggested clause"
+    },
+    "create_appendix": {
+      "title": "Create contract appendix",
+      "desc": "Create a draft appendix for a signed contract"
+    },
+    "appendix_update": {
+      "title": "Edit appendix",
+      "desc": "Edit a draft appendix (new version)"
+    },
+    "appendix_submit": {
+      "title": "Submit appendix",
+      "desc": "Send the appendix to the Owner for approval"
+    },
+    "appendix_request_changes": {
+      "title": "Request appendix changes",
+      "desc": "Return the appendix to draft with a reason"
+    },
+    "appendix_owner_otp": {
+      "title": "Send appendix signing OTP",
+      "desc": "Email the Owner a code to sign the appendix"
+    },
+    "appendix_approve_and_sign": {
+      "title": "Approve & sign appendix",
+      "desc": "Owner signs the appendix with OTP + handwritten signature"
+    },
+    "appendix_send": {
+      "title": "Send appendix for signature",
+      "desc": "Send the customer a one-time signing link"
+    },
+    "appendix_public_otp": {
+      "title": "Appendix OTP (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "appendix_public_sign": {
+      "title": "Customer signs appendix (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "appendix_public_decline": {
+      "title": "Customer declines appendix (public page)",
+      "desc": "Internal — public signing page"
     }
   },
   "order": {

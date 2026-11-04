@@ -146,3 +146,6 @@ export interface DraftProposal {
   run_id: string | null;
   model: string | null;
 }
+
+/** Phụ lục (TIP-030b F3) — GET /contracts/:id/appendices · trang ký công khai /public/appendix-sign/:token. */
+export type { Appendix, AppendixSignView } from '@appchat/shared';

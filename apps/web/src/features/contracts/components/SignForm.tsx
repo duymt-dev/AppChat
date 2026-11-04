@@ -13,14 +13,25 @@ import type { SignView } from '../types';
 
 const DEV_OTP = '246810';
 
-export function SignForm({
+/** Endpoint công khai — mặc định hợp đồng; trang ký phụ lục truyền bộ của phụ lục (TIP-030b F3, cùng giao diện ký). */
+interface SignApi<V> {
+  otp(token: string): Promise<{ channel: string; sent_to: string }>;
+  sign(token: string, body: { otp: string; signature_png: string; consent: true }): Promise<V>;
+  decline(token: string, reason?: string): Promise<V>;
+}
+
+export function SignForm<V extends Pick<SignView, 'otp_left' | 'status'> = SignView>({
   token,
   view,
   onDone,
+  api = signApi as unknown as SignApi<V>,
+  devOtp = DEV_OTP,
 }: {
   token: string;
-  view: SignView;
-  onDone: (v: SignView) => void;
+  view: V;
+  onDone: (v: V) => void;
+  api?: SignApi<V>;
+  devOtp?: string;
 }) {
   const t = useTranslations('contracts.sign');
   const te = useTranslations('errors');
@@ -47,7 +58,7 @@ export function SignForm({
   };
   const getOtp = async () => {
     try {
-      const r = await signApi.otp(token);
+      const r = await api.otp(token);
       setSentTo(r.sent_to);
       setByEmail(r.channel === 'email');
     } catch (e) {
@@ -58,7 +69,7 @@ export function SignForm({
     if (!png) return void message.warning(t('needSig'));
     setBusy(true);
     try {
-      onDone(await signApi.sign(token, { otp, signature_png: png, consent: true }));
+      onDone(await api.sign(token, { otp, signature_png: png, consent: true }));
     } catch (e) {
       fail(e);
     } finally {
@@ -73,7 +84,7 @@ export function SignForm({
       okButtonProps: { danger: true, 'data-testid': 'sign-decline-ok' } as never,
       onOk: async () => {
         try {
-          onDone(await signApi.decline(token));
+          onDone(await api.decline(token));
         } catch (e) {
           fail(e);
         }
@@ -104,7 +115,7 @@ export function SignForm({
         {sentTo ? <span className={styles.hint}>{t(byEmail ? 'otpSentEmail' : 'otpSent', { to: sentTo })}</span> : null}
       </div>
       {sentTo && apiMode() === 'mock' ? (
-        <div className={styles.dev}>{t('devOtp', { otp: DEV_OTP })}</div>
+        <div className={styles.dev}>{t('devOtp', { otp: devOtp })}</div>
       ) : null}
       <div className={styles.label}>{t('otp')}</div>
       <div className={styles.row}>

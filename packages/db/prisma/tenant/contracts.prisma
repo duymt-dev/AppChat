@@ -103,21 +103,52 @@ model Contract {
   @@map("contract")
 }
 
-/// Phụ lục (COMMERCE §9 "muốn thay đổi phải tạo phụ lục" — cùng luồng duyệt và ký). Mã `HĐ-1180/PL-{k}`.
+/// Phụ lục (COMMERCE §9 "muốn thay đổi phải tạo phụ lục" — cùng luồng duyệt và ký). Mã `HĐ-1180/PL-{k}` (k cấp dưới khoá dòng hợp đồng
+/// cha). Chỉ cho hợp đồng đã ký; ký riêng (contract-appendix-signing.prisma) — chữ ký hợp đồng cha không thay chữ ký phụ lục. `version`
+/// tăng mỗi lần sửa nháp (token / OTP cũ hết hiệu lực); nguồn: nội dung HTML (render) hoặc tệp PDF / DOCX (bất biến, như hợp đồng).
 model ContractAppendix {
-  id           String         @id @db.Uuid
-  contractId   String         @map("contract_id") @db.Uuid
-  code         String         @unique
-  title        String         @default("")
-  bodyHtml     String?        @map("body_html")
-  status       ContractStatus @default(draft)
-  fileId       String?        @map("file_id") @db.Uuid
-  fileSha256   String?        @map("file_sha256")
-  signedFileId String?        @map("signed_file_id") @db.Uuid
-  signedSha256 String?        @map("signed_sha256")
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id             String         @id @db.Uuid
+  contractId     String         @map("contract_id") @db.Uuid
+  code           String         @unique
+  /// Số thứ tự trong hợp đồng cha (PL-n).
+  seq            Int            @default(1)
+  title          String         @default("")
+  bodyHtml       String?        @map("body_html")
+  status         ContractStatus @default(draft)
+  version        Int            @default(1)
+  /// Giá trị điều chỉnh (VND, có thể âm) — siêu dữ liệu thoả thuận, không tự đổi đơn / hoá đơn / sổ thu.
+  valueDelta     BigInt?        @map("value_delta")
+  source         ContractSource @default(template)
+  sourceFileId   String?        @map("source_file_id") @db.Uuid
+  sourceHash     String?        @map("source_hash")
+  sourceMime     String?        @map("source_mime")
+  /// Khoá yêu cầu tạo (người gọi) — gọi lại cùng khoá → cùng phụ lục.
+  requestKey     String?        @map("request_key")
+  createdById    String?        @map("created_by_id")
+  approvedBy     String?        @map("approved_by") @db.Uuid
+  signedByBusinessAt DateTime?  @map("signed_by_business_at") @db.Timestamptz(6)
+  signedByCustomerAt DateTime?  @map("signed_by_customer_at") @db.Timestamptz(6)
+  sentAt         DateTime?      @map("sent_at") @db.Timestamptz(6)
+  sentChannel    String?        @map("sent_channel")
+  conversationId String?        @map("conversation_id") @db.Uuid
+  signLinkExpiresAt DateTime?   @map("sign_link_expires_at") @db.Timestamptz(6)
+  /// PDF đóng băng lúc Owner "Duyệt & ký" (`file_sha256` = digest ràng buộc token / chữ ký).
+  fileId         String?        @map("file_id") @db.Uuid
+  fileSha256     String?        @map("file_sha256")
+  signedFileId   String?        @map("signed_file_id") @db.Uuid
+  signedSha256   String?        @map("signed_sha256")
+  declinedReason String         @default("") @map("declined_reason")
+  note           String         @default("")
+  decidedAt      DateTime?      @map("decided_at") @db.Timestamptz(6)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  signers AppendixSigner[]
+  tokens  AppendixSignToken[]
+  events  AppendixSignatureEvent[]
+
+  @@unique([contractId, seq])
+  @@unique([contractId, requestKey])
   @@index([contractId])
   @@map("contract_appendix")
 }

@@ -435,6 +435,46 @@
     "resolve_suggestion": {
       "desc": "Giữ hoặc bỏ một điều khoản do AI gợi ý trong hợp đồng nháp.",
       "title": "Giữ / bỏ điều khoản AI gợi ý"
+    },
+    "create_appendix": {
+      "title": "Tạo phụ lục hợp đồng",
+      "desc": "Tạo phụ lục nháp cho hợp đồng đã ký"
+    },
+    "appendix_update": {
+      "title": "Sửa phụ lục",
+      "desc": "Sửa phụ lục nháp (phiên bản mới)"
+    },
+    "appendix_submit": {
+      "title": "Trình duyệt phụ lục",
+      "desc": "Gửi phụ lục cho Chủ sở hữu duyệt"
+    },
+    "appendix_request_changes": {
+      "title": "Yêu cầu sửa phụ lục",
+      "desc": "Trả phụ lục về nháp kèm lý do"
+    },
+    "appendix_owner_otp": {
+      "title": "Gửi OTP ký phụ lục",
+      "desc": "Gửi mã OTP để Chủ sở hữu ký phụ lục"
+    },
+    "appendix_approve_and_sign": {
+      "title": "Duyệt & ký phụ lục",
+      "desc": "Chủ sở hữu ký phụ lục bằng OTP + chữ ký tay"
+    },
+    "appendix_send": {
+      "title": "Gửi ký phụ lục",
+      "desc": "Gửi link ký phụ lục một lần cho khách"
+    },
+    "appendix_public_otp": {
+      "title": "OTP ký phụ lục (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "appendix_public_sign": {
+      "title": "Khách ký phụ lục (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "appendix_public_decline": {
+      "title": "Khách từ chối phụ lục (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
     }
   },
   "order": {

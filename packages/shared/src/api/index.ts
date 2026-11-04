@@ -10,6 +10,7 @@ export * from './documents';
 export * from './quotes';
 export * from './contracts';
 export * from './contract-files';
+export * from './contract-appendix';
 export * from './orders';
 export * from './channels';
 export * from './inbox';

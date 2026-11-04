@@ -1,10 +1,12 @@
 // TIP-030b F1 AC4 — E2E http: hợp đồng từ tệp trên backend thật. Tải PDF ở form → guard 2 lớp + đề xuất giá trị (worker giới hạn) →
 // Nháp nguồn tệp → trình duyệt → Duyệt & ký (OTP email) đóng băng chính bản PDF gốc → gửi ký Email → khách ký → bản cuối = bản gốc +
 // trang chứng nhận; tab Tệp: Bản gốc + Đã ký, tải được. PDF có JavaScript → từ chối nêu lý do.
+// F3 phụ lục: cùng hợp đồng đã ký → tab Phụ lục → PL-1 → trình duyệt → Owner ký bằng OTP email RIÊNG của phụ lục → gửi Email → khách
+// ký trên /sign/appendix/:token (OTP qua đúng kênh) → tab Phụ lục: Đã ký + SHA-256; link cũ hết hiệu lực.
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { badPdf, pdf } from '../../../../fixtures/contracts/files/build-fixtures';
 import { isMobile } from '../support/mobile';
-import { onboarded, otpOf, spoofIp } from './support';
+import { mailMatch, onboarded, otpOf, spoofIp } from './support';
 
 async function scribble(page: Page, pad: Locator) {
   await pad.scrollIntoViewIfNeeded();
@@ -29,9 +31,9 @@ const TEXT = 'Ben B: Chi Mai - Gia tri hop dong: 9.500.000 dong - Thoi han: tu 0
 test.describe('hợp đồng từ tệp (http)', () => {
   test.beforeEach(({ page }) => spoofIp(page));
 
-  test('tải PDF → đề xuất → Nháp nguồn tệp → duyệt & ký → gửi ký → khách ký → tab Tệp có bản gốc + đã ký', async ({ page, browser }) => {
+  test('tải PDF → đề xuất → Nháp nguồn tệp → duyệt & ký → gửi ký → khách ký → tab Tệp có bản gốc + đã ký → phụ lục PL-1 ký riêng', async ({ page, browser }) => {
     test.skip(isMobile(page), 'luồng desktop');
-    test.setTimeout(180_000);
+    test.setTimeout(300_000);
     const owner = await onboarded(page, 'ctfiles');
 
     await page.goto('/settings/channels');
@@ -122,6 +124,62 @@ test.describe('hợp đồng từ tệp (http)', () => {
     expect((await res).status()).toBe(200);
     expect((await res).headers()['content-type']).toBe('application/pdf');
     await dl;
+
+    // F3 — phụ lục của hợp đồng đã ký: luồng ký riêng (OTP Owner riêng, link khách riêng).
+    await d.getByRole('tab', { name: 'Phụ lục' }).click();
+    const tab = d.getByTestId('ct-appendices');
+    await tab.getByTestId('ct-apx-new').click();
+    const af = page.getByTestId('ct-apx-form');
+    await af.getByTestId('ct-apx-title').fill('Bổ sung 2 buổi');
+    await af.getByTestId('ct-apx-content').fill('Bổ sung 2 buổi chăm sóc da trong thời hạn hợp đồng.');
+    await af.getByTestId('ct-apx-delta').fill('1000000');
+    await af.getByTestId('ct-apx-save').click();
+    await expect(af).toHaveCount(0);
+    const item = tab.locator('[data-appendix="HĐ-1001/PL-1"]');
+    await expect(item.getByTestId('ct-apx-status')).toHaveText('Nháp');
+    await item.getByTestId('ct-apx-submit').click();
+    await expect(item.getByTestId('ct-apx-status')).toHaveText('Chờ duyệt');
+    await item.getByTestId('ct-apx-approve-open').click();
+    const ab = page.getByTestId('ct-apx-approve');
+    await ab.getByTestId('ct-apx-send-otp').click();
+    await expect(ab).toContainText('Đã gửi mã tới');
+    await ab.getByTestId('ct-apx-otp').fill(await mailMatch(owner, /phụ lục HĐ-1001\/PL-1[^\n]*?(\d{6})(?![\s\S]*phụ lục HĐ-1001\/PL-1)/));
+    await scribble(page, ab.getByTestId('ct-apx-sig'));
+    await ab.getByTestId('ct-apx-approve-ok').click();
+    await expect(ab).toHaveCount(0, { timeout: 60_000 });
+    await expect(item.getByTestId('ct-apx-status')).toHaveText('Chờ khách ký');
+    await item.getByTestId('ct-apx-send-email').click();
+    await expect(item.getByTestId('ct-apx-link')).toContainText('/sign/appendix/', { timeout: 30_000 });
+    const apxLink = (await item.getByTestId('ct-apx-link').innerText()).match(/\/sign\/appendix\/\S+/)![0];
+
+    const guest2 = await browser.newContext();
+    const g2 = await guest2.newPage();
+    await g2.goto(apxLink);
+    const sp = g2.getByTestId('apx-sign-page');
+    await expect(sp).toContainText('HĐ-1001/PL-1');
+    await expect(sp.getByTestId('apx-sign-content')).toContainText('Bổ sung 2 buổi');
+    await sp.getByTestId('sign-consent').check();
+    await sp.getByTestId('sign-get-otp').click();
+    await expect(g2.getByText(/Mã OTP đã gửi/)).toBeVisible();
+    const apxOtp = (await (await lastOut(page, 'Chị Mai')).innerText()).match(/phụ lục HĐ-1001\/PL-1: (\d{6})/)![1]!;
+    await sp.getByTestId('sign-otp').fill(apxOtp);
+    await scribble(g2, sp.getByTestId('sign-pad'));
+    await sp.getByTestId('sign-submit').click();
+    await expect(sp.getByTestId('apx-sign-cert')).toContainText('Đã ký phụ lục HĐ-1001/PL-1', { timeout: 60_000 });
+    await expect(sp.getByTestId('apx-sign-sha')).toHaveText(/^[0-9a-f]{64}$/);
+    // Link một lần: mở lại sau khi ký vẫn chỉ hiện chứng nhận / hết hiệu lực — không ký lại được.
+    await g2.reload();
+    await expect(g2.getByTestId('sign-submit')).toHaveCount(0);
+    await guest2.close();
+
+    await page.goto('/contracts');
+    await page.locator('[data-contract]').filter({ hasText: 'HĐ-1001' }).first().click();
+    await page.getByTestId('ct-drawer').getByRole('tab', { name: 'Phụ lục' }).click();
+    const done = page.getByTestId('ct-appendices').locator('[data-appendix="HĐ-1001/PL-1"]');
+    await expect(done.getByTestId('ct-apx-status')).toHaveText('Đã ký');
+    await expect(done).toContainText('SHA-256');
+    // Hợp đồng gốc giữ nguyên trạng thái Đã ký.
+    await expect(page.getByTestId('ct-drawer').getByTestId('ct-status')).toHaveText('Đã ký');
   });
 
   test('AI soạn (model giả): đề xuất giá danh mục → nháp → gợi ý chặn trình duyệt → Giữ / Bỏ → Chờ duyệt', async ({ page }) => {

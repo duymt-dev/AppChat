@@ -32,6 +32,9 @@ import { ContractResolveSuggestionHandler } from './actions/contract-suggestion.
 import { ContractDeps, contractEnvFor } from './services/contract-deps';
 import { ContractsReadService } from './services/contracts-read.service';
 import { PublicSignService } from './services/public-sign.service';
+import { APPENDIX_HANDLERS, APPENDIX_SERVICES } from './appendix/appendix.module';
+import { AppendixPublicService } from './appendix/public.service';
+import { AppendixReadService } from './appendix/read.service';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ChannelSendQueue) => ({ token, optional: true });
 
@@ -43,6 +46,8 @@ const HANDLERS = [
   ContractInspectFileHandler, ContractAttachFileHandler, ContractFromAttachmentHandler,
   // AI soạn hai bước (TIP-030b F2) — AiRunner từ AiModule (gateway + meter).
   ContractPrepareDraftHandler, ContractDraftFromContentHandler, ContractResolveSuggestionHandler,
+  // Phụ lục ký riêng (TIP-030b F3) — appendix/.
+  ...APPENDIX_HANDLERS,
 ];
 
 @Module({
@@ -81,7 +86,8 @@ const HANDLERS = [
       inject: [ContractDeps, opt(ChannelSendQueue), CLOCK],
       useFactory: (d: ContractDeps, q: ChannelSendQueue | null | undefined, c: Clock) => (d.tenants && d.platform ? new PublicSignService(d, q ?? null, () => c.now()) : null),
     },
+    ...APPENDIX_SERVICES,
   ],
-  exports: [ContractsReadService, PublicSignService, ContractDeps],
+  exports: [ContractsReadService, PublicSignService, ContractDeps, AppendixReadService, AppendixPublicService],
 })
 export class ContractsModule {}

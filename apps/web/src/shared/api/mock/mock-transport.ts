@@ -12,7 +12,7 @@ import { productsParamRoute } from './domains/products';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { contractFileBlob, contractFilesParamRoute, contractPdf, contractsParamRoute, mockUploads } from './domains/contracts';
-import { contractsPosts } from './domains/contracts-actions';
+import { appendixMock, contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
 import { contactPackagesParamRoute } from './domains/invoices-actions';
@@ -67,6 +67,7 @@ export const mockTransport: Transport = {
       quotesPublicRoute(path) ??
       contractsParamRoute(path) ??
       contractFilesParamRoute(path) ??
+      appendixMock.route(path) ??
       ordersParamRoute(path) ??
       invoicesParamRoute(path) ??
       contactPackagesParamRoute(path) ??
@@ -87,7 +88,7 @@ export const mockTransport: Transport = {
   },
 
   async post(path, body) {
-    const handler = mockPosts[path] ?? assistantPosts[path] ?? assistantUiPosts[path] ?? signParamPost(path) ?? contractsPosts(path);
+    const handler = mockPosts[path] ?? assistantPosts[path] ?? assistantUiPosts[path] ?? signParamPost(path) ?? contractsPosts(path) ?? appendixMock.post(path);
     if (!handler) return fail(404, 'NOT_FOUND', `mock post ${path}`);
     let out: unknown;
     const signEvent = path.match(/^\/public\/sign\/[^/]+\/(sign|decline)$/)?.[1];

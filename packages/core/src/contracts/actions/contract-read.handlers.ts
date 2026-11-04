@@ -40,6 +40,8 @@ export class ContractGetHandler implements Handler<ActionInput<typeof contractGe
   async execute(ctx: ActionContext, i: ActionInput<typeof contractGet>, tx: TenantTx): Promise<HandlerOutcome<unknown>> {
     const c = await visibleContract(tx, ctx.authz, i.contract_id);
     const names = await contactsOf(tx, [c.contactId]);
+    // Phụ lục (TIP-030b F3) — đường tra id cho contract.appendix_* (cùng scope hợp đồng cha).
+    const appendices = await tx.contractAppendix.findMany({ where: { contractId: c.id }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 50, select: { id: true, code: true, title: true, status: true, version: true } });
     return {
       result: {
         ...hit(c, names.get(c.contactId)?.name ?? ''),
@@ -48,6 +50,7 @@ export class ContractGetHandler implements Handler<ActionInput<typeof contractGe
         signed_by_business_at: iso(c.signedByBusinessAt),
         signed_by_customer_at: iso(c.signedByCustomerAt),
         sent_at: iso(c.sentAt),
+        appendices,
       },
     };
   }

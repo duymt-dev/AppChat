@@ -1,6 +1,7 @@
 // TIP-030b F1 — E2E mock: hợp đồng từ tệp. Form "Tạo hợp đồng": chọn tệp ở ô "File hợp đồng" → kiểm tệp → bảng đề xuất (Dùng từng ô)
 // → tạo Nháp nguồn tệp → tab Tệp thấy "Bản gốc". Tệp không an toàn → lý do + Thử lại / quay về mẫu. Tab Tệp của nháp: gắn tệp nguồn.
-import { expect, test } from '@playwright/test';
+// F3 phụ lục: hợp đồng đã ký → tab Phụ lục → PL-n → trình duyệt → Owner ký (OTP riêng) → gửi link; trang ký phụ lục công khai.
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { pdf } from '../../../fixtures/contracts/files/build-fixtures';
 import { isMobile } from './support/mobile';
 
@@ -102,5 +103,80 @@ test.describe('AI soạn hợp đồng (mock)', () => {
     await expect(sug.getByTestId('ct-sug-state-s2')).toHaveText('Đã bỏ');
     await drawer.getByTestId('ct-submit').click();
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
+  });
+});
+
+async function scribble(page: Page, pad: Locator) {
+  await pad.scrollIntoViewIfNeeded();
+  const b = (await pad.boundingBox())!;
+  await page.mouse.move(b.x + 20, b.y + 20);
+  await page.mouse.down();
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 });
+  await page.mouse.move(b.x + b.width - 20, b.y + 30, { steps: 8 });
+  await page.mouse.up();
+}
+
+async function openTab(page: Page, code: string) {
+  await page.goto(URL);
+  await page.locator('[data-contract]').filter({ hasText: code }).first().click();
+  const drawer = page.getByTestId('ct-drawer');
+  await drawer.getByRole('tab', { name: 'Phụ lục' }).click();
+  return drawer.getByTestId('ct-appendices');
+}
+
+test.describe('phụ lục hợp đồng — TIP-030b F3 (mock)', () => {
+  test('đã ký → tạo PL-2 → trình duyệt → Owner ký (OTP phụ lục) → gửi link khách', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    const tab = await openTab(page, 'HĐ-1180');
+    await expect(tab.getByTestId('ct-apx')).toHaveCount(1);
+    await tab.getByTestId('ct-apx-new').click();
+    const form = page.getByTestId('ct-apx-form');
+    await form.getByTestId('ct-apx-title').fill('Dời lịch buổi 3');
+    await form.getByTestId('ct-apx-content').fill('Buổi 3 dời sang thứ Bảy 12/12/2026.');
+    await form.getByTestId('ct-apx-delta').fill('-200000');
+    await form.getByTestId('ct-apx-save').click();
+    await expect(form).toHaveCount(0);
+
+    const item = tab.locator('[data-appendix="HĐ-1180/PL-2"]');
+    await expect(item.getByTestId('ct-apx-status')).toHaveText('Nháp');
+    await item.getByTestId('ct-apx-submit').click();
+    await expect(item.getByTestId('ct-apx-status')).toHaveText('Chờ duyệt');
+    await item.getByTestId('ct-apx-approve-open').click();
+    const box = page.getByTestId('ct-apx-approve');
+    await box.getByTestId('ct-apx-send-otp').click();
+    await expect(box).toContainText('Mã thử nghiệm: 975310');
+    await box.getByTestId('ct-apx-otp').fill('975310');
+    await scribble(page, box.getByTestId('ct-apx-sig'));
+    await box.getByTestId('ct-apx-approve-ok').click();
+    await expect(box).toHaveCount(0);
+    await expect(item.getByTestId('ct-apx-status')).toHaveText('Chờ khách ký');
+    await item.getByTestId('ct-apx-send').click();
+    await expect(item.getByTestId('ct-apx-link')).toContainText('/sign/appendix/');
+    await expect(item.getByTestId('ct-apx-trail')).toContainText('Gửi link');
+  });
+
+  // State mock nằm trong bộ nhớ trang — trang ký công khai dùng phụ lục mẫu HĐ-1180/PL-1 (như hợp đồng: tk_1181_demo).
+  test('trang ký phụ lục: nội dung + Bên A đã ký → OTP → ký → chứng nhận SHA-256; link giả → hết hiệu lực', async ({ page }) => {
+    await page.goto('/sign/appendix/apx_1180_demo');
+    const sign = page.getByTestId('apx-sign-page');
+    await expect(sign).toContainText('HĐ-1180/PL-1');
+    await expect(sign).toContainText('Bên A đã ký phụ lục');
+    await expect(sign.getByTestId('apx-sign-content')).toContainText('chăm sóc da');
+    await sign.getByTestId('sign-consent').check();
+    await sign.getByTestId('sign-get-otp').click();
+    await sign.getByTestId('sign-otp').fill('864200');
+    await scribble(page, sign.getByTestId('sign-pad'));
+    await sign.getByTestId('sign-submit').click();
+    await expect(sign.getByTestId('apx-sign-cert')).toContainText('Đã ký phụ lục HĐ-1180/PL-1');
+    await expect(sign.getByTestId('apx-sign-sha')).toHaveText(/^[0-9a-f]{64}$/);
+    await page.goto('/sign/appendix/apx_khong_ton_tai');
+    await expect(page.getByTestId('apx-sign-invalid')).toBeVisible();
+  });
+
+  test('hợp đồng chưa ký → tab Phụ lục không cho tạo', async ({ page }) => {
+    test.skip(isMobile(page), 'drawer desktop');
+    const tab = await openTab(page, 'HĐ-1182');
+    await expect(tab).toContainText('Chỉ tạo phụ lục cho hợp đồng đã ký.');
+    await expect(tab.getByTestId('ct-apx-new')).toHaveCount(0);
   });
 });

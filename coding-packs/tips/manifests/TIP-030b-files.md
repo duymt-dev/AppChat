@@ -195,3 +195,15 @@
 | C | `tools/ai-live/test/contract-judge.test.ts` | Amend (F2): test bộ chấm |
 | C | `coding-packs/reports/ai-live-contract-files-2026-11-03.md` | Amend (F2): báo cáo ai:live model thật 4/4 |
 | C | `coding-packs/reports/ai-live-contract-files-2026-11-03.json` | Amend (F2): dữ liệu báo cáo trên |
+| M | `apps/web/src/features/contracts/components/SignForm.tsx` | Amend (F3): `SignForm<V>` generic + `api` / `devOtp` tuỳ chọn — dùng chung cho trang ký phụ lục (một khối ký, không nhân bản) |
+| M | `apps/web/src/features/contracts/index.ts` | Amend (F3): xuất `AppendixSignScreen` cho route `(public)/sign/appendix/[token]` |
+| M | `packages/actions/src/reads/contracts.ts` | Amend (F3): `contract.get` trả `appendices[]` (≤ 50: id, code, title, status, version) — đường tra phụ lục cho Trợ lý / coverage |
+| M | `packages/core/src/contracts/actions/contract-read.handlers.ts` | Amend (F3): handler `contract.get` đọc phụ lục |
+| M | `packages/shared/src/contracts/contract-state.ts` | Amend (F3): `APPENDIX_FLOW` dùng chung server ↔ mock |
+| C | `packages/db/prisma/tenant/migrations/20261102003022_contract_appendix_signing/migration.sql` | Amend (F3): cột phụ lục + 3 bảng ký phụ lục + CHECK / unique / index INCLUDE + trigger append-only |
+| C | `packages/core/src/contracts/appendix/access.ts` | Amend (F3): visible / lock / CAS trạng thái phụ lục (tách khỏi handler — trần dòng) |
+| C | `apps/api/test/integration/helpers/appendix-seed.ts` | Amend (F3): seed hợp đồng đã ký + phụ lục cho integration / matrix |
+| C | `apps/web/src/features/contracts/hooks/useAppendices.ts` | Amend (F3): danh sách + 7 action phụ lục (bên cạnh `useAppendixSign.ts` của trang công khai) |
+| C | `apps/web/src/features/contracts/styles/appendix.styles.ts` | Amend (F3): style tab / form / duyệt phụ lục (token) |
+| C | `apps/web/src/shared/api/mock/domains/contracts-appendix.ts` | Amend (F3): mock phụ lục + trang ký công khai (không import store / contracts — tránh vòng depcheck) |
+| C | `apps/web/src/shared/api/mock/contracts-appendix-shape.test.ts` | Amend (F3): shape mock ↔ schema chung + luồng APPENDIX_FLOW |

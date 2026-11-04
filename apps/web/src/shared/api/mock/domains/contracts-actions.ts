@@ -9,6 +9,7 @@ import { ME } from './customers';
 import { MOCK_NOW, enrich as enrichQuote } from './quotes';
 import { bad, deny, fileSource, findContract, logEvent, mockGuard, visible, type Contract } from './contracts';
 import { assertResolved, contractDraftHandlers } from './contracts-draft';
+import { contractAppendixMock } from './contracts-appendix';
 
 const DAY = 86_400_000;
 /** OTP "Duyệt & ký" của mock (server gửi email tới người ký). */
@@ -124,7 +125,11 @@ export function attachmentOf(db: MockDb, messageId: string, idx: number) {
   throw new ApiRequestError(404, { code: 'NOT_FOUND', message: messageId });
 }
 
+/** Phụ lục (TIP-030b F3) — contracts-appendix.ts: GET /contracts/:id/appendices · /public/appendix-sign/:token/*. */
+export const appendixMock = contractAppendixMock<MockDb, Contract>({ find: findContract, visible, isOwner: (db) => db.role === 'owner' });
+
 export const contractsHandlers: Record<string, MockHandler> = {
+  ...appendixMock.handlers,
   // AI soạn hai bước (TIP-030b F2) — contracts-draft.ts.
   ...contractDraftHandlers({ insert, findContract, visible }),
   // Hợp đồng từ tệp (TIP-030b): inspect (đề xuất cố định — server đọc chữ thật), attach (chỉ nháp, CAS source_version), tạo từ tệp đính kèm.

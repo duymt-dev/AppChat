@@ -13,8 +13,11 @@ export const FIND_LIMIT = 8;
 /** Action Trợ lý không bao giờ gọi: quản trị nền tảng, chuyển workspace, quyết định duyệt thay người, xác nhận chuyển khoản gói. */
 const HIDDEN = /^(admin\.|workspace\.switch$|approval\.|billing\.)/;
 
-/** Callback chỉ nguồn system (worker) — không ai gọi bằng lời / UI nên không cần preview hay đường tra id. */
-export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume']);
+/**
+ * Callback chỉ nguồn system (worker) — không ai gọi bằng lời / UI nên không cần preview hay đường tra id. Trang ký công khai phụ lục
+ * (TIP-030b F3): chỉ bộ chuyển token gọi với capability niêm phong — ẩn khỏi mọi khám phá; handler vẫn từ chối khi thiếu capability.
+ */
+export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline']);
 
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 
