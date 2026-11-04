@@ -952,6 +952,19 @@
         "desc": "Delete an empty folder (no documents incl. trash, no sub-folders)."
       }
     },
+    "suggestion": {
+      "propose": {
+        "title": "Store knowledge suggestions from a conversation"
+      },
+      "approve": {
+        "title": "Approve knowledge suggestion",
+        "desc": "Add the question–answer pair (edited if needed) to the knowledge base for AI to learn."
+      },
+      "reject": {
+        "title": "Reject knowledge suggestion",
+        "desc": "Drop the question–answer pair; nothing is added to the knowledge base."
+      }
+    },
     "source_search": {
       "title": "Find knowledge sources",
       "desc": "Look up knowledge-base sources by name or tag."

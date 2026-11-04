@@ -952,6 +952,19 @@
         "desc": "Xoá thư mục rỗng (không còn tài liệu, kể cả thùng rác, và không có thư mục con)."
       }
     },
+    "suggestion": {
+      "propose": {
+        "title": "Ghi đề xuất tri thức từ hội thoại"
+      },
+      "approve": {
+        "title": "Duyệt đề xuất tri thức",
+        "desc": "Đưa cặp hỏi–đáp (đã sửa nếu cần) vào kho tri thức để AI học."
+      },
+      "reject": {
+        "title": "Từ chối đề xuất tri thức",
+        "desc": "Bỏ cặp hỏi–đáp, không đưa vào kho tri thức."
+      }
+    },
     "source_search": {
       "title": "Tìm tài liệu kho tri thức",
       "desc": "Tra nguồn trong kho tri thức theo tên hoặc thẻ."

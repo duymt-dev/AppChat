@@ -28,3 +28,4 @@ export * from './public-commerce-document';
 export * from './product-import';
 export * from './loyalty';
 export * from './kb-management';
+export * from './kb-suggestions';

@@ -32,6 +32,7 @@ import * as settings from './settings';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as kbFolders from './kb-folders';
+import * as kbSuggestions from './kb-suggestions';
 import * as documents from './documents';
 import * as platformAdmin from './platform-admin';
 import * as salesReads from './reads/sales';
@@ -83,6 +84,7 @@ export * from './settings';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './kb-folders';
+export * from './kb-suggestions';
 export * from './documents';
 export * from './platform-admin';
 export * from './reads/sales';
@@ -133,6 +135,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(kbFolders),
+  ...Object.values(kbSuggestions),
   ...Object.values(documents),
   ...Object.values(platformAdmin),
   // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).

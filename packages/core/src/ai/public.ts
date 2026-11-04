@@ -60,3 +60,5 @@ export { runTask, narrowScope, taskToolIds, taskPrompt, type TaskRunDeps } from 
 export { sweepDueTasks, sweepAllTasks, rebuildArmed, taskEventConsumer, enqueueTask, type ArmedSet } from './tasks/task-scheduler';
 export { collectTargets } from './tasks/task-targets';
 export { buildBriefing } from './tasks/task-briefing';
+export { listSuggestions, getSuggestion, type SuggestionStatus } from './kb/suggestions/suggestion.repo';
+export { KB_SUGGEST_ACTOR } from './kb/suggestions/suggestion.handlers';
