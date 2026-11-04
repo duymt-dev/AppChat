@@ -39,6 +39,9 @@ describe('sensitiveLeft', () => {
     expect(sensitiveLeft('Chị Lan đặt lịch', ctx)).toBe('name');
     expect(sensitiveLeft('giao tới 12 Lý Thường Kiệt, Hoàn Kiếm', ctx)).toBe('address');
     expect(sensitiveLeft('số [PII_1]')).toBe('masked_token');
+    expect(sensitiveLeft('mật khẩu wifi là 1234')).toBe('credential');
+    expect(sensitiveLeft('OTP: 5678')).toBe('credential');
+    expect(sensitiveLeft('Đặt mật khẩu ứng dụng theo hướng dẫn ở mục Cài đặt.')).toBeNull();
   });
 
   it('bản đã che không còn dấu vết', () => {

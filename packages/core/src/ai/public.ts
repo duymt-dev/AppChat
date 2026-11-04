@@ -62,3 +62,6 @@ export { collectTargets } from './tasks/task-targets';
 export { buildBriefing } from './tasks/task-briefing';
 export { listSuggestions, getSuggestion, type SuggestionStatus } from './kb/suggestions/suggestion.repo';
 export { KB_SUGGEST_ACTOR } from './kb/suggestions/suggestion.handlers';
+export { proposeFromConversation, parsePairs, type ProposeDeps, type ProposeOutcome } from './kb/suggestions/suggestion.service';
+export { kbSuggestConsumer, closedCutoff } from './kb/suggestions/suggestion.consumer';
+export { KbSuggestQueue, KB_SUGGEST_QUEUE } from './kb/suggestions/suggestion.jobs';

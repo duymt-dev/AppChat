@@ -27,6 +27,9 @@ const PRAISE = /(cảm ơn|cám ơn|thank|đúng rồi|chuẩn rồi|ok\b|oke|ok
 /** Dữ liệu thay đổi theo thời điểm / từng khách — AI tra bằng công cụ, không lưu cố định (rag §2). */
 const VOLATILE = /(còn hàng|hết hàng|tồn kho|in stock|out of stock|còn (?:lịch|chỗ|slot)|lịch trống|free slot|công nợ|còn nợ|receivable|mã đơn|order code)/iu;
 
+/** Câu mang lệnh điều khiển AI (prompt injection) — không bao giờ thành tri thức dùng chung. */
+const INJECTION = /(bỏ qua (mọi |các |tất cả )?(quy tắc|hướng dẫn|chỉ dẫn)|ignore (all |previous |the )?(rules|instructions)|hãy (duyệt|xuất bản|publish)|system prompt|bạn là (một )?AI)/iu;
+
 const norm = (s: string) => foldText(s).replace(/\s+/g, ' ').trim();
 
 /** Hash hội thoại + tin gốc + nội dung chuẩn hoá (không dấu, không phân biệt hoa thường) — event / job lặp không thêm cùng cặp. */
@@ -35,7 +38,7 @@ export function fingerprintOf(conversationId: string, p: ProposedPair): string {
   return createHash('sha256').update(`${conversationId}|${ids}|${norm(p.question)}|${norm(p.answer)}`).digest('hex');
 }
 
-export type Rejection = 'unknown_message' | 'no_customer_question' | 'no_valid_answer' | 'volatile' | 'sensitive' | 'empty' | 'too_long' | 'duplicate';
+export type Rejection = 'unknown_message' | 'no_customer_question' | 'no_valid_answer' | 'volatile' | 'sensitive' | 'injection' | 'empty' | 'too_long' | 'duplicate';
 
 /**
  * Kiểm một cặp model đề xuất trên tập tin đã gửi. Câu trả lời agent chỉ hợp lệ khi có tin KHÁCH đứng SAU nó trong tập id cặp, có lời
@@ -57,6 +60,7 @@ export function checkPair(p: ProposedPair, msgs: readonly InputMessage[], ctx: K
   const answer = redactForKnowledge(p.answer, ctx).trim();
   if (!question || !answer) return { ok: false, reason: 'empty' };
   if (question.length > KB_SUGGESTION_LIMITS.question || answer.length > KB_SUGGESTION_LIMITS.answer) return { ok: false, reason: 'too_long' };
+  if (INJECTION.test(question) || INJECTION.test(answer) || used.some((m) => INJECTION.test(m.body))) return { ok: false, reason: 'injection' };
   if (hasPrice(answer) || VOLATILE.test(answer) || VOLATILE.test(question)) return { ok: false, reason: 'volatile' };
   if (sensitiveLeft(question, ctx) || sensitiveLeft(answer, ctx)) return { ok: false, reason: 'sensitive' };
   return { ok: true, pair: { question, answer, source_message_ids: ids } };

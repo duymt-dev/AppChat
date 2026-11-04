@@ -3,6 +3,7 @@
 // `AI_ENGINE=mock` (cấm production) cài `mockModelSource` làm nguồn model cho mọi mức AI.
 import { MockLanguageModelV4, convertArrayToReadableStream } from 'ai/test';
 import type { ModelCandidate, ModelSource } from '../gateway/types';
+import { mockKbSuggestion } from './mock-kb-suggestion';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -231,6 +232,8 @@ export const echoScript: MockScript = (ctx) => {
   }
   // Soạn nháp hợp đồng (TIP-030b F2): JSON ý định từ dòng "- tên xN" + ngày dd/mm/yyyy của YÊU CẦU; dòng "ĐIỀU KHOẢN: …" → gợi ý.
   if (/^# (SOẠN NHÁP HỢP ĐỒNG|CONTRACT DRAFT)/.test(system)) return { text: JSON.stringify(mockContractDraft(lastUser)) };
+  // Đề xuất tri thức từ hội thoại (TIP-043): cặp KHÁCH hỏi (có "?") + câu kế tiếp của nhân viên / agent.
+  if (/^# (ĐỀ XUẤT TRI THỨC TỪ HỘI THOẠI|KNOWLEDGE SUGGESTIONS FROM A CONVERSATION)/.test(system)) return { text: mockKbSuggestion(lastUser) };
   // Tóm tắt Hồ sơ khách (TIP-015b): 3–5 dòng gạch đầu của khối DỮ LIỆU nguyên văn — test kiểm tóm tắt chỉ chứa dữ liệu người xem được thấy.
   if (/^# (TÓM TẮT HỒ SƠ KHÁCH|CUSTOMER PROFILE SUMMARY)/.test(system)) {
     const bullets = lastUser.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2)).slice(0, 5);

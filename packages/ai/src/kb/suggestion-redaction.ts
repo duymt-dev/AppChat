@@ -54,13 +54,16 @@ export function redactForKnowledge(text: string, ctx: KnowledgeContext = {}): st
 }
 
 const LONG_DIGITS = /(?<!\d)\d(?:[\s.-]?\d){8,}(?!\d)/u;
+/** Mật khẩu / OTP / mã PIN kèm giá trị ("mật khẩu wifi là 1234", "OTP: 5678") — không bao giờ vào kho. */
+const CREDENTIAL = /(?<![\p{L}\p{N}])(mật\s*khẩu|mat\s*khau|password|passcode|otp|mã\s*pin|ma\s*pin|pin)(?![\p{L}\p{N}])[^\n]{0,30}?\d{3,}/iu;
 
-/** Còn dấu vết dữ liệu riêng sau khi che (số ≥ 9 chữ số, email, @handle, mã [PII_n]) → không đưa vào kho. */
+/** Còn dấu vết dữ liệu riêng sau khi che (số ≥ 9 chữ số, email, @handle, mật khẩu / OTP / PIN, mã [PII_n]) → không đưa vào kho. */
 export function sensitiveLeft(text: string, ctx: KnowledgeContext = {}): string | null {
   if (/\[PII_\d+\]/.test(text)) return 'masked_token';
   if (new RegExp(EMAIL.source, 'u').test(text)) return 'email';
   if (new RegExp(PHONE.source, 'u').test(text)) return 'phone';
   if (LONG_DIGITS.test(text)) return 'long_number';
+  if (CREDENTIAL.test(text)) return 'credential';
   if (/(?<![\p{L}\p{N}])@[\p{L}\p{N}_.]{3,}/u.test(text)) return 'handle';
   const names = wordPattern((ctx.names ?? []).flatMap((n) => nameVariants(n)));
   if (names && new RegExp(names.source, 'iu').test(text)) return 'name';

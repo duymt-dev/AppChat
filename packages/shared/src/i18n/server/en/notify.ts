@@ -37,7 +37,7 @@ export const notify: Shape<typeof vi> = {
     sla_warn: { title: '{count} tickets are about to breach SLA', label: 'SLA about to be breached' },
     sla_breach: { title: 'Ticket {code} breached its SLA: {title}', label: 'Ticket breached SLA (escalation)' },
     ticket_assigned: { title: 'Ticket {code} was assigned to you: {title}', label: 'Ticket assigned to me' },
-    ai_review: { title: '{agent} needs your approval before sending', label: 'AI needs approval before sending' },
+    ai_review: { title: '{agent} needs your approval before sending', label: 'AI needs approval before sending', kb: 'AI suggested {count} new Q&A pair(s) to review before they enter the knowledge base' },
     ai_escalate: { title: '{agent} handed the conversation with {contact} to a human', label: 'AI handed off to a human' },
     ai_budget: { title: 'AI has used {percent}% of the credit budget', label: 'AI over budget' },
     ai_briefing: { title: 'Morning briefing: {summary}', label: 'AI Assistant morning briefing' },

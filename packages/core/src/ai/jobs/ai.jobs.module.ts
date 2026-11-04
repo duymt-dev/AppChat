@@ -1,6 +1,6 @@
 // BullMQ processor của domain `ai` (worker ROLE=ai). TIP-020: `kb-ingest` (nạp tài liệu kho tri thức). TIP-021: `ai-resume` (chạy
 // action đã duyệt + chạy tiếp run, hết hạn duyệt) — cần handler của mọi domain mà agent gọi được → nạp module domain có action
-// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-023c: `assistant-turn` (lượt Trợ lý) + prune / recover. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP 043 thêm processor. Thiếu DB / Redis → không chạy.
+// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-023c: `assistant-turn` (lượt Trợ lý) + prune / recover. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP-043: `kb-suggest` (đề xuất tri thức từ hội thoại đã đóng). Thiếu DB / Redis → không chạy.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -40,6 +40,7 @@ import { WalletService } from '../../billing/public';
 import { TaskPlace } from '../tasks/task-place';
 import { TASK_QUEUE, type TaskQueue } from '../tasks/task.queue';
 import { startTaskWorkers, type TaskWorkers } from '../tasks/task.jobs';
+import { startKbSuggestWorker } from '../kb/suggestions/suggestion.jobs';
 
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private kb?: Worker<KbIngestJob>;
@@ -48,6 +49,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private tasks?: TaskWorkers;
   private events?: { close(): Promise<void> };
   private turns?: Worker<TurnJob>;
+  private suggest?: { close(): Promise<void> };
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -103,6 +105,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
         // TIP-023c: lượt Trợ lý đã claim ở API → chạy ở đây (lease có fence, quyền hiện hành của người ra lệnh).
         this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis }, this.log);
       }
+      // TIP-043: đề xuất hỏi–đáp từ hội thoại đã đóng (model qua AiRunner, ghi qua Executor nguồn system).
+      this.suggest = startKbSuggestWorker(redis, tenants, { executor: this.executor, runner: this.runner, now: () => this.clock.now(), locale: async (ws) => (await this.place.of(ws)).locale }, this.log);
       // TIP-035: tác vụ tự chủ — chạy lượt (quyền = agent ∩ người tạo hiện tại) + lịch mỗi phút.
       if (this.taskQueue) {
         const place = this.place;
@@ -120,6 +124,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     await this.tasks?.close();
     await this.events?.close();
     await this.turns?.close();
+    await this.suggest?.close();
   }
 }
 
