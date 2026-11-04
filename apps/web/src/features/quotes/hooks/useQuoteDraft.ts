@@ -1,7 +1,7 @@
 // State form soạn báo giá: dòng hàng (catalog hoặc ngoài danh mục), chiết khấu dòng / tổng, tổng tiền + lý do cần duyệt (COMMERCE §3).
 'use client';
 import { useMemo, useState } from 'react';
-import { approvalReasons, quoteTotals, QUOTE_VALID_DAYS, type Discount } from '@appchat/shared';
+import { approvalReasons, quoteTotals, QUOTE_VALID_DAYS, type ApprovalPolicy, type Discount } from '@appchat/shared';
 import type { QuoteItem } from '../types';
 
 export interface QuoteDraft {
@@ -31,13 +31,13 @@ export function initialQuoteDraft(prefill?: Record<string, unknown> | null): Quo
   };
 }
 
-export function useQuoteDraft(init: QuoteDraft) {
+export function useQuoteDraft(init: QuoteDraft, policy?: ApprovalPolicy) {
   const [d, setD] = useState(init);
   const set = <K extends keyof QuoteDraft>(k: K, v: QuoteDraft[K]) => setD((s) => ({ ...s, [k]: v }));
   const header: Discount | null = d.header_pct ? { kind: 'pct', value: d.header_pct } : null;
   const totals = useMemo(() => quoteTotals(d.items, header), [d.items, header?.value]); // eslint-disable-line react-hooks/exhaustive-deps
   const offCatalog = d.items.some((i) => !i.product_id);
-  const reasons = approvalReasons(totals, { offCatalog });
+  const reasons = approvalReasons(totals, { offCatalog, policy });
   const lines = {
     add: (item: QuoteItem) => setD((s) => ({ ...s, items: [...s.items, item] })),
     del: (i: number) => setD((s) => ({ ...s, items: s.items.filter((_, j) => j !== i) })),

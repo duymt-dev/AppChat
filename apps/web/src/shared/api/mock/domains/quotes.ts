@@ -2,11 +2,12 @@
 // (?quote_id=), /quotes/:id, /quotes/:id/versions, /public/quotes/:token. Dữ liệu = prototype L7802 (fixture sinh bởi
 // tools/scripts/fixtures/gen-quotes.py). Tổng tính bằng quoteTotals; shape = `quoteRowSchema` (packages/shared/src/api/quotes.ts).
 // Handler ghi ở quotes-actions.ts (cùng bảng QUOTE_FLOW với server).
-import { ApiRequestError, ROLE_DEFS, approvalReasons, quoteTotals, type Discount, type QuoteRow } from '@appchat/shared';
+import { ApiRequestError, ROLE_DEFS, approvalReasons, quoteTotals, type ApprovalPolicy, type Discount, type QuoteRow } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/quotes.json';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
+import { approvalPolicyOf } from './sales-policy';
 import { paginate } from '../paginate';
 
 type Fixed = (typeof fixture.quotes)[number];
@@ -73,7 +74,7 @@ export const validUntilOf = (from: string, days: number) => {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999) - 7 * 3_600_000).toISOString();
 };
 
-export const enrich = (q: Quote): QuoteRow => {
+export const enrich = (q: Quote, policy?: ApprovalPolicy): QuoteRow => {
   const totals = quoteTotals(q.items, q.header_discount);
   const { converted, valid_until_at, viewed_at: _v, deleted: _d, ...rest } = q;
   return {
@@ -81,7 +82,7 @@ export const enrich = (q: Quote): QuoteRow => {
     ...totals,
     converted: converted?.kind ?? null,
     valid_until: valid_until_at ?? validUntilOf(q.sent_at ?? MOCK_NOW, q.valid_days),
-    approval_reasons: approvalReasons(totals, { offCatalog: q.off_catalog }),
+    approval_reasons: approvalReasons(totals, { offCatalog: q.off_catalog, policy }),
   };
 };
 
@@ -105,7 +106,7 @@ export const quotesRoutes: Record<string, MockRoute> = {
         (!p.returning || p.returning === 'all' || String(q.returning) === String(p.returning === 'old')) &&
         (!s || [q.code, q.contact_name, q.items[0]?.name ?? ''].some((v) => v.toLowerCase().includes(s))),
     );
-    return paginate(rows.map(enrich), p);
+    return paginate(rows.map((x) => enrich(x, approvalPolicyOf(db))), p);
   },
   '/quotes/meta': (db) => {
     const all = db.quotes.quotes.filter((q) => visible(db, q));
@@ -134,11 +135,11 @@ export const quotesParamRoute = (path: string): MockRoute | undefined => {
   if (!m) return undefined;
   return (db) => {
     const q = find(db, m[1]!);
-    if (!m[2]) return enrich(q);
+    if (!m[2]) return enrich(q, approvalPolicyOf(db));
     // Các version cùng gốc (request_revision tạo n+1, bản cũ = superseded)
     return db.quotes.quotes
       .filter((x) => x.root_id === q.root_id && !x.deleted)
       .sort((a, b) => b.version - a.version)
-      .map(enrich);
+      .map((x) => enrich(x, approvalPolicyOf(db)));
   };
 };

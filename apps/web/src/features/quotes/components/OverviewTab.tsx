@@ -11,6 +11,7 @@ import { QuoteLines } from './QuoteLines';
 import { Comments, closeChance, CustType, Ring, avColor, initial } from './parts';
 import { useStamp } from '../columns';
 import type { Quote, QuotesMeta } from '../types';
+import { useApprovalPolicy } from '../hooks/useApprovalPolicy';
 import { CustomFieldList } from '@/shared/custom-fields';
 
 const STAGE_KEYS = ['accepted', 'approved', 'sent', 'viewed', 'rejected'];
@@ -18,7 +19,7 @@ const HINT_KEYS = ['sent', 'viewed', 'approved', 'accepted'];
 
 export function OverviewTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
   const t = useTranslations('quotes.detail');
-  const tf = useTranslations('quotes.form');
+  const ap = useApprovalPolicy();
   const { styles, cx } = useQuoteTabStyles();
   const d = useQuoteDetailStyles().styles;
   const stamp = useStamp();
@@ -106,7 +107,7 @@ export function OverviewTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
         <div className={styles.warn} data-testid="q-approval-banner">
           <Icon name="ic-shield" size={16} color={color.amberGold} />
           <div className={d.grow}>
-            {t('needApproval', { reasons: q.approval_reasons.map((r) => tf(`reasons.${r}`)).join(', ') })}
+            {t('needApproval', { reasons: q.approval_reasons.map(ap.label).join(', ') })}
           </div>
           {canCreate ? (
             <button

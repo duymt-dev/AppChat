@@ -35,7 +35,8 @@
     "notifications": "Notifications",
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
-    "profile": "My profile"
+    "profile": "My profile",
+    "sales_policy": "Sales policy"
   },
   "head": {
     "general": "Overview",
@@ -59,7 +60,8 @@
     "notifications": "Notifications",
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
-    "profile": "My profile"
+    "profile": "My profile",
+    "sales_policy": "Sales policy"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
@@ -1469,5 +1471,16 @@
       },
       "hint": "Warnings only — parties may agree otherwise; you can still save."
     }
+  },
+  "salesPolicy": {
+    "total": "Quote total requiring approval (VND)",
+    "pct": "Discount requiring approval (%)",
+    "required": "Enter an amount",
+    "pctHint": "Quotes with a larger discount must be approved before sending",
+    "pctInvalid": "Enter a whole number from 0 to 100",
+    "agentCap": "Quotes created or sent by AI: discounts over {pct}% always need approval (AI Governance).",
+    "ownerOnly": "Only the Owner can change approval thresholds.",
+    "reset": "Reset",
+    "save": "Save changes"
   }
 }

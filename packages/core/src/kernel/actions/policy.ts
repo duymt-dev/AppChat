@@ -1,5 +1,6 @@
-// Policy nguồn × rủi ro (Blueprint §3.3). Governance cứng (> 20M, giảm giá > 5%, hoàn tiền…) do handler domain
-// ném qua `policyOverride` của preview — ngoài phạm vi bảng này.
+// Policy nguồn × rủi ro (Blueprint §3.3). Governance cứng (FORCE_APPROVAL — COMMERCE / D05, TIP-032b): ngưỡng báo giá (> ngưỡng
+// workspace, giảm vượt trần agent) do handler domain chặn bằng QUOTE_NEEDS_APPROVAL; hợp đồng / hoàn tiền / gửi hàng loạt do agent / tác vụ
+// gọi LUÔN qua duyệt ở đây — "agent trực kênh trong hội thoại đang phục vụ" hay "tác vụ không hỏi trước khi gửi" không miễn được.
 import type { Risk } from '@appchat/actions';
 import type { ActionPolicyInput, ActionSource } from './action-context';
 
@@ -14,7 +15,18 @@ const TABLE: Record<ActionSource, Record<Risk, PolicyDecision>> = {
   task: { read: 'run', write: 'run', send: 'approval', money: 'approval', delete: 'approval', config: 'forbidden' },
 };
 
-export function decidePolicy({ source, risk, bulk, servedConversation, autoSend }: ActionPolicyInput): PolicyDecision {
+/** Action luôn duyệt khi agent / tác vụ gọi (FORCE_APPROVAL: contract · refund · bulk_send). */
+export const FORCE_APPROVAL_ACTIONS: ReadonlySet<string> = new Set([
+  'contract.send_for_signature',
+  'contract.appendix_send',
+  'payment.refund',
+  'payment.refund_approve',
+  'payment.refund_reject',
+  'campaign.approve',
+]);
+
+export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId }: ActionPolicyInput): PolicyDecision {
+  if ((source === 'agent' || source === 'task') && actionId && FORCE_APPROVAL_ACTIONS.has(actionId)) return TABLE[source][risk] === 'forbidden' ? 'forbidden' : 'approval';
   // Agent trực kênh trả lời trong hội thoại đang phục vụ: chạy (§3.3 dòng `agent`, cột send) — gửi nơi khác vẫn duyệt.
   if (source === 'agent' && risk === 'send' && servedConversation && !bulk) return 'run';
   // Tác vụ Cowork tắt "hỏi trước khi gửi": send chạy (§3.3 dòng `task`); delete / money luôn duyệt.

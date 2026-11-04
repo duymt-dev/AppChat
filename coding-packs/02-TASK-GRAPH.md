@@ -207,6 +207,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `tenant/sales-quotes.prisma` | 029 | `quote`, `quote_item` |
 | `tenant/contracts.prisma` | 030 | `contract`, `contract_appendix`, `contract_signer`, `contract_signature_event` |
 | `tenant/contract-appendix-signing.prisma` | 030b | `appendix_signer`, `appendix_sign_token`, `appendix_signature_event` |
+| `tenant/commerce-settings.prisma` | 032b | `commerce_settings` (singleton id=1, ngưỡng duyệt báo giá cấu hình được) |
 | `tenant/sales-orders.prisma` | 031 | `order`, `order_item` |
 | `tenant/sales-payments.prisma` | 032 | `invoice`, `customer_payment`, `customer_package`, `package_usage`, `tenant_bank_feed`, `payment_account` |
 | `tenant/booking.prisma` | 033 | `staff`, `business_hours`, `appointment`, … |

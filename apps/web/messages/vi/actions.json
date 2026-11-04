@@ -986,5 +986,11 @@
     "resume": {
       "title": "Tiếp tục lượt Trợ lý"
     }
+  },
+  "sales_settings": {
+    "update": {
+      "title": "Cập nhật chính sách bán hàng",
+      "desc": "Đổi ngưỡng duyệt báo giá của workspace (tổng tiền, % giảm giá) — chỉ Chủ sở hữu."
+    }
   }
 }

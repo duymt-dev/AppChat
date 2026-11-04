@@ -1,0 +1,16 @@
+// tenant/commerce-settings.prisma — sở hữu: TIP-032b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Chính sách bán hàng của workspace (COMMERCE §3 Q5 "cấu hình được"): ngưỡng duyệt báo giá. Một dòng (id = 1), có version cho CAS;
+// seed 20.000.000đ / 5% ở migration (không đổi luật — chỉ cho Owner chỉnh). Trần giảm giá agent đọc từ AI Governance, không ở đây.
+
+model CommerceSettings {
+  id                  Int      @id @default(1) @db.SmallInt
+  version             Int      @default(1)
+  /// Tổng báo giá > giá trị này → cần duyệt (VND, ≥ 0).
+  approvalTotalVnd    BigInt   @default(20000000) @map("approval_total_vnd")
+  /// Giảm giá trên tổng > % này → cần duyệt (0..100).
+  approvalDiscountPct Int      @default(5) @map("approval_discount_pct") @db.SmallInt
+  updatedBy           String?  @map("updated_by") @db.Uuid
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("commerce_settings")
+}

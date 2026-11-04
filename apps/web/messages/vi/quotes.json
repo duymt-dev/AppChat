@@ -121,8 +121,8 @@
     "required": "Chọn khách hàng và thêm ít nhất một dòng có đơn giá",
     "needApproval": "Báo giá vượt ngưỡng ({reasons}) — sau khi lưu cần gửi duyệt trước khi gửi khách.",
     "reasons": {
-      "total": "tổng > 20 triệu",
-      "discount": "giảm > 5%",
+      "total": "tổng > {total}",
+      "discount": "giảm > {pct}%",
       "off_catalog": "có hàng ngoài danh mục"
     }
   },

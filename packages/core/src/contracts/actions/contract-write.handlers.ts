@@ -10,6 +10,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { TenantContexts } from '@appchat/db';
 import { CrmMembers, actorUserId } from '../../crm/public';
+import { lockConversion } from '../../sales/public';
 import type { GuardedDocument } from '../../documents/public';
 import { lockContract } from '../contract-access';
 import { createPreview, deletePreview, fromQuotePreview, renewPreview, updatePreview } from './previews/contract-write.handlers.preview';
@@ -66,12 +67,11 @@ export class ContractFromQuoteHandler implements Handler<ActionInput<typeof cont
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractCreateFromQuote>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
-    const q = /^[0-9a-f-]{36}$/i.test(input.quote_id) ? await tx.quote.findUnique({ where: { id: input.quote_id } }) : null;
-    if (!q || q.deletedAt) throw new AppError('NOT_FOUND', 404, { quote_id: 'not_found' });
-    // COMMERCE §8: "→ Hợp đồng" chỉ cho báo giá đã chốt; mỗi báo giá một hợp đồng.
-    if (q.status !== 'accepted') throw new AppError('INVALID_TRANSITION', 409, { status: q.status });
-    const dup = await tx.contract.findFirst({ where: { quoteId: q.id, deletedAt: null }, select: { id: true, code: true } });
+    // COMMERCE §3 / §8: "→ Hợp đồng" chỉ cho báo giá đã chốt; một báo giá → một HĐ hoặc một đơn (TIP-032b conversion-lock: khoá báo giá,
+    // đã có đơn → QUOTE_ALREADY_CONVERTED; gọi lại → hợp đồng cũ).
+    const { quote: q, existing: dup } = await lockConversion(tx, ctx.authz, input.quote_id, 'contract');
     if (dup) return { result: { contract_id: dup.id, code: dup.code } };
+    if (q.status !== 'accepted') throw new AppError('INVALID_TRANSITION', 409, { status: q.status });
     const items = await tx.quoteItem.findMany({ where: { quoteId: q.id }, orderBy: { sort: 'asc' }, select: { name: true } });
     const c = await insertContract(
       ctx,

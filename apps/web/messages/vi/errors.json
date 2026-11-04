@@ -15,6 +15,7 @@
   "APPROVAL_REQUIRED": "Đã gửi yêu cầu duyệt",
   "INVALID_STATE": "Trạng thái hiện tại không cho phép thao tác này",
   "QUOTE_NEEDS_APPROVAL": "Báo giá vượt ngưỡng — cần duyệt trước khi gửi",
+  "QUOTE_ALREADY_CONVERTED": "Báo giá này đã được chuyển sang chứng từ khác — mỗi báo giá chỉ sinh một hợp đồng hoặc một đơn",
   "INTERNAL": "Lỗi hệ thống, thử lại sau",
   "OTP_INVALID": "Mã OTP không đúng",
   "SIGN_LINK_INVALID": "Link ký đã hết hạn hoặc không còn hiệu lực",

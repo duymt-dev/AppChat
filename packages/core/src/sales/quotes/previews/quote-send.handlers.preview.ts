@@ -14,7 +14,7 @@ const iso = (d: Date | null) => d?.toISOString() ?? null;
 export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof quoteSend>, now: Date, timeZone: string): Promise<ActionPreview> {
   const { q, to, contact } = await flowOf(tx, ctx, i.quote_id, 'quote.send');
   if (q.status === 'draft') {
-    const reasons = await reasonsOf(tx, q);
+    const reasons = await reasonsOf(tx, q, ctx);
     if (reasons.length) throw new AppError('QUOTE_NEEDS_APPROVAL', 409, Object.fromEntries(reasons.map((r) => [r, 'over_threshold'])));
   }
   const reach = await reachCustomer(tx, await tx.contact.findUniqueOrThrow({ where: { id: q.contactId }, select: { id: true, email: true } }), i.channel);

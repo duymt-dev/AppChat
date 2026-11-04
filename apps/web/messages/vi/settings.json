@@ -35,7 +35,8 @@
     "notifications": "Thông báo",
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
-    "profile": "Hồ sơ của tôi"
+    "profile": "Hồ sơ của tôi",
+    "sales_policy": "Chính sách bán hàng"
   },
   "head": {
     "general": "Tổng quan",
@@ -59,7 +60,8 @@
     "notifications": "Thông báo",
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
-    "profile": "Hồ sơ của tôi"
+    "profile": "Hồ sơ của tôi",
+    "sales_policy": "Chính sách bán hàng"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
@@ -1469,5 +1471,16 @@
       },
       "hint": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn lưu được mẫu."
     }
+  },
+  "salesPolicy": {
+    "total": "Ngưỡng tổng giá trị báo giá cần duyệt (VND)",
+    "pct": "Ngưỡng giảm giá cần duyệt (%)",
+    "required": "Nhập số tiền",
+    "pctHint": "Báo giá giảm vượt mức này phải được duyệt trước khi gửi",
+    "pctInvalid": "Nhập số nguyên từ 0 đến 100",
+    "agentCap": "Báo giá do AI tạo hoặc gửi: giảm quá {pct}% luôn phải duyệt (theo AI Governance).",
+    "ownerOnly": "Chỉ Chủ sở hữu được đổi ngưỡng duyệt.",
+    "reset": "Hoàn lại",
+    "save": "Lưu thay đổi"
   }
 }

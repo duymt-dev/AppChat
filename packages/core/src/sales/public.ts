@@ -7,6 +7,8 @@ export { sweepQuotes, quoteOwnerConsumer, QUOTE_SWEEP_JOB, SALES_SCHEDULER_QUEUE
 export { expireDue, remindExpiring, markViewed, moveOpenQuotes } from './quotes/services/quote-system';
 export { intentByRules, matchCatalog, parseIntent } from './quotes/services/quote-draft';
 export { visibleQuote } from './quotes/quote-access';
+export { lockConversion } from './quotes/services/conversion-lock';
+export { CommerceSettingsService } from './settings/settings.service';
 export { customerConversation, postToCustomer, reachCustomer, type QuoteChannel as CustomerChannel } from './quotes/services/quote-send';
 export { OrdersReadService, type OrderViewer } from './orders/services/orders-read.service';
 export type { OrderFilter } from './orders/repos/orders.repo';

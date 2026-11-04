@@ -15,6 +15,7 @@
   "APPROVAL_REQUIRED": "Sent for approval",
   "INVALID_STATE": "The current status does not allow this action",
   "QUOTE_NEEDS_APPROVAL": "This quote is over the threshold — get it approved before sending",
+  "QUOTE_ALREADY_CONVERTED": "This quote was already converted — a quote can become one contract or one order",
   "INTERNAL": "System error, try again later",
   "OTP_INVALID": "Incorrect OTP code",
   "SIGN_LINK_INVALID": "This signing link has expired or is no longer valid",

@@ -56,6 +56,7 @@ const BY_PREFIX: Record<string, string> = {
   package: '032',
   payment_account: '032',
   bank_feed: '032',
+  sales_settings: '032',
   appointment: '033',
   staff: '033',
   service: '033',

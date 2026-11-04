@@ -45,6 +45,9 @@ function Footer({ q }: { q: Quote }) {
     router.push(`/${kind}?from_quote=${q.id}`);
   };
   const canConvert = q.status === 'accepted' || can(q, 'quote.mark_accepted');
+  // Một báo giá → một HĐ HOẶC một đơn (TIP-032b): đã sinh loại này thì nút loại kia tắt (server trả QUOTE_ALREADY_CONVERTED).
+  const toContract = canConvert && q.converted !== 'order';
+  const toOrder = canConvert && q.converted !== 'contract';
   return (
     <div className={styles.foot}>
       <button
@@ -86,7 +89,7 @@ function Footer({ q }: { q: Quote }) {
       <button
         type="button"
         className={cx(styles.act, styles.actContract)}
-        disabled={!canConvert}
+        disabled={!toContract}
         onClick={() => void convert('contracts')}
         data-testid="q-to-contract"
       >
@@ -95,7 +98,7 @@ function Footer({ q }: { q: Quote }) {
       <button
         type="button"
         className={cx(styles.act, styles.actOrder)}
-        disabled={!canConvert}
+        disabled={!toOrder}
         onClick={() => void convert('orders')}
         data-testid="q-to-order"
       >

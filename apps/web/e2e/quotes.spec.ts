@@ -41,7 +41,7 @@ test.describe('quotes', () => {
     await page.goto(URL);
     await page.locator('[data-quote="q_2039"]').click();
     const drawer = page.getByTestId('q-drawer');
-    await expect(drawer.getByTestId('q-approval-banner')).toContainText('tổng > 20 triệu');
+    await expect(drawer.getByTestId('q-approval-banner')).toContainText('tổng > 20.000.000₫');
     await drawer.getByTestId('q-send-zalo').click();
     await expect(page.getByText('Báo giá vượt ngưỡng — cần duyệt trước khi gửi')).toBeVisible();
     await drawer.getByTestId('q-submit').click();

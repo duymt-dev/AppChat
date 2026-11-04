@@ -28,6 +28,7 @@ import { InvoiceGetHandler, InvoiceSearchHandler, PackageSearchHandler } from '.
 import { QuoteDeps } from './quotes/services/quote-deps';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
+import { SalesSettingsModule } from './settings/settings.module';
 import { OrderFromContractHandler, OrderFromQuoteHandler, OrderCreateHandler } from './orders/actions/order-create.handlers';
 import { OrderSetDepositHandler, OrderShippingHandler, OrderUpdateHandler } from './orders/actions/order-edit.handlers';
 import { OrderCancelHandler, OrderCompleteHandler, OrderConfirmHandler } from './orders/actions/order-flow.handlers';
@@ -64,7 +65,7 @@ const HANDLERS = [
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule],
   providers: [
     ...HANDLERS,
     {
@@ -104,6 +105,6 @@ const HANDLERS = [
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
+  exports: [SalesSettingsModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
 })
 export class SalesModule {}

@@ -7,7 +7,7 @@ import type { PermissionKey } from '@appchat/shared';
 export type SectionKey =
   | 'general' | 'locale' | 'members' | 'roles' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
   | 'contacts_fields' | 'tags' | 'replies' | 'profile_360' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
-  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile';
+  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy';
 
 export interface NavItem {
   key: SectionKey;
@@ -63,6 +63,8 @@ export const NAV: NavGroup[] = [
       { key: 'wallet', icon: 'ic-gift', badge: 'NEW', perm: 'billing.manage' },
       // Màn mới D30 — đặt cuối nav để không đẩy lệch các mục có trong prototype (prototype-parity §7).
       { key: 'doc_templates', icon: 'ic-doc', badge: 'NEW', perm: 'documents.manage' },
+      // Chính sách bán hàng (TIP-032b P1, COMMERCE §3 Q5) — màn mới, cuối nav như doc_templates; Owner sửa, quyền settings.manage xem.
+      { key: 'sales_policy', icon: 'ic-shield', badge: 'NEW', perm: 'settings.manage' },
     ],
   },
 ];

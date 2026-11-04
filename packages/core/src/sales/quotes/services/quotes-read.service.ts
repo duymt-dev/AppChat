@@ -12,6 +12,7 @@ import { readQuoteToken } from './quote-link';
 import { aiRuns, quoteInsights, quoteKpis } from './quote-insights';
 import { markViewed } from './quote-system';
 import { commentsByQuote, contactsOf, itemsByQuote, toQuoteRow, type ViewCtx } from './quote-view';
+import { agentDiscountCap, readApprovalPolicy } from '../../settings/policy';
 
 export interface QuoteViewer {
   workspaceId: string;
@@ -45,7 +46,9 @@ export class QuotesReadService {
     const contacts = await contactsOf(tx, rows.map((r) => r.contactId));
     const userIds = [...rows.map((r) => r.ownerUserId), ...[...comments.values()].flat().map((c) => c.authorId)];
     const names = await this.d.members.names(userIds);
-    const ctx: ViewCtx = { ...base, names };
+    // contract_quote_id_key (unique) — tra theo đúng các id của trang.
+    const contracted = new Set((await tx.contract.findMany({ where: { quoteId: { in: ids }, deletedAt: null }, select: { quoteId: true } })).map((c) => c.quoteId!));
+    const ctx: ViewCtx = { ...base, names, contracted, approval: { policy: await readApprovalPolicy(tx), agentMaxPct: await agentDiscountCap(tx) } };
     return rows.map((q) => toQuoteRow(q, { items: items.get(q.id) ?? [], contact: contacts.get(q.contactId), comments: comments.get(q.id) ?? [] }, ctx));
   }
 

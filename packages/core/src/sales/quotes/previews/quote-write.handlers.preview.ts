@@ -7,7 +7,8 @@ import type { ActionContext, TenantTx } from '../../../kernel/actions/action-con
 import { created, line, preview, removed, updated } from '../../../kernel/actions/preview-kit';
 import { actorUserId, editableContact, type CrmMembers } from '../../../crm/public';
 import { visibleQuote, type QuoteRecord } from '../quote-access';
-import { linesOf, type LineIn } from '../services/quote-write';
+import { creatorOf, linesOf, type LineIn } from '../services/quote-write';
+import { quotePolicy, type QuotePolicy } from '../../settings/policy';
 
 const money = (v: string | bigint) => createFmt({ locale: 'vi' }).money(String(v));
 
@@ -20,12 +21,12 @@ export async function flowOf(tx: TenantTx, ctx: ActionContext, id: string, actio
   return { q, to: assertTransition(QUOTE_FLOW, q.status, action), contact: (await tx.contact.findUnique({ where: { id: q.contactId }, select: { name: true } }))?.name ?? '' };
 }
 
-/** Cảnh báo ngưỡng duyệt — dòng ngoài danh mục chỉ tính với báo giá AI / agent tạo (§12). */
-export const approvalWarnings = (t: Totals, offCatalog: boolean) => approvalReasons(t, { offCatalog }).map((r) => `needs_approval:${r}`);
+/** Cảnh báo ngưỡng duyệt — ngưỡng workspace + trần agent theo người tạo (TIP-032b); dòng ngoài danh mục chỉ tính với báo giá AI / agent (§12). */
+export const approvalWarnings = (t: Totals, offCatalog: boolean, p: QuotePolicy) => approvalReasons(t, { offCatalog, ...p }).map((r) => `needs_approval:${r}`);
 
 /** Lý do cần duyệt của bản đang lưu (dòng + chiết khấu tổng). */
 export async function storedWarnings(tx: TenantTx, q: QuoteRecord) {
-  return approvalWarnings(quoteTotals(await linesOf(tx, q.id), q.headerDiscount as Discount | null), q.offCatalog);
+  return approvalWarnings(quoteTotals(await linesOf(tx, q.id), q.headerDiscount as Discount | null), q.offCatalog, await quotePolicy(tx, q.createdByType));
 }
 
 const offCatalogOf = (ctx: ActionContext, lines: LineIn[]) => ctx.actor.type === 'agent' || ctx.source === 'assistant' ? lines.some((l) => !l.product_id) : false;
@@ -35,7 +36,7 @@ export async function createPreview(ctx: ActionContext, tx: TenantTx, members: C
   const ownerId = i.owner_user_id ?? (ctx.actor.type === 'user' ? actorUserId(ctx) : null) ?? contact.ownerUserId ?? actorUserId(ctx);
   const owner = ownerId ? ((await members.names([ownerId])).get(ownerId) ?? ownerId) : null;
   const t = quoteTotals(i.items, i.header_discount ?? null);
-  const warnings = approvalWarnings(t, offCatalogOf(ctx, i.items));
+  const warnings = approvalWarnings(t, offCatalogOf(ctx, i.items), await quotePolicy(tx, creatorOf(ctx)));
   return preview('write', line(contact.name, money(t.total)), {
     changes: [created('quote', { contact: contact.name, owner, items: i.items.length, discount_total: t.discount_total, total: t.total, valid_days: i.valid_days ?? 15 })],
     ...(warnings.length ? { warnings } : {}),
@@ -60,7 +61,7 @@ export async function updatePreview(ctx: ActionContext, tx: TenantTx, members: C
     gift: p.gift?.trim(),
     payment_terms: p.payment_terms?.trim(),
   };
-  const warnings = approvalWarnings(t, p.items ? q.offCatalog && p.items.some((l) => !l.product_id) : q.offCatalog);
+  const warnings = approvalWarnings(t, p.items ? q.offCatalog && p.items.some((l) => !l.product_id) : q.offCatalog, await quotePolicy(tx, q.createdByType));
   return preview('write', label(q), { changes: updated('quote', q.id, cur, patch), ...(warnings.length ? { warnings } : {}) });
 }
 

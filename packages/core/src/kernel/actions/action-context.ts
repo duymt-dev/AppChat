@@ -51,6 +51,8 @@ export interface ActionPolicyInput {
   servedConversation?: boolean;
   /** Tác vụ không hỏi trước khi gửi (ActionContext.autoSend). */
   autoSend?: boolean;
+  /** Id action — FORCE_APPROVAL theo action (policy.ts). */
+  actionId?: string;
 }
 
 export const AUTHORIZER = Symbol('AUTHORIZER');

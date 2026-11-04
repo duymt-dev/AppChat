@@ -50,7 +50,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
     const q = await db.$transaction((tx) => visibleQuote(tx, ctx.authz, input.quote_id));
     assertTransition(QUOTE_FLOW, q.status, 'quote.send');
     if (q.status === 'draft') {
-      const reasons = await db.$transaction((tx) => reasonsOf(tx, q));
+      const reasons = await db.$transaction((tx) => reasonsOf(tx, q, ctx));
       if (reasons.length) throw new AppError('QUOTE_NEEDS_APPROVAL', 409, Object.fromEntries(reasons.map((r) => [r, 'over_threshold'])));
     }
     // Kênh nhận kiểm trước khi render (LibreOffice vài giây) — khách chưa nhắn Zalo / chưa có email thì báo ngay, không đóng băng PDF thừa.
@@ -77,7 +77,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
     const p = prepared as Prepared;
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.send');
-    if (q.status === 'draft' && (await reasonsOf(tx, q)).length) throw new AppError('QUOTE_NEEDS_APPROVAL', 409, { quote_id: 'over_threshold' });
+    if (q.status === 'draft' && (await reasonsOf(tx, q, ctx)).length) throw new AppError('QUOTE_NEEDS_APPROVAL', 409, { quote_id: 'over_threshold' });
     const now = this.clock.now();
     const contact = await tx.contact.findUniqueOrThrow({ where: { id: q.contactId }, select: { id: true, name: true, email: true, ownerUserId: true } });
     const target = await customerConversation(tx, contact, input.channel, `${q.code} · ${contact.name}`, now);

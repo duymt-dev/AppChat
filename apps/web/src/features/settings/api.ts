@@ -1,6 +1,7 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
+import type { SalesPolicyDto } from '@appchat/shared';
 import type {
   DocTemplate,
   BillInvoice,
@@ -131,3 +132,7 @@ export const docTemplatesQuery = (kind: string) =>
     queryKey: ['doc_templates', kind],
     queryFn: () => transport.get<{ data: DocTemplate[] }>('/doc-templates', kind === 'all' ? {} : { kind }),
   });
+
+/** Chính sách bán hàng — ngưỡng duyệt báo giá (TIP-032b P1, COMMERCE §3 Q5); invalidates `settings` khi Owner đổi. */
+export const salesPolicyQuery = () =>
+  queryOptions({ queryKey: ['settings', 'sales-policy'], queryFn: () => transport.get<SalesPolicyDto>('/settings/sales-policy') });

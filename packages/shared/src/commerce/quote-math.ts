@@ -59,16 +59,27 @@ export function quoteTotals(lines: LineInput[], header?: Discount | null): Total
   };
 }
 
-/** Lý do cần duyệt trước khi gửi (rỗng = gửi được ngay). */
+/** Ngưỡng duyệt của workspace (`commerce_settings` — COMMERCE §3 Q5 "cấu hình được"); thiếu thì dùng mặc định luật. */
+export interface ApprovalPolicy {
+  total_vnd: string;
+  discount_pct: number;
+}
+export const DEFAULT_APPROVAL_POLICY: ApprovalPolicy = { total_vnd: String(APPROVAL_TOTAL), discount_pct: APPROVAL_DISCOUNT_PCT };
+
+/**
+ * Lý do cần duyệt trước khi gửi (rỗng = gửi được ngay). `policy` = ngưỡng workspace; `agentMaxPct` = trần giảm giá AI Governance khi báo
+ * giá do agent / tác vụ tạo (COMMERCE Q5 — Owner thao tác trên UI không bị trần agent chặn). Giảm giá vượt mức nào thấp hơn thì duyệt.
+ */
 export function approvalReasons(
   t: Totals,
-  opts: { offCatalog?: boolean; agentMaxPct?: number } = {},
+  opts: { offCatalog?: boolean; agentMaxPct?: number; policy?: ApprovalPolicy } = {},
 ): ('total' | 'discount' | 'off_catalog')[] {
   const out: ('total' | 'discount' | 'off_catalog')[] = [];
+  const p = opts.policy ?? DEFAULT_APPROVAL_POLICY;
   const sub = n(t.subtotal);
-  if (n(t.total) > APPROVAL_TOTAL) out.push('total');
-  if (sub && (n(t.discount_total) / sub) * 100 > (opts.agentMaxPct ?? APPROVAL_DISCOUNT_PCT))
-    out.push('discount');
+  if (BigInt(n(t.total)) > BigInt(p.total_vnd)) out.push('total');
+  const cap = opts.agentMaxPct === undefined ? p.discount_pct : Math.min(p.discount_pct, opts.agentMaxPct);
+  if (sub && (n(t.discount_total) / sub) * 100 > cap) out.push('discount');
   if (opts.offCatalog) out.push('off_catalog');
   return out;
 }

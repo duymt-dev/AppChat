@@ -192,9 +192,12 @@ export const contractsHandlers: Record<string, MockHandler> = {
     execute: (db, i: { quote_id: string }) => {
       const q = db.quotes.quotes.find((x) => x.id === i.quote_id && !x.deleted);
       if (!q) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.quote_id });
-      if (q.status !== 'accepted') deny('INVALID_TRANSITION', q.status);
+      // Một báo giá → một HĐ HOẶC một đơn (TIP-032b): đã có đơn → QUOTE_ALREADY_CONVERTED; gọi lại → HĐ cũ.
+      const order = db.orders.orders.find((o) => o.quote_id === q.id && !o.deleted);
+      if (order) throw new ApiRequestError(409, { code: 'QUOTE_ALREADY_CONVERTED', message: q.code, fields: { quote_id: 'has_order', code: order.code } });
       const dup = db.contracts.contracts.find((x) => x.quote_id === q.id && !x.deleted);
       if (dup) return { contract_id: dup.id, code: dup.code };
+      if (q.status !== 'accepted') deny('INVALID_TRANSITION', q.status);
       const c = insert(
         db,
         { contact_id: q.contact_id, quote_id: q.id, owner_user_id: q.owner_user_id, title: q.items.map((x) => x.name).join(', '), value: enrichQuote(q).total },

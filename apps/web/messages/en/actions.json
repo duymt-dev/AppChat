@@ -986,5 +986,11 @@
     "resume": {
       "title": "Resume assistant turn"
     }
+  },
+  "sales_settings": {
+    "update": {
+      "title": "Update sales policy",
+      "desc": "Change the workspace quote approval thresholds (total, discount %) — Owner only."
+    }
   }
 }

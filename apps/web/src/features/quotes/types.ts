@@ -54,6 +54,8 @@ export interface Quote {
   total: string;
   lines: { gross: string; net: string }[];
   approval_reasons: ('total' | 'discount' | 'off_catalog')[];
+  /** Đã sinh chứng từ (TIP-032b — một báo giá → một HĐ hoặc một đơn). */
+  converted?: 'contract' | 'order' | null;
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
 }

@@ -8,6 +8,7 @@ import { created, line, preview } from '../../../kernel/actions/preview-kit';
 import { editableContact } from '../../../crm/public';
 import { intentByRules, matchCatalog } from '../services/quote-draft';
 import { approvalWarnings } from './quote-write.handlers.preview';
+import { quotePolicy } from '../../settings/policy';
 
 const clip = (s: string, n = 80) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
@@ -18,6 +19,6 @@ export async function draftPreview(ctx: ActionContext, tx: TenantTx, i: ActionIn
   const t = quoteTotals(m.items, m.discount);
   return preview('write', line(contact.name, clip(i.content.trim())), {
     changes: [created('quote', { contact: contact.name, status: 'draft', items: m.items.length, off_catalog: m.offCatalog, total: t.total })],
-    warnings: ['ai_estimate', ...approvalWarnings(t, m.offCatalog > 0)],
+    warnings: ['ai_estimate', ...approvalWarnings(t, m.offCatalog > 0, await quotePolicy(tx, 'assistant'))],
   });
 }

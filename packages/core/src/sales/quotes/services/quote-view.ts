@@ -1,7 +1,7 @@
 // Bản ghi báo giá → dòng API (`quoteRowSchema` — packages/shared/src/api/quotes.ts). Tiền là string VND; tổng tính lại bằng quoteTotals
 // từ dòng lưu (khớp FE). Hạn: đã gửi = `valid_until` lưu; chưa gửi = dự kiến nếu gửi hôm nay. Gợi ý cột AI là luật theo trạng thái /
 // hạn (không gọi LLM — chữ theo locale người xem).
-import { approvalReasons, daysLeft, dayEndAfter, quoteTotals, serverMessages, interpolate, type CustomValues, type Discount, type QuoteRow } from '@appchat/shared';
+import { approvalReasons, type ApprovalPolicy, daysLeft, dayEndAfter, quoteTotals, serverMessages, interpolate, type CustomValues, type Discount, type QuoteRow } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { LineIn } from './quote-write';
 import type { QuoteRecord } from '../quote-access';
@@ -11,6 +11,10 @@ export interface ViewCtx {
   timeZone: string;
   now: Date;
   names: Map<string, string>;
+  /** Ngưỡng duyệt workspace + trần agent (TIP-032b) — đọc một lần mỗi trang; thiếu → mặc định luật. */
+  approval?: { policy: ApprovalPolicy; agentMaxPct: number };
+  /** Báo giá đã sinh hợp đồng (chưa xoá) trong trang — `converted: 'contract'` (TIP-032b, một báo giá → một HĐ hoặc một đơn). */
+  contracted?: Set<string>;
 }
 
 type Contact = { id: string; name: string; phone: string | null; stage: string; lastOrderAt: Date | null };
@@ -82,7 +86,8 @@ export function toQuoteRow(
 ): QuoteRow {
   const header = (q.headerDiscount as Discount | null) ?? null;
   const t = quoteTotals(x.items, header);
-  const reasons = approvalReasons(t, { offCatalog: q.offCatalog });
+  const a = ctx.approval;
+  const reasons = approvalReasons(t, { offCatalog: q.offCatalog, ...(a ? { policy: a.policy, ...(q.createdByType === 'user' ? {} : { agentMaxPct: a.agentMaxPct }) } : {}) });
   const validUntil = q.validUntil ?? dayEndAfter(ctx.now, q.validDays, ctx.timeZone);
   return {
     id: q.id,
@@ -115,7 +120,7 @@ export function toQuoteRow(
     total: t.total,
     lines: t.lines,
     approval_reasons: reasons,
-    converted: q.orderId ? 'order' : null,
+    converted: q.orderId ? 'order' : ctx.contracted?.has(q.id) ? 'contract' : null,
     custom: (q.custom ?? {}) as CustomValues,
   };
 }
