@@ -41,6 +41,7 @@ export const notify = {
     ai_task_failed: { title: 'Tác vụ "{name}" chưa chạy xong: {reason}', label: 'Tác vụ tự chủ lỗi' },
     channel_down: { title: 'Kênh {channel} bị ngắt kết nối', label: 'Kênh bị ngắt kết nối' },
     billing_invoice: { title: 'Hoá đơn gói mới {code}', label: 'Gói & ví — hoá đơn mới' },
+    security_event: { title: 'Sự kiện bảo mật: {action} ({source}) — xem Cài đặt › Audit log', label: 'Sự kiện bảo mật (vai trò, thành viên, kênh, xuất dữ liệu, đăng nhập mới)' },
     owner_transfer: { title: 'Quyền Chủ sở hữu đã chuyển từ {from} sang {to}', label: 'Đổi Chủ sở hữu workspace' },
   },
   mail: {

@@ -1,5 +1,5 @@
 // Mock Cài đặt › AI (Blueprint §3.4 ai, §5; D29): GET /settings/ai (mức AI theo tác vụ, ngân sách), /settings/kb?nav&folder&q (kho tri thức),
-// /settings/governance, /settings/audit, /settings/ai-audit. Ghi qua ai_settings.update, kb.*, governance.update.
+// /settings/governance (audit: domains/audit.ts — TIP-045b). Ghi qua ai_settings.update, kb.*, governance.update.
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
@@ -52,8 +52,6 @@ export const settingsAiRoutes: Record<string, MockRoute> = {
     return { types, folders, nav: counts, learned_total, size, data: nav === 'trash' ? [] : docs };
   },
   '/settings/governance': (db) => db.settingsAi.gov,
-  '/settings/audit': () => fixture.audit,
-  '/settings/ai-audit': () => fixture.ai_audit,
 };
 
 const doc = (db: MockDb, id: string) => {

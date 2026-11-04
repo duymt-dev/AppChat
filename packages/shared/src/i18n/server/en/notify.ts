@@ -44,6 +44,7 @@ export const notify: Shape<typeof vi> = {
     ai_task_failed: { title: 'Task "{name}" did not finish: {reason}', label: 'Autonomous task failed' },
     channel_down: { title: 'Channel {channel} was disconnected', label: 'Channel disconnected' },
     billing_invoice: { title: 'New plan invoice {code}', label: 'Plan & wallet — new invoice' },
+    security_event: { title: 'Security event: {action} ({source}) — see Settings › Audit log', label: 'Security events (roles, members, channels, exports, new sign-ins)' },
     owner_transfer: { title: 'Ownership moved from {from} to {to}', label: 'Workspace ownership transfer' },
   },
   mail: {

@@ -7,6 +7,8 @@ import { redactDeep } from '../actions/executor-redact';
 import type { ActionContext, TenantTx } from '../actions/action-context';
 import type { ActionHandler } from '../actions/handler';
 import { writeOutbox } from '../outbox/outbox';
+import { isSecurityAction } from '../audit/audit-projection';
+import { securityEvents } from '../audit/audit.service';
 import type { OperationRow } from './operation-store';
 
 const json = (v: unknown) => (v === undefined ? undefined : (JSON.parse(JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x))) as object));
@@ -67,6 +69,7 @@ export async function applyTenantStage<O>(
         status: 'succeeded',
         undoUntil,
         traceId: op.traceId,
+        audit: isSecurityAction(op.actionId),
         createdAt: at,
       },
     });
@@ -74,7 +77,7 @@ export async function applyTenantStage<O>(
     const done = op.context.approvalId
       ? [{ topic: 'operation.completed', payload: { operation_id: op.id, action_id: op.actionId, approval_id: op.context.approvalId, run_id: op.context.runId ?? null } }]
       : [];
-    const events = await writeOutbox(tx, ctx.workspaceId, [...(stage.events ?? []), ...(applied.events ?? []), ...done], at, op.traceId ?? undefined);
+    const events = await writeOutbox(tx, ctx.workspaceId, [...(stage.events ?? []), ...(applied.events ?? []), ...done, ...securityEvents(op.actionId, op.actionLogId, op.context.actor, op.context.onBehalfOfUserId, op.context.source)], at, op.traceId ?? undefined);
     await tx.operationReceipt.create({ data: { operationId: op.id, actionLogId: op.actionLogId, createdAt: at } });
     await deps.recordApproval?.(tx, output);
     return { data: resultOf<O>(def, output, op.actionLogId, undoUntil), events };

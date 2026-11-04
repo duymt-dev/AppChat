@@ -22,6 +22,25 @@ export interface ClientInfo {
   ip?: string;
 }
 
+/** Định danh thiết bị có chặn: 16 hex đầu của sha256(user-agent) — không lưu dấu vân tay / IP thô vào audit. */
+export const deviceId = (userAgent: string | undefined) => sha256((userAgent ?? '').slice(0, 255)).slice(0, 16);
+
+/**
+ * Đăng nhập từ thiết bị chưa từng có phiên (TIP-045b annex A2, ops §4): ghi `platform_audit_log` `session.new_device` cho mỗi workspace
+ * user đang active (≤ 20) — Cài đặt › Audit log của workspace đó thấy. Lần đăng nhập đầu tiên của tài khoản không tính.
+ */
+async function recordNewDevice(db: PlatformDb, userId: string, userAgent: string | undefined, now: Date): Promise<void> {
+  const ua = userAgent?.slice(0, 255) ?? null;
+  const [seen, any] = await Promise.all([db.refreshToken.findFirst({ where: { userId, userAgent: ua }, select: { id: true } }), db.refreshToken.findFirst({ where: { userId }, select: { id: true } })]);
+  if (seen || !any) return;
+  const ws = await db.membership.findMany({ where: { userId, status: 'active' }, select: { workspaceId: true }, take: 20 });
+  if (!ws.length) return;
+  const device = deviceId(userAgent);
+  await db.platformAuditLog.createMany({
+    data: ws.map((m) => ({ id: uuidv7(now.getTime()), actorUserId: userId, actionId: 'session.new_device', workspaceId: m.workspaceId, input: { device }, createdAt: now })),
+  });
+}
+
 @Injectable()
 export class SessionsService {
   constructor(
@@ -34,6 +53,7 @@ export class SessionsService {
   async start(userId: string, remember: boolean, client: ClientInfo = {}): Promise<IssuedSession> {
     const now = this.clock.now();
     await this.db.user.update({ where: { id: userId }, data: { lastLoginAt: now } });
+    await recordNewDevice(this.db, userId, client.userAgent, now);
     return this.issue(userId, uuidv7(), now.getTime() + (remember ? REFRESH_TTL_MS.remember : REFRESH_TTL_MS.session), client);
   }
 

@@ -224,21 +224,8 @@ export interface Governance {
   total: number;
 }
 
-export interface AuditRow {
-  time: string;
-  name: string | null;
-  role: string;
-  action: string;
-  ip: string | null;
-}
-
-export interface AiAuditRow {
-  time: string;
-  actor: string;
-  action: string;
-  context: string;
-  status: 'ok' | 'warn' | 'escalated';
-}
+/** Dòng audit workspace / AI audit — shape dùng chung với API (packages/shared/src/api/audit.ts, TIP-045b A2). */
+export type { AuditRowDto as AuditRow, AiAuditRowDto as AiAuditRow, AuditStatus, AuditPage, AiAuditPage } from '@appchat/shared';
 
 export interface SlaDay {
   day: number;

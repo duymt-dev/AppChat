@@ -48,6 +48,8 @@ export const NOTIFY_KINDS = {
   billing_invoice: { group: 'system', icon: 'ic-doc', tone: 'info', defaults: ch(false, true, false) },
   // Bảo mật (TIP-045b): đổi Chủ sở hữu — báo cả Owner cũ lẫn mới.
   owner_transfer: { group: 'system', icon: 'ic-shield', tone: 'warn', defaults: ch(true, true, true) },
+  // Sự kiện bảo mật khác (đổi vai trò, mời / gỡ thành viên, kết nối / ngắt kênh, xuất dữ liệu, đăng nhập thiết bị mới) → Owner.
+  security_event: { group: 'system', icon: 'ic-shield', tone: 'warn', defaults: ch(true, true, false) },
 } as const satisfies Record<string, NotifyKindDef>;
 
 export type NotifyKind = keyof typeof NOTIFY_KINDS;

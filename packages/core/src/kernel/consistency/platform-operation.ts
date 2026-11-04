@@ -19,6 +19,7 @@ import { operationContextOf, readOnlyTenant, recoveryContext, settleReservation 
 import { actorKeyOf, OperationStore, type OperationRow } from './operation-store';
 import { dispatchEffects, recordEffects } from './platform-effects';
 import { applyTenantStage, type PlatformStageOutcome } from './tenant-receipt';
+import { writePlatformAudit } from '../audit/audit.service';
 
 export type PlatformOutcome<O> = { status: 200; data: ActionResult<O> } | { status: 202; data: Extract<ActionAccepted, { status: 'operation_pending' }> };
 
@@ -163,6 +164,8 @@ export class PlatformOperations {
         const r = await handler.execute(ctx, input, ro, ptx, prepared);
         const now = this.d.clock.now();
         await recordEffects(ptx, ctx.workspaceId, op.id, r.effects ?? [], this.d.encKey, now);
+        // admin.* + action nhạy cảm: audit nền tảng cùng commit (annex A2) — input đã chiếu an toàn, không mã / token.
+        await writePlatformAudit(ptx, { def, workspaceId: ctx.workspaceId, actorUserId: ctx.actor.type === 'user' ? ctx.actor.id : (ctx.onBehalfOfUserId ?? null), operationId: op.id, input, result: r.result, traceId: op.traceId, at: now });
         const plan: Stored = { ...(r.tenantPlan ? { tenant: r.tenantPlan } : {}), stage: { result: r.result, before: r.before, after: r.after, events: r.events } };
         afterCommit = r.afterCommit;
         await this.store.advance(ptx, op.id, 'prepared', 'platform_applied', now, { plan });

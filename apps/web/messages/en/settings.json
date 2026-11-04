@@ -1040,6 +1040,45 @@
   },
   "audit": {
     "export": "Export JSON",
+    "more": "Load more",
+    "loading": "Loading…",
+    "empty": "No activity recorded yet.",
+    "emptyFiltered": "No rows match the filters.",
+    "removed": "left the workspace",
+    "ctxLine": "{ctx} · {credits} credits · {tokens} tokens",
+    "ctx": {
+      "conversation": "Inbox / conversation",
+      "task": "Autonomous task",
+      "assistant": "AI Assistant",
+      "suggestion": "Suggestion",
+      "agent_reply": "Channel agent"
+    },
+    "event": {
+      "session.new_device": "Sign-in from a new device"
+    },
+    "filter": {
+      "action": "Action",
+      "status": "Status",
+      "from": "From",
+      "to": "To",
+      "allActions": "All actions",
+      "allStatus": "All statuses",
+      "reset": "Clear filters",
+      "act": {
+        "security": "Security events only",
+        "member.set_role": "Role change",
+        "member.invite": "Member invite",
+        "member.remove": "Member removal",
+        "channel.disconnect": "Channel disconnect",
+        "contact.export": "Customer export",
+        "workspace.transfer_ownership": "Ownership transfer"
+      },
+      "st": {
+        "ok": "OK",
+        "warn": "Warn",
+        "escalated": "Escalated"
+      }
+    },
     "audit": {
       "title": "Audit log",
       "sub": "Every action in the workspace · kept 1 year",
@@ -1067,7 +1106,8 @@
       "ops": "Operations agent",
       "order": "Order agent",
       "cs": "Customer care agent",
-      "human": "Human · Lan"
+      "human": "Human · Lan",
+      "agent": "AI Agent"
     },
     "status": {
       "ok": "OK",
@@ -1185,7 +1225,8 @@
       "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
       "billing_invoice": "Plan & wallet — new invoice",
-      "owner_transfer": "Workspace ownership transfer"
+      "owner_transfer": "Workspace ownership transfer",
+      "security_event": "Security events (roles, members, channels, exports, new sign-ins)"
     },
     "prefsT": "Notification preferences",
     "dnd": "Do Not Disturb",

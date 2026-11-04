@@ -110,6 +110,12 @@ export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid()
 export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string().uuid(), action_id: z.string(), permission: z.string(), agent: z.string(), title: z.string() });
 /** `edited` = duyệt kèm sửa input (approval.edit_and_approve — TIP-024). */
 /** Thao tác nền tảng có duyệt AI đã áp xong phần workspace (TIP-045b annex A1) — kernel phát chung, consumer AI chạy tiếp run. */
+/**
+ * Sự kiện bảo mật (TIP-045b annex A2, ops §4): ghi cùng action_log cờ `audit` — consumer notify báo Owner (dedupe theo event_consumption).
+ * Chi tiết an toàn: id action + id log + người làm, không input / mã / token.
+ */
+export const securityEventSchema = z.object({ ...base, action_id: z.string(), action_log_id: z.string().uuid(), actor_user_id: z.string().uuid().nullable(), source: z.string() });
+
 export const operationCompletedEvent = z.object({ ...base, operation_id: z.string().uuid(), action_id: z.string(), approval_id: z.string().uuid().nullable(), run_id: z.string().uuid().nullable() });
 
 export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'edited', 'rejected', 'expired']) });
@@ -210,6 +216,7 @@ export const EVENT_SCHEMAS = {
   'approval.requested': approvalRequestedEvent,
   'approval.decided': approvalDecidedEvent,
   'operation.completed': operationCompletedEvent,
+  'audit.security_event': securityEventSchema,
   'ai.handoff': aiHandoffEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,

@@ -61,6 +61,8 @@ model ActionLog {
   undoneBy         String?      @map("undone_by") @db.Uuid
   undoneAt         DateTime?    @map("undone_at") @db.Timestamptz(6)
   traceId          String?      @map("trace_id")
+  /// Sự kiện nhạy cảm (TIP-045b annex A2) — đọc ở Cài đặt › Audit + thông báo Owner. Partial index viết tay ở migration.
+  audit            Boolean      @default(false)
   createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([runId])

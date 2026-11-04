@@ -1,5 +1,5 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
-import { queryOptions } from '@tanstack/react-query';
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { SalesPolicyDto } from '@appchat/shared';
 import type {
@@ -8,9 +8,10 @@ import type {
   BillingCatalog,
   BillingSummary,
   WalletData,
-  AiAuditRow,
+  AiAuditPage,
   AiSettings,
-  AuditRow,
+  AuditPage,
+  AuditStatus,
   Channel,
   Connector,
   FieldEntity,
@@ -102,9 +103,25 @@ export const kbQuery = (p: { nav: string; folder: string | null; q: string }) =>
 
 export const governanceQuery = () => queryOptions({ queryKey: ['ai', 'governance'], queryFn: () => transport.get<Governance>('/settings/governance') });
 
-export const auditQuery = () => queryOptions({ queryKey: ['audit', 'workspace'], queryFn: () => transport.get<AuditRow[]>('/settings/audit') });
+/** Bộ lọc audit (TIP-045b A2) — ô trống không gửi. `page=1` bật chế độ trang `{ data, next_cursor }` (không tham số = mảng cũ). */
+export type AuditFilter = { actor?: string; action?: string; status?: AuditStatus; from?: string; to?: string };
+const auditParams = (f: AuditFilter, cursor: string) => ({ ...Object.fromEntries(Object.entries(f).filter(([, v]) => v)), ...(cursor ? { cursor } : { page: '1' }) });
 
-export const aiAuditQuery = () => queryOptions({ queryKey: ['audit', 'ai'], queryFn: () => transport.get<AiAuditRow[]>('/settings/ai-audit') });
+export const auditQuery = (f: AuditFilter = {}) =>
+  infiniteQueryOptions({
+    queryKey: ['audit', 'workspace', f],
+    queryFn: ({ pageParam }) => transport.get<AuditPage>('/settings/audit', auditParams(f, pageParam)),
+    initialPageParam: '',
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
+  });
+
+export const aiAuditQuery = (f: AuditFilter = {}) =>
+  infiniteQueryOptions({
+    queryKey: ['audit', 'ai', f],
+    queryFn: ({ pageParam }) => transport.get<AiAuditPage>('/settings/ai-audit', auditParams(f, pageParam)),
+    initialPageParam: '',
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
+  });
 
 export const slaQuery = () => queryOptions({ queryKey: ['settings', 'sla'], queryFn: () => transport.get<SlaData>('/settings/sla') });
 

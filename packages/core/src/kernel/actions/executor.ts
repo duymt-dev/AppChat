@@ -8,6 +8,8 @@ import type { Clock } from '../clock';
 import { uuidv7 } from '../ids';
 import { RequestContext } from '../request-context';
 import { markDirty, writeOutbox } from '../outbox/outbox';
+import { isSecurityAction } from '../audit/audit-projection';
+import { securityEvents } from '../audit/audit.service';
 import type { KeyValueStore } from '../redis';
 import type { ActionContext, Authorizer, TenantTx } from './action-context';
 import type { ConfirmTokens } from './confirm-token';
@@ -196,10 +198,12 @@ export class ActionExecutor {
           status: 'succeeded',
           undoUntil: undoUntil ?? null,
           traceId: traceId ?? null,
+          audit: isSecurityAction(actionId),
           createdAt: now,
         },
       });
-      const events = await writeOutbox(tx, ctx.workspaceId, r.events ?? [], now, traceId);
+      const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
+      const events = await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.
       const queued = r.accepted ? acceptedResponse(logId, r.accepted) : null;
       if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(queued ?? data), statusCode: queued ? 202 : 200, createdAt: now } });

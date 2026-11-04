@@ -8,7 +8,7 @@ import { NOTIFY_KINDS, NOTIFY_KIND_KEYS, channelsFor, inQuietHours } from './cat
 describe('notify catalog', () => {
   it('9 loại của prototype (Cài đặt › Thông báo) + loại ngoài prototype: Khách hàng (DC-150), Báo giá (TIP-029), Hợp đồng (TIP-030), Thu tiền (TIP-032), Liệu trình (TIP-032b), Ticket (TIP-034), đổi Chủ sở hữu (TIP-045b): nhóm + kênh mặc định', () => {
     const fromFixture = fixture.notif.groups.flatMap((g) => g.events.map((e) => ({ ...e, group: g.key })));
-    const beyond = ['crm_owner', 'crm_access', 'quote_approval', 'quote_expiring', 'contract_approval', 'contract_signed', 'contract_declined', 'contract_expiring', 'payment_received', 'refund_approval', 'bank_review', 'package_reminder', 'sla_breach', 'ticket_assigned', 'ai_briefing', 'ai_task_failed', 'owner_transfer'];
+    const beyond = ['crm_owner', 'crm_access', 'quote_approval', 'quote_expiring', 'contract_approval', 'contract_signed', 'contract_declined', 'contract_expiring', 'payment_received', 'refund_approval', 'bank_review', 'package_reminder', 'sla_breach', 'ticket_assigned', 'ai_briefing', 'ai_task_failed', 'owner_transfer', 'security_event'];
     expect(fromFixture.map((e) => e.key).sort()).toEqual(NOTIFY_KIND_KEYS.filter((k) => !beyond.includes(k)).sort());
     for (const k of ['crm_owner', 'crm_access', 'quote_expiring', 'contract_expiring']) expect(NOTIFY_KINDS[k as keyof typeof NOTIFY_KINDS]).toMatchObject({ group: 'msg', defaults: { desktop: true, email: false, mobile: true } });
     // Báo giá chờ duyệt: chặn việc gửi khách → mặc định thêm email.
