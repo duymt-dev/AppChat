@@ -16,6 +16,8 @@ model LoyaltyConfig {
   tierWindowMonths  Int      @default(12) @map("tier_window_months") @db.SmallInt
   tierReview        String   @default("quarterly") @map("tier_review")
   marketplaceEarn   Boolean  @default(false) @map("marketplace_earn")
+  /// Đầu quý (`YYYY-MM-01`, giờ workspace) đã xét hạng xong — job xét hạng một lần mỗi quý.
+  tierReviewed      String?  @map("tier_reviewed")
   version           Int      @default(1)
   updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 

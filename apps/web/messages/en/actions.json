@@ -754,6 +754,18 @@
     },
     "update_config": {
       "title": "Update loyalty settings"
+    },
+    "earn": {
+      "title": "Earn order points (system)"
+    },
+    "reverse": {
+      "title": "Reverse order points (system)"
+    },
+    "expire": {
+      "title": "Expire points (system)"
+    },
+    "review_tier": {
+      "title": "Quarterly tier review (system)"
     }
   },
   "member": {
@@ -989,6 +1001,10 @@
     },
     "refund_reject": {
       "title": "Reject refund"
+    },
+    "redeem_points": {
+      "title": "Pay with points",
+      "desc": "Use the customer points for part of a payment request (1 point = 100đ, up to 50% of the order value)."
     }
   },
   "package": {

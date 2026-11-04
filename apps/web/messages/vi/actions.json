@@ -754,6 +754,18 @@
     },
     "update_config": {
       "title": "Cập nhật cấu hình khách thân thiết"
+    },
+    "earn": {
+      "title": "Tích điểm đơn hoàn tất (hệ thống)"
+    },
+    "reverse": {
+      "title": "Đảo điểm đơn (hệ thống)"
+    },
+    "expire": {
+      "title": "Hết hạn điểm (hệ thống)"
+    },
+    "review_tier": {
+      "title": "Xét hạng theo quý (hệ thống)"
     }
   },
   "member": {
@@ -989,6 +1001,10 @@
     },
     "refund_reject": {
       "title": "Từ chối hoàn tiền"
+    },
+    "redeem_points": {
+      "title": "Đổi điểm thanh toán",
+      "desc": "Dùng điểm của khách trả một phần đề nghị thanh toán (1 điểm = 100đ, tối đa 50% giá trị đơn)."
     }
   },
   "package": {

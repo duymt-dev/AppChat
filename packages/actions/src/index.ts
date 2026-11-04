@@ -26,6 +26,8 @@ import * as groupResults from './group-results';
 import * as support from './support';
 import * as marketing from './marketing';
 import * as loyalty from './loyalty';
+import * as loyaltySystem from './loyalty-system';
+import * as loyaltyPayments from './loyalty-payments';
 import * as settings from './settings';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
@@ -74,6 +76,8 @@ export * from './support';
 export * from './marketing';
 export * from './loyalty';
 export * from './loyalty-reasons';
+export * from './loyalty-system';
+export * from './loyalty-payments';
 export * from './settings';
 export * from './settings-apps';
 export * from './settings-ai';
@@ -121,6 +125,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(support),
   ...Object.values(marketing),
   ...Object.values(loyalty),
+  ...Object.values(loyaltySystem),
+  ...Object.values(loyaltyPayments),
   ...Object.values(settings),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),

@@ -1,4 +1,4 @@
-// Ma trận order.complete (TIP-023b): hoàn tất (risk money) → trạng thái + tổng + điểm dự tính (net trước VAT / 10.000 × hệ số hạng);
+// Ma trận order.complete (TIP-023b): hoàn tất (risk money) → trạng thái + tổng + điểm dự tính (net trước VAT theo thực thu / 10.000 × hệ số hạng — TIP-036);
 // mới (chưa xác nhận) → 409 ở preview; undo về đang xử lý. 403 cs · sales own → 404 · id lạ 404.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -34,6 +34,9 @@ describe('order.complete', () => {
   it('preview Trợ lý → xác nhận → undo (hạng gold × hệ số)', async () => {
     await m.seed('order.confirm', { order_id: O() });
     await (await m.db()).contact.update({ where: { id: lan }, data: { tierKey: 'gold' } });
+    // Tích theo thực thu lúc hoàn tất (DC-297 c).
+    const inv = (await m.seed('invoice.create', { order_id: O(), contact_id: lan, kind: 'full', amount: '1320000' })).invoice_id;
+    await m.seed('invoice.record_payment', { invoice_id: inv, amount: '1320000', method: 'cash' });
     const { preview, done } = await m.confirm({ order_id: O() });
     expect(preview).toMatchObject({ summary: `${o.code} · Chị Lan ĐH · 1.320.000₫`, risk: 'money', changes: [{ entity: 'order', id: O(), before: { status: 'processing', points: 0 }, after: { status: 'completed', total: '1320000' } }] });
     expect(preview.changes[0].after.points).toBe(done.body.data.result.points);

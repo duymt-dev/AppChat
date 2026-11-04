@@ -1,15 +1,14 @@
 // Preview trạng thái đơn (TIP-023b R2.8): xác nhận → trạng thái + số dòng trừ kho + sản phẩm sẽ xuống dưới ngưỡng (cảnh báo, không chặn
-// — COMMERCE §2); hoàn tất (risk money) → trạng thái + tổng + điểm dự tính (floor(net trước VAT / 10.000) × hệ số hạng; đơn sàn 0 điểm
-// trừ khi bật loyalty — §7, §4b); huỷ (risk money) → lý do + hoàn kho + đã thu → yêu cầu hoàn tiền chờ duyệt. Chỉ đọc — không trừ kho.
+// — COMMERCE §2); hoàn tất (risk money) → trạng thái + tổng + điểm dự tính (cùng snapshot loyalty với hoàn tất thật — cấu hình, hạng,
+// thực thu; đơn sàn theo `marketplace_earn` — §7, §4b); huỷ (risk money) → lý do + hoàn kho + đã thu → yêu cầu hoàn tiền chờ duyệt. Chỉ đọc — không trừ kho.
 import type { ActionInput, ActionPreview, orderCancel, orderComplete, orderConfirm } from '@appchat/actions';
-import { ORDER_FLOW, assertTransition, pointsFor } from '@appchat/shared';
+import { ORDER_FLOW, assertTransition } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { lowOf } from '../../../catalog/public';
 import { line, preview, updated } from '../../../kernel/actions/preview-kit';
-import { visibleOrder, type OrderRecord } from '../order-access';
+import { visibleOrder } from '../order-access';
+import { earnSnapshot } from '../../../loyalty/services/order-points';
 import { label, money } from './order-create.handlers.preview';
-
-const POINT_VALUE = 100n;
 
 async function flowOf(ctx: ActionContext, tx: TenantTx, id: string, action: string) {
   const o = await visibleOrder(tx, ctx.authz, id);
@@ -41,29 +40,9 @@ export async function confirmPreview(ctx: ActionContext, tx: TenantTx, i: Action
   });
 }
 
-/** Net trước VAT đã trừ phần trả bằng điểm (COMMERCE §7 — 1 điểm = 100đ). Dùng chung hoàn tất thật (order-flow) và preview. */
-export const netBeforeVat = (o: Pick<OrderRecord, 'subtotal' | 'discountTotal' | 'pointsUsed'>) => {
-  const v = o.subtotal - o.discountTotal - o.pointsUsed * POINT_VALUE;
-  return v > 0n ? v : 0n;
-};
-
-/** Đơn sàn chỉ tích điểm khi kết nối bật `loyalty_enabled` (§4b). */
-export async function earns(tx: TenantTx, o: Pick<OrderRecord, 'source' | 'externalConnectionId'>) {
-  if (o.source !== 'marketplace') return true;
-  const c = o.externalConnectionId ? await tx.integrationConnection.findUnique({ where: { id: o.externalConnectionId }, select: { config: true } }) : null;
-  return String((c?.config as Record<string, unknown> | null)?.loyalty_enabled ?? 'false') === 'true';
-}
-
-/** Điểm dự tính đúng như `completeOrder`. */
-async function pointsOf(tx: TenantTx, o: OrderRecord) {
-  if (!(await earns(tx, o))) return 0;
-  const tier = (await tx.contact.findUniqueOrThrow({ where: { id: o.contactId }, select: { tierKey: true } })).tierKey;
-  return pointsFor(netBeforeVat(o), tier);
-}
-
 export async function completePreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof orderComplete>): Promise<ActionPreview> {
   const { o, to, name } = await flowOf(ctx, tx, i.order_id, 'order.complete');
-  return preview('money', line(name, money(o.total)), { changes: updated('order', o.id, { status: o.status, points: 0 }, { status: to, total: String(o.total), points: await pointsOf(tx, o) }) });
+  return preview('money', line(name, money(o.total)), { changes: updated('order', o.id, { status: o.status, points: 0 }, { status: to, total: String(o.total), points: (await earnSnapshot(tx, o)).points }) });
 }
 
 export async function cancelPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof orderCancel>): Promise<ActionPreview> {

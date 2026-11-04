@@ -31,6 +31,20 @@ export function earnPoints(netBeforeVat: bigint | string, tierKey: string | null
   return { base: Number(base), mult, points: Number((base * tenths) / 10n) };
 }
 
+/**
+ * Căn cứ tích của đơn lúc hoàn tất (DC-297 c): net trước VAT (đã trừ phần trả bằng điểm) × tỉ lệ tiền mặt thực thu / tiền mặt phải thu,
+ * làm tròn xuống tới đồng. Thu đủ → nguyên net; chưa thu → 0; thu thêm sau khi hoàn tất không tích lần hai. `paid` = tiền mặt thực thu
+ * (đã trừ hoàn tiền và khoản trả bằng điểm) — lưu trong căn cứ để đảo theo tỉ lệ khi hoàn tiền.
+ */
+export function earnBase(o: { net: bigint; total: bigint; paidTotal: bigint; refundedTotal: bigint; pointsUsed: bigint }): { net: bigint; paid: bigint; due: bigint } {
+  const byPoints = o.pointsUsed * REDEEM_VND_PER_POINT;
+  const due = o.total - byPoints;
+  const raw = o.paidTotal - o.refundedTotal - byPoints;
+  const paid = raw > 0n ? raw : 0n;
+  if (due <= 0n || o.net <= 0n) return { net: 0n, paid, due };
+  return { net: paid >= due ? o.net : (o.net * paid) / due, paid, due };
+}
+
 /** Hạng theo điểm tích trong cửa sổ (ngưỡng tăng dần). */
 export function tierFor(earnedInWindow: number | bigint, tiers: readonly LoyaltyTier[] = DEFAULT_TIERS): string {
   const e = Number(earnedInWindow);

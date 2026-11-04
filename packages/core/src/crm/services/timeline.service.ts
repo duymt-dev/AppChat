@@ -58,6 +58,11 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   ticket_opened: { icon: 'ic-ticket', tone: 'amber' },
   ticket_closed: { icon: 'ic-check', tone: 'ok' },
   ticket_reopened: { icon: 'ic-ticket', tone: 'amber' },
+  loyalty_earn: { icon: 'ic-gift', tone: 'ok' },
+  loyalty_redeem: { icon: 'ic-gift', tone: 'brand' },
+  loyalty_reverse: { icon: 'ic-gift', tone: 'muted' },
+  loyalty_expire: { icon: 'ic-clock', tone: 'muted' },
+  loyalty_tier: { icon: 'ic-trend', tone: 'violet' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {

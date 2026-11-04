@@ -132,7 +132,9 @@ export const contractSignedEvent = z.object({ ...contractBase, signed_sha256: z.
  *  hoàn tiền — TIP-032), đơn sàn nhập / cập nhật (D31). `total` là string VND. */
 const orderBase = { ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), source: z.string(), total: z.string() };
 export const orderEvent = z.object(orderBase);
-export const orderCompletedEvent = z.object({ ...orderBase, points: z.number().int(), net_before_vat: z.string() });
+/** `completion_id` = nhật ký hoàn tất của lượt này (hoàn tác rồi hoàn tất lại = lượt mới); `basis` = căn cứ điểm snapshot (TIP-036). */
+const earnBasis = z.object({ net_before_vat: z.string(), earn_net: z.string(), paid: z.string(), due: z.string(), refunded: z.string(), base: z.number().int(), tier: z.string(), mult: z.number(), config_version: z.number().int(), enabled: z.boolean() });
+export const orderCompletedEvent = z.object({ ...orderBase, points: z.number().int(), net_before_vat: z.string(), completion_id: z.string().uuid().optional(), basis: earnBasis.optional() });
 export const orderCancelledEvent = z.object({ ...orderBase, reason: z.string().max(500), paid_total: z.string(), refund_requested: z.boolean() });
 
 /** Đề nghị thanh toán / khoản thu / liệu trình (TIP-032 — Blueprint §2.3). Tiền là string VND; hoàn tiền `amount` dương = số hoàn. */
