@@ -44,7 +44,27 @@ export const crm = {
     ticket_reopened: 'Mở lại ticket {code}',
   },
   stage: { lead: 'Lead mới', potential: 'Tiềm năng', consulting: 'Đang tư vấn', quote: 'Báo giá', contract: 'Hợp đồng', won: 'Đã mua', lost: 'Thất bại' },
-  ai: { wait: 'Chờ xử lý' },
+  ai: {
+    wait: 'Chờ xử lý',
+    done: 'Không cần',
+    next: {
+      collect: 'Quá hạn {amount} — nhắc thanh toán',
+      reengage: '{days} ngày chưa tương tác — gửi tin chăm sóc lại',
+      close_quote: 'Đang báo giá — nhắc khách chốt',
+      consult: 'Tư vấn tiếp theo nhu cầu',
+      none: 'Chưa cần thao tác',
+    },
+  },
+  insights: {
+    kpi: { debt: 'Công nợ', overdue: 'Quá hạn', contracts: 'HĐ hiệu lực', ltv: 'Đã thu (LTV)' },
+    contractValue: '{count} HĐ · {value}',
+    contractEnd: 'hết hạn {date}',
+    orderTitle: '{code} · {amount}',
+    paymentTitle: '{code} · {amount}',
+    orderStatus: { new: 'Mới', processing: 'Đang xử lý', completed: 'Hoàn tất', cancelled: 'Đã huỷ' },
+    paymentKind: { deposit: 'Đặt cọc', payment: 'Thanh toán', refund: 'Hoàn tiền', points: 'Điểm' },
+    none: 'Chưa có',
+  },
   preview: {
     merge: 'Gộp {count} nhóm khách trùng',
     import: 'Nhập {count} dòng: tạo {created}, trùng {dup}, của người khác {owned}, lỗi {invalid}',

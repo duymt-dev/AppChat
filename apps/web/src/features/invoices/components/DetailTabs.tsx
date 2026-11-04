@@ -133,7 +133,7 @@ export function CrmTab({ i, meta }: { i: Invoice; meta: InvoicesMeta }) {
           {cell(t('crmTotal'), String(meta.crm.total), color.text)}
           {cell(t('crmRevenue'), fmt.money(i.paid_amount), color.brandInk)}
           {cell(t('crmOnTime'), meta.crm.on_time, color.text)}
-          {cell(t('crmDebt'), fmt.money(i.left), color.hotText)}
+          {cell(t('crmDebt'), fmt.money(meta.crm.debt ?? i.left), color.hotText)}
         </div>
       </div>
       <div className={styles.card}>

@@ -48,7 +48,27 @@ export const crm: Shape<typeof vi> = {
     email: 'Email sent: {subject}',
   },
   stage: { lead: 'New lead', potential: 'Potential', consulting: 'Consulting', quote: 'Quoted', contract: 'Contract', won: 'Won', lost: 'Lost' },
-  ai: { wait: 'Pending' },
+  ai: {
+    wait: 'Pending',
+    done: 'No action',
+    next: {
+      collect: '{amount} overdue — send a payment reminder',
+      reengage: 'No contact for {days} days — send a follow-up',
+      close_quote: 'Quote open — nudge to close',
+      consult: 'Continue consulting on their needs',
+      none: 'No action needed',
+    },
+  },
+  insights: {
+    kpi: { debt: 'Receivable', overdue: 'Overdue', contracts: 'Active contracts', ltv: 'Collected (LTV)' },
+    contractValue: '{count} contracts · {value}',
+    contractEnd: 'ends {date}',
+    orderTitle: '{code} · {amount}',
+    paymentTitle: '{code} · {amount}',
+    orderStatus: { new: 'New', processing: 'Processing', completed: 'Completed', cancelled: 'Cancelled' },
+    paymentKind: { deposit: 'Deposit', payment: 'Payment', refund: 'Refund', points: 'Points' },
+    none: 'None yet',
+  },
   preview: {
     merge: 'Merge {count} duplicate groups',
     import: 'Import {count} rows: create {created}, duplicate {dup}, owned by others {owned}, invalid {invalid}',

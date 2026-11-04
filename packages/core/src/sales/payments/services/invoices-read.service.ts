@@ -3,7 +3,7 @@
 // `payment.refund_approve`, tài khoản nhận; `invoice_id` → thẻ CRM + tệp của đề nghị đó), PDF đề nghị (bản đóng băng lúc gửi hoặc render),
 // PDF phiếu thu (render lần đầu rồi giữ), cài đặt thanh toán, liệu trình của khách.
 import { TenantContexts } from '@appchat/db';
-import { AppError, interpolate, serverMessages, type AuthzContext } from '@appchat/shared';
+import { AppError, interpolate, serverMessages, utcToWall, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { QuoteDeps } from '../../quotes/services/quote-deps';
 import { UUID, inSalesScope, visibleInvoice } from '../invoice-access';
@@ -13,6 +13,7 @@ import { invoiceDocData, renderDocPdf } from './invoice-doc';
 import { ensureReceiptPdf } from './receipt-file';
 import { qrPng, readInvoiceQr } from './invoice-qr';
 import { invoiceActorIds, paymentsByInvoice, toInvoiceRow, type InvoiceViewCtx } from './invoice-view';
+import { customerDebt } from '../../../crm/insights/customer-debt';
 
 export interface InvoiceViewer {
   workspaceId: string;
@@ -92,7 +93,7 @@ export class InvoicesReadService {
         bank_txs: bank.map((b) => ({ id: b.id, amount: String(b.amount), content: b.content, occurred_at: b.occurredAt.toISOString(), provider: b.feed.provider, reason: b.reason ?? 'missing_code', suggested_invoice_id: b.suggestedInvoiceId ?? '', status: b.status })),
         refunds,
         payment_account: accountView(account),
-        ...(await this.oneMeta(tx, one)),
+        ...(await this.oneMeta(tx, v.authz, one, utcToWall(this.now(), (await this.ctx(v)).timeZone).date)),
       };
     });
   }
@@ -109,8 +110,8 @@ export class InvoicesReadService {
     return rows.map((r) => ({ id: r.id, invoice_id: r.invoiceId, invoice_code: r.invoiceId ? (i.get(r.invoiceId) ?? '') : '', package_id: r.packageId, contact_name: c.get(r.contactId) ?? '', amount: String(-r.amount), reason: r.reason, by: r.createdById ? (names.get(r.createdById) ?? '') : 'system', at: r.createdAt.toISOString() }));
   }
 
-  /** Thẻ CRM (số đề nghị của khách, tỉ lệ trả đúng hạn) + tệp (PDF đề nghị, phiếu thu) của đề nghị đang mở. */
-  private async oneMeta(tx: TenantTx, one: Awaited<ReturnType<typeof visibleInvoice>> | null) {
+  /** Thẻ CRM (số đề nghị của khách, tỉ lệ trả đúng hạn, công nợ theo khách — crm/insights/customer-debt) + tệp (PDF đề nghị, phiếu thu) của đề nghị đang mở. */
+  private async oneMeta(tx: TenantTx, a: AuthzContext, one: Awaited<ReturnType<typeof visibleInvoice>> | null, today: string) {
     if (!one) return { crm: { total: 0, on_time: '0%' }, files: [] };
     const all = await tx.invoice.findMany({ where: { contactId: one.contactId, status: { not: 'void' } }, select: { id: true, status: true, dueDate: true } });
     const paid = all.filter((x) => x.status === 'paid');
@@ -121,7 +122,8 @@ export class InvoicesReadService {
     const ids = [one.fileId, ...(await tx.customerPayment.findMany({ where: { invoiceId: one.id, receiptFileId: { not: null } }, select: { receiptFileId: true } })).map((p) => p.receiptFileId)].filter((x): x is string => !!x);
     for (const f of ids.length ? await tx.file.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, size: true, createdAt: true } }) : [])
       files.push({ name: f.name, ext: 'pdf', by: 'system', at: f.createdAt.toISOString().slice(0, 10), size: `${Math.max(1, Math.round(Number(f.size) / 1024))} KB` });
-    return { crm: { total: all.length, on_time: paid.length ? `${Math.round((onTime * 100) / paid.length)}%` : '0%' }, files };
+    const debt = await customerDebt(tx, a, one.contactId, today);
+    return { crm: { total: all.length, on_time: paid.length ? `${Math.round((onTime * 100) / paid.length)}%` : '0%', ...(debt ? { debt: debt.due, overdue: debt.overdue } : {}) }, files };
   }
 
   /** PDF đề nghị: bản đã gửi (đóng băng) hoặc render bản hiện tại. */

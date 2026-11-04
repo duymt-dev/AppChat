@@ -79,7 +79,7 @@ export class ContractsReadService {
       if (!contractId || !UUID.test(contractId)) return { counts: k.counts, stats: k.stats, ...empty, ai_runs: runs };
       const c = await visibleContract(tx, v.authz, contractId);
       const names = await this.d.members.names([c.ownerUserId]);
-      return { counts: k.counts, stats: k.stats, ...(await contractInsights(tx, c, base, names)), ai_runs: runs };
+      return { counts: k.counts, stats: k.stats, ...(await contractInsights(tx, v.authz, c, base, names)), ai_runs: runs };
     });
   }
 

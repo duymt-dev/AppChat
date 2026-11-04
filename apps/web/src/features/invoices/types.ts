@@ -97,6 +97,7 @@ export interface InvoicesMeta {
   refunds: RefundRequest[];
   /** null = chưa khai tài khoản nhận → không sinh VietQR. */
   payment_account: { bank: string; bin: string; account_no: string; account_name: string } | null;
-  crm: { total: number; on_time: string };
+  /** Công nợ theo khách (TIP-015b) — vắng khi người xem không có quyền xem đề nghị. */
+  crm: { total: number; on_time: string; debt?: string; overdue?: string };
   files: { name: string; ext: string; by: string; at: string; size: string; url?: string }[];
 }

@@ -1,5 +1,5 @@
 // Hồ sơ 360° (`GET /v1/contacts/:id` — F02; shape `contact360Schema`). Phần của crm: thông tin, giai đoạn, ghi chú, dòng thời gian,
-// trường tuỳ biến, bố cục theo vai trò. Phần domain khác (đơn / báo giá / loyalty / việc / AI) rỗng / 0 tới TIP chủ (027–039, AI).
+// trường tuỳ biến, bố cục theo vai trò. KPI / đơn / thu / liên kết chứng từ theo quyền người xem: crm/insights (TIP-015b, ghép ở CrmReadService).
 import { avatarColor, createFmt, initialsOf, serverMessages, type Contact360Dto, type CustomValues } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { renderTimeline } from './timeline.service';
@@ -39,7 +39,8 @@ export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promi
     points: String(k.pointsBalance),
     points_value: String(k.pointsBalance * 10n),
     journey: { stage: m.stage[k.stage], hint: '' },
-    ai_summary: { badge: '', close_pct: 0, bullets: k.aiSummary ? [k.aiSummary] : [] },
+    // Không đọc `contact.ai_summary` cũ (chung mọi vai trò — có thể lộ công nợ); tóm tắt theo phạm vi người xem ở contact.summarize (TIP-015b).
+    ai_summary: { badge: '', close_pct: 0, bullets: [] },
     deal: { title: '', value: '0', stage: '', probability: 0, close_date: '', need: '' },
     history: timeline.slice(0, 6),
     tasks: [],

@@ -1,10 +1,11 @@
 // Số liệu phụ của trang Hợp đồng từ dữ liệu thật: KPI (tổng / đã ký / chờ ký / giá trị đang hiệu lực), chip, kết quả mẫu của panel
 // Trợ lý AI · Hợp đồng (luật trên dữ liệu, không gọi LLM — chữ server i18n); theo từng hợp đồng (`?contract_id=`): thẻ CRM của khách
 // (LTV, số hợp đồng, hạng, các hợp đồng khác), nhận định + gợi ý, tệp (PDF đã ký / bản nội dung).
-import { contractChipOf, createFmt, interpolate, serverMessages, type AuthzContext, type ContractStatusKey } from '@appchat/shared';
+import { contractChipOf, createFmt, interpolate, serverMessages, utcToWall, type AuthzContext, type ContractStatusKey } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { ContractRecord } from '../contract-access';
 import { contractCounts, endingSoon } from '../repos/contracts.repo';
+import { customerDebt } from '../../crm/insights/customer-debt';
 
 const DAY = 86_400_000;
 const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : '0%');
@@ -41,12 +42,14 @@ export async function contractRuns(tx: TenantTx, authz: AuthzContext, k: Awaited
 }
 
 /** Thẻ CRM / nhận định / gợi ý / tệp của MỘT hợp đồng (drawer). */
-export async function contractInsights(tx: TenantTx, c: ContractRecord, o: { locale: string; timeZone: string; now: Date }, names: Map<string, string>) {
+export async function contractInsights(tx: TenantTx, a: AuthzContext, c: ContractRecord, o: { locale: string; timeZone: string; now: Date }, names: Map<string, string>) {
   const m = serverMessages(o.locale).sales.contract;
   const fmt = createFmt(o);
-  const [contact, others] = await Promise.all([
+  const [contact, others, debt] = await Promise.all([
     tx.contact.findUnique({ where: { id: c.contactId }, select: { name: true, totalSpent: true, tierKey: true } }),
     tx.contract.findMany({ where: { contactId: c.contactId, deletedAt: null }, orderBy: { createdAt: 'desc' }, select: { id: true, code: true, title: true, value: true } }),
+    // Công nợ theo khách — cùng công thức Hồ sơ 360° / đề nghị thanh toán (crm/insights/customer-debt); không quyền xem → '0' như cũ.
+    customerDebt(tx, a, c.contactId, utcToWall(o.now, o.timeZone).date),
   ]);
   const total = others.reduce((a, x) => a + x.value, 0n);
   const left = c.endDate && c.status === 'signed' ? Math.ceil((c.endDate.getTime() - o.now.getTime()) / DAY) : null;
@@ -59,7 +62,7 @@ export async function contractInsights(tx: TenantTx, c: ContractRecord, o: { loc
       ltv: String(contact?.totalSpent ?? 0n),
       total: others.length,
       tier: contact?.tierKey ?? '',
-      debt: '0',
+      debt: debt?.due ?? '0',
       others: others.filter((x) => x.id !== c.id).slice(0, 5).map((x) => ({ code: x.code, title: x.title, value: String(x.value) })),
     },
     insight,

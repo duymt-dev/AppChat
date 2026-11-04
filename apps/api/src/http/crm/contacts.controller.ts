@@ -129,7 +129,6 @@ export class ContactsController {
   /** Gợi ý AI của màn Khách hàng là phần AI (TIP-02x) — tới lúc đó rỗng. */
   @Get('crm/ai')
   async ai(@Req() req: IncomingMessage) {
-    await this.viewer(req);
-    return { data: { runs: {}, peek: [] } };
+    return { data: await this.read.ai(await this.viewer(req)) };
   }
 }

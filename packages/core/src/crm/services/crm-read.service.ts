@@ -1,12 +1,14 @@
 // Đọc domain crm cho apps/api (Blueprint §4.4 crm — shape packages/shared/src/api/crm.ts). Mỗi lệnh đọc mở một transaction
 // chỉ-đọc trên DB tenant của workspace (TenantDbResolver) và áp scope crm của người xem (rbac §5 — không có đường vòng).
-import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
+import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { boardIds, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
 import { UUID, visibleContact } from './access';
 import { contact360 } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
+import { nextActions } from '../insights/next-action';
+import { crmAi, insights360 } from '../insights/read';
 import { duplicateGroups } from './duplicates.service';
 import { fieldsData } from './fields.service';
 import { layoutForRole, layoutsData } from './layouts.service';
@@ -51,8 +53,13 @@ export class CrmReadService {
     const rows = ids.length ? await tx.contact.findMany({ where: { id: { in: ids } }, select: ROW_SELECT }) : [];
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
-    const [extras, names] = await Promise.all([loadRowExtras(tx, ids), this.members.names(rows.map((r) => r.ownerUserId))]);
-    return rows.map((r) => toRow(r as ContactRecord, { authz: v.authz, ...pl, names }, extras));
+    const now = this.now();
+    const [extras, names, next] = await Promise.all([
+      loadRowExtras(tx, ids),
+      this.members.names(rows.map((r) => r.ownerUserId)),
+      nextActions(tx, v.authz, rows, utcToWall(now, pl.timeZone).date, now),
+    ]);
+    return rows.map((r) => toRow(r as ContactRecord, { authz: v.authz, ...pl, names }, { ...extras, next }));
   }
 
   async list(v: Viewer, f: ContactFilter, page?: number, limit?: number) {
@@ -114,8 +121,17 @@ export class CrmReadService {
     const role = await this.members.roleOf(v.workspaceId, v.userId);
     return this.tx(v, async (tx) => {
       await visibleContact(tx, v.authz, id);
-      return contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role) });
+      const [p360, ins] = await Promise.all([
+        contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role) }),
+        insights360(tx, v.authz, id, { ...pl, now: this.now() }),
+      ]);
+      return { ...p360, crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
+  }
+
+  /** `GET /v1/crm/ai` (TIP-015b): run AI thật theo phạm vi người xem. */
+  async ai(v: Viewer) {
+    return this.tx(v, (tx) => crmAi(tx, v.authz));
   }
 
   async timeline(v: Viewer, id: string, cursor?: string) {
