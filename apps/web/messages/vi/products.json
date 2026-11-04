@@ -222,5 +222,35 @@
     "reasonPh": "VD: Nhập kho, kiểm kê",
     "low": "Tồn còn {stock} — đã chạm ngưỡng cảnh báo."
   },
-  "synced": "Đã cập nhật danh mục sản phẩm"
+  "synced": "Đã cập nhật danh mục sản phẩm",
+  "import": {
+    "open": "Nhập từ tệp",
+    "title": "Nhập sản phẩm từ tệp",
+    "sub": "CSV hoặc Excel — tối đa 10.000 dòng; trên 500 dòng chạy nền",
+    "close": "Đóng",
+    "file": "Tệp",
+    "fileHint": "Dòng đầu là tiêu đề cột. Mã (SKU) trùng sản phẩm có sẵn thì cập nhật, chưa có thì tạo mới.",
+    "picked": "Đã chọn: {name}",
+    "run": "Nhập",
+    "cancelRun": "Huỷ lần nhập",
+    "retry": "Chạy lại",
+    "progress": "Đã xử lý {processed}/{total} · tạo {created} · cập nhật {updated} · lỗi {failed}",
+    "map": {
+      "name": "Cột tên",
+      "price": "Cột giá",
+      "sku": "Cột mã (SKU)",
+      "type": "Cột loại",
+      "category": "Cột danh mục",
+      "unit": "Cột đơn vị",
+      "tax_rate": "Cột thuế (%)"
+    },
+    "status": {
+      "queued": "Đang chờ chạy",
+      "running": "Đang nhập",
+      "cancelling": "Đang huỷ",
+      "completed": "Đã xong",
+      "failed": "Có lỗi — xem dòng lỗi",
+      "cancelled": "Đã huỷ"
+    }
+  }
 }

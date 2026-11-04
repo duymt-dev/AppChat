@@ -74,10 +74,11 @@ export class CatalogReadService {
       if (!p) throw new AppError('NOT_FOUND', 404, { product_id: 'not_found' });
       const [parts, variants] = await Promise.all([
         tx.productComponent.findMany({ where: { productId: id }, select: { childId: true, qty: true, child: { select: { name: true } } } }),
-        tx.productVariant.findMany({ where: { productId: id }, orderBy: [{ sku: 'asc' }], select: { id: true, sku: true, name: true, stock: true } }),
+        // Biến thể đã lưu trữ không hiện để chọn cho dòng mới (TIP-032b); dòng cũ giữ id + tên đã chụp.
+        tx.productVariant.findMany({ where: { productId: id, status: 'active' }, orderBy: [{ sku: 'asc' }], select: { id: true, sku: true, name: true, stock: true, price: true, version: true } }),
       ]);
       const row = toRow(p as ProductRecord, await this.view(tx, v, pl.locale), parts.length);
-      return { ...row, components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants };
+      return { ...row, components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants: variants.map((x) => ({ ...x, price: x.price === null ? null : String(x.price) })) };
     });
   }
 

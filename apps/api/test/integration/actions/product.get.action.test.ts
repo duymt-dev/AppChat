@@ -20,6 +20,13 @@ describe('product.get', () => {
     expect((await m.act({ code: r.body.data.result.code })).body.data.result.product_id).toBe(p);
   });
 
+  it('biến thể đang bán kèm mã (TIP-032b — đường tra variant_id); biến thể lưu trữ không trả', async () => {
+    const keep = (await m.seed('product_variant.create', { product_id: p, name: 'Gói 60 phút', sku: 'HF-60', price: '1800000' })).variant_id;
+    const gone = (await m.seed('product_variant.create', { product_id: p, name: 'Gói cũ', sku: 'HF-OLD' })).variant_id;
+    await m.seed('product_variant.archive', { variant_id: gone });
+    expect((await m.act({ product_id: p })).body.data.result.variants).toEqual([{ variant_id: keep, name: 'Gói 60 phút', sku: 'HF-60', price: '1800000' }]);
+  });
+
   it('id lạ → 404 · thiếu id / mã → 422', async () => {
     expect((await m.act({ product_id: '0190f000-0000-7000-8000-00000000beef' })).status).toBe(404);
     expect((await m.act({})).status).toBe(422);

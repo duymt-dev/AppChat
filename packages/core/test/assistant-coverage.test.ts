@@ -77,6 +77,7 @@ const EXEMPT: Record<string, string> = {
   exclude_id: 'lịch hẹn đang dời (đã có trong ngữ cảnh lượt)',
   template_id: 'mẫu agent / mẫu tài liệu — danh mục cố định trả trong meta của màn',
   team_id: 'Teams là P1 (AA-v21-9) — chưa có màn',
+  import_id: 'lần nhập sản phẩm — handle job_accepted / kết quả product.import cùng lượt, không có mã người dùng nói',
   proposal_id: 'đề xuất soạn HĐ — lấy từ kết quả contract.prepare_draft cùng lượt, sống 24h, không có mã người dùng nói',
   suggestion_id: 'gợi ý điều khoản AI — đọc từ ai_suggestions của contract.get',
 };
@@ -106,8 +107,8 @@ const SCREENS: Record<string, string> = {
 /** Nợ màn (R2) — chỉ được giảm. */
 const SCREEN_DEBT = new Set<string>([]);
 
-/** Thực thể mà action đọc mang tên khác (tài khoản kênh tra bằng `channel.search`, nguồn KB bằng `kb.source_search`, phụ lục qua `contract.get`). */
-const READ_ALIAS: Record<string, string> = { channel_account: 'channel.search', kb_source: 'kb.source_search', appendix: 'contract.get' };
+/** Thực thể mà action đọc mang tên khác (tài khoản kênh tra bằng `channel.search`, nguồn KB bằng `kb.source_search`, phụ lục qua `contract.get`, biến thể qua `product.get`). */
+const READ_ALIAS: Record<string, string> = { channel_account: 'channel.search', kb_source: 'kb.source_search', appendix: 'contract.get', variant: 'product.get' };
 const hasRead = (entity: string) => (READ_ALIAS[entity] ? IMPLEMENTED.has(READ_ALIAS[entity]!) : ['search', 'get', 'list'].some((v) => IMPLEMENTED.has(`${entity}.${v}`)));
 const hasPath = (entity: string) => CODE_REF_ENTITIES.includes(entity) || hasRead(entity);
 

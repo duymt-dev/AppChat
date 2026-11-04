@@ -15,6 +15,7 @@ import { hashInput } from './confirm-token';
 import type { ActionHandlerRegistry } from './handler-registry';
 import { decidePolicy, requiresIdempotencyKey } from './policy';
 import { maskSecrets } from './secret-fields';
+import { acceptedResponse, replayAccepted } from './job-accepted';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -109,16 +110,10 @@ export class ActionExecutor {
     }
 
     const db = await this.d.resolver.get(TenantContexts.system(ctx.workspaceId, `action:${actionId}`));
-    if (decision === 'preview' && !(await this.d.confirm.consume(ctx, actionId, input, ctx.confirmToken))) {
-      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input.
-      const preview = handler.preview ? await db.$transaction((tx) => handler.preview!(ctx, input, tx)) : { summary: '', risk: def.risk };
-      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime());
-      return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };
-    }
 
-    // 5. idempotency
+    // 5. idempotency — tra trước cổng xem trước: khoá đã có kết quả (đã xác nhận + commit) thì gửi lại trả đúng kết quả / handle 202, không
+    // bắt xem trước lần nữa (TIP-032b, DC-337). Hash gồm actor + input → khoá của người / input khác vẫn 409.
     const key = ctx.idempotencyKey;
-    if (!key && requiresIdempotencyKey(actionId, def.risk)) throw new AppError('VALIDATION_FAILED', 422, { idempotency_key: 'required' });
     const route = `action:${actionId}`;
     // Hash idempotency không chứa bí mật thô (hash mật khẩu ngắn dò ngược được) — ô bí mật che trước (TIP-023c hợp đồng 3).
     const reqHash = hashInput({ actionId, input: maskSecrets(def, input), actor: ctx.actor });
@@ -126,10 +121,21 @@ export class ActionExecutor {
       const prev = await db.idempotencyKey.findUnique({ where: { key } });
       if (prev) {
         if (prev.route !== route || prev.requestHash !== reqHash) throw new AppError('CONFLICT', 409, { idempotency_key: 'mismatch' });
+        const queued = replayAccepted(prev.statusCode, prev.response);
+        if (queued) return { status: 202, data: queued };
         if (prev.response) return { status: 200, data: prev.response as unknown as ActionResult<O> };
         throw new AppError('CONFLICT', 409, { idempotency_key: 'in_progress' });
       }
     }
+
+    if (decision === 'preview' && !(await this.d.confirm.consume(ctx, actionId, input, ctx.confirmToken))) {
+      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input.
+      const preview = handler.preview ? await db.$transaction((tx) => handler.preview!(ctx, input, tx)) : { summary: '', risk: def.risk };
+      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime());
+      return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };
+    }
+
+    if (!key && requiresIdempotencyKey(actionId, def.risk)) throw new AppError('VALIDATION_FAILED', 422, { idempotency_key: 'required' });
 
     // 6. transaction: handler + action_log + outbox (+ lưu kết quả idempotency)
     const now = this.d.clock.now();
@@ -182,14 +188,16 @@ export class ActionExecutor {
         },
       });
       const events = await writeOutbox(tx, ctx.workspaceId, r.events ?? [], now, traceId);
-      if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(data), statusCode: 200, createdAt: now } });
-      return { data, events, afterCommit: r.afterCommit };
+      // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.
+      const queued = r.accepted ? acceptedResponse(logId, r.accepted) : null;
+      if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(queued ?? data), statusCode: queued ? 202 : 200, createdAt: now } });
+      return { data, queued, events, afterCommit: r.afterCommit };
     });
     if (out.events) await markDirty(this.d.kv, ctx.workspaceId);
     // Đã commit: lỗi ở đây không đổi kết quả (việc tự idempotent + có scheduler quét lại — HandlerOutcome.afterCommit).
     if (out.afterCommit) await out.afterCommit().catch(() => undefined);
 
     // 7. kết quả
-    return { status: 200, data: out.data };
+    return out.queued ? { status: 202, data: out.queued } : { status: 200, data: out.data };
   }
 }

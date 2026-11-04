@@ -22,6 +22,7 @@
   },
   "done": "Done: {title}",
   "approvalSent": "Sent for approval: {title} — nothing runs until it is approved",
+  "jobAccepted": "Accepted: {title} — running in the background, results update when done",
   "previewTitle": "Confirm action",
   "business_profile": {
     "update": {
@@ -284,11 +285,30 @@
     "get": {
       "title": "Get product details",
       "desc": "View one product: description, attributes, combo items, price and stock"
+    },
+    "import": {
+      "title": "Import products from file"
+    },
+    "import_cancel": {
+      "title": "Cancel product import"
+    },
+    "import_retry": {
+      "title": "Retry product import"
     }
   },
   "category": {
     "create": {
       "title": "Create category"
+    },
+    "update": {
+      "title": "Edit category"
+    },
+    "delete": {
+      "title": "Delete category"
+    },
+    "list": {
+      "title": "List product categories",
+      "desc": "Read product categories and how many products each has"
     }
   },
   "stock": {
@@ -1001,6 +1021,17 @@
     "send": {
       "title": "Send receipt",
       "desc": "Send the receipt PDF of a confirmed payment to the customer conversation."
+    }
+  },
+  "product_variant": {
+    "create": {
+      "title": "Add variant"
+    },
+    "update": {
+      "title": "Edit variant"
+    },
+    "archive": {
+      "title": "Archive variant"
     }
   }
 }

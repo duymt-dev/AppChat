@@ -9,6 +9,7 @@ import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
 import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
+import { importTexts, productImportRoute } from './domains/product-import';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
@@ -64,6 +65,7 @@ export const mockTransport: Transport = {
     const route =
       mockRoutes[path] ??
       productsParamRoute(path) ??
+      productImportRoute(path) ??
       quotesParamRoute(path) ??
       quotesPublicRoute(path) ??
       publicDocumentRoute(path) ??
@@ -151,6 +153,9 @@ export const mockTransport: Transport = {
     if (def.undo && handler.undo)
       undoLog.set(logId, () => mutate((db) => handler.undo!(db, parsed.data as never)));
     if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && handler.undo));
+    // Việc nền (202 job_accepted — TIP-032b): handler mock trả `{ __accepted: { job_id, status_url } }` như server khi xếp việc.
+    const queued = (result as { __accepted?: { job_id: string; status_url: string } } | null)?.__accepted;
+    if (queued) return { status: 202, data: { status: 'job_accepted', job_id: queued.job_id, action_log_id: logId, status_url: queued.status_url } };
     return {
       status: 200,
       data: {
@@ -174,12 +179,14 @@ export const mockTransport: Transport = {
     mutate((db) => markUndone(db, actionLogId), 'action.undo');
   },
 
-  async upload(file, _purpose, signal) {
+  async upload(file, purpose, signal) {
     // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp. Huỷ trước khi xong → AbortError như fetch.
     if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
     const id = nextId('file');
     // Tên theo id để guard giả của hợp đồng từ tệp (TIP-030b) kiểm loại / tên.
     mockUploads.set(id, { name: file.name, size: file.size });
+    // Nhập sản phẩm (TIP-032b): mock đọc chữ CSV để tách dòng như server.
+    if (purpose === 'import') importTexts.set(id, { name: file.name, text: await file.text() });
     return { file_id: id, name: file.name, size: file.size };
   },
 

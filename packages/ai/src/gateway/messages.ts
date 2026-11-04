@@ -18,7 +18,10 @@ export function resultPart(call: ToolCallRef, outcome: ToolOutcome): Record<stri
       ? toJson(outcome.output)
       : outcome.kind === 'error'
         ? { error: { code: outcome.code, message: outcome.message } }
-        : { status: outcome.kind };
+        : outcome.kind === 'job_accepted'
+          ? // Việc nền đã nhận, CHƯA xong (TIP-032b): model chỉ báo đang chạy + handle, không coi là kết quả cuối, không gọi lại để lấy tiến độ.
+            { accepted: true, completed: false, job_id: outcome.jobId, action_log_id: outcome.actionLogId, status_url: outcome.statusUrl }
+          : { status: outcome.kind };
   return { type: 'tool-result', toolCallId: call.toolCallId, toolName: call.toolName, output: { type: 'json', value } };
 }
 

@@ -82,7 +82,11 @@ async function executeApproved(d: ResumeDeps, db: TenantDb, ws: string, a: Appro
   };
   try {
     const out = await d.executor.execute(ctx, a.actionId, a.input);
-    return out.status === 200 ? { kind: 'ok', output: out.data.result } : { kind: 'error', code: 'APPROVAL_LOOP', message: 'Action vẫn cần duyệt' };
+    if (out.status === 200) return { kind: 'ok', output: out.data.result };
+    // Đã duyệt → việc nền được nhận (TIP-032b): báo đang chạy + handle; duyệt đã tiêu thụ cùng transaction ghi việc, chạy lại cùng khoá
+    // `approval:<id>` trả lại handle (idempotency 202) — không xếp việc lần hai, không phải vòng duyệt.
+    if (out.data.status === 'job_accepted') return { kind: 'job_accepted', jobId: out.data.job_id, actionLogId: out.data.action_log_id, statusUrl: out.data.status_url };
+    return { kind: 'error', code: 'APPROVAL_LOOP', message: 'Action vẫn cần duyệt' };
   } catch (err) {
     if (err instanceof AppError) return { kind: 'error', code: err.code, message: err.message };
     throw err;

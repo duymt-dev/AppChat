@@ -53,9 +53,10 @@ export class ProductGetHandler implements Handler<ActionInput<typeof productGet>
     const where = input.product_id ? (UUID.test(input.product_id) ? { id: input.product_id } : null) : { code: input.code! };
     const p = where ? await tx.product.findFirst({ where: { ...where, deletedAt: null }, select: PRODUCT_SELECT }) : null;
     if (!p) throw new AppError('NOT_FOUND', 404, { product_id: 'not_found' });
-    const [cats, parts] = await Promise.all([
+    const [cats, parts, variants] = await Promise.all([
       categoryMap(tx),
       tx.productComponent.findMany({ where: { productId: p.id }, select: { childId: true, qty: true, child: { select: { name: true } } } }),
+      tx.productVariant.findMany({ where: { productId: p.id, status: 'active' }, orderBy: { sku: 'asc' }, select: { id: true, name: true, sku: true, price: true } }),
     ]);
     const r = p as ProductRecord;
     return {
@@ -67,6 +68,7 @@ export class ProductGetHandler implements Handler<ActionInput<typeof productGet>
         duration_min: r.durationMin,
         sessions: r.sessions,
         valid_days: r.validDays,
+        variants: variants.map((v) => ({ variant_id: v.id, name: v.name, sku: v.sku, price: v.price === null ? null : String(v.price) })),
       },
     };
   }

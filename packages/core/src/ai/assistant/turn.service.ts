@@ -309,6 +309,10 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
         // Đọc lại bản ghi vừa ghi bằng action get (cùng query + scope của màn) → model trả lời theo trạng thái thật.
         const readback = await readBack(d.executor, t, stepIdx, ui);
         outcome = { kind: 'ok', output: readback ? { result: out.data.result, readback } : out.data.result };
+      } else if (out.data.status === 'job_accepted') {
+        // Đã xác nhận → việc nền đã nhận (TIP-032b): thẻ xong phần gửi, model báo đang chạy + handle (chưa có kết quả cuối).
+        logId = out.data.action_log_id;
+        outcome = { kind: 'job_accepted', jobId: out.data.job_id, actionLogId: out.data.action_log_id, statusUrl: out.data.status_url };
       } else if (out.data.status === 'approval_required') {
         // Governance đẩy sang duyệt (vd. vượt ngưỡng): CHƯA thực hiện — model / thẻ nói rõ đang chờ duyệt, không báo đã xong.
         approvalId = out.data.approval_id;

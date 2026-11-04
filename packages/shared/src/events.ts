@@ -238,6 +238,7 @@ export const EVENT_SCHEMAS = {
   'package.expired': packageEvent,
   'package.changed': packageEvent,
   'package.reminder_due': packageReminderDueEvent,
+  'product.import_requested': z.object({ ...base, import_id: z.string().uuid() }),
   'appointment.created': appointmentEvent,
   'appointment.confirmed': appointmentEvent,
   'appointment.rescheduled': appointmentEvent,

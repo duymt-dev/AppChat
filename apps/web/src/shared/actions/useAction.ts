@@ -1,6 +1,7 @@
 // Đường ghi duy nhất của FE (frontend-structure §4): 202 preview → ConfirmActionHost, invalidates, toast + Hoàn tác, lỗi theo code.
 // 202 approval_required (TIP-023b SPEC B.4): toast "đã gửi duyệt", `onAccepted` + `accepted` riêng, invalidate danh sách duyệt; `run` vẫn trả
-// null (không giả kết quả thành công cho consumer đợi 200). Loại 202 khác (032b job_accepted) phải thêm nhánh — switch exhaustive.
+// null (không giả kết quả thành công cho consumer đợi 200). 202 job_accepted (TIP-032b): việc nền đã nhận — toast "đang chạy" (không phải
+// "đã xong"), `onAccepted` + `accepted` giữ handle (job_id, status_url) để màn theo dõi; không invalidate như hoàn tất. Switch exhaustive.
 // GenUI (TIP-023c): `genui.intent` = handle server ký cho node → header `x-genui-intent` (server đặt nguồn assistant → xem trước / xác
 // nhận như Trợ lý). Form có ô bí mật: 202 trả `secret_vault`; lần xác nhận gửi vault + input ĐÃ BỎ ô bí mật (không gửi lại giá trị).
 'use client';
@@ -18,7 +19,7 @@ export interface RunOptions {
   silent?: boolean;
   /** Màn tự xử lý lỗi nghiệp vụ (vd. CONTACT_OWNED → "Xin chia sẻ"); trả true để bỏ toast lỗi chung. */
   onError?: (e: ApiRequestError) => boolean;
-  /** 202 đã nhận nhưng CHƯA thực hiện (chờ duyệt) — màn tự cập nhật trạng thái chờ nếu cần. */
+  /** 202 đã nhận nhưng CHƯA xong (chờ duyệt / việc nền đang chạy) — màn giữ handle / cập nhật trạng thái chờ. */
   onAccepted?: (a: Exclude<ActionAccepted, { status: 'preview_required' }>) => void;
   /** Gửi từ node GenUI: handle intent + đường dẫn ô bí mật của form (bỏ khỏi input ở lần xác nhận). */
   genui?: { intent: string; secretPaths?: string[] };
@@ -78,6 +79,12 @@ export function useAction<O = unknown>(id: string) {
               opts.onAccepted?.(a);
               await qc.invalidateQueries({ queryKey: ['approvals'] });
               if (!opts.silent && def) message.info(t('actions.approvalSent', { title: t(def.title as never) }));
+              return null;
+            }
+            case 'job_accepted': {
+              setAccepted(a);
+              opts.onAccepted?.(a);
+              if (!opts.silent && def) message.info(t('actions.jobAccepted', { title: t(def.title as never) }));
               return null;
             }
             default:

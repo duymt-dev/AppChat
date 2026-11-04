@@ -43,7 +43,7 @@ export const productRowSchema = z.object({
   low_stock: z.boolean().optional(),
   components: z.array(z.object({ id: z.string(), name: z.string(), qty: z.number().int() })).optional(),
   attr_defs: z.array(z.object({ name: z.string(), values: z.array(z.string()) })).optional(),
-  variants: z.array(z.object({ id: z.string(), sku: z.string(), name: z.string(), stock: z.number().int() })).optional(),
+  variants: z.array(z.object({ id: z.string(), sku: z.string(), name: z.string(), stock: z.number().int(), price: z.string().nullable().optional(), version: z.number().int().optional() })).optional(),
 });
 export type ProductRowDto = z.infer<typeof productRowSchema>;
 

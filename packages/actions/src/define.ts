@@ -76,7 +76,9 @@ export interface ActionPreview {
   warnings?: string[];
 }
 
-/** 202 của POST /v1/actions/:id (Blueprint §4.3). */
+/** 202 của POST /v1/actions/:id (Blueprint §4.3). `job_accepted` (TIP-032b): yêu cầu đã ghi + xếp việc nền — CHƯA hoàn tất; tiến độ
+ * đọc ở `status_url`, gửi lại cùng Idempotency-Key trả đúng handle này (không xếp việc lần hai). */
 export type ActionAccepted =
   | { status: 'preview_required'; preview: ActionPreview; confirm_token: string; expires_at: string }
-  | { status: 'approval_required'; approval_id: string };
+  | { status: 'approval_required'; approval_id: string }
+  | { status: 'job_accepted'; job_id: string; action_log_id: string; status_url: string };

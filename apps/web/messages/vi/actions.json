@@ -22,6 +22,7 @@
   },
   "done": "Đã thực hiện: {title}",
   "approvalSent": "Đã gửi duyệt: {title} — chưa thực hiện cho tới khi được duyệt",
+  "jobAccepted": "Đã nhận: {title} — đang chạy nền, kết quả cập nhật khi xong",
   "previewTitle": "Xác nhận thao tác",
   "business_profile": {
     "update": {
@@ -284,11 +285,30 @@
     "get": {
       "title": "Xem chi tiết sản phẩm",
       "desc": "Xem chi tiết một sản phẩm: mô tả, thuộc tính, thành phần combo, giá và tồn"
+    },
+    "import": {
+      "title": "Nhập sản phẩm từ tệp"
+    },
+    "import_cancel": {
+      "title": "Huỷ nhập sản phẩm"
+    },
+    "import_retry": {
+      "title": "Chạy lại nhập sản phẩm"
     }
   },
   "category": {
     "create": {
       "title": "Tạo danh mục"
+    },
+    "update": {
+      "title": "Sửa danh mục"
+    },
+    "delete": {
+      "title": "Xoá danh mục"
+    },
+    "list": {
+      "title": "Xem danh mục sản phẩm",
+      "desc": "Đọc danh sách danh mục sản phẩm và số sản phẩm mỗi danh mục"
     }
   },
   "stock": {
@@ -1001,6 +1021,17 @@
     "send": {
       "title": "Gửi phiếu thu cho khách",
       "desc": "Gửi PDF phiếu thu của một khoản đã thu vào hội thoại của khách."
+    }
+  },
+  "product_variant": {
+    "create": {
+      "title": "Thêm biến thể"
+    },
+    "update": {
+      "title": "Sửa biến thể"
+    },
+    "archive": {
+      "title": "Lưu trữ biến thể"
     }
   }
 }

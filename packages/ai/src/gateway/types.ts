@@ -12,6 +12,8 @@ export type ToolOutcome =
   /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
   | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown }
   | { kind: 'needs_approval'; approvalId: string }
+  /** Việc nền đã nhận (202 `job_accepted`, TIP-032b): CHƯA xong — model chỉ báo đang chạy + handle; bước cần kết quả cuối không được mở. */
+  | { kind: 'job_accepted'; jobId: string; actionLogId: string; statusUrl: string }
   | { kind: 'error'; code: string; message: string };
 
 export interface ToolSpec {

@@ -136,3 +136,39 @@ test.describe('commerce-gaps — liệu trình khi cọc (TIP-032b P3)', () => {
     await expect(page.getByTestId('pd-form').getByTestId('pf-grant-on-deposit')).toBeChecked();
   });
 });
+
+test.describe('commerce-gaps — nhập sản phẩm từ tệp (TIP-032b P4)', () => {
+  const csv = (rows: string[]) => ({ name: 'sp.csv', mimeType: 'text/csv', buffer: Buffer.from(['Tên,Giá,Mã', ...rows].join('\n'), 'utf8') });
+
+  test('≤ 500 dòng: xem trước → xác nhận → tạo 2, cập nhật 1 (SKU có sẵn), 1 dòng lỗi; sản phẩm mới hiện trong danh sách', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(`/products${S}`);
+    await page.getByTestId('pd-import-open').click();
+    const m = page.getByTestId('pd-import');
+    await m.getByTestId('pd-import-file').setInputFiles(csv(['Serum nhập E2E,350.000,NK-1', 'Kem nhập E2E,420000,NK-2', 'HIFU đổi tên E2E,13000000,SP-1001', ',100000,NK-3']));
+    await expect(m).toContainText('sp.csv');
+    await m.getByTestId('pd-import-run').click();
+    await page.getByRole('button', { name: 'Xác nhận' }).click();
+    await expect(m.getByTestId('pd-import-status')).toContainText('Đã xong');
+    await expect(m.getByTestId('pd-import-status')).toContainText('tạo 2 · cập nhật 1 · lỗi 1');
+    await page.getByRole('button', { name: 'Đóng' }).first().click();
+    await page.getByTestId('pd-search').fill('nhập E2E');
+    await expect(page.getByText('Serum nhập E2E').first()).toBeVisible();
+    await page.getByTestId('pd-search').fill('HIFU đổi tên E2E');
+    await expect(page.getByText('HIFU đổi tên E2E').first()).toBeVisible();
+  });
+
+  test('> 500 dòng: 202 job_accepted → báo "đang chạy nền", theo dõi tới khi xong (không gọi lại action)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(`/products${S}`);
+    await page.getByTestId('pd-import-open').click();
+    const m = page.getByTestId('pd-import');
+    await m.getByTestId('pd-import-file').setInputFiles(csv(Array.from({ length: 501 }, (_, i) => `Hàng loạt ${i + 1},10000,HL-${i + 1}`)));
+    await expect(m).toContainText('sp.csv');
+    await m.getByTestId('pd-import-run').click();
+    await page.getByRole('button', { name: 'Xác nhận' }).click();
+    await expect(page.getByText('đang chạy nền').first()).toBeVisible();
+    await expect(m.getByTestId('pd-import-status')).toContainText('Đã xong', { timeout: 15_000 });
+    await expect(m.getByTestId('pd-import-status')).toContainText('Đã xử lý 501/501 · tạo 501');
+  });
+});

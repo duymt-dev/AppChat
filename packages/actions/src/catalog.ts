@@ -144,7 +144,7 @@ export const productGet = defineAction({
   id: 'product.get',
   module: 'catalog',
   title: 'actions.product.get.title',
-  description: 'Get one product with description, attributes, combo components and current price / stock. Example: {"product_id":"…"} or {"code":"SP-1001"}',
+  description: 'Get one product with description, attributes, combo components, active variants and current price / stock. Example: {"product_id":"…"} or {"code":"SP-1001"}',
   input: z.object({ product_id: z.string().optional(), code: z.string().max(40).optional() }).refine((v) => !!(v.product_id || v.code), { message: 'product_id_or_code', path: ['product_id'] }),
   output: productHit.extend({
     description: z.string(),
@@ -153,6 +153,8 @@ export const productGet = defineAction({
     duration_min: z.number().nullable(),
     sessions: z.number().nullable(),
     valid_days: z.number().nullable(),
+    /** Biến thể đang bán (TIP-032b — mã cho product_variant.update / archive). */
+    variants: z.array(z.object({ variant_id: z.string(), name: z.string(), sku: z.string(), price: z.string().nullable() })).optional(),
   }),
   permission: 'catalog.view',
   risk: 'read',

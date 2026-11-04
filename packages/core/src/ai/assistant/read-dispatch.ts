@@ -29,6 +29,8 @@ export function acceptedOutcome(a: ActionAccepted, canonicalInput: unknown): Too
       return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token, canonicalInput };
     case 'approval_required':
       return { kind: 'needs_approval', approvalId: a.approval_id };
+    case 'job_accepted':
+      return { kind: 'job_accepted', jobId: a.job_id, actionLogId: a.action_log_id, statusUrl: a.status_url };
     default:
       return never(a);
   }

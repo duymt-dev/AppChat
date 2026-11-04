@@ -14,6 +14,7 @@ import { ProductCard, ProductKanbanCard, useProductColumns } from '../columns';
 import { CategoryBar, SyncSources } from '../components/SyncSources';
 import { ProductDrawer } from '../components/ProductDrawer';
 import { ProductFormModal } from '../components/ProductFormModal';
+import { ProductImportModal } from '../components/ProductImportModal';
 import type { Product } from '../types';
 import { useProductsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
@@ -72,6 +73,12 @@ export function ProductsScreen() {
               <Icon name="ic-refresh" size={14} color={color.text2} strokeWidth={1.9} />
               {t('sync')}
             </button>
+            {canManage ? (
+              <button type="button" className={styles.chip} onClick={() => ui.set({ importOpen: true })} data-testid="pd-import-open">
+                <Icon name="ic-up" size={14} color={color.text2} strokeWidth={1.9} />
+                {t('import.open')}
+              </button>
+            ) : null}
             {canManage ? (
               <button
                 type="button"
@@ -133,6 +140,7 @@ export function ProductsScreen() {
       </PageStates>
       {meta ? <ProductDrawer meta={meta} /> : null}
       {meta ? <ProductFormModal meta={meta} /> : null}
+      {ui.importOpen ? <ProductImportModal /> : null}
     </div>
   );
 }

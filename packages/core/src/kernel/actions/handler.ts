@@ -25,6 +25,11 @@ export interface HandlerOutcome<O> {
    * đường quét lại (scheduler).
    */
   afterCommit?: () => Promise<void>;
+  /**
+   * Việc nền đã ghi bền (bản ghi job + outbox cùng transaction) — executor trả 202 `job_accepted` thay 200 (TIP-032b, job-accepted.ts).
+   * `result` vẫn qua output schema + action_log (yêu cầu đã nhận); trạng thái hoàn tất là của bản ghi job.
+   */
+  accepted?: { jobId: string; statusUrl: string };
 }
 
 export interface ActionHandler<I = unknown, O = unknown> {

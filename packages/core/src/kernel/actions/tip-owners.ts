@@ -47,6 +47,7 @@ const BY_PREFIX: Record<string, string> = {
   ai_task: '035',
   product: '027',
   category: '027',
+  product_variant: '027',
   doc_template: '028',
   quote: '029',
   contract: '030',

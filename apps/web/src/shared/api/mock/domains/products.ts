@@ -7,6 +7,7 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { paginate } from '../paginate';
+import { importCancel, importPreview, importRetry, importRun, type ImportCatalog, type ImportInput } from './product-import';
 
 export type ProductsFixture = typeof fixture;
 type Fixed = ProductsFixture['products'][number];
@@ -142,6 +143,11 @@ const attrLabels = (a?: { name: string; values: string[] }[]) =>
 const PAL = fixture.category_pal as unknown as Record<string, [string, string, string]>;
 const DEFAULT_PAL: [string, string, string] = ['#F3F4F6', '#6B7280', 'ic-box'];
 
+const importCatalog = (db: MockDb): ImportCatalog => ({
+  list: db.products.products,
+  create: (r) => (productsHandlers['product.create']!.execute(db, { ...r, type: 'physical' } as never) as { product_id: string }).product_id,
+});
+
 export const productsHandlers: Record<string, MockHandler> = {
   'product.create': {
     execute: (db, i: Fields) => {
@@ -225,6 +231,13 @@ export const productsHandlers: Record<string, MockHandler> = {
       log(db, p.id, entry('restore', 'Khôi phục sản phẩm', 'Bạn', nowIso()));
     },
   },
+  // Nhập từ tệp (TIP-032b): logic ở product-import.ts; tạo mới đi qua `product.create` như form.
+  'product.import': {
+    preview: (_db, i: ImportInput) => importPreview(i),
+    execute: (db, i: ImportInput) => importRun(importCatalog(db), i),
+  },
+  'product.import_cancel': { execute: (_db, i: { import_id: string }) => importCancel(i) },
+  'product.import_retry': { execute: (_db, i: { import_id: string }) => importRetry(i) },
   'category.create': {
     execute: (db, i: { name: string }) => {
       if (!db.products.categories.includes(i.name)) db.products.categories.push(i.name);
