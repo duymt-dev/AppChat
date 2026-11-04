@@ -770,6 +770,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 - `loyalty.get_member`: read, agent ✓.
 - `loyalty.update_config`: config.
 - `loyalty.adjust_points`: money; bắt buộc 1 trong 7 lý do; undo 24h.
+- *Bổ sung hợp đồng TIP-036 (không đổi luật COMMERCE §7):* `loyalty.get_member` trả thêm `value` (điểm × 100đ, string VND) + `vnd_per_point`; `loyalty.attach_file` (crm.edit, write, undo 24h — gắn tệp tự tải lên vào thành viên); `payment.redeem_points` (payment.record, money, undo 24h, module sales — khoá đề nghị → đơn → khách → lô, trần 50% đơn, DC-350); action hệ thống `loyalty.earn` / `reverse` / `expire` / `review_tier` chỉ consumer `order.completed` · `order.cancelled` · `payment.refunded` + job `loyalty.sweep` gọi (actor `system:loyalty`, không qua HTTP / Trợ lý — DC-348/349). `contact.get` / `get_360` trả thêm `tier`.
 
 **ai** (`assistant.use` · `agents.manage` · `kb.manage` · `approvals.decide` · `ai.governance` · `ai_task.manage`)
 
@@ -964,7 +965,7 @@ type UiCommand =
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
 | support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
 | marketing | `GET /v1/segments` · `POST /v1/segments/preview` (đọc) · `GET /v1/campaigns?status=` · `GET /v1/campaigns/:id` (+stats) · `GET /v1/campaign-suggestions` |
-| loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=` · `GET /v1/loyalty/members/:contactId/ledger` |
+| loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=&page=&limit=` · `GET /v1/loyalty/members/:contactId` · `GET /v1/loyalty/members/:contactId/ledger` · `GET /v1/loyalty/lookup?phone=` · `GET /v1/loyalty/overview` · `GET /v1/loyalty/members/:contactId/files` (+ `/:fileId` bytes) — bổ sung TIP-036, schema chung `packages/shared/src/api/loyalty.ts` |
 | ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/suggestions?status=` (P1) · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |

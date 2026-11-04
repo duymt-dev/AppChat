@@ -3,7 +3,7 @@
 // trừ quá số dư → 422 (điều chỉnh không tạo nợ). Ghi sổ + số dư + timeline cùng transaction; hoàn tác 24h = ghi bù (không xoá sổ).
 // Hạng không đổi ngay — xét lại đầu quý theo điểm tích 12 tháng (COMMERCE §7; job loyalty.tier-review).
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, safePoints, serverMessages } from '@appchat/shared';
+import { AppError, REDEEM_VND_PER_POINT, pointsValue, safePoints, serverMessages } from '@appchat/shared';
 import type { ActionInput, ActionPreview, loyaltyAdjustPoints, loyaltyGetMember } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
@@ -25,7 +25,7 @@ async function adjustable(tx: TenantTx, authz: AuthzContext, id: string) {
 
 type GetIn = ActionInput<typeof loyaltyGetMember>;
 type AdjIn = ActionInput<typeof loyaltyAdjustPoints>;
-type GetOut = { contact_id: string; points: number; tier: string; expiring: number };
+type GetOut = { contact_id: string; points: number; tier: string; expiring: number; value: string; vnd_per_point: number };
 type AdjOut = { contact_id: string; balance_after: number; tier: string };
 
 @Injectable()
@@ -36,7 +36,8 @@ export class LoyaltyGetMemberHandler implements Handler<GetIn, GetOut> {
   async execute(ctx: ActionContext, i: GetIn, tx: TenantTx): Promise<HandlerOutcome<GetOut>> {
     const { contact } = await visibleContact(tx, ctx.authz, i.contact_id);
     const expiring = await expiringWithin(tx, contact.id, this.clock.now(), 30);
-    return { result: { contact_id: contact.id, points: safePoints(contact.pointsBalance), tier: contact.tierKey ?? 'member', expiring: safePoints(expiring) } };
+    const value = contact.pointsBalance > 0n ? pointsValue(contact.pointsBalance) : 0n;
+    return { result: { contact_id: contact.id, points: safePoints(contact.pointsBalance), tier: contact.tierKey ?? 'member', expiring: safePoints(expiring), value: String(value), vnd_per_point: Number(REDEEM_VND_PER_POINT) } };
   }
 
   async preview(ctx: ActionContext, i: GetIn, tx: TenantTx): Promise<ActionPreview> {

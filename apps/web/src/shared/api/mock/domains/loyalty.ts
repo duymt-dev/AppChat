@@ -137,7 +137,7 @@ export const loyaltyHandlers: Record<string, MockHandler> = {
   'loyalty.get_member': {
     execute: (db, i: { contact_id: string }) => {
       const m = find(db, i.contact_id);
-      return { contact_id: m.contact_id, points: m.points, tier: m.tier, expiring: m.expiring };
+      return { contact_id: m.contact_id, points: m.points, tier: m.tier, expiring: m.expiring, value: String(Math.max(0, m.points) * 100), vnd_per_point: 100 };
     },
   },
   'loyalty.adjust_points': {

@@ -34,7 +34,7 @@
 | COM-4-8 | Gợi ý tự bật cọc (sản phẩm có `deposit`, đơn giá trị cao, khách từng no-show) | plans/COMMERCE-DECISIONS.md:90 | 033d | CHƯA | Không có code gợi ý (grep deposit trong orders FE / core); TIP-033d nhận (2026-11-02); Q-039 duyệt → DC-301 (2026-11-03) |
 | COM-4-9 | Sửa đơn tự do ở new; processing chỉ khi chưa có khoản thu | plans/COMMERCE-DECISIONS.md:92 | 031 | ĐẠT | order-edit.handlers.ts:77 · test orders.test.ts "processing: sửa dòng khi chưa thu …; đã thu → 409" |
 | COM-4-10 | Huỷ đơn: lý do bắt buộc, hoàn kho, đã thu → yêu cầu hoàn tiền Owner duyệt | plans/COMMERCE-DECISIONS.md:93-97 | 031, 032 | ĐẠT | order-flow.handlers.ts:47-59 · test orders.test.ts "cancel: lý do rỗng 422; hoàn kho; đã thu → chờ hoàn tiền", payments.test.ts |
-| COM-4-11 | Huỷ đơn: đảo điểm đã cộng + trả lại điểm đã dùng | plans/COMMERCE-DECISIONS.md:96 | 036 | CHƯA | Không có sổ điểm (packages/core/src/loyalty/loyalty.module.ts stub) |
+| COM-4-11 | Huỷ đơn: đảo điểm đã cộng + trả lại điểm đã dùng | plans/COMMERCE-DECISIONS.md:96 | 036 | ĐẠT | loyalty.reverse cause cancel trả điểm đã dùng đúng lô (ledger-system.handlers.ts); test loyalty-events.test.ts "huỷ" |
 | COM-4-12 | Vận chuyển nhập tay (đơn vị, mã vận đơn, ngày giao) | plans/COMMERCE-DECISIONS.md:98 | 031 | ĐẠT | order-edit.handlers.ts:161 · test orders.test.ts "vận chuyển + hoàn tác"; tích hợp hãng: NGOÀI P2 |
 | COM-4-13 | Chip lọc Tất cả · Đã TT · Đã cọc · Chờ cọc · Đã huỷ, mỗi chip đúng trục; 2 cột trạng thái | plans/COMMERCE-DECISIONS.md:99-101 | 031 | ĐẠT | order-state.ts:58-59; orders/repos/orders.repo.ts:31 · test orders.test.ts "D42 page + chip" |
 | COM-4b-1 | `order.source` + `external_ref`; nhập một lần unique theo kết nối + mã ngoài | plans/COMMERCE-DECISIONS.md:105 | 031 | ĐẠT | sales-orders.prisma:97 @@unique; orders/services/order-import.ts · test orders.test.ts "sync_now … gọi lại idempotent" |
@@ -72,13 +72,13 @@
 | COM-6-8 | Hết hạn → `expired`; Owner gia hạn `package.extend` có log | plans/COMMERCE-DECISIONS.md:142 | 032 | ĐẠT | packages.ts:50; package.handlers.ts:45 · test payments.test.ts "liệu trình: gia hạn" |
 | COM-6-9 | Hoàn tiền gói theo tỉ lệ buổi còn lại, cần duyệt; không chuyển nhượng | plans/COMMERCE-DECISIONS.md:143 | 032 | ĐẠT | refunds.ts · test payments.test.ts "yêu cầu theo liệu trình (tỉ lệ buổi còn lại) → chờ duyệt" |
 | COM-6-10 | Hồ sơ 360° có thẻ "Liệu trình"; agent đọc được để tư vấn | plans/COMMERCE-DECISIONS.md:144 | 033b | MỘT PHẦN | API `GET /contacts/:id/packages` có (apps/api/src/http/sales/invoices.controller.ts) nhưng FE features không gọi (chỉ mock test); không có action đọc liệu trình cho agent (023b R2 không liệt kê); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
-| COM-7-1 | Cộng điểm một lần khi đơn `completed`: floor(net trước VAT / 10.000) × hệ số hạng | plans/COMMERCE-DECISIONS.md:148-149 | 036 | MỘT PHẦN | Tính + ghi trên đơn (order-flow.handlers.ts:22-44; order-state.ts:62-67 · test order-state.test.ts pointsFor, orders.test.ts complete); chưa cộng sổ điểm / `points_balance` (DC-186) |
-| COM-7-2 | Hệ số hạng ×1 / ×1 / ×1,5 / ×2 cấu hình được | plans/COMMERCE-DECISIONS.md:150 | 036 | MỘT PHẦN | packages/shared/src/orders/order-state.ts:63-67 dùng hằng số, core/src/sales/orders/actions/order-flow.handlers.ts:37 không đọc config; loyalty.update_config chưa handler. TIP-036 TASK 2, AC2 nhận snapshot hệ số, không sửa earn cũ |
+| COM-7-1 | Cộng điểm một lần khi đơn `completed`: floor(net trước VAT / 10.000) × hệ số hạng | plans/COMMERCE-DECISIONS.md:148-149 | 036 | ĐẠT | earnSnapshot + loyalty.earn một lần / lượt hoàn tất (DC-348); test loyalty-events.test.ts |
+| COM-7-2 | Hệ số hạng ×1 / ×1 / ×1,5 / ×2 cấu hình được | plans/COMMERCE-DECISIONS.md:150 | 036 | ĐẠT | loyalty.update_config hệ số 4 hạng, chỉ đơn sau (config_version trong basis); test loyalty.test.ts, loyalty-events.test.ts |
 | COM-7-3 | Lịch hẹn hoàn tất không cộng điểm riêng | plans/COMMERCE-DECISIONS.md:151 | 033 | ĐẠT | appointment-flow.handlers.ts:86 không cộng điểm · test booking.test.ts |
-| COM-7-4 | Đổi điểm: 1 điểm = 100đ, khoản thu kind `points`, ≤ 50% giá trị đơn | plans/COMMERCE-DECISIONS.md:152 | 036 | CHƯA | `payment.redeem_points` không có trong registry; 360° quy đổi ×10 (contact360.ts:40) |
-| COM-7-5 | Đảo điểm khi huỷ đơn / hoàn tiền một phần theo tỉ lệ | plans/COMMERCE-DECISIONS.md:153-155 | 036 | CHƯA | Không có sổ điểm |
-| COM-7-6 | Hạn điểm 12 tháng FIFO | plans/COMMERCE-DECISIONS.md:156 | 036 | CHƯA | loyalty module stub |
-| COM-7-7 | Hạng theo điểm 12 tháng, xét lại mỗi quý, ngưỡng 0 / 5.000 / 15.000 / 40.000 | plans/COMMERCE-DECISIONS.md:157 | 036 | CHƯA | loyalty module stub; `/loyalty/*` FE gọi mà API không có (routes.json missing) |
+| COM-7-4 | Đổi điểm: 1 điểm = 100đ, khoản thu kind `points`, ≤ 50% giá trị đơn | plans/COMMERCE-DECISIONS.md:152 | 036 | ĐẠT | payment.redeem_points kind/method points, 1 điểm = 100đ, ≤ 50% đơn (DC-350); test loyalty-concurrency.test.ts, loyalty.contract.test.ts |
+| COM-7-5 | Đảo điểm khi huỷ đơn / hoàn tiền một phần theo tỉ lệ | plans/COMMERCE-DECISIONS.md:153-155 | 036 | ĐẠT | loyalty.reverse cancel / refund tỉ lệ luỹ kế refundShare (DC-349); test loyalty-events.test.ts |
+| COM-7-6 | Hạn điểm 12 tháng FIFO | plans/COMMERCE-DECISIONS.md:156 | 036 | ĐẠT | lô FIFO 12 tháng + job loyalty.sweep expireDue; test loyalty-concurrency.test.ts, loyalty-events.test.ts |
+| COM-7-7 | Hạng theo điểm 12 tháng, xét lại mỗi quý, ngưỡng 0 / 5.000 / 15.000 / 40.000 | plans/COMMERCE-DECISIONS.md:157 | 036 | ĐẠT | reviewTiers đầu quý theo điểm 12 tháng, tier_reviewed chặn xét lại; test loyalty-events.test.ts |
 | COM-7-8 | Voucher / mã giảm giá | plans/COMMERCE-DECISIONS.md:158 | — | NGOÀI | P2 |
 | COM-8-1 | Khách mới từ kênh → Lead mới | plans/COMMERCE-DECISIONS.md:164 | 015, 016 | ĐẠT | test crm-contacts.test.ts "AC2 contact.create … lead", inbox.test.ts AC2 |
 | COM-8-2 | `quote.sent` → Báo giá (nếu thấp hơn) | plans/COMMERCE-DECISIONS.md:165 | 029 | ĐẠT | quote-send.handlers.ts:90 · test quotes.test.ts "giai đoạn Báo giá" |
@@ -142,7 +142,7 @@
 | D07 | Không làm Call Center, Workflow engine | 01-REQUIREMENTS-MATRIX.md:258 | — | NGOÀI | D07 |
 | D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | CHƯA | packages/core/src/marketing chỉ module stub; `/campaigns*` FE gọi mà API không có (routes.json missing) |
-| D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | CHƯA | loyalty module stub; `/loyalty/*` thiếu API |
+| D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
 | D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | MỘT PHẦN | Như COM-10-7 |
 | D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | MỘT PHẦN | Seed có (billing/seed.ts · test billing.test.ts AC2); `admin.plan.upsert` chưa có |
 | D11 | RBAC Owner + Member | 01-REQUIREMENTS-MATRIX.md:262 | — | NGOÀI | Thay bằng D27 |
@@ -222,7 +222,7 @@
 | DC-151 | Khối 360° của module khác hiện dữ liệu | DECISIONS.md:160 | 015b | ĐẠT | apps/web/src/features/inbox/components/LinkBlocks360.tsx (báo giá / đơn / lịch hẹn / ticket / SLA / CSAT theo quyền, null → "không có quyền xem") + insights.links (packages/core/src/crm/insights/customer-links.ts) |
 | DC-154 | `category.update / delete` | DECISIONS.md:163 | 032b | ĐẠT | Như ACT-category.update / delete |
 | DC-169 | Thêm kênh gửi chứng từ khi có adapter (webchat) | DECISIONS.md:178 | 032b | ĐẠT | Như COM-5-17 |
-| DC-186 | Sổ điểm tiêu thụ `order.completed` | DECISIONS.md:195 | 036 | CHƯA | loyalty stub |
+| DC-186 | Sổ điểm tiêu thụ `order.completed` | DECISIONS.md:195 | 036 | ĐẠT | consumer loyaltyOrdersConsumer tiêu thụ order.completed (packages/core/src/loyalty/events/order-consumer.ts); test loyalty-events.test.ts |
 | DC-199 | Liệu trình sinh khi cọc | DECISIONS.md:208 | 032b | ĐẠT | Như COM-6-3 |
 | DC-215 | Cấu hình danh mục ticket riêng | DECISIONS.md:224 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DC-226 | Bộ `pnpm ai:live` 30 câu | DECISIONS.md:235 | 023b | ĐẠT | tools/ai-live (30 ca cố định cases.yaml, --cases, chấm an toàn trước); pnpm ai:live 2026-11-03 model thật 9router cc/claude-haiku-4-5: 27/30, 0 vi phạm an toàn — coding-packs/reports/ai-live-2026-11-03.md |

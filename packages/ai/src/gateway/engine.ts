@@ -96,7 +96,7 @@ export class AiSdkEngine implements AgentEngine {
         if (n >= LOOP_LIMIT) return yield done('loop_guard');
         yield { type: 'tool_call', stepIdx, call };
         const t0 = Date.now();
-        const outcome = await runTool(specs.get(call.toolName), call, stepIdx);
+        const outcome = await runTool(specs.get(call.toolName), call, stepIdx, specs);
         yield { type: 'tool_result', stepIdx, call, outcome, latencyMs: Date.now() - t0 };
         if (outcome.kind === 'needs_confirmation' || outcome.kind === 'needs_approval') {
           const canonical = outcome.kind === 'needs_confirmation' && outcome.canonicalInput !== undefined ? { canonicalInput: outcome.canonicalInput } : {};
@@ -164,9 +164,10 @@ export class AiSdkEngine implements AgentEngine {
   }
 }
 
-async function runTool(spec: ToolSpec | undefined, call: ToolCallRef, stepIdx: number): Promise<ToolOutcome> {
-  // Tool ngoài danh sách của run (agent-gateway §3, Blueprint §3.3b) → FORBIDDEN, run tiếp với tool còn lại.
-  if (!spec) return { kind: 'error', code: 'FORBIDDEN', message: `Tool ${call.toolName} không được cấp cho lượt chạy này` };
+async function runTool(spec: ToolSpec | undefined, call: ToolCallRef, stepIdx: number, specs: ReadonlyMap<string, ToolSpec>): Promise<ToolOutcome> {
+  // Tool ngoài danh sách của run (agent-gateway §3, Blueprint §3.3b) → FORBIDDEN, run tiếp với tool còn lại. Nêu tên tool được dùng để model
+  // tự sửa (vd gọi thẳng `contact.search` thay vì `call_action`) — chỉ tên, không cấp thêm gì.
+  if (!spec) return { kind: 'error', code: 'FORBIDDEN', message: `Tool ${call.toolName} không được cấp cho lượt chạy này — chỉ dùng: ${[...specs.keys()].join(', ')}` };
   try {
     return await spec.execute(call.input, { stepIdx, toolCallId: call.toolCallId });
   } catch (err) {

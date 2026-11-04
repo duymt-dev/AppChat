@@ -15,6 +15,8 @@ const profile = z.object({
   group: z.string().nullable(),
   owner_user_id: z.string().nullable(),
   points: z.string(),
+  /** Hạng thành viên (member / silver / gold / diamond) — cùng cột với loyalty.get_member. */
+  tier: z.string(),
   total_spent: z.string(),
   last_interaction_at: z.string(),
 });
@@ -23,7 +25,7 @@ export const contactGet = defineAction({
   id: 'contact.get',
   module: 'crm',
   title: 'actions.contact.get.title',
-  description: 'Get one customer profile (contact info, stage, group, points, total spent). Accepts id or code. Example: {"contact_id":"KH-1016"}',
+  description: 'Get one customer profile (contact info, stage, group, loyalty points + tier, total spent; redeem value → loyalty.get_member). Accepts id or code. Example: {"contact_id":"KH-1016"}',
   input: z.object({ contact_id: z.string().min(1) }),
   output: profile,
   permission: 'crm.view',

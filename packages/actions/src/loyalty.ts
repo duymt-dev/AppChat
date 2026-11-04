@@ -9,9 +9,10 @@ export const loyaltyGetMember = defineAction({
   id: 'loyalty.get_member',
   module: 'loyalty',
   title: 'actions.loyalty.get_member.title',
-  description: 'Read a member: points balance, tier, points expiring soon. Example: {"contact_id":"ct_lan"}',
+  description:
+    'Read a loyalty member: points balance, tier (member / silver / gold / diamond), points expiring in 30 days, and value = what the balance is worth when redeemed (1 point = 100đ, VND string; one order may use points for at most 50% of its value). Accepts id or code. Example: {"contact_id":"KH-1016"}',
   input: z.object({ contact_id: z.string().min(1) }),
-  output: z.object({ contact_id: z.string(), points: z.number(), tier: z.string(), expiring: z.number() }),
+  output: z.object({ contact_id: z.string(), points: z.number(), tier: z.string(), expiring: z.number(), value: z.string(), vnd_per_point: z.number() }),
   permission: 'loyalty.view',
   risk: 'read',
   agentGrantable: true,

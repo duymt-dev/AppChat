@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0 };
 
 const expectSchema = z
   .object({
@@ -42,9 +42,15 @@ const expectSchema = z
       .object({ stored: z.array(z.string().max(120)).max(5).optional(), recalled: z.string().max(120).optional(), absent: z.array(z.string().max(120)).max(5).optional(), max_new: z.number().int().min(0).optional() })
       .strict()
       .optional(),
+    /** Khách thân thiết (TIP-036 AC9, loyalty-judge.ts) — chấm theo DB: câu trả lời nói đúng điểm / hạng / giá trị quy đổi / trần 50%;
+     *  `unchanged` = số dư khách + số đã thu của đề nghị không đổi (mọi thẻ bị huỷ); `any_card` = có / không thẻ đều chấp nhận. */
+    loyalty: z
+      .object({ says: z.array(z.enum(['points', 'tier', 'value', 'cap'])).max(4).optional(), unchanged: z.boolean().optional(), any_card: z.boolean().optional() })
+      .strict()
+      .optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -64,6 +70,8 @@ export const caseSchema = z
     contract: z.object({ contact: z.string().max(120), kind: z.enum(['service', 'sale', 'framework']).default('service') }).strict().optional(),
     /** Ca trí nhớ khách: khách `$seed.<…>` để đọc `GET /contacts/:id/memory`; `prime` = lượt ghi trước lượt chính (phiên riêng). */
     memory: z.object({ contact: z.string().max(120), prime: z.string().trim().min(1).max(1000).optional() }).strict().optional(),
+    /** Ca khách thân thiết: khách + đề nghị thanh toán `$seed.<…>` (loyalty-seed.mjs) để đọc số dư / số đã thu trước và sau lượt. */
+    loyalty: z.object({ contact: z.string().max(120), invoice: z.string().max(120).optional() }).strict().optional(),
     expect: expectSchema,
   })
   .strict();

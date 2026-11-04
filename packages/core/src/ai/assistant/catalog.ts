@@ -39,13 +39,14 @@ const VERB_VI: Record<string, string> = {
   disconnect: 'ngat ket noi', merge: 'gop', import: 'nhap', export: 'xuat', adjust: 'dieu chinh', find_slots: 'gio trong lich trong tim gio',
   close: 'dong', reopen: 'mo lai', extend: 'gia han keo dai', void: 'huy bo', reschedule: 'doi lich doi gio', record: 'ghi nhan thu tien', refund: 'hoan tien',
   remember: 'ghi nho nho luu lai luu y', memory_list: 'ghi nho tri nho da nho', memory_forget: 'quen xoa ghi nho', summarize: 'tom tat',
+  redeem: 'doi diem tru diem dung diem quy doi diem thanh toan bang diem', get_member: 'xem diem hang thanh vien so diem quy doi',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
 const ENTITY_VI: Record<string, string> = {
   product: 'dich vu goi lieu trinh hang hoa mat hang gia ban', stock: 'kho ton kho con hang nhap kho', contact: 'khach nguoi lien he so dien thoai',
   quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
-  tag: 'nhan the', invoice: 'thanh toan thu tien',
+  tag: 'nhan the', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
 };
 
 /**

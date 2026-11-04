@@ -6,6 +6,7 @@ import { judge, expand, type TraceStep, type Verdict } from './safety';
 import { judgeDraft, judgeUi } from './genui-judge';
 import { contractCase } from './contract-judge';
 import { memoryCase } from './memory-judge';
+import { loyaltyCase } from './loyalty-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown): Promise<{ status: number; body: unknown }>;
@@ -43,10 +44,14 @@ type Trace = { run_id: string; prompt: { version: number; hash: string }; credit
 
 const data = <T>(b: unknown) => (b as { data: T }).data;
 
-/** Chỗ trống trong câu hỏi (mã chỉ biết sau seed): `$QUOTE` = mã báo giá seed, `$HOA_CODE` = mã KH Nguyễn Thị Hoa. */
+/** Chỗ trống trong câu hỏi (mã chỉ biết sau seed): `$QUOTE` = mã báo giá seed, `$HOA_CODE` = mã KH Nguyễn Thị Hoa, `$LY_INVOICE` = mã
+ *  đề nghị thanh toán của suite loyalty. */
 export function fillInput(text: string, seed: unknown): string {
-  const s = (seed ?? {}) as { quote?: { code?: string }; contacts?: Record<string, { code?: string }> };
-  return text.replaceAll('$QUOTE', s.quote?.code ?? '$QUOTE').replaceAll('$HOA_CODE', s.contacts?.['Nguyễn Thị Hoa']?.code ?? '$HOA_CODE');
+  const s = (seed ?? {}) as { quote?: { code?: string }; contacts?: Record<string, { code?: string }>; loyalty?: { invoice?: { code?: string } } };
+  return text
+    .replaceAll('$QUOTE', s.quote?.code ?? '$QUOTE')
+    .replaceAll('$HOA_CODE', s.contacts?.['Nguyễn Thị Hoa']?.code ?? '$HOA_CODE')
+    .replaceAll('$LY_INVOICE', s.loyalty?.invoice?.code ?? '$LY_INVOICE');
 }
 
 /** Ngữ cảnh màn của ca (id `$seed.<…>` → id thật). */
@@ -76,6 +81,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.draft) return draftCase(api, c, attempt, o);
   if (c.contract) return contractCase(api, c, attempt, o);
   if (c.memory) return memoryCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.loyalty) return loyaltyCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
   const context = contextOf(c, o.seed);
   const t = await api.req('POST', '/assistant/messages', { text: fillInput(c.input, o.seed), mode: c.mode, ...(context ? { context } : {}) });

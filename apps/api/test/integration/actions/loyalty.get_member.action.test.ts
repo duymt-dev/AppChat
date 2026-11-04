@@ -18,7 +18,7 @@ describe('loyalty.get_member', () => {
   it('happy (owner) + nguồn assistant chạy ngay', async () => {
     const r = await m.act({ contact_id: lan });
     expect(r.status, JSON.stringify(r.body)).toBe(200);
-    expect(r.body.data.result).toEqual({ contact_id: lan, points: 300, tier: 'member', expiring: 0 });
+    expect(r.body.data.result).toEqual({ contact_id: lan, points: 300, tier: 'member', expiring: 0, value: '30000', vnd_per_point: 100 });
     expect((await m.act({ contact_id: lan }, undefined, { 'x-action-source': 'assistant' })).status).toBe(200);
   });
 

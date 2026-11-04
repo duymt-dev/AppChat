@@ -30,6 +30,7 @@ function profile(c: ContactRow) {
     group: c.group,
     owner_user_id: c.ownerUserId,
     points: String(c.pointsBalance),
+    tier: c.tierKey ?? 'member',
     total_spent: String(c.totalSpent),
     last_interaction_at: c.lastInteractionAt.toISOString(),
   };
