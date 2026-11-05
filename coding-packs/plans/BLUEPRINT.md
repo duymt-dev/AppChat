@@ -880,6 +880,9 @@ Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò h
 | Kế toán | — | all (đọc) | all | — | — | all (module sales) |
 
 - `own` gồm bản ghi mình phụ trách / được gán **và** mọi bản ghi của khách mình là collaborator / watcher (D32).
+- **Bảng chân trị một nơi (TIP-042c, `packages/core/src/authz/data-access`)** — list / count / detail / action đọc / realtime dùng cùng predicate: Owner workspace → all; `none` chặn trước mọi nhánh (kể cả bản ghi của chính mình); `own` → owner / assignee (+ người tạo ticket, phụ trách khách của hội thoại) + quan hệ khách; `team` → thêm `team_id` của **bản ghi** ∈ nhóm người xem (DC-299 — không suy từ owner ∈ thành viên nhóm; `team_id` null = mơ hồ, chỉ nhánh own). Quan hệ khách không áp ticket.
+- **Đọc ≠ ghi:** watcher chỉ ĐỌC (không bao giờ là bằng chứng ghi); collaborator đọc + ghi trong phạm vi (không chuyển phụ trách / xoá khách). Scope GHI theo vai trò (`AuthzContext.writeScope`, preset `ROLE_DEFS.*.writeScope`; vai trò tuỳ biến = scope đọc) không rộng hơn scope đọc — CSKH crm đọc `all` / ghi `own`. Không đọc được → 404; đọc được mà không ghi được → 403 `SCOPE_FORBIDDEN`.
+- **`team_id` (DC-299):** chụp lúc tạo — nguồn (HĐ ← báo giá / HĐ gia hạn, đơn ← báo giá → HĐ → lịch hẹn, đề nghị ← đơn, bản sửa báo giá ← bản trước, hội thoại ← khách) → nhóm DUY NHẤT của người phụ trách (0 / nhiều nhóm → null); chia lead theo nhóm của rule. Chuyển phụ trách khách đổi nhóm khách + hội thoại chuyển kèm; chứng từ cũ giữ owner + nhóm (doanh số).
 - "uỷ quyền" = Chủ sở hữu bật riêng cho từng Quản lý (lưu trong `role` tuỳ biến P1; P0 bật bằng cờ `membership.delegations text[]`).
 - Viewer (prototype) = vai trò tuỳ biến P1.
 
