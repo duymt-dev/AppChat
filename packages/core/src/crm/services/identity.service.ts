@@ -26,7 +26,8 @@ export interface ResolvedContact {
 }
 
 export class ContactIdentityService {
-  async resolve(tx: TenantTx, i: InboundIdentity, now: Date): Promise<ResolvedContact> {
+  /** `forward` (lịch sử — TIP-014b C): `last_interaction_at` chỉ tiến, không lùi về mốc tin cũ. */
+  async resolve(tx: TenantTx, i: InboundIdentity, now: Date, o: { forward?: boolean } = {}): Promise<ResolvedContact> {
     const key = { channelAccountId_externalId: { channelAccountId: i.channelAccountId, externalId: i.externalId } };
     const known = await tx.contactIdentity.findUnique({ where: key, select: { contactId: true } });
     if (known) {
@@ -51,7 +52,8 @@ export class ContactIdentityService {
       create: { id: uuidv7(now.getTime()), contactId, channelType: i.channelType, channelAccountId: i.channelAccountId, externalId: i.externalId, displayName: i.displayName ?? null, createdAt: now },
       update: { contactId, displayName: i.displayName ?? undefined },
     });
-    await tx.contact.update({ where: { id: contactId }, data: { lastInteractionAt: now } });
+    if (o.forward) await tx.$executeRaw`UPDATE contact SET last_interaction_at = ${now} WHERE id = ${contactId}::uuid AND (last_interaction_at IS NULL OR last_interaction_at < ${now})`;
+    else await tx.contact.update({ where: { id: contactId }, data: { lastInteractionAt: now } });
     return { contactId, created: !byPhone, events };
   }
 

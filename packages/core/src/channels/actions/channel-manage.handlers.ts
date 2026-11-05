@@ -12,6 +12,9 @@ import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
+import { historyStatusUrl, requestHistory } from '../operations/history-run';
+import { jobAccepted } from '../../kernel/actions/job-accepted';
+import { actorUserId } from '../../inbox/services/access';
 import { disconnectPreview, pausePreview, resumePreview, syncHistoryPreview, updateSettingsPreview } from './previews/channel-manage.handlers.preview';
 
 type Ok = { ok: boolean };
@@ -103,20 +106,24 @@ export class ChannelSyncHistoryHandler implements Handler<ActionInput<typeof cha
   constructor(
     @Inject(ChannelAccounts) private readonly accounts: ChannelAccounts | null,
     @Inject(ChannelControl) private readonly control: ChannelControl | null,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(_ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
     const row = await need(this.accounts).live(tx, input.channel_account_id);
     const control = need(this.control);
     const prev = settingsOf(row);
     await tx.channelAccount.update({ where: { id: row.id }, data: { settings: { ...prev, history_days: input.history_days } } });
     const run = row.status === 'connected' && !row.pausedAt && input.history_days > 0;
-    return {
-      result: { ok: true },
-      before: { id: row.id, history_days: prev.history_days },
-      after: { id: row.id, history_days: input.history_days, requested: run },
-      afterCommit: run ? () => control.send({ op: 'sync', account_id: row.id, days: input.history_days }) : undefined,
-    };
+    const base = { result: { ok: true }, before: { id: row.id, history_days: prev.history_days }, after: { id: row.id, history_days: input.history_days, requested: run } };
+    if (!run) return base;
+    // Kênh lease (Zalo — TIP-014b C): lần lấy lịch sử bền + 202, worker giữ phiên chạy và báo cáo khoảng thực thấy.
+    if (channelRegistry.get(row.type)?.manifest.session === 'lease') {
+      const h = await requestHistory(tx, { accountId: row.id, actorId: actorUserId(ctx) ?? null, days: input.history_days, now: this.clock.now() });
+      return { ...base, events: [h.event], ...jobAccepted(h.id, historyStatusUrl(row.id, h.id)) };
+    }
+    // Kênh poll (email): bỏ mốc + poll lại theo ngày (TIP-018).
+    return { ...base, afterCommit: () => control.send({ op: 'sync', account_id: row.id, days: input.history_days }) };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx) {

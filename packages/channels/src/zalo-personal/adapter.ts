@@ -4,10 +4,11 @@
 // kênh → `sink.event` (lỗi sink ghi lại, không nuốt im lặng); gửi trả tham chiếu từng phần (`parts`) theo thứ tự.
 import { createHash } from 'node:crypto';
 import type { ProviderEvent, ProviderMessageRef, SendLedger } from '../operations';
-import { ChannelAuthError, ChannelNotRunningError, PartialSendError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage, type SendReceipt } from '../types';
+import { ChannelAuthError, ChannelNotRunningError, PartialSendError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage, type SendReceipt, type HistoryReport, type HistoryRequest, type NormalizedInbound } from '../types';
 import { zaloPersonalManifest } from './manifest';
 import { normalizeZalo } from './normalize';
 import { reactionEvent, receiptEvent, selfRefEvent, undoEvent, zaloOperations } from './provider-operations';
+import { fetchZaloHistory } from './provider-history';
 import { renderChunks } from './render';
 import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, type ZaloSession, type ZaloTransport } from './transport';
 
@@ -25,7 +26,6 @@ interface Running {
   sink: InboundSink;
   health: HealthStatus;
   /** Ngưỡng ngày của lần đồng bộ lịch sử đang chạy (null = không đồng bộ). */
-  historySince: number | null;
 }
 
 const partHash = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -56,7 +56,7 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
   async start(account: ChannelAccountRuntime, sink: InboundSink): Promise<void> {
     await this.stop(account.id);
     const session = await this.transport.login(account.credentials as ZaloCredentials);
-    const run: Running = { session, sink, health: 'connected', historySince: null };
+    const run: Running = { session, sink, health: 'connected' };
     const failed = () => this.sinkErrors.set(account.id, (this.sinkErrors.get(account.id) ?? 0) + 1);
     const push = (m: ZaloRawMessage) => {
       const n = normalizeZalo(account.id, m, session.ownId);
@@ -70,11 +70,6 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     session.onUndo((u) => emit(undoEvent(account.id, u)));
     session.onReaction((r) => emit(reactionEvent(account.id, r)));
     session.onReceipt((r) => emit(receiptEvent(account.id, r)));
-    session.onOldMessages((ms) => {
-      const since = run.historySince;
-      if (since === null) return;
-      for (const m of ms) if (Number(m.ts) >= since) push(m);
-    });
     session.onClosed((code, reason) => {
       if (this.running.get(account.id) !== run) return;
       if (code === ZALO_CLOSE.manual) return;
@@ -102,10 +97,8 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     return this.running.get(accountId)?.health ?? 'error';
   }
 
-  async syncHistory(accountId: string, days: number): Promise<void> {
-    const r = this.session(accountId);
-    r.historySince = days > 0 ? Date.now() - days * 86_400_000 : null;
-    if (days > 0) r.session.requestOldMessages();
+  async fetchHistory(accountId: string, req: HistoryRequest, onBatch: (batch: NormalizedInbound[]) => Promise<void>): Promise<HistoryReport> {
+    return fetchZaloHistory(accountId, this.session(accountId).session, req, onBatch);
   }
 
   /**

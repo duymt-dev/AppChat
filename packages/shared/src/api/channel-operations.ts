@@ -20,3 +20,26 @@ export const channelOperationSchema = z.object({
   finished_at: z.string().nullable(),
 });
 export type ChannelOperationDto = z.infer<typeof channelOperationSchema>;
+
+/**
+ * Lần lấy lịch sử kênh (TIP-014b C): GET /v1/settings/channels/:id/syncs/:runId (quyền channels.manage). `complete` = đã phủ khoảng yêu cầu;
+ * `provider_limit` = nhà cung cấp hết dữ liệu trước mốc (không đủ N ngày); `partial` = dừng ở trần / bị ngắt; `timeout` = trang không về.
+ * `earliest_at` / `latest_at` = khoảng THỰC thấy, không phải khoảng yêu cầu.
+ */
+export const channelHistoryRunSchema = z.object({
+  id: z.string(),
+  channel_account_id: z.string(),
+  days: z.number().int(),
+  cutoff_at: z.string(),
+  state: z.enum(['queued', 'running', 'complete', 'provider_limit', 'partial', 'timeout', 'failed', 'superseded']),
+  received: z.number().int(),
+  in_range: z.number().int(),
+  imported: z.number().int(),
+  pages: z.number().int(),
+  earliest_at: z.string().nullable(),
+  latest_at: z.string().nullable(),
+  error: z.string().nullable(),
+  created_at: z.string(),
+  finished_at: z.string().nullable(),
+});
+export type ChannelHistoryRunDto = z.infer<typeof channelHistoryRunSchema>;

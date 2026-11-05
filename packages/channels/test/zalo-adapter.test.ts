@@ -73,7 +73,7 @@ describe('ZaloPersonalAdapter', () => {
     expect(s.sent.at(-1)).toMatchObject({ kind: 'sticker', msg: '7' });
   });
 
-  it('bị đá phiên → status expired, phiên bỏ; syncHistory chỉ lấy tin trong N ngày; stop', async () => {
+  it('bị đá phiên → status expired, phiên bỏ; lịch sử chỉ lấy tin trong N ngày (không qua sink tin mới); stop', async () => {
     const { adapter, transport, inbox, statuses, sink } = setup();
     const { r } = await login(adapter);
     await adapter.start({ id: ACC, workspaceId: 'ws', type: 'zalo_personal', credentials: r.credentials, settings: {} }, sink);
@@ -83,8 +83,10 @@ describe('ZaloPersonalAdapter', () => {
       { isGroup: false, isSelf: false, threadId: 'u1', msgId: 'old', uidFrom: 'u1', ts: String(Date.now() - 40 * day), msgType: 'webchat', content: 'cũ' },
       { isGroup: false, isSelf: false, threadId: 'u1', msgId: 'new', uidFrom: 'u1', ts: String(Date.now() - 2 * day), msgType: 'webchat', content: 'mới' },
     ];
-    await adapter.syncHistory(ACC, 30);
-    await vi.waitFor(() => expect(inbox.map((m) => m.externalMsgId)).toEqual(['new']));
+    const got: string[] = [];
+    await adapter.fetchHistory(ACC, { cutoffAt: new Date(Date.now() - 30 * day).toISOString(), maxPages: 10, maxMessages: 500, pageTimeoutMs: 1000 }, async (b) => void got.push(...b.map((m) => m.externalMsgId)));
+    expect(got).toEqual(['new']);
+    expect(inbox).toEqual([]);
 
     s.kick();
     expect(statuses).toEqual(['expired']);

@@ -194,11 +194,11 @@ describe('kết nối Zalo cá nhân', () => {
     expect(await until(() => sessions().isHeld(A))).toBe(true);
     expect((await zalo()).accounts[0]).toMatchObject({ paused: false, health: 'good' });
 
-    const s = fakeZaloTransport.session(A)!;
-    s.history = [{ isGroup: false, isSelf: false, threadId: 'u_old', msgId: 'h1', uidFrom: 'u_old', ts: String(Date.now() - 86_400_000), msgType: 'webchat', content: 'tin cũ' }];
-    expect((await act('channel.sync_history', { channel_account_id: A, history_days: 7 })).status).toBe(200);
+    // Zalo (lease): lịch sử là lệnh bền 202 (TIP-014b C) — lưu tin lịch sử kiểm ở channel-history.test.ts (worker có Inbox).
+    const sh = await act('channel.sync_history', { channel_account_id: A, history_days: 7 });
+    expect(sh.status, JSON.stringify(sh.body)).toBe(202);
     expect((await zalo()).accounts[0].history_days).toBe(7);
-    expect(await until(async () => !!(await inbound.getJob(`in-${A}-h1`)))).toBe(true);
+    expect(await (await tenant()).channelHistoryRun.findUnique({ where: { id: sh.body.data.job_id } })).toMatchObject({ channelAccountId: A, days: 7 });
   });
 
   it('AC7 tin vào → job channel-inbound (NormalizedInbound); trùng msgId không thêm job; last_event_at cập nhật', async () => {

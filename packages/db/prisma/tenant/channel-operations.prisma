@@ -140,3 +140,31 @@ model MessageReceipt {
   @@id([messageId, recipientId])
   @@map("message_receipt")
 }
+
+/// Lần lấy lịch sử của tài khoản kênh (TIP-014b C) — lệnh bền thay pub/sub `sync`: action ghi dòng `queued` + outbox cùng commit; worker giữ
+/// phiên đúng thế hệ chạy, báo cáo trung thực khoảng thực thấy. Một lần mở mỗi tài khoản (lần mới thay lần còn `queued`).
+model ChannelHistoryRun {
+  id               String    @id @db.Uuid
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  actorId          String?   @map("actor_id") @db.Uuid
+  /// 7 | 30 | 90 — khoảng người dùng yêu cầu.
+  days             Int
+  cutoffAt         DateTime  @map("cutoff_at") @db.Timestamptz(6)
+  /// queued | running | complete | provider_limit | partial | timeout | failed | superseded.
+  status           String    @default("queued")
+  /// Thế hệ phiên lúc chạy (fence).
+  generation       Int?
+  received         Int       @default(0)
+  inRange          Int       @default(0) @map("in_range")
+  imported         Int       @default(0)
+  pages            Int       @default(0)
+  earliestAt       DateTime? @map("earliest_at") @db.Timestamptz(6)
+  latestAt         DateTime? @map("latest_at") @db.Timestamptz(6)
+  error            String?
+  startedAt        DateTime? @map("started_at") @db.Timestamptz(6)
+  finishedAt       DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc), id(sort: Desc)], map: "channel_history_run_account_idx")
+  @@map("channel_history_run")
+}

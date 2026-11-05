@@ -86,8 +86,15 @@ class ZcaSession implements ZaloSession {
     });
   }
 
-  onOldMessages(cb: (ms: ZaloRawMessage[]) => void): void {
-    this.api.listener.on('old_messages', (ms) => cb(ms.map(raw)));
+  onOldMessagesOnce(isGroup: boolean, cb: (ms: ZaloRawMessage[]) => void): () => void {
+    const want = thread(isGroup);
+    const on = (ms: Message[], type: ThreadType) => {
+      if (type !== want) return;
+      this.api.listener.off('old_messages', on);
+      cb(ms.map(raw));
+    };
+    this.api.listener.on('old_messages', on);
+    return () => void this.api.listener.off('old_messages', on);
   }
 
   onClosed(cb: (code: number, reason: string) => void): void {
@@ -102,9 +109,8 @@ class ZcaSession implements ZaloSession {
     this.api.listener.stop();
   }
 
-  requestOldMessages(): void {
-    this.api.listener.requestOldMessages(ThreadType.User);
-    this.api.listener.requestOldMessages(ThreadType.Group);
+  requestOldMessages(isGroup: boolean, lastId: string | null): void {
+    this.api.listener.requestOldMessages(thread(isGroup), lastId);
   }
 
   async sendText(threadId: string, isGroup: boolean, msg: string, styles: ZaloStyle[]): Promise<string> {

@@ -4,6 +4,7 @@ import { Module, type DynamicModule } from '@nestjs/common';
 import { ChannelsModule } from '@appchat/core';
 import { ActorModule } from '../kernel/actor.module';
 import { ChannelsController } from './channels.controller';
+import { ChannelSyncController } from './channel-sync.controller';
 import { WidgetController } from './widget.controller';
 import { WidgetGateway } from './widget.gateway';
 import { WidgetScriptController } from './widget-script.controller';
@@ -11,6 +12,6 @@ import { WidgetScriptController } from './widget-script.controller';
 @Module({ imports: [ChannelsModule] })
 export class ChannelsHttpModule {
   static register(): DynamicModule {
-    return { module: ChannelsHttpModule, imports: [ChannelsModule, ActorModule], controllers: [ChannelsController, WidgetController, WidgetScriptController], providers: [WidgetGateway] };
+    return { module: ChannelsHttpModule, imports: [ChannelsModule, ActorModule], controllers: [ChannelsController, ChannelSyncController, WidgetController, WidgetScriptController], providers: [WidgetGateway] };
   }
 }

@@ -3,6 +3,9 @@
 // 2) resolve khách (1-1: ContactIdentityService — identity / SĐT / khách nháp; nhóm: participant, không tạo khách);
 // 3) upsert hội thoại (mới: tự gán người phụ trách khách — COMMERCE §8, chế độ AI + agent theo cấu hình tài khoản; đang đóng /
 //    tạm ẩn / ẩn → mở lại); 4) đếm chưa đọc, preview, FRT chờ, thống kê ngày; 5) outbox `message.received` (+ assigned / contact).
+// Lịch sử (`origin = 'history'` — TIP-014b C): tin + khách + hội thoại vẫn ghi (chống trùng cùng UNIQUE), nhưng KHÔNG đếm chưa đọc, không
+// mở lại / bỏ ẩn, không FRT / thống kê, preview + `last_message_at` + `last_interaction_at` chỉ tiến (max), không event luồng trực tiếp
+// (người gọi gom `channel.history_ingested`), không kích agent.
 import type { NormalizedInbound } from '@appchat/channels';
 import type { TenantDb } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
@@ -14,10 +17,14 @@ import { settingsOf } from '../../channels/public';
 import { previewOf } from './view';
 import { saveMessageRefs } from '../../channels/operations/operation-store';
 
+export type InboundOrigin = 'live' | 'history';
+
 export interface InboundResult {
   /** null = tin trùng / tài khoản không còn → bỏ qua. */
   messageId: string | null;
   conversationId?: string;
+  /** Khách mới tạo từ tin này (lịch sử: báo cáo / dòng thời gian, không event). */
+  contactCreated?: boolean;
   events: OutboxEventInput[];
   /** Cần agent trực kênh trả lời (TIP-022) — worker đẩy job `agent-reply` sau commit. */
   agentReply?: boolean;
@@ -44,13 +51,14 @@ export class InboundPipeline {
   /** Một transaction: tin + hội thoại + outbox event (người gọi `markDirty` sau commit nếu `events` không rỗng). */
   async handle(db: TenantDb, ws: string, m: NormalizedInbound, now: Date): Promise<InboundResult> {
     return db.$transaction(async (tx) => {
-      const r = await this.run(tx, ws, m, now);
+      const r = await this.run(tx, ws, m, now, 'live');
       if (r.events.length) await writeOutbox(tx, ws, r.events, now);
       return r;
     });
   }
 
-  async run(tx: TenantTx, ws: string, m: NormalizedInbound, now: Date): Promise<InboundResult> {
+  async run(tx: TenantTx, ws: string, m: NormalizedInbound, now: Date, origin: InboundOrigin = 'live'): Promise<InboundResult> {
+    const live = origin === 'live';
     const account = await tx.channelAccount.findUnique({ where: { id: m.channelAccountId } });
     if (!account || account.status === 'disconnected') return { messageId: null, events: [] };
     const sentAt = new Date(m.sentAt);
@@ -67,10 +75,12 @@ export class InboundPipeline {
 
     // 2. Khách
     let contactId = conv0?.contactId ?? null;
+    let contactCreated = false;
     if (!m.isGroup) {
-      const r = await this.identity.resolve(tx, { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null, email: m.sender.email ?? null }, at);
+      const r = await this.identity.resolve(tx, { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null, email: m.sender.email ?? null }, at, { forward: !live });
       contactId = r.contactId;
-      events.push(...r.events);
+      contactCreated = r.created;
+      if (live) events.push(...r.events);
     }
     const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, name: true, group: true } }) : null;
 
@@ -80,7 +90,13 @@ export class InboundPipeline {
     const senderName = m.sender.name?.trim() || null;
     const isNew = !conv0;
     let conv;
-    if (conv0) {
+    const newer = !conv0 || at > conv0.lastMessageAt;
+    if (conv0 && !live) {
+      // Lịch sử: chỉ tiến preview / mốc khi tin mới hơn; không chưa đọc / mở lại / FRT.
+      conv = newer || (contactId && !conv0.contactId)
+        ? await tx.conversation.update({ where: { id: conv0.id }, data: { ...(newer ? { lastMessageAt: at, lastMessagePreview: preview, lastSenderName: senderName } : {}), ...(contactId && !conv0.contactId ? { contactId } : {}) } })
+        : conv0;
+    } else if (conv0) {
       conv = await tx.conversation.update({
         where: { id: conv0.id },
         data: {
@@ -113,8 +129,8 @@ export class InboundPipeline {
           lastMessageAt: at,
           lastMessagePreview: preview,
           lastSenderName: senderName,
-          unreadCount: 1,
-          frtPendingSince: at,
+          unreadCount: live ? 1 : 0,
+          frtPendingSince: live ? at : null,
           createdAt: now,
         },
       });
@@ -122,9 +138,9 @@ export class InboundPipeline {
 
     // 4. Tin (insert ON CONFLICT DO NOTHING — hai worker cùng nhận một tin thì chỉ một dòng).
     const inserted = await tx.$executeRaw`
-      INSERT INTO message (id, conversation_id, channel_account_id, direction, sender_type, sender_id, sender_name, kind, body, attachments, external_msg_id, status, created_at)
+      INSERT INTO message (id, conversation_id, channel_account_id, direction, sender_type, sender_id, sender_name, kind, body, attachments, external_msg_id, status, origin, created_at)
       VALUES (${msgId}::uuid, ${conv.id}::uuid, ${account.id}::uuid, 'in', 'contact', ${m.sender.externalId}, ${senderName}, ${m.kind}::message_kind, ${m.text ?? ''},
-              ${JSON.stringify(m.attachments ?? [])}::jsonb, ${m.externalMsgId}, 'delivered', ${at})
+              ${JSON.stringify(m.attachments ?? [])}::jsonb, ${m.externalMsgId}, 'delivered', ${origin}, ${at})
       ON CONFLICT (channel_account_id, external_msg_id) DO NOTHING`;
     if (!inserted) throw new DuplicateInbound();
     if (m.providerRef) await saveMessageRefs(tx, account.id, msgId, [m.providerRef], now);
@@ -136,6 +152,7 @@ export class InboundPipeline {
         update: { lastSeenAt: at, ...(senderName ? { displayName: senderName } : {}) },
       });
     }
+    if (!live) return { messageId: msgId, conversationId: conv.id, contactCreated, events: [] };
     if (isNew) {
       await tx.$executeRaw`
         INSERT INTO channel_account_stat_daily (channel_account_id, day, convs) VALUES (${account.id}::uuid, ${day0(now)}::date, 1)

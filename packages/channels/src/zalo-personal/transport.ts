@@ -97,11 +97,13 @@ export interface ZaloSession {
   onUndo(cb: (u: ZaloRawUndo) => void): void;
   onReaction(cb: (r: ZaloRawReaction) => void): void;
   onReceipt(cb: (r: ZaloRawReceipt) => void): void;
-  onOldMessages(cb: (ms: ZaloRawMessage[]) => void): void;
+  /** Một trang `old_messages` của đúng loại thread (1-1 / nhóm) — trả hàm huỷ đăng ký (TIP-014b C). */
+  onOldMessagesOnce(isGroup: boolean, cb: (ms: ZaloRawMessage[]) => void): () => void;
   onClosed(cb: (code: number, reason: string) => void): void;
   start(): void;
   stop(): void;
-  requestOldMessages(): void;
+  /** zca-js `requestOldMessages(type, lastId)` — trang lùi từ `lastId` (null = mới nhất). */
+  requestOldMessages(isGroup: boolean, lastId: string | null): void;
   sendText(threadId: string, isGroup: boolean, msg: string, styles: ZaloStyle[]): Promise<string>;
   sendFiles(threadId: string, isGroup: boolean, text: string, files: ZaloFile[]): Promise<string>;
   sendSticker(threadId: string, isGroup: boolean, sticker: { id: number; cateId: number; type: number }): Promise<string>;

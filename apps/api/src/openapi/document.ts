@@ -3,7 +3,7 @@
 // `{ data }` / `{ data, next_cursor }` / `{ error: { code, message, fields? } }`. Bảo mật: bearer JWT + `x-workspace-id`; route công khai
 // (auth, trang ký / xem báo giá công khai, health, widget) khai `security: []`. Không chứa secret / URL nội bộ.
 import type { ActionDef } from '@appchat/actions';
-import { channelOperationSchema } from '@appchat/shared';
+import { channelHistoryRunSchema, channelOperationSchema } from '@appchat/shared';
 import type { ScannedRoute } from './route-scan';
 import { ACTION_COMPONENTS, actionOperation, jsonSchemaOf } from './action-ops';
 
@@ -32,6 +32,7 @@ const isList = (r: ScannedRoute) => r.method === 'get' && !/\}$/.test(r.path) &&
 
 /** Route đọc đã có DTO zod chung (shared) → schema `data` thật, không `x-untyped`. Thêm route mới có DTO vào đây. */
 const TYPED: Record<string, () => Schema> = {
+  'get /v1/settings/channels/{id}/syncs/{runId}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(channelHistoryRunSchema, 'output') } }),
   'get /v1/inbox/channel-operations/{id}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(channelOperationSchema, 'output') } }),
 };
 

@@ -195,8 +195,12 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
   },
   'channel.sync_history': {
     execute: (db, i: { channel_account_id: string; history_days: 0 | 7 | 30 | 90 }) => {
-      findAccount(db, i.channel_account_id).account.history_days = i.history_days;
-      return { ok: true };
+      const { channel, account } = findAccount(db, i.channel_account_id);
+      account.history_days = i.history_days;
+      // Như server (TIP-014b C): Zalo đang chạy + khoảng > 0 → lần lấy lịch sử bền, 202 job_accepted.
+      if (channel.type !== 'zalo_personal' || !account.connected || account.paused || !i.history_days) return { ok: true };
+      const id = crypto.randomUUID();
+      return { ok: true, __accepted: { job_id: id, status_url: `/v1/settings/channels/${account.id}/syncs/${id}` } };
     },
   },
   'channel.reconnect': {

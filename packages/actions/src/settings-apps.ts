@@ -214,7 +214,8 @@ export const channelSyncHistory = defineAction({
   id: 'channel.sync_history',
   module: 'channels',
   title: 'actions.channel.sync_history.title',
-  description: 'Re-sync an account\'s message history for the last N days (0 = off). Example: {"channel_account_id":"acc_1","history_days":30}',
+  description:
+    'Re-sync an account\'s message history for the last N days (0 = off). On Zalo this is a background job (202 job_accepted) that reports the range the provider actually returned; history never triggers AI replies or notifications. Example: {"channel_account_id":"acc_1","history_days":30}',
   input: z.object({ channel_account_id: z.string().min(1), history_days: z.union([z.literal(0), z.literal(7), z.literal(30), z.literal(90)]) }),
   output: z.object({ ok: z.boolean() }),
   permission: 'channels.manage',

@@ -14,6 +14,7 @@ import { messageRefs } from '../operations/operation-store';
 import { applyOperationResult, markInterrupted, type OperationOutcome } from '../operations/provider-event';
 import { OPERATION_TIMEOUT_MS, type OperationJob } from '../operations/types';
 import { assertGeneration } from '../operations/session-generation';
+import type { HistoryJob } from '../operations/types';
 
 export const operationQueueName = (accountId: string) => `chop-${accountId}`;
 
@@ -24,6 +25,8 @@ export interface OperationDeps {
   log: AppLogger;
   now: () => Date;
   timeoutMs?: number;
+  /** Chạy job lịch sử (TIP-014b C — provider-history.processor) — tiêm từ module để không vòng phụ thuộc. */
+  history?: (accountId: string, adapter: ChannelAdapter, j: HistoryJob, generation?: number) => Promise<string>;
 }
 
 /** Producer: một job mỗi lệnh (job id = id lệnh — đẩy lại không trùng). */
@@ -35,6 +38,13 @@ export class OperationQueue {
     let q = this.queues.get(accountId);
     if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
     await q.add('operation', j, { jobId: `op-${j.operation_id}`, attempts: 10, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 1000, removeOnFail: 5000 });
+  }
+
+  /** Lần lấy lịch sử (TIP-014b C) — cùng hàng đợi tài khoản, job id = id lần chạy. */
+  async enqueueHistory(accountId: string, j: HistoryJob): Promise<void> {
+    let q = this.queues.get(accountId);
+    if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
+    await q.add('history', j, { jobId: `hist-${j.history_run_id}`, attempts: 3, backoff: { type: 'exponential', delay: 10_000 }, removeOnComplete: 200, removeOnFail: 500 });
   }
 
   async close(): Promise<void> {
@@ -56,8 +66,15 @@ export class ProviderOperators {
   constructor(private readonly d: OperationDeps) {}
 
   async open(accountId: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
-    if (this.workers.has(accountId) || !adapter.operations) return;
-    const w = new Worker<OperationJob>(operationQueueName(accountId), (job) => this.run(accountId, adapter, job.data, generation), { connection: this.d.redis.duplicate(), concurrency: 1 });
+    if (this.workers.has(accountId) || (!adapter.operations && !adapter.fetchHistory)) return;
+    const w = new Worker<OperationJob | HistoryJob>(
+      operationQueueName(accountId),
+      (job) =>
+        job.name === 'history'
+          ? (this.d.history?.(accountId, adapter, job.data as HistoryJob, generation) ?? Promise.resolve('history_unavailable'))
+          : this.run(accountId, adapter, job.data as OperationJob, generation),
+      { connection: this.d.redis.duplicate(), concurrency: 1 },
+    );
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'operation worker error'));
     this.workers.set(accountId, w);
   }

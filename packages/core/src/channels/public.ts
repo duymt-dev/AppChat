@@ -13,4 +13,5 @@ export { emailOutboundExtras, openEmailThread } from './email/threads';
 export { planGroup, requestDto, type GroupPlan, type Participant as GroupParticipant } from './services/group-requests';
 export { GroupRead } from './services/group-read';
 export { ChannelOperationRead } from './operations/operation-read';
+export { registerHistoryPipeline } from './jobs/provider-history.processor';
 export { GroupCreators, GroupRequestQueue, groupQueueName, GROUP_TIMEOUT_MS, type GroupJob } from './jobs/create-group.processor';

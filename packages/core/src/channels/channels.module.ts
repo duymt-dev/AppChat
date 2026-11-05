@@ -39,6 +39,7 @@ import { GroupRequestQueue } from './jobs/create-group.processor';
 import { groupRequestConsumer } from './events/group-request.consumer';
 import { OperationQueue } from './jobs/provider-operations.processor';
 import { operationRequestConsumer } from './jobs/provider-events.processor';
+import { historyRequestConsumer } from './jobs/provider-history.processor';
 import { GroupRead } from './services/group-read';
 import { ChannelOperationRead } from './operations/operation-read';
 import { registerEventConsumer, unregisterEventConsumer } from '../kernel/events/consumer';
@@ -122,9 +123,11 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
       useFactory: (r?: Redis) => {
         if (!r) return null;
         const q = new OperationQueue(r.duplicate());
-        const c = operationRequestConsumer(q);
-        unregisterEventConsumer(c.name);
-        registerEventConsumer(c);
+        // Lịch sử (TIP-014b C) đi chung hàng đợi tài khoản.
+        for (const c of [operationRequestConsumer(q), historyRequestConsumer(q)]) {
+          unregisterEventConsumer(c.name);
+          registerEventConsumer(c);
+        }
         return q;
       },
     },

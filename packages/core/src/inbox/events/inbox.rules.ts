@@ -1,7 +1,7 @@
 // Luật event Hộp thư (Blueprint §2.3, §4.6): tin vào / gửi / đổi → WS `message.new` / `message.updated` / `conversation.updated`
 // tới phòng hội thoại + phòng workspace, lọc người nhận theo data scope inbox (assignee / người phụ trách khách); thông báo
 // `msg_assigned` (gán cho tôi), `msg_vip` (tin khách VIP). Nạp khi import InboxModule.
-import { conversationAssignedEvent, conversationUpdatedEvent, messageFailedEvent, messageReceivedEvent, messageSentEvent, messageUpdatedEvent } from '@appchat/shared';
+import { channelHistoryIngestedEvent, conversationAssignedEvent, conversationUpdatedEvent, messageFailedEvent, messageReceivedEvent, messageSentEvent, messageUpdatedEvent } from '@appchat/shared';
 import type { DomainEvent } from '../../kernel/events/consumer';
 import { registerNotificationRule, registerRealtimeRule } from '../../notify/rules';
 import { rooms, type RealtimeEnvelope } from '../../notify/realtime/envelope';
@@ -55,6 +55,13 @@ registerRealtimeRule('inbox.conversation_updated', 'conversation.updated', (e) =
 registerRealtimeRule('inbox.conversation_assigned', 'conversation.assigned', (e) => {
   const p = conversationAssignedEvent.parse(e.payload);
   return fanout(e, p, 'conversation.updated', { conversation_id: p.conversation_id, change: 'assign' });
+});
+
+// Lịch sử kênh đã lưu (TIP-014b C): chỉ làm mới danh sách hộp thư của người có quyền xem — không `message.new` (không âm báo), không
+// thông báo VIP / phân công, không agent. Lọc scope theo hội thoại cụ thể không có trong payload → client tự lọc khi tải lại (REST theo scope).
+registerRealtimeRule('inbox.history_ingested', 'channel.history_ingested', (e) => {
+  const p = channelHistoryIngestedEvent.parse(e.payload);
+  return [{ ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'conversation.updated', data: { change: 'history', count: p.conversation_ids.length }, require: { permission: 'inbox.view' } }];
 });
 
 /** FE mở hội thoại theo `?c=` (route `/inbox` một trang). */

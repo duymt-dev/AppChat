@@ -31,6 +31,7 @@ import { ActionExecutor } from '../../kernel/actions/executor';
 import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
 import { ChannelSessions } from './sessions';
 import { StatelessChannels } from './stateless';
+import { historyPipeline, runHistory } from './provider-history.processor';
 
 class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private sessions?: ChannelSessions;
@@ -77,7 +78,8 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     // TIP-014b: sự kiện kênh (self-listen / thu hồi / cảm xúc) + worker thao tác theo phiên (thu hồi / cảm xúc gọi nhà cung cấp).
     this.providerEvents = providerEventQueue(redis);
     this.eventWorker = startProviderEventWorker({ redis, kv: redis, tenants, log: this.log, now });
-    const operators = (this.operators = new ProviderOperators({ redis, kv: redis, tenants, log: this.log, now }));
+    const history = { tenants, kv: redis, log: this.log, now, pipeline: historyPipeline };
+    const operators = (this.operators = new ProviderOperators({ redis, kv: redis, tenants, log: this.log, now, history: (id, a, j, g) => runHistory(history, id, a, j, g) }));
     const sessions: ChannelSessions = new ChannelSessions({
       platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.

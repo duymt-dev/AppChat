@@ -1,5 +1,6 @@
-// Ma trận channel.sync_history (TIP-023b): lịch sử đồng bộ (risk write) → số ngày trước / sau + cảnh báo đồng bộ khi tài khoản đang chạy; id
-// lạ → 404 ở preview. 403 sales (không có channels.manage). Idempotency theo khoá. Undo: ActionDef không khai.
+// Ma trận channel.sync_history (TIP-023b; TIP-014b C: Zalo đang chạy = lần lấy lịch sử bền 202 job_accepted): lịch sử đồng bộ (risk write) →
+// số ngày trước / sau + cảnh báo đồng bộ khi tài khoản đang chạy; id lạ → 404 ở preview. 403 sales (không có channels.manage). Idempotency theo
+// khoá (gửi lại trả đúng handle). Undo: ActionDef không khai.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -23,7 +24,8 @@ describe('channel.sync_history', () => {
   it('preview Trợ lý → xác nhận', async () => {
     const { preview, done } = await m.confirm({ channel_account_id: acc, history_days: 7 });
     expect(preview).toEqual({ summary: 'Zalo Cửa hàng', risk: 'write', changes: [{ entity: 'channel_account', id: acc, before: { history_days: 30 }, after: { history_days: 7 } }], warnings: ['sync:7'] });
-    expect(done.status, JSON.stringify(done.body)).toBe(200);
+    expect(done.status, JSON.stringify(done.body)).toBe(202);
+    expect(done.body.data).toMatchObject({ status: 'job_accepted', status_url: `/v1/settings/channels/${acc}/syncs/${done.body.data.job_id}` });
   });
 
   it('idempotency', async () => {

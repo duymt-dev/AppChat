@@ -183,6 +183,8 @@ model Message {
   forwardedFromId  String?           @map("forwarded_from_id") @db.Uuid
   recalledAt       DateTime?         @map("recalled_at") @db.Timestamptz(6)
   deletedAt        DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  /// `live` = tin tới qua kênh lúc đang chạy; `history` = lấy lại lịch sử (TIP-014b C) — không kích luồng trực tiếp (AI / SLA / thông báo).
+  origin           String            @default("live")
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@unique([channelAccountId, externalMsgId])

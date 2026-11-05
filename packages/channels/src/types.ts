@@ -100,6 +100,27 @@ export interface LoginResult {
   name: string;
 }
 
+/** Yêu cầu lấy lịch sử (TIP-014b C): mốc cắt + trần trang / tin / thời gian chờ một trang. */
+export interface HistoryRequest {
+  cutoffAt: string;
+  maxPages: number;
+  maxMessages: number;
+  pageTimeoutMs: number;
+}
+
+/**
+ * Kết quả lịch sử: `complete` = đã chạm mốc cắt; `provider_limit` = nhà cung cấp hết dữ liệu trước mốc (không đủ khoảng yêu cầu);
+ * `partial` = dừng ở trần trang / tin; `timeout` = một trang không về kịp. `received` = tin nhà cung cấp trả, `inRange` = tin trong khoảng.
+ */
+export interface HistoryReport {
+  status: 'complete' | 'provider_limit' | 'partial' | 'timeout';
+  received: number;
+  inRange: number;
+  pages: number;
+  earliestAt: string | null;
+  latestAt: string | null;
+}
+
 export interface RawWebhook {
   headers: Record<string, string | string[] | undefined>;
   body: unknown;
@@ -110,8 +131,11 @@ export interface ChannelAdapter {
   manifest: ChannelManifest;
   /** `connect.kind = 'qr'`: phát QR qua `onEvent`, resolve khi quét xong; `signal` huỷ (hết giờ / người dùng bỏ). */
   beginLogin?(accountId: string, onEvent: (e: LoginEvent) => void, signal: AbortSignal): Promise<LoginResult>;
-  /** Đồng bộ lại tin trong `days` ngày gần nhất (REQ-B11) — tin cũ đi vào sink như tin mới (chống trùng ở DB). */
-  syncHistory?(accountId: string, days: number): Promise<void>;
+  /**
+   * Lấy lịch sử có giới hạn (TIP-014b C — thay `syncHistory` cũ): tin trong khoảng [cutoffAt, nay] theo trang; mỗi lô chờ `onBatch` (core
+   * lưu bền) rồi mới lấy trang sau. Không đẩy qua sink tin mới (lịch sử không kích luồng trực tiếp). Báo cáo trung thực khoảng thực thấy.
+   */
+  fetchHistory?(accountId: string, req: HistoryRequest, onBatch: (batch: NormalizedInbound[]) => Promise<void>): Promise<HistoryReport>;
   start?(account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
   stop?(accountId: string): Promise<void>;
   handleWebhook?(req: RawWebhook, account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;

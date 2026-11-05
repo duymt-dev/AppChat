@@ -41,7 +41,7 @@ export class FakeZaloSession implements ZaloSession {
   failNext = 0;
   running = false;
   private msgCb: ((m: ZaloRawMessage) => void)[] = [];
-  private oldCb: ((ms: ZaloRawMessage[]) => void)[] = [];
+  private oldCb: { isGroup: boolean; cb: (ms: ZaloRawMessage[]) => void }[] = [];
   private closeCb: ((code: number, reason: string) => void)[] = [];
   private selfCb: ((m: ZaloRawMessage) => void)[] = [];
   private undoCb: ((u: ZaloRawUndo) => void)[] = [];
@@ -55,8 +55,13 @@ export class FakeZaloSession implements ZaloSession {
   selfEcho = true;
   /** Nhóm phía kênh cho groupInfo / groupLink. */
   readonly remoteGroups = new Map<string, ZaloGroupInfo & { link: string | null }>();
-  /** Tin cũ trả về khi `requestOldMessages`. */
+  /** Tin cũ trả về khi `requestOldMessages` — theo trang `historyPage` tin, mới → cũ, lùi theo `lastId`. */
   history: ZaloRawMessage[] = [];
+  historyPage = 50;
+  /** Không trả trang (kiểm hết giờ). */
+  historyHang = false;
+  /** Số lần xin trang (kiểm có giới hạn). */
+  historyRequests = 0;
   /** Nhóm đã tạo (TIP-023b SPEC D). */
   readonly groups: { groupId: string; name: string; members: string[] }[] = [];
   /** Lần tạo nhóm kế tiếp: lỗi (`fail`) hoặc treo đến khi hết giờ (`hang` — kiểm trạng thái unknown). */
@@ -70,8 +75,10 @@ export class FakeZaloSession implements ZaloSession {
   onMessage(cb: (m: ZaloRawMessage) => void) {
     this.msgCb.push(cb);
   }
-  onOldMessages(cb: (ms: ZaloRawMessage[]) => void) {
-    this.oldCb.push(cb);
+  onOldMessagesOnce(isGroup: boolean, cb: (ms: ZaloRawMessage[]) => void) {
+    const e = { isGroup, cb };
+    this.oldCb.push(e);
+    return () => void this.oldCb.splice(this.oldCb.indexOf(e), 1);
   }
   onClosed(cb: (code: number, reason: string) => void) {
     this.closeCb.push(cb);
@@ -122,8 +129,15 @@ export class FakeZaloSession implements ZaloSession {
   stop() {
     this.running = false;
   }
-  requestOldMessages() {
-    for (const cb of this.oldCb) cb(this.history);
+  requestOldMessages(isGroup: boolean, lastId: string | null) {
+    this.historyRequests++;
+    if (this.historyHang) return;
+    const all = this.history.filter((m) => m.isGroup === isGroup).sort((a, b) => Number(b.ts) - Number(a.ts));
+    const from = lastId ? all.findIndex((m) => m.msgId === lastId) + 1 : 0;
+    const page = from > 0 || !lastId ? all.slice(from, from + this.historyPage) : [];
+    const subs = this.oldCb.filter((e) => e.isGroup === isGroup);
+    this.oldCb = this.oldCb.filter((e) => e.isGroup !== isGroup);
+    setTimeout(() => subs.forEach((e) => e.cb(page)), 0);
   }
 
   /** Khách nhắn tới (chỉ khi phiên đang chạy — như listener thật). */

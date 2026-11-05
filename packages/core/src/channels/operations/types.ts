@@ -20,4 +20,17 @@ export interface OperationJob {
 /** Self-event tới trước biên nhận gửi: giữ tối đa 10 phút để ghép. */
 export const PENDING_REF_TTL_MS = 10 * 60_000;
 /** Treo quá mốc này sau khi đã gọi kênh → unknown (nhà cung cấp có thể đã làm). */
+/** Job lần lấy lịch sử (TIP-014b C) — chung hàng đợi thao tác `chop-<tài khoản>`. */
+export interface HistoryJob {
+  ws: string;
+  history_run_id: string;
+}
+
+/**
+ * Pipeline tin vào cho lịch sử — Inbox đăng ký (channels không import inbox). `run` ném lỗi tên `DuplicateInbound` khi tin đã có.
+ */
+export interface HistoryPipeline {
+  run(tx: unknown, ws: string, m: unknown, now: Date, origin: 'history'): Promise<{ messageId: string | null; conversationId?: string }>;
+}
+
 export const OPERATION_TIMEOUT_MS = 30_000;

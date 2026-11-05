@@ -157,8 +157,7 @@ export class ChannelSessions {
       this.failedAt.delete(cmd.account_id);
       return this.claim(cmd.account_id);
     }
-    const h = this.held.get(cmd.account_id);
-    await h?.adapter.syncHistory?.(cmd.account_id, cmd.days).catch((err: unknown) => this.d.log.warn({ account: cmd.account_id, err }, 'channel history sync failed'));
+    // `sync` của kênh lease: lịch sử là lệnh bền `channel_history_run` (TIP-014b C) — pub/sub chỉ đánh thức, không làm gì ở đây.
   }
 
   /**
