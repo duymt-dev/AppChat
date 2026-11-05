@@ -53,7 +53,7 @@ export interface AvatarJob {
  * Pipeline tin vào cho lịch sử — Inbox đăng ký (channels không import inbox). `run` ném lỗi tên `DuplicateInbound` khi tin đã có.
  */
 export interface HistoryPipeline {
-  run(tx: unknown, ws: string, m: unknown, now: Date, origin: 'history'): Promise<{ messageId: string | null; conversationId?: string }>;
+  run(tx: unknown, ws: string, m: unknown, now: Date, origin: 'history'): Promise<{ messageId: string | null; conversationId?: string; events?: { topic: string; payload: Record<string, unknown> }[] }>;
 }
 
 export const OPERATION_TIMEOUT_MS = 30_000;

@@ -3,7 +3,7 @@
 // chưa đọc / mở lại hội thoại đóng / FRT; preview + last_message_at + last_interaction_at chỉ tiến (không lùi về tin cũ); không event
 // `message.received` / `conversation.assigned` / `contact.created`; worker outbox + thông báo + support thật chạy cùng: không thông báo VIP /
 // phân công, phiếu `waiting` giữ nguyên, không job agent-reply. Báo cáo trung thực (provider_limit khi nhà cung cấp hết dữ liệu trước mốc).
-// Trùng msgId live / history → một tin. Route trạng thái quản lý kênh.
+// Trùng msgId live / history → một tin. Route trạng thái quản lý kênh. TIP-042b: khách mới từ lịch sử phát `lead.routing_requested`.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Test, type TestingModule } from '@nestjs/testing';
@@ -120,6 +120,11 @@ describe('lịch sử bền', () => {
     // Đồng hồ test cố định → so số đếm trước / sau (khách Lan mới tạo từ lịch sử không phát contact.created).
     expect(await db.outboxEvent.count({ where: { topic: { in: ['contact.created', 'conversation.assigned'] } } })).toBe(before.live);
     expect(await db.outboxEvent.count({ where: { topic: 'channel.history_ingested' } })).toBeGreaterThanOrEqual(1);
+    // TIP-042b (DC-238): khách mới tạo từ lịch sử vẫn xin chia lead (rule chỉ áp khi khách tạo sau lúc bật); khách cũ khớp thì không.
+    const lead = await db.outboxEvent.findMany({ where: { topic: 'lead.routing_requested', payload: { path: ['conversation_id'], equals: lan.id } } });
+    expect(lead).toHaveLength(1);
+    // Chị Mai đã có từ tin live (một yêu cầu lúc đó) — tin lịch sử khớp khách cũ không phát thêm.
+    expect(await db.outboxEvent.count({ where: { topic: 'lead.routing_requested', payload: { path: ['conversation_id'], equals: conv } } })).toBe(1);
     await new Promise((r2) => setTimeout(r2, 1500));
     expect(await db.notification.count()).toBe(before.notif);
     expect((await db.ticket.findFirstOrThrow({ where: { conversationId: conv } })).status).toBe('waiting');

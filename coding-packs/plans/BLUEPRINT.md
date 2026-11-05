@@ -332,6 +332,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|contract\|won\|lost), owner_user_id?, team_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
 | `contact_identity` | contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) — `channel_type = marketplace` cho buyer id của sàn (D31) |
 | `contact_collaborator` | contact_id, user_id, role(collaborator\|watcher), added_by, created_at | pk(contact_id, user_id); idx(user_id, contact_id) — scope `own` (D32) |
+| `lead_routing_rule` | channel_account_id? (null = mặc định), enabled (mặc định false), enabled_at?, mode(manual\|round_robin\|least_busy\|by_channel), user_ids uuid[] (≤ 100) XOR team_id?, fixed_user_id? (by_channel), version int (CAS), configured_by_user_id? | partial unique((true)) WHERE channel_account_id IS NULL; partial unique(channel_account_id) WHERE NOT NULL. Chỉ chia lead TẠO SAU enabled_at (TIP-042b, DC-238); `assign_mode` của tài khoản kênh chỉ là bản chiếu cũ |
+| `lead_routing_cursor` | rule_id pk (FK cascade), last_user_id? | khoá FOR UPDATE tuần tự hoá lựa chọn (TIP-042b) |
+| `lead_routing_decision` | contact_id, originating_event_id, rule_id?, rule_version?, selected_user_id?, conversation_id?, reason | unique(contact_id); unique(originating_event_id) — một quyết định chủ đầu tiên mỗi khách / event, không lưu tin / SĐT (TIP-042b) |
 | `contact_access_request` | contact_id, requester_user_id, status(pending\|approved\|rejected), decided_by?, decided_at?, note? | idx(contact_id, status); partial unique(contact_id, requester_user_id) WHERE status='pending' |
 | `tag` | name, color, scope(all\|contact\|conversation) | unique(lower(name)) — nguồn thẻ dùng chung cho khách và hội thoại |
 | `contact_tag` | contact_id, tag_id | pk |
@@ -455,6 +458,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `message.sent` | … | support (first_response), marketing (stats) |
 | `conversation.handoff` | reason, summary | notify Owner/assignee |
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
+| `lead.routing_requested` | contact_id, conversation_id, channel_account_id, message_id | consumer `crm.lead-routing` (ROLE=jobs) → `lead_routing.apply` nguồn system — chỉ khi tin 1-1 live vừa tạo khách (không nhóm / khớp khách cũ / lịch sử) (TIP-042b) |
 | `quote.sent` / `quote.viewed` / `quote.accepted` / `quote.rejected` / `quote.expired` | | crm stage (COMMERCE-DECISIONS §8); timeline; nhắc hết hạn |
 | `contract.approved` / `contract.sent_for_signature` / `contract.signed` / `contract.declined` / `contract.expiring` (T-30) / `contract.expired` / `contract.terminated` | contract_id, contact_id | crm stage → Hợp đồng; timeline; thông báo Owner; gửi PDF đã ký 2 bên; nhắc gia hạn; gợi ý agent |
 | `order.confirmed` | order_id | trừ kho (`stock_movement`), sinh `customer_package` nếu đủ điều kiện |

@@ -40,6 +40,8 @@ export async function claimHistory(db: TenantDb, runId: string, accountId: strin
 export async function ingestHistoryBatch(db: TenantDb, ws: string, pipeline: HistoryPipeline, runId: string, batch: NormalizedInbound[], now: Date): Promise<number> {
   return db.$transaction(async (tx) => {
     const convs = new Set<string>();
+    // TIP-042b: khách mới tạo từ lịch sử → xin chia lead (ghi outbox cùng lô; rule chỉ áp khi khách tạo sau lúc bật).
+    const routing: { topic: string; payload: Record<string, unknown> }[] = [];
     let created = 0;
     for (const m of batch) {
       // Mỗi tin một savepoint: trùng (live / history cùng msgId) chỉ bỏ tin đó, không rollback cả lô.
@@ -50,6 +52,7 @@ export async function ingestHistoryBatch(db: TenantDb, ws: string, pipeline: His
         if (r.messageId && r.conversationId) {
           created++;
           convs.add(r.conversationId);
+          routing.push(...(r.events ?? []).filter((e) => e.topic === 'lead.routing_requested'));
         }
       } catch (err) {
         // Tin trùng (pipeline ném DuplicateInbound) — nhận theo tên để không import inbox.
@@ -58,6 +61,7 @@ export async function ingestHistoryBatch(db: TenantDb, ws: string, pipeline: His
       }
     }
     await tx.channelHistoryRun.update({ where: { id: runId }, data: { imported: { increment: created } } });
+    if (routing.length) await writeOutbox(tx, ws, routing, now);
     if (convs.size) {
       const account = batch[0]!.channelAccountId;
       await writeOutbox(tx, ws, [{ topic: 'channel.history_ingested', payload: { run_id: runId, channel_account_id: account, conversation_ids: [...convs].slice(0, 200) } }], now);

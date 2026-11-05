@@ -37,7 +37,7 @@ export const leadRoutingApply = defineAction({
   id: 'lead_routing.apply',
   module: 'crm',
   title: 'actions.lead_routing.apply.title',
-  description: 'System-only: assign the first owner of a new lead from the enabled routing rule, for one lead.routing_requested event. Not callable by users, assistant or agents.',
+  description: 'System-only: assign the first owner of a new lead from the enabled routing rule, for one lead.routing_requested event. Not callable by users, assistant or agents. Example: {"event_id":"0190f000-0000-7000-8000-0000000000e1"}',
   input: z.object({ event_id: z.string().uuid() }),
   output: z.object({ contact_id: z.string().nullable(), selected_user_id: z.string().nullable(), reason: z.string() }),
   permission: 'self',

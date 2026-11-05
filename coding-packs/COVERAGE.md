@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 133 | 16 | 5 | 13 | 21 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 94 | 15 | 10 | 1 | 33 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 142 | 20 | 3 | 6 | 22 | 12 | 21 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 95 | 15 | 10 | 1 | 32 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 143 | 20 | 3 | 6 | 21 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 294 | 75 | 3 | 4 | 78 | 3 | 0 | 0 |
 | E. standards/* | 193 | 53 | 1 | 6 | 35 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 22 | 1 | 60 | 0 | 5 | 5 | 0 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 23 | 1 | 60 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 46 | 18 | 7 | 13 | 39 | 3 | 0 | 0 |
-| **Tổng** | **924** | **198** | **89** | **43** | **233** | **37** | **69** | **0** |
+| **Tổng** | **927** | **198** | **89** | **43** | **230** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -96,7 +96,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
 | REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
-| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | MỘT PHẦN | assign_mode / sla_policy chỉ lưu (accounts.service.ts:18-19), không code đọc; TIP-014c nhận (2026-11-02) |
+| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | MỘT PHẦN | Phân công: XONG ở TIP-042b (rule chia lead canonical, drawer kênh hiện rule đang áp, assign_mode chỉ bản chiếu cũ, cần crm.reassign) — coding-packs/reports/TIP-042b-completion.md; SLA theo tài khoản (sla_policy chỉ lưu) vẫn thuộc TIP-014c |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | ĐẠT | TIP-014b D1 + C2: core/src/inbox/services/inbound-sync-policy.ts áp sync_messages / sync_auto_create_contact trước khi ghi (live + lịch sử chung chính sách); lịch sử 0/7/30/90 bền có giới hạn (operations/history-run.ts); test apps/api/test/integration/channel-sync-policy.test.ts, channel-history.test.ts |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-C01a | Inbox 3 cột chạy API thật | 01-REQUIREMENTS-MATRIX.md:63 | 016, 025 | ĐẠT | features/inbox/screens/InboxScreen.tsx; e2e http/inbox.spec.ts, http/inbox-live.spec.ts |
@@ -257,7 +257,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F01b-5 | Tin mới tự gán cho người phụ trách của khách | 01-REQUIREMENTS-MATRIX.md:123 | 016 | ĐẠT | packages/core/src/inbox/services/pipeline.ts:108; test inbox.test.ts AC2 |
 | REQ-F01b-6 | Người phụ trách vắng / ngoài ca → hội thoại về hàng chung hoặc agent | 01-REQUIREMENTS-MATRIX.md:123 | 013c | CHƯA | DECISIONS.md:90 DC-081 hoãn "chưa có dữ liệu ca"; pipeline.ts:108 không kiểm ca / vắng; TIP-013c nhận (2026-11-02) |
 | REQ-F01b-7 | Doanh số ghi theo `owner_user_id` lúc tạo chứng từ | 01-REQUIREMENTS-MATRIX.md:123 | 032c | MỘT PHẦN | Quote side015d; contract-write.handlers.ts:129?144 and order-edit.handlers.ts:34,63,117 still mutate attribution.032c specifies native immutable guard, separate assigned field, CAS/inverse and KPI/export tests; planning only. |
-| REQ-F01c | Chia lead tự động: thủ công / vòng tròn / theo kênh / theo tải | 01-REQUIREMENTS-MATRIX.md:124 | 042b | CHƯA | `assign_mode` chỉ lưu (accounts.service.ts:18); TIP042b AC1–8 đã viết, chưa code; opt-in/no-steal, không nhầm cấu hình với runtime |
+| REQ-F01c | Chia lead tự động: thủ công / vòng tròn / theo kênh / theo tải | 01-REQUIREMENTS-MATRIX.md:124 | 042b | ĐẠT | lead_routing_rule + lead_routing.update / apply (system), pipeline lead.routing_requested → consumer ROLE=jobs; Cài đặt › Chia lead; test apps/api/test/integration/lead-routing*.test.ts + e2e settings-routing (mock + http); coding-packs/reports/TIP-042b-completion.md |
 | REQ-F02a | Hồ sơ 360°: thông tin, timeline đa kênh, ghi chú, trường tuỳ biến, bố cục theo vai trò | 01-REQUIREMENTS-MATRIX.md:125 | 015, 026 | ĐẠT | packages/core/src/crm/services/contact360.ts:14; timeline.service.ts; test crm-contacts.test.ts AC8, apps/web/e2e/http/customers.spec.ts |
 | REQ-F02b | Hồ sơ 360°: tóm tắt AI thật | 01-REQUIREMENTS-MATRIX.md:125 | 015b | ĐẠT | contact.summarize (packages/core/src/crm/memory/summary.ts + summary-handler.ts): model qua AiRunner, cache theo phạm vi + fingerprint, fallback luật ghi rõ; MemoryPanel "AI tóm tắt"; không đọc contact.ai_summary |
 | REQ-F02c | Hồ sơ 360°: đơn / báo giá / lịch hẹn / ticket / công nợ / thu gần nhất | 01-REQUIREMENTS-MATRIX.md:125 | 015b | ĐẠT | insights360 + LinkBlocks360: đơn / báo giá / lịch hẹn / ticket / công nợ / thu gần nhất; contact-insights.test.ts |
@@ -514,7 +514,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8b-4 | Chuyển phụ trách (crm.reassign) kèm hội thoại / BG / **lịch hẹn sắp tới**; timeline + thông báo **hai bên** | plans/COMMERCE-DECISIONS.md:179 | 015d | MỘT PHẦN | Hội thoại + báo giá chuyển (contact-owner.handlers.ts:97; quote-system.ts:85 · test crm-contacts.test.ts AC5, quotes.test.ts); `move.appointments` không consumer nào xử lý (booking không nghe `contact.owner_changed`); thông báo chỉ người nhận (crm-notify.ts:12) |
 | COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | 013c | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081); TIP-013c nhận (2026-11-02) |
 | COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 032c | MỘT PHẦN | Quote side015d; contract-write.handlers.ts:129?144 and order-edit.handlers.ts:34,63,117 still mutate attribution.032c specifies native immutable guard, separate assigned field, CAS/inverse and KPI/export tests; planning only. |
-| COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | CHƯA | TIP042b AC2–6, giữ chủ cũ/không đổi doanh số, CAS/idempotent; chưa code |
+| COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | ĐẠT | thủ công / xoay vòng / theo kênh / ít việc nhất; chỉ chủ ĐẦU TIÊN (CAS owner IS NULL, stage lead), không đổi chủ cũ / doanh số; một quyết định mỗi khách + event, 2 worker đua 1 lần; coding-packs/reports/TIP-042b-completion.md |
 | Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | ĐẠT | DC-298 áp ở packages/shared/src/authz/custom-role-policy.ts (core + web); custom-roles.test.ts AC1/AC2 |
 | COM-9-1 | Máy trạng thái HĐ draft → pending_approval → pending_signature → signed / declined / expired / terminated | plans/COMMERCE-DECISIONS.md:191-195 | 030 | ĐẠT | packages/shared/src/contracts/contract-state.ts · test contract-state.test.ts, contracts.test.ts |
 | COM-9-2 | Kanban / chip 4 cột; Chờ duyệt gộp Nháp; Từ chối / Chấm dứt chỉ ở "Tất cả" | plans/COMMERCE-DECISIONS.md:198 | 030 | ĐẠT | contract-state.ts:31-33 · test contracts.test.ts "D42 … chip trạng thái" |
@@ -1562,7 +1562,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-paymentaccount | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | plans/BLUEPRINT.md:1269 | 013b | CHƯA | Action + API có (DV-014); không FE nào gọi `payment_account.update`; TIP-013b nhận (2026-11-02) |
 | PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | 004b | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance); TIP-004b nhận (2026-11-02) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | MỘT PHẦN | Có tab Lịch sử ví (WalletLedger.tsx:1) nhưng không lọc theo module như prototype |
-| PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | CHƯA | REQ-F01c P1; không có FE; TIP042b AC7, giữ skill/shift/workflow ngoài scope |
+| PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | ĐẠT | mục "Routing & assignment" phần P1 (PD-019 — bỏ skill / online / AFK / ngôn ngữ / sticky / SLA); parity settings:routing 2,24%; coding-packs/reports/TIP-042b-completion.md |
 | PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | ĐẠT | TeamsSection (nhóm phẳng) — parity settings:teams 4,91%; PD-018 |
 | PRO-settings-automation | Mục "Cấu hình workflow" | docs/06-prototype/AppChat.dc.html:6486 | — | NGOÀI | D07 (Workflow engine) |
 | PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | 012c | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |

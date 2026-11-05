@@ -7,7 +7,6 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { requestContactSync } from './contact-sync';
-import { routingOf } from './lead-routing';
 
 export type ChannelAccount = (typeof fixture.channels)[number]['accounts'][number];
 export type SettingsChannel = (typeof fixture.channels)[number];
@@ -53,6 +52,15 @@ const summarize = (c: SettingsChannel) => {
     agent: c.accounts[0]?.agent ?? '',
   };
 };
+
+/** Chia lead đang áp cho tài khoản (cùng logic GET /settings/channels của server): ghi đè → mặc định → chưa cấu hình. */
+function routingOf(db: MockDb, accountId: string) {
+  const own = db.leadRouting.rules.find((r) => r.channel_account_id === accountId);
+  const r = own ?? db.leadRouting.rules.find((x) => x.channel_account_id === null);
+  return r
+    ? { source: own ? ('account' as const) : ('default' as const), rule_id: r.id, enabled: r.enabled, mode: r.mode, version: r.version }
+    : { source: 'none' as const, rule_id: null, enabled: false, mode: 'manual', version: 0 };
+}
 
 const connector = (db: MockDb, key: string) => {
   const c = db.settingsApps.connectors.find((x) => x.key === key);

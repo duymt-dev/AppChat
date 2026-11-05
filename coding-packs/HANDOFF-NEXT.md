@@ -4,7 +4,9 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất, ưu tiên hơn mọi mục bên dưới (2026-11-06).** Việc kế tiếp: **TIP-042b (lead routing)** — nhánh `tip/042b-lead-routing` xếp chồng trên `tip/042-custom-roles-teams` (#88). PR mới chưa merge kể từ `origin/dev` `ea18c180`: **5 / 10** (#84, #85, #86, #87, #88).
+**Mới nhất, ưu tiên hơn mọi mục bên dưới (2026-11-06).** Việc kế tiếp: **TIP-042c (record scope)** — nhánh `tip/042c-record-scope` xếp chồng trên `tip/042b-lead-routing` (#89). PR mới chưa merge kể từ `origin/dev` `ea18c180`: **6 / 10** (#84, #85, #86, #87, #88, #89).
+- **042b DONE** — PR #89 (`5e9acd3f` + commit chốt, xếp chồng #88), report `reports/TIP-042b-completion.md` (AC 8/8). Rule chia lead canonical `lead_routing_rule` (mặc định + ghi đè tài khoản; tắt khi nâng cấp — DC-238), `lead_routing.update` (crm.reassign, CAS, undo), `lead_routing.apply` system-only qua consumer `crm.lead-routing` (ROLE=jobs) từ event `lead.routing_requested` (pipeline live + lịch sử khi vừa tạo khách); chỉ chủ đầu tiên, một quyết định mỗi khách / event; UI Cài đặt › Chia lead + khối chia lead ở kênh; PD-019, DV-026.
+  - Sau merge: `pnpm --filter @appchat/db db:migrate-tenants` (tenant `20261102004210_lead_routing`), build lại api + worker (ROLE=jobs chạy consumer `crm.lead-routing`).
 - **042 DONE** — PR #88 (`f93b31eb`, xếp chồng #87), report `reports/TIP-042-completion.md` (AC 9/9; AI phần AC8 nghiệm thu bằng integration — Q-050). Vai trò tuỳ biến `role.*` (DC-298, CAS, xoá mềm), nhóm phẳng `team.*`, `authz_revision` tenant khoá cache resolver (thu hồi ở request kế tiếp), chuyển `membership.delegations` P0 → vai trò tuỳ biến (job `authz.legacy-delegations`), UI Vai trò / Nhóm / chọn vai trò thành viên; PD-018.
   - Sau merge: `pnpm --filter @appchat/db db:migrate-tenants` (tenant `20261102004200_custom_roles_teams`), build lại api + worker (ROLE=jobs chạy `authz-scheduler`).
   - `--no-build` của `e2e-http.mjs` dùng `apps/api/dist` có sẵn — đổi backend thì `pnpm turbo run build --filter=@appchat/api --filter=@appchat/worker` trước (dist cũ làm E2E đỏ giả).

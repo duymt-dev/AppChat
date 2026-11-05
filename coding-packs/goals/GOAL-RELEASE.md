@@ -94,7 +94,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 10 | [003d](../tips/TIP-003d-openapi.md) | W8 | DONE | `tip/003d-openapi` | `3faa45ec` | [#86](https://github.com/duymt-dev/AppChat/pull/86) (xếp chồng #85) |
 | 11 | [014b](../tips/TIP-014b-zalo-lifecycle.md) | W8 | PARTIAL — chỉ AC8 Zalo thật (Q-003, chưa nghiệm thu với provider thật) | `tip/014b-zalo-lifecycle` | `4d139ea0` | [#87](https://github.com/duymt-dev/AppChat/pull/87) (xếp chồng #86) |
 | 12 | [042](../tips/TIP-042-custom-roles-teams.md) | W8 | DONE | `tip/042-custom-roles-teams` | `f93b31eb` | #88 (xếp chồng #87) |
-| 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | chờ | `tip/042b-lead-routing` | | |
+| 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | DONE | `tip/042b-lead-routing` | `5e9acd3f` | #89 (xếp chồng #88) |
 | 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | chờ | `tip/042c-record-scope` | | |
 | 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | chờ | `tip/022b-agent-channel-behavior` | | |
 | 16 | [037](../tips/TIP-037-marketing.md) | W8 | chờ | `tip/037-marketing` | | |
