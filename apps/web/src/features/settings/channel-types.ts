@@ -1,6 +1,15 @@
 // Kiểu dữ liệu Kênh kết nối (REQ-B09 một kênh nhiều tài khoản) — tách khỏi types.ts để giữ dưới trần 400 dòng.
 export type ChannelAiMode = 'auto' | 'suggest' | 'off';
+/** `shift` chỉ còn đọc được (cấu hình cũ — TIP-042b DC-238); lựa chọn mới không có. */
 export type ChannelAssignMode = 'round_robin' | 'least_busy' | 'shift';
+/** Chia lead đang áp cho tài khoản (TIP-042b): ghi đè / mặc định / chưa cấu hình. */
+export interface ChannelRouting {
+  source: 'account' | 'default' | 'none';
+  rule_id: string | null;
+  enabled: boolean;
+  mode: string;
+  version: number;
+}
 export type ChannelHistoryDays = 0 | 7 | 30 | 90;
 
 /** Một tài khoản của một loại kênh (REQ-B09: một kênh nhiều tài khoản). */
@@ -23,6 +32,7 @@ export interface ChannelAccount {
   sync_auto_create_contact: boolean;
   history_days: ChannelHistoryDays;
   paused: boolean;
+  routing?: ChannelRouting;
 }
 
 /** Một loại kênh (vd Zalo cá nhân) với danh sách tài khoản — trạng thái/hội thoại gộp từ `accounts`. */

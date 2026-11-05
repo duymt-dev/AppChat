@@ -11,7 +11,8 @@
     "apps": "APPS",
     "ai": "AI",
     "security": "SECURITY",
-    "finance": "NOTIFICATIONS & BILLING"
+    "finance": "NOTIFICATIONS & BILLING",
+    "automation": "AUTOMATION"
   },
   "nav": {
     "general": "Overview",
@@ -37,7 +38,8 @@
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
     "profile": "My profile",
-    "sales_policy": "Sales policy"
+    "sales_policy": "Sales policy",
+    "routing": "Lead routing"
   },
   "head": {
     "general": "Overview",
@@ -63,7 +65,8 @@
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
     "profile": "My profile",
-    "sales_policy": "Sales policy"
+    "sales_policy": "Sales policy",
+    "routing": "Routing & assignment"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
@@ -1697,5 +1700,61 @@
     "ownerOnly": "Only the Owner can change approval thresholds.",
     "reset": "Reset",
     "save": "Save changes"
+  },
+  "routing": {
+    "title": "Assignment rules",
+    "sub": "Who receives a new customer on their first chat",
+    "newOnly": "Applies to NEW leads only (contacts created after it is enabled). Existing customers are never redistributed, existing owners never change, manually assigned conversations are kept.",
+    "default": "Default strategy",
+    "defaultD": "Used by every channel account without its own rule",
+    "accounts": "Per channel account",
+    "accountsD": "An account rule beats the default — off or manual means the shared queue",
+    "accountD": "{type} channel",
+    "noAccounts": "No channel accounts yet.",
+    "inherit": "Uses default",
+    "off": "Manual · shared queue",
+    "edit": "Edit",
+    "legacyShift": "By shift (legacy — not running)",
+    "editDefault": "Default strategy",
+    "editAccount": "Rule for {name}",
+    "enabled": "Auto-assign new leads",
+    "enabledD": "Off: new customers wait in the shared queue for a manager",
+    "strategy": "Strategy",
+    "mode": {
+      "manual": "Manual",
+      "round_robin": "Round robin (even split)",
+      "least_busy": "Least busy",
+      "by_channel": "By channel (fixed person)"
+    },
+    "modeD": {
+      "manual": "No auto-assignment — new customers stay in the shared queue.",
+      "round_robin": "Each eligible person in the list in turn.",
+      "least_busy": "Whoever handles the fewest open / pending / snoozed conversations; ties rotate.",
+      "by_channel": "Every new lead of this account goes to one person."
+    },
+    "pool": "Recipients",
+    "poolKind": {
+      "users": "Pick people",
+      "team": "By team"
+    },
+    "pickTeam": "Pick a team…",
+    "pickUser": "Pick a person…",
+    "fixed": "Fixed recipient",
+    "history": "Customers created from a history import AFTER enabling also count as new leads. People who can no longer view / edit customers and reply to conversations are skipped.",
+    "overrideManual": "Manual account rule: new leads of this account go to the shared queue instead of the default strategy.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "errPool": "Pick at least one recipient (or a team) before enabling.",
+    "stale": "Someone just changed this rule — reloaded, please save again.",
+    "channel": {
+      "label": "New lead routing",
+      "off": "Manual · shared queue",
+      "account": "Account rule · {mode}",
+      "default": "Default · {mode}",
+      "manage": "Configure lead routing",
+      "hint": "Change it in Settings › Lead routing — new leads only.",
+      "readonly": "Only people who can reassign customers can change this."
+    }
   }
 }

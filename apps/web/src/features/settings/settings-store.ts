@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import type { FieldEntity } from './types';
 import type { RoleDraft, TeamDraft } from './roles.types';
+import type { RoutingDraft } from './routing.types';
 
 export interface MemberDraft {
   /** Có id → sửa vai trò; không → mời mới. */
@@ -19,6 +20,8 @@ interface SettingsUi {
   roleEditor: RoleDraft | null;
   /** Trình sửa nhóm (TIP-042) — null = đóng. */
   teamEditor: TeamDraft | null;
+  /** Trình sửa rule chia lead (TIP-042b) — null = đóng. */
+  routingEditor: RoutingDraft | null;
   /** Hộp chuyển quyền Chủ sở hữu (TIP-045b A3). */
   transferOpen: boolean;
   menuFor: string | null;
@@ -56,6 +59,7 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   memberModal: null,
   roleEditor: null,
   teamEditor: null,
+  routingEditor: null,
   transferOpen: false,
   menuFor: null,
   chanFilter: 'all',

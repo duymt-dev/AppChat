@@ -1211,6 +1211,15 @@ export const MANIFEST: ParityEntry[] = [
     clip: ST_MAIN,
   },
   {
+    // TIP-042b: "Routing & assignment" — chỉ chiến lược chia lead P1 (PD-019: bỏ online / AFK / ngôn ngữ / SLA của prototype).
+    id: 'settings:routing',
+    route: '/settings/routing',
+    protoStorage: settings('routing'),
+    appWait: '[data-rule="default"]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
     id: 'settings:channels',
     route: '/settings/channels',
     protoStorage: settings('channels'),

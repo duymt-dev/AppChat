@@ -11,7 +11,8 @@
     "apps": "ỨNG DỤNG",
     "ai": "AI",
     "security": "BẢO MẬT",
-    "finance": "THÔNG BÁO & TÀI CHÍNH"
+    "finance": "THÔNG BÁO & TÀI CHÍNH",
+    "automation": "TỰ ĐỘNG HOÁ"
   },
   "nav": {
     "general": "Tổng quan",
@@ -37,7 +38,8 @@
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
-    "sales_policy": "Chính sách bán hàng"
+    "sales_policy": "Chính sách bán hàng",
+    "routing": "Chia lead"
   },
   "head": {
     "general": "Tổng quan",
@@ -63,7 +65,8 @@
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
-    "sales_policy": "Chính sách bán hàng"
+    "sales_policy": "Chính sách bán hàng",
+    "routing": "Routing & assignment"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
@@ -1697,5 +1700,61 @@
     "ownerOnly": "Chỉ Chủ sở hữu được đổi ngưỡng duyệt.",
     "reset": "Hoàn lại",
     "save": "Lưu thay đổi"
+  },
+  "routing": {
+    "title": "Quy tắc phân công",
+    "sub": "Ai nhận khách mới khi khách chat vào lần đầu",
+    "newOnly": "Chỉ áp cho lead MỚI (khách được tạo sau lúc bật). Không chia lại khách cũ, không đổi người phụ trách đã có, không giành hội thoại đã gán tay.",
+    "default": "Chiến lược mặc định",
+    "defaultD": "Áp cho mọi tài khoản kênh không có quy tắc riêng",
+    "accounts": "Theo tài khoản kênh",
+    "accountsD": "Quy tắc riêng thắng mặc định — tắt hoặc thủ công nghĩa là vào hàng chung",
+    "accountD": "Kênh {type}",
+    "noAccounts": "Chưa có tài khoản kênh nào.",
+    "inherit": "Theo mặc định",
+    "off": "Thủ công · hàng chung",
+    "edit": "Sửa",
+    "legacyShift": "Theo ca (kiểu cũ — không chạy)",
+    "editDefault": "Chiến lược mặc định",
+    "editAccount": "Quy tắc cho {name}",
+    "enabled": "Tự chia lead mới",
+    "enabledD": "Tắt: khách mới vào hàng chung, quản lý tự gán",
+    "strategy": "Chiến lược",
+    "mode": {
+      "manual": "Thủ công",
+      "round_robin": "Xoay vòng (chia đều)",
+      "least_busy": "Người ít việc nhất",
+      "by_channel": "Theo kênh (người cố định)"
+    },
+    "modeD": {
+      "manual": "Không tự chia — khách mới ở hàng chung.",
+      "round_robin": "Lần lượt từng người đủ quyền trong danh sách.",
+      "least_busy": "Người đang xử lý ít hội thoại mở / chờ / hoãn nhất; hoà thì xoay vòng.",
+      "by_channel": "Mọi lead mới của tài khoản này về một người."
+    },
+    "pool": "Người nhận",
+    "poolKind": {
+      "users": "Chọn người",
+      "team": "Theo nhóm"
+    },
+    "pickTeam": "Chọn nhóm…",
+    "pickUser": "Chọn người…",
+    "fixed": "Người nhận cố định",
+    "history": "Khách mới tạo từ lịch sử nhập SAU khi bật cũng được chia như lead mới. Người không còn quyền xem / sửa khách và trả lời hội thoại sẽ được bỏ qua.",
+    "overrideManual": "Quy tắc riêng ở chế độ thủ công: lead mới của tài khoản này vào hàng chung, không dùng chiến lược mặc định.",
+    "save": "Lưu",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "errPool": "Chọn ít nhất một người nhận (hoặc một nhóm) trước khi bật.",
+    "stale": "Quy tắc vừa được người khác đổi — đã tải lại, hãy lưu lại.",
+    "channel": {
+      "label": "Chia lead mới",
+      "off": "Thủ công · hàng chung",
+      "account": "Riêng tài khoản · {mode}",
+      "default": "Theo mặc định · {mode}",
+      "manage": "Cấu hình chia lead",
+      "hint": "Đổi ở Cài đặt › Chia lead — chỉ áp cho lead mới.",
+      "readonly": "Chỉ người có quyền chuyển phụ trách khách mới đổi được."
+    }
   }
 }

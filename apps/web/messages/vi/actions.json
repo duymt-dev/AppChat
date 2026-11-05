@@ -793,6 +793,14 @@
       "title": "Xoá vai trò"
     }
   },
+  "lead_routing": {
+    "update": {
+      "title": "Cấu hình chia lead"
+    },
+    "apply": {
+      "title": "Chia lead mới (hệ thống)"
+    }
+  },
   "team": {
     "create": {
       "title": "Tạo nhóm"

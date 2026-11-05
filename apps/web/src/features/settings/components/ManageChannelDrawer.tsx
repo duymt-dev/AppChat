@@ -15,10 +15,10 @@ import { channelAccountStatsQuery, channelsQuery } from '../api';
 import { Switch } from './Switch';
 import { ContactSyncPanel } from './ContactSyncPanel';
 import { FriendsPanel } from './FriendsPanel';
-import type { ChannelAccount, ChannelAiMode, ChannelAssignMode, ChannelHistoryDays } from '../types';
+import { ChannelRoutingFields } from './ChannelRoutingFields';
+import type { ChannelAccount, ChannelAiMode, ChannelHistoryDays } from '../types';
 
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
-const ASSIGNS: ChannelAssignMode[] = ['round_robin', 'least_busy', 'shift'];
 const SLAS = ['std', 'vip', 'soc'];
 const HISTORIES: ChannelHistoryDays[] = [0, 7, 30, 90];
 const HEALTH_GOOD: ChannelAccount['health'][] = ['good'];
@@ -68,7 +68,6 @@ export function ManageChannelDrawer() {
           ai_mode: draft.ai_mode,
           hours: draft.hours,
           greeting: draft.greeting,
-          assign_mode: draft.assign_mode,
           sla_policy: draft.sla_policy,
           sync_messages: draft.sync_messages,
           sync_auto_create_contact: draft.sync_auto_create_contact,
@@ -266,16 +265,7 @@ export function ManageChannelDrawer() {
           <div className={styles.block}>
             <div className={styles.blockT}>{t('s4')}</div>
             <div className={styles.grid2}>
-              <div>
-                <div className={s.label}>{t('assignMode')}</div>
-                <select className={s.select} value={cur?.assign_mode} onChange={(e) => patch({ assign_mode: e.target.value as ChannelAssignMode })} data-testid="st-ch-drawer-assign">
-                  {ASSIGNS.map((a) => (
-                    <option key={a} value={a}>
-                      {t(`assign.${a}` as never)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <ChannelRoutingFields routing={account?.routing} legacy={account?.assign_mode} testId="st-ch-drawer-routing" />
               <div>
                 <div className={s.label}>{t('slaPolicy')}</div>
                 <select className={s.select} value={cur?.sla_policy} onChange={(e) => patch({ sla_policy: e.target.value })} data-testid="st-ch-drawer-sla">

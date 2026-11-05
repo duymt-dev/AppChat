@@ -20,6 +20,7 @@ import { marketingRoutes } from './domains/marketing';
 import { loyaltyRoutes } from './domains/loyalty';
 import { settingsRoutes } from './domains/settings';
 import { authzMgmtRoutes } from './domains/authz-management';
+import { leadRoutingRoutes } from './domains/lead-routing';
 import { settingsAppsRoutes } from './domains/settings-apps';
 import { profileLayoutRoutes } from './domains/profile-layout';
 import { settingsDataRoutes } from './domains/settings-data';
@@ -81,6 +82,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...loyaltyRoutes,
   ...settingsRoutes,
   ...authzMgmtRoutes,
+  ...leadRoutingRoutes,
   ...settingsAppsRoutes,
   ...profileLayoutRoutes,
   ...settingsDataRoutes,

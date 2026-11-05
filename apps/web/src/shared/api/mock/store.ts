@@ -21,6 +21,7 @@ import { createMarketingState, type MarketingState } from './domains/marketing';
 import { createLoyaltyState, type LoyaltyState } from './domains/loyalty';
 import { createSettingsState, type SettingsState } from './domains/settings';
 import { createAuthzMgmtState, type AuthzMgmtState } from './domains/authz-management';
+import { createLeadRoutingState, type LeadRoutingState } from './domains/lead-routing';
 import { createSettingsAppsState, type SettingsAppsState } from './domains/settings-apps';
 import { createProfileLayoutState, type ProfileLayoutState } from './domains/profile-layout';
 import { createSettingsDataState, type SettingsDataState } from './domains/settings-data';
@@ -69,6 +70,8 @@ export interface MockDb {
   settings: SettingsState;
   /** Vai trò tuỳ biến + nhóm (TIP-042). */
   authzMgmt: AuthzMgmtState;
+  /** Chia lead mới (TIP-042b). */
+  leadRouting: LeadRoutingState;
   settingsApps: SettingsAppsState;
   profileLayout: ProfileLayoutState;
   settingsData: SettingsDataState;
@@ -113,6 +116,7 @@ const db: MockDb = {
   loyalty: createLoyaltyState(),
   settings: createSettingsState(),
   authzMgmt: createAuthzMgmtState(),
+  leadRouting: createLeadRoutingState(),
   settingsApps: createSettingsAppsState(),
   profileLayout: createProfileLayoutState(),
   settingsData: createSettingsDataState(),

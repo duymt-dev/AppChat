@@ -793,6 +793,14 @@
       "title": "Delete role"
     }
   },
+  "lead_routing": {
+    "update": {
+      "title": "Configure lead routing"
+    },
+    "apply": {
+      "title": "Route new lead (system)"
+    }
+  },
   "team": {
     "create": {
       "title": "Create team"
