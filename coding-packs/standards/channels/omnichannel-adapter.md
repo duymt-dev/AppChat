@@ -27,7 +27,7 @@ export interface ChannelManifest {
   type: string;                         // 'zalo_personal' | 'webchat' | 'email' | 'zalo_oa' | 'messenger' | ...
   label: string;                        // i18n key 'channels.zalo_personal.label'
   icon: string;                         // key icon trong packages/ui
-  group: 'chat' | 'social' | 'email' | 'sms' | 'web';
+  group: 'chat' | 'social' | 'email' | 'sms' | 'web' | 'commerce';  // commerce: sàn TMĐT (P2, D04)
   status: 'ga' | 'beta' | 'coming_soon';  // coming_soon: hiện thẻ "Sắp có", không cho kết nối
   connect: { kind: 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'; fields?: z.ZodObject<any>; riskNotice?: string };
   capabilities: {
