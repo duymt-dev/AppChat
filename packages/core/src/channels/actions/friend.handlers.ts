@@ -133,7 +133,7 @@ export class ChannelLookupUserHandler extends FriendBase implements Handler<Look
   async execute(ctx: ActionContext, i: LookupIn, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
     const row = await this.runnable(ctx, tx, i.channel_account_id, 'find_user');
     const l = await requestLookup(tx, { accountId: row.id, actorId: this.me(ctx), phone: i.phone, now: this.clock.now() });
-    // Nhật ký: không ghi SĐT vào action log (chỉ id lần tra) — dòng tra là nơi giữ số, có hạn đọc 24 giờ.
+    // Nhật ký: action log che `phone` (khoá PII chung REDACT_KEYS) — dòng tra là nơi giữ số, có hạn đọc 24 giờ.
     return { result: { ok: true }, after: { lookup_id: l.id, channel_account_id: row.id }, events: [l.event], ...jobAccepted(l.id, lookupStatusUrl(row.id, l.id)) };
   }
 }
