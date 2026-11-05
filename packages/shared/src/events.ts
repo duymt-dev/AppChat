@@ -116,6 +116,8 @@ export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string(
  */
 /** Đổi định nghĩa trường tuỳ biến (TIP-045b annex C) — chỉ entity, không có giá trị; realtime `fields.changed` làm mới cache FE. */
 export const customFieldChangedEvent = z.object({ ...base, entity: z.string(), key: z.string().optional() });
+/** Việc dữ liệu nặng đã nhận (TIP-045b annex D) — ghi cùng commit với action; consumer `kernel.data-jobs` (ROLE=jobs) chạy việc. */
+export const dataJobRequestedEvent = z.object({ ...base, job_id: z.string().uuid(), kind: z.string() });
 export const securityEventSchema = z.object({ ...base, action_id: z.string(), action_log_id: z.string().uuid(), actor_user_id: z.string().uuid().nullable(), source: z.string() });
 
 export const operationCompletedEvent = z.object({ ...base, operation_id: z.string().uuid(), action_id: z.string(), approval_id: z.string().uuid().nullable(), run_id: z.string().uuid().nullable() });
@@ -220,6 +222,7 @@ export const EVENT_SCHEMAS = {
   'operation.completed': operationCompletedEvent,
   'audit.security_event': securityEventSchema,
   'custom_field.changed': customFieldChangedEvent,
+  'data_job.requested': dataJobRequestedEvent,
   'ai.handoff': aiHandoffEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,

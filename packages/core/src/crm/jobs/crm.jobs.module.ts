@@ -1,6 +1,7 @@
 // Worker ROLE=jobs của domain `crm`. TIP-015b: scheduler `crm.memory-receipt-purge` mỗi giờ trên queue riêng `crm-scheduler` — xoá biên nhận
 // gộp trí nhớ hết cửa sổ hoàn tác 7 ngày (lô id trước, SKIP LOCKED; replay idempotent). TIP-045b: `crm.custom-field-prune` mỗi 6 giờ —
-// giá trị trường tuỳ biến đã xoá quá 30 ngày (custom-field-prune.ts). Lỗi một workspace không chặn workspace khác.
+// giá trị trường tuỳ biến đã xoá quá 30 ngày (custom-field-prune.ts). Lỗi một workspace không chặn workspace khác. TIP-045b annex D:
+// việc dữ liệu nặng (DataJobsModule — consumer `data_job.requested` + quét) với kind contact.export / contact.bulk_update.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
@@ -13,6 +14,11 @@ import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.provide
 import { CrmModule } from '../crm.module';
 import { purgeMergeReceipts } from '../memory/merge';
 import { pruneDeletedFields } from './custom-field-prune';
+import { STORAGE, type Storage } from '../../kernel/files/storage';
+import { DataJobsModule } from '../../kernel/jobs/data-jobs/data-jobs.module';
+import { CrmMembers } from '../services/members.service';
+import { registerContactExportKind } from './contact-export.processor';
+import './contact-bulk.processor';
 
 export const CRM_SCHEDULER_QUEUE = 'crm-scheduler';
 export const MEMORY_RECEIPT_PURGE_JOB = 'crm.memory-receipt-purge';
@@ -90,5 +96,12 @@ class CrmJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   }
 }
 
-@Module({ imports: [CrmModule], providers: [CrmJobsRunner] })
+/** Kind việc dữ liệu của crm (TIP-045b annex D): xuất > 5.000 cần Storage + tên người phụ trách; sửa hàng loạt đăng ký khi import. */
+class CrmDataJobKinds {
+  constructor(@Optional() @Inject(STORAGE) storage: Storage | undefined, @Inject(CrmMembers) members: CrmMembers | null) {
+    if (storage && members) registerContactExportKind(storage, members);
+  }
+}
+
+@Module({ imports: [CrmModule, DataJobsModule], providers: [CrmJobsRunner, CrmDataJobKinds] })
 export class CrmJobsModule {}

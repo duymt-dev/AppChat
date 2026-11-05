@@ -1226,6 +1226,7 @@
       "channel_down": "Kênh bị ngắt kết nối",
       "billing_invoice": "Gói & ví — hoá đơn mới",
       "owner_transfer": "Đổi Chủ sở hữu workspace",
+      "data_job_done": "Xuất dữ liệu / sửa hàng loạt chạy nền xong",
       "security_event": "Sự kiện bảo mật (vai trò, thành viên, kênh, xuất dữ liệu, đăng nhập mới)"
     },
     "prefsT": "Tuỳ chọn nhận thông báo",

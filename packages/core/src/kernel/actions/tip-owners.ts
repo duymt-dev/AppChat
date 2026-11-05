@@ -17,9 +17,11 @@ const BY_ID: Record<string, string> = {
   'channel.email.connect': '018',
   'admin.invoice.confirm_transfer': '010',
   'assistant.resume': '023',
+  'contact.bulk_update': '045',
 };
 
 const BY_PREFIX: Record<string, string> = {
+  data_job: '045',
   notification: '003',
   profile: '004',
   workspace: '013',

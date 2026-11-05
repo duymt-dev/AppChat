@@ -195,6 +195,10 @@
     "summarize": {
       "title": "Summarise customer",
       "desc": "Summarise one customer in 3–5 points from data you may see (memory, history, receivables, contracts, orders, appointments, tickets)."
+    },
+    "bulk_update": {
+      "title": "Bulk update contacts",
+      "desc": "Update many contacts at once (group, status, tags…) — owner is not changed."
     }
   },
   "custom_field": {
@@ -1095,6 +1099,14 @@
     },
     "archive": {
       "title": "Archive variant"
+    }
+  },
+  "data_job": {
+    "cancel": {
+      "title": "Cancel background job"
+    },
+    "retry": {
+      "title": "Retry failed items of a background job"
     }
   }
 }

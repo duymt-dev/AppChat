@@ -46,6 +46,7 @@ export const notify: Shape<typeof vi> = {
     billing_invoice: { title: 'New plan invoice {code}', label: 'Plan & wallet — new invoice' },
     security_event: { title: 'Security event: {action} ({source}) — see Settings › Audit log', label: 'Security events (roles, members, channels, exports, new sign-ins)' },
     owner_transfer: { title: 'Ownership moved from {from} to {to}', label: 'Workspace ownership transfer' },
+    data_job_done: { title: 'Background job "{job}" {status}: {done}/{total} records', label: 'Background export / bulk update finished' },
   },
   mail: {
     subject: '[{workspace}] {title}',

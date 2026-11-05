@@ -1,0 +1,55 @@
+// tenant/data-jobs.prisma — sở hữu: TIP-045b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: data_job (việc dữ liệu nặng chạy nền — xuất > 5.000 dòng, sửa hàng loạt > 50 bản ghi: tập id chốt lúc nhận, người gọi, hash input,
+// lease / fence, tiến độ, tệp kết quả), data_job_item (biên nhận từng bản ghi, PK (job_id, seq) — chạy lại / thử lại không ghi trùng).
+
+model DataJob {
+  id          String    @id @db.Uuid
+  /// `contact.export` | `contact.bulk_update`.
+  kind        String
+  actionId    String    @map("action_id")
+  actorId     String?   @map("actor_id") @db.Uuid
+  actionLogId String?   @map("action_log_id") @db.Uuid
+  /// sha256 input chuẩn hoá — thử lại chỉ với cùng input.
+  inputHash   String    @map("input_hash")
+  input       Json      @default("{}")
+  /// Phiên bản định nghĩa trường lúc chốt (FieldPolicy) — tệp xuất bị vô hiệu khi chính sách trường đổi.
+  fieldPolicy String    @default("") @map("field_policy")
+  /// queued | running | cancelling | cancelled | completed | failed
+  status      String    @default("queued")
+  total       Int       @default(0)
+  done        Int       @default(0)
+  failed      Int       @default(0)
+  error       String?
+  /// Lease xử lý: chủ + hạn + fence (worker khác chỉ giành khi hết hạn).
+  leaseOwner  String?   @map("lease_owner")
+  leaseUntil  DateTime? @map("lease_until") @db.Timestamptz(6)
+  fence       Int       @default(0)
+  /// Tệp kết quả (xuất): key storage + tên + hết hạn 24 giờ.
+  fileKey     String?   @map("file_key")
+  fileName    String?   @map("file_name")
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  finishedAt  DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  items DataJobItem[]
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@map("data_job")
+}
+
+model DataJobItem {
+  jobId     String   @map("job_id") @db.Uuid
+  seq       Int
+  /// Id bản ghi đích (đã chốt lúc nhận việc).
+  targetId  String   @map("target_id") @db.Uuid
+  /// pending | done | failed | skipped
+  status    String   @default("pending")
+  error     String?
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  job DataJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, seq])
+  @@map("data_job_item")
+}

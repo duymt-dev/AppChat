@@ -47,6 +47,8 @@ import * as channelReads from './reads/channels';
 import * as documentReads from './reads/documents';
 import * as assistantUi from './assistant-ui';
 import * as integrationProbe from './integration-probe';
+import * as dataJobs from './data-jobs';
+import * as crmBulk from './crm-bulk';
 
 export * from './define';
 export * from './assistant-ui';
@@ -98,6 +100,8 @@ export * from './reads/identity';
 export * from './reads/channels';
 export * from './reads/documents';
 export * from './integration-probe';
+export * from './data-jobs';
+export * from './crm-bulk';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -138,6 +142,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(kbSuggestions),
   ...Object.values(documents),
   ...Object.values(platformAdmin),
+  ...Object.values(dataJobs),
+  ...Object.values(crmBulk),
   // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).
   ...Object.values(salesReads),
   ...Object.values(contractReads),

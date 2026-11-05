@@ -43,6 +43,7 @@ export const notify = {
     billing_invoice: { title: 'Hoá đơn gói mới {code}', label: 'Gói & ví — hoá đơn mới' },
     security_event: { title: 'Sự kiện bảo mật: {action} ({source}) — xem Cài đặt › Audit log', label: 'Sự kiện bảo mật (vai trò, thành viên, kênh, xuất dữ liệu, đăng nhập mới)' },
     owner_transfer: { title: 'Quyền Chủ sở hữu đã chuyển từ {from} sang {to}', label: 'Đổi Chủ sở hữu workspace' },
+    data_job_done: { title: 'Việc chạy nền "{job}" đã {status}: {done}/{total} bản ghi', label: 'Xuất dữ liệu / sửa hàng loạt chạy nền xong' },
   },
   mail: {
     subject: '[{workspace}] {title}',

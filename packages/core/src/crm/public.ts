@@ -12,3 +12,6 @@ export { createContact } from './services/contacts.service';
 export { MEMORY_CAP, normFact } from './memory/normalize';
 export { purgeMergeReceipts, MERGE_UNDO_MS } from './memory/merge';
 export { recentFacts } from './memory/read';
+// Việc dữ liệu nặng của crm (TIP-045b annex D) — worker đăng ký qua CrmJobsModule; test dựng runner trực tiếp.
+export { registerContactExportKind, CONTACT_EXPORT_KIND } from './jobs/contact-export.processor';
+export { CONTACT_BULK_KIND } from './actions/contact-bulk.handler';

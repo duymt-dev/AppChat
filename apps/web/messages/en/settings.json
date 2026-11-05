@@ -1226,6 +1226,7 @@
       "channel_down": "Channel disconnected",
       "billing_invoice": "Plan & wallet — new invoice",
       "owner_transfer": "Workspace ownership transfer",
+      "data_job_done": "Background export / bulk update finished",
       "security_event": "Security events (roles, members, channels, exports, new sign-ins)"
     },
     "prefsT": "Notification preferences",

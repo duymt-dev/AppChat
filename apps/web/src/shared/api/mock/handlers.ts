@@ -30,6 +30,7 @@ import { settingsOpsHandlers } from './domains/settings-ops';
 import { settingsBillingHandlers } from './domains/settings-billing';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
+import { dataJobsHandlers } from './domains/data-jobs';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -91,6 +92,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...dashboardHandlers,
   ...inboxHandlers,
   ...customersHandlers,
+  ...dataJobsHandlers,
   ...assistantHandlers,
   ...aiTasksHandlers,
   ...agentsHandlers,

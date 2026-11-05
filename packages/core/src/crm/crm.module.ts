@@ -14,6 +14,8 @@ import { ContactGet360Handler, ContactGetHandler, ProfileLayoutSearchHandler } f
 import { CustomFieldDefineHandler, CustomFieldDeleteHandler, CustomFieldUpdateHandler } from './actions/custom-field.handlers';
 import { ProfileLayoutAssignRoleHandler, ProfileLayoutCreateHandler, ProfileLayoutDeleteHandler, ProfileLayoutDuplicateHandler, ProfileLayoutUpdateHandler } from './actions/profile-layout.handlers';
 import { ContactMemoryModule } from './memory/memory.module';
+import { DataJobActionsModule } from '../kernel/jobs/data-jobs/data-jobs.module';
+import { ContactBulkUpdateHandler } from './actions/contact-bulk.handler';
 import { CrmReadService } from './services/crm-read.service';
 import { ContactIdentityService } from './services/identity.service';
 import { CrmMembers } from './services/members.service';
@@ -27,12 +29,14 @@ const HANDLERS = [
   ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ContactDeleteHandler, ContactMergeHandler,
   ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
   ContactExportHandler, ContactImportHandler,
+  // TIP-045b annex D: sửa hàng loạt (≤ 50 ngay, > 50 việc nền).
+  ContactBulkUpdateHandler,
   CustomFieldDefineHandler, CustomFieldUpdateHandler, CustomFieldDeleteHandler,
   ProfileLayoutSearchHandler, ProfileLayoutCreateHandler, ProfileLayoutUpdateHandler, ProfileLayoutDuplicateHandler, ProfileLayoutDeleteHandler, ProfileLayoutAssignRoleHandler,
 ];
 
 @Module({
-  imports: [ContactMemoryModule],
+  imports: [ContactMemoryModule, DataJobActionsModule],
   providers: [
     ...HANDLERS,
     { provide: CrmMembers, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new CrmMembers(p) : null) },
@@ -43,6 +47,6 @@ const HANDLERS = [
     },
     { provide: ContactIdentityService, useValue: new ContactIdentityService() },
   ],
-  exports: [CrmMembers, CrmReadService, ContactIdentityService],
+  exports: [CrmMembers, CrmReadService, ContactIdentityService, DataJobActionsModule],
 })
 export class CrmModule {}

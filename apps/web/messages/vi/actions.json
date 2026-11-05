@@ -195,6 +195,10 @@
     "summarize": {
       "title": "Tóm tắt Hồ sơ khách",
       "desc": "Tóm tắt 3–5 ý về một khách từ dữ liệu bạn được xem (ghi nhớ, lịch sử, công nợ, hợp đồng, đơn, lịch hẹn, ticket)."
+    },
+    "bulk_update": {
+      "title": "Cập nhật hàng loạt khách hàng",
+      "desc": "Sửa cùng lúc nhiều khách (nhóm, trạng thái, thẻ…) — không đổi người phụ trách."
     }
   },
   "custom_field": {
@@ -1095,6 +1099,14 @@
     },
     "archive": {
       "title": "Lưu trữ biến thể"
+    }
+  },
+  "data_job": {
+    "cancel": {
+      "title": "Huỷ việc chạy nền"
+    },
+    "retry": {
+      "title": "Thử lại bản ghi lỗi của việc chạy nền"
     }
   }
 }
