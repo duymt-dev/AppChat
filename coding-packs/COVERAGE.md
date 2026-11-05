@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 129 | 17 | 5 | 13 | 24 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 93 | 15 | 10 | 1 | 34 | 10 | 5 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 94 | 15 | 10 | 1 | 33 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 140 | 20 | 3 | 5 | 25 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 285 | 78 | 3 | 4 | 84 | 3 | 0 | 0 |
-| E. standards/* | 192 | 53 | 1 | 6 | 36 | 2 | 43 | 0 |
+| E. standards/* | 193 | 53 | 1 | 6 | 35 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 21 | 1 | 60 | 0 | 6 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 44 | 18 | 7 | 13 | 41 | 3 | 0 | 0 |
-| **Tổng** | **904** | **202** | **89** | **42** | **250** | **37** | **69** | **0** |
+| **Tổng** | **906** | **202** | **89** | **42** | **248** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -378,7 +378,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N02b | Partial / expression index / INCLUDE bằng SQL thô trong migration; query theo quy tắc index | 01-REQUIREMENTS-MATRIX.md:210 | mọi TIP | QUY-TẮC | migration *.sql viết tay (vd 20261101900000_033_booking/migration.sql); kiểm bằng ca EXPLAIN trong crm-contacts / catalog / quotes / orders / support / booking .test.ts |
 | REQ-N02c | PgBouncer | 01-REQUIREMENTS-MATRIX.md:210 | 045 | CHƯA | chưa có `infra/` |
 | REQ-N03a | REST `/v1`, cursor pagination, `Idempotency-Key`, lỗi chuẩn hoá envelope | 01-REQUIREMENTS-MATRIX.md:211 | 003 | ĐẠT | apps/api/src/http/kernel/actions.controller.ts:37; apps/api/src/http/inbox/conversations.controller.ts:38 cursor; test actions.test.ts AC1–AC5, notify.test.ts AC2 (cursor) |
-| REQ-N03b | OpenAPI tự sinh (Blueprint `/v1/docs`) | 01-REQUIREMENTS-MATRIX.md:211 | 003d | CHƯA | không có openapi / swagger trong apps/api (chỉ `GET /v1/actions` trả input_schema — actions.controller.ts:41); không TIP nào nhận; TIP-003d nhận (2026-11-02) |
+| REQ-N03b | OpenAPI tự sinh (Blueprint `/v1/docs`) | 01-REQUIREMENTS-MATRIX.md:211 | 003d | ĐẠT | apps/api/src/openapi/{route-scan,document,action-ops}.ts + http/kernel/openapi.controller.ts — GET /v1/docs (OpenAPI 3.1 từ route Nest + Action Registry, ETag theo APP_BUILD_SHA) + /v1/docs/ui; production chỉ khi API_DOCS=1; test/openapi.test.ts 6 + integration/openapi.test.ts 5 (validate schema chính thức OAS 3.1, mọi route + action có mặt, 404 khi tắt, baseline x-untyped 175) |
 | REQ-N04 | Realtime Socket.IO, room theo workspace / hội thoại, presence + typing | 01-REQUIREMENTS-MATRIX.md:212 | 006 | ĐẠT | apps/api/src/http/notify/realtime/ws.gateway.ts:85, :93; test realtime.test.ts AC7–AC9 |
 | REQ-N05 | BullMQ + outbox; domain events nội bộ; consumer idempotent | 01-REQUIREMENTS-MATRIX.md:213 | 003, 006 | ĐẠT | packages/core/src/kernel/outbox/outbox.ts; test relay-sequence.test.ts, notify.test.ts AC4 (event_consumption chạy một lần), actions.test.ts AC6 |
 | REQ-N06a | JWT ngắn hạn + refresh xoay vòng | 01-REQUIREMENTS-MATRIX.md:214 | 004 | ĐẠT | packages/core/src/identity/services/access-tokens.ts:5 (15 phút); test auth.test.ts AC6 "refresh xoay vòng" |
@@ -1207,7 +1207,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-api-envelope-8 | Thiếu / sai X-Workspace-Id → 403 trước khi mở DB tenant | standards/api/response-envelope.md:23 | 004 | ĐẠT | apps/api/src/http/kernel/request-actor.ts:1; test actions.test.ts:52 |
 | STD-api-envelope-9 | Tiền string VND, thời gian ISO có offset, id uuid, snake_case | standards/api/response-envelope.md:24 | mọi TIP | QUY-TẮC | Zod shape packages/shared/src/api/*.ts; `pnpm --filter @appchat/contract test` |
 | STD-api-envelope-10a | Contract zod ở packages/actions + packages/shared/src/api/<domain>.ts, FE dùng chung | standards/api/response-envelope.md:29 | 003+ | ĐẠT | packages/shared/src/api/ (21 domain); tools/contract/src/check.ts; test contract.test.ts |
-| STD-api-envelope-10b | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | standards/api/response-envelope.md:29 | 003d | CHƯA | grep `openapi` trong packages/apps = 0; không TIP nào nhận; TIP-003d nhận (2026-11-02) |
+| STD-api-envelope-10b | OpenAPI sinh từ zod (Blueprint: `/v1/docs`) | standards/api/response-envelope.md:29 | 003d | ĐẠT | action-ops.ts: input / output zod → JSON Schema 2020-12 (z.toJSONSchema), Idempotency-Key theo requiresIdempotencyKey; document.ts envelope {data} / {data,next_cursor} / {error}; route chưa DTO zod gắn x-untyped (baseline 175, chỉ được giảm — integration/openapi.test.ts AC4) |
 | STD-api-envelope-11 | Mã nghiệp vụ dùng chung INVALID_TRANSITION / STALE_VERSION / HAS_DEPENDENCIES / SLOT_TAKEN / DUPLICATE | standards/api/response-envelope.md:31 | 003 | ĐẠT | packages/shared/src/errors.ts:26; envelope.ts:23 |
 | STD-authz-rbac-1 | Code chỉ kiểm permission, không kiểm tên vai trò | standards/authz/rbac-permissions.md:8 | mọi TIP | ĐẠT | grep `role === 'owner'` trong core/api = 0 (members.service.ts:25 chỉ sắp xếp hiển thị); packages/shared/src/authz |
 | STD-authz-rbac-2 | Executor kiểm `ActionDef.permission` trước handler; UI dùng cùng `can()` | standards/authz/rbac-permissions.md:11 | 005 | ĐẠT | executor.ts:83; apps/web/src/shared/authz; test authz.test.ts |
