@@ -3,6 +3,7 @@
 // profile_layout.*: bố cục Hồ sơ 360° theo mẫu & vai trò (REQ-F12, M05; prototype L690–735, L6397–6415).
 import { z } from 'zod';
 import { defineAction } from './define';
+import { channelRoutingSchema, weeklyScheduleSchema } from '@appchat/shared';
 
 const TAG = z.object({ name: z.string().trim().min(1).max(40), description: z.string().max(200).optional(), color: z.string().max(20).optional(), emoji: z.string().max(8).optional() });
 const ROLE_KEY = z.enum(['owner', 'manager', 'sales', 'cs', 'accountant']);
@@ -176,7 +177,15 @@ export const channelUpdateSettings = defineAction({
       sla_policy: z.string().max(60).optional(),
       sync_messages: z.boolean().optional(),
       sync_auto_create_contact: z.boolean().optional(),
+      /** TIP-022b: lịch có cấu trúc của tài khoản (∩ lịch agent); null = xoá lịch (chỉ còn `hours` hiển thị). */
+      schedule: weeklyScheduleSchema.nullable().optional(),
+      /** TIP-022b: phân luồng từ khoá (opt-in) — ứng viên phải là agent đã xuất bản. */
+      routing: channelRoutingSchema.optional(),
+      /** TIP-022b: bật lời chào tự động (cấu hình cũ mặc định tắt). */
+      greeting_enabled: z.boolean().optional(),
     }),
+    /** TIP-022b: bản chụp gán agent lúc xem trước — gán đã bị đổi → 409, giữ gán cũ. */
+    expected_version: z.string().max(32).optional(),
   }),
   output: z.object({ ok: z.boolean() }),
   permission: 'channels.manage',

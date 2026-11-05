@@ -25,6 +25,10 @@ export const ai = {
     credit: 'Hết credit AI — cần người trả lời',
     transfer_loop: 'Chuyển qua lại giữa các agent — cần người xử lý',
     approval_rejected: 'Người duyệt từ chối thao tác của AI',
+    approval_expired: 'Yêu cầu duyệt của AI đã hết hạn — cần người xử lý',
+    no_target: 'Không có agent nhận chuyển phù hợp — cần người xử lý',
+    out_of_hours: 'Ngoài giờ hoạt động của AI — chờ nhân viên',
+    missing_ticket_grant: 'Khách khiếu nại nhưng agent chưa được cấp quyền tạo ticket — cần người tạo',
   },
   approval: {
     title: '{action}',

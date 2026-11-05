@@ -7,6 +7,7 @@ import type { PlatformDb, TenantDb } from '@appchat/db';
 import { connectedKeys, groupTools } from './agent-tools';
 import { configOf, liveAgent, type AgentConfig, type AgentRow } from './agent.store';
 import { templateDefaults } from './templates.seed';
+import { scheduleState } from './schedule-config';
 import { agentSuggests } from './agent-suggests';
 import { AGENT_EMOJIS, AGENT_INTENTS, AGENT_TAXONOMY, CHANNEL_COLORS, PROMPT_TEMPLATES, TEST_SEED } from './catalog';
 
@@ -34,6 +35,7 @@ function toDto(a: AgentRow, s: Stat | undefined): AgentDto {
   return {
     id: a.id,
     ...configOf(a),
+    schedule_state: scheduleState(configOf(a)),
     status: a.status,
     conversations: Number(s?.conversations ?? 0),
     resolve_rate: total ? Math.round((done / total) * 100) : 0,

@@ -2,9 +2,11 @@
 // `ai_agent_version.config`. Rào chắn khi ghi (§5.3b): tool ⊆ `agentGrantable` ∩ quyền người tạo; risk money / delete luôn vào
 // `approval_rules`; `plan.max_agents`. Agent mới / mẫu / Trợ lý dùng chung `blankConfig`.
 import { registry, type ActionDef } from '@appchat/actions';
-import { AppError, can, isPermissionKey, type AuthzContext } from '@appchat/shared';
+import { AppError, can, isPermissionKey, type AuthzContext, type WeeklySchedule } from '@appchat/shared';
+import { TenantSql } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
+import { assertPublishable, scheduleOf } from './schedule-config';
 
 export type AgentRow = NonNullable<Awaited<ReturnType<TenantTx['aiAgent']['findUnique']>>>;
 type Role = 'sales' | 'cs' | 'booking' | 'marketing' | 'accounting' | 'ops' | 'custom';
@@ -29,6 +31,8 @@ export interface AgentConfig {
   template_id?: string;
   keywords: string[];
   working_hours: WorkingHours;
+  /** Lịch tuần có cấu trúc (TIP-022b) — dùng khi `working_hours = custom`. */
+  weekly_schedule: WeeklySchedule | null;
 }
 
 export type WorkingHours = 'always' | 'office' | 'custom';
@@ -54,6 +58,7 @@ export const blankConfig = (name = ''): AgentConfig => ({
   kb_scope: { folder_ids: [], tags: [] },
   keywords: [],
   working_hours: 'always',
+  weekly_schedule: null,
 });
 
 const GRANTABLE = new Map(registry.filter((a) => a.agentGrantable).map((a) => [a.id, a]));
@@ -100,6 +105,7 @@ export function columnsOf(c: AgentConfig) {
     templateKey: c.template_id ?? null,
     keywords: uniq(c.keywords.map((k) => k.trim()).filter(Boolean)),
     workingHours: { mode: c.working_hours },
+    weeklySchedule: c.weekly_schedule ? (JSON.parse(JSON.stringify(c.weekly_schedule)) as object) : TenantSql.DbNull,
   };
 }
 
@@ -125,6 +131,7 @@ export function configOf(r: AgentRow): AgentConfig {
     ...(r.templateKey ? { template_id: r.templateKey } : {}),
     keywords: r.keywords,
     working_hours: hoursOf(r.workingHours),
+    weekly_schedule: scheduleOf(r.weeklySchedule),
   };
 }
 
@@ -153,10 +160,12 @@ export async function liveAgent(tx: Pick<TenantTx, 'aiAgent'>, id: string): Prom
 export const countLive = (tx: Pick<TenantTx, 'aiAgent'>) => tx.aiAgent.count({ where: { deletedAt: null } });
 
 /** Chụp bản nháp thành phiên bản kế tiếp; agent → `active` (kể cả đang tạm dừng — state-machine `paused —publish→ active`). */
-export async function publishDraft(tx: TenantTx, a: AgentRow, by: string | null, note: string, now: Date, cfg: AgentConfig = configOf(a)) {
+export async function publishDraft(tx: TenantTx, a: AgentRow, by: string | null, note: string, now: Date, cfg: AgentConfig = configOf(a), rollback = false) {
+  // TIP-022b: xuất bản mới `custom` cần lịch có cấu trúc; quay lại snapshot cũ giữ đúng hành vi cũ.
+  if (!rollback) assertPublishable(cfg);
   const version = a.publishedVersion + 1;
   const id = uuidv7(now.getTime());
-  await tx.aiAgentVersion.create({ data: { id, agentId: a.id, version, config: { ...cfg }, publishedBy: by, publishedAt: now, note } });
+  await tx.aiAgentVersion.create({ data: { id, agentId: a.id, version, config: JSON.parse(JSON.stringify(cfg)) as object, publishedBy: by, publishedAt: now, note } });
   await tx.aiAgent.update({ where: { id: a.id }, data: { ...columnsOf(cfg), publishedVersion: version, publishedVersionId: id, draftDirty: false, status: 'active', updatedAt: now } });
   return { version, versionId: id };
 }

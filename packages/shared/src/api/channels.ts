@@ -2,6 +2,7 @@
 // `GET /v1/settings/channels?filter=all|on|off` (nhóm theo type, `accounts[]`), `GET /v1/settings/channels/:id/stats?days=7`,
 // `GET /v1/settings/channels/:id/login` (trạng thái QR Zalo — FE chưa có client WS). Mock transport parse cùng schema.
 import { z } from 'zod';
+import { channelAgentBehaviorSchema } from './agent-channel-behavior';
 
 export const CHANNEL_HEALTH = ['good', 'slow', 'down', 'off'] as const;
 export const CHANNEL_AI_MODES = ['auto', 'suggest', 'off'] as const;
@@ -36,6 +37,9 @@ export const channelAccountSchema = z.object({
   routing: z
     .object({ source: z.enum(['account', 'default', 'none']), rule_id: z.string().nullable(), enabled: z.boolean(), mode: z.string(), version: z.number().int() })
     .optional(),
+  /** TIP-022b: hành vi agent của tài khoản — lịch có cấu trúc, phân luồng từ khoá, bật lời chào; `binding_version` cho xác nhận đổi gán. */
+  agent_behavior: channelAgentBehaviorSchema.optional(),
+  binding_version: z.string().optional(),
 });
 export type ChannelAccountDto = z.infer<typeof channelAccountSchema>;
 

@@ -27,6 +27,10 @@ export const ai: typeof vi = {
     credit: 'Out of AI credits — needs a human reply',
     transfer_loop: 'Bounced between agents — needs a human',
     approval_rejected: 'The approver rejected the AI action',
+    approval_expired: 'The AI approval request expired — needs a human',
+    no_target: 'No suitable agent to transfer to — needs a human',
+    out_of_hours: 'Outside AI opening hours — waiting for staff',
+    missing_ticket_grant: 'Customer complained but the agent may not create tickets — needs a human to create one',
   },
   approval: {
     title: '{action}',

@@ -24,6 +24,10 @@ export interface OutgoingInput {
   forwardedFromId?: string | null;
   /** Tin agent (TIP-045b annex D): fence lượt + epoch hội thoại lúc ghi — đặt chỗ gửi kiểm lại trước khi gọi kênh. */
   turn?: { fence: number; epoch: number };
+  /**
+   * TIP-022b: `greeting` = lời chào tự động — KHÔNG làm xong lượt khách: không xoá FRT chờ / chưa đọc / gợi ý / nháp AI, không tính FRT.
+   */
+  purpose?: 'greeting';
   now: Date;
 }
 
@@ -87,11 +91,17 @@ export async function writeOutgoing(tx: TenantTx, o: OutgoingInput): Promise<Out
       status: 'queued',
       replyToId: o.replyToId ?? null,
       forwardedFromId: o.forwardedFromId ?? null,
+      ...(o.purpose ? { purpose: o.purpose } : {}),
       createdAt: now,
     },
   });
   await tx.outboxMessage.create({ data: { id: outboxId, messageId, channelAccountId: conv.channelAccountId, payload: message as object, status: 'pending', nextAttemptAt: now, createdAt: now, ...(o.turn ? { turnFence: o.turn.fence, aiEpoch: o.turn.epoch } : {}) } });
   // Phản hồi đầu tiên sau tin khách → FRT vào thống kê ngày của tài khoản (REQ-B11).
+  if (o.purpose === 'greeting') {
+    // Lời chào: chỉ preview / mốc tin cuối; lượt khách vẫn chờ câu trả lời thật.
+    await tx.conversation.update({ where: { id: conv.id }, data: { lastMessageAt: now, lastMessagePreview: previewOf(o.kind, o.body), lastSenderName: o.sender.name } });
+    return { messageId, outboxId, job: { account_id: conv.channelAccountId, ref_id: outboxId, message } };
+  }
   if (conv.frtPendingSince && o.sender.type !== 'system') {
     const sec = Math.max(0, Math.round((now.getTime() - conv.frtPendingSince.getTime()) / 1000));
     await tx.$executeRaw`

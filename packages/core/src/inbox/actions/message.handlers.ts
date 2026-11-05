@@ -18,6 +18,7 @@ import { FILE_LINKS } from '../tokens';
 import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
 import { takeOverForHuman } from '../services/human-takeover';
 import { agentTurnOf } from '../services/agent-turn';
+import { bindGreeting, greetingPurpose } from '../services/greeting-purpose';
 import { assertTurnWritable } from '../../ai/reply/send-fence';
 import { me, updatedEvent } from './kit';
 import * as pv from './previews/message.handlers.preview';
@@ -63,6 +64,8 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
     // Tin agent: lượt còn hiệu lực dưới khoá hội thoại (fence + epoch + auto) — mất lượt → 409, không ghi tin.
     const turn = agentTurnOf(ctx);
     if (turn) await assertTurnWritable(tx, c.id, turn);
+    // TIP-022b: lời chào chỉ khi lượt agent + ràng run / tin nguồn đã lưu; ghi id tin lên receipt cùng transaction.
+    const purpose = turn ? await greetingPurpose(tx, ctx, c.id) : undefined;
     // Tệp đính kèm (TIP-025): kiểm kênh hỗ trợ trước khi đổi tệp thành link ký.
     const ids = input.attachments ?? [];
     if (ids.length) sendKindOf(this.registry, c.channelType, [{ mime: 'application/octet-stream' }]);
@@ -75,8 +78,10 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
       sender: await senderOf(ctx, this.members, tx),
       replyToId: input.reply_to_id ?? null,
       turn,
+      ...(purpose ? { purpose: 'greeting' as const } : {}),
       now: this.clock.now(),
     });
+    if (purpose) await bindGreeting(tx, c.id, purpose.sourceMessageId, out.messageId, this.clock.now());
     const cols = await scopeCols(tx, c);
     return {
       // `agent_in_flight`: tin agent đã đặt chỗ gửi trước người — đang gửi / chưa rõ, không bị chặn (hiển thị trung thực).

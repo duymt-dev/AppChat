@@ -3,6 +3,7 @@
 // /inbox/accounts, /inbox/channels, /inbox/connect-channels, /groups/:id, /canned-replies, /tags, /settings/tags, /settings/replies.
 // Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
+import { AGENT_INTENTS_CLOSED } from './agent-channel-behavior';
 
 export const INBOX_FOLDERS = ['all', 'mine', 'unread', 'mention', 'team', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint'] as const;
 export type InboxFolder = (typeof INBOX_FOLDERS)[number];
@@ -45,6 +46,10 @@ export const conversationSchema = z.object({
   ai_mode: z.enum(AI_MODES),
   handoff_reason: z.string().optional(),
   ai_draft: z.string().optional(),
+  /** TIP-022b: ý định lượt gần nhất (bộ đóng) — chỉ tham khảo. */
+  intent: z.enum(AGENT_INTENTS_CLOSED).optional(),
+  /** TIP-022b: có tóm tắt bàn giao (đọc qua `GET /v1/conversations/:id/handoff-summary`, chiếu theo quyền). */
+  has_handoff_summary: z.boolean().optional(),
   status: z.enum(['open', 'pending', 'snoozed', 'closed']),
   pinned_message_id: z.string().nullable().optional(),
   hidden: z.boolean().optional(),

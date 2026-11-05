@@ -144,6 +144,8 @@ export const productChangedEvent = z.object({ ...base, product_id: z.string().uu
 
 /** Agent trực kênh chuyển hội thoại sang người (TIP-022) — thông báo `ai_escalate`, WS cập nhật hội thoại. */
 export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().nullable(), agent_id: z.string().nullable(), agent: z.string(), reason: z.string().max(40), title: z.string() });
+/** Khiếu nại phát hiện ở lượt agent auto (TIP-022b D) — consumer support tạo ticket qua Executor với actor agent sau khi kiểm lại grant hiện hành. */
+export const aiComplaintEvent = z.object({ conversation_id: z.string().uuid(), source_message_id: z.string().uuid(), run_id: z.string().uuid(), agent_id: z.string(), fence: z.number().int() });
 
 /** Báo giá đổi trạng thái (TIP-029 — Blueprint §2.3): giai đoạn CRM theo COMMERCE §8, dòng thời gian khách, nhắc hết hạn. */
 const quoteBase = { ...base, quote_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), version: z.number().int() };
@@ -247,6 +249,7 @@ export const EVENT_SCHEMAS = {
   'custom_field.changed': customFieldChangedEvent,
   'data_job.requested': dataJobRequestedEvent,
   'ai.handoff': aiHandoffEvent,
+  'ai.complaint_detected': aiComplaintEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,
   'quote.viewed': quoteViewedEvent,

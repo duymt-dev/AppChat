@@ -30,6 +30,7 @@ export * from './support/ticket-state';
 export * from './time/business-time';
 export * from './time/cron';
 export * from './ai-tasks/task-catalog';
+export * from './ai/weekly-schedule';
 export * from './crm';
 export * from './catalog';
 export * from './genui';

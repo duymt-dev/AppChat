@@ -10,6 +10,7 @@ import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
 import { readGovernance } from '../governance/governance';
 import { searchKb, type KbSearchResult } from '../kb/search';
 import { recentFacts } from '../../crm/public';
+import { ATTACHMENT_RULE, attachmentLine } from './attachment-context';
 
 export const HISTORY = 20;
 /** Fact trí nhớ khách vào ngữ cảnh: 20 fact cập nhật gần nhất (TIP-015b; trần lưu 50). */
@@ -53,12 +54,13 @@ async function history(db: TenantDb, c: Conv) {
     where: { conversationId: c.id, deletedAt: null, recalledAt: null, direction: { not: null }, kind: { notIn: ['note', 'system'] }, ...(c.clearedAt ? { createdAt: { gt: c.clearedAt } } : {}) },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: HISTORY,
-    select: { direction: true, body: true, kind: true, senderName: true, senderType: true },
+    select: { direction: true, body: true, kind: true, senderName: true, senderType: true, attachments: true },
   });
   return rows.reverse();
 }
 
-const text = (m: { kind: string; body: string }) => (m.kind === 'text' ? m.body : m.body ? `[${m.kind}] ${m.body}` : `[${m.kind}]`);
+// Tệp đính kèm: metadata có kiểu + `attachment_unreadable` (TIP-022b C) — không giả vờ đã đọc nội dung tệp.
+const text = (m: { kind: string; body: string; attachments: unknown }) => (m.kind === 'text' ? m.body : attachmentLine(m.kind, m.body, m.attachments));
 
 export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent; cfg: AgentConfig; version: number }, embedder: Embedder | null, pii: PiiMap = {}): Promise<ReplyContext> {
   const gov = await readGovernance(db);
@@ -110,6 +112,7 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
     ...memory.map((m) => `- Ghi nhớ: ${mask(m.fact)}`),
     ...(a.cfg.tools.includes('contact.remember') && c.contactId ? ['', REMEMBER_RULE] : []),
     ...(st?.greeting ? ['', `# LỜI CHÀO CỦA KÊNH\n${st.greeting}`] : []),
+    ...(msgs.some((m) => m.kind !== 'text' && m.kind !== 'sticker') ? ['', ATTACHMENT_RULE] : []),
     '',
     '# TÀI LIỆU',
     mask(docs),

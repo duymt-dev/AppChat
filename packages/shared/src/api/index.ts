@@ -25,6 +25,7 @@ export * from './conversation-groups';
 export * from './channel-operations';
 export * from './webchat';
 export * from './ai';
+export * from './agent-channel-behavior';
 export * from './assistant';
 export * from './invoices';
 export * from './calendar';

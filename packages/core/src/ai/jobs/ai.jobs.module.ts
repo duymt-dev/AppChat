@@ -17,9 +17,9 @@ import type { ResumeJob } from '../approvals/resume.queue';
 import { startAiResumeWorker } from './ai-resume.processor';
 import { startAgentReplyWorker } from './agent-reply.processor';
 import type { ReplyJob } from '../reply/reply.queue';
-import { finishResumedTurn, resumeReplySpec, type ReplyDeps } from '../reply/reply.service';
+import { finishResumedTurn, handoffAfterApproval, resumeReplySpec, type ReplyDeps } from '../reply/reply.service';
 import { assistantResumeSpec } from '../assistant/turn.service';
-import { registerResumeFinish, registerResumeSpec, type ResumeDeps } from '../approvals/resume';
+import { registerResumeExpired, registerResumeFinish, registerResumeSpec, type ResumeDeps } from '../approvals/resume';
 import { CreditMeter } from '../../billing/public';
 import { BillingModule } from '../../billing/billing.module';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -97,6 +97,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
             return rd ? finishResumedTurn(rd, db, ws, run, r) : null;
           });
         }
+        // TIP-022b: duyệt hết hạn ở lượt agent → chuyển người kèm tóm tắt + receipt lượt xong.
+        registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now }, db, ws, run, 'approval_expired'));
         // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
         registerResumeSpec('assistant', async (db, run, x, ws) =>
           assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),

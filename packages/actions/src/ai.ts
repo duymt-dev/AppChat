@@ -1,7 +1,7 @@
 // AI Agents · Duyệt · Tác vụ tự chủ (Blueprint §3.4 ai, D29). Prototype L1178–1504, L2227–2450.
 import { z } from 'zod';
 import { defineAction } from './define';
-import { AI_TASK_DATA_KEYS, AI_TASK_EVENTS, AI_TASK_TEMPLATES, AI_TASK_TOOL_KEYS, type AiTaskData } from '@appchat/shared';
+import { AI_TASK_DATA_KEYS, AI_TASK_EVENTS, AI_TASK_TEMPLATES, AI_TASK_TOOL_KEYS, weeklyScheduleSchema, type AiTaskData } from '@appchat/shared';
 
 const agentId = z.string().min(1);
 const tier = z.enum(['standard', 'advanced', 'max']);
@@ -29,6 +29,8 @@ const agentConfig = z.object({
   /** Phân luồng (prototype L2710): từ khoá ưu tiên + khung giờ hoạt động (giờ hành chính 8:00–17:30 giờ VN). */
   keywords: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
   working_hours: z.enum(['always', 'office', 'custom']).optional(),
+  /** Lịch tuần có cấu trúc (TIP-022b) — múi IANA, 7 ngày (0 = Thứ Hai), ≤ 4 khoảng nửa mở / ngày; qua đêm tách hai ngày. */
+  weekly_schedule: weeklyScheduleSchema.nullable().optional(),
 });
 
 export const agentDraftFromDescription = defineAction({

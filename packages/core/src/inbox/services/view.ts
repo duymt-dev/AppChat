@@ -1,5 +1,5 @@
 // Bản ghi hội thoại / tin → shape đọc FE (packages/shared/src/api/inbox.ts). Chữ theo locale người xem, giờ theo múi giờ workspace.
-import { CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type ConversationDto, type MessageDto } from '@appchat/shared';
+import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type ConversationDto, type MessageDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
 export interface Place {
@@ -72,6 +72,8 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ai_mode: c.aiMode,
     ...(c.handoffReason ? { handoff_reason: c.handoffReason } : {}),
     ...(c.aiDraft ? { ai_draft: c.aiDraft } : {}),
+    ...(c.intent && (AGENT_INTENTS_CLOSED as readonly string[]).includes(c.intent) ? { intent: c.intent as AgentIntent } : {}),
+    ...(c.handoffSummary ? { has_handoff_summary: true } : {}),
     status: c.status,
     pinned_message_id: c.pinnedMessageId,
     hidden: !!c.hiddenAt,

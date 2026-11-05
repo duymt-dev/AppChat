@@ -7,6 +7,7 @@ import type { TenantDb } from '@appchat/db';
 import { ChannelAccounts, UUID, settingsOf, type AccountHealth, type AccountRow } from './accounts.service';
 import type { ChannelControl } from './control';
 import { qrImageOf } from './login-attempt';
+import { bindingVersion } from './binding-version';
 
 
 type Health = ChannelAccountDto['health'];
@@ -129,6 +130,8 @@ export class ChannelsReadService {
       history_days: st.history_days,
       paused: !!r.pausedAt,
       status: r.status,
+      agent_behavior: { schedule: st.schedule ?? null, routing: st.routing ?? { enabled: false, candidates: [] }, greeting_enabled: !!st.greeting_enabled },
+      binding_version: bindingVersion(r.settings),
     };
   }
 

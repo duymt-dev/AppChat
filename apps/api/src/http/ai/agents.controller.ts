@@ -18,6 +18,8 @@ import {
   listApprovals,
   listTemplates,
   readGovernance,
+  readHandoffSummary,
+  channelBindingPreview,
   visibleConversation,
   type Clock,
 } from '@appchat/core';
@@ -56,6 +58,17 @@ export class AgentsController {
     const { a, db } = await this.db(req, 'agents.manage');
     const u = await this.platform.user.findUnique({ where: { id: a.userId }, select: { locale: true } });
     return { data: await agentsMeta(this.platform, db, this.clock.now(), u?.locale ?? 'vi') };
+  }
+
+  /**
+   * TIP-022b: cảnh báo gán khi tạo / xuất bản agent — agent đang gán THẬT ở từng tài khoản theo loại kênh (`?types=zalo_personal,webchat`).
+   * Đổi gán cần `channels.manage` qua `channel.update_settings` (kèm `version`).
+   */
+  @Get('agents/channel-binding-preview')
+  async bindingPreview(@Req() req: IncomingMessage, @Query('types') types?: string) {
+    const { db } = await this.db(req, 'agents.manage', 'channels.manage');
+    const list = (types ?? '').split(',').map((t) => t.trim()).filter(Boolean).slice(0, 10);
+    return { data: await channelBindingPreview(db, list) };
   }
 
   @Get('agents/:id')
@@ -113,5 +126,12 @@ export class AgentsController {
         return conversationAgentTools(tx, c);
       }),
     };
+  }
+
+  /** TIP-022b: tóm tắt bàn giao có cấu trúc — tham chiếu chiếu theo quyền người xem hiện tại. */
+  @Get('conversations/:id/handoff-summary')
+  async handoffSummary(@Req() req: IncomingMessage, @Param('id') id: string) {
+    const { a, db } = await this.db(req, 'inbox.view');
+    return { data: await db.$transaction((tx) => readHandoffSummary(tx, a.authz, id)) };
   }
 }

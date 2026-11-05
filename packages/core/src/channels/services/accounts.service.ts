@@ -1,6 +1,6 @@
 // Tài khoản kênh (REQ-B09, Blueprint §2.2 `channel_account`): tra / kiểm tài khoản, cấu hình mặc định + gộp patch, đếm hạn mức
 // gói, đổi trạng thái (account + `tenant_channel_route` ở DB nền tảng + outbox `channel.status_changed`). Dùng chung API + worker.
-import { AppError, serverMessages } from '@appchat/shared';
+import { AppError, serverMessages, type ChannelRoutingDto, type WeeklyScheduleDto } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
@@ -25,6 +25,12 @@ export interface AccountSettings {
   daily_cap?: number;
   /** Trần gửi lời mời kết bạn / ngày (TIP-014b E — mặc định 20). */
   friend_daily_cap?: number;
+  /** TIP-022b: lịch có cấu trúc của tài khoản (∩ lịch agent); null = chưa lưu — `hours` chỉ là ngữ cảnh hiển thị. */
+  schedule?: WeeklyScheduleDto | null;
+  /** TIP-022b: phân luồng từ khoá (opt-in) — tắt / vắng = `agent_id` như cũ. */
+  routing?: ChannelRoutingDto;
+  /** TIP-022b: lời chào tự động — cấu hình cũ mặc định tắt. */
+  greeting_enabled?: boolean;
 }
 
 export interface AccountHealth {

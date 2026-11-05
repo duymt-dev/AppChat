@@ -131,6 +131,10 @@ model Conversation {
   /// Gợi ý trả lời của copilot `{ text, confidence (0–100), run_id }` — người gửi tin thì xoá.
   aiSuggestion       Json?              @map("ai_suggestion")
   intent             String?
+  /// Ý định theo lượt (TIP-022b): `{ source_message_id, run_id, fence }` — CAS chống run cũ ghi đè lượt mới.
+  intentSource       Json?              @map("intent_source")
+  /// Tóm tắt bàn giao có cấu trúc (TIP-022b) — tách khỏi `handoff_reason` / `ai_draft`; chiếu theo quyền người xem khi đọc.
+  handoffSummary     Json?              @map("handoff_summary")
   lastMessageAt      DateTime           @default(now()) @map("last_message_at") @db.Timestamptz(6)
   lastMessagePreview String             @default("") @map("last_message_preview")
   /// Người gửi tin cuối ở hội thoại nhóm (dòng "Hồng Nhung: …").
@@ -179,6 +183,8 @@ model Message {
   status           MessageStatus     @default(sent)
   error            String?
   runId            String?           @map("run_id") @db.Uuid
+  /// Mục đích tin ra nội bộ (TIP-022b): `greeting` = lời chào tự động — không làm xong lượt khách / FRT / chưa đọc. null = tin thường.
+  purpose          String?
   replyToId        String?           @map("reply_to_id") @db.Uuid
   forwardedFromId  String?           @map("forwarded_from_id") @db.Uuid
   recalledAt       DateTime?         @map("recalled_at") @db.Timestamptz(6)
