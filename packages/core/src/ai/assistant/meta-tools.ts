@@ -57,11 +57,20 @@ export const assistantActionCtx = (t: AssistantTurnCtx, stepIdx: number, extra: 
 /** Khoá idempotent của lời gọi Trợ lý: run + bước + id lời gọi (một bước gọi nhiều action); action đọc không cần khoá. */
 export const assistantIdemKey = (runId: string, stepIdx: number, toolCallId: string) => `assistant:${runId}:${stepIdx}:${toolCallId}`;
 
+/** Action không gọi được → gợi ý action gần tên (cùng bộ lọc quyền / chế độ / handler như find_actions — không lộ action ngoài quyền).
+ *  ai:live 023c: model gọi `quote.read` (không có) nhận FORBIDDEN trơn rồi bỏ cuộc thay vì gọi `quote.get` (DC-359). */
+function forbiddenMessage(d: MetaDeps, t: AssistantTurnCtx, actionId: unknown): string {
+  const id = String(actionId);
+  const near = findActions(t.authz, t.mode, id.replace(/[._]/g, ' '), undefined, 3, implementedBy(d.executor)).map((a) => a.id);
+  const hint = near.length ? ` — action gần nhất được dùng: ${near.join(', ')} (gọi find_actions nếu chưa đúng)` : ' — gọi find_actions để tìm action đúng';
+  return `Không gọi được action ${id} (không tồn tại hoặc ngoài quyền)${hint}`;
+}
+
 async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number, toolCallId: string): Promise<ToolOutcome> {
   const i = (raw ?? {}) as { action_id?: unknown; input?: unknown };
   const def = typeof i.action_id === 'string' ? DEFS.get(i.action_id) : undefined;
   // Action chưa có handler thật: chặn trước executor, như action không tồn tại (không lộ cho model — TIP-023b R1.2).
-  if (!def || !allowedFor(def, t.authz) || !implementedBy(d.executor)(def.id)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
+  if (!def || !allowedFor(def, t.authz) || !implementedBy(d.executor)(def.id)) return err('FORBIDDEN', forbiddenMessage(d, t, i.action_id));
   if (!modeAllows(def, t.mode)) return err('FORBIDDEN', 'Chế độ Chat chỉ được tra cứu — chuyển sang Cowork để thực hiện thao tác ghi');
   // Ô bí mật (DC-227): model không bao giờ mang giá trị — người dùng nhập ở form GenUI gửi thẳng executor từ trình duyệt.
   const leaked = secretValuesPresent(def, i.input ?? {});

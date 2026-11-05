@@ -9,7 +9,7 @@ export const paymentRedeemPoints = defineAction({
   module: 'sales',
   title: 'actions.payment.redeem_points.title',
   description:
-    'Pay part of a payment request with the customer loyalty points (1 point = 100đ; total points used on the order ≤ 50% of the order value; ≤ amount left). Example: {"invoice_id":"<uuid>","points":500}',
+    'Pay part of a payment request with the customer loyalty points (1 point = 100đ; total points used on the order ≤ 50% of the order value; ≤ amount left). Example: {"invoice_id":"0190f000-0000-7000-8000-000000000001","points":500}',
   input: z.object({ invoice_id: z.string().uuid(), points: z.number().int().positive().max(1_000_000_000) }),
   output: z.object({ payment_id: z.string(), invoice_id: z.string(), order_id: z.string(), points: z.number(), amount: z.string(), balance_after: z.number() }),
   permission: 'payment.record',

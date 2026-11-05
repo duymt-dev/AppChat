@@ -344,7 +344,7 @@ export const profileLayoutUpdate = defineAction({
   id: 'profile_layout.update',
   module: 'settings',
   title: 'actions.profile_layout.update.title',
-  description: 'Edit a layout\'s name or tabs (order, visibility, rename, blocks); at least one tab must stay enabled. Example: {"layout_id":"pl_1","patch":{"tabs":[...]}}',
+  description: 'Edit a layout\'s name or tabs (order, visibility, rename, blocks); at least one tab must stay enabled. Example: {"layout_id":"pl_1","patch":{"name":"Hồ sơ spa"}}',
   input: z.object({ layout_id: z.string().min(1), patch: z.object({ name: z.string().trim().min(1).max(60).optional(), tabs: z.array(LAYOUT_TAB).min(1).optional() }) }),
   output: z.object({ layout_id: z.string() }),
   permission: 'settings.manage',

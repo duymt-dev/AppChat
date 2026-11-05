@@ -75,6 +75,17 @@ describe('find_actions / call_action chỉ action có handler thật', () => {
     expect(calls).toHaveLength(0);
   });
 
+  it('call_action tên sai → FORBIDDEN kèm action gần nhất model được dùng (không gợi ý action stub / ngoài quyền)', async () => {
+    const { tools, calls } = metaTools(h);
+    const out = (await tool(tools, 'call_action').execute({ action_id: 'contact.find', input: { q: 'Lan' } }, meta)) as { code: string; message: string };
+    expect(out.code).toBe('FORBIDDEN');
+    expect(out.message).toContain('contact.search');
+    expect(out.message).not.toContain('contact.update');
+    const none = (await tool(tools, 'call_action').execute({ action_id: 'zzz.qqq', input: {} }, meta)) as { message: string };
+    expect(none.message).toContain('find_actions');
+    expect(calls).toHaveLength(0);
+  });
+
   it('registry chưa load → find_actions rỗng, call_action bị chặn', async () => {
     const { tools, calls } = metaTools(new ActionHandlerRegistry(registry));
     const found = (await tool(tools, 'find_actions').execute({ query: 'khách hàng' }, meta)) as { output: { actions: unknown[] } };

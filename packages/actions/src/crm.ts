@@ -262,7 +262,7 @@ export const contactSendEmail = defineAction({
   module: 'crm',
   title: 'actions.contact.send_email.title',
   description:
-    'Send a standalone email to a contact (not tied to an existing conversation) — REQ-F11 Hồ sơ 360°. Example: {"contact_id":"ct_lan","from":"cskh@huongsen.vn","subject":"Theo dõi sau tư vấn","body":"Chào chị Lan,…"}',
+    'Send a standalone email to a contact (not tied to an existing conversation) — REQ-F11 Hồ sơ 360°. Example: {"contact_id":"ct_lan","from":"cskh@huongsen.vn","to":"lan@gmail.com","subject":"Theo dõi sau tư vấn","body":"Chào chị Lan,…"}',
   input: z.object({
     contact_id: contactId,
     from: z.string().email(),

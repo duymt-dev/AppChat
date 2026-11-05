@@ -43,7 +43,7 @@ export const contractCreate = defineAction({
   module: 'sales',
   title: 'actions.contract.create.title',
   description:
-    'Create a draft contract (kind service | sale | framework; value is VND string). Content comes from the template of that kind, or from an uploaded PDF / DOCX with source {"type":"file","file_id":…} (check it first with contract.inspect_file). Example: {"contact_id":"ct_lan","kind":"service","title":"Liệu trình HIFU 8 buổi","value":"12800000","start_date":"2026-06-16","end_date":"2026-12-16"}',
+    'Create a draft contract (kind service | sale | framework; value is VND string). Content comes from the template of that kind, or from an uploaded PDF / DOCX with source `{"type":"file","file_id":"<id from upload>"}` (check it first with contract.inspect_file). Example: {"contact_id":"ct_lan","kind":"service","title":"Liệu trình HIFU 8 buổi","value":"12800000","start_date":"2026-06-16","end_date":"2026-12-16"}',
   input: fields.extend({ source: contractSource.optional() }),
   output: out,
   permission: 'contract.draft',

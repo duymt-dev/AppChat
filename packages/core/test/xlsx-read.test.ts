@@ -86,11 +86,13 @@ describe('xlsxSheets — chỉ đọc giá trị ô, có trần', () => {
   it('data validation / định dạng áp cả cột (tới dòng 1.048.576): đọc nhanh, đúng dữ liệu', async () => {
     const t0 = Date.now();
     const s = await xlsxSheets(xlsx([[HEAD, ...people(300)], [['Hướng dẫn'], ['Điền từ dòng 2']]], true));
-    expect(Date.now() - t0).toBeLessThan(5000);
+    // Bản cũ chặn event loop vô hạn (worker bị giết sau 58 giây); một mình ~1 giây, cả bộ song song trên máy tải nặng đo được 21 giây →
+    // ngưỡng 45 giây vẫn phân biệt mà không đỏ chập chờn.
+    expect(Date.now() - t0).toBeLessThan(45_000);
     expect(s.map((x) => x.name)).toEqual(['Sheet1', 'Sheet2']);
     expect(s[0]!.rows).toHaveLength(301);
     expect(s[0]!.rows[1]).toEqual({ n: 2, values: ['Khách 1', '0900000000', 'VIP', 'Có'] });
-  });
+  }, 90_000);
 
   it('readTable lấy sheet đầu: hàng đầu là tên cột, dòng trống bỏ', async () => {
     const t = await readTable('khach.xlsx', 'application/octet-stream', xlsx([[HEAD, ['', '', '', ''], ...people(2)]], true));
