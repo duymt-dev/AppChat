@@ -42,6 +42,7 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 
 - **Sửa lớp dùng chung** (kernel, `packages/{db,actions,shared,ui}`, `apps/web/src/shared`) → thêm E2E mock các module dùng phần đó + `pnpm parity --done`; sửa kernel action / executor → thêm integration `actions/*` của kernel. Vẫn không chạy full integration / full E2E.
 - **TIP nhiều pha:** mỗi pha qua cổng commit; cổng chốt chạy một lần ở pha cuối. **Sau rebase** chỉ chạy lại phần bị ảnh hưởng.
+- **DB test (DC-358):** integration / E2E http / ai:live chạy trên `appchat_platform_test`, không ghi DB demo. Đầu cổng chốt mỗi TIP: `pnpm --filter @appchat/db db:test-reset` (dọn workspace test, giữ `max_connections` còn chỗ).
 - **Ca đỏ có sẵn:** ca trong phạm vi TIP nhưng đã đỏ trên `origin/dev`, hoặc lỗi môi trường đã ghi sổ (Q-042 phiên Zalo giả, Q-010 E2E chập chờn) → chạy riêng chứng minh, ghi tên + bằng chứng vào report (và `QUESTIONS.md` nếu mới); không tính là cổng đỏ, không skip test.
 - **TIP-046 (cổng phát hành)** là nơi duy nhất chạy full: `pnpm test:integration` toàn bộ · `pnpm e2e` toàn bộ · `pnpm e2e:http` toàn bộ · `pnpm parity --done`.
 

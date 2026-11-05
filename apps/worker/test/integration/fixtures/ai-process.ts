@@ -4,6 +4,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { testDbEnv } from '@appchat/db';
 
 const WORKER = join(import.meta.dirname, '..', '..', '..');
 const ROOT = join(WORKER, '..', '..');
@@ -22,6 +23,8 @@ const base = readEnv(join(ROOT, '.env'));
 /** Env của lượt test: Redis DB riêng (hàng đợi BullMQ không prefix — worker demo DB 0 không lấy job của test), model giả. */
 export const testEnv: Record<string, string> = {
   ...base,
+  // DB nền tảng riêng của test (DC-358).
+  ...testDbEnv(base),
   NODE_ENV: 'test',
   LOG_LEVEL: 'warn',
   AI_ENGINE: 'mock',

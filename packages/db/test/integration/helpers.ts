@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import pg from 'pg';
+import { testDbEnv } from '../../src/test-env';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..', '..');
 
@@ -16,10 +17,9 @@ function readEnv(file: string): Record<string, string> {
   );
 }
 
-export const env = { ...readEnv(join(ROOT, '.env')), ...readEnv(join(ROOT, '.env.local-admin')), ...process.env } as Record<
-  string,
-  string
->;
+const raw = { ...readEnv(join(ROOT, '.env')), ...readEnv(join(ROOT, '.env.local-admin')), ...process.env } as Record<string, string>;
+// DB nền tảng riêng của test (DC-358) — `pnpm --filter @appchat/db db:test-reset` dựng / dọn.
+export const env = { ...raw, ...testDbEnv(raw) };
 
 for (const k of ['PG_ADMIN_URL', 'PLATFORM_DATABASE_URL', 'TENANT_DATABASE_URL', 'PROVISIONER_DATABASE_URL', 'MIGRATOR_DATABASE_URL']) {
   if (!env[k]) throw new Error(`Integration cần ${k} — chạy \`pnpm --filter @appchat/db db:setup\` trước`);

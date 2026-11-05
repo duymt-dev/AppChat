@@ -16,3 +16,4 @@ export * from './migrations';
 export * from './tenant-migrate';
 export * from './platform-recorder';
 export * from './setup';
+export * from './test-env';

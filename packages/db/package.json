@@ -15,6 +15,7 @@
     "db:generate": "prisma generate --config prisma.platform.config.ts && prisma generate --config prisma.tenant.config.ts",
     "db:setup": "tsx scripts/setup-dev.ts",
     "db:cleanup-test": "tsx scripts/cleanup-test-workspaces.ts",
+    "db:test-reset": "tsx scripts/reset-test-db.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "postinstall": "pnpm db:generate"
   },

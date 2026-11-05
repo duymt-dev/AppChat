@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { InvoiceFulfiller, PAYMENTS_ENV, WalletService, uuidv7, type PaymentsEnv } from '@appchat/core';
 import { mockSignature } from '@appchat/integrations';
-import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, withDatabase } from '@appchat/db';
+import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { billInvoicesPageSchema, crc16 } from '@appchat/shared';
 import { call, env, startApi, type Harness } from './setup';
 
@@ -62,7 +62,7 @@ const hook = (transactions: unknown[], sig?: string, provider = 'mock') => {
 
 describe('schema', () => {
   it('AC1 migration 010: bảng, unique, partial index chờ, sequence mã', async () => {
-    const c = new pg.Client({ connectionString: withDatabase(env.MIGRATOR_DATABASE_URL!, 'appchat_platform') });
+    const c = new pg.Client({ connectionString: env.MIGRATOR_DATABASE_URL! });
     await c.connect();
     try {
       const idx = await c.query(`SELECT indexname, indexdef FROM pg_indexes WHERE tablename IN ('billing_invoice','bank_transaction')`);
