@@ -34,13 +34,17 @@ jobs:
       - run: pnpm i18n:check
       - run: pnpm depcheck
       - run: pnpm build
+      - run: pnpm check:bundle
       - run: pnpm --filter @appchat/parity exec playwright install --with-deps chromium
       - name: Start app
+        id: app
         run: |
           pnpm --filter @appchat/web exec next start -p 3417 &
           npx --yes wait-on http://localhost:3417/dashboard --timeout 120000
       - run: pnpm parity --all
-      - run: E2E_REUSE=1 pnpm e2e
+      # E2E hồi quy chạy cả khi parity đỏ (DC-359): parity tồn đọng không được che mất lưới hồi quy đêm. Job vẫn đỏ nếu parity đỏ.
+      - if: ${{ !cancelled() && steps.app.outcome == 'success' }}
+        run: E2E_REUSE=1 pnpm e2e
       - if: always()
         uses: actions/upload-artifact@v4
         with:
