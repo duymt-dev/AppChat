@@ -1,5 +1,5 @@
-// TIP-014b — thao tác kênh trên tin Zalo, backend thật + worker ROLE=channels với Zalo giả: cảm xúc + thu hồi trên tin của khách đi qua
-// lệnh bền → hàng đợi tài khoản → nhà cung cấp ACK → tin đổi. Trước ACK tin hiện "đang …" và nội dung giữ nguyên (không giả thành công).
+// TIP-014b — thao tác kênh trên tin Zalo, backend thật + worker ROLE=channels với Zalo giả: cảm xúc trên tin của khách và thu hồi tin
+// nhân viên vừa gửi đi qua lệnh bền → hàng đợi tài khoản → nhà cung cấp ACK → tin đổi. Trước ACK tin hiện "đang …" và nội dung giữ nguyên (không giả thành công).
 import { expect, test } from '@playwright/test';
 import { isMobile } from '../support/mobile';
 import { onboarded, spoofIp } from './support';
@@ -30,15 +30,27 @@ test.describe('thao tác kênh (http)', () => {
 
     await msg.getByTestId('msg-dots').click();
     await page.getByTestId('chat-menu').locator('button[title]').first().click();
-    // Lệnh bền → worker gọi Zalo giả → ACK → dòng trạng thái biến mất (tải lại vẫn đúng).
-    await expect(msg.getByTestId('provider-op-react')).toHaveCount(0, { timeout: 30_000 });
-
-    await msg.getByTestId('msg-dots').click();
-    await page.getByTestId('chat-menu').getByRole('menuitem', { name: /Thu hồi/ }).click();
+    // Lệnh bền → worker gọi Zalo giả → ACK → cảm xúc đã xác nhận, không còn dòng trạng thái (kể cả "Zalo không nhận"); tải lại vẫn đúng.
     await expect(async () => {
       await page.reload();
-      await expect(page.getByTestId('thread').getByTestId('msg-in').first()).not.toContainText('Chào shop, cho mình hỏi lịch hẹn', { timeout: 2_000 });
+      const m = page.getByTestId('thread').getByTestId('msg-in').first();
+      await expect(m).toContainText('👍', { timeout: 2_000 });
+      await expect(m.getByTestId('provider-op-react')).toHaveCount(0, { timeout: 1_000 });
     }).toPass({ timeout: 30_000 });
+
+    // Thu hồi chỉ áp cho tin của mình (REQ-C09): gửi một tin → Zalo giả ACK + self-event (cliMsgId) → thu hồi qua lệnh bền.
+    const input = page.getByTestId('composer-input');
+    await input.fill('Dạ shop xin phép thu hồi tin này');
+    await input.press('Enter');
+    const out = page.getByTestId('thread').getByTestId('msg-out').last();
+    await expect(out).toContainText('Dạ shop xin phép thu hồi tin này');
+    await expect(async () => {
+      await out.getByTestId('msg-dots').click();
+      await page.getByTestId('chat-menu').getByRole('menuitem', { name: /Thu hồi/ }).click();
+      await page.reload();
+      await expect(page.getByTestId('thread')).not.toContainText('Dạ shop xin phép thu hồi tin này', { timeout: 3_000 });
+    }).toPass({ timeout: 45_000 });
     await expect(page.getByTestId('thread').getByTestId('provider-op-recall')).toHaveCount(0);
+    await expect(page.getByTestId('thread').getByTestId('msg-in').first()).toContainText('Chào shop, cho mình hỏi lịch hẹn');
   });
 });

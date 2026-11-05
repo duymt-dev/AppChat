@@ -34,6 +34,12 @@ export interface FakeOp {
 
 /** Đếm id giả toàn tiến trình — phiên mới (kết nối lại) không sinh lại id đã dùng. */
 let SEQ = 0;
+/** Số 0..999.999.999 suy từ chuỗi (FNV-1a) — id giả ổn định, an toàn với kiểm `safeForSdk`. */
+const stableDigits = (v: string) => {
+  let h = 0x811c9dc5;
+  for (const ch of v) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193) >>> 0;
+  return h % 1_000_000_000;
+};
 
 const uidOf = (hint: string) => `zl_${hint.replace(/-/g, '').slice(-12)}`;
 
@@ -181,7 +187,9 @@ export class FakeZaloSession implements ZaloSession {
   start() {
     this.running = true;
     // Tin chào giả (E2E http — worker chạy tiến trình riêng, test không bơm tin trực tiếp được).
-    if (this.greeting) setTimeout(() => this.inject({ msgId: `greet-${this.ownId}`, uidFrom: 'zl_khach_e2e', dName: 'Khách E2E', text: this.greeting! }), 300);
+    // Id số ổn định theo tài khoản (lần chạy lại phiên trùng tin → pipeline bỏ) + cliMsgId như tin vào thật — thả cảm xúc được.
+    const n = stableDigits(this.ownId);
+    if (this.greeting) setTimeout(() => this.inject({ msgId: `${8_000_000_000 + n}`, cliMsgId: `${6_000_000_000 + n}`, uidFrom: 'zl_khach_e2e', dName: 'Khách E2E', text: this.greeting! }), 300);
   }
   stop() {
     this.running = false;
