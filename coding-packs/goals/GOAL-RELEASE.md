@@ -44,6 +44,7 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 - **TIP nhiều pha:** mỗi pha qua cổng commit; cổng chốt chạy một lần ở pha cuối. **Sau rebase** chỉ chạy lại phần bị ảnh hưởng.
 - **DB test (DC-358):** integration / E2E http / ai:live chạy trên `appchat_platform_test`, không ghi DB demo. Đầu cổng chốt mỗi TIP: `pnpm --filter @appchat/db db:test-reset` (dọn workspace test, giữ `max_connections` còn chỗ).
 - **Sau merge có migration tenant (DC-359):** `pnpm --filter @appchat/db db:migrate-tenants` (demo / dev) · `--test` (DB test) — thay áp tay từng DB; build lại api + worker cho demo.
+- **Parity (DC-360):** không chặn TIP DONE. Màn trong `tools/parity/parity-debt.json` chỉ cần ≤ trần ghi sổ (`DEBT`); màn ngoài sổ / màn TIP làm vẫn ≤ 5%. Không thêm màn vào sổ, không nâng trần (`pnpm lint:parity-debt`). Trả hết ở pha **trả nợ parity** trước TIP-046 (046 yêu cầu sổ rỗng).
 - **Ca đỏ có sẵn:** ca trong phạm vi TIP nhưng đã đỏ trên `origin/dev`, hoặc lỗi môi trường đã ghi sổ (Q-042 phiên Zalo giả, Q-010 E2E chập chờn) → chạy riêng chứng minh, ghi tên + bằng chứng vào report (và `QUESTIONS.md` nếu mới); không tính là cổng đỏ, không skip test.
 - **TIP-046 (cổng phát hành)** là nơi duy nhất chạy full: `pnpm test:integration` toàn bộ · `pnpm e2e` toàn bộ · `pnpm e2e:http` toàn bộ · `pnpm parity --done`.
 
@@ -163,4 +164,5 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 80 | [035c](../tips/TIP-035c-test-ops-hygiene.md) | W8 | chờ | `tip/035c-test-ops-hygiene` | | |
 | 81 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
 | 82 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
+| 82b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
 | 83 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |

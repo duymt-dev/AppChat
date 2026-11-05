@@ -35,6 +35,7 @@ jobs:
       - run: pnpm i18n:check
       - run: pnpm lint:size
       - run: pnpm lint:masks
+      - run: git fetch origin dev && pnpm lint:parity-debt
       - run: pnpm depcheck
       # Bản build api / worker: mọi gói npm bundle import phải khai ở dependencies của app (DC-359 — lỗi chỉ lộ khi chạy dist).
       - run: pnpm turbo run build --filter=@appchat/api --filter=@appchat/worker
