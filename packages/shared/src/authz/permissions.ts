@@ -30,9 +30,16 @@ export interface AuthzContext {
   userId: string;
   isOwner: boolean;
   permissions: ReadonlySet<PermissionKey>;
+  /** Scope ĐỌC theo module (list / get / realtime). */
   scope: Record<ScopeModule, DataScope>;
+  /**
+   * Scope GHI theo module (TIP-042c): thiếu → bằng `scope`. Không bao giờ rộng hơn scope đọc (ghi luôn kiểm đọc trước). CSKH: crm đọc all,
+   * ghi own (Blueprint §3.5).
+   */
+  writeScope?: Record<ScopeModule, DataScope>;
+  /** Nhóm của user — scope `team` = bản ghi có `team_id` thuộc các nhóm này (DC-299). */
   teamIds: string[];
-  /** Thành viên các nhóm của user (data scope `team`) — resolver backend điền; FE không cần (TIP-005). */
+  /** Thành viên các nhóm của user — CHỈ để hiển thị / chọn người; không dùng làm scope (DC-299: scope team theo `team_id` bản ghi). */
   teamUserIds?: readonly string[];
   /**
    * Khoá vai trò hiện tại để xét quyền TRƯỜNG (TIP-045b annex C): resolver điền theo membership; agent trực kênh = `agent`; agent có

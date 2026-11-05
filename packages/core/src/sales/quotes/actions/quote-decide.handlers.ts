@@ -108,6 +108,8 @@ export class QuoteRevisionHandler implements Handler<ActionInput<typeof quoteReq
         version,
         rootQuoteId: q.rootQuoteId,
         contactId: q.contactId,
+        // Bản sửa giữ nhóm của bản trước (lineage — DC-299).
+        teamId: q.teamId,
         ownerUserId: q.ownerUserId,
         templateId: q.templateId,
         templateVersion: q.templateVersion,

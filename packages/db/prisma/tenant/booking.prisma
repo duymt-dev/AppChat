@@ -76,6 +76,8 @@ model Appointment {
   code            String            @unique
   contactId       String            @map("contact_id") @db.Uuid
   ownerUserId     String?           @map("owner_user_id") @db.Uuid
+  /// Nhóm của bản ghi — scope `team` (DC-299, TIP-042c); chụp lúc tạo, không đổi theo nhóm người phụ trách. Null = mơ hồ.
+  teamId          String?           @map("team_id") @db.Uuid
   serviceId       String            @map("service_id") @db.Uuid
   staffId         String            @map("staff_id") @db.Uuid
   startAt         DateTime          @map("start_at") @db.Timestamptz(6)

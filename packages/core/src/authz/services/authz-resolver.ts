@@ -5,6 +5,7 @@
 // TIP-042: khoá cache gồm thêm `authz_revision` của tenant (đọc mỗi lần) — sửa vai trò tuỳ biến / nhóm có hiệu lực ở lần đọc kế tiếp sau
 // commit, không chờ TTL / event. Thiếu bảng revision (schema cũ) → không cache. Redis lỗi → đọc DB (không dùng quyền cũ).
 // Vai trò tuỳ biến đã xoá mềm → không quyền (fail closed). Đồng đội = thành viên nhóm còn membership active.
+// TIP-042c: thêm scope GHI (`writeScope` — preset vai trò hệ thống; vai trò tuỳ biến = scope đọc). Cache cũ thiếu writeScope → đọc lại DB.
 import {
   DELEGABLE_PERMISSIONS,
   PERMISSIONS,
@@ -38,6 +39,7 @@ interface Cached {
   isOwner: boolean;
   permissions: PermissionKey[];
   scope: Record<ScopeModule, DataScope>;
+  writeScope: Record<ScopeModule, DataScope>;
   teamIds: string[];
   teamUserIds: string[];
 }
@@ -65,15 +67,17 @@ export class AuthzResolver {
     // Ranh giới bảo mật là DB nền tảng (TIP-045b): owner + `authz_epoch` đọc mỗi lần (khoá chính, rẻ) — cache Redis khoá theo epoch nên
     // đổi vai trò / gỡ thành viên / đổi chủ có hiệu lực ngay cả khi Redis / relay chậm hoặc mất. Workspace không còn → không quyền.
     const ws = await this.platform.workspace.findUnique({ where: { id: workspaceId }, select: { ownerUserId: true, authzEpoch: true } });
-    if (!ws) return { userId, isOwner: false, permissions: new Set(), scope: NONE, teamIds: [], teamUserIds: [] };
+    if (!ws) return { userId, isOwner: false, permissions: new Set(), scope: NONE, writeScope: NONE, teamIds: [], teamUserIds: [] };
     const tenant = await this.tenants.get(TenantContexts.fromMembership(workspaceId, userId));
     const rev = await readTenantAuthzRevision(tenant);
     const key = this.cache && rev !== null ? await this.cacheKey(workspaceId, userId, m, ws, rev).catch(() => null) : null;
     const hit = key ? await this.cache!.get(key).catch(() => null) : null;
-    const data: Cached = hit ? (JSON.parse(hit) as Cached) : await this.load(workspaceId, userId, m);
-    if (key && !hit) await this.cache!.set(key, JSON.stringify(data), 'EX', AUTHZ_CACHE_TTL_SEC).catch(() => undefined);
+    const cached = hit ? (JSON.parse(hit) as Partial<Cached>) : null;
+    // Payload thiếu writeScope (bản trước TIP-042c) → không đoán "bằng scope đọc", đọc lại DB.
+    const data: Cached = cached?.writeScope ? (cached as Cached) : await this.load(workspaceId, userId, m);
+    if (key && data !== cached) await this.cache!.set(key, JSON.stringify(data), 'EX', AUTHZ_CACHE_TTL_SEC).catch(() => undefined);
     // roleKey cho quyền theo trường (TIP-045b annex C): vai trò membership hiện tại (Owner xét bằng isOwner).
-    return { userId, isOwner: data.isOwner, permissions: new Set(data.permissions), scope: data.scope, teamIds: data.teamIds, teamUserIds: data.teamUserIds, roleKey: data.isOwner ? 'owner' : m.roleKey };
+    return { userId, isOwner: data.isOwner, permissions: new Set(data.permissions), scope: data.scope, writeScope: data.writeScope, teamIds: data.teamIds, teamUserIds: data.teamUserIds, roleKey: data.isOwner ? 'owner' : m.roleKey };
   }
 
   /** Đổi vai trò / nhóm / uỷ quyền trong workspace → mọi AuthzContext cũ hết hiệu lực ngay. */
@@ -103,12 +107,14 @@ export class AuthzResolver {
       : [];
     const teamUserIds = active.map((x) => x.userId);
 
-    if (isOwner) return { isOwner, permissions: [...PERMISSIONS], scope: ALL_SCOPE, teamIds, teamUserIds };
+    if (isOwner) return { isOwner, permissions: [...PERMISSIONS], scope: ALL_SCOPE, writeScope: ALL_SCOPE, teamIds, teamUserIds };
     let permissions: PermissionKey[] = [];
     let scope = NONE;
+    let writeScope: Record<ScopeModule, DataScope> | null = null;
     if (isSystemRole(m.roleKey)) {
       permissions = [...ROLE_DEFS[m.roleKey].permissions];
       scope = ROLE_DEFS[m.roleKey].scope;
+      writeScope = ROLE_DEFS[m.roleKey].writeScope ?? null;
     } else {
       const role = await tenant.role.findUnique({ where: { key: m.roleKey }, select: { permissions: true, dataScope: true, deletedAt: true, isSystem: true } });
       if (role && !role.deletedAt && !role.isSystem) {
@@ -117,6 +123,6 @@ export class AuthzResolver {
       }
     }
     const delegated = m.delegations.filter((d): d is PermissionKey => DELEGABLE_PERMISSIONS.includes(d as PermissionKey));
-    return { isOwner, permissions: [...new Set([...permissions, ...delegated])], scope, teamIds, teamUserIds };
+    return { isOwner, permissions: [...new Set([...permissions, ...delegated])], scope, writeScope: writeScope ?? scope, teamIds, teamUserIds };
   }
 }

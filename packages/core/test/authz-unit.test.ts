@@ -25,8 +25,11 @@ describe('scopeFilter', () => {
     });
   });
 
-  it('team → owner ∈ thành viên nhóm ∪ me', () => {
-    expect(scopeFilter(ctx('team', { teamUserIds: ['a', 'me', 'b'] }), 'sales', { owner: 'ownerUserId' })).toEqual({ ownerUserId: { in: ['me', 'a', 'b'] } });
+  it('team (DC-299, TIP-042c) → owner = me HOẶC cột nhóm của bản ghi ∈ nhóm của mình — không suy từ thành viên nhóm', () => {
+    const team = ctx('team', { teamIds: ['t1'], teamUserIds: ['a', 'me', 'b'] });
+    expect(scopeFilter(team, 'sales', { owner: 'ownerUserId', team: 'teamId' })).toEqual({ OR: [{ ownerUserId: 'me' }, { teamId: { in: ['t1'] } }] });
+    // Bảng không có cột nhóm → team chỉ còn nhánh own.
+    expect(scopeFilter(team, 'sales', { owner: 'ownerUserId' })).toEqual({ ownerUserId: 'me' });
   });
 });
 
@@ -37,7 +40,9 @@ describe('inScope / assertInScope', () => {
     expect(inScope(ctx('own'), 'crm', mine, F)).toBe(true);
     expect(inScope(ctx('own'), 'crm', other, F)).toBe(false);
     expect(inScope(ctx('own'), 'crm', { ownerUserId: 'x', assigneeUserId: 'me' }, F)).toBe(true);
-    expect(inScope(ctx('team', { teamUserIds: ['x'] }), 'crm', other, F)).toBe(true);
+    expect(inScope(ctx('team', { teamUserIds: ['x'] }), 'crm', other, F)).toBe(false);
+    expect(inScope(ctx('team', { teamIds: ['t1'] }), 'crm', { ...other, teamId: 't1' }, { ...F, team: 'teamId' })).toBe(true);
+    expect(inScope(ctx('team', { teamIds: ['t1'] }), 'crm', { ...other, teamId: 't2' }, { ...F, team: 'teamId' })).toBe(false);
     expect(inScope(ctx('all'), 'crm', other, F)).toBe(true);
     expect(inScope(ctx('none'), 'crm', mine, F)).toBe(false);
     expect(inScope(ctx('own'), 'crm', { ownerUserId: 'x', contactId: 'c1' }, { owner: 'ownerUserId', contact: { field: 'contactId', ids: ['c1'] } })).toBe(true);

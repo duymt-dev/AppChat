@@ -19,7 +19,8 @@ import { post, restoreDebit } from '../services/ledger.service';
  * `crm.edit` — Kế toán có loyalty.adjust mà không sửa hồ sơ khách (bảng quyền Blueprint §3.5). */
 async function adjustable(tx: TenantTx, authz: AuthzContext, id: string) {
   const r = await visibleContact(tx, authz, id);
-  if (r.access === 'watcher') throw new AppError('SCOPE_FORBIDDEN', 403, { scope: 'crm', access: 'watcher' });
+  // Scope GHI crm (TIP-042c): watcher / ngoài scope ghi → 403.
+  if (!r.writable) throw new AppError('SCOPE_FORBIDDEN', 403, { scope: 'crm', ...(r.access === 'watcher' ? { access: 'watcher' } : {}) });
   return r;
 }
 

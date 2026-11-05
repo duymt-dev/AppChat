@@ -27,7 +27,7 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
     // Đọc lịch trực tiếp (không import domain booking — tránh vòng sales ↔ booking); quyền theo scope sales của người phụ trách.
     if (UUID.test(input.appointment_id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${input.appointment_id}::uuid FOR UPDATE`;
     const a = UUID.test(input.appointment_id) ? await tx.appointment.findUnique({ where: { id: input.appointment_id } }) : null;
-    if (!a || a.deletedAt || !(await inSalesScope(tx, ctx.authz, a.ownerUserId, a.contactId))) throw new AppError('NOT_FOUND', 404, { appointment_id: 'not_found' });
+    if (!a || a.deletedAt || !(await inSalesScope(tx, ctx.authz, { owner: a.ownerUserId, team: a.teamId, contact: a.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { appointment_id: 'not_found' });
     if (a.orderId) {
       const o = await tx.order.findUnique({ where: { id: a.orderId }, select: { id: true, code: true } });
       if (o) return { result: { order_id: o.id, code: o.code } };

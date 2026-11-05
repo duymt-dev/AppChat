@@ -143,12 +143,12 @@ export class CrmReadService {
   /** `GET /v1/contacts/:id/memory` (TIP-015b): khối "AI ghi nhớ" — cùng dữ liệu action contact.memory_list. */
   async memory(v: Viewer, id: string) {
     return this.tx(v, async (tx) => {
-      const { contact, access } = await visibleContact(tx, v.authz, id);
+      const { contact, writable } = await visibleContact(tx, v.authz, id);
       const rows = await recentFacts(tx, contact.id, MEMORY_CAP);
       return {
         items: rows.map((r) => ({ memory_id: r.id, fact: r.fact, confidence: r.confidence, source: sourceOf(r.actor_type), updated_at: r.updated_at.toISOString() })),
         cap: MEMORY_CAP,
-        can_edit: access !== 'watcher' && (v.authz.isOwner || v.authz.permissions.has('crm.edit')),
+        can_edit: writable && (v.authz.isOwner || v.authz.permissions.has('crm.edit')),
       };
     });
   }

@@ -9,4 +9,6 @@ export { assertAssignable, assignableRole, assertNoEscalation } from './services
 export { liveRole } from './services/role-lifecycle';
 export { convertLegacyDelegations, LEGACY_DELEGATIONS_JOB } from './services/legacy-delegations';
 export { scopeFilter, inScope, assertInScope, type ScopeFields } from './scope';
+// TIP-042c: policy bản ghi read / write (DC-299 team theo team_id, watcher chỉ đọc).
+export * from './data-access';
 export { SYSTEM_ROLES_SEED } from './seed';

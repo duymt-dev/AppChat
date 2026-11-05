@@ -16,6 +16,7 @@ import { UUID, inSupportScope } from '../ticket-access';
 import { SlaCalendar, defaultPolicy, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, timeline } from '../services/ticket-write';
 import { createPreview } from './previews/ticket-create.handler.preview';
+import { soleTeamOf } from '../../authz/data-access';
 
 type In = ActionInput<typeof ticketCreate>;
 type Out = { ticket_id: string; code: string; merged?: boolean };
@@ -102,7 +103,8 @@ export class TicketCreateHandler implements Handler<In, Out> {
         status,
         assigneeUserId: ai ? null : (input.assignee_user_id ?? actorUserId(ctx)),
         assigneeAgentId: input.assignee_agent_id ?? null,
-        teamId: input.team_id ?? null,
+        // DC-299: nhóm người tạo chọn; không chọn → nhóm duy nhất của người được gán (0 / nhiều nhóm → null; giao AI → không nhóm).
+        teamId: input.team_id ?? (ai ? null : await soleTeamOf(tx, input.assignee_user_id ?? actorUserId(ctx))),
         slaPolicyId: policy.id,
         slaPolicyName: policy.name,
         ...sla,

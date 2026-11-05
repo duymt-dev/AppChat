@@ -52,7 +52,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
   async prepare(ctx: ActionContext, input: SendIn): Promise<Prepared> {
     const env = this.d.need('env');
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'quote.send'));
-    const q = await db.$transaction((tx) => visibleQuote(tx, ctx.authz, input.quote_id));
+    const q = await db.$transaction((tx) => visibleQuote(tx, ctx.authz, input.quote_id, 'write'));
     assertTransition(QUOTE_FLOW, q.status, 'quote.send');
     if (q.status === 'draft') {
       const reasons = await db.$transaction((tx) => reasonsOf(tx, q, ctx));

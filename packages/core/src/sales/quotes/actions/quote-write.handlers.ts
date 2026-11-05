@@ -14,6 +14,7 @@ import { CrmMembers, actorUserId } from '../../../crm/public';
 import { lockQuote, visibleQuote } from '../quote-access';
 import { commentPreview, createPreview, deletePreview, updatePreview } from '../previews/quote-write.handlers.preview';
 import { checkParties, checkQuoteCustom, creatorOf, linesOf, resolveLines, totalCols, writeLines, type LineIn, type QuoteFieldsIn } from '../services/quote-write';
+import { snapshotTeam } from '../../../authz/data-access';
 
 type CreateIn = ActionInput<typeof quoteCreate>;
 type UpdateIn = ActionInput<typeof quoteUpdate>;
@@ -40,6 +41,8 @@ export async function insertQuote(ctx: ActionContext, tx: TenantTx, members: Crm
       rootQuoteId: id,
       contactId: input.contact_id,
       ownerUserId,
+      // DC-299: nhóm duy nhất của người phụ trách lúc tạo (0 / nhiều nhóm → null).
+      teamId: await snapshotTeam(tx, { owner: ownerUserId }),
       templateId: tpl?.id ?? null,
       templateVersion: tpl?.version ?? null,
       headerDiscount: (input.header_discount ?? undefined) as object | undefined,
@@ -168,7 +171,7 @@ export class QuoteCommentHandler implements Handler<ActionInput<typeof quoteComm
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof quoteComment>, tx: TenantTx): Promise<HandlerOutcome<{ quote_id: string }>> {
-    const q = await visibleQuote(tx, ctx.authz, input.quote_id);
+    const q = await visibleQuote(tx, ctx.authz, input.quote_id, 'write');
     const now = this.clock.now();
     const id = uuidv7(now.getTime());
     await tx.quoteComment.create({ data: { id, quoteId: q.id, authorId: actorUserId(ctx), body: input.text, createdAt: now } });

@@ -153,6 +153,7 @@ model ContactCollaborator {
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@id([contactId, userId])
+  /// Migration record_scopes (TIP-042c) dựng lại cùng tên với INCLUDE (role) — Prisma không biểu diễn INCLUDE.
   @@index([userId, contactId])
   @@map("contact_collaborator")
 }

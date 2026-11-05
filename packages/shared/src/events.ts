@@ -90,6 +90,8 @@ const convBase = {
   assignee_user_id: z.string().uuid().nullable(),
   /** Người phụ trách khách lúc phát — scope own của người nhận realtime. */
   contact_owner_user_id: z.string().uuid().nullable(),
+  /** Nhóm của hội thoại (DC-299, TIP-042c) — scope team của người nhận realtime; thiếu = không nhóm. */
+  team_id: z.string().uuid().nullable().optional(),
 };
 export const messageReceivedEvent = z.object({ ...convBase, message_id: z.string().uuid(), new_conversation: z.boolean(), is_group: z.boolean(), mentions_me: z.boolean(), vip: z.boolean(), title: z.string() });
 export const messageSentEvent = z.object({ ...convBase, message_id: z.string().uuid(), sender_type: z.enum(['user', 'agent', 'system']), sender_id: z.string().nullable() });
@@ -190,7 +192,7 @@ export const receiptSentEvent = z.object({ ...base, payment_id: z.string().uuid(
 export const salesSettingsUpdatedEvent = z.object({ ...base, version: z.number().int(), approval_total_vnd: z.string(), approval_discount_pct: z.number().int() });
 export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
 /** Ticket (TIP-034): tạo / đóng / mở lại / SLA sắp đến hạn / quá hạn — consumer notify (leo thang), timeline, CSAT. */
-export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional() });
+export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional(), team_id: z.string().nullable().optional(), created_by_user_id: uuidOrNull.optional() });
 
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,

@@ -4,6 +4,7 @@
 import { ticketEvent } from '@appchat/shared';
 import { registerNotificationRule, registerRealtimeRule } from '../../notify/rules';
 import { rooms } from '../../notify/realtime/envelope';
+import { ticketRecord } from '../../notify/realtime/records';
 
 const link = (id: string) => `/tickets?open=${id}`;
 
@@ -30,6 +31,6 @@ registerNotificationRule('support.assigned', 'ticket.assigned', (e) => {
 for (const topic of ['ticket.created', 'ticket.assigned', 'ticket.updated', 'ticket.closed', 'ticket.reopened', 'ticket.sla_warning', 'ticket.sla_breached'])
   registerRealtimeRule(`support.${topic}`, topic, (e) => {
     const p = ticketEvent.parse(e.payload);
-    const scope = { module: 'support' as const, row: { assigneeUserId: p.assignee_user_id }, fields: { owner: 'assigneeUserId' } };
-    return [{ ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'ticket.updated', data: { ticket_id: p.ticket_id, change: topic }, require: { permission: 'ticket.view', scope } }];
+    // TIP-042c: policy đọc support chung (người phụ trách / người tạo / nhóm ticket — không mở theo quan hệ khách CRM).
+    return [{ ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'ticket.updated', data: { ticket_id: p.ticket_id, change: topic }, require: { permission: 'ticket.view', record: ticketRecord(p) } }];
   });

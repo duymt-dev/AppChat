@@ -1,45 +1,48 @@
-// Quyền trên một hội thoại (rbac-permissions §5, D32): data scope `inbox`.
-// own  → hội thoại gán cho mình + hội thoại của khách mình phụ trách / đồng phụ trách / theo dõi (contact_collaborator)
-// team → như own, mở rộng cho thành viên các nhóm của mình · all / none.
-// Không thấy → 404 (không lộ tồn tại — rbac §9); thấy nhưng ghi bị chặn do scope → 403 SCOPE_FORBIDDEN.
+// Quyền trên một hội thoại (rbac-permissions §5, D32, TIP-042c): data scope `inbox`, bảng chân trị chung `authz/data-access`.
+// own  → hội thoại gán cho mình + hội thoại của khách mình phụ trách + quan hệ khách (collaborator / watcher ĐỌC; chỉ collaborator GHI)
+// team → như own + `team_id` hội thoại ∈ nhóm mình (DC-299; không suy từ người phụ trách ∈ thành viên nhóm) · all / none (none chặn trước).
+// Hội thoại nhóm (không khách) → chỉ người được gán / nhóm / all. Không thấy → 404 (rbac §9); thấy nhưng không ghi được → 403 SCOPE_FORBIDDEN.
 import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { POLICIES, decide, grantAllows, grantOf, recordScopeSql, type AccessMode } from '../../authz/data-access';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const level = (authz: AuthzContext) => (authz.isOwner ? 'all' : authz.scope.inbox);
-const people = (authz: AuthzContext) => [...new Set([authz.userId, ...(level(authz) === 'team' ? (authz.teamUserIds ?? []) : [])])];
+const COLS = {
+  assignee: Prisma.raw('cv.assignee_user_id'),
+  team: Prisma.raw('cv.team_id'),
+  contact: Prisma.raw('cv.contact_id'),
+  mine: (me: string) => Prisma.sql`EXISTS (SELECT 1 FROM contact k WHERE k.id = cv.contact_id AND k.owner_user_id = ${me}::uuid)`,
+};
 
 /** Điều kiện SQL (alias `cv`) cho danh sách hội thoại theo scope inbox. */
-export function convScopeSql(authz: AuthzContext): Prisma.Sql {
-  const l = level(authz);
-  if (l === 'all') return Prisma.sql`TRUE`;
-  if (l === 'none') return Prisma.sql`FALSE`;
-  const ids = Prisma.join(people(authz).map((x) => Prisma.sql`${x}::uuid`));
-  return Prisma.sql`(cv.assignee_user_id IN (${ids})
-    OR EXISTS (SELECT 1 FROM contact k WHERE k.id = cv.contact_id AND k.owner_user_id IN (${ids}))
-    OR EXISTS (SELECT 1 FROM contact_collaborator cc WHERE cc.contact_id = cv.contact_id AND cc.user_id IN (${ids})))`;
+export function convScopeSql(authz: AuthzContext, mode: AccessMode = 'read'): Prisma.Sql {
+  return recordScopeSql(authz, POLICIES.inbox, mode, COLS);
 }
 
 interface ConvRef {
   id: string;
   contactId: string | null;
   assigneeUserId: string | null;
+  /** `team_id` hội thoại — thiếu (select cũ) → coi như null (chỉ thu hẹp, không mở rộng). */
+  teamId?: string | null;
 }
 
-/** Người xem thấy hội thoại này không (một bản ghi — handler / get / guard phòng realtime). */
-export async function canSeeConversation(tx: Pick<TenantTx, 'contact' | 'contactCollaborator'>, authz: AuthzContext, c: ConvRef): Promise<boolean> {
-  const l = level(authz);
-  if (l === 'all') return true;
-  if (l === 'none') return false;
-  const who = people(authz);
-  if (c.assigneeUserId && who.includes(c.assigneeUserId)) return true;
-  if (!c.contactId) return false;
-  const k = await tx.contact.findUnique({ where: { id: c.contactId }, select: { ownerUserId: true } });
-  if (k?.ownerUserId && who.includes(k.ownerUserId)) return true;
-  return (await tx.contactCollaborator.count({ where: { contactId: c.contactId, userId: { in: who } } })) > 0;
+type Tx = Pick<TenantTx, 'contact' | 'contactCollaborator'>;
+
+/** Người xem được đọc / ghi hội thoại này không (một bản ghi — handler / get / guard phòng realtime). */
+export async function canAccessConversation(tx: Tx, authz: AuthzContext, c: ConvRef, mode: AccessMode): Promise<boolean> {
+  const ref = { assignee: c.assigneeUserId, team: c.teamId ?? null, contact: c.contactId };
+  const quick = decide(authz, POLICIES.inbox, mode, ref);
+  if (quick !== 'grant') return quick;
+  const k = await tx.contact.findUnique({ where: { id: c.contactId! }, select: { ownerUserId: true } });
+  if (k?.ownerUserId === authz.userId) return true;
+  return grantAllows(await grantOf(tx, c.contactId, authz.userId), mode);
 }
+
+/** Người xem THẤY hội thoại này không (đọc). */
+export const canSeeConversation = (tx: Tx, authz: AuthzContext, c: ConvRef): Promise<boolean> => canAccessConversation(tx, authz, c, 'read');
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
@@ -51,13 +54,12 @@ export async function visibleConversation(tx: TenantTx, authz: AuthzContext, id:
 }
 
 /**
- * Hội thoại cho handler ghi: id lạ → 404; tồn tại nhưng ngoài scope → 403 SCOPE_FORBIDDEN (action-registry §5 bước 3 —
- * như crm `editableContact`: executor đã qua permission, handler báo rõ lỗi scope).
+ * Hội thoại cho handler ghi (gửi tin, gán, gắn thẻ, đổi trạng thái…): không thấy → 404; thấy nhưng chỉ đọc (watcher / scope ghi hẹp
+ * hơn) → 403 SCOPE_FORBIDDEN (action-registry §5 bước 3).
  */
 export async function writableConversation(tx: TenantTx, authz: AuthzContext, id: string): Promise<Conv> {
-  const c = UUID.test(id) ? await tx.conversation.findUnique({ where: { id } }) : null;
-  if (!c) throw new AppError('NOT_FOUND', 404, { conversation_id: 'not_found' });
-  if (!(await canSeeConversation(tx, authz, c))) throw new AppError('SCOPE_FORBIDDEN', 403, { scope: 'inbox' });
+  const c = await visibleConversation(tx, authz, id);
+  if (!(await canAccessConversation(tx, authz, c, 'write'))) throw new AppError('SCOPE_FORBIDDEN', 403, { scope: 'inbox' });
   return c;
 }
 
@@ -75,5 +77,12 @@ export const actorUserId = (ctx: { onBehalfOfUserId?: string; actor: { type: str
 /** Cột scope của một hội thoại cho payload event (lọc người nhận realtime theo scope). */
 export async function scopeCols(tx: Pick<TenantTx, 'contact'>, c: ConvRef & { channelAccountId: string }) {
   const k = c.contactId ? await tx.contact.findUnique({ where: { id: c.contactId }, select: { ownerUserId: true } }) : null;
-  return { conversation_id: c.id, channel_account_id: c.channelAccountId, contact_id: c.contactId, assignee_user_id: c.assigneeUserId, contact_owner_user_id: k?.ownerUserId ?? null };
+  return {
+    conversation_id: c.id,
+    channel_account_id: c.channelAccountId,
+    contact_id: c.contactId,
+    assignee_user_id: c.assigneeUserId,
+    contact_owner_user_id: k?.ownerUserId ?? null,
+    ...(c.teamId ? { team_id: c.teamId } : {}),
+  };
 }

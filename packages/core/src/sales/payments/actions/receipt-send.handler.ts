@@ -35,7 +35,7 @@ interface Prepared {
 async function paymentOf(tx: TenantTx, ctx: ActionContext, paymentId: string, lock = false) {
   const p = UUID.test(paymentId) ? await tx.customerPayment.findUnique({ where: { id: paymentId } }) : null;
   if (!p || !p.invoiceId) throw new AppError('NOT_FOUND', 404, { payment_id: 'not_found' });
-  const i = lock ? await lockInvoice(tx, ctx.authz, p.invoiceId) : await visibleInvoice(tx, ctx.authz, p.invoiceId);
+  const i = lock ? await lockInvoice(tx, ctx.authz, p.invoiceId) : await visibleInvoice(tx, ctx.authz, p.invoiceId, 'write');
   if (p.status !== 'confirmed' || !p.receiptCode || p.amount <= 0n) throw new AppError('INVALID_STATE', 409, { payment_id: p.status });
   return { p, i };
 }

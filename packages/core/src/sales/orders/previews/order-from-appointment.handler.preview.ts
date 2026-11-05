@@ -11,7 +11,7 @@ import { draftOrderPreview, label } from './order-create.handlers.preview';
 
 export async function fromAppointmentPreview(ctx: ActionContext, tx: TenantTx, members: CrmMembers, i: ActionInput<typeof orderCreateFromAppointment>): Promise<ActionPreview> {
   const a = UUID.test(i.appointment_id) ? await tx.appointment.findUnique({ where: { id: i.appointment_id } }) : null;
-  if (!a || a.deletedAt || !(await inSalesScope(tx, ctx.authz, a.ownerUserId, a.contactId))) throw new AppError('NOT_FOUND', 404, { appointment_id: 'not_found' });
+  if (!a || a.deletedAt || !(await inSalesScope(tx, ctx.authz, { owner: a.ownerUserId, team: a.teamId, contact: a.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { appointment_id: 'not_found' });
   const dup = a.orderId ? await tx.order.findUnique({ where: { id: a.orderId }, select: { code: true, contactId: true } }) : null;
   if (dup) return preview('write', await label(tx, dup), { changes: [], warnings: [`existing:${dup.code}`] });
   if (a.status !== 'done') throw new AppError('INVALID_TRANSITION', 409, { status: a.status });

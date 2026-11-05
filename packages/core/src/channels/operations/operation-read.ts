@@ -51,7 +51,7 @@ export class ChannelOperationRead {
     const missing = () => new AppError('NOT_FOUND', 404, { operation_id: 'not_found' });
     // Chỉ thao tác trên tin (thu hồi / cảm xúc) — lệnh khác (lịch sử / thăm dò / đồng bộ) đi route quản lý kênh.
     if (!r || (r.kind !== 'recall' && r.kind !== 'react')) throw missing();
-    const c = await db.conversation.findUnique({ where: { id: r.conversationId }, select: { id: true, contactId: true, assigneeUserId: true } });
+    const c = await db.conversation.findUnique({ where: { id: r.conversationId }, select: { id: true, contactId: true, assigneeUserId: true, teamId: true } });
     if (!c || !(await canSeeConversation(db, viewer.authz, c))) throw missing();
     return operationDto(r);
   }

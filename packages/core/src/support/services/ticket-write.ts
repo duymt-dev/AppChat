@@ -19,6 +19,9 @@ export const ticketPayload = (t: TicketRecord, extra: Record<string, unknown> = 
   assignee_agent_id: t.assigneeAgentId,
   status: t.status,
   priority: t.priority,
+  // Lọc người nhận realtime theo policy support (TIP-042c): nhóm + người tạo.
+  team_id: t.teamId,
+  created_by_user_id: t.createdByType === 'user' ? t.createdById : null,
   ...extra,
 });
 

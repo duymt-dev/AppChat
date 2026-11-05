@@ -1,29 +1,20 @@
 // Luật event Hộp thư (Blueprint §2.3, §4.6): tin vào / gửi / đổi → WS `message.new` / `message.updated` / `conversation.updated`
-// tới phòng hội thoại + phòng workspace, lọc người nhận theo data scope inbox (assignee / người phụ trách khách); thông báo
+// tới phòng hội thoại + phòng workspace, lọc người nhận theo policy đọc inbox (assignee / phụ trách khách / nhóm / quan hệ khách — TIP-042c); thông báo
 // `msg_assigned` (gán cho tôi), `msg_vip` (tin khách VIP). Nạp khi import InboxModule.
 import { channelHistoryIngestedEvent, conversationAssignedEvent, conversationUpdatedEvent, messageFailedEvent, messageReceivedEvent, messageSentEvent, messageUpdatedEvent } from '@appchat/shared';
 import type { DomainEvent } from '../../kernel/events/consumer';
 import { registerNotificationRule, registerRealtimeRule } from '../../notify/rules';
 import { rooms, type RealtimeEnvelope } from '../../notify/realtime/envelope';
+import { convRecord } from '../../notify/realtime/records';
 
-type ConvCols = { conversation_id: string; contact_id: string | null; assignee_user_id: string | null; contact_owner_user_id: string | null };
-
-/**
- * Hàng scope cho bộ lọc realtime (`inScope` — owner / assignee / contact). Collaborator của khách (D32) không có trong payload
- * → người đồng phụ trách nhận cập nhật qua phòng `conv:{id}` khi đang mở hội thoại (guard kiểm đầy đủ lúc vào phòng).
- */
-const scope = (p: ConvCols) => ({
-  module: 'inbox' as const,
-  row: { ownerUserId: p.contact_owner_user_id, assigneeUserId: p.assignee_user_id },
-  fields: { owner: 'ownerUserId', assignee: 'assigneeUserId' },
-});
+type ConvCols = { conversation_id: string; contact_id: string | null; assignee_user_id: string | null; contact_owner_user_id: string | null; team_id?: string | null | undefined };
 
 function fanout(e: DomainEvent, p: ConvCols, event: string, data: Record<string, unknown>): RealtimeEnvelope[] {
   return [
     // Đang mở hội thoại: phòng `conv:{id}` (đã qua guard lúc vào phòng).
     { ws: e.workspaceId, rooms: [rooms.conv(p.conversation_id)], event, data, require: { permission: 'inbox.view' } },
     // Danh sách hội thoại của mọi người thấy được hội thoại này.
-    { ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'conversation.updated', data: { conversation_id: p.conversation_id }, require: { permission: 'inbox.view', scope: scope(p) } },
+    { ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'conversation.updated', data: { conversation_id: p.conversation_id }, require: { permission: 'inbox.view', record: convRecord(p) } },
   ];
 }
 

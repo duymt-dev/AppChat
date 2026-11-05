@@ -5,7 +5,7 @@ import type { ActionInput, ActionPreview, contactAddCollaborator, contactDecideA
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { line, preview, updated } from '../../../kernel/actions/preview-kit';
-import { UUID, visibleContact } from '../../services/access';
+import { UUID, editableContact, visibleContact } from '../../services/access';
 import type { CrmMembers } from '../../services/members.service';
 
 const nameOf = async (members: CrmMembers, id: string | null | undefined) => (id ? ((await members.names([id])).get(id) ?? id) : null);
@@ -28,7 +28,7 @@ export async function removeCollaboratorPreview(tx: TenantTx, a: AuthzContext, m
 }
 
 export async function transferOwnerPreview(tx: TenantTx, a: AuthzContext, members: CrmMembers, i: ActionInput<typeof contactTransferOwner>): Promise<ActionPreview> {
-  const { contact: c } = await visibleContact(tx, a, i.contact_id);
+  const { contact: c } = await editableContact(tx, a, i.contact_id);
   const [from, to] = [await nameOf(members, c.ownerUserId), await nameOf(members, i.to_user_id)];
   const convs = i.move.conversations ? await tx.conversation.count({ where: { contactId: c.id, status: { not: 'closed' } } }) : 0;
   return preview('write', line(c.code, c.name, to), { count: convs, changes: [...updated('contact', c.id, { owner: from }, { owner: to }), ...(convs ? [{ entity: 'conversation', after: { assignee: to, count: convs } }] : [])] });

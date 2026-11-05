@@ -3,6 +3,7 @@
 import { aiHandoffEvent } from '@appchat/shared';
 import { registerNotificationRule, registerRealtimeRule } from '../../notify/rules';
 import { rooms } from '../../notify/realtime/envelope';
+import { convRecord } from '../../notify/realtime/records';
 
 registerNotificationRule('ai.handoff', 'ai.handoff', (e) => {
   const p = aiHandoffEvent.parse(e.payload);
@@ -12,9 +13,8 @@ registerNotificationRule('ai.handoff', 'ai.handoff', (e) => {
 
 registerRealtimeRule('ai.handoff', 'ai.handoff', (e) => {
   const p = aiHandoffEvent.parse(e.payload);
-  const scope = { module: 'inbox' as const, row: { ownerUserId: p.contact_owner_user_id, assigneeUserId: p.assignee_user_id }, fields: { owner: 'ownerUserId', assignee: 'assigneeUserId' } };
   return [
     { ws: e.workspaceId, rooms: [rooms.conv(p.conversation_id)], event: 'conversation.updated', data: { conversation_id: p.conversation_id, change: 'ai_handoff' }, require: { permission: 'inbox.view' } },
-    { ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'conversation.updated', data: { conversation_id: p.conversation_id, change: 'ai_handoff' }, require: { permission: 'inbox.view', scope } },
+    { ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: 'conversation.updated', data: { conversation_id: p.conversation_id, change: 'ai_handoff' }, require: { permission: 'inbox.view', record: convRecord(p) } },
   ];
 });

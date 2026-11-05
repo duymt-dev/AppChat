@@ -5,6 +5,7 @@
 import { TenantSql as Prisma, type TenantDb } from '@appchat/db';
 import { AI_TASK_MAX_TARGETS, AI_TASK_QUIET_HOURS, type AuthzContext } from '@appchat/shared';
 import { crmScopeSql } from '../../crm/public';
+import { POLICIES, docColumns, recordScopeSql } from '../../authz/data-access';
 
 export interface Target {
   contact: string;
@@ -25,14 +26,11 @@ const conv = (now: Date) => Prisma.sql`(
 
 type Row = { contact: string; conversation_id: string | null; ref: string | null; at: Date; amount: bigint | null };
 
-/** Lọc bản ghi theo data scope module (`own` = mình phụ trách; team → người cùng nhóm; none → không có gì). */
-function ownSql(authz: AuthzContext, module: 'sales' | 'booking', col: Prisma.Sql): Prisma.Sql {
-  const l = authz.isOwner ? 'all' : authz.scope[module];
-  if (l === 'all') return Prisma.sql`TRUE`;
-  if (l === 'none') return Prisma.sql`FALSE`;
-  const ids = l === 'team' ? [...new Set([authz.userId, ...(authz.teamUserIds ?? [])])] : [authz.userId];
-  return Prisma.sql`${col} IN (${Prisma.join(ids.map((x) => Prisma.sql`${x}::uuid`))})`;
-}
+/**
+ * Lọc chứng từ theo policy ĐỌC chung (TIP-042c — owner / nhóm `team_id` / quan hệ khách). Mẫu chủ động chạy trên khách của chứng từ
+ * nên dùng cùng predicate với màn danh sách — không tự suy team từ thành viên nhóm.
+ */
+const ownSql = (authz: AuthzContext, module: 'sales' | 'booking', alias: string): Prisma.Sql => recordScopeSql(authz, POLICIES[module], 'read', docColumns(alias));
 
 export async function collectTargets(db: TenantDb, template: string, params: Record<string, number>, authz: AuthzContext, now: Date): Promise<Target[]> {
   const limit = Math.min(Math.max(1, params.limit ?? 20), AI_TASK_MAX_TARGETS);
@@ -52,7 +50,7 @@ export async function collectTargets(db: TenantDb, template: string, params: Rec
       SELECT c.name AS contact, ${conv(now)} AS conversation_id, q.code AS ref, q.sent_at AS at, q.total AS amount
       FROM quote q JOIN contact c ON c.id = q.contact_id
       WHERE q.deleted_at IS NULL AND q.status IN ('sent', 'viewed') AND q.sent_at < ${before} AND (q.valid_until IS NULL OR q.valid_until > ${now})
-        AND ${ownSql(authz, 'sales', Prisma.sql`q.owner_user_id`)} AND c.deleted_at IS NULL AND ${scope}
+        AND ${ownSql(authz, 'sales', 'q')} AND c.deleted_at IS NULL AND ${scope}
       ORDER BY q.sent_at LIMIT ${limit * 2}`;
   } else if (template === 'appointment_reminder') {
     const until = new Date(now.getTime() + (params.hours ?? 24) * 3_600_000);
@@ -60,7 +58,7 @@ export async function collectTargets(db: TenantDb, template: string, params: Rec
       SELECT c.name AS contact, COALESCE(a.conversation_id, ${conv(now)}) AS conversation_id, a.code AS ref, a.start_at AS at, NULL::bigint AS amount
       FROM appointment a JOIN contact c ON c.id = a.contact_id
       WHERE a.deleted_at IS NULL AND a.status IN ('pending', 'confirmed') AND a.start_at > ${now} AND a.start_at <= ${until}
-        AND ${ownSql(authz, 'booking', Prisma.sql`a.owner_user_id`)} AND c.deleted_at IS NULL AND ${scope}
+        AND ${ownSql(authz, 'booking', 'a')} AND c.deleted_at IS NULL AND ${scope}
       ORDER BY a.start_at LIMIT ${limit * 2}`;
   } else if (template === 'aftercare') {
     const from = new Date(now.getTime() - (days + 1) * DAY);
@@ -69,7 +67,7 @@ export async function collectTargets(db: TenantDb, template: string, params: Rec
       SELECT c.name AS contact, ${conv(now)} AS conversation_id, o.code AS ref, o.completed_at AS at, o.total AS amount
       FROM "order" o JOIN contact c ON c.id = o.contact_id
       WHERE o.deleted_at IS NULL AND o.status = 'completed' AND o.completed_at >= ${from} AND o.completed_at < ${to}
-        AND ${ownSql(authz, 'sales', Prisma.sql`o.owner_user_id`)} AND c.deleted_at IS NULL AND ${scope}
+        AND ${ownSql(authz, 'sales', 'o')} AND c.deleted_at IS NULL AND ${scope}
       ORDER BY o.completed_at LIMIT ${limit * 2}`;
   }
   return rows

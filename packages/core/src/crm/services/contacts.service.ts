@@ -6,6 +6,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { nextCode } from '../../kernel/sequence';
 import { fieldDefs } from './fields.service';
 import type { CrmMembers } from './members.service';
+import { soleTeamOf } from '../../authz/data-access';
 
 export interface ContactInput {
   full_name?: string;
@@ -110,6 +111,8 @@ export async function createContact(tx: TenantTx, i: ContactInput & { full_name:
       source: 'manual',
       ...cols,
       ownerUserId: owner,
+      // DC-299: nhóm duy nhất của người phụ trách lúc tạo (0 / nhiều nhóm → null).
+      teamId: await soleTeamOf(tx, owner),
       custom: mergeCustomValues({}, i.custom),
       createdByUserId: o.actorUserId,
       lastInteractionAt: o.now,

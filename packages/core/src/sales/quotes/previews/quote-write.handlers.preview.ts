@@ -17,7 +17,7 @@ export const label = (q: Pick<QuoteRecord, 'code' | 'version'>) => line(q.code, 
 
 /** Báo giá thấy được + kiểm sớm chuyển trạng thái (cùng 404 / 409 như execute) → trạng thái đích. */
 export async function flowOf(tx: TenantTx, ctx: ActionContext, id: string, action: string) {
-  const q = await visibleQuote(tx, ctx.authz, id);
+  const q = await visibleQuote(tx, ctx.authz, id, 'write');
   return { q, to: assertTransition(QUOTE_FLOW, q.status, action), contact: (await tx.contact.findUnique({ where: { id: q.contactId }, select: { name: true } }))?.name ?? '' };
 }
 
@@ -76,6 +76,6 @@ export async function deletePreview(ctx: ActionContext, tx: TenantTx, i: ActionI
 }
 
 export async function commentPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof quoteComment>): Promise<ActionPreview> {
-  const q = await visibleQuote(tx, ctx.authz, i.quote_id);
+  const q = await visibleQuote(tx, ctx.authz, i.quote_id, 'write');
   return preview('write', label(q), { changes: [created('quote_comment', { text: i.text.trim() })] });
 }

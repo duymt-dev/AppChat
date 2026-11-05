@@ -10,6 +10,8 @@ import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE } from '../kernel/kernel.module';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { registerConversationGuard } from '../notify/realtime/conv-guard';
+import { registerGrantLookup } from '../notify/realtime/filter';
+import { grantsFor } from '../authz/data-access';
 import { CHANNEL_REGISTRY, ChannelsModule, widgetUrlsFor } from '../channels/channels.module';
 import { CrmModule } from '../crm/crm.module';
 import { ContactIdentityService } from '../crm/services/identity.service';
@@ -61,9 +63,11 @@ class ConversationGuardInstaller implements OnModuleInit {
     registerConversationGuard(async ({ workspaceId, userId, authz, conversationId }) => {
       if (!can(authz, 'inbox.view') || !UUID.test(conversationId)) return false;
       const db = await tenants.get(TenantContexts.fromMembership(workspaceId, userId));
-      const c = await db.conversation.findUnique({ where: { id: conversationId }, select: { id: true, contactId: true, assigneeUserId: true } });
+      const c = await db.conversation.findUnique({ where: { id: conversationId }, select: { id: true, contactId: true, assigneeUserId: true, teamId: true } });
       return !!c && canSeeConversation(db, authz, c);
     });
+    // Quan hệ khách hiện tại cho bộ lọc realtime (TIP-042c) — gỡ watcher / collaborator có hiệu lực ở event kế tiếp.
+    registerGrantLookup(async (workspaceId, contactId, userIds) => grantsFor(await tenants.get(TenantContexts.system(workspaceId, 'realtime.grants')), contactId, userIds));
   }
 }
 

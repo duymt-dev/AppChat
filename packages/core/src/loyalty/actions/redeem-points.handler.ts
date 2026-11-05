@@ -79,7 +79,7 @@ export class PaymentRedeemPointsHandler implements Handler<In, Out> {
   }
 
   async preview(ctx: ActionContext, i: In, tx: TenantTx): Promise<ActionPreview> {
-    const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id);
+    const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id, 'write');
     const c = await check(tx, inv, i.points, false);
     const before = safePoints(c.balance);
     return preview('money', line(inv.code, `${i.points}`, String(c.amount)), {

@@ -53,6 +53,7 @@ export class ContactSendEmailHandler implements Handler<ActionInput<typeof conta
         kind: 'direct',
         externalThreadId: threadId,
         assigneeUserId: me(ctx) ?? contact.ownerUserId,
+        teamId: contact.teamId,
         lastMessageAt: now,
         lastMessagePreview: previewOf('text', input.body),
         createdAt: now,

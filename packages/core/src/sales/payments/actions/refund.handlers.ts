@@ -50,8 +50,8 @@ export class PaymentRefundHandler implements Handler<ActionInput<typeof paymentR
       const id = input.package_id!;
       if (UUID.test(id)) await tx.$queryRaw`SELECT 1 FROM customer_package WHERE id = ${id}::uuid FOR UPDATE`;
       const p = UUID.test(id) ? await tx.customerPackage.findUnique({ where: { id } }) : null;
-      const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { id: true, ownerUserId: true, contactId: true } }) : null;
-      if (!p || !o || !(await inSalesScope(tx, ctx.authz, o.ownerUserId, o.contactId))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
+      const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { id: true, ownerUserId: true, teamId: true, contactId: true } }) : null;
+      if (!p || !o || !(await inSalesScope(tx, ctx.authz, { owner: o.ownerUserId, team: o.teamId, contact: o.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
       if (p.status === 'refunded') throw new AppError('INVALID_STATE', 409, { status: p.status });
       if (await tx.customerPayment.count({ where: { packageId: p.id, kind: 'refund', status: 'pending' } })) throw new AppError('INVALID_STATE', 409, { package_id: 'refund_pending' });
       await tx.$queryRaw`SELECT 1 FROM "order" WHERE id = ${o.id}::uuid FOR UPDATE`;

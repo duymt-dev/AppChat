@@ -5,7 +5,7 @@ import type { ActionInput, ActionPreview, invoiceCreate, invoiceSendPaymentQr, i
 import { AppError, INVOICE_DUE_DAYS, INVOICE_FLOW, assertTransition, createFmt } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { created, line, preview, updated } from '../../../kernel/actions/preview-kit';
-import { visibleContact } from '../../../crm/public';
+import { editableContact } from '../../../crm/public';
 import { visibleOrder } from '../../orders/order-access';
 import { visibleInvoice, type InvoiceRecord } from '../invoice-access';
 import { localDay } from '../services/payment-write';
@@ -23,21 +23,21 @@ export async function createPreview(ctx: ActionContext, tx: TenantTx, i: ActionI
   let order: string | undefined;
   let contact: string;
   if (i.order_id) {
-    const o = await visibleOrder(tx, ctx.authz, i.order_id);
+    const o = await visibleOrder(tx, ctx.authz, i.order_id, 'write');
     if (o.source === 'marketplace' || o.status === 'cancelled') throw new AppError('INVALID_STATE', 409, { order_id: o.source === 'marketplace' ? 'marketplace' : 'cancelled' });
     if (o.contactId !== i.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
     const open = await tx.invoice.findMany({ where: { orderId: o.id, status: { in: ['draft', 'sent', 'partial', 'overdue'] } }, select: { amount: true, paidAmount: true } });
     if (amount > o.total - o.paidTotal - open.reduce((a, x) => a + (x.amount - x.paidAmount), 0n)) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
     order = o.code;
     contact = (await tx.contact.findUnique({ where: { id: o.contactId }, select: { name: true } }))?.name ?? '';
-  } else contact = (await visibleContact(tx, ctx.authz, i.contact_id)).contact.name;
+  } else contact = (await editableContact(tx, ctx.authz, i.contact_id)).contact.name;
   const due = i.due_date ?? localDay(new Date(now.getTime() + INVOICE_DUE_DAYS * DAY), timeZone);
   if (due < localDay(now, timeZone)) throw new AppError('VALIDATION_FAILED', 422, { due_date: 'past' });
   return preview('write', line(contact, money(amount)), { changes: [created('invoice', { contact, order, kind: i.kind, amount: i.amount, due_date: due, title: i.title?.trim() || undefined })] });
 }
 
 export async function voidPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof invoiceVoid>): Promise<ActionPreview> {
-  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id);
+  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id, 'write');
   if (inv.paidAmount > 0n) throw new AppError('INVALID_STATE', 409, { invoice_id: 'paid' });
   const to = assertTransition(INVOICE_FLOW, inv.status, 'invoice.void');
   return preview('money', line(await label(tx, inv), money(inv.amount)), { changes: updated('invoice', inv.id, { status: inv.status, reason: null }, { status: to, reason: i.reason.trim() }) });
@@ -46,7 +46,7 @@ export async function voidPreview(ctx: ActionContext, tx: TenantTx, i: ActionInp
 /** Gửi đề nghị (risk send): mã + khách + còn phải thu; tin qua kênh (lần đầu kèm PDF, sau là nhắc) + trạng thái trước / sau. Trạng thái không
  * gửi được → 409 như execute. Không render PDF, không đăng tin. */
 export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof invoiceSendPaymentQr>): Promise<ActionPreview> {
-  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id);
+  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id, 'write');
   const to = assertTransition(INVOICE_FLOW, inv.status, 'invoice.send_payment_qr');
   const first = inv.status === 'draft';
   const due = String(inv.amount - inv.paidAmount);

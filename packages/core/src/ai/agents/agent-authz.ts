@@ -17,7 +17,9 @@ export function agentAuthz(agent: { id: string; toolIds: readonly string[] }, co
   const permissions = new Set([...own].filter((p) => commander.isOwner || commander.permissions.has(p)));
   // Scope của agent là `all` → giao = scope người ra lệnh.
   const scope = commander.isOwner ? { ...ALL } : { ...commander.scope };
+  // Scope ghi (TIP-042c) cũng theo người ra lệnh — agent không ghi rộng hơn người đó (CSKH: đọc crm all, ghi own).
+  const writeScope = commander.isOwner ? { ...ALL } : { ...(commander.writeScope ?? commander.scope) };
   // Có người ra lệnh → vai trò trường của người đó (Owner giữ `owner`, không phải toàn quyền tool).
   const roleKey = commander.isOwner ? 'owner' : (commander.roleKey ?? AGENT_FIELD_ROLE);
-  return { userId: commander.userId, isOwner: false, permissions, scope, teamIds: commander.teamIds, roleKey, ...(commander.teamUserIds ? { teamUserIds: commander.teamUserIds } : {}) };
+  return { userId: commander.userId, isOwner: false, permissions, scope, writeScope, teamIds: commander.teamIds, roleKey, ...(commander.teamUserIds ? { teamUserIds: commander.teamUserIds } : {}) };
 }

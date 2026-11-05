@@ -14,6 +14,7 @@ import { needPlatform } from '../../kernel/tenant/platform-read';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { poolUsers, ruleFor } from './routing.repo';
 import { eligibleUsers, leastBusy, loadOf, nextAfter } from './routing-selector';
+import { soleTeamOf } from '../../authz/data-access';
 
 export const LEAD_ROUTING_ACTOR = 'system:lead-routing';
 export const LEAD_ROUTING_TOPIC = 'lead.routing_requested';
@@ -77,9 +78,11 @@ export class LeadRoutingApplyHandler implements Handler<ActionInput<typeof leadR
     const user = rule.mode === 'least_busy' ? leastBusy(pool, eligible, await loadOf(tx, [...eligible]), last) : nextAfter(pool, eligible, rule.mode === 'by_channel' ? null : last);
     if (!user) return decide('no_eligible');
 
-    await tx.contact.update({ where: { id: p.contact_id }, data: { ownerUserId: user } });
+    // DC-299 (TIP-042c): nhóm của khách = nhóm của rule (pool theo nhóm) → nhóm duy nhất của người nhận; mơ hồ → null.
+    const team = rule.teamId ?? (await soleTeamOf(tx, user));
+    await tx.contact.update({ where: { id: p.contact_id }, data: { ownerUserId: user, teamId: team } });
     const assignConv = conv && conv.kind === 'direct' && conv.contact_id === p.contact_id && !conv.assignee_user_id ? conv.id : null;
-    if (assignConv) await tx.conversation.update({ where: { id: assignConv }, data: { assigneeUserId: user } });
+    if (assignConv) await tx.conversation.update({ where: { id: assignConv }, data: { assigneeUserId: user, teamId: team } });
     if (rule.mode !== 'by_channel') await tx.leadRoutingCursor.update({ where: { ruleId: rule.id }, data: { lastUserId: user } });
     const out = await decide(rule.mode, user, assignConv);
     return {
@@ -89,7 +92,7 @@ export class LeadRoutingApplyHandler implements Handler<ActionInput<typeof leadR
       events: [
         { topic: 'contact.owner_changed', payload: { contact_id: p.contact_id, from: null, to: user, move: { conversations: false, quotes: false, appointments: false }, auto: true, rule_id: rule.id } },
         ...(assignConv
-          ? [{ topic: 'conversation.assigned', payload: { conversation_id: assignConv, channel_account_id: p.channel_account_id ?? null, contact_id: p.contact_id, assignee_user_id: user, contact_owner_user_id: user, assignee_agent_id: null, by_user_id: null, auto: true, title: (conv?.title ?? c.name).slice(0, 200) } }]
+          ? [{ topic: 'conversation.assigned', payload: { conversation_id: assignConv, channel_account_id: p.channel_account_id ?? null, contact_id: p.contact_id, assignee_user_id: user, contact_owner_user_id: user, team_id: team, assignee_agent_id: null, by_user_id: null, auto: true, title: (conv?.title ?? c.name).slice(0, 200) } }]
           : []),
       ],
     };

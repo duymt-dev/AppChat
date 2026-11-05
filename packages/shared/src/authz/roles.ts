@@ -24,6 +24,8 @@ export interface RoleDef {
   key: SystemRole;
   permissions: readonly PermissionKey[];
   scope: Record<ScopeModule, DataScope>;
+  /** Scope ghi khác scope đọc (TIP-042c — metadata preset, không đổi tập permission); thiếu = bằng `scope`. */
+  writeScope?: Record<ScopeModule, DataScope>;
 }
 
 const OWNER_ONLY: readonly PermissionKey[] = [
@@ -57,6 +59,8 @@ export const ROLE_DEFS: Record<SystemRole, RoleDef> = {
       'assistant.use', 'ai_task.manage', 'insights.view',
     ],
     scope: { inbox: 'own', crm: 'all', sales: 'none', booking: 'own', support: 'own', insights: 'own' },
+    // Blueprint §3.5: CSKH crm "all (đọc) / own (sửa)".
+    writeScope: { inbox: 'own', crm: 'own', sales: 'none', booking: 'own', support: 'own', insights: 'own' },
   },
   accountant: {
     key: 'accountant',
@@ -74,6 +78,7 @@ export const authzForRole = (role: SystemRole, userId: string) => ({
   isOwner: role === 'owner',
   permissions: new Set(ROLE_DEFS[role].permissions),
   scope: ROLE_DEFS[role].scope,
+  writeScope: ROLE_DEFS[role].writeScope ?? ROLE_DEFS[role].scope,
   teamIds: [] as string[],
   roleKey: role as string,
 });

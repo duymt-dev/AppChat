@@ -105,7 +105,7 @@ export class InboundPipeline {
       const r = await this.identity.match(tx, who);
       contactId = r.kind === 'known' || r.kind === 'phone' ? r.contactId : (conv0?.contactId ?? null);
     }
-    const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, name: true, group: true } }) : null;
+    const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, teamId: true, name: true, group: true } }) : null;
 
     // 3. Hội thoại
     const preview = previewOf(m.kind, m.text ?? '');
@@ -145,6 +145,8 @@ export class InboundPipeline {
           title: m.isGroup ? interpolate(serverMessages('vi').inbox.groupTitle, { channel: account.name }) : null,
           // COMMERCE §8: khách có người phụ trách → gán người đó; chưa có → hàng chung (agent theo cấu hình kênh).
           assigneeUserId: m.isGroup ? null : (contact?.ownerUserId ?? null),
+          // DC-299: hội thoại 1-1 theo nhóm của khách; nhóm Zalo (không khách) → null (chỉ người được gán / all).
+          teamId: m.isGroup ? null : (contact?.teamId ?? null),
           assigneeAgentId: st.agent_id || null,
           aiMode: AI_MODE[st.ai_mode] ?? 'copilot',
           groupAiPolicy: m.isGroup ? 'mention' : null,
@@ -190,7 +192,7 @@ export class InboundPipeline {
 
     // 5. Event
     const title = conv.title ?? contact?.name ?? senderName ?? '';
-    const base = { conversation_id: conv.id, channel_account_id: account.id, contact_id: conv.contactId, assignee_user_id: conv.assigneeUserId, contact_owner_user_id: contact?.ownerUserId ?? null };
+    const base = { conversation_id: conv.id, channel_account_id: account.id, contact_id: conv.contactId, assignee_user_id: conv.assigneeUserId, contact_owner_user_id: contact?.ownerUserId ?? null, team_id: conv.teamId };
     const vip = contact?.group === 'vip' || (await this.hasVipTag(tx, contactId));
     events.push({ topic: 'message.received', payload: { ...base, message_id: msgId, new_conversation: isNew, is_group: m.isGroup, mentions_me: !!m.mentionsMe, vip, title } });
     if (isNew && conv.assigneeUserId) {

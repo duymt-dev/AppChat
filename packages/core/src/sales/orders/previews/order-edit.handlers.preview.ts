@@ -11,7 +11,7 @@ import { EMPTY_SHIPPING, itemsOf, payCols, totalsOf, type Shipping } from '../se
 import { label } from './order-create.handlers.preview';
 
 async function editable(ctx: ActionContext, tx: TenantTx, id: string, action: string) {
-  const o = await visibleOrder(tx, ctx.authz, id);
+  const o = await visibleOrder(tx, ctx.authz, id, 'write');
   assertTransition(ORDER_FLOW, o.status, action);
   return o;
 }
@@ -44,7 +44,7 @@ export async function depositPreview(ctx: ActionContext, tx: TenantTx, i: Action
 }
 
 export async function shippingPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof orderUpdateShipping>): Promise<ActionPreview> {
-  const o = await visibleOrder(tx, ctx.authz, i.order_id);
+  const o = await visibleOrder(tx, ctx.authz, i.order_id, 'write');
   if (!SHIPPING_EDITABLE.includes(o.status)) throw new AppError('INVALID_TRANSITION', 409, { status: o.status });
   const cur: Shipping = { ...EMPTY_SHIPPING, ...(o.shipping as Partial<Shipping>) };
   const next = defined(Object.fromEntries(Object.entries(i.shipping).map(([k, v]) => [k, v === undefined ? undefined : String(v ?? '').trim()])));

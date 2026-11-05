@@ -76,7 +76,7 @@ export class ContractCreateAppendixHandler implements Handler<CreateIn, { contra
   }
 
   async preview(ctx: ActionContext, input: CreateIn, tx: TenantTx) {
-    const c = await visibleContract(tx, ctx.authz, input.contract_id);
+    const c = await visibleContract(tx, ctx.authz, input.contract_id, 'write');
     if (c.status !== 'signed') throw new AppError('INVALID_STATE', 409, { contract: c.status });
     return preview('write', line(c.code, input.title), { changes: [created('appendix', { contract: c.code, title: input.title, value_delta: input.value_delta, source: input.file_id ? 'file' : 'content' })] });
   }
@@ -108,7 +108,7 @@ export class ContractAppendixUpdateHandler implements Handler<ActionInput<typeof
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractAppendixUpdate>, tx: TenantTx) {
-    const { a } = await visibleAppendix(tx, ctx.authz, input.appendix_id);
+    const { a } = await visibleAppendix(tx, ctx.authz, input.appendix_id, 'write');
     assertTransition(APPENDIX_FLOW, a.status, 'contract.appendix_update');
     const cur = { title: a.title, content: a.bodyHtml, value_delta: a.valueDelta === null ? null : String(a.valueDelta), note: a.note };
     return preview('write', line(a.code, a.title), { changes: updated('appendix', a.id, cur, input.patch) });
@@ -125,7 +125,7 @@ async function move(ctx: ActionContext, tx: TenantTx, members: CrmMembers, id: s
 }
 
 async function movePreview(ctx: ActionContext, tx: TenantTx, id: string, action: string, reason?: string) {
-  const { a } = await visibleAppendix(tx, ctx.authz, id);
+  const { a } = await visibleAppendix(tx, ctx.authz, id, 'write');
   const to = assertTransition(APPENDIX_FLOW, a.status, action);
   return preview('write', line(a.code, a.title), { changes: updated('appendix', a.id, { status: a.status }, { status: to, reason: reason?.trim() || undefined }) });
 }

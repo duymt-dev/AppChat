@@ -36,7 +36,7 @@ export class ContractAppendixSendHandler implements Handler<In, Out> {
   async prepare(ctx: ActionContext, input: In): Promise<IssuedAppendixLink> {
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'contract.appendix_send'));
     await db.$transaction(async (tx) => {
-      const { a, c } = await visibleAppendix(tx, ctx.authz, input.appendix_id);
+      const { a, c } = await visibleAppendix(tx, ctx.authz, input.appendix_id, 'write');
       assertTransition(APPENDIX_FLOW, a.status, 'contract.appendix_send');
       await reachCustomer(tx, await tx.contact.findUniqueOrThrow({ where: { id: c.contactId }, select: { id: true, email: true } }), input.channel);
     });
@@ -75,7 +75,7 @@ export class ContractAppendixSendHandler implements Handler<In, Out> {
   }
 
   async preview(ctx: ActionContext, input: In, tx: TenantTx) {
-    const { a, c } = await visibleAppendix(tx, ctx.authz, input.appendix_id);
+    const { a, c } = await visibleAppendix(tx, ctx.authz, input.appendix_id, 'write');
     const to = assertTransition(APPENDIX_FLOW, a.status, 'contract.appendix_send');
     const contact = await tx.contact.findUnique({ where: { id: c.contactId }, select: { name: true } });
     return preview('send', line(a.code, contact?.name), { changes: updated('appendix', a.id, { status: a.status }, { status: to, channel: input.channel }) });

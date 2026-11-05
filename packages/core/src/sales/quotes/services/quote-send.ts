@@ -37,7 +37,7 @@ export async function reachCustomer(tx: TenantTx, c: { id: string; email: string
 }
 
 /** Hội thoại gửi được của khách trên loại kênh; email chưa có thì mở chuỗi mới. Không có → 409. */
-export async function customerConversation(tx: TenantTx, c: { id: string; name: string; email: string | null; ownerUserId: string | null }, channel: QuoteChannel, subject: string, now: Date): Promise<{ conv: Conv; created: boolean }> {
+export async function customerConversation(tx: TenantTx, c: { id: string; name: string; email: string | null; ownerUserId: string | null; teamId?: string | null }, channel: QuoteChannel, subject: string, now: Date): Promise<{ conv: Conv; created: boolean }> {
   const r = await reachCustomer(tx, c, channel);
   if (r.conv) return { conv: r.conv, created: false };
   const { to, account } = r;
@@ -46,7 +46,7 @@ export async function customerConversation(tx: TenantTx, c: { id: string; name: 
   if (!(await tx.contactIdentity.findUnique({ where: key, select: { id: true } })))
     await tx.contactIdentity.create({ data: { id: uuidv7(now.getTime()), contactId: c.id, channelType: 'email', channelAccountId: account.id, externalId: to, displayName: c.name, createdAt: now } });
   const conv = await tx.conversation.create({
-    data: { id: uuidv7(now.getTime()), channelAccountId: account.id, channelType: 'email', contactId: c.id, kind: 'direct', externalThreadId: threadId, assigneeUserId: c.ownerUserId, lastMessageAt: now, createdAt: now },
+    data: { id: uuidv7(now.getTime()), channelAccountId: account.id, channelType: 'email', contactId: c.id, kind: 'direct', externalThreadId: threadId, assigneeUserId: c.ownerUserId, teamId: c.teamId ?? null, lastMessageAt: now, createdAt: now },
   });
   await openEmailThread(tx, { channelAccountId: account.id, threadId, address: to, subject, now });
   return { conv, created: true };
