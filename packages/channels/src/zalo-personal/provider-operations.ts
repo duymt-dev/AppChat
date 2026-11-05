@@ -4,7 +4,7 @@
 import { ChannelOperationError, type ChannelOperations, type GroupLink, type ProviderEvent, type ProviderMessageRef, type ReactionEmoji } from '../operations';
 import { ChannelNotRunningError } from '../types';
 import { ZALO_REACTION, ZALO_REACTION_NONE, assertCallable, emojiOfZalo } from './provider-refs';
-import type { ZaloRawMessage, ZaloRawReaction, ZaloRawUndo, ZaloSession } from './transport';
+import type { ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession } from './transport';
 
 /** Số thành viên tối đa mỗi lần thêm (025b: ≤ 50 định danh đã biết). */
 export const MAX_ADD_MEMBERS = 50;
@@ -29,6 +29,12 @@ export function reactionEvent(accountId: string, r: ZaloRawReaction): ProviderEv
   const emoji = emojiOfZalo(r.icon);
   if (emoji === undefined) return null;
   return { kind: 'reaction', accountId, key: `react:${r.uidFrom}:${r.msgIds.join(',')}:${r.ts}`, threadId: r.threadId, isGroup: r.isGroup, msgIds: r.msgIds, actorId: r.uidFrom, self: r.isSelf, emoji, at: iso(r.ts) };
+}
+
+/** Biên nhận → sự kiện; key theo (loại, msgId, người) — event lặp lại / tới lệch thứ tự xử lý idempotent ở core. */
+export function receiptEvent(accountId: string, r: ZaloRawReceipt): ProviderEvent | null {
+  if (!r.msgIds.length || !r.uids.length) return null;
+  return { kind: r.kind, accountId, key: `${r.kind}:${r.msgIds.join(',')}:${[...r.uids].sort().join(',')}`, threadId: r.threadId, isGroup: r.isGroup, msgIds: r.msgIds, recipients: r.uids, at: iso(r.ts) };
 }
 
 export function zaloOperations(session: (accountId: string) => ZaloSession): ChannelOperations {

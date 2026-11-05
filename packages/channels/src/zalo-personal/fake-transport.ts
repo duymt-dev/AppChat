@@ -2,7 +2,7 @@
 // phiên giả ghi tin đã gửi, bơm tin vào / đá phiên / làm lỗi gửi để test. Chỉ bật bằng ZALO_TRANSPORT=fake (cấm production).
 import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
-import { ZALO_CLOSE, type ZaloCredentials, type ZaloGroupInfo, type ZaloProfile, type ZaloRawMessage, type ZaloRawReaction, type ZaloRawUndo, type ZaloSession, type ZaloStyle, type ZaloTransport } from './transport';
+import { ZALO_CLOSE, type ZaloCredentials, type ZaloGroupInfo, type ZaloProfile, type ZaloRawMessage, type ZaloRawReaction, type ZaloRawReceipt, type ZaloRawUndo, type ZaloSession, type ZaloStyle, type ZaloTransport } from './transport';
 
 /** PNG 1×1 — đủ để FE hiện ảnh `data:image/png;base64,…`. */
 export const FAKE_QR_PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -46,6 +46,7 @@ export class FakeZaloSession implements ZaloSession {
   private selfCb: ((m: ZaloRawMessage) => void)[] = [];
   private undoCb: ((u: ZaloRawUndo) => void)[] = [];
   private reactCb: ((r: ZaloRawReaction) => void)[] = [];
+  private receiptCb: ((r: ZaloRawReceipt) => void)[] = [];
   /** Lệnh thao tác đã gọi. */
   readonly ops: FakeOp[] = [];
   /** Lệnh thao tác kế tiếp: `reject` (nhà cung cấp trả lỗi rõ) / `hang` (treo — kiểm unknown) / `fail` (lỗi mạng). */
@@ -83,6 +84,15 @@ export class FakeZaloSession implements ZaloSession {
   }
   onReaction(cb: (r: ZaloRawReaction) => void) {
     this.reactCb.push(cb);
+  }
+  onReceipt(cb: (r: ZaloRawReceipt) => void) {
+    this.receiptCb.push(cb);
+  }
+
+  /** Biên nhận đã nhận / đã xem từ kênh. */
+  emitReceipt(r: Partial<ZaloRawReceipt> & { kind: 'delivered' | 'seen'; msgIds: string[] }) {
+    if (!this.running) return;
+    for (const cb of this.receiptCb) cb({ isGroup: false, threadId: 'zl_khach', uids: ['zl_khach'], ts: String(Date.now()), ...r });
   }
 
   /** Khách thu hồi / tài khoản thu hồi từ điện thoại (sự kiện `undo` của kênh). */

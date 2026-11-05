@@ -79,6 +79,10 @@ enum MessageStatus {
   delivered
   read
   failed
+  /// TIP-014b B: tin nhiều phần — một số phần đã tới khách, phần khác lỗi. Không gửi lại cả tin.
+  partial
+  /// TIP-014b B: đã gọi kênh nhưng không biết kết quả (mạng / hết giờ sau đặt chỗ) — không tự gửi lại.
+  unknown
 
   @@map("message_status")
 }
@@ -98,6 +102,8 @@ enum OutboxMessageStatus {
   sent
   failed
   dead
+  /// TIP-014b B: đã đặt chỗ gửi, kết quả không biết — không tự gửi lại.
+  unknown
 
   @@map("outbox_message_status")
 }

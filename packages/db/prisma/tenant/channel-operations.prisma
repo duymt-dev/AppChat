@@ -95,3 +95,48 @@ model MessageAccountReaction {
 
   @@map("message_account_reaction")
 }
+
+enum SendPartStatus {
+  /// Đã ghi, chưa gọi kênh.
+  pending
+  /// Đã đặt chỗ gọi kênh cho phần này — sập / hết giờ sau mốc này thành `unknown`, không gửi lại mù.
+  dispatch_reserved
+  confirmed_sent
+  definite_failure
+  unknown
+
+  @@map("send_part_status")
+}
+
+/// Từng phần của một lần gửi ra kênh (TIP-014b B): tin chữ chia đoạn / tệp. Khoá (outbox_message_id, part_no). Phần đã `confirmed_sent` không
+/// bao giờ gửi lại; phần `unknown` chỉ người vận hành quyết (gửi mới có cảnh báo trùng). Tệp lưu `file_id` + sha256 (không chỉ link ký).
+model OutboxSendPart {
+  outboxMessageId  String         @map("outbox_message_id") @db.Uuid
+  partNo           Int            @map("part_no")
+  channelAccountId String         @map("channel_account_id") @db.Uuid
+  /// sha256 nội dung phần (chữ đã render / byte tệp đã tải — không theo link ký) — gửi lại cùng phần phải cùng hash.
+  contentHash      String         @map("content_hash")
+  status           SendPartStatus @default(pending)
+  msgId            String?        @map("msg_id")
+  error            String?
+  /// Thế hệ phiên tài khoản lúc đặt chỗ (pha C — fence).
+  generation       Int            @default(0)
+  attemptedAt      DateTime?      @map("attempted_at") @db.Timestamptz(6)
+  confirmedAt      DateTime?      @map("confirmed_at") @db.Timestamptz(6)
+  traceId          String?        @map("trace_id")
+
+  @@id([outboxMessageId, partNo])
+  @@map("outbox_send_part")
+}
+
+/// Biên nhận đã nhận / đã xem từ kênh (TIP-014b B) — một dòng mỗi (tin, người nhận). Nhóm: bằng chứng theo từng người (không suy "cả nhóm đã
+/// xem" từ một người). Trạng thái chỉ tăng: sent < delivered < read.
+model MessageReceipt {
+  messageId   String    @map("message_id") @db.Uuid
+  recipientId String    @map("recipient_id")
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamptz(6)
+  readAt      DateTime? @map("read_at") @db.Timestamptz(6)
+
+  @@id([messageId, recipientId])
+  @@map("message_receipt")
+}

@@ -9,7 +9,8 @@ import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
-import { ChannelSendQueue, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { ChannelSendQueue, registerSendBooks, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { inboxSendBooks } from '../services/send-book';
 import { reserveDispatch } from '../../ai/reply/send-fence';
 import { ChannelsModule } from '../../channels/channels.module';
 import { AgentReplyQueue } from '../../ai/reply/reply.queue';
@@ -49,6 +50,8 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     registerSendResultSink('inbox', sendResultSink(d));
     // Tin agent: đặt chỗ gửi dưới khoá hội thoại trước khi gọi kênh (người tiếp quản trước → không gửi — TIP-045b annex D).
     registerSendReserver(async (ws, refId) => (await reserveDispatch(await tenants.get(TenantContexts.fromRoute(ws, 'channel')), refId, this.clock.now())) !== 'rejected');
+    // Sổ gửi từng phần (TIP-014b B): chạy lại job không gửi lại phần đã xác nhận; phần treo → unknown.
+    registerSendBooks(inboxSendBooks(tenants, () => this.clock.now()));
     this.timer = setInterval(() => void sweepOutbox(d).catch((err: unknown) => this.log.warn({ err }, 'inbox outbox sweep failed')), OUTBOX_SWEEP_MS);
   }
 
@@ -56,6 +59,7 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (this.timer) clearInterval(this.timer);
     unregisterSendResultSink('inbox');
     registerSendReserver(null);
+    registerSendBooks(null);
     await this.worker?.close();
     await this.reply?.onApplicationShutdown();
   }

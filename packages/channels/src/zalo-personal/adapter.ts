@@ -2,11 +2,12 @@
 // 1-1 + nhóm), gửi chữ (rich text, chia đoạn) / ảnh / file / sticker, probe, đồng bộ tin cũ, tạo nhóm (TIP-023b). Giới hạn tốc độ + lease ở worker.
 // TIP-014b: thao tác thu hồi / cảm xúc / đọc nhóm qua `operations` (provider-operations.ts); sự kiện self-listen / thu hồi / cảm xúc từ
 // kênh → `sink.event` (lỗi sink ghi lại, không nuốt im lặng); gửi trả tham chiếu từng phần (`parts`) theo thứ tự.
-import type { ProviderEvent, ProviderMessageRef } from '../operations';
+import { createHash } from 'node:crypto';
+import type { ProviderEvent, ProviderMessageRef, SendLedger } from '../operations';
 import { ChannelAuthError, ChannelNotRunningError, PartialSendError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage, type SendReceipt } from '../types';
 import { zaloPersonalManifest } from './manifest';
 import { normalizeZalo } from './normalize';
-import { reactionEvent, selfRefEvent, undoEvent, zaloOperations } from './provider-operations';
+import { reactionEvent, receiptEvent, selfRefEvent, undoEvent, zaloOperations } from './provider-operations';
 import { renderChunks } from './render';
 import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, type ZaloSession, type ZaloTransport } from './transport';
 
@@ -26,6 +27,8 @@ interface Running {
   /** Ngưỡng ngày của lần đồng bộ lịch sử đang chạy (null = không đồng bộ). */
   historySince: number | null;
 }
+
+const partHash = (s: string) => createHash('sha256').update(s).digest('hex');
 
 const fileName = (name: string | undefined, mime: string, i: number): string => {
   if (name && /\.[a-z0-9]+$/i.test(name)) return name;
@@ -66,6 +69,7 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     session.onSelfMessage((m) => emit(selfRefEvent(account.id, m)));
     session.onUndo((u) => emit(undoEvent(account.id, u)));
     session.onReaction((r) => emit(reactionEvent(account.id, r)));
+    session.onReceipt((r) => emit(receiptEvent(account.id, r)));
     session.onOldMessages((ms) => {
       const since = run.historySince;
       if (since === null) return;
@@ -104,30 +108,46 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     if (days > 0) r.session.requestOldMessages();
   }
 
-  async send(accountId: string, msg: OutboundMessage): Promise<SendReceipt> {
+  /**
+   * Gửi theo từng phần (chữ chia đoạn = mỗi đoạn một phần; tệp / sticker = một phần). Có `ledger` (TIP-014b B): đặt chỗ bền trước mỗi lần
+   * gọi kênh, ghi xác nhận ngay sau ACK — chạy lại sau sập bỏ qua phần đã xác nhận, không gửi lại.
+   */
+  async send(accountId: string, msg: OutboundMessage, ledger?: SendLedger): Promise<SendReceipt> {
     const { session } = this.session(accountId);
     const group = !!msg.isGroup;
     const max = this.manifest.capabilities.maxTextLength;
     // cliMsgId chưa biết lúc gửi (SDK chỉ trả msgId) — bổ sung khi self-event khớp đúng msgId (core).
     const ref = (msgId: string): ProviderMessageRef => ({ threadId: msg.externalThreadId, isGroup: group, msgId, cliMsgId: null, senderId: session.ownId });
-    const done = (ids: string[]): SendReceipt => ({ externalMsgId: ids.at(-1) ?? '', parts: ids.filter(Boolean).map(ref) });
-    const ids: string[] = [];
+    const parts: ProviderMessageRef[] = [];
+    const done = (): SendReceipt => ({ externalMsgId: parts.at(-1)?.msgId ?? '', parts: [...parts] });
+    const step = async (partNo: number, hash: string, call: () => Promise<string>) => {
+      const r = ledger ? await ledger.reserve(partNo, hash) : 'send';
+      if (r !== 'send') return void parts.push(r.skip);
+      const p = ref(await call());
+      parts.push(p);
+      await ledger?.confirm(partNo, p);
+    };
     try {
       if (msg.kind === 'sticker') {
         const s = msg.sticker ?? {};
-        return done([await session.sendSticker(msg.externalThreadId, group, { id: s.id ?? 0, cateId: s.cateId ?? 0, type: s.type ?? 1 })]);
+        await step(0, partHash(`sticker:${s.id ?? 0}:${s.cateId ?? 0}`), () => session.sendSticker(msg.externalThreadId, group, { id: s.id ?? 0, cateId: s.cateId ?? 0, type: s.type ?? 1 }));
+        return done();
       }
       if ((msg.kind === 'image' || msg.kind === 'file') && msg.attachments?.length) {
+        const text = (msg.text ?? '').slice(0, max);
+        // Tải tệp TRƯỚC khi đặt chỗ phần: lỗi tải = chưa gọi kênh → thử lại an toàn. Hash theo nội dung tệp (không theo link).
         const files: ZaloFile[] = [];
         for (const [i, a] of msg.attachments.entries()) files.push({ data: await this.files(a.url), filename: fileName(a.name, a.mime, i) });
-        return done([await session.sendFiles(msg.externalThreadId, group, (msg.text ?? '').slice(0, max), files)]);
+        const digest = files.map((f) => createHash('sha256').update(f.data).digest('hex')).join('|');
+        await step(0, partHash(`files:${text}:${digest}`), () => session.sendFiles(msg.externalThreadId, group, text, files));
+        return done();
       }
-      for (const part of renderChunks(msg.text ?? '', max)) ids.push(await session.sendText(msg.externalThreadId, group, part.msg, part.styles));
-      return done(ids);
+      for (const [i, part] of renderChunks(msg.text ?? '', max).entries()) await step(i, partHash(`text:${part.msg}`), () => session.sendText(msg.externalThreadId, group, part.msg, part.styles));
+      return done();
     } catch (err) {
       if (err instanceof ChannelAuthError) await this.stop(accountId);
       // Đã gửi được một phần (chia đoạn) rồi lỗi → trả phần đã có ACK, không để core gửi lại cả tin.
-      if (ids.length) throw new PartialSendError(done(ids), err);
+      if (parts.length) throw new PartialSendError(done(), err);
       throw err;
     }
   }

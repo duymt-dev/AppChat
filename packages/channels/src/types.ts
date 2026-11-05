@@ -1,6 +1,6 @@
 // Hợp đồng kênh (standards/channels/omnichannel-adapter.md → Hợp đồng; Blueprint §6). Core chỉ biết các kiểu này.
 import type { z } from 'zod';
-import type { ChannelOperations, OperationCapabilities, ProviderEvent, ProviderMessageRef } from './operations';
+import type { ChannelOperations, OperationCapabilities, ProviderEvent, ProviderMessageRef, SendLedger } from './operations';
 
 export type ChannelStatus = 'ga' | 'beta' | 'coming_soon';
 export type ConnectKind = 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed';
@@ -118,7 +118,7 @@ export interface ChannelAdapter {
   /** `session = 'poll'` (email — TIP-018): tin mới từ mốc `cursor` (core lưu nguyên giá trị trả về, lần đầu `null`). */
   poll?(accountId: string, cursor: unknown, now?: Date): Promise<{ messages: NormalizedInbound[]; cursor: unknown }>;
   /** `externalMsgId` = id đại diện (tương thích cũ); `parts` = tham chiếu từng phần đã gửi theo thứ tự (TIP-014b) khi kênh có. */
-  send(accountId: string, msg: OutboundMessage): Promise<SendReceipt>;
+  send(accountId: string, msg: OutboundMessage, ledger?: SendLedger): Promise<SendReceipt>;
   probe(accountId: string): Promise<HealthStatus>;
   /**
    * `capabilities.createGroup`: tạo nhóm với các id phía kênh đã biết. Chưa chạy phiên → ChannelNotRunningError TRƯỚC khi gọi nhà cung

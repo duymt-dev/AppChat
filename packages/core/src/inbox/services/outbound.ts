@@ -105,7 +105,7 @@ export async function enqueueOutgoing(queue: ChannelSendQueue | null, ws: string
 /** Kết quả gửi → outbox + message + event (`message.sent` / `message.failed`). null = không phải tin của inbox. */
 export async function applySendResult(tx: TenantTx, r: SendResult, now: Date): Promise<OutboxEventInput[] | null> {
   const ob = await tx.outboxMessage.findUnique({ where: { id: r.ref_id } });
-  if (!ob || ob.status === 'sent' || ob.status === 'dead') return ob ? [] : null;
+  if (!ob || ob.status === 'sent' || ob.status === 'dead' || ob.status === 'unknown') return ob ? [] : null;
   const msg = await tx.message.findUnique({ where: { id: ob.messageId } });
   const conv = msg ? await tx.conversation.findUnique({ where: { id: msg.conversationId } }) : null;
   if (!msg || !conv) return [];
@@ -121,6 +121,12 @@ export async function applySendResult(tx: TenantTx, r: SendResult, now: Date): P
     return [{ topic: 'message.sent', payload: { ...base, sender_type: msg.senderType === 'contact' ? 'system' : msg.senderType, sender_id: msg.senderId } }];
   }
   const error = r.error.slice(0, 200);
+  // Một phần đã tới khách / không rõ đã tới chưa (TIP-014b B): final, không gửi lại — tin hiện đúng trạng thái, không giả "lỗi".
+  if (r.outcome) {
+    await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: r.outcome === 'unknown' ? 'unknown' : 'dead', attempts: ob.attempts + 1, lastError: error } });
+    await tx.message.update({ where: { id: msg.id }, data: { status: r.outcome, error } });
+    return [{ topic: 'message.updated', payload: { ...base, change: 'status' } }];
+  }
   if (!r.final) {
     await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'sending', attempts: ob.attempts + 1, lastError: error } });
     return [];

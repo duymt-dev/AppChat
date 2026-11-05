@@ -3,7 +3,7 @@
 // kết quả trả về qua SendResultSink do domain gọi đăng ký (ghi `message.status`, `external_msg_id`).
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import type { OutboundMessage, ProviderMessageRef } from '@appchat/channels';
+import type { OutboundMessage, ProviderMessageRef, SendLedger } from '@appchat/channels';
 
 export const sendQueueName = (accountId: string) => `chsend-${accountId}`;
 
@@ -23,7 +23,13 @@ export interface SendJob {
  */
 export type SendResult =
   | { ok: true; ws: string; account_id: string; ref_id: string; external_msg_id: string; parts?: ProviderMessageRef[] }
-  | { ok: false; ws: string; account_id: string; ref_id: string; error: string; final: boolean; parts?: ProviderMessageRef[] };
+  | { ok: false; ws: string; account_id: string; ref_id: string; error: string; final: boolean; parts?: ProviderMessageRef[]; outcome?: SendOutcome };
+
+/**
+ * Kết quả lỗi trung thực (TIP-014b B): `partial` = một số phần đã tới khách; `unknown` = đã gọi kênh mà không biết kết quả (mất kết
+ * nối / sập giữa chừng) — cả hai là final, KHÔNG tự gửi lại; vắng = lỗi thường (chưa tới khách).
+ */
+export type SendOutcome = 'partial' | 'unknown';
 
 export type SendResultSink = (r: SendResult) => Promise<void>;
 
@@ -31,8 +37,15 @@ const SINKS = new Map<string, SendResultSink>();
 /** Domain đăng ký nhận kết quả gửi (TIP-016 `inbox`, TIP-037 `campaign`). */
 export const registerSendResultSink = (name: string, s: SendResultSink) => void SINKS.set(name, s);
 export const unregisterSendResultSink = (name: string) => void SINKS.delete(name);
-export async function emitSendResult(r: SendResult): Promise<void> {
-  for (const s of SINKS.values()) await s(r).catch(() => undefined);
+/**
+ * `strict` (gửi có sổ từng phần — TIP-014b B): lỗi ghi kết quả ném ra → BullMQ chạy lại job; sổ bỏ qua phần đã xác nhận nên lần sau chỉ
+ * phát lại kết quả, không gửi trùng. Không có sổ → nuốt lỗi như cũ (chạy lại sẽ gửi lại cả tin).
+ */
+export async function emitSendResult(r: SendResult, strict = false): Promise<void> {
+  for (const s of SINKS.values()) {
+    if (strict) await s(r);
+    else await s(r).catch(() => undefined);
+  }
 }
 
 /** Đặt chỗ gửi (TIP-045b annex D): domain gửi tin agent đăng ký (`inbox`) — false = bị từ chối, không gọi kênh. */
@@ -41,6 +54,19 @@ let RESERVER: SendReserver | null = null;
 export const registerSendReserver = (r: SendReserver | null) => void (RESERVER = r);
 /** Chưa có domain đăng ký → gửi như cũ. Lỗi đặt chỗ ném ra để BullMQ thử lại (không gửi khi chưa chắc). */
 export const reserveSend: SendReserver = (ws, refId) => (RESERVER ? RESERVER(ws, refId) : Promise.resolve(true));
+
+/**
+ * Sổ gửi từng phần (TIP-014b B): domain sở hữu bản ghi gửi (`inbox` — outbox_message) cấp sổ cho job; `fail` ghi phần đang đặt chỗ là
+ * lỗi chắc chắn / chưa rõ và trả số phần bị ảnh hưởng (> 0 = đã gọi kênh). null = không có bản ghi (job thử nghiệm) → gửi như cũ.
+ */
+export interface SendBook {
+  ledger: SendLedger;
+  fail(definite: boolean, error: string): Promise<number>;
+}
+export type SendBooks = (ws: string, accountId: string, job: SendJob) => Promise<SendBook | null>;
+let BOOKS: SendBooks | null = null;
+export const registerSendBooks = (b: SendBooks | null) => void (BOOKS = b);
+export const sendBookFor: SendBooks = (ws, accountId, job) => (BOOKS ? BOOKS(ws, accountId, job) : Promise.resolve(null));
 
 export const SEND_ATTEMPTS = 5;
 

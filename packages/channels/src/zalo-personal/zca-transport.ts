@@ -7,7 +7,7 @@ import { CloseReason, LoginQRCallbackEventType, ThreadType, Zalo, ZaloApiError, 
 import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
 import { zaloId } from './provider-refs';
-import type { ZaloCredentials, ZaloGroupInfo, ZaloProfile, ZaloRawMessage, ZaloRawReaction, ZaloRawUndo, ZaloSession, ZaloStyle, ZaloTransport } from './transport';
+import type { ZaloCredentials, ZaloGroupInfo, ZaloProfile, ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession, ZaloStyle, ZaloTransport } from './transport';
 
 /** zca-js hết hạn QR sau 100 giây (apis/loginQR.js). */
 const QR_TTL_MS = 100_000;
@@ -56,6 +56,29 @@ class ZcaSession implements ZaloSession {
     });
   }
 
+  onReceipt(cb: (r: ZaloRawReceipt) => void): void {
+    // delivered_messages: { msgId, seen, deliveredUids, seenUids, realMsgId, mSTs } (+ groupId với nhóm). Không có msgId an toàn → bỏ.
+    this.api.listener.on('delivered_messages', (ds) => {
+      for (const d of ds) {
+        const msgId = zaloId(d.data.msgId);
+        if (!msgId) continue;
+        const group = d.type === ThreadType.Group;
+        cb({ kind: 'delivered', isGroup: group, threadId: d.threadId, msgIds: [msgId], uids: group ? (d.data.deliveredUids ?? []) : [d.threadId], ts: String(d.data.mSTs ?? '') });
+        if (d.data.seen && d.data.seenUids?.length) cb({ kind: 'seen', isGroup: group, threadId: d.threadId, msgIds: [msgId], uids: group ? d.data.seenUids : [d.threadId], ts: String(d.data.mSTs ?? '') });
+      }
+    });
+    // seen_messages: 1-1 { idTo, msgId, realMsgId } · nhóm { msgId, groupId, seenUids }.
+    this.api.listener.on('seen_messages', (ss) => {
+      for (const s of ss) {
+        const msgId = zaloId(s.data.msgId);
+        if (!msgId) continue;
+        const group = s.type === ThreadType.Group;
+        const uids = group ? ((s.data as { seenUids?: string[] }).seenUids ?? []) : [s.threadId];
+        cb({ kind: 'seen', isGroup: group, threadId: s.threadId, msgIds: [msgId], uids, ts: '' });
+      }
+    });
+  }
+
   onReaction(cb: (r: ZaloRawReaction) => void): void {
     this.api.listener.on('reaction', (r) => {
       const msgIds = (r.data.content?.rMsg ?? []).map((x) => zaloId(x.gMsgID)).filter((x): x is string => !!x);
@@ -85,16 +108,16 @@ class ZcaSession implements ZaloSession {
   }
 
   async sendText(threadId: string, isGroup: boolean, msg: string, styles: ZaloStyle[]): Promise<string> {
-    return msgId(await this.api.sendMessage({ msg, styles: styles as unknown as Style[] }, threadId, thread(isGroup)));
+    return msgId(await rejected(() => this.api.sendMessage({ msg, styles: styles as unknown as Style[] }, threadId, thread(isGroup))));
   }
 
   async sendFiles(threadId: string, isGroup: boolean, text: string, files: { data: Buffer; filename: string }[]): Promise<string> {
     const attachments = files.map((f) => ({ data: f.data, filename: f.filename as `${string}.${string}`, metadata: { totalSize: f.data.length } }));
-    return msgId(await this.api.sendMessage({ msg: text, attachments }, threadId, thread(isGroup)));
+    return msgId(await rejected(() => this.api.sendMessage({ msg: text, attachments }, threadId, thread(isGroup))));
   }
 
   async sendSticker(threadId: string, isGroup: boolean, sticker: { id: number; cateId: number; type: number }): Promise<string> {
-    return String((await this.api.sendSticker(sticker, threadId, thread(isGroup))).msgId);
+    return String((await rejected(() => this.api.sendSticker(sticker, threadId, thread(isGroup)))).msgId);
   }
 
   async createGroup(name: string, members: string[]): Promise<{ groupId: string; added: string[]; failed: string[] }> {

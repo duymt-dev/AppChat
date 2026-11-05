@@ -78,7 +78,32 @@ export interface ChannelOperations {
 export type ProviderEvent =
   | { kind: 'self_ref'; accountId: string; key: string; ref: ProviderMessageRef; at: string }
   | { kind: 'recalled'; accountId: string; key: string; threadId: string; isGroup: boolean; msgId: string; actorId: string; self: boolean; at: string }
-  | { kind: 'reaction'; accountId: string; key: string; threadId: string; isGroup: boolean; msgIds: string[]; actorId: string; self: boolean; emoji: ReactionEmoji | null; at: string };
+  | { kind: 'reaction'; accountId: string; key: string; threadId: string; isGroup: boolean; msgIds: string[]; actorId: string; self: boolean; emoji: ReactionEmoji | null; at: string }
+  | ReceiptEvent;
+
+/**
+ * Sổ gửi từng phần (TIP-014b B) — core cấp cho `send` để lưu bền trước / sau mỗi lần gọi kênh:
+ * - `reserve(partNo, hash)` TRƯỚC khi gọi kênh cho phần: `send` = gọi; `{ skip: ref }` = phần đã xác nhận ở lần chạy trước (không gọi lại);
+ *   ném lỗi = dừng (phần đang treo từ lần trước → không biết đã tới khách chưa, không gửi lại mù).
+ * - `confirm(partNo, ref)` ngay sau ACK của phần, trước khi sang phần kế.
+ * Lỗi trong lúc gọi kênh sau `reserve`: adapter ném nguyên lỗi — core phân loại (từ chối rõ → lỗi chắc chắn; còn lại → chưa rõ).
+ */
+export interface SendLedger {
+  reserve(partNo: number, hash: string): Promise<'send' | { skip: ProviderMessageRef }>;
+  confirm(partNo: number, ref: ProviderMessageRef): Promise<void>;
+}
+
+/** Biên nhận đã nhận / đã xem từ kênh (TIP-014b B). Nhóm: `recipients` = người có bằng chứng (không suy cả nhóm). */
+export interface ReceiptEvent {
+  kind: 'delivered' | 'seen';
+  accountId: string;
+  key: string;
+  threadId: string;
+  isGroup: boolean;
+  msgIds: string[];
+  recipients: string[];
+  at: string;
+}
 
 /** Thao tác bị từ chối trước khi gọi kênh (không có tham chiếu / không hỗ trợ / tài khoản thiếu quyền phía kênh). */
 export class ChannelOperationError extends Error {

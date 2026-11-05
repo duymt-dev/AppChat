@@ -135,7 +135,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
               {files}
               {body || !files ? text : null}
               {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
-              <MessageProviderStatus op={m.provider_op} />
+              <MessageProviderStatus op={m.provider_op} status={m.status} />
               <div className={cx(styles.stamp, styles.stampOut)}>
                 {/* Tin gửi đi hiện tên người gửi (REQ-C13) */}
                 {m.sender ? <b className={styles.senderOut}>{m.sender}</b> : null}

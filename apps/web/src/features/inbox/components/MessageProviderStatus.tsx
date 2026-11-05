@@ -1,6 +1,7 @@
 // Trạng thái thao tác kênh trên tin (TIP-014b A): thu hồi / cảm xúc trên Zalo chờ nhà cung cấp xác nhận — "Đang thu hồi…", "Chưa rõ đã
 // thu hồi", "Thu hồi không thành công", "Đã thu hồi một phần"; cảm xúc "đang gửi / chưa rõ / lỗi". Không hiện gì khi không có lệnh mở. Nội
-// dung tin giữ nguyên tới khi xác nhận (không giả thu hồi thành công). Prototype không có — lệch ghi PD-015.
+// dung tin giữ nguyên tới khi xác nhận (không giả thu hồi thành công). Gửi tin (TIP-014b B): "chỉ gửi được một phần" / "chưa rõ đã tới
+// khách" — không giả là đã gửi, không giả là lỗi (gửi lại có thể trùng). Prototype không có — lệch ghi PD-015.
 'use client';
 import { useTranslations } from 'next-intl';
 import { createStyles } from 'antd-style';
@@ -23,13 +24,15 @@ const useStyles = createStyles(({ css }) => ({
   `,
 }));
 
-export function MessageProviderStatus({ op }: { op: Message['provider_op'] }) {
+export function MessageProviderStatus({ op, status }: { op: Message['provider_op']; status?: string }) {
   const t = useTranslations('inbox.providerOp');
   const { styles, cx } = useStyles();
-  if (!op || (!op.recall && !op.react)) return null;
+  const send = status === 'partial' || status === 'unknown' ? status : null;
+  if (!send && (!op || (!op.recall && !op.react))) return null;
   const lines: [string, string, 'muted' | 'warn' | 'bad'][] = [];
-  if (op.recall) lines.push(['recall', t(`recall.${op.recall}` as never), op.recall === 'pending' ? 'muted' : op.recall === 'failed' ? 'bad' : 'warn']);
-  if (op.react) lines.push(['react', t(`react.${op.react}` as never), op.react === 'pending' ? 'muted' : op.react === 'failed' ? 'bad' : 'warn']);
+  if (send) lines.push(['send', t(`send.${send}` as never), 'warn']);
+  if (op?.recall) lines.push(['recall', t(`recall.${op.recall}` as never), op.recall === 'pending' ? 'muted' : op.recall === 'failed' ? 'bad' : 'warn']);
+  if (op?.react) lines.push(['react', t(`react.${op.react}` as never), op.react === 'pending' ? 'muted' : op.react === 'failed' ? 'bad' : 'warn']);
   return (
     <>
       {lines.map(([k, text, tone]) => (

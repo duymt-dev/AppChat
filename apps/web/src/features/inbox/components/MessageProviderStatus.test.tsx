@@ -26,6 +26,16 @@ describe('MessageProviderStatus', () => {
     }
   });
 
+  it('gửi một phần / chưa rõ (TIP-014b B) → dòng cảnh báo riêng; trạng thái thường không hiện gì', () => {
+    for (const s of ['partial', 'unknown'] as const) {
+      render(<MessageProviderStatus op={undefined} status={s} />);
+      expect(screen.getByTestId('provider-op-send').textContent).toBe(`inbox.providerOp.send.${s}`);
+      cleanup();
+    }
+    const { container } = render(<MessageProviderStatus op={undefined} status="sent" />);
+    expect(container.textContent).toBe('');
+  });
+
   it('thu hồi và cảm xúc cùng lúc → hai dòng riêng', () => {
     render(<MessageProviderStatus op={{ recall: 'pending', react: 'unknown' }} />);
     expect(screen.getAllByRole('status').map((e) => e.getAttribute('data-testid'))).toEqual(['provider-op-recall', 'provider-op-react']);

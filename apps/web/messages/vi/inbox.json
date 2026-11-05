@@ -459,6 +459,10 @@
       "unknown": "Chưa rõ Zalo đã nhận cảm xúc",
       "failed": "Zalo không nhận cảm xúc này"
     },
+    "send": {
+      "partial": "Chỉ gửi được một phần tin — phần còn lại chưa tới khách",
+      "unknown": "Chưa rõ tin đã tới khách — kiểm tra trên điện thoại trước khi gửi lại"
+    },
     "accepted": "Đã gửi lệnh tới Zalo — chờ xác nhận"
   }
 }

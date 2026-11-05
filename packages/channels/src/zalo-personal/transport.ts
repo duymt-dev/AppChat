@@ -72,6 +72,16 @@ export interface ZaloRawReaction {
   ts: string;
 }
 
+/** Đã nhận / đã xem (zca-js `delivered_messages` / `seen_messages`). Nhóm: `uids` = người có bằng chứng. */
+export interface ZaloRawReceipt {
+  kind: 'delivered' | 'seen';
+  isGroup: boolean;
+  threadId: string;
+  msgIds: string[];
+  uids: string[];
+  ts: string;
+}
+
 export interface ZaloGroupInfo {
   groupId: string;
   name: string;
@@ -86,6 +96,7 @@ export interface ZaloSession {
   onSelfMessage(cb: (m: ZaloRawMessage) => void): void;
   onUndo(cb: (u: ZaloRawUndo) => void): void;
   onReaction(cb: (r: ZaloRawReaction) => void): void;
+  onReceipt(cb: (r: ZaloRawReceipt) => void): void;
   onOldMessages(cb: (ms: ZaloRawMessage[]) => void): void;
   onClosed(cb: (code: number, reason: string) => void): void;
   start(): void;
