@@ -14,6 +14,7 @@ import { ENV_SOURCE } from '../kernel/kernel.module';
 import { RateLimiter } from '../kernel/rate-limit';
 import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
+import { ChannelOperationCancelHandler } from './actions/operation-cancel.handler';
 import './events/channels.rules';
 import { ChannelReconnectHandler, ChannelZaloStartLoginHandler } from './actions/channel-connect.handlers';
 import { ChannelDisconnectHandler, ChannelPauseHandler, ChannelResumeHandler, ChannelSyncHistoryHandler, ChannelTestHandler, ChannelUpdateSettingsHandler } from './actions/channel-manage.handlers';
@@ -88,6 +89,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
 @Module({
   providers: [
     ChannelSearchHandler,
+    ChannelOperationCancelHandler,
     ChannelStatusHandler,
     ChannelZaloStartLoginHandler,
     ChannelReconnectHandler,

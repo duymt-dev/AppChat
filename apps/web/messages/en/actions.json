@@ -1108,5 +1108,10 @@
     "retry": {
       "title": "Retry failed items of a background job"
     }
+  },
+  "channel_operation": {
+    "cancel": {
+      "title": "Cancel a pending channel operation"
+    }
   }
 }

@@ -1108,5 +1108,10 @@
     "retry": {
       "title": "Thử lại bản ghi lỗi của việc chạy nền"
     }
+  },
+  "channel_operation": {
+    "cancel": {
+      "title": "Huỷ lệnh thao tác kênh chưa gửi"
+    }
   }
 }

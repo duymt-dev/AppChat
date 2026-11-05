@@ -23,6 +23,7 @@ import * as bookingConfig from './booking-config';
 import * as bookingUpdate from './booking-update';
 import * as conversationGroups from './conversation-groups';
 import * as groupResults from './group-results';
+import * as channelOperations from './channel-operations';
 import * as support from './support';
 import * as marketing from './marketing';
 import * as loyalty from './loyalty';
@@ -76,6 +77,7 @@ export * from './booking-config';
 export * from './booking-update';
 export * from './conversation-groups';
 export * from './group-results';
+export * from './channel-operations';
 export * from './support';
 export * from './marketing';
 export * from './loyalty';
@@ -130,6 +132,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(bookingUpdate),
   ...Object.values(conversationGroups),
   ...Object.values(groupResults),
+  ...Object.values(channelOperations),
   ...Object.values(support),
   ...Object.values(marketing),
   ...Object.values(loyalty),
