@@ -2,6 +2,7 @@
 export { CrmReadService, type Viewer as CrmViewer } from './services/crm-read.service';
 export { CrmMembers } from './services/members.service';
 export { ContactIdentityService, type InboundIdentity, type ResolvedContact } from './services/identity.service';
+export type { IdentityMatch } from './services/identity-match';
 export { scopeSql as crmScopeSql, visibleContact, editableContact, actorUserId } from './services/access';
 export { writeTimeline, type TimelineInput } from './services/timeline.service';
 export { applyStageRule, type StageRule } from './services/stage-rules';

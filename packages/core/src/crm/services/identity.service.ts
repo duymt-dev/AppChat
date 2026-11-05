@@ -7,6 +7,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 import { nextCode } from '../../kernel/sequence';
 import { writeTimeline } from './timeline.service';
+import { liveContact, matchIdentity } from './identity-match';
 
 export interface InboundIdentity {
   channelType: string;
@@ -29,13 +30,11 @@ export class ContactIdentityService {
   /** `forward` (lịch sử — TIP-014b C): `last_interaction_at` chỉ tiến, không lùi về mốc tin cũ. */
   async resolve(tx: TenantTx, i: InboundIdentity, now: Date, o: { forward?: boolean } = {}): Promise<ResolvedContact> {
     const key = { channelAccountId_externalId: { channelAccountId: i.channelAccountId, externalId: i.externalId } };
-    const known = await tx.contactIdentity.findUnique({ where: key, select: { contactId: true } });
-    if (known) {
-      const live = await this.live(tx, known.contactId);
-      if (live) return { contactId: live, created: false, events: [] };
-    }
+    // Khớp chắc chắn dùng chung với chế độ chỉ-khớp (identity-match.ts). SĐT trùng nhiều khách → không tự chọn → khách nháp mới (gộp tay).
+    const m = await matchIdentity(tx, i);
+    if (m.kind === 'known') return { contactId: m.contactId, created: false, events: [] };
     const phone = normalizePhone(i.phone);
-    const byPhone = phone ? await tx.contact.findFirst({ where: { phoneNorm: phone, deletedAt: null }, select: { id: true } }) : null;
+    const byPhone = m.kind === 'phone' ? { id: m.contactId } : null;
     let contactId = byPhone?.id;
     const events: ResolvedContact['events'] = [];
     if (!contactId) {
@@ -57,14 +56,13 @@ export class ContactIdentityService {
     return { contactId, created: !byPhone, events };
   }
 
+  /** Chế độ chỉ-khớp (TIP-014b D — tài khoản tắt tự tạo khách): không tạo khách / identity. */
+  match(tx: TenantTx, i: InboundIdentity) {
+    return matchIdentity(tx, i);
+  }
+
   /** Khách còn hiệu lực — bản đã gộp đi theo `merged_into_id`. */
-  private async live(tx: TenantTx, id: string): Promise<string | null> {
-    for (let hop = 0, cur: string | null = id; cur && hop < 5; hop++) {
-      const c: { deletedAt: Date | null; mergedIntoId: string | null } | null = await tx.contact.findUnique({ where: { id: cur }, select: { deletedAt: true, mergedIntoId: true } });
-      if (!c) return null;
-      if (!c.deletedAt) return cur;
-      cur = c.mergedIntoId;
-    }
-    return null;
+  live(tx: TenantTx, id: string): Promise<string | null> {
+    return liveContact(tx, id);
   }
 }

@@ -6,6 +6,9 @@
 // Lịch sử (`origin = 'history'` — TIP-014b C): tin + khách + hội thoại vẫn ghi (chống trùng cùng UNIQUE), nhưng KHÔNG đếm chưa đọc, không
 // mở lại / bỏ ẩn, không FRT / thống kê, preview + `last_message_at` + `last_interaction_at` chỉ tiến (max), không event luồng trực tiếp
 // (người gọi gom `channel.history_ingested`), không kích agent.
+// Chính sách tài khoản (TIP-014b D) đọc TRƯỚC mọi ghi: `sync_messages = false` → không lưu tin / khách / AI (chỉ đếm chẩn đoán
+// `channel_account.health.suppressed`, không xoá lịch sử, phiên vẫn chạy); `sync_auto_create_contact = false` → chỉ khớp định danh chắc chắn,
+// người lạ → hội thoại không gắn khách (+ participant) — không tạo khách. Nhóm: người gửi không bao giờ thành khách.
 import type { NormalizedInbound } from '@appchat/channels';
 import type { TenantDb } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
@@ -16,6 +19,7 @@ import type { ContactIdentityService } from '../../crm/public';
 import { settingsOf } from '../../channels/public';
 import { previewOf } from './view';
 import { saveMessageRefs } from '../../channels/operations/operation-store';
+import { suppressed } from './inbound-sync-policy';
 
 export type InboundOrigin = 'live' | 'history';
 
@@ -61,6 +65,11 @@ export class InboundPipeline {
     const live = origin === 'live';
     const account = await tx.channelAccount.findUnique({ where: { id: m.channelAccountId } });
     if (!account || account.status === 'disconnected') return { messageId: null, events: [] };
+    const st = settingsOf(account);
+    if (!st.sync_messages) {
+      await suppressed(tx, account.id, now);
+      return { messageId: null, events: [] };
+    }
     const sentAt = new Date(m.sentAt);
     const at = Number.isNaN(sentAt.getTime()) ? now : sentAt;
     const msgId = uuidv7(now.getTime());
@@ -76,16 +85,20 @@ export class InboundPipeline {
     // 2. Khách
     let contactId = conv0?.contactId ?? null;
     let contactCreated = false;
-    if (!m.isGroup) {
-      const r = await this.identity.resolve(tx, { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null, email: m.sender.email ?? null }, at, { forward: !live });
+    const who = { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null, email: m.sender.email ?? null };
+    if (!m.isGroup && st.sync_auto_create_contact) {
+      const r = await this.identity.resolve(tx, who, at, { forward: !live });
       contactId = r.contactId;
       contactCreated = r.created;
       if (live) events.push(...r.events);
+    } else if (!m.isGroup) {
+      // Chỉ khớp: khách đã có (identity / SĐT duy nhất) giữ nguyên; người lạ / SĐT mơ hồ → không gắn khách (gắn tay sau theo quyền).
+      const r = await this.identity.match(tx, who);
+      contactId = r.kind === 'known' || r.kind === 'phone' ? r.contactId : (conv0?.contactId ?? null);
     }
     const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, name: true, group: true } }) : null;
 
     // 3. Hội thoại
-    const st = settingsOf(account);
     const preview = previewOf(m.kind, m.text ?? '');
     const senderName = m.sender.name?.trim() || null;
     const isNew = !conv0;
@@ -145,7 +158,8 @@ export class InboundPipeline {
     if (!inserted) throw new DuplicateInbound();
     if (m.providerRef) await saveMessageRefs(tx, account.id, msgId, [m.providerRef], now);
 
-    if (m.isGroup) {
+    // Nhóm, hoặc 1-1 chưa gắn khách (tắt tự tạo khách): giữ định danh người gửi ở participant.
+    if (m.isGroup || !contactId) {
       await tx.conversationParticipant.upsert({
         where: { conversationId_externalId: { conversationId: conv.id, externalId: m.sender.externalId } },
         create: { conversationId: conv.id, externalId: m.sender.externalId, displayName: senderName ?? '', lastSeenAt: at },
@@ -188,3 +202,4 @@ export class DuplicateInbound extends Error {
     this.name = 'DuplicateInbound';
   }
 }
+
