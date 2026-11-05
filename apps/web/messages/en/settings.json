@@ -1054,7 +1054,7 @@
       "agent_reply": "Channel agent"
     },
     "event": {
-      "session.new_device": "Sign-in from a new device"
+      "session__new_device": "Sign-in from a new device"
     },
     "filter": {
       "action": "Action",
@@ -1066,12 +1066,12 @@
       "reset": "Clear filters",
       "act": {
         "security": "Security events only",
-        "member.set_role": "Role change",
-        "member.invite": "Member invite",
-        "member.remove": "Member removal",
-        "channel.disconnect": "Channel disconnect",
-        "contact.export": "Customer export",
-        "workspace.transfer_ownership": "Ownership transfer"
+        "member__set_role": "Role change",
+        "member__invite": "Member invite",
+        "member__remove": "Member removal",
+        "channel__disconnect": "Channel disconnect",
+        "contact__export": "Customer export",
+        "workspace__transfer_ownership": "Ownership transfer"
       },
       "st": {
         "ok": "OK",

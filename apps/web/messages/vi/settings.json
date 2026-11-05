@@ -1054,7 +1054,7 @@
       "agent_reply": "Agent trực kênh"
     },
     "event": {
-      "session.new_device": "Đăng nhập từ thiết bị mới"
+      "session__new_device": "Đăng nhập từ thiết bị mới"
     },
     "filter": {
       "action": "Hành động",
@@ -1066,12 +1066,12 @@
       "reset": "Xoá lọc",
       "act": {
         "security": "Chỉ sự kiện bảo mật",
-        "member.set_role": "Đổi vai trò",
-        "member.invite": "Mời thành viên",
-        "member.remove": "Xoá thành viên",
-        "channel.disconnect": "Ngắt kênh",
-        "contact.export": "Xuất dữ liệu khách",
-        "workspace.transfer_ownership": "Chuyển Chủ sở hữu"
+        "member__set_role": "Đổi vai trò",
+        "member__invite": "Mời thành viên",
+        "member__remove": "Xoá thành viên",
+        "channel__disconnect": "Ngắt kênh",
+        "contact__export": "Xuất dữ liệu khách",
+        "workspace__transfer_ownership": "Chuyển Chủ sở hữu"
       },
       "st": {
         "ok": "OK",
