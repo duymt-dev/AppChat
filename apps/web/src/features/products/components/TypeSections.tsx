@@ -40,7 +40,7 @@ function Three({ f, fields }: { f: ProductFormApi; fields: Field[] }) {
   const { styles, cx } = useProductFormStyles();
   return (
     <div className={styles.three}>
-      {fields.map(([label, k, ph, money]) => (
+      {fields.filter(([, k]) => !(k === 'cost' && f.d.costHidden)).map(([label, k, ph, money]) => (
         <div key={k}>
           <label className={styles.label}>{label}</label>
           <input

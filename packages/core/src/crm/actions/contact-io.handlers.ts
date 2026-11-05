@@ -6,6 +6,7 @@ import type { ActionPreview, ActionInput, contactExport, contactImport } from '@
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
+import { assertQueryFields, fieldView } from '../../authz/public';
 import { actorUserId } from '../services/access';
 import { createContact } from '../services/contacts.service';
 import { listContactIds, type ContactFilter } from '../repos/contacts.repo';
@@ -31,6 +32,8 @@ export class ContactExportHandler implements Handler<ExportIn, ExportOut> {
   }
 
   async execute(ctx: ActionContext, input: ExportIn, tx: TenantTx): Promise<HandlerOutcome<ExportOut>> {
+    // Lọc `cf.*` trên trường bị ẩn → 422 (số dòng xuất cũng là kênh dò giá trị — TIP-045b annex C).
+    assertQueryFields(await fieldView(tx, 'contact', ctx.authz), input.custom);
     const { ids } = await listContactIds(tx, ctx.authz, this.filter(input), null);
     const rows = await tx.contact.findMany({ where: { id: { in: ids } }, select: { id: true, code: true, name: true, phone: true, email: true, stage: true, ownerUserId: true, city: true, source: true, createdAt: true } });
     const order = new Map(ids.map((id, i) => [id, i]));

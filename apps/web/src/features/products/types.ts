@@ -10,7 +10,8 @@ export interface Product {
   category: string;
   type: ProductType;
   price: string;
-  cost: string;
+  /** Giá vốn; vắng khi người xem không có quyền (`hidden_fields` chứa 'cost'). */
+  cost?: string | null;
   unit: string;
   tax_rate: number;
   sold: number;
@@ -28,6 +29,8 @@ export interface Product {
   icon: string;
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
+  /** Trường hệ thống bị ẩn theo quyền (TIP-045b annex C). */
+  hidden_fields?: string[];
   /** TIP-027 — khoá lạc quan (`if_version`) + chi tiết cho form sửa (GET /products/:id). */
   version?: number;
   duration_min?: number | null;

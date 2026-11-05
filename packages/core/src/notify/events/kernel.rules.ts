@@ -1,6 +1,7 @@
 // Luật của chính TIP-006: `notify.requested` (handler bất kỳ xin gửi thông báo), `member.role_changed` / `member.removed`
 // (TIP-013 phát) → làm mới quyền / ngắt socket. Nạp khi import NotifyModule.
-import { memberRemovedEvent, memberRoleChangedEvent, notifyRequestedEvent } from '@appchat/shared';
+import { customFieldChangedEvent, memberRemovedEvent, memberRoleChangedEvent, notifyRequestedEvent } from '@appchat/shared';
+import { FIELDS_CHANGED_EVENT } from '../../authz/fields/realtime';
 import { registerNotificationRule, registerRealtimeRule } from '../rules';
 import { rooms } from '../realtime/envelope';
 
@@ -17,4 +18,10 @@ registerRealtimeRule('member.role_changed', 'member.role_changed', (e) => {
 registerRealtimeRule('member.removed', 'member.removed', (e) => {
   const p = memberRemovedEvent.parse(e.payload);
   return [{ ws: e.workspaceId, rooms: [], event: 'member.removed', data: {}, control: { type: 'disconnect', userId: p.user_id } }];
+});
+
+// Đổi định nghĩa / vai trò được thấy của trường (TIP-045b annex C): mọi socket của workspace làm mới danh sách + chi tiết (REST chiếu lại).
+registerRealtimeRule('custom_field.changed', 'custom_field.changed', (e) => {
+  const p = customFieldChangedEvent.parse(e.payload);
+  return [{ ws: e.workspaceId, rooms: [rooms.ws(e.workspaceId)], event: FIELDS_CHANGED_EVENT, data: { entity: p.entity } }];
 });

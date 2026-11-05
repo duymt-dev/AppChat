@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { ActionMenu, Icon, color, type IconName, type TableColumnsType } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { FieldValue } from '@/shared/authz/FieldValue';
 import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useProductCellStyles } from './styles/cells.styles';
@@ -102,7 +103,11 @@ export function useProductColumns(): TableColumnsType<Product> {
       key: 'cost',
       title: <span className={styles.end}>{t('col.cost')}</span>,
       width: 108,
-      render: (_, p) => <span className={styles.cost}>{money(p.cost)}</span>,
+      render: (_, p) => (
+        <FieldValue row={p} field="cost" className={styles.cost}>
+          <span className={styles.cost}>{money(p.cost ?? '0')}</span>
+        </FieldValue>
+      ),
     });
   cols.push(
     {

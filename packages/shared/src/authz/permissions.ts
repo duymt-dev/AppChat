@@ -34,6 +34,11 @@ export interface AuthzContext {
   teamIds: string[];
   /** Thành viên các nhóm của user (data scope `team`) — resolver backend điền; FE không cần (TIP-005). */
   teamUserIds?: readonly string[];
+  /**
+   * Khoá vai trò hiện tại để xét quyền TRƯỜNG (TIP-045b annex C): resolver điền theo membership; agent trực kênh = `agent`; agent có
+   * người ra lệnh = vai trò người đó. Thiếu → quyền trường như agent (fail closed), trừ Owner.
+   */
+  roleKey?: string;
 }
 
 /** Nhóm permission theo module (trang Vai trò & phân quyền, `GET /v1/permissions`) — tiền tố trước dấu chấm. */

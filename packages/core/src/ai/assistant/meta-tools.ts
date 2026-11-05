@@ -12,7 +12,7 @@ import { registry } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import { toJson } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
+import { AGENT_FIELD_ROLE, AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
@@ -32,8 +32,9 @@ const DEFS = new Map(registry.map((a) => [a.id, a]));
 const ok = (output: unknown): ToolOutcome => ({ kind: 'ok', output });
 const err = (code: string, message: string): ToolOutcome => ({ kind: 'error', code, message });
 const STEP_STATUS = ['pending', 'running', 'done', 'failed', 'skipped'] as const;
-/** Vai trò cho trường tuỳ biến: Owner luôn `owner`; vắng roleKey → vai trò hẹp nhất (không thấy trường giới hạn vai trò). */
-const roleOf = (t: AssistantTurnCtx) => (t.authz.isOwner ? 'owner' : (t.role ?? 'member'));
+/** Vai trò cho trường tuỳ biến (FieldPolicy — TIP-045b annex C): Owner `owner`; còn lại vai trò membership hiện tại của người ra lệnh
+ *  (authz.roleKey → t.role); không có → `agent` (chỉ trường AI không giới hạn vai trò). */
+const roleOf = (t: AssistantTurnCtx) => (t.authz.isOwner ? 'owner' : (t.authz.roleKey ?? t.role ?? AGENT_FIELD_ROLE));
 
 
 export interface MetaDeps extends DelegateDeps {

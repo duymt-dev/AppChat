@@ -18,6 +18,7 @@
   "QUOTE_ALREADY_CONVERTED": "Báo giá này đã được chuyển sang chứng từ khác — mỗi báo giá chỉ sinh một hợp đồng hoặc một đơn",
   "INTERNAL": "Lỗi hệ thống, thử lại sau",
   "OTP_INVALID": "Mã OTP không đúng",
+  "FIELD_FORBIDDEN": "Bạn không có quyền lọc / xem trường này",
   "SIGN_LINK_INVALID": "Link ký đã hết hạn hoặc không còn hiệu lực",
   "HAS_DEPENDENCIES": "Còn dữ liệu đang dùng mục này — gỡ liên kết trước rồi thử lại",
   "INVALID_TRANSITION": "Không chuyển được sang trạng thái này từ trạng thái hiện tại",

@@ -10,6 +10,8 @@
   "seeMore": "See more →",
   "empty": "No data yet",
   "noPermission": "You don't have permission to view this",
+  "fieldHidden": "Hidden",
+  "fieldHiddenHint": "This field is hidden by your permissions",
   "error": "Something went wrong",
   "customFields": {
     "section": "Additional info",

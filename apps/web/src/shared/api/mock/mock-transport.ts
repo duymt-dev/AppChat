@@ -9,6 +9,7 @@ import { customersParamRoute } from './domains/customers';
 import { agentsParamRoute } from './domains/agents';
 import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
+import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
@@ -91,7 +92,8 @@ export const mockTransport: Transport = {
       customersParamRoute(path) ??
       inboxParamRoute(path);
     if (!route) fail(404, 'NOT_FOUND', `mock route ${path}`);
-    return structuredClone(route!(mockDb(), params ?? {})) as never;
+    // Quyền theo trường (TIP-045b annex C): cùng luật server — chiếu custom / giá vốn, chặn lọc cf.* trường ẩn.
+    return structuredClone(withFieldPolicy(path, route!)(mockDb(), params ?? {})) as never;
   },
 
   async post(path, body) {

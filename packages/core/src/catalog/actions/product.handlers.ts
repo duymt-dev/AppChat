@@ -12,6 +12,7 @@ import { writeOutbox } from '../../kernel/outbox/outbox';
 import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, actorUserId } from '../../crm/public';
 import { categoryByName, checkCustom, componentsByName, fieldRole, liveProduct, recordMovement, syncVariants, writeComponents } from '../services/catalog-write';
+import { assertWritableSystem } from '../../authz/public';
 import { columnsOf, restoreSnapshot, snapshot, type ProductSnapshot } from '../services/product-columns';
 import { archivePreview, createPreview, updatePreview } from './previews/product.handlers.preview';
 
@@ -33,6 +34,7 @@ export class ProductCreateHandler implements Handler<CreateIn, { product_id: str
     const now = this.clock.now();
     const me = actorUserId(ctx);
     await checkCustom(tx, input.custom, fieldRole(ctx.authz, await this.members.roleOf(ctx.workspaceId, me)), 'create');
+    assertWritableSystem('product', ctx.authz, input);
     if (input.type === 'combo' && !input.components?.length) throw new AppError('VALIDATION_FAILED', 422, { components: 'required' });
     const parts = input.type === 'combo' ? await componentsByName(tx, input.components ?? [], null) : [];
     const sku = input.sku?.trim();
@@ -92,6 +94,7 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
     const now = this.clock.now();
     const { custom, category, components, attrs, name, price, unit, sku, type, ...rest } = input.patch;
     await checkCustom(tx, custom, fieldRole(ctx.authz, await this.members.roleOf(ctx.workspaceId, actorUserId(ctx))), 'update');
+    assertWritableSystem('product', ctx.authz, input.patch);
     if (type && type !== p.type) throw new AppError('VALIDATION_FAILED', 422, { 'patch.type': 'immutable' });
     const code = sku?.trim() && sku.trim() !== p.code ? sku.trim() : undefined;
     if (code && (await tx.product.findUnique({ where: { code }, select: { id: true } }))) throw new AppError('CONFLICT', 409, { sku: 'duplicate' });

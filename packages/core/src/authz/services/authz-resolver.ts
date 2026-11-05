@@ -66,7 +66,8 @@ export class AuthzResolver {
     const hit = key ? await this.cache!.get(key) : null;
     const data: Cached = hit ? (JSON.parse(hit) as Cached) : await this.load(workspaceId, userId, m);
     if (key && !hit) await this.cache!.set(key, JSON.stringify(data), 'EX', AUTHZ_CACHE_TTL_SEC);
-    return { userId, isOwner: data.isOwner, permissions: new Set(data.permissions), scope: data.scope, teamIds: data.teamIds, teamUserIds: data.teamUserIds };
+    // roleKey cho quyền theo trường (TIP-045b annex C): vai trò membership hiện tại (Owner xét bằng isOwner).
+    return { userId, isOwner: data.isOwner, permissions: new Set(data.permissions), scope: data.scope, teamIds: data.teamIds, teamUserIds: data.teamUserIds, roleKey: data.isOwner ? 'owner' : m.roleKey };
   }
 
   /** Đổi vai trò / nhóm / uỷ quyền trong workspace → mọi AuthzContext cũ hết hiệu lực ngay. */

@@ -10,6 +10,8 @@
   "seeMore": "Xem thêm →",
   "empty": "Chưa có dữ liệu",
   "noPermission": "Bạn không có quyền xem mục này",
+  "fieldHidden": "Không có quyền xem",
+  "fieldHiddenHint": "Trường này bị ẩn theo quyền của bạn",
   "error": "Đã có lỗi xảy ra",
   "customFields": {
     "section": "Thông tin thêm",

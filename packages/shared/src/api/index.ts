@@ -9,6 +9,7 @@ export * from './audit';
 export * from './crm';
 export * from './contact-memory';
 export * from './catalog';
+export * from './field-visibility';
 export * from './documents';
 export * from './quotes';
 export * from './contracts';

@@ -86,6 +86,9 @@ describe('danh sách D42 + chi tiết + quyền', () => {
     expect((await get('/products?page=1&limit=20&q=cham%20soc')).body.data.map((p: { name: string }) => p.name)).toEqual(['Combo chăm sóc da', 'Ebook chăm sóc da']);
     expect((await get('/products?page=1&limit=20&q=sp-1002')).body.data.map((p: { code: string }) => p.code)).toEqual(['SP-1002']);
     const db = await tenant();
+    // TIP-045b annex C: lọc `cf.*` chỉ trên trường có định nghĩa người xem được thấy — key lạ → 422 FIELD_FORBIDDEN.
+    expect((await get('/products?page=1&limit=20&cf.warranty=6%20th')).body.error.code).toBe('FIELD_FORBIDDEN');
+    ok(await act('custom_field.define', { entity: 'product', label: 'Warranty', type: 'text' }));
     await db.product.update({ where: { id: ids.visia }, data: { custom: { warranty: '6 tháng' } } });
     expect((await get('/products?page=1&limit=20&cf.warranty=6%20th')).body.data.map((p: { id: string }) => p.id)).toEqual([ids.visia]);
     expect((await get('/products?page=0')).status).toBe(400);
@@ -107,7 +110,9 @@ describe('danh sách D42 + chi tiết + quyền', () => {
 
   it('sales xem được, không thấy giá vốn, không tạo / điều chỉnh tồn; kế toán thấy giá vốn + điều chỉnh tồn', async () => {
     const s = productsPageSchema.parse((await get('/products?page=1&limit=20', sales)).body).data;
-    expect(s.find((p) => p.id === ids.visia)!.cost).toBe('0');
+    // TIP-045b annex C: giá vốn bị ẩn = không có khoá + hidden_fields (không còn '0' giả).
+    expect(s.find((p) => p.id === ids.visia)).not.toHaveProperty('cost');
+    expect(s.find((p) => p.id === ids.visia)!.hidden_fields).toEqual(['cost']);
     const a = productsPageSchema.parse((await get('/products?page=1&limit=20', accountant)).body).data;
     expect(a.find((p) => p.id === ids.visia)!.cost).toBe('310000');
     expect((await act('product.create', { name: 'X', type: 'service', price: '1' }, sales)).status).toBe(403);

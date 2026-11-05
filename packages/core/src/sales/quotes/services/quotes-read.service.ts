@@ -3,6 +3,7 @@
 // lịch sử của báo giá đó), PDF (bản đóng băng nếu đã gửi, chưa gửi thì render nháp), trang xem công khai (token ký → `viewed`).
 import { AppError, createFmt, vndWords, type AuthzContext, type PublicQuote } from '@appchat/shared';
 import { TenantContexts } from '@appchat/db';
+import { assertQueryFields, fieldView, projectCustom } from '../../../authz/public';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { UUID, visibleQuote, type QuoteRecord } from '../quote-access';
 import { listQuoteIds, type QuoteFilter } from '../repos/quotes.repo';
@@ -38,8 +39,9 @@ export class QuotesReadService {
   }
 
   /** Bước 2 deferred join: đủ cột + dòng + trao đổi + khách cho đúng các id, giữ thứ tự bước 1. */
-  private async rowsOf(tx: TenantTx, ids: string[], base: Omit<ViewCtx, 'names'>) {
+  private async rowsOf(tx: TenantTx, ids: string[], base: Omit<ViewCtx, 'names'>, a: AuthzContext) {
     if (!ids.length) return [];
+    const fv = await fieldView(tx, 'quote', a);
     const [rows, items, comments] = await Promise.all([tx.quote.findMany({ where: { id: { in: ids } } }), itemsByQuote(tx, ids), commentsByQuote(tx, ids)]);
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
@@ -49,7 +51,11 @@ export class QuotesReadService {
     // contract_quote_id_key (unique) — tra theo đúng các id của trang.
     const contracted = new Set((await tx.contract.findMany({ where: { quoteId: { in: ids }, deletedAt: null }, select: { quoteId: true } })).map((c) => c.quoteId!));
     const ctx: ViewCtx = { ...base, names, contracted, approval: { policy: await readApprovalPolicy(tx), agentMaxPct: await agentDiscountCap(tx) } };
-    return rows.map((q) => toQuoteRow(q, { items: items.get(q.id) ?? [], contact: contacts.get(q.contactId), comments: comments.get(q.id) ?? [] }, ctx));
+    // Trường tuỳ biến chỉ còn key người xem được thấy (FieldPolicy — TIP-045b annex C).
+    return rows.map((q) => {
+      const row = toQuoteRow(q, { items: items.get(q.id) ?? [], contact: contacts.get(q.contactId), comments: comments.get(q.id) ?? [] }, ctx);
+      return { ...row, custom: projectCustom(fv, row.custom) };
+    });
   }
 
   async list(v: QuoteViewer, f: QuoteFilter, page?: number, limit?: number) {
@@ -58,8 +64,9 @@ export class QuotesReadService {
     const pg = Math.max(1, page ?? 1);
     const base = await this.ctx(v);
     return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'quote', v.authz), f.custom);
       const { ids, total } = await listQuoteIds(tx, v.authz, f, paged ? { offset: (pg - 1) * lim, limit: lim } : null);
-      const data = await this.rowsOf(tx, ids, base);
+      const data = await this.rowsOf(tx, ids, base, v.authz);
       const pages = Math.max(1, Math.ceil(total / lim));
       return { data, next_cursor: paged && pg < pages ? String(pg + 1) : null, meta: { total, page: paged ? pg : 1, limit: paged ? lim : data.length } };
     });
@@ -67,7 +74,7 @@ export class QuotesReadService {
 
   async get(v: QuoteViewer, id: string) {
     const base = await this.ctx(v);
-    return this.tx(v, async (tx) => (await this.rowsOf(tx, [(await visibleQuote(tx, v.authz, id)).id], base))[0]!);
+    return this.tx(v, async (tx) => (await this.rowsOf(tx, [(await visibleQuote(tx, v.authz, id)).id], base, v.authz))[0]!);
   }
 
   /** Các phiên bản cùng chuỗi (kể cả bản cũ), mới nhất trước. */
@@ -76,7 +83,7 @@ export class QuotesReadService {
     return this.tx(v, async (tx) => {
       const q = await visibleQuote(tx, v.authz, id);
       const rows = await tx.quote.findMany({ where: { rootQuoteId: q.rootQuoteId, deletedAt: null }, orderBy: { version: 'desc' }, select: { id: true } });
-      return this.rowsOf(tx, rows.map((r) => r.id), base);
+      return this.rowsOf(tx, rows.map((r) => r.id), base, v.authz);
     });
   }
 

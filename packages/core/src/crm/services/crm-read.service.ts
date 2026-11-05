@@ -16,6 +16,7 @@ import { fieldsData } from './fields.service';
 import { layoutForRole, layoutsData } from './layouts.service';
 import type { CrmMembers } from './members.service';
 import { renderTimeline } from './timeline.service';
+import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 
 export interface Viewer {
   workspaceId: string;
@@ -56,12 +57,14 @@ export class CrmReadService {
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     const now = this.now();
-    const [extras, names, next] = await Promise.all([
+    const [extras, names, next, fv] = await Promise.all([
       loadRowExtras(tx, ids),
       this.members.names(rows.map((r) => r.ownerUserId)),
       nextActions(tx, v.authz, rows, utcToWall(now, pl.timeZone).date, now),
+      fieldView(tx, 'contact', v.authz),
     ]);
-    return rows.map((r) => toRow(r as ContactRecord, { authz: v.authz, ...pl, names }, { ...extras, next }));
+    // Quyền theo trường (TIP-045b annex C): chỉ key tuỳ biến được thấy — dữ liệu lưu giữ nguyên.
+    return rows.map((r) => toRow({ ...(r as ContactRecord), custom: projectCustom(fv, r.custom) }, { authz: v.authz, ...pl, names }, { ...extras, next }));
   }
 
   async list(v: Viewer, f: ContactFilter, page?: number, limit?: number) {
@@ -70,6 +73,8 @@ export class CrmReadService {
     const pg = Math.max(1, page ?? 1);
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
+      // Lọc trên trường bị ẩn → 422 TRƯỚC truy vấn (không làm kênh dò giá trị qua số đếm).
+      assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
       const { ids, total } = await listContactIds(tx, v.authz, f, paged ? { offset: (pg - 1) * lim, limit: lim } : null);
       const data = await this.rowsOf(tx, v, pl, ids);
       const pages = Math.max(1, Math.ceil(total / lim));
@@ -81,6 +86,7 @@ export class CrmReadService {
   async board(v: Viewer, f: ContactFilter) {
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
       const { ids, counts } = await boardIds(tx, v.authz, f, BOARD_PER_STAGE);
       const rows = await this.rowsOf(tx, v, pl, ids.map((r) => r.id));
       const keys = CONTACT_STAGES.filter((k) => k !== 'lost' || (counts.lost ?? 0) > 0);
@@ -123,11 +129,12 @@ export class CrmReadService {
     const role = await this.members.roleOf(v.workspaceId, v.userId);
     return this.tx(v, async (tx) => {
       await visibleContact(tx, v.authz, id);
-      const [p360, ins] = await Promise.all([
+      const [p360, ins, fv] = await Promise.all([
         contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role) }),
         insights360(tx, v.authz, id, { ...pl, now: this.now() }),
+        fieldView(tx, 'contact', v.authz),
       ]);
-      return { ...p360, crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
+      return { ...p360, custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
   }
 

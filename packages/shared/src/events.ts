@@ -114,6 +114,8 @@ export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string(
  * Sự kiện bảo mật (TIP-045b annex A2, ops §4): ghi cùng action_log cờ `audit` — consumer notify báo Owner (dedupe theo event_consumption).
  * Chi tiết an toàn: id action + id log + người làm, không input / mã / token.
  */
+/** Đổi định nghĩa trường tuỳ biến (TIP-045b annex C) — chỉ entity, không có giá trị; realtime `fields.changed` làm mới cache FE. */
+export const customFieldChangedEvent = z.object({ ...base, entity: z.string(), key: z.string().optional() });
 export const securityEventSchema = z.object({ ...base, action_id: z.string(), action_log_id: z.string().uuid(), actor_user_id: z.string().uuid().nullable(), source: z.string() });
 
 export const operationCompletedEvent = z.object({ ...base, operation_id: z.string().uuid(), action_id: z.string(), approval_id: z.string().uuid().nullable(), run_id: z.string().uuid().nullable() });
@@ -217,6 +219,7 @@ export const EVENT_SCHEMAS = {
   'approval.decided': approvalDecidedEvent,
   'operation.completed': operationCompletedEvent,
   'audit.security_event': securityEventSchema,
+  'custom_field.changed': customFieldChangedEvent,
   'ai.handoff': aiHandoffEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,

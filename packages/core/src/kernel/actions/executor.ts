@@ -19,6 +19,7 @@ import { decidePolicy, requiresIdempotencyKey } from './policy';
 import { maskSecrets } from './secret-fields';
 import { acceptedResponse, replayAccepted } from './job-accepted';
 import { redactDeep, toLogJson } from './executor-redact';
+import { projectActionOutput } from '../../authz/fields/action-output';
 import type { PlatformOperations } from '../consistency/platform-operation';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
@@ -172,7 +173,8 @@ export class ActionExecutor {
     const out = await db.$transaction(async (tx) => {
       await approved(tx);
       const r = await handler.execute(ctx, input, tx, undefined, prepared);
-      const output = def.output.parse(r.result) as O;
+      // Quyền theo trường (TIP-045b annex C): output không mang key tuỳ biến / trường hệ thống người gọi không được xem.
+      const output = await projectActionOutput(tx, actionId, ctx.authz, def.output.parse(r.result) as O);
       const ui = def.uiTarget?.(output as never);
       const data: ActionResult<O> = {
         result: output,

@@ -11,7 +11,8 @@ import { importCancel, importPreview, importRetry, importRun, type ImportCatalog
 
 export type ProductsFixture = typeof fixture;
 type Fixed = ProductsFixture['products'][number];
-export type Product = Omit<Fixed, 'stock' | 'sessions' | 'valid_days'> & {
+export type Product = Omit<Fixed, 'stock' | 'sessions' | 'valid_days' | 'cost'> & {
+  cost: string | null;
   stock: number | null;
   sessions: number | null;
   valid_days: number | null;
@@ -168,7 +169,7 @@ export const productsHandlers: Record<string, MockHandler> = {
         category: cat,
         type: i.type,
         price: i.price,
-        cost: i.cost ?? '0',
+        cost: i.cost ?? null,
         unit: i.unit ?? 'Cái',
         tax_rate: i.tax_rate ?? 8,
         sold: 0,

@@ -5,6 +5,7 @@ import { TenantContexts, TenantSql as Prisma, type TenantDbResolver } from '@app
 import { SLA_DEFAULT, TICKET_CATEGORIES, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type TicketRow } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { CrmMembers } from '../../crm/public';
+import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { UUID, supportScopeSql, visibleTicket, type TicketRecord } from '../ticket-access';
 import { searchSql } from '../actions/sla-config.handlers';
 import { defaultPolicy, escalationOf, type SlaCalendar } from './sla-clock';
@@ -51,6 +52,7 @@ export class TicketsReadService {
   private async rows(tx: TenantTx, list: TicketRecord[], v: TicketViewer, detail: boolean): Promise<TicketRow[]> {
     if (!list.length) return [];
     const { timeZone, locale } = await this.cal.of(v.workspaceId);
+    const fv = await fieldView(tx, 'ticket', v.authz);
     const now = this.now();
     const iso = (d: Date) => utcToWall(d, timeZone).iso;
     const ids = list.map((t) => t.id);
@@ -103,7 +105,8 @@ export class TicketsReadService {
             return { type: e.type, by: e.actorName || e.actorType, at: iso(e.createdAt), ...(d.status ? { status: d.status } : {}), ...(d.reason ? { reason: d.reason } : {}) };
           }),
         sla: slaStateOf({ status: t.status, slaResult: t.slaResult, start: t.ttrStartAt, due: t.ttrDueAt, pausedAt: t.pausedSince, now }),
-        custom: t.custom as TicketRow['custom'],
+        // Chỉ key người xem được thấy (FieldPolicy — TIP-045b annex C).
+        custom: projectCustom(fv, t.custom) as TicketRow['custom'],
       };
     });
   }
@@ -126,6 +129,7 @@ export class TicketsReadService {
     const paged = page !== undefined;
     const pg = Math.max(1, page ?? 1);
     return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'ticket', v.authz), f.custom);
       const w = Prisma.join(this.where(v, f, this.now()), ' AND ');
       const order = f.sort === 'priority' ? Prisma.sql`${PR}, t.created_at DESC, t.id DESC` : Prisma.sql`t.created_at DESC, t.id DESC`;
       const [cnt] = await tx.$queryRaw<{ n: bigint }[]>`SELECT count(*) AS n FROM ticket t WHERE ${w}`;

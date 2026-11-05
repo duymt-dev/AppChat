@@ -39,8 +39,18 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MONEY = /^\d+$/;
 
-/** Trường tuỳ biến (không hệ thống) người có `role` được thấy / sửa. */
-export const fieldsForRole = (defs: CustomFieldDef[], role: string) => defs.filter((f) => !f.sys && (!f.roles.length || f.roles.includes(role)));
+/**
+ * Vai trò trường của agent trực kênh không có người ra lệnh (TIP-045b annex C): chỉ trường `ai = true` và KHÔNG giới hạn vai trò — không
+ * bao giờ suy ra quyền Owner.
+ */
+export const AGENT_FIELD_ROLE = 'agent';
+
+/** Trường tuỳ biến (không hệ thống) người có `role` được thấy / sửa. `agent` → chỉ trường AI không giới hạn vai trò. */
+export const fieldsForRole = (defs: CustomFieldDef[], role: string) =>
+  role === AGENT_FIELD_ROLE ? defs.filter((f) => !f.sys && f.ai && !f.roles.length) : defs.filter((f) => !f.sys && (!f.roles.length || f.roles.includes(role)));
+
+/** Vai trò trường hiện hành của một AuthzContext: Owner → `owner`; có membership → vai trò; thiếu → `agent` (fail closed). */
+export const fieldRoleOf = (a: { isOwner: boolean; roleKey?: string }) => (a.isOwner ? 'owner' : (a.roleKey ?? AGENT_FIELD_ROLE));
 
 const empty = (v: CustomValue | undefined) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length);
 
