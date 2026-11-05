@@ -64,14 +64,16 @@ const stop = () => {
 };
 process.on('SIGINT', () => (stop(), process.exit(130)));
 
-const deadline = Date.now() + 60_000;
+// Máy dev bận (nhiều stack / test song song) khởi động chậm hơn — `AI_LIVE_BOOT_MS` nới thời gian chờ API (mặc định 60 giây).
+const BOOT_MS = Number(process.env.AI_LIVE_BOOT_MS ?? 60_000);
+const deadline = Date.now() + BOOT_MS;
 for (;;) {
   try {
     if ((await fetch(`http://localhost:${PORT}/v1/health`)).ok) break;
   } catch {}
   if (Date.now() > deadline) {
     stop();
-    console.error('API không lên trong 60 giây');
+    console.error(`API không lên trong ${BOOT_MS / 1000} giây`);
     process.exit(1);
   }
   await new Promise((r) => setTimeout(r, 500));

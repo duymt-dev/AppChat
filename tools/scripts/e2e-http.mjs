@@ -78,8 +78,9 @@ process.on('SIGINT', () => {
   process.exit(130);
 });
 
-// Chờ API sẵn sàng.
-const deadline = Date.now() + 60_000;
+// Chờ API sẵn sàng (`E2E_BOOT_MS` nới khi máy dev bận — mặc định 60 giây).
+const BOOT_MS = Number(process.env.E2E_BOOT_MS ?? 60_000);
+const deadline = Date.now() + BOOT_MS;
 for (;;) {
   try {
     if ((await fetch(`http://localhost:${API_PORT}/v1/health`)).ok) break;
@@ -87,7 +88,7 @@ for (;;) {
     /* chưa lên */
   }
   if (Date.now() > deadline) {
-    console.error('e2e:http — API không lên sau 60 giây');
+    console.error(`e2e:http — API không lên sau ${BOOT_MS / 1000} giây`);
     stop();
     process.exit(1);
   }

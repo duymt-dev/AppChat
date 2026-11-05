@@ -21,13 +21,13 @@
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
 | REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
 | REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
-| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 045b | MỘT PHẦN | custom-fields/values.ts fieldsForRole chưa áp serializer;042c chỉ scope bản ghi.045b nhận custom/system fields + filter/AI/export, không coi FE ẩn là an toàn |
+| REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 045b | ĐẠT | core/src/authz/fields/* FieldPolicy — DTO 6 thực thể, cf.* 422 trước truy vấn, output action (Trợ lý / agent / API), realtime, export; hardening-fields.test.ts; field-*-leak.test.ts; ai:live hardening 2 ca canary 0 lộ; e2e hardening mock + http |
 | REQ-A06a | Trial 15 ngày Cá nhân Pro + 10.000 credit | 01-REQUIREMENTS-MATRIX.md:40 | 009 | ĐẠT | packages/core/src/billing/services/subscriptions.service.ts:31; test billing.test.ts AC3 |
 | REQ-A06b | Màn chào mừng 2 nút + badge "Còn X ngày" | 01-REQUIREMENTS-MATRIX.md:40 | 011 | ĐẠT | OnboardingGate.tsx:34; apps/web/src/shared/shell/RailFoot.tsx:22; test onboarding.test.ts AC4, e2e http/auth-onboarding.spec.ts |
 | REQ-A06c | Hết hạn → gói Miễn phí, thông báo đóng được, dữ liệu giữ | 01-REQUIREMENTS-MATRIX.md:40 | 009, 011 | ĐẠT | subscriptions.service.ts:69-76; TrialExpired.tsx:21; test billing.test.ts AC7, onboarding.test.ts AC5 |
 | REQ-A07a | Audit: mọi hành động người + AI ghi action_log | 01-REQUIREMENTS-MATRIX.md:41 | 003 | ĐẠT | packages/core/src/kernel/actions/executor.ts:150; test actions.test.ts "happy path … action_log" |
-| REQ-A07b | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:41 | 045b | GIẢ | FE gọi /settings/audit, /settings/ai-audit (features/settings/api.ts:104,106) — routes.json missing, chỉ chạy mock Planning owner045b contracts annexA/AC3 + mainAC2 and hardening-audit tests; runtime status unchanged. |
-| REQ-A07c | admin.* ghi platform_audit_log; sự kiện nhạy cảm cờ audit | 01-REQUIREMENTS-MATRIX.md:41 | 045b | CHƯA | Không chỗ ghi platform_audit_log |
+| REQ-A07b | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.controller.ts + audit-read.service.ts (trang 50, deferred join, EXPLAIN); FE lọc / Xem thêm / rỗng do lọc; hardening-audit.test.ts |
+| REQ-A07c | admin.* ghi platform_audit_log; sự kiện nhạy cảm cờ audit | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.service.ts — platform_audit_log cho admin.*; action_log cờ audit + event audit.security_event → thông báo Owner (notify/events/security.rules.ts); hardening-audit.test.ts |
 | REQ-A09a | Tự lưu trữ gói Miễn phí sau 90 ngày, báo trước 14 ngày | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Chỉ cột plan archiveInactiveDays (billing/seed.ts:24); không job |
 | REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Không code dump / restore |
 | REQ-A08 | Đăng nhập social | 01-REQUIREMENTS-MATRIX.md:43 | — | NGOÀI | P2 theo ma trận |

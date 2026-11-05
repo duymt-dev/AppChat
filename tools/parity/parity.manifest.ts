@@ -4,6 +4,7 @@ import { protoOverrideVals, protoSetState } from './protoState';
 import { ASSISTANT_COVERAGE } from './manifests/assistant-coverage';
 import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
+import { hardeningEntries } from './modules/hardening';
 
 export interface Rect {
   x: number;
@@ -1420,4 +1421,5 @@ export const MANIFEST: ParityEntry[] = [
   ...ASSISTANT_COVERAGE,
   ...GENUI_DRAWERS,
   ...CONTACT_MEMORY,
+  ...hardeningEntries(settingsProto),
 ];
