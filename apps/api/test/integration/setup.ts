@@ -25,7 +25,7 @@ import {
   type TenantTx,
 } from '@appchat/core';
 import { AppError } from '@appchat/shared';
-import { TenantProvisioner, createPlatformDb, tenantDbName, type PlatformDb } from '@appchat/db';
+import { TenantProvisioner, createPlatformDb, tenantDbName, testDbEnv, type PlatformDb } from '@appchat/db';
 import { MemoryMailProvider } from '@appchat/integrations';
 import { AppModule } from '../../src/app.module';
 import { EnvelopeErrorFilter } from '../../src/http/kernel/error.filter';
@@ -43,8 +43,11 @@ const readEnv = (f: string): Record<string, string> =>
           .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
       )
     : {};
+const dotenv = readEnv(join(ROOT, '.env'));
 export const env: Record<string, string> = {
-  ...readEnv(join(ROOT, '.env')),
+  ...dotenv,
+  // DB nền tảng riêng của test (DC-358) — không ghi workspace test vào DB demo.
+  ...testDbEnv(dotenv),
   NODE_ENV: 'test',
   LOG_LEVEL: 'silent',
   MAIL_PROVIDER: 'console',

@@ -2,10 +2,13 @@
 // tenant (provisioner) + xoá dữ liệu nền tảng liên quan. Chỉ đụng workspace mà MỌI thành viên đều là user test. Hàng trăm DB test
 // tồn làm vòng quét mọi workspace (relay outbox, channel sessions) mở cạn `max_connections` của Postgres dev → E2E http đỏ ngẫu nhiên.
 // Cần env PLATFORM_DATABASE_URL + PROVISIONER_DATABASE_URL (.env máy dev). Không dùng ở production.
-import { createPlatformDb, TenantProvisioner } from '../src/index';
+// Từ DC-358 test ghi vào DB nền tảng riêng (`db:test-reset` dọn sạch) — script này dọn phần test còn sót trong DB nền tảng demo / dev
+// (lượt chạy trước DC-358, hoặc test chạy tay không qua harness). Đặt `CLEANUP_TEST_DB=1` để dọn DB nền tảng test thay vì demo.
+import { createPlatformDb, testDbEnv, TenantProvisioner } from '../src/index';
 
 if (process.env.NODE_ENV === 'production') throw new Error('Không dọn ở production');
-const platform = createPlatformDb(process.env.PLATFORM_DATABASE_URL!);
+const platformUrl = process.env.CLEANUP_TEST_DB === '1' ? testDbEnv(process.env).PLATFORM_DATABASE_URL! : process.env.PLATFORM_DATABASE_URL!;
+const platform = createPlatformDb(platformUrl);
 const prov = new TenantProvisioner({ adminUrl: process.env.PROVISIONER_DATABASE_URL!, templateDb: process.env.TENANT_TEMPLATE_DB ?? 'appchat_tenant_template', ownerRole: 'appchat_migrator' });
 const TEST = /@test\.appchat\.vn$/;
 const say = (...a: unknown[]) => process.stdout.write(`${a.join(' ')}\n`);

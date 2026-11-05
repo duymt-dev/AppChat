@@ -6,6 +6,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { testDbEnv } from '../../packages/db/src/test-env.ts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const PORT = process.env.AI_LIVE_PORT ?? '4617';
@@ -24,6 +25,8 @@ const filesDir = mkdtempSync(join(tmpdir(), 'appchat-ailive-files-'));
 const env = {
   ...process.env,
   ...base,
+  // DB nền tảng riêng của test (DC-358) — demo không thấy workspace của lượt chạy.
+  ...testDbEnv(base),
   NODE_ENV: 'test',
   LOG_LEVEL: 'warn',
   API_PORT: PORT,
