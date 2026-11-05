@@ -118,6 +118,8 @@ export interface ZaloSession {
   groupMembers(memberIds: string[]): Promise<{ id: string; displayName: string; avatar?: string }[]>;
   /** zca-js `getUserInfo(ids, AvatarSize.Small)` — hồ sơ công khai theo lô (TIP-014b D: ảnh đại diện). */
   userInfo(ids: string[]): Promise<{ id: string; displayName: string; avatar?: string }[]>;
+  /** zca-js `getAllFriends(count, page, AvatarSize.Small)` — danh bạ theo trang (TIP-014b D3). */
+  friends(page: number, count: number): Promise<{ id: string; displayName: string; phone?: string; avatar?: string }[]>;
   /** zca-js `getGroupLinkDetail` — có thể đang tắt / không có link; bật link là thao tác riêng (không làm ở đây). */
   groupLink(groupId: string): Promise<{ enabled: boolean; link: string | null; expiresAt: number | null }>;
   /** zca-js `addUserToGroup` — có thể thành công một phần (errorMembers / error_data). */

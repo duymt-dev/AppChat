@@ -868,6 +868,9 @@
     "sync_history": {
       "title": "Sync channel history"
     },
+    "sync_contacts": {
+      "title": "Sync channel account address book"
+    },
     "reconnect": {
       "title": "Reconnect channel account"
     },

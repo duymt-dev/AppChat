@@ -14,7 +14,7 @@ import { messageRefs } from '../operations/operation-store';
 import { applyOperationResult, markInterrupted, type OperationOutcome } from '../operations/provider-event';
 import { OPERATION_TIMEOUT_MS, type OperationJob } from '../operations/types';
 import { assertGeneration } from '../operations/session-generation';
-import type { AvatarJob, HistoryJob } from '../operations/types';
+import type { AvatarJob, ContactSyncJob, HistoryJob } from '../operations/types';
 
 export const operationQueueName = (accountId: string) => `chop-${accountId}`;
 
@@ -29,6 +29,8 @@ export interface OperationDeps {
   history?: (accountId: string, adapter: ChannelAdapter, j: HistoryJob, generation?: number) => Promise<string>;
   /** Đồng bộ ảnh đại diện (TIP-014b D — avatar-sync.processor): `more` = còn việc → đẩy job trễ. */
   avatars?: (accountId: string, adapter: ChannelAdapter, j: AvatarJob, generation?: number) => Promise<{ status: string; delayMs?: number }>;
+  /** Đồng bộ danh bạ (TIP-014b D3 — contact-sync.processor). */
+  contacts?: (accountId: string, adapter: ChannelAdapter, j: ContactSyncJob, generation?: number) => Promise<string>;
 }
 
 /** Trễ giữa hai job ảnh khi còn việc (nhường hàng đợi tài khoản cho thu hồi / gửi). */
@@ -50,6 +52,13 @@ export class OperationQueue {
     let q = this.queues.get(accountId);
     if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
     await q.add('history', j, { jobId: `hist-${j.history_run_id}`, attempts: 3, backoff: { type: 'exponential', delay: 10_000 }, removeOnComplete: 200, removeOnFail: 500 });
+  }
+
+  /** Đồng bộ danh bạ (TIP-014b D3) — cùng hàng đợi tài khoản, job id = id lần đồng bộ. */
+  async enqueueContacts(accountId: string, j: ContactSyncJob): Promise<void> {
+    let q = this.queues.get(accountId);
+    if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
+    await q.add('contacts', j, { jobId: `contacts-${j.sync_id}`, attempts: 3, backoff: { type: 'exponential', delay: 10_000 }, removeOnComplete: 200, removeOnFail: 500 });
   }
 
   /**
@@ -86,14 +95,16 @@ export class ProviderOperators {
 
   async open(accountId: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
     if (this.workers.has(accountId) || (!adapter.operations && !adapter.fetchHistory)) return;
-    const w = new Worker<OperationJob | HistoryJob | AvatarJob>(
+    const w = new Worker<OperationJob | HistoryJob | AvatarJob | ContactSyncJob>(
       operationQueueName(accountId),
       (job) =>
         job.name === 'history'
           ? (this.d.history?.(accountId, adapter, job.data as HistoryJob, generation) ?? Promise.resolve('history_unavailable'))
           : job.name === 'avatars'
             ? this.avatars(accountId, adapter, job.data as AvatarJob, generation)
-            : this.run(accountId, adapter, job.data as OperationJob, generation),
+            : job.name === 'contacts'
+              ? (this.d.contacts?.(accountId, adapter, job.data as ContactSyncJob, generation) ?? Promise.resolve('contacts_unavailable'))
+              : this.run(accountId, adapter, job.data as OperationJob, generation),
       { connection: this.d.redis.duplicate(), concurrency: 1 },
     );
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'operation worker error'));

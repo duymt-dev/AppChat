@@ -7,7 +7,7 @@ import { type Worker } from 'bullmq';
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry } from '@appchat/channels';
-import type { PlatformDb, TenantDbResolver } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { ENC_KEY } from '../../kernel/crypto';
 import { ENV_SOURCE, LOGGER } from '../../kernel/kernel.module';
@@ -27,6 +27,7 @@ import { reserveSend } from '../services/send-queue';
 import { GroupCreators } from './create-group.processor';
 import { OperationQueue, ProviderOperators } from './provider-operations.processor';
 import { runAvatarSync } from './avatar-sync.processor';
+import { runContactSync } from './contact-sync.processor';
 import { FilesService } from '../../kernel/files/files.service';
 import { providerEventQueue, startProviderEventWorker } from './provider-events.processor';
 import { ActionExecutor } from '../../kernel/actions/executor';
@@ -87,13 +88,19 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     const allow = env.CHANNEL_FETCH_TEST_ALLOW?.split(',').map((x) => x.trim()).filter(Boolean);
     const avatars = { tenants, files: this.files ?? null, log: this.log, now, ...(allow?.length ? { fetchOptions: { testAllowAddresses: allow } } : {}) };
     const operators = (this.operators = new ProviderOperators(
-      { redis, kv: redis, tenants, log: this.log, now, history: (id, a, j, g) => runHistory(history, id, a, j, g), avatars: (id, a, j, g) => runAvatarSync(avatars, id, a, j, g) },
+      { redis, kv: redis, tenants, log: this.log, now, history: (id, a, j, g) => runHistory(history, id, a, j, g),
+        avatars: (id, a, j, g) => runAvatarSync(avatars, id, a, j, g),
+        // Danh bạ (TIP-014b D3): ảnh chụp riêng tài khoản, không tạo khách.
+        contacts: (id, a, j, g) => runContactSync({ tenants, log: this.log, now }, id, a, j, g),
+      },
       this.opQueue ?? undefined,
     ));
     const sessions: ChannelSessions = new ChannelSessions({
       platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.
       onStarted: async (id, ws, adapter, generation) => {
+        // Ảnh chụp danh bạ quá 24 giờ (TIP-014b D3) — dọn khi giành phiên (best-effort, không chặn phiên).
+        void tenants.get(TenantContexts.fromRoute(ws, 'channel')).then((db) => db.channelContactSync.deleteMany({ where: { channelAccountId: id, expiresAt: { lte: now() } } })).catch(() => undefined);
         await senders.open(id, ws, adapter, generation);
         await groups?.open(id, adapter);
         await operators.open(id, adapter, generation);

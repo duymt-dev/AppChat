@@ -428,6 +428,7 @@
       "syncContactD": "Tạo liên hệ CRM mới khi có khách lạ nhắn tới.",
       "historyLabel": "Đồng bộ lịch sử cũ",
       "history": { "0": "Không", "7": "7 ngày", "30": "30 ngày", "90": "90 ngày" },
+      "contacts": {"title": "Danh bạ Zalo", "desc": "Xem danh bạ của tài khoản trong 24 giờ, chọn người để nhập thành khách. Không tự nhập, không gửi lời mời.", "run": "Lấy danh bạ", "running": "Đang lấy…", "state": {"queued": "Đang chờ lấy danh bạ…", "running": "Đang lấy danh bạ… ({n} người)", "complete": "Đã lấy {n} người", "partial": "Đã lấy {n} người — chưa hết (dừng ở giới hạn hoặc bị ngắt)", "failed": "Không lấy được danh bạ", "superseded": "Đã thay bằng lần lấy mới"}, "row": {"known": "Đã là khách", "importable": "Chưa có khách", "no_phone": "Thiếu SĐT — không nhập được", "conflict": "SĐT đã có ở khách khác"}, "importHint": "Chỉ nhập người bạn chọn; tên và SĐT lấy đúng như danh bạ.", "importDenied": "Bạn không có quyền nhập khách.", "import": "Nhập {n} khách"},
       "s6": "6 · Vùng nguy hiểm",
       "pause": "Tạm dừng",
       "pauseD": "Giữ nguyên cấu hình, ngưng nhận và gửi tin.",

@@ -158,6 +158,11 @@ class ZcaSession implements ZaloSession {
     return Object.entries(r.changed_profiles ?? {}).map(([k, p]) => ({ id: p.userId || k.split('_')[0]!, displayName: p.displayName || p.zaloName, ...(p.avatar ? { avatar: p.avatar } : {}) }));
   }
 
+  async friends(page: number, count: number): Promise<{ id: string; displayName: string; phone?: string; avatar?: string }[]> {
+    const r = await rejected(() => this.api.getAllFriends(count, page, AvatarSize.Small));
+    return (r ?? []).map((u) => ({ id: u.userId, displayName: u.displayName || u.zaloName, ...(u.phoneNumber ? { phone: u.phoneNumber } : {}), ...(u.avatar ? { avatar: u.avatar } : {}) }));
+  }
+
   async groupLink(groupId: string): Promise<{ enabled: boolean; link: string | null; expiresAt: number | null }> {
     const r = await rejected(() => this.api.getGroupLinkDetail(groupId));
     const enabled = r.enabled === 1;

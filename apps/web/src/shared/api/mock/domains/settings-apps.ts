@@ -6,6 +6,7 @@ import fixture from '../../../../../../../fixtures/prototype-parity/settings.jso
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { requestContactSync } from './contact-sync';
 
 export type ChannelAccount = (typeof fixture.channels)[number]['accounts'][number];
 export type SettingsChannel = (typeof fixture.channels)[number];
@@ -192,6 +193,10 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
       findAccount(db, i.channel_account_id).account.paused = false;
       return { ok: true };
     },
+  },
+  // Danh bạ Zalo (TIP-014b D3) — như server: 202 + /contact-syncs/:id; không tạo khách.
+  'channel.sync_contacts': {
+    execute: (db, i: { channel_account_id: string }) => requestContactSync(db, i.channel_account_id),
   },
   'channel.sync_history': {
     execute: (db, i: { channel_account_id: string; history_days: 0 | 7 | 30 | 90 }) => {

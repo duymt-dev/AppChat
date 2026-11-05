@@ -102,6 +102,8 @@ export const channelOperationRequestedEvent = z.object({ ...base, operation_id: 
 /** Lần lấy lịch sử kênh (TIP-014b C): consumer đẩy job vào hàng đợi tài khoản; lô đã lưu → làm mới danh sách (không âm báo / thông báo / AI). */
 export const channelHistoryRequestedEvent = z.object({ ...base, run_id: z.string().uuid(), channel_account_id: z.string().uuid() });
 export const channelHistoryIngestedEvent = z.object({ ...base, run_id: z.string().uuid(), channel_account_id: z.string().uuid(), conversation_ids: z.array(z.string().uuid()).max(200) });
+/** Đồng bộ danh bạ tài khoản kênh (TIP-014b D3): consumer đẩy job vào hàng đợi tài khoản; ảnh chụp riêng, không tạo khách. */
+export const channelContactsRequestedEvent = z.object({ ...base, sync_id: z.string().uuid(), channel_account_id: z.string().uuid() });
 export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid(), requester_id: z.string().uuid().nullable(), status: z.string(), conversation_id: z.string().uuid().nullable() });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
@@ -219,6 +221,7 @@ export const EVENT_SCHEMAS = {
   'channel.operation_requested': channelOperationRequestedEvent,
   'channel.history_requested': channelHistoryRequestedEvent,
   'channel.history_ingested': channelHistoryIngestedEvent,
+  'channel.contacts_requested': channelContactsRequestedEvent,
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,

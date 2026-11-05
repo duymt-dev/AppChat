@@ -13,6 +13,7 @@ import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
 import { dataJobsRoute } from './domains/data-jobs';
 import { channelOperationsRoute } from './domains/channel-operations';
+import { contactSyncRoute } from './domains/contact-sync';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
@@ -73,6 +74,7 @@ export const mockTransport: Transport = {
       productImportRoute(path) ??
       dataJobsRoute(path) ??
       channelOperationsRoute(path) ??
+      contactSyncRoute(path) ??
       quotesParamRoute(path) ??
       quotesPublicRoute(path) ??
       publicDocumentRoute(path) ??

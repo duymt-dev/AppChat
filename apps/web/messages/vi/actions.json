@@ -868,6 +868,9 @@
     "sync_history": {
       "title": "Đồng bộ lịch sử kênh"
     },
+    "sync_contacts": {
+      "title": "Đồng bộ danh bạ tài khoản kênh"
+    },
     "reconnect": {
       "title": "Kết nối lại tài khoản kênh"
     },

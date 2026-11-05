@@ -43,3 +43,25 @@ export const channelHistoryRunSchema = z.object({
   finished_at: z.string().nullable(),
 });
 export type ChannelHistoryRunDto = z.infer<typeof channelHistoryRunSchema>;
+
+/**
+ * Lần đồng bộ danh bạ (TIP-014b D3): GET /v1/settings/channels/:id/contact-syncs/:syncId (quyền channels.manage). Ảnh chụp riêng tài khoản,
+ * hết hạn sau 24 giờ (`expires_at`; quá hạn → 404). `partial` = dừng ở trần trang / bị ngắt. `rows` = một trang ảnh chụp (≤ 100) kèm
+ * trạng thái khớp khách: `known` (định danh đã gắn khách xem được) · `importable` (có SĐT, chưa có khách) · `no_phone` (thiếu SĐT — không
+ * nhập được, không bịa) · `conflict` (SĐT thuộc khách khác — không lộ là ai).
+ */
+export const CONTACT_SYNC_ROW_STATES = ['known', 'importable', 'no_phone', 'conflict'] as const;
+export const channelContactSyncSchema = z.object({
+  id: z.string(),
+  channel_account_id: z.string(),
+  state: z.enum(['queued', 'running', 'complete', 'partial', 'failed', 'superseded']),
+  pages: z.number().int(),
+  received: z.number().int(),
+  error: z.string().nullable(),
+  created_at: z.string(),
+  finished_at: z.string().nullable(),
+  expires_at: z.string(),
+  rows: z.array(z.object({ external_id: z.string(), name: z.string(), phone: z.string().nullable(), state: z.enum(CONTACT_SYNC_ROW_STATES), contact_id: z.string().nullable() })),
+  next_cursor: z.string().nullable(),
+});
+export type ChannelContactSyncDto = z.infer<typeof channelContactSyncSchema>;

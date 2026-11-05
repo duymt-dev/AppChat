@@ -1,5 +1,5 @@
 // tenant/channel-operations.prisma — sở hữu: TIP-014b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: channel_avatar (ảnh đại diện theo định danh kênh — TIP-014b D), message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
+// Bảng: channel_avatar (ảnh đại diện theo định danh kênh — TIP-014b D), channel_contact_sync + channel_contact_snapshot (danh bạ — D3), message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
 // channel_operation (lệnh thao tác bền: thu hồi / cảm xúc — trạng thái thật theo ACK nhà cung cấp), message_account_reaction (cảm xúc
 // của TÀI KHOẢN kênh trên tin: mong muốn ↔ đã xác nhận ↔ quan sát từ kênh, revision tăng đơn điệu). Chuẩn: omnichannel-adapter §Thao tác.
 // Không Prisma relation xuyên domain (Blueprint §2.1). Partial / covering index viết SQL trong migration.
@@ -189,4 +189,39 @@ model ChannelAvatar {
 
   @@id([channelAccountId, externalId])
   @@map("channel_avatar")
+}
+
+/// Lần đồng bộ danh bạ tài khoản kênh (TIP-014b D3): action ghi `queued` + outbox cùng commit (202); worker giữ phiên lấy danh bạ theo trang
+/// có trần. Ảnh chụp (`channel_contact_snapshot`) riêng tài khoản, hạn 24 giờ — đọc cần `channels.manage`, nhập tay cần `crm.import`.
+model ChannelContactSync {
+  id               String    @id @db.Uuid
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  actorId          String?   @map("actor_id") @db.Uuid
+  /// queued | running | complete | partial | failed | superseded.
+  status           String    @default("queued")
+  generation       Int?
+  pages            Int       @default(0)
+  received         Int       @default(0)
+  error            String?
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  startedAt        DateTime? @map("started_at") @db.Timestamptz(6)
+  finishedAt       DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc), id(sort: Desc)], map: "channel_contact_sync_account_idx")
+  @@index([expiresAt], map: "channel_contact_sync_expires_idx")
+  @@map("channel_contact_sync")
+}
+
+/// Một người trong ảnh chụp danh bạ (TIP-014b D3). Không tạo khách; SĐT chỉ khi nhà cung cấp trả (không bịa).
+model ChannelContactSnapshot {
+  syncId      String  @map("sync_id") @db.Uuid
+  externalId  String  @map("external_id")
+  displayName String  @map("display_name")
+  phone       String?
+  seq         Int
+
+  @@id([syncId, externalId])
+  @@index([syncId, seq], map: "channel_contact_snapshot_page_idx")
+  @@map("channel_contact_snapshot")
 }

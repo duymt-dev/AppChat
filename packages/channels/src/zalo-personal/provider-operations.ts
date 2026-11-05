@@ -1,7 +1,7 @@
 // Cổng thao tác Zalo cá nhân (TIP-014b A) trên ZaloSession — chỉ map các hàm SDK đã kiểm (provider-capabilities.md). Mọi lệnh kiểm
 // tham chiếu TRƯỚC khi gọi kênh: thiếu cliMsgId → pending_ref, id không an toàn → unsafe_ref, không có phiên → ChannelNotRunningError.
 // Sự kiện kênh (self-listen / thu hồi / cảm xúc) → ProviderEvent cho core; không đi qua pipeline tin khách.
-import { ChannelOperationError, MAX_PROFILE_BATCH, type ChannelOperations, type GroupLink, type ProviderEvent, type ProviderMessageRef, type ReactionEmoji } from '../operations';
+import { ChannelOperationError, MAX_FRIENDS_PAGE, MAX_PROFILE_BATCH, type ChannelOperations, type GroupLink, type ProviderEvent, type ProviderMessageRef, type ReactionEmoji } from '../operations';
 import { ChannelNotRunningError } from '../types';
 import { ZALO_REACTION, ZALO_REACTION_NONE, assertCallable, emojiOfZalo } from './provider-refs';
 import type { ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession } from './transport';
@@ -77,6 +77,15 @@ export function zaloOperations(session: (accountId: string) => ZaloSession): Cha
       const asked = new Set(uniq);
       // Chỉ nhận hồ sơ của id đã hỏi (không để SDK chèn định danh lạ vào kết quả).
       return ps.filter((p) => asked.has(p.id)).map((p) => ({ id: p.id, displayName: p.displayName, ...(p.avatar ? { avatarUrl: p.avatar } : {}) }));
+    },
+    async friends(accountId: string, page: number, count: number) {
+      if (!Number.isInteger(page) || page < 1 || !Number.isInteger(count) || count < 1 || count > MAX_FRIENDS_PAGE) throw new ChannelOperationError('invalid', 'friends');
+      const fs = await live(accountId).friends(page, count);
+      // Bỏ dòng thiếu id (không đoán định danh); cắt theo trang đã xin.
+      return fs
+        .filter((f) => f.id && f.id.length <= 64)
+        .slice(0, count)
+        .map((f) => ({ id: f.id, displayName: f.displayName || f.id, ...(f.phone ? { phone: f.phone } : {}), ...(f.avatar ? { avatarUrl: f.avatar } : {}) }));
     },
     async addGroupMembers(accountId: string, groupId: string, memberIds: string[]) {
       const ids = [...new Set(memberIds)];

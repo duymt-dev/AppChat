@@ -5,7 +5,7 @@
 
 export type OperationMode = 'local' | 'remote' | 'unsupported';
 
-export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'profiles';
+export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'profiles' | 'friends';
 
 /** Năng lực thao tác theo kênh (manifest). Thiếu khoá = unsupported. */
 export type OperationCapabilities = Partial<Record<OperationKind, OperationMode>>;
@@ -56,6 +56,18 @@ export interface ProviderProfile {
 /** Số định danh tối đa mỗi lần đọc hồ sơ (một lô). */
 export const MAX_PROFILE_BATCH = 20;
 
+/** Một người trong danh bạ (bạn bè) của tài khoản kênh (TIP-014b D3) — chỉ để xem / chọn nhập tay; không phải đồng ý nhận tiếp thị. */
+export interface ProviderFriend {
+  id: string;
+  displayName: string;
+  /** SĐT nhà cung cấp trả (thường rỗng với Zalo cá nhân) — không bao giờ tự bịa. */
+  phone?: string;
+  avatarUrl?: string;
+}
+
+/** Trang danh bạ tối đa mỗi lần gọi (giới hạn bộ nhớ / tốc độ). */
+export const MAX_FRIENDS_PAGE = 200;
+
 export interface GroupLink {
   enabled: boolean;
   /** Chỉ có khi đang bật — nhạy cảm: chỉ trả cho người có quyền yêu cầu, không log / không đưa vào prompt. */
@@ -80,6 +92,8 @@ export interface ChannelOperations {
   addGroupMembers?(accountId: string, groupId: string, memberIds: string[]): Promise<AddMembersResult>;
   /** Hồ sơ công khai theo lô ≤ MAX_PROFILE_BATCH (chỉ đọc). Id không thấy → vắng trong kết quả (không lỗi). */
   profiles?(accountId: string, ids: string[]): Promise<ProviderProfile[]>;
+  /** Danh bạ theo trang (trang 1 trở đi, ≤ MAX_FRIENDS_PAGE). Trang ít hơn `count` = hết. Chỉ đọc. */
+  friends?(accountId: string, page: number, count: number): Promise<ProviderFriend[]>;
 }
 
 /**

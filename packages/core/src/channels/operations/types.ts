@@ -26,6 +26,12 @@ export interface HistoryJob {
   history_run_id: string;
 }
 
+/** Job đồng bộ danh bạ (TIP-014b D3) — chung hàng đợi thao tác `chop-<tài khoản>`, job id = id lần đồng bộ. */
+export interface ContactSyncJob {
+  ws: string;
+  sync_id: string;
+}
+
 /** Job đồng bộ ảnh đại diện (TIP-014b D) — chung hàng đợi thao tác `chop-<tài khoản>`; một job chờ / tài khoản. */
 export interface AvatarJob {
   ws: string;
