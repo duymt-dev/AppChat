@@ -1,5 +1,6 @@
 // Hợp đồng kênh (standards/channels/omnichannel-adapter.md → Hợp đồng; Blueprint §6). Core chỉ biết các kiểu này.
 import type { z } from 'zod';
+import type { ChannelOperations, OperationCapabilities, ProviderEvent, ProviderMessageRef } from './operations';
 
 export type ChannelStatus = 'ga' | 'beta' | 'coming_soon';
 export type ConnectKind = 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed';
@@ -21,7 +22,10 @@ export interface ChannelManifest {
     /** Tạo nhóm mới từ khách đã biết (TIP-023b SPEC D) — riêng với `group` (nhận / gửi tin nhóm); chỉ true khi adapter có `createGroup`. */
     createGroup?: boolean;
     mentions: boolean;
+    /** Hiện hàng cảm xúc ở menu tin (OQ-12). Không suy ra năng lực gọi kênh — xem `operations.react`. */
     reactions: boolean;
+    /** Năng lực từng thao tác (TIP-014b A): local / remote / unsupported — vắng = unsupported. */
+    operations?: OperationCapabilities;
     send: SendKind[];
     maxTextLength: number;
     markdown: 'none' | 'rich' | 'html';
@@ -53,6 +57,8 @@ export interface NormalizedInbound {
   mentionsMe?: boolean;
   sentAt: string;
   raw: unknown;
+  /** Tham chiếu tin phía kênh (TIP-014b: Zalo msgId + cliMsgId) — core lưu `message_provider_ref` cho thu hồi / cảm xúc. */
+  providerRef?: ProviderMessageRef;
 }
 
 export interface OutboundMessage {
@@ -75,6 +81,8 @@ export interface InboundSink {
   push(msg: NormalizedInbound): Promise<void>;
   /** Phiên đổi sức khoẻ ngoài ý muốn (hết phiên, bị đá, lỗi kết nối) — worker ghi `channel_account.status` + báo Owner. */
   status?(accountId: string, health: HealthStatus, detail?: string): void;
+  /** Sự kiện nhà cung cấp ngoài tin (TIP-014b: tham chiếu tin tự gửi, thu hồi, cảm xúc) — không đi qua pipeline tin vào. */
+  event?(e: ProviderEvent): Promise<void>;
 }
 
 /** Sự kiện đăng nhập QR (Blueprint §6 Zalo cá nhân): ảnh QR (PNG base64) → đã quét → xong / hết hạn / từ chối. */
@@ -109,13 +117,21 @@ export interface ChannelAdapter {
   handleWebhook?(req: RawWebhook, account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
   /** `session = 'poll'` (email — TIP-018): tin mới từ mốc `cursor` (core lưu nguyên giá trị trả về, lần đầu `null`). */
   poll?(accountId: string, cursor: unknown, now?: Date): Promise<{ messages: NormalizedInbound[]; cursor: unknown }>;
-  send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string }>;
+  /** `externalMsgId` = id đại diện (tương thích cũ); `parts` = tham chiếu từng phần đã gửi theo thứ tự (TIP-014b) khi kênh có. */
+  send(accountId: string, msg: OutboundMessage): Promise<SendReceipt>;
   probe(accountId: string): Promise<HealthStatus>;
   /**
    * `capabilities.createGroup`: tạo nhóm với các id phía kênh đã biết. Chưa chạy phiên → ChannelNotRunningError TRƯỚC khi gọi nhà cung
    * cấp (an toàn để thử lại); lỗi khác có thể đã tạo nhóm phía kênh — core ghi `unknown`, không tự thử lại.
    */
   createGroup?(accountId: string, req: CreateGroupRequest): Promise<CreateGroupResult>;
+  /** Thao tác ngoài gửi tin — chỉ hàm ứng với `manifest.capabilities.operations[kind] = 'remote'` (operations.ts). */
+  operations?: ChannelOperations;
+}
+
+export interface SendReceipt {
+  externalMsgId: string;
+  parts?: ProviderMessageRef[];
 }
 
 export interface CreateGroupRequest {
@@ -150,5 +166,19 @@ export class ChannelNotRunningError extends Error {
   constructor(accountId: string) {
     super(`channel_not_running:${accountId}`);
     this.name = 'ChannelNotRunningError';
+  }
+}
+
+/**
+ * Tin chia nhiều phần: một số phần đã có ACK nhà cung cấp rồi lỗi (TIP-014b B). `receipt` = các phần đã gửi chắc chắn — core ghi
+ * `partial`, KHÔNG gửi lại cả tin. `cause` = lỗi của phần kế tiếp.
+ */
+export class PartialSendError extends Error {
+  constructor(
+    readonly receipt: SendReceipt,
+    override readonly cause: unknown,
+  ) {
+    super('channel_partial_send');
+    this.name = 'PartialSendError';
   }
 }

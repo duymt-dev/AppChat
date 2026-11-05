@@ -20,6 +20,7 @@ export * from './orders';
 export * from './channels';
 export * from './inbox';
 export * from './conversation-groups';
+export * from './channel-operations';
 export * from './webchat';
 export * from './ai';
 export * from './assistant';

@@ -3,7 +3,7 @@
 // kết quả trả về qua SendResultSink do domain gọi đăng ký (ghi `message.status`, `external_msg_id`).
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import type { OutboundMessage } from '@appchat/channels';
+import type { OutboundMessage, ProviderMessageRef } from '@appchat/channels';
 
 export const sendQueueName = (accountId: string) => `chsend-${accountId}`;
 
@@ -17,9 +17,13 @@ export interface SendJob {
   proactive?: boolean;
 }
 
+/**
+ * `parts` (TIP-014b): tham chiếu từng phần đã gửi theo thứ tự — inbox lưu `message_provider_ref` để thu hồi / cảm xúc. `partial` = đã
+ * gửi được `parts` rồi phần sau lỗi: KHÔNG gửi lại cả tin (final), inbox ghi phần đã có + báo lỗi.
+ */
 export type SendResult =
-  | { ok: true; ws: string; account_id: string; ref_id: string; external_msg_id: string }
-  | { ok: false; ws: string; account_id: string; ref_id: string; error: string; final: boolean };
+  | { ok: true; ws: string; account_id: string; ref_id: string; external_msg_id: string; parts?: ProviderMessageRef[] }
+  | { ok: false; ws: string; account_id: string; ref_id: string; error: string; final: boolean; parts?: ProviderMessageRef[] };
 
 export type SendResultSink = (r: SendResult) => Promise<void>;
 

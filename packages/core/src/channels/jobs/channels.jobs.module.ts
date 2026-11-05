@@ -25,6 +25,8 @@ import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
 import { reserveSend } from '../services/send-queue';
 import { GroupCreators } from './create-group.processor';
+import { ProviderOperators } from './provider-operations.processor';
+import { providerEventQueue, startProviderEventWorker } from './provider-events.processor';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
 import { ChannelSessions } from './sessions';
@@ -34,6 +36,9 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
   private sessions?: ChannelSessions;
   private senders?: ChannelSenders;
   private groups?: GroupCreators;
+  private operators?: ProviderOperators;
+  private providerEvents?: Queue;
+  private eventWorker?: Worker;
   private stateless?: StatelessChannels;
   private pollers?: ChannelPollers;
   private timer?: NodeJS.Timeout;
@@ -59,7 +64,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
 
   /** Bộ phiên của worker này (test điều khiển trực tiếp). */
   get runtime() {
-    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers, groups: this.groups };
+    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers, groups: this.groups, operators: this.operators };
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -69,16 +74,22 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     const now = () => this.clock.now();
     const leases = new ChannelLeases(redis, `${hostname()}:${process.pid}:${Math.random().toString(36).slice(2, 8)}`);
     this.inbound = new Queue(CHANNEL_INBOUND_QUEUE, { connection: redis.duplicate() });
+    // TIP-014b: sự kiện kênh (self-listen / thu hồi / cảm xúc) + worker thao tác theo phiên (thu hồi / cảm xúc gọi nhà cung cấp).
+    this.providerEvents = providerEventQueue(redis);
+    this.eventWorker = startProviderEventWorker({ redis, kv: redis, tenants, log: this.log, now });
+    const operators = (this.operators = new ProviderOperators({ redis, kv: redis, tenants, log: this.log, now }));
     const sessions: ChannelSessions = new ChannelSessions({
-      platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, kv: redis, key, log: this.log, now,
+      platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.
       onStarted: async (id, ws, adapter) => {
         await senders.open(id, ws, adapter);
         await groups?.open(id, adapter);
+        await operators.open(id, adapter);
       },
       onStopped: async (id) => {
         await senders.close(id);
         await groups?.close(id);
+        await operators.close(id);
       },
     });
     const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log }) : undefined;
@@ -129,6 +140,9 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     await this.pollers?.shutdown();
     await this.senders?.closeAll();
     await this.groups?.closeAll();
+    await this.operators?.closeAll();
+    await this.eventWorker?.close();
+    await this.providerEvents?.close();
     await this.inbound?.close();
   }
 }

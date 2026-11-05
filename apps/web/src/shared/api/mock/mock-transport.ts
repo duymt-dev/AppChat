@@ -12,6 +12,7 @@ import { productsParamRoute } from './domains/products';
 import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
 import { dataJobsRoute } from './domains/data-jobs';
+import { channelOperationsRoute } from './domains/channel-operations';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
@@ -71,6 +72,7 @@ export const mockTransport: Transport = {
       productsParamRoute(path) ??
       productImportRoute(path) ??
       dataJobsRoute(path) ??
+      channelOperationsRoute(path) ??
       quotesParamRoute(path) ??
       quotesPublicRoute(path) ??
       publicDocumentRoute(path) ??

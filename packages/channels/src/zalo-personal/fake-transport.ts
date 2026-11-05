@@ -1,7 +1,8 @@
 // Transport giả Zalo cá nhân (Q-003 — chưa có tài khoản Zalo phụ): QR giả tự "quét" sau `scanAfterMs` (hoặc chờ `scan()`),
 // phiên giả ghi tin đã gửi, bơm tin vào / đá phiên / làm lỗi gửi để test. Chỉ bật bằng ZALO_TRANSPORT=fake (cấm production).
+import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
-import { ZALO_CLOSE, type ZaloCredentials, type ZaloProfile, type ZaloRawMessage, type ZaloSession, type ZaloStyle, type ZaloTransport } from './transport';
+import { ZALO_CLOSE, type ZaloCredentials, type ZaloGroupInfo, type ZaloProfile, type ZaloRawMessage, type ZaloRawReaction, type ZaloRawUndo, type ZaloSession, type ZaloStyle, type ZaloTransport } from './transport';
 
 /** PNG 1×1 — đủ để FE hiện ảnh `data:image/png;base64,…`. */
 export const FAKE_QR_PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -14,7 +15,23 @@ export interface FakeSent {
   styles?: ZaloStyle[];
   files?: string[];
   id: string;
+  /** cliMsgId giả (chuỗi số) — phát qua self-listen nếu `selfEcho` bật. */
+  cliMsgId: string;
 }
+
+/** Lệnh thao tác đã nhận (thu hồi / cảm xúc / thêm thành viên) — test đối chiếu tham số SDK. */
+export interface FakeOp {
+  op: 'undo' | 'react' | 'add_members';
+  threadId: string;
+  isGroup: boolean;
+  msgId?: string;
+  cliMsgId?: string;
+  icon?: string;
+  members?: string[];
+}
+
+/** Đếm id giả toàn tiến trình — phiên mới (kết nối lại) không sinh lại id đã dùng. */
+let SEQ = 0;
 
 const uidOf = (hint: string) => `zl_${hint.replace(/-/g, '').slice(-12)}`;
 
@@ -23,10 +40,20 @@ export class FakeZaloSession implements ZaloSession {
   /** Số lần gửi tiếp theo sẽ lỗi (thử luật tự tạm dừng khi lỗi bất thường). */
   failNext = 0;
   running = false;
-  private seq = 0;
   private msgCb: ((m: ZaloRawMessage) => void)[] = [];
   private oldCb: ((ms: ZaloRawMessage[]) => void)[] = [];
   private closeCb: ((code: number, reason: string) => void)[] = [];
+  private selfCb: ((m: ZaloRawMessage) => void)[] = [];
+  private undoCb: ((u: ZaloRawUndo) => void)[] = [];
+  private reactCb: ((r: ZaloRawReaction) => void)[] = [];
+  /** Lệnh thao tác đã gọi. */
+  readonly ops: FakeOp[] = [];
+  /** Lệnh thao tác kế tiếp: `reject` (nhà cung cấp trả lỗi rõ) / `hang` (treo — kiểm unknown) / `fail` (lỗi mạng). */
+  opMode: 'ok' | 'reject' | 'hang' | 'fail' = 'ok';
+  /** Tin tự gửi phát lại qua self-listen (mang cliMsgId) — như zca-js `selfListen: true`. Tắt để thử tin cũ thiếu cliMsgId. */
+  selfEcho = true;
+  /** Nhóm phía kênh cho groupInfo / groupLink. */
+  readonly remoteGroups = new Map<string, ZaloGroupInfo & { link: string | null }>();
   /** Tin cũ trả về khi `requestOldMessages`. */
   history: ZaloRawMessage[] = [];
   /** Nhóm đã tạo (TIP-023b SPEC D). */
@@ -47,6 +74,35 @@ export class FakeZaloSession implements ZaloSession {
   }
   onClosed(cb: (code: number, reason: string) => void) {
     this.closeCb.push(cb);
+  }
+  onSelfMessage(cb: (m: ZaloRawMessage) => void) {
+    this.selfCb.push(cb);
+  }
+  onUndo(cb: (u: ZaloRawUndo) => void) {
+    this.undoCb.push(cb);
+  }
+  onReaction(cb: (r: ZaloRawReaction) => void) {
+    this.reactCb.push(cb);
+  }
+
+  /** Khách thu hồi / tài khoản thu hồi từ điện thoại (sự kiện `undo` của kênh). */
+  emitUndo(u: Partial<ZaloRawUndo> & { msgId: string }) {
+    if (!this.running) return;
+    for (const cb of this.undoCb) cb({ isGroup: false, isSelf: false, threadId: 'zl_khach', uidFrom: 'zl_khach', ts: String(Date.now()), ...u });
+  }
+
+  /** Cảm xúc từ kênh (sự kiện `reaction`). */
+  emitReaction(r: Partial<ZaloRawReaction> & { msgIds: string[]; icon: string }) {
+    if (!this.running) return;
+    for (const cb of this.reactCb) cb({ isGroup: false, isSelf: false, threadId: 'zl_khach', uidFrom: 'zl_khach', ts: String(Date.now()), ...r });
+  }
+
+  /** Phát lại self-event cho tin đã gửi (test điều khiển thứ tự event trước / sau ACK). */
+  echo(id: string) {
+    const s = this.sent.find((x) => x.id === id);
+    if (!s) return;
+    const m: ZaloRawMessage = { isGroup: s.isGroup, isSelf: true, threadId: s.threadId, msgId: s.id, cliMsgId: s.cliMsgId, uidFrom: this.ownId, ts: String(Date.now()), msgType: 'webchat', content: s.msg };
+    for (const cb of this.selfCb) cb(m);
   }
   start() {
     this.running = true;
@@ -73,13 +129,16 @@ export class FakeZaloSession implements ZaloSession {
     for (const cb of this.closeCb) cb(ZALO_CLOSE.kick, 'kicked');
   }
 
-  private record(s: Omit<FakeSent, 'id'>): string {
+  private record(s: Omit<FakeSent, 'id' | 'cliMsgId'>): string {
     if (this.failNext > 0) {
       this.failNext--;
       throw new Error('zalo_send_failed');
     }
-    const id = `${this.ownId}-m${++this.seq}`;
-    this.sent.push({ ...s, id });
+    // Id số như Zalo thật (chuỗi chữ số) để đi qua kiểm id an toàn của thao tác.
+    const n = ++SEQ;
+    const id = `${7_000_000_000 + n}`;
+    this.sent.push({ ...s, id, cliMsgId: `${9_000_000_000 + n}` });
+    if (this.selfEcho) queueMicrotask(() => this.echo(id));
     return id;
   }
 
@@ -100,6 +159,38 @@ export class FakeZaloSession implements ZaloSession {
     const groupId = `${this.ownId}-g${this.groups.length + 1}`;
     this.groups.push({ groupId, name, members });
     return { groupId, added: members.filter((m) => !m.startsWith('blocked')), failed: members.filter((m) => m.startsWith('blocked')) };
+  }
+
+  private async op<T>(o: FakeOp, ok: () => T): Promise<T> {
+    const mode = this.opMode;
+    this.opMode = 'ok';
+    this.ops.push(o);
+    if (mode === 'hang') return new Promise<never>(() => undefined);
+    if (mode === 'reject') throw new ChannelOperationError('rejected', 'fake');
+    if (mode === 'fail') throw new Error('zalo_network');
+    return ok();
+  }
+  async undo(threadId: string, isGroup: boolean, msgId: string, cliMsgId: string) {
+    await this.op({ op: 'undo', threadId, isGroup, msgId, cliMsgId }, () => undefined);
+  }
+  async react(threadId: string, isGroup: boolean, msgId: string, cliMsgId: string, icon: string) {
+    await this.op({ op: 'react', threadId, isGroup, msgId, cliMsgId, icon }, () => undefined);
+  }
+  async groupInfo(groupId: string): Promise<ZaloGroupInfo> {
+    const g = this.remoteGroups.get(groupId);
+    if (!g) throw new ChannelOperationError('forbidden', 'group_not_visible');
+    return { groupId, name: g.name, totalMember: g.totalMember, memberIds: [...g.memberIds] };
+  }
+  async groupMembers(memberIds: string[]) {
+    return memberIds.map((id) => ({ id, displayName: `Thành viên ${id}` }));
+  }
+  async groupLink(groupId: string) {
+    const g = this.remoteGroups.get(groupId);
+    if (!g) throw new ChannelOperationError('forbidden', 'group_not_visible');
+    return { enabled: !!g.link, link: g.link, expiresAt: null };
+  }
+  async addUserToGroup(groupId: string, memberIds: string[]) {
+    return this.op({ op: 'add_members', threadId: groupId, isGroup: true, members: memberIds }, () => ({ failed: memberIds.filter((m) => m.startsWith('blocked')).map((id) => ({ id, error: 'blocked' })) }));
   }
 }
 

@@ -4,7 +4,7 @@
 import { UnrecoverableError } from 'bullmq';
 import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import { ChannelAuthError, type ChannelAdapter } from '@appchat/channels';
+import { ChannelAuthError, PartialSendError, type ChannelAdapter } from '@appchat/channels';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { settingsOf } from '../services/accounts.service';
@@ -67,11 +67,18 @@ export class ChannelSenders {
         // Điểm tuyến tính hoá với người tiếp quản: đặt chỗ commit → gửi đúng một lần; bị từ chối → dừng hẳn (không thử lại).
         if (this.d.reserve && !(await this.d.reserve(j.ws, j.ref_id))) return null;
         try {
-          const { externalMsgId } = await adapter.send(accountId, j.message);
+          const { externalMsgId, parts } = await adapter.send(accountId, j.message);
           await this.d.redis.del(failKey(accountId));
-          await emitSendResult({ ok: true, ws: j.ws, account_id: accountId, ref_id: j.ref_id, external_msg_id: externalMsgId });
+          await emitSendResult({ ok: true, ws: j.ws, account_id: accountId, ref_id: j.ref_id, external_msg_id: externalMsgId, ...(parts ? { parts } : {}) });
           return externalMsgId;
         } catch (err) {
+          // Đã gửi được một phần (TIP-014b): ghi phần đã có, KHÔNG thử lại (thử lại sẽ gửi trùng các phần đã tới khách).
+          if (err instanceof PartialSendError) {
+            const cause = (err.cause instanceof Error ? err.cause.message : 'send_failed').slice(0, 200);
+            await emitSendResult({ ok: false, ws: j.ws, account_id: accountId, ref_id: j.ref_id, error: `partial:${cause}`, final: true, ...(err.receipt.parts ? { parts: err.receipt.parts } : {}) });
+            if (err.cause instanceof ChannelAuthError) this.later(() => this.d.expire(j.ws, accountId));
+            throw new UnrecoverableError('channel_partial_send');
+          }
           const final = err instanceof ChannelAuthError || job.attemptsMade + 1 >= SEND_ATTEMPTS;
           const msg = (err instanceof Error ? err.message : 'send_failed').slice(0, 200);
           await emitSendResult({ ok: false, ws: j.ws, account_id: accountId, ref_id: j.ref_id, error: msg, final });

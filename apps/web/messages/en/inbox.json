@@ -446,5 +446,19 @@
       "failed": "Could not create the group.",
       "unknown": "Outcome unknown — the group may already exist on Zalo. Check Zalo before trying again."
     }
+  },
+  "providerOp": {
+    "recall": {
+      "pending": "Recalling on Zalo…",
+      "unknown": "Recall status on Zalo is unknown — check on the phone",
+      "failed": "Zalo could not recall this message",
+      "partial": "Partly recalled — some parts could not be recalled"
+    },
+    "react": {
+      "pending": "Sending reaction to Zalo…",
+      "unknown": "Unknown whether Zalo received the reaction",
+      "failed": "Zalo did not accept this reaction"
+    },
+    "accepted": "Sent to Zalo — waiting for confirmation"
   }
 }

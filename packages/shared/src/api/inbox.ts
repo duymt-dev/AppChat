@@ -82,6 +82,11 @@ export const messageSchema = z.object({
   recalled: z.boolean().optional(),
   deleted: z.boolean().optional(),
   reaction: z.string().nullable().optional(),
+  /**
+   * Thao tác kênh đang chờ / chưa rõ trên tin (TIP-014b): `recall` / `react` → trạng thái lệnh mới nhất chưa xác nhận. Vắng = không có
+   * gì chờ. `recalled` chỉ true khi nhà cung cấp đã xác nhận.
+   */
+  provider_op: z.object({ recall: z.enum(['pending', 'failed', 'unknown', 'partial']).optional(), react: z.enum(['pending', 'failed', 'unknown']).optional() }).optional(),
   reply_to: z.object({ id: z.string(), preview: z.string() }).optional(),
   forwarded: z.boolean().optional(),
   /** Tệp / ảnh của tin (API thật). */

@@ -9,6 +9,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
 import { emailOutboundExtras, type ChannelSendQueue, type SendResult } from '../../channels/public';
 import { previewOf } from './view';
+import { saveMessageRefs } from '../../channels/operations/operation-store';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
@@ -102,7 +103,7 @@ export async function enqueueOutgoing(queue: ChannelSendQueue | null, ws: string
 }
 
 /** Kết quả gửi → outbox + message + event (`message.sent` / `message.failed`). null = không phải tin của inbox. */
-export async function applySendResult(tx: TenantTx, r: SendResult): Promise<OutboxEventInput[] | null> {
+export async function applySendResult(tx: TenantTx, r: SendResult, now: Date): Promise<OutboxEventInput[] | null> {
   const ob = await tx.outboxMessage.findUnique({ where: { id: r.ref_id } });
   if (!ob || ob.status === 'sent' || ob.status === 'dead') return ob ? [] : null;
   const msg = await tx.message.findUnique({ where: { id: ob.messageId } });
@@ -110,6 +111,8 @@ export async function applySendResult(tx: TenantTx, r: SendResult): Promise<Outb
   if (!msg || !conv) return [];
   const owner = conv.contactId ? await tx.contact.findUnique({ where: { id: conv.contactId }, select: { ownerUserId: true } }) : null;
   const base = { conversation_id: conv.id, channel_account_id: conv.channelAccountId, contact_id: conv.contactId, assignee_user_id: conv.assigneeUserId, contact_owner_user_id: owner?.ownerUserId ?? null, message_id: msg.id };
+  // Tham chiếu từng phần phía kênh (TIP-014b) — cả khi chỉ gửi được một phần, để thu hồi được phần đã tới khách.
+  if (r.parts?.length) await saveMessageRefs(tx, conv.channelAccountId, msg.id, r.parts, now);
   if (r.ok) {
     await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'sent', attempts: ob.attempts + 1, lastError: null } });
     // Id phía kênh trùng tin khác (kênh trả lại id cũ) → giữ tin, bỏ id.

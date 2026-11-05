@@ -220,7 +220,7 @@ describe('kết nối Zalo cá nhân', () => {
     await sendQ.enqueue({ ws: h.ws, account_id: A, ref_id: 'r1', message: { externalThreadId: 'u_lan', kind: 'text', text: 'Dạ còn **size M** ạ' } });
     expect(await until(() => results.some((r) => r.ref_id === 'r1'))).toBe(true);
     await new Promise((r) => setTimeout(r, 300));
-    expect(results.filter((r) => r.ref_id === 'r1')).toEqual([{ ok: true, ws: h.ws, account_id: A, ref_id: 'r1', external_msg_id: s.sent.at(-1)!.id }]);
+    expect(results.filter((r) => r.ref_id === 'r1')).toEqual([{ ok: true, ws: h.ws, account_id: A, ref_id: 'r1', external_msg_id: s.sent.at(-1)!.id, parts: [expect.objectContaining({ msgId: s.sent.at(-1)!.id, cliMsgId: null })] }]);
     expect(s.sent.filter((x) => x.msg === 'Dạ còn size M ạ')).toHaveLength(1);
     expect(s.sent.at(-1)!.styles).toEqual([{ start: 7, len: 6, st: 'b' }]);
 

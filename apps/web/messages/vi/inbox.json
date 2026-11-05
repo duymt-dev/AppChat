@@ -446,5 +446,19 @@
       "failed": "Không tạo được nhóm.",
       "unknown": "Chưa rõ kết quả — nhóm có thể đã được tạo trên Zalo. Kiểm tra Zalo trước khi tạo lại."
     }
+  },
+  "providerOp": {
+    "recall": {
+      "pending": "Đang thu hồi trên Zalo…",
+      "unknown": "Chưa rõ đã thu hồi trên Zalo — kiểm tra trên điện thoại",
+      "failed": "Zalo không thu hồi được tin này",
+      "partial": "Đã thu hồi một phần — còn phần chưa thu hồi được"
+    },
+    "react": {
+      "pending": "Đang gửi cảm xúc lên Zalo…",
+      "unknown": "Chưa rõ Zalo đã nhận cảm xúc",
+      "failed": "Zalo không nhận cảm xúc này"
+    },
+    "accepted": "Đã gửi lệnh tới Zalo — chờ xác nhận"
   }
 }

@@ -74,6 +74,8 @@ export interface Message {
   /** Tin do người dùng vừa gửi (mock): hiển thị text thuần, không phải HTML fixture. */
   plain?: boolean;
   recalled?: boolean;
+  /** Thao tác kênh chưa xác nhận (TIP-014b): thu hồi / cảm xúc đang chờ, chưa rõ, lỗi, một phần. */
+  provider_op?: { recall?: 'pending' | 'failed' | 'unknown' | 'partial'; react?: 'pending' | 'failed' | 'unknown' };
   deleted?: boolean;
   /** Cảm xúc hiện tại của người dùng trên tin này (REQ-C09 `message.react`, bấm lại để bỏ). */
   reaction?: string | null;

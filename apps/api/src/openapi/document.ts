@@ -3,8 +3,9 @@
 // `{ data }` / `{ data, next_cursor }` / `{ error: { code, message, fields? } }`. Bảo mật: bearer JWT + `x-workspace-id`; route công khai
 // (auth, trang ký / xem báo giá công khai, health, widget) khai `security: []`. Không chứa secret / URL nội bộ.
 import type { ActionDef } from '@appchat/actions';
-import { ACTION_COMPONENTS, actionOperation } from './action-ops';
+import { channelOperationSchema } from '@appchat/shared';
 import type { ScannedRoute } from './route-scan';
+import { ACTION_COMPONENTS, actionOperation, jsonSchemaOf } from './action-ops';
 
 type Schema = Record<string, unknown>;
 export interface OpenApiDocument {
@@ -29,12 +30,18 @@ const params = (path: string) =>
 /** GET không có tham số cuối → danh sách (có thể có next_cursor); còn lại → `{ data }`. */
 const isList = (r: ScannedRoute) => r.method === 'get' && !/\}$/.test(r.path) && !/(\/counts|\/stats|\/me|\/board|\/overview|\/summary)$/.test(r.path);
 
+/** Route đọc đã có DTO zod chung (shared) → schema `data` thật, không `x-untyped`. Thêm route mới có DTO vào đây. */
+const TYPED: Record<string, () => Schema> = {
+  'get /v1/inbox/channel-operations/{id}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(channelOperationSchema, 'output') } }),
+};
+
 function routeOperation(r: ScannedRoute): Schema {
-  const ok = isList(r) ? LIST : DATA;
+  const typed = TYPED[`${r.method} ${r.path}`];
+  const ok = typed ? typed() : isList(r) ? LIST : DATA;
   return {
     operationId: `${r.controller}_${r.handler}`.replace(/\W/g, '_'),
     tags: [r.tag],
-    'x-untyped': true,
+    ...(typed ? {} : { 'x-untyped': true }),
     parameters: params(r.path),
     ...(r.method === 'get' || r.method === 'delete' ? {} : { requestBody: { required: false, content: { 'application/json': { schema: { type: 'object' } } } } }),
     ...(PUBLIC.test(r.path) ? { security: [] } : {}),

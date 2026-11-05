@@ -149,7 +149,8 @@ export const messageRecall = defineAction({
   id: 'message.recall',
   module: 'inbox',
   title: 'actions.message.recall.title',
-  description: 'Recall (unsend) a message on the channel when supported. Example: {"conversation_id":"c_lan","message_id":"m7"}',
+  description:
+    'Recall (unsend) a message on the channel when supported. On Zalo the recall is accepted as a background job (202 job_accepted) and the message stays visible until the provider confirms. Example: {"conversation_id":"c_lan","message_id":"m7"}',
   input: z.object({ conversation_id: convId, message_id: z.string().min(1) }),
   output: z.object({ recalled: z.boolean() }),
   permission: 'inbox.reply',
@@ -176,8 +177,10 @@ export const messageReact = defineAction({
   id: 'message.react',
   module: 'inbox',
   title: 'actions.message.react.title',
-  description: 'React to a message with an emoji; sending the same emoji again removes it. Example: {"conversation_id":"c_lan","message_id":"m7","emoji":"👍"}',
-  input: z.object({ conversation_id: convId, message_id: z.string().min(1), emoji: z.enum(['👍', '❤️', '😂', '😮', '😢', '🙏']) }),
+  description:
+    'React to a message with an emoji; sending the same emoji again removes it. On Zalo the reaction belongs to the connected account and is applied after the provider confirms (202 job_accepted). Example: {"conversation_id":"c_lan","message_id":"m7","emoji":"👍"}',
+  // `if_revision` (tuỳ chọn — TIP-014b): revision cảm xúc của tài khoản lúc xem; đã đổi → 409, xem trước lại.
+  input: z.object({ conversation_id: convId, message_id: z.string().min(1), emoji: z.enum(['👍', '❤️', '😂', '😮', '😢', '🙏']), if_revision: z.number().int().min(0).optional() }),
   output: z.object({ emoji: z.string().nullable() }),
   permission: 'inbox.reply',
   risk: 'write',

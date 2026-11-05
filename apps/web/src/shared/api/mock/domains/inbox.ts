@@ -4,6 +4,7 @@ import { foldText } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
+import { isRemote, requestReact, requestRecall } from './channel-operations';
 
 export type InboxFixture = typeof fixture;
 type Conv = InboxFixture['conversations'][number];
@@ -278,6 +279,8 @@ export const inboxHandlers: Record<string, MockHandler> = {
   },
   'message.recall': {
     execute: (db, i: Ci & { message_id: string }) => {
+      // Zalo: lệnh bền chờ nhà cung cấp xác nhận (TIP-014b); kênh khác ẩn ngay trong AppChat.
+      if (isRemote(db, i.conversation_id)) return requestRecall(db, i.conversation_id, i.message_id);
       const m = db.inbox.messages[i.conversation_id]?.find((x) => x.id === i.message_id);
       if (m) Object.assign(m, { recalled: true });
       return { recalled: true };
@@ -296,6 +299,7 @@ export const inboxHandlers: Record<string, MockHandler> = {
   },
   'message.react': {
     execute: (db, i: Mi & { emoji: string }) => {
+      if (isRemote(db, i.conversation_id)) return requestReact(db, i.conversation_id, i.message_id, i.emoji);
       const m = msg(db, i.conversation_id, i.message_id);
       if (!m) return { emoji: null };
       const next = m.reaction === i.emoji ? null : i.emoji;

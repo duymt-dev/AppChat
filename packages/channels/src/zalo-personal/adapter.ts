@@ -1,8 +1,12 @@
 // ChannelAdapter Zalo cá nhân (Blueprint §6, thiết kế theo OpenClaw `zalouser`): QR login → credential, giữ phiên (listener
 // 1-1 + nhóm), gửi chữ (rich text, chia đoạn) / ảnh / file / sticker, probe, đồng bộ tin cũ, tạo nhóm (TIP-023b). Giới hạn tốc độ + lease ở worker.
-import { ChannelAuthError, ChannelNotRunningError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage } from '../types';
+// TIP-014b: thao tác thu hồi / cảm xúc / đọc nhóm qua `operations` (provider-operations.ts); sự kiện self-listen / thu hồi / cảm xúc từ
+// kênh → `sink.event` (lỗi sink ghi lại, không nuốt im lặng); gửi trả tham chiếu từng phần (`parts`) theo thứ tự.
+import type { ProviderEvent, ProviderMessageRef } from '../operations';
+import { ChannelAuthError, ChannelNotRunningError, PartialSendError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage, type SendReceipt } from '../types';
 import { zaloPersonalManifest } from './manifest';
 import { normalizeZalo } from './normalize';
+import { reactionEvent, selfRefEvent, undoEvent, zaloOperations } from './provider-operations';
 import { renderChunks } from './render';
 import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, type ZaloSession, type ZaloTransport } from './transport';
 
@@ -32,6 +36,9 @@ const fileName = (name: string | undefined, mime: string, i: number): string => 
 export class ZaloPersonalAdapter implements ChannelAdapter {
   readonly manifest = zaloPersonalManifest;
   private readonly running = new Map<string, Running>();
+  readonly operations = zaloOperations((id) => this.session(id).session);
+  /** Lỗi đẩy sự kiện vào sink (core) — đếm để probe / test thấy, không nuốt im lặng. */
+  readonly sinkErrors = new Map<string, number>();
 
   constructor(
     private readonly transport: ZaloTransport,
@@ -47,11 +54,18 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     await this.stop(account.id);
     const session = await this.transport.login(account.credentials as ZaloCredentials);
     const run: Running = { session, sink, health: 'connected', historySince: null };
+    const failed = () => this.sinkErrors.set(account.id, (this.sinkErrors.get(account.id) ?? 0) + 1);
     const push = (m: ZaloRawMessage) => {
       const n = normalizeZalo(account.id, m, session.ownId);
-      if (n) void sink.push(n).catch(() => undefined);
+      if (n) void sink.push(n).catch(failed);
+    };
+    const emit = (e: ProviderEvent | null) => {
+      if (e && sink.event) void sink.event(e).catch(failed);
     };
     session.onMessage(push);
+    session.onSelfMessage((m) => emit(selfRefEvent(account.id, m)));
+    session.onUndo((u) => emit(undoEvent(account.id, u)));
+    session.onReaction((r) => emit(reactionEvent(account.id, r)));
     session.onOldMessages((ms) => {
       const since = run.historySince;
       if (since === null) return;
@@ -90,25 +104,30 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     if (days > 0) r.session.requestOldMessages();
   }
 
-  async send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string }> {
+  async send(accountId: string, msg: OutboundMessage): Promise<SendReceipt> {
     const { session } = this.session(accountId);
     const group = !!msg.isGroup;
     const max = this.manifest.capabilities.maxTextLength;
+    // cliMsgId chưa biết lúc gửi (SDK chỉ trả msgId) — bổ sung khi self-event khớp đúng msgId (core).
+    const ref = (msgId: string): ProviderMessageRef => ({ threadId: msg.externalThreadId, isGroup: group, msgId, cliMsgId: null, senderId: session.ownId });
+    const done = (ids: string[]): SendReceipt => ({ externalMsgId: ids.at(-1) ?? '', parts: ids.filter(Boolean).map(ref) });
+    const ids: string[] = [];
     try {
       if (msg.kind === 'sticker') {
         const s = msg.sticker ?? {};
-        return { externalMsgId: await session.sendSticker(msg.externalThreadId, group, { id: s.id ?? 0, cateId: s.cateId ?? 0, type: s.type ?? 1 }) };
+        return done([await session.sendSticker(msg.externalThreadId, group, { id: s.id ?? 0, cateId: s.cateId ?? 0, type: s.type ?? 1 })]);
       }
       if ((msg.kind === 'image' || msg.kind === 'file') && msg.attachments?.length) {
         const files: ZaloFile[] = [];
         for (const [i, a] of msg.attachments.entries()) files.push({ data: await this.files(a.url), filename: fileName(a.name, a.mime, i) });
-        return { externalMsgId: await session.sendFiles(msg.externalThreadId, group, (msg.text ?? '').slice(0, max), files) };
+        return done([await session.sendFiles(msg.externalThreadId, group, (msg.text ?? '').slice(0, max), files)]);
       }
-      let last = '';
-      for (const part of renderChunks(msg.text ?? '', max)) last = await session.sendText(msg.externalThreadId, group, part.msg, part.styles);
-      return { externalMsgId: last };
+      for (const part of renderChunks(msg.text ?? '', max)) ids.push(await session.sendText(msg.externalThreadId, group, part.msg, part.styles));
+      return done(ids);
     } catch (err) {
       if (err instanceof ChannelAuthError) await this.stop(accountId);
+      // Đã gửi được một phần (chia đoạn) rồi lỗi → trả phần đã có ACK, không để core gửi lại cả tin.
+      if (ids.length) throw new PartialSendError(done(ids), err);
       throw err;
     }
   }

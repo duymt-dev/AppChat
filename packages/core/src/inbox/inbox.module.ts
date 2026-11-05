@@ -25,7 +25,8 @@ import {
   ConversationSetAiModeHandler,
   ConversationSetStatusHandler,
 } from './actions/conversation-state.handlers';
-import { MessageDeleteHandler, MessageForwardHandler, MessagePinHandler, MessageReactHandler, MessageRecallHandler, MessageSendHandler, NoteAddHandler } from './actions/message.handlers';
+import { MessageDeleteHandler, MessageForwardHandler, MessagePinHandler, MessageSendHandler, NoteAddHandler } from './actions/message.handlers';
+import { MessageReactHandler, MessageRecallHandler } from './actions/message-provider.handlers';
 import { ContactSendEmailHandler } from './actions/email-send.handlers';
 import { ConversationCreateGroupHandler } from './actions/conversation-create-group.handler';
 import { CannedReplyCreateHandler, CannedReplyDeleteHandler, CannedReplyUpdateHandler, TagCreateHandler, TagDeleteHandler, TagUpdateHandler } from './actions/settings.handlers';

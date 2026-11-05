@@ -1,11 +1,14 @@
 export * from './types';
 export * from './define';
+export * from './operations';
 export { channelRegistry, buildChannelRegistry, type ChannelDeps } from './registry';
 export { ZaloPersonalAdapter, refuseFileFetch, type FileFetcher } from './zalo-personal/adapter';
 export { ZcaTransport } from './zalo-personal/zca-transport';
-export { FakeZaloTransport, FakeZaloSession, fakeZaloTransport, FAKE_QR_PNG, type FakeSent } from './zalo-personal/fake-transport';
+export { FakeZaloTransport, FakeZaloSession, fakeZaloTransport, FAKE_QR_PNG, type FakeSent, type FakeOp } from './zalo-personal/fake-transport';
 export { toRichText, chunkText, renderChunks } from './zalo-personal/render';
 export { normalizeZalo } from './zalo-personal/normalize';
+export { ZALO_REACTION, zaloId, safeForSdk, emojiOfZalo } from './zalo-personal/provider-refs';
+export { MAX_ADD_MEMBERS } from './zalo-personal/provider-operations';
 export type { ZaloTransport, ZaloSession, ZaloCredentials, ZaloRawMessage } from './zalo-personal/transport';
 export { WebchatAdapter, type WidgetPublisher, type WidgetOutMessage } from './webchat/adapter';
 export { EmailAdapter, type MailCursor, type EmailSendMeta } from './email/adapter';

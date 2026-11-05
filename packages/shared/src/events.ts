@@ -92,11 +92,13 @@ const convBase = {
 export const messageReceivedEvent = z.object({ ...convBase, message_id: z.string().uuid(), new_conversation: z.boolean(), is_group: z.boolean(), mentions_me: z.boolean(), vip: z.boolean(), title: z.string() });
 export const messageSentEvent = z.object({ ...convBase, message_id: z.string().uuid(), sender_type: z.enum(['user', 'agent', 'system']), sender_id: z.string().nullable() });
 export const messageFailedEvent = z.object({ ...convBase, message_id: z.string().uuid(), error: z.string().max(200) });
-export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status']) });
+export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status', 'operation']) });
 export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_id: z.string().nullable(), by_user_id: z.string().uuid().nullable(), auto: z.boolean(), title: z.string() });
 export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
 /** Tạo nhóm kênh (TIP-023b SPEC D): yêu cầu đã lưu → consumer đẩy tới worker giữ phiên; kết quả (succeeded / failed / unknown) → realtime người yêu cầu. */
 export const groupRequestedEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+/** Lệnh thao tác trên tin phía kênh (TIP-014b A: thu hồi / cảm xúc) — consumer đẩy vào hàng đợi thao tác của đúng tài khoản. */
+export const channelOperationRequestedEvent = z.object({ ...base, operation_id: z.string().uuid(), channel_account_id: z.string().uuid() });
 export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid(), requester_id: z.string().uuid().nullable(), status: z.string(), conversation_id: z.string().uuid().nullable() });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
@@ -211,6 +213,7 @@ export const EVENT_SCHEMAS = {
   'conversation.updated': conversationUpdatedEvent,
   'channel.group_requested': groupRequestedEvent,
   'channel.group_result': groupResultEvent,
+  'channel.operation_requested': channelOperationRequestedEvent,
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,

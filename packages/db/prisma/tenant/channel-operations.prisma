@@ -1,0 +1,97 @@
+// tenant/channel-operations.prisma — sở hữu: TIP-014b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
+// channel_operation (lệnh thao tác bền: thu hồi / cảm xúc — trạng thái thật theo ACK nhà cung cấp), message_account_reaction (cảm xúc
+// của TÀI KHOẢN kênh trên tin: mong muốn ↔ đã xác nhận ↔ quan sát từ kênh, revision tăng đơn điệu). Chuẩn: omnichannel-adapter §Thao tác.
+// Không Prisma relation xuyên domain (Blueprint §2.1). Partial / covering index viết SQL trong migration.
+
+/// Tham chiếu tin phía kênh (Zalo: msgId + cliMsgId + thread). Tin ra chia nhiều phần → nhiều dòng `part_no` theo thứ tự gửi; tin vào
+/// một dòng part 0. `cli_msg_id` null = chưa biết (chờ self-event) — thao tác cần nó báo `pending_ref`, không đoán.
+model MessageProviderRef {
+  messageId        String   @map("message_id") @db.Uuid
+  partNo           Int      @map("part_no")
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  threadId         String   @map("thread_id")
+  isGroup          Boolean  @map("is_group")
+  /// Id phía kênh dạng chuỗi (giữ nguyên chữ số — không qua number).
+  msgId            String   @map("msg_id")
+  cliMsgId         String?  @map("cli_msg_id")
+  senderId         String?  @map("sender_id")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([messageId, partNo])
+  @@unique([channelAccountId, msgId], map: "message_provider_ref_account_msg_key")
+  @@map("message_provider_ref")
+}
+
+/// Self-event (tin tự gửi mang cliMsgId) tới TRƯỚC khi kết quả gửi ghi msgId — giữ tạm có hạn, ghép khi biên nhận tới. Không tạo tin.
+model ProviderPendingRef {
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  msgId            String   @map("msg_id")
+  cliMsgId         String   @map("cli_msg_id")
+  threadId         String   @map("thread_id")
+  isGroup          Boolean  @map("is_group")
+  expiresAt        DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@id([channelAccountId, msgId])
+  @@map("provider_pending_ref")
+}
+
+enum ChannelOperationStatus {
+  /// Đã ghi, chưa gọi kênh — huỷ được.
+  queued
+  /// Đã đặt chỗ gọi kênh (attempted_at) — sập / hết giờ sau mốc này thành `unknown`, không gọi lại.
+  dispatch_reserved
+  confirmed
+  failed
+  unknown
+  /// Tin nhiều phần: một số phần xác nhận, phần khác lỗi chắc chắn — không báo thu hồi xong.
+  partial
+  cancelled
+  /// Lệnh cảm xúc bị lệnh mới hơn (revision lớn hơn) thay trước khi gọi kênh.
+  superseded
+
+  @@map("channel_operation_status")
+}
+
+/// Lệnh thao tác trên tin phía kênh (thu hồi / cảm xúc). Ghi cùng transaction với action_log + outbox `channel.operation_requested`;
+/// worker giữ phiên tài khoản gọi kênh. Chỉ ACK nhà cung cấp mới đổi `message.recalled_at` / cảm xúc đã xác nhận.
+model ChannelOperation {
+  id               String                 @id @db.Uuid
+  /// `recall` | `react`.
+  kind             String
+  channelAccountId String                 @map("channel_account_id") @db.Uuid
+  conversationId   String                 @map("conversation_id") @db.Uuid
+  messageId        String                 @map("message_id") @db.Uuid
+  /// Người ra lệnh (user gốc) — chỉ người này đọc / huỷ được qua route inbox.
+  actorId          String?                @map("actor_id") @db.Uuid
+  /// `react`: `{ emoji: string | null }` — trạng thái cuối mong muốn (không phải bật / tắt).
+  desired          Json                   @default("{}")
+  /// `react`: revision cảm xúc của tài khoản trên tin lúc ghi lệnh.
+  revision         Int                    @default(0)
+  status           ChannelOperationStatus @default(queued)
+  /// Kết quả từng phần (tin chia nhiều phần): `{ parts: [{ part_no, status, error? }] }` — thu hồi chỉ `confirmed` khi mọi phần xong.
+  result           Json                   @default("{}")
+  error            String?
+  attemptedAt      DateTime?              @map("attempted_at") @db.Timestamptz(6)
+  finishedAt       DateTime?              @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([messageId, kind, createdAt(sort: Desc), id(sort: Desc)], map: "channel_operation_message_kind_idx")
+  @@map("channel_operation")
+}
+
+/// Cảm xúc của tài khoản kênh trên tin (một tài khoản = một danh tính phía kênh, không phải mỗi nhân viên một cảm xúc). `desired_*` = lệnh
+/// mới nhất đã ghi; `confirmed_*` = đã có ACK; `remote_emoji` = quan sát từ sự kiện kênh. Revision tăng đơn điệu — ACK / event cũ không đè mới.
+model MessageAccountReaction {
+  messageId         String   @id @map("message_id") @db.Uuid
+  channelAccountId  String   @map("channel_account_id") @db.Uuid
+  desiredEmoji      String?  @map("desired_emoji")
+  desiredRevision   Int      @default(0) @map("desired_revision")
+  confirmedEmoji    String?  @map("confirmed_emoji")
+  confirmedRevision Int      @default(0) @map("confirmed_revision")
+  remoteEmoji       String?  @map("remote_emoji")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("message_account_reaction")
+}

@@ -11,6 +11,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountStatus } from '../services/accounts.service';
 import type { ControlOp } from '../services/control';
 import { LEASE_HEARTBEAT_MS, type ChannelLeases } from './lease';
+import { enqueueProviderEvent } from './provider-events.processor';
 
 export interface SessionDeps {
   platform: Pick<PlatformDb, 'tenantChannelRoute'>;
@@ -19,6 +20,8 @@ export interface SessionDeps {
   accounts: ChannelAccounts;
   leases: ChannelLeases;
   inbound: Pick<Queue, 'add'>;
+  /** Sự kiện kênh ngoài tin vào (TIP-014b: self-listen / thu hồi / cảm xúc) — queue `channel-provider-event`. Vắng → bỏ. */
+  providerEvents?: Pick<Queue, 'add'>;
   kv: KeyValueStore;
   key: Buffer;
   log: AppLogger;
@@ -170,6 +173,9 @@ export class ChannelSessions {
         const id = `in-${m.channelAccountId}-${m.externalMsgId}`.replaceAll(':', '_');
         await this.d.inbound.add('inbound', { ws, message: m }, { jobId: id, attempts: 5, backoff: { type: 'exponential', delay: 2000 }, removeOnComplete: 1000, removeOnFail: 5000 });
         await this.touch(ws, m.channelAccountId);
+      },
+      event: async (e) => {
+        if (this.d.providerEvents) await enqueueProviderEvent(this.d.providerEvents, ws, e);
       },
       status: (accountId: string, health: HealthStatus, detail?: string) => {
         if (health === 'expired') void this.markDown(ws, accountId, 'expired', detail).catch((err: unknown) => this.d.log.error({ err }, 'channel mark expired failed'));

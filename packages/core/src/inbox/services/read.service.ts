@@ -7,6 +7,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { folderCounts, listConversationIds, type ConvFilter } from '../repos/conversations.repo';
 import { UUID, visibleConversation } from './access';
 import { toConversation, toMessage, withDays, type ConvExtras, type Place } from './view';
+import { latestOperations } from '../../channels/operations/operation-read';
 
 export interface Viewer {
   workspaceId: string;
@@ -98,14 +99,16 @@ export class InboxReadService {
       const page = rows.slice(0, THREAD_PAGE).reverse();
       const ids = page.map((m) => m.id);
       const replyIds = [...new Set(page.map((m) => m.replyToId).filter((x): x is string => !!x))];
-      const [mine, replies] = await Promise.all([
+      const [mine, replies, ops] = await Promise.all([
         tx.messageReaction.findMany({ where: { messageId: { in: ids }, actorType: 'user', actorId: v.userId }, orderBy: { createdAt: 'asc' } }),
         replyIds.length ? tx.message.findMany({ where: { id: { in: replyIds } }, select: { id: true, body: true, deletedAt: true, recalledAt: true } }) : [],
+        latestOperations(tx, ids),
       ]);
       const x = {
         myReaction: new Map(mine.map((r) => [r.messageId, r.emoji])),
         replyPreview: new Map(replies.map((r) => [r.id, r.deletedAt || r.recalledAt ? '' : r.body.slice(0, 80)])),
         isGroup: c.kind === 'group',
+        ops,
       };
       return {
         data: withDays(page.map((m) => ({ at: m.createdAt, dto: toMessage(m, x, p) })), p),

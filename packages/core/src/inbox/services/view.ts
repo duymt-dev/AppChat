@@ -89,7 +89,12 @@ export interface MsgExtras {
   replyPreview: Map<string, string>;
   /** Kênh hỗ trợ cảm xúc (menu hiện hàng emoji — OQ-12). */
   isGroup: boolean;
+  /** Lệnh thao tác kênh mới nhất theo tin (TIP-014b). */
+  ops?: Map<string, { recall?: string; react?: string }>;
 }
+
+const OPEN_RECALL = new Set(['pending', 'failed', 'unknown', 'partial']);
+const OPEN_REACT = new Set(['pending', 'failed', 'unknown']);
 
 export function toMessage(m: MsgRow, x: MsgExtras, p: Place): MessageDto {
   const kind = m.kind === 'note' ? 'note' : m.kind;
@@ -110,6 +115,12 @@ export function toMessage(m: MsgRow, x: MsgExtras, p: Place): MessageDto {
     out.sender_hue = hueOf(m.senderId ?? m.senderName);
   }
   if (m.recalledAt) out.recalled = true;
+  const op = x.ops?.get(m.id);
+  if (op) {
+    const recall = !m.recalledAt && op.recall && OPEN_RECALL.has(op.recall) ? op.recall : undefined;
+    const react = op.react && OPEN_REACT.has(op.react) ? op.react : undefined;
+    if (recall || react) out.provider_op = { ...(recall ? { recall: recall as 'pending' } : {}), ...(react ? { react: react as 'pending' } : {}) };
+  }
   if (m.deletedAt) out.deleted = true;
   const r = x.myReaction.get(m.id);
   if (r) out.reaction = r;

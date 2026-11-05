@@ -36,7 +36,10 @@ import type { WidgetUrls } from './webchat/widget.service';
 import { ChannelGroupResultHandler } from './actions/group-result.handler';
 import { GroupRequestQueue } from './jobs/create-group.processor';
 import { groupRequestConsumer } from './events/group-request.consumer';
+import { OperationQueue } from './jobs/provider-operations.processor';
+import { operationRequestConsumer } from './jobs/provider-events.processor';
 import { GroupRead } from './services/group-read';
+import { ChannelOperationRead } from './operations/operation-read';
 import { registerEventConsumer, unregisterEventConsumer } from '../kernel/events/consumer';
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -51,12 +54,14 @@ class Closer implements OnApplicationShutdown {
     private readonly send: ChannelSendQueue | null,
     private readonly inbound: Queue | null,
     private readonly groups: GroupRequestQueue | null,
+    private readonly ops: OperationQueue | null,
   ) {}
   async onApplicationShutdown(): Promise<void> {
     await this.q?.close();
     await this.inbound?.close();
     await this.send?.close();
     await this.groups?.close();
+    await this.ops?.close();
   }
 }
 
@@ -108,7 +113,21 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
         return q;
       },
     },
+    {
+      // Hàng đợi thao tác kênh theo tài khoản + consumer outbox `channel.operation_requested` (TIP-014b).
+      provide: OperationQueue,
+      inject: [opt(REDIS)],
+      useFactory: (r?: Redis) => {
+        if (!r) return null;
+        const q = new OperationQueue(r.duplicate());
+        const c = operationRequestConsumer(q);
+        unregisterEventConsumer(c.name);
+        registerEventConsumer(c);
+        return q;
+      },
+    },
     { provide: GroupRead, inject: [opt(TENANT_RESOLVER)], useFactory: (t?: TenantDbResolver) => (t ? new GroupRead(t) : null) },
+    { provide: ChannelOperationRead, inject: [opt(TENANT_RESOLVER)], useFactory: (t?: TenantDbResolver) => (t ? new ChannelOperationRead(t) : null) },
     {
       provide: CHANNEL_REGISTRY,
       inject: [opt(ENV_SOURCE), opt(REDIS), opt(ENC_KEY), opt(TENANT_RESOLVER), { token: FilesService, optional: true }],
@@ -136,10 +155,10 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     },
     {
       provide: 'CHANNELS_CLOSER',
-      inject: [LOGIN_QUEUE, ChannelSendQueue, INBOUND_QUEUE, GroupRequestQueue],
-      useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null, g: GroupRequestQueue | null) => new Closer(q, s, i, g),
+      inject: [LOGIN_QUEUE, ChannelSendQueue, INBOUND_QUEUE, GroupRequestQueue, OperationQueue],
+      useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null, g: GroupRequestQueue | null, o: OperationQueue | null) => new Closer(q, s, i, g, o),
     },
   ],
-  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead],
+  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead, ChannelOperationRead],
 })
 export class ChannelsModule {}

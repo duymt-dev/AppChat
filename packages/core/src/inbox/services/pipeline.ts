@@ -12,6 +12,7 @@ import { writeOutbox, type OutboxEventInput } from '../../kernel/outbox/outbox';
 import type { ContactIdentityService } from '../../crm/public';
 import { settingsOf } from '../../channels/public';
 import { previewOf } from './view';
+import { saveMessageRefs } from '../../channels/operations/operation-store';
 
 export interface InboundResult {
   /** null = tin trùng / tài khoản không còn → bỏ qua. */
@@ -126,6 +127,7 @@ export class InboundPipeline {
               ${JSON.stringify(m.attachments ?? [])}::jsonb, ${m.externalMsgId}, 'delivered', ${at})
       ON CONFLICT (channel_account_id, external_msg_id) DO NOTHING`;
     if (!inserted) throw new DuplicateInbound();
+    if (m.providerRef) await saveMessageRefs(tx, account.id, msgId, [m.providerRef], now);
 
     if (m.isGroup) {
       await tx.conversationParticipant.upsert({

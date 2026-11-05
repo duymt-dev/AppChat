@@ -64,7 +64,7 @@ export function sendResultSink(d: InboxJobDeps) {
     const t = await db(d, r.ws);
     const now = d.now();
     const wrote = await t.$transaction(async (tx) => {
-      const events = await applySendResult(tx, r);
+      const events = await applySendResult(tx, r, now);
       if (events?.length) await writeOutbox(tx, r.ws, events, now);
       return !!events?.length;
     });

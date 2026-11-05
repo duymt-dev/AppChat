@@ -6,6 +6,7 @@ import { useFmt } from '@/shared/i18n/useFmt';
 import { useBubbleStyles } from '../styles/bubble.styles';
 import { Attachments } from './Attachments';
 import { MessageMenu } from './MessageMenu';
+import { MessageProviderStatus } from './MessageProviderStatus';
 import { Rich } from './Rich';
 import type { Conversation, Message } from '../types';
 
@@ -134,6 +135,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
               {files}
               {body || !files ? text : null}
               {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
+              <MessageProviderStatus op={m.provider_op} />
               <div className={cx(styles.stamp, styles.stampOut)}>
                 {/* Tin gửi đi hiện tên người gửi (REQ-C13) */}
                 {m.sender ? <b className={styles.senderOut}>{m.sender}</b> : null}
@@ -194,6 +196,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
           ) : null}
           {text}
           {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
+          <MessageProviderStatus op={m.provider_op} />
           <div className={styles.stamp}>{m.time}</div>
         </div>
       )}
