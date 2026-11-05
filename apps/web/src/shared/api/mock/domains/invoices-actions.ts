@@ -9,6 +9,7 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import { NAMES, TODAY, deny, find, log, type CustomerPackage, type Invoice, type Payment } from './invoices';
+import { sendReceipt } from './commerce-delivery';
 
 const invalid = (field: string, rule: string): never => {
   throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: field, fields: { [field]: rule } });
@@ -178,6 +179,7 @@ export const invoicesActionHandlers: Record<string, MockHandler> = {
       return { ok: true };
     },
   },
+  'receipt.send': { execute: (db, i: { payment_id: string; channel?: string }) => sendReceipt(db.invoices.invoices, i.payment_id, i.channel) },
 };
 
 export const invoicesActionRoutes: Record<string, MockRoute> = {

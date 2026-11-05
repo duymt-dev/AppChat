@@ -397,10 +397,10 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `ai_agent` | name, emoji?, avatar_file_id?, role(sales\|cs\|booking\|marketing\|accounting\|ops\|custom), language(vi\|en\|bilingual\|auto), persona, tone, system_prompt, intents text[], model_tier(standard\|advanced\|max), tool_ids text[] (action ids), kb_scope jsonb `{folder_ids[], tags[]}`, channel_account_ids uuid[], confidence_threshold (0.7), approval_rules jsonb, working_hours jsonb, status(draft\|active\|paused), template_key?, created_via(manual\|template\|assistant), created_by, **published_version_id?**, draft_dirty bool. Các cột cấu hình là **bản nháp**; agent chạy theo `published_version_id` (D29) |
 | `ai_agent_version` | agent_id, version int, config jsonb (snapshot đủ cấu hình), published_by, published_at, note? | unique(agent_id, version); idx(agent_id, version desc) |
 | `agent_template` **[P]** | key, role, industry_group?, industry?, name, description, defaults jsonb |
-| `kb_folder` | name, parent_id?, visibility(public\|internal), sort | idx(parent_id) |
+| `kb_folder` | name, parent_id?, visibility(public\|internal), sort, version (TIP-020b — CAS) | idx(parent_id); unique f_unaccent(lower(btrim(name))) (TIP-020b) |
 | `kb_source` | folder_id?, origin(upload\|url\|text\|catalog\|conversation\|drive), kind(pdf\|docx\|xlsx\|csv\|txt\|md\|url\|text\|product), name, tags text[], visibility(public\|internal), file_id?, url?, product_id?, sha256?, status(pending\|processing\|ready\|failed), error?, chunk_count, size_bytes, created_by, refreshed_at, deleted_at? | idx(folder_id, status) WHERE deleted_at IS NULL; gin(tags); unique(sha256) WHERE deleted_at IS NULL |
 | `kb_chunk` | source_id, ord, content, content_norm (= f_unaccent(lower(content))), embedding vector(1536), embed_model, token_count, meta jsonb `{path[], page?, row?, volatile?}` | `hnsw (embedding vector_cosine_ops)`; `gin (content_norm gin_trgm_ops)`; idx(source_id, ord) |
-| `kb_suggestion` (P1) | conversation_id, question, answer, source_message_ids uuid[], status(pending\|approved\|rejected), edited bool, reviewed_by?, reviewed_at?, kb_source_id? | idx(status, created_at desc) |
+| `kb_suggestion` (P1) | conversation_id, question, answer, source_message_ids uuid[], status(pending\|approved\|rejected), edited bool, fingerprint, cutoff_message_id, run_id?, reviewed_by?, reviewed_at?, reject_reason?, kb_source_id?, version | *TIP-043:* covering idx(status, created_at desc, id desc) INCLUDE (conversation_id, version, kb_source_id) + deferred join; unique(fingerprint); unique(kb_source_id); idx(conversation_id). Câu hỏi / đáp án lưu **đã che PII**; không có nguồn / đoạn KB tới khi duyệt |
 | `ai_run` | kind(agent_reply\|assistant\|delegate\|consult\|task\|suggestion), parent_run_id?, root_run_id?, depth, state jsonb? (messages + pending tool call khi chờ duyệt), agent_id?, agent_version int?, dry_run bool, conversation_id?, assistant_session_id?, task_id?, initiated_by_user_id?, status(queued\|running\|waiting_approval\|completed\|failed\|cancelled\|handoff), plan jsonb?, input jsonb, output jsonb?, error?, confidence?, credits_used, started_at, finished_at. Index: idx(status, started_at desc) |
 | `ai_run_step` | run_id, idx, type(llm\|tool\|delegate\|consult\|handoff\|ui_command), agent_id?, action_id?, input jsonb, output jsonb, status, provider?, model?, tokens_in, tokens_out, credits, latency_ms |
 | `approval_request` | run_id, step_id, action_id, input jsonb, preview jsonb, risk, reason, status(pending\|approved\|rejected\|edited\|expired), requested_at, decided_by?, decided_at?, decision_note?. partial idx(requested_at desc) WHERE status='pending' |
@@ -472,7 +472,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact.access_requested` / `contact.access_decided` | request_id | thông báo owner của khách / Quản lý (Việc cần tôi); thông báo người xin |
 | `agent.published` / `agent.paused` / `agent.deleted` | agent_id, version | làm mới routing agent theo kênh; WS; thông báo |
 | `kb.source_ready` / `kb.source_failed` | source_id, chunk_count / error | WS cập nhật trang Dữ liệu RAG; thông báo khi lỗi |
-| `kb.suggestion_created` (P1) | suggestion_id | thông báo người có `kb.manage` |
+| `kb.suggestion_created` (P1) | suggestion_ids (1–5), conversation_id — *TIP-043:* chỉ id | thông báo `ai_review` (biến thể kb, link `/settings/rag_data?nav=review`) cho người có `kb.manage`; WS `kb.suggestion` |
+| `kb.suggestion_approved` / `kb.suggestion_rejected` (TIP-043) | suggestion_id (+ source_id, ingest_seq khi duyệt) | consumer `kb-suggest` đẩy lại `kb-ingest` cho nguồn mới; WS |
+| `conversation.updated` → `kb-suggest` (TIP-043) | change `status` / `bulk` + hội thoại `closed` | job đề xuất theo mốc tin cuối (ROLE=ai, AiRunner run kind `suggestion`, trần 20 credit, prompt `kb-suggestion` v2) |
 | `order.imported` / `order.external_updated` | order_id, connection_id | như `order.confirmed` / `completed` / `cancelled` theo trạng thái ánh xạ (kho; loyalty **chỉ khi** bật cho kết nối); timeline (D31) |
 | `integration.connected` / `integration.error` / `integration.disconnected` | connection_id, connector_key | thông báo; metric `integration_connection_status`; trang Nền tảng kết nối |
 | `integration.event_received` | connection_id, connector_key, port, event_id, kind | consumer domain theo port xử lý `integration_event` (TIP-010 / 031 / 032) — TIP-012 |
@@ -770,6 +772,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 - `loyalty.get_member`: read, agent ✓.
 - `loyalty.update_config`: config.
 - `loyalty.adjust_points`: money; bắt buộc 1 trong 7 lý do; undo 24h.
+- *Bổ sung hợp đồng TIP-036 (không đổi luật COMMERCE §7):* `loyalty.get_member` trả thêm `value` (điểm × 100đ, string VND) + `vnd_per_point`; `loyalty.attach_file` (crm.edit, write, undo 24h — gắn tệp tự tải lên vào thành viên); `payment.redeem_points` (payment.record, money, undo 24h, module sales — khoá đề nghị → đơn → khách → lô, trần 50% đơn, DC-350); action hệ thống `loyalty.earn` / `reverse` / `expire` / `review_tier` chỉ consumer `order.completed` · `order.cancelled` · `payment.refunded` + job `loyalty.sweep` gọi (actor `system:loyalty`, không qua HTTP / Trợ lý — DC-348/349). `contact.get` / `get_360` trả thêm `tier`.
 
 **ai** (`assistant.use` · `agents.manage` · `kb.manage` · `approvals.decide` · `ai.governance` · `ai_task.manage`)
 
@@ -790,8 +793,8 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `kb.update_source` (thư mục, thẻ, visibility) | write | | 24h |
 | `kb.remove_source` | delete | | 30d |
 | `kb.refresh_source` | write | | |
-| `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | |
-| `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | |
+| `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | *Bổ sung TIP-020b (không đổi quyền):* update / delete nhận `if_version` (STALE_VERSION), undo 24h; delete chỉ thư mục rỗng (HAS_DEPENDENCIES); visibility thư mục = mặc định cho nguồn MỚI. `kb.add_source.visibility` bỏ trống = kế thừa thư mục (server resolve); nguồn `origin=catalog` không sửa / xoá trực tiếp (CONFLICT `catalog_managed`). |
+| `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | *TIP-043:* quyền `kb.manage`, không agentGrantable, `if_version` bắt buộc (STALE_VERSION / CONFLICT khi đã xử lý); approve che PII lần nữa — còn dấu vết → 422 `fields.<ô>=sensitive_data:<loại>`; tạo `kb_source` origin `conversation`, visibility kế thừa thư mục. `kb.suggestion.propose` chỉ nguồn system (actor `system:kb-suggest`, nằm trong SYSTEM_ONLY — HTTP / Trợ lý 403). |
 | `approval.approve` / `approval.reject` / `approval.edit_and_approve` | write, `approvals.decide` **và** permission duyệt của action gốc (`quote.approve`, `contract.sign`, `payment.refund_approve`, `campaign.approve`…) | | |
 | `run.cancel` | write (nút Dừng ở khung "Trợ lý AI đang điều phối" — REQ-E14) | | |
 | `ai.summarize` · `ai.translate` · `ai.detect_intent` · `ai.score_lead` · `ai.extract_info` | read, `skill: true` — nhóm **Kỹ năng AI** (D51); lệnh `/…` trong khung nhập | ✓ | |
@@ -964,8 +967,8 @@ type UiCommand =
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
 | support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
 | marketing | `GET /v1/segments` · `POST /v1/segments/preview` (đọc) · `GET /v1/campaigns?status=` · `GET /v1/campaigns/:id` (+stats) · `GET /v1/campaign-suggestions` |
-| loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=` · `GET /v1/loyalty/members/:contactId/ledger` |
-| ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/suggestions?status=` (P1) · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
+| loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=&page=&limit=` · `GET /v1/loyalty/members/:contactId` · `GET /v1/loyalty/members/:contactId/ledger` · `GET /v1/loyalty/lookup?phone=` · `GET /v1/loyalty/overview` · `GET /v1/loyalty/members/:contactId/files` (+ `/:fileId` bytes) — bổ sung TIP-036, schema chung `packages/shared/src/api/loyalty.ts` |
+| ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/sources/:id/download` (TIP-020b — byte / văn bản, URL / catalog trả JSON mô tả; không tải lại website) · `GET /v1/kb/suggestions?status=&cursor=&limit=` (P1; TIP-043 — `{data, next_cursor, meta:{pending}}`) · `GET /v1/kb/suggestions/:id` · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |
 | billing | `GET /v1/billing/summary` (gói, hạn, credit, giới hạn) · `GET /v1/billing/plans` · `GET /v1/billing/ledger?cursor=` · `GET /v1/billing/invoices` · `GET /v1/billing/invoices/:id` (QR, trạng thái) |

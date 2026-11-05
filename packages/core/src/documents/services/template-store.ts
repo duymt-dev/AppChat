@@ -4,6 +4,7 @@ import type { TenantDb } from '@appchat/db';
 import { AppError, htmlText, legalChecklist, sanitizeTemplateHtml, templateVars, validateTemplateVars, type DocKind } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { FilesService } from '../../kernel/files/files.service';
+import { makeGroupDefault } from './contract-template';
 import { docxParagraphs, openDocx } from './docx';
 
 export interface Field {
@@ -54,13 +55,7 @@ export function checkDocxFields(kind: DocKind, paras: readonly string[], fields:
   return legalChecklist(kind, paras.join('\n'), fields.map((f) => f.variable));
 }
 
-/** Đặt mẫu làm mặc định của loại: tắt cờ mẫu cũ trước (unique partial `doc_template_default_uq`). Trả id mẫu mặc định cũ. */
-export async function makeDefault(tx: Pick<TenantTx, 'docTemplate'>, kind: DocKind, id: string): Promise<string | null> {
-  const prev = await tx.docTemplate.findFirst({ where: { kind, isDefault: true, deletedAt: null }, select: { id: true } });
-  if (prev?.id === id) return null;
-  if (prev) await tx.docTemplate.update({ where: { id: prev.id }, data: { isDefault: false } });
-  await tx.docTemplate.update({ where: { id }, data: { isDefault: true } });
-  return prev?.id ?? null;
-}
+/** Đặt mẫu làm mặc định của loại (nhóm chung, `contract_kind` rỗng) — mặc định theo loại hợp đồng ở `contract-template.ts` (TIP-030b). */
+export const makeDefault = (tx: Pick<TenantTx, 'docTemplate'>, kind: DocKind, id: string) => makeGroupDefault(tx, kind, null, id);
 
 export const missingOf = (checklist: unknown) => ((checklist ?? []) as { key: string; ok: boolean }[]).filter((c) => !c.ok).map((c) => c.key);

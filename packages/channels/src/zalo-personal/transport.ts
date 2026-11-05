@@ -58,6 +58,8 @@ export interface ZaloSession {
   sendText(threadId: string, isGroup: boolean, msg: string, styles: ZaloStyle[]): Promise<string>;
   sendFiles(threadId: string, isGroup: boolean, text: string, files: ZaloFile[]): Promise<string>;
   sendSticker(threadId: string, isGroup: boolean, sticker: { id: number; cateId: number; type: number }): Promise<string>;
+  /** Tạo nhóm (zca-js `createGroup`) — trả id nhóm + uid thêm được / không thêm được. */
+  createGroup(name: string, members: string[]): Promise<{ groupId: string; added: string[]; failed: string[] }>;
 }
 
 export interface ZaloTransport {

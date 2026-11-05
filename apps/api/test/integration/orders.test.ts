@@ -147,6 +147,10 @@ describe('xác nhận → kho; hoàn tất → điểm; huỷ', () => {
     ids.o3 = ok(await act('order.create', { contact_id: ids.lan, items: [line('HIFU', '12000000', 1, ids.hifu)], header_discount: { kind: 'amount', value: '1000000' } })).result.order_id;
     expect((await act('order.complete', { order_id: ids.o3 })).status).toBe(409);
     ok(await act('order.confirm', { order_id: ids.o3 }));
+    // Tích theo thực thu lúc hoàn tất (DC-297 c) — thu đủ trước khi hoàn tất.
+    const due = String((await (await tenant()).order.findUniqueOrThrow({ where: { id: ids.o3 } })).total);
+    const inv = ok(await act('invoice.create', { order_id: ids.o3, contact_id: ids.lan, kind: 'full', amount: due })).result.invoice_id;
+    ok(await act('invoice.record_payment', { invoice_id: inv, amount: due, method: 'cash' }));
     h.clock.advance(1000);
     const d = ok(await act('order.complete', { order_id: ids.o3 }));
     expect(d.result).toMatchObject({ status: 'completed', points: 1650 });
@@ -155,7 +159,7 @@ describe('xác nhận → kho; hoàn tất → điểm; huỷ', () => {
     expect(c).toMatchObject({ stage: 'won', totalSpent: 11000000n });
     expect(c.lastOrderAt?.toISOString()).toBe(h.clock.now().toISOString());
     const ev = await db.outboxEvent.findFirst({ where: { topic: 'order.completed' }, orderBy: { createdAt: 'desc' } });
-    expect(ev?.payload).toMatchObject({ order_id: ids.o3, points: 1650, net_before_vat: '11000000' });
+    expect(ev?.payload).toMatchObject({ order_id: ids.o3, points: 1650, net_before_vat: '11000000', basis: { earn_net: '11000000', tier: 'gold', mult: 1.5 } });
     expect((await row(ids.o3)).points_earned).toBe(1650);
     expect((await undo(d.action_log_id)).status).toBe(200);
     expect(await db.contact.findUniqueOrThrow({ where: { id: ids.lan } })).toMatchObject({ stage: 'won', totalSpent: 0n });

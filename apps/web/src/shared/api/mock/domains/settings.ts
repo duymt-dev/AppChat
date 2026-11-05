@@ -1,6 +1,7 @@
 // Mock Cài đặt (Blueprint §4.4 settings; §7.2 settings registry): GET /settings/workspace, /settings/members, /settings/roles.
 // Vai trò = 5 vai trò hệ thống §3.5, chỉ đọc ở P0 (D27); ma trận quyền lấy từ ROLE_DEFS. Mời thành viên tạo dòng "Chờ xác nhận".
-import { ApiRequestError, PERMISSIONS, ROLE_COLOR, ROLE_DEFS, SYSTEM_ROLES } from '@appchat/shared';
+// Chính sách bán hàng (TIP-032b P1): GET /settings/sales-policy + `sales_settings.update` (chỉ Chủ sở hữu, CAS if_version) như server.
+import { ApiRequestError, DEFAULT_APPROVAL_POLICY, PERMISSIONS, ROLE_COLOR, ROLE_DEFS, SYSTEM_ROLES, type SalesPolicyDto } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -13,12 +14,15 @@ export interface SettingsState {
   workspace: Workspace;
   members: SettingsMember[];
   seq: number;
+  /** Ngưỡng duyệt báo giá — mặc định 20M / 5% (COMMERCE §3 Q5); trần agent 5% từ AI Governance. */
+  sales: Omit<SalesPolicyDto, 'can_edit'>;
 }
 
 export const createSettingsState = (): SettingsState => ({
   workspace: structuredClone(fixture.workspace),
   members: fixture.members.map((m) => ({ ...structuredClone(m), invite: false })),
   seq: 0,
+  sales: { approval_total_vnd: DEFAULT_APPROVAL_POLICY.total_vnd, approval_discount_pct: DEFAULT_APPROVAL_POLICY.discount_pct, agent_max_discount_pct: 5, version: 1 },
 });
 
 const norm = (s: string) =>
@@ -53,11 +57,27 @@ export const settingsRoutes: Record<string, MockRoute> = {
     })),
     permissions: PERMISSIONS,
   }),
+  '/settings/sales-policy': (db): SalesPolicyDto => ({ ...db.settings.sales, can_edit: db.role === 'owner' }),
 };
 
 type WsIn = Partial<Omit<Workspace, 'id' | 'initial' | 'currency'>> & { name?: string };
 
+type SalesIn = { if_version: number; approval_total_vnd?: string; approval_discount_pct?: number };
+
 export const settingsHandlers: Record<string, MockHandler> = {
+  'sales_settings.update': {
+    execute: (db, i: SalesIn) => {
+      if (db.role !== 'owner') throw new ApiRequestError(403, { code: 'FORBIDDEN', message: 'owner', fields: { permission: 'owner' } });
+      const cur = db.settings.sales;
+      if (cur.version !== i.if_version) throw new ApiRequestError(409, { code: 'STALE_VERSION', message: 'version', fields: { version: String(cur.version) } });
+      Object.assign(cur, {
+        approval_total_vnd: i.approval_total_vnd ?? cur.approval_total_vnd,
+        approval_discount_pct: i.approval_discount_pct ?? cur.approval_discount_pct,
+        version: cur.version + 1,
+      });
+      return { version: cur.version, approval_total_vnd: cur.approval_total_vnd, approval_discount_pct: cur.approval_discount_pct };
+    },
+  },
   'workspace.update': {
     execute: (db, i: WsIn) => {
       const { name, ...rest } = i;

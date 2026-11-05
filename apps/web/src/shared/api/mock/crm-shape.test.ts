@@ -4,6 +4,7 @@ import {
   accessRequestsSchema,
   collaboratorsSchema,
   contact360Schema,
+  contactMemorySchema,
   contactsBoardSchema,
   contactsPageSchema,
   crmStatsSchema,
@@ -57,5 +58,21 @@ describe('mock crm — shape FE ↔ BE', () => {
   it('GET /settings/fields · /settings/profile-layouts', async () => {
     expect(issues(fieldsDataSchema.safeParse(await mockTransport.get('/settings/fields', { entity: 'contact' })))).toEqual([]);
     expect(issues(profileLayoutsSchema.safeParse(await mockTransport.get('/settings/profile-layouts')))).toEqual([]);
+  });
+
+  it('TIP-015b: /contacts/:id/memory · contact.remember (trùng → refreshed) · memory_forget + hoàn tác · summarize (rule)', async () => {
+    const mem = contactMemorySchema.parse(await mockTransport.get('/contacts/ct_lan/memory'));
+    expect(mem.items.length).toBeGreaterThan(0);
+    const a = await mockTransport.action<{ memory_id: string; status: string }>('contact.remember', { contact_id: 'ct_lan', fact: 'Thích trà gừng' });
+    expect(a.status === 200 && a.data.result.status).toBe('created');
+    const b = await mockTransport.action<{ memory_id: string; status: string }>('contact.remember', { contact_id: 'ct_lan', fact: 'thích trà gừng.' });
+    expect(b.status === 200 && b.data.result.status).toBe('refreshed');
+    const id = a.status === 200 ? a.data.result.memory_id : '';
+    const f = await mockTransport.action('contact.memory_forget', { memory_id: id });
+    expect(f.status).toBe(200);
+    if (f.status === 200) await mockTransport.undo(f.data.action_log_id);
+    expect(contactMemorySchema.parse(await mockTransport.get('/contacts/ct_lan/memory')).items.some((x) => x.memory_id === id)).toBe(true);
+    const s = await mockTransport.action<{ source: string; bullets: string[] }>('contact.summarize', { contact_id: 'ct_lan' });
+    expect(s.status === 200 && s.data.result.source).toBe('rule');
   });
 });

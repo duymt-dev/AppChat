@@ -7,8 +7,10 @@ import { useDrawerStyles } from '../styles/drawer.styles';
 import { useLoyaltyUi, type MemberTab } from '../loyalty-store';
 import { memberQuery } from '../api';
 import { TIER_TONE, avColor, initial, pts } from '../status';
-import type { LoyaltyOverview, Member } from '../types';
-import { AiTab, FilesTab, HistoryTab, LadderTab, OverviewTab } from './MemberTabs';
+import type { Member } from '../types';
+import { HistoryTab, LadderTab, OverviewTab } from './MemberTabs';
+import { AiTab } from './MemberAiTab';
+import { FilesTab } from './MemberFilesTab';
 
 const TABS: MemberTab[] = ['overview', 'crm', 'ai', 'files', 'history'];
 
@@ -47,7 +49,7 @@ function Head({ m }: { m: Member }) {
   );
 }
 
-export function MemberDrawer({ data }: { data: LoyaltyOverview }) {
+export function MemberDrawer() {
   const t = useTranslations('loyalty.dr');
   const { styles } = useDrawerStyles();
   const id = useLoyaltyUi((s) => s.detail);
@@ -74,7 +76,7 @@ export function MemberDrawer({ data }: { data: LoyaltyOverview }) {
           {tab === 'overview' ? <OverviewTab m={m} /> : null}
           {tab === 'crm' ? <LadderTab m={m} /> : null}
           {tab === 'ai' ? <AiTab m={m} /> : null}
-          {tab === 'files' ? <FilesTab data={data} /> : null}
+          {tab === 'files' ? <FilesTab m={m} /> : null}
           {tab === 'history' ? <HistoryTab m={m} /> : null}
         </div>
       ) : null}

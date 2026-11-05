@@ -24,6 +24,8 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'agent.changed': [['agents']],
   'channel.status': [['channels']],
   'kb.source': [['kb']],
+  // đổi định nghĩa / vai trò được thấy của trường tuỳ biến (TIP-045b annex C) → mọi danh sách + chi tiết tải lại (REST chiếu theo quyền)
+  'fields.changed': [[]],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */

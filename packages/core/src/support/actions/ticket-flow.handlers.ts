@@ -14,6 +14,7 @@ import { enqueueOutgoing, writeOutgoing, type Outgoing } from '../../inbox/publi
 import { lockTicket, type TicketRecord } from '../ticket-access';
 import { SlaCalendar, defaultPolicy, resumeDue, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, step, timeline, type Ev } from '../services/ticket-write';
+import * as pv from './previews/ticket-flow.handlers.preview';
 
 type Out = { ticket_id: string; status: string };
 type Snap = { id: string; status: string; paused_since: string | null; ttr_due_at: string; paused_total_sec: number; sla_result: string | null; close_reason: string | null; closed_at: string | null };
@@ -50,6 +51,10 @@ export class TicketSetStatusHandler implements Handler<ActionInput<typeof ticket
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketSetStatus>, tx: TenantTx) {
+    return pv.setStatusPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketSetStatus>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
@@ -74,6 +79,10 @@ export class TicketCloseHandler implements Handler<ActionInput<typeof ticketClos
     @Inject(ChannelSendQueue) private readonly queue: ChannelSendQueue | null,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketClose>, tx: TenantTx) {
+    return pv.closePreview(tx, ctx.authz, input, this.clock.now());
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketClose>, tx: TenantTx): Promise<HandlerOutcome<Out & { sla_result: 'met' | 'breached' }>> {
     const now = this.clock.now();
@@ -120,6 +129,10 @@ export class TicketReopenHandler implements Handler<ActionInput<typeof ticketReo
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketReopen>, tx: TenantTx) {
+    return pv.reopenPreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketReopen>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();

@@ -79,6 +79,9 @@ export const useQuoteAiStyles = createStyles(({ css, responsive }) => ({
     line-height: 1.6;
     color: ${color.text};
   `,
+  thread: css`
+    margin-top: 12px;
+  `,
   resultH: css`
     font-size: ${font.scale.s11}px;
     font-weight: ${font.weight.heavy};

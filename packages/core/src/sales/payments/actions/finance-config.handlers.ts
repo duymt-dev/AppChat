@@ -12,6 +12,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { actorUserId } from '../../../crm/public';
 import { ConnectionsService } from '../../../integrations/public';
 import { webhookPathOf } from '../services/bank-feed';
+import { accountPreview, connectPreview, disconnectPreview } from '../previews/finance-config.handlers.preview';
 
 const need = (c: ConnectionsService | null) => {
   if (!c) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'integrations chưa cấu hình (APP_ENC_KEY)');
@@ -34,6 +35,10 @@ export class PaymentAccountUpdateHandler implements Handler<ActionInput<typeof p
     const view = (a: { bank: string; bankBin: string; accountNo: string; accountName: string } | null) => (a ? { bank: a.bank, bin: a.bankBin, account_no: a.accountNo, account_name: a.accountName } : null);
     return { result: { ok: true }, before: view(prev), after: view(data) };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof paymentAccountUpdate>, tx: TenantTx) {
+    return accountPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -44,20 +49,37 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  /** Pha nền tảng (TIP-045b): kiểm thông tin + mã hoá + chọn id feed (tenant chỉ đọc). Ghi tenant ở `applyTenant`, route ở `finalizePlatform`. */
   async execute(ctx: ActionContext, input: ActionInput<typeof bankFeedConnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ feed_id: string; webhook_path: string }>> {
-    const p = needPtx(ptx);
-    const { row } = await need(this.connections).connect(tx, ctx.workspaceId, actorUserId(ctx) ?? ctx.actor.id, input.provider, input.fields);
-    const accountNo = String((row.config as Record<string, unknown>).account_number ?? '').replace(/\D/g, '');
-    const existing = await tx.tenantBankFeed.findUnique({ where: { connectionId: row.id } });
+    needPtx(ptx);
+    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields);
+    const accountNo = String((conn.config as Record<string, unknown>).account_number ?? '').replace(/\D/g, '');
+    const existing = await tx.tenantBankFeed.findUnique({ where: { connectionId: conn.id } });
     const feedId = existing?.id ?? uuidv7(this.clock.now().getTime());
-    if (existing) await tx.tenantBankFeed.update({ where: { id: feedId }, data: { status: 'active', accountNo, provider: input.provider } });
-    else await tx.tenantBankFeed.create({ data: { id: feedId, connectionId: row.id, provider: input.provider, accountNo, createdAt: this.clock.now() } });
-    await p.tenantBankFeedRoute.upsert({ where: { feedId }, create: { feedId, workspaceId: ctx.workspaceId, provider: input.provider }, update: { provider: input.provider } });
     return {
       result: { feed_id: feedId, webhook_path: webhookPathOf(input.provider, feedId) },
       after: { provider: input.provider, feed_id: feedId, account_no: accountNo },
-      events: [{ topic: 'integration.connected', payload: { connection_id: row.id, connector_key: row.connectorKey } }],
+      tenantPlan: { conn, feedId, accountNo, provider: input.provider, by: actorUserId(ctx) ?? ctx.actor.id, at: this.clock.now().toISOString() },
     };
+  }
+
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const p = plan as { conn: Parameters<ConnectionsService['applyConnect']>[2]; feedId: string; accountNo: string; provider: string; by: string; at: string };
+    const row = await need(this.connections).applyConnect(tx, p.by, p.conn);
+    const existing = await tx.tenantBankFeed.findUnique({ where: { id: p.feedId } });
+    if (existing) await tx.tenantBankFeed.update({ where: { id: p.feedId }, data: { status: 'active', accountNo: p.accountNo, provider: p.provider } });
+    else await tx.tenantBankFeed.create({ data: { id: p.feedId, connectionId: row.id, provider: p.provider, accountNo: p.accountNo, createdAt: new Date(p.at) } });
+    return { events: [{ topic: 'integration.connected', payload: { connection_id: row.id, connector_key: row.connectorKey } }] };
+  }
+
+  async finalizePlatform(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx) {
+    const p = plan as { conn: { id: string }; feedId: string; provider: string };
+    await need(this.connections).routeIn(ptx, ctx.workspaceId, p.conn.id, p.provider, 'connected');
+    await ptx.tenantBankFeedRoute.upsert({ where: { feedId: p.feedId }, create: { feedId: p.feedId, workspaceId: ctx.workspaceId, provider: p.provider }, update: { provider: p.provider } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof bankFeedConnect>, tx: TenantTx) {
+    return connectPreview(tx, this.connections, input);
   }
 }
 
@@ -66,18 +88,31 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
 export class BankFeedDisconnectHandler implements Handler<ActionInput<typeof bankFeedDisconnect>, { ok: boolean }> {
   constructor(@Inject(ConnectionsService) private readonly connections: ConnectionsService | null) {}
 
-  async execute(ctx: ActionContext, input: ActionInput<typeof bankFeedDisconnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ ok: boolean }>> {
-    const p = needPtx(ptx);
-    const row = await need(this.connections).disconnect(tx, ctx.workspaceId, input.provider);
-    const feed = await tx.tenantBankFeed.findUnique({ where: { connectionId: row.id } });
-    if (feed) {
-      await tx.tenantBankFeed.update({ where: { id: feed.id }, data: { status: 'disconnected' } });
-      await p.tenantBankFeedRoute.deleteMany({ where: { feedId: feed.id } });
-    }
-    return {
-      result: { ok: true },
-      before: { provider: input.provider, feed_id: feed?.id ?? null },
-      events: [{ topic: 'integration.disconnected', payload: { connection_id: row.id, connector_key: row.connectorKey } }],
-    };
+  /** Pha nền tảng: chỉ kiểm có kết nối (tenant chỉ đọc); ngắt ở tenant, gỡ route ở `finalizePlatform`. */
+  async execute(_ctx: ActionContext, input: ActionInput<typeof bankFeedDisconnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ ok: boolean }>> {
+    needPtx(ptx);
+    need(this.connections);
+    const row = await tx.integrationConnection.findFirst({ where: { connectorKey: input.provider, status: { not: 'disconnected' } }, select: { id: true } });
+    if (!row) throw new AppError('NOT_FOUND', 404, { provider: 'not_connected' });
+    const feed = await tx.tenantBankFeed.findUnique({ where: { connectionId: row.id }, select: { id: true } });
+    return { result: { ok: true }, before: { provider: input.provider, feed_id: feed?.id ?? null }, tenantPlan: { provider: input.provider, connectionId: row.id, feedId: feed?.id ?? null } };
+  }
+
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const p = plan as { provider: string; connectionId: string; feedId: string | null };
+    const cur = await tx.integrationConnection.findUnique({ where: { id: p.connectionId } });
+    if (cur && cur.status !== 'disconnected') await tx.integrationConnection.update({ where: { id: cur.id }, data: { status: 'disconnected', secretEnc: null } });
+    if (p.feedId) await tx.tenantBankFeed.updateMany({ where: { id: p.feedId }, data: { status: 'disconnected' } });
+    return { events: [{ topic: 'integration.disconnected', payload: { connection_id: p.connectionId, connector_key: cur?.connectorKey ?? p.provider } }] };
+  }
+
+  async finalizePlatform(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx) {
+    const p = plan as { provider: string; connectionId: string; feedId: string | null };
+    await need(this.connections).routeIn(ptx, ctx.workspaceId, p.connectionId, p.provider, 'disconnected');
+    if (p.feedId) await ptx.tenantBankFeedRoute.deleteMany({ where: { feedId: p.feedId } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof bankFeedDisconnect>, tx: TenantTx) {
+    return disconnectPreview(tx, input);
   }
 }

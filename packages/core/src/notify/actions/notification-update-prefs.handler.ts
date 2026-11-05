@@ -4,6 +4,7 @@ import { AppError, isNotifyKind, type NotifyPrefsData } from '@appchat/shared';
 import type { ActionInput, notificationUpdatePrefs } from '@appchat/actions';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { prefsPreview } from './previews/notification-update-prefs.handler.preview';
 import { NotifyPrefsService } from '../services/prefs.service';
 
 type Input = ActionInput<typeof notificationUpdatePrefs>;
@@ -20,5 +21,9 @@ export class NotificationUpdatePrefsHandler implements Handler<Input, { ok: bool
     const userId = ctx.onBehalfOfUserId ?? ctx.actor.id;
     const { before, after } = await this.prefs.update(ptx, userId, input as Partial<NotifyPrefsData>);
     return { result: { ok: true }, before, after };
+  }
+
+  async preview(ctx: ActionContext, input: Input) {
+    return prefsPreview(this.prefs, ctx.onBehalfOfUserId ?? ctx.actor.id, input);
   }
 }

@@ -4,6 +4,7 @@ import { AppError } from '@appchat/shared';
 import type { ActionInput, integrationDisconnect } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { disconnectPreview } from './previews/integration-disconnect.handler.preview';
 import { ConnectionsService } from '../services/connections.service';
 
 type Input = ActionInput<typeof integrationDisconnect>;
@@ -22,5 +23,9 @@ export class IntegrationDisconnectHandler implements Handler<Input, { ok: boolea
       after: { connector_key: row.connectorKey, status: 'disconnected' },
       events: [{ topic: 'integration.disconnected', payload: { connection_id: row.id, connector_key: row.connectorKey } }],
     };
+  }
+
+  async preview(_ctx: ActionContext, input: Input, tx: TenantTx) {
+    return disconnectPreview(tx, input);
   }
 }

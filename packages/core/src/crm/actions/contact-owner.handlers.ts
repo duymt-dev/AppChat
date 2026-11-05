@@ -12,6 +12,7 @@ import { moveOpenConversations, restoreConversationAssignees } from '../../inbox
 import { accessDecidedNotify, accessRequestedNotify, ownerChangedNotify } from '../services/crm-notify';
 import { CrmMembers } from '../services/members.service';
 import { writeTimeline } from '../services/timeline.service';
+import * as pv from './previews/contact-owner.handlers.preview';
 
 const forbidOwner = () => new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
 const count = (tx: TenantTx, contactId: string) => tx.contactCollaborator.count({ where: { contactId } });
@@ -23,6 +24,10 @@ export class ContactAddCollaboratorHandler implements Handler<ActionInput<typeof
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactAddCollaborator>, tx: TenantTx) {
+    return pv.addCollaboratorPreview(tx, ctx.authz, this.members, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactAddCollaborator>, tx: TenantTx): Promise<HandlerOutcome<{ collaborators: number }>> {
     const { contact: c } = await visibleContact(tx, ctx.authz, input.contact_id);
@@ -55,6 +60,12 @@ export class ContactAddCollaboratorHandler implements Handler<ActionInput<typeof
 @Injectable()
 @ActionHandler('contact.remove_collaborator')
 export class ContactRemoveCollaboratorHandler implements Handler<ActionInput<typeof contactRemoveCollaborator>, { collaborators: number }> {
+  constructor(@Inject(CrmMembers) private readonly members: CrmMembers) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactRemoveCollaborator>, tx: TenantTx) {
+    return pv.removeCollaboratorPreview(tx, ctx.authz, this.members, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof contactRemoveCollaborator>, tx: TenantTx): Promise<HandlerOutcome<{ collaborators: number }>> {
     const { contact: c } = await visibleContact(tx, ctx.authz, input.contact_id);
     // Tự rời khỏi khách được phép; gỡ người khác cần owner của khách / crm.reassign.
@@ -84,6 +95,10 @@ export class ContactTransferOwnerHandler implements Handler<ActionInput<typeof c
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactTransferOwner>, tx: TenantTx) {
+    return pv.transferOwnerPreview(tx, ctx.authz, this.members, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactTransferOwner>, tx: TenantTx): Promise<HandlerOutcome<{ owner_user_id: string; moved: Moved }>> {
     const { contact: c } = await visibleContact(tx, ctx.authz, input.contact_id);
@@ -130,6 +145,10 @@ export class ContactRequestAccessHandler implements Handler<ActionInput<typeof c
   ) {}
 
   /** Không cần thấy khách (đó là mục đích): chỉ cần khách tồn tại + có người phụ trách khác — id lấy từ lỗi CONTACT_OWNED. */
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactRequestAccess>, tx: TenantTx) {
+    return pv.requestAccessPreview(tx, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof contactRequestAccess>, tx: TenantTx): Promise<HandlerOutcome<{ request_id: string; status: 'pending' }>> {
     const me = actorUserId(ctx);
     if (!me) throw new AppError('FORBIDDEN', 403, { actor: 'user_only' });
@@ -161,6 +180,10 @@ export class ContactDecideAccessHandler implements Handler<ActionInput<typeof co
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactDecideAccess>, tx: TenantTx) {
+    return pv.decideAccessPreview(tx, this.members, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactDecideAccess>, tx: TenantTx): Promise<HandlerOutcome<{ status: string }>> {
     const r = UUID.test(input.request_id) ? await tx.contactAccessRequest.findUnique({ where: { id: input.request_id } }) : null;

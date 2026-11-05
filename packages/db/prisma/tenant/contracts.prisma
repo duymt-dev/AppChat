@@ -22,6 +22,13 @@ enum ContractKind {
   @@map("contract_kind")
 }
 
+enum ContractSource {
+  template
+  file
+
+  @@map("contract_source")
+}
+
 /// Hợp đồng (Blueprint §2.2, COMMERCE §9 — D25). Owner "Duyệt & ký" (OTP + ký tay) → PDF đóng băng (`file_id` + `file_sha256`);
 /// khách ký trên trang công khai → PDF cuối có chữ ký hai bên + trang chứng nhận (`signed_file_id` + `signed_sha256`), nội dung khoá.
 model Contract {
@@ -46,6 +53,23 @@ model Contract {
   templateVersion     Int?           @map("template_version")
   /// Tên tệp DN đính kèm (bản gốc tham khảo) — nội dung ký render từ mẫu hợp đồng.
   fileName            String         @default("") @map("file_name")
+  /// Nguồn nội dung ký (TIP-030b): `template` render từ mẫu, `file` = PDF / DOCX tải lên (bản gốc bất biến).
+  source              ContractSource @default(template)
+  sourceFileId        String?        @map("source_file_id") @db.Uuid
+  /// SHA-256 bytes nguồn — luôn khớp tệp nguồn, không đổi sau ghép trang chữ ký.
+  sourceHash          String?        @map("source_hash")
+  sourceMime          String?        @map("source_mime")
+  /// DOCX → PDF đóng băng trước khi duyệt (PDF nguồn dùng nguyên bản, cột rỗng).
+  renderedUnsignedFileId String?     @map("rendered_unsigned_file_id") @db.Uuid
+  renderedUnsignedHash   String?     @map("rendered_unsigned_hash")
+  /// Tăng mỗi lần thay tệp nguồn khi còn nháp (`contract.attach_file` — CAS `if_source_version`).
+  sourceVersion       Int            @default(1) @map("source_version")
+  /// Tin + vị trí tệp trong hội thoại khi tạo từ tệp khách gửi (`contract.create_from_attachment`).
+  originMessageId     String?        @map("origin_message_id") @db.Uuid
+  originAttachmentIdx Int?           @map("origin_attachment_idx")
+  /// AI soạn (TIP-030b F2): đề xuất đã dùng + khối `ai_suggested` [{id, text, status pending|kept|discarded, version}] — submit chặn khi còn pending.
+  draftProposalId     String?        @unique @map("draft_proposal_id") @db.Uuid
+  aiSuggestions       Json           @default("[]") @map("ai_suggestions")
   note                String         @default("")
   createdByType       String         @default("user") @map("created_by_type")
   createdById         String?        @map("created_by_id")
@@ -79,21 +103,52 @@ model Contract {
   @@map("contract")
 }
 
-/// Phụ lục (COMMERCE §9 "muốn thay đổi phải tạo phụ lục" — cùng luồng duyệt và ký). Mã `HĐ-1180/PL-{k}`.
+/// Phụ lục (COMMERCE §9 "muốn thay đổi phải tạo phụ lục" — cùng luồng duyệt và ký). Mã `HĐ-1180/PL-{k}` (k cấp dưới khoá dòng hợp đồng
+/// cha). Chỉ cho hợp đồng đã ký; ký riêng (contract-appendix-signing.prisma) — chữ ký hợp đồng cha không thay chữ ký phụ lục. `version`
+/// tăng mỗi lần sửa nháp (token / OTP cũ hết hiệu lực); nguồn: nội dung HTML (render) hoặc tệp PDF / DOCX (bất biến, như hợp đồng).
 model ContractAppendix {
-  id           String         @id @db.Uuid
-  contractId   String         @map("contract_id") @db.Uuid
-  code         String         @unique
-  title        String         @default("")
-  bodyHtml     String?        @map("body_html")
-  status       ContractStatus @default(draft)
-  fileId       String?        @map("file_id") @db.Uuid
-  fileSha256   String?        @map("file_sha256")
-  signedFileId String?        @map("signed_file_id") @db.Uuid
-  signedSha256 String?        @map("signed_sha256")
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id             String         @id @db.Uuid
+  contractId     String         @map("contract_id") @db.Uuid
+  code           String         @unique
+  /// Số thứ tự trong hợp đồng cha (PL-n).
+  seq            Int            @default(1)
+  title          String         @default("")
+  bodyHtml       String?        @map("body_html")
+  status         ContractStatus @default(draft)
+  version        Int            @default(1)
+  /// Giá trị điều chỉnh (VND, có thể âm) — siêu dữ liệu thoả thuận, không tự đổi đơn / hoá đơn / sổ thu.
+  valueDelta     BigInt?        @map("value_delta")
+  source         ContractSource @default(template)
+  sourceFileId   String?        @map("source_file_id") @db.Uuid
+  sourceHash     String?        @map("source_hash")
+  sourceMime     String?        @map("source_mime")
+  /// Khoá yêu cầu tạo (người gọi) — gọi lại cùng khoá → cùng phụ lục.
+  requestKey     String?        @map("request_key")
+  createdById    String?        @map("created_by_id")
+  approvedBy     String?        @map("approved_by") @db.Uuid
+  signedByBusinessAt DateTime?  @map("signed_by_business_at") @db.Timestamptz(6)
+  signedByCustomerAt DateTime?  @map("signed_by_customer_at") @db.Timestamptz(6)
+  sentAt         DateTime?      @map("sent_at") @db.Timestamptz(6)
+  sentChannel    String?        @map("sent_channel")
+  conversationId String?        @map("conversation_id") @db.Uuid
+  signLinkExpiresAt DateTime?   @map("sign_link_expires_at") @db.Timestamptz(6)
+  /// PDF đóng băng lúc Owner "Duyệt & ký" (`file_sha256` = digest ràng buộc token / chữ ký).
+  fileId         String?        @map("file_id") @db.Uuid
+  fileSha256     String?        @map("file_sha256")
+  signedFileId   String?        @map("signed_file_id") @db.Uuid
+  signedSha256   String?        @map("signed_sha256")
+  declinedReason String         @default("") @map("declined_reason")
+  note           String         @default("")
+  decidedAt      DateTime?      @map("decided_at") @db.Timestamptz(6)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  signers AppendixSigner[]
+  tokens  AppendixSignToken[]
+  events  AppendixSignatureEvent[]
+
+  @@unique([contractId, seq])
+  @@unique([contractId, requestKey])
   @@index([contractId])
   @@map("contract_appendix")
 }
@@ -160,4 +215,34 @@ model ContractSignToken {
 
   @@index([contractId])
   @@map("contract_sign_token")
+}
+
+/// Đề xuất AI soạn hợp đồng (TIP-030b F2 spec 9) — sản phẩm của `contract.prepare_draft` (model qua gateway + meter), BẤT BIẾN: nội dung
+/// + khối gợi ý + hash nguồn (mẫu, báo giá, tệp). `contract.draft_from_content` chỉ đọc đề xuất này (không gọi model) rồi tạo đúng MỘT
+/// nháp (`consumed_contract_id`). Hết hạn 24h; cùng người + `request_key` → trả lại đề xuất cũ (khác nội dung yêu cầu → 409).
+model ContractDraftProposal {
+  id                 String    @id @db.Uuid
+  requestActor       String    @map("request_actor")
+  requestKey         String    @map("request_key")
+  requestHash        String    @map("request_hash")
+  contactId          String    @map("contact_id") @db.Uuid
+  quoteId            String?   @map("quote_id") @db.Uuid
+  kind               ContractKind
+  /// Đề xuất có cấu trúc: tiêu đề, giá trị (VND string), ngày, dòng (giá từ catalog / ngoài catalog đánh dấu), biến mẫu.
+  content            Json
+  /// Khối gợi ý AI [{id, text}] — vào hợp đồng ở trạng thái pending.
+  suggestions        Json      @default("[]")
+  /// Nguồn: mẫu {id, version, hash} · báo giá {id, updated_at} · tệp {id, sha256}.
+  sources            Json      @default("{}")
+  contentHash        String    @map("content_hash")
+  runId              String?   @map("run_id") @db.Uuid
+  model              String?
+  promptVersion      Int?      @map("prompt_version")
+  expiresAt          DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedContractId String?   @unique @map("consumed_contract_id") @db.Uuid
+  consumedAt         DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([requestActor, requestKey])
+  @@map("contract_draft_proposal")
 }

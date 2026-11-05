@@ -37,6 +37,17 @@ export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.Zo
   invalidates: string[];
   db?: 'platform';
   uiTarget?: (o: z.infer<O>) => UiCommand;
+  /**
+   * Ô bí mật trong input (DC-227, TIP-023c): `paths` = đường dẫn chấm cố định (`fields.password`); `connector` = ô dưới `fields`
+   * theo `ConnectorManifest.auth.fields[].secret` của provider ở ô `provider`. Executor che trong action_log; Trợ lý không nhận giá
+   * trị từ model (chỉ form trình duyệt gửi thẳng); form GenUI hiện ô password.
+   */
+  secret?: SecretSpec;
+}
+
+export interface SecretSpec {
+  paths?: string[];
+  connector?: { provider: string; fields: string };
 }
 
 export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => d;
@@ -65,7 +76,14 @@ export interface ActionPreview {
   warnings?: string[];
 }
 
-/** 202 của POST /v1/actions/:id (Blueprint §4.3). */
+/** 202 của POST /v1/actions/:id (Blueprint §4.3). `job_accepted` (TIP-032b): yêu cầu đã ghi + xếp việc nền — CHƯA hoàn tất; tiến độ
+ * đọc ở `status_url`, gửi lại cùng Idempotency-Key trả đúng handle này (không xếp việc lần hai). */
 export type ActionAccepted =
   | { status: 'preview_required'; preview: ActionPreview; confirm_token: string; expires_at: string }
-  | { status: 'approval_required'; approval_id: string };
+  | { status: 'approval_required'; approval_id: string }
+  | { status: 'job_accepted'; job_id: string; action_log_id: string; status_url: string }
+  /**
+   * Action `db: 'platform'` đã commit ở DB nền tảng nhưng pha tenant chưa áp (TIP-045b annex A1): KHÔNG phải thành công, không phải
+   * việc nền xếp hàng — hệ thống tự khôi phục; gửi lại cùng Idempotency-Key trả kết quả khi xong (không tạo thay đổi mới).
+   */
+  | { status: 'operation_pending'; operation_id: string; action_log_id: string; status_url: string };

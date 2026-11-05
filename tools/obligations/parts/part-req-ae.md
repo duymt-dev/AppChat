@@ -60,7 +60,7 @@
 | REQ-B09b | Bộ lọc tài khoản Hộp thư cùng dữ liệu | 01-REQUIREMENTS-MATRIX.md:56 | 016, 025 | ĐẠT | GET /inbox/accounts; test inbox-ui.test.ts "lọc tài khoản" |
 | REQ-B10a | Kết nối 3 bước + cấu hình nhanh | 01-REQUIREMENTS-MATRIX.md:57 | 014, 018 | ĐẠT | features/settings/components/ConnectChannelModal.tsx; test email.test.ts AC2, e2e http/channels.spec.ts |
 | REQ-B10b | OAuth / kênh ngoài manifest "Sắp có" | 01-REQUIREMENTS-MATRIX.md:57 | 014 | ĐẠT | packages/channels/src/coming-soon.ts; test channels.test.ts AC5 |
-| REQ-B10c | Kết nối kênh qua Trợ lý (QR trong chat) | 02-TASK-GRAPH.md:82 | 023c | CHƯA | Không khối qr / channel.status |
+| REQ-B10c | Kết nối kênh qua Trợ lý (QR trong chat) | 02-TASK-GRAPH.md:82 | 023c | CHỜ-TK | Khối qr + channel.status (packages/core/src/channels/actions/channel-status.handler.ts, services/login-attempt.ts), assistant.resume theo biên nhận; test genui-qr.test.ts, channel.status.action.test.ts, ai:live connect-zalo-qr pass; quét QR Zalo thật chưa nghiệm thu (Q-003) |
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
 | REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | MỘT PHẦN | agent / ai_mode / greeting dùng; hours chỉ chèn prompt (reply-context.ts:93), không chặn ngoài giờ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
@@ -78,7 +78,7 @@
 | REQ-C04d | Ghim, lưu trữ | 01-REQUIREMENTS-MATRIX.md:66 | 016 | ĐẠT | conversation-state.handlers.ts:58,68; test inbox.test.ts AC5 |
 | REQ-C05a | Composer đính kèm file | 01-REQUIREMENTS-MATRIX.md:67 | 025 | ĐẠT | Composer.tsx:84; test inbox-ui.test.ts "Email: gửi ảnh" |
 | REQ-C05b | Câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:67 | 016, 025 | ĐẠT | ComposerPopovers.tsx:33-50; test inbox.test.ts AC8 |
-| REQ-C05c | AI soạn / viết lại trong composer | 01-REQUIREMENTS-MATRIX.md:67 | 023c | GIẢ | InboxAiModal.tsx:13,58 chỉ mở Trợ lý đầy đủ |
+| REQ-C05c | AI soạn / viết lại trong composer | 01-REQUIREMENTS-MATRIX.md:67 | 023c | ĐẠT | packages/core/src/ai/assistant/genui/inbox-draft.ts:3 (inbox.reply + scope trước model, không tool) + apps/web/src/features/inbox/hooks/useAssistantDraft.ts; test inbox-assistant-draft.test.ts (core + api), useAssistantDraft.test.tsx, e2e inbox.spec.ts, ai:live inbox-rewrite-draft pass (PD-010) |
 | REQ-C05d | Tự dịch tin gửi đi | 01-REQUIREMENTS-MATRIX.md:67 | 025b | GIẢ | Popover xl chỉ bật cờ ui.autoXl (ComposerPopovers.tsx:96); submit không dịch Planning owner025b TranslationSPEC3/AC7 covers outgoing target preview/confirmation/stale drafts/revoke/no-credit; runtime status unchanged. |
 | REQ-C05e | Nhãn ý định MUA / HỎI / KHIẾU NẠI / ĐẶT LỊCH | 01-REQUIREMENTS-MATRIX.md:67 | 022b | CHƯA | conversation.intent (inbox.prisma:125) không nơi ghi; intent agent (packages/ai/src/reply/output.ts:9) bị bỏ Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
 | REQ-C06a | Tự gắn khách theo ID kênh / SĐT | 01-REQUIREMENTS-MATRIX.md:68 | 015, 016 | ĐẠT | crm/services/identity.service.ts:30-55; test inbox.test.ts AC2 |
@@ -107,7 +107,7 @@
 | REQ-C13 | Header + khung nhập ver2.1 | 01-REQUIREMENTS-MATRIX.md:75 | 025 | ĐẠT | ChatHeader.tsx:27; Composer.tsx:147; MessageBubble.tsx:139; e2e inbox.spec.ts |
 | REQ-D01a | Agent runtime sau Agent Gateway | 01-REQUIREMENTS-MATRIX.md:80 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:35; test packages/ai/test/engine.test.ts |
 | REQ-D01b | Ngữ cảnh → RAG → tools → trả lời, bất đồng bộ trong worker | 01-REQUIREMENTS-MATRIX.md:80 | 022 | ĐẠT | ai/reply/reply.service.ts; test agent-reply.test.ts "worker ROLE=ai" |
-| REQ-D01c | Stream kết quả | 01-REQUIREMENTS-MATRIX.md:80 | 023c | MỘT PHẦN | JSON một lần (DV-006) |
+| REQ-D01c | Stream kết quả | 01-REQUIREMENTS-MATRIX.md:80 | 023c | ĐẠT | Chữ hiện dần qua SSE + khung xương cây từ tool-input delta (packages/ai/src/genui/structured-stream.ts, apps/web/src/shared/genui/GenUiSkeleton.tsx); test genui-structured-stream.test.ts, genui-stream.test.ts, GenUiSkeleton.test.tsx |
 | REQ-D02a | LLM Router đa provider + OpenAI-compatible | 01-REQUIREMENTS-MATRIX.md:81 | 019 | CHỜ-TK | packages/ai/src/router/providers.ts; test router.test.ts — Q-001 |
 | REQ-D02b | Định tuyến theo tác vụ / mức, fallback | 01-REQUIREMENTS-MATRIX.md:81 | 019 | ĐẠT | packages/ai/src/router/router.ts:29; test router.test.ts "503 → provider kế" |
 | REQ-D02c | Ẩn tên model | 01-REQUIREMENTS-MATRIX.md:81 | 019 | ĐẠT | test ai-runtime.test.ts AC5 |
@@ -119,9 +119,9 @@
 | REQ-D04d | public / internal | 01-REQUIREMENTS-MATRIX.md:83 | 020 | ĐẠT | kb-search.handler.ts:15; test kb.test.ts AC5 |
 | REQ-D04e | Hybrid + không dấu + ngưỡng căn cứ + trích nguồn | 01-REQUIREMENTS-MATRIX.md:83 | 020 | CHỜ-TK | ai/kb/search.ts:77; test kb.test.ts AC5 (embed giả) — Q-002 |
 | REQ-D04f | Giá / tồn / lịch không lấy từ RAG | 01-REQUIREMENTS-MATRIX.md:83 | 020, 027 | ĐẠT | test kb.test.ts "đoạn có giá không bao giờ ra" |
-| REQ-D04b | AI học từ hội thoại, người duyệt | 01-REQUIREMENTS-MATRIX.md:84 | 043 | CHƯA | kb.suggestion.* không có |
+| REQ-D04b | AI học từ hội thoại, người duyệt | 01-REQUIREMENTS-MATRIX.md:84 | 043 | ĐẠT | Học từ hội thoại đóng → đề xuất đã che PII → duyệt / từ chối ở Dữ liệu RAG; e2e kb-suggestions mock + http; ai:live 5/5 (TIP-043) |
 | REQ-D05a | Tự làm khi tin cậy ≥ 70% | 01-REQUIREMENTS-MATRIX.md:85 | 022 | ĐẠT | packages/ai/src/reply/handoff.ts:26; test reply.test.ts, agent-reply.test.ts |
-| REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | policy.ts:13 send / money → approval; FORCE_APPROVAL (governance.ts:34) chỉ hiển thị |
+| REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | Báo giá > ngưỡng / giảm ngoài chính sách / hoàn tiền / HĐ ép duyệt (FORCE_APPROVAL DC-329, commerce-gaps.test.ts); phần gửi hàng loạt nghiệm thu ở 037 — không hạ luật 20M / 5% |
 | REQ-D06a | Handoff theo các lý do | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | handoff.ts:26; test agent-reply.test.ts |
 | REQ-D06b | Handoff kèm nháp + folder Cần người | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | reply.service.ts:76; test agent-reply.test.ts "độ tin cậy thấp" |
 | REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | MỘT PHẦN | Chỉ lý do; tóm tắt chỉ khi agent tự gọi tool (reply.service.ts:107) Planned022b: explicit behavior, scoped action/receipt, UI/native/real-model acceptance; no runtime promotion. |
@@ -137,8 +137,8 @@
 | REQ-D09d | Chat thử giả lập | 01-REQUIREMENTS-MATRIX.md:89 | 021 | ĐẠT | agent-llm.handlers.ts:38; test agents.test.ts AC3 |
 | REQ-D09b-a | 3 cách tạo agent | 01-REQUIREMENTS-MATRIX.md:90 | 021, 024 | ĐẠT | agent.handlers.ts:41; agent-llm.handlers.ts:74; e2e http/agents-ui.spec.ts:15 |
 | REQ-D09b-b | Tools ⊆ quyền ∩ agentGrantable; max_agents | 01-REQUIREMENTS-MATRIX.md:90 | 021 | ĐẠT | test agents.test.ts AC2/AC3 |
-| REQ-D10a | Agent đọc 360° (mua, hẹn, ghi chú, hạng) | 01-REQUIREMENTS-MATRIX.md:91 | 015b | MỘT PHẦN | reply-context.ts:79-80 chỉ tên / nhóm / giai đoạn + memory |
-| REQ-D10b | Agent ghi sự kiện về khách | 01-REQUIREMENTS-MATRIX.md:91 | 015b | CHƯA | Không chỗ ghi contact_memory |
+| REQ-D10a | Agent đọc 360° (mua, hẹn, ghi chú, hạng) | 01-REQUIREMENTS-MATRIX.md:91 | 015b | ĐẠT | reply-context.ts đọc 20 fact (recentFacts) + Trợ lý contact.get_360 trả memory (DC-344); ai:live mem-allergy-recall 3/3 |
+| REQ-D10b | Agent ghi sự kiện về khách | 01-REQUIREMENTS-MATRIX.md:91 | 015b | ĐẠT | contact.remember (agentGrantable, trần 50 + chống trùng trigram, chặn CCCD / thẻ / mật khẩu — normalize.ts sensitive); contact-memory.test.ts; ai:live mem-pii-refused 3/3 |
 | REQ-D11a | Lọc PII trước prompt | 01-REQUIREMENTS-MATRIX.md:92 | 022 | ĐẠT | packages/ai/src/reply/pii.ts:28; test reply.test.ts, agent-reply.test.ts "PII" |
 | REQ-D11b | Guardrail + từ cấm | 01-REQUIREMENTS-MATRIX.md:92 | 021, 022 | ĐẠT | governance.ts:31; test agent-reply.test.ts "từ cấm" |
 | REQ-D12 | Chủ động theo lịch, tôn trọng giới hạn Zalo | 01-REQUIREMENTS-MATRIX.md:93 | 035 | ĐẠT | ai/tasks/task-scheduler.ts, task-targets.ts; test ai-tasks.test.ts:199,257,312 |
@@ -154,24 +154,24 @@
 | REQ-D17c | delegate / Cowork: kb_scope ∩ quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:98 | 020c | CHƯA | kb.search bỏ qua kb_scope (kb-search.handler.ts:26); delegate / task không truyền phạm vi |
 | REQ-D17d | Trợ lý: cả kho trong quyền đọc người hỏi | 01-REQUIREMENTS-MATRIX.md:98 | 020 | ĐẠT | kb-search.handler.ts:15; test kb.test.ts "Owner thấy internal, sales chỉ public" |
 | REQ-E01 | Action Registry dùng chung, một đường thực thi | 01-REQUIREMENTS-MATRIX.md:103 | 003 | ĐẠT | packages/actions/src/define.ts:42; kernel/actions/executor.ts:73; test registry.test.ts, actions.test.ts, actions-unit.test.ts |
-| REQ-E02 | Trợ lý làm mọi action với quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:104 | 023b | MỘT PHẦN | ai/assistant/meta-tools.ts:86-96; test assistant.test.ts; thiếu action đọc search / get, khuôn lồng nhau |
+| REQ-E02 | Trợ lý làm mọi action với quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:104 | 023b | ĐẠT | meta-tools.ts quyền hiện tại mỗi lần gọi; action đọc search/get; khuôn lồng nhau (catalog.ts briefSchema); test assistant-vertical.test.ts (scope sales → 404) |
 | REQ-E03a | Đọc chạy ngay; ghi hiện thẻ Xác nhận / Huỷ | 01-REQUIREMENTS-MATRIX.md:105 | 023 | ĐẠT | ai/assistant/card.ts; test assistant.test.ts "ghi → thẻ confirm" |
-| REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | MỘT PHẦN | card.ts câu mặc định (DC-128); ChatThread.tsx không nút Sửa |
+| REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | ĐẠT | ActionPreviewCard.tsx (changes trước → sau, Sửa) + EditActionPreviewModal.tsx; POST /assistant/preview-edit (edit-preview.ts); test assistant-preview-edit.test.ts, e2e http assistant-vertical (PD-008, DC-312) |
 | REQ-E03c | Hàng loạt bắt buộc xác nhận số lượng | 01-REQUIREMENTS-MATRIX.md:105 | 003 | ĐẠT | policy.ts:24; test actions-unit.test.ts "bulk luôn preview" |
 | REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | CHƯA | Không có code |
 | REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023 | ĐẠT | meta-tools.ts:124; delegate.ts; test assistant.test.ts "plan", "delegate" |
 | REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; FE không render plan (features/assistant/types.ts:45); không sửa kế hoạch |
 | REQ-E05a | Điều hướng, mở bản ghi, điền form, áp lọc qua command bus | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | apps/web/src/shared/assistant/ui-command-bus.ts; features/*/ui-commands.ts; test ui-command-bus.test.ts, ui-commands.test.tsx |
-| REQ-E05b | Làm nổi bật phần tử | 01-REQUIREMENTS-MATRIX.md:107 | 023c | CHƯA | Không handler highlight đăng ký |
+| REQ-E05b | Làm nổi bật phần tử | 01-REQUIREMENTS-MATRIX.md:107 | 023c | ĐẠT | UiCommandBus highlight (apps/web/src/shared/assistant/ui-command-bus.ts:17) + DataTable highlightKey; test ui-command-bus.test.ts, e2e screen-assistant.spec.ts tô sáng dòng |
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
-| REQ-E06a | Trợ lý theo module tự nạp ngữ cảnh | 01-REQUIREMENTS-MATRIX.md:108 | 023c | GIẢ | 7 drawer regex (QuoteAiDrawer.tsx:33-37…); chỉ gửi route (useAssistantChat.ts:57) |
+| REQ-E06a | Trợ lý theo module tự nạp ngữ cảnh | 01-REQUIREMENTS-MATRIX.md:108 | 023c | ĐẠT | useRegisterScreenContext mỗi feature → context route / entity / id / selection (apps/web/src/shared/assistant/screen-context.ts); server đọc lại theo quyền (packages/core/src/ai/assistant/genui/context.ts); test genui-context.test.ts, screen-context.test.tsx, e2e/http/screen-assistant.spec.ts |
 | REQ-E06b | Gọi bằng Ctrl+K | 01-REQUIREMENTS-MATRIX.md:108 | 023 | ĐẠT | apps/web/src/shared/shell/AppShell.tsx:29; e2e shell.spec.ts:44 |
 | REQ-E07 | Truy vấn / phân tích NL có nguồn | 01-REQUIREMENTS-MATRIX.md:109 | 038, 023c | CHƯA | meta-tools.ts:117 query_data NOT_IMPLEMENTED |
 | REQ-E08 | Briefing đầu ngày | 01-REQUIREMENTS-MATRIX.md:110 | 035 | ĐẠT | ai/tasks/task-briefing.ts; test ai-tasks.test.ts:330 |
 | REQ-E09a | Ghi mọi action Trợ lý / agent (ai, input, trước/sau) | 01-REQUIREMENTS-MATRIX.md:111 | 003, 024 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:50-54; test assistant.test.ts, agents-ui.test.ts |
 | REQ-E09b | Lọc theo loại | 01-REQUIREMENTS-MATRIX.md:111 | 024 | ĐẠT | ai/assistant/action-logs.read.ts:12; test agents-ui.test.ts |
 | REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | 003e | MỘT PHẦN | Undo ĐẠT; không cơ chế đính chính; TIP-003e nhận (2026-11-02) |
-| REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | MỘT PHẦN | API /assistant/sessions có (assistant.controller.ts:70; assistant.test.ts); FE không gọi |
+| REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | ĐẠT | GET /assistant/sessions keyset (last_message_at, id) + tìm trigram; FE SessionBrowser.tsx; test assistant-sessions.test.ts, e2e screen-assistant.spec.ts lịch sử trò chuyện |
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
 | REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | 023d | MỘT PHẦN | Mức AI ĐẠT; chọn agent chỉ lưu ui.agent (ComposerPopovers.tsx:92), sendTurn không gửi |
@@ -182,7 +182,7 @@
 | REQ-E13c | Hỏi trước khi xoá / gửi (bật tắt) | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | policy.ts:14,21; test ai-tasks.test.ts:257,282 |
 | REQ-E14a | Khung "Trợ lý AI đang điều phối" + Dừng / Duyệt & gửi | 01-REQUIREMENTS-MATRIX.md:116 | 023 | ĐẠT | RunsOrchestrationBar.tsx:35,108; test ai-runtime.test.ts AC5 |
 | REQ-E14b | Tab Công cụ & Quyền chỉ hiển thị + link Builder | 01-REQUIREMENTS-MATRIX.md:116 | 035 | ĐẠT | TaskDrawer.tsx:132-144; test ai-tasks.test.ts:347 |
-| REQ-E15 | Generative UI mức 2 | 01-REQUIREMENTS-MATRIX.md:117 | 023c | CHƯA | packages/shared/src/genui không tồn tại |
+| REQ-E15 | Generative UI mức 2 | 01-REQUIREMENTS-MATRIX.md:117 | 023c | ĐẠT | packages/shared/src/genui/* + meta-tool render + renderer web 15 khối; test schema.test.ts, genui*.test.ts (api), blocks/*.test.tsx, e2e genui.spec.ts (mock + http); ai:live genui-screen 9/10 an toàn 0 |
 
 | PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | CHƯA | Current meta-tools update_step accepts model status; planned single logical claim/reducer only |
 | PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |

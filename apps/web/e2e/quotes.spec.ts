@@ -41,7 +41,7 @@ test.describe('quotes', () => {
     await page.goto(URL);
     await page.locator('[data-quote="q_2039"]').click();
     const drawer = page.getByTestId('q-drawer');
-    await expect(drawer.getByTestId('q-approval-banner')).toContainText('tổng > 20 triệu');
+    await expect(drawer.getByTestId('q-approval-banner')).toContainText('tổng > 20.000.000₫');
     await drawer.getByTestId('q-send-zalo').click();
     await expect(page.getByText('Báo giá vượt ngưỡng — cần duyệt trước khi gửi')).toBeVisible();
     await drawer.getByTestId('q-submit').click();
@@ -88,8 +88,9 @@ test.describe('quotes', () => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.getByTestId('q-ai-open').click();
+    // TIP-023c G2: nút nghiệp vụ gửi lượt Trợ lý thật → cây GenUI gọn trong drawer (không còn câu trả lời mẫu).
     await page.getByTestId('q-ai-sugg').click();
-    await expect(page.getByTestId('q-ai-result')).toContainText('HIFU 8 buổi');
+    await expect(page.getByTestId('q-ai').getByTestId('genui')).toContainText('HIFU 8 buổi');
     await page.getByTestId('q-ai-draft').click();
     const modal = page.getByTestId('q-draft');
     await modal.getByTestId('q-draft-contact').selectOption('ct_lan');

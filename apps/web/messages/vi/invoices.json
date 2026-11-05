@@ -156,7 +156,8 @@
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",
-    "system": "Hệ thống"
+    "system": "Hệ thống",
+    "sendReceipt": "Gửi phiếu thu {code} cho khách"
   },
   "record": {
     "title": "Ghi nhận thanh toán · {code}",

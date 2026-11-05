@@ -3,7 +3,7 @@
 // Agent / Trợ lý chỉ soạn nháp; duyệt & ký, gửi ký, chấm dứt cần `contract.sign` (mặc định chỉ Chủ sở hữu).
 import { z } from 'zod';
 import { defineAction } from './define';
-import { money } from './sales-schemas';
+import { docChannel, money } from './sales-schemas';
 
 const contractId = z.string().min(1);
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -21,6 +21,14 @@ const fields = z.object({
   file_name: z.string().max(200).optional(),
   note: z.string().max(2000).optional(),
 });
+/**
+ * Nguồn nội dung ký (TIP-030b spec 2): `template` (mặc định — mẫu theo loại) hoặc `file` (PDF / DOCX đã tải lên, `file_id` bắt buộc).
+ * Không nhận cả hai cùng lúc (`file_id` ở nhánh template bị từ chối).
+ */
+const contractSource = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('template') }).strict(),
+  z.object({ type: z.literal('file'), file_id: z.string().min(1) }).strict(),
+]);
 const out = z.object({ contract_id: z.string(), code: z.string() });
 const st = z.object({ contract_id: z.string(), status: z.string() });
 const opened = (o: { contract_id: string }) => ({
@@ -35,8 +43,8 @@ export const contractCreate = defineAction({
   module: 'sales',
   title: 'actions.contract.create.title',
   description:
-    'Create a draft contract (kind service | sale | framework; value is VND string). Example: {"contact_id":"ct_lan","kind":"service","title":"Liệu trình HIFU 8 buổi","value":"12800000","start_date":"2026-06-16","end_date":"2026-12-16"}',
-  input: fields,
+    'Create a draft contract (kind service | sale | framework; value is VND string). Content comes from the template of that kind, or from an uploaded PDF / DOCX with source {"type":"file","file_id":…} (check it first with contract.inspect_file). Example: {"contact_id":"ct_lan","kind":"service","title":"Liệu trình HIFU 8 buổi","value":"12800000","start_date":"2026-06-16","end_date":"2026-12-16"}',
+  input: fields.extend({ source: contractSource.optional() }),
   output: out,
   permission: 'contract.draft',
   risk: 'write',
@@ -141,7 +149,7 @@ export const contractSendForSignature = defineAction({
   title: 'actions.contract.send_for_signature.title',
   description:
     'Send the one-time signing link (7 days) to the customer over the conversation channel or email. Only after the business has signed.',
-  input: z.object({ contract_id: contractId, channel: z.enum(['zalo_personal', 'email']) }),
+  input: z.object({ contract_id: contractId, channel: docChannel }),
   output: z.object({ contract_id: z.string(), sign_url: z.string(), expires_at: z.string() }),
   permission: 'contract.sign',
   risk: 'send',

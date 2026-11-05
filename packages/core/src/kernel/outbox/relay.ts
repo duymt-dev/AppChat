@@ -3,6 +3,7 @@
 import { TenantContexts, WorkspaceNotFoundError, type TenantDbResolver, type WorkspaceRegistry } from '@appchat/db';
 import type { Clock } from '../clock';
 import type { KeyValueStore } from '../redis';
+import { appMetrics } from '../metrics/registry';
 import { OUTBOX_DIRTY } from './outbox';
 
 export const MAX_ATTEMPTS = 8;
@@ -36,6 +37,8 @@ export async function drainWorkspace(d: RelayDeps, workspaceId: string): Promise
     take: d.batch ?? 200,
   });
   const res: DrainResult = { published: 0, retried: 0, failed: 0 };
+  // outbox_lag_seconds (TIP-045b): tuổi event cũ nhất của lượt drain — gauge của tiến trình, không nhãn workspace.
+  if (rows[0]) appMetrics().outboxLag.set(Math.max(0, (now.getTime() - rows[0].createdAt.getTime()) / 1000));
   for (const e of rows) {
     try {
       await d.publisher.publish({ id: e.id, topic: e.topic, payload: e.payload, workspaceId, traceId: e.traceId });

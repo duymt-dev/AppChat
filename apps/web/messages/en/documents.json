@@ -1,0 +1,17 @@
+{
+  "public": {
+    "title": "{kind} {code}",
+    "kind": {
+      "quote": "Quote",
+      "payment_request": "Payment request",
+      "contract": "Contract",
+      "order_confirmation": "Order confirmation",
+      "receipt": "Receipt"
+    },
+    "expires": "This link is valid until {d}",
+    "contact": "Need help? Reply in the conversation where you received this link.",
+    "pdf": "Download PDF",
+    "invalidTitle": "This document link is no longer valid",
+    "invalidSub": "The link has expired, been revoked, or the document has changed. Please ask the sender for a new link."
+  }
+}

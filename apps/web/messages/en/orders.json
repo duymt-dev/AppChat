@@ -172,7 +172,8 @@
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",
-    "system": "System"
+    "system": "System",
+    "sendConfirmation": "Send confirmation"
   },
   "form": {
     "title": "New sales order",
@@ -219,9 +220,12 @@
       "collect": "Collect receivables",
       "analyze": "Revenue analysis"
     },
-    "ack": "Noted — I will handle this order request right away.",
-    "ackPay": "I will send a payment request with VietQR and track the deposit for you.",
-    "ackCancel": "I will review cancelled orders and draft a win-back script."
+    "prompts": {
+      "risk": "Review risky orders: waiting too long for a deposit, cancelled, late delivery.",
+      "upsell": "Suggest upsell / cross-sell for the customer of the open order or recent buyers.",
+      "collect": "List orders with amounts still due (awaiting deposit / outstanding) and suggest payment reminders.",
+      "analyze": "Analyse revenue collected this month, the fully-paid rate and reasons for cancellations."
+    }
   },
   "unit": "orders"
 }

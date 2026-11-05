@@ -1,7 +1,7 @@
 // Gom handler theo id lúc boot: mọi action trong packages/actions phải có handler (thật hoặc NOT_IMPLEMENTED có TIP chủ);
 // handler cho id lạ hoặc trùng id → boot fail (action-registry §2).
 import { AppError } from '@appchat/shared';
-import type { ActionDef } from '@appchat/actions';
+import { registry as ACTIONS, type ActionDef } from '@appchat/actions';
 import { actionIdOf, type ActionHandler } from './handler';
 import { tipOwnerOf } from './tip-owners';
 
@@ -23,6 +23,11 @@ export class ActionHandlerRegistry {
 
   constructor(private readonly registry: readonly ActionDef[]) {}
 
+  /** Registry đầy đủ của packages/actions (như ActionsModule lúc boot) — test composition app không import gói actions. */
+  static full(): ActionHandlerRegistry {
+    return new ActionHandlerRegistry(ACTIONS);
+  }
+
   /** Gọi một lần lúc boot với mọi provider có @ActionHandler; lỗi → boot fail. */
   load(handlers: object[]): this {
     if (this.loaded) throw new Error('ActionHandlerRegistry đã load');
@@ -43,6 +48,16 @@ export class ActionHandlerRegistry {
     }
     this.loaded = true;
     return this;
+  }
+
+  /**
+   * Action có handler thật — Trợ lý / agent chỉ thấy và gọi được các action này (TIP-023b R1.2). Chưa load → false (fail closed);
+   * `get` vẫn trả NotImplementedHandler cho action còn thiếu nên không dùng `get` / `has` để kiểm.
+   */
+  isImplemented(id: string): boolean {
+    if (!this.loaded) return false;
+    const h = this.map.get(id);
+    return !!h && !(h instanceof NotImplementedHandler);
   }
 
   get(id: string): ActionHandler | undefined {

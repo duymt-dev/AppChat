@@ -9,6 +9,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../kernel/ids';
 import { UUID } from '../services/access';
 import { me } from './kit';
+import * as pv from './previews/settings.handlers.preview';
 
 async function assertTagName(tx: TenantTx, name: string, exceptId?: string) {
   const want = foldText(name);
@@ -51,7 +52,7 @@ export class TagCreateHandler implements Handler<ActionInput<typeof tagCreate>, 
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof tagCreate>) {
-    return { summary: input.name, risk: 'config' as const };
+    return pv.tagCreatePreview(input);
   }
 }
 
@@ -72,6 +73,10 @@ export class TagUpdateHandler implements Handler<ActionInput<typeof tagUpdate>, 
       },
     });
     return { result: { tag_id: t.id } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof tagUpdate>, tx: TenantTx) {
+    return pv.tagUpdatePreview(tx, input);
   }
 }
 
@@ -100,6 +105,10 @@ export class TagDeleteHandler implements Handler<ActionInput<typeof tagDelete>, 
     return { result: { ok: true }, before };
   }
 
+  async preview(_ctx: ActionContext, input: ActionInput<typeof tagDelete>, tx: TenantTx) {
+    return pv.tagDeletePreview(tx, input);
+  }
+
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as TagBackup;
     await assertTagName(tx, b.tag.name);
@@ -123,6 +132,10 @@ export class CannedReplyCreateHandler implements Handler<ActionInput<typeof cann
     await tx.cannedReply.create({ data: { id, ...input, createdByUserId: me(ctx), createdAt: now, updatedAt: now } });
     return { result: { reply_id: id }, after: { id } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof cannedReplyCreate>) {
+    return pv.cannedReplyCreatePreview(input);
+  }
 }
 
 @Injectable()
@@ -137,6 +150,10 @@ export class CannedReplyUpdateHandler implements Handler<ActionInput<typeof cann
     });
     return { result: { reply_id: r.id } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof cannedReplyUpdate>, tx: TenantTx) {
+    return pv.cannedReplyUpdatePreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -146,6 +163,10 @@ export class CannedReplyDeleteHandler implements Handler<ActionInput<typeof cann
     const r = await replyOr404(tx, input.reply_id);
     await tx.cannedReply.delete({ where: { id: r.id } });
     return { result: { ok: true }, before: { ...r, attachments: r.attachments ?? [], createdAt: iso(r.createdAt), updatedAt: iso(r.updatedAt) } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof cannedReplyDelete>, tx: TenantTx) {
+    return pv.cannedReplyDeletePreview(tx, input);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

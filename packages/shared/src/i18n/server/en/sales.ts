@@ -1,9 +1,11 @@
 // Server-side quote texts — English.
 import type { sales as vi } from '../vi/sales';
+import { salesDelivery } from './sales-delivery';
 
 type Shape<T> = { [K in keyof T]: T[K] extends string ? string : Shape<T[K]> };
 
 export const sales: Shape<typeof vi> = {
+  delivery: salesDelivery,
   quote: {
     message: 'Dear {customer}, {business} sends you quote {code} (version {version}) — total {total}, valid until {valid_until}. View: {link}',
     extended: 'Quote {code} has been extended until {valid_until}. View: {link}',
@@ -43,6 +45,20 @@ export const sales: Shape<typeof vi> = {
     signedPdfName: 'Contract-{code}-signed.pdf',
     declineDefault: 'Customer declined to sign',
     linkExpired: 'Signing link expired',
+    keptClauses: 'Additional clauses (approved)',
+    appendix: {
+      title: 'CONTRACT APPENDIX',
+      parent: 'Attached to contract {code} — {title}',
+      valueDelta: 'Value adjustment: {value}',
+      version: 'Version {version}',
+      signMessage: 'Dear {customer}, {business} has sent appendix {code} (contract {contract}) for your e-signature. Signing link (single use, valid until {expires}): {link}',
+      otpMessage: 'Verification code to sign appendix {code}: {otp} (valid 10 minutes). Do not share it.',
+      ownerOtpSubject: 'Code to approve & sign appendix {code}: {otp}',
+      ownerOtpBody: 'Your code to approve & sign appendix {code} (version {version}) is {otp}. Valid 10 minutes.',
+      signedMessage: 'Appendix {code} has been signed by both parties. The signed PDF (SHA-256 {sha}) is attached.',
+      pdfName: 'Appendix-{code}.pdf',
+      signedPdfName: 'Appendix-{code}-signed.pdf',
+    },
     kind: { service: 'Service contract', sale: 'Sales contract', framework: 'Framework contract' },
     cert: {
       title: 'E-SIGNATURE CERTIFICATE',

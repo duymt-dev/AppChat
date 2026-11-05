@@ -11,6 +11,7 @@ import { contactsQuery, membersQuery } from '@/features/customers';
 import { useQuoteFormStyles } from '../styles/form.styles';
 import { useQuotesUi } from '../quotes-store';
 import { initialQuoteDraft, useQuoteDraft } from '../hooks/useQuoteDraft';
+import { useApprovalPolicy } from '../hooks/useApprovalPolicy';
 import { quoteQuery } from '../api';
 import type { Quote } from '../types';
 import { LineEditor } from './LineEditor';
@@ -81,7 +82,8 @@ function QuoteForm({
   const ui = useQuotesUi();
   const contacts = useQuery(contactsQuery(ALL_CONTACTS)).data?.data ?? [];
   const members = useQuery(membersQuery()).data ?? [];
-  const f = useQuoteDraft(initialQuoteDraft(mode === 'edit' ? editPrefill : ui.prefill));
+  const ap = useApprovalPolicy();
+  const f = useQuoteDraft(initialQuoteDraft(mode === 'edit' ? editPrefill : ui.prefill), ap.policy);
   const create = useAction<{ quote_id: string }>('quote.create');
   const update = useAction<{ quote_id: string }>('quote.update');
   const [err, setErr] = useState('');
@@ -197,7 +199,7 @@ function QuoteForm({
         {f.reasons.length ? (
           <div className={styles.warn} data-testid="q-needs-approval">
             <Icon name="ic-shield" size={15} color={color.amberGold} />
-            {t('needApproval', { reasons: f.reasons.map((r) => t(`reasons.${r}`)).join(', ') })}
+            {t('needApproval', { reasons: f.reasons.map(ap.label).join(', ') })}
           </div>
         ) : null}
         <div className={styles.grid}>

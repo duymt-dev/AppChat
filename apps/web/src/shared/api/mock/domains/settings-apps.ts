@@ -30,7 +30,7 @@ export const createSettingsAppsState = (): SettingsAppsState => ({
 });
 
 /** PNG 1×1 — QR giả của mock (như transport Zalo giả của backend). */
-const MOCK_QR = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+export const MOCK_QR = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 const HEALTH_RANK: Record<string, number> = { down: 0, off: 1, slow: 2, good: 3 };
 
@@ -65,7 +65,7 @@ const channelByType = (db: MockDb, type: string) => {
   return c;
 };
 
-const findAccount = (db: MockDb, accountId: string) => {
+export const findAccount = (db: MockDb, accountId: string) => {
   for (const c of db.settingsApps.channels) {
     const a = c.accounts.find((x) => x.id === accountId);
     if (a) return { channel: c, account: a };

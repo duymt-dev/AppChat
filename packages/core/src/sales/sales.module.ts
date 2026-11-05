@@ -22,9 +22,16 @@ import { QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler } from './
 import { QuoteDraftFromContentHandler } from './quotes/actions/quote-draft.handler';
 import { QuoteExtendHandler, QuoteSendHandler } from './quotes/actions/quote-send.handlers';
 import { QuoteCommentHandler, QuoteCreateHandler, QuoteDeleteHandler, QuoteUpdateHandler } from './quotes/actions/quote-write.handlers';
+import { QuoteGetHandler, QuoteSearchHandler } from './quotes/actions/quote-read.handlers';
+import { OrderGetHandler, OrderSearchHandler } from './orders/actions/order-read.handlers';
+import { InvoiceGetHandler, InvoiceSearchHandler, PackageSearchHandler } from './payments/actions/invoice-read.handlers';
 import { QuoteDeps } from './quotes/services/quote-deps';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
+import { SalesSettingsModule } from './settings/settings.module';
+import { SalesDocumentsModule } from './documents/documents.module';
+import { OrderSendConfirmationHandler } from './orders/actions/order-confirmation.handler';
+import { ReceiptSendHandler } from './payments/actions/receipt-send.handler';
 import { OrderFromContractHandler, OrderFromQuoteHandler, OrderCreateHandler } from './orders/actions/order-create.handlers';
 import { OrderSetDepositHandler, OrderShippingHandler, OrderUpdateHandler } from './orders/actions/order-edit.handlers';
 import { OrderCancelHandler, OrderCompleteHandler, OrderConfirmHandler } from './orders/actions/order-flow.handlers';
@@ -54,12 +61,16 @@ const HANDLERS = [
   OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
   OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
-  PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler,
+  PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler, PackageSearchHandler,
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,
+  // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
+  QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
+  // Gửi chứng từ cho khách (TIP-032b P2).
+  OrderSendConfirmationHandler, ReceiptSendHandler,
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule, SalesDocumentsModule],
   providers: [
     ...HANDLERS,
     {
@@ -99,6 +110,6 @@ const HANDLERS = [
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
+  exports: [SalesSettingsModule, SalesDocumentsModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
 })
 export class SalesModule {}

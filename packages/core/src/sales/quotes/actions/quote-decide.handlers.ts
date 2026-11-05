@@ -11,6 +11,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { actorUserId, applyStageRule, writeTimeline } from '../../../crm/public';
 import { lockQuote, type QuoteRecord } from '../quote-access';
 import { hasNewerVersion, linesOf, moveStatus, writeLines } from '../services/quote-write';
+import { acceptPreview, rejectPreview, revisionPreview } from '../previews/quote-decide.handlers.preview';
 
 type Out = { quote_id: string; status: string };
 type Actor = { type: string; id: string | null };
@@ -55,6 +56,10 @@ export class QuoteAcceptHandler implements Handler<ActionInput<typeof quoteMarkA
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoDecision(tx, log, 'accepted');
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteMarkAccepted>, tx: TenantTx) {
+    return acceptPreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -75,6 +80,10 @@ export class QuoteRejectHandler implements Handler<ActionInput<typeof quoteMarkR
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoDecision(tx, log, 'rejected');
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteMarkRejected>, tx: TenantTx) {
+    return rejectPreview(ctx, tx, input);
   }
 }
 
@@ -124,5 +133,9 @@ export class QuoteRevisionHandler implements Handler<ActionInput<typeof quoteReq
     const reason = input.reason?.trim();
     if (reason) await tx.quoteComment.create({ data: { id: uuidv7(now.getTime()), quoteId: id, authorId: actorUserId(ctx), body: reason, createdAt: now } });
     return { result: { quote_id: id, code: q.code, version }, before: { id: q.id, status: q.status }, after: { id } };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof quoteRequestRevision>, tx: TenantTx) {
+    return revisionPreview(ctx, tx, input);
   }
 }

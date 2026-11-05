@@ -1,9 +1,10 @@
-// Tải tệp lên (Blueprint §4.4 `POST /v1/files` → `file_id`): ghi Storage trước rồi bảng `file` của DB tenant (`purpose` = nơi dùng:
-// kb / avatar / attachment…). Tệp chưa gắn vào chứng từ nào giữ `confirmed=false` (dọn tệp mồ côi là việc của job sau).
+// Tải tệp lên (Blueprint §4.4 `POST /v1/files` → `file_id`): qua cổng `guardUpload` (TIP-045b — loại theo nội dung, khớp đuôi / mime,
+// giới hạn theo loại; áp cho mọi chỗ gọi kể cả server tự sinh tệp) → ghi Storage → bảng `file` của DB tenant (`purpose` = nơi dùng:
+// kb / avatar / attachment…), mime lưu là mime chuẩn theo nội dung. Tệp chưa gắn vào chứng từ nào giữ `confirmed=false`.
 import type { TenantDb } from '@appchat/db';
-import { AppError } from '@appchat/shared';
 import { uuidv7 } from '../ids';
-import { MAX_UPLOAD_BYTES, sha256Of, storageKeyOf, type Storage } from './storage';
+import { sha256Of, storageKeyOf, type Storage } from './storage';
+import { guardUpload } from './upload-guard';
 
 export interface UploadInput {
   name: string;
@@ -21,8 +22,6 @@ export interface FileRow {
   sha256: string;
 }
 
-const PURPOSES = new Set(['kb', 'attachment', 'avatar', 'document', 'import']);
-
 export class FilesService {
   constructor(
     private readonly storage: Storage,
@@ -30,17 +29,14 @@ export class FilesService {
   ) {}
 
   async upload(db: Pick<TenantDb, 'file'>, ws: string, f: UploadInput): Promise<FileRow> {
-    if (!f.body.length) throw new AppError('VALIDATION_FAILED', 422, { file: 'empty' });
-    if (f.body.length > MAX_UPLOAD_BYTES) throw new AppError('VALIDATION_FAILED', 413, { file: 'too_large' });
-    if (!PURPOSES.has(f.purpose)) throw new AppError('VALIDATION_FAILED', 422, { purpose: 'invalid' });
+    const g = guardUpload(f);
     const id = uuidv7();
     const at = this.now();
     const key = storageKeyOf(ws, id, at);
     const sha256 = sha256Of(f.body);
     await this.storage.put(key, f.body);
-    const name = f.name.replace(/[\/\u0000-\u001f]/g, '_').slice(0, 200) || 'file';
-    await db.file.create({ data: { id, storageKey: key, name, mime: f.mime.slice(0, 120) || 'application/octet-stream', size: BigInt(f.body.length), sha256, uploadedBy: f.uploadedBy, purpose: f.purpose, createdAt: at } });
-    return { id, name, mime: f.mime, size: f.body.length, sha256 };
+    await db.file.create({ data: { id, storageKey: key, name: g.name, mime: g.mime, size: BigInt(f.body.length), sha256, uploadedBy: f.uploadedBy, purpose: f.purpose, createdAt: at } });
+    return { id, name: g.name, mime: g.mime, size: f.body.length, sha256 };
   }
 
   /** Nội dung + metadata — `null` khi không có (id lạ / đã xoá). */

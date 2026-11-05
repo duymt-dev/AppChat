@@ -1,9 +1,10 @@
 // Worker ROLE=channels của domain `channels` (TIP-014, Blueprint §6): giữ phiên theo lease (ChannelSessions), worker gửi mỗi
 // tài khoản (ChannelSenders), job đăng nhập QR (`channel-login`), lệnh từ API qua Redis pub/sub; kênh không lease (webchat —
-// StatelessChannels); kênh poll (email — ChannelPollers, TIP-018). Thiếu DB / Redis / khoá → tắt.
+// StatelessChannels); kênh poll (email — ChannelPollers, TIP-018); worker tạo nhóm theo phiên (GroupCreators — TIP-023b). Thiếu DB / Redis / khoá → tắt.
 import { hostname } from 'node:os';
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, type Worker } from 'bullmq';
+import { type Worker } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry } from '@appchat/channels';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
@@ -22,6 +23,9 @@ import { CHANNEL_CONTROL, CHANNEL_INBOUND_QUEUE, ChannelControl, type ControlOp 
 import { ChannelLeases, LEASE_HEARTBEAT_MS } from './lease';
 import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
+import { reserveSend } from '../services/send-queue';
+import { GroupCreators } from './create-group.processor';
+import { ActionExecutor } from '../../kernel/actions/executor';
 import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
 import { ChannelSessions } from './sessions';
 import { StatelessChannels } from './stateless';
@@ -29,6 +33,7 @@ import { StatelessChannels } from './stateless';
 class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private sessions?: ChannelSessions;
   private senders?: ChannelSenders;
+  private groups?: GroupCreators;
   private stateless?: StatelessChannels;
   private pollers?: ChannelPollers;
   private timer?: NodeJS.Timeout;
@@ -49,11 +54,12 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     @Inject(REALTIME_EMITTER) private readonly emitter: RealtimeEmitter,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
+    @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
   ) {}
 
   /** Bộ phiên của worker này (test điều khiển trực tiếp). */
   get runtime() {
-    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers };
+    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers, groups: this.groups };
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -65,13 +71,23 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     this.inbound = new Queue(CHANNEL_INBOUND_QUEUE, { connection: redis.duplicate() });
     const sessions: ChannelSessions = new ChannelSessions({
       platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, kv: redis, key, log: this.log, now,
-      onStarted: (id, ws, adapter) => senders.open(id, ws, adapter),
-      onStopped: (id) => senders.close(id),
+      // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.
+      onStarted: async (id, ws, adapter) => {
+        await senders.open(id, ws, adapter);
+        await groups?.open(id, adapter);
+      },
+      onStopped: async (id) => {
+        await senders.close(id);
+        await groups?.close(id);
+      },
     });
+    const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log }) : undefined;
+    this.groups = groups;
     const senders: ChannelSenders = new ChannelSenders({
       redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER,
       pause: (ws, id, detail) => sessions.markDown(ws, id, 'send_errors', detail),
       expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
+      reserve: reserveSend,
     });
     this.sessions = sessions;
     this.senders = senders;
@@ -112,6 +128,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     await this.sessions?.shutdown();
     await this.pollers?.shutdown();
     await this.senders?.closeAll();
+    await this.groups?.closeAll();
     await this.inbound?.close();
   }
 }

@@ -54,6 +54,24 @@ test.describe('assistant', () => {
     await expect(page.getByTestId('asst-agent')).toContainText('Booking Agent (AI)');
   });
 
+  test('đính kèm (TIP-023c 8c): menu + mở chọn tệp → chip sẵn sàng; tệp lạ bị từ chối; bỏ tệp; gửi kèm → chip mất', async ({ page }) => {
+    await page.goto(`/assistant${Q}`);
+    const input = page.getByTestId('asst-attach-input');
+    await input.setInputFiles([
+      { name: 'bang-gia.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4') },
+      { name: 'virus.exe', mimeType: 'application/x-msdownload', buffer: Buffer.from('MZ') },
+      { name: 'anh.png', mimeType: 'image/png', buffer: Buffer.from('png') },
+    ]);
+    const chips = page.getByTestId('asst-attachment');
+    await expect(chips).toHaveCount(2);
+    await expect(chips.first()).toHaveAttribute('data-status', 'ready');
+    await chips.nth(1).getByTestId('asst-attachment-remove').click();
+    await expect(chips).toHaveCount(1);
+    await ask(page, 'Tóm tắt tệp này');
+    await expect(page.getByTestId('asst-attachments')).toHaveCount(0);
+    await expect(page.getByText('Tóm tắt tệp này')).toBeVisible();
+  });
+
   test('Coworks: tạo tác vụ từ mẫu nhanh, tạm dừng, drawer cấu hình', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(`/assistant/cowork${Q}`);

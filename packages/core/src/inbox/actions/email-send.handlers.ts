@@ -15,6 +15,7 @@ import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
 import { previewOf } from '../services/view';
 import { me } from './kit';
 import { senderOf } from './message.handlers';
+import { sendEmailPreview } from './previews/email-send.handlers.preview';
 
 const EMAIL = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 type Out = { ok: boolean; conversation_id?: string };
@@ -70,5 +71,9 @@ export class ContactSendEmailHandler implements Handler<ActionInput<typeof conta
       ],
       afterCommit: () => enqueueOutgoing(this.queue, ctx.workspaceId, out),
     };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactSendEmail>, tx: TenantTx) {
+    return sendEmailPreview(ctx, tx, input);
   }
 }

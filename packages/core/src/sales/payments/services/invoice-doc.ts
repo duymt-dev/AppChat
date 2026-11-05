@@ -6,19 +6,21 @@ import { AppError, createFmt, interpolate, invoiceTransferCode, serverMessages, 
 import { businessData } from '../../../documents/public';
 import type { QuoteDocDeps } from '../../quotes/services/quote-doc';
 import type { InvoiceRecord } from '../invoice-access';
+import { invoiceQrOf, pngDataUri, qrPng } from './invoice-qr';
 
 type Db = Pick<TenantDb, 'contact' | 'docTemplate' | 'file' | 'paymentAccount' | 'order'>;
 type PaymentRow = { amount: bigint; method: string; receiptCode: string | null; paidAt: Date; reference: string };
 
 async function base(db: Db, d: QuoteDocDeps, ws: string, contactId: string) {
-  const [{ business, locale, timeZone }, contact, acc] = await Promise.all([
+  const [{ business, locale, timeZone }, contact, account] = await Promise.all([
     businessData(d.platform, ws),
     db.contact.findUnique({ where: { id: contactId }, select: { name: true, taxCode: true, address: true, phone: true, email: true } }),
     db.paymentAccount.findUnique({ where: { id: 1 } }),
   ]);
   const fmt = createFmt({ locale, timeZone });
-  const bank = acc ? `${acc.accountNo} · ${acc.bank} · ${acc.accountName}` : '';
+  const bank = account ? `${account.accountNo} · ${account.bank} · ${account.accountName}` : '';
   return {
+    account,
     locale,
     fmt,
     business: { ...business, bank_account: bank } as Record<string, string>,
@@ -33,6 +35,7 @@ export async function invoiceDocData(db: Db, d: QuoteDocDeps, ws: string, i: Inv
   const m = serverMessages(b.locale).sales.invoice;
   const order = i.orderId ? await db.order.findUnique({ where: { id: i.orderId }, select: { code: true } }) : null;
   const left = i.amount - i.paidAmount;
+  const qr = invoiceQrOf(i, b.account);
   const name = i.title || (order ? interpolate(m.forOrder, { code: order.code }) : m.kind[i.kind]);
   const data: DocData = {
     business: b.business,
@@ -41,10 +44,15 @@ export async function invoiceDocData(db: Db, d: QuoteDocDeps, ws: string, i: Inv
     items: [item(1, name, b.fmt.money(String(i.amount)))],
     totals: { subtotal: b.fmt.money(String(i.amount)), discount: b.fmt.money('0'), vat: '', total: b.fmt.money(String(left)), total_words: vndWords(String(left), b.locale) },
     contract: {},
-    payment: { vietqr: b.business.bank_account ? interpolate(m.qrLine, { amount: b.fmt.money(String(left)), code: invoiceTransferCode(i.code) }) : '', transfer_note: invoiceTransferCode(i.code) },
+    // Ảnh VietQR thật (TIP-032b P2) cùng payload với màn chi tiết / GET /invoices/:id/qr — mẫu rich chèn sau dòng VietQR.
+    payment: {
+      vietqr: b.business.bank_account ? interpolate(m.qrLine, { amount: b.fmt.money(String(left)), code: invoiceTransferCode(i.code) }) : '',
+      transfer_note: invoiceTransferCode(i.code),
+      vietqr_img: qr ? pngDataUri(await qrPng(qr.payload)) : '',
+    },
     signatures: { seller: b.business.representative ?? '', buyer: b.customer.name },
   };
-  return { data, locale: b.locale, business: b.business, fmt: b.fmt };
+  return { data, locale: b.locale, business: b.business, fmt: b.fmt, qr };
 }
 
 export async function receiptDocData(db: Db, d: QuoteDocDeps, ws: string, i: InvoiceRecord, p: PaymentRow) {

@@ -1,47 +1,35 @@
 // order.confirm · complete · cancel (COMMERCE §4, §7, §8; state-machine §4). Xác nhận = new → processing: trừ kho (combo theo thành phần).
-// Hoàn tất = processing → completed: điểm floor(net trước VAT / 10.000) × hệ số hạng ghi trên đơn một lần (sổ điểm + số dư khách —
-// TIP-036 nhận `order.completed`), đơn sàn mặc định 0 điểm (§4b — trừ khi kết nối bật `loyalty_enabled`); khách → Đã mua, tổng chi,
-// lần mua cuối. Huỷ = new / processing → cancelled: bắt buộc lý do, hoàn kho, đã thu tiền → cờ chờ hoàn tiền + event (TIP-032 sinh
+// Hoàn tất = processing → completed: điểm floor(căn cứ / 10.000) × hệ số hạng theo cấu hình loyalty snapshot (căn cứ = net trước VAT theo
+// thực thu lúc hoàn tất — DC-297 c; đơn sàn theo `marketplace_earn` — §4b) ghi trên đơn + event `order.completed` (completion_id + basis);
+// consumer loyalty cộng sổ đúng một lần mỗi lượt (TIP-036). Hoàn tác hoàn tất đảo điểm của lượt đó (durable — sổ ghi bù); khách → Đã mua,
+// tổng chi, lần mua cuối. Huỷ = new / processing → cancelled: bắt buộc lý do, hoàn kho, đã thu tiền → cờ chờ hoàn tiền + event (TIP-032 sinh
 // yêu cầu hoàn tiền chờ duyệt — payments/services/order-refund.ts). Huỷ không hoàn tác (Blueprint §3.4).
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, ORDER_FLOW, assertTransition, pointsFor } from '@appchat/shared';
+import { AppError, ORDER_FLOW, assertTransition } from '@appchat/shared';
 import type { ActionInput, orderCancel, orderComplete, orderConfirm } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { applyStageRule, writeTimeline } from '../../../crm/public';
-import { lockOrder, visibleOrder, type OrderRecord } from '../order-access';
+import { lockOrder, type OrderRecord } from '../order-access';
 import { actorOf, deductStock, logEvent, moveOrder, returnStock, type Actor } from '../services/order-write';
 import { orderPayload } from './order-create.handlers';
 import { refundCancelled } from '../../payments/services/order-refund';
+import { cancelPreview, completePreview, confirmPreview } from '../previews/order-flow.handlers.preview';
+import { earnSnapshot, reverseCompletion } from '../../../loyalty/services/order-points';
+import { writeOutbox } from '../../../kernel/outbox/outbox';
 
 type St = { order_id: string; status: string };
-const POINT_VALUE = 100n;
-
-/** Net trước VAT đã trừ phần trả bằng điểm (COMMERCE §7 — 1 điểm = 100đ). */
-const netBeforeVat = (o: Pick<OrderRecord, 'subtotal' | 'discountTotal' | 'pointsUsed'>) => {
-  const v = o.subtotal - o.discountTotal - o.pointsUsed * POINT_VALUE;
-  return v > 0n ? v : 0n;
-};
-
-/** Đơn sàn chỉ tích điểm khi kết nối bật `loyalty_enabled` (§4b). */
-async function earns(tx: TenantTx, o: Pick<OrderRecord, 'source' | 'externalConnectionId'>) {
-  if (o.source !== 'marketplace') return true;
-  const c = o.externalConnectionId ? await tx.integrationConnection.findUnique({ where: { id: o.externalConnectionId }, select: { config: true } }) : null;
-  return String((c?.config as Record<string, unknown> | null)?.loyalty_enabled ?? 'false') === 'true';
-}
 
 /** Hoàn tất (dùng chung action + đồng bộ sàn): điểm, khách Đã mua / tổng chi / lần mua cuối, timeline, event. */
 export async function completeOrder(tx: TenantTx, o: OrderRecord, actor: Actor, now: Date) {
-  const contact = await tx.contact.findUniqueOrThrow({ where: { id: o.contactId }, select: { tierKey: true } });
-  const net = netBeforeVat(o);
-  const points = (await earns(tx, o)) ? pointsFor(net, contact.tierKey) : 0;
+  const { points, net, basis } = await earnSnapshot(tx, o);
   await moveOrder(tx, o, 'completed', { completedAt: now, pointsEarned: points }, now);
   const event = await logEvent(tx, o.id, 'completed', actor, now, { points });
   await tx.contact.update({ where: { id: o.contactId }, data: { totalSpent: { increment: o.total }, lastOrderAt: now } });
   await writeTimeline(tx, { contactId: o.contactId, type: 'order', key: 'order_completed', params: { code: o.code, total: String(o.total) }, actor, ref: { type: 'order', id: o.id }, at: now });
   const stage = await applyStageRule(tx, { contactId: o.contactId, mode: 'raise', to: 'won', actor, now });
-  return { points, event, events: [{ topic: 'order.completed', payload: { ...orderPayload(o), points, net_before_vat: String(net) } }, ...stage] };
+  return { points, event, events: [{ topic: 'order.completed', payload: { ...orderPayload(o), points, net_before_vat: String(net), completion_id: event, basis } }, ...stage] };
 }
 
 /** Huỷ (dùng chung action + đồng bộ sàn). */
@@ -86,6 +74,10 @@ export class OrderConfirmHandler implements Handler<ActionInput<typeof orderConf
     await moveOrder(tx, o, 'new', { confirmedAt: null }, now);
     await tx.orderEvent.deleteMany({ where: { id: b.event } });
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderConfirm>, tx: TenantTx) {
+    return confirmPreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -101,12 +93,12 @@ export class OrderCompleteHandler implements Handler<ActionInput<typeof orderCom
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderComplete>, tx: TenantTx) {
-    const o = await visibleOrder(tx, ctx.authz, input.order_id);
-    return { summary: `${o.code} · ${String(o.total)}`, risk: 'money' as const };
+    return completePreview(ctx, tx, input);
   }
 
-  /** Về `processing`: bỏ điểm ghi trên đơn + trừ lại tổng chi; giai đoạn Đã mua giữ nguyên (không bao giờ hạ — §8). */
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+  /** Về `processing`: bỏ điểm ghi trên đơn + trừ lại tổng chi + đảo điểm lượt này nếu đã cộng (sổ ghi bù — consumer đến sau thấy lượt đã
+   *  gỡ thì bỏ qua); giai đoạn Đã mua giữ nguyên (không bao giờ hạ — §8). */
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as { id: string; event: string; total: string };
     await tx.$queryRaw`SELECT 1 FROM "order" WHERE id = ${b.id}::uuid FOR UPDATE`;
     const o = await tx.order.findUnique({ where: { id: b.id } });
@@ -115,6 +107,8 @@ export class OrderCompleteHandler implements Handler<ActionInput<typeof orderCom
     await moveOrder(tx, o, 'processing', { completedAt: null, pointsEarned: 0 }, now);
     await tx.contact.update({ where: { id: o.contactId }, data: { totalSpent: { decrement: BigInt(b.total) } } });
     await tx.orderEvent.deleteMany({ where: { id: b.event } });
+    const events = await reverseCompletion(tx, o, b.event, actorOf(ctx), now);
+    await writeOutbox(tx, ctx.workspaceId, events, now);
   }
 }
 
@@ -131,7 +125,6 @@ export class OrderCancelHandler implements Handler<ActionInput<typeof orderCance
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderCancel>, tx: TenantTx) {
-    const o = await visibleOrder(tx, ctx.authz, input.order_id);
-    return { summary: `${o.code} · ${input.reason.trim()}`, risk: 'money' as const };
+    return cancelPreview(ctx, tx, input);
   }
 }

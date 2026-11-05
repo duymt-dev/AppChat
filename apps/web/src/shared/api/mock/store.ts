@@ -27,6 +27,8 @@ import { createSettingsAiState, type SettingsAiState } from './domains/settings-
 import { createSettingsOpsState, type SettingsOpsState } from './domains/settings-ops';
 import { createSettingsBillingState, type SettingsBillingState } from './domains/settings-billing';
 import { createDocTemplatesState, type DocTemplatesState } from './domains/doc-templates';
+import { createKbSuggestionState } from './domains/kb-suggestions';
+import type { KbSuggestionDto } from '@appchat/shared';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -71,6 +73,7 @@ export interface MockDb {
   settingsOps: SettingsOpsState;
   settingsBilling: SettingsBillingState;
   docTemplates: DocTemplatesState;
+  kbSuggestions: KbSuggestionDto[];
 }
 
 const ROLE_KEY = 'ac_mock_role';
@@ -113,6 +116,7 @@ const db: MockDb = {
   settingsOps: createSettingsOpsState(),
   settingsBilling: createSettingsBillingState(),
   docTemplates: createDocTemplatesState(),
+  kbSuggestions: createKbSuggestionState(),
 };
 
 seedCustomValues(db);

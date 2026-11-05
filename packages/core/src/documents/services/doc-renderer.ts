@@ -1,6 +1,7 @@
 // Render chứng từ ra PDF (templates.md §2): mẫu `rich` → HTML đã điền → LibreOffice; mẫu `docx` → gắn thẻ theo field_map → docxtemplater
 // điền dữ liệu → LibreOffice. Tối đa 2 lượt chuyển cùng lúc mỗi tiến trình (K8 — LibreOffice tốn CPU), mỗi lượt ≤ 60 giây.
 // Đề nghị thanh toán / phiếu thu luôn có dòng "không thay thế hoá đơn GTGT" (thiếu thì chèn).
+import { PDFDocument } from 'pdf-lib';
 import type { TenantDb } from '@appchat/db';
 import { AppError, NOT_VAT_KINDS, hasNotVatLine, htmlPage, renderRich, serverMessages, type DocData, type DocKind } from '@appchat/shared';
 import type { FilesService } from '../../kernel/files/files.service';
@@ -65,6 +66,22 @@ export class DocRenderer {
   /** HTML hoàn chỉnh (đã escape) → PDF — trang chữ ký / chứng nhận ký hợp đồng (TIP-030). */
   async htmlPdf(html: string): Promise<Buffer> {
     return this.limit.run(() => this.converter.toPdf(Buffer.from(html, 'utf8'), 'html'));
+  }
+
+  /** PDF đã đóng băng → ảnh PNG từng trang, đủ trang và đúng thứ tự (TIP-032b — báo giá dạng ảnh). Converter không hỗ trợ → 501. */
+  async pdfPages(pdf: Buffer): Promise<Buffer[]> {
+    const toPng = this.converter.pageToPng?.bind(this.converter);
+    if (!toPng) throw new AppError('NOT_IMPLEMENTED', 501, { render: 'image_unavailable' });
+    const src = await PDFDocument.load(pdf);
+    const out: Buffer[] = [];
+    for (let i = 0; i < src.getPageCount(); i++) {
+      const one = await PDFDocument.create();
+      const [page] = await one.copyPages(src, [i]);
+      one.addPage(page!);
+      const bytes = Buffer.from(await one.save());
+      out.push(await this.limit.run(() => toPng(bytes)));
+    }
+    return out;
   }
 
   async pdf(db: Pick<TenantDb, 'file'>, t: RenderTemplate, data: DocData, locale: string): Promise<Buffer> {

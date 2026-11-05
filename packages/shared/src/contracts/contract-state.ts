@@ -27,6 +27,21 @@ export const CONTRACT_FLOW = defineFlow<ContractStatusKey>({
   terminal: ['declined', 'expired', 'terminated'],
 });
 
+/**
+ * Phụ lục (TIP-030b F3 spec 13): như hợp đồng nhưng ký riêng — Owner ký trước (OTP riêng của phụ lục), khách ký link phụ lục; yêu cầu
+ * sửa → nháp; khách từ chối / link quá hạn → `declined`. Sửa chỉ khi nháp (version +1, token / OTP cũ hết hiệu lực).
+ */
+export const APPENDIX_FLOW = defineFlow<ContractStatusKey>({
+  draft: { 'contract.appendix_update': 'draft', 'contract.appendix_submit': 'pending_approval' },
+  pending_approval: { 'contract.appendix_request_changes': 'draft', 'contract.appendix_approve_and_sign': 'pending_signature' },
+  pending_signature: { 'contract.appendix_send': 'pending_signature', 'contract.appendix_public_sign': 'signed', 'contract.appendix_public_decline': 'declined', 'appendix.link_expire': 'declined' },
+  signed: {},
+  declined: {},
+  expired: {},
+  terminated: {},
+  terminal: ['signed', 'declined', 'expired', 'terminated'],
+});
+
 /** Chip lọc / cột kanban (COMMERCE §9: 4 cột prototype; "Chờ duyệt" gộp vào Nháp kèm badge; Từ chối / Đã chấm dứt chỉ ở "Tất cả"). */
 export const contractChipOf = (s: ContractStatusKey): string => (s === 'pending_approval' ? 'draft' : s === 'pending_signature' ? 'pending' : s);
 export const CONTRACT_CHIP_STATUSES: Record<string, readonly ContractStatusKey[]> = {

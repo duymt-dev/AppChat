@@ -1,6 +1,6 @@
-// Tab tuỳ biến của Hồ sơ 360° (REQ-F12, TIP-026): mỗi khối của thư viện 12 khối (Cài đặt › Hồ sơ 360°) là một thẻ. Khối có dữ liệu
-// ở hồ sơ (liên hệ, trường tuỳ biến, ghi chú, điểm, tín hiệu / tóm tắt AI) hiện nội dung; khối của module khác (ticket, SLA, CSAT,
-// báo giá, đơn, lịch hẹn) hiện "chưa có dữ liệu" tới khi module đó trả về hồ sơ 360°.
+// Tab tuỳ biến của Hồ sơ 360° (REQ-F12, TIP-026): mỗi khối của thư viện 12 khối (Cài đặt › Hồ sơ 360°) là một thẻ. Khối hồ sơ (liên hệ,
+// trường tuỳ biến, ghi chú, điểm, tín hiệu / tóm tắt AI) đọc Contact360; khối module khác (ticket, SLA, CSAT, báo giá, đơn, lịch hẹn) đọc
+// `insights.links` (TIP-015b — LinkBlocks360).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
@@ -9,6 +9,7 @@ import { CustomFieldList } from '@/shared/custom-fields';
 import { usePanelStyles } from '../styles/panel.styles';
 import { useCardStyles } from '../styles/card360.styles';
 import { Rich } from './Rich';
+import { LINK_BLOCKS, LinkBlock } from './LinkBlocks360';
 import type { Contact360 } from '../types';
 
 function Block({ k, c }: { k: string; c: Contact360 }) {
@@ -80,7 +81,7 @@ function Block({ k, c }: { k: string; c: Contact360 }) {
         none
       );
     default:
-      return none;
+      return (LINK_BLOCKS as readonly string[]).includes(k) ? <LinkBlock k={k as (typeof LINK_BLOCKS)[number]} links={c.insights?.links} /> : none;
   }
 }
 

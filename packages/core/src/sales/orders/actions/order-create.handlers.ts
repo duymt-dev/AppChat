@@ -12,7 +12,9 @@ import { uuidv7 } from '../../../kernel/ids';
 import { nextCode } from '../../../kernel/sequence';
 import { CrmMembers, writeTimeline } from '../../../crm/public';
 import { checkParties, creatorOf, linesOf, resolveLines, type LineIn } from '../../quotes/services/quote-write';
+import { lockConversion } from '../../quotes/services/conversion-lock';
 import { UUID } from '../order-access';
+import { createPreview, fromContractPreview, fromQuotePreview } from '../previews/order-create.handlers.preview';
 import { EMPTY_SHIPPING, actorOf, checkOrderCustom, logEvent, payCols, totalCols, totalsOf, writeItems, type Actor } from '../services/order-write';
 
 type Out = { order_id: string; code: string };
@@ -117,6 +119,10 @@ export class OrderCreateHandler implements Handler<ActionInput<typeof orderCreat
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx);
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreate>, tx: TenantTx) {
+    return createPreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -128,11 +134,8 @@ export class OrderFromQuoteHandler implements Handler<ActionInput<typeof orderCr
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCreateFromQuote>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
-    if (UUID.test(input.quote_id)) await tx.$queryRaw`SELECT 1 FROM quote WHERE id = ${input.quote_id}::uuid FOR UPDATE`;
-    const q = UUID.test(input.quote_id) ? await tx.quote.findUnique({ where: { id: input.quote_id } }) : null;
-    if (!q || q.deletedAt) throw new AppError('NOT_FOUND', 404, { quote_id: 'not_found' });
-    // Mỗi báo giá một đơn (order.quote_id unique) — gọi lại trả đơn cũ.
-    const dup = await tx.order.findFirst({ where: { quoteId: q.id }, select: { id: true, code: true } });
+    // Một báo giá → một HĐ hoặc một đơn (TIP-032b conversion-lock): khoá báo giá, đã có HĐ → QUOTE_ALREADY_CONVERTED; gọi lại → đơn cũ.
+    const { quote: q, existing: dup } = await lockConversion(tx, ctx.authz, input.quote_id, 'order');
     if (dup) return { result: { order_id: dup.id, code: dup.code } };
     if (q.status !== 'accepted') throw new AppError('INVALID_TRANSITION', 409, { status: q.status });
     const now = this.clock.now();
@@ -159,6 +162,10 @@ export class OrderFromQuoteHandler implements Handler<ActionInput<typeof orderCr
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx);
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromQuote>, tx: TenantTx) {
+    return fromQuotePreview(ctx, tx, this.members, input);
   }
 }
 
@@ -197,6 +204,10 @@ export class OrderFromContractHandler implements Handler<ActionInput<typeof orde
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await undoCreate(log, tx);
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromContract>, tx: TenantTx) {
+    return fromContractPreview(ctx, tx, this.members, input);
   }
 }
 

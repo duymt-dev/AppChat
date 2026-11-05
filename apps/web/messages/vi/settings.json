@@ -35,7 +35,8 @@
     "notifications": "Thông báo",
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
-    "profile": "Hồ sơ của tôi"
+    "profile": "Hồ sơ của tôi",
+    "sales_policy": "Chính sách bán hàng"
   },
   "head": {
     "general": "Tổng quan",
@@ -59,7 +60,8 @@
     "notifications": "Thông báo",
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
-    "profile": "Hồ sơ của tôi"
+    "profile": "Hồ sơ của tôi",
+    "sales_policy": "Chính sách bán hàng"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
@@ -162,6 +164,29 @@
     "menu": "Thao tác",
     "edit": "Sửa thông tin",
     "remove": "Xoá thành viên",
+    "transfer": {
+      "open": "Chuyển quyền Chủ sở hữu",
+      "title": "Chuyển quyền Chủ sở hữu",
+      "to": "Chuyển cho",
+      "pick": "Chọn thành viên đang hoạt động",
+      "them": "người nhận",
+      "consequence": "{name} sẽ là Chủ sở hữu duy nhất (toàn quyền, gói & thanh toán, ký hợp đồng). Bạn trở thành Quản lý ngay khi xác nhận. Không hoàn tác được — muốn đổi lại, {name} phải chuyển cho bạn bằng mã mới.",
+      "send": "Gửi mã xác nhận",
+      "sent": "Đã gửi mã 6 số tới {to} (hiệu lực 10 phút).",
+      "otp": "Mã xác nhận",
+      "typeName": "Gõ lại \"{name}\" để xác nhận",
+      "confirm": "Chuyển quyền",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "err": {
+        "pick": "Chọn người nhận",
+        "format": "Mã gồm 6 chữ số",
+        "confirm": "Tên gõ lại chưa khớp",
+        "invalid": "Mã không đúng",
+        "expired": "Mã đã hết hạn hoặc đã dùng — gửi mã mới",
+        "stale": "Người nhận hoặc quyền đã thay đổi — gửi mã mới"
+      }
+    },
     "revoke": "Thu hồi lời mời",
     "foot": "{n} thành viên · Gói của bạn hỗ trợ tối đa <b>{max} seat</b>",
     "upgrade": "Nâng cấp plan",
@@ -828,7 +853,55 @@
       "conv": "Từ hội thoại",
       "upload": "Do bạn upload",
       "star": "Đánh dấu sao",
-      "trash": "Thùng rác"
+      "trash": "Thùng rác",
+      "review": "Chờ duyệt"
+    },
+    "review": {
+      "heading": "AI đã học — chờ duyệt",
+      "tab": {
+        "pending": "Chờ duyệt",
+        "approved": "Đã duyệt",
+        "rejected": "Đã từ chối"
+      },
+      "chip": {
+        "pending": "Chờ duyệt",
+        "rejected": "Đã từ chối",
+        "learning": "Đang học",
+        "learned": "Đã học",
+        "failed": "Lỗi nạp"
+      },
+      "empty": {
+        "pending": "Chưa có đề xuất nào cần duyệt.",
+        "approved": "Chưa duyệt đề xuất nào.",
+        "rejected": "Chưa từ chối đề xuất nào."
+      },
+      "more": "Xem thêm",
+      "title": "Duyệt đề xuất tri thức",
+      "close": "Đóng",
+      "question": "Câu hỏi",
+      "answer": "Câu trả lời",
+      "original": "Bản AI đề xuất",
+      "folder": "Thư mục",
+      "noFolder": "Không thư mục",
+      "visibility": "Ai được dùng",
+      "vis": {
+        "inherit": "Theo thư mục",
+        "public": "Khách & nhân viên",
+        "internal": "Chỉ nội bộ"
+      },
+      "reason": "Lý do từ chối (tuỳ chọn)",
+      "reasonPh": "VD: Thông tin đã cũ",
+      "approve": "Duyệt vào kho",
+      "reject": "Từ chối",
+      "cancel": "Huỷ",
+      "sensitive": "Còn số điện thoại, email hoặc thông tin riêng của khách — xoá trước khi duyệt.",
+      "conflict": "Đề xuất này vừa được người khác xử lý — đã tải lại hàng chờ.",
+      "doneApproved": "Đã duyệt bởi {by}.",
+      "doneRejected": "Đã từ chối bởi {by} · Lý do: {reason}",
+      "err": {
+        "required": "Không được để trống.",
+        "too_long": "Quá dài."
+      }
     },
     "folders": "THƯ MỤC",
     "knowT": "AI Knowledge",
@@ -854,6 +927,26 @@
     "del": "Chuyển vào thùng rác",
     "empty": "Chưa có tệp nào ở đây.",
     "trashEmpty": "Thùng rác trống — tệp xoá được giữ 30 ngày.",
+    "catalogLocked": "Đồng bộ từ sản phẩm — sửa ở Sản phẩm",
+    "dlForbidden": "Bạn không có quyền tải tài liệu này.",
+    "dlMissing": "Không tìm thấy tệp gốc của tài liệu này.",
+    "dlFail": "Không tải được — thử lại.",
+    "dlCatalog": "Tài liệu này đồng bộ từ sản phẩm — xem và sửa ở màn Sản phẩm.",
+    "folderEdit": {
+      "open": "Sửa thư mục {n}",
+      "title": "Sửa thư mục",
+      "close": "Đóng",
+      "name": "Tên thư mục",
+      "parent": "Nằm trong",
+      "top": "(Cấp ngoài cùng)",
+      "visibility": "Mặc định cho tài liệu mới",
+      "public": "Khách được xem qua AI",
+      "internal": "Chỉ nội bộ",
+      "visD": "Áp cho tài liệu thêm vào sau — tài liệu đã có giữ nguyên quyền của chúng.",
+      "del": "Xoá thư mục",
+      "cancel": "Huỷ",
+      "save": "Lưu"
+    },
     "modal": {
       "title": "Tải tài liệu lên",
       "save": "Tải lên & học",
@@ -875,7 +968,8 @@
       "learn": "Cho AI học tài liệu này",
       "learnD": "Embedding tự động để AI truy hồi khi trả lời",
       "errName": "Nhập tên tài liệu",
-      "errUpload": "Không tải được tệp lên — thử lại."
+      "errUpload": "Không tải được tệp lên — thử lại.",
+      "visInherited": "(theo mặc định của thư mục)"
     }
   },
   "gov": {
@@ -946,6 +1040,45 @@
   },
   "audit": {
     "export": "Xuất JSON",
+    "more": "Xem thêm",
+    "loading": "Đang tải…",
+    "empty": "Chưa có hoạt động nào được ghi.",
+    "emptyFiltered": "Không có dòng nào khớp bộ lọc.",
+    "removed": "đã rời workspace",
+    "ctxLine": "{ctx} · {credits} credit · {tokens} token",
+    "ctx": {
+      "conversation": "Hộp thư / hội thoại",
+      "task": "Tác vụ tự chủ",
+      "assistant": "Trợ lý AI",
+      "suggestion": "Gợi ý",
+      "agent_reply": "Agent trực kênh"
+    },
+    "event": {
+      "session.new_device": "Đăng nhập từ thiết bị mới"
+    },
+    "filter": {
+      "action": "Hành động",
+      "status": "Trạng thái",
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "allActions": "Mọi hành động",
+      "allStatus": "Mọi trạng thái",
+      "reset": "Xoá lọc",
+      "act": {
+        "security": "Chỉ sự kiện bảo mật",
+        "member.set_role": "Đổi vai trò",
+        "member.invite": "Mời thành viên",
+        "member.remove": "Xoá thành viên",
+        "channel.disconnect": "Ngắt kênh",
+        "contact.export": "Xuất dữ liệu khách",
+        "workspace.transfer_ownership": "Chuyển Chủ sở hữu"
+      },
+      "st": {
+        "ok": "OK",
+        "warn": "Warn",
+        "escalated": "Escalated"
+      }
+    },
     "audit": {
       "title": "Audit log",
       "sub": "Mọi hành động trong workspace · lưu 1 năm",
@@ -973,7 +1106,8 @@
       "ops": "Agent Vận hành",
       "order": "Agent Đơn hàng",
       "cs": "Agent CSKH",
-      "human": "Người · Lan"
+      "human": "Người · Lan",
+      "agent": "AI Agent"
     },
     "status": {
       "ok": "OK",
@@ -1080,6 +1214,7 @@
       "payment_received": "Khách đã thanh toán đề nghị của tôi",
       "refund_approval": "Hoàn tiền chờ tôi duyệt / kết quả duyệt",
       "bank_review": "Giao dịch ngân hàng cần đối soát",
+      "package_reminder": "Liệu trình sắp hết buổi / tới hạn",
       "sla_warn": "SLA sắp vi phạm",
       "sla_breach": "Ticket quá hạn SLA (leo thang)",
       "ticket_assigned": "Ticket được giao cho tôi",
@@ -1089,7 +1224,10 @@
       "ai_briefing": "Bản tin sáng của Trợ lý AI",
       "ai_task_failed": "Tác vụ tự chủ lỗi",
       "channel_down": "Kênh bị ngắt kết nối",
-      "billing_invoice": "Gói & ví — hoá đơn mới"
+      "billing_invoice": "Gói & ví — hoá đơn mới",
+      "owner_transfer": "Đổi Chủ sở hữu workspace",
+      "data_job_done": "Xuất dữ liệu / sửa hàng loạt chạy nền xong",
+      "security_event": "Sự kiện bảo mật (vai trò, thành viên, kênh, xuất dữ liệu, đăng nhập mới)"
     },
     "prefsT": "Tuỳ chọn nhận thông báo",
     "dnd": "Không làm phiền (Do Not Disturb)",
@@ -1310,6 +1448,14 @@
     "logoutD": "Thoát phiên hiện tại — dữ liệu workspace không bị ảnh hưởng"
   },
   "doctpl": {
+    "contractKind": {
+      "label": "Loại hợp đồng",
+      "any": "Mọi loại (mẫu chung)",
+      "service": "Dịch vụ",
+      "sale": "Mua bán",
+      "framework": "Nguyên tắc",
+      "locked": "Mẫu mặc định — đặt mẫu khác làm mặc định trước khi đổi loại"
+    },
     "preview": "Xem trước",
     "previewT": "Xem trước với dữ liệu minh hoạ",
     "previewFail": "Chưa tạo được bản xem trước, thử lại sau",
@@ -1461,5 +1607,16 @@
       },
       "hint": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn lưu được mẫu."
     }
+  },
+  "salesPolicy": {
+    "total": "Ngưỡng tổng giá trị báo giá cần duyệt (VND)",
+    "pct": "Ngưỡng giảm giá cần duyệt (%)",
+    "required": "Nhập số tiền",
+    "pctHint": "Báo giá giảm vượt mức này phải được duyệt trước khi gửi",
+    "pctInvalid": "Nhập số nguyên từ 0 đến 100",
+    "agentCap": "Báo giá do AI tạo hoặc gửi: giảm quá {pct}% luôn phải duyệt (theo AI Governance).",
+    "ownerOnly": "Chỉ Chủ sở hữu được đổi ngưỡng duyệt.",
+    "reset": "Hoàn lại",
+    "save": "Lưu thay đổi"
   }
 }

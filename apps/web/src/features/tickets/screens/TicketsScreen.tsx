@@ -21,6 +21,7 @@ import { STATUSES, STATUS_TONE } from '../status';
 import type { Channel, Ticket, TicketsMeta, TicketStatus } from '../types';
 import { useTicketsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 const NO_NOW = '1970-01-01T00:00:00Z';
 
@@ -53,6 +54,7 @@ function useFromMessage(meta: TicketsMeta | undefined) {
 
 export function TicketsScreen() {
   useTicketsUiCommands();
+  useAssistantContext();
   const t = useTranslations('tickets');
   const { styles } = useTicketsStyles();
   const ui = useTicketsUi();

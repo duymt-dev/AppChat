@@ -10,12 +10,13 @@ import type { FilesService } from '../../kernel/files/files.service';
 import { uuidv7 } from '../../kernel/ids';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { writeOutbox } from '../../kernel/outbox/outbox';
+import { FetchLimitError, safeFetch, UrlRefusedError } from '../../kernel/http/safe-fetch';
 import { ParseError, parseDocument } from './parse';
 
 export const KB_INGEST_QUEUE = 'kb-ingest';
 /** Tải URL tối đa (byte) + thời gian chờ. */
 const URL_MAX_BYTES = 5 * 1024 * 1024;
-const URL_TIMEOUT_MS = 20_000;
+const URL_TIMEOUT_MS = 10_000;
 
 export interface KbIngestJob {
   ws: string;
@@ -40,14 +41,18 @@ type Db = Pick<TenantDb, 'kbSource' | 'kbChunk' | 'file' | '$transaction' | '$ex
 
 const vecLit = (v: number[]) => `[${v.map((x) => x.toFixed(6)).join(',')}]`;
 
+/** Tải trang nguồn URL qua safeFetch (TIP-045b — chặn SSRF: địa chỉ nội bộ / metadata, redirect, DNS rebinding; cắt thân > 5MB). */
 export async function fetchUrlDefault(url: string): Promise<{ body: Buffer; mime: string }> {
-  const u = new URL(url);
-  if (u.protocol !== 'https:' && u.protocol !== 'http:') throw new ParseError('fetch_failed', 'Chỉ hỗ trợ http / https');
-  const r = await fetch(u, { signal: AbortSignal.timeout(URL_TIMEOUT_MS), redirect: 'follow', headers: { 'user-agent': 'AppChatBot/1.0 (+kb)' } });
-  if (!r.ok) throw new ParseError('fetch_failed', `Trang trả HTTP ${r.status}`);
-  const buf = Buffer.from(await r.arrayBuffer());
-  if (buf.length > URL_MAX_BYTES) throw new ParseError('fetch_failed', 'Trang quá lớn');
-  return { body: buf, mime: r.headers.get('content-type') ?? 'text/html' };
+  let r: Awaited<ReturnType<typeof safeFetch>>;
+  try {
+    r = await safeFetch(url, { maxBytes: URL_MAX_BYTES, timeoutMs: URL_TIMEOUT_MS, headers: { 'user-agent': 'AppChatBot/1.0 (+kb)' } });
+  } catch (e) {
+    if (e instanceof UrlRefusedError) throw new ParseError('fetch_failed', 'Địa chỉ không được phép (nội bộ / sai giao thức)');
+    if (e instanceof FetchLimitError) throw new ParseError('fetch_failed', e.reason === 'too_large' ? 'Trang quá lớn' : e.reason === 'timeout' ? 'Trang phản hồi quá lâu' : 'Chuyển hướng không hợp lệ');
+    throw new ParseError('fetch_failed', 'Không tải được trang');
+  }
+  if (r.status < 200 || r.status >= 300) throw new ParseError('fetch_failed', `Trang trả HTTP ${r.status}`);
+  return { body: r.body, mime: r.headers['content-type'] ?? 'text/html' };
 }
 
 /** Nội dung gốc của nguồn → (kind để parse, bytes). */

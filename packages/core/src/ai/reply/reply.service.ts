@@ -7,7 +7,7 @@ import { decideHandoff, parseAgentReply, unmaskPii, type Embedder, type HandoffR
 import { TenantContexts, TenantSql, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
-import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { ToolExecutor } from '../../kernel/actions/executor';
 import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { AppLogger } from '../../kernel/logger/logger';
@@ -17,6 +17,8 @@ import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
 import { buildReplyContext, publishedAgent, type ReplyContext } from './reply-context';
 import { META, replyTools } from './reply-tools';
+import { isSuperseded } from './send-fence';
+import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
 export const MAX_TRANSFERS = 3;
@@ -24,7 +26,7 @@ const TURN_BUDGET = 60;
 
 export interface ReplyDeps {
   tenants: TenantDbResolver;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
   runner: AiRunner;
   embedder: Embedder | null;
   kv: KeyValueStore;
@@ -34,7 +36,7 @@ export interface ReplyDeps {
 
 type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique']>>>;
 type Agent = ReplyContext['agent'];
-export type TurnOutcome = 'sent' | 'suggested' | 'handoff' | 'waiting_approval' | 'skipped';
+export type TurnOutcome = 'sent' | 'suggested' | 'handoff' | 'waiting_approval' | 'skipped' | 'superseded';
 
 const msgs = () => serverMessages('vi').ai.handoff;
 
@@ -84,8 +86,10 @@ const reasonText = (r: HandoffReason | 'error' | 'credit' | 'transfer_loop' | 'a
   interpolate(msgs()[r], { detail: '', pct: 0, threshold: 0, ...vars });
 
 /** Gửi câu trả lời qua `message.send` với ngữ cảnh agent (hội thoại đang phục vụ — chạy luôn, §3.3). */
-async function send(d: ReplyDeps, ws: string, c: Conv, agent: Agent, runId: string, text: string): Promise<boolean> {
+async function send(d: ReplyDeps, ws: string, c: Conv, agent: Agent, runId: string, text: string, turn: TurnLease | null): Promise<boolean> {
   const ctx: ActionContext = {
+    // Fence lượt + epoch đi cùng tin → đặt chỗ gửi kiểm lại dưới khoá hội thoại (người tiếp quản trước → không gửi).
+    ...(turn ? { agentTurn: { fence: turn.fence, epoch: turn.epoch } } : {}),
     workspaceId: ws,
     source: 'agent',
     actor: { type: 'agent', id: agent.id },
@@ -133,9 +137,18 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: NonN
 }
 
 /** Quyết định sau khi run xong (lượt đầu hoặc sau khi chạy tiếp vì duyệt). */
-async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunRow, r: RunResult, ctx: Pick<ReplyContext, 'cfg' | 'agent' | 'pii' | 'lastCustomer' | 'previousCustomer' | 'banned'>, transfers: string[]): Promise<TurnOutcome> {
+async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunRow, r: RunResult, ctx: Pick<ReplyContext, 'cfg' | 'agent' | 'pii' | 'lastCustomer' | 'previousCustomer' | 'banned'>, transfers: string[], turn: TurnLease | null): Promise<TurnOutcome> {
   const copilot = run.kind === 'suggestion';
   const agent = ctx.agent;
+  // Mất lượt (người tiếp quản / đổi chế độ / lượt khác giành sau khi hết hạn): không gửi, không ghi gợi ý / trạng thái — chỉ giữ nháp
+  // không gửi kèm lý do khi chưa có nháp của người.
+  if (turn && !(await stillOwns(db, turn, d.now()))) {
+    const out = r.status === 'completed' ? parseAgentReply(r.text) : null;
+    const draft = out?.reply ? unmaskPii(out.reply, ctx.pii) : null;
+    if (draft) await db.conversation.updateMany({ where: { id: c.id, aiDraft: null }, data: { aiDraft: draft.slice(0, 4000) } });
+    await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
+    return 'superseded';
+  }
   if (r.status === 'waiting_approval') {
     await setState(d, db, ws, c, { aiState: 'waiting_approval' }, 'ai_state');
     return 'waiting_approval';
@@ -164,8 +177,9 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     await new RunStore(db, d.now).step(run.id, { idx, type: 'handoff', input: { to: next.agent.id, reason: coord.reason }, output: { summary: coord.summary } });
     await new RunStore(db, d.now).finish(run.id, 'completed', { output: { transfer_to: next.agent.id } });
     const moved = await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: next.agent.id } });
-    const turn = await runAgent(d, db, ws, moved, next, { summary: coord.summary, parentRunId: run.id });
-    return decide(d, db, ws, moved, turn.run, turn.r, turn.ctx, [...transfers, agent.id]);
+    // Chuyển agent giữ CÙNG lượt (fence) — không mở lượt thứ hai song song.
+    const next0 = await runAgent(d, db, ws, moved, next, { summary: coord.summary, parentRunId: run.id });
+    return decide(d, db, ws, moved, next0.run, next0.r, next0.ctx, [...transfers, agent.id], turn);
   }
 
   const out = parseAgentReply(r.text);
@@ -184,8 +198,14 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     return 'handoff';
   }
   try {
-    await send(d, ws, c, agent, run.id, reply!);
+    await send(d, ws, c, agent, run.id, reply!, turn);
   } catch (err) {
+    // Người tiếp quản giữa lúc soạn (epoch / fence lệch dưới khoá): không chuyển người, giữ nháp nếu người chưa có nháp.
+    if (isSuperseded(err)) {
+      await db.conversation.updateMany({ where: { id: c.id, aiDraft: null }, data: { aiDraft: reply!.slice(0, 4000) } });
+      await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
+      return 'superseded';
+    }
     d.log.warn({ err, run: run.id }, 'agent reply send failed');
     await handoff(d, db, ws, c, agent, run.id, 'error', reasonText('error', { detail: (err as { code?: string }).code ?? 'send' }), reply);
     return 'handoff';
@@ -195,8 +215,21 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
 }
 
 /** Job `agent-reply`: một lượt cho hội thoại (sau debounce). */
-export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string): Promise<TurnOutcome> {
+export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string, owner = `turn:${conversationId}:${Date.now()}`): Promise<TurnOutcome> {
   const db = await d.tenants.get(TenantContexts.system(ws, 'agent-reply'));
+  // Một lượt mỗi hội thoại (lease bền, fence): job trùng / worker khác đang giữ → bỏ qua, không tạo run thứ hai.
+  const turn = await acquireTurn(db, conversationId, owner, d.now());
+  if (!turn) return 'skipped';
+  const beat = setInterval(() => void renewTurn(db, turn, d.now()).catch(() => undefined), Math.floor(TURN_LEASE_MS / 3));
+  try {
+    return await ownedTurn(d, db, ws, conversationId, turn);
+  } finally {
+    clearInterval(beat);
+    await releaseTurn(db, turn).catch(() => undefined);
+  }
+}
+
+async function ownedTurn(d: ReplyDeps, db: TenantDb, ws: string, conversationId: string, turn: TurnLease): Promise<TurnOutcome> {
   const c = await db.conversation.findUnique({ where: { id: conversationId } });
   if (!c || !(await needsReply(db, c))) return 'skipped';
   const agentId = await agentIdOf(db, c);
@@ -213,8 +246,8 @@ export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string
   if (live) await setState(d, db, ws, c, { aiState: 'running' }, 'ai_state');
   const cur = { ...c, assigneeAgentId: a.agent.id, ...(live ? { aiState: 'running' as const } : {}) };
   try {
-    const turn = await runAgent(d, db, ws, cur, a);
-    return await decide(d, db, ws, cur, turn.run, turn.r, turn.ctx, []);
+    const t = await runAgent(d, db, ws, cur, a);
+    return await decide(d, db, ws, cur, t.run, t.r, t.ctx, [], turn);
   } finally {
     // Lượt dừng giữa chừng (lỗi / đã gửi) mà còn `running` → về idle; trạng thái khác (chờ duyệt / cần người) giữ nguyên.
     if (live) await db.conversation.updateMany({ where: { id: c.id, aiState: 'running' }, data: { aiState: 'idle' } });
@@ -227,9 +260,16 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
   let c = await db.conversation.findUnique({ where: { id: run.conversationId } });
   const a = await publishedAgent(db, run.agentId);
   if (!c || !a) return 'skipped';
-  if (c.aiState === 'waiting_approval') c = await db.conversation.update({ where: { id: c.id }, data: { aiState: 'idle' } });
-  const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {});
-  return decide(d, db, ws, c, run, r, ctx, []);
+  // Chạy tiếp sau duyệt: giành lại lượt cho cùng run (owner theo run id) — lượt khác đang giữ → không chạy song song.
+  const turn = await acquireTurn(db, c.id, `resume:${run.id}`, d.now());
+  if (!turn) return 'skipped';
+  try {
+    if (c.aiState === 'waiting_approval') c = await db.conversation.update({ where: { id: c.id }, data: { aiState: 'idle' } });
+    const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {});
+    return await decide(d, db, ws, c, run, r, ctx, [], turn);
+  } finally {
+    await releaseTurn(db, turn).catch(() => undefined);
+  }
 }
 
 /** Dựng lại system + tool khi chạy tiếp run trả lời (job `ai-resume`): cùng phiên bản agent, cùng bảng PII của lượt. */

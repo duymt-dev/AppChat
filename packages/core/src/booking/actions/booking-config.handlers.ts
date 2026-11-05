@@ -10,6 +10,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers } from '../../crm/public';
 import { UUID } from '../booking-access';
+import { hoursPreview, staffCreatePreview, staffDeactivatePreview, staffUpdatePreview } from './previews/booking-config.handlers.preview';
 
 type Fields = ActionInput<typeof staffCreate>;
 type Day = { weekday: number; open: boolean; start: string; end: string };
@@ -64,6 +65,10 @@ export class StaffCreateHandler implements Handler<Fields, { staff_id: string }>
     await writeSchedule(tx, id, input.schedule);
     return { result: { staff_id: id }, after: { id } };
   }
+
+  async preview(_ctx: ActionContext, input: Fields, tx: TenantTx) {
+    return staffCreatePreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -84,6 +89,10 @@ export class StaffUpdateHandler implements Handler<ActionInput<typeof staffUpdat
     await writeSchedule(tx, s.id, p.schedule);
     return { result: { staff_id: s.id }, before: { name: s.name, skills: s.skills } };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof staffUpdate>, tx: TenantTx) {
+    return staffUpdatePreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -99,6 +108,10 @@ export class StaffDeactivateHandler implements Handler<ActionInput<typeof staffD
     if (upcoming) throw new AppError('INVALID_STATE', 409, { staff_id: 'has_upcoming' });
     await tx.staff.update({ where: { id: s.id }, data: { active: false, updatedAt: now } });
     return { result: { staff_id: s.id } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof staffDeactivate>, tx: TenantTx) {
+    return staffDeactivatePreview(tx, input, this.clock.now());
   }
 }
 
@@ -119,5 +132,9 @@ export class BusinessHoursUpdateHandler implements Handler<ActionInput<typeof bu
     };
     await tx.bookingSetting.upsert({ where: { id: 1 }, create: { id: 1, ...set }, update: { ...set, updatedAt: this.clock.now() } });
     return { result: { ok: true }, before, after: input };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof businessHoursUpdate>, tx: TenantTx) {
+    return hoursPreview(tx, input);
   }
 }

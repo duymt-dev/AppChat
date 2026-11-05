@@ -121,8 +121,8 @@
     "required": "Chọn khách hàng và thêm ít nhất một dòng có đơn giá",
     "needApproval": "Báo giá vượt ngưỡng ({reasons}) — sau khi lưu cần gửi duyệt trước khi gửi khách.",
     "reasons": {
-      "total": "tổng > 20 triệu",
-      "discount": "giảm > 5%",
+      "total": "tổng > {total}",
+      "discount": "giảm > {pct}%",
       "off_catalog": "có hàng ngoài danh mục"
     }
   },
@@ -139,7 +139,8 @@
       "no_conversation_zalo_personal": "Khách chưa nhắn Zalo cho shop — Zalo cá nhân không gửi chủ động được, hãy gửi qua email hoặc chờ khách nhắn.",
       "no_conversation_email": "Chưa gửi được qua email.",
       "no_email": "Khách chưa có email — thêm email ở hồ sơ khách rồi gửi lại.",
-      "connector": "Chưa kết nối kênh Email — kết nối ở Cài đặt › Kênh kết nối."
+      "connector": "Chưa kết nối kênh Email — kết nối ở Cài đặt › Kênh kết nối.",
+      "noImage": "Kênh này chưa gửi được ảnh — chọn PDF."
     },
     "tabs": {
       "overview": "Tổng quan",
@@ -270,7 +271,8 @@
     "converted": "Đã chuyển sang {kind}",
     "convertContract": "hợp đồng",
     "convertOrder": "đơn hàng",
-    "convertSoon": "{kind} được tạo ở màn tương ứng — mở {route}"
+    "convertSoon": "{kind} được tạo ở màn tương ứng — mở {route}",
+    "sendMore": "Gửi khác"
   },
   "aiPanel": {
     "title": "Trợ lý AI · Báo giá",
@@ -291,9 +293,11 @@
     "result": "Kết quả AI",
     "ph": "Hỏi Trợ lý AI về báo giá…",
     "send": "Gửi",
-    "ackPrice": "Dạ em đề xuất gói phù hợp ngân sách khách + mức chiết khấu tối ưu để tăng tỉ lệ chốt ạ.",
-    "ackFollow": "Dạ em rà các báo giá chưa phản hồi và soạn tin nhắc tự động giúp anh/chị nhé.",
-    "ack": "Dạ em đã ghi nhận yêu cầu về báo giá, em xử lý ngay ạ."
+    "prompts": {
+      "sugg": "Gợi ý gói / combo và mức giá phù hợp cho khách của báo giá đang mở (hoặc các báo giá đang chọn) dựa trên lịch sử mua.",
+      "followup": "Liệt kê các báo giá đã gửi mà khách chưa phản hồi quá 3 ngày và đề xuất cách nhắc.",
+      "analyze": "Phân tích tỉ lệ chốt báo giá: số chấp nhận / từ chối / hết hạn và lý do rớt chính."
+    }
   },
   "draft": {
     "title": "AI soạn báo giá từ nội dung",
@@ -330,5 +334,30 @@
     "pdf": "Tải PDF",
     "invalidTitle": "Link báo giá không còn hiệu lực",
     "invalidSub": "Vui lòng liên hệ người gửi để nhận báo giá mới."
+  },
+  "delivery": {
+    "title": "Gửi báo giá",
+    "cancel": "Huỷ",
+    "send": "Gửi khách",
+    "channel": "Kênh",
+    "format": "Định dạng",
+    "channels": {
+      "zalo_personal": "Zalo cá nhân",
+      "email": "Email",
+      "webchat": "Website chat"
+    },
+    "channelNote": {
+      "zalo_personal": "Chỉ gửi được khi khách đã nhắn Zalo cho shop.",
+      "email": "Mở chuỗi thư mới nếu khách chưa có hội thoại email.",
+      "webchat": "Gửi vào khung chat website kèm link xem / tải PDF (hết hạn theo hiệu lực báo giá)."
+    },
+    "formats": {
+      "pdf": "PDF",
+      "image": "Ảnh từng trang"
+    },
+    "formatNote": {
+      "pdf": "Tệp PDF đã duyệt, đóng băng lúc gửi.",
+      "image": "Ảnh PNG mỗi trang, dựng từ chính PDF đã duyệt — đủ trang, cùng số tiền."
+    }
   }
 }

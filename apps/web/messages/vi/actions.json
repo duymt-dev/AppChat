@@ -18,9 +18,18 @@
     },
     "update": {
       "title": "Cập nhật thông tin workspace"
+    },
+    "request_transfer_otp": {
+      "title": "Gửi mã đổi Chủ sở hữu"
+    },
+    "transfer_ownership": {
+      "title": "Chuyển quyền Chủ sở hữu"
     }
   },
   "done": "Đã thực hiện: {title}",
+  "approvalSent": "Đã gửi duyệt: {title} — chưa thực hiện cho tới khi được duyệt",
+  "jobAccepted": "Đã nhận: {title} — đang chạy nền, kết quả cập nhật khi xong",
+  "operationPending": "Đang hoàn tất: {title} — hệ thống tự hoàn tất phần còn lại, không cần thao tác lại",
   "previewTitle": "Xác nhận thao tác",
   "business_profile": {
     "update": {
@@ -77,6 +86,18 @@
     "bulk_update": {
       "title": "Cập nhật hàng loạt hội thoại",
       "desc": "Gắn thẻ, gán người, đổi trạng thái hoặc lưu trữ nhiều hội thoại một lần."
+    },
+    "search": {
+      "title": "Tìm hội thoại",
+      "desc": "Tra hội thoại theo tên khách, nội dung, thư mục hoặc kênh."
+    },
+    "get": {
+      "title": "Xem hội thoại",
+      "desc": "Đọc một hội thoại cùng tối đa 20 tin gần nhất."
+    },
+    "create_group": {
+      "title": "Tạo nhóm Zalo",
+      "desc": "Tạo nhóm Zalo mới trên một tài khoản, mời khách từ các hội thoại 1-1 của chính tài khoản đó."
     }
   },
   "message": {
@@ -150,6 +171,34 @@
     "search": {
       "title": "Tìm khách hàng",
       "desc": "Tìm khách theo tên, số điện thoại, email hoặc mã khách."
+    },
+    "get": {
+      "title": "Xem khách hàng",
+      "desc": "Đọc hồ sơ rút gọn của một khách."
+    },
+    "get_360": {
+      "title": "Xem tổng quan khách",
+      "desc": "Hồ sơ khách kèm số báo giá, đơn, đề nghị thanh toán, ticket đang mở và lịch hẹn kế tiếp."
+    },
+    "remember": {
+      "title": "Ghi nhớ về khách",
+      "desc": "Lưu một điều bền vững khách nói về chính họ (sở thích, dị ứng…) vào trí nhớ AI; trùng thì làm mới, tối đa 50 điều."
+    },
+    "memory_forget": {
+      "title": "Xoá ghi nhớ AI",
+      "desc": "Xoá một điều AI đã ghi nhớ về khách; hoàn tác trong 24 giờ."
+    },
+    "memory_list": {
+      "title": "Xem AI ghi nhớ",
+      "desc": "Liệt kê các điều AI ghi nhớ về một khách (mới nhất trước, tối đa 50) kèm mã để xoá đúng điều."
+    },
+    "summarize": {
+      "title": "Tóm tắt Hồ sơ khách",
+      "desc": "Tóm tắt 3–5 ý về một khách từ dữ liệu bạn được xem (ghi nhớ, lịch sử, công nợ, hợp đồng, đơn, lịch hẹn, ticket)."
+    },
+    "bulk_update": {
+      "title": "Cập nhật hàng loạt khách hàng",
+      "desc": "Sửa cùng lúc nhiều khách (nhóm, trạng thái, thẻ…) — không đổi người phụ trách."
     }
   },
   "custom_field": {
@@ -193,6 +242,10 @@
     },
     "optimize_prompt": {
       "title": "Tối ưu hướng dẫn"
+    },
+    "search": {
+      "title": "Tìm AI Agent",
+      "desc": "Tra agent theo tên hoặc vai trò."
     }
   },
   "approval": {
@@ -227,11 +280,19 @@
     },
     "run_now": {
       "title": "Chạy tác vụ tự chủ ngay"
+    },
+    "search": {
+      "title": "Tìm tác vụ AI",
+      "desc": "Tra tác vụ AI theo tên."
     }
   },
   "run": {
     "cancel": {
       "title": "Dừng tác vụ đang điều phối"
+    },
+    "search": {
+      "title": "Xem việc AI đang chạy",
+      "desc": "Liệt kê các lượt AI gần đây và trạng thái."
     }
   },
   "product": {
@@ -251,11 +312,30 @@
     "get": {
       "title": "Xem chi tiết sản phẩm",
       "desc": "Xem chi tiết một sản phẩm: mô tả, thuộc tính, thành phần combo, giá và tồn"
+    },
+    "import": {
+      "title": "Nhập sản phẩm từ tệp"
+    },
+    "import_cancel": {
+      "title": "Huỷ nhập sản phẩm"
+    },
+    "import_retry": {
+      "title": "Chạy lại nhập sản phẩm"
     }
   },
   "category": {
     "create": {
       "title": "Tạo danh mục"
+    },
+    "update": {
+      "title": "Sửa danh mục"
+    },
+    "delete": {
+      "title": "Xoá danh mục"
+    },
+    "list": {
+      "title": "Xem danh mục sản phẩm",
+      "desc": "Đọc danh sách danh mục sản phẩm và số sản phẩm mỗi danh mục"
     }
   },
   "stock": {
@@ -314,12 +394,32 @@
     "draft_from_content": {
       "title": "AI soạn báo giá",
       "desc": "AI soạn báo giá nháp từ ghi chú hoặc đoạn chat, giá lấy theo danh mục sản phẩm."
+    },
+    "search": {
+      "title": "Tìm báo giá",
+      "desc": "Tra báo giá theo mã, khách hoặc trạng thái."
+    },
+    "get": {
+      "title": "Xem báo giá",
+      "desc": "Đọc chi tiết một báo giá: dòng hàng, tổng tiền, hiệu lực."
     }
   },
   "contract": {
     "create": {
       "title": "Tạo hợp đồng",
       "desc": "Tạo hợp đồng nháp (dịch vụ, mua bán hoặc khung)."
+    },
+    "inspect_file": {
+      "title": "Đọc tệp hợp đồng",
+      "desc": "Kiểm tra tệp PDF / DOCX và đề xuất giá trị hợp đồng."
+    },
+    "attach_file": {
+      "title": "Gắn tệp hợp đồng",
+      "desc": "Gắn hoặc thay tệp nội dung ký của hợp đồng nháp."
+    },
+    "create_from_attachment": {
+      "title": "Tạo hợp đồng từ tệp khách gửi",
+      "desc": "Tạo hợp đồng nháp từ tệp PDF / DOCX trong hội thoại."
     },
     "create_from_quote": {
       "title": "Tạo hợp đồng từ báo giá",
@@ -362,6 +462,66 @@
     },
     "delete": {
       "title": "Xoá hợp đồng"
+    },
+    "search": {
+      "title": "Tìm hợp đồng",
+      "desc": "Tra hợp đồng theo mã, khách hoặc trạng thái."
+    },
+    "get": {
+      "title": "Xem hợp đồng",
+      "desc": "Đọc một hợp đồng: trạng thái, giá trị, ngày, tiến độ ký."
+    },
+    "prepare_draft": {
+      "desc": "AI đọc yêu cầu và đề xuất nội dung hợp đồng nháp (giá theo danh mục) — chưa tạo hợp đồng.",
+      "title": "Soạn đề xuất hợp đồng (AI)"
+    },
+    "draft_from_content": {
+      "desc": "Tạo một hợp đồng nháp từ đề xuất AI đã soạn — không gọi AI lần nữa.",
+      "title": "Tạo hợp đồng nháp từ đề xuất AI"
+    },
+    "resolve_suggestion": {
+      "desc": "Giữ hoặc bỏ một điều khoản do AI gợi ý trong hợp đồng nháp.",
+      "title": "Giữ / bỏ điều khoản AI gợi ý"
+    },
+    "create_appendix": {
+      "title": "Tạo phụ lục hợp đồng",
+      "desc": "Tạo phụ lục nháp cho hợp đồng đã ký"
+    },
+    "appendix_update": {
+      "title": "Sửa phụ lục",
+      "desc": "Sửa phụ lục nháp (phiên bản mới)"
+    },
+    "appendix_submit": {
+      "title": "Trình duyệt phụ lục",
+      "desc": "Gửi phụ lục cho Chủ sở hữu duyệt"
+    },
+    "appendix_request_changes": {
+      "title": "Yêu cầu sửa phụ lục",
+      "desc": "Trả phụ lục về nháp kèm lý do"
+    },
+    "appendix_owner_otp": {
+      "title": "Gửi OTP ký phụ lục",
+      "desc": "Gửi mã OTP để Chủ sở hữu ký phụ lục"
+    },
+    "appendix_approve_and_sign": {
+      "title": "Duyệt & ký phụ lục",
+      "desc": "Chủ sở hữu ký phụ lục bằng OTP + chữ ký tay"
+    },
+    "appendix_send": {
+      "title": "Gửi ký phụ lục",
+      "desc": "Gửi link ký phụ lục một lần cho khách"
+    },
+    "appendix_public_otp": {
+      "title": "OTP ký phụ lục (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "appendix_public_sign": {
+      "title": "Khách ký phụ lục (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "appendix_public_decline": {
+      "title": "Khách từ chối phụ lục (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
     }
   },
   "order": {
@@ -405,6 +565,18 @@
     },
     "sync_now": {
       "title": "Đồng bộ đơn từ sàn"
+    },
+    "search": {
+      "title": "Tìm đơn hàng",
+      "desc": "Tra đơn theo mã, khách hoặc trạng thái thanh toán."
+    },
+    "get": {
+      "title": "Xem đơn hàng",
+      "desc": "Đọc chi tiết một đơn: dòng hàng, tổng tiền, đã thu."
+    },
+    "send_confirmation": {
+      "title": "Gửi xác nhận đơn cho khách",
+      "desc": "Gửi PDF xác nhận đơn (dòng hàng, tổng, đã thu / còn lại) vào hội thoại của khách."
     }
   },
   "invoice": {
@@ -424,6 +596,14 @@
     },
     "void": {
       "title": "Huỷ đề nghị thanh toán"
+    },
+    "search": {
+      "title": "Tìm đề nghị thanh toán",
+      "desc": "Tra đề nghị thanh toán theo mã, khách, đơn hoặc trạng thái."
+    },
+    "get": {
+      "title": "Xem đề nghị thanh toán",
+      "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
     }
   },
   "staff": {
@@ -438,6 +618,10 @@
     "deactivate": {
       "title": "Ngừng nhân sự",
       "desc": "Ngừng nhận lịch hẹn cho nhân sự."
+    },
+    "search": {
+      "title": "Tìm nhân sự",
+      "desc": "Tra nhân sự đang làm theo tên hoặc kỹ năng."
     }
   },
   "business_hours": {
@@ -479,6 +663,14 @@
     },
     "mark_no_show": {
       "title": "Đánh dấu không đến"
+    },
+    "get": {
+      "title": "Xem lịch hẹn",
+      "desc": "Đọc một lịch hẹn: khách, dịch vụ, nhân sự, giờ, trạng thái."
+    },
+    "update": {
+      "title": "Sửa lịch hẹn",
+      "desc": "Sửa giờ, dịch vụ, nhân sự, ghi chú, nhắc hẹn hoặc trường tuỳ biến của lịch hẹn còn mở."
     }
   },
   "ticket": {
@@ -515,6 +707,10 @@
     },
     "bulk_update": {
       "title": "Cập nhật hàng loạt ticket"
+    },
+    "get": {
+      "title": "Xem ticket",
+      "desc": "Đọc một ticket: trạng thái, ưu tiên, hạn SLA, người phụ trách."
     }
   },
   "segment": {
@@ -569,6 +765,21 @@
     },
     "update_config": {
       "title": "Cập nhật cấu hình khách thân thiết"
+    },
+    "earn": {
+      "title": "Tích điểm đơn hoàn tất (hệ thống)"
+    },
+    "reverse": {
+      "title": "Đảo điểm đơn (hệ thống)"
+    },
+    "expire": {
+      "title": "Hết hạn điểm (hệ thống)"
+    },
+    "review_tier": {
+      "title": "Xét hạng theo quý (hệ thống)"
+    },
+    "attach_file": {
+      "title": "Đính kèm tệp cho thành viên"
     }
   },
   "member": {
@@ -580,6 +791,10 @@
     },
     "remove": {
       "title": "Xoá thành viên"
+    },
+    "search": {
+      "title": "Tìm thành viên",
+      "desc": "Tra thành viên đang hoạt động theo tên hoặc email."
     }
   },
   "invite": {
@@ -606,6 +821,10 @@
     },
     "delete": {
       "title": "Xoá thẻ"
+    },
+    "search": {
+      "title": "Tìm thẻ",
+      "desc": "Tra thẻ theo tên."
     }
   },
   "canned_reply": {
@@ -617,6 +836,10 @@
     },
     "delete": {
       "title": "Xoá câu trả lời mẫu"
+    },
+    "search": {
+      "title": "Tìm câu trả lời mẫu",
+      "desc": "Tra câu trả lời nhanh theo phím tắt hoặc tiêu đề."
     }
   },
   "channel": {
@@ -650,6 +873,16 @@
     },
     "disconnect": {
       "title": "Ngắt kết nối tài khoản kênh"
+    },
+    "search": {
+      "title": "Tìm tài khoản kênh",
+      "desc": "Tra tài khoản Zalo / email / web chat đã kết nối."
+    },
+    "group_result": {
+      "title": "Kết quả tạo nhóm (hệ thống)"
+    },
+    "status": {
+      "title": "Xem trạng thái kết nối kênh"
     }
   },
   "webchat": {
@@ -666,6 +899,12 @@
     },
     "register_interest": {
       "title": "Đăng ký quan tâm kết nối"
+    },
+    "form_schema": {
+      "title": "Xem form kết nối nền tảng"
+    },
+    "test": {
+      "title": "Kiểm tra kết nối nền tảng"
     }
   },
   "profile_layout": {
@@ -683,6 +922,10 @@
     },
     "assign_role": {
       "title": "Gán mẫu cho vai trò"
+    },
+    "search": {
+      "title": "Tìm mẫu hồ sơ 360°",
+      "desc": "Tra mẫu hồ sơ khách theo tên."
     }
   },
   "ai_settings": {
@@ -710,7 +953,32 @@
     "folder": {
       "create": {
         "title": "Tạo thư mục tri thức"
+      },
+      "update": {
+        "title": "Sửa thư mục tri thức",
+        "desc": "Đổi tên, thư mục cha hoặc quyền mặc định cho tài liệu mới của thư mục."
+      },
+      "delete": {
+        "title": "Xoá thư mục tri thức",
+        "desc": "Xoá thư mục rỗng (không còn tài liệu, kể cả thùng rác, và không có thư mục con)."
       }
+    },
+    "suggestion": {
+      "propose": {
+        "title": "Ghi đề xuất tri thức từ hội thoại"
+      },
+      "approve": {
+        "title": "Duyệt đề xuất tri thức",
+        "desc": "Đưa cặp hỏi–đáp (đã sửa nếu cần) vào kho tri thức để AI học."
+      },
+      "reject": {
+        "title": "Từ chối đề xuất tri thức",
+        "desc": "Bỏ cặp hỏi–đáp, không đưa vào kho tri thức."
+      }
+    },
+    "source_search": {
+      "title": "Tìm tài liệu kho tri thức",
+      "desc": "Tra nguồn trong kho tri thức theo tên hoặc thẻ."
     }
   },
   "governance": {
@@ -741,6 +1009,10 @@
     },
     "detect_fields": {
       "title": "AI nhận diện biến mẫu"
+    },
+    "search": {
+      "title": "Tìm mẫu chứng từ",
+      "desc": "Tra mẫu báo giá / hợp đồng / đề nghị thanh toán."
     }
   },
   "wallet": {
@@ -764,6 +1036,10 @@
     },
     "refund_reject": {
       "title": "Từ chối hoàn tiền"
+    },
+    "redeem_points": {
+      "title": "Đổi điểm thanh toán",
+      "desc": "Dùng điểm của khách trả một phần đề nghị thanh toán (1 điểm = 100đ, tối đa 50% giá trị đơn)."
     }
   },
   "package": {
@@ -772,6 +1048,10 @@
     },
     "adjust_sessions": {
       "title": "Điều chỉnh số buổi liệu trình"
+    },
+    "search": {
+      "title": "Tìm liệu trình của khách",
+      "desc": "Tra liệu trình: số buổi đã dùng, hạn, trạng thái."
     }
   },
   "payment_account": {
@@ -785,6 +1065,48 @@
     },
     "disconnect": {
       "title": "Ngắt đối soát ngân hàng"
+    }
+  },
+  "service": {
+    "search": {
+      "title": "Tìm dịch vụ",
+      "desc": "Tra dịch vụ đặt lịch được theo tên hoặc mã."
+    }
+  },
+  "assistant": {
+    "resume": {
+      "title": "Tiếp tục lượt Trợ lý"
+    }
+  },
+  "sales_settings": {
+    "update": {
+      "title": "Cập nhật chính sách bán hàng",
+      "desc": "Đổi ngưỡng duyệt báo giá của workspace (tổng tiền, % giảm giá) — chỉ Chủ sở hữu."
+    }
+  },
+  "receipt": {
+    "send": {
+      "title": "Gửi phiếu thu cho khách",
+      "desc": "Gửi PDF phiếu thu của một khoản đã thu vào hội thoại của khách."
+    }
+  },
+  "product_variant": {
+    "create": {
+      "title": "Thêm biến thể"
+    },
+    "update": {
+      "title": "Sửa biến thể"
+    },
+    "archive": {
+      "title": "Lưu trữ biến thể"
+    }
+  },
+  "data_job": {
+    "cancel": {
+      "title": "Huỷ việc chạy nền"
+    },
+    "retry": {
+      "title": "Thử lại bản ghi lỗi của việc chạy nền"
     }
   }
 }

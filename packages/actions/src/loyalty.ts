@@ -9,9 +9,10 @@ export const loyaltyGetMember = defineAction({
   id: 'loyalty.get_member',
   module: 'loyalty',
   title: 'actions.loyalty.get_member.title',
-  description: 'Read a member: points balance, tier, points expiring soon. Example: {"contact_id":"ct_lan"}',
+  description:
+    'Read a loyalty member: points balance, tier (member / silver / gold / diamond), points expiring in 30 days, and value = what the balance is worth when redeemed (1 point = 100đ, VND string; one order may use points for at most 50% of its value). Accepts id or code. Example: {"contact_id":"KH-1016"}',
   input: z.object({ contact_id: z.string().min(1) }),
-  output: z.object({ contact_id: z.string(), points: z.number(), tier: z.string(), expiring: z.number() }),
+  output: z.object({ contact_id: z.string(), points: z.number(), tier: z.string(), expiring: z.number(), value: z.string(), vnd_per_point: z.number() }),
   permission: 'loyalty.view',
   risk: 'read',
   agentGrantable: true,
@@ -54,5 +55,20 @@ export const loyaltyUpdateConfig = defineAction({
   permission: 'loyalty.config',
   risk: 'config',
   agentGrantable: false,
+  invalidates: ['loyalty'],
+});
+
+export const loyaltyAttachFile = defineAction({
+  id: 'loyalty.attach_file',
+  module: 'loyalty',
+  title: 'actions.loyalty.attach_file.title',
+  description:
+    'Attach a file the user just uploaded (purpose attachment) to a member profile (tab Files). Needs edit rights on the customer; the file must be uploaded by the same user and not attached elsewhere. Example: {"contact_id":"<uuid>","file_id":"<uuid>"}',
+  input: z.object({ contact_id: z.string().min(1), file_id: z.string().min(1) }),
+  output: z.object({ contact_id: z.string(), file_id: z.string(), name: z.string() }),
+  permission: 'crm.edit',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
   invalidates: ['loyalty'],
 });

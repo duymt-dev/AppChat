@@ -1,7 +1,7 @@
 // Queue `ai-task` (worker ROLE=ai — Blueprint §1.3, §5.4): một job = một lần chạy tác vụ. Người đẩy: `ai_task.create` (chạy ngay) /
 // `ai_task.run_now`, job lịch `ai-task-scheduler` (tác vụ tới giờ), consumer sự kiện (ROLE=jobs). Job id theo lần chạy → đẩy trùng
 // (job lịch chạy lại, sự kiện giao lại) không chạy hai lần. Run `queued` được tạo trước khi đẩy để màn "đang điều phối" thấy ngay.
-import { Queue } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 
 export const AI_TASK_QUEUE = 'ai-task';

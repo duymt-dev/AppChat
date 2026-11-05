@@ -16,7 +16,7 @@ test.describe('dữ liệu RAG (http)', () => {
     await page.getByTestId('st-rag-folder').click();
     await page.getByTestId('st-rag-folder-name').fill('Chính sách');
     await page.getByRole('button', { name: 'Tạo', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Chính sách' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Chính sách', exact: true })).toBeVisible();
 
     await page.getByTestId('st-rag-upload').click();
     const m = page.getByTestId('st-rag-modal');

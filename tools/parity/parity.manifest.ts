@@ -1,6 +1,9 @@
 // Danh sách màn × trạng thái đo parity (standards/ui/prototype-parity §3). ID = ID dòng trong coding-packs/reports/goal-fe-prototype.md.
 import type { Page } from '@playwright/test';
 import { protoOverrideVals, protoSetState } from './protoState';
+import { ASSISTANT_COVERAGE } from './manifests/assistant-coverage';
+import { GENUI_DRAWERS } from './modules/genui';
+import { CONTACT_MEMORY } from './modules/contact-memory';
 
 export interface Rect {
   x: number;
@@ -1153,7 +1156,8 @@ export const MANIFEST: ParityEntry[] = [
     protoStorage: loyalty,
     appWait: '[data-member]',
     proto: (p) => p.locator('.cmpwrap').nth(2).scrollIntoViewIfNeeded(),
-    app: (p) => p.getByTestId('ly-rules').scrollIntoViewIfNeeded(),
+    // Thẻ churn "Sắp có" (TIP-036) thấp hơn → thẻ quy tắc chạm mép 900px; cuộn đáy thẻ vào khung để clip không bị cắt 1px.
+    app: (p) => p.getByTestId('ly-rules').evaluate((el) => el.scrollIntoView({ block: 'end' })),
     clipTo: { proto: '.cmpwrap >> nth=2', app: '[data-testid="ly-rules"]' },
   },
   {
@@ -1268,6 +1272,17 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-doc]',
     proto: settingsProto,
     clip: ST_MAIN,
+  },
+  // TIP-043 / PD-013: hàng chờ "Chờ duyệt" (khung tab + danh sách đề xuất) không có trong prototype — so nav trái + đầu màn với
+  // trạng thái Tất cả tệp, mask khung nội dung bên phải.
+  {
+    id: 'settings:rag-review',
+    route: '/settings/rag_data?nav=review',
+    protoStorage: settings('rag_data'),
+    appWait: '[data-testid="st-kbsug"] [data-sug]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+    mask: [{ x: 648, y: 216, width: 762, height: 632, reason: 'PD-013 hàng chờ học từ hội thoại (TIP-043) — prototype không có' }],
   },
   {
     id: 'settings:ai-gov',
@@ -1402,4 +1417,7 @@ export const MANIFEST: ParityEntry[] = [
     clipTo: { proto: 'div[style*="width: 440px"]', app: '[data-testid="st-int-modal"] [role="dialog"]' },
     mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
   },
+  ...ASSISTANT_COVERAGE,
+  ...GENUI_DRAWERS,
+  ...CONTACT_MEMORY,
 ];

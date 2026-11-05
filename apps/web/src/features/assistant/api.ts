@@ -2,7 +2,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { UiCommand } from '@appchat/actions';
-import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, Run, Tier, TurnContext, TurnEvent } from './types';
+import type { ActionLogRow, AiTasksPayload, ApprovalRow, AssistantHome, ChatMessage, ConfirmEvent, Run, TurnEvent } from './types';
 
 export const homeQuery = () =>
   queryOptions({ queryKey: ['assistant', 'home'], queryFn: () => transport.get<AssistantHome>('/assistant/home'), staleTime: Infinity });
@@ -33,22 +33,12 @@ export const runsQuery = (rootRunId: string | null) =>
     queryFn: () => transport.get<{ data: Run[] }>('/runs', rootRunId ? { root_run_id: rootRunId } : { status: 'live' }),
   });
 
-export interface TurnInput {
-  text: string;
-  mode: string;
-  sessionId?: string;
-  tier?: Tier;
-  context?: TurnContext;
-}
-
-export const sendTurn = (q: TurnInput) =>
-  transport.post<{ session_id: string; run_id?: string | null; events: TurnEvent[] }>('/assistant/messages', {
-    text: q.text,
-    mode: q.mode,
-    session_id: q.sessionId,
-    tier: q.tier,
-    context: q.context,
-  });
-
 export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>
-  transport.post<{ status: string; action_log_id?: string; ui_target?: UiCommand; events?: TurnEvent[] }>('/assistant/confirm', { confirm_token: token, decision });
+  transport.post<{ status: string; action_log_id?: string; approval_id?: string; ui_target?: UiCommand; events?: TurnEvent[] }>('/assistant/confirm', { confirm_token: token, decision });
+
+/** Sửa thẻ xem trước (REQ-E03b): chỉ xem trước lại → thẻ mới (token mới); token cũ mất hiệu lực. */
+export const editPreview = (token: string, input: Record<string, unknown>) => transport.post<{ card: ConfirmEvent }>('/assistant/preview-edit', { confirm_token: token, input });
+
+/** Tin của một phiên (cũ → mới) — "Mở trong Trợ lý" từ drawer nạp lại cùng phiên, không gọi model (TIP-023c G2). */
+export const sessionMessages = (id: string) =>
+  transport.get<{ data: (Omit<ChatMessage, 'target'> & { run_id: string | null })[] }>(`/assistant/sessions/${encodeURIComponent(id)}/messages`);

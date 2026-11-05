@@ -293,5 +293,56 @@
     "actions": "Action log",
     "cowork": "Autonomous tasks",
     "approvals": "Approvals"
+  },
+  "preview": {
+    "edit": "Edit",
+    "editTitle": "Edit: {title}",
+    "editHint": "Change the details, then Preview again — AppChat runs nothing until you press Confirm on the new card.",
+    "repreview": "Preview again",
+    "close": "Close",
+    "addRow": "+ Add row",
+    "removeRow": "Remove row",
+    "failed": "Could not preview again ({code}). The previous card is unchanged.",
+    "more": "… and {n} more changes",
+    "count": "{n} records",
+    "approval": "Sent for approval — nothing runs until someone with permission approves.",
+    "warn": {
+      "uses_credit": "Uses AI credit",
+      "dry_run": "Dry run — no data is written",
+      "invites_customers": "Customers will be invited to the group",
+      "previous_unknown": "The previous attempt has an unknown outcome — the group may already exist",
+      "needs_approval": "Needs an approver",
+      "goes_live": "Goes live as soon as it is saved",
+      "reminders_reset": "Reminders will be resent for the new time",
+      "notify_customer": "The customer will be notified",
+      "new_contact": "Creates a new customer",
+      "low_stock": "Low stock",
+      "negative_stock": "Stock will go negative"
+    },
+    "unset": "Not set"
+  },
+  "genuiConnected": "Connected.",
+  "sessions": {
+    "open": "History",
+    "title": "Chat history",
+    "close": "Close",
+    "search": "Search by title…",
+    "loading": "Loading…",
+    "empty": "No conversations yet.",
+    "noMatch": "No matching conversations.",
+    "error": "Could not load the list.",
+    "retry": "Retry",
+    "more": "Load more",
+    "untitled": "(Untitled)",
+    "mode": {
+      "chat": "Chat",
+      "cowork": "Cowork"
+    }
+  },
+  "attachments": {
+    "uploading": "Uploading…",
+    "retry": "Retry",
+    "cancel": "Cancel upload",
+    "remove": "Remove {name}"
   }
 }

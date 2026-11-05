@@ -10,6 +10,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { uuidv7 } from '../../kernel/ids';
 import { actorUserId } from '../services/access';
 import { ensureLayouts } from '../services/layouts.service';
+import * as pv from './previews/profile-layout.handlers.preview';
 
 type Tabs = { enabled: boolean }[];
 const assertTabs = (tabs: Tabs | undefined) => {
@@ -28,6 +29,10 @@ async function layout(tx: TenantTx, id: string) {
 export class ProfileLayoutCreateHandler implements Handler<ActionInput<typeof profileLayoutCreate>, { layout_id: string }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
+  async preview(_ctx: ActionContext, input: ActionInput<typeof profileLayoutCreate>) {
+    return pv.createPreview(input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof profileLayoutCreate>, tx: TenantTx): Promise<HandlerOutcome<{ layout_id: string }>> {
     assertTabs(input.tabs);
     await ensureLayouts(tx);
@@ -41,6 +46,10 @@ export class ProfileLayoutCreateHandler implements Handler<ActionInput<typeof pr
 @Injectable()
 @ActionHandler('profile_layout.update')
 export class ProfileLayoutUpdateHandler implements Handler<ActionInput<typeof profileLayoutUpdate>, { layout_id: string }> {
+  async preview(ctx: ActionContext, input: ActionInput<typeof profileLayoutUpdate>, tx: TenantTx) {
+    return pv.updatePreview(tx, input);
+  }
+
   async execute(_ctx: ActionContext, input: ActionInput<typeof profileLayoutUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ layout_id: string }>> {
     const l = await layout(tx, input.layout_id);
     assertTabs(input.patch.tabs);
@@ -53,6 +62,10 @@ export class ProfileLayoutUpdateHandler implements Handler<ActionInput<typeof pr
 @ActionHandler('profile_layout.duplicate')
 export class ProfileLayoutDuplicateHandler implements Handler<ActionInput<typeof profileLayoutDuplicate>, { layout_id: string }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof profileLayoutDuplicate>, tx: TenantTx) {
+    return pv.duplicatePreview(tx, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof profileLayoutDuplicate>, tx: TenantTx): Promise<HandlerOutcome<{ layout_id: string }>> {
     const src = await layout(tx, input.layout_id);
@@ -68,6 +81,10 @@ export class ProfileLayoutDuplicateHandler implements Handler<ActionInput<typeof
 @Injectable()
 @ActionHandler('profile_layout.delete')
 export class ProfileLayoutDeleteHandler implements Handler<ActionInput<typeof profileLayoutDelete>, { ok: boolean }> {
+  async preview(ctx: ActionContext, input: ActionInput<typeof profileLayoutDelete>, tx: TenantTx) {
+    return pv.deletePreview(tx, input);
+  }
+
   async execute(_ctx: ActionContext, input: ActionInput<typeof profileLayoutDelete>, tx: TenantTx): Promise<HandlerOutcome<{ ok: boolean }>> {
     const l = await layout(tx, input.layout_id);
     if (l.isSystem) throw new AppError('VALIDATION_FAILED', 422, { layout_id: 'system_template' });
@@ -81,6 +98,10 @@ export class ProfileLayoutDeleteHandler implements Handler<ActionInput<typeof pr
 @Injectable()
 @ActionHandler('profile_layout.assign_role')
 export class ProfileLayoutAssignRoleHandler implements Handler<ActionInput<typeof profileLayoutAssignRole>, { role: string; layout_id: string }> {
+  async preview(ctx: ActionContext, input: ActionInput<typeof profileLayoutAssignRole>, tx: TenantTx) {
+    return pv.assignRolePreview(tx, input);
+  }
+
   async execute(_ctx: ActionContext, input: ActionInput<typeof profileLayoutAssignRole>, tx: TenantTx): Promise<HandlerOutcome<{ role: string; layout_id: string }>> {
     const l = await layout(tx, input.layout_id);
     const prev = await tx.profileLayoutRole.findUnique({ where: { roleKey: input.role } });

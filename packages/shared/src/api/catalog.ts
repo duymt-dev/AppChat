@@ -1,6 +1,7 @@
 // Shape đọc domain catalog (FE ↔ BE — gap-filling §5, TIP-027): GET /v1/products (D42), /products/:id, /products/meta,
 // /products/:id/activity, /categories. Mock transport (apps/web) và API thật parse cùng các schema này. Tiền là string VND, giá chưa VAT.
 import { z } from 'zod';
+import { hiddenFieldsSchema } from './field-visibility';
 
 export const PRODUCT_TYPES = ['physical', 'service', 'combo', 'package', 'digital', 'rental'] as const;
 export type ProductTypeKey = (typeof PRODUCT_TYPES)[number];
@@ -15,8 +16,8 @@ export const productRowSchema = z.object({
   category: z.string(),
   type: z.enum(PRODUCT_TYPES),
   price: z.string(),
-  /** '0' khi người xem thiếu `catalog.cost_view` hoặc chưa nhập. */
-  cost: z.string(),
+  /** Giá vốn; null = chưa nhập. KHÔNG có khoá khi người xem thiếu `catalog.cost_view` (→ `hidden_fields` chứa 'cost'). */
+  cost: z.string().nullable().optional(),
   unit: z.string(),
   tax_rate: z.number().int(),
   sold: z.number().int(),
@@ -29,10 +30,13 @@ export const productRowSchema = z.object({
   stock: z.number().int().nullable(),
   sessions: z.number().int().nullable(),
   valid_days: z.number().int().nullable(),
+  /** TIP-032b — liệu trình sinh khi mới cọc. */
+  grant_on_deposit: z.boolean().optional(),
   tint: z.string(),
   ink: z.string(),
   icon: z.string(),
   custom: customValues.optional(),
+  hidden_fields: hiddenFieldsSchema,
   /** TIP-027 — chi tiết / form sửa. */
   version: z.number().int().optional(),
   duration_min: z.number().int().nullable().optional(),
@@ -41,7 +45,7 @@ export const productRowSchema = z.object({
   low_stock: z.boolean().optional(),
   components: z.array(z.object({ id: z.string(), name: z.string(), qty: z.number().int() })).optional(),
   attr_defs: z.array(z.object({ name: z.string(), values: z.array(z.string()) })).optional(),
-  variants: z.array(z.object({ id: z.string(), sku: z.string(), name: z.string(), stock: z.number().int() })).optional(),
+  variants: z.array(z.object({ id: z.string(), sku: z.string(), name: z.string(), stock: z.number().int(), price: z.string().nullable().optional(), version: z.number().int().optional() })).optional(),
 });
 export type ProductRowDto = z.infer<typeof productRowSchema>;
 

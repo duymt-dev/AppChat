@@ -1,5 +1,6 @@
 // Ô soạn tin — prototype ver2.1 L2195–2245: Ghi chú nội bộ / Co-pilot / AI tự xử · Quick replies / Đặt lịch hẹn / Dịch ·
 // trích dẫn khi trả lời · dòng "Người gửi" · Gửi. REQ-C13: bỏ chế độ "Trả lời" (ngầm định) và 6 icon công cụ, bỏ "Thả nhanh".
+// TIP-023c (REQ-C05c): "AI soạn / viết lại" (AssistantDraftBar) — đề xuất nháp, không tự gửi.
 // TIP-025: chế độ AI hiện tại được đánh dấu, bấm lại chế độ đang bật = Tắt AI; tệp đính kèm (menu ＋ "Thêm tệp"); @nhắc trong ghi chú.
 'use client';
 import { useRef, useState } from 'react';
@@ -11,6 +12,8 @@ import { useMe } from '@/shared/shell/useShellData';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useInboxUi } from '../inbox-store';
 import { useComposerFiles } from '../hooks/useComposerFiles';
+import { useAssistantDraft } from '../hooks/useAssistantDraft';
+import { AssistantDraftBar } from './AssistantDraftBar';
 import { ComposerPopovers } from './ComposerPopovers';
 import { FileChips, MentionPicker, mentionNeedle } from './ComposerExtras';
 import type { ChannelMeta, Conversation } from '../types';
@@ -42,6 +45,9 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
   const isNote = ui.composerMode === 'note';
   const customer = conv.kind === 'group' ? conv.title : conv.title.split(' — ')[0]!;
   const needle = isNote ? mentionNeedle(draft) : null;
+  // REQ-C05c: AI soạn / viết lại chỉ đề xuất — người chọn thay / chèn; gửi vẫn là nút Gửi.
+  const ai = useAssistantDraft(conv.id, draft, onDraft);
+  const aiIdle = !ai.pending && !ai.error && !ai.proposal;
 
   const submit = async () => {
     const text = draft.trim();
@@ -99,6 +105,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
           </button>
         ))}
         <span className={styles.grow} />
+        {!isNote && aiIdle ? <AssistantDraftBar d={ai} hasDraft={!!draft.trim()} /> : null}
         {tools.map(([key, icon]) => (
           <button key={key} type="button" className={cx(styles.tool, key === 'xl' && ui.autoXl && styles.toolOn)} onClick={() => ui.togglePop(key)} aria-expanded={ui.pop === key}>
             <Icon name={icon} size={14} color={color.text3} />
@@ -107,6 +114,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
           </button>
         ))}
       </div>
+      {!isNote && !aiIdle ? <AssistantDraftBar d={ai} hasDraft={!!draft.trim()} /> : null}
       <div className={cx(styles.box, isNote && styles.boxNote)}>
         {!isNote ? <FileChips files={files.files} onRemove={files.remove} /> : null}
         {ui.replyTo && !isNote ? (

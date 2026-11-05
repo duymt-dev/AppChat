@@ -3,14 +3,17 @@
 // `payment.refund_approve`, tài khoản nhận; `invoice_id` → thẻ CRM + tệp của đề nghị đó), PDF đề nghị (bản đóng băng lúc gửi hoặc render),
 // PDF phiếu thu (render lần đầu rồi giữ), cài đặt thanh toán, liệu trình của khách.
 import { TenantContexts } from '@appchat/db';
-import { AppError, interpolate, serverMessages, type AuthzContext } from '@appchat/shared';
+import { AppError, interpolate, serverMessages, utcToWall, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { QuoteDeps } from '../../quotes/services/quote-deps';
 import { UUID, inSalesScope, visibleInvoice } from '../invoice-access';
 import { invoiceStats, listInvoiceIds, type InvoiceFilter } from '../repos/invoices.repo';
 import { webhookPathOf } from './bank-feed';
-import { invoiceDocData, receiptDocData, renderDocPdf, savePdf } from './invoice-doc';
+import { invoiceDocData, renderDocPdf } from './invoice-doc';
+import { ensureReceiptPdf } from './receipt-file';
+import { qrPng, readInvoiceQr } from './invoice-qr';
 import { invoiceActorIds, paymentsByInvoice, toInvoiceRow, type InvoiceViewCtx } from './invoice-view';
+import { customerDebt } from '../../../crm/insights/customer-debt';
 
 export interface InvoiceViewer {
   workspaceId: string;
@@ -90,7 +93,7 @@ export class InvoicesReadService {
         bank_txs: bank.map((b) => ({ id: b.id, amount: String(b.amount), content: b.content, occurred_at: b.occurredAt.toISOString(), provider: b.feed.provider, reason: b.reason ?? 'missing_code', suggested_invoice_id: b.suggestedInvoiceId ?? '', status: b.status })),
         refunds,
         payment_account: accountView(account),
-        ...(await this.oneMeta(tx, one)),
+        ...(await this.oneMeta(tx, v.authz, one, utcToWall(this.now(), (await this.ctx(v)).timeZone).date)),
       };
     });
   }
@@ -107,8 +110,8 @@ export class InvoicesReadService {
     return rows.map((r) => ({ id: r.id, invoice_id: r.invoiceId, invoice_code: r.invoiceId ? (i.get(r.invoiceId) ?? '') : '', package_id: r.packageId, contact_name: c.get(r.contactId) ?? '', amount: String(-r.amount), reason: r.reason, by: r.createdById ? (names.get(r.createdById) ?? '') : 'system', at: r.createdAt.toISOString() }));
   }
 
-  /** Thẻ CRM (số đề nghị của khách, tỉ lệ trả đúng hạn) + tệp (PDF đề nghị, phiếu thu) của đề nghị đang mở. */
-  private async oneMeta(tx: TenantTx, one: Awaited<ReturnType<typeof visibleInvoice>> | null) {
+  /** Thẻ CRM (số đề nghị của khách, tỉ lệ trả đúng hạn, công nợ theo khách — crm/insights/customer-debt) + tệp (PDF đề nghị, phiếu thu) của đề nghị đang mở. */
+  private async oneMeta(tx: TenantTx, a: AuthzContext, one: Awaited<ReturnType<typeof visibleInvoice>> | null, today: string) {
     if (!one) return { crm: { total: 0, on_time: '0%' }, files: [] };
     const all = await tx.invoice.findMany({ where: { contactId: one.contactId, status: { not: 'void' } }, select: { id: true, status: true, dueDate: true } });
     const paid = all.filter((x) => x.status === 'paid');
@@ -119,7 +122,8 @@ export class InvoicesReadService {
     const ids = [one.fileId, ...(await tx.customerPayment.findMany({ where: { invoiceId: one.id, receiptFileId: { not: null } }, select: { receiptFileId: true } })).map((p) => p.receiptFileId)].filter((x): x is string => !!x);
     for (const f of ids.length ? await tx.file.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, size: true, createdAt: true } }) : [])
       files.push({ name: f.name, ext: 'pdf', by: 'system', at: f.createdAt.toISOString().slice(0, 10), size: `${Math.max(1, Math.round(Number(f.size) / 1024))} KB` });
-    return { crm: { total: all.length, on_time: paid.length ? `${Math.round((onTime * 100) / paid.length)}%` : '0%' }, files };
+    const debt = await customerDebt(tx, a, one.contactId, today);
+    return { crm: { total: all.length, on_time: paid.length ? `${Math.round((onTime * 100) / paid.length)}%` : '0%', ...(debt ? { debt: debt.due, overdue: debt.overdue } : {}) }, files };
   }
 
   /** PDF đề nghị: bản đã gửi (đóng băng) hoặc render bản hiện tại. */
@@ -132,25 +136,23 @@ export class InvoicesReadService {
     return { name: interpolate(serverMessages(doc.locale).sales.invoice.pdfName, { code: i.code }), pdf: await renderDocPdf(db, this.d.doc(), 'payment_request', doc.data, doc.locale) };
   }
 
+  /** Ảnh VietQR (PNG) của số còn phải thu — chưa có tài khoản nhận / đã thu đủ / đã huỷ → 404 (TIP-032b P2). */
+  async qr(v: InvoiceViewer, id: string): Promise<Buffer> {
+    const db = await this.db(v);
+    const i = await db.$transaction((tx) => visibleInvoice(tx, v.authz, id));
+    const qr = i.status === 'void' ? null : await readInvoiceQr(db, i);
+    if (!qr) throw new AppError('NOT_FOUND', 404, { qr: i.status === 'void' ? 'void' : 'unavailable' });
+    return qrPng(qr.payload);
+  }
+
   /** PDF phiếu thu của một khoản thu: lần đầu render + lưu (`receipt_file_id`), sau đó trả bản đã lưu. */
   async receipt(v: InvoiceViewer, paymentId: string): Promise<{ name: string; pdf: Buffer }> {
     const db = await this.db(v);
     const p = UUID.test(paymentId) ? await db.customerPayment.findUnique({ where: { id: paymentId } }) : null;
     if (!p || !p.invoiceId || !p.receiptCode) throw new AppError('NOT_FOUND', 404, { payment_id: 'not_found' });
     const i = await db.$transaction((tx) => visibleInvoice(tx, v.authz, p.invoiceId!));
-    const stored = p.receiptFileId && this.d.files ? await this.d.files.read(db, p.receiptFileId) : null;
-    if (stored) return { name: stored.row.name, pdf: stored.body };
-    const doc = await receiptDocData(db, this.d.doc(), v.workspaceId, i, p);
-    const pdf = await renderDocPdf(db, this.d.doc(), 'receipt', doc.data, doc.locale);
-    const name = interpolate(serverMessages(doc.locale).sales.invoice.receiptName, { code: p.receiptCode });
-    if (this.d.files) {
-      const f = await savePdf(db, this.d.doc(), v.workspaceId, name, pdf, null);
-      await db.$transaction(async (tx) => {
-        await tx.file.updateMany({ where: { id: f.fileId }, data: { confirmed: true } });
-        await tx.customerPayment.updateMany({ where: { id: p.id, receiptFileId: null }, data: { receiptFileId: f.fileId } });
-      });
-    }
-    return { name, pdf };
+    const r = await ensureReceiptPdf(db, this.d, v.workspaceId, i, p);
+    return { name: r.name, pdf: r.pdf };
   }
 
   /** Cài đặt thanh toán (`finance.manage` — controller kiểm): tài khoản nhận + bank feed. */

@@ -1,6 +1,9 @@
 // Chữ báo giá phía server — tiếng Việt (nguồn): tin gửi khách kèm link xem, gợi ý một dòng ở cột AI (luật theo trạng thái / hạn),
 // kết quả mẫu của panel Trợ lý AI · Báo giá (luật trên dữ liệu thật, không gọi LLM), tên tệp PDF.
+import { salesDelivery } from './sales-delivery';
+
 export const sales = {
+  delivery: salesDelivery,
   quote: {
     message: 'Kính gửi {customer}, {business} gửi báo giá {code} (lần {version}) — tổng {total}, hiệu lực đến {valid_until}. Xem chi tiết: {link}',
     extended: 'Báo giá {code} được gia hạn hiệu lực đến {valid_until}. Xem lại: {link}',
@@ -40,6 +43,20 @@ export const sales = {
     signedPdfName: 'Hop-dong-{code}-da-ky.pdf',
     declineDefault: 'Khách từ chối ký',
     linkExpired: 'Link ký hết hạn',
+    keptClauses: 'Điều khoản bổ sung (đã duyệt)',
+    appendix: {
+      title: 'PHỤ LỤC HỢP ĐỒNG',
+      parent: 'Kèm theo hợp đồng {code} — {title}',
+      valueDelta: 'Giá trị điều chỉnh: {value}',
+      version: 'Phiên bản {version}',
+      signMessage: 'Kính gửi {customer}, {business} gửi phụ lục {code} (hợp đồng {contract}) để Quý khách ký điện tử. Link ký (một lần, hiệu lực đến {expires}): {link}',
+      otpMessage: 'Mã xác thực ký phụ lục {code}: {otp} (hiệu lực 10 phút). Không chia sẻ mã này.',
+      ownerOtpSubject: 'Mã xác thực duyệt & ký phụ lục {code}: {otp}',
+      ownerOtpBody: 'Mã xác thực để duyệt & ký phụ lục {code} (phiên bản {version}) là {otp}. Mã hiệu lực 10 phút.',
+      signedMessage: 'Phụ lục {code} đã được hai bên ký. Bản PDF đã ký (mã băm SHA-256 {sha}) đính kèm.',
+      pdfName: 'Phu-luc-{code}.pdf',
+      signedPdfName: 'Phu-luc-{code}-da-ky.pdf',
+    },
     kind: { service: 'Hợp đồng dịch vụ', sale: 'Hợp đồng mua bán', framework: 'Hợp đồng nguyên tắc' },
     cert: {
       title: 'TRANG CHỨNG NHẬN KÝ ĐIỆN TỬ',

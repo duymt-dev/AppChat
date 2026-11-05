@@ -23,11 +23,15 @@ export interface ActionContext {
    * (Blueprint §3.3 "chỉ trả lời trong hội thoại đang phục vụ"); gửi nơi khác vẫn qua duyệt.
    */
   servedConversationId?: string;
+  /** Lượt agent đang giữ (TIP-045b annex D): fence + epoch hội thoại — tin gửi mang theo, đặt chỗ gửi kiểm lại trước khi gọi kênh. */
+  agentTurn?: { fence: number; epoch: number };
   /**
    * Tác vụ Cowork tắt "Hỏi xác nhận trước khi gửi ra bên ngoài" (REQ-E13, Blueprint §3.3 dòng `task` — "approval nếu ask_before_send"):
    * action `send` chạy luôn; delete / money vẫn qua duyệt.
    */
   autoSend?: boolean;
+  /** Action `db: 'platform'`: id thao tác xuyên DB (TIP-045b) — handler dùng cho đặt chỗ hạn mức / id tất định. */
+  operationId?: string;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }
@@ -51,6 +55,8 @@ export interface ActionPolicyInput {
   servedConversation?: boolean;
   /** Tác vụ không hỏi trước khi gửi (ActionContext.autoSend). */
   autoSend?: boolean;
+  /** Id action — FORCE_APPROVAL theo action (policy.ts). */
+  actionId?: string;
 }
 
 export const AUTHORIZER = Symbol('AUTHORIZER');

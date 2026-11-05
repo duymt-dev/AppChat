@@ -1,4 +1,4 @@
-// Domain `booking` (TIP-033): nhân sự, giờ mở cửa, lịch hẹn, tìm slot — 13 handler (appointment.* + staff.* + business_hours.update),
+// Domain `booking` (TIP-033): nhân sự, giờ mở cửa, lịch hẹn, tìm slot — appointment.* (kể cả update — TIP-023b) + staff.* + business_hours.update,
 // đọc /v1/calendar* + /settings/booking (CalendarReadService), job giữ chỗ hết hạn / nhắc hẹn (jobs/booking.jobs.module.ts).
 import { Module } from '@nestjs/common';
 import type { TenantDbResolver } from '@appchat/db';
@@ -11,10 +11,15 @@ import { BusinessHoursUpdateHandler, StaffCreateHandler, StaffDeactivateHandler,
 import { BookingPlace } from './services/booking-place';
 import { CalendarReadService } from './services/calendar-read.service';
 
+import { AppointmentGetHandler } from './actions/booking-read.handlers';
+import { ServiceSearchHandler, StaffSearchHandler } from './actions/booking-reference-read.handlers';
+import { AppointmentUpdateHandler } from './actions/appointment-update.handler';
+
 const HANDLERS = [
   AppointmentFindSlotsHandler, AppointmentListHandler, AppointmentCreateHandler, AppointmentRescheduleHandler,
   AppointmentConfirmHandler, AppointmentCheckInHandler, AppointmentCompleteHandler, AppointmentNoShowHandler, AppointmentCancelHandler,
   StaffCreateHandler, StaffUpdateHandler, StaffDeactivateHandler, BusinessHoursUpdateHandler,
+  AppointmentGetHandler, StaffSearchHandler, ServiceSearchHandler, AppointmentUpdateHandler,
 ];
 
 @Module({

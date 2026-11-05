@@ -157,12 +157,7 @@
     "titleAi": "Campaign from AI suggestion",
     "sub": "Send to customers via Zalo personal or Email — pick from existing segments or saved lists.",
     "close": "Close",
-    "steps": [
-      "Channel",
-      "Recipients",
-      "Content",
-      "Schedule & send"
-    ],
+    "steps": ["Channel", "Recipients", "Content", "Schedule & send"],
     "aiBox": "Prefilled by AI from the suggestion — review & approve",
     "aiK": {
       "name": "Campaign name",
@@ -357,8 +352,7 @@
     "go": "Create this campaign",
     "ph": "Ask the assistant about campaigns…",
     "send": "Send",
-    "full": "Open full AI Assistant →",
-    "ack": "Noted — the assistant will answer in the full dock."
+    "full": "Open full AI Assistant →"
   },
   "from": "From",
   "to": "To",

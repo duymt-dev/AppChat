@@ -1,7 +1,8 @@
 // Worker BullMQ queue `events` (ROLE=jobs — Blueprint §1.3): job do outbox relay publish (jobId = event id) → dispatchEvent.
 // Bật cùng relay trong OutboxJobsModule khi có DB + Redis.
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Worker, type Job } from 'bullmq';
+import { type Job } from 'bullmq';
+import { Worker } from '../jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { TenantDbResolver } from '@appchat/db';
 import { LOGGER } from '../kernel.module';

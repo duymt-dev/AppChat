@@ -11,6 +11,7 @@ import { channels as enChannels } from './en/channels';
 import { crm as enCrm } from './en/crm';
 import { documents as enDocuments } from './en/documents';
 import { inbox as enInbox } from './en/inbox';
+import { loyalty as enLoyalty } from './en/loyalty';
 import { notify as enNotify } from './en/notify';
 import { sales as enSales } from './en/sales';
 import { ai as viAi } from './vi/ai';
@@ -23,6 +24,7 @@ import { channels as viChannels } from './vi/channels';
 import { crm as viCrm } from './vi/crm';
 import { documents as viDocuments } from './vi/documents';
 import { inbox as viInbox } from './vi/inbox';
+import { loyalty as viLoyalty } from './vi/loyalty';
 import { notify as viNotify } from './vi/notify';
 import { sales as viSales } from './vi/sales';
 
@@ -39,11 +41,12 @@ interface Bundle {
   booking: typeof enBooking;
   support: typeof enSupport;
   tasks: typeof enTasks;
+  loyalty: typeof enLoyalty;
 }
 
 const BUNDLES: Record<string, Bundle> = {
-  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox, ai: viAi, catalog: viCatalog, documents: viDocuments, sales: viSales, booking: viBooking, support: viSupport, tasks: viTasks },
-  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox, ai: enAi, catalog: enCatalog, documents: enDocuments, sales: enSales, booking: enBooking, support: enSupport, tasks: enTasks },
+  vi: { notify: viNotify, billing: viBilling, crm: viCrm, channels: viChannels, inbox: viInbox, ai: viAi, catalog: viCatalog, documents: viDocuments, sales: viSales, booking: viBooking, support: viSupport, tasks: viTasks, loyalty: viLoyalty },
+  en: { notify: enNotify, billing: enBilling, crm: enCrm, channels: enChannels, inbox: enInbox, ai: enAi, catalog: enCatalog, documents: enDocuments, sales: enSales, booking: enBooking, support: enSupport, tasks: enTasks, loyalty: enLoyalty },
 };
 
 /** Bộ chữ server của locale (theo fallback, cuối cùng là vi). */

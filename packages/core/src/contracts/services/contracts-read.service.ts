@@ -8,6 +8,8 @@ import { UUID, visibleContract } from '../contract-access';
 import { listContractIds, type ContractFilter } from '../repos/contracts.repo';
 import type { ContractDeps } from './contract-deps';
 import { renderContractPdf } from './contract-doc';
+import { signingContent } from '../files/source';
+import { listContractFiles, readContractFile } from '../files/read';
 import { contractInsights, contractKpis, contractRuns } from './contract-insights';
 import { sendOwnerOtp } from './contract-system';
 import { contactsOf, extrasOf, toContractRow, type ViewCtx } from './contract-view';
@@ -77,7 +79,7 @@ export class ContractsReadService {
       if (!contractId || !UUID.test(contractId)) return { counts: k.counts, stats: k.stats, ...empty, ai_runs: runs };
       const c = await visibleContract(tx, v.authz, contractId);
       const names = await this.d.members.names([c.ownerUserId]);
-      return { counts: k.counts, stats: k.stats, ...(await contractInsights(tx, c, base, names)), ai_runs: runs };
+      return { counts: k.counts, stats: k.stats, ...(await contractInsights(tx, v.authz, c, base, names)), ai_runs: runs };
     });
   }
 
@@ -90,8 +92,24 @@ export class ContractsReadService {
       const f = await this.d.files.read(db, fid);
       if (f) return { name: f.row.name, pdf: f.body };
     }
+    // Nguồn tệp chưa duyệt: PDF gốc / bản DOCX đã đổi cô lập (không bao giờ rơi về render theo mẫu).
+    if (c.source === 'file' && this.d.files) return { name: `${c.code}.pdf`, pdf: (await signingContent(db, this.d.files, this.d.isolated, c)).pdf };
     const r = await renderContractPdf(db, this.d, v.workspaceId, c);
     return { name: `${c.code}.pdf`, pdf: r.pdf };
+  }
+
+  /** Tệp của hợp đồng theo vai trò (TIP-030b spec 17). */
+  async files(v: ContractViewer, id: string) {
+    const db = await this.db(v);
+    const c = await db.$transaction((tx) => visibleContract(tx, v.authz, id));
+    return listContractFiles(db, c, (ids) => this.d.members.names(ids));
+  }
+
+  /** Tải một tệp của hợp đồng — kiểm lại scope + tệp thuộc hợp đồng. */
+  async file(v: ContractViewer, id: string, fileId: string) {
+    const db = await this.db(v);
+    const c = await db.$transaction((tx) => visibleContract(tx, v.authz, id));
+    return readContractFile(db, this.d.need('files'), c, fileId);
   }
 
   /** OTP "Duyệt & ký" tới email của người ký (cần `contract.sign`, controller kiểm). */

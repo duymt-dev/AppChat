@@ -26,7 +26,7 @@ export function RowActions({ c, variant }: { c: ContactRow; variant: 'table' | '
   );
 }
 
-export function useContactColumns(onAiDo: () => void): TableColumnsType<ContactRow> {
+export function useContactColumns(onAiDo: (c: ContactRow) => void): TableColumnsType<ContactRow> {
   const t = useTranslations('customers');
   const { styles, cx } = useCellStyles();
   const text = (v: string, ...cls: (string | false)[]) => <span className={cx(styles.cell, ...cls)}>{v}</span>;
@@ -55,7 +55,7 @@ export function useContactColumns(onAiDo: () => void): TableColumnsType<ContactR
     { key: 'district', title: t('col.district'), width: 78, render: (_, c) => text(c.district, styles.muted) },
     { key: 'status', title: t('col.status'), width: 108, render: (_, c) => <StatusCell c={c} /> },
     { key: 'owner', title: t('col.owner'), width: 100, render: (_, c) => <OwnerCell c={c} /> },
-    { key: 'ai', title: t('col.ai'), width: 128, render: (_, c) => <AiCell c={c} onAiDo={onAiDo} /> },
+    { key: 'ai', title: t('col.ai'), width: 128, render: (_, c) => <AiCell c={c} onAiDo={() => onAiDo(c)} /> },
     ...custom,
     {
       key: 'actions',

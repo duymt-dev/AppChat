@@ -11,6 +11,7 @@ import { transport } from '@/shared/api/client';
 import { useSectionStyles } from '../styles/section.styles';
 import { useDocModalStyles } from '../styles/doc-modal.styles';
 import type { DetectedField, DocKindKey, DocTemplate } from '../types';
+import { ContractKindSelect, type ContractKindValue } from './ContractKindSelect';
 import { FormModal } from './FormModal';
 import { LegalChecklist } from './LegalChecklist';
 
@@ -27,6 +28,7 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
   const { styles, cx } = useDocModalStyles();
   const [step, setStep] = useState<1 | 2 | 3>(tpl ? 2 : 1);
   const [kind, setKind] = useState<DocKindKey>(tpl?.kind ?? 'contract');
+  const [ck, setCk] = useState<ContractKindValue>(tpl?.contract_kind ?? null);
   const [name, setName] = useState(tpl?.name ?? '');
   const [file, setFile] = useState(tpl?.file_name ?? '');
   const [fileId, setFileId] = useState(tpl?.file_id ?? '');
@@ -67,8 +69,8 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
     if (!name.trim()) return setErr(tw('errName'));
     const payload = fields.map(({ placeholder, variable }) => ({ placeholder, variable }));
     const r = tpl
-      ? await update.run({ template_id: tpl.id, name: name.trim(), fields: payload, if_version: tpl.version })
-      : await create.run({ kind, name: name.trim(), source: 'docx', file_name: file, file_id: fileId, fields: payload });
+      ? await update.run({ template_id: tpl.id, name: name.trim(), fields: payload, if_version: tpl.version, ...(kind === 'contract' && ck !== tpl.contract_kind ? { contract_kind: ck } : {}) })
+      : await create.run({ kind, name: name.trim(), source: 'docx', file_name: file, file_id: fileId, fields: payload, ...(kind === 'contract' && ck ? { contract_kind: ck } : {}) });
     if (r) onClose();
   };
   const next = () => (step === 2 ? (fields.length ? setStep(3) : setErr(tw('errFields'))) : void save());
@@ -105,6 +107,7 @@ export function DocxWizard({ tpl, onClose }: { tpl?: DocTemplate; onClose: () =>
               ))}
             </select>
           </div>
+          {kind === 'contract' ? <ContractKindSelect value={ck} onChange={setCk} testId="docx-contract-kind" /> : null}
           <div className={styles.drop}>
             <Icon name="ic-doc" size={28} color={color.brandInk} />
             <div className={styles.dropT}>{uploading || detect.isPending ? tw('detecting') : tw('dropT')}</div>

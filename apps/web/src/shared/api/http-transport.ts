@@ -3,6 +3,7 @@
 // rồi gọi lại. `X-Workspace-Id` = workspace đang dùng (GET /session → workspace_id; đổi bằng workspace.switch).
 import { ApiRequestError, type ErrorEnvelope } from '@appchat/shared';
 import type { Transport } from './transport';
+import { readSse } from './sse-client';
 
 const BASE = '/api/v1';
 /** Lệnh trả access token mới (đăng nhập / xác thực / làm mới). */
@@ -106,8 +107,9 @@ export const httpTransport: Transport = {
       extra: {
         'x-action-source': 'ui',
         ...(opts?.idempotencyKey ? { 'idempotency-key': opts.idempotencyKey } : {}),
+        ...(opts?.genuiIntent ? { 'x-genui-intent': opts.genuiIntent } : {}),
       },
-      body: JSON.stringify({ input, confirm_token: opts?.confirmToken }),
+      body: JSON.stringify({ input, confirm_token: opts?.confirmToken, ...(opts?.secretVault ? { secret_vault: opts.secretVault } : {}) }),
     });
     const body = await parse<{ data: never }>(res);
     if (id === 'workspace.switch' && res.status === 200) setWorkspaceHeader((body.data as { result: { workspace_id: string } }).result.workspace_id);
@@ -116,15 +118,20 @@ export const httpTransport: Transport = {
   async undo(actionLogId) {
     await parse(await send(`/action-logs/${actionLogId}/undo`, { method: 'POST' }));
   },
-  async upload(file, purpose) {
+  async upload(file, purpose, signal) {
     const form = new FormData();
     form.set('purpose', purpose);
     form.set('file', file, file.name);
-    return (await parse<{ data: never }>(await send('/files', { method: 'POST', body: form }))).data;
+    return (await parse<{ data: never }>(await send('/files', { method: 'POST', body: form, signal }))).data;
   },
   async blob(path) {
     const res = await send(path, { extra: { accept: '*/*' } });
     if (!res.ok) await parse(res);
     return res.blob();
+  },
+  async stream(path, body, onFrame, signal) {
+    const res = await send(path, { method: body === undefined ? 'GET' : 'POST', body: body === undefined ? undefined : JSON.stringify(body), extra: { accept: 'text/event-stream' }, signal });
+    if (!res.ok || !res.body) await parse(res);
+    return readSse(res.body!, onFrame, signal);
   },
 };

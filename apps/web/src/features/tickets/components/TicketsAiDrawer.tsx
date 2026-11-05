@@ -1,10 +1,11 @@
-// Panel "Trợ lý AI · Hỗ trợ" — prototype L3364–3392 (tkAiSuggests L9182). Mock: không gọi LLM; "Tóm tắt quá hạn" lọc SLA quá hạn,
-// "Phân loại & định tuyến" sắp xếp ưu tiên cao trước, "Mở Trợ lý AI đầy đủ" mở dock Trợ lý.
+// Panel "Trợ lý AI · Hỗ trợ" — prototype L3364–3392 (tkAiSuggests L9182). TIP-023c G2: mỗi thẻ gửi prompt soạn sẵn tới Trợ lý THẬT
+// (surface drawer); "Tóm tắt quá hạn" lọc thêm SLA quá hạn, "Phân loại & định tuyến" sắp ưu tiên cao trước; "Mở Trợ lý AI đầy đủ" mở
+// màn Trợ lý cùng phiên.
 'use client';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient, type IconName } from '@appchat/ui';
-import { useShellStore } from '@/shared/shell/shell-store';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useMe } from '@/shared/shell/useShellData';
 import { useTkAiStyles } from '../styles/ai.styles';
 import { EMPTY_FILTER, useTicketsUi } from '../tickets-store';
@@ -21,20 +22,13 @@ export function TicketsAiDrawer({ meta }: { meta: TicketsMeta }) {
   const t = useTranslations('tickets.aiPanel');
   const { styles } = useTkAiStyles();
   const ui = useTicketsUi();
-  const setDock = useShellStore((s) => s.setDock);
   const me = useMe().data;
-  const [result, setResult] = useState('');
-  const [draft, setDraft] = useState('');
+  const { asst, draft, setDraft, send, ask } = useDrawerAsk('tickets');
   const close = () => ui.set({ aiOpen: false });
-  const run = (k: string, title: string) => {
+  const run = (k: string) => {
     if (k === 'overdue') ui.setFilter({ ...EMPTY_FILTER, sla: 'breach' });
     if (k === 'route') ui.setFilter({ sort: 'priority' });
-    setResult(t('picked', { t: title }));
-  };
-  const send = () => {
-    if (!draft.trim()) return;
-    setDraft('');
-    setResult(t('ack'));
+    ask(t(`prompts.${k}` as never));
   };
   return (
     <EntityDrawer
@@ -55,12 +49,13 @@ export function TicketsAiDrawer({ meta }: { meta: TicketsMeta }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder={t('ph')}
+              aria-label={t('ph')}
             />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={16} color={color.white} strokeWidth={2} />
             </button>
           </div>
-          <button type="button" className={styles.full} onClick={() => (close(), setDock(true))}>
+          <button type="button" className={styles.full} onClick={() => (close(), asst.openFull())} data-testid="tk-ai-full">
             <Icon name="ic-spark" size={14} color={color.violetInk} />
             {t('full')}
           </button>
@@ -78,7 +73,7 @@ export function TicketsAiDrawer({ meta }: { meta: TicketsMeta }) {
           {meta.ai.map(([k, title, desc]) => {
             const [ic, c] = LOOK[k] ?? LOOK.report!;
             return (
-              <button key={k} type="button" className={styles.card} onClick={() => run(k, title)} data-testid={`tk-ai-${k}`}>
+              <button key={k} type="button" className={styles.card} onClick={() => run(k)} disabled={asst.typing} data-testid={`tk-ai-${k}`}>
                 <div className={styles.cardH}>
                   <span className={styles.cardIc} style={{ background: `${c}18` }}>
                     <Icon name={ic} size={15} color={c} />
@@ -90,7 +85,7 @@ export function TicketsAiDrawer({ meta }: { meta: TicketsMeta }) {
             );
           })}
         </div>
-        {result ? <div className={styles.result}>{result}</div> : null}
+        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} testId="tk-ai-msgs" />
       </div>
     </EntityDrawer>
   );

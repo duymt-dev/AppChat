@@ -4,14 +4,15 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { AppError } from '@appchat/shared';
-import type { ActionInput, aiTranslate } from '@appchat/actions';
+import type { ActionInput, ActionPreview, aiTranslate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
-import type { ActionContext } from '../../kernel/actions/action-context';
+import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { visibleConversation } from '../../inbox/services/access';
 import { AiRunner } from '../runs/runner';
 import { runOnce } from '../agents/agent.runtime';
+import { translatePreview } from './previews/translate.handler.preview';
 
 const LANG: Record<'vi' | 'en', string> = { vi: 'Vietnamese (tiếng Việt)', en: 'English' };
 
@@ -56,5 +57,9 @@ export class AiTranslateHandler implements Handler<ActionInput<typeof aiTranslat
 
   async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<{ text: string; to: string }>> {
     return { result: prepared as { text: string; to: string } };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof aiTranslate>, tx: TenantTx): Promise<ActionPreview> {
+    return translatePreview(ctx, input, tx);
   }
 }

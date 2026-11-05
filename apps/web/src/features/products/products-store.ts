@@ -16,6 +16,8 @@ interface ProductsUi {
   menuFor: string | null;
   /** Giá trị Trợ lý điền sẵn cho form (UiCommand prefill `product.form`). */
   prefill: Record<string, unknown> | null;
+  /** Modal nhập sản phẩm từ tệp (TIP-032b). */
+  importOpen: boolean;
   setFilter: (p: Partial<ProductFilter>) => void;
   set: (p: Partial<Omit<ProductsUi, 'set' | 'setFilter' | 'setPg'>>) => void;
 }
@@ -30,6 +32,7 @@ export const useProductsUi = create<ProductsUi>((set) => ({
   target: null,
   menuFor: null,
   prefill: null,
+  importOpen: false,
   setPg: (pg) => set({ pg }),
   setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 } })),
   set: (p) => set(p),

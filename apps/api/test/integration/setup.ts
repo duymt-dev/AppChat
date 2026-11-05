@@ -31,6 +31,7 @@ import { AppModule } from '../../src/app.module';
 import { EnvelopeErrorFilter } from '../../src/http/kernel/error.filter';
 import { applyPrefix } from '../../src/http/kernel/prefix';
 import { traceMiddleware } from '../../src/middleware/trace.middleware';
+import { applySecurity } from '../../src/http/kernel/security.middleware';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..', '..');
 const readEnv = (f: string): Record<string, string> =>
@@ -51,11 +52,20 @@ export const env: Record<string, string> = {
   MAIL_TRANSPORT: 'fake',
   // Model + embedding giả (TIP-019 / 020, Q-001); tệp tải lên vào thư mục tạm của lượt test.
   AI_ENGINE: 'mock',
+  // Lượt Trợ lý chạy trong tiến trình API (không có worker ROLE=ai ở harness này) — đường queue có test riêng ở apps/worker (DC-316).
+  ASSISTANT_DISPATCH: 'inline',
   FILES_DIR: join(tmpdir(), 'appchat-test-files'),
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'true',
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',
+  // Link tuyệt đối trong email thông báo — cố định, không theo cổng web demo của `.env`.
+  APP_PUBLIC_URL: 'http://localhost:3000',
+  // Launcher đổi DOCX cô lập (TIP-030b, DC-321) — chỉ khi người chạy test đặt trong shell; vắng → đường đóng an toàn 501.
+  ...Object.fromEntries(['RENDER_ISOLATION_LAUNCHER', 'RENDER_ISOLATION_WINDOWS_MODE'].flatMap((k) => (process.env[k] ? [[k, process.env[k]!]] : []))),
 };
+// Hàng đợi BullMQ không có prefix theo môi trường: worker demo / dev chạy cùng Memurai DB 0 sẽ lấy mất job của test (đăng nhập Zalo giả
+// bị worker ZALO_TRANSPORT=zca nhận). Test dùng DB Redis riêng (mặc định 15) — không đụng dữ liệu demo.
+env.REDIS_URL = env.TEST_REDIS_URL ?? (env.REDIS_URL ?? 'redis://127.0.0.1:6379/0').replace(/\/\d+$/, '') + '/15';
 
 export let calls = 0;
 export const SCOPE_PROBE = '0190f000-0000-7000-8000-00000000aaaa';
@@ -159,7 +169,10 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
 }
 
 /** `logSink`: bắt log thật của app (mức info) — test AC12 kiểm không có PII. */
-export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): Promise<Harness> {
+/** Ngưỡng nới cho bộ test nghiệp vụ (mỗi file dồn hàng trăm lệnh của một user); `realRateLimits` dùng ngưỡng thật (TIP-045b AC). */
+const RELAXED_RATE = { read: { name: 'api:read', limit: 100_000, windowMs: 60_000 }, action: { name: 'api:action', limit: 100_000, windowMs: 60_000 }, public: { name: 'api:public', limit: 100_000, windowMs: 60_000 } };
+
+export async function startApi(opts: { logSink?: NodeJS.WritableStream; realRateLimits?: boolean } = {}): Promise<Harness> {
   const clock = new FixedClock('2026-10-30T08:00:00.000Z');
   const mail = new MemoryMailProvider();
   const log = opts.logSink ? createLogger({ level: 'info', destination: opts.logSink }) : createLogger({ level: 'silent' });
@@ -186,6 +199,7 @@ export async function startApi(opts: { logSink?: NodeJS.WritableStream } = {}): 
   const app = mod.createNestApplication({ logger: false, rawBody: true });
   applyPrefix(app);
   app.use(traceMiddleware(log));
+  applySecurity(app, env, opts.realRateLimits ? undefined : RELAXED_RATE);
   app.useGlobalFilters(new EnvelopeErrorFilter(log));
   await app.listen(0);
   const base = (await app.getUrl()).replace('[::1]', '127.0.0.1');

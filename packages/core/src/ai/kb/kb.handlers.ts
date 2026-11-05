@@ -1,25 +1,24 @@
 // Action kho tri thức (Blueprint §3.4 `kb.*`, rag §1–5): thêm nguồn (tệp đã tải / URL / văn bản) → `pending` + đẩy `kb-ingest` sau
 // commit; sửa thư mục / thẻ / visibility (undo 24h); xoá mềm (undo 30 ngày — giữ đoạn, agent thôi dùng vì lọc `deleted_at`);
-// học lại một / tất cả; tạo thư mục (trùng tên không dấu → 409). Trùng tệp (sha256) với nguồn còn sống → 409 kèm id nguồn cũ.
+// học lại một / tất cả. Trùng tệp (sha256) với nguồn còn sống → 409 kèm id nguồn cũ. TIP-020b: visibility bỏ trống kế thừa thư mục
+// (source-policy.ts); nguồn đồng bộ catalog không sửa / xoá / hoàn tác được (sửa sản phẩm gốc); thư mục ở folder.handlers.ts.
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { AppError, foldText } from '@appchat/shared';
-import type { ActionInput, kbAddSource, kbFolderCreate, kbRefreshSource, kbRemoveSource, kbUpdateSource } from '@appchat/actions';
+import { AppError } from '@appchat/shared';
+import type { ActionInput, kbAddSource, kbRefreshSource, kbRemoveSource, kbUpdateSource } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { kindOf } from './parse';
 import { KbIngestQueue } from './kb.queue';
+import { addPreview, refreshPreview, removePreview, updatePreview } from './previews/kb.handlers.preview';
+import { assertEditable, folderVisibility, resolveVisibility } from './source-policy';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const uuid = (v: string | undefined | null, field: string) => {
   if (v && !UUID.test(v)) throw new AppError('NOT_FOUND', 404, { [field]: 'not_found' });
   return v ?? null;
 };
-
-async function folderOk(tx: TenantTx, id: string | null) {
-  if (id && !(await tx.kbFolder.findUnique({ where: { id }, select: { id: true } }))) throw new AppError('NOT_FOUND', 404, { folder_id: 'not_found' });
-}
 
 async function liveSource(tx: TenantTx, id: string) {
   const s = UUID.test(id) ? await tx.kbSource.findUnique({ where: { id } }) : null;
@@ -41,7 +40,7 @@ export class KbAddSourceHandler implements Handler<ActionInput<typeof kbAddSourc
     const given = [input.file_id, input.url, input.text].filter((x) => x !== undefined).length;
     if (given > 1) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'one_of_file_url_text' });
     const folderId = uuid(input.folder_id, 'folder_id');
-    await folderOk(tx, folderId);
+    const visibility = resolveVisibility(input.visibility, await folderVisibility(tx, folderId));
     let kind = 'text';
     let origin: 'upload' | 'url' | 'text' = 'text';
     let size = 0;
@@ -75,7 +74,7 @@ export class KbAddSourceHandler implements Handler<ActionInput<typeof kbAddSourc
     const now = this.clock.now();
     await tx.kbSource.create({
       data: {
-        id, folderId, origin, kind, name: input.name.trim(), tags: tagsOf(input.tags), visibility: input.visibility, fileId: input.file_id ?? null,
+        id, folderId, origin, kind, name: input.name.trim(), tags: tagsOf(input.tags), visibility, fileId: input.file_id ?? null,
         url: input.url ?? null, body: input.text ?? null, sha256, learn, sizeBytes: BigInt(size), createdBy: ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null), createdAt: now,
       },
     });
@@ -86,6 +85,10 @@ export class KbAddSourceHandler implements Handler<ActionInput<typeof kbAddSourc
       ...(queue ? { afterCommit: () => queue.push(ctx.workspaceId, [{ id, seq: 1 }]) } : {}),
     };
   }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbAddSource>, tx: TenantTx) {
+    return addPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -93,8 +96,10 @@ export class KbAddSourceHandler implements Handler<ActionInput<typeof kbAddSourc
 export class KbUpdateSourceHandler implements Handler<ActionInput<typeof kbUpdateSource>, { ok: boolean }> {
   async execute(_ctx: ActionContext, input: ActionInput<typeof kbUpdateSource>, tx: TenantTx): Promise<HandlerOutcome<{ ok: boolean }>> {
     const s = await liveSource(tx, input.source_id);
+    assertEditable(s);
     const folderId = input.folder_id === undefined ? undefined : uuid(input.folder_id, 'folder_id');
-    if (folderId) await folderOk(tx, folderId);
+    // Đổi thư mục giữ visibility hiện có (snapshot) — không tự publish lại theo mặc định thư mục mới.
+    if (folderId) await folderVisibility(tx, folderId);
     const before = { name: s.name, folder_id: s.folderId, tags: s.tags, visibility: s.visibility, starred: s.starred };
     const data = {
       ...(input.name !== undefined ? { name: input.name.trim() } : {}),
@@ -109,7 +114,13 @@ export class KbUpdateSourceHandler implements Handler<ActionInput<typeof kbUpdat
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as { id: string; name: string; folder_id: string | null; tags: string[]; visibility: 'public' | 'internal'; starred: boolean };
+    const cur = await tx.kbSource.findUnique({ where: { id: b.id }, select: { origin: true, productId: true } });
+    if (cur) assertEditable(cur);
     await tx.kbSource.updateMany({ where: { id: b.id, deletedAt: null }, data: { name: b.name, folderId: b.folder_id, tags: b.tags, visibility: b.visibility, starred: b.starred } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbUpdateSource>, tx: TenantTx) {
+    return updatePreview(tx, input);
   }
 }
 
@@ -120,16 +131,22 @@ export class KbRemoveSourceHandler implements Handler<ActionInput<typeof kbRemov
 
   async execute(_ctx: ActionContext, input: ActionInput<typeof kbRemoveSource>, tx: TenantTx): Promise<HandlerOutcome<{ ok: boolean }>> {
     const s = await liveSource(tx, input.source_id);
+    assertEditable(s);
     await tx.kbSource.update({ where: { id: s.id }, data: { deletedAt: this.clock.now() } });
     return { result: { ok: true }, before: { id: s.id, deleted_at: null }, after: { id: s.id, deleted: true } };
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const { id } = log.before as { id: string };
-    const s = await tx.kbSource.findUnique({ where: { id }, select: { sha256: true } });
+    const s = await tx.kbSource.findUnique({ where: { id }, select: { sha256: true, origin: true, productId: true } });
+    if (s) assertEditable(s);
     // Trong lúc đã xoá, cùng tệp được tải lên lại → khôi phục sẽ trùng unique sha256.
     if (s?.sha256 && (await tx.kbSource.findFirst({ where: { sha256: s.sha256, deletedAt: null, NOT: { id } }, select: { id: true } }))) throw new AppError('CONFLICT', 409, { source_id: 'duplicate' });
     await tx.kbSource.update({ where: { id }, data: { deletedAt: null } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbRemoveSource>, tx: TenantTx) {
+    return removePreview(tx, input);
   }
 }
 
@@ -154,19 +171,8 @@ export class KbRefreshSourceHandler implements Handler<ActionInput<typeof kbRefr
     const queue = this.queue;
     return { result: { queued: ids.length }, after: { ids }, ...(queue && ids.length ? { afterCommit: () => queue.push(ctx.workspaceId, jobs) } : {}) };
   }
-}
 
-@Injectable()
-@ActionHandler('kb.folder.create')
-export class KbFolderCreateHandler implements Handler<ActionInput<typeof kbFolderCreate>, { folder_id: string }> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
-
-  async execute(_ctx: ActionContext, input: ActionInput<typeof kbFolderCreate>, tx: TenantTx): Promise<HandlerOutcome<{ folder_id: string }>> {
-    const name = input.name.trim();
-    const all = await tx.kbFolder.findMany({ select: { name: true, sort: true } });
-    if (all.some((f) => foldText(f.name) === foldText(name))) throw new AppError('CONFLICT', 409, { name: 'duplicate' });
-    const id = uuidv7();
-    await tx.kbFolder.create({ data: { id, name, sort: Math.max(-1, ...all.map((f) => f.sort)) + 1, createdAt: this.clock.now() } });
-    return { result: { folder_id: id }, after: { id, name } };
+  async preview(_ctx: ActionContext, input: ActionInput<typeof kbRefreshSource>, tx: TenantTx) {
+    return refreshPreview(tx, input);
   }
 }

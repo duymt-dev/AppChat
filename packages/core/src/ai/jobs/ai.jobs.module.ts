@@ -1,6 +1,6 @@
 // BullMQ processor của domain `ai` (worker ROLE=ai). TIP-020: `kb-ingest` (nạp tài liệu kho tri thức). TIP-021: `ai-resume` (chạy
 // action đã duyệt + chạy tiếp run, hết hạn duyệt) — cần handler của mọi domain mà agent gọi được → nạp module domain có action
-// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP 043 thêm processor. Thiếu DB / Redis → không chạy.
+// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-023c: `assistant-turn` (lượt Trợ lý) + prune / recover. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP-043: `kb-suggest` (đề xuất tri thức từ hội thoại đã đóng). Thiếu DB / Redis → không chạy.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -9,9 +9,7 @@ import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';
 import { AuthzModule } from '../../authz/authz.module';
 import { AuthzResolver } from '../../authz/services/authz-resolver';
-import { ChannelsModule } from '../../channels/channels.module';
-import { CrmModule } from '../../crm/crm.module';
-import { InboxModule } from '../../inbox/inbox.module';
+import { AiDomainHandlersModule } from './ai-domain-handlers.module';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../runs/runner';
@@ -34,16 +32,24 @@ import { AiModule } from '../ai.module';
 import { KB_EMBEDDER } from '../kb/kb-search.handler';
 import type { KbIngestJob } from '../kb/ingest';
 import { startKbIngestWorker } from './kb-ingest.processor';
+import { startAssistantEventsPrune } from './assistant-events.processor';
+import { startAssistantTurnWorker } from './assistant-turn.processor';
+import type { TurnJob } from '../assistant/genui/turn-request.consumer';
+import { GenUiIntents } from '../../kernel/actions/genui-intent';
 import { WalletService } from '../../billing/public';
 import { TaskPlace } from '../tasks/task-place';
 import { TASK_QUEUE, type TaskQueue } from '../tasks/task.queue';
 import { startTaskWorkers, type TaskWorkers } from '../tasks/task.jobs';
+import { startKbSuggestWorker } from '../kb/suggestions/suggestion.jobs';
 
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private kb?: Worker<KbIngestJob>;
   private resume?: Worker<ResumeJob>;
   private reply?: Worker<ReplyJob>;
   private tasks?: TaskWorkers;
+  private events?: { close(): Promise<void> };
+  private turns?: Worker<TurnJob>;
+  private suggest?: { close(): Promise<void> };
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -60,6 +66,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Inject(TaskPlace) private readonly place: TaskPlace,
     @Optional() @Inject(TASK_QUEUE) private readonly taskQueue: TaskQueue | null,
     @Optional() @Inject(WalletService) private readonly wallet: WalletService | null,
+    @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null,
   ) {}
 
   /** AuthzContext hiện tại của người ra lệnh (thành viên còn hoạt động) — §3.3b kiểm lại khi chạy action đã duyệt. */
@@ -72,6 +79,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     const { redis, tenants, files } = this;
     if (!redis || !tenants || !files) return;
     this.kb = startKbIngestWorker(redis, tenants, { files, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
+    // TIP-023c: dọn sổ sự kiện stream Trợ lý quá 24h (chỉ workspace đã đánh dấu).
+    this.events = await startAssistantEventsPrune(redis, tenants, () => this.clock.now(), this.log);
     if (this.executor && this.platform) {
       const deps = { tenants, executor: this.executor, runner: this.runner, kv: redis, log: this.log, now: () => this.clock.now(), commander: (ws: string, u: string) => this.commander(ws, u) };
       this.resume = startAiResumeWorker(redis, deps, this.log);
@@ -93,7 +102,11 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
           assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
         );
         this.reply = startAgentReplyWorker(redis, reply, this.log);
+        // TIP-023c: lượt Trợ lý đã claim ở API → chạy ở đây (lease có fence, quyền hiện hành của người ra lệnh).
+        this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis }, this.log);
       }
+      // TIP-043: đề xuất hỏi–đáp từ hội thoại đã đóng (model qua AiRunner, ghi qua Executor nguồn system).
+      this.suggest = startKbSuggestWorker(redis, tenants, { executor: this.executor, runner: this.runner, now: () => this.clock.now(), locale: async (ws) => (await this.place.of(ws)).locale }, this.log);
       // TIP-035: tác vụ tự chủ — chạy lượt (quyền = agent ∩ người tạo hiện tại) + lịch mỗi phút.
       if (this.taskQueue) {
         const place = this.place;
@@ -109,10 +122,14 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     await this.resume?.close();
     await this.reply?.close();
     await this.tasks?.close();
+    await this.events?.close();
+    await this.turns?.close();
+    await this.suggest?.close();
   }
 }
 
 export const AI_RUNTIME = AiJobsRunner;
 
-@Module({ imports: [AiModule, BillingModule, AuthzModule, ChannelsModule, CrmModule, InboxModule], providers: [AiJobsRunner] })
+// Handler domain như API (TIP-023b): chạy tiếp run sau duyệt / agent / tác vụ không gặp NOT_IMPLEMENTED.
+@Module({ imports: [AiModule, BillingModule, AuthzModule, AiDomainHandlersModule], providers: [AiJobsRunner] })
 export class AiJobsModule {}

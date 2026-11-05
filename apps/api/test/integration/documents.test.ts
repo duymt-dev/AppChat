@@ -45,7 +45,7 @@ async function upload(name: string, body: Buffer) {
   form.set('purpose', 'document');
   form.set('file', new Blob([new Uint8Array(body)]), name);
   const r = await fetch(`${h.base}/v1/files`, { method: 'POST', headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${h.token}` }, body: form });
-  return (await json(r)).body.data.file_id as string;
+  return (await json(r)).body.data?.file_id as string;
 }
 
 describe('migration 028 + danh sách', () => {
@@ -65,8 +65,11 @@ describe('migration 028 + danh sách', () => {
     await expect(db.$executeRawUnsafe(`UPDATE doc_template SET is_default = true WHERE id = (SELECT id FROM doc_template WHERE kind = 'quote' LIMIT 1) AND false`)).resolves.toBe(0);
     const plan = (await db.$queryRawUnsafe<{ 'QUERY PLAN': string }[]>(`EXPLAIN SELECT id FROM doc_template WHERE deleted_at IS NULL AND kind = 'quote' ORDER BY is_default DESC, updated_at DESC, id`)).map((r) => r['QUERY PLAN']).join('\n');
     expect(plan).toMatch(/doc_template_live_kind_idx|Seq Scan/);
-    const idx = await db.$queryRawUnsafe<{ indexdef: string }[]>(`SELECT indexdef FROM pg_indexes WHERE indexname IN ('doc_template_live_kind_idx', 'doc_template_default_uq') ORDER BY indexname`);
-    expect(idx.map((x) => x.indexdef).join('\n')).toMatch(/UNIQUE INDEX doc_template_default_uq .*\(kind\) WHERE \(is_default AND \(deleted_at IS NULL\)\)[\s\S]*\(kind, is_default DESC, updated_at DESC, id\) WHERE \(deleted_at IS NULL\)/);
+    // Mặc định chia nhóm từ TIP-030b: chung (contract_kind rỗng) + riêng từng loại hợp đồng.
+    const idx = await db.$queryRawUnsafe<{ indexdef: string }[]>(`SELECT indexdef FROM pg_indexes WHERE indexname IN ('doc_template_live_kind_idx', 'doc_template_default_uq', 'doc_template_default_kind_uq') ORDER BY indexname`);
+    expect(idx.map((x) => x.indexdef).join('\n')).toMatch(
+      /UNIQUE INDEX doc_template_default_kind_uq .*\(kind, contract_kind\) WHERE \(is_default AND \(deleted_at IS NULL\) AND \(contract_kind IS NOT NULL\)\)[\s\S]*UNIQUE INDEX doc_template_default_uq .*\(kind\) WHERE \(is_default AND \(deleted_at IS NULL\) AND \(contract_kind IS NULL\)\)[\s\S]*\(kind, is_default DESC, updated_at DESC, id\) WHERE \(deleted_at IS NULL\)/,
+    );
   });
 
   it('quyền: sales đọc danh sách (chọn mẫu khi báo giá), không tạo; kế toán 403', async () => {
@@ -144,10 +147,9 @@ describe('mẫu DOCX', () => {
 
     const z = new PizZip(fx('hop-dong-spa.docx'));
     z.file('word/vbaProject.bin', 'x');
-    const macro = await upload('mau.docx', z.generate({ type: 'nodebuffer' }));
-    expect((await act('doc_template.detect_fields', { kind: 'contract', file_id: macro })).body.error.fields).toEqual({ file_id: 'macro' });
-    const txt = await upload('mau.docm', Buffer.from('x'));
-    expect((await act('doc_template.detect_fields', { kind: 'contract', file_id: txt })).body.error.fields).toEqual({ file_id: 'not_docx' });
+    // TIP-045b: macro trong gói DOCX và đuôi .docm bị chặn ngay ở cổng tải tệp — không có file_id (lớp domain có unit test riêng).
+    expect(await upload('mau.docx', z.generate({ type: 'nodebuffer' }))).toBeUndefined();
+    expect(await upload('mau.docm', Buffer.from('x'))).toBeUndefined();
   });
 
   it('PDF xem trước: rich + docx (LibreOffice) → application/pdf; sales không xem được', async () => {

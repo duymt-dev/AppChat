@@ -6,6 +6,7 @@ import { foldText, interpolate, serverMessages, toMin, utcToWall, wallToUtc, typ
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { UUID, bookingScopeSql, visibleAppointment, type AppointmentRecord } from '../booking-access';
 import type { BookingPlace } from './booking-place';
+import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { bookingSetting, slotsFor } from './slots';
 
 export interface CalendarViewer {
@@ -36,8 +37,9 @@ export class CalendarReadService {
     return (await this.tenants.get(TenantContexts.fromMembership(v.workspaceId, v.userId))).$transaction(fn);
   }
 
-  private async rows(tx: TenantTx, list: AppointmentRecord[], timeZone: string): Promise<AppointmentRow[]> {
+  private async rows(tx: TenantTx, list: AppointmentRecord[], timeZone: string, a0: AuthzContext): Promise<AppointmentRow[]> {
     if (!list.length) return [];
+    const fv = await fieldView(tx, 'appointment', a0);
     const [contacts, pkgs, orders] = await Promise.all([
       tx.contact.findMany({ where: { id: { in: [...new Set(list.map((a) => a.contactId))] } }, select: { id: true, name: true, phone: true } }),
       tx.customerPackage.findMany({ where: { id: { in: list.map((a) => a.packageId).filter((x): x is string => !!x) } }, select: { id: true, name: true, usedSessions: true, totalSessions: true } }),
@@ -74,7 +76,8 @@ export class CalendarReadService {
         order_id: a.orderId,
         package: pk ? { id: pk.id, name: pk.name, used: pk.usedSessions, total: pk.totalSessions } : null,
         reminders: [...(a.confirmedAt ? [{ kind: 'confirm', at: utcToWall(a.confirmedAt, timeZone).iso }] : []), ...sent],
-        custom: a.custom as AppointmentRow['custom'],
+        // Chỉ key người xem được thấy (FieldPolicy — TIP-045b annex C).
+        custom: projectCustom(fv, a.custom) as AppointmentRow['custom'],
       };
     });
   }
@@ -82,6 +85,7 @@ export class CalendarReadService {
   async list(v: CalendarViewer, f: CalendarFilter): Promise<{ data: AppointmentRow[]; next_cursor: null }> {
     const { timeZone } = await this.place.of(v.workspaceId);
     return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'appointment', v.authz), f.custom);
       const from = wallToUtc(f.from, '00:00', timeZone);
       const to = new Date(wallToUtc(f.to, '00:00', timeZone).getTime() + 86_400_000);
       const parts = [Prisma.sql`a.deleted_at IS NULL`, Prisma.sql`a.start_at >= ${from}`, Prisma.sql`a.start_at < ${to}`, bookingScopeSql(v.authz)];
@@ -104,13 +108,13 @@ export class CalendarReadService {
       const recs = await tx.appointment.findMany({ where: { id: { in: ids.map((r) => r.id) } } });
       const order = new Map(ids.map((r, i) => [r.id, i]));
       recs.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
-      return { data: await this.rows(tx, recs, timeZone), next_cursor: null };
+      return { data: await this.rows(tx, recs, timeZone, v.authz), next_cursor: null };
     });
   }
 
   async get(v: CalendarViewer, id: string): Promise<AppointmentRow> {
     const { timeZone } = await this.place.of(v.workspaceId);
-    return this.tx(v, async (tx) => (await this.rows(tx, [await visibleAppointment(tx, v.authz, id)], timeZone))[0]!);
+    return this.tx(v, async (tx) => (await this.rows(tx, [await visibleAppointment(tx, v.authz, id)], timeZone, v.authz))[0]!);
   }
 
   async slots(v: CalendarViewer, q: { serviceId: string; date: string; staffId?: string; excludeId?: string }) {

@@ -28,7 +28,7 @@ test.describe('settings · AI', () => {
     await expect(page.locator('[data-doc]')).toHaveCount(8);
     await page.getByTestId('st-rag-nav-learned').click();
     await expect(page.locator('[data-doc]')).toHaveCount(5);
-    await page.getByRole('button', { name: 'Bảng giá' }).click();
+    await page.getByRole('button', { name: 'Bảng giá', exact: true }).click();
     await expect(page.locator('[data-doc]')).toHaveCount(1);
     await page.getByTestId('st-rag-nav-all').click();
     await page.getByTestId('st-rag-search').fill('van hanh');
@@ -56,7 +56,7 @@ test.describe('settings · AI', () => {
     await page.getByTestId('st-rag-folder').click();
     await page.getByTestId('st-rag-folder-name').fill('Quy trình dịch vụ');
     await page.getByRole('button', { name: 'Tạo', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Quy trình dịch vụ' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Quy trình dịch vụ', exact: true })).toBeVisible();
   });
 
   test('AI Governance: bật phạm vi PII, thêm / bỏ từ khoá cấm, đổi thời gian lưu', async ({ page }) => {
@@ -90,6 +90,20 @@ test.describe('settings · AI', () => {
     await expect(page.locator('[data-audit]')).toHaveCount(7);
     await expect(page.getByTestId('st-ai-audit')).not.toContainText('Claude');
     await expect(page.getByTestId('st-ai-audit')).toContainText('Escalated');
+  });
+
+  test('Audit log lọc (TIP-045b A2): chỉ sự kiện bảo mật, trạng thái, xoá lọc; lọc rỗng → gợi ý xoá lọc', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('audit'));
+    await page.getByTestId('st-audit-action').selectOption('security');
+    await expect(page.locator('[data-audit]')).toHaveCount(4);
+    await page.getByTestId('st-audit-status').selectOption('warn');
+    await expect(page.getByTestId('st-audit-empty')).toBeVisible();
+    await page.getByTestId('st-audit-reset').click();
+    await expect(page.locator('[data-audit]')).toHaveCount(7);
+    await page.getByTestId('st-nav-ai_audit').click();
+    await page.getByTestId('st-audit-status').selectOption('escalated');
+    await expect(page.locator('[data-audit]')).toHaveCount(1);
   });
 
   test('quyền: Nhân viên kinh doanh không vào được AI Models / Governance / Audit', async ({ page }) => {

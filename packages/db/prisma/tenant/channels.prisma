@@ -49,3 +49,40 @@ model ChannelAccountStatDaily {
   @@id([channelAccountId, day])
   @@map("channel_account_stat_daily")
 }
+
+enum GroupRequestStatus {
+  queued
+  running
+  succeeded
+  failed
+  unknown
+
+  @@map("group_request_status")
+}
+
+/// Yêu cầu tạo nhóm trên kênh (TIP-023b SPEC D · DC-247). Handler `conversation.create_group` ghi bản này + outbox trong một transaction;
+/// worker giữ phiên ghi `attempted_at` TRƯỚC khi gọi nhà cung cấp → sập giữa chừng thành `unknown`, không tạo lại mù. `payload_digest`
+/// (sha256 của tài khoản + tên + thành viên) + `idempotency_key` chống trùng; `provider_group_id` chỉ ghi khi biết chắc.
+/// Index (channel_account_id, status, created_at, id) INCLUDE (requester_id) + partial pending — viết SQL trong migration.
+model ConversationGroupRequest {
+  id               String             @id @db.Uuid
+  channelAccountId String             @map("channel_account_id") @db.Uuid
+  name             String
+  /// Thành viên đã chụp lúc tạo: [{ external_id, display_name, contact_id, conversation_id }].
+  participants     Json
+  payloadDigest    String             @map("payload_digest")
+  idempotencyKey   String?            @unique @map("idempotency_key")
+  requesterId      String?            @map("requester_id") @db.Uuid
+  runId            String?            @map("run_id") @db.Uuid
+  status           GroupRequestStatus @default(queued)
+  attemptedAt      DateTime?          @map("attempted_at") @db.Timestamptz(6)
+  providerGroupId  String?            @map("provider_group_id")
+  conversationId   String?            @map("conversation_id") @db.Uuid
+  added            Json               @default("[]")
+  failedMembers    Json               @default("[]") @map("failed_members")
+  error            String?
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("conversation_group_request")
+}

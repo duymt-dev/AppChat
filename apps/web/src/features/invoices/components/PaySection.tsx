@@ -3,6 +3,8 @@
 import { QRCode } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
+import { useAction } from '@/shared/actions/useAction';
+import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useInvoiceTabStyles } from '../styles/tabs.styles';
 import { useInvoicePayStyles } from '../styles/pay.styles';
@@ -43,6 +45,9 @@ export function PaymentList({ i }: { i: Invoice }) {
   const fmt = useFmt();
   const { styles: tab } = useInvoiceTabStyles();
   const { styles, cx } = useInvoicePayStyles();
+  // Gửi phiếu thu PDF vào hội thoại của khách (receipt.send — kênh của đề nghị đã gửi).
+  const receipt = useAction('receipt.send');
+  const canSend = useCan('payment.record');
   return (
     <div className={cx(tab.card, styles.payCard)} data-testid="iv-payments">
       {i.payments.map((p) => {
@@ -63,6 +68,19 @@ export function PaymentList({ i }: { i: Invoice }) {
                 {p.auto ? t('detail.payAuto', args) : t('detail.payMeta', args)}
               </div>
             </div>
+            {p.receipt_code && p.status === 'confirmed' && Number(p.amount) > 0 ? (
+              <button
+                type="button"
+                className={styles.paySend}
+                disabled={!canSend || receipt.isPending}
+                onClick={() => void receipt.run({ payment_id: p.id })}
+                title={t('detail.sendReceipt', { code: p.receipt_code })}
+                aria-label={t('detail.sendReceipt', { code: p.receipt_code })}
+                data-testid="iv-receipt-send"
+              >
+                <Icon name="ic-send" size={14} color={color.text2} />
+              </button>
+            ) : null}
           </div>
         );
       })}

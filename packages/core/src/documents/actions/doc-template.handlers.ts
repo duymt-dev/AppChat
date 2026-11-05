@@ -15,7 +15,9 @@ import { actorUserId } from '../../crm/public';
 import { AiRunner } from '../../ai/runs/runner';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { detectByRules, detectPrompt, parseDetected, type DetectedField } from '../services/detect';
-import { checkDocxFields, checkRich, docxParas, liveTemplate, makeDefault } from '../services/template-store';
+import { checkDocxFields, checkRich, docxParas, liveTemplate } from '../services/template-store';
+import { checkContractKind, groupHasDefault, makeGroupDefault } from '../services/contract-template';
+import { createPreview, deletePreview, updatePreview } from './previews/doc-template.handlers.preview';
 
 const need = <T>(v: T | null | undefined, what: string): T => {
   if (!v) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '028' }, `${what} chưa cấu hình`);
@@ -44,15 +46,15 @@ export class DocTemplateCreateHandler implements Handler<ActionInput<typeof docT
       data = { docxFileId: input.file_id, fieldMap: fields, checklistResult: checkDocxFields(kind, paras, fields) };
       await tx.file.update({ where: { id: input.file_id }, data: { confirmed: true } });
     }
-    await tx.docTemplate.create({ data: { id, kind, name: input.name, source: input.source, ...data, updatedBy: actorUserId(ctx) } });
-    const hasDefault = await tx.docTemplate.count({ where: { kind, isDefault: true, deletedAt: null } });
-    // Loại chưa có mặc định (mẫu mặc định đã bị đổi rồi xoá…) → mẫu đầu tiên thành mặc định.
-    if (input.is_default || !hasDefault) await makeDefault(tx, kind, id);
-    return { result: { template_id: id }, after: { id, kind, source: input.source } };
+    const contractKind = checkContractKind(kind, input.contract_kind);
+    await tx.docTemplate.create({ data: { id, kind, contractKind, name: input.name, source: input.source, ...data, updatedBy: actorUserId(ctx) } });
+    // Nhóm (loại chứng từ + loại hợp đồng) chưa có mặc định → mẫu đầu tiên của nhóm thành mặc định.
+    if (input.is_default || !(await groupHasDefault(tx, kind, contractKind))) await makeGroupDefault(tx, kind, contractKind, id);
+    return { result: { template_id: id }, after: { id, kind, source: input.source, contract_kind: contractKind } };
   }
 
-  async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateCreate>) {
-    return { summary: input.name, risk: 'config' as const };
+  async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateCreate>, tx: TenantTx) {
+    return createPreview(tx, this.files, input);
   }
 }
 
@@ -80,6 +82,12 @@ export class DocTemplateUpdateHandler implements Handler<ActionInput<typeof docT
       Object.assign(patch, { fieldMap: fields, checklistResult: checkDocxFields(kind, paras, fields) });
     }
     if (input.is_default === false && t.isDefault) throw new AppError('VALIDATION_FAILED', 422, { is_default: 'need_one_default' });
+    if (input.contract_kind !== undefined) {
+      const next = checkContractKind(kind, input.contract_kind);
+      // Mẫu mặc định đổi nhóm sẽ để nhóm cũ không còn mặc định — chặn (đặt mẫu khác làm mặc định nhóm cũ trước).
+      if (next !== (t.contractKind ?? null) && t.isDefault) throw new AppError('VALIDATION_FAILED', 422, { contract_kind: 'default_locked' });
+      if (next !== (t.contractKind ?? null)) patch.contractKind = next;
+    }
     const content = Object.keys(patch).length > 0;
     // Khoá lạc quan ở câu UPDATE (concurrency §1): đổi nội dung → version + 1.
     const n = await tx.docTemplate.updateMany({
@@ -87,25 +95,32 @@ export class DocTemplateUpdateHandler implements Handler<ActionInput<typeof docT
       data: { ...patch, ...(content ? { version: { increment: 1 } } : {}), updatedBy: actorUserId(ctx), updatedAt: this.clock.now() },
     });
     if (!n.count) throw new AppError('STALE_VERSION', 409);
-    const prevDefault = input.is_default ? await makeDefault(tx, kind, t.id) : null;
+    const group = patch.contractKind !== undefined ? (patch.contractKind as string | null) : (t.contractKind ?? null);
+    const prevDefault = input.is_default ? await makeGroupDefault(tx, kind, group, t.id) : null;
     const version = t.version + (content ? 1 : 0);
     return {
       result: { template_id: t.id, version },
-      before: { id: t.id, name: t.name, bodyHtml: t.bodyHtml, fieldMap: t.fieldMap, checklistResult: t.checklistResult, version: t.version, isDefault: t.isDefault, prevDefault },
+      before: { id: t.id, name: t.name, bodyHtml: t.bodyHtml, fieldMap: t.fieldMap, checklistResult: t.checklistResult, version: t.version, isDefault: t.isDefault, prevDefault, contractKind: t.contractKind ?? null },
       after: { id: t.id, version },
     };
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as { id: string; name: string; bodyHtml: string | null; fieldMap: object; checklistResult: object; version: number; isDefault: boolean; prevDefault: string | null };
+    const b = log.before as { id: string; name: string; bodyHtml: string | null; fieldMap: object; checklistResult: object; version: number; isDefault: boolean; prevDefault: string | null; contractKind?: string | null };
     const t = await tx.docTemplate.findUnique({ where: { id: b.id } });
     if (!t || t.deletedAt) throw new AppError('CONFLICT', 409, { template_id: 'deleted' });
     if (b.prevDefault) {
       const prev = await tx.docTemplate.findFirst({ where: { id: b.prevDefault, deletedAt: null } });
-      if (prev) await makeDefault(tx, t.kind as DocKind, prev.id);
+      // Khoá nhóm mặc định (unique partial): đặt lại mẫu cũ của đúng nhóm — không bao giờ để hai mặc định.
+      if (prev) await makeGroupDefault(tx, t.kind as DocKind, prev.contractKind ?? null, prev.id);
     }
     // Hoàn tác nội dung = một phiên bản mới mang nội dung cũ (chứng từ đã phát hành giữ bản PDF đóng băng — templates.md §7).
-    await tx.docTemplate.update({ where: { id: b.id }, data: { name: b.name, bodyHtml: b.bodyHtml, fieldMap: b.fieldMap, checklistResult: b.checklistResult, version: { increment: 1 } } });
+    const regroup = b.contractKind !== undefined && b.contractKind !== (t.contractKind ?? null) && !t.isDefault ? { contractKind: b.contractKind } : {};
+    await tx.docTemplate.update({ where: { id: b.id }, data: { name: b.name, bodyHtml: b.bodyHtml, fieldMap: b.fieldMap, checklistResult: b.checklistResult, ...regroup, version: { increment: 1 } } });
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateUpdate>, tx: TenantTx) {
+    return updatePreview(tx, this.files, input);
   }
 }
 
@@ -122,8 +137,7 @@ export class DocTemplateDeleteHandler implements Handler<ActionInput<typeof docT
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateDelete>, tx: TenantTx) {
-    const t = await liveTemplate(tx, input.template_id);
-    return { summary: t.name, risk: 'delete' as const };
+    return deletePreview(tx, input);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

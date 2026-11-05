@@ -7,7 +7,7 @@ import type { FilesService } from '../../kernel/files/files.service';
 import type { RateLimiter } from '../../kernel/rate-limit';
 import type { KeyValueStore } from '../../kernel/redis';
 import type { CrmMembers } from '../../crm/public';
-import type { DocRenderer } from '../../documents/public';
+import type { DocRenderer, IsolatedConverter } from '../../documents/public';
 
 export interface ContractEnv {
   /** Origin web (APP_PUBLIC_URL) — trang ký `/sign/<token>`. */
@@ -23,6 +23,9 @@ export function contractEnvFor(src: Record<string, string | undefined>, key: Buf
 }
 
 export class ContractDeps {
+  /** Đổi DOCX hợp đồng tải lên sang PDF trong launcher cô lập (TIP-030b spec 6) — module gán sau khi dựng. */
+  isolated: IsolatedConverter | null = null;
+
   constructor(
     readonly tenants: TenantDbResolver | null,
     readonly platform: Pick<PlatformDb, 'businessProfile' | 'workspace' | 'user' | 'tenantSignRoute'> | null,

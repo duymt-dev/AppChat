@@ -6,6 +6,7 @@ import type { notificationMarkRead } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { markReadPreview } from './previews/notification-mark-read.handler.preview';
 
 type Input = ActionInput<typeof notificationMarkRead>;
 
@@ -21,5 +22,9 @@ export class NotificationMarkReadHandler implements Handler<Input, { updated: nu
       data: { readAt: this.clock.now() },
     });
     return { result: { updated: r.count }, after: { ids: input.ids, updated: r.count } };
+  }
+
+  async preview(ctx: ActionContext, input: Input, tx: TenantTx) {
+    return markReadPreview(tx, ctx.onBehalfOfUserId ?? ctx.actor.id, input);
   }
 }

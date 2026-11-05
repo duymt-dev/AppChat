@@ -1,7 +1,7 @@
 // Worker ROLE=channels của Inbox: processor queue `channel-inbound` (tin đã chuẩn hoá từ ChannelSessions) → InboundPipeline;
 // sink kết quả gửi (`registerSendResultSink('inbox')`) → ghi `message` / `outbox_message`; quét lại `outbox_message` còn pending
 // (API mất Redis lúc đẩy job / job bị xoá) mỗi 30 giây. Mọi ghi kèm outbox event + đánh dấu workspace bẩn cho relay.
-import { Worker } from 'bullmq';
+import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { NormalizedInbound } from '@appchat/channels';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';

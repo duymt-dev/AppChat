@@ -41,6 +41,14 @@ export interface Contract {
   terminated_reason: string;
   note: string;
   file_name: string;
+  /** Nguồn nội dung ký (TIP-030b): mẫu theo loại / tệp tải lên (hash bytes gốc). */
+  source?: 'template' | 'file';
+  source_hash?: string | null;
+  source_version?: number;
+  origin_message_id?: string | null;
+  /** AI soạn (TIP-030b F2): khối gợi ý chờ Giữ / Bỏ — còn `pending` thì không trình duyệt được. */
+  draft_proposal_id?: string | null;
+  ai_suggestions?: AiSuggestion[];
   events: SignEvent[];
   ai: { hint: string; wait: boolean };
 }
@@ -85,3 +93,59 @@ export interface SignView {
   otp_left: number;
   certificate: SignEvent[];
 }
+
+/** Giá trị đề xuất từ tệp (contract.inspect_file) — `null` = không đọc được / mơ hồ, người dùng nhập tay. */
+export interface Proposed<T = string> {
+  value: T;
+  confidence: number;
+  source: string;
+}
+
+export interface Inspection {
+  file_id: string;
+  name: string;
+  type: 'pdf' | 'docx';
+  pages: number | null;
+  sha256: string;
+  extraction: 'ok' | 'partial' | 'unavailable';
+  fields: { party_b: Proposed | null; value: Proposed | null; start_date: Proposed | null; end_date: Proposed | null; title: Proposed | null };
+}
+
+/** Tệp của hợp đồng (GET /contracts/:id/files) — nguồn / bản chưa ký / bản đã ký. */
+export interface ContractFileRow {
+  id: string;
+  role: 'source' | 'unsigned' | 'signed';
+  name: string;
+  mime: string;
+  ext: string;
+  size: number;
+  sha256: string;
+  at: string;
+  by: string;
+}
+
+export interface AiSuggestion {
+  id: string;
+  text: string;
+  status: 'pending' | 'kept' | 'discarded';
+  version: number;
+}
+
+/** Đề xuất AI soạn (contract.prepare_draft) — bất biến; giá dòng luôn từ catalog, dòng ngoài catalog `off_catalog`. */
+export interface DraftProposal {
+  proposal_id: string;
+  content_hash: string;
+  expires_at: string;
+  title: string;
+  value: string;
+  start_date: string | null;
+  end_date: string | null;
+  lines: { name: string; qty: number; unit_price: string; product_id: string | null; off_catalog: boolean }[];
+  suggestions: { id: string; text: string }[];
+  off_catalog: number;
+  run_id: string | null;
+  model: string | null;
+}
+
+/** Phụ lục (TIP-030b F3) — GET /contracts/:id/appendices · trang ký công khai /public/appendix-sign/:token. */
+export type { Appendix, AppendixSignView } from '@appchat/shared';

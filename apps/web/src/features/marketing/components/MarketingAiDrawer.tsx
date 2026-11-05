@@ -1,11 +1,12 @@
 // Panel "Trợ lý AI · Marketing" (392px) — prototype L3536–3566: lời chào, 4 thẻ gợi ý (bấm = mở wizard điền sẵn), ô hỏi + "Mở Trợ lý AI đầy đủ".
-// Mock: không gọi LLM. Thẻ gợi ý gắn với đề xuất AI (/campaign-suggestions) theo thứ tự.
+// Thẻ gợi ý gắn với đề xuất AI (/campaign-suggestions) theo thứ tự. TIP-023c G2: ô hỏi gửi lượt Trợ lý THẬT (surface drawer, ngữ cảnh
+// chiến dịch đang mở); "Mở Trợ lý AI đầy đủ" mở màn Trợ lý cùng phiên.
 'use client';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient } from '@appchat/ui';
-import { useShellStore } from '@/shared/shell/shell-store';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useMkAiStyles } from '../styles/ai.styles';
 import { useMarketingUi } from '../marketing-store';
 import { suggestionsQuery } from '../api';
@@ -16,19 +17,12 @@ export function MarketingAiDrawer({ meta }: { meta: MarketingMeta }) {
   const { styles } = useMkAiStyles();
   const open = useMarketingUi((s) => s.aiOpen);
   const set = useMarketingUi((s) => s.set);
-  const setDock = useShellStore((s) => s.setDock);
   const sugg = useQuery({ ...suggestionsQuery(), enabled: open }).data?.data ?? [];
-  const [draft, setDraft] = useState('');
-  const [ack, setAck] = useState('');
+  const { asst, draft, setDraft, send } = useDrawerAsk('marketing');
   const close = () => set({ aiOpen: false });
   const run = (i: number) => {
     const s = sugg[i];
     set({ aiOpen: false, wizard: true, fromSuggestion: s?.id ?? null, prefill: s ? null : { name: meta.ai[i]?.[0] } });
-  };
-  const send = () => {
-    if (!draft.trim()) return;
-    setDraft('');
-    setAck(t('ack'));
   };
   return (
     <EntityDrawer
@@ -44,12 +38,12 @@ export function MarketingAiDrawer({ meta }: { meta: MarketingMeta }) {
       footer={
         <div className={styles.foot}>
           <div className={styles.box}>
-            <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} placeholder={t('ph')} />
+            <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} placeholder={t('ph')} aria-label={t('ph')} />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={16} color={color.white} strokeWidth={2} />
             </button>
           </div>
-          <button type="button" className={styles.full} onClick={() => (close(), setDock(true))}>
+          <button type="button" className={styles.full} onClick={() => (close(), asst.openFull())} data-testid="mk-ai-full">
             <Icon name="ic-spark" size={14} color={color.violetInk} />
             {t('full')}
           </button>
@@ -80,7 +74,7 @@ export function MarketingAiDrawer({ meta }: { meta: MarketingMeta }) {
             </button>
           ))}
         </div>
-        {ack ? <div className={styles.result}>{ack}</div> : null}
+        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} testId="mk-ai-msgs" />
       </div>
     </EntityDrawer>
   );

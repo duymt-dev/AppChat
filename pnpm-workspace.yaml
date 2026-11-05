@@ -3,6 +3,7 @@ packages:
   - packages/*
   - tools/parity
   - tools/contract
+  - tools/ai-live
 autoInstallPeers: true
 strictPeerDependencies: false
 allowBuilds:

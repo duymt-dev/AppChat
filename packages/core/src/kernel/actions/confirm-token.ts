@@ -19,6 +19,9 @@ export function stableJson(v: unknown): string {
 
 export const hashInput = (v: unknown) => createHash('sha256').update(stableJson(v)).digest('hex');
 
+/** Xoá token xem trước (một chiều — không đọc giá trị). Dùng khi không có ConfirmTokens (Trợ lý chỉ có KeyValueStore). */
+export const revokeConfirm = (kv: Pick<KeyValueStore, 'getdel'>, token: string) => kv.getdel(`confirm:${token}`).then(() => undefined);
+
 export class ConfirmTokens {
   constructor(
     private readonly kv: KeyValueStore,
@@ -35,6 +38,11 @@ export class ConfirmTokens {
     const token = randomBytes(24).toString('base64url');
     await this.kv.set(`confirm:${token}`, this.bind(ctx, actionId, input), 'PX', CONFIRM_TTL_MS);
     return { token, expiresAt: new Date(nowMs + CONFIRM_TTL_MS) };
+  }
+
+  /** Thu hồi token (thẻ đã sửa → token cũ không còn chạy được input cũ). */
+  async revoke(token: string): Promise<void> {
+    await revokeConfirm(this.kv, token);
   }
 
   /** Đúng token + đúng input / action / actor → true và xoá (một lần). */

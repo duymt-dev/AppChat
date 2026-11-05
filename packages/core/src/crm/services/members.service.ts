@@ -1,6 +1,6 @@
 // Thành viên workspace cho crm (DB nền tảng — tenant-db §3: không FK xuyên DB, kiểm tồn tại qua membership):
 // tên người phụ trách trong danh sách, ô chọn người (`GET /v1/members`), kiểm user được gán là thành viên active.
-import { AppError, ROLE_NAMES, isSystemRole } from '@appchat/shared';
+import { AGENT_FIELD_ROLE, AppError, ROLE_NAMES, isSystemRole } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 
 export interface MemberInfo {
@@ -40,7 +40,8 @@ export class CrmMembers {
 
   /** Khoá vai trò của người gọi (Owner theo workspace) — quyền xem trường tuỳ biến, bố cục Hồ sơ 360° theo vai trò. */
   async roleOf(workspaceId: string, userId: string | null): Promise<string> {
-    if (!userId) return 'owner';
+    // Không có người (agent trực kênh không người ra lệnh) → vai trò trường `agent`, KHÔNG suy ra Owner (TIP-045b annex C).
+    if (!userId) return AGENT_FIELD_ROLE;
     const [m, ws] = await Promise.all([
       this.platform.membership.findUnique({ where: { workspaceId_userId: { workspaceId, userId } }, select: { roleKey: true } }),
       this.platform.workspace.findUnique({ where: { id: workspaceId }, select: { ownerUserId: true } }),

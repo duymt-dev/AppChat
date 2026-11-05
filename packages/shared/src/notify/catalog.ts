@@ -33,6 +33,8 @@ export const NOTIFY_KINDS = {
   payment_received: { group: 'msg', icon: 'ic-dollar', tone: 'teal', defaults: ch(true, false, true) },
   refund_approval: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, true, true) },
   bank_review: { group: 'msg', icon: 'ic-dollar', tone: 'warn', defaults: ch(true, false, false) },
+  // Liệu trình (TIP-032b): khách còn 1 buổi / gói còn 7 ngày tới hạn — gợi ý gia hạn / mua thêm.
+  package_reminder: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
   // Ticket (TIP-034): sắp đến hạn SLA (người phụ trách) · quá hạn (leo thang Chủ sở hữu + quản lý) · ticket mới giao cho tôi.
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   sla_breach: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, true, true) },
@@ -44,6 +46,12 @@ export const NOTIFY_KINDS = {
   ai_task_failed: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, false, false) },
   channel_down: { group: 'system', icon: 'ic-link', tone: 'danger', defaults: ch(true, true, true) },
   billing_invoice: { group: 'system', icon: 'ic-doc', tone: 'info', defaults: ch(false, true, false) },
+  // Bảo mật (TIP-045b): đổi Chủ sở hữu — báo cả Owner cũ lẫn mới.
+  owner_transfer: { group: 'system', icon: 'ic-shield', tone: 'warn', defaults: ch(true, true, true) },
+  // Sự kiện bảo mật khác (đổi vai trò, mời / gỡ thành viên, kết nối / ngắt kênh, xuất dữ liệu, đăng nhập thiết bị mới) → Owner.
+  security_event: { group: 'system', icon: 'ic-shield', tone: 'warn', defaults: ch(true, true, false) },
+  // Việc dữ liệu nặng (TIP-045b annex D): xuất / sửa hàng loạt chạy nền đã xong / lỗi — chỉ người tạo việc, link trang trạng thái.
+  data_job_done: { group: 'system', icon: 'ic-doc', tone: 'info', defaults: ch(true, false, false) },
 } as const satisfies Record<string, NotifyKindDef>;
 
 export type NotifyKind = keyof typeof NOTIFY_KINDS;

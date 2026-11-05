@@ -1,5 +1,13 @@
 // Export mọi Nest module của core (Blueprint §1.2). Đăng ký sẵn ở TIP-001 — TIP sau KHÔNG sửa file này.
 export * from './kernel';
+export * from './kernel/actions/genui-intent';
+export * from './kernel/actions/secret-vault';
+export * from './kernel/actions/secret-fields';
+// GenUI (TIP-023c): gửi action từ node cây Trợ lý, render / refs / phần ui đã lưu.
+export { runGenUiAction, genUiCtx, type GenUiSubmitDeps } from './ai/assistant/genui/submit';
+export { renderTool, markSecretFields, errorTree, RENDER_TOOL } from './ai/assistant/genui/render';
+export { resolveRefs, REF_UNAVAILABLE } from './ai/assistant/genui/refs';
+export { presentUi, intentsFor, uiPartsOf, type StoredUiPart } from './ai/assistant/genui/history';
 
 export { IdentityModule } from './identity/identity.module';
 export * from './identity/public';
@@ -25,7 +33,8 @@ export { ChannelsJobsModule } from './channels/jobs/channels.jobs.module';
 export { InboxModule } from './inbox/inbox.module';
 export { InboxJobsModule } from './inbox/jobs/inbox.jobs.module';
 export { CrmModule } from './crm/crm.module';
-export { CrmJobsModule } from './crm/jobs/crm.jobs.module';
+export { CrmJobsModule, purgeMemoryReceipts, pruneCustomFields, MEMORY_RECEIPT_PURGE_JOB, CUSTOM_FIELD_PRUNE_JOB } from './crm/jobs/crm.jobs.module';
+export { pruneDeletedFields, CUSTOM_FIELD_RETENTION_MS } from './crm/jobs/custom-field-prune';
 export { CatalogModule } from './catalog/catalog.module';
 export { CatalogJobsModule } from './catalog/jobs/catalog.jobs.module';
 export { SalesModule } from './sales/sales.module';
@@ -46,6 +55,7 @@ export { MarketingModule } from './marketing/marketing.module';
 export { MarketingJobsModule } from './marketing/jobs/marketing.jobs.module';
 export { LoyaltyModule } from './loyalty/loyalty.module';
 export { LoyaltyJobsModule } from './loyalty/jobs/loyalty.jobs.module';
+export * from './loyalty/public';
 export { AiModule } from './ai/ai.module';
 export { AiJobsModule } from './ai/jobs/ai.jobs.module';
 export { InsightsModule } from './insights/insights.module';

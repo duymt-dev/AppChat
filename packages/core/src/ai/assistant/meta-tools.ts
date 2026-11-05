@@ -6,17 +6,22 @@
 //   plan(steps) / update_step      — `ai_run.plan` (thẻ kế hoạch).
 //   query_data(metric, params)     — NOT_IMPLEMENTED tới TIP-038 (`insight.query`).
 //   delegate(role|agent_id, task)  — run con `delegate` (delegate.ts).
+//   render(tree)                   — cây GenUI (genui/render.ts — TIP-023c): khối đóng, số liệu chỉ `$ref`, nút / form qua intent.
 // Chế độ Chat: find_actions (chỉ read) + call_action (chỉ read) + query_data + ui. Cowork: đủ.
 import { registry } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import { toJson } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
+import { AGENT_FIELD_ROLE, AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
-import type { ActionExecutor } from '../../kernel/actions/executor';
-import { allowedFor, briefSchema, findActions, modeAllows } from './catalog';
+import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
+import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
 import { resolveCodes } from './code-refs';
+import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
+import { renderTool } from './genui/render';
+import { dispatchOutcome } from './read-dispatch';
 import type { AssistantTurnCtx } from './types';
 
 export type { AssistantTurnCtx } from './types';
@@ -27,11 +32,14 @@ const DEFS = new Map(registry.map((a) => [a.id, a]));
 const ok = (output: unknown): ToolOutcome => ({ kind: 'ok', output });
 const err = (code: string, message: string): ToolOutcome => ({ kind: 'error', code, message });
 const STEP_STATUS = ['pending', 'running', 'done', 'failed', 'skipped'] as const;
+/** Vai trò cho trường tuỳ biến (FieldPolicy — TIP-045b annex C): Owner `owner`; còn lại vai trò membership hiện tại của người ra lệnh
+ *  (authz.roleKey → t.role); không có → `agent` (chỉ trường AI không giới hạn vai trò). */
+const roleOf = (t: AssistantTurnCtx) => (t.authz.isOwner ? 'owner' : (t.authz.roleKey ?? t.role ?? AGENT_FIELD_ROLE));
 
 
 export interface MetaDeps extends DelegateDeps {
   db: TenantDb;
-  executor: Pick<ActionExecutor, 'execute'>;
+  executor: ToolExecutor;
 }
 
 /** Ngữ cảnh action của Trợ lý: quyền = quyền người dùng (§3.3b), run / bước để log nối về run. */
@@ -46,24 +54,32 @@ export const assistantActionCtx = (t: AssistantTurnCtx, stepIdx: number, extra: 
   ...extra,
 });
 
-async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number): Promise<ToolOutcome> {
+/** Khoá idempotent của lời gọi Trợ lý: run + bước + id lời gọi (một bước gọi nhiều action); action đọc không cần khoá. */
+export const assistantIdemKey = (runId: string, stepIdx: number, toolCallId: string) => `assistant:${runId}:${stepIdx}:${toolCallId}`;
+
+async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number, toolCallId: string): Promise<ToolOutcome> {
   const i = (raw ?? {}) as { action_id?: unknown; input?: unknown };
   const def = typeof i.action_id === 'string' ? DEFS.get(i.action_id) : undefined;
-  if (!def || !allowedFor(def, t.authz)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
+  // Action chưa có handler thật: chặn trước executor, như action không tồn tại (không lộ cho model — TIP-023b R1.2).
+  if (!def || !allowedFor(def, t.authz) || !implementedBy(d.executor)(def.id)) return err('FORBIDDEN', `Không gọi được action ${String(i.action_id)} (không tồn tại hoặc ngoài quyền)`);
   if (!modeAllows(def, t.mode)) return err('FORBIDDEN', 'Chế độ Chat chỉ được tra cứu — chuyển sang Cowork để thực hiện thao tác ghi');
+  // Ô bí mật (DC-227): model không bao giờ mang giá trị — người dùng nhập ở form GenUI gửi thẳng executor từ trình duyệt.
+  const leaked = secretValuesPresent(def, i.input ?? {});
+  if (leaked.length) return err('SECRET_FIELD', `Không gửi ô bí mật (${leaked.join(', ')}) qua công cụ — dựng form bằng render với action_id ${def.id}, để người dùng tự nhập.`);
   try {
     // Model nói theo mã hiển thị (KH-1016, BG-1003) → đổi sang id trước khi chạy.
-    const { input } = await resolveCodes(d.db, def.id, i.input ?? {});
-    // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước (chạy lại cùng bước không tạo hai lần).
-    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, { idempotencyKey: `assistant:${t.runId}:${stepIdx}` }), def.id, input);
-    if (out.status === 200) return ok(out.data.result);
-    const a = out.data;
-    if (a.status === 'preview_required') return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token };
-    return { kind: 'needs_approval', approvalId: a.approval_id };
+    const { input } = await resolveCodes(d.db, def.id, i.input ?? {}, t.authz);
+    // Trường tuỳ biến: Trợ lý chỉ ghi trường `ai = true` của workspace (D56) — kiểu / bắt buộc domain kiểm lại lúc execute.
+    const notAi = await aiCustomErrors(d.db, def, input, roleOf(t));
+    if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
+    // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
+    const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
+    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), stripSecrets(def, input));
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
-      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(briefSchema(def))}. ${def.description}` };
+      const brief = await withCustomSchema(d.db, def, briefSchema(def), roleOf(t));
+      return { kind: 'error', code: e.code, message: `${e.message} ${JSON.stringify(e.fields ?? {})} — gọi lại call_action với input đúng khuôn: ${JSON.stringify(brief)}, ví dụ ${JSON.stringify(exampleInput(def))}. ${def.description}` };
     }
     if (e instanceof AppError) return err(e.code, e.fields ? `${e.message} ${JSON.stringify(e.fields)}` : e.message);
     throw e;
@@ -89,7 +105,9 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async (input) => {
         const i = (input ?? {}) as { query?: unknown; module?: unknown };
-        return ok({ actions: findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined) });
+        const found = findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined, undefined, implementedBy(d.executor));
+        // Ô `custom` → trường tuỳ biến hiện hành của workspace mà người dùng được ghi (SPEC A.5).
+        return ok({ actions: await Promise.all(found.map(async (a) => ({ ...a, input: await withCustomSchema(d.db, a, a.input, roleOf(t)) }))) });
       },
     },
     {
@@ -97,7 +115,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       description: 'Run an action found with find_actions. Read actions return data now; any other action shows a confirmation card to the user and waits.',
       inputSchema: { type: 'object', properties: { action_id: { type: 'string' }, input: { type: 'object' } }, required: ['action_id', 'input'] },
       origin: 'meta',
-      execute: (input, meta) => callAction(d, t, input, meta.stepIdx),
+      execute: (input, meta) => callAction(d, t, input, meta.stepIdx, meta.toolCallId),
     },
     {
       name: ASSISTANT_TOOLS.ui,
@@ -116,6 +134,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async () => err('NOT_IMPLEMENTED', m.queryData),
     },
+    renderTool({ db: d.db, implemented: implementedBy(d.executor) }, t),
   ];
   if (t.mode === 'chat') return tools;
   return [

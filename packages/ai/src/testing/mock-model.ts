@@ -3,6 +3,7 @@
 // `AI_ENGINE=mock` (cấm production) cài `mockModelSource` làm nguồn model cho mọi mức AI.
 import { MockLanguageModelV4, convertArrayToReadableStream } from 'ai/test';
 import type { ModelCandidate, ModelSource } from '../gateway/types';
+import { mockKbSuggestion } from './mock-kb-suggestion';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -20,6 +21,8 @@ export interface MockCtx {
   system: string;
   /** Tin cuối của prompt là kết quả tool → `{ tool, output }` của tool cuối; không thì null. */
   lastTool: { tool: string; output: unknown } | null;
+  /** Số kết quả tool đã có trong prompt của run (kịch bản nhiều bước tuần tự — vd mỗi dòng chọn một lời gọi). */
+  toolResults: number;
 }
 
 export const MOCK_PROVIDER = 'mock';
@@ -45,6 +48,12 @@ function systemText(prompt: unknown): string {
   return ((prompt ?? []) as { role: string; content: unknown }[]).filter((m) => m.role === 'system').map((m) => (typeof m.content === 'string' ? m.content : '')).join(' ');
 }
 
+function toolResultsOf(prompt: unknown): number {
+  return ((prompt ?? []) as { role: string; content: unknown }[])
+    .filter((m) => m.role === 'tool' && Array.isArray(m.content))
+    .reduce((n, m) => n + (m.content as { type: string }[]).filter((x) => x.type === 'tool-result').length, 0);
+}
+
 function lastToolOf(prompt: unknown): MockCtx['lastTool'] {
   const msgs = (prompt ?? []) as { role: string; content: unknown }[];
   const m = msgs[msgs.length - 1];
@@ -63,7 +72,14 @@ function partsOf(t: Exclude<MockTurn, { error: unknown }>, n: number): unknown[]
   const calls = 'tool' in t ? [{ tool: t.tool, input: t.input }] : t.tools;
   return [
     ...head,
-    ...calls.map((c, i) => ({ type: 'tool-call', toolCallId: `call_${n}_${i}`, toolName: c.tool, input: JSON.stringify(c.input ?? {}) })),
+    ...calls.flatMap((c, i) => {
+      const id = `call_${n}_${i}`;
+      const input = JSON.stringify(c.input ?? {});
+      // `render` (GenUI): input đến theo mảnh như provider thật → engine phát `tool_input` (khung xương — TIP-023c 6a).
+      const chunks = c.tool === 'render' ? (input.match(/[\s\S]{1,48}/g) ?? []).map((delta) => ({ type: 'tool-input-delta', id, delta })) : [];
+      const stream = chunks.length ? [{ type: 'tool-input-start', id, toolName: c.tool }, ...chunks, { type: 'tool-input-end', id }] : [];
+      return [...stream, { type: 'tool-call', toolCallId: id, toolName: c.tool, input }];
+    }),
     { type: 'finish', finishReason: { unified: 'tool-calls', raw: 'tool_calls' }, usage: usage(tin, t.tokensOut ?? 20) },
   ];
 }
@@ -76,7 +92,7 @@ export function mockLanguageModel(script: MockScript, opts: { provider?: string;
     modelId: opts.model ?? MOCK_MODEL,
     doStream: async (o) => {
       const call = n++;
-      const turn = typeof script === 'function' ? script({ lastUser: lastUserText(o.prompt), call, system: systemText(o.prompt), lastTool: lastToolOf(o.prompt) }) : (script[call] ?? { text: '' });
+      const turn = typeof script === 'function' ? script({ lastUser: lastUserText(o.prompt), call, system: systemText(o.prompt), lastTool: lastToolOf(o.prompt), toolResults: toolResultsOf(o.prompt) }) : (script[call] ?? { text: '' });
       if ('error' in turn) throw Object.assign(new Error(turn.error.message ?? `HTTP ${turn.error.statusCode}`), { statusCode: turn.error.statusCode, isRetryable: turn.error.statusCode >= 500 || turn.error.statusCode === 429 });
       return { stream: convertArrayToReadableStream(partsOf(turn, call) as never[]) };
     },
@@ -92,14 +108,94 @@ export function staticModelSource(cands: { provider: string; model: string; hand
 /** Lượt Trợ lý (system mở đầu bằng `# TRỢ LÝ APPCHAT` / `# APPCHAT ASSISTANT` — prompt `assistant`): "tạo khách hàng <tên> <sđt>" → `call_action contact.create`. */
 const ASSISTANT_MARKS = ['# TRỢ LÝ APPCHAT', '# APPCHAT ASSISTANT'];
 const CREATE_CONTACT = /tạo (?:khách hàng|liên hệ)\s+(.+?)\s+((?:\+?84|0)\d[\d ]{7,12}\d)\s*$/i;
+/** GenUI (TIP-023c): "kết nối email <địa chỉ>" → `render` form `channel.email.connect`, ô mật khẩu để trống (người dùng tự nhập). */
+const CONNECT_EMAIL = /kết nối email\s+(\S+@\S+)/i;
 
-function assistantTurn(lastUser: string, lastTool: MockCtx['lastTool']): MockTurn {
+const emailForm = (address: string): MockTurn => ({
+  tool: 'render',
+  input: {
+    tree: {
+      version: 1,
+      root: {
+        type: 'form',
+        action_id: 'channel.email.connect',
+        title: 'Kết nối email',
+        submit_label: 'Kết nối',
+        fields: [{ name: 'address', label: 'Email', value: address }, { name: 'fields.imap_host', label: 'Máy chủ IMAP' }, { name: 'fields.imap_port', label: 'Cổng', value: '993' }, { name: 'fields.password', label: 'Mật khẩu ứng dụng' }],
+      },
+    },
+  },
+});
+
+/** Ngữ cảnh màn trong system (`- quote: <id>` / `- selection: a, b`) — chỉ những id server đã kiểm quyền (genui/context.ts). */
+const ctxId = (system: string, entity: string) => new RegExp(String.raw`^- ${entity}: (\S+)$`, 'm').exec(system)?.[1];
+const ctxSelection = (system: string) => /^- selection: (.+)$/m.exec(system)?.[1]?.split(', ').filter(Boolean) ?? [];
+/** Trợ lý theo màn (TIP-023c AC4): "báo giá này còn hiệu lực…" → `quote.get` bản ghi đang mở → trả lời theo `valid_until` / trạng thái. */
+const QUOTE_VALIDITY = /báo giá này.*hiệu lực/i;
+/** "gắn thẻ VIP cho các khách đang chọn" → lần lượt mỗi dòng chọn một `contact.tag` — mỗi lời gọi một thẻ xác nhận (engine dừng ở lời
+ * gọi ghi; thẻ gộp có số bản ghi chờ `contact.bulk_update` của 045b — DV-023). */
+const TAG_SELECTED = /gắn thẻ (\S+) cho các khách đang chọn/i;
+/** "Phân tích pipeline …" (nút Phân tích nhanh Khách hàng) → `contact.search` → `render` bảng trỏ `$ref` bước tìm. */
+const PIPELINE = /^Phân tích pipeline khách hàng/;
+
+const pipelineTree = (step: number): MockTurn => ({
+  tool: 'render',
+  input: {
+    tree: {
+      version: 1,
+      root: {
+        type: 'stack',
+        children: [
+          { type: 'stat', label: 'Khách đang theo dõi', value: { $ref: `step:${step}.total` }, format: 'number' },
+          { type: 'table', columns: [{ key: 'code', label: 'Mã' }, { key: 'name', label: 'Tên' }, { key: 'stage', label: 'Giai đoạn' }, { key: 'phone', label: 'SĐT' }], rows: { $ref: `step:${step}.contacts` }, open: { entity: 'contact', id_key: 'id' } },
+        ],
+      },
+    },
+  },
+});
+
+function screenTurn({ lastUser, system, lastTool, toolResults }: MockCtx): MockTurn | null {
+  const text = lastUser.trim();
+  if (QUOTE_VALIDITY.test(text)) {
+    if (!lastTool) {
+      const id = ctxId(system, 'quote');
+      return id ? { tool: 'call_action', input: { action_id: 'quote.get', input: { quote_id: id } } } : { text: 'Anh/chị mở báo giá cần xem giúp em nhé.' };
+    }
+    const q = lastTool.output as { code?: string; valid_until?: string | null; status?: string };
+    return { text: q.valid_until ? `Báo giá ${q.code} còn hiệu lực đến ${q.valid_until} (trạng thái: ${q.status}).` : `Báo giá ${q.code} chưa gửi nên chưa tính hiệu lực (trạng thái: ${q.status}).` };
+  }
+  const tag = TAG_SELECTED.exec(text);
+  if (tag) {
+    const ids = ctxSelection(system);
+    if (!ids.length) return { text: 'Anh/chị chọn khách trên bảng trước nhé.' };
+    const next = ids[toolResults];
+    return next ? { tool: 'call_action', input: { action_id: 'contact.tag', input: { contact_id: next, tag: tag[1]!, op: 'add' } } } : { text: `Đã xử lý ${ids.length} khách đang chọn.` };
+  }
+  if (PIPELINE.test(text)) {
+    // Run mới: bước 0 = lượt model gọi tìm (llm), bước 1 = kết quả tìm (tool) — `$ref` trỏ step:1. `render` từ chối thì lấy bước hợp lệ
+    // server báo ("valid: …").
+    if (!lastTool) return { tool: 'call_action', input: { action_id: 'contact.search', input: { limit: 20 } } };
+    if (lastTool.tool === 'call_action') return pipelineTree(1);
+    const valid = /valid: (\d+)/.exec(JSON.stringify(lastTool.output ?? ''))?.[1];
+    if (lastTool.tool === 'render' && valid && JSON.stringify(lastTool.output).includes('render rejected')) return pipelineTree(Number(valid));
+    return { text: 'Pipeline khách hàng hiện tại ở bảng trên.' };
+  }
+  return null;
+}
+
+function assistantTurn(ctx: MockCtx): MockTurn {
+  const screen = screenTurn(ctx);
+  if (screen) return screen;
+  const { lastUser, lastTool } = ctx;
   if (lastTool) {
     const out = (lastTool.output ?? {}) as { cancelled?: boolean; error?: unknown };
     if (out.cancelled) return { text: 'Đã huỷ thao tác theo yêu cầu.' };
     if (out.error) return { text: 'Em chưa thực hiện được yêu cầu này. Anh/chị kiểm tra lại thông tin hoặc thử cách khác nhé.' };
+    if (lastTool.tool === 'render') return { text: 'Anh/chị điền mật khẩu ứng dụng rồi bấm Kết nối nhé.' };
     return { text: lastTool.tool === 'call_action' ? 'Đã lưu khách hàng mới.' : 'Đã xong.' };
   }
+  const mail = CONNECT_EMAIL.exec(lastUser.trim());
+  if (mail) return emailForm(mail[1]!);
   const m = CREATE_CONTACT.exec(lastUser.trim());
   if (m) return { tool: 'call_action', input: { action_id: 'contact.create', input: { full_name: m[1]!.trim(), phone: m[2]!.replace(/\s/g, '') } } };
   return { text: lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?' };
@@ -108,16 +204,41 @@ function assistantTurn(lastUser: string, lastTool: MockCtx['lastTool']): MockTur
 /** Lượt agent trực kênh: khách xin "mã QR thanh toán <số>" → agent gọi `invoice.send_payment_qr` (risk send → xin duyệt — TIP-024). */
 const ASK_QR = /(?:gửi|cho xin)\s+(?:mã\s+)?QR thanh toán\s+(\S+)/i;
 
+/** Nháp hợp đồng (TIP-030b F2): dòng "- tên xN", ngày dd/mm/yyyy, "TIÊU ĐỀ:" / "ĐIỀU KHOẢN:" của khối YÊU CẦU → JSON ý định. */
+function mockContractDraft(text: string) {
+  const req = /YÊU CẦU[^\n]*\n([\s\S]*?)(?:\n\nCHỮ TRONG TỆP|$)/.exec(text)?.[1] ?? text;
+  const iso = (m: RegExpMatchArray) => `${m[3]}-${m[2]!.padStart(2, '0')}-${m[1]!.padStart(2, '0')}`;
+  const dates = [...req.matchAll(/(\d{1,2})\/(\d{1,2})\/(\d{4})/g)].map(iso);
+  const lines = [...req.matchAll(/^- (.+?) x(\d+)\s*$/gm)].map((m) => ({ text: m[1]!.trim(), qty: Number(m[2]) }));
+  const suggestions = [...req.matchAll(/^ĐIỀU KHOẢN: (.+)$/gm)].map((m) => m[1]!.trim());
+  return { title: /^TIÊU ĐỀ: (.+)$/m.exec(req)?.[1]?.trim() ?? '', start_date: dates[0] ?? null, end_date: dates[1] ?? null, lines, suggestions };
+}
+
 /**
  * Kịch bản mặc định của `AI_ENGINE=mock` (dev / E2E): trả lời ngắn có nhắc lại câu hỏi. Lượt agent trực kênh (system có khung
  * output JSON — prompt `agent-reply`) → trả đúng JSON, độ tin cậy 0,9; khách đòi gặp người → `needs_human`. Lượt Trợ lý → xem
  * `assistantTurn`.
  */
-export const echoScript: MockScript = ({ lastUser, system, lastTool }) => {
-  if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(lastUser, lastTool);
+export const echoScript: MockScript = (ctx) => {
+  const { lastUser, system, lastTool } = ctx;
+  if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(ctx);
   // Skill dịch (TIP-025 `ai.translate`): tiền tố ngôn ngữ đích + nguyên văn.
   const xl = /^# TRANSLATE[\s\S]*Target: (vi|en)/.exec(system);
   if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };
+  // Nháp Hộp thư (TIP-023c REQ-C05c): không tool — chỉ chữ; viết lại = "Dạ " + nháp, soạn = câu chào theo tin khách cuối.
+  if (/^# (SOẠN NHÁP TIN NHẮN|INBOX MESSAGE DRAFT)/.test(system)) {
+    const draft = /BẢN NHÁP:\n([\s\S]*)$/.exec(lastUser)?.[1]?.trim() ?? '';
+    return { text: /Task: rewrite|Việc: rewrite/.test(system) ? `Dạ, ${draft}` : 'Dạ em chào anh/chị, em có thể hỗ trợ gì ạ?' };
+  }
+  // Soạn nháp hợp đồng (TIP-030b F2): JSON ý định từ dòng "- tên xN" + ngày dd/mm/yyyy của YÊU CẦU; dòng "ĐIỀU KHOẢN: …" → gợi ý.
+  if (/^# (SOẠN NHÁP HỢP ĐỒNG|CONTRACT DRAFT)/.test(system)) return { text: JSON.stringify(mockContractDraft(lastUser)) };
+  // Đề xuất tri thức từ hội thoại (TIP-043): cặp KHÁCH hỏi (có "?") + câu kế tiếp của nhân viên / agent.
+  if (/^# (ĐỀ XUẤT TRI THỨC TỪ HỘI THOẠI|KNOWLEDGE SUGGESTIONS FROM A CONVERSATION)/.test(system)) return { text: mockKbSuggestion(lastUser) };
+  // Tóm tắt Hồ sơ khách (TIP-015b): 3–5 dòng gạch đầu của khối DỮ LIỆU nguyên văn — test kiểm tóm tắt chỉ chứa dữ liệu người xem được thấy.
+  if (/^# (TÓM TẮT HỒ SƠ KHÁCH|CUSTOMER PROFILE SUMMARY)/.test(system)) {
+    const bullets = lastUser.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2)).slice(0, 5);
+    return { text: JSON.stringify({ bullets: bullets.length ? bullets : [lastUser.split('\n')[1] ?? ''] }) };
+  }
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);

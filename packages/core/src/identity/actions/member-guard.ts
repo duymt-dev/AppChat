@@ -3,7 +3,7 @@
 import { AppError } from '@appchat/shared';
 import type { PlatformTx } from '../../kernel/actions/action-context';
 
-export async function activeMember(ptx: PlatformTx, workspaceId: string, userId: string) {
+export async function activeMember(ptx: Pick<PlatformTx, 'workspace' | 'membership'>, workspaceId: string, userId: string) {
   const ws = await ptx.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { ownerUserId: true } });
   if (ws.ownerUserId === userId) throw new AppError('VALIDATION_FAILED', 422, { user_id: 'owner_locked' });
   const m = await ptx.membership.findFirst({ where: { workspaceId, userId, status: 'active' }, select: { userId: true, roleKey: true } });

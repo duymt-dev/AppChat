@@ -3,6 +3,7 @@
 // `quote` (D56), dòng ngoài danh mục chỉ tính với báo giá AI / agent tạo (buộc duyệt — §12). Hạn hiệu lực = cuối ngày (gửi + N) theo giờ
 // workspace (money-time-numbering §2.3).
 import { AppError, approvalReasons, dayEndAfter, quoteTotals, validateCustomValues, type AuthzContext, type CustomValues, type Discount, type Totals } from '@appchat/shared';
+import { quotePolicy } from '../../settings/policy';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { ActionContext } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
@@ -92,10 +93,12 @@ export async function linesOf(tx: TenantTx, quoteId: string): Promise<LineIn[]> 
   }));
 }
 
-/** Lý do cần duyệt của bản ghi đang lưu (dòng + chiết khấu tổng). */
-export async function reasonsOf(tx: TenantTx, q: QuoteRecord) {
+/** Lý do cần duyệt của bản ghi đang lưu (dòng + chiết khấu tổng) theo ngưỡng workspace (TIP-032b). */
+export async function reasonsOf(tx: TenantTx, q: QuoteRecord, ctx?: Pick<ActionContext, 'source'>) {
   const t = quoteTotals(await linesOf(tx, q.id), q.headerDiscount as Discount | null);
-  return approvalReasons(t, { offCatalog: q.offCatalog });
+  // Trần giảm giá agent áp khi báo giá do agent / Trợ lý tạo HOẶC khi agent / tác vụ đang gửi (TIP-032b — không miễn bằng hội thoại đang phục vụ).
+  const creator = ctx && (ctx.source === 'agent' || ctx.source === 'task') ? 'agent' : q.createdByType;
+  return approvalReasons(t, { offCatalog: q.offCatalog, ...(await quotePolicy(tx, creator)) });
 }
 
 /** Khách ghi được (owner / collaborator / scope) + id phụ trách hợp lệ. */

@@ -87,7 +87,8 @@
     "tagsHint": "Chạm để chọn · áp dụng cho khách",
     "tagsNewPh": "Tạo thẻ mới…",
     "tagsAdd": "+ Thêm",
-    "tagsDone": "Xong · gắn {n} thẻ"
+    "tagsDone": "Xong · gắn {n} thẻ",
+    "groupUnsupported": "Kênh này chưa hỗ trợ tạo nhóm"
   },
   "chat": {
     "back": "Quay lại danh sách",
@@ -129,6 +130,8 @@
     }
   },
   "thread": {
+    "contractFromFile": "Tạo hợp đồng từ tệp",
+    "contractCreating": "Đang tạo hợp đồng…",
     "insight": "AI phân tích:",
     "confidence": "· tin {pct}%",
     "note": "Ghi chú nội bộ",
@@ -219,7 +222,23 @@
     "fileFailed": "Không tải lên được tệp {name}",
     "removeFile": "Bỏ tệp {name}",
     "mention": "Nhắc thành viên",
-    "mentionNone": "Không có thành viên khớp"
+    "mentionNone": "Không có thành viên khớp",
+    "aiDraft": {
+      "compose": "AI soạn",
+      "rewrite": "AI viết lại",
+      "pending": "AI đang soạn nháp…",
+      "cancel": "Huỷ",
+      "error": "Không soạn được nháp.",
+      "retry": "Thử lại",
+      "dismiss": "Bỏ",
+      "composed": "AI soạn nháp",
+      "rewritten": "AI viết lại nháp",
+      "badge": "nháp — chưa gửi",
+      "conflictBadge": "nháp đã đổi",
+      "conflict": "Bạn đã sửa nháp trong lúc AI soạn — chọn thay hay chèn thêm.",
+      "replace": "Thay nháp",
+      "insert": "Chèn thêm"
+    }
   },
   "p360": {
     "title": "Hồ sơ 360°",
@@ -307,7 +326,18 @@
       }
     },
     "blocksEmpty": "Tab này chưa có khối nào — thêm ở Cài đặt › Hồ sơ 360°.",
-    "blockNoData": "Chưa có dữ liệu"
+    "blockNoData": "Chưa có dữ liệu",
+    "blockDenied": "Bạn không có quyền xem mục này",
+    "slaMet": "Đạt SLA",
+    "slaBreached": "Trễ SLA",
+    "csatScore": "{n}/5",
+    "linkStatus": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "open": "Mở",
+      "in_progress": "Đang xử lý",
+      "waiting": "Chờ khách"
+    }
   },
   "group": {
     "title": "Thông tin nhóm",
@@ -388,6 +418,33 @@
       "mention": "Chuyển sang Tab @Mention",
       "assign": "Chuyển agent · @Trâm",
       "vip": "Gắn tag VIP"
+    },
+    "prompts": {
+      "new": "Tạo hội thoại mới với khách {name}.",
+      "invite": "Mời thành viên vào hội thoại với {name}.",
+      "summary": "Tóm tắt 30 tin nhắn cuối của hội thoại với {name}.",
+      "draft": "Soạn phản hồi gợi ý cho tin nhắn mới nhất của {name} (chỉ soạn nháp, không gửi).",
+      "translate": "Dịch tin nhắn mới nhất của {name} sang tiếng Anh.",
+      "intent": "Phát hiện ý định của khách {name} trong hội thoại này.",
+      "mention": "Chuyển hội thoại với {name} sang tab @Mention.",
+      "assign": "Chuyển hội thoại với {name} cho Trâm phụ trách.",
+      "vip": "Gắn tag VIP cho khách {name}."
+    }
+  },
+  "createGroup": {
+    "title": "Tạo nhóm Zalo",
+    "close": "Đóng",
+    "name": "Tên nhóm",
+    "members": "Thành viên đã chọn: {count}",
+    "notice": "Khách được chọn sẽ nhận lời mời vào nhóm mới trên Zalo. Chỉ chọn được khách đã nhắn với tài khoản này.",
+    "submit": "Tạo nhóm",
+    "open": "Mở nhóm",
+    "status": {
+      "queued": "Đang chờ tài khoản Zalo xử lý…",
+      "running": "Đang tạo nhóm trên Zalo…",
+      "succeeded": "Đã tạo nhóm.",
+      "failed": "Không tạo được nhóm.",
+      "unknown": "Chưa rõ kết quả — nhóm có thể đã được tạo trên Zalo. Kiểm tra Zalo trước khi tạo lại."
     }
   }
 }

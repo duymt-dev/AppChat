@@ -9,7 +9,10 @@ import { openEmailThread } from '../../../channels/public';
 import type { CrmMembers } from '../../../crm/public';
 import { scopeCols, senderOf, writeOutgoing, type Outgoing } from '../../../inbox/public';
 
-export type QuoteChannel = 'zalo_personal' | 'email';
+/** Kênh gửi chứng từ (TIP-032b P2 thêm webchat — như Zalo: chỉ gửi vào hội thoại khách đã mở, cửa sổ 24 giờ theo manifest). */
+export type QuoteChannel = 'zalo_personal' | 'email' | 'webchat';
+
+export type Attachment = { url: string; mime: string; name?: string };
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
@@ -53,13 +56,15 @@ export async function postToCustomer(
   ctx: ActionContext,
   tx: TenantTx,
   members: CrmMembers,
-  o: { conv: Conv; created: boolean; text: string; file?: { url: string; name: string }; now: Date; sender?: { type: 'system'; id: null; name: string | null } },
+  o: { conv: Conv; created: boolean; text: string; file?: { url: string; name: string }; attachments?: Attachment[]; now: Date; sender?: { type: 'system'; id: null; name: string | null } },
 ): Promise<{ out: Outgoing; events: { topic: string; payload: Record<string, unknown> }[] }> {
+  // `file` = một PDF (cách gọi cũ); `attachments` = PDF / ảnh trang / ảnh QR (TIP-032b P2). Chỉ ảnh → tin ảnh.
+  const atts = o.attachments ?? (o.file ? [{ url: o.file.url, mime: 'application/pdf', name: o.file.name }] : []);
   const out = await writeOutgoing(tx, {
     conv: o.conv,
-    kind: o.file ? 'file' : 'text',
+    kind: !atts.length ? 'text' : atts.every((a) => a.mime.startsWith('image/')) ? 'image' : 'file',
     body: o.text,
-    ...(o.file ? { attachments: [{ url: o.file.url, mime: 'application/pdf', name: o.file.name }] } : {}),
+    ...(atts.length ? { attachments: atts } : {}),
     // Tin hệ thống (trang ký công khai — không có người gọi) truyền `sender` sẵn.
     sender: o.sender ?? (await senderOf(ctx, members, tx)),
     now: o.now,

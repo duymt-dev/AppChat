@@ -73,4 +73,5 @@ export const authzForRole = (role: SystemRole, userId: string) => ({
   permissions: new Set(ROLE_DEFS[role].permissions),
   scope: ROLE_DEFS[role].scope,
   teamIds: [] as string[],
+  roleKey: role as string,
 });

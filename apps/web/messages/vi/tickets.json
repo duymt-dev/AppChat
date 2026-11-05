@@ -230,8 +230,12 @@
     "ph": "Hỏi trợ lý về ticket…",
     "send": "Gửi",
     "full": "Mở Trợ lý AI đầy đủ →",
-    "picked": "Đã áp dụng: {t}",
-    "ack": "Đã ghi nhận — Trợ lý sẽ trả lời trong dock đầy đủ."
+    "prompts": {
+      "overdue": "Tóm tắt các ticket quá hạn SLA và sắp đến hạn hôm nay, gợi ý thứ tự xử lý.",
+      "reply": "Gợi ý phản hồi cho ticket khiếu nại đang mở (đồng cảm + hướng xử lý).",
+      "route": "Phân loại và đề xuất nhóm xử lý cho các ticket tồn theo danh mục và độ ưu tiên.",
+      "report": "Báo cáo SLA tuần này: tỉ lệ AI tự xử, thời gian xử lý trung bình, số vi phạm."
+    }
   },
   "agent": "AI Agent",
   "unit": "ticket"

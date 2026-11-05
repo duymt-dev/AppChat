@@ -1,17 +1,22 @@
 // Đọc domain crm cho apps/api (Blueprint §4.4 crm — shape packages/shared/src/api/crm.ts). Mỗi lệnh đọc mở một transaction
 // chỉ-đọc trên DB tenant của workspace (TenantDbResolver) và áp scope crm của người xem (rbac §5 — không có đường vòng).
-import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
+import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { boardIds, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
 import { UUID, visibleContact } from './access';
 import { contact360 } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
+import { nextActions } from '../insights/next-action';
+import { crmAi, insights360 } from '../insights/read';
+import { recentFacts, sourceOf } from '../memory/read';
+import { MEMORY_CAP } from '../memory/normalize';
 import { duplicateGroups } from './duplicates.service';
 import { fieldsData } from './fields.service';
 import { layoutForRole, layoutsData } from './layouts.service';
 import type { CrmMembers } from './members.service';
 import { renderTimeline } from './timeline.service';
+import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 
 export interface Viewer {
   workspaceId: string;
@@ -51,8 +56,15 @@ export class CrmReadService {
     const rows = ids.length ? await tx.contact.findMany({ where: { id: { in: ids } }, select: ROW_SELECT }) : [];
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
-    const [extras, names] = await Promise.all([loadRowExtras(tx, ids), this.members.names(rows.map((r) => r.ownerUserId))]);
-    return rows.map((r) => toRow(r as ContactRecord, { authz: v.authz, ...pl, names }, extras));
+    const now = this.now();
+    const [extras, names, next, fv] = await Promise.all([
+      loadRowExtras(tx, ids),
+      this.members.names(rows.map((r) => r.ownerUserId)),
+      nextActions(tx, v.authz, rows, utcToWall(now, pl.timeZone).date, now),
+      fieldView(tx, 'contact', v.authz),
+    ]);
+    // Quyền theo trường (TIP-045b annex C): chỉ key tuỳ biến được thấy — dữ liệu lưu giữ nguyên.
+    return rows.map((r) => toRow({ ...(r as ContactRecord), custom: projectCustom(fv, r.custom) }, { authz: v.authz, ...pl, names }, { ...extras, next }));
   }
 
   async list(v: Viewer, f: ContactFilter, page?: number, limit?: number) {
@@ -61,6 +73,8 @@ export class CrmReadService {
     const pg = Math.max(1, page ?? 1);
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
+      // Lọc trên trường bị ẩn → 422 TRƯỚC truy vấn (không làm kênh dò giá trị qua số đếm).
+      assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
       const { ids, total } = await listContactIds(tx, v.authz, f, paged ? { offset: (pg - 1) * lim, limit: lim } : null);
       const data = await this.rowsOf(tx, v, pl, ids);
       const pages = Math.max(1, Math.ceil(total / lim));
@@ -72,6 +86,7 @@ export class CrmReadService {
   async board(v: Viewer, f: ContactFilter) {
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
       const { ids, counts } = await boardIds(tx, v.authz, f, BOARD_PER_STAGE);
       const rows = await this.rowsOf(tx, v, pl, ids.map((r) => r.id));
       const keys = CONTACT_STAGES.filter((k) => k !== 'lost' || (counts.lost ?? 0) > 0);
@@ -114,8 +129,31 @@ export class CrmReadService {
     const role = await this.members.roleOf(v.workspaceId, v.userId);
     return this.tx(v, async (tx) => {
       await visibleContact(tx, v.authz, id);
-      return contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role) });
+      const [p360, ins, fv] = await Promise.all([
+        contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role) }),
+        insights360(tx, v.authz, id, { ...pl, now: this.now() }),
+        fieldView(tx, 'contact', v.authz),
+      ]);
+      return { ...p360, custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
+  }
+
+  /** `GET /v1/contacts/:id/memory` (TIP-015b): khối "AI ghi nhớ" — cùng dữ liệu action contact.memory_list. */
+  async memory(v: Viewer, id: string) {
+    return this.tx(v, async (tx) => {
+      const { contact, access } = await visibleContact(tx, v.authz, id);
+      const rows = await recentFacts(tx, contact.id, MEMORY_CAP);
+      return {
+        items: rows.map((r) => ({ memory_id: r.id, fact: r.fact, confidence: r.confidence, source: sourceOf(r.actor_type), updated_at: r.updated_at.toISOString() })),
+        cap: MEMORY_CAP,
+        can_edit: access !== 'watcher' && (v.authz.isOwner || v.authz.permissions.has('crm.edit')),
+      };
+    });
+  }
+
+  /** `GET /v1/crm/ai` (TIP-015b): run AI thật theo phạm vi người xem. */
+  async ai(v: Viewer) {
+    return this.tx(v, (tx) => crmAi(tx, v.authz));
   }
 
   async timeline(v: Viewer, id: string, cursor?: string) {

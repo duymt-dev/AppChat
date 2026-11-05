@@ -2,15 +2,16 @@
 // "Cần đối soát" cho một đề nghị → khoản thu `confirmed` + phiếu thu `PT-{n}`, cộng vào đề nghị + đơn (pay_status), sinh liệu trình khi
 // đơn đủ điều kiện. Hoàn tác trong 24 giờ (khi chưa có hoàn tiền). Giao dịch đối soát: số tiền phải ≤ còn phải thu.
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, createFmt } from '@appchat/shared';
+import { AppError } from '@appchat/shared';
 import type { ActionInput, invoiceRecordPayment, invoiceResolveBankMatch } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { actorOf } from '../../orders/services/order-write';
 import { QuoteDeps } from '../../quotes/services/quote-deps';
-import { UUID, lockInvoice, visibleInvoice } from '../invoice-access';
+import { UUID, lockInvoice } from '../invoice-access';
 import { localDay, recordInvoicePayment, revertInvoicePayment } from '../services/payment-write';
+import { bankMatchPreview, recordPreview } from '../previews/invoice-pay.handlers.preview';
 
 type Before = { invoice_id: string; payment_id: string; order_event_id: string | null; status: 'draft' | 'sent' | 'partial' | 'overdue'; paid: string };
 type RecordOut = { invoice_id: string; payment_id: string; status: string; receipt_code: string };
@@ -44,8 +45,7 @@ export class InvoiceRecordPaymentHandler implements Handler<ActionInput<typeof i
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof invoiceRecordPayment>, tx: TenantTx) {
-    const i = await visibleInvoice(tx, ctx.authz, input.invoice_id);
-    return { summary: `${i.code} · ${createFmt({ locale: 'vi' }).money(input.amount)}`, risk: 'money' as const };
+    return recordPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
   }
 }
 
@@ -77,5 +77,9 @@ export class InvoiceResolveBankMatchHandler implements Handler<ActionInput<typeo
   /** Gỡ khoản thu, giao dịch quay lại hàng "Cần đối soát". */
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await revertInvoicePayment(tx, log.before as Before, this.clock.now());
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof invoiceResolveBankMatch>, tx: TenantTx) {
+    return bankMatchPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
   }
 }

@@ -2,13 +2,17 @@
 // (run_id, idx) — chạy lại cùng bước không thêm dòng), dừng chờ người (`waiting_approval` + `state`), kết thúc, huỷ cả cây.
 import type { TenantDb } from '@appchat/db';
 import { toJson, type PausedState } from '@appchat/ai';
+import { getAction } from '@appchat/actions';
 import { uuidv7 } from '../../kernel/ids';
+import { maskToolInput } from '../../kernel/actions/secret-fields';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
 export type RunKind = RunRow['kind'];
 
 export interface NewRun {
+  /** Id cấp sẵn (sổ yêu cầu Trợ lý claim trước khi tạo run — TIP-023c); vắng → sinh mới. */
+  id?: string;
   kind: RunKind;
   title?: string;
   tier: string;
@@ -41,7 +45,7 @@ export interface StepRecord {
 }
 
 const json = (v: unknown) => toJson(v) as object;
-const TERMINAL = ['completed', 'failed', 'cancelled', 'handoff'] as const;
+export const TERMINAL = ['completed', 'failed', 'cancelled', 'handoff'] as const;
 
 export class RunStore {
   constructor(
@@ -51,7 +55,7 @@ export class RunStore {
 
   async create(r: NewRun): Promise<RunRow> {
     const now = this.now();
-    const id = uuidv7(now.getTime());
+    const id = r.id ?? uuidv7(now.getTime());
     const parent = r.parentRunId ? await this.db.aiRun.findUnique({ where: { id: r.parentRunId }, select: { rootRunId: true, depth: true } }) : null;
     return this.db.aiRun.create({
       data: {
@@ -99,7 +103,8 @@ export class RunStore {
         type: s.type,
         status: s.status ?? 'ok',
         actionId: s.actionId ?? null,
-        input: json(s.input ?? {}),
+        // Ô bí mật (ActionDef.secret) không bao giờ nằm trong bước run (TIP-023c) — kể cả lời gọi bị chặn.
+        input: json(s.type === 'tool' ? maskToolInput(s.actionId ?? null, s.input ?? {}, getAction) : (s.input ?? {})),
         output: s.output === undefined ? undefined : json(s.output),
         provider: s.provider ?? null,
         model: s.model ?? null,

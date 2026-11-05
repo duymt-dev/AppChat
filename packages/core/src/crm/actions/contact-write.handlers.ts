@@ -11,6 +11,8 @@ import { actorUserId, editableContact } from '../services/access';
 import { assertNoDuplicate, checkCustom, columnsOf, createContact, fieldRole } from '../services/contacts.service';
 import { CrmMembers } from '../services/members.service';
 import { writeTimeline } from '../services/timeline.service';
+import { tagByName, tagNames } from '../services/contact-tags';
+import * as pv from './previews/contact-write.handlers.preview';
 
 const actor = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
 
@@ -35,6 +37,10 @@ export class ContactCreateHandler implements Handler<ActionInput<typeof contactC
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof contactCreate>) {
+    return pv.createPreview(input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactCreate>, tx: TenantTx): Promise<HandlerOutcome<{ contact_id: string; code: string }>> {
     const now = this.clock.now();
@@ -63,6 +69,10 @@ export class ContactUpdateHandler implements Handler<ActionInput<typeof contactU
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactUpdate>, tx: TenantTx) {
+    return pv.updatePreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof contactUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ contact_id: string }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
     const { owner_user_id, custom, ...rest } = input.patch;
@@ -90,6 +100,10 @@ export class ContactUpdateHandler implements Handler<ActionInput<typeof contactU
 export class ContactSetStageHandler implements Handler<ActionInput<typeof contactSetStage>, { stage: string }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactSetStage>, tx: TenantTx) {
+    return pv.setStagePreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof contactSetStage>, tx: TenantTx): Promise<HandlerOutcome<{ stage: string }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
     const now = this.clock.now();
@@ -111,26 +125,14 @@ export class ContactSetStageHandler implements Handler<ActionInput<typeof contac
   }
 }
 
-/** Thẻ theo TÊN (không phân biệt hoa thường); chưa có → tạo thẻ mới (một nguồn thẻ với hội thoại — Blueprint §2.2 tag). */
-async function tagByName(tx: TenantTx, name: string, me: string | null, now: Date, create: boolean) {
-  const rows = await tx.$queryRaw<{ id: string; name: string }[]>`SELECT id, name FROM tag WHERE lower(name) = lower(${name.trim()}) LIMIT 1`;
-  if (rows[0] || !create) return rows[0] ?? null;
-  const id = uuidv7(now.getTime());
-  await tx.tag.create({ data: { id, name: name.trim(), createdByUserId: me, createdAt: now } });
-  return { id, name: name.trim() };
-}
-
-async function tagNames(tx: TenantTx, contactId: string) {
-  const links = await tx.contactTag.findMany({ where: { contactId }, select: { tagId: true }, orderBy: { createdAt: 'asc' } });
-  const tags = await tx.tag.findMany({ where: { id: { in: links.map((l) => l.tagId) } }, select: { id: true, name: true } });
-  const by = new Map(tags.map((t) => [t.id, t.name]));
-  return links.map((l) => by.get(l.tagId) ?? '').filter(Boolean);
-}
-
 @Injectable()
 @ActionHandler('contact.tag')
 export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>, { tags: string[] }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactTag>, tx: TenantTx) {
+    return pv.tagPreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactTag>, tx: TenantTx): Promise<HandlerOutcome<{ tags: string[] }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
@@ -154,6 +156,10 @@ export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>
 @ActionHandler('contact.delete')
 export class ContactDeleteHandler implements Handler<ActionInput<typeof contactDelete>, { deleted: boolean }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx) {
+    return pv.deletePreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx): Promise<HandlerOutcome<{ deleted: boolean }>> {
     const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);

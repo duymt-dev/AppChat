@@ -1,20 +1,27 @@
-// contact.export (crm.export, risk read — chạy ngay, không preview theo policy §3.3 (DC-063); CSV đúng scope) · contact.import (crm.import, bulk → preview, theo lô ≤ 500,
+// contact.export (crm.export, risk read — không preview theo policy §3.3 (DC-063); CSV đúng scope; ≤ 5.000 dòng trả ngay, > 5.000 → 202 việc nền
+// `data_job` + tệp tải có hạn — TIP-045b annex D) · contact.import (crm.import, bulk → preview, theo lô ≤ 500,
 // chống giành khách: dòng trùng khách của người khác chỉ đếm, không lộ dữ liệu). contact.send_email ở inbox (gửi qua kênh Email — TIP-018).
 import { Inject, Injectable } from '@nestjs/common';
-import { SOURCE_STYLE, createFmt, interpolate, normalizePhone, serverMessages, type ContactSource } from '@appchat/shared';
+import { EXPORT_SYNC_MAX } from '@appchat/shared';
 import type { ActionPreview, ActionInput, contactExport, contactImport } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
+import { assertQueryFields, fieldView } from '../../authz/public';
 import { actorUserId } from '../services/access';
 import { createContact } from '../services/contacts.service';
-import { listContactIds, type ContactFilter } from '../repos/contacts.repo';
+import { snapshotContactIds, type ContactFilter } from '../repos/contacts.repo';
+import { csvHead, csvLines, exportFileName } from '../services/contact-export';
+import { CONTACT_EXPORT_KIND } from '../jobs/contact-export.processor';
+import { createJob } from '../../kernel/jobs/data-jobs/store';
+import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
+import { policyStamp } from '../../kernel/jobs/bulk-status';
+import { jobAccepted } from '../../kernel/actions/job-accepted';
 import { CrmMembers } from '../services/members.service';
+import { classifyImport, importPreview } from './previews/contact-io.handlers.preview';
 
 type ExportIn = ActionInput<typeof contactExport>;
 type ExportOut = { file_name: string; mime: 'text/csv'; rows: number; content: string };
-
-const csvCell = (v: string) => (/[",\n\r]/.test(v) || /^[=+\-@]/.test(v) ? `"${(/^[=+\-@]/.test(v) ? `'${v}` : v).replace(/"/g, '""')}"` : v);
 
 @Injectable()
 @ActionHandler('contact.export')
@@ -30,23 +37,23 @@ export class ContactExportHandler implements Handler<ExportIn, ExportOut> {
   }
 
   async execute(ctx: ActionContext, input: ExportIn, tx: TenantTx): Promise<HandlerOutcome<ExportOut>> {
-    const { ids } = await listContactIds(tx, ctx.authz, this.filter(input), null);
-    const rows = await tx.contact.findMany({ where: { id: { in: ids } }, select: { id: true, code: true, name: true, phone: true, email: true, stage: true, ownerUserId: true, city: true, source: true, createdAt: true } });
-    const order = new Map(ids.map((id, i) => [id, i]));
-    rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
-    const names = await this.members.names(rows.map((r) => r.ownerUserId));
-    const locale = 'vi';
-    const m = serverMessages(locale).crm;
-    const fmt = createFmt({ locale });
-    const head = [m.export.code, m.export.name, m.export.phone, m.export.email, m.export.stage, m.export.owner, m.export.city, m.export.source, m.export.created];
-    const lines = rows.map((r) =>
-      [r.code, r.name, r.phone ?? '', r.email ?? '', m.stage[r.stage], r.ownerUserId ? (names.get(r.ownerUserId) ?? '') : '', r.city ?? '', (SOURCE_STYLE[r.source as ContactSource] ?? SOURCE_STYLE.manual).label, fmt.date(r.createdAt)]
-        .map(csvCell)
-        .join(','),
-    );
-    const day = this.clock.now().toISOString().slice(0, 10);
-    // BOM để Excel mở đúng UTF-8 tiếng Việt.
-    return { result: { file_name: `khach-hang-${day}.csv`, mime: 'text/csv', rows: rows.length, content: `﻿${[head.join(','), ...lines].join('\r\n')}` } };
+    // Lọc `cf.*` trên trường bị ẩn → 422 (số dòng xuất cũng là kênh dò giá trị — TIP-045b annex C).
+    const fv = await fieldView(tx, 'contact', ctx.authz);
+    assertQueryFields(fv, input.custom);
+    // Chốt TOÀN BỘ tập id (không cắt ngầm 5.000 — TIP-045b annex D); > 5.000 → việc nền + tệp tải qua /v1/data-jobs/:id/download.
+    const ids = await snapshotContactIds(tx, ctx.authz, this.filter(input));
+    const now = this.clock.now();
+    if (ids.length > EXPORT_SYNC_MAX) {
+      const id = await createJob(tx, { kind: CONTACT_EXPORT_KIND, actionId: 'contact.export', actorId: actorUserId(ctx), actionLogId: null, input, targets: ids, fieldPolicy: policyStamp(fv), now });
+      return {
+        result: { file_name: exportFileName(now), mime: 'text/csv', rows: ids.length, content: '' },
+        after: { job_id: id, total: ids.length },
+        events: [{ topic: 'data_job.requested', payload: { job_id: id, kind: CONTACT_EXPORT_KIND } }],
+        ...jobAccepted(id, dataJobUrl(id)),
+      };
+    }
+    const { lines } = await csvLines(tx, ctx.authz, this.members, ids);
+    return { result: { file_name: exportFileName(now), mime: 'text/csv', rows: lines.length, content: [csvHead(), ...lines].join('\r\n') } };
   }
 }
 
@@ -61,46 +68,15 @@ export class ContactImportHandler implements Handler<ImportIn, ImportOut> {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  /** Phân loại dòng: thiếu SĐT + email / email sai → invalid; trùng trong file hoặc với khách có sẵn → dup / owned. */
-  private async classify(ctx: ActionContext, rows: ImportIn['rows'], tx: TenantTx) {
-    const me = actorUserId(ctx);
-    const seen = new Set<string>();
-    const out: { row: ImportIn['rows'][number]; kind: 'create' | 'dup' | 'owned' | 'invalid' }[] = [];
-    for (const row of rows) {
-      const phone = normalizePhone(row.phone);
-      const email = row.email?.trim().toLowerCase() || null;
-      if ((!phone && !email) || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-        out.push({ row, kind: 'invalid' });
-        continue;
-      }
-      const keys = [phone && `p:${phone}`, email && `e:${email}`].filter((k): k is string => !!k);
-      if (keys.some((k) => seen.has(k))) {
-        out.push({ row, kind: 'dup' });
-        continue;
-      }
-      keys.forEach((k) => seen.add(k));
-      const or = [...(phone ? [{ phoneNorm: phone }] : []), ...(email ? [{ email }] : [])];
-      const hit = await tx.contact.findFirst({ where: { deletedAt: null, OR: or }, select: { ownerUserId: true } });
-      out.push({ row, kind: !hit ? 'create' : hit.ownerUserId && hit.ownerUserId !== me ? 'owned' : 'dup' });
-    }
-    return out;
-  }
-
   async preview(ctx: ActionContext, input: ImportIn, tx: TenantTx): Promise<ActionPreview> {
-    const c = await this.classify(ctx, input.rows, tx);
-    const n = (k: string) => c.filter((x) => x.kind === k).length;
-    return {
-      summary: interpolate(serverMessages('vi').crm.preview.import, { count: c.length, created: n('create'), dup: n('dup'), owned: n('owned'), invalid: n('invalid') }),
-      risk: 'write',
-      count: n('create'),
-    };
+    return importPreview(ctx, tx, input);
   }
 
   async execute(ctx: ActionContext, input: ImportIn, tx: TenantTx): Promise<HandlerOutcome<ImportOut>> {
     const now = this.clock.now();
     const me = actorUserId(ctx);
     const roleKey = await this.members.roleOf(ctx.workspaceId, me);
-    const rows = await this.classify(ctx, input.rows, tx);
+    const rows = await classifyImport(ctx, input.rows, tx);
     const ids: string[] = [];
     for (const r of rows.filter((x) => x.kind === 'create')) {
       const { source, ...rest } = r.row;

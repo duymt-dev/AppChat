@@ -2,7 +2,7 @@
 // định → một lịch dù nhiều worker) — lịch chờ hết giữ chỗ → expired, nhắc hẹn 24 giờ / 2 giờ qua kênh khách đã dùng (tin đi hàng gửi
 // chung của kênh). Lỗi một workspace không chặn workspace khác.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';

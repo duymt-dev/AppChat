@@ -1,7 +1,7 @@
 // Gửi tin qua kênh (omnichannel-adapter §6, Blueprint §1.3 queue `send:<channel_account_id>`): luôn qua hàng đợi của tài khoản,
 // không gửi đồng bộ trong request. Tên queue `chsend-<id>` (BullMQ cấm `:`). Producer cho Inbox / chiến dịch (TIP-016 / 037);
 // kết quả trả về qua SendResultSink do domain gọi đăng ký (ghi `message.status`, `external_msg_id`).
-import { Queue } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { OutboundMessage } from '@appchat/channels';
 
@@ -30,6 +30,13 @@ export const unregisterSendResultSink = (name: string) => void SINKS.delete(name
 export async function emitSendResult(r: SendResult): Promise<void> {
   for (const s of SINKS.values()) await s(r).catch(() => undefined);
 }
+
+/** Đặt chỗ gửi (TIP-045b annex D): domain gửi tin agent đăng ký (`inbox`) — false = bị từ chối, không gọi kênh. */
+export type SendReserver = (ws: string, refId: string) => Promise<boolean>;
+let RESERVER: SendReserver | null = null;
+export const registerSendReserver = (r: SendReserver | null) => void (RESERVER = r);
+/** Chưa có domain đăng ký → gửi như cũ. Lỗi đặt chỗ ném ra để BullMQ thử lại (không gửi khi chưa chắc). */
+export const reserveSend: SendReserver = (ws, refId) => (RESERVER ? RESERVER(ws, refId) : Promise.resolve(true));
 
 export const SEND_ATTEMPTS = 5;
 

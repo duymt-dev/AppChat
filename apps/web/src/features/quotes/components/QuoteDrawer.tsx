@@ -1,7 +1,8 @@
 // Drawer chi tiết báo giá — prototype L5032–5160 (392px, nền xám): đầu tuỳ biến + 4 tab + chân thao tác theo trạng thái (COMMERCE §3).
-// "Gửi ZBS / Gửi SMS" là kênh OUT (prototype-parity §6) → Gửi Zalo · Gửi Email · Tải PDF.
+// "Gửi ZBS / Gửi SMS" là kênh OUT (prototype-parity §6) → Gửi Zalo · Gửi Email · Gửi khác (kênh + PDF / ảnh — TIP-032b) · Tải PDF.
 // "→ Hợp đồng / → Đơn hàng" chỉ cho báo giá đã chốt (bấm khi đã gửi = ghi nhận khách chốt trước); màn đích tạo bản ghi từ `from_quote`.
 'use client';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -20,6 +21,7 @@ import { STATUS_TONE } from '../status';
 import { OverviewTab } from './OverviewTab';
 import { AiTab, CrmTab, HistoryTab } from './DetailTabs';
 import { CustType, avColor, initial } from './parts';
+import { QuoteDeliveryModal } from './QuoteDeliveryModal';
 import type { Quote, QuotesMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'history'] as const;
@@ -45,6 +47,9 @@ function Footer({ q }: { q: Quote }) {
     router.push(`/${kind}?from_quote=${q.id}`);
   };
   const canConvert = q.status === 'accepted' || can(q, 'quote.mark_accepted');
+  // Một báo giá → một HĐ HOẶC một đơn (TIP-032b): đã sinh loại này thì nút loại kia tắt (server trả QUOTE_ALREADY_CONVERTED).
+  const toContract = canConvert && q.converted !== 'order';
+  const toOrder = canConvert && q.converted !== 'contract';
   return (
     <div className={styles.foot}>
       <button
@@ -86,7 +91,7 @@ function Footer({ q }: { q: Quote }) {
       <button
         type="button"
         className={cx(styles.act, styles.actContract)}
-        disabled={!canConvert}
+        disabled={!toContract}
         onClick={() => void convert('contracts')}
         data-testid="q-to-contract"
       >
@@ -95,7 +100,7 @@ function Footer({ q }: { q: Quote }) {
       <button
         type="button"
         className={cx(styles.act, styles.actOrder)}
-        disabled={!canConvert}
+        disabled={!toOrder}
         onClick={() => void convert('orders')}
         data-testid="q-to-order"
       >
@@ -113,6 +118,7 @@ function Header({ q }: { q: Quote }) {
   const { styles } = useQuoteDetailStyles();
   const canSend = useCan('quote.send');
   const send = useQuoteSend();
+  const [delivery, setDelivery] = useState(false);
   const [fg, bg] = STATUS_TONE[q.status];
   return (
     <>
@@ -166,11 +172,16 @@ function Header({ q }: { q: Quote }) {
           <Icon name="ic-mail" size={14} color={color.text2} />
           {t('detail.sendEmail')}
         </button>
+        <button type="button" className={styles.send} disabled={!canSend} onClick={() => setDelivery(true)} data-testid="q-send-more">
+          <Icon name="ic-send" size={14} color={color.text2} />
+          {t('detail.sendMore')}
+        </button>
         <button type="button" className={styles.send} disabled={pdf.busy} onClick={() => void pdf.open(q.id)} data-testid="q-pdf">
           <Icon name="ic-dl" size={14} color={color.text2} />
           {t('detail.sendPdf')}
         </button>
       </div>
+      {delivery ? <QuoteDeliveryModal quoteId={q.id} initial="webchat" onClose={() => setDelivery(false)} /> : null}
     </>
   );
 }

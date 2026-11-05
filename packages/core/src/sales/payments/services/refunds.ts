@@ -1,8 +1,8 @@
 // Hoàn tiền (COMMERCE §4 / §5 / §6, state-machine §7): khoản `kind = refund` số âm, `pending` tới khi người có `payment.refund_approve`
 // duyệt (→ confirmed: cộng `order.refunded_total` → pay_status hoàn một phần / toàn bộ, liệu trình → refunded) hoặc từ chối (→ failed).
 // Nguồn: yêu cầu tay theo đề nghị / liệu trình (`payment.refund`) và đơn đã thu bị huỷ (consumer `order.cancelled`). Số hoàn ≤ đã thu
-// còn lại trừ các yêu cầu đang chờ (không hoàn hai lần).
-import { AppError, packageRefundOf } from '@appchat/shared';
+// còn lại trừ các yêu cầu đang chờ (không hoàn hai lần). Phần trả bằng điểm không hoàn thành tiền (TIP-036 — huỷ đơn trả lại điểm qua loyalty).
+import { AppError, packageRefundOf, pointsValue } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
 import { UUID } from '../invoice-access';
@@ -15,16 +15,16 @@ const ACTIVE = { in: ['pending' as const, 'confirmed' as const] };
 
 const sum = (rows: { amount: bigint }[]) => rows.reduce((a, r) => a + r.amount, 0n);
 
-/** Số còn hoàn được của đơn: đã thu − đã hoàn − đang chờ duyệt. */
+/** Số còn hoàn được của đơn: đã thu − đã hoàn − đang chờ duyệt − phần trả bằng điểm còn hiệu lực (1 điểm = 100đ). */
 export async function orderRefundable(tx: TenantTx, orderId: string): Promise<bigint> {
-  const o = await tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { paidTotal: true, refundedTotal: true } });
+  const o = await tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { paidTotal: true, refundedTotal: true, pointsUsed: true } });
   const pending = sum(await tx.customerPayment.findMany({ where: { orderId, kind: 'refund', status: 'pending' }, select: { amount: true } }));
-  return o.paidTotal - o.refundedTotal + pending; // pending là số âm
+  return o.paidTotal - o.refundedTotal - pointsValue(o.pointsUsed) + pending; // pending là số âm
 }
 
-/** Số còn hoàn được của một đề nghị: khoản thu dương đã xác nhận + mọi khoản hoàn (âm — đã duyệt + đang chờ). */
+/** Số còn hoàn được của một đề nghị: khoản thu tiền dương đã xác nhận (không gồm điểm) + mọi khoản hoàn (âm — đã duyệt + đang chờ). */
 export async function invoiceRefundable(tx: TenantTx, invoiceId: string): Promise<bigint> {
-  const rows = await tx.customerPayment.findMany({ where: { invoiceId, OR: [{ kind: { not: 'refund' }, status: 'confirmed' }, { kind: 'refund', status: ACTIVE }] }, select: { amount: true } });
+  const rows = await tx.customerPayment.findMany({ where: { invoiceId, OR: [{ kind: { notIn: ['refund', 'points'] }, status: 'confirmed' }, { kind: 'refund', status: ACTIVE }] }, select: { amount: true } });
   return sum(rows);
 }
 
@@ -76,7 +76,7 @@ export async function requestRefund(tx: TenantTx, r: RefundIn, now: Date): Promi
 
 /** Phương thức hoàn mặc định = phương thức của khoản thu gần nhất (sàn thu hộ → sàn hoàn). */
 export async function refundMethodOf(tx: TenantTx, where: { invoiceId?: string; orderId?: string }): Promise<Method> {
-  const last = await tx.customerPayment.findFirst({ where: { ...where, kind: { not: 'refund' }, status: 'confirmed' }, orderBy: { createdAt: 'desc' }, select: { method: true } });
+  const last = await tx.customerPayment.findFirst({ where: { ...where, kind: { notIn: ['refund', 'points'] }, status: 'confirmed' }, orderBy: { createdAt: 'desc' }, select: { method: true } });
   const m = last?.method;
   return m && m !== 'points' ? m : 'bank_transfer';
 }

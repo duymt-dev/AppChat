@@ -8,6 +8,7 @@ import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import type { QuoteItem } from './quotes';
 import { NAMES, deny, enrichOrder, findOrder, logOrder, type Order, type OrderStatus } from './orders';
+import { sendOrderConfirmation } from './commerce-delivery';
 
 const step = (o: Order, action: string): OrderStatus => {
   try {
@@ -93,7 +94,9 @@ export const ordersHandlers: Record<string, MockHandler> = {
     execute: (db, i: { quote_id: string }) => {
       const q = db.quotes.quotes.find((x) => x.id === i.quote_id && !x.deleted);
       if (!q) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.quote_id });
-      // Một báo giá chỉ sinh một đơn (order.quote_id unique) — gọi lại trả đơn cũ.
+      // Một báo giá → một HĐ HOẶC một đơn (TIP-032b): đã có HĐ → QUOTE_ALREADY_CONVERTED; gọi lại trả đơn cũ.
+      const contract = db.contracts.contracts.find((c) => c.quote_id === q.id && !c.deleted);
+      if (contract) throw new ApiRequestError(409, { code: 'QUOTE_ALREADY_CONVERTED', message: q.code, fields: { quote_id: 'has_contract', code: contract.code } });
       const dup = db.orders.orders.find((o) => o.quote_id === q.id && !o.deleted);
       if (dup) return { order_id: dup.id, code: dup.code };
       if (q.status !== 'accepted') deny('INVALID_TRANSITION', q.status);
@@ -224,4 +227,5 @@ export const ordersHandlers: Record<string, MockHandler> = {
     // Mock OrderSyncProvider: chưa có kết nối sàn thật (adapter P2) — không có đơn mới.
     execute: () => ({ imported: 0 }),
   },
+  'order.send_confirmation': { execute: (db, i: { order_id: string; channel?: string }) => sendOrderConfirmation(findOrder(db, i.order_id), i.channel) },
 };

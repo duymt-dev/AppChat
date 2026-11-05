@@ -10,6 +10,8 @@
   "seeMore": "Xem thêm →",
   "empty": "Chưa có dữ liệu",
   "noPermission": "Bạn không có quyền xem mục này",
+  "fieldHidden": "Không có quyền xem",
+  "fieldHiddenHint": "Trường này bị ẩn theo quyền của bạn",
   "error": "Đã có lỗi xảy ra",
   "customFields": {
     "section": "Thông tin thêm",
@@ -58,5 +60,80 @@
     "channels": "Kênh",
     "integrations": "Kết nối",
     "booking": "Lịch hẹn"
+  },
+  "genui": {
+    "noData": "Không có dữ liệu",
+    "expand": "Mở rộng",
+    "seeAll": "Xem đầy đủ",
+    "modalTitle": "Trợ lý AI",
+    "submit": "Gửi",
+    "renderFailed": "Không hiển thị được phần giao diện này.",
+    "secretHint": "Nhập trực tiếp — giá trị không gửi cho Trợ lý.",
+    "prefillInvalid": "Giá trị gợi ý không hợp lệ, vui lòng nhập lại.",
+    "reEnter": "Phiên nhập đã hết hạn, vui lòng nhập lại ô bí mật.",
+    "qr": {
+      "title": "Quét mã bằng Zalo trên điện thoại",
+      "waiting": "Mở Zalo → Quét mã QR",
+      "scanned": "Đã quét — xác nhận đăng nhập trên điện thoại",
+      "connected": "Đã kết nối",
+      "expired": "Mã đã hết hạn",
+      "failed": "Kết nối không thành công",
+      "declined": "Bạn đã từ chối đăng nhập trên điện thoại",
+      "regenerate": "Tạo mã mới",
+      "alt": "Mã QR đăng nhập Zalo"
+    },
+    "loadingBlock": "Đang dựng giao diện…",
+    "expandMore": "Mở rộng (+{n})",
+    "probe": {
+      "button": "Kiểm tra kết nối",
+      "ok": "Kết nối hợp lệ",
+      "failed": {
+        "rejected": "Thông tin đăng nhập không đúng",
+        "timeout": "Nhà cung cấp không phản hồi trong 10 giây"
+      },
+      "unsupported": {
+        "coming_soon": "Kết nối này sắp có",
+        "no_test": "Nhà cung cấp chưa hỗ trợ kiểm tra trước"
+      },
+      "not_connected": "Chưa có kết nối để kiểm tra"
+    }
+  },
+  "screenAi": {
+    "thinking": "Trợ lý đang soạn…",
+    "error": "Chưa gửi được — kiểm tra kết nối rồi thử lại.",
+    "confirmLead": "Em chuẩn bị thực hiện — anh/chị xác nhận giúp em:",
+    "confirm": "Xác nhận",
+    "cancel": "Huỷ",
+    "done": "Đã thực hiện",
+    "cancelled": "Đã huỷ — không thực hiện",
+    "approval": "Đã gửi duyệt — chưa thực hiện",
+    "count": "{n} bản ghi",
+    "openFull": "Mở trong Trợ lý"
+  },
+  "docChannel": {
+    "label": "Kênh gửi",
+    "zalo_personal": "Zalo",
+    "email": "Email",
+    "webchat": "Web chat"
+  },
+  "contactMemory": {
+    "title": "AI ghi nhớ",
+    "count": "{n}/{cap}",
+    "empty": "AI chưa ghi nhớ điều gì về khách này.",
+    "loading": "Đang tải…",
+    "forget": "Xoá điều AI ghi nhớ",
+    "source": {
+      "agent": "AI Agent",
+      "user": "Nhân viên",
+      "system": "Hệ thống"
+    },
+    "summary": "AI tóm tắt",
+    "summarize": "Tóm tắt",
+    "refresh": "Tóm tắt lại",
+    "summarizing": "Đang tóm tắt…",
+    "summaryHint": "Bấm \"Tóm tắt\" để AI tóm tắt hồ sơ từ dữ liệu bạn được xem.",
+    "retry": "Dữ liệu khách vừa thay đổi — bấm \"Tóm tắt lại\".",
+    "byModel": "Do AI tóm tắt từ dữ liệu bạn được xem",
+    "byRule": "Tổng hợp tự động từ số liệu (không dùng AI)"
   }
 }

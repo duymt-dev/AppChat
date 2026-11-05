@@ -56,19 +56,33 @@ export function combos(attrs: Attr[]): Record<string, string>[] {
   return acc.slice(0, MAX_VARIANTS);
 }
 
-/** Ghi lại biến thể từ thuộc tính; biến thể trùng tên giữ id / tồn cũ, biến thể không còn → xoá. */
+/** Ghi lại biến thể từ thuộc tính; biến thể trùng tên giữ id / tồn cũ, biến thể không còn → lưu trữ nếu đã có dòng báo giá / đơn tham
+ * chiếu (giữ lịch sử — TIP-032b), chưa có → xoá. Biến thể đã lưu trữ không tự hồi sinh (khôi phục qua action biến thể). */
 export async function syncVariants(tx: TenantTx, p: { id: string; code: string }, attrs: Attr[], now: Date) {
   const want = combos(attrs);
-  const cur = await tx.productVariant.findMany({ where: { productId: p.id }, select: { id: true, name: true } });
+  const cur = await tx.productVariant.findMany({ where: { productId: p.id, status: { not: 'archived' } }, select: { id: true, name: true } });
   const names = want.map((c) => Object.values(c).join(' · '));
   const keep = new Set(cur.filter((v) => names.includes(v.name)).map((v) => v.id));
-  await tx.productVariant.deleteMany({ where: { productId: p.id, id: { notIn: [...keep] } } });
+  const gone = cur.filter((v) => !keep.has(v.id)).map((v) => v.id);
+  const used = gone.length ? new Set((await tx.orderItem.findMany({ where: { variantId: { in: gone } }, select: { variantId: true }, distinct: ['variantId'] })).map((r) => r.variantId)) : new Set();
+  const archive = gone.filter((id) => used.has(id));
+  if (archive.length) await tx.productVariant.updateMany({ where: { id: { in: archive } }, data: { status: 'archived', version: { increment: 1 }, updatedAt: now } });
+  await tx.productVariant.deleteMany({ where: { id: { in: gone.filter((id) => !used.has(id)) } } });
   const have = new Set(cur.filter((v) => keep.has(v.id)).map((v) => v.name));
   const fresh = want.map((c, i) => ({ c, i, name: names[i]! })).filter((x) => !have.has(x.name));
-  if (fresh.length)
-    await tx.productVariant.createMany({
-      data: fresh.map((x) => ({ id: uuidv7(now.getTime()), productId: p.id, sku: `${p.code}-${x.i + 1}`, name: x.name, attrs: x.c, createdAt: now })),
-    });
+  if (!fresh.length) return;
+  // SKU tự sinh `<mã>-<n>`; đã có ở biến thể chưa lưu trữ (unique partial) → thêm hậu tố cho tới khi trống.
+  const prefix = `${p.code.toLowerCase().replace(/[\\%_]/g, (c) => `\\${c}`)}-%`;
+  const taken = new Set((await tx.$queryRaw<{ sku: string }[]>`SELECT lower(sku) AS sku FROM product_variant WHERE status <> 'archived' AND lower(sku) LIKE ${prefix}`).map((r) => r.sku));
+  const skuOf = (n: number) => {
+    let sku = `${p.code}-${n}`;
+    for (let k = 2; taken.has(sku.toLowerCase()); k++) sku = `${p.code}-${n}-${k}`;
+    taken.add(sku.toLowerCase());
+    return sku;
+  };
+  await tx.productVariant.createMany({
+    data: fresh.map((x) => ({ id: uuidv7(now.getTime()), productId: p.id, sku: skuOf(x.i + 1), name: x.name, attrs: x.c, createdAt: now, updatedAt: now })),
+  });
 }
 
 export const fieldRole = (authz: AuthzContext, roleKey: string) => (authz.isOwner ? 'owner' : roleKey);

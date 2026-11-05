@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useOrderTabStyles } from '../styles/tabs.styles';
+import { SendConfirmation } from './SendConfirmation';
 import { PayText, useSvc, useTr } from '../columns';
 import { ShippingCard } from './ShippingCard';
 import { useOrdersUi } from '../orders-store';
@@ -91,6 +92,7 @@ export function OverviewTab({ o }: { o: Order }) {
           {t('detail.invoice')}
         </button>
       </div>
+      <SendConfirmation o={o} />
       <div className={cx(styles.card, styles.gapTop)}>
         <div className={styles.kv}>
           <span>{t('detail.status')}</span>

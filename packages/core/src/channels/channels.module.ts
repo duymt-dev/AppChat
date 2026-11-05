@@ -3,12 +3,13 @@
 // Registry có adapter dựng theo env (Zalo thật / giả; webchat qua redis-emitter). Thiếu DB / Redis → service null (action trả 501).
 // Luật thông báo / realtime nạp khi import module này.
 import { Module, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import { ImapMailboxTransport, ZcaTransport, buildChannelRegistry, fakeMailboxTransport, fakeZaloTransport, type ChannelRegistry, type WidgetPublisher } from '@appchat/channels';
+import { ImapMailboxTransport, ZcaTransport, buildChannelRegistry, fakeMailboxTransport, fakeZaloTransport, type ChannelRegistry, type FileFetcher, type WidgetPublisher } from '@appchat/channels';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENC_KEY } from '../kernel/crypto';
+import { FilesService } from '../kernel/files/files.service';
 import { ENV_SOURCE } from '../kernel/kernel.module';
 import { RateLimiter } from '../kernel/rate-limit';
 import { REDIS } from '../kernel/redis';
@@ -23,12 +24,20 @@ import { CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, ChannelControl } from './se
 import { ChannelsReadService } from './services/read.service';
 import { DB_AGENT_NAMES } from '../ai/agents/agent-names';
 import { ChannelSendQueue } from './services/send-queue';
+import { attachmentFetcher } from './services/attachment-fetcher';
 import { RedisWidgetPublisher } from './webchat/publisher';
 import { VisitorService } from './webchat/visitor.service';
 import { VisitorTokens } from './webchat/visitor-token';
+import { ChannelSearchHandler } from './actions/channel-read.handler';
+import { ChannelStatusHandler } from './actions/channel-status.handler';
 import { WebchatUpdateWidgetHandler } from './webchat/webchat.handlers';
 import { ChannelEmailConnectHandler } from './email/email.handlers';
 import type { WidgetUrls } from './webchat/widget.service';
+import { ChannelGroupResultHandler } from './actions/group-result.handler';
+import { GroupRequestQueue } from './jobs/create-group.processor';
+import { groupRequestConsumer } from './events/group-request.consumer';
+import { GroupRead } from './services/group-read';
+import { registerEventConsumer, unregisterEventConsumer } from '../kernel/events/consumer';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -41,15 +50,17 @@ class Closer implements OnApplicationShutdown {
     private readonly q: Queue | null,
     private readonly send: ChannelSendQueue | null,
     private readonly inbound: Queue | null,
+    private readonly groups: GroupRequestQueue | null,
   ) {}
   async onApplicationShutdown(): Promise<void> {
     await this.q?.close();
     await this.inbound?.close();
     await this.send?.close();
+    await this.groups?.close();
   }
 }
 
-export function channelRegistryFor(src: Record<string, string | undefined>, widget?: WidgetPublisher): ChannelRegistry {
+export function channelRegistryFor(src: Record<string, string | undefined>, widget?: WidgetPublisher, files?: FileFetcher): ChannelRegistry {
   const env = readChannelsEnv(src);
   if (env.ZALO_TRANSPORT === 'fake' && env.ZALO_FAKE_GREETING) fakeZaloTransport.greeting = env.ZALO_FAKE_GREETING;
   if (env.MAIL_TRANSPORT === 'fake' && env.MAIL_FAKE_GREETING) {
@@ -57,7 +68,8 @@ export function channelRegistryFor(src: Record<string, string | undefined>, widg
   }
   return buildChannelRegistry({
     zalo: env.ZALO_TRANSPORT === 'fake' ? fakeZaloTransport : new ZcaTransport(),
-    mail: env.MAIL_TRANSPORT === 'fake' ? fakeMailboxTransport : new ImapMailboxTransport(),
+    mail: env.MAIL_TRANSPORT === 'fake' ? fakeMailboxTransport : new ImapMailboxTransport(files),
+    ...(files ? { files } : {}),
     ...(widget ? { widget } : {}),
   });
 }
@@ -70,6 +82,8 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
 
 @Module({
   providers: [
+    ChannelSearchHandler,
+    ChannelStatusHandler,
     ChannelZaloStartLoginHandler,
     ChannelReconnectHandler,
     ChannelUpdateSettingsHandler,
@@ -80,11 +94,28 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     ChannelDisconnectHandler,
     WebchatUpdateWidgetHandler,
     ChannelEmailConnectHandler,
+    ChannelGroupResultHandler,
+    {
+      // Hàng đợi tạo nhóm theo tài khoản + consumer outbox `channel.group_requested` (chạy ở tiến trình có queue `events`).
+      provide: GroupRequestQueue,
+      inject: [opt(REDIS)],
+      useFactory: (r?: Redis) => {
+        if (!r) return null;
+        const q = new GroupRequestQueue(r.duplicate());
+        const c = groupRequestConsumer(q);
+        unregisterEventConsumer(c.name);
+        registerEventConsumer(c);
+        return q;
+      },
+    },
+    { provide: GroupRead, inject: [opt(TENANT_RESOLVER)], useFactory: (t?: TenantDbResolver) => (t ? new GroupRead(t) : null) },
     {
       provide: CHANNEL_REGISTRY,
-      inject: [opt(ENV_SOURCE), opt(REDIS)],
-      // Adapter webchat phát tin qua redis-emitter (client dùng chung — Emitter chỉ PUBLISH).
-      useFactory: (src: Record<string, string | undefined> | undefined, r?: Redis) => channelRegistryFor(src ?? {}, r ? new RedisWidgetPublisher(r) : undefined),
+      inject: [opt(ENV_SOURCE), opt(REDIS), opt(ENC_KEY), opt(TENANT_RESOLVER), { token: FilesService, optional: true }],
+      // Adapter webchat phát tin qua redis-emitter (client dùng chung — Emitter chỉ PUBLISH). Tệp gửi kèm: link ký nội bộ đọc Storage,
+      // URL ngoài qua safeFetch (TIP-045b).
+      useFactory: (src: Record<string, string | undefined> | undefined, r?: Redis, k?: Buffer, t?: TenantDbResolver, f?: FilesService) =>
+        channelRegistryFor(src ?? {}, r ? new RedisWidgetPublisher(r) : undefined, attachmentFetcher({ apiBase: widgetUrlsFor(src ?? {}).api, key: k ?? null, tenants: t ?? null, files: f ?? null })),
     },
     { provide: WIDGET_URLS, inject: [opt(ENV_SOURCE)], useFactory: (src?: Record<string, string | undefined>) => widgetUrlsFor(src ?? {}) },
     { provide: INBOUND_QUEUE, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new Queue(CHANNEL_INBOUND_QUEUE, { connection: r.duplicate() }) : null) },
@@ -105,10 +136,10 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     },
     {
       provide: 'CHANNELS_CLOSER',
-      inject: [LOGIN_QUEUE, ChannelSendQueue, INBOUND_QUEUE],
-      useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null) => new Closer(q, s, i),
+      inject: [LOGIN_QUEUE, ChannelSendQueue, INBOUND_QUEUE, GroupRequestQueue],
+      useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null, g: GroupRequestQueue | null) => new Closer(q, s, i, g),
     },
   ],
-  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService],
+  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead],
 })
 export class ChannelsModule {}

@@ -2,7 +2,7 @@
 // `scheduler` dùng chung thì worker domain khác nhận job này và bỏ qua như đã xong — DC; jobId cố định → một lịch dù nhiều worker) — báo giá quá hạn → `expired`, còn ≤ 2 ngày → nhắc người phụ trách; consumer `sales.quote-owner`
 // (`contact.owner_changed` có move.quotes → chuyển báo giá đang mở cho người mới — COMMERCE §8b). TIP-031: queue `order-sync` (poll sàn 5 phút) + consumer webhook sàn — order-sync.jobs.ts. TIP 032 thêm processor.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -77,7 +77,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (!this.redis || !this.platform || !this.tenants) return;
     const now = () => this.clock.now();
     registerEventConsumer(quoteOwnerConsumer(now));
-    registerEventConsumer(paymentPackagesConsumer(now));
+    registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
     const deps = { platform: this.platform, tenants: this.tenants, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };
     const pay = {
       ...deps,
@@ -94,7 +94,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
       async (job) => {
         if (job.name === PAYMENT_SWEEP_JOB) {
           const r = await sweepPayments(pay);
-          if (r.overdue || r.reminded || r.expired) this.log.info({ job: PAYMENT_SWEEP_JOB, ...r }, 'quét khoản thu');
+          if (r.overdue || r.reminded || r.expired || r.packageReminders) this.log.info({ job: PAYMENT_SWEEP_JOB, ...r }, 'quét khoản thu');
           return;
         }
         if (job.name !== QUOTE_SWEEP_JOB) return;

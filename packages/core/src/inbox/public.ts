@@ -4,7 +4,7 @@ export { InboxMetaService } from './services/meta.service';
 export { InboundPipeline, wantsAgent } from './services/pipeline';
 export { INBOX_RUNTIME } from './jobs/inbox.jobs.module';
 export type { ConvFilter } from './repos/conversations.repo';
-export { visibleConversation } from './services/access';
+export { visibleConversation, writableConversation } from './services/access';
 // Gửi tin ra kênh từ domain khác (báo giá gửi khách — TIP-029): ghi tin + outbox trong transaction, đẩy hàng đợi sau commit.
 export { writeOutgoing, enqueueOutgoing, sendableAccount, type Outgoing } from './services/outbound';
 export { scopeCols } from './services/access';

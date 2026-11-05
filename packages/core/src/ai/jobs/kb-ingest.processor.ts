@@ -1,6 +1,6 @@
 // Worker ROLE=ai: processor queue `kb-ingest` (rag §5) → ingestSource trên DB tenant của workspace trong job. Đồng thời 2 job / process
 // (parse + embed tốn CPU / mạng). Event `kb.source_ready` / `kb.source_failed` ghi cùng transaction → đánh dấu bẩn cho outbox relay.
-import { Worker } from 'bullmq';
+import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { AppLogger } from '../../kernel/logger/logger';

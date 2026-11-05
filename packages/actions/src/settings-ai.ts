@@ -30,7 +30,7 @@ export const kbAddSource = defineAction({
   module: 'ai',
   title: 'actions.kb.add_source.title',
   description:
-    'Add a file (uploaded first via POST /v1/files → file_id), a URL or plain text to the knowledge base for AI to learn. Example: {"name":"Bảng giá 2026.pdf","file_id":"…","folder_id":"…","visibility":"public"}',
+    'Add a file (uploaded first via POST /v1/files → file_id), a URL or plain text to the knowledge base for AI to learn. Visibility omitted = inherit the folder default (no folder → public). Example: {"name":"Bảng giá 2026.pdf","file_id":"…","folder_id":"…"}',
   input: z.object({
     name: z.string().trim().min(1).max(200),
     folder_id: z.string().optional(),
@@ -39,8 +39,9 @@ export const kbAddSource = defineAction({
     url: z.string().url().optional(),
     text: z.string().trim().min(1).max(200_000).optional(),
     tags: z.array(z.string().max(30)).max(10).optional(),
-    /** public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền đọc (D54). */
-    visibility: z.enum(['public', 'internal']).default('public'),
+    /** public = agent trả lời khách được dùng; internal = chỉ Trợ lý / agent làm cho người có quyền đọc (D54). Bỏ trống = kế thừa
+     *  thư mục (không thư mục → public) — server resolve trong transaction (TIP-020b), KHÔNG default ở lớp parse (mất thông tin bỏ trống). */
+    visibility: z.enum(['public', 'internal']).optional(),
     /** false = chỉ lưu, chưa embedding ("Cho AI học tài liệu này" — prototype L7498). */
     learn: z.boolean().default(true),
   }),
@@ -112,19 +113,6 @@ export const kbRefreshSource = defineAction({
   description: 'Re-index a knowledge source, or all of them. Example: {"source_id":"all"}',
   input: z.object({ source_id: z.string().min(1) }),
   output: z.object({ queued: z.number().int() }),
-  permission: 'kb.manage',
-  risk: 'write',
-  agentGrantable: false,
-  invalidates: ['kb'],
-});
-
-export const kbFolderCreate = defineAction({
-  id: 'kb.folder.create',
-  module: 'ai',
-  title: 'actions.kb.folder.create.title',
-  description: 'Create a knowledge base folder. Example: {"name":"Quy trình dịch vụ"}',
-  input: z.object({ name: z.string().trim().min(1).max(60) }),
-  output: z.object({ folder_id: z.string() }),
   permission: 'kb.manage',
   risk: 'write',
   agentGrantable: false,

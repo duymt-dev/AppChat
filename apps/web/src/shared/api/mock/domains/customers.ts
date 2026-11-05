@@ -8,6 +8,7 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { paginate } from '../paginate';
+import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './contact-memory';
 
 export type CustomersFixture = typeof fixture;
 type Contact = CustomersFixture['contacts'][number] & { deleted?: boolean };
@@ -20,6 +21,8 @@ export interface CustomersState {
   requests: AccessRequest[];
   duplicates: CustomersFixture['duplicates']['groups'];
   seq: number;
+  /** Trí nhớ AI theo khách (TIP-015b — domains/contact-memory). */
+  memory: MemoryStore;
 }
 
 /** Người dùng hiện tại của mock (shell.json me.user.id). */
@@ -31,6 +34,7 @@ export const createCustomersState = (): CustomersState => ({
   requests: [],
   duplicates: structuredClone(fixture.duplicates.groups),
   seq: 0,
+  memory: seedMemory(),
 });
 
 const memberName = (id: string) => fixture.members.find((m) => m.id === id)?.name ?? id;
@@ -125,6 +129,11 @@ const profile360 = (c: Contact) => ({
 
 /** /contacts/:id (360, khách kh_*) · /contacts/:id/collaborators. */
 export const customersParamRoute = (path: string): MockRoute | null => {
+  const mem = memoryRoute(path, (db: MockDb, id) => {
+    const c = db.customers.contacts.find((x) => x.id === id);
+    return c && visible(db, c) ? c : null;
+  });
+  if (mem) return mem;
   const one = path.match(/^\/contacts\/(kh_[^/]+)$/);
   if (one) return (db) => {
     const c = db.customers.contacts.find((x) => x.id === one[1]);
@@ -152,6 +161,7 @@ type Ci = { contact_id: string };
 const norm = (s?: string) => (s ?? '').replace(/\D/g, '').replace(/^84/, '0');
 
 export const customersHandlers: Record<string, MockHandler> = {
+  ...(memoryHandlers((db: MockDb, id) => contact(db, id)) as Record<string, MockHandler>),
   'contact.create': {
     execute: (db, i: ContactInput) => {
       // chống giành khách (D32): trùng SĐT / email với khách đã có người phụ trách khác → CONTACT_OWNED, không trả dữ liệu khách

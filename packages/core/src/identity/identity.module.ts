@@ -4,7 +4,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Module, type FactoryProvider, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { PlatformDb } from '@appchat/db';
 import { BrevoMailProvider, MemoryMailProvider, SmtpMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, type MailProvider } from '@appchat/integrations';
@@ -17,18 +17,22 @@ import { BusinessProfileUpdateHandler } from './actions/business-profile-update.
 import { InviteRevokeHandler } from './actions/invite-revoke.handler';
 import { MemberInviteHandler } from './actions/member-invite.handler';
 import { MemberRemoveHandler } from './actions/member-remove.handler';
+import { MemberSearchHandler } from './actions/member-read.handler';
 import { MemberSetRoleHandler } from './actions/member-set-role.handler';
 import { OnboardingToggleStepHandler } from './actions/onboarding-toggle-step.handler';
 import { ProfileUpdateHandler } from './actions/profile-update.handler';
 import { WorkingHoursUpdateHandler } from './actions/working-hours-update.handler';
 import { WorkspaceSwitchHandler } from './actions/workspace-switch.handler';
 import { WorkspaceUpdateHandler } from './actions/workspace-update.handler';
+import { WorkspaceRequestTransferOtpHandler } from './actions/workspace-transfer-otp.handler';
+import { WorkspaceTransferOwnershipHandler } from './actions/workspace-transfer.handler';
 import { readIdentityEnv, type IdentityEnv } from './identity.env';
 import { BullProvisionQueue, TENANT_QUEUE } from './jobs/tenant-provision.processor';
 import { AccessTokens, jwtKeysFromEnv } from './services/access-tokens';
 import { AuthService } from './services/auth.service';
 import { IDENTITY_ENV, MAIL_PROVIDER, RATE_LIMITER, TAX_LOOKUP, TENANT_PROVISION_QUEUE } from './services/identity.tokens';
 import { InvitesService } from './services/invites.service';
+import { InviteEffectsInstaller } from './services/invite-effects';
 import { OtpService } from './services/otp.service';
 import { SessionsService } from './services/sessions.service';
 import { WorkspacesService } from './services/workspaces.service';
@@ -114,10 +118,10 @@ const providers: FactoryProvider[] = [
 ];
 
 // Handler Cài đặt (TIP-013). member.set_role inject PLATFORM_DB tuỳ chọn (undo ghi DB nền tảng).
-const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler];
+const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler, MemberSearchHandler, WorkspaceRequestTransferOtpHandler, WorkspaceTransferOwnershipHandler];
 
 @Module({
-  providers: [...providers, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],
+  providers: [...providers, InviteEffectsInstaller, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],
   exports: [
     IDENTITY_ENV,
     MAIL_PROVIDER,

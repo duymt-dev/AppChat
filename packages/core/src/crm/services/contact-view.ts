@@ -1,7 +1,8 @@
 // Ánh xạ dòng `contact` → shape hàng danh sách FE (`contactRowSchema` — packages/shared/src/api/crm.ts). Nạp thẻ / số
-// collaborator / quyền của người xem theo lô (indexing §9 — không N+1).
-import { SOURCE_STYLE, createFmt, hueOf, initialsOf, serverMessages, type AuthzContext, type ContactRowDto, type ContactSource, type CustomValues } from '@appchat/shared';
+// collaborator / quyền của người xem theo lô (indexing §9 — không N+1). Ô "AI gợi ý" từ insights/next-action (TIP-015b, bộ luật).
+import { SOURCE_STYLE, createFmt, hueOf, initialsOf, interpolate, serverMessages, type AuthzContext, type ContactRowDto, type ContactSource, type CustomValues } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import type { NextAction } from '../insights/next-action';
 
 export interface ContactRecord {
   id: string;
@@ -21,12 +22,13 @@ export interface ContactRecord {
   ownerUserId: string | null;
   custom: unknown;
   createdAt: Date;
+  lastInteractionAt: Date;
 }
 
 /** Cột cần cho hàng danh sách (indexing §8 — không SELECT *). */
 export const ROW_SELECT = {
   id: true, code: true, name: true, kind: true, title: true, phone: true, email: true, zalo: true, city: true, district: true,
-  source: true, group: true, status: true, stage: true, ownerUserId: true, custom: true, createdAt: true,
+  source: true, group: true, status: true, stage: true, ownerUserId: true, custom: true, createdAt: true, lastInteractionAt: true,
 } as const;
 
 export interface RowContext {
@@ -54,7 +56,16 @@ export async function loadRowExtras(tx: Pick<TenantTx, 'contactTag' | 'tag' | 'c
 
 const lastWord = (name: string) => name.trim().split(/\s+/).at(-1) ?? name;
 
-export function toRow(c: ContactRecord, rc: RowContext, extras: Awaited<ReturnType<typeof loadRowExtras>>): ContactRowDto {
+/** Ô "AI gợi ý" từ gợi ý bước tiếp theo (bộ luật — insights/next-action); chưa có → chờ. */
+function aiCell(n: NextAction | undefined, locale: string, timeZone: string): ContactRowDto['ai'] {
+  const m = serverMessages(locale).crm.ai;
+  if (!n) return { kind: 'wait', label: m.wait, hint: '' };
+  const fmt = createFmt({ locale, timeZone });
+  const params = n.key === 'collect' ? { amount: fmt.money(String(n.params.amount)) } : n.params;
+  return { kind: n.kind, label: n.kind === 'wait' ? m.wait : m.done, hint: interpolate(m.next[n.key], params) };
+}
+
+export function toRow(c: ContactRecord, rc: RowContext, extras: Awaited<ReturnType<typeof loadRowExtras>> & { next?: Map<string, NextAction> }): ContactRowDto {
   const fmt = createFmt({ locale: rc.locale, timeZone: rc.timeZone });
   const src = SOURCE_STYLE[c.source as ContactSource] ?? SOURCE_STYLE.manual;
   const collabs = extras.collabs.get(c.id) ?? [];
@@ -85,8 +96,7 @@ export function toRow(c: ContactRecord, rc: RowContext, extras: Awaited<ReturnTy
     owner_user_id: c.ownerUserId ?? '',
     owner_name: c.ownerUserId ? (rc.names.get(c.ownerUserId) ?? '') : '',
     owner_hue: c.ownerUserId ? hueOf(c.ownerUserId) : 0,
-    // Gợi ý AI theo khách là phần AI (TIP-02x) — tới lúc đó ô "AI gợi ý" ở trạng thái chờ.
-    ai: { kind: 'wait', label: serverMessages(rc.locale).crm.ai.wait, hint: '' },
+    ai: aiCell(extras.next?.get(c.id), rc.locale, rc.timeZone),
     tags: extras.tags.get(c.id) ?? [],
     web_bg: hue % 6,
     my_access: c.ownerUserId === rc.authz.userId ? 'owner' : (mine ?? 'scope'),

@@ -2,7 +2,7 @@
 export { ChannelsReadService, healthOf, fmtFrt, type AgentNames } from './services/read.service';
 export { ChannelAccounts, settingsOf, type AccountSettings } from './services/accounts.service';
 export { ChannelControl, CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, leaseKey, type LoginJob } from './services/control';
-export { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink, type SendJob, type SendResult } from './services/send-queue';
+export { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink, registerSendReserver, type SendJob, type SendResult } from './services/send-queue';
 export { CHANNEL_REGISTRY, WIDGET_URLS, channelRegistryFor, widgetUrlsFor } from './channels.module';
 export { CHANNELS_RUNTIME } from './jobs/channels.jobs.module';
 export { VisitorService, type WidgetSession } from './webchat/visitor.service';
@@ -10,3 +10,6 @@ export { VisitorTokens, VISITOR_TTL_SEC } from './webchat/visitor-token';
 export { MemoryWidgetPublisher, RedisWidgetPublisher, visitorRoom } from './webchat/publisher';
 export { widgetSettings, originAllowed, embedCode, type WidgetUrls } from './webchat/widget.service';
 export { emailOutboundExtras, openEmailThread } from './email/threads';
+export { planGroup, requestDto, type GroupPlan, type Participant as GroupParticipant } from './services/group-requests';
+export { GroupRead } from './services/group-read';
+export { GroupCreators, GroupRequestQueue, groupQueueName, GROUP_TIMEOUT_MS, type GroupJob } from './jobs/create-group.processor';

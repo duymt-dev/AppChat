@@ -121,8 +121,8 @@
     "required": "Pick a customer and add at least one priced line",
     "needApproval": "Over threshold ({reasons}) — submit for approval before sending.",
     "reasons": {
-      "total": "total > 20M",
-      "discount": "discount > 5%",
+      "total": "total > {total}",
+      "discount": "discount > {pct}%",
       "off_catalog": "off-catalog items"
     }
   },
@@ -139,7 +139,8 @@
       "no_conversation_zalo_personal": "This customer has not messaged you on Zalo yet — personal Zalo cannot start a chat; send by email or wait for the customer.",
       "no_conversation_email": "Could not send by email.",
       "no_email": "This customer has no email — add one to the profile and send again.",
-      "connector": "No Email channel connected — connect one in Settings › Channels."
+      "connector": "No Email channel connected — connect one in Settings › Channels.",
+      "noImage": "This channel cannot send images — pick PDF."
     },
     "tabs": {
       "overview": "Overview",
@@ -270,7 +271,8 @@
     "converted": "Moved to {kind}",
     "convertContract": "contract",
     "convertOrder": "order",
-    "convertSoon": "The {kind} is created on its own screen — open {route}"
+    "convertSoon": "The {kind} is created on its own screen — open {route}",
+    "sendMore": "More options"
   },
   "aiPanel": {
     "title": "AI Assistant · Quotes",
@@ -291,9 +293,11 @@
     "result": "AI result",
     "ph": "Ask the AI Assistant about quotes…",
     "send": "Send",
-    "ackPrice": "I'll suggest a package that fits the budget plus the best discount to lift the close rate.",
-    "ackFollow": "I'll review unanswered quotes and draft automatic reminders for you.",
-    "ack": "Noted your request about quotes — on it."
+    "prompts": {
+      "sugg": "Suggest suitable packages / combos and pricing for the customer of the open quote (or selected quotes) based on purchase history.",
+      "followup": "List sent quotes with no customer response for more than 3 days and suggest how to follow up.",
+      "analyze": "Analyse the quote close rate: accepted / rejected / expired counts and the main reasons for losses."
+    }
   },
   "draft": {
     "title": "AI quote draft from text",
@@ -330,5 +334,30 @@
     "pdf": "Download PDF",
     "invalidTitle": "This quote link is no longer valid",
     "invalidSub": "Please contact the sender for a new quote."
+  },
+  "delivery": {
+    "title": "Send quote",
+    "cancel": "Cancel",
+    "send": "Send",
+    "channel": "Channel",
+    "format": "Format",
+    "channels": {
+      "zalo_personal": "Zalo personal",
+      "email": "Email",
+      "webchat": "Website chat"
+    },
+    "channelNote": {
+      "zalo_personal": "Only after the customer has messaged the shop on Zalo.",
+      "email": "Opens a new email thread if there is none yet.",
+      "webchat": "Posts to the website chat with a view / download link (expires with the quote)."
+    },
+    "formats": {
+      "pdf": "PDF",
+      "image": "Page images"
+    },
+    "formatNote": {
+      "pdf": "The approved PDF, frozen at send time.",
+      "image": "One PNG per page, rendered from the same approved PDF — all pages, same amounts."
+    }
   }
 }

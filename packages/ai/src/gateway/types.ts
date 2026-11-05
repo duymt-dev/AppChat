@@ -9,8 +9,13 @@ export type JsonSchema = Record<string, unknown>;
 
 export type ToolOutcome =
   | { kind: 'ok'; output: unknown }
-  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string }
+  /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
+  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown }
   | { kind: 'needs_approval'; approvalId: string }
+  /** Việc nền đã nhận (202 `job_accepted`, TIP-032b): CHƯA xong — model chỉ báo đang chạy + handle; bước cần kết quả cuối không được mở. */
+  | { kind: 'job_accepted'; jobId: string; actionLogId: string; statusUrl: string }
+  /** Thao tác nền tảng đã commit, phần workspace chưa áp xong (202 `operation_pending`, TIP-045b): CHƯA thành công — hệ thống tự hoàn tất. */
+  | { kind: 'operation_pending'; operationId: string; actionLogId: string; statusUrl: string }
   | { kind: 'error'; code: string; message: string };
 
 export interface ToolSpec {
@@ -52,6 +57,8 @@ export interface PausedState {
   /** Tool cùng bước, sau tool đang chờ — chưa chạy (trả `skipped` khi chạy tiếp). */
   skipped: ToolCallRef[];
   stepIdx: number;
+  /** Input chuẩn hoá của lời gọi đang chờ xác nhận — lưu cùng run, không phụ thuộc RAM (chạy tiếp ở process khác). */
+  canonicalInput?: unknown;
 }
 
 export interface UsageInfo {
@@ -89,6 +96,8 @@ export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cance
 
 export type RunEvent =
   | { type: 'delta'; stepIdx: number; text: string }
+  /** Input tool đang đến dần (chưa kiểm, chưa chạy) — chỉ để dựng khung xương GenUI; không bao giờ là lệnh. */
+  | { type: 'tool_input'; stepIdx: number; toolCallId: string; toolName: string; delta: string }
   | { type: 'tool_call'; stepIdx: number; call: ToolCallRef }
   | { type: 'tool_result'; stepIdx: number; call: ToolCallRef; outcome: ToolOutcome; latencyMs: number }
   | { type: 'usage'; usage: UsageInfo; credits: number }

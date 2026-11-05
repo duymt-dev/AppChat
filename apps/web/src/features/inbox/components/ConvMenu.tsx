@@ -1,5 +1,6 @@
 // Menu ⋯ hội thoại có submenu (REQ-C10, ver2.1 #2) — prototype L1978–2033: Đóng · Tạm ẩn · Phím tắt · Phân công · Vòng đời ·
-// Gắn thẻ nhiều — dưới đường kẻ: Lưu trữ · Ẩn trò chuyện (D50) · Tạo nhóm ("Sắp có") · Xoá lịch sử.
+// Gắn thẻ nhiều — dưới đường kẻ: Lưu trữ · Ẩn trò chuyện (D50) · Tạo nhóm (TIP-023b: chỉ mở khi kênh có `create_group` thật, còn lại
+// "Sắp có" có lý do) · Xoá lịch sử.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +11,7 @@ import { membersQuery } from '@/features/customers';
 import { agentsQuery } from '@/features/agents';
 import { useRowStyles } from '../styles/row.styles';
 import { useInboxUi, type ConvSub } from '../inbox-store';
-import { cannedQuery } from '../api';
+import { cannedQuery, channelsQuery } from '../api';
 import type { Conversation } from '../types';
 
 const STAGES = ['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost'] as const;
@@ -29,6 +30,8 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
   const hide = useAction('conversation.hide');
   const clear = useAction('conversation.clear_history');
   const canned = useQuery({ ...cannedQuery(), enabled: open && sub === 'shortcut' });
+  const channels = useQuery({ ...channelsQuery(), enabled: open });
+  const canGroup = conv.kind === 'direct' && !!conv.channel_account_id && !!channels.data?.[conv.channel]?.create_group;
   const members = useQuery({ ...membersQuery(), enabled: open && sub === 'assign' });
   const agents = useQuery({ ...agentsQuery(), enabled: open && sub === 'assign' });
   const [tags, setLocalTags] = useState<string[]>(() => conv.tags.map((g) => g.label));
@@ -51,7 +54,7 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
   const DIVIDER: [key: string, icon: IconName, danger: boolean, onClick: () => void][] = [
     ['archive', 'ic-inbox', false, () => { onClose(); void archive.run({ conversation_id: conv.id }); }],
     ['hideconv', 'ic-eye', false, () => { onClose(); void hide.run({ conversation_id: conv.id, hidden: true }); }],
-    ['group', 'ic-users', false, () => undefined],
+    ['group', 'ic-users', false, () => { onClose(); ui.set({ modal: 'group', groupFrom: conv.id }); }],
     ['clear', 'ic-trash', true, () => { onClose(); void clear.run({ conversation_id: conv.id }); }],
   ];
 
@@ -183,10 +186,19 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
         <>
           <div className={styles.sep} />
           {DIVIDER.map(([key, icon, danger, onClick]) => (
-            <button key={key} type="button" role="menuitem" className={cx(styles.item, key === 'group' && styles.disabled, danger && styles.caret)} onClick={key === 'group' ? undefined : onClick}>
+            <button
+              key={key}
+              type="button"
+              role="menuitem"
+              className={cx(styles.item, key === 'group' && !canGroup && styles.disabled, danger && styles.caret)}
+              onClick={key === 'group' && !canGroup ? undefined : onClick}
+              aria-disabled={key === 'group' && !canGroup}
+              title={key === 'group' && !canGroup ? t('groupUnsupported') : undefined}
+              data-testid={key === 'group' ? 'conv-create-group' : undefined}
+            >
               <Icon name={icon} size={15} color={danger ? color.danger : color.text3} />
               <span className={styles.grow}>{t(`actions.${key}` as never)}</span>
-              {key === 'group' ? <span className={styles.subMeta}>{t('comingSoon')}</span> : null}
+              {key === 'group' && !canGroup ? <span className={styles.subMeta}>{t('comingSoon')}</span> : null}
             </button>
           ))}
         </>

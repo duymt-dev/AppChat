@@ -4,7 +4,7 @@
 import { ImapFlow } from 'imapflow';
 import { simpleParser, type AddressObject } from 'mailparser';
 import nodemailer from 'nodemailer';
-import { fetchFile } from '../zalo-personal/adapter';
+import { refuseFileFetch, type FileFetcher } from '../zalo-personal/adapter';
 import { MailAuthError, MailConnectError, type FetchResult, type MailCredentials, type MailboxTransport, type OutgoingMail, type ParsedMail } from './transport';
 
 const TIMEOUT_MS = 20_000;
@@ -79,6 +79,9 @@ async function parse(uid: number, source: Buffer): Promise<ParsedMail | null> {
 }
 
 export class ImapMailboxTransport implements MailboxTransport {
+  /** Tải tệp đính kèm khi gửi — core cấp `attachmentFetcher` (TIP-045b); không cấp → từ chối gửi kèm tệp. */
+  constructor(private readonly files: FileFetcher = refuseFileFetch) {}
+
   async verify(c: MailCredentials): Promise<void> {
     await withImap(c, async () => undefined);
     const t = smtp(c);
@@ -122,7 +125,7 @@ export class ImapMailboxTransport implements MailboxTransport {
   async send(c: MailCredentials, m: OutgoingMail): Promise<{ messageId: string }> {
     const t = smtp(c);
     try {
-      const attachments = await Promise.all((m.attachments ?? []).map(async (a) => ({ filename: a.name, contentType: a.mime, content: await fetchFile(a.url) })));
+      const attachments = await Promise.all((m.attachments ?? []).map(async (a) => ({ filename: a.name, contentType: a.mime, content: await this.files(a.url) })));
       const info = await t.sendMail({
         from: m.from.name ? { name: m.from.name, address: m.from.address } : m.from.address,
         to: m.to,

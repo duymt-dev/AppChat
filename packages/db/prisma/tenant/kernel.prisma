@@ -27,6 +27,8 @@ enum ActionStatus {
   succeeded
   failed
   undone
+  /// Đang hoàn tác action nền tảng (TIP-045b — giữ chỗ giữa commit nền tảng và chốt tenant).
+  undoing
 
   @@map("action_status")
 }
@@ -59,6 +61,8 @@ model ActionLog {
   undoneBy         String?      @map("undone_by") @db.Uuid
   undoneAt         DateTime?    @map("undone_at") @db.Timestamptz(6)
   traceId          String?      @map("trace_id")
+  /// Sự kiện nhạy cảm (TIP-045b annex A2) — đọc ở Cài đặt › Audit + thông báo Owner. Partial index viết tay ở migration.
+  audit            Boolean      @default(false)
   createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([runId])
@@ -78,6 +82,15 @@ model OutboxEvent {
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("outbox_event")
+}
+
+/// Biên nhận pha tenant của thao tác xuyên DB (TIP-045b annex A1) — unique(operation_id): áp lại không ghi đôi log / outbox.
+model OperationReceipt {
+  operationId String   @id @map("operation_id") @db.Uuid
+  actionLogId String   @map("action_log_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("operation_receipt")
 }
 
 /// Idempotency-Key cho lệnh tạo + risk send / money (TTL 24h, job dọn theo created_at).

@@ -74,13 +74,20 @@ export class DbApprovalGateway implements ApprovalGateway {
     return id;
   }
 
-  async consume(tx: TenantTx, ctx: ActionContext, actionId: string, input: unknown): Promise<void> {
+  /** `inputHash` có sẵn (thao tác nền tảng áp tenant sau — input thô không lưu ở sổ, TIP-045b) → so hash này thay vì băm lại input. */
+  async consume(tx: TenantTx, ctx: ActionContext, actionId: string, input: unknown, inputHash?: string): Promise<void> {
     const id = ctx.approvalId!;
     const a = UUID.test(id) ? await tx.approvalRequest.findUnique({ where: { id } }) : null;
-    if (!a || a.actionId !== actionId || a.inputHash !== hashInput(input)) throw new AppError('FORBIDDEN', 403, { approval_id: 'mismatch' });
+    if (!a || a.actionId !== actionId || a.inputHash !== (inputHash ?? hashInput(input))) throw new AppError('FORBIDDEN', 403, { approval_id: 'mismatch' });
     if (a.status !== 'approved' && a.status !== 'edited') throw new AppError('INVALID_STATE', 409, { approval: a.status });
     // Chốt một lần: chỉ dòng chưa chạy được đánh dấu (hai job song song → một thắng, transaction kia huỷ).
     const r = await tx.approvalRequest.updateMany({ where: { id, executedAt: null }, data: { executedAt: this.d.now() } });
     if (r.count !== 1) throw new AppError('CONFLICT', 409, { approval: 'already_executed' });
+  }
+
+  /** Kết quả chuẩn của action đã duyệt (cùng transaction tiêu thụ) — job tiếp tục run dùng đúng kết quả này, không `{executed:true}`. */
+  async record(tx: TenantTx, ctx: ActionContext, output: unknown): Promise<void> {
+    const a = await tx.approvalRequest.findUnique({ where: { id: ctx.approvalId! }, select: { result: true } });
+    if (a && a.result === null) await tx.approvalRequest.update({ where: { id: ctx.approvalId! }, data: { result: toJson({ kind: 'ok', output }) as object } });
   }
 }

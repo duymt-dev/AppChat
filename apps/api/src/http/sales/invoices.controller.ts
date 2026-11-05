@@ -1,6 +1,6 @@
 // Đọc Đề nghị thanh toán (Blueprint §4.4 sales, TIP-032 — shape packages/shared/src/api/invoices.ts): /v1/invoices (D42 page + limit,
 // `status` / `contact_id` / `order_id` / `owner_id` / `q` không dấu), /invoices/meta (?invoice_id=), /invoices/:id, /invoices/:id/pdf,
-// /invoices/receipts/:paymentId/pdf (phiếu thu), /contacts/:id/packages (liệu trình), /settings/payments (`finance.manage`). Quyền
+// /invoices/:id/qr (ảnh VietQR — TIP-032b), /invoices/receipts/:paymentId/pdf (phiếu thu), /contacts/:id/packages (liệu trình), /settings/payments (`finance.manage`). Quyền
 // `invoice.manage` (hoặc `payment.record` — kế toán); data scope sales trong service (không thấy → 404). Ghi qua action invoice.* / payment.*.
 import { Controller, Get, Inject, Param, Query, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -50,6 +50,16 @@ export class InvoicesController {
   @Get('invoices/:id')
   async get(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.read.get(await this.viewer(req), id) };
+  }
+
+  /** Ảnh VietQR của số còn phải thu (TIP-032b P2) — quyền xem đề nghị (scope), không cache vì chứa số tiền / tài khoản riêng. */
+  @Get('invoices/:id/qr')
+  async qr(@Req() req: IncomingMessage, @Param('id') id: string, @Res() res: ServerResponse) {
+    const png = await this.read.qr(await this.viewer(req), id);
+    res.setHeader('content-type', 'image/png');
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('cache-control', 'no-store');
+    res.end(png);
   }
 
   @Get('invoices/:id/pdf')

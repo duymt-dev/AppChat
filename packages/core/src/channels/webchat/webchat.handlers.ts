@@ -10,10 +10,12 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { QuotaService } from '../../billing/public';
+import { openReservations, reserveQuota } from '../../kernel/consistency/handler-adapter';
 import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { ChannelControl } from '../services/control';
 import { ChannelAccounts, defaultSettings, routeStatusOf, type AccountRow, type AccountStatus, type StatusEvent } from '../services/accounts.service';
 import { DEFAULT_COLOR, configOf, newPublicKey, prechatOf, type WidgetConfig } from './widget.service';
+import { widgetPreview } from './previews/webchat.handlers.preview';
 
 type In = ActionInput<typeof webchatUpdateWidget>;
 type Out = { ok: boolean; channel_account_id?: string; public_key?: string };
@@ -30,35 +32,62 @@ export class WebchatUpdateWidgetHandler implements Handler<In, Out> {
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  /**
+   * Pha nền tảng (TIP-045b): chỉ ĐỌC tenant — quyết định có thêm tài khoản kênh không (cần giữ chỗ hạn mức dưới khoá workspace), sinh
+   * id / public key tất định. Mọi ghi tenant ở `applyTenant`, route nền tảng ở `finalizePlatform`.
+   */
   async execute(ctx: ActionContext, input: In, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<Out>> {
     const accounts = this.accounts;
     if (!accounts) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'channels chưa cấu hình (PlatformDb)');
     if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'webchat.update_widget cần PlatformTx');
     await assertAgentAssignable(tx, input.agent_id);
     const now = this.clock.now();
+    const widget = await tx.webchatWidget.findFirst({ orderBy: { createdAt: 'asc' } });
+    const acc = widget ? await tx.channelAccount.findUnique({ where: { id: widget.channelAccountId } }) : null;
+    const live = !!acc && acc.status !== 'disconnected';
+    const adding = !live && input.enabled !== false;
+    if (adding) {
+      await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
+      await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
+      await reserveQuota(ptx, ctx, 'channels', now);
+    }
+    const accountId = acc?.id ?? uuidv7(now.getTime());
+    const toggled = live && input.enabled !== undefined && input.enabled === !!acc!.pausedAt;
+    const running = adding || (toggled ? input.enabled === true : !!acc && acc.status === 'connected' && !acc.pausedAt);
+    const control = this.control;
+    const plan = { input, accountId, publicKey: widget?.publicKey ?? newPublicKey(), widgetId: widget?.id ?? uuidv7(now.getTime()), by: userOf(ctx), at: now.toISOString() };
+    return {
+      result: { ok: true },
+      tenantPlan: plan,
+      // Worker ROLE=channels mở / đóng worker gửi của tài khoản ngay (không chờ nhịp 10 giây).
+      ...(control && (adding || toggled) ? { afterCommit: () => control.send({ op: running ? 'start' : 'stop', account_id: accountId }) } : {}),
+    };
+  }
+
+  /** Pha tenant: dựng / cập nhật widget + tài khoản (áp lại an toàn — cùng id, cập nhật theo input). */
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const accounts = this.accounts!;
+    const p = plan as { input: In; accountId: string; publicKey: string; widgetId: string; by: string | null; at: string };
+    const input = p.input;
+    const now = new Date(p.at);
     const t = serverMessages('vi').channels.widget;
     const events: Event[] = [];
     let widget = await tx.webchatWidget.findFirst({ orderBy: { createdAt: 'asc' } });
-    let acc: AccountRow | null = widget ? await tx.channelAccount.findUnique({ where: { id: widget.channelAccountId } }) : null;
+    let acc: AccountRow | null = widget ? await tx.channelAccount.findUnique({ where: { id: widget.channelAccountId } }) : await tx.channelAccount.findUnique({ where: { id: p.accountId } });
     const before = widget ? { enabled: !!acc && acc.status === 'connected' && !acc.pausedAt, name: widget.name, greeting: widget.greeting } : null;
     const live = !!acc && acc.status !== 'disconnected';
-    // Chưa có widget / tài khoản đã ngắt: bật (mặc định) → thêm tài khoản kênh, tính hạn mức.
     if (!live && input.enabled !== false) {
-      await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-      await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', await accounts.countLive(tx));
       const name = input.name?.trim() || widget?.name || t.name;
       if (acc) {
         acc = await tx.channelAccount.update({ where: { id: acc.id }, data: { status: 'connected', pausedAt: null, name, health: { status: 'connected', checked_at: now.toISOString() }, lastEventAt: now } });
       } else {
-        const id = uuidv7(now.getTime());
-        const publicKey = newPublicKey();
         acc = await tx.channelAccount.create({
-          data: { id, type: 'webchat', name, externalId: publicKey, status: 'connected', settings: { ...defaultSettings(), hours: '24/7' }, createdBy: userOf(ctx), createdAt: now, lastEventAt: now },
-        });
-        widget = await tx.webchatWidget.create({
-          data: { id: uuidv7(now.getTime()), channelAccountId: id, publicKey, name, greeting: t.greeting, theme: { color: DEFAULT_COLOR }, prechatForm: { ...prechatOf({ prechatForm: {} }) }, createdAt: now },
+          data: { id: p.accountId, type: 'webchat', name, externalId: p.publicKey, status: 'connected', settings: { ...defaultSettings(), hours: '24/7' }, createdBy: p.by, createdAt: now, lastEventAt: now },
         });
       }
+      widget ??= await tx.webchatWidget.create({
+        data: { id: p.widgetId, channelAccountId: acc.id, publicKey: p.publicKey, name, greeting: t.greeting, theme: { color: DEFAULT_COLOR }, prechatForm: { ...prechatOf({ prechatForm: {} }) }, createdAt: now },
+      });
       events.push({ topic: 'channel.connected', payload: { channel_account_id: acc.id, type: 'webchat', name } });
     } else if (live && input.enabled !== undefined && input.enabled === !!acc!.pausedAt) {
       // Bật / tắt tài khoản đang có = tiếp tục / tạm dừng.
@@ -67,7 +96,6 @@ export class WebchatUpdateWidgetHandler implements Handler<In, Out> {
       if (r.event) events.push(r.event);
     }
     if (!widget || !acc) return { result: { ok: true } };
-
     const cfg = configOf(widget);
     const next: WidgetConfig = {
       ...cfg,
@@ -102,21 +130,29 @@ export class WebchatUpdateWidgetHandler implements Handler<In, Out> {
       acc = await tx.channelAccount.update({ where: { id: acc.id }, data: { settings: { ...(acc.settings as object), agent_id: input.agent_id || null } } });
     }
 
-    await ptx.tenantWidgetRoute.upsert({
-      where: { publicKey: widget.publicKey },
-      create: { publicKey: widget.publicKey, workspaceId: ctx.workspaceId, allowedDomains: widget.allowedDomains },
-      update: { workspaceId: ctx.workspaceId, allowedDomains: widget.allowedDomains },
-    });
-    await accounts.route(ctx.workspaceId, acc, routeStatusOf(acc.status as AccountStatus, acc.pausedAt), ptx);
     const running = acc.status === 'connected' && !acc.pausedAt;
-    const control = this.control;
     return {
       result: { ok: true, channel_account_id: acc.id, public_key: widget.publicKey },
       before,
       after: { enabled: running, name: widget.name, greeting: widget.greeting, allowed_domains: widget.allowedDomains },
       events,
-      // Worker ROLE=channels mở / đóng worker gửi của tài khoản ngay (không chờ nhịp 10 giây).
-      ...(control && events.length ? { afterCommit: () => control.send({ op: running ? 'start' : 'stop', account_id: acc.id }) } : {}),
     };
+  }
+
+  /** Xác nhận nền tảng: route widget (public_key → workspace + allowed_domains) + route kênh theo trạng thái tenant hiện tại. */
+  async finalizePlatform(ctx: ActionContext, _plan: Record<string, unknown>, ptx: PlatformTx, read: TenantTx) {
+    const widget = await read.webchatWidget.findFirst({ orderBy: { createdAt: 'asc' } });
+    const acc = widget ? await read.channelAccount.findUnique({ where: { id: widget.channelAccountId } }) : null;
+    if (!widget || !acc) return;
+    await ptx.tenantWidgetRoute.upsert({
+      where: { publicKey: widget.publicKey },
+      create: { publicKey: widget.publicKey, workspaceId: ctx.workspaceId, allowedDomains: widget.allowedDomains },
+      update: { workspaceId: ctx.workspaceId, allowedDomains: widget.allowedDomains },
+    });
+    await this.accounts!.route(ctx.workspaceId, acc, routeStatusOf(acc.status as AccountStatus, acc.pausedAt), ptx);
+  }
+
+  async preview(_ctx: ActionContext, input: In, tx: TenantTx) {
+    return widgetPreview(tx, input);
   }
 }

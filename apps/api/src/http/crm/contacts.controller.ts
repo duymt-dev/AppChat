@@ -1,6 +1,6 @@
 // Đọc Khách hàng (Blueprint §4.4 crm, TIP-015 — shape packages/shared/src/api/crm.ts): /v1/contacts (D42 page + limit),
 // /contacts/stats, /contacts/duplicates, /contacts/:id (Hồ sơ 360°), /contacts/:id/collaborators, /contacts/:id/timeline,
-// /contact-access-requests, /members, /crm/ai; TIP-026: `sort`, /contacts/board (kanban), /contacts/import-table (đọc tệp nhập).
+// /contact-access-requests, /members, /crm/ai; TIP-015b: /contacts/:id/memory (khối "AI ghi nhớ"); TIP-026: `sort`, /contacts/board (kanban), /contacts/import-table (đọc tệp nhập).
 // Quyền `crm.view`; scope crm áp trong service. Ghi qua action contact.*.
 import { Controller, Get, Inject, Optional, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
@@ -109,6 +109,11 @@ export class ContactsController {
     return { data: await this.read.collaborators(await this.viewer(req), id) };
   }
 
+  @Get('contacts/:id/memory')
+  async memory(@Req() req: IncomingMessage, @Param('id') id: string) {
+    return { data: await this.read.memory(await this.viewer(req), id) };
+  }
+
   @Get('contacts/:id/timeline')
   async timeline(@Req() req: IncomingMessage, @Param('id') id: string, @Query('cursor') cursor?: string) {
     return this.read.timeline(await this.viewer(req), id, cursor || undefined);
@@ -129,7 +134,6 @@ export class ContactsController {
   /** Gợi ý AI của màn Khách hàng là phần AI (TIP-02x) — tới lúc đó rỗng. */
   @Get('crm/ai')
   async ai(@Req() req: IncomingMessage) {
-    await this.viewer(req);
-    return { data: { runs: {}, peek: [] } };
+    return { data: await this.read.ai(await this.viewer(req)) };
   }
 }

@@ -29,6 +29,10 @@ export class FakeZaloSession implements ZaloSession {
   private closeCb: ((code: number, reason: string) => void)[] = [];
   /** Tin cũ trả về khi `requestOldMessages`. */
   history: ZaloRawMessage[] = [];
+  /** Nhóm đã tạo (TIP-023b SPEC D). */
+  readonly groups: { groupId: string; name: string; members: string[] }[] = [];
+  /** Lần tạo nhóm kế tiếp: lỗi (`fail`) hoặc treo đến khi hết giờ (`hang` — kiểm trạng thái unknown). */
+  groupMode: 'ok' | 'fail' | 'hang' = 'ok';
 
   constructor(
     readonly ownId: string,
@@ -87,6 +91,15 @@ export class FakeZaloSession implements ZaloSession {
   }
   async sendSticker(threadId: string, isGroup: boolean, sticker: { id: number }) {
     return this.record({ threadId, isGroup, kind: 'sticker', msg: String(sticker.id) });
+  }
+  async createGroup(name: string, members: string[]) {
+    const mode = this.groupMode;
+    this.groupMode = 'ok';
+    if (mode === 'hang') return new Promise<never>(() => undefined);
+    if (mode === 'fail') throw new Error('zalo_group_failed');
+    const groupId = `${this.ownId}-g${this.groups.length + 1}`;
+    this.groups.push({ groupId, name, members });
+    return { groupId, added: members.filter((m) => !m.startsWith('blocked')), failed: members.filter((m) => m.startsWith('blocked')) };
   }
 }
 

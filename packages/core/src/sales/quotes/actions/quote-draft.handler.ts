@@ -13,6 +13,7 @@ import { runOnce } from '../../../ai/agents/agent.runtime';
 import { QuoteDeps } from '../services/quote-deps';
 import { draftPrompt, intentByRules, matchCatalog, parseIntent, type Intent } from '../services/quote-draft';
 import { insertQuote } from './quote-write.handlers';
+import { draftPreview } from '../previews/quote-draft.handler.preview';
 
 type In = ActionInput<typeof quoteDraftFromContent>;
 type Out = { quote_id: string; code: string; off_catalog: number };
@@ -49,6 +50,10 @@ export class QuoteDraftFromContentHandler implements Handler<In, Out> {
     const m = await matchCatalog(tx, intent.lines.length ? intent : { lines: [{ text: input.content.slice(0, 200), qty: 1 }], discountPct: null });
     const q = await insertQuote(ctx, tx, this.members, { contact_id: input.contact_id, items: m.items, header_discount: m.discount, note: input.content.slice(0, 2000) }, this.clock.now(), { ai: true });
     return { result: { quote_id: q.id, code: q.code, off_catalog: m.offCatalog }, after: { id: q.id } };
+  }
+
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return draftPreview(ctx, tx, input);
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

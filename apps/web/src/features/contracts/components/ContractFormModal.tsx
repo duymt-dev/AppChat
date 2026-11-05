@@ -14,6 +14,9 @@ import { initialContractDraft, useContractForm } from '../hooks/useContractForm'
 import { contractQuery } from '../api';
 import type { Contract, ContractKind } from '../types';
 import { todayIso } from '@/shared/time/today';
+import { useContractSource } from '../hooks/useContractSource';
+import { ContractFileInput, ContractSourceStep } from './files/ContractSourceStep';
+import { AiDraftPanel } from './draft/AiDraftPanel';
 
 const toPrefill = (c: Contract): Record<string, unknown> => ({
   contact_id: c.contact_id,
@@ -83,7 +86,13 @@ function ContractForm({
   const fromQuote = useAction<{ contract_id: string }>('contract.create_from_quote');
   const update = useAction<{ contract_id: string }>('contract.update');
   const [err, setErr] = useState('');
+  const src = useContractSource();
   const close = () => ui.set({ form: null, prefill: null, editId: null });
+  /** "Dùng" giá trị đề xuất từ tệp (người dùng xác nhận từng ô). */
+  const useValue = (k: 'title' | 'party_b' | 'value' | 'start_date' | 'end_date', v: string) => {
+    if (k === 'value') f.set('value', f.money(v));
+    else if (k === 'start_date' || k === 'end_date' || k === 'title') f.set(k, v);
+  };
 
   const save = async () => {
     if (f.missing.length) {
@@ -95,6 +104,8 @@ function ContractForm({
       return setErr(t('form.required', { fields: f.missing.map((m) => names[m]).join(', ') }));
     }
     if (f.badRange) return setErr(t('form.endBefore'));
+    // Nguồn tệp chưa kiểm xong / bị từ chối → không lưu (không giả là đã lưu với tệp).
+    if (src.blocked) return setErr(t('source.notReady'));
     // Gắn báo giá khi tạo = tạo từ báo giá đã chốt (dòng hàng + khách theo báo giá) rồi ghi các trường còn lại.
     const quoteId = 'quote_id' in f.input ? f.input.quote_id : undefined;
     const res =
@@ -106,7 +117,7 @@ function ContractForm({
               .then(async (r) =>
                 r && (await update.run({ contract_id: r.result.contract_id, patch: f.input })) ? r : null,
               )
-          : await create.run(f.input);
+          : await create.run(src.source ? { ...f.input, file_name: src.file?.name, source: src.source } : f.input);
     if (res)
       ui.set({ form: null, prefill: null, editId: null, detail: res.result.contract_id, tab: 'overview' });
   };
@@ -260,12 +271,11 @@ function ContractForm({
           )}
           {field(
             t('form.file'),
-            <input
-              type="file"
-              accept="application/pdf"
-              className={cx(styles.input, styles.file)}
-              onChange={(e) => f.set('file_name', e.target.files?.[0]?.name ?? '')}
-            />,
+            mode === 'create' && !f.d.quote_id ? (
+              <ContractFileInput src={src} />
+            ) : (
+              <input className={styles.input} value={f.d.file_name} disabled />
+            ),
           )}
           {field(
             t('form.note'),
@@ -278,6 +288,15 @@ function ContractForm({
           )}
         </div>
       </div>
+      <ContractSourceStep src={src} onUse={useValue} />
+      {mode === 'create' && src.kind !== 'file' ? (
+        <AiDraftPanel
+          contactId={f.d.contact_id}
+          kind={f.d.kind}
+          quoteId={f.d.quote_id || undefined}
+          onCreated={(id) => ui.set({ form: null, prefill: null, editId: null, detail: id, tab: 'overview' })}
+        />
+      ) : null}
     </ModalShell>
   );
 }

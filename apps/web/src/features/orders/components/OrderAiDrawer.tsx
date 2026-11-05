@@ -1,8 +1,12 @@
-// Panel "Trợ lý AI · Đơn hàng" — prototype L5556–5571 (odAiRun L8081). Mock: kết quả mẫu từ /orders/meta (không gọi LLM).
+// Panel "Trợ lý AI · Đơn hàng" — prototype L5556–5571 (odAiRun L8081). TIP-023c G2: nút nghiệp vụ = prompt soạn sẵn gửi
+// Trợ lý THẬT (surface drawer, ngữ cảnh bản ghi đang mở / dòng chọn); khung tóm tắt = số liệu đếm theo luật của `/orders/meta.ai_runs`
+// (thông tin, không phải câu trả lời AI). Ô hỏi gửi lượt thật.
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient } from '@appchat/ui';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useOrderAiStyles } from '../styles/ai.styles';
 import { useOrdersUi } from '../orders-store';
 import type { OrdersMeta } from '../types';
@@ -19,19 +23,10 @@ export function OrderAiDrawer({ meta }: { meta: OrdersMeta }) {
   const { styles } = useOrderAiStyles();
   const ui = useOrdersUi();
   const [result, setResult] = useState('');
-  const [draft, setDraft] = useState('');
-  const run = (k: string) => setResult(meta.ai_runs[k] ?? '');
-  const send = () => {
-    const text = draft.trim().toLowerCase();
-    if (!text) return;
-    setDraft('');
-    setResult(
-      /thanh toán|cọc|link|pay/.test(text)
-        ? t('ackPay')
-        : /huỷ|hủy|win|cancel/.test(text)
-          ? t('ackCancel')
-          : t('ack'),
-    );
+  const { asst, draft, setDraft, send, ask } = useDrawerAsk('orders');
+  const run = (k: string) => {
+    setResult(meta.ai_runs[k] ?? '');
+    ask(t(`prompts.${k}` as never));
   };
   return (
     <EntityDrawer
@@ -52,6 +47,7 @@ export function OrderAiDrawer({ meta }: { meta: OrdersMeta }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder={t('ph')}
+              aria-label={t('ph')}
             />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={14} color={color.white} />
@@ -69,6 +65,7 @@ export function OrderAiDrawer({ meta }: { meta: OrdersMeta }) {
               type="button"
               className={styles.run}
               onClick={() => run(k)}
+              disabled={asst.typing}
               data-testid={`od-ai-${k}`}
             >
               <span className={styles.runIc}>
@@ -83,6 +80,7 @@ export function OrderAiDrawer({ meta }: { meta: OrdersMeta }) {
             {result}
           </div>
         ) : null}
+        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} onOpenFull={asst.openFull} testId="od-ai-msgs" />
       </div>
     </EntityDrawer>
   );

@@ -87,7 +87,8 @@
     "tagsHint": "Tap to select · applies to the customer",
     "tagsNewPh": "New tag…",
     "tagsAdd": "+ Add",
-    "tagsDone": "Done · {n} tags"
+    "tagsDone": "Done · {n} tags",
+    "groupUnsupported": "This channel cannot create groups yet"
   },
   "chat": {
     "back": "Back to list",
@@ -129,6 +130,8 @@
     }
   },
   "thread": {
+    "contractFromFile": "Create contract from file",
+    "contractCreating": "Creating contract…",
     "insight": "AI insight:",
     "confidence": "· {pct}% confidence",
     "note": "Internal note",
@@ -219,7 +222,23 @@
     "fileFailed": "Could not upload {name}",
     "removeFile": "Remove {name}",
     "mention": "Mention a teammate",
-    "mentionNone": "No matching teammate"
+    "mentionNone": "No matching teammate",
+    "aiDraft": {
+      "compose": "AI compose",
+      "rewrite": "AI rewrite",
+      "pending": "AI is drafting…",
+      "cancel": "Cancel",
+      "error": "Could not draft a reply.",
+      "retry": "Retry",
+      "dismiss": "Dismiss",
+      "composed": "AI draft",
+      "rewritten": "AI rewrite",
+      "badge": "draft — not sent",
+      "conflictBadge": "draft changed",
+      "conflict": "You edited the draft while AI was writing — choose replace or insert.",
+      "replace": "Replace draft",
+      "insert": "Insert"
+    }
   },
   "p360": {
     "title": "360° profile",
@@ -307,7 +326,18 @@
       }
     },
     "blocksEmpty": "This tab has no blocks yet — add them in Settings › 360° profile.",
-    "blockNoData": "No data yet"
+    "blockNoData": "No data yet",
+    "blockDenied": "You do not have access to this section",
+    "slaMet": "SLA met",
+    "slaBreached": "SLA breached",
+    "csatScore": "{n}/5",
+    "linkStatus": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "open": "Open",
+      "in_progress": "In progress",
+      "waiting": "Waiting on customer"
+    }
   },
   "group": {
     "title": "Group info",
@@ -388,6 +418,33 @@
       "mention": "Move to @Mention tab",
       "assign": "Hand over · @Trâm",
       "vip": "Tag as VIP"
+    },
+    "prompts": {
+      "new": "Create a new conversation with {name}.",
+      "invite": "Invite a member to the conversation with {name}.",
+      "summary": "Summarise the last 30 messages of the conversation with {name}.",
+      "draft": "Draft a suggested reply to {name}'s latest message (draft only, do not send).",
+      "translate": "Translate {name}'s latest message into English.",
+      "intent": "Detect {name}'s intent in this conversation.",
+      "mention": "Move the conversation with {name} to the @Mention tab.",
+      "assign": "Assign the conversation with {name} to Trâm.",
+      "vip": "Tag {name} as VIP."
+    }
+  },
+  "createGroup": {
+    "title": "Create Zalo group",
+    "close": "Close",
+    "name": "Group name",
+    "members": "Selected members: {count}",
+    "notice": "Selected customers will be invited to a new Zalo group. Only customers who have messaged this account can be chosen.",
+    "submit": "Create group",
+    "open": "Open group",
+    "status": {
+      "queued": "Waiting for the Zalo account…",
+      "running": "Creating the group on Zalo…",
+      "succeeded": "Group created.",
+      "failed": "Could not create the group.",
+      "unknown": "Outcome unknown — the group may already exist on Zalo. Check Zalo before trying again."
     }
   }
 }

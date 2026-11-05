@@ -1,14 +1,17 @@
 // contact.merge (crm.edit, bulk → preview, undo 7 ngày — F03): mỗi nhóm `<chính>~<phụ>` (GET /v1/contacts/duplicates).
 // Chuyển identity / thẻ / ghi chú / timeline / trí nhớ AI / collaborator của bản phụ sang bản chính; bản phụ xoá mềm +
-// `merged_into_id`. Ghi lại id đã chuyển để hoàn tác trả đúng về bản phụ.
+// `merged_into_id`. Ghi lại id đã chuyển để hoàn tác trả đúng về bản phụ. Trí nhớ AI qua `memory/merge` (TIP-015b): chống trùng + trần 50 +
+// biên nhận lossless; log cũ (trước TIP) còn `memory: id[]` → hoàn tác theo cách cũ.
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, interpolate, serverMessages } from '@appchat/shared';
+import { AppError } from '@appchat/shared';
 import type { ActionPreview, ActionInput, contactMerge } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { UUID, actorUserId, editableContact } from '../services/access';
 import { writeTimeline } from '../services/timeline.service';
+import { mergeMemory, unmergeMemory } from '../memory/merge';
+import { mergePreview } from './previews/contact-merge.handler.preview';
 
 type Input = ActionInput<typeof contactMerge>;
 
@@ -19,6 +22,8 @@ interface Moved {
   notes: string[];
   timeline: string[];
   memory: string[];
+  /** Biên nhận `contact_memory_merge` (TIP-015b). */
+  memoryReceipt?: string;
   tags: string[];
   collaborators: { userId: string; role: 'collaborator' | 'watcher'; addedBy: string | null }[];
   fill: Record<string, string | null>;
@@ -41,9 +46,8 @@ const FILL = ['email', 'zalo', 'title', 'city', 'district', 'taxCode', 'address'
 export class ContactMergeHandler implements Handler<Input, { merged: number }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
-  async preview(_ctx: ActionContext, input: Input): Promise<ActionPreview> {
-    const n = pairs(input.group_ids).length;
-    return { summary: interpolate(serverMessages('vi').crm.preview.merge, { count: n }), risk: 'write', count: n };
+  async preview(ctx: ActionContext, input: Input, tx: TenantTx): Promise<ActionPreview> {
+    return mergePreview(ctx, tx, input);
   }
 
   async execute(ctx: ActionContext, input: Input, tx: TenantTx): Promise<HandlerOutcome<{ merged: number }>> {
@@ -59,7 +63,7 @@ export class ContactMergeHandler implements Handler<Input, { merged: number }> {
         identities: await ids(tx.contactIdentity.findMany({ where: { contactId: d.id }, select: { id: true } })),
         notes: await ids(tx.contactNote.findMany({ where: { contactId: d.id }, select: { id: true } })),
         timeline: await ids(tx.timelineEvent.findMany({ where: { contactId: d.id }, select: { id: true } })),
-        memory: await ids(tx.contactMemory.findMany({ where: { contactId: d.id }, select: { id: true } })),
+        memory: [],
         tags: [],
         collaborators: [],
         fill: {},
@@ -68,7 +72,7 @@ export class ContactMergeHandler implements Handler<Input, { merged: number }> {
       await tx.contactIdentity.updateMany({ where, data: { contactId: p.id } });
       await tx.contactNote.updateMany({ where, data: { contactId: p.id } });
       await tx.timelineEvent.updateMany({ where, data: { contactId: p.id } });
-      await tx.contactMemory.updateMany({ where, data: { contactId: p.id } });
+      m.memoryReceipt = (await mergeMemory(tx, p.id, d.id, now)).receiptId;
       const pTags = new Set((await tx.contactTag.findMany({ where: { contactId: p.id }, select: { tagId: true } })).map((t) => t.tagId));
       m.tags = (await tx.contactTag.findMany({ where, select: { tagId: true } })).map((t) => t.tagId).filter((t) => !pTags.has(t));
       if (m.tags.length) await tx.contactTag.createMany({ data: m.tags.map((tagId) => ({ contactId: p.id, tagId })), skipDuplicates: true });
@@ -91,13 +95,18 @@ export class ContactMergeHandler implements Handler<Input, { merged: number }> {
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    const now = this.clock.now();
+    // Nhiều cặp cùng bản chính trong một lệnh: chỉ biên nhận cuối kiểm bản sửa (các biên nhận trước đã bị cặp sau đẩy bản sửa lên).
+    const undone = new Set<string>();
     for (const m of [...(log.before as { moved: Moved[] }).moved].reverse()) {
+      if (m.memoryReceipt) await unmergeMemory(tx, m.memoryReceipt, now, !undone.has(m.primary));
+      undone.add(m.primary);
       const back = { contactId: m.dup };
       await tx.contact.update({ where: { id: m.dup }, data: { deletedAt: null, mergedIntoId: null } });
       await tx.contactIdentity.updateMany({ where: { id: { in: m.identities } }, data: back });
       await tx.contactNote.updateMany({ where: { id: { in: m.notes } }, data: back });
       await tx.timelineEvent.updateMany({ where: { id: { in: m.timeline } }, data: back });
-      await tx.contactMemory.updateMany({ where: { id: { in: m.memory } }, data: back });
+      if (m.memory.length) await tx.contactMemory.updateMany({ where: { id: { in: m.memory } }, data: back });
       await tx.contactTag.deleteMany({ where: { contactId: m.primary, tagId: { in: m.tags } } });
       await tx.contactCollaborator.deleteMany({ where: { contactId: m.primary, userId: { in: m.collaborators.map((c) => c.userId) } } });
       if (m.event) await tx.timelineEvent.deleteMany({ where: { id: m.event } });

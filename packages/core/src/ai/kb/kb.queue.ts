@@ -1,6 +1,6 @@
 // Đẩy nguồn vào queue `kb-ingest` (worker ROLE=ai) sau commit của action. Job id = `kb-<source>-<ingest_seq>` → bấm "Học lại" hai lần
 // liền không nạp hai lần song song; job lỗi thử lại 3 lần. Nguồn kẹt `pending` (API mất Redis lúc đẩy) → "Học lại" đẩy lại (DC-107).
-import { Queue } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { KB_INGEST_QUEUE, type KbIngestJob } from './ingest';
 

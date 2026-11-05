@@ -4,6 +4,10 @@ import { z } from 'zod';
 /** Tiền là string VND (Blueprint §4.1). */
 export const money = z.string().regex(/^\d+$/);
 
+/** Kênh gửi chứng từ cho khách (TIP-032b P2): Zalo cá nhân, email, website chat — webchat gửi tin + link xem / tải công khai có hạn. */
+export const DOC_CHANNELS = ['zalo_personal', 'email', 'webchat'] as const;
+export const docChannel = z.enum(DOC_CHANNELS);
+
 export const discount = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('pct'), value: z.number().min(0).max(100) }),
   z.object({ kind: z.literal('amount'), value: money }),
@@ -19,3 +23,8 @@ export const lineItem = z.object({
   tax_rate: z.union([z.literal(0), z.literal(5), z.literal(8), z.literal(10)]),
   discount: discount.nullable().optional(),
 });
+
+// AI soạn hợp đồng (TIP-030b F2, contract-draft.ts).
+/** Dòng hàng đề xuất: giá luôn từ catalog (`product_id`); dòng ngoài catalog `off_catalog` + giá 0 — người dùng nhập. */
+export const draftLine = z.object({ name: z.string(), qty: z.number(), unit_price: money, product_id: z.string().nullable(), off_catalog: z.boolean() });
+export const draftSuggestion = z.object({ id: z.string(), text: z.string().max(2000) });

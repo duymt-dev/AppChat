@@ -10,11 +10,14 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId } from '../../crm/public';
-import { lockContract, visibleContract } from '../contract-access';
+import { lockContract, visibleContract, type ContractRecord } from '../contract-access';
+import { freezeFileSource } from '../files/artifact-store';
+import { assertResolved } from '../files/suggestions';
 import { ContractDeps } from '../services/contract-deps';
 import { renderContractPdf, storeContractPdf } from '../services/contract-doc';
 import { sameOtp } from '../services/sign-link';
 import { actorNameOf, logSignEvent, moveContract } from '../services/contract-write';
+import { approveSignPreview, rejectInternalPreview, requestChangesPreview, submitPreview } from './previews/contract-approval.handlers.preview';
 
 type Out = { contract_id: string; status: string };
 const cut = (s: string) => s.slice(0, 200);
@@ -33,6 +36,8 @@ export class ContractSubmitHandler implements Handler<ActionInput<typeof contrac
     const c = await lockContract(tx, ctx.authz, input.contract_id);
     const to = assertTransition(CONTRACT_FLOW, c.status, 'contract.submit');
     if (c.value <= 0n) throw new AppError('VALIDATION_FAILED', 422, { value: 'required' });
+    // Cổng bắt buộc (TIP-030b spec 11): còn khối gợi ý AI chưa Giữ / Bỏ → không trình duyệt.
+    assertResolved(c.aiSuggestions);
     const now = this.clock.now();
     await moveContract(tx, c, to, {}, now);
     const actor = await actorNameOf(ctx, this.members);
@@ -48,6 +53,10 @@ export class ContractSubmitHandler implements Handler<ActionInput<typeof contrac
         },
       ],
     };
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractSubmit>, tx: TenantTx) {
+    return submitPreview(ctx, tx, input);
   }
 }
 
@@ -71,6 +80,10 @@ export class ContractRequestChangesHandler implements Handler<ActionInput<typeof
   async execute(ctx: ActionContext, input: ActionInput<typeof contractRequestChanges>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     return { result: await backToDraft(ctx, tx, this.members, input.contract_id, 'contract.request_changes', 'changes_requested', input.reason, this.clock.now()) };
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractRequestChanges>, tx: TenantTx) {
+    return requestChangesPreview(ctx, tx, input);
+  }
 }
 
 @Injectable()
@@ -84,6 +97,10 @@ export class ContractRejectInternalHandler implements Handler<ActionInput<typeof
   async execute(ctx: ActionContext, input: ActionInput<typeof contractRejectInternal>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     return { result: await backToDraft(ctx, tx, this.members, input.contract_id, 'contract.reject_internal', 'rejected_internal', input.reason, this.clock.now()) };
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof contractRejectInternal>, tx: TenantTx) {
+    return rejectInternalPreview(ctx, tx, input);
+  }
 }
 
 type SignIn = ActionInput<typeof contractApproveAndSign>;
@@ -91,8 +108,11 @@ interface Prepared {
   fileId: string;
   sha256: string;
   signatureFileId: string;
-  templateId: string;
-  templateVersion: number;
+  templateId: string | null;
+  templateVersion: number | null;
+  /** Nguồn tệp: version nguồn lúc đóng băng (execute CAS) + bản DOCX đã đổi mới lưu. */
+  sourceVersion: number | null;
+  rendered: boolean;
 }
 
 @Injectable()
@@ -111,12 +131,18 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
     const c = await db.$transaction((tx) => visibleContract(tx, ctx.authz, input.contract_id));
     assertTransition(CONTRACT_FLOW, c.status, 'contract.approve_and_sign');
     await this.checkOtp(db, c.id, input.otp);
-    const r = await renderContractPdf(db, this.d, ctx.workspaceId, c);
     const me = actorUserId(ctx);
-    const f = await storeContractPdf(db, this.d, ctx.workspaceId, c, r.pdf, me, r.doc.locale, false);
+    const content = c.source === 'file' ? await freezeFileSource(db, this.d, ctx.workspaceId, c, me) : await this.freezeTemplate(db, ctx.workspaceId, c, me);
     const png = Buffer.from(input.signature_png.slice(input.signature_png.indexOf(',') + 1), 'base64');
     const sigFile = await this.d.need('files').upload(db, ctx.workspaceId, { name: `${c.code}-chu-ky-ben-a.png`, mime: 'image/png', body: png, purpose: 'document', uploadedBy: me });
-    return { fileId: f.fileId, sha256: f.sha256, signatureFileId: sigFile.id, templateId: r.templateId, templateVersion: r.templateVersion };
+    return { ...content, signatureFileId: sigFile.id };
+  }
+
+  /** Nguồn mẫu: render theo mẫu rồi đóng băng PDF nội dung. */
+  private async freezeTemplate(db: Awaited<ReturnType<NonNullable<ContractDeps['tenants']>['get']>>, ws: string, c: ContractRecord, me: string | null) {
+    const r = await renderContractPdf(db, this.d, ws, c);
+    const f = await storeContractPdf(db, this.d, ws, c, r.pdf, me, r.doc.locale, false);
+    return { fileId: f.fileId, sha256: f.sha256, templateId: r.templateId, templateVersion: r.templateVersion, sourceVersion: null, rendered: false };
   }
 
   /** OTP đúng một lần: sai → +1 lần sai (ghi ngoài transaction action để không bị rollback), quá 5 lần / hết hạn → phải xin mã mới. */
@@ -141,8 +167,11 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
     // OTP chỉ dùng một lần.
     const used = await tx.contractSigner.updateMany({ where: { contractId: c.id, party: 'business', otpHash: { not: null } }, data: { otpHash: null, otpExpiresAt: null, otpFails: 0, signatureImageFileId: p.signatureFileId, signedAt: now, userId: me } });
     if (!used.count) throw new AppError('OTP_INVALID', 422, { otp: 'expired' }, '0');
+    // Nguồn tệp bị thay giữa lúc đóng băng và lúc ký → không ký bản cũ.
+    if (p.sourceVersion !== null && c.sourceVersion !== p.sourceVersion) throw new AppError('CONFLICT', 409, { source_version: 'stale' });
     await tx.file.updateMany({ where: { id: { in: [p.fileId, p.signatureFileId] } }, data: { confirmed: true } });
-    await moveContract(tx, c, to, { approvedBy: me, signedByBusinessAt: now, fileId: p.fileId, fileSha256: p.sha256, templateId: p.templateId, templateVersion: p.templateVersion }, now);
+    const frozen = p.sourceVersion === null ? { templateId: p.templateId, templateVersion: p.templateVersion } : p.rendered ? { renderedUnsignedFileId: p.fileId, renderedUnsignedHash: p.sha256 } : {};
+    await moveContract(tx, c, to, { approvedBy: me, signedByBusinessAt: now, fileId: p.fileId, fileSha256: p.sha256, ...frozen }, now);
     const signer = await tx.contractSigner.findUnique({ where: { contractId_party: { contractId: c.id, party: 'business' } }, select: { id: true, name: true } });
     await logSignEvent(tx, { contractId: c.id, signerId: signer?.id, type: 'otp_ok', actorName: signer?.name ?? '', at: now });
     await logSignEvent(tx, { contractId: c.id, signerId: signer?.id, type: 'approved_signed', actorName: signer?.name || (await actorNameOf(ctx, this.members)), docSha256: p.sha256, meta: { otp_channel: 'email' }, at: now });
@@ -153,7 +182,6 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
   }
 
   async preview(ctx: ActionContext, input: SignIn, tx: TenantTx) {
-    const c = await visibleContract(tx, ctx.authz, input.contract_id);
-    return { summary: `${c.code} · ${c.title}`, risk: 'money' as const };
+    return approveSignPreview(ctx, tx, input);
   }
 }

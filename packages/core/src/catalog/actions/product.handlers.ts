@@ -12,7 +12,9 @@ import { writeOutbox } from '../../kernel/outbox/outbox';
 import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, actorUserId } from '../../crm/public';
 import { categoryByName, checkCustom, componentsByName, fieldRole, liveProduct, recordMovement, syncVariants, writeComponents } from '../services/catalog-write';
+import { assertWritableSystem } from '../../authz/public';
 import { columnsOf, restoreSnapshot, snapshot, type ProductSnapshot } from '../services/product-columns';
+import { archivePreview, createPreview, updatePreview } from './previews/product.handlers.preview';
 
 type CreateIn = ActionInput<typeof productCreate>;
 type UpdateIn = ActionInput<typeof productUpdate>;
@@ -32,6 +34,7 @@ export class ProductCreateHandler implements Handler<CreateIn, { product_id: str
     const now = this.clock.now();
     const me = actorUserId(ctx);
     await checkCustom(tx, input.custom, fieldRole(ctx.authz, await this.members.roleOf(ctx.workspaceId, me)), 'create');
+    assertWritableSystem('product', ctx.authz, input);
     if (input.type === 'combo' && !input.components?.length) throw new AppError('VALIDATION_FAILED', 422, { components: 'required' });
     const parts = input.type === 'combo' ? await componentsByName(tx, input.components ?? [], null) : [];
     const sku = input.sku?.trim();
@@ -71,6 +74,10 @@ export class ProductCreateHandler implements Handler<CreateIn, { product_id: str
     const now = this.clock.now();
     await writeOutbox(tx, ctx.workspaceId, [{ topic: 'product.changed', payload: { product_id: id, change: 'deleted' } }], now);
   }
+
+  async preview(_ctx: ActionContext, input: CreateIn, tx: TenantTx) {
+    return createPreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -87,6 +94,7 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
     const now = this.clock.now();
     const { custom, category, components, attrs, name, price, unit, sku, type, ...rest } = input.patch;
     await checkCustom(tx, custom, fieldRole(ctx.authz, await this.members.roleOf(ctx.workspaceId, actorUserId(ctx))), 'update');
+    assertWritableSystem('product', ctx.authz, input.patch);
     if (type && type !== p.type) throw new AppError('VALIDATION_FAILED', 422, { 'patch.type': 'immutable' });
     const code = sku?.trim() && sku.trim() !== p.code ? sku.trim() : undefined;
     if (code && (await tx.product.findUnique({ where: { code }, select: { id: true } }))) throw new AppError('CONFLICT', 409, { sku: 'duplicate' });
@@ -120,6 +128,10 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
     await restoreSnapshot(tx, b, now);
     await writeOutbox(tx, ctx.workspaceId, [changed(b.id, 'updated')], now);
   }
+
+  async preview(_ctx: ActionContext, input: UpdateIn, tx: TenantTx) {
+    return updatePreview(tx, input);
+  }
 }
 
 @Injectable()
@@ -140,5 +152,9 @@ export class ProductArchiveHandler implements Handler<ActionInput<typeof product
     // Trong lúc lưu trữ, mã đã được dùng lại bởi sản phẩm khác không xảy ra (unique code tính cả bản lưu trữ) → khôi phục thẳng.
     await tx.product.update({ where: { id: b.id }, data: { status: b.status, deletedAt: null, version: { increment: 1 }, updatedAt: now } });
     await writeOutbox(tx, ctx.workspaceId, [changed(b.id, 'restored')], now);
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof productArchive>, tx: TenantTx) {
+    return archivePreview(tx, input);
   }
 }

@@ -1,7 +1,7 @@
 // Worker ROLE=ai: processor queue `agent-reply` (Blueprint §5.3) — một lượt agent trực kênh mỗi job. Khoá Redis theo hội thoại
 // (`SET NX PX`) để hai job cùng hội thoại không chạy song song (dedup của BullMQ chỉ gom job đang chờ); job gặp khoá → thử lại
 // sau. Lượt xong kiểm lại: còn tin khách mới chưa trả lời (đến lúc đang chạy) → đẩy thêm một job.
-import { Worker } from 'bullmq';
+import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { AGENT_REPLY_QUEUE, type ReplyJob } from '../reply/reply.queue';

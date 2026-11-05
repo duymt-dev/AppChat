@@ -9,8 +9,10 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { QuotaService } from '../../billing/public';
+import { openReservations, reserveQuota } from '../../kernel/consistency/handler-adapter';
 import { ChannelAccounts, defaultSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
+import { reconnectPreview, startLoginPreview } from './previews/channel-connect.handlers.preview';
 
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
 
@@ -33,22 +35,42 @@ export class ChannelZaloStartLoginHandler implements Handler<ActionInput<typeof 
     const accounts = need(this.accounts);
     const control = need(this.control);
     if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'channel.zalo.start_login cần PlatformTx');
-    // Khoá workspace: hai lần thêm tài khoản song song không cùng lọt qua hạn mức gói (như member.invite).
+    // Khoá workspace + giữ chỗ hạn mức trong commit nền tảng (TIP-045b): hai lần thêm song song không cùng lọt; tài khoản tạo ở pha tenant.
     await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-    await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', await accounts.countLive(tx));
+    await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
     const now = this.clock.now();
+    await reserveQuota(ptx, ctx, 'channels', now);
     const id = uuidv7(now.getTime());
     const name = input.label?.trim() || serverMessages('vi').channels.name.zalo_personal;
-    const row = await tx.channelAccount.create({
-      data: { id, type: 'zalo_personal', name, status: 'connecting', settings: { ...defaultSettings() }, createdBy: userOf(ctx), createdAt: now, lastEventAt: now },
-    });
-    await accounts.route(ctx.workspaceId, row, 'connecting', ptx);
     return {
       // QR đến sau qua WS `channel.zalo.qr` / GET …/login (zca-js sinh QR mất vài giây) — `qr` là đường đọc trạng thái.
       result: { channel_account_id: id, qr: `/settings/channels/${id}/login` },
-      after: { id, type: row.type, name },
-      afterCommit: () => control.startLogin({ ws: ctx.workspaceId, account_id: id, user_id: userOf(ctx) }),
+      after: { id, type: 'zalo_personal', name },
+      tenantPlan: { id, name, by: userOf(ctx), at: now.toISOString() },
+      afterCommit: async () => {
+        await control.startLogin({ ws: ctx.workspaceId, account_id: id, user_id: userOf(ctx) });
+      },
     };
+  }
+
+  /** Pha tenant: tạo tài khoản `connecting` (id tất định — áp lại thấy đã có thì thôi). */
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const p = plan as { id: string; name: string; by: string | null; at: string };
+    const at = new Date(p.at);
+    if (!(await tx.channelAccount.findUnique({ where: { id: p.id }, select: { id: true } }))) {
+      await tx.channelAccount.create({ data: { id: p.id, type: 'zalo_personal', name: p.name, status: 'connecting', settings: { ...defaultSettings() }, createdBy: p.by, createdAt: at, lastEventAt: at } });
+    }
+    return {};
+  }
+
+  /** Xác nhận nền tảng: route cho worker ROLE=channels (idempotent). */
+  async finalizePlatform(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx) {
+    const p = plan as { id: string };
+    await need(this.accounts).route(ctx.workspaceId, { id: p.id, type: 'zalo_personal', externalId: null }, 'connecting', ptx);
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelZaloStartLogin>) {
+    return startLoginPreview(input);
   }
 }
 
@@ -80,5 +102,9 @@ export class ChannelReconnectHandler implements Handler<ActionInput<typeof chann
         await control.startLogin({ ws: ctx.workspaceId, account_id: row.id, user_id: userOf(ctx) });
       },
     };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelReconnect>, tx: TenantTx) {
+    return reconnectPreview(need(this.accounts), tx, input);
   }
 }

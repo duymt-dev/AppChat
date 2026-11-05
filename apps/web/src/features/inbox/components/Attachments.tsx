@@ -5,6 +5,7 @@ import { createStyles } from 'antd-style';
 import { Icon, color, radius } from '@appchat/ui';
 import { useBubbleStyles } from '../styles/bubble.styles';
 import type { MessageAttachment } from '../types';
+import { AttachmentContractMenu } from './AttachmentContractMenu';
 
 const useStyles = createStyles(({ css }) => ({
   list: css`
@@ -30,7 +31,8 @@ const IMAGE = /^image\//;
 
 const sizeOf = (n: number | undefined) => (n === undefined ? '' : n >= 1_048_576 ? `${(n / 1_048_576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
 
-export function Attachments({ files }: { files: MessageAttachment[] }) {
+/** `messageId`: tin khách gửi đã lưu — tệp PDF / DOCX có thêm "Tạo hợp đồng" (TIP-030b). */
+export function Attachments({ files, messageId }: { files: MessageAttachment[]; messageId?: string }) {
   const { styles } = useStyles();
   const { styles: b, cx } = useBubbleStyles();
   return (
@@ -42,15 +44,18 @@ export function Attachments({ files }: { files: MessageAttachment[] }) {
             <img src={f.url} alt={f.name ?? ''} className={styles.thumb} data-testid="msg-image" />
           </a>
         ) : (
-          <a key={i} href={f.url} target="_blank" rel="noreferrer" className={cx(styles.link, b.file)} data-testid="msg-file">
-            <div className={b.fileIcon}>
-              <Icon name="ic-doc" size={17} color={color.dangerStrong} />
-            </div>
-            <div>
-              <div className={b.fileName}>{f.name ?? f.url}</div>
-              <div className={b.fileMeta}>{sizeOf(f.size)}</div>
-            </div>
-          </a>
+          <div key={i} className={styles.list}>
+            <a href={f.url} target="_blank" rel="noreferrer" className={cx(styles.link, b.file)} data-testid="msg-file">
+              <div className={b.fileIcon}>
+                <Icon name="ic-doc" size={17} color={color.dangerStrong} />
+              </div>
+              <div>
+                <div className={b.fileName}>{f.name ?? f.url}</div>
+                <div className={b.fileMeta}>{sizeOf(f.size)}</div>
+              </div>
+            </a>
+            {messageId ? <AttachmentContractMenu messageId={messageId} idx={i} file={f} /> : null}
+          </div>
         ),
       )}
     </div>

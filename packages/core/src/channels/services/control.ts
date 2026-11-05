@@ -24,6 +24,8 @@ export interface LoginJob {
   account_id: string;
   /** Người bấm kết nối — nhận WS `channel.zalo.qr`. */
   user_id: string | null;
+  /** Lần kết nối (TIP-023c): trạng thái / QR của lần cũ không ghi đè lần mới. Job cũ trong hàng đợi không có → coi là hiện hành. */
+  attempt?: string;
 }
 
 export class ChannelControl {
@@ -36,15 +38,26 @@ export class ChannelControl {
     await this.redis.publish(CHANNEL_CONTROL, JSON.stringify(cmd));
   }
 
-  /** Mỗi lần kết nối một job (id ngẫu nhiên — kết nối lại luôn tạo job mới; job cũ thấy tài khoản đã đổi thì bỏ). */
-  async startLogin(job: LoginJob): Promise<void> {
-    await this.setLogin({ account_id: job.account_id, status: 'starting', qr: null, expires_at: null });
-    if (!this.loginQueue) return;
-    await this.loginQueue.add('login', job, { jobId: `login-${job.account_id}-${randomUUID()}`, attempts: 1, removeOnComplete: 100, removeOnFail: 100 });
+  /** Mỗi lần kết nối một job + một `attempt` mới (kết nối lại luôn tạo lần mới; job cũ thấy tài khoản / lần đã đổi thì bỏ). */
+  async startLogin(job: LoginJob): Promise<string> {
+    const attempt = job.attempt ?? randomUUID();
+    const s: ChannelLoginStateDto = { account_id: job.account_id, status: 'starting', qr: null, expires_at: null, attempt, rev: 0 };
+    await this.redis.set(loginKey(job.account_id), JSON.stringify(s), 'PX', LOGIN_STATE_TTL_MS);
+    if (this.loginQueue) await this.loginQueue.add('login', { ...job, attempt }, { jobId: `login-${job.account_id}-${attempt}`, attempts: 1, removeOnComplete: 100, removeOnFail: 100 });
+    return attempt;
   }
 
-  async setLogin(s: ChannelLoginStateDto): Promise<void> {
-    await this.redis.set(loginKey(s.account_id), JSON.stringify(s), 'PX', LOGIN_STATE_TTL_MS);
+  /**
+   * Ghi trạng thái của một lần kết nối. Có `attempt` mà khác lần hiện hành → bỏ (sự kiện trễ của QR cũ — trả false). `rev` tăng đơn điệu.
+   * Một worker giữ job một lần; đọc-rồi-ghi đủ chặn ghi đè chéo giữa hai lần kết nối.
+   */
+  async setLogin(s: ChannelLoginStateDto): Promise<boolean> {
+    const cur = await this.login(s.account_id);
+    if (s.attempt && cur?.attempt && cur.attempt !== s.attempt) return false;
+    const attempt = s.attempt ?? cur?.attempt;
+    const next: ChannelLoginStateDto = { ...s, ...(attempt ? { attempt } : {}), rev: (cur?.rev ?? 0) + 1 };
+    await this.redis.set(loginKey(s.account_id), JSON.stringify(next), 'PX', LOGIN_STATE_TTL_MS);
+    return true;
   }
 
   async login(accountId: string): Promise<ChannelLoginStateDto | null> {

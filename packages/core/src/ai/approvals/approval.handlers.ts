@@ -12,6 +12,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ResumeQueue } from './resume.queue';
+import { decidePreview } from './previews/approval.handlers.preview';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** `approval.reject` cùng input / output với `approval.approve`. */
@@ -68,6 +69,11 @@ abstract class Decide implements Handler<In, Out> {
       },
     };
   }
+
+  /** Preview chung — mỗi lớp con khai `preview()` gọi vào đây (quét phủ Trợ lý đọc thân lớp có @ActionHandler). */
+  protected previewOf(ctx: ActionContext, input: In, tx: TenantTx) {
+    return decidePreview(ctx, tx, input, this.status, this.clock.now(), editedInput);
+  }
 }
 
 @Injectable()
@@ -76,6 +82,10 @@ export class ApprovalApproveHandler extends Decide {
   protected readonly status = 'approved' as const;
   constructor(@Inject(CLOCK) clock: Clock, @Optional() @Inject(ResumeQueue) queue: ResumeQueue | null) {
     super(clock, queue);
+  }
+
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.previewOf(ctx, input, tx);
   }
 }
 
@@ -86,6 +96,10 @@ export class ApprovalRejectHandler extends Decide {
   constructor(@Inject(CLOCK) clock: Clock, @Optional() @Inject(ResumeQueue) queue: ResumeQueue | null) {
     super(clock, queue);
   }
+
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.previewOf(ctx, input, tx);
+  }
 }
 
 @Injectable()
@@ -94,5 +108,9 @@ export class ApprovalEditAndApproveHandler extends Decide {
   protected readonly status = 'edited' as const;
   constructor(@Inject(CLOCK) clock: Clock, @Optional() @Inject(ResumeQueue) queue: ResumeQueue | null) {
     super(clock, queue);
+  }
+
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.previewOf(ctx, input, tx);
   }
 }

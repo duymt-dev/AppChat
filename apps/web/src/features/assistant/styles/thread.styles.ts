@@ -98,6 +98,42 @@ export const useThreadStyles = createStyles(({ css, responsive }) => ({
     color: ${color.text3};
     line-height: 1.4;
   `,
+  changes: css`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    border-top: 1px solid ${color.divider};
+  `,
+  change: css`
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: ${font.scale.s12}px;
+    line-height: 1.4;
+  `,
+  changeField: css`
+    color: ${color.text3};
+    font-weight: ${font.weight.bold};
+  `,
+  before: css`
+    color: ${color.text4};
+    text-decoration: line-through;
+    word-break: break-word;
+  `,
+  after: css`
+    color: ${color.text};
+    font-weight: ${font.weight.semibold};
+    word-break: break-word;
+  `,
+  warn: css`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: ${font.scale.s12}px;
+    color: ${color.amberText};
+  `,
   cardFoot: css`
     display: flex;
     gap: 8px;

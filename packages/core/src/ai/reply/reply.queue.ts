@@ -1,7 +1,7 @@
 // Queue `agent-reply` (worker ROLE=ai — Blueprint §1.3, §5.3 bước 1): tin khách vào → job trễ 3 giây, dedup theo hội thoại; tin mới
 // trong lúc chờ thay job cũ và đếm lại 3 giây (gom tin liên tiếp); job đang chạy thì giữ một job chờ sau nó (không chạy song song
 // trên cùng hội thoại). Người đẩy: worker `channel-inbound` sau commit tin (pipeline quyết có kích hay không).
-import { Queue } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 
 export const AGENT_REPLY_QUEUE = 'agent-reply';

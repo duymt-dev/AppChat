@@ -188,11 +188,22 @@ export interface KbDoc {
   /** http (TIP-020): trạng thái nạp ở worker + lý do lỗi. Mock không có. */
   status?: 'pending' | 'processing' | 'ready' | 'failed';
   error?: string;
+  /** TIP-020b: `catalog` = đồng bộ từ sản phẩm — không sửa / xoá trực tiếp. */
+  origin?: 'upload' | 'url' | 'text' | 'catalog' | 'conversation' | 'drive';
+}
+
+/** Thư mục KB (TIP-020b): visibility = mặc định cho nguồn mới thêm vào; version cho CAS sửa / xoá. */
+export interface KbFolder {
+  id: string;
+  name: string;
+  visibility?: 'public' | 'internal';
+  parent_id?: string | null;
+  version?: number;
 }
 
 export interface KbData {
   types: Record<string, [string, string, string]>;
-  folders: { id: string; name: string }[];
+  folders: KbFolder[];
   nav: Record<string, number>;
   learned_total: number;
   size: string;
@@ -213,21 +224,8 @@ export interface Governance {
   total: number;
 }
 
-export interface AuditRow {
-  time: string;
-  name: string | null;
-  role: string;
-  action: string;
-  ip: string | null;
-}
-
-export interface AiAuditRow {
-  time: string;
-  actor: string;
-  action: string;
-  context: string;
-  status: 'ok' | 'warn' | 'escalated';
-}
+/** Dòng audit workspace / AI audit — shape dùng chung với API (packages/shared/src/api/audit.ts, TIP-045b A2). */
+export type { AuditRowDto as AuditRow, AiAuditRowDto as AiAuditRow, AuditStatus, AuditPage, AiAuditPage } from '@appchat/shared';
 
 export interface SlaDay {
   day: number;
@@ -343,6 +341,8 @@ export interface DocTemplate {
   /** Mục bảng kiểm pháp lý còn thiếu (cảnh báo). */
   checklist_missing: string[];
   is_default: boolean;
+  /** Loại hợp đồng của mẫu hợp đồng — null = mẫu chung (TIP-030b). */
+  contract_kind: 'service' | 'sale' | 'framework' | null;
   version: number;
   updated_by: string;
   updated_at: string;

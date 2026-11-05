@@ -18,9 +18,18 @@
     },
     "update": {
       "title": "Update workspace info"
+    },
+    "request_transfer_otp": {
+      "title": "Send ownership transfer code"
+    },
+    "transfer_ownership": {
+      "title": "Transfer workspace ownership"
     }
   },
   "done": "Done: {title}",
+  "approvalSent": "Sent for approval: {title} — nothing runs until it is approved",
+  "jobAccepted": "Accepted: {title} — running in the background, results update when done",
+  "operationPending": "Finishing: {title} — the system completes the rest automatically, no need to retry",
   "previewTitle": "Confirm action",
   "business_profile": {
     "update": {
@@ -77,6 +86,18 @@
     "bulk_update": {
       "title": "Bulk update conversations",
       "desc": "Tag, assign, change status or archive many conversations at once."
+    },
+    "search": {
+      "title": "Find conversations",
+      "desc": "Look up conversations by customer, text, folder or channel."
+    },
+    "get": {
+      "title": "View conversation",
+      "desc": "Read one conversation with up to 20 latest messages."
+    },
+    "create_group": {
+      "title": "Create Zalo group",
+      "desc": "Create a new Zalo group on one account, inviting customers from that account's 1-1 conversations."
     }
   },
   "message": {
@@ -150,6 +171,34 @@
     "search": {
       "title": "Find customers",
       "desc": "Find customers by name, phone, email or customer code."
+    },
+    "get": {
+      "title": "View customer",
+      "desc": "Read one customer profile summary."
+    },
+    "get_360": {
+      "title": "Customer 360",
+      "desc": "Customer profile with open quotes, orders, unpaid requests, tickets and the next appointment."
+    },
+    "remember": {
+      "title": "Remember about customer",
+      "desc": "Save a lasting fact the customer said about themselves (preferences, allergies…) to AI memory; duplicates are refreshed, up to 50 facts."
+    },
+    "memory_forget": {
+      "title": "Forget AI memory",
+      "desc": "Delete one fact the AI remembered about the customer; undo within 24 hours."
+    },
+    "memory_list": {
+      "title": "View AI memory",
+      "desc": "List what the AI remembers about one customer (newest first, up to 50) with ids to forget a specific fact."
+    },
+    "summarize": {
+      "title": "Summarise customer",
+      "desc": "Summarise one customer in 3–5 points from data you may see (memory, history, receivables, contracts, orders, appointments, tickets)."
+    },
+    "bulk_update": {
+      "title": "Bulk update contacts",
+      "desc": "Update many contacts at once (group, status, tags…) — owner is not changed."
     }
   },
   "custom_field": {
@@ -193,6 +242,10 @@
     },
     "optimize_prompt": {
       "title": "Optimise instructions"
+    },
+    "search": {
+      "title": "Find AI agents",
+      "desc": "Look up agents by name or role."
     }
   },
   "approval": {
@@ -227,11 +280,19 @@
     },
     "run_now": {
       "title": "Run autonomous task now"
+    },
+    "search": {
+      "title": "Find AI tasks",
+      "desc": "Look up AI tasks by name."
     }
   },
   "run": {
     "cancel": {
       "title": "Stop orchestration run"
+    },
+    "search": {
+      "title": "List AI runs",
+      "desc": "List recent AI runs and their status."
     }
   },
   "product": {
@@ -251,11 +312,30 @@
     "get": {
       "title": "Get product details",
       "desc": "View one product: description, attributes, combo items, price and stock"
+    },
+    "import": {
+      "title": "Import products from file"
+    },
+    "import_cancel": {
+      "title": "Cancel product import"
+    },
+    "import_retry": {
+      "title": "Retry product import"
     }
   },
   "category": {
     "create": {
       "title": "Create category"
+    },
+    "update": {
+      "title": "Edit category"
+    },
+    "delete": {
+      "title": "Delete category"
+    },
+    "list": {
+      "title": "List product categories",
+      "desc": "Read product categories and how many products each has"
     }
   },
   "stock": {
@@ -314,12 +394,32 @@
     "draft_from_content": {
       "title": "AI quote draft",
       "desc": "AI drafts a quote from a note or chat excerpt, priced from the product catalog."
+    },
+    "search": {
+      "title": "Find quotes",
+      "desc": "Look up quotes by code, customer or status."
+    },
+    "get": {
+      "title": "View quote",
+      "desc": "Read one quote: lines, totals, validity."
     }
   },
   "contract": {
     "create": {
       "title": "Create contract",
       "desc": "Create a draft contract (service, sale or framework)."
+    },
+    "inspect_file": {
+      "title": "Read contract file",
+      "desc": "Check a PDF / DOCX file and propose contract values."
+    },
+    "attach_file": {
+      "title": "Attach contract file",
+      "desc": "Attach or replace the signing file of a draft contract."
+    },
+    "create_from_attachment": {
+      "title": "Create contract from customer file",
+      "desc": "Create a draft contract from a PDF / DOCX in a conversation."
     },
     "create_from_quote": {
       "title": "Create contract from quote",
@@ -362,6 +462,66 @@
     },
     "delete": {
       "title": "Delete contract"
+    },
+    "search": {
+      "title": "Find contracts",
+      "desc": "Look up contracts by code, customer or status."
+    },
+    "get": {
+      "title": "View contract",
+      "desc": "Read one contract: status, value, dates, signing progress."
+    },
+    "prepare_draft": {
+      "desc": "AI reads the request and proposes draft contract content (catalog prices) — no contract is created yet.",
+      "title": "Prepare contract proposal (AI)"
+    },
+    "draft_from_content": {
+      "desc": "Create one draft contract from a prepared AI proposal — no new AI call.",
+      "title": "Create draft contract from AI proposal"
+    },
+    "resolve_suggestion": {
+      "desc": "Keep or discard one AI-suggested clause of a draft contract.",
+      "title": "Keep / discard AI-suggested clause"
+    },
+    "create_appendix": {
+      "title": "Create contract appendix",
+      "desc": "Create a draft appendix for a signed contract"
+    },
+    "appendix_update": {
+      "title": "Edit appendix",
+      "desc": "Edit a draft appendix (new version)"
+    },
+    "appendix_submit": {
+      "title": "Submit appendix",
+      "desc": "Send the appendix to the Owner for approval"
+    },
+    "appendix_request_changes": {
+      "title": "Request appendix changes",
+      "desc": "Return the appendix to draft with a reason"
+    },
+    "appendix_owner_otp": {
+      "title": "Send appendix signing OTP",
+      "desc": "Email the Owner a code to sign the appendix"
+    },
+    "appendix_approve_and_sign": {
+      "title": "Approve & sign appendix",
+      "desc": "Owner signs the appendix with OTP + handwritten signature"
+    },
+    "appendix_send": {
+      "title": "Send appendix for signature",
+      "desc": "Send the customer a one-time signing link"
+    },
+    "appendix_public_otp": {
+      "title": "Appendix OTP (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "appendix_public_sign": {
+      "title": "Customer signs appendix (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "appendix_public_decline": {
+      "title": "Customer declines appendix (public page)",
+      "desc": "Internal — public signing page"
     }
   },
   "order": {
@@ -405,6 +565,18 @@
     },
     "sync_now": {
       "title": "Sync marketplace orders"
+    },
+    "search": {
+      "title": "Find orders",
+      "desc": "Look up orders by code, customer or payment state."
+    },
+    "get": {
+      "title": "View order",
+      "desc": "Read one order: lines, totals, amount paid."
+    },
+    "send_confirmation": {
+      "title": "Send order confirmation",
+      "desc": "Send the order confirmation PDF (items, total, paid / left) to the customer conversation."
     }
   },
   "invoice": {
@@ -424,6 +596,14 @@
     },
     "void": {
       "title": "Void payment request"
+    },
+    "search": {
+      "title": "Find payment requests",
+      "desc": "Look up payment requests by code, customer, order or status."
+    },
+    "get": {
+      "title": "View payment request",
+      "desc": "Read one payment request: amount, paid, due date."
     }
   },
   "staff": {
@@ -438,6 +618,10 @@
     "deactivate": {
       "title": "Deactivate staff",
       "desc": "Stop taking appointments for a staff member."
+    },
+    "search": {
+      "title": "Find staff",
+      "desc": "Look up active staff by name or skill."
     }
   },
   "business_hours": {
@@ -479,6 +663,14 @@
     },
     "mark_no_show": {
       "title": "Mark no-show"
+    },
+    "get": {
+      "title": "View appointment",
+      "desc": "Read one appointment: customer, service, staff, time, status."
+    },
+    "update": {
+      "title": "Edit appointment",
+      "desc": "Edit time, service, staff, note, reminder or custom fields of an open appointment."
     }
   },
   "ticket": {
@@ -515,6 +707,10 @@
     },
     "bulk_update": {
       "title": "Bulk update tickets"
+    },
+    "get": {
+      "title": "View ticket",
+      "desc": "Read one ticket: status, priority, SLA due times, assignee."
     }
   },
   "segment": {
@@ -569,6 +765,21 @@
     },
     "update_config": {
       "title": "Update loyalty settings"
+    },
+    "earn": {
+      "title": "Earn order points (system)"
+    },
+    "reverse": {
+      "title": "Reverse order points (system)"
+    },
+    "expire": {
+      "title": "Expire points (system)"
+    },
+    "review_tier": {
+      "title": "Quarterly tier review (system)"
+    },
+    "attach_file": {
+      "title": "Attach a file to a member"
     }
   },
   "member": {
@@ -580,6 +791,10 @@
     },
     "remove": {
       "title": "Remove member"
+    },
+    "search": {
+      "title": "Find members",
+      "desc": "Look up active members by name or email."
     }
   },
   "invite": {
@@ -606,6 +821,10 @@
     },
     "delete": {
       "title": "Delete tag"
+    },
+    "search": {
+      "title": "Find tags",
+      "desc": "Look up tags by name."
     }
   },
   "canned_reply": {
@@ -617,6 +836,10 @@
     },
     "delete": {
       "title": "Delete canned reply"
+    },
+    "search": {
+      "title": "Find quick replies",
+      "desc": "Look up quick replies by shortcut or title."
     }
   },
   "channel": {
@@ -650,6 +873,16 @@
     },
     "disconnect": {
       "title": "Disconnect channel account"
+    },
+    "search": {
+      "title": "Find channel accounts",
+      "desc": "Look up connected Zalo / email / web chat accounts."
+    },
+    "group_result": {
+      "title": "Group creation result (system)"
+    },
+    "status": {
+      "title": "Check channel connection status"
     }
   },
   "webchat": {
@@ -666,6 +899,12 @@
     },
     "register_interest": {
       "title": "Register interest in integration"
+    },
+    "form_schema": {
+      "title": "Read platform connection form"
+    },
+    "test": {
+      "title": "Test platform connection"
     }
   },
   "profile_layout": {
@@ -683,6 +922,10 @@
     },
     "assign_role": {
       "title": "Assign template to role"
+    },
+    "search": {
+      "title": "Find profile layouts",
+      "desc": "Look up customer profile layouts by name."
     }
   },
   "ai_settings": {
@@ -710,7 +953,32 @@
     "folder": {
       "create": {
         "title": "Create knowledge folder"
+      },
+      "update": {
+        "title": "Edit knowledge folder",
+        "desc": "Rename, move or change the default access for new documents in a folder."
+      },
+      "delete": {
+        "title": "Delete knowledge folder",
+        "desc": "Delete an empty folder (no documents incl. trash, no sub-folders)."
       }
+    },
+    "suggestion": {
+      "propose": {
+        "title": "Store knowledge suggestions from a conversation"
+      },
+      "approve": {
+        "title": "Approve knowledge suggestion",
+        "desc": "Add the question–answer pair (edited if needed) to the knowledge base for AI to learn."
+      },
+      "reject": {
+        "title": "Reject knowledge suggestion",
+        "desc": "Drop the question–answer pair; nothing is added to the knowledge base."
+      }
+    },
+    "source_search": {
+      "title": "Find knowledge sources",
+      "desc": "Look up knowledge-base sources by name or tag."
     }
   },
   "governance": {
@@ -741,6 +1009,10 @@
     },
     "detect_fields": {
       "title": "Detect template fields"
+    },
+    "search": {
+      "title": "Find document templates",
+      "desc": "Look up quote / contract / payment request templates."
     }
   },
   "wallet": {
@@ -764,6 +1036,10 @@
     },
     "refund_reject": {
       "title": "Reject refund"
+    },
+    "redeem_points": {
+      "title": "Pay with points",
+      "desc": "Use the customer points for part of a payment request (1 point = 100đ, up to 50% of the order value)."
     }
   },
   "package": {
@@ -772,6 +1048,10 @@
     },
     "adjust_sessions": {
       "title": "Adjust package sessions"
+    },
+    "search": {
+      "title": "Find customer packages",
+      "desc": "Look up packages: sessions used, expiry, status."
     }
   },
   "payment_account": {
@@ -785,6 +1065,48 @@
     },
     "disconnect": {
       "title": "Disconnect bank reconciliation"
+    }
+  },
+  "service": {
+    "search": {
+      "title": "Find services",
+      "desc": "Look up bookable services by name or code."
+    }
+  },
+  "assistant": {
+    "resume": {
+      "title": "Resume assistant turn"
+    }
+  },
+  "sales_settings": {
+    "update": {
+      "title": "Update sales policy",
+      "desc": "Change the workspace quote approval thresholds (total, discount %) — Owner only."
+    }
+  },
+  "receipt": {
+    "send": {
+      "title": "Send receipt",
+      "desc": "Send the receipt PDF of a confirmed payment to the customer conversation."
+    }
+  },
+  "product_variant": {
+    "create": {
+      "title": "Add variant"
+    },
+    "update": {
+      "title": "Edit variant"
+    },
+    "archive": {
+      "title": "Archive variant"
+    }
+  },
+  "data_job": {
+    "cancel": {
+      "title": "Cancel background job"
+    },
+    "retry": {
+      "title": "Retry failed items of a background job"
     }
   }
 }

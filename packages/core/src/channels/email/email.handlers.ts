@@ -11,10 +11,12 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { QuotaService } from '../../billing/public';
+import { openReservations, reserveQuota } from '../../kernel/consistency/handler-adapter';
 import { CHANNEL_REGISTRY } from '../tokens';
 import { ChannelAccounts, defaultSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
 import { emailAdapterOf, emailCredentials, verifyMailbox } from './credentials';
+import { emailConnectPreview } from './previews/email.handlers.preview';
 
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
 
@@ -40,37 +42,56 @@ export class ChannelEmailConnectHandler implements Handler<ActionInput<typeof ch
       throw new AppError('CONFLICT', 409, { address: 'exists' });
     }
     await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-    await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', await accounts.countLive(tx));
-    // Đăng nhập thật trước khi lưu — sai thì 422 kèm lý do (mã i18n), không tạo tài khoản.
+    await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
+    // Đăng nhập thật trước khi lưu — sai thì 422 kèm lý do (mã i18n), không tạo tài khoản (giao dịch nền tảng huỷ, không giữ chỗ).
     const v = await verifyMailbox(emailAdapterOf(this.registry), creds);
     if (!v.ok) throw new AppError('VALIDATION_FAILED', 422, { fields: v.reason }, serverMessages('vi').channels.email[v.reason as 'imap_auth']);
 
     const now = this.clock.now();
+    await reserveQuota(ptx, ctx, 'channels', now);
     const id = uuidv7(now.getTime());
     const name = input.name?.trim() || creds.address;
-    const row = await tx.channelAccount.create({
-      data: {
-        id,
-        type: 'email',
-        name,
-        externalId: creds.address,
-        status: 'connected',
-        credentialsEnc: new Uint8Array(encryptSecret(JSON.stringify(creds), key)),
-        settings: { ...defaultSettings(), hours: '24/7' },
-        health: { status: 'connected', checked_at: now.toISOString() },
-        createdBy: userOf(ctx),
-        createdAt: now,
-        lastEventAt: now,
-      },
-    });
-    await accounts.route(ctx.workspaceId, row, 'connected', ptx);
     const control = this.control;
     return {
       result: { channel_account_id: id },
       // Không ghi credential vào log (action_log after): chỉ địa chỉ + máy chủ.
       after: { id, type: 'email', name, address: creds.address, imap_host: creds.imap_host, smtp_host: creds.smtp_host },
       events: [{ topic: 'channel.connected', payload: { channel_account_id: id, type: 'email', name } }],
+      // Credential đã mã hoá (AES-256-GCM) trong kế hoạch tenant — sổ nền tảng không giữ bản rõ.
+      tenantPlan: { id, name, address: creds.address, enc: Buffer.from(encryptSecret(JSON.stringify(creds), key)).toString('base64'), by: userOf(ctx), at: now.toISOString() },
       ...(control ? { afterCommit: () => control.send({ op: 'start', account_id: id }) } : {}),
     };
+  }
+
+  /** Pha tenant: tạo tài khoản `connected` (id tất định). Trùng địa chỉ vừa có ở luồng khác → 409, thao tác cần bù trừ chỗ giữ. */
+  async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    const p = plan as { id: string; name: string; address: string; enc: string; by: string | null; at: string };
+    if (await tx.channelAccount.findUnique({ where: { id: p.id }, select: { id: true } })) return {};
+    const at = new Date(p.at);
+    await tx.channelAccount.create({
+      data: {
+        id: p.id,
+        type: 'email',
+        name: p.name,
+        externalId: p.address,
+        status: 'connected',
+        credentialsEnc: new Uint8Array(Buffer.from(p.enc, 'base64')),
+        settings: { ...defaultSettings(), hours: '24/7' },
+        health: { status: 'connected', checked_at: at.toISOString() },
+        createdBy: p.by,
+        createdAt: at,
+        lastEventAt: at,
+      },
+    });
+    return {};
+  }
+
+  async finalizePlatform(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx) {
+    const p = plan as { id: string; address: string };
+    await this.accounts!.route(ctx.workspaceId, { id: p.id, type: 'email', externalId: p.address }, 'connected', ptx);
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof channelEmailConnect>, tx: TenantTx) {
+    return emailConnectPreview(tx, input);
   }
 }

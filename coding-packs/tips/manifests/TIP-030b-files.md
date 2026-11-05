@@ -159,3 +159,51 @@
 | M | `apps/web/src/features/settings/types.ts` | Local template subtype interface |
 | M | `packages/core/src/ai/assistant/catalog.ts` | Hide public appendix internal actions from all assistant discovery |
 | C | `packages/core/test/appendix-catalog.test.ts` | Discovery and direct invocation fail closed |
+| C | `apps/web/src/features/settings/components/ContractKindSelect.tsx` | Amend (F1): ô chọn loại hợp đồng dùng chung cho mẫu rich + DOCX (giữ RichTemplateModal / DocxWizard dưới trần) |
+| M | `apps/api/test/integration/documents.test.ts` | Amend (F1): index mặc định chia nhóm (chung / theo loại hợp đồng) thay index kind-only của 028 |
+| C | `packages/core/src/contracts/actions/contract-create.ts` | Amend (F1): insertContract / undoCreate dùng chung cho contract.create + create_from_attachment (giữ contract-write.handlers dưới trần) |
+| C | `apps/web/src/features/contracts/styles/source.styles.ts` | Amend (F1): style bước nguồn tệp / bảng đề xuất (token) |
+| C | `apps/web/src/features/contracts/hooks/useContractFiles.ts` | Amend (F1): query tab Tệp + tải tệp có kiểm scope + gắn tệp (attach_file) |
+| M | `apps/web/src/shared/api/mock/domains/contracts-actions.ts` | Amend (F1): mock inspect_file / attach_file / create_from_attachment + contract.create { source } |
+| M | `apps/web/src/shared/api/mock/mock-transport.ts` | Amend (F1): route GET /contracts/:id/files, tải tệp mock, ghi tên tệp đã upload cho guard giả |
+| M | `apps/api/test/integration/setup.ts` | Amend (F1): chuyển RENDER_ISOLATION_LAUNCHER / _WINDOWS_MODE vào env test (DOCX cô lập) |
+| M | `packages/core/src/inbox/public.ts` | Amend (F1): xuất writableConversation — kiểm scope hội thoại trước khi đọc tệp đính kèm |
+| C | `packages/actions/src/contract-draft.ts` | Amend (F2): schema contract.prepare_draft / draft_from_content / resolve_suggestion (giữ sales-schemas dưới trần) |
+| M | `packages/actions/src/sales-schemas.ts` | Amend (F2): draftLine / draftSuggestion dùng chung |
+| C | `packages/db/prisma/tenant/migrations/20261102003021_contract_ai_draft/migration.sql` | Amend (F2): bảng contract_draft_proposal + trigger bất biến + cột contract.draft_proposal_id / ai_suggestions |
+| C | `packages/ai/src/prompts/contract-draft.vi.md` | Amend (F2): prompt soạn nháp (thay `prompts/contract-files.ts` — theo mẫu `.md` + registry hiện có) |
+| C | `packages/ai/src/prompts/contract-draft.en.md` | Amend (F2): như trên, bản en |
+| C | `packages/ai/test/contract-draft-prompt.test.ts` | Amend (F2): registry khớp file .md, luật cốt lõi |
+| M | `packages/ai/src/testing/mock-model.ts` | Amend (F2): kịch bản model giả `# SOẠN NHÁP HỢP ĐỒNG` cho integration / E2E http |
+| M | `packages/core/src/sales/public.ts` | Amend (F2): xuất visibleQuote — kiểm báo giá nguồn trước khi gọi model |
+| M | `packages/core/src/sales/quotes/services/quote-draft.ts` | Amend (F2, ai:live): matchCatalog không nhân số nằm trong tên gói ("… 10 buổi") thành số lượng |
+| C | `packages/core/test/quote-draft-match.test.ts` | Amend (F2): test matchCatalog số trong tên / số lượng thật |
+| M | `packages/core/test/assistant-coverage.test.ts` | Amend (F2): miễn trừ proposal_id / suggestion_id (id phiên, không có mã người dùng nói) |
+| C | `apps/web/src/features/contracts/components/draft/AiDraftPanel.tsx` | Amend (F2): khung soạn AI trong form tạo (thay vị trí `components/files/`) |
+| C | `apps/web/src/features/contracts/components/draft/AiSuggestions.tsx` | Amend (F2): thay `components/files/AiSuggestions.tsx` (đúng nhóm draft) |
+| C | `apps/web/src/features/contracts/components/draft/AiSuggestions.test.tsx` | Amend (F2): thay `components/files/AiSuggestions.test.tsx` |
+| C | `apps/web/src/features/contracts/hooks/useContractDraft.ts` | Amend (F2): hook hai bước prepare → draft_from_content, request_key theo nội dung |
+| C | `apps/web/src/features/contracts/styles/draft.styles.ts` | Amend (F2): style khung soạn / khối gợi ý (token) |
+| C | `apps/web/src/shared/api/mock/domains/contracts-draft.ts` | Amend (F2): mock hai bước + cổng trình duyệt (không import store / contracts — tránh vòng depcheck) |
+| M | `apps/api/test/integration/helpers/action-matrix.ts` | Amend (F2): `credit(n)` nạp ví cho test action gọi model |
+| M | `apps/api/package.json` | Amend (F2): devDependency `@types/pdf-parse` 1.1.5 (cùng bản core) cho test AC3 đọc chữ PDF |
+| M | `pnpm-lock.yaml` | Amend (F2): khoá devDependency trên |
+| M | `tools/ai-live/src/cases.ts` | Amend (F2): category `contract`, ô `contract` / `expect.contract` |
+| M | `tools/ai-live/src/runner.ts` | Amend (F2): chuyển ca contract sang contract-judge |
+| M | `tools/ai-live/src/cli.ts` | Amend (F2): cổng suite contract-files 4/4 |
+| C | `tools/ai-live/src/contract-judge.ts` | Amend (F2): chấm ca AI soạn hợp đồng (giá danh mục, ngoài danh mục, gợi ý, không gửi / ký, mẫu không đổi) |
+| C | `tools/ai-live/test/contract-judge.test.ts` | Amend (F2): test bộ chấm |
+| C | `coding-packs/reports/ai-live-contract-files-2026-11-03.md` | Amend (F2): báo cáo ai:live model thật 4/4 |
+| C | `coding-packs/reports/ai-live-contract-files-2026-11-03.json` | Amend (F2): dữ liệu báo cáo trên |
+| M | `apps/web/src/features/contracts/components/SignForm.tsx` | Amend (F3): `SignForm<V>` generic + `api` / `devOtp` tuỳ chọn — dùng chung cho trang ký phụ lục (một khối ký, không nhân bản) |
+| M | `apps/web/src/features/contracts/index.ts` | Amend (F3): xuất `AppendixSignScreen` cho route `(public)/sign/appendix/[token]` |
+| M | `packages/actions/src/reads/contracts.ts` | Amend (F3): `contract.get` trả `appendices[]` (≤ 50: id, code, title, status, version) — đường tra phụ lục cho Trợ lý / coverage |
+| M | `packages/core/src/contracts/actions/contract-read.handlers.ts` | Amend (F3): handler `contract.get` đọc phụ lục |
+| M | `packages/shared/src/contracts/contract-state.ts` | Amend (F3): `APPENDIX_FLOW` dùng chung server ↔ mock |
+| C | `packages/db/prisma/tenant/migrations/20261102003022_contract_appendix_signing/migration.sql` | Amend (F3): cột phụ lục + 3 bảng ký phụ lục + CHECK / unique / index INCLUDE + trigger append-only |
+| C | `packages/core/src/contracts/appendix/access.ts` | Amend (F3): visible / lock / CAS trạng thái phụ lục (tách khỏi handler — trần dòng) |
+| C | `apps/api/test/integration/helpers/appendix-seed.ts` | Amend (F3): seed hợp đồng đã ký + phụ lục cho integration / matrix |
+| C | `apps/web/src/features/contracts/hooks/useAppendices.ts` | Amend (F3): danh sách + 7 action phụ lục (bên cạnh `useAppendixSign.ts` của trang công khai) |
+| C | `apps/web/src/features/contracts/styles/appendix.styles.ts` | Amend (F3): style tab / form / duyệt phụ lục (token) |
+| C | `apps/web/src/shared/api/mock/domains/contracts-appendix.ts` | Amend (F3): mock phụ lục + trang ký công khai (không import store / contracts — tránh vòng depcheck) |
+| C | `apps/web/src/shared/api/mock/contracts-appendix-shape.test.ts` | Amend (F3): shape mock ↔ schema chung + luồng APPENDIX_FLOW |

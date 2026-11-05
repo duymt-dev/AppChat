@@ -6,6 +6,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import type { ContractRecord } from '../contract-access';
 import type { ContractDeps } from './contract-deps';
 import { signToken } from './sign-link';
+import { suggestionsOf } from '../files/suggestions';
 
 export interface ViewCtx {
   locale: string;
@@ -96,6 +97,12 @@ export function toContractRow(c: ContractRecord, x: { contact?: Contact; events:
     terminated_reason: c.terminatedReason,
     note: c.note,
     file_name: c.fileName,
+    source: c.source,
+    source_hash: c.sourceHash,
+    source_version: c.sourceVersion,
+    origin_message_id: c.originMessageId,
+    draft_proposal_id: c.draftProposalId,
+    ai_suggestions: suggestionsOf(c.aiSuggestions),
     events: x.events.map((e) => ({ type: e.type, at: e.createdAt.toISOString(), actor: e.actorName, ...(e.ip ? { ip: e.ip } : {}), ...(e.docSha256 ? { doc_sha256: e.docSha256 } : {}) })),
     ai: hintOf(c, ctx, !!x.token),
   };

@@ -1,5 +1,6 @@
 // 5 tab drawer Đề nghị thanh toán — prototype L5267–5336: Tổng quan (thông tin + thanh toán + VietQR) · CRM · AI · Tệp · Lịch sử.
 'use client';
+import { useState } from 'react';
 import { App } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -12,6 +13,7 @@ import { useInvoicePayStyles } from '../styles/pay.styles';
 import { useInvoicesUi } from '../invoices-store';
 import { PayProgress, PaymentList, VietQrCard } from './PaySection';
 import type { Invoice, InvoicesMeta } from '../types';
+import { ChannelSelect, type DocChannel } from '@/shared/forms/ChannelSelect';
 
 const EXT_BG: Record<string, string> = { pdf: color.dangerStrong, png: color.violet, jpg: color.violet };
 const EV_DOT: Record<string, string> = {
@@ -46,6 +48,8 @@ export function OverviewTab({ i }: { i: Invoice }) {
   const canRecord = useCan('payment.record');
   const canManage = useCan('invoice.manage');
   const send = useAction('invoice.send_payment_qr');
+  // Kênh gửi (TIP-032b P2 — thêm Website chat): mặc định Zalo như trước.
+  const [channel, setChannel] = useState<DocChannel>('zalo_personal');
   const open = i.status !== 'paid' && i.status !== 'void';
   const kv = (label: string, value: string, opt: { id?: string; green?: boolean } = {}) => (
     <div className={styles.kv}>
@@ -94,11 +98,12 @@ export function OverviewTab({ i }: { i: Invoice }) {
           type="button"
           className={styles.btn}
           disabled={!open || !canManage}
-          onClick={() => void send.run({ invoice_id: i.id, channel: 'zalo_personal' })}
+          onClick={() => void send.run({ invoice_id: i.id, channel })}
           data-testid="iv-send"
         >
           {i.status === 'draft' ? t('detail.send') : t('detail.remind')}
         </button>
+        <ChannelSelect value={channel} onChange={setChannel} disabled={!open || !canManage} testId="iv-send-channel" />
       </div>
       <PaymentList i={i} />
       <VietQrCard i={i} />
@@ -128,7 +133,7 @@ export function CrmTab({ i, meta }: { i: Invoice; meta: InvoicesMeta }) {
           {cell(t('crmTotal'), String(meta.crm.total), color.text)}
           {cell(t('crmRevenue'), fmt.money(i.paid_amount), color.brandInk)}
           {cell(t('crmOnTime'), meta.crm.on_time, color.text)}
-          {cell(t('crmDebt'), fmt.money(i.left), color.hotText)}
+          {cell(t('crmDebt'), fmt.money(meta.crm.debt ?? i.left), color.hotText)}
         </div>
       </div>
       <div className={styles.card}>

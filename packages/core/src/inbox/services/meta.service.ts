@@ -27,9 +27,10 @@ export class InboxMetaService {
     });
   }
 
-  /** Meta hiển thị của kênh có adapter (nhãn / ký hiệu / màu — manifest.display). */
+  /** Meta hiển thị của kênh có adapter (nhãn / ký hiệu / màu — manifest.display) + `create_group` khi adapter thật tạo được nhóm (TIP-023b). */
   channels() {
-    return Object.fromEntries(this.registry.manifests().filter((m) => m.status !== 'coming_soon').map((m) => [m.type, { label: m.display.name, short: m.display.short, color: m.display.color }]));
+    const can = (t: string) => !!this.registry.get(t)?.manifest.capabilities.createGroup && !!this.registry.get(t)?.adapter?.createGroup;
+    return Object.fromEntries(this.registry.manifests().filter((m) => m.status !== 'coming_soon').map((m) => [m.type, { label: m.display.name, short: m.display.short, color: m.display.color, create_group: can(m.type) }]));
   }
 
   /** Thẻ modal "Kết nối kênh" của Hộp thư — theo manifest (kênh chưa có adapter = "Sắp có"). */

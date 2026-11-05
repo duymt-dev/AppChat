@@ -3,3 +3,5 @@ export { CatalogReadService, type Viewer as CatalogViewer } from './services/cat
 export type { ProductFilter } from './repos/products.repo';
 export { recordMovement, lowOf, type Movement } from './services/catalog-write';
 export { productDocument, syncProduct, catalogSyncConsumer, type CatalogSyncDeps } from './events/catalog-sync';
+export { ImportDeps, ImportStatusService } from './import/status';
+export { runImport, tally } from './import/processor';

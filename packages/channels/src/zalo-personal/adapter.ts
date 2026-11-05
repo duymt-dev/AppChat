@@ -1,24 +1,18 @@
 // ChannelAdapter Zalo cá nhân (Blueprint §6, thiết kế theo OpenClaw `zalouser`): QR login → credential, giữ phiên (listener
-// 1-1 + nhóm), gửi chữ (rich text, chia đoạn) / ảnh / file / sticker, probe, đồng bộ tin cũ. Giới hạn tốc độ + lease ở worker.
-import { ChannelAuthError, ChannelNotRunningError, type ChannelAccountRuntime, type ChannelAdapter, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage } from '../types';
+// 1-1 + nhóm), gửi chữ (rich text, chia đoạn) / ảnh / file / sticker, probe, đồng bộ tin cũ, tạo nhóm (TIP-023b). Giới hạn tốc độ + lease ở worker.
+import { ChannelAuthError, ChannelNotRunningError, type ChannelAccountRuntime, type ChannelAdapter, type CreateGroupRequest, type CreateGroupResult, type HealthStatus, type InboundSink, type LoginEvent, type LoginResult, type OutboundMessage } from '../types';
 import { zaloPersonalManifest } from './manifest';
 import { normalizeZalo } from './normalize';
 import { renderChunks } from './render';
 import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, type ZaloSession, type ZaloTransport } from './transport';
 
-/** Tải tệp đính kèm (URL đã ký của file store) thành Buffer để upload lên Zalo. */
+/** Tải tệp đính kèm (URL đã ký của file store) thành Buffer để upload lên kênh. Core cấp bản an toàn (`attachmentFetcher` — đọc Storage
+ *  cho link ký nội bộ, safeFetch cho URL ngoài); gói kênh không tự `fetch` URL (TIP-045b, chặn SSRF). */
 export type FileFetcher = (url: string) => Promise<Buffer>;
 
-const MAX_FILE = 25 * 1024 * 1024;
-
-export const fetchFile: FileFetcher = async (url) => {
-  const r = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-  if (!r.ok) throw new Error(`attachment_http_${r.status}`);
-  const len = Number(r.headers.get('content-length') ?? 0);
-  if (len > MAX_FILE) throw new Error('attachment_too_large');
-  const buf = Buffer.from(await r.arrayBuffer());
-  if (buf.length > MAX_FILE) throw new Error('attachment_too_large');
-  return buf;
+/** Mặc định khi không được cấp FileFetcher: từ chối (fail closed) — không có đường tải URL tuỳ ý. */
+export const refuseFileFetch: FileFetcher = async () => {
+  throw new Error('attachment_fetcher_not_configured');
 };
 
 interface Running {
@@ -41,7 +35,7 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
 
   constructor(
     private readonly transport: ZaloTransport,
-    private readonly files: FileFetcher = fetchFile,
+    private readonly files: FileFetcher = refuseFileFetch,
   ) {}
 
   async beginLogin(accountId: string, onEvent: (e: LoginEvent) => void, signal: AbortSignal): Promise<LoginResult> {
@@ -113,6 +107,17 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
       let last = '';
       for (const part of renderChunks(msg.text ?? '', max)) last = await session.sendText(msg.externalThreadId, group, part.msg, part.styles);
       return { externalMsgId: last };
+    } catch (err) {
+      if (err instanceof ChannelAuthError) await this.stop(accountId);
+      throw err;
+    }
+  }
+
+  /** Tạo nhóm từ uid đã biết. Không có phiên → ChannelNotRunningError trước khi gọi Zalo (thử lại an toàn). */
+  async createGroup(accountId: string, req: CreateGroupRequest): Promise<CreateGroupResult> {
+    const { session } = this.session(accountId);
+    try {
+      return await session.createGroup(req.name, req.members);
     } catch (err) {
       if (err instanceof ChannelAuthError) await this.stop(accountId);
       throw err;

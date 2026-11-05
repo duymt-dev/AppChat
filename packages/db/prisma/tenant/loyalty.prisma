@@ -1,3 +1,81 @@
 // tenant/loyalty.prisma — sở hữu: TIP-036 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: Blueprint §2.2 loyalty.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: Blueprint §2.2 loyalty; luật COMMERCE §7. Không Prisma relation xuyên domain (Blueprint §2.1) — FK contact / file chỉ ở SQL.
+// Index partial / INCLUDE chỉ ở migration `20261102003600_loyalty` (Prisma không diễn đạt được).
+
+/// Cấu hình chương trình (một dòng, id = 1). Tỉ lệ / hạn / trần đổi / ngưỡng hạng cố định theo COMMERCE §7 — action chỉ đổi enabled,
+/// hệ số hạng, marketplace_earn.
+model LoyaltyConfig {
+  id                Int      @id @default(1) @db.SmallInt
+  enabled           Boolean  @default(true)
+  earnVndPerPoint   Int      @default(10000) @map("earn_vnd_per_point")
+  redeemVndPerPoint Int      @default(100) @map("redeem_vnd_per_point")
+  /// `[{ key, min, mult }]` × 4 — member / silver / gold / diamond.
+  tiers             Json
+  expiryMonths      Int      @default(12) @map("expiry_months") @db.SmallInt
+  maxRedeemPct      Int      @default(50) @map("max_redeem_pct") @db.SmallInt
+  tierWindowMonths  Int      @default(12) @map("tier_window_months") @db.SmallInt
+  tierReview        String   @default("quarterly") @map("tier_review")
+  marketplaceEarn   Boolean  @default(false) @map("marketplace_earn")
+  /// Đầu quý (`YYYY-MM-01`, giờ workspace) đã xét hạng xong — job xét hạng một lần mỗi quý.
+  tierReviewed      String?  @map("tier_reviewed")
+  version           Int      @default(1)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("loyalty_config")
+}
+
+/// Sổ điểm chỉ thêm. Lô cộng (delta > 0) có `remaining` / `expires_at`; bút toán trừ phân bổ FIFO qua `LoyaltyAlloc`.
+/// `dedupe_key` duy nhất chống ghi lặp (event chạy lại, lệnh lặp).
+model LoyaltyLedger {
+  id           String    @id @db.Uuid
+  contactId    String    @map("contact_id") @db.Uuid
+  /// earn | redeem | adjust | expire | reverse | restore
+  kind         String
+  delta        BigInt
+  balanceAfter BigInt    @map("balance_after")
+  reason       String    @default("")
+  note         String    @default("")
+  refType      String?   @map("ref_type")
+  refId        String?   @map("ref_id") @db.Uuid
+  dedupeKey    String?   @map("dedupe_key")
+  expiresAt    DateTime? @map("expires_at") @db.Timestamptz(6)
+  remaining    BigInt?
+  /// Căn cứ khi tích: `{ net_before_vat, base, tier, mult, rate }`.
+  basis        Json?
+  reversedById String?   @map("reversed_by_id") @db.Uuid
+  actorType    String    @default("system") @map("actor_type")
+  actorId      String?   @map("actor_id")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  debits LoyaltyAlloc[] @relation("alloc_debit")
+  lots   LoyaltyAlloc[] @relation("alloc_lot")
+
+  @@index([contactId, createdAt(sort: Desc), id(sort: Desc)], map: "loyalty_ledger_contact_recent_idx")
+  @@map("loyalty_ledger")
+}
+
+/// Bút toán trừ lấy `points` từ lô `lot_id`; `restored` = phần đã trả lại (hoàn tác / huỷ đơn — giữ hạn gốc, DC-297 b).
+model LoyaltyAlloc {
+  debitId  String @map("debit_id") @db.Uuid
+  lotId    String @map("lot_id") @db.Uuid
+  points   BigInt
+  restored BigInt @default(0)
+
+  debit LoyaltyLedger @relation("alloc_debit", fields: [debitId], references: [id], onDelete: Restrict)
+  lot   LoyaltyLedger @relation("alloc_lot", fields: [lotId], references: [id], onDelete: Restrict)
+
+  @@id([debitId, lotId])
+  @@index([lotId], map: "loyalty_alloc_lot_idx")
+  @@map("loyalty_alloc")
+}
+
+/// Tệp của thành viên (tab Tệp) — file thuộc tenant, đọc qua route loyalty đã kiểm scope khách.
+model LoyaltyMemberFile {
+  contactId String   @map("contact_id") @db.Uuid
+  fileId    String   @map("file_id") @db.Uuid
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([contactId, fileId])
+  @@map("loyalty_member_file")
+}

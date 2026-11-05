@@ -194,11 +194,12 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `platform/ai-config.prisma` | 019 | `llm_provider`, `model_route`, `model_price` |
 | `platform/templates.prisma` | 021 | `agent_template` |
 | `platform/notify.prisma` | 006 | `notification_pref` (thêm khi làm TIP-006 — DV-002) |
+| `platform/commerce-links.prisma` | 032b | `commerce_link` (link công khai xem / tải chứng từ đã gửi — chỉ băm token + định tuyến) |
 | `tenant/kernel.prisma` | 002 | `action_log`, `outbox_event`, `idempotency_key`, `file`, `sequence_counter`, `notification`; + `event_consumption` (TIP-006 — DC-027) |
 | `tenant/authz.prisma` | 005 | `role`, `team`, `team_member` |
 | `tenant/integrations.prisma` | 012 | `integration_connection`, `integration_mapping`, `integration_call_log`, `integration_event` |
 | `tenant/channels.prisma` · `tenant/channels-webchat.prisma` · `tenant/channels-email.prisma` | 014 · 017 · 018 | `channel_account`, … · `webchat_widget` · `email_thread` |
-| `tenant/crm.prisma` | 015 | `contact`, `contact_identity`, `contact_collaborator`, `contact_access_request`, `tag`, `contact_tag`, `contact_memory`, `timeline_event`, `contact_note`, `custom_field_def`, `profile_layout`, `profile_layout_role` |
+| `tenant/crm.prisma` | 015 · 015b | `contact`, `contact_identity`, `contact_collaborator`, `contact_access_request`, `tag`, `contact_tag`, `contact_memory`, `timeline_event`, `contact_note`, `custom_field_def`, `profile_layout`, `profile_layout_role`; 015b: `contact_revision`, `contact_memory_merge`, `contact_summary_cache` (+ cột nguồn / `fact_norm` / `updated_at` của `contact_memory`) |
 | `tenant/inbox.prisma` | 016 | `conversation`, `message`, `message_reaction`, `conversation_participant`, `conversation_tag`, `canned_reply`, `outbox_message` |
 | `tenant/ai-runs.prisma` · `ai-kb.prisma` · `ai-agents.prisma` · `ai-assistant.prisma` · `ai-tasks.prisma` | 019 · 020 · 021 · 023 · 035 | Blueprint §2.2 ai-* |
 | `core/src/kernel/files/**` + `apps/api/src/http/files/**` (Storage, `POST /v1/files`) | 020 (DV-003) | port `Storage` (local), `FilesService` — TIP sau dùng lại, không sửa |
@@ -206,8 +207,11 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `tenant/documents.prisma` | 028 | `doc_template` |
 | `tenant/sales-quotes.prisma` | 029 | `quote`, `quote_item` |
 | `tenant/contracts.prisma` | 030 | `contract`, `contract_appendix`, `contract_signer`, `contract_signature_event` |
+| `tenant/contract-appendix-signing.prisma` | 030b | `appendix_signer`, `appendix_sign_token`, `appendix_signature_event` |
+| `tenant/commerce-settings.prisma` | 032b | `commerce_settings` (singleton id=1, ngưỡng duyệt báo giá cấu hình được) |
+| `tenant/catalog-import.prisma` | 032b | `product_import`, `product_import_row` (nhập sản phẩm CSV / XLSX, biên nhận từng dòng) |
 | `tenant/sales-orders.prisma` | 031 | `order`, `order_item` |
-| `tenant/sales-payments.prisma` | 032 | `invoice`, `customer_payment`, `customer_package`, `package_usage`, `tenant_bank_feed`, `payment_account` |
+| `tenant/sales-payments.prisma` | 032 | `invoice`, `customer_payment`, `customer_package`, `package_usage`, `tenant_bank_feed`, `payment_account`; `package_reminder` + cột nguồn / bản hạn của gói do 032b thêm (migration `20261102003230_commerce_packages`) |
 | `tenant/booking.prisma` | 033 | `staff`, `business_hours`, `appointment`, … |
 | `tenant/support.prisma` · `loyalty.prisma` · `marketing.prisma` | 034 · 036 · 037 | Blueprint §2.2 |
 

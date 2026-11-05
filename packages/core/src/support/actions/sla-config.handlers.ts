@@ -9,11 +9,16 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { defaultPolicy, escalationOf } from '../services/sla-clock';
 import { supportScopeSql } from '../ticket-access';
+import { slaPreview } from './previews/sla-config.handlers.preview';
 
 @Injectable()
 @ActionHandler('sla.update_default')
 export class SlaUpdateDefaultHandler implements Handler<ActionInput<typeof slaUpdateDefault>, { ok: boolean }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof slaUpdateDefault>, tx: TenantTx) {
+    return slaPreview(tx, input);
+  }
 
   async execute(_ctx: ActionContext, input: ActionInput<typeof slaUpdateDefault>, tx: TenantTx): Promise<HandlerOutcome<{ ok: boolean }>> {
     const now = this.clock.now();

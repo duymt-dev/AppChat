@@ -172,7 +172,8 @@
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",
-    "system": "Hệ thống"
+    "system": "Hệ thống",
+    "sendConfirmation": "Gửi xác nhận đơn"
   },
   "form": {
     "title": "Tạo đơn bán hàng",
@@ -219,9 +220,12 @@
       "collect": "Thu hồi công nợ",
       "analyze": "Phân tích doanh thu"
     },
-    "ack": "Dạ em đã ghi nhận yêu cầu về đơn hàng, em xử lý ngay ạ.",
-    "ackPay": "Dạ em gửi đề nghị thanh toán kèm VietQR và theo dõi trạng thái cọc giúp anh/chị nhé.",
-    "ackCancel": "Dạ em rà các đơn huỷ và soạn kịch bản win-back giúp mình."
+    "prompts": {
+      "risk": "Rà soát đơn hàng có rủi ro: chờ cọc quá lâu, đã huỷ, giao trễ.",
+      "upsell": "Gợi ý upsell / bán thêm cho khách của đơn đang mở hoặc khách mua gần đây.",
+      "collect": "Liệt kê đơn còn phải thu (chờ cọc / còn nợ) và đề xuất nhắc thanh toán.",
+      "analyze": "Phân tích doanh thu đã thu tháng này, tỉ lệ thanh toán đủ và lý do huỷ đơn."
+    }
   },
   "unit": "đơn hàng"
 }

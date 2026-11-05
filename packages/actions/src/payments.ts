@@ -112,6 +112,7 @@ export const bankFeedConnect = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['invoices', 'integrations'],
+  secret: { connector: { provider: 'provider', fields: 'fields' } },
   db: 'platform',
 });
 

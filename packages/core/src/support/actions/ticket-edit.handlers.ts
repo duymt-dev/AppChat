@@ -14,6 +14,7 @@ import { CrmMembers, actorUserId, fieldDefs } from '../../crm/public';
 import { enqueueOutgoing, writeOutgoing, type Outgoing } from '../../inbox/public';
 import { UUID, lockTicket, type TicketRecord } from '../ticket-access';
 import { actorOf, evOf, logEvent, type Ev } from '../services/ticket-write';
+import * as pv from './previews/ticket-edit.handlers.preview';
 
 type Out = { ticket_id: string; status: string };
 type Assignee = { assignee_user_id?: string | undefined; assignee_agent_id?: string | undefined };
@@ -45,6 +46,10 @@ export class TicketAssignHandler implements Handler<ActionInput<typeof ticketAss
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketAssign>, tx: TenantTx) {
+    return pv.assignPreview(tx, ctx.authz, this.members, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketAssign>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
@@ -67,6 +72,10 @@ export class TicketBulkUpdateHandler implements Handler<ActionInput<typeof ticke
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketBulkUpdate>, tx: TenantTx) {
+    return pv.bulkPreview(tx, ctx.authz, this.members, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketBulkUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ updated: number }>> {
     const now = this.clock.now();
@@ -102,6 +111,10 @@ export class TicketUpdateHandler implements Handler<ActionInput<typeof ticketUpd
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketUpdate>, tx: TenantTx) {
+    return pv.updatePreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketUpdate>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
@@ -140,6 +153,10 @@ export class TicketCommentHandler implements Handler<ActionInput<typeof ticketCo
     @Inject(ChannelSendQueue) private readonly queue: ChannelSendQueue | null,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof ticketComment>, tx: TenantTx) {
+    return pv.commentPreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketComment>, tx: TenantTx): Promise<HandlerOutcome<{ ticket_id: string; comment_id: string }>> {
     const now = this.clock.now();

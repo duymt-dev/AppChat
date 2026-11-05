@@ -9,6 +9,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { CrmMembers } from '../../crm/public';
 import { scopeCols, writableConversation } from '../services/access';
 import { me, restore, snap, tagByLabel, tagNamesOf, updatedEvent, type ConvSnap } from './kit';
+import * as pv from './previews/conversation-assign.handlers.preview';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
@@ -23,6 +24,10 @@ const titleOf = async (tx: TenantTx, c: Conv) =>
 @ActionHandler('conversation.assign')
 export class ConversationAssignHandler implements Handler<ActionInput<typeof conversationAssign>, { assignee_user_id: string | null; assignee_agent_id: string | null }> {
   constructor(@Inject(CrmMembers) private readonly members: CrmMembers) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof conversationAssign>, tx: TenantTx) {
+    return pv.assignPreview(tx, ctx.authz, this.members, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationAssign>, tx: TenantTx) {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
@@ -48,6 +53,10 @@ export class ConversationAssignHandler implements Handler<ActionInput<typeof con
 export class ConversationTagHandler implements Handler<ActionInput<typeof conversationTag>, { tags: string[] }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
+  async preview(ctx: ActionContext, input: ActionInput<typeof conversationTag>, tx: TenantTx) {
+    return pv.tagPreview(tx, ctx.authz, input);
+  }
+
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationTag>, tx: TenantTx): Promise<HandlerOutcome<{ tags: string[] }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     const t = (await tagByLabel(tx, input.tag, me(ctx), this.clock.now(), true))!;
@@ -66,6 +75,10 @@ export class ConversationTagHandler implements Handler<ActionInput<typeof conver
 @ActionHandler('conversation.set_tags')
 export class ConversationSetTagsHandler implements Handler<ActionInput<typeof conversationSetTags>, { tags: string[] }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof conversationSetTags>, tx: TenantTx) {
+    return pv.setTagsPreview(tx, ctx.authz, input);
+  }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationSetTags>, tx: TenantTx): Promise<HandlerOutcome<{ tags: string[] }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
@@ -106,8 +119,7 @@ export class ConversationBulkUpdateHandler implements Handler<BulkIn, { updated:
 
   /** Bulk luôn preview kèm số bản ghi (§3.3) — đếm hội thoại người gọi được sửa. */
   async preview(ctx: ActionContext, input: BulkIn, tx: TenantTx): Promise<ActionPreview> {
-    const convs = await this.load(ctx, input, tx);
-    return { summary: `${convs.length}`, risk: 'write', count: convs.length };
+    return pv.bulkPreview((await this.load(ctx, input, tx)).length, this.members, input);
   }
 
   async execute(ctx: ActionContext, input: BulkIn, tx: TenantTx): Promise<HandlerOutcome<{ updated: number }>> {

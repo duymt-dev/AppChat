@@ -1,7 +1,7 @@
 // Domain `integrations` (TIP-012, provider-ports): kết nối connector của workspace (bí mật AES-256-GCM), resolver theo port,
 // đọc trang Nền tảng kết nối, webhook router, queue `integrations` (producer). Thiếu khoá / DB / Redis → service null.
 import { Module, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { connectorRegistry } from '@appchat/integrations';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
@@ -12,6 +12,8 @@ import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers'
 import { IntegrationConnectHandler } from './actions/integration-connect.handler';
 import { IntegrationDisconnectHandler } from './actions/integration-disconnect.handler';
 import { IntegrationRegisterInterestHandler } from './actions/integration-register-interest.handler';
+import { IntegrationFormSchemaHandler } from './actions/integration-form-schema.handler';
+import { IntegrationTestHandler } from './actions/integration-test.handler';
 import { INTEGRATIONS_QUEUE, IntegrationCalls } from './jobs/integration-call.processor';
 import { ConnectionsService } from './services/connections.service';
 import { IntegrationsReadService } from './services/read.service';
@@ -34,6 +36,9 @@ const INTEGRATIONS_CALL_QUEUE = Symbol('INTEGRATIONS_CALL_QUEUE');
     IntegrationConnectHandler,
     IntegrationDisconnectHandler,
     IntegrationRegisterInterestHandler,
+    // TIP-023c G3: metadata form + thăm dò connector (read, không đổi kết nối).
+    IntegrationFormSchemaHandler,
+    IntegrationTestHandler,
     {
       provide: ConnectionsService,
       inject: [opt(PLATFORM_DB), opt(ENC_KEY), CLOCK],

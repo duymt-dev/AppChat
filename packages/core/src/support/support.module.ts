@@ -19,9 +19,12 @@ import { SlaUpdateDefaultHandler, TicketSearchHandler } from './actions/sla-conf
 import { SlaCalendar } from './services/sla-clock';
 import { TicketsReadService } from './services/tickets-read.service';
 
+import { TicketGetHandler } from './actions/ticket-read.handlers';
+
 const HANDLERS = [
   TicketSearchHandler, TicketCreateHandler, TicketUpdateHandler, TicketAssignHandler, TicketSetStatusHandler,
   TicketCommentHandler, TicketCloseHandler, TicketReopenHandler, TicketBulkUpdateHandler, SlaUpdateDefaultHandler,
+  TicketGetHandler,
 ];
 
 @Module({

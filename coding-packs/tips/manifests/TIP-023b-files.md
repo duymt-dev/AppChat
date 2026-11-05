@@ -13,6 +13,15 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `apps/api/src/http/ai/ai.controller.ts` | Pass authority to shared scoped listRuns query |
 | C | `packages/ai/test/assistant-prompt-runtime.test.ts` | Runtime prompt version/content matches approved prompt changes |
 | C | `coding-packs/reports/TIP-023b-completion.md` | Builder evidence report only after implementation |
+| M | `coding-packs/DEVIATIONS.md` | DV-021 thư viện `yaml` cho tools/ai-live |
+| M | `coding-packs/QUESTIONS.md` | Q-044 seed báo giá cho ca gia hạn ai:live; Q-045 test token sales-unit chập chờn; Q-046 Redis riêng cho ai:live |
+| M | `coding-packs/DECISIONS.md` | DC-306 quyền action đọc, DC-307 tìm mã HĐ |
+| M | `coding-packs/docs/06-prototype/DEVIATIONS.md` | PD-008 thẻ xác nhận Trợ lý có khối "đổi gì" + nút Sửa (amend khi thi công) |
+| M | `tools/scripts/e2e-http.mjs` | Lượt `e2e:http` dùng Redis DB test (DC-310) — không chung hàng đợi / rate-limit với tiến trình demo |
+| C | `coding-packs/reports/ai-live-2026-11-03.md` | Báo cáo `pnpm ai:live` 30 ca (model thật 9router) — AC5 |
+| C | `coding-packs/reports/ai-live-2026-11-03.json` | Bản máy đọc của báo cáo ai:live (attempt / safety / model / prompt hash) |
+| C | `coding-packs/reports/ai-live-assistant-vertical-2026-11-03.md` | Suite bổ sung `--cases fixtures/ai-eval/assistant-vertical.json` (không cổng, báo cáo riêng) |
+| C | `coding-packs/reports/ai-live-assistant-vertical-2026-11-03.json` | Bản máy đọc của suite luồng dọc |
 | M | `apps/api/src/http/inbox/inbox.http.module.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/core/src/ai/assistant/sessions.ts` | Canonical paused state and group HTTP registration |
 | M | `packages/ai/src/gateway/engine.ts` | Canonical paused state and group HTTP registration |
@@ -29,7 +38,12 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/api/test/integration/actions/agent.pause.action.test.ts` | Per-action matrix: agent.pause |
 | C | `apps/api/test/integration/actions/agent.publish.action.test.ts` | Per-action matrix: agent.publish |
 | C | `apps/api/test/integration/actions/agent.rollback.action.test.ts` | Per-action matrix: agent.rollback |
+| M | `apps/api/test/integration/setup.ts` | Isolate test Redis DB (DC-310) |
 | C | `apps/api/test/integration/actions/agent.search.action.test.ts` | Per-action matrix agent.search |
+| C | `apps/api/test/integration/actions/ai_task.search.action.test.ts` | Per-action matrix ai_task.search |
+| C | `apps/api/test/integration/actions/canned_reply.search.action.test.ts` | Per-action matrix canned_reply.search |
+| C | `apps/api/test/integration/actions/package.search.action.test.ts` | Per-action matrix package.search |
+| C | `apps/api/test/integration/actions/profile_layout.search.action.test.ts` | Per-action matrix profile_layout.search |
 | C | `apps/api/test/integration/actions/agent.test.action.test.ts` | Per-action matrix: agent.test |
 | C | `apps/api/test/integration/actions/agent.update.action.test.ts` | Per-action matrix: agent.update |
 | C | `apps/api/test/integration/actions/ai_settings.update.action.test.ts` | Per-action matrix: ai_settings.update |
@@ -241,6 +255,8 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/api/test/integration/conversation-groups.test.ts` | Extracted implementation or targeted evidence |
 | C | `apps/api/test/integration/fixtures/action-matrix.ts` | Extracted implementation or targeted evidence |
 | C | `apps/api/test/integration/helpers/action-matrix.ts` | Extracted implementation or targeted evidence |
+| C | `apps/api/test/integration/helpers/channel-fixtures.ts` | Channel-account + Team-plan fixtures shared by the channel action matrix tests |
+| C | `apps/api/test/integration/helpers/ai-fixtures.ts` | Agent / run / approval fixtures shared by the AI action matrix tests |
 | C | `apps/web/e2e/assistant-vertical.spec.ts` | Extracted implementation or targeted evidence |
 | C | `apps/web/e2e/http/assistant-vertical.spec.ts` | Extracted implementation or targeted evidence |
 | M | `apps/web/messages/en/actions.json` | UI labels |
@@ -258,6 +274,8 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `apps/web/src/features/assistant/hooks/useAssistantChat.ts` | Runtime/contract/wiring |
 | C | `apps/web/src/features/assistant/hooks/useEditActionPreview.ts` | Extracted implementation or targeted evidence |
 | M | `apps/web/src/features/assistant/types.ts` | Runtime/contract/wiring |
+| M | `apps/web/src/features/assistant/styles/thread.styles.ts` | Build amendment 2026-11-03: style token của ActionPreviewCard (đổi gì / cảnh báo) — không CSS rời |
+| M | `apps/web/src/features/assistant/styles/approval.styles.ts` | Build amendment 2026-11-03: lỗi từng ô của form Sửa (EditActionPreviewModal dùng chung form style duyệt) |
 | M | `apps/web/src/features/inbox/components/ConvMenu.tsx` | Runtime/contract/wiring |
 | C | `apps/web/src/features/inbox/components/CreateGroupModal.tsx` | Extracted implementation or targeted evidence |
 | C | `apps/web/src/features/inbox/hooks/useCreateGroup.ts` | Extracted implementation or targeted evidence |
@@ -268,6 +286,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `apps/worker/test/integration/ai-commerce-resume.test.ts` | Extracted implementation or targeted evidence |
 | C | `apps/worker/test/integration/fixtures/ai-process.ts` | Explicit integration seam |
 | M | `apps/worker/vitest.config.ts` | Runtime/contract/wiring |
+| M | `apps/worker/package.json` | Build amendment 2026-11-03: script `test:integration` + devDependencies workspace `@appchat/db` / `@appchat/shared` + `@nestjs/testing` (đã có ở core / api, cùng phiên bản) cho integration process ROLE=ai |
 | C | `apps/worker/vitest.integration.config.ts` | Extracted implementation or targeted evidence |
 | C | `fixtures/ai-eval/assistant-vertical.json` | Extracted implementation or targeted evidence |
 | C | `fixtures/ai-eval/live-seed.mjs` | Extracted implementation or targeted evidence |
@@ -287,6 +306,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/actions/src/reads/inbox.ts` | Domain read action definitions |
 | C | `packages/actions/src/reads/sales.ts` | Domain read action definitions |
 | C | `packages/actions/src/reads/support.ts` | Domain read action definitions |
+| M | `packages/actions/src/registry.test.ts` | ID cho phép chữ số sau dấu chấm (`contact.get_360` — action-registry §6) |
 | M | `packages/ai/src/gateway/types.ts` | Runtime/contract/wiring |
 | M | `packages/ai/src/prompts/assistant.en.md` | Runtime/contract/wiring |
 | M | `packages/ai/src/prompts/assistant.vi.md` | Runtime/contract/wiring |
@@ -307,6 +327,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/ai/agents/previews/agent-llm.handlers.preview.ts` | Scoped preview helper for packages/core/src/ai/agents/agent-llm.handlers.ts |
 | C | `packages/core/src/ai/agents/previews/agent.handlers.preview.ts` | Scoped preview helper for packages/core/src/ai/agents/agent.handlers.ts |
 | M | `packages/core/src/ai/ai.module.ts` | Runtime/contract/wiring |
+| M | `packages/core/src/ai/public.ts` | Export `runScope` (DC-308) for the runs route |
 | M | `packages/core/src/ai/approvals/approval.handlers.ts` | Domain preview for approval.approve, approval.reject, approval.edit_and_approve |
 | C | `packages/core/src/ai/approvals/previews/approval.handlers.preview.ts` | Scoped preview helper for packages/core/src/ai/approvals/approval.handlers.ts |
 | M | `packages/core/src/ai/approvals/resume.ts` | Runtime/contract/wiring |
@@ -324,8 +345,10 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/ai/assistant/reference-resolver.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/src/ai/assistant/schema-brief.ts` | Extracted implementation or targeted evidence |
 | M | `packages/core/src/ai/assistant/turn.service.ts` | Runtime/contract/wiring |
+| C | `packages/core/src/ai/assistant/run-trace.read.ts` | GET /assistant/runs/:id/trace cho tools/ai-live (R1.4) |
 | M | `packages/core/src/ai/assistant/types.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/ai/governance/governance.ts` | Domain preview for governance.update |
+| C | `packages/core/src/ai/governance/governance.store.ts` | Governance catalog + DTO + read split from the handler so the preview helper imports it without a cycle |
 | C | `packages/core/src/ai/governance/previews/governance.preview.ts` | Scoped preview helper for packages/core/src/ai/governance/governance.ts |
 | C | `packages/core/src/ai/jobs/ai-domain-handlers.module.ts` | Extracted implementation or targeted evidence |
 | M | `packages/core/src/ai/jobs/ai.jobs.module.ts` | Runtime/contract/wiring |
@@ -359,6 +382,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/src/billing/actions/previews/billing-cancel-invoice.handler.preview.ts` | Scoped preview helper for packages/core/src/billing/actions/billing-cancel-invoice.handler.ts |
 | C | `packages/core/src/billing/actions/previews/billing-create-invoice.handler.preview.ts` | Scoped preview helper for packages/core/src/billing/actions/billing-create-invoice.handler.ts |
 | C | `packages/core/src/billing/actions/previews/billing-report-transfer.handler.preview.ts` | Scoped preview helper for packages/core/src/billing/actions/billing-report-transfer.handler.ts |
+| M | `packages/core/src/billing/payments/invoices.service.ts` | Read-only `quote()` (price + reusable pending invoice) for the billing.create_invoice preview |
 | M | `packages/core/src/booking/actions/appointment-book.handlers.ts` | Domain preview for appointment.find_slots, appointment.list, appointment.create, appointment.reschedule |
 | M | `packages/core/src/booking/actions/appointment-flow.handlers.ts` | Domain preview for appointment.confirm, appointment.check_in, appointment.complete, appointment.mark_no_show, appointment.cancel |
 | C | `packages/core/src/booking/actions/appointment-update.handler.ts` | Extracted implementation or targeted evidence |
@@ -403,6 +427,7 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/channels/webchat/webchat.handlers.ts` | Domain preview for webchat.update_widget |
 | M | `packages/core/src/contracts/actions/contract-approval.handlers.ts` | Domain preview for contract.submit, contract.request_changes, contract.reject_internal, contract.approve_and_sign |
 | C | `packages/core/src/contracts/actions/contract-read.handlers.ts` | Bounded reads sharing UI query services |
+| M | `packages/core/src/contracts/repos/contracts.repo.ts` | Tìm theo mã HĐ-… (bỏ dấu cả mã) — lỗi sẵn có lộ ra ở contract.search |
 | M | `packages/core/src/contracts/actions/contract-send.handlers.ts` | Domain preview for contract.send_for_signature, contract.remind_signer, contract.extend_sign_link, contract.terminate |
 | M | `packages/core/src/contracts/actions/contract-write.handlers.ts` | Domain preview for contract.create, contract.create_from_quote, contract.update, contract.delete, contract.renew |
 | C | `packages/core/src/contracts/actions/previews/contract-approval.handlers.preview.ts` | Scoped preview helper for packages/core/src/contracts/actions/contract-approval.handlers.ts |
@@ -442,10 +467,12 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/identity/actions/onboarding-toggle-step.handler.ts` | Domain preview for onboarding.toggle_step |
 | C | `packages/core/src/identity/actions/previews/business-profile-update.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/business-profile-update.handler.ts |
 | C | `packages/core/src/identity/actions/previews/invite-revoke.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/invite-revoke.handler.ts |
+| M | `packages/core/src/identity/actions/member-guard.ts` | `activeMember` accepts a read-only platform client (`workspace` + `membership`) so the member previews reuse the same 404 / 422 checks |
 | C | `packages/core/src/identity/actions/previews/member-invite.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/member-invite.handler.ts |
 | C | `packages/core/src/identity/actions/previews/member-remove.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/member-remove.handler.ts |
 | C | `packages/core/src/identity/actions/previews/member-set-role.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/member-set-role.handler.ts |
 | C | `packages/core/src/identity/actions/previews/onboarding-toggle-step.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/onboarding-toggle-step.handler.ts |
+| C | `packages/core/src/identity/actions/previews/platform-read.ts` | Shared platform-DB read for identity / notify previews (PLATFORM_DB optional) |
 | C | `packages/core/src/identity/actions/previews/profile-update.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/profile-update.handler.ts |
 | C | `packages/core/src/identity/actions/previews/working-hours-update.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/working-hours-update.handler.ts |
 | C | `packages/core/src/identity/actions/previews/workspace-switch.handler.preview.ts` | Scoped preview helper for packages/core/src/identity/actions/workspace-switch.handler.ts |
@@ -482,7 +509,10 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | M | `packages/core/src/kernel/actions/executor.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/kernel/actions/handler-registry.ts` | Runtime/contract/wiring |
 | M | `packages/core/src/kernel/actions/handler.ts` | Current authority, scoped shared query, preview or transport wiring |
+| C | `packages/core/src/kernel/actions/preview-kit.ts` | Shared canonical preview builder (diff / created / removed) used by domain preview helpers |
+| C | `packages/core/src/kernel/tenant/platform-read.ts` | `needPlatform` — optional PLATFORM_DB guard shared by previews of `db: 'platform'` actions (501 when unset) |
 | M | `packages/core/src/kernel/actions/policy.ts` | Current authority, scoped shared query, preview or transport wiring |
+| M | `packages/core/src/kernel/actions/tip-owners.ts` | TIP chủ cho domain `service` (service.search) |
 | M | `packages/core/src/kernel/kernel.module.ts` | Current authority, scoped shared query, preview or transport wiring |
 | M | `packages/core/src/notify/actions/notification-mark-read.handler.ts` | Domain preview for notification.mark_read |
 | M | `packages/core/src/notify/actions/notification-update-prefs.handler.ts` | Domain preview for notification.update_prefs |
@@ -539,9 +569,13 @@ Legacy parity.manifest.ts: only 1–2-line facade to manifests/assistant-coverag
 | C | `packages/core/test/agent-current-authority.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/appointment-update.test.ts` | Explicit integration seam |
 | C | `packages/core/test/assistant-canonical-input.test.ts` | Extracted implementation or targeted evidence |
+| C | `packages/core/test/assistant-coverage.debt.ts` | Danh sách nợ preview R1 (chỉ giảm, R2 = rỗng) tách khỏi test |
 | C | `packages/core/test/assistant-coverage.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-custom-schema.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/assistant-implemented-tools.test.ts` | Extracted implementation or targeted evidence |
+| C | `packages/core/test/assistant-run-trace.test.ts` | Vết run chỉ của người gọi, bí mật đã che (R1.4) |
+| C | `packages/core/test/assistant-find-synonyms.test.ts` | find_actions: từ đồng nghĩa đối tượng (dịch vụ / gói = product) + xếp hạng dự phòng — lỗi hệ thống do ai:live phát hiện |
+| M | `packages/core/test/assistant-unit.test.ts` | find_actions fail-closed theo handler thật + khuôn schema lồng nhau (R1.1/R1.2) |
 | C | `packages/core/test/assistant-preview-edit.test.ts` | Extracted implementation or targeted evidence |
 | C | `packages/core/test/group-request-state.test.ts` | Explicit integration seam |
 | M | `packages/db/prisma/tenant/channels.prisma` | Runtime/contract/wiring |

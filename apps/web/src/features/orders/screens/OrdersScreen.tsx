@@ -20,6 +20,7 @@ import { KANBAN, laneOf } from '../status';
 import type { Order } from '../types';
 import { useOrdersUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -57,6 +58,7 @@ function useFromSource() {
 
 export function OrdersScreen() {
   useOrdersUiCommands();
+  useAssistantContext();
   useFromSource();
   const t = useTranslations('orders');
   const tc = useTranslations('common');

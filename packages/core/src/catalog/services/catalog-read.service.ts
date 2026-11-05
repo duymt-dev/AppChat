@@ -1,10 +1,11 @@
 // Đọc domain catalog cho apps/api (Blueprint §4.4 catalog — shape packages/shared/src/api/catalog.ts). Mỗi lệnh đọc mở một
 // transaction trên DB tenant của workspace (TenantDbResolver). Catalog không có data scope (rbac §5): ai có `catalog.view` thấy
-// mọi sản phẩm; giá vốn theo `catalog.cost_view` (product-view).
+// mọi sản phẩm; giá vốn theo `catalog.cost_view`, trường tuỳ biến theo vai trò (FieldPolicy, product-view).
 import { AppError, SALES_SOURCES, categoryPal, createFmt, type AuthzContext } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { CrmMembers } from '../../crm/public';
+import { assertQueryFields, fieldView } from '../../authz/public';
 import { listProductIds, productStats, type ProductFilter } from '../repos/products.repo';
 import { productActivity } from './activity';
 import { UUID } from './catalog-write';
@@ -40,8 +41,8 @@ export class CatalogReadService {
   }
 
   private async view(tx: TenantTx, v: Viewer, locale: string): Promise<ViewCtx> {
-    const [cats, channels] = await Promise.all([categoryMap(tx), connectedChannelTypes(tx)]);
-    return { authz: v.authz, locale, categories: cats.map, channels };
+    const [cats, channels, fields] = await Promise.all([categoryMap(tx), connectedChannelTypes(tx), fieldView(tx, 'product', v.authz)]);
+    return { authz: v.authz, locale, categories: cats.map, channels, fields };
   }
 
   /** Bước 2 deferred join: đủ cột chỉ cho các id đã chọn, giữ thứ tự bước 1. */
@@ -58,8 +59,11 @@ export class CatalogReadService {
     const pg = Math.max(1, page ?? 1);
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
+      const ctx = await this.view(tx, v, pl.locale);
+      // Lọc trên trường bị ẩn → 422 trước truy vấn (không để tổng / rỗng làm kênh dò giá trị).
+      assertQueryFields(ctx.fields, f.custom);
       const { ids, total } = await listProductIds(tx, f, paged ? { offset: (pg - 1) * lim, limit: lim } : null);
-      const data = await this.rowsOf(tx, await this.view(tx, v, pl.locale), ids);
+      const data = await this.rowsOf(tx, ctx, ids);
       const pages = Math.max(1, Math.ceil(total / lim));
       return { data, next_cursor: paged && pg < pages ? String(pg + 1) : null, meta: { total, page: paged ? pg : 1, limit: paged ? lim : data.length } };
     });
@@ -74,10 +78,11 @@ export class CatalogReadService {
       if (!p) throw new AppError('NOT_FOUND', 404, { product_id: 'not_found' });
       const [parts, variants] = await Promise.all([
         tx.productComponent.findMany({ where: { productId: id }, select: { childId: true, qty: true, child: { select: { name: true } } } }),
-        tx.productVariant.findMany({ where: { productId: id }, orderBy: [{ sku: 'asc' }], select: { id: true, sku: true, name: true, stock: true } }),
+        // Biến thể đã lưu trữ không hiện để chọn cho dòng mới (TIP-032b); dòng cũ giữ id + tên đã chụp.
+        tx.productVariant.findMany({ where: { productId: id, status: 'active' }, orderBy: [{ sku: 'asc' }], select: { id: true, sku: true, name: true, stock: true, price: true, version: true } }),
       ]);
       const row = toRow(p as ProductRecord, await this.view(tx, v, pl.locale), parts.length);
-      return { ...row, components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants };
+      return { ...row, components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants: variants.map((x) => ({ ...x, price: x.price === null ? null : String(x.price) })) };
     });
   }
 

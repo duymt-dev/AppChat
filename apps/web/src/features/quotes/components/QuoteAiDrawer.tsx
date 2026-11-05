@@ -1,9 +1,12 @@
-// Panel "Trợ lý AI · Báo giá" — prototype L5166–5186. Mock: kết quả mẫu từ /quotes/meta (không gọi LLM).
-// "Soạn nội dung báo giá" của prototype → "Soạn báo giá từ nội dung" (D30, action quote.draft_from_content).
+// Panel "Trợ lý AI · Báo giá" — prototype L5166–5186. "Soạn nội dung báo giá" của prototype → "Soạn báo giá từ nội dung" (D30, action
+// quote.draft_from_content). TIP-023c G2: nút nghiệp vụ = prompt soạn sẵn gửi Trợ lý THẬT (surface drawer, ngữ cảnh báo giá đang mở /
+// dòng chọn); khung tóm tắt là số liệu đếm theo luật của `/quotes/meta.ai_runs` (thông tin, không phải câu trả lời AI). Ô hỏi gửi lượt thật.
 'use client';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient } from '@appchat/ui';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useQuoteAiStyles } from '../styles/ai.styles';
 import { useQuotesUi } from '../quotes-store';
 import type { QuotesMeta } from '../types';
@@ -20,22 +23,11 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
   const { styles } = useQuoteAiStyles();
   const ui = useQuotesUi();
   const [result, setResult] = useState('');
-  const [draft, setDraft] = useState('');
+  const { asst, draft, setDraft, send, ask } = useDrawerAsk('quotes');
   const run = (k: string) => {
     if (k === 'draft') return ui.set({ aiOpen: false, draftOpen: true });
     setResult(meta.ai_runs[k] ?? '');
-  };
-  const send = () => {
-    const text = draft.trim().toLowerCase();
-    if (!text) return;
-    setDraft('');
-    setResult(
-      /giá|combo|bao nhiêu|price/.test(text)
-        ? t('ackPrice')
-        : /nhắc|follow|chờ/.test(text)
-          ? t('ackFollow')
-          : t('ack'),
-    );
+    ask(t(`prompts.${k}` as never));
   };
   return (
     <EntityDrawer
@@ -48,6 +40,8 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
       tinted
       closeLabel={t('close')}
       testId="q-ai"
+      // `.p360` của prototype (L5538) bị ép 340px ở ≤ 1440 (L71).
+      width={340}
       footer={
         <div className={styles.foot}>
           <div className={styles.box}>
@@ -56,6 +50,7 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder={t('ph')}
+              aria-label={t('ph')}
             />
             <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={14} color={color.white} />
@@ -78,6 +73,7 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
             type="button"
             className={styles.run}
             onClick={() => run(k)}
+            disabled={asst.typing}
             data-testid={`q-ai-${k}`}
           >
             <span className={styles.runIc} style={{ background: `${tone}18` }}>
@@ -96,6 +92,9 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
           {result}
         </div>
       ) : null}
+      <div className={styles.thread}>
+        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} onOpenFull={asst.openFull} testId="q-ai-msgs" />
+      </div>
     </EntityDrawer>
   );
 }

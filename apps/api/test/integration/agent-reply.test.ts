@@ -26,6 +26,7 @@ import {
   REDIS,
   WalletService,
   createLogger,
+  normFact,
   replyTurn,
   resumeApproval,
   uuidv7,
@@ -140,7 +141,7 @@ describe('một lượt agent (AC3)', () => {
     await ai_ingest();
     const db = await tenant();
     const k = await act('contact.create', { full_name: 'Chị Lan', phone: '0909000111' }, idem());
-    await db.contactMemory.create({ data: { id: uuidv7(), contactId: k.body.data.result.contact_id, fact: 'Thích làm HIFU buổi tối' } });
+    await db.contactMemory.create({ data: { id: uuidv7(), contactId: k.body.data.result.contact_id, fact: 'Thích làm HIFU buổi tối', factNorm: normFact('Thích làm HIFU buổi tối') } });
     const ag = await agent('CSKH');
     const id = await conversation(ag, ['Spa mở cửa mấy giờ vậy?'], { contactId: k.body.data.result.contact_id });
     const before = (await h.app.get(WalletService, { strict: false }).balance(h.ws)).total;

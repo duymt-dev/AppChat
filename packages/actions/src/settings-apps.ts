@@ -133,6 +133,7 @@ export const channelEmailConnect = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['channels'],
+  secret: { paths: ['fields.password'] },
   // Hạn mức gói `max_channels` dưới khoá workspace (như channel.zalo.start_login — DC-069).
   db: 'platform',
 });
@@ -152,6 +153,8 @@ export const channelTest = defineAction({
   risk: 'read',
   agentGrantable: false,
   invalidates: [],
+  // Form nháp từ GenUI mang mật khẩu thật (TIP-023c G3) — che ở action_log / hash, model không được điền.
+  secret: { paths: ['fields.password'] },
 });
 
 export const channelUpdateSettings = defineAction({
@@ -294,6 +297,7 @@ export const integrationConnect = defineAction({
   risk: 'config',
   agentGrantable: false,
   invalidates: ['integrations'],
+  secret: { connector: { provider: 'provider', fields: 'fields' } },
 });
 
 export const integrationDisconnect = defineAction({

@@ -20,3 +20,16 @@ describe('customers ui-commands', () => {
     expect(dispatchUiCommand({ type: 'open', entity: 'contact', id: 'x' })).toBe(false);
   });
 });
+
+describe('customers highlight (REQ-E05b)', () => {
+  it('highlight contact:<id> → state; đổi bộ lọc bỏ highlight; target lạ bỏ qua', () => {
+    const { unmount } = renderHook(() => useCustomersUiCommands());
+    dispatchUiCommand({ type: 'highlight', target: 'contact:ct_lan' });
+    expect(useCrmUi.getState().highlight).toBe('ct_lan');
+    useCrmUi.getState().setFilter({ q: 'x' });
+    expect(useCrmUi.getState().highlight).toBeNull();
+    dispatchUiCommand({ type: 'highlight', target: 'quote:q1' });
+    expect(useCrmUi.getState().highlight).toBeNull();
+    unmount();
+  });
+});

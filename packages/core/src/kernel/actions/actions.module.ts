@@ -11,9 +11,12 @@ import { AUTHORIZER, type Authorizer } from './action-context';
 import { ConfirmTokens } from './confirm-token';
 import { ContextAuthorizer } from './authorizer';
 import { ActionExecutor } from './executor';
+import { instrumentExecutor } from '../metrics/collectors';
 import { actionIdOf } from './handler';
 import { ActionHandlerRegistry } from './handler-registry';
 import { UndoService } from './undo.service';
+import { ENC_KEY } from '../crypto';
+import { PlatformOperations } from '../consistency/platform-operation';
 
 export const CONFIRM_SECRET = Symbol('CONFIRM_SECRET');
 
@@ -51,8 +54,15 @@ export class ActionsModule {
           useFactory: (kv: KeyValueStore, secret: string) => new ConfirmTokens(kv, secret),
         },
         {
+          // Sổ thao tác xuyên DB cho action `db: 'platform'` (TIP-045b annex A1) — executor + khôi phục ROLE=jobs dùng chung.
+          provide: PlatformOperations,
+          inject: [PLATFORM_DB, TENANT_RESOLVER, REDIS, CLOCK, { token: ENC_KEY, optional: true }],
+          useFactory: (platform: PlatformDb, resolver: TenantDbResolver, kv: KeyValueStore, clock: Clock, encKey?: Buffer) =>
+            new PlatformOperations({ platform, resolver, kv, clock, ...(encKey ? { encKey } : {}) }),
+        },
+        {
           provide: ActionExecutor,
-          inject: [ActionHandlerRegistry, TENANT_RESOLVER, AUTHORIZER, ConfirmTokens, REDIS, CLOCK, PLATFORM_DB],
+          inject: [ActionHandlerRegistry, TENANT_RESOLVER, AUTHORIZER, ConfirmTokens, REDIS, CLOCK, PLATFORM_DB, PlatformOperations],
           useFactory: (
             handlers: ActionHandlerRegistry,
             resolver: TenantDbResolver,
@@ -61,15 +71,22 @@ export class ActionsModule {
             kv: KeyValueStore,
             clock: Clock,
             platform: PlatformDb,
-          ) => new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform }),
+            operations: PlatformOperations,
+          ) => {
+            const ex = new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform, operations });
+            operations.useApprovals(() => ex.approvalGateway());
+            // Đếm action_total{action,source,result} (TIP-045b) — action ngoài registry ghi `unknown`.
+            const ids = new Set(registry.map((a) => a.id));
+            return instrumentExecutor(ex, (id) => ids.has(id));
+          },
         },
         {
           provide: UndoService,
-          inject: [ActionHandlerRegistry, TENANT_RESOLVER, CLOCK, REDIS],
-          useFactory: (h: ActionHandlerRegistry, r: TenantDbResolver, c: Clock, kv: KeyValueStore) => new UndoService(h, r, c, kv),
+          inject: [ActionHandlerRegistry, TENANT_RESOLVER, CLOCK, REDIS, PLATFORM_DB],
+          useFactory: (h: ActionHandlerRegistry, r: TenantDbResolver, c: Clock, kv: KeyValueStore, p: PlatformDb) => new UndoService(h, r, c, kv, p),
         },
       ],
-      exports: [ActionExecutor, UndoService, ActionHandlerRegistry, AUTHORIZER],
+      exports: [ActionExecutor, UndoService, ActionHandlerRegistry, AUTHORIZER, PlatformOperations],
     };
   }
 }

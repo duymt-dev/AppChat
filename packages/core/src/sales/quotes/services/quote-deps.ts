@@ -10,7 +10,7 @@ import type { QuoteEnv } from './quote-env';
 export class QuoteDeps {
   constructor(
     readonly tenants: TenantDbResolver | null,
-    readonly platform: Pick<PlatformDb, 'businessProfile' | 'workspace' | 'user'> | null,
+    readonly platform: Pick<PlatformDb, 'businessProfile' | 'workspace' | 'user' | 'commerceLink'> | null,
     readonly renderer: DocRenderer | null,
     readonly files: FilesService | null,
     readonly env: QuoteEnv | null,

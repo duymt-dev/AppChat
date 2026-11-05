@@ -23,6 +23,19 @@ export const useProductFormStyles = createStyles(({ css, responsive }) => ({
   wide: css`
     grid-column: 1 / -1;
   `,
+  check: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: ${font.scale.s13}px;
+    color: ${color.text2};
+    min-height: 36px;
+    accent-color: ${color.brand};
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
+  `,
   label: css`
     display: block;
     font-size: ${font.scale.s13}px;

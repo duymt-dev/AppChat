@@ -1,17 +1,17 @@
 // Gửi / nhắc đề nghị thanh toán qua kênh của khách (COMMERCE §5): lần đầu (nháp → đã gửi) kèm PDF đóng băng (`invoice.file_id`) có
 // VietQR + nội dung CK; nhắc (tay hoặc job T-1 / T+1 / T+7) chỉ gửi chữ vào hội thoại đã gửi. Tin đi qua outbox + hàng gửi của kênh
-// (rate limit chung — inbox/outbound). Chữ theo ngôn ngữ workspace.
+// (rate limit chung — inbox/outbound). Chữ theo ngôn ngữ workspace. TIP-032b P2: lần đầu kèm thêm ảnh VietQR + link công khai (webchat).
 import { createFmt, daysLeft, interpolate, invoiceTransferCode, serverMessages } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { signedFileUrl } from '../../../kernel/files/signed-url';
 import type { CrmMembers } from '../../../crm/public';
 import type { Outgoing } from '../../../inbox/public';
-import { customerConversation, postToCustomer } from '../../quotes/services/quote-send';
+import { customerConversation, postToCustomer, type QuoteChannel } from '../../quotes/services/quote-send';
 import type { QuoteDeps } from '../../quotes/services/quote-deps';
 import type { InvoiceRecord } from '../invoice-access';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
-export type InvoiceChannel = 'zalo_personal' | 'email';
+export type InvoiceChannel = QuoteChannel;
 export const SYSTEM_SENDER = { type: 'system' as const, id: null, name: null };
 
 /** Chữ tin gửi khách: lần đầu / nhắc trước hạn / nhắc quá hạn. */
@@ -46,7 +46,7 @@ export async function postInvoice(
   d: QuoteDeps,
   members: CrmMembers,
   i: InvoiceRecord,
-  o: { channel: InvoiceChannel; text: string; file?: { fileId: string; name: string }; now: Date; system?: boolean },
+  o: { channel: InvoiceChannel; text: string; file?: { fileId: string; name: string }; qrFileId?: string | null; link?: string | null; now: Date; system?: boolean },
 ): Promise<{ out: Outgoing; events: Ev[]; conversationId: string }> {
   let target: Awaited<ReturnType<typeof customerConversation>> | null = null;
   if (i.conversationId) {
@@ -58,7 +58,14 @@ export async function postInvoice(
     target = await customerConversation(tx, c, o.channel, `${i.code} · ${c.name}`, o.now);
   }
   const env = d.need('env');
-  const file = o.file ? { url: signedFileUrl(env.apiBase, env.key, ctx.workspaceId, o.file.fileId), name: o.file.name } : undefined;
-  const sent = await postToCustomer(ctx, tx, members, { ...target, text: o.text, ...(file ? { file } : {}), now: o.now, ...(o.system ? { sender: SYSTEM_SENDER } : {}) });
+  const url = (id: string) => signedFileUrl(env.apiBase, env.key, ctx.workspaceId, id);
+  // PDF + ảnh VietQR riêng (khách quét từ điện thoại — TIP-032b P2); link công khai xem / tải PDF nối cuối tin (webchat, mọi kênh).
+  const attachments = [
+    ...(o.file ? [{ url: url(o.file.fileId), mime: 'application/pdf', name: o.file.name }] : []),
+    ...(o.qrFileId ? [{ url: url(o.qrFileId), mime: 'image/png', name: `VietQR-${i.code}.png` }] : []),
+  ];
+  const text = o.link ? `${o.text}
+${o.link}` : o.text;
+  const sent = await postToCustomer(ctx, tx, members, { ...target, text, attachments, now: o.now, ...(o.system ? { sender: SYSTEM_SENDER } : {}) });
   return { out: sent.out, events: sent.events, conversationId: target.conv.id };
 }

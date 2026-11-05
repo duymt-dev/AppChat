@@ -180,7 +180,7 @@ describe('tệp đính kèm', () => {
 
   it('tệp của người khác / id lạ → 422 not_found; không có chữ và tệp → 422', async () => {
     // Tệp sales2 tải lên — sales gửi trong hội thoại của mình (b) → không dùng được tệp người khác.
-    const other = await upload('x.pdf', 'pdf', 'application/pdf', sales2);
+    const other = await upload('x.pdf', '%PDF-1.4 x', 'application/pdf', sales2);
     const r = await act('message.send', { conversation_id: b, text: 'x', attachments: [other.file_id] }, { ...idem(), ...as(sales) });
     expect(r.status).toBe(422);
     expect(r.body.error.fields).toEqual({ attachments: 'not_found' });

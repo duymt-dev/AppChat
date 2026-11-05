@@ -1,14 +1,18 @@
 // Cổng ghi thống nhất (Blueprint §4.3): POST /v1/actions/:id · GET /v1/actions · POST /v1/action-logs/:id/undo.
-import { Body, Controller, Get, HttpCode, Inject, Param, Post, Req, Res } from '@nestjs/common';
+// GenUI (TIP-023c hợp đồng 4): header `x-genui-intent` = handle server ký cho node action của cây Trợ lý → nguồn assistant, actor
+// assistant(người dùng), run của cây — xem trước / xác nhận như call_action; không tin `x-action-source` / body khi có intent.
+// Form có ô bí mật: lần đầu gửi bí mật thẳng (không qua model) → preview; bí mật cất vault ngắn hạn (mã hoá), lần xác nhận gửi
+// `secret_vault` thay giá trị — confirm_token / log / idempotency không chứa bí mật thô.
+import { Body, Controller, Get, HttpCode, Inject, Optional, Param, Post, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
 import { registry } from '@appchat/actions';
-import { ActionExecutor, AUTHORIZER, RequestContext, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
+import { ActionExecutor, AUTHORIZER, GenUiIntents, RequestContext, runGenUiAction, SecretVault, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from './request-actor';
 
 const SOURCES: ActionSource[] = ['ui', 'assistant', 'api'];
-const body = z.object({ input: z.unknown().optional(), confirm_token: z.string().optional() });
+const body = z.object({ input: z.unknown().optional(), confirm_token: z.string().optional(), secret_vault: z.string().max(80).optional() });
 const header = (req: IncomingMessage, k: string) => {
   const v = req.headers[k];
   return Array.isArray(v) ? v[0] : v;
@@ -21,6 +25,8 @@ export class ActionsController {
     @Inject(UndoService) private readonly undoService: UndoService,
     @Inject(AUTHORIZER) private readonly authorizer: Authorizer,
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
+    @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null = null,
+    @Optional() @Inject(SecretVault) private readonly vault: SecretVault | null = null,
   ) {}
 
   private async context(req: IncomingMessage): Promise<ActionContext> {
@@ -63,7 +69,10 @@ export class ActionsController {
     if (!parsed.success) throw new AppError('VALIDATION_FAILED', 422, { body: 'invalid' });
     const ctx = await this.context(req);
     ctx.confirmToken = parsed.data.confirm_token;
-    const out = await this.executor.execute(ctx, id, parsed.data.input);
+    const intent = header(req, 'x-genui-intent');
+    const out = intent
+      ? await runGenUiAction({ executor: this.executor, intents: this.intents, vault: this.vault }, ctx, id, { handle: intent, input: parsed.data.input, vault: parsed.data.secret_vault })
+      : await this.executor.execute(ctx, id, parsed.data.input);
     res.statusCode = out.status;
     return { data: out.data };
   }

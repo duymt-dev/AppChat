@@ -608,5 +608,296 @@
    "day": "yesterday",
    "time": "16:40"
   }
+ ],
+ "genui": [
+  {
+   "key": "revenue_week",
+   "re": "doanh thu tuần|so với mục tiêu",
+   "lead": "Doanh thu tuần này so với mục tiêu:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "stack",
+     "children": [
+      {
+       "type": "stat_group",
+       "stats": [
+        {
+         "type": "stat",
+         "label": "Doanh thu tuần",
+         "value": {
+          "$ref": "step:1.revenue"
+         },
+         "format": "money",
+         "compare": {
+          "$ref": "step:1.delta"
+         }
+        },
+        {
+         "type": "stat",
+         "label": "Mục tiêu",
+         "value": {
+          "$ref": "step:1.goal"
+         },
+         "format": "money"
+        },
+        {
+         "type": "stat",
+         "label": "Đơn đã chốt",
+         "value": {
+          "$ref": "step:1.orders"
+         },
+         "format": "number"
+        }
+       ]
+      },
+      {
+       "type": "progress",
+       "label": "Tiến độ mục tiêu",
+       "value": {
+        "$ref": "step:1.revenue"
+       },
+       "max": {
+        "$ref": "step:1.goal"
+       },
+       "tone": "brand"
+      },
+      {
+       "type": "chart",
+       "kind": "column",
+       "title": "Doanh thu theo ngày",
+       "data": {
+        "$ref": "step:1.by_day"
+       },
+       "x": "day",
+       "y": "amount",
+       "format": "money"
+      },
+      {
+       "type": "button",
+       "label": "Xem đơn hàng",
+       "on": {
+        "kind": "ui",
+        "command": {
+         "type": "navigate",
+         "route": "/orders"
+        }
+       }
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "revenue": 86400000,
+     "delta": 12500000,
+     "goal": 120000000,
+     "orders": 23,
+     "by_day": [
+      {
+       "day": "T2",
+       "amount": 9800000
+      },
+      {
+       "day": "T3",
+       "amount": 14200000
+      },
+      {
+       "day": "T4",
+       "amount": 11500000
+      },
+      {
+       "day": "T5",
+       "amount": 18900000
+      },
+      {
+       "day": "T6",
+       "amount": 16400000
+      },
+      {
+       "day": "T7",
+       "amount": 15600000
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": "new_customers",
+   "re": "khách hàng mới|khách mới",
+   "lead": "Khách hàng mới trong 7 ngày qua:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "section",
+     "title": "Khách hàng mới · 7 ngày",
+     "children": [
+      {
+       "type": "stat",
+       "label": "Khách mới",
+       "value": {
+        "$ref": "step:1.total"
+       },
+       "format": "number",
+       "tone": "brand"
+      },
+      {
+       "type": "table",
+       "columns": [
+        {
+         "key": "name",
+         "label": "Khách hàng"
+        },
+        {
+         "key": "source",
+         "label": "Nguồn"
+        },
+        {
+         "key": "created_at",
+         "label": "Ngày tạo",
+         "format": "date"
+        },
+        {
+         "key": "value",
+         "label": "Giá trị",
+         "format": "money"
+        }
+       ],
+       "rows": {
+        "$ref": "step:1.rows"
+       },
+       "open": {
+        "entity": "contact",
+        "id_key": "id"
+       }
+      },
+      {
+       "type": "button_group",
+       "buttons": [
+        {
+         "type": "button",
+         "label": "Lọc khách mới trên màn Khách hàng",
+         "on": {
+          "kind": "ui",
+          "command": {
+           "type": "filter",
+           "table": "contacts",
+           "filter": {
+            "created": "7d"
+           }
+          }
+         }
+        },
+        {
+         "type": "button",
+         "label": "Gắn thẻ VIP cho chị Lan",
+         "tone": "brand",
+         "on": {
+          "kind": "action",
+          "action_id": "contact.tag",
+          "input": {
+           "contact_id": "ct_lan",
+           "tag": "VIP",
+           "op": "add"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "total": 6,
+     "rows": [
+      {
+       "id": "ct_lan",
+       "name": "Nguyễn Thị Lan",
+       "source": "Zalo",
+       "created_at": "2026-10-28",
+       "value": 4500000
+      },
+      {
+       "id": "kh_1002",
+       "name": "Nguyễn Trung Hiếu",
+       "source": "Website",
+       "created_at": "2026-10-29",
+       "value": 2800000
+      },
+      {
+       "id": "kh_1003",
+       "name": "Phạm Thị Linh",
+       "source": "Zalo",
+       "created_at": "2026-10-30",
+       "value": 6200000
+      },
+      {
+       "id": "kh_1004",
+       "name": "Fowler Ashley",
+       "source": "Email",
+       "created_at": "2026-10-31",
+       "value": 1500000
+      },
+      {
+       "id": "kh_1005",
+       "name": "Trần Minh Khoa",
+       "source": "Zalo",
+       "created_at": "2026-11-01",
+       "value": 3900000
+      },
+      {
+       "id": "kh_1006",
+       "name": "Rodriguez J.",
+       "source": "Website",
+       "created_at": "2026-11-02",
+       "value": 2100000
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": "connect_email",
+   "re": "kết nối email|thêm email|hộp thư",
+   "lead": "Anh điền thông tin hộp thư — mật khẩu ứng dụng chỉ gửi thẳng tới máy chủ, Trợ lý không đọc được:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "form",
+     "action_id": "channel.email.connect",
+     "title": "Kết nối email hỗ trợ",
+     "submit_label": "Kết nối",
+     "fields": [
+      {
+       "name": "address",
+       "label": "Địa chỉ email",
+       "value": "hotro@spa.vn"
+      },
+      {
+       "name": "name",
+       "label": "Tên hiển thị",
+       "value": "Hỗ trợ"
+      },
+      {
+       "name": "fields.imap_host",
+       "label": "Máy chủ IMAP",
+       "value": "imap.gmail.com"
+      },
+      {
+       "name": "fields.imap_port",
+       "label": "Cổng",
+       "value": "993"
+      },
+      {
+       "name": "fields.password",
+       "label": "Mật khẩu ứng dụng",
+       "secret": true
+      }
+     ]
+    }
+   },
+   "refs": {}
+  }
  ]
 }

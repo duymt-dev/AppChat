@@ -1,4 +1,4 @@
-// Drawer chi tiết hợp đồng — prototype L5432–5486 (392px, nền xám): đầu tuỳ biến + 5 tab + chân thao tác theo trạng thái (COMMERCE §9).
+// Drawer chi tiết hợp đồng — prototype L5432–5486 (392px, nền xám): đầu tuỳ biến + 5 tab (+ Phụ lục — TIP-030b F3) + chân thao tác theo trạng thái (COMMERCE §9).
 // Nút theo CONTRACT_FLOW chung với server: draft → Trình duyệt · pending_approval → Duyệt & ký (Owner) / Yêu cầu sửa ·
 // pending_signature → Nhắc ký / Gia hạn link (cần đã gửi ký) · signed → "→ Đơn hàng" / Chấm dứt (lý do bắt buộc) ·
 // expired → Gia hạn (tạo HĐ mới, đi lại luồng duyệt & ký). Thẻ CRM / AI / Tệp đọc meta theo hợp đồng đang mở.
@@ -18,9 +18,11 @@ import { contractQuery, contractsMetaQuery } from '../api';
 import { Avatar, useTr } from '../columns';
 import { STATUS_TONE } from '../status';
 import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { AppendixTab } from './appendix/AppendixTab';
+import { AiSuggestions } from './draft/AiSuggestions';
 import type { Contract, ContractsMeta } from '../types';
 
-const TABS = ['overview', 'crm', 'ai', 'files', 'history'] as const;
+const TABS = ['overview', 'crm', 'ai', 'files', 'appendix', 'history'] as const;
 
 function TerminateModal({ c, onClose }: { c: Contract; onClose: () => void }) {
   const t = useTranslations('contracts');
@@ -98,7 +100,8 @@ function Footer({ c }: { c: Contract }) {
   const can = (action: string) => nextState(CONTRACT_FLOW, c.status, action) !== null;
   const sent = !!c.sent_at;
   const acts = [
-    can('contract.submit') && btn('submit', t('submit'), () => void submit.run({ contract_id: c.id }), styles.actPrimary, !canDraft),
+    // Còn điều khoản AI chờ Giữ / Bỏ → chưa trình duyệt được (server cũng chặn — TIP-030b spec 11).
+    can('contract.submit') && btn('submit', t('submit'), () => void submit.run({ contract_id: c.id }), styles.actPrimary, !canDraft || (c.ai_suggestions ?? []).some((x) => x.status === 'pending')),
     can('contract.request_changes') &&
       btn('changes', t('changes'), () => void changes.run({ contract_id: c.id }), styles.actWarn, !canReview),
     can('contract.approve_and_sign') &&
@@ -194,9 +197,11 @@ export function ContractDrawer({ meta: base }: { meta: ContractsMeta }) {
     >
       <div className={styles.body}>
         {c && ui.tab === 'overview' ? <OverviewTab c={c} /> : null}
+        {c && ui.tab === 'overview' ? <AiSuggestions c={c} /> : null}
         {c && ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
         {c && ui.tab === 'ai' ? <AiTab meta={meta} /> : null}
-        {c && ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
+        {c && ui.tab === 'files' ? <FilesTab c={c} meta={meta} /> : null}
+        {c && ui.tab === 'appendix' ? <AppendixTab c={c} /> : null}
         {c && ui.tab === 'history' ? <HistoryTab c={c} /> : null}
       </div>
     </EntityDrawer>

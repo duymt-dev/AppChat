@@ -5,6 +5,7 @@ import { ApiRequestError, QUOTE_FLOW, approvalReasons, assertTransition, quoteTo
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
 import { ME } from './customers';
+import { approvalPolicyOf } from './sales-policy';
 import { draftFromContent } from './quotes-draft';
 import { MOCK_NOW, enrich, find, validUntilOf, type Quote, type QuoteItem } from './quotes';
 
@@ -118,7 +119,7 @@ export const quotesHandlers: Record<string, MockHandler> = {
     execute: (db, i: { quote_id: string }) => {
       const q = find(db, i.quote_id);
       const to = step(q, 'quote.send');
-      if (q.status === 'draft' && approvalReasons(quoteTotals(q.items, q.header_discount), { offCatalog: q.off_catalog }).length) deny('QUOTE_NEEDS_APPROVAL', q.status);
+      if (q.status === 'draft' && approvalReasons(quoteTotals(q.items, q.header_discount), { offCatalog: q.off_catalog, policy: approvalPolicyOf(db) }).length) deny('QUOTE_NEEDS_APPROVAL', q.status);
       Object.assign(q, { status: to, sent_at: MOCK_NOW, valid_until_at: validUntilOf(MOCK_NOW, q.valid_days) });
       for (const x of db.quotes.quotes) if (x.root_id === q.root_id && x.version < q.version && x.status === 'revision_requested') x.status = 'superseded';
       return { quote_id: q.id, valid_until: enrich(q).valid_until };

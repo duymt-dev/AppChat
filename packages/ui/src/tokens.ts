@@ -396,4 +396,4 @@ export const mq = {
   auth: '@media (max-width: 1100px)',
 } as const;
 
-export const z = { rail: 20, mkPage: 200, mkModal: 210, onboarding: 2000, welcome: 2100, expired: 2200, dockVeil: 80, dock: 81, tabbar: 800, flyout: 1200, modal: 1400, popover: 1500, stackedModal: 1005 } as const;
+export const z = { rail: 20, mkPage: 200, mkModal: 210, onboarding: 2000, welcome: 2100, expired: 2200, /* dock trên drawer antd 1000 (DC-319) */ dockVeil: 1100, dock: 1101, tabbar: 800, flyout: 1200, modal: 1400, popover: 1500, stackedModal: 1005 } as const;

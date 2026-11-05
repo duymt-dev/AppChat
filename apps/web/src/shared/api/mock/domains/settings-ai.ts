@@ -1,10 +1,11 @@
 // Mock Cài đặt › AI (Blueprint §3.4 ai, §5; D29): GET /settings/ai (mức AI theo tác vụ, ngân sách), /settings/kb?nav&folder&q (kho tri thức),
-// /settings/governance, /settings/audit, /settings/ai-audit. Ghi qua ai_settings.update, kb.*, governance.update.
+// /settings/governance (audit: domains/audit.ts — TIP-045b). Ghi qua ai_settings.update, kb.*, governance.update.
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
+import { assertEditable, inheritVisibility } from './kb-folders';
 
 type Ai = typeof fixture.ai;
 type Kb = typeof fixture.kb;
@@ -51,8 +52,6 @@ export const settingsAiRoutes: Record<string, MockRoute> = {
     return { types, folders, nav: counts, learned_total, size, data: nav === 'trash' ? [] : docs };
   },
   '/settings/governance': (db) => db.settingsAi.gov,
-  '/settings/audit': () => fixture.audit,
-  '/settings/ai-audit': () => fixture.ai_audit,
 };
 
 const doc = (db: MockDb, id: string) => {
@@ -94,7 +93,7 @@ export const settingsAiHandlers: Record<string, MockHandler> = {
       const type = ext in db.settingsAi.kb.types ? ext : ext === 'docx' ? 'doc' : ext === 'xlsx' ? 'xls' : ext === 'pptx' ? 'ppt' : 'pdf';
       db.settingsAi.kb.docs.unshift({
         id, name: i.name, type, tags: i.tags ?? [], learned: i.learn !== false, size: '—', source: 'upload', by: 'Bạn', date: today(),
-        folder_id: i.folder_id ?? null, starred: false, visibility: i.visibility ?? 'public',
+        folder_id: i.folder_id ?? null, starred: false, visibility: inheritVisibility(db, i.visibility, i.folder_id),
       } as KbDoc);
       db.settingsAi.kb.nav.all += 1;
       db.settingsAi.kb.nav.upload += 1;
@@ -104,7 +103,9 @@ export const settingsAiHandlers: Record<string, MockHandler> = {
   'kb.remove_source': {
     execute: (db, i: { source_id: string }) => {
       const list = db.settingsAi.kb.docs;
-      const at = list.indexOf(doc(db, i.source_id));
+      const d = doc(db, i.source_id);
+      assertEditable(d as { origin?: string });
+      const at = list.indexOf(d);
       db.settingsAi.trash[i.source_id] = { at, doc: list[at]! };
       list.splice(at, 1);
       db.settingsAi.kb.nav.trash += 1;
@@ -122,15 +123,6 @@ export const settingsAiHandlers: Record<string, MockHandler> = {
       const targets = i.source_id === 'all' ? db.settingsAi.kb.docs.filter((d) => d.type !== 'folder') : [doc(db, i.source_id)];
       for (const d of targets) d.learned = true;
       return { queued: targets.length };
-    },
-  },
-  'kb.folder.create': {
-    execute: (db, i: { name: string }) => {
-      if (db.settingsAi.kb.folders.some((f) => fold(f.name) === fold(i.name)))
-        throw new ApiRequestError(409, { code: 'CONFLICT', message: 'name', fields: { name: 'duplicate' } });
-      const id = `f_n${++db.settingsAi.seq}`;
-      db.settingsAi.kb.folders.push({ id, name: i.name.trim() });
-      return { folder_id: id };
     },
   },
   'governance.update': {

@@ -41,6 +41,7 @@ export const ai = {
     expired: 'Hết hạn duyệt',
   },
   assistant: {
+    genui: { renderFailed: 'Trợ lý chưa dựng được phần hiển thị cho kết quả này — anh/chị bấm Thử lại hoặc hỏi lại theo cách khác.', secretInChat: 'Có vẻ tin nhắn có mật khẩu / khoá bí mật — tôi đã không lưu phần đó. Anh/chị nhập vào ô bảo mật của biểu mẫu kết nối thay vì gõ trong chat nhé.' },
     session: 'Cuộc trò chuyện mới',
     verb: { write: 'Cập nhật', send: 'Gửi', money: 'Thao tác tiền', delete: 'Xoá', config: 'Đổi cấu hình', read: 'Tra cứu', create: 'Tạo' },
     verbOf: { 'approval.approve': 'Duyệt', 'approval.edit_and_approve': 'Sửa & duyệt', 'approval.reject': 'Từ chối' },

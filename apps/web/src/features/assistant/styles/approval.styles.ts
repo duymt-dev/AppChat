@@ -38,6 +38,11 @@ export const useApprovalStyles = createStyles(({ css, responsive }) => ({
     font-size: ${font.scale.s15}px;
     font-weight: ${font.weight.heavy};
   `,
+  fieldErr: css`
+    font-size: ${font.scale.s12}px;
+    color: ${color.danger};
+    margin-top: 2px;
+  `,
   meta: css`
     font-size: ${font.scale.s13}px;
     color: ${color.text4};

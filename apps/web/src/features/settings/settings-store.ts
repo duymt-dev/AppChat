@@ -14,6 +14,8 @@ export interface MemberDraft {
 interface SettingsUi {
   memberQ: string;
   memberModal: MemberDraft | null;
+  /** Hộp chuyển quyền Chủ sở hữu (TIP-045b A3). */
+  transferOpen: boolean;
   menuFor: string | null;
   chanFilter: 'all' | 'on' | 'off';
   chanView: 'cards' | 'list';
@@ -36,6 +38,8 @@ interface SettingsUi {
   kbFolder: string | null;
   kbQ: string;
   kbUpload: boolean;
+  /** Drawer sửa thư mục KB (TIP-020b) — id thư mục đang sửa. */
+  kbFolderEdit: string | null;
   docKind: string;
   /** Hộp mẫu: `{ source }` = tạo mới; có id = sửa. */
   docModal: { id?: string; source: 'rich' | 'docx' } | null;
@@ -45,6 +49,7 @@ interface SettingsUi {
 export const useSettingsUi = create<SettingsUi>((setState) => ({
   memberQ: '',
   memberModal: null,
+  transferOpen: false,
   menuFor: null,
   chanFilter: 'all',
   chanView: 'cards',
@@ -63,6 +68,7 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   kbFolder: null,
   kbQ: '',
   kbUpload: false,
+  kbFolderEdit: null,
   docKind: 'all',
   docModal: null,
   set: (p) => setState(p),

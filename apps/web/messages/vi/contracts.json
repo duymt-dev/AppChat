@@ -99,6 +99,7 @@
       "crm": "CRM",
       "ai": "AI",
       "files": "Tệp",
+      "appendix": "Phụ lục",
       "history": "Lịch sử"
     },
     "info": "Thông tin hợp đồng",
@@ -153,7 +154,15 @@
       "esign": "Ký điện tử",
       "customer": "Khách gửi"
     },
+    "fileRole": {
+      "source": "Bản gốc",
+      "unsigned": "Bản chưa ký",
+      "signed": "Đã ký"
+    },
+    "fileFail": "Không tải được tệp",
     "ev": {
+      "created_from_attachment": "Tạo hợp đồng từ tệp khách gửi",
+      "source_attached": "Gắn tệp nội dung ký",
       "created": "Tạo hợp đồng",
       "created_from_quote": "Tạo hợp đồng từ báo giá",
       "submitted": "Trình duyệt",
@@ -170,7 +179,10 @@
       "signed": "Ký điện tử hoàn tất",
       "declined": "Khách từ chối ký",
       "expired": "Hết hạn",
-      "terminated": "Chấm dứt hợp đồng"
+      "terminated": "Chấm dứt hợp đồng",
+      "created_by_ai": "Tạo nháp từ đề xuất AI",
+      "ai_suggestion_kept": "Giữ điều khoản AI gợi ý",
+      "ai_suggestion_discarded": "Bỏ điều khoản AI gợi ý"
     },
     "evMeta": "{at} · {actor}",
     "system": "Hệ thống",
@@ -242,8 +254,11 @@
       "renew": "Nhắc gia hạn",
       "analyze": "Phân tích tỉ lệ ký"
     },
-    "ack": "Đã ghi nhận — trợ lý sẽ rà soát hợp đồng liên quan và gợi ý bước tiếp theo.",
-    "ackRenew": "Có 1 hợp đồng đã hết hạn (HĐ-1178). Đề xuất tạo bản gia hạn và gửi duyệt."
+    "prompts": {
+      "risk": "Rà soát rủi ro hợp đồng: hợp đồng sắp / đã hết hạn, chờ ký quá lâu, thiếu điều khoản.",
+      "renew": "Liệt kê hợp đồng sắp hết hạn trong 30 ngày và đề xuất gia hạn.",
+      "analyze": "Phân tích hợp đồng: tổng giá trị đang hiệu lực, tỉ lệ ký thành công và lý do rớt."
+    }
   },
   "sign": {
     "title": "Ký hợp đồng điện tử",
@@ -295,5 +310,155 @@
     "evMeta": "{at} · IP {ip}",
     "otpSentEmail": "Mã OTP đã gửi qua email tới {to}"
   },
-  "unit": "hợp đồng"
+  "source": {
+    "title": "Nguồn nội dung",
+    "template": "Từ mẫu",
+    "file": "Tải file lên",
+    "templateHint": "Nội dung ký theo mẫu của loại hợp đồng (Cài đặt › Mẫu chứng từ).",
+    "fileHint": "PDF hoặc DOCX — PDF dùng nguyên bản để ký, DOCX được đổi sang PDF.",
+    "uploading": "Đang tải tệp lên…",
+    "inspecting": "Đang kiểm tra tệp…",
+    "ready": "Nguồn ký: {name}",
+    "useTemplate": "Dùng mẫu theo loại",
+    "retry": "Thử lại",
+    "notReady": "Tệp hợp đồng chưa kiểm tra xong — chọn lại hoặc dùng mẫu theo loại.",
+    "unavailable": "Không đọc được chữ trong tệp (bản quét?) — vui lòng nhập tay các ô.",
+    "missing": "Không đọc được — nhập tay",
+    "from": "Từ tệp: \"{text}\"",
+    "use": "Dùng",
+    "col": {
+      "field": "Ô",
+      "value": "Giá trị đọc từ tệp"
+    },
+    "field": {
+      "title": "Tiêu đề",
+      "party_b": "Bên B",
+      "value": "Giá trị",
+      "start_date": "Ngày bắt đầu",
+      "end_date": "Ngày kết thúc"
+    },
+    "err": {
+      "failed": "Không kiểm tra được tệp.",
+      "upload_failed": "Tải tệp lên không thành công.",
+      "too_large": "Tệp quá lớn (PDF ≤ 25MB, DOCX ≤ 10MB).",
+      "unsupported_type": "Chỉ nhận PDF hoặc DOCX (nội dung tệp không đúng loại).",
+      "not_pdf": "Tệp không phải PDF hợp lệ.",
+      "not_docx": "Tệp không phải DOCX hợp lệ.",
+      "encrypted": "Tệp đã đặt mật khẩu / mã hoá — gỡ mật khẩu rồi tải lại.",
+      "macro": "Tệp có macro — lưu lại dạng DOCX không macro.",
+      "active_content": "PDF có nội dung tự chạy (JavaScript / hành động) — không nhận.",
+      "embedded_file": "PDF có tệp đính kèm bên trong — không nhận.",
+      "embedded_object": "Tệp có đối tượng nhúng — không nhận.",
+      "external_relationship": "Tệp tải nội dung từ mạng ngoài — không nhận.",
+      "field_code": "Tệp có trường tự chạy (DDE / INCLUDE) — không nhận.",
+      "zip_bomb": "Tệp nén bất thường — không nhận.",
+      "path_traversal": "Tệp có cấu trúc không an toàn — không nhận.",
+      "too_many_pages": "PDF quá 200 trang."
+    }
+  },
+  "unit": "hợp đồng",
+  "draft": {
+    "title": "AI soạn hợp đồng",
+    "hint": "Mô tả dịch vụ / hàng, số lượng, thời hạn. Giá lấy từ danh mục; AI không sửa điều khoản mẫu và không tự gửi / ký.",
+    "briefPh": "Ví dụ: Liệu trình trị mụn 10 buổi, từ 01/12/2026 đến 30/11/2027, thêm bảo hành 30 ngày",
+    "prepare": "Soạn đề xuất (dùng AI)",
+    "preparing": "Đang soạn…",
+    "needContact": "Chọn khách hàng trước.",
+    "fTitle": "Tiêu đề",
+    "fValue": "Giá trị (theo danh mục)",
+    "fTerm": "Thời hạn",
+    "offCatalog": "ngoài danh mục — nhập giá",
+    "suggestions": "{n} điều khoản AI gợi ý — Giữ / Bỏ sau khi tạo nháp.",
+    "create": "Tạo nháp từ đề xuất",
+    "err": {
+      "credit": "Hết Credit AI — nạp thêm để soạn.",
+      "not_found": "Không tìm thấy khách / báo giá trong phạm vi của bạn.",
+      "failed": "Chưa soạn được — thử lại."
+    },
+    "sTitle": "Điều khoản AI gợi ý",
+    "pending": "còn {n} chờ Giữ / Bỏ",
+    "aiTag": "AI",
+    "keep": "Giữ",
+    "discard": "Bỏ",
+    "conflict": "Điều khoản vừa được người khác xử lý — đã tải lại.",
+    "state": {
+      "pending": "Chờ xử lý",
+      "kept": "Đã giữ",
+      "discarded": "Đã bỏ"
+    }
+  },
+  "appendix": {
+    "title": "Phụ lục hợp đồng",
+    "new": "+ Tạo phụ lục",
+    "empty": "Chưa có phụ lục. Thay đổi sau khi ký phải tạo phụ lục — cùng luồng duyệt và ký.",
+    "onlySigned": "Chỉ tạo phụ lục cho hợp đồng đã ký.",
+    "version": "Phiên bản {v}",
+    "delta": "Điều chỉnh {v}",
+    "edit": "Sửa",
+    "submit": "Trình duyệt",
+    "requestChanges": "Yêu cầu sửa",
+    "approve": "Duyệt & ký",
+    "send": "Gửi ký qua Zalo",
+    "resend": "Gửi lại link ký",
+    "sendEmail": "Gửi ký qua Email",
+    "newTitle": "Tạo phụ lục",
+    "editTitle": "Sửa phụ lục (nháp)",
+    "hint": "Phụ lục có chữ ký riêng: Chủ sở hữu ký trước, rồi gửi khách ký. Hợp đồng gốc giữ nguyên.",
+    "fTitle": "Tiêu đề *",
+    "fContent": "Nội dung điều chỉnh *",
+    "fDelta": "Giá trị điều chỉnh (VND, có thể âm)",
+    "deltaHint": "Chỉ ghi nhận thoả thuận — không tự đổi đơn hàng, đề nghị thanh toán hay sổ thu.",
+    "deltaBad": "Giá trị chỉ gồm chữ số, có thể có dấu trừ ở đầu.",
+    "save": "Lưu phụ lục",
+    "cancel": "Huỷ",
+    "approveTitle": "Duyệt & ký phụ lục",
+    "approveSub": "Ký phía doanh nghiệp cho {code} (phiên bản {version}) bằng OTP riêng của phụ lục — mã của hợp đồng gốc không dùng được.",
+    "approveOk": "Xác nhận ký",
+    "otp": "Mã OTP (email)",
+    "sendOtp": "Gửi mã",
+    "otpSent": "Đã gửi mã tới {to}",
+    "devOtp": "Mã thử nghiệm: {otp}",
+    "needOtp": "Nhập đủ 6 số OTP",
+    "needSig": "Ký tay vào khung",
+    "sig": "Chữ ký",
+    "clear": "Ký lại",
+    "status": {
+      "draft": "Nháp",
+      "pending_approval": "Chờ duyệt",
+      "pending_signature": "Chờ khách ký",
+      "signed": "Đã ký",
+      "declined": "Từ chối",
+      "expired": "Hết hạn",
+      "terminated": "Đã chấm dứt"
+    },
+    "ev": {
+      "created": "Tạo",
+      "updated": "Sửa",
+      "submitted": "Trình duyệt",
+      "changes_requested": "Yêu cầu sửa",
+      "otp_sent": "Gửi OTP",
+      "otp_fail": "OTP sai",
+      "otp_ok": "OTP đúng",
+      "approved_signed": "Chủ sở hữu ký",
+      "sent": "Gửi link",
+      "opened": "Khách mở link",
+      "signed": "Khách ký",
+      "declined": "Từ chối"
+    },
+    "sign": {
+      "brand": "Ký điện tử phụ lục · AppChat",
+      "parent": "Phụ lục của hợp đồng {code} — {title}",
+      "expires": "Link ký hiệu lực đến {at}",
+      "version": "Phiên bản",
+      "delta": "Giá trị điều chỉnh",
+      "business": "Bên A (doanh nghiệp)",
+      "bizSigned": "Bên A đã ký phụ lục",
+      "invalidTitle": "Link ký không còn hiệu lực",
+      "invalidSub": "Link đã dùng, đã hết hạn hoặc phụ lục vừa được sửa. Vui lòng liên hệ doanh nghiệp để nhận link mới.",
+      "doneTitle": "Đã ký phụ lục {code}",
+      "signedAt": "Thời điểm ký",
+      "declinedTitle": "Bạn đã từ chối ký phụ lục",
+      "declinedSub": "Doanh nghiệp đã được thông báo."
+    }
+  }
 }

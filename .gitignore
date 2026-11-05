@@ -5,6 +5,7 @@ node_modules/
 .turbo/
 .next/
 .next-http/
+.next-mock/
 dist/
 coverage/
 *.tsbuildinfo

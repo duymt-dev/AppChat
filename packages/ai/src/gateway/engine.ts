@@ -1,9 +1,11 @@
 // AiSdkEngine (Blueprint §5.1): vòng bước tự viết quanh `streamText` của AI SDK v7 — mỗi bước một lời gọi model (tool khai không
 // `execute`), engine tự chạy tool qua ToolSpec. Nhờ vậy: dừng đúng chỗ khi tool cần người (`paused` + state đủ chạy tiếp ở process
 // khác), loop guard (cùng tool + input lần thứ 3), maxSteps, ngân sách credit cả run, huỷ bằng signal, fallback provider khi
-// bước lỗi 5xx / 429 / timeout trước khi có chữ nào ra. Usage từng bước → hook trừ credit (spike K4).
+// bước lỗi 5xx / 429 / timeout trước khi có chữ nào ra. Usage từng bước → hook trừ credit (spike K4). Delta phát NGAY khi model trả
+// (liveStep — TIP-023c, đóng DV-006), không đợi bước xong; đã phát chữ thì không fallback sang provider khác (không trộn hai câu).
 import { jsonSchema, streamText, tool, type ModelMessage, type ToolSet } from 'ai';
 import { isFallbackError } from '../router/router';
+import { liveStep } from './delta-stream';
 import { callKey, countCalls, resultPart, toJson } from './messages';
 import type { AgentEngine, ModelCandidate, ModelSource, RunEvent, RunMessage, RunRequest, StopReason, ToolCallRef, ToolOutcome, ToolSpec } from './types';
 
@@ -19,6 +21,9 @@ export class EngineError extends Error {
     this.name = 'EngineError';
   }
 }
+
+/** Mảnh phát khi bước đang chạy: chữ, hoặc input tool đang đến dần (TIP-023c structured stream — chỉ để dựng khung xương). */
+type Live = string | { toolCallId: string; toolName: string; delta: string };
 
 interface StepResult {
   text: string;
@@ -55,16 +60,18 @@ export class AiSdkEngine implements AgentEngine {
         return yield { type: 'error', code: errOf(err).code ?? 'STEP_REJECTED', message: errOf(err).message ?? 'step_rejected', stepIdx: step };
       }
 
-      const deltas: string[] = [];
       let r: StepResult;
       try {
-        r = await this.step(req, messages, tools, signal, (d) => deltas.push(d));
+        const live = liveStep<Live, StepResult>((emit) => this.step(req, messages, tools, signal, emit));
+        let it = await live.next();
+        for (; !it.done; it = await live.next())
+          yield typeof it.value === 'string' ? { type: 'delta', stepIdx: step, text: it.value } : { type: 'tool_input', stepIdx: step, ...it.value };
+        r = it.value;
       } catch (err) {
         if (signal.aborted) return yield done('cancelled');
         const code = err instanceof EngineError ? err.code : 'LLM_ERROR';
         return yield { type: 'error', code, message: String(errOf(err).message ?? err).slice(0, 300), stepIdx: step };
       }
-      for (const d of deltas) yield { type: 'delta', stepIdx: step, text: d };
       text = r.text;
       messages.push(...r.messages);
       const usage = { stepIdx: step, provider: r.candidate.provider, model: r.candidate.model, tokensIn: r.tokensIn, tokensOut: r.tokensOut, latencyMs: r.latencyMs };
@@ -89,10 +96,11 @@ export class AiSdkEngine implements AgentEngine {
         if (n >= LOOP_LIMIT) return yield done('loop_guard');
         yield { type: 'tool_call', stepIdx, call };
         const t0 = Date.now();
-        const outcome = await runTool(specs.get(call.toolName), call, stepIdx);
+        const outcome = await runTool(specs.get(call.toolName), call, stepIdx, specs);
         yield { type: 'tool_result', stepIdx, call, outcome, latencyMs: Date.now() - t0 };
         if (outcome.kind === 'needs_confirmation' || outcome.kind === 'needs_approval') {
-          return yield { type: 'paused', outcome, state: { messages: [...messages], results, pendingToolCall: call, skipped: r.calls.slice(i + 1), stepIdx: step } };
+          const canonical = outcome.kind === 'needs_confirmation' && outcome.canonicalInput !== undefined ? { canonicalInput: outcome.canonicalInput } : {};
+          return yield { type: 'paused', outcome, state: { messages: [...messages], results, pendingToolCall: call, skipped: r.calls.slice(i + 1), stepIdx: step, ...canonical } };
         }
         results.push(resultPart(call, outcome));
       }
@@ -101,25 +109,26 @@ export class AiSdkEngine implements AgentEngine {
   }
 
   /** Một bước model: thử lần lượt các ứng viên; chuyển ứng viên khi lỗi đáng chuyển và chưa có chữ nào phát ra. */
-  private async step(req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: string) => void): Promise<StepResult> {
+  private async step(req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
     const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0 });
     if (!candidates.length) throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
     let last: unknown;
     for (const c of candidates) {
-      const out: string[] = [];
+      let emitted = 0;
       try {
-        const r = await this.once(c, req.system, messages, tools, signal, (d) => out.push(d));
-        out.forEach(onDelta);
-        return r;
+        return await this.once(c, req.system, messages, tools, signal, (d) => {
+          emitted++;
+          onDelta(d);
+        });
       } catch (err) {
         last = err;
-        if (signal.aborted || out.length || !isFallbackError(err)) throw err;
+        if (signal.aborted || emitted || !isFallbackError(err)) throw err;
       }
     }
     throw last;
   }
 
-  private async once(c: ModelCandidate, system: string, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: string) => void): Promise<StepResult> {
+  private async once(c: ModelCandidate, system: string, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
     const t0 = Date.now();
     const s = streamText({
       model: c.handle as never,
@@ -134,10 +143,15 @@ export class AiSdkEngine implements AgentEngine {
     const calls: ToolCallRef[] = [];
     let tokensIn = 0;
     let tokensOut = 0;
+    const inputs = new Map<string, string>();
     for await (const p of s.fullStream) {
       if (p.type === 'text-delta') {
         text += p.text;
         onDelta(p.text);
+      } else if (p.type === 'tool-input-start') inputs.set(p.id, p.toolName);
+      else if (p.type === 'tool-input-delta') {
+        const name = inputs.get(p.id);
+        if (name) onDelta({ toolCallId: p.id, toolName: name, delta: p.delta });
       } else if (p.type === 'tool-call') calls.push({ toolCallId: p.toolCallId, toolName: p.toolName, input: p.input });
       else if (p.type === 'finish-step') {
         tokensIn += p.usage.inputTokens ?? 0;
@@ -150,9 +164,10 @@ export class AiSdkEngine implements AgentEngine {
   }
 }
 
-async function runTool(spec: ToolSpec | undefined, call: ToolCallRef, stepIdx: number): Promise<ToolOutcome> {
-  // Tool ngoài danh sách của run (agent-gateway §3, Blueprint §3.3b) → FORBIDDEN, run tiếp với tool còn lại.
-  if (!spec) return { kind: 'error', code: 'FORBIDDEN', message: `Tool ${call.toolName} không được cấp cho lượt chạy này` };
+async function runTool(spec: ToolSpec | undefined, call: ToolCallRef, stepIdx: number, specs: ReadonlyMap<string, ToolSpec>): Promise<ToolOutcome> {
+  // Tool ngoài danh sách của run (agent-gateway §3, Blueprint §3.3b) → FORBIDDEN, run tiếp với tool còn lại. Nêu tên tool được dùng để model
+  // tự sửa (vd gọi thẳng `contact.search` thay vì `call_action`) — chỉ tên, không cấp thêm gì.
+  if (!spec) return { kind: 'error', code: 'FORBIDDEN', message: `Tool ${call.toolName} không được cấp cho lượt chạy này — chỉ dùng: ${[...specs.keys()].join(', ')}` };
   try {
     return await spec.execute(call.input, { stepIdx, toolCallId: call.toolCallId });
   } catch (err) {

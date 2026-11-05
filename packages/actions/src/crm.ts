@@ -1,33 +1,13 @@
 // Khách hàng (Blueprint §3.4 crm, D32 phụ trách + đồng phụ trách). Prototype L2451–2984.
 import { z } from 'zod';
-import { CONTACT_SORTS, customValuesSchema } from '@appchat/shared';
+import { CONTACT_SORTS } from '@appchat/shared';
 import { defineAction } from './define';
+import { contactFields } from './crm-schemas';
 
 const contactId = z.string().min(1);
 const userId = z.string().min(1);
 const stage = z.enum(['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost']);
 
-const contactFields = z.object({
-  full_name: z.string().trim().min(1).max(120),
-  title: z.string().max(80).optional(),
-  type: z.enum(['individual', 'business', 'household']).optional(),
-  group: z.enum(['vip', 'loyal', 'new', 'potential']).optional(),
-  phone: z.string().max(30).optional(),
-  email: z.string().email().optional().or(z.literal('')),
-  zalo: z.string().max(30).optional(),
-  city: z.string().max(60).optional(),
-  district: z.string().max(60).optional(),
-  address: z.string().max(200).optional(),
-  /** YYYY-MM-DD; rỗng = xoá. */
-  birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')),
-  gender: z.enum(['male', 'female', 'other']).optional().or(z.literal('')),
-  source: z.enum(['zalo_personal', 'email', 'website', 'manual', 'referral']).optional(),
-  status: z.enum(['active', 'potential', 'inactive']).optional(),
-  owner_user_id: userId.optional(),
-  note: z.string().max(2000).optional(),
-  /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
-  custom: customValuesSchema.optional(),
-});
 
 export const contactSearch = defineAction({
   id: 'contact.search',

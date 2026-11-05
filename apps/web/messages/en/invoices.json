@@ -156,7 +156,8 @@
     },
     "evMeta": "{at} · {actor}",
     "evAmount": "{at} · {actor} · {amount}",
-    "system": "System"
+    "system": "System",
+    "sendReceipt": "Send receipt {code} to the customer"
   },
   "record": {
     "title": "Record payment · {code}",

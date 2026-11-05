@@ -1,8 +1,10 @@
-// Hộp "Thử nghiệm tính điểm" (560px) — prototype L4639–4664. Công thức COMMERCE §7: floor(số tiền thực trả trước VAT / 10.000) × hệ số hạng.
+// Hộp "Thử nghiệm tính điểm" (560px) — prototype L4639–4664. Công thức COMMERCE §7: floor(số tiền thực trả trước VAT / 10.000) × hệ số hạng
+// — tính bằng `earnPoints` dùng chung server / mock.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { earnPoints } from '@appchat/shared';
 import { Icon, color } from '@appchat/ui';
 import { useModalStyles } from '../styles/modal.styles';
 import { useLoyaltyUi } from '../loyalty-store';
@@ -21,9 +23,8 @@ export function SimulatorModal() {
   const [amount, setAmount] = useState(SAMPLE);
   if (!open || !cfg) return null;
   const close = () => set({ sim: false });
-  const base = Math.floor((parseInt(amount, 10) || 0) / cfg.earn_vnd_per_point);
-  const m = cfg.tiers.find((x) => x.key === tier)?.mult ?? 1;
-  const total = Math.floor(base * m);
+  // Cùng hàm với server (packages/shared loyalty/math — TIP-036): floor(floor(net / 10.000) × hệ số).
+  const { base, mult: m, points: total } = earnPoints(BigInt(parseInt(amount, 10) || 0), tier, cfg.tiers);
   return (
     <div className={styles.veil} onClick={close} data-testid="ly-sim">
       <div className={cx(styles.box, styles.w560)} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>

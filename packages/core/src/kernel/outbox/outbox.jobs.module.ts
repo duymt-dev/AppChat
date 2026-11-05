@@ -2,7 +2,7 @@
 // publish sang BullMQ queue `events` (jobId = event id → không trùng khi relay chạy lại); EventsRunner (TIP-006) chạy consumer.
 // Chỉ bật khi có DB + Redis.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { Queue } from '../jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { TenantDbResolver, WorkspaceRegistry } from '@appchat/db';
 import { CLOCK, type Clock } from '../clock';
@@ -12,6 +12,7 @@ import { REDIS } from '../redis';
 import { TENANT_RESOLVER, WORKSPACE_REGISTRY } from '../tenant/tenant.providers';
 import { EVENTS_QUEUE, EventsRunner } from '../events/events.runner';
 import { drainDirty, sweepAll, type EventPublisher, type RelayDeps } from './relay';
+import { ConsistencyJobsModule } from '../consistency/consistency.jobs.module';
 
 export class BullEventPublisher implements EventPublisher {
   constructor(private readonly queue: Queue) {}
@@ -60,5 +61,6 @@ class OutboxRelayRunner implements OnApplicationBootstrap, OnApplicationShutdown
   }
 }
 
-@Module({ providers: [OutboxRelayRunner, EventsRunner] })
+// Khôi phục thao tác xuyên DB + gửi hiệu ứng ngoài chạy cùng relay ở ROLE=jobs (TIP-045b).
+@Module({ imports: [ConsistencyJobsModule], providers: [OutboxRelayRunner, EventsRunner] })
 export class OutboxJobsModule {}

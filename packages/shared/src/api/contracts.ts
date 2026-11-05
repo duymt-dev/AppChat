@@ -42,6 +42,14 @@ export const contractRowSchema = z.object({
   terminated_reason: z.string(),
   note: z.string(),
   file_name: z.string(),
+  /** Nguồn nội dung ký (TIP-030b): `template` | `file` (PDF / DOCX tải lên — hash bytes gốc bất biến). */
+  source: z.enum(['template', 'file']).default('template'),
+  source_hash: z.string().nullable().default(null),
+  source_version: z.number().int().default(1),
+  origin_message_id: z.string().nullable().default(null),
+  /** AI soạn (TIP-030b F2): đề xuất gốc + khối gợi ý chờ Giữ / Bỏ (còn `pending` thì không trình duyệt được). */
+  draft_proposal_id: z.string().nullable().default(null),
+  ai_suggestions: z.array(z.object({ id: z.string(), text: z.string(), status: z.enum(['pending', 'kept', 'discarded']), version: z.number().int() })).default([]),
   events: z.array(signEventSchema),
   ai: z.object({ hint: z.string(), wait: z.boolean() }),
   custom: customValuesSchema.optional(),

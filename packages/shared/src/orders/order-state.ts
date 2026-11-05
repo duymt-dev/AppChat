@@ -2,6 +2,7 @@
 // Trợ lý); thanh toán `pay_status` là trạng thái TỔNG HỢP từ số đã thu / đã hoàn (không action nào đặt trực tiếp — `payStatusOf`).
 // "Xác nhận đơn" = new → processing (trừ kho). Đơn sàn (D31) khoá dòng hàng / giá / tổng; trạng thái đi theo ánh xạ của adapter.
 import { defineFlow } from '../state/flow';
+import { DEFAULT_TIERS, EARN_VND_PER_POINT, earnPoints } from '../loyalty/math';
 
 export const ORDER_STATUSES = ['new', 'processing', 'completed', 'cancelled'] as const;
 export type OrderStatusKey = (typeof ORDER_STATUSES)[number];
@@ -58,10 +59,10 @@ export function payStatusOf(o: PayInput): PayStatusKey {
 export const ORDER_CHIPS = ['all', 'paid', 'deposit', 'pending', 'cancelled'] as const;
 export const ORDER_CHIP_PAY: Record<string, PayStatusKey> = { paid: 'paid', deposit: 'deposited', pending: 'awaiting_deposit' };
 
-/** Điểm khi hoàn tất (COMMERCE §7): floor(net trước VAT / 10.000) × hệ số hạng; đơn sàn mặc định 0 (§4b). */
-export const POINT_UNIT = 10_000n;
-export const TIER_MULTIPLIER: Record<string, number> = { member: 1, silver: 1, gold: 1.5, diamond: 2 };
+/** Điểm khi hoàn tất theo hệ số mặc định (COMMERCE §7) — server tính theo cấu hình snapshot + thực thu (loyalty/math `earnPoints`,
+ *  `earnBase` — TIP-036); hàm này giữ cho mock / màn chưa nối cấu hình. */
+export const POINT_UNIT = EARN_VND_PER_POINT;
+export const TIER_MULTIPLIER: Record<string, number> = Object.fromEntries(DEFAULT_TIERS.map((t) => [t.key, t.mult]));
 export function pointsFor(netBeforeVat: bigint | string, tierKey: string | null | undefined): number {
-  const base = Number(BigInt(netBeforeVat) / POINT_UNIT);
-  return Math.floor(base * (TIER_MULTIPLIER[tierKey ?? ''] ?? 1));
+  return earnPoints(netBeforeVat, tierKey).points;
 }

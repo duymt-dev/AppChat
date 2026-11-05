@@ -1,6 +1,8 @@
 // Domain event dùng chung (standards/events/outbox.md §3): tên `<entity>.<past_tense>` + zod payload. Payload luôn có `ws`
 // + `occurred_at` (writeOutbox thêm). TIP domain thêm event của mình vào đây khi phát (và bảng Blueprint §2.3).
 import { z } from 'zod';
+import { LOYALTY_EVENT_SCHEMAS } from './loyalty/events';
+import { KB_SUGGESTION_EVENT_SCHEMAS } from './kb/suggestion-events';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
 
@@ -93,6 +95,9 @@ export const messageFailedEvent = z.object({ ...convBase, message_id: z.string()
 export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status']) });
 export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_id: z.string().nullable(), by_user_id: z.string().uuid().nullable(), auto: z.boolean(), title: z.string() });
 export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
+/** Tạo nhóm kênh (TIP-023b SPEC D): yêu cầu đã lưu → consumer đẩy tới worker giữ phiên; kết quả (succeeded / failed / unknown) → realtime người yêu cầu. */
+export const groupRequestedEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid(), requester_id: z.string().uuid().nullable(), status: z.string(), conversation_id: z.string().uuid().nullable() });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
 /** Nguồn tri thức nạp xong / lỗi (TIP-020) — WS cập nhật trang Dữ liệu RAG; lỗi thì báo người tải lên. */
@@ -104,6 +109,19 @@ export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid()
 /** Hàng chờ duyệt (TIP-021): tạo → thông báo người duyệt (`ai_review`); quyết / hết hạn → job `ai-resume` chạy tiếp run. */
 export const approvalRequestedEvent = z.object({ ...base, approval_id: z.string().uuid(), action_id: z.string(), permission: z.string(), agent: z.string(), title: z.string() });
 /** `edited` = duyệt kèm sửa input (approval.edit_and_approve — TIP-024). */
+/** Thao tác nền tảng có duyệt AI đã áp xong phần workspace (TIP-045b annex A1) — kernel phát chung, consumer AI chạy tiếp run. */
+/**
+ * Sự kiện bảo mật (TIP-045b annex A2, ops §4): ghi cùng action_log cờ `audit` — consumer notify báo Owner (dedupe theo event_consumption).
+ * Chi tiết an toàn: id action + id log + người làm, không input / mã / token.
+ */
+/** Đổi định nghĩa trường tuỳ biến (TIP-045b annex C) — chỉ entity, không có giá trị; realtime `fields.changed` làm mới cache FE. */
+export const customFieldChangedEvent = z.object({ ...base, entity: z.string(), key: z.string().optional() });
+/** Việc dữ liệu nặng đã nhận (TIP-045b annex D) — ghi cùng commit với action; consumer `kernel.data-jobs` (ROLE=jobs) chạy việc. */
+export const dataJobRequestedEvent = z.object({ ...base, job_id: z.string().uuid(), kind: z.string() });
+export const securityEventSchema = z.object({ ...base, action_id: z.string(), action_log_id: z.string().uuid(), actor_user_id: z.string().uuid().nullable(), source: z.string() });
+
+export const operationCompletedEvent = z.object({ ...base, operation_id: z.string().uuid(), action_id: z.string(), approval_id: z.string().uuid().nullable(), run_id: z.string().uuid().nullable() });
+
 export const approvalDecidedEvent = z.object({ ...base, approval_id: z.string().uuid(), run_id: z.string().uuid().nullable(), status: z.enum(['approved', 'edited', 'rejected', 'expired']) });
 
 /** Sản phẩm đổi (TIP-027): tạo / sửa / lưu trữ / khôi phục → consumer `catalog-sync` nạp lại nguồn RAG (không giá / tồn — rag §2). */
@@ -114,7 +132,7 @@ export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().
 
 /** Báo giá đổi trạng thái (TIP-029 — Blueprint §2.3): giai đoạn CRM theo COMMERCE §8, dòng thời gian khách, nhắc hết hạn. */
 const quoteBase = { ...base, quote_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), version: z.number().int() };
-export const quoteSentEvent = z.object({ ...quoteBase, channel: z.string(), valid_until: z.string() });
+export const quoteSentEvent = z.object({ ...quoteBase, channel: z.string(), format: z.enum(['pdf', 'image']).optional(), pages: z.number().int().optional(), valid_until: z.string() });
 export const quoteViewedEvent = z.object(quoteBase);
 export const quoteDecidedEvent = z.object({ ...quoteBase, reason: z.string().max(500).optional() });
 
@@ -128,7 +146,9 @@ export const contractSignedEvent = z.object({ ...contractBase, signed_sha256: z.
  *  hoàn tiền — TIP-032), đơn sàn nhập / cập nhật (D31). `total` là string VND. */
 const orderBase = { ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), source: z.string(), total: z.string() };
 export const orderEvent = z.object(orderBase);
-export const orderCompletedEvent = z.object({ ...orderBase, points: z.number().int(), net_before_vat: z.string() });
+/** `completion_id` = nhật ký hoàn tất của lượt này (hoàn tác rồi hoàn tất lại = lượt mới); `basis` = căn cứ điểm snapshot (TIP-036). */
+const earnBasis = z.object({ net_before_vat: z.string(), earn_net: z.string(), paid: z.string(), due: z.string(), refunded: z.string(), base: z.number().int(), tier: z.string(), mult: z.number(), config_version: z.number().int(), enabled: z.boolean() });
+export const orderCompletedEvent = z.object({ ...orderBase, points: z.number().int(), net_before_vat: z.string(), completion_id: z.string().uuid().optional(), basis: earnBasis.optional() });
 export const orderCancelledEvent = z.object({ ...orderBase, reason: z.string().max(500), paid_total: z.string(), refund_requested: z.boolean() });
 
 /** Đề nghị thanh toán / khoản thu / liệu trình (TIP-032 — Blueprint §2.3). Tiền là string VND; hoàn tiền `amount` dương = số hoàn. */
@@ -138,6 +158,23 @@ export const paymentConfirmedEvent = z.object({ ...base, payment_id: z.string().
 export const paymentRefundEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: uuidOrNull, order_id: uuidOrNull, package_id: uuidOrNull, contact_id: z.string().uuid(), amount: z.string() });
 export const bankTxEvent = z.object({ ...base, bank_tx_id: z.string().uuid(), amount: z.string(), status: z.string(), reason: z.string().nullable() });
 export const packageEvent = z.object({ ...base, package_id: z.string().uuid(), contact_id: z.string().uuid(), order_id: uuidOrNull.optional(), total_sessions: z.number().int().optional() });
+/** Nhắc liệu trình (TIP-032b P3): còn 1 buổi / còn 7 ngày tới hạn — một lần mỗi (gói, mốc, bản hạn). */
+export const packageReminderDueEvent = z.object({
+  ...base,
+  package_id: z.string().uuid(),
+  contact_id: z.string().uuid(),
+  order_id: z.string().uuid(),
+  milestone: z.enum(['remaining_1', 'expiry_t7']),
+  expiry_version: z.number().int(),
+  owner_user_id: uuidOrNull,
+  name: z.string(),
+  contact: z.string(),
+  days: z.number().int().nullable(),
+});
+/** Gửi chứng từ cho khách (TIP-032b P2) + đổi chính sách bán hàng (P1 — FE làm mới ngưỡng duyệt). */
+export const orderConfirmationSentEvent = z.object({ ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), channel: z.string() });
+export const receiptSentEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string().nullable(), channel: z.string() });
+export const salesSettingsUpdatedEvent = z.object({ ...base, version: z.number().int(), approval_total_vnd: z.string(), approval_discount_pct: z.number().int() });
 export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
 /** Ticket (TIP-034): tạo / đóng / mở lại / SLA sắp đến hạn / quá hạn — consumer notify (leo thang), timeline, CSAT. */
 export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional() });
@@ -172,6 +209,8 @@ export const EVENT_SCHEMAS = {
   'message.updated': messageUpdatedEvent,
   'conversation.assigned': conversationAssignedEvent,
   'conversation.updated': conversationUpdatedEvent,
+  'channel.group_requested': groupRequestedEvent,
+  'channel.group_result': groupResultEvent,
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,
@@ -180,6 +219,10 @@ export const EVENT_SCHEMAS = {
   'agent.deleted': agentChangedEvent,
   'approval.requested': approvalRequestedEvent,
   'approval.decided': approvalDecidedEvent,
+  'operation.completed': operationCompletedEvent,
+  'audit.security_event': securityEventSchema,
+  'custom_field.changed': customFieldChangedEvent,
+  'data_job.requested': dataJobRequestedEvent,
   'ai.handoff': aiHandoffEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,
@@ -204,14 +247,23 @@ export const EVENT_SCHEMAS = {
   'invoice.sent': invoiceEvent,
   'invoice.overdue': invoiceEvent,
   'invoice.voided': invoiceEvent,
+  'order.confirmation_sent': orderConfirmationSentEvent,
+  'receipt.sent': receiptSentEvent,
+  'sales_settings.updated': salesSettingsUpdatedEvent,
   'payment.confirmed': paymentConfirmedEvent,
   'payment.refund_requested': paymentRefundEvent,
   'payment.refunded': paymentRefundEvent,
   'payment.refund_rejected': paymentRefundEvent,
+  ...LOYALTY_EVENT_SCHEMAS,
+  ...KB_SUGGESTION_EVENT_SCHEMAS,
   'bank_tx.received': bankTxEvent,
   'package.granted': packageEvent,
   'package.expired': packageEvent,
   'package.changed': packageEvent,
+  'package.reminder_due': packageReminderDueEvent,
+  'product.import_requested': z.object({ ...base, import_id: z.string().uuid() }),
+  /** Trí nhớ / dữ liệu tóm tắt của khách đổi (TIP-015b) — chỉ là gợi ý làm mới cache; bản sửa thật ở contact_revision. */
+  'contact.memory_changed': z.object({ ...base, contact_id: z.string().uuid(), memory_rev: z.number().int() }),
   'appointment.created': appointmentEvent,
   'appointment.confirmed': appointmentEvent,
   'appointment.rescheduled': appointmentEvent,

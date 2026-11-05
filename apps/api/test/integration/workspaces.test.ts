@@ -162,8 +162,8 @@ describe('invite', () => {
   it('AC10 tạo → accept đúng email → membership active; email khác → 403; dùng lại → 409; hết hạn → 409', async () => {
     const invites = h.app.get(InvitesService);
     const email = testEmail('inv');
-    const { token } = await invites.create(h.ws, h.user, { email, role: 'cs' });
-    expect(h.mail.last(email)?.subject).toMatch(/WS test/);
+    // TIP-045b: create không gửi thư (thư là hiệu ứng bền của thao tác member.invite — hardening-cross-db kiểm); token trả để nhận.
+    const token = (await invites.create(h.ws, h.user, { email, role: 'cs' })).token!;
     const invitee = uuidv7();
     h.track(invitee);
     await h.platform.user.create({ data: { id: invitee, email, name: 'Inv' } });
@@ -185,7 +185,7 @@ describe('invite', () => {
     const late = uuidv7();
     h.track(late);
     await h.platform.user.create({ data: { id: late, email: e2, name: 'Late' } });
-    expect((await accept(late, second.token)).status).toBe(409);
+    expect((await accept(late, second.token!)).status).toBe(409);
     h.clock.set('2026-10-30T08:00:00.000Z');
     await expect(invites.create(h.ws, h.user, { email, role: 'cs' })).rejects.toMatchObject({ code: 'CONFLICT' });
   });

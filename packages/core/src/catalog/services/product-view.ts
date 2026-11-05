@@ -1,12 +1,14 @@
-// Bản ghi product → dòng FE (`productRowSchema` — packages/shared/src/api/catalog.ts). Giá vốn ẩn ('0') khi người xem thiếu
-// `catalog.cost_view` (Blueprint §3.5 bảng quyền: Sales thấy sản phẩm, không thấy giá vốn). Nền / icon thẻ theo màu danh mục.
-import { categoryPal, createFmt, interpolate, serverMessages, type AuthzContext, type CustomValues, type ProductRowDto } from '@appchat/shared';
+// Bản ghi product → dòng FE (`productRowSchema` — packages/shared/src/api/catalog.ts). Giá vốn BỎ HẲN (khoá `hidden_fields`, không
+// phải '0') khi người xem thiếu `catalog.cost_view` (Blueprint §3.5: Sales thấy sản phẩm, không thấy giá vốn); `custom` chỉ còn trường
+// được thấy (FieldPolicy — TIP-045b annex C). Nền / icon thẻ theo màu danh mục.
+import { categoryPal, createFmt, interpolate, serverMessages, type AuthzContext, type ProductRowDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { projectRow, type FieldView } from '../../authz/public';
 import { lowOf, type Attr } from './catalog-write';
 
 export const PRODUCT_SELECT = {
   id: true, code: true, name: true, type: true, categoryId: true, price: true, cost: true, unit: true, taxRate: true, stock: true,
-  lowStockThreshold: true, durationMin: true, sessions: true, validDays: true, deposit: true, rentalUnit: true, attrs: true,
+  lowStockThreshold: true, durationMin: true, sessions: true, validDays: true, grantOnDeposit: true, deposit: true, rentalUnit: true, attrs: true,
   description: true, status: true, custom: true, sold: true, version: true,
 } as const;
 
@@ -25,6 +27,7 @@ export interface ProductRecord {
   durationMin: number | null;
   sessions: number | null;
   validDays: number | null;
+  grantOnDeposit: boolean;
   deposit: bigint | null;
   rentalUnit: string | null;
   attrs: unknown;
@@ -41,12 +44,12 @@ export interface ViewCtx {
   categories: Map<string, { name: string; color: string }>;
   /** Kênh bán đang hiện sản phẩm = loại kênh đã kết nối của workspace. */
   channels: string[];
+  /** Quyền trường của người xem (custom + giá vốn). */
+  fields: FieldView;
 }
 
 export const attrsOf = (v: unknown): Attr[] =>
   Array.isArray(v) ? (v as Attr[]).filter((a) => a && typeof a.name === 'string' && Array.isArray(a.values)) : [];
-
-export const canCost = (a: AuthzContext) => a.isOwner || a.permissions.has('catalog.cost_view');
 
 /** Nhãn thuộc tính của dòng bảng / thẻ kanban: thông số theo loại trước, rồi "Tên: a/b". */
 export function labelsOf(p: ProductRecord, locale: string, parts: number): string[] {
@@ -65,14 +68,14 @@ export function labelsOf(p: ProductRecord, locale: string, parts: number): strin
 export function toRow(p: ProductRecord, v: ViewCtx, parts = 0): ProductRowDto {
   const cat = p.categoryId ? v.categories.get(p.categoryId) : undefined;
   const [tint, ink, icon] = categoryPal(cat?.color);
-  return {
+  return projectRow(v.fields, {
     id: p.id,
     code: p.code,
     name: p.name,
     category: cat?.name ?? '',
     type: p.type,
     price: String(p.price),
-    cost: canCost(v.authz) && p.cost !== null ? String(p.cost) : '0',
+    cost: p.cost === null ? null : String(p.cost),
     unit: p.unit,
     tax_rate: p.taxRate,
     sold: p.sold,
@@ -83,16 +86,17 @@ export function toRow(p: ProductRecord, v: ViewCtx, parts = 0): ProductRowDto {
     stock: p.stock,
     sessions: p.sessions,
     valid_days: p.validDays,
+    grant_on_deposit: p.grantOnDeposit,
     tint,
     ink,
     icon,
-    custom: (p.custom ?? {}) as CustomValues,
+    custom: (p.custom ?? {}) as ProductRowDto['custom'],
     version: p.version,
     duration_min: p.durationMin,
     deposit: p.deposit === null ? null : String(p.deposit),
     rental_unit: p.rentalUnit,
     low_stock: lowOf(p.stock, p.lowStockThreshold),
-  };
+  } satisfies ProductRowDto);
 }
 
 export async function categoryMap(tx: TenantTx) {

@@ -16,8 +16,13 @@ import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
 import { readAiEnv, type AiEnv } from './ai.env';
 import { ProviderStore } from './router/provider.store';
-import { KbAddSourceHandler, KbFolderCreateHandler, KbRefreshSourceHandler, KbRemoveSourceHandler, KbUpdateSourceHandler } from './kb/kb.handlers';
+import { KbAddSourceHandler, KbRefreshSourceHandler, KbRemoveSourceHandler, KbUpdateSourceHandler } from './kb/kb.handlers';
+import { KbFolderCreateHandler, KbFolderDeleteHandler, KbFolderUpdateHandler } from './kb/folder.handlers';
+import { KB_SUGGESTION_PROVIDERS } from './kb/suggestions/suggestions.providers';
 import { KB_EMBEDDER, KbSearchHandler } from './kb/kb-search.handler';
+import { AgentSearchHandler, AiTaskSearchHandler } from './agents/agent-read.handlers';
+import { KbSourceSearchHandler } from './kb/source-read.handler';
+import { RunSearchHandler } from './runs/run-read.handler';
 import { KbIngestQueue } from './kb/kb.queue';
 import { RunCancelListener } from './runs/cancel.listener';
 import { RunCancelHandler } from './runs/run-cancel.handler';
@@ -29,14 +34,18 @@ import { seedAgentTemplates } from './agents/templates.seed';
 import { ApprovalApproveHandler, ApprovalEditAndApproveHandler, ApprovalRejectHandler } from './approvals/approval.handlers';
 import { AiTranslateHandler } from './skills/translate.handler';
 import { ApprovalsInstaller } from './approvals/approvals.installer';
+import { OperationContinuationInstaller } from './approvals/operation-continuation';
 import { ResumeQueue } from './approvals/resume.queue';
 import { GovernanceUpdateHandler } from './governance/governance';
 import { AssistantService } from './assistant/assistant.service';
+import { TurnQueue, TurnRequestInstaller } from './assistant/genui/turn-request.consumer';
+import { AssistantResumeHandler } from './assistant/genui/resume.handler';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 import { TaskPlace } from './tasks/task-place';
 import { CLOCK, type Clock } from '../kernel/clock';
 
-export const AI_ENV = Symbol('AI_ENV');
+export { AI_ENV } from './ai.env';
+import { AI_ENV } from './ai.env';
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -99,6 +108,8 @@ class ProviderSeed implements OnModuleInit {
     },
     { provide: ResumeQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new ResumeQueue(r) : null) },
     ApprovalsInstaller,
+    // TIP-045b: thao tác nền tảng đã duyệt áp xong → tiếp tục run (consumer `operation.completed`).
+    OperationContinuationInstaller,
     { provide: RunCancelListener, inject: [opt(REDIS), AiRunner], useFactory: (r: Redis | undefined, run: AiRunner | null) => new RunCancelListener(r ?? null, run) },
     AiSettingsUpdateHandler,
     RunCancelHandler,
@@ -107,7 +118,15 @@ class ProviderSeed implements OnModuleInit {
     KbRemoveSourceHandler,
     KbRefreshSourceHandler,
     KbFolderCreateHandler,
+    KbFolderUpdateHandler,
+    KbFolderDeleteHandler,
+    ...KB_SUGGESTION_PROVIDERS,
     KbSearchHandler,
+    // Đọc cấu hình AI cho Trợ lý (TIP-023b R2).
+    AgentSearchHandler,
+    KbSourceSearchHandler,
+    AiTaskSearchHandler,
+    RunSearchHandler,
     AgentCreateHandler,
     AgentCreateAndPublishHandler,
     AgentUpdateHandler,
@@ -124,6 +143,11 @@ class ProviderSeed implements OnModuleInit {
     GovernanceUpdateHandler,
     AiTranslateHandler,
     AssistantService,
+    // GenUI (TIP-023c): tiếp tục lượt sau kết quả ngoài đã kiểm phía server (khối qr).
+    AssistantResumeHandler,
+    // Lượt Trợ lý chạy ở ROLE=ai: outbox `assistant.turn_requested` → consumer → queue `assistant-turn` (thiếu Redis → null).
+    { provide: TurnQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new TurnQueue(r) : null) },
+    TurnRequestInstaller,
     ...TASK_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],

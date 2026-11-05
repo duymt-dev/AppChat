@@ -17,14 +17,20 @@ import { ticketsHandlers } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
+import { ownershipTransferHandlers } from './domains/ownership-transfer';
 import { settingsAppsHandlers } from './domains/settings-apps';
+import { integrationProbeHandlers } from './domains/integration-probe';
+import { assistantUiHandlers } from './domains/assistant-ui';
 import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
 import { settingsAiHandlers } from './domains/settings-ai';
+import { kbFolderHandlers } from './domains/kb-folders';
+import { kbSuggestionHandlers } from './domains/kb-suggestions';
 import { settingsOpsHandlers } from './domains/settings-ops';
 import { settingsBillingHandlers } from './domains/settings-billing';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
+import { dataJobsHandlers } from './domains/data-jobs';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -86,6 +92,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...dashboardHandlers,
   ...inboxHandlers,
   ...customersHandlers,
+  ...dataJobsHandlers,
   ...assistantHandlers,
   ...aiTasksHandlers,
   ...agentsHandlers,
@@ -100,10 +107,15 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...marketingHandlers,
   ...loyaltyHandlers,
   ...settingsHandlers,
+  ...ownershipTransferHandlers,
   ...settingsAppsHandlers,
+  ...integrationProbeHandlers,
+  ...assistantUiHandlers,
   ...profileLayoutHandlers,
   ...settingsDataHandlers,
   ...settingsAiHandlers,
+  ...kbFolderHandlers,
+  ...kbSuggestionHandlers,
   ...settingsOpsHandlers,
   ...settingsBillingHandlers,
   ...docTemplatesHandlers,

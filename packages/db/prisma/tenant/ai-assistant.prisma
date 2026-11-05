@@ -1,5 +1,7 @@
 // tenant/ai-assistant.prisma — sở hữu: TIP-023 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: Blueprint §2.2 ai-assistant — phiên Trợ lý AI của từng người dùng + tin (parts: text / card / ui_command).
+// Bảng: Blueprint §2.2 ai-assistant — phiên Trợ lý AI của từng người dùng + tin (parts: text / card / ui_command / ui).
+// TIP-023c: sổ yêu cầu lượt (idempotent theo người + request_id, lease có fence), sổ sự kiện stream (run + seq), biên nhận kết quả
+// ngoài (QR đã quét) duy nhất theo run + node + attempt.
 // Không Prisma relation xuyên domain (Blueprint §2.1). Run của lượt: `ai_run.assistant_session_id`.
 
 enum AssistantMode {
@@ -39,5 +41,72 @@ model AssistantMessage {
   createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([sessionId, createdAt])
+  @@index([sessionId, createdAt, id], map: "assistant_message_session_keyset_idx")
   @@map("assistant_message")
+}
+
+/// Trạng thái thực thi của lượt Trợ lý (sổ yêu cầu) — không đổi enum `ai_run_status`; `waiting_external` chỉ ở đây (TIP-023c).
+enum AssistantExecState {
+  queued
+  running
+  waiting_external
+  waiting_approval
+  succeeded
+  failed
+  cancelled
+
+  @@map("assistant_exec_state")
+}
+
+/// Sổ yêu cầu lượt (TIP-023c SPEC vận hành): unique (user_id, request_id); `input_hash` gồm session_id + input không bí mật; lease +
+/// `fence` tăng đơn điệu — worker cũ (fence nhỏ hơn) không được ghi sự kiện / kết thúc / gọi tool.
+model AssistantRequest {
+  id                String             @id @db.Uuid
+  userId            String             @map("user_id") @db.Uuid
+  requestId         String             @map("request_id")
+  sessionId         String             @map("session_id") @db.Uuid
+  runId             String             @map("run_id") @db.Uuid
+  inputHash         String             @map("input_hash")
+  executionState    AssistantExecState @default(queued) @map("execution_state")
+  leaseOwner        String?            @map("lease_owner")
+  leaseUntil        DateTime?          @map("lease_until") @db.Timestamptz(6)
+  fence             Int                @default(0)
+  checkpointVersion Int                @default(0) @map("checkpoint_version")
+  /// Node / attempt đang chờ kết quả ngoài (QR) — receipt phải khớp.
+  waitingFor        Json?              @map("waiting_for")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([userId, requestId])
+  @@unique([runId])
+  @@map("assistant_request")
+}
+
+/// Sổ sự kiện stream (TIP-023c): unique (run_id, seq); chỉ phát sau khi ghi bền; delta / ui giữ 24h (`expires_at`), tin lịch sử ở
+/// `assistant_message` không bị xoá theo TTL stream.
+model AssistantEvent {
+  id        String   @id @db.Uuid
+  runId     String   @map("run_id") @db.Uuid
+  seq       Int
+  eventType String   @map("event_type")
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@unique([runId, seq])
+  @@map("assistant_event")
+}
+
+/// Biên nhận kết quả ngoài (TIP-023c hợp đồng 2): duy nhất (run, node, attempt) — poll / WS / reload trùng chỉ tiếp tục run một lần.
+model AssistantReceipt {
+  id        String   @id @db.Uuid
+  runId     String   @map("run_id") @db.Uuid
+  node      String
+  attempt   String
+  kind      String
+  result    Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([runId, node, attempt])
+  @@map("assistant_receipt")
 }

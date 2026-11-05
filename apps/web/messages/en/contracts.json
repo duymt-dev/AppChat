@@ -99,6 +99,7 @@
       "crm": "CRM",
       "ai": "AI",
       "files": "Files",
+      "appendix": "Appendices",
       "history": "History"
     },
     "info": "Contract information",
@@ -153,7 +154,15 @@
       "esign": "E-signature",
       "customer": "Sent by customer"
     },
+    "fileRole": {
+      "source": "Original",
+      "unsigned": "Unsigned",
+      "signed": "Signed"
+    },
+    "fileFail": "Could not load the file",
     "ev": {
+      "created_from_attachment": "Contract created from customer file",
+      "source_attached": "Signing file attached",
       "created": "Contract created",
       "created_from_quote": "Created from quote",
       "submitted": "Submitted for approval",
@@ -170,7 +179,10 @@
       "signed": "E-signature completed",
       "declined": "Customer declined",
       "expired": "Expired",
-      "terminated": "Contract terminated"
+      "terminated": "Contract terminated",
+      "created_by_ai": "Draft created from AI proposal",
+      "ai_suggestion_kept": "AI-suggested clause kept",
+      "ai_suggestion_discarded": "AI-suggested clause discarded"
     },
     "evMeta": "{at} · {actor}",
     "system": "System",
@@ -242,8 +254,11 @@
       "renew": "Renewal reminders",
       "analyze": "Analyse signing rate"
     },
-    "ack": "Noted — the assistant will review related contracts and suggest next steps.",
-    "ackRenew": "One contract has expired (HĐ-1178). Suggest creating a renewal and submitting it."
+    "prompts": {
+      "risk": "Review contract risks: contracts expiring or expired, waiting too long for signature, missing terms.",
+      "renew": "List contracts expiring within 30 days and suggest renewals.",
+      "analyze": "Analyse contracts: total active value, signing success rate and reasons for losses."
+    }
   },
   "sign": {
     "title": "Sign contract electronically",
@@ -295,5 +310,155 @@
     "evMeta": "{at} · IP {ip}",
     "otpSentEmail": "OTP sent by email to {to}"
   },
-  "unit": "contracts"
+  "source": {
+    "title": "Content source",
+    "template": "From template",
+    "file": "Upload file",
+    "templateHint": "Signing content follows the template for this contract type (Settings › Document templates).",
+    "fileHint": "PDF or DOCX — a PDF is signed as-is, a DOCX is converted to PDF.",
+    "uploading": "Uploading file…",
+    "inspecting": "Checking file…",
+    "ready": "Signing source: {name}",
+    "useTemplate": "Use type template",
+    "retry": "Retry",
+    "notReady": "The contract file is not checked yet — pick it again or use the type template.",
+    "unavailable": "No readable text in the file (scanned?) — please fill the fields manually.",
+    "missing": "Not readable — enter manually",
+    "from": "From file: \"{text}\"",
+    "use": "Use",
+    "col": {
+      "field": "Field",
+      "value": "Value read from file"
+    },
+    "field": {
+      "title": "Title",
+      "party_b": "Party B",
+      "value": "Value",
+      "start_date": "Start date",
+      "end_date": "End date"
+    },
+    "err": {
+      "failed": "Could not check the file.",
+      "upload_failed": "Upload failed.",
+      "too_large": "File too large (PDF ≤ 25MB, DOCX ≤ 10MB).",
+      "unsupported_type": "Only PDF or DOCX (file content is not that type).",
+      "not_pdf": "Not a valid PDF.",
+      "not_docx": "Not a valid DOCX.",
+      "encrypted": "File is password-protected / encrypted — remove the password and upload again.",
+      "macro": "File contains macros — save it as a macro-free DOCX.",
+      "active_content": "PDF contains auto-run content (JavaScript / actions) — not accepted.",
+      "embedded_file": "PDF contains embedded files — not accepted.",
+      "embedded_object": "File contains embedded objects — not accepted.",
+      "external_relationship": "File loads content from external links — not accepted.",
+      "field_code": "File contains auto-run fields (DDE / INCLUDE) — not accepted.",
+      "zip_bomb": "Abnormal compressed file — not accepted.",
+      "path_traversal": "Unsafe file structure — not accepted.",
+      "too_many_pages": "PDF exceeds 200 pages."
+    }
+  },
+  "unit": "contracts",
+  "draft": {
+    "title": "AI contract draft",
+    "hint": "Describe services / goods, quantities and term. Prices come from the catalog; AI never edits template clauses or sends / signs.",
+    "briefPh": "e.g. Acne treatment 10 sessions, from 01/12/2026 to 30/11/2027, add a 30-day warranty",
+    "prepare": "Prepare proposal (uses AI)",
+    "preparing": "Preparing…",
+    "needContact": "Pick a customer first.",
+    "fTitle": "Title",
+    "fValue": "Value (from catalog)",
+    "fTerm": "Term",
+    "offCatalog": "off-catalog — enter a price",
+    "suggestions": "{n} AI-suggested clauses — keep / discard after creating the draft.",
+    "create": "Create draft from proposal",
+    "err": {
+      "credit": "Out of AI credits — top up to draft.",
+      "not_found": "Customer / quote not found within your scope.",
+      "failed": "Could not prepare — try again."
+    },
+    "sTitle": "AI-suggested clauses",
+    "pending": "{n} awaiting keep / discard",
+    "aiTag": "AI",
+    "keep": "Keep",
+    "discard": "Discard",
+    "conflict": "This clause was just handled by someone else — reloaded.",
+    "state": {
+      "pending": "Pending",
+      "kept": "Kept",
+      "discarded": "Discarded"
+    }
+  },
+  "appendix": {
+    "title": "Contract appendices",
+    "new": "+ New appendix",
+    "empty": "No appendices yet. Changes after signing go through an appendix — same approval and signing flow.",
+    "onlySigned": "Appendices can only be created for signed contracts.",
+    "version": "Version {v}",
+    "delta": "Adjustment {v}",
+    "edit": "Edit",
+    "submit": "Submit for approval",
+    "requestChanges": "Request changes",
+    "approve": "Approve & sign",
+    "send": "Send via Zalo",
+    "resend": "Resend signing link",
+    "sendEmail": "Send via email",
+    "newTitle": "New appendix",
+    "editTitle": "Edit appendix (draft)",
+    "hint": "An appendix has its own signatures: the Owner signs first, then the customer. The original contract stays unchanged.",
+    "fTitle": "Title *",
+    "fContent": "Changes *",
+    "fDelta": "Value adjustment (VND, may be negative)",
+    "deltaHint": "Recorded as part of the agreement only — orders, payment requests and receipts are not changed.",
+    "deltaBad": "Digits only, optionally with a leading minus.",
+    "save": "Save appendix",
+    "cancel": "Cancel",
+    "approveTitle": "Approve & sign appendix",
+    "approveSub": "Sign {code} (version {version}) for the business with this appendix’s own OTP — the original contract’s code does not work.",
+    "approveOk": "Confirm signature",
+    "otp": "OTP code (email)",
+    "sendOtp": "Send code",
+    "otpSent": "Code sent to {to}",
+    "devOtp": "Test code: {otp}",
+    "needOtp": "Enter the 6-digit OTP",
+    "needSig": "Sign in the box",
+    "sig": "Signature",
+    "clear": "Clear",
+    "status": {
+      "draft": "Draft",
+      "pending_approval": "Awaiting approval",
+      "pending_signature": "Awaiting customer",
+      "signed": "Signed",
+      "declined": "Declined",
+      "expired": "Expired",
+      "terminated": "Terminated"
+    },
+    "ev": {
+      "created": "Created",
+      "updated": "Edited",
+      "submitted": "Submitted",
+      "changes_requested": "Changes requested",
+      "otp_sent": "OTP sent",
+      "otp_fail": "Wrong OTP",
+      "otp_ok": "OTP verified",
+      "approved_signed": "Owner signed",
+      "sent": "Link sent",
+      "opened": "Customer opened",
+      "signed": "Customer signed",
+      "declined": "Declined"
+    },
+    "sign": {
+      "brand": "Appendix e-signature · AppChat",
+      "parent": "Appendix to contract {code} — {title}",
+      "expires": "Signing link valid until {at}",
+      "version": "Version",
+      "delta": "Value adjustment",
+      "business": "Party A (business)",
+      "bizSigned": "Party A has signed this appendix",
+      "invalidTitle": "This signing link is no longer valid",
+      "invalidSub": "The link was used, has expired, or the appendix was just edited. Please contact the business for a new link.",
+      "doneTitle": "Appendix {code} signed",
+      "signedAt": "Signed at",
+      "declinedTitle": "You declined to sign this appendix",
+      "declinedSub": "The business has been notified."
+    }
+  }
 }

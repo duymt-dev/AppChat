@@ -40,7 +40,7 @@ function Three({ f, fields }: { f: ProductFormApi; fields: Field[] }) {
   const { styles, cx } = useProductFormStyles();
   return (
     <div className={styles.three}>
-      {fields.map(([label, k, ph, money]) => (
+      {fields.filter(([, k]) => !(k === 'cost' && f.d.costHidden)).map(([label, k, ph, money]) => (
         <div key={k}>
           <label className={styles.label}>{label}</label>
           <input
@@ -100,6 +100,10 @@ function TypeBlock({ f }: { f: ProductFormApi }) {
               [t('perSession'), 'perSession', t('perSessionPh'), true],
             ]}
           />
+          <label className={styles.check}>
+            <input type="checkbox" checked={f.d.grantOnDeposit} onChange={(e) => f.set('grantOnDeposit', e.target.checked)} data-testid="pf-grant-on-deposit" />
+            {t('grantOnDeposit')}
+          </label>
         </Sec>
       );
     case 'rental':

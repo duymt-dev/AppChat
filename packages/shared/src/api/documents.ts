@@ -20,6 +20,8 @@ export const docTemplateRowSchema = z.object({
   /** Mục bảng kiểm pháp lý còn thiếu (cảnh báo — templates.md §6). */
   checklist_missing: z.array(z.string()),
   is_default: z.boolean(),
+  /** Loại hợp đồng của mẫu hợp đồng (null = mẫu chung mọi loại; loại chứng từ khác luôn null) — TIP-030b. */
+  contract_kind: z.enum(['service', 'sale', 'framework']).nullable(),
   version: z.number().int(),
   updated_by: z.string(),
   updated_at: z.string(),

@@ -8,6 +8,8 @@ export function applyPrefix(app: INestApplication): void {
       { path: 'hooks/{*path}', method: RequestMethod.ALL },
       // Script widget nhúng (TIP-017): URL trong mã nhúng không gắn phiên bản API.
       { path: 'widget.js', method: RequestMethod.GET },
+      // Prometheus cùng máy (TIP-045b) — không gắn phiên bản API.
+      { path: 'metrics', method: RequestMethod.GET },
     ],
   });
 }

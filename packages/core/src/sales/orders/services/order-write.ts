@@ -33,21 +33,34 @@ export const payCols = (o: Pick<OrderRecord, 'status' | 'total' | 'paidTotal' | 
 
 export async function writeItems(tx: TenantTx, orderId: string, lines: (LineIn & { variant_id?: string | null })[], t: Pick<Totals, 'lines'>, now: Date) {
   await tx.orderItem.deleteMany({ where: { orderId } });
+  // Ảnh chụp liệu trình lúc ghi dòng (TIP-032b, COMMERCE §6): sinh gói đọc ở dòng đơn, đổi danh mục sau này không đổi gói.
+  const ids = [...new Set(lines.map((l) => l.product_id).filter((x): x is string => !!x))];
+  const products = ids.length ? await tx.product.findMany({ where: { id: { in: ids } }, select: { id: true, type: true, sessions: true, validDays: true, grantOnDeposit: true } }) : [];
+  const byId = new Map(products.map((p) => [p.id, p]));
   await tx.orderItem.createMany({
-    data: lines.map((l, i) => ({
-      id: uuidv7(now.getTime()),
-      orderId,
-      productId: l.product_id ?? null,
-      variantId: l.variant_id ?? null,
-      name: l.name,
-      variant: l.variant ?? '',
-      qty: l.qty,
-      unitPrice: BigInt(l.unit_price),
-      discount: (l.discount ?? undefined) as object | undefined,
-      taxRate: l.tax_rate,
-      lineTotal: BigInt(t.lines[i]!.net),
-      sort: i,
-    })),
+    data: lines.map((l, i) => {
+      const p = l.product_id ? byId.get(l.product_id) : undefined;
+      const pkg = p?.type === 'package';
+      return {
+        id: uuidv7(now.getTime()),
+        orderId,
+        productId: l.product_id ?? null,
+        variantId: l.variant_id ?? null,
+        name: l.name,
+        variant: l.variant ?? '',
+        qty: l.qty,
+        unitPrice: BigInt(l.unit_price),
+        discount: (l.discount ?? undefined) as object | undefined,
+        taxRate: l.tax_rate,
+        lineTotal: BigInt(t.lines[i]!.net),
+        sort: i,
+        productType: p?.type ?? null,
+        packageSessions: pkg ? p.sessions : null,
+        packageValidDays: pkg ? p.validDays : null,
+        grantOnDeposit: pkg ? p.grantOnDeposit : false,
+        snapshotAt: p ? now : null,
+      };
+    }),
   });
 }
 

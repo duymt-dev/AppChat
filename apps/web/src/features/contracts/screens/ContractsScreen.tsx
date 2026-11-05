@@ -20,6 +20,7 @@ import { KANBAN, chipOf } from '../status';
 import type { Contract } from '../types';
 import { useContractsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
+import { useAssistantContext } from '../hooks/useAssistantContext';
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -35,6 +36,13 @@ function useFromQuote() {
   const set = useContractsUi((s) => s.set);
   const done = useRef('');
   const quoteId = params.get('from_quote');
+  // `?open=<id>` — mở drawer hợp đồng vừa tạo từ tệp trong Hộp thư (TIP-030b).
+  const openId = params.get('open');
+  useEffect(() => {
+    if (!openId) return;
+    set({ detail: openId, tab: 'files' });
+    router.replace('/contracts');
+  }, [openId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!quoteId || done.current === quoteId) return;
     done.current = quoteId;
@@ -47,6 +55,7 @@ function useFromQuote() {
 
 export function ContractsScreen() {
   useContractsUiCommands();
+  useAssistantContext();
   useFromQuote();
   const t = useTranslations('contracts');
   const tc = useTranslations('common');

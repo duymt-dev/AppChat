@@ -7,6 +7,7 @@ import { useCardStyles } from '../styles/card360.styles';
 import { TAG_TONE } from '../tones';
 import { Rich } from './Rich';
 import { Timeline } from './Timeline';
+import { MemoryPanel } from '@/shared/contact-memory';
 import type { Contact360 } from '../types';
 
 const BAR = { ok: color.okStrong, brand: color.brand, blue: color.blueAvatar } as const;
@@ -68,6 +69,7 @@ export function Ai360({ c }: { c: Contact360 }) {
   const { styles } = usePanelStyles();
   return (
     <>
+      <MemoryPanel contactId={c.id} />
       <div className={styles.card}>
         <div className={styles.cardHead}>
           <span className={styles.eyebrow}>{t('behavior')}</span>

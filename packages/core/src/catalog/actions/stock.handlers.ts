@@ -10,6 +10,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../kernel/ids';
 import { actorUserId } from '../../crm/public';
 import { categoryByName, liveProduct, recordMovement } from '../services/catalog-write';
+import { adjustPreview, categoryPreview } from './previews/stock.handlers.preview';
 
 @Injectable()
 @ActionHandler('category.create')
@@ -21,6 +22,10 @@ export class CategoryCreateHandler implements Handler<ActionInput<typeof categor
     const id = await categoryByName(tx, name, this.clock.now());
     const row = await tx.productCategory.findUniqueOrThrow({ where: { id: id! }, select: { name: true } });
     return { result: { name: row.name }, after: { id } };
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof categoryCreate>, tx: TenantTx) {
+    return categoryPreview(tx, input);
   }
 }
 
@@ -46,5 +51,9 @@ export class StockAdjustHandler implements Handler<ActionInput<typeof stockAdjus
   async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as { id: string; delta: number; ref_id: string };
     await recordMovement(tx, { productId: b.id, kind: 'adjust', qty: -b.delta, refType: 'adjust_undo', refId: b.ref_id, reason: 'undo', actorId: actorUserId(ctx) }, this.clock.now());
+  }
+
+  async preview(_ctx: ActionContext, input: ActionInput<typeof stockAdjust>, tx: TenantTx) {
+    return adjustPreview(tx, input);
   }
 }

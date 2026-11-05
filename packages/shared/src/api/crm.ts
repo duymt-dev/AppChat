@@ -2,6 +2,7 @@
 // /contacts/:id (Hồ sơ 360°), /contacts/:id/collaborators, /contacts/:id/timeline, /contact-access-requests, /members,
 // /settings/fields?entity=, /settings/profile-layouts. Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
+import { contactInsightsSchema } from './contact-memory';
 import { SYSTEM_ROLES } from '../authz/roles';
 import { CUSTOM_FIELD_PLACES } from '../custom-fields/values';
 
@@ -140,6 +141,8 @@ export const contact360Schema = z.object({
   timeline: z.array(timelineItem),
   files: z.array(z.object({ ext: z.string(), tone: z.string(), name: z.string(), meta: z.string() })),
   custom: customValues.optional(),
+  /** Số liệu thật theo quyền người xem (TIP-015b) — công nợ, HĐ hiệu lực, đơn / thu gần nhất, LTV, liên kết chứng từ. */
+  insights: contactInsightsSchema.optional(),
   /** Bố cục Hồ sơ 360° của vai trò người xem (Blueprint §4.4 ver2.1). */
   layout: z.object({ id: z.string(), name: z.string(), tabs: z.array(layoutTab) }).optional(),
 });

@@ -1,7 +1,8 @@
 // Worker ROLE=jobs của domain `notify` (TIP-006): đăng ký consumer `notify` + `realtime` vào queue `events` (EventsRunner của
 // kernel chạy), và worker queue `notify-mail`. Chỉ bật khi có DB + Redis; mail lấy MailProvider của identity (console / brevo / smtp).
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Queue, type Worker } from 'bullmq';
+import { type Worker } from 'bullmq';
+import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { PlatformDb } from '@appchat/db';
 import type { MailProvider } from '@appchat/integrations';

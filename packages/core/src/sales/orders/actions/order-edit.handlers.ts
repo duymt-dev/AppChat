@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { CrmMembers } from '../../../crm/public';
 import { checkParties, resolveLines, type LineIn } from '../../quotes/services/quote-write';
 import { lockOrder, type OrderRecord } from '../order-access';
+import { depositPreview, shippingPreview, updatePreview } from '../previews/order-edit.handlers.preview';
 import { EMPTY_SHIPPING, actorOf, checkOrderCustom, deductStock, itemsOf, logEvent, payCols, returnStock, totalCols, totalsOf, writeItems, type Shipping } from '../services/order-write';
 
 /** Ảnh chụp phần sửa được — `before` của action_log để hoàn tác. */
@@ -131,6 +132,10 @@ export class OrderUpdateHandler implements Handler<ActionInput<typeof orderUpdat
     const b = log.before as Snap & { lines: boolean };
     await restore(tx, b, this.clock.now(), b.lines);
   }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderUpdate>, tx: TenantTx) {
+    return updatePreview(ctx, tx, this.members, input);
+  }
 }
 
 @Injectable()
@@ -154,6 +159,10 @@ export class OrderSetDepositHandler implements Handler<ActionInput<typeof orderS
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     await restore(tx, log.before as Snap, this.clock.now(), false);
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderSetDeposit>, tx: TenantTx) {
+    return depositPreview(ctx, tx, input);
   }
 }
 
@@ -180,5 +189,9 @@ export class OrderShippingHandler implements Handler<ActionInput<typeof orderUpd
     if (!o) return;
     await tx.order.update({ where: { id: b.id }, data: { shipping: b.shipping } });
     if (b.event) await tx.orderEvent.deleteMany({ where: { id: b.event } });
+  }
+
+  async preview(ctx: ActionContext, input: ActionInput<typeof orderUpdateShipping>, tx: TenantTx) {
+    return shippingPreview(ctx, tx, input);
   }
 }

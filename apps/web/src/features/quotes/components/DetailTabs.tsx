@@ -1,5 +1,6 @@
 // Tab CRM · AI · Lịch sử của drawer báo giá — prototype L5130–5160. Lịch sử thêm danh sách các version (request_revision → n+1).
 'use client';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -14,6 +15,7 @@ import { quoteVersionsQuery } from '../api';
 import { useStamp } from '../columns';
 import { STATUS_TONE } from '../status';
 import { Comments, Ring, closeChance } from './parts';
+import { QuoteDeliveryModal } from './QuoteDeliveryModal';
 import type { Quote, QuotesMeta } from '../types';
 
 export function CrmTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
@@ -23,6 +25,7 @@ export function CrmTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
   const d = useQuoteDetailStyles().styles;
   const canSend = useCan('quote.send');
   const send = useQuoteSend();
+  const [delivery, setDelivery] = useState(false);
   const extend = useAction('quote.extend_validity');
   const sent = ['sent', 'viewed', 'expired'].includes(q.status);
   return (
@@ -58,7 +61,12 @@ export function CrmTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
             <Icon name="ic-mail" size={14} color={color.text2} />
             {t('sendEmail')}
           </button>
+          <button type="button" className={d.send} disabled={!canSend} onClick={() => setDelivery(true)} data-testid="q-crm-send-more">
+            <Icon name="ic-send" size={14} color={color.text2} />
+            {t('sendMore')}
+          </button>
         </div>
+        {delivery ? <QuoteDeliveryModal quoteId={q.id} initial="webchat" onClose={() => setDelivery(false)} /> : null}
         <div className={styles.note}>
           <Icon name="ic-clock" size={14} color={color.text4} />
           {sent ? t('validUntil', { d: fmt.date(q.valid_until) }) : t('validity', { n: q.valid_days })}

@@ -5,6 +5,7 @@ import { dashboardRoutes } from './domains/dashboard';
 import { inboxRoutes } from './domains/inbox';
 import { customersRoutes } from './domains/customers';
 import { assistantRoutes } from './domains/assistant';
+import { assistantSessionRoutes } from './domains/assistant-sessions';
 import { aiTasksRoutes } from './domains/ai-tasks';
 import { agentsRoutes } from './domains/agents';
 import { productsRoutes } from './domains/products';
@@ -22,6 +23,8 @@ import { settingsAppsRoutes } from './domains/settings-apps';
 import { profileLayoutRoutes } from './domains/profile-layout';
 import { settingsDataRoutes } from './domains/settings-data';
 import { settingsAiRoutes } from './domains/settings-ai';
+import { auditRoutes } from './domains/audit';
+import { kbSuggestionRoutes } from './domains/kb-suggestions';
 import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
 import { docTemplatesRoutes } from './domains/doc-templates';
@@ -62,6 +65,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...inboxRoutes,
   ...customersRoutes,
   ...assistantRoutes,
+  ...assistantSessionRoutes,
   ...aiTasksRoutes,
   ...agentsRoutes,
   ...productsRoutes,
@@ -79,6 +83,8 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...profileLayoutRoutes,
   ...settingsDataRoutes,
   ...settingsAiRoutes,
+  ...auditRoutes,
+  ...kbSuggestionRoutes,
   ...settingsOpsRoutes,
   ...settingsBillingRoutes,
   ...docTemplatesRoutes,

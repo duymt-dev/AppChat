@@ -161,6 +161,19 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/web/src/shared/genui/hooks/useSecretForm.ts` | New bounded module/DTO/component |
 | C | `apps/web/src/shared/genui/registry.ts` | New bounded module/DTO/component |
 | C | `apps/web/src/shared/genui/types.ts` | New bounded module/DTO/component |
+| M | `apps/web/src/shared/api/mock/handlers.ts` | Register mock GenUI handlers (amended G1) |
+| C | `apps/web/src/shared/api/mock/domains/assistant-ui.ts` | Mock channel.status attempt lifecycle, QR image route, assistant.resume, ui/refs (amended G1; settings-apps.ts at size budget) |
+| C | `apps/web/src/shared/api/mock/domains/assistant-genui.ts` | Mock assistant turn emitting fixture genui trees with mock intents (amended G1; assistant.ts mock at size budget) |
+| C | `apps/web/src/shared/api/mock/genui-vault.ts` | Mock server policy: intent forces preview, secret vault consume-once (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/ChartView.tsx` | Lazy-loaded @ant-design/charts view split from ChartBlock (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/ExpandMore.tsx` | Shared compact "Expand" control (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/NoData.tsx` | Shared unavailable-ref placeholder (amended G1) |
+| C | `apps/web/src/shared/genui/blocks/test-utils.tsx` | Test-only render helper for block tests (amended G1) |
+| C | `apps/web/src/shared/genui/context.ts` | Renderer context (refs/intents/mode) (amended G1) |
+| C | `apps/web/src/shared/genui/format.ts` | Value formatting via fmt + ref reader (amended G1) |
+| C | `apps/web/src/shared/genui/genui-transport.test.ts` | Acceptance evidence: intent preview, vault, QR attempt via mock transport (amended G1) |
+| C | `apps/web/src/shared/genui/genui.styles.ts` | Token-only styles + tone map (amended G1) |
+| C | `apps/web/src/shared/genui/index.ts` | Public entry for features (amended G1) |
 | C | `apps/worker/test/integration/assistant-turn-recovery.test.ts` | Acceptance evidence including negative/replay cases |
 | C | `coding-packs/reports/TIP-023c-completion.md` | New bounded module/DTO/component |
 | C | `fixtures/ai-eval/genui-screen.json` | New bounded module/DTO/component |
@@ -189,6 +202,7 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `packages/ai/src/prompts/genui.vi.md` | New bounded module/DTO/component |
 | M | `packages/ai/src/prompts/index.ts` | Runtime/HTTP/transport/current UI wiring |
 | C | `packages/ai/test/delta-stream.test.ts` | Acceptance evidence including negative/replay cases |
+| C | `packages/ai/test/genui-prompt.test.ts` | Acceptance evidence: genui prompt registry = .md, core rules (amended G1) |
 | C | `packages/ai/test/genui-structured-stream.test.ts` | Acceptance evidence including negative/replay cases |
 | M | `packages/core/src/ai/ai.module.ts` | Runtime/HTTP/transport/current UI wiring |
 | M | `packages/core/src/ai/assistant/assistant-prompt.ts` | Runtime/HTTP/transport/current UI wiring |
@@ -276,3 +290,92 @@ M = modify; C = create. 272 paths. One future M, pending-action.ts, is created b
 | C | `apps/api/test/integration/actions/integration.test.action.test.ts` | Action matrix current permission and redaction |
 | C | `apps/api/test/integration/actions/integration.form_schema.action.test.ts` | Action matrix metadata scoping |
 | C | `packages/core/src/ai/assistant/genui/execution-lease.ts` | Fenced request lease and external wait checkpoint |
+| M | `packages/core/src/kernel/actions/tip-owners.ts` | Amend (thi công): `assistant.resume` → TIP chủ `023` cho kiểm tra boot "mọi action có handler hoặc TIP chủ" (test TIP-003 đòi 3 chữ số) |
+| M | `apps/api/test/integration/assistant.test.ts` | Amend (thi công): danh sách tool chế độ Chat có thêm `render` (GenUI chỉ hiển thị; nút ghi vẫn qua xác nhận) |
+| C | `apps/web/e2e/screen-assistant.spec.ts` | Amend (G2): E2E drawer theo màn — cây compact, lọc / tô sáng, xem trước action, "Mở trong Trợ lý" cùng phiên, mobile 390 |
+| C | `apps/web/src/features/assistant/hooks/useOpenThread.ts` | Amend (G2): `/assistant?thread=` nạp lại phiên drawer (không gọi model) — tách khỏi AssistantScreen để giữ orchestrator gọn |
+| C | `apps/web/src/features/customers/hooks/useHighlight.ts` | Amend (G2): highlight REQ-E05b — dòng có trên trang → focus; chưa tải → mở 360° qua API scope |
+| M | `apps/web/src/features/customers/components/Customer360Drawer.tsx` | Amend (G2): đóng drawer bỏ highlight cũ (REQ-E05b) |
+| M | `apps/web/src/features/customers/ui-commands.test.tsx` | Amend (G2): highlight contact / bỏ khi đổi bộ lọc |
+| M | `packages/ui/src/primitives/DataTable.tsx` | Amend (G2): prop `highlightKey` — viền nhấn + cuộn tới + focus bàn phím (primitive dùng chung, không nghiệp vụ) |
+| C | `apps/web/src/shared/api/mock/domains/assistant-sessions.ts` | Amend (G2): mock phiên + `/assistant/sessions/:id/messages` như server |
+| C | `apps/web/src/shared/api/mock/domains/assistant-genui.test.ts` | Amend (G2): cây fixture hợp lệ theo module + mock phiên |
+| M | `apps/web/src/shared/api/mock/domains/assistant-genui.ts` | Amend (G2): cây theo module (route của drawer) |
+| M | `apps/web/src/shared/api/mock/routes.ts` | Amend (G2): đăng ký route phiên mock |
+| M | `fixtures/prototype-parity/customers.json` | Amend (G2): `genui[]` 3 cây compact cho drawer Khách hàng (standard §12) |
+| M | `apps/web/e2e/quotes.spec.ts` | Amend (G2): nút "Gợi ý giá" không còn kết quả mẫu — kiểm cây GenUI của lượt thật trong drawer |
+| M | `apps/web/src/features/quotes/styles/ai.styles.ts` | Amend (G2): khoảng cách luồng hội thoại trong drawer Báo giá |
+| C | `apps/web/src/shared/assistant/useDrawerAsk.ts` | Amend (G2): ô hỏi + prompt nút nhanh dùng chung cho 6 drawer (tránh lặp state nháp / gửi ở mỗi drawer) |
+| C | `packages/core/src/ai/assistant/session-list.ts` | Amend (G2.8a): keyset (last_message_at, id) + tìm trigram cho trình duyệt phiên — tách khỏi sessions.ts (giữ trần) |
+| M | `packages/core/src/ai/public.ts` | Amend (G2.8a): export listSessionsPage / cursor helpers |
+| C | `apps/api/test/integration/assistant-sessions.test.ts` | Amend (G2.8a): keyset ổn định khi có phiên mới, tie-break id, tìm không dấu, người khác / lưu trữ ẩn, cursor hỏng 422, EXPLAIN |
+| C | `apps/web/src/features/assistant/components/HistoryButton.tsx` | Amend (G2.8a): nút "Lịch sử" thanh Trợ lý (PD-009) |
+| C | `apps/web/src/features/assistant/hooks/useAssistantSessions.test.tsx` | Amend (G2.8a): debounce + tải thêm theo cursor + khoá theo workspace |
+| C | `apps/web/src/features/assistant/styles/sessions.styles.ts` | Amend (G2.8a): style trình duyệt phiên |
+| M | `coding-packs/docs/06-prototype/DEVIATIONS.md` | Amend (G2.8a): PD-009 trình duyệt phiên (prototype không vẽ) |
+| C | `apps/api/test/integration/genui-context.test.ts` | Amend (G2.6): Sales gửi id khách người khác trong context → bị bỏ trước prompt / ai_run.input; Owner giữ đủ |
+| C | `packages/core/src/ai/jobs/assistant-events.processor.ts` | Amend (G2): worker + scheduler `assistant-events.prune` (15 phút) — tách khỏi ai.jobs.module (đăng ký 1 dòng) |
+| C | `apps/api/test/integration/genui-prune.test.ts` | Amend (G2): dọn 24h theo lô + Clock, giữ assistant_message, rời tập armed, reset_required sau dọn, EXPLAIN index expires_at |
+| C | `packages/core/src/ai/assistant/genui/turn-wait.ts` | Amend (G2, DC-316): API chờ `done` của run trên sổ (subscribe trước, đọc lại 1s, ≤ 120s) — JSON client chờ cùng run |
+| C | `apps/worker/test/integration/assistant-turn-queue.test.ts` | Amend (G2, DC-316): API claim → outbox → ROLE=jobs → ROLE=ai thật; cùng request_id cùng run / 409; mất membership → failed một lần |
+| M | `packages/core/src/ai/ai.env.ts` | Amend (G2, DC-316): `ASSISTANT_DISPATCH=queue|inline` + token `AI_ENV` (tránh import vòng service ↔ module) |
+| M | `packages/core/src/ai/jobs/ai.jobs.module.ts` | Amend (G2): đăng ký worker `assistant-turn` + prune / recover (1–2 dòng mỗi việc) |
+| M | `packages/core/src/ai/public.ts` | Amend (G2): export recovery / lease / RequestStore / RunStream cho test worker |
+| M | `apps/api/test/integration/setup.ts` | Amend (G2, DC-316): harness API không có worker → `ASSISTANT_DISPATCH=inline` |
+| C | `apps/api/src/http/ai/run-stream.ts` | Amend (G2, đóng DV-006): đường ống SSE dùng chung cho `GET /runs/:id/stream` và `POST /assistant/messages` (Accept SSE) — tách khỏi controller |
+| C | `apps/web/src/shared/assistant/turn-stream.ts` | Amend (G2, đóng DV-006): lượt qua SSE dùng chung (màn Trợ lý / drawer / Dock), nối lại theo cursor, gom frame thành sự kiện |
+| M | `apps/web/src/features/assistant/api.ts` | Amend (G2): bỏ `sendTurn` JSON (lượt đi qua turn-stream) |
+| M | `apps/web/src/features/assistant/types.ts` | Amend (G2): `ChatMessage.live` — bong bóng đang nhận chữ qua luồng |
+| C | `apps/web/src/features/assistant/styles/attachments.styles.ts` | Amend (G2 8c): chip tệp đính kèm theo token |
+| C | `apps/web/src/features/assistant/hooks/useAssistantAttachments.test.tsx` | Amend (G2 8c): tải / lỗi → thử lại / huỷ khi đang tải / từ chối sớm |
+| M | `apps/web/src/features/assistant/components/Composer.tsx` | Amend (G2 8c): hàng tệp phía trên ô soạn + Ctrl+U |
+| M | `apps/web/src/features/assistant/components/ComposerPopovers.tsx` | Amend (G2 8c): "Thêm tệp" mở hộp chọn tệp |
+| M | `apps/web/src/features/assistant/hooks/useAssistantChat.ts` | Amend (G2): lượt qua SSE + gửi kèm tệp đã sẵn sàng |
+| M | `apps/web/e2e/assistant.spec.ts` | Amend (G2 8c): đính kèm desktop + 390 |
+| M | `packages/core/src/ai/assistant/assistant-prompt.ts` | Amend (G2 8c): ngữ cảnh tệp = metadata đã kiểm (tên server, mime, extension) |
+| M | `apps/api/test/integration/genui-context.test.ts` | Amend (G2 8c): tệp người khác / không có trong workspace → 422 trước model, ai_run.input chỉ metadata |
+| M | `apps/web/messages/vi/assistant.json` | Amend (G2 8c): `assistant.attachments.*` (vi + en) |
+
+| C | `apps/api/test/integration/inbox-assistant-draft.test.ts` | Amend (G3): REQ-C05c trên API thật — đề xuất không action / tin / đổi ai_mode, canary ghi chú nội bộ, ngoài scope → 404 không run |
+| C | `apps/web/src/features/inbox/components/AssistantDraftBar.tsx` | Amend (G3): nút AI soạn / viết lại + thẻ đề xuất (Thay / Chèn / Bỏ, xung đột) — tách khỏi Composer (legacy) |
+| C | `apps/web/src/shared/api/mock/domains/integration-probe.ts` | Amend (G3): mock `integration.form_schema` / `integration.test` cùng luật core |
+| C | `apps/web/src/shared/genui/GenUiSkeleton.tsx` | Amend (G3): khung xương cây đang stream (inert, chỉ loại khối) |
+| C | `apps/web/src/shared/genui/GenUiSkeleton.test.tsx` | Amend (G3): khung xương không có phần tử tương tác / chữ |
+| C | `apps/web/src/shared/genui/blocks/ConnectionTest.tsx` | Amend (G3 mục 10): nút "Kiểm tra kết nối" trong form kết nối |
+| C | `apps/web/src/shared/genui/blocks/ConnectionTest.test.tsx` | Amend (G3): probe đúng action, ẩn khi không quyền, không gửi form |
+| C | `apps/web/src/shared/genui/connection-probe.ts` | Amend (G3): bảng tĩnh form kết nối → action thăm dò (model không chọn) |
+| C | `packages/ai/src/prompts/inbox-draft.vi.md` | Amend (G3): prompt nháp Hộp thư v1 (kho prompt, agent-gateway §8) |
+| C | `packages/ai/src/prompts/inbox-draft.en.md` | Amend (G3): bản en |
+| M | `packages/ai/src/testing/mock-model.ts` | Amend (G3): model giả trả nháp Hộp thư; input `render` phát theo mảnh (tool-input delta) |
+| C | `packages/core/src/ai/assistant/genui/skeleton-feed.ts` | Amend (G3): `ui_skeleton` lên luồng bền theo thứ tự, trước cây đã kiểm |
+| M | `packages/core/src/integrations/services/connections.service.ts` | Amend (G3): tách `splitFields` dùng chung cho probe (không lưu) |
+| M | `packages/core/src/integrations/services/resolver.ts` | Amend (G3): `byConnector` — kết nối đang dùng của connector cho `integration.test` |
+| M | `tools/contract/src/cases.ts` | Amend (G3): ca contract FE ↔ BE cho 2 action probe |
+| M | `tools/obligations/actions.json` | Amend (G3): sinh lại sổ action (2 action mới) |
+| M | `apps/web/e2e/http/assistant.spec.ts` | Amend (G2, bổ sung dòng khi chốt): chờ lượt qua SSE / ROLE=ai |
+| M | `apps/web/e2e/inbox.spec.ts` | Amend (G3, bổ sung dòng khi chốt): AI viết lại trong ô soạn (mock) |
+| M | `apps/web/src/features/agents/screens/AgentBuilderScreen.tsx` | Amend (G2, bổ sung dòng khi chốt): đăng ký ngữ cảnh màn Agents (id agent đang dựng) |
+| C | `apps/web/e2e/http/screen-assistant.spec.ts` | Amend (chốt): AC4 http — báo giá đang mở (hỏi qua Trợ lý thu nhỏ), 3 dòng chọn → 3 thẻ VIP, Phân tích nhanh → Mở rộng |
+| M | `packages/ai/src/testing/mock-model.ts` | Amend (chốt): luật model giả cho AC4 (chỉ id ngữ cảnh server đã lọc) |
+| C | `packages/ai/test/mock-screen-script.test.ts` | Amend (chốt): unit cho luật model giả AC4 |
+| M | `coding-packs/DECISIONS.md` | Amend (chốt): DC-317 stack ai:live, DC-318 sửa hệ thống từ model thật |
+| M | `coding-packs/DEVIATIONS.md` | Amend (chốt): DV-023 gắn thẻ nhiều khách = mỗi khách một thẻ xác nhận (bulk ở 045b) |
+| M | `coding-packs/QUESTIONS.md` | Amend (chốt): Q-046 đã giải (DC-317) |
+| C | `coding-packs/reports/ai-live-genui-screen-2026-11-03.md` | Amend (chốt): báo cáo ai:live genui-screen (AC5) |
+| C | `coding-packs/reports/ai-live-genui-screen-2026-11-03.json` | Amend (chốt): dữ liệu thô báo cáo ai:live genui-screen |
+| C | `fixtures/ai-eval/genui-seed.mjs` | Amend (chốt): seed riêng suite genui-screen (báo giá, kênh lỗi, ghi chú tiêm lệnh, hội thoại nháp) |
+| M | `packages/core/src/ai/assistant/schema-brief.ts` | Amend (chốt): khoảng số `integer(1..20)` trong khuôn input (DC-318) |
+| M | `packages/core/test/assistant-unit.test.ts` | Amend (chốt): khuôn input có khoảng số |
+| M | `tools/ai-live/package.json` | Amend (chốt): `socket.io-client` (cùng bản web / widget) cho ca connect-zalo-qr |
+| M | `tools/ai-live/src/cases.ts` | Amend (chốt): hạng mục genui / connect / draft, `expect.ui`, `context`, `draft` |
+| M | `tools/ai-live/src/cli.ts` | Amend (chốt): seed genui + cổng 9/10 cho suite genui-screen |
+| C | `tools/ai-live/src/genui-judge.ts` | Amend (chốt): chấm cây UI / nháp |
+| M | `tools/ai-live/src/report.ts` | Amend (chốt): cờ an toàn mới vào báo cáo |
+| M | `tools/ai-live/src/runner.ts` | Amend (chốt): ngữ cảnh ca, ca nháp, chấm cây |
+| M | `tools/ai-live/src/safety.ts` | Amend (chốt): `secret_prefill`, `injected_action_ui`, `draft_not_text_only`, `action_any` |
+| C | `tools/ai-live/test/genui-judge.test.ts` | Amend (chốt): unit chấm cây / nháp |
+| M | `tools/ai-live/test/safety.test.ts` | Amend (chốt): unit cờ an toàn mới |
+| C | `tools/scripts/ai-live-stack.mjs` | Amend (chốt): stack ai:live riêng (DC-317) |
+| M | `packages/ui/src/tokens.ts` | Amend (chốt): `z.dock` / `z.dockVeil` nổi trên drawer antd — Trợ lý thu nhỏ dùng được khi đang mở chi tiết bản ghi (DC-319, E2E http bắt) |
+| M | `apps/web/src/shared/assistant/screen-context.ts` | Amend (chốt): gửi `entity` khi chỉ có dòng chọn (DC-320, E2E http bắt) |
+| M | `apps/web/src/shared/assistant/screen-context.test.tsx` | Amend (chốt): ca chỉ chọn dòng |

@@ -28,7 +28,8 @@ async function matchProducts(tx: TenantTx, skus: string[]) {
   if (!uniq.length) return new Map<string, { productId: string; variantId: string | null }>();
   const [products, variants] = await Promise.all([
     tx.product.findMany({ where: { code: { in: uniq }, deletedAt: null }, select: { id: true, code: true } }),
-    tx.productVariant.findMany({ where: { sku: { in: uniq } }, select: { id: true, sku: true, productId: true } }),
+    // Biến thể đã lưu trữ không nhận dòng mới (TIP-032b) — như ô chọn ở form đơn.
+    tx.productVariant.findMany({ where: { sku: { in: uniq }, status: 'active' }, select: { id: true, sku: true, productId: true } }),
   ]);
   const out = new Map<string, { productId: string; variantId: string | null }>();
   for (const v of variants) out.set(v.sku, { productId: v.productId, variantId: v.id });

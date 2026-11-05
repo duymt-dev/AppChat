@@ -72,6 +72,12 @@ export async function listContactIds(tx: TenantTx, authz: AuthzContext, f: Conta
   return { ids: ids.map((r) => r.id), total: Number(total[0]?.n ?? 0) };
 }
 
+/** Toàn bộ id khớp bộ lọc + scope theo thứ tự danh sách — KHÔNG giới hạn (chốt tập xuất, TIP-045b annex D: không cắt ngầm 5.000). */
+export async function snapshotContactIds(tx: TenantTx, authz: AuthzContext, f: ContactFilter): Promise<string[]> {
+  const rows = await tx.$queryRaw<{ id: string }[]>`SELECT c.id FROM contact c WHERE ${where(authz, f)} ORDER BY ${orderOf(f)}`;
+  return rows.map((r) => r.id);
+}
+
 /** Đếm theo giai đoạn trong phạm vi người xem (chip kanban — `/contacts/stats`). */
 export async function stageCounts(tx: TenantTx, authz: AuthzContext): Promise<Record<string, number>> {
   const rows = await tx.$queryRaw<{ stage: string; n: bigint }[]>`

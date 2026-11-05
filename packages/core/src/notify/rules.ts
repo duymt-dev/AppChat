@@ -3,6 +3,7 @@
 import type { NotifyKind, PermissionKey } from '@appchat/shared';
 import type { DomainEvent } from '../kernel/events/consumer';
 import type { RealtimeEnvelope } from './realtime/envelope';
+import { stripRealtimeFields } from '../authz/fields/realtime';
 
 export interface NotifyIntent {
   kind: NotifyKind;
@@ -37,5 +38,6 @@ export const notifyTopics = () => [...new Set([...notifyRules.values()].map((r) 
 export const realtimeTopics = () => [...new Set([...realtimeRules.values()].map((r) => r.topic))];
 
 export const notifyIntents = (e: DomainEvent): NotifyIntent[] => [...notifyRules.values()].filter((r) => r.topic === e.topic).flatMap((r) => r.build(e));
+/** Gói tin không mang giá trị trường tuỳ biến / trường có ràng buộc quyền (TIP-045b annex C) — FE tải lại qua REST đã chiếu. */
 export const realtimeEnvelopes = (e: DomainEvent): RealtimeEnvelope[] =>
-  [...realtimeRules.values()].filter((r) => r.topic === e.topic).flatMap((r) => r.build(e));
+  [...realtimeRules.values()].filter((r) => r.topic === e.topic).flatMap((r) => r.build(e)).map((env) => ({ ...env, data: stripRealtimeFields(env.data) }));

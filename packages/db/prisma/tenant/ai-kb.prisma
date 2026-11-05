@@ -36,6 +36,8 @@ model KbFolder {
   parentId   String?      @map("parent_id") @db.Uuid
   visibility KbVisibility @default(public)
   sort       Int          @default(0)
+  /// CAS cho kb.folder.update / delete (TIP-020b). Tên duy nhất theo f_unaccent(lower(btrim(name))) — index SQL `kb_folder_name_key`.
+  version    Int          @default(1)
   createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   sources KbSource[]
@@ -103,4 +105,40 @@ model KbSetting {
   minScore Float @default(0.35) @map("min_score") @db.Real
 
   @@map("kb_setting")
+}
+
+enum KbSuggestionStatus {
+  pending
+  approved
+  rejected
+
+  @@map("kb_suggestion_status")
+}
+
+/// Đề xuất hỏi–đáp từ hội thoại đã đóng (TIP-043, rag §9, D29b): chờ người có `kb.manage` sửa / duyệt mới thành nguồn RAG
+/// (origin conversation). `question` / `answer` đã che PII (packages/ai `redactForKnowledge`) — không lưu transcript thô hay bảng khôi
+/// phục. `source_message_ids` chỉ để truy vết server (không trả cho người thiếu quyền inbox). `fingerprint` = hash hội thoại + tin gốc +
+/// nội dung chuẩn hoá → đến lặp không thêm cặp. Index viết tay: `kb_suggestion_status_created_cover_idx` (status, created_at DESC, id DESC)
+/// INCLUDE (conversation_id, version, kb_source_id) — xem migration 20261102004300.
+model KbSuggestion {
+  id               String             @id @db.Uuid
+  conversationId   String             @map("conversation_id") @db.Uuid
+  question         String
+  answer           String
+  sourceMessageIds String[]           @map("source_message_ids") @db.Uuid
+  status           KbSuggestionStatus @default(pending)
+  edited           Boolean            @default(false)
+  fingerprint      String             @unique
+  /// Tin cuối đã xét (mốc đóng) — job id `kbsug-<conversation>-<cutoff>`.
+  cutoffMessageId  String             @map("cutoff_message_id") @db.Uuid
+  runId            String?            @map("run_id") @db.Uuid
+  reviewedBy       String?            @map("reviewed_by") @db.Uuid
+  reviewedAt       DateTime?          @map("reviewed_at") @db.Timestamptz(6)
+  rejectReason     String?            @map("reject_reason")
+  kbSourceId       String?            @unique @map("kb_source_id") @db.Uuid
+  version          Int                @default(1)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([conversationId])
+  @@map("kb_suggestion")
 }

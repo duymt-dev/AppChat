@@ -1,10 +1,13 @@
 // Trợ lý AI thu nhỏ trong hộp thư — prototype L1509–1546: lời chào theo hội thoại · lệnh nhanh · ô hỏi · mở Trợ lý đầy đủ.
+// TIP-023c G2: lệnh nhanh (trừ "Đặt lịch hẹn" mở màn Lịch) = prompt soạn sẵn gửi lượt Trợ lý THẬT kèm ngữ
+// cảnh hội thoại đang mở; ô hỏi gửi lượt; trả lời / thẻ xác nhận / cây gọn hiện trong hộp; "Mở Trợ lý AI đầy đủ" cùng phiên.
 'use client';
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
-import { useShellStore } from '@/shared/shell/shell-store';
+import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
+import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useModalStyles } from '../styles/modal.styles';
 import { useInboxUi } from '../inbox-store';
 
@@ -19,12 +22,15 @@ export function InboxAiModal({ customer }: { customer: string }) {
   const router = useRouter();
   const { styles, cx } = useModalStyles();
   const ui = useInboxUi();
-  const setDock = useShellStore((s) => s.setDock);
-  const [q, setQ] = useState('');
+  const { asst, draft, setDraft, send, ask } = useDrawerAsk('inbox');
   const close = () => ui.set({ modal: null });
   const openFull = () => {
     close();
-    setDock(true);
+    asst.openFull();
+  };
+  const run = (key: string) => {
+    if (key === 'meet') return router.push('/calendar');
+    ask(t(`prompts.${key}` as 'prompts.summary', { name: customer }));
   };
 
   return (
@@ -56,7 +62,7 @@ export function InboxAiModal({ customer }: { customer: string }) {
             <Fragment key={section}>
               <div className={cx(styles.section, i === 0 && styles.sectionFirst)}>{t(`sections.${section}` as never)}</div>
               {items.map(([key, icon, tone, kbd]) => (
-                <button key={key} type="button" className={styles.cmd} onClick={() => (key === 'meet' ? router.push('/calendar') : openFull())}>
+                <button key={key} type="button" className={styles.cmd} onClick={() => run(key)} disabled={asst.typing} data-testid={`inbox-ai-${key}`}>
                   <Icon name={icon} size={15} color={tone} />
                   <span className={styles.cmdLabel}>{t(`cmds.${key}` as never)}</span>
                   {kbd ? <kbd className={styles.kbd}>{kbd}</kbd> : null}
@@ -65,15 +71,16 @@ export function InboxAiModal({ customer }: { customer: string }) {
             </Fragment>
           ))}
           </div>
+          <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} testId="inbox-ai-msgs" />
         </div>
         <div className={styles.aiFoot}>
           <div className={styles.ask}>
-            <input className={styles.askInput} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('ask')} aria-label={t('ask')} />
-            <button type="button" className={styles.askSend} onClick={openFull} aria-label={t('send')}>
+            <input className={styles.askInput} value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} placeholder={t('ask')} aria-label={t('ask')} />
+            <button type="button" className={styles.askSend} onClick={send} aria-label={t('send')}>
               <Icon name="ic-send" size={16} color={color.white} />
             </button>
           </div>
-          <button type="button" className={styles.full} onClick={openFull}>
+          <button type="button" className={styles.full} onClick={openFull} data-testid="inbox-ai-full">
             <Icon name="ic-spark" size={14} color={color.violetInk} />
             {t('openFull')}
           </button>

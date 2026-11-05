@@ -1,6 +1,7 @@
 // State form thêm / sửa sản phẩm — prototype L9111–9147: loại quyết định khối nhập riêng, thuộc tính sinh biến thể.
 'use client';
 import { useMemo, useState } from 'react';
+import { isFieldHidden } from '@appchat/shared';
 import type { Product, ProductType } from '../types';
 
 export interface Row {
@@ -24,11 +25,14 @@ export interface ProductDraft {
   sessions: string;
   validMonths: string;
   perSession: string;
+  grantOnDeposit: boolean;
   rentUnit: 'hour' | 'day' | 'week' | 'month';
   deposit: string;
   available: string;
   combo: Row[];
   attrs: Row[];
+  /** Giá vốn bị ẩn theo quyền (`hidden_fields`) — ô không hiện, không gửi. */
+  costHidden: boolean;
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '');
@@ -51,17 +55,20 @@ export function initialDraft(
     description: str('description', p?.description),
     sku: str('sku', p?.code),
     stock: p?.stock != null ? String(p.stock) : '',
-    cost: p && p.cost !== '0' ? p.cost : '',
+    // Giá vốn bị ẩn (không có khoá) → để trống; gửi `undefined` = giữ nguyên giá trị đã lưu, không ghi đè bằng 0.
+    cost: p?.cost ?? '',
     duration: p?.duration_min != null ? String(p.duration_min) : '',
     staff: '',
     sessions: p?.sessions != null ? String(p.sessions) : '',
     validMonths: p?.valid_days != null ? String(Math.round(p.valid_days / 30)) : '',
     perSession: '',
+    grantOnDeposit: pre.grant_on_deposit != null ? !!pre.grant_on_deposit : !!p?.grant_on_deposit,
     rentUnit: (p?.rental_unit as ProductDraft['rentUnit']) || 'day',
     deposit: p?.deposit ?? '',
     available: '',
     combo: (p?.components ?? []).map((c) => ({ name: c.name, value: String(c.qty) })),
     attrs: (p?.attr_defs ?? []).map((a) => ({ name: a.name, value: a.values.join('/') })),
+    costHidden: isFieldHidden(p, 'cost'),
   };
 }
 
@@ -97,6 +104,7 @@ export function toInput(d: ProductDraft) {
     .map((r) => ({ name: r.name.trim(), qty: Math.max(1, Number(r.value) || 1) }));
   const sessions = num(d.sessions);
   const months = num(d.validMonths);
+  const cost = d.costHidden ? undefined : d.cost || undefined;
   return {
     name: d.name.trim(),
     type: d.type,
@@ -105,14 +113,15 @@ export function toInput(d: ProductDraft) {
     status: d.status,
     description: d.description.trim() || undefined,
     ...(d.type === 'physical'
-      ? { sku: d.sku.trim() || undefined, stock: num(d.stock), cost: d.cost || undefined }
+      ? { sku: d.sku.trim() || undefined, stock: num(d.stock), cost }
       : {}),
-    ...(d.type === 'service' ? { duration_min: num(d.duration), cost: d.cost || undefined } : {}),
+    ...(d.type === 'service' ? { duration_min: num(d.duration), cost } : {}),
     ...(d.type === 'combo' && combo.length ? { components: combo } : {}),
     ...(d.type === 'package'
       ? {
           sessions: sessions && sessions > 0 ? sessions : undefined,
           valid_days: months && months > 0 ? months * 30 : undefined,
+          grant_on_deposit: d.grantOnDeposit,
         }
       : {}),
     ...(d.type === 'rental' ? { rental_unit: d.rentUnit, deposit: d.deposit || undefined } : {}),

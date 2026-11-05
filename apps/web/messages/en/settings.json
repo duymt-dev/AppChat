@@ -35,7 +35,8 @@
     "notifications": "Notifications",
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
-    "profile": "My profile"
+    "profile": "My profile",
+    "sales_policy": "Sales policy"
   },
   "head": {
     "general": "Overview",
@@ -59,7 +60,8 @@
     "notifications": "Notifications",
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
-    "profile": "My profile"
+    "profile": "My profile",
+    "sales_policy": "Sales policy"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
@@ -162,6 +164,29 @@
     "menu": "Actions",
     "edit": "Edit",
     "remove": "Remove member",
+    "transfer": {
+      "open": "Transfer ownership",
+      "title": "Transfer workspace ownership",
+      "to": "Transfer to",
+      "pick": "Choose an active member",
+      "them": "the recipient",
+      "consequence": "{name} becomes the only Owner (full access, plan & billing, contract signing). You become a Manager as soon as you confirm. This cannot be undone — to switch back, {name} must transfer it to you with a new code.",
+      "send": "Send confirmation code",
+      "sent": "A 6-digit code was sent to {to} (valid for 10 minutes).",
+      "otp": "Confirmation code",
+      "typeName": "Type \"{name}\" to confirm",
+      "confirm": "Transfer ownership",
+      "cancel": "Cancel",
+      "close": "Close",
+      "err": {
+        "pick": "Choose a recipient",
+        "format": "The code has 6 digits",
+        "confirm": "The name does not match",
+        "invalid": "Incorrect code",
+        "expired": "The code expired or was used — send a new one",
+        "stale": "The recipient or permissions changed — send a new code"
+      }
+    },
     "revoke": "Revoke invite",
     "foot": "{n} members · Your plan supports up to <b>{max} seats</b>",
     "upgrade": "Upgrade plan",
@@ -828,7 +853,55 @@
       "conv": "From conversations",
       "upload": "Uploaded by you",
       "star": "Starred",
-      "trash": "Trash"
+      "trash": "Trash",
+      "review": "To review"
+    },
+    "review": {
+      "heading": "AI learned — awaiting review",
+      "tab": {
+        "pending": "To review",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "chip": {
+        "pending": "To review",
+        "rejected": "Rejected",
+        "learning": "Learning",
+        "learned": "Learned",
+        "failed": "Load failed"
+      },
+      "empty": {
+        "pending": "No suggestions to review.",
+        "approved": "No approved suggestions yet.",
+        "rejected": "No rejected suggestions yet."
+      },
+      "more": "Load more",
+      "title": "Review knowledge suggestion",
+      "close": "Close",
+      "question": "Question",
+      "answer": "Answer",
+      "original": "AI suggestion",
+      "folder": "Folder",
+      "noFolder": "No folder",
+      "visibility": "Who can use it",
+      "vis": {
+        "inherit": "Folder default",
+        "public": "Customers & staff",
+        "internal": "Internal only"
+      },
+      "reason": "Reason for rejecting (optional)",
+      "reasonPh": "E.g. Outdated information",
+      "approve": "Add to knowledge base",
+      "reject": "Reject",
+      "cancel": "Cancel",
+      "sensitive": "Still contains a phone number, email or private customer data — remove it before approving.",
+      "conflict": "Someone else just handled this suggestion — the queue was reloaded.",
+      "doneApproved": "Approved by {by}.",
+      "doneRejected": "Rejected by {by} · Reason: {reason}",
+      "err": {
+        "required": "Required.",
+        "too_long": "Too long."
+      }
     },
     "folders": "FOLDERS",
     "knowT": "AI Knowledge",
@@ -854,6 +927,26 @@
     "del": "Move to trash",
     "empty": "No files here yet.",
     "trashEmpty": "Trash is empty — deleted files are kept for 30 days.",
+    "catalogLocked": "Synced from a product — edit it in Products",
+    "dlForbidden": "You are not allowed to download this document.",
+    "dlMissing": "The original file of this document was not found.",
+    "dlFail": "Download failed — try again.",
+    "dlCatalog": "This document is synced from a product — view and edit it in Products.",
+    "folderEdit": {
+      "open": "Edit folder {n}",
+      "title": "Edit folder",
+      "close": "Close",
+      "name": "Folder name",
+      "parent": "Inside",
+      "top": "(Top level)",
+      "visibility": "Default for new documents",
+      "public": "Customers can see via AI",
+      "internal": "Internal only",
+      "visD": "Applies to documents added later — existing documents keep their own access.",
+      "del": "Delete folder",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
     "modal": {
       "title": "Upload a document",
       "save": "Upload & learn",
@@ -875,7 +968,8 @@
       "learn": "Let AI learn this document",
       "learnD": "Embedded automatically so AI can retrieve it",
       "errName": "Enter a document name",
-      "errUpload": "Could not upload the file — please try again."
+      "errUpload": "Could not upload the file — please try again.",
+      "visInherited": "(folder default)"
     }
   },
   "gov": {
@@ -946,6 +1040,45 @@
   },
   "audit": {
     "export": "Export JSON",
+    "more": "Load more",
+    "loading": "Loading…",
+    "empty": "No activity recorded yet.",
+    "emptyFiltered": "No rows match the filters.",
+    "removed": "left the workspace",
+    "ctxLine": "{ctx} · {credits} credits · {tokens} tokens",
+    "ctx": {
+      "conversation": "Inbox / conversation",
+      "task": "Autonomous task",
+      "assistant": "AI Assistant",
+      "suggestion": "Suggestion",
+      "agent_reply": "Channel agent"
+    },
+    "event": {
+      "session.new_device": "Sign-in from a new device"
+    },
+    "filter": {
+      "action": "Action",
+      "status": "Status",
+      "from": "From",
+      "to": "To",
+      "allActions": "All actions",
+      "allStatus": "All statuses",
+      "reset": "Clear filters",
+      "act": {
+        "security": "Security events only",
+        "member.set_role": "Role change",
+        "member.invite": "Member invite",
+        "member.remove": "Member removal",
+        "channel.disconnect": "Channel disconnect",
+        "contact.export": "Customer export",
+        "workspace.transfer_ownership": "Ownership transfer"
+      },
+      "st": {
+        "ok": "OK",
+        "warn": "Warn",
+        "escalated": "Escalated"
+      }
+    },
     "audit": {
       "title": "Audit log",
       "sub": "Every action in the workspace · kept 1 year",
@@ -973,7 +1106,8 @@
       "ops": "Operations agent",
       "order": "Order agent",
       "cs": "Customer care agent",
-      "human": "Human · Lan"
+      "human": "Human · Lan",
+      "agent": "AI Agent"
     },
     "status": {
       "ok": "OK",
@@ -1080,6 +1214,7 @@
       "payment_received": "Customer paid my payment request",
       "refund_approval": "Refunds waiting for me / decisions",
       "bank_review": "Bank transactions to reconcile",
+      "package_reminder": "Packages running out / about to expire",
       "sla_warn": "SLA about to be breached",
       "sla_breach": "Ticket breached SLA (escalation)",
       "ticket_assigned": "Ticket assigned to me",
@@ -1089,7 +1224,10 @@
       "ai_briefing": "AI Assistant morning briefing",
       "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
-      "billing_invoice": "Plan & wallet — new invoice"
+      "billing_invoice": "Plan & wallet — new invoice",
+      "owner_transfer": "Workspace ownership transfer",
+      "data_job_done": "Background export / bulk update finished",
+      "security_event": "Security events (roles, members, channels, exports, new sign-ins)"
     },
     "prefsT": "Notification preferences",
     "dnd": "Do Not Disturb",
@@ -1310,6 +1448,14 @@
     "logoutD": "End the current session — workspace data is not affected"
   },
   "doctpl": {
+    "contractKind": {
+      "label": "Contract type",
+      "any": "Any type (generic template)",
+      "service": "Service",
+      "sale": "Sale",
+      "framework": "Framework",
+      "locked": "Default template — make another template the default before changing its type"
+    },
     "preview": "Preview",
     "previewT": "Preview with sample data",
     "previewFail": "Could not create the preview, try again later",
@@ -1461,5 +1607,16 @@
       },
       "hint": "Warnings only — parties may agree otherwise; you can still save."
     }
+  },
+  "salesPolicy": {
+    "total": "Quote total requiring approval (VND)",
+    "pct": "Discount requiring approval (%)",
+    "required": "Enter an amount",
+    "pctHint": "Quotes with a larger discount must be approved before sending",
+    "pctInvalid": "Enter a whole number from 0 to 100",
+    "agentCap": "Quotes created or sent by AI: discounts over {pct}% always need approval (AI Governance).",
+    "ownerOnly": "Only the Owner can change approval thresholds.",
+    "reset": "Reset",
+    "save": "Save changes"
   }
 }

@@ -1,7 +1,6 @@
 // Khách hàng (orchestrator) — prototype L2451–2984: PageHeader + KPI · StageTabs · thanh lọc · (DataTable | KanbanBoard) · drawer / modal.
 'use client';
 import { useState, type Key } from 'react';
-import { App } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DataTable, KanbanBoard, PageHeader, StageTabs } from '@appchat/ui';
@@ -15,6 +14,9 @@ import { ContactCard, useContactColumns } from '../columns';
 import { CrmHeaderActions } from '../components/CrmHeaderActions';
 import { CrmToolbar } from '../components/CrmToolbar';
 import { CrmOverlays } from '../components/CrmOverlays';
+import { useAssistantContext } from '../hooks/useAssistantContext';
+import { useAssignContactAi } from '../hooks/useAssignContactAi';
+import { useHighlight } from '../hooks/useHighlight';
 import { KanbanCard } from '../components/KanbanCard';
 import type { ContactRow, StageKey } from '../types';
 import { useCustomersUiCommands } from '../ui-commands';
@@ -23,7 +25,6 @@ import { ListPager } from '@/shared/list/ListPager';
 export function CustomersScreen() {
   useCustomersUiCommands();
   const t = useTranslations('customers');
-  const { message } = App.useApp();
   const { styles } = useCrmStyles();
   const ui = useCrmUi();
   const kanban = ui.layout === 'kanban';
@@ -34,9 +35,10 @@ export function CustomersScreen() {
   const setStage = useAction('contact.set_stage');
   const canEdit = useCan('crm.edit');
   const [selected, setSelected] = useState<Key[]>([]);
+  useAssistantContext(selected);
   const rows = list.data?.data ?? [];
-  const aiDo = () => void message.info(t('ai.doing'));
-  const columns = useContactColumns(aiDo);
+  const highlight = useHighlight(kanban ? [] : rows, kanban ? board.isSuccess : list.isSuccess);
+  const columns = useContactColumns(useAssignContactAi());
   const cols = board.data?.columns ?? [];
   const boardRows = cols.flatMap((c) => c.rows);
 
@@ -72,6 +74,7 @@ export function CustomersScreen() {
             selection={{ keys: selected, onChange: setSelected }}
             onRowClick={(r) => ui.set({ detail: r.id })}
             rowProps={(r) => ({ 'data-contact': r.id })}
+            highlightKey={highlight}
             mobileCard={(r) => <ContactCard c={r} />}
             emptyText={t('empty')}
           />

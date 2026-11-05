@@ -7,6 +7,8 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
+import { genUiReply } from './assistant-genui';
+import { recordTurn } from './assistant-sessions';
 
 export type AssistantFixture = typeof fixture;
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
@@ -23,7 +25,24 @@ type Approval = AssistantFixture['approvals'][number] & {
   fields: Field[];
 };
 type Intent = AssistantFixture['intents'][number];
-type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled' };
+type Pending = { token: string; intent: Intent; status: 'pending' | 'done' | 'cancelled'; input: Record<string, unknown> };
+
+/** Input mẫu của thẻ theo ý định (form Sửa — REQ-E03b) + khuôn như backend (schema-brief). */
+const INTENT_INPUT: Record<string, { input: Record<string, unknown>; schema: Record<string, unknown> }> = {
+  quote: { input: { contact_id: 'KH-1016', items: [{ name: 'HIFU nâng cơ', qty: 8, unit_price: '1500000', tax_rate: 8 }] }, schema: { contact_id: 'string', items: [{ name: 'string', qty: 'number', unit_price: 'string', 'tax_rate?': 'number' }] } },
+  ticket: { input: { title: 'Khách báo lỗi', priority: 'normal' }, schema: { title: 'string', 'priority?': 'low|normal|high|urgent' } },
+};
+const inputOf = (i: Intent) => structuredClone(INTENT_INPUT[i.key]?.input ?? {});
+
+/** Thẻ xác nhận theo hợp đồng backend: preview chuẩn (`changes`), input đã chuẩn hoá, khuôn cho form Sửa. */
+const cardOf = (token: string, intent: Intent, input: Record<string, unknown>) => ({
+  type: 'confirm' as const,
+  confirm_token: token,
+  ...intent,
+  preview: { summary: intent.desc, risk: 'write', changes: [{ entity: intent.action_id.split('.')[0]!, after: input }] },
+  input,
+  ...(INTENT_INPUT[intent.key] ? { schema: INTENT_INPUT[intent.key]!.schema } : {}),
+});
 
 /** Hàng "Trợ lý AI đang điều phối" ở Cowork (REQ-E14) — nguồn GET /v1/runs?root_run_id=&status=. */
 export interface Run {
@@ -150,25 +169,52 @@ export const assistantRoutes: Record<string, MockRoute> = {
 };
 
 /** Kịch bản trả lời (omiIntent / omiReply L8340–8366): ý định có action → thẻ xác nhận; còn lại → câu trả lời mẫu. */
-export const scriptReply = (db: MockDb, text: string) => {
+export const scriptReply = (db: MockDb, text: string, route?: string) => {
   const low = text.toLowerCase();
+  const ui = genUiReply(low, route);
+  if (ui) return ui;
   const intent = fixture.intents.find((i) => new RegExp(i.re).test(low));
   if (intent) {
     const token = `cf_${++db.assistant.seq}`;
-    db.assistant.pending.push({ token, intent, status: 'pending' });
-    return [{ type: 'confirm' as const, confirm_token: token, ...intent }];
+    const input = inputOf(intent);
+    db.assistant.pending.push({ token, intent, status: 'pending', input });
+    return [cardOf(token, intent, input)];
   }
   const reply = fixture.replies.find((r) => new RegExp(r.re).test(low))?.text ?? fixture.fallback;
   return [{ type: 'delta' as const, text: reply }];
 };
 
+/** Nháp Hộp thư (REQ-C05c) — như server: chỉ chữ đề xuất, không event / lệnh UI; hội thoại lạ → 404, viết lại cần nháp. */
+const inboxDraft = (db: MockDb, body: Record<string, unknown>) => {
+  const id = String(body.conversation_id ?? '');
+  if (!db.inbox.conversations.some((c) => c.id === id)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: 'conversation', fields: { conversation_id: 'not_found' } });
+  const draft = String(body.draft ?? '').trim();
+  if (body.purpose === 'inbox_rewrite' && !draft) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'draft', fields: { draft: 'required' } });
+  const text = body.purpose === 'inbox_rewrite' ? `Dạ, ${draft.charAt(0).toLowerCase()}${draft.slice(1)} ạ.` : 'Dạ em chào anh/chị, em có thể hỗ trợ gì thêm ạ?';
+  return { purpose: body.purpose, conversation_id: id, base_version: Number(body.base_version ?? 0), proposed_text: text, run_id: `run_draft_${++db.assistant.seq}`, credits_used: 1 };
+};
+
 export const assistantPosts: Record<string, (db: MockDb, body: Record<string, unknown>) => unknown> = {
   // POST /v1/assistant/messages — mock: không stream, trả cả danh sách event của lượt
   '/assistant/messages': (db, body) => {
+    if (body.purpose === 'inbox_compose' || body.purpose === 'inbox_rewrite') return inboxDraft(db, body);
     const text = String(body.text ?? '').trim();
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
-    return { session_id: session, run_id: null, events: scriptReply(db, text) };
+    const events = scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
+    recordTurn(session, String(body.mode ?? 'chat'), text, events as never);
+    return { session_id: session, run_id: null, events };
+  },
+  // POST /v1/assistant/preview-edit — Sửa thẻ: chỉ xem trước lại, token cũ mất hiệu lực (REQ-E03b)
+  '/assistant/preview-edit': (db, body) => {
+    const p = db.assistant.pending.find((x) => x.token === body.confirm_token);
+    if (!p || p.status !== 'pending') throw new ApiRequestError(409, { code: 'CONFLICT', message: 'CONFIRM_EXPIRED' });
+    const input = (body.input ?? {}) as Record<string, unknown>;
+    if (p.intent.key === 'ticket' && !String(input.title ?? '').trim()) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'title', fields: { title: 'required' } });
+    p.status = 'cancelled';
+    const token = `cf_${++db.assistant.seq}`;
+    db.assistant.pending.push({ token, intent: p.intent, status: 'pending', input });
+    return { card: cardOf(token, p.intent, input) };
   },
   // POST /v1/assistant/confirm — xác nhận thẻ: chạy action đã preview, ghi nhật ký nguồn assistant
   '/assistant/confirm': (db, body) => {

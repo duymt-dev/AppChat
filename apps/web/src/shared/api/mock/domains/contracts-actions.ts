@@ -7,7 +7,9 @@ import type { MockPost } from '../auth-routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW, enrich as enrichQuote } from './quotes';
-import { deny, findContract, logEvent, visible, type Contract } from './contracts';
+import { bad, deny, fileSource, findContract, logEvent, mockGuard, visible, type Contract } from './contracts';
+import { assertResolved, contractDraftHandlers } from './contracts-draft';
+import { contractAppendixMock } from './contracts-appendix';
 
 const DAY = 86_400_000;
 /** OTP "Duyệt & ký" của mock (server gửi email tới người ký). */
@@ -109,11 +111,79 @@ export const contractsPosts: (path: string) => MockPost | undefined = (path) => 
   };
 };
 
+/** Tin có tệp trong hội thoại mock (id tin + chỉ số) → khách của hội thoại + tệp. */
+export function attachmentOf(db: MockDb, messageId: string, idx: number) {
+  for (const conv of db.inbox.conversations) {
+    const m = (db.inbox.messages[conv.id] ?? []).find((x) => x.id === messageId);
+    if (!m) continue;
+    const a = (m.attachments as { url: string; name?: string }[] | undefined)?.[idx];
+    if (!a) throw bad({ attachment_idx: 'out_of_range' });
+    const fileId = /[?&]mock_file=([^&]+)/.exec(a.url)?.[1];
+    if (!fileId) throw bad({ attachment: 'not_stored' });
+    return { contactId: (conv as { contact_id?: string | null }).contact_id ?? null, fileId, name: a.name ?? '' };
+  }
+  throw new ApiRequestError(404, { code: 'NOT_FOUND', message: messageId });
+}
+
+/** Phụ lục (TIP-030b F3) — contracts-appendix.ts: GET /contracts/:id/appendices · /public/appendix-sign/:token/*. */
+export const appendixMock = contractAppendixMock<MockDb, Contract>({ find: findContract, visible, isOwner: (db) => db.role === 'owner' });
+
 export const contractsHandlers: Record<string, MockHandler> = {
+  ...appendixMock.handlers,
+  // AI soạn hai bước (TIP-030b F2) — contracts-draft.ts.
+  ...contractDraftHandlers({ insert, findContract, visible }),
+  // Hợp đồng từ tệp (TIP-030b): inspect (đề xuất cố định — server đọc chữ thật), attach (chỉ nháp, CAS source_version), tạo từ tệp đính kèm.
+  'contract.inspect_file': {
+    execute: (_db, i: { file_id: string }) => {
+      const g = mockGuard(i.file_id);
+      // Mock: đề xuất cố định (server đọc chữ thật trong worker giới hạn).
+      const p = (value: string, source: string) => ({ value, confidence: 0.8, source });
+      return {
+        file_id: i.file_id,
+        name: g.name,
+        type: g.type,
+        pages: g.type === 'pdf' ? 2 : null,
+        sha256: g.sha256,
+        extraction: 'ok',
+        fields: {
+          title: p('HỢP ĐỒNG DỊCH VỤ', 'HỢP ĐỒNG DỊCH VỤ'),
+          party_b: p('Nguyễn Văn An', 'Bên B: Nguyễn Văn An'),
+          value: p('12500000', 'Giá trị hợp đồng: 12.500.000 đồng'),
+          start_date: p('2026-12-01', 'Thời hạn: từ 01/12/2026 đến 30/11/2027'),
+          end_date: p('2027-11-30', 'Thời hạn: từ 01/12/2026 đến 30/11/2027'),
+        },
+      };
+    },
+  },
+  'contract.attach_file': {
+    execute: (db, i: { contract_id: string; file_id: string; if_source_version: number }) => {
+      const c = findContract(db, i.contract_id);
+      if (!visible(db, c)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: c.id });
+      if (c.status !== 'draft') throw new ApiRequestError(409, { code: 'INVALID_TRANSITION', message: c.status });
+      const v = c.source_version ?? 1;
+      if (v !== i.if_source_version) throw new ApiRequestError(409, { code: 'CONFLICT', message: 'source_version', fields: { source_version: String(v) } });
+      Object.assign(c, fileSource(i.file_id), { source_version: v + 1 });
+      logEvent(c, 'source_attached', 'Trâm');
+      return { contract_id: c.id, source_version: v + 1 };
+    },
+  },
   'contract.create': {
-    execute: (db, i: Fields & { contact_id: string }) => {
+    execute: (db, i: Fields & { contact_id: string; source?: { type: 'template' } | { type: 'file'; file_id: string } }) => {
       if (i.quote_id) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'quote_id', fields: { quote_id: 'use_create_from_quote' } });
-      const c = insert(db, i);
+      const { source, ...fields } = i;
+      // Nguồn tệp (TIP-030b): guard giả theo tên trước khi tạo.
+      const c = insert(db, fields, source?.type === 'file' ? { ...fileSource(source.file_id), source_version: 1 } : {});
+      return { contract_id: c.id, code: c.code };
+    },
+    undo: drop,
+  },
+  'contract.create_from_attachment': {
+    execute: (db, i: { message_id: string; attachment_idx: number; contact_id?: string; kind?: Contract['kind']; value?: string; title?: string }) => {
+      const a = attachmentOf(db, i.message_id, i.attachment_idx);
+      const contactId = i.contact_id ?? a.contactId;
+      if (!contactId) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'contact_id', fields: { contact_id: 'required' } });
+      const c = insert(db, { contact_id: contactId, kind: i.kind ?? 'service', value: i.value ?? '0', title: i.title ?? a.name.replace(/\.(pdf|docx)$/i, '') }, { ...fileSource(a.fileId), source_version: 1, origin_message_id: i.message_id });
+      c.events = [{ type: 'created_from_attachment', at: c.created_at, actor: 'Trâm' }];
       return { contract_id: c.id, code: c.code };
     },
     undo: drop,
@@ -122,9 +192,12 @@ export const contractsHandlers: Record<string, MockHandler> = {
     execute: (db, i: { quote_id: string }) => {
       const q = db.quotes.quotes.find((x) => x.id === i.quote_id && !x.deleted);
       if (!q) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.quote_id });
-      if (q.status !== 'accepted') deny('INVALID_TRANSITION', q.status);
+      // Một báo giá → một HĐ HOẶC một đơn (TIP-032b): đã có đơn → QUOTE_ALREADY_CONVERTED; gọi lại → HĐ cũ.
+      const order = db.orders.orders.find((o) => o.quote_id === q.id && !o.deleted);
+      if (order) throw new ApiRequestError(409, { code: 'QUOTE_ALREADY_CONVERTED', message: q.code, fields: { quote_id: 'has_order', code: order.code } });
       const dup = db.contracts.contracts.find((x) => x.quote_id === q.id && !x.deleted);
       if (dup) return { contract_id: dup.id, code: dup.code };
+      if (q.status !== 'accepted') deny('INVALID_TRANSITION', q.status);
       const c = insert(
         db,
         { contact_id: q.contact_id, quote_id: q.id, owner_user_id: q.owner_user_id, title: q.items.map((x) => x.name).join(', '), value: enrichQuote(q).total },
@@ -150,7 +223,13 @@ export const contractsHandlers: Record<string, MockHandler> = {
       return { contract_id: c.id };
     },
   },
-  'contract.submit': move('contract.submit', 'submitted'),
+  'contract.submit': {
+    execute: (db: MockDb, i: { contract_id: string }) => {
+      // Cổng AI soạn (TIP-030b F2): còn điều khoản gợi ý chờ Giữ / Bỏ → không trình duyệt.
+      assertResolved(mine(db, i.contract_id));
+      return move('contract.submit', 'submitted').execute(db, i);
+    },
+  },
   'contract.request_changes': move('contract.request_changes', 'changes_requested'),
   'contract.reject_internal': move('contract.reject_internal', 'rejected_internal'),
   'contract.approve_and_sign': {

@@ -92,6 +92,8 @@ enum ReactionActor {
 
 enum OutboxMessageStatus {
   pending
+  /// TIP-045b annex D: đã đặt chỗ gửi (điểm tuyến tính hoá) — sau mốc này coi như đang gửi; người tiếp quản không chặn được nữa.
+  dispatch_reserved
   sending
   sent
   failed
@@ -138,6 +140,13 @@ model Conversation {
   clearedAt          DateTime?          @map("cleared_at") @db.Timestamptz(6)
   /// Tin khách đầu tiên chưa được phản hồi — tính FRT khi người / agent trả lời (thống kê kênh REQ-B11).
   frtPendingSince    DateTime?          @map("frt_pending_since") @db.Timestamptz(6)
+  /// TIP-045b annex D: tăng mỗi lần người tiếp quản / đổi chế độ AI / chuyển người / đóng — lượt agent mang epoch lúc bắt đầu,
+  /// lệch → không gửi / không ghi gợi ý.
+  aiEpoch            Int                @default(0) @map("ai_epoch")
+  /// Lượt agent đang giữ (lease bền trong DB tenant): fence tăng mỗi lần giành; chủ + hạn để nhả đúng chủ / giành lại khi hết hạn.
+  aiTurnFence        Int                @default(0) @map("ai_turn_fence")
+  aiTurnOwner        String?            @map("ai_turn_owner")
+  aiTurnUntil        DateTime?          @map("ai_turn_until") @db.Timestamptz(6)
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -249,6 +258,10 @@ model OutboxMessage {
   attempts         Int                 @default(0)
   nextAttemptAt    DateTime            @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
   lastError        String?             @map("last_error")
+  /// TIP-045b annex D: tin agent — fence lượt + epoch hội thoại lúc ghi; đặt chỗ gửi kiểm lại dưới cùng khoá hội thoại.
+  turnFence        Int?                @map("turn_fence")
+  aiEpoch          Int?                @map("ai_epoch")
+  reservedAt       DateTime?           @map("reserved_at") @db.Timestamptz(6)
   createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

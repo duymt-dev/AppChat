@@ -7,6 +7,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { QuotaService } from '../../billing/public';
 import { readAiSetting, type AiSettingRow } from './ai-settings.service';
+import { aiSettingsPreview } from './previews/ai-settings.handlers.preview';
 
 type In = ActionInput<typeof aiSettingsUpdate>;
 const snap = (s: AiSettingRow) => ({ default_tier: s.defaultTier, tasks: s.tasks, budget: s.budget, rate_limit: s.rateLimit });
@@ -35,5 +36,9 @@ export class AiSettingsUpdateHandler implements Handler<In, { ok: boolean }> {
     if (over) throw new AppError('PLAN_LIMIT_REACHED', 402, { resource: 'ai_tier', tier: over });
     await write(tx, next);
     return { result: { ok: true }, before: snap(prev), after: snap(next) };
+  }
+
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return aiSettingsPreview(tx, input, this.quota ? (await this.quota.limits(ctx.workspaceId)).planKey : null);
   }
 }
