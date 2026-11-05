@@ -2,6 +2,9 @@
 // Owner = workspace.owner_user_id (không theo tên vai trò). Vai trò hệ thống: định nghĩa từ code (ROLE_DEFS — DC-024);
 // vai trò tuỳ biến `custom:*`: bảng `role` của DB tenant. Uỷ quyền: membership.delegations ∩ DELEGABLE_PERMISSIONS.
 // Cache Redis 60 s; khoá gồm phiên bản authz của workspace — `invalidate(ws)` tăng phiên bản (đổi vai trò / nhóm).
+// TIP-042: khoá cache gồm thêm `authz_revision` của tenant (đọc mỗi lần) — sửa vai trò tuỳ biến / nhóm có hiệu lực ở lần đọc kế tiếp sau
+// commit, không chờ TTL / event. Thiếu bảng revision (schema cũ) → không cache. Redis lỗi → đọc DB (không dùng quyền cũ).
+// Vai trò tuỳ biến đã xoá mềm → không quyền (fail closed). Đồng đội = thành viên nhóm còn membership active.
 import {
   DELEGABLE_PERMISSIONS,
   PERMISSIONS,
@@ -15,6 +18,7 @@ import {
   type ScopeModule,
 } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
+import { readTenantAuthzRevision } from './authz-revision';
 
 export const AUTHZ_CACHE_TTL_SEC = 60;
 const SCOPES: readonly DataScope[] = ['own', 'team', 'all', 'none'];
@@ -62,10 +66,12 @@ export class AuthzResolver {
     // đổi vai trò / gỡ thành viên / đổi chủ có hiệu lực ngay cả khi Redis / relay chậm hoặc mất. Workspace không còn → không quyền.
     const ws = await this.platform.workspace.findUnique({ where: { id: workspaceId }, select: { ownerUserId: true, authzEpoch: true } });
     if (!ws) return { userId, isOwner: false, permissions: new Set(), scope: NONE, teamIds: [], teamUserIds: [] };
-    const key = this.cache ? await this.cacheKey(workspaceId, userId, m, ws) : null;
-    const hit = key ? await this.cache!.get(key) : null;
+    const tenant = await this.tenants.get(TenantContexts.fromMembership(workspaceId, userId));
+    const rev = await readTenantAuthzRevision(tenant);
+    const key = this.cache && rev !== null ? await this.cacheKey(workspaceId, userId, m, ws, rev).catch(() => null) : null;
+    const hit = key ? await this.cache!.get(key).catch(() => null) : null;
     const data: Cached = hit ? (JSON.parse(hit) as Cached) : await this.load(workspaceId, userId, m);
-    if (key && !hit) await this.cache!.set(key, JSON.stringify(data), 'EX', AUTHZ_CACHE_TTL_SEC);
+    if (key && !hit) await this.cache!.set(key, JSON.stringify(data), 'EX', AUTHZ_CACHE_TTL_SEC).catch(() => undefined);
     // roleKey cho quyền theo trường (TIP-045b annex C): vai trò membership hiện tại (Owner xét bằng isOwner).
     return { userId, isOwner: data.isOwner, permissions: new Set(data.permissions), scope: data.scope, teamIds: data.teamIds, teamUserIds: data.teamUserIds, roleKey: data.isOwner ? 'owner' : m.roleKey };
   }
@@ -75,10 +81,10 @@ export class AuthzResolver {
     await this.cache?.incr(`authz:ver:${workspaceId}`);
   }
 
-  private async cacheKey(ws: string, userId: string, m: MembershipInput, w: { ownerUserId: string; authzEpoch: number }): Promise<string> {
+  private async cacheKey(ws: string, userId: string, m: MembershipInput, w: { ownerUserId: string; authzEpoch: number }, rev: bigint): Promise<string> {
     const ver = (await this.cache!.get(`authz:ver:${ws}`)) ?? '0';
     const owner = w.ownerUserId === userId ? 'o' : 'm';
-    return `authz:${ws}:e${w.authzEpoch}:${ver}:${owner}:${userId}:${m.roleKey}:${[...m.delegations].sort().join(',')}`;
+    return `authz:${ws}:e${w.authzEpoch}:r${rev}:${ver}:${owner}:${userId}:${m.roleKey}:${[...m.delegations].sort().join(',')}`;
   }
 
   private async load(workspaceId: string, userId: string, m: MembershipInput): Promise<Cached> {
@@ -91,7 +97,11 @@ export class AuthzResolver {
     const mates = teamIds.length
       ? await tenant.teamMember.findMany({ where: { teamId: { in: teamIds } }, select: { userId: true }, distinct: ['userId'] })
       : [];
-    const teamUserIds = mates.map((x) => x.userId);
+    // Thành viên đã gỡ khỏi workspace không còn mở rộng phạm vi `team` dù dòng team_member chưa dọn (TIP-042).
+    const active = mates.length
+      ? await this.platform.membership.findMany({ where: { workspaceId, status: 'active', userId: { in: mates.map((x) => x.userId) } }, select: { userId: true } })
+      : [];
+    const teamUserIds = active.map((x) => x.userId);
 
     if (isOwner) return { isOwner, permissions: [...PERMISSIONS], scope: ALL_SCOPE, teamIds, teamUserIds };
     let permissions: PermissionKey[] = [];
@@ -100,8 +110,8 @@ export class AuthzResolver {
       permissions = [...ROLE_DEFS[m.roleKey].permissions];
       scope = ROLE_DEFS[m.roleKey].scope;
     } else {
-      const role = await tenant.role.findUnique({ where: { key: m.roleKey }, select: { permissions: true, dataScope: true } });
-      if (role) {
+      const role = await tenant.role.findUnique({ where: { key: m.roleKey }, select: { permissions: true, dataScope: true, deletedAt: true, isSystem: true } });
+      if (role && !role.deletedAt && !role.isSystem) {
         permissions = role.permissions.filter(isPermissionKey);
         scope = parseScope(role.dataScope);
       }

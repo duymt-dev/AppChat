@@ -1,13 +1,9 @@
 // Đọc Cài đặt (TIP-013) đúng shape FE (`packages/shared/src/api/settings.ts`): Tổng quan / Ngôn ngữ (`workspace` + thẻ workspace
-// của người xem), Thành viên (active + lời mời còn chờ, hoạt động cuối), Vai trò (5 vai trò hệ thống, chỉ đọc — D27), giờ làm việc.
+// của người xem), Thành viên (active + lời mời còn chờ, hoạt động cuối), giờ làm việc. Vai trò: RolesService.settingsRoles (domain authz — TIP-042).
 // Không phụ thuộc billing: gói / hạn mức đọc thẳng bảng subscription / plan ở DB nền tảng.
 import {
   FREE_PLAN_KEY,
-  PERMISSIONS,
-  ROLE_COLOR,
-  ROLE_DEFS,
   SLA_DEFAULT,
-  SYSTEM_ROLES,
   WORKSPACE_KIND_COLOR,
   avatarColor,
   initialOf,
@@ -152,22 +148,6 @@ export class SettingsReadService {
     const needle = fold(q.trim());
     const data = needle ? all.filter((m) => [m.name, m.email, m.dept].some((v) => fold(v).includes(needle))) : all;
     return { data, total: all.length, seat_limit: planOf(workspaceId)?.maxUsers ?? null, next_cursor: null };
-  }
-
-  async roles(workspaceId: string) {
-    const ws = await this.db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { ownerUserId: true } });
-    const rows = await this.db.membership.findMany({ where: { workspaceId, status: 'active' }, select: { userId: true, roleKey: true } });
-    const roleOf = (r: { userId: string; roleKey: string }) => (r.userId === ws.ownerUserId ? 'owner' : r.roleKey);
-    return {
-      roles: SYSTEM_ROLES.map((key) => ({
-        key,
-        color: ROLE_COLOR[key],
-        count: rows.filter((r) => roleOf(r) === key).length,
-        permissions: [...ROLE_DEFS[key].permissions],
-        scope: { ...ROLE_DEFS[key].scope },
-      })),
-      permissions: [...PERMISSIONS],
-    };
   }
 
   /** Giờ làm việc thật + múi giờ; chính sách / leo thang / rủi ro mặc định — support (TIP-034) ghép chính sách thật từ `sla_policy`. */

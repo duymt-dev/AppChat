@@ -6,13 +6,13 @@ import { join } from 'node:path';
 import { Module, type FactoryProvider, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import type { PlatformDb } from '@appchat/db';
+import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { BrevoMailProvider, MemoryMailProvider, SmtpMailProvider, MockTaxLookupProvider, VietQrTaxLookupProvider, type MailProvider } from '@appchat/integrations';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENV_SOURCE } from '../kernel/kernel.module';
 import { RateLimiter } from '../kernel/rate-limit';
 import { REDIS } from '../kernel/redis';
-import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
+import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { BusinessProfileUpdateHandler } from './actions/business-profile-update.handler';
 import { InviteRevokeHandler } from './actions/invite-revoke.handler';
 import { MemberInviteHandler } from './actions/member-invite.handler';
@@ -111,8 +111,8 @@ const providers: FactoryProvider[] = [
   },
   {
     provide: InvitesService,
-    inject: [opt(PLATFORM_DB), MAIL_PROVIDER, IDENTITY_ENV, CLOCK],
-    useFactory: (db: PlatformDb | undefined, m: MailProvider | null, e: IdentityEnv | null, c: Clock) => (db && m && e ? new InvitesService(db, m, e, c) : null),
+    inject: [opt(PLATFORM_DB), MAIL_PROVIDER, IDENTITY_ENV, CLOCK, opt(TENANT_RESOLVER)],
+    useFactory: (db: PlatformDb | undefined, m: MailProvider | null, e: IdentityEnv | null, c: Clock, t?: TenantDbResolver) => (db && m && e ? new InvitesService(db, m, e, c, t ?? null) : null),
   },
   { provide: SettingsReadService, inject: [opt(PLATFORM_DB), CLOCK], useFactory: (db: PlatformDb | undefined, c: Clock) => (db ? new SettingsReadService(db, () => c.now()) : null) },
 ];

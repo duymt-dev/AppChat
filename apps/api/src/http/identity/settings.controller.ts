@@ -3,7 +3,7 @@
 // workspace / roles → mọi thành viên (mục không khoá quyền). Ghi qua action workspace.* / member.* / invite.* / working_hours.*.
 import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { SettingsReadService, TENANT_RESOLVER } from '@appchat/core';
+import { RolesService, SettingsReadService, TENANT_RESOLVER } from '@appchat/core';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, type PermissionKey } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver, type RequestActor } from '../kernel/request-actor';
@@ -18,6 +18,7 @@ export class SettingsController {
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
     @Inject(SettingsReadService) private readonly read: SettingsReadService,
     @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver,
+    @Inject(RolesService) private readonly roleRead: RolesService,
   ) {}
 
   @Get('workspace')
@@ -38,6 +39,7 @@ export class SettingsController {
   @Get('roles')
   async roles(@Req() req: IncomingMessage) {
     const a = await this.actors.resolve(req);
-    return { data: await this.read.roles(a.workspaceId) };
+    // Cùng nguồn domain với GET /v1/roles (TIP-042): hệ thống + tuỳ biến còn sống, thêm màu / số lượng.
+    return { data: await this.roleRead.settingsRoles(a.workspaceId, a.userId) };
   }
 }

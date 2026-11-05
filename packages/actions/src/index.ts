@@ -31,6 +31,7 @@ import * as loyalty from './loyalty';
 import * as loyaltySystem from './loyalty-system';
 import * as loyaltyPayments from './loyalty-payments';
 import * as settings from './settings';
+import * as authz from './authz';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as kbFolders from './kb-folders';
@@ -87,6 +88,7 @@ export * from './loyalty-reasons';
 export * from './loyalty-system';
 export * from './loyalty-payments';
 export * from './settings';
+export * from './authz';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './kb-folders';
@@ -142,6 +144,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(loyaltySystem),
   ...Object.values(loyaltyPayments),
   ...Object.values(settings),
+  ...Object.values(authz),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(kbFolders),

@@ -1,9 +1,10 @@
 // identity / settings (Blueprint §3.4 identity · settings; §7.2 settings registry). Prototype L5754–7421.
-// Thành viên, workspace, giờ làm việc, SLA mặc định, thông báo cá nhân. Vai trò P0 chỉ đọc (D27) nên không có role.*.
+// Thành viên, workspace, giờ làm việc, SLA mặc định, thông báo cá nhân. Vai trò tuỳ biến / nhóm (role.* / team.*) ở authz.ts (TIP-042).
 import { z } from 'zod';
 import { defineAction } from './define';
 
-const ROLE = z.enum(['manager', 'sales', 'cs', 'accountant']);
+// Bốn vai trò hệ thống (trừ Chủ sở hữu) hoặc vai trò tuỳ biến `custom:*` (TIP-042) — handler kiểm vai trò còn sống trong tenant + không vượt quyền người gán.
+const ROLE = z.union([z.enum(['manager', 'sales', 'cs', 'accountant']), z.string().regex(/^custom:[0-9a-f-]{36}$/)]);
 const HHMM = z.string().regex(/^\d{2}:\d{2}$/);
 
 export const workspaceUpdate = defineAction({
@@ -35,7 +36,7 @@ export const memberInvite = defineAction({
   id: 'member.invite',
   module: 'settings',
   title: 'actions.member.invite.title',
-  description: 'Invite a member by email with a system role. Example: {"email":"lan@spa.vn","role":"sales"}',
+  description: 'Invite a member by email with a system role or a custom role key (custom:…). Example: {"email":"lan@spa.vn","role":"sales"}',
   input: z.object({ email: z.string().email(), name: z.string().max(120).optional(), role: ROLE }),
   output: z.object({ invite_id: z.string() }),
   permission: 'members.manage',
@@ -63,7 +64,7 @@ export const memberSetRole = defineAction({
   id: 'member.set_role',
   module: 'settings',
   title: 'actions.member.set_role.title',
-  description: 'Change the system role of a member (the owner role cannot be assigned here). Example: {"user_id":"u_2","role":"manager"}',
+  description: 'Change the role of a member — system role or custom role key (custom:…); the owner role cannot be assigned here. Example: {"user_id":"u_2","role":"manager"}',
   input: z.object({ user_id: z.string().min(1), role: ROLE }),
   output: z.object({ user_id: z.string(), role: z.string() }),
   permission: 'members.manage',

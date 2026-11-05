@@ -49,11 +49,15 @@ export const membersPageSchema = z.object({
 });
 export type MembersPageDto = z.infer<typeof membersPageSchema>;
 
-/** `GET /v1/settings/roles` — 5 vai trò hệ thống, ma trận chỉ đọc (D27). */
+/** `GET /v1/settings/roles` — vai trò hệ thống (5, chỉ đọc — D27) + vai trò tuỳ biến `custom:*` còn sống (TIP-042). Trường cũ giữ nguyên;
+ * `name` / `is_system` / `version` thêm (additive). Vai trò hệ thống hiển thị theo i18n key; vai trò tuỳ biến hiển thị `name` từ DB. */
 export const settingsRolesSchema = z.object({
   roles: z.array(
     z.object({
-      key: z.enum(SYSTEM_ROLES),
+      key: z.union([z.enum(SYSTEM_ROLES), z.string().regex(/^custom:/)]),
+      name: z.string(),
+      is_system: z.boolean(),
+      version: z.number().int(),
       color: z.string(),
       count: z.number().int(),
       permissions: z.array(z.enum(PERMISSIONS)),
@@ -62,6 +66,7 @@ export const settingsRolesSchema = z.object({
   ),
   permissions: z.array(z.enum(PERMISSIONS)),
 });
+export type SettingsRolesDto = z.infer<typeof settingsRolesSchema>;
 
 /** `GET /v1/settings/sla` — chính sách mặc định + giờ làm việc + leo thang + dự báo rủi ro. */
 export const slaSettingsSchema = z.object({

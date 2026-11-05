@@ -14,6 +14,7 @@ import { invitePreview } from './previews/member-invite.handler.preview';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { INVITE_TTL_MS, InvitesService } from '../services/invites.service';
 import { INVITE_MAIL_EFFECT, type InviteMailPayload } from '../services/invite-effects';
+import { assertAssignable } from '../../authz/services/role-assignment';
 
 type Input = ActionInput<typeof memberInvite>;
 
@@ -26,9 +27,11 @@ export class MemberInviteHandler implements Handler<Input, { invite_id: string }
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(ctx: ActionContext, input: Input, _tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ invite_id: string }>> {
+  async execute(ctx: ActionContext, input: Input, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ invite_id: string }>> {
     if (!ptx || !this.invites) throw new AppError('INTERNAL', 500, undefined, 'member.invite cần PlatformTx + InvitesService');
     const ws = ctx.workspaceId;
+    // TIP-042: vai trò còn sống trong tenant + người mời không cấp vượt quyền của chính mình (DC-298).
+    await assertAssignable(tx, ctx.authz, input.role);
     // Khoá workspace: hai lời mời song song không cùng lọt qua kiểm hạn mức.
     await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ws}::uuid FOR UPDATE`;
     const members = await ptx.membership.count({ where: { workspaceId: ws, status: 'active' } });
@@ -46,7 +49,8 @@ export class MemberInviteHandler implements Handler<Input, { invite_id: string }
     };
   }
 
-  async preview(ctx: ActionContext, input: Input) {
+  async preview(ctx: ActionContext, input: Input, tx: TenantTx) {
+    await assertAssignable(tx, ctx.authz, input.role);
     return invitePreview(needPlatform(this.platform, 'member.invite'), ctx.workspaceId, input, this.clock.now());
   }
 }
