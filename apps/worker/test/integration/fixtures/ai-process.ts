@@ -40,13 +40,13 @@ export interface AiProcess {
   logs: string[];
 }
 
-/** Chạy `node dist/main.js` ROLE=ai; chờ dòng "worker started" (≤ 60 giây). */
-export async function startAiProcess(): Promise<AiProcess> {
+/** Chạy `node dist/main.js` ROLE=ai (hoặc `jobs` — TIP-022b consumer khiếu nại); chờ dòng "worker started" (≤ 60 giây). */
+export async function startAiProcess(role: 'ai' | 'jobs' = 'ai'): Promise<AiProcess> {
   if (!existsSync(join(WORKER, 'dist', 'main.js'))) throw new Error('Chưa build worker: pnpm --filter @appchat/worker build');
   const logs: string[] = [];
-  const p: ChildProcess = spawn(process.execPath, ['dist/main.js'], { cwd: WORKER, env: { ...process.env, ...testEnv, ROLE: 'ai', LOG_LEVEL: 'info' }, stdio: ['ignore', 'pipe', 'pipe'] });
+  const p: ChildProcess = spawn(process.execPath, ['dist/main.js'], { cwd: WORKER, env: { ...process.env, ...testEnv, ROLE: role, LOG_LEVEL: 'info' }, stdio: ['ignore', 'pipe', 'pipe'] });
   const started = new Promise<void>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error(`worker ai không lên sau 60 giây:\n${logs.slice(-20).join('\n')}`)), 60_000);
+    const t = setTimeout(() => reject(new Error(`worker ${role} không lên sau 60 giây:\n${logs.slice(-20).join('\n')}`)), 60_000);
     const on = (b: Buffer) => {
       for (const l of b.toString().split(/\r?\n/).filter(Boolean)) {
         logs.push(l.slice(0, 500));
@@ -58,7 +58,7 @@ export async function startAiProcess(): Promise<AiProcess> {
     };
     p.stdout!.on('data', on);
     p.stderr!.on('data', on);
-    p.once('exit', (code) => reject(new Error(`worker ai thoát ${code}:\n${logs.slice(-20).join('\n')}`)));
+    p.once('exit', (code) => reject(new Error(`worker ${role} thoát ${code}:\n${logs.slice(-20).join('\n')}`)));
   });
   await started;
   return {
