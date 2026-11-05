@@ -14,6 +14,7 @@
     "lint:size": "node tools/scripts/lint-size.mjs",
     "lint:tokens": "node tools/scripts/lint-tokens.mjs",
     "lint:masks": "node tools/scripts/lint-masks.mjs",
+    "lint:parity-debt": "node tools/scripts/lint-parity-debt.mjs",
     "depcheck": "depcruise apps packages --config .dependency-cruiser.cjs --output-type err --ignore-known .dependency-cruiser-known-violations.json",
     "i18n:check": "node tools/scripts/i18n-check.mjs",
     "parity": "pnpm --filter @appchat/parity run parity",

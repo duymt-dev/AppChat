@@ -7,6 +7,7 @@ import { chromium } from '@playwright/test';
 import { MANIFEST, MAX_DIFF_RATIO, type ParityEntry } from '../parity.manifest';
 import { captureApp, captureProto } from './capture';
 import { compareImages } from './compare';
+import { loadDebt, verdict, type Verdict } from './debt';
 
 const ROOT = path.resolve(import.meta.dirname, '../../..');
 const OUT = path.resolve(import.meta.dirname, '../out');
@@ -23,12 +24,18 @@ const doneIds = (): Set<string> => {
 
 /** --changed: file đổi so với origin/dev → id theo module; đổi lớp dùng chung → mọi id. */
 const changedIds = (): Set<string> => {
-  const files = execSync('git diff --name-only origin/dev...HEAD', { cwd: ROOT, encoding: 'utf8' }).split('\n');
+  const files = execSync('git diff --name-only origin/dev...HEAD', { cwd: ROOT, encoding: 'utf8' }).split(
+    '\n',
+  );
   const shared = files.some((f) =>
-    /^(packages\/(ui|shared)|apps\/web\/src\/(shared|app\/layout)|tools\/parity|fixtures\/prototype-parity)\//.test(f),
+    /^(packages\/(ui|shared)|apps\/web\/src\/(shared|app\/layout)|tools\/parity|fixtures\/prototype-parity)\//.test(
+      f,
+    ),
   );
   if (shared) return new Set(MANIFEST.map((e) => e.id));
-  const modules = new Set(files.map((f) => f.match(/^apps\/web\/src\/features\/([^/]+)\//)?.[1]).filter(Boolean));
+  const modules = new Set(
+    files.map((f) => f.match(/^apps\/web\/src\/features\/([^/]+)\//)?.[1]).filter(Boolean),
+  );
   return new Set(MANIFEST.filter((e) => modules.has(e.id.split(':')[0])).map((e) => e.id));
 };
 
@@ -59,7 +66,8 @@ async function main() {
   }
   fs.mkdirSync(OUT, { recursive: true });
   const browser = await chromium.launch();
-  const rows: { id: string; ratio: number | null; ok: boolean; error?: string }[] = [];
+  const debt = loadDebt();
+  const rows: { id: string; ratio: number | null; ok: boolean; v?: Verdict; error?: string }[] = [];
   try {
     for (const e of entries) {
       try {
@@ -70,7 +78,8 @@ async function main() {
         }
         await captureApp(browser, e, APP_URL, file(e.id, 'app'), box);
         const r = compareImages(file(e.id, 'proto'), file(e.id, 'app'), file(e.id, 'diff'), e);
-        rows.push({ id: e.id, ratio: r.ratio, ok: r.ratio <= MAX_DIFF_RATIO });
+        const v = verdict(r.ratio, MAX_DIFF_RATIO, debt.get(e.id));
+        rows.push({ id: e.id, ratio: r.ratio, ok: v !== 'fail', v });
       } catch (err) {
         rows.push({ id: e.id, ratio: null, ok: false, error: (err as Error).message.split('\n')[0] });
       }
@@ -81,7 +90,16 @@ async function main() {
   fs.writeFileSync(path.join(OUT, 'results.json'), JSON.stringify(rows, null, 2));
   for (const r of rows) {
     const val = r.ratio === null ? (r.error ?? 'baseline') : r.ratio.toFixed(4);
-    console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.id.padEnd(34)} ${val}`);
+    const tag = r.v === 'debt' ? 'DEBT' : r.v === 'paid' ? 'PAID' : r.ok ? 'PASS' : 'FAIL';
+    const extra =
+      r.v === 'debt'
+        ? ` ≤ trần ${debt.get(r.id)!.ceiling} (sổ nợ DC-360)`
+        : r.v === 'paid'
+          ? ' — ≤ 5% ở lượt này; xoá khỏi tools/parity/parity-debt.json khi CI (Linux) cũng ≤ 5%'
+          : r.v === 'fail' && debt.has(r.id)
+            ? ` > trần ${debt.get(r.id)!.ceiling} (tệ hơn sổ nợ)`
+            : '';
+    console.log(`${tag}  ${r.id.padEnd(34)} ${val}${extra}`);
   }
   if (rows.some((r) => !r.ok)) process.exit(1);
 }
