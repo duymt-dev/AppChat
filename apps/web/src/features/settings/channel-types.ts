@@ -1,4 +1,6 @@
 // Kiểu dữ liệu Kênh kết nối (REQ-B09 một kênh nhiều tài khoản) — tách khỏi types.ts để giữ dưới trần 400 dòng.
+import type { ChannelAgentBehavior } from './channel-behavior-types';
+
 export type ChannelAiMode = 'auto' | 'suggest' | 'off';
 /** `shift` chỉ còn đọc được (cấu hình cũ — TIP-042b DC-238); lựa chọn mới không có. */
 export type ChannelAssignMode = 'round_robin' | 'least_busy' | 'shift';
@@ -33,6 +35,9 @@ export interface ChannelAccount {
   history_days: ChannelHistoryDays;
   paused: boolean;
   routing?: ChannelRouting;
+  /** TIP-022b: lịch có cấu trúc + phân luồng từ khoá + bật lời chào; `binding_version` cho xác nhận đổi gán. */
+  agent_behavior?: ChannelAgentBehavior;
+  binding_version?: string;
 }
 
 /** Một loại kênh (vd Zalo cá nhân) với danh sách tài khoản — trạng thái/hội thoại gộp từ `accounts`. */

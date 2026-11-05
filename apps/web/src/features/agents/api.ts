@@ -1,6 +1,7 @@
 // Đọc AI Agents (Blueprint §4.4 ai). Ghi qua useAction (agent.*).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
+import type { ChannelBindingPreviewDto } from '@appchat/shared';
 import type { Agent, AgentTemplate, AgentVersion, AgentsMeta, TemplateFilter } from './types';
 
 export const agentsQuery = () =>
@@ -21,4 +22,12 @@ export const templatesQuery = (f: TemplateFilter) =>
     queryFn: () =>
       transport.get<{ data: AgentTemplate[]; total: number }>('/agent-templates', Object.fromEntries(Object.entries(f).filter(([, v]) => v && v !== 'all'))),
     placeholderData: (prev) => prev,
+  });
+
+/** Gán tài khoản kênh hiện tại theo loại kênh của agent (TIP-022b E) — cảnh báo trước khi xuất bản; xuất bản KHÔNG đổi gán. */
+export const bindingPreviewQuery = (types: readonly string[]) =>
+  queryOptions({
+    queryKey: ['agents', 'binding-preview', [...types].sort().join(',')],
+    queryFn: () => transport.get<ChannelBindingPreviewDto>('/agents/channel-binding-preview', { types: [...types].sort().join(',') }),
+    enabled: types.length > 0,
   });

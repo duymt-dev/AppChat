@@ -94,6 +94,18 @@
     "keywordsVal": "hoàn tiền, bảo hành, khiếu nại",
     "keywordsHint": "Phân tách bằng dấu phẩy. Khi tin nhắn chứa từ khoá, agent này được ưu tiên xử lý.",
     "hours": "Khung giờ hoạt động",
+    "schedule": {
+      "overnight": "Khung qua nửa đêm sẽ được tách thành hai ngày liền nhau. Tiếp tục?",
+      "needsConfig": "Agent đang chọn \"Tuỳ chỉnh\" nhưng chưa có lịch tuần — vẫn chạy như cũ, cần lưu lịch trước khi xuất bản phiên bản mới.",
+      "hint": "Lịch áp dụng sau khi lưu và xuất bản. Giờ hoạt động thực tế = giao với lịch của tài khoản kênh."
+    },
+    "binding": {
+      "taken": "{n} tài khoản kênh đang do agent khác trực:",
+      "row": "{account} — {agent}",
+      "unknown": "agent đã xoá",
+      "hint": "Xuất bản không đổi gán. Đổi agent trực ở Cài đặt › Kênh kết nối.",
+      "error": "Không đọc được gán tài khoản kênh."
+    },
     "hoursOpt": {
       "always": "24/7 — luôn hoạt động",
       "office": "Giờ hành chính (8:00–17:30)",

@@ -11,13 +11,22 @@ import { threadQuery } from '../api';
 import { ChatHeader } from './ChatHeader';
 import { Composer } from './Composer';
 import { MessageBubble } from './MessageBubble';
+import { HandoffSummaryPanel } from './HandoffSummaryPanel';
 import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
 import { ThreadSearchBar } from './ThreadSearchBar';
 import { useInboxUi } from '../inbox-store';
 import type { ChannelMeta, Conversation } from '../types';
 
-export function ChatPanel({ conv, channel, className }: { conv: Conversation; channel: ChannelMeta | undefined; className?: string }) {
+export function ChatPanel({
+  conv,
+  channel,
+  className,
+}: {
+  conv: Conversation;
+  channel: ChannelMeta | undefined;
+  className?: string;
+}) {
   const t = useTranslations('inbox.chat');
   const { styles, cx } = useChatStyles();
   const { styles: cs } = useComposerStyles();
@@ -40,26 +49,34 @@ export function ChatPanel({ conv, channel, className }: { conv: Conversation; ch
           <MessageBubble key={m.id} m={m} conv={conv} />
         ))}
         {conv.ai_state === 'handoff' ? (
-          <AiDraftCard
-            testId="handoff-banner"
-            title={t('handoff.title')}
-            badge={t('handoff.badge')}
-            reason={conv.handoff_reason ?? ''}
-            body={conv.ai_draft ?? ''}
-            actions={
-              <>
-                <button type="button" className={cs.primary} onClick={() => void handoff.run({ conversation_id: conv.id })} data-testid="handoff-take">
-                  <Icon name="ic-users" size={14} color={color.white} />
-                  {t('handoff.take')}
-                </button>
-                {conv.ai_draft ? (
-                  <button type="button" className={cs.ghost} onClick={() => setDraft(conv.ai_draft ?? '')}>
-                    {t('handoff.useDraft')}
+          <>
+            <AiDraftCard
+              testId="handoff-banner"
+              title={t('handoff.title')}
+              badge={t('handoff.badge')}
+              reason={conv.handoff_reason ?? ''}
+              body={conv.ai_draft ?? ''}
+              actions={
+                <>
+                  <button
+                    type="button"
+                    className={cs.primary}
+                    onClick={() => void handoff.run({ conversation_id: conv.id })}
+                    data-testid="handoff-take"
+                  >
+                    <Icon name="ic-users" size={14} color={color.white} />
+                    {t('handoff.take')}
                   </button>
-                ) : null}
-              </>
-            }
-          />
+                  {conv.ai_draft ? (
+                    <button type="button" className={cs.ghost} onClick={() => setDraft(conv.ai_draft ?? '')}>
+                      {t('handoff.useDraft')}
+                    </button>
+                  ) : null}
+                </>
+              }
+            />
+            {conv.has_handoff_summary ? <HandoffSummaryPanel conversationId={conv.id} /> : null}
+          </>
         ) : suggestion && !hideSuggest ? (
           <AiDraftCard
             testId="ai-suggest"
@@ -72,14 +89,21 @@ export function ChatPanel({ conv, channel, className }: { conv: Conversation; ch
                   type="button"
                   className={cs.primary}
                   onClick={async () => {
-                    const r = await send.run({ conversation_id: conv.id, text: plain(suggestion.text) }, { silent: true });
+                    const r = await send.run(
+                      { conversation_id: conv.id, text: plain(suggestion.text) },
+                      { silent: true },
+                    );
                     if (r) setHideSuggest(true);
                   }}
                 >
                   <Icon name="ic-send" size={14} color={color.white} />
                   {t('suggest.send')}
                 </button>
-                <button type="button" className={cs.ghost} onClick={() => (setDraft(plain(suggestion.text)), setHideSuggest(true))}>
+                <button
+                  type="button"
+                  className={cs.ghost}
+                  onClick={() => (setDraft(plain(suggestion.text)), setHideSuggest(true))}
+                >
                   {t('suggest.edit')}
                 </button>
                 <button type="button" className={cs.ghost} onClick={() => setHideSuggest(true)}>

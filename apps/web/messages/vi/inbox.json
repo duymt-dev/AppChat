@@ -447,6 +447,29 @@
       "unknown": "Chưa rõ kết quả — nhóm có thể đã được tạo trên Zalo. Kiểm tra Zalo trước khi tạo lại."
     }
   },
+  "summary": {
+    "title": "Tóm tắt bàn giao",
+    "loading": "Đang tải tóm tắt…",
+    "error": "Không tải được tóm tắt.",
+    "retry": "Thử lại",
+    "unknown": "Chưa rõ khách cần gì",
+    "unresolved": "Chưa giải quyết: {text}",
+    "attachmentUnreadable": "{n} tệp đính kèm AI chưa đọc được",
+    "status": {
+      "ok": "xong",
+      "pending": "chờ duyệt",
+      "denied": "bị chặn",
+      "error": "lỗi"
+    }
+  },
+  "intent": {
+    "hint": "Ý định AI nhận diện ở lượt gần nhất",
+    "buy": "Muốn mua",
+    "question": "Hỏi thông tin",
+    "complaint": "Khiếu nại",
+    "booking": "Đặt lịch",
+    "other": "Khác"
+  },
   "providerOp": {
     "recall": {
       "pending": "Đang thu hồi trên Zalo…",

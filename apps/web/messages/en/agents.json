@@ -94,6 +94,18 @@
     "keywordsVal": "hoàn tiền, bảo hành, khiếu nại",
     "keywordsHint": "Comma separated. Messages containing these keywords go to this agent first.",
     "hours": "Active hours",
+    "schedule": {
+      "overnight": "An interval past midnight will be split across two consecutive days. Continue?",
+      "needsConfig": "This agent uses \"Custom\" but has no weekly schedule — it keeps running as before; save a schedule before publishing a new version.",
+      "hint": "The schedule applies after saving and publishing. Effective hours = intersection with the channel account schedule."
+    },
+    "binding": {
+      "taken": "{n} channel account(s) are served by another agent:",
+      "row": "{account} — {agent}",
+      "unknown": "deleted agent",
+      "hint": "Publishing does not change assignments. Change the serving agent in Settings › Channels.",
+      "error": "Could not read channel account assignments."
+    },
     "hoursOpt": {
       "always": "24/7 — always on",
       "office": "Office hours (8:00–17:30)",

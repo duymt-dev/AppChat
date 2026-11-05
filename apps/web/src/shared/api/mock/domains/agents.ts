@@ -2,6 +2,7 @@
 // Dữ liệu = prototype L2227–2450 (fixture sinh bởi tools/scripts/fixtures/gen-assistant.py). Tên model → mức AI (D29).
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/agents.json';
+import { channelBindingPreview } from './channel-behavior';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
@@ -39,9 +40,13 @@ export const createAgentsState = (): AgentsState => {
 };
 
 const live = (db: MockDb) => db.agents.agents.filter((a) => !a.deleted);
+/** `custom` cũ chưa có lịch có cấu trúc → needs_configuration (như server agents.read — TIP-022b A). */
+const withScheduleState = (a: Agent) => ({ ...a, schedule_state: a.working_hours === 'custom' && !(a as { weekly_schedule?: unknown }).weekly_schedule ? 'needs_configuration' : 'ok' });
 
 export const agentsRoutes: Record<string, MockRoute> = {
-  '/agents': (db) => ({ data: live(db), next_cursor: null }),
+  '/agents': (db) => ({ data: live(db).map(withScheduleState), next_cursor: null }),
+  // Cảnh báo gán tài khoản khi xuất bản (TIP-022b E): đọc agent đang gán THẬT của từng tài khoản, không suy từ danh sách loại kênh.
+  '/agents/channel-binding-preview': (db, p) => channelBindingPreview(db, String(p.types ?? '').split(',').filter(Boolean)),
   '/agent-templates': (_db, p) => {
     const q = String(p.q ?? '').trim().toLowerCase();
     const group = fixture.taxonomy.find((g) => g.group === p.group);
@@ -76,7 +81,7 @@ export const agentsParamRoute = (path: string): MockRoute | undefined => {
   return (db) => {
     const a = live(db).find((x) => x.id === id);
     if (!a) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
-    return m[2] ? { data: db.agents.versions[id] ?? [], next_cursor: null } : a;
+    return m[2] ? { data: db.agents.versions[id] ?? [], next_cursor: null } : withScheduleState(a);
   };
 };
 
@@ -106,7 +111,10 @@ const blank = (db: MockDb, cfg: Config): Agent => {
   } as Agent;
 };
 
-const publish = (db: MockDb, a: Agent, note: string) => {
+const publish = (db: MockDb, a: Agent, note: string, rollback = false) => {
+  if (!rollback && withScheduleState(a).schedule_state === 'needs_configuration') {
+    throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'weekly_schedule', fields: { weekly_schedule: 'needs_configuration' } });
+  }
   a.version += 1;
   a.status = 'active';
   a.dirty = false;
@@ -160,7 +168,7 @@ export const agentsHandlers: Record<string, MockHandler> = {
       const v = db.agents.versions[a.id]?.find((x) => x.version === i.version);
       if (!v) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: `v${i.version}` });
       Object.assign(a, structuredClone(v.config));
-      return publish(db, a, `↩ v${i.version}`);
+      return publish(db, a, `↩ v${i.version}`, true);
     },
   },
   'agent.pause': {

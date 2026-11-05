@@ -1,19 +1,20 @@
 // Kênh hoạt động (channel registry — chỉ Zalo cá nhân / Web chat / Email) + Phân luồng: intent, từ khoá ưu tiên, khung giờ hoạt động
-// (lưu vào cấu hình agent — TIP-024) — prototype L2338–2363.
+// (lưu vào cấu hình agent — TIP-024; lịch tuần có cấu trúc — TIP-022b WeeklyScheduleEditor) — prototype L2338–2363.
 'use client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useBuilderStyles } from '../../styles/builder.styles';
 import { useSectionStyles } from '../../styles/sections.styles';
-import type { AgentsMeta, WorkingHours } from '../../types';
+import type { AgentsMeta } from '../../types';
+import { WeeklyScheduleEditor } from './WeeklyScheduleEditor';
+import { BindingPreview } from './BindingPreview';
 import type { SectionProps } from './BasicsSection';
 
-const HOURS: WorkingHours[] = ['always', 'office', 'custom'];
 /** "spa, giá, lịch hẹn" → mảng từ khoá (bỏ trống, trùng; ≤ 20 — giới hạn của action). */
 const splitKeywords = (v: string) => [...new Set(v.split(',').map((k) => k.trim()).filter(Boolean))].slice(0, 20);
 
-export function RoutingSection({ cfg, patch, toggle, meta }: SectionProps & { meta: AgentsMeta; toggle: (k: 'intents' | 'channels', v: number | string) => void }) {
+export function RoutingSection({ cfg, patch, toggle, meta, agentId }: SectionProps & { meta: AgentsMeta; agentId?: string; toggle: (k: 'intents' | 'channels', v: number | string) => void }) {
   const t = useTranslations('agents.b');
   const router = useRouter();
   const { styles: bs, cx } = useBuilderStyles();
@@ -47,6 +48,7 @@ export function RoutingSection({ cfg, patch, toggle, meta }: SectionProps & { me
             {t('connect')}
           </button>
         </div>
+        <BindingPreview agentId={agentId} types={cfg.channels} />
       </div>
       <div className={bs.sec}>
         <div className={bs.h}>{t('routing')}</div>
@@ -73,14 +75,7 @@ export function RoutingSection({ cfg, patch, toggle, meta }: SectionProps & { me
         />
         <div className={bs.help}>{t('keywordsHint')}</div>
         <div className={styles.learn}>
-          <div className={bs.label}>{t('hours')}</div>
-          <select className={bs.field} value={cfg.working_hours} onChange={(e) => patch({ working_hours: e.target.value as WorkingHours })} aria-label={t('hours')} data-testid="agb-hours">
-            {HOURS.map((k) => (
-              <option key={k} value={k}>
-                {t(`hoursOpt.${k}`)}
-              </option>
-            ))}
-          </select>
+          <WeeklyScheduleEditor cfg={cfg} patch={patch} />
         </div>
       </div>
     </>

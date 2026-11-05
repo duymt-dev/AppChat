@@ -116,6 +116,32 @@
     "email": "Email",
     "webchat": "Web chat"
   },
+  "schedule": {
+    "timezone": "Time zone",
+    "day": {
+      "0": "Monday",
+      "1": "Tuesday",
+      "2": "Wednesday",
+      "3": "Thursday",
+      "4": "Friday",
+      "5": "Saturday",
+      "6": "Sunday"
+    },
+    "sep": "–",
+    "closed": "Closed",
+    "from": "From",
+    "to": "To",
+    "remove": "Remove interval",
+    "add": "+ Add interval",
+    "err": {
+      "timezone": "Invalid time zone",
+      "days": "The schedule must have all 7 days",
+      "format": "Time must be HH:mm",
+      "order": "End time must be after start time",
+      "overlap": "Intervals in a day overlap",
+      "too_many": "At most 4 intervals per day"
+    }
+  },
   "contactMemory": {
     "title": "AI memory",
     "count": "{n}/{cap}",

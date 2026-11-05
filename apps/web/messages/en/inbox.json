@@ -447,6 +447,29 @@
       "unknown": "Outcome unknown — the group may already exist on Zalo. Check Zalo before trying again."
     }
   },
+  "summary": {
+    "title": "Handoff summary",
+    "loading": "Loading summary…",
+    "error": "Could not load the summary.",
+    "retry": "Retry",
+    "unknown": "Customer request unclear",
+    "unresolved": "Unresolved: {text}",
+    "attachmentUnreadable": "{n} attachment(s) the AI could not read",
+    "status": {
+      "ok": "done",
+      "pending": "awaiting approval",
+      "denied": "blocked",
+      "error": "failed"
+    }
+  },
+  "intent": {
+    "hint": "Intent detected by AI on the latest turn",
+    "buy": "Wants to buy",
+    "question": "Question",
+    "complaint": "Complaint",
+    "booking": "Booking",
+    "other": "Other"
+  },
   "providerOp": {
     "recall": {
       "pending": "Recalling on Zalo…",

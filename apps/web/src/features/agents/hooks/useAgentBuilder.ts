@@ -19,6 +19,7 @@ export const blankConfig = (): AgentConfig => ({
   persona: '',
   keywords: [],
   working_hours: 'always',
+  weekly_schedule: null,
   language: 'vi',
   prompt: '',
   intents: [0, 2],

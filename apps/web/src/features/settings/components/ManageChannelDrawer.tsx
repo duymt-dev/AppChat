@@ -16,6 +16,7 @@ import { Switch } from './Switch';
 import { ContactSyncPanel } from './ContactSyncPanel';
 import { FriendsPanel } from './FriendsPanel';
 import { ChannelRoutingFields } from './ChannelRoutingFields';
+import { ChannelRoutingSettings } from './ChannelRoutingSettings';
 import type { ChannelAccount, ChannelAiMode, ChannelHistoryDays } from '../types';
 
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
@@ -72,6 +73,8 @@ export function ManageChannelDrawer() {
           sync_messages: draft.sync_messages,
           sync_auto_create_contact: draft.sync_auto_create_contact,
         },
+        // TIP-022b: đổi agent trực kèm phiên bản gán đã xem — người khác đổi giữa chừng → 409, giữ gán cũ.
+        ...(draft.agent_id !== undefined && account.binding_version ? { expected_version: account.binding_version } : {}),
       })
     ) {
       if (draft.history_days !== undefined && draft.history_days !== account.history_days) {
@@ -262,6 +265,8 @@ export function ManageChannelDrawer() {
             </div>
           </div>
 
+          {/* TIP-022b: lịch có cấu trúc + lời chào + phân luồng từ khoá — khối tự lưu (ChannelRoutingSettings). */}
+          {account ? <ChannelRoutingSettings key={account.id} account={account} /> : null}
           <div className={styles.block}>
             <div className={styles.blockT}>{t('s4')}</div>
             <div className={styles.grid2}>

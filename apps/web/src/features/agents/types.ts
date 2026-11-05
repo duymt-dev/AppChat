@@ -1,4 +1,5 @@
 // Kiểu dữ liệu AI Agents (Blueprint §2.2 ai_agent / ai_agent_version, §4.4 ai; D29 mức AI thay tên model).
+import type { WeeklyScheduleDto } from '@appchat/shared';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type AgentStatus = 'active' | 'paused' | 'draft';
 export type Role = 'sales' | 'cs' | 'booking' | 'marketing' | 'accounting' | 'ops' | 'custom';
@@ -22,6 +23,8 @@ export interface AgentConfig {
   persona: string;
   keywords: string[];
   working_hours: WorkingHours;
+  /** TIP-022b: lịch tuần có cấu trúc (dùng khi `working_hours = custom`). */
+  weekly_schedule?: WeeklyScheduleDto | null;
   language: Lang;
   prompt: string;
   intents: number[];
@@ -43,6 +46,8 @@ export interface Agent extends AgentConfig {
   csat: number;
   version: number;
   dirty?: boolean;
+  /** TIP-022b: `needs_configuration` = custom cũ chưa lưu lịch (cảnh báo, chặn xuất bản mới). */
+  schedule_state?: 'ok' | 'needs_configuration';
 }
 
 export interface AgentVersion {

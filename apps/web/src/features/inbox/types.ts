@@ -1,5 +1,8 @@
-import type { ContactInsightsDto, CustomValues } from '@appchat/shared';
+import type { AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
+
+/** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem). */
+export type HandoffSummary = HandoffSummaryDto;
 
 export type ChannelType = 'zalo_personal' | 'webchat' | 'email';
 export type TagTone = 'vip' | 'channel' | 'hot' | 'group' | 'warn' | 'ai' | 'violet';
@@ -46,6 +49,9 @@ export interface Conversation {
   ai_mode: 'off' | 'copilot' | 'auto';
   handoff_reason?: string;
   ai_draft?: string;
+  /** TIP-022b: ý định lượt gần nhất (bộ đóng) + có tóm tắt bàn giao (đọc riêng, chiếu theo quyền). */
+  intent?: AgentIntent;
+  has_handoff_summary?: boolean;
   status: string;
   /** Tin đang ghim lên đầu hội thoại (REQ-C09 `message.pin`) — khác `pinned_note` (ghi chú ghim thủ công). */
   pinned_message_id?: string | null;

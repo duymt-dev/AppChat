@@ -2,6 +2,7 @@
 import type { Page } from '@playwright/test';
 import { protoOverrideVals, protoSetState } from './protoState';
 import { ASSISTANT_COVERAGE } from './manifests/assistant-coverage';
+import { AGENT_CHANNEL_BEHAVIOR } from './manifests/agent-channel-behavior';
 import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
 import { hardeningEntries } from './modules/hardening';
@@ -1437,6 +1438,7 @@ export const MANIFEST: ParityEntry[] = [
     mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
   },
   ...ASSISTANT_COVERAGE,
+  ...AGENT_CHANNEL_BEHAVIOR,
   ...GENUI_DRAWERS,
   ...CONTACT_MEMORY,
   ...hardeningEntries(settingsProto),

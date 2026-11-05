@@ -10,6 +10,7 @@ import { useInboxUi } from '../inbox-store';
 import { Rich } from './Rich';
 import type { ChannelMeta, Conversation } from '../types';
 import { AvatarFace } from './AvatarFace';
+import { IntentBadge } from './IntentBadge';
 
 export function ChatHeader({ conv, channel }: { conv: Conversation; channel: ChannelMeta | undefined }) {
   const t = useTranslations('inbox.chat');
@@ -24,7 +25,9 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
       {channel?.short}
     </span>
   );
-  const pinnedMsg = conv.pinned_message_id ? (thread.data?.data ?? []).find((m) => m.id === conv.pinned_message_id) : undefined;
+  const pinnedMsg = conv.pinned_message_id
+    ? (thread.data?.data ?? []).find((m) => m.id === conv.pinned_message_id)
+    : undefined;
   // REQ-C13: bỏ gọi thoại/video (module Gọi điện ẩn D07, D19 — chuyển Lịch hẹn để hẹn gọi); thêm nút Tìm trong hội thoại.
   const icons: [IconName, string, () => void, boolean][] = [
     ['ic-search', t('search'), () => ui.set({ searchOpen: !ui.searchOpen }), false],
@@ -35,7 +38,12 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
     <>
       <div className={styles.head} data-testid="chat-header">
         <button type="button" className={styles.back} onClick={ui.backToList} aria-label={t('back')}>
-          <Icon name="ic-chevron-right" size={20} color={color.chatIcon} style={{ transform: 'rotate(180deg)' }} />
+          <Icon
+            name="ic-chevron-right"
+            size={20}
+            color={color.chatIcon}
+            style={{ transform: 'rotate(180deg)' }}
+          />
         </button>
         {isGroup ? (
           <div className={styles.stackWrap}>
@@ -52,7 +60,9 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
           </AvatarFace>
         )}
         <div className={styles.who}>
-          <div className={styles.name}>{conv.title}</div>
+          <div className={styles.name}>
+            {conv.title} <IntentBadge intent={conv.intent} />
+          </div>
           <div className={styles.meta}>
             {isGroup ? (
               <>
@@ -96,7 +106,11 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
           <span className={styles.pinText}>
             <Rich text={conv.pinned_note} />
           </span>
-          <button type="button" className={styles.unpin} onClick={() => void pin.run({ conversation_id: conv.id, pinned: false })}>
+          <button
+            type="button"
+            className={styles.unpin}
+            onClick={() => void pin.run({ conversation_id: conv.id, pinned: false })}
+          >
             {t('unpin')}
           </button>
         </div>
@@ -108,7 +122,12 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
           <button
             type="button"
             className={styles.unpin}
-            onClick={() => void pinMessage.run({ conversation_id: conv.id, message_id: pinnedMsg.id, pinned: false }, { silent: true })}
+            onClick={() =>
+              void pinMessage.run(
+                { conversation_id: conv.id, message_id: pinnedMsg.id, pinned: false },
+                { silent: true },
+              )
+            }
           >
             {t('unpinMsg')}
           </button>

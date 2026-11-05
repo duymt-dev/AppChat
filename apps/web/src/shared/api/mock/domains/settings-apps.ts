@@ -1,12 +1,13 @@
 // Mock Cài đặt › Ứng dụng (Blueprint §4.4 channels / integrations): GET /settings/channels — nhóm theo `type`, mỗi nhóm có
 // `accounts[]` (REQ-B09 một kênh nhiều tài khoản); GET /settings/channels/:accountId/stats?days=7 (REQ-B11 khối hiệu suất).
 // Chỉ kênh có manifest (zalo_personal / webchat / email) thêm tài khoản được; còn lại "Sắp có" (omnichannel-adapter, D28).
-import { ApiRequestError, ROLE_DEFS } from '@appchat/shared';
+import { ApiRequestError, ROLE_DEFS, type ChannelAgentBehaviorDto } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { requestContactSync } from './contact-sync';
+import { applyBehavior, behaviorOf, mockBindingVersion, type BehaviorPatch } from './channel-behavior';
 
 export type ChannelAccount = (typeof fixture.channels)[number]['accounts'][number];
 export type SettingsChannel = (typeof fixture.channels)[number];
@@ -20,6 +21,8 @@ export interface SettingsAppsState {
   seq: number;
   /** Tài khoản Zalo đang chờ quét QR (TIP-014): lần đọc `/login` đầu trả `waiting`, lần sau coi như đã quét → connected. */
   pendingLogin: Record<string, number>;
+  /** Hành vi agent trực kênh theo tài khoản (TIP-022b) — lịch / phân luồng từ khoá / lời chào. */
+  behavior: Record<string, ChannelAgentBehaviorDto>;
 }
 
 export const createSettingsAppsState = (): SettingsAppsState => ({
@@ -28,6 +31,7 @@ export const createSettingsAppsState = (): SettingsAppsState => ({
   widget: structuredClone(fixture.widget),
   seq: 0,
   pendingLogin: {},
+  behavior: {},
 });
 
 /** PNG 1×1 — QR giả của mock (như transport Zalo giả của backend). */
@@ -107,13 +111,18 @@ const addAccount = (db: MockDb, type: string, name: string, connected = true): C
   return account;
 };
 
+const behaviorDto = (db: MockDb, a: ChannelAccount & { agent_id?: string }) => {
+  const b = behaviorOf(db, a.id);
+  return { agent_behavior: b, binding_version: mockBindingVersion(a.agent_id, db.settingsApps.behavior[a.id]?.routing ?? null) };
+};
+
 export const settingsAppsRoutes: Record<string, MockRoute> = {
   '/settings/integrations': (db) => db.settingsApps.connectors,
   '/settings/widget': (db) => db.settingsApps.widget,
   '/settings/channels': (db, p) => {
     const f = String(p.filter ?? 'all');
     return db.settingsApps.channels
-      .map((c) => summarize({ ...c, accounts: c.accounts.map((a) => ({ ...a, routing: routingOf(db, a.id) })) }))
+      .map((c) => summarize({ ...c, accounts: c.accounts.map((a) => ({ ...a, routing: routingOf(db, a.id), ...behaviorDto(db, a) })) }))
       .filter((c) => f === 'all' || (f === 'on' ? c.connected : !c.connected));
   },
 };
@@ -181,15 +190,18 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
     },
   },
   'channel.update_settings': {
-    execute: (db, i: { channel_account_id: string; patch: Partial<ChannelAccount> & { agent_id?: string } }) => {
+    execute: (db, i: { channel_account_id: string; patch: Partial<ChannelAccount> & { agent_id?: string } & BehaviorPatch; expected_version?: string }) => {
       // TIP-042b: bản chiếu `assign_mode` là cấu hình phân công → cần crm.reassign; giá trị cũ `shift` không nhận mới.
       if (i.patch.assign_mode !== undefined && !(ROLE_DEFS[db.role].permissions as readonly string[]).includes('crm.reassign')) {
         throw new ApiRequestError(403, { code: 'FORBIDDEN', message: 'crm.reassign', fields: { permission: 'crm.reassign' } });
       }
       if (i.patch.assign_mode === 'shift') throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'assign_mode', fields: { 'patch.assign_mode': 'invalid' } });
       const { account } = findAccount(db, i.channel_account_id);
-      const { agent_id, ...rest } = i.patch;
-      Object.assign(account, rest);
+      const { agent_id, schedule, routing, greeting_enabled, ...rest } = i.patch;
+      // TIP-022b: hành vi agent kiểm + ghi trước (lỗi 409 / 422 không để lại thay đổi nửa vời).
+      applyBehavior(db, account.id, (account as { agent_id?: string }).agent_id, { schedule, routing, greeting_enabled }, i.expected_version);
+      // Trường bỏ trống (undefined) = không đổi — như server.
+      Object.assign(account, Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined)));
       // Bản ghi agent_id + tên hiển thị (backend: settings.agent_id; tên từ bảng ai_agent — TIP-021).
       if (agent_id !== undefined) {
         const a = agent_id ? db.agents.agents.find((x) => x.id === agent_id) : null;
