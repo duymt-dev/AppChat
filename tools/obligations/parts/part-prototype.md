@@ -90,7 +90,7 @@
 | PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | 004b | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance); TIP-004b nhận (2026-11-02) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | MỘT PHẦN | Có tab Lịch sử ví (WalletLedger.tsx:1) nhưng không lọc theo module như prototype |
 | PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | CHƯA | REQ-F01c P1; không có FE; TIP042b AC7, giữ skill/shift/workflow ngoài scope |
-| PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | CHƯA | prototype-parity §6 chỉ loại Phòng ban; Nhóm P1 chưa có UI/action. TIP042 AC5/7; không dùng ngoại lệ Phòng ban để đánh NGOÀI cả Nhóm |
+| PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | ĐẠT | TeamsSection (nhóm phẳng) — parity settings:teams 4,91%; PD-018 |
 | PRO-settings-automation | Mục "Cấu hình workflow" | docs/06-prototype/AppChat.dc.html:6486 | — | NGOÀI | D07 (Workflow engine) |
 | PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | 012c | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |
 

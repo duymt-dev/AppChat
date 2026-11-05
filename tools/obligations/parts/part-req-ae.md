@@ -19,8 +19,8 @@
 | REQ-A05e | Mời thành viên bằng email | 01-REQUIREMENTS-MATRIX.md:38 | 013 | ĐẠT | identity/actions/member-invite.handler.ts:23; test settings.test.ts AC2, workspaces.test.ts AC10 |
 | REQ-A05f | Mời thành viên bằng SĐT | 01-REQUIREMENTS-MATRIX.md:38 | 013b | CHƯA | packages/actions/src/settings.ts:39 input chỉ email; MemberModal.tsx:12; TIP-013b nhận (2026-11-02) |
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
-| REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
-| REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
+| REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | ĐẠT | RoleEditor nhân bản / sửa ma trận quyền; E2E settings-roles (mock + http) |
+| REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | ĐẠT | TeamsSection + team.*; E2E settings-roles (mock + http) |
 | REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 045b | ĐẠT | core/src/authz/fields/* FieldPolicy — DTO 6 thực thể, cf.* 422 trước truy vấn, output action (Trợ lý / agent / API), realtime, export; hardening-fields.test.ts; field-*-leak.test.ts; ai:live hardening 2 ca canary 0 lộ; e2e hardening mock + http |
 | REQ-A06a | Trial 15 ngày Cá nhân Pro + 10.000 credit | 01-REQUIREMENTS-MATRIX.md:40 | 009 | ĐẠT | packages/core/src/billing/services/subscriptions.service.ts:31; test billing.test.ts AC3 |
 | REQ-A06b | Màn chào mừng 2 nút + badge "Còn X ngày" | 01-REQUIREMENTS-MATRIX.md:40 | 011 | ĐẠT | OnboardingGate.tsx:34; apps/web/src/shared/shell/RailFoot.tsx:22; test onboarding.test.ts AC4, e2e http/auth-onboarding.spec.ts |

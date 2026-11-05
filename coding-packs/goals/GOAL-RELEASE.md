@@ -93,7 +93,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 9 | [045b](../tips/TIP-045b-app-hardening.md) | W8 | DONE | `tip/045b-app-hardening` · `tip/045b-pa-consistency` · `tip/045b-pc-fields` · `tip/045b-pd-jobs` · `tip/045b-pd2-data-jobs` · `tip/045b-pe-reconcile` · `tip/045b-close` | `33aa93fd` (P1) · `7df240d1` (A) · `e29293e8` (C) · `5f19fb42` (D1) · `44585096` (D2) · `2286e351` (E) · `bcc12771` (chốt) | #74 · #75 · #76 · #77 · #78 (đã merge) · [#84](https://github.com/duymt-dev/AppChat/pull/84) (E) · [#85](https://github.com/duymt-dev/AppChat/pull/85) (chốt, xếp chồng #84) |
 | 10 | [003d](../tips/TIP-003d-openapi.md) | W8 | DONE | `tip/003d-openapi` | `3faa45ec` | [#86](https://github.com/duymt-dev/AppChat/pull/86) (xếp chồng #85) |
 | 11 | [014b](../tips/TIP-014b-zalo-lifecycle.md) | W8 | PARTIAL — chỉ AC8 Zalo thật (Q-003, chưa nghiệm thu với provider thật) | `tip/014b-zalo-lifecycle` | `4d139ea0` | [#87](https://github.com/duymt-dev/AppChat/pull/87) (xếp chồng #86) |
-| 12 | [042](../tips/TIP-042-custom-roles-teams.md) | W8 | chờ | `tip/042-custom-roles-teams` | | |
+| 12 | [042](../tips/TIP-042-custom-roles-teams.md) | W8 | DONE | `tip/042-custom-roles-teams` | `f93b31eb` | #88 (xếp chồng #87) |
 | 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | chờ | `tip/042b-lead-routing` | | |
 | 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | chờ | `tip/042c-record-scope` | | |
 | 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | chờ | `tip/022b-agent-channel-behavior` | | |

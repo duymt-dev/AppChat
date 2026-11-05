@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 131 | 16 | 5 | 13 | 23 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 133 | 16 | 5 | 13 | 21 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 94 | 15 | 10 | 1 | 33 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 140 | 20 | 3 | 6 | 24 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 287 | 76 | 3 | 4 | 84 | 3 | 0 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 142 | 20 | 3 | 6 | 22 | 12 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 294 | 75 | 3 | 4 | 78 | 3 | 0 | 0 |
 | E. standards/* | 193 | 53 | 1 | 6 | 35 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 21 | 1 | 60 | 0 | 6 | 5 | 0 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 22 | 1 | 60 | 0 | 5 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 46 | 18 | 7 | 13 | 39 | 3 | 0 | 0 |
-| **Tổng** | **912** | **199** | **89** | **43** | **244** | **37** | **69** | **0** |
+| **Tổng** | **924** | **198** | **89** | **43** | **233** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -51,8 +51,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A05e | Mời thành viên bằng email | 01-REQUIREMENTS-MATRIX.md:38 | 013 | ĐẠT | identity/actions/member-invite.handler.ts:23; test settings.test.ts AC2, workspaces.test.ts AC10 |
 | REQ-A05f | Mời thành viên bằng SĐT | 01-REQUIREMENTS-MATRIX.md:38 | 013b | CHƯA | packages/actions/src/settings.ts:39 input chỉ email; MemberModal.tsx:12; TIP-013b nhận (2026-11-02) |
 | REQ-A05g | Số user giới hạn theo gói | 01-REQUIREMENTS-MATRIX.md:38 | 009, 013 | ĐẠT | member-invite.handler.ts:31; test settings.test.ts "vượt hạn mức gói → 402" |
-| REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | role.create/update/delete không có trong registry |
-| REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | CHƯA | Chỉ GET /teams; team.* không có trong registry |
+| REQ-A05b-1 | Vai trò tuỳ biến (nhân bản, sửa ma trận quyền) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | ĐẠT | RoleEditor nhân bản / sửa ma trận quyền; E2E settings-roles (mock + http) |
+| REQ-A05b-2 | Quản lý Nhóm (team) | 01-REQUIREMENTS-MATRIX.md:39 | 042 | ĐẠT | TeamsSection + team.*; E2E settings-roles (mock + http) |
 | REQ-A05b-3 | Ẩn trường theo vai trò phía server | 01-REQUIREMENTS-MATRIX.md:39 | 045b | ĐẠT | core/src/authz/fields/* FieldPolicy — DTO 6 thực thể, cf.* 422 trước truy vấn, output action (Trợ lý / agent / API), realtime, export; hardening-fields.test.ts; field-*-leak.test.ts; ai:live hardening 2 ca canary 0 lộ; e2e hardening mock + http |
 | REQ-A06a | Trial 15 ngày Cá nhân Pro + 10.000 credit | 01-REQUIREMENTS-MATRIX.md:40 | 009 | ĐẠT | packages/core/src/billing/services/subscriptions.service.ts:31; test billing.test.ts AC3 |
 | REQ-A06b | Màn chào mừng 2 nút + badge "Còn X ngày" | 01-REQUIREMENTS-MATRIX.md:40 | 011 | ĐẠT | OnboardingGate.tsx:34; apps/web/src/shared/shell/RailFoot.tsx:22; test onboarding.test.ts AC4, e2e http/auth-onboarding.spec.ts |
@@ -515,7 +515,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | 013c | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081); TIP-013c nhận (2026-11-02) |
 | COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 032c | MỘT PHẦN | Quote side015d; contract-write.handlers.ts:129?144 and order-edit.handlers.ts:34,63,117 still mutate attribution.032c specifies native immutable guard, separate assigned field, CAS/inverse and KPI/export tests; planning only. |
 | COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | CHƯA | TIP042b AC2–6, giữ chủ cũ/không đổi doanh số, CAS/idempotent; chưa code |
-| Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | CHƯA | Đã hỏi, chưa trả lời; TIP042 chưa ready-to-build, không tự nới quyền riêng Owner; Chủ nhà 2026-11-03: duyệt → DC-298 |
+| Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | ĐẠT | DC-298 áp ở packages/shared/src/authz/custom-role-policy.ts (core + web); custom-roles.test.ts AC1/AC2 |
 | COM-9-1 | Máy trạng thái HĐ draft → pending_approval → pending_signature → signed / declined / expired / terminated | plans/COMMERCE-DECISIONS.md:191-195 | 030 | ĐẠT | packages/shared/src/contracts/contract-state.ts · test contract-state.test.ts, contracts.test.ts |
 | COM-9-2 | Kanban / chip 4 cột; Chờ duyệt gộp Nháp; Từ chối / Chấm dứt chỉ ở "Tất cả" | plans/COMMERCE-DECISIONS.md:198 | 030 | ĐẠT | contract-state.ts:31-33 · test contracts.test.ts "D42 … chip trạng thái" |
 | COM-9-3 | Agent / Trợ lý chỉ soạn nháp; gửi ký cần Owner | plans/COMMERCE-DECISIONS.md:202 | 030 | ĐẠT | packages/actions/src/contracts.ts:107-148 (`agentGrantable: false`, permission `contract.sign`) · test contracts.test.ts "sales không duyệt & ký được" |
@@ -579,7 +579,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D25 | Hợp đồng P0: tuỳ chọn sau BG, Owner duyệt + ký trước, khách ký OTP + tay; CA P2 | 01-REQUIREMENTS-MATRIX.md:270 | 030 | ĐẠT | Xem COM-9-*; test contracts.test.ts |
 | D26 | Phạm vi đợt đầu toàn bộ P0 + P1 | 01-REQUIREMENTS-MATRIX.md:271 | — | QUY-TẮC | Phạm vi |
 | D27a | Permission engine, 5 vai trò, scope Của tôi / Nhóm / Tất cả, AI theo quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:276 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36 · test roles.test.ts, authz.test.ts, role-isolation.harness.ts |
-| D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | CHƯA | `role.*`, `team.*` không có trong registry |
+| D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | ĐẠT | role.* + team.* trong registry + UI Vai trò / Nhóm; coding-packs/reports/TIP-042-completion.md |
 | D28a | Bật Cài đặt → Nền tảng kết nối P0, registry + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:277 | 012 | ĐẠT | apps/api/src/http/integrations/integrations.controller.ts · test integrations.test.ts |
 | D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | 012b | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
 | D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | 012d | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có"; TIP-012d nhận (2026-11-02) |
@@ -906,15 +906,15 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-product_variant.archive | `product_variant.archive` có trong registry + handler | plans/BLUEPRINT.md:662 | 032b | ĐẠT | packages/core/src/catalog/actions/variant.handlers.ts (lưu trữ giữ dòng, lặp lại an toàn, undo kiểm SKU — DC-338); actions/product_variant.archive.action.test.ts, catalog-import-edges.test.ts |
 | ACT-product_variant.create | `product_variant.create` có trong registry + handler | plans/BLUEPRINT.md:662 | 032b | ĐẠT | variant.handlers.ts + services/variants.ts (SKU unique lower trên biến thể đang bán + không trùng mã SP, migration 20261102003240_catalog_operations); actions/product_variant.create.action.test.ts |
 | ACT-product_variant.update | `product_variant.update` có trong registry + handler | plans/BLUEPRINT.md:662 | 032b | ĐẠT | variant.handlers.ts (if_version → 409 STALE_VERSION, biến thể lưu trữ → 409 INVALID_STATE, undo); actions/product_variant.update.action.test.ts |
-| ACT-role.create | `role.create` có trong registry + handler | plans/BLUEPRINT.md:581 | 042 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-role.delete | `role.delete` có trong registry + handler | plans/BLUEPRINT.md:581 | 042 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-role.update | `role.update` có trong registry + handler | plans/BLUEPRINT.md:581 | 042 | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-role.create | `role.create` có trong registry + handler | plans/BLUEPRINT.md:581 | 042 | ĐẠT | packages/actions/src/authz.ts + core authz/actions/role.handlers.ts; ma trận role.create.action.test.ts; coding-packs/reports/TIP-042-completion.md |
+| ACT-role.delete | `role.delete` có trong registry + handler | plans/BLUEPRINT.md:581 | 042 | ĐẠT | role.handlers.ts (xoá mềm, HAS_DEPENDENCIES); role.delete.action.test.ts |
+| ACT-role.update | `role.update` có trong registry + handler | plans/BLUEPRINT.md:581 | 042 | ĐẠT | role.handlers.ts (CAS, undo 24h); role.update.action.test.ts |
 | ACT-segment.create | `segment.create` có trong registry + handler | plans/BLUEPRINT.md:756 | 037 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-segment.delete | `segment.delete` có trong registry + handler | plans/BLUEPRINT.md:756 | 037 | CHƯA | Không có trong packages/actions (actions.json) |
 | ACT-segment.update | `segment.update` có trong registry + handler | plans/BLUEPRINT.md:756 | 037 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-team.create | `team.create` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-team.set_members | `team.set_members` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-team.update | `team.update` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-team.create | `team.create` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | ĐẠT | authz/actions/team.handlers.ts; team.create.action.test.ts |
+| ACT-team.set_members | `team.set_members` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | ĐẠT | team.handlers.ts (thay nguyên khối, lead_removed); team.set_members.action.test.ts |
+| ACT-team.update | `team.update` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | ĐẠT | team.handlers.ts (CAS, undo); team.update.action.test.ts |
 | ACT-contact.get_360 | `contact.get_360` có trong registry + handler | plans/BLUEPRINT.md:? | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/contact.get_360.action.test.ts |
 | ACT-workspace.transfer_ownership | `workspace.transfer_ownership` có trong registry + handler | plans/BLUEPRINT.md:583 | 045b | ĐẠT | packages/actions/src/identity.ts (request_transfer_otp + transfer_ownership, agentGrantable false, secret otp); identity/services/ownership-transfer.ts; matrix actions/workspace.transfer_ownership.action.test.ts; hardening-owner.test.ts |
 | BP-3.2-a | Executor đúng thứ tự registry → zod → permission → policy → idempotency → transaction (handler + action_log + outbox) | plans/BLUEPRINT.md:525 | 003 | ĐẠT | packages/core/src/kernel/actions/executor.ts:73-179; test actions.test.ts (AC1–AC8), actions-unit.test.ts |
@@ -939,7 +939,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-3.5-a | Danh mục permission đủ theo bảng §3.5 | plans/BLUEPRINT.md:826 | 005 | ĐẠT | packages/shared/src/authz/permissions.ts:2-21; test roles.test.ts, authz.test.ts |
 | BP-3.5-b | 5 vai trò hệ thống (owner/manager/sales/cs/accountant) + data scope mặc định | plans/BLUEPRINT.md:867 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36-68; test roles.test.ts, authz.test.ts |
 | BP-3.5-c | CSKH crm: đọc all, SỬA chỉ own + chỉ thông tin liên hệ | plans/BLUEPRINT.md:831 | 015, 042c | MỘT PHẦN | roles.ts:57 scope crm='all' + crm.edit → access.ts:38 cho sửa mọi khách mọi trường; không kiểm own/contact-only; 042c writeScope "CSKH all-read/own-write" (TIP-042c:163) nhận phần sửa chỉ khách của mình; giới hạn trường liên hệ qua field policy 045b (2026-11-02) |
-| BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | MỘT PHẦN | authz-resolver.ts:103 có đọc; apps/api/test/integration/authz.test.ts:116 chỉ update DB trực tiếp rồi GET, không chứng minh luồng Owner grant/revoke; 042 AC8, gate Q-028 |
+| BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | ĐẠT | P1: uỷ quyền D35 là vai trò tuỳ biến bật rõ contract.sign / payment.refund_approve; job authz.legacy-delegations chuyển membership.delegations P0 (custom-roles.test.ts AC8); coding-packs/reports/TIP-042-completion.md |
 | BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015, 042c | MỘT PHẦN | CRM có grants nhưng order/quote/contract/invoice/booking helpers chỉ collaborator; không suy test crm-contacts sang cả tài liệu. TIP042c AC2/3 |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |
@@ -1563,7 +1563,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | 004b | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance); TIP-004b nhận (2026-11-02) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | MỘT PHẦN | Có tab Lịch sử ví (WalletLedger.tsx:1) nhưng không lọc theo module như prototype |
 | PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | CHƯA | REQ-F01c P1; không có FE; TIP042b AC7, giữ skill/shift/workflow ngoài scope |
-| PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | CHƯA | prototype-parity §6 chỉ loại Phòng ban; Nhóm P1 chưa có UI/action. TIP042 AC5/7; không dùng ngoại lệ Phòng ban để đánh NGOÀI cả Nhóm |
+| PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | ĐẠT | TeamsSection (nhóm phẳng) — parity settings:teams 4,91%; PD-018 |
 | PRO-settings-automation | Mục "Cấu hình workflow" | docs/06-prototype/AppChat.dc.html:6486 | — | NGOÀI | D07 (Workflow engine) |
 | PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | 012c | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |
 

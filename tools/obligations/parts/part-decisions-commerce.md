@@ -97,7 +97,7 @@
 | COM-8b-5 | Tin mới tự gán owner; owner ngoài ca / vắng → hàng chung hoặc agent | plans/COMMERCE-DECISIONS.md:180 | 013c | MỘT PHẦN | Tự gán có (inbox/services/pipeline.ts:108 · test inbox.test.ts AC2); ngoài ca / vắng chưa (DC-081); TIP-013c nhận (2026-11-02) |
 | COM-8b-6 | Chứng từ ghi `owner_user_id` tại thời điểm tạo cho doanh số | plans/COMMERCE-DECISIONS.md:181 | 032c | MỘT PHẦN | Quote side015d; contract-write.handlers.ts:129?144 and order-edit.handlers.ts:34,63,117 still mutate attribution.032c specifies native immutable guard, separate assigned field, CAS/inverse and KPI/export tests; planning only. |
 | COM-8b-7 | Chia lead tự động (thủ công / vòng tròn / kênh / tải) | plans/COMMERCE-DECISIONS.md:182 | 042b | CHƯA | TIP042b AC2–6, giữ chủ cũ/không đổi doanh số, CAS/idempotent; chưa code |
-| Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | CHƯA | Đã hỏi, chưa trả lời; TIP042 chưa ready-to-build, không tự nới quyền riêng Owner; Chủ nhà 2026-11-03: duyệt → DC-298 |
+| Q-028 | Chốt biên quyền custom role/uỷ quyền và chuyển grant P0 sang P1 | QUESTIONS.md:Q-028; BLUEPRINT §3.5 | 042 | ĐẠT | DC-298 áp ở packages/shared/src/authz/custom-role-policy.ts (core + web); custom-roles.test.ts AC1/AC2 |
 | COM-9-1 | Máy trạng thái HĐ draft → pending_approval → pending_signature → signed / declined / expired / terminated | plans/COMMERCE-DECISIONS.md:191-195 | 030 | ĐẠT | packages/shared/src/contracts/contract-state.ts · test contract-state.test.ts, contracts.test.ts |
 | COM-9-2 | Kanban / chip 4 cột; Chờ duyệt gộp Nháp; Từ chối / Chấm dứt chỉ ở "Tất cả" | plans/COMMERCE-DECISIONS.md:198 | 030 | ĐẠT | contract-state.ts:31-33 · test contracts.test.ts "D42 … chip trạng thái" |
 | COM-9-3 | Agent / Trợ lý chỉ soạn nháp; gửi ký cần Owner | plans/COMMERCE-DECISIONS.md:202 | 030 | ĐẠT | packages/actions/src/contracts.ts:107-148 (`agentGrantable: false`, permission `contract.sign`) · test contracts.test.ts "sales không duyệt & ký được" |
@@ -161,7 +161,7 @@
 | D25 | Hợp đồng P0: tuỳ chọn sau BG, Owner duyệt + ký trước, khách ký OTP + tay; CA P2 | 01-REQUIREMENTS-MATRIX.md:270 | 030 | ĐẠT | Xem COM-9-*; test contracts.test.ts |
 | D26 | Phạm vi đợt đầu toàn bộ P0 + P1 | 01-REQUIREMENTS-MATRIX.md:271 | — | QUY-TẮC | Phạm vi |
 | D27a | Permission engine, 5 vai trò, scope Của tôi / Nhóm / Tất cả, AI theo quyền người ra lệnh | 01-REQUIREMENTS-MATRIX.md:276 | 005 | ĐẠT | packages/shared/src/authz/roles.ts:36 · test roles.test.ts, authz.test.ts, role-isolation.harness.ts |
-| D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | CHƯA | `role.*`, `team.*` không có trong registry |
+| D27b | Vai trò tuỳ biến + Nhóm (P1) | 01-REQUIREMENTS-MATRIX.md:276 | 042 | ĐẠT | role.* + team.* trong registry + UI Vai trò / Nhóm; coding-packs/reports/TIP-042-completion.md |
 | D28a | Bật Cài đặt → Nền tảng kết nối P0, registry + "Sắp có" | 01-REQUIREMENTS-MATRIX.md:277 | 012 | ĐẠT | apps/api/src/http/integrations/integrations.controller.ts · test integrations.test.ts |
 | D28b | SePay / Casso của DN phát hành thật | 01-REQUIREMENTS-MATRIX.md:277 | 012b | GIẢ | Như COM-5-13 (registry.ts:16-17 gắn adapter mock) |
 | D28c | Connector storage phát hành | 01-REQUIREMENTS-MATRIX.md:277 | 012d | MỘT PHẦN | Chỉ `local` (kernel/files/storage.ts:1-2 "s3 để sau"); thẻ GCS "Sắp có"; TIP-012d nhận (2026-11-02) |
