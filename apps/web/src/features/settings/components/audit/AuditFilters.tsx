@@ -14,6 +14,9 @@ interface Props {
   actions?: string[];
 }
 
+/** Id action có dấu chấm → key i18n (next-intl không cho "." trong key — dùng "__"). */
+const i18nKey = (id: string) => id.replace(/\./g, '__');
+
 export function AuditFilters({ draft, active, set, reset, actions = [] }: Props) {
   const t = useTranslations('settings.audit.filter');
   const s = useSectionStyles().styles;
@@ -24,7 +27,7 @@ export function AuditFilters({ draft, active, set, reset, actions = [] }: Props)
           <option value="">{t('allActions')}</option>
           {actions.map((a) => (
             <option key={a} value={a}>
-              {t(`act.${a}`)}
+              {t(`act.${i18nKey(a)}` as never)}
             </option>
           ))}
         </select>

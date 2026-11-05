@@ -15,7 +15,7 @@ export function AuditTable({ rows }: { rows: AuditRow[] }) {
   const fmt = useFmt();
   const { styles, cx } = useAuditStyles();
   const actor = (a: AuditRow) => (a.name ? `${a.name} (${a.role === 'removed' ? t('removed') : tr(a.role as never)})` : t(`actor.${a.role === 'system' ? 'system' : 'ai'}`));
-  const label = (id: string) => (ta.has(`${id}.title` as never) ? ta(`${id}.title` as never) : t.has(`event.${id}` as never) ? t(`event.${id}` as never) : id);
+  const label = (id: string) => (ta.has(`${id}.title` as never) ? ta(`${id}.title` as never) : t.has(`event.${id.replace(/\./g, '__')}` as never) ? t(`event.${id.replace(/\./g, '__')}` as never) : id);
   return (
     <div className={styles.table} data-testid="st-audit">
       <div className={cx(styles.th, styles.g4)}>
