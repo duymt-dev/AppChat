@@ -186,8 +186,11 @@ describe('role-isolation (DB thật)', () => {
     try {
       expect(await visible(salesA, q('crm'))).toEqual([ids.a]);
       expect(await visible(salesB, q('crm'))).toEqual([ids.b]);
-      expect(await visible({ ...salesTeam, authz: { ...salesTeam.authz, scope: { ...salesTeam.authz.scope, crm: 'team' } } }, q('crm'))).toEqual([ids.a, ids.b].sort());
+      // DC-299 (TIP-042c): scope team theo cột nhóm của bản ghi — notification không có cột nhóm → team chỉ còn của mình, không suy từ
+      // đồng đội (bản ghi có team_id thử ở record-scope.test.ts).
+      expect(await visible({ ...salesTeam, authz: { ...salesTeam.authz, scope: { ...salesTeam.authz.scope, crm: 'team' } } }, q('crm'))).toEqual([ids.a]);
       expect(salesTeam.authz.teamIds).toEqual([team]);
+      expect([...(salesTeam.authz.teamUserIds ?? [])].sort()).toEqual([salesA.id, salesB.id].sort());
       expect(await visible(manager, q('crm'))).toEqual([ids.a, ids.b].sort());
       expect(await visible(acct, q('inbox'))).toEqual([]);
     } finally {

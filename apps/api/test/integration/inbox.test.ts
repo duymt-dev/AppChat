@@ -197,7 +197,8 @@ describe('scope + action', () => {
     const hieu = (await convOf('u_hieu'))!;
     expect((await get('/conversations', salesB)).body.data.map((c: { id: string }) => c.id)).not.toContain(hieu.id);
     expect((await get(`/conversations/${hieu.id}`, salesB)).status).toBe(404);
-    expect(await act('conversation.archive', { conversation_id: hieu.id }, as(salesB))).toMatchObject({ status: 403, body: { error: { code: 'SCOPE_FORBIDDEN' } } });
+    // TIP-042c: không đọc được → 404 cả khi ghi (không lộ tồn tại qua 403); 403 chỉ khi đọc được mà không ghi được (watcher).
+    expect(await act('conversation.archive', { conversation_id: hieu.id }, as(salesB))).toMatchObject({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
     expect((await get('/conversations', salesA)).body.data.map((c: { id: string }) => c.id)).toEqual([hieu.id]);
     expect((await act('contact.add_collaborator', { contact_id: hieu.contactId, user_id: salesB.id, role: 'collaborator' }, as(salesA))).status).toBe(200);
     expect((await get(`/conversations/${hieu.id}`, salesB)).status).toBe(200);
@@ -318,7 +319,7 @@ describe('thẻ + câu trả lời mẫu + realtime + chuyển phụ trách', ()
     const hieu = (await convOf('u_hieu'))!;
     const e = emitter.sent.slice(n0).filter((x) => (x.data as { conversation_id?: string }).conversation_id === hieu.id);
     expect(e.find((x) => x.event === 'message.new')).toMatchObject({ rooms: [`conv:${hieu.id}`] });
-    expect(e.find((x) => x.event === 'conversation.updated')).toMatchObject({ rooms: [`ws:${h.ws}`], require: { scope: { module: 'inbox', row: { ownerUserId: salesA.id } } } });
+    expect(e.find((x) => x.event === 'conversation.updated')).toMatchObject({ rooms: [`ws:${h.ws}`], require: { permission: 'inbox.view', record: { policy: { module: 'inbox', contactGrants: true }, mineUserId: salesA.id } } });
   });
 
   it('AC10 contact.transfer_owner chuyển kèm hội thoại → hội thoại đang mở gán người mới; undo trả lại', async () => {
