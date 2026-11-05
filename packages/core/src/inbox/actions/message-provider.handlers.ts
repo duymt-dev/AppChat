@@ -99,7 +99,7 @@ export class MessageReactHandler implements Handler<ActionInput<typeof messageRe
     // Thẻ xem trước gắn revision lúc xem: tài khoản đã đổi cảm xúc từ đó → 409, xem trước lại (không tự tính lại bật / tắt).
     if (input.if_revision !== undefined && input.if_revision !== (cur?.desiredRevision ?? 0)) throw new AppError('CONFLICT', 409, { if_revision: 'stale' });
     const desired: ReactionEmoji | null = cur?.desiredEmoji === input.emoji ? null : input.emoji;
-    const revision = await nextReaction(tx, c.channelAccountId, m.id, desired);
+    const revision = await nextReaction(tx, c.channelAccountId, m.id, desired, this.clock.now());
     // Hàng cảm xúc của người bấm = ý định đã gửi cho tài khoản (menu hiện đúng thứ mình chọn); trạng thái phía kênh là của tài khoản.
     await tx.messageReaction.deleteMany({ where: { messageId: m.id, actorType: 'user', actorId } });
     if (desired) await tx.messageReaction.create({ data: { messageId: m.id, actorType: 'user', actorId, emoji: desired, createdAt: this.clock.now() } });

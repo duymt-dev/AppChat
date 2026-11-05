@@ -8,13 +8,13 @@ import { failReservedParts, sendLedger } from '../../channels/operations/deliver
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function inboxSendBooks(tenants: TenantDbResolver, now: () => Date) {
-  return async (ws: string, accountId: string, job: SendJob): Promise<SendBook | null> => {
+  return async (ws: string, accountId: string, job: SendJob, generation?: number): Promise<SendBook | null> => {
     if (!UUID.test(job.ref_id)) return null;
     const db = await tenants.get(TenantContexts.fromRoute(ws, 'channel'));
     const ob = await db.outboxMessage.findUnique({ where: { id: job.ref_id }, select: { id: true, channelAccountId: true } });
     if (!ob || ob.channelAccountId !== accountId) return null;
     return {
-      ledger: sendLedger(db, { outboxId: ob.id, accountId, threadId: job.message.externalThreadId, isGroup: !!job.message.isGroup, now }),
+      ledger: sendLedger(db, { outboxId: ob.id, accountId, threadId: job.message.externalThreadId, isGroup: !!job.message.isGroup, generation, now }),
       fail: (definite, error) => failReservedParts(db, ob.id, definite, error),
     };
   };

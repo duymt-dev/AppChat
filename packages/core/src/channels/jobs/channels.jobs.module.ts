@@ -81,10 +81,10 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     const sessions: ChannelSessions = new ChannelSessions({
       platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.
-      onStarted: async (id, ws, adapter) => {
-        await senders.open(id, ws, adapter);
+      onStarted: async (id, ws, adapter, generation) => {
+        await senders.open(id, ws, adapter, generation);
         await groups?.open(id, adapter);
-        await operators.open(id, adapter);
+        await operators.open(id, adapter, generation);
       },
       onStopped: async (id) => {
         await senders.close(id);
@@ -95,7 +95,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log }) : undefined;
     this.groups = groups;
     const senders: ChannelSenders = new ChannelSenders({
-      redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER,
+      redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER, now,
       pause: (ws, id, detail) => sessions.markDown(ws, id, 'send_errors', detail),
       expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
       reserve: reserveSend,

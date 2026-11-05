@@ -30,6 +30,9 @@ model ChannelAccount {
   /// `{ status: connected|degraded|error|expired, detail?, checked_at, failures: [iso…] }` — lỗi gửi bất thường gần đây.
   health         Json                 @default("{}")
   lastEventAt    DateTime?            @map("last_event_at") @db.Timestamptz(6)
+  /// Thế hệ phiên (TIP-014b C): tăng mỗi lần worker giành phiên + mỗi lần đổi trạng thái (tạm dừng / ngắt / kết nối lại / hết hạn). Đặt chỗ
+  /// gửi / thao tác kiểm đúng thế hệ của worker đang giữ — chủ phiên cũ (mất lease) không gọi kênh được nữa.
+  sessionGeneration Int                 @default(0) @map("session_generation")
   createdBy      String?              @map("created_by") @db.Uuid
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)

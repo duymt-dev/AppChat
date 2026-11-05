@@ -11,6 +11,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { recordInboundThread } from '../email/threads';
 import { settingsOf } from '../services/accounts.service';
 import type { ControlOp } from '../services/control';
+import { scanRoutes } from './lease';
 
 export const POLL_INTERVAL_MS = 60_000;
 export const pollKey = (accountId: string) => `poll:channel:${accountId}`;
@@ -57,13 +58,14 @@ export class ChannelPollers {
     if (this.ticking || !types.length) return;
     this.ticking = true;
     try {
-      const routes = await this.d.platform.tenantChannelRoute.findMany({ where: { status: 'connected', type: { in: types } }, select: { channelAccountId: true, workspaceId: true, type: true } });
-      const live = new Set(routes.map((r) => r.channelAccountId));
-      for (const id of [...this.opened.keys()]) if (!live.has(id)) await this.drop(id);
-      for (const r of routes) {
+      // Quét route theo trang (TIP-014b C) — chỉ giữ tập id còn sống, không nạp cả bảng.
+      const live = new Set<string>();
+      await scanRoutes(this.d.platform, types, async (r) => {
+        live.add(r.channelAccountId);
         if (!this.opened.has(r.channelAccountId)) await this.load(r.channelAccountId, r.workspaceId).catch((err: unknown) => this.d.log.warn({ err, account: r.channelAccountId }, 'poll channel open failed'));
         if (this.opened.has(r.channelAccountId)) void this.poll(r.channelAccountId);
-      }
+      });
+      for (const id of [...this.opened.keys()]) if (!live.has(id)) await this.drop(id);
     } catch (err) {
       this.d.log.error({ err }, 'poll channels tick failed');
     } finally {

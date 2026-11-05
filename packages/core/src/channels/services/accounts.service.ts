@@ -94,6 +94,7 @@ export class ChannelAccounts {
   ): Promise<{ row: AccountRow; event: StatusEvent | null }> {
     const status = patch.status ?? (row.status as AccountStatus);
     const pausedAt = patch.pausedAt === undefined ? row.pausedAt : patch.pausedAt;
+    const changed = status !== row.status || !!pausedAt !== !!row.pausedAt;
     const next = await tx.channelAccount.update({
       where: { id: row.id },
       data: {
@@ -102,9 +103,10 @@ export class ChannelAccounts {
         ...(patch.health ? { health: { ...patch.health, checked_at: now.toISOString() } } : {}),
         ...(status === 'disconnected' ? { credentialsEnc: null } : {}),
         lastEventAt: now,
+        // Đổi trạng thái → thế hệ phiên mới (TIP-014b C): chủ phiên hiện tại không đặt chỗ gửi / thao tác được nữa.
+        ...(changed ? { sessionGeneration: { increment: 1 } } : {}),
       },
     });
-    const changed = status !== row.status || !!pausedAt !== !!row.pausedAt;
     const payload = { channel_account_id: row.id, type: row.type, name: next.name, status, paused: !!pausedAt, ...(reason ? { reason } : {}) };
     return { row: next, event: changed ? { topic: 'channel.status_changed', payload } : null };
   }

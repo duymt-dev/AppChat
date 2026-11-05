@@ -12,6 +12,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { settingsOf } from '../services/accounts.service';
 import { SEND_ATTEMPTS, emitSendResult, sendBookFor, sendQueueName, type SendBook, type SendJob, type SendResult } from '../services/send-queue';
 import { UnknownPartError } from '../operations/delivery-receipts';
+import { StaleGenerationError } from '../operations/session-generation';
 
 export const FAIL_WINDOW_MS = 10 * 60_000;
 export const FAIL_LIMIT = 3;
@@ -30,6 +31,8 @@ export interface SendDeps {
    * đã tiếp quản) → không gọi kênh. Vắng → gửi như cũ.
    */
   reserve?: (ws: string, refId: string) => Promise<boolean>;
+  /** Clock (TIP-014b C) — mốc ngày của cap chủ động + cửa sổ lỗi bất thường. Vắng → giờ hệ thống. */
+  now?: () => Date;
 }
 
 const dayKey = (accountId: string, now: Date) => `chcap:${accountId}:${now.toISOString().slice(0, 10)}`;
@@ -46,7 +49,8 @@ export class ChannelSenders {
 
   constructor(private readonly d: SendDeps) {}
 
-  async open(accountId: string, ws: string, adapter: ChannelAdapter): Promise<void> {
+  /** `generation` (kênh lease — TIP-014b C): thế hệ phiên đang giữ; đặt chỗ phần gửi kiểm lại trong DB. */
+  async open(accountId: string, ws: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
     if (this.workers.has(accountId)) return;
     const db = await this.d.tenants.get(TenantContexts.fromRoute(ws, 'channel'));
     const row = await db.channelAccount.findUnique({ where: { id: accountId }, select: { settings: true } });
@@ -60,7 +64,7 @@ export class ChannelSenders {
       async (job) => {
         const j = job.data;
         if (j.proactive && cap !== undefined) {
-          const k = dayKey(accountId, new Date());
+          const k = dayKey(accountId, this.now());
           const n = await this.d.redis.incr(k);
           if (n === 1) await this.d.redis.pexpire(k, 26 * 3_600_000);
           if (n > cap) {
@@ -73,7 +77,7 @@ export class ChannelSenders {
         if (wait > 0) await sleep(wait);
         // Điểm tuyến tính hoá với người tiếp quản: đặt chỗ commit → gửi đúng một lần; bị từ chối → dừng hẳn (không thử lại).
         if (this.d.reserve && !(await this.d.reserve(j.ws, j.ref_id))) return null;
-        const book = await sendBookFor(j.ws, accountId, j);
+        const book = await sendBookFor(j.ws, accountId, j, generation);
         let sent: SendReceipt;
         try {
           sent = await adapter.send(accountId, j.message, book?.ledger);
@@ -94,6 +98,8 @@ export class ChannelSenders {
   /** Lỗi gửi: một phần đã tới / chưa rõ → final (không gửi lại); chưa tới khách → thử lại theo BullMQ. */
   private async failed(attemptsMade: number, j: SendJob, accountId: string, book: SendBook | null, err: unknown): Promise<never> {
     const cause = err instanceof PartialSendError ? err.cause : err;
+    // Bị fence trước khi gọi kênh (phiên đã đổi chủ / tạm dừng): không kết quả, không đếm lỗi — job chạy lại ở chủ phiên mới.
+    if (cause instanceof StaleGenerationError && !(err instanceof PartialSendError)) throw cause;
     const sure = definite(cause);
     const touched = book && !(cause instanceof UnknownPartError) ? await book.fail(sure, errText(cause)) : 0;
     const emit = (r: Omit<Extract<SendResult, { ok: false }>, 'ok' | 'ws' | 'account_id' | 'ref_id'>) => emitSendResult({ ok: false, ws: j.ws, account_id: accountId, ref_id: j.ref_id, ...r }, !!book);
@@ -130,6 +136,10 @@ export class ChannelSenders {
     for (const id of [...this.workers.keys()]) await this.close(id);
   }
 
+  private now(): Date {
+    return this.d.now?.() ?? new Date();
+  }
+
   private later(fn: () => Promise<void>): void {
     setImmediate(() => void fn().catch((err: unknown) => this.d.log.error({ err }, 'channel send follow-up failed')));
   }
@@ -137,7 +147,7 @@ export class ChannelSenders {
   /** Ghi một lỗi gửi; true khi đủ FAIL_LIMIT lỗi trong FAIL_WINDOW_MS (rồi xoá đếm). */
   private async abnormal(accountId: string): Promise<boolean> {
     const k = failKey(accountId);
-    const now = Date.now();
+    const now = this.now().getTime();
     await this.d.redis.zadd(k, now, `${now}-${Math.random()}`);
     await this.d.redis.zremrangebyscore(k, 0, now - FAIL_WINDOW_MS);
     await this.d.redis.pexpire(k, FAIL_WINDOW_MS);

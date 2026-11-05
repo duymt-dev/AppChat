@@ -50,7 +50,7 @@ export async function liveRecall(tx: Pick<TenantTx, 'channelOperation'>, message
  * Ghi cảm xúc mong muốn mới của tài khoản → revision mới (nguyên tử). Lệnh cảm xúc cũ chưa gọi kênh (`queued`) bị thay. Trả revision
  * để gắn vào lệnh — ACK / sự kiện của revision cũ không đè được ý định mới hơn.
  */
-export async function nextReaction(tx: TenantTx, accountId: string, messageId: string, emoji: ReactionEmoji | null): Promise<number> {
+export async function nextReaction(tx: TenantTx, accountId: string, messageId: string, emoji: ReactionEmoji | null, now: Date): Promise<number> {
   const rows = await tx.$queryRaw<{ desired_revision: number }[]>`
     INSERT INTO message_account_reaction (message_id, channel_account_id, desired_emoji, desired_revision, updated_at)
     VALUES (${messageId}::uuid, ${accountId}::uuid, ${emoji}, 1, now())
@@ -58,6 +58,6 @@ export async function nextReaction(tx: TenantTx, accountId: string, messageId: s
       desired_revision = message_account_reaction.desired_revision + 1, updated_at = now()
     RETURNING desired_revision`;
   const revision = rows[0]!.desired_revision;
-  await tx.channelOperation.updateMany({ where: { messageId, kind: 'react', status: 'queued', revision: { lt: revision } }, data: { status: 'superseded', finishedAt: new Date() } });
+  await tx.channelOperation.updateMany({ where: { messageId, kind: 'react', status: 'queued', revision: { lt: revision } }, data: { status: 'superseded', finishedAt: now } });
   return revision;
 }

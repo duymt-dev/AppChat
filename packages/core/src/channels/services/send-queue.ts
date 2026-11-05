@@ -63,10 +63,10 @@ export interface SendBook {
   ledger: SendLedger;
   fail(definite: boolean, error: string): Promise<number>;
 }
-export type SendBooks = (ws: string, accountId: string, job: SendJob) => Promise<SendBook | null>;
+export type SendBooks = (ws: string, accountId: string, job: SendJob, generation?: number) => Promise<SendBook | null>;
 let BOOKS: SendBooks | null = null;
 export const registerSendBooks = (b: SendBooks | null) => void (BOOKS = b);
-export const sendBookFor: SendBooks = (ws, accountId, job) => (BOOKS ? BOOKS(ws, accountId, job) : Promise.resolve(null));
+export const sendBookFor: SendBooks = (ws, accountId, job, generation) => (BOOKS ? BOOKS(ws, accountId, job, generation) : Promise.resolve(null));
 
 export const SEND_ATTEMPTS = 5;
 

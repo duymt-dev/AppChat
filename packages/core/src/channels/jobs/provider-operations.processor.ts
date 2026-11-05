@@ -13,6 +13,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { messageRefs } from '../operations/operation-store';
 import { applyOperationResult, markInterrupted, type OperationOutcome } from '../operations/provider-event';
 import { OPERATION_TIMEOUT_MS, type OperationJob } from '../operations/types';
+import { assertGeneration } from '../operations/session-generation';
 
 export const operationQueueName = (accountId: string) => `chop-${accountId}`;
 
@@ -54,9 +55,9 @@ export class ProviderOperators {
   private readonly workers = new Map<string, Worker>();
   constructor(private readonly d: OperationDeps) {}
 
-  async open(accountId: string, adapter: ChannelAdapter): Promise<void> {
+  async open(accountId: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
     if (this.workers.has(accountId) || !adapter.operations) return;
-    const w = new Worker<OperationJob>(operationQueueName(accountId), (job) => this.run(accountId, adapter, job.data), { connection: this.d.redis.duplicate(), concurrency: 1 });
+    const w = new Worker<OperationJob>(operationQueueName(accountId), (job) => this.run(accountId, adapter, job.data, generation), { connection: this.d.redis.duplicate(), concurrency: 1 });
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'operation worker error'));
     this.workers.set(accountId, w);
   }
@@ -82,7 +83,7 @@ export class ProviderOperators {
     if (wrote) await markDirty(this.d.kv, ws);
   }
 
-  async run(accountId: string, adapter: ChannelAdapter, j: OperationJob): Promise<string> {
+  async run(accountId: string, adapter: ChannelAdapter, j: OperationJob, generation?: number): Promise<string> {
     const db = await this.d.tenants.get(TenantContexts.fromRoute(j.ws, 'channel'));
     const op = await db.channelOperation.findUnique({ where: { id: j.operation_id } });
     if (!op || op.channelAccountId !== accountId) return 'missing';
@@ -106,7 +107,11 @@ export class ProviderOperators {
       await this.finish(db, j.ws, op.id, { status: 'failed', error: 'provider_ref_missing' });
       return 'failed';
     }
-    const claimed = await db.channelOperation.updateMany({ where: { id: op.id, status: 'queued' }, data: { status: 'dispatch_reserved', attemptedAt: this.d.now() } });
+    // Đặt chỗ + fence thế hệ phiên cùng transaction (TIP-014b C): chủ phiên cũ ném StaleGenerationError → job thử lại ở chủ mới.
+    const claimed = await db.$transaction(async (tx) => {
+      await assertGeneration(tx, accountId, generation);
+      return tx.channelOperation.updateMany({ where: { id: op.id, status: 'queued' }, data: { status: 'dispatch_reserved', attemptedAt: this.d.now() } });
+    });
     if (!claimed.count) return 'raced';
     const ops = adapter.operations!;
     const call = (ref: ProviderMessageRef) =>

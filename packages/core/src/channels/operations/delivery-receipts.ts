@@ -6,6 +6,7 @@ import type { TenantDb } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
 import { messageByProviderId } from './operation-store';
+import { assertGeneration } from './session-generation';
 
 /** Phần gửi treo từ lần chạy trước (đã đặt chỗ, chưa xác nhận) — không biết đã tới khách chưa. */
 export class UnknownPartError extends Error {
@@ -29,6 +30,8 @@ export function sendLedger(db: TenantDb, o: { outboxId: string; accountId: strin
           return 'stuck';
         }
         if (cur && cur.contentHash !== hash) throw new ChannelOperationError('invalid', 'part_hash_changed');
+        // Fence (TIP-014b C): chủ phiên cũ (thế hệ đã đổi) không đặt chỗ được — chưa gọi kênh, chủ mới chạy lại an toàn.
+        await assertGeneration(tx, o.accountId, o.generation);
         const data = { status: 'dispatch_reserved' as const, attemptedAt: o.now(), generation: o.generation ?? 0, traceId: o.traceId ?? null };
         if (cur) await tx.outboxSendPart.update({ where: { outboxMessageId_partNo: { outboxMessageId: o.outboxId, partNo } }, data });
         else await tx.outboxSendPart.create({ data: { outboxMessageId: o.outboxId, partNo, channelAccountId: o.accountId, contentHash: hash, ...data } });
