@@ -14,6 +14,7 @@ import { importTexts, productImportRoute } from './domains/product-import';
 import { dataJobsRoute } from './domains/data-jobs';
 import { channelOperationsRoute } from './domains/channel-operations';
 import { contactSyncRoute } from './domains/contact-sync';
+import { channelFriendsRoute } from './domains/channel-friends';
 import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
@@ -75,6 +76,7 @@ export const mockTransport: Transport = {
       dataJobsRoute(path) ??
       channelOperationsRoute(path) ??
       contactSyncRoute(path) ??
+      channelFriendsRoute(path) ??
       quotesParamRoute(path) ??
       quotesPublicRoute(path) ??
       publicDocumentRoute(path) ??

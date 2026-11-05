@@ -14,6 +14,7 @@ import { useSettingsUi } from '../settings-store';
 import { channelAccountStatsQuery, channelsQuery } from '../api';
 import { Switch } from './Switch';
 import { ContactSyncPanel } from './ContactSyncPanel';
+import { FriendsPanel } from './FriendsPanel';
 import type { ChannelAccount, ChannelAiMode, ChannelAssignMode, ChannelHistoryDays } from '../types';
 
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
@@ -321,6 +322,8 @@ export function ManageChannelDrawer() {
             </div>
             {/* Danh bạ (TIP-014b D3) — kênh có danh bạ phía nhà cung cấp (Zalo cá nhân), tài khoản đang chạy. */}
             {c.type === 'zalo_personal' && account.connected && !account.paused ? <ContactSyncPanel accountId={account.id} /> : null}
+            {/* Bạn bè Zalo (TIP-014b E) — chỉ người bấm; lời mời tới + tra một SĐT. */}
+            {c.type === 'zalo_personal' && account.connected && !account.paused ? <FriendsPanel accountId={account.id} /> : null}
           </div>
 
           <div className={cx(styles.block, styles.blockDanger)}>

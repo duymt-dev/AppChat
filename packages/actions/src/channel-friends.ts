@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { defineAction } from './define';
 
-const target = z.object({ channel_account_id: z.string().uuid(), external_id: z.string().regex(/^[0-9]{1,20}$/) });
+const target = z.object({ channel_account_id: z.string().min(1), external_id: z.string().regex(/^[0-9]{1,20}$/) });
 const accepted = z.object({ ok: z.boolean() });
 
 export const channelFriendAccept = defineAction({
@@ -66,7 +66,7 @@ export const channelLookupUser = defineAction({
   title: 'actions.channel.lookup_user.title',
   description:
     'Look up ONE phone number on a Zalo account (staff click only, max 30/day per account, result kept 24h, audited, never saved as a customer automatically). Example: {"channel_account_id":"0190f000-0000-7000-8000-000000000001","phone":"0909123456"}',
-  input: z.object({ channel_account_id: z.string().uuid(), phone: z.string().min(9).max(20) }),
+  input: z.object({ channel_account_id: z.string().min(1), phone: z.string().min(9).max(20) }),
   output: accepted,
   permission: 'inbox.manage',
   // Ghi dòng nhật ký tra + tính vào trần / ngày → write (không phải đọc thuần).
