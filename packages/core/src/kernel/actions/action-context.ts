@@ -23,6 +23,8 @@ export interface ActionContext {
    * (Blueprint §3.3 "chỉ trả lời trong hội thoại đang phục vụ"); gửi nơi khác vẫn qua duyệt.
    */
   servedConversationId?: string;
+  /** Lượt agent đang giữ (TIP-045b annex D): fence + epoch hội thoại — tin gửi mang theo, đặt chỗ gửi kiểm lại trước khi gọi kênh. */
+  agentTurn?: { fence: number; epoch: number };
   /**
    * Tác vụ Cowork tắt "Hỏi xác nhận trước khi gửi ra bên ngoài" (REQ-E13, Blueprint §3.3 dòng `task` — "approval nếu ask_before_send"):
    * action `send` chạy luôn; delete / money vẫn qua duyệt.

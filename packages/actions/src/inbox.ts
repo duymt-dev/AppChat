@@ -138,7 +138,7 @@ export const messageSend = defineAction({
   input: z
     .object({ conversation_id: convId, text: z.string().max(4000).default(''), reply_to_id: z.string().optional(), attachments: z.array(z.string().min(1)).max(10).optional() })
     .refine((v) => v.text.trim().length > 0 || (v.attachments?.length ?? 0) > 0, { message: 'text_or_attachments', path: ['text'] }),
-  output: z.object({ message_id: z.string() }),
+  output: z.object({ message_id: z.string(), agent_in_flight: z.boolean().optional() }),
   permission: 'inbox.reply',
   risk: 'send',
   agentGrantable: true,

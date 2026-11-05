@@ -20,6 +20,8 @@ export interface OutgoingInput {
   sender: { type: 'user' | 'agent' | 'system'; id: string | null; name: string | null };
   replyToId?: string | null;
   forwardedFromId?: string | null;
+  /** Tin agent (TIP-045b annex D): fence lượt + epoch hội thoại lúc ghi — đặt chỗ gửi kiểm lại trước khi gọi kênh. */
+  turn?: { fence: number; epoch: number };
   now: Date;
 }
 
@@ -78,7 +80,7 @@ export async function writeOutgoing(tx: TenantTx, o: OutgoingInput): Promise<Out
       createdAt: now,
     },
   });
-  await tx.outboxMessage.create({ data: { id: outboxId, messageId, channelAccountId: conv.channelAccountId, payload: message as object, status: 'pending', nextAttemptAt: now, createdAt: now } });
+  await tx.outboxMessage.create({ data: { id: outboxId, messageId, channelAccountId: conv.channelAccountId, payload: message as object, status: 'pending', nextAttemptAt: now, createdAt: now, ...(o.turn ? { turnFence: o.turn.fence, aiEpoch: o.turn.epoch } : {}) } });
   // Phản hồi đầu tiên sau tin khách → FRT vào thống kê ngày của tài khoản (REQ-B11).
   if (conv.frtPendingSince && o.sender.type !== 'system') {
     const sec = Math.max(0, Math.round((now.getTime() - conv.frtPendingSince.getTime()) / 1000));

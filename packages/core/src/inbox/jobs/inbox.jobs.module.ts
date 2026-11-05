@@ -3,13 +3,14 @@
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
-import type { PlatformDb, TenantDbResolver } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
-import { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { ChannelSendQueue, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { reserveDispatch } from '../../ai/reply/send-fence';
 import { ChannelsModule } from '../../channels/channels.module';
 import { AgentReplyQueue } from '../../ai/reply/reply.queue';
 import { InboxModule } from '../inbox.module';
@@ -46,12 +47,15 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     this.deps = d;
     this.worker = startInboundWorker(d);
     registerSendResultSink('inbox', sendResultSink(d));
+    // Tin agent: đặt chỗ gửi dưới khoá hội thoại trước khi gọi kênh (người tiếp quản trước → không gửi — TIP-045b annex D).
+    registerSendReserver(async (ws, refId) => (await reserveDispatch(await tenants.get(TenantContexts.fromRoute(ws, 'channel')), refId, this.clock.now())) !== 'rejected');
     this.timer = setInterval(() => void sweepOutbox(d).catch((err: unknown) => this.log.warn({ err }, 'inbox outbox sweep failed')), OUTBOX_SWEEP_MS);
   }
 
   async onApplicationShutdown(): Promise<void> {
     if (this.timer) clearInterval(this.timer);
     unregisterSendResultSink('inbox');
+    registerSendReserver(null);
     await this.worker?.close();
     await this.reply?.onApplicationShutdown();
   }

@@ -23,6 +23,7 @@ import { CHANNEL_CONTROL, CHANNEL_INBOUND_QUEUE, ChannelControl, type ControlOp 
 import { ChannelLeases, LEASE_HEARTBEAT_MS } from './lease';
 import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
+import { reserveSend } from '../services/send-queue';
 import { GroupCreators } from './create-group.processor';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
@@ -86,6 +87,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
       redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER,
       pause: (ws, id, detail) => sessions.markDown(ws, id, 'send_errors', detail),
       expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
+      reserve: reserveSend,
     });
     this.sessions = sessions;
     this.senders = senders;

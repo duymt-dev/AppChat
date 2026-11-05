@@ -17,6 +17,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { writableConversation } from '../services/access';
+import { bumpAiEpoch } from '../services/human-takeover';
 import { readMentions } from '../services/mentions';
 import { me, restore, snap, updatedEvent, type ConvSnap } from './kit';
 import * as pv from './previews/conversation-state.handlers.preview';
@@ -56,6 +57,8 @@ export class ConversationSetStatusHandler implements Handler<ActionInput<typeof 
     // Tạm ẩn bắt buộc thời hạn (Blueprint §3.4 ghi chú ver2.1: 1 giờ / 3 giờ / sáng mai / tuỳ chọn).
     if (input.status === 'snoozed' && !input.snooze_hours) throw new AppError('VALIDATION_FAILED', 422, { snooze_hours: 'required' });
     const until = input.status === 'snoozed' ? new Date(this.clock.now().getTime() + input.snooze_hours! * 3_600_000) : null;
+    // Đóng hội thoại: lượt agent đang chạy mất quyền gửi (TIP-045b annex D).
+    if (input.status === 'closed') await bumpAiEpoch(tx, c.id);
     await tx.conversation.update({ where: { id: c.id }, data: { status: input.status, snoozedUntil: until } });
     return { result: { status: input.status }, before: snap(c, ['status', 'snoozedUntil']), events: [await updatedEvent(tx, c, 'status')] };
   }
@@ -88,6 +91,7 @@ export class ConversationArchiveHandler implements Handler<ActionInput<typeof co
 
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationArchive>, tx: TenantTx): Promise<HandlerOutcome<{ archived: boolean }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
+    await bumpAiEpoch(tx, c.id);
     await tx.conversation.update({ where: { id: c.id }, data: { archivedAt: c.archivedAt ?? this.clock.now() } });
     return { result: { archived: true }, before: snap(c, ['archivedAt']), events: [await updatedEvent(tx, c, 'archive')] };
   }
@@ -124,6 +128,8 @@ export class ConversationSetAiModeHandler implements Handler<ActionInput<typeof 
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     // Tắt AI giữa chừng: AI đang chạy / chờ duyệt dừng lại (TIP-022 huỷ run theo event).
     const aiState = input.ai_mode === 'off' && c.aiState === 'running' ? 'idle' : c.aiState;
+    // Đổi chế độ thủ công: lượt agent cũ không gửi theo chế độ cũ (TIP-045b annex D).
+    if (input.ai_mode !== c.aiMode) await bumpAiEpoch(tx, c.id);
     await tx.conversation.update({ where: { id: c.id }, data: { aiMode: input.ai_mode, aiState } });
     return { result: { ai_mode: input.ai_mode }, before: snap(c, ['aiMode', 'aiState']), events: [await updatedEvent(tx, c, 'ai_mode')] };
   }
@@ -142,6 +148,7 @@ export class ConversationHandoffHandler implements Handler<ActionInput<typeof co
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     // Người nhận lại hội thoại AI đã chuyển: gán cho mình, AI chuyển sang gợi ý (không tự gửi nữa).
     const user = me(ctx);
+    await bumpAiEpoch(tx, c.id);
     await tx.conversation.update({
       where: { id: c.id },
       data: { aiState: 'idle', handoffReason: null, assigneeUserId: user ?? c.assigneeUserId, aiMode: c.aiMode === 'auto' ? 'copilot' : c.aiMode },

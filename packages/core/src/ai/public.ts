@@ -33,6 +33,8 @@ export { resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDe
 export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
 export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';
 export { replyTurn, finishResumedTurn, MAX_TRANSFERS, type ReplyDeps, type TurnOutcome } from './reply/reply.service';
+export { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './reply/turn-lease';
+export { reserveDispatch, type ReserveOutcome } from './reply/send-fence';
 export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-context';
 // TIP-023 — Trợ lý AI.
 export { AssistantService, type Caller } from './assistant/assistant.service';

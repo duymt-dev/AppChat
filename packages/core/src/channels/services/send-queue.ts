@@ -31,6 +31,13 @@ export async function emitSendResult(r: SendResult): Promise<void> {
   for (const s of SINKS.values()) await s(r).catch(() => undefined);
 }
 
+/** Đặt chỗ gửi (TIP-045b annex D): domain gửi tin agent đăng ký (`inbox`) — false = bị từ chối, không gọi kênh. */
+export type SendReserver = (ws: string, refId: string) => Promise<boolean>;
+let RESERVER: SendReserver | null = null;
+export const registerSendReserver = (r: SendReserver | null) => void (RESERVER = r);
+/** Chưa có domain đăng ký → gửi như cũ. Lỗi đặt chỗ ném ra để BullMQ thử lại (không gửi khi chưa chắc). */
+export const reserveSend: SendReserver = (ws, refId) => (RESERVER ? RESERVER(ws, refId) : Promise.resolve(true));
+
 export const SEND_ATTEMPTS = 5;
 
 export class ChannelSendQueue {

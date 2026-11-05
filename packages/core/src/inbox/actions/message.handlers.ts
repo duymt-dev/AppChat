@@ -16,6 +16,9 @@ import { resolveAttachments, sendKindOf, type FileLinks } from '../services/atta
 import { recordMentions } from '../services/mentions';
 import { FILE_LINKS } from '../tokens';
 import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
+import { takeOverForHuman } from '../services/human-takeover';
+import { agentTurnOf } from '../services/agent-turn';
+import { assertTurnWritable } from '../../ai/reply/send-fence';
 import { me, updatedEvent } from './kit';
 import * as pv from './previews/message.handlers.preview';
 
@@ -53,8 +56,13 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
     return pv.sendPreview(tx, ctx.authz, input);
   }
 
-  async execute(ctx: ActionContext, input: ActionInput<typeof messageSend>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string }>> {
-    const c = await writableConversation(tx, ctx.authz, input.conversation_id);
+  async execute(ctx: ActionContext, input: ActionInput<typeof messageSend>, tx: TenantTx): Promise<HandlerOutcome<{ message_id: string; agent_in_flight?: boolean }>> {
+    // Người gửi (hoặc Trợ lý thay người) → khoá hội thoại + tiếp quản AI cùng transaction (concurrency §5, TIP-045b annex D).
+    const t = await takeOverForHuman(tx, ctx, await writableConversation(tx, ctx.authz, input.conversation_id));
+    const c = t.conv;
+    // Tin agent: lượt còn hiệu lực dưới khoá hội thoại (fence + epoch + auto) — mất lượt → 409, không ghi tin.
+    const turn = agentTurnOf(ctx);
+    if (turn) await assertTurnWritable(tx, c.id, turn);
     // Tệp đính kèm (TIP-025): kiểm kênh hỗ trợ trước khi đổi tệp thành link ký.
     const ids = input.attachments ?? [];
     if (ids.length) sendKindOf(this.registry, c.channelType, [{ mime: 'application/octet-stream' }]);
@@ -66,12 +74,17 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
       ...(files.length ? { attachments: files } : {}),
       sender: await senderOf(ctx, this.members, tx),
       replyToId: input.reply_to_id ?? null,
+      turn,
       now: this.clock.now(),
     });
     const cols = await scopeCols(tx, c);
     return {
-      result: { message_id: out.messageId },
-      events: [{ topic: 'message.updated', payload: { ...cols, message_id: out.messageId, change: 'status' } }],
+      // `agent_in_flight`: tin agent đã đặt chỗ gửi trước người — đang gửi / chưa rõ, không bị chặn (hiển thị trung thực).
+      result: { message_id: out.messageId, ...(t.agentInFlight ? { agent_in_flight: true } : {}) },
+      events: [
+        { topic: 'message.updated', payload: { ...cols, message_id: out.messageId, change: 'status' } },
+        ...(t.switched ? [{ topic: 'conversation.updated', payload: { ...cols, change: 'human_takeover' } }] : []),
+      ],
       afterCommit: () => enqueueOutgoing(this.queue, ctx.workspaceId, out),
     };
   }
@@ -94,7 +107,7 @@ export class MessageForwardHandler implements Handler<ActionInput<typeof message
     const src = await writableConversation(tx, ctx.authz, input.conversation_id);
     const m = await messageOf(tx, src.id, input.message_id);
     if (m.deletedAt || m.recalledAt || !SEND_KINDS.has(m.kind)) throw new AppError('INVALID_STATE', 409, { message_id: 'not_forwardable' });
-    const target = await writableConversation(tx, ctx.authz, input.target_conversation_id);
+    const target = (await takeOverForHuman(tx, ctx, await writableConversation(tx, ctx.authz, input.target_conversation_id))).conv;
     const att = Array.isArray(m.attachments) ? (m.attachments as { url: string; mime: string; name?: string }[]) : [];
     const out = await writeOutgoing(tx, { conv: target, kind: m.kind as 'text', body: m.body, attachments: att, sender: await senderOf(ctx, this.members), forwardedFromId: m.id, now: this.clock.now() });
     return {
