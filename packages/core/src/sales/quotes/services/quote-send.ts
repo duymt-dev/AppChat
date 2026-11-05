@@ -12,7 +12,8 @@ import { scopeCols, senderOf, writeOutgoing, type Outgoing } from '../../../inbo
 /** Kênh gửi chứng từ (TIP-032b P2 thêm webchat — như Zalo: chỉ gửi vào hội thoại khách đã mở, cửa sổ 24 giờ theo manifest). */
 export type QuoteChannel = 'zalo_personal' | 'email' | 'webchat';
 
-export type Attachment = { url: string; mime: string; name?: string };
+/** `fileId`: tệp trong kho (chứng từ đóng băng) — `postToCustomer` gắn sha256 của tệp vào tin để worker kiểm đúng byte khi gửi (TIP-014b). */
+export type Attachment = { url: string; mime: string; name?: string; fileId?: string };
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
@@ -51,15 +52,29 @@ export async function customerConversation(tx: TenantTx, c: { id: string; name: 
   return { conv, created: true };
 }
 
+/** Tệp có `fileId` → kèm sha256 đã lưu của tệp (ràng buộc bất biến); tệp không còn / chưa có hash → 409, không gửi link mồ côi. */
+async function bindFiles(tx: TenantTx, atts: Attachment[]): Promise<(Attachment & { sha256?: string })[]> {
+  const ids = atts.flatMap((a) => (a.fileId ? [a.fileId] : []));
+  if (!ids.length) return atts;
+  const rows = await tx.file.findMany({ where: { id: { in: ids } }, select: { id: true, sha256: true } });
+  const sha = new Map(rows.map((r) => [r.id, r.sha256]));
+  return atts.map((a) => {
+    if (!a.fileId) return a;
+    const h = sha.get(a.fileId);
+    if (!h) throw new AppError('INVALID_STATE', 409, { file: 'missing' });
+    return { ...a, sha256: h };
+  });
+}
+
 /** Ghi tin ra (+ tệp) vào hội thoại → Outgoing để đẩy hàng đợi sau commit + event realtime. */
 export async function postToCustomer(
   ctx: ActionContext,
   tx: TenantTx,
   members: CrmMembers,
-  o: { conv: Conv; created: boolean; text: string; file?: { url: string; name: string }; attachments?: Attachment[]; now: Date; sender?: { type: 'system'; id: null; name: string | null } },
+  o: { conv: Conv; created: boolean; text: string; file?: { url: string; name: string; fileId?: string }; attachments?: Attachment[]; now: Date; sender?: { type: 'system'; id: null; name: string | null } },
 ): Promise<{ out: Outgoing; events: { topic: string; payload: Record<string, unknown> }[] }> {
   // `file` = một PDF (cách gọi cũ); `attachments` = PDF / ảnh trang / ảnh QR (TIP-032b P2). Chỉ ảnh → tin ảnh.
-  const atts = o.attachments ?? (o.file ? [{ url: o.file.url, mime: 'application/pdf', name: o.file.name }] : []);
+  const atts = await bindFiles(tx, o.attachments ?? (o.file ? [{ url: o.file.url, mime: 'application/pdf', name: o.file.name, ...(o.file.fileId ? { fileId: o.file.fileId } : {}) }] : []));
   const out = await writeOutgoing(tx, {
     conv: o.conv,
     kind: !atts.length ? 'text' : atts.every((a) => a.mime.startsWith('image/')) ? 'image' : 'file',

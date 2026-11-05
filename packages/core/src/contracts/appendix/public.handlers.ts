@@ -192,7 +192,7 @@ export class AppendixPublicSignHandler implements Handler<SignIn, { appendix_id:
     if (conv) {
       const env = this.d.need('env');
       const text = interpolate(serverMessages((await this.d.place(ctx.workspaceId)).locale).sales.contract.appendix.signedMessage, { code: a.code, sha: p.sha256.slice(0, 16) });
-      const sent = await postToCustomer(ctx, tx, this.members, { conv, created: false, text, file: { url: signedFileUrl(env.apiBase, env.key, ctx.workspaceId, p.fileId), name: p.name }, now, sender: SENDER });
+      const sent = await postToCustomer(ctx, tx, this.members, { conv, created: false, text, file: { url: signedFileUrl(env.apiBase, env.key, ctx.workspaceId, p.fileId), name: p.name, fileId: p.fileId }, now, sender: SENDER });
       out = sent.out;
       events.push(...sent.events);
     }

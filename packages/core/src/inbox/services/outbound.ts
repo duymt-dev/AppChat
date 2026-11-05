@@ -17,7 +17,8 @@ export interface OutgoingInput {
   conv: Conv;
   kind: 'text' | 'image' | 'file' | 'sticker' | 'audio' | 'card';
   body: string;
-  attachments?: { url: string; mime: string; name?: string }[];
+  /** `fileId` + `sha256`: tệp chứng từ đóng băng (TIP-014b) — đi vào payload outbox để worker kiểm; dòng `message` chỉ giữ link + tên. */
+  attachments?: { url: string; mime: string; name?: string; fileId?: string; sha256?: string }[];
   sender: { type: 'user' | 'agent' | 'system'; id: string | null; name: string | null };
   replyToId?: string | null;
   forwardedFromId?: string | null;
@@ -31,6 +32,14 @@ export interface Outgoing {
   outboxId: string;
   job: { account_id: string; ref_id: string; message: OutboundMessage; proactive?: boolean };
 }
+
+/** Dòng `message` (DTO) giữ link + tên + cỡ; ràng buộc tệp chỉ nằm ở payload outbox. */
+const unbound = (a: NonNullable<OutgoingInput['attachments']>[number]) => {
+  const o = { ...a };
+  delete o.fileId;
+  delete o.sha256;
+  return o;
+};
 
 const day0 = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 
@@ -74,7 +83,7 @@ export async function writeOutgoing(tx: TenantTx, o: OutgoingInput): Promise<Out
       senderName: o.sender.name,
       kind: o.kind,
       body: o.body,
-      attachments: o.attachments ?? [],
+      attachments: (o.attachments ?? []).map(unbound),
       status: 'queued',
       replyToId: o.replyToId ?? null,
       forwardedFromId: o.forwardedFromId ?? null,

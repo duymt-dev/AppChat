@@ -86,7 +86,7 @@ export class OrderSendConfirmationHandler implements Handler<In, Out> {
     const target = await customerConversation(tx, contact, p.channel, `${o.code} · ${contact.name}`, now);
     await tx.file.updateMany({ where: { id: p.file.fileId }, data: { confirmed: true } });
     const env = this.d.need('env');
-    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: p.text, attachments: [{ url: pdfLinkOf(env, ctx.workspaceId, p.file.fileId), mime: 'application/pdf', name: p.file.name }], now });
+    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: p.text, attachments: [{ url: pdfLinkOf(env, ctx.workspaceId, p.file.fileId), mime: 'application/pdf', name: p.file.name, fileId: p.file.fileId }], now });
     await writeTimeline(tx, { contactId: o.contactId, type: 'order', key: 'order_confirmation_sent', params: { code: o.code, channel: p.channel }, actor: actorOf(ctx), ref: { type: 'order', id: o.id }, at: now });
     return {
       result: { order_id: o.id, message_id: sent.out.messageId, conversation_id: target.conv.id, channel: p.channel },

@@ -46,7 +46,7 @@ export interface OutgoingMail {
   references?: string[];
   /** Message-ID đặt trước (thư mở chuỗi mới — khớp thread id của hội thoại). */
   messageId?: string;
-  attachments?: { url: string; name?: string; mime: string }[];
+  attachments?: { url: string; name?: string; mime: string; fileId?: string; sha256?: string }[];
 }
 
 export interface MailboxTransport {

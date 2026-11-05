@@ -15,7 +15,7 @@ import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, t
 
 /** Tải tệp đính kèm (URL đã ký của file store) thành Buffer để upload lên kênh. Core cấp bản an toàn (`attachmentFetcher` — đọc Storage
  *  cho link ký nội bộ, safeFetch cho URL ngoài); gói kênh không tự `fetch` URL (TIP-045b, chặn SSRF). */
-export type FileFetcher = (url: string) => Promise<Buffer>;
+export type FileFetcher = (url: string, bind?: { fileId?: string; sha256?: string }) => Promise<Buffer>;
 
 /** Mặc định khi không được cấp FileFetcher: từ chối (fail closed) — không có đường tải URL tuỳ ý. */
 export const refuseFileFetch: FileFetcher = async () => {
@@ -134,7 +134,7 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
         const text = (msg.text ?? '').slice(0, max);
         // Tải tệp TRƯỚC khi đặt chỗ phần: lỗi tải = chưa gọi kênh → thử lại an toàn. Hash theo nội dung tệp (không theo link).
         const files: ZaloFile[] = [];
-        for (const [i, a] of msg.attachments.entries()) files.push({ data: await this.files(a.url), filename: fileName(a.name, a.mime, i) });
+        for (const [i, a] of msg.attachments.entries()) files.push({ data: await this.files(a.url, a), filename: fileName(a.name, a.mime, i) });
         const digest = files.map((f) => createHash('sha256').update(f.data).digest('hex')).join('|');
         await step(0, partHash(`files:${text}:${digest}`), () => session.sendFiles(msg.externalThreadId, group, text, files));
         return done();

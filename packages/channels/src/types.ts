@@ -68,7 +68,8 @@ export interface OutboundMessage {
   isGroup?: boolean;
   kind: SendKind;
   text?: string;
-  attachments?: { url: string; mime: string; name?: string }[];
+  /** `fileId` + `sha256` (TIP-014b): tệp chứng từ đóng băng — bên tải kiểm đúng tệp / đúng byte trước khi gửi, không chỉ dựa link ký. */
+  attachments?: { url: string; mime: string; name?: string; fileId?: string; sha256?: string }[];
   replyToExternalMsgId?: string;
   /** `kind = 'sticker'`: mã sticker theo kênh (Zalo: id / cateId / type). */
   sticker?: Record<string, number>;

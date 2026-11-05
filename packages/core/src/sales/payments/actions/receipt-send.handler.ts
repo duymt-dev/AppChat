@@ -85,7 +85,7 @@ export class ReceiptSendHandler implements Handler<In, Out> {
     const contact = await tx.contact.findUniqueOrThrow({ where: { id: i.contactId }, select: { id: true, name: true, email: true, ownerUserId: true } });
     const target = await customerConversation(tx, contact, pr.channel, `${p.receiptCode} · ${contact.name}`, now);
     const env = this.d.need('env');
-    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: pr.text, attachments: [{ url: pdfLinkOf(env, ctx.workspaceId, pr.fileId), mime: 'application/pdf', name: pr.name }], now });
+    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: pr.text, attachments: [{ url: pdfLinkOf(env, ctx.workspaceId, pr.fileId), mime: 'application/pdf', name: pr.name, fileId: pr.fileId }], now });
     await writeTimeline(tx, { contactId: i.contactId, type: 'invoice', key: 'receipt_sent', params: { code: p.receiptCode ?? '', channel: pr.channel }, actor: actorOf(ctx), ref: { type: 'invoice', id: i.id }, at: now });
     return {
       result: { payment_id: p.id, receipt_code: p.receiptCode ?? '', message_id: sent.out.messageId, conversation_id: target.conv.id, channel: pr.channel },
