@@ -37,12 +37,13 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 | Cổng | Chạy | Không chạy |
 |------|------|-----------|
 | **Khi làm** | File test / spec trực tiếp phần đang sửa | build, integration, E2E rộng |
-| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` · `pnpm depcheck` · `pnpm lint:size` · `pnpm lint:tokens` · `pnpm lint:masks` · `pnpm i18n:check` | package không đổi |
+| **Trước mỗi commit code** | `pnpm turbo run lint typecheck test --filter=<package đổi>` · `pnpm depcheck` · `pnpm lint:size` · `pnpm lint:tokens` · `pnpm lint:masks` · `pnpm i18n:check` · nếu đổi `package.json` / import npm mới ở core / api / worker: build api + worker rồi `pnpm check:bundle` (DC-359) | package không đổi |
 | **Chốt TIP** (một lần, ở pha cuối, trước report) | `pnpm turbo run lint typecheck test build --filter=...[<nhánh nền>]` (package đổi + package phụ thuộc nó) · integration **chỉ** `apps/api/test/integration/<domain>*.test.ts` của domain TIP chạm + `apps/api/test/integration/actions/<action id>.action.test.ts` của action TIP thêm / sửa (+ `apps/worker/test/integration/*` liên quan nếu TIP sửa worker) · `pnpm depcheck` · `lint:size` · `lint:tokens` · `lint:masks` · `i18n:check` · E2E **chỉ spec module TIP** ở `mock` (`pnpm e2e <module>`) và `http` (`pnpm e2e:http <spec>`) · `pnpm parity <id>` màn TIP sửa | `pnpm test:integration` toàn bộ · `pnpm e2e` toàn bộ · `parity --done` (trừ khi sửa lớp dùng chung) |
 
 - **Sửa lớp dùng chung** (kernel, `packages/{db,actions,shared,ui}`, `apps/web/src/shared`) → thêm E2E mock các module dùng phần đó + `pnpm parity --done`; sửa kernel action / executor → thêm integration `actions/*` của kernel. Vẫn không chạy full integration / full E2E.
 - **TIP nhiều pha:** mỗi pha qua cổng commit; cổng chốt chạy một lần ở pha cuối. **Sau rebase** chỉ chạy lại phần bị ảnh hưởng.
 - **DB test (DC-358):** integration / E2E http / ai:live chạy trên `appchat_platform_test`, không ghi DB demo. Đầu cổng chốt mỗi TIP: `pnpm --filter @appchat/db db:test-reset` (dọn workspace test, giữ `max_connections` còn chỗ).
+- **Sau merge có migration tenant (DC-359):** `pnpm --filter @appchat/db db:migrate-tenants` (demo / dev) · `--test` (DB test) — thay áp tay từng DB; build lại api + worker cho demo.
 - **Ca đỏ có sẵn:** ca trong phạm vi TIP nhưng đã đỏ trên `origin/dev`, hoặc lỗi môi trường đã ghi sổ (Q-042 phiên Zalo giả, Q-010 E2E chập chờn) → chạy riêng chứng minh, ghi tên + bằng chứng vào report (và `QUESTIONS.md` nếu mới); không tính là cổng đỏ, không skip test.
 - **TIP-046 (cổng phát hành)** là nơi duy nhất chạy full: `pnpm test:integration` toàn bộ · `pnpm e2e` toàn bộ · `pnpm e2e:http` toàn bộ · `pnpm parity --done`.
 

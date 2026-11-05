@@ -14,7 +14,7 @@ describe('link xem báo giá', () => {
     const t = quoteToken(key, WS, Q);
     expect(readQuoteToken(key, t)).toEqual({ ws: WS, quoteId: Q });
     expect(readQuoteToken(key, t.replace(Q, '0190f000-0000-7000-8000-000000000003'))).toBeNull();
-    expect(readQuoteToken(key, `${t.slice(0, -1)}A`)).toBeNull();
+    expect(readQuoteToken(key, `${t.slice(0, -1)}${t.endsWith('A') ? 'B' : 'A'}`)).toBeNull();
     expect(readQuoteToken(randomBytes(32), t)).toBeNull();
     expect(readQuoteToken(key, 'rác')).toBeNull();
   });

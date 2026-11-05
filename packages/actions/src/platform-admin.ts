@@ -8,7 +8,7 @@ export const adminInvoiceConfirmTransfer = defineAction({
   id: 'admin.invoice.confirm_transfer',
   module: 'billing',
   title: 'actions.admin.invoice.confirm_transfer.title',
-  description: 'Platform admin: confirm a manual bank transfer for a platform invoice, marking it paid and activating the plan or credits. Example: {"invoice_id":"0190f…"}',
+  description: 'Platform admin: confirm a manual bank transfer for a platform invoice, marking it paid and activating the plan or credits. Example: {"invoice_id":"0190f000-0000-7000-8000-000000000002"}',
   input: z.object({ invoice_id: z.string().uuid(), note: z.string().max(300).optional() }),
   output: z.object({ invoice_id: z.string(), status: z.literal('paid') }),
   permission: 'platform_admin',

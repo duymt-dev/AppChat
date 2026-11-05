@@ -58,7 +58,7 @@ export const appointmentCreate = defineAction({
   module: 'booking',
   title: 'actions.appointment.create.title',
   description:
-    'Book an appointment in a free slot (rejected with CONFLICT if the staff is busy). If the customer has an active package for the service it is attached automatically. Example: {"contact_id":"ct_lan","service_id":"sv1","staff_id":"s2","date":"2026-06-25","start":"09:00"}',
+    'Book an appointment in a free slot (rejected with CONFLICT if the staff is busy). If the customer has an active package for the service it is attached automatically. Example: {"contact_id":"ct_lan","contact_name":"Nguyễn Thị Lan","service_id":"sv1","staff_id":"s2","date":"2026-06-25","start":"09:00"}',
   input: z.object({
     contact_id: z.string().optional(),
     contact_name: z.string().trim().min(1).max(120),
