@@ -56,7 +56,7 @@ Làm tuần tự **83 TIP chưa DONE** theo bảng thứ tự dưới (TIP-023b 
 | Tài nguyên | TIP | Khi chưa có | Trạng thái (2026-11-03) |
 |------------|-----|-------------|--------------------------|
 | LLM chat qua 9router | 019b, 022b/c, 023b–g, 044 | mock model | **Có** — `LLM_SEED_*` trong `.env`, đã kiểm `/models` 200 + chat 200 (Q-001) |
-| Embedding OpenAI 1536 chiều | 020e, 044 | embedding giả | Key có (`EMBED_SEED_*`), tài khoản hết credit — Chủ nhà nạp (Q-002, DC-305) |
+| Embedding OpenAI 1536 chiều | 020e, 044 | embedding giả | Key + credit có — kiểm 2026-11-05: 200, 1536 chiều (Q-002 đóng, DC-305); seed provider ở 020e |
 | Zalo cá nhân thật | 014b, 014c, 022d, 044 | fake transport | Tới bước nghiệm thu thì nhắn Chủ nhà quét QR (Q-003) |
 | SePay (thu tiền gói) | 012b, 039 | adapter `mock` | Hoãn (Q-004) — production cấm `mock` |
 | Brevo + domain gửi mail | 004c, 012c | adapter `console` | Chưa có (Q-004) — production cấm `console` |
