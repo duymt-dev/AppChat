@@ -9,6 +9,8 @@
 // Chính sách tài khoản (TIP-014b D) đọc TRƯỚC mọi ghi: `sync_messages = false` → không lưu tin / khách / AI (chỉ đếm chẩn đoán
 // `channel_account.health.suppressed`, không xoá lịch sử, phiên vẫn chạy); `sync_auto_create_contact = false` → chỉ khớp định danh chắc chắn,
 // người lạ → hội thoại không gắn khách (+ participant) — không tạo khách. Nhóm: người gửi không bao giờ thành khách.
+// Ảnh đại diện (TIP-014b D): tin live của kênh có năng lực `profiles` xếp lấy ảnh người gửi (1-1 và thành viên nhóm) khi chưa có / lần kiểm
+// cuối quá 7 ngày — worker giữ phiên lấy theo lô (avatar-sync.processor). Lịch sử không xếp.
 import type { NormalizedInbound } from '@appchat/channels';
 import type { TenantDb } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
@@ -20,6 +22,7 @@ import { settingsOf } from '../../channels/public';
 import { previewOf } from './view';
 import { saveMessageRefs } from '../../channels/operations/operation-store';
 import { suppressed } from './inbound-sync-policy';
+import { requestAvatar } from '../../channels/operations/avatar-store';
 
 export type InboundOrigin = 'live' | 'history';
 
@@ -32,6 +35,8 @@ export interface InboundResult {
   events: OutboxEventInput[];
   /** Cần agent trực kênh trả lời (TIP-022) — worker đẩy job `agent-reply` sau commit. */
   agentReply?: boolean;
+  /** Vừa xếp lấy ảnh đại diện người gửi (TIP-014b D) — worker đẩy job `avatars` của tài khoản sau commit. */
+  avatarQueued?: boolean;
 }
 
 /**
@@ -50,7 +55,11 @@ const AI_MODE = { auto: 'auto', suggest: 'copilot', off: 'off' } as const;
 const day0 = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 
 export class InboundPipeline {
-  constructor(private readonly identity: ContactIdentityService) {}
+  constructor(
+    private readonly identity: ContactIdentityService,
+    /** Loại kênh lấy được hồ sơ / ảnh (manifest `operations.profiles = remote`). */
+    private readonly avatarsFor: (channelType: string) => boolean = () => false,
+  ) {}
 
   /** Một transaction: tin + hội thoại + outbox event (người gọi `markDirty` sau commit nếu `events` không rỗng). */
   async handle(db: TenantDb, ws: string, m: NormalizedInbound, now: Date): Promise<InboundResult> {
@@ -173,6 +182,7 @@ export class InboundPipeline {
         ON CONFLICT (channel_account_id, day) DO UPDATE SET convs = channel_account_stat_daily.convs + 1`;
     }
     await tx.channelAccount.update({ where: { id: account.id }, data: { lastEventAt: now } });
+    const avatarQueued = this.avatarsFor(account.type) && (await requestAvatar(tx, account.id, m.sender.externalId, now));
 
     // 5. Event
     const title = conv.title ?? contact?.name ?? senderName ?? '';
@@ -182,7 +192,7 @@ export class InboundPipeline {
     if (isNew && conv.assigneeUserId) {
       events.push({ topic: 'conversation.assigned', payload: { ...base, assignee_agent_id: conv.assigneeAgentId, by_user_id: null, auto: true, title } });
     }
-    return { messageId: msgId, conversationId: conv.id, events, agentReply: wantsAgent(conv, st.agent_id || null, !!m.mentionsMe) };
+    return { messageId: msgId, conversationId: conv.id, events, agentReply: wantsAgent(conv, st.agent_id || null, !!m.mentionsMe), avatarQueued };
   }
 
   /** Khách có thẻ "VIP" (thông báo `msg_vip`). */

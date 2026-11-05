@@ -15,6 +15,7 @@ import { duplicateGroups } from './duplicates.service';
 import { fieldsData } from './fields.service';
 import { layoutForRole, layoutsData } from './layouts.service';
 import type { CrmMembers } from './members.service';
+import type { FileLinks } from '../../kernel/files/file-links';
 import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 
@@ -35,6 +36,7 @@ export class CrmReadService {
     private readonly platform: Pick<PlatformDb, 'user' | 'workspace'>,
     private readonly members: CrmMembers,
     private readonly now: () => Date,
+    private readonly links: FileLinks | null = null,
   ) {}
 
   private async tx<T>(v: Viewer, fn: (tx: TenantTx) => Promise<T>): Promise<T> {
@@ -130,7 +132,7 @@ export class CrmReadService {
     return this.tx(v, async (tx) => {
       await visibleContact(tx, v.authz, id);
       const [p360, ins, fv] = await Promise.all([
-        contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role) }),
+        contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role), links: { files: this.links, ws: v.workspaceId } }),
         insights360(tx, v.authz, id, { ...pl, now: this.now() }),
         fieldView(tx, 'contact', v.authz),
       ]);

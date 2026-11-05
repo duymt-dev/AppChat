@@ -25,7 +25,9 @@ import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
 import { reserveSend } from '../services/send-queue';
 import { GroupCreators } from './create-group.processor';
-import { ProviderOperators } from './provider-operations.processor';
+import { OperationQueue, ProviderOperators } from './provider-operations.processor';
+import { runAvatarSync } from './avatar-sync.processor';
+import { FilesService } from '../../kernel/files/files.service';
 import { providerEventQueue, startProviderEventWorker } from './provider-events.processor';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
@@ -61,6 +63,8 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
     @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
+    @Optional() @Inject(FilesService) private readonly files: FilesService | undefined,
+    @Inject(OperationQueue) private readonly opQueue: OperationQueue | null,
   ) {}
 
   /** Bộ phiên của worker này (test điều khiển trực tiếp). */
@@ -79,7 +83,13 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     this.providerEvents = providerEventQueue(redis);
     this.eventWorker = startProviderEventWorker({ redis, kv: redis, tenants, log: this.log, now });
     const history = { tenants, kv: redis, log: this.log, now, pipeline: historyPipeline };
-    const operators = (this.operators = new ProviderOperators({ redis, kv: redis, tenants, log: this.log, now, history: (id, a, j, g) => runHistory(history, id, a, j, g) }));
+    // Ảnh đại diện (TIP-014b D): cùng hàng đợi tài khoản; ghi Storage `purpose = avatar`.
+    const allow = env.CHANNEL_FETCH_TEST_ALLOW?.split(',').map((x) => x.trim()).filter(Boolean);
+    const avatars = { tenants, files: this.files ?? null, log: this.log, now, ...(allow?.length ? { fetchOptions: { testAllowAddresses: allow } } : {}) };
+    const operators = (this.operators = new ProviderOperators(
+      { redis, kv: redis, tenants, log: this.log, now, history: (id, a, j, g) => runHistory(history, id, a, j, g), avatars: (id, a, j, g) => runAvatarSync(avatars, id, a, j, g) },
+      this.opQueue ?? undefined,
+    ));
     const sessions: ChannelSessions = new ChannelSessions({
       platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.

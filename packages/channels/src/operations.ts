@@ -5,7 +5,7 @@
 
 export type OperationMode = 'local' | 'remote' | 'unsupported';
 
-export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members';
+export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'profiles';
 
 /** Năng lực thao tác theo kênh (manifest). Thiếu khoá = unsupported. */
 export type OperationCapabilities = Partial<Record<OperationKind, OperationMode>>;
@@ -45,6 +45,17 @@ export interface GroupMember {
   avatarUrl?: string;
 }
 
+/** Hồ sơ công khai của một định danh phía kênh (TIP-014b D — ảnh đại diện). `avatarUrl` là URL CDN nhà cung cấp: core tải về Storage,
+ *  không bao giờ đưa thẳng cho trình duyệt. */
+export interface ProviderProfile {
+  id: string;
+  displayName: string;
+  avatarUrl?: string;
+}
+
+/** Số định danh tối đa mỗi lần đọc hồ sơ (một lô). */
+export const MAX_PROFILE_BATCH = 20;
+
 export interface GroupLink {
   enabled: boolean;
   /** Chỉ có khi đang bật — nhạy cảm: chỉ trả cho người có quyền yêu cầu, không log / không đưa vào prompt. */
@@ -67,6 +78,8 @@ export interface ChannelOperations {
   groupMembers?(accountId: string, memberIds: string[]): Promise<GroupMember[]>;
   groupLink?(accountId: string, groupId: string): Promise<GroupLink>;
   addGroupMembers?(accountId: string, groupId: string, memberIds: string[]): Promise<AddMembersResult>;
+  /** Hồ sơ công khai theo lô ≤ MAX_PROFILE_BATCH (chỉ đọc). Id không thấy → vắng trong kết quả (không lỗi). */
+  profiles?(accountId: string, ids: string[]): Promise<ProviderProfile[]>;
 }
 
 /**

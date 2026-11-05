@@ -21,7 +21,7 @@ export interface FakeSent {
 
 /** Lệnh thao tác đã nhận (thu hồi / cảm xúc / thêm thành viên) — test đối chiếu tham số SDK. */
 export interface FakeOp {
-  op: 'undo' | 'react' | 'add_members';
+  op: 'undo' | 'react' | 'add_members' | 'profiles';
   threadId: string;
   isGroup: boolean;
   msgId?: string;
@@ -62,6 +62,9 @@ export class FakeZaloSession implements ZaloSession {
   historyHang = false;
   /** Số lần xin trang (kiểm có giới hạn). */
   historyRequests = 0;
+  /** Hồ sơ công khai cho `userInfo` (ảnh đại diện — TIP-014b D) + số lần gọi / id đã hỏi (kiểm lô, trần). */
+  readonly profiles = new Map<string, { displayName: string; avatar?: string }>();
+  readonly profileCalls: string[][] = [];
   /** Nhóm đã tạo (TIP-023b SPEC D). */
   readonly groups: { groupId: string; name: string; members: string[] }[] = [];
   /** Lần tạo nhóm kế tiếp: lỗi (`fail`) hoặc treo đến khi hết giờ (`hang` — kiểm trạng thái unknown). */
@@ -207,6 +210,15 @@ export class FakeZaloSession implements ZaloSession {
   }
   async groupMembers(memberIds: string[]) {
     return memberIds.map((id) => ({ id, displayName: `Thành viên ${id}` }));
+  }
+  async userInfo(ids: string[]) {
+    this.profileCalls.push([...ids]);
+    return this.op({ op: 'profiles', threadId: '', isGroup: false, members: ids }, () =>
+      ids.flatMap((id) => {
+        const p = this.profiles.get(id);
+        return p ? [{ id, displayName: p.displayName, ...(p.avatar ? { avatar: p.avatar } : {}) }] : [];
+      }),
+    );
   }
   async groupLink(groupId: string) {
     const g = this.remoteGroups.get(groupId);

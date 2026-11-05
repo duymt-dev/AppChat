@@ -3,7 +3,7 @@
 // TIP-014b: bật `selfListen` — tin tự gửi mang `cliMsgId` (sendMessage chỉ trả msgId) → tách sang `onSelfMessage`, không vào pipeline
 // tin khách. Lệnh thu hồi / cảm xúc / nhóm: lỗi `ZaloApiError` (nhà cung cấp trả lỗi rõ) → ChannelOperationError('rejected'); lỗi
 // mạng giữ nguyên để core ghi `unknown`. Ma trận năng lực: provider-capabilities.md.
-import { CloseReason, LoginQRCallbackEventType, ThreadType, Zalo, ZaloApiError, type API, type Credentials, type Message, type Reactions, type Style } from 'zca-js';
+import { AvatarSize, CloseReason, LoginQRCallbackEventType, ThreadType, Zalo, ZaloApiError, type API, type Credentials, type Message, type Reactions, type Style } from 'zca-js';
 import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
 import { zaloId } from './provider-refs';
@@ -150,6 +150,12 @@ class ZcaSession implements ZaloSession {
   async groupMembers(memberIds: string[]): Promise<{ id: string; displayName: string; avatar?: string }[]> {
     const r = await rejected(() => this.api.getGroupMembersInfo(memberIds));
     return Object.entries(r.profiles ?? {}).map(([id, p]) => ({ id, displayName: p.displayName || p.zaloName, ...(p.avatar ? { avatar: p.avatar } : {}) }));
+  }
+
+  async userInfo(ids: string[]): Promise<{ id: string; displayName: string; avatar?: string }[]> {
+    const r = await rejected(() => this.api.getUserInfo(ids, AvatarSize.Small));
+    // Khoá trả về có thể mang hậu tố phiên bản (`<uid>_0`) — lấy uid từ hồ sơ, rơi về phần trước `_`.
+    return Object.entries(r.changed_profiles ?? {}).map(([k, p]) => ({ id: p.userId || k.split('_')[0]!, displayName: p.displayName || p.zaloName, ...(p.avatar ? { avatar: p.avatar } : {}) }));
   }
 
   async groupLink(groupId: string): Promise<{ enabled: boolean; link: string | null; expiresAt: number | null }> {

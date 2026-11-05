@@ -14,4 +14,8 @@ export { planGroup, requestDto, type GroupPlan, type Participant as GroupPartici
 export { GroupRead } from './services/group-read';
 export { ChannelOperationRead } from './operations/operation-read';
 export { registerHistoryPipeline } from './jobs/provider-history.processor';
+export { OperationQueue } from './jobs/provider-operations.processor';
+export { avatarLinks, avatarKey, contactAvatarLink } from './operations/avatar-read';
+export { AVATAR_LIMITS } from './operations/avatar-store';
+export { runAvatarSync, type AvatarDeps } from './jobs/avatar-sync.processor';
 export { GroupCreators, GroupRequestQueue, groupQueueName, GROUP_TIMEOUT_MS, type GroupJob } from './jobs/create-group.processor';

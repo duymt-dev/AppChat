@@ -1,7 +1,7 @@
 // Cổng thao tác Zalo cá nhân (TIP-014b A) trên ZaloSession — chỉ map các hàm SDK đã kiểm (provider-capabilities.md). Mọi lệnh kiểm
 // tham chiếu TRƯỚC khi gọi kênh: thiếu cliMsgId → pending_ref, id không an toàn → unsafe_ref, không có phiên → ChannelNotRunningError.
 // Sự kiện kênh (self-listen / thu hồi / cảm xúc) → ProviderEvent cho core; không đi qua pipeline tin khách.
-import { ChannelOperationError, type ChannelOperations, type GroupLink, type ProviderEvent, type ProviderMessageRef, type ReactionEmoji } from '../operations';
+import { ChannelOperationError, MAX_PROFILE_BATCH, type ChannelOperations, type GroupLink, type ProviderEvent, type ProviderMessageRef, type ReactionEmoji } from '../operations';
 import { ChannelNotRunningError } from '../types';
 import { ZALO_REACTION, ZALO_REACTION_NONE, assertCallable, emojiOfZalo } from './provider-refs';
 import type { ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession } from './transport';
@@ -68,6 +68,15 @@ export function zaloOperations(session: (accountId: string) => ZaloSession): Cha
     async groupLink(accountId: string, groupId: string): Promise<GroupLink> {
       const l = await live(accountId).groupLink(groupId);
       return { enabled: l.enabled, url: l.enabled ? l.link : null, expiresAt: l.expiresAt ? new Date(l.expiresAt).toISOString() : null };
+    },
+    async profiles(accountId: string, ids: string[]) {
+      const uniq = [...new Set(ids)];
+      if (uniq.length > MAX_PROFILE_BATCH || uniq.some((id) => !id || id.length > 64)) throw new ChannelOperationError('invalid', 'profiles');
+      if (!uniq.length) return [];
+      const ps = await live(accountId).userInfo(uniq);
+      const asked = new Set(uniq);
+      // Chỉ nhận hồ sơ của id đã hỏi (không để SDK chèn định danh lạ vào kết quả).
+      return ps.filter((p) => asked.has(p.id)).map((p) => ({ id: p.id, displayName: p.displayName, ...(p.avatar ? { avatarUrl: p.avatar } : {}) }));
     },
     async addGroupMembers(accountId: string, groupId: string, memberIds: string[]) {
       const ids = [...new Set(memberIds)];

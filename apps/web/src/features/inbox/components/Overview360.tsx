@@ -10,6 +10,7 @@ import { Rich } from './Rich';
 import { Timeline } from './Timeline';
 import { ExtraCards } from './ExtraCards';
 import type { Contact360 } from '../types';
+import { AvatarFace } from './AvatarFace';
 
 export function Overview360({ c }: { c: Contact360 }) {
   const t = useTranslations('inbox.p360');
@@ -77,9 +78,9 @@ export function Overview360({ c }: { c: Contact360 }) {
           </button>
         </div>
         <div className={cs.person}>
-          <div className={cs.bigAvatar} style={{ background: c.avatar_color }}>
+          <AvatarFace className={cs.bigAvatar} background={c.avatar_color} src={c.avatar_url}>
             {c.initials}
-          </div>
+          </AvatarFace>
           <div className={styles.grow}>
             <div className={cs.nameRow}>
               <span className={cs.pname}>{c.name}</span>

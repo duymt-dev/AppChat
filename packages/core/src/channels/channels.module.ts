@@ -164,6 +164,6 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
       useFactory: (q: Queue | null, s: ChannelSendQueue | null, i: Queue | null, g: GroupRequestQueue | null, o: OperationQueue | null) => new Closer(q, s, i, g, o),
     },
   ],
-  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead, ChannelOperationRead],
+  exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead, ChannelOperationRead, OperationQueue],
 })
 export class ChannelsModule {}

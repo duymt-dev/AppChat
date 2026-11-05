@@ -9,6 +9,7 @@ import { threadQuery } from '../api';
 import { useInboxUi } from '../inbox-store';
 import { Rich } from './Rich';
 import type { ChannelMeta, Conversation } from '../types';
+import { AvatarFace } from './AvatarFace';
 
 export function ChatHeader({ conv, channel }: { conv: Conversation; channel: ChannelMeta | undefined }) {
   const t = useTranslations('inbox.chat');
@@ -46,9 +47,9 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
             </div>
           </div>
         ) : (
-          <div className={styles.avatar} style={{ background: conv.hue }}>
+          <AvatarFace className={styles.avatar} background={conv.hue} src={conv.avatar_url}>
             {conv.initials}
-          </div>
+          </AvatarFace>
         )}
         <div className={styles.who}>
           <div className={styles.name}>{conv.title}</div>

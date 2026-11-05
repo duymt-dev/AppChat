@@ -24,6 +24,8 @@ export interface Conversation {
   title: string;
   initials: string;
   hue: string;
+  /** Ảnh đại diện (link ký — TIP-014b D); vắng → chữ cái đầu. */
+  avatar_url?: string;
   more?: string;
   more_hue?: string;
   channel: ChannelType;
@@ -64,6 +66,7 @@ export interface Message {
   sender?: string;
   sender_initials?: string;
   sender_hue?: string;
+  sender_avatar?: string;
   sender_color?: string;
   title?: string;
   sub?: string;
@@ -142,6 +145,7 @@ export interface Contact360 {
   name: string;
   initials: string;
   avatar_color: string;
+  avatar_url?: string;
   tier: string;
   since: string;
   stage_label: string;

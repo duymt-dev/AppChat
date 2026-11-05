@@ -22,6 +22,8 @@ export const conversationSchema = z.object({
   title: z.string(),
   initials: z.string(),
   hue: z.string(),
+  /** Ảnh đại diện (TIP-014b D): ảnh nhân viên đặt cho khách, hoặc ảnh đồng bộ từ kênh — link ký của AppChat; vắng → chữ cái đầu. */
+  avatar_url: z.string().optional(),
   more: z.string().optional(),
   more_hue: z.string().optional(),
   channel: z.string(),
@@ -71,6 +73,8 @@ export const messageSchema = z.object({
   sender: z.string().optional(),
   sender_initials: z.string().optional(),
   sender_hue: z.string().optional(),
+  /** Ảnh thành viên nhóm đồng bộ từ kênh (TIP-014b D) — link ký; vắng → chữ cái đầu. */
+  sender_avatar: z.string().optional(),
   sender_color: z.string().optional(),
   title: z.string().optional(),
   sub: z.string().optional(),

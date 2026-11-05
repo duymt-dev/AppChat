@@ -9,7 +9,7 @@ import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
-import { ChannelSendQueue, registerHistoryPipeline, registerSendBooks, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { ChannelSendQueue, OperationQueue, registerHistoryPipeline, registerSendBooks, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
 import { inboxSendBooks } from '../services/send-book';
 import { reserveDispatch } from '../../ai/reply/send-fence';
 import { ChannelsModule } from '../../channels/channels.module';
@@ -29,6 +29,7 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
     @Inject(ChannelSendQueue) private readonly send: ChannelSendQueue | null,
+    @Inject(OperationQueue) private readonly ops: OperationQueue | null,
     @Inject(InboundPipeline) private readonly pipeline: InboundPipeline,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
@@ -44,7 +45,11 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (!redis || !platform || !tenants || !send) return;
     // Tin khách → job `agent-reply` (worker ROLE=ai — TIP-022); queue chỉ là tên Redis, không cần module ai ở worker kênh.
     const reply = (this.reply = new AgentReplyQueue(redis));
-    const d: InboxJobDeps = { redis, platform, tenants, pipeline: this.pipeline, send, agentReply: (j) => reply.push(j), log: this.log, now: () => this.clock.now() };
+    const ops = this.ops;
+    const d: InboxJobDeps = {
+      redis, platform, tenants, pipeline: this.pipeline, send, agentReply: (j) => reply.push(j), log: this.log, now: () => this.clock.now(),
+      ...(ops ? { avatars: (accountId: string, ws: string) => ops.enqueueAvatars(accountId, { ws }) } : {}),
+    };
     this.deps = d;
     this.worker = startInboundWorker(d);
     registerSendResultSink('inbox', sendResultSink(d));

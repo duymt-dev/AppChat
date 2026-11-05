@@ -8,6 +8,8 @@ import { folderCounts, listConversationIds, type ConvFilter } from '../repos/con
 import { UUID, visibleConversation } from './access';
 import { toConversation, toMessage, withDays, type ConvExtras, type Place } from './view';
 import { latestOperations } from '../../channels/operations/operation-read';
+import { avatarKey, avatarLinks } from '../../channels/operations/avatar-read';
+import type { FileLinks } from '../../kernel/files/file-links';
 
 export interface Viewer {
   workspaceId: string;
@@ -30,6 +32,8 @@ export class InboxReadService {
     private readonly tenants: TenantDbResolver,
     private readonly platform: Pick<PlatformDb, 'user' | 'workspace'>,
     private readonly now: () => Date,
+    /** Link ký ảnh đại diện (TIP-014b D); null → không trả ảnh. */
+    private readonly links: FileLinks | null = null,
   ) {}
 
   async tx<T>(v: Viewer, fn: (tx: TenantTx) => Promise<T>): Promise<T> {
@@ -50,7 +54,7 @@ export class InboxReadService {
     const p = await this.place(v);
     return this.tx(v, async (tx) => {
       const { ids, next } = await listConversationIds(tx, v.authz, f, p.now, cursor, Math.min(MAX_LIMIT, Math.max(1, limit ?? 50)));
-      return { data: await this.rows(tx, ids, p), next_cursor: next };
+      return { data: await this.rows(tx, ids, p, v.workspaceId), next_cursor: next };
     });
   }
 
@@ -58,7 +62,7 @@ export class InboxReadService {
     const p = await this.place(v);
     return this.tx(v, async (tx) => {
       const c = await visibleConversation(tx, v.authz, id);
-      return (await this.rows(tx, [c.id], p))[0]!;
+      return (await this.rows(tx, [c.id], p, v.workspaceId))[0]!;
     });
   }
 
@@ -99,16 +103,22 @@ export class InboxReadService {
       const page = rows.slice(0, THREAD_PAGE).reverse();
       const ids = page.map((m) => m.id);
       const replyIds = [...new Set(page.map((m) => m.replyToId).filter((x): x is string => !!x))];
-      const [mine, replies, ops] = await Promise.all([
+      const senders = c.kind === 'group' ? [...new Set(page.filter((m) => m.direction === 'in' && m.senderId).map((m) => m.senderId!))] : [];
+      const [mine, replies, ops, avs] = await Promise.all([
         tx.messageReaction.findMany({ where: { messageId: { in: ids }, actorType: 'user', actorId: v.userId }, orderBy: { createdAt: 'asc' } }),
         replyIds.length ? tx.message.findMany({ where: { id: { in: replyIds } }, select: { id: true, body: true, deletedAt: true, recalledAt: true } }) : [],
         latestOperations(tx, ids),
+        avatarLinks(tx, this.links, v.workspaceId, senders.map((externalId) => ({ accountId: c.channelAccountId, externalId }))),
       ]);
       const x = {
         myReaction: new Map(mine.map((r) => [r.messageId, r.emoji])),
         replyPreview: new Map(replies.map((r) => [r.id, r.deletedAt || r.recalledAt ? '' : r.body.slice(0, 80)])),
         isGroup: c.kind === 'group',
         ops,
+        senderAvatars: new Map(senders.flatMap((s) => {
+          const url = avs.get(avatarKey(c.channelAccountId, s));
+          return url ? [[s, url] as const] : [];
+        })),
       };
       return {
         data: withDays(page.map((m) => ({ at: m.createdAt, dto: toMessage(m, x, p) })), p),
@@ -145,7 +155,7 @@ export class InboxReadService {
   }
 
   /** Bước 2 deferred join: đủ cột cho các id của trang (giữ thứ tự bước 1) + tên khách / tài khoản / thẻ / số thành viên. */
-  private async rows(tx: TenantTx, ids: string[], p: Place): Promise<ConversationDto[]> {
+  private async rows(tx: TenantTx, ids: string[], p: Place, ws: string): Promise<ConversationDto[]> {
     if (!ids.length) return [];
     const convs = await tx.conversation.findMany({ where: { id: { in: ids } } });
     const order = new Map(ids.map((id, i) => [id, i]));
@@ -154,7 +164,7 @@ export class InboxReadService {
     const accountIds = [...new Set(convs.map((c) => c.channelAccountId))];
     const groupIds = convs.filter((c) => c.kind === 'group').map((c) => c.id);
     const [contacts, accounts, links, members] = await Promise.all([
-      contactIds.length ? tx.contact.findMany({ where: { id: { in: contactIds } }, select: { id: true, name: true } }) : [],
+      contactIds.length ? tx.contact.findMany({ where: { id: { in: contactIds } }, select: { id: true, name: true, avatarUrl: true } }) : [],
       tx.channelAccount.findMany({ where: { id: { in: accountIds } }, select: { id: true, name: true } }),
       tx.conversationTag.findMany({ where: { conversationId: { in: ids } }, orderBy: { createdAt: 'asc' } }),
       groupIds.length ? tx.conversationParticipant.groupBy({ by: ['conversationId'], where: { conversationId: { in: groupIds } }, _count: { _all: true } }) : [],
@@ -171,7 +181,21 @@ export class InboxReadService {
       accountName: new Map(accounts.map((a) => [a.id, a.name])),
       tags,
       members: new Map(members.map((m) => [m.conversationId, m._count._all])),
+      avatars: await this.convAvatars(tx, convs, contacts, ws),
     };
     return convs.map((c) => toConversation(c, x, p));
+  }
+
+  /** Ảnh hội thoại 1-1: ảnh nhân viên đặt cho khách thắng; không có → ảnh đồng bộ của định danh thread (TIP-014b D). Nhóm: chữ cái đầu. */
+  private async convAvatars(tx: TenantTx, convs: { id: string; kind: string; contactId: string | null; channelAccountId: string; externalThreadId: string }[], contacts: { id: string; avatarUrl: string | null }[], ws: string) {
+    const manual = new Map(contacts.filter((c) => c.avatarUrl).map((c) => [c.id, c.avatarUrl!]));
+    const direct = convs.filter((c) => c.kind === 'direct');
+    const synced = await avatarLinks(tx, this.links, ws, direct.filter((c) => !(c.contactId && manual.has(c.contactId))).map((c) => ({ accountId: c.channelAccountId, externalId: c.externalThreadId })));
+    const out = new Map<string, string>();
+    for (const c of direct) {
+      const url = (c.contactId && manual.get(c.contactId)) || synced.get(avatarKey(c.channelAccountId, c.externalThreadId));
+      if (url) out.set(c.id, url);
+    }
+    return out;
   }
 }

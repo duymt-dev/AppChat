@@ -20,6 +20,8 @@ export interface InboxJobDeps {
   send: ChannelSendQueue;
   /** Đẩy job `agent-reply` (TIP-022) sau commit tin khách; vắng (test không có AI) → bỏ qua. */
   agentReply?: (job: { ws: string; conversation_id: string; message_id: string }) => Promise<void>;
+  /** Đẩy job đồng bộ ảnh đại diện của tài khoản (TIP-014b D) sau commit; vắng → bỏ qua (dòng vẫn chờ ở DB, lần sau gom). */
+  avatars?: (accountId: string, ws: string) => Promise<void>;
   log: AppLogger;
   now: () => Date;
 }
@@ -47,6 +49,7 @@ export function startInboundWorker(d: InboxJobDeps): Worker<InboundJob> {
         if (r.agentReply && r.messageId && r.conversationId) {
           await d.agentReply?.({ ws, conversation_id: r.conversationId, message_id: r.messageId }).catch((err: unknown) => d.log.warn({ err, ws }, 'agent-reply enqueue failed'));
         }
+        if (r.avatarQueued) await d.avatars?.(message.channelAccountId, ws).catch((err: unknown) => d.log.warn({ err, ws }, 'avatar enqueue failed'));
         return r.messageId;
       } catch (err) {
         if (err instanceof DuplicateInbound) return null;

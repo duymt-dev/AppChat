@@ -2,7 +2,7 @@
 // §3.4, §4.4, §6). Thiếu DB → service null (action / route trả 501). Luật realtime / thông báo nạp khi import module này;
 // guard phòng `conv:{id}` (WS `conv.join`) đăng ký lúc khởi động.
 import { Inject, Module, Optional, type OnModuleInit } from '@nestjs/common';
-import type { ChannelRegistry } from '@appchat/channels';
+import { operationMode, type ChannelRegistry } from '@appchat/channels';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { can } from '@appchat/shared';
 import { CLOCK, type Clock } from '../kernel/clock';
@@ -80,15 +80,20 @@ class ConversationGuardInstaller implements OnModuleInit {
     },
     {
       provide: InboxReadService,
-      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CLOCK],
-      useFactory: (r: TenantDbResolver | undefined, p: PlatformDb | undefined, c: Clock) => (r && p ? new InboxReadService(r, p, () => c.now()) : null),
+      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CLOCK, FILE_LINKS],
+      useFactory: (r: TenantDbResolver | undefined, p: PlatformDb | undefined, c: Clock, l: FileLinks | null) => (r && p ? new InboxReadService(r, p, () => c.now(), l) : null),
     },
     {
       provide: InboxMetaService,
       inject: [InboxReadService, CHANNEL_REGISTRY, opt(PLATFORM_DB)],
       useFactory: (read: InboxReadService | null, reg: ChannelRegistry, p?: PlatformDb) => (read && p ? new InboxMetaService(read, reg, p) : null),
     },
-    { provide: InboundPipeline, inject: [ContactIdentityService], useFactory: (i: ContactIdentityService) => new InboundPipeline(i) },
+    {
+      provide: InboundPipeline,
+      inject: [ContactIdentityService, CHANNEL_REGISTRY],
+      // Ảnh đại diện chỉ với kênh khai `operations.profiles = remote` (TIP-014b D) — không `switch (type)`.
+      useFactory: (i: ContactIdentityService, reg: ChannelRegistry) => new InboundPipeline(i, (t) => operationMode(reg.get(t)?.manifest.capabilities.operations, 'profiles') === 'remote'),
+    },
   ],
   exports: [InboxReadService, InboxMetaService, InboundPipeline],
 })

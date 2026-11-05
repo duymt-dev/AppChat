@@ -26,6 +26,11 @@ export interface HistoryJob {
   history_run_id: string;
 }
 
+/** Job đồng bộ ảnh đại diện (TIP-014b D) — chung hàng đợi thao tác `chop-<tài khoản>`; một job chờ / tài khoản. */
+export interface AvatarJob {
+  ws: string;
+}
+
 /**
  * Pipeline tin vào cho lịch sử — Inbox đăng ký (channels không import inbox). `run` ném lỗi tên `DuplicateInbound` khi tin đã có.
  */

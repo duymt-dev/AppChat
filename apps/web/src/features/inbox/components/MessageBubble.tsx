@@ -9,6 +9,7 @@ import { MessageMenu } from './MessageMenu';
 import { MessageProviderStatus } from './MessageProviderStatus';
 import { Rich } from './Rich';
 import type { Conversation, Message } from '../types';
+import { AvatarFace } from './AvatarFace';
 
 export interface MessageBubbleProps {
   m: Message;
@@ -26,9 +27,9 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   const files = !m.deleted && !m.recalled && m.attachments?.length ? <Attachments files={m.attachments} messageId={m.direction === 'in' ? m.id : undefined} /> : null;
   const isGroup = conv.kind === 'group';
   const avatar = (
-    <div className={cx(styles.av, isGroup && styles.avSm)} style={{ background: m.sender_hue ?? conv.hue }}>
+    <AvatarFace className={cx(styles.av, isGroup && styles.avSm)} background={m.sender_hue ?? conv.hue} src={isGroup ? m.sender_avatar : conv.avatar_url}>
       {m.sender_initials ?? conv.initials}
-    </div>
+    </AvatarFace>
   );
 
   switch (m.kind) {

@@ -13,10 +13,8 @@ export interface Attachment {
   size: number;
 }
 
-export interface FileLinks {
-  apiBase: string;
-  key: Buffer;
-}
+export type { FileLinks } from '../../kernel/files/file-links';
+import type { FileLinks } from '../../kernel/files/file-links';
 
 const IMAGE = /^image\/(png|jpe?g|gif|webp)$/i;
 

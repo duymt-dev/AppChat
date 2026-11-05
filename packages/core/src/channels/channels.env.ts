@@ -18,10 +18,14 @@ export const channelsEnv = z
     WIDGET_API_URL: z.string().url().default('http://localhost:4000'),
     /** URL file widget.js — mặc định `<WIDGET_API_URL>/widget.js` (Blueprint §11: `widget.<domain>` phục vụ widget.js tĩnh + socket `/widget`). */
     WIDGET_SCRIPT_URL: z.string().url().optional(),
+    /** CHỈ test (integration): địa chỉ fixture HTTP cục bộ được safeFetch coi như công khai khi tải ảnh đại diện — safeFetch tự bỏ qua ngoài
+     *  NODE_ENV=test; production cấm đặt. */
+    CHANNEL_FETCH_TEST_ALLOW: z.string().max(200).optional(),
   })
   .superRefine((e, ctx) => {
     if (e.NODE_ENV === 'production' && e.ZALO_TRANSPORT === 'fake') ctx.addIssue({ code: 'custom', path: ['ZALO_TRANSPORT'], message: 'fake cấm ở production' });
     if (e.NODE_ENV === 'production' && e.MAIL_TRANSPORT === 'fake') ctx.addIssue({ code: 'custom', path: ['MAIL_TRANSPORT'], message: 'fake cấm ở production' });
+    if (e.NODE_ENV === 'production' && e.CHANNEL_FETCH_TEST_ALLOW) ctx.addIssue({ code: 'custom', path: ['CHANNEL_FETCH_TEST_ALLOW'], message: 'cấm ở production' });
     if (e.NODE_ENV === 'production' && e.CHANNEL_SEND_JITTER < 1) ctx.addIssue({ code: 'custom', path: ['CHANNEL_SEND_JITTER'], message: 'cấm giảm ở production' });
   });
 

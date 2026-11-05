@@ -1,5 +1,5 @@
 // tenant/channel-operations.prisma — sở hữu: TIP-014b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
+// Bảng: channel_avatar (ảnh đại diện theo định danh kênh — TIP-014b D), message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
 // channel_operation (lệnh thao tác bền: thu hồi / cảm xúc — trạng thái thật theo ACK nhà cung cấp), message_account_reaction (cảm xúc
 // của TÀI KHOẢN kênh trên tin: mong muốn ↔ đã xác nhận ↔ quan sát từ kênh, revision tăng đơn điệu). Chuẩn: omnichannel-adapter §Thao tác.
 // Không Prisma relation xuyên domain (Blueprint §2.1). Partial / covering index viết SQL trong migration.
@@ -167,4 +167,26 @@ model ChannelHistoryRun {
 
   @@index([channelAccountId, createdAt(sort: Desc), id(sort: Desc)], map: "channel_history_run_account_idx")
   @@map("channel_history_run")
+}
+
+/// Ảnh đại diện theo định danh phía kênh (TIP-014b D) — khách 1-1 và thành viên nhóm (thành viên KHÔNG thành khách). Ảnh tải về Storage
+/// (`file.purpose = avatar`), trình duyệt chỉ thấy link ký của AppChat. Ảnh do nhân viên đặt (`contact.avatar_url`) luôn ưu tiên — bảng
+/// này không bao giờ ghi vào contact. Hàng đợi bền: `queued` + `next_at`; worker giữ phiên lấy theo lô ≤ 20, trần / ngày, lùi khi lỗi.
+model ChannelAvatar {
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  externalId       String    @map("external_id")
+  /// queued | ok | none (kênh không có ảnh) | failed (hết lượt thử — chờ lần nhắn sau 7 ngày).
+  status           String    @default("queued")
+  fileId           String?   @map("file_id") @db.Uuid
+  /// sha256 URL nguồn — ảnh không đổi thì không tải lại.
+  sourceHash       String?   @map("source_hash")
+  attempts         Int       @default(0)
+  nextAt           DateTime  @map("next_at") @db.Timestamptz(6)
+  requestedAt      DateTime  @map("requested_at") @db.Timestamptz(6)
+  checkedAt        DateTime? @map("checked_at") @db.Timestamptz(6)
+  syncedAt         DateTime? @map("synced_at") @db.Timestamptz(6)
+  error            String?
+
+  @@id([channelAccountId, externalId])
+  @@map("channel_avatar")
 }

@@ -14,7 +14,7 @@ import { messageRefs } from '../operations/operation-store';
 import { applyOperationResult, markInterrupted, type OperationOutcome } from '../operations/provider-event';
 import { OPERATION_TIMEOUT_MS, type OperationJob } from '../operations/types';
 import { assertGeneration } from '../operations/session-generation';
-import type { HistoryJob } from '../operations/types';
+import type { AvatarJob, HistoryJob } from '../operations/types';
 
 export const operationQueueName = (accountId: string) => `chop-${accountId}`;
 
@@ -27,7 +27,12 @@ export interface OperationDeps {
   timeoutMs?: number;
   /** Chạy job lịch sử (TIP-014b C — provider-history.processor) — tiêm từ module để không vòng phụ thuộc. */
   history?: (accountId: string, adapter: ChannelAdapter, j: HistoryJob, generation?: number) => Promise<string>;
+  /** Đồng bộ ảnh đại diện (TIP-014b D — avatar-sync.processor): `more` = còn việc → đẩy job trễ. */
+  avatars?: (accountId: string, adapter: ChannelAdapter, j: AvatarJob, generation?: number) => Promise<{ status: string; delayMs?: number }>;
 }
+
+/** Trễ giữa hai job ảnh khi còn việc (nhường hàng đợi tài khoản cho thu hồi / gửi). */
+export const AVATAR_REQUEUE_MS = 60_000;
 
 /** Producer: một job mỗi lệnh (job id = id lệnh — đẩy lại không trùng). */
 export class OperationQueue {
@@ -47,6 +52,17 @@ export class OperationQueue {
     await q.add('history', j, { jobId: `hist-${j.history_run_id}`, attempts: 3, backoff: { type: 'exponential', delay: 10_000 }, removeOnComplete: 200, removeOnFail: 500 });
   }
 
+  /**
+   * Đồng bộ ảnh đại diện — job id theo (tài khoản, khung thời gian đến hạn): mọi tin vào trong cùng khung gom thành một job; job hẹn lại
+   * (còn việc / chạm trần) rơi vào khung sau nên không trùng id job đang chạy. Job xong / lỗi xoá ngay.
+   */
+  async enqueueAvatars(accountId: string, j: AvatarJob, delayMs = 0, at = Date.now()): Promise<void> {
+    let q = this.queues.get(accountId);
+    if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
+    const slot = Math.floor((at + delayMs) / AVATAR_REQUEUE_MS);
+    await q.add('avatars', j, { jobId: `avatars-${accountId}-${slot}`, delay: delayMs, attempts: 1, removeOnComplete: true, removeOnFail: true });
+  }
+
   async close(): Promise<void> {
     for (const q of this.queues.values()) await q.close();
     this.queues.clear();
@@ -63,16 +79,21 @@ const toRef = (r: { threadId: string; isGroup: boolean; msgId: string; cliMsgId:
 
 export class ProviderOperators {
   private readonly workers = new Map<string, Worker>();
-  constructor(private readonly d: OperationDeps) {}
+  constructor(
+    private readonly d: OperationDeps,
+    private readonly queue?: Pick<OperationQueue, 'enqueueAvatars'>,
+  ) {}
 
   async open(accountId: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
     if (this.workers.has(accountId) || (!adapter.operations && !adapter.fetchHistory)) return;
-    const w = new Worker<OperationJob | HistoryJob>(
+    const w = new Worker<OperationJob | HistoryJob | AvatarJob>(
       operationQueueName(accountId),
       (job) =>
         job.name === 'history'
           ? (this.d.history?.(accountId, adapter, job.data as HistoryJob, generation) ?? Promise.resolve('history_unavailable'))
-          : this.run(accountId, adapter, job.data as OperationJob, generation),
+          : job.name === 'avatars'
+            ? this.avatars(accountId, adapter, job.data as AvatarJob, generation)
+            : this.run(accountId, adapter, job.data as OperationJob, generation),
       { connection: this.d.redis.duplicate(), concurrency: 1 },
     );
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'operation worker error'));
@@ -88,6 +109,13 @@ export class ProviderOperators {
 
   async closeAll(): Promise<void> {
     for (const id of [...this.workers.keys()]) await this.close(id);
+  }
+
+  private async avatars(accountId: string, adapter: ChannelAdapter, j: AvatarJob, generation?: number): Promise<string> {
+    const r = (await this.d.avatars?.(accountId, adapter, j, generation)) ?? { status: 'unsupported' };
+    // Còn việc (gồm dòng đang lùi) / chạm trần ngày: hẹn job ở khung sau.
+    if (r.status === 'more' || r.status === 'capped') await this.queue?.enqueueAvatars(accountId, j, r.status === 'capped' ? 3_600_000 : Math.max(AVATAR_REQUEUE_MS, r.delayMs ?? 0));
+    return r.status;
   }
 
   private async finish(db: TenantDb, ws: string, id: string, o: OperationOutcome | 'interrupted'): Promise<void> {

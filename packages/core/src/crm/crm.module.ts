@@ -4,6 +4,9 @@ import { Module } from '@nestjs/common';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
+import { ENC_KEY } from '../kernel/crypto';
+import { ENV_SOURCE } from '../kernel/kernel.module';
+import { fileLinksFrom } from '../kernel/files/file-links';
 import './seeds';
 import { ContactAddCollaboratorHandler, ContactDecideAccessHandler, ContactRemoveCollaboratorHandler, ContactRequestAccessHandler, ContactTransferOwnerHandler } from './actions/contact-owner.handlers';
 import { ContactExportHandler, ContactImportHandler } from './actions/contact-io.handlers';
@@ -42,8 +45,10 @@ const HANDLERS = [
     { provide: CrmMembers, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new CrmMembers(p) : null) },
     {
       provide: CrmReadService,
-      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CrmMembers, CLOCK],
-      useFactory: (r: TenantDbResolver | undefined, p: PlatformDb | undefined, m: CrmMembers | null, c: Clock) => (r && p && m ? new CrmReadService(r, p, m, () => c.now()) : null),
+      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CrmMembers, CLOCK, opt(ENV_SOURCE), opt(ENC_KEY)],
+      // Ảnh đại diện đồng bộ từ kênh (TIP-014b D) trả link ký cùng origin API public như tệp đính kèm.
+      useFactory: (r: TenantDbResolver | undefined, p: PlatformDb | undefined, m: CrmMembers | null, c: Clock, src?: Record<string, string | undefined>, key?: Buffer) =>
+        r && p && m ? new CrmReadService(r, p, m, () => c.now(), fileLinksFrom(src ?? {}, key)) : null,
     },
     { provide: ContactIdentityService, useValue: new ContactIdentityService() },
   ],
