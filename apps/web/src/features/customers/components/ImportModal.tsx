@@ -67,6 +67,9 @@ export function ImportModal() {
   };
 
   const failed = table.isError || (table.data && !table.data.columns.length);
+  // Lý do 422 của server (quá nhiều dòng / tệp quá phức tạp) — khác "không đọc được".
+  const reason = (table.error as { error?: { fields?: Record<string, string> } } | null)?.error?.fields?.file_id;
+  const failText = reason === 'too_many_rows' ? t('tooManyRows') : reason === 'too_many_sheets' ? t('tooComplex') : t('unreadable');
   return (
     <ModalShell
       open
@@ -114,7 +117,7 @@ export function ImportModal() {
             </button>
             <input ref={input} type="file" hidden accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(e) => void pick(e.target.files?.[0])} data-testid="import-file" />
           </div>
-          {err || failed ? <div className={fs.err}>{err || t('unreadable')}</div> : null}
+          {err || failed ? <div className={fs.err} data-testid="import-error">{err || failText}</div> : null}
           {table.data && table.data.columns.length ? (
             <>
               <div className={fs.sectionTitle}>{t('mapTitle', { rows: table.data.total })}</div>

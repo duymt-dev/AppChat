@@ -4,7 +4,7 @@
 // Quyền `crm.view`; scope crm áp trong service. Ghi qua action contact.*.
 import { Controller, Get, Inject, Optional, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { CrmMembers, CrmReadService, FilesService, TENANT_RESOLVER, readTable, type ContactFilter } from '@appchat/core';
+import { CrmMembers, CrmReadService, FilesService, TENANT_RESOLVER, XlsxTooComplexError, readTable, type ContactFilter } from '@appchat/core';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, CONTACT_SORTS, type ContactSort, type PermissionKey } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -82,7 +82,11 @@ export class ContactsController {
     const meta = await db.file.findUnique({ where: { id: fileId }, select: { purpose: true, uploadedBy: true } });
     const f = meta?.purpose === 'import' && meta.uploadedBy === a.userId ? await this.files.read(db, fileId) : null;
     if (!f) throw new AppError('NOT_FOUND', 404, { file_id: 'not_found' });
-    const t = await readTable(f.row.name, f.row.mime, f.body).catch(() => undefined);
+    const t = await readTable(f.row.name, f.row.mime, f.body).catch((e: unknown) => {
+      // Tệp quá lớn / quá phức tạp (vd data validation tới dòng 1.048.576) → lý do rõ, không treo API.
+      if (e instanceof XlsxTooComplexError) throw new AppError('VALIDATION_FAILED', 422, { file_id: e.reason });
+      return undefined;
+    });
     if (t === null) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'unsupported' });
     if (!t) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'corrupt' });
     const cols = t.columns.slice(0, IMPORT_MAX_COLS);

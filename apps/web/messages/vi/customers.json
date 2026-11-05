@@ -330,6 +330,8 @@
     "pick": "Chọn tệp",
     "uploadFailed": "Không tải được tệp lên, thử lại sau.",
     "unreadable": "Không đọc được tệp — chỉ nhận CSV hoặc Excel (.xlsx) có hàng tên cột.",
+    "tooManyRows": "Tệp có quá nhiều dòng — tách thành nhiều tệp, mỗi tệp tối đa 20.000 dòng.",
+    "tooComplex": "Tệp Excel quá phức tạp để đọc (nhiều sheet hoặc định dạng / danh sách chọn áp cho cả cột). Lưu lại thành CSV rồi tải lên.",
     "mapTitle": "Ghép cột ({rows} dòng)",
     "skip": "— Bỏ qua —",
     "needName": "Cần ghép một cột vào \"Họ và tên\".",
