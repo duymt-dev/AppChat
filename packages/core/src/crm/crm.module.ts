@@ -22,6 +22,8 @@ import { ContactBulkUpdateHandler } from './actions/contact-bulk.handler';
 import { CrmReadService } from './services/crm-read.service';
 import { ContactIdentityService } from './services/identity.service';
 import { CrmMembers } from './services/members.service';
+import { ROUTING_PROVIDERS } from './routing/routing.providers';
+import { LeadRoutingReadService } from './routing/routing-read.service';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -51,7 +53,9 @@ const HANDLERS = [
         r && p && m ? new CrmReadService(r, p, m, () => c.now(), fileLinksFrom(src ?? {}, key)) : null,
     },
     { provide: ContactIdentityService, useValue: new ContactIdentityService() },
+    // TIP-042b: chia lead mới (rule + apply system + đọc cấu hình).
+    ...ROUTING_PROVIDERS,
   ],
-  exports: [CrmMembers, CrmReadService, ContactIdentityService, DataJobActionsModule],
+  exports: [CrmMembers, CrmReadService, ContactIdentityService, LeadRoutingReadService, DataJobActionsModule],
 })
 export class CrmModule {}

@@ -192,6 +192,10 @@ export class InboundPipeline {
     if (isNew && conv.assigneeUserId) {
       events.push({ topic: 'conversation.assigned', payload: { ...base, assignee_agent_id: conv.assigneeAgentId, by_user_id: null, auto: true, title } });
     }
+    // TIP-042b: khách vừa tạo từ tin 1-1 live → xin chia lead (consumer ROLE=jobs, system action). Khớp khách cũ / nhóm / lịch sử: không.
+    if (contactCreated && contactId && !m.isGroup) {
+      events.push({ topic: 'lead.routing_requested', payload: { contact_id: contactId, conversation_id: conv.id, channel_account_id: account.id, message_id: msgId } });
+    }
     return { messageId: msgId, conversationId: conv.id, events, agentReply: wantsAgent(conv, st.agent_id || null, !!m.mentionsMe), avatarQueued };
   }
 

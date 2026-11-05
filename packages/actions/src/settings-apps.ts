@@ -171,7 +171,8 @@ export const channelUpdateSettings = defineAction({
       ai_mode: z.enum(['auto', 'suggest', 'off']).optional(),
       hours: z.string().max(60).optional(),
       greeting: z.string().max(300).optional(),
-      assign_mode: z.enum(['round_robin', 'least_busy', 'shift']).optional(),
+      // Nhãn cũ (TIP-014): chỉ là bản chiếu tương thích — chia lead thật cấu hình qua `lead_routing.update` (TIP-042b). Không nhận `shift` mới.
+      assign_mode: z.enum(['round_robin', 'least_busy']).optional(),
       sla_policy: z.string().max(60).optional(),
       sync_messages: z.boolean().optional(),
       sync_auto_create_contact: z.boolean().optional(),

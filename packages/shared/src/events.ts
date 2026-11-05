@@ -74,6 +74,8 @@ export const contactOwnerChangedEvent = z.object({
   to: z.string().uuid(),
   move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
 });
+/** Khách vừa tạo từ tin vào 1-1 live (TIP-042b, DC-238) — consumer ROLE=jobs gọi `lead_routing.apply` (system) cấp chủ đầu tiên theo rule. */
+export const leadRoutingRequestedEvent = z.object({ ...contactBase, conversation_id: z.string().uuid(), channel_account_id: z.string().uuid(), message_id: z.string().uuid() });
 export const contactCollaboratorChangedEvent = z.object({ ...contactBase, user_id: z.string().uuid(), role: z.enum(['collaborator', 'watcher']).nullable() });
 export const contactAccessRequestedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid() });
 export const contactAccessDecidedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid(), status: z.enum(['approved', 'rejected']) });
@@ -212,6 +214,7 @@ export const EVENT_SCHEMAS = {
   'contact.merged': contactMergedEvent,
   'contact.owner_changed': contactOwnerChangedEvent,
   'contact.collaborator_changed': contactCollaboratorChangedEvent,
+  'lead.routing_requested': leadRoutingRequestedEvent,
   'contact.access_requested': contactAccessRequestedEvent,
   'contact.access_decided': contactAccessDecidedEvent,
   'message.received': messageReceivedEvent,

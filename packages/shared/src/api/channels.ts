@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 export const CHANNEL_HEALTH = ['good', 'slow', 'down', 'off'] as const;
 export const CHANNEL_AI_MODES = ['auto', 'suggest', 'off'] as const;
+/** `shift` chỉ còn đọc được (cấu hình cũ, TIP-042b DC-238) — action không nhận giá trị mới. */
 export const CHANNEL_ASSIGN_MODES = ['round_robin', 'least_busy', 'shift'] as const;
 export const CHANNEL_HISTORY_DAYS = [0, 7, 30, 90] as const;
 
@@ -31,6 +32,10 @@ export const channelAccountSchema = z.object({
   paused: z.boolean(),
   /** Trạng thái chi tiết của tài khoản (`channel_account.status`) — FE chưa dùng. */
   status: z.string().optional(),
+  /** Chia lead đang áp (TIP-042b): rule ghi đè của tài khoản, không có thì rule mặc định; `none` = chưa cấu hình (hàng chung). Chỉ đọc. */
+  routing: z
+    .object({ source: z.enum(['account', 'default', 'none']), rule_id: z.string().nullable(), enabled: z.boolean(), mode: z.string(), version: z.number().int() })
+    .optional(),
 });
 export type ChannelAccountDto = z.infer<typeof channelAccountSchema>;
 

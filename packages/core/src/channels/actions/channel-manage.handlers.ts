@@ -1,7 +1,7 @@
 // Quản lý tài khoản kênh (REQ-B11 drawer, Blueprint §3.4): update_settings · pause / resume · sync_history · test · disconnect.
 // Lệnh tới phiên đang chạy (dừng / chạy lại / đồng bộ) gửi SAU commit qua ChannelControl; route DB nền tảng đồng bộ cùng lúc.
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, serverMessages } from '@appchat/shared';
+import { AppError, can, serverMessages } from '@appchat/shared';
 import { channelRegistry, type ChannelRegistry } from '@appchat/channels';
 import type { ActionInput, channelDisconnect, channelPause, channelResume, channelSyncHistory, channelTest, channelUpdateSettings } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -38,7 +38,9 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(_ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+    // TIP-042b: `assign_mode` chỉ là bản chiếu cũ (chia lead thật = `lead_routing.update`) nhưng vẫn là cấu hình phân công → cần crm.reassign.
+    if (input.patch.assign_mode !== undefined && !can(ctx.authz, 'crm.reassign')) throw new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
     const row = await need(this.accounts).live(tx, input.channel_account_id);
     const { name, agent_id, ...rest } = input.patch;
     await assertAgentAssignable(tx, agent_id);

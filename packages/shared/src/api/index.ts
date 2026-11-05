@@ -5,6 +5,7 @@ export * from './identity';
 export * from './integrations';
 export * from './settings';
 export * from './teams';
+export * from './lead-routing';
 export * from './ownership-transfer';
 export * from './audit';
 export * from './crm';

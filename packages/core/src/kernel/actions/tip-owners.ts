@@ -72,6 +72,7 @@ const BY_PREFIX: Record<string, string> = {
   admin: '040',
   role: '042',
   team: '042',
+  lead_routing: '042b',
 };
 
 export function tipOwnerOf(actionId: string): string | null {

@@ -5,10 +5,19 @@ import { AppError, type ChannelAccountDto, type ChannelLoginStateDto, type Setti
 import type { ChannelRegistry } from '@appchat/channels';
 import type { TenantDb } from '@appchat/db';
 import { ChannelAccounts, UUID, settingsOf, type AccountHealth, type AccountRow } from './accounts.service';
-import type { ChannelControl } from './control';import { qrImageOf } from './login-attempt';
+import type { ChannelControl } from './control';
+import { qrImageOf } from './login-attempt';
 
 
 type Health = ChannelAccountDto['health'];
+type RuleLite = { id: string; channelAccountId: string | null; enabled: boolean; mode: string; version: number };
+
+/** Chia lead đang áp cho tài khoản (TIP-042b): ghi đè → mặc định → chưa cấu hình (hàng chung). */
+function routingOf(rules: RuleLite[], accountId: string): NonNullable<ChannelAccountDto['routing']> {
+  const own = rules.find((x) => x.channelAccountId === accountId);
+  const r = own ?? rules.find((x) => x.channelAccountId === null);
+  return r ? { source: own ? 'account' : 'default', rule_id: r.id, enabled: r.enabled, mode: r.mode, version: r.version } : { source: 'none', rule_id: null, enabled: false, mode: 'manual', version: 0 };
+}
 const RANK: Record<Health, number> = { down: 0, off: 1, slow: 2, good: 3 };
 
 /** Sức khoẻ FE (good | slow | down | off) từ trạng thái tài khoản (Blueprint §2.2) + health của phiên. */
@@ -45,8 +54,9 @@ export class ChannelsReadService {
     const stats = await this.totals(db, rows.map((r) => r.id));
     const agentIds = [...new Set(rows.map((r) => settingsOf(r).agent_id).filter((x): x is string => !!x))];
     const names = agentIds.length ? await this.agents.names(db, agentIds) : new Map<string, string>();
+    const rules = await db.leadRoutingRule.findMany({ select: { id: true, channelAccountId: true, enabled: true, mode: true, version: true } });
     const out = this.registry.manifests().map((m): SettingsChannelDto => {
-      const accounts = rows.filter((r) => r.type === m.type).map((r) => this.account(r, stats.get(r.id), names));
+      const accounts = rows.filter((r) => r.type === m.type).map((r) => ({ ...this.account(r, stats.get(r.id), names), routing: routingOf(rules, r.id) }));
       const on = accounts.filter((a) => a.connected);
       const worst = on.reduce<ChannelAccountDto | null>((w, a) => (!w || RANK[a.health] < RANK[w.health] ? a : w), null);
       return {
