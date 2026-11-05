@@ -96,7 +96,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 12 | [042](../tips/TIP-042-custom-roles-teams.md) | W8 | DONE | `tip/042-custom-roles-teams` | `f93b31eb` | #88 (xếp chồng #87) |
 | 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | DONE | `tip/042b-lead-routing` | `5e9acd3f` | #89 (xếp chồng #88) |
 | 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | DONE | `tip/042c-record-scope` | `84f6086d` | #90 (xếp chồng #89) |
-| 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | chờ | `tip/022b-agent-channel-behavior` | | |
+| 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | DONE | `tip/022b-agent-channel-behavior` | `d3b0571e` | #PR022B (xếp chồng #90) |
 | 16 | [037](../tips/TIP-037-marketing.md) | W8 | chờ | `tip/037-marketing` | | |
 | 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | chờ | `tip/038-insights-dashboard` | | |
 | 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | chờ | `tip/039-billing-lifecycle` | | |
