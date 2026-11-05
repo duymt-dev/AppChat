@@ -8,6 +8,7 @@ import { contractCase } from './contract-judge';
 import { memoryCase } from './memory-judge';
 import { loyaltyCase } from './loyalty-judge';
 import { hardeningCase } from './hardening-judge';
+import { channelCase } from './channel-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<{ status: number; body: unknown }>;
@@ -84,6 +85,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.contract) return contractCase(api, c, attempt, o);
   if (c.memory) return memoryCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.loyalty) return loyaltyCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.channel) return channelCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
   const context = contextOf(c, o.seed);

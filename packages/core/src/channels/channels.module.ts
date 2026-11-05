@@ -74,6 +74,8 @@ class Closer implements OnApplicationShutdown {
 export function channelRegistryFor(src: Record<string, string | undefined>, widget?: WidgetPublisher, files?: FileFetcher): ChannelRegistry {
   const env = readChannelsEnv(src);
   if (env.ZALO_TRANSPORT === 'fake' && env.ZALO_FAKE_GREETING) fakeZaloTransport.greeting = env.ZALO_FAKE_GREETING;
+  if (env.ZALO_TRANSPORT === 'fake' && env.ZALO_FAKE_UNKNOWN_TEXT) fakeZaloTransport.unknownText = env.ZALO_FAKE_UNKNOWN_TEXT;
+  if (env.ZALO_TRANSPORT === 'fake' && env.ZALO_FAKE_KICK_TEXT) fakeZaloTransport.kickText = env.ZALO_FAKE_KICK_TEXT;
   if (env.MAIL_TRANSPORT === 'fake' && env.MAIL_FAKE_GREETING) {
     fakeMailboxTransport.greeting = { from: 'khach.e2e@khach.test', name: 'Khách Email E2E', subject: 'Hỏi lịch hẹn', text: env.MAIL_FAKE_GREETING };
   }

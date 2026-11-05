@@ -10,6 +10,10 @@ export const channelsEnv = z
     CHANNEL_SEND_JITTER: z.coerce.number().min(0).max(1).default(1),
     /** Chỉ với `ZALO_TRANSPORT=fake` (E2E http): khách giả nhắn tin này khi phiên bắt đầu. */
     ZALO_FAKE_GREETING: z.string().max(200).optional(),
+    /** Chỉ với `ZALO_TRANSPORT=fake` (ai:live channel-vertical): tin gửi ra đúng chữ này → kênh giả lỗi mạng sau khi gọi (`unknown`). */
+    ZALO_FAKE_UNKNOWN_TEXT: z.string().max(200).optional(),
+    /** Chỉ với `ZALO_TRANSPORT=fake` (ai:live channel-vertical): tin gửi ra đúng chữ này → kênh giả đá phiên (tài khoản hết phiên). */
+    ZALO_FAKE_KICK_TEXT: z.string().max(200).optional(),
     /** Hộp thư Email (TIP-018): `imap` (imapflow + nodemailer thật) | `fake` (bộ nhớ — test / E2E; cấm production). */
     MAIL_TRANSPORT: z.enum(['imap', 'fake']).default('imap'),
     /** Chỉ với `MAIL_TRANSPORT=fake` (E2E http): khách giả gửi thư này khi hộp thư được đăng nhập lần đầu. */

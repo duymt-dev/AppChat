@@ -131,6 +131,18 @@ describe('bạn bè Zalo', () => {
     expect(capped.body.error.fields).toEqual({ channel_account_id: 'lookup_daily_cap' });
   });
 
+  it('EXPLAIN: lời mời tới / trần gửi / trần tra dùng index bằng-trước-mốc-sau', async () => {
+    const db = await tenant();
+    const plan = async (sql: string) =>
+      db.$transaction(async (tx) => {
+        await tx.$executeRawUnsafe('SET LOCAL enable_seqscan = off');
+        return ((await tx.$queryRawUnsafe(`EXPLAIN ${sql}`)) as { 'QUERY PLAN': string }[]).map((x) => x['QUERY PLAN']).join(' ');
+      });
+    expect(await plan(`SELECT * FROM channel_friend WHERE channel_account_id = '${A}'::uuid AND state = 'incoming' ORDER BY incoming_at DESC LIMIT 50`)).toMatch(/channel_friend_incoming_idx/);
+    expect(await plan(`SELECT count(*) FROM channel_friend_send_log WHERE channel_account_id = '${A}'::uuid AND created_at > now() - interval '1 day'`)).toMatch(/channel_friend_send_log_account_idx/);
+    expect(await plan(`SELECT count(*) FROM channel_user_lookup WHERE channel_account_id = '${A}'::uuid AND created_at > now() - interval '1 day'`)).toMatch(/channel_user_lookup_account_idx/);
+  });
+
   it('trần gửi / ngày (friend_daily_cap) → 429', async () => {
     expect((await act('channel.update_settings', { channel_account_id: A, patch: {} })).status).toBe(200);
     const db = await tenant();

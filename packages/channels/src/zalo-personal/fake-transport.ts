@@ -41,6 +41,10 @@ export class FakeZaloSession implements ZaloSession {
   readonly sent: FakeSent[] = [];
   /** Số lần gửi tiếp theo sẽ lỗi (thử luật tự tạm dừng khi lỗi bất thường). */
   failNext = 0;
+  /** Tin có đúng chữ này → lỗi mạng SAU khi gọi kênh (kết quả `unknown` — ai:live channel-vertical, `ZALO_FAKE_UNKNOWN_TEXT`). */
+  unknownText: string | null = null;
+  /** Tin có đúng chữ này → Zalo đá phiên (hết phiên, `expired` — ai:live channel-vertical, `ZALO_FAKE_KICK_TEXT`). */
+  kickText: string | null = null;
   running = false;
   private msgCb: ((m: ZaloRawMessage) => void)[] = [];
   private oldCb: { isGroup: boolean; cb: (ms: ZaloRawMessage[]) => void }[] = [];
@@ -211,6 +215,11 @@ export class FakeZaloSession implements ZaloSession {
       this.failNext--;
       throw new Error('zalo_send_failed');
     }
+    if (this.unknownText && s.msg === this.unknownText) throw new Error('zalo_network_timeout');
+    if (this.kickText && s.msg === this.kickText) {
+      this.kick();
+      throw new ChannelAuthError('zalo_kicked');
+    }
     // Id số như Zalo thật (chuỗi chữ số) để đi qua kiểm id an toàn của thao tác.
     const n = ++SEQ;
     const id = `${7_000_000_000 + n}`;
@@ -294,6 +303,10 @@ export class FakeZaloTransport implements ZaloTransport {
   autoScan: boolean | 'decline' = true;
   /** Khách giả nhắn một tin khi phiên bắt đầu (`ZALO_FAKE_GREETING`) — null = tắt. */
   greeting: string | null = null;
+  /** Chữ tin gửi ra mà kênh giả coi như mất mạng sau khi gọi (`ZALO_FAKE_UNKNOWN_TEXT`) — null = tắt. */
+  unknownText: string | null = null;
+  /** Chữ tin gửi ra làm kênh giả đá phiên (`ZALO_FAKE_KICK_TEXT`) — null = tắt. */
+  kickText: string | null = null;
 
   constructor(public scanAfterMs = 1_500) {}
 
@@ -332,6 +345,8 @@ export class FakeZaloTransport implements ZaloTransport {
   async login(credentials: ZaloCredentials): Promise<ZaloSession> {
     if (!credentials?.imei || this.revoked.has(credentials.imei)) throw new ChannelAuthError('zalo_login_failed');
     const s = new FakeZaloSession(credentials.imei, this.greeting);
+    s.unknownText = this.unknownText;
+    s.kickText = this.kickText;
     this.sessions.set(credentials.imei, s);
     return s;
   }
@@ -347,6 +362,8 @@ export class FakeZaloTransport implements ZaloTransport {
     this.pending.clear();
     this.autoScan = true;
     this.greeting = null;
+    this.unknownText = null;
+    this.kickText = null;
   }
 }
 

@@ -33,7 +33,8 @@ export interface ChannelManifest {
   capabilities: {
     direct: boolean; group: boolean; createGroup?: boolean; mentions: boolean;
     reactions: boolean;                 // chỉ hiện hàng cảm xúc ở menu — KHÔNG suy ra năng lực gọi kênh
-    operations?: Partial<Record<'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members',
+    operations?: Partial<Record<'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members'
+      | 'profiles' | 'friends' | 'friend_requests' | 'find_user',   // ảnh đại diện · danh bạ · lời mời kết bạn · tra một SĐT (TIP-014b D/E)
       'local' | 'remote' | 'unsupported'>>;   // vắng = unsupported (TIP-014b, DEF-001-2)
     send: Array<'text' | 'image' | 'file' | 'sticker' | 'audio' | 'card' | 'template'>;
     maxTextLength: number; markdown: 'none' | 'rich' | 'html';
@@ -64,6 +65,10 @@ export interface ChannelAdapter {
   toàn → từ chối trước khi gọi kênh, không đoán.
 - Trạng thái lệnh: `queued → dispatch_reserved → confirmed | failed | unknown | partial`; đã đặt chỗ mà gián đoạn → `unknown`, không tự thử lại.
 - Ma trận năng lực từng kênh ghi ở `packages/channels/src/<kênh>/provider-capabilities.md` (Zalo: zca-js 2.2.0).
+- Bạn bè / tra SĐT (`adapter.friends?: ChannelFriends`, DC-362): chỉ nhân viên bấm trên UI (action từ chối mọi nguồn khác `ui`), một người
+  mỗi lệnh, trần / ngày theo tài khoản; kết quả tra tạm 24 giờ, không tự tạo khách. Không bao giờ có đường hàng loạt hay cho agent.
+- Tệp chứng từ gửi ra mang `fileId` + `sha256` (bản đóng băng) — `FileFetcher(url, bind)` chỉ đọc đúng tệp đó trong kho của workspace và
+  kiểm hash; sai → `attachment_binding_mismatch` trước khi gọi kênh (không tải URL ngoài cho chứng từ).
 
 ```ts
 

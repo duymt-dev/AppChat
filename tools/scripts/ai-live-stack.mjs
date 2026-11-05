@@ -50,12 +50,14 @@ if (!argv.includes('--no-build')) {
   const b = spawnSync('pnpm', ['turbo', 'run', 'build', '--filter=@appchat/api', '--filter=@appchat/worker'], { stdio: 'inherit', shell: true, cwd: ROOT });
   if (b.status !== 0) process.exit(b.status ?? 1);
 }
+const CHANNEL_VERTICAL = { ZALO_FAKE_GREETING: 'Chào shop, mình muốn đặt lịch gội đầu dưỡng sinh chiều thứ bảy này', ZALO_FAKE_UNKNOWN_TEXT: 'Dạ shop gửi chị bảng giá gội đầu dưỡng sinh ạ', ZALO_FAKE_KICK_TEXT: 'ai-live: đá phiên tài khoản này' };
 const worker = (role, extra = {}) => spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: role, ...extra }, stdio: 'inherit' });
 const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
   worker('jobs'),
   worker('ai'),
-  worker('channels', { ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0' }),
+  // Suite channel-vertical (TIP-014b AC9): khách Zalo giả nhắn khi phiên bắt đầu + một chữ tin cố định cho kết quả gửi `unknown`.
+  worker('channels', { ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ...(liveArgs.some((a) => a.includes('channel-vertical')) ? CHANNEL_VERTICAL : {}) }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();

@@ -16,6 +16,10 @@ hàm không phải là lý do để bật.
 | Thành viên nhóm | `group_members: remote` | `getGroupMembersInfo(memberIds)` | **id thành viên** (lấy từ getGroupInfo), không nhận id nhóm | Trả `profiles` theo id | CHỜ-TK |
 | Link nhóm | `group_link: remote` | `getGroupLinkDetail(groupId)` | id nhóm | Có thể đang tắt hoặc không có link (`enabled: 0`). Bật link là thao tác riêng, không làm ở đây. Link nhạy cảm: không log, không đưa vào prompt. | CHỜ-TK |
 | Thêm thành viên | `group_add_members: remote` | `addUserToGroup(memberIds, groupId)` | id đã biết (≤ 50) | Có thể thành công một phần (`errorMembers` + `error_data`), báo theo từng người | CHỜ-TK |
+| Hồ sơ công khai (ảnh đại diện) | `profiles: remote` | `getUserInfo(ids, AvatarSize.Small)` → `changed_profiles` | ≤ 20 id / lô (`MAX_PROFILE_BATCH`) | Chỉ trả hồ sơ của id đã hỏi; ảnh tải về Storage (không hotlink), làm mới sau 7 ngày, không đè ảnh nhân viên đặt | CHỜ-TK |
+| Danh bạ | `friends: remote` | `getAllFriends(count, page)` | trang ≤ 200 (`MAX_FRIENDS_PAGE`) | SĐT chỉ có khi Zalo trả; ảnh chụp riêng 24 giờ, không tạo khách / không gửi gì | CHỜ-TK |
+| Lời mời kết bạn | `friend_requests: remote` | `acceptFriendRequest(uid)` · `rejectFriendRequest(uid)` · `sendFriendRequest(msg, uid)` · `undoFriendRequest(uid)` · `getFriendRequestStatus(uid)` | uid số an toàn; lời nhắn ≤ 150 | Chỉ nhân viên bấm (DC-362), một người / lệnh, trần gửi 20 / ngày / tài khoản; Zalo có thể hạn chế tài khoản gửi nhiều | CHỜ-TK |
+| Tra SĐT | `find_user: remote` | `findUser(phone, AvatarSize.Small)` | một số di động VN `0[35789]xxxxxxxx` | Trần 30 / ngày / tài khoản (Zalo giới hạn chặt); không dùng `getMultiUsersByPhones` (hàng loạt) | CHỜ-TK |
 
 Tham chiếu tin:
 - `sendMessage` chỉ trả `msgId` (`message.msgId`, `attachment[].msgId`), không có `cliMsgId`.
@@ -33,6 +37,7 @@ Tham chiếu tin:
 | `reaction` | `Reaction.data.content.rMsg[].gMsgID`, `rIcon` | Cảm xúc từ kênh. Mã ngoài 6 emoji AppChat thì bỏ qua. |
 | `old_messages` | `Message[]`, `ThreadType` | Lịch sử (pha C) |
 | `delivered_messages`, `seen_messages` | `DeliveredMessage` / `SeenMessage` (msgId, seenUids…) | Biên nhận (pha B), chưa bật |
+| `friend_event` | `FriendEvent` (`type` ∈ `FriendEventType`: REQUEST / UNDO_REQUEST / REJECT_REQUEST / ADD / REMOVE…; `data`, `isSelf`) | Lời mời tới / thành bạn / huỷ (pha E). Loại khác (chặn, ghim…) bỏ qua |
 
 ## Không hỗ trợ / chưa bật
 
