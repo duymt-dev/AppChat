@@ -330,6 +330,8 @@
     "pick": "Choose file",
     "uploadFailed": "Could not upload the file, please try again.",
     "unreadable": "Could not read the file — only CSV or Excel (.xlsx) with a header row is supported.",
+    "tooManyRows": "The file has too many rows — split it into files of at most 20,000 rows.",
+    "tooComplex": "This Excel file is too complex to read (many sheets, or formatting / dropdown lists applied to whole columns). Save it as CSV and upload again.",
     "mapTitle": "Match columns ({rows} rows)",
     "skip": "— Skip —",
     "needName": "Match one column to \"Full name\".",

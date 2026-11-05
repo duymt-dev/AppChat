@@ -183,6 +183,32 @@ describe('nhập: /contacts/import-table', () => {
     const r = await get(`/contacts/import-table?file_id=${f.file_id}`);
     expect(r.body.data).toEqual({ columns: ['Tên', 'SĐT', 'Ngày sinh'], rows: [['Phạm Duy', '912000099', '1991-02-03']], total: 1 });
   });
+
+  it('XLSX mẫu có danh sách chọn / định dạng áp cả cột (tới dòng 1.048.576) → đọc nhanh, API vẫn phục vụ (lỗi treo 2026-11-05)', async () => {
+    const { default: ExcelJS } = await import('exceljs');
+    const { createRequire } = await import('node:module');
+    const JSZip = createRequire(createRequire(import.meta.url).resolve('exceljs'))('jszip') as { loadAsync(b: Buffer): Promise<{ file(n: string): { async(t: 'string'): Promise<string> }; file(n: string, d: string): void; generateAsync(o: { type: 'nodebuffer' }): Promise<Buffer> }> };
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Khách hàng');
+    ws.addRow(['Tên khách hàng', 'Số điện thoại', 'Nhóm']);
+    for (let i = 0; i < 200; i++) ws.addRow([`Khách mẫu ${i}`, `0913${String(i).padStart(6, '0')}`, 'VIP']);
+    wb.addWorksheet('Hướng dẫn').addRow(['Điền từ dòng 2']);
+    // Như tệp mẫu thật: validation + định dạng có điều kiện tách vùng tới hết cột (exceljs ghi gọn — chèn XML thẳng).
+    const zip = await JSZip.loadAsync(Buffer.from(await wb.xlsx.writeBuffer()));
+    const sheet = await zip.file('xl/worksheets/sheet1.xml').async('string');
+    // 17 cột có danh sách chọn tới dòng 1.048.576 như tệp mẫu thật (bản cũ dựng ~18 triệu mục → treo / hết RAM).
+    const cols = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'L', 'Q', 'T', 'W', 'X', 'Y', 'Z', 'AC', 'AF'];
+    const dv = `<conditionalFormatting sqref="A2:AK1048576"><cfRule type="expression" priority="1"><formula>LEN(A2)&gt;0</formula></cfRule></conditionalFormatting><dataValidations count="${cols.length}">${cols.map((c) => `<dataValidation type="list" allowBlank="1" sqref="${c}2 ${c}3:${c}201 ${c}202:${c}1048576"><formula1>"VIP,Thường"</formula1></dataValidation>`).join('')}</dataValidations>`;
+    zip.file('xl/worksheets/sheet1.xml', sheet.replace('</sheetData>', `</sheetData>${dv}`));
+    const f = await upload('mau-nhap.xlsx', await zip.generateAsync({ type: 'nodebuffer' }), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    const t0 = Date.now();
+    const r = await get(`/contacts/import-table?file_id=${f.file_id}`);
+    expect(r.status, JSON.stringify(r.body).slice(0, 300)).toBe(200);
+    expect(Date.now() - t0).toBeLessThan(10_000);
+    expect(r.body.data.columns).toEqual(['Tên khách hàng', 'Số điện thoại', 'Nhóm']);
+    expect(r.body.data.total).toBe(200);
+    expect((await get('/contacts/stats')).status).toBe(200);
+  }, 60_000);
 });
 
 describe('thông báo crm (DC-150)', () => {

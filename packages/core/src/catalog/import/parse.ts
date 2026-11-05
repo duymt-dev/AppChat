@@ -2,7 +2,7 @@
 // hạn số dòng / số ô / độ dài ô trước khi validate. Hàng đầu = tiêu đề; ánh xạ cột theo tên tiêu đề (không phân biệt hoa thường / dấu cách
 // thừa). Số dòng `row_no` = thứ tự dòng dữ liệu (1 = dòng ngay dưới tiêu đề) — ổn định giữa các lần chạy lại cùng tệp.
 import { AppError } from '@appchat/shared';
-import { readTable } from '../../kernel/files/table';
+import { XlsxTooComplexError, readTable } from '../../kernel/files/table';
 
 export const IMPORT_MAX_ROWS = 10_000;
 export const IMPORT_SYNC_ROWS = 500;
@@ -20,8 +20,8 @@ export async function parseImport(file: { name: string; mime: string; body: Buff
   let t: Awaited<ReturnType<typeof readTable>>;
   try {
     t = await readTable(file.name, file.mime, file.body);
-  } catch {
-    throw new AppError('VALIDATION_FAILED', 422, { file_id: 'unreadable' });
+  } catch (e) {
+    throw new AppError('VALIDATION_FAILED', 422, { file_id: e instanceof XlsxTooComplexError ? e.reason : 'unreadable' });
   }
   if (!t) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'format' });
   if (t.columns.length > MAX_COLS) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'too_many_columns' });
