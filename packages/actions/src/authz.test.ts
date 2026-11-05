@@ -37,7 +37,7 @@ describe('action role.* / team.*', () => {
     expect(roleCreate.input.safeParse({ name: '   ' }).success).toBe(false);
     expect(roleUpdate.input.safeParse({ role_key: `custom:${UUID}`, name: 'Y' }).success).toBe(false);
     expect(roleDelete.input.safeParse({ role_key: `custom:${UUID}` }).success).toBe(false);
-    expect(teamSetMembers.input.safeParse({ team_id: UUID, if_version: 1, user_ids: ['khong-phai-uuid'] }).success).toBe(false);
+    expect(teamSetMembers.input.safeParse({ team_id: UUID, if_version: 1, user_ids: [''] }).success).toBe(false);
   });
 
   it('member.invite / set_role: bốn vai trò cũ + custom:<uuid>; không owner / key tự chế', () => {

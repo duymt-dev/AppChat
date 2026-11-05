@@ -1,7 +1,7 @@
-// Mock Cài đặt (Blueprint §4.4 settings; §7.2 settings registry): GET /settings/workspace, /settings/members, /settings/roles.
-// Vai trò = 5 vai trò hệ thống §3.5, chỉ đọc ở P0 (D27); ma trận quyền lấy từ ROLE_DEFS. Mời thành viên tạo dòng "Chờ xác nhận".
+// Mock Cài đặt (Blueprint §4.4 settings; §7.2 settings registry): GET /settings/workspace, /settings/members. Vai trò + nhóm (TIP-042) ở
+// authz-management.ts; mời / đổi vai trò chỉ nhận vai trò gán được (hệ thống trừ Chủ sở hữu, tuỳ biến còn sống). Mời tạo dòng "Chờ xác nhận".
 // Chính sách bán hàng (TIP-032b P1): GET /settings/sales-policy + `sales_settings.update` (chỉ Chủ sở hữu, CAS if_version) như server.
-import { ApiRequestError, DEFAULT_APPROVAL_POLICY, PERMISSIONS, ROLE_COLOR, ROLE_DEFS, SYSTEM_ROLES, type SalesPolicyDto } from '@appchat/shared';
+import { ApiRequestError, DEFAULT_APPROVAL_POLICY, isSystemRole, type SalesPolicyDto } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -32,6 +32,12 @@ const norm = (s: string) =>
     .replace(/đ/gi, 'd')
     .toLowerCase();
 
+const assignable = (db: MockDb, role: string) => {
+  // Hệ thống (trừ Chủ sở hữu) hoặc tuỳ biến còn sống (authz-management.ts — đọc thẳng state, không import để tránh vòng phụ thuộc).
+  const ok = (isSystemRole(role) && role !== 'owner') || db.authzMgmt.roles.some((r) => r.key === role && !r.deleted);
+  if (!ok) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'role', fields: { role: role === 'owner' ? 'owner' : 'not_found' } });
+};
+
 const member = (db: MockDb, id: string) => {
   const m = db.settings.members.find((x) => x.id === id && !x.invite);
   if (!m) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
@@ -46,17 +52,6 @@ export const settingsRoutes: Record<string, MockRoute> = {
     const extra = db.settings.members.length - fixture.members.length;
     return { data: rows, total: fixture.member_total + extra, seat_limit: fixture.seat_limit as number | null, next_cursor: null };
   },
-  /** Vai trò hệ thống + số người + ma trận permission (chỉ đọc, D27). */
-  '/settings/roles': (db) => ({
-    roles: SYSTEM_ROLES.map((key) => ({
-      key,
-      color: ROLE_COLOR[key],
-      count: db.settings.members.filter((m) => m.role === key).length,
-      permissions: ROLE_DEFS[key].permissions,
-      scope: ROLE_DEFS[key].scope,
-    })),
-    permissions: PERMISSIONS,
-  }),
   '/settings/sales-policy': (db): SalesPolicyDto => ({ ...db.settings.sales, can_edit: db.role === 'owner' }),
 };
 
@@ -88,6 +83,7 @@ export const settingsHandlers: Record<string, MockHandler> = {
   },
   'member.invite': {
     execute: (db, i: { email: string; name?: string; role: string }) => {
+      assignable(db, i.role);
       if (db.settings.members.some((m) => m.email.toLowerCase() === i.email.toLowerCase())) {
         throw new ApiRequestError(409, { code: 'CONFLICT', message: 'email', fields: { email: 'exists' } });
       }
@@ -117,6 +113,7 @@ export const settingsHandlers: Record<string, MockHandler> = {
     execute: (db, i: { user_id: string; role: string }) => {
       const m = member(db, i.user_id);
       if (m.role === 'owner') throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'owner', fields: { role: 'owner_locked' } });
+      assignable(db, i.role);
       (m as SettingsMember & { prev?: string }).prev = m.role;
       m.role = i.role;
       return { user_id: m.id, role: m.role };

@@ -18,6 +18,7 @@
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
     "roles": "Vai trò & phân quyền",
+    "teams": "Nhóm",
     "org_sla": "Thiết lập SLA",
     "channels": "Kênh kết nối",
     "web_widget": "Trợ lý AI website",
@@ -43,6 +44,7 @@
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
     "roles": "Vai trò & phân quyền",
+    "teams": "Nhóm",
     "org_sla": "Thiết lập SLA",
     "channels": "Kênh kết nối",
     "web_widget": "Trợ lý AI",
@@ -65,6 +67,7 @@
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
+    "teams": "Nhóm nhân sự theo chức năng — dùng cho phạm vi dữ liệu \"Nhóm\"",
     "org_sla": "Cam kết theo kênh · hạng khách · loại yêu cầu — tách riêng AI và con người"
   },
   "roleName": {
@@ -207,7 +210,8 @@
         "manager": "Toàn quyền vận hành, trừ ký hợp đồng, hoàn tiền, billing (trừ khi được uỷ quyền)",
         "sales": "Chỉ thấy khách, báo giá, đơn của mình",
         "cs": "Hội thoại, lịch hẹn, ticket được giao; không xem doanh số",
-        "accountant": "Đơn, thu tiền, đối soát, điểm; không vào hộp thư"
+        "accountant": "Đơn, thu tiền, đối soát, điểm; không vào hộp thư",
+        "custom": "Vai trò tuỳ biến — quyền xem ở Vai trò & phân quyền"
       }
     }
   },
@@ -215,7 +219,9 @@
     "onlyOne": "chỉ có 1",
     "people": "{n} người",
     "system": "Hệ thống",
-    "p1": "Tạo / sửa vai trò tuỳ biến sẽ có ở bản sau (P1)",
+    "ownerOnly": "Chỉ Chủ sở hữu tạo / sửa vai trò",
+    "custom": "Tuỳ biến",
+    "customDesc": "Vai trò tuỳ biến · {n} quyền",
     "desc": {
       "owner": "Toàn quyền · ký hợp đồng, duyệt hoàn tiền, gói & thanh toán",
       "manager": "Quản lý vận hành và đội ngũ, xem toàn bộ dữ liệu",
@@ -293,6 +299,77 @@
       "privacy_erase": "Xoá dữ liệu cá nhân"
     },
     "create": "Tạo vai trò"
+  },
+  "roleEditor": {
+    "title": "Tạo vai trò",
+    "editTitle": "Sửa vai trò",
+    "name": "Tên vai trò",
+    "namePh": "VD: Lễ tân ca tối",
+    "create": "Tạo vai trò",
+    "save": "Lưu thay đổi",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "delete": "Xoá vai trò",
+    "errName": "Nhập tên vai trò",
+    "stale": "Người khác vừa sửa vai trò này — đã tải lại, mở lại để sửa tiếp",
+    "inUse": "Vai trò đang dùng ({members} thành viên, {invites} lời mời) — đổi vai trò cho họ trước",
+    "confirmDelete": "Xoá vai trò \"{name}\"? Không hoàn tác được.",
+    "cloneOf": "Dựa trên vai trò {name}",
+    "cloneOfBtn": "Nhân bản {name}",
+    "editOf": "Sửa {name}",
+    "copyName": "{name} (bản sao)",
+    "dropped": "Không chép các quyền chỉ Chủ sở hữu có / phải uỷ quyền rõ: {list}",
+    "ownerOnly": "Quyền chỉ Chủ sở hữu có — không cấp cho vai trò tuỳ biến",
+    "deleted": "Vai trò đã xoá",
+    "scopeT": "Phạm vi dữ liệu",
+    "permsT": "Quyền",
+    "module": {
+      "inbox": "Hộp thư",
+      "crm": "Khách hàng",
+      "sales": "Bán hàng",
+      "booking": "Lịch hẹn",
+      "support": "Hỗ trợ",
+      "insights": "Báo cáo"
+    },
+    "scope": {
+      "own": "Của mình",
+      "team": "Nhóm",
+      "all": "Tất cả",
+      "none": "Không"
+    }
+  },
+  "teams": {
+    "search": "Tìm nhóm…",
+    "create": "Tạo nhóm",
+    "count": "{n} thành viên",
+    "lead": "Trưởng nhóm: {name}",
+    "members": "Thành viên",
+    "config": "Cấu hình",
+    "extra": "+{n}",
+    "more": "Thao tác nhóm {name}",
+    "empty": "Chưa có nhóm nào — tạo nhóm để dùng phạm vi dữ liệu \"Nhóm\"",
+    "noMatch": "Không có nhóm khớp",
+    "editor": {
+      "title": {
+        "create": "Tạo nhóm",
+        "config": "Cấu hình nhóm",
+        "members": "Thành viên nhóm"
+      },
+      "name": "Tên nhóm",
+      "namePh": "VD: Nhóm Spa Q1",
+      "members": "Thành viên ({n})",
+      "membersAria": "Chọn thành viên nhóm",
+      "lead": "Trưởng nhóm",
+      "noLead": "Chưa có trưởng nhóm",
+      "leadHint": "Trưởng nhóm phải là thành viên của nhóm; không có thêm quyền vì là trưởng nhóm.",
+      "leadLocked": "Đang là trưởng nhóm — đổi trưởng nhóm ở Cấu hình trước",
+      "create": "Tạo nhóm",
+      "save": "Lưu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "errName": "Nhập tên nhóm",
+      "stale": "Người khác vừa sửa nhóm này — đã tải lại, mở lại để sửa tiếp"
+    }
   },
   "channels": {
     "filter": {

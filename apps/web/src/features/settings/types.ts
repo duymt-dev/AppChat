@@ -1,5 +1,4 @@
 // Kiểu dữ liệu Cài đặt (khớp mock /settings/* — Blueprint §4.4).
-import type { DataScope, PermissionKey, ScopeModule, SystemRole } from '@appchat/shared';
 
 export interface Workspace {
   id: string;
@@ -37,7 +36,8 @@ export interface Member {
   id: string;
   name: string;
   email: string;
-  role: SystemRole;
+  /** Vai trò hệ thống hoặc custom:<uuid> (TIP-042). */
+  role: string;
   dept: string;
   color: string;
   /** 'online' · thời điểm hoạt động cuối (ISO; mock: '2h' · '3d') · 'never' (lời mời chưa nhận). */
@@ -70,18 +70,7 @@ export interface Connector {
   interest: boolean;
 }
 
-export interface RoleRow {
-  key: SystemRole;
-  color: string;
-  count: number;
-  permissions: PermissionKey[];
-  scope: Record<ScopeModule, DataScope>;
-}
-
-export interface RolesData {
-  roles: RoleRow[];
-  permissions: PermissionKey[];
-}
+export type { RoleRow, RolesData, Team } from './roles.types';
 
 export interface Widget {
   /** Widget đang chạy (TIP-017) — tắt = tạm dừng tài khoản webchat. */

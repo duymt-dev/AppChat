@@ -1202,6 +1202,15 @@ export const MANIFEST: ParityEntry[] = [
     clip: ST_MAIN,
   },
   {
+    // TIP-042: nhóm phẳng ở vị trí "Phòng ban" của prototype (PD-018) — prototype có chi nhánh / khối / danh sách nhân sự, app chỉ nhóm.
+    id: 'settings:teams',
+    route: '/settings/teams',
+    protoStorage: settings('teams'),
+    appWait: '[data-team]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
     id: 'settings:channels',
     route: '/settings/channels',
     protoStorage: settings('channels'),

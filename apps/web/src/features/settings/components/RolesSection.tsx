@@ -1,32 +1,42 @@
-// Mục Vai trò & phân quyền — prototype L5992–6028. P0 chỉ đọc (D27): danh sách 5 vai trò hệ thống (thanh màu, tên, mô tả, số người,
-// nhãn "Hệ thống") + ma trận quyền (nhóm × 5 vai trò, ✓ / —) lấy từ ROLE_DEFS. "Tạo vai trò" / sửa / nhân bản để P1 → nút khoá kèm ghi chú.
+// Mục Vai trò & phân quyền — prototype L5992–6028 (orchestrator). Danh sách vai trò hệ thống (chỉ đọc, D27) + vai trò tuỳ biến (TIP-042):
+// thanh màu, tên (hệ thống theo i18n, tuỳ biến theo tên DB), mô tả, số người, nhãn Hệ thống / Tuỳ biến; ma trận quyền nhóm × vai trò.
+// Người có roles.manage (Chủ sở hữu): "Tạo vai trò", nhân bản mọi vai trò, sửa vai trò tuỳ biến → RoleEditor. Không có quyền → khoá như cũ.
 'use client';
 import { Tooltip } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
+import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useSectionStyles } from '../styles/section.styles';
 import { useRolesStyles } from '../styles/roles.styles';
 import { rolesQuery } from '../api';
 import { PERM_GROUPS } from '../perm-groups';
+import { useSettingsUi } from '../settings-store';
+import { blankDraft, cloneDraft, editDraft } from '../hooks/useRoleEditor';
+import { useRoleLabel } from '../hooks/useRoleLabel';
+import { RoleEditor } from './RoleEditor';
 
 const DASH = '—';
 
 export function RolesSection() {
   const t = useTranslations('settings.roles');
-  const tr = useTranslations('settings.roleName');
+  const te = useTranslations('settings.roleEditor');
   const s = useSectionStyles().styles;
   const { styles, cx } = useRolesStyles();
   const q = useQuery(rolesQuery());
+  const can = useCan('roles.manage');
+  const label = useRoleLabel();
+  const set = useSettingsUi((x) => x.set);
+  const cols = { gridTemplateColumns: `1.6fr repeat(${q.data?.roles.length ?? 5}, 1fr)` };
   return (
     <PageStates state={stateOf(q)} onRetry={() => void q.refetch()}>
       {q.data ? (
         <>
           <div className={styles.tools}>
             <span className={s.grow} />
-            <Tooltip title={t('p1')}>
-              <button type="button" className={s.primary} disabled data-testid="st-role-new">
+            <Tooltip title={can ? undefined : t('ownerOnly')}>
+              <button type="button" className={s.primary} disabled={!can} onClick={() => set({ roleEditor: blankDraft() })} data-testid="st-role-new">
                 <Icon name="ic-plus" size={14} color={color.white} strokeWidth={2} />
                 {t('create')}
               </button>
@@ -37,17 +47,36 @@ export function RolesSection() {
               <div key={r.key} className={styles.role} data-role={r.key}>
                 <span className={styles.bar} style={{ background: r.color }} />
                 <div className={styles.nameCol}>
-                  <span className={styles.name}>{tr(r.key)}</span>
+                  <span className={styles.name}>{label(r.key)}</span>
                   {r.key === 'owner' ? <span className={styles.sys}>{t('onlyOne')}</span> : null}
                 </div>
-                <div className={styles.desc}>{t(`desc.${r.key}`)}</div>
+                <div className={styles.desc}>{r.is_system ? t(`desc.${r.key}`) : t('customDesc', { n: r.permissions.length })}</div>
                 <span className={styles.cnt}>{t('people', { n: r.count })}</span>
-                <span className={styles.tag}>{t('system')}</span>
-                <Tooltip title={t('p1')}>
-                  <span className={styles.lock} aria-label={t('p1')}>
-                    <Icon name="ic-shield" size={14} color={color.text4} />
+                <span className={styles.tag}>{r.is_system ? t('system') : t('custom')}</span>
+                {can ? (
+                  <span className={styles.acts}>
+                    {r.is_system ? null : (
+                      <button type="button" className={styles.lock} onClick={() => set({ roleEditor: editDraft(r) })} aria-label={te('editOf', { name: r.name })} data-testid="st-role-edit">
+                        <Icon name="ic-edit" size={14} color={color.text3} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className={styles.lock}
+                      onClick={() => set({ roleEditor: cloneDraft(r, te('copyName', { name: label(r.key) })) })}
+                      aria-label={te('cloneOfBtn', { name: label(r.key) })}
+                      data-testid="st-role-clone"
+                    >
+                      <Icon name="ic-copy" size={14} color={color.text3} />
+                    </button>
                   </span>
-                </Tooltip>
+                ) : (
+                  <Tooltip title={t('ownerOnly')}>
+                    <span className={styles.lock} aria-label={t('ownerOnly')}>
+                      <Icon name="ic-shield" size={14} color={color.text4} />
+                    </span>
+                  </Tooltip>
+                )}
               </div>
             ))}
           </div>
@@ -57,11 +86,11 @@ export function RolesSection() {
           </div>
           <div className={styles.scroll}>
             <div className={s.cardFlush} data-testid="st-matrix">
-              <div className={cx(styles.mRow, styles.mTh)}>
+              <div className={cx(styles.mRow, styles.mTh)} style={cols}>
                 <span>{t('perm')}</span>
                 {q.data.roles.map((r) => (
                   <span key={r.key} className={styles.c}>
-                    {tr(r.key).toUpperCase()}
+                    {label(r.key).toUpperCase()}
                   </span>
                 ))}
               </div>
@@ -69,7 +98,7 @@ export function RolesSection() {
                 <div key={g.key}>
                   <div className={styles.group}>{t(`group.${g.key}`)}</div>
                   {g.perms.map((p) => (
-                    <div key={p} className={styles.mRow} data-perm={p}>
+                    <div key={p} className={styles.mRow} style={cols} data-perm={p}>
                       <span className={styles.pName}>{t(`perms.${p.replace('.', '_')}`)}</span>
                       {q.data.roles.map((r) => {
                         const yes = r.key === 'owner' || r.permissions.includes(p);
@@ -85,6 +114,7 @@ export function RolesSection() {
               ))}
             </div>
           </div>
+          <RoleEditor />
         </>
       ) : null}
     </PageStates>

@@ -18,6 +18,7 @@
     "locale": "Language & region",
     "members": "Members",
     "roles": "Roles & permissions",
+    "teams": "Teams",
     "org_sla": "SLA settings",
     "channels": "Channels",
     "web_widget": "Website AI widget",
@@ -43,6 +44,7 @@
     "locale": "Language & region",
     "members": "Members",
     "roles": "Roles & permissions",
+    "teams": "Teams",
     "org_sla": "SLA settings",
     "channels": "Channels",
     "web_widget": "AI assistant",
@@ -65,6 +67,7 @@
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
+    "teams": "Staff groups by function — used by the \"Team\" data scope",
     "org_sla": "Commitments by channel · tier · request type — AI and humans tracked separately"
   },
   "roleName": {
@@ -207,7 +210,8 @@
         "manager": "Full operations except signing, refunds and billing (unless delegated)",
         "sales": "Sees only own customers, quotes and orders",
         "cs": "Assigned conversations, appointments, tickets; no sales data",
-        "accountant": "Orders, payments, reconciliation, points; no inbox"
+        "accountant": "Orders, payments, reconciliation, points; no inbox",
+        "custom": "Custom role — see its permissions under Roles & permissions"
       }
     }
   },
@@ -215,7 +219,9 @@
     "onlyOne": "only one",
     "people": "{n} people",
     "system": "System",
-    "p1": "Custom roles arrive in a later release (P1)",
+    "ownerOnly": "Only the Owner can create or edit roles",
+    "custom": "Custom",
+    "customDesc": "Custom role · {n} permissions",
     "desc": {
       "owner": "Everything · signs contracts, approves refunds, billing",
       "manager": "Runs operations and the team, sees all data",
@@ -293,6 +299,77 @@
       "privacy_erase": "Erase personal data"
     },
     "create": "Create role"
+  },
+  "roleEditor": {
+    "title": "Create role",
+    "editTitle": "Edit role",
+    "name": "Role name",
+    "namePh": "e.g. Evening receptionist",
+    "create": "Create role",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete role",
+    "errName": "Enter a role name",
+    "stale": "Someone else just changed this role — reloaded, open it again to continue",
+    "inUse": "Role in use ({members} members, {invites} invites) — change their role first",
+    "confirmDelete": "Delete role \"{name}\"? This cannot be undone.",
+    "cloneOf": "Based on {name}",
+    "cloneOfBtn": "Duplicate {name}",
+    "editOf": "Edit {name}",
+    "copyName": "{name} (copy)",
+    "dropped": "Not copied — Owner-only or explicit-delegation permissions: {list}",
+    "ownerOnly": "Owner-only permission — cannot be granted to a custom role",
+    "deleted": "Deleted role",
+    "scopeT": "Data scope",
+    "permsT": "Permissions",
+    "module": {
+      "inbox": "Inbox",
+      "crm": "Customers",
+      "sales": "Sales",
+      "booking": "Appointments",
+      "support": "Support",
+      "insights": "Reports"
+    },
+    "scope": {
+      "own": "Own",
+      "team": "Team",
+      "all": "All",
+      "none": "None"
+    }
+  },
+  "teams": {
+    "search": "Search teams…",
+    "create": "Create team",
+    "count": "{n} members",
+    "lead": "Lead: {name}",
+    "members": "Members",
+    "config": "Settings",
+    "extra": "+{n}",
+    "more": "Team actions for {name}",
+    "empty": "No teams yet — create one to use the \"Team\" data scope",
+    "noMatch": "No matching teams",
+    "editor": {
+      "title": {
+        "create": "Create team",
+        "config": "Team settings",
+        "members": "Team members"
+      },
+      "name": "Team name",
+      "namePh": "e.g. Spa team Q1",
+      "members": "Members ({n})",
+      "membersAria": "Choose team members",
+      "lead": "Team lead",
+      "noLead": "No lead",
+      "leadHint": "The lead must be a team member; being lead grants no extra permissions.",
+      "leadLocked": "Current lead — change the lead in Settings first",
+      "create": "Create team",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "errName": "Enter a team name",
+      "stale": "Someone else just changed this team — reloaded, open it again to continue"
+    }
   },
   "channels": {
     "filter": {

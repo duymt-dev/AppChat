@@ -20,6 +20,7 @@ import { createTicketsState, type TicketsState } from './domains/tickets';
 import { createMarketingState, type MarketingState } from './domains/marketing';
 import { createLoyaltyState, type LoyaltyState } from './domains/loyalty';
 import { createSettingsState, type SettingsState } from './domains/settings';
+import { createAuthzMgmtState, type AuthzMgmtState } from './domains/authz-management';
 import { createSettingsAppsState, type SettingsAppsState } from './domains/settings-apps';
 import { createProfileLayoutState, type ProfileLayoutState } from './domains/profile-layout';
 import { createSettingsDataState, type SettingsDataState } from './domains/settings-data';
@@ -66,6 +67,8 @@ export interface MockDb {
   marketing: MarketingState;
   loyalty: LoyaltyState;
   settings: SettingsState;
+  /** Vai trò tuỳ biến + nhóm (TIP-042). */
+  authzMgmt: AuthzMgmtState;
   settingsApps: SettingsAppsState;
   profileLayout: ProfileLayoutState;
   settingsData: SettingsDataState;
@@ -109,6 +112,7 @@ const db: MockDb = {
   marketing: createMarketingState(),
   loyalty: createLoyaltyState(),
   settings: createSettingsState(),
+  authzMgmt: createAuthzMgmtState(),
   settingsApps: createSettingsAppsState(),
   profileLayout: createProfileLayoutState(),
   settingsData: createSettingsDataState(),

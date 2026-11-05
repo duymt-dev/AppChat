@@ -1,5 +1,5 @@
 // Mục Thành viên — prototype L5861–5889: tìm, Lọc, Xuất CSV, Mời thành viên; banner AI đề xuất; bảng (thành viên · vai trò · phòng ban ·
-// hoạt động cuối · trạng thái · ⋯ Sửa / Xoá); chân "N thành viên · tối đa M seat · Nâng cấp plan". Vai trò = 5 vai trò hệ thống (§3.5).
+// hoạt động cuối · trạng thái · ⋯ Sửa / Xoá); chân "N thành viên · tối đa M seat · Nâng cấp plan". Vai trò = hệ thống (§3.5) hoặc tuỳ biến (TIP-042, nhãn theo tên DB).
 'use client';
 import { App } from 'antd';
 import { useRouter } from 'next/navigation';
@@ -15,6 +15,7 @@ import { useMembersStyles } from '../styles/members.styles';
 import { useSettingsUi } from '../settings-store';
 import { membersQuery } from '../api';
 import type { Member } from '../types';
+import { useRoleLabel } from '../hooks/useRoleLabel';
 import { MemberModal } from './MemberModal';
 import { OwnershipTransferModal } from './OwnershipTransferModal';
 
@@ -27,7 +28,7 @@ const LAST_KEYS = new Set(['online', '2h', '3d', 'never']);
 
 function Row({ m, now }: { m: Member; now: number }) {
   const t = useTranslations('settings.members');
-  const tr = useTranslations('settings.roleName');
+  const label = useRoleLabel();
   const s = useSectionStyles();
   const { styles, cx } = useMembersStyles();
   const ui = useSettingsUi();
@@ -56,7 +57,7 @@ function Row({ m, now }: { m: Member; now: number }) {
       </div>
       <span>
         <span className={styles.role} data-testid="st-member-role">
-          {tr(m.role)}
+          {label(m.role)}
         </span>
       </span>
       <span className={cx(styles.dept, styles.hideM)}>{m.dept}</span>
@@ -79,7 +80,7 @@ function Row({ m, now }: { m: Member; now: number }) {
                   type="button"
                   role="menuitem"
                   className={s.styles.mItem}
-                  onClick={() => ui.set({ menuFor: null, memberModal: { id: m.id, name: m.name, email: m.email, role: m.role as never } })}
+                  onClick={() => ui.set({ menuFor: null, memberModal: { id: m.id, name: m.name, email: m.email, role: m.role } })}
                 >
                   <Icon name="ic-doc" size={14} color={color.text3} />
                   {t('edit')}

@@ -782,6 +782,28 @@
       "title": "Attach a file to a member"
     }
   },
+  "role": {
+    "create": {
+      "title": "Create role"
+    },
+    "update": {
+      "title": "Edit role"
+    },
+    "delete": {
+      "title": "Delete role"
+    }
+  },
+  "team": {
+    "create": {
+      "title": "Create team"
+    },
+    "update": {
+      "title": "Edit team"
+    },
+    "set_members": {
+      "title": "Change team members"
+    }
+  },
   "member": {
     "invite": {
       "title": "Invite member"

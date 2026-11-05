@@ -9,6 +9,7 @@ import { GeneralSection } from '../components/GeneralSection';
 import { LocaleSection } from '../components/LocaleSection';
 import { MembersSection } from '../components/MembersSection';
 import { RolesSection } from '../components/RolesSection';
+import { TeamsSection } from '../components/TeamsSection';
 import { ChannelsSection } from '../components/ChannelsSection';
 import { IntegrationsSection } from '../components/IntegrationsSection';
 import { WidgetSection } from '../components/WidgetSection';
@@ -35,6 +36,7 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   locale: LocaleSection,
   members: MembersSection,
   roles: RolesSection,
+  teams: TeamsSection,
   channels: ChannelsSection,
   integrations: IntegrationsSection,
   web_widget: WidgetSection,
@@ -57,7 +59,7 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
 };
 
 /** Mục có phụ đề dưới tiêu đề (prototype L5775). */
-const WITH_SUB: SectionKey[] = ['roles', 'org_sla'];
+const WITH_SUB: SectionKey[] = ['roles', 'teams', 'org_sla'];
 
 function Guarded({ item }: { item: NavItem }) {
   const allowed = useCan(item.perm ?? 'assistant.use');

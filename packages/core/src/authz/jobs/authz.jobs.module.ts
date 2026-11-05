@@ -14,6 +14,8 @@ import { LEGACY_DELEGATIONS_JOB, convertLegacyDelegations } from '../services/le
 
 export const AUTHZ_SCHEDULER_QUEUE = 'authz-scheduler';
 const EVERY_MS = 60 * 60_000;
+/** Job chạy ngay lúc khởi động — BullMQ cấm `:` trong custom id (worker dừng với "Custom Id cannot contain :"). */
+export const LEGACY_DELEGATIONS_BOOT_ID = `${LEGACY_DELEGATIONS_JOB}-boot`;
 
 class AuthzJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private queue?: Queue;
@@ -32,7 +34,7 @@ class AuthzJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     const deps = { platform: this.platform, tenants: this.tenants, now: () => this.clock.now(), onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: LEGACY_DELEGATIONS_JOB }, 'chuyển uỷ quyền P0 lỗi ở workspace') };
     this.queue = new Queue(AUTHZ_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(LEGACY_DELEGATIONS_JOB, { every: EVERY_MS }, { name: LEGACY_DELEGATIONS_JOB });
-    await this.queue.add(LEGACY_DELEGATIONS_JOB, {}, { jobId: `${LEGACY_DELEGATIONS_JOB}:boot`, removeOnComplete: true, removeOnFail: true });
+    await this.queue.add(LEGACY_DELEGATIONS_JOB, {}, { jobId: LEGACY_DELEGATIONS_BOOT_ID, removeOnComplete: true, removeOnFail: true });
     this.worker = new Worker(
       AUTHZ_SCHEDULER_QUEUE,
       async (job) => {

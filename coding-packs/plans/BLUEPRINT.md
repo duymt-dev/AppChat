@@ -413,9 +413,10 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
-| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, created_at | unique(key). Seed 5 vai trò hệ thống khi provision |
-| `team` | name, lead_user_id? | (P1 UI; bảng có từ đầu) |
+| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, version int (CAS), deleted_at? (xoá mềm vai trò tuỳ biến — TIP-042), created_at | unique(key). Seed 5 vai trò hệ thống khi provision; tuỳ biến `custom:<uuid>` do server sinh. idx `(is_system DESC, created_at, id) INCLUDE(name, version) WHERE deleted_at IS NULL` |
+| `team` | name, lead_user_id? (phải là thành viên), version int (CAS), created_at | idx `(created_at, id) INCLUDE(name, version, lead_user_id)` (TIP-042) |
 | `team_member` | team_id, user_id | pk(team_id, user_id); idx(user_id) |
+| `authz_revision` | id smallint = 1 (singleton), revision bigint, updated_at | pk(id) CHECK id = 1. Mọi role.\* / team.\* tăng trong cùng giao dịch tenant; AuthzResolver đọc mỗi lần và đưa vào khoá cache — sửa / thu hồi quyền có hiệu lực ở request kế tiếp, không chờ TTL / event (TIP-042) |
 
 - Bảng nghiệp vụ có chủ sở hữu (`contact`, `conversation`, `quote`, `contract`, `order`, `invoice`, `appointment`, `ticket`) có `owner_user_id` và/hoặc `assignee_user_id` + `team_id?`, cùng index theo `standards/database/indexing.md` §7:
   - `contact(owner_user_id, last_interaction_at DESC) WHERE deleted_at IS NULL` · `contact_collaborator(user_id, contact_id)`

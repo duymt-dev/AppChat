@@ -5,6 +5,7 @@ import { AppError, ROLE_DEFS, authzForRole, type AuthzContext } from '@appchat/s
 import { assertRoleDraft, liveRole, lockCustomRole } from '../src/authz/services/role-lifecycle';
 import { assertAssignable } from '../src/authz/services/role-assignment';
 import { AuthzResolver } from '../src/authz/services/authz-resolver';
+import { LEGACY_DELEGATIONS_BOOT_ID } from '../src/authz/jobs/authz.jobs.module';
 
 const KEY = 'custom:0190f000-0000-7000-8000-000000000042';
 const FULL = { inbox: 'own', crm: 'all', sales: 'none', booking: 'own', support: 'own', insights: 'own' };
@@ -106,5 +107,11 @@ describe('resolver — revision tenant', () => {
     expect(b.r.loads).toBe(2);
     const c = stack({ rev: 1n, redisDown: true });
     expect([...(await c.r.resolve('ws', 'u', M)).permissions]).toEqual(['inbox.view']);
+  });
+});
+
+describe('job chuyển uỷ quyền P0', () => {
+  it('id job khởi động hợp lệ với BullMQ (không chứa ":" — từng làm worker dừng khi boot)', () => {
+    expect(LEGACY_DELEGATIONS_BOOT_ID).not.toContain(':');
   });
 });

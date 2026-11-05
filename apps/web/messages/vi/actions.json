@@ -782,6 +782,28 @@
       "title": "Đính kèm tệp cho thành viên"
     }
   },
+  "role": {
+    "create": {
+      "title": "Tạo vai trò"
+    },
+    "update": {
+      "title": "Sửa vai trò"
+    },
+    "delete": {
+      "title": "Xoá vai trò"
+    }
+  },
+  "team": {
+    "create": {
+      "title": "Tạo nhóm"
+    },
+    "update": {
+      "title": "Sửa nhóm"
+    },
+    "set_members": {
+      "title": "Đổi thành viên nhóm"
+    }
+  },
   "member": {
     "invite": {
       "title": "Mời thành viên"

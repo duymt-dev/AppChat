@@ -1,19 +1,26 @@
-// Hộp Mời / Sửa thành viên — prototype L7643–7660: Họ tên, Email, Vai trò (4 vai trò gán được — Chủ sở hữu chỉ 1, không gán ở đây).
+// Hộp Mời / Sửa thành viên — prototype L7643–7660: Họ tên, Email, Vai trò. Lựa chọn vai trò lấy từ /settings/roles (TIP-042): hệ thống trừ
+// Chủ sở hữu + tuỳ biến còn sống, lọc theo quyền người gán (không phải Chủ sở hữu: tập quyền ⊆ của mình — DC-298; server kiểm lại).
 // Mời → member.invite (gửi email mời); sửa → member.set_role (hoàn tác 24h). Phòng ban của prototype thuộc Phòng ban (OUT) nên bỏ.
 'use client';
 import { App } from 'antd';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
+import { escalationOf, isSystemRole } from '@appchat/shared';
 import { useAction } from '@/shared/actions/useAction';
+import { useAuthz } from '@/shared/authz/useCan';
+import { rolesQuery } from '../api';
+import { useRoleLabel } from '../hooks/useRoleLabel';
 import { useSectionStyles } from '../styles/section.styles';
 import { useSettingsUi, type MemberDraft } from '../settings-store';
 import { FormModal } from './FormModal';
 
-const ROLES: MemberDraft['role'][] = ['manager', 'sales', 'cs', 'accountant'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function MemberModal() {
   const t = useTranslations('settings.members.modal');
-  const tr = useTranslations('settings.roleName');
+  const label = useRoleLabel();
+  const roles = useQuery(rolesQuery()).data?.roles ?? [];
+  const me = useAuthz().data;
   const { message } = App.useApp();
   const s = useSectionStyles().styles;
   const d = useSettingsUi((x) => x.memberModal);
@@ -21,6 +28,8 @@ export function MemberModal() {
   const invite = useAction('member.invite');
   const setRole = useAction('member.set_role');
   if (!d) return null;
+  const mine = new Set<string>(me?.permissions ?? []);
+  const choices = roles.filter((r) => r.key !== 'owner' && (me?.is_owner || !escalationOf(r.permissions, mine).length));
   const edit = !!d.id;
   const patch = (p: Partial<MemberDraft>) => set({ memberModal: { ...d, ...p } });
   const save = async () => {
@@ -60,14 +69,14 @@ export function MemberModal() {
       </div>
       <div>
         <div className={s.label}>{t('role')}</div>
-        <select className={s.select} value={d.role} onChange={(e) => patch({ role: e.target.value as MemberDraft['role'] })} data-testid="st-mm-role">
-          {ROLES.map((r) => (
-            <option key={r} value={r}>
-              {tr(r)}
+        <select className={s.select} value={d.role} onChange={(e) => patch({ role: e.target.value })} data-testid="st-mm-role">
+          {choices.map((r) => (
+            <option key={r.key} value={r.key}>
+              {label(r.key)}
             </option>
           ))}
         </select>
-        <div className={s.muted}>{t(`roleD.${d.role}`)}</div>
+        <div className={s.muted}>{isSystemRole(d.role) ? t(`roleD.${d.role}`) : t('roleD.custom')}</div>
       </div>
     </FormModal>
   );

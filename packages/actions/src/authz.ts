@@ -16,7 +16,9 @@ const dataScope = z.record(z.string().min(1).max(30), scopeValue);
 // Khoá vai trò: hệ thống (để báo 422 `system_role` rõ ràng) hoặc `custom:<uuid>`.
 const roleKey = z.string().regex(/^([a-z]+|custom:[0-9a-f-]{36})$/);
 const version = z.number().int().positive();
-const userIds = z.array(z.string().uuid()).max(200);
+// Mã người dùng: chuỗi khác rỗng như các action CRM / inbox — server kiểm là thành viên active của workspace (id lạ → 422 not_member).
+const userId = z.string().min(1).max(64);
+const userIds = z.array(userId).max(200);
 
 export const roleCreate = defineAction({
   id: 'role.create',
@@ -78,7 +80,7 @@ export const teamCreate = defineAction({
   module: 'settings',
   title: 'actions.team.create.title',
   description: 'Create a flat team (data scope "team"); optional lead must also be a member. Example: {"name":"Nhóm Spa Q1","user_ids":["0190f000-0000-7000-8000-0000000000a1"],"lead_user_id":"0190f000-0000-7000-8000-0000000000a1"}',
-  input: z.object({ name: roleName, user_ids: userIds.optional(), lead_user_id: z.string().uuid().optional() }),
+  input: z.object({ name: roleName, user_ids: userIds.optional(), lead_user_id: userId.optional() }),
   output: z.object({ team_id: z.string(), version: z.number().int() }),
   permission: 'members.manage',
   risk: 'config',
@@ -91,7 +93,7 @@ export const teamUpdate = defineAction({
   module: 'settings',
   title: 'actions.team.update.title',
   description: 'Rename a team or change its lead (lead must be a member; null clears). Requires if_version. Example: {"team_id":"0190f000-0000-7000-8000-0000000000b1","if_version":1,"lead_user_id":null}',
-  input: z.object({ team_id: z.string().uuid(), if_version: version, name: roleName.optional(), lead_user_id: z.string().uuid().nullable().optional() }),
+  input: z.object({ team_id: z.string().uuid(), if_version: version, name: roleName.optional(), lead_user_id: userId.nullable().optional() }),
   output: z.object({ team_id: z.string(), version: z.number().int() }),
   permission: 'members.manage',
   risk: 'config',

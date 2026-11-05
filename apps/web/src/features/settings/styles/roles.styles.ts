@@ -98,6 +98,22 @@ export const useRolesStyles = createStyles(({ css, responsive }) => ({
     flex-shrink: 0;
     margin-right: 12px;
   `,
+  acts: css`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    button {
+      margin-right: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      &:hover {
+        background: ${color.tabIdle};
+      }
+    }
+  `,
   mHead: css`
     margin-bottom: 12px;
   `,

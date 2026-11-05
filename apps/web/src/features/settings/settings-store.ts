@@ -1,19 +1,24 @@
 // UI state Cài đặt (frontend-structure §5: zustand chỉ giữ trạng thái giao diện; dữ liệu ở TanStack Query).
 import { create } from 'zustand';
-import type { SystemRole } from '@appchat/shared';
 import type { FieldEntity } from './types';
+import type { RoleDraft, TeamDraft } from './roles.types';
 
 export interface MemberDraft {
   /** Có id → sửa vai trò; không → mời mới. */
   id?: string;
   name: string;
   email: string;
-  role: Exclude<SystemRole, 'owner'>;
+  /** Vai trò gán được: hệ thống (trừ Chủ sở hữu) hoặc `custom:<uuid>` (TIP-042). */
+  role: string;
 }
 
 interface SettingsUi {
   memberQ: string;
   memberModal: MemberDraft | null;
+  /** Trình sửa vai trò tuỳ biến (TIP-042) — null = đóng. */
+  roleEditor: RoleDraft | null;
+  /** Trình sửa nhóm (TIP-042) — null = đóng. */
+  teamEditor: TeamDraft | null;
   /** Hộp chuyển quyền Chủ sở hữu (TIP-045b A3). */
   transferOpen: boolean;
   menuFor: string | null;
@@ -49,6 +54,8 @@ interface SettingsUi {
 export const useSettingsUi = create<SettingsUi>((setState) => ({
   memberQ: '',
   memberModal: null,
+  roleEditor: null,
+  teamEditor: null,
   transferOpen: false,
   menuFor: null,
   chanFilter: 'all',

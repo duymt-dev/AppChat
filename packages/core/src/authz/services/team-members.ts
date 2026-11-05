@@ -5,6 +5,8 @@ import type { PlatformDb } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { foldName } from './role-lifecycle';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export type TeamRow = { id: string; name: string; version: number; leadUserId: string | null; createdAt: Date };
 
 export const teamSnap = (t: TeamRow, userIds: string[]) => ({ id: t.id, name: t.name, lead_user_id: t.leadUserId, user_ids: [...userIds].sort(), version: t.version });
@@ -28,7 +30,9 @@ export async function assertActiveMembers(p: Pick<PlatformDb, 'membership'>, ws:
   const uniq = [...new Set(ids)];
   if (uniq.length !== ids.length) throw new AppError('VALIDATION_FAILED', 422, { user_ids: 'duplicate' });
   if (!uniq.length) return uniq;
-  const ok = new Set((await p.membership.findMany({ where: { workspaceId: ws, status: 'active', userId: { in: uniq } }, select: { userId: true } })).map((m) => m.userId));
+  // id không phải UUID không thể là thành viên (cột uuid) — loại trước khi truy vấn, báo cùng mã not_member.
+  const uuids = uniq.filter((u) => UUID_RE.test(u));
+  const ok = new Set((await p.membership.findMany({ where: { workspaceId: ws, status: 'active', userId: { in: uuids } }, select: { userId: true } })).map((m) => m.userId));
   const bad = uniq.filter((u) => !ok.has(u));
   if (bad.length) throw new AppError('VALIDATION_FAILED', 422, { user_ids: `not_member:${bad.slice(0, 5).join(',')}` });
   return uniq;
