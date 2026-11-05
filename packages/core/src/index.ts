@@ -28,6 +28,7 @@ export * from './ai/public';
 export { AuthzJobsModule } from './authz/jobs/authz.jobs.module';
 export { BillingModule } from './billing/billing.module';
 export { BillingJobsModule } from './billing/jobs/billing.jobs.module';
+export { reconcileAll, reconcileWorkspace, cutoffOf, RECONCILE_JOB } from './billing/jobs/reconcile';
 export { ChannelsModule } from './channels/channels.module';
 export { ChannelsJobsModule } from './channels/jobs/channels.jobs.module';
 export { InboxModule } from './inbox/inbox.module';

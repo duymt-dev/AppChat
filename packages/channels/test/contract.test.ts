@@ -113,6 +113,20 @@ describe.each(Object.keys(DRIVERS))('contract kênh %s', (type) => {
     if (m.capabilities.proactive === 'allowed' && m.session === 'lease') expect(m.rateLimit.perDayProactive).toBeGreaterThan(0);
   });
 
+  // Annex E: năng lực khai trong manifest khớp hàm adapter thật có — năng lực KHÔNG hỗ trợ kiểm tường minh (vắng hàm), không bắt mọi kênh
+  // giống nhau. Kiểu phiên quyết định đường nhận tin: lease → start/stop, poll → poll, webhook → tin vào qua API (không cần hàm nhận).
+  it('năng lực / kiểu phiên khớp hàm adapter (năng lực không hỗ trợ thì vắng hàm)', () => {
+    const { adapter: a } = DRIVERS[type]!();
+    const m = a.manifest;
+    expect(typeof a.createGroup === 'function').toBe(m.capabilities.createGroup === true);
+    if (m.capabilities.createGroup) expect(m.capabilities.group).toBe(true);
+    if (m.session === 'lease') expect([typeof a.start, typeof a.stop]).toEqual(['function', 'function']);
+    if (m.session === 'poll') expect(typeof a.poll).toBe('function');
+    if (m.session !== 'poll') expect(a.poll).toBeUndefined();
+    if (m.connect.kind === 'qr') expect(typeof a.beginLogin).toBe('function');
+    expect(['none', 'rich', 'html']).toContain(m.capabilities.markdown);
+  });
+
   it('chuẩn hoá tin vào + id ổn định cho chống trùng', async () => {
     const d = DRIVERS[type]!();
     if (!d.inbound) return; // webchat: tin vào do API dựng NormalizedInbound (contract ở core widget gateway).

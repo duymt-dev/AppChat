@@ -1,17 +1,22 @@
 // Worker ROLE=jobs của domain `billing` (TIP-009): consumer `billing.trial` (workspace.declared → trial) + scheduler hết hạn
 // trial (BullMQ repeatable queue `scheduler`, job `billing.trial-expiry` mỗi 10 phút; jobId cố định → một lịch dù nhiều worker).
 // TIP-010: job `billing.invoice-sweep` mỗi phút — QR quá 15 phút → expired; hoá đơn paid chưa ghi nhận → ghi nhận (DC-055).
+// TIP-045b annex E: `billing.reconcile` mỗi giờ — đối soát nền tảng ↔ tenant, chỉ ghi phát hiện (reconcile.ts).
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
+import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { registerEventConsumer, unregisterEventConsumer } from '../../kernel/events/consumer';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
+import { CLOCK, type Clock } from '../../kernel/clock';
+import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { BillingModule } from '../billing.module';
 import { trialConsumer } from '../events/billing.events';
 import { InvoiceFulfiller } from '../payments/fulfil';
 import { SubscriptionsService } from '../services/subscriptions.service';
+import { RECONCILE_EVERY_MS, RECONCILE_JOB, reconcileAll } from './reconcile';
 
 export const SCHEDULER_QUEUE = 'scheduler';
 export const TRIAL_EXPIRY_JOB = 'billing.trial-expiry';
@@ -28,6 +33,9 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Inject(SubscriptionsService) private readonly subs: SubscriptionsService | null,
     @Inject(InvoiceFulfiller) private readonly invoices: InvoiceFulfiller | null,
     @Inject(LOGGER) private readonly log: AppLogger,
+    @Optional() @Inject(PLATFORM_DB) private readonly platform?: PlatformDb,
+    @Optional() @Inject(TENANT_RESOLVER) private readonly tenants?: TenantDbResolver,
+    @Optional() @Inject(CLOCK) private readonly clock?: Clock,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -37,6 +45,8 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     this.queue = new Queue(SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(TRIAL_EXPIRY_JOB, { every: EVERY_MS }, { name: TRIAL_EXPIRY_JOB });
     if (this.invoices) await this.queue.upsertJobScheduler(INVOICE_SWEEP_JOB, { every: INVOICE_EVERY_MS }, { name: INVOICE_SWEEP_JOB });
+    const reconcile = this.platform && this.tenants ? { platform: this.platform, tenants: this.tenants } : null;
+    if (reconcile) await this.queue.upsertJobScheduler(RECONCILE_JOB, { every: RECONCILE_EVERY_MS }, { name: RECONCILE_JOB });
     const invoices = this.invoices;
     // Queue `scheduler` dùng chung nhiều domain: worker này chỉ xử lý job của billing, job khác bỏ qua (domain khác có worker riêng
     // trên cùng queue sẽ được BullMQ phân phối — mỗi domain đặt tên job riêng).
@@ -47,6 +57,17 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
           const expired = await invoices.expire();
           const fulfilled = await invoices.fulfilPending();
           if (expired || fulfilled) this.log.info({ job: INVOICE_SWEEP_JOB, expired, fulfilled }, 'quét hoá đơn gói');
+          return;
+        }
+        if (job.name === RECONCILE_JOB && reconcile) {
+          const r = await reconcileAll({
+            ...reconcile,
+            now: () => this.clock?.now() ?? new Date(),
+            // Chỉ id workspace + loại kiểm + số đếm (không PII); lỗi một workspace không chặn lượt.
+            onFinding: (ws, f) => this.log.warn({ job: RECONCILE_JOB, ws, check: f.check, severity: f.severity, detail: f.detail }, 'đối soát phát hiện lệch'),
+            onError: (ws, err) => this.log.warn({ err, ws, job: RECONCILE_JOB }, 'đối soát lỗi ở workspace'),
+          });
+          this.log.info({ job: RECONCILE_JOB, cutoff: r.cutoff.toISOString(), workspaces: r.workspaces, findings: r.findings, failed: r.failed }, 'đối soát xong');
           return;
         }
         if (job.name !== TRIAL_EXPIRY_JOB) return;

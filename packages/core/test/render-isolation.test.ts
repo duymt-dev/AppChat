@@ -106,7 +106,8 @@ describe('isolated DOCX render (DC-321)', () => {
         return false;
       }
     };
-    for (let i = 0; i < 50 && pids.some(alive); i++) await new Promise((r) => setTimeout(r, 100));
+    // taskkill /T trên Windows khi cả bộ test chạy song song có thể chậm vài giây — chờ tới 15 giây (vẫn đỏ nếu tiến trình còn sống).
+    for (let i = 0; i < 150 && pids.some(alive); i++) await new Promise((r) => setTimeout(r, 100));
     expect(pids.filter(alive)).toEqual([]);
   }, 30_000);
 

@@ -19,6 +19,7 @@ export interface AppMetrics {
   channelAccounts: Gauge<'type' | 'status'>;
   tenantPoolClients: Gauge;
   approvalsPending: Gauge;
+  reconcileFindings: Counter;
 }
 
 let current: AppMetrics | null = null;
@@ -45,6 +46,7 @@ export function appMetrics(service = 'appchat'): AppMetrics {
     channelAccounts: new Gauge({ name: 'channel_account_status', help: 'Số tài khoản kênh theo trạng thái (gộp, không theo workspace)', labelNames: ['type', 'status'], ...reg }),
     tenantPoolClients: new Gauge({ name: 'tenant_pool_clients', help: 'Số client Prisma tenant đang mở', ...reg }),
     approvalsPending: new Gauge({ name: 'approval_pending', help: 'Yêu cầu duyệt đang chờ (gộp)', ...reg }),
+    reconcileFindings: new Counter({ name: 'reconcile_findings_total', help: 'Lệch phát hiện bởi đối soát nền tảng ↔ tenant (gộp, không theo workspace)', labelNames: ['check', 'severity'], ...reg }),
   };
   return current;
 }
