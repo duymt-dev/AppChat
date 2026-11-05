@@ -84,7 +84,8 @@ export function ManageChannelDrawer() {
   const doDisconnect = async () => {
     if (!account) return;
     if (!window.confirm(t('disconnectConfirm', { n: account.name }))) return;
-    if (await disconnect.run({ channel_account_id: account.id })) open(null);
+    // Người đã đóng drawer trong lúc chờ → không mở lại (chỉ quay về danh sách nếu drawer vẫn đang mở đúng tài khoản này).
+    if ((await disconnect.run({ channel_account_id: account.id })) && useSettingsUi.getState().channelDrawer?.accountId === account.id) open(null);
   };
 
   return (
