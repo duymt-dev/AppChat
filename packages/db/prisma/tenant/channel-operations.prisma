@@ -1,5 +1,5 @@
 // tenant/channel-operations.prisma — sở hữu: TIP-014b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: channel_avatar (ảnh đại diện theo định danh kênh — TIP-014b D), channel_contact_sync + channel_contact_snapshot (danh bạ — D3), message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
+// Bảng: channel_avatar (ảnh đại diện theo định danh kênh — TIP-014b D), channel_contact_sync + channel_contact_snapshot (danh bạ — D3), channel_friend + channel_user_lookup (bạn bè — E), message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
 // channel_operation (lệnh thao tác bền: thu hồi / cảm xúc — trạng thái thật theo ACK nhà cung cấp), message_account_reaction (cảm xúc
 // của TÀI KHOẢN kênh trên tin: mong muốn ↔ đã xác nhận ↔ quan sát từ kênh, revision tăng đơn điệu). Chuẩn: omnichannel-adapter §Thao tác.
 // Không Prisma relation xuyên domain (Blueprint §2.1). Partial / covering index viết SQL trong migration.
@@ -224,4 +224,60 @@ model ChannelContactSnapshot {
   @@id([syncId, externalId])
   @@index([syncId, seq], map: "channel_contact_snapshot_page_idx")
   @@map("channel_contact_snapshot")
+}
+
+/// Quan hệ bạn bè / lời mời theo định danh phía kênh (TIP-014b E — DC nới DC-247). `state`: none | incoming (họ mời tài khoản) | outgoing
+/// (tài khoản đã mời) | friend. Lệnh của nhân viên (`op` accept / reject / send / undo) bền: queued → dispatch_reserved → confirmed | failed |
+/// unknown — chỉ ACK nhà cung cấp mới đổi `state`; một lệnh mở mỗi người. Không AI / agent / hàng loạt.
+model ChannelFriend {
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  externalId       String    @map("external_id")
+  displayName      String    @default("") @map("display_name")
+  state            String    @default("none")
+  incomingMessage  String?   @map("incoming_message")
+  incomingAt       DateTime? @map("incoming_at") @db.Timestamptz(6)
+  op               String?
+  opStatus         String?   @map("op_status")
+  opActorId        String?   @map("op_actor_id") @db.Uuid
+  opMessage        String?   @map("op_message")
+  opError          String?   @map("op_error")
+  opRequestedAt    DateTime? @map("op_requested_at") @db.Timestamptz(6)
+  opFinishedAt     DateTime? @map("op_finished_at") @db.Timestamptz(6)
+  opGeneration     Int?      @map("op_generation")
+  updatedAt        DateTime  @map("updated_at") @db.Timestamptz(6)
+
+  @@id([channelAccountId, externalId])
+  @@map("channel_friend")
+}
+
+/// Nhật ký gửi lời mời kết bạn (TIP-014b E, chỉ thêm): trần / ngày / tài khoản đếm ở đây (thu hồi rồi gửi lại vẫn tính).
+model ChannelFriendSendLog {
+  id               String   @id @db.Uuid
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  externalId       String   @map("external_id")
+  actorId          String   @map("actor_id") @db.Uuid
+  createdAt        DateTime @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc)], map: "channel_friend_send_log_account_idx")
+  @@map("channel_friend_send_log")
+}
+
+/// Tra MỘT SĐT trên kênh (TIP-014b E): trần / ngày / tài khoản, kết quả tạm 24 giờ (không tự lưu khách — "Lưu thành khách" là contact.create
+/// riêng). Dòng giữ làm nhật ký tra (người tra, lúc tra, số).
+model ChannelUserLookup {
+  id               String    @id @db.Uuid
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  actorId          String    @map("actor_id") @db.Uuid
+  phone            String
+  /// queued | running | found | not_found | failed.
+  status           String    @default("queued")
+  externalId       String?   @map("external_id")
+  displayName      String?   @map("display_name")
+  error            String?
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  finishedAt       DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime  @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc)], map: "channel_user_lookup_account_idx")
+  @@map("channel_user_lookup")
 }

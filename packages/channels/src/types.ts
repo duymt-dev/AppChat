@@ -1,6 +1,7 @@
 // Hợp đồng kênh (standards/channels/omnichannel-adapter.md → Hợp đồng; Blueprint §6). Core chỉ biết các kiểu này.
 import type { z } from 'zod';
 import type { ChannelOperations, OperationCapabilities, ProviderEvent, ProviderMessageRef, SendLedger } from './operations';
+import type { ChannelFriends } from './friends';
 
 export type ChannelStatus = 'ga' | 'beta' | 'coming_soon';
 export type ConnectKind = 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed';
@@ -135,6 +136,8 @@ export interface ChannelAdapter {
    * Lấy lịch sử có giới hạn (TIP-014b C — thay `syncHistory` cũ): tin trong khoảng [cutoffAt, nay] theo trang; mỗi lô chờ `onBatch` (core
    * lưu bền) rồi mới lấy trang sau. Không đẩy qua sink tin mới (lịch sử không kích luồng trực tiếp). Báo cáo trung thực khoảng thực thấy.
    */
+  /** Bạn bè (TIP-014b E): lời mời kết bạn + tra SĐT — chỉ khi manifest khai `friend_requests` / `find_user`. */
+  friends?: ChannelFriends;
   fetchHistory?(accountId: string, req: HistoryRequest, onBatch: (batch: NormalizedInbound[]) => Promise<void>): Promise<HistoryReport>;
   start?(account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;
   stop?(accountId: string): Promise<void>;

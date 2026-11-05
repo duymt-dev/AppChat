@@ -19,5 +19,6 @@ export { avatarLinks, avatarKey, contactAvatarLink } from './operations/avatar-r
 export { AVATAR_LIMITS } from './operations/avatar-store';
 export { CONTACT_SYNC_LIMITS, readContactSync, contactSyncStatusUrl } from './operations/contact-sync';
 export { runContactSync } from './jobs/contact-sync.processor';
+export { FRIEND_LIMITS, lookupStatusUrl, friendStatusUrl } from './operations/friend-store';
 export { runAvatarSync, type AvatarDeps } from './jobs/avatar-sync.processor';
 export { GroupCreators, GroupRequestQueue, groupQueueName, GROUP_TIMEOUT_MS, type GroupJob } from './jobs/create-group.processor';

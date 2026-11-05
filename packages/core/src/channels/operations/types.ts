@@ -26,6 +26,18 @@ export interface HistoryJob {
   history_run_id: string;
 }
 
+/** Lệnh bạn bè (TIP-014b E) — một lệnh mở mỗi người; job id theo (người, mốc yêu cầu). */
+export interface FriendJob {
+  ws: string;
+  external_id: string;
+}
+
+/** Tra một SĐT (TIP-014b E). */
+export interface LookupJob {
+  ws: string;
+  lookup_id: string;
+}
+
 /** Job đồng bộ danh bạ (TIP-014b D3) — chung hàng đợi thao tác `chop-<tài khoản>`, job id = id lần đồng bộ. */
 export interface ContactSyncJob {
   ws: string;

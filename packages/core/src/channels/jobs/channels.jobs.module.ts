@@ -28,6 +28,7 @@ import { GroupCreators } from './create-group.processor';
 import { OperationQueue, ProviderOperators } from './provider-operations.processor';
 import { runAvatarSync } from './avatar-sync.processor';
 import { runContactSync } from './contact-sync.processor';
+import { runFriendOp, runLookup } from './friend.processor';
 import { FilesService } from '../../kernel/files/files.service';
 import { providerEventQueue, startProviderEventWorker } from './provider-events.processor';
 import { ActionExecutor } from '../../kernel/actions/executor';
@@ -92,6 +93,9 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
         avatars: (id, a, j, g) => runAvatarSync(avatars, id, a, j, g),
         // Danh bạ (TIP-014b D3): ảnh chụp riêng tài khoản, không tạo khách.
         contacts: (id, a, j, g) => runContactSync({ tenants, log: this.log, now }, id, a, j, g),
+        // Bạn bè + tra SĐT (TIP-014b E): chỉ nhân viên bấm, trần / ngày ở action.
+        friend: (id, a, j, g) => runFriendOp({ tenants, kv: redis, log: this.log, now }, id, a, j, g),
+        lookup: (id, a, j) => runLookup({ tenants, kv: redis, log: this.log, now }, id, a, j),
       },
       this.opQueue ?? undefined,
     ));

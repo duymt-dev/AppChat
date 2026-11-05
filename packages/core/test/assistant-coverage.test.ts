@@ -83,6 +83,7 @@ const EXEMPT: Record<string, string> = {
   import_id: 'lần nhập sản phẩm — handle job_accepted / kết quả product.import cùng lượt, không có mã người dùng nói',
   proposal_id: 'đề xuất soạn HĐ — lấy từ kết quả contract.prepare_draft cùng lượt, sống 24h, không có mã người dùng nói',
   suggestion_id: 'gợi ý điều khoản AI — đọc từ ai_suggestions của contract.get',
+  external_id: 'id người dùng phía kênh (TIP-014b E bạn bè Zalo) — chọn từ lời mời tới / hội thoại / kết quả tra SĐT trên màn; action chỉ nhân viên bấm, Trợ lý không gọi',
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */

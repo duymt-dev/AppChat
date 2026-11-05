@@ -871,6 +871,23 @@
     "sync_contacts": {
       "title": "Sync channel account address book"
     },
+    "friend": {
+        "accept": {
+          "title": "Accept Zalo friend request"
+        },
+        "reject": {
+          "title": "Reject Zalo friend request"
+        },
+        "send": {
+          "title": "Send Zalo friend request"
+        },
+        "undo": {
+          "title": "Withdraw Zalo friend request"
+        }
+    },
+    "lookup_user": {
+      "title": "Find a Zalo user by phone"
+    },
     "reconnect": {
       "title": "Reconnect channel account"
     },

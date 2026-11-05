@@ -104,6 +104,10 @@ export const channelHistoryRequestedEvent = z.object({ ...base, run_id: z.string
 export const channelHistoryIngestedEvent = z.object({ ...base, run_id: z.string().uuid(), channel_account_id: z.string().uuid(), conversation_ids: z.array(z.string().uuid()).max(200) });
 /** Đồng bộ danh bạ tài khoản kênh (TIP-014b D3): consumer đẩy job vào hàng đợi tài khoản; ảnh chụp riêng, không tạo khách. */
 export const channelContactsRequestedEvent = z.object({ ...base, sync_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+/** Bạn bè kênh (TIP-014b E): lệnh của nhân viên / tra SĐT → consumer đẩy job vào hàng đợi tài khoản; lời mời tới → làm mới màn Bạn bè. */
+export const channelFriendRequestedEvent = z.object({ ...base, channel_account_id: z.string().uuid(), external_id: z.string().max(64), op: z.enum(['accept', 'reject', 'send', 'undo']) });
+export const channelLookupRequestedEvent = z.object({ ...base, lookup_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+export const channelFriendRequestReceivedEvent = z.object({ ...base, channel_account_id: z.string().uuid(), external_id: z.string().max(64) });
 export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid(), requester_id: z.string().uuid().nullable(), status: z.string(), conversation_id: z.string().uuid().nullable() });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
@@ -222,6 +226,9 @@ export const EVENT_SCHEMAS = {
   'channel.history_requested': channelHistoryRequestedEvent,
   'channel.history_ingested': channelHistoryIngestedEvent,
   'channel.contacts_requested': channelContactsRequestedEvent,
+  'channel.friend_requested': channelFriendRequestedEvent,
+  'channel.lookup_requested': channelLookupRequestedEvent,
+  'channel.friend_request_received': channelFriendRequestReceivedEvent,
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,

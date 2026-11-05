@@ -2,7 +2,7 @@
 // phiên giả ghi tin đã gửi, bơm tin vào / đá phiên / làm lỗi gửi để test. Chỉ bật bằng ZALO_TRANSPORT=fake (cấm production).
 import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
-import { ZALO_CLOSE, type ZaloCredentials, type ZaloGroupInfo, type ZaloProfile, type ZaloRawMessage, type ZaloRawReaction, type ZaloRawReceipt, type ZaloRawUndo, type ZaloSession, type ZaloStyle, type ZaloTransport } from './transport';
+import { ZALO_CLOSE, type ZaloCredentials, type ZaloRawFriendEvent, type ZaloGroupInfo, type ZaloProfile, type ZaloRawMessage, type ZaloRawReaction, type ZaloRawReceipt, type ZaloRawUndo, type ZaloSession, type ZaloStyle, type ZaloTransport } from './transport';
 
 /** PNG 1×1 — đủ để FE hiện ảnh `data:image/png;base64,…`. */
 export const FAKE_QR_PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -21,7 +21,9 @@ export interface FakeSent {
 
 /** Lệnh thao tác đã nhận (thu hồi / cảm xúc / thêm thành viên) — test đối chiếu tham số SDK. */
 export interface FakeOp {
-  op: 'undo' | 'react' | 'add_members' | 'profiles' | 'friends';
+  op: 'undo' | 'react' | 'add_members' | 'profiles' | 'friends' | 'friend_accept' | 'friend_reject' | 'friend_send' | 'friend_undo' | 'find_user';
+  userId?: string;
+  text?: string;
   threadId: string;
   isGroup: boolean;
   msgId?: string;
@@ -47,6 +49,20 @@ export class FakeZaloSession implements ZaloSession {
   private undoCb: ((u: ZaloRawUndo) => void)[] = [];
   private reactCb: ((r: ZaloRawReaction) => void)[] = [];
   private receiptCb: ((r: ZaloRawReceipt) => void)[] = [];
+  private friendCb: ((e: ZaloRawFriendEvent) => void)[] = [];
+  /** Người tra được theo SĐT (findUser) + quan hệ hiện tại theo uid. */
+  readonly phoneBook = new Map<string, { id: string; displayName: string; avatar?: string }>();
+  readonly relations = new Map<string, { isFriend: boolean; requested: boolean; requesting: boolean }>();
+  /** Lệnh bạn bè kế tiếp bị nhà cung cấp từ chối (riêng với `opMode` — job ảnh / danh bạ không tiêu mất). */
+  friendMode: 'ok' | 'reject' = 'ok';
+  private friendOp(o: FakeOp, ok: () => void): Promise<void> {
+    const mode = this.friendMode;
+    this.friendMode = 'ok';
+    this.ops.push(o);
+    if (mode === 'reject') return Promise.reject(new ChannelOperationError('rejected', 'fake'));
+    ok();
+    return Promise.resolve();
+  }
   /** Lệnh thao tác đã gọi. */
   readonly ops: FakeOp[] = [];
   /** Lệnh thao tác kế tiếp: `reject` (nhà cung cấp trả lỗi rõ) / `hang` (treo — kiểm unknown) / `fail` (lỗi mạng). */
@@ -100,6 +116,37 @@ export class FakeZaloSession implements ZaloSession {
   }
   onReceipt(cb: (r: ZaloRawReceipt) => void) {
     this.receiptCb.push(cb);
+  }
+  onFriend(cb: (e: ZaloRawFriendEvent) => void) {
+    this.friendCb.push(cb);
+  }
+
+  /** Sự kiện bạn bè từ kênh (lời mời tới…). */
+  emitFriend(e: Partial<ZaloRawFriendEvent> & { type: ZaloRawFriendEvent['type']; userId: string }) {
+    if (!this.running) return;
+    for (const cb of this.friendCb) cb({ isSelf: false, ts: String(Date.now()), ...e });
+  }
+
+  private rel(id: string) {
+    return this.relations.get(id) ?? { isFriend: false, requested: false, requesting: false };
+  }
+  async acceptFriend(userId: string) {
+    await this.friendOp({ op: 'friend_accept', threadId: '', isGroup: false, userId }, () => void this.relations.set(userId, { isFriend: true, requested: false, requesting: false }));
+  }
+  async rejectFriend(userId: string) {
+    await this.friendOp({ op: 'friend_reject', threadId: '', isGroup: false, userId }, () => void this.relations.set(userId, { ...this.rel(userId), requesting: false }));
+  }
+  async sendFriendRequest(userId: string, message: string) {
+    await this.friendOp({ op: 'friend_send', threadId: '', isGroup: false, userId, text: message }, () => void this.relations.set(userId, { ...this.rel(userId), requested: true }));
+  }
+  async undoFriendRequest(userId: string) {
+    await this.friendOp({ op: 'friend_undo', threadId: '', isGroup: false, userId }, () => void this.relations.set(userId, { ...this.rel(userId), requested: false }));
+  }
+  async friendStatus(userId: string) {
+    return this.rel(userId);
+  }
+  async findUser(phone: string) {
+    return this.op({ op: 'find_user', threadId: '', isGroup: false, text: phone }, () => this.phoneBook.get(phone) ?? null);
   }
 
   /** Biên nhận đã nhận / đã xem từ kênh. */

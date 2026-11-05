@@ -44,6 +44,8 @@ import { GroupRead } from './services/group-read';
 import { ChannelOperationRead } from './operations/operation-read';
 import { registerEventConsumer, unregisterEventConsumer } from '../kernel/events/consumer';
 import { contactSyncRequestConsumer } from './jobs/contact-sync.processor';
+import { friendRequestConsumer } from './jobs/friend.processor';
+import { ChannelFriendAcceptHandler, ChannelFriendRejectHandler, ChannelFriendSendHandler, ChannelFriendUndoHandler, ChannelLookupUserHandler } from './actions/friend.handlers';
 import { ChannelSyncContactsHandler } from './actions/contact-sync.handler';
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -94,6 +96,11 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     ChannelSearchHandler,
     ChannelOperationCancelHandler,
     ChannelSyncContactsHandler,
+    ChannelFriendAcceptHandler,
+    ChannelFriendRejectHandler,
+    ChannelFriendSendHandler,
+    ChannelFriendUndoHandler,
+    ChannelLookupUserHandler,
     ChannelStatusHandler,
     ChannelZaloStartLoginHandler,
     ChannelReconnectHandler,
@@ -127,7 +134,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
         if (!r) return null;
         const q = new OperationQueue(r.duplicate());
         // Lịch sử (TIP-014b C) đi chung hàng đợi tài khoản.
-        for (const c of [operationRequestConsumer(q), historyRequestConsumer(q), contactSyncRequestConsumer(q)]) {
+        for (const c of [operationRequestConsumer(q), historyRequestConsumer(q), contactSyncRequestConsumer(q), friendRequestConsumer(q)]) {
           unregisterEventConsumer(c.name);
           registerEventConsumer(c);
         }

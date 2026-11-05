@@ -23,6 +23,8 @@ export interface AccountSettings {
   /** Ghi đè `manifest.rateLimit` (omnichannel-adapter §6). */
   rate_per_minute?: number;
   daily_cap?: number;
+  /** Trần gửi lời mời kết bạn / ngày (TIP-014b E — mặc định 20). */
+  friend_daily_cap?: number;
 }
 
 export interface AccountHealth {

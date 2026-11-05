@@ -65,3 +65,33 @@ export const channelContactSyncSchema = z.object({
   next_cursor: z.string().nullable(),
 });
 export type ChannelContactSyncDto = z.infer<typeof channelContactSyncSchema>;
+
+/**
+ * Bạn bè kênh (TIP-014b E): GET /v1/settings/channels/:id/friends?state=incoming · /friends/:externalId. `op_status` = lệnh gần nhất của
+ * nhân viên (queued — kể cả đang gọi kênh · confirmed · failed · unknown — chưa rõ Zalo đã nhận chưa, không tự gửi lại).
+ */
+export const channelFriendSchema = z.object({
+  external_id: z.string(),
+  name: z.string(),
+  state: z.enum(['none', 'incoming', 'outgoing', 'friend']),
+  incoming_message: z.string().nullable(),
+  incoming_at: z.string().nullable(),
+  op: z.enum(['accept', 'reject', 'send', 'undo']).nullable(),
+  op_status: z.enum(['queued', 'confirmed', 'failed', 'unknown']).nullable(),
+  op_error: z.string().nullable(),
+});
+export type ChannelFriendDto = z.infer<typeof channelFriendSchema>;
+
+/** Tra một SĐT (TIP-014b E): GET /v1/settings/channels/:id/lookups/:lookupId — chỉ người tra / Owner, hạn 24 giờ. Không tự lưu khách. */
+export const channelLookupSchema = z.object({
+  id: z.string(),
+  channel_account_id: z.string(),
+  phone: z.string(),
+  state: z.enum(['queued', 'running', 'found', 'not_found', 'failed']),
+  external_id: z.string().nullable(),
+  name: z.string().nullable(),
+  error: z.string().nullable(),
+  created_at: z.string(),
+  expires_at: z.string(),
+});
+export type ChannelLookupDto = z.infer<typeof channelLookupSchema>;

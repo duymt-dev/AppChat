@@ -82,6 +82,15 @@ export interface ZaloRawReceipt {
   ts: string;
 }
 
+/** Sự kiện bạn bè (zca-js `friend_event`) — chỉ các loại core dùng. */
+export interface ZaloRawFriendEvent {
+  type: 'request' | 'undo_request' | 'reject_request' | 'added' | 'removed';
+  userId: string;
+  isSelf: boolean;
+  message?: string;
+  ts: string;
+}
+
 export interface ZaloGroupInfo {
   groupId: string;
   name: string;
@@ -97,6 +106,8 @@ export interface ZaloSession {
   onUndo(cb: (u: ZaloRawUndo) => void): void;
   onReaction(cb: (r: ZaloRawReaction) => void): void;
   onReceipt(cb: (r: ZaloRawReceipt) => void): void;
+  /** Lời mời kết bạn tới / bị huỷ / bị từ chối / đã thành bạn (TIP-014b E). */
+  onFriend(cb: (e: ZaloRawFriendEvent) => void): void;
   /** Một trang `old_messages` của đúng loại thread (1-1 / nhóm) — trả hàm huỷ đăng ký (TIP-014b C). */
   onOldMessagesOnce(isGroup: boolean, cb: (ms: ZaloRawMessage[]) => void): () => void;
   onClosed(cb: (code: number, reason: string) => void): void;
@@ -120,6 +131,14 @@ export interface ZaloSession {
   userInfo(ids: string[]): Promise<{ id: string; displayName: string; avatar?: string }[]>;
   /** zca-js `getAllFriends(count, page, AvatarSize.Small)` — danh bạ theo trang (TIP-014b D3). */
   friends(page: number, count: number): Promise<{ id: string; displayName: string; phone?: string; avatar?: string }[]>;
+  /** TIP-014b E — zca-js acceptFriendRequest / rejectFriendRequest / sendFriendRequest(msg, id) / undoFriendRequest / getFriendRequestStatus /
+   *  findUser(phone). Lỗi nhà cung cấp → ChannelOperationError('rejected'). */
+  acceptFriend(userId: string): Promise<void>;
+  rejectFriend(userId: string): Promise<void>;
+  sendFriendRequest(userId: string, message: string): Promise<void>;
+  undoFriendRequest(userId: string): Promise<void>;
+  friendStatus(userId: string): Promise<{ isFriend: boolean; requested: boolean; requesting: boolean }>;
+  findUser(phone: string): Promise<{ id: string; displayName: string; avatar?: string } | null>;
   /** zca-js `getGroupLinkDetail` — có thể đang tắt / không có link; bật link là thao tác riêng (không làm ở đây). */
   groupLink(groupId: string): Promise<{ enabled: boolean; link: string | null; expiresAt: number | null }>;
   /** zca-js `addUserToGroup` — có thể thành công một phần (errorMembers / error_data). */

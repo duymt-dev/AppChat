@@ -2,10 +2,11 @@
 // khai năng lực riêng `local | remote | unsupported` trong manifest — vắng = unsupported (không suy từ `reactions: true` hay từ việc
 // SDK có hàm). `local`: chỉ ghi trong AppChat (commit ngay); `remote`: phải có lệnh bền + ACK nhà cung cấp mới đổi trạng thái tin.
 // Core / UI / AI chỉ đọc năng lực ở đây, không `switch (type)` theo kênh.
+import type { FriendEvent } from './friends';
 
 export type OperationMode = 'local' | 'remote' | 'unsupported';
 
-export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'profiles' | 'friends';
+export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'profiles' | 'friends' | 'friend_requests' | 'find_user';
 
 /** Năng lực thao tác theo kênh (manifest). Thiếu khoá = unsupported. */
 export type OperationCapabilities = Partial<Record<OperationKind, OperationMode>>;
@@ -103,6 +104,7 @@ export interface ChannelOperations {
  * - `reaction`: cảm xúc trên tin (`actorId` = id phía kênh; `self` = chính tài khoản).
  */
 export type ProviderEvent =
+  | FriendEvent
   | { kind: 'self_ref'; accountId: string; key: string; ref: ProviderMessageRef; at: string }
   | { kind: 'recalled'; accountId: string; key: string; threadId: string; isGroup: boolean; msgId: string; actorId: string; self: boolean; at: string }
   | { kind: 'reaction'; accountId: string; key: string; threadId: string; isGroup: boolean; msgIds: string[]; actorId: string; self: boolean; emoji: ReactionEmoji | null; at: string }

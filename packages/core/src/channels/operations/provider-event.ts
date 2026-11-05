@@ -6,6 +6,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
 import { applySelfRef, messageByProviderId, messageRefs } from './operation-store';
 import { applyReceipt } from './delivery-receipts';
+import { applyFriendEvent } from './friend-store';
 import type { OperationStatus } from './types';
 
 type Part = { part_no: number; status: 'confirmed' | 'failed' | 'unknown'; error?: string };
@@ -80,6 +81,7 @@ export async function applyProviderEvent(tx: TenantTx, e: ProviderEvent, now: Da
     const ev = await updatedEvent(tx, msg.id, 'recalled');
     return ev ? [ev] : [];
   }
+  if (e.kind === 'friend') return applyFriendEvent(tx, e, now);
   if (e.kind !== 'reaction') return applyReceipt(tx, e, now);
   // Cảm xúc: chỉ cảm xúc của chính tài khoản là "trạng thái phía kênh" của tài khoản; cảm xúc của khách lưu theo người (contact).
   const out: OutboxEventInput[] = [];

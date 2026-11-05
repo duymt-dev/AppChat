@@ -8,6 +8,7 @@ import { ChannelAuthError, ChannelNotRunningError, PartialSendError, type Channe
 import { zaloPersonalManifest } from './manifest';
 import { normalizeZalo } from './normalize';
 import { reactionEvent, receiptEvent, selfRefEvent, undoEvent, zaloOperations } from './provider-operations';
+import { friendEvent, zaloFriends } from './provider-friends';
 import { fetchZaloHistory } from './provider-history';
 import { renderChunks } from './render';
 import { ZALO_CLOSE, type ZaloCredentials, type ZaloFile, type ZaloRawMessage, type ZaloSession, type ZaloTransport } from './transport';
@@ -40,6 +41,8 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
   readonly manifest = zaloPersonalManifest;
   private readonly running = new Map<string, Running>();
   readonly operations = zaloOperations((id) => this.session(id).session);
+  /** Bạn bè (TIP-014b E) — chỉ nhân viên bấm; core giữ trần / nhật ký. */
+  readonly friends = zaloFriends((id) => this.running.get(id)?.session);
   /** Lỗi đẩy sự kiện vào sink (core) — đếm để probe / test thấy, không nuốt im lặng. */
   readonly sinkErrors = new Map<string, number>();
 
@@ -70,6 +73,7 @@ export class ZaloPersonalAdapter implements ChannelAdapter {
     session.onUndo((u) => emit(undoEvent(account.id, u)));
     session.onReaction((r) => emit(reactionEvent(account.id, r)));
     session.onReceipt((r) => emit(receiptEvent(account.id, r)));
+    session.onFriend((f) => emit(friendEvent(account.id, f)));
     session.onClosed((code, reason) => {
       if (this.running.get(account.id) !== run) return;
       if (code === ZALO_CLOSE.manual) return;

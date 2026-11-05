@@ -14,7 +14,7 @@ import { messageRefs } from '../operations/operation-store';
 import { applyOperationResult, markInterrupted, type OperationOutcome } from '../operations/provider-event';
 import { OPERATION_TIMEOUT_MS, type OperationJob } from '../operations/types';
 import { assertGeneration } from '../operations/session-generation';
-import type { AvatarJob, ContactSyncJob, HistoryJob } from '../operations/types';
+import type { AvatarJob, ContactSyncJob, FriendJob, HistoryJob, LookupJob } from '../operations/types';
 
 export const operationQueueName = (accountId: string) => `chop-${accountId}`;
 
@@ -31,6 +31,9 @@ export interface OperationDeps {
   avatars?: (accountId: string, adapter: ChannelAdapter, j: AvatarJob, generation?: number) => Promise<{ status: string; delayMs?: number }>;
   /** Đồng bộ danh bạ (TIP-014b D3 — contact-sync.processor). */
   contacts?: (accountId: string, adapter: ChannelAdapter, j: ContactSyncJob, generation?: number) => Promise<string>;
+  /** Bạn bè + tra SĐT (TIP-014b E — friend.processor). */
+  friend?: (accountId: string, adapter: ChannelAdapter, j: FriendJob, generation?: number) => Promise<string>;
+  lookup?: (accountId: string, adapter: ChannelAdapter, j: LookupJob) => Promise<string>;
 }
 
 /** Trễ giữa hai job ảnh khi còn việc (nhường hàng đợi tài khoản cho thu hồi / gửi). */
@@ -52,6 +55,20 @@ export class OperationQueue {
     let q = this.queues.get(accountId);
     if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
     await q.add('history', j, { jobId: `hist-${j.history_run_id}`, attempts: 3, backoff: { type: 'exponential', delay: 10_000 }, removeOnComplete: 200, removeOnFail: 500 });
+  }
+
+  /** Lệnh bạn bè (TIP-014b E) — job id theo người + mốc (lệnh mới của cùng người sau khi lệnh trước xong thêm được). */
+  async enqueueFriend(accountId: string, j: FriendJob): Promise<void> {
+    let q = this.queues.get(accountId);
+    if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
+    await q.add('friend', j, { jobId: `friend-${j.external_id}-${Date.now()}`, attempts: 5, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 500, removeOnFail: 1000 });
+  }
+
+  /** Tra SĐT (TIP-014b E) — job id = id lần tra. */
+  async enqueueLookup(accountId: string, j: LookupJob): Promise<void> {
+    let q = this.queues.get(accountId);
+    if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
+    await q.add('lookup', j, { jobId: `lookup-${j.lookup_id}`, attempts: 3, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 500, removeOnFail: 1000 });
   }
 
   /** Đồng bộ danh bạ (TIP-014b D3) — cùng hàng đợi tài khoản, job id = id lần đồng bộ. */
@@ -94,8 +111,8 @@ export class ProviderOperators {
   ) {}
 
   async open(accountId: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
-    if (this.workers.has(accountId) || (!adapter.operations && !adapter.fetchHistory)) return;
-    const w = new Worker<OperationJob | HistoryJob | AvatarJob | ContactSyncJob>(
+    if (this.workers.has(accountId) || (!adapter.operations && !adapter.fetchHistory && !adapter.friends)) return;
+    const w = new Worker<OperationJob | HistoryJob | AvatarJob | ContactSyncJob | FriendJob | LookupJob>(
       operationQueueName(accountId),
       (job) =>
         job.name === 'history'
@@ -104,7 +121,11 @@ export class ProviderOperators {
             ? this.avatars(accountId, adapter, job.data as AvatarJob, generation)
             : job.name === 'contacts'
               ? (this.d.contacts?.(accountId, adapter, job.data as ContactSyncJob, generation) ?? Promise.resolve('contacts_unavailable'))
-              : this.run(accountId, adapter, job.data as OperationJob, generation),
+              : job.name === 'friend'
+                ? (this.d.friend?.(accountId, adapter, job.data as FriendJob, generation) ?? Promise.resolve('friend_unavailable'))
+                : job.name === 'lookup'
+                  ? (this.d.lookup?.(accountId, adapter, job.data as LookupJob) ?? Promise.resolve('lookup_unavailable'))
+                  : this.run(accountId, adapter, job.data as OperationJob, generation),
       { connection: this.d.redis.duplicate(), concurrency: 1 },
     );
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'operation worker error'));

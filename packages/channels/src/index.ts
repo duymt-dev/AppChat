@@ -1,6 +1,7 @@
 export * from './types';
 export * from './define';
 export * from './operations';
+export * from './friends';
 export { channelRegistry, buildChannelRegistry, type ChannelDeps } from './registry';
 export { ZaloPersonalAdapter, refuseFileFetch, type FileFetcher } from './zalo-personal/adapter';
 export { ZcaTransport } from './zalo-personal/zca-transport';

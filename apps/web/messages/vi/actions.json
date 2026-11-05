@@ -871,6 +871,23 @@
     "sync_contacts": {
       "title": "Đồng bộ danh bạ tài khoản kênh"
     },
+    "friend": {
+        "accept": {
+          "title": "Nhận lời mời kết bạn Zalo"
+        },
+        "reject": {
+          "title": "Từ chối lời mời kết bạn Zalo"
+        },
+        "send": {
+          "title": "Gửi lời mời kết bạn Zalo"
+        },
+        "undo": {
+          "title": "Thu hồi lời mời kết bạn Zalo"
+        }
+    },
+    "lookup_user": {
+      "title": "Tìm người trên Zalo theo SĐT"
+    },
     "reconnect": {
       "title": "Kết nối lại tài khoản kênh"
     },

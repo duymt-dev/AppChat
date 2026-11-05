@@ -3,11 +3,11 @@
 // TIP-014b: bật `selfListen` — tin tự gửi mang `cliMsgId` (sendMessage chỉ trả msgId) → tách sang `onSelfMessage`, không vào pipeline
 // tin khách. Lệnh thu hồi / cảm xúc / nhóm: lỗi `ZaloApiError` (nhà cung cấp trả lỗi rõ) → ChannelOperationError('rejected'); lỗi
 // mạng giữ nguyên để core ghi `unknown`. Ma trận năng lực: provider-capabilities.md.
-import { AvatarSize, CloseReason, LoginQRCallbackEventType, ThreadType, Zalo, ZaloApiError, type API, type Credentials, type Message, type Reactions, type Style } from 'zca-js';
+import { AvatarSize, CloseReason, FriendEventType, LoginQRCallbackEventType, ThreadType, Zalo, ZaloApiError, type API, type Credentials, type Message, type Reactions, type Style } from 'zca-js';
 import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
 import { zaloId } from './provider-refs';
-import type { ZaloCredentials, ZaloGroupInfo, ZaloProfile, ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession, ZaloStyle, ZaloTransport } from './transport';
+import type { ZaloCredentials, ZaloRawFriendEvent, ZaloGroupInfo, ZaloProfile, ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession, ZaloStyle, ZaloTransport } from './transport';
 
 /** zca-js hết hạn QR sau 100 giây (apis/loginQR.js). */
 const QR_TTL_MS = 100_000;
@@ -54,6 +54,46 @@ class ZcaSession implements ZaloSession {
       const msgId = zaloId(u.data.content?.globalMsgId);
       if (msgId) cb({ isGroup: u.isGroup, isSelf: u.isSelf, threadId: u.threadId, uidFrom: u.data.uidFrom, msgId, ts: String(u.data.ts) });
     });
+  }
+
+  onFriend(cb: (e: ZaloRawFriendEvent) => void): void {
+    // Chỉ các loại có nghĩa với lời mời; chặn / ghim / gọi… bỏ. REQUEST mang lời nhắn; ADD / REMOVE chỉ có uid (data là chuỗi).
+    const TYPES: Partial<Record<FriendEventType, ZaloRawFriendEvent['type']>> = {
+      [FriendEventType.REQUEST]: 'request',
+      [FriendEventType.UNDO_REQUEST]: 'undo_request',
+      [FriendEventType.REJECT_REQUEST]: 'reject_request',
+      [FriendEventType.ADD]: 'added',
+      [FriendEventType.REMOVE]: 'removed',
+    };
+    this.api.listener.on('friend_event', (e) => {
+      const type = TYPES[e.type];
+      if (!type) return;
+      const d = e.data as unknown;
+      const other = typeof d === 'string' ? d : e.isSelf ? (d as { toUid?: string }).toUid : (d as { fromUid?: string }).fromUid;
+      const message = typeof d === 'object' && d && 'message' in d ? String((d as { message?: string }).message ?? '') : undefined;
+      if (other) cb({ type, userId: String(other), isSelf: e.isSelf, ...(message ? { message } : {}), ts: String(Date.now()) });
+    });
+  }
+
+  async acceptFriend(userId: string): Promise<void> {
+    await rejected(() => this.api.acceptFriendRequest(userId));
+  }
+  async rejectFriend(userId: string): Promise<void> {
+    await rejected(() => this.api.rejectFriendRequest(userId));
+  }
+  async sendFriendRequest(userId: string, message: string): Promise<void> {
+    await rejected(() => this.api.sendFriendRequest(message, userId));
+  }
+  async undoFriendRequest(userId: string): Promise<void> {
+    await rejected(() => this.api.undoFriendRequest(userId));
+  }
+  async friendStatus(userId: string): Promise<{ isFriend: boolean; requested: boolean; requesting: boolean }> {
+    const r = await rejected(() => this.api.getFriendRequestStatus(userId));
+    return { isFriend: r.is_friend === 1, requested: r.is_requested === 1, requesting: r.is_requesting === 1 };
+  }
+  async findUser(phone: string): Promise<{ id: string; displayName: string; avatar?: string } | null> {
+    const u = await rejected(() => this.api.findUser(phone, AvatarSize.Small));
+    return u?.uid ? { id: u.uid, displayName: u.display_name || u.zalo_name, ...(u.avatar ? { avatar: u.avatar } : {}) } : null;
   }
 
   onReceipt(cb: (r: ZaloRawReceipt) => void): void {
