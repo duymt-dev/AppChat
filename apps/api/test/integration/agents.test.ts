@@ -20,7 +20,7 @@ let resolver: TenantDbResolver;
 let sales: { id: string; token: string };
 
 beforeAll(async () => {
-  h = await startApi();
+  h = await startApi({ probes: true });
   sales = await h.member('sales');
   resolver = new TenantDbResolver({ registry: new PrismaWorkspaceRegistry(h.platform), baseUrl: env.TENANT_DATABASE_URL! });
   ai = await Test.createTestingModule({ imports: [KernelModule.forRoot({ ...env, LOG_LEVEL: 'silent' }), AiJobsModule] })

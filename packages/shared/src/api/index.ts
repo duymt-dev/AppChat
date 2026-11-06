@@ -35,5 +35,6 @@ export * from './commerce-settings';
 export * from './public-commerce-document';
 export * from './product-import';
 export * from './loyalty';
+export * from './marketing';
 export * from './kb-management';
 export * from './kb-suggestions';

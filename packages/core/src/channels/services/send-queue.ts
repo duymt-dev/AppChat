@@ -4,6 +4,7 @@
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { OutboundMessage, ProviderMessageRef, SendLedger } from '@appchat/channels';
+import { guardFor } from './send-guards';
 
 export const sendQueueName = (accountId: string) => `chsend-${accountId}`;
 
@@ -15,6 +16,8 @@ export interface SendJob {
   message: OutboundMessage;
   /** Tin chủ động (chiến dịch / follow-up): tính vào cap/ngày `manifest.rateLimit.perDayProactive` / `settings.daily_cap`. */
   proactive?: boolean;
+  /** Hết trần ngày → dời sang ngày kế tiếp thay vì lỗi (chiến dịch — TIP-037). */
+  deferrable?: boolean;
 }
 
 /**
@@ -42,6 +45,9 @@ export const unregisterSendResultSink = (name: string) => void SINKS.delete(name
  * phát lại kết quả, không gửi trùng. Không có sổ → nuốt lỗi như cũ (chạy lại sẽ gửi lại cả tin).
  */
 export async function emitSendResult(r: SendResult, strict = false): Promise<void> {
+  // Ref của domain có chốt chặn riêng (chiến dịch — TIP-037): chỉ domain đó nhận kết quả.
+  const g = guardFor(r.ref_id);
+  if (g) return strict ? g.result(r) : g.result(r).catch(() => undefined);
   for (const s of SINKS.values()) {
     if (strict) await s(r);
     else await s(r).catch(() => undefined);

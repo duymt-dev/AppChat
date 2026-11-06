@@ -22,6 +22,7 @@ export const zaloPersonalManifest: ChannelManifest = {
     markdown: 'rich',
     proactive: 'disallowed',
   },
-  rateLimit: { perMinute: 15, jitterMs: [2000, 6000] },
+  // D35: tin chủ động (chiến dịch / mở chuỗi) mặc định 200 / ngày / tài khoản — chỉnh ở Cài đặt kênh kèm cảnh báo (TIP-037).
+  rateLimit: { perMinute: 15, perDayProactive: 200, jitterMs: [2000, 6000] },
   session: 'lease',
 };

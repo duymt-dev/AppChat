@@ -1,9 +1,9 @@
 // Worker gửi của MỘT tài khoản (mở khi worker giữ phiên, đóng khi nhả — chỉ nơi có phiên mới gửi được). Chống khoá
 // (Blueprint §6, REQ-B04): limiter `perMinute` của manifest / `settings.rate_per_minute`, trễ ngẫu nhiên `jitterMs` trước mỗi
-// tin (giống người thật), cap/ngày cho tin chủ động; lỗi bất thường ≥ 3 lần / 10 phút → tự tạm dừng + báo Owner.
+// tin (giống người thật), cap/ngày cho tin chủ động (sổ theo ref, ngày UTC+7 — TIP-037); lỗi bất thường ≥ 3 lần / 10 phút → tự tạm dừng.
 // Gửi bền (TIP-014b B): có sổ từng phần thì phần đã xác nhận không gửi lại; đã gọi kênh mà không rõ kết quả → `unknown` (final, không
 // tự gửi lại); ghi kết quả lỗi → job chạy lại chỉ để phát lại kết quả.
-import { UnrecoverableError } from 'bullmq';
+import { DelayedError, UnrecoverableError } from 'bullmq';
 import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { ChannelAuthError, ChannelOperationError, PartialSendError, type ChannelAdapter, type SendReceipt } from '@appchat/channels';
@@ -12,6 +12,8 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { settingsOf } from '../services/accounts.service';
 import { SEND_ATTEMPTS, emitSendResult, sendBookFor, sendQueueName, type SendBook, type SendJob, type SendResult } from '../services/send-queue';
 import { UnknownPartError } from '../operations/delivery-receipts';
+import { releaseCapSlot, takeCapSlot } from '../services/proactive-cap';
+import { guardFor } from '../services/send-guards';
 import { StaleGenerationError } from '../operations/session-generation';
 
 export const FAIL_WINDOW_MS = 10 * 60_000;
@@ -35,7 +37,8 @@ export interface SendDeps {
   now?: () => Date;
 }
 
-const dayKey = (accountId: string, now: Date) => `chcap:${accountId}:${now.toISOString().slice(0, 10)}`;
+/** Trần cứng của limiter BullMQ (tin / phút) khi cấu hình tài khoản cao hơn manifest — cấu hình vẫn bị chặn ở `pace`. */
+const RATE_CEILING = 60;
 const failKey = (accountId: string) => `chfail:${accountId}`;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -49,35 +52,45 @@ export class ChannelSenders {
 
   constructor(private readonly d: SendDeps) {}
 
-  /** `generation` (kênh lease — TIP-014b C): thế hệ phiên đang giữ; đặt chỗ phần gửi kiểm lại trong DB. */
+  /**
+   * `generation` (kênh lease — TIP-014b C): thế hệ phiên đang giữ; đặt chỗ phần gửi kiểm lại trong DB. Cấu hình tài khoản (tốc độ / trần
+   * ngày) đọc lại MỖI job (TIP-037) — đổi ở Cài đặt có hiệu lực từ tin kế tiếp, không cần mở lại worker.
+   */
   async open(accountId: string, ws: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
     if (this.workers.has(accountId)) return;
     const db = await this.d.tenants.get(TenantContexts.fromRoute(ws, 'channel'));
-    const row = await db.channelAccount.findUnique({ where: { id: accountId }, select: { settings: true } });
-    const st = row ? settingsOf(row) : null;
     const rl = adapter.manifest.rateLimit;
-    const perMinute = Math.max(1, st?.rate_per_minute ?? rl.perMinute);
-    const cap = st?.daily_cap ?? rl.perDayProactive;
     const [lo, hi] = rl.jitterMs ?? [0, 0];
-    const w = new Worker<SendJob>(
+    const w: Worker<SendJob> = new Worker<SendJob>(
       sendQueueName(accountId),
-      async (job) => {
+      async (job, token) => {
         const j = job.data;
-        if (j.proactive && cap !== undefined) {
-          const k = dayKey(accountId, this.now());
-          const n = await this.d.redis.incr(k);
-          if (n === 1) await this.d.redis.pexpire(k, 26 * 3_600_000);
-          if (n > cap) {
-            await this.d.redis.decr(k);
+        const row = await db.channelAccount.findUnique({ where: { id: accountId }, select: { settings: true } });
+        const st = row ? settingsOf(row) : null;
+        await this.pace(w, accountId, Math.max(1, st?.rate_per_minute ?? rl.perMinute));
+        const now = this.now();
+        // Trần tin chủ động / ngày (D35): sổ theo ref — chạy lại không đếm đôi; chiến dịch hết trần → dời sang ngày kế tiếp (không lỗi).
+        if (j.proactive) {
+          const slot = await takeCapSlot(this.d.redis, accountId, j.ref_id, st?.daily_cap ?? rl.perDayProactive, now);
+          if (!slot.ok) {
+            if (j.deferrable && token) {
+              await job.moveToDelayed(slot.until.getTime() + Math.floor(Math.random() * 60_000), token);
+              throw new DelayedError();
+            }
             await emitSendResult({ ok: false, ws: j.ws, account_id: accountId, ref_id: j.ref_id, error: 'daily_cap', final: true });
             throw new UnrecoverableError('daily_cap');
           }
         }
         const wait = (lo + Math.random() * (hi - lo)) * this.d.jitterScale;
         if (wait > 0) await sleep(wait);
-        // Điểm tuyến tính hoá với người tiếp quản: đặt chỗ commit → gửi đúng một lần; bị từ chối → dừng hẳn (không thử lại).
-        if (this.d.reserve && !(await this.d.reserve(j.ws, j.ref_id))) return null;
-        const book = await sendBookFor(j.ws, accountId, j, generation);
+        // Điểm tuyến tính hoá: domain sở hữu ref (chiến dịch — send-guards) hoặc đặt chỗ toàn cục (tin agent). Bị từ chối → không gọi kênh.
+        const guard = guardFor(j.ref_id);
+        const ok = guard ? await guard.reserve(j.ws, j.ref_id) : !this.d.reserve || (await this.d.reserve(j.ws, j.ref_id));
+        if (!ok) {
+          if (j.proactive) await releaseCapSlot(this.d.redis, accountId, j.ref_id, now);
+          return null;
+        }
+        const book = guard ? ((await guard.book?.(j.ws, accountId, j, generation)) ?? null) : await sendBookFor(j.ws, accountId, j, generation);
         let sent: SendReceipt;
         try {
           sent = await adapter.send(accountId, j.message, book?.ledger);
@@ -89,10 +102,23 @@ export class ChannelSenders {
         await emitSendResult({ ok: true, ws: j.ws, account_id: accountId, ref_id: j.ref_id, external_msg_id: sent.externalMsgId, ...(sent.parts ? { parts: sent.parts } : {}) }, !!book);
         return sent.externalMsgId;
       },
-      { connection: this.d.redis.duplicate(), concurrency: 1, limiter: { max: perMinute, duration: 60_000 } },
+      // Trần cứng theo manifest; tốc độ cấu hình thấp hơn áp động ở `pace`.
+      { connection: this.d.redis.duplicate(), concurrency: 1, limiter: { max: Math.max(1, rl.perMinute, RATE_CEILING), duration: 60_000 } },
     );
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'channel send worker error'));
     this.workers.set(accountId, w);
+  }
+
+  /** Tốc độ / phút theo cấu hình hiện tại (cửa sổ phút trong Redis) — vượt → tạm hoãn cả hàng tới phút kế tiếp. */
+  private async pace(w: Worker<SendJob>, accountId: string, perMinute: number): Promise<void> {
+    const now = this.now().getTime();
+    const k = `chrate:${accountId}:${Math.floor(now / 60_000)}`;
+    const n = await this.d.redis.incr(k);
+    if (n === 1) await this.d.redis.pexpire(k, 120_000);
+    if (n <= perMinute) return;
+    await this.d.redis.decr(k);
+    await w.rateLimit(60_000 - (now % 60_000) + 50);
+    throw Worker.RateLimitError();
   }
 
   /** Lỗi gửi: một phần đã tới / chưa rõ → final (không gửi lại); chưa tới khách → thử lại theo BullMQ. */

@@ -36,4 +36,7 @@ export * from './catalog';
 export * from './genui';
 export * from './loyalty/math';
 export * from './loyalty/events';
+export * from './marketing/state';
+export * from './marketing/segment-filter';
+export * from './marketing/events';
 export * from './kb/suggestion-events';

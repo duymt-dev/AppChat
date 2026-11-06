@@ -3,6 +3,9 @@ export { ChannelsReadService, healthOf, fmtFrt, type AgentNames } from './servic
 export { ChannelAccounts, settingsOf, type AccountSettings } from './services/accounts.service';
 export { ChannelControl, CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, leaseKey, type LoginJob } from './services/control';
 export { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink, registerSendReserver, registerSendBooks, type SendJob, type SendResult, type SendOutcome, type SendBook } from './services/send-queue';
+// TIP-037: chốt chặn trước khi gọi kênh theo tiền tố ref (chiến dịch) + sổ trần tin chủ động / ngày.
+export { registerSendGuard, unregisterSendGuard, type SendGuard } from './services/send-guards';
+export { takeCapSlot, releaseCapSlot, capUsed, capDay, nextCapWindow } from './services/proactive-cap';
 export { CHANNEL_REGISTRY, WIDGET_URLS, channelRegistryFor, widgetUrlsFor } from './channels.module';
 export { CHANNELS_RUNTIME } from './jobs/channels.jobs.module';
 export { VisitorService, type WidgetSession } from './webchat/visitor.service';

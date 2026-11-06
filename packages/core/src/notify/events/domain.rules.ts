@@ -9,3 +9,5 @@ import '../../ai/events/kb-suggestion.rules';
 import '../../ai/events/agents.rules';
 import '../../ai/events/reply.rules';
 import '../../sales/payments/events/package-notification.rules';
+// TIP-037: chiến dịch chờ duyệt / kết quả duyệt + WS campaign.updated.
+import '../../marketing/events/campaign.rules';
