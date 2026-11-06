@@ -1124,6 +1124,10 @@
     "apply_invoice": {
       "title": "Apply plan invoice (system)",
       "desc": "The system applies a paid plan invoice exactly once from the price captured at creation; mismatched invoices are held for reconciliation."
+    },
+    "contact_sales": {
+      "title": "Contact sales (Enterprise)",
+      "desc": "Send an Enterprise plan enquiry to the AppChat sales team — they will get back to you; this is not a signed contract."
     }
   },
   "doc_template": {

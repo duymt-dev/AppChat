@@ -3,7 +3,6 @@
 // (billing_invoice.kind credits | addon). Mọi nút mua → billing.create_invoice → hộp QR.
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
@@ -21,7 +20,6 @@ const SHOP = ['credit', 'addon'] as const;
 export function WalletShop() {
   const t = useTranslations('settings.wallet');
   const fmt = useFmt();
-  const { message } = App.useApp();
   const { styles, cx } = useWalletStyles();
   const { seg, shopTab, set } = useBillingUi();
   const q = useQuery(billingPlansQuery());
@@ -36,7 +34,7 @@ export function WalletShop() {
             <PlanSeg value={seg} onChange={(s) => set({ seg: s })} />
           </div>
           <div className={styles.block}>
-            <PlanCards plans={q.data.plans[seg]} trial={{ key: 'personal_pro', days: me?.billing.trial_days_left ?? 0 }} onContact={() => void message.info(t('contacted'))} />
+            <PlanCards plans={q.data.plans[seg]} trial={{ key: 'personal_pro', days: me?.billing.trial_days_left ?? 0 }} onContact={() => set({ contactOpen: true })} />
           </div>
           <div className={styles.block}>
             <PlanCompare cat={q.data} />

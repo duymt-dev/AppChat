@@ -11,6 +11,8 @@ interface BillingUi {
   cmpClosed: string[];
   upgradeOpen: boolean;
   creditOpen: boolean;
+  /** Hộp "Liên hệ" gói Doanh nghiệp (`billing.contact_sales`). */
+  contactOpen: boolean;
   /** Hoá đơn đang mở (QR thanh toán hoặc xem chi tiết). */
   invoiceId: string | null;
   walTab: 'topup' | 'history' | 'invoice';
@@ -28,6 +30,7 @@ export const useBillingUi = create<BillingUi>((setState) => ({
   cmpClosed: [],
   upgradeOpen: false,
   creditOpen: false,
+  contactOpen: false,
   invoiceId: null,
   walTab: 'topup',
   shopTab: 'credit',

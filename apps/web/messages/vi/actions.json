@@ -1124,6 +1124,10 @@
     "apply_invoice": {
       "title": "Ghi nhận hoá đơn gói (hệ thống)",
       "desc": "Hệ thống ghi nhận hoá đơn gói đã thanh toán đúng một lần theo giá chụp lúc tạo; hoá đơn không khớp được giữ lại để đối soát."
+    },
+    "contact_sales": {
+      "title": "Liên hệ gói Doanh nghiệp",
+      "desc": "Gửi yêu cầu tư vấn gói Doanh nghiệp tới đội bán hàng AppChat — đội sẽ liên hệ lại; chưa phải ký hợp đồng."
     }
   },
   "doc_template": {

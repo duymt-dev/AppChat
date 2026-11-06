@@ -23,7 +23,7 @@ const CLASSES: Record<string, 'platform_only' | 'tenant_effect' | 'read' | 'stub
   'bank_feed.disconnect': 'tenant_effect',
   'member.search': 'read',
 };
-const platformOnly = ['admin.invoice.confirm_transfer', 'billing.apply_invoice', 'billing.cancel_invoice', 'billing.create_invoice', 'billing.lifecycle_step', 'billing.report_transfer', 'business_profile.update', 'integration.register_interest', 'invite.revoke', 'member.invite', 'member.remove', 'member.set_role', 'notification.update_prefs', 'onboarding.toggle_step', 'profile.update', 'working_hours.update', 'workspace.request_transfer_otp', 'workspace.switch', 'workspace.transfer_ownership', 'workspace.update', 'wallet.update_alerts'];
+const platformOnly = ['admin.invoice.confirm_transfer', 'billing.apply_invoice', 'billing.cancel_invoice', 'billing.contact_sales', 'billing.create_invoice', 'billing.lifecycle_step', 'billing.report_transfer', 'business_profile.update', 'integration.register_interest', 'invite.revoke', 'member.invite', 'member.remove', 'member.set_role', 'notification.update_prefs', 'onboarding.toggle_step', 'profile.update', 'working_hours.update', 'workspace.request_transfer_otp', 'workspace.switch', 'workspace.transfer_ownership', 'workspace.update', 'wallet.update_alerts'];
 for (const id of platformOnly) CLASSES[id] = 'platform_only';
 
 const SRC = join(import.meta.dirname, '..', 'src');

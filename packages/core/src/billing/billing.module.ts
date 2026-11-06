@@ -16,6 +16,7 @@ import { BillingCreateInvoiceHandler } from './actions/billing-create-invoice.ha
 import { BillingReportTransferHandler } from './actions/billing-report-transfer.handler';
 import { BillingApplyInvoiceHandler, BillingLifecycleStepHandler } from './actions/lifecycle.handlers';
 import { WalletUpdateAlertsHandler } from './actions/wallet-alerts.handler';
+import { BillingContactSalesHandler } from './actions/contact-sales.handler';
 import { PlatformBankHook } from './payments/bank-hook.service';
 import { InvoiceFulfiller } from './payments/fulfil';
 import { InvoicesService } from './payments/invoices.service';
@@ -106,6 +107,7 @@ class BillingBoot implements OnApplicationBootstrap {
     BillingLifecycleStepHandler,
     BillingApplyInvoiceHandler,
     WalletUpdateAlertsHandler,
+    BillingContactSalesHandler,
     {
       provide: BillingBoot,
       inject: [opt(PLATFORM_DB), WalletService, BILLING_SINK, InvoiceFulfiller, opt(ActionExecutor as never)],

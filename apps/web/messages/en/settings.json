@@ -1395,13 +1395,35 @@
         "service": "Service & support"
       }
     },
+    "contact": {
+      "title": "Contact sales — Business plan",
+      "sub": "Leave your details — the AppChat team will contact you within 1 business day with a tailored quote.",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "message": "Requirements",
+      "messagePh": "Number of users, channels, features needed…",
+      "consent": "I agree to be contacted by the AppChat team using the details above.",
+      "send": "Send request",
+      "cancel": "Cancel",
+      "close": "Close",
+      "ok": "Got it",
+      "askOwner": "Only the Owner or someone who manages billing can request a consultation. Ask them to contact the AppChat team.",
+      "received": "Request received — the AppChat team will contact you within 1 business day.",
+      "errName": "Enter your name (at least 2 characters).",
+      "errEmail": "Invalid email.",
+      "errPhone": "Invalid phone number (8–20 digits).",
+      "errMessage": "Describe your needs (at least 5 characters).",
+      "errConsent": "Consent is required for the AppChat team to contact you.",
+      "errLimit": "This workspace has sent 3 requests in 24 hours — the AppChat team will follow up on those.",
+      "errSend": "Could not send the request — try again later."
+    },
     "upgrade": {
       "title": "Upgrade plan",
       "sub": "Pick the right plan — unlock more channels, AI credit and premium features",
       "close": "Close",
       "trialT": "You are trialling Personal Pro — {n} days left",
-      "trialS": "All features unlocked. When it ends the workspace is paused and moves to the Free plan.",
-      "contacted": "Request sent — the AppChat team will contact you within 1 business day."
+      "trialS": "All features unlocked. When it ends the workspace is paused and moves to the Free plan."
     },
     "credit": {
       "title": "Choose a credit pack",
@@ -1495,7 +1517,6 @@
       "invoice": "Invoices"
     },
     "plans": "Plans",
-    "contacted": "Request sent — the AppChat team will contact you within 1 business day.",
     "shop": {
       "credit": "Buy credit",
       "addon": "Extra resources"

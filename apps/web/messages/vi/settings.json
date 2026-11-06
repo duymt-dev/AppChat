@@ -1395,13 +1395,35 @@
         "service": "Hỗ trợ dịch vụ"
       }
     },
+    "contact": {
+      "title": "Liên hệ tư vấn gói Doanh nghiệp",
+      "sub": "Để lại thông tin — đội AppChat liên hệ bạn trong 1 ngày làm việc để báo giá theo nhu cầu.",
+      "name": "Họ và tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "message": "Nhu cầu",
+      "messagePh": "Số người dùng, số kênh, tính năng cần…",
+      "consent": "Tôi đồng ý để đội AppChat liên hệ theo thông tin trên.",
+      "send": "Gửi yêu cầu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "ok": "Đã hiểu",
+      "askOwner": "Chỉ Chủ sở hữu hoặc người có quyền quản lý thanh toán gửi được yêu cầu tư vấn. Hãy nhờ họ liên hệ đội AppChat.",
+      "received": "Đã nhận yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc.",
+      "errName": "Nhập họ tên (ít nhất 2 ký tự).",
+      "errEmail": "Email chưa đúng định dạng.",
+      "errPhone": "Số điện thoại chưa đúng (8–20 chữ số).",
+      "errMessage": "Mô tả nhu cầu (ít nhất 5 ký tự).",
+      "errConsent": "Cần đồng ý để đội AppChat liên hệ.",
+      "errLimit": "Workspace đã gửi 3 yêu cầu trong 24 giờ — đội AppChat sẽ liên hệ theo yêu cầu đã gửi.",
+      "errSend": "Chưa gửi được yêu cầu — thử lại sau."
+    },
     "upgrade": {
       "title": "Nâng cấp gói",
       "sub": "Chọn gói phù hợp — mở khoá thêm kênh, credit AI và tính năng cao cấp",
       "close": "Đóng",
       "trialT": "Bạn đang dùng thử Cá nhân Pro — còn {n} ngày",
-      "trialS": "Mở hết tính năng. Hết hạn sẽ tạm khoá workspace và chuyển về gói Miễn phí.",
-      "contacted": "Đã gửi yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc."
+      "trialS": "Mở hết tính năng. Hết hạn sẽ tạm khoá workspace và chuyển về gói Miễn phí."
     },
     "credit": {
       "title": "Chọn gói nạp Credit",
@@ -1495,7 +1517,6 @@
       "invoice": "Hoá đơn"
     },
     "plans": "Gói dịch vụ",
-    "contacted": "Đã gửi yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc.",
     "shop": {
       "credit": "Nạp Credit",
       "addon": "Tài nguyên bổ sung"

@@ -43,3 +43,29 @@ export const billingApplyInvoice = defineAction({
   invalidates: ['billing'],
   db: 'platform',
 });
+
+// TIP-039 pha 3 (AC08): Liên hệ gói Doanh nghiệp — yêu cầu bền ở DB nền tảng (`sales_inquiry`) cho đội bán hàng AppChat. Thành công =
+// yêu cầu đã nhận (không phải đã ký hợp đồng). Kiểm chặt + đồng ý liên hệ; giới hạn tần suất theo workspace; Idempotency-Key bắt buộc.
+export const billingContactSales = defineAction({
+  id: 'billing.contact_sales',
+  module: 'billing',
+  title: 'actions.billing.contact_sales.title',
+  description:
+    'Send an Enterprise plan enquiry to the AppChat sales team (stored, the team contacts you; not a signed contract). Requires consent. Example: {"name":"Lan Nguyen","email":"lan@spa.vn","phone":"0901234567","message":"20 users, 5 branches","consent":true}',
+  input: z.object({
+    name: z.string().trim().min(2).max(120),
+    email: z.string().trim().email().max(254),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?[0-9 .-]{8,20}$/),
+    message: z.string().trim().min(5).max(2000),
+    consent: z.literal(true),
+  }),
+  output: z.object({ inquiry_id: z.string(), status: z.literal('received') }),
+  permission: 'billing.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: [],
+  db: 'platform',
+});

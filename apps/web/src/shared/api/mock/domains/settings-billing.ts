@@ -140,6 +140,15 @@ export const settingsBillingHandlers: Record<string, MockHandler> = {
       return { ok: true };
     },
   },
+  // Mock giữ giới hạn 3 yêu cầu / phiên như server (3 / 24 giờ) để màn thấy được nhánh RATE_LIMITED.
+  'billing.contact_sales': {
+    execute: (db) => {
+      const b = db.settingsBilling as { salesInquiries?: number };
+      b.salesInquiries = (b.salesInquiries ?? 0) + 1;
+      if (b.salesInquiries > 3) throw new ApiRequestError(429, { code: 'RATE_LIMITED', message: 'too_many', fields: { inquiry: 'too_many' } });
+      return { inquiry_id: `00000000-0000-7000-8000-00000000000${b.salesInquiries}`, status: 'received' };
+    },
+  },
   'billing.cancel_invoice': {
     execute: (db, i: { invoice_id: string }) => {
       const inv = db.settingsBilling.billing.invoices.find((x) => x.id === i.invoice_id);
