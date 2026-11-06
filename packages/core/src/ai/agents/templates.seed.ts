@@ -19,7 +19,7 @@ export async function upgradeAgentTemplates(db: Pick<PlatformDb, 'agentTemplate'
     if (p.kind === 'customized') out.customized.push(r.key);
     if (p.kind !== 'upgraded') continue;
     // CAS theo nội dung cũ: quản trị sửa đồng thời thì bỏ qua lần này.
-    const n = await db.agentTemplate.updateMany({ where: { id: r.id, defaults: { equals: r.defaults ?? {} } }, data: { defaults: p.next as object } });
+    const n = await db.agentTemplate.updateMany({ where: { id: r.id, defaults: { equals: r.defaults ?? {} } }, data: { defaults: p.next as object, version: { increment: 1 } } });
     if (n.count) out.upgraded.push(r.key);
   }
   return out;

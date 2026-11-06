@@ -4,6 +4,7 @@
 import { AppError, creditsFor } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { WalletChange, WalletService } from './wallet.service';
+import { AI_CONFIG_SCOPE, RevisionWatch } from '../../platform/public';
 
 export interface ModelPrice {
   per1kIn: number;
@@ -24,19 +25,26 @@ export class StaticPriceBook implements PriceBook {
   }
 }
 
-/** Đơn giá từ `model_price` (DB nền tảng — TIP-019), cache 60 giây: Quản trị nền tảng đổi giá → hiệu lực ≤ 1 phút. */
+/**
+ * Đơn giá từ `model_price` (DB nền tảng — TIP-019), cache 60 giây + thế hệ cấu hình `ai` (DC-370): Quản trị nền tảng đổi giá → mọi
+ * tiến trình nạp lại trong ≤ 2 giây. Credit đã trừ giữ đơn giá lúc trừ (ledger), không tính lại.
+ */
 export class DbPriceBook implements PriceBook {
-  private cache: { at: number; map: Map<string, ModelPrice> } | null = null;
+  private cache: { at: number; gen: bigint; map: Map<string, ModelPrice> } | null = null;
+  private readonly watch: RevisionWatch;
 
   constructor(
-    private readonly db: Pick<PlatformDb, 'modelPrice'>,
+    private readonly db: Pick<PlatformDb, 'modelPrice' | 'platformConfigRevision'>,
     private readonly now: () => number = Date.now,
-  ) {}
+  ) {
+    this.watch = new RevisionWatch(db, AI_CONFIG_SCOPE, now);
+  }
 
   async price(provider: string, model: string): Promise<ModelPrice | null> {
-    if (!this.cache || this.now() - this.cache.at >= 60_000) {
+    if (!this.cache || this.now() - this.cache.at >= 60_000 || (await this.watch.stale(this.cache.gen))) {
+      const gen = await this.watch.begin();
       const rows = await this.db.modelPrice.findMany({ where: { active: true } });
-      this.cache = { at: this.now(), map: new Map(rows.map((r) => [`${r.providerKey}:${r.model}`, { per1kIn: Number(r.creditsPer1kIn), per1kOut: Number(r.creditsPer1kOut) }])) };
+      this.cache = { at: this.now(), gen, map: new Map(rows.map((r) => [`${r.providerKey}:${r.model}`, { per1kIn: Number(r.creditsPer1kIn), per1kOut: Number(r.creditsPer1kOut) }])) };
     }
     return this.cache.map.get(`${provider}:${model}`) ?? null;
   }

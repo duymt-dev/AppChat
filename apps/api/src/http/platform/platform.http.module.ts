@@ -4,10 +4,11 @@ import { Module, type DynamicModule } from '@nestjs/common';
 import { PlatformModule } from '@appchat/core';
 import { ActorModule } from '../kernel/actor.module';
 import { AdminSessionController } from './admin-session.controller';
+import { AdminConfigController } from './config.controller';
 
 @Module({ imports: [PlatformModule] })
 export class PlatformHttpModule {
   static register(): DynamicModule {
-    return { module: PlatformHttpModule, imports: [PlatformModule, ActorModule], controllers: [AdminSessionController] };
+    return { module: PlatformHttpModule, imports: [PlatformModule, ActorModule], controllers: [AdminSessionController, AdminConfigController] };
   }
 }

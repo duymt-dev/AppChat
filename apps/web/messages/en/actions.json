@@ -1158,6 +1158,26 @@
       "confirm_transfer": {
         "title": "Confirm bank transfer (platform admin)"
       }
+    },
+    "plan": {
+      "upsert": {
+        "title": "Save plan (platform admin)"
+      }
+    },
+    "model_price": {
+      "upsert": {
+        "title": "Save model price (platform admin)"
+      }
+    },
+    "model_route": {
+      "upsert": {
+        "title": "Save model routing (platform admin)"
+      }
+    },
+    "agent_template": {
+      "upsert": {
+        "title": "Save AI agent template (platform admin)"
+      }
     }
   },
   "payment": {

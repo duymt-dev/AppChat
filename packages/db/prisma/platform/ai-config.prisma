@@ -48,6 +48,8 @@ model LlmProvider {
   status       LlmProviderStatus @default(active)
   lastProbeAt  DateTime?         @map("last_probe_at") @db.Timestamptz(6)
   lastError    String?           @map("last_error")
+  /// CAS của Quản trị nền tảng (TIP-040): mỗi lần sửa +1; ghi kèm `if_version` lệch → 409.
+  version      Int               @default(1)
   createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -77,8 +79,19 @@ model ModelPrice {
   creditsPer1kIn  Decimal  @map("credits_per_1k_in") @db.Decimal(12, 4)
   creditsPer1kOut Decimal  @map("credits_per_1k_out") @db.Decimal(12, 4)
   active          Boolean  @default(true)
+  version         Int      @default(1)
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@id([providerKey, model])
   @@map("model_price")
+}
+
+/// Thế hệ cấu hình nền tảng (TIP-040, DC-370): `ai` tăng khi provider / route / giá đổi (cùng transaction với thay đổi) — mọi tiến trình
+/// (API, ROLE=ai / channels) so thế hệ để nạp lại cache trước TTL; `route:<tier>:<purpose>` = phiên bản nhóm route (CAS sắp xếp lại).
+model PlatformConfigRevision {
+  scope      String   @id
+  generation BigInt   @default(0)
+  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("platform_config_revision")
 }

@@ -49,6 +49,8 @@ model Plan {
   archiveInactiveDays Int?        @map("archive_inactive_days")
   active              Boolean     @default(true)
   sort                Int         @default(0)
+  /// CAS Quản trị nền tảng (TIP-040).
+  version             Int         @default(1)
   createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

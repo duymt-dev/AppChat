@@ -66,6 +66,8 @@ export * from './insights/public';
 export { NotifyModule } from './notify/notify.module';
 export { NotifyJobsModule } from './notify/jobs/notify.jobs.module';
 export { PlatformModule } from './platform/platform.module';
+export { ConfigReadService } from './platform/services/config-read';
+export { AI_CONFIG_SCOPE, RevisionWatch, readRevision } from './platform/public';
 export { PlatformJobsModule } from './platform/jobs/platform.jobs.module';
 
 /** Danh sách domain (thứ tự Blueprint §1.2) — test kiểm đủ module đăng ký. */

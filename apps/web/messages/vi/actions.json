@@ -1158,6 +1158,26 @@
       "confirm_transfer": {
         "title": "Xác nhận chuyển khoản (quản trị nền tảng)"
       }
+    },
+    "plan": {
+      "upsert": {
+        "title": "Lưu gói (quản trị nền tảng)"
+      }
+    },
+    "model_price": {
+      "upsert": {
+        "title": "Lưu đơn giá model (quản trị nền tảng)"
+      }
+    },
+    "model_route": {
+      "upsert": {
+        "title": "Lưu định tuyến model (quản trị nền tảng)"
+      }
+    },
+    "agent_template": {
+      "upsert": {
+        "title": "Lưu mẫu AI Agent (quản trị nền tảng)"
+      }
     }
   },
   "payment": {
