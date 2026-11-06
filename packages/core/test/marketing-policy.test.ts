@@ -95,4 +95,13 @@ describe('gợi ý AI', () => {
     expect(parseSuggestions(JSON.stringify({ suggestions: [ok, { ...ok, title: 'Khác' }] }))?.map((s) => s.title)).toEqual(['Khách ngủ đông']);
     expect(parseSuggestions('không phải json')).toBeNull();
   });
+
+  it('kiểu số / chuỗi model đổi lẫn (order_count "0", tiền là số, subject null) → chuẩn hoá rồi mới kiểm AST (ai:live TIP-037)', () => {
+    const f = { op: 'and', children: [{ field: 'order_count', op: 'lte', value: '0' }, { field: 'last_interaction_at', op: 'within_days', value: '30' }, { field: 'total_spent', op: 'gte', value: 5000000 }] };
+    const r = parseSuggestions(JSON.stringify({ suggestions: [{ ...ok, kind: 'conversion', subject: null, filter: f }] }));
+    expect(r?.[0]?.filter).toEqual({ op: 'and', children: [{ field: 'order_count', op: 'lte', value: 0 }, { field: 'last_interaction_at', op: 'within_days', value: 30 }, { field: 'total_spent', op: 'gte', value: '5000000' }] });
+    expect(r?.[0]?.subject).toBe('');
+    // Chuỗi không phải số vẫn bị loại.
+    expect(parseSuggestions(JSON.stringify({ suggestions: [{ ...ok, filter: { field: 'order_count', op: 'gte', value: 'nhiều' } }] }))).toEqual([]);
+  });
 });

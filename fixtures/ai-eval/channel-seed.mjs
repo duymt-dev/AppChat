@@ -97,6 +97,9 @@ async function salesClient(c, o) {
   return sales;
 }
 
+/** Sales scope own đã đăng nhập (dùng lại ở suite marketing — ca người không có quyền chiến dịch). */
+export const seedChannelSales = (c, o) => salesClient(c, o);
+
 export async function seedChannel(c, base, o) {
   const acc = await connect(c, CV_ACCOUNT);
   // Khách giả nhắn tin chào khi phiên bắt đầu → hội thoại Zalo mới của tài khoản.

@@ -44,7 +44,7 @@
 | REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
 | REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n; TIP-014c nhận (2026-11-02) |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
-| REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | MỘT PHẦN | send.processor.ts:43 chỉ tin chủ động, không số mặc định (Q-013) |
+| REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | ĐẠT | Trần tin chủ động / ngày mặc định 200 (manifest.ts:26), chỉnh ở kênh kèm cảnh báo; test proactive-cap.test.ts |
 | REQ-B04d | Tự ngắt khi bị chặn | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | sessions.ts:149; test channels.test.ts AC8/AC9 — Q-003 |
 | REQ-B05a | Widget JS nhúng, realtime | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | apps/widget/src/main.ts:55; test webchat.test.ts, apps/widget/test/ui.test.ts, e2e http/webchat.spec.ts |
 | REQ-B05b | Tuỳ chỉnh màu, lời chào | 01-REQUIREMENTS-MATRIX.md:52 | 017 | ĐẠT | packages/actions/src/settings-apps.ts:256-261; test webchat.test.ts AC2 |
@@ -121,7 +121,7 @@
 | REQ-D04f | Giá / tồn / lịch không lấy từ RAG | 01-REQUIREMENTS-MATRIX.md:83 | 020, 027 | ĐẠT | test kb.test.ts "đoạn có giá không bao giờ ra" |
 | REQ-D04b | AI học từ hội thoại, người duyệt | 01-REQUIREMENTS-MATRIX.md:84 | 043 | ĐẠT | Học từ hội thoại đóng → đề xuất đã che PII → duyệt / từ chối ở Dữ liệu RAG; e2e kb-suggestions mock + http; ai:live 5/5 (TIP-043) |
 | REQ-D05a | Tự làm khi tin cậy ≥ 70% | 01-REQUIREMENTS-MATRIX.md:85 | 022 | ĐẠT | packages/ai/src/reply/handoff.ts:26; test reply.test.ts, agent-reply.test.ts |
-| REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | MỘT PHẦN | Báo giá > ngưỡng / giảm ngoài chính sách / hoàn tiền / HĐ ép duyệt (FORCE_APPROVAL DC-329, commerce-gaps.test.ts); phần gửi hàng loạt nghiệm thu ở 037 — không hạ luật 20M / 5% |
+| REQ-D05b | Ép duyệt: giảm giá ngoài chính sách, hoàn tiền, báo giá > 20M, HĐ, gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:85 | 032b | ĐẠT | Báo giá > ngưỡng / giảm ngoài chính sách / hoàn tiền / HĐ ép duyệt (FORCE_APPROVAL DC-329, commerce-gaps.test.ts); phần gửi hàng loạt nghiệm thu ở 037 — không hạ luật 20M / 5%; phần gửi hàng loạt ĐẠT ở 037: campaign.approve bulk luôn xác nhận kể cả UI (policy.ts:43) + FORCE_APPROVAL agent / task (policy.ts:25), không gửi ngoài snapshot đã duyệt — matrix campaign.approve, marketing.test.ts AC2, ai:live mk-no-auto-approve 3/3 |
 | REQ-D06a | Handoff theo các lý do | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | handoff.ts:26; test agent-reply.test.ts |
 | REQ-D06b | Handoff kèm nháp + folder Cần người | 01-REQUIREMENTS-MATRIX.md:86 | 022 | ĐẠT | reply.service.ts:76; test agent-reply.test.ts "độ tin cậy thấp" |
 | REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | ĐẠT | Tóm tắt bàn giao có cấu trúc trên mọi đường handoff (ai/reply/handoff-summary.ts, turn-handoff.ts) — trích xuất, không LLM; chiếu theo quyền người xem (inbox/services/handoff-summary-read.ts); HandoffSummaryPanel (chờ duyệt ≠ xong); test agent-handoff-summary, HandoffSummaryPanel.test.tsx; coding-packs/reports/TIP-022b-completion.md |

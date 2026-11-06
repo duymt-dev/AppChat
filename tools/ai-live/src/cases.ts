@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0 };
 
 const expectSchema = z
   .object({
@@ -52,9 +52,11 @@ const expectSchema = z
     hardening: z.literal(true).optional(),
     /** Ca dọc kênh Zalo TIP-014b AC9 (channel-judge.ts): chấm theo loại ca của `channel`. */
     channel: z.literal(true).optional(),
+    /** Ca AI Marketing TIP-037 (marketing-judge.ts): chấm theo loại ca của `marketing`. */
+    marketing: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -80,6 +82,8 @@ export const caseSchema = z
     hardening: z.object({ kind: z.enum(['hidden', 'export', 'bulk', 'takeover', 'owner_otp']), conversation: z.string().max(120).optional() }).strict().optional(),
     /** Ca dọc kênh Zalo TIP-014b AC9: loại ca — channel-seed.mjs (khách Zalo mới, tin unknown, tài khoản đã ngắt, Sales scope own). */
     channel: z.object({ kind: z.enum(['new_customer', 'unknown', 'no_resend', 'revoked', 'disconnected']) }).strict().optional(),
+    /** Ca AI Marketing TIP-037: loại ca — marketing-seed.mjs (Zalo giả, chiến dịch Chờ duyệt, Sales không quyền chiến dịch). */
+    marketing: z.object({ kind: z.enum(['analyze', 'tone', 'variables', 'no_auto', 'revoked']) }).strict().optional(),
     expect: expectSchema,
   })
   .strict();
