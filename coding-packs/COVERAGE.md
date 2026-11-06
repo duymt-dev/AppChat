@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 139 | 11 | 5 | 13 | 20 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 141 | 11 | 5 | 13 | 18 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 102 | 13 | 8 | 1 | 29 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 151 | 17 | 3 | 6 | 16 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 315 | 71 | 2 | 4 | 62 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 318 | 72 | 1 | 4 | 59 | 3 | 0 | 0 |
 | E. standards/* | 199 | 48 | 1 | 6 | 34 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 32 | 1 | 51 | 0 | 4 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 51 | 15 | 6 | 13 | 38 | 3 | 0 | 0 |
-| **Tổng** | **989** | **176** | **76** | **43** | **203** | **37** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 54 | 15 | 5 | 13 | 36 | 3 | 0 | 0 |
+| **Tổng** | **997** | **177** | **74** | **43** | **196** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -178,7 +178,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D13b | Giới hạn bước, ngân sách, trace | 01-REQUIREMENTS-MATRIX.md:94 | 019, 022 | ĐẠT | reply-tools.ts:18; test agent-reply.test.ts "A → B → A" |
 | REQ-D15 | 6 agent mẫu + mẫu ngành | 01-REQUIREMENTS-MATRIX.md:95 | 021, 024 | ĐẠT | ai/agents/templates.seed.ts:8-15; test agents-ui.test.ts "D15" |
 | REQ-D14a | Số hội thoại, tỉ lệ tự xử lý | 01-REQUIREMENTS-MATRIX.md:96 | 021 | ĐẠT | ai/agents/agents.read.ts:22-45; test agents.test.ts AC5 |
-| REQ-D14b | Tỉ lệ chốt, CSAT, credit, so với nhân sự | 01-REQUIREMENTS-MATRIX.md:96 | 038 | CHƯA | agents.read.ts:40 csat: 0 cứng |
+| REQ-D14b | Tỉ lệ chốt, CSAT, credit, so với nhân sự | 01-REQUIREMENTS-MATRIX.md:96 | 038 | ĐẠT | agent-stats.ts: tỷ lệ lượt, CSAT (n), tỷ lệ chốt tương quan, Credit thật theo run, so sánh người thật cùng kỳ; quyền nguồn → unavailable; integration insights.test.ts AC03; AgentStatsPanel tooltip định nghĩa |
 | REQ-D16a | Tools nhóm module + Kỹ năng AI, n/tổng | 01-REQUIREMENTS-MATRIX.md:97 | 021 | ĐẠT | agent-tools.ts:35; test agents.test.ts AC5, apps/web/src/shared/ai/agent-tools.test.ts |
 | REQ-D16b | Badge Cần kết nối / Sắp có | 01-REQUIREMENTS-MATRIX.md:97 | 021 | ĐẠT | agent-tools.ts:25-28; test agents.test.ts AC5 |
 | REQ-D17a | kb_scope chọn trong Builder | 01-REQUIREMENTS-MATRIX.md:98 | 020, 021 | ĐẠT | agent.store.ts:98; KnowledgeSection.tsx:22-45; e2e agents.spec.ts:91 |
@@ -198,7 +198,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
 | REQ-E06a | Trợ lý theo module tự nạp ngữ cảnh | 01-REQUIREMENTS-MATRIX.md:108 | 023c | ĐẠT | useRegisterScreenContext mỗi feature → context route / entity / id / selection (apps/web/src/shared/assistant/screen-context.ts); server đọc lại theo quyền (packages/core/src/ai/assistant/genui/context.ts); test genui-context.test.ts, screen-context.test.tsx, e2e/http/screen-assistant.spec.ts |
 | REQ-E06b | Gọi bằng Ctrl+K | 01-REQUIREMENTS-MATRIX.md:108 | 023 | ĐẠT | apps/web/src/shared/shell/AppShell.tsx:29; e2e shell.spec.ts:44 |
-| REQ-E07 | Truy vấn / phân tích NL có nguồn | 01-REQUIREMENTS-MATRIX.md:109 | 038, 023c | CHƯA | meta-tools.ts:117 query_data NOT_IMPLEMENTED |
+| REQ-E07 | Truy vấn / phân tích NL có nguồn | 01-REQUIREMENTS-MATRIX.md:109 | 038, 023c | ĐẠT | 5 metric allowlist có nguồn (`sources` / `availability`), scope insights ∩ domain; insight.query + query_data + GET /insights/:metric một service; integration insights.test.ts AC01–AC02 + unit insight-metrics.test.ts |
 | REQ-E08 | Briefing đầu ngày | 01-REQUIREMENTS-MATRIX.md:110 | 035 | ĐẠT | ai/tasks/task-briefing.ts; test ai-tasks.test.ts:330 |
 | REQ-E09a | Ghi mọi action Trợ lý / agent (ai, input, trước/sau) | 01-REQUIREMENTS-MATRIX.md:111 | 003, 024 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:50-54; test assistant.test.ts, agents-ui.test.ts |
 | REQ-E09b | Lọc theo loại | 01-REQUIREMENTS-MATRIX.md:111 | 024 | ĐẠT | ai/assistant/action-logs.read.ts:12; test agents-ui.test.ts |
@@ -891,7 +891,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-conversation.search | `conversation.search` có trong registry + handler | plans/BLUEPRINT.md:602 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/conversation.search.action.test.ts |
 | ACT-conversation.unhide | `conversation.unhide` có trong registry + handler | plans/BLUEPRINT.md:621 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); hành vi có qua conversation.hide{hidden:false} (inbox.ts:229) nhưng không có DV ghi lệch id |
 | ACT-conversation.untag | `conversation.untag` có trong registry + handler | plans/BLUEPRINT.md:607 | 025b | MỘT PHẦN | Không có trong packages/actions (actions.json); gỡ thẻ có qua conversation.set_tags (inbox.ts:215), không có id riêng / DV |
-| ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-insight.query | `insight.query` có trong registry + handler | plans/BLUEPRINT.md:808 | 038 | ĐẠT | packages/actions/src/insights.ts:7 + packages/core/src/insights/actions/insight-query.handler.ts:12 (registry metric `insights/metrics/registry.ts`); ma trận apps/api/test/integration/actions/insight.query.action.test.ts; integration insights.test.ts (TIP-038 pha 1) |
 | ACT-integration.sync_now | `integration.sync_now` có trong registry + handler | plans/BLUEPRINT.md:584 | 012b | CHƯA | Không có trong packages/actions (actions.json); TIP-012:57 ghi 'ngoài TIP' |
 | ACT-integration.test | `integration.test` có trong registry + handler | plans/BLUEPRINT.md:584 | 023c | ĐẠT | packages/core/src/integrations/actions/integration-test.handler.ts:3 (probe ở prepare, không ghi kết nối) + integration-form-schema.handler.ts; test apps/api/test/integration/actions/integration.test.action.test.ts, integration.form_schema.action.test.ts, packages/core/test/integration-form-probe.test.ts; probe adapter thật SePay/Casso/Brevo chờ 012b (Q-004) |
 | ACT-kb.folder.delete | `kb.folder.delete` có trong registry + handler | plans/BLUEPRINT.md:793 | 020b | ĐẠT | packages/actions/src/kb-folders.ts + packages/core/src/ai/kb/folder.handlers.ts KbFolderDeleteHandler (rỗng mới xoá, CAS, undo); ma trận apps/api/test/integration/actions/kb.folder.delete.action.test.ts; kb-management.test.ts |
@@ -966,14 +966,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-marketing | /segments, POST /segments/preview, /campaigns(+:id, meta), /campaign-suggestions | plans/BLUEPRINT.md:966 | 037 | ĐẠT | apps/api/src/http/marketing/marketing.controller.ts (/segments, /campaigns(+:id, meta, recipients), /campaign-suggestions, /campaign-analyses/:id) + action segment.preview; zod chung packages/shared/src/api/marketing.ts; test marketing-contract.test.ts + E2E http e2e/http/marketing.spec.ts |
 | BP-4.4-loyalty | /loyalty/config, /loyalty/members(+:id ledger), overview, lookup | plans/BLUEPRINT.md:967 | 036 | ĐẠT | apps/api/src/http/loyalty/loyalty.controller.ts (config, members, member, ledger, lookup, overview, files); test loyalty.contract.test.ts |
 | BP-4.4-ai | /agents (+:id, versions, tools), /agent-templates, /approvals, /governance, /runs?root_run_id=&status=, /ai-tasks | plans/BLUEPRINT.md:968 | 021/023/035 | ĐẠT | http/ai/{agents,ai,tasks}.controller.ts; test agents.test.ts, ai-runtime.test.ts, ai-tasks.test.ts |
-| BP-4.4-ai-b | GET /agents/:id/stats | plans/BLUEPRINT.md:968 | 038 | CHƯA | routes.json không có |
+| BP-4.4-ai-b | GET /agents/:id/stats | plans/BLUEPRINT.md:968 | 038 | ĐẠT | apps/api/src/http/insights/insights.controller.ts `GET agents/:id/stats` → InsightsReadService.agent + agentStats; integration insights.test.ts AC03 |
 | BP-4.4-ai-c | GET /runs/:id (+steps) | plans/BLUEPRINT.md:968 | 019b | CHƯA | không route, không TIP nhắc |
 | BP-4.4-ai-d | GET /kb/folders · /kb/sources | plans/BLUEPRINT.md:968 | 020, 003i | MỘT PHẦN | TIP-020:15 hứa nhưng không có route; chỉ /settings/kb (ai.controller.ts:48); TIP-003i nhận (2026-11-02) |
 | BP-4.4-ai-e | GET /kb/suggestions (P1) | plans/BLUEPRINT.md:968 | 043 | ĐẠT | apps/api/src/http/ai/kb-suggestions.controller.ts GET /v1/kb/suggestions (+/:id; cursor, meta.pending, covering index + deferred join, EXPLAIN .data/gate/043-explain-kb-suggestion.txt); kb-suggestions.contract.test.ts zod chung (TIP-043) |
 | BP-4.4-assistant | /assistant/sessions?q= · /assistant/sessions/:id/messages | plans/BLUEPRINT.md:969 | 023 | ĐẠT | http/ai/assistant.controller.ts:70-75; test assistant.test.ts |
 | BP-4.4-channels | /channels (theo type + accounts[]), /channels/:id, /channels/:id/stats, /webchat/widget | plans/BLUEPRINT.md:970 | 014/017 | ĐẠT | dưới /settings/channels*, /settings/widget (channels.controller.ts:10; DC-070); test channels.test.ts, webchat.test.ts — lệch đường không có DV |
 | BP-4.4-billing | /billing/summary, plans, ledger, invoices(+:id) | plans/BLUEPRINT.md:971 | 009/010 | ĐẠT | billing/billing.controller.ts; test billing.test.ts, billing-payments.test.ts |
-| BP-4.4-dashboard | GET /dashboard · /insights/:metric | plans/BLUEPRINT.md:972 | 038 | GIẢ | không route (http/insights stub); FE dashboard/api.ts chỉ mock |
+| BP-4.4-dashboard | GET /dashboard · /insights/:metric | plans/BLUEPRINT.md:972 | 038 | MỘT PHẦN | `GET /v1/insights/:metric` có (insights.controller.ts, cùng registry với insight.query — TIP-038 pha 1); `GET /v1/dashboard` thật còn ở pha sau của 038 (DC-363) |
 | BP-4.4-authz | /me/authz, /roles, /permissions, /teams | plans/BLUEPRINT.md:973 | 005 | ĐẠT | authz/authz.controller.ts; test authz.test.ts |
 | BP-4.4-integrations | /integrations/connectors · /integrations/connections/:id · /…/logs | plans/BLUEPRINT.md:974 | 012b | MỘT PHẦN | chỉ /settings/integrations (integrations.controller.ts:18); connection detail + logs không có |
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
@@ -1001,7 +1001,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-5.1-j | ai_run_step.meta.provider_cost | plans/BLUEPRINT.md:1086 | 019b | CHƯA | grep không thấy provider_cost |
 | BP-5.2-a | Meta-tools find_actions / call_action / ui / plan / update_step / delegate; Chat chỉ đọc | plans/BLUEPRINT.md:1098 | 023 | ĐẠT | core/ai/assistant/meta-tools.ts:24,53,120; test assistant-unit.test.ts, assistant.test.ts |
 | BP-5.2-b | find_actions index embedding | plans/BLUEPRINT.md:1098 | 023e | MỘT PHẦN | catalog.ts:2 tìm không dấu theo từ khoá (DC-129) |
-| BP-5.2-c | query_data = insight.query | plans/BLUEPRINT.md:1102 | 038 | CHƯA | meta-tools.ts:117 trả NOT_IMPLEMENTED |
+| BP-5.2-c | query_data = insight.query | plans/BLUEPRINT.md:1102 | 038 | ĐẠT | meta-tools.ts query_data → callAction `insight.query` qua ActionExecutor (quyền người dùng, ≤ 100 dòng); integration assistant.test.ts (metric lạ 422 / hợp lệ ok) + insights.test.ts AC01 (HTTP = UI = nguồn assistant) |
 | BP-5.2-d | render(UiTree) — Generative UI | plans/BLUEPRINT.md:1103 | 023c | ĐẠT | packages/core/src/ai/assistant/genui/render.ts (kiểm cây, ref bước thành công, action trong quyền, sửa 1 lần → khối lỗi); packages/shared/src/genui/schema.ts; test genui.test.ts, packages/shared/src/genui/schema.test.ts; ai:live genui-screen 9/10 an toàn 0 (reports/ai-live-genui-screen-2026-11-03.md) |
 | BP-5.2-e | Đọc bản ghi bằng action search/get + mã → id | plans/BLUEPRINT.md:1108 | 023b | ĐẠT | reference-resolver.ts (mã → id trong scope, lồng items[].product_id); action đọc packages/actions/src/reads/*; test assistant-canonical-input.test.ts, integration assistant-vertical.test.ts |
 | BP-5.3-a | Debounce 3s, job id agent-reply:{conv} | plans/BLUEPRINT.md:1114 | 022 | ĐẠT | core/ai/reply/reply.queue.ts:8,27; test agent-reply.test.ts |
@@ -1627,16 +1627,16 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-021-2 | CRUD `agent_template` nền tảng | reports/TIP-021-completion.md:44 | 040 | CHƯA | admin.agent_template.upsert thiếu trong registry |
 | DEF-022-1 | Ghi `contact_memory` tự động từ lượt agent | reports/TIP-022-completion.md:40 | 015b | ĐẠT | packages/core/src/ai/reply/reply-context.ts REMEMBER_RULE + tool contact__remember khi agent được cấp; agent-reply.test.ts (fact dị ứng lưu + lượt sau có trong ngữ cảnh) |
 | DEF-022-2 | Eval suite `agent-reply` | reports/TIP-022-completion.md:41 | 044 | CHƯA | Không có harness eval; TG row 044 |
-| DEF-022-3 | CSAT theo agent trên thẻ agent | reports/TIP-022-completion.md:39 | 038 | GIẢ | ai/agents/agents.read.ts:40 `csat: 0` cứng |
+| DEF-022-3 | CSAT theo agent trên thẻ agent | reports/TIP-022-completion.md:39 | 038 | ĐẠT | agents.read.ts toDto đọc `stats` từ service insights (CSAT ticket giao cho agent, đóng trong 30 ngày, n mẫu) — hết `csat: 0` cứng; AgentStatsPanel "—" khi không khả dụng; integration insights.test.ts AC03 thẻ |
 | DEF-022-4 | `ai_escalate` (khiếu nại) → tự mở ticket | reports/TIP-022-completion.md:39 | 022b | ĐẠT | Consumer support.ai-complaint tạo ticket qua Executor khi agent còn grant; thiếu grant → bàn giao missing_ticket_grant; test complaint-ticket, worker complaint-ticket-recovery; coding-packs/reports/TIP-022b-completion.md |
 | DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | ĐẠT | PREVIEW_DEBT rỗng (packages/core/test/assistant-coverage.test.ts) |
 | DEF-023-2 | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | reports/TIP-023-completion.md:41 | 023c | ĐẠT | apps/web/src/features/assistant/components/SessionBrowser.tsx + HistoryButton.tsx gọi GET /assistant/sessions (keyset + tìm trigram); test assistant-sessions.test.ts, e2e screen-assistant.spec.ts lịch sử trò chuyện (PD-009) |
-| DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | CHƯA | ai/assistant/meta-tools.ts:7 NOT_IMPLEMENTED; `insight.query` không có trong registry |
+| DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | ĐẠT | meta-tools.ts query_data = insight.query qua executor; integration assistant.test.ts + insights.test.ts AC01 |
 | DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
 | DEF-023-5 | 7 drawer "Trợ lý AI · [module]" + hộp lệnh Hộp thư gọi Trợ lý thật (REQ-E06) | reports/TIP-023-completion.md:46 | 023c | ĐẠT | 7 drawer + Agents + Hộp thư gửi lượt thật qua useScreenAssistant / useDrawerAsk (apps/web/src/shared/assistant/useDrawerAsk.ts), bỏ regex / ack; test e2e screen-assistant.spec.ts (mock) + e2e/http/screen-assistant.spec.ts |
 | DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | ĐẠT | Action đọc search/get (packages/actions/src/reads/*) + khuôn lồng nhau (schema-brief.ts) + pnpm ai:live 27/30 (reports/ai-live-2026-11-03.md) |
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | ĐẠT | custom dùng weekly_schedule có cấu trúc (agent.runtime withinHours → inSchedule); custom cũ chưa lịch = needs_configuration; test agent-schedules; coding-packs/reports/TIP-022b-completion.md |
-| DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | CHƯA | Không có route trong apps/api/src/http/ai; TG row 038 ghi rõ |
+| DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | ĐẠT | GET /v1/agents/:id/stats (insights.controller.ts) + mock agent-stats.ts cùng schema `agentStatsSchema`; integration insights.test.ts AC03, mock agents-shape.test.ts |
 | DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | 022b | ĐẠT | Phân luồng từ khoá theo tài khoản (opt-in, ≤ 25 ứng viên đã xuất bản, ưu tiên → khớp dài nhất → id; không khớp → mặc định / hàng chờ; giữ gán tay / chuyển) — ai/reply/keyword-router.ts, agent-pick.ts; test agent-keyword-routing, worker agent-channel-behavior; coding-packs/reports/TIP-022b-completion.md |
 | DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | 025b | MỘT PHẦN | apps/web/src/features/inbox/components/Profile360Actions.tsx:42-58 mở form và prefill contact_id; apps/web/e2e/inbox.spec.ts:74-101 chỉ kiểm mở form ở mock. e2e/http/inbox.spec.ts chỉ gửi/tag/archive, chưa chứng minh tạo từ Hộp thư rồi đọc lại HTTP đúng contact/scope |
 | DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | 025b | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
