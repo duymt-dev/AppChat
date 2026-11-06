@@ -10,7 +10,7 @@
 - Đạt phần backend: AC03 (preview server + ghi nhận; FE ở pha 3), AC09 (trạng thái hết hạn + giữ 30 ngày; popup ở pha 3), AC10 (khôi phục sau lỗi + EXPLAIN; E2E mobile ở pha 3).
 - AC05–AC08 thuộc pha 2–3.
 
-**COMMIT:** `c305b44c` (code + test); commit docs và SHA cuối nhánh ở bảng tiến độ `goals/GOAL-RELEASE.md` (dòng 18).
+**COMMIT:** `081f6bac` (code + test) · `99a97695` (sổ / report); SHA cuối nhánh ở bảng tiến độ `goals/GOAL-RELEASE.md` (dòng 18).
 
 **MIGRATION:** platform `20261102003900_billing_lifecycle`.
 - Subscription thêm:
