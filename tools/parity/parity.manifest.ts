@@ -1064,6 +1064,12 @@ export const MANIFEST: ParityEntry[] = [
       },
       // PD-021 / DC-240: nhãn KPI "Tỷ lệ phản hồi / chuyển đổi" (Zalo cá nhân / email không có biên nhận mở / click) — số liệu vẫn so.
       { x: 820, y: 136, width: 600, height: 26, reason: 'PD-021 nhãn KPI phản hồi / chuyển đổi thay mở / click (DC-240)' },
+      // prototype-parity §6 "marketing chỉ Zalo cá nhân + Email": tab kênh ZBS / ZNS / SMS / Automation không có → các tab sau dồn trái.
+      { x: 300, y: 72, width: 420, height: 32, reason: 'tab kênh: bỏ ZBS / ZNS / SMS / Automation (prototype-parity §6 Kênh)' },
+      // PD-021 / REQ-I02: tab trạng thái Chờ duyệt / Đã duyệt / Nháp / Từ chối của luồng duyệt chiến dịch (prototype không có).
+      { x: 620, y: 256, width: 360, height: 28, reason: 'PD-021 tab trạng thái luồng duyệt (Chờ duyệt / Đã duyệt / Nháp / Từ chối)' },
+      { x: 1010, y: 400, width: 200, height: 430, reason: 'PD-021 cột hiệu suất phản hồi / chuyển đổi thay mở / click (DC-240)' },
+      { x: 100, y: 836, width: 1320, height: 40, reason: 'D42 Pager số trang dính đáy bảng (prototype không có)' },
     ],
   },
   {
@@ -1218,7 +1224,12 @@ export const MANIFEST: ParityEntry[] = [
     proto: settingsProto,
     clip: ST_MAIN,
     // PD-018: lọc chi nhánh / khối + "Thẻ phòng ban / Danh sách nhân sự" của prototype là cây tổ chức (P3 OUT) — app chỉ ô tìm + Tạo nhóm.
-    mask: [{ x: 640, y: 190, width: 680, height: 40, reason: 'PD-018 bộ lọc chi nhánh / khối + chế độ xem phòng ban (cây tổ chức OUT)' }],
+    mask: [
+      { x: 640, y: 190, width: 680, height: 40, reason: 'PD-018 bộ lọc chi nhánh / khối + chế độ xem phòng ban (cây tổ chức OUT)' },
+      { x: 396, y: 238, width: 170, height: 40, reason: 'PD-018 nút "Tạo nhóm" thay "Tạo phòng ban" (nhóm phẳng)' },
+      { x: 396, y: 112, width: 480, height: 60, reason: 'PD-018 tiêu đề / mô tả "Nhóm" thay "Phòng ban" (nhóm phẳng)' },
+      { x: 400, y: 200, width: 230, height: 24, reason: 'PD-018 ô tìm "Tìm nhóm" thay "Tìm phòng ban"' },
+    ],
   },
   {
     // TIP-042b: "Routing & assignment" — chỉ chiến lược chia lead P1 (PD-019: bỏ online / AFK / ngôn ngữ / SLA của prototype).

@@ -2,6 +2,9 @@
 export const settingsColor = {
   switchShadow: 'rgba(0,0,0,.2)',
   codeBg: '#0F172A',
+  // Màu thẻ Nhóm còn thiếu trong bảng chung (prototype __teamData L11068–11073).
+  teamPink: '#EC4899',
+  teamSky: '#3B82F6',
   codeText: '#CBD5E1',
   wgPanel: '#F4F6F8',
   wgAiLine: '#D7EEE0',
