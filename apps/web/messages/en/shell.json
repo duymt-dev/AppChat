@@ -60,6 +60,14 @@
     "wallet": "AppChat wallet",
     "logout": "Sign out"
   },
+  "planExpired": {
+    "title": "Your {plan} plan has expired",
+    "body": "The plan expired on {at}: AI and plan limits are paused. Inbox, data and top-up credits are kept.",
+    "retain": "Data is kept until {at}. Renew before then to keep full access.",
+    "renew": "Renew",
+    "askOwner": "Ask the Owner to renew the plan.",
+    "close": "Close"
+  },
   "billingNotice": {
     "lowTitle": "{level}% of plan credits used",
     "lowBody": "Your plan credits are running low. Top up so AI is not interrupted — there is no auto top-up.",

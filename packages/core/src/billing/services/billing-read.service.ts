@@ -85,6 +85,7 @@ export class BillingReadService {
       balance: planBalance + topupBalance,
       plan_balance: planBalance,
       topup_balance: topupBalance,
+      retain_until: sub?.status === 'expired' && sub.retainUntil ? sub.retainUntil.toISOString().slice(0, 10) : null,
     };
   }
 

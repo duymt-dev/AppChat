@@ -1395,6 +1395,21 @@
         "service": "Service & support"
       }
     },
+    "change": {
+      "title": "Confirm {plan} plan",
+      "loading": "Calculating price…",
+      "error": "Could not calculate the price — try again later. No invoice was created.",
+      "new": "New purchase · {n}-month period starting when payment is confirmed.",
+      "renew": "Renew the same plan · the new period continues from {at}.",
+      "upgrade": "Upgrade from {from} to {to} mid-period · pay the difference for the remaining days, expiry stays {end}.",
+      "switch": "Switch to {plan} from the next period ({at}) · the current period is unchanged, no refund.",
+      "credits": "+{n} difference credits for this month",
+      "reuse": "Invoice {code} for this plan is still pending — it will be reopened, no new QR.",
+      "note": "The plan activates only when payment reaches AppChat (VietQR / bank transfer); nothing is charged automatically.",
+      "confirm": "Create payment code",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
     "contact": {
       "title": "Contact sales — Business plan",
       "sub": "Leave your details — the AppChat team will contact you within 1 business day with a tailored quote.",
@@ -1500,6 +1515,8 @@
         "bank_transfer": "Bank transfer"
       },
       "pay": "Pay",
+      "pdf": "Download payment request PDF {code}",
+      "pdfFail": "Could not download the PDF — try again later.",
       "view": "View"
     }
   },

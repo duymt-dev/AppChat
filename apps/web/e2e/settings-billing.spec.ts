@@ -42,6 +42,10 @@ test.describe('settings · Gói & ví', () => {
     await expect(m.locator('[data-plan]')).toHaveCount(4);
     await expect(m.locator('[data-plan="team"]')).toBeVisible();
     await m.getByTestId('plan-cta-business').click();
+    // TIP-039: xác nhận giá server tính trước khi tạo hoá đơn.
+    const pc = page.getByTestId('plan-change-modal');
+    await expect(pc.getByTestId('plan-change-amount')).toContainText('12.900.000');
+    await pc.getByTestId('plan-change-modal-save').click();
     await expect(m).toBeHidden();
     const co = page.getByTestId('checkout-modal');
     await expect(co.getByTestId('checkout-amount')).toHaveText(/12\.900\.000/);

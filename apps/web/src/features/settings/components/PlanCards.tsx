@@ -1,11 +1,12 @@
 // 4 thẻ gói theo phân khúc — dùng ở Ví (gọn, L6482) và popup Nâng cấp (lớn, L1002). Gói đang dùng thử hiện "ĐANG DÙNG THỬ" + nút tắt;
-// Miễn phí: nút tắt; Enterprise (giá null): "Liên hệ" → gửi yêu cầu qua hỗ trợ; còn lại "Chọn gói" → billing.create_invoice (kind plan).
+// Miễn phí: nút tắt; Enterprise (giá null): "Liên hệ" → hộp Liên hệ (billing.contact_sales); còn lại "Chọn gói" → hộp xác nhận giá server
+// tính (PlanChangeModal — TIP-039) rồi billing.create_invoice (kind plan).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { usePlanStyles } from '../styles/plans.styles';
-import { useBuy } from '../hooks/useBuy';
+import { useBillingUi } from '../billing-store';
 import type { Plan } from '../types';
 
 interface Props {
@@ -21,7 +22,7 @@ export function PlanCards({ plans, big, trial, current, onContact }: Props) {
   const t = useTranslations('settings.billing.plan');
   const fmt = useFmt();
   const { styles, cx } = usePlanStyles();
-  const { buy, pending } = useBuy();
+  const set = useBillingUi((x) => x.set);
   return (
     <div className={styles.grid} data-testid="plan-cards">
       {plans.map((p) => {
@@ -50,8 +51,8 @@ export function PlanCards({ plans, big, trial, current, onContact }: Props) {
             <button
               type="button"
               className={cx(styles.cta, big && styles.ctaBig, free && styles.ctaFree, onTrial && styles.ctaTrial)}
-              disabled={onTrial || free || isCur || pending}
-              onClick={() => (p.price === null ? onContact() : void buy('plan', p.key))}
+              disabled={onTrial || free || isCur}
+              onClick={() => (p.price === null ? onContact() : set({ planChange: p.key }))}
               data-testid={`plan-cta-${p.key}`}
             >
               {cta}

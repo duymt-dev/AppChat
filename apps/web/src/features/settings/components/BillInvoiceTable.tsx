@@ -1,5 +1,6 @@
 // "Lịch sử hóa đơn" gói AppChat — prototype L5961–5986: tìm mã / tên gói, lọc trạng thái + khoảng ngày, 7 cột; hoá đơn chưa thanh toán
-// (pending / hết hạn) có "Thanh toán" → mở hộp QR (hết hạn → billing.create_invoice lại cùng mặt hàng); "Xem" mở chi tiết.
+// (pending / hết hạn) có "Thanh toán" → mở hộp QR (hết hạn → billing.create_invoice lại cùng mặt hàng); "Xem" tải PDF đề nghị thanh toán
+// (TIP-039 — chứng từ nền tảng, không phải hoá đơn GTGT).
 // Trạng thái theo billing_invoice (Blueprint §2.2): pending · pending_review · paid · expired · cancelled.
 'use client';
 import { useQuery } from '@tanstack/react-query';
@@ -11,6 +12,7 @@ import { useBillingStyles } from '../styles/billing.styles';
 import { billInvoicesQuery } from '../api';
 import { useBillingUi } from '../billing-store';
 import { useBuy } from '../hooks/useBuy';
+import { useInvoicePdf } from '../hooks/useInvoicePdf';
 import type { BillInvoice, BillInvoiceStatus } from '../types';
 
 const STATUSES: BillInvoiceStatus[] = ['paid', 'pending', 'pending_review', 'expired', 'cancelled'];
@@ -37,6 +39,7 @@ export function BillInvoiceTable() {
   const { invStatus, invQ, invFrom, invTo, set } = useBillingUi();
   const q = useQuery(billInvoicesQuery({ status: invStatus, q: invQ }));
   const { buy } = useBuy();
+  const pdf = useInvoicePdf();
   const from = iso(invFrom);
   const to = iso(invTo);
   const rows = (q.data?.data ?? []).filter((i) => (!from || i.date >= from) && (!to || i.date <= to));
@@ -93,7 +96,7 @@ export function BillInvoiceTable() {
                     {t('pay')}
                   </button>
                 ) : null}
-                <button type="button" className={styles.view} onClick={() => set({ invoiceId: i.id })} aria-label={t('view') + ' ' + i.code}>
+                <button type="button" className={styles.view} onClick={() => void pdf.open(i.id)} disabled={pdf.busy === i.id} aria-label={t('pdf', { code: i.code })} data-testid={`st-bill-pdf-${i.id}`}>
                   <Icon name="ic-dl" size={12} color={color.text3} />
                   {t('view')}
                 </button>

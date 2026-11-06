@@ -13,6 +13,8 @@ interface BillingUi {
   creditOpen: boolean;
   /** Hộp "Liên hệ" gói Doanh nghiệp (`billing.contact_sales`). */
   contactOpen: boolean;
+  /** Gói đang xác nhận mua / đổi (PlanChangeModal — giá server tính qua /billing/quote). */
+  planChange: string | null;
   /** Hoá đơn đang mở (QR thanh toán hoặc xem chi tiết). */
   invoiceId: string | null;
   walTab: 'topup' | 'history' | 'invoice';
@@ -31,6 +33,7 @@ export const useBillingUi = create<BillingUi>((setState) => ({
   upgradeOpen: false,
   creditOpen: false,
   contactOpen: false,
+  planChange: null,
   invoiceId: null,
   walTab: 'topup',
   shopTab: 'credit',

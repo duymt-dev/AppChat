@@ -273,6 +273,8 @@ export interface BillingSummary {
   balance: number;
   plan_balance: number;
   topup_balance: number;
+  /** Gói trả phí hết hạn: dữ liệu giữ tới ngày này (TIP-039). */
+  retain_until?: string | null;
 }
 
 export interface CreditPack {

@@ -3,7 +3,8 @@
 // billing.report_transfer, billing.cancel_invoice. Mock: "Tôi đã chuyển khoản" trả `pending_review` như backend (TIP-010) và coi
 // như webhook ngân hàng về ngay → hoá đơn paid + cộng credit / kích hoạt gói trong cùng lệnh (bản thật: §4.7, đối soát bất đồng bộ).
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
-import { ApiRequestError } from '@appchat/shared';
+import { ApiRequestError, htmlPage } from '@appchat/shared';
+import type { MockDb } from '../store';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 
@@ -94,6 +95,26 @@ export const settingsBillingRoutes: Record<string, MockRoute> = {
     const n = Math.min(Number(p.limit ?? 50) || 50, 100);
     return { data: rows.slice(start, start + n), next_cursor: start + n < rows.length ? String(start + n) : null };
   },
+  // TIP-039: giá trước khi mua — mock không có kỳ gói trả phí → luôn `new` (hoặc gia hạn khi gói đang dùng là gói đó).
+  '/billing/quote': (db, p) => {
+    const s = db.settingsBilling;
+    const kind = String(p.kind ?? '');
+    const item = String(p.item ?? '');
+    const price = priceOf(s, kind, item);
+    if (!price) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'item', fields: { item: 'not_purchasable' } });
+    const renew = kind === 'plan' && s.billing.current.plan_key === item && s.billing.current.status === 'active';
+    const open = s.billing.invoices.find((i) => i.kind === kind && i.item === item && i.status === 'pending');
+    return {
+      mode: kind === 'credit' ? 'credits' : kind === 'addon' ? 'addon' : renew ? 'renew' : 'new',
+      amount: price.amount,
+      credits: null,
+      months: kind === 'credit' ? null : 1,
+      starts_at: renew ? s.billing.current.expires_at : null,
+      ends_at: null,
+      from_plan_key: null,
+      open: open ? { id: open.id, code: open.code } : null,
+    };
+  },
   '/billing/invoices': (db, p) => {
     const st = String(p.status ?? 'all');
     const q = String(p.q ?? '').trim().toLowerCase();
@@ -159,3 +180,11 @@ export const settingsBillingHandlers: Record<string, MockHandler> = {
     },
   },
 };
+
+/** Mock PDF đề nghị thanh toán (không LibreOffice): trang HTML có mã + số tiền + dòng không thay thế HĐ GTGT — server trả PDF thật. */
+export function billingInvoicePdf(db: MockDb, path: string): string | null {
+  const m = path.match(/^\/billing\/invoices\/([^/]+)\/pdf$/);
+  if (!m) return null;
+  const inv = db.settingsBilling.billing.invoices.find((x) => x.id === m[1]);
+  return inv ? htmlPage(inv.code, `<h1>${inv.code}</h1><p>${inv.desc} · ${inv.amount}</p><p>Chứng từ này không thay thế hoá đơn giá trị gia tăng.</p>`) : null;
+}

@@ -1395,6 +1395,21 @@
         "service": "Hỗ trợ dịch vụ"
       }
     },
+    "change": {
+      "title": "Xác nhận gói {plan}",
+      "loading": "Đang tính giá…",
+      "error": "Chưa tính được giá — thử lại sau. Chưa có hoá đơn nào được tạo.",
+      "new": "Mua mới · kỳ {n} tháng tính từ lúc thanh toán được xác nhận.",
+      "renew": "Gia hạn cùng gói · kỳ mới nối tiếp ngày hết hạn {at}.",
+      "upgrade": "Nâng từ {from} lên {to} giữa kỳ · thu phần chênh theo số ngày còn lại, giữ ngày hết hạn {end}.",
+      "switch": "Đổi sang {plan} từ kỳ sau ({at}) · kỳ hiện tại giữ nguyên, không hoàn tiền.",
+      "credits": "+{n} credit chênh cho tháng này",
+      "reuse": "Đang có hoá đơn chờ {code} cùng gói — sẽ mở lại hoá đơn đó, không tạo QR mới.",
+      "note": "Gói chỉ kích hoạt khi tiền về tài khoản AppChat (VietQR / chuyển khoản), không tự trừ tiền.",
+      "confirm": "Tạo mã thanh toán",
+      "cancel": "Huỷ",
+      "close": "Đóng"
+    },
     "contact": {
       "title": "Liên hệ tư vấn gói Doanh nghiệp",
       "sub": "Để lại thông tin — đội AppChat liên hệ bạn trong 1 ngày làm việc để báo giá theo nhu cầu.",
@@ -1500,6 +1515,8 @@
         "bank_transfer": "Chuyển khoản"
       },
       "pay": "Thanh toán",
+      "pdf": "Tải PDF đề nghị thanh toán {code}",
+      "pdfFail": "Chưa tải được PDF — thử lại sau.",
       "view": "Xem"
     }
   },

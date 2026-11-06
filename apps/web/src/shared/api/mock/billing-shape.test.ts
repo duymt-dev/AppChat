@@ -48,4 +48,22 @@ describe('mock billing — shape FE ↔ BE', () => {
     const after = await mockTransport.get<{ data: { id: string; status: string }[] }>('/billing/invoices');
     expect(after.data.find((i) => i.id === id)?.status).toBe('paid');
   });
+
+  it('GET /billing/invoices/:id/pdf — chứng từ có mã + dòng không thay thế HĐ GTGT; id lạ → 404', async () => {
+    const page = await mockTransport.get<{ data: { id: string; code: string }[] }>('/billing/invoices');
+    const inv = page.data[0]!;
+    const html = await (await mockTransport.blob(`/billing/invoices/${inv.id}/pdf`)).text();
+    expect(html).toContain(inv.code);
+    expect(html).toContain('không thay thế hoá đơn giá trị gia tăng');
+    await expect(mockTransport.blob('/billing/invoices/nope/pdf')).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('billing.contact_sales — nhận yêu cầu; quá 3 lần → RATE_LIMITED', async () => {
+    const input = { name: 'Lan', email: 'lan@shop.vn', phone: '0901234567', message: 'Cần báo giá', consent: true };
+    for (let i = 0; i < 3; i++) {
+      const r = (await mockTransport.action('billing.contact_sales', input)) as Done<{ status: string }>;
+      expect(r.data.result.status).toBe('received');
+    }
+    await expect(mockTransport.action('billing.contact_sales', input)).rejects.toMatchObject({ status: 429 });
+  });
 });

@@ -20,6 +20,7 @@ import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
 import { contractFileBlob, contractFilesParamRoute, contractPdf, contractsParamRoute, mockUploads } from './domains/contracts';
+import { billingInvoicePdf } from './domains/settings-billing';
 import { appendixMock, contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
@@ -212,7 +213,7 @@ export const mockTransport: Transport = {
     const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
-    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? publicDocumentPdf(path);
+    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? billingInvoicePdf(mockDb(), path) ?? publicDocumentPdf(path);
     if (html === null) return fail(404, 'NOT_FOUND', path);
     return new Blob([html], { type: 'text/html' });
   },
