@@ -1,4 +1,5 @@
-// Tổng quan (orchestrator) — prototype L1079–1177: chào · checklist · thống kê · 4 thẻ · trung tâm cập nhật.
+// Tổng quan (orchestrator) — prototype L1079–1177: chào · checklist · thống kê · 4 thẻ · trung tâm cập nhật; TIP-038 pha 2 thêm dưới 4
+// thẻ: Việc cần tôi · AI hôm nay · Credit (chỉ người quản lý ví) — Blueprint §7 dashboard.
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -14,6 +15,7 @@ import { OnboardingChecklist } from '../components/OnboardingChecklist';
 import { PillList, SectionCard } from '../components/SectionCard';
 import { StatCards } from '../components/StatCards';
 import { UpdatesWidget } from '../components/UpdatesWidget';
+import { WorkSection } from '../components/WorkSection';
 
 export function DashboardScreen() {
   const t = useTranslations('dashboard');
@@ -47,7 +49,8 @@ export function DashboardScreen() {
             <SectionCard index={4} accent={color.cyan} title={t('sections.cdp.title')} sub={t('sections.cdp.sub')}>
               <PillList items={d.cdp} />
             </SectionCard>
-            <UpdatesWidget followUps={d.follow_ups} news={d.news} notifications={d.notifications} />
+            <WorkSection work={d.my_work} ai={d.ai_today} credit={d.credit} />
+            <UpdatesWidget followUps={d.follow_ups} total={d.follow_up_count} news={d.news} notifications={d.notifications} />
           </>
         ) : null}
       </PageStates>

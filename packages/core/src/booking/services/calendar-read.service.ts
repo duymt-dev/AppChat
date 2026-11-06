@@ -8,6 +8,7 @@ import { UUID, bookingScopeSql, visibleAppointment, type AppointmentRecord } fro
 import type { BookingPlace } from './booking-place';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { bookingSetting, slotsFor } from './slots';
+import { calendarFollowUps } from '../../insights/services/calendar-follow-ups';
 
 export interface CalendarViewer {
   workspaceId: string;
@@ -168,7 +169,7 @@ export class CalendarReadService {
         staff: staff.map((s) => ({ id: s.id, name: s.name, role: s.role, initial: initial(s.name), color: s.color, team: s.team, room: s.room })),
         history,
         ai,
-        follow_ups: [],
+        follow_ups: await calendarFollowUps(tx, v.authz, now, timeZone, to),
         stats: {
           today: live.length,
           confirmed: live.filter((a) => a.status === 'confirmed').length,

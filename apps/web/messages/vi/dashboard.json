@@ -55,5 +55,27 @@
     "openAll": "Mở tất cả →",
     "done": "Đã follow",
     "empty": "Không còn khách cần follow hôm nay"
+  },
+  "work": {
+    "title": "Việc cần tôi",
+    "sub": "Duyệt, khách chờ người, ticket vượt SLA, lịch quá giờ, hợp đồng sắp hết hạn",
+    "empty": "Không có việc nào đang chờ bạn",
+    "open": "Mở",
+    "askRenewal": "Nhờ Trợ lý soạn gia hạn"
+  },
+  "aiToday": {
+    "title": "AI hôm nay",
+    "sub": "Lượt AI thật, không tính chạy thử",
+    "runs": "Lượt AI",
+    "actions": "Thao tác",
+    "handoffs": "Chuyển người",
+    "credits": "Credit đã dùng"
+  },
+  "credit": {
+    "title": "Ví Credit",
+    "sub": "Số dư và ước tính theo mức dùng 7 ngày",
+    "balance": "Số dư",
+    "days": "Đủ dùng (ngày)",
+    "open": "Mở ví"
   }
 }

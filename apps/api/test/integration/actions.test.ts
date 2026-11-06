@@ -142,9 +142,7 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC8 action chưa cài → 501 NOT_IMPLEMENTED kèm TIP chủ', async () => {
-    const r = await json(await call(h, '/actions/follow_up.complete', { input: { follow_up_id: 'fu1' } }));
-    expect(r).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '038' } } } });
-    // action `db: 'platform'` chưa cài (TIP-039) — đi nhánh nền tảng của executor rồi mới 501.
+    // TIP-038 pha 2 đã cài follow_up.complete — ví dụ còn lại: action `db: 'platform'` chưa cài (TIP-039), đi nhánh nền tảng của executor rồi mới 501.
     const p = await json(await call(h, '/actions/wallet.update_alerts', { input: { low_alert: true } }));
     expect(p).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '039' } } } });
   });

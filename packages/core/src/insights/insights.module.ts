@@ -4,7 +4,8 @@
 import { Module } from '@nestjs/common';
 import { InsightsReadService } from './services/insights-read.service';
 import { InsightsService } from './metrics/registry';
+import { DashboardService } from './services/dashboard.service';
 import { INSIGHTS_PROVIDERS } from './insights.providers';
 
-@Module({ providers: INSIGHTS_PROVIDERS, exports: [InsightsService, InsightsReadService] })
+@Module({ providers: INSIGHTS_PROVIDERS, exports: [InsightsService, InsightsReadService, DashboardService] })
 export class InsightsModule {}

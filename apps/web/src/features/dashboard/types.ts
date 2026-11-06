@@ -1,80 +1,24 @@
+// Kiểu Tổng quan = shape `GET /v1/dashboard` dùng chung (packages/shared/src/api/dashboard.ts) — mock và API thật parse cùng schema.
 import type { IconName } from '@appchat/ui';
+import type { DashboardDto, FollowUpItemDto, WorkItemDto } from '@appchat/shared';
 
-export interface StatCard {
-  label: string;
-  value: string;
-  tone: 'up' | 'warn' | 'muted';
-  note: string;
-  icon: IconName;
-}
+type WithIcon<T> = Omit<T, 'icon'> & { icon: IconName };
 
-export interface ConnectChip {
-  name: string;
-  meta: string;
-  warn: boolean;
-}
+export type StatCard = WithIcon<DashboardDto['stats'][number]>;
+export type ConnectGroup = DashboardDto['connect_groups'][number];
+export type ConnectChip = ConnectGroup['items'][number];
+export type AgentCard = WithIcon<DashboardDto['agents'][number]>;
+export type OnboardingStep = WithIcon<DashboardDto['onboarding']['steps'][number]>;
+export type FollowUp = FollowUpItemDto;
+export type WorkItem = WorkItemDto;
+export type NewsItem = DashboardDto['news'][number];
+export type NotificationItem = WithIcon<DashboardDto['notifications'][number]>;
+export type AiToday = DashboardDto['ai_today'];
+export type CreditInfo = NonNullable<DashboardDto['credit']>;
 
-export interface ConnectGroup {
-  key: 'in' | 'out' | 'erp' | 'data';
-  items: ConnectChip[];
-}
-
-export interface AgentCard {
-  icon: IconName;
-  name: string;
-  status: string;
-  desc: string;
-  sessions: string;
-  auto: string;
-}
-
-export interface OnboardingStep {
-  key: 'channel' | 'ai' | 'team' | 'template' | 'sla';
-  icon: IconName;
-  title: string;
-  desc: string;
-  cta: string;
-  done: boolean;
-}
-
-export interface FollowUp {
-  id: string;
-  name: string;
-  initial: string;
-  avatar: string;
-  channel: string;
-  channel_bg: string;
-  stage: string;
-  stage_color: string;
-  service: string;
-  due: string;
-  overdue: boolean;
-}
-
-export interface NewsItem {
-  tag: string;
-  date: string;
-  title: string;
-  desc: string;
-  color: string;
-}
-
-export interface NotificationItem {
-  icon: IconName;
-  color: string;
-  text: string;
-  time: string;
-  unread: boolean;
-}
-
-export interface DashboardData {
+export interface DashboardData extends Omit<DashboardDto, 'stats' | 'agents' | 'onboarding' | 'notifications'> {
   stats: StatCard[];
-  connect_groups: ConnectGroup[];
   agents: AgentCard[];
-  modules: string[];
-  cdp: string[];
   onboarding: { steps: OnboardingStep[]; done_count: number };
-  follow_ups: FollowUp[];
-  news: NewsItem[];
   notifications: NotificationItem[];
 }

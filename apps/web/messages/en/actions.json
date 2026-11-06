@@ -51,6 +51,10 @@
     "complete": {
       "title": "Follow-up done",
       "desc": "Mark a due customer follow-up as done."
+    },
+    "reconcile": {
+      "title": "Refresh follow-ups (system)",
+      "desc": "The system creates follow-ups for customers silent for 7 days and drops old ones when the customer interacts again. Sends nothing."
     }
   },
   "conversation": {

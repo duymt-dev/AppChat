@@ -66,6 +66,8 @@ export const AI_TASK_EVENTS = [
   'ticket.created',
   'ticket.sla_breached',
   'payment.confirmed',
+  // TIP-038: hợp đồng còn 30 ngày (contracts.sweep phát một lần) — tác vụ người dùng đã tạo / bật mới nhận; không tự tạo tác vụ gửi hàng loạt.
+  'contract.expiring',
 ] as const;
 export type AiTaskEvent = (typeof AI_TASK_EVENTS)[number];
 

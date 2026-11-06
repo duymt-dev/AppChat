@@ -1,0 +1,29 @@
+// tenant/insights.prisma — sở hữu: TIP-038 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: follow_up (việc chăm sóc khách đến hạn — pha 2). ExportJob / DigestDelivery thêm ở pha 3 / 4. Không Prisma relation xuyên domain
+// (Blueprint §2.1); FK + CHECK + partial index viết tay ở migration 20261106003800_follow_up.
+
+enum FollowUpStatus {
+  pending
+  done
+  superseded
+
+  @@map("follow_up_status")
+}
+
+/// Việc follow khách (TIP-038 mục 3, DC-241): khách còn sống, chưa won / lost, im lặng ≥ 7 ngày theo `last_interaction_at`. Một dòng mỗi
+/// `source_key` (khách + mốc tương tác cuối) — tương tác mới thay việc cũ (`superseded`), việc đã xong không sinh lại cho cùng mốc. Không
+/// tự gửi tin. `source_at` = mốc tương tác lúc sinh (so trực tiếp với `contact.last_interaction_at`, không quy đổi múi giờ trong SQL — Q-053).
+model FollowUp {
+  id                String         @id @db.Uuid
+  contactId         String         @map("contact_id") @db.Uuid
+  sourceKey         String         @unique @map("source_key")
+  sourceAt          DateTime       @map("source_at") @db.Timestamptz(6)
+  dueAt             DateTime       @map("due_at") @db.Timestamptz(6)
+  status            FollowUpStatus @default(pending)
+  version           Int            @default(1)
+  completedByUserId String?        @map("completed_by_user_id") @db.Uuid
+  completedAt       DateTime?      @map("completed_at") @db.Timestamptz(6)
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("follow_up")
+}

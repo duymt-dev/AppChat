@@ -1,5 +1,6 @@
 // "Trung tâm cập nhật" — 3 tab Cần follow / Tin tức / Thông báo, thu nhỏ thành nút "Cập nhật" (prototype L1138–1176).
-// Follow-up xong → follow_up.complete (hoàn tác 24h).
+// Follow-up xong → follow_up.complete (hoàn tác 24h). Việc follow là bản ghi thật (TIP-038 pha 2): API trả ≤ 5 theo hạn + `total` còn lại
+// người xem thấy; "Mở tất cả" khi đã mở rộng → Khách hàng.
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -16,11 +17,13 @@ const tint = (c: string) => `${c}18`;
 
 export interface UpdatesWidgetProps {
   followUps: FollowUp[];
+  /** Số việc follow còn mở người xem thấy (có thể > số dòng trả về). */
+  total: number;
   news: NewsItem[];
   notifications: NotificationItem[];
 }
 
-export function UpdatesWidget({ followUps, news, notifications }: UpdatesWidgetProps) {
+export function UpdatesWidget({ followUps, total, news, notifications }: UpdatesWidgetProps) {
   const t = useTranslations('dashboard.widget');
   const router = useRouter();
   const { styles, cx } = useWidgetStyles();
@@ -36,7 +39,7 @@ export function UpdatesWidget({ followUps, news, notifications }: UpdatesWidgetP
       <button type="button" className={styles.pill} onClick={() => setOpen(true)} data-testid="updates-pill">
         <Icon name="ic-bell" size={18} strokeWidth={1.9} color={color.white} />
         {t('short')}
-        <span className={styles.pillCount}>{followUps.length}</span>
+        <span className={styles.pillCount}>{total}</span>
       </button>
     );
   }
@@ -58,7 +61,7 @@ export function UpdatesWidget({ followUps, news, notifications }: UpdatesWidgetP
         </button>
       </div>
       <div className={styles.tabs}>
-        {tabBtn('follow', t('follow'), followUps.length)}
+        {tabBtn('follow', t('follow'), total)}
         {tabBtn('news', t('news'))}
         {tabBtn('notif', t('notif'), unread, true)}
       </div>
@@ -67,10 +70,10 @@ export function UpdatesWidget({ followUps, news, notifications }: UpdatesWidgetP
           <>
             <div className={styles.bar}>
               <span className={styles.grow}>
-                {t('due', { n: followUps.length })}
+                {t('due', { n: total })}
                 {overdue ? <span className={styles.overdue}>{t('overdue', { n: overdue })}</span> : null}
               </span>
-              <button type="button" className={styles.openAll} onClick={() => (expanded ? router.push('/inbox') : setExpanded(true))}>
+              <button type="button" className={styles.openAll} onClick={() => (expanded ? router.push('/customers') : setExpanded(true))}>
                 {t('openAll')}
               </button>
             </div>
