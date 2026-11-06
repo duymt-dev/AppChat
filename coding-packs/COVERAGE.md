@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 11 | 4 | 13 | 18 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 106 | 13 | 4 | 1 | 29 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 152 | 16 | 3 | 6 | 16 | 12 | 21 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 107 | 13 | 3 | 1 | 29 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 153 | 16 | 3 | 6 | 15 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 320 | 71 | 1 | 4 | 58 | 3 | 0 | 0 |
 | E. standards/* | 200 | 48 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 39 | 1 | 44 | 0 | 4 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 55 | 15 | 4 | 13 | 36 | 3 | 0 | 0 |
-| **Tổng** | **1014** | **175** | **61** | **43** | **194** | **37** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 56 | 15 | 4 | 13 | 35 | 3 | 0 | 0 |
+| **Tổng** | **1017** | **175** | **60** | **43** | **192** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -344,7 +344,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-J03 | Điều chỉnh điểm tay (lý do, log, hoàn tác); đổi điểm ≤ 50% đơn; đảo điểm khi huỷ / hoàn; hạn 12 tháng; xét hạng quý | 01-REQUIREMENTS-MATRIX.md:174 | 036 | ĐẠT | loyalty.adjust_points (member.handlers.ts), payment.redeem_points (redeem-points.handler.ts, trần 50%), loyalty.reverse (huỷ / hoàn tiền luỹ kế); test loyalty.test.ts, loyalty-events.test.ts, loyalty-concurrency.test.ts, loyalty.contract.test.ts |
 | REQ-J04 | Agent biết hạng + điểm khách để tư vấn ưu đãi; hiển thị ở Hồ sơ 360° | 01-REQUIREMENTS-MATRIX.md:175 | 036 | ĐẠT | packages/core/src/ai/reply/reply-context.ts (hạng + điểm trong ngữ cảnh agent); contact360.ts points_value ×100; loyalty.get_member value (DC-351); ai:live reports/ai-live-loyalty-2026-11-04.md 4/4, an toàn 0 |
 | REQ-J05 | Rule builder KHI · NẾU · THÌ; cảnh báo rời bỏ | 01-REQUIREMENTS-MATRIX.md:176 | — | NGOÀI | Ma trận Priority P2 |
-| REQ-K01a | Tổng quan "Việc cần tôi" (chờ duyệt, cần người, quá hạn), "AI đã làm gì hôm nay", Cần follow (≤5), số dư credit | 01-REQUIREMENTS-MATRIX.md:181 | 038 | GIẢ | `GET /dashboard` chỉ mock (routes.json missing, apps/web/src/features/dashboard/api.ts); packages/core/src/insights/insights.module.ts stub; follow_up.complete handler null |
+| REQ-K01a | Tổng quan "Việc cần tôi" (chờ duyệt, cần người, quá hạn), "AI đã làm gì hôm nay", Cần follow (≤5), số dư credit | 01-REQUIREMENTS-MATRIX.md:181 | 038 | ĐẠT | DC-364; `GET /v1/dashboard` apps/api/src/http/insights/dashboard.controller.ts; packages/core/src/insights/services/{dashboard.service,work-items,follow-ups}.ts; `follow_up.complete` thật; test apps/api/test/integration/insights-dashboard.test.ts (PR #95) |
 | REQ-K01b | Checklist onboarding 5 bước lưu theo workspace | 01-REQUIREMENTS-MATRIX.md:181 | 011 | ĐẠT | packages/core/src/identity/actions/onboarding-toggle-step.handler.ts:12; test onboarding.test.ts AC7 |
 | REQ-L01 | Credit: mỗi lần gọi LLM ghi token × đơn giá model → credit; ví theo workspace; lịch sử chi tiêu | 01-REQUIREMENTS-MATRIX.md:187 | 009, 019 | ĐẠT | packages/core/src/billing/services/credit-meter.ts; wallet.service.ts; `GET /billing/ledger`; test billing.test.ts AC4–AC5, ai-runtime.test.ts "AC4 2 bước LLM … trừ ví đúng đơn giá" |
 | REQ-L02 | Bảng gói + hạn mức trong DB (seed theo prototype), chặn thêm kênh / agent / user khi vượt | 01-REQUIREMENTS-MATRIX.md:188 | 009 | ĐẠT | packages/core/src/billing/seed.ts; quota.service.ts; dùng ở channel-connect.handlers.ts:38, agent.handlers.ts:22, member-invite.handler.ts:31; test billing.test.ts AC2, AC8, settings.test.ts "vượt hạn mức gói … 402" |
@@ -630,7 +630,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | NGOÀI | DC-029 chốt: kênh `mobile` chỉ lưu tuỳ chọn, gửi đẩy là TIP push P2 (REQ-M02 phát hành chỉ in-app + email; D37 MCP/P2). Không thuộc bản phát hành |
-| DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | CHƯA | TIP-038 |
+| DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | 013c | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận; TIP-013c nhận (2026-11-02) |
@@ -1587,7 +1587,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-004-1 | Bước smoke bản build (`pnpm smoke:build`) trong cổng chốt TIP (Q-009) | reports/TIP-004-completion.md:48 | 046 | CHƯA | package.json không có script `smoke:build`; TG row 046 ghi Q-009 |
 | DEF-004-2 | FE quên mật khẩu gọi đúng `/auth/password/reset-request` của backend | reports/TIP-004-completion.md:49 | 011 | ĐẠT | apps/api/src/http/identity/auth.controller.ts:85; apps/web/src/features/auth/api.ts:47; test apps/web/e2e/http/auth-onboarding.spec.ts:45 |
 | DEF-005-1 | `scopeFilter` nhận `contactIds` collaborator / watcher (TIP-015) | reports/TIP-005-completion.md:44 | 015 | ĐẠT | packages/core/src/authz/scope.ts:2,12; test apps/api/test/integration/crm-contacts.test.ts |
-| DEF-006-1 | Job gửi email tóm tắt `digest` daily / weekly (DC-030 hẹn TIP-038) | reports/TIP-006-completion.md:43 | 038 | CHƯA | TIP-038 task5/AC09 nhận scheduler, prefs/DND/current authz, delivery ledger và mailport; mới là kế hoạch, chưa có runtime digest |
+| DEF-006-1 | Job gửi email tóm tắt `digest` daily / weekly (DC-030 hẹn TIP-038) | reports/TIP-006-completion.md:43 | 038 | ĐẠT | DC-366: sổ `digest_delivery` unique kỳ, prefs / DND / quyền hiện tại, claim trước gửi + unknown không gửi lại; packages/core/src/insights/jobs/digest.service.ts; test packages/core/test/digest.test.ts + apps/api/test/integration/digest.test.ts; chưa nghiệm thu với Brevo thật (Q-004) |
 | DEF-006-2 | Gửi thông báo kênh `mobile` (web push / app) | reports/TIP-006-completion.md:42 | — | NGOÀI | DC-029: chỉ lưu tuỳ chọn, TIP push = P2 |
 | DEF-006-3 | Guard hội thoại + luật realtime `member.role_changed` / `member.removed` + client socket FE | reports/TIP-006-completion.md:51-53 | 013/016/025 | ĐẠT | packages/core/src/inbox/inbox.module.ts:55; notify/events/kernel.rules.ts:17; apps/web/src/shared/realtime/socket.ts; test realtime.test.ts, e2e/http/inbox-live.spec.ts |
 | DEF-009-1 | `channels.used` của billing summary đếm `channel_account` thật | reports/TIP-009-completion.md:32 | 039 | GIẢ | billing-read.service.ts:73 vẫn used0; TIP039 task4/AC07 nhận count theo quota rule, chưa code |
