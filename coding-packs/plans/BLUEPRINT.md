@@ -332,6 +332,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|contract\|won\|lost), owner_user_id?, team_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
 | `contact_identity` | contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) — `channel_type = marketplace` cho buyer id của sàn (D31) |
 | `contact_collaborator` | contact_id, user_id, role(collaborator\|watcher), added_by, created_at | pk(contact_id, user_id); idx(user_id, contact_id) — scope `own` (D32) |
+| `lead_routing_rule` | channel_account_id? (null = mặc định), enabled (mặc định false), enabled_at?, mode(manual\|round_robin\|least_busy\|by_channel), user_ids uuid[] (≤ 100) XOR team_id?, fixed_user_id? (by_channel), version int (CAS), configured_by_user_id? | partial unique((true)) WHERE channel_account_id IS NULL; partial unique(channel_account_id) WHERE NOT NULL. Chỉ chia lead TẠO SAU enabled_at (TIP-042b, DC-238); `assign_mode` của tài khoản kênh chỉ là bản chiếu cũ |
+| `lead_routing_cursor` | rule_id pk (FK cascade), last_user_id? | khoá FOR UPDATE tuần tự hoá lựa chọn (TIP-042b) |
+| `lead_routing_decision` | contact_id, originating_event_id, rule_id?, rule_version?, selected_user_id?, conversation_id?, reason | unique(contact_id); unique(originating_event_id) — một quyết định chủ đầu tiên mỗi khách / event, không lưu tin / SĐT (TIP-042b) |
 | `contact_access_request` | contact_id, requester_user_id, status(pending\|approved\|rejected), decided_by?, decided_at?, note? | idx(contact_id, status); partial unique(contact_id, requester_user_id) WHERE status='pending' |
 | `tag` | name, color, scope(all\|contact\|conversation) | unique(lower(name)) — nguồn thẻ dùng chung cho khách và hội thoại |
 | `contact_tag` | contact_id, tag_id | pk |
@@ -413,9 +416,10 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
-| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, created_at | unique(key). Seed 5 vai trò hệ thống khi provision |
-| `team` | name, lead_user_id? | (P1 UI; bảng có từ đầu) |
+| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, version int (CAS), deleted_at? (xoá mềm vai trò tuỳ biến — TIP-042), created_at | unique(key). Seed 5 vai trò hệ thống khi provision; tuỳ biến `custom:<uuid>` do server sinh. idx `(is_system DESC, created_at, id) INCLUDE(name, version) WHERE deleted_at IS NULL` |
+| `team` | name, lead_user_id? (phải là thành viên), version int (CAS), created_at | idx `(created_at, id) INCLUDE(name, version, lead_user_id)` (TIP-042) |
 | `team_member` | team_id, user_id | pk(team_id, user_id); idx(user_id) |
+| `authz_revision` | id smallint = 1 (singleton), revision bigint, updated_at | pk(id) CHECK id = 1. Mọi role.\* / team.\* tăng trong cùng giao dịch tenant; AuthzResolver đọc mỗi lần và đưa vào khoá cache — sửa / thu hồi quyền có hiệu lực ở request kế tiếp, không chờ TTL / event (TIP-042) |
 
 - Bảng nghiệp vụ có chủ sở hữu (`contact`, `conversation`, `quote`, `contract`, `order`, `invoice`, `appointment`, `ticket`) có `owner_user_id` và/hoặc `assignee_user_id` + `team_id?`, cùng index theo `standards/database/indexing.md` §7:
   - `contact(owner_user_id, last_interaction_at DESC) WHERE deleted_at IS NULL` · `contact_collaborator(user_id, contact_id)`
@@ -454,6 +458,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `message.sent` | … | support (first_response), marketing (stats) |
 | `conversation.handoff` | reason, summary | notify Owner/assignee |
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
+| `lead.routing_requested` | contact_id, conversation_id, channel_account_id, message_id | consumer `crm.lead-routing` (ROLE=jobs) → `lead_routing.apply` nguồn system — chỉ khi tin 1-1 live vừa tạo khách (không nhóm / khớp khách cũ / lịch sử) (TIP-042b) |
 | `quote.sent` / `quote.viewed` / `quote.accepted` / `quote.rejected` / `quote.expired` | | crm stage (COMMERCE-DECISIONS §8); timeline; nhắc hết hạn |
 | `contract.approved` / `contract.sent_for_signature` / `contract.signed` / `contract.declined` / `contract.expiring` (T-30) / `contract.expired` / `contract.terminated` | contract_id, contact_id | crm stage → Hợp đồng; timeline; thông báo Owner; gửi PDF đã ký 2 bên; nhắc gia hạn; gợi ý agent |
 | `order.confirmed` | order_id | trừ kho (`stock_movement`), sinh `customer_package` nếu đủ điều kiện |
@@ -767,6 +772,12 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `campaign.resume` | write | | |
 | `campaign.cancel` | write | | |
 | `campaign.delete` | delete | | |
+| `campaign.analyze` | write (chỉ xếp hàng run `campaign.analyze` — worker ROLE=ai gọi model, AI Credit theo CreditMeter, DC-246) | | |
+| `campaign.draft_content` | read, AI (viết lại theo giọng — chỉ trả đề xuất, không lưu) | | |
+| `campaign.audience_import` | write (tệp CSV / XLSX → lô id khách thật; không đổi chủ, không đăng ký lại khách đã huỷ nhận) | | |
+| `campaign.recipient_export` | read (CSV theo scope CRM người xuất, chặn công thức) | | |
+| `campaign.resend_unread` | write (tạo NHÁP mới — vẫn qua duyệt + khoá 48 giờ) | | |
+| `campaign.dispatch` · `campaign.record_delivery` · `campaign.record_metric` · `campaign.store_analysis` · `campaign.unsubscribe` | hệ thống (`permission: self`, SYSTEM_ONLY — chỉ actor `system:campaign-*` qua Executor; HTTP / Trợ lý / agent 403) | | |
 
 **loyalty** (`loyalty.view` · `loyalty.adjust` · `loyalty.config`)
 - `loyalty.get_member`: read, agent ✓.
@@ -875,6 +886,9 @@ Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò h
 | Kế toán | — | all (đọc) | all | — | — | all (module sales) |
 
 - `own` gồm bản ghi mình phụ trách / được gán **và** mọi bản ghi của khách mình là collaborator / watcher (D32).
+- **Bảng chân trị một nơi (TIP-042c, `packages/core/src/authz/data-access`)** — list / count / detail / action đọc / realtime dùng cùng predicate: Owner workspace → all; `none` chặn trước mọi nhánh (kể cả bản ghi của chính mình); `own` → owner / assignee (+ người tạo ticket, phụ trách khách của hội thoại) + quan hệ khách; `team` → thêm `team_id` của **bản ghi** ∈ nhóm người xem (DC-299 — không suy từ owner ∈ thành viên nhóm; `team_id` null = mơ hồ, chỉ nhánh own). Quan hệ khách không áp ticket.
+- **Đọc ≠ ghi:** watcher chỉ ĐỌC (không bao giờ là bằng chứng ghi); collaborator đọc + ghi trong phạm vi (không chuyển phụ trách / xoá khách). Scope GHI theo vai trò (`AuthzContext.writeScope`, preset `ROLE_DEFS.*.writeScope`; vai trò tuỳ biến = scope đọc) không rộng hơn scope đọc — CSKH crm đọc `all` / ghi `own`. Không đọc được → 404; đọc được mà không ghi được → 403 `SCOPE_FORBIDDEN`.
+- **`team_id` (DC-299):** chụp lúc tạo — nguồn (HĐ ← báo giá / HĐ gia hạn, đơn ← báo giá → HĐ → lịch hẹn, đề nghị ← đơn, bản sửa báo giá ← bản trước, hội thoại ← khách) → nhóm DUY NHẤT của người phụ trách (0 / nhiều nhóm → null); chia lead theo nhóm của rule. Chuyển phụ trách khách đổi nhóm khách + hội thoại chuyển kèm; chứng từ cũ giữ owner + nhóm (doanh số).
 - "uỷ quyền" = Chủ sở hữu bật riêng cho từng Quản lý (lưu trong `role` tuỳ biến P1; P0 bật bằng cờ `membership.delegations text[]`).
 - Viewer (prototype) = vai trò tuỳ biến P1.
 
@@ -966,13 +980,13 @@ type UiCommand =
 | sales | `GET /v1/quotes?status=&contact_id=` · `GET /v1/quotes/:id` (gồm các version) · `GET /v1/quotes/:id/pdf` · `GET /v1/orders?…` · `GET /v1/orders/:id` · `GET /v1/invoices?…` · `GET /v1/invoices/:id` · `GET /v1/invoices/:id/qr` |
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
 | support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
-| marketing | `GET /v1/segments` · `POST /v1/segments/preview` (đọc) · `GET /v1/campaigns?status=` · `GET /v1/campaigns/:id` (+stats) · `GET /v1/campaign-suggestions` |
+| marketing | `GET /v1/segments` · `segment.preview` (action đọc) · `GET /v1/campaigns?status=&channel=&q=&page=&limit=` · `GET /v1/campaigns/meta` · `GET /v1/campaigns/:id` (+stats, 50 người nhận đầu) · `GET /v1/campaigns/:id/recipients?status=&page=&limit=` · `GET /v1/campaign-suggestions` · `GET /v1/campaign-analyses/:run_id` (trạng thái lượt phân tích của chính người xem) · công khai `GET /v1/public/campaign-unsubscribe/:token` + `POST …/confirm` (TIP-037) |
 | loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=&page=&limit=` · `GET /v1/loyalty/members/:contactId` · `GET /v1/loyalty/members/:contactId/ledger` · `GET /v1/loyalty/lookup?phone=` · `GET /v1/loyalty/overview` · `GET /v1/loyalty/members/:contactId/files` (+ `/:fileId` bytes) — bổ sung TIP-036, schema chung `packages/shared/src/api/loyalty.ts` |
 | ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/sources/:id/download` (TIP-020b — byte / văn bản, URL / catalog trả JSON mô tả; không tải lại website) · `GET /v1/kb/suggestions?status=&cursor=&limit=` (P1; TIP-043 — `{data, next_cursor, meta:{pending}}`) · `GET /v1/kb/suggestions/:id` · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |
 | billing | `GET /v1/billing/summary` (gói, hạn, credit, giới hạn) · `GET /v1/billing/plans` · `GET /v1/billing/ledger?cursor=` · `GET /v1/billing/invoices` · `GET /v1/billing/invoices/:id` (QR, trạng thái) |
-| dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn) |
+| dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn — TIP-038: `sales.booked` · `sales.collected` · `customers.at_risk` · `agents.performance` · `support.performance`; kỳ [from, to) theo giờ workspace, tối đa 366 ngày, `bucket` day/week/month; cùng service với `insight.query`; nguồn thiếu quyền → `availability.excluded`, không tổng) · `GET /v1/agents/:id/stats?from=&to=` (thống kê agent có nguồn: hội thoại, tỷ lệ lượt, CSAT + n, tỷ lệ chốt tương quan, Credit thật, so người thật) |
 | authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
 | misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` — đã nối (TIP-013, shape `packages/shared/src/api/settings.ts`): `workspace` (mọi thành viên), `members?q=` (`members.manage`; `{ data, total, seat_limit, next_cursor: null }`), `roles` (mọi thành viên), `sla` (`sla.manage`; giờ làm việc thật, chính sách mặc định tới TIP-034), `notifications` (TIP-006), `integrations` (TIP-012) |

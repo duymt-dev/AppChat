@@ -4,6 +4,7 @@
 import type { ChannelAdapter, ChannelRegistry } from '@appchat/channels';
 import type { PlatformDb } from '@appchat/db';
 import type { AppLogger } from '../../kernel/logger/logger';
+import { scanRoutes } from './lease';
 
 export interface StatelessDeps {
   platform: Pick<PlatformDb, 'tenantChannelRoute'>;
@@ -28,20 +29,21 @@ export class StatelessChannels {
     if (this.ticking || !types.length) return;
     this.ticking = true;
     try {
-      const routes = await this.d.platform.tenantChannelRoute.findMany({ where: { status: 'connected', type: { in: types } }, select: { channelAccountId: true, workspaceId: true, type: true } });
-      const live = new Set(routes.map((r) => r.channelAccountId));
-      for (const id of [...this.opened]) {
-        if (live.has(id)) continue;
-        this.opened.delete(id);
-        await this.d.close(id);
-      }
-      for (const r of routes) {
+      // Quét route theo trang (TIP-014b C).
+      const live = new Set<string>();
+      await scanRoutes(this.d.platform, types, async (r) => {
+        live.add(r.channelAccountId);
         const adapter = this.d.registry.get(r.type)?.adapter;
-        if (this.opened.has(r.channelAccountId) || !adapter) continue;
+        if (this.opened.has(r.channelAccountId) || !adapter) return;
         await this.d.open(r.channelAccountId, r.workspaceId, adapter).then(
           () => void this.opened.add(r.channelAccountId),
           (err: unknown) => this.d.log.warn({ err, account: r.channelAccountId }, 'stateless channel sender open failed'),
         );
+      });
+      for (const id of [...this.opened]) {
+        if (live.has(id)) continue;
+        this.opened.delete(id);
+        await this.d.close(id);
       }
     } catch (err) {
       this.d.log.error({ err }, 'stateless channels tick failed');

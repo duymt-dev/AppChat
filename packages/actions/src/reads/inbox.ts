@@ -37,10 +37,11 @@ export const conversationGet = defineAction({
   id: 'conversation.get',
   module: 'inbox',
   title: 'actions.conversation.get.title',
-  description: 'Get one conversation with its latest messages (up to 20, oldest first; recalled / deleted messages have no text). Example: {"conversation_id":"…","limit":10}',
+  description:
+    'Get one conversation with its latest messages (up to 20, oldest first; recalled / deleted messages have no text). Outgoing `status`: queued / sent / delivered / read, failed (not delivered), partial (only some parts reached the customer), unknown (the channel may or may not have delivered it — never claim it arrived, never resend it automatically). Example: {"conversation_id":"…","limit":10}',
   input: z.object({ conversation_id: z.string().min(1), limit: z.number().int().min(1).max(20).optional() }),
   output: convHit.extend({
-    messages: z.array(z.object({ id: z.string(), direction: z.string().nullable(), sender: z.string(), kind: z.string(), text: z.string(), at: z.string() })),
+    messages: z.array(z.object({ id: z.string(), direction: z.string().nullable(), sender: z.string(), kind: z.string(), text: z.string(), status: z.string(), at: z.string() })),
   }),
   permission: 'inbox.view',
   risk: 'read',

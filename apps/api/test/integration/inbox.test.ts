@@ -197,7 +197,8 @@ describe('scope + action', () => {
     const hieu = (await convOf('u_hieu'))!;
     expect((await get('/conversations', salesB)).body.data.map((c: { id: string }) => c.id)).not.toContain(hieu.id);
     expect((await get(`/conversations/${hieu.id}`, salesB)).status).toBe(404);
-    expect(await act('conversation.archive', { conversation_id: hieu.id }, as(salesB))).toMatchObject({ status: 403, body: { error: { code: 'SCOPE_FORBIDDEN' } } });
+    // TIP-042c: không đọc được → 404 cả khi ghi (không lộ tồn tại qua 403); 403 chỉ khi đọc được mà không ghi được (watcher).
+    expect(await act('conversation.archive', { conversation_id: hieu.id }, as(salesB))).toMatchObject({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
     expect((await get('/conversations', salesA)).body.data.map((c: { id: string }) => c.id)).toEqual([hieu.id]);
     expect((await act('contact.add_collaborator', { contact_id: hieu.contactId, user_id: salesB.id, role: 'collaborator' }, as(salesA))).status).toBe(200);
     expect((await get(`/conversations/${hieu.id}`, salesB)).status).toBe(200);
@@ -248,17 +249,32 @@ describe('scope + action', () => {
     const out = await db.message.findFirstOrThrow({ where: { conversationId: conv, direction: 'out' } });
     const inn = await db.message.findFirstOrThrow({ where: { conversationId: conv, externalMsgId: 'in-2' } });
     expect((await act('message.recall', { conversation_id: conv, message_id: inn.id }, idem())).status).toBe(403);
-    expect((await act('message.recall', { conversation_id: conv, message_id: out.id }, idem())).status).toBe(200);
+    // TIP-014b: Zalo thu hồi / cảm xúc = lệnh bền → 202 job_accepted; chỉ ACK nhà cung cấp (worker kênh, Zalo giả) mới đổi tin.
+    const rc = await act('message.recall', { conversation_id: conv, message_id: out.id }, idem());
+    expect(rc, JSON.stringify(rc.body)).toMatchObject({ status: 202, body: { data: { status: 'job_accepted', status_url: expect.stringMatching(/^\/v1\/inbox\/channel-operations\//) } } });
+    const opId = rc.body.data.job_id as string;
+    const ok = await until(async () => (await get(`/inbox/channel-operations/${opId}`)).body.data?.state === 'confirmed');
+    expect(ok, JSON.stringify({ op: (await get(`/inbox/channel-operations/${opId}`)).body, refs: await db.messageProviderRef.findMany({ where: { messageId: out.id } }) })).toBe(true);
+    expect(session().ops.find((o) => o.op === 'undo')).toMatchObject({ threadId: 'u_lan', msgId: expect.stringMatching(/^\d+$/), cliMsgId: expect.stringMatching(/^\d+$/) });
+    expect((await get(`/inbox/channel-operations/${opId}`, acct)).status).toBe(403);
     const del = await act('message.delete', { conversation_id: conv, message_id: inn.id });
     let t = threadSchema.parse((await get(`/conversations/${conv}/messages`)).body);
     expect(t.data.find((m) => m.id === inn.id)).toMatchObject({ deleted: true, body: '' });
     expect(t.data.find((m) => m.id === out.id)).toMatchObject({ recalled: true });
     await undo(del.body.data.action_log_id);
-    expect((await act('message.react', { conversation_id: conv, message_id: inn.id, emoji: '❤️' })).body.data.result).toEqual({ emoji: '❤️' });
+    // Pipeline lưu tham chiếu tin vào; id tin giả của test là chữ ('in-2') → gán id số + cliMsgId như payload Zalo thật (id chữ / thiếu
+    // cliMsgId bị chặn trước khi gọi kênh — channel-operations.test / zalo-operations.test).
+    expect(await db.messageProviderRef.findFirst({ where: { messageId: inn.id } })).toMatchObject({ msgId: 'in-2', threadId: 'u_lan' });
+    await db.messageProviderRef.updateMany({ where: { messageId: inn.id }, data: { msgId: '7400000002', cliMsgId: '9400000002' } });
+    const r1 = await act('message.react', { conversation_id: conv, message_id: inn.id, emoji: '❤️' });
+    expect(r1).toMatchObject({ status: 202, body: { data: { status: 'job_accepted' } } });
     t = threadSchema.parse((await get(`/conversations/${conv}/messages`)).body);
     expect(t.data.find((m) => m.id === inn.id)).toMatchObject({ reaction: '❤️' });
     expect(t.data.find((m) => m.id === inn.id)!.deleted).toBeUndefined();
-    expect((await act('message.react', { conversation_id: conv, message_id: inn.id, emoji: '❤️' })).body.data.result).toEqual({ emoji: null });
+    expect(await until(async () => session().ops.some((o) => o.op === 'react' && o.icon === '/-heart'))).toBe(true);
+    const r2 = await act('message.react', { conversation_id: conv, message_id: inn.id, emoji: '❤️' });
+    expect(r2.status).toBe(202);
+    expect(await until(async () => session().ops.some((o) => o.op === 'react' && o.icon === ''))).toBe(true);
     expect((await act('message.pin', { conversation_id: conv, message_id: inn.id, pinned: true })).status).toBe(200);
     expect((await get(`/conversations/${conv}`)).body.data.pinned_message_id).toBe(inn.id);
     const hieu = (await convOf('u_hieu'))!;
@@ -303,7 +319,7 @@ describe('thẻ + câu trả lời mẫu + realtime + chuyển phụ trách', ()
     const hieu = (await convOf('u_hieu'))!;
     const e = emitter.sent.slice(n0).filter((x) => (x.data as { conversation_id?: string }).conversation_id === hieu.id);
     expect(e.find((x) => x.event === 'message.new')).toMatchObject({ rooms: [`conv:${hieu.id}`] });
-    expect(e.find((x) => x.event === 'conversation.updated')).toMatchObject({ rooms: [`ws:${h.ws}`], require: { scope: { module: 'inbox', row: { ownerUserId: salesA.id } } } });
+    expect(e.find((x) => x.event === 'conversation.updated')).toMatchObject({ rooms: [`ws:${h.ws}`], require: { permission: 'inbox.view', record: { policy: { module: 'inbox', contactGrants: true }, mineUserId: salesA.id } } });
   });
 
   it('AC10 contact.transfer_owner chuyển kèm hội thoại → hội thoại đang mở gán người mới; undo trả lại', async () => {

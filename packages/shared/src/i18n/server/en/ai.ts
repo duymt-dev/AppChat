@@ -27,6 +27,10 @@ export const ai: typeof vi = {
     credit: 'Out of AI credits — needs a human reply',
     transfer_loop: 'Bounced between agents — needs a human',
     approval_rejected: 'The approver rejected the AI action',
+    approval_expired: 'The AI approval request expired — needs a human',
+    no_target: 'No suitable agent to transfer to — needs a human',
+    out_of_hours: 'Outside AI opening hours — waiting for staff',
+    missing_ticket_grant: 'Customer complained but the agent may not create tickets — needs a human to create one',
   },
   approval: {
     title: '{action}',
@@ -55,7 +59,6 @@ export const ai: typeof vi = {
     noContext: 'Unknown (the user is on the Assistant screen).',
     noAgents: 'No agent is running yet.',
     owner: 'Workspace owner (full access)',
-    queryData: 'Metric queries (query_data) arrive in a later release — use read actions via find_actions.',
     cancelled: 'Operation cancelled.',
     error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant could not handle this request yet — please try again later.' },
     entity: {
@@ -67,7 +70,7 @@ export const ai: typeof vi = {
     module: {
       ai: 'AI Agents', booking: 'Appointments', catalog: 'Products', sales: 'Sales', crm: 'Customers', documents: 'Document templates', identity: 'Account',
       notifications: 'Notifications', inbox: 'Inbox', loyalty: 'Loyalty', marketing: 'Marketing', settings: 'Settings', billing: 'Wallet & plan',
-      channels: 'Channels', integrations: 'Integrations', support: 'Support',
+      channels: 'Channels', integrations: 'Integrations', support: 'Support', insights: 'Insights',
     },
     think: [
       { label: 'Brainstorm', desc: 'Campaign, content and offer ideas — explore several directions to choose from.', tag: 'Creative', command: 'Suggest 5 campaign ideas for this month' },

@@ -4,6 +4,9 @@ import { Module } from '@nestjs/common';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
+import { ENC_KEY } from '../kernel/crypto';
+import { ENV_SOURCE } from '../kernel/kernel.module';
+import { fileLinksFrom } from '../kernel/files/file-links';
 import './seeds';
 import { ContactAddCollaboratorHandler, ContactDecideAccessHandler, ContactRemoveCollaboratorHandler, ContactRequestAccessHandler, ContactTransferOwnerHandler } from './actions/contact-owner.handlers';
 import { ContactExportHandler, ContactImportHandler } from './actions/contact-io.handlers';
@@ -19,6 +22,8 @@ import { ContactBulkUpdateHandler } from './actions/contact-bulk.handler';
 import { CrmReadService } from './services/crm-read.service';
 import { ContactIdentityService } from './services/identity.service';
 import { CrmMembers } from './services/members.service';
+import { ROUTING_PROVIDERS } from './routing/routing.providers';
+import { LeadRoutingReadService } from './routing/routing-read.service';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -42,11 +47,15 @@ const HANDLERS = [
     { provide: CrmMembers, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new CrmMembers(p) : null) },
     {
       provide: CrmReadService,
-      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CrmMembers, CLOCK],
-      useFactory: (r: TenantDbResolver | undefined, p: PlatformDb | undefined, m: CrmMembers | null, c: Clock) => (r && p && m ? new CrmReadService(r, p, m, () => c.now()) : null),
+      inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), CrmMembers, CLOCK, opt(ENV_SOURCE), opt(ENC_KEY)],
+      // Ảnh đại diện đồng bộ từ kênh (TIP-014b D) trả link ký cùng origin API public như tệp đính kèm.
+      useFactory: (r: TenantDbResolver | undefined, p: PlatformDb | undefined, m: CrmMembers | null, c: Clock, src?: Record<string, string | undefined>, key?: Buffer) =>
+        r && p && m ? new CrmReadService(r, p, m, () => c.now(), fileLinksFrom(src ?? {}, key)) : null,
     },
     { provide: ContactIdentityService, useValue: new ContactIdentityService() },
+    // TIP-042b: chia lead mới (rule + apply system + đọc cấu hình).
+    ...ROUTING_PROVIDERS,
   ],
-  exports: [CrmMembers, CrmReadService, ContactIdentityService, DataJobActionsModule],
+  exports: [CrmMembers, CrmReadService, ContactIdentityService, LeadRoutingReadService, DataJobActionsModule],
 })
 export class CrmModule {}

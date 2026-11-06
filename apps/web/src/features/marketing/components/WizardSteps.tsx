@@ -1,32 +1,22 @@
 // Thân 4 bước wizard — prototype L3683–3780. Bước 1: 2 kênh (Zalo cá nhân · Email — ngoại lệ §6 Kênh, chọn 1 kênh / chiến dịch).
-// Bước 2: tìm · Upload Excel · nhóm · bảng khách. Bước 3: tên · tiêu đề (email) · AI soạn 3 giọng · trình soạn. Bước 4: Gửi ngay / Hẹn giờ / AI tối ưu.
+// Bước 2: tìm · Nhập Excel (lô thật) · phân khúc đã lưu · nhóm · bảng khách (id thật). Bước 3 ở StepContent. Bước 4: Gửi ngay / Hẹn giờ /
+// AI tối ưu + tài khoản gửi + tóm tắt (AI Credit = 0 khi không gọi AI — gửi tin không tính credit, DC-246).
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useWizardStyles } from '../styles/wizard.styles';
 import { useStepStyles } from '../styles/steps.styles';
 import { useComposeStyles } from '../styles/compose.styles';
+import { useFmt } from '@/shared/i18n/useFmt';
 import { CHANNEL_LOOK, GROUP_TONE, avColor } from '../status';
-import type { MarketingMeta, MkChannel, SendMode } from '../types';
+import type { Customer, MarketingMeta, MkChannel, SendMode } from '../types';
 import type { WizardDraft } from '../hooks/useWizard';
+import { AudienceImportButton, AudienceImportResult } from './AudienceImport';
 
 type Patch = (p: Partial<WizardDraft>) => void;
 const CHANNELS: MkChannel[] = ['zalo', 'email'];
-const GROUPS = ['all', 'vip', 'returning', 'cart', 'new', 'cold'];
+const GROUPS = ['all', 'vip', 'loyal', 'new', 'potential'];
 const C_COLS = ['name', 'phone', 'email', 'meta'] as const;
-const TONES: [string, string][] = [
-  ['friendly', color.successStrong],
-  ['luxury', color.violet],
-  ['urgent', color.dangerStrong],
-];
-const TOOLS: [string, string, string][] = [
-  ['B', 'bold', '**'],
-  ['I', 'italic', '_'],
-  ['U', 'underline', '__'],
-  ['•', 'ul', '\n• '],
-  ['1.', 'ol', '\n1. '],
-];
 const SENDS: [SendMode, IconName, string, string][] = [
   ['now', 'ic-send', color.brand, color.white],
   ['schedule', 'ic-cal', color.muteBg, color.text3],
@@ -73,16 +63,16 @@ interface AudienceProps {
   meta: MarketingMeta;
   d: WizardDraft;
   patch: Patch;
-  visible: { c: MarketingMeta['customers'][number]; i: number }[];
-  toggle: (i: number) => void;
+  visible: Customer[];
+  toggle: (id: string) => void;
   selectAll: () => void;
 }
 
 export function StepAudience({ meta, d, patch, visible, toggle, selectAll }: AudienceProps) {
   const t = useTranslations('marketing.wiz');
-  const { message } = App.useApp();
   const w = useWizardStyles().styles;
   const { styles, cx } = useStepStyles();
+  const seg = (id: string) => patch({ segment_ids: d.segment_ids.includes(id) ? d.segment_ids.filter((x) => x !== id) : [...d.segment_ids, id] });
   return (
     <>
       <div className={w.sec}>
@@ -94,37 +84,25 @@ export function StepAudience({ meta, d, patch, visible, toggle, selectAll }: Aud
           <Icon name="ic-search" size={14} color={color.text4} strokeWidth={1.9} />
           <input value={d.q} onChange={(e) => patch({ q: e.target.value })} placeholder={t('custSearch')} aria-label={t('custSearch')} data-testid="mk-wiz-q" />
         </div>
-        <button
-          type="button"
-          className={styles.upload}
-          onClick={() => (patch({ uploaded: true }), void message.success(t('uploadDone')))}
-          data-testid="mk-wiz-upload"
-        >
-          <Icon name="ic-dl" size={14} color={color.blue} />
-          {t('upload')}
-        </button>
+        <AudienceImportButton onDone={(batch) => patch({ batch })} />
       </div>
+      {meta.segments.length ? (
+        <div className={styles.groups} data-testid="mk-wiz-segments">
+          {meta.segments.map(([id, name, n]) => (
+            <button key={id} type="button" className={cx(styles.group, d.segment_ids.includes(id) && styles.groupOn)} onClick={() => seg(id)} data-seg={id}>
+              {`${name} · ${n}`}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className={styles.groups}>
         {GROUPS.map((g) => (
           <button key={g} type="button" className={cx(styles.group, d.group === g && styles.groupOn)} onClick={() => patch({ group: g })}>
-            {g === 'all' ? t('groupAll') : (meta.segments.find((s) => s[0] === g)?.[1] ?? g)}
+            {g === 'all' ? t('groupAll') : t(`grp.${g}`)}
           </button>
         ))}
       </div>
-      {d.uploaded ? (
-        <div className={styles.done} data-testid="mk-wiz-uploaded">
-          <span className={styles.doneIc}>
-            <Icon name="ic-check" size={16} color={color.white} strokeWidth={1.9} />
-          </span>
-          <div className={w.grow}>
-            <b>{t('uploadFile')}</b>
-            <div className={styles.doneS}>{t('uploadSum')}</div>
-          </div>
-          <button type="button" className={styles.link} onClick={() => patch({ uploaded: false })}>
-            {t('unload')}
-          </button>
-        </div>
-      ) : null}
+      {d.batch ? <AudienceImportResult b={d.batch} onRemove={() => patch({ batch: null })} /> : null}
       <div className={styles.allRow}>
         <button type="button" className={styles.all} onClick={selectAll} data-testid="mk-wiz-all">
           <Icon name="ic-check" size={13} color={color.brand} strokeWidth={2} />
@@ -142,25 +120,25 @@ export function StepAudience({ meta, d, patch, visible, toggle, selectAll }: Aud
           <span className={styles.grp}>{t('cCol.group')}</span>
         </div>
         <div className={styles.scroll}>
-          {visible.map(({ c, i }) => {
-            const on = d.picked.includes(i);
-            const tone = GROUP_TONE[c[3]] ?? color.text4;
+          {visible.map((c) => {
+            const on = d.picked.includes(c.id);
+            const tone = GROUP_TONE[c.group] ?? color.text4;
             return (
-              <div key={c[1]} className={cx(styles.row, on && styles.rowOn)} onClick={() => toggle(i)} data-cust={i}>
+              <div key={c.id} className={cx(styles.row, on && styles.rowOn)} onClick={() => toggle(c.id)} data-cust={c.id}>
                 <span className={cx(styles.check, on && styles.checkOn)}>
                   <Icon name="ic-check" size={11} color={color.white} strokeWidth={3} />
                 </span>
                 <div className={styles.who}>
-                  <span className={styles.av} style={{ background: avColor(c[0]) }}>
-                    {c[0].replace(/^(Chị|Anh) /, '').charAt(0)}
+                  <span className={styles.av} style={{ background: avColor(c.name) }}>
+                    {c.name.replace(/^(Chị|Anh) /, '').charAt(0)}
                   </span>
-                  <span className={styles.nm}>{c[0]}</span>
+                  <span className={styles.nm}>{c.name}</span>
                 </div>
-                <span className={styles.ph}>{c[1]}</span>
-                <span className={styles.em}>{c[2]}</span>
-                <span className={styles.meta}>{c[4]}</span>
+                <span className={styles.ph}>{c.phone}</span>
+                <span className={styles.em}>{c.email}</span>
+                <span className={styles.meta}>{c.label}</span>
                 <span className={styles.grp} style={{ background: `${tone}16`, color: tone }}>
-                  {t(`grp.${c[3]}`)}
+                  {c.group ? t(`grp.${c.group}` as never) : '—'}
                 </span>
               </div>
             );
@@ -187,78 +165,13 @@ export function StepAudience({ meta, d, patch, visible, toggle, selectAll }: Aud
   );
 }
 
-export function StepContent({ d, patch }: { d: WizardDraft; patch: Patch }) {
+export function StepSchedule({ meta, d, patch, audience }: { meta: MarketingMeta; d: WizardDraft; patch: Patch; audience: number }) {
   const t = useTranslations('marketing.wiz');
-  const { message } = App.useApp();
-  const w = useWizardStyles().styles;
-  const { styles } = useComposeStyles();
-  const tone = (k: string) => {
-    patch({ body: t.raw(`toneText.${k}`) as string });
-    void message.success(t('toneDone', { l: t(`tones.${k}`) }));
-  };
-  const s3sub = t.raw('s3sub') as string;
-  return (
-    <>
-      <div className={w.sec}>
-        <div className={w.secT}>{t('s3')}</div>
-        <div className={w.secS}>{s3sub}</div>
-      </div>
-      <div className={w.field}>
-        <div className={w.label}>{t('name')}</div>
-        <input className={w.input} value={d.name} onChange={(e) => patch({ name: e.target.value })} placeholder={t('namePh')} data-testid="mk-wiz-name" />
-      </div>
-      {d.channel === 'email' ? (
-        <div className={w.field}>
-          <div className={w.label}>{t('subject')}</div>
-          <input className={w.input} value={d.subject} onChange={(e) => patch({ subject: e.target.value })} data-testid="mk-wiz-subject" />
-        </div>
-      ) : null}
-      <div className={styles.aiCard}>
-        <div className={styles.aiH}>
-          <span className={styles.aiIc}>
-            <Icon name="ic-spark" size={14} color={color.white} strokeWidth={1.9} />
-          </span>
-          {t('aiCompose')}
-          <span className={styles.aiS}>{t('aiComposeSub')}</span>
-        </div>
-        <div className={styles.tones}>
-          {TONES.map(([k, c]) => (
-            <button key={k} type="button" className={styles.tone} style={{ borderColor: `${c}44`, color: c }} onClick={() => tone(k)} data-testid={`mk-tone-${k}`}>
-              <Icon name="ic-spark" size={13} color={c} strokeWidth={1.9} />
-              {t(`tones.${k}`)}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className={w.label}>{t('body')}</div>
-      <div className={styles.editor}>
-        <div className={styles.bar}>
-          {TOOLS.map(([l, k, mark]) => (
-            <button key={k} type="button" className={styles.tool} title={t(`tools.${k}`)} aria-label={t(`tools.${k}`)} onClick={() => patch({ body: d.body + mark })}>
-              {l}
-            </button>
-          ))}
-          <span className={w.grow} />
-          <button type="button" className={styles.help} onClick={() => patch({ body: t.raw('aiHelpText') as string })}>
-            <Icon name="ic-spark" size={12} color={color.violetInk} />
-            {t('aiHelp')}
-          </button>
-        </div>
-        <textarea className={styles.text} value={d.body} onChange={(e) => patch({ body: e.target.value })} aria-label={t('body')} data-testid="mk-wiz-body" />
-      </div>
-      <div className={styles.preview}>
-        <Icon name="ic-spark" size={16} color={color.info} />
-        <span>{t.rich('preview', { b: (c) => <b>{c}</b> })}</span>
-      </div>
-    </>
-  );
-}
-
-export function StepSchedule({ d, patch, audience }: { d: WizardDraft; patch: Patch; audience: number }) {
-  const t = useTranslations('marketing.wiz');
+  const fmt = useFmt();
   const w = useWizardStyles().styles;
   const { styles, cx } = useComposeStyles();
-  const credits = d.channel === 'email' ? Math.ceil(audience / 100) : 0;
+  const accounts = meta.accounts.filter((a) => a.type === (d.channel === 'zalo' ? 'zalo_personal' : 'email'));
+  const cap = accounts.find((a) => a.id === d.account_id)?.daily_cap ?? null;
   return (
     <>
       <div className={w.sec}>
@@ -286,6 +199,18 @@ export function StepSchedule({ d, patch, audience }: { d: WizardDraft; patch: Pa
           );
         })}
       </div>
+      <div className={w.field}>
+        <div className={w.label}>{t('account')}</div>
+        <select className={w.input} value={d.account_id} onChange={(e) => patch({ account_id: e.target.value })} aria-label={t('account')} data-testid="mk-wiz-account">
+          {accounts.length ? null : <option value="">{t('noAccount')}</option>}
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id} disabled={a.status !== 'connected'}>
+              {a.status === 'connected' ? a.name : `${a.name} · ${t('accountOff')}`}
+            </option>
+          ))}
+        </select>
+        {cap ? <div className={styles.optS}>{t('capHint', { n: fmt.number(cap), days: Math.max(1, Math.ceil(audience / cap)) })}</div> : null}
+      </div>
       <div className={styles.summary}>
         <div className={styles.sumT}>{t('summary')}</div>
         <div className={styles.sumG}>
@@ -295,11 +220,11 @@ export function StepSchedule({ d, patch, audience }: { d: WizardDraft; patch: Pa
           </div>
           <div>
             <span>{t('sumAud')}</span>
-            <div data-testid="mk-wiz-aud">{audience.toLocaleString('vi-VN')}</div>
+            <div data-testid="mk-wiz-aud">{fmt.number(audience)}</div>
           </div>
           <div>
             <span>{t('sumCredits')}</span>
-            <div>{credits.toLocaleString('vi-VN')}</div>
+            <div>{t('creditsNone')}</div>
           </div>
         </div>
       </div>

@@ -60,6 +60,10 @@ for (const k of ['delegate', 'consult', 'task']) registerResumeSpec(k, agentSpec
 type FinishFn = (db: TenantDb, run: RunRow, r: RunResult, d: ResumeDeps, ws: string) => Promise<unknown>;
 const FINISH = new Map<string, FinishFn>();
 export const registerResumeFinish = (kind: string, fn: FinishFn) => FINISH.set(kind, fn);
+/** TIP-022b: duyệt hết hạn → hook theo loại run (agent trực kênh: chuyển người kèm tóm tắt, không chỉ đánh dấu run). */
+type ExpireFn = (db: TenantDb, run: RunRow, d: ResumeDeps, ws: string) => Promise<unknown>;
+const EXPIRED = new Map<string, ExpireFn>();
+export const registerResumeExpired = (kind: string, fn: ExpireFn) => EXPIRED.set(kind, fn);
 
 /** Chạy action đã duyệt → kết quả tool. Lỗi nghiệp vụ (hết quyền, sai trạng thái) → `error` cho model biết, run vẫn tiếp. */
 async function executeApproved(d: ResumeDeps, db: TenantDb, ws: string, a: ApprovalRow): Promise<ToolOutcome> {
@@ -110,7 +114,12 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
     });
     if (!events) return 'skipped';
     await markDirty(d.kv, ws);
-    if (a.runId) await new RunStore(db, d.now).finish(a.runId, 'handoff', { error: serverMessages('vi').ai.approval.expired });
+    if (a.runId) {
+      const run = await db.aiRun.findUnique({ where: { id: a.runId } });
+      const hook = run ? EXPIRED.get(run.kind) : undefined;
+      if (run && hook) await hook(db, run, d, ws);
+      else await new RunStore(db, d.now).finish(a.runId, 'handoff', { error: serverMessages('vi').ai.approval.expired });
+    }
     return 'done';
   }
   if (a.status === 'pending' || a.status === 'expired') return 'skipped';

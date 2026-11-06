@@ -1,7 +1,7 @@
 // Mục Vai trò — prototype L5998–6027: danh sách vai trò (thanh màu 4×38, tên 16 đậm 230px, mô tả, số người 70px, nhãn viền),
 // ma trận 1.6fr + 5 cột, hàng nhóm nền xám chữ hoa 12, ✓ xanh / — xám.
 import { createStyles } from 'antd-style';
-import { color, font, radius } from '@appchat/ui';
+import { color, font, layout, radius } from '@appchat/ui';
 
 export const useRolesStyles = createStyles(({ css, responsive }) => ({
   tools: css`
@@ -97,6 +97,26 @@ export const useRolesStyles = createStyles(({ css, responsive }) => ({
     place-items: center;
     flex-shrink: 0;
     margin-right: 12px;
+    ${responsive.md} {
+      width: ${layout.touch}px;
+      height: ${layout.touch}px;
+    }
+  `,
+  acts: css`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    button {
+      margin-right: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      &:hover {
+        background: ${color.tabIdle};
+      }
+    }
   `,
   mHead: css`
     margin-bottom: 12px;

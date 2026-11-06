@@ -15,6 +15,8 @@ import { agentAuthz } from './agent-authz';
 import { currentAuthority } from './current-authority';
 import type { AgentConfig } from './agent.store';
 import { AGENT_INTENTS } from './catalog';
+import { agentSchedule } from './schedule-config';
+import { inSchedule } from '@appchat/shared';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
 const LANG: Record<AgentConfig['language'], string> = {
@@ -41,17 +43,13 @@ export function agentSystem(c: AgentConfig): string {
   ].join('\n');
 }
 
-const OFFICE = { from: 8 * 60, to: 17 * 60 + 30 };
-const VN_OFFSET_MIN = 7 * 60;
-
 /**
- * Agent đang trong khung giờ hoạt động? `office` = 8:00–17:30 giờ VN (gồm 8:00, không gồm 17:30), mọi ngày; `always` / `custom`
- * (lịch tuỳ chỉnh chưa có màn — DC-136) = luôn hoạt động.
+ * Agent đang trong khung giờ hoạt động? `office` = 8:00–17:30 Asia/Ho_Chi_Minh (gồm 8:00, không gồm 17:30), mọi ngày; `custom` theo lịch
+ * tuần có cấu trúc (TIP-022b — chưa có lịch = giữ hành vi đã xuất bản: luôn hoạt động + cảnh báo); `always` luôn hoạt động.
  */
-export function withinHours(mode: AgentConfig['working_hours'], now: Date): boolean {
-  if (mode !== 'office') return true;
-  const min = (((now.getUTCHours() * 60 + now.getUTCMinutes() + VN_OFFSET_MIN) % 1440) + 1440) % 1440;
-  return min >= OFFICE.from && min < OFFICE.to;
+export function withinHours(mode: AgentConfig['working_hours'], now: Date, weekly: AgentConfig['weekly_schedule'] = null): boolean {
+  const s = agentSchedule({ working_hours: mode, weekly_schedule: weekly });
+  return !s || inSchedule(s, now);
 }
 
 export interface AgentRunCtx {

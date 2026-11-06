@@ -4,6 +4,6 @@ import { useRegisterScreenContext } from '@/shared/assistant/screen-context';
 import { useMarketingUi } from '../marketing-store';
 
 export function useAssistantContext() {
-  const id = useMarketingUi((s) => s.detail);
+  const id = useMarketingUi((s) => s.detail ?? s.focus);
   useRegisterScreenContext({ module: 'marketing', route: '/marketing', entity: 'campaign', id });
 }

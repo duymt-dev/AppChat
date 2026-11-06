@@ -1,6 +1,7 @@
 // TIP-045b annex B — tệp đính kèm gửi ra kênh: link ký nội bộ (đúng origin API + route + chữ ký) đọc thẳng Storage của đúng workspace,
 // không gọi HTTP (kể cả khi origin API là localhost); chữ ký sai / route khác / origin khác không được coi là tệp nội bộ; URL ngoài trỏ
 // mạng nội bộ / metadata bị safeFetch chặn; adapter Zalo / IMAP không được cấp fetcher thì từ chối (fail closed).
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { ZaloPersonalAdapter, refuseFileFetch } from '@appchat/channels';
 import { attachmentFetcher } from '../src/channels/services/attachment-fetcher';
@@ -45,6 +46,20 @@ describe('link ký nội bộ', () => {
   it('tệp ký đúng nhưng đã xoá → attachment_not_found', async () => {
     const other = '0190f000-0000-7000-8000-0000000000f2';
     await expect(attachmentFetcher(deps([]))(signedFileUrl(API, KEY, WS, other))).rejects.toThrow('attachment_not_found');
+  });
+});
+
+describe('ràng buộc tệp chứng từ (TIP-014b)', () => {
+  const SHA = createHash('sha256').update('%PDF').digest('hex');
+  it('đúng file_id + sha256 → gửi; sha khác (tệp bị thay) / link trỏ tệp khác / URL ngoài → binding_mismatch', async () => {
+    const f = attachmentFetcher(deps([]));
+    const url = signedFileUrl(API, KEY, WS, FILE);
+    expect((await f(url, { fileId: FILE, sha256: SHA })).toString()).toBe('%PDF');
+    await expect(f(url, { fileId: FILE, sha256: 'f'.repeat(64) })).rejects.toThrow('attachment_binding_mismatch');
+    await expect(f(url, { fileId: '0190f000-0000-7000-8000-0000000000f2', sha256: SHA })).rejects.toThrow('attachment_binding_mismatch');
+    const reads: string[] = [];
+    await expect(attachmentFetcher(deps(reads))('https://cdn.example.com/a.pdf', { fileId: FILE })).rejects.toThrow('attachment_binding_mismatch');
+    expect(reads).toEqual([]);
   });
 });
 

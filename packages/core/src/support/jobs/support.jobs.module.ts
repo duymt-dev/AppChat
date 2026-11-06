@@ -1,6 +1,7 @@
 // Worker ROLE=jobs của domain `support` (TIP-034, Blueprint §1.4 "SLA tick"): scheduler `support.sla-sweep` mỗi phút trên queue riêng
 // `support-scheduler` (jobId cố định → một lịch dù nhiều worker) — sắp đến hạn / quá hạn FRT / TTR → leo thang. Consumer `support` của
 // queue `events`: tin khách vào hội thoại có ticket (bình luận, Đang chờ → Đang xử lý, tự mở lại trong 7 ngày, CSAT) + trả lời đầu.
+// Consumer `support.ai-complaint` (TIP-022b): khiếu nại ở lượt agent auto → ticket.create qua Executor.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
@@ -15,6 +16,9 @@ import { registerEventConsumer, unregisterEventConsumer, type EventConsumer } fr
 import { SupportModule } from '../support.module';
 import { SlaCalendar } from '../services/sla-clock';
 import { onAgentReply, onCustomerMessage, sweepSla } from '../services/support-system';
+import { ActionExecutor } from '../../kernel/actions/executor';
+import { agentAuthz } from '../../ai/agents/agent-authz';
+import { AI_COMPLAINT_CONSUMER, aiComplaintConsumer } from '../events/ai-complaint.consumer';
 
 export const SUPPORT_SCHEDULER_QUEUE = 'support-scheduler';
 export const SLA_SWEEP_JOB = 'support.sla-sweep';
@@ -67,12 +71,15 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Inject(SlaCalendar) private readonly cal: SlaCalendar,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
+    @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     if (!this.redis || !this.platform || !this.tenants) return;
     const now = () => this.clock.now();
     registerEventConsumer(supportConsumer(this.cal, now));
+    // TIP-022b D: khiếu nại phát hiện ở lượt agent → ticket qua Executor (actor agent, grant hiện hành).
+    if (this.executor) registerEventConsumer(aiComplaintConsumer(this.executor, (a) => agentAuthz(a)));
     const deps: SlaSweepDeps = { platform: this.platform, tenants: this.tenants, now, onError: (ws, err) => this.log.warn({ err, ws, job: SLA_SWEEP_JOB }, 'quét SLA lỗi ở workspace') };
     this.queue = new Queue(SUPPORT_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(SLA_SWEEP_JOB, { every: EVERY_MS }, { name: SLA_SWEEP_JOB });
@@ -90,6 +97,7 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
 
   async onApplicationShutdown(): Promise<void> {
     unregisterEventConsumer('support');
+    unregisterEventConsumer(AI_COMPLAINT_CONSUMER);
     await this.worker?.close();
     await this.queue?.close();
   }

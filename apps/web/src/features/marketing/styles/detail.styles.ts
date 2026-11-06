@@ -111,6 +111,22 @@ export const useDetailStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
+  reason: css`
+    height: 36px;
+    min-width: 0;
+    width: 220px;
+    padding: 0 12px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    background: ${color.surface};
+    color: ${color.text};
+    font-size: ${font.scale.s13}px;
+    outline: none;
+    ${responsive.md} {
+      width: 100%;
+      height: ${layout.touch}px;
+    }
+  `,
   primary: css`
     ${btn}
     border: none;

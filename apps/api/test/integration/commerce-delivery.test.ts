@@ -72,6 +72,8 @@ describe('VietQR ảnh thật', () => {
     const atts = m.attachments as { mime: string; name?: string }[];
     expect(atts.map((a) => a.mime)).toEqual(['application/pdf', 'image/png']);
     expect(atts[1]!.name).toContain(i.code);
+    const ob = await db.outboxMessage.findFirstOrThrow({ where: { messageId: m.id } });
+    expect((ob.payload as { attachments: { fileId?: string; sha256?: string }[] }).attachments.every((a) => a.fileId && /^[0-9a-f]{64}$/.test(a.sha256 ?? ''))).toBe(true);
     expect(await db.outboxMessage.count({ where: { messageId: m.id } })).toBe(1);
   }, 180_000);
 
@@ -151,6 +153,11 @@ describe('xác nhận đơn + phiếu thu', () => {
     const p = await db.customerPayment.findUniqueOrThrow({ where: { id: pay.payment_id } });
     const m = await db.message.findUniqueOrThrow({ where: { id: r.message_id } });
     expect((m.attachments as { url: string }[])[0]!.url).toContain(p.receiptFileId!);
+    // Ràng buộc bất biến (TIP-014b): payload outbox mang file_id + sha256 của bản đóng băng; dòng tin (DTO) không lộ ràng buộc.
+    const ob = await db.outboxMessage.findFirstOrThrow({ where: { messageId: m.id } });
+    const f = await db.file.findUniqueOrThrow({ where: { id: p.receiptFileId! } });
+    expect((ob.payload as { attachments: unknown[] }).attachments[0]).toMatchObject({ fileId: f.id, sha256: f.sha256 });
+    expect((m.attachments as object[])[0]).not.toHaveProperty('sha256');
     const again = await call(h, `/invoices/receipts/${pay.payment_id}/pdf`);
     expect(Buffer.from(await again.arrayBuffer()).length).toBe(Number((await db.file.findUniqueOrThrow({ where: { id: p.receiptFileId! } })).size));
     expect((await act('receipt.send', { payment_id: uuidv7() })).status).toBe(404);

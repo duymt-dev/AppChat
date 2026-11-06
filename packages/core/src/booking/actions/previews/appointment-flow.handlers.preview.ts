@@ -10,7 +10,7 @@ import { step } from '../../services/appointment-write';
 import { bookingSetting } from '../../services/slots';
 
 async function flowOf(ctx: ActionContext, tx: TenantTx, id: string, action: string, timeZone: string) {
-  const a = await visibleAppointment(tx, ctx.authz, id);
+  const a = await visibleAppointment(tx, ctx.authz, id, 'write');
   const to = step(a, action);
   const [c, s] = await Promise.all([tx.contact.findUnique({ where: { id: a.contactId }, select: { name: true } }), tx.product.findUnique({ where: { id: a.serviceId }, select: { name: true } })]);
   const w = utcToWall(a.startAt, timeZone);

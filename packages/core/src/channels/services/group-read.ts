@@ -17,7 +17,7 @@ export class GroupRead {
     if (!r) throw new AppError('NOT_FOUND', 404, { request_id: 'not_found' });
     if (!viewer.authz.isOwner && r.requesterId !== viewer.userId) {
       const ids = (r.participants as unknown as Participant[]).map((p) => p.conversation_id);
-      const convs = await db.conversation.findMany({ where: { id: { in: ids } }, select: { id: true, contactId: true, assigneeUserId: true } });
+      const convs = await db.conversation.findMany({ where: { id: { in: ids } }, select: { id: true, contactId: true, assigneeUserId: true, teamId: true } });
       const all = convs.length === ids.length && (await Promise.all(convs.map((c) => canSeeConversation(db, viewer.authz, c)))).every(Boolean);
       if (!all) throw new AppError('NOT_FOUND', 404, { request_id: 'not_found' });
     }

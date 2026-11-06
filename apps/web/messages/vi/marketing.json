@@ -32,14 +32,30 @@
     "abCount": "{n} thử nghiệm",
     "varA": "Biến thể A",
     "varB": "Biến thể B",
-    "upcoming": "Lịch gửi sắp tới"
+    "upcoming": "Lịch gửi sắp tới",
+    "stat": {
+      "campaigns": "Chiến dịch",
+      "sent": "Đã gửi",
+      "reply": "Tỷ lệ phản hồi",
+      "converted": "Chuyển đổi"
+    },
+    "abNone": "Chưa có thử nghiệm A/B nào.",
+    "upcomingNone": "Chưa có chiến dịch hẹn giờ.",
+    "recipients": "{n} người nhận",
+    "whenApproved": "Khi duyệt"
   },
   "kpi": {
     "running": "Chiến dịch đang chạy",
     "sent": "Tin đã gửi",
-    "open": "Tỷ lệ mở",
-    "click": "Tỷ lệ click",
-    "trend": "↑ {v} so với tháng trước"
+    "trend": "↑ {v} so với tháng trước",
+    "reply": "Tỷ lệ phản hồi",
+    "converted": "Tỷ lệ chuyển đổi",
+    "hint": {
+      "running": "Đang gửi theo lô",
+      "sent": "Tin kênh đã nhận",
+      "reply": "Khách trả lời sau khi nhận",
+      "converted": "Đơn trong 7 ngày sau tin"
+    }
   },
   "status": {
     "all": "Tất cả",
@@ -50,7 +66,8 @@
     "paused": "Tạm dừng",
     "completed": "Hoàn thành",
     "rejected": "Từ chối",
-    "cancelled": "Đã hủy"
+    "cancelled": "Đã hủy",
+    "approved": "Đã duyệt"
   },
   "search": "Tìm kiếm chiến dịch…",
   "sort": "Sắp xếp: Mới nhất",
@@ -69,31 +86,22 @@
   },
   "perf": {
     "sent": "Đã gửi",
-    "open": "Mở",
-    "click": "Click",
     "none": "Chưa gửi",
-    "dash": "—"
+    "dash": "—",
+    "reply": "Phản hồi",
+    "converted": "Chuyển đổi"
   },
-  "timeLine": "{date} · 08:00",
+  "timeLine": "{date} · {time}",
   "endLine": "→ {end}",
   "hint": {
-    "0": "Nên chăm sóc lại — 18 ngày chưa liên hệ",
-    "1": "Gửi ưu đãi giữ chân khách",
-    "2": "Nhắc thanh toán / theo dõi đơn",
-    "3": "Đề xuất upsell combo phù hợp",
-    "4": "Phản hồi gấp theo SLA",
-    "5": "Đặt lịch follow-up tuần này"
+    "review": "Chờ duyệt — kiểm tra nội dung & người nhận",
+    "unknown": "{n} tin chưa rõ kết quả — cần kiểm tra",
+    "noReply": "Chưa có phản hồi — cân nhắc đổi nội dung",
+    "resend": "Có thể gửi lại cho khách chưa phản hồi",
+    "draft": "Nháp — hoàn tất rồi gửi duyệt",
+    "wait": "Chờ tới giờ gửi"
   },
-  "aiDo": "Giao AI Agent xử lý ngay",
-  "aiDoing": "AI Agent đang xử lý: tối ưu tiêu đề & giờ gửi chiến dịch",
   "aiPeek": "Xem gợi ý AI",
-  "peekTitle": "Chiến dịch · AI gợi ý",
-  "peek": [
-    "Tỷ lệ mở thấp hơn TB — đổi tiêu đề & giờ gửi (19–21h).",
-    "Phân khúc khách ngủ đông 90 ngày — tách nhánh win-back.",
-    "Kênh tối ưu: Zalo cá nhân cho nhóm này (miễn phí, mở cao).",
-    "A/B test 2 nội dung để tăng CTR ~12%."
-  ],
   "menu": {
     "open": "Thao tác",
     "view": "Xem chi tiết",
@@ -112,23 +120,19 @@
     "subLoading": "Đang đọc hồ sơ, hành vi mua và lịch sử tương tác…",
     "subList": "{n} cơ hội Marketing được phát hiện",
     "subDetail": "Chi tiết đề xuất · kiểm tra trước khi tạo chiến dịch",
-    "loading": "AI đang phân tích dữ liệu khách hàng và tìm kiếm các cơ hội Marketing phù hợp…",
-    "intro": "AI đã phân tích <b>4.280 khách hàng</b> trên 12 nhóm tín hiệu và phát hiện <b>{n} cơ hội Marketing</b>. Mỗi đề xuất nêu rõ nên làm gì, gửi cho ai, vì sao, bằng kênh nào và vào thời điểm nào.",
+    "loading": "AI đang phân tích dữ liệu khách hàng (tổng hợp, không gửi thông tin cá nhân) — có thể mất vài phút…",
+    "intro": "Có <b>{n} gợi ý</b> từ lần phân tích gần nhất — mỗi đề xuất nêu rõ nên làm gì, gửi cho ai, vì sao, bằng kênh nào và vào thời điểm nào. Số khách đếm theo dữ liệu thật trong phạm vi bạn xem được.",
     "col": {
-      "priority": "Ưu tiên",
       "name": "Chiến dịch AI đề xuất",
-      "segment": "Nhóm khách hàng",
-      "count": "Số lượng",
+      "count": "Số khách",
       "reason": "Lý do đề xuất",
       "channel": "Kênh",
-      "when": "Thời điểm"
-    },
-    "priority": {
-      "high": "Cao",
-      "medium": "Trung bình"
+      "when": "Thời điểm",
+      "kind": "Loại",
+      "segment": "Nhóm khách hàng"
     },
     "rerun": "Yêu cầu AI phân tích lại",
-    "pickHint": "Chọn một đề xuất để xem chi tiết",
+    "pickHint": "Chọn một gợi ý để xem chi tiết",
     "used": "Đã tạo",
     "back": "← Quay lại danh sách đề xuất",
     "pitch": "Đề xuất của AI",
@@ -140,17 +144,60 @@
       "channel": "Kênh phù hợp",
       "time": "Thời điểm",
       "message": "Thông điệp",
-      "priority": "Mức độ ưu tiên"
+      "priority": "Mức độ ưu tiên",
+      "cta": "CTA"
     },
     "countV": "{n} khách hàng",
-    "forecast": "Dự báo tỷ lệ phản hồi",
-    "signals": "Tín hiệu AI dùng để đề xuất",
     "createFrom": "Tạo chiến dịch từ đề xuất",
-    "viewList": "Xem danh sách khách hàng",
-    "adjust": "Điều chỉnh điều kiện lọc",
-    "exclude": "Loại bỏ khách hàng",
     "close": "Đóng",
-    "and": " và "
+    "and": " và ",
+    "none": "Chưa có gợi ý nào. Yêu cầu AI phân tích dữ liệu khách hàng (tốn AI Credit).",
+    "run": "Yêu cầu AI phân tích",
+    "failed": "AI chưa phân tích xong — thử lại sau. Không có gợi ý mới được lưu.",
+    "anyTime": "Bất kỳ lúc nào",
+    "bodyL": "Nội dung gợi ý",
+    "generated": "Thời điểm phân tích",
+    "kind": {
+      "reactivation": "Tái kích hoạt",
+      "upsell": "Bán thêm",
+      "conversion": "Chuyển đổi",
+      "aftercare": "Chăm sóc sau mua",
+      "manual": "Thủ công"
+    },
+    "signal": {
+      "profile": "Thông tin hồ sơ khách hàng",
+      "tags": "Phân loại & nhãn khách hàng",
+      "orders": "Lịch sử mua hàng",
+      "interactions": "Lịch sử tương tác",
+      "last_interaction": "Thời gian tương tác gần nhất",
+      "value": "Giá trị & tần suất mua",
+      "documents": "Báo giá · hợp đồng · đơn hàng",
+      "campaigns": "Lịch sử nhận chiến dịch"
+    },
+    "f": {
+      "not": "Trừ {x}",
+      "group": "Nhóm {v}",
+      "tag": "Thẻ {v}",
+      "stage": "Giai đoạn {v}",
+      "source": "Nguồn {v}",
+      "tier": "Hạng {v}",
+      "spentGte": "Chi tiêu ≥ {v}",
+      "spentLte": "Chi tiêu ≤ {v}",
+      "spentBetween": "Chi tiêu {v}–{v2}",
+      "ordersGte": "Đã mua ≥ {n} đơn",
+      "ordersLte": "Đã mua ≤ {n} đơn",
+      "bought": "Đã mua sản phẩm chọn",
+      "notBought": "Chưa mua sản phẩm chọn",
+      "neverOrder": "Chưa mua lần nào",
+      "idleOrder": "Không mua trên {n} ngày",
+      "recentOrder": "Mua trong {n} ngày",
+      "idleTouch": "Không tương tác trên {n} ngày",
+      "recentTouch": "Tương tác trong {n} ngày",
+      "beforeOrder": "Mua lần cuối trước {d}",
+      "afterOrder": "Mua lần cuối từ {d}",
+      "beforeTouch": "Tương tác cuối trước {d}",
+      "afterTouch": "Tương tác cuối từ {d}"
+    }
   },
   "wiz": {
     "titleNew": "Tạo chiến dịch Broadcast",
@@ -177,21 +224,19 @@
       "zalo": {
         "name": "Zalo cá nhân",
         "desc": "Tin tới khách đã kết bạn / đã chat · gửi theo lô, tối đa 200 tin / ngày",
-        "cost": "Miễn phí"
+        "cost": "Không tính AI Credit"
       },
       "email": {
         "name": "Email",
-        "desc": "HTML · 18,400 contacts có email",
-        "cost": "1 credit / 100 email"
+        "desc": "Gửi qua hộp email đã kết nối · khách có địa chỉ email",
+        "cost": "Không tính AI Credit"
       }
     },
     "s2": "Chọn người nhận",
     "s2sub": "Lọc theo nhóm đối tượng, tìm kiếm, hoặc upload Excel — tích chọn khách rồi tiếp tục soạn nội dung.",
     "custSearch": "Tìm khách hàng theo tên hoặc số điện thoại…",
     "upload": "Upload Excel",
-    "uploadDone": "Đã nhập 1.248 liên hệ từ file Excel",
-    "uploadFile": "danh-sach-khach.xlsx",
-    "uploadSum": "Đã nhập 1.248 liên hệ · 1.180 hợp lệ · 68 trùng bỏ qua",
+    "uploadSum": "{rows} dòng · {valid} hợp lệ · {invalid} lỗi · {dup} trùng bỏ qua",
     "unload": "Gỡ",
     "groupAll": "Tất cả",
     "selectAll": "Chọn tất cả",
@@ -205,37 +250,31 @@
     },
     "grp": {
       "vip": "VIP",
-      "returning": "Quay lại",
-      "cart": "Bỏ giỏ",
       "new": "Mới",
-      "cold": "Inactive"
+      "loyal": "Thân thiết",
+      "potential": "Tiềm năng"
     },
     "noCust": "Không tìm thấy khách hàng phù hợp.",
     "picked": "Đã chọn {n} khách hàng",
     "pickedSub": "Tiếp tục để soạn nội dung tin nhắn bằng AI hoặc trình soạn thảo",
     "toContent": "Tiếp tục soạn nội dung",
     "s3": "Nội dung tin nhắn",
-    "s3sub": "Dùng biến cá nhân hoá {Tên}, {Link}. AI có thể soạn giúp theo từng giọng điệu.",
+    "s3sub": "Dùng biến cá nhân hoá {ten}, {ma_khach}, {hang}. AI có thể viết lại theo giọng điệu (tốn AI Credit).",
     "name": "Tên chiến dịch",
     "namePh": "VD: Flash Sale Hè 2026 — Khách Vàng",
     "subject": "Tiêu đề email",
     "aiCompose": "AI soạn nội dung",
-    "aiComposeSub": "— chọn giọng điệu để AI viết",
+    "aiComposeSub": "— chọn giọng điệu để AI viết lại nội dung hiện tại",
     "tones": {
       "friendly": "Thân thiện",
-      "luxury": "Sang trọng",
-      "urgent": "Khẩn cấp"
+      "formal": "Trang trọng",
+      "promo": "Khuyến mãi",
+      "short": "Ngắn gọn"
     },
-    "toneText": {
-      "friendly": "Chào anh/chị {Tên}! 🌸 Spa đang có ưu đãi 30% cho liệu trình HIFU tới 23:59 hôm nay. Đặt lịch ngay nhé 👉 {Link}",
-      "luxury": "Kính gửi quý khách {Tên}, chúng tôi trân trọng dành tặng ưu đãi 30% cho liệu trình cao cấp. Đặt lịch tại {Link}.",
-      "urgent": "⚡ {Tên} ơi, CHỈ HÔM NAY! Giảm 30% toàn bộ liệu trình — số lượng có hạn. Nhận ưu đãi: {Link}"
-    },
-    "toneDone": "AI đã soạn nội dung · giọng {l}",
+    "toneDone": "AI đã viết lại nội dung · giọng {l}",
     "body": "Nội dung",
-    "aiHelp": "AI soạn giúp",
-    "aiHelpText": "Chào anh/chị {Tên}! 🌸 Flash Sale 30% liệu trình HIFU tới 23:59 hôm nay. Đặt lịch ngay 👉 {Link}",
-    "defaultBody": "Chào anh/chị {Tên}! Flash Sale 30% áo polo cotton tới 23:59 hôm nay. Xem ngay 👉 {Link}",
+    "aiHelp": "AI rút gọn",
+    "defaultBody": "Chào {ten}! Flash Sale 30% áo polo cotton tới 23:59 hôm nay.",
     "tools": {
       "bold": "Đậm",
       "italic": "Nghiêng",
@@ -243,7 +282,7 @@
       "ul": "Danh sách",
       "ol": "Danh sách số"
     },
-    "preview": "<b>Xem trước:</b> tin sẽ hiển thị với tên khách thật và link rút gọn theo dõi click.",
+    "preview": "<b>Xem trước:</b> tin hiển thị với tên khách thật; cuối tin có link huỷ nhận.",
     "s4": "Lên lịch & gửi",
     "s4sub": "Gửi ngay, hẹn giờ, hoặc để AI chọn thời điểm tối ưu cho từng khách. Chiến dịch luôn qua bước duyệt trước khi gửi.",
     "send": {
@@ -266,14 +305,20 @@
     "errName": "Nhập tên chiến dịch",
     "errAud": "Chọn ít nhất một nhóm hoặc một khách hàng",
     "errBody": "Nhập nội dung tin nhắn",
-    "fromAi": "AI đã điền sẵn chiến dịch: {name}"
+    "fromAi": "AI đã điền sẵn chiến dịch: {name}",
+    "uploading": "Đang nhập…",
+    "account": "Tài khoản gửi",
+    "accountOff": "chưa kết nối",
+    "noAccount": "Chưa có tài khoản đang kết nối — vào Cài đặt › Kênh",
+    "capHint": "Tối đa {n} tin chủ động / ngày — dự kiến gửi xong trong {days} ngày.",
+    "creditsNone": "0 — gửi tin không tính AI Credit",
+    "errAt": "Chọn thời điểm gửi"
   },
   "detail": {
     "back": "Quay lại",
     "export": "Xuất danh sách",
-    "exporting": "Đang xuất danh sách người nhận…",
-    "resend": "Gửi lại người chưa đọc",
-    "resendDone": "Đã xếp lịch gửi lại cho khách chưa đọc",
+    "resend": "Gửi lại người chưa phản hồi",
+    "resendDone": "Đã tạo nháp {code} · {n} khách chưa phản hồi — kiểm tra rồi gửi duyệt",
     "tab": {
       "recipients": "Danh sách khách hàng",
       "content": "Nội dung",
@@ -281,26 +326,19 @@
     },
     "stat": {
       "sent": "Đã gửi",
-      "read": "Đã đọc",
-      "click": "Đã click",
       "conv": "Chuyển đổi",
-      "revenue": "Doanh thu"
+      "revenue": "Doanh thu",
+      "reply": "Phản hồi",
+      "unknown": "Chưa rõ kết quả"
     },
-    "revenueV": "48.7M đ",
-    "roi": "ROI 4.8×",
-    "all": "100%",
-    "fStatus": "Trạng thái: Tất cả",
-    "fSeg": "Phân khúc: Tất cả",
-    "fTime": "Thời gian: Tất cả",
-    "rSearch": "Tìm kiếm SĐT, tên khách hàng…",
-    "adv": "Bộ lọc nâng cao",
     "pills": {
       "all": "Tất cả",
-      "delivered": "Đã gửi",
-      "opened": "Đã đọc",
-      "clicked": "Đã click",
-      "unread": "Chưa đọc",
-      "failed": "Chưa gửi"
+      "failed": "Thất bại",
+      "sent": "Đã gửi",
+      "replied": "Đã phản hồi",
+      "converted": "Chuyển đổi",
+      "pending": "Chờ gửi",
+      "skipped": "Bỏ qua"
     },
     "list": "Danh sách khách hàng",
     "listN": "{n} khách hàng",
@@ -309,15 +347,17 @@
       "phone": "SĐT",
       "status": "Trạng thái",
       "sent": "Thời gian gửi",
-      "read": "Thời gian đọc",
-      "click": "Thời gian click",
-      "act": "Thao tác"
+      "act": "Thao tác",
+      "reply": "Thời gian phản hồi"
     },
     "rst": {
-      "clicked": "Đã click",
-      "opened": "Đã đọc",
-      "delivered": "Đã gửi",
-      "failed": "Thất bại"
+      "failed": "Thất bại",
+      "sent": "Đã gửi",
+      "replied": "Đã phản hồi",
+      "converted": "Chuyển đổi",
+      "pending": "Chờ gửi",
+      "skipped": "Bỏ qua",
+      "unknown": "Chưa rõ"
     },
     "view": "Xem",
     "more": "Thêm",
@@ -333,7 +373,12 @@
       "paused": "Tạm dừng gửi",
       "resumed": "Tiếp tục gửi",
       "cancelled": "Huỷ chiến dịch",
-      "edited": "Chỉnh sửa chiến dịch"
+      "edited": "Chỉnh sửa chiến dịch",
+      "completed": "Gửi xong",
+      "held": "Tạm giữ — tài khoản gửi chưa sẵn sàng",
+      "reopened": "Mở lại để chỉnh sửa",
+      "test_sent": "Gửi thử",
+      "undo": "Hoàn tác"
     },
     "notSent": "Chiến dịch chưa gửi — chưa có người nhận.",
     "approvalBar": "Chiến dịch đang chờ duyệt · {n} người nhận",
@@ -342,19 +387,54 @@
     "submit": "Gửi duyệt",
     "sendTest": "Gửi thử",
     "testDone": "Đã gửi thử tới {to}",
-    "rejected": "Đã bị từ chối: {reason}"
+    "rejected": "Đã bị từ chối: {reason}",
+    "reasonPh": "Lý do từ chối…",
+    "noSegment": "Khách chọn tay",
+    "resendNoRead": "Đã tạo nháp {code} · {n} khách chưa phản hồi (kênh không xác nhận đã đọc) — kiểm tra rồi gửi duyệt",
+    "ofEligible": "trên {n} người đủ điều kiện",
+    "unknownHint": "Đã gọi kênh nhưng chưa rõ tới khách — không tự gửi lại",
+    "none": "Không có",
+    "revenueHint": "Đơn trong 7 ngày sau tin (chiến dịch gần nhất)",
+    "noReadReceipt": "Kênh này không xác nhận đã đọc / click — chỉ đếm tin đã gửi, phản hồi và chuyển đổi.",
+    "skip": {
+      "opt_out": "Đã huỷ nhận tin",
+      "no_endpoint": "Không có kênh nhận",
+      "cooldown": "Trong 48 giờ",
+      "deleted": "Khách đã xoá",
+      "out_of_scope": "Ngoài phạm vi",
+      "cancelled": "Đã huỷ",
+      "unsupported": "Kênh không hỗ trợ",
+      "invalid_content": "Nội dung lỗi"
+    },
+    "noMatch": "Không có người nhận phù hợp bộ lọc.",
+    "unit": "người nhận",
+    "openContact": "Xem hồ sơ khách",
+    "openConv": "Mở hội thoại",
+    "variantB": "Biến thể B"
   },
   "aiPanel": {
     "title": "Trợ lý AI · Marketing",
     "sub": "Gợi ý & tạo chiến dịch theo dữ liệu khách hàng",
     "close": "Đóng",
-    "hello": "Dựa trên dữ liệu tháng này, mình gợi ý 4 chiến dịch có tiềm năng cao. Chọn để mở wizard tạo nhanh.",
+    "hello": "Đây là các gợi ý chiến dịch từ lần AI phân tích gần nhất. Chọn để mở wizard tạo nhanh, hoặc hỏi mình bên dưới.",
     "go": "Tạo chiến dịch này",
     "ph": "Hỏi trợ lý về chiến dịch…",
     "send": "Gửi",
-    "full": "Mở Trợ lý AI đầy đủ →"
+    "full": "Mở Trợ lý AI đầy đủ →",
+    "none": "Chưa có gợi ý — bấm \"AI phân tích dữ liệu khách hàng\" để AI đề xuất chiến dịch."
   },
   "from": "Từ ngày",
   "to": "Đến ngày",
-  "unit": "chiến dịch"
+  "unit": "chiến dịch",
+  "noEnd": "Không hẹn giờ",
+  "unsub": {
+    "title": "Huỷ nhận tin chiến dịch",
+    "sub": "Bạn sẽ không nhận tin khuyến mãi / chiến dịch từ {biz} nữa. Tin trả lời hội thoại và chứng từ (báo giá, hợp đồng, đơn hàng) vẫn gửi bình thường.",
+    "confirm": "Xác nhận huỷ nhận tin",
+    "doneTitle": "Đã huỷ nhận tin",
+    "doneSub": "{biz} sẽ không gửi tin chiến dịch cho bạn nữa.",
+    "error": "Chưa huỷ được — thử lại sau.",
+    "invalidTitle": "Liên kết không còn hiệu lực",
+    "invalidSub": "Liên kết huỷ nhận tin đã hết hạn hoặc không đúng. Bạn có thể trả lời tin để được hỗ trợ."
+  }
 }

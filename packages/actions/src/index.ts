@@ -2,6 +2,7 @@ import type { ActionDef } from './define';
 import * as identity from './identity';
 import * as onboarding from './onboarding';
 import * as dashboard from './dashboard';
+import * as insights from './insights';
 import * as inbox from './inbox';
 import * as crm from './crm';
 import * as ai from './ai';
@@ -23,12 +24,17 @@ import * as bookingConfig from './booking-config';
 import * as bookingUpdate from './booking-update';
 import * as conversationGroups from './conversation-groups';
 import * as groupResults from './group-results';
+import * as channelOperations from './channel-operations';
+import * as channelFriends from './channel-friends';
 import * as support from './support';
 import * as marketing from './marketing';
+import * as marketingExtras from './marketing-extras';
 import * as loyalty from './loyalty';
 import * as loyaltySystem from './loyalty-system';
 import * as loyaltyPayments from './loyalty-payments';
 import * as settings from './settings';
+import * as authz from './authz';
+import * as leadRouting from './lead-routing';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as kbFolders from './kb-folders';
@@ -55,6 +61,7 @@ export * from './assistant-ui';
 export * from './identity';
 export * from './onboarding';
 export * from './dashboard';
+export * from './insights';
 export * from './inbox';
 export * from './crm';
 export * from './ai';
@@ -76,13 +83,18 @@ export * from './booking-config';
 export * from './booking-update';
 export * from './conversation-groups';
 export * from './group-results';
+export * from './channel-operations';
+export * from './channel-friends';
 export * from './support';
 export * from './marketing';
+export * from './marketing-extras';
 export * from './loyalty';
 export * from './loyalty-reasons';
 export * from './loyalty-system';
 export * from './loyalty-payments';
 export * from './settings';
+export * from './authz';
+export * from './lead-routing';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './kb-folders';
@@ -109,6 +121,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(identity),
   ...Object.values(onboarding),
   ...Object.values(dashboard),
+  ...Object.values(insights),
   ...Object.values(inbox),
   ...Object.values(crm),
   ...Object.values(ai),
@@ -130,12 +143,17 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(bookingUpdate),
   ...Object.values(conversationGroups),
   ...Object.values(groupResults),
+  ...Object.values(channelOperations),
+  ...Object.values(channelFriends),
   ...Object.values(support),
   ...Object.values(marketing),
+  ...Object.values(marketingExtras),
   ...Object.values(loyalty),
   ...Object.values(loyaltySystem),
   ...Object.values(loyaltyPayments),
   ...Object.values(settings),
+  ...Object.values(authz),
+  ...Object.values(leadRouting),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(kbFolders),

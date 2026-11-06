@@ -49,7 +49,7 @@ export class ContractSendHandler implements Handler<SendIn, SendOut> {
   async prepare(ctx: ActionContext, input: SendIn): Promise<IssuedLink> {
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'contract.send_for_signature'));
     await db.$transaction(async (tx) => {
-      const c = await visibleContract(tx, ctx.authz, input.contract_id);
+      const c = await visibleContract(tx, ctx.authz, input.contract_id, 'write');
       assertTransition(CONTRACT_FLOW, c.status, 'contract.send_for_signature');
       await reachCustomer(tx, await tx.contact.findUniqueOrThrow({ where: { id: c.contactId }, select: { id: true, email: true } }), input.channel);
     });

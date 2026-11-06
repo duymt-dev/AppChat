@@ -36,13 +36,13 @@ export const sourceOf = (t: string | null): Fact['source'] => (t === 'agent' || 
 @ActionHandler('contact.memory_list')
 export class ContactMemoryListHandler implements Handler<ActionInput<typeof contactMemoryList>, Out> {
   async execute(ctx: ActionContext, i: ActionInput<typeof contactMemoryList>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
-    const { contact, access } = await visibleContact(tx, ctx.authz, i.contact_id);
+    const { contact, writable } = await visibleContact(tx, ctx.authz, i.contact_id);
     const rows = await recentFacts(tx, contact.id, MEMORY_CAP);
     return {
       result: {
         items: rows.map((r) => ({ memory_id: r.id, fact: r.fact, confidence: r.confidence, source: sourceOf(r.actor_type), updated_at: r.updated_at.toISOString() })),
         cap: MEMORY_CAP,
-        can_edit: access !== 'watcher' && ctx.authz.permissions.has('crm.edit'),
+        can_edit: writable && ctx.authz.permissions.has('crm.edit'),
       },
     };
   }

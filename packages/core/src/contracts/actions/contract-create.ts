@@ -9,6 +9,7 @@ import { actorUserId, type CrmMembers } from '../../crm/public';
 import { pickContractTemplate } from '../../documents/public';
 import { actorNameOf, checkContractParties, checkDates, fieldCols, logSignEvent, type ContractFields } from '../services/contract-write';
 import type { SourceCols } from '../files/source';
+import { snapshotTeam } from '../../authz/data-access';
 
 export interface NewContract extends Omit<ContractFields, 'source'> {
   contact_id: string;
@@ -18,6 +19,14 @@ export interface NewContract extends Omit<ContractFields, 'source'> {
 
 /** Cột nguồn tệp + gốc tin nhắn (nguồn mẫu: vắng). */
 export type FileOrigin = SourceCols & { originMessageId?: string; originAttachmentIdx?: number };
+
+/** Nhóm của bản ghi nguồn (báo giá → hợp đồng gốc khi gia hạn). */
+async function sourceTeam(tx: TenantTx, i: { quote_id?: string | null; renewal_of_id?: string | null }): Promise<string | null> {
+  const q = i.quote_id ? await tx.quote.findUnique({ where: { id: i.quote_id }, select: { teamId: true } }) : null;
+  if (q?.teamId) return q.teamId;
+  const r = i.renewal_of_id ? await tx.contract.findUnique({ where: { id: i.renewal_of_id }, select: { teamId: true } }) : null;
+  return r?.teamId ?? null;
+}
 
 export async function insertContract(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: NewContract, now: Date, event: string, file?: FileOrigin) {
   const { ownerUserId } = await checkContractParties(ctx, tx, members, { contactId: input.contact_id, ownerUserId: input.owner_user_id });
@@ -35,6 +44,8 @@ export async function insertContract(ctx: ActionContext, tx: TenantTx, members: 
       quoteId: input.quote_id ?? null,
       renewalOfId: input.renewal_of_id ?? null,
       ownerUserId,
+      // DC-299: nhóm theo nguồn (báo giá / hợp đồng gia hạn) → nhóm duy nhất của người phụ trách.
+      teamId: await snapshotTeam(tx, { from: await sourceTeam(tx, input), owner: ownerUserId }),
       templateId: tpl?.id ?? null,
       templateVersion: tpl?.version ?? null,
       ...cols,

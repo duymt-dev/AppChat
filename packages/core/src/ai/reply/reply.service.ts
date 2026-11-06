@@ -1,23 +1,31 @@
-// Một lượt agent trực kênh (Blueprint §5.3): job `agent-reply` → kiểm còn cần trả lời (chế độ AI, chưa chuyển người, chưa có lượt
-// agent sau tin khách) → lắp ngữ cảnh (che PII) → run `agent_reply` (copilot: `suggestion`) → đọc output có cấu trúc → gửi qua
-// `message.send` (hội thoại đang phục vụ, chạy luôn — §3.3) hoặc chuyển người (lưu nháp, `ai_state=handoff`, event `ai.handoff`).
-// `transfer_to_agent` đổi agent rồi agent mới chạy ngay trong lượt (≤ 3 lần, A → B → A → sang người). Run dừng chờ duyệt →
-// `ai_state=waiting_approval`; job `ai-resume` chạy tiếp rồi gọi `finishTurn` (registerResumeFinish) cho phần quyết định.
-import { decideHandoff, parseAgentReply, unmaskPii, type Embedder, type HandoffReason } from '@appchat/ai';
-import { TenantContexts, TenantSql, type TenantDb, type TenantDbResolver } from '@appchat/db';
-import { foldText, interpolate, serverMessages } from '@appchat/shared';
+// Một lượt agent trực kênh (Blueprint §5.3): job `agent-reply` → còn tin khách nguồn chưa trả lời (receipt lượt — lời chào không làm xong
+// lượt) → chọn agent (gán tay / chuyển giữ nguyên; chưa có → phân luồng từ khoá → mặc định tài khoản; trong giờ = lịch tài khoản ∩ lịch
+// agent — TIP-022b) → lời chào một lần (nếu bật) → lắp ngữ cảnh (che PII) → run `agent_reply` (copilot: `suggestion`) → đọc output có cấu
+// trúc (ý định đóng) → gửi qua `message.send` (hội thoại đang phục vụ — §3.3) hoặc chuyển người (nháp + tóm tắt có cấu trúc + event
+// `ai.handoff`; khiếu nại ở auto → event `ai.complaint_detected`). `transfer_to_agent` ≤ 3 lần / lượt (A → B → A → sang người), đích phải đủ
+// điều kiện kênh + giờ. Run chờ duyệt → `ai_state=waiting_approval`; job `ai-resume` chạy tiếp rồi gọi `finishResumedTurn`.
+import { decideHandoff, parseAgentReply, unmaskPii, type Embedder } from '@appchat/ai';
+import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
+import { foldText } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import type { ToolExecutor } from '../../kernel/actions/executor';
 import type { KeyValueStore } from '../../kernel/redis';
-import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { AppLogger } from '../../kernel/logger/logger';
+import { uuidv7 } from '../../kernel/ids';
 import { agentAuthz } from '../agents/agent-authz';
-import { withinHours } from '../agents/agent.runtime';
 import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
+import { settingsOf } from '../../channels/public';
+import { scheduleOf } from '../agents/schedule-config';
+import { availability } from './availability';
+import { pickAgent } from './agent-pick';
+import { isComplaint, recordComplaintIntent } from './complaint-intent';
+import { finalizeReceipt, openReceipt, pendingSource, sendGreeting, wantsGreeting } from './greeting';
+import { normalizeIntent, recordIntent } from './intent';
 import { buildReplyContext, publishedAgent, type ReplyContext } from './reply-context';
 import { META, replyTools } from './reply-tools';
 import { isSuperseded } from './send-fence';
+import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
@@ -36,54 +44,12 @@ export interface ReplyDeps {
 
 type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique']>>>;
 type Agent = ReplyContext['agent'];
+type Published = NonNullable<Awaited<ReturnType<typeof publishedAgent>>>;
 export type TurnOutcome = 'sent' | 'suggested' | 'handoff' | 'waiting_approval' | 'skipped' | 'superseded';
+/** Lượt khách nguồn đang xử lý (receipt) — null khi chạy tiếp run cũ không có receipt. */
+type Source = { conversationId: string; sourceMessageId: string } | null;
 
-const msgs = () => serverMessages('vi').ai.handoff;
-
-/** Agent phụ trách: `assignee_agent_id`, không có thì agent mặc định của tài khoản kênh. */
-async function agentIdOf(db: TenantDb, c: Conv): Promise<string | null> {
-  if (c.assigneeAgentId) return c.assigneeAgentId;
-  const acc = await db.channelAccount.findUnique({ where: { id: c.channelAccountId }, select: { settings: true } });
-  return ((acc?.settings ?? {}) as { agent_id?: string | null }).agent_id ?? null;
-}
-
-/** Còn cần agent trả lời: AI bật, chưa chuyển người / chờ duyệt, tin cuối là của khách. */
-async function needsReply(db: TenantDb, c: Conv): Promise<boolean> {
-  if (c.aiMode === 'off' || c.aiState === 'handoff' || c.aiState === 'waiting_approval' || c.status === 'closed') return false;
-  const last = await db.message.findFirst({ where: { conversationId: c.id, deletedAt: null, kind: { not: 'note' } }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], select: { direction: true } });
-  return last?.direction === 'in';
-}
-
-async function convEventBase(db: TenantDb, c: Conv) {
-  const owner = c.contactId ? await db.contact.findUnique({ where: { id: c.contactId }, select: { ownerUserId: true, name: true } }) : null;
-  return {
-    base: { conversation_id: c.id, channel_account_id: c.channelAccountId, contact_id: c.contactId, assignee_user_id: c.assigneeUserId, contact_owner_user_id: owner?.ownerUserId ?? null },
-    title: c.title ?? owner?.name ?? '',
-  };
-}
-
-async function setState(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, data: Parameters<TenantDb['conversation']['update']>[0]['data'], change: string) {
-  const { base } = await convEventBase(db, c);
-  await db.$transaction(async (tx) => {
-    await tx.conversation.update({ where: { id: c.id }, data });
-    await writeOutbox(tx, ws, [{ topic: 'conversation.updated', payload: { ...base, change } }], d.now());
-  });
-  await markDirty(d.kv, ws);
-}
-
-/** Chuyển sang người: không gửi, lưu nháp, `ai_state=handoff` + lý do, event `ai.handoff` (thông báo `ai_escalate`). */
-async function handoff(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, agent: Pick<Agent, 'id' | 'name'> | null, runId: string | null, reason: string, text: string, draft: string | null) {
-  const { base, title } = await convEventBase(db, c);
-  await db.$transaction(async (tx) => {
-    await tx.conversation.update({ where: { id: c.id }, data: { aiState: 'handoff', handoffReason: text.slice(0, 300), aiDraft: draft?.slice(0, 4000) ?? null, aiSuggestion: TenantSql.DbNull } });
-    await writeOutbox(tx, ws, [{ topic: 'ai.handoff', payload: { ...base, run_id: runId, agent_id: agent?.id ?? null, agent: agent?.name ?? '', reason, title } }], d.now());
-  });
-  await markDirty(d.kv, ws);
-  if (runId) await new RunStore(db, d.now).finish(runId, 'handoff', { error: reason });
-}
-
-const reasonText = (r: HandoffReason | 'error' | 'credit' | 'transfer_loop' | 'approval_rejected', vars: Record<string, string | number> = {}) =>
-  interpolate(msgs()[r], { detail: '', pct: 0, threshold: 0, ...vars });
+const blocked = (c: Conv) => c.aiMode === 'off' || c.aiState === 'handoff' || c.aiState === 'waiting_approval' || c.status === 'closed';
 
 /** Gửi câu trả lời qua `message.send` với ngữ cảnh agent (hội thoại đang phục vụ — chạy luôn, §3.3). */
 async function send(d: ReplyDeps, ws: string, c: Conv, agent: Agent, runId: string, text: string, turn: TurnLease | null): Promise<boolean> {
@@ -114,16 +80,17 @@ async function coordination(db: TenantDb, runId: string) {
   return null;
 }
 
-/** Chạy một agent cho hội thoại; trả kết quả run + ngữ cảnh. */
-async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: NonNullable<Awaited<ReturnType<typeof publishedAgent>>>, extra: { summary?: string; parentRunId?: string } = {}) {
+/** Chạy một agent cho hội thoại; trả kết quả run + ngữ cảnh. Tin khách nguồn lưu vào `ai_run.input` TRƯỚC khi tool chạy (TIP-022b D). */
+async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Published, extra: { summary?: string; parentRunId?: string; sourceMessageId?: string | null; runId?: string } = {}) {
   const copilot = c.aiMode === 'copilot';
   const ctx = await buildReplyContext(db, c, a, d.embedder);
   const store = new RunStore(db, d.now);
   const run = await store.create({
+    ...(extra.runId ? { id: extra.runId } : {}),
     kind: copilot ? 'suggestion' : 'agent_reply',
     title: a.agent.name,
     tier: a.cfg.model_tier,
-    input: { conversation_id: c.id, pii: ctx.pii, copilot, ...(extra.summary ? { transfer_summary: extra.summary } : {}) },
+    input: { conversation_id: c.id, pii: ctx.pii, copilot, source_message_id: extra.sourceMessageId ?? null, ...(extra.summary ? { transfer_summary: extra.summary } : {}) },
     agentId: a.agent.id,
     agentVersion: a.version,
     conversationId: c.id,
@@ -136,10 +103,20 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: NonN
   return { r, run, ctx };
 }
 
+/** Đích chuyển còn đủ điều kiện: đang chạy, loại kênh cho phép, trong giờ (lịch tài khoản ∩ agent). */
+async function transferTarget(db: TenantDb, c: Conv, agentId: string, now: Date): Promise<Published | null> {
+  const next = await publishedAgent(db, agentId);
+  if (!next || (next.cfg.channels.length && !next.cfg.channels.includes(c.channelType))) return null;
+  const acc = await db.channelAccount.findUnique({ where: { id: c.channelAccountId }, select: { settings: true } });
+  return availability(next.cfg, scheduleOf(acc ? settingsOf(acc).schedule ?? null : null), now).open ? next : null;
+}
+
 /** Quyết định sau khi run xong (lượt đầu hoặc sau khi chạy tiếp vì duyệt). */
-async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunRow, r: RunResult, ctx: Pick<ReplyContext, 'cfg' | 'agent' | 'pii' | 'lastCustomer' | 'previousCustomer' | 'banned'>, transfers: string[], turn: TurnLease | null): Promise<TurnOutcome> {
+async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunRow, r: RunResult, ctx: Pick<ReplyContext, 'cfg' | 'agent' | 'pii' | 'lastCustomer' | 'previousCustomer' | 'banned'>, transfers: string[], turn: TurnLease | null, source: Source): Promise<TurnOutcome> {
   const copilot = run.kind === 'suggestion';
   const agent = ctx.agent;
+  const off = (reason: ReasonKey | string, text: string, draft: string | null, extra: { intent?: ReturnType<typeof normalizeIntent> | null; note?: string | null } = {}) =>
+    handoff(d, db, ws, c, { agent, runId: run.id, reason, text, draft, intent: extra.intent ?? null, note: extra.note ?? null, source });
   // Mất lượt (người tiếp quản / đổi chế độ / lượt khác giành sau khi hết hạn): không gửi, không ghi gợi ý / trạng thái — chỉ giữ nháp
   // không gửi kèm lý do khi chưa có nháp của người.
   if (turn && !(await stillOwns(db, turn, d.now()))) {
@@ -155,9 +132,8 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   }
   if (r.status !== 'completed') {
     const credit = r.error?.code === 'CREDIT_EXHAUSTED';
-    const text = credit ? reasonText('credit') : reasonText('error', { detail: r.error?.code ?? r.status });
     if (copilot) return 'skipped';
-    await handoff(d, db, ws, c, agent, run.id, credit ? 'credit' : 'error', text, null);
+    await off(credit ? 'credit' : 'error', credit ? reasonText('credit') : reasonText('error', { detail: r.error?.code ?? r.status }), null);
     return 'handoff';
   }
 
@@ -165,27 +141,31 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   if (coord?.kind === 'transfer' && !copilot) {
     // A → B → A hoặc quá 3 lần trong lượt → sang người.
     if (transfers.length >= MAX_TRANSFERS || transfers.includes(coord.agentId) || coord.agentId === agent.id) {
-      await handoff(d, db, ws, c, agent, run.id, 'transfer_loop', reasonText('transfer_loop'), null);
+      await off('transfer_loop', reasonText('transfer_loop'), null, { note: coord.summary });
       return 'handoff';
     }
-    const next = await publishedAgent(db, coord.agentId);
+    // Đích phải đủ điều kiện kênh / giờ — không có thì chuyển người, không cấp agent tạm.
+    const next = await transferTarget(db, c, coord.agentId, d.now());
     if (!next) {
-      await handoff(d, db, ws, c, agent, run.id, 'error', reasonText('error', { detail: 'transfer' }), null);
+      await off('no_target', reasonText('no_target'), null, { note: coord.summary });
       return 'handoff';
     }
-    const idx = await new RunStore(db, d.now).nextIdx(run.id);
-    await new RunStore(db, d.now).step(run.id, { idx, type: 'handoff', input: { to: next.agent.id, reason: coord.reason }, output: { summary: coord.summary } });
-    await new RunStore(db, d.now).finish(run.id, 'completed', { output: { transfer_to: next.agent.id } });
+    const store = new RunStore(db, d.now);
+    await store.step(run.id, { idx: await store.nextIdx(run.id), type: 'handoff', input: { to: next.agent.id, reason: coord.reason }, output: { summary: coord.summary } });
+    await store.finish(run.id, 'completed', { output: { transfer_to: next.agent.id } });
     const moved = await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: next.agent.id } });
-    // Chuyển agent giữ CÙNG lượt (fence) — không mở lượt thứ hai song song.
-    const next0 = await runAgent(d, db, ws, moved, next, { summary: coord.summary, parentRunId: run.id });
-    return decide(d, db, ws, moved, next0.run, next0.r, next0.ctx, [...transfers, agent.id], turn);
+    if (source) await db.aiTurnReceipt.updateMany({ where: source, data: { agentId: next.agent.id, agentVersion: next.version, bindingSource: 'transfer', bindingReason: 'transfer', updatedAt: d.now() } });
+    // Chuyển agent giữ CÙNG lượt (fence) và cùng gốc run (lineage) — không mở lượt thứ hai, không cấp ví gốc mới.
+    const next0 = await runAgent(d, db, ws, moved, next, { summary: coord.summary, parentRunId: run.id, sourceMessageId: source?.sourceMessageId ?? null });
+    return decide(d, db, ws, moved, next0.run, next0.r, next0.ctx, [...transfers, agent.id], turn, source);
   }
 
   const out = parseAgentReply(r.text);
+  const intent = out.ok && out.intent ? normalizeIntent(out.intent) : null;
   const reply = out.reply ? unmaskPii(out.reply, ctx.pii) : null;
   const rule = coord?.kind === 'handoff' ? 'needs_human' : decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') });
   await db.aiRun.update({ where: { id: run.id }, data: { confidence: out.confidence } });
+  if (intent && turn) await recordIntent(db, c.id, intent, { source_message_id: source?.sourceMessageId ?? null, run_id: run.id, fence: turn.fence });
 
   if (copilot) {
     if (!reply) return 'skipped';
@@ -193,8 +173,11 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     return 'suggested';
   }
   if (rule) {
+    const note = coord?.kind === 'handoff' ? coord.summary || coord.reason : (out.needs_human ?? null);
     const text = rule === 'needs_human' ? reasonText('needs_human', { detail: coord?.kind === 'handoff' ? coord.reason : (out.needs_human ?? '') }) : reasonText(rule, { pct: Math.round(out.confidence * 100), threshold: ctx.cfg.threshold });
-    await handoff(d, db, ws, c, agent, run.id, rule, text, reply);
+    await off(rule, text, reply, { intent, note });
+    // Khiếu nại ở auto: consumer support tạo ticket qua Executor (kiểm lại grant hiện hành) — một ticket mỗi tin nguồn.
+    if (isComplaint(rule, intent) && source && turn) await recordComplaintIntent(db, d.kv, ws, { conversationId: c.id, sourceMessageId: source.sourceMessageId, runId: run.id, agentId: agent.id, fence: turn.fence }, d.now());
     return 'handoff';
   }
   try {
@@ -207,9 +190,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
       return 'superseded';
     }
     d.log.warn({ err, run: run.id }, 'agent reply send failed');
-    await handoff(d, db, ws, c, agent, run.id, 'error', reasonText('error', { detail: (err as { code?: string }).code ?? 'send' }), reply);
+    await off('error', reasonText('error', { detail: (err as { code?: string }).code ?? 'send' }), reply, { intent });
     return 'handoff';
   }
+  if (source) await finalizeReceipt(db, source, run.id, d.now());
   if (c.aiState !== 'idle') await setState(d, db, ws, c, { aiState: 'idle' }, 'ai_state');
   return 'sent';
 }
@@ -231,23 +215,38 @@ export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string
 
 async function ownedTurn(d: ReplyDeps, db: TenantDb, ws: string, conversationId: string, turn: TurnLease): Promise<TurnOutcome> {
   const c = await db.conversation.findUnique({ where: { id: conversationId } });
-  if (!c || !(await needsReply(db, c))) return 'skipped';
-  const agentId = await agentIdOf(db, c);
-  const a = agentId ? await publishedAgent(db, agentId) : null;
-  if (!a) return 'skipped';
-  // Kênh của agent: rỗng = mọi kênh; có danh sách thì phải chứa loại kênh của hội thoại.
-  if (a.cfg.channels.length && !a.cfg.channels.includes(c.channelType)) return 'skipped';
-  // Ngoài khung giờ hoạt động của agent: không trả lời — hội thoại chờ nhân viên như kênh không có agent.
-  if (!withinHours(a.cfg.working_hours, d.now())) return 'skipped';
+  if (!c || blocked(c)) return 'skipped';
+  const pending = await pendingSource(db, c.id);
+  if (!pending) return 'skipped';
+  const now = d.now();
+  // Agent của lượt: receipt đã chọn thì giữ (không chọn lại giữa lượt / sau restart); chưa có → gán tay / phân luồng / mặc định.
+  const binding = pending.receipt?.agentId ? { agentId: pending.receipt.agentId, source: pending.receipt.bindingSource as 'auto' | 'manual' | 'transfer' } : null;
+  const pick = await pickAgent(db, c, pending.src.body, now, binding);
+  // Ngoài giờ / không có agent: không gọi model, không trừ credit, không gửi — chờ nhân viên như kênh không có agent.
+  if (!pick.agent) return 'skipped';
+  const a = pick.agent;
+  const receipt = await openReceipt(db, c.id, pending.src.id, turn, { agentId: a.agent.id, version: a.version, source: pick.source, reason: pick.reason }, now);
   if (!c.assigneeAgentId) await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: a.agent.id } });
+  const source = { conversationId: c.id, sourceMessageId: pending.src.id };
   // Lượt tự trả lời đang chạy → thư mục "AI đang xử lý" (TIP-025); `decide` đưa về idle / chờ duyệt / cần người. Gợi ý copilot
   // không đổi trạng thái (người vẫn đang xử lý).
   const live = c.aiMode === 'auto' && c.aiState === 'idle';
   if (live) await setState(d, db, ws, c, { aiState: 'running' }, 'ai_state');
   const cur = { ...c, assigneeAgentId: a.agent.id, ...(live ? { aiState: 'running' as const } : {}) };
   try {
-    const t = await runAgent(d, db, ws, cur, a);
-    return await decide(d, db, ws, cur, t.run, t.r, t.ctx, [], turn);
+    const runId = receipt.runId ?? undefined;
+    const acc = await db.channelAccount.findUnique({ where: { id: c.channelAccountId }, select: { settings: true } });
+    const st = acc ? settingsOf(acc) : null;
+    // Lời chào trước câu trả lời đầu (một lần / hội thoại, chỉ khi bật tường minh) — không làm xong lượt.
+    if (receipt.greetingPhase !== 'none' || (await wantsGreeting(db, cur, { enabled: !!st?.greeting_enabled, text: st?.greeting ?? '', inHours: true }))) {
+      const rid = runId ?? uuidv7(now.getTime());
+      if (!receipt.runId) await db.aiTurnReceipt.update({ where: { conversationId_sourceMessageId: source }, data: { runId: rid } });
+      await sendGreeting(db, d.executor, ws, cur, { ...receipt, runId: rid }, { id: a.agent.id, toolIds: a.cfg.tools }, rid, st?.greeting ?? '', turn, now);
+      const t = await runAgent(d, db, ws, cur, a, { sourceMessageId: pending.src.id, ...(receipt.runId ? {} : { runId: rid }) });
+      return await decide(d, db, ws, cur, t.run, t.r, t.ctx, [], turn, source);
+    }
+    const t = await runAgent(d, db, ws, cur, a, { sourceMessageId: pending.src.id });
+    return await decide(d, db, ws, cur, t.run, t.r, t.ctx, [], turn, source);
   } finally {
     // Lượt dừng giữa chừng (lỗi / đã gửi) mà còn `running` → về idle; trạng thái khác (chờ duyệt / cần người) giữ nguyên.
     if (live) await db.conversation.updateMany({ where: { id: c.id, aiState: 'running' }, data: { aiState: 'idle' } });
@@ -265,11 +264,30 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
   if (!turn) return 'skipped';
   try {
     if (c.aiState === 'waiting_approval') c = await db.conversation.update({ where: { id: c.id }, data: { aiState: 'idle' } });
+    const src = ((run.input ?? {}) as { source_message_id?: string | null }).source_message_id ?? null;
+    const source = src ? { conversationId: c.id, sourceMessageId: src } : null;
+    // Kiểm lại giờ theo THỜI ĐIỂM trước khi gửi (không theo lúc job bắt đầu): ngoài giờ → chuyển người kèm nháp, không tự gửi.
+    const acc = await db.channelAccount.findUnique({ where: { id: c.channelAccountId }, select: { settings: true } });
+    if (run.kind === 'agent_reply' && r.status === 'completed' && !availability(a.cfg, scheduleOf(acc ? settingsOf(acc).schedule ?? null : null), d.now()).open) {
+      const out = parseAgentReply(r.text);
+      await handoff(d, db, ws, c, { agent: a.agent, runId: run.id, reason: 'out_of_hours', text: reasonText('out_of_hours'), draft: out.reply ? unmaskPii(out.reply, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {}) : null, source });
+      return 'handoff';
+    }
     const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {});
-    return await decide(d, db, ws, c, run, r, ctx, [], turn);
+    return await decide(d, db, ws, c, run, r, ctx, [], turn, source);
   } finally {
     await releaseTurn(db, turn).catch(() => undefined);
   }
+}
+
+/** Duyệt bị từ chối / hết hạn: chuyển người với tóm tắt đầy đủ (không chỉ đánh dấu run). */
+export async function handoffAfterApproval(d: Pick<ReplyDeps, 'kv' | 'now'>, db: TenantDb, ws: string, run: RunRow, kind: 'approval_rejected' | 'approval_expired'): Promise<void> {
+  if (!run.conversationId || run.kind !== 'agent_reply') return;
+  const c = await db.conversation.findUnique({ where: { id: run.conversationId } });
+  if (!c) return;
+  const agent = run.agentId ? await db.aiAgent.findUnique({ where: { id: run.agentId }, select: { id: true, name: true } }) : null;
+  const src = ((run.input ?? {}) as { source_message_id?: string | null }).source_message_id ?? null;
+  await handoff(d, db, ws, c, { agent, runId: run.id, reason: kind, text: reasonText(kind), draft: null, source: src ? { conversationId: c.id, sourceMessageId: src } : null });
 }
 
 /** Dựng lại system + tool khi chạy tiếp run trả lời (job `ai-resume`): cùng phiên bản agent, cùng bảng PII của lượt. */

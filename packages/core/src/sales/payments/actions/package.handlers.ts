@@ -20,8 +20,8 @@ type Snap = { id: string; total: number; expires_at: string | null; status: 'act
 async function lockPackage(tx: TenantTx, ctx: ActionContext, id: string) {
   if (UUID.test(id)) await tx.$queryRaw`SELECT 1 FROM customer_package WHERE id = ${id}::uuid FOR UPDATE`;
   const p = UUID.test(id) ? await tx.customerPackage.findUnique({ where: { id } }) : null;
-  const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { ownerUserId: true } }) : null;
-  if (!p || !o || !(await inSalesScope(tx, ctx.authz, o.ownerUserId, p.contactId))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
+  const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { ownerUserId: true, teamId: true } }) : null;
+  if (!p || !o || !(await inSalesScope(tx, ctx.authz, { owner: o.ownerUserId, team: o.teamId, contact: p.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
   if (p.status === 'refunded') throw new AppError('INVALID_STATE', 409, { status: p.status });
   return p;
 }

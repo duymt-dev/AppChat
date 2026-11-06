@@ -1,12 +1,15 @@
 // Worker ROLE=jobs của domain `crm`. TIP-015b: scheduler `crm.memory-receipt-purge` mỗi giờ trên queue riêng `crm-scheduler` — xoá biên nhận
 // gộp trí nhớ hết cửa sổ hoàn tác 7 ngày (lô id trước, SKIP LOCKED; replay idempotent). TIP-045b: `crm.custom-field-prune` mỗi 6 giờ —
 // giá trị trường tuỳ biến đã xoá quá 30 ngày (custom-field-prune.ts). Lỗi một workspace không chặn workspace khác. TIP-045b annex D:
-// việc dữ liệu nặng (DataJobsModule — consumer `data_job.requested` + quét) với kind contact.export / contact.bulk_update.
+// việc dữ liệu nặng (DataJobsModule — consumer `data_job.requested` + quét) với kind contact.export / contact.bulk_update. TIP-042b: consumer
+// `crm.lead-routing` (`lead.routing_requested` → `lead_routing.apply` nguồn system) — routing/routing-consumer.ts.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
+import { ActionExecutor } from '../../kernel/actions/executor';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { registerEventConsumer, unregisterEventConsumer } from '../../kernel/events/consumer';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
@@ -19,6 +22,7 @@ import { DataJobsModule } from '../../kernel/jobs/data-jobs/data-jobs.module';
 import { CrmMembers } from '../services/members.service';
 import { registerContactExportKind } from './contact-export.processor';
 import './contact-bulk.processor';
+import { LEAD_ROUTING_CONSUMER, leadRoutingConsumer } from '../routing/routing-consumer';
 
 export const CRM_SCHEDULER_QUEUE = 'crm-scheduler';
 export const MEMORY_RECEIPT_PURGE_JOB = 'crm.memory-receipt-purge';
@@ -63,12 +67,14 @@ class CrmJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
     @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
+    @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     if (!this.redis || !this.platform || !this.tenants) return;
+    if (this.executor) registerEventConsumer(leadRoutingConsumer(this.executor));
     const deps = { platform: this.platform, tenants: this.tenants, now: () => this.clock.now(), onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: MEMORY_RECEIPT_PURGE_JOB }, 'quét biên nhận gộp lỗi ở workspace') };
     this.queue = new Queue(CRM_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(MEMORY_RECEIPT_PURGE_JOB, { every: EVERY_MS }, { name: MEMORY_RECEIPT_PURGE_JOB });
@@ -91,6 +97,7 @@ class CrmJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   }
 
   async onApplicationShutdown(): Promise<void> {
+    unregisterEventConsumer(LEAD_ROUTING_CONSUMER);
     await this.worker?.close();
     await this.queue?.close();
   }

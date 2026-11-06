@@ -1,10 +1,11 @@
 // Hero kênh (Email · Zalo cá nhân · Automation) — prototype L3410–3455: tiêu đề + mô tả + "Soạn chiến dịch …", 4 chỉ số kênh,
-// thẻ A/B Testing và Lịch gửi sắp tới. "Soạn" mở wizard với kênh tương ứng.
+// thẻ A/B Testing và Lịch gửi sắp tới. "Soạn" mở wizard với kênh tương ứng. Chỉ số là khoá (FE dịch) + số đo thật (TIP-037).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useHeroStyles } from '../styles/hero.styles';
 import { useMarketingUi } from '../marketing-store';
+import { useFmt } from '@/shared/i18n/useFmt';
 import { CHANNEL_LOOK } from '../status';
 import type { ChanTab, MarketingMeta } from '../types';
 
@@ -17,6 +18,7 @@ const HERO_TONE: Record<Exclude<ChanTab, 'all'>, string> = {
 export function ChannelHero({ meta, chan }: { meta: MarketingMeta; chan: Exclude<ChanTab, 'all'> }) {
   const t = useTranslations('marketing');
   const { styles } = useHeroStyles();
+  const fmt = useFmt();
   const set = useMarketingUi((s) => s.set);
   const c = HERO_TONE[chan];
   const compose = () =>
@@ -37,8 +39,8 @@ export function ChannelHero({ meta, chan }: { meta: MarketingMeta; chan: Exclude
         <div className={styles.grid4}>
           {meta.hero[chan].map(([l, v]) => (
             <div key={l} className={styles.stat}>
-              <div className={styles.statL}>{l}</div>
-              <div className={styles.statV}>{v}</div>
+              <div className={styles.statL}>{t(`hero.stat.${l}` as never)}</div>
+              <div className={styles.statV}>{/^\d+$/.test(v) ? fmt.number(Number(v)) : v}</div>
             </div>
           ))}
         </div>
@@ -52,6 +54,7 @@ export function ChannelHero({ meta, chan }: { meta: MarketingMeta; chan: Exclude
             <span className={styles.cardN}>{t('hero.abCount', { n: meta.ab_tests.length })}</span>
           </div>
           <div className={styles.col}>
+            {meta.ab_tests.length ? null : <div className={styles.schS}>{t('hero.abNone')}</div>}
             {meta.ab_tests.map(([title, tone, a, b, verdict]) => (
               <div key={title} className={styles.ab}>
                 <div className={styles.abT}>{title}</div>
@@ -78,6 +81,7 @@ export function ChannelHero({ meta, chan }: { meta: MarketingMeta; chan: Exclude
             <span className={styles.cardT}>{t('hero.upcoming')}</span>
           </div>
           <div className={styles.colS}>
+            {meta.schedule.length ? null : <div className={styles.schS}>{t('hero.upcomingNone')}</div>}
             {meta.schedule.map(([when, name, ch, seg]) => {
               const tone = CHANNEL_LOOK[ch][0];
               return (
@@ -85,10 +89,10 @@ export function ChannelHero({ meta, chan }: { meta: MarketingMeta; chan: Exclude
                   <span className={styles.dot} style={{ background: tone }} />
                   <div className={styles.min0}>
                     <div className={styles.schN}>{name}</div>
-                    <div className={styles.schS}>{`${t(`chan.${ch}`)} · ${seg}`}</div>
+                    <div className={styles.schS}>{`${t(`chan.${ch}`)} · ${t('hero.recipients', { n: fmt.number(Number(seg)) })}`}</div>
                   </div>
                   <span className={styles.schW} style={{ color: tone }}>
-                    {when}
+                    {when ? `${fmt.date(when)} · ${fmt.time(when)}` : t('hero.whenApproved')}
                   </span>
                 </div>
               );

@@ -1,57 +1,48 @@
 // Đọc AI Agents cho FE (Blueprint §4.4; FE `features/agents/api.ts`): danh sách (bản nháp + số liệu), một agent, phiên bản, mẫu
-// theo ngành (DB nền tảng `agent_template`), meta Builder, tool (D51). Số liệu: hội thoại = số hội thoại agent đã phục vụ (run
-// `agent_reply` không dry-run), tỉ lệ tự xử lý = run `completed` / (completed + handoff), CSAT = trung bình `ticket.csat` agent
-// phụ trách (chưa có → 0, FE hiện "—"). Danh sách ≤ plan.max_agents dòng (index partial `ai_agent_live_created_idx`).
-import { foldText, type AgentDto, type AgentTemplateDefaultsDto, type AgentToolsDto } from '@appchat/shared';
+// theo ngành (DB nền tảng `agent_template`), meta Builder, tool (D51). Số liệu thẻ do caller truyền (`statsOf` — service insights
+// `agentStats`, 30 ngày, theo quyền người xem; TIP-038): hội thoại, tỉ lệ lượt tự xử lý, CSAT ticket giao cho agent; chỉ số không khả dụng
+// → 0 + `stats.*.available = false` (FE hiện "—", không phải 0 thật). Danh sách ≤ plan.max_agents dòng (index `ai_agent_live_created_idx`).
+import { foldText, type AgentDto, type AgentStatsDto, type AgentTemplateDefaultsDto, type AgentToolsDto, type StatValueDto } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import { connectedKeys, groupTools } from './agent-tools';
 import { configOf, liveAgent, type AgentConfig, type AgentRow } from './agent.store';
 import { templateDefaults } from './templates.seed';
+import { scheduleState } from './schedule-config';
 import { agentSuggests } from './agent-suggests';
 import { AGENT_EMOJIS, AGENT_INTENTS, AGENT_TAXONOMY, CHANNEL_COLORS, PROMPT_TEMPLATES, TEST_SEED } from './catalog';
 
 type Db = Pick<TenantDb, 'aiAgent' | 'aiAgentVersion' | '$queryRaw' | 'channelAccount' | 'integrationConnection'>;
 
-interface Stat {
-  agent_id: string;
-  conversations: bigint;
-  completed: bigint;
-  handoff: bigint;
-}
+const val = (s: StatValueDto | undefined) => (s?.available ? (s.value ?? 0) : 0);
 
-async function stats(db: Db, ids: string[]): Promise<Map<string, Stat>> {
-  if (!ids.length) return new Map();
-  const rows = await db.$queryRaw<Stat[]>`
-    SELECT agent_id, count(DISTINCT conversation_id) AS conversations,
-           count(*) FILTER (WHERE status = 'completed') AS completed, count(*) FILTER (WHERE status = 'handoff') AS handoff
-    FROM ai_run WHERE agent_id = ANY(${ids}) AND kind = 'agent_reply' AND NOT dry_run GROUP BY agent_id`;
-  return new Map(rows.map((r) => [r.agent_id, r]));
-}
-
-function toDto(a: AgentRow, s: Stat | undefined): AgentDto {
-  const done = Number(s?.completed ?? 0);
-  const total = done + Number(s?.handoff ?? 0);
+/** Thẻ agent: số liệu từ service insights (`agentStats` — cùng định nghĩa với /agents/:id/stats); thiếu → 0 + `stats` để FE hiện "—". */
+function toDto(a: AgentRow, s: AgentStatsDto | undefined): AgentDto {
   return {
     id: a.id,
     ...configOf(a),
+    schedule_state: scheduleState(configOf(a)),
     status: a.status,
-    conversations: Number(s?.conversations ?? 0),
-    resolve_rate: total ? Math.round((done / total) * 100) : 0,
-    csat: 0,
+    conversations: val(s?.conversations),
+    resolve_rate: Math.round(val(s?.resolve_rate)),
+    csat: val(s?.csat),
+    ...(s ? { stats: s } : {}),
     version: a.publishedVersion,
     dirty: a.draftDirty,
   };
 }
 
-export async function listAgents(db: Db): Promise<AgentDto[]> {
+export type AgentStatsOf = (ids: string[]) => Promise<Map<string, AgentStatsDto>>;
+const none: AgentStatsOf = async () => new Map();
+
+export async function listAgents(db: Db, statsOf: AgentStatsOf = none): Promise<AgentDto[]> {
   const rows = await db.aiAgent.findMany({ where: { deletedAt: null }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 200 });
-  const s = await stats(db, rows.map((r) => r.id));
+  const s = await statsOf(rows.map((r) => r.id));
   return rows.map((r) => toDto(r, s.get(r.id)));
 }
 
-export async function getAgent(db: Db, id: string): Promise<AgentDto> {
+export async function getAgent(db: Db, id: string, statsOf: AgentStatsOf = none): Promise<AgentDto> {
   const a = await liveAgent(db, id);
-  return toDto(a, (await stats(db, [a.id])).get(a.id));
+  return toDto(a, (await statsOf([a.id])).get(a.id));
 }
 
 export async function agentVersions(db: Db, id: string, names: (ids: string[]) => Promise<Map<string, string>>) {

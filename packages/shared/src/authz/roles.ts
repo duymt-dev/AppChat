@@ -15,6 +15,8 @@ export const ROLE_NAMES: Record<SystemRole, string> = {
 
 /** Màu nhãn vai trò ở Cài đặt › Vai trò & phân quyền (prototype L6011 — fixture `role_colors`). */
 export const ROLE_COLOR: Record<SystemRole, string> = { owner: '#DC2626', manager: '#7C3AED', sales: '#2DC56A', cs: '#F59E0B', accountant: '#2563EB' };
+/** Màu nhãn vai trò tuỳ biến (TIP-042) — xoay vòng theo thứ tự tạo; cùng bảng màu nhãn của prototype. */
+export const CUSTOM_ROLE_COLORS: readonly string[] = ['#0891B2', '#DB2777', '#65A30D', '#EA580C', '#4F46E5', '#0D9488'];
 
 export const isSystemRole = (v: string): v is SystemRole => (SYSTEM_ROLES as readonly string[]).includes(v);
 
@@ -22,6 +24,8 @@ export interface RoleDef {
   key: SystemRole;
   permissions: readonly PermissionKey[];
   scope: Record<ScopeModule, DataScope>;
+  /** Scope ghi khác scope đọc (TIP-042c — metadata preset, không đổi tập permission); thiếu = bằng `scope`. */
+  writeScope?: Record<ScopeModule, DataScope>;
 }
 
 const OWNER_ONLY: readonly PermissionKey[] = [
@@ -55,6 +59,8 @@ export const ROLE_DEFS: Record<SystemRole, RoleDef> = {
       'assistant.use', 'ai_task.manage', 'insights.view',
     ],
     scope: { inbox: 'own', crm: 'all', sales: 'none', booking: 'own', support: 'own', insights: 'own' },
+    // Blueprint §3.5: CSKH crm "all (đọc) / own (sửa)".
+    writeScope: { inbox: 'own', crm: 'own', sales: 'none', booking: 'own', support: 'own', insights: 'own' },
   },
   accountant: {
     key: 'accountant',
@@ -72,6 +78,7 @@ export const authzForRole = (role: SystemRole, userId: string) => ({
   isOwner: role === 'owner',
   permissions: new Set(ROLE_DEFS[role].permissions),
   scope: ROLE_DEFS[role].scope,
+  writeScope: ROLE_DEFS[role].writeScope ?? ROLE_DEFS[role].scope,
   teamIds: [] as string[],
   roleKey: role as string,
 });

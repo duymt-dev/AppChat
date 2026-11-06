@@ -1,5 +1,5 @@
 // Bản ghi hội thoại / tin → shape đọc FE (packages/shared/src/api/inbox.ts). Chữ theo locale người xem, giờ theo múi giờ workspace.
-import { CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type ConversationDto, type MessageDto } from '@appchat/shared';
+import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type ConversationDto, type MessageDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
 export interface Place {
@@ -43,6 +43,8 @@ export interface ConvExtras {
   accountName: Map<string, string>;
   tags: Map<string, { name: string; color: string; emoji: string }[]>;
   members: Map<string, number>;
+  /** Ảnh theo hội thoại (TIP-014b D) — đã ưu tiên ảnh nhân viên đặt. */
+  avatars?: Map<string, string>;
 }
 
 export function toConversation(c: ConvRow, x: ConvExtras, p: Place): ConversationDto {
@@ -55,6 +57,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     title,
     initials: initialsOf(title),
     hue: hueOf(c.contactId ?? c.id),
+    ...(x.avatars?.get(c.id) ? { avatar_url: x.avatars.get(c.id) } : {}),
     channel: c.channelType,
     account: x.accountName.get(c.channelAccountId) ?? '',
     time: stamp(c.lastMessageAt, p),
@@ -69,6 +72,8 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ai_mode: c.aiMode,
     ...(c.handoffReason ? { handoff_reason: c.handoffReason } : {}),
     ...(c.aiDraft ? { ai_draft: c.aiDraft } : {}),
+    ...(c.intent && (AGENT_INTENTS_CLOSED as readonly string[]).includes(c.intent) ? { intent: c.intent as AgentIntent } : {}),
+    ...(c.handoffSummary ? { has_handoff_summary: true } : {}),
     status: c.status,
     pinned_message_id: c.pinnedMessageId,
     hidden: !!c.hiddenAt,
@@ -81,7 +86,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
 }
 
 const MENU_KINDS = new Set(['text', 'image', 'file', 'sticker', 'audio', 'card']);
-const STATUS: Record<string, string> = { queued: 'sending', sent: 'sent', delivered: 'sent', read: 'read', failed: 'failed' };
+const STATUS: Record<string, string> = { queued: 'sending', sent: 'sent', delivered: 'sent', read: 'read', failed: 'failed', partial: 'partial', unknown: 'unknown' };
 
 export interface MsgExtras {
   /** Cảm xúc của người xem trên tin. */
@@ -89,7 +94,14 @@ export interface MsgExtras {
   replyPreview: Map<string, string>;
   /** Kênh hỗ trợ cảm xúc (menu hiện hàng emoji — OQ-12). */
   isGroup: boolean;
+  /** Lệnh thao tác kênh mới nhất theo tin (TIP-014b). */
+  ops?: Map<string, { recall?: string; react?: string }>;
+  /** Ảnh người gửi theo id phía kênh (nhóm — TIP-014b D). */
+  senderAvatars?: Map<string, string>;
 }
+
+const OPEN_RECALL = new Set(['pending', 'failed', 'unknown', 'partial']);
+const OPEN_REACT = new Set(['pending', 'failed', 'unknown']);
 
 export function toMessage(m: MsgRow, x: MsgExtras, p: Place): MessageDto {
   const kind = m.kind === 'note' ? 'note' : m.kind;
@@ -108,8 +120,16 @@ export function toMessage(m: MsgRow, x: MsgExtras, p: Place): MessageDto {
   if (x.isGroup && m.direction === 'in' && m.senderName) {
     out.sender_initials = initialsOf(m.senderName);
     out.sender_hue = hueOf(m.senderId ?? m.senderName);
+    const av = m.senderId ? x.senderAvatars?.get(m.senderId) : undefined;
+    if (av) out.sender_avatar = av;
   }
   if (m.recalledAt) out.recalled = true;
+  const op = x.ops?.get(m.id);
+  if (op) {
+    const recall = !m.recalledAt && op.recall && OPEN_RECALL.has(op.recall) ? op.recall : undefined;
+    const react = op.react && OPEN_REACT.has(op.react) ? op.react : undefined;
+    if (recall || react) out.provider_op = { ...(recall ? { recall: recall as 'pending' } : {}), ...(react ? { react: react as 'pending' } : {}) };
+  }
   if (m.deletedAt) out.deleted = true;
   const r = x.myReaction.get(m.id);
   if (r) out.reaction = r;

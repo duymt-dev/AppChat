@@ -1,5 +1,5 @@
 // platform/ops.prisma — sở hữu: TIP-002 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: tenant_migration, workspace_stats, platform_audit_log.
+// Bảng: tenant_migration, workspace_stats, platform_audit_log, reconcile_finding, reconcile_checkpoint (TIP-045b annex E).
 // Không Prisma relation xuyên domain (Blueprint §2.1).
 
 enum TenantMigrationStatus {
@@ -54,4 +54,36 @@ model PlatformAuditLog {
   @@index([createdAt(sort: Desc)])
   @@index([workspaceId, createdAt(sort: Desc)])
   @@map("platform_audit_log")
+}
+
+/// Phát hiện lệch của job đối soát hằng giờ (TIP-045b annex E): nền tảng ↔ tenant (thành viên / hạn mức / ví credit). Chỉ ghi nhận —
+/// KHÔNG tự sửa ví, gói, thành viên, thanh toán; sửa cần action được cấp quyền riêng. Khoá ổn định (workspace, check, reference, cutoff):
+/// chạy lại cùng mốc cắt không ghi trùng. `detail` chỉ số đếm / id kỹ thuật — không PII, không bí mật.
+model ReconcileFinding {
+  id          String    @id @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  /// membership_seats | quota_channels | quota_agents | wallet_ledger | wallet_usage
+  check       String
+  /// Đối tượng lệch (vd `users`, `wallet`, `run:<id>:<idx>`).
+  reference   String
+  /// Mốc cắt nhất quán của lượt quét (giờ tròn) — chỉ so dữ liệu đã chốt trước mốc.
+  cutoff      DateTime  @db.Timestamptz(6)
+  /// mismatch | pending (thao tác gần mốc chưa chốt — không coi là sai tiền)
+  severity    String
+  detail      Json
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  resolvedAt  DateTime? @map("resolved_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, check, reference, cutoff])
+  @@map("reconcile_finding")
+}
+
+/// Điểm dừng của lượt đối soát (một dòng mỗi workspace) — lượt sau bắt đầu từ workspace kế tiếp nếu lượt trước bị cắt ngang.
+model ReconcileCheckpoint {
+  workspaceId String   @id @map("workspace_id") @db.Uuid
+  cutoff      DateTime @db.Timestamptz(6)
+  checkedAt   DateTime @map("checked_at") @db.Timestamptz(6)
+  findings    Int      @default(0)
+
+  @@map("reconcile_checkpoint")
 }

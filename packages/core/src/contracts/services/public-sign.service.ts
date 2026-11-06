@@ -226,7 +226,7 @@ export class PublicSignService {
       if (conv) {
         const env = this.d.need('env');
         const text = interpolate(serverMessages(p.locale).sales.contract.signedMessage, { code: c.code, sha: stored.sha256.slice(0, 16) });
-        const sent = await postToCustomer(this.systemCtx(ws), tx, this.d.members, { conv, created: false, text, file: { url: signedFileUrl(env.apiBase, env.key, ws, stored.fileId), name: stored.name }, now, sender: SENDER });
+        const sent = await postToCustomer(this.systemCtx(ws), tx, this.d.members, { conv, created: false, text, file: { url: signedFileUrl(env.apiBase, env.key, ws, stored.fileId), name: stored.name, fileId: stored.fileId }, now, sender: SENDER });
         out = sent.out;
         events.push(...sent.events);
       }

@@ -34,7 +34,7 @@ model DataJob {
 
   items DataJobItem[]
 
-  @@index([actorId, createdAt(sort: Desc)])
+  @@index([actorId, status, createdAt(sort: Desc), id(sort: Desc)], map: "data_job_actor_status_page_idx")
   @@map("data_job")
 }
 

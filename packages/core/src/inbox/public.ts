@@ -9,3 +9,5 @@ export { visibleConversation, writableConversation } from './services/access';
 export { writeOutgoing, enqueueOutgoing, sendableAccount, type Outgoing } from './services/outbound';
 export { scopeCols } from './services/access';
 export { senderOf } from './actions/message.handlers';
+// TIP-022b: tóm tắt bàn giao chiếu theo quyền người xem.
+export { readHandoffSummary } from './services/handoff-summary-read';

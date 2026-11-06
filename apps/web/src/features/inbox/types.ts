@@ -1,5 +1,8 @@
-import type { ContactInsightsDto, CustomValues } from '@appchat/shared';
+import type { AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
+
+/** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem). */
+export type HandoffSummary = HandoffSummaryDto;
 
 export type ChannelType = 'zalo_personal' | 'webchat' | 'email';
 export type TagTone = 'vip' | 'channel' | 'hot' | 'group' | 'warn' | 'ai' | 'violet';
@@ -24,6 +27,8 @@ export interface Conversation {
   title: string;
   initials: string;
   hue: string;
+  /** Ảnh đại diện (link ký — TIP-014b D); vắng → chữ cái đầu. */
+  avatar_url?: string;
   more?: string;
   more_hue?: string;
   channel: ChannelType;
@@ -44,6 +49,9 @@ export interface Conversation {
   ai_mode: 'off' | 'copilot' | 'auto';
   handoff_reason?: string;
   ai_draft?: string;
+  /** TIP-022b: ý định lượt gần nhất (bộ đóng) + có tóm tắt bàn giao (đọc riêng, chiếu theo quyền). */
+  intent?: AgentIntent;
+  has_handoff_summary?: boolean;
   status: string;
   /** Tin đang ghim lên đầu hội thoại (REQ-C09 `message.pin`) — khác `pinned_note` (ghi chú ghim thủ công). */
   pinned_message_id?: string | null;
@@ -64,6 +72,7 @@ export interface Message {
   sender?: string;
   sender_initials?: string;
   sender_hue?: string;
+  sender_avatar?: string;
   sender_color?: string;
   title?: string;
   sub?: string;
@@ -74,6 +83,8 @@ export interface Message {
   /** Tin do người dùng vừa gửi (mock): hiển thị text thuần, không phải HTML fixture. */
   plain?: boolean;
   recalled?: boolean;
+  /** Thao tác kênh chưa xác nhận (TIP-014b): thu hồi / cảm xúc đang chờ, chưa rõ, lỗi, một phần. */
+  provider_op?: { recall?: 'pending' | 'failed' | 'unknown' | 'partial'; react?: 'pending' | 'failed' | 'unknown' };
   deleted?: boolean;
   /** Cảm xúc hiện tại của người dùng trên tin này (REQ-C09 `message.react`, bấm lại để bỏ). */
   reaction?: string | null;
@@ -140,6 +151,7 @@ export interface Contact360 {
   name: string;
   initials: string;
   avatar_color: string;
+  avatar_url?: string;
   tier: string;
   since: string;
   stage_label: string;

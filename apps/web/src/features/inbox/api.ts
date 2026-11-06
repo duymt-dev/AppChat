@@ -2,7 +2,7 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import type { AgentToolsDto } from '@appchat/shared';
 import { transport } from '@/shared/api/client';
-import type { ChannelAccount, ChannelMeta, ChannelType, ConnectChannel, Contact360, Conversation, FolderCounts, GroupInfo, ThreadData } from './types';
+import type { ChannelAccount, ChannelMeta, ChannelType, ConnectChannel, Contact360, Conversation, FolderCounts, GroupInfo, HandoffSummary, ThreadData } from './types';
 
 /** Bộ lọc danh sách gửi lên API (TIP-025): thư mục / kênh / tài khoản / tìm kiếm / sắp xếp. */
 export interface ConvParams {
@@ -64,6 +64,10 @@ export const threadSearchQuery = (id: string, q: string, sender: string) =>
   queryOptions({ queryKey: ['inbox', 'messages', id, 'search', { q, sender }], queryFn: () => transport.get<ThreadHit[]>(`/conversations/${id}/messages/search`, { q, sender }), enabled: !!q.trim() });
 
 export const countsQuery = () => queryOptions({ queryKey: inboxKeys.counts(), queryFn: () => transport.get<FolderCounts>('/conversations/counts') });
+
+/** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem); null khi chưa có. */
+export const handoffSummaryQuery = (id: string) =>
+  queryOptions({ queryKey: [...inboxKeys.conv(id), 'handoff-summary'] as const, queryFn: () => transport.get<HandoffSummary | null>(`/conversations/${id}/handoff-summary`) });
 
 export const threadQuery = (id: string) =>
   queryOptions({ queryKey: inboxKeys.thread(id), queryFn: () => transport.get<ThreadData>(`/conversations/${id}/messages`) });

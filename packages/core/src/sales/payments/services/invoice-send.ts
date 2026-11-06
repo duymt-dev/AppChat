@@ -61,8 +61,8 @@ export async function postInvoice(
   const url = (id: string) => signedFileUrl(env.apiBase, env.key, ctx.workspaceId, id);
   // PDF + ảnh VietQR riêng (khách quét từ điện thoại — TIP-032b P2); link công khai xem / tải PDF nối cuối tin (webchat, mọi kênh).
   const attachments = [
-    ...(o.file ? [{ url: url(o.file.fileId), mime: 'application/pdf', name: o.file.name }] : []),
-    ...(o.qrFileId ? [{ url: url(o.qrFileId), mime: 'image/png', name: `VietQR-${i.code}.png` }] : []),
+    ...(o.file ? [{ url: url(o.file.fileId), mime: 'application/pdf', name: o.file.name, fileId: o.file.fileId }] : []),
+    ...(o.qrFileId ? [{ url: url(o.qrFileId), mime: 'image/png', name: `VietQR-${i.code}.png`, fileId: o.qrFileId }] : []),
   ];
   const text = o.link ? `${o.text}
 ${o.link}` : o.text;

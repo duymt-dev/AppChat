@@ -54,7 +54,7 @@ export class OrderSendConfirmationHandler implements Handler<In, Out> {
   async prepare(ctx: ActionContext, input: In): Promise<Prepared> {
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'order.send_confirmation'));
     const { o, channel } = await db.$transaction(async (tx) => {
-      const o = await visibleOrder(tx, ctx.authz, input.order_id);
+      const o = await visibleOrder(tx, ctx.authz, input.order_id, 'write');
       live(o);
       const channel = await channelOf(tx, o, input);
       await reachCustomer(tx, await tx.contact.findUniqueOrThrow({ where: { id: o.contactId }, select: { id: true, email: true } }), channel);
@@ -86,7 +86,7 @@ export class OrderSendConfirmationHandler implements Handler<In, Out> {
     const target = await customerConversation(tx, contact, p.channel, `${o.code} · ${contact.name}`, now);
     await tx.file.updateMany({ where: { id: p.file.fileId }, data: { confirmed: true } });
     const env = this.d.need('env');
-    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: p.text, attachments: [{ url: pdfLinkOf(env, ctx.workspaceId, p.file.fileId), mime: 'application/pdf', name: p.file.name }], now });
+    const sent = await postToCustomer(ctx, tx, this.members, { ...target, text: p.text, attachments: [{ url: pdfLinkOf(env, ctx.workspaceId, p.file.fileId), mime: 'application/pdf', name: p.file.name, fileId: p.file.fileId }], now });
     await writeTimeline(tx, { contactId: o.contactId, type: 'order', key: 'order_confirmation_sent', params: { code: o.code, channel: p.channel }, actor: actorOf(ctx), ref: { type: 'order', id: o.id }, at: now });
     return {
       result: { order_id: o.id, message_id: sent.out.messageId, conversation_id: target.conv.id, channel: p.channel },
@@ -96,7 +96,7 @@ export class OrderSendConfirmationHandler implements Handler<In, Out> {
   }
 
   async preview(ctx: ActionContext, input: In, tx: TenantTx) {
-    const o = await visibleOrder(tx, ctx.authz, input.order_id);
+    const o = await visibleOrder(tx, ctx.authz, input.order_id, 'write');
     live(o);
     const channel = await channelOf(tx, o, input);
     const contact = await tx.contact.findUniqueOrThrow({ where: { id: o.contactId }, select: { id: true, name: true, email: true } });

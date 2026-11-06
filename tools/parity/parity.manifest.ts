@@ -2,8 +2,10 @@
 import type { Page } from '@playwright/test';
 import { protoOverrideVals, protoSetState } from './protoState';
 import { ASSISTANT_COVERAGE } from './manifests/assistant-coverage';
+import { AGENT_CHANNEL_BEHAVIOR } from './manifests/agent-channel-behavior';
 import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
+import { hardeningEntries } from './modules/hardening';
 
 export interface Rect {
   x: number;
@@ -58,8 +60,10 @@ const loyalty = { ac_module: 'loyalty' };
 const settings = (tab: string) => ({ ac_module: 'settings', ac_settings: tab });
 
 /** Mục Cài đặt OUT (prototype-parity §6) → gỡ khỏi nav prototype để các mục còn lại đúng vị trí như V2. */
+// "Phòng ban" (→ Nhóm, TIP-042 / PD-018) và "Routing & assignment" (→ Chia lead, TIP-042b / PD-019) đã có ở app — giữ ở prototype để
+// cột nav thẳng hàng; nhóm "TỰ ĐỘNG HOÁ" cũng giữ (chỉ còn mục Routing).
 const SETTINGS_OUT = [
-  'Sơ đồ tổ chức', 'Phòng ban', 'KPI & Mục tiêu', 'Phân ca trực', 'Cấu hình workflow', 'Routing & assignment',
+  'Sơ đồ tổ chức', 'KPI & Mục tiêu', 'Phân ca trực', 'Cấu hình workflow',
   'API & Webhooks', 'API Playground', 'Developer tools', 'Bảo mật', 'SSO & 2FA', 'Data & Compliance', 'Đối tác tiếp thị',
 ];
 const settingsProto = (p: Page) =>
@@ -70,8 +74,7 @@ const settingsProto = (p: Page) =>
     let seenApps = 0;
     for (const el of rows) {
       const text = el.textContent?.trim() ?? '';
-      if (text === 'TỰ ĐỘNG HOÁ') el.remove();
-      else if (text === 'ỨNG DỤNG' && ++seenApps === 2) el.remove();
+      if (text === 'ỨNG DỤNG' && ++seenApps === 2) el.remove();
       else if (out.some((l) => text === l || (text.startsWith(l) && /^(NEW|PRO|\d+)?$/.test(text.slice(l.length))))) el.remove();
     }
   }, SETTINGS_OUT);
@@ -1059,6 +1062,8 @@ export const MANIFEST: ParityEntry[] = [
         height: 56,
         reason: 'phụ đề kênh: Zalo cá nhân + Email (prototype-parity §6 Kênh — bỏ ZBS / ZNS / SMS)',
       },
+      // PD-021 / DC-240: nhãn KPI "Tỷ lệ phản hồi / chuyển đổi" (Zalo cá nhân / email không có biên nhận mở / click) — số liệu vẫn so.
+      { x: 820, y: 136, width: 600, height: 26, reason: 'PD-021 nhãn KPI phản hồi / chuyển đổi thay mở / click (DC-240)' },
     ],
   },
   {
@@ -1108,6 +1113,10 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.locator('[data-testid="mk-ai-open"]').click(),
     appWait: '[data-campaign]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      { x: 1100, y: 112, width: 300, height: 76, reason: 'PD-021: lời mở theo gợi ý đã lưu (không "dữ liệu tháng này" giả)' },
+      { x: 1076, y: 222, width: 300, height: 460, reason: 'PD-021: chữ thẻ = gợi ý AI thật (prototype nêu ZNS / tỉ lệ mở dự kiến — D29, DC-240)' },
+    ],
   },
   {
     id: 'loyalty:overview',
@@ -1197,6 +1206,26 @@ export const MANIFEST: ParityEntry[] = [
     route: '/settings/roles',
     protoStorage: settings('roles'),
     appWait: '[data-role]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+  },
+  {
+    // TIP-042: nhóm phẳng ở vị trí "Phòng ban" của prototype (PD-018) — prototype có chi nhánh / khối / danh sách nhân sự, app chỉ nhóm.
+    id: 'settings:teams',
+    route: '/settings/teams',
+    protoStorage: settings('teams'),
+    appWait: '[data-team]',
+    proto: settingsProto,
+    clip: ST_MAIN,
+    // PD-018: lọc chi nhánh / khối + "Thẻ phòng ban / Danh sách nhân sự" của prototype là cây tổ chức (P3 OUT) — app chỉ ô tìm + Tạo nhóm.
+    mask: [{ x: 640, y: 190, width: 680, height: 40, reason: 'PD-018 bộ lọc chi nhánh / khối + chế độ xem phòng ban (cây tổ chức OUT)' }],
+  },
+  {
+    // TIP-042b: "Routing & assignment" — chỉ chiến lược chia lead P1 (PD-019: bỏ online / AFK / ngôn ngữ / SLA của prototype).
+    id: 'settings:routing',
+    route: '/settings/routing',
+    protoStorage: settings('routing'),
+    appWait: '[data-rule="default"]',
     proto: settingsProto,
     clip: ST_MAIN,
   },
@@ -1418,6 +1447,8 @@ export const MANIFEST: ParityEntry[] = [
     mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
   },
   ...ASSISTANT_COVERAGE,
+  ...AGENT_CHANNEL_BEHAVIOR,
   ...GENUI_DRAWERS,
   ...CONTACT_MEMORY,
+  ...hardeningEntries(settingsProto),
 ];

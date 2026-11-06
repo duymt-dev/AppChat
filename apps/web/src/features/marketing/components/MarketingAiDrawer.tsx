@@ -1,29 +1,25 @@
 // Panel "Trợ lý AI · Marketing" (392px) — prototype L3536–3566: lời chào, 4 thẻ gợi ý (bấm = mở wizard điền sẵn), ô hỏi + "Mở Trợ lý AI đầy đủ".
-// Thẻ gợi ý gắn với đề xuất AI (/campaign-suggestions) theo thứ tự. TIP-023c G2: ô hỏi gửi lượt Trợ lý THẬT (surface drawer, ngữ cảnh
+// Thẻ = gợi ý AI đã lưu (meta.ai: tiêu đề, loại, lý do, id gợi ý) — bấm mở wizard từ gợi ý đó. Mở từ ô AI của dòng: chiến dịch đó là ngữ cảnh. TIP-023c G2: ô hỏi gửi lượt Trợ lý THẬT (surface drawer, ngữ cảnh
 // chiến dịch đang mở); "Mở Trợ lý AI đầy đủ" mở màn Trợ lý cùng phiên.
 'use client';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient } from '@appchat/ui';
 import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
 import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
 import { useMkAiStyles } from '../styles/ai.styles';
 import { useMarketingUi } from '../marketing-store';
-import { suggestionsQuery } from '../api';
 import type { MarketingMeta } from '../types';
+
+const KIND_TONE: Record<string, string> = { reactivation: color.zalo, upsell: color.violet, conversion: color.amberGold, aftercare: color.mkClick };
 
 export function MarketingAiDrawer({ meta }: { meta: MarketingMeta }) {
   const t = useTranslations('marketing.aiPanel');
   const { styles } = useMkAiStyles();
   const open = useMarketingUi((s) => s.aiOpen);
   const set = useMarketingUi((s) => s.set);
-  const sugg = useQuery({ ...suggestionsQuery(), enabled: open }).data?.data ?? [];
   const { asst, draft, setDraft, send } = useDrawerAsk('marketing');
-  const close = () => set({ aiOpen: false });
-  const run = (i: number) => {
-    const s = sugg[i];
-    set({ aiOpen: false, wizard: true, fromSuggestion: s?.id ?? null, prefill: s ? null : { name: meta.ai[i]?.[0] } });
-  };
+  const close = () => set({ aiOpen: false, focus: null });
+  const run = (id: string) => set({ aiOpen: false, focus: null, wizard: true, fromSuggestion: id, prefill: null });
   return (
     <EntityDrawer
       open={open}
@@ -58,11 +54,12 @@ export function MarketingAiDrawer({ meta }: { meta: MarketingMeta }) {
           <div className={styles.bubble}>{t('hello')}</div>
         </div>
         <div className={styles.list}>
-          {meta.ai.map(([title, tone, desc], i) => (
-            <button key={title} type="button" className={styles.card} onClick={() => run(i)} data-testid={`mk-ai-${i}`}>
+          {meta.ai.length ? null : <div className={styles.cardD}>{t('none')}</div>}
+          {meta.ai.map(([title, kind, desc, id], i) => (
+            <button key={id ?? title} type="button" className={styles.card} onClick={() => id && run(id)} data-testid={`mk-ai-${i}`}>
               <div className={styles.cardH}>
-                <span className={styles.cardIc} style={{ background: `${tone}18` }}>
-                  <Icon name="ic-spark" size={15} color={tone} />
+                <span className={styles.cardIc} style={{ background: `${KIND_TONE[kind] ?? color.violet}18` }}>
+                  <Icon name="ic-spark" size={15} color={KIND_TONE[kind] ?? color.violet} />
                 </span>
                 {title}
               </div>

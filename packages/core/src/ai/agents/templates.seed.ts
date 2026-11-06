@@ -1,25 +1,32 @@
-// Seed `agent_template` (DB nền tảng) từ catalog — idempotent theo `key`; chỉ thêm mẫu thiếu, KHÔNG ghi đè (Quản trị nền tảng có
-// thể đã sửa — TIP-040). Gọi khi boot api / worker (AiModule) và trong test.
+// Seed `agent_template` (DB nền tảng) từ catalog — idempotent theo `key`; thêm mẫu thiếu, KHÔNG ghi đè mẫu Quản trị nền tảng đã sửa
+// (TIP-040). Nâng phiên bản mặc định (TIP-022b — template-revisions): chỉ mẫu còn đúng bản dựng sẵn rev trước. Gọi khi boot api / worker.
 import type { PlatformDb } from '@appchat/db';
 import { uuidv7 } from '../../kernel/ids';
 import { AGENT_TEMPLATES, PROMPT_TEMPLATES } from './catalog';
-
-/** Cấu hình mặc định theo vai trò (D15): tool, ý định, mức AI, mẫu prompt. */
-const ROLE_DEFAULTS: Record<string, { tools: string[]; intents: number[]; prompt: number }> = {
-  sales: { tools: ['contact.update', 'contact.set_stage', 'quote.create', 'conversation.handoff'], intents: [0, 1], prompt: 1 },
-  cs: { tools: ['ticket.create', 'ticket.search', 'conversation.handoff', 'conversation.tag'], intents: [2, 3, 4], prompt: 0 },
-  booking: { tools: ['appointment.find_slots', 'appointment.create', 'appointment.reschedule', 'conversation.handoff'], intents: [1, 5], prompt: 2 },
-  marketing: { tools: ['campaign.suggest', 'segment.preview', 'contact.tag'], intents: [0, 1], prompt: 1 },
-  accounting: { tools: ['invoice.create', 'conversation.handoff'], intents: [6], prompt: 0 },
-  ops: { tools: ['conversation.assign', 'conversation.handoff', 'ticket.create'], intents: [2], prompt: 3 },
-};
+import { ROLE_DEFAULTS_V2, TEMPLATE_REVISION, planUpgrade } from './template-revisions';
 
 export const templateDefaults = (role: string) => {
-  const d = ROLE_DEFAULTS[role] ?? ROLE_DEFAULTS.ops!;
-  return { tools: d.tools, intents: d.intents, model_tier: 'advanced', threshold: 70, prompt: PROMPT_TEMPLATES[d.prompt]!.text };
+  const d = ROLE_DEFAULTS_V2[role] ?? ROLE_DEFAULTS_V2.ops!;
+  return { tools: d.tools, intents: d.intents, model_tier: 'advanced', threshold: 70, prompt: PROMPT_TEMPLATES[d.prompt]!.text, revision: TEMPLATE_REVISION };
 };
 
+/** Nâng mẫu dựng sẵn chưa bị sửa lên rev hiện tại; mẫu đã sửa giữ nguyên (trả danh sách để quản trị xem trước thay thế). */
+export async function upgradeAgentTemplates(db: Pick<PlatformDb, 'agentTemplate'>): Promise<{ upgraded: string[]; customized: string[] }> {
+  const rows = await db.agentTemplate.findMany({ select: { id: true, key: true, role: true, defaults: true } });
+  const out = { upgraded: [] as string[], customized: [] as string[] };
+  for (const r of rows) {
+    const p = planUpgrade(r.role, r.defaults);
+    if (p.kind === 'customized') out.customized.push(r.key);
+    if (p.kind !== 'upgraded') continue;
+    // CAS theo nội dung cũ: quản trị sửa đồng thời thì bỏ qua lần này.
+    const n = await db.agentTemplate.updateMany({ where: { id: r.id, defaults: { equals: r.defaults ?? {} } }, data: { defaults: p.next as object } });
+    if (n.count) out.upgraded.push(r.key);
+  }
+  return out;
+}
+
 export async function seedAgentTemplates(db: Pick<PlatformDb, 'agentTemplate'>): Promise<number> {
+  await upgradeAgentTemplates(db);
   const have = new Set((await db.agentTemplate.findMany({ select: { key: true } })).map((t) => t.key));
   const missing = AGENT_TEMPLATES.map((t, sort) => ({ t, sort })).filter(({ t }) => !have.has(t.key));
   if (!missing.length) return 0;

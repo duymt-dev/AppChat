@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
 
+// TIP-037 (mock): cùng DTO với server — nút theo `allowed[]`, duyệt cần xác nhận, wizard chọn khách theo id thật + nhập danh sách, AI
+// phân tích theo run (xếp hàng → xong), chi tiết người nhận theo trang server + xuất CSV + gửi lại tạo nháp; không có số mở / click giả.
 const URL = '/marketing?session=authed,declared,trialSeen';
 
 test.describe('marketing', () => {
@@ -24,13 +26,14 @@ test.describe('marketing', () => {
     await expect(page.locator('[data-campaign="cp_2111"]')).toBeVisible();
   });
 
-  test('duyệt chiến dịch: Chờ duyệt → Duyệt & gửi luôn qua hộp xác nhận → Đang chạy, lịch sử ghi sự kiện', async ({ page }) => {
+  test('duyệt: Chờ duyệt → gửi thử → Duyệt & gửi qua hộp xác nhận → Hẹn giờ, lịch sử ghi sự kiện; từ chối cần lý do', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.getByTestId('mk-tab-pending_approval').click();
     await page.locator('[data-campaign="cp_2111"]').click();
     const d = page.getByTestId('mk-detail');
     await expect(d.getByTestId('mk-approval')).toContainText('3.820');
+    await expect(d.getByTestId('mk-reject')).toBeDisabled();
     await d.getByTestId('mk-send-test').click();
     await expect(page.getByText('Đã gửi thử tới')).toBeVisible();
     await d.getByTestId('mk-approve').click();
@@ -38,30 +41,36 @@ test.describe('marketing', () => {
     await expect(d.getByTestId('mk-row-status')).toHaveText('Hẹn giờ');
     await d.getByTestId('mk-dtab-history').click();
     await expect(d.getByTestId('mk-history')).toContainText('Được phê duyệt');
+    await expect(d.getByTestId('mk-history')).toContainText('Gửi thử');
     await d.getByTestId('mk-detail-back').click();
     await page.getByTestId('mk-tab-scheduled').click();
     await expect(page.locator('[data-campaign="cp_2111"]')).toBeVisible();
   });
 
-  test('menu dòng: tạm dừng → tiếp tục; huỷ rồi xoá', async ({ page }) => {
+  test('menu dòng theo trạng thái: đang chạy không có Huỷ / Xoá; tạm dừng → tiếp tục; tạm dừng → huỷ → xoá', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     const row = page.locator('[data-campaign="cp_2101"]');
-    await row.getByRole('button', { name: 'Thao tác' }).click();
+    const open = () => row.getByRole('button', { name: 'Thao tác' }).click();
+    await open();
+    await expect(page.getByRole('menuitem', { name: 'Huỷ chiến dịch' })).toHaveCount(0);
+    await expect(page.getByRole('menuitem', { name: 'Xoá chiến dịch' })).toHaveCount(0);
     await page.getByRole('menuitem', { name: 'Tạm dừng' }).click();
     await expect(row.getByTestId('mk-row-status')).toHaveText('Tạm dừng');
-    await row.getByRole('button', { name: 'Thao tác' }).click();
+    await open();
     await page.getByRole('menuitem', { name: 'Tiếp tục' }).click();
     await expect(row.getByTestId('mk-row-status')).toHaveText('Đang chạy');
-    await row.getByRole('button', { name: 'Thao tác' }).click();
+    await open();
+    await page.getByRole('menuitem', { name: 'Tạm dừng' }).click();
+    await open();
     await page.getByRole('menuitem', { name: 'Huỷ chiến dịch' }).click();
     await expect(row.getByTestId('mk-row-status')).toHaveText('Đã hủy');
-    await row.getByRole('button', { name: 'Thao tác' }).click();
+    await open();
     await page.getByRole('menuitem', { name: 'Xoá chiến dịch' }).click();
     await expect(page.locator('[data-campaign]')).toHaveCount(10);
   });
 
-  test('wizard thủ công: Email → chọn khách → AI soạn → Gửi duyệt → Chờ duyệt', async ({ page }) => {
+  test('wizard thủ công: Email → chọn 2 khách theo id → AI viết lại giọng trang trọng → Gửi duyệt → Chờ duyệt', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.getByTestId('mk-create').click();
@@ -71,12 +80,13 @@ test.describe('marketing', () => {
     await w.getByTestId('mk-wiz-q').fill('Lan');
     await w.locator('[data-cust]').first().click();
     await w.getByTestId('mk-wiz-q').fill('');
-    await w.locator('[data-cust="2"]').click();
-    await w.getByRole('button', { name: 'Tiếp tục soạn nội dung' }).click();
+    await w.locator('[data-cust]').nth(1).click();
+    await w.getByTestId('mk-wiz-next').click();
     await w.getByTestId('mk-wiz-name').fill('Email — Tri ân tháng 6');
     await w.getByTestId('mk-wiz-subject').fill('Quà tri ân tháng 6');
-    await w.getByTestId('mk-tone-luxury').click();
-    await expect(w.getByTestId('mk-wiz-body')).toHaveValue(/Kính gửi quý khách \{Tên\}/);
+    await w.getByTestId('mk-wiz-body').fill('Chào {ten}, cảm ơn bạn đã đồng hành cùng Trâm Spa.');
+    await w.getByTestId('mk-tone-formal').click();
+    await expect(w.getByTestId('mk-wiz-body')).toHaveValue(/^Kính gửi quý khách \{ten\}, cảm ơn/);
     await w.getByTestId('mk-wiz-next').click();
     await expect(w.getByTestId('mk-wiz-aud')).toHaveText('2');
     await w.getByTestId('mk-wiz-submit').click();
@@ -85,41 +95,76 @@ test.describe('marketing', () => {
     await expect(page.locator('[data-campaign]').filter({ hasText: 'Email — Tri ân tháng 6' })).toHaveCount(1);
   });
 
-  test('AI phân tích → chi tiết đề xuất → tạo chiến dịch điền sẵn → Lưu nháp; đề xuất đánh dấu Đã tạo', async ({ page }) => {
+  test('wizard: nhập danh sách CSV → lô khách thật (đếm hợp lệ / lỗi), người nhận ước tính theo lô', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.getByTestId('mk-create').click();
+    const w = page.getByTestId('mk-wizard');
+    await w.getByTestId('mk-wiz-next').click();
+    await w.getByTestId('mk-wiz-file').setInputFiles({ name: 'ds.csv', mimeType: 'text/csv', buffer: Buffer.from('Tên,SĐT\nChị Lan Hương,0901234567\nKhách mới,0988000111\nKhông số,\n') });
+    await expect(w.getByTestId('mk-wiz-uploaded')).toBeVisible();
+    await expect(w.getByTestId('mk-wiz-uploaded')).toContainText('2');
+    await w.getByTestId('mk-wiz-next').click();
+    await w.getByTestId('mk-wiz-name').fill('Từ danh sách');
+    await w.getByTestId('mk-wiz-body').fill('Chào {ten}');
+    await w.getByTestId('mk-wiz-next').click();
+    await expect(w.getByTestId('mk-wiz-aud')).toHaveText('2');
+  });
+
+  test('AI phân tích: xếp hàng → đang chạy → 4 đề xuất → chi tiết → tạo chiến dịch điền sẵn → Lưu nháp; đề xuất Đã tạo', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.getByTestId('mk-analyze').click();
     const m = page.getByTestId('mk-analyze-modal');
-    await expect(m.locator('[data-suggestion]')).toHaveCount(4);
-    await m.locator('[data-suggestion="sg_1"]').click();
-    await expect(m.getByTestId('mk-an-detail')).toContainText('8–12%');
+    await m.getByTestId('mk-an-rerun').click();
+    await expect(m.getByTestId('mk-an-running')).toBeVisible();
+    await expect(m.locator('[data-suggestion]')).toHaveCount(4, { timeout: 15_000 });
+    await m.locator('[data-suggestion]').first().click();
+    await expect(m.getByTestId('mk-an-detail')).toContainText('Tái kích hoạt khách hàng cũ');
     await m.getByTestId('mk-an-create').click();
     const w = page.getByTestId('mk-wizard');
     await expect(w.getByTestId('mk-wiz-ai')).toContainText('Tái kích hoạt khách hàng cũ');
     for (let i = 0; i < 3; i++) await w.getByTestId('mk-wiz-next').click();
-    await expect(w.getByTestId('mk-wiz-aud')).toHaveText('540');
     await w.getByTestId('mk-wiz-draft').click();
     await expect(w).toHaveCount(0);
     await page.getByTestId('mk-tab-draft').click();
     await expect(page.locator('[data-campaign]').filter({ hasText: 'Tái kích hoạt khách hàng cũ' })).toHaveCount(1);
     await page.getByTestId('mk-analyze').click();
-    await expect(page.locator('[data-suggestion="sg_1"]')).toContainText('Đã tạo');
+    await expect(page.locator('[data-suggestion]').first()).toContainText('Đã tạo');
   });
 
-  test('chi tiết: lọc người nhận theo pill, tab nội dung; panel AI mở wizard', async ({ page }) => {
+  test('chi tiết: số đo từ bằng chứng (không mở / click), lọc người nhận theo pill, nội dung, xuất CSV, gửi lại tạo nháp', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
-    await page.locator('[data-campaign="cp_2101"]').click();
+    await page.locator('[data-campaign="cp_2104"]').click();
     const d = page.getByTestId('mk-detail');
     await expect(d.locator('[data-rec]')).toHaveCount(8);
-    await d.getByTestId('mk-pill-clicked').click();
+    await expect(d.getByTestId('mk-stat-open')).toHaveCount(0);
+    await d.getByTestId('mk-pill-replied').click();
     await expect(d.locator('[data-rec]')).toHaveCount(3);
+    await d.getByTestId('mk-pill-failed').click();
+    await expect(d.locator('[data-rec]')).toHaveCount(1);
     await d.getByTestId('mk-dtab-content').click();
-    await expect(d.getByTestId('mk-content')).toContainText('voucher 30%');
-    await d.getByTestId('mk-detail-back').click();
+    await expect(d.getByTestId('mk-content')).toBeVisible();
+    const dl = page.waitForEvent('download');
+    await d.getByTestId('mk-export').click();
+    expect((await dl).suggestedFilename()).toMatch(/\.csv$/);
+    await d.getByTestId('mk-resend').click();
+    await expect(page.getByText(/Đã tạo nháp CD-\d+/)).toBeVisible();
+    await expect(page.getByTestId('mk-detail')).toContainText('gửi lại');
+  });
+
+  test('panel AI → gợi ý mở wizard điền sẵn; huỷ nhận tin công khai: token mẫu → xác nhận → đã huỷ', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
     await page.getByTestId('mk-ai-open').click();
     await page.getByTestId('mk-ai-0').click();
     await expect(page.getByTestId('mk-wizard')).toBeVisible();
+    await page.goto('/campaign/unsubscribe?t=unsub-demo');
+    await page.getByTestId('unsub-confirm').click();
+    await expect(page.getByTestId('unsub-done')).toBeVisible();
+    await page.goto('/campaign/unsubscribe?t=sai');
+    await expect(page.getByTestId('unsub-invalid')).toBeVisible();
   });
 
   test('390: thẻ chiến dịch, chi tiết, wizard — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {

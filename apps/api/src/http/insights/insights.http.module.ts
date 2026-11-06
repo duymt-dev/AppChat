@@ -1,6 +1,12 @@
-// Controller HTTP của domain `insights` nằm trong thư mục này. Stub TIP-001; TIP 038 thêm controller.
-import { Module } from '@nestjs/common';
+// Controller HTTP của domain `insights` (TIP-038): GET /v1/insights/:metric. Chỉ gắn khi env đủ DB + Redis + JWT_SECRET (`register`).
+import { Module, type DynamicModule } from '@nestjs/common';
 import { InsightsModule } from '@appchat/core';
+import { ActorModule } from '../kernel/actor.module';
+import { InsightsController } from './insights.controller';
 
 @Module({ imports: [InsightsModule] })
-export class InsightsHttpModule {}
+export class InsightsHttpModule {
+  static register(): DynamicModule {
+    return { module: InsightsHttpModule, imports: [InsightsModule, ActorModule], controllers: [InsightsController] };
+  }
+}

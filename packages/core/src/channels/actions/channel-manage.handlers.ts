@@ -1,7 +1,7 @@
 // Quản lý tài khoản kênh (REQ-B11 drawer, Blueprint §3.4): update_settings · pause / resume · sync_history · test · disconnect.
 // Lệnh tới phiên đang chạy (dừng / chạy lại / đồng bộ) gửi SAU commit qua ChannelControl; route DB nền tảng đồng bộ cùng lúc.
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, serverMessages } from '@appchat/shared';
+import { AppError, can, serverMessages } from '@appchat/shared';
 import { channelRegistry, type ChannelRegistry } from '@appchat/channels';
 import type { ActionInput, channelDisconnect, channelPause, channelResume, channelSyncHistory, channelTest, channelUpdateSettings } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -9,9 +9,13 @@ import { CHANNEL_REGISTRY } from '../tokens';
 import { emailAdapterOf, emailCredentials, verifyMailbox } from '../email/credentials';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { assertAgentAssignable } from '../../ai/agents/agent-names';
+import { assertBindingVersion, assertRouting, scheduleForAccount } from '../../ai/agents/channel-agent-config';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
+import { historyStatusUrl, requestHistory } from '../operations/history-run';
+import { jobAccepted } from '../../kernel/actions/job-accepted';
+import { actorUserId } from '../../inbox/services/access';
 import { disconnectPreview, pausePreview, resumePreview, syncHistoryPreview, updateSettingsPreview } from './previews/channel-manage.handlers.preview';
 
 type Ok = { ok: boolean };
@@ -35,14 +39,26 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(_ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+    // TIP-042b: `assign_mode` chỉ là bản chiếu cũ (chia lead thật = `lead_routing.update`) nhưng vẫn là cấu hình phân công → cần crm.reassign.
+    if (input.patch.assign_mode !== undefined && !can(ctx.authz, 'crm.reassign')) throw new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
     const row = await need(this.accounts).live(tx, input.channel_account_id);
-    const { name, agent_id, ...rest } = input.patch;
+    const { name, agent_id, schedule, routing, ...rest } = input.patch;
     await assertAgentAssignable(tx, agent_id);
+    // TIP-022b: gán / phân luồng đổi đồng thời kể từ lúc xem → 409; lịch + ứng viên phân luồng kiểm ở server.
+    assertBindingVersion(row.settings, input.expected_version);
+    const sched = scheduleForAccount(schedule);
+    const route = await assertRouting(tx, routing, row.type);
     const prev = settingsOf(row);
     // `agent_id: ''` = bỏ gán agent (ô chọn "—").
-    const next: AccountSettings = { ...prev, ...rest, ...(agent_id !== undefined ? { agent_id: agent_id || null } : {}) };
-    await tx.channelAccount.update({ where: { id: row.id }, data: { settings: { ...next }, ...(name ? { name } : {}), updatedAt: this.clock.now() } });
+    const next: AccountSettings = {
+      ...prev,
+      ...rest,
+      ...(agent_id !== undefined ? { agent_id: agent_id || null } : {}),
+      ...(sched !== undefined ? { schedule: sched } : {}),
+      ...(route ? { routing: route } : {}),
+    };
+    await tx.channelAccount.update({ where: { id: row.id }, data: { settings: JSON.parse(JSON.stringify(next)) as object, ...(name ? { name } : {}), updatedAt: this.clock.now() } });
     return { result: { ok: true }, before: { id: row.id, name: row.name, settings: prev }, after: { id: row.id, name: name ?? row.name, settings: next } };
   }
 
@@ -103,20 +119,24 @@ export class ChannelSyncHistoryHandler implements Handler<ActionInput<typeof cha
   constructor(
     @Inject(ChannelAccounts) private readonly accounts: ChannelAccounts | null,
     @Inject(ChannelControl) private readonly control: ChannelControl | null,
+    @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(_ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
     const row = await need(this.accounts).live(tx, input.channel_account_id);
     const control = need(this.control);
     const prev = settingsOf(row);
     await tx.channelAccount.update({ where: { id: row.id }, data: { settings: { ...prev, history_days: input.history_days } } });
     const run = row.status === 'connected' && !row.pausedAt && input.history_days > 0;
-    return {
-      result: { ok: true },
-      before: { id: row.id, history_days: prev.history_days },
-      after: { id: row.id, history_days: input.history_days, requested: run },
-      afterCommit: run ? () => control.send({ op: 'sync', account_id: row.id, days: input.history_days }) : undefined,
-    };
+    const base = { result: { ok: true }, before: { id: row.id, history_days: prev.history_days }, after: { id: row.id, history_days: input.history_days, requested: run } };
+    if (!run) return base;
+    // Kênh lease (Zalo — TIP-014b C): lần lấy lịch sử bền + 202, worker giữ phiên chạy và báo cáo khoảng thực thấy.
+    if (channelRegistry.get(row.type)?.manifest.session === 'lease') {
+      const h = await requestHistory(tx, { accountId: row.id, actorId: actorUserId(ctx) ?? null, days: input.history_days, now: this.clock.now() });
+      return { ...base, events: [h.event], ...jobAccepted(h.id, historyStatusUrl(row.id, h.id)) };
+    }
+    // Kênh poll (email): bỏ mốc + poll lại theo ngày (TIP-018).
+    return { ...base, afterCommit: () => control.send({ op: 'sync', account_id: row.id, days: input.history_days }) };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof channelSyncHistory>, tx: TenantTx) {

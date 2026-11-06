@@ -92,13 +92,13 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 8 | [043](../tips/TIP-043-kb-conversation-learning.md) | W8 | DONE | `tip/043-kb-conversation-learning` · `tip/043-p2-proposer` · `tip/043-p3-review-ui` | `5e568e3` (P1) · `d1f005d` (P2) · `98099cf` (P3 + chốt) | [#71](https://github.com/duymt-dev/AppChat/pull/71) (P1, xếp chồng #70) · [#72](https://github.com/duymt-dev/AppChat/pull/72) (P2, xếp chồng #71) · [#73](https://github.com/duymt-dev/AppChat/pull/73) (P3 + chốt, xếp chồng #72) |
 | 9 | [045b](../tips/TIP-045b-app-hardening.md) | W8 | DONE | `tip/045b-app-hardening` · `tip/045b-pa-consistency` · `tip/045b-pc-fields` · `tip/045b-pd-jobs` · `tip/045b-pd2-data-jobs` · `tip/045b-pe-reconcile` · `tip/045b-close` | `33aa93fd` (P1) · `7df240d1` (A) · `e29293e8` (C) · `5f19fb42` (D1) · `44585096` (D2) · `2286e351` (E) · `bcc12771` (chốt) | #74 · #75 · #76 · #77 · #78 (đã merge) · [#84](https://github.com/duymt-dev/AppChat/pull/84) (E) · [#85](https://github.com/duymt-dev/AppChat/pull/85) (chốt, xếp chồng #84) |
 | 10 | [003d](../tips/TIP-003d-openapi.md) | W8 | DONE | `tip/003d-openapi` | `3faa45ec` | [#86](https://github.com/duymt-dev/AppChat/pull/86) (xếp chồng #85) |
-| 11 | [014b](../tips/TIP-014b-zalo-lifecycle.md) | W8 | đang làm | `tip/014b-zalo-lifecycle` | | |
-| 12 | [042](../tips/TIP-042-custom-roles-teams.md) | W8 | chờ | `tip/042-custom-roles-teams` | | |
-| 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | chờ | `tip/042b-lead-routing` | | |
-| 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | chờ | `tip/042c-record-scope` | | |
-| 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | chờ | `tip/022b-agent-channel-behavior` | | |
-| 16 | [037](../tips/TIP-037-marketing.md) | W8 | chờ | `tip/037-marketing` | | |
-| 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | chờ | `tip/038-insights-dashboard` | | |
+| 11 | [014b](../tips/TIP-014b-zalo-lifecycle.md) | W8 | PARTIAL — chỉ AC8 Zalo thật (Q-003, chưa nghiệm thu với provider thật) | `tip/014b-zalo-lifecycle` | `4d139ea0` | [#87](https://github.com/duymt-dev/AppChat/pull/87) (xếp chồng #86) |
+| 12 | [042](../tips/TIP-042-custom-roles-teams.md) | W8 | DONE | `tip/042-custom-roles-teams` | `f93b31eb` | #88 (xếp chồng #87) |
+| 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | DONE | `tip/042b-lead-routing` | `5e9acd3f` | #89 (xếp chồng #88) |
+| 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | DONE | `tip/042c-record-scope` | `84f6086d` | #90 (xếp chồng #89) |
+| 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | DONE | `tip/022b-agent-channel-behavior` | `d3b0571e` | #91 (xếp chồng #90) |
+| 16 | [037](../tips/TIP-037-marketing.md) | W8 | DONE | `tip/037-marketing` | `9100b2d7` | #92 (xếp chồng #91) |
+| 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | MỘT PHẦN (pha 1/4 — AC01–03; DC-363) | `tip/038-insights-dashboard` | `28dcba68` | #93 (xếp chồng #92) |
 | 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | chờ | `tip/039-billing-lifecycle` | | |
 | 19 | [040](../tips/TIP-040-platform-admin.md) | W8 | chờ | `tip/040-platform-admin` | | |
 | 20 | [038b](../tips/TIP-038b-ai-first-data-transfer.md) | W8 | chờ | `tip/038b-ai-first-data-transfer` | | |

@@ -3,7 +3,8 @@
 // cũ còn chờ (một link hiệu lực / email). TIP-004 có accept (POST /v1/auth/invite/accept).
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
-import type { PlatformDb } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
+import { liveRole } from '../../authz/services/role-lifecycle';
 import type { MailProvider } from '@appchat/integrations';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { uuidv7 } from '../../kernel/ids';
@@ -23,6 +24,8 @@ export class InvitesService {
     @Inject(MAIL_PROVIDER) private readonly mail: MailProvider,
     @Inject(IDENTITY_ENV) private readonly env: IdentityEnv,
     @Inject(CLOCK) private readonly clock: Clock,
+    /** Kiểm vai trò của lời mời còn sống lúc nhận (TIP-042) — thiếu (test không có tenant) → chỉ nhận vai trò hệ thống. */
+    private readonly tenants: TenantDbResolver | null = null,
   ) {}
 
   /**
@@ -80,6 +83,8 @@ export class InvitesService {
     if (inv.acceptedAt || inv.revokedAt || inv.expiresAt <= now) throw new AppError('CONFLICT', 409, { token: inv.acceptedAt ? 'used' : inv.revokedAt ? 'revoked' : 'expired' });
     const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
     if (user.email !== inv.email) throw new AppError('FORBIDDEN', 403, { email: 'mismatch' });
+    // TIP-042: vai trò của lời mời đã xoá / không còn trong tenant → không nhận (không fallback vai trò khác); lời mời giữ nguyên để mời lại.
+    await this.assertRoleLive(inv.workspaceId, inv.roleKey);
     await this.db.$transaction(async (tx) => {
       const claimed = await tx.invite.updateMany({ where: { id: inv.id, acceptedAt: null, revokedAt: null }, data: { acceptedAt: now } });
       if (claimed.count !== 1) throw new AppError('CONFLICT', 409, { token: 'used' });
@@ -92,5 +97,10 @@ export class InvitesService {
       await tx.workspace.update({ where: { id: inv.workspaceId }, data: { authzEpoch: { increment: 1 } } });
     });
     return { workspaceId: inv.workspaceId, role: inv.roleKey };
+  }
+
+  private async assertRoleLive(workspaceId: string, roleKey: string): Promise<void> {
+    const ok = this.tenants ? !!(await liveRole(await this.tenants.get(TenantContexts.system(workspaceId, 'invite.accept')), roleKey)) : roleKey !== 'owner' && !roleKey.startsWith('custom:');
+    if (!ok || roleKey === 'owner') throw new AppError('CONFLICT', 409, { role: 'unavailable' });
   }
 }

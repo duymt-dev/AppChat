@@ -6,6 +6,7 @@ import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import './seed';
+import { AUTHZ_MANAGEMENT_HANDLERS } from './authz-management.providers';
 import { AuthzResolver } from './services/authz-resolver';
 import { RolesService } from './services/roles.service';
 
@@ -23,6 +24,7 @@ const opt = (token: symbol) => ({ token, optional: true });
       inject: [opt(PLATFORM_DB), opt(TENANT_RESOLVER)],
       useFactory: (p?: PlatformDb, t?: TenantDbResolver) => (p && t ? new RolesService(p, t) : null),
     },
+    ...AUTHZ_MANAGEMENT_HANDLERS,
   ],
   exports: [AuthzResolver, RolesService],
 })

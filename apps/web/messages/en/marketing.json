@@ -32,14 +32,30 @@
     "abCount": "{n} experiments",
     "varA": "Variant A",
     "varB": "Variant B",
-    "upcoming": "Upcoming sends"
+    "upcoming": "Upcoming sends",
+    "stat": {
+      "campaigns": "Campaigns",
+      "sent": "Sent",
+      "reply": "Reply rate",
+      "converted": "Conversions"
+    },
+    "abNone": "No A/B tests yet.",
+    "upcomingNone": "No scheduled campaigns.",
+    "recipients": "{n} recipients",
+    "whenApproved": "On approval"
   },
   "kpi": {
     "running": "Running campaigns",
     "sent": "Messages sent",
-    "open": "Open rate",
-    "click": "Click rate",
-    "trend": "↑ {v} vs last month"
+    "trend": "↑ {v} vs last month",
+    "reply": "Reply rate",
+    "converted": "Conversion rate",
+    "hint": {
+      "running": "Sending in batches",
+      "sent": "Accepted by the channel",
+      "reply": "Customers replied after receiving",
+      "converted": "Orders within 7 days of the message"
+    }
   },
   "status": {
     "all": "All",
@@ -50,7 +66,8 @@
     "paused": "Paused",
     "completed": "Completed",
     "rejected": "Rejected",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "approved": "Approved"
   },
   "search": "Search campaigns…",
   "sort": "Sort: Newest",
@@ -69,31 +86,22 @@
   },
   "perf": {
     "sent": "Sent",
-    "open": "Open",
-    "click": "Click",
     "none": "Not sent",
-    "dash": "—"
+    "dash": "—",
+    "reply": "Replies",
+    "converted": "Conversions"
   },
-  "timeLine": "{date} · 08:00",
+  "timeLine": "{date} · {time}",
   "endLine": "→ {end}",
   "hint": {
-    "0": "Re-engage — no contact for 18 days",
-    "1": "Send a retention offer",
-    "2": "Payment reminder / order follow-up",
-    "3": "Suggest a matching combo upsell",
-    "4": "Urgent reply per SLA",
-    "5": "Schedule a follow-up this week"
+    "review": "Awaiting approval — check content & recipients",
+    "unknown": "{n} messages with unknown result — needs checking",
+    "noReply": "No replies yet — consider new content",
+    "resend": "Can resend to customers who have not replied",
+    "draft": "Draft — finish and submit for approval",
+    "wait": "Waiting for the send time"
   },
-  "aiDo": "Hand to the AI agent now",
-  "aiDoing": "AI agent is working: optimising subject & send time",
   "aiPeek": "View AI hint",
-  "peekTitle": "Campaign · AI hints",
-  "peek": [
-    "Open rate below average — change subject & send time (7–9 pm).",
-    "Dormant 90-day segment — split into a win-back branch.",
-    "Best channel: Zalo personal for this group (free, high open rate).",
-    "A/B test 2 messages to lift CTR ~12%."
-  ],
   "menu": {
     "open": "Actions",
     "view": "View details",
@@ -112,20 +120,16 @@
     "subLoading": "Reading profiles, purchase behaviour and interaction history…",
     "subList": "{n} marketing opportunities found",
     "subDetail": "Suggestion details · review before creating the campaign",
-    "loading": "AI is analysing customer data and looking for suitable marketing opportunities…",
-    "intro": "AI analysed <b>4,280 customers</b> across 12 signal groups and found <b>{n} marketing opportunities</b>. Each suggestion states what to do, who to send to, why, through which channel and when.",
+    "loading": "AI is analysing customer data (aggregates only, no personal data sent) — this may take a few minutes…",
+    "intro": "<b>{n} suggestions</b> from the latest analysis — each one says what to do, who to send it to, why, on which channel and when. Customer counts come from real data within what you can see.",
     "col": {
-      "priority": "Priority",
       "name": "Suggested campaign",
-      "segment": "Customer group",
-      "count": "Count",
+      "count": "Customers",
       "reason": "Reason",
       "channel": "Channel",
-      "when": "Timing"
-    },
-    "priority": {
-      "high": "High",
-      "medium": "Medium"
+      "when": "Timing",
+      "kind": "Type",
+      "segment": "Customer group"
     },
     "rerun": "Ask AI to re-analyse",
     "pickHint": "Pick a suggestion to see details",
@@ -140,17 +144,60 @@
       "channel": "Best channel",
       "time": "Timing",
       "message": "Message",
-      "priority": "Priority"
+      "priority": "Priority",
+      "cta": "CTA"
     },
     "countV": "{n} customers",
-    "forecast": "Forecast response rate",
-    "signals": "Signals used by AI",
     "createFrom": "Create campaign from suggestion",
-    "viewList": "View customer list",
-    "adjust": "Adjust filter conditions",
-    "exclude": "Exclude customers",
     "close": "Close",
-    "and": " and "
+    "and": " and ",
+    "none": "No suggestions yet. Ask AI to analyse your customer data (uses AI Credit).",
+    "run": "Ask AI to analyse",
+    "failed": "AI could not finish the analysis — try again later. No new suggestions were saved.",
+    "anyTime": "Any time",
+    "bodyL": "Suggested content",
+    "generated": "Analysed at",
+    "kind": {
+      "reactivation": "Reactivation",
+      "upsell": "Upsell",
+      "conversion": "Conversion",
+      "aftercare": "Aftercare",
+      "manual": "Manual"
+    },
+    "signal": {
+      "profile": "Customer profile",
+      "tags": "Groups & tags",
+      "orders": "Purchase history",
+      "interactions": "Interaction history",
+      "last_interaction": "Last interaction",
+      "value": "Value & purchase frequency",
+      "documents": "Quotes · contracts · orders",
+      "campaigns": "Campaign history"
+    },
+    "f": {
+      "not": "Except {x}",
+      "group": "Group {v}",
+      "tag": "Tag {v}",
+      "stage": "Stage {v}",
+      "source": "Source {v}",
+      "tier": "Tier {v}",
+      "spentGte": "Spent ≥ {v}",
+      "spentLte": "Spent ≤ {v}",
+      "spentBetween": "Spent {v}–{v2}",
+      "ordersGte": "≥ {n} orders",
+      "ordersLte": "≤ {n} orders",
+      "bought": "Bought selected products",
+      "notBought": "Has not bought selected products",
+      "neverOrder": "Never ordered",
+      "idleOrder": "No order for {n}+ days",
+      "recentOrder": "Ordered within {n} days",
+      "idleTouch": "No interaction for {n}+ days",
+      "recentTouch": "Interacted within {n} days",
+      "beforeOrder": "Last order before {d}",
+      "afterOrder": "Last order since {d}",
+      "beforeTouch": "Last interaction before {d}",
+      "afterTouch": "Last interaction since {d}"
+    }
   },
   "wiz": {
     "titleNew": "Create broadcast campaign",
@@ -177,21 +224,19 @@
       "zalo": {
         "name": "Zalo personal",
         "desc": "Messages to friends / past chats · batched, up to 200 messages a day",
-        "cost": "Free"
+        "cost": "No AI Credit"
       },
       "email": {
         "name": "Email",
-        "desc": "HTML · 18,400 contacts with email",
-        "cost": "1 credit / 100 emails"
+        "desc": "Sent from your connected mailbox · customers with an email address",
+        "cost": "No AI Credit"
       }
     },
     "s2": "Choose recipients",
     "s2sub": "Filter by group, search, or upload Excel — tick customers then continue to the message.",
     "custSearch": "Search customers by name or phone…",
     "upload": "Upload Excel",
-    "uploadDone": "Imported 1,248 contacts from Excel",
-    "uploadFile": "customer-list.xlsx",
-    "uploadSum": "Imported 1,248 contacts · 1,180 valid · 68 duplicates skipped",
+    "uploadSum": "{rows} rows · {valid} valid · {invalid} invalid · {dup} duplicates skipped",
     "unload": "Remove",
     "groupAll": "All",
     "selectAll": "Select all",
@@ -205,37 +250,31 @@
     },
     "grp": {
       "vip": "VIP",
-      "returning": "Returning",
-      "cart": "Cart drop",
       "new": "New",
-      "cold": "Inactive"
+      "loyal": "Loyal",
+      "potential": "Potential"
     },
     "noCust": "No matching customers.",
     "picked": "{n} customers selected",
     "pickedSub": "Continue to compose the message with AI or the editor",
     "toContent": "Continue to content",
     "s3": "Message content",
-    "s3sub": "Use personalisation variables {Tên}, {Link}. AI can write it in different tones.",
+    "s3sub": "Use personalisation variables {ten}, {ma_khach}, {hang}. AI can rewrite in a tone (uses AI Credit).",
     "name": "Campaign name",
     "namePh": "e.g. Summer Flash Sale 2026 — Gold customers",
     "subject": "Email subject",
     "aiCompose": "AI compose",
-    "aiComposeSub": "— pick a tone for AI",
+    "aiComposeSub": "— pick a tone for AI to rewrite the current content",
     "tones": {
       "friendly": "Friendly",
-      "luxury": "Premium",
-      "urgent": "Urgent"
+      "formal": "Formal",
+      "promo": "Promotional",
+      "short": "Short"
     },
-    "toneText": {
-      "friendly": "Hi {Tên}! 🌸 30% off HIFU treatments until 11:59 pm today. Book now 👉 {Link}",
-      "luxury": "Dear {Tên}, we are pleased to offer you 30% off our premium treatments. Book at {Link}.",
-      "urgent": "⚡ {Tên}, TODAY ONLY! 30% off all treatments — limited slots. Claim: {Link}"
-    },
-    "toneDone": "AI wrote the message · {l} tone",
+    "toneDone": "AI rewrote the content · {l} tone",
     "body": "Content",
-    "aiHelp": "AI help",
-    "aiHelpText": "Hi {Tên}! 🌸 30% Flash Sale on HIFU until 11:59 pm today. Book now 👉 {Link}",
-    "defaultBody": "Hi {Tên}! Flash Sale 30% on cotton polos until 11:59 pm today. Shop now 👉 {Link}",
+    "aiHelp": "AI shorten",
+    "defaultBody": "Hi {ten}! 30% off cotton polos until 23:59 today.",
     "tools": {
       "bold": "Bold",
       "italic": "Italic",
@@ -243,7 +282,7 @@
       "ul": "Bulleted list",
       "ol": "Numbered list"
     },
-    "preview": "<b>Preview:</b> the message shows the real customer name and a tracked short link.",
+    "preview": "<b>Preview:</b> messages show the real customer name; an unsubscribe link is added at the end.",
     "s4": "Schedule & send",
     "s4sub": "Send now, schedule, or let AI pick the best time per customer. Campaigns are always approved before sending.",
     "send": {
@@ -266,14 +305,20 @@
     "errName": "Enter a campaign name",
     "errAud": "Pick at least one group or customer",
     "errBody": "Enter the message content",
-    "fromAi": "AI prefilled the campaign: {name}"
+    "fromAi": "AI prefilled the campaign: {name}",
+    "uploading": "Importing…",
+    "account": "Sender account",
+    "accountOff": "not connected",
+    "noAccount": "No connected account — go to Settings › Channels",
+    "capHint": "Up to {n} proactive messages / day — expected to finish in {days} day(s).",
+    "creditsNone": "0 — sending does not use AI Credit",
+    "errAt": "Pick a send time"
   },
   "detail": {
     "back": "Back",
     "export": "Export list",
-    "exporting": "Exporting recipients…",
-    "resend": "Resend to unread",
-    "resendDone": "Resend to unread customers scheduled",
+    "resend": "Resend to non-responders",
+    "resendDone": "Draft {code} created · {n} customers without a reply — review, then submit",
     "tab": {
       "recipients": "Recipients",
       "content": "Content",
@@ -281,26 +326,19 @@
     },
     "stat": {
       "sent": "Sent",
-      "read": "Read",
-      "click": "Clicked",
       "conv": "Converted",
-      "revenue": "Revenue"
+      "revenue": "Revenue",
+      "reply": "Replies",
+      "unknown": "Unknown result"
     },
-    "revenueV": "48.7M ₫",
-    "roi": "ROI 4.8×",
-    "all": "100%",
-    "fStatus": "Status: All",
-    "fSeg": "Segment: All",
-    "fTime": "Time: All",
-    "rSearch": "Search phone, customer name…",
-    "adv": "Advanced filters",
     "pills": {
       "all": "All",
-      "delivered": "Sent",
-      "opened": "Read",
-      "clicked": "Clicked",
-      "unread": "Unread",
-      "failed": "Not sent"
+      "failed": "Failed",
+      "sent": "Sent",
+      "replied": "Replied",
+      "converted": "Converted",
+      "pending": "Pending",
+      "skipped": "Skipped"
     },
     "list": "Recipients",
     "listN": "{n} customers",
@@ -309,15 +347,17 @@
       "phone": "Phone",
       "status": "Status",
       "sent": "Sent at",
-      "read": "Read at",
-      "click": "Clicked at",
-      "act": "Actions"
+      "act": "Actions",
+      "reply": "Replied at"
     },
     "rst": {
-      "clicked": "Clicked",
-      "opened": "Read",
-      "delivered": "Sent",
-      "failed": "Failed"
+      "failed": "Failed",
+      "sent": "Sent",
+      "replied": "Replied",
+      "converted": "Converted",
+      "pending": "Pending",
+      "skipped": "Skipped",
+      "unknown": "Unknown"
     },
     "view": "View",
     "more": "More",
@@ -333,7 +373,12 @@
       "paused": "Sending paused",
       "resumed": "Sending resumed",
       "cancelled": "Campaign cancelled",
-      "edited": "Campaign edited"
+      "edited": "Campaign edited",
+      "completed": "Finished sending",
+      "held": "On hold — sender account not ready",
+      "reopened": "Reopened for editing",
+      "test_sent": "Test sent",
+      "undo": "Undone"
     },
     "notSent": "Campaign not sent yet — no recipients.",
     "approvalBar": "Campaign is pending approval · {n} recipients",
@@ -342,19 +387,54 @@
     "submit": "Submit for approval",
     "sendTest": "Send test",
     "testDone": "Test sent to {to}",
-    "rejected": "Rejected: {reason}"
+    "rejected": "Rejected: {reason}",
+    "reasonPh": "Reason for rejecting…",
+    "noSegment": "Hand-picked customers",
+    "resendNoRead": "Draft {code} created · {n} customers without a reply (channel has no read receipts) — review, then submit",
+    "ofEligible": "of {n} eligible",
+    "unknownHint": "Channel was called but delivery is unknown — not resent automatically",
+    "none": "None",
+    "revenueHint": "Orders within 7 days of the message (last campaign)",
+    "noReadReceipt": "This channel has no read / click receipts — only sent, replies and conversions are counted.",
+    "skip": {
+      "opt_out": "Unsubscribed",
+      "no_endpoint": "No channel to reach",
+      "cooldown": "Within 48 hours",
+      "deleted": "Customer deleted",
+      "out_of_scope": "Out of scope",
+      "cancelled": "Cancelled",
+      "unsupported": "Not supported",
+      "invalid_content": "Content error"
+    },
+    "noMatch": "No recipients match this filter.",
+    "unit": "recipients",
+    "openContact": "Open customer profile",
+    "openConv": "Open conversation",
+    "variantB": "Variant B"
   },
   "aiPanel": {
     "title": "AI Assistant · Marketing",
     "sub": "Suggest & create campaigns from customer data",
     "close": "Close",
-    "hello": "Based on this month's data, here are 4 high-potential campaigns. Pick one to open the quick wizard.",
+    "hello": "Here are campaign ideas from the latest AI analysis. Pick one to open the wizard, or ask me below.",
     "go": "Create this campaign",
     "ph": "Ask the assistant about campaigns…",
     "send": "Send",
-    "full": "Open full AI Assistant →"
+    "full": "Open full AI Assistant →",
+    "none": "No suggestions yet — click \"AI customer analysis\" to get campaign ideas."
   },
   "from": "From",
   "to": "To",
-  "unit": "campaigns"
+  "unit": "campaigns",
+  "noEnd": "Not scheduled",
+  "unsub": {
+    "title": "Unsubscribe from campaigns",
+    "sub": "You will no longer receive promotional / campaign messages from {biz}. Conversation replies and documents (quotes, contracts, orders) are not affected.",
+    "confirm": "Confirm unsubscribe",
+    "doneTitle": "Unsubscribed",
+    "doneSub": "{biz} will no longer send you campaign messages.",
+    "error": "Could not unsubscribe — please try again later.",
+    "invalidTitle": "This link is no longer valid",
+    "invalidSub": "The unsubscribe link has expired or is incorrect. You can reply to the message for help."
+  }
 }

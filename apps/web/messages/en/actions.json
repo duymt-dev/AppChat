@@ -41,6 +41,12 @@
       "title": "Update getting-started step"
     }
   },
+  "insight": {
+    "query": {
+      "title": "View metric",
+      "desc": "Read a predefined business metric (bookings, collections, at-risk customers, agent / support performance) within what you may see."
+    }
+  },
   "follow_up": {
     "complete": {
       "title": "Follow-up done",
@@ -714,12 +720,51 @@
     }
   },
   "segment": {
+    "create": {
+      "title": "Create segment"
+    },
+    "update": {
+      "title": "Edit segment"
+    },
+    "delete": {
+      "title": "Delete segment"
+    },
     "preview": {
       "title": "Preview segment",
       "desc": "Count contacts in a segment before creating a campaign."
     }
   },
   "campaign": {
+    "analyze": {
+      "title": "AI customer analysis"
+    },
+    "audience_import": {
+      "title": "Import recipient list"
+    },
+    "draft_content": {
+      "title": "AI rewrite campaign content"
+    },
+    "recipient_export": {
+      "title": "Export recipients"
+    },
+    "resend_unread": {
+      "title": "Draft a resend to non-responders"
+    },
+    "unsubscribe": {
+      "title": "Unsubscribe from campaigns"
+    },
+    "dispatch": {
+      "title": "Send campaign batch (system)"
+    },
+    "record_delivery": {
+      "title": "Record send result (system)"
+    },
+    "record_metric": {
+      "title": "Record reply / conversion (system)"
+    },
+    "store_analysis": {
+      "title": "Save AI suggestions (system)"
+    },
     "suggest": {
       "title": "Suggest campaigns",
       "desc": "Suggest campaigns with estimated audience and best send time."
@@ -780,6 +825,36 @@
     },
     "attach_file": {
       "title": "Attach a file to a member"
+    }
+  },
+  "role": {
+    "create": {
+      "title": "Create role"
+    },
+    "update": {
+      "title": "Edit role"
+    },
+    "delete": {
+      "title": "Delete role"
+    }
+  },
+  "lead_routing": {
+    "update": {
+      "title": "Configure lead routing"
+    },
+    "apply": {
+      "title": "Route new lead (system)"
+    }
+  },
+  "team": {
+    "create": {
+      "title": "Create team"
+    },
+    "update": {
+      "title": "Edit team"
+    },
+    "set_members": {
+      "title": "Change team members"
     }
   },
   "member": {
@@ -867,6 +942,26 @@
     },
     "sync_history": {
       "title": "Sync channel history"
+    },
+    "sync_contacts": {
+      "title": "Sync channel account address book"
+    },
+    "friend": {
+        "accept": {
+          "title": "Accept Zalo friend request"
+        },
+        "reject": {
+          "title": "Reject Zalo friend request"
+        },
+        "send": {
+          "title": "Send Zalo friend request"
+        },
+        "undo": {
+          "title": "Withdraw Zalo friend request"
+        }
+    },
+    "lookup_user": {
+      "title": "Find a Zalo user by phone"
     },
     "reconnect": {
       "title": "Reconnect channel account"
@@ -1107,6 +1202,11 @@
     },
     "retry": {
       "title": "Retry failed items of a background job"
+    }
+  },
+  "channel_operation": {
+    "cancel": {
+      "title": "Cancel a pending channel operation"
     }
   }
 }

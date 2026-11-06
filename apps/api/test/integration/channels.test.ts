@@ -194,11 +194,11 @@ describe('kết nối Zalo cá nhân', () => {
     expect(await until(() => sessions().isHeld(A))).toBe(true);
     expect((await zalo()).accounts[0]).toMatchObject({ paused: false, health: 'good' });
 
-    const s = fakeZaloTransport.session(A)!;
-    s.history = [{ isGroup: false, isSelf: false, threadId: 'u_old', msgId: 'h1', uidFrom: 'u_old', ts: String(Date.now() - 86_400_000), msgType: 'webchat', content: 'tin cũ' }];
-    expect((await act('channel.sync_history', { channel_account_id: A, history_days: 7 })).status).toBe(200);
+    // Zalo (lease): lịch sử là lệnh bền 202 (TIP-014b C) — lưu tin lịch sử kiểm ở channel-history.test.ts (worker có Inbox).
+    const sh = await act('channel.sync_history', { channel_account_id: A, history_days: 7 });
+    expect(sh.status, JSON.stringify(sh.body)).toBe(202);
     expect((await zalo()).accounts[0].history_days).toBe(7);
-    expect(await until(async () => !!(await inbound.getJob(`in-${A}-h1`)))).toBe(true);
+    expect(await (await tenant()).channelHistoryRun.findUnique({ where: { id: sh.body.data.job_id } })).toMatchObject({ channelAccountId: A, days: 7 });
   });
 
   it('AC7 tin vào → job channel-inbound (NormalizedInbound); trùng msgId không thêm job; last_event_at cập nhật', async () => {
@@ -220,7 +220,7 @@ describe('kết nối Zalo cá nhân', () => {
     await sendQ.enqueue({ ws: h.ws, account_id: A, ref_id: 'r1', message: { externalThreadId: 'u_lan', kind: 'text', text: 'Dạ còn **size M** ạ' } });
     expect(await until(() => results.some((r) => r.ref_id === 'r1'))).toBe(true);
     await new Promise((r) => setTimeout(r, 300));
-    expect(results.filter((r) => r.ref_id === 'r1')).toEqual([{ ok: true, ws: h.ws, account_id: A, ref_id: 'r1', external_msg_id: s.sent.at(-1)!.id }]);
+    expect(results.filter((r) => r.ref_id === 'r1')).toEqual([{ ok: true, ws: h.ws, account_id: A, ref_id: 'r1', external_msg_id: s.sent.at(-1)!.id, parts: [expect.objectContaining({ msgId: s.sent.at(-1)!.id, cliMsgId: null })] }]);
     expect(s.sent.filter((x) => x.msg === 'Dạ còn size M ạ')).toHaveLength(1);
     expect(s.sent.at(-1)!.styles).toEqual([{ start: 7, len: 6, st: 'b' }]);
 

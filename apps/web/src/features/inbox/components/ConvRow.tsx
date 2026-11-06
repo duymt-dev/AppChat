@@ -8,6 +8,7 @@ import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import { TAG_TONE } from '../tones';
 import { ConvMenu } from './ConvMenu';
+import { AvatarFace } from './AvatarFace';
 import type { ChannelMeta, Conversation } from '../types';
 
 export interface ConvRowProps {
@@ -50,9 +51,9 @@ export function ConvRow({ conv, channel, selected }: ConvRowProps) {
           </>
         ) : (
           <>
-            <div className={styles.avatar} style={{ background: conv.hue }}>
+            <AvatarFace className={styles.avatar} background={conv.hue} src={conv.avatar_url}>
               {conv.initials}
-            </div>
+            </AvatarFace>
             <div className={styles.ch} style={{ background: chBg }}>
               {channel?.short}
             </div>

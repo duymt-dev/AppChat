@@ -128,7 +128,7 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
   async prepare(ctx: ActionContext, input: SignIn): Promise<Prepared> {
     if (!SIGNATURE_PNG.test(input.signature_png)) throw new AppError('VALIDATION_FAILED', 422, { signature_png: 'invalid' });
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'contract.approve_and_sign'));
-    const c = await db.$transaction((tx) => visibleContract(tx, ctx.authz, input.contract_id));
+    const c = await db.$transaction((tx) => visibleContract(tx, ctx.authz, input.contract_id, 'write'));
     assertTransition(CONTRACT_FLOW, c.status, 'contract.approve_and_sign');
     await this.checkOtp(db, c.id, input.otp);
     const me = actorUserId(ctx);

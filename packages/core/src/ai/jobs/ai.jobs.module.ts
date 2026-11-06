@@ -17,9 +17,9 @@ import type { ResumeJob } from '../approvals/resume.queue';
 import { startAiResumeWorker } from './ai-resume.processor';
 import { startAgentReplyWorker } from './agent-reply.processor';
 import type { ReplyJob } from '../reply/reply.queue';
-import { finishResumedTurn, resumeReplySpec, type ReplyDeps } from '../reply/reply.service';
+import { finishResumedTurn, handoffAfterApproval, resumeReplySpec, type ReplyDeps } from '../reply/reply.service';
 import { assistantResumeSpec } from '../assistant/turn.service';
-import { registerResumeFinish, registerResumeSpec, type ResumeDeps } from '../approvals/resume';
+import { registerResumeExpired, registerResumeFinish, registerResumeSpec, type ResumeDeps } from '../approvals/resume';
 import { CreditMeter } from '../../billing/public';
 import { BillingModule } from '../../billing/billing.module';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -41,6 +41,7 @@ import { TaskPlace } from '../tasks/task-place';
 import { TASK_QUEUE, type TaskQueue } from '../tasks/task.queue';
 import { startTaskWorkers, type TaskWorkers } from '../tasks/task.jobs';
 import { startKbSuggestWorker } from '../kb/suggestions/suggestion.jobs';
+import { startAnalyzeWorker } from '../../marketing/ai/marketing-ai.jobs';
 
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private kb?: Worker<KbIngestJob>;
@@ -50,6 +51,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private events?: { close(): Promise<void> };
   private turns?: Worker<TurnJob>;
   private suggest?: { close(): Promise<void> };
+  private analyze?: { close(): Promise<void> };
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -97,6 +99,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
             return rd ? finishResumedTurn(rd, db, ws, run, r) : null;
           });
         }
+        // TIP-022b: duyệt hết hạn ở lượt agent → chuyển người kèm tóm tắt + receipt lượt xong.
+        registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now }, db, ws, run, 'approval_expired'));
         // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
         registerResumeSpec('assistant', async (db, run, x, ws) =>
           assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
@@ -106,6 +110,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
         this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis }, this.log);
       }
       // TIP-043: đề xuất hỏi–đáp từ hội thoại đã đóng (model qua AiRunner, ghi qua Executor nguồn system).
+      // TIP-037: phân tích marketing (gợi ý chiến dịch) — model ở đây, ghi gợi ý qua action hệ thống.
+      if (this.runner) this.analyze = startAnalyzeWorker(redis, { tenants, runner: this.runner, executor: this.executor, authzOf: (ws, u) => this.commander(ws, u), now: () => this.clock.now() }, this.log);
       this.suggest = startKbSuggestWorker(redis, tenants, { executor: this.executor, runner: this.runner, now: () => this.clock.now(), locale: async (ws) => (await this.place.of(ws)).locale }, this.log);
       // TIP-035: tác vụ tự chủ — chạy lượt (quyền = agent ∩ người tạo hiện tại) + lịch mỗi phút.
       if (this.taskQueue) {
@@ -125,6 +131,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     await this.events?.close();
     await this.turns?.close();
     await this.suggest?.close();
+    await this.analyze?.close();
   }
 }
 

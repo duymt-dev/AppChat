@@ -50,6 +50,8 @@ model Order {
   lockedLines          Boolean     @default(false) @map("locked_lines")
   /// Người tạo / phụ trách đơn (doanh số — COMMERCE §8b).
   ownerUserId          String?     @map("owner_user_id") @db.Uuid
+  /// Nhóm của bản ghi — scope `team` (DC-299, TIP-042c); chụp lúc tạo, không đổi theo nhóm người phụ trách. Null = mơ hồ.
+  teamId               String?     @map("team_id") @db.Uuid
   contactId            String      @map("contact_id") @db.Uuid
   /// Báo giá nguồn — mỗi báo giá một đơn.
   quoteId              String?     @unique @map("quote_id") @db.Uuid

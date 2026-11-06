@@ -94,7 +94,7 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
     { channelType: 'marketplace', channelAccountId: conn.id, externalId: ext.buyer.id, displayName: ext.buyer.name || null, phone: ext.buyer.phone ?? null },
     now,
   );
-  const contact = await tx.contact.findUniqueOrThrow({ where: { id: contactId }, select: { ownerUserId: true } });
+  const contact = await tx.contact.findUniqueOrThrow({ where: { id: contactId }, select: { ownerUserId: true, teamId: true } });
   const matched = await matchProducts(tx, ext.lines.map((l) => l.sku));
   const lines = ext.lines.map((l) => ({ ...(matched.get(l.sku) ? { product_id: matched.get(l.sku)!.productId, variant_id: matched.get(l.sku)!.variantId } : {}), name: l.name, qty: l.qty, unit_price: l.unit_price, tax_rate: 0 as const }));
   const gross = lines.reduce((a, l) => a + BigInt(Math.round(l.qty * Number(l.unit_price))), 0n);
@@ -114,6 +114,8 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
       syncedAt: now,
       lockedLines: true,
       ownerUserId: contact.ownerUserId ?? conn.createdBy,
+      // DC-299: đơn sàn theo nhóm của khách (người phụ trách khách) — không có nguồn chứng từ.
+      teamId: contact.ownerUserId ? contact.teamId : null,
       contactId,
       subtotal: gross,
       lineDiscountTotal: gross > total ? gross - total : 0n,

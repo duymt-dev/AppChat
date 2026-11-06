@@ -29,6 +29,8 @@ export function normalizeZalo(accountId: string, m: ZaloRawMessage, ownId: strin
     sentAt: new Date(Number(m.ts) || Date.now()).toISOString(),
     ...(m.isGroup ? { mentionsMe: !!m.mentions?.some((x) => x.uid === ownId) } : {}),
     raw: { msgType: m.msgType },
+    // TIP-014b: tham chiếu đủ để thả cảm xúc lên tin khách (cliMsgId có trong payload tin vào).
+    providerRef: { threadId: m.threadId, isGroup: m.isGroup, msgId: m.msgId, cliMsgId: m.cliMsgId ?? null, senderId: m.uidFrom },
   };
   const a = asAttach(m.content);
   switch (m.msgType) {

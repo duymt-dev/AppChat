@@ -171,11 +171,11 @@ export class InvoicesReadService {
     return this.tx(v, async (tx) => {
       if (!UUID.test(contactId)) return [];
       const rows = await tx.customerPackage.findMany({ where: { contactId }, orderBy: { createdAt: 'desc' } });
-      const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, ownerUserId: true } }) : [];
-      const owner = new Map(orders.map((o) => [o.id, o.ownerUserId]));
+      const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, ownerUserId: true, teamId: true } }) : [];
+      const owner = new Map(orders.map((o) => [o.id, o]));
       const out = [];
       for (const p of rows)
-        if (await inSalesScope(tx, v.authz, owner.get(p.orderId) ?? null, p.contactId))
+        if (await inSalesScope(tx, v.authz, { owner: owner.get(p.orderId)?.ownerUserId ?? null, team: owner.get(p.orderId)?.teamId ?? null, contact: p.contactId }))
           out.push({ id: p.id, contact_id: p.contactId, product_id: p.productId, order_id: p.orderId, name: p.name, total: p.totalSessions, used: p.usedSessions, expires_at: p.expiresAt?.toISOString() ?? '', status: p.status });
       return out;
     });

@@ -11,7 +11,7 @@ let accountantId: string;
 const accountant = () => h.tokenFor(accountantId);
 
 beforeAll(async () => {
-  h = await startApi();
+  h = await startApi({ probes: true });
   accountantId = (await h.member('accountant')).id;
   tenant = new pg.Client({ connectionString: withDatabase(env.PG_ADMIN_URL ?? env.MIGRATOR_DATABASE_URL!, tenantDbName(h.ws)) });
   await tenant.connect();
@@ -39,7 +39,7 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC3 thiếu quyền → 403 FORBIDDEN (accountant không có inbox.manage)', async () => {
-    const r = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { authorization: `Bearer ${accountant()}`, 'idempotency-key': 'k-forbid' }));
+    const r = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { authorization: `Bearer ${accountant()}`, 'idempotency-key': 'k-forbid' }));
     expect(r).toMatchObject({ status: 403, body: { error: { code: 'FORBIDDEN' } } });
   });
 
@@ -84,38 +84,38 @@ describe('POST /v1/actions/:id', () => {
 
   it('AC4 assistant + config → 202 preview + confirm_token; gửi lại kèm token → 200; token dùng lại → preview lại', async () => {
     const hdr = { 'x-action-source': 'assistant', 'idempotency-key': 'k-prev-1' };
-    const p = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, hdr));
+    const p = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, hdr));
     expect(p.status).toBe(202);
     expect(p.body.data).toMatchObject({ status: 'preview_required', preview: { summary: 'Tạo thẻ VIP' } });
     const token = p.body.data.confirm_token as string;
-    const wrong = await json(await call(h, '/actions/campaign.create', { input: { name: 'KHÁC', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] }, confirm_token: token }, { ...hdr, 'idempotency-key': 'k-prev-2' }));
+    const wrong = await json(await call(h, '/actions/campaign.create', { input: { name: 'KHÁC', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] }, confirm_token: token }, { ...hdr, 'idempotency-key': 'k-prev-2' }));
     expect(wrong.status).toBe(202); // token gắn input khác → bị tiêu + preview lại
-    const p2 = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, hdr));
-    const ok = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] }, confirm_token: p2.body.data.confirm_token }, hdr));
+    const p2 = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, hdr));
+    const ok = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] }, confirm_token: p2.body.data.confirm_token }, hdr));
     expect(ok.status).toBe(200);
-    const again = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] }, confirm_token: p2.body.data.confirm_token }, { ...hdr, 'idempotency-key': 'k-prev-3' }));
+    const again = await json(await call(h, '/actions/campaign.create', { input: { name: 'VIP', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] }, confirm_token: p2.body.data.confirm_token }, { ...hdr, 'idempotency-key': 'k-prev-3' }));
     expect(again.status).toBe(202);
   });
 
   it('AC5 idempotency: cùng key + body → kết quả cũ, handler 1 lần; khác body → 409; thiếu key (*.create) → 422', async () => {
     const before = setup.calls;
-    const a = await json(await call(h, '/actions/campaign.create', { input: { name: 'Idem', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-idem' }));
-    const b = await json(await call(h, '/actions/campaign.create', { input: { name: 'Idem', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-idem' }));
+    const a = await json(await call(h, '/actions/campaign.create', { input: { name: 'Idem', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { 'idempotency-key': 'k-idem' }));
+    const b = await json(await call(h, '/actions/campaign.create', { input: { name: 'Idem', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { 'idempotency-key': 'k-idem' }));
     expect(a.status).toBe(200);
     expect(b).toEqual(a);
     expect(setup.calls - before).toBe(1);
-    expect((await call(h, '/actions/campaign.create', { input: { name: 'Khác', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-idem' })).status).toBe(409);
-    const miss = await json(await call(h, '/actions/campaign.create', { input: { name: 'NoKey', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }));
+    expect((await call(h, '/actions/campaign.create', { input: { name: 'Khác', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { 'idempotency-key': 'k-idem' })).status).toBe(409);
+    const miss = await json(await call(h, '/actions/campaign.create', { input: { name: 'NoKey', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }));
     expect(miss).toMatchObject({ status: 422, body: { error: { fields: { idempotency_key: 'required' } } } });
   });
 
   it('AC6 thành công → outbox cùng transaction (payload ws + occurred_at); handler ném → rollback (không log, không outbox, không dữ liệu)', async () => {
-    const ok = await json(await call(h, '/actions/campaign.create', { input: { name: 'Out', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-out' }));
+    const ok = await json(await call(h, '/actions/campaign.create', { input: { name: 'Out', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { 'idempotency-key': 'k-out' }));
     const ev = await tenant.query(`SELECT topic, status, payload FROM outbox_event WHERE payload->>'id' = $1`, [ok.body.data.result.campaign_id]);
     expect(ev.rows).toHaveLength(1);
     expect(ev.rows[0]).toMatchObject({ topic: 'tag.created', status: 'pending', payload: { ws: h.ws, occurred_at: '2026-10-30T08:00:00.000Z' } });
     const n0 = (await tenant.query(`SELECT count(*)::int AS c FROM action_log`)).rows[0].c;
-    const boom = await json(await call(h, '/actions/campaign.create', { input: { name: 'boom', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-boom' }));
+    const boom = await json(await call(h, '/actions/campaign.create', { input: { name: 'boom', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { 'idempotency-key': 'k-boom' }));
     expect(boom.status).toBe(500);
     expect(boom.body.error).toEqual({ code: 'INTERNAL', message: 'Internal error' });
     expect((await tenant.query(`SELECT count(*)::int AS c FROM action_log`)).rows[0].c).toBe(n0);
@@ -124,7 +124,7 @@ describe('POST /v1/actions/:id', () => {
   });
 
   it('AC7 undo: trong hạn → khôi phục + undone; lần 2 → 409; quá hạn → UNDO_EXPIRED; action không undo → UNDO_NOT_SUPPORTED', async () => {
-    const created = await json(await call(h, '/actions/campaign.create', { input: { name: 'Undo', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { 'idempotency-key': 'k-undo' }));
+    const created = await json(await call(h, '/actions/campaign.create', { input: { name: 'Undo', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { 'idempotency-key': 'k-undo' }));
     const id = created.body.data.result.campaign_id as string;
     const del = await json(await call(h, '/actions/campaign.submit', { input: { campaign_id: id } }));
     expect(del.status).toBe(200);

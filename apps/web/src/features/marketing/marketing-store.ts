@@ -1,10 +1,11 @@
-// UI state Marketing: bộ lọc (kênh + trạng thái + tìm), menu dòng, wizard (bước + nguồn AI), phân tích AI, trang chi tiết, AI panel.
+// UI state Marketing: bộ lọc (kênh + trạng thái + tìm), menu dòng, wizard (bước + nguồn AI), phân tích AI (run thật), trang chi tiết, AI panel.
 import { create } from 'zustand';
 import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { CampaignFilter } from './types';
 
 export type DetailTab = 'recipients' | 'content' | 'history';
-export type AnalyzeStage = 'loading' | 'list' | 'detail';
+/** `running` = đang chờ lượt phân tích (`runId`) của worker; `list` / `detail` = xem gợi ý đã lưu. */
+export type AnalyzeStage = 'running' | 'list' | 'detail';
 
 interface MarketingUi {
   filter: CampaignFilter;
@@ -18,8 +19,12 @@ interface MarketingUi {
   /** Giá trị Trợ lý điền sẵn (UiCommand prefill `campaign.form`). */
   prefill: Record<string, unknown> | null;
   analyze: AnalyzeStage | null;
+  /** Lượt AI phân tích đang chờ (campaign.analyze → run_id). */
+  runId: string | null;
   pick: string | null;
   detail: string | null;
+  /** Chiến dịch làm ngữ cảnh Trợ lý khi mở từ ô AI của dòng (không mở trang chi tiết). */
+  focus: string | null;
   tab: DetailTab;
   aiOpen: boolean;
   setFilter: (p: Partial<CampaignFilter>) => void;
@@ -36,8 +41,10 @@ export const useMarketingUi = create<MarketingUi>((set) => ({
   fromSuggestion: null,
   prefill: null,
   analyze: null,
+  runId: null,
   pick: null,
   detail: null,
+  focus: null,
   tab: 'recipients',
   aiOpen: false,
   setPg: (pg) => set({ pg }),

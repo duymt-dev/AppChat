@@ -2,7 +2,10 @@
 export { ChannelsReadService, healthOf, fmtFrt, type AgentNames } from './services/read.service';
 export { ChannelAccounts, settingsOf, type AccountSettings } from './services/accounts.service';
 export { ChannelControl, CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, leaseKey, type LoginJob } from './services/control';
-export { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink, registerSendReserver, type SendJob, type SendResult } from './services/send-queue';
+export { ChannelSendQueue, registerSendResultSink, unregisterSendResultSink, registerSendReserver, registerSendBooks, type SendJob, type SendResult, type SendOutcome, type SendBook } from './services/send-queue';
+// TIP-037: chốt chặn trước khi gọi kênh theo tiền tố ref (chiến dịch) + sổ trần tin chủ động / ngày.
+export { registerSendGuard, unregisterSendGuard, type SendGuard } from './services/send-guards';
+export { takeCapSlot, releaseCapSlot, capUsed, capDay, nextCapWindow } from './services/proactive-cap';
 export { CHANNEL_REGISTRY, WIDGET_URLS, channelRegistryFor, widgetUrlsFor } from './channels.module';
 export { CHANNELS_RUNTIME } from './jobs/channels.jobs.module';
 export { VisitorService, type WidgetSession } from './webchat/visitor.service';
@@ -12,4 +15,13 @@ export { widgetSettings, originAllowed, embedCode, type WidgetUrls } from './web
 export { emailOutboundExtras, openEmailThread } from './email/threads';
 export { planGroup, requestDto, type GroupPlan, type Participant as GroupParticipant } from './services/group-requests';
 export { GroupRead } from './services/group-read';
+export { ChannelOperationRead } from './operations/operation-read';
+export { registerHistoryPipeline } from './jobs/provider-history.processor';
+export { OperationQueue } from './jobs/provider-operations.processor';
+export { avatarLinks, avatarKey, contactAvatarLink } from './operations/avatar-read';
+export { AVATAR_LIMITS } from './operations/avatar-store';
+export { CONTACT_SYNC_LIMITS, readContactSync, contactSyncStatusUrl } from './operations/contact-sync';
+export { runContactSync } from './jobs/contact-sync.processor';
+export { FRIEND_LIMITS, lookupStatusUrl, friendStatusUrl } from './operations/friend-store';
+export { runAvatarSync, type AvatarDeps } from './jobs/avatar-sync.processor';
 export { GroupCreators, GroupRequestQueue, groupQueueName, GROUP_TIMEOUT_MS, type GroupJob } from './jobs/create-group.processor';

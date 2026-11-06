@@ -42,8 +42,8 @@ export async function approvePreview(ctx: ActionContext, tx: TenantTx, i: Action
 /** Còn hoàn được theo liệu trình: tỉ lệ buổi còn lại, chặn bởi đã thu − đã hoàn của đơn (+ khoản hoàn đang chờ đã trừ sẵn). */
 async function packageRoom(ctx: ActionContext, tx: TenantTx, id: string) {
   const p = UUID.test(id) ? await tx.customerPackage.findUnique({ where: { id } }) : null;
-  const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { id: true, ownerUserId: true, contactId: true, paidTotal: true, refundedTotal: true } }) : null;
-  if (!p || !o || !(await inSalesScope(tx, ctx.authz, o.ownerUserId, o.contactId))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
+  const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { id: true, ownerUserId: true, teamId: true, contactId: true, paidTotal: true, refundedTotal: true } }) : null;
+  if (!p || !o || !(await inSalesScope(tx, ctx.authz, { owner: o.ownerUserId, team: o.teamId, contact: o.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
   if (p.status === 'refunded') throw new AppError('INVALID_STATE', 409, { status: p.status });
   if (await tx.customerPayment.count({ where: { packageId: p.id, kind: 'refund', status: 'pending' } })) throw new AppError('INVALID_STATE', 409, { package_id: 'refund_pending' });
   const pending = (await tx.customerPayment.findMany({ where: { orderId: o.id, kind: 'refund', status: 'pending' }, select: { amount: true } })).reduce((a, x) => a + x.amount, 0n);
@@ -56,7 +56,7 @@ export async function requestPreview(ctx: ActionContext, tx: TenantTx, i: Action
   const want = i.amount ? BigInt(i.amount) : null;
   const r = i.invoice_id
     ? await (async () => {
-        const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id!);
+        const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id!, 'write');
         const room = await invoiceRefundable(tx, inv.id);
         return { contactId: inv.contactId, room, fallback: room, source: inv.code, method: await refundMethodOf(tx, { invoiceId: inv.id }) };
       })()

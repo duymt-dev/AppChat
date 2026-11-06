@@ -52,7 +52,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
   async prepare(ctx: ActionContext, input: SendIn): Promise<Prepared> {
     const env = this.d.need('env');
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'quote.send'));
-    const q = await db.$transaction((tx) => visibleQuote(tx, ctx.authz, input.quote_id));
+    const q = await db.$transaction((tx) => visibleQuote(tx, ctx.authz, input.quote_id, 'write'));
     assertTransition(QUOTE_FLOW, q.status, 'quote.send');
     if (q.status === 'draft') {
       const reasons = await db.$transaction((tx) => reasonsOf(tx, q, ctx));
@@ -90,8 +90,8 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
     await tx.file.updateMany({ where: { id: { in: [p.fileId, ...p.pages.map((x) => x.fileId)] } }, data: { confirmed: true } });
     const env = this.d.need('env');
     const attachments = p.pages.length
-      ? p.pages.map((x) => ({ url: pdfLinkOf(env, ctx.workspaceId, x.fileId), mime: 'image/png', name: x.name }))
-      : [{ url: pdfLinkOf(env, ctx.workspaceId, p.fileId), mime: 'application/pdf', name: p.name }];
+      ? p.pages.map((x) => ({ url: pdfLinkOf(env, ctx.workspaceId, x.fileId), mime: 'image/png', name: x.name, fileId: x.fileId }))
+      : [{ url: pdfLinkOf(env, ctx.workspaceId, p.fileId), mime: 'application/pdf', name: p.name, fileId: p.fileId }];
     const text = p.link ? `${p.text}
 ${p.link}` : p.text;
     const sent = await postToCustomer(ctx, tx, this.members, { ...target, text, attachments, now });

@@ -2,11 +2,15 @@
 // `GET /v1/settings/channels?filter=all|on|off` (nhóm theo type, `accounts[]`), `GET /v1/settings/channels/:id/stats?days=7`,
 // `GET /v1/settings/channels/:id/login` (trạng thái QR Zalo — FE chưa có client WS). Mock transport parse cùng schema.
 import { z } from 'zod';
+import { channelAgentBehaviorSchema } from './agent-channel-behavior';
 
 export const CHANNEL_HEALTH = ['good', 'slow', 'down', 'off'] as const;
 export const CHANNEL_AI_MODES = ['auto', 'suggest', 'off'] as const;
+/** `shift` chỉ còn đọc được (cấu hình cũ, TIP-042b DC-238) — action không nhận giá trị mới. */
 export const CHANNEL_ASSIGN_MODES = ['round_robin', 'least_busy', 'shift'] as const;
 export const CHANNEL_HISTORY_DAYS = [0, 7, 30, 90] as const;
+/** Trần tốc độ gửi / phút nhập tay (TIP-037) — bằng trần cứng limiter của hàng gửi (send.processor). */
+export const CHANNEL_RATE_MAX = 60;
 
 export const channelAccountSchema = z.object({
   id: z.string(),
@@ -31,6 +35,19 @@ export const channelAccountSchema = z.object({
   paused: z.boolean(),
   /** Trạng thái chi tiết của tài khoản (`channel_account.status`) — FE chưa dùng. */
   status: z.string().optional(),
+  /** Chia lead đang áp (TIP-042b): rule ghi đè của tài khoản, không có thì rule mặc định; `none` = chưa cấu hình (hàng chung). Chỉ đọc. */
+  routing: z
+    .object({ source: z.enum(['account', 'default', 'none']), rule_id: z.string().nullable(), enabled: z.boolean(), mode: z.string(), version: z.number().int() })
+    .optional(),
+  /** TIP-022b: hành vi agent của tài khoản — lịch có cấu trúc, phân luồng từ khoá, bật lời chào; `binding_version` cho xác nhận đổi gán. */
+  agent_behavior: channelAgentBehaviorSchema.optional(),
+  binding_version: z.string().optional(),
+  /** TIP-037: tốc độ gửi / phút và trần tin chủ động / ngày đang áp (cài đặt tài khoản, vắng → mặc định manifest; null = kênh không giới hạn ngày). */
+  rate_per_minute: z.number().int().optional(),
+  daily_cap: z.number().int().nullable().optional(),
+  /** Mặc định của manifest kênh — FE hiện gợi ý + cảnh báo khi vượt (D35). */
+  rate_default: z.number().int().optional(),
+  daily_cap_default: z.number().int().nullable().optional(),
 });
 export type ChannelAccountDto = z.infer<typeof channelAccountSchema>;
 

@@ -16,7 +16,7 @@ export const label = (c: Pick<ContractRecord, 'code' | 'title'>) => line(c.code,
 
 /** Hợp đồng thấy được + kiểm sớm chuyển trạng thái (cùng 404 / 409 như execute) → trạng thái đích + tên khách. */
 export async function flowOf(tx: TenantTx, ctx: ActionContext, id: string, action: string) {
-  const c = await visibleContract(tx, ctx.authz, id);
+  const c = await visibleContract(tx, ctx.authz, id, 'write');
   return { c, to: assertTransition(CONTRACT_FLOW, c.status, action), contact: (await tx.contact.findUnique({ where: { id: c.contactId }, select: { name: true } }))?.name ?? '' };
 }
 
@@ -65,7 +65,7 @@ export async function deletePreview(ctx: ActionContext, tx: TenantTx, i: ActionI
 }
 
 export async function renewPreview(ctx: ActionContext, tx: TenantTx, members: CrmMembers, i: ActionInput<typeof contractRenew>): Promise<ActionPreview> {
-  const old = await visibleContract(tx, ctx.authz, i.contract_id);
+  const old = await visibleContract(tx, ctx.authz, i.contract_id, 'write');
   if (!CONTRACT_RENEWABLE.includes(old.status)) throw new AppError('INVALID_TRANSITION', 409, { status: old.status });
   return draftPreview(ctx, tx, members, { contact_id: old.contactId, owner_user_id: old.ownerUserId, kind: old.kind, title: old.title, value: String(old.value), start_date: day(old.endDate), renewal_of: old.code });
 }

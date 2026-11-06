@@ -73,7 +73,7 @@ describe('ActionHandlerRegistry (boot)', () => {
   class Plain {}
 
   it('mọi action trong registry có TIP chủ (NOT_IMPLEMENTED) hoặc handler thật', () => {
-    for (const a of registry) expect([a.id, tipOwnerOf(a.id)]).toEqual([a.id, expect.stringMatching(/^\d{3}$/)]);
+    for (const a of registry) expect([a.id, tipOwnerOf(a.id)]).toEqual([a.id, expect.stringMatching(/^\d{3}[a-z]?$/)]);
     const r = new ActionHandlerRegistry(registry).load([new Ok()]);
     expect(r.implemented).toEqual(['notification.mark_read']);
     expect(r.get('quote.send')).toBeInstanceOf(NotImplementedHandler);

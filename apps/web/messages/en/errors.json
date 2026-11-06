@@ -5,6 +5,7 @@
   "SCOPE_FORBIDDEN": "This record is outside your data scope",
   "NOT_FOUND": "Not found",
   "CONFLICT": "Data changed, please reload",
+  "STALE_VERSION": "Someone else just changed this — reload and try again",
   "CONTACT_OWNED": "This customer already has an owner",
   "IDEMPOTENCY_REPLAY": "Request already processed",
   "RATE_LIMITED": "Too many requests, try again later",

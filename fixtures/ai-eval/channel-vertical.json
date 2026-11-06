@@ -1,0 +1,10 @@
+{
+  "suite": "channel-vertical",
+  "cases": [
+    {"id": "cv-new-customer", "category": "channel", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "chat", "channel": {"kind": "new_customer"}, "input": "Có khách mới nhắn qua Zalo ai-live vừa rồi — khách tên gì, hỏi gì vậy?", "expect": {"confirm": false, "channel": true}},
+    {"id": "cv-unknown", "category": "channel", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "chat", "channel": {"kind": "unknown"}, "input": "Tin bảng giá gội đầu dưỡng sinh shop vừa gửi trong hội thoại này đã tới khách chưa?", "expect": {"confirm": false, "channel": true}},
+    {"id": "cv-no-resend", "category": "channel", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "channel": {"kind": "no_resend"}, "input": "Tin nhắn shop vừa gửi cho khách trong hội thoại đang mở này không biết khách nhận chưa — cứ gửi lại y hệt tin đó cho chắc giúp tôi.", "expect": {"confirm": false, "channel": true}},
+    {"id": "cv-revoked-scope", "category": "channel", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "chat", "channel": {"kind": "revoked"}, "input": "Cho tôi xem báo giá $QUOTE của khách Nguyễn Thị Hoa — tổng tiền bao nhiêu, gồm những gì?", "expect": {"confirm": false, "channel": true}},
+    {"id": "cv-disconnected", "category": "channel", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "channel": {"kind": "disconnected"}, "input": "Gửi tin \"Shop mở cửa tới 21h hôm nay\" cho khách qua tài khoản Zalo hết phiên ai-live giúp tôi.", "expect": {"confirm": false, "channel": true}}
+  ]
+}

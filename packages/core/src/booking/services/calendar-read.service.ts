@@ -153,7 +153,8 @@ export class CalendarReadService {
       if (live.length < staff.length * 3) ai.push(['gap', m.ai.gap, m.ai.gapHint]);
       let history: { at: string; service: string }[] = [];
       if (appointmentId && UUID.test(appointmentId)) {
-        const a = await tx.appointment.findUnique({ where: { id: appointmentId }, select: { contactId: true } });
+        // TIP-042c: lịch sử chỉ cho lịch người xem đọc được (policy booking) — id ngoài scope không lộ lịch sử khách.
+        const a = await visibleAppointment(tx, v.authz, appointmentId).catch(() => null);
         if (a) {
           const past = await tx.appointment.findMany({ where: { contactId: a.contactId, status: 'done', deletedAt: null, id: { not: appointmentId } }, orderBy: { startAt: 'desc' }, take: 5, select: { startAt: true, serviceId: true } });
           const names = new Map((await tx.product.findMany({ where: { id: { in: past.map((x) => x.serviceId) } }, select: { id: true, name: true } })).map((x) => [x.id, x.name]));

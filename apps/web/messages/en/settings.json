@@ -11,13 +11,15 @@
     "apps": "APPS",
     "ai": "AI",
     "security": "SECURITY",
-    "finance": "NOTIFICATIONS & BILLING"
+    "finance": "NOTIFICATIONS & BILLING",
+    "automation": "AUTOMATION"
   },
   "nav": {
     "general": "Overview",
     "locale": "Language & region",
     "members": "Members",
     "roles": "Roles & permissions",
+    "teams": "Teams",
     "org_sla": "SLA settings",
     "channels": "Channels",
     "web_widget": "Website AI widget",
@@ -36,13 +38,15 @@
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
     "profile": "My profile",
-    "sales_policy": "Sales policy"
+    "sales_policy": "Sales policy",
+    "routing": "Lead routing"
   },
   "head": {
     "general": "Overview",
     "locale": "Language & region",
     "members": "Members",
     "roles": "Roles & permissions",
+    "teams": "Teams",
     "org_sla": "SLA settings",
     "channels": "Channels",
     "web_widget": "AI assistant",
@@ -61,10 +65,12 @@
     "billing": "Plan & billing",
     "wallet": "AppChat wallet",
     "profile": "My profile",
-    "sales_policy": "Sales policy"
+    "sales_policy": "Sales policy",
+    "routing": "Routing & assignment"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
+    "teams": "Staff groups by function — used by the \"Team\" data scope",
     "org_sla": "Commitments by channel · tier · request type — AI and humans tracked separately"
   },
   "roleName": {
@@ -207,7 +213,8 @@
         "manager": "Full operations except signing, refunds and billing (unless delegated)",
         "sales": "Sees only own customers, quotes and orders",
         "cs": "Assigned conversations, appointments, tickets; no sales data",
-        "accountant": "Orders, payments, reconciliation, points; no inbox"
+        "accountant": "Orders, payments, reconciliation, points; no inbox",
+        "custom": "Custom role — see its permissions under Roles & permissions"
       }
     }
   },
@@ -215,7 +222,9 @@
     "onlyOne": "only one",
     "people": "{n} people",
     "system": "System",
-    "p1": "Custom roles arrive in a later release (P1)",
+    "ownerOnly": "Only the Owner can create or edit roles",
+    "custom": "Custom",
+    "customDesc": "Custom role · {n} permissions",
     "desc": {
       "owner": "Everything · signs contracts, approves refunds, billing",
       "manager": "Runs operations and the team, sees all data",
@@ -294,6 +303,77 @@
     },
     "create": "Create role"
   },
+  "roleEditor": {
+    "title": "Create role",
+    "editTitle": "Edit role",
+    "name": "Role name",
+    "namePh": "e.g. Evening receptionist",
+    "create": "Create role",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete role",
+    "errName": "Enter a role name",
+    "stale": "Someone else just changed this role — reloaded, open it again to continue",
+    "inUse": "Role in use ({members} members, {invites} invites) — change their role first",
+    "confirmDelete": "Delete role \"{name}\"? This cannot be undone.",
+    "cloneOf": "Based on {name}",
+    "cloneOfBtn": "Duplicate {name}",
+    "editOf": "Edit {name}",
+    "copyName": "{name} (copy)",
+    "dropped": "Not copied — Owner-only or explicit-delegation permissions: {list}",
+    "ownerOnly": "Owner-only permission — cannot be granted to a custom role",
+    "deleted": "Deleted role",
+    "scopeT": "Data scope",
+    "permsT": "Permissions",
+    "module": {
+      "inbox": "Inbox",
+      "crm": "Customers",
+      "sales": "Sales",
+      "booking": "Appointments",
+      "support": "Support",
+      "insights": "Reports"
+    },
+    "scope": {
+      "own": "Own",
+      "team": "Team",
+      "all": "All",
+      "none": "None"
+    }
+  },
+  "teams": {
+    "search": "Search teams…",
+    "create": "Create team",
+    "count": "{n} members",
+    "lead": "Lead: {name}",
+    "members": "Members",
+    "config": "Settings",
+    "extra": "+{n}",
+    "more": "Team actions for {name}",
+    "empty": "No teams yet — create one to use the \"Team\" data scope",
+    "noMatch": "No matching teams",
+    "editor": {
+      "title": {
+        "create": "Create team",
+        "config": "Team settings",
+        "members": "Team members"
+      },
+      "name": "Team name",
+      "namePh": "e.g. Spa team Q1",
+      "members": "Members ({n})",
+      "membersAria": "Choose team members",
+      "lead": "Team lead",
+      "noLead": "No lead",
+      "leadHint": "The lead must be a team member; being lead grants no extra permissions.",
+      "leadLocked": "Current lead — change the lead in Settings first",
+      "create": "Create team",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "errName": "Enter a team name",
+      "stale": "Someone else just changed this team — reloaded, open it again to continue"
+    }
+  },
   "channels": {
     "filter": {
       "all": "All",
@@ -344,6 +424,29 @@
       "tiktok_shop": "Connect TikTok Shop to handle orders and messages.",
       "shopee": "Connect Shopee to sync orders and chat with buyers.",
       "webchat": "Embed a chat widget to talk to website visitors in real time."
+    },
+    "behavior": {
+      "title": "AI Agent behavior",
+      "sub": "Working hours, greeting and keyword routing for this account.",
+      "scheduleOn": "Account working hours",
+      "scheduleD": "Out of hours the AI does not reply, send or spend credit — the conversation goes to staff.",
+      "greetingOn": "Automatic greeting",
+      "greetingD": "Sent once when a customer first messages.",
+      "greetingEmpty": "No greeting text yet — nothing will be sent.",
+      "routingOn": "Keyword routing",
+      "routingD": "Pick an agent by phrases in the customer message. No match → default agent, none → staff queue.",
+      "agent": "AI Agent",
+      "priority": "Priority",
+      "keywords": "Keywords",
+      "keywordsPh": "price, quote, buy",
+      "remove": "Remove",
+      "add": "+ Add agent",
+      "save": "Save behavior",
+      "saving": "Saving…",
+      "revert": "Revert",
+      "readonly": "You can only view this configuration.",
+      "saved": "AI Agent behavior saved",
+      "overnight": "An interval past midnight will be split across two consecutive days. Continue?"
     },
     "wizard": {
       "title": "Connect a channel",
@@ -428,6 +531,8 @@
       "syncContactD": "Create a new CRM contact when a stranger messages in.",
       "historyLabel": "Sync old history",
       "history": { "0": "Off", "7": "7 days", "30": "30 days", "90": "90 days" },
+      "contacts": {"title": "Zalo address book", "desc": "View this account’s address book for 24 hours and pick people to import as customers. Nothing is imported or invited automatically.", "run": "Fetch address book", "running": "Fetching…", "state": {"queued": "Waiting to fetch the address book…", "running": "Fetching the address book… ({n} people)", "complete": "Fetched {n} people", "partial": "Fetched {n} people — incomplete (stopped at the limit or interrupted)", "failed": "Could not fetch the address book", "superseded": "Replaced by a newer fetch"}, "row": {"known": "Already a customer", "importable": "Not a customer yet", "no_phone": "No phone — cannot import", "conflict": "Phone belongs to another customer"}, "importHint": "Only the people you pick are imported; name and phone are taken as-is.", "importDenied": "You do not have permission to import customers.", "import": "Import {n} customers"},
+      "friends": {"title": "Zalo friends", "desc": "Accept / reject friend requests, look up one phone number to send a request. Staff click only, one person at a time — never bulk.", "accept": "Accept", "reject": "Reject", "noRequests": "No pending friend requests.", "phonePh": "Enter one phone number, e.g. 0912 345 678", "find": "Find on Zalo", "finding": "Searching…", "lookupHint": "Up to 30 lookups / day / account. Results are kept 24 hours, visible only to you, never saved as a customer automatically.", "found": "{name} · {phone}", "save": "Save as customer", "saved": "Customer saved", "messagePh": "Message with the request (optional, ≤ 150 characters)", "send": "Send request", "sendConfirm": "Send a friend request from this Zalo account? Sending many requests to strangers may get the account limited or locked by Zalo.", "risk": "Risk: Zalo may limit accounts that send many requests. Max 20 requests / day / account.", "requested": "Request sent — waiting for the person to accept.", "undo": "Withdraw", "isFriend": "Already friends on Zalo.", "lookup": {"not_found": "This number has no Zalo account or does not allow phone search.", "failed": "Lookup failed — try again later."}, "op": {"queued": "Sending the command to Zalo ({name})…", "confirmed": "Zalo accepted the command ({name}).", "failed": "Zalo rejected the command ({name}).", "unknown": "Not sure Zalo received the command ({name}) — check on the phone before retrying."}},
       "s6": "6 · Danger zone",
       "pause": "Pause",
       "pauseD": "Keep the configuration, stop sending and receiving.",
@@ -438,6 +543,13 @@
       "disconnectTitle": "Disconnect",
       "disconnectD": "Only this account is disconnected · old conversations are kept.",
       "disconnectBtn": "Disconnect",
+      "rate": {
+        "perMinute": "Send rate (messages / minute)",
+        "perMinuteD": "Channel default: {n} messages / minute. Applies from the next message.",
+        "dailyCap": "Proactive messages / day",
+        "dailyCapD": "Campaigns and follow-ups — default {n}. Over the cap, sending moves to the next day.",
+        "overDefault": "Above the safe level of {n} messages / day — Zalo may lock the account."
+      },
       "disconnectConfirm": "Disconnect account {n}? Old conversations are kept.",
       "save": "Save changes",
       "saved": "Settings saved"
@@ -1215,6 +1327,7 @@
       "refund_approval": "Refunds waiting for me / decisions",
       "bank_review": "Bank transactions to reconcile",
       "package_reminder": "Packages running out / about to expire",
+      "campaign_approval": "Campaigns awaiting / given approval",
       "sla_warn": "SLA about to be breached",
       "sla_breach": "Ticket breached SLA (escalation)",
       "ticket_assigned": "Ticket assigned to me",
@@ -1618,5 +1731,61 @@
     "ownerOnly": "Only the Owner can change approval thresholds.",
     "reset": "Reset",
     "save": "Save changes"
+  },
+  "routing": {
+    "title": "Assignment rules",
+    "sub": "Who receives a new customer on their first chat",
+    "newOnly": "Applies to NEW leads only (contacts created after it is enabled). Existing customers are never redistributed, existing owners never change, manually assigned conversations are kept.",
+    "default": "Default strategy",
+    "defaultD": "Used by every channel account without its own rule",
+    "accounts": "Per channel account",
+    "accountsD": "An account rule beats the default — off or manual means the shared queue",
+    "accountD": "{type} channel",
+    "noAccounts": "No channel accounts yet.",
+    "inherit": "Uses default",
+    "off": "Manual · shared queue",
+    "edit": "Edit",
+    "legacyShift": "By shift (legacy — not running)",
+    "editDefault": "Default strategy",
+    "editAccount": "Rule for {name}",
+    "enabled": "Auto-assign new leads",
+    "enabledD": "Off: new customers wait in the shared queue for a manager",
+    "strategy": "Strategy",
+    "mode": {
+      "manual": "Manual",
+      "round_robin": "Round robin (even split)",
+      "least_busy": "Least busy",
+      "by_channel": "By channel (fixed person)"
+    },
+    "modeD": {
+      "manual": "No auto-assignment — new customers stay in the shared queue.",
+      "round_robin": "Each eligible person in the list in turn.",
+      "least_busy": "Whoever handles the fewest open / pending / snoozed conversations; ties rotate.",
+      "by_channel": "Every new lead of this account goes to one person."
+    },
+    "pool": "Recipients",
+    "poolKind": {
+      "users": "Pick people",
+      "team": "By team"
+    },
+    "pickTeam": "Pick a team…",
+    "pickUser": "Pick a person…",
+    "fixed": "Fixed recipient",
+    "history": "Customers created from a history import AFTER enabling also count as new leads. People who can no longer view / edit customers and reply to conversations are skipped.",
+    "overrideManual": "Manual account rule: new leads of this account go to the shared queue instead of the default strategy.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "errPool": "Pick at least one recipient (or a team) before enabling.",
+    "stale": "Someone just changed this rule — reloaded, please save again.",
+    "channel": {
+      "label": "New lead routing",
+      "off": "Manual · shared queue",
+      "account": "Account rule · {mode}",
+      "default": "Default · {mode}",
+      "manage": "Configure lead routing",
+      "hint": "Change it in Settings › Lead routing — new leads only.",
+      "readonly": "Only people who can reassign customers can change this."
+    }
   }
 }

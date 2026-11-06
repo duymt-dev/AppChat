@@ -6,8 +6,10 @@ import { useFmt } from '@/shared/i18n/useFmt';
 import { useBubbleStyles } from '../styles/bubble.styles';
 import { Attachments } from './Attachments';
 import { MessageMenu } from './MessageMenu';
+import { MessageProviderStatus } from './MessageProviderStatus';
 import { Rich } from './Rich';
 import type { Conversation, Message } from '../types';
+import { AvatarFace } from './AvatarFace';
 
 export interface MessageBubbleProps {
   m: Message;
@@ -25,9 +27,9 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
   const files = !m.deleted && !m.recalled && m.attachments?.length ? <Attachments files={m.attachments} messageId={m.direction === 'in' ? m.id : undefined} /> : null;
   const isGroup = conv.kind === 'group';
   const avatar = (
-    <div className={cx(styles.av, isGroup && styles.avSm)} style={{ background: m.sender_hue ?? conv.hue }}>
+    <AvatarFace className={cx(styles.av, isGroup && styles.avSm)} background={m.sender_hue ?? conv.hue} src={isGroup ? m.sender_avatar : conv.avatar_url}>
       {m.sender_initials ?? conv.initials}
-    </div>
+    </AvatarFace>
   );
 
   switch (m.kind) {
@@ -112,6 +114,8 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
     }
     return (
       <div className={cx(styles.row, styles.out)} data-testid="msg-out" id={`msg-${m.id}`}>
+        {/* Tin của mình cũng có menu (Thu hồi chỉ áp cho tin của bạn — REQ-C09, TIP-014b); bên trái bong bóng. */}
+        {m.menu && !m.deleted && !m.recalled ? <MessageMenu convId={conv.id} message={m} isPinned={conv.pinned_message_id === m.id} /> : null}
         <div>
           {m.kind === 'card' ? (
             <div className={styles.card}>
@@ -134,6 +138,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
               {files}
               {body || !files ? text : null}
               {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
+              <MessageProviderStatus op={m.provider_op} status={m.status} />
               <div className={cx(styles.stamp, styles.stampOut)}>
                 {/* Tin gửi đi hiện tên người gửi (REQ-C13) */}
                 {m.sender ? <b className={styles.senderOut}>{m.sender}</b> : null}
@@ -194,6 +199,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
           ) : null}
           {text}
           {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
+          <MessageProviderStatus op={m.provider_op} />
           <div className={styles.stamp}>{m.time}</div>
         </div>
       )}

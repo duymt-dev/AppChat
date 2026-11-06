@@ -12,7 +12,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../../kernel/ids';
 import { nextCode } from '../../../kernel/sequence';
 import { ChannelSendQueue } from '../../../channels/public';
-import { CrmMembers, actorUserId, visibleContact, writeTimeline } from '../../../crm/public';
+import { CrmMembers, actorUserId, editableContact, writeTimeline } from '../../../crm/public';
 import { enqueueOutgoing } from '../../../inbox/public';
 import { lockOrder } from '../../orders/order-access';
 import { actorOf } from '../../orders/services/order-write';
@@ -22,6 +22,7 @@ import { prepareInvoiceDelivery, type InvoiceDelivery } from '../services/invoic
 import { invoiceText, postInvoice } from '../services/invoice-send';
 import { localDay } from '../services/payment-write';
 import { createPreview, sendPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
+import { soleTeamOf } from '../../../authz/data-access';
 
 const DAY = 86_400_000;
 type St = { invoice_id: string; status: string };
@@ -56,7 +57,7 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
       if (order.source === 'marketplace' || order.status === 'cancelled') throw new AppError('INVALID_STATE', 409, { order_id: order.source === 'marketplace' ? 'marketplace' : 'cancelled' });
       if (order.contactId !== input.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
       if (amount > (await orderRoom(tx, order))) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
-    } else await visibleContact(tx, ctx.authz, input.contact_id);
+    } else await editableContact(tx, ctx.authz, input.contact_id);
     const now = this.clock.now();
     const { timeZone } = await this.d.place(ctx.workspaceId);
     const due = input.due_date ?? localDay(new Date(now.getTime() + INVOICE_DUE_DAYS * DAY), timeZone);
@@ -71,6 +72,8 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
         orderId: order?.id ?? null,
         contactId: input.contact_id,
         ownerUserId: order ? order.ownerUserId : actorUserId(ctx),
+        // DC-299: theo đơn (lineage); không gắn đơn → nhóm duy nhất của người tạo.
+        teamId: order ? order.teamId : await soleTeamOf(tx, actorUserId(ctx)),
         kind: input.kind,
         title: input.title?.trim() ?? '',
         amount,
@@ -117,7 +120,7 @@ export class InvoiceSendHandler implements Handler<SendIn, St> {
   /** Lần gửi đầu: PDF có VietQR + ảnh QR + link công khai webchat (ngoài transaction — LibreOffice chậm). Nhắc: không render lại. */
   async prepare(ctx: ActionContext, input: SendIn): Promise<Prepared> {
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'invoice.send_payment_qr'));
-    const i = await db.$transaction((tx) => visibleInvoice(tx, ctx.authz, input.invoice_id));
+    const i = await db.$transaction((tx) => visibleInvoice(tx, ctx.authz, input.invoice_id, 'write'));
     assertTransition(INVOICE_FLOW, i.status, 'invoice.send_payment_qr');
     if (i.status !== 'draft' && i.fileId) return NONE;
     return prepareInvoiceDelivery(ctx, db, this.d, i, input.channel, this.clock.now());

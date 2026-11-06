@@ -244,7 +244,9 @@ export const echoScript: MockScript = (ctx) => {
   const qr = lastTool ? null : ASK_QR.exec(lastUser);
   if (qr) return { tool: 'invoice__send_payment_qr', input: { invoice_id: qr[1]!, channel: 'email' } };
   const human = /nhân viên|gặp người|staff|human/i.test(lastUser);
-  return { text: JSON.stringify({ reply: human ? null : `Dạ, ${echo.charAt(0).toLowerCase()}${echo.slice(1)}`, confidence: human ? 0.4 : 0.9, intent: 'faq', sentiment: 'neutral', needs_human: human ? 'Khách muốn gặp nhân viên' : null }) };
+  // TIP-022b: khiếu nại → ý định `complaint` + chuyển người (consumer tạo ticket nếu agent có grant).
+  if (/khiếu nại|complain/i.test(lastUser)) return { text: JSON.stringify({ reply: null, confidence: 0.5, intent: 'complaint', sentiment: 'negative', needs_human: 'Khách khiếu nại' }) };
+  return { text: JSON.stringify({ reply: human ? null : `Dạ, ${echo.charAt(0).toLowerCase()}${echo.slice(1)}`, confidence: human ? 0.4 : 0.9, intent: /giá|mua|báo giá/i.test(lastUser) ? 'buy' : 'faq', sentiment: 'neutral', needs_human: human ? 'Khách muốn gặp nhân viên' : null }) };
 };
 
 export function mockModelSource(script: MockScript = echoScript): ModelSource {

@@ -67,13 +67,13 @@ export class ConversationGetHandler implements Handler<ActionInput<typeof conver
       where: { conversationId: c.id },
       orderBy: { createdAt: 'desc' },
       take: i.limit ?? 20,
-      select: { id: true, direction: true, senderType: true, kind: true, body: true, createdAt: true, deletedAt: true, recalledAt: true },
+      select: { id: true, direction: true, senderType: true, kind: true, body: true, status: true, createdAt: true, deletedAt: true, recalledAt: true },
     });
     const n = await names(tx, [c]);
     return {
       result: {
         ...hit(c, c.contactId ? n.get(c.contactId) : undefined),
-        messages: msgs.reverse().map((m) => ({ id: m.id, direction: m.direction, sender: m.senderType, kind: m.kind, text: m.deletedAt || m.recalledAt ? '' : m.body, at: m.createdAt.toISOString() })),
+        messages: msgs.reverse().map((m) => ({ id: m.id, direction: m.direction, sender: m.senderType, kind: m.kind, text: m.deletedAt || m.recalledAt ? '' : m.body, status: m.status, at: m.createdAt.toISOString() })),
       },
     };
   }

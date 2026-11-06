@@ -7,9 +7,9 @@ const BY_ID: Record<string, string> = {
   'ai_settings.update': '019',
   'wallet.update_alerts': '039',
   'follow_up.complete': '038',
+  'insight.query': '038',
   'stock.adjust': '027',
   'stock.get': '027',
-  'segment.preview': '037',
   'ai.translate': '022',
   'run.cancel': '019',
   'run.search': '019',
@@ -22,6 +22,7 @@ const BY_ID: Record<string, string> = {
 
 const BY_PREFIX: Record<string, string> = {
   data_job: '045',
+  channel_operation: '014',
   notification: '003',
   profile: '004',
   workspace: '013',
@@ -68,7 +69,11 @@ const BY_PREFIX: Record<string, string> = {
   ticket: '034',
   loyalty: '036',
   campaign: '037',
+  segment: '037',
   admin: '040',
+  role: '042',
+  team: '042',
+  lead_routing: '042b',
 };
 
 export function tipOwnerOf(actionId: string): string | null {

@@ -3,12 +3,16 @@
 import { avatarColor, createFmt, initialsOf, serverMessages, type Contact360Dto, type CustomValues } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { renderTimeline } from './timeline.service';
+import { contactAvatarLink } from '../../channels/operations/avatar-read';
+import type { FileLinks } from '../../kernel/files/file-links';
 
 interface Ctx {
   locale: string;
   timeZone: string;
   names: (ids: string[]) => Promise<Map<string, string>>;
   layout?: Contact360Dto['layout'];
+  /** Link ký ảnh đồng bộ từ kênh (TIP-014b D). */
+  links?: { files: FileLinks | null; ws: string };
 }
 
 export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promise<Contact360Dto> {
@@ -22,11 +26,14 @@ export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promi
   const who = await c.names(notes.map((n) => n.authorUserId));
   const timeline = renderTimeline(events, c.locale, c.timeZone).map(({ icon, tone, when, text }) => ({ icon, tone, when, text }));
   const [last, ...older] = notes;
+  // Ảnh nhân viên đặt luôn thắng; không có → ảnh đồng bộ từ kênh (link ký).
+  const avatar = k.avatarUrl || (c.links ? await contactAvatarLink(tx, c.links.files, c.links.ws, k.id) : null);
   return {
     id: k.id,
     name: k.name,
     initials: initialsOf(k.name),
     avatar_color: avatarColor(k.id),
+    ...(avatar ? { avatar_url: avatar } : {}),
     tier: k.tierKey ?? '',
     since: fmt.date(k.createdAt),
     stage_label: m.stage[k.stage],

@@ -16,6 +16,7 @@ import { lockConversion } from '../../quotes/services/conversion-lock';
 import { UUID } from '../order-access';
 import { createPreview, fromContractPreview, fromQuotePreview } from '../previews/order-create.handlers.preview';
 import { EMPTY_SHIPPING, actorOf, checkOrderCustom, logEvent, payCols, totalCols, totalsOf, writeItems, type Actor } from '../services/order-write';
+import { snapshotTeam } from '../../../authz/data-access';
 
 type Out = { order_id: string; code: string };
 
@@ -44,6 +45,16 @@ const orderPayload = (o: { id: string; contactId: string; code: string; source: 
   total: String(o.total),
 });
 
+/** Nhóm của bản ghi nguồn của đơn (báo giá → hợp đồng → lịch hẹn) — lineage rõ (DC-299). */
+async function orderSourceTeam(tx: TenantTx, i: { quote_id?: string | null; contract_id?: string | null; appointment_id?: string | null }): Promise<string | null> {
+  const q = i.quote_id ? await tx.quote.findUnique({ where: { id: i.quote_id }, select: { teamId: true } }) : null;
+  if (q?.teamId) return q.teamId;
+  const c = i.contract_id ? await tx.contract.findUnique({ where: { id: i.contract_id }, select: { teamId: true } }) : null;
+  if (c?.teamId) return c.teamId;
+  const a = i.appointment_id ? await tx.appointment.findUnique({ where: { id: i.appointment_id }, select: { teamId: true } }) : null;
+  return a?.teamId ?? null;
+}
+
 /** Tạo đơn `new` (dùng chung 3 nguồn). Trả bản ghi + event `order.created`. */
 export async function insertOrder(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: NewOrder, now: Date) {
   const { ownerUserId } = await checkParties(ctx, tx, members, { contactId: input.contact_id, ownerUserId: input.owner_user_id });
@@ -67,6 +78,8 @@ export async function insertOrder(ctx: ActionContext, tx: TenantTx, members: Crm
       quoteId: input.quote_id ?? null,
       contractId: input.contract_id ?? null,
       appointmentId: input.appointment_id ?? null,
+      // DC-299: nhóm theo nguồn (báo giá → hợp đồng → lịch hẹn) → nhóm duy nhất của người phụ trách.
+      teamId: await snapshotTeam(tx, { from: await orderSourceTeam(tx, input), owner: ownerUserId }),
       conversationId: input.conversation_id ?? null,
       depositRequired: deposit > 0n,
       depositAmount: deposit,

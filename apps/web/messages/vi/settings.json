@@ -11,13 +11,15 @@
     "apps": "ỨNG DỤNG",
     "ai": "AI",
     "security": "BẢO MẬT",
-    "finance": "THÔNG BÁO & TÀI CHÍNH"
+    "finance": "THÔNG BÁO & TÀI CHÍNH",
+    "automation": "TỰ ĐỘNG HOÁ"
   },
   "nav": {
     "general": "Tổng quan",
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
     "roles": "Vai trò & phân quyền",
+    "teams": "Nhóm",
     "org_sla": "Thiết lập SLA",
     "channels": "Kênh kết nối",
     "web_widget": "Trợ lý AI website",
@@ -36,13 +38,15 @@
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
-    "sales_policy": "Chính sách bán hàng"
+    "sales_policy": "Chính sách bán hàng",
+    "routing": "Chia lead"
   },
   "head": {
     "general": "Tổng quan",
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
     "roles": "Vai trò & phân quyền",
+    "teams": "Nhóm",
     "org_sla": "Thiết lập SLA",
     "channels": "Kênh kết nối",
     "web_widget": "Trợ lý AI",
@@ -61,10 +65,12 @@
     "billing": "Gói & thanh toán",
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
-    "sales_policy": "Chính sách bán hàng"
+    "sales_policy": "Chính sách bán hàng",
+    "routing": "Routing & assignment"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
+    "teams": "Nhóm nhân sự theo chức năng — dùng cho phạm vi dữ liệu \"Nhóm\"",
     "org_sla": "Cam kết theo kênh · hạng khách · loại yêu cầu — tách riêng AI và con người"
   },
   "roleName": {
@@ -207,7 +213,8 @@
         "manager": "Toàn quyền vận hành, trừ ký hợp đồng, hoàn tiền, billing (trừ khi được uỷ quyền)",
         "sales": "Chỉ thấy khách, báo giá, đơn của mình",
         "cs": "Hội thoại, lịch hẹn, ticket được giao; không xem doanh số",
-        "accountant": "Đơn, thu tiền, đối soát, điểm; không vào hộp thư"
+        "accountant": "Đơn, thu tiền, đối soát, điểm; không vào hộp thư",
+        "custom": "Vai trò tuỳ biến — quyền xem ở Vai trò & phân quyền"
       }
     }
   },
@@ -215,7 +222,9 @@
     "onlyOne": "chỉ có 1",
     "people": "{n} người",
     "system": "Hệ thống",
-    "p1": "Tạo / sửa vai trò tuỳ biến sẽ có ở bản sau (P1)",
+    "ownerOnly": "Chỉ Chủ sở hữu tạo / sửa vai trò",
+    "custom": "Tuỳ biến",
+    "customDesc": "Vai trò tuỳ biến · {n} quyền",
     "desc": {
       "owner": "Toàn quyền · ký hợp đồng, duyệt hoàn tiền, gói & thanh toán",
       "manager": "Quản lý vận hành và đội ngũ, xem toàn bộ dữ liệu",
@@ -294,6 +303,77 @@
     },
     "create": "Tạo vai trò"
   },
+  "roleEditor": {
+    "title": "Tạo vai trò",
+    "editTitle": "Sửa vai trò",
+    "name": "Tên vai trò",
+    "namePh": "VD: Lễ tân ca tối",
+    "create": "Tạo vai trò",
+    "save": "Lưu thay đổi",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "delete": "Xoá vai trò",
+    "errName": "Nhập tên vai trò",
+    "stale": "Người khác vừa sửa vai trò này — đã tải lại, mở lại để sửa tiếp",
+    "inUse": "Vai trò đang dùng ({members} thành viên, {invites} lời mời) — đổi vai trò cho họ trước",
+    "confirmDelete": "Xoá vai trò \"{name}\"? Không hoàn tác được.",
+    "cloneOf": "Dựa trên vai trò {name}",
+    "cloneOfBtn": "Nhân bản {name}",
+    "editOf": "Sửa {name}",
+    "copyName": "{name} (bản sao)",
+    "dropped": "Không chép các quyền chỉ Chủ sở hữu có / phải uỷ quyền rõ: {list}",
+    "ownerOnly": "Quyền chỉ Chủ sở hữu có — không cấp cho vai trò tuỳ biến",
+    "deleted": "Vai trò đã xoá",
+    "scopeT": "Phạm vi dữ liệu",
+    "permsT": "Quyền",
+    "module": {
+      "inbox": "Hộp thư",
+      "crm": "Khách hàng",
+      "sales": "Bán hàng",
+      "booking": "Lịch hẹn",
+      "support": "Hỗ trợ",
+      "insights": "Báo cáo"
+    },
+    "scope": {
+      "own": "Của mình",
+      "team": "Nhóm",
+      "all": "Tất cả",
+      "none": "Không"
+    }
+  },
+  "teams": {
+    "search": "Tìm nhóm…",
+    "create": "Tạo nhóm",
+    "count": "{n} thành viên",
+    "lead": "Trưởng nhóm: {name}",
+    "members": "Thành viên",
+    "config": "Cấu hình",
+    "extra": "+{n}",
+    "more": "Thao tác nhóm {name}",
+    "empty": "Chưa có nhóm nào — tạo nhóm để dùng phạm vi dữ liệu \"Nhóm\"",
+    "noMatch": "Không có nhóm khớp",
+    "editor": {
+      "title": {
+        "create": "Tạo nhóm",
+        "config": "Cấu hình nhóm",
+        "members": "Thành viên nhóm"
+      },
+      "name": "Tên nhóm",
+      "namePh": "VD: Nhóm Spa Q1",
+      "members": "Thành viên ({n})",
+      "membersAria": "Chọn thành viên nhóm",
+      "lead": "Trưởng nhóm",
+      "noLead": "Chưa có trưởng nhóm",
+      "leadHint": "Trưởng nhóm phải là thành viên của nhóm; không có thêm quyền vì là trưởng nhóm.",
+      "leadLocked": "Đang là trưởng nhóm — đổi trưởng nhóm ở Cấu hình trước",
+      "create": "Tạo nhóm",
+      "save": "Lưu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "errName": "Nhập tên nhóm",
+      "stale": "Người khác vừa sửa nhóm này — đã tải lại, mở lại để sửa tiếp"
+    }
+  },
   "channels": {
     "filter": {
       "all": "Tất cả",
@@ -344,6 +424,29 @@
       "tiktok_shop": "Kết nối TikTok Shop để xử lý đơn hàng & tin nhắn ngay trên TikTok.",
       "shopee": "Kết nối Shopee để đồng bộ đơn hàng và trò chuyện với người mua.",
       "webchat": "Nhúng widget chat lên website để tư vấn khách truy cập theo thời gian thực."
+    },
+    "behavior": {
+      "title": "Hành vi AI Agent",
+      "sub": "Lịch hoạt động, lời chào và phân luồng theo từ khoá cho tài khoản này.",
+      "scheduleOn": "Lịch hoạt động riêng",
+      "scheduleD": "Ngoài giờ AI không trả lời, không gửi tin và không trừ credit — hội thoại chuyển cho nhân viên.",
+      "greetingOn": "Lời chào tự động",
+      "greetingD": "Gửi một lần khi khách nhắn tin đầu tiên.",
+      "greetingEmpty": "Chưa có nội dung lời chào — sẽ không gửi.",
+      "routingOn": "Phân luồng theo từ khoá",
+      "routingD": "Chọn agent theo cụm từ trong tin nhắn khách. Không khớp → agent mặc định, không có → hàng chờ nhân viên.",
+      "agent": "AI Agent",
+      "priority": "Ưu tiên",
+      "keywords": "Từ khoá",
+      "keywordsPh": "giá, báo giá, mua",
+      "remove": "Xoá",
+      "add": "+ Thêm agent",
+      "save": "Lưu hành vi",
+      "saving": "Đang lưu…",
+      "revert": "Hoàn tác",
+      "readonly": "Bạn chỉ có quyền xem cấu hình này.",
+      "saved": "Đã lưu hành vi AI Agent",
+      "overnight": "Khung qua nửa đêm sẽ được tách thành hai ngày liền nhau. Tiếp tục?"
     },
     "wizard": {
       "title": "Kết nối kênh",
@@ -428,6 +531,8 @@
       "syncContactD": "Tạo liên hệ CRM mới khi có khách lạ nhắn tới.",
       "historyLabel": "Đồng bộ lịch sử cũ",
       "history": { "0": "Không", "7": "7 ngày", "30": "30 ngày", "90": "90 ngày" },
+      "contacts": {"title": "Danh bạ Zalo", "desc": "Xem danh bạ của tài khoản trong 24 giờ, chọn người để nhập thành khách. Không tự nhập, không gửi lời mời.", "run": "Lấy danh bạ", "running": "Đang lấy…", "state": {"queued": "Đang chờ lấy danh bạ…", "running": "Đang lấy danh bạ… ({n} người)", "complete": "Đã lấy {n} người", "partial": "Đã lấy {n} người — chưa hết (dừng ở giới hạn hoặc bị ngắt)", "failed": "Không lấy được danh bạ", "superseded": "Đã thay bằng lần lấy mới"}, "row": {"known": "Đã là khách", "importable": "Chưa có khách", "no_phone": "Thiếu SĐT — không nhập được", "conflict": "SĐT đã có ở khách khác"}, "importHint": "Chỉ nhập người bạn chọn; tên và SĐT lấy đúng như danh bạ.", "importDenied": "Bạn không có quyền nhập khách.", "import": "Nhập {n} khách"},
+      "friends": {"title": "Bạn bè Zalo", "desc": "Nhận / từ chối lời mời kết bạn, tra một SĐT để gửi lời mời. Chỉ người bấm, từng người một — không gửi hàng loạt.", "accept": "Nhận", "reject": "Từ chối", "noRequests": "Không có lời mời kết bạn đang chờ.", "phonePh": "Nhập một SĐT, vd. 0912 345 678", "find": "Tìm trên Zalo", "finding": "Đang tìm…", "lookupHint": "Tối đa 30 lần tra / ngày / tài khoản. Kết quả giữ 24 giờ, chỉ bạn thấy, không tự lưu thành khách.", "found": "{name} · {phone}", "save": "Lưu thành khách", "saved": "Đã lưu khách", "messagePh": "Lời nhắn kèm lời mời (tuỳ chọn, ≤ 150 ký tự)", "send": "Gửi lời mời", "sendConfirm": "Gửi lời mời kết bạn từ tài khoản Zalo này? Gửi nhiều lời mời cho người lạ có thể khiến Zalo hạn chế hoặc khoá tài khoản.", "risk": "Rủi ro: Zalo có thể hạn chế tài khoản gửi nhiều lời mời. Tối đa 20 lời mời / ngày / tài khoản.", "requested": "Đã gửi lời mời — đang chờ người nhận đồng ý.", "undo": "Thu hồi", "isFriend": "Đã là bạn bè trên Zalo.", "lookup": {"not_found": "Số này chưa có tài khoản Zalo hoặc không cho tìm theo SĐT.", "failed": "Tra không thành công — thử lại sau."}, "op": {"queued": "Đang gửi lệnh tới Zalo ({name})…", "confirmed": "Zalo đã nhận lệnh ({name}).", "failed": "Zalo từ chối lệnh ({name}).", "unknown": "Chưa rõ Zalo đã nhận lệnh chưa ({name}) — kiểm tra trên điện thoại trước khi thử lại."}},
       "s6": "6 · Vùng nguy hiểm",
       "pause": "Tạm dừng",
       "pauseD": "Giữ nguyên cấu hình, ngưng nhận và gửi tin.",
@@ -438,6 +543,13 @@
       "disconnectTitle": "Ngắt kết nối",
       "disconnectD": "Chỉ ngắt tài khoản này · hội thoại cũ được giữ lại.",
       "disconnectBtn": "Ngắt kết nối",
+      "rate": {
+        "perMinute": "Tốc độ gửi (tin / phút)",
+        "perMinuteD": "Mặc định của kênh: {n} tin / phút. Áp từ tin kế tiếp.",
+        "dailyCap": "Tin chủ động / ngày",
+        "dailyCapD": "Chiến dịch và nhắc việc — mặc định {n}. Hết trần thì dời sang ngày sau.",
+        "overDefault": "Vượt mức an toàn {n} tin / ngày — Zalo có thể khoá tài khoản."
+      },
       "disconnectConfirm": "Ngắt kết nối tài khoản {n}? Hội thoại cũ vẫn được giữ lại.",
       "save": "Lưu thay đổi",
       "saved": "Đã lưu cấu hình"
@@ -1215,6 +1327,7 @@
       "refund_approval": "Hoàn tiền chờ tôi duyệt / kết quả duyệt",
       "bank_review": "Giao dịch ngân hàng cần đối soát",
       "package_reminder": "Liệu trình sắp hết buổi / tới hạn",
+      "campaign_approval": "Chiến dịch chờ duyệt / được duyệt",
       "sla_warn": "SLA sắp vi phạm",
       "sla_breach": "Ticket quá hạn SLA (leo thang)",
       "ticket_assigned": "Ticket được giao cho tôi",
@@ -1618,5 +1731,61 @@
     "ownerOnly": "Chỉ Chủ sở hữu được đổi ngưỡng duyệt.",
     "reset": "Hoàn lại",
     "save": "Lưu thay đổi"
+  },
+  "routing": {
+    "title": "Quy tắc phân công",
+    "sub": "Ai nhận khách mới khi khách chat vào lần đầu",
+    "newOnly": "Chỉ áp cho lead MỚI (khách được tạo sau lúc bật). Không chia lại khách cũ, không đổi người phụ trách đã có, không giành hội thoại đã gán tay.",
+    "default": "Chiến lược mặc định",
+    "defaultD": "Áp cho mọi tài khoản kênh không có quy tắc riêng",
+    "accounts": "Theo tài khoản kênh",
+    "accountsD": "Quy tắc riêng thắng mặc định — tắt hoặc thủ công nghĩa là vào hàng chung",
+    "accountD": "Kênh {type}",
+    "noAccounts": "Chưa có tài khoản kênh nào.",
+    "inherit": "Theo mặc định",
+    "off": "Thủ công · hàng chung",
+    "edit": "Sửa",
+    "legacyShift": "Theo ca (kiểu cũ — không chạy)",
+    "editDefault": "Chiến lược mặc định",
+    "editAccount": "Quy tắc cho {name}",
+    "enabled": "Tự chia lead mới",
+    "enabledD": "Tắt: khách mới vào hàng chung, quản lý tự gán",
+    "strategy": "Chiến lược",
+    "mode": {
+      "manual": "Thủ công",
+      "round_robin": "Xoay vòng (chia đều)",
+      "least_busy": "Người ít việc nhất",
+      "by_channel": "Theo kênh (người cố định)"
+    },
+    "modeD": {
+      "manual": "Không tự chia — khách mới ở hàng chung.",
+      "round_robin": "Lần lượt từng người đủ quyền trong danh sách.",
+      "least_busy": "Người đang xử lý ít hội thoại mở / chờ / hoãn nhất; hoà thì xoay vòng.",
+      "by_channel": "Mọi lead mới của tài khoản này về một người."
+    },
+    "pool": "Người nhận",
+    "poolKind": {
+      "users": "Chọn người",
+      "team": "Theo nhóm"
+    },
+    "pickTeam": "Chọn nhóm…",
+    "pickUser": "Chọn người…",
+    "fixed": "Người nhận cố định",
+    "history": "Khách mới tạo từ lịch sử nhập SAU khi bật cũng được chia như lead mới. Người không còn quyền xem / sửa khách và trả lời hội thoại sẽ được bỏ qua.",
+    "overrideManual": "Quy tắc riêng ở chế độ thủ công: lead mới của tài khoản này vào hàng chung, không dùng chiến lược mặc định.",
+    "save": "Lưu",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "errPool": "Chọn ít nhất một người nhận (hoặc một nhóm) trước khi bật.",
+    "stale": "Quy tắc vừa được người khác đổi — đã tải lại, hãy lưu lại.",
+    "channel": {
+      "label": "Chia lead mới",
+      "off": "Thủ công · hàng chung",
+      "account": "Riêng tài khoản · {mode}",
+      "default": "Theo mặc định · {mode}",
+      "manage": "Cấu hình chia lead",
+      "hint": "Đổi ở Cài đặt › Chia lead — chỉ áp cho lead mới.",
+      "readonly": "Chỉ người có quyền chuyển phụ trách khách mới đổi được."
+    }
   }
 }

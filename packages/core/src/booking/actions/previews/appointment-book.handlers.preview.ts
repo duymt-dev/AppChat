@@ -34,7 +34,7 @@ export async function createPreview(ctx: ActionContext, tx: TenantTx, i: ActionI
 }
 
 export async function reschedulePreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof appointmentReschedule>, now: Date, timeZone: string): Promise<ActionPreview> {
-  const a = await visibleAppointment(tx, ctx.authz, i.appointment_id);
+  const a = await visibleAppointment(tx, ctx.authz, i.appointment_id, 'write');
   step(a, 'appointment.reschedule');
   const staffId = i.staff_id ?? a.staffId;
   const staff = await assertSlot(tx, { serviceId: a.serviceId, staffId, date: i.date, start: i.start, excludeId: a.id, timeZone, now });
@@ -47,7 +47,7 @@ export async function reschedulePreview(ctx: ActionContext, tx: TenantTx, i: Act
 }
 
 export async function updatePreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof appointmentUpdate>, o: { now: Date; timeZone: string; role: string }): Promise<ActionPreview> {
-  const a = await visibleAppointment(tx, ctx.authz, i.appointment_id);
+  const a = await visibleAppointment(tx, ctx.authz, i.appointment_id, 'write');
   const plan = await planEdit(tx, a, i.patch, { ...o, ifVersion: i.if_version });
   const cur = utcToWall(a.startAt, o.timeZone);
   const [svcName, staffName] = await Promise.all([

@@ -22,7 +22,17 @@ export { agentAuthz } from './agents/agent-authz';
 export { connectedKeys, groupTools, runToolIds, badgeOf } from './agents/agent-tools';
 export { agentSystem, agentToolSpecs, dryRunTools, runOnce, withinHours } from './agents/agent.runtime';
 export { draftFromText, parseDraft, optimizeLocal } from './agents/agent-draft';
-export { seedAgentTemplates, templateDefaults } from './agents/templates.seed';
+export { seedAgentTemplates, templateDefaults, upgradeAgentTemplates } from './agents/templates.seed';
+// TIP-022b: hành vi agent trực kênh.
+export { channelBindingPreview } from './agents/channel-binding-preview';
+export { TEMPLATE_REVISION, ROLE_DEFAULTS_V1, ROLE_DEFAULTS_V2, invalidTemplateTools, planUpgrade, replacementPreview } from './agents/template-revisions';
+export { agentSchedule, scheduleState, assertPublishable } from './agents/schedule-config';
+export { availability } from './reply/availability';
+export { routeByKeyword, normalizePhrase, longestMatch } from './reply/keyword-router';
+export { normalizeIntent, recordIntent } from './reply/intent';
+export { buildHandoffSummary, projectSummary } from './reply/handoff-summary';
+export { attachmentInfo, attachmentLine } from './reply/attachment-context';
+export { handoffAfterApproval } from './reply/reply.service';
 export { AGENT_TEMPLATES } from './agents/catalog';
 export { DB_AGENT_NAMES } from './agents/agent-names';
 export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/approvals.read';

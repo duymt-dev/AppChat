@@ -20,7 +20,7 @@ let resolver: TenantDbResolver;
 let sales: { id: string; token: string };
 
 beforeAll(async () => {
-  h = await startApi();
+  h = await startApi({ probes: true });
   sales = await h.member('sales');
   resolver = new TenantDbResolver({ registry: new PrismaWorkspaceRegistry(h.platform), baseUrl: env.TENANT_DATABASE_URL! });
   ai = await Test.createTestingModule({ imports: [KernelModule.forRoot({ ...env, LOG_LEVEL: 'silent' }), AiJobsModule] })
@@ -271,9 +271,9 @@ describe('duyệt (approval)', () => {
     await act('approval.approve', { approval_id: apId });
     const db = await tenant();
     expect(await until(async () => !!(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).result)).toBe(true);
-    // Module worker của test chỉ nạp AiJobsModule — handler test `campaign.create` / `campaign.delete` chỉ có ở API harness → kết quả là lỗi NOT_IMPLEMENTED
-    // được ghi cho model (run vẫn tiếp), không chạy action, không đánh dấu đã chạy.
-    expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ result: { kind: 'error', code: 'NOT_IMPLEMENTED' }, executedAt: null });
+    // Từ TIP-037 worker ROLE=ai nạp MarketingModule → `campaign.delete` chạy handler THẬT (không còn probe của API harness): id là một thông
+    // báo, không phải chiến dịch → lỗi NOT_FOUND được ghi cho model (run vẫn tiếp), không đánh dấu đã chạy.
+    expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ result: { kind: 'error', code: 'NOT_FOUND' }, executedAt: null });
   });
 });
 

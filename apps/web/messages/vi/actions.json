@@ -41,6 +41,12 @@
       "title": "Cập nhật bước bắt đầu"
     }
   },
+  "insight": {
+    "query": {
+      "title": "Xem số liệu",
+      "desc": "Đọc một chỉ số kinh doanh định nghĩa sẵn (doanh số, thực thu, khách sắp rời, hiệu suất agent / hỗ trợ) trong phạm vi bạn được xem."
+    }
+  },
   "follow_up": {
     "complete": {
       "title": "Đã follow khách",
@@ -714,12 +720,51 @@
     }
   },
   "segment": {
+    "create": {
+      "title": "Tạo phân khúc"
+    },
+    "update": {
+      "title": "Sửa phân khúc"
+    },
+    "delete": {
+      "title": "Xoá phân khúc"
+    },
     "preview": {
       "title": "Xem trước tệp khách",
       "desc": "Đếm số khách thuộc tệp trước khi tạo chiến dịch."
     }
   },
   "campaign": {
+    "analyze": {
+      "title": "AI phân tích khách hàng"
+    },
+    "audience_import": {
+      "title": "Nhập danh sách người nhận"
+    },
+    "draft_content": {
+      "title": "AI viết lại nội dung chiến dịch"
+    },
+    "recipient_export": {
+      "title": "Xuất danh sách người nhận"
+    },
+    "resend_unread": {
+      "title": "Tạo nháp gửi lại người chưa phản hồi"
+    },
+    "unsubscribe": {
+      "title": "Huỷ nhận tin chiến dịch"
+    },
+    "dispatch": {
+      "title": "Gửi lô chiến dịch (hệ thống)"
+    },
+    "record_delivery": {
+      "title": "Ghi kết quả gửi (hệ thống)"
+    },
+    "record_metric": {
+      "title": "Ghi phản hồi / chuyển đổi (hệ thống)"
+    },
+    "store_analysis": {
+      "title": "Lưu gợi ý AI (hệ thống)"
+    },
     "suggest": {
       "title": "Gợi ý chiến dịch",
       "desc": "Gợi ý chiến dịch kèm số khách dự kiến và thời điểm gửi tốt nhất."
@@ -780,6 +825,36 @@
     },
     "attach_file": {
       "title": "Đính kèm tệp cho thành viên"
+    }
+  },
+  "role": {
+    "create": {
+      "title": "Tạo vai trò"
+    },
+    "update": {
+      "title": "Sửa vai trò"
+    },
+    "delete": {
+      "title": "Xoá vai trò"
+    }
+  },
+  "lead_routing": {
+    "update": {
+      "title": "Cấu hình chia lead"
+    },
+    "apply": {
+      "title": "Chia lead mới (hệ thống)"
+    }
+  },
+  "team": {
+    "create": {
+      "title": "Tạo nhóm"
+    },
+    "update": {
+      "title": "Sửa nhóm"
+    },
+    "set_members": {
+      "title": "Đổi thành viên nhóm"
     }
   },
   "member": {
@@ -867,6 +942,26 @@
     },
     "sync_history": {
       "title": "Đồng bộ lịch sử kênh"
+    },
+    "sync_contacts": {
+      "title": "Đồng bộ danh bạ tài khoản kênh"
+    },
+    "friend": {
+        "accept": {
+          "title": "Nhận lời mời kết bạn Zalo"
+        },
+        "reject": {
+          "title": "Từ chối lời mời kết bạn Zalo"
+        },
+        "send": {
+          "title": "Gửi lời mời kết bạn Zalo"
+        },
+        "undo": {
+          "title": "Thu hồi lời mời kết bạn Zalo"
+        }
+    },
+    "lookup_user": {
+      "title": "Tìm người trên Zalo theo SĐT"
     },
     "reconnect": {
       "title": "Kết nối lại tài khoản kênh"
@@ -1107,6 +1202,11 @@
     },
     "retry": {
       "title": "Thử lại bản ghi lỗi của việc chạy nền"
+    }
+  },
+  "channel_operation": {
+    "cancel": {
+      "title": "Huỷ lệnh thao tác kênh chưa gửi"
     }
   }
 }

@@ -106,6 +106,8 @@ export const contact360Schema = z.object({
   name: z.string(),
   initials: z.string(),
   avatar_color: z.string(),
+  /** Ảnh nhân viên đặt, hoặc ảnh đồng bộ từ kênh (TIP-014b D — link ký); vắng → chữ cái đầu. */
+  avatar_url: z.string().optional(),
   tier: z.string(),
   since: z.string(),
   stage_label: z.string(),

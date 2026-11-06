@@ -16,6 +16,8 @@ import { UUID, inSupportScope } from '../ticket-access';
 import { SlaCalendar, defaultPolicy, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, timeline } from '../services/ticket-write';
 import { createPreview } from './previews/ticket-create.handler.preview';
+import { soleTeamOf } from '../../authz/data-access';
+import { agentTicketBinding, claimComplaint, intentHash, settleComplaint } from '../services/complaint-receipt';
 
 type In = ActionInput<typeof ticketCreate>;
 type Out = { ticket_id: string; code: string; merged?: boolean };
@@ -51,6 +53,17 @@ export class TicketCreateHandler implements Handler<In, Out> {
 
   async execute(ctx: ActionContext, input: In, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
+    // TIP-022b D: agent trong lượt trả lời → nguồn = tin khách của run (server), một ticket mỗi tin nguồn (receipt chung model + consumer).
+    const bound = await agentTicketBinding(tx, ctx, input.source_message_id);
+    if (bound) {
+      if (input.on_duplicate === 'merge' || input.on_duplicate === 'create') throw new AppError('VALIDATION_FAILED', 422, { on_duplicate: 'human_choice' });
+      const claim = await claimComplaint(tx, bound, intentHash(input.category), now);
+      if (claim.ticketId) {
+        const t = await tx.ticket.findUnique({ where: { id: claim.ticketId }, select: { id: true, code: true } });
+        if (t) return { result: { ticket_id: t.id, code: t.code } };
+      }
+      input = { ...input, source_message_id: bound.sourceMessageId };
+    }
     const src = await sourceOf(ctx, tx, input);
     let contactId = src.contactId;
     if (input.contact_id) contactId = (await visibleContact(tx, ctx.authz, input.contact_id)).contact.id;
@@ -70,7 +83,11 @@ export class TicketCreateHandler implements Handler<In, Out> {
         orderBy: { createdAt: 'desc' },
       });
       if (dup && inSupportScope(ctx.authz, dup)) {
-        if (input.on_duplicate !== 'merge') throw new AppError('CONFLICT', 409, { duplicate_of: dup.code });
+        if (input.on_duplicate !== 'merge') {
+          // Receipt giữ `duplicate` để người chọn gộp / tạo mới — agent không tự quyết.
+          if (bound) await settleComplaint(tx, bound.sourceMessageId, { status: 'duplicate', detail: dup.code }, now);
+          throw new AppError('CONFLICT', 409, { duplicate_of: dup.code });
+        }
         const body = [input.title.trim(), input.description?.trim()].filter(Boolean).join('\n');
         const cm = await tx.ticketComment.create({ data: { id: uuidv7(now.getTime()), ticketId: dup.id, authorType: actor.type === 'system' ? 'system' : actor.type, authorId: actor.id, authorName: actor.name, body, internal: true, createdAt: now } });
         await logEvent(tx, dup.id, 'note', actor, now, { merged: true });
@@ -102,7 +119,8 @@ export class TicketCreateHandler implements Handler<In, Out> {
         status,
         assigneeUserId: ai ? null : (input.assignee_user_id ?? actorUserId(ctx)),
         assigneeAgentId: input.assignee_agent_id ?? null,
-        teamId: input.team_id ?? null,
+        // DC-299: nhóm người tạo chọn; không chọn → nhóm duy nhất của người được gán (0 / nhiều nhóm → null; giao AI → không nhóm).
+        teamId: input.team_id ?? (ai ? null : await soleTeamOf(tx, input.assignee_user_id ?? actorUserId(ctx))),
         slaPolicyId: policy.id,
         slaPolicyName: policy.name,
         ...sla,
@@ -118,6 +136,7 @@ export class TicketCreateHandler implements Handler<In, Out> {
     await logEvent(tx, id, 'created', actor, now);
     if (row.assigneeUserId || row.assigneeAgentId) await logEvent(tx, id, 'assigned', actor, now, { user_id: row.assigneeUserId, agent_id: row.assigneeAgentId });
     await timeline(tx, row, 'ticket_opened', { title: row.title }, actor, now);
+    if (bound) await settleComplaint(tx, bound.sourceMessageId, { status: 'created', ticketId: id }, now);
     return {
       result: { ticket_id: id, code },
       after: { id },

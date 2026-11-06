@@ -19,7 +19,7 @@ export function scopeKey(a: AuthzContext): string {
   const money = ['invoice.manage', 'payment.record', 'contract.view', 'order.view', 'quote.view', 'booking.view', 'ticket.view'].filter((p) => a.isOwner || a.permissions.has(p as never));
   const s = a.isOwner ? 'owner' : Object.entries(a.scope).sort().map(([k, v]) => `${k}:${v}`).join(',');
   const narrow = !a.isOwner && Object.values(a.scope).some((v) => v === 'own' || v === 'team');
-  return hash({ s, money, ...(narrow ? { u: a.userId, t: [...(a.teamUserIds ?? [])].sort() } : {}) }).slice(0, 32);
+  return hash({ s, money, ...(narrow ? { u: a.userId, t: [...a.teamIds].sort() } : {}) }).slice(0, 32);
 }
 
 const stable = (v: unknown): string =>

@@ -33,6 +33,8 @@ const LOOKUPS: Record<string, { find: Find; visible?: Visible }> = {
   appointment: { find: (db, code) => db.appointment.findFirst({ where: { code }, select: { id: true } }), visible: visibleAppointment },
   ticket: { find: (db, code) => db.ticket.findFirst({ where: { code }, select: { id: true } }), visible: visibleTicket },
   product: { find: (db, code) => db.product.findFirst({ where: { code, deletedAt: null }, select: { id: true } }) },
+  // Chiến dịch (TIP-037): đọc theo quyền campaign.view (không có data scope theo người) — vắng `visible`.
+  campaign: { find: (db, code) => db.campaign.findFirst({ where: { code, deletedAt: null }, select: { id: true } }) },
 };
 
 /** Thực thể đổi được mã → id (test phủ Trợ lý — TIP-023b R1.3). */

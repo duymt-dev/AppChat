@@ -3,6 +3,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { App } from 'antd';
 import { Icon, color, type IconName } from '@appchat/ui';
@@ -11,6 +12,8 @@ import { useMessageMenuStyles } from '../styles/menu.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import type { Message } from '../types';
+import { useMessageProviderStatus } from '../hooks/useMessageProviderStatus';
+import { inboxKeys } from '../api';
 
 const REACTS = ['👍', '❤️', '😂', '😮', '😢', '🙏'] as const;
 
@@ -29,6 +32,18 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
   const recall = useAction('message.recall');
   const del = useAction('message.delete');
   const [translated, setTranslated] = useState<string | null>(null);
+  // Lệnh thao tác kênh vừa nhận (202 job_accepted — Zalo): theo dõi tới khi nhà cung cấp xác nhận rồi làm mới luồng tin (TIP-014b).
+  const [opId, setOpId] = useState<string | null>(null);
+  useMessageProviderStatus(convId, opId);
+  const qc = useQueryClient();
+  const track = {
+    onAccepted: (a: { status: string; job_id?: string }) => {
+      if (a.status !== 'job_accepted' || !a.job_id) return;
+      setOpId(a.job_id);
+      // Hiện ngay trạng thái "đang chờ Zalo" trên tin (202 không invalidate như hoàn tất).
+      void qc.invalidateQueries({ queryKey: inboxKeys.thread(convId) });
+    },
+  };
 
   const close = ui.closePop;
 
@@ -47,7 +62,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
       });
       router.push(`/tickets?${q.toString()}`);
     }],
-    ['recall', 'ic-refresh', t('recallHint'), false, () => { close(); void recall.run({ conversation_id: convId, message_id: messageId }); }],
+    ['recall', 'ic-refresh', t('recallHint'), false, () => { close(); void recall.run({ conversation_id: convId, message_id: messageId }, track); }],
     ['delete', 'ic-trash', undefined, true, () => { close(); void del.run({ conversation_id: convId, message_id: messageId }); }],
   ];
 
@@ -80,7 +95,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
                   type="button"
                   className={cx(styles.reactBtn, message.reaction === e && styles.reactBtnOn)}
                   title={t(`reacts.${e}` as never)}
-                  onClick={() => { close(); void react.run({ conversation_id: convId, message_id: messageId, emoji: e }, { silent: true }); }}
+                  onClick={() => { close(); void react.run({ conversation_id: convId, message_id: messageId, emoji: e }, { silent: true, ...track }); }}
                 >
                   {e}
                 </button>

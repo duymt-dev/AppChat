@@ -50,12 +50,16 @@ if (!argv.includes('--no-build')) {
   const b = spawnSync('pnpm', ['turbo', 'run', 'build', '--filter=@appchat/api', '--filter=@appchat/worker'], { stdio: 'inherit', shell: true, cwd: ROOT });
   if (b.status !== 0) process.exit(b.status ?? 1);
 }
+const CHANNEL_VERTICAL = { ZALO_FAKE_GREETING: 'Chào shop, mình muốn đặt lịch gội đầu dưỡng sinh chiều thứ bảy này', ZALO_FAKE_UNKNOWN_TEXT: 'Dạ shop gửi chị bảng giá gội đầu dưỡng sinh ạ', ZALO_FAKE_KICK_TEXT: 'ai-live: đá phiên tài khoản này' };
+// Suite marketing (TIP-037): khách Zalo giả nhắn chào → khách mới có hội thoại 1-1 (người nhận chiến dịch hợp lệ).
+const MARKETING = { ZALO_FAKE_GREETING: 'Chào shop, cho mình hỏi lịch gội đầu cuối tuần' };
 const worker = (role, extra = {}) => spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/worker'), env: { ...env, ROLE: role, ...extra }, stdio: 'inherit' });
 const procs = [
   spawn('node', ['dist/main.js'], { cwd: join(ROOT, 'apps/api'), env, stdio: 'inherit' }),
   worker('jobs'),
   worker('ai'),
-  worker('channels', { ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0' }),
+  // Suite channel-vertical (TIP-014b AC9): khách Zalo giả nhắn khi phiên bắt đầu + một chữ tin cố định cho kết quả gửi `unknown`.
+  worker('channels', { ZALO_TRANSPORT: 'fake', CHANNEL_SEND_JITTER: '0', ...(liveArgs.some((a) => a.includes('channel-vertical')) ? CHANNEL_VERTICAL : liveArgs.some((a) => a.includes('marketing')) ? MARKETING : {}) }),
 ];
 const stop = () => {
   for (const p of procs) p.kill();
@@ -64,14 +68,16 @@ const stop = () => {
 };
 process.on('SIGINT', () => (stop(), process.exit(130)));
 
-const deadline = Date.now() + 60_000;
+// Máy dev bận (nhiều stack / test song song) khởi động chậm hơn — `AI_LIVE_BOOT_MS` nới thời gian chờ API (mặc định 60 giây).
+const BOOT_MS = Number(process.env.AI_LIVE_BOOT_MS ?? 60_000);
+const deadline = Date.now() + BOOT_MS;
 for (;;) {
   try {
     if ((await fetch(`http://localhost:${PORT}/v1/health`)).ok) break;
   } catch {}
   if (Date.now() > deadline) {
     stop();
-    console.error('API không lên trong 60 giây');
+    console.error(`API không lên trong ${BOOT_MS / 1000} giây`);
     process.exit(1);
   }
   await new Promise((r) => setTimeout(r, 500));

@@ -17,12 +17,12 @@ import { useZaloLogin } from '../hooks/useZaloLogin';
 import { ZaloQrStep } from './ZaloQrStep';
 import { EMPTY_EMAIL_FORM, EmailConnectStep, emailFields, type EmailForm } from './EmailConnectStep';
 import { channelsQuery } from '../api';
-import type { ChannelAiMode, ChannelAssignMode } from '../types';
+import type { ChannelAiMode } from '../types';
+import { ChannelRoutingFields } from './ChannelRoutingFields';
 
 const WIDGET = '/settings/web_widget';
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
-const ASSIGNS: ChannelAssignMode[] = ['round_robin', 'least_busy', 'shift'];
 const PICKABLE = ['zalo_personal', 'email', 'webchat'];
 
 export function ConnectChannelModal() {
@@ -54,7 +54,6 @@ export function ConnectChannelModal() {
   );
   const [agentId, setAgentId] = useState('');
   const [aiMode, setAiMode] = useState<ChannelAiMode>('auto');
-  const [assignMode, setAssignMode] = useState<ChannelAssignMode>('round_robin');
 
   if (!wizard) return null;
   const c = wizard.type ? channels.find((x) => x.type === wizard.type) : null;
@@ -72,7 +71,6 @@ export function ConnectChannelModal() {
     setCfgName('');
     setAgentId('');
     setAiMode('auto');
-    setAssignMode('round_robin');
   };
 
   const pickChannel = (type: string) => {
@@ -126,7 +124,7 @@ export function ConnectChannelModal() {
     if (
       await updateSettings.run({
         channel_account_id: accountId,
-        patch: { name: cfgName.trim() || undefined, agent_id: agentId || undefined, ai_mode: aiMode, assign_mode: assignMode },
+        patch: { name: cfgName.trim() || undefined, agent_id: agentId || undefined, ai_mode: aiMode },
       })
     )
       close();
@@ -214,16 +212,7 @@ export function ConnectChannelModal() {
                   ))}
                 </div>
               </div>
-              <div>
-                <div className={s.label}>{t('assignMode')}</div>
-                <select className={s.select} value={assignMode} onChange={(e) => setAssignMode(e.target.value as ChannelAssignMode)} data-testid="st-ch-wizard-cfg-assign">
-                  {ASSIGNS.map((a) => (
-                    <option key={a} value={a}>
-                      {t(`assign.${a}`)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <ChannelRoutingFields testId="st-ch-wizard-routing" />
               <div className={styles.hint}>{t('cfgHint')}</div>
             </div>
           ) : null}

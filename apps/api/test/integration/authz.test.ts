@@ -19,7 +19,7 @@ import { actorFor, newActor, visible } from './role-isolation.harness';
 
 let h: Harness;
 beforeAll(async () => {
-  h = await startApi();
+  h = await startApi({ probes: true });
 });
 afterAll(async () => {
   await h?.close();
@@ -150,7 +150,7 @@ describe('AuthzContext', () => {
 
   it('AC7 executor dùng AuthzContext thật: accountant → action cần inbox.manage 403; platform_admin chỉ admin nền tảng', async () => {
     const acct = await h.member('accountant');
-    expect((await json(await call(h, '/actions/campaign.create', { input: { name: 'X', channel: 'zalo', content: { text: 'x' }, contact_ids: ['c1'] } }, { ...as(acct.token), 'idempotency-key': 'k-acct' }))).status).toBe(403);
+    expect((await json(await call(h, '/actions/campaign.create', { input: { name: 'X', channel: 'zalo', content: { text: 'x' }, contact_ids: ['0190f000-0000-7000-8000-0000000000c1'] } }, { ...as(acct.token), 'idempotency-key': 'k-acct' }))).status).toBe(403);
     const auth = new ContextAuthorizer(h.platform);
     const owner = await actorFor(h, h.user, h.token);
     const base = { workspaceId: h.ws, source: 'ui' as const, actor: { type: 'user' as const, id: h.user }, authz: owner.authz };
@@ -186,8 +186,11 @@ describe('role-isolation (DB thật)', () => {
     try {
       expect(await visible(salesA, q('crm'))).toEqual([ids.a]);
       expect(await visible(salesB, q('crm'))).toEqual([ids.b]);
-      expect(await visible({ ...salesTeam, authz: { ...salesTeam.authz, scope: { ...salesTeam.authz.scope, crm: 'team' } } }, q('crm'))).toEqual([ids.a, ids.b].sort());
+      // DC-299 (TIP-042c): scope team theo cột nhóm của bản ghi — notification không có cột nhóm → team chỉ còn của mình, không suy từ
+      // đồng đội (bản ghi có team_id thử ở record-scope.test.ts).
+      expect(await visible({ ...salesTeam, authz: { ...salesTeam.authz, scope: { ...salesTeam.authz.scope, crm: 'team' } } }, q('crm'))).toEqual([ids.a]);
       expect(salesTeam.authz.teamIds).toEqual([team]);
+      expect([...(salesTeam.authz.teamUserIds ?? [])].sort()).toEqual([salesA.id, salesB.id].sort());
       expect(await visible(manager, q('crm'))).toEqual([ids.a, ids.b].sort());
       expect(await visible(acct, q('inbox'))).toEqual([]);
     } finally {

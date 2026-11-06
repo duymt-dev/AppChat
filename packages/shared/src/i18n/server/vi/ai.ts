@@ -25,6 +25,10 @@ export const ai = {
     credit: 'Hết credit AI — cần người trả lời',
     transfer_loop: 'Chuyển qua lại giữa các agent — cần người xử lý',
     approval_rejected: 'Người duyệt từ chối thao tác của AI',
+    approval_expired: 'Yêu cầu duyệt của AI đã hết hạn — cần người xử lý',
+    no_target: 'Không có agent nhận chuyển phù hợp — cần người xử lý',
+    out_of_hours: 'Ngoài giờ hoạt động của AI — chờ nhân viên',
+    missing_ticket_grant: 'Khách khiếu nại nhưng agent chưa được cấp quyền tạo ticket — cần người tạo',
   },
   approval: {
     title: '{action}',
@@ -53,7 +57,6 @@ export const ai = {
     noContext: 'Không rõ (người dùng đang ở màn Trợ lý).',
     noAgents: 'Chưa có agent nào đang chạy.',
     owner: 'Chủ workspace (toàn quyền)',
-    queryData: 'Truy vấn số liệu (query_data) sẽ có ở bản sau — hãy dùng action đọc qua find_actions.',
     cancelled: 'Đã huỷ thao tác.',
     error: { CREDIT_EXHAUSTED: 'Hết credit AI — nạp thêm ở Cài đặt › Ví & gói để tiếp tục.', generic: 'Trợ lý chưa xử lý được yêu cầu này, anh/chị thử lại sau nhé.' },
     entity: {
@@ -65,7 +68,7 @@ export const ai = {
     module: {
       ai: 'AI Agents', booking: 'Lịch hẹn', catalog: 'Sản phẩm', sales: 'Bán hàng', crm: 'Khách hàng', documents: 'Mẫu chứng từ', identity: 'Tài khoản',
       notifications: 'Thông báo', inbox: 'Hộp thư', loyalty: 'Khách hàng thân thiết', marketing: 'Marketing', settings: 'Cài đặt', billing: 'Ví & gói',
-      channels: 'Kênh', integrations: 'Kết nối', support: 'Hỗ trợ',
+      channels: 'Kênh', integrations: 'Kết nối', support: 'Hỗ trợ', insights: 'Số liệu',
     },
     think: [
       { label: 'Lên ý tưởng', desc: 'Ý tưởng chiến dịch, nội dung, ưu đãi — brainstorm nhiều hướng để chọn.', tag: 'Sáng tạo', command: 'Gợi ý cho tôi 5 ý tưởng chiến dịch cho tháng này' },

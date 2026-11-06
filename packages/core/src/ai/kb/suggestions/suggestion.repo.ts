@@ -50,7 +50,7 @@ export async function pageIds(db: Pick<TenantTx, '$queryRaw'>, status: Suggestio
 
 async function linkOf(db: Db, authz: AuthzContext, r: Row) {
   if (!can(authz, 'inbox.view')) return { conversation_id: null, source_message_ids: [] };
-  const c = await db.conversation.findUnique({ where: { id: r.conversation_id }, select: { id: true, contactId: true, assigneeUserId: true } });
+  const c = await db.conversation.findUnique({ where: { id: r.conversation_id }, select: { id: true, contactId: true, assigneeUserId: true, teamId: true } });
   return c && (await canSeeConversation(db, authz, c)) ? { conversation_id: c.id, source_message_ids: r.source_message_ids } : { conversation_id: null, source_message_ids: [] };
 }
 

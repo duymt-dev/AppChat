@@ -125,7 +125,7 @@ export class ImapMailboxTransport implements MailboxTransport {
   async send(c: MailCredentials, m: OutgoingMail): Promise<{ messageId: string }> {
     const t = smtp(c);
     try {
-      const attachments = await Promise.all((m.attachments ?? []).map(async (a) => ({ filename: a.name, contentType: a.mime, content: await this.files(a.url) })));
+      const attachments = await Promise.all((m.attachments ?? []).map(async (a) => ({ filename: a.name, contentType: a.mime, content: await this.files(a.url, a) })));
       const info = await t.sendMail({
         from: m.from.name ? { name: m.from.name, address: m.from.address } : m.from.address,
         to: m.to,

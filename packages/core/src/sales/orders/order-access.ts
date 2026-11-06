@@ -1,47 +1,34 @@
-// Quyền trên đơn hàng (rbac-permissions §5, COMMERCE §8b, D32): data scope `sales` theo người phụ trách đơn — own = đơn mình phụ trách
-// hoặc của khách mình là collaborator; team = của thành viên cùng nhóm; all / none. Không thấy → 404 (không lộ tồn tại — rbac §9).
+// Quyền trên đơn (rbac-permissions §5, COMMERCE §8b, D32, TIP-042c): data scope `sales` theo người phụ trách đơn — bảng chân trị chung
+// `authz/data-access`: none chặn trước; own = đơn mình phụ trách hoặc của khách mình là collaborator / watcher (ĐỌC; GHI chỉ collaborator);
+// team = thêm `team_id` đơn ∈ nhóm mình (DC-299); all. Không đọc được → 404 (không lộ tồn tại — rbac §9); đọc được mà không ghi
+// được (watcher / scope ghi hẹp hơn) → 403 SCOPE_FORBIDDEN.
 import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { POLICIES, docColumns, guardRecord, recordScopeSql, type AccessMode } from '../../authz/data-access';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const level = (authz: AuthzContext) => (authz.isOwner ? 'all' : authz.scope.sales);
+const COLS = docColumns('o');
+const NF = { order_id: 'not_found' };
 
 /** Điều kiện SQL (alias `o`) cho danh sách theo scope sales. */
-export function orderScopeSql(authz: AuthzContext): Prisma.Sql {
-  const l = level(authz);
-  if (l === 'all') return Prisma.sql`TRUE`;
-  if (l === 'none') return Prisma.sql`FALSE`;
-  const me = authz.userId;
-  const collab = Prisma.sql`EXISTS (SELECT 1 FROM contact_collaborator cc WHERE cc.user_id = ${me}::uuid AND cc.contact_id = o.contact_id AND cc.role = 'collaborator')`;
-  if (l === 'team') {
-    const ids = [...new Set([me, ...(authz.teamUserIds ?? [])])];
-    return Prisma.sql`(o.owner_user_id IN (${Prisma.join(ids.map((x) => Prisma.sql`${x}::uuid`))}) OR ${collab})`;
-  }
-  return Prisma.sql`(o.owner_user_id = ${me}::uuid OR ${collab})`;
+export function orderScopeSql(authz: AuthzContext, mode: AccessMode = 'read'): Prisma.Sql {
+  return recordScopeSql(authz, POLICIES.sales, mode, COLS);
 }
 
 export type OrderRecord = NonNullable<Awaited<ReturnType<TenantTx['order']['findUnique']>>>;
 
-/** Đơn người gọi thấy được (chưa xoá). */
-export async function visibleOrder(tx: TenantTx, authz: AuthzContext, id: string): Promise<OrderRecord> {
+/** Đơn người gọi thấy được (chưa xoá) — `mode = write` cho handler ghi / preview của action ghi. */
+export async function visibleOrder(tx: TenantTx, authz: AuthzContext, id: string, mode: AccessMode = 'read'): Promise<OrderRecord> {
   const o = UUID.test(id) ? await tx.order.findUnique({ where: { id } }) : null;
-  if (!o || o.deletedAt) throw new AppError('NOT_FOUND', 404, { order_id: 'not_found' });
-  const l = level(authz);
-  if (l === 'all') return o;
-  const me = authz.userId;
-  if (o.ownerUserId === me) return o;
-  if (l === 'team' && o.ownerUserId && (authz.teamUserIds ?? []).includes(o.ownerUserId)) return o;
-  if (l !== 'none') {
-    const cc = await tx.contactCollaborator.findUnique({ where: { contactId_userId: { contactId: o.contactId, userId: me } }, select: { role: true } });
-    if (cc?.role === 'collaborator') return o;
-  }
-  throw new AppError('NOT_FOUND', 404, { order_id: 'not_found' });
+  if (!o || o.deletedAt) throw new AppError('NOT_FOUND', 404, NF);
+  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: o.ownerUserId, team: o.teamId, contact: o.contactId }, NF);
+  return o;
 }
 
-/** Khoá dòng đơn cho chuyển trạng thái / đổi tiền (concurrency §2) rồi kiểm scope. */
+/** Khoá dòng đơn cho chuyển trạng thái / đổi tiền (concurrency §2) rồi kiểm quyền GHI. */
 export async function lockOrder(tx: TenantTx, authz: AuthzContext, id: string): Promise<OrderRecord> {
   if (UUID.test(id)) await tx.$queryRaw`SELECT 1 FROM "order" WHERE id = ${id}::uuid FOR UPDATE`;
-  return visibleOrder(tx, authz, id);
+  return visibleOrder(tx, authz, id, 'write');
 }

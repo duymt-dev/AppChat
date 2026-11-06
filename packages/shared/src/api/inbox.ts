@@ -3,6 +3,7 @@
 // /inbox/accounts, /inbox/channels, /inbox/connect-channels, /groups/:id, /canned-replies, /tags, /settings/tags, /settings/replies.
 // Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
+import { AGENT_INTENTS_CLOSED } from './agent-channel-behavior';
 
 export const INBOX_FOLDERS = ['all', 'mine', 'unread', 'mention', 'team', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint'] as const;
 export type InboxFolder = (typeof INBOX_FOLDERS)[number];
@@ -22,6 +23,8 @@ export const conversationSchema = z.object({
   title: z.string(),
   initials: z.string(),
   hue: z.string(),
+  /** Ảnh đại diện (TIP-014b D): ảnh nhân viên đặt cho khách, hoặc ảnh đồng bộ từ kênh — link ký của AppChat; vắng → chữ cái đầu. */
+  avatar_url: z.string().optional(),
   more: z.string().optional(),
   more_hue: z.string().optional(),
   channel: z.string(),
@@ -43,6 +46,10 @@ export const conversationSchema = z.object({
   ai_mode: z.enum(AI_MODES),
   handoff_reason: z.string().optional(),
   ai_draft: z.string().optional(),
+  /** TIP-022b: ý định lượt gần nhất (bộ đóng) — chỉ tham khảo. */
+  intent: z.enum(AGENT_INTENTS_CLOSED).optional(),
+  /** TIP-022b: có tóm tắt bàn giao (đọc qua `GET /v1/conversations/:id/handoff-summary`, chiếu theo quyền). */
+  has_handoff_summary: z.boolean().optional(),
   status: z.enum(['open', 'pending', 'snoozed', 'closed']),
   pinned_message_id: z.string().nullable().optional(),
   hidden: z.boolean().optional(),
@@ -71,6 +78,8 @@ export const messageSchema = z.object({
   sender: z.string().optional(),
   sender_initials: z.string().optional(),
   sender_hue: z.string().optional(),
+  /** Ảnh thành viên nhóm đồng bộ từ kênh (TIP-014b D) — link ký; vắng → chữ cái đầu. */
+  sender_avatar: z.string().optional(),
   sender_color: z.string().optional(),
   title: z.string().optional(),
   sub: z.string().optional(),
@@ -82,6 +91,11 @@ export const messageSchema = z.object({
   recalled: z.boolean().optional(),
   deleted: z.boolean().optional(),
   reaction: z.string().nullable().optional(),
+  /**
+   * Thao tác kênh đang chờ / chưa rõ trên tin (TIP-014b): `recall` / `react` → trạng thái lệnh mới nhất chưa xác nhận. Vắng = không có
+   * gì chờ. `recalled` chỉ true khi nhà cung cấp đã xác nhận.
+   */
+  provider_op: z.object({ recall: z.enum(['pending', 'failed', 'unknown', 'partial']).optional(), react: z.enum(['pending', 'failed', 'unknown']).optional() }).optional(),
   reply_to: z.object({ id: z.string(), preview: z.string() }).optional(),
   forwarded: z.boolean().optional(),
   /** Tệp / ảnh của tin (API thật). */

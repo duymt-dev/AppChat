@@ -17,6 +17,7 @@ import { slotsFor, serviceOf } from '../services/slots';
 import { assertSlot } from '../services/appointment-edit';
 import { eventOf, guarded, matchingPackage, step, timeline } from '../services/appointment-write';
 import { createPreview, reschedulePreview } from './previews/appointment-book.handlers.preview';
+import { soleTeamOf } from '../../authz/data-access';
 
 type CreateIn = ActionInput<typeof appointmentCreate>;
 const actorOf = (ctx: ActionContext) => ({ type: ctx.actor.type, id: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx) });
@@ -100,6 +101,7 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
     const actor = actorOf(ctx);
     const id = uuidv7(now.getTime());
     const code = await nextCode(tx, 'appointment');
+    const team = await soleTeamOf(tx, contact.ownerUserId ?? actorUserId(ctx));
     const row = await guarded(() =>
       tx.appointment.create({
         data: {
@@ -107,6 +109,8 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
           code,
           contactId: contact.id,
           ownerUserId: contact.ownerUserId ?? actorUserId(ctx),
+          // DC-299: nhóm duy nhất của người phụ trách lịch lúc đặt.
+          teamId: team,
           serviceId: svc.id,
           staffId: input.staff_id,
           startAt,

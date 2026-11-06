@@ -3,6 +3,7 @@
 // profile_layout.*: bố cục Hồ sơ 360° theo mẫu & vai trò (REQ-F12, M05; prototype L690–735, L6397–6415).
 import { z } from 'zod';
 import { defineAction } from './define';
+import { CHANNEL_RATE_MAX, DAILY_CAP_MAX, channelRoutingSchema, weeklyScheduleSchema } from '@appchat/shared';
 
 const TAG = z.object({ name: z.string().trim().min(1).max(40), description: z.string().max(200).optional(), color: z.string().max(20).optional(), emoji: z.string().max(8).optional() });
 const ROLE_KEY = z.enum(['owner', 'manager', 'sales', 'cs', 'accountant']);
@@ -171,11 +172,23 @@ export const channelUpdateSettings = defineAction({
       ai_mode: z.enum(['auto', 'suggest', 'off']).optional(),
       hours: z.string().max(60).optional(),
       greeting: z.string().max(300).optional(),
-      assign_mode: z.enum(['round_robin', 'least_busy', 'shift']).optional(),
+      // Nhãn cũ (TIP-014): chỉ là bản chiếu tương thích — chia lead thật cấu hình qua `lead_routing.update` (TIP-042b). Không nhận `shift` mới.
+      assign_mode: z.enum(['round_robin', 'least_busy']).optional(),
       sla_policy: z.string().max(60).optional(),
       sync_messages: z.boolean().optional(),
       sync_auto_create_contact: z.boolean().optional(),
+      /** TIP-022b: lịch có cấu trúc của tài khoản (∩ lịch agent); null = xoá lịch (chỉ còn `hours` hiển thị). */
+      schedule: weeklyScheduleSchema.nullable().optional(),
+      /** TIP-022b: phân luồng từ khoá (opt-in) — ứng viên phải là agent đã xuất bản. */
+      routing: channelRoutingSchema.optional(),
+      /** TIP-022b: bật lời chào tự động (cấu hình cũ mặc định tắt). */
+      greeting_enabled: z.boolean().optional(),
+      /** TIP-037: tốc độ gửi / phút (≤ trần limiter) và trần tin chủ động / ngày — vượt mặc định Zalo (200) có cảnh báo ở preview (D35). */
+      rate_per_minute: z.number().int().min(1).max(CHANNEL_RATE_MAX).optional(),
+      daily_cap: z.number().int().min(1).max(DAILY_CAP_MAX).optional(),
     }),
+    /** TIP-022b: bản chụp gán agent lúc xem trước — gán đã bị đổi → 409, giữ gán cũ. */
+    expected_version: z.string().max(32).optional(),
   }),
   output: z.object({ ok: z.boolean() }),
   permission: 'channels.manage',
@@ -214,7 +227,8 @@ export const channelSyncHistory = defineAction({
   id: 'channel.sync_history',
   module: 'channels',
   title: 'actions.channel.sync_history.title',
-  description: 'Re-sync an account\'s message history for the last N days (0 = off). Example: {"channel_account_id":"acc_1","history_days":30}',
+  description:
+    'Re-sync an account\'s message history for the last N days (0 = off). On Zalo this is a background job (202 job_accepted) that reports the range the provider actually returned; history never triggers AI replies or notifications. Example: {"channel_account_id":"acc_1","history_days":30}',
   input: z.object({ channel_account_id: z.string().min(1), history_days: z.union([z.literal(0), z.literal(7), z.literal(30), z.literal(90)]) }),
   output: z.object({ ok: z.boolean() }),
   permission: 'channels.manage',

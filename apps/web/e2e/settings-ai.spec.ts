@@ -102,6 +102,9 @@ test.describe('settings · AI', () => {
     await page.getByTestId('st-audit-reset').click();
     await expect(page.locator('[data-audit]')).toHaveCount(7);
     await page.getByTestId('st-nav-ai_audit').click();
+    // Chờ điều hướng xong (mục AI audit mount với bộ lọc riêng) — chọn lọc trên trang cũ thì mất khi trang mới mount.
+    await expect(page).toHaveURL(/\/settings\/ai_audit/);
+    await expect(page.getByTestId('st-ai-audit')).toBeVisible();
     await page.getByTestId('st-audit-status').selectOption('escalated');
     await expect(page.locator('[data-audit]')).toHaveCount(1);
   });

@@ -2,6 +2,8 @@
 // (`GET /v1/settings/ai` — FE `features/settings/types.ts` AiSettings), hàng "Trợ lý AI đang điều phối" (`GET /v1/runs` — FE Run).
 import { z } from 'zod';
 import { KB_ORIGINS, kbFolderSchema } from './kb-management';
+import { SCHEDULE_STATES, weeklyScheduleSchema } from './agent-channel-behavior';
+import { agentStatsSchema } from './insights';
 
 export const AI_TIERS = ['standard', 'advanced', 'max'] as const;
 export type AiTierKey = (typeof AI_TIERS)[number];
@@ -102,10 +104,15 @@ export const agentSchema = z.object({
   template_id: z.string().optional(),
   keywords: z.array(z.string()),
   working_hours: z.enum(['always', 'office', 'custom']),
+  /** TIP-022b: lịch tuần có cấu trúc (custom); `schedule_state = needs_configuration` = custom cũ chưa lưu lịch (cảnh báo, chặn xuất bản mới). */
+  weekly_schedule: weeklyScheduleSchema.nullable().optional(),
+  schedule_state: z.enum(SCHEDULE_STATES).optional(),
   status: z.enum(['draft', 'active', 'paused']),
   conversations: z.number().int(),
   resolve_rate: z.number(),
   csat: z.number(),
+  /** TIP-038: thống kê có nguồn (30 ngày) — `available: false` = chưa có dữ liệu / không quyền nguồn (khác 0 thật). */
+  stats: agentStatsSchema.optional(),
   persona: z.string(),
   version: z.number().int(),
   dirty: z.boolean().optional(),

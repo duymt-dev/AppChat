@@ -11,7 +11,7 @@ import { earnSnapshot } from '../../../loyalty/services/order-points';
 import { label, money } from './order-create.handlers.preview';
 
 async function flowOf(ctx: ActionContext, tx: TenantTx, id: string, action: string) {
-  const o = await visibleOrder(tx, ctx.authz, id);
+  const o = await visibleOrder(tx, ctx.authz, id, 'write');
   return { o, to: assertTransition(ORDER_FLOW, o.status, action), name: await label(tx, o) };
 }
 

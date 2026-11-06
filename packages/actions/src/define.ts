@@ -7,7 +7,7 @@ export type Permission = PermissionKey | 'platform_admin' | 'self';
 
 export type ModuleKey =
   | 'identity' | 'settings' | 'channels' | 'inbox' | 'crm' | 'catalog' | 'sales' | 'documents'
-  | 'booking' | 'support' | 'marketing' | 'loyalty' | 'ai' | 'billing' | 'integrations' | 'notifications';
+  | 'booking' | 'support' | 'marketing' | 'loyalty' | 'ai' | 'billing' | 'integrations' | 'notifications' | 'insights';
 
 export type UiCommand =
   | { type: 'navigate'; route: string }

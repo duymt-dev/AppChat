@@ -16,7 +16,7 @@ let manager: { id: string; token: string };
 let sales: { id: string; token: string };
 
 beforeAll(async () => {
-  h = await startApi();
+  h = await startApi({ probes: true });
   manager = await h.member('manager');
   sales = await h.member('sales');
   resolver = new TenantDbResolver({ registry: new PrismaWorkspaceRegistry(h.platform), baseUrl: env.TENANT_DATABASE_URL! });
@@ -115,7 +115,7 @@ describe('Chờ duyệt (AC2)', () => {
   it('Sửa & duyệt: input sửa gộp + kiểm schema; trạng thái edited (tab Đã duyệt); job chạy input đã sửa đúng một lần', async () => {
     const apId = await askDelete();
     const row = z.array(approvalRowSchema).parse((await get('/approvals?status=pending')).body.data).find((r) => r.id === apId)!;
-    expect(row.fields).toEqual([{ key: 'campaign_id', type: 'string', required: true }]);
+    expect(row.fields).toEqual([{ key: 'campaign_id', type: 'string', required: true }, { key: 'if_version', type: 'number', required: false }]);
     expect(row.input).toHaveProperty('campaign_id');
     expect((await act('approval.edit_and_approve', { approval_id: apId, edited_input: { campaign_id: '' } })).status).toBe(422);
     const target = await newTemplate();

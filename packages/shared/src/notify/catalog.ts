@@ -39,6 +39,8 @@ export const NOTIFY_KINDS = {
   sla_warn: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, false, true) },
   sla_breach: { group: 'msg', icon: 'ic-bell', tone: 'danger', defaults: ch(true, true, true) },
   ticket_assigned: { group: 'msg', icon: 'ic-users', tone: 'info', defaults: ch(true, false, true) },
+  // Marketing (TIP-037): chiến dịch chờ tôi duyệt / kết quả duyệt — gửi hàng loạt chặn chờ người duyệt → mặc định thêm email.
+  campaign_approval: { group: 'msg', icon: 'ic-mega', tone: 'warn', defaults: ch(true, true, true) },
   ai_review: { group: 'ai', icon: 'ic-spark', tone: 'teal', defaults: ch(true, false, false) },
   ai_escalate: { group: 'ai', icon: 'ic-bot', tone: 'warn', defaults: ch(true, true, true) },
   ai_budget: { group: 'ai', icon: 'ic-dollar', tone: 'danger', defaults: ch(false, true, false) },

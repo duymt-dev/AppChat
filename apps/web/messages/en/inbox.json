@@ -446,5 +446,46 @@
       "failed": "Could not create the group.",
       "unknown": "Outcome unknown — the group may already exist on Zalo. Check Zalo before trying again."
     }
+  },
+  "summary": {
+    "title": "Handoff summary",
+    "loading": "Loading summary…",
+    "error": "Could not load the summary.",
+    "retry": "Retry",
+    "unknown": "Customer request unclear",
+    "unresolved": "Unresolved: {text}",
+    "attachmentUnreadable": "{n} attachment(s) the AI could not read",
+    "status": {
+      "ok": "done",
+      "pending": "awaiting approval",
+      "denied": "blocked",
+      "error": "failed"
+    }
+  },
+  "intent": {
+    "hint": "Intent detected by AI on the latest turn",
+    "buy": "Wants to buy",
+    "question": "Question",
+    "complaint": "Complaint",
+    "booking": "Booking",
+    "other": "Other"
+  },
+  "providerOp": {
+    "recall": {
+      "pending": "Recalling on Zalo…",
+      "unknown": "Recall status on Zalo is unknown — check on the phone",
+      "failed": "Zalo could not recall this message",
+      "partial": "Partly recalled — some parts could not be recalled"
+    },
+    "react": {
+      "pending": "Sending reaction to Zalo…",
+      "unknown": "Unknown whether Zalo received the reaction",
+      "failed": "Zalo did not accept this reaction"
+    },
+    "send": {
+      "partial": "Only part of this message was sent — the rest did not reach the customer",
+      "unknown": "Unknown whether this message reached the customer — check on the phone before resending"
+    },
+    "accepted": "Sent to Zalo — waiting for confirmation"
   }
 }

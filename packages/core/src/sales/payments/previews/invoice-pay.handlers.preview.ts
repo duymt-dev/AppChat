@@ -12,7 +12,7 @@ export async function bankMatchPreview(ctx: ActionContext, tx: TenantTx, i: Acti
   const bt = UUID.test(i.bank_tx_id) ? await tx.bankTx.findUnique({ where: { id: i.bank_tx_id }, include: { feed: { select: { provider: true } } } }) : null;
   if (!bt) throw new AppError('NOT_FOUND', 404, { bank_tx_id: 'not_found' });
   if (bt.status !== 'needs_review') throw new AppError('INVALID_STATE', 409, { bank_tx_id: bt.status });
-  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id);
+  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id, 'write');
   if (!INVOICE_PAYABLE.includes(inv.status)) throw new AppError('INVALID_STATE', 409, { status: inv.status });
   if (bt.amount > inv.amount - inv.paidAmount) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
   const paid = inv.paidAmount + bt.amount;
@@ -27,7 +27,7 @@ export async function bankMatchPreview(ctx: ActionContext, tx: TenantTx, i: Acti
 /** Ghi nhận tay (risk money): mã + khách + số tiền; khoản thu mới + đã thu / trạng thái đề nghị trước / sau. Đề nghị đã đóng → 409, vượt còn
  * phải thu / ngày trả ở tương lai → 422 như execute. Không cấp mã phiếu thu. */
 export async function recordPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof invoiceRecordPayment>, now: Date, timeZone: string): Promise<ActionPreview> {
-  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id);
+  const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id, 'write');
   if (!INVOICE_PAYABLE.includes(inv.status)) throw new AppError('INVALID_STATE', 409, { status: inv.status });
   const amount = BigInt(i.amount);
   if (amount > inv.amount - inv.paidAmount) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });

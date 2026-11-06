@@ -1,165 +1,146 @@
-// Modal AI phân tích dữ liệu khách hàng — prototype L3568–3662: (1) đang phân tích → (2) bảng đề xuất (GET /campaign-suggestions) → (3) chi tiết.
-// "Tạo chiến dịch từ đề xuất" mở wizard với dữ liệu đề xuất (campaign.create kèm suggestion_id). Kênh chỉ Zalo cá nhân + Email.
+// Modal AI phân tích dữ liệu khách hàng — prototype L3568–3662: (1) đang phân tích (lượt thật — hooks/useCampaignAnalysis) → (2) bảng
+// gợi ý đã lưu (GET /campaign-suggestions) → (3) chi tiết. Số khách của gợi ý là số đếm thật theo bộ lọc đã kiểm (server), không do model
+// tự khai. "Tạo chiến dịch từ đề xuất" mở wizard (campaign.create kèm suggestion_id — tập khách = bộ lọc gợi ý). Không có dự báo giả.
 'use client';
-import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { App } from 'antd';
 import { Icon, color } from '@appchat/ui';
+import { useFmt } from '@/shared/i18n/useFmt';
+import { useCan } from '@/shared/authz/useCan';
 import { useAnalyzeStyles } from '../styles/analyze.styles';
 import { useMarketingUi } from '../marketing-store';
 import { suggestionsQuery } from '../api';
+import { useCampaignAnalysis } from '../hooks/useCampaignAnalysis';
 import type { MarketingMeta, Suggestion } from '../types';
+import { segmentSummary } from '../segment-summary';
 
-const LOADING_MS = 900;
-const PRI: Record<Suggestion['priority'], [string, string]> = {
-  high: [color.hotText, color.dangerSoftBg],
-  medium: [color.amberText, color.alertBg],
+const COLS = ['kind', 'name', 'segment', 'count', 'reason', 'channel', 'when'] as const;
+/** Màu nhãn loại gợi ý (cùng bảng màu panel AI). */
+const KIND_TONE: Record<string, [string, string]> = {
+  reactivation: [color.hotText, color.dangerSoftBg],
+  upsell: [color.hotText, color.dangerSoftBg],
+  conversion: [color.amberText, color.alertBg],
+  aftercare: [color.amberText, color.alertBg],
 };
-const SIDE_ACTIONS = ['viewList', 'adjust', 'exclude'] as const;
-const COLS = ['priority', 'name', 'segment', 'count', 'reason', 'channel', 'when'] as const;
 
-function useChanLabel() {
+function SuggestionList({ rows, onRerun, busy }: { rows: Suggestion[]; onRerun: () => void; busy: boolean }) {
   const t = useTranslations('marketing');
-  return (s: Suggestion) => s.channels.map((c) => t(`chan.${c}`)).join(t('an.and'));
-}
-
-function SuggestionList({ rows }: { rows: Suggestion[] }) {
-  const t = useTranslations('marketing.an');
+  const fmt = useFmt();
   const { styles } = useAnalyzeStyles();
   const set = useMarketingUi((s) => s.set);
-  const chan = useChanLabel();
+  const canRun = useCan('campaign.manage');
   return (
     <div className={styles.body}>
-      <div className={styles.intro}>{t.rich('intro', { n: rows.length, b: (c) => <b>{c}</b> })}</div>
+      <div className={styles.intro}>{rows.length ? t.rich('an.intro', { n: rows.length, b: (c) => <b>{c}</b> }) : t('an.none')}</div>
       <div className={styles.table} data-testid="mk-an-table">
         <div className={styles.thead}>
           {COLS.map((k) => (
-            <span key={k}>{t(`col.${k}`)}</span>
+            <span key={k}>{t(`an.col.${k}`)}</span>
           ))}
         </div>
         {rows.map((s) => (
           <div key={s.id} className={styles.row} onClick={() => set({ analyze: 'detail', pick: s.id })} data-suggestion={s.id}>
             <span>
-              <span className={styles.pri} style={{ color: PRI[s.priority][0], background: PRI[s.priority][1] }}>
-                {t(`priority.${s.priority}`)}
+              <span className={styles.pri} style={{ color: (KIND_TONE[s.kind] ?? KIND_TONE.conversion!)[0], background: (KIND_TONE[s.kind] ?? KIND_TONE.conversion!)[1] }}>
+                {t(`an.kind.${s.kind}`)}
               </span>
             </span>
             <span className={styles.b}>
-              {s.name}
-              {s.used ? <span className={styles.used}>{t('used')}</span> : null}
+              {s.title}
+              {s.status === 'used' ? <span className={styles.used}>{t('an.used')}</span> : null}
             </span>
-            <span className={styles.soft}>{s.segment}</span>
-            <span className={styles.mono}>{s.count.toLocaleString('vi-VN')}</span>
+            <span className={styles.soft}>{segmentSummary(s.filter, t, (v) => fmt.money(v))}</span>
+            <span className={styles.mono}>{fmt.number(s.est_count)}</span>
             <span className={styles.why}>{s.reason}</span>
-            <span className={styles.soft}>{chan(s)}</span>
-            <span className={styles.soft}>{s.when}</span>
+            <span className={styles.soft}>{t(`chan.${s.channel}`)}</span>
+            <span className={styles.soft}>{s.best_time ?? t('an.anyTime')}</span>
           </div>
         ))}
       </div>
       <div className={styles.actions}>
-        <button type="button" className={styles.ghost} onClick={() => set({ analyze: 'loading' })} data-testid="mk-an-rerun">
-          <Icon name="ic-spark" size={14} color={color.text3} strokeWidth={2} />
-          {t('rerun')}
-        </button>
+        {canRun ? (
+          <button type="button" className={styles.ghost} disabled={busy} onClick={onRerun} data-testid="mk-an-rerun">
+            <Icon name="ic-spark" size={14} color={color.text3} strokeWidth={2} />
+            {rows.length ? t('an.rerun') : t('an.run')}
+          </button>
+        ) : null}
         <span className={styles.grow} />
-        <span className={styles.muted}>{t('pickHint')}</span>
+        <span className={styles.muted}>{t('an.pickHint')}</span>
       </div>
     </div>
   );
 }
 
 function SuggestionDetail({ s }: { s: Suggestion }) {
-  const t = useTranslations('marketing.an');
+  const t = useTranslations('marketing');
+  const fmt = useFmt();
   const { styles } = useAnalyzeStyles();
-  const { message } = App.useApp();
   const set = useMarketingUi((st) => st.set);
-  const chan = useChanLabel();
+  const canCreate = useCan('campaign.manage');
   const info: [string, string][] = [
-    ['type', s.type],
-    ['audience', s.audience],
-    ['count', t('countV', { n: s.count.toLocaleString('vi-VN') })],
-    ['channel', chan(s)],
-    ['time', s.time],
-    ['message', s.message],
-    ['priority', t(`priority.${s.priority}`)],
+    ['type', t(`an.kind.${s.kind}`)],
+    ['count', t('an.countV', { n: fmt.number(s.est_count) })],
+    ['channel', t(`chan.${s.channel}`)],
+    ['time', s.best_time ?? t('an.anyTime')],
+    ['message', s.subject || s.body.slice(0, 80)],
+    ['cta', s.cta || '—'],
   ];
   return (
     <div className={styles.body} data-testid="mk-an-detail">
       <button type="button" className={styles.back} onClick={() => set({ analyze: 'list', pick: null })}>
-        {t('back')}
+        {t('an.back')}
       </button>
       <div className={styles.pitch}>
         <div className={styles.pitchH}>
           <Icon name="ic-spark" size={15} color={color.brandInk} strokeWidth={2} />
-          {t('pitch')}
+          {s.title}
         </div>
-        <div className={styles.pitchT}>{s.pitch}</div>
+        <div className={styles.pitchT}>{s.reason}</div>
       </div>
       <div className={styles.two}>
         <div className={styles.info}>
-          <div className={styles.infoH}>{t('info')}</div>
+          <div className={styles.infoH}>{t('an.info')}</div>
           {info.map(([k, v]) => (
             <div key={k} className={styles.kv}>
-              <span>{t(`k.${k}`)}</span>
+              <span>{t(`an.k.${k}`)}</span>
               <span>{v}</span>
             </div>
           ))}
         </div>
         <div className={styles.side}>
           <div className={styles.box2}>
-            <div className={styles.boxL}>{t('forecast')}</div>
-            <div className={styles.fc}>{s.forecast}</div>
-            <div className={styles.note}>{s.note}</div>
+            <div className={styles.boxL}>{t('an.bodyL')}</div>
+            <div className={styles.note}>{s.body}</div>
           </div>
           <div className={styles.box2}>
-            <div className={styles.boxL}>{t('signals')}</div>
-            <div className={styles.tags}>
-              {s.signals.map((g) => (
-                <span key={g} className={styles.tag}>
-                  {g}
-                </span>
-              ))}
-            </div>
+            <div className={styles.boxL}>{t('an.generated')}</div>
+            <div className={styles.note}>{`${fmt.date(s.generated_at)} · ${fmt.time(s.generated_at)}`}</div>
           </div>
         </div>
       </div>
       <div className={styles.dFoot}>
-        <button
-          type="button"
-          className={styles.primary}
-          onClick={() => set({ analyze: null, wizard: true, fromSuggestion: s.id, prefill: null })}
-          data-testid="mk-an-create"
-        >
-          <Icon name="ic-plus" size={15} color={color.white} strokeWidth={2.2} />
-          {t('createFrom')}
-        </button>
-        {SIDE_ACTIONS.map((k) => (
-          <button key={k} type="button" className={styles.ghost} onClick={() => void message.info(t(k))}>
-            {t(k)}
+        {canCreate ? (
+          <button type="button" className={styles.primary} onClick={() => set({ analyze: null, wizard: true, fromSuggestion: s.id, prefill: null })} data-testid="mk-an-create">
+            <Icon name="ic-plus" size={15} color={color.white} strokeWidth={2.2} />
+            {t('an.createFrom')}
           </button>
-        ))}
+        ) : null}
       </div>
     </div>
   );
 }
 
 export function AnalyzeModal({ meta }: { meta: MarketingMeta }) {
-  const t = useTranslations('marketing.an');
+  const t = useTranslations('marketing');
   const { styles } = useAnalyzeStyles();
   const stage = useMarketingUi((s) => s.analyze);
   const pick = useMarketingUi((s) => s.pick);
   const set = useMarketingUi((s) => s.set);
-  const rows = useQuery({ ...suggestionsQuery(), enabled: stage !== null }).data?.data ?? [];
-  // Giai đoạn "đang phân tích" giữ ~1s rồi sang bảng đề xuất (mock không gọi LLM).
-  useEffect(() => {
-    if (stage !== 'loading') return;
-    const h = setTimeout(() => set({ analyze: 'list' }), LOADING_MS);
-    return () => clearTimeout(h);
-  }, [stage, set]);
+  const a = useCampaignAnalysis();
+  const rows = useQuery({ ...suggestionsQuery(), enabled: stage !== null }).data ?? [];
   if (!stage) return null;
   const s = rows.find((r) => r.id === pick);
-  const sub = stage === 'loading' ? t('subLoading') : stage === 'list' ? t('subList', { n: rows.length }) : t('subDetail');
+  const sub = stage === 'running' ? t('an.subLoading') : stage === 'list' ? t('an.subList', { n: rows.length }) : t('an.subDetail');
   const close = () => set({ analyze: null, pick: null });
   return (
     <div className={styles.veil} onClick={close} data-testid="mk-analyze-modal">
@@ -169,18 +150,18 @@ export function AnalyzeModal({ meta }: { meta: MarketingMeta }) {
             <Icon name="ic-spark" size={18} color={color.sparkMint} strokeWidth={1.9} />
           </span>
           <div className={styles.grow}>
-            <div className={styles.hT}>{t('title')}</div>
+            <div className={styles.hT}>{t('an.title')}</div>
             <div className={styles.hS}>{sub}</div>
           </div>
-          <button type="button" className={styles.x} onClick={close} aria-label={t('close')}>
+          <button type="button" className={styles.x} onClick={close} aria-label={t('an.close')}>
             <Icon name="ic-x" size={18} color={color.text3} />
           </button>
         </div>
-        {stage === 'loading' ? (
-          <div className={styles.loading}>
+        {stage === 'running' ? (
+          <div className={styles.loading} data-testid="mk-an-running">
             <div className={styles.spinRow}>
-              <span className={styles.spinner} />
-              {t('loading')}
+              {a.failed ? null : <span className={styles.spinner} />}
+              {a.failed ? t('an.failed') : t('an.loading')}
             </div>
             <div className={styles.signals}>
               {meta.signals.map((g) => (
@@ -188,13 +169,18 @@ export function AnalyzeModal({ meta }: { meta: MarketingMeta }) {
                   <span className={styles.sigOk}>
                     <Icon name="ic-check" size={11} color={color.brand} strokeWidth={3} />
                   </span>
-                  {g}
+                  {t(`an.signal.${g}`)}
                 </div>
               ))}
             </div>
+            {a.failed ? (
+              <button type="button" className={styles.ghost} onClick={() => set({ analyze: 'list', runId: null })} data-testid="mk-an-back">
+                {t('an.back')}
+              </button>
+            ) : null}
           </div>
         ) : null}
-        {stage === 'list' ? <SuggestionList rows={rows} /> : null}
+        {stage === 'list' ? <SuggestionList rows={rows} onRerun={() => void a.start()} busy={a.starting} /> : null}
         {stage === 'detail' && s ? <SuggestionDetail s={s} /> : null}
       </div>
     </div>

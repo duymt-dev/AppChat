@@ -141,7 +141,7 @@ export class AgentRollbackHandler implements Handler<ActionInput<typeof agentRol
     const v = await tx.aiAgentVersion.findUnique({ where: { agentId_version: { agentId: a.id, version: input.version } } });
     if (!v) throw new AppError('NOT_FOUND', 404, { version: 'not_found' });
     const cfg = merge(blankConfig(), v.config as Partial<AgentConfig>);
-    const { version } = await publishDraft(tx, a, userOf(ctx), `↩ v${input.version}`, this.clock.now(), cfg);
+    const { version } = await publishDraft(tx, a, userOf(ctx), `↩ v${input.version}`, this.clock.now(), cfg, true);
     return { result: { agent_id: a.id, version }, after: { id: a.id, version, from: input.version }, events: [{ topic: 'agent.published', payload: agentEvent(a, version, 'active') }] };
   }
 

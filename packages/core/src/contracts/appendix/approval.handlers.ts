@@ -81,7 +81,7 @@ export class ContractAppendixApproveAndSignHandler implements Handler<SignIn, St
   async prepare(ctx: ActionContext, input: SignIn): Promise<Prepared> {
     if (!SIGNATURE_PNG.test(input.signature_png)) throw new AppError('VALIDATION_FAILED', 422, { signature_png: 'invalid' });
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'contract.appendix_approve_and_sign'));
-    const { a, c } = await db.$transaction((tx) => visibleAppendix(tx, ctx.authz, input.appendix_id));
+    const { a, c } = await db.$transaction((tx) => visibleAppendix(tx, ctx.authz, input.appendix_id, 'write'));
     assertTransition(APPENDIX_FLOW, a.status, 'contract.appendix_approve_and_sign');
     if (a.version !== input.if_version) throw new AppError('CONFLICT', 409, { version: String(a.version) });
     await this.checkOtp(db, a.id, a.version, input.otp);
@@ -127,7 +127,7 @@ export class ContractAppendixApproveAndSignHandler implements Handler<SignIn, St
   }
 
   async preview(ctx: ActionContext, input: SignIn, tx: TenantTx) {
-    const { a } = await visibleAppendix(tx, ctx.authz, input.appendix_id);
+    const { a } = await visibleAppendix(tx, ctx.authz, input.appendix_id, 'write');
     const to = assertTransition(APPENDIX_FLOW, a.status, 'contract.appendix_approve_and_sign');
     return preview('money', line(a.code, a.title), { changes: updated('appendix', a.id, { status: a.status }, { status: to, signed_by: 'business' }), warnings: ['e_signature:otp_email'] });
   }

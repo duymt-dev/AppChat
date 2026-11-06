@@ -59,11 +59,12 @@ test.describe('settings', () => {
     await expect(page.locator('[data-member]')).toHaveCount(6);
   });
 
-  test('vai trò: 5 vai trò hệ thống chỉ đọc (D27), ma trận đúng ROLE_DEFS', async ({ page }) => {
+  test('vai trò: 5 vai trò hệ thống chỉ đọc (D27), ma trận đúng ROLE_DEFS; Chủ sở hữu tạo được vai trò tuỳ biến (TIP-042)', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(go('roles'));
     await expect(page.locator('[data-role]')).toHaveCount(5);
-    await expect(page.getByTestId('st-role-new')).toBeDisabled();
+    await expect(page.locator('[data-role="manager"] [data-testid="st-role-edit"]')).toHaveCount(0);
+    await expect(page.getByTestId('st-role-new')).toBeEnabled();
     const row = page.locator('[data-perm="billing.manage"]');
     await expect(row.locator('[data-yes="1"]')).toHaveCount(1);
     await expect(page.locator('[data-perm="inbox.view"] [data-yes="0"]')).toHaveCount(1);

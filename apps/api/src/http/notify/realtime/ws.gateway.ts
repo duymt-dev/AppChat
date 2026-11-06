@@ -18,8 +18,8 @@ import {
   RT_EVENT,
   WS_NAMESPACE,
   WorkspacesService,
-  allowedFor,
   conversationGuard,
+  filterRecipients,
   rooms,
   type AppLogger,
   type RealtimeEnvelope,
@@ -162,10 +162,10 @@ export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicatio
       }
     }
     const ids = new Set(env.rooms.flatMap((r) => [...(nsp.adapter.rooms.get(r) ?? [])]));
-    for (const id of ids) {
-      const s = nsp.sockets.get(id);
-      if (s && allowedFor(who(s), env)) s.emit(env.event, env.data);
-    }
+    const socks = [...ids].map((id) => nsp.sockets.get(id)).filter((s): s is Socket => !!s);
+    // TIP-042c: policy đọc chung + quan hệ khách hiện tại (tra một lần mỗi envelope).
+    const ok = await filterRecipients(socks.map((s) => ({ ...who(s), s })), env);
+    for (const x of ok) x.s.emit(env.event, env.data);
   }
 
   beforeApplicationShutdown(): void {

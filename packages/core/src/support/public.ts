@@ -3,3 +3,5 @@ export { TicketsReadService, type TicketViewer, type TicketFilter } from './serv
 export { SlaCalendar, defaultPolicy, DEFAULT_SLA_POLICY_ID } from './services/sla-clock';
 export { sweepSla, onCustomerMessage, onAgentReply } from './services/support-system';
 export { sweepSupport, supportConsumer, SLA_SWEEP_JOB, SUPPORT_SCHEDULER_QUEUE } from './jobs/support.jobs.module';
+// TIP-022b: consumer khiếu nại từ lượt agent (test / worker ROLE=jobs).
+export { aiComplaintConsumer, AI_COMPLAINT_CONSUMER } from './events/ai-complaint.consumer';

@@ -1,17 +1,21 @@
 // Dựng API thật trên Postgres 16 + Memurai cho integration (TIP-003+): workspace thật ở DB nền tảng (registry Prisma —
 // TIP-004), DB tenant provision từ template, user + membership owner, access JWT thật. Mail = console (bộ nhớ).
-// Handler test (`campaign.create` / `campaign.delete` / `campaign.submit`) ghi vào bảng kernel `notification` — chỉ để thử executor
-// (preview / undo / outbox); handler thật thuộc TIP-037 (trước đây dùng `tag.*`, `doc_template.*`, `contract.delete` — TIP-016 / 028 /
-// 030 đã cài thật). `campaign.delete` (risk delete → task cần duyệt) không có undo trong registry → thử undo qua `campaign.submit`.
+// Handler thử (`campaign.create` / `campaign.delete` / `campaign.submit`) ghi vào bảng kernel `notification` — chỉ để thử executor
+// (preview / undo / outbox). TIP-037 đã cài handler thật → harness bật `probes` THAY provider thật bằng lớp thử (overrideProvider, không
+// đăng ký thêm — registry cấm trùng id); file test marketing chạy handler thật (không bật). `campaign.delete` (risk delete → task cần
+// duyệt) không có undo trong registry → thử undo qua `campaign.submit`.
 import 'reflect-metadata';
 import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { Injectable, Module, type INestApplication } from '@nestjs/common';
+import { Injectable, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import {
   AccessTokens,
   ActionHandler,
+  CampaignCreateHandler,
+  CampaignDeleteHandler,
+  CampaignSubmitHandler,
   CLOCK,
   FixedClock,
   LOGGER,
@@ -118,8 +122,12 @@ export class TestTagSubmit {
   undo = restoreProbe;
 }
 
-@Module({ providers: [TestTagCreate, TestTagDelete, TestTagSubmit] })
-class TestHandlersModule {}
+/** Handler thật → lớp thử (bật bằng `startApi({ probes: true })`). */
+const PROBES = [
+  [CampaignCreateHandler, TestTagCreate],
+  [CampaignDeleteHandler, TestTagDelete],
+  [CampaignSubmitHandler, TestTagSubmit],
+] as const;
 
 export interface Harness {
   app: INestApplication;
@@ -175,7 +183,7 @@ export async function cleanupPlatform(platform: PlatformDb, users: string[], wor
 /** Ngưỡng nới cho bộ test nghiệp vụ (mỗi file dồn hàng trăm lệnh của một user); `realRateLimits` dùng ngưỡng thật (TIP-045b AC). */
 const RELAXED_RATE = { read: { name: 'api:read', limit: 100_000, windowMs: 60_000 }, action: { name: 'api:action', limit: 100_000, windowMs: 60_000 }, public: { name: 'api:public', limit: 100_000, windowMs: 60_000 } };
 
-export async function startApi(opts: { logSink?: NodeJS.WritableStream; realRateLimits?: boolean } = {}): Promise<Harness> {
+export async function startApi(opts: { logSink?: NodeJS.WritableStream; realRateLimits?: boolean; probes?: boolean } = {}): Promise<Harness> {
   const clock = new FixedClock('2026-10-30T08:00:00.000Z');
   const mail = new MemoryMailProvider();
   const log = opts.logSink ? createLogger({ level: 'info', destination: opts.logSink }) : createLogger({ level: 'silent' });
@@ -191,7 +199,9 @@ export async function startApi(opts: { logSink?: NodeJS.WritableStream; realRate
   await platform.workspace.create({ data: { id: ws, name: 'WS test', slug: `ws-test-${ws.slice(-12)}`, ownerUserId: user, dbName, dbStatus: 'active' } });
   await platform.membership.create({ data: { workspaceId: ws, userId: user, roleKey: 'owner', joinedAt: clock.now() } });
 
-  const mod = await Test.createTestingModule({ imports: [AppModule.forRoot(env), TestHandlersModule] })
+  let builder = Test.createTestingModule({ imports: [AppModule.forRoot(env)] });
+  if (opts.probes) for (const [real, probe] of PROBES) builder = builder.overrideProvider(real).useClass(probe);
+  const mod = await builder
     .overrideProvider(CLOCK)
     .useValue(clock)
     .overrideProvider(LOGGER)

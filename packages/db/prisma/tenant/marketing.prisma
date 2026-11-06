@@ -1,3 +1,175 @@
 // tenant/marketing.prisma — sở hữu: TIP-037 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: Blueprint §2.2 marketing.
-// Stub TIP-001. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng: Blueprint §2.2 marketing — segment, campaign (+ nguồn người nhận chọn tay / nhập file), campaign_recipient (snapshot người nhận
+// lúc gửi duyệt + kết quả gửi theo bằng chứng), campaign_contact_touch (khoá 48 giờ giữa MỌI chiến dịch theo khách), campaign_event
+// (lịch sử append-only), campaign_suggestion (gợi ý AI), campaign_audience_batch (lô nhập danh sách). Không Prisma relation xuyên
+// domain (Blueprint §2.1); FK / CHECK / partial index / INCLUDE viết tay ở migration 20261102003700.
+
+/// Phân khúc động: `filter` là AST đóng (`@appchat/shared` segment-filter) — đánh giá lúc xem trước / gửi duyệt, không lưu danh sách.
+model Segment {
+  id              String    @id @db.Uuid
+  name            String
+  filter          Json
+  isDynamic       Boolean   @default(true) @map("is_dynamic")
+  lastCount       Int       @default(0) @map("last_count")
+  version         Int       @default(1)
+  createdByUserId String?   @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("segment")
+}
+
+/// Chiến dịch. Sau duyệt nội dung + người nhận + tài khoản gửi khoá theo `approved_version` / `content_hash` / `recipient_snapshot_hash`.
+model Campaign {
+  id                    String    @id @db.Uuid
+  code                  String    @unique
+  name                  String
+  kind                  String    @default("manual")
+  channel               String
+  /// Tài khoản gửi cụ thể (channel_account) — chốt trong snapshot đã duyệt, không tự đổi sau duyệt.
+  accountId             String?   @map("account_id") @db.Uuid
+  segmentIds            String[]  @default([]) @map("segment_ids") @db.Uuid
+  content               Json
+  ab                    Json?
+  sendMode              String    @default("now") @map("send_mode")
+  status                String    @default("draft")
+  scheduledAt           DateTime? @map("scheduled_at") @db.Timestamptz(6)
+  submittedAt           DateTime? @map("submitted_at") @db.Timestamptz(6)
+  submittedByUserId     String?   @map("submitted_by_user_id") @db.Uuid
+  approvedByUserId      String?   @map("approved_by_user_id") @db.Uuid
+  approvedAt            DateTime? @map("approved_at") @db.Timestamptz(6)
+  approvedVersion       Int?      @map("approved_version")
+  contentHash           String?   @map("content_hash")
+  recipientSnapshotHash String?   @map("recipient_snapshot_hash")
+  startedAt             DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt           DateTime? @map("completed_at") @db.Timestamptz(6)
+  rejectReason          String?   @map("reject_reason")
+  estRecipients         Int       @default(0) @map("est_recipients")
+  estCredits            Int       @default(0) @map("est_credits")
+  stats                 Json      @default("{}")
+  suggestionId          String?   @map("suggestion_id") @db.Uuid
+  version               Int       @default(1)
+  createdByUserId       String?   @map("created_by_user_id") @db.Uuid
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt             DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("campaign")
+}
+
+/// Người nhận chọn tay / nhập file của bản nháp (hợp với phân khúc lúc gửi duyệt, khử trùng theo khách).
+model CampaignAudience {
+  campaignId String   @map("campaign_id") @db.Uuid
+  contactId  String   @map("contact_id") @db.Uuid
+  /// manual | import
+  source     String   @default("manual")
+  batchId    String?  @map("batch_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([campaignId, contactId])
+  @@map("campaign_audience")
+}
+
+/// Snapshot người nhận (tạo lúc gửi duyệt) + kết quả gửi. `outcome` tách khỏi `status`: unknown = đã gọi kênh mà chưa rõ tới khách.
+model CampaignRecipient {
+  id             String    @id @db.Uuid
+  campaignId     String    @map("campaign_id") @db.Uuid
+  contactId      String    @map("contact_id") @db.Uuid
+  /// pending | skipped | sent | failed | replied | converted
+  status         String    @default("pending")
+  skipReason     String?   @map("skip_reason")
+  /// accepted | unknown | failed — chỉ từ kết quả kênh.
+  outcome        String?
+  variant        String    @default("a")
+  identityId     String?   @map("identity_id") @db.Uuid
+  conversationId String?   @map("conversation_id") @db.Uuid
+  endpoint       String    @default("")
+  /// Mã tham chiếu gửi ổn định (`cr_<id>`) — job id + sổ cap; không đổi khi chạy lại.
+  deliveryRef    String    @unique @map("delivery_ref")
+  externalMsgId  String?   @map("external_msg_id")
+  claimFence     Int       @default(0) @map("claim_fence")
+  claimedAt      DateTime? @map("claimed_at") @db.Timestamptz(6)
+  /// Sổ gửi một phần (TIP-037): none → reserved (đã gọi kênh) → confirmed | unknown | failed — chạy lại job không gửi mù lần hai.
+  sendState      String    @default("none") @map("send_state")
+  attemptedAt    DateTime? @map("attempted_at") @db.Timestamptz(6)
+  attempts       Int       @default(0)
+  error          String?
+  sentAt         DateTime? @map("sent_at") @db.Timestamptz(6)
+  readAt         DateTime? @map("read_at") @db.Timestamptz(6)
+  repliedAt      DateTime? @map("replied_at") @db.Timestamptz(6)
+  convertedAt    DateTime? @map("converted_at") @db.Timestamptz(6)
+  orderId        String?   @map("order_id") @db.Uuid
+  revenue        BigInt    @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([campaignId, contactId])
+  @@map("campaign_recipient")
+}
+
+/// Khoá 48 giờ theo khách giữa MỌI chiến dịch: giữ chỗ (reserved) trước khi gọi kênh, chốt (sent) khi kênh nhận / chưa rõ, xoá khi lỗi
+/// chắc chắn chưa gửi. Hai chiến dịch tranh cùng khách → một thắng (khoá dòng).
+model CampaignContactTouch {
+  contactId   String   @id @map("contact_id") @db.Uuid
+  campaignId  String   @map("campaign_id") @db.Uuid
+  recipientId String   @map("recipient_id") @db.Uuid
+  /// reserved | sent
+  state       String   @default("reserved")
+  touchedAt   DateTime @map("touched_at") @db.Timestamptz(6)
+
+  @@map("campaign_contact_touch")
+}
+
+/// Lịch sử chiến dịch — append-only (tạo, gửi duyệt, duyệt, từ chối, bắt đầu, tạm dừng, tiếp tục, huỷ, hoàn tất, sửa).
+model CampaignEvent {
+  id          String   @id @db.Uuid
+  campaignId  String   @map("campaign_id") @db.Uuid
+  kind        String
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  actorName   String   @default("") @map("actor_name")
+  detail      Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("campaign_event")
+}
+
+/// Gợi ý chiến dịch do AI phân tích CDP (4 loại) — lưu qua action tin cậy, đọc ở /campaign-suggestions.
+model CampaignSuggestion {
+  id            String   @id @db.Uuid
+  kind          String
+  title         String
+  reason        String
+  segmentFilter Json     @map("segment_filter")
+  estCount      Int      @default(0) @map("est_count")
+  bestTime      String?  @map("best_time")
+  channel       String   @default("zalo")
+  subject       String   @default("")
+  body          String   @default("")
+  cta           String   @default("")
+  /// new | used | dismissed
+  status        String   @default("new")
+  runId         String?  @map("run_id") @db.Uuid
+  generatedAt   DateTime @default(now()) @map("generated_at") @db.Timestamptz(6)
+
+  @@map("campaign_suggestion")
+}
+
+/// Lô nhập danh sách người nhận (Excel / CSV): đếm hợp lệ / lỗi / trùng / đã huỷ nhận + lỗi từng dòng (tối đa 200 dòng lỗi lưu lại).
+model CampaignAudienceBatch {
+  id              String   @id @db.Uuid
+  campaignId      String?  @map("campaign_id") @db.Uuid
+  fileId          String   @map("file_id") @db.Uuid
+  rows            Int      @default(0)
+  valid           Int      @default(0)
+  invalid         Int      @default(0)
+  duplicate       Int      @default(0)
+  optedOut        Int      @default(0) @map("opted_out")
+  created         Int      @default(0)
+  errors          Json     @default("[]")
+  contactIds      String[] @default([]) @map("contact_ids") @db.Uuid
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("campaign_audience_batch")
+}

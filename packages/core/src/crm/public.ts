@@ -2,6 +2,7 @@
 export { CrmReadService, type Viewer as CrmViewer } from './services/crm-read.service';
 export { CrmMembers } from './services/members.service';
 export { ContactIdentityService, type InboundIdentity, type ResolvedContact } from './services/identity.service';
+export type { IdentityMatch } from './services/identity-match';
 export { scopeSql as crmScopeSql, visibleContact, editableContact, actorUserId } from './services/access';
 export { writeTimeline, type TimelineInput } from './services/timeline.service';
 export { applyStageRule, type StageRule } from './services/stage-rules';
@@ -15,3 +16,7 @@ export { recentFacts } from './memory/read';
 // Việc dữ liệu nặng của crm (TIP-045b annex D) — worker đăng ký qua CrmJobsModule; test dựng runner trực tiếp.
 export { registerContactExportKind, CONTACT_EXPORT_KIND } from './jobs/contact-export.processor';
 export { CONTACT_BULK_KIND } from './actions/contact-bulk.handler';
+// Chia lead mới (TIP-042b): đọc cấu hình cho controller Cài đặt; consumer + actor system cho test.
+export { LeadRoutingReadService } from './routing/routing-read.service';
+export { LEAD_ROUTING_CONSUMER, leadRoutingConsumer, leadRoutingCtx } from './routing/routing-consumer';
+export { LEAD_ROUTING_ACTOR, LEAD_ROUTING_TOPIC } from './routing/routing-apply.handler';

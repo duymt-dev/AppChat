@@ -4,7 +4,7 @@
 //                                    executor trả preview + confirm_token → `needs_confirmation` → run dừng, FE hiện thẻ xác nhận.
 //   ui(command)                    — UiCommand (zod) → sự kiện `ui_command` (kết quả tool, turn.service đọc lại từ bước run).
 //   plan(steps) / update_step      — `ai_run.plan` (thẻ kế hoạch).
-//   query_data(metric, params)     — NOT_IMPLEMENTED tới TIP-038 (`insight.query`).
+//   query_data(metric, params)     — = call_action `insight.query` (TIP-038): metric allowlist, chỉ đọc, qua ActionExecutor với quyền người dùng.
 //   delegate(role|agent_id, task)  — run con `delegate` (delegate.ts).
 //   render(tree)                   — cây GenUI (genui/render.ts — TIP-023c): khối đóng, số liệu chỉ `$ref`, nút / form qua intent.
 // Chế độ Chat: find_actions (chỉ read) + call_action (chỉ read) + query_data + ui. Cowork: đủ.
@@ -12,7 +12,7 @@ import { registry } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import { toJson } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AGENT_FIELD_ROLE, AppError, serverMessages, uiCommandSchema } from '@appchat/shared';
+import { AGENT_FIELD_ROLE, AppError, INSIGHT_LIMITS, METRIC_KEYS, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
@@ -31,6 +31,11 @@ export const ASSISTANT_TOOLS = { find: 'find_actions', call: 'call_action', ui: 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
 const ok = (output: unknown): ToolOutcome => ({ kind: 'ok', output });
 const err = (code: string, message: string): ToolOutcome => ({ kind: 'error', code, message });
+/** Input `query_data` → input `insight.query` (chỉ hai khoá — khoá lạ của model không đi tiếp). */
+const queryInput = (raw: unknown) => {
+  const i = (raw ?? {}) as { metric?: unknown; params?: unknown };
+  return { metric: i.metric, ...(i.params && typeof i.params === 'object' ? { params: i.params } : {}) };
+};
 const STEP_STATUS = ['pending', 'running', 'done', 'failed', 'skipped'] as const;
 /** Vai trò cho trường tuỳ biến (FieldPolicy — TIP-045b annex C): Owner `owner`; còn lại vai trò membership hiện tại của người ra lệnh
  *  (authz.roleKey → t.role); không có → `agent` (chỉ trường AI không giới hạn vai trò). */
@@ -66,7 +71,7 @@ function forbiddenMessage(d: MetaDeps, t: AssistantTurnCtx, actionId: unknown): 
   return `Không gọi được action ${id} (không tồn tại hoặc ngoài quyền)${hint}`;
 }
 
-async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number, toolCallId: string): Promise<ToolOutcome> {
+async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number, toolCallId: string, maxRows?: number): Promise<ToolOutcome> {
   const i = (raw ?? {}) as { action_id?: unknown; input?: unknown };
   const def = typeof i.action_id === 'string' ? DEFS.get(i.action_id) : undefined;
   // Action chưa có handler thật: chặn trước executor, như action không tồn tại (không lộ cho model — TIP-023b R1.2).
@@ -83,7 +88,7 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
     if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
     // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
     const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
-    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), stripSecrets(def, input));
+    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), stripSecrets(def, input), maxRows);
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
@@ -105,7 +110,6 @@ async function savePlan(db: TenantDb, runId: string, change: (steps: { id: strin
 }
 
 export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
-  const m = serverMessages(t.locale).ai.assistant;
   const tools: ToolSpec[] = [
     {
       name: ASSISTANT_TOOLS.find,
@@ -138,10 +142,11 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
     },
     {
       name: ASSISTANT_TOOLS.query,
-      description: 'Query a predefined business metric (read-only).',
-      inputSchema: { type: 'object', properties: { metric: { type: 'string' }, params: { type: 'object' } }, required: ['metric'] },
+      description: `${DEFS.get('insight.query')?.description ?? 'Query a predefined business metric (read-only).'} Returns rows + sources; render a chart with $ref to rows.`,
+      inputSchema: { type: 'object', properties: { metric: { type: 'string', enum: [...METRIC_KEYS] }, params: { type: 'object' } }, required: ['metric'] },
       origin: 'meta',
-      execute: async () => err('NOT_IMPLEMENTED', m.queryData),
+      // Cùng đường call_action (executor, quyền người dùng / Cowork ∩ agent, log nối run) — không SQL, không bỏ actor.
+      execute: (input, meta) => callAction(d, t, { action_id: 'insight.query', input: queryInput(input) }, meta.stepIdx, meta.toolCallId, INSIGHT_LIMITS.maxRows),
     },
     renderTool({ db: d.db, implemented: implementedBy(d.executor) }, t),
   ];

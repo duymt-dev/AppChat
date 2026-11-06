@@ -5,6 +5,7 @@ import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import {
   CLOCK,
+  InsightsReadService,
   PLATFORM_DB,
   TENANT_RESOLVER,
   agentTools,
@@ -18,6 +19,8 @@ import {
   listApprovals,
   listTemplates,
   readGovernance,
+  readHandoffSummary,
+  channelBindingPreview,
   visibleConversation,
   type Clock,
 } from '@appchat/core';
@@ -32,6 +35,7 @@ export class AgentsController {
     @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver,
     @Inject(PLATFORM_DB) private readonly platform: PlatformDb,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(InsightsReadService) private readonly insights: InsightsReadService,
   ) {}
 
   /** Người gọi phải có ít nhất một permission trong `perms` (Owner luôn được). */
@@ -47,8 +51,8 @@ export class AgentsController {
   // Danh sách agent: người gán agent cho kênh / Cowork / menu ＋ Hộp thư cũng cần đọc (tên + kênh) — không chỉ agents.manage.
   @Get('agents')
   async list(@Req() req: IncomingMessage) {
-    const { db } = await this.db(req, 'agents.manage', 'channels.manage', 'inbox.view', 'assistant.use');
-    return { data: await listAgents(db), next_cursor: null };
+    const { a, db } = await this.db(req, 'agents.manage', 'channels.manage', 'inbox.view', 'assistant.use');
+    return { data: await listAgents(db, (ids) => this.insights.cards(a, ids)), next_cursor: null };
   }
 
   @Get('agents/meta')
@@ -58,10 +62,21 @@ export class AgentsController {
     return { data: await agentsMeta(this.platform, db, this.clock.now(), u?.locale ?? 'vi') };
   }
 
+  /**
+   * TIP-022b: cảnh báo gán khi tạo / xuất bản agent — agent đang gán THẬT ở từng tài khoản theo loại kênh (`?types=zalo_personal,webchat`).
+   * Đổi gán cần `channels.manage` qua `channel.update_settings` (kèm `version`).
+   */
+  @Get('agents/channel-binding-preview')
+  async bindingPreview(@Req() req: IncomingMessage, @Query('types') types?: string) {
+    const { db } = await this.db(req, 'agents.manage', 'channels.manage');
+    const list = (types ?? '').split(',').map((t) => t.trim()).filter(Boolean).slice(0, 10);
+    return { data: await channelBindingPreview(db, list) };
+  }
+
   @Get('agents/:id')
   async one(@Req() req: IncomingMessage, @Param('id') id: string) {
-    const { db } = await this.db(req, 'agents.manage');
-    return { data: await getAgent(db, id) };
+    const { a, db } = await this.db(req, 'agents.manage');
+    return { data: await getAgent(db, id, (ids) => this.insights.cards(a, ids)) };
   }
 
   @Get('agents/:id/versions')
@@ -113,5 +128,12 @@ export class AgentsController {
         return conversationAgentTools(tx, c);
       }),
     };
+  }
+
+  /** TIP-022b: tóm tắt bàn giao có cấu trúc — tham chiếu chiếu theo quyền người xem hiện tại. */
+  @Get('conversations/:id/handoff-summary')
+  async handoffSummary(@Req() req: IncomingMessage, @Param('id') id: string) {
+    const { a, db } = await this.db(req, 'inbox.view');
+    return { data: await db.$transaction((tx) => readHandoffSummary(tx, a.authz, id)) };
   }
 }

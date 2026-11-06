@@ -9,7 +9,8 @@ import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
-import { ChannelSendQueue, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { ChannelSendQueue, OperationQueue, registerHistoryPipeline, registerSendBooks, registerSendReserver, registerSendResultSink, unregisterSendResultSink } from '../../channels/public';
+import { inboxSendBooks } from '../services/send-book';
 import { reserveDispatch } from '../../ai/reply/send-fence';
 import { ChannelsModule } from '../../channels/channels.module';
 import { AgentReplyQueue } from '../../ai/reply/reply.queue';
@@ -28,6 +29,7 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
     @Inject(ChannelSendQueue) private readonly send: ChannelSendQueue | null,
+    @Inject(OperationQueue) private readonly ops: OperationQueue | null,
     @Inject(InboundPipeline) private readonly pipeline: InboundPipeline,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
@@ -43,12 +45,20 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (!redis || !platform || !tenants || !send) return;
     // Tin khách → job `agent-reply` (worker ROLE=ai — TIP-022); queue chỉ là tên Redis, không cần module ai ở worker kênh.
     const reply = (this.reply = new AgentReplyQueue(redis));
-    const d: InboxJobDeps = { redis, platform, tenants, pipeline: this.pipeline, send, agentReply: (j) => reply.push(j), log: this.log, now: () => this.clock.now() };
+    const ops = this.ops;
+    const d: InboxJobDeps = {
+      redis, platform, tenants, pipeline: this.pipeline, send, agentReply: (j) => reply.push(j), log: this.log, now: () => this.clock.now(),
+      ...(ops ? { avatars: (accountId: string, ws: string) => ops.enqueueAvatars(accountId, { ws }) } : {}),
+    };
     this.deps = d;
     this.worker = startInboundWorker(d);
     registerSendResultSink('inbox', sendResultSink(d));
     // Tin agent: đặt chỗ gửi dưới khoá hội thoại trước khi gọi kênh (người tiếp quản trước → không gửi — TIP-045b annex D).
     registerSendReserver(async (ws, refId) => (await reserveDispatch(await tenants.get(TenantContexts.fromRoute(ws, 'channel')), refId, this.clock.now())) !== 'rejected');
+    // Sổ gửi từng phần (TIP-014b B): chạy lại job không gửi lại phần đã xác nhận; phần treo → unknown.
+    registerSendBooks(inboxSendBooks(tenants, () => this.clock.now()));
+    // Lịch sử kênh (TIP-014b C) lưu qua cùng pipeline, `origin = history`.
+    registerHistoryPipeline(this.pipeline as never);
     this.timer = setInterval(() => void sweepOutbox(d).catch((err: unknown) => this.log.warn({ err }, 'inbox outbox sweep failed')), OUTBOX_SWEEP_MS);
   }
 
@@ -56,6 +66,8 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (this.timer) clearInterval(this.timer);
     unregisterSendResultSink('inbox');
     registerSendReserver(null);
+    registerSendBooks(null);
+    registerHistoryPipeline(null);
     await this.worker?.close();
     await this.reply?.onApplicationShutdown();
   }

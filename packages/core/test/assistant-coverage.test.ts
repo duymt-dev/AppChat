@@ -51,6 +51,8 @@ const ALIAS: Record<string, string> = {
   assignee_user_id: 'member',
   to_user_id: 'member',
   user_id: 'member',
+  lead_user_id: 'member',
+  fixed_user_id: 'member',
   owner_id: 'member',
   assignee_agent_id: 'agent',
   reply_id: 'canned_reply',
@@ -58,6 +60,7 @@ const ALIAS: Record<string, string> = {
   source_id: 'kb_source',
   task_id: 'ai_task',
   target_conversation_id: 'conversation',
+  account_id: 'channel_account',
 };
 
 /** Ô id người dùng không nói ra / không phải tham chiếu thực thể — miễn trừ, kèm lý do. */
@@ -77,11 +80,16 @@ const EXEMPT: Record<string, string> = {
   workspace_id: 'workspace của chính người dùng (danh sách ở session)',
   exclude_id: 'lịch hẹn đang dời (đã có trong ngữ cảnh lượt)',
   template_id: 'mẫu agent / mẫu tài liệu — danh mục cố định trả trong meta của màn',
-  team_id: 'Teams là P1 (AA-v21-9) — chưa có màn',
+  rule_id: 'rule chia lead (TIP-042b) — một rule mặc định + một mỗi tài khoản kênh, chọn ở Cài đặt › Chia lead; lead_routing.update chỉ người bấm (agentGrantable false)',
+  team_id: 'nhóm chọn ở Cài đặt › Nhóm (TIP-042); team.* chỉ người bấm (agentGrantable false), Trợ lý không gọi',
+  operation_id: 'lệnh thu hồi / cảm xúc trên tin (TIP-014b) — handle job_accepted của message.recall / message.react cùng lượt, không có mã người dùng nói',
   job_id: 'việc dữ liệu nặng (TIP-045b) — handle job_accepted của contact.export / contact.bulk_update cùng lượt, không có mã người dùng nói',
   import_id: 'lần nhập sản phẩm — handle job_accepted / kết quả product.import cùng lượt, không có mã người dùng nói',
   proposal_id: 'đề xuất soạn HĐ — lấy từ kết quả contract.prepare_draft cùng lượt, sống 24h, không có mã người dùng nói',
   suggestion_id: 'gợi ý điều khoản AI — đọc từ ai_suggestions của contract.get',
+  segment_id: 'phân khúc (TIP-037) — chọn trong wizard / màn Marketing (danh sách ở campaigns/meta), không có mã người dùng nói; segment.* chỉ người bấm',
+  audience_batch_id: 'lô nhập danh sách — handle kết quả campaign.audience_import cùng lượt, không có mã người dùng nói',
+  external_id: 'id người dùng phía kênh (TIP-014b E bạn bè Zalo) — chọn từ lời mời tới / hội thoại / kết quả tra SĐT trên màn; action chỉ nhân viên bấm, Trợ lý không gọi',
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */

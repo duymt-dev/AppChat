@@ -26,6 +26,11 @@ export interface ActionContext {
   /** Lượt agent đang giữ (TIP-045b annex D): fence + epoch hội thoại — tin gửi mang theo, đặt chỗ gửi kiểm lại trước khi gọi kênh. */
   agentTurn?: { fence: number; epoch: number };
   /**
+   * Mục đích tin ra NỘI BỘ (TIP-022b): `greeting` = lời chào tự động của lượt agent, ràng với run + tin khách nguồn đã lưu. Không phải input
+   * công khai (HTTP / model không đặt được), không cấp quyền; chỉ agent đang giữ lượt (`agentTurn`) mới mang được.
+   */
+  outboundPurpose?: { kind: 'greeting'; runId: string; sourceMessageId: string };
+  /**
    * Tác vụ Cowork tắt "Hỏi xác nhận trước khi gửi ra bên ngoài" (REQ-E13, Blueprint §3.3 dòng `task` — "approval nếu ask_before_send"):
    * action `send` chạy luôn; delete / money vẫn qua duyệt.
    */

@@ -1,13 +1,13 @@
 // Settings registry (Blueprint §7.2): nhóm nav + mục in-scope theo prototype setNav L9810. Mục OUT ẩn (prototype-parity §6):
-// Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, Workflow / Routing, API / Playground / Developer, Bảo mật / SSO / Compliance, Đối tác tiếp thị.
+// Sơ đồ tổ chức, Phòng ban (cây — mục `teams` chỉ là nhóm phẳng TIP-042), KPI, Phân ca, Workflow (Routing chỉ phần chia lead P1 — TIP-042b), API / Playground / Developer, Bảo mật / SSO / Compliance, Đối tác tiếp thị.
 // `wallet` gom Gói & ví (billing nằm trong cùng mục); `doc_templates` là màn mới D30 (không có trong prototype).
 import type { IconName } from '@appchat/ui';
 import type { PermissionKey } from '@appchat/shared';
 
 export type SectionKey =
-  | 'general' | 'locale' | 'members' | 'roles' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
+  | 'general' | 'locale' | 'members' | 'roles' | 'teams' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
   | 'contacts_fields' | 'tags' | 'replies' | 'profile_360' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
-  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy';
+  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing';
 
 export interface NavItem {
   key: SectionKey;
@@ -31,6 +31,8 @@ export const NAV: NavGroup[] = [
     items: [
       { key: 'members', icon: 'ic-users', n: '12', perm: 'members.manage' },
       { key: 'roles', icon: 'ic-shield', n: '5' },
+      // Nhóm phẳng (TIP-042, REQ-A05b): vị trí "Phòng ban" của prototype L10301 nhưng chỉ nhóm phẳng — không cây / chi nhánh (P3 OUT).
+      { key: 'teams', icon: 'ic-grid', perm: 'members.manage' },
     ],
   },
   { key: 'ops', items: [{ key: 'org_sla', icon: 'ic-clock', badge: 'NEW', perm: 'sla.manage' }] },
@@ -55,6 +57,8 @@ export const NAV: NavGroup[] = [
       { key: 'ai_audit', icon: 'ic-clock', perm: 'audit.view' },
     ],
   },
+  // TỰ ĐỘNG HOÁ (prototype L10305): chỉ mở "Routing & assignment" phần P1 — chia lead mới (TIP-042b, PD-019); Cấu hình workflow vẫn OUT.
+  { key: 'automation', items: [{ key: 'routing', icon: 'ic-arrow', perm: 'crm.reassign' }] },
   { key: 'security', items: [{ key: 'audit', icon: 'ic-clock', perm: 'audit.view' }] },
   {
     key: 'finance',

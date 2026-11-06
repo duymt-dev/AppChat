@@ -1,9 +1,11 @@
 // Mock Hộp thư (Blueprint §4.4 inbox): GET /conversations, /conversations/:id, /conversations/:id/messages, /conversations/counts,
 // /inbox/accounts, /inbox/connect-channels, /contacts/:id (360). Dữ liệu = prototype L1505–2226, kênh map về zalo_personal / webchat / email.
-import { foldText } from '@appchat/shared';
+import { foldText, type AgentIntent } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
+import { isRemote, requestReact, requestRecall } from './channel-operations';
+import { SEED_INTENT, handoffSummaryRoute, hasHandoffSummary } from './inbox-handoff';
 
 export type InboxFixture = typeof fixture;
 type Conv = InboxFixture['conversations'][number];
@@ -18,6 +20,8 @@ export interface InboxState {
     pinned: boolean;
     hidden: boolean;
     pinned_message_id: string | null;
+    intent?: AgentIntent;
+    has_handoff_summary: boolean;
   })[];
   messages: Record<string, Msg[]>;
   /** Hội thoại có ghi chú @nhắc người dùng hiện tại chưa đọc (TIP-025 thư mục "Nhắc đến tôi"). */
@@ -37,6 +41,8 @@ export const createInboxState = (): InboxState => ({
     pinned: !!c.pinned_note,
     hidden: false,
     pinned_message_id: null,
+    intent: SEED_INTENT[c.id],
+    has_handoff_summary: hasHandoffSummary(c.id),
   })),
   messages: structuredClone(fixture.messages) as Record<string, Msg[]>,
   mentioned: [],
@@ -126,6 +132,8 @@ const searchRoute =
 
 /** Route có tham số: /conversations/:id, /conversations/:id/messages(/search), /contacts/:id, /groups/:id. */
 export const inboxParamRoute = (path: string): MockRoute | null => {
+  const hs = handoffSummaryRoute(path);
+  if (hs) return hs;
   const s = path.match(/^\/conversations\/([^/]+)\/messages\/search$/);
   if (s) return searchRoute(s[1]!);
   const m = path.match(/^\/(conversations|contacts|groups)\/([^/]+)(\/messages)?$/);
@@ -278,6 +286,8 @@ export const inboxHandlers: Record<string, MockHandler> = {
   },
   'message.recall': {
     execute: (db, i: Ci & { message_id: string }) => {
+      // Zalo: lệnh bền chờ nhà cung cấp xác nhận (TIP-014b); kênh khác ẩn ngay trong AppChat.
+      if (isRemote(db, i.conversation_id)) return requestRecall(db, i.conversation_id, i.message_id);
       const m = db.inbox.messages[i.conversation_id]?.find((x) => x.id === i.message_id);
       if (m) Object.assign(m, { recalled: true });
       return { recalled: true };
@@ -296,6 +306,7 @@ export const inboxHandlers: Record<string, MockHandler> = {
   },
   'message.react': {
     execute: (db, i: Mi & { emoji: string }) => {
+      if (isRemote(db, i.conversation_id)) return requestReact(db, i.conversation_id, i.message_id, i.emoji);
       const m = msg(db, i.conversation_id, i.message_id);
       if (!m) return { emoji: null };
       const next = m.reaction === i.emoji ? null : i.emoji;

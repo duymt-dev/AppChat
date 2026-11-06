@@ -7,7 +7,7 @@ import { type Worker } from 'bullmq';
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry } from '@appchat/channels';
-import type { PlatformDb, TenantDbResolver } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { ENC_KEY } from '../../kernel/crypto';
 import { ENV_SOURCE, LOGGER } from '../../kernel/kernel.module';
@@ -25,15 +25,25 @@ import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
 import { reserveSend } from '../services/send-queue';
 import { GroupCreators } from './create-group.processor';
+import { OperationQueue, ProviderOperators } from './provider-operations.processor';
+import { runAvatarSync } from './avatar-sync.processor';
+import { runContactSync } from './contact-sync.processor';
+import { runFriendOp, runLookup } from './friend.processor';
+import { FilesService } from '../../kernel/files/files.service';
+import { providerEventQueue, startProviderEventWorker } from './provider-events.processor';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { ChannelPollers, POLL_INTERVAL_MS } from './poller';
 import { ChannelSessions } from './sessions';
 import { StatelessChannels } from './stateless';
+import { historyPipeline, runHistory } from './provider-history.processor';
 
 class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private sessions?: ChannelSessions;
   private senders?: ChannelSenders;
   private groups?: GroupCreators;
+  private operators?: ProviderOperators;
+  private providerEvents?: Queue;
+  private eventWorker?: Worker;
   private stateless?: StatelessChannels;
   private pollers?: ChannelPollers;
   private timer?: NodeJS.Timeout;
@@ -55,11 +65,13 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
     @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
+    @Optional() @Inject(FilesService) private readonly files: FilesService | undefined,
+    @Inject(OperationQueue) private readonly opQueue: OperationQueue | null,
   ) {}
 
   /** Bộ phiên của worker này (test điều khiển trực tiếp). */
   get runtime() {
-    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers, groups: this.groups };
+    return { sessions: this.sessions, senders: this.senders, stateless: this.stateless, pollers: this.pollers, groups: this.groups, operators: this.operators };
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -69,22 +81,44 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     const now = () => this.clock.now();
     const leases = new ChannelLeases(redis, `${hostname()}:${process.pid}:${Math.random().toString(36).slice(2, 8)}`);
     this.inbound = new Queue(CHANNEL_INBOUND_QUEUE, { connection: redis.duplicate() });
+    // TIP-014b: sự kiện kênh (self-listen / thu hồi / cảm xúc) + worker thao tác theo phiên (thu hồi / cảm xúc gọi nhà cung cấp).
+    this.providerEvents = providerEventQueue(redis);
+    this.eventWorker = startProviderEventWorker({ redis, kv: redis, tenants, log: this.log, now });
+    const history = { tenants, kv: redis, log: this.log, now, pipeline: historyPipeline };
+    // Ảnh đại diện (TIP-014b D): cùng hàng đợi tài khoản; ghi Storage `purpose = avatar`.
+    const allow = env.CHANNEL_FETCH_TEST_ALLOW?.split(',').map((x) => x.trim()).filter(Boolean);
+    const avatars = { tenants, files: this.files ?? null, log: this.log, now, ...(allow?.length ? { fetchOptions: { testAllowAddresses: allow } } : {}) };
+    const operators = (this.operators = new ProviderOperators(
+      { redis, kv: redis, tenants, log: this.log, now, history: (id, a, j, g) => runHistory(history, id, a, j, g),
+        avatars: (id, a, j, g) => runAvatarSync(avatars, id, a, j, g),
+        // Danh bạ (TIP-014b D3): ảnh chụp riêng tài khoản, không tạo khách.
+        contacts: (id, a, j, g) => runContactSync({ tenants, log: this.log, now }, id, a, j, g),
+        // Bạn bè + tra SĐT (TIP-014b E): chỉ nhân viên bấm, trần / ngày ở action.
+        friend: (id, a, j, g) => runFriendOp({ tenants, kv: redis, log: this.log, now }, id, a, j, g),
+        lookup: (id, a, j) => runLookup({ tenants, kv: redis, log: this.log, now }, id, a, j),
+      },
+      this.opQueue ?? undefined,
+    ));
     const sessions: ChannelSessions = new ChannelSessions({
-      platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, kv: redis, key, log: this.log, now,
+      platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.
-      onStarted: async (id, ws, adapter) => {
-        await senders.open(id, ws, adapter);
+      onStarted: async (id, ws, adapter, generation) => {
+        // Ảnh chụp danh bạ quá 24 giờ (TIP-014b D3) — dọn khi giành phiên (best-effort, không chặn phiên).
+        void tenants.get(TenantContexts.fromRoute(ws, 'channel')).then((db) => db.channelContactSync.deleteMany({ where: { channelAccountId: id, expiresAt: { lte: now() } } })).catch(() => undefined);
+        await senders.open(id, ws, adapter, generation);
         await groups?.open(id, adapter);
+        await operators.open(id, adapter, generation);
       },
       onStopped: async (id) => {
         await senders.close(id);
         await groups?.close(id);
+        await operators.close(id);
       },
     });
     const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log }) : undefined;
     this.groups = groups;
     const senders: ChannelSenders = new ChannelSenders({
-      redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER,
+      redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER, now,
       pause: (ws, id, detail) => sessions.markDown(ws, id, 'send_errors', detail),
       expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
       reserve: reserveSend,
@@ -129,6 +163,9 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     await this.pollers?.shutdown();
     await this.senders?.closeAll();
     await this.groups?.closeAll();
+    await this.operators?.closeAll();
+    await this.eventWorker?.close();
+    await this.providerEvents?.close();
     await this.inbound?.close();
   }
 }

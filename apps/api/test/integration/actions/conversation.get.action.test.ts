@@ -40,6 +40,17 @@ describe('conversation.get', () => {
     expect(texts(await m.act({ conversation_id: conv, limit: 1 }))).toEqual(['Còn lịch chiều nay không?']);
   });
 
+  it('tin gửi đi mang trạng thái giao (TIP-014b): unknown / partial hiện đúng cho Trợ lý, không thành "đã gửi"', async () => {
+    const db = await m.db();
+    const acc = (await db.conversation.findUniqueOrThrow({ where: { id: conv } })).channelAccountId;
+    for (const status of ['unknown', 'partial'] as const) {
+      m.h.clock.advance(1000);
+      await db.message.create({ data: { id: uuidv7(), conversationId: conv, channelAccountId: acc, direction: 'out', senderType: 'user', senderId: m.h.user, kind: 'text', body: `Tin ${status}`, status, createdAt: m.h.clock.now() } });
+    }
+    const r = await m.act({ conversation_id: conv, limit: 2 });
+    expect(r.body.data.result.messages.map((x: { text: string; status: string }) => [x.text, x.status])).toEqual([['Tin unknown', 'unknown'], ['Tin partial', 'partial']]);
+  });
+
   it('403: kế toán không có inbox.view', async () => {
     expect((await m.act({ conversation_id: conv }, await m.h.member('accountant'))).status).toBe(403);
   });

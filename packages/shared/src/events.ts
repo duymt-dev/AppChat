@@ -2,6 +2,7 @@
 // + `occurred_at` (writeOutbox thêm). TIP domain thêm event của mình vào đây khi phát (và bảng Blueprint §2.3).
 import { z } from 'zod';
 import { LOYALTY_EVENT_SCHEMAS } from './loyalty/events';
+import { MARKETING_EVENT_SCHEMAS } from './marketing/events';
 import { KB_SUGGESTION_EVENT_SCHEMAS } from './kb/suggestion-events';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
@@ -74,6 +75,8 @@ export const contactOwnerChangedEvent = z.object({
   to: z.string().uuid(),
   move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
 });
+/** Khách vừa tạo từ tin vào 1-1 live (TIP-042b, DC-238) — consumer ROLE=jobs gọi `lead_routing.apply` (system) cấp chủ đầu tiên theo rule. */
+export const leadRoutingRequestedEvent = z.object({ ...contactBase, conversation_id: z.string().uuid(), channel_account_id: z.string().uuid(), message_id: z.string().uuid() });
 export const contactCollaboratorChangedEvent = z.object({ ...contactBase, user_id: z.string().uuid(), role: z.enum(['collaborator', 'watcher']).nullable() });
 export const contactAccessRequestedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid() });
 export const contactAccessDecidedEvent = z.object({ ...contactBase, request_id: z.string().uuid(), requester_user_id: z.string().uuid(), status: z.enum(['approved', 'rejected']) });
@@ -88,15 +91,28 @@ const convBase = {
   assignee_user_id: z.string().uuid().nullable(),
   /** Người phụ trách khách lúc phát — scope own của người nhận realtime. */
   contact_owner_user_id: z.string().uuid().nullable(),
+  /** Nhóm của hội thoại (DC-299, TIP-042c) — scope team của người nhận realtime; thiếu = không nhóm. */
+  team_id: z.string().uuid().nullable().optional(),
 };
 export const messageReceivedEvent = z.object({ ...convBase, message_id: z.string().uuid(), new_conversation: z.boolean(), is_group: z.boolean(), mentions_me: z.boolean(), vip: z.boolean(), title: z.string() });
 export const messageSentEvent = z.object({ ...convBase, message_id: z.string().uuid(), sender_type: z.enum(['user', 'agent', 'system']), sender_id: z.string().nullable() });
 export const messageFailedEvent = z.object({ ...convBase, message_id: z.string().uuid(), error: z.string().max(200) });
-export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status']) });
+export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status', 'operation']) });
 export const conversationAssignedEvent = z.object({ ...convBase, assignee_agent_id: z.string().nullable(), by_user_id: z.string().uuid().nullable(), auto: z.boolean(), title: z.string() });
 export const conversationUpdatedEvent = z.object({ ...convBase, change: z.string().max(40) });
 /** Tạo nhóm kênh (TIP-023b SPEC D): yêu cầu đã lưu → consumer đẩy tới worker giữ phiên; kết quả (succeeded / failed / unknown) → realtime người yêu cầu. */
 export const groupRequestedEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+/** Lệnh thao tác trên tin phía kênh (TIP-014b A: thu hồi / cảm xúc) — consumer đẩy vào hàng đợi thao tác của đúng tài khoản. */
+export const channelOperationRequestedEvent = z.object({ ...base, operation_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+/** Lần lấy lịch sử kênh (TIP-014b C): consumer đẩy job vào hàng đợi tài khoản; lô đã lưu → làm mới danh sách (không âm báo / thông báo / AI). */
+export const channelHistoryRequestedEvent = z.object({ ...base, run_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+export const channelHistoryIngestedEvent = z.object({ ...base, run_id: z.string().uuid(), channel_account_id: z.string().uuid(), conversation_ids: z.array(z.string().uuid()).max(200) });
+/** Đồng bộ danh bạ tài khoản kênh (TIP-014b D3): consumer đẩy job vào hàng đợi tài khoản; ảnh chụp riêng, không tạo khách. */
+export const channelContactsRequestedEvent = z.object({ ...base, sync_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+/** Bạn bè kênh (TIP-014b E): lệnh của nhân viên / tra SĐT → consumer đẩy job vào hàng đợi tài khoản; lời mời tới → làm mới màn Bạn bè. */
+export const channelFriendRequestedEvent = z.object({ ...base, channel_account_id: z.string().uuid(), external_id: z.string().max(64), op: z.enum(['accept', 'reject', 'send', 'undo']) });
+export const channelLookupRequestedEvent = z.object({ ...base, lookup_id: z.string().uuid(), channel_account_id: z.string().uuid() });
+export const channelFriendRequestReceivedEvent = z.object({ ...base, channel_account_id: z.string().uuid(), external_id: z.string().max(64) });
 export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(), channel_account_id: z.string().uuid(), requester_id: z.string().uuid().nullable(), status: z.string(), conversation_id: z.string().uuid().nullable() });
 
 /** Huỷ run AI (TIP-019 `run.cancel`) — run gốc được bấm dừng + mọi run trong cây đã huỷ (realtime `run.done` ở TIP-023). */
@@ -129,6 +145,8 @@ export const productChangedEvent = z.object({ ...base, product_id: z.string().uu
 
 /** Agent trực kênh chuyển hội thoại sang người (TIP-022) — thông báo `ai_escalate`, WS cập nhật hội thoại. */
 export const aiHandoffEvent = z.object({ ...convBase, run_id: z.string().uuid().nullable(), agent_id: z.string().nullable(), agent: z.string(), reason: z.string().max(40), title: z.string() });
+/** Khiếu nại phát hiện ở lượt agent auto (TIP-022b D) — consumer support tạo ticket qua Executor với actor agent sau khi kiểm lại grant hiện hành. */
+export const aiComplaintEvent = z.object({ conversation_id: z.string().uuid(), source_message_id: z.string().uuid(), run_id: z.string().uuid(), agent_id: z.string(), fence: z.number().int() });
 
 /** Báo giá đổi trạng thái (TIP-029 — Blueprint §2.3): giai đoạn CRM theo COMMERCE §8, dòng thời gian khách, nhắc hết hạn. */
 const quoteBase = { ...base, quote_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), version: z.number().int() };
@@ -177,7 +195,7 @@ export const receiptSentEvent = z.object({ ...base, payment_id: z.string().uuid(
 export const salesSettingsUpdatedEvent = z.object({ ...base, version: z.number().int(), approval_total_vnd: z.string(), approval_discount_pct: z.number().int() });
 export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
 /** Ticket (TIP-034): tạo / đóng / mở lại / SLA sắp đến hạn / quá hạn — consumer notify (leo thang), timeline, CSAT. */
-export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional() });
+export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional(), team_id: z.string().nullable().optional(), created_by_user_id: uuidOrNull.optional() });
 
 export const EVENT_SCHEMAS = {
   'workspace.declared': workspaceDeclaredEvent,
@@ -201,6 +219,7 @@ export const EVENT_SCHEMAS = {
   'contact.merged': contactMergedEvent,
   'contact.owner_changed': contactOwnerChangedEvent,
   'contact.collaborator_changed': contactCollaboratorChangedEvent,
+  'lead.routing_requested': leadRoutingRequestedEvent,
   'contact.access_requested': contactAccessRequestedEvent,
   'contact.access_decided': contactAccessDecidedEvent,
   'message.received': messageReceivedEvent,
@@ -211,6 +230,13 @@ export const EVENT_SCHEMAS = {
   'conversation.updated': conversationUpdatedEvent,
   'channel.group_requested': groupRequestedEvent,
   'channel.group_result': groupResultEvent,
+  'channel.operation_requested': channelOperationRequestedEvent,
+  'channel.history_requested': channelHistoryRequestedEvent,
+  'channel.history_ingested': channelHistoryIngestedEvent,
+  'channel.contacts_requested': channelContactsRequestedEvent,
+  'channel.friend_requested': channelFriendRequestedEvent,
+  'channel.lookup_requested': channelLookupRequestedEvent,
+  'channel.friend_request_received': channelFriendRequestReceivedEvent,
   'run.cancelled': runCancelledEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,
@@ -224,6 +250,7 @@ export const EVENT_SCHEMAS = {
   'custom_field.changed': customFieldChangedEvent,
   'data_job.requested': dataJobRequestedEvent,
   'ai.handoff': aiHandoffEvent,
+  'ai.complaint_detected': aiComplaintEvent,
   'product.changed': productChangedEvent,
   'quote.sent': quoteSentEvent,
   'quote.viewed': quoteViewedEvent,
@@ -255,6 +282,7 @@ export const EVENT_SCHEMAS = {
   'payment.refunded': paymentRefundEvent,
   'payment.refund_rejected': paymentRefundEvent,
   ...LOYALTY_EVENT_SCHEMAS,
+  ...MARKETING_EVENT_SCHEMAS,
   ...KB_SUGGESTION_EVENT_SCHEMAS,
   'bank_tx.received': bankTxEvent,
   'package.granted': packageEvent,

@@ -153,6 +153,7 @@ model ContactCollaborator {
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@id([contactId, userId])
+  /// Migration record_scopes (TIP-042c) dựng lại cùng tên với INCLUDE (role) — Prisma không biểu diễn INCLUDE.
   @@index([userId, contactId])
   @@map("contact_collaborator")
 }
@@ -339,4 +340,48 @@ model ProfileLayoutRole {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("profile_layout_role")
+}
+
+/// Rule chia lead mới (TIP-042b, COMMERCE §8b, DC-238). `channel_account_id` NULL = rule mặc định (một dòng); có giá trị = ghi đè tài khoản.
+/// Tắt mặc định; `enabled_at` chốt lúc bật — chỉ khách tạo sau mốc này được chia. Pool = `user_ids` hoặc `team_id` (CHECK một trong hai);
+/// `fixed_user_id` cho `by_channel`. Unique partial (mặc định / mỗi tài khoản) viết tay ở migration.
+model LeadRoutingRule {
+  id                 String    @id @db.Uuid
+  channelAccountId   String?   @map("channel_account_id") @db.Uuid
+  enabled            Boolean   @default(false)
+  enabledAt          DateTime? @map("enabled_at") @db.Timestamptz(6)
+  mode               String    @default("manual")
+  userIds            String[]  @default([]) @map("user_ids") @db.Uuid
+  teamId             String?   @map("team_id") @db.Uuid
+  fixedUserId        String?   @map("fixed_user_id") @db.Uuid
+  version            Int       @default(1)
+  configuredByUserId String?   @map("configured_by_user_id") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("lead_routing_rule")
+}
+
+/// Con trỏ vòng tròn theo rule — khoá dòng (FOR UPDATE) để nhiều worker chọn tuần tự.
+model LeadRoutingCursor {
+  ruleId     String   @id @map("rule_id") @db.Uuid
+  lastUserId String?  @map("last_user_id") @db.Uuid
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("lead_routing_cursor")
+}
+
+/// Quyết định cấp chủ đầu tiên cho một khách (unique contact + event) — chạy lại cùng event trả kết quả cũ; `reason` truy vết.
+model LeadRoutingDecision {
+  id                 String   @id @db.Uuid
+  contactId          String   @unique(map: "lead_routing_decision_contact_key") @map("contact_id") @db.Uuid
+  originatingEventId String   @unique(map: "lead_routing_decision_event_key") @map("originating_event_id") @db.Uuid
+  ruleId             String?  @map("rule_id") @db.Uuid
+  ruleVersion        Int?     @map("rule_version")
+  selectedUserId     String?  @map("selected_user_id") @db.Uuid
+  conversationId     String?  @map("conversation_id") @db.Uuid
+  reason             String
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("lead_routing_decision")
 }

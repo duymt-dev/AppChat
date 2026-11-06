@@ -1,7 +1,7 @@
 // TIP-021: route mock AI Agents / duyệt / governance / quyền agent đúng shape đọc dùng chung với API thật (packages/shared/src/api/ai.ts).
 import { beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { agentSchema, agentTemplateSchema, agentToolsSchema, agentVersionSchema, approvalRowSchema, governanceSchema } from '@appchat/shared';
+import { agentSchema, agentStatsSchema, agentTemplateSchema, agentToolsSchema, agentVersionSchema, approvalRowSchema, governanceSchema } from '@appchat/shared';
 import { mockTransport } from './mock-transport';
 import { setMockRole } from './store';
 
@@ -21,6 +21,9 @@ describe('mock AI Agents — shape FE ↔ BE', () => {
     expect(issues(z.array(agentVersionSchema), (await mockTransport.get<{ data: unknown[] }>(`/agents/${id}/versions`)).data)).toEqual([]);
     expect(issues(z.array(agentTemplateSchema), (await mockTransport.get<{ data: unknown[] }>('/agent-templates')).data)).toEqual([]);
     expect(issues(agentToolsSchema, await mockTransport.get(`/agents/${id}/tools`))).toEqual([]);
+    // TIP-038: thống kê có nguồn — cùng schema API; thẻ kèm `stats`.
+    expect(issues(agentStatsSchema, await mockTransport.get(`/agents/${id}/stats`))).toEqual([]);
+    expect((list.data[0] as { stats?: unknown }).stats).toMatchObject({ agent_id: id, csat: { available: expect.any(Boolean) } });
   });
 
   it('GET /conversations/:id/agent-tools · /approvals · /settings/governance', async () => {
