@@ -1,11 +1,11 @@
-### COMPLETION REPORT — TIP-039 (pha 1 / 3)
+### COMPLETION REPORT — TIP-039 (đủ 3 pha — DONE)
 
 > TIP XL, chia ba pha (DC-367), mỗi pha một PR:
 > - **pha 1** (file này): vòng đời gói backend — kỳ Credit, ghi nhận hoá đơn theo ảnh chụp, nâng / hạ gói, addon, hết hạn, backfill;
 > - **pha 2**: `wallet.update_alerts`, consumer hết Credit bền, `BillingNoticeHost`;
 > - **pha 3**: đọc / UI — ledger cursor, `channels.used` từ tenant, PlanChangeModal, popup hết hạn, `billing.contact_sales`, PDF hoá đơn, parity, E2E.
 
-**STATUS:** MỘT PHẦN — xong **pha 1**.
+**STATUS (pha 1):** xong **pha 1**. Trạng thái cả TIP: **DONE** — xem PHA 3 cuối file.
 - Đạt: AC01, AC02, AC04 (phần backend).
 - Đạt phần backend: AC03 (preview server + ghi nhận; FE ở pha 3), AC09 (trạng thái hết hạn + giữ 30 ngày; popup ở pha 3), AC10 (khôi phục sau lỗi + EXPLAIN; E2E mobile ở pha 3).
 - AC05–AC08 thuộc pha 2–3.
@@ -200,3 +200,121 @@ Queue lịch billing đổi tên: `scheduler` → `billing-scheduler`. Lịch c�
 - Đọc lại số dư trước khi hiện "hết" / "đã có lại".
 - Chuông thông báo vẫn chỉ gửi Owner, như cũ.
 - Hội thoại đã chuyển sang người không tự quay về AI.
+
+## PHA 3 — Đọc / UI, liên hệ, PDF, đổi gói, hết hạn (AC03 FE, AC07–AC10)
+
+**STATUS:** **DONE** — đủ AC01–AC10. Nhánh `tip/039-billing-ui` xếp chồng trên #99.
+
+**COMMIT:**
+- `873f1ee1` (3a): channels.used, hạn mức addon, ledger lọc server-side.
+- `5465d60e` (3b): `billing.contact_sales` + ContactSalesModal.
+- `00776b5b` (3c): PDF, `/billing/quote` + PlanChangeModal, popup hết hạn.
+- `5afba3f8`: E2E http.
+- SHA cuối nhánh ở bảng tiến độ (dòng 18).
+
+**MIGRATION:** platform `20261106103900_billing_ledger_filters`:
+- `credit_ledger_ws_source_created_idx` (partial `source IS NOT NULL`);
+- `credit_ledger_ws_kind_created_idx`.
+
+Không có migration tenant. Sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` (áp cả migration platform còn thiếu).
+
+**FILES CHANGED** (ngoài manifest ghi ở DV-036)
+- shared:
+  - `api/billing.ts`: `tenantUsage.available`, `retain_until`, `billQuoteSchema`;
+  - `events.ts`: `sales.inquiry_created`;
+  - i18n server `billing.pdf`.
+- actions: `billing-lifecycle.ts` thêm `billing.contact_sales` (billing.manage, risk write, `db 'platform'`, không agentGrantable).
+- core `billing/`:
+  - `services/billing-read.service.ts`: `channels.used` từ tenant + chỗ giữ, max gồm addon, `retain_until`;
+  - `services/ledger-reader.ts`: lọc kind / dir / source / from-to theo múi workspace, cursor keyset, deferred join;
+  - `actions/contact-sales.handler.ts`: khoá dòng workspace, 3 / 24 giờ, event chỉ id;
+  - `services/invoice-pdf.ts` (HTML → PDF qua DocRenderer), `services/quote-view.ts`;
+  - `billing.module.ts`, `public.ts`, `kernel/actions/tip-owners.ts`.
+- api:
+  - `http/billing/billing.controller.ts`: `/ledger` lọc, `/quote`, `/invoices/:id/pdf`;
+  - `billing.http.module.ts`: provider PDF + DocumentsModule.
+- web:
+  - `features/settings/components/{ContactSalesModal,PlanChangeModal,WalletLedger,BillingSection,BillInvoiceTable,BillingModals,PlanCards,UpgradeModal,WalletShop}.tsx`;
+  - `hooks/{useWalletLedger,useInvoicePdf}.ts`, `billing-store.ts`, `api.ts`, `types.ts`, `styles/contact-sales.styles.ts`;
+  - `shared/billing/PlanExpiredNotice.tsx` (gắn AppShell);
+  - mock `settings-billing.ts`: `/billing/ledger` lọc, `/billing/quote`, `billing.contact_sales`, blob PDF;
+  - i18n vi + en: `settings.billing.{contact,change,hero.*,inv.pdf*}`, `settings.wallet.ledger.*`, `shell.planExpired`, `actions.billing.contact_sales`.
+
+**TEST RESULTS** (pha 3)
+
+1. **AC03 FE** — **pass**.
+   - `billing-quote.test.ts` (3), theo thứ tự:
+     - quote mua mới → báo hoá đơn chờ sẽ được dùng lại;
+     - gia hạn nối tiếp ngày hết hạn;
+     - nâng giữa kỳ: chênh × 15/30, Credit chênh, giữ ngày hết hạn — số tiền khớp đúng hoá đơn tạo sau đó;
+     - đổi xuống áp từ kỳ sau.
+   - Tham số lạ → 400; gói Miễn phí → 422; Sales → 403.
+   - `PlanChangeModal.test.tsx` (3).
+2. **AC07 đọc / ledger** — **pass**. `billing-read.test.ts` (6):
+   - `channels.used` đếm kênh chưa ngắt, tách theo workspace; max cộng addon;
+   - DB tenant lỗi → `available: false`;
+   - 130 dòng, cursor đi hết không trùng;
+   - lọc vào-ra / nguồn / loại / ngày trước LIMIT; lọc ngày theo múi workspace ra đúng 24 dòng;
+   - tham số lạ → 400 có ô lỗi;
+   - EXPLAIN dùng 2 index mới.
+3. **AC08 PDF / liên hệ** — **pass**.
+   - `billing-invoice-pdf.test.ts` (3, LibreOffice thật):
+     - header: application/pdf, attachment theo mã, `private, no-store`, nosniff;
+     - chữ trong PDF có mã, nội dung chuyển khoản, số tiền, thông tin xuất hoá đơn đúng ảnh chụp (đổi hồ sơ sau đó không đổi PDF) và dòng "không thay thế hoá đơn GTGT";
+     - tiếng Anh theo locale người xem;
+     - workspace khác / id lạ / id sai dạng → 404; Sales → 403.
+   - `actions/billing.contact_sales.action.test.ts` (7):
+     - một dòng mỗi Idempotency-Key;
+     - email / SĐT bị che trong action_log; outbox chỉ có id;
+     - consent false / SĐT sai → 422;
+     - Sales / CSKH → 403;
+     - quá 3 / 24 giờ → 429; qua 24 giờ gửi lại được;
+     - hai request song song khi còn 1 chỗ → chỉ một thành công;
+     - preview Trợ lý.
+   - Web: `ContactSalesModal.test.tsx` (5), mock `billing-shape.test.ts` (+2).
+4. **AC09 hết hạn** — **pass**.
+   - `billing-quote.test.ts`: hết kỳ không gia hạn → summary `expired` + `retain_until` +30 ngày; gia hạn sau đó tính là mua mới.
+   - `PlanExpiredNotice.test.tsx` (3): nút Gia hạn chỉ cho billing.manage, người khác thấy nhắc Chủ sở hữu, đóng rồi không bật lại cùng kỳ.
+   - Không hồi quy trial 009 / QR 010 / pending_review: `billing.test.ts`, `billing-payments.test.ts`, E2E http `billing.spec.ts`.
+5. **AC10 resilience / perf** — **pass**. Pha 1: fault + recover. Pha 3: EXPLAIN ledger, schema hợp đồng HTTP, E2E.
+
+**Cổng chốt TIP** (D59, phạm vi TIP):
+- `pnpm --filter @appchat/db db:test-reset` đầu cổng — xanh.
+- Lint + typecheck core / shared / actions / web / api — xanh.
+- Unit: shared 142 · core 648 · actions 12 · web (settings + shared/billing + mock) 206.
+- `depcheck` 0 lỗi; `lint:size`, `lint:tokens` xanh; i18n vi / en 5793 key, 100%.
+- Build api + worker + `pnpm check:bundle` — xanh (api 34, worker 30 gói khai đủ).
+- Integration billing + ma trận billing / wallet + `actions.test.ts` — **15 file / 82 test** xanh.
+- E2E mock (`settings-billing`, `invoices`) — 13 passed; 13 skipped là dự án mobile của luồng desktop.
+- E2E http (`billing-lifecycle`, `billing`) trên API 4327 / web 3428 — 3 passed; 3 skipped (mobile).
+- Parity (local, web mock 3462), đều ≤ 4,2%:
+  - settings:billing 3,34%;
+  - settings:wallet 3,88%;
+  - modal:upgrade 4,14%;
+  - modal:buy-credit 3,68%.
+- SePay / Brevo thật: **chưa nghiệm thu với provider thật** (Q-004). Webhook ngân hàng dùng feed mock có HMAC.
+
+**ISSUES DISCOVERED:** không có lỗi mới ngoài phạm vi.
+
+**GIẢ ĐỊNH ĐÃ CHỌN** (DC-367):
+- PDF là "Đề nghị thanh toán" (COMMERCE Q2), không phải hoá đơn GTGT; render qua LibreOffice như các chứng từ khác (DV-036).
+- Giới hạn liên hệ: 3 yêu cầu / 24 giờ mỗi workspace. Đội vận hành đọc chi tiết ở Quản trị nền tảng (TIP-040).
+- Popup hết hạn nhớ theo phiên trình duyệt (gói + ngày hết hạn). Xoá / lưu trữ sau 30 ngày thuộc TIP-041.
+
+### Đối chiếu standards
+
+| Standard | Áp dụng ở TIP-039 | Bằng chứng |
+|---|---|---|
+| actions/action-registry | `billing.lifecycle_step` / `apply_invoice` (system-only), `wallet.update_alerts`, `billing.contact_sales` qua ActionExecutor; FE ghi chỉ bằng `useAction` | ma trận `actions/billing.*.action.test.ts`, `wallet.update_alerts.action.test.ts` |
+| api/response-envelope | `{ data }` / `{ data, next_cursor }` / lỗi `{ error: { code, fields } }`; tiền string VND; Idempotency-Key cho money / create | `billing-read.test.ts` (schema), `billing-quote.test.ts` |
+| events/outbox | `credits.*`, `subscription.changed`, `sales.inquiry_created` (chỉ id) qua outbox tenant; consumer `ai.credit-handoff` bền | `billing-alerts.test.ts`, `billing.contact_sales.action.test.ts` |
+| database/indexing | composite `=` trước, sort sau; partial (`source IS NOT NULL`, paid unfulfilled); INCLUDE; deferred join ledger; EXPLAIN | `billing-lifecycle.test.ts` EXPLAIN 6 index, `billing-read.test.ts` EXPLAIN 2 index |
+| database/tenant-db | `channels.used` đọc qua `TenantDbResolver` + `TenantContexts.system`; không `workspace_id` ở bảng tenant | `billing-read.test.ts` (hai workspace) |
+| authz/rbac-permissions | hoá đơn / quote / PDF / liên hệ cần `billing.manage`; khác workspace 404; người khác chỉ thấy nhắc Chủ sở hữu | test 403 / 404 ở các file trên, `PlanExpiredNotice.test.tsx` |
+| domain/money-time-numbering | prorate bigint half-up; kỳ neo ngày theo múi workspace; lọc ngày ledger theo múi workspace | `shared/billing/periods.test.ts`, `billing-read.test.ts` |
+| domain/concurrency | khoá workspace → subscription → wallet; liên hệ khoá dòng workspace trước khi đếm | test song song AC01, contact_sales song song |
+| ops/observability-security | email / SĐT che trong action_log (REDACT_KEYS); PDF `private, no-store`, nosniff; không link công khai | `billing.contact_sales.action.test.ts`, `billing-invoice-pdf.test.ts` |
+| documents/templates | chứng từ nền tảng có dòng "không thay thế hoá đơn GTGT"; LibreOffice không tải mạng | `billing-invoice-pdf.test.ts` |
+| ui/prototype-parity + interaction-patterns | 4 màn billing ≤ 4,2%; hộp xác nhận / popup dùng FormModal / Modal sẵn có; chỉ token, không hard-code | `.data/gate/039-parity.log`, `lint:tokens` |
+| i18n | mọi chuỗi vi + en (web + server) | i18n-check 100% |
+| code/testing (D59) | test ở file riêng; cổng chốt theo phạm vi TIP | mục cổng ở trên |
