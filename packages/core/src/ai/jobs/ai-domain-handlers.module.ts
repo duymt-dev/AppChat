@@ -14,6 +14,7 @@ import { IdentityModule } from '../../identity/identity.module';
 import { InboxModule } from '../../inbox/inbox.module';
 import { IntegrationsModule } from '../../integrations/integrations.module';
 import { LoyaltyModule } from '../../loyalty/loyalty.module';
+import { MarketingModule } from '../../marketing/marketing.module';
 import { NotifyModule } from '../../notify/notify.module';
 import { SalesModule } from '../../sales/sales.module';
 import { SupportModule } from '../../support/support.module';
@@ -33,6 +34,7 @@ export const AI_DOMAIN_MODULES = [
   BookingModule,
   SupportModule,
   LoyaltyModule,
+  MarketingModule,
   NotifyModule,
 ];
 

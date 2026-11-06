@@ -72,6 +72,8 @@ test.describe('marketing (http)', () => {
     const m = page.getByTestId('mk-analyze-modal');
     await m.getByTestId('mk-an-rerun').click();
     await expect(m.getByTestId('mk-an-running')).toBeVisible();
+    // Worker ROLE=jobs (consumer) → ROLE=ai (model giả) → campaign.store_analysis → modal rời trạng thái chạy (bảng gợi ý / rỗng).
+    await expect(m.getByTestId('mk-an-table')).toBeVisible({ timeout: 90_000 });
 
     await page.goto('/campaign/unsubscribe?t=khong-hop-le');
     await expect(page.getByTestId('unsub-invalid')).toBeVisible();
