@@ -97,7 +97,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 13 | [042b](../tips/TIP-042b-lead-routing.md) | W8 | DONE | `tip/042b-lead-routing` | `5e9acd3f` | #89 (xếp chồng #88) |
 | 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | DONE | `tip/042c-record-scope` | `84f6086d` | #90 (xếp chồng #89) |
 | 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | DONE | `tip/022b-agent-channel-behavior` | `d3b0571e` | #91 (xếp chồng #90) |
-| 16 | [037](../tips/TIP-037-marketing.md) | W8 | chờ | `tip/037-marketing` | | |
+| 16 | [037](../tips/TIP-037-marketing.md) | W8 | DONE | `tip/037-marketing` | `9100b2d7` | #92 (xếp chồng #91) |
 | 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | chờ | `tip/038-insights-dashboard` | | |
 | 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | chờ | `tip/039-billing-lifecycle` | | |
 | 19 | [040](../tips/TIP-040-platform-admin.md) | W8 | chờ | `tip/040-platform-admin` | | |
