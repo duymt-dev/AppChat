@@ -772,6 +772,12 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `campaign.resume` | write | | |
 | `campaign.cancel` | write | | |
 | `campaign.delete` | delete | | |
+| `campaign.analyze` | write (chỉ xếp hàng run `campaign.analyze` — worker ROLE=ai gọi model, AI Credit theo CreditMeter, DC-246) | | |
+| `campaign.draft_content` | read, AI (viết lại theo giọng — chỉ trả đề xuất, không lưu) | | |
+| `campaign.audience_import` | write (tệp CSV / XLSX → lô id khách thật; không đổi chủ, không đăng ký lại khách đã huỷ nhận) | | |
+| `campaign.recipient_export` | read (CSV theo scope CRM người xuất, chặn công thức) | | |
+| `campaign.resend_unread` | write (tạo NHÁP mới — vẫn qua duyệt + khoá 48 giờ) | | |
+| `campaign.dispatch` · `campaign.record_delivery` · `campaign.record_metric` · `campaign.store_analysis` · `campaign.unsubscribe` | hệ thống (`permission: self`, SYSTEM_ONLY — chỉ actor `system:campaign-*` qua Executor; HTTP / Trợ lý / agent 403) | | |
 
 **loyalty** (`loyalty.view` · `loyalty.adjust` · `loyalty.config`)
 - `loyalty.get_member`: read, agent ✓.
@@ -974,7 +980,7 @@ type UiCommand =
 | sales | `GET /v1/quotes?status=&contact_id=` · `GET /v1/quotes/:id` (gồm các version) · `GET /v1/quotes/:id/pdf` · `GET /v1/orders?…` · `GET /v1/orders/:id` · `GET /v1/invoices?…` · `GET /v1/invoices/:id` · `GET /v1/invoices/:id/qr` |
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
 | support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
-| marketing | `GET /v1/segments` · `POST /v1/segments/preview` (đọc) · `GET /v1/campaigns?status=` · `GET /v1/campaigns/:id` (+stats) · `GET /v1/campaign-suggestions` |
+| marketing | `GET /v1/segments` · `segment.preview` (action đọc) · `GET /v1/campaigns?status=&channel=&q=&page=&limit=` · `GET /v1/campaigns/meta` · `GET /v1/campaigns/:id` (+stats, 50 người nhận đầu) · `GET /v1/campaigns/:id/recipients?status=&page=&limit=` · `GET /v1/campaign-suggestions` · `GET /v1/campaign-analyses/:run_id` (trạng thái lượt phân tích của chính người xem) · công khai `GET /v1/public/campaign-unsubscribe/:token` + `POST …/confirm` (TIP-037) |
 | loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=&page=&limit=` · `GET /v1/loyalty/members/:contactId` · `GET /v1/loyalty/members/:contactId/ledger` · `GET /v1/loyalty/lookup?phone=` · `GET /v1/loyalty/overview` · `GET /v1/loyalty/members/:contactId/files` (+ `/:fileId` bytes) — bổ sung TIP-036, schema chung `packages/shared/src/api/loyalty.ts` |
 | ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/sources/:id/download` (TIP-020b — byte / văn bản, URL / catalog trả JSON mô tả; không tải lại website) · `GET /v1/kb/suggestions?status=&cursor=&limit=` (P1; TIP-043 — `{data, next_cursor, meta:{pending}}`) · `GET /v1/kb/suggestions/:id` · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |

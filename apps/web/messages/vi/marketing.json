@@ -121,14 +121,15 @@
     "subList": "{n} cơ hội Marketing được phát hiện",
     "subDetail": "Chi tiết đề xuất · kiểm tra trước khi tạo chiến dịch",
     "loading": "AI đang phân tích dữ liệu khách hàng (tổng hợp, không gửi thông tin cá nhân) — có thể mất vài phút…",
-    "intro": "Có <b>{n} gợi ý</b> từ lần phân tích gần nhất. Số khách đếm theo dữ liệu thật trong phạm vi bạn xem được.",
+    "intro": "Có <b>{n} gợi ý</b> từ lần phân tích gần nhất — mỗi đề xuất nêu rõ nên làm gì, gửi cho ai, vì sao, bằng kênh nào và vào thời điểm nào. Số khách đếm theo dữ liệu thật trong phạm vi bạn xem được.",
     "col": {
       "name": "Chiến dịch AI đề xuất",
       "count": "Số khách",
       "reason": "Lý do đề xuất",
       "channel": "Kênh",
       "when": "Thời điểm",
-      "kind": "Loại"
+      "kind": "Loại",
+      "segment": "Nhóm khách hàng"
     },
     "rerun": "Yêu cầu AI phân tích lại",
     "pickHint": "Chọn một gợi ý để xem chi tiết",
@@ -172,6 +173,30 @@
       "value": "Giá trị & tần suất mua",
       "documents": "Báo giá · hợp đồng · đơn hàng",
       "campaigns": "Lịch sử nhận chiến dịch"
+    },
+    "f": {
+      "not": "Trừ {x}",
+      "group": "Nhóm {v}",
+      "tag": "Thẻ {v}",
+      "stage": "Giai đoạn {v}",
+      "source": "Nguồn {v}",
+      "tier": "Hạng {v}",
+      "spentGte": "Chi tiêu ≥ {v}",
+      "spentLte": "Chi tiêu ≤ {v}",
+      "spentBetween": "Chi tiêu {v}–{v2}",
+      "ordersGte": "Đã mua ≥ {n} đơn",
+      "ordersLte": "Đã mua ≤ {n} đơn",
+      "bought": "Đã mua sản phẩm chọn",
+      "notBought": "Chưa mua sản phẩm chọn",
+      "neverOrder": "Chưa mua lần nào",
+      "idleOrder": "Không mua trên {n} ngày",
+      "recentOrder": "Mua trong {n} ngày",
+      "idleTouch": "Không tương tác trên {n} ngày",
+      "recentTouch": "Tương tác trong {n} ngày",
+      "beforeOrder": "Mua lần cuối trước {d}",
+      "afterOrder": "Mua lần cuối từ {d}",
+      "beforeTouch": "Tương tác cuối trước {d}",
+      "afterTouch": "Tương tác cuối từ {d}"
     }
   },
   "wiz": {

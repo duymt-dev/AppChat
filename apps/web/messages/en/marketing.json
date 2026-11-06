@@ -121,14 +121,15 @@
     "subList": "{n} marketing opportunities found",
     "subDetail": "Suggestion details · review before creating the campaign",
     "loading": "AI is analysing customer data (aggregates only, no personal data sent) — this may take a few minutes…",
-    "intro": "There are <b>{n} suggestions</b> from the latest analysis. Customer counts come from real data within your scope.",
+    "intro": "<b>{n} suggestions</b> from the latest analysis — each one says what to do, who to send it to, why, on which channel and when. Customer counts come from real data within what you can see.",
     "col": {
       "name": "Suggested campaign",
       "count": "Customers",
       "reason": "Reason",
       "channel": "Channel",
       "when": "Timing",
-      "kind": "Type"
+      "kind": "Type",
+      "segment": "Customer group"
     },
     "rerun": "Ask AI to re-analyse",
     "pickHint": "Pick a suggestion to see details",
@@ -172,6 +173,30 @@
       "value": "Value & purchase frequency",
       "documents": "Quotes · contracts · orders",
       "campaigns": "Campaign history"
+    },
+    "f": {
+      "not": "Except {x}",
+      "group": "Group {v}",
+      "tag": "Tag {v}",
+      "stage": "Stage {v}",
+      "source": "Source {v}",
+      "tier": "Tier {v}",
+      "spentGte": "Spent ≥ {v}",
+      "spentLte": "Spent ≤ {v}",
+      "spentBetween": "Spent {v}–{v2}",
+      "ordersGte": "≥ {n} orders",
+      "ordersLte": "≤ {n} orders",
+      "bought": "Bought selected products",
+      "notBought": "Has not bought selected products",
+      "neverOrder": "Never ordered",
+      "idleOrder": "No order for {n}+ days",
+      "recentOrder": "Ordered within {n} days",
+      "idleTouch": "No interaction for {n}+ days",
+      "recentTouch": "Interacted within {n} days",
+      "beforeOrder": "Last order before {d}",
+      "afterOrder": "Last order since {d}",
+      "beforeTouch": "Last interaction before {d}",
+      "afterTouch": "Last interaction since {d}"
     }
   },
   "wiz": {

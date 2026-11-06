@@ -12,8 +12,16 @@ import { useMarketingUi } from '../marketing-store';
 import { suggestionsQuery } from '../api';
 import { useCampaignAnalysis } from '../hooks/useCampaignAnalysis';
 import type { MarketingMeta, Suggestion } from '../types';
+import { segmentSummary } from '../segment-summary';
 
-const COLS = ['kind', 'name', 'count', 'reason', 'channel', 'when'] as const;
+const COLS = ['kind', 'name', 'segment', 'count', 'reason', 'channel', 'when'] as const;
+/** Màu nhãn loại gợi ý (cùng bảng màu panel AI). */
+const KIND_TONE: Record<string, [string, string]> = {
+  reactivation: [color.hotText, color.dangerSoftBg],
+  upsell: [color.hotText, color.dangerSoftBg],
+  conversion: [color.amberText, color.alertBg],
+  aftercare: [color.amberText, color.alertBg],
+};
 
 function SuggestionList({ rows, onRerun, busy }: { rows: Suggestion[]; onRerun: () => void; busy: boolean }) {
   const t = useTranslations('marketing');
@@ -32,11 +40,16 @@ function SuggestionList({ rows, onRerun, busy }: { rows: Suggestion[]; onRerun: 
         </div>
         {rows.map((s) => (
           <div key={s.id} className={styles.row} onClick={() => set({ analyze: 'detail', pick: s.id })} data-suggestion={s.id}>
-            <span className={styles.soft}>{t(`an.kind.${s.kind}`)}</span>
+            <span>
+              <span className={styles.pri} style={{ color: (KIND_TONE[s.kind] ?? KIND_TONE.conversion!)[0], background: (KIND_TONE[s.kind] ?? KIND_TONE.conversion!)[1] }}>
+                {t(`an.kind.${s.kind}`)}
+              </span>
+            </span>
             <span className={styles.b}>
               {s.title}
               {s.status === 'used' ? <span className={styles.used}>{t('an.used')}</span> : null}
             </span>
+            <span className={styles.soft}>{segmentSummary(s.filter, t, (v) => fmt.money(v))}</span>
             <span className={styles.mono}>{fmt.number(s.est_count)}</span>
             <span className={styles.why}>{s.reason}</span>
             <span className={styles.soft}>{t(`chan.${s.channel}`)}</span>

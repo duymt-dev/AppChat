@@ -120,6 +120,11 @@ describe('AC6 phân tích AI', () => {
     expect((await mk.get(`/campaign-analyses/${runId}`, other)).status).toBe(404);
     // Gợi ý không tự tạo / gửi chiến dịch.
     expect(await (await mk.db()).campaign.count({ where: { suggestionId: { not: null } } })).toBe(0);
+    // Người tạo chiến dịch TỪ gợi ý (không chọn thêm khách) → nháp, người nhận = bộ lọc của gợi ý; gợi ý chuyển "đã dùng".
+    const used = await mk.act('campaign.create', { name: 'Từ gợi ý', channel: 'zalo', suggestion_id: list[0].id, content: { text: 'Chào {ten}' } });
+    expect(used.status, JSON.stringify(used.body)).toBe(200);
+    expect((await mk.get(`/campaigns/${used.body.data.result.campaign_id}`)).body.data).toMatchObject({ status: 'draft', source: 'ai' });
+    expect((await (await mk.db()).campaignSuggestion.findUniqueOrThrow({ where: { id: list[0].id } })).status).toBe('used');
   });
 
   it('ví 0 → run failed, không gợi ý mới; người yêu cầu mất campaign.manage → không chạy model', async () => {

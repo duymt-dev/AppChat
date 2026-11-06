@@ -18,7 +18,7 @@ const ghost = `
   font-family: inherit;
   cursor: pointer;
 `;
-const GRID = '96px 1.5fr 1.5fr 84px 2fr 110px 120px';
+const GRID = '112px 1.5fr 1.5fr 84px 2fr 110px 120px';
 
 export const useAnalyzeStyles = createStyles(({ css, responsive }) => ({
   veil: css`
@@ -203,6 +203,7 @@ export const useAnalyzeStyles = createStyles(({ css, responsive }) => ({
   pri: css`
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
     height: 24px;
     padding: 0 8px;
     border-radius: ${radius.pill}px;

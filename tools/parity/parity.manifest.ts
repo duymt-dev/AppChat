@@ -1110,6 +1110,10 @@ export const MANIFEST: ParityEntry[] = [
     app: (p) => p.locator('[data-testid="mk-ai-open"]').click(),
     appWait: '[data-campaign]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
+    mask: [
+      { x: 1100, y: 112, width: 300, height: 76, reason: 'PD-021: lời mở theo gợi ý đã lưu (không "dữ liệu tháng này" giả)' },
+      { x: 1076, y: 222, width: 300, height: 460, reason: 'PD-021: chữ thẻ = gợi ý AI thật (prototype nêu ZNS / tỉ lệ mở dự kiến — D29, DC-240)' },
+    ],
   },
   {
     id: 'loyalty:overview',

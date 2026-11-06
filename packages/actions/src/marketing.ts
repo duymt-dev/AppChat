@@ -73,7 +73,8 @@ export const campaignCreate = defineAction({
     send: z.enum(['now', 'schedule', 'ai_time']).optional(),
     scheduled_at: z.string().optional(),
     suggestion_id: z.string().optional(),
-  }).refine((v) => (v.segment_ids?.length ?? 0) + (v.contact_ids?.length ?? 0) + (v.audience_batch_id ? 1 : 0) > 0, { message: 'audience', path: ['contact_ids'] }),
+    // Tạo từ gợi ý AI: tập người nhận = bộ lọc của gợi ý (snapshot lúc gửi duyệt) — không cần chọn thêm.
+  }).refine((v) => (v.segment_ids?.length ?? 0) + (v.contact_ids?.length ?? 0) + (v.audience_batch_id ? 1 : 0) + (v.suggestion_id ? 1 : 0) > 0, { message: 'audience', path: ['contact_ids'] }),
   output: z.object({ campaign_id: z.string(), code: z.string(), est_recipients: z.number(), est_credits: z.number() }),
   permission: 'campaign.manage',
   risk: 'write',
