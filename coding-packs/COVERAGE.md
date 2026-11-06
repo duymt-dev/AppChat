@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 11 | 4 | 13 | 18 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 114 | 10 | 3 | 1 | 25 | 10 | 5 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 125 | 10 | 3 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 159 | 13 | 3 | 6 | 12 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 331 | 70 | 1 | 4 | 48 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 42 | 0 | 42 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 66 | 12 | 3 | 13 | 29 | 3 | 0 | 0 |
-| **Tổng** | **1055** | **163** | **57** | **43** | **169** | **37** | **69** | **0** |
+| **Tổng** | **1066** | **163** | **57** | **43** | **158** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -236,17 +236,17 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
-| IO-CRM | Khách hàng/customfields: nhập và xuất XLSX/CSV, AI-first và thủ công | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/task2–4/AC01/04/05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-CATALOG | Sản phẩm/dịch vụ/biến thể: AI mapping, import032b và XLSX/CSV export | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC01/04/05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-QUOTE | Báo giá+items: nhập nháp, xuất bảng/filechứngtừ, cả AI và thủ công | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-ORDER | Đơn+items: nhập nháp không trừ kho/ghi thu, xuất XLSX/CSV và chứng từ hỗ trợ | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/06; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-CONTRACT | Hợp đồng metadata/PDF/DOCX nhập nháp, xuất bảng và file nguồn/đãký giữ nguyên | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/08; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-INVOICE | Đề nghị thanh toán: nhập nháp theođơn/đợt, xuất bảng/PDF, không tựghi payment | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b ma trận/AC02/04/06; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-AI-FIRST | AI là luồng ưu tiên: hiểufile/yêucầu, mapping, sửa bằng hội thoại, live model thật | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task2–3/AC01–04/09–10; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-MANUAL | Thủ công độc lập không LLM, dùng cùngvalidation/permission/backend vớiAI | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task4/AC05; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-FILES | File tải thật, lỗi theo dòng, XLSX/CSVZIP/PDF/DOCX theo capability, authenticated download | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task3/5/AC03/08; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-SAFETY | Không vượt quyền/fieldmask, không promptinjection/SQL, không importpaid/signed/ledger tùyý | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task1/2/5/AC06; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
-| IO-RETRY | Preview hash/version, confirm thật, retry/cancel/partial/reimport không duplicate | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | CHƯA | TIP038b task1/2/5/AC03/07; mới là kế hoạch, chưa runtime/nghiệm thu model thật |
+| IO-CRM | Khách hàng/customfields: nhập và xuất XLSX/CSV, AI-first và thủ công | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — P1 contact.import + scope; ai:live dt-im/ex-contact; E2E mock + http; reports/TIP-038b-completion.md |
+| IO-CATALOG | Sản phẩm/dịch vụ/biến thể: AI mapping, import032b và XLSX/CSV export | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — product.import 032b + product.export; ai:live dt-im/ex-product; E2E http; reports/TIP-038b-completion.md |
+| IO-QUOTE | Báo giá+items: nhập nháp, xuất bảng/filechứngtừ, cả AI và thủ công | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — khoá nhóm nguyên tử, cảnh báo giá; ai:live dt-im/ex-quote; reports/TIP-038b-completion.md |
+| IO-ORDER | Đơn+items: nhập nháp không trừ kho/ghi thu, xuất XLSX/CSV và chứng từ hỗ trợ | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — đơn nháp không trừ kho; ai:live dt-im/ex-order; reports/TIP-038b-completion.md |
+| IO-CONTRACT | Hợp đồng metadata/PDF/DOCX nhập nháp, xuất bảng và file nguồn/đãký giữ nguyên | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — metadata + enum vi; ai:live dt-im/ex-contract (PDF/DOCX nội dung: 030b, DV-039); reports/TIP-038b-completion.md |
+| IO-INVOICE | Đề nghị thanh toán: nhập nháp theođơn/đợt, xuất bảng/PDF, không tựghi payment | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — theo mã đơn, không phát sinh khoản thu; ai:live dt-im/ex-invoice; reports/TIP-038b-completion.md |
+| IO-AI-FIRST | AI là luồng ưu tiên: hiểufile/yêucầu, mapping, sửa bằng hội thoại, live model thật | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — Trợ lý + tệp đính kèm, mẫu che, sửa bằng lời; ai:live 12/12 model thật; reports/TIP-038b-completion.md |
+| IO-MANUAL | Thủ công độc lập không LLM, dùng cùngvalidation/permission/backend vớiAI | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — TransferPanel cùng backend, không LLM; E2E mock + http; reports/TIP-038b-completion.md |
+| IO-FILES | File tải thật, lỗi theo dòng, XLSX/CSVZIP/PDF/DOCX theo capability, authenticated download | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — tệp lỗi CSV thật; xuất data job + tải xác thực; reports/TIP-038b-completion.md |
+| IO-SAFETY | Không vượt quyền/fieldmask, không promptinjection/SQL, không importpaid/signed/ledger tùyý | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — quyền hiện tại, agent không cấp, mẫu che PII, thân tệp xuất không vào model; ai:live 0 vi phạm; reports/TIP-038b-completion.md |
+| IO-RETRY | Preview hash/version, confirm thật, retry/cancel/partial/reimport không duplicate | Chủ nhà yêu cầu nhập/xuất AI-first; DC244 | 038b | ĐẠT | TIP038b DONE — khoá idempotency theo đơn vị, receipts, version 409, nhập lại → trùng; reports/TIP-038b-completion.md |
 | REQ-F01-a | Danh sách khách D42 (page+limit), lọc giai đoạn / thẻ / trường tuỳ biến, sắp xếp, tìm không dấu | 01-REQUIREMENTS-MATRIX.md:122 | 015, 026 | ĐẠT | packages/core/src/crm/repos/contacts.repo.ts:53 (f_unaccent LIKE); test apps/api/test/integration/crm-contacts.test.ts (AC8), crm-ui.test.ts (sort + EXPLAIN), apps/web/e2e/http/customers-ui.spec.ts |
 | REQ-F01-b | Kanban khách theo giai đoạn (Lead mới → … → Đã mua, + Thất bại), kéo đổi giai đoạn | 01-REQUIREMENTS-MATRIX.md:122 | 015, 026 | ĐẠT | packages/core/src/crm/repos/contacts.repo.ts:83 boardIds; contact-write.handlers.ts:89 set_stage; test crm-ui.test.ts "kanban /contacts/board", apps/web/e2e/customers.spec.ts |
 | REQ-F01-c | Cột "AI gợi ý" + nút "Giao AI" ở danh sách khách chạy thật (không phải toast) | 01-REQUIREMENTS-MATRIX.md:122 | 015b | ĐẠT | Cột "AI gợi ý" từ luật thật (nextActions) + nút ⚡ Giao AI (DC-343) — không còn message.info; e2e contact-memory mock + http |
