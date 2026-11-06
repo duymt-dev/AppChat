@@ -3,11 +3,13 @@
 // assistant(người dùng), run của cây — xem trước / xác nhận như call_action; không tin `x-action-source` / body khi có intent.
 // Form có ô bí mật: lần đầu gửi bí mật thẳng (không qua model) → preview; bí mật cất vault ngắn hạn (mã hoá), lần xác nhận gửi
 // `secret_vault` thay giá trị — confirm_token / log / idempotency không chứa bí mật thô.
+// Action quản trị (`platform_admin` — TIP-040, DC-368): nhánh chọn theo REGISTRY (không theo header client) → chỉ xác thực JWT, không
+// X-Workspace-Id / membership; ngữ cảnh nền tảng dựng phía server, quyền admin kiểm sống trong executor. Không qua GenUI / Trợ lý.
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, Post, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
 import { registry } from '@appchat/actions';
-import { ActionExecutor, AUTHORIZER, GenUiIntents, RequestContext, runGenUiAction, SecretVault, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
+import { ActionExecutor, AUTHORIZER, GenUiIntents, RequestContext, platformContext, runGenUiAction, SecretVault, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from './request-actor';
 
@@ -49,7 +51,8 @@ export class ActionsController {
     const ctx = await this.context(req);
     const out = [];
     for (const a of registry) {
-      if (!(await this.authorizer.can(ctx, a.permission))) continue;
+      // Action quản trị không thuộc danh mục của workspace (trang /admin đọc riêng — TIP-040).
+      if (a.permission === 'platform_admin' || !(await this.authorizer.can(ctx, a.permission))) continue;
       out.push({
         id: a.id,
         module: a.module,
@@ -67,6 +70,14 @@ export class ActionsController {
   async run(@Param('id') id: string, @Body() raw: unknown, @Req() req: IncomingMessage, @Res({ passthrough: true }) res: ServerResponse) {
     const parsed = body.safeParse(raw ?? {});
     if (!parsed.success) throw new AppError('VALIDATION_FAILED', 422, { body: 'invalid' });
+    if (registry.find((a) => a.id === id)?.permission === 'platform_admin') {
+      if (header(req, 'x-genui-intent') || (header(req, 'x-action-source') ?? 'ui') !== 'ui') throw new AppError('FORBIDDEN', 403, { source: 'platform' });
+      const userId = await this.actors.user(req);
+      RequestContext.patch({ userId });
+      const out = await this.executor.executePlatform(platformContext(userId, { idempotencyKey: header(req, 'idempotency-key'), confirmToken: parsed.data.confirm_token }), id, parsed.data.input);
+      res.statusCode = out.status;
+      return { data: out.data };
+    }
     const ctx = await this.context(req);
     ctx.confirmToken = parsed.data.confirm_token;
     const intent = header(req, 'x-genui-intent');

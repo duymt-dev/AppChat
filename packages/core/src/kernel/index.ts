@@ -14,6 +14,8 @@ export * from './actions/handler-registry';
 export * from './actions/policy';
 export * from './actions/confirm-token';
 export * from './actions/executor';
+export * from './actions/platform-context';
+export { executePlatformAction, previewPlatformAction, type PlatformExecuteOutcome } from './actions/platform-execution';
 export * from './actions/undo.service';
 export * from './actions/tip-owners';
 export * from './actions/authorizer';

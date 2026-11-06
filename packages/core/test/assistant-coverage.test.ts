@@ -28,8 +28,8 @@ function handlers(): Map<string, { preview: boolean }> {
 }
 
 const H = handlers();
-// Callback system-only (worker) không đi qua Trợ lý / UI — ngoài phạm vi phủ.
-const DEFS = registry.filter((a) => H.has(a.id) && !SYSTEM_ONLY.has(a.id));
+// Callback system-only (worker) không đi qua Trợ lý / UI; action quản trị nền tảng chỉ chạy từ màn /admin (DC-368) — ngoài phạm vi phủ.
+const DEFS = registry.filter((a) => H.has(a.id) && !SYSTEM_ONLY.has(a.id) && a.permission !== 'platform_admin');
 const IMPLEMENTED = new Set(DEFS.map((a) => a.id));
 
 /** Đường dẫn mọi ô `*_id` / `id` trong input (lồng object / array / anyOf). */

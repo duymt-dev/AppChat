@@ -1,6 +1,13 @@
-// Controller HTTP của domain `platform` nằm trong thư mục này. Stub TIP-001; TIP 040 thêm controller.
-import { Module } from '@nestjs/common';
+// Controller HTTP của domain `platform` (TIP-040): /v1/admin/session + màn quản trị nền tảng. Chỉ gắn khi env đủ DB + Redis + JWT_SECRET
+// (`register`) — như identity / authz / billing.
+import { Module, type DynamicModule } from '@nestjs/common';
 import { PlatformModule } from '@appchat/core';
+import { ActorModule } from '../kernel/actor.module';
+import { AdminSessionController } from './admin-session.controller';
 
 @Module({ imports: [PlatformModule] })
-export class PlatformHttpModule {}
+export class PlatformHttpModule {
+  static register(): DynamicModule {
+    return { module: PlatformHttpModule, imports: [PlatformModule, ActorModule], controllers: [AdminSessionController] };
+  }
+}
