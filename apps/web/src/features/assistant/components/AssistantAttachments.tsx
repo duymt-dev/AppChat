@@ -1,9 +1,10 @@
 // Hàng tệp đính kèm của ô soạn Trợ lý (TIP-023c 8c): chip mỗi tệp — đang tải (huỷ) / lỗi (thử lại) / sẵn sàng (bỏ). Không hiện URL
-// lưu trữ. Input file ẩn — menu ＋ "Thêm tệp" mở nó qua `openAttachPicker`.
+// lưu trữ. Input file ẩn — menu ＋ "Thêm tệp" mở nó qua `openAttachPicker`. Tệp sẵn sàng có extension đăng ký theo mime (038b: CSV / XLSX
+// "Nhập dữ liệu từ tệp này") → nút gợi ý điền câu lệnh vào ô soạn (người dùng vẫn tự gửi).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon } from '@appchat/ui';
-import { ATTACH_ACCEPT } from '@/shared/assistant/attachment-extensions';
+import { ATTACH_ACCEPT, attachmentUiFor } from '@/shared/assistant/attachment-extensions';
 import { useAttachmentStyles } from '../styles/attachments.styles';
 import type { PendingAttachment } from '../hooks/useAssistantAttachments';
 
@@ -17,10 +18,13 @@ export interface AssistantAttachmentsProps {
   onAdd: (files: FileList | null) => void;
   onRemove: (key: string) => void;
   onRetry: (key: string) => void;
+  /** Gợi ý của extension (labelKey i18n đầy đủ) → điền ô soạn. */
+  onHint?: (labelKey: string) => void;
 }
 
-export function AssistantAttachments({ items, onAdd, onRemove, onRetry }: AssistantAttachmentsProps) {
+export function AssistantAttachments({ items, onAdd, onRemove, onRetry, onHint }: AssistantAttachmentsProps) {
   const t = useTranslations('assistant.attachments');
+  const tr = useTranslations();
   const { styles, cx } = useAttachmentStyles();
   return (
     <>
@@ -50,6 +54,13 @@ export function AssistantAttachments({ items, onAdd, onRemove, onRetry }: Assist
                   {t('retry')}
                 </button>
               ) : null}
+              {x.status === 'ready' && onHint
+                ? attachmentUiFor(x.mime).map((e) => (
+                    <button key={e.key} type="button" className={cx(styles.btn, styles.link)} onClick={() => onHint(e.labelKey)} data-testid="asst-attachment-hint" data-ext={e.key}>
+                      {tr(e.labelKey as never)}
+                    </button>
+                  ))
+                : null}
               <button type="button" className={styles.btn} aria-label={x.status === 'uploading' ? t('cancel') : t('remove', { name: x.name })} onClick={() => onRemove(x.key)} data-testid="asst-attachment-remove">
                 <Icon name="ic-x" size={12} />
               </button>

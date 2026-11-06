@@ -25,6 +25,7 @@ export const MODULES = [
   'loyalty',
   'settings',
   'documents',
+  'data-transfer',
   'platformAdmin',
 ] as const;
 

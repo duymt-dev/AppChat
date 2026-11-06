@@ -12,6 +12,7 @@ import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
+import { dataTransferRoute } from './domains/data-transfer';
 import { dataJobBlob, dataJobsRoute } from './domains/data-jobs';
 import { channelOperationsRoute } from './domains/channel-operations';
 import { contactSyncRoute } from './domains/contact-sync';
@@ -76,6 +77,7 @@ export const mockTransport: Transport = {
       mockRoutes[path] ??
       productsParamRoute(path) ??
       productImportRoute(path) ??
+      dataTransferRoute(path) ??
       dataJobsRoute(path) ??
       channelOperationsRoute(path) ??
       contactSyncRoute(path) ??
@@ -204,7 +206,8 @@ export const mockTransport: Transport = {
     // Tên theo id để guard giả của hợp đồng từ tệp (TIP-030b) kiểm loại / tên.
     mockUploads.set(id, { name: file.name, size: file.size });
     // Nhập sản phẩm (TIP-032b): mock đọc chữ CSV để tách dòng như server.
-    if (purpose === 'import') importTexts.set(id, { name: file.name, text: await file.text() });
+    // Nhập dữ liệu dùng chung (TIP-038b): tệp CSV đính kèm Trợ lý cũng đọc được như tệp nhập.
+    if (purpose === 'import' || (purpose === 'attachment' && /\.csv$/i.test(file.name))) importTexts.set(id, { name: file.name, text: await file.text() });
     return { file_id: id, name: file.name, size: file.size };
   },
 

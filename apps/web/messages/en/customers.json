@@ -325,6 +325,7 @@
     "value": "Highest spend"
   },
   "importer": {
+    "advanced": "Import with row checks",
     "title": "Import customers",
     "hint": "Choose a CSV or Excel (.xlsx) file — the first row holds column names; the first sheet is read.",
     "pick": "Choose file",

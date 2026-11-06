@@ -340,6 +340,7 @@
     }
   },
   "attachments": {
+    "dataImport": "Import data from this file",
     "uploading": "Uploading…",
     "retry": "Retry",
     "cancel": "Cancel upload",

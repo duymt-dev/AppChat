@@ -325,6 +325,7 @@
     "value": "Chi tiêu cao nhất"
   },
   "importer": {
+    "advanced": "Nhập có kiểm từng dòng",
     "title": "Nhập khách hàng",
     "hint": "Chọn tệp CSV hoặc Excel (.xlsx) — hàng đầu là tên cột, đọc sheet đầu tiên.",
     "pick": "Chọn tệp",

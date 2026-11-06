@@ -46,7 +46,9 @@ async function draftPlan(tx: TenantTx, ctx: ActionContext, i: CommitIn, now: Dat
     throw new AppError('CONFLICT', 409, { if_version: 'stale', version: String(plan.version) });
   requireImport(ctx.authz, plan.entity as TransferEntity);
   const block = commitBlocker(plan, now);
-  if (block) throw new AppError('INVALID_STATE', 409, block);
+  // Thông điệp chỉ đường cho Trợ lý / API: còn dòng lỗi với `all_valid` → đổi chính sách (KHÔNG lập kế hoạch mới — kế hoạch mới vẫn lỗi).
+  if (block)
+    throw new AppError('INVALID_STATE', 409, block, block.rows === 'has_invalid' && plan.entity !== 'product' ? `${plan.invalid} invalid rows: call transfer.update_mapping {plan_id, if_version, row_policy:"only_valid"} to skip them (user choice), then transfer.commit with the new version` : undefined);
   return plan;
 }
 

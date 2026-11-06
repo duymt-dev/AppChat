@@ -59,7 +59,7 @@ describe('guard tệp đính kèm', () => {
     registerAttachmentExtension({ key: 'crm.import', mimes: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'], hint: 'Nhập khách hàng từ bảng tính' });
     const out = await resolveAttachments(db, ME, [id(1), id(6), id(1)], NOW);
     expect(out).toEqual([
-      { id: id(1), name: 'bang-gia.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size: 2048, handlers: ['crm.import'] },
+      { id: id(1), name: 'bang-gia.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size: 2048, handlers: ['crm.import'], hints: ['Nhập khách hàng từ bảng tính'] },
       { id: id(6), name: 'anh.png', mime: 'image/png', size: 64 },
     ]);
     expect(JSON.stringify(out)).not.toMatch(/storage|secret|http/);

@@ -13,7 +13,8 @@ export const DATA_IMPORT_EXTENSION: AttachmentExtension = {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.ms-excel',
   ],
-  hint: 'transfer.sample → transfer.plan → transfer.commit',
+  // Vào dòng ngữ cảnh tệp: model đi đúng đường nhập dùng chung (mọi thực thể), không gọi thẳng contact.import / delegate.
+  hint: 'import ANY entity (contact = khách hàng, product = sản phẩm / dịch vụ, quote = báo giá, order = đơn hàng, contract = hợp đồng, invoice = đề nghị thanh toán / payment request) from this file via call_action transfer.sample {entity,file_id} → transfer.plan {entity,file_id,mapping} → transfer.commit {plan_id,if_version}; never contact.import / product.import directly',
 };
 
 export const registerDataImportExtension = () => registerAttachmentExtension(DATA_IMPORT_EXTENSION);

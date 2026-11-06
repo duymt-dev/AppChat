@@ -24,6 +24,7 @@ export interface ComposerProps {
 
 export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onMode, testId }: ComposerProps) {
   const t = useTranslations('assistant');
+  const tAll = useTranslations();
   const { styles, cx } = useComposerStyles();
   const ui = useAssistantUi();
   const setMode = (m: Mode) => (onMode ? onMode(m) : ui.set({ mode: m, pop: null }));
@@ -31,7 +32,7 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
 
   return (
     <div className={styles.box} data-testid={testId}>
-      <AssistantAttachments items={att.items} onAdd={att.add} onRemove={att.remove} onRetry={att.retry} />
+      <AssistantAttachments items={att.items} onAdd={att.add} onRemove={att.remove} onRetry={att.retry} onHint={(k) => ui.set({ draft: tAll(k as never) })} />
       <textarea
         className={styles.area}
         rows={rows}

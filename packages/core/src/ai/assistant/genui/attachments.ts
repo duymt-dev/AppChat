@@ -20,6 +20,8 @@ export interface TurnAttachment {
   size?: number;
   /** Extension domain nhận được tệp (gợi ý cho model). */
   handlers?: string[];
+  /** Gợi ý của extension (chuỗi action nên gọi) — không chứa dữ liệu tệp. */
+  hints?: string[];
 }
 
 /** Tệp của lượt đã kiểm (thứ tự client gửi, bỏ trùng). Rỗng → []. */
@@ -27,7 +29,8 @@ export async function resolveAttachments(db: Pick<TenantDb, 'file'>, userId: str
   if (!ids.length) return [];
   const files = await requireFiles(db, userId, ids.slice(0, ATTACHMENTS_MAX), ATTACHMENT_RULE, now);
   return files.map((f) => {
-    const handlers = extensionsFor(f).map((e) => e.key);
-    return { id: f.id, name: f.name, mime: f.mime, size: f.size, ...(handlers.length ? { handlers } : {}) };
+    const ext = extensionsFor(f);
+    const handlers = ext.map((e) => e.key);
+    return { id: f.id, name: f.name, mime: f.mime, size: f.size, ...(handlers.length ? { handlers, hints: ext.map((e) => e.hint) } : {}) };
   });
 }

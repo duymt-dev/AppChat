@@ -5,6 +5,7 @@ import { ASSISTANT_COVERAGE } from './manifests/assistant-coverage';
 import { AGENT_CHANNEL_BEHAVIOR } from './manifests/agent-channel-behavior';
 import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
+import { DATA_TRANSFER } from './modules/data-transfer';
 import { hardeningEntries } from './modules/hardening';
 import { PLATFORM_ADMIN } from './modules/platform-admin';
 
@@ -1464,4 +1465,5 @@ export const MANIFEST: ParityEntry[] = [
   ...CONTACT_MEMORY,
   ...hardeningEntries(settingsProto),
   ...PLATFORM_ADMIN,
+  ...DATA_TRANSFER,
 ];

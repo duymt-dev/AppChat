@@ -1,4 +1,4 @@
-// Mock xuất 4 danh sách (TIP-038 pha 3; server: packages/core/src/insights/exports/*). Tập dòng lấy từ CHÍNH route GET danh sách không phân
+// Mock xuất danh sách (TIP-038 pha 3 + 038b P3 sản phẩm / đề nghị thanh toán; server: packages/core/src/insights/exports/*). Tập dòng lấy từ CHÍNH route GET danh sách không phân
 // trang (cùng bộ lọc màn — không lặp điều kiện lọc); ≤ 50 dòng xong ngay kèm link tải, > 50 → 202 job_accepted, `/data-jobs/:id` báo tiến
 // độ rồi xong. Tệp mock là CSV có cùng cột mã / trạng thái (mock không dựng XLSX); ô bắt đầu = + - @ được chặn công thức như bản CSV cũ.
 import { ApiRequestError, LIST_EXPORT_MAX, LIST_EXPORT_SYNC_MAX } from '@appchat/shared';
@@ -8,6 +8,8 @@ import { quotesRoutes } from './quotes';
 import { ordersRoutes } from './orders';
 import { contractsRoutes } from './contracts';
 import { ticketsRoutes } from './tickets';
+import { productsRoutes } from './products';
+import { invoicesRoutes } from './invoices';
 import { exportJob } from './data-jobs';
 
 type Row = { id: string; code: string; status: string } & Record<string, unknown>;
@@ -24,6 +26,9 @@ const LIST: Record<string, [MockRoute, string, (r: Row) => unknown[]]> = {
     (r) => [r.code, r.title, r.contact_name, r.status, r.value],
   ],
   'ticket.export': [ticketsRoutes['/tickets']!, 'ticket', (r) => [r.code, r.title, r.status, r.priority]],
+  // TIP-038b P3: Sản phẩm (giá vốn chỉ khi có quyền — mock bỏ cột) · Đề nghị thanh toán.
+  'product.export': [productsRoutes['/products']!, 'san-pham', (r) => [r.code, r.name, r.type, r.status, r.price]],
+  'invoice.export': [invoicesRoutes['/invoices']!, 'de-nghi-thanh-toan', (r) => [r.code, r.contact_name, r.status, r.amount]],
 };
 
 const cell = (v: unknown) => {

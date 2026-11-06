@@ -340,6 +340,7 @@
     }
   },
   "attachments": {
+    "dataImport": "Nhập dữ liệu từ tệp này",
     "uploading": "Đang tải…",
     "retry": "Thử lại",
     "cancel": "Huỷ tải lên",
