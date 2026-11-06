@@ -57,6 +57,12 @@
       "desc": "The system creates follow-ups for customers silent for 7 days and drops old ones when the customer interacts again. Sends nothing."
     }
   },
+  "digest": {
+    "dispatch": {
+      "title": "Send digest email (system)",
+      "desc": "The system sends the daily / weekly 08:00 digest email to people who turned it on in Notifications — only figures they may see, moved past quiet hours."
+    }
+  },
   "conversation": {
     "mark_read": {
       "title": "Mark as read"
