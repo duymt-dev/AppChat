@@ -130,7 +130,7 @@
 | COM-10-4 | Hạ gói có hiệu lực từ kỳ sau | plans/COMMERCE-DECISIONS.md:246 | 039 | ĐẠT | plan-changes.service.ts `switch` → pending_plan; periods.service.ts áp một lần lúc hết kỳ, không xoá tài nguyên; test apps/api/test/integration/billing-lifecycle.test.ts AC03 "hạ gói → áp từ kỳ sau" |
 | COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
 | COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
-| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | MỘT PHẦN | Chặn có (`CREDIT_EXHAUSTED` wallet.service.ts:83 · test billing.test.ts AC4/AC5); popup nạp FE chưa thấy (chỉ chuỗi i18n errors.json) |
+| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | ĐẠT | Chặn: wallet.service.ts assertBalance / charge (CREDIT_EXHAUSTED); popup: apps/web/src/shared/billing/BillingNoticeHost.tsx (realtime `billing.notice` + 402 từ useAction, nút Nạp chỉ khi billing.manage); test apps/api/test/integration/billing-alerts.test.ts + BillingNoticeHost.test.tsx |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -143,7 +143,7 @@
 | D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | ĐẠT | packages/core/src/marketing/* (phân khúc, duyệt + snapshot, gửi theo lô qua hàng kênh, số đo, AI); integration marketing*.test.ts 31 ca + E2E mock / http marketing |
 | D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
-| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | MỘT PHẦN | Như COM-10-7 |
+| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | ĐẠT | Như COM-10-7; nhắc 80 / 95% → `billing.notice` low (billing.rules.ts); hội thoại sang người nhưng Hộp thư / dữ liệu / trả lời tay vẫn dùng (credit-handoff.consumer.ts) |
 | D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | MỘT PHẦN | Seed có (billing/seed.ts · test billing.test.ts AC2); `admin.plan.upsert` chưa có |
 | D11 | RBAC Owner + Member | 01-REQUIREMENTS-MATRIX.md:262 | — | NGOÀI | Thay bằng D27 |
 | D12 | Không Docker | 01-REQUIREMENTS-MATRIX.md:263 | — | QUY-TẮC | Không có Dockerfile trong repo (find) |

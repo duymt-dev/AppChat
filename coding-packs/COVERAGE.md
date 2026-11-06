@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 11 | 4 | 13 | 18 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 108 | 15 | 3 | 1 | 26 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 155 | 17 | 3 | 6 | 12 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 320 | 71 | 1 | 4 | 58 | 3 | 0 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 109 | 14 | 3 | 1 | 26 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 157 | 15 | 3 | 6 | 12 | 12 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 321 | 71 | 1 | 4 | 57 | 3 | 0 | 0 |
 | E. standards/* | 200 | 48 | 1 | 6 | 33 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 39 | 1 | 44 | 0 | 4 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 61 | 14 | 4 | 13 | 31 | 3 | 0 | 0 |
-| **Tổng** | **1025** | **177** | **60** | **43** | **182** | **37** | **69** | **0** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 40 | 1 | 43 | 0 | 4 | 5 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 62 | 13 | 4 | 13 | 31 | 3 | 0 | 0 |
+| **Tổng** | **1031** | **173** | **59** | **43** | **181** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -349,7 +349,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-L01 | Credit: mỗi lần gọi LLM ghi token × đơn giá model → credit; ví theo workspace; lịch sử chi tiêu | 01-REQUIREMENTS-MATRIX.md:187 | 009, 019 | ĐẠT | packages/core/src/billing/services/credit-meter.ts; wallet.service.ts; `GET /billing/ledger`; test billing.test.ts AC4–AC5, ai-runtime.test.ts "AC4 2 bước LLM … trừ ví đúng đơn giá" |
 | REQ-L02 | Bảng gói + hạn mức trong DB (seed theo prototype), chặn thêm kênh / agent / user khi vượt | 01-REQUIREMENTS-MATRIX.md:188 | 009 | ĐẠT | packages/core/src/billing/seed.ts; quota.service.ts; dùng ở channel-connect.handlers.ts:38, agent.handlers.ts:22, member-invite.handler.ts:31; test billing.test.ts AC2, AC8, settings.test.ts "vượt hạn mức gói … 402" |
 | REQ-L03a | Hết credit → chặn AI (agent / Trợ lý), hội thoại `auto` chuyển về người có lý do; dữ liệu + hộp thư vẫn dùng | 01-REQUIREMENTS-MATRIX.md:189 | 009, 022 | ĐẠT | credit-meter.ts assertBalance; packages/core/src/ai/reply/reply.service.ts:144 handoff 'credit'; test ai-runtime.test.ts "AC4 ví 0 → CREDIT_EXHAUSTED trước khi gọi model", assistant.test.ts "hết credit"; (nhánh handoff credit của agent chưa có ca test riêng) |
-| REQ-L03b | Cảnh báo 80%, popup nạp, nạp xong mở lại ngay (FE) | 01-REQUIREMENTS-MATRIX.md:189 | 039 | MỘT PHẦN | Backend: wallet.service.ts:196–200, billing.events.ts:31–39 (credits.low / exhausted / restored + ai_budget) — test billing.test.ts AC6; FE: không nơi nào bắt CREDIT_EXHAUSTED / credits.* để mở popup nạp (apps/web/src grep rỗng) |
+| REQ-L03b | Cảnh báo 80%, popup nạp, nạp xong mở lại ngay (FE) | 01-REQUIREMENTS-MATRIX.md:189 | 039 | ĐẠT | BillingNoticeHost (popup 80 / 95 / hết / đã có lại, chống trùng theo event_id + workspace, kiểm lại số dư trước khi hiện); billing.rules.ts → WS `billing.notice`; nạp xong `credits.restored` → "dùng AI lại được" + invalidate Ví; test billing-notices.test.ts + BillingNoticeHost.test.tsx |
 | REQ-L04a | VietQR động theo mã đơn, hết hạn 15′; webhook đối soát idempotent; kích hoạt gói / cộng credit; chuyển khoản tay pending_review → admin xác nhận | 01-REQUIREMENTS-MATRIX.md:190 | 010 | ĐẠT | packages/core/src/billing/payments/bank-hook.service.ts, fulfil.ts:36, invoices.service.ts; test billing-payments.test.ts AC2–AC7, apps/web/e2e/http/billing.spec.ts |
 | REQ-L04b | Webhook SePay thật cho thu phí nền tảng | 01-REQUIREMENTS-MATRIX.md:190 | 010 | CHỜ-TK | bank-hook.service.ts:24 dùng `SepayBankFeed` khi có env; test packages/integrations/test/sepay.test.ts; chưa có tài khoản SePay (Q-004) |
 | REQ-L05a | Trang Gói & thanh toán: gói hiện tại, ngày hết hạn, credit còn, lịch sử hoá đơn | 01-REQUIREMENTS-MATRIX.md:191 | 009, 010, 039 | ĐẠT | apps/api/src/http/billing/billing.controller.ts (/billing/summary, /invoices); apps/web/src/features/settings/components/BillingSection.tsx:79; test billing.test.ts AC9, billing-payments.test.ts AC9, apps/web/e2e/settings-billing.spec.ts |
@@ -548,7 +548,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-10-4 | Hạ gói có hiệu lực từ kỳ sau | plans/COMMERCE-DECISIONS.md:246 | 039 | ĐẠT | plan-changes.service.ts `switch` → pending_plan; periods.service.ts áp một lần lúc hết kỳ, không xoá tài nguyên; test apps/api/test/integration/billing-lifecycle.test.ts AC03 "hạ gói → áp từ kỳ sau" |
 | COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
 | COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
-| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | MỘT PHẦN | Chặn có (`CREDIT_EXHAUSTED` wallet.service.ts:83 · test billing.test.ts AC4/AC5); popup nạp FE chưa thấy (chỉ chuỗi i18n errors.json) |
+| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | ĐẠT | Chặn: wallet.service.ts assertBalance / charge (CREDIT_EXHAUSTED); popup: apps/web/src/shared/billing/BillingNoticeHost.tsx (realtime `billing.notice` + 402 từ useAction, nút Nạp chỉ khi billing.manage); test apps/api/test/integration/billing-alerts.test.ts + BillingNoticeHost.test.tsx |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -561,7 +561,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | ĐẠT | packages/core/src/marketing/* (phân khúc, duyệt + snapshot, gửi theo lô qua hàng kênh, số đo, AI); integration marketing*.test.ts 31 ca + E2E mock / http marketing |
 | D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
-| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | MỘT PHẦN | Như COM-10-7 |
+| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | ĐẠT | Như COM-10-7; nhắc 80 / 95% → `billing.notice` low (billing.rules.ts); hội thoại sang người nhưng Hộp thư / dữ liệu / trả lời tay vẫn dùng (credit-handoff.consumer.ts) |
 | D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | MỘT PHẦN | Seed có (billing/seed.ts · test billing.test.ts AC2); `admin.plan.upsert` chưa có |
 | D11 | RBAC Owner + Member | 01-REQUIREMENTS-MATRIX.md:262 | — | NGOÀI | Thay bằng D27 |
 | D12 | Không Docker | 01-REQUIREMENTS-MATRIX.md:263 | — | QUY-TẮC | Không có Dockerfile trong repo (find) |
@@ -822,7 +822,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-billing.create_invoice | `billing.create_invoice` (money) — handler qua ActionExecutor | plans/BLUEPRINT.md:803 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/billing.create_invoice.action.test.ts |
 | ACT-billing.cancel_invoice | `billing.cancel_invoice` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:804 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/billing.cancel_invoice.action.test.ts |
 | ACT-billing.report_transfer | `billing.report_transfer` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:805 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/billing.report_transfer.action.test.ts |
-| ACT-wallet.update_alerts | `wallet.update_alerts` (config) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 039 | CHƯA | packages/actions/src/settings-ai.ts:201 chỉ ActionDef, handler null → 501 NOT_IMPLEMENTED (tip-owners.ts) — không có trong Blueprint §3.4 (chưa bổ sung) |
+| ACT-wallet.update_alerts | `wallet.update_alerts` (config) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 039 | ĐẠT | packages/core/src/billing/actions/wallet-alerts.handler.ts (PlatformTx, khoá dòng ví, before / after, preview); test apps/api/test/integration/billing-alerts.test.ts AC06 + actions/wallet.update_alerts.action.test.ts (ma trận 3); actions.test.ts AC8 — không còn action NOT_IMPLEMENTED |
 | ACT-tag.create | `tag.create` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:620 | 016 | ĐẠT | packages/core/src/inbox/actions/settings.handlers.ts:39; test inbox.test.ts, actions-unit.test.ts |
 | ACT-tag.update | `tag.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:625 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/tag.update.action.test.ts |
 | ACT-tag.delete | `tag.delete` (delete) — handler qua ActionExecutor | plans/BLUEPRINT.md:625 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/tag.delete.action.test.ts |
@@ -1544,7 +1544,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | 016b | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing`; TIP-016b nhận (2026-11-02) |
 | PRO-settings-audit | Cài đặt › Audit log đọc `GET /settings/audit` | docs/06-prototype/AppChat.dc.html:7410 | 045b | ĐẠT | GET /v1/settings/audit thật (audit.controller.ts); FE AuditSection + AuditTable / AuditFilters; e2e settings-ai.spec.ts; parity settings:audit 1,80% · hardening:audit-filters 1,80% (PD-014) |
 | PRO-settings-aiaudit | Cài đặt › AI Audit log đọc `GET /settings/ai-audit` | docs/06-prototype/AppChat.dc.html:7035 | 045b | ĐẠT | GET /v1/settings/ai-audit thật (chỉ mức AI + credit + token, không tên model D29); FE AiAuditTable; parity settings:ai-audit 2,24% |
-| PRO-settings-walletalerts | Ví: cảnh báo credit 80/95% lưu `wallet.update_alerts` | docs/06-prototype/AppChat.dc.html:6463 | 039 | GIẢ | apps/web/src/features/settings/components/WalletSection.tsx:30; handler null |
+| PRO-settings-walletalerts | Ví: cảnh báo credit 80/95% lưu `wallet.update_alerts` | docs/06-prototype/AppChat.dc.html:6463 | 039 | ĐẠT | WalletSection.tsx:30 useAction(`wallet.update_alerts`) → handler thật (persist `credit_wallet.low_alert`); test apps/api/test/integration/billing-alerts.test.ts AC06 (đọc lại /billing/wallet sau khi đổi), E2E settings-billing.spec.ts "Ví: … nhắc credit" |
 | PRO-settings-upgradecontact | Popup Nâng cấp / Ví: "Liên hệ" gói Doanh nghiệp gửi yêu cầu thật | docs/06-prototype/AppChat.dc.html:985 | 039 | GIẢ | UpgradeModal.tsx:55, WalletShop.tsx:39 `message.info('contacted')` |
 | PRO-settings-wsswitch | Tổng quan workspace: nút "Chuyển" sang workspace khác | docs/06-prototype/AppChat.dc.html:6192 | 013b | GIẢ | apps/web/src/features/settings/components/GeneralSection.tsx:112 `message.success('switched')` dù `workspace.switch` có handler (UserMenu.tsx:45); TIP-013b nhận (2026-11-02) |
 | PRO-settings-wsbuy | Tổng quan workspace: "Mua thêm workspace" | docs/06-prototype/AppChat.dc.html:6192 | 013b | GIẢ | GeneralSection.tsx:91 `message.info('buySoon')`; TIP-013b nhận (2026-11-02) |
@@ -1593,7 +1593,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-009-1 | `channels.used` của billing summary đếm `channel_account` thật | reports/TIP-009-completion.md:32 | 039 | GIẢ | billing-read.service.ts:73 vẫn used0; TIP039 task4/AC07 nhận count theo quota rule, chưa code |
 | DEF-009-2 | `PRICE_BOOK` đọc bảng `model_price` | reports/TIP-009-completion.md:45 | 019 | ĐẠT | billing/billing.module.ts:64 `DbPriceBook`; test apps/api/test/integration/ai-runtime.test.ts |
 | DEF-009-3 | `QuotaService.assert` trước khi thêm thành viên / kênh / agent | reports/TIP-009-completion.md:46 | 013/014/021 | ĐẠT | identity/actions/member-invite.handler.ts:31; channels/actions/channel-connect.handlers.ts:38; ai/agents/agent.handlers.ts:22; test settings.test.ts:116 |
-| DEF-009-4 | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | reports/TIP-009-completion.md:47 | 039 | MỘT PHẦN | reply.service.ts:144 chỉ handoff lượt đang chạy; TIP039 task3/AC05 nhận consumer, recheck balance và delayed-event sau topup, chưa code |
+| DEF-009-4 | Consumer `credits.exhausted` chuyển mọi hội thoại `auto` về người | reports/TIP-009-completion.md:47 | 039 | ĐẠT | packages/core/src/ai/reply/credit-handoff.consumer.ts (consumer bền `ai.credit-handoff` ở ROLE=jobs, kiểm lại số dư hiện tại, chỉ hội thoại auto rảnh / chạy, giành có điều kiện); test apps/api/test/integration/billing-alerts.test.ts AC05 (copilot / tắt / người / chờ duyệt / đóng không đụng, chạy lại 0, event trễ sau nạp 0) |
 | DEF-010-1 | Job cấp lại credit hằng tháng `period:<ws>:<yyyy-mm>` / gia hạn kỳ | reports/TIP-009-completion.md:44; TIP-010 | 039 | ĐẠT | jobs/lifecycle.runner.ts + periods.service.ts; test apps/api/test/integration/billing-lifecycle.test.ts AC01 |
 | DEF-010-2 | Hạn mức addon (user / kênh mua thêm) trong `QuotaService` + nâng gói giữa kỳ tính chênh | reports/TIP-010-completion.md:44 | 039 | ĐẠT | quota.service.ts (gói + addon còn hạn), plan-changes.service.ts upgrade; test apps/api/test/integration/billing-lifecycle.test.ts AC03 / AC04 |
 | DEF-010-5 | Replay fulfil cùng invoice không dời kỳ subscription hoặc reset trạng thái mới | billing/services/subscriptions.service.ts:91–105; payments/fulfil.ts:39 | 039 | ĐẠT | apply-invoice.ts giành `fulfilled_at` cùng tx trước khi đổi subscription; subscriptions.service.ts activate kiểm biên nhận dưới khoá; test apps/api/test/integration/billing-lifecycle.test.ts AC02 (fulfil lại hôm sau / qua executor → replayed, kỳ / version / số dư nguyên, một biên nhận) + AC10 |

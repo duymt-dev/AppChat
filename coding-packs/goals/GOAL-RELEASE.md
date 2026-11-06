@@ -99,7 +99,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | DONE | `tip/022b-agent-channel-behavior` | `d3b0571e` | #91 (xếp chồng #90) |
 | 16 | [037](../tips/TIP-037-marketing.md) | W8 | DONE | `tip/037-marketing` | `9100b2d7` | #92 (xếp chồng #91) |
 | 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | DONE (pha 4/4 — AC01–10; DC-363…366; Brevo thật CHỜ-TK Q-004) | `tip/038-insights-dashboard` · `tip/038-insights-dashboard-p2` · `tip/038-insights-exports` · `tip/038-insights-digest` | `28dcba68` · `9cc04319` · `f4f81050` · `c0d4e568` | #93 · #95 · #96 · #97 (đã merge) |
-| 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | đang làm (pha 1/3 — vòng đời gói backend: AC01–02, AC04, AC03 / AC09 / AC10 phần backend; DC-367) | `tip/039-billing-lifecycle` | `081f6bac` · `99a97695` | #98 |
+| 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | đang làm (pha 2/3 — pha 1 vòng đời gói backend AC01–02, AC04; pha 2 cảnh báo ví / hết Credit bền / popup AC05–06; DC-367) | `tip/039-billing-lifecycle` · `tip/039-billing-alerts` | `081f6bac` · `99a97695` · `53423a0a` · `f95182e4` | #98 · #99 (xếp chồng #98) |
 | 19 | [040](../tips/TIP-040-platform-admin.md) | W8 | chờ | `tip/040-platform-admin` | | |
 | 20 | [038b](../tips/TIP-038b-ai-first-data-transfer.md) | W8 | chờ | `tip/038b-ai-first-data-transfer` | | |
 | 21 | [041](../tips/TIP-041-workspace-lifecycle.md) | W8 | chờ | `tip/041-workspace-lifecycle` | | |

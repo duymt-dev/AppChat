@@ -140,3 +140,63 @@ Queue lịch billing đổi tên: `scheduler` → `billing-scheduler`. Lịch c�
 | `code/file-size-module-layout.md` · `code/testing.md` | Mọi file dưới trần; test ở file riêng (unit shared, integration, ma trận) | — |
 | `workflow/git-flow-ci.md` | Nhánh `tip/039-billing-lifecycle` từ `origin/dev` `dda1e705`, PR vào `dev` | — |
 | `plans/COMMERCE-DECISIONS.md` §10 | Nâng giữa kỳ tính chênh + cộng Credit chênh; hạ gói từ kỳ sau; Credit gói không cộng dồn, topup không hết hạn; không đổi giá | — |
+
+---
+
+## PHA 2 — Cảnh báo ví, hết Credit bền, popup toàn app (AC05–AC06)
+
+**STATUS:** MỘT PHẦN — xong **pha 2**. AC05, AC06 đạt. Pha 3 còn: đọc / UI, ledger cursor, `channels.used`, PlanChangeModal, popup hết hạn, `billing.contact_sales`, PDF, parity, E2E.
+
+**COMMIT:** `53423a0a` (code + test) · `f95182e4` (sửa emitter realtime); SHA cuối nhánh ở bảng tiến độ (dòng 18). Nhánh `tip/039-billing-alerts` xếp chồng #98.
+
+**MIGRATION:** không có.
+
+**FILES CHANGED** (ngoài manifest ghi ở DV-035)
+- core:
+  - `billing/actions/wallet-alerts.handler.ts` (`wallet.update_alerts` — PlatformTx, khoá dòng ví, ví tạo lười, before / after, preview);
+  - `ai/reply/credit-handoff.consumer.ts` (consumer `ai.credit-handoff`);
+  - `billing/events/billing.rules.ts` (realtime `billing.notice` / `billing.changed`);
+  - `billing/billing.module.ts`, `billing/jobs/billing.jobs.module.ts` (đăng ký), `ai/public.ts`.
+- web:
+  - `shared/billing/{billing-notices.ts, BillingNoticeHost.tsx, credit-error.ts}` (+ test);
+  - `shared/shell/AppShell.tsx` (gắn host);
+  - `shared/actions/useAction.ts` (402 CREDIT_EXHAUSTED → popup ví; PLAN_LIMIT_REACHED giữ toast riêng);
+  - i18n `shell.billingNotice` vi + en.
+
+**TEST RESULTS** (pha 2)
+1. **AC05 hết Credit** — **pass**. `billing-alerts.test.ts` AC05 (3 test).
+   - Chỉ hội thoại `auto` đang rảnh / chạy sang người (lý do credit, outbox `ai.handoff`).
+   - Copilot / AI tắt / đã có người / chờ duyệt / đóng không bị đụng.
+   - Chạy lại → 0, không thêm `ai.handoff`.
+   - Event đến trễ sau khi đã nạp (ví > 0) → không chuyển. `credits.restored` không giành lại hội thoại đã chuyển.
+   - Charge hết qua đường thật → event `credits.exhausted` ghi outbox tenant (consumer bền ở ROLE=jobs).
+2. **AC06 cảnh báo / popup** — **pass**.
+   - `wallet.update_alerts`: Owner tắt / bật → persist, action_log before / after, đọc lại `/billing/wallet` đúng; tắt nhắc vẫn chặn AI (CREDIT_EXHAUSTED).
+   - Ma trận 3: preview Trợ lý → xác nhận; Sales / CSKH 403; không agentGrantable.
+   - Web `billing-notices.test.ts` (5) + `BillingNoticeHost.test.tsx` (3):
+     - chống trùng theo `event_id`;
+     - hết Credit không bị nhắc 80 / 95 đè;
+     - `restored` chỉ thay thông báo hết; khác workspace không mang sang;
+     - 402 CREDIT_EXHAUSTED → popup, PLAN_LIMIT_REACHED → không;
+     - người có `billing.manage` thấy Nạp Credit, người khác chỉ nhắc liên hệ Chủ sở hữu;
+     - event hết đến trễ khi ví > 0 → không hiện.
+3. **AC8 cũ** (`actions.test.ts`): không còn action NOT_IMPLEMENTED (`pendingByTip()` rỗng).
+
+**Cổng D59 (phạm vi TIP):**
+- Lint + typecheck (core, web, api, worker) xanh — web 13 cảnh báo baseline, không ở file sửa.
+- Unit: core 102 / 648 (+ `realtime-emitter.test.ts` 2) · web 102 / 322.
+- Integration: `billing-alerts` 7 + ma trận `wallet.update_alerts` 3 + hồi quy (billing ×3, actions, notify, realtime, record-scope-realtime, agent-reply, takeover, inbox-ui, cross-db) — **13 file / 102 test, 0 unhandled error**.
+- `lint:size`, `lint:tokens` xanh; i18n vi / en 5733 key, 100%; depcheck 0 lỗi.
+- Popup chỉ render khi có thông báo, nên DOM các màn không đổi → không chạy parity. E2E popup qua realtime cần stack http + ví cạn — gộp vào E2E `billing-lifecycle.spec.ts` ở pha 3.
+
+**ISSUES DISCOVERED:**
+- Chạy chung bộ hồi quy, `record-scope-realtime` có 4 unhandled rejection "Connection is closed". Chạy riêng thì sạch; khi chưa có test mới của pha 2 cũng sạch.
+  - Nguyên nhân: `@socket.io/redis-emitter` gọi `client.publish()` rồi bỏ promise. Redis rớt hoặc đang `quit` → unhandled rejection; trên production có thể làm sập worker.
+  - Đã sửa (`f95182e4`): `RedisRealtimeEmitter` bọc `publish`, lỗi ghi cảnh báo qua logger. Thêm test `realtime-emitter.test.ts`.
+
+**GIẢ ĐỊNH ĐÃ CHỌN** (DC-367):
+- Popup cho mọi thành viên đang mở app.
+- Nút nạp chỉ hiện với `billing.manage`.
+- Đọc lại số dư trước khi hiện "hết" / "đã có lại".
+- Chuông thông báo vẫn chỉ gửi Owner, như cũ.
+- Hội thoại đã chuyển sang người không tự quay về AI.
