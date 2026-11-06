@@ -4,6 +4,7 @@
 import { useTranslations } from 'next-intl';
 import { AiButton, Icon, color, type IconName } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
+import { useFmt } from '@/shared/i18n/useFmt';
 import { useMarketingStyles } from '../styles/marketing.styles';
 import { useMarketingUi } from '../marketing-store';
 import { CHAN_TABS, EXTRA_TABS, STATUS_TABS } from '../status';
@@ -13,13 +14,17 @@ import { ChannelHero } from './ChannelHero';
 const KPI_LOOK: Record<string, [IconName, string]> = {
   running: ['ic-mega', color.brand],
   sent: ['ic-send', color.info],
-  open: ['ic-eye', color.amberGold],
-  click: ['ic-chart', color.violet],
+  reply: ['ic-reply', color.amberGold],
+  converted: ['ic-chart', color.violet],
 };
 const STATUSES: CampaignStatus[] = ['running', 'scheduled', 'completed', 'paused', 'cancelled'];
 
+/** Giá trị số → định dạng theo locale; '12.5%' / '—' giữ nguyên. */
+const show = (v: string, fmt: ReturnType<typeof useFmt>) => (/^\d+$/.test(v) ? fmt.number(Number(v)) : v);
+
 function Kpis({ meta }: { meta: MarketingMeta }) {
   const t = useTranslations('marketing.kpi');
+  const fmt = useFmt();
   const { styles } = useMarketingStyles();
   return (
     <div className={styles.kpis} data-testid="mk-kpis">
@@ -33,8 +38,8 @@ function Kpis({ meta }: { meta: MarketingMeta }) {
               </span>
               {t(k)}
             </div>
-            <div className={styles.kpiV}>{v}</div>
-            <div className={styles.kpiT}>{t('trend', { v: trend })}</div>
+            <div className={styles.kpiV}>{show(v, fmt)}</div>
+            <div className={styles.kpiT}>{trend ? t('trend', { v: trend }) : t(`hint.${k}` as never)}</div>
           </div>
         );
       })}
@@ -56,7 +61,7 @@ export function MarketingHeader({ meta }: { meta: MarketingMeta | undefined }) {
         <div className={styles.title}>{t('title')}</div>
         <span className={styles.sub}>{t('sub')}</span>
         <span className={styles.grow} />
-        <button type="button" className={styles.dark} onClick={() => ui.set({ analyze: 'loading', pick: null })} data-testid="mk-analyze">
+        <button type="button" className={styles.dark} onClick={() => ui.set({ analyze: 'list', pick: null })} data-testid="mk-analyze">
           <Icon name="ic-spark" size={15} color={color.sparkMint} strokeWidth={1.9} />
           {t('analyze')}
         </button>

@@ -2,6 +2,7 @@
 // bộ · ngắt kết nối (lịch sử giữ; tài khoản cuối của loại kênh → cảnh báo). Tài khoản lạ / đã ngắt → 404, agent lạ → 404 như execute.
 // Chỉ đọc, không gửi lệnh worker.
 import type { ActionInput, ActionPreview, channelDisconnect, channelPause, channelResume, channelSyncHistory, channelUpdateSettings } from '@appchat/actions';
+import { ZALO_DEFAULT_DAILY_CAP } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { preview, removed, updated } from '../../../kernel/actions/preview-kit';
 import { assertAgentAssignable } from '../../../ai/agents/agent-names';
@@ -12,7 +13,9 @@ export async function updateSettingsPreview(accounts: ChannelAccounts, tx: Tenan
   const { name, agent_id, ...rest } = i.patch;
   await assertAgentAssignable(tx, agent_id);
   const cur = { name: row.name, ...settingsOf(row) };
-  return preview('config', row.name, { changes: updated('channel_account', row.id, cur, { name, ...rest, agent_id: agent_id === undefined ? undefined : agent_id || null }) });
+  // D35: trần ngày Zalo cá nhân cao hơn mặc định → rủi ro khoá tài khoản (vẫn cho lưu, người bấm thấy cảnh báo).
+  const risky = row.type === 'zalo_personal' && (i.patch.daily_cap ?? 0) > ZALO_DEFAULT_DAILY_CAP;
+  return preview('config', row.name, { changes: updated('channel_account', row.id, cur, { name, ...rest, agent_id: agent_id === undefined ? undefined : agent_id || null }), ...(risky ? { warnings: [`daily_cap_over_default:${ZALO_DEFAULT_DAILY_CAP}`] } : {}) });
 }
 
 export async function pausePreview(accounts: ChannelAccounts, tx: TenantTx, i: ActionInput<typeof channelPause>): Promise<ActionPreview> {

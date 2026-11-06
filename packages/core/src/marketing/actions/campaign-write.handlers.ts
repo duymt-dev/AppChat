@@ -15,7 +15,7 @@ import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, crmScopeSql } from '../../crm/public';
 import { actorOf, casUpdate, changed, findCampaign, lockCampaign, logEvent, senderAccount, stepOf, type CampaignRow } from '../repos/campaigns.repo';
 import { assertContent, parseSchedule } from '../services/campaign-policy';
-import { countAudience, segmentFilters } from '../services/segments.service';
+import { countAudience, segmentFilters, suggestionFilter } from '../services/segments.service';
 
 type CreateIn = ActionInput<typeof campaignCreate>;
 type UpdateIn = ActionInput<typeof campaignUpdate>;
@@ -46,8 +46,9 @@ async function setAudience(tx: TenantTx, campaignId: string, manual: string[], b
   for (let i = 0; i < data.length; i += 1000) await tx.campaignAudience.createMany({ data: data.slice(i, i + 1000), skipDuplicates: true });
 }
 
-const estimate = (tx: TenantTx, ctx: ActionContext, campaignId: string, segmentIds: string[], channel: CampaignChannel, now: Date) =>
-  countAudience(tx, ctx.authz, { segmentIds, campaignId }, channel, now);
+/** Ước tính = phân khúc ∪ khách đã lưu (chọn tay + lô nhập) ∪ bộ lọc của gợi ý AI nguồn (nếu có). */
+const estimate = async (tx: TenantTx, ctx: ActionContext, campaignId: string, segmentIds: string[], channel: CampaignChannel, now: Date, suggestionId: string | null) =>
+  countAudience(tx, ctx.authz, { segmentIds, campaignId, filter: await suggestionFilter(tx, suggestionId) }, channel, now);
 
 type Snap = { id: string; name: string; content: unknown; ab: unknown; account_id: string | null; segment_ids: string[]; send_mode: string; scheduled_at: string | null; status: string; reject_reason: string | null; version: number };
 const snap = (c: CampaignRow): Snap => ({
@@ -64,7 +65,7 @@ export class CampaignCreateHandler implements Handler<CreateIn, { campaign_id: s
   ) {}
 
   async preview(ctx: ActionContext, input: CreateIn, tx: TenantTx): Promise<ActionPreview> {
-    const n = await countAudience(tx, ctx.authz, { segmentIds: input.segment_ids, contactIds: input.contact_ids }, input.channel, this.clock.now());
+    const n = await countAudience(tx, ctx.authz, { segmentIds: input.segment_ids, contactIds: input.contact_ids, filter: await suggestionFilter(tx, input.suggestion_id) }, input.channel, this.clock.now());
     return preview('write', line(input.name, input.channel, n.reachable), { count: n.reachable, changes: [created('campaign', { name: input.name, channel: input.channel, status: 'draft', recipients: n.count, reachable: n.reachable })] });
   }
 
@@ -90,7 +91,7 @@ export class CampaignCreateHandler implements Handler<CreateIn, { campaign_id: s
       },
     });
     await setAudience(tx, id, input.contact_ids ?? [], batch, now);
-    const est = await estimate(tx, ctx, id, input.segment_ids ?? [], input.channel, now);
+    const est = await estimate(tx, ctx, id, input.segment_ids ?? [], input.channel, now, suggestion?.id ?? null);
     const row = await tx.campaign.update({ where: { id }, data: { estRecipients: est.reachable } });
     if (suggestion) await tx.campaignSuggestion.update({ where: { id: suggestion.id }, data: { status: 'used' } });
     await logEvent(tx, id, 'created', actor, now);
@@ -145,7 +146,7 @@ export class CampaignUpdateHandler implements Handler<UpdateIn, Out> {
     const account = input.account_id ? await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[channel], input.account_id) : null;
     const send = input.send ?? c.sendMode;
     const scheduledAt = send === 'now' ? null : input.scheduled_at === undefined ? c.scheduledAt : input.scheduled_at === null ? null : parseSchedule(input.scheduled_at, now);
-    const est = await estimate(tx, ctx, c.id, segmentIds, channel, now);
+    const est = await estimate(tx, ctx, c.id, segmentIds, channel, now, c.suggestionId);
     const actor = await actorOf(ctx, this.members);
     const row = await casUpdate(tx, c, {
       name: input.name ?? c.name, content, ab: ab ?? TenantSql.DbNull, accountId: account?.id ?? c.accountId, segmentIds,

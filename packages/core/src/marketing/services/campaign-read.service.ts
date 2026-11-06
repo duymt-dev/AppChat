@@ -3,7 +3,7 @@
 // A/B / phân khúc / khách chọn tay — tính từ dữ liệu thật, chỉ số không đo được = null), chi tiết + trang người nhận đầu, trang người nhận,
 // phân khúc, gợi ý AI. Quyền `campaign.view` ở controller; khách (tên / liên hệ) chỉ hiện khi nằm trong scope CRM người xem.
 import { TenantContexts, TenantSql as Prisma, type TenantDbResolver } from '@appchat/db';
-import { AppError, can, type AuthzContext, type CampaignChannel, type CampaignDetailDto, type CampaignDto, type CampaignStatusKey, type RecipientDto } from '@appchat/shared';
+import { AppError, can, type AuthzContext, type CampaignAnalysisDto, type CampaignChannel, type CampaignDetailDto, type CampaignDto, type CampaignStatusKey, type RecipientDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { crmScopeSql, type CrmMembers } from '../../crm/public';
 import { countsFor } from '../repos/recipients.repo';
@@ -164,6 +164,25 @@ export class CampaignReadService {
     });
   }
 
+  /** Trạng thái lượt phân tích của CHÍNH người xem (run khác người / không phải campaign.analyze → 404). Chưa có run = đang xếp hàng. */
+  async analysis(v: MarketingViewer, runId: string): Promise<CampaignAnalysisDto> {
+    if (!UUID.test(runId)) throw new AppError('NOT_FOUND', 404, { run_id: 'not_found' });
+    return this.tx(v, async (tx) => {
+      const run = await tx.aiRun.findUnique({ where: { id: runId }, select: { status: true, title: true, initiatedByUserId: true, error: true } });
+      if (run && (run.title !== 'campaign.analyze' || run.initiatedByUserId !== v.userId)) throw new AppError('NOT_FOUND', 404, { run_id: 'not_found' });
+      if (!run) {
+        const asked = await tx.outboxEvent.findFirst({ where: { topic: 'campaign.analysis_requested', payload: { path: ['run_id'], equals: runId } }, select: { payload: true } });
+        if ((asked?.payload as { requested_by?: string } | undefined)?.requested_by !== v.userId) throw new AppError('NOT_FOUND', 404, { run_id: 'not_found' });
+        return { run_id: runId, status: 'queued', stored: null, error: null };
+      }
+      if (run.status === 'failed' || run.status === 'cancelled') return { run_id: runId, status: 'failed', stored: null, error: run.error?.slice(0, 200) ?? 'failed' };
+      if (run.status !== 'completed') return { run_id: runId, status: 'running', stored: null, error: null };
+      // Run xong → đợi campaign.store_analysis (event `campaign.suggestions_updated`, kể cả 0 gợi ý) rồi mới báo xong.
+      const done = await tx.outboxEvent.findFirst({ where: { topic: 'campaign.suggestions_updated', payload: { path: ['run_id'], equals: runId } }, select: { id: true } });
+      return done ? { run_id: runId, status: 'completed', stored: await tx.campaignSuggestion.count({ where: { runId } }), error: null } : { run_id: runId, status: 'running', stored: null, error: null };
+    });
+  }
+
   /** Meta màn Marketing — số đo thật từ người nhận; chỉ số kênh không hỗ trợ (đọc / click) = null. Nhãn là khoá (FE dịch). */
   async meta(v: MarketingViewer) {
     const now = this.now();
@@ -173,10 +192,11 @@ export class CampaignReadService {
       const sent = await tx.$queryRaw<{ channel: string; sent: bigint; replied: bigint; converted: bigint }[]>`
         SELECT c.channel, count(*) FILTER (WHERE r.outcome = 'accepted')::bigint AS sent, count(r.replied_at)::bigint AS replied, count(r.converted_at)::bigint AS converted
         FROM campaign_recipient r JOIN campaign c ON c.id = r.campaign_id WHERE c.deleted_at IS NULL GROUP BY c.channel`;
-      const of = (ch: string) => sent.find((x) => x.channel === ch);
-      const pct = (a: bigint | undefined, b: bigint | undefined) => (b && Number(b) ? `${((Number(a ?? 0) * 100) / Number(b)).toFixed(1)}%` : '—');
-      const total = sent.reduce((s, x) => s + Number(x.sent), 0);
-      const hero = (ch: string) => [['sent', String(Number(of(ch)?.sent ?? 0))], ['reply', pct(of(ch)?.replied, of(ch)?.sent)], ['open', '—'], ['converted', pct(of(ch)?.converted, of(ch)?.sent)]] as [string, string][];
+      const pct = (a: number, b: number) => (b ? `${((a * 100) / b).toFixed(1)}%` : '—');
+      const sum = (k: 'sent' | 'replied' | 'converted', ch?: string) => sent.filter((x) => !ch || x.channel === ch).reduce((s, x) => s + Number(x[k]), 0);
+      const byChannel = await tx.campaign.groupBy({ by: ['channel'], where: { deletedAt: null }, _count: { _all: true } });
+      // Chỉ số đo được từ bằng chứng (DC-240): đã gửi (kênh nhận), phản hồi, chuyển đổi — không có chỉ số mở / click (kênh không xác nhận).
+      const hero = (ch: string) => [['campaigns', String(byChannel.find((x) => x.channel === ch)?._count._all ?? 0)], ['sent', String(sum('sent', ch))], ['reply', pct(sum('replied', ch), sum('sent', ch))], ['converted', pct(sum('converted', ch), sum('sent', ch))]] as [string, string][];
       const upcoming = await tx.campaign.findMany({ where: { deletedAt: null, status: { in: ['scheduled', 'approved'] } }, orderBy: [{ scheduledAt: 'asc' }, { id: 'asc' }], take: 5 });
       const segments = await tx.segment.findMany({ where: { deletedAt: null }, orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }], take: 50, select: { id: true, name: true, lastCount: true } });
       const sugg = await tx.campaignSuggestion.findMany({ where: { status: 'new' }, orderBy: { generatedAt: 'desc' }, take: 4 });
@@ -186,11 +206,11 @@ export class CampaignReadService {
       const accounts = await tx.channelAccount.findMany({ where: { type: { in: ['zalo_personal', 'email'] } }, orderBy: { createdAt: 'asc' }, select: { id: true, type: true, name: true, status: true, settings: true } });
       return {
         now: now.toISOString(),
-        kpis: [['running', String(cnt('running')), ''], ['sent', String(total), ''], ['open', '—', ''], ['click', '—', '']] as [string, string, string][],
+        kpis: [['running', String(cnt('running')), ''], ['sent', String(sum('sent')), ''], ['reply', pct(sum('replied'), sum('sent')), ''], ['converted', pct(sum('converted'), sum('sent')), '']] as [string, string, string][],
         hero: { email: hero('email'), zalo: hero('zalo'), auto: [] as [string, string][] },
         ab_tests: [] as [string, string, string, string, string][],
         schedule: upcoming.map((c) => [iso(c.scheduledAt) ?? '', c.name, c.channel, String(c.estRecipients)] as [string, string, string, string]),
-        ai: sugg.map((s) => [s.title, s.kind, s.reason] as [string, string, string]),
+        ai: sugg.map((s) => [s.title, s.kind, s.reason, s.id] as [string, string, string, string]),
         segments: segments.map((s) => [s.id, s.name, s.lastCount] as [string, string, number]),
         customers: customers.map((c) => ({ id: c.id, name: c.name, phone: c.phone ?? '', email: c.email ?? '', group: c.group ?? '', label: c.tier_key ?? '' })),
         accounts: accounts.map((a) => ({ id: a.id, type: a.type, name: a.name, status: a.status, daily_cap: ((a.settings ?? {}) as { daily_cap?: number }).daily_cap ?? (a.type === 'zalo_personal' ? 200 : null) })),

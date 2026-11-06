@@ -115,3 +115,12 @@ export const campaignSuggestionSchema = z.object({
   generated_at: z.string(),
 });
 export type CampaignSuggestionDto = z.infer<typeof campaignSuggestionSchema>;
+
+/** Lượt AI phân tích (campaign.analyze → worker ROLE=ai): `queued` = chưa có run; `completed` khi gợi ý đã lưu (`stored` = số gợi ý). */
+export const campaignAnalysisSchema = z.object({
+  run_id: z.string(),
+  status: z.enum(['queued', 'running', 'completed', 'failed']),
+  stored: z.number().int().nullable(),
+  error: z.string().nullable(),
+});
+export type CampaignAnalysisDto = z.infer<typeof campaignAnalysisSchema>;

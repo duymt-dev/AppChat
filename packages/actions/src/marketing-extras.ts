@@ -82,7 +82,8 @@ export const campaignAudienceImport = defineAction({
   module: 'marketing',
   title: 'actions.campaign.audience_import.title',
   description: 'Import an uploaded Excel/CSV list (columns name, phone, email) as campaign recipients: matches existing customers you can see, creates new ones (needs crm.import), never takes over an owned customer or re-subscribes an opted-out one. dry_run returns counts only. Example: {"file_id":"0190f000-0000-7000-8000-0000000000f1","dry_run":true}',
-  input: z.object({ file_id: z.string().uuid(), campaign_id: z.string().uuid().optional(), dry_run: z.boolean().optional() }),
+  // file_id như product.import (min 1) — server kiểm uuid + quyền tệp ở checkFile; campaign_id cùng kiểu campaignId của các action khác.
+  input: z.object({ file_id: z.string().min(1), campaign_id: campaignId.optional(), dry_run: z.boolean().optional() }),
   output: z.object({
     batch_id: z.string().nullable(),
     rows: z.number().int(),

@@ -3,7 +3,7 @@
 // profile_layout.*: bố cục Hồ sơ 360° theo mẫu & vai trò (REQ-F12, M05; prototype L690–735, L6397–6415).
 import { z } from 'zod';
 import { defineAction } from './define';
-import { channelRoutingSchema, weeklyScheduleSchema } from '@appchat/shared';
+import { CHANNEL_RATE_MAX, DAILY_CAP_MAX, channelRoutingSchema, weeklyScheduleSchema } from '@appchat/shared';
 
 const TAG = z.object({ name: z.string().trim().min(1).max(40), description: z.string().max(200).optional(), color: z.string().max(20).optional(), emoji: z.string().max(8).optional() });
 const ROLE_KEY = z.enum(['owner', 'manager', 'sales', 'cs', 'accountant']);
@@ -183,6 +183,9 @@ export const channelUpdateSettings = defineAction({
       routing: channelRoutingSchema.optional(),
       /** TIP-022b: bật lời chào tự động (cấu hình cũ mặc định tắt). */
       greeting_enabled: z.boolean().optional(),
+      /** TIP-037: tốc độ gửi / phút (≤ trần limiter) và trần tin chủ động / ngày — vượt mặc định Zalo (200) có cảnh báo ở preview (D35). */
+      rate_per_minute: z.number().int().min(1).max(CHANNEL_RATE_MAX).optional(),
+      daily_cap: z.number().int().min(1).max(DAILY_CAP_MAX).optional(),
     }),
     /** TIP-022b: bản chụp gán agent lúc xem trước — gán đã bị đổi → 409, giữ gán cũ. */
     expected_version: z.string().max(32).optional(),

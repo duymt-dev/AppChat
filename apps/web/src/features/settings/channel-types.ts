@@ -38,6 +38,11 @@ export interface ChannelAccount {
   /** TIP-022b: lịch có cấu trúc + phân luồng từ khoá + bật lời chào; `binding_version` cho xác nhận đổi gán. */
   agent_behavior?: ChannelAgentBehavior;
   binding_version?: string;
+  /** TIP-037: tốc độ / trần tin chủ động đang áp + mặc định manifest (null = kênh không giới hạn ngày). */
+  rate_per_minute?: number;
+  daily_cap?: number | null;
+  rate_default?: number;
+  daily_cap_default?: number | null;
 }
 
 /** Một loại kênh (vd Zalo cá nhân) với danh sách tài khoản — trạng thái/hội thoại gộp từ `accounts`. */

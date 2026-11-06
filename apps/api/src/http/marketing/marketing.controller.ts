@@ -1,6 +1,6 @@
 // Đọc Marketing (TIP-037, Blueprint §4.4 — shape packages/shared/src/api/marketing.ts): /v1/campaigns?status=&channel=&q=&page=&limit= (D42),
 // /campaigns/meta (trước :id), /campaigns/:id (+ trang người nhận đầu), /campaigns/:id/recipients?status=&page=&limit=, /segments,
-// /campaign-suggestions. Quyền `campaign.view`; khách chỉ hiện trong scope CRM người xem (service). Ghi qua action segment.* / campaign.*.
+// /campaign-suggestions, /campaign-analyses/:run_id (trạng thái lượt phân tích của chính người xem). Quyền `campaign.view`; khách chỉ hiện trong scope CRM người xem (service). Ghi qua action segment.* / campaign.*.
 import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { CampaignReadService } from '@appchat/core';
@@ -51,6 +51,12 @@ export class MarketingController {
   async segments(@Req() req: IncomingMessage) {
     const { v, read } = await this.viewer(req);
     return { data: await read.segments(v) };
+  }
+
+  @Get('campaign-analyses/:runId')
+  async analysis(@Req() req: IncomingMessage, @Param('runId') runId: string) {
+    const { v, read } = await this.viewer(req);
+    return { data: await read.analysis(v, runId) };
   }
 
   @Get('campaign-suggestions')

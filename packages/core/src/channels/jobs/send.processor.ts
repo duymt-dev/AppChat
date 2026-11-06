@@ -8,6 +8,7 @@ import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { ChannelAuthError, ChannelOperationError, PartialSendError, type ChannelAdapter, type SendReceipt } from '@appchat/channels';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
+import { CHANNEL_RATE_MAX } from '@appchat/shared';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { settingsOf } from '../services/accounts.service';
 import { SEND_ATTEMPTS, emitSendResult, sendBookFor, sendQueueName, type SendBook, type SendJob, type SendResult } from '../services/send-queue';
@@ -38,7 +39,7 @@ export interface SendDeps {
 }
 
 /** Trần cứng của limiter BullMQ (tin / phút) khi cấu hình tài khoản cao hơn manifest — cấu hình vẫn bị chặn ở `pace`. */
-const RATE_CEILING = 60;
+const RATE_CEILING = CHANNEL_RATE_MAX;
 const failKey = (accountId: string) => `chfail:${accountId}`;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

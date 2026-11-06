@@ -714,12 +714,51 @@
     }
   },
   "segment": {
+    "create": {
+      "title": "Tạo phân khúc"
+    },
+    "update": {
+      "title": "Sửa phân khúc"
+    },
+    "delete": {
+      "title": "Xoá phân khúc"
+    },
     "preview": {
       "title": "Xem trước tệp khách",
       "desc": "Đếm số khách thuộc tệp trước khi tạo chiến dịch."
     }
   },
   "campaign": {
+    "analyze": {
+      "title": "AI phân tích khách hàng"
+    },
+    "audience_import": {
+      "title": "Nhập danh sách người nhận"
+    },
+    "draft_content": {
+      "title": "AI viết lại nội dung chiến dịch"
+    },
+    "recipient_export": {
+      "title": "Xuất danh sách người nhận"
+    },
+    "resend_unread": {
+      "title": "Tạo nháp gửi lại người chưa phản hồi"
+    },
+    "unsubscribe": {
+      "title": "Huỷ nhận tin chiến dịch"
+    },
+    "dispatch": {
+      "title": "Gửi lô chiến dịch (hệ thống)"
+    },
+    "record_delivery": {
+      "title": "Ghi kết quả gửi (hệ thống)"
+    },
+    "record_metric": {
+      "title": "Ghi phản hồi / chuyển đổi (hệ thống)"
+    },
+    "store_analysis": {
+      "title": "Lưu gợi ý AI (hệ thống)"
+    },
     "suggest": {
       "title": "Gợi ý chiến dịch",
       "desc": "Gợi ý chiến dịch kèm số khách dự kiến và thời điểm gửi tốt nhất."

@@ -4,7 +4,7 @@
 // snapshot (thứ tự id khách) chốt cùng bản duyệt: sau duyệt phân khúc có đổi thì tập người nhận vẫn giữ nguyên. Trước khi gửi từng người
 // nhận vẫn kiểm lại (campaign-dispatch).
 import { TenantSql as Prisma } from '@appchat/db';
-import { CAMPAIGN_ACCOUNT_TYPE, CAMPAIGN_COOLDOWN_HOURS, type AuthzContext, type CampaignChannel } from '@appchat/shared';
+import { CAMPAIGN_ACCOUNT_TYPE, CAMPAIGN_COOLDOWN_HOURS, type AuthzContext, type CampaignChannel, type SegmentNode } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { audienceIds } from './segments.service';
 
@@ -16,6 +16,8 @@ export interface SnapshotInput {
   channel: CampaignChannel;
   accountId: string;
   segmentIds: string[];
+  /** Bộ lọc của gợi ý AI nguồn (chiến dịch tạo từ gợi ý). */
+  filter?: SegmentNode;
   ab: boolean;
 }
 
@@ -28,7 +30,7 @@ export interface Snapshot {
 /** Xoá snapshot cũ (gửi lại sau khi rút / bị từ chối) rồi chụp mới. Chỉ gọi khi chiến dịch chưa từng được duyệt. */
 export async function takeSnapshot(tx: TenantTx, authz: AuthzContext, s: SnapshotInput, now: Date): Promise<Snapshot> {
   await tx.campaignRecipient.deleteMany({ where: { campaignId: s.campaignId } });
-  const ids = await audienceIds(tx, authz, { segmentIds: s.segmentIds, campaignId: s.campaignId }, now, SNAPSHOT_MAX);
+  const ids = await audienceIds(tx, authz, { segmentIds: s.segmentIds, campaignId: s.campaignId, filter: s.filter }, now, SNAPSHOT_MAX);
   if (!ids.length) return { total: 0, eligible: 0, hash: '' };
   const cutoff = new Date(now.getTime() - CAMPAIGN_COOLDOWN_HOURS * 3_600_000);
   const conv =

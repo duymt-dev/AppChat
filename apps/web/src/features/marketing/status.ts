@@ -3,12 +3,13 @@ import { color, type IconName } from '@appchat/ui';
 import type { CampaignStatus, ChanTab, MkChannel } from './types';
 
 export const STATUS_TABS: (CampaignStatus | 'all')[] = ['all', 'running', 'scheduled', 'completed', 'paused', 'cancelled'];
-/** Thêm Chờ duyệt / Nháp / Từ chối vào tab vì campaign.approve luôn qua bước duyệt (Blueprint §2.2). */
-export const EXTRA_TABS: CampaignStatus[] = ['pending_approval', 'draft', 'rejected'];
+/** Thêm Chờ duyệt / Đã duyệt / Nháp / Từ chối vào tab vì campaign.approve luôn qua bước duyệt (Blueprint §2.2). */
+export const EXTRA_TABS: CampaignStatus[] = ['pending_approval', 'approved', 'draft', 'rejected'];
 
 export const STATUS_TONE: Record<CampaignStatus, string> = {
   draft: color.text4,
   pending_approval: color.amberText,
+  approved: color.okStrong,
   scheduled: color.info,
   running: color.closedGreen,
   paused: color.amberGold,
@@ -30,18 +31,21 @@ export const CHAN_TABS: [ChanTab, string, IconName][] = [
   ['auto', color.violet, 'ic-flow'],
 ];
 
+/** Nhóm khách theo `contact.group` của CRM (vip / loyal / new / potential). */
 export const GROUP_TONE: Record<string, string> = {
   vip: color.violet,
-  returning: color.successStrong,
-  cart: color.amberDeep,
+  loyal: color.successStrong,
   new: color.blue,
-  cold: color.text4,
+  potential: color.amberDeep,
 };
 
+/** Trạng thái người nhận theo bằng chứng kênh (không có "đã đọc / click" khi kênh không xác nhận — DC-240). */
 export const REC_TONE: Record<string, [string, string]> = {
-  clicked: [color.brand, color.mkClickBg],
-  opened: [color.info, color.sentBg],
-  delivered: [color.slateAvatar, color.mutedBg],
+  converted: [color.brand, color.mkClickBg],
+  replied: [color.info, color.sentBg],
+  sent: [color.slateAvatar, color.mutedBg],
+  pending: [color.text3, color.mutedBg],
+  skipped: [color.amberText, color.alertBg],
   failed: [color.dangerStrong, color.hotLeadBg],
 };
 

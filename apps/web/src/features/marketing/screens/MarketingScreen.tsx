@@ -28,14 +28,14 @@ export function MarketingScreen() {
   const list = useQuery(campaignsQuery(ui.filter, ui.pg));
   const meta = useQuery(marketingMetaQuery()).data;
   const rows = list.data?.data ?? [];
-  const columns = useCampaignColumns(rows);
+  const columns = useCampaignColumns();
   return (
     <div className={styles.wrap} data-testid="marketing">
       <MarketingHeader meta={meta} />
       <PageStates state={stateOf(list)} onRetry={() => void list.refetch()}>
         <DataTable<Campaign>
           testId="mk-table"
-            footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="mk-table-pager" />}
+          footer={<ListPager meta={list.data?.meta} unit={t('unit')} onChange={ui.setPg} testId="mk-table-pager" />}
           rows={rows}
           columns={columns}
           rowKey={(r) => r.id}

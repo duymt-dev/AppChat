@@ -543,6 +543,13 @@
       "disconnectTitle": "Ngắt kết nối",
       "disconnectD": "Chỉ ngắt tài khoản này · hội thoại cũ được giữ lại.",
       "disconnectBtn": "Ngắt kết nối",
+      "rate": {
+        "perMinute": "Tốc độ gửi (tin / phút)",
+        "perMinuteD": "Mặc định của kênh: {n} tin / phút. Áp từ tin kế tiếp.",
+        "dailyCap": "Tin chủ động / ngày",
+        "dailyCapD": "Chiến dịch và nhắc việc — mặc định {n}. Hết trần thì dời sang ngày sau.",
+        "overDefault": "Vượt mức an toàn {n} tin / ngày — Zalo có thể khoá tài khoản."
+      },
       "disconnectConfirm": "Ngắt kết nối tài khoản {n}? Hội thoại cũ vẫn được giữ lại.",
       "save": "Lưu thay đổi",
       "saved": "Đã lưu cấu hình"
@@ -1320,6 +1327,7 @@
       "refund_approval": "Hoàn tiền chờ tôi duyệt / kết quả duyệt",
       "bank_review": "Giao dịch ngân hàng cần đối soát",
       "package_reminder": "Liệu trình sắp hết buổi / tới hạn",
+      "campaign_approval": "Chiến dịch chờ duyệt / được duyệt",
       "sla_warn": "SLA sắp vi phạm",
       "sla_breach": "Ticket quá hạn SLA (leo thang)",
       "ticket_assigned": "Ticket được giao cho tôi",

@@ -24,6 +24,8 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'agent.changed': [['agents']],
   'channel.status': [['channels']],
   'kb.source': [['kb']],
+  // chiến dịch đổi trạng thái / gửi xong lô (TIP-037 — chỉ id + trạng thái, người có campaign.view)
+  'campaign.updated': [['marketing']],
   // đổi định nghĩa / vai trò được thấy của trường tuỳ biến (TIP-045b annex C) → mọi danh sách + chi tiết tải lại (REST chiếu theo quyền)
   'fields.changed': [[]],
 };

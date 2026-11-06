@@ -14,6 +14,7 @@ import { CrmMembers } from '../../crm/public';
 import { actorOf, casUpdate, changed, findCampaign, lockCampaign, logEvent, senderAccount, stepOf } from '../repos/campaigns.repo';
 import { assertContent, contentHash, type CampaignContent } from '../services/campaign-policy';
 import { snapshotHash, takeSnapshot } from '../services/recipient-snapshot';
+import { suggestionFilter } from '../services/segments.service';
 
 type Out = { campaign_id: string; status: string; version?: number };
 
@@ -41,7 +42,7 @@ export class CampaignSubmitHandler implements Handler<ActionInput<typeof campaig
     const account = await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[channel], c.accountId);
     if (!account) throw new AppError('VALIDATION_FAILED', 422, { account_id: 'required' });
     if ((c.sendMode === 'schedule' || c.sendMode === 'ai_time') && (!c.scheduledAt || c.scheduledAt.getTime() <= now.getTime())) throw new AppError('VALIDATION_FAILED', 422, { scheduled_at: c.scheduledAt ? 'past' : 'required' });
-    const snap = await takeSnapshot(tx, ctx.authz, { campaignId: c.id, channel, accountId: account.id, segmentIds: c.segmentIds, ab: !!c.ab }, now);
+    const snap = await takeSnapshot(tx, ctx.authz, { campaignId: c.id, channel, accountId: account.id, segmentIds: c.segmentIds, filter: await suggestionFilter(tx, c.suggestionId), ab: !!c.ab }, now);
     if (!snap.eligible) throw new AppError('VALIDATION_FAILED', 422, { audience: snap.total ? 'no_reachable' : 'empty' });
     const actor = await actorOf(ctx, this.members);
     const row = await casUpdate(tx, c, {

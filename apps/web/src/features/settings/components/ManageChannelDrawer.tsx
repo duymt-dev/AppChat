@@ -17,6 +17,7 @@ import { ContactSyncPanel } from './ContactSyncPanel';
 import { FriendsPanel } from './FriendsPanel';
 import { ChannelRoutingFields } from './ChannelRoutingFields';
 import { ChannelRoutingSettings } from './ChannelRoutingSettings';
+import { ChannelRateFields } from './ChannelRateFields';
 import type { ChannelAccount, ChannelAiMode, ChannelHistoryDays } from '../types';
 
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
@@ -72,6 +73,8 @@ export function ManageChannelDrawer() {
           sla_policy: draft.sla_policy,
           sync_messages: draft.sync_messages,
           sync_auto_create_contact: draft.sync_auto_create_contact,
+          rate_per_minute: draft.rate_per_minute,
+          daily_cap: draft.daily_cap ?? undefined,
         },
         // TIP-022b: đổi agent trực kèm phiên bản gán đã xem — người khác đổi giữa chừng → 409, giữ gán cũ.
         ...(draft.agent_id !== undefined && account.binding_version ? { expected_version: account.binding_version } : {}),
@@ -315,6 +318,7 @@ export function ManageChannelDrawer() {
                 ))}
               </select>
             </div>
+            <ChannelRateFields type={c.type} value={cur ?? {}} onChange={patch} />
             {/* Danh bạ (TIP-014b D3) — kênh có danh bạ phía nhà cung cấp (Zalo cá nhân), tài khoản đang chạy. */}
             {c.type === 'zalo_personal' && account.connected && !account.paused ? <ContactSyncPanel accountId={account.id} /> : null}
             {/* Bạn bè Zalo (TIP-014b E) — chỉ người bấm; lời mời tới + tra một SĐT. */}

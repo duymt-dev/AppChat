@@ -86,6 +86,13 @@ export async function segmentFilters(tx: Db, ids: string[]): Promise<SegmentNode
   return rows.map((r) => parseFilter(r.filter));
 }
 
+/** Bộ lọc của gợi ý AI mà chiến dịch được tạo từ đó (gợi ý chỉ mang bộ lọc, không phải phân khúc đã lưu) — vắng / gợi ý mất → undefined. */
+export async function suggestionFilter(tx: Pick<TenantTx, 'campaignSuggestion'>, suggestionId: string | null | undefined): Promise<SegmentNode | undefined> {
+  if (!suggestionId || !UUID.test(suggestionId)) return undefined;
+  const s = await tx.campaignSuggestion.findUnique({ where: { id: suggestionId }, select: { segmentFilter: true } });
+  return s ? parseFilter(s.segmentFilter) : undefined;
+}
+
 /** Điều kiện "thuộc tập người nhận" trên alias `c` (OR các nguồn) — rỗng → FALSE. */
 async function audienceSql(tx: Db, a: AudienceSpec, now: Date): Promise<Prisma.Sql> {
   const or: Prisma.Sql[] = [];

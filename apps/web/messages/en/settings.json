@@ -543,6 +543,13 @@
       "disconnectTitle": "Disconnect",
       "disconnectD": "Only this account is disconnected · old conversations are kept.",
       "disconnectBtn": "Disconnect",
+      "rate": {
+        "perMinute": "Send rate (messages / minute)",
+        "perMinuteD": "Channel default: {n} messages / minute. Applies from the next message.",
+        "dailyCap": "Proactive messages / day",
+        "dailyCapD": "Campaigns and follow-ups — default {n}. Over the cap, sending moves to the next day.",
+        "overDefault": "Above the safe level of {n} messages / day — Zalo may lock the account."
+      },
       "disconnectConfirm": "Disconnect account {n}? Old conversations are kept.",
       "save": "Save changes",
       "saved": "Settings saved"
@@ -1320,6 +1327,7 @@
       "refund_approval": "Refunds waiting for me / decisions",
       "bank_review": "Bank transactions to reconcile",
       "package_reminder": "Packages running out / about to expire",
+      "campaign_approval": "Campaigns awaiting / given approval",
       "sla_warn": "SLA about to be breached",
       "sla_breach": "Ticket breached SLA (escalation)",
       "ticket_assigned": "Ticket assigned to me",

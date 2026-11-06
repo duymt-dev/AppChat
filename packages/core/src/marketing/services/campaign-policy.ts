@@ -82,7 +82,8 @@ export function parseSchedule(s: string, now: Date): Date {
 /** Nút người dùng bấm được ở trạng thái hiện tại (FE `allowed[]`) — theo CAMPAIGN_FLOW, thêm gửi thử / xoá / xuất / gửi lại. */
 export function allowedActions(status: CampaignStatusKey): string[] {
   const ids = flowActions(CAMPAIGN_FLOW, status).filter((a) => !a.includes(':') && !SYSTEM_EDGES.has(a));
-  if (CAMPAIGN_EDITABLE.includes(status)) ids.push('campaign.send_test');
+  // Gửi thử cho chính mình: lúc soạn và lúc người duyệt xem trước khi duyệt.
+  if (CAMPAIGN_EDITABLE.includes(status) || status === 'pending_approval') ids.push('campaign.send_test');
   if (CAMPAIGN_DELETABLE.includes(status)) ids.push('campaign.delete');
   if (['running', 'paused', 'completed', 'cancelled'].includes(status)) ids.push('campaign.recipient_export', 'campaign.resend_unread');
   return [...new Set(ids)];

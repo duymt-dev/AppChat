@@ -4,12 +4,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
+import { useFmt } from '@/shared/i18n/useFmt';
 import { useWizardStyles } from '../styles/wizard.styles';
 import { useMarketingUi } from '../marketing-store';
 import { suggestionsQuery } from '../api';
 import { useWizard } from '../hooks/useWizard';
 import type { MarketingMeta, Suggestion } from '../types';
-import { StepAudience, StepChannel, StepContent, StepSchedule } from './WizardSteps';
+import { StepAudience, StepChannel, StepSchedule } from './WizardSteps';
+import { StepContent } from './StepContent';
 
 const STEPS = 4;
 
@@ -19,7 +21,7 @@ export function CampaignWizard({ meta }: { meta: MarketingMeta }) {
   const prefill = useMarketingUi((s) => s.prefill);
   const sugg = useQuery({ ...suggestionsQuery(), enabled: open && !!from });
   if (!open) return null;
-  const s = from ? sugg.data?.data.find((x) => x.id === from) : undefined;
+  const s = from ? sugg.data?.find((x) => x.id === from) : undefined;
   if (from && !s) return null;
   return <Wizard key={`${from ?? ''}${JSON.stringify(prefill)}`} meta={meta} s={s} prefill={prefill ?? {}} />;
 }
@@ -27,16 +29,17 @@ export function CampaignWizard({ meta }: { meta: MarketingMeta }) {
 function AiPrefill({ s }: { s: Suggestion }) {
   const t = useTranslations('marketing');
   const { styles } = useWizardStyles();
+  const fmt = useFmt();
   const rows: [string, string][] = [
-    ['name', s.name],
-    ['type', s.type],
-    ['segment', `${s.segment} · ${s.count.toLocaleString('vi-VN')}`],
+    ['name', s.title],
+    ['type', t(`an.kind.${s.kind}`)],
+    ['segment', t('an.countV', { n: fmt.number(s.est_count) })],
     ['exclude', t('wiz.excludeV')],
-    ['channel', s.channels.map((c) => t(`chan.${c}`)).join(' · ')],
-    ['time', s.time],
-    ['subject', s.subject],
+    ['channel', t(`chan.${s.channel}`)],
+    ['time', s.best_time ?? t('an.anyTime')],
+    ['subject', s.subject || '—'],
     ['body', s.body],
-    ['cta', s.cta],
+    ['cta', s.cta || '—'],
   ];
   return (
     <div className={styles.aiBox} data-testid="mk-wiz-ai">
@@ -60,6 +63,7 @@ function Wizard({ meta, s, prefill }: { meta: MarketingMeta; s: Suggestion | und
   const t = useTranslations('marketing.wiz');
   const { styles, cx } = useWizardStyles();
   const w = useWizard(meta, s, prefill);
+  const fmt = useFmt();
   const { d, patch } = w;
   const steps = t.raw('steps') as string[];
   return (
@@ -98,11 +102,11 @@ function Wizard({ meta, s, prefill }: { meta: MarketingMeta; s: Suggestion | und
           ) : null}
           {d.step === 2 ? <StepAudience meta={meta} d={d} patch={patch} visible={w.visible} toggle={w.toggle} selectAll={w.selectAll} /> : null}
           {d.step === 3 ? <StepContent d={d} patch={patch} /> : null}
-          {d.step === 4 ? <StepSchedule d={d} patch={patch} audience={w.audience} /> : null}
+          {d.step === 4 ? <StepSchedule meta={meta} d={d} patch={patch} audience={w.audience} /> : null}
         </div>
         <div className={styles.foot}>
           <div className={styles.sum}>
-            {t.rich('footSum', { ch: t(`ch.${d.channel}.name`), n: w.audience.toLocaleString('vi-VN'), b: (c) => <b>{c}</b> })}
+            {t.rich('footSum', { ch: t(`ch.${d.channel}.name`), n: fmt.number(w.audience), b: (c) => <b>{c}</b> })}
           </div>
           <span className={styles.grow} />
           {d.step > 1 ? (

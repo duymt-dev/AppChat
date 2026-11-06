@@ -26,6 +26,7 @@ import { contactPackagesParamRoute } from './domains/invoices-actions';
 import { calendarParamRoute } from './domains/calendar';
 import { ticketsParamRoute } from './domains/tickets';
 import { marketingParamRoute } from './domains/marketing';
+import { marketingExportBlob, marketingPublicPost, marketingPublicRoute } from './domains/marketing-extras';
 import { loyaltyFileBlob, loyaltyParamRoute } from './domains/loyalty';
 import { kbSuggestionParamRoute } from './domains/kb-suggestions';
 import { kbSourceBlob } from './domains/kb-folders';
@@ -89,6 +90,7 @@ export const mockTransport: Transport = {
       calendarParamRoute(path) ??
       ticketsParamRoute(path) ??
       marketingParamRoute(path) ??
+      marketingPublicRoute(path) ??
       loyaltyParamRoute(path) ??
       kbSuggestionParamRoute(path) ??
       settingsAppsParamRoute(path) ??
@@ -105,7 +107,7 @@ export const mockTransport: Transport = {
   },
 
   async post(path, body) {
-    const handler = mockPosts[path] ?? assistantPosts[path] ?? assistantUiPosts[path] ?? signParamPost(path) ?? contractsPosts(path) ?? appendixMock.post(path);
+    const handler = mockPosts[path] ?? assistantPosts[path] ?? assistantUiPosts[path] ?? signParamPost(path) ?? contractsPosts(path) ?? appendixMock.post(path) ?? marketingPublicPost(path);
     if (!handler) return fail(404, 'NOT_FOUND', `mock post ${path}`);
     let out: unknown;
     const signEvent = path.match(/^\/public\/sign\/[^/]+\/(sign|decline)$/)?.[1];
@@ -205,7 +207,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Tải nguồn KB (TIP-020b): tệp → HTML có tên; URL / catalog → JSON mô tả như server.
-    const kb = kbSourceBlob(mockDb(), path);
+    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? publicDocumentPdf(path);

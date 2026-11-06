@@ -132,7 +132,16 @@ export class ChannelsReadService {
       status: r.status,
       agent_behavior: { schedule: st.schedule ?? null, routing: st.routing ?? { enabled: false, candidates: [] }, greeting_enabled: !!st.greeting_enabled },
       binding_version: bindingVersion(r.settings),
+      ...this.limits(r.type, st),
     };
+  }
+
+  /** Tốc độ / trần ngày đang áp (TIP-037): cài đặt tài khoản thắng, vắng → manifest (send.processor đọc cùng thứ tự). */
+  private limits(type: string, st: ReturnType<typeof settingsOf>) {
+    const rl = this.registry.manifests().find((m) => m.type === type)?.rateLimit;
+    if (!rl) return {};
+    const capDefault = rl.perDayProactive ?? null;
+    return { rate_per_minute: st.rate_per_minute ?? rl.perMinute, daily_cap: st.daily_cap ?? capDefault, rate_default: rl.perMinute, daily_cap_default: capDefault };
   }
 
   /** Hội thoại + FRT 30 ngày gần nhất mỗi tài khoản (một truy vấn gộp theo PK `(channel_account_id, day)`). */
