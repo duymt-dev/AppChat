@@ -1,5 +1,21 @@
 // Chữ Tổng quan phía server — tiếng Việt (nguồn), TIP-038 pha 2: "Việc cần tôi", việc follow, thẻ thống kê, catalog tĩnh có nhãn.
 export const insights = {
+  // Email tóm tắt (pha 4, DC-366): số liệu thật của người nhận trong kỳ — không LLM, không Credit.
+  digest: {
+    subject: { daily: '[{workspace}] Tóm tắt ngày {period}', weekly: '[{workspace}] Tóm tắt tuần {period}' },
+    intro: {
+      daily: 'Tóm tắt hoạt động ngày {period} của bạn tại {workspace}.',
+      weekly: 'Tóm tắt hoạt động tuần {period} của bạn tại {workspace}.',
+    },
+    work: 'Việc cần bạn xử lý',
+    noWork: 'Không có việc nào đang chờ bạn.',
+    more: '… và {n} việc khác',
+    follow: 'Khách đến hạn liên hệ lại: {n}',
+    ai: 'AI trong kỳ: {runs} phiên · {actions} thao tác · {handoffs} lần chuyển người',
+    open: 'Mở AppChat',
+    footer: 'Bạn nhận email này vì đã bật "Email tóm tắt" ({cadence}). Đổi tại Cài đặt › Thông báo.',
+    cadence: { daily: 'hằng ngày', weekly: 'hằng tuần' },
+  },
   // Xuất danh sách (pha 3): tên tệp, tên cột, nhãn trạng thái — tệp là dữ liệu cho người đọc, không phải mã.
   export: {
     file: {

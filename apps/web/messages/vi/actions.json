@@ -57,6 +57,12 @@
       "desc": "Hệ thống tạo việc follow cho khách im lặng 7 ngày và bỏ việc cũ khi khách có tương tác mới. Không gửi tin."
     }
   },
+  "digest": {
+    "dispatch": {
+      "title": "Gửi email tóm tắt (hệ thống)",
+      "desc": "Hệ thống gửi email tóm tắt hằng ngày / hằng tuần lúc 08:00 cho người bật trong Thông báo — chỉ số liệu người đó được xem, lùi qua giờ yên lặng."
+    }
+  },
   "conversation": {
     "mark_read": {
       "title": "Đánh dấu đã đọc"

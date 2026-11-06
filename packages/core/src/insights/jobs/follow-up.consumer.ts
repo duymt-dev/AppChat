@@ -41,9 +41,9 @@ export async function sweepFollowUps(d: SweepDeps): Promise<{ created: number; s
   const r = { created: 0, superseded: 0 };
   for (const w of wss) {
     try {
-      const out = (await d.executor.execute(followUpCtx(w.id), 'follow_up.reconcile', { batch })) as { result?: { created?: number; superseded?: number } };
-      r.created += out.result?.created ?? 0;
-      r.superseded += out.result?.superseded ?? 0;
+      const out = (await d.executor.execute(followUpCtx(w.id), 'follow_up.reconcile', { batch })) as { data?: { result?: { created?: number; superseded?: number } } };
+      r.created += out.data?.result?.created ?? 0;
+      r.superseded += out.data?.result?.superseded ?? 0;
     } catch (err) {
       d.onError?.(w.id, err);
     }

@@ -1,0 +1,8 @@
+{
+  "suite": "insights",
+  "cases": [
+    { "id": "in-collected-vs-booked", "category": "insights", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "insights": { "kind": "owner_money" }, "input": "Tháng này tôi thu thực được bao nhiêu tiền, và tổng giá trị đơn đã đặt là bao nhiêu? Nói rõ hai con số riêng.", "expect": { "confirm": false, "insights": true } },
+    { "id": "in-sales-own-scope", "category": "insights", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "insights": { "kind": "sales_scope" }, "input": "Tổng giá trị đơn đã đặt tháng này là bao nhiêu?", "expect": { "confirm": false, "insights": true } },
+    { "id": "in-at-risk", "category": "insights", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "insights": { "kind": "at_risk" }, "input": "Những khách nào đang có nguy cơ rời bỏ, cần chăm sóc lại?", "expect": { "confirm": false, "insights": true } }
+  ]
+}

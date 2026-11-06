@@ -34,3 +34,19 @@ export const followUpReconcile = defineAction({
   agentGrantable: false,
   invalidates: ['dashboard', 'calendar'],
 });
+
+// Email tóm tắt (TIP-038 pha 4, DC-241 / DC-366) — system-only: scheduler `insights.digest` (ROLE=jobs) gọi qua ActionExecutor nguồn system
+// (actor `system:digest`); người / Trợ lý / agent / API không gọi được. `plan` = ghi sổ kỳ vừa đóng cho người nhận đủ điều kiện (unique
+// người nhận + nhịp + kỳ — chạy lại không tạo trùng); `send` = gửi một lô dòng tới hạn (CAS queued → sending trước khi gọi nhà cung cấp).
+export const digestDispatch = defineAction({
+  id: 'digest.dispatch',
+  module: 'insights',
+  title: 'actions.digest.dispatch.title',
+  description: 'System-only: plan or send the daily / weekly digest emails of one workspace (one bounded batch). Not callable by users, assistant or agents. Example: {"step":"plan"}',
+  input: z.object({ step: z.enum(['plan', 'send']) }),
+  output: z.object({ planned: z.number().int(), sent: z.number().int(), skipped: z.number().int(), unknown: z.number().int(), failed: z.number().int() }),
+  permission: 'self',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: [],
+});

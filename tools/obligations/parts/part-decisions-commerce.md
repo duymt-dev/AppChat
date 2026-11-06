@@ -212,7 +212,7 @@
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | NGOÀI | DC-029 chốt: kênh `mobile` chỉ lưu tuỳ chọn, gửi đẩy là TIP push P2 (REQ-M02 phát hành chỉ in-app + email; D37 MCP/P2). Không thuộc bản phát hành |
-| DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | CHƯA | TIP-038 |
+| DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | 013c | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận; TIP-013c nhận (2026-11-02) |

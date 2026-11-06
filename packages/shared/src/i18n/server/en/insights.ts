@@ -1,5 +1,25 @@
 // Server-side dashboard strings — English (TIP-038 phase 2).
 export const insights = {
+  // Digest email (phase 4, DC-366): the recipient's real figures for the period — no LLM, no credits.
+  digest: {
+    subject: {
+      daily: '[{workspace}] Daily summary {period}',
+      weekly: '[{workspace}] Weekly summary {period}',
+    },
+    intro: {
+      daily: 'Your activity summary for {period} at {workspace}.',
+      weekly: 'Your activity summary for the week of {period} at {workspace}.',
+    },
+    work: 'Waiting for you',
+    noWork: 'Nothing is waiting for you.',
+    more: '… and {n} more',
+    follow: 'Customers due for follow-up: {n}',
+    ai: 'AI this period: {runs} sessions · {actions} actions · {handoffs} handovers',
+    open: 'Open AppChat',
+    footer:
+      'You receive this email because "Digest email" is on ({cadence}). Change it in Settings › Notifications.',
+    cadence: { daily: 'daily', weekly: 'weekly' },
+  },
   // List export (phase 3): file names, column headers, status labels.
   export: {
     file: {

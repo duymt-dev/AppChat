@@ -11,3 +11,8 @@ export { sweepFollowUps, followUpCtx, FOLLOW_UP_SWEEP_JOB, INSIGHTS_SCHEDULER_QU
 export { eventRecordVisible } from './services/renewal-suggestions';
 export { registerListExportKinds, buildExport, exportStamp, READERS as LIST_EXPORT_READERS, EXPORT_TTL_MS as LIST_EXPORT_TTL_MS } from './exports/export-runner';
 export { XLSX_MIME } from './exports/export-columns';
+export { DIGEST_ACTOR, DIGEST_MAIL, type DigestMail } from './actions/digest.handlers';
+export { planDigests, claimDigests, deliverDigests, DIGEST_BATCH, DIGEST_STALE_SENDING_MS, type DigestDeps } from './jobs/digest.service';
+export { lastClosedPeriod, afterQuietHours, expired as digestExpired, DIGEST_GRACE_MS } from './jobs/digest-period';
+export { digestMail, DIGEST_WORK_LINES } from './jobs/digest-template';
+export { runDigests, digestCtx, DIGEST_JOB, DIGEST_QUEUE } from './jobs/digest.consumer';

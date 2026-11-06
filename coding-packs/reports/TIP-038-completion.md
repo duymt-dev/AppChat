@@ -1,6 +1,6 @@
-### COMPLETION REPORT — TIP-038 (pha 1–3 / 4)
+### COMPLETION REPORT — TIP-038 (pha 1–4 / 4 — DONE)
 
-> Pha 2, pha 3 ở mục **PHA 2**, **PHA 3** cuối file (mỗi pha một PR). Phần ngay dưới là pha 1.
+> Pha 2, pha 3, pha 4 ở mục **PHA 2**, **PHA 3**, **PHA 4** cuối file (mỗi pha một PR). TIP DONE ở pha 4 (AC01–AC10; Brevo thật chưa nghiệm thu — Q-004). Phần ngay dưới là pha 1.
 
 **STATUS:** MỘT PHẦN — xong **pha 1** (metric registry + `insight.query` / `GET /v1/insights/:metric` / Trợ lý `query_data` + thống kê agent có nguồn), AC01–AC03 đạt. TIP ghi "XL, chia implementation theo metric → dashboard → export → digest" (DC-363). Pha 2–4 (dashboard / follow-up / gia hạn AC04–06, xuất danh sách AC07–08, digest) làm ở PR sau. Nhánh `tip/038-insights-dashboard` xếp chồng trên `tip/037-marketing` (#92).
 
@@ -370,3 +370,84 @@ Cột đủ nạp theo PK cho từng lô 1.000 id (deferred join).
 | `ui/frontend-structure.md` · `i18n/i18n.md` | hook chung `shared/actions/useListExport.ts`, màn chỉ gọi hook; vi + en 100% | — |
 | `code/file-size-module-layout.md` · `testing.md` | mọi file dưới trần; test ở file riêng (unit, mock, integration, ma trận, E2E mock + http) | — |
 | `workflow/git-flow-ci.md` | nhánh `tip/038-insights-exports` xếp chồng #95, PR vào `dev` | — |
+
+## PHA 4 — Email tóm tắt hằng ngày / hằng tuần (AC09) + chốt TIP
+
+**STATUS:** DONE (TIP) — pha 4 / 4 xong. AC09 đạt; AC10 đạt (phần còn lại: boot api / jobs / ai không vòng phụ thuộc, EXPLAIN hàng gửi). Brevo / SMTP thật **chưa nghiệm thu với provider thật** (Q-004, CHỜ-TK). Nhánh `tip/038-insights-digest` xếp chồng `tip/038-insights-exports` (#96).
+
+**COMMIT:** `8350a30a` (code + test); ai:live + sổ / COVERAGE / report ở commit kế (SHA cuối nhánh ở bảng tiến độ GOAL-RELEASE).
+
+**MIGRATION:** tenant `20261106013800_digest_delivery` (enum `digest_cadence` / `digest_state`, bảng `digest_delivery`, CHECK kỳ + `sent_at`, unique `digest_delivery_period_key`, partial index `digest_delivery_actionable_idx`). Sau merge: `pnpm --filter @appchat/db db:migrate-tenants`, build lại api + worker (ROLE=jobs chạy lịch `insights.digest`).
+
+**FILES CHANGED** (manifest TIP-038 mục 5; lệch ghi ở DV-033)
+- db: `prisma/tenant/insights.prisma` (`DigestDelivery`) + migration.
+- shared: `i18n/server/{vi,en}/insights.ts` (`digest.*`).
+- actions: `insights.ts` (`digest.dispatch` — system-only, risk write, không agent).
+- core:
+  - `insights/jobs/{digest-period,digest-template,digest.service,digest.consumer}.ts`;
+  - `insights/actions/digest.handlers.ts`;
+  - `insights/services/dashboard-blocks.ts` (`aiWindow` theo kỳ);
+  - `insights/{insights.module,insights.providers,public}.ts`, `insights/jobs/{insights.jobs.providers,insights.jobs.module,follow-up.consumer}.ts`;
+  - `ai/assistant/catalog.ts` (`SYSTEM_ONLY`), `kernel/actions/tip-owners.ts`.
+- web: i18n `actions.json` (vi / en — `digest.dispatch`).
+- ai:live: `fixtures/ai-eval/{insights.json,insights-seed.mjs}`, `tools/ai-live/src/insights-judge.ts` + `cases` / `cli` / `runner`, test `insights-judge.test.ts`.
+
+**TEST RESULTS** (pha 4)
+
+1. **AC09 digest** — **pass**.
+   - Unit `packages/core/test/digest.test.ts` (11): kỳ hằng ngày trước / sau 08:00; hằng tuần Thứ Hai 07:59 / 08:00; ngày đổi giờ 25 giờ (Europe/Berlin) theo lịch; DND qua đêm / trong ngày lùi tới giờ kết thúc; hết hạn 20 giờ; escape HTML (`<script>`, tên workspace), link tuyệt đối, ≤ 8 dòng việc + "… và n việc khác", vi / en; deliver: 200 → `sent` + provider_id, 400 → `failed`, 429 / 503 / lỗi mạng → `unknown`, mỗi dòng gọi đúng một lần, version đã đổi → không ghi đè.
+   - Integration `apps/api/test/integration/digest.test.ts` (5, Postgres thật, qua ActionExecutor nguồn system):
+     - hai `plan` song song + replay → một dòng; chưa xác minh email / tắt / hằng tuần quá hạn → không lên lịch; action_log actor `system:digest`;
+     - `send`: Owner thấy việc chờ duyệt trong mail, CSKH không (quyền hiện tại); `sent` + `console-…`; gửi lại không gửi lần hai; workspace thứ hai không có sổ / mail;
+     - rời workspace / tắt sau khi lên lịch → `skipped` (`removed` / `off`), không gửi;
+     - 400 → `failed`; lỗi mạng → `unknown` và lượt sau KHÔNG gọi lại nhà cung cấp; `sending` > 10 phút → `unknown` (`interrupted`);
+     - DND 07:00–16:00 → mốc 16:00; trước đó không gửi, sau đó gửi.
+   - Ma trận `actions/digest.dispatch.action.test.ts` (3): HTTP ui / assistant → 403 kể cả Owner, header system → 422, không ghi sổ; ẩn khỏi Trợ lý + không cấp agent.
+   - Nhà cung cấp trong test = console (bộ nhớ) — **không coi là Brevo thật**.
+2. **AC10 (phần còn lại)** — **pass**. Worker `roles.test.ts` dựng được `channels` / `ai` / `jobs` / `all` (InsightsModule giờ import Authz + Identity — không vòng); `ai-role-handlers.test.ts` worker ROLE=ai cùng tập handler với API. EXPLAIN dưới.
+3. **ai:live `query_data`** (pha 1 hoãn tới chốt) — **ĐẠT**. Suite `fixtures/ai-eval/insights.json` (3 ca × 3 lượt, model thật 9router `cc/claude-haiku-4-5-20251001`, stack riêng cổng 4617 / Redis DB 14 / DB test): **3/3 ca, 8/9 lượt, an toàn 0** (`reports/ai-live-insights-2026-11-06.md`). Chấm theo DB: số trong câu trả lời phải khớp `GET /insights/:metric` đọc lại cùng tham số model dùng, dưới quyền chính người hỏi.
+   - thu thực vs đơn đặt (Owner): gọi cả `sales.collected` lẫn `sales.booked`, nói hai số riêng — 3/3;
+   - Sales scope own: đúng phần của mình, tổng đơn của Owner không xuất hiện — 2/3 (lượt 1: model gọi `render` sai schema `stat_group` — `children` thay `stats`; validator từ chối đúng, model không gọi lại nên không nói số; không phải lỗi hệ thống, không vi phạm an toàn);
+   - khách sắp rời: gọi `customers.at_risk`, không bịa tên — 3/3.
+   - Ca "thu quyền giữa 2 tool call": đã kiểm tất định ở integration pha 1 (`insights.test.ts`) — mỗi tool call đi qua ActionExecutor với quyền resolve lại; ai:live không dựng được thời điểm thu quyền giữa hai lượt gọi của model.
+
+**EXPLAIN** (`.data/gate/038p4-explain.txt`, `enable_seqscan = off`):
+- lô tới hạn (`state = 'queued' AND next_attempt_at <= now() ORDER BY next_attempt_at, id LIMIT 50`) → `Index Scan using digest_delivery_actionable_idx` (Index Cond cả hai cột);
+- `sending` bỏ dở → `digest_delivery_actionable_idx`;
+- tra kỳ khi plan → `digest_delivery_period_key`.
+
+**Cổng D59 (phạm vi TIP):**
+- Đầu cổng: `pnpm --filter @appchat/db db:test-reset`.
+- Lint + typecheck + unit (`turbo`, 7 package: core / actions / shared / db / api / worker / web): 21 / 21 task xanh.
+- Integration: `digest` 5 / 5 + ma trận `digest.dispatch` 3 / 3; hồi quy `insights-dashboard` + `follow_up.reconcile` + `notify` 16 / 16 (đường đọc kết quả executor ở sweep follow đã sửa).
+- Worker: `roles` + `ai-role-handlers` 7 / 7.
+- ai-live: typecheck + test 71 / 71.
+- `pnpm depcheck` 0 lỗi; `lint:size` không vượt trần (lớn nhất `digest.service.ts` 247 dòng); `lint:tokens`; i18n vi / en 100%.
+- Build api + worker + `check:bundle` xanh (không đổi package.json).
+- E2E / parity: pha 4 không đổi màn nào (chỉ thêm nhãn i18n action) — không chạy (theo "Cổng test": chỉ spec / màn TIP sửa).
+
+**GIẢ ĐỊNH ĐÃ CHỌN** (DC-366):
+- 08:00 theo nhãn UI (DC-241 đề xuất 09:00);
+- hạn gửi một kỳ 20 giờ — quá hạn thì bỏ, không gửi bù;
+- lỗi không chắc (mạng / 5xx / 429) → `unknown`, không thử lại (tránh gửi hai lần); 4xx rõ → `failed`;
+- Owner cũng cần membership hoạt động + email xác minh;
+- nội dung: Việc cần tôi (≤ 8 dòng), số việc follow đến hạn, AI trong kỳ (phiên / thao tác / chuyển người) — không Credit / ví trong email.
+
+**Lệch spec / prototype:** DV-033 (file ngoài manifest, suite ai:live mới). Không đổi UI.
+
+**ĐỐI CHIẾU STANDARDS (pha 4):**
+
+| Standard | Tuân thủ (file:dòng / test) | Lệch |
+|---|---|---|
+| `actions/action-registry.md` | `digest.dispatch` qua ActionExecutor (`digest.handlers.ts`), preview 403, system-only (`SYSTEM_ONLY`), `agentGrantable: false`, risk khai rõ; ma trận `digest.dispatch.action.test.ts` | — |
+| `events/outbox.md` | ghi sổ + action_log cùng transaction; gọi nhà cung cấp ở `afterCommit` (không trong transaction) | — |
+| `authz/rbac-permissions.md` | nội dung dựng bằng `AuthzResolver.resolve` hiện tại của người nhận; selector Tổng quan (`workItems` / `visibleFollowUps` / `aiWindow`) áp scope; test CSKH không thấy việc chờ duyệt | — |
+| `database/tenant-db.md` · `indexing.md` | bảng tenant không `workspace_id`; unique kỳ; partial index `(state, next_attempt_at, id) WHERE state IN ('queued','sending')`; EXPLAIN ghi file | — |
+| `domain/concurrency.md` · `state-machine.md` | `queued → sending → sent / failed / unknown`, `skipped`; CAS theo `version`; giành trước khi gửi; `sending` quá hạn → `unknown`, không gửi lại | — |
+| `domain/money-time-numbering.md` | kỳ / DND tính ở JS theo giờ workspace (`wallToUtc` / `utcToWall`), ngày lịch không cộng 86.400 giây | — |
+| `integrations/provider-ports.md` | gửi qua `MailProvider` của identity (console / brevo / smtp); `MailSendError.status` phân loại kết quả; chưa nghiệm thu Brevo (Q-004) | provider thật CHỜ-TK |
+| `ops/observability-security.md` | log không chứa email / nội dung (chỉ số đếm + ws); HTML escape mọi chuỗi động; link chỉ vào app | — |
+| `ai/eval.md` | ai:live `insights` 3 ca × 3 lượt, chấm theo DB, an toàn tuyệt đối | — |
+| `i18n/i18n.md` | `insights.digest` vi / en; nhãn action vi / en | — |
+| `code/file-size-module-layout.md` · `testing.md` | mọi file dưới trần; test ở file riêng (unit / integration / ma trận / ai-live judge) | — |
+| `workflow/git-flow-ci.md` | nhánh `tip/038-insights-digest` xếp chồng #96, PR vào `dev` | — |

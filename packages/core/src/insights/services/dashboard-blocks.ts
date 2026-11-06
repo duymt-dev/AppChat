@@ -58,8 +58,12 @@ function followItem(r: FollowUpRow, m: ReturnType<typeof serverMessages>, now: D
 
 /** AI hôm nay: run thật (không dry-run) / action đã chạy / chuyển người — trong scope inbox người xem; Credit chỉ cho agents.manage / billing.manage. */
 export async function aiTodayBlock(tx: Tx, authz0: AuthzContext, now: Date, place: Place): Promise<DashboardDto['ai_today']> {
+  return aiWindow(tx, authz0, dayBounds(now, place.timeZone));
+}
+
+/** AI trong một khoảng [from, to) — Tổng quan (hôm nay) + email tóm tắt (kỳ ngày / tuần). */
+export async function aiWindow(tx: Tx, authz0: AuthzContext, { from, to }: { from: Date; to: Date }): Promise<DashboardDto['ai_today']> {
   const a = insightAuthz(authz0);
-  const { from, to } = dayBounds(now, place.timeZone);
   const credits = can(a, 'agents.manage') || can(a, 'billing.manage');
   const [runs] = await tx.$queryRaw<{ runs: bigint; handoffs: bigint; credits: bigint }[]>`
     SELECT count(*) AS runs, count(*) FILTER (WHERE r.status = 'handoff') AS handoffs, coalesce(sum(r.credits_used), 0)::bigint AS credits
