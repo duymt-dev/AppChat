@@ -35,7 +35,8 @@ export function contextLine(c: AssistantContext | undefined, attachments: Assist
   if (c?.route) lines.push(`- route: ${c.route.slice(0, 200)}`);
   if (c?.entity && c.id) lines.push(`- ${c.entity.slice(0, 40)}: ${c.id.slice(0, 80)}`);
   if (c?.selection?.length) lines.push(`- selection: ${c.selection.slice(0, 20).join(', ')}`);
-  if (attachments?.length) lines.push(`- attachments: ${attachments.map((a) => `${a.name.slice(0, 120)}${a.mime ? ` (${a.mime})` : ''}${a.handlers?.length ? ` → ${a.handlers.join('/')}` : ''}`).join(', ')}`);
+  // `file_id` để model truyền vào action đọc / nhập tệp (transfer.plan, contract.inspect_file…) — id đã qua guard, không URL / nội dung.
+  if (attachments?.length) lines.push(`- attachments: ${attachments.map((a) => `${a.name.slice(0, 120)}${a.mime ? ` (${a.mime})` : ''} [file_id: ${a.id}]${a.handlers?.length ? ` → ${a.handlers.join('/')}` : ''}`).join(', ')}`);
   return lines.length ? lines.join('\n') : fallback;
 }
 

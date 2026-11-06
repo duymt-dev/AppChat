@@ -167,3 +167,21 @@ export class TicketExportHandler extends ListExportHandler {
     return this.count(ctx, input, tx);
   }
 }
+
+@Injectable()
+@ActionHandler('product.export')
+export class ProductExportHandler extends ListExportHandler {
+  protected readonly kind = 'product.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+@Injectable()
+@ActionHandler('invoice.export')
+export class InvoiceExportHandler extends ListExportHandler {
+  protected readonly kind = 'invoice.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}

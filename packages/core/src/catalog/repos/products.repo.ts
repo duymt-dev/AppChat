@@ -38,6 +38,12 @@ function where(f: ProductFilter): Prisma.Sql {
   return Prisma.join(parts, ' AND ');
 }
 
+/** Xuất danh sách (TIP-038b P3): TOÀN BỘ id khớp bộ lọc, cùng `where` + thứ tự danh sách — tối đa `cap` (gọi cap + 1 để biết vượt trần). */
+export async function snapshotProductIds(tx: TenantTx, f: ProductFilter, cap: number): Promise<string[]> {
+  const rows = await tx.$queryRaw<{ id: string }[]>`SELECT p.id FROM product p WHERE ${where(f)} ORDER BY p.created_at DESC, p.id DESC LIMIT ${cap}`;
+  return rows.map((r) => r.id);
+}
+
 export async function listProductIds(tx: TenantTx, f: ProductFilter, page: { offset: number; limit: number } | null) {
   const w = where(f);
   const paging = page ? Prisma.sql`LIMIT ${page.limit} OFFSET ${page.offset}` : Prisma.sql`LIMIT 2000`;

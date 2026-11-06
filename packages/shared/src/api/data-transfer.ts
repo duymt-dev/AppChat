@@ -68,3 +68,17 @@ export const transferCapabilitySchema = z.object({
   export: z.object({ supported: z.boolean(), reason: z.string().nullable(), action_id: z.string() }),
 });
 export type TransferCapabilityDto = z.infer<typeof transferCapabilitySchema>;
+
+/** Mẫu tệp cho Trợ lý / màn nhập (`transfer.sample`): ô đã che — không dữ liệu liên hệ thật. */
+export const transferSampleSchema = z.object({
+  file_name: z.string(),
+  sheets: z.array(z.string()),
+  sheet: z.string().nullable(),
+  columns: z.array(z.string()),
+  total_rows: z.number().int(),
+  sample: z.array(z.array(z.string())),
+  fields: z.array(z.object({ key: z.string(), type: z.string(), required: z.boolean(), options: z.array(z.string()).optional(), item: z.boolean().optional() })),
+  mapping: z.record(z.string(), z.string()),
+  import_supported: z.boolean(),
+});
+export type TransferSampleDto = z.infer<typeof transferSampleSchema>;

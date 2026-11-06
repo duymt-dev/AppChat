@@ -312,6 +312,9 @@
     }
   },
   "product": {
+    "export": {
+      "title": "Export products (Excel)"
+    },
     "create": {
       "title": "Add product"
     },
@@ -608,6 +611,9 @@
     }
   },
   "invoice": {
+    "export": {
+      "title": "Export payment requests (Excel)"
+    },
     "create": {
       "title": "Create payment request",
       "desc": "Create a payment request (deposit, installment or full) for an order or customer."
@@ -1303,6 +1309,9 @@
     },
     "cancel": {
       "title": "Cancel data import"
+    },
+    "sample": {
+      "title": "Preview an import file (contact data masked)"
     }
   }
 }

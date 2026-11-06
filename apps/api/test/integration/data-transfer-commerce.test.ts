@@ -5,6 +5,7 @@
 //   - nhập lại cùng tệp → dòng đã ghi thành `duplicate` (không tạo nháp lần hai);
 //   - sản phẩm qua `product.import` (bộ kiểm 032b): dòng lỗi chặn commit, SKU có sẵn cảnh báo cập nhật; tồn kho không đổi.
 import 'reflect-metadata';
+import ExcelJS from 'exceljs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, type TenantDb } from '@appchat/db';
 import { uuidv7 } from '@appchat/core';
@@ -245,4 +246,81 @@ describe('nhập sản phẩm qua product.import', () => {
     expect(String(updated.price)).toBe('520000');
     expect(await db.product.count({ where: { code: `TN-${TAG}` } })).toBe(1);
   }, 60_000);
+});
+
+/** Tệp XLSX tải qua data-jobs: dòng tiêu đề + dữ liệu (dòng 1 là chú thích múi giờ); không ô công thức. */
+async function sheet(url: string, token = h.tokenFor(h.user)) {
+  const res = await fetch(`${h.base}${url}`, {
+    headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${token}` },
+  });
+  expect(res.status).toBe(200);
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load((await res.arrayBuffer()) as ArrayBuffer);
+  const ws = wb.worksheets[0]!;
+  const rows: unknown[][] = [];
+  ws.eachRow((r, n) => {
+    if (n > 2) rows.push((r.values as unknown[]).slice(1));
+    r.eachCell((c) => expect(c.formula).toBeUndefined());
+  });
+  return { name: ws.name, head: (ws.getRow(2).values as unknown[]).slice(1), rows };
+}
+
+async function exportAs(id: string, input: unknown, token = h.tokenFor(h.user)) {
+  const r = await json(
+    await call(
+      h,
+      `/actions/${id}`,
+      { input },
+      { 'idempotency-key': uuidv7(), authorization: `Bearer ${token}` },
+    ),
+  );
+  expect(r.status, JSON.stringify(r.body)).toBe(200);
+  return { count: r.body.data.result.rows as number, result: r.body.data.result };
+}
+
+describe('xuất sản phẩm / đề nghị thanh toán (khung xuất 038)', () => {
+  it('product.export: giá vốn chỉ khi có catalog.cost_view; SKU lọc đúng; tiền chuỗi đủ chữ số', async () => {
+    const own = await exportAs('product.export', { q: TAG });
+    expect(own.count).toBeGreaterThanOrEqual(2);
+    const f = await sheet(own.result.download_url);
+    expect(f.name).toBe('Sản phẩm');
+    const costCol = f.head.indexOf('Giá vốn (VND)');
+    const priceCol = f.head.indexOf('Giá bán (VND)');
+    const row = f.rows.find((r) => r[0] === SKU)!;
+    expect(row[priceCol]).toBe('520000');
+    const sales = await h.member('sales');
+    await db.product.updateMany({ where: { code: SKU }, data: { cost: 300000n } });
+    expect(
+      (await sheet((await exportAs('product.export', { q: TAG })).result.download_url)).rows.find(
+        (r) => r[0] === SKU,
+      )![costCol],
+    ).toBe('300000');
+    const salesFile = await sheet(
+      (await exportAs('product.export', { q: TAG }, sales.token)).result.download_url,
+      sales.token,
+    );
+    expect(salesFile.rows.find((r) => r[0] === SKU)![costCol]).toBeUndefined();
+  });
+
+  it('invoice.export: theo scope sales; kế toán xuất được cùng tập; CSKH không có invoice.manage → 403', async () => {
+    const r = await exportAs('invoice.export', { q: '' });
+    const f = await sheet(r.result.download_url);
+    expect(f.name).toBe('Đề nghị thanh toán');
+    expect(f.rows.some((x) => x[4] === 'Đặt cọc' && x[6] === '500000')).toBe(true);
+    const acc = await h.member('accountant');
+    expect((await exportAs('invoice.export', {}, acc.token)).count).toBe(r.count);
+    const support = await h.member('cs');
+    expect(
+      (
+        await json(
+          await call(
+            h,
+            '/actions/invoice.export',
+            { input: {} },
+            { 'idempotency-key': uuidv7(), authorization: `Bearer ${support.token}` },
+          ),
+        )
+      ).status,
+    ).toBe(403);
+  });
 });

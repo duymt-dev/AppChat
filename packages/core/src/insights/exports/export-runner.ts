@@ -13,6 +13,7 @@ import type { Storage } from '../../kernel/files/storage';
 import { exportCustomKeys, withCustom, workbook } from './export-columns';
 import { contractReader, orderReader, quoteReader } from './sales-readers';
 import { ticketReader } from './ticket-reader';
+import { invoiceReader, productReader } from './catalog-readers';
 import type { Cell, ExportDb, ExportPlace, ListReader } from './types';
 
 export const EXPORT_BATCH = 1000;
@@ -23,12 +24,17 @@ export const READERS: Record<ListExportKind, ListReader<unknown>> = {
   'order.export': orderReader as ListReader<unknown>,
   'contract.export': contractReader as ListReader<unknown>,
   'ticket.export': ticketReader as ListReader<unknown>,
+  'product.export': productReader as ListReader<unknown>,
+  'invoice.export': invoiceReader as ListReader<unknown>,
 };
 const MODULE: Record<ListExportKind, ScopeModule> = {
   'quote.export': 'sales',
   'order.export': 'sales',
   'contract.export': 'sales',
   'ticket.export': 'support',
+  // Sản phẩm không có data scope (danh mục chung) — dấu quyền theo cost_view ở fieldRole; đề nghị thanh toán theo scope sales.
+  'product.export': 'sales',
+  'invoice.export': 'sales',
 };
 
 /** Dấu quyền của tệp: đổi vai trò trường / định nghĩa trường / scope đọc của module / nhóm → tệp cũ không tải nữa. */

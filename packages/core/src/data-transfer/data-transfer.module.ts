@@ -12,6 +12,8 @@ import { FilesService } from '../kernel/files/files.service';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { TransferCancelHandler, TransferCommitHandler } from './actions/commit.handlers';
 import { TransferPlanHandler, TransferUpdateMappingHandler } from './actions/plan.handlers';
+import { TransferSampleHandler } from './actions/sample.handler';
+import { registerDataImportExtension } from './assistant-extension';
 import { TransferDeps } from './data-transfer.providers';
 import { TransferReadService } from './services/transfer-read';
 
@@ -24,6 +26,7 @@ const opt = (token: symbol) => ({ token, optional: true });
     TransferUpdateMappingHandler,
     TransferCommitHandler,
     TransferCancelHandler,
+    TransferSampleHandler,
     {
       provide: TransferDeps,
       inject: [
@@ -60,4 +63,8 @@ const opt = (token: symbol) => ({ token, optional: true });
   ],
   exports: [TransferDeps, TransferReadService],
 })
-export class DataTransferModule {}
+export class DataTransferModule {
+  constructor() {
+    registerDataImportExtension();
+  }
+}

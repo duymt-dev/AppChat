@@ -312,6 +312,9 @@
     }
   },
   "product": {
+    "export": {
+      "title": "Xuất danh sách sản phẩm (Excel)"
+    },
     "create": {
       "title": "Thêm sản phẩm"
     },
@@ -608,6 +611,9 @@
     }
   },
   "invoice": {
+    "export": {
+      "title": "Xuất danh sách đề nghị thanh toán (Excel)"
+    },
     "create": {
       "title": "Tạo đề nghị thanh toán",
       "desc": "Tạo đề nghị thanh toán (cọc, theo đợt hoặc toàn bộ) cho đơn hàng hoặc khách."
@@ -1303,6 +1309,9 @@
     },
     "cancel": {
       "title": "Huỷ nhập dữ liệu"
+    },
+    "sample": {
+      "title": "Xem mẫu tệp nhập (đã che dữ liệu liên hệ)"
     }
   }
 }
