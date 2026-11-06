@@ -25,7 +25,7 @@ const act = (id: string, input: unknown, token = admin.token) =>
   fetch(`${h.base}/v1/actions/${id}`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}`, 'idempotency-key': uuidv7() }, body: JSON.stringify({ input }) }).then(json);
 const KEY = `pv${uuidv7().slice(-6)}`;
 
-/** Server OpenAI-compatible tối thiểu: chat (không stream) — có tools thì gọi tool; ghi header nhận được. */
+/** Server OpenAI-compatible tối thiểu: chat SSE (probe đi qua streamText như engine) — có tools thì gọi tool; ghi header nhận được. */
 function fakeLlm(): Promise<Server> {
   const s = createServer((req, res) => {
     let raw = '';
@@ -37,12 +37,13 @@ function fakeLlm(): Promise<Server> {
         return;
       }
       const b = JSON.parse(raw || '{}') as { tools?: unknown[] };
-      const message = b.tools?.length
-        ? { role: 'assistant', content: null, tool_calls: [{ id: 'c1', type: 'function', function: { name: 'ping', arguments: '{}' } }] }
+      const delta = b.tools?.length
+        ? { role: 'assistant', tool_calls: [{ index: 0, id: 'c1', type: 'function', function: { name: 'ping', arguments: '{}' } }] }
         : { role: 'assistant', content: 'ok' };
-      res.writeHead(200, { 'content-type': 'application/json' }).end(
-        JSON.stringify({ id: 'x', object: 'chat.completion', created: 1, model: 'm', choices: [{ index: 0, message, finish_reason: b.tools?.length ? 'tool_calls' : 'stop' }], usage: { prompt_tokens: 3, completion_tokens: 1, total_tokens: 4 } }),
-      );
+      const chunk = (d: unknown, finish: string | null, usage?: unknown) =>
+        `data: ${JSON.stringify({ id: 'x', object: 'chat.completion.chunk', created: 1, model: 'm', choices: [{ index: 0, delta: d, finish_reason: finish }], ...(usage ? { usage } : {}) })}\n\n`;
+      res.writeHead(200, { 'content-type': 'text/event-stream' });
+      res.end(chunk(delta, null) + chunk({}, b.tools?.length ? 'tool_calls' : 'stop', { prompt_tokens: 3, completion_tokens: 1, total_tokens: 4 }) + 'data: [DONE]\n\n');
     });
   });
   return new Promise((r) => s.listen(0, '127.0.0.1', () => r(s)));
@@ -119,12 +120,20 @@ describe('admin.llm_provider.* (AC04 / AC05)', () => {
     expect(failed.lastError).toBe('chat:auth');
     expect(JSON.stringify(await h.platform.platformAuditLog.findMany({ where: { actorUserId: admin.id } }))).not.toMatch(/CANARY|secret-body/);
 
-    // Tắt provider: tiến trình khác (cache đã nạp) ngừng trả provider trong ≤ 2 giây — không đợi TTL 60 giây.
+    // Probe chat hỏng → không route (agent-gateway §12); probe lại OK → route lại.
     const raw = env.APP_ENC_KEY!;
     const other = new ProviderStore(h.platform, /^[0-9a-f]{64}$/i.test(raw) ? Buffer.from(raw, 'hex') : Buffer.from(raw, 'base64'));
+    expect(await other.provider(KEY)).toBeNull();
+    await h.platform.llmProvider.update({ where: { key: KEY }, data: { lastProbeAt: null } });
+    const good = await act('admin.llm_provider.probe', { key: KEY, if_version: failed.version, chat_model: 'm', capabilities: ['chat'] });
+    expect(good.body.data.result.checks[0].ok).toBe(true);
+    expect((await h.platform.llmProvider.findUniqueOrThrow({ where: { key: KEY } })).lastError).toBeNull();
+    await new Promise((r) => setTimeout(r, 2_100));
     expect((await other.provider(KEY))?.headers).toEqual({ 'x-canary': CANARY_HDR });
+
+    // Tắt provider: tiến trình khác (cache đã nạp) ngừng trả provider trong ≤ 2 giây — không đợi TTL 60 giây.
     expect((await act('admin.llm_provider.disable', { key: KEY, if_version: 2, status: 'disabled' })).status).toBe(409);
-    const d = await act('admin.llm_provider.disable', { key: KEY, if_version: failed.version, status: 'disabled' });
+    const d = await act('admin.llm_provider.disable', { key: KEY, if_version: good.body.data.result.version, status: 'disabled' });
     expect(d.body.data.result.status).toBe('disabled');
     await new Promise((r) => setTimeout(r, 2_100));
     expect(await other.provider(KEY)).toBeNull();

@@ -29,6 +29,7 @@ import { auditRoutes } from './domains/audit';
 import { kbSuggestionRoutes } from './domains/kb-suggestions';
 import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
+import { platformAdminRoutes } from './domains/platform-admin';
 import { docTemplatesRoutes } from './domains/doc-templates';
 import { withCustomFilters } from './domains/custom-values';
 
@@ -91,5 +92,6 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...kbSuggestionRoutes,
   ...settingsOpsRoutes,
   ...settingsBillingRoutes,
+  ...platformAdminRoutes,
   ...docTemplatesRoutes,
 });

@@ -30,6 +30,7 @@ import { kbFolderHandlers } from './domains/kb-folders';
 import { kbSuggestionHandlers } from './domains/kb-suggestions';
 import { settingsOpsHandlers } from './domains/settings-ops';
 import { settingsBillingHandlers } from './domains/settings-billing';
+import { platformAdminHandlers } from './domains/platform-admin';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
 import { dataJobsHandlers } from './domains/data-jobs';
@@ -125,6 +126,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...kbSuggestionHandlers,
   ...settingsOpsHandlers,
   ...settingsBillingHandlers,
+  ...platformAdminHandlers,
   ...docTemplatesHandlers,
   ...channelFriendsHandlers,
 });

@@ -42,7 +42,9 @@ export class ProviderStore implements RouterConfigSource {
     this.loading ??= (async () => {
       const gen = await this.watch.begin();
       const [providers, routes, prices] = await Promise.all([
-        this.platform.llmProvider.findMany({ where: { status: 'active' } }),
+        // Chỉ provider `active` mà lần probe gần nhất không hỏng chat (agent-gateway §12, DC-371). Chưa probe (seed env lúc triển khai) vẫn
+        // route; tools / json / embed theo `capabilities` mà probe đã ghi. `last_error IS NULL` phải tách riêng: NOT LIKE trên NULL là NULL.
+        this.platform.llmProvider.findMany({ where: { status: 'active', OR: [{ lastError: null }, { NOT: { lastError: { startsWith: 'chat:' } } }] } }),
         this.platform.modelRoute.findMany(),
         this.platform.modelPrice.findMany({ where: { active: true } }),
       ]);

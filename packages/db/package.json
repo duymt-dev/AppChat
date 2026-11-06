@@ -17,6 +17,7 @@
     "db:cleanup-test": "tsx scripts/cleanup-test-workspaces.ts",
     "db:test-reset": "tsx scripts/reset-test-db.ts",
     "db:migrate-tenants": "tsx scripts/migrate-tenants.ts",
+    "db:grant-platform-admin": "tsx scripts/grant-platform-admin.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "postinstall": "pnpm db:generate"
   },

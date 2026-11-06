@@ -1,6 +1,7 @@
 export * from './envelope';
 export * from './notify';
 export * from './billing';
+export * from './platform-admin';
 export * from './identity';
 export * from './integrations';
 export * from './settings';

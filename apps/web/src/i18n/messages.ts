@@ -25,6 +25,7 @@ export const MODULES = [
   'loyalty',
   'settings',
   'documents',
+  'platformAdmin',
 ] as const;
 
 type Messages = Record<string, unknown>;

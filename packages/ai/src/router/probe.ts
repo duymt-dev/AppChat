@@ -1,6 +1,6 @@
 // Kiểm khả năng thật của một provider (TIP-040 AC04, DC-371): mỗi khả năng một lời gọi nhỏ có giới hạn thời gian / token, kết quả
 // riêng từng khả năng — chat được KHÔNG suy ra embed được. Không trả thân phản hồi / lỗi thô của provider (chỉ mã lỗi đã làm sạch).
-import { embed, generateText, jsonSchema, Output, streamText, tool } from 'ai';
+import { embed, jsonSchema, Output, streamText, tool } from 'ai';
 import { buildModel, type ProviderCapabilities, type ProviderConfig } from './providers';
 
 export type ProbeCapability = 'chat' | 'tools' | 'json_schema' | 'streaming' | 'embeddings';
@@ -51,12 +51,21 @@ async function timed(capability: ProbeCapability, timeoutMs: number, fn: (signal
   }
 }
 
+type Streamed = { fullStream: AsyncIterable<{ type: string; error?: unknown }> };
+
+/** Đọc hết luồng như AiSdkEngine; lỗi provider ném nguyên `error` của luồng (giữ statusCode để ra mã sạch). */
+async function drain<T extends Streamed>(s: T): Promise<T> {
+  for await (const p of s.fullStream) if (p.type === 'error') throw p.error;
+  return s;
+}
+
 /** Chạy tuần tự (không bắn song song vào provider), mỗi bước tự huỷ khi quá hạn. */
 export async function probeProvider(r: ProbeRequest): Promise<ProbeCheck[]> {
   const ms = r.timeoutMs ?? 15_000;
   const out: ProbeCheck[] = [];
   const chat = r.chatModel ? (buildModel(r.provider, r.chatModel, 'chat') as never) : null;
-  const base = { maxOutputTokens: MAX_TOKENS, maxRetries: 0 } as const;
+  // onError rỗng: mặc định AI SDK in lỗi thô (có thể chứa key / thân phản hồi) ra stderr.
+  const base = { maxOutputTokens: MAX_TOKENS, maxRetries: 0, onError: () => undefined } as const;
   for (const c of r.capabilities) {
     if (c === 'embeddings') {
       if (!r.embedModel) {
@@ -77,19 +86,24 @@ export async function probeProvider(r: ProbeRequest): Promise<ProbeCheck[]> {
       out.push({ capability: c, ok: false, latency_ms: 0, error: 'unsupported' });
       continue;
     }
-    if (c === 'chat') out.push(await timed(c, ms, async (signal) => (await generateText({ model: chat, prompt: 'Reply with: ok', ...base, abortSignal: signal })).text.length > 0));
+    // Mọi kiểm chat đi qua `streamText` — đúng đường AiSdkEngine dùng lúc chạy; provider kiểu 9router trả SSE cả khi không xin stream nên
+    // `generateText` báo lỗi giả trên provider chạy tốt.
+    if (c === 'chat') out.push(await timed(c, ms, async (signal) => (await (await drain(streamText({ model: chat, prompt: 'Reply with: ok', ...base, abortSignal: signal }))).text).length > 0));
     if (c === 'streaming')
       out.push(
         await timed(c, ms, async (signal) => {
           let n = 0;
-          for await (const d of streamText({ model: chat, prompt: 'Reply with: ok', ...base, abortSignal: signal }).textStream) n += d.length;
+          for await (const p of streamText({ model: chat, prompt: 'Reply with: ok', ...base, abortSignal: signal }).fullStream) {
+            if (p.type === 'error') throw p.error;
+            if (p.type === 'text-delta') n += p.text.length;
+          }
           return n > 0;
         }),
       );
     if (c === 'tools')
       out.push(
         await timed(c, ms, async (signal) => {
-          const r2 = await generateText({
+          const r2 = await drain(streamText({
             model: chat,
             prompt: 'Call the ping tool now.',
             tools: { ping: tool({ description: 'Ping', inputSchema: jsonSchema({ type: 'object', properties: {}, additionalProperties: false }) }) },
@@ -97,22 +111,22 @@ export async function probeProvider(r: ProbeRequest): Promise<ProbeCheck[]> {
             ...base,
             maxOutputTokens: 64,
             abortSignal: signal,
-          });
-          return r2.toolCalls.length > 0;
+          }));
+          return (await r2.toolCalls).length > 0;
         }),
       );
     if (c === 'json_schema')
       out.push(
         await timed(c, ms, async (signal) => {
-          const r3 = await generateText({
+          const r3 = await drain(streamText({
             model: chat,
             prompt: 'Return ok=true.',
             output: Output.object({ schema: jsonSchema<{ ok: boolean }>({ type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'], additionalProperties: false }) }),
             ...base,
             maxOutputTokens: 64,
             abortSignal: signal,
-          });
-          return typeof r3.output?.ok === 'boolean';
+          }));
+          return typeof (await r3.output)?.ok === 'boolean';
         }),
       );
   }

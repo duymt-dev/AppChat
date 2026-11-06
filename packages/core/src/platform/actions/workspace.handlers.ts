@@ -74,7 +74,7 @@ export class AdminWorkspaceSuspendHandler extends PlatformActionHandler<SuspendI
 export class AdminWorkspaceResumeHandler extends PlatformActionHandler<ResumeIn, { workspace_id: string; status: 'active'; version: number }> {
   constructor(
     @Inject(CLOCK) private readonly clock: Clock,
-    @Inject(DB_ENV) private readonly env: DbEnv,
+    @Optional() @Inject(DB_ENV) private readonly env: DbEnv | null = null,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | null = null,
   ) {
     super();
@@ -85,6 +85,8 @@ export class AdminWorkspaceResumeHandler extends PlatformActionHandler<ResumeIn,
     const w = await load(db, i.workspace_id);
     if (w.statusVersion !== i.if_version) throw casConflict(w.statusVersion);
     if (w.status !== 'suspended' || w.dbStatus !== 'suspended') throw new AppError('INVALID_TRANSITION', 409, { db_status: w.dbStatus, status: w.status });
+    // Ứng dụng dựng không có DB (test khởi động / health) → không xác minh được DB tenant → không mở lại.
+    if (!this.env) throw new AppError('WORKSPACE_UNAVAILABLE', 503, { db: 'not_configured' });
     const t = createTenantDb(withDatabase(this.env.TENANT_DATABASE_URL, w.dbName, w.dbHost), 1);
     try {
       await t.$queryRaw`SELECT 1`;
