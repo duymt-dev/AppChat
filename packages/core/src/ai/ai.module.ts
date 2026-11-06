@@ -9,6 +9,7 @@ import { AiSdkEmbedder, AiSdkEngine, LlmRouter, mockEmbedSource, mockModelSource
 import type { PlatformDb } from '@appchat/db';
 import { CreditMeter } from '../billing/public';
 import { BillingModule } from '../billing/billing.module';
+import { WorkspaceAccess } from '../platform/public';
 import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE, LOGGER } from '../kernel/kernel.module';
 import type { AppLogger } from '../kernel/logger/logger';
@@ -99,9 +100,12 @@ class ProviderSeed implements OnModuleInit {
     { provide: KbIngestQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new KbIngestQueue(r) : null) },
     {
       provide: AiRunner,
-      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace],
-      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace) =>
-        engine ? new AiRunner({ engine, meter, log, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone } }) : null,
+      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace, opt(PLATFORM_DB)],
+      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace, p?: PlatformDb) => {
+        // Tạm dừng workspace (TIP-040) chặn bước AI mới cả ở run đang chạy.
+        const access = p ? new WorkspaceAccess(p, () => clock.now().getTime()) : null;
+        return engine ? new AiRunner({ engine, meter, log, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone }, ...(access ? { assertOpen: (ws: string) => access.assertOpen(ws) } : {}) }) : null;
+      },
     },
     {
       provide: ProviderSeed,

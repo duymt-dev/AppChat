@@ -42,6 +42,7 @@ export class RevisionWatch {
   /** Thế hệ hiện tại ở DB (ghi nhớ làm mốc kiểm kế tiếp). */
   async begin(): Promise<bigint> {
     const g = await readRevision(this.db, this.scope);
+    this.seen = g;
     this.checkedAt = this.now();
     return g;
   }

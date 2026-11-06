@@ -68,7 +68,8 @@ export { NotifyJobsModule } from './notify/jobs/notify.jobs.module';
 export { PlatformModule } from './platform/platform.module';
 export { ConfigReadService } from './platform/services/config-read';
 export { TransfersReadService } from './platform/services/transfers-read';
-export { AI_CONFIG_SCOPE, RevisionWatch, readRevision } from './platform/public';
+export { WorkspacesReadService } from './platform/services/workspaces-read';
+export { AI_CONFIG_SCOPE, RevisionWatch, WorkspaceAccess, WorkspaceSuspendedError, readRevision } from './platform/public';
 export { PlatformJobsModule } from './platform/jobs/platform.jobs.module';
 
 /** Danh sách domain (thứ tự Blueprint §1.2) — test kiểm đủ module đăng ký. */

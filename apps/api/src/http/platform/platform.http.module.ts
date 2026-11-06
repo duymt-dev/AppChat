@@ -5,12 +5,13 @@ import { PlatformModule } from '@appchat/core';
 import { ActorModule } from '../kernel/actor.module';
 import { AdminSessionController } from './admin-session.controller';
 import { AdminConfigController } from './config.controller';
+import { AdminWorkspacesController } from './workspaces.controller';
 // Đối soát chuyển khoản (TIP-010) ở file cũ của billing — gắn vào module platform vì đọc qua TransfersReadService (TIP-040).
 import { AdminTransfersController } from '../billing/admin-transfers.controller';
 
 @Module({ imports: [PlatformModule] })
 export class PlatformHttpModule {
   static register(): DynamicModule {
-    return { module: PlatformHttpModule, imports: [PlatformModule, ActorModule], controllers: [AdminSessionController, AdminConfigController, AdminTransfersController] };
+    return { module: PlatformHttpModule, imports: [PlatformModule, ActorModule], controllers: [AdminSessionController, AdminConfigController, AdminTransfersController, AdminWorkspacesController] };
   }
 }

@@ -1190,6 +1190,14 @@
         "title": "Enable / disable LLM provider (platform admin)"
       }
     },
+    "workspace": {
+      "suspend": {
+        "title": "Suspend workspace (platform admin)"
+      },
+      "resume": {
+        "title": "Resume workspace (platform admin)"
+      }
+    },
     "agent_template": {
       "upsert": {
         "title": "Save AI agent template (platform admin)"

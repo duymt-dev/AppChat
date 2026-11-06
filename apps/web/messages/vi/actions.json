@@ -1190,6 +1190,14 @@
         "title": "Bật / tắt nhà cung cấp LLM (quản trị nền tảng)"
       }
     },
+    "workspace": {
+      "suspend": {
+        "title": "Tạm dừng workspace (quản trị nền tảng)"
+      },
+      "resume": {
+        "title": "Mở lại workspace (quản trị nền tảng)"
+      }
+    },
     "agent_template": {
       "upsert": {
         "title": "Lưu mẫu AI Agent (quản trị nền tảng)"

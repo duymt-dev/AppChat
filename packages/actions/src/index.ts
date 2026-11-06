@@ -44,6 +44,7 @@ import * as kbSuggestions from './kb-suggestions';
 import * as documents from './documents';
 import * as platformAdmin from './platform-admin';
 import * as adminConfig from './admin-config';
+import * as adminWorkspaces from './admin-workspaces';
 import * as salesReads from './reads/sales';
 import * as contractReads from './reads/contracts';
 import * as crmReads from './reads/crm';
@@ -107,6 +108,7 @@ export * from './kb-suggestions';
 export * from './documents';
 export * from './platform-admin';
 export * from './admin-config';
+export * from './admin-workspaces';
 export * from './reads/sales';
 export * from './reads/contracts';
 export * from './reads/crm';
@@ -169,6 +171,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(documents),
   ...Object.values(platformAdmin),
   ...Object.values(adminConfig),
+  ...Object.values(adminWorkspaces),
   ...Object.values(dataJobs),
   ...Object.values(crmBulk),
   // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).

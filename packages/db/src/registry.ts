@@ -17,6 +17,11 @@ export interface WorkspaceRegistry {
   /** Workspace cần tenant-migrate (`active | suspended`). */
   listMigratable(): Promise<WorkspaceDbInfo[]>;
   setStatus(workspaceId: string, status: DbStatus, patch?: Partial<Pick<WorkspaceDbInfo, 'dbName' | 'schemaVersion'>>): Promise<void>;
+  /**
+   * Thế hệ trạng thái workspace dùng chung mọi tiến trình (TIP-040, DC-373): tạm dừng / mở lại tăng số này cùng transaction → resolver
+   * bỏ cache registry khi thấy lệch (≤ 2 giây), không đợi TTL 60 giây. Vắng → chỉ TTL.
+   */
+  generation?(): Promise<bigint>;
 }
 
 export class MemoryWorkspaceRegistry implements WorkspaceRegistry {

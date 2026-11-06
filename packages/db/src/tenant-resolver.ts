@@ -26,6 +26,7 @@ export class TenantDbResolver {
   private readonly info = new Map<string, { at: number; row: WorkspaceDbInfo | null }>();
   private readonly now: () => number;
   private timer: NodeJS.Timeout | undefined;
+  private gen: { at: number; value: bigint } | null = null;
 
   constructor(private readonly opts: TenantResolverOptions) {
     this.now = opts.now ?? Date.now;
@@ -77,7 +78,17 @@ export class TenantDbResolver {
     await this.clients.clear();
   }
 
+  /** Thế hệ trạng thái đổi (tiến trình khác tạm dừng / mở lại workspace) → bỏ toàn bộ cache registry; kiểm tối đa mỗi 2 giây. */
+  private async refreshGeneration(): Promise<void> {
+    const g = this.opts.registry.generation;
+    if (!g || (this.gen && this.now() - this.gen.at < 2_000)) return;
+    const value = await g.call(this.opts.registry);
+    if (this.gen && this.gen.value !== value) this.info.clear();
+    this.gen = { at: this.now(), value };
+  }
+
   private async lookup(workspaceId: string): Promise<WorkspaceDbInfo | null> {
+    await this.refreshGeneration();
     const ttl = this.opts.registryTtlMs ?? 60_000;
     const c = this.info.get(workspaceId);
     if (c && this.now() - c.at < ttl) return c.row;

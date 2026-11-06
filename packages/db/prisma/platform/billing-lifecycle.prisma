@@ -1,4 +1,5 @@
-// platform/billing-lifecycle.prisma — sở hữu: TIP-039 (Bản đồ sở hữu file). Vòng đời gói trả phí (DC-242 / DC-243):
+// platform/billing-lifecycle.prisma — sở hữu: TIP-039 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Vòng đời gói trả phí (DC-242 / DC-243):
 // tài nguyên mua thêm (addon) đồng hạn kỳ gói, biên nhận cấp Credit theo kỳ (một lần mỗi kỳ — khoá chống cấp đôi), yêu cầu liên hệ bán hàng.
 // Không Prisma relation xuyên domain (Blueprint §2.1). Index / CHECK viết tay ở migration 20261102003900_billing_lifecycle.
 

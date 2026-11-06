@@ -36,6 +36,16 @@ export interface SendDeps {
   reserve?: (ws: string, refId: string) => Promise<boolean>;
   /** Clock (TIP-014b C) — mốc ngày của cap chủ động + cửa sổ lỗi bất thường. Vắng → giờ hệ thống. */
   now?: () => Date;
+  /** Workspace còn hoạt động (TIP-040, DC-373) — tạm dừng → hoãn tin, không gọi kênh. Vắng → không kiểm. */
+  isOpen?: (ws: string) => Promise<boolean>;
+}
+
+/** Hoãn tin của workspace đang tạm dừng (không gửi, không tính lần thử): kiểm lại sau 10 phút. */
+export const SUSPEND_RETRY_MS = 10 * 60_000;
+
+/** Mốc hoãn tin khi workspace tạm dừng (TIP-040); null = được gửi. Gọi TRƯỚC mọi bước chạm kênh / cap / đặt chỗ. */
+export async function suspendHold(isOpen: ((ws: string) => Promise<boolean>) | undefined, ws: string, now: Date): Promise<number | null> {
+  return isOpen && !(await isOpen(ws)) ? now.getTime() + SUSPEND_RETRY_MS : null;
 }
 
 /** Trần cứng của limiter BullMQ (tin / phút) khi cấu hình tài khoản cao hơn manifest — cấu hình vẫn bị chặn ở `pace`. */
@@ -66,6 +76,13 @@ export class ChannelSenders {
       sendQueueName(accountId),
       async (job, token) => {
         const j = job.data;
+        const hold = await suspendHold(this.d.isOpen, j.ws, this.now());
+        if (hold !== null) {
+          if (!token) throw new Error('workspace_suspended');
+          this.d.log.warn({ ws: j.ws, account: accountId, ref: j.ref_id }, 'send held: workspace suspended');
+          await job.moveToDelayed(hold, token);
+          throw new DelayedError();
+        }
         const row = await db.channelAccount.findUnique({ where: { id: accountId }, select: { settings: true } });
         const st = row ? settingsOf(row) : null;
         await this.pace(w, accountId, Math.max(1, st?.rate_per_minute ?? rl.perMinute));
