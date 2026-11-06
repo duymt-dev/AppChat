@@ -4,7 +4,7 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất, ưu tiên hơn mọi mục bên dưới (2026-11-06, sau merge #84–#94).** Lô mới tính từ `origin/dev` `34a7654b`: PR #95 = TIP-038 pha 2 (Tổng quan thật / việc follow bền / gia hạn T-30 — AC04–06, DC-364; migration tenant `20261106003800_follow_up` → sau merge chạy `db:migrate-tenants` + build api / worker). Đang làm tiếp: **TIP-038 pha 3** (xuất 4 danh sách — AC07–08) xếp chồng trên #95, rồi pha 4 (digest — DC-241), rồi TIP 039 theo bảng GOAL-RELEASE. Ghi chú vận hành: E2E http có widget (agents-ui:60) cần đủ worker `jobs,ai,channels` — chạy `E2E_WORKERS=jobs,ai` sẽ đỏ giả.
+**Mới nhất, ưu tiên hơn mọi mục bên dưới (2026-11-06, sau merge #84–#94).** Lô mới tính từ `origin/dev` `34a7654b`: PR #95 = TIP-038 pha 2 (Tổng quan thật / việc follow bền / gia hạn T-30 — AC04–06, DC-364; migration tenant `20261106003800_follow_up` → sau merge chạy `db:migrate-tenants` + build api / worker). PR #96 = TIP-038 pha 3 (xuất 4 danh sách — AC07–08, DC-365; xếp chồng #95; không migration — dùng `data_job` 045b; sau merge build lại api / worker). Đang làm tiếp: **TIP-038 pha 4** (digest — AC09, DC-241) xếp chồng trên #96, rồi TIP 039 theo bảng GOAL-RELEASE. Ghi chú vận hành: E2E http có widget (agents-ui:60) cần đủ worker `jobs,ai,channels` — chạy `E2E_WORKERS=jobs,ai` sẽ đỏ giả.
 
 *(Mục dưới đây là trạng thái lô #84–#93 — đã merge 2026-11-06.)*
 
