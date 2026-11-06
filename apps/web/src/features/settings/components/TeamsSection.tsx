@@ -17,7 +17,8 @@ import type { Team } from '../roles.types';
 import { TeamEditor } from './TeamEditor';
 
 /** Màu ô nhóm theo thứ tự (prototype AC L11085). */
-const TEAM_COLORS = [color.danger, color.warn, color.closedGreen, color.info, color.violet, color.teal];
+// Thứ tự màu icon theo 12 nhóm đầu của prototype (__teamData L11068–11073).
+const TEAM_COLORS = [color.brand, color.blue, color.teamPink, color.codeBg, color.lyGold, color.purple, color.teal, color.cyan, color.teamSky, color.pink, color.amberText, color.dangerStrong];
 const SHOWN = 4;
 
 function TeamCard({ team, i, names }: { team: Team; i: number; names: Map<string, { name: string; color: string }> }) {
