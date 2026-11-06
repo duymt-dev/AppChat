@@ -1174,6 +1174,17 @@
         "title": "Save model routing (platform admin)"
       }
     },
+    "llm_provider": {
+      "upsert": {
+        "title": "Save LLM provider (platform admin)"
+      },
+      "probe": {
+        "title": "Test LLM provider (platform admin)"
+      },
+      "disable": {
+        "title": "Enable / disable LLM provider (platform admin)"
+      }
+    },
     "agent_template": {
       "upsert": {
         "title": "Save AI agent template (platform admin)"

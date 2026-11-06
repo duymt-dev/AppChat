@@ -45,7 +45,9 @@ export interface AdminOutcome<O> {
  */
 export abstract class PlatformActionHandler<I = unknown, O = unknown> {
   readonly platformOnly = true as const;
-  abstract executePlatform(ctx: PlatformContext, input: I, ptx: PlatformTx): Promise<AdminOutcome<O>>;
+  /** Việc chậm / gọi ra ngoài (probe provider) chạy TRƯỚC transaction, sau kiểm quyền + idempotency; kết quả vào `executePlatform`. */
+  prepare?(ctx: PlatformContext, input: I, db: PlatformDb): Promise<unknown>;
+  abstract executePlatform(ctx: PlatformContext, input: I, ptx: PlatformTx, prepared?: unknown): Promise<AdminOutcome<O>>;
   abstract previewPlatform(ctx: PlatformContext, input: I, db: PlatformDb): Promise<ActionPreview>;
 
   async execute(): Promise<HandlerOutcome<never>> {

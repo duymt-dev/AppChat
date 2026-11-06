@@ -43,7 +43,11 @@ model LlmProvider {
   name         String
   baseUrl      String?           @map("base_url")
   apiKeyEnc    Bytes?            @map("api_key_enc")
+  /// Tên header (mảng chuỗi) — giá trị chỉ ở `headers_enc`. Dòng cũ (trước TIP-040) là object thô: boot mã hoá vào `headers_enc` rồi
+  /// thay bằng mảng tên (DC-371).
   headers      Json?
+  /// Giá trị header mã hoá AES-256-GCM (JSON object) — như api_key, không bao giờ trả ra ngoài.
+  headersEnc   Bytes?            @map("headers_enc")
   capabilities Json              @default("{}")
   status       LlmProviderStatus @default(active)
   lastProbeAt  DateTime?         @map("last_probe_at") @db.Timestamptz(6)

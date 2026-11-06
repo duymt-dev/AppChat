@@ -55,7 +55,13 @@ export class ProviderStore implements RouterConfigSource {
         } catch {
           continue; // khoá hỏng / xoay khoá chưa xong — coi như thiếu key, router bỏ qua
         }
-        map.set(p.key, { key: p.key, kind: p.kind, baseUrl: p.baseUrl, apiKey, headers: (p.headers as Record<string, string> | null) ?? null, capabilities: (p.capabilities ?? {}) as ProviderConfig['capabilities'] });
+        let headers: Record<string, string> | null = null;
+        try {
+          headers = p.headersEnc ? (JSON.parse(decryptSecret(p.headersEnc, this.key)) as Record<string, string>) : null;
+        } catch {
+          continue; // header bí mật không giải được → không gọi provider thiếu xác thực
+        }
+        map.set(p.key, { key: p.key, kind: p.kind, baseUrl: p.baseUrl, apiKey, headers, capabilities: (p.capabilities ?? {}) as ProviderConfig['capabilities'] });
       }
       const snap: Snapshot = {
         at: this.now(),
@@ -93,6 +99,21 @@ export class ProviderStore implements RouterConfigSource {
       if (out[p.tier] === undefined || c < out[p.tier]!) out[p.tier] = c;
     }
     return out;
+  }
+
+  /** Dòng trước TIP-040 có `headers` là object giá trị thô → mã hoá vào `headers_enc`, `headers` chỉ còn tên (DC-371). Idempotent. */
+  async sealLegacyHeaders(): Promise<number> {
+    const rows = await this.platform.llmProvider.findMany({ where: { headersEnc: null }, select: { key: true, headers: true, version: true } });
+    let n = 0;
+    for (const r of rows) {
+      const h = r.headers;
+      if (!h || typeof h !== 'object' || Array.isArray(h)) continue;
+      const vals = Object.fromEntries(Object.entries(h as Record<string, unknown>).map(([k, v]) => [k, String(v)]));
+      const done = await this.platform.llmProvider.updateMany({ where: { key: r.key, version: r.version, headersEnc: null }, data: { headersEnc: new Uint8Array(encryptSecret(JSON.stringify(vals), this.key)), headers: Object.keys(vals).sort(), version: { increment: 1 } } });
+      n += done.count;
+    }
+    if (n) this.invalidate();
+    return n;
   }
 
   /** Đơn giá model giả (`AI_ENGINE=mock` — dev / E2E): chat 1 / 3, embed 0,1 credit / 1k token. Có rồi thì giữ. */

@@ -5,10 +5,23 @@ import { PLATFORM_DB } from '../kernel/tenant/tenant.providers';
 import { AdminPlanUpsertHandler } from './actions/plan.handler';
 import { AdminModelPriceUpsertHandler, AdminModelRouteUpsertHandler } from './actions/model.handlers';
 import { AdminAgentTemplateUpsertHandler } from './actions/template.handler';
+import { AdminLlmProviderDisableHandler, AdminLlmProviderProbeHandler, AdminLlmProviderUpsertHandler, PROVIDER_URL_POLICY } from './actions/provider.handlers';
 import { ConfigReadService } from './services/config-read';
+import { providerUrlPolicy } from './services/provider-url';
+import { ENV_SOURCE } from '../kernel/env-source';
 
-export const PLATFORM_HANDLERS: Provider[] = [AdminPlanUpsertHandler, AdminModelPriceUpsertHandler, AdminModelRouteUpsertHandler, AdminAgentTemplateUpsertHandler];
+export const PLATFORM_HANDLERS: Provider[] = [
+  AdminPlanUpsertHandler,
+  AdminModelPriceUpsertHandler,
+  AdminModelRouteUpsertHandler,
+  AdminAgentTemplateUpsertHandler,
+  AdminLlmProviderUpsertHandler,
+  AdminLlmProviderProbeHandler,
+  AdminLlmProviderDisableHandler,
+];
 
 export const PLATFORM_PROVIDERS: Provider[] = [
+  // Allowlist host nội bộ của TRIỂN KHAI (env `LLM_PRIVATE_HOSTS`) — không đến từ input admin.
+  { provide: PROVIDER_URL_POLICY, inject: [{ token: ENV_SOURCE, optional: true }], useFactory: (src?: Record<string, string | undefined>) => providerUrlPolicy(src ?? {}) },
   { provide: ConfigReadService, inject: [{ token: PLATFORM_DB, optional: true }], useFactory: (p?: PlatformDb) => (p ? new ConfigReadService(p) : null) },
 ];

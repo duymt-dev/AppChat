@@ -1174,6 +1174,17 @@
         "title": "Lưu định tuyến model (quản trị nền tảng)"
       }
     },
+    "llm_provider": {
+      "upsert": {
+        "title": "Lưu nhà cung cấp LLM (quản trị nền tảng)"
+      },
+      "probe": {
+        "title": "Kiểm tra nhà cung cấp LLM (quản trị nền tảng)"
+      },
+      "disable": {
+        "title": "Bật / tắt nhà cung cấp LLM (quản trị nền tảng)"
+      }
+    },
     "agent_template": {
       "upsert": {
         "title": "Lưu mẫu AI Agent (quản trị nền tảng)"

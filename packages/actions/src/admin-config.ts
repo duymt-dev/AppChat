@@ -130,3 +130,74 @@ export const adminAgentTemplateUpsert = defineAction({
   invalidates: ['ai', 'admin'],
   db: 'platform',
 });
+
+const capabilityKeys = z.enum(['chat', 'tools', 'json_schema', 'streaming', 'embeddings']);
+/** Tên header được phép (allowlist chữ thường) — không Host / Cookie / forwarded / content-*; giá trị là bí mật (mã hoá). */
+const headerName = z.string().regex(/^x-[a-z0-9-]{1,40}$|^(authorization|api-key|http-referer|openai-organization|openai-project|anthropic-beta)$/);
+
+export const adminLlmProviderUpsert = defineAction({
+  id: 'admin.llm_provider.upsert',
+  module: 'ai',
+  title: 'actions.admin.llm_provider.upsert.title',
+  description: 'Platform admin: create or update an LLM provider (kind, name, base URL, API key, extra headers). Key and header values are write-only: omit to keep, clear explicitly. Example: {"key":"router","if_version":2,"kind":"openai_compatible","name":"9router","base_url":"https://llm.example.com/v1"}',
+  input: z
+    .object({
+      key,
+      if_version: ifVersion.optional(),
+      kind: z.enum(['anthropic', 'openai', 'google', 'deepseek', 'openai_compatible']),
+      name: z.string().trim().min(1).max(60),
+      base_url: z.string().url().max(300).nullable().optional(),
+      /** Vắng = giữ key cũ; chuỗi = thay; null = xoá (provider bị tắt — không có key không gọi được). */
+      api_key: z.string().min(8).max(500).nullable().optional(),
+      /** Vắng = giữ header cũ; object = thay toàn bộ; null = xoá. */
+      headers: z.record(headerName, z.string().min(1).max(500)).nullable().optional(),
+    })
+    .strict(),
+  output: z.object({ key: z.string(), version: z.number().int(), created: z.boolean(), status: z.enum(['active', 'disabled']) }),
+  permission: 'platform_admin',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['ai', 'admin'],
+  db: 'platform',
+  secret: { paths: ['api_key', 'headers'] },
+});
+
+export const adminLlmProviderProbe = defineAction({
+  id: 'admin.llm_provider.probe',
+  module: 'ai',
+  title: 'actions.admin.llm_provider.probe.title',
+  description: 'Platform admin: test an LLM provider with small real calls, one per capability (chat, tools, JSON schema, streaming, embeddings), and save the detected capabilities. Example: {"key":"router","if_version":3,"chat_model":"gpt-4.1-mini","capabilities":["chat","tools"]}',
+  input: z
+    .object({
+      key,
+      if_version: ifVersion,
+      chat_model: z.string().trim().min(1).max(120).nullable(),
+      embed_model: z.string().trim().min(1).max(120).nullable().optional(),
+      capabilities: z.array(capabilityKeys).min(1).max(5),
+    })
+    .strict(),
+  output: z.object({
+    key: z.string(),
+    version: z.number().int(),
+    checks: z.array(z.object({ capability: capabilityKeys, ok: z.boolean(), latency_ms: z.number().int(), error: z.string().optional() })),
+  }),
+  permission: 'platform_admin',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['ai', 'admin'],
+  db: 'platform',
+});
+
+export const adminLlmProviderDisable = defineAction({
+  id: 'admin.llm_provider.disable',
+  module: 'ai',
+  title: 'actions.admin.llm_provider.disable.title',
+  description: 'Platform admin: disable or re-enable an LLM provider. Disabled providers get no new AI calls; requests already sent are not cancelled. Example: {"key":"router","if_version":3,"status":"disabled"}',
+  input: z.object({ key, if_version: ifVersion, status: z.enum(['active', 'disabled']) }).strict(),
+  output: z.object({ key: z.string(), version: z.number().int(), status: z.enum(['active', 'disabled']) }),
+  permission: 'platform_admin',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['ai', 'admin'],
+  db: 'platform',
+});

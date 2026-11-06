@@ -80,9 +80,10 @@ export async function executePlatformAction<O>(
   const auditId = uuidv7(now.getTime());
   const traceId = RequestContext.get()?.traceId ?? null;
   let after: (() => Promise<void>) | undefined;
+  const prepared = handler.prepare ? await handler.prepare(ctx, input, d.platform) : undefined;
   try {
     const data = await d.platform.$transaction(async (ptx) => {
-      const r = await handler.executePlatform(ctx, input, ptx);
+      const r = await handler.executePlatform(ctx, input, ptx, prepared);
       const output = def.output.parse(r.result) as O;
       const data: ActionResult<O> = { result: output, action_log_id: auditId };
       await ptx.platformAuditLog.create({

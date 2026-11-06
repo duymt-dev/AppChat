@@ -63,6 +63,8 @@ class ProviderSeed implements OnModuleInit {
     // Mẫu agent theo ngành (TIP-021, D15) — idempotent theo key, không ghi đè.
     if (this.platform) await seedAgentTemplates(this.platform).catch((err: unknown) => this.log.warn({ err }, 'agent template seed failed'));
     // `AI_ENGINE=mock` (dev / E2E): đơn giá cho model giả để CreditMeter trừ được (không đè giá đã có).
+    // Header provider cũ (giá trị thô) → mã hoá (TIP-040, DC-371) — trước mọi lần nạp cấu hình.
+    if (this.store) await this.store.sealLegacyHeaders().catch((err: unknown) => this.log.warn({ err }, 'provider header seal failed'));
     if (this.store && this.env.AI_ENGINE === 'mock') await this.store.seedMockPrices().catch((err: unknown) => this.log.warn({ err }, 'mock price seed failed'));
     if (!this.store || !this.env.LLM_SEED_PROVIDER_KEY) return;
     await this.store.seed(this.env).then(
