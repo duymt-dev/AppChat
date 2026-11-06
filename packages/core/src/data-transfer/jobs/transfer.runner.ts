@@ -1,20 +1,16 @@
-// Ghi kế hoạch nhập (TIP-038b, DC-374): dòng hợp lệ chia lô theo adapter (contact.import ≤ 500) → mỗi lô MỘT lệnh action nghiệp vụ qua
-// ActionExecutor (nguồn `system`, `onBehalfOfUserId` = người tạo, quyền HIỆN TẠI đọc lại mỗi lô) với khoá idempotency
-// `transfer:<plan>:<lô>:<v>` — chạy lại / hai worker / bấm hai lần trả lại kết quả cũ, không ghi lần hai. Biên nhận = trạng thái
-// `transfer_row` cập nhật SAU khi action commit; sập giữa action và biên nhận → lần sau cùng khoá trả kết quả đã lưu rồi ghi biên nhận.
-// Huỷ hợp tác ở ranh giới lô (lô đang chạy hoàn tất nguyên tử); phần đã ghi giữ nguyên, số đếm đúng thực tế. Dòng trùng / của người khác
-// / lỗi (chính sách only_valid) → skipped, không gộp / không cập nhật khách có sẵn.
+// Ghi kế hoạch nhập (TIP-038b, DC-374): dòng hợp lệ chia đơn vị ghi theo adapter (lô khách ≤ 500 · một chứng từ mỗi nhóm / dòng) → mỗi
+// đơn vị MỘT lệnh action nghiệp vụ qua ActionExecutor (nguồn `system`, `onBehalfOfUserId` = người tạo, quyền HIỆN TẠI đọc lại mỗi vòng)
+// với khoá idempotency `transfer:<plan>:<đơn vị>:<v>` — chạy lại / hai worker / bấm hai lần trả lại kết quả cũ, không ghi lần hai. Biên
+// nhận = `transfer_row` cập nhật SAU khi action commit; sập giữa action và biên nhận → lần sau cùng khoá trả kết quả đã lưu rồi ghi biên
+// nhận. Huỷ hợp tác ở ranh giới vòng (đơn vị đang chạy hoàn tất nguyên tử); phần đã ghi giữ nguyên, số đếm đúng thực tế. Dòng trùng /
+// của người khác / lỗi (chính sách only_valid) → skipped, không gộp / không cập nhật bản ghi có sẵn. Sản phẩm: adapter `whole` (một
+// `product.import` trên chính tệp — bộ kiểm 032b).
 import type { TenantDb } from '@appchat/db';
-import {
-  AppError,
-  normalizePhone,
-  transferSpec,
-  type AuthzContext,
-  type TransferEntity,
-} from '@appchat/shared';
+import { AppError, transferSpec, type AuthzContext, type TransferEntity } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import { adapterFor } from '../adapters';
+import type { Adapter, PendingRow, WriteUnit } from '../adapters/types';
 
 export interface CommitDeps {
   executor: Pick<ActionExecutor, 'execute'>;
@@ -23,7 +19,15 @@ export interface CommitDeps {
   now: () => Date;
 }
 
-type Plan = { id: string; entity: string; actorUserId: string; version: number; rowPolicy: string };
+type Plan = {
+  id: string;
+  entity: string;
+  actorUserId: string;
+  version: number;
+  rowPolicy: string;
+  fileId: string;
+  mapping: unknown;
+};
 export type CommitOutcome = {
   status: 'completed' | 'cancelled' | 'failed';
   applied: number;
@@ -32,7 +36,7 @@ export type CommitOutcome = {
   error?: string;
 };
 
-const errCode = (e: unknown) => {
+export const errCode = (e: unknown) => {
   const x = e as { code?: string; fields?: Record<string, unknown> };
   return (x.code ? `${x.code}${x.fields ? `:${Object.keys(x.fields).join(',')}` : ''}` : 'error').slice(
     0,
@@ -54,79 +58,85 @@ export async function tallyPlan(db: Pick<TenantDb, 'transferRow'>, planId: strin
   return { applied: n('applied'), skipped: n('skipped'), failed: n('failed'), pending: n('pending') };
 }
 
-/** Một lô qua action nghiệp vụ; dòng ↔ bản ghi tạo ra khớp theo SĐT / email chuẩn hoá (không theo vị trí). */
-async function applyBatch(
+export const systemCtx = (
+  ws: string,
+  plan: Pick<Plan, 'id' | 'actorUserId' | 'version'>,
+  authz: AuthzContext,
+  key: string,
+): ActionContext => ({
+  workspaceId: ws,
+  source: 'system',
+  actor: { type: 'system', id: 'data-transfer' },
+  onBehalfOfUserId: plan.actorUserId,
+  idempotencyKey: `transfer:${plan.id}:${key}:${plan.version}`,
+  authz,
+});
+
+/** Một đơn vị qua action nghiệp vụ → biên nhận các dòng của nó trong MỘT transaction. */
+async function applyUnit(
   db: TenantDb,
   ws: string,
   plan: Plan,
+  a: Adapter,
   authz: AuthzContext,
-  batch: { id: string; data: unknown }[],
-  seq: number,
+  unit: WriteUnit,
   d: CommitDeps,
 ) {
-  const entity = plan.entity as TransferEntity;
-  const a = adapterFor(entity);
-  const ctx: ActionContext = {
-    workspaceId: ws,
-    source: 'system',
-    actor: { type: 'system', id: 'data-transfer' },
-    onBehalfOfUserId: plan.actorUserId,
-    idempotencyKey: `transfer:${plan.id}:${seq}:${plan.version}`,
-    authz,
-  };
   const now = d.now();
   try {
-    const out = await d.executor.execute<{ contact_ids?: string[]; created?: number }>(
-      ctx,
-      transferSpec(entity).writeAction,
-      a.input(batch as { data: Record<string, string> }[]),
+    const out = await d.executor.execute(
+      systemCtx(ws, plan, authz, unit.key),
+      transferSpec(plan.entity as TransferEntity).writeAction,
+      unit.input,
     );
     if (out.status !== 200)
       throw new AppError('CONFLICT', 409, {
         status: String((out.data as { status?: string }).status ?? out.status),
       });
-    const byKey = await createdByKey(db, out.data.result.contact_ids ?? []);
-    // Biên nhận cả lô trong MỘT transaction: sập giữa chừng → không biên nhận nào, lần sau cùng khoá idempotency trả kết quả đã lưu.
+    const map = await a.resolve!(db, unit, out.data.result);
     await db.$transaction(async (tx) => {
-      for (const r of batch) {
-        const id =
-          keysOf(r.data)
-            .map((k) => byKey.get(k))
-            .find(Boolean) ?? null;
+      for (const r of unit.rows) {
+        const hit = map.get(r.id);
         await tx.transferRow.updateMany({
           where: { id: r.id, status: 'pending' },
-          data: id
-            ? { status: 'applied', resultId: id, updatedAt: now }
+          data: hit
+            ? { status: 'applied', resultId: hit.id, resultCode: hit.code, updatedAt: now }
             : { status: 'skipped', error: 'duplicate_at_commit', updatedAt: now },
         });
       }
     });
   } catch (e) {
     await db.transferRow.updateMany({
-      where: { id: { in: batch.map((r) => r.id) }, status: 'pending' },
+      where: { id: { in: unit.rows.map((r) => r.id) }, status: 'pending' },
       data: { status: 'failed', error: errCode(e), updatedAt: now },
     });
   }
 }
 
-const keysOf = (data: unknown) => {
-  const d = data as { phone?: string; email?: string };
-  const p = normalizePhone(d.phone);
-  return [p && `p:${p}`, d.email && `e:${d.email.toLowerCase()}`].filter((k): k is string => !!k);
-};
-
-/** Khách vừa tạo → khoá SĐT / email (dòng nào thành khách nào — trùng phát sinh lúc ghi thì dòng đó không có id). */
-async function createdByKey(db: TenantDb, ids: string[]) {
-  const m = new Map<string, string>();
-  if (!ids.length) return m;
-  for (const c of await db.contact.findMany({
-    where: { id: { in: ids } },
-    select: { id: true, phoneNorm: true, email: true },
-  })) {
-    if (c.phoneNorm) m.set(`p:${c.phoneNorm}`, c.id);
-    if (c.email) m.set(`e:${c.email.toLowerCase()}`, c.id);
-  }
-  return m;
+/** Vòng kế: không nhóm → `batch` dòng đầu; có nhóm → `batch` nhóm đầu, đủ MỌI dòng chờ của các nhóm đó (nhóm không bị cắt). */
+async function nextRows(db: TenantDb, planId: string, a: Adapter): Promise<PendingRow[]> {
+  const sel = { id: true, rowNo: true, groupKey: true, data: true } as const;
+  const where = { planId, status: 'pending' };
+  if (!a.grouped)
+    return (await db.transferRow.findMany({
+      where,
+      orderBy: { rowNo: 'asc' },
+      take: a.batch,
+      select: sel,
+    })) as PendingRow[];
+  const heads = await db.transferRow.findMany({
+    where,
+    orderBy: { rowNo: 'asc' },
+    distinct: ['groupKey'],
+    take: a.batch,
+    select: { groupKey: true },
+  });
+  if (!heads.length) return [];
+  return (await db.transferRow.findMany({
+    where: { ...where, groupKey: { in: heads.map((h) => h.groupKey!) } },
+    orderBy: { rowNo: 'asc' },
+    select: sel,
+  })) as PendingRow[];
 }
 
 /** Ghi hết dòng còn pending của kế hoạch. `shouldStop` = huỷ hợp tác (lease mất / người dùng huỷ). */
@@ -149,21 +159,29 @@ export async function commitPlan(
       status = 'cancelled';
       break;
     }
-    const batch = await db.transferRow.findMany({
-      where: { planId, status: 'pending' },
-      orderBy: { rowNo: 'asc' },
-      take: a.batch,
-      select: { id: true, rowNo: true, data: true },
-    });
-    if (!batch.length) break;
-    // Quyền hiện tại của người tạo mỗi lô: bị gỡ / mất quyền nhập → dừng (không ghi thêm dưới quyền cũ).
+    const rows = await nextRows(db, planId, a);
+    if (!rows.length) break;
+    // Quyền hiện tại của người tạo mỗi vòng: bị gỡ / mất quyền nhập → dừng (không ghi thêm dưới quyền cũ).
     const authz = await d.authzOf(ws, plan.actorUserId);
     if (!authz) {
       status = 'failed';
       error = 'forbidden';
       break;
     }
-    await applyBatch(db, ws, plan, authz, batch, batch[0]!.rowNo, d);
+    if (a.whole) {
+      await a.whole({
+        db,
+        ws,
+        plan,
+        ctx: systemCtx(ws, plan, authz, 'whole'),
+        executor: d.executor,
+        shouldStop,
+        now,
+      });
+      break;
+    }
+    for (const unit of a.units!(rows, { userId: plan.actorUserId }))
+      await applyUnit(db, ws, plan, a, authz, unit, d);
   }
   if (status === 'failed')
     await db.transferRow.updateMany({
@@ -171,6 +189,7 @@ export async function commitPlan(
       data: { status: 'failed', error: error ?? 'error', updatedAt: now() },
     });
   const t = await tallyPlan(db, planId);
+  if (status === 'completed' && t.pending) status = 'cancelled';
   await db.transferPlan.update({
     where: { id: planId },
     data: {

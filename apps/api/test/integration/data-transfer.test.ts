@@ -159,11 +159,10 @@ describe('nhập khách hàng — kế hoạch, sửa ánh xạ, xác nhận, bi
     expect((await act('transfer.cancel', { plan_id: p.id }, bearer(other.token))).status).toBe(404);
   }, 60_000);
 
-  it('thực thể chưa nối / ánh xạ sai cột → 422; không có crm.import → 403; huỷ → không commit', async () => {
+  it('thực thể ngoài registry / ánh xạ sai cột → 422; không có quyền nhập → 403; huỷ → không commit', async () => {
     const fileId = await upload(`q-${TAG}.csv`, 'Tên,SĐT\nA,0901234567\n');
-    expect((await act('transfer.plan', { entity: 'quote', file_id: fileId })).body.error.fields).toEqual({
-      entity: 'unsupported',
-    });
+    // Thực thể ngoài registry → schema đóng của action từ chối (không tên bảng tuỳ ý).
+    expect((await act('transfer.plan', { entity: 'payment', file_id: fileId })).status).toBe(422);
     expect(
       (await act('transfer.plan', { entity: 'contact', file_id: fileId, mapping: { full_name: 'Không có' } }))
         .body.error.fields,
@@ -190,10 +189,15 @@ describe('nhập khách hàng — kế hoạch, sửa ánh xạ, xác nhận, bi
     expect((await act('transfer.commit', { plan_id: p.id, if_version: 1 })).status).toBe(409);
     const caps = (await json(await call(h, '/data-transfer/capabilities'))).body.data;
     expect(caps.find((c: { entity: string }) => c.entity === 'contact').import.supported).toBe(true);
-    expect(caps.find((c: { entity: string }) => c.entity === 'quote').import).toMatchObject({
+    // Kế toán: không quote.create → báo giá forbidden; có invoice.manage → đề nghị thanh toán được (quyền action, không suy từ quyền xem).
+    const acc = await h.member('accountant');
+    const accCaps = (await json(await call(h, '/data-transfer/capabilities', undefined, bearer(acc.token))))
+      .body.data;
+    expect(accCaps.find((c: { entity: string }) => c.entity === 'quote').import).toMatchObject({
       supported: false,
-      reason: 'not_available',
+      reason: 'forbidden',
     });
+    expect(accCaps.find((c: { entity: string }) => c.entity === 'invoice').import.supported).toBe(true);
   });
 
   it('> 500 dòng → 202 job_accepted; runner ghi hết qua contact.import theo lô', async () => {

@@ -1,20 +1,28 @@
-// Bảng adapter theo thực thể (TIP-038b): phân loại trùng + dựng input action nghiệp vụ cho một lô dòng. Thực thể chưa nối nhập không có
-// ở đây — registry `importReady: false` chặn trước (422 `entity: unsupported`).
+// Bảng adapter theo thực thể (TIP-038b): phân loại + chia đơn vị ghi + ghép kết quả. Thực thể chưa nối nhập không có ở đây — registry
+// `importReady: false` chặn trước (422 `entity: unsupported`).
 import { AppError, type TransferEntity } from '@appchat/shared';
-import { classifyContacts, contactImportInput } from './contacts';
-import type { Classifier } from './types';
+import { classifyProducts, commitProducts } from './catalog';
+import { classifyDocs, docResolve, docUnits } from './commerce';
+import { classifyContacts, contactUnits, resolveContacts } from './contacts';
+import type { Adapter, Classifier } from './types';
 
-export type { RowCheck } from './types';
+export type { Importer, RowCheck } from './types';
 
-interface Adapter {
-  classify: Classifier;
-  /** Số dòng tối đa một lệnh action (contact.import ≤ 500). */
-  batch: number;
-  input: (rows: { data: Record<string, string> }[]) => unknown;
-}
+const doc = (e: TransferEntity, grouped = false): Adapter => ({
+  classify: classifyDocs(e),
+  batch: 50,
+  grouped,
+  units: docUnits(e),
+  resolve: docResolve(e),
+});
 
-const ADAPTERS: Partial<Record<TransferEntity, Adapter>> = {
-  contact: { classify: classifyContacts, batch: 500, input: contactImportInput },
+const ADAPTERS: Record<TransferEntity, Adapter> = {
+  contact: { classify: classifyContacts, batch: 500, units: contactUnits, resolve: resolveContacts },
+  product: { classify: classifyProducts, batch: 1, whole: commitProducts },
+  quote: doc('quote', true),
+  order: doc('order', true),
+  contract: doc('contract'),
+  invoice: doc('invoice'),
 };
 
 export function adapterFor(entity: TransferEntity): Adapter {

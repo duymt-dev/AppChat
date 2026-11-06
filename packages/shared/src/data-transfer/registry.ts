@@ -3,24 +3,15 @@
 // trong tập trường ở đây. Cột trạng thái / tiền đã thu / chữ ký / kho / điểm KHÔNG có trong registry nhập (phạm vi không nhập — TIP-038b).
 // Thực thể chưa nối nhập ở pha hiện tại trả `supported: false` + lý do (không giả nút).
 import { foldText } from '../crm/phone';
+import type { TransferField, TransferFieldType } from './field-types';
+import { CONTRACT_FIELDS, INVOICE_FIELDS, ORDER_FIELDS, PRODUCT_FIELDS, QUOTE_FIELDS } from './fields';
 
 export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice'] as const;
 export type TransferEntity = (typeof TRANSFER_ENTITIES)[number];
 export const TRANSFER_FORMATS = ['xlsx', 'csv'] as const;
 export type TransferFormat = (typeof TRANSFER_FORMATS)[number];
 
-/** Kiểu giá trị sau chuẩn hoá (kiểm tất định ở core, không để model tự sửa giá trị). */
-export type TransferFieldType = 'text' | 'phone' | 'email' | 'money' | 'number' | 'date' | 'enum';
-
-export interface TransferField {
-  key: string;
-  type: TransferFieldType;
-  required?: boolean;
-  max?: number;
-  options?: readonly string[];
-  /** Tên cột thường gặp (không dấu, thường) — đoán ánh xạ thủ công / gợi ý cho model. */
-  aliases: readonly string[];
-}
+export type { TransferField, TransferFieldType } from './field-types';
 
 export interface TransferEntitySpec {
   entity: TransferEntity;
@@ -32,6 +23,8 @@ export interface TransferEntitySpec {
   fields: readonly TransferField[];
   /** Nhập đã nối ở pha nào; chưa nối → `unsupported` + lý do. */
   importReady: boolean;
+  /** Nhiều dòng tệp gom theo `group` thành MỘT bản ghi (header + dòng hàng — báo giá / đơn). */
+  grouped?: boolean;
 }
 
 const f = (
@@ -93,40 +86,42 @@ export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
     importPermission: 'catalog.manage',
     exportAction: 'product.export',
     writeAction: 'product.import',
-    fields: [],
-    importReady: false,
+    fields: PRODUCT_FIELDS,
+    importReady: true,
   },
   quote: {
     entity: 'quote',
     importPermission: 'quote.create',
     exportAction: 'quote.export',
     writeAction: 'quote.create',
-    fields: [],
-    importReady: false,
+    fields: QUOTE_FIELDS,
+    importReady: true,
+    grouped: true,
   },
   order: {
     entity: 'order',
     importPermission: 'order.manage',
     exportAction: 'order.export',
     writeAction: 'order.create',
-    fields: [],
-    importReady: false,
+    fields: ORDER_FIELDS,
+    importReady: true,
+    grouped: true,
   },
   contract: {
     entity: 'contract',
     importPermission: 'contract.draft',
     exportAction: 'contract.export',
     writeAction: 'contract.create',
-    fields: [],
-    importReady: false,
+    fields: CONTRACT_FIELDS,
+    importReady: true,
   },
   invoice: {
     entity: 'invoice',
     importPermission: 'invoice.manage',
     exportAction: 'invoice.export',
     writeAction: 'invoice.create',
-    fields: [],
-    importReady: false,
+    fields: INVOICE_FIELDS,
+    importReady: true,
   },
 };
 
@@ -141,6 +136,8 @@ export const TRANSFER_MAX_ROWS = 20_000;
 export const TRANSFER_MAX_COLS = 60;
 /** ≤ ngưỡng: ghi ngay sau xác nhận (afterCommit); > ngưỡng: việc nền `data_job`. */
 export const TRANSFER_SYNC_ROWS = 500;
+/** Chứng từ (báo giá / đơn / hợp đồng / đề nghị): mỗi chứng từ một action — > ngưỡng chạy nền. */
+export const TRANSFER_SYNC_DOCS = 50;
 /** Số dòng mẫu tối đa đưa cho model (đã che) — không gửi toàn tệp. */
 export const TRANSFER_AI_SAMPLE_ROWS = 20;
 

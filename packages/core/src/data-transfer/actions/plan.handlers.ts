@@ -13,7 +13,7 @@ import {
 import { line, preview } from '../../kernel/actions/preview-kit';
 import { actorUserId } from '../../crm/public';
 import { TransferDeps } from '../data-transfer.providers';
-import { classify, createPlan, ownPlan, preparePlan, replanRows } from '../services/planner';
+import { classify, createPlan, markReimported, ownPlan, preparePlan, replanRows } from '../services/planner';
 import { planView, requireImport } from '../services/plan-view';
 
 type PlanIn = ActionInput<typeof transferPlan>;
@@ -61,7 +61,14 @@ export class TransferPlanHandler implements Handler<PlanIn, TransferPlanDto> {
   ): Promise<HandlerOutcome<TransferPlanDto>> {
     const p = prepared as Prepared;
     const now = this.d.now();
-    const rows = await classify(tx, i.entity, me(ctx), p.checked);
+    const rows = await markReimported(
+      tx,
+      i.entity,
+      me(ctx),
+      p.file,
+      p.table.sheet,
+      await classify(tx, i.entity, { userId: me(ctx), authz: ctx.authz }, p.checked),
+    );
     const id = await createPlan(
       tx,
       { userId: me(ctx), entity: i.entity, aiRunId: ctx.runId ?? null, now },
@@ -138,7 +145,14 @@ export class TransferUpdateMappingHandler implements Handler<MapIn, TransferPlan
     const p = prepared as Prepared & { entity: TransferEntity };
     const now = this.d.now();
     await ownPlan(tx, i.plan_id, actorUserId(ctx), true);
-    const rows = await classify(tx, p.entity, me(ctx), p.checked);
+    const rows = await markReimported(
+      tx,
+      p.entity,
+      me(ctx),
+      p.file,
+      p.table.sheet,
+      await classify(tx, p.entity, { userId: me(ctx), authz: ctx.authz }, p.checked),
+    );
     await replanRows(
       tx,
       i.plan_id,

@@ -68,12 +68,14 @@ export function planView(p: PlanRow, columns: string[]): TransferPlanDto {
 
 /** Commit được không: nháp, chưa hết hạn, có dòng hợp lệ; all_valid → không còn dòng lỗi (không âm thầm bỏ lỗi). */
 export function commitBlocker(
-  p: Pick<PlanRow, 'status' | 'expiresAt' | 'valid' | 'invalid' | 'rowPolicy'>,
+  p: Pick<PlanRow, 'status' | 'expiresAt' | 'valid' | 'invalid' | 'rowPolicy' | 'entity'>,
   now: Date,
 ): Record<string, string> | null {
   if (p.status !== 'draft') return { status: p.status };
   if (p.expiresAt <= now) return { plan_id: 'expired' };
   if (!p.valid) return { rows: 'none_valid' };
   if (p.rowPolicy === 'all_valid' && p.invalid) return { rows: 'has_invalid' };
+  // Sản phẩm ghi bằng `product.import` trên CẢ tệp (032b) — không bỏ được riêng dòng lỗi; sửa tệp rồi lập kế hoạch mới.
+  if (p.entity === 'product' && p.invalid) return { rows: 'has_invalid' };
   return null;
 }

@@ -4,7 +4,13 @@
 // đọc lại mỗi lô). Preview (bulk — luôn có thẻ xác nhận kèm số dòng): số sẽ ghi / bỏ qua / lỗi + ≤ 20 dòng mẫu sẽ tạo. Cancel: nháp →
 // cancelled; đang ghi → huỷ việc nền hợp tác (phần đã ghi giữ nguyên, không hoàn tác giả).
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, TRANSFER_SYNC_ROWS, type TransferEntity } from '@appchat/shared';
+import {
+  AppError,
+  TRANSFER_SYNC_DOCS,
+  TRANSFER_SYNC_ROWS,
+  transferSpec,
+  type TransferEntity,
+} from '@appchat/shared';
 import type { ActionInput, ActionPreview, transferCancel, transferCommit } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import {
@@ -44,6 +50,21 @@ async function draftPlan(tx: TenantTx, ctx: ActionContext, i: CommitIn, now: Dat
   return plan;
 }
 
+/** Số bản ghi sẽ tạo: khách / sản phẩm = số dòng; báo giá / đơn = số nhóm hợp lệ; hợp đồng / đề nghị = số dòng. */
+async function unitCount(tx: TenantTx, plan: { id: string; entity: string; valid: number }) {
+  if (!transferSpec(plan.entity as TransferEntity).grouped) return plan.valid;
+  const r = await tx.$queryRaw<
+    { n: bigint }[]
+  >`SELECT count(DISTINCT group_key) AS n FROM transfer_row WHERE plan_id = ${plan.id}::uuid AND "check" = 'valid'`;
+  return Number(r[0]?.n ?? 0);
+}
+
+/** Chạy nền: khách > 500 dòng (lô contact.import); chứng từ > 50 (mỗi chứng từ một action). Sản phẩm luôn qua product.import (tự chạy nền > 500). */
+const runsAsJob = (plan: { entity: string; valid: number }, docs: number) =>
+  plan.entity === 'contact'
+    ? plan.valid > TRANSFER_SYNC_ROWS
+    : plan.entity !== 'product' && docs > TRANSFER_SYNC_DOCS;
+
 @Injectable()
 @ActionHandler('transfer.commit')
 export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
@@ -58,8 +79,13 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
       select: { rowNo: true, data: true },
     });
     const skip = plan.duplicates + (plan.rowPolicy === 'only_valid' ? plan.invalid : 0);
+    // Cảnh báo không chặn (lệch giá danh mục / cập nhật SKU có sẵn) — đếm để thẻ xác nhận nói rõ.
+    const warn = await tx.$queryRaw<{ k: string; n: bigint }[]>`
+      SELECT k, count(*) AS n FROM transfer_row, jsonb_object_keys(errors) k
+      WHERE plan_id = ${plan.id}::uuid AND "check" = 'valid' AND right(k, 8) = '_warning' GROUP BY k`;
+    const docs = await unitCount(tx, plan);
     return preview('write', line(plan.fileName, `${plan.valid}`), {
-      count: plan.valid,
+      count: docs,
       changes: sample.map((r) => ({
         entity: plan.entity,
         after: { row: r.rowNo, ...(r.data as Record<string, string>) },
@@ -67,7 +93,8 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
       warnings: [
         ...(skip ? [`skipped:${skip}`] : []),
         ...(plan.duplicates ? [`duplicates:${plan.duplicates}`] : []),
-        ...(plan.valid > TRANSFER_SYNC_ROWS ? ['mode:job'] : []),
+        ...warn.map((w) => `${w.k}:${w.n}`),
+        ...(runsAsJob(plan, docs) ? ['mode:job'] : []),
       ],
     });
   }
@@ -95,7 +122,7 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
       row_policy: plan.rowPolicy,
       ai_run_id: plan.aiRunId,
     };
-    if (plan.valid > TRANSFER_SYNC_ROWS) {
+    if (runsAsJob(plan, await unitCount(tx, plan))) {
       const jobId = await createJob(tx, {
         kind: TRANSFER_COMMIT_KIND,
         actionId: 'transfer.commit',

@@ -17,7 +17,7 @@ import type { FilesService } from '../../kernel/files/files.service';
 import { uuidv7 } from '../../kernel/ids';
 import { parseTransferFile, type ParsedTable } from './file-parser';
 import { checkRow, resolveMapping, type CheckedRow } from './validation';
-import { classifyFor, type RowCheck } from '../adapters';
+import { classifyFor, type Importer, type RowCheck } from '../adapters';
 
 export const TRANSFER_FILE_RULE: FileAccessRule = {
   purposes: ['import', 'attachment'],
@@ -79,11 +79,46 @@ export async function preparePlan(
 export async function classify(
   tx: TenantTx,
   entity: TransferEntity,
-  actorUserId: string,
+  who: Importer,
   checked: CheckedRow[],
 ): Promise<PreparedPlan['rows']> {
-  const kinds = await classifyFor(entity)(tx, actorUserId, checked);
-  return checked.map((r, i) => ({ ...r, check: Object.keys(r.errors).length ? 'invalid' : kinds[i]! }));
+  const kinds = await classifyFor(entity)(tx, who, checked);
+  return checked.map((r, i) => ({ ...r, check: hardErrors(r) ? 'invalid' : kinds[i]! }));
+}
+
+/** Lỗi chặn (khoá `*_warning` chỉ là cảnh báo — lệch giá danh mục, cập nhật SKU có sẵn — không làm dòng lỗi). */
+export const hardErrors = (r: Pick<CheckedRow, 'errors'>) =>
+  Object.keys(r.errors).filter((k) => !k.endsWith('_warning')).length;
+
+/**
+ * Nhập lại cùng tệp (cùng checksum + sheet + dòng) mà dòng đã ghi ở kế hoạch trước của CHÍNH người này, cùng thực thể → `duplicate`
+ * (không tạo nháp lần hai). Nhóm có một dòng đã ghi → cả nhóm trùng. Khách hàng có luật trùng riêng; sản phẩm cập nhật theo SKU (032b).
+ */
+export async function markReimported(
+  tx: TenantTx,
+  entity: TransferEntity,
+  userId: string,
+  file: { sha256: string },
+  sheet: string | null,
+  rows: PreparedPlan['rows'],
+) {
+  if (entity === 'contact' || entity === 'product' || !rows.length) return rows;
+  const keyOf = (r: CheckedRow) => rowKeyOf(file.sha256, sheet, r.rowNo);
+  const keys = rows.map(keyOf);
+  const hit = new Set(
+    (
+      await tx.$queryRaw<{ row_key: string }[]>`
+        SELECT r.row_key FROM transfer_row r JOIN transfer_plan p ON p.id = r.plan_id
+        WHERE r.row_key = ANY(${keys}::text[]) AND r.status = 'applied' AND p.actor_user_id = ${userId}::uuid AND p.entity = ${entity}`
+    ).map((x) => x.row_key),
+  );
+  if (!hit.size) return rows;
+  const groups = new Set(rows.filter((r) => hit.has(keyOf(r)) && r.groupKey).map((r) => r.groupKey!));
+  return rows.map((r) =>
+    r.check === 'valid' && (hit.has(keyOf(r)) || (r.groupKey && groups.has(r.groupKey)))
+      ? { ...r, check: 'duplicate' as const }
+      : r,
+  );
 }
 
 const counts = (rows: PreparedPlan['rows']) => ({
@@ -106,6 +141,7 @@ async function writeRows(
         planId,
         rowKey: rowKeyOf(p.file.sha256, p.table.sheet, r.rowNo),
         rowNo: r.rowNo,
+        groupKey: r.groupKey ?? null,
         data: r.data,
         check: r.check,
         errors: r.errors,

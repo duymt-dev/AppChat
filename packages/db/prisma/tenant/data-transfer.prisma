@@ -50,6 +50,8 @@ model TransferRow {
   rowKey      String   @map("row_key")
   /// Dòng đầu của nhóm trong tệp (1 = dòng dữ liệu đầu) — để báo lỗi đúng chỗ.
   rowNo       Int      @map("row_no")
+  /// Khoá nhóm (commerce grouped: giá trị cột nhóm hoặc `#<row_no>`) — các dòng cùng khoá ghi thành MỘT chứng từ nguyên tử.
+  groupKey    String?  @map("group_key")
   /// Giá trị đã chuẩn hoá theo ánh xạ hiện hành (chỉ trường registry cho phép ghi).
   data        Json     @default("{}")
   /// valid | invalid | duplicate | owned

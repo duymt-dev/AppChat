@@ -3,6 +3,7 @@
 // sửa giá trị: sai → mã lỗi theo trường, không tự điền / đoán. Ô bắt đầu `= + - @` giữ nguyên chữ (không công thức).
 import {
   AppError,
+  foldText,
   normalizePhone,
   transferSpec,
   type TransferEntity,
@@ -13,7 +14,9 @@ export type FieldError = 'required' | 'too_long' | 'invalid' | 'option';
 export interface CheckedRow {
   rowNo: number;
   data: Record<string, string>;
-  errors: Record<string, FieldError>;
+  errors: Record<string, FieldError | string>;
+  /** Khoá nhóm (commerce grouped) — adapter đặt lúc phân loại. */
+  groupKey?: string | null;
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,8 +58,12 @@ export function normalizeCell(
       const d = date(v);
       return d ? { value: d } : { error: 'invalid' };
     }
-    case 'enum':
-      return f.options?.includes(v) ? { value: v } : { error: 'option' };
+    case 'enum': {
+      // Giá trị chuẩn (không phân biệt hoa thường) hoặc alias viết kiểu người dùng ("Dịch vụ" → service) — ngoài tập → lỗi, không đoán.
+      const k = foldText(v);
+      const hit = f.options?.find((o) => o.toLowerCase() === k) ?? f.optionAliases?.[k];
+      return hit ? { value: hit } : { error: 'option' };
+    }
   }
 }
 

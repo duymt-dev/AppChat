@@ -38,7 +38,11 @@ describe('normalizeCell', () => {
     expect(normalizeCell(f('enum', { options: ['manual', 'referral'] }), 'referral')).toEqual({
       value: 'referral',
     });
-    expect(normalizeCell(f('enum', { options: ['manual'] }), 'Manual')).toEqual({ error: 'option' });
+    expect(normalizeCell(f('enum', { options: ['manual'] }), 'Manual')).toEqual({ value: 'manual' });
+    expect(
+      normalizeCell(f('enum', { options: ['service'], optionAliases: { 'dich vu': 'service' } }), 'Dịch vụ'),
+    ).toEqual({ value: 'service' });
+    expect(normalizeCell(f('enum', { options: ['service'] }), 'khác')).toEqual({ error: 'option' });
     expect(normalizeCell(f('text', { max: 3 }), 'abcd')).toEqual({ error: 'too_long' });
     expect(normalizeCell(f('text'), '   ')).toEqual({ value: null });
     expect(normalizeCell(f('text'), '=HYPERLINK("x")')).toEqual({ value: '=HYPERLINK("x")' });
@@ -111,5 +115,43 @@ describe('parseTransferFile', () => {
     await expect(parseTransferFile({ name: 'w.csv', mime: 'text/csv', body })).rejects.toBeInstanceOf(
       AppError,
     );
+  });
+});
+
+describe('registry P2 — đoán ánh xạ chứng từ / sản phẩm', () => {
+  it('báo giá: khoá nhóm + khách + dòng hàng; sản phẩm theo tên cột 032b', () => {
+    expect(guessTransferMapping('quote', ['Số báo giá', 'SĐT', 'Sản phẩm', 'SL', 'Đơn giá', 'VAT'])).toEqual({
+      group: 'Số báo giá',
+      contact_phone: 'SĐT',
+      item_name: 'Sản phẩm',
+      qty: 'SL',
+      unit_price: 'Đơn giá',
+      tax_rate: 'VAT',
+    });
+    expect(guessTransferMapping('product', ['Tên', 'Giá', 'SKU', 'ĐVT'])).toEqual({
+      name: 'Tên',
+      price: 'Giá',
+      sku: 'SKU',
+      unit: 'ĐVT',
+    });
+  });
+
+  it('thuế suất / loại hợp đồng nhận cách viết người dùng, ngoài tập → lỗi', () => {
+    const cols = ['Mã', 'SĐT', 'Tên hàng', 'SL', 'Giá', 'Thuế'];
+    const map = resolveMapping('quote', cols, {
+      group: 'Mã',
+      contact_phone: 'SĐT',
+      item_name: 'Tên hàng',
+      qty: 'SL',
+      unit_price: 'Giá',
+      tax_rate: 'Thuế',
+    });
+    expect(checkRow('quote', map, ['A', '0901234567', 'Kem', '2', '100.000', '8%'], 1)).toMatchObject({
+      data: { tax_rate: '8', unit_price: '100000', qty: '2' },
+      errors: {},
+    });
+    expect(checkRow('quote', map, ['A', '0901234567', 'Kem', '2', '100000', '7'], 2).errors).toEqual({
+      tax_rate: 'option',
+    });
   });
 });
