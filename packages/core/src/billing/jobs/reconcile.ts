@@ -37,7 +37,7 @@ export const cutoffOf = (now: Date) => new Date(Math.floor(now.getTime() / RECON
 
 /** Một workspace: mọi phép kiểm trên dữ liệu trước mốc → danh sách phát hiện (chưa ghi). */
 export async function reconcileWorkspace(platform: PlatformDb, tenant: TenantDb, workspaceId: string, cutoff: Date): Promise<Finding[]> {
-  const limits = await new QuotaService(platform).limits(workspaceId);
+  const limits = await new QuotaService(platform, () => cutoff).limits(workspaceId);
   const r = { workspaceId, cutoff, limits };
   const groups = await Promise.all([
     checkSeats(platform, r),

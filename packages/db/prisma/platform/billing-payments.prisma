@@ -44,6 +44,11 @@ model BillingInvoice {
   credits        BigInt?
   amount         BigInt
   vatInfo        Json                 @default("{}") @map("vat_info")
+  /// Ảnh chụp giá / quyền lợi lúc tạo (TIP-039): gói, kỳ, giá nguồn / đích, tỷ lệ còn lại, Credit chênh, hạn addon, version subscription.
+  /// Ghi nhận khi đã trả dùng ảnh này — không đọc lại giá gói hiện tại. `{}` = hoá đơn cũ (trước 039).
+  snapshot       Json                 @default("{}")
+  /// Đã trả nhưng không tự ghi nhận được (kỳ / gói đã đổi, addon cũ không rõ hạn…) — chờ đối soát (`reconcile_finding`), không đoán.
+  holdReason     String?              @map("hold_reason")
   status         BillingInvoiceStatus @default(pending)
   method         BillingInvoiceMethod @default(qr)
   transferCode   String               @unique @map("transfer_code")

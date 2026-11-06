@@ -1,0 +1,58 @@
+// platform/billing-lifecycle.prisma — sở hữu: TIP-039 (Bản đồ sở hữu file). Vòng đời gói trả phí (DC-242 / DC-243):
+// tài nguyên mua thêm (addon) đồng hạn kỳ gói, biên nhận cấp Credit theo kỳ (một lần mỗi kỳ — khoá chống cấp đôi), yêu cầu liên hệ bán hàng.
+// Không Prisma relation xuyên domain (Blueprint §2.1). Index / CHECK viết tay ở migration 20261102003900_billing_lifecycle.
+
+/// Tài nguyên mua thêm đã trả (người dùng / kênh): một dòng mỗi hoá đơn addon; hạn = hết kỳ gói lúc mua (DC-242). Hạn mức = gói + addon còn hạn.
+model SubscriptionAddon {
+  id          String   @id @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  invoiceId   String   @unique @map("invoice_id") @db.Uuid
+  /// users | channels (QuotaResource).
+  resource    String
+  quantity    Int
+  startsAt    DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt      DateTime @map("ends_at") @db.Timestamptz(6)
+  /// active | expired | void
+  status      String   @default("active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("subscription_addon")
+}
+
+/// Biên nhận cấp Credit gói cho MỘT kỳ tháng (khoá `period_key` = ngày bắt đầu kỳ theo giờ workspace). Cùng transaction với dòng sổ ví +
+/// đẩy mốc `next_grant_at`. `skipped` = kỳ bị bỏ khi chạy bù sau downtime (không cấp dồn nhiều tháng).
+model BillingPeriodGrant {
+  id           String   @id @db.Uuid
+  workspaceId  String   @map("workspace_id") @db.Uuid
+  periodKey    String   @map("period_key")
+  periodStart  DateTime @map("period_start") @db.Timestamptz(6)
+  periodEnd    DateTime @map("period_end") @db.Timestamptz(6)
+  planKey      String   @map("plan_key")
+  credits      BigInt
+  /// granted | skipped
+  status       String
+  /// ref_id dòng `credit_ledger` (null khi skipped).
+  ledgerRef    String?  @map("ledger_ref")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, periodKey])
+  @@map("billing_period_grant")
+}
+
+/// Yêu cầu liên hệ bán hàng (gói Doanh nghiệp / Liên hệ) — billing.contact_sales. Đã nhận ≠ đã ký hợp đồng.
+model SalesInquiry {
+  id          String   @id @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  requestedBy String   @map("requested_by") @db.Uuid
+  name        String
+  email       String
+  phone       String
+  message     String
+  /// Người gửi đồng ý cho đội bán hàng liên hệ.
+  consent     Boolean
+  /// new | contacted | closed
+  status      String   @default("new")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("sales_inquiry")
+}

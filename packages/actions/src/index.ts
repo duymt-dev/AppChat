@@ -38,6 +38,7 @@ import * as authz from './authz';
 import * as leadRouting from './lead-routing';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
+import * as billingLifecycle from './billing-lifecycle';
 import * as kbFolders from './kb-folders';
 import * as kbSuggestions from './kb-suggestions';
 import * as documents from './documents';
@@ -99,6 +100,7 @@ export * from './authz';
 export * from './lead-routing';
 export * from './settings-apps';
 export * from './settings-ai';
+export * from './billing-lifecycle';
 export * from './kb-folders';
 export * from './kb-suggestions';
 export * from './documents';
@@ -159,6 +161,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(leadRouting),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
+  ...Object.values(billingLifecycle),
   ...Object.values(kbFolders),
   ...Object.values(kbSuggestions),
   ...Object.values(documents),

@@ -1116,6 +1116,14 @@
     },
     "report_transfer": {
       "title": "Report bank transfer"
+    },
+    "lifecycle_step": {
+      "title": "Plan lifecycle (system)",
+      "desc": "The system grants plan credits each monthly period from the sign-up date, applies a scheduled plan change at period end and expires unpaid plans (data kept 30 days)."
+    },
+    "apply_invoice": {
+      "title": "Apply plan invoice (system)",
+      "desc": "The system applies a paid plan invoice exactly once from the price captured at creation; mismatched invoices are held for reconciliation."
     }
   },
   "doc_template": {

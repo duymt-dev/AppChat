@@ -63,6 +63,7 @@ function fakePlatform(worlds: Record<string, World>, fail = new Set<string>()) {
     membership: { count: async ({ where }: { where: { workspaceId: string } }) => of(where).members, update: forbidden },
     invite: { count: async ({ where }: { where: { workspaceId: string } }) => of(where).invites },
     quotaReservation: { count: async ({ where }: { where: { workspaceId: string; resource: string } }) => of(where).reserved[where.resource] ?? 0 },
+    subscriptionAddon: { groupBy: async () => [] },
     creditLedger: {
       findMany: async ({ where }: { where: { workspaceId: string; createdAt: { gt: Date; lte: Date } } }) =>
         of(where).charges.filter((c) => c.createdAt > where.createdAt.gt && c.createdAt <= where.createdAt.lte),

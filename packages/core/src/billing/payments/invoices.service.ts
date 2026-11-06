@@ -4,7 +4,6 @@
 import {
   AppError,
   INVOICE_QR_TTL_MS,
-  catalogItem,
   interpolate,
   invoiceCode,
   platformTransferCode,
@@ -15,10 +14,10 @@ import {
 import type { PlatformDb } from '@appchat/db';
 import type { PlatformTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
+import { priceItem } from '../services/plan-changes.service';
 import type { PaymentsEnv } from './payments.env';
 
 type Kind = 'plan' | 'credit' | 'addon';
-const DB_KIND = { plan: 'plan', credit: 'credits', addon: 'addon' } as const;
 const UI_KIND = { plan: 'plan', credits: 'credit', addon: 'addon', upgrade_proration: 'plan' } as const;
 const OPEN = ['pending', 'pending_review'] as const;
 
@@ -37,40 +36,35 @@ export class InvoicesService {
     private readonly now: () => Date,
   ) {}
 
-  /** Giá + credit + khoá mô tả của mặt hàng; không mua được (Miễn phí / Liên hệ / không có) → 422. */
-  private async price(tx: PlatformTx, i: CreateInvoiceInput) {
-    if (i.kind !== 'plan') {
-      const c = catalogItem(i.kind, i.item);
-      if (!c) throw new AppError('VALIDATION_FAILED', 422, { item: 'not_purchasable' });
-      return { amount: c.amount, credits: c.credits, planId: null, months: null };
-    }
-    const p = await tx.plan.findUnique({ where: { key: i.item } });
-    const months = i.period === 'year' ? 12 : 1;
-    const amount = months === 12 ? p?.priceYear : p?.priceMonth;
-    if (!p || !p.active || p.isTrialPlan || !amount || amount <= 0n) throw new AppError('VALIDATION_FAILED', 422, { item: 'not_purchasable' });
-    return { amount, credits: null, planId: p.id, months };
+  /**
+   * Giá do server tính (TIP-039, DC-242): mua mới / gia hạn / nâng (chênh theo kỳ còn lại) / hạ kỳ sau / addon đồng hạn — client không gửi
+   * giá. Không mua được (Miễn phí / Liên hệ / không có / không còn gì để thu) → 422.
+   */
+  private price(tx: Pick<PlatformTx, 'plan' | 'subscription'>, workspaceId: string, i: CreateInvoiceInput) {
+    return priceItem(tx, workspaceId, i, this.now());
+  }
+
+  /** Hoá đơn `pending` cùng mặt hàng + cùng số tiền còn hạn (giá theo kỳ còn lại đổi theo thời gian → số tiền khác thì hoá đơn mới). */
+  private findOpen(tx: Pick<PlatformTx, 'billingInvoice'>, workspaceId: string, i: CreateInvoiceInput, pr: { kind: string; months: number | null; amount: bigint }) {
+    return tx.billingInvoice.findFirst({
+      where: { workspaceId, kind: pr.kind as Row['kind'], item: i.item, months: pr.months, amount: pr.amount, status: 'pending', expiresAt: { gt: this.now() } },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   /** Preview mua (TIP-023b): giá + hoá đơn `pending` cùng mặt hàng còn hạn sẽ được dùng lại — chỉ đọc, không khoá / không sinh mã. */
-  async quote(tx: Pick<PlatformTx, 'plan' | 'billingInvoice'>, workspaceId: string, i: CreateInvoiceInput) {
-    const pr = await this.price(tx as PlatformTx, i);
-    const open = await tx.billingInvoice.findFirst({
-      where: { workspaceId, kind: DB_KIND[i.kind], item: i.item, months: pr.months, status: 'pending', expiresAt: { gt: this.now() } },
-      orderBy: { createdAt: 'desc' },
-      select: { id: true, code: true },
-    });
-    return { ...pr, open };
+  async quote(tx: Pick<PlatformTx, 'plan' | 'billingInvoice' | 'subscription'>, workspaceId: string, i: CreateInvoiceInput) {
+    const pr = await this.price(tx, workspaceId, i);
+    const open = await this.findOpen(tx, workspaceId, i, pr);
+    return { ...pr, open: open ? { id: open.id, code: open.code } : null };
   }
 
   /** Tạo hoá đơn — cùng mặt hàng còn hoá đơn `pending` chưa hết hạn → trả lại hoá đơn đó (bấm Mua hai lần không sinh hai QR). */
   async create(tx: PlatformTx, workspaceId: string, userId: string, i: CreateInvoiceInput): Promise<Row> {
     const now = this.now();
     await tx.$queryRaw`SELECT id FROM workspace WHERE id = ${workspaceId}::uuid FOR UPDATE`;
-    const pr = await this.price(tx, i);
-    const open = await tx.billingInvoice.findFirst({
-      where: { workspaceId, kind: DB_KIND[i.kind], item: i.item, months: pr.months, status: 'pending', expiresAt: { gt: now } },
-      orderBy: { createdAt: 'desc' },
-    });
+    const pr = await this.price(tx, workspaceId, i);
+    const open = await this.findOpen(tx, workspaceId, i, pr);
     if (open) return open;
     const [seq] = await tx.$queryRaw<{ n: bigint }[]>`SELECT nextval('billing_invoice_seq') AS n`;
     const code = invoiceCode(now.getUTCFullYear(), seq!.n);
@@ -86,12 +80,14 @@ export class InvoicesService {
         id: uuidv7(now.getTime()),
         workspaceId,
         code,
-        kind: DB_KIND[i.kind],
+        kind: pr.kind,
         item: i.item,
         planId: pr.planId,
         months: pr.months,
         credits: pr.credits === null ? null : BigInt(pr.credits),
         amount: pr.amount,
+        // Ảnh chụp giá / quyền lợi — ghi nhận khi đã trả dùng đúng ảnh này (không đọc lại giá gói hiện tại).
+        snapshot: pr.snapshot as object,
         // Thông tin xuất hoá đơn VAT chụp lúc tạo (COMMERCE §10) — đội vận hành xuất tay tới khi có e-invoice (Q2).
         vatInfo: { tax_code: profile?.taxCode ?? '', legal_name: profile?.legalName ?? '', address: profile?.address ?? '', email: general?.admin_email ?? owner?.email ?? '' },
         transferCode,

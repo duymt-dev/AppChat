@@ -1116,6 +1116,14 @@
     },
     "report_transfer": {
       "title": "Báo đã chuyển khoản"
+    },
+    "lifecycle_step": {
+      "title": "Vòng đời gói (hệ thống)",
+      "desc": "Hệ thống cấp Credit gói mỗi kỳ tháng theo ngày đăng ký, áp gói đã đổi từ kỳ sau và chuyển gói hết hạn (dữ liệu giữ 30 ngày)."
+    },
+    "apply_invoice": {
+      "title": "Ghi nhận hoá đơn gói (hệ thống)",
+      "desc": "Hệ thống ghi nhận hoá đơn gói đã thanh toán đúng một lần theo giá chụp lúc tạo; hoá đơn không khớp được giữ lại để đối soát."
     }
   },
   "doc_template": {

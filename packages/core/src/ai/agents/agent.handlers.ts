@@ -24,7 +24,7 @@ const CREATED_VIA = { ui: 'manual', api: 'manual', system: 'manual', assistant: 
 async function reserveAgent(ctx: ActionContext, input: Cfg, tx: TenantTx, ptx: PlatformTx | undefined, now: Date) {
   if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'agent.create cần PlatformTx');
   await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-  await new QuotaService(ptx).assert(ctx.workspaceId, 'agents', (await countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'agents')));
+  await new QuotaService(ptx, () => now).assert(ctx.workspaceId, 'agents', (await countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'agents')));
   await reserveQuota(ptx, ctx, 'agents', now);
   const cfg = merge(blankConfig(), input as Partial<AgentConfig>);
   assertTools(cfg.tools, ctx.authz);

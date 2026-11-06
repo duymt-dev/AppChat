@@ -4,6 +4,7 @@ export const billing = {
     trial_grant: 'Cấp credit dùng thử · gói {plan}',
     plan_grant: 'Cấp credit gói {plan}',
     plan_expire: 'Hết hạn credit gói kỳ trước',
+    plan_upgrade: 'Credit chênh khi nâng lên gói {plan}',
     topup: 'Nạp {credits} credit',
     ai_usage: 'AI · {tokens} token',
     adjust: 'Điều chỉnh credit',

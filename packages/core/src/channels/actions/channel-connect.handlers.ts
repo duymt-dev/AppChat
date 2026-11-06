@@ -37,7 +37,7 @@ export class ChannelZaloStartLoginHandler implements Handler<ActionInput<typeof 
     if (!ptx) throw new AppError('INTERNAL', 500, undefined, 'channel.zalo.start_login cần PlatformTx');
     // Khoá workspace + giữ chỗ hạn mức trong commit nền tảng (TIP-045b): hai lần thêm song song không cùng lọt; tài khoản tạo ở pha tenant.
     await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-    await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
+    await new QuotaService(ptx, () => this.clock.now()).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
     const now = this.clock.now();
     await reserveQuota(ptx, ctx, 'channels', now);
     const id = uuidv7(now.getTime());

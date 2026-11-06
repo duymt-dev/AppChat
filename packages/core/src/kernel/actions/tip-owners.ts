@@ -6,6 +6,8 @@ const BY_ID: Record<string, string> = {
   'onboarding.toggle_step': '011',
   'ai_settings.update': '019',
   'wallet.update_alerts': '039',
+  'billing.lifecycle_step': '039',
+  'billing.apply_invoice': '039',
   'follow_up.complete': '038',
   'insight.query': '038',
   'follow_up.reconcile': '038',

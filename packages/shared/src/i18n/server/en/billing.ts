@@ -8,6 +8,7 @@ export const billing: Shape<typeof vi> = {
     trial_grant: 'Trial credits · {plan} plan',
     plan_grant: '{plan} plan credits',
     plan_expire: 'Previous period plan credits expired',
+    plan_upgrade: 'Upgrade credit difference · {plan} plan',
     topup: 'Top-up {credits} credits',
     ai_usage: 'AI · {tokens} tokens',
     adjust: 'Credit adjustment',
