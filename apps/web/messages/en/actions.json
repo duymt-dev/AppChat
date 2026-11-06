@@ -358,6 +358,10 @@
     }
   },
   "quote": {
+    "export": {
+      "title": "Export quote list",
+      "desc": "Export every quote matching the filter to an Excel file (within your view access)."
+    },
     "create": {
       "title": "Create quote",
       "desc": "Create a draft quote; unit prices exclude VAT, tax is per line."
@@ -415,6 +419,10 @@
     }
   },
   "contract": {
+    "export": {
+      "title": "Export contract list",
+      "desc": "Export every contract matching the filter to an Excel file (within your view access)."
+    },
     "create": {
       "title": "Create contract",
       "desc": "Create a draft contract (service, sale or framework)."
@@ -535,6 +543,10 @@
     }
   },
   "order": {
+    "export": {
+      "title": "Export order list",
+      "desc": "Export every order matching the filter to an Excel file (within your view access)."
+    },
     "create": {
       "title": "Create order",
       "desc": "Create a new order, optionally with a deposit."
@@ -684,6 +696,10 @@
     }
   },
   "ticket": {
+    "export": {
+      "title": "Export ticket list",
+      "desc": "Export every ticket matching the filter to an Excel file (within your view access)."
+    },
     "update": {
       "title": "Edit ticket",
       "desc": "Edit a ticket’s title, description, category, priority or custom fields."

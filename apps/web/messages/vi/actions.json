@@ -358,6 +358,10 @@
     }
   },
   "quote": {
+    "export": {
+      "title": "Xuất danh sách báo giá",
+      "desc": "Xuất toàn bộ báo giá khớp bộ lọc ra tệp Excel (theo quyền xem của bạn)."
+    },
     "create": {
       "title": "Tạo báo giá",
       "desc": "Tạo báo giá nháp; đơn giá chưa gồm VAT, thuế tính theo từng dòng."
@@ -415,6 +419,10 @@
     }
   },
   "contract": {
+    "export": {
+      "title": "Xuất danh sách hợp đồng",
+      "desc": "Xuất toàn bộ hợp đồng khớp bộ lọc ra tệp Excel (theo quyền xem của bạn)."
+    },
     "create": {
       "title": "Tạo hợp đồng",
       "desc": "Tạo hợp đồng nháp (dịch vụ, mua bán hoặc khung)."
@@ -535,6 +543,10 @@
     }
   },
   "order": {
+    "export": {
+      "title": "Xuất danh sách đơn hàng",
+      "desc": "Xuất toàn bộ đơn hàng khớp bộ lọc ra tệp Excel (theo quyền xem của bạn)."
+    },
     "create": {
       "title": "Tạo đơn hàng",
       "desc": "Tạo đơn hàng mới, có thể kèm tiền đặt cọc."
@@ -684,6 +696,10 @@
     }
   },
   "ticket": {
+    "export": {
+      "title": "Xuất danh sách ticket",
+      "desc": "Xuất toàn bộ ticket khớp bộ lọc ra tệp Excel (theo quyền xem của bạn)."
+    },
     "update": {
       "title": "Sửa ticket",
       "desc": "Sửa tiêu đề, mô tả, danh mục, ưu tiên hoặc trường tuỳ biến của ticket."

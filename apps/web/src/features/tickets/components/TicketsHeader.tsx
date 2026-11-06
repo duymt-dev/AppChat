@@ -1,10 +1,10 @@
 // Đầu màn Ticket — prototype L4838–4875: topbar (tiêu đề, phụ đề, tìm, Tạo ticket mới, Trợ lý AI), 5 KPI (bấm = lọc nhanh),
 // tiêu đề "Tất cả ticket · n", 6 select lọc + Mới nhất / Xuất / Danh sách · Kanban.
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { AiButton, Icon, color, type IconName } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
+import { useListExport } from '@/shared/actions/useListExport';
 import { useTicketsStyles } from '../styles/tickets.styles';
 import { EMPTY_FILTER, useTicketsUi } from '../tickets-store';
 import { PRIORITIES, SLA_STATES, STATUSES } from '../status';
@@ -52,11 +52,11 @@ function Sel({ k, opts, testId }: { k: SelKey; opts: [string, string][]; testId?
 export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; count: number }) {
   const t = useTranslations('tickets');
   const tc = useTranslations('common');
-  const { message } = App.useApp();
   const { styles, cx } = useTicketsStyles();
   const ui = useTicketsUi();
   const canCreate = useCan('ticket.manage');
   const f = ui.filter;
+  const exp = useListExport('ticket.export');
   const kpiOn = (p: Partial<TicketFilter>) =>
     Object.keys(p).length
       ? Object.entries(p).every(([k, v]) => f[k as keyof TicketFilter] === v)
@@ -140,9 +140,9 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
           <Icon name="ic-sort" size={13} color={color.text3} />
           {t(`sort.${f.sort}`)}
         </button>
-        <button type="button" className={styles.chip} onClick={() => void message.info(t('exporting'))}>
+        <button type="button" className={styles.chip} data-testid="tk-export" disabled={exp.busy} aria-busy={exp.busy} onClick={() => void exp.start(ui.filter)}>
           <Icon name="ic-download" size={13} color={color.text3} />
-          {t('export')}
+          {exp.label ?? t('export')}
         </button>
         <div className={styles.seg} role="tablist">
           {VIEWS.map(([v, ic]) => (

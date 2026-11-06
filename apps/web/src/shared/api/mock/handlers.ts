@@ -33,6 +33,7 @@ import { settingsBillingHandlers } from './domains/settings-billing';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
 import { dataJobsHandlers } from './domains/data-jobs';
+import { listExportsHandlers } from './domains/list-exports';
 import { channelFriendsHandlers } from './domains/channel-friends';
 
 export interface MockHandler {
@@ -96,6 +97,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...inboxHandlers,
   ...customersHandlers,
   ...dataJobsHandlers,
+  ...listExportsHandlers,
   ...assistantHandlers,
   ...aiTasksHandlers,
   ...agentsHandlers,

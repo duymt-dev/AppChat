@@ -42,6 +42,13 @@ function where(authz: AuthzContext, f: ContractFilter): Prisma.Sql {
   return Prisma.join(parts, ' AND ');
 }
 
+/** Xuất danh sách (TIP-038 pha 3): TOÀN BỘ id khớp bộ lọc, cùng `where` + thứ tự danh sách (không cắt 2.000) — tối đa `cap` id (gọi cap + 1
+ * để biết vượt trần). Chỉ id theo index partial; cột đủ nạp theo PK ở reader (deferred join). */
+export async function snapshotContractIds(tx: TenantTx, authz: AuthzContext, f: ContractFilter, cap: number): Promise<string[]> {
+  const rows = await tx.$queryRaw<{ id: string }[]>`SELECT c.id FROM contract c WHERE ${where(authz, f)} ORDER BY c.created_at DESC, c.id DESC LIMIT ${cap}`;
+  return rows.map((r) => r.id);
+}
+
 export async function listContractIds(tx: TenantTx, authz: AuthzContext, f: ContractFilter, page: { offset: number; limit: number } | null) {
   const w = where(authz, f);
   const paging = page ? Prisma.sql`LIMIT ${page.limit} OFFSET ${page.offset}` : Prisma.sql`LIMIT 2000`;

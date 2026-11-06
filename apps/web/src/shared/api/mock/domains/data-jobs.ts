@@ -92,14 +92,37 @@ export const dataJobsHandlers: Record<string, Handler> = {
   },
 };
 
+/** Việc xuất danh sách (TIP-038 pha 3): tập id chốt + nội dung tệp; ≤ 50 dòng xong ngay, còn lại đi qua tick như sửa hàng loạt. */
+export function exportJob(kind: string, ids: string[], fileName: string, body: string, sync: boolean): DataJobDto {
+  const id = `0190f000-0000-7000-8000-${String(++seq).padStart(12, '0')}`;
+  const now = new Date().toISOString();
+  const j: Job = {
+    id, kind, action_id: kind, status: sync ? 'completed' : 'queued', total: ids.length, done: sync ? ids.length : 0, failed: 0, error: null,
+    download_url: sync ? `/v1/data-jobs/${id}/download` : null, file_name: fileName, expires_at: null, created_at: now, finished_at: sync ? now : null,
+    items: ids.map((t, n) => ({ seq: n, target_id: t, status: sync ? 'done' : 'pending', error: null })), patch: {}, polls: 0,
+  };
+  files.set(id, body);
+  jobs.set(id, j);
+  return view(j);
+}
+const files = new Map<string, string>();
+/** Tải tệp xuất của mock (`/data-jobs/:id/download`) — chỉ khi việc đã xong. */
+export function dataJobBlob(path: string): Blob | null {
+  const m = path.match(/^\/data-jobs\/([0-9a-f-]{36})\/download$/);
+  const j = m ? jobs.get(m[1]!) : undefined;
+  if (!j || j.status !== 'completed') return null;
+  return new Blob([files.get(j.id) ?? ''], { type: 'text/csv' });
+}
+
 /** Giả worker: lần đọc đầu → running; lần sau → chạy hết bản ghi pending (hoặc dừng nếu đã huỷ). */
 function tick(db: MockDb, j: Job) {
   if (j.status === 'queued') return void (j.status = 'running');
   if (j.status === 'cancelling') return void Object.assign(j, { status: 'cancelled', finished_at: new Date().toISOString() });
   if (j.status !== 'running' || ++j.polls < 1) return;
-  for (const it of j.items.filter((x) => x.status === 'pending')) Object.assign(it, run(db, it.target_id, j.patch), { seq: it.seq });
+  const exporting = files.has(j.id);
+  for (const it of j.items.filter((x) => x.status === 'pending')) Object.assign(it, exporting ? { status: 'done' } : run(db, it.target_id, j.patch), { seq: it.seq });
   tally(j);
-  Object.assign(j, { status: 'completed', finished_at: new Date().toISOString() });
+  Object.assign(j, { status: 'completed', finished_at: new Date().toISOString(), ...(exporting ? { download_url: `/v1/data-jobs/${j.id}/download` } : {}) });
 }
 
 export const dataJobsRoute = (path: string): ((db: MockDb, p: Record<string, unknown>) => unknown) | undefined => {

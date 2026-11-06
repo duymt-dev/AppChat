@@ -35,7 +35,7 @@ export class DataJobsController {
   @Get(':id/download')
   async download(@Param('id') id: string, @Req() req: IncomingMessage, @Res() res: ServerResponse) {
     const f = await this.svc().download(await this.actors.resolve(req), id);
-    res.setHeader('content-type', 'text/csv; charset=utf-8');
+    res.setHeader('content-type', f.mime);
     res.setHeader('content-disposition', `attachment; filename*=UTF-8''${encodeURIComponent(f.name)}`);
     res.setHeader('x-content-type-options', 'nosniff');
     res.setHeader('cache-control', 'no-store');
