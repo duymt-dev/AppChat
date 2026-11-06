@@ -1,8 +1,8 @@
-// GET /v1/billing/summary · /plans · /wallet · /ledger?cursor= (Blueprint §4.4 billing) — thành viên workspace (X-Workspace-Id);
+// GET /v1/billing/summary · /plans · /wallet · /ledger?cursor=&kind=&dir=&source=&from=&to= (Blueprint §4.4 billing) — thành viên workspace (X-Workspace-Id);
 // TIP-010: /invoices?status=&q=, /invoices/:id (`billing.manage`). Ghi là action billing.* (TIP-010 / 039). Chữ render theo locale người xem.
 import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { BillingReadService, InvoicesService, PLATFORM_DB } from '@appchat/core';
+import { BillingReadService, InvoicesService, PLATFORM_DB, parseLedgerFilter } from '@appchat/core';
 import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -41,11 +41,16 @@ export class BillingController {
   }
 
   @Get('ledger')
-  async ledger(@Req() req: IncomingMessage, @Query('cursor') cursor?: string, @Query('limit') limit?: string) {
+  async ledger(
+    @Req() req: IncomingMessage,
+    @Query() q: { cursor?: string; limit?: string; kind?: string; dir?: string; source?: string; from?: string; to?: string },
+  ) {
     const a = await this.actors.resolve(req);
-    const n = limit === undefined ? undefined : Number(limit);
+    const n = q.limit === undefined ? undefined : Number(q.limit);
     if (n !== undefined && !Number.isInteger(n)) throw new AppError('VALIDATION_FAILED', 400, { limit: 'invalid' });
-    return this.read.ledger(a.workspaceId, await this.locale(a.userId), cursor || undefined, n);
+    // TIP-039: lọc server-side (loại / vào-ra / nguồn / khoảng ngày) trước LIMIT.
+    const tz = (await this.platform.workspace.findUnique({ where: { id: a.workspaceId }, select: { timezone: true } }))?.timezone ?? undefined;
+    return this.read.ledger(a.workspaceId, await this.locale(a.userId), q.cursor || undefined, n, parseLedgerFilter(q, tz));
   }
 
   private async manager(req: IncomingMessage) {

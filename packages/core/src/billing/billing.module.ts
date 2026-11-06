@@ -2,7 +2,7 @@
 // Service dựng bằng factory: thiếu DB nền tảng / DB tenant / Redis → null (process không cần billing vẫn boot).
 import { Module, type OnApplicationBootstrap } from '@nestjs/common';
 import type { Redis } from 'ioredis';
-import type { PlatformDb, TenantDbResolver } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { ActionExecutor } from '../kernel/actions/executor';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENV_SOURCE } from '../kernel/kernel.module';
@@ -66,7 +66,15 @@ class BillingBoot implements OnApplicationBootstrap {
         p && w && s ? new SubscriptionsService(p, w, s, () => c.now()) : null,
     },
     { provide: QuotaService, inject: [opt(PLATFORM_DB), CLOCK], useFactory: (p: PlatformDb | undefined, c: Clock) => (p ? new QuotaService(p, () => c.now()) : null) },
-    { provide: BillingReadService, inject: [opt(PLATFORM_DB), CLOCK], useFactory: (p: PlatformDb | undefined, c: Clock) => (p ? new BillingReadService(p, () => c.now()) : null) },
+    {
+      provide: BillingReadService,
+      inject: [opt(PLATFORM_DB), CLOCK, opt(TENANT_RESOLVER)],
+      // Kênh dùng đếm ở DB tenant (cùng quy tắc ChannelAccounts.countLive) — không import domain channels (tránh vòng module).
+      useFactory: (p: PlatformDb | undefined, c: Clock, r: TenantDbResolver | undefined) =>
+        p
+          ? new BillingReadService(p, () => c.now(), r ? async (ws) => (await r.get(TenantContexts.system(ws, 'billing'))).channelAccount.count({ where: { status: { not: 'disconnected' } } }) : null)
+          : null,
+    },
     // Đơn giá model (TIP-019): `model_price` ở DB nền tảng; không DB → bảng giá rỗng (model chưa có giá → không chạy).
     { provide: PRICE_BOOK, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new DbPriceBook(p) : new StaticPriceBook()) },
     {

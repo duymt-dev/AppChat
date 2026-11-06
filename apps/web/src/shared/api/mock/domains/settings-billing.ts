@@ -33,6 +33,7 @@ export const createSettingsBillingState = (): SettingsBillingState => ({
 });
 
 const QR_TTL = 15 * 60_000;
+const SOURCE_LABEL: Record<string, string> = { plan: 'Gói', inbox: 'Hộp thư', assistant: 'Trợ lý AI', marketing: 'Marketing', ai: 'AI', qr: 'VietQR', bank: 'Chuyển khoản' };
 const NOW = '2026-06-24T09:00:00+07:00';
 
 const notFound = () => new ApiRequestError(404, { code: 'NOT_FOUND', message: 'invoice' });
@@ -76,6 +77,23 @@ export const settingsBillingRoutes: Record<string, MockRoute> = {
     return { plans: b.plans, compare: b.compare, credit_packs: b.credit_packs, addons: b.addons };
   },
   '/billing/wallet': (db) => db.settingsBilling.wallet,
+  // TIP-039: lọc như server (vào-ra / nguồn / kỳ) + cursor = vị trí. Fixture lưu nhãn nguồn → so theo nhãn tiếng Việt của khoá.
+  '/billing/ledger': (db, p) => {
+    const src = SOURCE_LABEL[String(p.source ?? '')];
+    const from = p.from ? `${String(p.from)}T00:00:00+07:00` : null;
+    const to = p.to ? `${String(p.to)}T23:59:59+07:00` : null;
+    const rows = db.settingsBilling.wallet.ledger.filter(
+      (r) =>
+        (p.dir !== 'in' || r.delta > 0) &&
+        (p.dir !== 'out' || r.delta < 0) &&
+        (!p.source || r.source === src) &&
+        (!from || Date.parse(r.at) >= Date.parse(from)) &&
+        (!to || Date.parse(r.at) <= Date.parse(to)),
+    );
+    const start = Number(p.cursor ?? 0) || 0;
+    const n = Math.min(Number(p.limit ?? 50) || 50, 100);
+    return { data: rows.slice(start, start + n), next_cursor: start + n < rows.length ? String(start + n) : null };
+  },
   '/billing/invoices': (db, p) => {
     const st = String(p.status ?? 'all');
     const q = String(p.q ?? '').trim().toLowerCase();

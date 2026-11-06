@@ -1444,6 +1444,8 @@
       "seatsLeft": "{n} seats left",
       "channels": "Connected channels",
       "chLeft": "{n} connections left",
+      "unlimited": "Unlimited",
+      "unavailable": "Channel count unavailable",
       "credits": "Plan credit left",
       "reset": "Resets every month"
     },
@@ -1518,6 +1520,26 @@
     "ledger": {
       "title": "Wallet history",
       "filter": "Filter",
+      "source": "Source",
+      "period": "Period",
+      "src": {
+        "all": "All sources",
+        "plan": "Plan",
+        "inbox": "Inbox",
+        "assistant": "AI Assistant",
+        "marketing": "Marketing",
+        "ai": "AI",
+        "qr": "VietQR",
+        "bank": "Bank transfer"
+      },
+      "p": {
+        "all": "All time",
+        "month": "This month",
+        "d30": "Last 30 days"
+      },
+      "more": "Load more",
+      "empty": "No matching transactions",
+      "error": "Could not load wallet history — try again later",
       "f": {
         "all": "All",
         "in": "Credit in",

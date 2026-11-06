@@ -4,6 +4,8 @@ import { z } from 'zod';
 
 const status = z.enum(['trialing', 'active', 'expired', 'cancelled']);
 const usage = z.object({ used: z.number().int(), max: z.number().int().nullable() });
+/** Kênh đếm ở DB tenant (TIP-039): đọc lỗi → `available: false` + used 0 (FE hiện "—", không hiện 0 như số thật). */
+const tenantUsage = usage.extend({ available: z.boolean().optional() });
 
 export const billingSummarySchema = z.object({
   plan_key: z.string(),
@@ -14,7 +16,7 @@ export const billingSummarySchema = z.object({
   days_left: z.number().int(),
   period_pct: z.number().int().min(0).max(100),
   users: usage,
-  channels: usage,
+  channels: tenantUsage,
   credits_month: z.number().int().nullable(),
   balance: z.number().int(),
   plan_balance: z.number().int(),

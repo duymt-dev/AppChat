@@ -12,12 +12,13 @@ import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useBillingStyles } from '../styles/billing.styles';
 import { billingSummaryQuery } from '../api';
 import { useBillingUi } from '../billing-store';
-import type { BillingSummary } from '../types';
+import type { BillingSummary, QuotaUsage } from '../types';
 import { BillInvoiceTable } from './BillInvoiceTable';
 import { BillingModals } from './BillingModals';
 
 const BRAND = 'AppChat';
 const SLASH = ' / ';
+const DASH = '—';
 
 function Hero({ s }: { s: BillingSummary }) {
   const t = useTranslations('settings.billing');
@@ -25,11 +26,18 @@ function Hero({ s }: { s: BillingSummary }) {
   const { styles } = useBillingStyles();
   const set = useBillingUi((x) => x.set);
   const pct = (a: number, b: number) => `${Math.round((a / b) * 100)}%`;
+  // Hạn mức gồm addon (TIP-039); `max` null = không giới hạn; kênh đọc DB tenant lỗi → "—" (không giả 0).
+  const quota = (u: QuotaUsage, left: (n: number) => string) =>
+    u.available === false
+      ? { v: DASH, sub: t('hero.unavailable') }
+      : u.max === null
+        ? { v: String(u.used), sub: t('hero.unlimited') }
+        : { v: u.used + SLASH + u.max, w: pct(u.used, u.max), sub: left(Math.max(0, u.max - u.used)) };
   const stats: { l: string; v: string; w?: string; sub?: string }[] = [
     { l: t('hero.activated'), v: fmt.date(s.activated_at) },
     { l: t('hero.expires'), v: fmt.date(s.expires_at), w: `${s.period_pct}%`, sub: t('hero.daysLeft', { n: s.days_left }) },
-    { l: t('hero.users'), v: s.users.used + SLASH + s.users.max, w: pct(s.users.used, s.users.max), sub: t('hero.seatsLeft', { n: s.users.max - s.users.used }) },
-    { l: t('hero.channels'), v: s.channels.used + SLASH + s.channels.max, w: pct(s.channels.used, s.channels.max), sub: t('hero.chLeft', { n: s.channels.max - s.channels.used }) },
+    { l: t('hero.users'), ...quota(s.users, (n) => t('hero.seatsLeft', { n })) },
+    { l: t('hero.channels'), ...quota(s.channels, (n) => t('hero.chLeft', { n })) },
     {
       l: t('hero.credits'),
       v: fmt.number(s.plan_balance) + SLASH + fmt.number(s.credits_month),

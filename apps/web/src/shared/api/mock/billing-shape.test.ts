@@ -1,6 +1,6 @@
 // TIP-009 / 010: route mock domain billing đúng shape đọc dùng chung với API thật (packages/shared/src/api/billing.ts).
 import { beforeEach, describe, expect, it } from 'vitest';
-import { billInvoicesPageSchema, billingCatalogSchema, billingSummarySchema, walletSchema } from '@appchat/shared';
+import { billInvoicesPageSchema, billingCatalogSchema, billingSummarySchema, ledgerPageSchema, walletSchema } from '@appchat/shared';
 import { mockTransport } from './mock-transport';
 import { setMockRole } from './store';
 
@@ -20,6 +20,21 @@ describe('mock billing — shape FE ↔ BE', () => {
 
   it('GET /billing/wallet', async () => {
     expect(issues(walletSchema.safeParse(await mockTransport.get('/billing/wallet')))).toEqual([]);
+  });
+
+  it('GET /billing/ledger — lọc vào-ra / nguồn / kỳ như server (TIP-039), cursor tải thêm', async () => {
+    const all = await mockTransport.get('/billing/ledger', { limit: 4 });
+    expect(issues(ledgerPageSchema.safeParse(all))).toEqual([]);
+    const page = all as { data: { delta: number; source: string }[]; next_cursor: string | null };
+    expect(page.data).toHaveLength(4);
+    const more = (await mockTransport.get('/billing/ledger', { limit: 4, cursor: page.next_cursor })) as typeof page;
+    expect(more.next_cursor).toBeNull();
+    const out = (await mockTransport.get('/billing/ledger', { dir: 'out' })) as typeof page;
+    expect(out.data.every((r) => r.delta < 0)).toBe(true);
+    const mkt = (await mockTransport.get('/billing/ledger', { source: 'marketing' })) as typeof page;
+    expect(mkt.data.map((r) => r.source)).toEqual(['Marketing']);
+    const range = (await mockTransport.get('/billing/ledger', { from: '2026-06-25', to: '2026-06-27' })) as typeof page;
+    expect(range.data).toHaveLength(3);
   });
 
   it('GET /billing/invoices — hoá đơn mới có QR; báo chuyển khoản → pending_review, webhook giả về ngay → paid', async () => {

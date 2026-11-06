@@ -1444,6 +1444,8 @@
       "seatsLeft": "Còn {n} chỗ trống",
       "channels": "Kênh kết nối",
       "chLeft": "Còn {n} kết nối",
+      "unlimited": "Không giới hạn",
+      "unavailable": "Chưa đọc được số kênh",
       "credits": "Credit gói còn lại",
       "reset": "Reset theo chu kỳ tháng"
     },
@@ -1518,6 +1520,26 @@
     "ledger": {
       "title": "Lịch sử ví",
       "filter": "Lọc",
+      "source": "Nguồn",
+      "period": "Kỳ",
+      "src": {
+        "all": "Mọi nguồn",
+        "plan": "Gói",
+        "inbox": "Hộp thư",
+        "assistant": "Trợ lý AI",
+        "marketing": "Marketing",
+        "ai": "AI",
+        "qr": "VietQR",
+        "bank": "Chuyển khoản"
+      },
+      "p": {
+        "all": "Mọi thời gian",
+        "month": "Tháng này",
+        "d30": "30 ngày"
+      },
+      "more": "Xem thêm",
+      "empty": "Không có giao dịch phù hợp",
+      "error": "Chưa tải được lịch sử ví — thử lại sau",
       "f": {
         "all": "Tất cả",
         "in": "Cộng credit",
