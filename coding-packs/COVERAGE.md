@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 141 | 11 | 5 | 13 | 18 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 11 | 4 | 13 | 18 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 102 | 13 | 8 | 1 | 29 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 151 | 17 | 3 | 6 | 16 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 318 | 72 | 1 | 4 | 59 | 3 | 0 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 152 | 16 | 3 | 6 | 16 | 12 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 320 | 71 | 1 | 4 | 58 | 3 | 0 | 0 |
 | E. standards/* | 199 | 48 | 1 | 6 | 34 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 32 | 1 | 51 | 0 | 4 | 5 | 0 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 35 | 1 | 48 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 54 | 15 | 5 | 13 | 36 | 3 | 0 | 0 |
-| **Tổng** | **997** | **177** | **74** | **43** | **196** | **37** | **69** | **0** |
+| **Tổng** | **1004** | **175** | **70** | **43** | **195** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -160,7 +160,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D07a | Hàng chờ duyệt Duyệt / Sửa / Từ chối | 01-REQUIREMENTS-MATRIX.md:87 | 021, 024 | ĐẠT | approval.handlers.ts:74-92; test agents.test.ts AC4, e2e http/agents-ui.spec.ts:60 |
 | REQ-D07b | Duyệt ở thông báo | 01-REQUIREMENTS-MATRIX.md:87 | 021 | ĐẠT | ai/events/agents.rules.ts:8; test agents.test.ts AC4 |
 | REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | 025b | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |
-| REQ-D07d | Thẻ duyệt ở Tổng quan | 01-REQUIREMENTS-MATRIX.md:87 | 038 | GIẢ | GET /dashboard missing ở API |
+| REQ-D07d | Thẻ duyệt ở Tổng quan | 01-REQUIREMENTS-MATRIX.md:87 | 038 | ĐẠT | Việc cần tôi `approval` chỉ yêu cầu người xem quyết định được (approvals.decide ∧ permission gốc) — work-items.ts; MyWorkPanel trên Tổng quan; integration insights-dashboard.test.ts AC04 |
 | REQ-D08a | Nhật ký run (prompt, nguồn, tools, token, credit) | 01-REQUIREMENTS-MATRIX.md:88 | 019 | ĐẠT | ai/runs/run.store.ts; test ai-runtime.test.ts AC4 |
 | REQ-D08b | Hoàn tác nhóm cho phép | 01-REQUIREMENTS-MATRIX.md:88 | 003, 024 | ĐẠT | kernel/actions/undo.service.ts:19; test actions.test.ts AC7 |
 | REQ-D09a | Builder đủ trường | 01-REQUIREMENTS-MATRIX.md:89 | 021, 024 | ĐẠT | ai/agents/agent.handlers.ts:30-130; test agents.test.ts, agents-ui.test.ts |
@@ -534,7 +534,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-9-16 | Ký số CA qua `ESignProvider`; nhãn "Ký số" → "Ký điện tử" | plans/COMMERCE-DECISIONS.md:218 | — | NGOÀI | P2 (C1); nhãn đã đổi apps/web/messages/vi/contracts.json:108 |
 | COM-9-17 | Sau ký khoá nội dung; thay đổi bằng phụ lục `contract_appendix` cùng luồng duyệt + ký | plans/COMMERCE-DECISIONS.md:220-221 | 030b | ĐẠT | Phụ lục ký riêng: chỉ HĐ signed, Owner ký trước OTP riêng, link khách riêng gắn version + hash (packages/core/src/contracts/appendix/*, DC-325/326/327); E2E http contract-files (phụ lục PL-1) (TIP-030b F3, b07fe87) |
 | COM-9-18 | HĐ đã ký "→ Đơn hàng", nhiều đơn | plans/COMMERCE-DECISIONS.md:222 | 031 | ĐẠT | order-create.handlers.ts:166 · test orders.test.ts "đã ký → nhiều đơn" |
-| COM-9-19 | T-30 nhắc Owner (thông báo **+ Việc cần tôi**) + gợi ý agent chào gia hạn | plans/COMMERCE-DECISIONS.md:224 | 038 | MỘT PHẦN | Thông báo có (contract-system.ts:52 · test contracts.test.ts "T-30 nhắc gia hạn một lần"); Việc cần tôi = Dashboard 038; gợi ý agent: task-catalog không có trigger `contract.expiring` |
+| COM-9-19 | T-30 nhắc Owner (thông báo **+ Việc cần tôi**) + gợi ý agent chào gia hạn | plans/COMMERCE-DECISIONS.md:224 | 038 | ĐẠT | Thông báo T-30 một lần (contract-system.remindRenewal, renew_notice_at) + Việc cần tôi `contract_renewal` (insights/services/renewal-suggestions.ts — đọc end_date trong scope sales, xoá / hết hạn → tự hết) + nút "Nhờ Trợ lý soạn gia hạn" (mở Trợ lý, không tự gửi) + tác vụ AI nghe contract.expiring chỉ khi người tạo còn đọc được hợp đồng (task.runner eventRecordVisible); integration insights-dashboard.test.ts AC06 |
 | COM-9-20 | Qua ngày kết thúc → expired; "Gia hạn" = HĐ mới `renewal_of_id` | plans/COMMERCE-DECISIONS.md:225-226 | 030 | ĐẠT | contract-system.ts:75; contract-write.handlers.ts:170 · test contracts.test.ts "qua ngày kết thúc → expired; renew tạo nháp mới" |
 | COM-9-21 | Chấm dứt chỉ Owner, lý do bắt buộc, timeline | plans/COMMERCE-DECISIONS.md:227 | 030 | ĐẠT | contract-send.handlers.ts:154 (permission contract.sign, OWNER_ONLY) · test contracts.test.ts "terminate … lý do + timeline" |
 | COM-9-22 | Hồ sơ 360° hiển thị HĐ, giá trị hiệu lực, ngày hết hạn gần nhất | plans/COMMERCE-DECISIONS.md:229 | 015b | ĐẠT | packages/core/src/crm/insights/read.ts insights.contracts {active, value, next_end} (signed còn hạn); contact-insights.test.ts |
@@ -731,7 +731,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-contact.import | `contact.import` (write, bulk) — handler qua ActionExecutor | plans/BLUEPRINT.md:648 | 015 | ĐẠT | packages/core/src/crm/actions/contact-io.handlers.ts:57; test crm-settings.test.ts |
 | ACT-contact.export | `contact.export` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:649 | 015 | ĐẠT | packages/core/src/crm/actions/contact-io.handlers.ts:20; test crm-settings.test.ts, crm-ui.test.ts — BP 'luôn preview' — handler không preview |
 | ACT-onboarding.toggle_step | `onboarding.toggle_step` (write) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/onboarding.toggle_step.action.test.ts |
-| ACT-follow_up.complete | `follow_up.complete` (write) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 038 | CHƯA | packages/actions/src/dashboard.ts:21 chỉ ActionDef, handler null → 501 NOT_IMPLEMENTED (tip-owners.ts) — không có trong Blueprint §3.4 (chưa bổ sung) |
+| ACT-follow_up.complete | `follow_up.complete` (write) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 038 | ĐẠT | packages/core/src/insights/actions/follow-up.handlers.ts FollowUpCompleteHandler (crm.edit + khách ghi được, CAS version, idempotent, undo 24h đúng phiên bản, outbox follow_up.completed/undone, preview); bảng `follow_up` migration 20261106003800; ma trận follow_up.complete.action.test.ts (6) + insights-dashboard.test.ts AC05 |
 | ACT-doc_template.create | `doc_template.create` (config) — handler qua ActionExecutor, undo 24h | plans/BLUEPRINT.md:691 | 028b | MỘT PHẦN | TIP028 đã có create handler (packages/core/src/documents/actions/doc-template.handlers.ts:26) và documents.test.ts; packages/actions/src/documents.ts:11–33 không khai báo undo, create handler không có undo như update/delete (:99/:129). Thiếu contract undo 24h; cần TIP bổ sung nhận, không đánh ĐẠT theo CRUD đơn thuần.; TIP-028b nhận (2026-11-02) |
 | ACT-doc_template.update | `doc_template.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:691 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/doc_template.update.action.test.ts |
 | ACT-doc_template.delete | `doc_template.delete` (delete) — handler qua ActionExecutor | plans/BLUEPRINT.md:691 | 028 | ĐẠT | packages/core/src/documents/actions/doc-template.handlers.ts:113; test documents.test.ts — risk code=delete, BP=config |
@@ -973,7 +973,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-assistant | /assistant/sessions?q= · /assistant/sessions/:id/messages | plans/BLUEPRINT.md:969 | 023 | ĐẠT | http/ai/assistant.controller.ts:70-75; test assistant.test.ts |
 | BP-4.4-channels | /channels (theo type + accounts[]), /channels/:id, /channels/:id/stats, /webchat/widget | plans/BLUEPRINT.md:970 | 014/017 | ĐẠT | dưới /settings/channels*, /settings/widget (channels.controller.ts:10; DC-070); test channels.test.ts, webchat.test.ts — lệch đường không có DV |
 | BP-4.4-billing | /billing/summary, plans, ledger, invoices(+:id) | plans/BLUEPRINT.md:971 | 009/010 | ĐẠT | billing/billing.controller.ts; test billing.test.ts, billing-payments.test.ts |
-| BP-4.4-dashboard | GET /dashboard · /insights/:metric | plans/BLUEPRINT.md:972 | 038 | MỘT PHẦN | `GET /v1/insights/:metric` có (insights.controller.ts, cùng registry với insight.query — TIP-038 pha 1); `GET /v1/dashboard` thật còn ở pha sau của 038 (DC-363) |
+| BP-4.4-dashboard | GET /dashboard · /insights/:metric | plans/BLUEPRINT.md:972 | 038 | ĐẠT | GET /v1/dashboard (apps/api/src/http/insights/dashboard.controller.ts → DashboardService: follow ≤ 5 + tổng theo scope, Việc cần tôi, AI hôm nay, Credit chỉ billing.manage, onboarding 011) + GET /v1/insights/:metric (pha 1); schema `dashboardSchema` mock = http; integration insights-dashboard.test.ts AC04–06 |
 | BP-4.4-authz | /me/authz, /roles, /permissions, /teams | plans/BLUEPRINT.md:973 | 005 | ĐẠT | authz/authz.controller.ts; test authz.test.ts |
 | BP-4.4-integrations | /integrations/connectors · /integrations/connections/:id · /…/logs | plans/BLUEPRINT.md:974 | 012b | MỘT PHẦN | chỉ /settings/integrations (integrations.controller.ts:18); connection detail + logs không có |
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
@@ -1485,9 +1485,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-orders-export | "Xuất Excel" danh sách đơn | docs/06-prototype/AppChat.dc.html:5873 | 038 | GIẢ | apps/web/src/features/orders/components/OrdersToolbar.tsx:96 `message.info` |
 | PRO-contracts-export | "Xuất Excel" danh sách hợp đồng | docs/06-prototype/AppChat.dc.html:5727 | 038 | GIẢ | apps/web/src/features/contracts/components/ContractsToolbar.tsx:69 `message.info` |
 | PRO-tickets-export | "Xuất" danh sách ticket | docs/06-prototype/AppChat.dc.html:5241 | 038 | GIẢ | apps/web/src/features/tickets/components/TicketsHeader.tsx:143 `message.info` |
-| PRO-dashboard-read | Màn Tổng quan đọc `GET /dashboard` từ API thật | docs/06-prototype/AppChat.dc.html:1369 | 038 | GIẢ | apps/web/src/features/dashboard/api.ts:9; routes.json `missing` GET /dashboard |
-| PRO-dashboard-followup | Nút ✓ follow-up (Tổng quan) → `follow_up.complete` có handler | docs/06-prototype/AppChat.dc.html:1369 | 038 | GIẢ | apps/web/src/features/dashboard/components/UpdatesWidget.tsx:27,104; actions.json handler null |
-| PRO-calendar-followup | Nút hoàn tất follow-up ở danh sách Lịch → `follow_up.complete` | docs/06-prototype/AppChat.dc.html:4293 | 038 | GIẢ | apps/web/src/features/calendar/components/ListView.tsx:89; handler null |
+| PRO-dashboard-read | Màn Tổng quan đọc `GET /dashboard` từ API thật | docs/06-prototype/AppChat.dc.html:1369 | 038 | ĐẠT | features/dashboard/api.ts đọc GET /v1/dashboard thật (DashboardService); mock cùng dashboardSchema (dashboard-shape.test.ts); E2E http e2e/http/insights.spec.ts |
+| PRO-dashboard-followup | Nút ✓ follow-up (Tổng quan) → `follow_up.complete` có handler | docs/06-prototype/AppChat.dc.html:1369 | 038 | ĐẠT | UpdatesWidget → follow_up.complete trên id `follow_up` thật (handler core/insights/actions/follow-up.handlers.ts); tổng còn lại = follow_up_count theo scope; e2e dashboard.spec.ts |
+| PRO-calendar-followup | Nút hoàn tất follow-up ở danh sách Lịch → `follow_up.complete` | docs/06-prototype/AppChat.dc.html:4293 | 038 | ĐẠT | calendar-read.service meta.follow_ups = calendarFollowUps (cùng bảng / scope với Tổng quan); hoàn tất ở lịch cùng action — integration insights-dashboard.test.ts AC05 |
 | PRO-loyalty-read | Màn Khách thân thiết đọc /loyalty/members, /members/:id, /config, /overview, /lookup | docs/06-prototype/AppChat.dc.html:4778 | 036 | ĐẠT | apps/web/src/features/loyalty/api.ts zod chung; e2e apps/web/e2e/http/loyalty.spec.ts; parity loyalty:* < 5% |
 | PRO-loyalty-adjust | Điều chỉnh điểm → `loyalty.adjust_points` có handler | docs/06-prototype/AppChat.dc.html:4778 | 036 | ĐẠT | AdjustModal → useAction(loyalty.adjust_points); e2e http loyalty.spec.ts (reload + hoàn tác) |
 | PRO-loyalty-config | Cấu hình hạng & điểm → `loyalty.update_config` | docs/06-prototype/AppChat.dc.html:4778 | 036 | ĐẠT | ConfigModal → useAction(loyalty.update_config); e2e http loyalty.spec.ts (hệ số 2,5 sau reload) |
