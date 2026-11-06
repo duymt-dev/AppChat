@@ -1154,6 +1154,11 @@
     }
   },
   "admin": {
+    "bank_transaction": {
+      "match": {
+        "title": "Match bank transaction to invoice (platform admin)"
+      }
+    },
     "invoice": {
       "confirm_transfer": {
         "title": "Confirm bank transfer (platform admin)"

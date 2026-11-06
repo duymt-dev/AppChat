@@ -6,7 +6,6 @@ import { Module, type DynamicModule } from '@nestjs/common';
 import { BillingInvoicePdf, BillingModule, DocRenderer, DocumentsModule, InvoicesService, PAYMENTS_ENV, PLATFORM_DB, type PaymentsEnv } from '@appchat/core';
 import type { PlatformDb } from '@appchat/db';
 import { ActorModule } from '../kernel/actor.module';
-import { AdminTransfersController } from './admin-transfers.controller';
 import { BillingController } from './billing.controller';
 import { PaymentsHookController } from './payments-hook.controller';
 
@@ -16,7 +15,7 @@ export class BillingHttpModule {
     return {
       module: BillingHttpModule,
       imports: [BillingModule, DocumentsModule, ActorModule],
-      controllers: [BillingController, PaymentsHookController, AdminTransfersController],
+      controllers: [BillingController, PaymentsHookController],
       providers: [
         {
           provide: BillingInvoicePdf,

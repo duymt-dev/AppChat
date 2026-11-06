@@ -18,23 +18,23 @@ afterAll(() => m?.close());
 
 describe('admin.invoice.confirm_transfer', () => {
   it('Owner không phải admin nền tảng → 403', async () => {
-    expect((await m.act({ invoice_id: invoice })).status).toBe(403);
+    expect((await m.act({ invoice_id: invoice, note: 'đã thấy tiền', evidence: 'VCB FT001' })).status).toBe(403);
   });
 
   it('preview nền tảng → chạy từ UI; nguồn Trợ lý → 403; đã paid → 409', async () => {
     await m.h.platform.user.update({ where: { id: m.h.user }, data: { isPlatformAdmin: true } });
     try {
-      const preview = await m.h.app.get(ActionExecutor, { strict: false }).previewPlatform(platformContext(m.h.user), m.def.id, { invoice_id: invoice });
+      const preview = await m.h.app.get(ActionExecutor, { strict: false }).previewPlatform(platformContext(m.h.user), m.def.id, { invoice_id: invoice, note: 'đã thấy tiền', evidence: 'VCB FT001' });
       expect(preview).toEqual({
         summary: `${await code()} · WS test · 500000`,
         risk: 'money',
         changes: [{ entity: 'billing_invoice', id: invoice, before: { status: 'pending' }, after: { status: 'paid' } }],
         warnings: ['credits_added'],
       });
-      expect((await m.act({ invoice_id: invoice }, undefined, { 'x-action-source': 'assistant' })).status).toBe(403);
-      const done = await m.act({ invoice_id: invoice, note: 'đã thấy tiền' });
+      expect((await m.act({ invoice_id: invoice, note: 'đã thấy tiền', evidence: 'VCB FT001' }, undefined, { 'x-action-source': 'assistant' })).status).toBe(403);
+      const done = await m.act({ invoice_id: invoice, note: 'đã thấy tiền', evidence: 'VCB FT001' });
       expect(done.body.data.result).toEqual({ invoice_id: invoice, status: 'paid' });
-      expect((await m.act({ invoice_id: invoice })).body.error.fields).toEqual({ status: 'paid' });
+      expect((await m.act({ invoice_id: invoice, note: 'đã thấy tiền', evidence: 'VCB FT001' })).body.error.fields).toEqual({ status: 'paid' });
     } finally {
       await m.h.platform.user.update({ where: { id: m.h.user }, data: { isPlatformAdmin: false } });
     }

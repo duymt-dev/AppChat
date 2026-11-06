@@ -1154,6 +1154,11 @@
     }
   },
   "admin": {
+    "bank_transaction": {
+      "match": {
+        "title": "Gắn giao dịch ngân hàng vào hoá đơn (quản trị nền tảng)"
+      }
+    },
     "invoice": {
       "confirm_transfer": {
         "title": "Xác nhận chuyển khoản (quản trị nền tảng)"

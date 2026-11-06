@@ -7,6 +7,8 @@ import { AdminModelPriceUpsertHandler, AdminModelRouteUpsertHandler } from './ac
 import { AdminAgentTemplateUpsertHandler } from './actions/template.handler';
 import { AdminLlmProviderDisableHandler, AdminLlmProviderProbeHandler, AdminLlmProviderUpsertHandler, PROVIDER_URL_POLICY } from './actions/provider.handlers';
 import { ConfigReadService } from './services/config-read';
+import { TransfersReadService } from './services/transfers-read';
+import { AdminBankTransactionMatchHandler } from './actions/reconcile-transfer.handler';
 import { providerUrlPolicy } from './services/provider-url';
 import { ENV_SOURCE } from '../kernel/env-source';
 
@@ -18,10 +20,12 @@ export const PLATFORM_HANDLERS: Provider[] = [
   AdminLlmProviderUpsertHandler,
   AdminLlmProviderProbeHandler,
   AdminLlmProviderDisableHandler,
+  AdminBankTransactionMatchHandler,
 ];
 
 export const PLATFORM_PROVIDERS: Provider[] = [
   // Allowlist host nội bộ của TRIỂN KHAI (env `LLM_PRIVATE_HOSTS`) — không đến từ input admin.
   { provide: PROVIDER_URL_POLICY, inject: [{ token: ENV_SOURCE, optional: true }], useFactory: (src?: Record<string, string | undefined>) => providerUrlPolicy(src ?? {}) },
+  { provide: TransfersReadService, inject: [{ token: PLATFORM_DB, optional: true }], useFactory: (p?: PlatformDb) => (p ? new TransfersReadService(p) : null) },
   { provide: ConfigReadService, inject: [{ token: PLATFORM_DB, optional: true }], useFactory: (p?: PlatformDb) => (p ? new ConfigReadService(p) : null) },
 ];

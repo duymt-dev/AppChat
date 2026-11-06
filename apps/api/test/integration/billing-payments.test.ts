@@ -173,19 +173,19 @@ describe('hoá đơn + đối soát', () => {
 
   it('AC6 admin.invoice.confirm_transfer: user thường 403; admin → paid + topup; GET /v1/admin/transfers chỉ admin', async () => {
     const a = (await invoices('?status=pending_review')).data[0].id as string;
-    expect((await act('admin.invoice.confirm_transfer', { invoice_id: a }, idem())).status).toBe(403);
+    expect((await act('admin.invoice.confirm_transfer', { invoice_id: a, note: 'đã thấy tiền VCB', evidence: 'VCB FT001' }, idem())).status).toBe(403);
     expect((await call(h, '/admin/transfers')).status).toBe(403);
     await h.platform.user.update({ where: { id: h.user }, data: { isPlatformAdmin: true } });
     try {
       const list = (await json(await call(h, '/admin/transfers?status=pending_review'))).body.data;
       expect(list).toContainEqual(expect.objectContaining({ id: a, workspace_id: h.ws, amount: '2000000', status: 'pending_review', vat_info: expect.objectContaining({ tax_code: '0312345678' }) }));
       const before = await wallet();
-      expect((await act('admin.invoice.confirm_transfer', { invoice_id: a })).body.error.fields).toEqual({ idempotency_key: 'required' });
-      const r = await act('admin.invoice.confirm_transfer', { invoice_id: a, note: 'đã thấy tiền VCB' }, idem());
+      expect((await act('admin.invoice.confirm_transfer', { invoice_id: a, note: 'đã thấy tiền VCB', evidence: 'VCB FT001' })).body.error.fields).toEqual({ idempotency_key: 'required' });
+      const r = await act('admin.invoice.confirm_transfer', { invoice_id: a, note: 'đã thấy tiền VCB', evidence: 'VCB FT001' }, idem());
       expect(r.body.data.result).toEqual({ invoice_id: a, status: 'paid' });
       expect(await invoice(a)).toMatchObject({ status: 'paid', method: 'bank_transfer', confirmedBy: h.user, fulfilledAt: expect.any(Date) });
       expect((await wallet()).topup).toBe(before.topup + 2200);
-      expect((await act('admin.invoice.confirm_transfer', { invoice_id: a }, idem())).status).toBe(409);
+      expect((await act('admin.invoice.confirm_transfer', { invoice_id: a, note: 'đã thấy tiền VCB', evidence: 'VCB FT001' }, idem())).status).toBe(409);
     } finally {
       await h.platform.user.update({ where: { id: h.user }, data: { isPlatformAdmin: false } });
     }

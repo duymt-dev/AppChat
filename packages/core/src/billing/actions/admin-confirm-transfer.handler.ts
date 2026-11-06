@@ -35,7 +35,7 @@ export class AdminConfirmTransferHandler extends PlatformActionHandler<Input, Ou
       result: { invoice_id: inv.id, status: 'paid' },
       targetWorkspaceId: inv.workspaceId,
       before: { invoice_id: inv.id, workspace_id: inv.workspaceId, status: inv.status },
-      after: { invoice_id: inv.id, workspace_id: inv.workspaceId, status: 'paid', note: input.note ?? null },
+      after: { invoice_id: inv.id, workspace_id: inv.workspaceId, status: 'paid', note: input.note, evidence: input.evidence, bank_transaction: null },
     };
   }
 
