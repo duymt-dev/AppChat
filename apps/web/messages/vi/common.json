@@ -13,6 +13,13 @@
   "fieldHidden": "Không có quyền xem",
   "fieldHiddenHint": "Trường này bị ẩn theo quyền của bạn",
   "error": "Đã có lỗi xảy ra",
+  "export": {
+    "running": "Đang xuất…",
+    "progress": "Đang xuất {done}/{total}",
+    "retry": "Xuất lỗi — thử lại",
+    "done": "Đã xuất {n} dòng",
+    "failed": "Xuất danh sách không thành công. Vui lòng thử lại."
+  },
   "customFields": {
     "section": "Thông tin thêm",
     "pick": "— Chọn —",

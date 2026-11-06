@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPopover, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
+import { useListExport } from '@/shared/actions/useListExport';
 import { membersQuery } from '@/features/customers';
 import { useOrdersStyles } from '../styles/orders.styles';
 import { useOrdersUi } from '../orders-store';
@@ -27,6 +28,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
   const { styles, cx } = useOrdersStyles();
   const ui = useOrdersUi();
   const members = useQuery(membersQuery()).data ?? [];
+  const exp = useListExport('order.export');
   const cfFilters = useCustomFilterFields('order');
   const canSync = useCan('integrations.manage');
   const sync = useAction<{ imported: number }>('order.sync_now');
@@ -93,9 +95,16 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
         clearLabel={t('filter.clear')}
         applyLabel={t('filter.apply')}
       />
-      <button type="button" className={styles.tool} onClick={() => void message.info(t('exporting'))}>
+      <button
+        type="button"
+        className={styles.tool}
+        data-testid="od-export"
+        disabled={exp.busy}
+        aria-busy={exp.busy}
+        onClick={() => void exp.start(ui.filter)}
+      >
         <Icon name="ic-dl" size={14} color={color.text2} />
-        {t('export')}
+        {exp.label ?? t('export')}
       </button>
       {canSync ? (
         <button

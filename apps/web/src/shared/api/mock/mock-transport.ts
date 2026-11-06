@@ -12,7 +12,7 @@ import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
-import { dataJobsRoute } from './domains/data-jobs';
+import { dataJobBlob, dataJobsRoute } from './domains/data-jobs';
 import { channelOperationsRoute } from './domains/channel-operations';
 import { contactSyncRoute } from './domains/contact-sync';
 import { channelFriendsRoute } from './domains/channel-friends';
@@ -209,7 +209,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Tải nguồn KB (TIP-020b): tệp → HTML có tên; URL / catalog → JSON mô tả như server.
-    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path);
+    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? publicDocumentPdf(path);

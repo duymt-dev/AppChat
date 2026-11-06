@@ -1,20 +1,24 @@
 // Đọc việc dữ liệu (TIP-045b annex D) cho GET /v1/data-jobs/:id, /:id/items và /:id/download. Chỉ NGƯỜI TẠO việc (không phải Owner xem
 // hộ — tệp xuất mang dữ liệu theo quyền của người tạo) và còn quyền của action gốc; khác → 404 như không có. Tệp xuất chỉ tải qua route
-// có xác thực này (không URL storage thô): hết 24 giờ / quyền bị thu / chính sách trường đã đổi so với lúc xuất → 410, phải xuất lại.
+// có xác thực này (không URL storage thô): hết 24 giờ / quyền bị thu / chính sách trường hoặc scope (xuất danh sách — TIP-038) đã đổi so
+// với lúc xuất → 410, phải xuất lại.
 import { getAction } from '@appchat/actions';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
-import { AppError, can, type AuthzContext, type CustomFieldEntity, type DataJobDto, type DataJobItemDto, type PermissionKey } from '@appchat/shared';
+import { AppError, can, type AuthzContext, type DataJobDto, type DataJobItemDto, type PermissionKey } from '@appchat/shared';
 import { fieldView } from '../../authz/fields/policy';
 import type { FieldView } from '../../authz/fields/types';
 import type { Storage } from '../files/storage';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_LIMIT = 100;
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 type Viewer = { workspaceId: string; userId: string; authz: AuthzContext };
 
-/** Entity có trường tuỳ biến góp vào tệp xuất của kind (chính sách trường đổi → tệp cũ không tải nữa). */
-const EXPORT_ENTITY: Record<string, CustomFieldEntity> = { 'contact.export': 'contact' };
+/** Dấu quyền của tệp xuất theo kind (chính sách trường / scope đổi so với lúc xuất → tệp cũ không tải nữa). Domain đăng ký kind của mình. */
+type ExportStamp = (db: TenantDb, a: AuthzContext) => Promise<string>;
+const STAMPS = new Map<string, ExportStamp>([['contact.export', async (db, a) => policyStamp(await fieldView(db, 'contact', a))]]);
+export const registerExportStamp = (kind: string, s: ExportStamp) => void STAMPS.set(kind, s);
 
 /** Dấu chính sách trường của tệp xuất: vai trò trường + phiên bản định nghĩa — đổi một trong hai → tệp cũ không tải nữa. */
 export const policyStamp = (v: Pick<FieldView, 'role' | 'version'>) => `${v.role}|${v.version}`;
@@ -41,8 +45,8 @@ export class DataJobStatusService {
   /** Tệp còn tải được: còn hạn + chính sách trường như lúc xuất. */
   private async downloadable(db: TenantDb, a: AuthzContext, job: { kind: string; fileKey: string | null; expiresAt: Date | null; fieldPolicy: string }): Promise<boolean> {
     if (!job.fileKey || !job.expiresAt || job.expiresAt <= this.now()) return false;
-    const entity = EXPORT_ENTITY[job.kind];
-    return !entity || policyStamp(await fieldView(db, entity, a)) === job.fieldPolicy;
+    const stamp = STAMPS.get(job.kind);
+    return !stamp || (await stamp(db, a)) === job.fieldPolicy;
   }
 
   async status(v: Viewer, id: string): Promise<DataJobDto> {
@@ -75,9 +79,10 @@ export class DataJobStatusService {
     return { data: page.map((r) => ({ seq: r.seq, target_id: r.targetId, status: r.status as DataJobItemDto['status'], error: r.error })), next_cursor: rows.length > limit ? String(page.at(-1)!.seq) : null };
   }
 
-  async download(v: Viewer, id: string): Promise<{ name: string; body: Buffer }> {
+  async download(v: Viewer, id: string): Promise<{ name: string; mime: string; body: Buffer }> {
     const { db, job } = await this.own(v, id);
     if (!this.storage || !(await this.downloadable(db, v.authz, job))) throw new AppError('INVALID_STATE', 410, { file: 'expired' });
-    return { name: job.fileName ?? 'export.csv', body: await this.storage.get(job.fileKey!) };
+    const name = job.fileName ?? 'export.csv';
+    return { name, mime: name.endsWith('.xlsx') ? XLSX_MIME : 'text/csv; charset=utf-8', body: await this.storage.get(job.fileKey!) };
   }
 }

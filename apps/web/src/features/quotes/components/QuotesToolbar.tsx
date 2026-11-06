@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPopover, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
+import { useListExport } from '@/shared/actions/useListExport';
 import { membersQuery } from '@/features/customers';
 import { useQuotesStyles } from '../styles/quotes.styles';
 import { useQuotesUi } from '../quotes-store';
@@ -16,10 +17,10 @@ import { customFilterValue, pickCustomFilter, useCustomFilterFields } from '@/sh
 
 export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
   const t = useTranslations('quotes');
-  const { message } = App.useApp();
   const { styles, cx } = useQuotesStyles();
   const ui = useQuotesUi();
   const members = useQuery(membersQuery()).data ?? [];
+  const exp = useListExport('quote.export');
   const cfFilters = useCustomFilterFields('quote');
   const VIEWS = [
     ['list', 'ic-inbox'],
@@ -79,9 +80,16 @@ export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
         clearLabel={t('filter.clear')}
         applyLabel={t('filter.apply')}
       />
-      <button type="button" className={styles.tool} onClick={() => void message.info(t('exporting'))}>
+      <button
+        type="button"
+        className={styles.tool}
+        data-testid="q-export"
+        disabled={exp.busy}
+        aria-busy={exp.busy}
+        onClick={() => void exp.start(ui.filter)}
+      >
         <Icon name="ic-dl" size={14} color={color.text2} />
-        {t('export')}
+        {exp.label ?? t('export')}
       </button>
       <div className={styles.seg}>
         {VIEWS.map(([k, ic]) => (

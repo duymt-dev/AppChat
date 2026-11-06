@@ -31,6 +31,22 @@ export interface TicketFilter {
 const MAX_LIMIT = 100;
 const PR = Prisma.sql`CASE t.priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END`;
 
+/** Điều kiện danh sách ticket (alias `t`, scope support) — dùng chung màn danh sách + xuất (TIP-038 pha 3), không lặp bộ lọc. */
+export function ticketWhereSql(authz: AuthzContext, f: TicketFilter, now: Date): Prisma.Sql {
+  const parts = searchSql(authz, f, now);
+  if (f.team && f.team !== 'all') parts.push(f.team === 'ai' ? Prisma.sql`t.assignee_agent_id IS NOT NULL` : Prisma.sql`t.team_id = ${f.team} AND t.assignee_agent_id IS NULL`);
+  if (f.category && f.category !== 'all') parts.push(Prisma.sql`t.category = ${f.category}`);
+  if (f.assignee && f.assignee !== 'all')
+    parts.push(f.assignee === 'agent' ? Prisma.sql`t.assignee_agent_id IS NOT NULL` : UUID.test(f.assignee) ? Prisma.sql`t.assignee_user_id = ${f.assignee}::uuid` : Prisma.sql`FALSE`);
+  for (const [key, want] of Object.entries(f.custom ?? {})) {
+    if (!want || !/^[a-z][a-z0-9_]{0,39}$/.test(key)) continue;
+    parts.push(Prisma.sql`(t.custom -> ${key} @> to_jsonb(${want}::text) OR lower(t.custom ->> ${key}) LIKE ${`%${want.toLowerCase()}%`})`);
+  }
+  return Prisma.join(parts, ' AND ');
+}
+
+export const ticketOrderSql = (f: Pick<TicketFilter, 'sort'>) => (f.sort === 'priority' ? Prisma.sql`${PR}, t.created_at DESC, t.id DESC` : Prisma.sql`t.created_at DESC, t.id DESC`);
+
 export class TicketsReadService {
   constructor(
     private readonly tenants: TenantDbResolver,
@@ -111,27 +127,14 @@ export class TicketsReadService {
     });
   }
 
-  private where(v: TicketViewer, f: TicketFilter, now: Date): Prisma.Sql[] {
-    const parts = searchSql(v.authz, f, now);
-    if (f.team && f.team !== 'all') parts.push(f.team === 'ai' ? Prisma.sql`t.assignee_agent_id IS NOT NULL` : Prisma.sql`t.team_id = ${f.team} AND t.assignee_agent_id IS NULL`);
-    if (f.category && f.category !== 'all') parts.push(Prisma.sql`t.category = ${f.category}`);
-    if (f.assignee && f.assignee !== 'all')
-      parts.push(f.assignee === 'agent' ? Prisma.sql`t.assignee_agent_id IS NOT NULL` : UUID.test(f.assignee) ? Prisma.sql`t.assignee_user_id = ${f.assignee}::uuid` : Prisma.sql`FALSE`);
-    for (const [key, want] of Object.entries(f.custom ?? {})) {
-      if (!want || !/^[a-z][a-z0-9_]{0,39}$/.test(key)) continue;
-      parts.push(Prisma.sql`(t.custom -> ${key} @> to_jsonb(${want}::text) OR lower(t.custom ->> ${key}) LIKE ${`%${want.toLowerCase()}%`})`);
-    }
-    return parts;
-  }
-
   async list(v: TicketViewer, f: TicketFilter, page?: number, limit?: number) {
     const lim = Math.min(MAX_LIMIT, Math.max(1, limit ?? 20));
     const paged = page !== undefined;
     const pg = Math.max(1, page ?? 1);
     return this.tx(v, async (tx) => {
       assertQueryFields(await fieldView(tx, 'ticket', v.authz), f.custom);
-      const w = Prisma.join(this.where(v, f, this.now()), ' AND ');
-      const order = f.sort === 'priority' ? Prisma.sql`${PR}, t.created_at DESC, t.id DESC` : Prisma.sql`t.created_at DESC, t.id DESC`;
+      const w = ticketWhereSql(v.authz, f, this.now());
+      const order = ticketOrderSql(f);
       const [cnt] = await tx.$queryRaw<{ n: bigint }[]>`SELECT count(*) AS n FROM ticket t WHERE ${w}`;
       const ids = await tx.$queryRaw<{ id: string }[]>`SELECT t.id FROM ticket t WHERE ${w} ORDER BY ${order} LIMIT ${paged ? lim : MAX_LIMIT} OFFSET ${paged ? (pg - 1) * lim : 0}`;
       const recs = await tx.ticket.findMany({ where: { id: { in: ids.map((r) => r.id) } } });

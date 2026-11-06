@@ -1,6 +1,6 @@
-### COMPLETION REPORT — TIP-038 (pha 1–2 / 4)
+### COMPLETION REPORT — TIP-038 (pha 1–3 / 4)
 
-> Pha 2 ở mục **PHA 2** cuối file (PR riêng). Phần ngay dưới là pha 1.
+> Pha 2, pha 3 ở mục **PHA 2**, **PHA 3** cuối file (mỗi pha một PR). Phần ngay dưới là pha 1.
 
 **STATUS:** MỘT PHẦN — xong **pha 1** (metric registry + `insight.query` / `GET /v1/insights/:metric` / Trợ lý `query_data` + thống kê agent có nguồn), AC01–AC03 đạt. TIP ghi "XL, chia implementation theo metric → dashboard → export → digest" (DC-363). Pha 2–4 (dashboard / follow-up / gia hạn AC04–06, xuất danh sách AC07–08, digest) làm ở PR sau. Nhánh `tip/038-insights-dashboard` xếp chồng trên `tip/037-marketing` (#92).
 
@@ -259,3 +259,114 @@ Sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants`, rồi build l�
 | `code/file-size-module-layout.md` · `testing.md` | Mọi file dưới trần (dashboard-blocks 181, follow-up.handlers 99); test ở file riêng (unit mock shape, integration, ma trận, E2E mock + http) | — |
 | `workflow/git-flow-ci.md` | Nhánh `tip/038-insights-dashboard-p2` từ `origin/dev`, PR vào `dev` | — |
 | `plans/COMMERCE-DECISIONS.md` §9 | T-30 nhắc một lần (giữ contracts.sweep) + Việc cần tôi + gợi ý soạn gia hạn — không tự gửi, không tự gia hạn | — |
+
+---
+
+## PHA 3 — Xuất 4 danh sách thật (AC07–AC08)
+
+**STATUS:** MỘT PHẦN (TIP) — pha 3 / 4 xong, AC07–AC08 đạt (phần xuất của AC10: 4 nút thật ở mock + http). Còn pha 4 (digest — AC09, DC-241). Nhánh `tip/038-insights-exports` xếp chồng `tip/038-insights-dashboard-p2` (#95).
+
+**COMMIT:** `a68e9ecb` (code + test); sổ / COVERAGE / report ở commit kế (SHA cuối nhánh ở bảng tiến độ GOAL-RELEASE).
+
+**MIGRATION:** không có. Việc xuất dùng bảng `data_job` / `data_job_item` của TIP-045b (DC-365). Sau merge chỉ cần build lại api + worker (worker ROLE=jobs đăng ký 4 kind xuất).
+
+**FILES CHANGED** (manifest TIP-038 mục 3; lệch ghi ở DV-032)
+- shared:
+  - `api/list-exports.ts` (bộ lọc allowlist, kết quả, trần / ngưỡng);
+  - `i18n/server/{vi,en}/insights.ts` (`export.*` — tên cột / trạng thái / tên tệp).
+- actions: `list-exports.ts` (4 action) + `index.ts`.
+- core:
+  - `insights/exports/{types,export-columns,sales-readers,ticket-reader,export-runner}.ts`;
+  - `insights/actions/export.handlers.ts`;
+  - `insights/jobs/{exports.worker,insights.jobs.providers,insights.jobs.module}.ts`;
+  - `insights.providers.ts`, `public.ts`;
+  - `snapshot{Quote,Order,Contract}Ids` ở 3 repo danh sách;
+  - `support/services/tickets-read.service.ts` (tách `ticketWhereSql` / `ticketOrderSql`);
+  - `kernel/jobs/bulk-status.ts` (dấu quyền theo kind + mime XLSX), `kernel/actions/tip-owners.ts`.
+- api: `http/kernel/data-jobs.controller.ts` (content-type theo tệp).
+- web:
+  - `shared/actions/useListExport.ts`;
+  - `QuotesToolbar` / `OrdersToolbar` / `ContractsToolbar` / `TicketsHeader`;
+  - mock `domains/{list-exports,data-jobs}.ts`, `mock-transport.ts`, `handlers.ts`;
+  - i18n `common` + `actions` (vi / en).
+
+**TEST RESULTS** (pha 3)
+
+1. **AC07 nội dung tệp** — **pass**. `list-exports.test.ts` (Postgres thật):
+   - 2.100 báo giá (vượt LIMIT 2000 cũ) → 202, worker dựng XLSX đủ 2.100 dòng;
+   - ô `=…` / `+…` / `@…` là chữ, không có ô công thức (kiểm từng ô);
+   - tiền `123456789012345` đủ chữ số;
+   - Owner thấy cột tuỳ biến `Hạng` + `Mật`; Sales chỉ dòng của mình, không có cột `Mật` (trường chỉ vai trò owner);
+   - bộ lọc 0 dòng → tệp chỉ có tiêu đề;
+   - lọc theo trường ẩn → 422;
+   - đơn / hợp đồng / ticket đúng tập theo bộ lọc + scope.
+
+   Unit `packages/core/test/list-exports.test.ts` (5): workbook mở lại được, bigint 18 chữ số, 0 dòng, ngày theo giờ workspace, cột tuỳ biến theo vai trò ∩ "Xuất", dấu quyền đổi khi scope / nhóm đổi. Quá trần 100.000 → 422 `rows: too_many` (handler; trần kiểm bằng `LIMIT cap + 1`).
+2. **AC08 quyền / phục hồi** — **pass**.
+   - Manager không thấy việc / tệp của Owner (404).
+   - Vai trò người tạo đổi sau khi xuất → link biến mất, tải 410.
+   - Quá 24 giờ → 410.
+   - Worker chạy lại / event lặp → `skipped` (một tệp).
+   - Người tạo mất quyền trước khi worker chạy → `failed` / `forbidden`, không link.
+   - Cùng Idempotency-Key → cùng việc.
+   - Ma trận 4 action (16 test): happy, 403 thiếu quyền xem, ngoài scope → 0 dòng, thẻ xác nhận Trợ lý có số dòng, idempotency, không cấp agent.
+3. **AC10 (phần xuất)** — **pass**.
+   - E2E mock `list-exports.spec.ts`: 4 nút → tải tệp + "Đã xuất n dòng".
+   - E2E http `insights.spec.ts`: ticket thật → tệp `ticket-YYYY-MM-DD.xlsx`.
+   - Mock shape `list-exports-shape.test.ts` (3).
+
+**EXPLAIN** (`.data/gate/038p3-explain.txt`):
+- chốt id báo giá → `quote_live_recent_idx`;
+- đơn → `Index Only Scan order_live_recent_idx`;
+- hợp đồng → `Index Only Scan contract_live_recent_idx`;
+- lô biên nhận → `data_job_item_pkey`.
+
+Cột đủ nạp theo PK cho từng lô 1.000 id (deferred join).
+
+**Cổng D59 (phạm vi TIP):**
+- Đầu cổng: `pnpm --filter @appchat/db db:test-reset`.
+- Lint + typecheck + unit (`turbo`, 6 package): 18 / 18 task xanh.
+- Integration:
+  - `list-exports` 8 / 8;
+  - ma trận 4 action 16 / 16;
+  - hồi quy `support` / `quotes` / `orders` / `contracts` / `hardening-jobs` (045b — `contact.export` + dấu quyền) / `assistant-vertical` (mục lục ma trận): 11 file, 91 / 91.
+- E2E mock (cổng 3462): `list-exports` + `quotes` + `orders` + `contracts` + `tickets` 31 passed (31 skip mobile / desktop); chạy lại sau chỉnh: 11 passed.
+- E2E http (API 4327 / web 3428): `insights` + `tickets` 3 passed. Log có `WORKSPACE_UNAVAILABLE` lúc workspace mới đang provision — spec tự chờ, không lỗi.
+- Parity (mock):
+  - `quotes:list` 2,38%;
+  - `orders:list` 3,26%;
+  - `contracts:list` 3,31%;
+  - `tickets:list` 4,21% (màn trong sổ nợ, trần 5,4% — không đổi sổ).
+- Còn lại:
+  - `pnpm depcheck` 0 lỗi;
+  - `lint:size` không vượt trần (file lớn nhất `export-runner.ts` 194 dòng);
+  - `lint:tokens` đúng thang D41;
+  - i18n vi / en 100%;
+  - build api + worker + `check:bundle` xanh (exceljs đã khai ở core / api / worker).
+
+**GIẢ ĐỊNH ĐÃ CHỌN** (DC-365):
+- dùng `data_job` thay bảng `ExportJob` mới;
+- ngưỡng chạy nền 50 dòng (theo concurrency §7 — cùng ngưỡng sửa hàng loạt);
+- tệp XLSX một sheet: dòng 1 ghi múi giờ, dòng 2 là tiêu đề;
+- hợp đồng không có trường tuỳ biến (entity custom field không gồm contract);
+- `contact.export` (CSV, 045b) giữ nguyên.
+
+**Lệch spec / prototype:**
+- DV-032: không bảng / migration mới, không `exports.controller.ts` riêng (tải qua route data-jobs có sẵn), file ngoài manifest.
+- UI: nút giữ chữ prototype; khi đang xuất, chữ đổi thành "Đang xuất n/N" (trạng thái thật); parity các màn danh sách < 5%.
+
+**ĐỐI CHIẾU STANDARDS (pha 3):**
+
+| Standard | Tuân thủ (file:dòng / test) | Lệch |
+|---|---|---|
+| `actions/action-registry.md` | 4 action qua ActionExecutor (`export.handlers.ts`), có preview (số dòng), không undo, `agentGrantable: false`; ma trận 4 file | — |
+| `api/response-envelope.md` | 200 `{ data: { result } }` / 202 `job_accepted` (`jobAccepted`) / 422 `rows: too_many` có `fields` / 410 tải hết hạn; Idempotency-Key trả đúng handle | — |
+| `events/outbox.md` | `data_job.requested` cùng transaction action; thông báo xong việc `notify.requested` qua runner kernel | — |
+| `authz/rbac-permissions.md` | quyền = `quote.view` / `order.view` / `contract.view` / `ticket.view`; scope qua `quoteScopeSql` / `orderScopeSql` / `contractScopeSql` / `supportScopeSql` lúc chốt + lúc dựng (quyền hiện tại); tải chỉ người tạo; dấu quyền khác → 410 | — |
+| `domain/custom-fields.md` §4c | cột tuỳ biến = vai trò đọc được ∩ `visible_in.export` (`exportCustomKeys`); lọc trường ẩn → 422 (`assertQueryFields`) | — |
+| `database/indexing.md` | chốt id dùng index danh sách có sẵn + deferred join theo PK từng lô; EXPLAIN ghi file | — |
+| `domain/money-time-numbering.md` | tiền là chuỗi chữ số (bigint); ngày theo giờ workspace tính ở JS (`utcToWall`) | — |
+| `domain/concurrency.md` | > 50 dòng chạy nền; lease / fence + biên nhận của `data_job`; chạy lại không dựng lần hai | — |
+| `ui/frontend-structure.md` · `i18n/i18n.md` | hook chung `shared/actions/useListExport.ts`, màn chỉ gọi hook; vi + en 100% | — |
+| `code/file-size-module-layout.md` · `testing.md` | mọi file dưới trần; test ở file riêng (unit, mock, integration, ma trận, E2E mock + http) | — |
+| `workflow/git-flow-ci.md` | nhánh `tip/038-insights-exports` xếp chồng #95, PR vào `dev` | — |

@@ -13,6 +13,13 @@
   "fieldHidden": "Hidden",
   "fieldHiddenHint": "This field is hidden by your permissions",
   "error": "Something went wrong",
+  "export": {
+    "running": "Exporting…",
+    "progress": "Exporting {done}/{total}",
+    "retry": "Export failed — retry",
+    "done": "Exported {n} rows",
+    "failed": "The list export did not complete. Please try again."
+  },
   "customFields": {
     "section": "Additional info",
     "pick": "— Select —",

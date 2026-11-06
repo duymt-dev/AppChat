@@ -3,6 +3,7 @@ import * as identity from './identity';
 import * as onboarding from './onboarding';
 import * as dashboard from './dashboard';
 import * as insights from './insights';
+import * as listExports from './list-exports';
 import * as inbox from './inbox';
 import * as crm from './crm';
 import * as ai from './ai';
@@ -62,6 +63,7 @@ export * from './identity';
 export * from './onboarding';
 export * from './dashboard';
 export * from './insights';
+export * from './list-exports';
 export * from './inbox';
 export * from './crm';
 export * from './ai';
@@ -122,6 +124,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(onboarding),
   ...Object.values(dashboard),
   ...Object.values(insights),
+  ...Object.values(listExports),
   ...Object.values(inbox),
   ...Object.values(crm),
   ...Object.values(ai),

@@ -40,3 +40,4 @@ export * from './kb-management';
 export * from './kb-suggestions';
 export * from './insights';
 export * from './dashboard';
+export * from './list-exports';

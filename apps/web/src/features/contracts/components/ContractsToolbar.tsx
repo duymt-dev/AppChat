@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { FilterPopover, Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
+import { useListExport } from '@/shared/actions/useListExport';
 import { membersQuery } from '@/features/customers';
 import { useContractsStyles } from '../styles/contracts.styles';
 import { useContractsUi } from '../contracts-store';
@@ -20,10 +21,10 @@ const VALUES = ['lt10', '10to30', 'gt30'] as const;
 
 export function ContractsToolbar({ meta }: { meta?: ContractsMeta }) {
   const t = useTranslations('contracts');
-  const { message } = App.useApp();
   const { styles, cx } = useContractsStyles();
   const ui = useContractsUi();
   const members = useQuery(membersQuery()).data ?? [];
+  const exp = useListExport('contract.export');
   return (
     <div className={styles.bar}>
       <div className={styles.chips} data-testid="ct-chips">
@@ -66,9 +67,16 @@ export function ContractsToolbar({ meta }: { meta?: ContractsMeta }) {
         clearLabel={t('filter.clear')}
         applyLabel={t('filter.apply')}
       />
-      <button type="button" className={styles.tool} onClick={() => void message.info(t('exporting'))}>
+      <button
+        type="button"
+        className={styles.tool}
+        data-testid="ct-export"
+        disabled={exp.busy}
+        aria-busy={exp.busy}
+        onClick={() => void exp.start(ui.filter)}
+      >
         <Icon name="ic-dl" size={14} color={color.text2} />
-        {t('export')}
+        {exp.label ?? t('export')}
       </button>
       <div className={styles.seg}>
         {VIEWS.map(([k, ic]) => (
