@@ -41,6 +41,17 @@
     "delete": "Delete",
     "empty": "No agents yet — pick a template or create one with the AI Assistant."
   },
+  "stats": {
+    "def": {
+      "conversations": "Distinct conversations the agent replied in over 30 days (test runs excluded) — {n} turns.",
+      "resolve_rate": "TURN self-resolution = completed turns / (completed + handed off) — {n} turns. Not a customer rate.",
+      "csat": "Average CSAT of tickets assigned to the agent and closed in 30 days — {n} rated tickets. Does not prove the agent caused it."
+    },
+    "noData": "No data in this period yet.",
+    "noAccess": "You are not allowed to see the source of this figure.",
+    "human": "Humans, same period: {v} ({n} tickets).",
+    "close": "Close rate (correlation, not for commission): {v} of {n} served customers."
+  },
   "tier": {
     "standard": "Standard",
     "advanced": "Advanced",

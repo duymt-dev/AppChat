@@ -2,6 +2,7 @@ import type { ActionDef } from './define';
 import * as identity from './identity';
 import * as onboarding from './onboarding';
 import * as dashboard from './dashboard';
+import * as insights from './insights';
 import * as inbox from './inbox';
 import * as crm from './crm';
 import * as ai from './ai';
@@ -60,6 +61,7 @@ export * from './assistant-ui';
 export * from './identity';
 export * from './onboarding';
 export * from './dashboard';
+export * from './insights';
 export * from './inbox';
 export * from './crm';
 export * from './ai';
@@ -119,6 +121,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(identity),
   ...Object.values(onboarding),
   ...Object.values(dashboard),
+  ...Object.values(insights),
   ...Object.values(inbox),
   ...Object.values(crm),
   ...Object.values(ai),

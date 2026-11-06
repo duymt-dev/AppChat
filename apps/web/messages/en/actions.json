@@ -41,6 +41,12 @@
       "title": "Update getting-started step"
     }
   },
+  "insight": {
+    "query": {
+      "title": "View metric",
+      "desc": "Read a predefined business metric (bookings, collections, at-risk customers, agent / support performance) within what you may see."
+    }
+  },
   "follow_up": {
     "complete": {
       "title": "Follow-up done",

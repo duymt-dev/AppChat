@@ -39,6 +39,7 @@ export function acceptedOutcome(a: ActionAccepted, canonicalInput: unknown): Too
 }
 
 /** 200 → `ok` (đã lọc cho model); 202 → acceptedOutcome. */
-export function dispatchOutcome(out: ExecuteOutcome, canonicalInput: unknown): ToolOutcome {
-  return out.status === 200 ? { kind: 'ok', output: safeForModel(out.data.result) } : acceptedOutcome(out.data, canonicalInput);
+/** `maxRows`: metric (`insight.query` ≤ 100 dòng, đã giới hạn ở registry) giữ đủ dòng để khớp HTTP; còn lại 20. */
+export function dispatchOutcome(out: ExecuteOutcome, canonicalInput: unknown, maxRows = READ_MAX_ROWS): ToolOutcome {
+  return out.status === 200 ? { kind: 'ok', output: safeForModel(out.data.result, maxRows) } : acceptedOutcome(out.data, canonicalInput);
 }

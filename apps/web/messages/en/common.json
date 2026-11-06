@@ -59,7 +59,8 @@
     "inbox": "Inbox",
     "channels": "Channels",
     "integrations": "Integrations",
-    "booking": "Appointments"
+    "booking": "Appointments",
+    "insights": "Insights"
   },
   "genui": {
     "noData": "No data",

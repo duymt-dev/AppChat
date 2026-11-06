@@ -209,14 +209,15 @@ describe('lượt hội thoại (AC3)', () => {
     expect(r.events).toEqual([{ type: 'ui_command', command: { type: 'navigate', route: '/tickets' } }, { type: 'delta', text: 'Đã mở Hỗ trợ.' }]);
   });
 
-  it('plan / update_step lưu ai_run.plan; query_data → NOT_IMPLEMENTED', async () => {
+  it('plan / update_step lưu ai_run.plan; query_data metric lạ → VALIDATION_FAILED (allowlist, TIP-038), metric hợp lệ → kết quả', async () => {
     const script: MockScript = ({ call: n }) =>
-      n === 0 ? { tool: 'plan', input: { steps: [{ id: 's1', title: 'Lọc khách' }, { id: 's2', title: 'Soạn tin' }] } } : n === 1 ? { tools: [{ tool: 'update_step', input: { id: 's1', status: 'done' } }, { tool: 'query_data', input: { metric: 'revenue' } }] } : { text: 'ok' };
+      n === 0 ? { tool: 'plan', input: { steps: [{ id: 's1', title: 'Lọc khách' }, { id: 's2', title: 'Soạn tin' }] } } : n === 1 ? { tools: [{ tool: 'update_step', input: { id: 's1', status: 'done' } }, { tool: 'query_data', input: { metric: 'revenue' } }, { tool: 'query_data', input: { metric: 'sales.booked', params: { bucket: 'week' } } }] } : { text: 'ok' };
     const r = await turn(script, { text: 'lập kế hoạch' });
     const db = await tenant();
     expect((await db.aiRun.findUniqueOrThrow({ where: { id: r.run_id! } })).plan).toEqual({ steps: [{ id: 's1', title: 'Lọc khách', status: 'done' }, { id: 's2', title: 'Soạn tin', status: 'pending' }] });
-    const q = await db.aiRunStep.findFirstOrThrow({ where: { runId: r.run_id!, actionId: 'query_data' } });
-    expect(q.output).toMatchObject({ kind: 'error', code: 'NOT_IMPLEMENTED' });
+    const [bad, good] = await db.aiRunStep.findMany({ where: { runId: r.run_id!, actionId: 'query_data' }, orderBy: { idx: 'asc' } });
+    expect(bad!.output).toMatchObject({ kind: 'error', code: 'VALIDATION_FAILED' });
+    expect(good!.output).toMatchObject({ kind: 'ok', output: { metric: 'sales.booked', window: { bucket: 'week' }, availability: { status: 'ok' } } });
   });
 
   it('delegate → run con delegate depth 1 (agent đích, tool ∩ quyền người ra lệnh) + GET /runs?root_run_id= có tên agent', async () => {

@@ -41,6 +41,17 @@
     "delete": "Xoá",
     "empty": "Chưa có agent nào — chọn một mẫu hoặc tạo bằng Trợ lý AI."
   },
+  "stats": {
+    "def": {
+      "conversations": "Số hội thoại khác nhau agent đã trả lời trong 30 ngày (không tính chạy thử) — {n} lượt.",
+      "resolve_rate": "Tỷ lệ LƯỢT tự xử lý = lượt hoàn tất / (hoàn tất + chuyển người) — {n} lượt. Không phải tỷ lệ khách.",
+      "csat": "CSAT trung bình của ticket giao cho agent, đóng trong 30 ngày — {n} ticket có điểm. Không khẳng định agent là nguyên nhân."
+    },
+    "noData": "Chưa có dữ liệu trong kỳ.",
+    "noAccess": "Bạn không có quyền xem nguồn số liệu này.",
+    "human": "Người thật cùng kỳ: {v} ({n} ticket).",
+    "close": "Tỷ lệ chốt (tương quan, không dùng tính hoa hồng): {v} trên {n} khách được phục vụ."
+  },
   "tier": {
     "standard": "Tiêu chuẩn",
     "advanced": "Nâng cao",

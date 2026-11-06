@@ -12,6 +12,7 @@ import { CrmModule } from '../../crm/crm.module';
 import { DocumentsModule } from '../../documents/documents.module';
 import { IdentityModule } from '../../identity/identity.module';
 import { InboxModule } from '../../inbox/inbox.module';
+import { InsightsModule } from '../../insights/insights.module';
 import { IntegrationsModule } from '../../integrations/integrations.module';
 import { LoyaltyModule } from '../../loyalty/loyalty.module';
 import { MarketingModule } from '../../marketing/marketing.module';
@@ -35,6 +36,7 @@ export const AI_DOMAIN_MODULES = [
   SupportModule,
   LoyaltyModule,
   MarketingModule,
+  InsightsModule,
   NotifyModule,
 ];
 

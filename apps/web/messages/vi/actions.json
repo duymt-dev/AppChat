@@ -41,6 +41,12 @@
       "title": "Cập nhật bước bắt đầu"
     }
   },
+  "insight": {
+    "query": {
+      "title": "Xem số liệu",
+      "desc": "Đọc một chỉ số kinh doanh định nghĩa sẵn (doanh số, thực thu, khách sắp rời, hiệu suất agent / hỗ trợ) trong phạm vi bạn được xem."
+    }
+  },
   "follow_up": {
     "complete": {
       "title": "Đã follow khách",

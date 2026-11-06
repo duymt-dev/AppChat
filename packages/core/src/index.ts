@@ -62,6 +62,7 @@ export { AiModule } from './ai/ai.module';
 export { AiJobsModule } from './ai/jobs/ai.jobs.module';
 export { InsightsModule } from './insights/insights.module';
 export { InsightsJobsModule } from './insights/jobs/insights.jobs.module';
+export * from './insights/public';
 export { NotifyModule } from './notify/notify.module';
 export { NotifyJobsModule } from './notify/jobs/notify.jobs.module';
 export { PlatformModule } from './platform/platform.module';

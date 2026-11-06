@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { KB_ORIGINS, kbFolderSchema } from './kb-management';
 import { SCHEDULE_STATES, weeklyScheduleSchema } from './agent-channel-behavior';
+import { agentStatsSchema } from './insights';
 
 export const AI_TIERS = ['standard', 'advanced', 'max'] as const;
 export type AiTierKey = (typeof AI_TIERS)[number];
@@ -110,6 +111,8 @@ export const agentSchema = z.object({
   conversations: z.number().int(),
   resolve_rate: z.number(),
   csat: z.number(),
+  /** TIP-038: thống kê có nguồn (30 ngày) — `available: false` = chưa có dữ liệu / không quyền nguồn (khác 0 thật). */
+  stats: agentStatsSchema.optional(),
   persona: z.string(),
   version: z.number().int(),
   dirty: z.boolean().optional(),

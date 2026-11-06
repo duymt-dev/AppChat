@@ -7,6 +7,7 @@ const BY_ID: Record<string, string> = {
   'ai_settings.update': '019',
   'wallet.update_alerts': '039',
   'follow_up.complete': '038',
+  'insight.query': '038',
   'stock.adjust': '027',
   'stock.get': '027',
   'ai.translate': '022',

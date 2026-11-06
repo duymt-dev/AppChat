@@ -146,7 +146,7 @@
 | REQ-D13b | Giới hạn bước, ngân sách, trace | 01-REQUIREMENTS-MATRIX.md:94 | 019, 022 | ĐẠT | reply-tools.ts:18; test agent-reply.test.ts "A → B → A" |
 | REQ-D15 | 6 agent mẫu + mẫu ngành | 01-REQUIREMENTS-MATRIX.md:95 | 021, 024 | ĐẠT | ai/agents/templates.seed.ts:8-15; test agents-ui.test.ts "D15" |
 | REQ-D14a | Số hội thoại, tỉ lệ tự xử lý | 01-REQUIREMENTS-MATRIX.md:96 | 021 | ĐẠT | ai/agents/agents.read.ts:22-45; test agents.test.ts AC5 |
-| REQ-D14b | Tỉ lệ chốt, CSAT, credit, so với nhân sự | 01-REQUIREMENTS-MATRIX.md:96 | 038 | CHƯA | agents.read.ts:40 csat: 0 cứng |
+| REQ-D14b | Tỉ lệ chốt, CSAT, credit, so với nhân sự | 01-REQUIREMENTS-MATRIX.md:96 | 038 | ĐẠT | agent-stats.ts: tỷ lệ lượt, CSAT (n), tỷ lệ chốt tương quan, Credit thật theo run, so sánh người thật cùng kỳ; quyền nguồn → unavailable; integration insights.test.ts AC03; AgentStatsPanel tooltip định nghĩa |
 | REQ-D16a | Tools nhóm module + Kỹ năng AI, n/tổng | 01-REQUIREMENTS-MATRIX.md:97 | 021 | ĐẠT | agent-tools.ts:35; test agents.test.ts AC5, apps/web/src/shared/ai/agent-tools.test.ts |
 | REQ-D16b | Badge Cần kết nối / Sắp có | 01-REQUIREMENTS-MATRIX.md:97 | 021 | ĐẠT | agent-tools.ts:25-28; test agents.test.ts AC5 |
 | REQ-D17a | kb_scope chọn trong Builder | 01-REQUIREMENTS-MATRIX.md:98 | 020, 021 | ĐẠT | agent.store.ts:98; KnowledgeSection.tsx:22-45; e2e agents.spec.ts:91 |
@@ -166,7 +166,7 @@
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
 | REQ-E06a | Trợ lý theo module tự nạp ngữ cảnh | 01-REQUIREMENTS-MATRIX.md:108 | 023c | ĐẠT | useRegisterScreenContext mỗi feature → context route / entity / id / selection (apps/web/src/shared/assistant/screen-context.ts); server đọc lại theo quyền (packages/core/src/ai/assistant/genui/context.ts); test genui-context.test.ts, screen-context.test.tsx, e2e/http/screen-assistant.spec.ts |
 | REQ-E06b | Gọi bằng Ctrl+K | 01-REQUIREMENTS-MATRIX.md:108 | 023 | ĐẠT | apps/web/src/shared/shell/AppShell.tsx:29; e2e shell.spec.ts:44 |
-| REQ-E07 | Truy vấn / phân tích NL có nguồn | 01-REQUIREMENTS-MATRIX.md:109 | 038, 023c | CHƯA | meta-tools.ts:117 query_data NOT_IMPLEMENTED |
+| REQ-E07 | Truy vấn / phân tích NL có nguồn | 01-REQUIREMENTS-MATRIX.md:109 | 038, 023c | ĐẠT | 5 metric allowlist có nguồn (`sources` / `availability`), scope insights ∩ domain; insight.query + query_data + GET /insights/:metric một service; integration insights.test.ts AC01–AC02 + unit insight-metrics.test.ts |
 | REQ-E08 | Briefing đầu ngày | 01-REQUIREMENTS-MATRIX.md:110 | 035 | ĐẠT | ai/tasks/task-briefing.ts; test ai-tasks.test.ts:330 |
 | REQ-E09a | Ghi mọi action Trợ lý / agent (ai, input, trước/sau) | 01-REQUIREMENTS-MATRIX.md:111 | 003, 024 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:50-54; test assistant.test.ts, agents-ui.test.ts |
 | REQ-E09b | Lọc theo loại | 01-REQUIREMENTS-MATRIX.md:111 | 024 | ĐẠT | ai/assistant/action-logs.read.ts:12; test agents-ui.test.ts |

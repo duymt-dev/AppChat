@@ -5,6 +5,7 @@ import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import {
   CLOCK,
+  InsightsReadService,
   PLATFORM_DB,
   TENANT_RESOLVER,
   agentTools,
@@ -34,6 +35,7 @@ export class AgentsController {
     @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver,
     @Inject(PLATFORM_DB) private readonly platform: PlatformDb,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(InsightsReadService) private readonly insights: InsightsReadService,
   ) {}
 
   /** Người gọi phải có ít nhất một permission trong `perms` (Owner luôn được). */
@@ -49,8 +51,8 @@ export class AgentsController {
   // Danh sách agent: người gán agent cho kênh / Cowork / menu ＋ Hộp thư cũng cần đọc (tên + kênh) — không chỉ agents.manage.
   @Get('agents')
   async list(@Req() req: IncomingMessage) {
-    const { db } = await this.db(req, 'agents.manage', 'channels.manage', 'inbox.view', 'assistant.use');
-    return { data: await listAgents(db), next_cursor: null };
+    const { a, db } = await this.db(req, 'agents.manage', 'channels.manage', 'inbox.view', 'assistant.use');
+    return { data: await listAgents(db, (ids) => this.insights.cards(a, ids)), next_cursor: null };
   }
 
   @Get('agents/meta')
@@ -73,8 +75,8 @@ export class AgentsController {
 
   @Get('agents/:id')
   async one(@Req() req: IncomingMessage, @Param('id') id: string) {
-    const { db } = await this.db(req, 'agents.manage');
-    return { data: await getAgent(db, id) };
+    const { a, db } = await this.db(req, 'agents.manage');
+    return { data: await getAgent(db, id, (ids) => this.insights.cards(a, ids)) };
   }
 
   @Get('agents/:id/versions')

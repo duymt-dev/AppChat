@@ -1,5 +1,5 @@
 // Kiểu dữ liệu AI Agents (Blueprint §2.2 ai_agent / ai_agent_version, §4.4 ai; D29 mức AI thay tên model).
-import type { WeeklyScheduleDto } from '@appchat/shared';
+import type { AgentStatsDto, WeeklyScheduleDto } from '@appchat/shared';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type AgentStatus = 'active' | 'paused' | 'draft';
 export type Role = 'sales' | 'cs' | 'booking' | 'marketing' | 'accounting' | 'ops' | 'custom';
@@ -44,6 +44,8 @@ export interface Agent extends AgentConfig {
   conversations: number;
   resolve_rate: number;
   csat: number;
+  /** TIP-038: thống kê có nguồn (30 ngày) — `available: false` = chưa có dữ liệu / không quyền nguồn (hiện "—", khác 0 thật). */
+  stats?: AgentStatsDto;
   version: number;
   dirty?: boolean;
   /** TIP-022b: `needs_configuration` = custom cũ chưa lưu lịch (cảnh báo, chặn xuất bản mới). */

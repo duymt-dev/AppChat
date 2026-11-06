@@ -59,7 +59,8 @@
     "inbox": "Hộp thư",
     "channels": "Kênh",
     "integrations": "Kết nối",
-    "booking": "Lịch hẹn"
+    "booking": "Lịch hẹn",
+    "insights": "Số liệu"
   },
   "genui": {
     "noData": "Không có dữ liệu",

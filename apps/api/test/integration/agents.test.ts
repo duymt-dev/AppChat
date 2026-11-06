@@ -271,9 +271,9 @@ describe('duyệt (approval)', () => {
     await act('approval.approve', { approval_id: apId });
     const db = await tenant();
     expect(await until(async () => !!(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).result)).toBe(true);
-    // Module worker của test chỉ nạp AiJobsModule — handler test `campaign.create` / `campaign.delete` chỉ có ở API harness → kết quả là lỗi NOT_IMPLEMENTED
-    // được ghi cho model (run vẫn tiếp), không chạy action, không đánh dấu đã chạy.
-    expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ result: { kind: 'error', code: 'NOT_IMPLEMENTED' }, executedAt: null });
+    // Từ TIP-037 worker ROLE=ai nạp MarketingModule → `campaign.delete` chạy handler THẬT (không còn probe của API harness): id là một thông
+    // báo, không phải chiến dịch → lỗi NOT_FOUND được ghi cho model (run vẫn tiếp), không đánh dấu đã chạy.
+    expect(await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).toMatchObject({ result: { kind: 'error', code: 'NOT_FOUND' }, executedAt: null });
   });
 });
 

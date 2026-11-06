@@ -59,7 +59,6 @@ export const ai: typeof vi = {
     noContext: 'Unknown (the user is on the Assistant screen).',
     noAgents: 'No agent is running yet.',
     owner: 'Workspace owner (full access)',
-    queryData: 'Metric queries (query_data) arrive in a later release — use read actions via find_actions.',
     cancelled: 'Operation cancelled.',
     error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant could not handle this request yet — please try again later.' },
     entity: {
@@ -71,7 +70,7 @@ export const ai: typeof vi = {
     module: {
       ai: 'AI Agents', booking: 'Appointments', catalog: 'Products', sales: 'Sales', crm: 'Customers', documents: 'Document templates', identity: 'Account',
       notifications: 'Notifications', inbox: 'Inbox', loyalty: 'Loyalty', marketing: 'Marketing', settings: 'Settings', billing: 'Wallet & plan',
-      channels: 'Channels', integrations: 'Integrations', support: 'Support',
+      channels: 'Channels', integrations: 'Integrations', support: 'Support', insights: 'Insights',
     },
     think: [
       { label: 'Brainstorm', desc: 'Campaign, content and offer ideas — explore several directions to choose from.', tag: 'Creative', command: 'Suggest 5 campaign ideas for this month' },

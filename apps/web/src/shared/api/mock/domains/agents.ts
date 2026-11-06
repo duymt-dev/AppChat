@@ -1,8 +1,10 @@
-// Mock AI Agents (Blueprint §4.4 ai, D29): GET /agents, /agents/:id, /agents/:id/versions, /agent-templates, /agents/meta.
+// Mock AI Agents (Blueprint §4.4 ai, D29): GET /agents, /agents/:id, /agents/:id/versions, /agent-templates, /agents/meta. Thẻ kèm
+// `stats` (TIP-038 — agent-stats.ts, cùng shape API).
 // Dữ liệu = prototype L2227–2450 (fixture sinh bởi tools/scripts/fixtures/gen-assistant.py). Tên model → mức AI (D29).
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/agents.json';
 import { channelBindingPreview } from './channel-behavior';
+import { statsOf } from './agent-stats';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
@@ -41,7 +43,7 @@ export const createAgentsState = (): AgentsState => {
 
 const live = (db: MockDb) => db.agents.agents.filter((a) => !a.deleted);
 /** `custom` cũ chưa có lịch có cấu trúc → needs_configuration (như server agents.read — TIP-022b A). */
-const withScheduleState = (a: Agent) => ({ ...a, schedule_state: a.working_hours === 'custom' && !(a as { weekly_schedule?: unknown }).weekly_schedule ? 'needs_configuration' : 'ok' });
+const withScheduleState = (a: Agent) => ({ ...a, stats: statsOf(a), schedule_state: a.working_hours === 'custom' && !(a as { weekly_schedule?: unknown }).weekly_schedule ? 'needs_configuration' : 'ok' });
 
 export const agentsRoutes: Record<string, MockRoute> = {
   '/agents': (db) => ({ data: live(db).map(withScheduleState), next_cursor: null }),

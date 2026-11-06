@@ -1,10 +1,10 @@
-// Thẻ một agent: biểu tượng, tên, vai trò, bật / tạm dừng (agent.pause), mức AI (D29), phiên bản, thống kê, thao tác.
+// Thẻ một agent: biểu tượng, tên, vai trò, bật / tạm dừng (agent.pause), mức AI (D29), phiên bản, thống kê (AgentStatsPanel), thao tác.
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
-import { useFmt } from '@/shared/i18n/useFmt';
 import { useMineStyles } from '../styles/mine.styles';
 import type { Agent } from '../types';
+import { AgentStatsPanel } from './AgentStatsPanel';
 
 const STATUS = {
   active: [color.doneBg, color.statusActive],
@@ -23,11 +23,9 @@ export interface AgentCardProps {
 
 export function AgentCard({ agent: a, canManage, onEdit, onToggle, onVersions, onDelete }: AgentCardProps) {
   const t = useTranslations('agents');
-  const fmt = useFmt();
   const { styles, cx } = useMineStyles();
   const on = a.status === 'active';
   const [bg, fg] = STATUS[a.status];
-  const dash = t('mine.dash');
 
   return (
     <div className={styles.card} data-agent={a.id} data-testid="ag-card">
@@ -72,20 +70,7 @@ export function AgentCard({ agent: a, canManage, onEdit, onToggle, onVersions, o
           </span>
         ) : null}
       </div>
-      <div className={styles.stats}>
-        <div>
-          <div className={styles.statL}>{t('mine.conv')}</div>
-          <div className={styles.statV}>{fmt.number(a.conversations)}</div>
-        </div>
-        <div>
-          <div className={styles.statL}>{t('mine.resolve')}</div>
-          <div className={styles.statV}>{a.resolve_rate ? t('ai.pct', { n: a.resolve_rate }) : dash}</div>
-        </div>
-        <div>
-          <div className={styles.statL}>{t('mine.csat')}</div>
-          <div className={styles.statV}>{a.csat ? fmt.number(a.csat) : dash}</div>
-        </div>
-      </div>
+      <AgentStatsPanel agentId={a.id} initial={a.stats} />
       {canManage ? (
         <div className={styles.foot}>
           <button type="button" className={styles.act} onClick={onEdit} data-testid="ag-edit">

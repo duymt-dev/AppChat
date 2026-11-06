@@ -57,7 +57,6 @@ export const ai = {
     noContext: 'Không rõ (người dùng đang ở màn Trợ lý).',
     noAgents: 'Chưa có agent nào đang chạy.',
     owner: 'Chủ workspace (toàn quyền)',
-    queryData: 'Truy vấn số liệu (query_data) sẽ có ở bản sau — hãy dùng action đọc qua find_actions.',
     cancelled: 'Đã huỷ thao tác.',
     error: { CREDIT_EXHAUSTED: 'Hết credit AI — nạp thêm ở Cài đặt › Ví & gói để tiếp tục.', generic: 'Trợ lý chưa xử lý được yêu cầu này, anh/chị thử lại sau nhé.' },
     entity: {
@@ -69,7 +68,7 @@ export const ai = {
     module: {
       ai: 'AI Agents', booking: 'Lịch hẹn', catalog: 'Sản phẩm', sales: 'Bán hàng', crm: 'Khách hàng', documents: 'Mẫu chứng từ', identity: 'Tài khoản',
       notifications: 'Thông báo', inbox: 'Hộp thư', loyalty: 'Khách hàng thân thiết', marketing: 'Marketing', settings: 'Cài đặt', billing: 'Ví & gói',
-      channels: 'Kênh', integrations: 'Kết nối', support: 'Hỗ trợ',
+      channels: 'Kênh', integrations: 'Kết nối', support: 'Hỗ trợ', insights: 'Số liệu',
     },
     think: [
       { label: 'Lên ý tưởng', desc: 'Ý tưởng chiến dịch, nội dung, ưu đãi — brainstorm nhiều hướng để chọn.', tag: 'Sáng tạo', command: 'Gợi ý cho tôi 5 ý tưởng chiến dịch cho tháng này' },
