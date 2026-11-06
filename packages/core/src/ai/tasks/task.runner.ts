@@ -17,6 +17,7 @@ import { appendMessage, openSession, type Part } from '../assistant/sessions';
 import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
 import { buildBriefing } from './task-briefing';
+import { eventRecordVisible } from '../../insights/services/renewal-suggestions';
 import type { Place } from './task-place';
 import { collectTargets, type Target } from './task-targets';
 import type { TaskRow } from './task.store';
@@ -102,6 +103,8 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
   await db.aiTask.update({ where: { id: t.id }, data: { lastRunAt: now, runCount: { increment: 1 } } });
   const commander = await d.commander(ws, t.createdByUserId);
   if (!commander) return done(db, t, await fail(d, db, ws, t, run, 'commander', place));
+  // Sự kiện gắn bản ghi (hợp đồng — TIP-038): người tạo tác vụ phải còn đọc được bản ghi theo scope HIỆN TẠI (bị thu quyền → không chạy).
+  if (job.event && !(await db.$transaction((tx) => eventRecordVisible(tx, narrowScope(commander, t.dataScope), job.event!.payload)))) return done(db, t, await fail(d, db, ws, t, run, 'commander', place));
 
   if (t.template === 'briefing') {
     if (!(await store.claim(run.id, ['queued']))) return { status: 'skipped' as const };

@@ -4,6 +4,10 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
+**Mới nhất, ưu tiên hơn mọi mục bên dưới (2026-11-06, sau merge #84–#94).** Lô mới tính từ `origin/dev` `34a7654b`: PR #95 = TIP-038 pha 2 (Tổng quan thật / việc follow bền / gia hạn T-30 — AC04–06, DC-364; migration tenant `20261106003800_follow_up` → sau merge chạy `db:migrate-tenants` + build api / worker). Đang làm tiếp: **TIP-038 pha 3** (xuất 4 danh sách — AC07–08) xếp chồng trên #95, rồi pha 4 (digest — DC-241), rồi TIP 039 theo bảng GOAL-RELEASE. Ghi chú vận hành: E2E http có widget (agents-ui:60) cần đủ worker `jobs,ai,channels` — chạy `E2E_WORKERS=jobs,ai` sẽ đỏ giả.
+
+*(Mục dưới đây là trạng thái lô #84–#93 — đã merge 2026-11-06.)*
+
 **Mới nhất, ưu tiên hơn mọi mục bên dưới (2026-11-06). ĐANG DỪNG — đủ 10 PR chưa merge (#84 … #93) kể từ `origin/dev` `ea18c180`; chờ Chủ nhà merge vào `dev` + nghiệm thu.** Sau khi merge: nhánh mới từ `origin/dev` cho **TIP-038 pha 2** (dashboard / MyWork / follow-up bền + `follow_up.complete` / gia hạn T-30 — AC04–06), rồi pha 3 (xuất 4 danh sách — AC07–08), pha 4 (digest — DC-241; nhãn UI 08:00), rồi TIP kế theo bảng GOAL-RELEASE.
 - **Thứ tự merge:** #84 → #85 → #86 → #87 → #88 → #89 → #90 → #91 → #92 → #93 (mỗi PR xếp chồng PR trước). Sau khi merge hết: `pnpm --filter @appchat/db db:migrate-tenants` một lần (áp đủ migration tenant / platform của cả lô — liệt kê ở từng mục dưới), build lại api + worker.
 - **CI đỏ sẵn (không do lô này):** parity `inbox:connect-channel` 6,20% (Q-020, sổ nợ DC-360) · E2E http `inbox-live.spec.ts:78` (Q-052).

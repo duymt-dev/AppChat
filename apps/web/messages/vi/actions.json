@@ -51,6 +51,10 @@
     "complete": {
       "title": "Đã follow khách",
       "desc": "Đánh dấu đã liên hệ lại với khách khi việc follow đến hạn."
+    },
+    "reconcile": {
+      "title": "Cập nhật việc follow (hệ thống)",
+      "desc": "Hệ thống tạo việc follow cho khách im lặng 7 ngày và bỏ việc cũ khi khách có tương tác mới. Không gửi tin."
     }
   },
   "conversation": {

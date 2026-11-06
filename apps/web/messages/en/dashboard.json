@@ -55,5 +55,27 @@
     "openAll": "Open all →",
     "done": "Followed up",
     "empty": "No follow-ups left today"
+  },
+  "work": {
+    "title": "Needs me",
+    "sub": "Approvals, customers waiting for a person, SLA breaches, overdue appointments, contracts ending soon",
+    "empty": "Nothing is waiting for you",
+    "open": "Open",
+    "askRenewal": "Ask Assistant to draft renewal"
+  },
+  "aiToday": {
+    "title": "AI today",
+    "sub": "Real AI runs, test runs excluded",
+    "runs": "AI runs",
+    "actions": "Actions",
+    "handoffs": "Handed over",
+    "credits": "Credits used"
+  },
+  "credit": {
+    "title": "Credit wallet",
+    "sub": "Balance and estimate from 7-day usage",
+    "balance": "Balance",
+    "days": "Lasts (days)",
+    "open": "Open wallet"
   }
 }

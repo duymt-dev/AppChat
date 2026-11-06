@@ -29,6 +29,22 @@ test.describe('dashboard', () => {
     await expect(page.getByTestId('updates-pill')).toBeVisible();
   });
 
+  test('Việc cần tôi: mở đúng màn; gia hạn hợp đồng → Trợ lý soạn nháp (không tự gửi); Credit chỉ Owner', async ({ page }) => {
+    test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
+    await page.goto('/dashboard?session=authed,declared,trialSeen');
+    const work = page.getByTestId('dash-my-work');
+    await expect(work.locator('[data-work]')).toHaveCount(4);
+    await expect(page.getByTestId('dash-ai-today')).toContainText('128');
+    await expect(page.getByTestId('dash-credit')).toContainText('8.420');
+    await work.locator('[data-work="contract_renewal"]').getByRole('button', { name: 'Nhờ Trợ lý soạn gia hạn' }).click();
+    await expect(page).toHaveURL(/\/assistant/);
+    await page.goto('/dashboard?session=authed,declared,trialSeen');
+    await page.getByTestId('dev-toolbar').locator('.ant-select').click();
+    await page.locator('.ant-select-item-option', { hasText: 'Kế toán' }).click();
+    await expect(page.getByTestId('dash-credit')).toHaveCount(0);
+    await expect(page.getByTestId('dash-ai-today')).toContainText('—');
+  });
+
   test('vai trò Kế toán: không thấy nút Kết nối kênh', async ({ page }) => {
     test.skip(isMobile(page), 'dev toolbar chỉ thao tác trên desktop');
     await page.goto('/dashboard?session=authed,declared,trialSeen');

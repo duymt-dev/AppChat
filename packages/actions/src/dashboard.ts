@@ -17,12 +17,14 @@ export const onboardingToggleStep = defineAction({
   db: 'platform',
 });
 
+// follow_up.complete — TIP-038 pha 2 (DC-241): việc follow bền (bảng `follow_up`); id là UUID thật, không còn id mẫu. Sweep sinh việc gọi
+// `follow_up.reconcile` (system-only, ROLE=jobs) — ở insights.ts.
 export const followUpComplete = defineAction({
   id: 'follow_up.complete',
   module: 'crm',
   title: 'actions.follow_up.complete.title',
-  description: 'Mark a due customer follow-up as done. Example: {"follow_up_id":"F1"}',
-  input: z.object({ follow_up_id: z.string().min(1) }),
+  description: 'Mark a due customer follow-up as done (you contacted the customer). Does not send any message. Example: {"follow_up_id":"0190f000-0000-7000-8000-0000000000f1"}',
+  input: z.object({ follow_up_id: z.string().min(1).max(64) }),
   output: z.object({ remaining: z.number().int() }),
   permission: 'crm.edit',
   risk: 'write',

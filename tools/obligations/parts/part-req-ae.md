@@ -128,7 +128,7 @@
 | REQ-D07a | Hàng chờ duyệt Duyệt / Sửa / Từ chối | 01-REQUIREMENTS-MATRIX.md:87 | 021, 024 | ĐẠT | approval.handlers.ts:74-92; test agents.test.ts AC4, e2e http/agents-ui.spec.ts:60 |
 | REQ-D07b | Duyệt ở thông báo | 01-REQUIREMENTS-MATRIX.md:87 | 021 | ĐẠT | ai/events/agents.rules.ts:8; test agents.test.ts AC4 |
 | REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | 025b | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |
-| REQ-D07d | Thẻ duyệt ở Tổng quan | 01-REQUIREMENTS-MATRIX.md:87 | 038 | GIẢ | GET /dashboard missing ở API |
+| REQ-D07d | Thẻ duyệt ở Tổng quan | 01-REQUIREMENTS-MATRIX.md:87 | 038 | ĐẠT | Việc cần tôi `approval` chỉ yêu cầu người xem quyết định được (approvals.decide ∧ permission gốc) — work-items.ts; MyWorkPanel trên Tổng quan; integration insights-dashboard.test.ts AC04 |
 | REQ-D08a | Nhật ký run (prompt, nguồn, tools, token, credit) | 01-REQUIREMENTS-MATRIX.md:88 | 019 | ĐẠT | ai/runs/run.store.ts; test ai-runtime.test.ts AC4 |
 | REQ-D08b | Hoàn tác nhóm cho phép | 01-REQUIREMENTS-MATRIX.md:88 | 003, 024 | ĐẠT | kernel/actions/undo.service.ts:19; test actions.test.ts AC7 |
 | REQ-D09a | Builder đủ trường | 01-REQUIREMENTS-MATRIX.md:89 | 021, 024 | ĐẠT | ai/agents/agent.handlers.ts:30-130; test agents.test.ts, agents-ui.test.ts |

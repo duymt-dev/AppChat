@@ -18,3 +18,19 @@ export const insightQuery = defineAction({
   skill: true,
   invalidates: [],
 });
+
+// Sweep việc follow (TIP-038 pha 2, DC-241) — system-only: job `insights.follow-up-sweep` (ROLE=jobs) gọi qua ActionExecutor nguồn system
+// (actor `system:follow-up`); người / Trợ lý / agent / API không gọi được (SYSTEM_ONLY + guard actor). Một lần gọi = một lô khách tới hạn
+// (khách sống, chưa won / lost, im lặng ≥ 7 ngày): sinh việc theo `source_key` (khách + mốc tương tác), thay việc cũ khi có tương tác mới.
+export const followUpReconcile = defineAction({
+  id: 'follow_up.reconcile',
+  module: 'insights',
+  title: 'actions.follow_up.reconcile.title',
+  description: 'System-only: create due customer follow-ups (7 days without interaction) and supersede stale ones, one bounded batch. Never sends messages. Not callable by users, assistant or agents. Example: {"batch":"2026-11-06T09"}',
+  input: z.object({ batch: z.string().min(1).max(40) }),
+  output: z.object({ created: z.number().int(), superseded: z.number().int() }),
+  permission: 'self',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['dashboard', 'calendar'],
+});
