@@ -1384,6 +1384,38 @@
   "preview": true
  },
  {
+  "id": "quote.export",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/list-exports.ts:18",
+  "handler": "packages/core/src/insights/actions/export.handlers.ts:136",
+  "preview": true
+ },
+ {
+  "id": "order.export",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/list-exports.ts:31",
+  "handler": "packages/core/src/insights/actions/export.handlers.ts:145",
+  "preview": true
+ },
+ {
+  "id": "contract.export",
+  "risk": "write",
+  "module": "sales",
+  "file": "packages/actions/src/list-exports.ts:44",
+  "handler": "packages/core/src/insights/actions/export.handlers.ts:154",
+  "preview": true
+ },
+ {
+  "id": "ticket.export",
+  "risk": "write",
+  "module": "support",
+  "file": "packages/actions/src/list-exports.ts:57",
+  "handler": "packages/core/src/insights/actions/export.handlers.ts:163",
+  "preview": true
+ },
+ {
   "id": "payment.redeem_points",
   "risk": "money",
   "module": "sales",

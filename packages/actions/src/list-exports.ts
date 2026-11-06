@@ -11,7 +11,6 @@ import {
 } from '@appchat/shared';
 import { defineAction } from './define';
 
-const base = { risk: 'write' as const, agentGrantable: false, invalidates: ['data-jobs'] };
 const note =
   'Exports ALL rows matching the filter (not only the current page) as an XLSX file the caller downloads; ≤ 50 rows ready immediately, more → background job. Max 100,000 rows.';
 
@@ -23,7 +22,9 @@ export const quoteExport = defineAction({
   input: quoteExportFilter,
   output: listExportResultSchema,
   permission: 'quote.view',
-  ...base,
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
 });
 
 export const orderExport = defineAction({
@@ -34,7 +35,9 @@ export const orderExport = defineAction({
   input: orderExportFilter,
   output: listExportResultSchema,
   permission: 'order.view',
-  ...base,
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
 });
 
 export const contractExport = defineAction({
@@ -45,7 +48,9 @@ export const contractExport = defineAction({
   input: contractExportFilter,
   output: listExportResultSchema,
   permission: 'contract.view',
-  ...base,
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
 });
 
 export const ticketExport = defineAction({
@@ -56,5 +61,7 @@ export const ticketExport = defineAction({
   input: ticketExportFilter,
   output: listExportResultSchema,
   permission: 'ticket.view',
-  ...base,
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
 });

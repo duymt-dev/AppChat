@@ -107,7 +107,7 @@
 | Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046, 014c | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh; TIP-014c nhận (2026-11-02) |
 | Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | 031b | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận; TIP-031b nhận (2026-11-02); Chủ nhà 2026-11-03: duyệt → DC-296 |
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | ĐẠT | Ngưỡng ≥ 27/30 + 0 vi phạm an toàn đạt: 27/30, an toàn 0 (reports/ai-live-2026-11-03.md); 3 ca fail đã phân loại (model chọn đường khác / seed Q-044 / dấu "Huế") |
-| Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | GIẢ | message.info: features/quotes/components/QuotesToolbar.tsx:82, orders/OrdersToolbar.tsx:96, contracts/ContractsToolbar.tsx:69, tickets/TicketsHeader.tsx:143; Chủ nhà 2026-11-03: đóng câu hỏi (038) |
+| Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | ĐẠT | 4 nút gọi action thật (DC-365); không thêm module Báo cáo (D19) |
 | Q-025 | Chặn chéo: báo giá đã sinh đơn không sinh HĐ và ngược lại | QUESTIONS.md:33 | 032b | ĐẠT | Như COM-3-13 (lockConversion, QUOTE_ALREADY_CONVERTED cả hai chiều) |
 | DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | CHƯA | Baseline vẫn 99 (xem DEF-001-1); TIP-001b nhận (2026-11-02) |
 | DV-002 | Duyệt `platform/notify.prisma` + `event_consumption` + thư viện socket.io / nodemailer | DEVIATIONS.md:19 | 006 | ĐẠT | packages/db/prisma/platform/notify.prisma:7; tenant/kernel.prisma:137; test notify.test.ts |
