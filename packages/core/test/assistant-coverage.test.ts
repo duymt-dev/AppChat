@@ -85,6 +85,7 @@ const EXEMPT: Record<string, string> = {
   operation_id: 'lệnh thu hồi / cảm xúc trên tin (TIP-014b) — handle job_accepted của message.recall / message.react cùng lượt, không có mã người dùng nói',
   job_id: 'việc dữ liệu nặng (TIP-045b) — handle job_accepted của contact.export / contact.bulk_update cùng lượt, không có mã người dùng nói',
   import_id: 'lần nhập sản phẩm — handle job_accepted / kết quả product.import cùng lượt, không có mã người dùng nói',
+  plan_id: 'kế hoạch nhập dữ liệu (TIP-038b) — handle kết quả transfer.plan cùng lượt / thẻ nhập trên màn, sống 24h, không có mã người dùng nói',
   proposal_id: 'đề xuất soạn HĐ — lấy từ kết quả contract.prepare_draft cùng lượt, sống 24h, không có mã người dùng nói',
   suggestion_id: 'gợi ý điều khoản AI — đọc từ ai_suggestions của contract.get',
   segment_id: 'phân khúc (TIP-037) — chọn trong wizard / màn Marketing (danh sách ở campaigns/meta), không có mã người dùng nói; segment.* chỉ người bấm',

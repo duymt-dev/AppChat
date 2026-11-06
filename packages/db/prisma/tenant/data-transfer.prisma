@@ -1,0 +1,72 @@
+// tenant/data-transfer.prisma — sở hữu: TIP-038b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: transfer_plan (một kế hoạch nhập của người tạo — tệp + checksum + thực thể + ánh xạ cột có phiên bản + số đếm kiểm + trạng thái),
+// transfer_row (một nhóm dòng nguồn đã chuẩn hoá + kết quả kiểm + biên nhận ghi; unique (plan_id, row_key) — chạy lại / bấm hai lần không
+// ghi lại). Ghi nghiệp vụ đi qua action domain bằng ActionExecutor (DC-374) — bảng này không chứa dữ liệu khách ngoài bản chuẩn hoá của
+// chính tệp người tạo đã tải. CHECK + partial index viết tay ở migration 038b.
+
+model TransferPlan {
+  id             String    @id @db.Uuid
+  actorUserId    String    @map("actor_user_id") @db.Uuid
+  /// contact | product | quote | order | contract | invoice (registry `@appchat/shared` data-transfer).
+  entity         String
+  fileId         String    @map("file_id") @db.Uuid
+  fileSha256     String    @map("file_sha256")
+  fileName       String    @map("file_name")
+  sheet          String?
+  /// Cột tệp → trường registry `{ full_name: 'Họ tên', phone: 'SĐT', … }` (chỉ tên cột, không dữ liệu).
+  mapping        Json      @default("{}")
+  /// Tăng mỗi lần đổi ánh xạ / chọn dòng → thẻ xác nhận cũ (inputHash có version) hết hiệu lực.
+  version        Int       @default(1)
+  /// all_valid | only_valid — mặc định all_valid: còn dòng lỗi thì không commit (không âm thầm bỏ lỗi).
+  rowPolicy      String    @default("all_valid") @map("row_policy")
+  /// draft | committing | completed | cancelled | failed | expired
+  status         String    @default("draft")
+  total          Int       @default(0)
+  valid          Int       @default(0)
+  invalid        Int       @default(0)
+  duplicates     Int       @default(0)
+  applied        Int       @default(0)
+  skipped        Int       @default(0)
+  failed         Int       @default(0)
+  /// Việc nền commit (`data_job`, kind `transfer.commit`) — null khi chạy ngay.
+  jobId          String?   @map("job_id") @db.Uuid
+  /// Run Trợ lý tạo plan (TIP-038b P3) — audit nguồn AI.
+  aiRunId        String?   @map("ai_run_id") @db.Uuid
+  error          String?
+  expiresAt      DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  finishedAt     DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  rows TransferRow[]
+
+  @@map("transfer_plan")
+}
+
+model TransferRow {
+  id          String   @id @db.Uuid
+  planId      String   @map("plan_id") @db.Uuid
+  /// Khoá ổn định: sheet + số dòng nguồn (hoặc khoá nhóm header / dòng hàng) — `sha(checksum|sheet|row|group)` cắt ngắn.
+  rowKey      String   @map("row_key")
+  /// Dòng đầu của nhóm trong tệp (1 = dòng dữ liệu đầu) — để báo lỗi đúng chỗ.
+  rowNo       Int      @map("row_no")
+  /// Giá trị đã chuẩn hoá theo ánh xạ hiện hành (chỉ trường registry cho phép ghi).
+  data        Json     @default("{}")
+  /// valid | invalid | duplicate | owned
+  check       String
+  /// Mã lỗi theo trường `{ phone: 'invalid', full_name: 'required' }` — không nội dung bản ghi khác.
+  errors      Json     @default("{}")
+  /// pending | applied | skipped | failed
+  status      String   @default("pending")
+  /// Bản ghi nghiệp vụ tạo ra (khách / báo giá / …) sau khi ghi.
+  resultId    String?  @map("result_id") @db.Uuid
+  resultCode  String?  @map("result_code")
+  error       String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan TransferPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, rowKey])
+  @@map("transfer_row")
+}

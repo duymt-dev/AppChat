@@ -14,6 +14,7 @@ export * from './contact-memory';
 export * from './catalog';
 export * from './field-visibility';
 export * from './data-jobs';
+export * from './data-transfer';
 export * from './documents';
 export * from './quotes';
 export * from './contracts';

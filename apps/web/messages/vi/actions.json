@@ -1290,5 +1290,19 @@
     "cancel": {
       "title": "Huỷ lệnh thao tác kênh chưa gửi"
     }
+  },
+  "transfer": {
+    "plan": {
+      "title": "Lập kế hoạch nhập dữ liệu từ tệp"
+    },
+    "update_mapping": {
+      "title": "Sửa ánh xạ cột / cách xử lý dòng lỗi"
+    },
+    "commit": {
+      "title": "Xác nhận nhập dữ liệu"
+    },
+    "cancel": {
+      "title": "Huỷ nhập dữ liệu"
+    }
   }
 }

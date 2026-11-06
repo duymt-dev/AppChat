@@ -1290,5 +1290,19 @@
     "cancel": {
       "title": "Cancel a pending channel operation"
     }
+  },
+  "transfer": {
+    "plan": {
+      "title": "Plan a data import from a file"
+    },
+    "update_mapping": {
+      "title": "Change column mapping / invalid-row policy"
+    },
+    "commit": {
+      "title": "Confirm data import"
+    },
+    "cancel": {
+      "title": "Cancel data import"
+    }
   }
 }
