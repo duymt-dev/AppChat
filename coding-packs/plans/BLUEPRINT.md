@@ -826,7 +826,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 - `admin.model_price.upsert`
 - `admin.model_route.upsert`
 - `admin.llm_provider.upsert` / `admin.llm_provider.probe` / `admin.llm_provider.disable`: config (D33)
-- `admin.invoice.confirm_transfer`: money.
+- `admin.invoice.confirm_transfer`: money (xác nhận tay cần ghi chú + bằng chứng) · `admin.bank_transaction.match`: money (một giao dịch → một hoá đơn, đúng số tiền — TIP-040).
 - `admin.workspace.suspend` / `admin.workspace.resume`
 - `admin.workspace.archive` / `admin.workspace.restore`: config, luôn preview (§2.0 bước 5)
 - `admin.agent_template.upsert`
@@ -990,7 +990,7 @@ type UiCommand =
 | authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
 | misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` — đã nối (TIP-013, shape `packages/shared/src/api/settings.ts`): `workspace` (mọi thành viên), `members?q=` (`members.manage`; `{ data, total, seat_limit, next_cursor: null }`), `roles` (mọi thành viên), `sla` (`sla.manage`; giờ làm việc thật, chính sách mặc định tới TIP-034), `notifications` (TIP-006), `integrations` (TIP-012) |
-| admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` (đã nối — TIP-010, platform admin, không cần X-Workspace-Id) |
+| admin | `GET /v1/admin/session` · `GET /v1/admin/workspaces?status&plan&q&cursor` · `GET /v1/admin/config/{plans,providers,routes,prices,templates}` · `GET /v1/admin/transfers` · `GET /v1/admin/bank-transactions` · `GET /v1/admin/sales-inquiries` (con trỏ, deferred join) — TIP-040, `platform_admin` sống mỗi lời gọi, không cần X-Workspace-Id; ghi qua `POST /v1/actions/admin.*` nhánh ngữ cảnh nền tảng (DC-368; cấu hình CAS + `platform_config_revision` DC-370, provider DC-371, đối soát DC-372, tạm dừng DC-373). Cấp quyền admin chỉ bằng `db:grant-platform-admin` (shell) |
 
 Bổ sung ver2.1:
 - inbox: `GET /v1/conversations/:id/messages/search?q=&sender=all|contact|user|agent` (không dấu, trả vị trí để tô — REQ-C12); list hội thoại bỏ `hidden_at` khác null (D50); `GET /v1/conversations/:id/agent-tools` (quyền hiệu lực của agent phụ trách, chỉ đọc — REQ-C11).
@@ -1292,7 +1292,7 @@ settings/roles (D27)      RolesMatrix (P0 chỉ đọc: nhóm quyền × 5 vai t
 settings/integrations     IntegrationsPage (theo prototype L6218) → CategoryTabs · StatsStrip · ConnectorGrid → ConnectorCard { manifest, status } (badge "Sắp có" + InterestButton) · ConnectModal (form sinh từ `manifest.auth.fields`) · ConnectionDrawer (trạng thái, nhật ký gọi, đồng bộ ngay, chọn bên giữ tồn, bật tích điểm đơn sàn, ngắt) (D28, D31)
 settings/doc_templates    TemplateList (tab theo loại) · RichTemplateEditor · DocxUploadWizard (tải lên → AI nhận diện → FieldMapper đánh dấu / sửa biến → LegalChecklistPanel → lưu) · TemplatePreview (PDF) (D30)
 settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTabs (Tất cả / AI đã học / Từ hội thoại / Do bạn upload) · FileTable (trạng thái index, số đoạn, index lại) · UploadModal (thư mục, thẻ, visibility) · SuggestionQueue (P1)
-(admin)/admin/[section]   workspaces · plans · model-prices · transfers · templates
+(admin)/admin?tab=        workspaces · plans · providers · routes · prices · transfers (+ giao dịch chưa khớp, yêu cầu liên hệ) · templates — AdminGuard (`/admin/session`), không AppShell (TIP-040, PD-022)
 (onboarding)/declare      DeclareBusinessModal (không đóng được; 2 bước) · welcome → TrialWelcome (2 nút)
 ```
 

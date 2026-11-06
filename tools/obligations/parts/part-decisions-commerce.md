@@ -144,7 +144,7 @@
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | ĐẠT | packages/core/src/marketing/* (phân khúc, duyệt + snapshot, gửi theo lô qua hàng kênh, số đo, AI); integration marketing*.test.ts 31 ca + E2E mock / http marketing |
 | D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
 | D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | ĐẠT | Như COM-10-7; nhắc 80 / 95% → `billing.notice` low (billing.rules.ts); hội thoại sang người nhưng Hộp thư / dữ liệu / trả lời tay vẫn dùng (credit-handoff.consumer.ts) |
-| D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | MỘT PHẦN | Seed có (billing/seed.ts · test billing.test.ts AC2); `admin.plan.upsert` chưa có |
+| D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | ĐẠT | seed billing/seed.ts (không đè cấu hình admin) + admin.plan.upsert (plan.handler.ts, CAS version; tắt gói chỉ chặn mua mới) + tab Gói ở /admin; test apps/api/test/integration/platform-config.test.ts (TIP-040) |
 | D11 | RBAC Owner + Member | 01-REQUIREMENTS-MATRIX.md:262 | — | NGOÀI | Thay bằng D27 |
 | D12 | Không Docker | 01-REQUIREMENTS-MATRIX.md:263 | — | QUY-TẮC | Không có Dockerfile trong repo (find) |
 | D13 | ORM Prisma (+ SQL thô cho index) | 01-REQUIREMENTS-MATRIX.md:264 | 002 | QUY-TẮC | packages/db/prisma/{platform,tenant} |
