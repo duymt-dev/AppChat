@@ -5,6 +5,7 @@
 // · campaign.record_delivery — kết quả kênh theo `delivery_ref`: accepted → sent + khoá 48 giờ tính từ lúc gửi; failed chắc chắn → failed,
 //   nhả khoá; unknown → giữ khoá, KHÔNG thử lại. Kết quả trùng (chạy lại) không ghi / đếm lần hai.
 import { Inject, Injectable } from '@nestjs/common';
+import { TenantContexts } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, campaignDispatch, campaignRecordDelivery } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
@@ -35,8 +36,20 @@ export class CampaignDispatchHandler implements Handler<ActionInput<typeof campa
     throw new AppError('FORBIDDEN', 403, { source: ctx.source });
   }
 
-  async execute(ctx: ActionContext, input: ActionInput<typeof campaignDispatch>, tx: TenantTx): Promise<HandlerOutcome<DispatchOut>> {
+  /**
+   * Người duyệt còn quyền duyệt — kiểm NGOÀI transaction (resolve quyền đọc DB nền tảng + tenant bằng kết nối khác: trong transaction đang
+   * giữ khoá chiến dịch, các lượt quét song song cạn pool kết nối → treo tới hết hạn transaction).
+   */
+  async prepare(ctx: ActionContext, input: ActionInput<typeof campaignDispatch>): Promise<{ approverOk: boolean }> {
     assertSystem(ctx, MARKETING_ACTORS.dispatch);
+    const db = await this.d.tenants().get(TenantContexts.system(ctx.workspaceId, 'campaign.dispatch'));
+    const c = await db.campaign.findUnique({ where: { id: input.campaign_id }, select: { approvedByUserId: true } });
+    return { approverOk: await this.d.still(ctx.workspaceId, c?.approvedByUserId ?? null, 'campaign.approve') };
+  }
+
+  async execute(ctx: ActionContext, input: ActionInput<typeof campaignDispatch>, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<DispatchOut>> {
+    assertSystem(ctx, MARKETING_ACTORS.dispatch);
+    const approverOk = ((prepared as { approverOk?: boolean } | undefined) ?? (await this.prepare(ctx, input))).approverOk;
     const now = this.clock.now();
     const c = await lockCampaign(tx, input.campaign_id);
     if (c.approvedVersion !== input.approved_version) throw new AppError('CONFLICT', 409, { approved_version: 'changed' });
@@ -50,7 +63,7 @@ export class CampaignDispatchHandler implements Handler<ActionInput<typeof campa
       return { result: { claimed: 0, skipped: 0, done: false }, events: [changed('campaign.paused', row, null)] };
     };
     // Người duyệt bị thu hồi quyền duyệt / rời workspace → dừng chờ người có quyền xem lại (không gửi nhân danh quyền đã mất).
-    if (!(await this.d.still(ctx.workspaceId, c.approvedByUserId, 'campaign.approve'))) return c.status === 'approved' ? this.hold(tx, c, now, 'approver_revoked') : pause('approver_revoked');
+    if (!approverOk) return c.status === 'approved' ? this.hold(tx, c, now, 'approver_revoked') : pause('approver_revoked');
     const acc = c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId }, select: { status: true, pausedAt: true } }) : null;
     if (!acc || acc.status !== 'connected' || acc.pausedAt) return c.status === 'approved' ? this.hold(tx, c, now, `account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`) : pause(`account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`);
     if (c.status !== 'running') {

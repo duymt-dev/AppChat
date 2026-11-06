@@ -1,6 +1,7 @@
 // Xuất người nhận chiến dịch ra CSV (TIP-037, PRO-marketing-detailexport): chỉ người nhận mà khách nằm trong scope CRM HIỆN TẠI của người
 // xuất (khách ngoài scope không ra dòng — kể cả khi chiến dịch có họ); lọc trạng thái như màn chi tiết. Ô bắt đầu bằng = + - @ chặn công
-// thức (csvCell của CRM), BOM UTF-8 cho Excel. Tệp lưu kho (purpose `export`) — tải qua /v1/files/:id có đăng nhập (chỉ người xuất / Owner).
+// thức (csvCell của CRM), BOM UTF-8 cho Excel. Tệp lưu kho (purpose `attachment` — `document` không nhận CSV) — tải qua /v1/files/:id có
+// đăng nhập (chỉ người xuất / Owner).
 import { TenantSql as Prisma } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';

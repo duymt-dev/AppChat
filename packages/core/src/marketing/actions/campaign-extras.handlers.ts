@@ -155,7 +155,7 @@ export class CampaignRecipientExportHandler implements Handler<ActionInput<typeo
   async execute(ctx: ActionContext, input: ActionInput<typeof campaignRecipientExport>, tx: TenantTx): Promise<HandlerOutcome<{ file_id: string; rows: number; url: string }>> {
     const c = await findCampaign(tx, input.campaign_id);
     const { csv, rows } = await exportRows(tx, ctx.authz, c.id, input.status);
-    const f = await this.d.files().upload(tx, ctx.workspaceId, { name: `${c.code}-nguoi-nhan.csv`, mime: 'text/csv', body: Buffer.from(csv, 'utf8'), purpose: 'document', uploadedBy: actorUserId(ctx) });
+    const f = await this.d.files().upload(tx, ctx.workspaceId, { name: `${c.code}-nguoi-nhan.csv`, mime: 'text/csv', body: Buffer.from(csv, 'utf8'), purpose: 'attachment', uploadedBy: actorUserId(ctx) });
     return { result: { file_id: f.id, rows, url: `/v1/files/${f.id}` } };
   }
 }

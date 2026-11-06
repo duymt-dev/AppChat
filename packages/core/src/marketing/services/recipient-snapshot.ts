@@ -39,7 +39,12 @@ export async function takeSnapshot(tx: TenantTx, authz: AuthzContext, s: Snapsho
            AND cv.archived_at IS NULL AND cv.channel_account_id = ${s.accountId}::uuid ORDER BY cv.last_message_at DESC LIMIT 1)`
       : Prisma.sql`(SELECT cv.id FROM conversation cv WHERE cv.contact_id = c.id AND cv.channel_type = 'email' AND cv.kind = 'direct'
            AND cv.archived_at IS NULL AND cv.channel_account_id = ${s.accountId}::uuid ORDER BY cv.last_message_at DESC LIMIT 1)`;
-  const endpoint = s.channel === 'email' ? Prisma.sql`lower(coalesce(c.email, ''))` : Prisma.sql`coalesce(nullif(c.zalo, ''), c.phone, '')`;
+  // Zalo: kênh nhận là hội thoại 1-1 (khách nhắn tới thường chưa có SĐT) — endpoint chỉ để hiển thị, rỗng thì lấy mã luồng của hội thoại.
+  const endpoint =
+    s.channel === 'email'
+      ? Prisma.sql`lower(coalesce(c.email, ''))`
+      : Prisma.sql`coalesce(nullif(c.zalo, ''), nullif(c.phone, ''), (SELECT cv.external_thread_id FROM conversation cv WHERE cv.id = ${conv}), '')`;
+  const unreachable = s.channel === 'email' ? Prisma.sql`ins.endpoint = ''` : Prisma.sql`ins.conversation_id IS NULL`;
   const variant = s.ab ? Prisma.sql`CASE WHEN (('x' || substr(md5(${s.campaignId} || c.id::text), 1, 8))::bit(32)::int & 1) = 1 THEN 'b' ELSE 'a' END` : Prisma.sql`'a'`;
   await tx.$executeRaw`
     WITH src AS (
@@ -49,8 +54,8 @@ export async function takeSnapshot(tx: TenantTx, authz: AuthzContext, s: Snapsho
     ), ins AS (SELECT gen_random_uuid() AS id, src.* FROM src)
     INSERT INTO campaign_recipient (id, campaign_id, contact_id, status, skip_reason, variant, conversation_id, endpoint, delivery_ref, created_at, updated_at)
     SELECT ins.id, ${s.campaignId}::uuid, ins.contact_id,
-      CASE WHEN ins.opt_out OR ins.endpoint = '' OR (${s.channel} = 'zalo' AND ins.conversation_id IS NULL) OR ins.cooled THEN 'skipped' ELSE 'pending' END,
-      CASE WHEN ins.opt_out THEN 'opt_out' WHEN ins.endpoint = '' OR (${s.channel} = 'zalo' AND ins.conversation_id IS NULL) THEN 'no_endpoint' WHEN ins.cooled THEN 'cooldown' END,
+      CASE WHEN ins.opt_out OR ${unreachable} OR ins.cooled THEN 'skipped' ELSE 'pending' END,
+      CASE WHEN ins.opt_out THEN 'opt_out' WHEN ${unreachable} THEN 'no_endpoint' WHEN ins.cooled THEN 'cooldown' END,
       ins.variant, ins.conversation_id, ins.endpoint, 'cr_' || ins.id::text, ${now}, ${now}
     FROM ins`;
   const r = await tx.$queryRaw<{ total: bigint; eligible: bigint; hash: string | null }[]>`

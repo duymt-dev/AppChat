@@ -29,7 +29,8 @@ export async function tickWorkspace(d: TickDeps, ws: string): Promise<{ dispatch
   const db = await d.tenants.get(TenantContexts.system(ws, CAMPAIGN_TICK_JOB));
   const now = d.now();
   const due = await db.campaign.findMany({
-    where: { deletedAt: null, OR: [{ status: 'approved' }, { status: 'running' }, { status: 'scheduled', scheduledAt: { lte: now } }] },
+    // Cùng vị từ với index một phần campaign_due_idx (status IN …) — điều kiện giờ hẹn lọc trên index.
+    where: { deletedAt: null, status: { in: ['approved', 'scheduled', 'running'] }, OR: [{ status: { not: 'scheduled' } }, { scheduledAt: { lte: now } }] },
     select: { id: true, approvedVersion: true },
     orderBy: [{ status: 'asc' }, { scheduledAt: 'asc' }],
     take: 50,
