@@ -7,14 +7,14 @@ import { AppError, can, type CampaignChannel } from '@appchat/shared';
 import type { ActionInput, ActionPreview, campaignAudienceImport, campaignRecipientExport, campaignResendUnread, campaignSendTest } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
-import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
+import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { created, line, preview } from '../../kernel/actions/preview-kit';
 import { checkFile } from '../../kernel/files/file-access';
 import { uuidv7 } from '../../kernel/ids';
 import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, actorUserId, createContact } from '../../crm/public';
 import { IMPORT_FILE_RULE } from '../../catalog/import/import.handler';
-import { actorOf, changed, findCampaign, logEvent } from '../repos/campaigns.repo';
+import { actorOf, changed, findCampaign, lockCampaign, logEvent } from '../repos/campaigns.repo';
 import { classifyRows, countKinds, parseRows, rowErrors } from '../services/audience-import';
 import { CHANNEL_CAPS, renderContent, type CampaignContent } from '../services/campaign-policy';
 import { MarketingDeps } from '../services/marketing-deps';
@@ -86,7 +86,16 @@ export class CampaignResendUnreadHandler implements Handler<ActionInput<typeof c
     });
     for (let i = 0; i < ids.length; i += 1000) await tx.campaignAudience.createMany({ data: ids.slice(i, i + 1000).map((contactId) => ({ campaignId: id, contactId, source: 'manual', createdAt: now })), skipDuplicates: true });
     await logEvent(tx, id, 'created', actor, now, { resend_of: src.code });
-    return { result: { campaign_id: id, code, est_recipients: ids.length, read_evidence: CHANNEL_CAPS[src.channel as CampaignChannel].read_receipt }, events: [changed('campaign.updated', row, actor.userId)] };
+    return { result: { campaign_id: id, code, est_recipients: ids.length, read_evidence: CHANNEL_CAPS[src.channel as CampaignChannel].read_receipt }, after: { id }, events: [changed('campaign.updated', row, actor.userId)] };
+  }
+
+  /** Hoàn tác: xoá mềm nháp gửi lại khi vẫn là nháp (chưa gửi duyệt — chưa có tác dụng ngoài). */
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
+    const c = await lockCampaign(tx, (log.after as { id: string }).id);
+    if (c.status !== 'draft') throw new AppError('CONFLICT', 409, { campaign_id: 'changed' });
+    const now = this.clock.now();
+    await tx.campaign.update({ where: { id: c.id }, data: { deletedAt: now, version: { increment: 1 }, updatedAt: now } });
+    await logEvent(tx, c.id, 'undo', await actorOf(ctx, this.members), now, { action: 'campaign.resend_unread' });
   }
 }
 

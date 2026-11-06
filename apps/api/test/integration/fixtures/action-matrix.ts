@@ -8,7 +8,7 @@ import { tipOwnerOf } from '@appchat/core';
 
 export const MATRIX_DIR = join(import.meta.dirname, '..', 'actions');
 /** TIP chưa làm tới trong GOAL-RELEASE (sau 023b) — action của chúng chưa có handler nên chưa có ma trận. */
-export const LATER_TIPS: ReadonlySet<string> = new Set(['036', '037', '038', '039', '040', '041', '043', '044', '045', '046']);
+export const LATER_TIPS: ReadonlySet<string> = new Set(['036', '038', '039', '040', '041', '043', '044', '045', '046']);
 
 export type MatrixEntry = { id: string; file: string } | { id: string; pendingTip: string };
 
