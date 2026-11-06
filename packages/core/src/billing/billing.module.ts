@@ -9,11 +9,13 @@ import { ENV_SOURCE } from '../kernel/kernel.module';
 import { REDIS } from '../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { OutboxBillingSink, walletThresholdListener } from './events/billing.events';
+import './events/billing.rules';
 import { AdminConfirmTransferHandler } from './actions/admin-confirm-transfer.handler';
 import { BillingCancelInvoiceHandler } from './actions/billing-cancel-invoice.handler';
 import { BillingCreateInvoiceHandler } from './actions/billing-create-invoice.handler';
 import { BillingReportTransferHandler } from './actions/billing-report-transfer.handler';
 import { BillingApplyInvoiceHandler, BillingLifecycleStepHandler } from './actions/lifecycle.handlers';
+import { WalletUpdateAlertsHandler } from './actions/wallet-alerts.handler';
 import { PlatformBankHook } from './payments/bank-hook.service';
 import { InvoiceFulfiller } from './payments/fulfil';
 import { InvoicesService } from './payments/invoices.service';
@@ -95,6 +97,7 @@ class BillingBoot implements OnApplicationBootstrap {
     AdminConfirmTransferHandler,
     BillingLifecycleStepHandler,
     BillingApplyInvoiceHandler,
+    WalletUpdateAlertsHandler,
     {
       provide: BillingBoot,
       inject: [opt(PLATFORM_DB), WalletService, BILLING_SINK, InvoiceFulfiller, opt(ActionExecutor as never)],

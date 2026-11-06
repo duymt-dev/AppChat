@@ -2,6 +2,7 @@
 // 202 approval_required (TIP-023b SPEC B.4): toast "đã gửi duyệt", `onAccepted` + `accepted` riêng, invalidate danh sách duyệt; `run` vẫn trả
 // null (không giả kết quả thành công cho consumer đợi 200). 202 job_accepted (TIP-032b): việc nền đã nhận — toast "đang chạy" (không phải
 // "đã xong"), `onAccepted` + `accepted` giữ handle (job_id, status_url) để màn theo dõi; không invalidate như hoàn tất. Switch exhaustive.
+// 402 CREDIT_EXHAUSTED (TIP-039) → thêm popup ví toàn app.
 // GenUI (TIP-023c): `genui.intent` = handle server ký cho node → header `x-genui-intent` (server đặt nguồn assistant → xem trước / xác
 // nhận như Trợ lý). Form có ô bí mật: 202 trả `secret_vault`; lần xác nhận gửi vault + input ĐÃ BỎ ô bí mật (không gửi lại giá trị).
 'use client';
@@ -14,6 +15,7 @@ import { ApiRequestError } from '@appchat/shared';
 import { transport } from '../api/client';
 import { matchesInvalidation } from '../api/query-keys';
 import { useConfirmStore } from './confirm-store';
+import { creditExhausted } from '../billing/credit-error';
 
 export interface RunOptions {
   silent?: boolean;
@@ -121,6 +123,8 @@ export function useAction<O = unknown>(id: string) {
       } catch (e) {
         if (e instanceof ApiRequestError && opts.onError?.(e)) return null;
         const code = e instanceof ApiRequestError ? e.error.code : 'INTERNAL';
+        // TIP-039: 402 hết Credit → popup ví (BillingNoticeHost) ngoài toast; PLAN_LIMIT_REACHED giữ toast riêng (không gắn nhãn hết Credit).
+        if (code === 'CREDIT_EXHAUSTED') creditExhausted();
         message.error(t(`errors.${code}` as never));
         return null;
       } finally {

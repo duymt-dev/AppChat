@@ -2,7 +2,7 @@
 // trial (BullMQ repeatable queue `scheduler`, job `billing.trial-expiry` mỗi 10 phút; jobId cố định → một lịch dù nhiều worker).
 // TIP-010: job `billing.invoice-sweep` mỗi phút — QR quá 15 phút → expired; hoá đơn paid chưa ghi nhận → ghi nhận (DC-055).
 // TIP-045b annex E: `billing.reconcile` mỗi giờ — đối soát nền tảng ↔ tenant, chỉ ghi phát hiện (reconcile.ts).
-// TIP-039: backfill addon cũ lúc boot (addon-backfill.ts); `billing.lifecycle` mỗi 5 phút — cấp Credit kỳ tháng / hết kỳ / hạ gói kỳ sau (lifecycle.runner.ts). Queue RIÊNG `billing-scheduler`
+// TIP-039: consumer `ai.credit-handoff` (credits.exhausted → hội thoại auto sang người); backfill addon cũ lúc boot (addon-backfill.ts); `billing.lifecycle` mỗi 5 phút — cấp Credit kỳ tháng / hết kỳ / hạ gói kỳ sau (lifecycle.runner.ts). Queue RIÊNG `billing-scheduler`
 // (trước 039 là `scheduler` dùng chung: worker nhận job lạ rồi trả thành công → job domain khác có thể bị nuốt).
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
@@ -19,6 +19,8 @@ import { trialConsumer } from '../events/billing.events';
 import { InvoiceFulfiller } from '../payments/fulfil';
 import { SubscriptionsService } from '../services/subscriptions.service';
 import { ActionExecutor } from '../../kernel/actions/executor';
+import { CREDIT_HANDOFF_CONSUMER, creditHandoffConsumer } from '../../ai/reply/credit-handoff.consumer';
+import { WalletService } from '../services/wallet.service';
 import { backfillLegacyAddons } from './addon-backfill';
 import { LIFECYCLE_BATCH, runLifecycle } from './lifecycle.runner';
 import { RECONCILE_EVERY_MS, RECONCILE_JOB, reconcileAll } from './reconcile';
@@ -44,12 +46,16 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants?: TenantDbResolver,
     @Optional() @Inject(CLOCK) private readonly clock?: Clock,
     @Optional() @Inject(ActionExecutor) private readonly executor?: ActionExecutor,
+    @Optional() @Inject(WalletService) private readonly wallet?: WalletService | null,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     if (!this.redis || !this.subs) return;
     const subs = this.subs;
     registerEventConsumer(trialConsumer(subs));
+    // Hết Credit → hội thoại AI tự động sang người (bền qua outbox; kiểm lại số dư hiện tại — event trễ sau khi nạp không chuyển).
+    const wallet = this.wallet;
+    if (wallet) registerEventConsumer(creditHandoffConsumer({ balance: async (ws) => (await wallet.balance(ws)).total, kv: this.redis, now: () => this.clock?.now() ?? new Date() }));
     this.queue = new Queue(SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(TRIAL_EXPIRY_JOB, { every: EVERY_MS }, { name: TRIAL_EXPIRY_JOB });
     if (this.invoices) await this.queue.upsertJobScheduler(INVOICE_SWEEP_JOB, { every: INVOICE_EVERY_MS }, { name: INVOICE_SWEEP_JOB });
@@ -100,6 +106,7 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
 
   async onApplicationShutdown(): Promise<void> {
     unregisterEventConsumer('billing.trial');
+    unregisterEventConsumer(CREDIT_HANDOFF_CONSUMER);
     await this.worker?.close();
     await this.queue?.close();
   }

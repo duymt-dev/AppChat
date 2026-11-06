@@ -1,6 +1,6 @@
 // TIP-045b annex A1 — phân loại handler action nền tảng: mọi action `db: 'platform'` có handler thật thuộc một lớp đã khai (nền tảng thuần
 // + biên nhận tenant, hoặc giữ chỗ hạn mức + hiệu ứng tenant qua applyTenant); pha nền tảng chỉ được ĐỌC tenant (proxy chặn ghi); không
-// còn handler nào ghi tenant trực tiếp trong pha nền tảng. Stub (wallet.update_alerts) vẫn NOT_IMPLEMENTED, không giả hỗ trợ.
+// còn handler nào ghi tenant trực tiếp trong pha nền tảng. wallet.update_alerts có handler từ TIP-039 (hết stub).
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -22,9 +22,8 @@ const CLASSES: Record<string, 'platform_only' | 'tenant_effect' | 'read' | 'stub
   'bank_feed.connect': 'tenant_effect',
   'bank_feed.disconnect': 'tenant_effect',
   'member.search': 'read',
-  'wallet.update_alerts': 'stub',
 };
-const platformOnly = ['admin.invoice.confirm_transfer', 'billing.apply_invoice', 'billing.cancel_invoice', 'billing.create_invoice', 'billing.lifecycle_step', 'billing.report_transfer', 'business_profile.update', 'integration.register_interest', 'invite.revoke', 'member.invite', 'member.remove', 'member.set_role', 'notification.update_prefs', 'onboarding.toggle_step', 'profile.update', 'working_hours.update', 'workspace.request_transfer_otp', 'workspace.switch', 'workspace.transfer_ownership', 'workspace.update'];
+const platformOnly = ['admin.invoice.confirm_transfer', 'billing.apply_invoice', 'billing.cancel_invoice', 'billing.create_invoice', 'billing.lifecycle_step', 'billing.report_transfer', 'business_profile.update', 'integration.register_interest', 'invite.revoke', 'member.invite', 'member.remove', 'member.set_role', 'notification.update_prefs', 'onboarding.toggle_step', 'profile.update', 'working_hours.update', 'workspace.request_transfer_otp', 'workspace.switch', 'workspace.transfer_ownership', 'workspace.update', 'wallet.update_alerts'];
 for (const id of platformOnly) CLASSES[id] = 'platform_only';
 
 const SRC = join(import.meta.dirname, '..', 'src');
@@ -42,8 +41,9 @@ describe('phân loại action nền tảng', () => {
     expect(Object.keys(CLASSES).sort()).toEqual(PLATFORM);
   });
 
-  it('stub vẫn có TIP chủ (NOT_IMPLEMENTED), không giả hỗ trợ', () => {
+  it('không còn stub: wallet.update_alerts (TIP-039) là platform_only', () => {
     expect(tipOwnerOf('wallet.update_alerts')).toBe('039');
+    expect(CLASSES['wallet.update_alerts']).toBe('platform_only');
   });
 
   it('handler ghi tenant tách pha: có applyTenant, không còn `tx.<model>.create/update` trong execute', () => {

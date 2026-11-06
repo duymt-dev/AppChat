@@ -60,6 +60,17 @@
     "wallet": "Ví AppChat",
     "logout": "Đăng xuất"
   },
+  "billingNotice": {
+    "lowTitle": "Credit gói đã dùng {level}%",
+    "lowBody": "Credit trong gói sắp hết. Nạp thêm để AI không bị gián đoạn — không tự nạp.",
+    "exhaustedTitle": "Đã hết Credit AI",
+    "exhaustedBody": "AI tạm dừng: hội thoại AI đang tự trả lời đã chuyển sang người. Hộp thư, dữ liệu và trả lời thủ công vẫn dùng bình thường.",
+    "restoredTitle": "Đã có Credit trở lại",
+    "restoredBody": "Có thể dùng AI lại. Hội thoại đã chuyển sang người giữ nguyên — bật AI lại ở từng hội thoại khi cần.",
+    "topup": "Nạp Credit",
+    "askOwner": "Liên hệ Chủ sở hữu để nạp Credit.",
+    "close": "Đóng"
+  },
   "dock": {
     "title": "Trợ lý AI",
     "subtitle": "Phiên bản thu nhỏ · hỗ trợ ngay trong màn hình",

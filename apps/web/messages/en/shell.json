@@ -60,6 +60,17 @@
     "wallet": "AppChat wallet",
     "logout": "Sign out"
   },
+  "billingNotice": {
+    "lowTitle": "{level}% of plan credits used",
+    "lowBody": "Your plan credits are running low. Top up so AI is not interrupted — there is no auto top-up.",
+    "exhaustedTitle": "Out of AI credits",
+    "exhaustedBody": "AI is paused: conversations the AI was answering have been handed to people. Inbox, data and manual replies keep working.",
+    "restoredTitle": "Credits are back",
+    "restoredBody": "AI can be used again. Conversations handed to people stay with them — turn AI back on per conversation when needed.",
+    "topup": "Top up credits",
+    "askOwner": "Ask the workspace owner to top up credits.",
+    "close": "Close"
+  },
   "dock": {
     "title": "AI Assistant",
     "subtitle": "Compact mode · help right on this screen",

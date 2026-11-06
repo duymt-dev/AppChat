@@ -2,6 +2,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, withDatabase, tenantDbName } from '@appchat/db';
+import { ActionHandlerRegistry } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 import * as setup from './setup';
 
@@ -141,10 +142,11 @@ describe('POST /v1/actions/:id', () => {
     expect(await json(await call(h, `/action-logs/${created.body.data.action_log_id}/undo`, {}))).toMatchObject({ status: 409, body: { error: { code: 'UNDO_NOT_SUPPORTED' } } });
   });
 
-  it('AC8 action chưa cài → 501 NOT_IMPLEMENTED kèm TIP chủ', async () => {
-    // TIP-038 pha 2 đã cài follow_up.complete — ví dụ còn lại: action `db: 'platform'` chưa cài (TIP-039), đi nhánh nền tảng của executor rồi mới 501.
+  it('AC8 mọi action đã có handler (TIP-039 cài wallet.update_alerts — action cuối); 501 NOT_IMPLEMENTED kiểm ở actions-unit.test.ts', async () => {
+    const reg = h.app.get(ActionHandlerRegistry, { strict: false });
+    expect(reg.pendingByTip()).toEqual({});
     const p = await json(await call(h, '/actions/wallet.update_alerts', { input: { low_alert: true } }));
-    expect(p).toMatchObject({ status: 501, body: { error: { code: 'NOT_IMPLEMENTED', fields: { tip: '039' } } } });
+    expect(p.status).toBe(200);
   });
 
   it('GET /v1/actions lọc theo quyền + có input_schema', async () => {
