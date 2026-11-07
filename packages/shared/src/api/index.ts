@@ -27,6 +27,7 @@ export * from './inbox';
 export * from './inbox-thread';
 export * from './inbox-groups';
 export * from './contact-edit';
+export * from './inbox-translation';
 export * from './conversation-groups';
 export * from './channel-operations';
 export * from './webchat';

@@ -329,6 +329,10 @@
     "translate": {
       "title": "Dịch tin nhắn",
       "desc": "Dịch một tin nhắn của khách sang tiếng Việt."
+    },
+    "translate_draft": {
+      "title": "Dịch bản nháp",
+      "desc": "Dịch bản nháp trả lời sang ngôn ngữ của khách để xem trước — không tự gửi."
     }
   },
   "ai_task": {

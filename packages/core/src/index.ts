@@ -34,6 +34,7 @@ export { ChannelsJobsModule } from './channels/jobs/channels.jobs.module';
 export { InboxModule } from './inbox/inbox.module';
 export { InboxJobsModule } from './inbox/jobs/inbox.jobs.module';
 export { InboxUiJobsModule } from './inbox/jobs/inbox-ui.jobs.module';
+export { cleanupTranslationCache } from './ai/jobs/translation-cache.cleanup';
 export { registerInboxBulkKind } from './inbox/jobs/inbox-bulk.processor';
 export { CrmModule } from './crm/crm.module';
 export { CrmJobsModule, purgeMemoryReceipts, pruneCustomFields, MEMORY_RECEIPT_PURGE_JOB, CUSTOM_FIELD_PRUNE_JOB } from './crm/jobs/crm.jobs.module';

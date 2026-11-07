@@ -329,6 +329,10 @@
     "translate": {
       "title": "Translate message",
       "desc": "Translate a customer message into Vietnamese."
+    },
+    "translate_draft": {
+      "title": "Translate draft",
+      "desc": "Translate the reply draft into the customer language for preview — never sends."
     }
   },
   "ai_task": {
