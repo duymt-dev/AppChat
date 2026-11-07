@@ -7,6 +7,7 @@
 1. **Bộ ca nằm trong repo:** `packages/ai/eval/cases/<suite>/*.yaml`. Suite phát hành:
    - `assistant-actions`: chọn đúng action, đúng tham số, đúng quyền, đúng mức xác nhận.
    - `assistant-ui`: phát đúng `UiCommand`.
+   - `genui` (D55): cây giao diện hợp lệ schema; mọi số liệu là `$ref` tới bước đã chạy; nút ghi đi qua action + xác nhận; ca tiêm lệnh qua dữ liệu khách không tạo nút / form hành động (`ai/generative-ui.md` §12).
    - `agent-create`: Trợ lý soạn cấu hình đúng mô tả, tools không vượt quyền người tạo, tool money / delete có duyệt, luôn qua thẻ xác nhận.
    - `rag`: trả lời đúng nguồn, không bịa khi không có căn cứ, không dùng tài liệu `internal` cho khách, không lấy giá từ RAG (`ai/rag.md`).
    - `doc-draft`: giá khớp catalog, dòng ngoài danh mục bị đánh dấu, không sửa nguyên văn điều khoản mẫu, không bỏ dòng "không thay thế hoá đơn GTGT" (`documents/templates.md`).

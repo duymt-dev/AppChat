@@ -1,0 +1,349 @@
+{
+  "title": "Trợ lý AI",
+  "brand": "AppChat",
+  "crumb": {
+    "actions": "· Nhật ký hành động",
+    "cowork": "· Tác vụ tự chủ (Coworks)",
+    "approvals": "· Chờ duyệt"
+  },
+  "newChat": "Cuộc trò chuyện mới",
+  "hello": "Xin chào, {name} 👋",
+  "ask": "Hôm nay AppChat giúp gì cho bạn?",
+  "placeholder": "Hỏi AppChat… gõ / để mở lệnh nhanh, @ để tham chiếu khách/chiến dịch",
+  "placeholderShort": "Hỏi AppChat…",
+  "placeholderCowork": "Giao nhiệm vụ nhiều bước cho AI Agent…",
+  "mode": {
+    "chat": "Chat",
+    "cowork": "Cowork"
+  },
+  "attach": "Đính kèm",
+  "quick": "Lệnh nhanh",
+  "voice": "Nhập bằng giọng nói",
+  "send": "Gửi",
+  "next": "Tiếp",
+  "thinkTitle": "Trợ lý AI theo công việc",
+  "teamTitle": "Đội AI Agent — chọn để giao việc",
+  "suggestTitle": "Gợi ý cho bạn",
+  "agentNone": "Chưa chọn AI Agent",
+  "agentStatus": {
+    "active": "Đang chạy",
+    "paused": "Tạm dừng"
+  },
+  "tier": {
+    "standard": "Tiêu chuẩn",
+    "advanced": "Nâng cao",
+    "max": "Tối đa",
+    "standardDesc": "Nhanh nhất cho câu trả lời ngắn",
+    "advancedDesc": "Hiệu quả nhất cho việc hằng ngày",
+    "maxDesc": "Cho thử thách khó nhất",
+    "effort": "Mức nỗ lực",
+    "effortHigh": "High",
+    "check": "✓",
+    "effortMore": "High ›"
+  },
+  "plus": {
+    "coworkTitle": "COWORK · THỰC THI",
+    "file": "Thêm tệp hoặc hình ảnh",
+    "fileShort": "Thêm tệp",
+    "fileKey": "Ctrl+U",
+    "screenshot": "Chụp ảnh màn hình",
+    "channels": "Kênh kết nối",
+    "integrations": "Nền tảng kết nối",
+    "research": "Nghiên cứu",
+    "search": "Tìm kiếm",
+    "pickAgent": "Chọn AI Agent",
+    "newAgent": "Tạo AI Agent mới"
+  },
+  "agentPick": "CHỌN AI AGENT THỰC THI",
+  "agentSuffix": "{name} (AI)",
+  "ai": "AppChat AI",
+  "confirm": "Xác nhận & lưu",
+  "cancel": "Huỷ",
+  "cancelled": "Đã huỷ — AppChat không thực thi.",
+  "saved": "Đã lưu vào {dest} — mở xem",
+  "confirmLead": "Em đã hiểu yêu cầu. AppChat chuẩn bị thực thi — anh xác nhận giúp em nhé:",
+  "cw": {
+    "title": "Tác vụ tự chủ (Coworks)",
+    "sub": "Tác nhân AI tự chủ — thực thi nhiệm vụ nhiều bước",
+    "create": "Tạo tác vụ tự chủ",
+    "stats": {
+      "total": "Tổng agent",
+      "active": "Đang bật",
+      "runs": "Runs 24h",
+      "auto": "Tỉ lệ AI tự xử",
+      "tokens": "Token hôm nay",
+      "attention": "Cần can thiệp"
+    },
+    "runs": "Runs 24h",
+    "success": "Success",
+    "cost": "Cost / day",
+    "handoff": "Ngưỡng bàn giao {n}%",
+    "tierTag": "◈ {tier}",
+    "toggle": "Bật / tạm dừng {name}",
+    "run": {
+      "title": "Trợ lý AI đang điều phối",
+      "summary": "{total} việc · {running} đang chạy · {needApprove} cần bạn duyệt",
+      "seeDetail": "Xem chi tiết ›",
+      "close": "Đóng",
+      "status": {
+        "running": "Đang chạy",
+        "waiting_approval": "Chờ bạn duyệt",
+        "done": "Hoàn tất"
+      },
+      "action": {
+        "stop": "Dừng",
+        "approveSend": "Duyệt & gửi",
+        "viewResult": "Xem kết quả"
+      }
+    },
+    "new": {
+      "title": "Tạo tác vụ tự chủ",
+      "sub": "Giao một nhiệm vụ nhiều bước — AI tự thực hiện, kiểm tra kết quả và lặp lại tới khi xong.",
+      "name": "Tên tác vụ *",
+      "namePh": "VD: Tổng hợp báo cáo doanh thu tuần",
+      "goal": "Mục tiêu nhiệm vụ *",
+      "goalPh": "Mô tả việc cần làm theo từng bước. VD: Lấy đơn hàng 7 ngày qua, nhóm theo sản phẩm, so với tuần trước, xuất file Excel và gửi tóm tắt cho tôi qua Zalo.",
+      "quick": "Mẫu nhanh:",
+      "dept": "Phòng ban",
+      "data": "Dữ liệu được cấp quyền",
+      "dataHint": "AI chỉ đọc/ghi trong phạm vi được chọn, chạy trong môi trường cách ly.",
+      "tools": "Công cụ được phép dùng",
+      "run": "Cách chạy",
+      "runs": {
+        "manual": "Chạy ngay",
+        "schedule": "Theo lịch",
+        "event": "Khi có sự kiện"
+      },
+      "tier": "Mức AI thực thi",
+      "tierOpt": "{tier} · {desc}",
+      "askDelete": "Hỏi xác nhận trước khi xoá dữ liệu",
+      "always": "Luôn bật",
+      "askSend": "Hỏi xác nhận trước khi gửi ra bên ngoài",
+      "budget": "Giới hạn credit mỗi lần chạy",
+      "hint": "Chạy bằng mức {tier} · tối đa {budget} credit/lần",
+      "hintEmpty": "Nhập tên và mục tiêu để tạo tác vụ",
+      "cancel": "Huỷ",
+      "createRun": "Tạo & chạy ngay",
+      "createOnly": "Tạo tác vụ",
+      "dataOpt": {
+        "customers": "Khách hàng",
+        "orders": "Đơn hàng",
+        "quotes": "Báo giá",
+        "invoices": "Đề nghị thanh toán",
+        "conversations": "Hội thoại",
+        "files": "Tệp đính kèm"
+      },
+      "toolsOpt": {
+        "read": "Đọc dữ liệu",
+        "write": "Tạo / sửa bản ghi",
+        "message": "Gửi tin nhắn",
+        "report": "Gửi kết quả cho tôi",
+        "email": "Gửi email"
+      },
+      "agent": "AI Agent thực hiện",
+      "agentAuto": "Agent đang chạy (tự chọn)",
+      "agentNone": "Chưa có agent đang chạy",
+      "cron": "Lịch chạy",
+      "crons": {
+        "0": "08:00 mỗi ngày",
+        "1": "09:00 thứ Hai – thứ Sáu",
+        "2": "17:00 mỗi ngày",
+        "3": "08:00 thứ Hai hằng tuần"
+      },
+      "event": "Khi có sự kiện",
+      "events": {
+        "contact_created": "Có khách hàng mới",
+        "contact_stage_changed": "Khách đổi giai đoạn",
+        "quote_sent": "Đã gửi báo giá",
+        "quote_viewed": "Khách xem báo giá",
+        "quote_rejected": "Khách từ chối báo giá",
+        "order_created": "Có đơn hàng mới",
+        "order_completed": "Đơn hàng hoàn tất",
+        "appointment_created": "Có lịch hẹn mới",
+        "appointment_completed": "Lịch hẹn hoàn thành",
+        "appointment_no_show": "Khách không đến",
+        "appointment_cancelled": "Lịch hẹn bị huỷ",
+        "ticket_created": "Có ticket mới",
+        "ticket_sla_breached": "Ticket quá hạn SLA",
+        "payment_confirmed": "Đã nhận thanh toán"
+      }
+    },
+    "drawer": {
+      "sub": "{role} · ◈ {tier}",
+      "tabs": {
+        "prompt": "Tính cách & Prompt",
+        "knowledge": "Kiến thức",
+        "tools": "Công cụ & Quyền",
+        "logs": "Nhật ký & Chi phí"
+      },
+      "tone": "Tông giọng",
+      "tones": {
+        "friendly": "Thân thiện",
+        "pro": "Chuyên nghiệp",
+        "brief": "Ngắn gọn"
+      },
+      "lang": "Ngôn ngữ",
+      "langs": {
+        "vi": "Tiếng Việt",
+        "en": "English",
+        "zh": "中文"
+      },
+      "prompt": "System prompt",
+      "knowHint": "Chọn thư mục / tài liệu RAG gắn cho agent này.",
+      "toolsHintReadOnly": "Quyền của agent phụ trách tác vụ này (chỉ xem) — sửa tại Builder AI Agents.",
+      "toolGranted": "Được cấp",
+      "toolNotGranted": "Chưa cấp",
+      "editInBuilder": "Chỉnh trong Builder ›",
+      "tokens": "Token hôm nay",
+      "costToday": "Chi phí hôm nay",
+      "log": "Nhật ký hành động",
+      "close": "Đóng",
+      "save": "Lưu cấu hình",
+      "run": "Chạy ngay",
+      "delete": "Xoá tác vụ",
+      "deleteConfirm": "Xoá tác vụ này? Lịch chạy sẽ dừng, nhật ký vẫn giữ.",
+      "next": "Lần chạy kế tiếp: {at}",
+      "noLogs": "Chưa có lượt chạy nào."
+    }
+  },
+  "log": {
+    "title": "Nhật ký hành động",
+    "sub": "Mọi hành động AppChat thực thi đều được ghi lại — theo loại, đối tượng tác động và có thể hoàn tác.",
+    "search": "Tìm hành động, đối tượng…",
+    "status": {
+      "all": "Mọi trạng thái",
+      "done": "Đã thực thi",
+      "pending": "Chờ duyệt",
+      "undone": "Đã hoàn tác"
+    },
+    "day": {
+      "all": "Mọi thời gian",
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "2d": "2 ngày trước",
+      "3d": "3 ngày trước",
+      "7d": "7 ngày qua"
+    },
+    "when": "{day} · {time}",
+    "reset": "Đặt lại",
+    "count": "{n} / {total} hành động",
+    "kind": {
+      "all": "Tất cả",
+      "create": "Tạo mới",
+      "update": "Cập nhật",
+      "send": "Gửi đi",
+      "export": "Xuất / Báo cáo",
+      "delete": "Xoá"
+    },
+    "col": {
+      "kind": "Loại",
+      "title": "Hành động",
+      "object": "Đối tượng",
+      "time": "Thời gian",
+      "status": "Trạng thái",
+      "undo": "Hoàn tác"
+    },
+    "undo": "Hoàn tác",
+    "dash": "—",
+    "empty": "Không có hành động nào thuộc loại này.",
+    "undone": "Đã hoàn tác: {title}"
+  },
+  "ap": {
+    "title": "Chờ duyệt",
+    "sub": "Thao tác AI Agent đề xuất cần người có quyền duyệt trước khi chạy — gửi ra ngoài, thao tác tiền, vượt ngưỡng.",
+    "tabs": {
+      "pending": "Đang chờ",
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối",
+      "expired": "Hết hạn"
+    },
+    "by": "{agent} đề xuất",
+    "reason": "Lý do cần duyệt",
+    "risk": {
+      "send": "Gửi ra ngoài",
+      "money": "Tiền",
+      "write": "Ghi",
+      "delete": "Xoá",
+      "config": "Cấu hình",
+      "read": "Đọc"
+    },
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "noRight": "Bạn không có quyền duyệt thao tác này",
+    "note": "Ghi chú (không bắt buộc)",
+    "empty": "Không còn yêu cầu nào chờ duyệt.",
+    "status": {
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối",
+      "pending": "Chờ duyệt",
+      "edited": "Đã sửa & duyệt",
+      "expired": "Hết hạn"
+    },
+    "edit": "Sửa & duyệt",
+    "editTitle": "Sửa thông tin trước khi duyệt",
+    "saveApprove": "Lưu & duyệt",
+    "cancel": "Huỷ",
+    "rejectReason": "Lý do từ chối (không bắt buộc)",
+    "confirmReject": "Xác nhận từ chối",
+    "noFields": "Thao tác này không có trường sửa được — duyệt hoặc từ chối.",
+    "noteLabel": "Ghi chú: {note}"
+  },
+  "nav": {
+    "chat": "Trò chuyện",
+    "actions": "Nhật ký hành động",
+    "cowork": "Tác vụ tự chủ",
+    "approvals": "Chờ duyệt"
+  },
+  "preview": {
+    "edit": "Sửa",
+    "editTitle": "Sửa: {title}",
+    "editHint": "Sửa thông tin rồi bấm Xem trước lại — AppChat chưa thực thi cho tới khi anh/chị bấm Xác nhận trên thẻ mới.",
+    "repreview": "Xem trước lại",
+    "close": "Đóng",
+    "addRow": "+ Thêm dòng",
+    "removeRow": "Bỏ dòng",
+    "failed": "Không xem trước lại được ({code}). Thẻ cũ vẫn giữ nguyên.",
+    "more": "… và {n} thay đổi khác",
+    "count": "{n} bản ghi",
+    "approval": "Đã gửi duyệt — thao tác chưa thực hiện cho tới khi người có quyền duyệt.",
+    "warn": {
+      "uses_credit": "Dùng credit AI",
+      "dry_run": "Chạy thử — không ghi dữ liệu",
+      "invites_customers": "Khách sẽ nhận lời mời vào nhóm",
+      "previous_unknown": "Lần tạo trước chưa rõ kết quả — nhóm cũ có thể đã tồn tại",
+      "needs_approval": "Cần người có quyền duyệt",
+      "goes_live": "Chạy thật ngay sau khi lưu",
+      "reminders_reset": "Nhắc lịch sẽ gửi lại theo giờ mới",
+      "notify_customer": "Khách sẽ nhận thông báo",
+      "new_contact": "Tạo khách hàng mới",
+      "low_stock": "Tồn kho thấp",
+      "negative_stock": "Tồn kho sẽ âm"
+    },
+    "unset": "Không chọn"
+  },
+  "genuiConnected": "Đã kết nối xong.",
+  "sessions": {
+    "open": "Lịch sử",
+    "title": "Lịch sử trò chuyện",
+    "close": "Đóng",
+    "search": "Tìm theo tiêu đề…",
+    "loading": "Đang tải…",
+    "empty": "Chưa có cuộc trò chuyện nào.",
+    "noMatch": "Không có cuộc trò chuyện khớp.",
+    "error": "Không tải được danh sách.",
+    "retry": "Thử lại",
+    "more": "Tải thêm",
+    "untitled": "(Không tiêu đề)",
+    "mode": {
+      "chat": "Chat",
+      "cowork": "Cowork"
+    }
+  },
+  "attachments": {
+    "dataImport": "Nhập dữ liệu từ tệp này",
+    "uploading": "Đang tải…",
+    "retry": "Thử lại",
+    "cancel": "Huỷ tải lên",
+    "remove": "Bỏ tệp {name}"
+  }
+}

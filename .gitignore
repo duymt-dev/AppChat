@@ -1,2 +1,24 @@
 specs/.zip
 coding-packs/handoffs/
+node_modules/
+.pnpm-store/
+.turbo/
+.next/
+.next-http/
+.next-mock/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+tools/parity/out/
+apps/web/test-results/
+apps/web/playwright-report/
+.DS_Store
+apps/web/next-env.d.ts
+__pycache__/
+.gate/
+
+# Storage local (TIP-020 — tệp tải lên dev)
+.data/

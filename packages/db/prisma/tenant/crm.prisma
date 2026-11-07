@@ -1,0 +1,387 @@
+// tenant/crm.prisma — sở hữu: TIP-015 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: contact, contact_identity, contact_collaborator, contact_access_request, tag, contact_tag, contact_memory, timeline_event, contact_note, custom_field_def, profile_layout, profile_layout_role.
+// Không Prisma relation xuyên domain (Blueprint §2.1). FK nội DB + expression / partial / trigram index viết SQL ở migration 015.
+
+enum ContactKind {
+  individual
+  business
+  household
+
+  @@map("contact_kind")
+}
+
+enum ContactStage {
+  lead
+  potential
+  consulting
+  quote
+  contract
+  won
+  lost
+
+  @@map("contact_stage")
+}
+
+enum ContactStatus {
+  active
+  potential
+  inactive
+
+  @@map("contact_status")
+}
+
+enum ContactGroup {
+  vip
+  loyal
+  new
+  potential
+
+  @@map("contact_group")
+}
+
+enum CollaboratorRole {
+  collaborator
+  watcher
+
+  @@map("collaborator_role")
+}
+
+enum AccessRequestStatus {
+  pending
+  approved
+  rejected
+
+  @@map("access_request_status")
+}
+
+enum TagScope {
+  all
+  contact
+  conversation
+
+  @@map("tag_scope")
+}
+
+enum TimelineType {
+  message
+  quote
+  contract
+  order
+  invoice
+  payment
+  appointment
+  ticket
+  note
+  ai_action
+  loyalty
+  campaign
+  stage
+  owner
+  merge
+
+  @@map("timeline_type")
+}
+
+/// Khách hàng (Blueprint §2.2). 0–1 phụ trách chính (`owner_user_id`) + nhiều collaborator / watcher (D32). `source` là text
+/// (loại kênh mở rộng được — tenant-db §8). Giá trị tuỳ biến ở `custom` (D56). Gộp trùng: bản phụ `deleted_at` + `merged_into_id`.
+model Contact {
+  id                 String        @id @db.Uuid
+  code               String        @unique
+  name               String
+  kind               ContactKind   @default(individual)
+  title              String?
+  phone              String?
+  phoneNorm          String?       @map("phone_norm")
+  email              String?
+  zalo               String?
+  taxCode            String?       @map("tax_code")
+  avatarUrl          String?       @map("avatar_url")
+  gender             String?
+  birthday           DateTime?     @db.Date
+  address            String?
+  city               String?
+  district           String?
+  source             String        @default("manual")
+  locale             String?
+  group              ContactGroup?
+  status             ContactStatus @default(active)
+  stage              ContactStage  @default(lead)
+  /// Lần đổi giai đoạn bằng tay gần nhất — tự động theo chứng từ không ghi đè trong 24h (COMMERCE §8).
+  stageSetManuallyAt DateTime?     @map("stage_set_manually_at") @db.Timestamptz(6)
+  ownerUserId        String?       @map("owner_user_id") @db.Uuid
+  teamId             String?       @map("team_id") @db.Uuid
+  tierKey            String?       @map("tier_key")
+  pointsBalance      BigInt        @default(0) @map("points_balance")
+  totalSpent         BigInt        @default(0) @map("total_spent")
+  lastInteractionAt  DateTime      @default(now()) @map("last_interaction_at") @db.Timestamptz(6)
+  lastOrderAt        DateTime?     @map("last_order_at") @db.Timestamptz(6)
+  marketingOptOut    Boolean       @default(false) @map("marketing_opt_out")
+  aiSummary          String?       @map("ai_summary")
+  aiSummaryAt        DateTime?     @map("ai_summary_at") @db.Timestamptz(6)
+  custom             Json          @default("{}")
+  mergedIntoId       String?       @map("merged_into_id") @db.Uuid
+  createdByUserId    String?       @map("created_by_user_id") @db.Uuid
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime?     @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("contact")
+}
+
+/// Định danh của khách trên từng kênh (C06): `(channel_account_id, external_id)` duy nhất. `channel_type = marketplace` cho
+/// buyer id sàn (D31).
+model ContactIdentity {
+  id               String   @id @db.Uuid
+  contactId        String   @map("contact_id") @db.Uuid
+  channelType      String   @map("channel_type")
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  externalId       String   @map("external_id")
+  displayName      String?  @map("display_name")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([channelAccountId, externalId])
+  @@index([contactId])
+  @@map("contact_identity")
+}
+
+/// Đồng phụ trách / theo dõi (D32). Index (user_id, contact_id) cho scope `own`.
+model ContactCollaborator {
+  contactId String           @map("contact_id") @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  role      CollaboratorRole @default(collaborator)
+  addedBy   String?          @map("added_by") @db.Uuid
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([contactId, userId])
+  /// Migration record_scopes (TIP-042c) dựng lại cùng tên với INCLUDE (role) — Prisma không biểu diễn INCLUDE.
+  @@index([userId, contactId])
+  @@map("contact_collaborator")
+}
+
+/// Xin chia sẻ khách đã có người phụ trách (D32). Một yêu cầu `pending` mỗi (khách, người xin) — partial unique ở migration.
+model ContactAccessRequest {
+  id              String              @id @db.Uuid
+  contactId       String              @map("contact_id") @db.Uuid
+  requesterUserId String              @map("requester_user_id") @db.Uuid
+  status          AccessRequestStatus @default(pending)
+  decidedBy       String?             @map("decided_by") @db.Uuid
+  decidedAt       DateTime?           @map("decided_at") @db.Timestamptz(6)
+  note            String?
+  createdAt       DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([contactId, status])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("contact_access_request")
+}
+
+/// Thẻ dùng chung khách + hội thoại (Blueprint §2.2). Tên duy nhất không phân biệt hoa thường (unique lower(name) ở migration).
+model Tag {
+  id              String    @id @db.Uuid
+  name            String
+  color           String    @default("#6B7280")
+  emoji           String    @default("")
+  description     String    @default("")
+  scope           TagScope  @default(all)
+  createdByUserId String?   @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?   @map("updated_by_user_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("tag")
+}
+
+model ContactTag {
+  contactId String   @map("contact_id") @db.Uuid
+  tagId     String   @map("tag_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([contactId, tagId])
+  @@index([tagId])
+  @@map("contact_tag")
+}
+
+/// Điều AI nhớ về khách (D10) — `contact.remember` / `contact.memory_forget` (TIP-015b), ngữ cảnh agent kênh (§5.3). Trần 50 / khách.
+model ContactMemory {
+  id           String   @id @db.Uuid
+  contactId    String   @map("contact_id") @db.Uuid
+  fact         String
+  /// Chuẩn hoá (bỏ dấu, thường, gộp khoảng trắng / dấu câu) — so trùng văn bản bằng pg_trgm similarity ≥ 0.9.
+  factNorm     String   @map("fact_norm")
+  sourceRunId  String?  @map("source_run_id") @db.Uuid
+  sourceStepId String?  @map("source_step_id") @db.Uuid
+  actorType    String?  @map("actor_type")
+  actorId      String?  @map("actor_id")
+  confidence   Float    @default(1) @db.Real
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@index([contactId, updatedAt(sort: Desc), id(sort: Desc)], map: "contact_memory_contact_recent_idx")
+  @@map("contact_memory")
+}
+
+/// Bản sửa của khách (TIP-015b): tăng trong cùng transaction với thay đổi — khoá cache tóm tắt / gợi ý.
+model ContactRevision {
+  contactId String   @id @map("contact_id") @db.Uuid
+  memoryRev BigInt   @default(0) @map("memory_rev")
+  dataRev   BigInt   @default(0) @map("data_rev")
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("contact_revision")
+}
+
+/// Biên nhận gộp khách cho trí nhớ (hoàn tác 7 ngày) — ảnh chụp fact hai phía, không đọc vào model.
+model ContactMemoryMerge {
+  id          String   @id @db.Uuid
+  primaryId   String   @map("primary_id") @db.Uuid
+  dupId       String   @map("dup_id") @db.Uuid
+  primaryRows Json     @map("primary_rows")
+  dupRows     Json     @map("dup_rows")
+  afterRev    BigInt   @map("after_rev")
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([expiresAt, id], map: "contact_memory_merge_expiry_idx")
+  @@map("contact_memory_merge")
+}
+
+/// Cache tóm tắt 360° / gợi ý bước tiếp theo theo phạm vi người xem (TIP-015b).
+model ContactSummaryCache {
+  contactId   String   @map("contact_id") @db.Uuid
+  kind        String
+  scopeKey    String   @map("scope_key")
+  locale      String
+  fingerprint String
+  dataRev     BigInt   @map("data_rev")
+  body        Json
+  source      String
+  runId       String?  @map("run_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@id([contactId, kind, scopeKey, locale])
+  @@index([expiresAt], map: "contact_summary_cache_expiry_idx")
+  @@map("contact_summary_cache")
+}
+
+/// Dòng thời gian đa kênh của khách (Hồ sơ 360° — F02). Domain khác ghi qua `TimelineService` / consumer event.
+model TimelineEvent {
+  id         String       @id @db.Uuid
+  contactId  String       @map("contact_id") @db.Uuid
+  type       TimelineType
+  refType    String?      @map("ref_type")
+  refId      String?      @map("ref_id")
+  actorType  String       @map("actor_type")
+  actorId    String?      @map("actor_id")
+  summary    String
+  payload    Json         @default("{}")
+  occurredAt DateTime     @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  @@index([contactId, occurredAt(sort: Desc), id(sort: Desc)])
+  @@map("timeline_event")
+}
+
+model ContactNote {
+  id           String   @id @db.Uuid
+  contactId    String   @map("contact_id") @db.Uuid
+  body         String
+  authorUserId String   @map("author_user_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([contactId, createdAt(sort: Desc)])
+  @@map("contact_note")
+}
+
+/// Trường dữ liệu (D56) của 6 entity. Trường hệ thống (`sys`) seed từ `packages/shared/src/crm/system-fields.ts` — không xoá,
+/// không đổi nhãn / kiểu; trường tuỳ biến xoá mềm (giá trị giữ 30 ngày, undo 24h).
+model CustomFieldDef {
+  id        String    @id @db.Uuid
+  entity    String
+  key       String
+  label     String
+  type      String
+  /// Lựa chọn của picklist / multi / tier — mảng chuỗi.
+  options   Json      @default("[]")
+  group     String?
+  required  Boolean   @default(false)
+  ai        Boolean   @default(false)
+  sys       Boolean   @default(false)
+  roles     String[]  @default([])
+  condition String    @default("")
+  sort      Int       @default(0)
+  /// `{ list, kanban, form, filter, detail, export }`.
+  visibleIn Json      @default("{}") @map("visible_in")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  @@unique([entity, key])
+  @@index([entity, sort])
+  @@map("custom_field_def")
+}
+
+/// Bố cục Hồ sơ 360° (REQ-F12, M05). Mẫu hệ thống id cố định `pl_default | pl_cskh | pl_sales` (seed); mẫu tuỳ biến id uuid.
+/// `tabs` = `[{ key, label, enabled, sort, builtin, blocks[] }]` (≥ 1 tab bật).
+model ProfileLayout {
+  id              String   @id
+  name            String
+  isSystem        Boolean  @default(false) @map("is_system")
+  tabs            Json     @default("[]")
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("profile_layout")
+}
+
+/// Mỗi vai trò đúng một mẫu (pk role_key). Xoá mẫu đang gán → vai trò về `pl_default`.
+model ProfileLayoutRole {
+  roleKey   String   @id @map("role_key")
+  layoutId  String   @map("layout_id")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("profile_layout_role")
+}
+
+/// Rule chia lead mới (TIP-042b, COMMERCE §8b, DC-238). `channel_account_id` NULL = rule mặc định (một dòng); có giá trị = ghi đè tài khoản.
+/// Tắt mặc định; `enabled_at` chốt lúc bật — chỉ khách tạo sau mốc này được chia. Pool = `user_ids` hoặc `team_id` (CHECK một trong hai);
+/// `fixed_user_id` cho `by_channel`. Unique partial (mặc định / mỗi tài khoản) viết tay ở migration.
+model LeadRoutingRule {
+  id                 String    @id @db.Uuid
+  channelAccountId   String?   @map("channel_account_id") @db.Uuid
+  enabled            Boolean   @default(false)
+  enabledAt          DateTime? @map("enabled_at") @db.Timestamptz(6)
+  mode               String    @default("manual")
+  userIds            String[]  @default([]) @map("user_ids") @db.Uuid
+  teamId             String?   @map("team_id") @db.Uuid
+  fixedUserId        String?   @map("fixed_user_id") @db.Uuid
+  version            Int       @default(1)
+  configuredByUserId String?   @map("configured_by_user_id") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("lead_routing_rule")
+}
+
+/// Con trỏ vòng tròn theo rule — khoá dòng (FOR UPDATE) để nhiều worker chọn tuần tự.
+model LeadRoutingCursor {
+  ruleId     String   @id @map("rule_id") @db.Uuid
+  lastUserId String?  @map("last_user_id") @db.Uuid
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("lead_routing_cursor")
+}
+
+/// Quyết định cấp chủ đầu tiên cho một khách (unique contact + event) — chạy lại cùng event trả kết quả cũ; `reason` truy vết.
+model LeadRoutingDecision {
+  id                 String   @id @db.Uuid
+  contactId          String   @unique(map: "lead_routing_decision_contact_key") @map("contact_id") @db.Uuid
+  originatingEventId String   @unique(map: "lead_routing_decision_event_key") @map("originating_event_id") @db.Uuid
+  ruleId             String?  @map("rule_id") @db.Uuid
+  ruleVersion        Int?     @map("rule_version")
+  selectedUserId     String?  @map("selected_user_id") @db.Uuid
+  conversationId     String?  @map("conversation_id") @db.Uuid
+  reason             String
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("lead_routing_decision")
+}

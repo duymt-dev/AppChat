@@ -1,0 +1,173 @@
+{
+  "appName": "AppChat",
+  "aiButton": "AI Assistant",
+  "close": "Close",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "retry": "Retry",
+  "undo": "Undo",
+  "loading": "Loading…",
+  "seeMore": "See more →",
+  "empty": "No data yet",
+  "noPermission": "You don't have permission to view this",
+  "fieldHidden": "Hidden",
+  "fieldHiddenHint": "This field is hidden by your permissions",
+  "error": "Something went wrong",
+  "export": {
+    "running": "Exporting…",
+    "progress": "Exporting {done}/{total}",
+    "retry": "Export failed — retry",
+    "done": "Exported {n} rows",
+    "failed": "The list export did not complete. Please try again."
+  },
+  "customFields": {
+    "section": "Additional info",
+    "pick": "— Select —",
+    "ph": "Enter a value",
+    "all": "All",
+    "contains": "Contains…",
+    "empty": "—",
+    "required": "{label} *",
+    "aiMark": "✦",
+    "aiHint": "AI can fill this field",
+    "tagsHint": "Separate with commas",
+    "error": {
+      "required": "Required",
+      "number": "Must be a number",
+      "money": "Amount must contain digits only",
+      "list": "Invalid list",
+      "option": "Value is not one of the options",
+      "text": "Invalid value",
+      "date": "Invalid date",
+      "email": "Invalid email",
+      "unknown": "This field no longer exists",
+      "forbidden": "You can't edit this field"
+    }
+  },
+  "pager": {
+    "range": "Showing <b>{from}–{to}</b> of {total} {unit}",
+    "prev": "‹ Prev",
+    "next": "Next ›",
+    "perPage": "{n} / page"
+  },
+  "modules": {
+    "identity": "Identity",
+    "crm": "Customers",
+    "sales": "Sales",
+    "catalog": "Products",
+    "documents": "Documents",
+    "loyalty": "Loyalty",
+    "marketing": "Marketing",
+    "support": "Support",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "ai": "AI",
+    "billing": "Billing",
+    "inbox": "Inbox",
+    "channels": "Channels",
+    "integrations": "Integrations",
+    "booking": "Appointments",
+    "insights": "Insights"
+  },
+  "genui": {
+    "noData": "No data",
+    "expand": "Expand",
+    "seeAll": "See all",
+    "modalTitle": "AI Assistant",
+    "submit": "Submit",
+    "renderFailed": "This part of the interface could not be shown.",
+    "secretHint": "Typed here only — never sent to the Assistant.",
+    "prefillInvalid": "The suggested value is invalid, please re-enter it.",
+    "reEnter": "Your entry expired, please re-enter the secret fields.",
+    "qr": {
+      "title": "Scan with Zalo on your phone",
+      "waiting": "Open Zalo → Scan QR code",
+      "scanned": "Scanned — confirm the login on your phone",
+      "connected": "Connected",
+      "expired": "The code has expired",
+      "failed": "Connection failed",
+      "declined": "You declined the login on your phone",
+      "regenerate": "New code",
+      "alt": "Zalo login QR code"
+    },
+    "loadingBlock": "Building the interface…",
+    "expandMore": "Expand (+{n})",
+    "probe": {
+      "button": "Test connection",
+      "ok": "Connection is valid",
+      "failed": {
+        "rejected": "The credentials were rejected",
+        "timeout": "The provider did not respond within 10 seconds"
+      },
+      "unsupported": {
+        "coming_soon": "This connection is coming soon",
+        "no_test": "This provider does not support a pre-check"
+      },
+      "not_connected": "No connection to test yet"
+    }
+  },
+  "screenAi": {
+    "thinking": "The Assistant is writing…",
+    "error": "Could not send — check your connection and try again.",
+    "confirmLead": "Ready to run — please confirm:",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "done": "Done",
+    "cancelled": "Cancelled — nothing was run",
+    "approval": "Sent for approval — not run yet",
+    "count": "{n} records",
+    "openFull": "Open in Assistant"
+  },
+  "docChannel": {
+    "label": "Channel",
+    "zalo_personal": "Zalo",
+    "email": "Email",
+    "webchat": "Web chat"
+  },
+  "schedule": {
+    "timezone": "Time zone",
+    "day": {
+      "0": "Monday",
+      "1": "Tuesday",
+      "2": "Wednesday",
+      "3": "Thursday",
+      "4": "Friday",
+      "5": "Saturday",
+      "6": "Sunday"
+    },
+    "sep": "–",
+    "closed": "Closed",
+    "from": "From",
+    "to": "To",
+    "remove": "Remove interval",
+    "add": "+ Add interval",
+    "err": {
+      "timezone": "Invalid time zone",
+      "days": "The schedule must have all 7 days",
+      "format": "Time must be HH:mm",
+      "order": "End time must be after start time",
+      "overlap": "Intervals in a day overlap",
+      "too_many": "At most 4 intervals per day"
+    }
+  },
+  "contactMemory": {
+    "title": "AI memory",
+    "count": "{n}/{cap}",
+    "empty": "The AI has not remembered anything about this customer yet.",
+    "loading": "Loading…",
+    "forget": "Forget this fact",
+    "source": {
+      "agent": "AI agent",
+      "user": "Staff",
+      "system": "System"
+    },
+    "summary": "AI summary",
+    "summarize": "Summarise",
+    "refresh": "Summarise again",
+    "summarizing": "Summarising…",
+    "summaryHint": "Press \"Summarise\" for an AI summary of the data you may see.",
+    "retry": "Customer data just changed — press \"Summarise again\".",
+    "byModel": "AI summary of the data you may see",
+    "byRule": "Automatic digest of the figures (no AI)"
+  }
+}

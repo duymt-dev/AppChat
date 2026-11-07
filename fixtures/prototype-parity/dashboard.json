@@ -1,0 +1,469 @@
+{
+  "stats": [
+    {
+      "label": "Hội thoại hôm nay",
+      "value": "1.284",
+      "tone": "up",
+      "note": "+18% so với hôm qua",
+      "icon": "ic-mail"
+    },
+    {
+      "label": "Phiên AI thực thi",
+      "value": "128",
+      "tone": "warn",
+      "note": "12 đang chạy · 3 chờ duyệt",
+      "icon": "ic-send"
+    },
+    {
+      "label": "API calls",
+      "value": "24.6K",
+      "tone": "muted",
+      "note": "lỗi 0,4% · retry 31",
+      "icon": "ic-cog"
+    },
+    {
+      "label": "Tỷ lệ tự động",
+      "value": "87%",
+      "tone": "up",
+      "note": "không cần người can thiệp",
+      "icon": "ic-shield"
+    }
+  ],
+  "connect_groups": [
+    {
+      "key": "in",
+      "items": [
+        {
+          "name": "Zalo OA",
+          "meta": "612",
+          "warn": false
+        },
+        {
+          "name": "Facebook",
+          "meta": "284",
+          "warn": false
+        },
+        {
+          "name": "TikTok",
+          "meta": "96",
+          "warn": false
+        },
+        {
+          "name": "Website",
+          "meta": "188",
+          "warn": false
+        },
+        {
+          "name": "Email",
+          "meta": "74",
+          "warn": false
+        },
+        {
+          "name": "Hotline",
+          "meta": "30",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "key": "out",
+      "items": [
+        {
+          "name": "Zalo ZNS",
+          "meta": "3.1K",
+          "warn": false
+        },
+        {
+          "name": "SMS Marketing",
+          "meta": "1.4K",
+          "warn": false
+        },
+        {
+          "name": "Email Marketing",
+          "meta": "920",
+          "warn": false
+        },
+        {
+          "name": "Call Center",
+          "meta": "210",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "key": "erp",
+      "items": [
+        {
+          "name": "ERP",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "POS",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "HRM",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "Kế toán",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "Thanh toán",
+          "meta": "retry 2",
+          "warn": true
+        }
+      ]
+    },
+    {
+      "key": "data",
+      "items": [
+        {
+          "name": "Customer 360",
+          "meta": "48K hồ sơ",
+          "warn": false
+        },
+        {
+          "name": "Data Layer",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "AI Engine",
+          "meta": "618K tokens",
+          "warn": false
+        },
+        {
+          "name": "Automation Engine",
+          "meta": "137 rule",
+          "warn": false
+        },
+        {
+          "name": "API Gateway",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "Security",
+          "meta": "ok",
+          "warn": false
+        },
+        {
+          "name": "Monitoring",
+          "meta": "ok",
+          "warn": false
+        }
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "icon": "ic-cart",
+      "name": "Sales",
+      "status": "active",
+      "desc": "Tư vấn, báo giá, chốt đơn và đồng bộ ERP/POS.",
+      "sessions": "4.2K phiên/tuần",
+      "auto": "92% auto"
+    },
+    {
+      "icon": "ic-mega",
+      "name": "Marketing",
+      "status": "active",
+      "desc": "Chiến dịch đa kênh, phân nhóm và ZNS/SMS.",
+      "sessions": "1.6K phiên/tuần",
+      "auto": "88% auto"
+    },
+    {
+      "icon": "ic-users",
+      "name": "CSKH",
+      "status": "active",
+      "desc": "Trả lời, xử lý ticket và theo dõi hài lòng.",
+      "sessions": "5.8K phiên/tuần",
+      "auto": "84% auto"
+    },
+    {
+      "icon": "ic-cog",
+      "name": "Operations",
+      "status": "busy",
+      "desc": "Tồn kho, giao vận, đối chiếu và tác vụ nội bộ.",
+      "sessions": "3.1K phiên/tuần",
+      "auto": "90% auto"
+    },
+    {
+      "icon": "ic-doc",
+      "name": "Knowledge",
+      "status": "active",
+      "desc": "Tra cứu tri thức, FAQ và tài liệu nội bộ.",
+      "sessions": "2.4K phiên/tuần",
+      "auto": "96% auto"
+    },
+    {
+      "icon": "ic-chart",
+      "name": "Executive",
+      "status": "active",
+      "desc": "Báo cáo điều hành, cảnh báo và tổng hợp KPI.",
+      "sessions": "320 phiên/tuần",
+      "auto": "100% auto"
+    }
+  ],
+  "modules": [
+    "Trợ lý AI",
+    "Hộp thư",
+    "Khách hàng",
+    "Sản phẩm",
+    "Báo giá",
+    "Hợp đồng",
+    "Đơn bán hàng",
+    "Đề nghị thanh toán",
+    "Khách hàng thân thiết",
+    "Hỗ trợ",
+    "Marketing",
+    "Lịch hẹn",
+    "AI Agents",
+    "Ví AppChat",
+    "Cài đặt"
+  ],
+  "cdp": [
+    "Hồ sơ 360°",
+    "Lịch sử hội thoại đa kênh",
+    "Danh mục sản phẩm &amp; dịch vụ",
+    "Hợp nhất &amp; chống trùng",
+    "Phân khúc động",
+    "Điểm &amp; hạng thân thiết",
+    "Giá trị vòng đời &amp; công nợ",
+    "Sự kiện hành vi",
+    "Quyền riêng tư &amp; consent",
+    "Trường dữ liệu tuỳ biến"
+  ],
+  "onboarding_steps": [
+    {
+      "key": "channel",
+      "icon": "ic-bolt",
+      "title": "Kết nối kênh đầu tiên",
+      "desc": "Zalo OA, Facebook, Instagram… để tin nhắn chảy vào Hộp thư.",
+      "cta": "Kết nối kênh"
+    },
+    {
+      "key": "ai",
+      "icon": "ic-spark",
+      "title": "Cấu hình AI Agent + Knowledge Base",
+      "desc": "Chọn persona, nối dataset để AI tự phân luồng & trả lời khách 24/7.",
+      "cta": "Thiết lập AI"
+    },
+    {
+      "key": "team",
+      "icon": "ic-users",
+      "title": "Mời thành viên team",
+      "desc": "Thêm đồng đội, phân quyền theo vai trò để cùng xử lý hội thoại.",
+      "cta": "Mời thành viên"
+    },
+    {
+      "key": "template",
+      "icon": "ic-mega",
+      "title": "Tạo Quick-reply / Template",
+      "desc": "Soạn câu trả lời nhanh & mẫu tin để phản hồi tức thì.",
+      "cta": "Tạo mẫu"
+    },
+    {
+      "key": "sla",
+      "icon": "ic-ticket",
+      "title": "Thiết lập SLA & phân luồng Ticket",
+      "desc": "Quy tắc phản hồi, phân loại và escalation cho đội hỗ trợ.",
+      "cta": "Thiết lập SLA"
+    }
+  ],
+  "follow_ups": [
+    {
+      "id": "F1",
+      "name": "Chị Linh Phạm",
+      "initial": "C",
+      "avatar": "#2A6FDB",
+      "channel": "Z",
+      "channel_bg": "#0068FF",
+      "stage": "Báo giá",
+      "stage_color": "#EC4899",
+      "service": "Gói VIP Spa Hương Sen · Nhắc lần 2/3",
+      "due": "Quá hạn",
+      "overdue": true,
+      "owner": "Hương",
+      "ai": false
+    },
+    {
+      "id": "F2",
+      "name": "Anh Quân Trần",
+      "initial": "A",
+      "avatar": "#1B9E5A",
+      "channel": "f",
+      "channel_bg": "#1877F2",
+      "stage": "Đang tư vấn",
+      "stage_color": "#7C3AED",
+      "service": "Niềng răng — Nha khoa · Tư vấn lần 2/4",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "Khoa",
+      "ai": false
+    },
+    {
+      "id": "F3",
+      "name": "Chị Mai Anh",
+      "initial": "C",
+      "avatar": "#E8602C",
+      "channel": "Z",
+      "channel_bg": "#0068FF",
+      "stage": "Lead mới",
+      "stage_color": "#2563EB",
+      "service": "Tư vấn da liễu · Liên hệ lần đầu",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "AI Agent",
+      "ai": true
+    },
+    {
+      "id": "F4",
+      "name": "Cô Thu Hà",
+      "initial": "C",
+      "avatar": "#6E48E6",
+      "channel": "Z",
+      "channel_bg": "#0068FF",
+      "stage": "Sau dịch vụ",
+      "stage_color": "#16A34A",
+      "service": "Tái khám định kỳ · Chăm sóc 60 ngày",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "AI Agent",
+      "ai": true
+    },
+    {
+      "id": "F5",
+      "name": "Anh Tuấn Lê",
+      "initial": "A",
+      "avatar": "#0E9B94",
+      "channel": "W",
+      "channel_bg": "#25D366",
+      "stage": "Tiềm năng",
+      "stage_color": "#F59E0B",
+      "service": "Combo triệt lông · Chờ chốt gói năm",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "Minh",
+      "ai": false
+    },
+    {
+      "id": "F6",
+      "name": "Chị Phương Vy",
+      "initial": "C",
+      "avatar": "#DD2A7B",
+      "channel": "i",
+      "channel_bg": "#DD2A7B",
+      "stage": "Báo giá",
+      "stage_color": "#EC4899",
+      "service": "Combo chăm sóc da · Gửi lại báo giá",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "Hương",
+      "ai": false
+    },
+    {
+      "id": "F7",
+      "name": "Anh Dũng Phạm",
+      "initial": "A",
+      "avatar": "#6D28D9",
+      "channel": "Z",
+      "channel_bg": "#0068FF",
+      "stage": "Win-back",
+      "stage_color": "#DC2626",
+      "service": "Khách ngủ đông 60 ngày · Gửi ưu đãi",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "AI Agent",
+      "ai": true
+    },
+    {
+      "id": "F8",
+      "name": "Chị Hồng Nhung",
+      "initial": "C",
+      "avatar": "#C9820B",
+      "channel": "f",
+      "channel_bg": "#1877F2",
+      "stage": "Sau dịch vụ",
+      "stage_color": "#16A34A",
+      "service": "Khảo sát hài lòng · Sau liệu trình HIFU",
+      "due": "Hôm nay",
+      "overdue": false,
+      "owner": "AI Agent",
+      "ai": true
+    }
+  ],
+  "news": [
+    {
+      "tag": "Tính năng",
+      "date": "Hôm nay",
+      "title": "AI Voice Agent đã ra mắt",
+      "desc": "Tổng đài AI tự nghe & gọi 24/7, dịch hội thoại realtime.",
+      "color": "#6E48E6"
+    },
+    {
+      "tag": "Cập nhật",
+      "date": "Hôm qua",
+      "title": "Tích hợp KiotViet & Sapo",
+      "desc": "Đồng bộ đơn hàng, tồn kho 2 chiều ngay trong hội thoại.",
+      "color": "#2563EB"
+    },
+    {
+      "tag": "Mẹo",
+      "date": "2 ngày trước",
+      "title": "Tối ưu chiến dịch ZNS",
+      "desc": "Gửi 19–21h để tăng tỷ lệ mở ~18%.",
+      "color": "#16A34A"
+    },
+    {
+      "tag": "Bảo trì",
+      "date": "25/06",
+      "title": "Nâng cấp hạ tầng AI",
+      "desc": "Hệ thống nhanh hơn 30%, giảm độ trễ phản hồi.",
+      "color": "#C9820B"
+    }
+  ],
+  "notifications": [
+    {
+      "icon": "ic-inbox",
+      "color": "#2563EB",
+      "text": "Bạn được giao 3 hội thoại VIP mới",
+      "time": "5 phút trước",
+      "unread": true
+    },
+    {
+      "icon": "ic-bell",
+      "color": "#DC2626",
+      "text": "Ticket #TK-204 sắp quá hạn SLA (30 phút)",
+      "time": "12 phút trước",
+      "unread": true
+    },
+    {
+      "icon": "ic-check",
+      "color": "#16A34A",
+      "text": "Báo giá BG-1182 đã được khách duyệt",
+      "time": "1 giờ trước",
+      "unread": true
+    },
+    {
+      "icon": "ic-gift",
+      "color": "#C9820B",
+      "text": "Chị Lan đạt hạng Kim cương",
+      "time": "3 giờ trước",
+      "unread": false
+    },
+    {
+      "icon": "ic-users",
+      "color": "#6E48E6",
+      "text": "Minh hoàn tất 12 follow-up hôm nay",
+      "time": "Hôm qua",
+      "unread": false
+    }
+  ]
+}

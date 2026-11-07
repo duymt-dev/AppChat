@@ -1,0 +1,250 @@
+// tenant/sales-payments.prisma — sở hữu: TIP-032 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: payment_account, tenant_bank_feed, bank_tx, invoice, customer_payment, customer_package, package_usage, package_reminder (Blueprint §2.2,
+// COMMERCE §5 / §6). Không Prisma relation xuyên domain (Blueprint §2.1): khách / đơn / sản phẩm / kết nối lưu id — FK + CHECK +
+// partial index viết tay ở migration 032. `bank_tx` (giao dịch ngân hàng vào) thêm ngoài Blueprint — DV-013.
+
+enum InvoiceKind {
+  deposit
+  installment
+  full
+
+  @@map("invoice_kind")
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  partial
+  paid
+  overdue
+  void
+
+  @@map("invoice_status")
+}
+
+enum PaymentKind {
+  deposit
+  payment
+  points
+  refund
+
+  @@map("payment_kind")
+}
+
+enum PaymentMethod {
+  qr
+  bank_transfer
+  cash
+  card
+  points
+  marketplace
+
+  @@map("payment_method")
+}
+
+enum PaymentStatus {
+  pending
+  confirmed
+  failed
+  needs_review
+
+  @@map("payment_status")
+}
+
+enum BankTxStatus {
+  matched
+  needs_review
+  resolved
+
+  @@map("bank_tx_status")
+}
+
+enum PackageStatus {
+  active
+  exhausted
+  expired
+  refunded
+
+  @@map("package_status")
+}
+
+/// Tài khoản nhận tiền của DN (một dòng, id = 1) — nguồn VietQR trên đề nghị thanh toán (COMMERCE §5).
+model PaymentAccount {
+  id          Int      @id @default(1) @db.SmallInt
+  bank        String
+  bankBin     String   @map("bank_bin")
+  accountNo   String   @map("account_no")
+  accountName String   @map("account_name")
+  updatedBy   String?  @map("updated_by") @db.Uuid
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("payment_account")
+}
+
+/// Bank feed của DN (SePay / Casso) = một `integration_connection` port `bank_feed` (bí mật ở đó) + dòng này cho webhook
+/// `/hooks/tenant-payments/:provider/:feedId` (route ở DB nền tảng `tenant_bank_feed_route`) và khớp mã `TT…`.
+model TenantBankFeed {
+  id           String    @id @db.Uuid
+  connectionId String    @unique @map("connection_id") @db.Uuid
+  provider     String
+  accountNo    String    @default("") @map("account_no")
+  /// active | disconnected
+  status       String    @default("active")
+  lastTxAt     DateTime? @map("last_tx_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  txs BankTx[]
+
+  @@map("tenant_bank_feed")
+}
+
+/// Giao dịch tiền vào từ bank feed (idempotent theo mã giao dịch provider). Khớp chắc → khoản thu `confirmed` (`matched`);
+/// thiếu mã / lệch tiền / đề nghị đã đóng → hàng "Cần đối soát" (`needs_review`) tới khi `invoice.resolve_bank_match` (`resolved`).
+model BankTx {
+  id                 String       @id @db.Uuid
+  feedId             String       @map("feed_id") @db.Uuid
+  externalId         String       @map("external_id")
+  amount             BigInt
+  content            String
+  accountNo          String       @default("") @map("account_no")
+  occurredAt         DateTime     @map("occurred_at") @db.Timestamptz(6)
+  status             BankTxStatus
+  /// missing_code | amount_mismatch | invoice_closed (needs_review)
+  reason             String?
+  suggestedInvoiceId String?      @map("suggested_invoice_id") @db.Uuid
+  invoiceId          String?      @map("invoice_id") @db.Uuid
+  paymentId          String?      @map("payment_id") @db.Uuid
+  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  feed TenantBankFeed @relation(fields: [feedId], references: [id], onDelete: Restrict)
+
+  @@unique([feedId, externalId])
+  @@map("bank_tx")
+}
+
+/// Đề nghị thanh toán (mã `TT-…`, tên kỹ thuật invoice — COMMERCE §5, state-machine §6). `status` lưu để lọc / nhắc: draft / void đặt
+/// bởi action; còn lại tính lại (`invoiceStatusOf`) mỗi lần đổi số đã thu và khi quét quá hạn. Không bao giờ xoá — chỉ huỷ.
+model Invoice {
+  id            String        @id @db.Uuid
+  code          String        @unique
+  orderId       String?       @map("order_id") @db.Uuid
+  contactId     String        @map("contact_id") @db.Uuid
+  /// Theo đơn (hoặc người tạo nếu không gắn đơn) — data scope sales.
+  ownerUserId   String?       @map("owner_user_id") @db.Uuid
+  /// Nhóm của bản ghi — scope `team` (DC-299, TIP-042c); chụp lúc tạo, không đổi theo nhóm người phụ trách. Null = mơ hồ.
+  teamId        String?       @map("team_id") @db.Uuid
+  kind          InvoiceKind   @default(full)
+  status        InvoiceStatus @default(draft)
+  title         String        @default("")
+  amount        BigInt
+  /// Tổng khoản thu dương đã xác nhận (hoàn tiền không mở lại đề nghị — ghi ở đơn + sổ khoản thu).
+  paidAmount    BigInt        @default(0) @map("paid_amount")
+  /// Hạn thanh toán (ngày theo giờ workspace) — mặc định +7 ngày.
+  dueDate       DateTime      @map("due_date") @db.Date
+  /// `[{ key: 'T-1' | 'T+1' | 'T+7' | 'manual', at, channel, by }]` — mỗi mốc tự động nhắc một lần.
+  remindersSent Json          @default("[]") @map("reminders_sent")
+  sentAt        DateTime?     @map("sent_at") @db.Timestamptz(6)
+  sentChannel   String?       @map("sent_channel")
+  sentById      String?       @map("sent_by_id")
+  conversationId String?      @map("conversation_id") @db.Uuid
+  fileId        String?       @map("file_id") @db.Uuid
+  voidReason    String        @default("") @map("void_reason")
+  voidedAt      DateTime?     @map("voided_at") @db.Timestamptz(6)
+  voidedById    String?       @map("voided_by_id")
+  note          String        @default("")
+  createdByType String        @default("user") @map("created_by_type")
+  createdById   String?       @map("created_by_id")
+  version       Int           @default(1)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  payments CustomerPayment[]
+
+  @@map("invoice")
+}
+
+/// Sổ khoản thu (chỉ thêm — concurrency §3): deposit / payment / points / refund (số âm, luôn qua duyệt `payment.refund_approve`).
+/// Mỗi khoản thu dương có mã phiếu thu `PT-…` (PDF render khi mở, đóng băng lần đầu — `receipt_file_id`).
+model CustomerPayment {
+  id            String        @id @db.Uuid
+  invoiceId     String?       @map("invoice_id") @db.Uuid
+  orderId       String?       @map("order_id") @db.Uuid
+  contactId     String        @map("contact_id") @db.Uuid
+  kind          PaymentKind
+  amount        BigInt
+  method        PaymentMethod
+  reference     String        @default("")
+  bankTxId      String?       @unique @map("bank_tx_id") @db.Uuid
+  status        PaymentStatus
+  receiptCode   String?       @unique @map("receipt_code")
+  receiptFileId String?       @map("receipt_file_id") @db.Uuid
+  paidAt        DateTime      @map("paid_at") @db.Timestamptz(6)
+  /// Hoàn tiền: lý do yêu cầu · liệu trình được hoàn (nếu có) · người duyệt / từ chối + ghi chú.
+  reason        String        @default("")
+  packageId     String?       @map("package_id") @db.Uuid
+  decidedBy     String?       @map("decided_by") @db.Uuid
+  decidedAt     DateTime?     @map("decided_at") @db.Timestamptz(6)
+  decisionNote  String        @default("") @map("decision_note")
+  createdByType String        @default("user") @map("created_by_type")
+  createdById   String?       @map("created_by_id")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+
+  @@map("customer_payment")
+}
+
+/// Liệu trình / gói buổi của khách (COMMERCE §6): sinh khi đơn có sản phẩm `package` đã xác nhận + thu đủ; trừ buổi qua `package_usage`
+/// (lịch hẹn hoàn tất — TIP-033). Hết buổi → exhausted, quá hạn → expired; gia hạn / chỉnh buổi → active.
+model CustomerPackage {
+  id            String        @id @db.Uuid
+  contactId     String        @map("contact_id") @db.Uuid
+  productId     String        @map("product_id") @db.Uuid
+  orderId       String        @map("order_id") @db.Uuid
+  name          String
+  totalSessions Int           @map("total_sessions")
+  usedSessions  Int           @default(0) @map("used_sessions")
+  expiresAt     DateTime?     @map("expires_at") @db.Timestamptz(6)
+  status        PackageStatus @default(active)
+  extendedBy    String?       @map("extended_by") @db.Uuid
+  note          String        @default("")
+  /// `legacy_product` (gói cũ theo đơn + sản phẩm) | `order_item` (mỗi dòng đơn một gói) — unique partial ở migration 032b.
+  sourceKind    String        @default("legacy_product") @map("source_kind")
+  orderItemId   String?       @map("order_item_id") @db.Uuid
+  /// Tăng khi hạn đổi (gia hạn / hoàn tác) — nhắc T-7 một lần mỗi bản hạn.
+  expiryVersion Int           @default(1) @map("expiry_version")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  usages    PackageUsage[]
+  reminders PackageReminder[]
+
+  @@map("customer_package")
+}
+
+model PackageUsage {
+  id            String    @id @db.Uuid
+  packageId     String    @map("package_id") @db.Uuid
+  /// Lịch hẹn đã trừ buổi (TIP-033 — FK thêm khi bảng appointment có).
+  appointmentId String    @unique @map("appointment_id") @db.Uuid
+  usedAt        DateTime  @map("used_at") @db.Timestamptz(6)
+  revertedAt    DateTime? @map("reverted_at") @db.Timestamptz(6)
+
+  package CustomerPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@map("package_usage")
+}
+
+/// Biên nhận nhắc liệu trình (TIP-032b): còn 1 buổi / còn 7 ngày tới hạn — một lần mỗi (gói, mốc, bản hạn).
+model PackageReminder {
+  id            String   @id @db.Uuid
+  packageId     String   @map("package_id") @db.Uuid
+  milestone     String
+  expiryVersion Int      @map("expiry_version")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  package CustomerPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@unique([packageId, milestone, expiryVersion], map: "package_reminder_key")
+  @@map("package_reminder")
+}

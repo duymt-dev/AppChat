@@ -1,0 +1,117 @@
+// tenant/ai-runs.prisma — sở hữu: TIP-019 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: ai_run, ai_run_step, ai_setting. Không Prisma relation xuyên domain (Blueprint §2.1) — FK nội DB viết SQL trong migration.
+
+enum AiRunKind {
+  agent_reply
+  assistant
+  delegate
+  consult
+  task
+  suggestion
+
+  @@map("ai_run_kind")
+}
+
+enum AiRunStatus {
+  queued
+  running
+  waiting_approval
+  completed
+  failed
+  cancelled
+  handoff
+
+  @@map("ai_run_status")
+}
+
+enum AiRunStepType {
+  llm
+  tool
+  delegate
+  consult
+  handoff
+  ui_command
+
+  @@map("ai_run_step_type")
+}
+
+enum AiRunStepStatus {
+  ok
+  error
+  paused
+
+  @@map("ai_run_step_status")
+}
+
+/// Một lượt chạy AI (Blueprint §5.1). Dừng chờ người (`needs_confirmation` / `needs_approval`) → `waiting_approval` +
+/// `state = { messages, pendingToolCall, stepIdx }` — chạy tiếp từ đây (job `ai-resume`), không giữ RAM.
+/// `agent_id` / `conversation_id` / `assistant_session_id` / `task_id` trỏ bảng của TIP 016 / 021 / 023 / 035 (chưa FK — như DC-076).
+model AiRun {
+  id                 String      @id @db.Uuid
+  kind               AiRunKind
+  parentRunId        String?     @map("parent_run_id") @db.Uuid
+  rootRunId          String      @map("root_run_id") @db.Uuid
+  depth              Int         @default(0)
+  state              Json?
+  agentId            String?     @map("agent_id")
+  agentVersion       Int?        @map("agent_version")
+  dryRun             Boolean     @default(false) @map("dry_run")
+  conversationId     String?     @map("conversation_id") @db.Uuid
+  assistantSessionId String?     @map("assistant_session_id")
+  taskId             String?     @map("task_id")
+  initiatedByUserId  String?     @map("initiated_by_user_id") @db.Uuid
+  status             AiRunStatus @default(queued)
+  tier               String      @default("standard")
+  /// Tên tác vụ hiển thị ở "Trợ lý AI đang điều phối" (REQ-E14).
+  title              String      @default("")
+  plan               Json?
+  input              Json        @default("{}")
+  output             Json?
+  error              String?
+  confidence         Float?
+  creditsUsed        Int         @default(0) @map("credits_used")
+  maxCredits         Int?        @map("max_credits")
+  startedAt          DateTime    @default(now()) @map("started_at") @db.Timestamptz(6)
+  finishedAt         DateTime?   @map("finished_at") @db.Timestamptz(6)
+
+  @@index([status, startedAt(sort: Desc)])
+  @@index([rootRunId, startedAt])
+  @@map("ai_run")
+}
+
+/// Bước của run: gọi LLM (token + credit), gọi tool (action), phối hợp. `(run_id, idx)` duy nhất — chạy lại cùng bước không thêm dòng.
+model AiRunStep {
+  id        String          @id @db.Uuid
+  runId     String          @map("run_id") @db.Uuid
+  idx       Int
+  type      AiRunStepType
+  agentId   String?         @map("agent_id")
+  actionId  String?         @map("action_id")
+  input     Json            @default("{}")
+  output    Json?
+  status    AiRunStepStatus @default(ok)
+  provider  String?
+  model     String?
+  tokensIn  Int             @default(0) @map("tokens_in")
+  tokensOut Int             @default(0) @map("tokens_out")
+  credits   Int             @default(0)
+  latencyMs Int             @default(0) @map("latency_ms")
+  meta      Json?
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([runId, idx])
+  @@map("ai_run_step")
+}
+
+/// Cài đặt AI của workspace (Cài đặt › Mô hình AI — `ai_settings.update`): mức mặc định, mức theo tác vụ, hạn mức credit / tháng,
+/// giới hạn token / phút mỗi agent. Một dòng (id = 1).
+model AiSetting {
+  id          Int      @id @default(1) @db.SmallInt
+  defaultTier String   @default("standard") @map("default_tier")
+  tasks       Json     @default("{}")
+  budget      Int      @default(0)
+  rateLimit   Int      @default(10000) @map("rate_limit")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("ai_setting")
+}

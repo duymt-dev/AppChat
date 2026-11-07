@@ -27,11 +27,15 @@ export interface ChannelManifest {
   type: string;                         // 'zalo_personal' | 'webchat' | 'email' | 'zalo_oa' | 'messenger' | ...
   label: string;                        // i18n key 'channels.zalo_personal.label'
   icon: string;                         // key icon trong packages/ui
-  group: 'chat' | 'social' | 'email' | 'sms' | 'web';
+  group: 'chat' | 'social' | 'email' | 'sms' | 'web' | 'commerce';  // commerce: sàn TMĐT (P2, D04)
   status: 'ga' | 'beta' | 'coming_soon';  // coming_soon: hiện thẻ "Sắp có", không cho kết nối
   connect: { kind: 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'; fields?: z.ZodObject<any>; riskNotice?: string };
   capabilities: {
-    direct: boolean; group: boolean; mentions: boolean;
+    direct: boolean; group: boolean; createGroup?: boolean; mentions: boolean;
+    reactions: boolean;                 // chỉ hiện hàng cảm xúc ở menu — KHÔNG suy ra năng lực gọi kênh
+    operations?: Partial<Record<'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members'
+      | 'profiles' | 'friends' | 'friend_requests' | 'find_user',   // ảnh đại diện · danh bạ · lời mời kết bạn · tra một SĐT (TIP-014b D/E)
+      'local' | 'remote' | 'unsupported'>>;   // vắng = unsupported (TIP-014b, DEF-001-2)
     send: Array<'text' | 'image' | 'file' | 'sticker' | 'audio' | 'card' | 'template'>;
     maxTextLength: number; markdown: 'none' | 'rich' | 'html';
     proactive: 'allowed' | 'window_24h' | 'template_only' | 'disallowed';   // gửi chủ động (marketing / follow-up)
@@ -45,9 +49,28 @@ export interface ChannelAdapter {
   start?(account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;   // lease / poll
   stop?(accountId: string): Promise<void>;
   handleWebhook?(req: RawWebhook, account: ChannelAccountRuntime, sink: InboundSink): Promise<void>; // webhook
-  send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string }>;
+  send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string; parts?: ProviderMessageRef[] }>;  // lỗi giữa chừng → PartialSendError(receipt)
   probe(accountId: string): Promise<HealthStatus>;
+  createGroup?(accountId: string, req: CreateGroupRequest): Promise<CreateGroupResult>;   // capabilities.createGroup (TIP-023b)
+  operations?: ChannelOperations;      // chỉ hàm ứng với operations[kind] = 'remote' (packages/channels/src/operations.ts)
 }
+// InboundSink.event?(e: ProviderEvent) — self-listen / thu hồi / cảm xúc từ kênh, KHÔNG đi qua pipeline tin vào.
+```
+
+### Thao tác trên tin / nhóm (TIP-014b)
+
+- Năng lực khai từng thao tác: `local` (chỉ ghi AppChat, commit ngay), `remote` (lệnh bền `channel_operation` + outbox → worker giữ phiên gọi
+  kênh → chỉ ACK nhà cung cấp mới đổi tin), `unsupported` (409 trước mọi ghi). Vắng = unsupported. Core / UI / AI không `switch (type)`.
+- Tham chiếu tin phía kênh lưu `message_provider_ref` (từng phần, id dạng chuỗi — không qua number). Thiếu tham chiếu cần thiết / id không an
+  toàn → từ chối trước khi gọi kênh, không đoán.
+- Trạng thái lệnh: `queued → dispatch_reserved → confirmed | failed | unknown | partial`; đã đặt chỗ mà gián đoạn → `unknown`, không tự thử lại.
+- Ma trận năng lực từng kênh ghi ở `packages/channels/src/<kênh>/provider-capabilities.md` (Zalo: zca-js 2.2.0).
+- Bạn bè / tra SĐT (`adapter.friends?: ChannelFriends`, DC-362): chỉ nhân viên bấm trên UI (action từ chối mọi nguồn khác `ui`), một người
+  mỗi lệnh, trần / ngày theo tài khoản; kết quả tra tạm 24 giờ, không tự tạo khách. Không bao giờ có đường hàng loạt hay cho agent.
+- Tệp chứng từ gửi ra mang `fileId` + `sha256` (bản đóng băng) — `FileFetcher(url, bind)` chỉ đọc đúng tệp đó trong kho của workspace và
+  kiểm hash; sai → `attachment_binding_mismatch` trước khi gọi kênh (không tải URL ngoài cho chứng từ).
+
+```ts
 
 // packages/channels/src/registry.ts — DUY NHẤT nơi liệt kê kênh
 export const channelRegistry = defineChannels([zaloPersonal, webchat, email /*, zaloOa, messenger … */]);

@@ -1,0 +1,176 @@
+// Bộ ca của `pnpm ai:live` (TIP-023b R1.4 · eval.md §2): schema chặt + nạp an toàn. Mặc định 30 ca `cases.yaml` (bất biến); `--cases <path>`
+// chọn suite bổ sung JSON / YAML trong repo, chạy và báo cáo riêng (không đổi mẫu số 30, không rơi về bộ mặc định khi file lỗi).
+import { readFileSync, realpathSync, statSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve } from 'node:path';
+import { parse } from 'yaml';
+import { z } from 'zod';
+
+export const REPO_ROOT = resolve(import.meta.dirname, '..', '..', '..');
+export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
+export const DEFAULT_COUNT = 30;
+const MAX_BYTES = 256 * 1024;
+
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer'] as const;
+/** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0 };
+
+const expectSchema = z
+  .object({
+    /** Action cuối cùng model phải gọi (`call_action`); bỏ trống với ca hỏi lại. */
+    action: z.string().regex(/^[a-z_]+\.[a-z0-9_.]+$/).optional(),
+    /** Action cuối được chấp nhận khi có nhiều đường đọc đúng cùng bản ghi (vd `contact.get` | `contact.get_360`) — thay cho `action`. */
+    action_any: z.array(z.string().regex(/^[a-z_]+\.[a-z0-9_.]+$/)).min(2).max(4).optional(),
+    /** Các action phải xuất hiện theo thứ tự (chuỗi nhiều bước). */
+    sequence: z.array(z.string().regex(/^[a-z_]+\.[a-z0-9_.]+$/)).max(8).optional(),
+    /** Ô bắt buộc phải khớp (đường dẫn chấm `patch.phone`; giá trị `$seed.<…>` lấy từ seed). */
+    input: z.record(z.string().max(80), z.union([z.string().max(200), z.number(), z.boolean()])).optional(),
+    /** Ghi → phải có thẻ xác nhận; đọc → không được có. */
+    confirm: z.boolean(),
+    /** Model phải hỏi lại, không gọi action ghi. */
+    ask_back: z.boolean().default(false),
+    /** GenUI (TIP-023c, genui-judge.ts): cây / `$ref` / form gắn action / ca tiêm lệnh không có nút hành động. */
+    ui: z.object({ tree: z.boolean().optional(), refs: z.boolean().optional(), form: z.string().regex(/^[a-z_]+\.[a-z0-9_.]+$/).optional(), no_action_ui: z.boolean().optional() }).strict().optional(),
+    /** Nháp Hộp thư (REQ-C05c): chỉ chữ đề xuất, không action / thẻ / cây. */
+    draft: z.boolean().optional(),
+    /** AI soạn hợp đồng (TIP-030b F2, contract-judge.ts): giá trị = Σ giá danh mục, số dòng ngoài danh mục, số gợi ý tối thiểu, không gửi / ký. */
+    contract: z
+      .object({ value: z.string().regex(/^\d+$/).optional(), off_catalog: z.number().int().min(0).optional(), min_suggestions: z.number().int().min(0).optional(), template_unchanged: z.boolean().optional(), no_send: z.boolean().optional() })
+      .strict()
+      .optional(),
+    /** Trí nhớ khách (TIP-015b, memory-judge.ts) — chấm theo DB: fact phải có / phải được nhắc lại / không được lưu (PII, mâu thuẫn) / số fact mới tối đa. */
+    memory: z
+      .object({ stored: z.array(z.string().max(120)).max(5).optional(), recalled: z.string().max(120).optional(), absent: z.array(z.string().max(120)).max(5).optional(), max_new: z.number().int().min(0).optional() })
+      .strict()
+      .optional(),
+    /** Khách thân thiết (TIP-036 AC9, loyalty-judge.ts) — chấm theo DB: câu trả lời nói đúng điểm / hạng / giá trị quy đổi / trần 50%;
+     *  `unchanged` = số dư khách + số đã thu của đề nghị không đổi (mọi thẻ bị huỷ); `any_card` = có / không thẻ đều chấp nhận. */
+    loyalty: z
+      .object({ says: z.array(z.enum(['points', 'tier', 'value', 'cap'])).max(4).optional(), unchanged: z.boolean().optional(), any_card: z.boolean().optional() })
+      .strict()
+      .optional(),
+    /** Ca an toàn TIP-045b (hardening-judge.ts): chấm theo loại ca của `hardening` — canary trường thu hồi, thẻ hàng loạt, người tiếp quản, OTP Owner. */
+    hardening: z.literal(true).optional(),
+    /** Ca dọc kênh Zalo TIP-014b AC9 (channel-judge.ts): chấm theo loại ca của `channel`. */
+    channel: z.literal(true).optional(),
+    /** Ca AI Marketing TIP-037 (marketing-judge.ts): chấm theo loại ca của `marketing`. */
+    marketing: z.literal(true).optional(),
+    /** Ca số liệu TIP-038 (insights-judge.ts): chấm theo loại ca của `insights` — số / tên khớp `GET /insights/:metric` cùng tham số. */
+    insights: z.literal(true).optional(),
+    /** Ca nhập / xuất dữ liệu TIP-038b (transfer-judge.ts): chấm theo DB — kế hoạch completed + bản ghi thật / việc xuất thật. */
+    transfer: z.literal(true).optional(),
+  })
+  .strict()
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
+
+export const caseSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9-]{3,40}$/),
+    category: z.enum(CATEGORIES),
+    seed: z.literal('live-seed'),
+    actor: z.object({ role: z.enum(['owner']) }).strict(),
+    locale: z.enum(['vi', 'en']),
+    mode: z.enum(['chat', 'cowork']).default('cowork'),
+    input: z.string().trim().min(1).max(1000),
+    /** Ngữ cảnh màn (drawer theo màn — TIP-023c G2): entity + id seed (`$seed.<…>`), route, surface. */
+    context: z.object({ route: z.string().max(100), entity: z.string().max(40).optional(), id: z.string().max(120).optional(), surface: z.enum(['drawer', 'assistant']).default('drawer') }).strict().optional(),
+    /** Ca nháp Hộp thư: purpose gửi kèm hội thoại seed. */
+    draft: z.object({ purpose: z.enum(['inbox_compose', 'inbox_rewrite']), conversation: z.string().max(120) }).strict().optional(),
+    /** Ca AI soạn hợp đồng: gọi thẳng contract.prepare_draft → draft_from_content (model thật, không qua Trợ lý); khách `$seed.<…>`. */
+    contract: z.object({ contact: z.string().max(120), kind: z.enum(['service', 'sale', 'framework']).default('service') }).strict().optional(),
+    /** Ca trí nhớ khách: khách `$seed.<…>` để đọc `GET /contacts/:id/memory`; `prime` = lượt ghi trước lượt chính (phiên riêng). */
+    memory: z.object({ contact: z.string().max(120), prime: z.string().trim().min(1).max(1000).optional() }).strict().optional(),
+    /** Ca khách thân thiết: khách + đề nghị thanh toán `$seed.<…>` (loyalty-seed.mjs) để đọc số dư / số đã thu trước và sau lượt. */
+    loyalty: z.object({ contact: z.string().max(120), invoice: z.string().max(120).optional() }).strict().optional(),
+    /** Ca an toàn TIP-045b: loại ca + hội thoại `$seed.<…>` (ca người tiếp quản) — hardening-seed.mjs. */
+    hardening: z.object({ kind: z.enum(['hidden', 'export', 'bulk', 'takeover', 'owner_otp']), conversation: z.string().max(120).optional() }).strict().optional(),
+    /** Ca dọc kênh Zalo TIP-014b AC9: loại ca — channel-seed.mjs (khách Zalo mới, tin unknown, tài khoản đã ngắt, Sales scope own). */
+    channel: z.object({ kind: z.enum(['new_customer', 'unknown', 'no_resend', 'revoked', 'disconnected']) }).strict().optional(),
+    /** Ca AI Marketing TIP-037: loại ca — marketing-seed.mjs (Zalo giả, chiến dịch Chờ duyệt, Sales không quyền chiến dịch). */
+    marketing: z.object({ kind: z.enum(['analyze', 'tone', 'variables', 'no_auto', 'revoked']) }).strict().optional(),
+    /** Ca số liệu TIP-038: loại ca — insights-seed.mjs (đơn + khoản thu của Owner trong tháng, Sales scope own). */
+    insights: z.object({ kind: z.enum(['owner_money', 'sales_scope', 'at_risk']) }).strict().optional(),
+    /** Ca nhập / xuất TIP-038b: thực thể + tệp seed (data-transfer-seed.mjs — khoá theo thực thể khi bỏ trống). */
+    transfer: z
+      .object({ kind: z.enum(['import', 'export']), entity: z.enum(['contact', 'product', 'quote', 'order', 'contract', 'invoice']), file: z.enum(['contacts', 'products', 'quotes', 'orders', 'contracts', 'invoices']).optional() })
+      .strict()
+      .optional(),
+    expect: expectSchema,
+  })
+  .strict();
+
+export const suiteSchema = z
+  .object({ suite: z.string().regex(/^[a-z0-9-]{2,40}$/), cases: z.array(caseSchema).min(1).max(200) })
+  .strict()
+  .superRefine((s, ctx) => {
+    const seen = new Set<string>();
+    for (const [i, c] of s.cases.entries()) {
+      if (seen.has(c.id)) ctx.addIssue({ code: 'custom', path: ['cases', i, 'id'], message: 'duplicate_id' });
+      seen.add(c.id);
+    }
+  });
+
+export type LiveCase = z.infer<typeof caseSchema>;
+export type Suite = z.infer<typeof suiteSchema>;
+
+export class CasesError extends Error {}
+
+/** Đường dẫn ca: tương đối gốc repo, phải nằm trong repo (kể cả sau symlink), ≤ 256 KB, đuôi .json / .yaml / .yml. */
+export function resolveCasesPath(p: string, root = REPO_ROOT): string {
+  if (isAbsolute(p)) throw new CasesError('cases_path_must_be_repo_relative');
+  const abs = resolve(root, p);
+  const inside = (x: string) => {
+    const r = relative(root, x);
+    return !!r && !r.startsWith('..') && !isAbsolute(r);
+  };
+  if (!inside(abs)) throw new CasesError('cases_path_outside_repo');
+  let real: string;
+  try {
+    real = realpathSync(abs);
+  } catch {
+    throw new CasesError('cases_file_not_found');
+  }
+  if (!inside(real)) throw new CasesError('cases_path_outside_repo');
+  if (!/\.(json|ya?ml)$/i.test(real)) throw new CasesError('cases_file_type');
+  if (statSync(real).size > MAX_BYTES) throw new CasesError('cases_file_too_large');
+  return real;
+}
+
+/** Parse JSON / YAML (không alias, không nhiều tài liệu) → zod chặt. Lỗi → CasesError (CLI thoát ≠ 0). */
+export function parseSuite(text: string, kind: 'json' | 'yaml'): Suite {
+  if (!text.trim()) throw new CasesError('cases_file_empty');
+  let raw: unknown;
+  try {
+    raw = kind === 'json' ? JSON.parse(text) : parse(text, { maxAliasCount: 0, uniqueKeys: true, prettyErrors: false });
+  } catch (e) {
+    throw new CasesError(`cases_parse_failed: ${(e as Error).message.slice(0, 200)}`);
+  }
+  const r = suiteSchema.safeParse(raw);
+  if (!r.success) throw new CasesError(`cases_schema_invalid: ${r.error.issues.slice(0, 5).map((i) => `${i.path.join('.')} ${i.message}`).join('; ')}`);
+  return r.data;
+}
+
+export function loadSuite(path: string): Suite {
+  return parseSuite(readFileSync(path, 'utf8'), /\.json$/i.test(path) ? 'json' : 'yaml');
+}
+
+/** Bộ mặc định: đúng 30 ca, đúng phân bổ — lệch là lỗi (không được thay ca lúc nghiệm thu — eval.md). */
+export function loadDefault(): Suite {
+  const s = loadSuite(DEFAULT_CASES);
+  if (s.cases.length !== DEFAULT_COUNT) throw new CasesError(`default_suite_must_have_${DEFAULT_COUNT}_cases`);
+  for (const c of CATEGORIES) {
+    const n = s.cases.filter((x) => x.category === c).length;
+    if (n !== DEFAULT_MIX[c]) throw new CasesError(`default_suite_mix_${c}_${n}_expected_${DEFAULT_MIX[c]}`);
+  }
+  return s;
+}
+
+/** Chọn suite theo tham số CLI: `--cases <path>` → đúng file đó; không truyền → bộ mặc định. `--only id,id` lọc, id lạ → lỗi. */
+export function selectSuite(args: { cases?: string; only?: string[] }): Suite {
+  const s = args.cases ? loadSuite(resolveCasesPath(args.cases)) : loadDefault();
+  if (!args.only?.length) return s;
+  const ids = new Set(s.cases.map((c) => c.id));
+  const unknown = args.only.filter((id) => !ids.has(id));
+  if (unknown.length) throw new CasesError(`unknown_case: ${unknown.join(',')}`);
+  return { ...s, cases: s.cases.filter((c) => args.only!.includes(c.id)) };
+}

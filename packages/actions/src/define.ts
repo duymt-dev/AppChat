@@ -1,0 +1,89 @@
+// ActionDef (Blueprint §3.1, standards/actions/action-registry.md). Chỉ schema + metadata — handler ở packages/core.
+import type { z } from 'zod';
+import type { PermissionKey } from '@appchat/shared';
+
+export type Risk = 'read' | 'write' | 'send' | 'money' | 'delete' | 'config';
+export type Permission = PermissionKey | 'platform_admin' | 'self';
+
+export type ModuleKey =
+  | 'identity' | 'settings' | 'channels' | 'inbox' | 'crm' | 'catalog' | 'sales' | 'documents'
+  | 'booking' | 'support' | 'marketing' | 'loyalty' | 'ai' | 'billing' | 'integrations' | 'notifications' | 'insights';
+
+export type UiCommand =
+  | { type: 'navigate'; route: string }
+  | { type: 'open'; entity: string; id: string; view?: 'drawer' | 'page' }
+  | { type: 'prefill'; form: string; values: Record<string, unknown> }
+  | { type: 'filter'; table: string; filter: Record<string, unknown> }
+  | { type: 'highlight'; target: string };
+
+export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.ZodTypeAny = z.ZodTypeAny> {
+  id: string;
+  module: ModuleKey;
+  /** i18n key `actions.<id>.title` */
+  title: string;
+  /** English, written for the LLM tool catalogue. */
+  description: string;
+  input: I;
+  output: O;
+  permission: Permission;
+  risk: Risk;
+  bulk?: boolean;
+  agentGrantable: boolean;
+  /** Nhóm "Kỹ năng AI" trong Builder Tools — chỉ action đọc (risk 'read') hữu ích cho AI trực kênh (D51). */
+  skill?: boolean;
+  /** Key connector/channel cần kết nối để tool chạy được — Builder hiện badge "Cần kết nối X" (D51 §3.3b). */
+  requiresConnector?: string;
+  undo?: { windowSec: number };
+  invalidates: string[];
+  db?: 'platform';
+  uiTarget?: (o: z.infer<O>) => UiCommand;
+  /**
+   * Ô bí mật trong input (DC-227, TIP-023c): `paths` = đường dẫn chấm cố định (`fields.password`); `connector` = ô dưới `fields`
+   * theo `ConnectorManifest.auth.fields[].secret` của provider ở ô `provider`. Executor che trong action_log; Trợ lý không nhận giá
+   * trị từ model (chỉ form trình duyệt gửi thẳng); form GenUI hiện ô password.
+   */
+  secret?: SecretSpec;
+}
+
+export interface SecretSpec {
+  paths?: string[];
+  connector?: { provider: string; fields: string };
+}
+
+export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => d;
+
+/** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
+export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {
+  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId);
+}
+
+export type ActionInput<D> = D extends ActionDef<infer I, z.ZodTypeAny> ? z.input<I> : never;
+export type ActionOutput<D> = D extends ActionDef<z.ZodTypeAny, infer O> ? z.output<O> : never;
+
+/** Kết quả thống nhất của POST /v1/actions/:id (Blueprint §4.3). */
+export interface ActionResult<O = unknown> {
+  result: O;
+  action_log_id: string;
+  undo_until?: string;
+  ui_target?: UiCommand;
+}
+
+export interface ActionPreview {
+  summary: string;
+  risk: Risk;
+  count?: number;
+  changes?: { entity: string; id?: string; before?: Record<string, unknown>; after?: Record<string, unknown> }[];
+  warnings?: string[];
+}
+
+/** 202 của POST /v1/actions/:id (Blueprint §4.3). `job_accepted` (TIP-032b): yêu cầu đã ghi + xếp việc nền — CHƯA hoàn tất; tiến độ
+ * đọc ở `status_url`, gửi lại cùng Idempotency-Key trả đúng handle này (không xếp việc lần hai). */
+export type ActionAccepted =
+  | { status: 'preview_required'; preview: ActionPreview; confirm_token: string; expires_at: string }
+  | { status: 'approval_required'; approval_id: string }
+  | { status: 'job_accepted'; job_id: string; action_log_id: string; status_url: string }
+  /**
+   * Action `db: 'platform'` đã commit ở DB nền tảng nhưng pha tenant chưa áp (TIP-045b annex A1): KHÔNG phải thành công, không phải
+   * việc nền xếp hàng — hệ thống tự khôi phục; gửi lại cùng Idempotency-Key trả kết quả khi xong (không tạo thay đổi mới).
+   */
+  | { status: 'operation_pending'; operation_id: string; action_log_id: string; status_url: string };

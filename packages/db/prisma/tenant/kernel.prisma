@@ -1,0 +1,167 @@
+// tenant/kernel.prisma — sở hữu: TIP-002 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: action_log, outbox_event, idempotency_key, file, sequence_counter, notification.
+// Không Prisma relation xuyên domain (Blueprint §2.1).
+// Bảng tenant không có workspace_id (standards/database/tenant-db.md §2). Partial index viết SQL trong migration.
+
+enum ActionSource {
+  ui
+  assistant
+  agent
+  task
+  system
+  api
+
+  @@map("action_source")
+}
+
+enum ActorType {
+  user
+  agent
+  assistant
+  system
+
+  @@map("actor_type")
+}
+
+enum ActionStatus {
+  succeeded
+  failed
+  undone
+  /// Đang hoàn tác action nền tảng (TIP-045b — giữ chỗ giữa commit nền tảng và chốt tenant).
+  undoing
+
+  @@map("action_status")
+}
+
+enum OutboxStatus {
+  pending
+  published
+  failed
+
+  @@map("outbox_status")
+}
+
+/// Mọi action chạy qua ActionExecutor (Blueprint §3.2) — cũng là audit log của workspace.
+model ActionLog {
+  id               String       @id @db.Uuid
+  actionId         String       @map("action_id")
+  risk             String
+  source           ActionSource
+  actorType        ActorType    @map("actor_type")
+  actorId          String?      @map("actor_id")
+  onBehalfOfUserId String?      @map("on_behalf_of_user_id") @db.Uuid
+  runId            String?      @map("run_id") @db.Uuid
+  input            Json
+  before           Json?
+  after            Json?
+  result           Json?
+  status           ActionStatus
+  error            Json?
+  undoUntil        DateTime?    @map("undo_until") @db.Timestamptz(6)
+  undoneBy         String?      @map("undone_by") @db.Uuid
+  undoneAt         DateTime?    @map("undone_at") @db.Timestamptz(6)
+  traceId          String?      @map("trace_id")
+  /// Sự kiện nhạy cảm (TIP-045b annex A2) — đọc ở Cài đặt › Audit + thông báo Owner. Partial index viết tay ở migration.
+  audit            Boolean      @default(false)
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([runId])
+  @@map("action_log")
+}
+
+/// Outbox ghi cùng transaction nghiệp vụ; relay drain theo outbox:dirty (Blueprint §2.0, events/outbox.md).
+model OutboxEvent {
+  id          String       @id @db.Uuid
+  topic       String
+  payload     Json
+  status      OutboxStatus @default(pending)
+  attempts    Int          @default(0)
+  availableAt DateTime     @default(now()) @map("available_at") @db.Timestamptz(6)
+  lastError   String?      @map("last_error")
+  traceId     String?      @map("trace_id")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("outbox_event")
+}
+
+/// Biên nhận pha tenant của thao tác xuyên DB (TIP-045b annex A1) — unique(operation_id): áp lại không ghi đôi log / outbox.
+model OperationReceipt {
+  operationId String   @id @map("operation_id") @db.Uuid
+  actionLogId String   @map("action_log_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("operation_receipt")
+}
+
+/// Idempotency-Key cho lệnh tạo + risk send / money (TTL 24h, job dọn theo created_at).
+model IdempotencyKey {
+  key         String   @id
+  route       String
+  requestHash String   @map("request_hash")
+  response    Json?
+  statusCode  Int?     @map("status_code")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([createdAt])
+  @@map("idempotency_key")
+}
+
+/// File đã tải lên storage (presign → confirm, ops §3.1).
+model File {
+  id         String   @id @db.Uuid
+  storageKey String   @unique @map("storage_key")
+  name       String
+  mime       String
+  size       BigInt
+  sha256     String?
+  uploadedBy String?  @map("uploaded_by") @db.Uuid
+  purpose    String
+  confirmed  Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("file")
+}
+
+/// Bộ đếm mã nghiệp vụ KH- / BG- / DH- / TT- / LH- / TKT- (money-time-numbering; UPDATE … RETURNING).
+model SequenceCounter {
+  kind  String @id
+  value BigInt @default(0)
+
+  @@map("sequence_counter")
+}
+
+/// Thông báo trong app (TIP-006 dùng). user_id scalar — không FK sang DB nền tảng.
+model Notification {
+  id        String    @id @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  type      String
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime? @map("read_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  /// Danh sách theo người nhận, cursor `(created_at, id)` (TIP-006); chưa đọc dùng index partial viết tay ở migration 006.
+  @@index([userId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("notification")
+}
+
+/// Consumer queue `events` đã xử lý event nào (events/outbox.md §4) — khoá `(event_id, consumer)`, TIP-006.
+model EventConsumption {
+  eventId   String   @map("event_id") @db.Uuid
+  consumer  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([eventId, consumer])
+  @@index([createdAt])
+  @@map("event_consumption")
+}
+
+/// Version schema của DB tenant (app so với mức tối thiểu — Blueprint §2.0 Migration). Một dòng.
+model SchemaMeta {
+  id        Int      @id @default(1)
+  version   String
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("schema_meta")
+}

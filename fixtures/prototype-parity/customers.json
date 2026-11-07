@@ -1,0 +1,954 @@
+{
+ "members": [
+  {
+   "id": "u_tram",
+   "name": "Trâm",
+   "role": "Sales Lead"
+  },
+  {
+   "id": "u_minh",
+   "name": "Minh",
+   "role": "Sales"
+  },
+  {
+   "id": "u_huong",
+   "name": "Hương",
+   "role": "CSKH"
+  },
+  {
+   "id": "u_khoa",
+   "name": "Khoa",
+   "role": "Quản lý"
+  }
+ ],
+ "stats": [
+  {
+   "key": "total",
+   "value": "1.284",
+   "color": "#2563EB",
+   "icon": "ic-users"
+  },
+  {
+   "key": "leads",
+   "value": "186",
+   "color": "#16A34A",
+   "icon": "ic-chart"
+  },
+  {
+   "key": "deals",
+   "value": "42",
+   "color": "#6E48E6",
+   "icon": "ic-spark"
+  },
+  {
+   "key": "ltv",
+   "value": "12.4tr",
+   "color": "#C9820B",
+   "icon": "ic-gift"
+  }
+ ],
+ "stages": [
+  {
+   "key": "all",
+   "color": "#6B7280",
+   "count": 12
+  },
+  {
+   "key": "lead",
+   "color": "#2B9EF3",
+   "count": 74
+  },
+  {
+   "key": "potential",
+   "color": "#F59E0B",
+   "count": 52
+  },
+  {
+   "key": "consulting",
+   "color": "#7C3AED",
+   "count": 38
+  },
+  {
+   "key": "quote",
+   "color": "#EC4899",
+   "count": 21
+  },
+  {
+   "key": "contract",
+   "color": "#0F6E50",
+   "count": 8
+  },
+  {
+   "key": "won",
+   "color": "#22C55E",
+   "count": 48
+  }
+ ],
+ "tag_defs": [
+  {
+   "label": "VIP",
+   "line": "#FBBF24",
+   "bg": "#FEF6E0",
+   "fg": "#8A5A0C"
+  },
+  {
+   "label": "Hot lead",
+   "line": "#EF4444",
+   "bg": "#FEF2F2",
+   "fg": "#C8263A"
+  },
+  {
+   "label": "Chăm sóc",
+   "line": "#0EA5E9",
+   "bg": "#E8F6FE",
+   "fg": "#0369A1"
+  },
+  {
+   "label": "Đơn hàng",
+   "line": "#22C55E",
+   "bg": "#EAFBF1",
+   "fg": "#157A40"
+  },
+  {
+   "label": "Quốc tế",
+   "line": "#8B5CF6",
+   "bg": "#F3EEFE",
+   "fg": "#6E48E6"
+  }
+ ],
+ "contacts": [
+  {
+   "id": "ct_lan",
+   "code": "KH-1001",
+   "full_name": "Nguyễn Thị Lan",
+   "first_name": "Lan",
+   "title": "Chủ shop",
+   "initials": "LN",
+   "avatar_hue": 4,
+   "reg_date": "09/06/2026",
+   "reg_time": "10:40",
+   "type": "individual",
+   "group": "vip",
+   "source": "manual",
+   "source_label": "Nhập tay",
+   "source_color": "#111111",
+   "email": "lan@shopbena.vn",
+   "phone": "+84 909 123 456",
+   "zalo": "0900000703",
+   "city": "TP.HCM",
+   "district": "Q.7",
+   "status": "active",
+   "stage": "lead",
+   "owner_user_id": "u_tram",
+   "owner_name": "Trâm",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "ai",
+    "label": "AI xử lý",
+    "hint": "Nên chăm sóc lại — 18 ngày chưa liên hệ"
+   },
+   "tags": [
+    "VIP"
+   ],
+   "web_bg": 0
+  },
+  {
+   "id": "kh_1002",
+   "code": "KH-1002",
+   "full_name": "Nguyễn Trung Hiếu",
+   "first_name": "Hiếu",
+   "title": "—",
+   "initials": "HN",
+   "avatar_hue": 88,
+   "reg_date": "12/06/2026",
+   "reg_time": "15:33",
+   "type": "business",
+   "group": "loyal",
+   "source": "email",
+   "source_label": "Email",
+   "source_color": "#1F8A4D",
+   "email": "hieu.nguyen@gmail.com",
+   "phone": "+84 902 334 571",
+   "zalo": "0900000814",
+   "city": "TP.HCM",
+   "district": "Thủ Đức",
+   "status": "potential",
+   "stage": "potential",
+   "owner_user_id": "u_minh",
+   "owner_name": "Minh",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "user",
+    "label": "Hương",
+    "hint": "Gửi ưu đãi giữ chân khách"
+   },
+   "tags": [],
+   "web_bg": 1
+  },
+  {
+   "id": "kh_1003",
+   "code": "KH-1003",
+   "full_name": "Phạm Thị Linh",
+   "first_name": "Linh",
+   "title": "Khách lẻ",
+   "initials": "LP",
+   "avatar_hue": 336,
+   "reg_date": "08/06/2026",
+   "reg_time": "09:12",
+   "type": "household",
+   "group": "new",
+   "source": "website",
+   "source_label": "Website",
+   "source_color": "#0E9B94",
+   "email": "linh.p@outlook.com",
+   "phone": "+84 988 112 299",
+   "zalo": "0900000666",
+   "city": "TP.HCM",
+   "district": "Q.1",
+   "status": "inactive",
+   "stage": "consulting",
+   "owner_user_id": "u_huong",
+   "owner_name": "Hương",
+   "owner_hue": 170,
+   "ai": {
+    "kind": "wait",
+    "label": "Chờ xử lý",
+    "hint": "Nhắc thanh toán / theo dõi đơn"
+   },
+   "tags": [
+    "Hot lead"
+   ],
+   "web_bg": 2
+  },
+  {
+   "id": "kh_1004",
+   "code": "KH-1004",
+   "full_name": "Fowler Ashley",
+   "first_name": "Ashley",
+   "title": "Quản lý spa",
+   "initials": "AF",
+   "avatar_hue": 336,
+   "reg_date": "08/06/2026",
+   "reg_time": "09:12",
+   "type": "individual",
+   "group": "potential",
+   "source": "website",
+   "source_label": "Website",
+   "source_color": "#0E9B94",
+   "email": "ashley@adong-beauty.vn",
+   "phone": "+1 415 882 4421",
+   "zalo": "0900000666",
+   "city": "TP.HCM",
+   "district": "Q.1",
+   "status": "active",
+   "stage": "quote",
+   "owner_user_id": "u_tram",
+   "owner_name": "Trâm",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "ai",
+    "label": "AI xử lý",
+    "hint": "Đề xuất upsell combo phù hợp"
+   },
+   "tags": [],
+   "web_bg": 3
+  },
+  {
+   "id": "kh_1005",
+   "code": "KH-1005",
+   "full_name": "Trần Minh Khoa",
+   "first_name": "Khoa",
+   "title": "Quản lý phòng khám",
+   "initials": "KT",
+   "avatar_hue": 4,
+   "reg_date": "09/06/2026",
+   "reg_time": "10:40",
+   "type": "business",
+   "group": "vip",
+   "source": "manual",
+   "source_label": "Nhập tay",
+   "source_color": "#111111",
+   "email": "khoa.tm@gmail.com",
+   "phone": "+84 977 445 008",
+   "zalo": "0900000703",
+   "city": "TP.HCM",
+   "district": "Q.7",
+   "status": "potential",
+   "stage": "contract",
+   "owner_user_id": "u_khoa",
+   "owner_name": "Khoa",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "user",
+    "label": "Lan Anh",
+    "hint": "Phản hồi gấp theo SLA"
+   },
+   "tags": [],
+   "web_bg": 4
+  },
+  {
+   "id": "kh_1006",
+   "code": "KH-1006",
+   "full_name": "Rodriguez J.",
+   "first_name": "J.",
+   "title": "Customer",
+   "initials": "JR",
+   "avatar_hue": 308,
+   "reg_date": "13/06/2026",
+   "reg_time": "16:50",
+   "type": "household",
+   "group": "loyal",
+   "source": "email",
+   "source_label": "Email",
+   "source_color": "#1F8A4D",
+   "email": "jrod@phongkhamquocte.vn",
+   "phone": "+1 646 228 9013",
+   "zalo": "0900000629",
+   "city": "Hà Nội",
+   "district": "Đống Đa",
+   "status": "inactive",
+   "stage": "won",
+   "owner_user_id": "u_huong",
+   "owner_name": "Hương",
+   "owner_hue": 170,
+   "ai": {
+    "kind": "wait",
+    "label": "Chờ xử lý",
+    "hint": "Đặt lịch follow-up tuần này"
+   },
+   "tags": [],
+   "web_bg": 5
+  },
+  {
+   "id": "kh_1007",
+   "code": "KH-1007",
+   "full_name": "Lê Mạnh Hùng",
+   "first_name": "Hùng",
+   "title": "Trưởng kinh doanh",
+   "initials": "HL",
+   "avatar_hue": 308,
+   "reg_date": "13/06/2026",
+   "reg_time": "16:50",
+   "type": "individual",
+   "group": "new",
+   "source": "email",
+   "source_label": "Email",
+   "source_color": "#1F8A4D",
+   "email": "hung.le@giadungsg.vn",
+   "phone": "+84 908 552 117",
+   "zalo": "0900000629",
+   "city": "Hà Nội",
+   "district": "Đống Đa",
+   "status": "active",
+   "stage": "lead",
+   "owner_user_id": "u_minh",
+   "owner_name": "Minh",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "ai",
+    "label": "AI xử lý",
+    "hint": "Nên chăm sóc lại — 18 ngày chưa liên hệ"
+   },
+   "tags": [
+    "VIP"
+   ],
+   "web_bg": 0
+  },
+  {
+   "id": "kh_1008",
+   "code": "KH-1008",
+   "full_name": "Trần Thị Hạnh",
+   "first_name": "Hạnh",
+   "title": "Founder",
+   "initials": "HT",
+   "avatar_hue": 336,
+   "reg_date": "08/06/2026",
+   "reg_time": "09:12",
+   "type": "business",
+   "group": "potential",
+   "source": "website",
+   "source_label": "Website",
+   "source_color": "#0E9B94",
+   "email": "hanh.tran@mombaby.vn",
+   "phone": "+84 903 552 221",
+   "zalo": "0900000666",
+   "city": "TP.HCM",
+   "district": "Q.1",
+   "status": "potential",
+   "stage": "potential",
+   "owner_user_id": "u_tram",
+   "owner_name": "Trâm",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "user",
+    "label": "Hương",
+    "hint": "Gửi ưu đãi giữ chân khách"
+   },
+   "tags": [],
+   "web_bg": 1
+  },
+  {
+   "id": "kh_1009",
+   "code": "KH-1009",
+   "full_name": "Phạm Quang Quân",
+   "first_name": "Quân",
+   "title": "IT Director",
+   "initials": "QP",
+   "avatar_hue": 32,
+   "reg_date": "10/06/2026",
+   "reg_time": "11:25",
+   "type": "household",
+   "group": "vip",
+   "source": "referral",
+   "source_label": "Giới thiệu",
+   "source_color": "#C9820B",
+   "email": "quan.pham@ankhang.vn",
+   "phone": "+84 912 448 773",
+   "zalo": "0900000740",
+   "city": "Hà Nội",
+   "district": "Cầu Giấy",
+   "status": "inactive",
+   "stage": "consulting",
+   "owner_user_id": "u_minh",
+   "owner_name": "Minh",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "wait",
+    "label": "Chờ xử lý",
+    "hint": "Nhắc thanh toán / theo dõi đơn"
+   },
+   "tags": [
+    "Hot lead"
+   ],
+   "web_bg": 2
+  },
+  {
+   "id": "kh_1010",
+   "code": "KH-1010",
+   "full_name": "Green Sophia",
+   "first_name": "Sophia",
+   "title": "Buyer",
+   "initials": "SG",
+   "avatar_hue": 308,
+   "reg_date": "08/06/2026",
+   "reg_time": "09:12",
+   "type": "individual",
+   "group": "loyal",
+   "source": "email",
+   "source_label": "Email",
+   "source_color": "#1F8A4D",
+   "email": "sophia@bamboehome.com",
+   "phone": "+1 312 775 3048",
+   "zalo": "0900000666",
+   "city": "TP.HCM",
+   "district": "Q.1",
+   "status": "active",
+   "stage": "quote",
+   "owner_user_id": "agent_cowork",
+   "owner_name": "AI Cowork",
+   "owner_hue": 306,
+   "ai": {
+    "kind": "ai",
+    "label": "AI xử lý",
+    "hint": "Đề xuất upsell combo phù hợp"
+   },
+   "tags": [],
+   "web_bg": 3
+  },
+  {
+   "id": "kh_1011",
+   "code": "KH-1011",
+   "full_name": "Đỗ Thị Minh Anh",
+   "first_name": "Minh Anh",
+   "title": "Cá nhân",
+   "initials": "MĐ",
+   "avatar_hue": 32,
+   "reg_date": "11/06/2026",
+   "reg_time": "14:08",
+   "type": "business",
+   "group": "new",
+   "source": "referral",
+   "source_label": "Giới thiệu",
+   "source_color": "#C9820B",
+   "email": "minhanh@gmail.com",
+   "phone": "+84 909 887 332",
+   "zalo": "0900000777",
+   "city": "Đà Nẵng",
+   "district": "Hải Châu",
+   "status": "potential",
+   "stage": "contract",
+   "owner_user_id": "agent_cowork",
+   "owner_name": "AI Cowork",
+   "owner_hue": 306,
+   "ai": {
+    "kind": "user",
+    "label": "Lan Anh",
+    "hint": "Phản hồi gấp theo SLA"
+   },
+   "tags": [],
+   "web_bg": 4
+  },
+  {
+   "id": "kh_1012",
+   "code": "KH-1012",
+   "full_name": "Lê Anh Tuấn",
+   "first_name": "Tuấn",
+   "title": "Giám đốc",
+   "initials": "TL",
+   "avatar_hue": 280,
+   "reg_date": "13/06/2026",
+   "reg_time": "16:50",
+   "type": "household",
+   "group": "potential",
+   "source": "zalo_personal",
+   "source_label": "Zalo cá nhân",
+   "source_color": "#0068FF",
+   "email": "tuan.le@company.vn",
+   "phone": "+84 988 002 115",
+   "zalo": "0900000629",
+   "city": "Hà Nội",
+   "district": "Đống Đa",
+   "status": "inactive",
+   "stage": "won",
+   "owner_user_id": "u_tram",
+   "owner_name": "Trâm",
+   "owner_hue": 136,
+   "ai": {
+    "kind": "wait",
+    "label": "Chờ xử lý",
+    "hint": "Đặt lịch follow-up tuần này"
+   },
+   "tags": [],
+   "web_bg": 5
+  }
+ ],
+ "custom_fields": [
+  {
+   "key": "size",
+   "label": "Size áo",
+   "type": "picklist",
+   "options": "S/M/L/XL/XXL",
+   "group": "Bán lẻ",
+   "required": false,
+   "visible": true
+  },
+  {
+   "key": "tax_id",
+   "label": "Tax ID",
+   "type": "text",
+   "options": "13 ký tự số",
+   "group": "B2B",
+   "required": true,
+   "visible": true
+  },
+  {
+   "key": "gift_pref",
+   "label": "Birthday Gift Pref",
+   "type": "multi",
+   "options": "Voucher / Gift box / Trải nghiệm",
+   "group": "Loyalty",
+   "required": false,
+   "visible": true
+  },
+  {
+   "key": "vip_tier",
+   "label": "VIP Tier",
+   "type": "tier",
+   "options": "Bạc / Vàng / Bạch kim / Kim cương",
+   "group": "Loyalty",
+   "required": false,
+   "visible": true
+  },
+  {
+   "key": "referrer",
+   "label": "Referrer",
+   "type": "lookup",
+   "options": "Liên hệ giới thiệu",
+   "group": "Marketing",
+   "required": false,
+   "visible": true
+  },
+  {
+   "key": "school",
+   "label": "School / Class",
+   "type": "text",
+   "options": "–",
+   "group": "Edu / Trung tâm",
+   "required": false,
+   "visible": false
+  },
+  {
+   "key": "allergies",
+   "label": "Allergies",
+   "type": "tags",
+   "options": "Hải sản / Sữa / Gluten / …",
+   "group": "F&B / Spa",
+   "required": false,
+   "visible": false
+  }
+ ],
+ "duplicates": {
+  "summary": {
+   "groups": 12,
+   "records": 28,
+   "auto": 8
+  },
+  "groups": [
+   {
+    "id": "dg1",
+    "pct": 96,
+    "by": "Email · Số điện thoại",
+    "a": {
+     "name": "Lan Nguyễn Thị",
+     "email": "lan@shopbena.vn",
+     "phone": "+84 909 123 456",
+     "src": "Zalo cá nhân · 12/03"
+    },
+    "b": {
+     "name": "Nguyễn Thị Lan",
+     "email": "lan@shopbena.vn",
+     "phone": "0909 123 456",
+     "src": "Form web · 03/04"
+    }
+   },
+   {
+    "id": "dg2",
+    "pct": 88,
+    "by": "Số điện thoại",
+    "a": {
+     "name": "Trần Quốc Bảo",
+     "email": "bao.tran@gmail.com",
+     "phone": "+84 938 222 110",
+     "src": "Marketplace · 15/02"
+    },
+    "b": {
+     "name": "Bảo Trần",
+     "email": "b.tran@homestay.vn",
+     "phone": "+84 938 222 110",
+     "src": "Đơn hàng · 22/03"
+    }
+   },
+   {
+    "id": "dg3",
+    "pct": 74,
+    "by": "Tên + Công ty",
+    "a": {
+     "name": "Phạm Minh Tú",
+     "email": "tu.pm@coffeev.vn",
+     "phone": "—",
+     "src": "Manual · 18/01"
+    },
+    "b": {
+     "name": "Phạm M. Tú",
+     "email": "phammt@coffeev.vn",
+     "phone": "—",
+     "src": "Email sync · 02/04"
+    }
+   }
+  ]
+ },
+ "ai_runs": {
+  "pipeline": {
+   "text": "Pipeline: Lead 74 · Tiềm năng 52 · Tư vấn 38 · Báo giá 21 · Hợp đồng 8 · Đã mua 48. Chuyển đổi Lead→Mua 21%; điểm nghẽn ở Báo giá→Hợp đồng (38%).",
+   "act": "kanban"
+  },
+  "churn": {
+   "text": "Phát hiện 3 khách >60 ngày không tương tác: Anh Dũng Phạm, J. Rodriguez, Sophia Green. Đề xuất gửi ưu đãi giữ chân.",
+   "act": null
+  },
+  "dedupe": {
+   "text": "Có 12 nhóm nghi ngờ trùng (28 bản ghi); 8 nhóm hợp nhất tự động được (score >90).",
+   "act": "dedupe"
+  },
+  "assign": {
+   "text": "Đề xuất: TP.HCM → Trâm (32) · Hà Nội → Minh (18) · Đà Nẵng → Hương (9).",
+   "act": null
+  },
+  "upsell": {
+   "text": "12 khách LTV >20tr phù hợp upsell gói năm; tỉ lệ chốt dự đoán 64%.",
+   "act": null
+  }
+ },
+ "peek": [
+  "Khách chưa được liên hệ 18 ngày — nên gửi tin chăm sóc lại.",
+  "Có nhu cầu HIFU (theo lịch sử chat) — gợi ý báo giá combo.",
+  "Sinh nhật trong 5 ngày — tự động gửi ưu đãi + tích điểm.",
+  "Đề xuất gán cho Sales: Minh (tỷ lệ chốt cao với nhóm này)."
+ ],
+ "collaborators": {
+  "kh_1002": [
+   {
+    "user_id": "u_tram",
+    "role": "collaborator"
+   }
+  ],
+  "ct_lan": [
+   {
+    "user_id": "u_huong",
+    "role": "watcher"
+   }
+  ]
+ },
+ "genui": [
+  {
+   "key": "pipeline",
+   "re": "pipeline|giai đoạn",
+   "lead": "Pipeline khách hàng hiện tại:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "stack",
+     "children": [
+      {
+       "type": "stat_group",
+       "stats": [
+        {
+         "type": "stat",
+         "label": "Đang theo dõi",
+         "value": {
+          "$ref": "step:1.total"
+         },
+         "format": "number"
+        },
+        {
+         "type": "stat",
+         "label": "Giá trị",
+         "value": {
+          "$ref": "step:1.value"
+         },
+         "format": "money"
+        },
+        {
+         "type": "stat",
+         "label": "Tỷ lệ chốt",
+         "value": {
+          "$ref": "step:1.win"
+         },
+         "format": "percent",
+         "tone": "success"
+        }
+       ]
+      },
+      {
+       "type": "chart",
+       "kind": "funnel",
+       "title": "Theo giai đoạn",
+       "data": {
+        "$ref": "step:1.stages"
+       },
+       "x": "stage",
+       "y": "count"
+      },
+      {
+       "type": "button",
+       "label": "Xem dạng Kanban",
+       "on": {
+        "kind": "ui",
+        "command": {
+         "type": "navigate",
+         "route": "/customers?layout=kanban"
+        }
+       }
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "total": 8420,
+     "value": 1286000000,
+     "win": 18.4,
+     "stages": [
+      {
+       "stage": "Tiềm năng",
+       "count": 3120
+      },
+      {
+       "stage": "Quan tâm",
+       "count": 2410
+      },
+      {
+       "stage": "Báo giá",
+       "count": 1280
+      },
+      {
+       "stage": "Chốt",
+       "count": 1610
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": "churn",
+   "re": "rời bỏ|churn|nguy cơ",
+   "lead": "Khách có nguy cơ rời bỏ — em lọc ngay trên bảng:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "stack",
+     "children": [
+      {
+       "type": "stat",
+       "label": "Nguy cơ cao",
+       "value": {
+        "$ref": "step:1.count"
+       },
+       "format": "number",
+       "tone": "danger"
+      },
+      {
+       "type": "list",
+       "items": {
+        "$ref": "step:1.top"
+       },
+       "title_key": "name",
+       "subtitle_key": "reason",
+       "open": {
+        "entity": "contact",
+        "id_key": "id"
+       }
+      },
+      {
+       "type": "button_group",
+       "buttons": [
+        {
+         "type": "button",
+         "label": "Lọc trên bảng",
+         "tone": "brand",
+         "on": {
+          "kind": "ui",
+          "command": {
+           "type": "filter",
+           "table": "contacts",
+           "filter": {
+            "status": "inactive"
+           }
+          }
+         }
+        },
+        {
+         "type": "button",
+         "label": "Tô sáng chị Lan",
+         "on": {
+          "kind": "ui",
+          "command": {
+           "type": "highlight",
+           "target": "contact:ct_lan"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "count": 37,
+     "top": [
+      {
+       "id": "ct_lan",
+       "name": "Nguyễn Thị Lan",
+       "reason": "62 ngày chưa quay lại"
+      },
+      {
+       "id": "kh_1002",
+       "name": "Nguyễn Trung Hiếu",
+       "reason": "Giảm 40% chi tiêu"
+      },
+      {
+       "id": "kh_1003",
+       "name": "Phạm Thị Linh",
+       "reason": "Huỷ 2 lịch gần nhất"
+      },
+      {
+       "id": "kh_1004",
+       "name": "Fowler Ashley",
+       "reason": "Không phản hồi Zalo"
+      },
+      {
+       "id": "kh_1005",
+       "name": "Trần Minh Khoa",
+       "reason": "Gói sắp hết hạn"
+      },
+      {
+       "id": "kh_1006",
+       "name": "Rodriguez J.",
+       "reason": "Đánh giá thấp lần trước"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "key": "dedupe",
+   "re": "trùng|gộp|dedupe",
+   "lead": "Em tìm thấy các nhóm khách trùng:",
+   "tree": {
+    "version": 1,
+    "root": {
+     "type": "section",
+     "title": "Khách trùng",
+     "children": [
+      {
+       "type": "table",
+       "columns": [
+        {
+         "key": "name",
+         "label": "Khách"
+        },
+        {
+         "key": "match",
+         "label": "Trùng theo"
+        },
+        {
+         "key": "n",
+         "label": "Số hồ sơ",
+         "format": "number"
+        }
+       ],
+       "rows": {
+        "$ref": "step:1.groups"
+       }
+      },
+      {
+       "type": "button",
+       "label": "Gắn thẻ VIP cho chị Lan",
+       "on": {
+        "kind": "action",
+        "action_id": "contact.tag",
+        "input": {
+         "contact_id": "ct_lan",
+         "tag": "VIP",
+         "op": "add"
+        }
+       }
+      }
+     ]
+    }
+   },
+   "refs": {
+    "step:1": {
+     "groups": [
+      {
+       "name": "Nguyễn Thị Lan",
+       "match": "SĐT",
+       "n": 2
+      },
+      {
+       "name": "Trần Minh Khoa",
+       "match": "Email",
+       "n": 2
+      },
+      {
+       "name": "Phạm Thị Linh",
+       "match": "SĐT",
+       "n": 3
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

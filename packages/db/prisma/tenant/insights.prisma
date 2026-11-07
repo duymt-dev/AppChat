@@ -1,0 +1,73 @@
+// tenant/insights.prisma — sở hữu: TIP-038 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: follow_up (việc chăm sóc khách đến hạn — pha 2), digest_delivery (sổ email tóm tắt — pha 4). Xuất danh sách (pha 3) dùng data_job
+// (DC-365) — không bảng riêng. Không Prisma relation xuyên domain (Blueprint §2.1); CHECK + partial index viết tay ở migration.
+
+enum FollowUpStatus {
+  pending
+  done
+  superseded
+
+  @@map("follow_up_status")
+}
+
+/// Việc follow khách (TIP-038 mục 3, DC-241): khách còn sống, chưa won / lost, im lặng ≥ 7 ngày theo `last_interaction_at`. Một dòng mỗi
+/// `source_key` (khách + mốc tương tác cuối) — tương tác mới thay việc cũ (`superseded`), việc đã xong không sinh lại cho cùng mốc. Không
+/// tự gửi tin. `source_at` = mốc tương tác lúc sinh (so trực tiếp với `contact.last_interaction_at`, không quy đổi múi giờ trong SQL — Q-053).
+model FollowUp {
+  id                String         @id @db.Uuid
+  contactId         String         @map("contact_id") @db.Uuid
+  sourceKey         String         @unique @map("source_key")
+  sourceAt          DateTime       @map("source_at") @db.Timestamptz(6)
+  dueAt             DateTime       @map("due_at") @db.Timestamptz(6)
+  status            FollowUpStatus @default(pending)
+  version           Int            @default(1)
+  completedByUserId String?        @map("completed_by_user_id") @db.Uuid
+  completedAt       DateTime?      @map("completed_at") @db.Timestamptz(6)
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("follow_up")
+}
+
+enum DigestCadence {
+  daily
+  weekly
+
+  @@map("digest_cadence")
+}
+
+enum DigestState {
+  queued
+  sending
+  sent
+  failed
+  unknown
+  skipped
+
+  @@map("digest_state")
+}
+
+/// Sổ email tóm tắt (TIP-038 pha 4, DC-241 / DC-366): một dòng mỗi (người nhận, nhịp, kỳ) — unique DB là nguồn sự thật (không dựa jobId
+/// Redis). Giành gửi bằng CAS `queued → sending` (+ `attempted_at` TRƯỚC khi gọi nhà cung cấp): sập sau khi nhà cung cấp nhận → `unknown`,
+/// không gửi lại mù. `next_attempt_at` = mốc được phép gửi (sau DND). Không lưu nội dung email / địa chỉ (PII — ops §1.4).
+model DigestDelivery {
+  id            String        @id @db.Uuid
+  userId        String        @map("user_id") @db.Uuid
+  cadence       DigestCadence
+  /// Đầu kỳ (00:00 ngày / Thứ Hai theo giờ workspace, quy UTC) — kỳ báo cáo là [period_start, period_end).
+  periodStart   DateTime      @map("period_start") @db.Timestamptz(6)
+  periodEnd     DateTime      @map("period_end") @db.Timestamptz(6)
+  state         DigestState   @default(queued)
+  nextAttemptAt DateTime      @map("next_attempt_at") @db.Timestamptz(6)
+  attempts      Int           @default(0)
+  attemptedAt   DateTime?     @map("attempted_at") @db.Timestamptz(6)
+  sentAt        DateTime?     @map("sent_at") @db.Timestamptz(6)
+  providerId    String?       @map("provider_id")
+  /// Lý do bỏ qua / lỗi — mã ngắn (off, removed, unverified, provider_rejected…), không chứa dữ liệu khách.
+  reason        String?
+  version       Int           @default(1)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([userId, cadence, periodStart], map: "digest_delivery_period_key")
+  @@map("digest_delivery")
+}

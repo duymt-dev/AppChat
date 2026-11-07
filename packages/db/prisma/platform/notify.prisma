@@ -1,0 +1,18 @@
+// platform/notify.prisma — sở hữu: TIP-006 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: notification_pref (DC-028, DV-002).
+// Tuỳ chọn thông báo theo user (một bộ cho mọi workspace — Cài đặt › Thông báo là "của tôi"; action `notification.update_prefs`
+// có `db: 'platform'`). Không Prisma relation xuyên domain (Blueprint §2.1).
+
+/// Thiếu dòng = mặc định danh mục `NOTIFY_KINDS` (packages/shared/src/notify/catalog.ts).
+model NotificationPref {
+  userId    String   @id @map("user_id") @db.Uuid
+  /// { [kind]: { desktop, email, mobile } } — chỉ loại user đã đổi.
+  events    Json     @default("{}")
+  /// { on, from: "HH:MM", to: "HH:MM" } theo múi giờ workspace.
+  dnd       Json     @default("{\"on\":false,\"from\":\"22:00\",\"to\":\"08:00\"}")
+  sound     Boolean  @default(true)
+  digest    String   @default("daily")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("notification_pref")
+}

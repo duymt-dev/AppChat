@@ -1,0 +1,278 @@
+{
+  "title": "Khách hàng thân thiết",
+  "sub": "Hạng thành viên · tích điểm · giữ chân khách",
+  "search": "Tìm tên, SĐT, hạng…",
+  "add": "Thêm thành viên",
+  "ai": "Trợ lý AI",
+  "tier": {
+    "member": "Thành viên",
+    "silver": "Bạc",
+    "gold": "Vàng",
+    "diamond": "Kim cương"
+  },
+  "ov": {
+    "title": "Tổng quan điểm & doanh thu",
+    "issued": "Điểm đã phát hành",
+    "used": "Điểm đã sử dụng",
+    "redeemed": "Điểm đã đổi (quà)",
+    "return": "Tỷ lệ quay lại",
+    "revenue": "Doanh thu từ TV",
+    "unit": {
+      "pts": "điểm",
+      "vnd": "đồng"
+    },
+    "trend": "↑ {v} so với tháng trước"
+  },
+  "mem": {
+    "title": "Danh sách thành viên",
+    "find": "Tìm…",
+    "allTiers": "Tất cả hạng",
+    "col": {
+      "idx": "#",
+      "name": "Thành viên",
+      "tier": "Hạng",
+      "points": "Điểm hiện có",
+      "earned": "Tổng tích lũy",
+      "used": "Đã dùng",
+      "spent": "Chi tiêu",
+      "status": "Trạng thái",
+      "act": "Thao tác"
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "inactive": "Ngừng tương tác",
+      "new": "Mới",
+      "churn_risk": "Sắp rời bỏ"
+    },
+    "empty": "Không có thành viên phù hợp",
+    "menu": {
+      "open": "Thao tác",
+      "view": "Xem chi tiết",
+      "adjust": "Điều chỉnh điểm"
+    },
+    "vnd": "{v}đ"
+  },
+  "churn": {
+    "title": "Cảnh báo khách sắp rời bỏ",
+    "sub": "AI phát hiện dấu hiệu giảm tương tác · điểm hoặc gói sắp hết hạn",
+    "col": {
+      "name": "Thành viên",
+      "tier": "Hạng",
+      "risk": "Mức rủi ro",
+      "signal": "Dấu hiệu",
+      "last": "Lần cuối"
+    },
+    "risk": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "score": "{n}/100",
+    "soonD": "Chấm điểm rủi ro rời bỏ đang được phát triển — sẽ có ở bản sau."
+  },
+  "rules": {
+    "title": "Quy tắc tích điểm",
+    "sub": "Theo luật đã chốt: <b>10.000đ = 1 điểm</b>, cộng một lần khi đơn hoàn tất · hạng nhân hệ số",
+    "config": "Cấu hình hạng & điểm",
+    "col": {
+      "prio": "Ưu tiên",
+      "when": "Khi · sự kiện",
+      "if": "Nếu · điều kiện",
+      "then": "Thì · cộng điểm",
+      "expiry": "Hạn dùng",
+      "state": "Trạng thái"
+    },
+    "name": {
+      "earn": "Tích điểm theo đơn hoàn tất",
+      "tier_mult": "Nhân điểm theo hạng",
+      "big_order": "Thưởng đơn giá trị lớn",
+      "birthday": "Thưởng sinh nhật",
+      "signup": "Thưởng đăng ký lần đầu",
+      "referral": "Thưởng giới thiệu bạn",
+      "rating": "Thưởng đánh giá 5 sao",
+      "package": "Tích điểm mua gói / thẻ"
+    },
+    "trigger": {
+      "order_completed": "Đơn hàng hoàn tất",
+      "birthday": "Đến ngày sinh nhật",
+      "signup": "Hoàn tất hồ sơ thành viên",
+      "referral": "Người được giới thiệu mua lần đầu",
+      "rating": "Khách gửi đánh giá sau dịch vụ",
+      "package": "Mua gói hoặc thẻ dịch vụ"
+    },
+    "cond": {
+      "all": "Mọi trường hợp",
+      "tier": "Hạng ∈ Vàng, Kim cương",
+      "big": "Giá trị đơn ≥ 5.000.000đ",
+      "new": "Là khách mới",
+      "five": "Số sao = 5"
+    },
+    "on": "Đang chạy",
+    "soon": "Sắp có",
+    "foot": "Đang chạy <b>{on}</b> / {n} quy tắc · điểm hết hạn sau 12 tháng (FIFO) · hạng xét lại mỗi quý",
+    "sim": "Thử nghiệm tính điểm"
+  },
+  "adj": {
+    "title": "Thêm thành viên & ghi nhận điểm",
+    "sub": "Tra số điện thoại → xác định hạng → điều chỉnh điểm có lý do",
+    "close": "Đóng",
+    "steps": [
+      "Tra số điện thoại",
+      "Xác định hạng",
+      "Ghi nhận điểm"
+    ],
+    "phone": "Số điện thoại khách",
+    "phonePh": "VD: 0903 123 456",
+    "lookup": "Tra cứu",
+    "tryHint": "Thử <b>0903 123 456</b> (đã là thành viên) hoặc số bất kỳ (khách mới).",
+    "member": "Đã là thành viên · tham gia {d}",
+    "tierBadge": "Hạng {t}",
+    "cur": "Điểm hiện có",
+    "toNext": "Còn <b>{n}</b> điểm nữa để lên hạng {t}",
+    "maxTier": "Đã ở hạng cao nhất — giữ hạng bằng điểm tích trong 12 tháng",
+    "newT": "Chưa có trong chương trình",
+    "newD": "Số này chưa là thành viên. Nhập họ tên để tạo hồ sơ khách — khách vào hạng <b>Thành viên</b>; hạng được xét theo điểm tích 12 tháng.",
+    "crmD": "Khách {name} đã có trong CRM nhưng chưa có điểm — sẽ vào hạng <b>Thành viên</b>.",
+    "name": "Họ và tên",
+    "namePh": "Nguyễn Văn A",
+    "box": "Điều chỉnh điểm",
+    "boxSub": "điểm tự động chỉ cộng khi đơn hoàn tất",
+    "dir": "Loại điều chỉnh",
+    "plus": "Cộng điểm",
+    "minus": "Trừ điểm",
+    "points": "Số điểm",
+    "reason": "Lý do",
+    "reasons": {
+      "missing_earn": "Đơn hoàn tất chưa được cộng điểm",
+      "order_error": "Sửa sai sót đơn hàng",
+      "compensation": "Đền bù do sự cố dịch vụ",
+      "promotion": "Ưu đãi chiến dịch riêng",
+      "refund_reverse": "Thu hồi điểm do hoàn tiền",
+      "fraud": "Thu hồi điểm cấp sai / gian lận",
+      "other": "Lý do khác (ghi rõ)"
+    },
+    "note": "Ghi chú",
+    "notePh": "Mô tả ngắn cho nhật ký",
+    "result": "Kết quả",
+    "curPoints": "Điểm hiện có",
+    "after": "Số dư sau điều chỉnh",
+    "tierAfter": "Hạng sau điều chỉnh",
+    "log": "Mọi lần điều chỉnh đều lưu nhật ký: ai thực hiện, lúc nào, lý do gì — hoàn tác được trong 24 giờ.",
+    "hintStart": "Nhập số điện thoại rồi bấm Tra cứu để tiếp tục.",
+    "hintMember": "Thành viên đã có — chỉ cần ghi nhận điểm.",
+    "hintNew": "Khách mới — sẽ tạo hồ sơ rồi ghi nhận điểm.",
+    "cancel": "Huỷ",
+    "save": "Ghi nhận điểm",
+    "saveNew": "Thêm thành viên & ghi điểm",
+    "errPhone": "Nhập số điện thoại hợp lệ",
+    "errName": "Nhập họ tên khách",
+    "errPoints": "Nhập số điểm lớn hơn 0",
+    "errNote": "Lý do khác cần ghi chú",
+    "done": "Đã ghi nhận {d} điểm cho {name}"
+  },
+  "cfg": {
+    "title": "Cấu hình hạng & điểm",
+    "sub": "Luật tích / đổi điểm đã chốt — chỉ bật tắt và hệ số hạng được đổi",
+    "close": "Đóng",
+    "enabled": "Bật chương trình khách thân thiết",
+    "fixed": "Luật cố định",
+    "earn": "Tích điểm",
+    "earnV": "10.000đ = 1 điểm · một lần khi đơn hoàn tất",
+    "redeem": "Đổi điểm",
+    "redeemV": "1 điểm = 100đ · tối đa 50% giá trị đơn",
+    "expiry": "Hạn điểm",
+    "expiryV": "12 tháng kể từ ngày cộng (FIFO)",
+    "review": "Xét hạng",
+    "reviewV": "Theo điểm tích 12 tháng gần nhất · xét lại mỗi quý",
+    "tiers": "Hạng thành viên",
+    "from": "Từ {n} điểm",
+    "mult": "Hệ số",
+    "market": "Tích điểm cho đơn từ sàn TMĐT",
+    "marketHint": "Mặc định tắt — sàn thường cấm kéo khách ra ngoài.",
+    "cancel": "Huỷ",
+    "save": "Lưu cấu hình",
+    "saved": "Đã lưu cấu hình khách thân thiết"
+  },
+  "sim": {
+    "title": "Thử nghiệm tính điểm",
+    "sub": "Nhập một đơn hoàn tất giả để xem khách nhận bao nhiêu điểm",
+    "close": "Đóng",
+    "tier": "Hạng khách",
+    "amount": "Số tiền thực trả trước VAT (đ)",
+    "applied": "Quy tắc được áp",
+    "base": "Tích điểm theo đơn (10.000đ = 1 điểm)",
+    "mult": "Nhân điểm hạng {t} (×{m})",
+    "total": "Tổng điểm khách nhận",
+    "note": "Điểm cộng một lần khi đơn chuyển Hoàn tất; huỷ đơn sẽ đảo điểm. Lịch hẹn hoàn tất không cộng điểm riêng.",
+    "done": "Xong"
+  },
+  "dr": {
+    "close": "Đóng",
+    "tierBadge": "Hạng {t}",
+    "cur": "Điểm hiện có",
+    "earned": "Tổng tích luỹ",
+    "tabs": {
+      "overview": "Tổng quan",
+      "crm": "CRM",
+      "ai": "AI",
+      "files": "Tệp",
+      "history": "Lịch sử"
+    },
+    "progress": "Tiến độ lên hạng",
+    "maxTag": "Hạng cao nhất ✦",
+    "maxD": "Khách đang ở hạng cao nhất — duy trì quyền lợi VIP & ưu tiên chăm sóc.",
+    "up": "Lên <b>{t}</b>",
+    "need": "cần thêm {n} điểm",
+    "stats": "Chỉ số thành viên",
+    "used": "Điểm đã dùng",
+    "spent": "Tổng chi tiêu",
+    "expiring": "Điểm sắp hết hạn",
+    "adjust": "Điều chỉnh điểm",
+    "openCrm": "Mở hồ sơ CRM",
+    "ladderD": "Hạng được xét theo <b>điểm tích trong 12 tháng gần nhất</b>, xét lại mỗi quý. Hệ số nhân áp lên điểm của mỗi đơn hoàn tất.",
+    "current": "Hạng hiện tại",
+    "rate": "Tích ×{m}",
+    "from": "Từ {n} điểm tích trong 12 tháng",
+    "perk": {
+      "member": "Tích điểm cơ bản 10.000đ = 1 điểm",
+      "silver": "Ưu đãi sinh nhật · tích điểm ×1",
+      "gold": "Voucher hàng tháng · tích điểm ×1,5",
+      "diamond": "Quà sinh nhật · ưu tiên đặt lịch · CSKH riêng · tích điểm ×2"
+    },
+    "aiT": "AI phân tích thành viên",
+    "aiD": "Còn <b>{n}</b> điểm tích để lên hạng <b>{t}</b> — gợi ý ưu đãi riêng trong 30 ngày.",
+    "aiMax": "Thành viên hạng cao nhất, chi tiêu ổn định — ưu tiên chăm sóc cá nhân hoá để giữ hạng.",
+    "aiActs": "Gợi ý hành động",
+    "files": "Tệp đính kèm",
+    "openFile": "Mở",
+    "upload": "+ Tải tệp lên",
+    "kind": {
+      "earn": "Tích điểm",
+      "redeem": "Dùng điểm",
+      "adjust": "Điều chỉnh",
+      "expire": "Hết hạn",
+      "reverse": "Đảo điểm",
+      "restore": "Trả lại điểm"
+    },
+    "noHistory": "Chưa có giao dịch điểm",
+    "acts": {
+      "keep": {
+        "label": "Gợi ý ưu đãi giữ / lên hạng",
+        "prompt": "Khách {name} ({phone}) đang hạng {tier}, có {points} điểm, {expiring} điểm sắp hết hạn. Đề xuất ưu đãi giữ hạng / lên hạng phù hợp, chưa gửi cho khách."
+      },
+      "care": {
+        "label": "Đặt lịch chăm sóc định kỳ",
+        "prompt": "Đề xuất lịch chăm sóc định kỳ cho khách {name} ({phone}), hạng {tier}. Chỉ đề xuất, chờ tôi xác nhận."
+      },
+      "expiring": {
+        "label": "Soạn nhắc điểm sắp hết hạn",
+        "prompt": "Soạn tin nhắc khách {name} ({phone}) rằng {expiring} điểm sắp hết hạn (số dư {points} điểm). Chỉ soạn nháp, không tự gửi."
+      }
+    },
+    "openFail": "Không mở được tệp",
+    "uploadFail": "Không tải được tệp lên",
+    "filesFail": "Không tải được danh sách tệp",
+    "noFiles": "Chưa có tệp đính kèm"
+  },
+  "unit": "thành viên"
+}

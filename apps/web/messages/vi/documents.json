@@ -1,0 +1,17 @@
+{
+  "public": {
+    "title": "{kind} {code}",
+    "kind": {
+      "quote": "Báo giá",
+      "payment_request": "Đề nghị thanh toán",
+      "contract": "Hợp đồng",
+      "order_confirmation": "Xác nhận đơn hàng",
+      "receipt": "Phiếu thu"
+    },
+    "expires": "Link xem có hiệu lực đến {d}",
+    "contact": "Cần hỗ trợ, vui lòng trả lời trong cuộc trò chuyện đã nhận link này.",
+    "pdf": "Tải PDF",
+    "invalidTitle": "Link chứng từ không còn hiệu lực",
+    "invalidSub": "Link đã hết hạn, bị thu hồi hoặc chứng từ đã thay đổi. Vui lòng liên hệ người gửi để nhận link mới."
+  }
+}

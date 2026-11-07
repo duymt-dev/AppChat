@@ -1,0 +1,40 @@
+### COMPLETION REPORT — TIP-025
+
+**STATUS:** DONE (model giả — chưa nghiệm thu với LLM thật, Q-001)
+**COMMIT:** `7472aed` (code) + commit report / tiến độ trên nhánh `tip/025-inbox` (xếp chồng trên `tip/024-agents-ui`) — SHA cuối ở bảng tiến độ `goals/GOAL-BACKEND.md`
+
+**KHẢO SÁT ĐẦU TIP:** danh sách / luồng tin / đếm / gửi / ghi chú / thẻ / lưu trữ / handoff đã chạy http (TIP-016 / 022). Khoảng trống: không có socket ở http (tin mới chỉ thấy khi tải lại), thư mục / tài khoản / tìm kiếm / sắp xếp không gửi lên API (khoá `mention` / `team` / `starred` / `spam` → 400), ảnh / tệp không hiện + không gửi được, @nhắc không có (DC-078), `ai.translate` 501, chế độ AI không có Tắt / không đánh dấu, `ai_state=running` không ai ghi, không có deep link `?c=`, tìm trong hội thoại chỉ lọc tin đã tải, menu "Vòng đời" gọi với khách rỗng.
+
+**FILES CHANGED:**
+- Created: migration tenant `20261101100000_025_inbox_mentions` (`message_mention` + index partial); core `inbox/services/{attachments,mentions}.ts`, `inbox/tokens.ts`, `kernel/files/signed-url.ts`, `ai/skills/translate.handler.ts`; FE `shared/realtime/socket.ts`, `features/inbox/hooks/{useConversations,useConversationRoom,useComposerFiles}.ts`, `features/inbox/components/{Attachments,ComposerExtras}.tsx`, `features/inbox/api.test.ts`; test `api/test/integration/inbox-ui.test.ts` (10), `web/e2e/http/inbox-live.spec.ts` (1).
+- Modified: `packages/actions/src/{inbox,ai}.ts` (`message.send.attachments`, `note.add.mentions`, `ai.translate.to`); `packages/shared/src/api/inbox.ts` (thư mục `mention` / `team`, `INBOX_SORTS`); core `inbox/{repos/conversations.repo, services/read.service, actions/{message,conversation-state}.handlers, inbox.module}`, `ai/{ai.module, reply/reply.service}`, `kernel/index.ts`; `packages/ai/src/testing/mock-model.ts` (dịch); `packages/db/prisma/tenant/inbox.prisma`; API `inbox/conversations.controller.ts`, `files/files.controller.ts` (`/files/:id/raw`); FE `shared/api/http-transport.ts` (`onSessionChange` / `sessionAuth`), `shared/realtime/event-invalidation.ts`, `features/inbox/{api, inbox-store, types, screens/InboxScreen, components/{ConversationList, AccountSelect, ForwardModal, FolderRail, Composer, ComposerPopovers, AgentToolsMenu, MessageBubble, ThreadSearchBar, ConvMenu}}`, `features/{quotes,contracts}/api.ts` (không thử lại), mock `domains/inbox.ts` + test, `messages/{vi,en}/inbox.json`, `next.config.ts`, `playwright.http.config.ts`, `apps/web/package.json` (`socket.io-client` 4.8.4 — cùng bản server, không thêm thư viện ngoài stack); `coding-packs/{DECISIONS, QUESTIONS}.md`, `goals/GOAL-BACKEND.md`.
+
+**TEST RESULTS:**
+- Acceptance criteria: 4/4 pass
+  1. Integration `inbox-ui.test.ts` (10): migration 025 + EXPLAIN dùng `message_mention_unread_idx`; thư mục `team` theo người xem, lọc `channel_account_id`, `sort=unread` + phân trang keyset không trùng / sót, sort lạ = mới nhất, thư mục lạ 400, rail không còn Gắn sao / Spam; `note.add` @nhắc → `message_mention` (bỏ chính mình / id lạ) + thông báo `msg_mention` link `/inbox?c=` + thư mục / tab / đếm "Nhắc đến tôi" của người được nhắc → `mark_read` hết; Email: gửi ảnh → tin `file` + link ký đọc được không đăng nhập (`inline`), SMTP giả nhận tệp đúng link, chữ ký sai 404, tệp `confirmed`; tệp người khác / id lạ 422 `not_found`, không chữ không tệp 422; webchat ảnh → `image`; `ai.translate` (model giả) đúng ngôn ngữ đích / ngôn ngữ người dùng, run `consult`, trừ credit, tin khác hội thoại 404; agent `auto` ghi `ai_state` running → idle (outbox `conversation.updated change=ai_state`); thư Email thật qua pipeline → `message.new` vào `conv:` + `conversation.updated` vào `ws:` — **pass**
+  2. FE unit / mock shape: `convParams` (khoá FE → tham số), mock nhận cùng tham số (thư mục / tài khoản / tìm không dấu / chưa đọc trước / cursor) khớp `conversationsPageSchema`, @nhắc → thư mục + đếm → `mark_read`, dịch có tiền tố — **pass** (9)
+  3. E2E http `inbox-live.spec.ts`: mở Hộp thư trước → khách nhắn từ widget (trình duyệt riêng) → hội thoại hiện **không tải lại** < 5 giây, tin thứ hai vào luồng đang mở < 5 giây; tìm không dấu "chi hanh" / không khớp → trống; "Thêm tệp" → tải lên → gửi → bong bóng ảnh tải xong (link ký); ghi chú gõ `@` → gợi ý → chèn tên → lưu; Dịch → "[VI] …"; chế độ "AI tự xử" sáng → bấm lại = Tắt; `/inbox?c=<id>` mở đúng hội thoại — **pass**. "Nhắc đến tôi" = 1 của thành viên khác kiểm ở integration (workspace E2E chỉ có Owner — không tự nhắc mình).
+  4. E2E mock `inbox` **10 passed** · parity `inbox:default` 4.63% · `empty` 2.30% · `folder-rail` 4.61% · `conv-menu` 3.73% · `chat-menu` 4.36% · `ai-panel` 3.76% · `account-switch` 1.05% · `zalo-group-info` 4.36% · `handoff` 0.64% — **pass**; `inbox:connect-channel` 6.20% đỏ **không đổi** (đỏ từ P0 ver2.1 — TIP-018 đã ghi; Q-020).
+- **Cổng "khi làm":** integration ảnh hưởng (inbox, email, agent-reply, agents, agents-ui, assistant, notify, realtime, webchat, kb) **107/107**.
+- **Cổng "trước commit":** turbo lint / typecheck / test (7 package đổi) xanh; `pnpm depcheck` xanh (đã gỡ vòng import `ComposerExtras → features/customers`); `i18n:check` 100% (4525 key); `lint:size` / `lint:tokens` xanh.
+- **Cổng "chốt TIP":** `pnpm turbo run build lint typecheck test` **46/46** task · `api test:integration` **258 passed** (26 file, gồm `inbox-ui.test.ts` mới 10 ca) · FE unit + mock shape inbox xanh (9) · `pnpm depcheck` xanh · `i18n:check` 100% (4525 key) · `lint:size` / `lint:tokens` xanh · **E2E http 23 passed · 17 skipped · 0 failed** (toàn bộ, gồm `inbox-live.spec.ts` mới) · full E2E hồi quy mock **222 passed · 0 failed · 196 skipped** · parity `inbox:default` 4.63% · `inbox:empty` 2.30% · `inbox:folder-rail` 4.61% · `inbox:conv-menu` 3.73% · `inbox:chat-menu` 4.36% · `inbox:ai-panel` 3.76% · `inbox:account-switch` 1.05% · `inbox:zalo-group-info` 4.36% · `inbox:handoff` 0.64% · `inbox:connect-channel` 6.20% (đỏ từ P0 ver2.1, không đổi — Q-020).
+
+**INDEX / EXPLAIN:** "Nhắc đến tôi": `EXISTS (message_mention WHERE user_id = AND conversation_id = cv.id AND read_at IS NULL)` → `message_mention_unread_idx (user_id, conversation_id) WHERE read_at IS NULL` (partial — chỉ lần nhắc chưa đọc; cùng index cho đánh dấu đã đọc). `sort=unread`: `ORDER BY (unread_count > 0) DESC, last_message_at DESC, id DESC` + keyset ba cột — trên tập đang hiện của một workspace (index `conversation_live_recent_idx` cho bước lọc; sắp xếp trên tập đã lọc, LIMIT 51). Danh sách vẫn deferred join (bước 1 chỉ `id`).
+
+**ISSUES DISCOVERED:**
+- `mentions` ban đầu chỉ nhận uuid → mock (id `u_minh`) lỗi; đổi về chuỗi như `conversation_id`, backend vẫn chỉ giữ thành viên active.
+- `depcheck` bắt vòng import `inbox → customers` (gợi ý thành viên) → query `/members` riêng trong inbox.
+
+**GIẢ ĐỊNH ĐÃ CHỌN:** DC-140 … DC-146. **Lệch spec:** không có DV mới. **Câu hỏi mới:** Q-019 (chọn nhiều — chưa có thiết kế), Q-020 (parity `inbox:connect-channel` / `inbox:default`).
+
+**Chưa nghiệm thu với provider thật:** chất lượng dịch của LLM thật (Q-001); gửi ảnh / tệp qua Zalo cá nhân thật (Q-003) — Zalo giả + email giả đã qua.
+
+**SUGGESTIONS FOR CHỦ THẦU:**
+- TIP hạ tầng: nginx chuyển `/socket.io` (Upgrade) sang API; `WIDGET_API_URL` là origin public cho link tệp.
+- Màn Chờ duyệt / Nhật ký đã nhận `approval.changed` qua socket — có thể bỏ làm mới 30 giây (giữ làm lưới an toàn).
+- "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket chạy khi TIP-029 / 031 / 033 / 034 xong (hiện 501 "Tính năng này chưa sẵn sàng").
+
+
+## Supplemental planning2026-11-02 ? TIP025b (not runtime DONE)
+
+See ../tips/TIP-025b-inbox-vertical.md for group/search/bulk/source-context/global contact edit/timeline CSV/scheduling/translation/capture/approval integration and exact manifests. Original completion status does not prove these missing controls.025b preserves existing domain permissions/commerce;026b still must own CRM deal/task/contact-note domain gaps. Independent review/validation tracked in inbox-vertical-planning-audit-2026-11-02.md.

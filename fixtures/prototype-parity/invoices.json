@@ -1,0 +1,319 @@
+{
+  "invoices": [
+    {
+      "id": "inv_2041",
+      "code": "TT-002041",
+      "transfer_code": "TT002041",
+      "order_id": null,
+      "order_code": "",
+      "kind": "full",
+      "contact_id": "ct_lan",
+      "contact_name": "Chị Lan Nguyễn",
+      "phone": "0903 123 456",
+      "owner_user_id": "u_tram",
+      "owner_name": "Trâm",
+      "title": "Combo HIFU 8 buổi",
+      "amount": "18500000",
+      "paid_amount": "18500000",
+      "status": "paid",
+      "issued_at": "2026-06-20T09:00:00+07:00",
+      "due_date": "2026-06-27",
+      "sent_at": "2026-06-20T09:05:00+07:00",
+      "void_reason": "",
+      "payments": [
+        {
+          "id": "pay_2041_1",
+          "kind": "payment",
+          "amount": "18500000",
+          "method": "bank_transfer",
+          "reference": "FT262041771",
+          "status": "confirmed",
+          "at": "2026-06-20T15:30:00+07:00",
+          "by": "system",
+          "receipt_code": "PT-0020411",
+          "auto": true
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-20T09:00:00+07:00",
+          "actor": "Trâm"
+        },
+        {
+          "type": "sent",
+          "at": "2026-06-20T09:05:00+07:00",
+          "actor": "Trâm",
+          "channel": "zalo_personal"
+        },
+        {
+          "type": "payment",
+          "at": "2026-06-20T15:30:00+07:00",
+          "actor": "system",
+          "amount": "18500000"
+        }
+      ],
+      "ai": {
+        "text": "Đề nghị đã thu đủ. Khách thanh toán đúng hạn — đủ điều kiện gợi ý gói gia hạn.",
+        "acts": [
+          "Gợi ý gói gia hạn",
+          "Gửi khảo sát hài lòng"
+        ]
+      }
+    },
+    {
+      "id": "inv_2040",
+      "code": "TT-002040",
+      "transfer_code": "TT002040",
+      "order_id": null,
+      "order_code": "",
+      "kind": "full",
+      "contact_id": "ct_baoan",
+      "contact_name": "Cty Bảo An",
+      "phone": "028 7300 5588",
+      "owner_user_id": "u_minh",
+      "owner_name": "Minh",
+      "title": "Dịch vụ AI 12 tháng",
+      "amount": "48000000",
+      "paid_amount": "0",
+      "status": "sent",
+      "issued_at": "2026-06-18T09:00:00+07:00",
+      "due_date": "2026-07-02",
+      "sent_at": "2026-06-18T09:05:00+07:00",
+      "void_reason": "",
+      "payments": [],
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-18T09:00:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "sent",
+          "at": "2026-06-18T09:05:00+07:00",
+          "actor": "Minh",
+          "channel": "zalo_personal"
+        }
+      ],
+      "ai": {
+        "text": "Khả năng thanh toán đúng hạn 78%. Khách doanh nghiệp thường thanh toán vào 3 ngày cuối kỳ.",
+        "acts": [
+          "Gửi nhắc trước hạn 3 ngày",
+          "Hẹn lịch gọi xác nhận"
+        ]
+      }
+    },
+    {
+      "id": "inv_2039",
+      "code": "TT-002039",
+      "transfer_code": "TT002039",
+      "order_id": null,
+      "order_code": "",
+      "kind": "full",
+      "contact_id": "ct_dung",
+      "contact_name": "Anh Dũng",
+      "phone": "0912 345 678",
+      "owner_user_id": "u_khoa",
+      "owner_name": "Khoa",
+      "title": "Gói triệt lông năm",
+      "amount": "22000000",
+      "paid_amount": "10000000",
+      "status": "overdue",
+      "issued_at": "2026-06-02T09:00:00+07:00",
+      "due_date": "2026-06-12",
+      "sent_at": "2026-06-02T09:05:00+07:00",
+      "void_reason": "",
+      "payments": [
+        {
+          "id": "pay_2039_1",
+          "kind": "payment",
+          "amount": "10000000",
+          "method": "bank_transfer",
+          "reference": "FT262039402",
+          "status": "confirmed",
+          "at": "2026-06-05T10:12:00+07:00",
+          "by": "system",
+          "receipt_code": "PT-0020391",
+          "auto": true
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-02T09:00:00+07:00",
+          "actor": "Khoa"
+        },
+        {
+          "type": "sent",
+          "at": "2026-06-02T09:05:00+07:00",
+          "actor": "Khoa",
+          "channel": "zalo_personal"
+        },
+        {
+          "type": "reminded",
+          "at": "2026-06-13T08:00:00+07:00",
+          "actor": "system",
+          "channel": "zalo_personal"
+        },
+        {
+          "type": "payment",
+          "at": "2026-06-05T10:12:00+07:00",
+          "actor": "system",
+          "amount": "10000000"
+        }
+      ],
+      "ai": {
+        "text": "Quá hạn 12 ngày, còn 12.000.000đ. Rủi ro nợ khó đòi trung bình — nên nhắc qua Zalo và gọi trực tiếp.",
+        "acts": [
+          "Gửi nhắc công nợ qua Zalo",
+          "Giao AI Agent nhắc công nợ",
+          "Tạo ticket thu hồi"
+        ]
+      }
+    },
+    {
+      "id": "inv_2038",
+      "code": "TT-002038",
+      "transfer_code": "TT002038",
+      "order_id": null,
+      "order_code": "",
+      "kind": "full",
+      "contact_id": "ct_vy",
+      "contact_name": "Phương Vy",
+      "phone": "0978 456 789",
+      "owner_user_id": "u_tram",
+      "owner_name": "Trâm",
+      "title": "Chăm sóc da mặt",
+      "amount": "9500000",
+      "paid_amount": "9500000",
+      "status": "paid",
+      "issued_at": "2026-05-28T09:00:00+07:00",
+      "due_date": "2026-06-04",
+      "sent_at": "2026-05-28T09:05:00+07:00",
+      "void_reason": "",
+      "payments": [
+        {
+          "id": "pay_2038_1",
+          "kind": "payment",
+          "amount": "9500000",
+          "method": "bank_transfer",
+          "reference": "FT262038771",
+          "status": "confirmed",
+          "at": "2026-05-28T15:30:00+07:00",
+          "by": "system",
+          "receipt_code": "PT-0020381",
+          "auto": true
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-05-28T09:00:00+07:00",
+          "actor": "Trâm"
+        },
+        {
+          "type": "sent",
+          "at": "2026-05-28T09:05:00+07:00",
+          "actor": "Trâm",
+          "channel": "zalo_personal"
+        },
+        {
+          "type": "payment",
+          "at": "2026-05-28T15:30:00+07:00",
+          "actor": "system",
+          "amount": "9500000"
+        }
+      ],
+      "ai": {
+        "text": "Đề nghị đã thu đủ. Khách thanh toán đúng hạn — đủ điều kiện gợi ý gói gia hạn.",
+        "acts": [
+          "Gợi ý gói gia hạn",
+          "Gửi khảo sát hài lòng"
+        ]
+      }
+    },
+    {
+      "id": "inv_2037",
+      "code": "TT-002037",
+      "transfer_code": "TT002037",
+      "order_id": null,
+      "order_code": "",
+      "kind": "full",
+      "contact_id": "ct_maianh",
+      "contact_name": "Mai Anh",
+      "phone": "0934 222 111",
+      "owner_user_id": "u_huong",
+      "owner_name": "Hương",
+      "title": "Gói chăm sóc 3 tháng",
+      "amount": "6200000",
+      "paid_amount": "0",
+      "status": "draft",
+      "issued_at": "2026-06-15T09:00:00+07:00",
+      "due_date": "",
+      "sent_at": "",
+      "void_reason": "",
+      "payments": [],
+      "events": [
+        {
+          "type": "created",
+          "at": "2026-06-15T09:00:00+07:00",
+          "actor": "Hương"
+        }
+      ],
+      "ai": {
+        "text": "Đề nghị còn ở dạng nháp — chưa gửi khách.",
+        "acts": [
+          "Hoàn tất và gửi khách"
+        ]
+      }
+    }
+  ],
+  "payment_account": {
+    "bank": "Vietcombank",
+    "bin": "970436",
+    "account_no": "0071000123456",
+    "account_name": "CONG TY TNHH AN NHIEN SPA"
+  },
+  "bank_txs": [
+    {
+      "id": "btx_881",
+      "amount": "6200000",
+      "content": "CK MAI ANH GOI CHAM SOC",
+      "occurred_at": "2026-06-23T16:20:00+07:00",
+      "provider": "sepay",
+      "reason": "missing_code",
+      "suggested_invoice_id": "inv_2037",
+      "status": "needs_review"
+    },
+    {
+      "id": "btx_882",
+      "amount": "5000000",
+      "content": "TT002039 ANH DUNG DOT 2",
+      "occurred_at": "2026-06-24T08:41:00+07:00",
+      "provider": "sepay",
+      "reason": "amount_mismatch",
+      "suggested_invoice_id": "inv_2039",
+      "status": "needs_review"
+    }
+  ],
+  "crm": {
+    "total": 4,
+    "on_time": "75%"
+  },
+  "files": [
+    {
+      "name": "Đề nghị thanh toán.pdf",
+      "ext": "pdf",
+      "by": "system",
+      "at": "2026-06-20",
+      "size": "84 KB"
+    },
+    {
+      "name": "Bill chuyển khoản.png",
+      "ext": "png",
+      "by": "customer",
+      "at": "2026-06-20",
+      "size": ""
+    }
+  ]
+}

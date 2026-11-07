@@ -1,0 +1,15 @@
+/* Reset tối thiểu như prototype L40–42; mọi style khác qua token + antd-style. */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #f9fafb;
+}

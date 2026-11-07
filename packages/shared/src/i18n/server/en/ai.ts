@@ -1,0 +1,88 @@
+// Server-side AI strings (TIP-021) — English.
+import type { ai as vi } from '../vi/ai';
+
+export const ai: typeof vi = {
+  agent: { unnamed: 'New agent', copy: '{name} (copy)', assistant: 'AI Assistant' },
+  suggest: {
+    create: { title: 'Create an AI Agent by chatting', desc: 'Describe the role — AppChat builds the script and connects channels' },
+    optimize: { title: 'Improve a low self-resolve agent', desc: '{name} self-resolves {rate}% · prompt & knowledge suggestions', empty: 'No agent has handled enough conversations yet' },
+    routing: { title: 'Review routing rules', desc: '{n} agents running · {kw} with priority keywords', empty: 'No agent is running yet' },
+    report: { title: 'AI Agents performance report', desc: '{n} runs today · {handoff}% handed to staff', empty: 'No runs today yet' },
+    ask: {
+      optimize: 'Suggest prompt and knowledge improvements for agent {name}',
+      routing: 'Review the routing rules of my running AI Agents',
+      report: 'AI Agents performance report for today',
+    },
+  },
+  handoff: {
+    needs_human: 'AI needs a human: {detail}',
+    asked_human: 'Customer asked for a staff member',
+    banned_word: 'Hit an AI Governance banned keyword',
+    complaint: 'Customer unhappy / complaining — needs a human',
+    repeated: 'Customer asked the same question 3 times',
+    low_confidence: 'AI not confident enough ({pct}% < threshold {threshold}%)',
+    no_reply: 'AI could not draft a reply',
+    unreadable: 'AI reply in the wrong format',
+    error: 'AI failed to reply ({detail})',
+    credit: 'Out of AI credits — needs a human reply',
+    transfer_loop: 'Bounced between agents — needs a human',
+    approval_rejected: 'The approver rejected the AI action',
+    approval_expired: 'The AI approval request expired — needs a human',
+    no_target: 'No suitable agent to transfer to — needs a human',
+    out_of_hours: 'Outside AI opening hours — waiting for staff',
+    missing_ticket_grant: 'Customer complained but the agent may not create tickets — needs a human to create one',
+  },
+  approval: {
+    title: '{action}',
+    summary: '{agent} asks to run "{action}"',
+    reason: {
+      send: 'Sends outside — needs approval before sending',
+      money: 'Money operation — always needs a human approval',
+      delete: 'Deletes data — always needs a human approval',
+      write: 'Agent confidence too low — needs approval',
+      read: 'Needs approval',
+      config: 'Changes configuration — needs approval',
+    },
+    rejected: 'The approver rejected this action',
+    expired: 'Approval expired',
+  },
+  assistant: {
+    genui: { renderFailed: 'The assistant could not build the view for this result — press Retry or ask in another way.', secretInChat: 'Your message seems to contain a password or secret key — that part was not stored. Please type it into the secure field of the connection form instead of the chat.' },
+    session: 'New conversation',
+    verb: { write: 'Update', send: 'Send', money: 'Money operation', delete: 'Delete', config: 'Change settings', read: 'Look up', create: 'Create' },
+    verbOf: { 'approval.approve': 'Approve', 'approval.edit_and_approve': 'Edit & approve', 'approval.reject': 'Reject' },
+    card: { title: '{verb} {entity}', descEmpty: 'AppChat will {action} once you press Confirm.' },
+    mode: {
+      chat: 'Chat — look up and answer only; no write operations. If the user wants it done, suggest switching to Cowork.',
+      cowork: 'Cowork — may find and call any action within the user permissions, plan multi-step work and delegate to specialist agents.',
+    },
+    noContext: 'Unknown (the user is on the Assistant screen).',
+    noAgents: 'No agent is running yet.',
+    owner: 'Workspace owner (full access)',
+    cancelled: 'Operation cancelled.',
+    error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant could not handle this request yet — please try again later.' },
+    entity: {
+      agent: 'AI Agent', appointment: 'appointment', product: 'product', category: 'category', stock: 'stock', contract: 'contract', contact: 'customer',
+      conversation: 'conversation', message: 'message', note: 'note', invoice: 'payment request', loyalty: 'loyalty points', segment: 'segment',
+      campaign: 'campaign', order: 'order', quote: 'quote', kb: 'knowledge base', tag: 'tag', canned_reply: 'canned reply', channel: 'channel',
+      ticket: 'ticket', ai_task: 'AI task', member: 'member', invite: 'invitation', follow_up: 'follow-up', doc_template: 'document template', approval: 'request',
+    },
+    module: {
+      ai: 'AI Agents', booking: 'Appointments', catalog: 'Products', sales: 'Sales', crm: 'Customers', documents: 'Document templates', identity: 'Account',
+      notifications: 'Notifications', inbox: 'Inbox', loyalty: 'Loyalty', marketing: 'Marketing', settings: 'Settings', billing: 'Wallet & plan',
+      channels: 'Channels', integrations: 'Integrations', support: 'Support', insights: 'Insights',
+    },
+    think: [
+      { label: 'Brainstorm', desc: 'Campaign, content and offer ideas — explore several directions to choose from.', tag: 'Creative', command: 'Suggest 5 campaign ideas for this month' },
+      { label: 'Plan', desc: 'Weekly / monthly plans, task breakdown, milestones.', tag: 'Planning', command: 'Plan this month of business week by week' },
+      { label: 'Analyse & recommend', desc: 'Read the numbers → insight → recommended actions.', tag: 'Analysis', command: 'Analyse this week of business and suggest what to do' },
+      { label: 'Write content', desc: 'Email, ZNS, call scripts, posts — several variants.', tag: 'Content', command: 'Write 3 variants of a welcome message for new customers' },
+      { label: 'Decide', desc: 'Compare options, pros / cons, pick a direction.', tag: 'Decision', command: 'Compare 2 discount options and recommend one' },
+    ],
+    prompts: [
+      "Summarise today's business", 'Which customers need urgent care?', 'Suggest 3 things to do right now', 'Any anomalies in the data?',
+      'Compare today with yesterday', 'Which alerts should I handle first?', 'Revenue this week vs target?', 'Which conversations could AI not handle?',
+      "Summarise today's appointments", 'New customers in the last 7 days', 'What is the close rate this month?', 'What is overdue right now?',
+    ],
+  },
+};

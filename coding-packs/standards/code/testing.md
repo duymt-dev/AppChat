@@ -9,7 +9,7 @@
 2. **Tầng test:**
    - **unit** (vitest): business rule, policy matrix, tính tiền / VAT / loyalty, scope filter.
    - **integration** (vitest + Postgres thật + Redis thật / Memurai): `appchat_platform_test` + DB tenant tạo từ template cho mỗi suite, drop khi xong. **Không mock DB.**
-   - **contract:** channel adapter, connector (mock + fixture), action registry (mỗi action có handler, schema hợp lệ, có description).
+   - **contract:** channel adapter, connector (mock + fixture), action registry (mỗi action có handler, schema hợp lệ, có description), **API đọc FE ↔ BE** (cùng request qua mock transport và HTTP, parse cùng zod `packages/shared/src/api/<domain>.ts` — `domain/gap-filling.md` §5).
    - **e2e** (Playwright): luồng chính desktop 1440 và mobile 390.
    - **parity** (`ui/prototype-parity.md`).
    - **AI eval** (`ai/eval.md`).
@@ -19,13 +19,17 @@
    - Route / job mới chạm DB tenant: **tenant-isolation**.
    - Kênh / connector mới: contract test dùng chung.
    - Màn UI: parity + e2e mobile.
+   - Bật `httpTransport` cho module: contract FE ↔ BE xanh + `pnpm e2e <module>` chạy với `NEXT_PUBLIC_API_MODE=http`.
+   - Entity có trạng thái / khoá lạc quan / tiền-kho-điểm: test ở `domain/state-machine.md` §3 và `domain/concurrency.md`.
+   - Log / bí mật / rate limit: test ở `ops/observability-security.md` §5 (TIP tạo route hoặc job mới).
 4. **Dữ liệu test:** factory trong `packages/db/test/factories`. Không phụ thuộc thứ tự test. Đồng hồ cố định bằng `Clock` trong kernel, không dùng `Date.now()` trực tiếp.
 4b. **Phạm vi test = phần bị ảnh hưởng, không chạy lại từ đầu đến cuối (D39):**
    - Unit / integration: chỉ package bị đổi + package phụ thuộc nó — `pnpm turbo run test lint typecheck --filter=...[origin/main]` (hoặc `vitest related <file đã sửa>` khi đang làm).
    - Parity: chỉ ID của màn / trạng thái vừa sửa — `pnpm parity <id>`.
    - E2E: chỉ spec của module vừa sửa — `pnpm e2e <module>` (desktop + mobile 390).
    - **Ngoại lệ — sửa lớp dùng chung** (`packages/ui` theme / primitive, `apps/web/src/shared/*`, `packages/shared`, schema trong `packages/actions`, kernel backend): chạy thêm `pnpm parity --done` (mọi màn đã ✅) và test của các module dùng phần đó.
-   - **Chạy toàn bộ** chỉ ở cổng: cuối pha / cuối wave, trước merge vào `main` (CI), và gate cuối (F7 / TIP-046).
+   - **Chạy toàn bộ** chỉ ở cổng: cuối pha goal FE / cuối wave backend (W1…W9), PR vào `main` (CI `full.yml`), và gate cuối (F7 / TIP-046). CI chi tiết: `workflow/git-flow-ci.md` §4.
    - Report ghi đúng lệnh đã chạy và phạm vi; phần không chạy thì ghi "không bị ảnh hưởng", không ghi "pass".
+4c. **TIP backend — 3 cổng (D59):** khi làm (test trực tiếp phần sửa) · trước mỗi commit code (lint + typecheck + unit + `pnpm depcheck` của package đổi) · chốt TIP (full lint / typecheck / unit / integration / depcheck / build, E2E luồng TIP ở `mock` + `http`, parity màn liên quan, full E2E hồi quy). Chi tiết: `goals/GOAL-BACKEND.md` → Cổng test.
 5. **Báo kết quả trung thực:** Completion Report ghi đúng lệnh đã chạy và `N passed / M failed`. Có test bị skip thì ghi rõ lý do. Không báo DONE khi còn đỏ.
 6. **Commit ngay khi pass:** `git status --short` sạch trước khi báo DONE; báo **git commit SHA**.

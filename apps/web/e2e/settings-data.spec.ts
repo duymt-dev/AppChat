@@ -1,0 +1,136 @@
+import { expect, test } from '@playwright/test';
+import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+
+const S = '?session=authed,declared,trialSeen';
+const go = (section: string) => `/settings/${section}${S}`;
+
+test.describe('settings · dữ liệu', () => {
+  test('thẻ: tìm không dấu, tạo thẻ (tên trống báo bắt buộc, trùng tên bị chặn), sửa, xoá', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('tags'));
+    await expect(page.locator('[data-tag]')).toHaveCount(8);
+    await page.getByTestId('st-tag-search').fill('khach moi');
+    await expect(page.locator('[data-tag]')).toHaveCount(1);
+    await page.getByTestId('st-tag-search').fill('');
+    await page.getByTestId('st-tag-new').click();
+    const m = page.getByTestId('st-tag-modal');
+    await m.getByTestId('st-tag-modal-save').click();
+    await expect(m.getByRole('alert')).toHaveText('Trường này là bắt buộc');
+    await m.getByTestId('st-tag-name').fill('VIP');
+    await m.getByTestId('st-tag-modal-save').click();
+    await expect(m.getByRole('alert')).toHaveText('Tên thẻ đã tồn tại');
+    await m.getByTestId('st-tag-name').fill('Khách sỉ');
+    await m.getByRole('radio').nth(4).click();
+    await m.getByTestId('st-tag-modal-save').click();
+    await expect(page.locator('[data-tag]')).toHaveCount(9);
+    await page.locator('[data-tag]').filter({ hasText: 'Khách sỉ' }).getByTestId('st-row-menu').click();
+    await page.getByRole('menuitem', { name: 'Chỉnh sửa' }).click();
+    await page.getByTestId('st-tag-name').fill('Khách bán sỉ');
+    await page.getByTestId('st-tag-modal-save').click();
+    const edited = page.locator('[data-tag]').filter({ hasText: 'Khách bán sỉ' });
+    await expect(edited).toHaveCount(1);
+    await edited.getByTestId('st-row-menu').click();
+    await page.getByRole('menuitem', { name: 'Xoá' }).click();
+    await expect(page.locator('[data-tag]')).toHaveCount(8);
+  });
+
+  test('câu trả lời mẫu: tìm theo shortcut, tạo vào nhóm mới (shortcut sai bị chặn), sửa, xoá', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('replies'));
+    await expect(page.locator('[data-group]')).toHaveCount(3);
+    await page.getByTestId('st-reply-search').fill('/ship');
+    await expect(page.locator('[data-reply]')).toHaveCount(1);
+    await page.getByTestId('st-reply-search').fill('');
+    await page.getByTestId('st-reply-new').click();
+    const m = page.getByTestId('st-reply-modal');
+    await m.getByTestId('st-reply-cat').selectOption('__new__');
+    await m.getByTestId('st-reply-newcat').fill('Hậu mãi');
+    await m.getByTestId('st-reply-sc').fill('/Bảo hành');
+    await m.getByTestId('st-reply-title').fill('Hỏi thăm sau 7 ngày');
+    await m.getByTestId('st-reply-body').fill('Dạ anh/chị {tên} dùng sản phẩm thấy thế nào ạ?');
+    await m.getByTestId('st-reply-modal-save').click();
+    await expect(m).toBeVisible();
+    await m.getByTestId('st-reply-sc').fill('/hoi_tham');
+    await m.getByTestId('st-reply-modal-save').click();
+    const g = page.locator('[data-group="Hậu mãi"]');
+    await expect(g.locator('[data-reply]')).toHaveCount(1);
+    await g.getByTestId('st-row-menu').click();
+    await page.getByRole('menuitem', { name: 'Sửa mẫu' }).click();
+    await expect(page.getByTestId('st-reply-sc')).toHaveValue('/hoi_tham');
+    await page.getByTestId('st-reply-title').fill('Chăm sóc sau 7 ngày');
+    await page.getByTestId('st-reply-modal-save').click();
+    await expect(g).toContainText('Chăm sóc sau 7 ngày');
+    await g.getByTestId('st-row-menu').click();
+    await page.getByRole('menuitem', { name: 'Xoá' }).click();
+    await expect(page.locator('[data-group]')).toHaveCount(3);
+  });
+
+  test('trường dữ liệu: tab module, thêm trường lựa chọn (vai trò + nơi hiển thị), đổi thứ tự, trường hệ thống không xoá được', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('contacts_fields'));
+    await expect(page.locator('[data-field]')).toHaveCount(9);
+    await page.getByTestId('st-fd-tab-ticket').click();
+    await expect(page.locator('[data-field]')).toHaveCount(6);
+    await page.getByTestId('st-fd-tab-contact').click();
+    await page.getByTestId('st-fd-search').fill('so dien thoai');
+    await expect(page.locator('[data-field]')).toHaveCount(1);
+    await page.getByTestId('st-fd-search').fill('');
+    await page.getByTestId('st-fd-new').click();
+    const m = page.getByTestId('st-field-modal');
+    await m.getByTestId('st-fm-name').fill('Nguồn biết đến');
+    await m.getByTestId('st-fm-type').selectOption('picklist');
+    await m.getByTestId('st-fm-opts').fill('Facebook/Zalo/Bạn bè');
+    await m.getByTestId('st-fm-adv').click();
+    await m.getByTestId('st-fm-place-list').click();
+    await m.getByTestId('st-fm-role-manager').click();
+    await m.getByTestId('st-field-modal-save').click();
+    const row = page.locator('[data-field]').filter({ hasText: 'Nguồn biết đến' });
+    await expect(row).toContainText('Facebook/Zalo/Bạn bè');
+    await expect(row).toContainText('Quản lý');
+    await expect(page.getByTestId('st-fd-tab-contact')).toContainText('10');
+    await row.getByTestId('st-row-menu').click();
+    await page.getByRole('menuitem', { name: 'Lên trên' }).click();
+    await expect(page.locator('[data-field]').nth(8)).toContainText('Nguồn biết đến');
+    await page.locator('[data-field="phone"]').getByTestId('st-row-menu').click();
+    await expect(page.getByRole('menuitem', { name: 'Xoá trường' })).toHaveCount(0);
+    await page.getByRole('menuitem', { name: 'Chỉnh sửa' }).click();
+    await expect(page.getByTestId('st-fm-name')).toBeDisabled();
+  });
+
+  test('quyền: Kế toán (không inbox.manage / crm.fields_manage) vào Thẻ, Trường dữ liệu → không có quyền', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('tags'));
+    await page.evaluate(() => localStorage.setItem('ac_mock_role', 'accountant'));
+    await page.reload();
+    await expect(page.getByText('Bạn không có quyền xem mục này')).toBeVisible();
+    await expect(page.locator('[data-tag]')).toHaveCount(0);
+    await page.goto(go('contacts_fields'));
+    await expect(page.getByText('Bạn không có quyền xem mục này')).toBeVisible();
+    await expect(page.locator('[data-field]')).toHaveCount(0);
+    await page.evaluate(() => localStorage.removeItem('ac_mock_role'));
+  });
+
+  test('390: thẻ, câu trả lời mẫu, trường dữ liệu + hộp — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {
+    test.skip(!isMobile(page), 'chỉ mobile');
+    await page.goto(go('tags'));
+    await expect(page.locator('[data-tag]').first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await expectTouchTargets(page.locator('[data-tag]').first().getByTestId('st-row-menu'));
+    await page.getByTestId('st-tag-new').click();
+    await expect(page.getByTestId('st-tag-modal')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.goto(go('replies'));
+    await expect(page.locator('[data-reply]').first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.getByTestId('st-reply-new').click();
+    await expect(page.getByTestId('st-reply-modal')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await page.goto(go('contacts_fields'));
+    await expect(page.locator('[data-field]').first()).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await expectTouchTargets(page.getByTestId('st-fd-tab-ticket'));
+    await page.getByTestId('st-fd-new').click();
+    await page.getByTestId('st-fm-adv').click();
+    await expectNoHorizontalOverflow(page);
+  });
+});

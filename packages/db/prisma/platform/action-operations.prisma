@@ -1,0 +1,105 @@
+// platform/action-operations.prisma — sở hữu: TIP-045b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Annex A1: Sổ thao tác xuyên hai DB cho action `db: 'platform'`: không có
+// transaction chung nền tảng ↔ tenant, nên mỗi lệnh ghi một dòng `action_operation` (khoá idempotency theo workspace + actor) và đi qua
+// các pha prepared → platform_applied → tenant_applied → complete (failed / compensation_required tường minh). Đặt chỗ hạn mức và hiệu
+// ứng bên ngoài (thư mời…) ghi CÙNG commit nền tảng. Không lưu input bí mật thô; payload hiệu ứng mã hoá, có hạn.
+// Không Prisma relation xuyên domain (Blueprint §2.1). Partial / covering index viết SQL trong migration.
+
+enum OperationPhase {
+  prepared
+  platform_applied
+  tenant_applied
+  complete
+  failed
+  compensation_required
+
+  @@map("operation_phase")
+}
+
+/// Một lệnh action `db: 'platform'` (hoặc hoàn tác / nhận lời mời) — pha + kế hoạch áp tenant + kết quả chuẩn để gửi lại / khôi phục.
+model ActionOperation {
+  id             String         @id @db.Uuid
+  workspaceId    String         @map("workspace_id") @db.Uuid
+  /// `<actor_type>:<actor_id>` — khoá idempotency của người khác không đụng nhau.
+  actorKey       String         @map("actor_key")
+  idempotencyKey String         @map("idempotency_key")
+  actionId       String         @map("action_id")
+  /// Hash input chuẩn (ô bí mật che trước) — cùng khoá khác input → 409.
+  inputHash      String         @map("input_hash")
+  phase          OperationPhase @default(prepared)
+  /// Mô tả ngữ cảnh để khôi phục (nguồn, actor, người ra lệnh, run, duyệt) — không có quyền / bí mật.
+  context        Json
+  /// Input đã che (ghi action_log ở pha tenant).
+  logInput       Json?          @map("log_input")
+  /// Kế hoạch áp DB tenant do handler dựng ở pha nền tảng (id tất định, credential đã mã hoá).
+  plan           Json?
+  /// `ActionResult` trả client (gửi lại cùng khoá trả đúng kết quả này).
+  result         Json?
+  error          Json?
+  actionLogId    String         @map("action_log_id") @db.Uuid
+  approvalId     String?        @map("approval_id") @db.Uuid
+  runId          String?        @map("run_id") @db.Uuid
+  attempts       Int            @default(0)
+  /// Tăng mỗi lần một tiến trình nhận việc khôi phục — ghi pha phải khớp fence (tiến trình hết lease không ghi đè).
+  fence          Int            @default(0)
+  leaseUntil     DateTime?      @map("lease_until") @db.Timestamptz(6)
+  nextAttemptAt  DateTime?      @map("next_attempt_at") @db.Timestamptz(6)
+  traceId        String?        @map("trace_id")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, actorKey, idempotencyKey])
+  @@map("action_operation")
+}
+
+/// Chỗ hạn mức (kênh / agent / ghế) giữ trong commit nền tảng cho tới khi tài nguyên tenant tạo xong (consumed) hoặc bị bỏ (released).
+model QuotaReservation {
+  operationId String    @id @map("operation_id") @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  resource    String
+  /// reserved | consumed | released
+  status      String    @default("reserved")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  settledAt   DateTime? @map("settled_at") @db.Timestamptz(6)
+
+  @@map("quota_reservation")
+}
+
+/// Hiệu ứng ngoài (gửi thư mời…) ghi cùng commit nền tảng, gửi SAU commit; payload mã hoá AES-GCM, xoá khi gửi xong / hết hạn.
+model PlatformEffect {
+  id            String    @id @db.Uuid
+  operationId   String    @map("operation_id") @db.Uuid
+  workspaceId   String    @map("workspace_id") @db.Uuid
+  kind          String
+  payloadEnc    Bytes?    @map("payload_enc")
+  /// pending | sent | dead
+  status        String    @default("pending")
+  attempts      Int       @default(0)
+  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz(6)
+  lastError     String?   @map("last_error")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  sentAt        DateTime? @map("sent_at") @db.Timestamptz(6)
+
+  @@unique([operationId, kind])
+  @@map("platform_effect")
+}
+
+/// Mã OTP đổi Chủ sở hữu (TIP-045b annex A3): gửi email đã xác minh của Owner hiện tại, chỉ lưu sha256, hạn 10 phút, sai 5 lần khoá.
+/// Ràng buộc workspace + Owner cũ + người nhận + `authz_epoch` lúc xin mã — quyền / chủ đổi sau đó thì mã chết. Tiêu mã cùng commit
+/// nền tảng của `workspace.transfer_ownership` (ghi id thao tác tiêu). Không lưu mã thô; không vào audit / model.
+model OwnerTransferOtp {
+  id                  String    @id @db.Uuid
+  workspaceId         String    @map("workspace_id") @db.Uuid
+  ownerUserId         String    @map("owner_user_id") @db.Uuid
+  targetUserId        String    @map("target_user_id") @db.Uuid
+  authzEpoch          Int       @map("authz_epoch")
+  codeHash            String    @map("code_hash")
+  attempts            Int       @default(0)
+  expiresAt           DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt          DateTime? @map("consumed_at") @db.Timestamptz(6)
+  consumedOperationId String?   @map("consumed_operation_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("owner_transfer_otp")
+}

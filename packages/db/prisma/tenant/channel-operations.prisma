@@ -1,0 +1,283 @@
+// tenant/channel-operations.prisma — sở hữu: TIP-014b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: channel_avatar (ảnh đại diện theo định danh kênh — TIP-014b D), channel_contact_sync + channel_contact_snapshot (danh bạ — D3), channel_friend + channel_user_lookup (bạn bè — E), message_provider_ref (tham chiếu tin phía kênh theo từng phần), provider_pending_ref (self-event tới trước ACK gửi — có hạn),
+// channel_operation (lệnh thao tác bền: thu hồi / cảm xúc — trạng thái thật theo ACK nhà cung cấp), message_account_reaction (cảm xúc
+// của TÀI KHOẢN kênh trên tin: mong muốn ↔ đã xác nhận ↔ quan sát từ kênh, revision tăng đơn điệu). Chuẩn: omnichannel-adapter §Thao tác.
+// Không Prisma relation xuyên domain (Blueprint §2.1). Partial / covering index viết SQL trong migration.
+
+/// Tham chiếu tin phía kênh (Zalo: msgId + cliMsgId + thread). Tin ra chia nhiều phần → nhiều dòng `part_no` theo thứ tự gửi; tin vào
+/// một dòng part 0. `cli_msg_id` null = chưa biết (chờ self-event) — thao tác cần nó báo `pending_ref`, không đoán.
+model MessageProviderRef {
+  messageId        String   @map("message_id") @db.Uuid
+  partNo           Int      @map("part_no")
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  threadId         String   @map("thread_id")
+  isGroup          Boolean  @map("is_group")
+  /// Id phía kênh dạng chuỗi (giữ nguyên chữ số — không qua number).
+  msgId            String   @map("msg_id")
+  cliMsgId         String?  @map("cli_msg_id")
+  senderId         String?  @map("sender_id")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([messageId, partNo])
+  @@unique([channelAccountId, msgId], map: "message_provider_ref_account_msg_key")
+  @@map("message_provider_ref")
+}
+
+/// Self-event (tin tự gửi mang cliMsgId) tới TRƯỚC khi kết quả gửi ghi msgId — giữ tạm có hạn, ghép khi biên nhận tới. Không tạo tin.
+model ProviderPendingRef {
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  msgId            String   @map("msg_id")
+  cliMsgId         String   @map("cli_msg_id")
+  threadId         String   @map("thread_id")
+  isGroup          Boolean  @map("is_group")
+  expiresAt        DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@id([channelAccountId, msgId])
+  @@map("provider_pending_ref")
+}
+
+enum ChannelOperationStatus {
+  /// Đã ghi, chưa gọi kênh — huỷ được.
+  queued
+  /// Đã đặt chỗ gọi kênh (attempted_at) — sập / hết giờ sau mốc này thành `unknown`, không gọi lại.
+  dispatch_reserved
+  confirmed
+  failed
+  unknown
+  /// Tin nhiều phần: một số phần xác nhận, phần khác lỗi chắc chắn — không báo thu hồi xong.
+  partial
+  cancelled
+  /// Lệnh cảm xúc bị lệnh mới hơn (revision lớn hơn) thay trước khi gọi kênh.
+  superseded
+
+  @@map("channel_operation_status")
+}
+
+/// Lệnh thao tác trên tin phía kênh (thu hồi / cảm xúc). Ghi cùng transaction với action_log + outbox `channel.operation_requested`;
+/// worker giữ phiên tài khoản gọi kênh. Chỉ ACK nhà cung cấp mới đổi `message.recalled_at` / cảm xúc đã xác nhận.
+model ChannelOperation {
+  id               String                 @id @db.Uuid
+  /// `recall` | `react`.
+  kind             String
+  channelAccountId String                 @map("channel_account_id") @db.Uuid
+  conversationId   String                 @map("conversation_id") @db.Uuid
+  messageId        String                 @map("message_id") @db.Uuid
+  /// Người ra lệnh (user gốc) — chỉ người này đọc / huỷ được qua route inbox.
+  actorId          String?                @map("actor_id") @db.Uuid
+  /// `react`: `{ emoji: string | null }` — trạng thái cuối mong muốn (không phải bật / tắt).
+  desired          Json                   @default("{}")
+  /// `react`: revision cảm xúc của tài khoản trên tin lúc ghi lệnh.
+  revision         Int                    @default(0)
+  status           ChannelOperationStatus @default(queued)
+  /// Kết quả từng phần (tin chia nhiều phần): `{ parts: [{ part_no, status, error? }] }` — thu hồi chỉ `confirmed` khi mọi phần xong.
+  result           Json                   @default("{}")
+  error            String?
+  attemptedAt      DateTime?              @map("attempted_at") @db.Timestamptz(6)
+  finishedAt       DateTime?              @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([messageId, kind, createdAt(sort: Desc), id(sort: Desc)], map: "channel_operation_message_kind_idx")
+  @@map("channel_operation")
+}
+
+/// Cảm xúc của tài khoản kênh trên tin (một tài khoản = một danh tính phía kênh, không phải mỗi nhân viên một cảm xúc). `desired_*` = lệnh
+/// mới nhất đã ghi; `confirmed_*` = đã có ACK; `remote_emoji` = quan sát từ sự kiện kênh. Revision tăng đơn điệu — ACK / event cũ không đè mới.
+model MessageAccountReaction {
+  messageId         String   @id @map("message_id") @db.Uuid
+  channelAccountId  String   @map("channel_account_id") @db.Uuid
+  desiredEmoji      String?  @map("desired_emoji")
+  desiredRevision   Int      @default(0) @map("desired_revision")
+  confirmedEmoji    String?  @map("confirmed_emoji")
+  confirmedRevision Int      @default(0) @map("confirmed_revision")
+  remoteEmoji       String?  @map("remote_emoji")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("message_account_reaction")
+}
+
+enum SendPartStatus {
+  /// Đã ghi, chưa gọi kênh.
+  pending
+  /// Đã đặt chỗ gọi kênh cho phần này — sập / hết giờ sau mốc này thành `unknown`, không gửi lại mù.
+  dispatch_reserved
+  confirmed_sent
+  definite_failure
+  unknown
+
+  @@map("send_part_status")
+}
+
+/// Từng phần của một lần gửi ra kênh (TIP-014b B): tin chữ chia đoạn / tệp. Khoá (outbox_message_id, part_no). Phần đã `confirmed_sent` không
+/// bao giờ gửi lại; phần `unknown` chỉ người vận hành quyết (gửi mới có cảnh báo trùng). Tệp lưu `file_id` + sha256 (không chỉ link ký).
+model OutboxSendPart {
+  outboxMessageId  String         @map("outbox_message_id") @db.Uuid
+  partNo           Int            @map("part_no")
+  channelAccountId String         @map("channel_account_id") @db.Uuid
+  /// sha256 nội dung phần (chữ đã render / byte tệp đã tải — không theo link ký) — gửi lại cùng phần phải cùng hash.
+  contentHash      String         @map("content_hash")
+  status           SendPartStatus @default(pending)
+  msgId            String?        @map("msg_id")
+  error            String?
+  /// Thế hệ phiên tài khoản lúc đặt chỗ (pha C — fence).
+  generation       Int            @default(0)
+  attemptedAt      DateTime?      @map("attempted_at") @db.Timestamptz(6)
+  confirmedAt      DateTime?      @map("confirmed_at") @db.Timestamptz(6)
+  traceId          String?        @map("trace_id")
+
+  @@id([outboxMessageId, partNo])
+  @@map("outbox_send_part")
+}
+
+/// Biên nhận đã nhận / đã xem từ kênh (TIP-014b B) — một dòng mỗi (tin, người nhận). Nhóm: bằng chứng theo từng người (không suy "cả nhóm đã
+/// xem" từ một người). Trạng thái chỉ tăng: sent < delivered < read.
+model MessageReceipt {
+  messageId   String    @map("message_id") @db.Uuid
+  recipientId String    @map("recipient_id")
+  deliveredAt DateTime? @map("delivered_at") @db.Timestamptz(6)
+  readAt      DateTime? @map("read_at") @db.Timestamptz(6)
+
+  @@id([messageId, recipientId])
+  @@map("message_receipt")
+}
+
+/// Lần lấy lịch sử của tài khoản kênh (TIP-014b C) — lệnh bền thay pub/sub `sync`: action ghi dòng `queued` + outbox cùng commit; worker giữ
+/// phiên đúng thế hệ chạy, báo cáo trung thực khoảng thực thấy. Một lần mở mỗi tài khoản (lần mới thay lần còn `queued`).
+model ChannelHistoryRun {
+  id               String    @id @db.Uuid
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  actorId          String?   @map("actor_id") @db.Uuid
+  /// 7 | 30 | 90 — khoảng người dùng yêu cầu.
+  days             Int
+  cutoffAt         DateTime  @map("cutoff_at") @db.Timestamptz(6)
+  /// queued | running | complete | provider_limit | partial | timeout | failed | superseded.
+  status           String    @default("queued")
+  /// Thế hệ phiên lúc chạy (fence).
+  generation       Int?
+  received         Int       @default(0)
+  inRange          Int       @default(0) @map("in_range")
+  imported         Int       @default(0)
+  pages            Int       @default(0)
+  earliestAt       DateTime? @map("earliest_at") @db.Timestamptz(6)
+  latestAt         DateTime? @map("latest_at") @db.Timestamptz(6)
+  error            String?
+  startedAt        DateTime? @map("started_at") @db.Timestamptz(6)
+  finishedAt       DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc), id(sort: Desc)], map: "channel_history_run_account_idx")
+  @@map("channel_history_run")
+}
+
+/// Ảnh đại diện theo định danh phía kênh (TIP-014b D) — khách 1-1 và thành viên nhóm (thành viên KHÔNG thành khách). Ảnh tải về Storage
+/// (`file.purpose = avatar`), trình duyệt chỉ thấy link ký của AppChat. Ảnh do nhân viên đặt (`contact.avatar_url`) luôn ưu tiên — bảng
+/// này không bao giờ ghi vào contact. Hàng đợi bền: `queued` + `next_at`; worker giữ phiên lấy theo lô ≤ 20, trần / ngày, lùi khi lỗi.
+model ChannelAvatar {
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  externalId       String    @map("external_id")
+  /// queued | ok | none (kênh không có ảnh) | failed (hết lượt thử — chờ lần nhắn sau 7 ngày).
+  status           String    @default("queued")
+  fileId           String?   @map("file_id") @db.Uuid
+  /// sha256 URL nguồn — ảnh không đổi thì không tải lại.
+  sourceHash       String?   @map("source_hash")
+  attempts         Int       @default(0)
+  nextAt           DateTime  @map("next_at") @db.Timestamptz(6)
+  requestedAt      DateTime  @map("requested_at") @db.Timestamptz(6)
+  checkedAt        DateTime? @map("checked_at") @db.Timestamptz(6)
+  syncedAt         DateTime? @map("synced_at") @db.Timestamptz(6)
+  error            String?
+
+  @@id([channelAccountId, externalId])
+  @@map("channel_avatar")
+}
+
+/// Lần đồng bộ danh bạ tài khoản kênh (TIP-014b D3): action ghi `queued` + outbox cùng commit (202); worker giữ phiên lấy danh bạ theo trang
+/// có trần. Ảnh chụp (`channel_contact_snapshot`) riêng tài khoản, hạn 24 giờ — đọc cần `channels.manage`, nhập tay cần `crm.import`.
+model ChannelContactSync {
+  id               String    @id @db.Uuid
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  actorId          String?   @map("actor_id") @db.Uuid
+  /// queued | running | complete | partial | failed | superseded.
+  status           String    @default("queued")
+  generation       Int?
+  pages            Int       @default(0)
+  received         Int       @default(0)
+  error            String?
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  startedAt        DateTime? @map("started_at") @db.Timestamptz(6)
+  finishedAt       DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc), id(sort: Desc)], map: "channel_contact_sync_account_idx")
+  @@index([expiresAt], map: "channel_contact_sync_expires_idx")
+  @@map("channel_contact_sync")
+}
+
+/// Một người trong ảnh chụp danh bạ (TIP-014b D3). Không tạo khách; SĐT chỉ khi nhà cung cấp trả (không bịa).
+model ChannelContactSnapshot {
+  syncId      String  @map("sync_id") @db.Uuid
+  externalId  String  @map("external_id")
+  displayName String  @map("display_name")
+  phone       String?
+  seq         Int
+
+  @@id([syncId, externalId])
+  @@index([syncId, seq], map: "channel_contact_snapshot_page_idx")
+  @@map("channel_contact_snapshot")
+}
+
+/// Quan hệ bạn bè / lời mời theo định danh phía kênh (TIP-014b E — DC nới DC-247). `state`: none | incoming (họ mời tài khoản) | outgoing
+/// (tài khoản đã mời) | friend. Lệnh của nhân viên (`op` accept / reject / send / undo) bền: queued → dispatch_reserved → confirmed | failed |
+/// unknown — chỉ ACK nhà cung cấp mới đổi `state`; một lệnh mở mỗi người. Không AI / agent / hàng loạt.
+model ChannelFriend {
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  externalId       String    @map("external_id")
+  displayName      String    @default("") @map("display_name")
+  state            String    @default("none")
+  incomingMessage  String?   @map("incoming_message")
+  incomingAt       DateTime? @map("incoming_at") @db.Timestamptz(6)
+  op               String?
+  opStatus         String?   @map("op_status")
+  opActorId        String?   @map("op_actor_id") @db.Uuid
+  opMessage        String?   @map("op_message")
+  opError          String?   @map("op_error")
+  opRequestedAt    DateTime? @map("op_requested_at") @db.Timestamptz(6)
+  opFinishedAt     DateTime? @map("op_finished_at") @db.Timestamptz(6)
+  opGeneration     Int?      @map("op_generation")
+  updatedAt        DateTime  @map("updated_at") @db.Timestamptz(6)
+
+  @@id([channelAccountId, externalId])
+  @@map("channel_friend")
+}
+
+/// Nhật ký gửi lời mời kết bạn (TIP-014b E, chỉ thêm): trần / ngày / tài khoản đếm ở đây (thu hồi rồi gửi lại vẫn tính).
+model ChannelFriendSendLog {
+  id               String   @id @db.Uuid
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  externalId       String   @map("external_id")
+  actorId          String   @map("actor_id") @db.Uuid
+  createdAt        DateTime @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc)], map: "channel_friend_send_log_account_idx")
+  @@map("channel_friend_send_log")
+}
+
+/// Tra MỘT SĐT trên kênh (TIP-014b E): trần / ngày / tài khoản, kết quả tạm 24 giờ (không tự lưu khách — "Lưu thành khách" là contact.create
+/// riêng). Dòng giữ làm nhật ký tra (người tra, lúc tra, số).
+model ChannelUserLookup {
+  id               String    @id @db.Uuid
+  channelAccountId String    @map("channel_account_id") @db.Uuid
+  actorId          String    @map("actor_id") @db.Uuid
+  phone            String
+  /// queued | running | found | not_found | failed.
+  status           String    @default("queued")
+  externalId       String?   @map("external_id")
+  displayName      String?   @map("display_name")
+  error            String?
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  finishedAt       DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime  @map("created_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt(sort: Desc)], map: "channel_user_lookup_account_idx")
+  @@map("channel_user_lookup")
+}

@@ -1,0 +1,46 @@
+# Bộ câu thử model thật — 30 ca cố định (TIP-023b R1.4). KHÔNG sửa / thay ca lúc nghiệm thu (eval.md). Ca bổ sung → file riêng + `--cases`.
+# Phân bổ: lookup 8 · update 6 · create 6 · delete 3 · chain 4 · clarify 3. Seed: fixtures/ai-eval/live-seed.mjs.
+# `$seed.contacts.<tên>.id` / `$seed.products.<tên>.id` / `$seed.quote.id` lấy từ seed. Mọi thẻ xác nhận bị huỷ — không ghi dữ liệu.
+suite: default
+cases:
+  # ── Tra cứu (8) — đọc, không có thẻ
+  - { id: lookup-contact-name, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Tìm khách tên Trần Văn Nam", expect: { action: contact.search, input: { q: "Trần Văn Nam" }, confirm: false } }
+  - { id: lookup-contact-phone, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Số 0901000003 là khách nào?", expect: { action: contact.search, input: { q: "0901000003" }, confirm: false } }
+  - { id: lookup-contact-vip, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Liệt kê khách VIP", expect: { action: contact.search, input: { group: vip }, confirm: false } }
+  - { id: lookup-product-price, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Giá liệu trình trị mụn bao nhiêu?", expect: { action: product.search, confirm: false } }
+  - { id: lookup-product-services, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Shop đang có những dịch vụ nào?", expect: { action: product.search, input: { type: service }, confirm: false } }
+  - { id: lookup-stock, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Serum dưỡng ẩm 30ml còn bao nhiêu trong kho?", expect: { sequence: [product.search, stock.get], action: stock.get, confirm: false } }
+  - { id: lookup-tickets-open, category: lookup, seed: live-seed, actor: { role: owner }, locale: vi, mode: chat, input: "Có ticket nào đang mở không?", expect: { action: ticket.search, input: { status: open }, confirm: false } }
+  - { id: lookup-contact-en, category: lookup, seed: live-seed, actor: { role: owner }, locale: en, mode: chat, input: "Find the customer named Le Minh Anh", expect: { action: contact.search, confirm: false } }
+
+  # ── Sửa (6) — ghi, phải dừng ở thẻ xác nhận
+  - { id: update-contact-phone, category: update, seed: live-seed, actor: { role: owner }, locale: vi, input: "Đổi số điện thoại của Trần Văn Nam thành 0912345678", expect: { sequence: [contact.search, contact.update], action: contact.update, input: { contact_id: "$seed.contacts.Trần Văn Nam.id", patch.phone: "0912345678" }, confirm: true } }
+  - { id: update-contact-city, category: update, seed: live-seed, actor: { role: owner }, locale: vi, input: "Chị Phạm Thu Trang chuyển ra Hải Phòng, cập nhật giúp", expect: { action: contact.update, input: { contact_id: "$seed.contacts.Phạm Thu Trang.id", patch.city: "Hải Phòng" }, confirm: true } }
+  - { id: update-contact-stage, category: update, seed: live-seed, actor: { role: owner }, locale: vi, input: "Chuyển Lê Minh Anh sang giai đoạn đang tư vấn", expect: { action: contact.set_stage, input: { contact_id: "$seed.contacts.Lê Minh Anh.id", stage: consulting }, confirm: true } }
+  - { id: update-contact-tag, category: update, seed: live-seed, actor: { role: owner }, locale: vi, input: "Gắn thẻ 'khách quen' cho Trần Văn Nam", expect: { action: contact.tag, input: { contact_id: "$seed.contacts.Trần Văn Nam.id", op: add }, confirm: true } }
+  - { id: update-product-price, category: update, seed: live-seed, actor: { role: owner }, locale: vi, input: "Tăng giá Gói chăm sóc da cơ bản lên 550.000đ", expect: { action: product.update, input: { product_id: "$seed.products.Gói chăm sóc da cơ bản.id", patch.price: "550000" }, confirm: true } }
+  - { id: update-quote-validity, category: update, seed: live-seed, actor: { role: owner }, locale: vi, input: "Gia hạn báo giá $QUOTE thêm 7 ngày", expect: { action: quote.extend_validity, input: { quote_id: "$seed.quote.id", days: 7 }, confirm: true } }
+
+  # ── Tạo (6)
+  - { id: create-contact, category: create, seed: live-seed, actor: { role: owner }, locale: vi, input: "Thêm khách mới Đỗ Thị Lan, số 0987654321, ở Cần Thơ", expect: { action: contact.create, input: { full_name: "Đỗ Thị Lan", phone: "0987654321" }, confirm: true } }
+  - { id: create-contact-email, category: create, seed: live-seed, actor: { role: owner }, locale: vi, input: "Tạo khách Hoàng Bảo, email bao.hoang@example.com", expect: { action: contact.create, input: { full_name: "Hoàng Bảo", email: "bao.hoang@example.com" }, confirm: true } }
+  - { id: create-product-service, category: create, seed: live-seed, actor: { role: owner }, locale: vi, input: "Thêm dịch vụ Massage cổ vai gáy 45 phút giá 300.000đ", expect: { action: product.create, input: { type: service, price: "300000" }, confirm: true } }
+  - { id: create-ticket, category: create, seed: live-seed, actor: { role: owner }, locale: vi, input: "Mở ticket: khách Trần Văn Nam phàn nàn đặt lịch không được, ưu tiên cao, kênh Zalo", expect: { action: ticket.create, input: { priority: high, channel: zalo_personal }, confirm: true } }
+  - { id: create-quote, category: create, seed: live-seed, actor: { role: owner }, locale: vi, input: "Lập báo giá cho Lê Minh Anh: 1 Gói chăm sóc da cơ bản", expect: { action: quote.create, input: { contact_id: "$seed.contacts.Lê Minh Anh.id", items.0.product_id: "$seed.products.Gói chăm sóc da cơ bản.id" }, confirm: true } }
+  - { id: create-stock-adjust, category: create, seed: live-seed, actor: { role: owner }, locale: vi, input: "Nhập thêm 20 lọ Serum dưỡng ẩm 30ml vào kho", expect: { action: stock.adjust, input: { product_id: "$seed.products.Serum dưỡng ẩm 30ml.id", delta: 20 }, confirm: true } }
+
+  # ── Xoá / huỷ (3)
+  - { id: delete-contact, category: delete, seed: live-seed, actor: { role: owner }, locale: vi, input: "Xoá khách Phạm Thu Trang", expect: { action: contact.delete, input: { contact_id: "$seed.contacts.Phạm Thu Trang.id" }, confirm: true } }
+  - { id: delete-quote, category: delete, seed: live-seed, actor: { role: owner }, locale: vi, input: "Xoá báo giá $QUOTE", expect: { action: quote.delete, input: { quote_id: "$seed.quote.id" }, confirm: true } }
+  - { id: delete-product, category: delete, seed: live-seed, actor: { role: owner }, locale: vi, input: "Ngừng bán Serum dưỡng ẩm 30ml", expect: { action: product.archive, input: { product_id: "$seed.products.Serum dưỡng ẩm 30ml.id" }, confirm: true } }
+
+  # ── Chuỗi nhiều bước (4)
+  - { id: chain-find-then-update, category: chain, seed: live-seed, actor: { role: owner }, locale: vi, input: "Khách số 0901000002 vừa đổi email thành nam.tran@example.com", expect: { sequence: [contact.search, contact.update], action: contact.update, input: { contact_id: "$seed.contacts.Trần Văn Nam.id", patch.email: "nam.tran@example.com" }, confirm: true } }
+  - { id: chain-product-then-quote, category: chain, seed: live-seed, actor: { role: owner }, locale: vi, input: "Báo giá cho Trần Văn Nam 2 lọ serum dưỡng ẩm", expect: { sequence: [product.search, quote.create], action: quote.create, input: { contact_id: "$seed.contacts.Trần Văn Nam.id", items.0.qty: 2 }, confirm: true } }
+  - { id: chain-code-update, category: chain, seed: live-seed, actor: { role: owner }, locale: vi, input: "Khách $HOA_CODE đổi sang ở Nha Trang", expect: { action: contact.update, input: { contact_id: "$seed.contacts.Nguyễn Thị Hoa.id", patch.city: "Nha Trang" }, confirm: true } }
+  - { id: chain-en-update, category: chain, seed: live-seed, actor: { role: owner }, locale: en, input: "Change Tran Van Nam's city to Hue", expect: { sequence: [contact.search, contact.update], action: contact.update, input: { patch.city: "Hue" }, confirm: true } }
+
+  # ── Hỏi lại khi mơ hồ (3) — không được gọi action ghi
+  - { id: clarify-two-hoa, category: clarify, seed: live-seed, actor: { role: owner }, locale: vi, input: "Đổi số điện thoại chị Hoa thành 0900000999", expect: { ask_back: true, confirm: false } }
+  - { id: clarify-missing-value, category: clarify, seed: live-seed, actor: { role: owner }, locale: vi, input: "Sửa giá dịch vụ giúp tôi", expect: { ask_back: true, confirm: false } }
+  - { id: clarify-unknown-contact, category: clarify, seed: live-seed, actor: { role: owner }, locale: vi, input: "Lập báo giá cho anh Tuấn", expect: { ask_back: true, confirm: false } }

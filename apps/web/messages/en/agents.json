@@ -1,0 +1,231 @@
+{
+  "title": "AI Agents",
+  "sub": "Manage AI agents · conversation routing",
+  "manual": "Create manually",
+  "assistant": "AI Assistant",
+  "tabs": {
+    "templates": "Industry templates",
+    "mine": "Your agents ({n})"
+  },
+  "tplTitle": "AI agent templates",
+  "tplHint": "Install now or customise by chatting with the AI Assistant",
+  "tplSub": "No manual setup — pick a template by industry or job and the AI Assistant builds the prompt, knowledge and tools for you.",
+  "search": "Search templates by name, description, industry…",
+  "groupAll": "— All industry groups —",
+  "industryAll": "— All industries —",
+  "agentAll": "— All AI agents —",
+  "clear": "Clear filters",
+  "install": "Install →",
+  "pageInfo": "Showing {from}–{to} / {total} templates",
+  "prev": "‹",
+  "next": "›",
+  "noTpl": "No templates match the filters.",
+  "mine": {
+    "title": "Your agents",
+    "sub": "Agents run on their published version; config edits stay a draft until you publish again.",
+    "conv": "Conversations",
+    "resolve": "Self-resolved",
+    "csat": "CSAT",
+    "dash": "—",
+    "tier": "◈ {tier}",
+    "version": "v{n}",
+    "draft": "Draft",
+    "status": {
+      "active": "Running",
+      "paused": "Paused",
+      "draft": "Draft"
+    },
+    "edit": "Configure",
+    "toggle": "Enable / pause {name}",
+    "versions": "Version history",
+    "delete": "Delete",
+    "empty": "No agents yet — pick a template or create one with the AI Assistant."
+  },
+  "stats": {
+    "def": {
+      "conversations": "Distinct conversations the agent replied in over 30 days (test runs excluded) — {n} turns.",
+      "resolve_rate": "TURN self-resolution = completed turns / (completed + handed off) — {n} turns. Not a customer rate.",
+      "csat": "Average CSAT of tickets assigned to the agent and closed in 30 days — {n} rated tickets. Does not prove the agent caused it."
+    },
+    "noData": "No data in this period yet.",
+    "noAccess": "You are not allowed to see the source of this figure.",
+    "human": "Humans, same period: {v} ({n} tickets).",
+    "close": "Close rate (correlation, not for commission): {v} of {n} served customers."
+  },
+  "tier": {
+    "standard": "Standard",
+    "advanced": "Advanced",
+    "max": "Max"
+  },
+  "tierDesc": {
+    "standard": "Fast · economical · short answers, FAQ",
+    "advanced": "Balanced · good reasoning · advice & sales",
+    "max": "Deepest reasoning · complex work"
+  },
+  "b": {
+    "createTitle": "Create AI agent",
+    "editTitle": "Configure AI agent",
+    "back": "Back",
+    "cancel": "Cancel",
+    "saveDraft": "Save draft",
+    "publish": "Publish",
+    "config": "Configuration",
+    "configSub": "Define clearly what this AI agent is responsible for and how it helps your business.",
+    "emoji": "Icon",
+    "name": "Name",
+    "nameInfo": "ⓘ",
+    "namePh": "AI agent name",
+    "showDesc": "Show description",
+    "tier": "AI level",
+    "lang": "Reply language",
+    "langs": {
+      "vi": "Vietnamese",
+      "en": "English",
+      "bilingual": "Vietnamese–English",
+      "auto": "Match the customer"
+    },
+    "guide": "Instructions",
+    "guideSub": "Describe the role, communication style and actions the agent should take. Give step-by-step guidance in clear language.",
+    "promptPh": "# ROLE & STYLE — You are a polite and helpful virtual assistant…",
+    "addTpl": "Add prompt template ▾",
+    "optimize": "Optimise",
+    "learn": "Learn how to write this.",
+    "channels": "Active channels",
+    "channelsSub": "Choose the connected channels this agent receives and replies on.",
+    "channel": {
+      "zalo_personal": "Zalo personal",
+      "webchat": "Web chat",
+      "email": "Email"
+    },
+    "connect": "Connect a channel",
+    "routing": "Routing & triggers",
+    "routingSub": "Decide when this agent kicks in — by customer intent, keywords and hours.",
+    "intents": "Customer intents",
+    "keywords": "Priority keywords",
+    "keywordsVal": "hoàn tiền, bảo hành, khiếu nại",
+    "keywordsHint": "Comma separated. Messages containing these keywords go to this agent first.",
+    "hours": "Active hours",
+    "schedule": {
+      "overnight": "An interval past midnight will be split across two consecutive days. Continue?",
+      "needsConfig": "This agent uses \"Custom\" but has no weekly schedule — it keeps running as before; save a schedule before publishing a new version.",
+      "hint": "The schedule applies after saving and publishing. Effective hours = intersection with the channel account schedule."
+    },
+    "binding": {
+      "taken": "{n} channel account(s) are served by another agent:",
+      "row": "{account} — {agent}",
+      "unknown": "deleted agent",
+      "hint": "Publishing does not change assignments. Change the serving agent in Settings › Channels.",
+      "error": "Could not read channel account assignments."
+    },
+    "hoursOpt": {
+      "always": "24/7 — always on",
+      "office": "Office hours (8:00–17:30)",
+      "custom": "Custom schedule…"
+    },
+    "actions": "Actions",
+    "actionsSub": "Choose the actions the agent may take during a conversation. Each action only works when enabled.",
+    "toolOn": "Toggle: {name}",
+    "toolCount": "{on}/{total}",
+    "skillGroup": "AI Skills",
+    "needsConnector": "Needs {name} connected",
+    "comingSoon": "Coming soon",
+    "gov": "Human handoff & safety",
+    "govTag": "(AI Governance)",
+    "govSub": "Run AI safely following ISO 42001 — hand off to staff when needed and stay data-compliant.",
+    "threshold": "Hand off to a person when confidence is below <b>{n}%</b>",
+    "thresholdAria": "Human handoff threshold",
+    "thLow": "50% · fewer handoffs",
+    "thHigh": "95% · prefer humans",
+    "handoff": "Hand off to",
+    "handoffOpt": {
+      "staff": "On-duty staff",
+      "team": "Customer care team",
+      "lead": "Team lead"
+    },
+    "govItem": {
+      "grounding": [
+        "No made-up answers (grounding)",
+        "Only answer from the knowledge base and real data."
+      ],
+      "pii": [
+        "PII compliance · Decree 13",
+        "Mask and protect customer personal data per policy."
+      ],
+      "override": [
+        "Always allow staff to step in",
+        "Human override — staff can take over at any time."
+      ],
+      "audit": [
+        "Log every AI action",
+        "Keep a trail for the AI audit log and token reconciliation."
+      ]
+    },
+    "kb": "Knowledge sources",
+    "kbNoticeB": "Want more accurate answers?",
+    "kbNotice": "Add and enable knowledge sources to give the agent the context it needs for answers that fit your business.",
+    "kbFolders": "Folders this agent may use",
+    "kbTags": "Or by tag",
+    "kbTag": "#{tag}",
+    "kbCount": "{n} documents in scope · {pub} usable when answering customers",
+    "kbEmpty": "No folder / tag selected — the agent uses no documents yet",
+    "kbTitle": "Train your AI agent",
+    "kbSub": "For better accuracy, train the agent on your company's own documents and links.",
+    "kbAdd": "Add knowledge source",
+    "test": "Test the AI agent",
+    "reset": "Reset",
+    "testChat": "Chat",
+    "testSim": "Channel simulation",
+    "testPh": "Type a message to test…",
+    "send": "Send",
+    "dryRun": "Dry run — actions are previewed only, never executed",
+    "versions": "Versions",
+    "draftDirty": "Unpublished changes",
+    "hideDesc": "Hide description",
+    "roleLabel": "Displayed role",
+    "roleLabelPh": "e.g. Advice & closing",
+    "persona": "Personality",
+    "personaPh": "e.g. Friendly, short answers",
+    "noPermission": "You lack this permission",
+    "simChannel": "Simulated channel"
+  },
+  "v": {
+    "title": "Version history · {name}",
+    "current": "Running",
+    "by": "{by} · {at}",
+    "rollback": "Roll back to this version",
+    "close": "Close",
+    "empty": "No published versions yet."
+  },
+  "ai": {
+    "title": "AI Assistant · AI Agents",
+    "sub": "Compact view · build & tune agents",
+    "hello": "Hi {name} 👋 How can I help with AI agents? Pick an option below or type a request.",
+    "ph": "Ask the assistant about AI agents…",
+    "full": "Open the full AI Assistant →",
+    "send": "Send",
+    "close": "Close",
+    "describe": "Describe the agent you need",
+    "describePh": "E.g. Customer-care agent for a spa: answer treatment prices, book via Zalo, hand complaints to Hương.",
+    "draft": "Draft prepared by the assistant",
+    "draftLead": "I've drafted the agent from your description — please review and confirm:",
+    "fName": "Name",
+    "fRole": "Role",
+    "fTier": "AI level",
+    "fChannels": "Channels",
+    "fTools": "Allowed actions",
+    "fThreshold": "Handoff threshold",
+    "publish": "Create & publish",
+    "openBuilder": "Open in builder",
+    "role": {
+      "sales": "Sales",
+      "cs": "Customer care",
+      "booking": "Booking",
+      "marketing": "Marketing",
+      "accounting": "Accounting",
+      "ops": "Operations",
+      "custom": "Custom"
+    },
+    "pct": "{n}%",
+    "done": "Created & published {name} (v1) — the agent is running."
+  }
+}
