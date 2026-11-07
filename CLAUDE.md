@@ -116,7 +116,7 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 ## 8. Goal hiện tại
 
-**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **83 TIP chưa DONE** (023b → … → 046) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
+**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **84 TIP chưa DONE** (023b → … → 046) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
 
 - Câu A (viết đủ TIP) đã khép 2026-11-03: sổ phủ `coding-packs/COVERAGE.md` 0 lỗ hổng, mọi câu hỏi chính sách đã duyệt (DC-296…303). Câu hỏi còn mở chỉ là tài nguyên (Q-004 SePay/Brevo, Q-006 VPS; Q-002 embed OpenAI đã có credit 2026-11-05).
 - Mỗi TIP: rà "Rà trước khi làm" với code thật → nhánh `tip/XXX-<slug>` → đúng manifest `tips/manifests/TIP-XXX-files.md` → 3 cổng D59 → commit → `gh pr create --base dev` (`gh` đã đăng nhập) → cập nhật `tools/obligations/parts/*.md` + `merge.py` + bảng tiến độ.

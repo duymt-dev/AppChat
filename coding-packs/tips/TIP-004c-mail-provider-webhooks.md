@@ -1,6 +1,7 @@
 # TIP-004c — Brevo: webhook bounce / complaint cho email nền tảng
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `packages/db/prisma/platform/notify.prisma`; integrate 004c before006d.
 - TIP-ID: TIP-004c; Project: AppChat V2; Module: platform mail; Priority: P1; Estimated: S. TIP bổ sung cho TIP-004 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 012c (sự kiện delivery tenant mail), 045b (webhook verify) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-004c-files.md) — 7 paths (4 C). M path tương lai phải do TIP tạo trước tích hợp xong.

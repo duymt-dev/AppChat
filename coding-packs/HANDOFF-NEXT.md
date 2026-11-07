@@ -90,7 +90,7 @@
 ## GOAL MỚI — GOAL-RELEASE (2026-11-03)
 
 **Trạng thái mới nhất, ưu tiên hơn mọi mục bên dưới.**
-- Goal hiện tại: **`coding-packs/goals/GOAL-RELEASE.md`** — 83 TIP chưa DONE theo bảng thứ tự (sinh bằng `tools/obligations/order.py`), bắt đầu **TIP-023b**, kết thúc **TIP-046** (cổng phát hành). Câu `/goal` dán sẵn trong file.
+- Goal hiện tại: **`coding-packs/goals/GOAL-RELEASE.md`** — 84 TIP chưa DONE (thêm 006d web push — DC-381) theo bảng thứ tự (sinh bằng `tools/obligations/order.py`), bắt đầu **TIP-023b**, kết thúc **TIP-046** (cổng phát hành). Câu `/goal` dán sẵn trong file.
 - Câu hỏi chính sách đã duyệt hết (DC-296…303). Tài nguyên: 9router chat đã kiểm (Q-001 đóng); embed OpenAI có key, chờ nạp credit (Q-002, DC-305); Zalo thật — nhắn Chủ nhà quét QR khi tới bước nghiệm thu (Q-003); SePay/Brevo hoãn (Q-004); VPS hoãn, viết `infra/` trước (Q-006, DC-304).
 - `gh` đã đăng nhập (`duymt-dev`, ADMIN) → mỗi TIP tự `gh pr create --base dev`.
 

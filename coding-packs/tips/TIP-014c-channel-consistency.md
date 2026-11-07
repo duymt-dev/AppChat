@@ -1,6 +1,7 @@
 # TIP-014c — Kênh: cảnh báo rủi ro Zalo, SLA theo tài khoản, UI chỉ đọc manifest, tạm ẩn hội thoại đúng mốc
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 014c before006d.
 - TIP-ID: TIP-014c; Project: AppChat V2; Module: channels + inbox snooze; Priority: P0; Estimated: M. TIP bổ sung cho TIP-014 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 014b, 022b, 025b, 034b, 042b đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-014c-files.md) — 16 paths (4 C). M path tương lai phải do TIP tạo trước tích hợp xong.

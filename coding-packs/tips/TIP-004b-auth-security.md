@@ -1,6 +1,7 @@
 # TIP-004b — Bảo mật tài khoản: 2FA TOTP, chính sách mật khẩu, khoá sau N lần sai, làm mới phiên nhiều tab
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/settings.ts`; integrate 004b before006d.
 - TIP-ID: TIP-004b; Project: AppChat V2; Module: identity security; Priority: P0; Estimated: L. TIP bổ sung cho TIP-004 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 045b (platform audit), 041/042 chung identity; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-004b-files.md) — 27 paths (10 C). M path tương lai phải do TIP tạo trước tích hợp xong.
