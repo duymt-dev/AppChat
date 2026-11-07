@@ -6,6 +6,7 @@ import * as insights from './insights';
 import * as listExports from './list-exports';
 import * as inbox from './inbox';
 import * as inboxAliases from './inbox-aliases';
+import * as inboxGroups from './inbox-groups';
 import * as crm from './crm';
 import * as ai from './ai';
 import * as catalog from './catalog';
@@ -73,6 +74,7 @@ export * from './insights';
 export * from './list-exports';
 export * from './inbox';
 export * from './inbox-aliases';
+export * from './inbox-groups';
 export * from './crm';
 export * from './ai';
 export * from './catalog';
@@ -141,6 +143,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(listExports),
   ...Object.values(inbox),
   ...Object.values(inboxAliases),
+  ...Object.values(inboxGroups),
   ...Object.values(crm),
   ...Object.values(ai),
   ...Object.values(catalog),

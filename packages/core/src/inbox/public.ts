@@ -11,3 +11,5 @@ export { scopeCols } from './services/access';
 export { senderOf } from './actions/message.handlers';
 // TIP-022b: tóm tắt bàn giao chiếu theo quyền người xem.
 export { readHandoffSummary } from './services/handoff-summary-read';
+// TIP-025b §A: trạng thái nhóm / lệnh nhóm / ứng viên thêm thành viên (controller inbox-groups).
+export { groupState, groupCommand, groupCandidates } from './groups/group-read';

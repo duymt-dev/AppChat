@@ -49,6 +49,7 @@ const BY_PREFIX: Record<string, string> = {
   profile_layout: '015',
   note: '015',
   conversation: '016',
+  group: '025b',
   message: '016',
   tag: '016',
   canned_reply: '016',

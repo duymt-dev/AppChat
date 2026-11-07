@@ -3,7 +3,7 @@
 // `{ data }` / `{ data, next_cursor }` / `{ error: { code, message, fields? } }`. Bảo mật: bearer JWT + `x-workspace-id`; route công khai
 // (auth, trang ký / xem báo giá công khai, health, widget) khai `security: []`. Không chứa secret / URL nội bộ.
 import type { ActionDef } from '@appchat/actions';
-import { channelContactSyncSchema, channelFriendSchema, channelHistoryRunSchema, channelLookupSchema, channelOperationSchema } from '@appchat/shared';
+import { channelContactSyncSchema, channelFriendSchema, channelHistoryRunSchema, channelLookupSchema, channelOperationSchema, groupCandidatesSchema, groupCommandSchema, groupStateSchema, threadAroundSchema, threadSearchPageSchema } from '@appchat/shared';
 import { z } from 'zod';
 import type { ScannedRoute } from './route-scan';
 import { ACTION_COMPONENTS, actionOperation, jsonSchemaOf } from './action-ops';
@@ -39,6 +39,12 @@ const TYPED: Record<string, () => Schema> = {
   'get /v1/settings/channels/{id}/lookups/{lookupId}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(channelLookupSchema, 'output') } }),
   'get /v1/settings/channels/{id}/contact-syncs/{syncId}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(channelContactSyncSchema, 'output') } }),
   'get /v1/inbox/channel-operations/{id}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(channelOperationSchema, 'output') } }),
+  // TIP-025b
+  'get /v1/conversations/{id}/messages/search-page': () => jsonSchemaOf(threadSearchPageSchema, 'output'),
+  'get /v1/conversations/{id}/messages/around/{messageId}': () => jsonSchemaOf(threadAroundSchema, 'output'),
+  'get /v1/conversations/{id}/group': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(groupStateSchema, 'output') } }),
+  'get /v1/conversations/{id}/group/candidates': () => jsonSchemaOf(groupCandidatesSchema, 'output'),
+  'get /v1/inbox/group-commands/{id}': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(groupCommandSchema, 'output') } }),
 };
 
 function routeOperation(r: ScannedRoute): Schema {

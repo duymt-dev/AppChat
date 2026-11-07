@@ -19,6 +19,7 @@ import './events/inbox.rules';
 import { ConversationAssignHandler, ConversationSetTagsHandler, ConversationTagHandler } from './actions/conversation-assign.handlers';
 import { ConversationBulkUpdateHandler } from './actions/bulk-update.handler';
 import { ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler } from './actions/alias.handlers';
+import { GROUP_HANDLERS } from './groups/group.handlers';
 import {
   ConversationArchiveHandler,
   ConversationClearHistoryHandler,
@@ -54,6 +55,7 @@ const HANDLERS = [
   MessageSendHandler, ContactSendEmailHandler, ConversationCreateGroupHandler, MessageForwardHandler, MessageRecallHandler, MessageDeleteHandler, MessageReactHandler, MessagePinHandler, NoteAddHandler,
   TagCreateHandler, TagUpdateHandler, TagDeleteHandler, CannedReplyCreateHandler, CannedReplyUpdateHandler, CannedReplyDeleteHandler,
   ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler,
+  ...GROUP_HANDLERS,
 ];
 
 /** WS `conv.join`: `inbox.view` + hội thoại trong scope inbox của người đó. */
