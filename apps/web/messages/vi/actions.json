@@ -1314,6 +1314,9 @@
     }
   },
   "bank_feed": {
+    "ingest": {
+      "title": "Ghi nhận giao dịch ngân hàng (hệ thống)"
+    },
     "connect": {
       "title": "Kết nối đối soát ngân hàng"
     },

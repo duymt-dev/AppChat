@@ -1314,6 +1314,9 @@
     }
   },
   "bank_feed": {
+    "ingest": {
+      "title": "Record bank transaction (system)"
+    },
     "connect": {
       "title": "Connect bank reconciliation"
     },

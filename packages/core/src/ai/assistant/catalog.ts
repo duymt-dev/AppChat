@@ -22,7 +22,7 @@ const HIDDEN = /^(admin\.|workspace\.(switch|request_transfer_otp|transfer_owner
  * Sổ điểm theo sự kiện / lịch (TIP-036 — loyalty.earn / reverse / expire / review_tier): chỉ consumer + job loyalty gọi.
  * Mở workspace (TIP-041 — workspace.open): chỉ cổng FE gọi qua nhánh vòng đời; executor thường từ chối.
  */
-export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open', 'workspace.delete_challenge', 'workspace.delete', 'workspace.freeze_request']);
+export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'bank_feed.ingest', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open', 'workspace.delete_challenge', 'workspace.delete', 'workspace.freeze_request']);
 
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 

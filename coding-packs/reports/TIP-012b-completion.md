@@ -1,10 +1,10 @@
 ### COMPLETION REPORT — TIP-012b (Connector runtime và bank feed thật)
 
-**STATUS:** pha 1 / 4 DONE (DC-382). TIP chưa DONE: P2 (ingress bền + receipt chuẩn tắc + `bank_feed.ingest`), P3 (probe / sync / call receipt + route / UI), P4 (AI event-dispatch + ai:live bank-vertical) còn lại.
+**STATUS:** pha 2 / 4 DONE (DC-382, DC-383). TIP chưa DONE: P3 (probe / sync / call receipt + route / UI), P4 (AI event-dispatch + ai:live bank-vertical) còn lại.
 
 **COMMIT:** nhánh `tip/012b-bank-connectors` xếp chồng trên `tip/019b-runtime-integrity-p4` (#119). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
-**MIGRATION:** P1 không có (chỉ đổi code + manifest connector).
+**MIGRATION:** P1 không có; P2 **tenant** `20261108010000_bank_connector_runtime` → sau merge `db:migrate-tenants` + build lại api / worker.
 
 ---
 
@@ -46,3 +46,36 @@
 | `actions/action-registry.md` | `mode` thêm vào input action hiện có, không action mới ở P1; executor che bí mật theo manifest (`hmac_secret`, `webhook_secret`) |
 | `ui/prototype-parity.md` §6b | trường thứ hai mức 2 (prototype không vẽ) — mask có căn cứ; i18n vi + en |
 | `code/file-size-module-layout.md` | file mới ≤ 80 dòng; test riêng |
+
+---
+
+## Pha 2 — ingress bền: biên nhận chuẩn tắc → ACK → khớp ở worker (§2.4–2.5, §3.1–3.4 — AC3, AC5, AC6)
+
+**FILES CHANGED** (manifest; lệch ở DV-057)
+- db: `prisma/tenant/bank-ingress.prisma` (`bank_receipt`), quan hệ ở `sales-payments.prisma`, migration **tenant** `20261108010000_bank_connector_runtime`.
+- actions: `bank-ingress.ts` (`bank_feed.ingest` — system-only, finance.manage, risk money, agentGrantable false) + i18n tiêu đề vi / en.
+- core `sales/payments/bank/`: `receipt.ts` (biên nhận idempotent theo (provider, tài khoản, mã giao dịch) + outbox cùng transaction), `reconcile.ts` (luật khớp / ghi nhận hiện có tách khỏi hook — không đổi COMMERCE §5), `bank-event.consumer.ts` (consumer `sales.bank-ingest`); `actions/bank-ingest.handler.ts` (claim FOR UPDATE, kiểm lại feed hiện tại, processed cùng transaction); `services/bank-feed.ts` (hook chỉ xác thực → chuẩn hoá → biên nhận → ACK); `sales.jobs.module.ts` (đăng ký consumer ở ROLE=jobs), `sales.module.ts`, `public.ts`; `ai/assistant/catalog.ts` (SYSTEM_ONLY).
+- test mới: api `bank-ingress.test.ts` (7), `actions/bank_feed.ingest.action.test.ts` (3), helper `helpers/bank-ingress.ts`; worker `bank-ingress-recovery.test.ts` (1 — ROLE=jobs thật, khởi động lại + phát lại).
+
+**Giả định đã chọn (gap-filling)**
+- Phản hồi webhook đổi từ `{ received, matched }` sang `{ accepted, duplicate, ignored }` — khớp không còn đồng bộ nên "matched" lúc ACK là sai sự thật (§2.4 "return accepted/duplicate counts, not pretend matched").
+- `bank_tx` cũ không có biên nhận (không backfill): định danh chuẩn tắc chỉ áp từ giao dịch mới; giao dịch cũ vẫn chống trùng theo (feed, mã) như trước.
+- Feed đổi / ngắt giữa ACK và xử lý → biên nhận `ignored` (`feed_inactive`), không ghi nhận tiền; không tự chuyển sang feed mới (đổi provider / tài khoản cần xác nhận — §3.2, P3).
+
+**CỔNG TEST (P2)**
+- `db:test-reset` (template +1) → api `bank-ingress` 7/7, `bank-connectors` 7/7, `payments` hồi quy, `bank_feed.ingest` ma trận 3/3; hồi quy `integrations`, `billing-payments`, `orders`, `contract`, `platform-reconcile`, 3 ma trận bank / đối soát: pass. `assistant-vertical` › mục lục ma trận: còn 11 action thiếu file của TIP 027 / 032 / 041 / 038b — đỏ sẵn (Q-056), `bank_feed.ingest` đã có file.
+- worker `bank-ingress-recovery` 1/1 (build worker trước).
+- `pnpm turbo run lint typecheck test --filter="...[origin/dev]"` 39/39; depcheck pass; lint:size, i18n 100%.
+- `db:migrate-tenants` local: 15 DB, 0 lỗi.
+- Không đổi UI ở P2 (E2E / parity không ảnh hưởng — không spec nào gọi hook tenant).
+
+**ĐỐI CHIẾU STANDARDS (P2)**
+
+| Standard | Kết quả |
+|---|---|
+| `events/outbox.md` | biên nhận + outbox cùng transaction; payload chỉ `receipt_id`; consumer idempotent theo `event_consumption` + trạng thái biên nhận |
+| `actions/action-registry.md` | ghi tiền chỉ qua `bank_feed.ingest` trong ActionExecutor (action_log); system-only, ẩn khỏi Trợ lý / agent |
+| `domain/concurrency.md` | claim FOR UPDATE + trạng thái `accepted` → hai worker cùng biên nhận: một `matched`, một `duplicate` (test) |
+| `database/tenant-db.md` · `indexing.md` | không `workspace_id`; CHECK / FK viết tay; unique chuẩn tắc cột `=`; partial index hàng chờ INCLUDE feed; index lịch sử theo tài khoản INCLUDE trạng thái |
+| `ops/observability-security.md` | outbox không mang số tiền / nội dung / tài khoản; lỗi provider không vào phản hồi |
+| COMMERCE §5 | luật khớp TT… / đúng số còn phải thu / Cần đối soát giữ nguyên (tách hàm, không đổi) |

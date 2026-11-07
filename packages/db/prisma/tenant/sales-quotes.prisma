@@ -75,18 +75,18 @@ model Quote {
 }
 
 model QuoteItem {
-  id         String  @id @db.Uuid
-  quoteId    String  @map("quote_id") @db.Uuid
-  productId  String? @map("product_id") @db.Uuid
-  name       String
-  variant    String  @default("")
-  qty        Decimal @db.Decimal(12, 3)
-  unitPrice  BigInt  @map("unit_price")
+  id        String  @id @db.Uuid
+  quoteId   String  @map("quote_id") @db.Uuid
+  productId String? @map("product_id") @db.Uuid
+  name      String
+  variant   String  @default("")
+  qty       Decimal @db.Decimal(12, 3)
+  unitPrice BigInt  @map("unit_price")
   /// `{ kind: 'pct' | 'amount', value }` hoặc null.
-  discount   Json?
-  taxRate    Int     @map("tax_rate")
-  lineTotal  BigInt  @map("line_total")
-  sort       Int
+  discount  Json?
+  taxRate   Int     @map("tax_rate")
+  lineTotal BigInt  @map("line_total")
+  sort      Int
 
   quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 

@@ -10,6 +10,7 @@ import { cassoSignature, mockSignature, sepaySignature } from '@appchat/integrat
 import { invoiceRowSchema } from '@appchat/shared';
 import { uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
+import { drainBankReceipts } from './helpers/bank-ingress';
 
 let h: Harness;
 let resolver: TenantDbResolver;
@@ -75,10 +76,11 @@ describe('SePay live', () => {
     const ts = nowS();
     const r = await post(path(), b, { 'x-sepay-signature': sepaySignature('hs_live_real', ts, b), 'x-sepay-timestamp': ts });
     expect(r.status).toBe(200);
-    expect(((await r.json()) as { data: unknown }).data).toMatchObject({ received: 1, matched: 1 });
+    expect(((await r.json()) as { data: unknown }).data).toMatchObject({ accepted: 1 });
+    await drainBankReceipts(h, resolver);
     expect(invoiceRowSchema.parse((await call(h, `/invoices/${id}`, undefined).then(json)).body.data).status).toBe('paid');
     const again = await post(path(), b, { authorization: 'Apikey sk_live_real' });
-    expect(((await again.json()) as { data: unknown }).data).toMatchObject({ received: 0, matched: 0 });
+    expect(((await again.json()) as { data: unknown }).data).toMatchObject({ accepted: 0, duplicate: 1 });
     const stale = String(Number(ts) - 301);
     expect((await post(path(), b, { 'x-sepay-signature': sepaySignature('hs_live_real', stale, b), 'x-sepay-timestamp': stale })).status).toBe(401);
   });
@@ -97,8 +99,10 @@ describe('SePay live', () => {
       expect(r.status, n).toBe(400);
     }
     const other = await post(path(), body(5020, 'CK TT999999', 1000, { accountNumber: '0071000999000' }), { authorization: 'Apikey sk_live_real' });
-    expect(((await other.json()) as { data: unknown }).data).toMatchObject({ received: 0 });
+    expect(((await other.json()) as { data: unknown }).data).toMatchObject({ accepted: 0, ignored: 1 });
+    await drainBankReceipts(h, resolver);
     expect(await db.bankTx.count()).toBe(before);
+    expect(await db.bankReceipt.findFirstOrThrow({ where: { externalId: '5020' } })).toMatchObject({ status: 'ignored', reason: 'account_mismatch', bankTxId: null });
   });
 });
 
@@ -116,10 +120,11 @@ describe('Casso live (Webhook V2)', () => {
     const p = payload(7001, `Chuyển khoản ${code} chị Lan`, 800000);
     const r = await post(path(), JSON.stringify(p), { 'x-casso-signature': cassoSignature('cs_live_real', '1793000000000', p) });
     expect(r.status).toBe(200);
-    expect(((await r.json()) as { data: unknown }).data).toMatchObject({ received: 1, matched: 1 });
+    expect(((await r.json()) as { data: unknown }).data).toMatchObject({ accepted: 1 });
+    await drainBankReceipts(h, resolver);
     expect(invoiceRowSchema.parse((await call(h, `/invoices/${id}`, undefined).then(json)).body.data).status).toBe('paid');
     const out = payload(7002, 'chi', -193000);
-    expect(((await (await post(path(), JSON.stringify(out), { 'x-casso-signature': cassoSignature('cs_live_real', '1', out) })).json()) as { data: unknown }).data).toMatchObject({ received: 0 });
+    expect(((await (await post(path(), JSON.stringify(out), { 'x-casso-signature': cassoSignature('cs_live_real', '1', out) })).json()) as { data: unknown }).data).toMatchObject({ accepted: 0, ignored: 1 });
     const test = payload(0, 'giao dich thu nghiem', 599000);
     expect((await post(path(), JSON.stringify(test), { 'x-casso-signature': cassoSignature('cs_live_real', '1', test) })).status).toBe(200);
   });

@@ -38,6 +38,7 @@ import * as loyaltyPayments from './loyalty-payments';
 import * as settings from './settings';
 import * as authz from './authz';
 import * as leadRouting from './lead-routing';
+import * as bankIngress from './bank-ingress';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as billingLifecycle from './billing-lifecycle';
@@ -109,6 +110,7 @@ export * from './loyalty-payments';
 export * from './settings';
 export * from './authz';
 export * from './lead-routing';
+export * from './bank-ingress';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './billing-lifecycle';
@@ -179,6 +181,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settings),
   ...Object.values(authz),
   ...Object.values(leadRouting),
+  ...Object.values(bankIngress),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(billingLifecycle),

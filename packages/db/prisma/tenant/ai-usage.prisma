@@ -110,4 +110,3 @@ model AiRunEvent {
   @@id([rootRunId, seq])
   @@map("ai_run_event")
 }
-

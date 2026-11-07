@@ -101,19 +101,19 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @db.Uuid
-  orderId   String  @map("order_id") @db.Uuid
-  productId String? @map("product_id") @db.Uuid
-  variantId String? @map("variant_id") @db.Uuid
-  name      String
-  variant   String  @default("")
-  qty       Decimal @db.Decimal(12, 3)
-  unitPrice BigInt  @map("unit_price")
+  id               String    @id @db.Uuid
+  orderId          String    @map("order_id") @db.Uuid
+  productId        String?   @map("product_id") @db.Uuid
+  variantId        String?   @map("variant_id") @db.Uuid
+  name             String
+  variant          String    @default("")
+  qty              Decimal   @db.Decimal(12, 3)
+  unitPrice        BigInt    @map("unit_price")
   /// `{ kind: 'pct' | 'amount', value }` hoặc null.
-  discount  Json?
-  taxRate   Int     @map("tax_rate")
-  lineTotal BigInt  @map("line_total")
-  sort      Int
+  discount         Json?
+  taxRate          Int       @map("tax_rate")
+  lineTotal        BigInt    @map("line_total")
+  sort             Int
   /// Ảnh chụp liệu trình lúc ghi dòng (TIP-032b) — sinh gói đọc ở đây, không tra danh mục hiện tại.
   productType      String?   @map("product_type")
   packageSessions  Int?      @map("package_sessions")

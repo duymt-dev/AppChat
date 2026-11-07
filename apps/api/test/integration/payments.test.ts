@@ -12,6 +12,7 @@ import { mockSignature } from '@appchat/integrations';
 import { invoiceRowSchema, invoicesMetaSchema, invoicesPageSchema, paymentSettingsSchema } from '@appchat/shared';
 import { QuoteDeps, CrmMembers, markOverdue, remindDue, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
+import { drainBankReceipts } from './helpers/bank-ingress';
 
 let h: Harness;
 let resolver: TenantDbResolver;
@@ -61,7 +62,7 @@ async function confirmedOrder(contact: string, items: ReturnType<typeof line>[],
   return o;
 }
 
-type HookOut = { data: { received: number; matched: number } };
+type HookOut = { data: { accepted: number; duplicate: number; ignored: number } };
 const hookData = async (r: Response) => ((await r.json()) as HookOut).data;
 const hook = (body: string, sig = mockSignature('sk_tenant', body), path = `/hooks/tenant-payments/sepay/${feed}`) =>
   fetch(`${h.base}${path}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-mock-signature': sig }, body });
@@ -202,16 +203,20 @@ describe('bank feed SePay của DN (adapter mock)', () => {
     expect((await hook(body, undefined, `/hooks/tenant-payments/casso/${feed}`)).status).toBe(404);
     const r = await hook(body);
     expect(r.status).toBe(200);
-    // 4tr ≠ 10tr còn phải thu → lệch tiền; giao dịch sai tài khoản bỏ qua.
-    expect(await hookData(r)).toMatchObject({ received: 2, matched: 0 });
+    // Webhook chỉ ACK biên nhận (TIP-012b P2): 2 nhận, giao dịch sai tài khoản giữ làm bằng chứng (ignored). Khớp chạy ở consumer.
+    expect(await hookData(r)).toMatchObject({ accepted: 2, duplicate: 0, ignored: 1 });
+    expect(await drainBankReceipts(h, resolver)).toBe(2);
+    // 4tr ≠ 10tr còn phải thu → lệch tiền.
     const m = invoicesMetaSchema.parse((await get('/invoices/meta')).body.data);
     expect(m.bank_txs.map((b) => b.reason).sort()).toEqual(['amount_mismatch', 'missing_code']);
     expect(m.bank_txs.find((b) => b.reason === 'amount_mismatch')!.suggested_invoice_id).toBe(ids.i2);
     expect(invoicesMetaSchema.parse((await get('/invoices/meta', sales)).body.data).bank_txs).toEqual([]);
     // Đúng tiền → tự ghi nhận; webhook gửi lại cùng giao dịch → không ghi lần hai.
     const exact = JSON.stringify({ id: 'evt-2', transactions: [tx('FT-3', '10000000', `${code.slice(0, 2)}-${code.slice(2)} THANH TOAN`)] });
-    expect(await hookData(await hook(exact))).toMatchObject({ received: 1, matched: 1 });
-    expect(await hookData(await hook(exact))).toMatchObject({ received: 0, matched: 0 });
+    expect(await hookData(await hook(exact))).toMatchObject({ accepted: 1, duplicate: 0 });
+    expect(await hookData(await hook(exact))).toMatchObject({ accepted: 0, duplicate: 1 });
+    await drainBankReceipts(h, resolver);
+    await drainBankReceipts(h, resolver);
     const i = await inv(ids.i2);
     expect(i).toMatchObject({ status: 'paid', paid_amount: '10000000' });
     expect(i.payments[0]).toMatchObject({ method: 'bank_transfer', auto: true, by: 'system' });

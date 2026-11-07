@@ -1,0 +1,43 @@
+// tenant/bank-ingress.prisma — sở hữu: TIP-012b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Ingress ngân hàng bền (TIP-012b P2, DC-383): mỗi giao dịch đã xác thực + chuẩn hoá là MỘT biên nhận chuẩn tắc, khoá theo
+// (provider, tài khoản đã chuẩn hoá, mã giao dịch provider) — không theo feed / kết nối / khoá bí mật, nên kết nối lại không nhận
+// đôi. Webhook ghi biên nhận + outbox `bank_receipt.accepted` cùng transaction rồi ACK; consumer ROLE=jobs chạy `bank_feed.ingest`
+// (khớp / ghi nhận) và chỉ chuyển biên nhận sang `processed` cùng transaction với kết quả tài chính đã commit.
+
+/// accepted → processed (đã có bank_tx) | ignored (tiền ra / 0đ / khác tài khoản — giữ làm bằng chứng, không ghi nhận).
+enum BankReceiptStatus {
+  accepted
+  processed
+  ignored
+
+  @@map("bank_receipt_status")
+}
+
+model BankReceipt {
+  id          String            @id @db.Uuid
+  /// sepay | casso (namespace provider của mã giao dịch)
+  provider    String
+  /// Tài khoản nhận đã chuẩn hoá (giữ số 0 đầu, chữ hoa)
+  accountNo   String            @map("account_no")
+  externalId  String            @map("external_id")
+  /// Feed / kết nối nhận lần đầu (tham chiếu chẩn đoán — không tham gia khoá)
+  feedId      String            @map("feed_id") @db.Uuid
+  amount      BigInt
+  direction   String
+  content     String
+  occurredAt  DateTime          @map("occurred_at") @db.Timestamptz(6)
+  status      BankReceiptStatus @default(accepted)
+  /// outgoing | zero | account_mismatch | feed_inactive (status = ignored)
+  reason      String?
+  bankTxId    String?           @map("bank_tx_id") @db.Uuid
+  /// Số lần webhook / kéo gửi lại cùng giao dịch (bằng chứng trùng)
+  deliveries  Int               @default(1)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  processedAt DateTime?         @map("processed_at") @db.Timestamptz(6)
+
+  feed   TenantBankFeed @relation(fields: [feedId], references: [id], onDelete: Restrict)
+  bankTx BankTx?        @relation(fields: [bankTxId], references: [id], onDelete: Restrict)
+
+  @@unique([provider, accountNo, externalId])
+  @@map("bank_receipt")
+}

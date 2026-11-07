@@ -44,6 +44,7 @@ import { InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler } from './p
 import { PaymentRefundApproveHandler, PaymentRefundHandler, PaymentRefundRejectHandler } from './payments/actions/refund.handlers';
 import { PackageAdjustHandler, PackageExtendHandler } from './payments/actions/package.handlers';
 import { BankFeedConnectHandler, BankFeedDisconnectHandler, PaymentAccountUpdateHandler } from './payments/actions/finance-config.handlers';
+import { BankFeedIngestHandler } from './payments/actions/bank-ingest.handler';
 import { InvoicesReadService } from './payments/services/invoices-read.service';
 import { TenantBankHook } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
@@ -62,7 +63,7 @@ const HANDLERS = [
   OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler, PackageSearchHandler,
-  PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,
+  PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
   // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
   // Gửi chứng từ cho khách (TIP-032b P2).

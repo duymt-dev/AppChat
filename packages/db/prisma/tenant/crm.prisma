@@ -178,16 +178,16 @@ model ContactAccessRequest {
 
 /// Thẻ dùng chung khách + hội thoại (Blueprint §2.2). Tên duy nhất không phân biệt hoa thường (unique lower(name) ở migration).
 model Tag {
-  id              String    @id @db.Uuid
+  id              String   @id @db.Uuid
   name            String
-  color           String    @default("#6B7280")
-  emoji           String    @default("")
-  description     String    @default("")
-  scope           TagScope  @default(all)
-  createdByUserId String?   @map("created_by_user_id") @db.Uuid
-  updatedByUserId String?   @map("updated_by_user_id") @db.Uuid
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  color           String   @default("#6B7280")
+  emoji           String   @default("")
+  description     String   @default("")
+  scope           TagScope @default(all)
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("tag")
 }

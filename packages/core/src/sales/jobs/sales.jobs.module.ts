@@ -22,6 +22,8 @@ import { QuoteDeps } from '../quotes/services/quote-deps';
 import { ChannelSendQueue } from '../../channels/public';
 import { CrmMembers } from '../../crm/public';
 import { enqueueOutgoing } from '../../inbox/public';
+import { ActionExecutor } from '../../kernel/actions/executor';
+import { BANK_INGEST_CONSUMER, bankIngestConsumer } from '../payments/bank/bank-event.consumer';
 
 export const SALES_SCHEDULER_QUEUE = 'sales-scheduler';
 export const QUOTE_SWEEP_JOB = 'sales.quote-sweep';
@@ -71,6 +73,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Inject(QuoteDeps) private readonly quotes: QuoteDeps,
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Optional() @Inject(ChannelSendQueue) private readonly send: ChannelSendQueue | null,
+    @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -78,6 +81,8 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     const now = () => this.clock.now();
     registerEventConsumer(quoteOwnerConsumer(now));
     registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
+    // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
+    if (this.executor) registerEventConsumer(bankIngestConsumer(this.executor));
     const deps = { platform: this.platform, tenants: this.tenants, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };
     const pay = {
       ...deps,
@@ -131,6 +136,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     unregisterEventConsumer('sales.quote-owner');
     unregisterEventConsumer('sales.order-sync');
     unregisterEventConsumer('sales.payment-packages');
+    unregisterEventConsumer(BANK_INGEST_CONSUMER);
     await this.worker?.close();
     await this.queue?.close();
     await this.syncWorker?.close();
