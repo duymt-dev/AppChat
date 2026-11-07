@@ -19,7 +19,7 @@ const act = (id: string, input: unknown, who?: { id: string }) => call(h, `/acti
 const tenant = () => resolver.get(TenantContexts.system(h.ws, 't'));
 const ok = (r: { status: number; body: Body }) => {
   expect(r.status, JSON.stringify(r.body)).toBe(200);
-  return r.body.data.result as Record<string, string>;
+  return r.body.data.result as Body;
 };
 const err = (r: { status: number; body: Body }) => `${r.status} ${r.body?.error?.code}`;
 const line = { name: 'HIFU nâng cơ', qty: 1, unit_price: '1500000', tax_rate: 8 };
