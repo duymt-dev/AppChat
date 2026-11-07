@@ -76,6 +76,13 @@
     }
   },
   "conversation": {
+    "unhide": {
+      "title": "Unhide conversation"
+    },
+    "untag": {
+      "title": "Remove conversation tag",
+      "desc": "Remove a tag from a conversation (no change if it is not tagged)."
+    },
     "mark_read": {
       "title": "Mark as read"
     },
@@ -129,6 +136,12 @@
     }
   },
   "message": {
+    "unpin": {
+      "title": "Unpin message"
+    },
+    "unreact": {
+      "title": "Remove message reaction"
+    },
     "send": {
       "title": "Send message",
       "desc": "Reply to the customer through the conversation's channel."

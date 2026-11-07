@@ -39,8 +39,9 @@ export class ConversationsController {
   }
 
   @Get('counts')
-  async counts(@Req() req: IncomingMessage) {
-    return { data: await this.read.counts(await this.viewer(req)) };
+  async counts(@Req() req: IncomingMessage, @Query() q: Record<string, string | undefined>) {
+    // Cùng bộ lọc danh sách (TIP-025b §B.4) — đếm khớp đúng phần người xem đang lọc.
+    return { data: await this.read.counts(await this.viewer(req), { channel: q.channel || undefined, channelAccountId: q.channel_account_id || undefined, tagId: q.tag_id, q: q.q?.slice(0, 100) }) };
   }
 
   @Get(':id')

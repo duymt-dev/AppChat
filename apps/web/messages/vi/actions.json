@@ -76,6 +76,13 @@
     }
   },
   "conversation": {
+    "unhide": {
+      "title": "Hiện lại hội thoại"
+    },
+    "untag": {
+      "title": "Gỡ thẻ hội thoại",
+      "desc": "Gỡ một thẻ khỏi hội thoại (chưa có thẻ thì không đổi gì)."
+    },
     "mark_read": {
       "title": "Đánh dấu đã đọc"
     },
@@ -129,6 +136,12 @@
     }
   },
   "message": {
+    "unpin": {
+      "title": "Bỏ ghim tin nhắn"
+    },
+    "unreact": {
+      "title": "Bỏ cảm xúc tin nhắn"
+    },
     "send": {
       "title": "Gửi tin nhắn",
       "desc": "Trả lời khách bằng tin nhắn qua đúng kênh của hội thoại."

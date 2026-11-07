@@ -66,10 +66,11 @@ export class InboxReadService {
     });
   }
 
-  async counts(v: Viewer): Promise<FolderCountsDto> {
+  /** Đếm thư mục theo scope + bộ lọc hiện tại (kênh / tài khoản / thẻ / tìm kiếm — không nhận `folder`: mỗi thư mục tự là điều kiện). */
+  async counts(v: Viewer, f: Omit<ConvFilter, 'folder' | 'sort'> = {}): Promise<FolderCountsDto> {
     const now = this.now();
     return this.tx(v, async (tx) => {
-      const n = await folderCounts(tx, v.authz, now);
+      const n = await folderCounts(tx, v.authz, now, f);
       const synced = await tx.channelAccount.count({ where: { status: 'connected' } });
       const total = await tx.conversation.count();
       return {
