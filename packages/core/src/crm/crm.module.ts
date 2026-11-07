@@ -13,6 +13,7 @@ import { ContactExportHandler, ContactImportHandler } from './actions/contact-io
 import { ContactMergeHandler } from './actions/contact-merge.handler';
 import { ContactCreateHandler, ContactDeleteHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
 import { ContactSearchHandler } from './actions/contact-search.handler';
+import { ContactEditContextHandler } from './actions/contact-edit-read.handler';
 import { ContactGet360Handler, ContactGetHandler, ProfileLayoutSearchHandler } from './actions/contact-read.handlers';
 import { CustomFieldDefineHandler, CustomFieldDeleteHandler, CustomFieldUpdateHandler } from './actions/custom-field.handlers';
 import { ProfileLayoutAssignRoleHandler, ProfileLayoutCreateHandler, ProfileLayoutDeleteHandler, ProfileLayoutDuplicateHandler, ProfileLayoutUpdateHandler } from './actions/profile-layout.handlers';
@@ -29,6 +30,7 @@ const opt = (token: symbol) => ({ token, optional: true });
 
 const HANDLERS = [
   ContactSearchHandler,
+  ContactEditContextHandler,
   ContactGetHandler,
   ContactGet360Handler,
   ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ContactDeleteHandler, ContactMergeHandler,

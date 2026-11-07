@@ -176,6 +176,10 @@
     }
   },
   "contact": {
+    "get_edit_context": {
+      "title": "Read contact edit context",
+      "desc": "Read the editable fields, current version and owner of one contact (hidden fields are omitted)."
+    },
     "import": {
       "title": "Import customers",
       "desc": "Import customers from a file in batches; skips duplicates and reports customers owned by others."
