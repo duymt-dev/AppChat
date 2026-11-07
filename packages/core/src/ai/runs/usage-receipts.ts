@@ -1,4 +1,4 @@
-// Biên nhận từng lần gọi model thật (TIP-019b §2.1–2.2): ghi TRƯỚC khi gửi (giá chụp lúc đó), khoá (run, bước logic, ứng viên, lô)
+// Biên nhận từng lần gọi model thật (TIP-019b §2.1–2.2): ghi TRƯỚC khi gửi (giá chụp lúc đó), khoá (nhóm, ứng viên, lô)
 // duy nhất — chạy lại cùng lần gọi dùng lại dòng cũ, không gửi lại khi dòng đã có kết quả không rõ. Nhóm tính tiền `<run>:chat:<bước>`
 // gom mọi ứng viên của bước; chi phí thô cộng đúng numeric, làm tròn một lần ở lượt quyết toán.
 import { TenantSql as Prisma } from '@appchat/db';
@@ -39,15 +39,15 @@ export async function openAttempt(db: Db, k: AttemptKey, c: { provider: string; 
     INSERT INTO ai_usage_group (id, run_id, root_run_id, kind, logical_step, created_at)
     VALUES (${gid}, ${k.runId}::uuid, ${k.rootRunId}::uuid, ${k.kind}, ${k.logicalStep}, ${now})
     ON CONFLICT (id) DO NOTHING`;
-  const key = { runId: k.runId, logicalStep: k.logicalStep, candidate: k.candidate, batch: k.batch ?? 0 };
-  const prior = await db.aiUsageReceipt.findUnique({ where: { runId_logicalStep_candidate_batch: key }, select: { id: true, status: true } });
+  const key = { groupId: gid, candidate: k.candidate, batch: k.batch ?? 0 };
+  const prior = await db.aiUsageReceipt.findUnique({ where: { groupId_candidate_batch: key }, select: { id: true, status: true } });
   if (prior) return { id: prior.id, groupId: gid, status: prior.status, existing: true };
   const id = uuidv7(now.getTime());
   await db.$executeRaw`
     INSERT INTO ai_usage_receipt (id, group_id, run_id, root_run_id, logical_step, candidate, batch, provider, model, price_in, price_out, source, created_at, updated_at)
     VALUES (${id}::uuid, ${gid}, ${k.runId}::uuid, ${k.rootRunId}::uuid, ${k.logicalStep}, ${k.candidate}, ${k.batch ?? 0}, ${c.provider}, ${c.model}, ${c.price.per1kIn}, ${c.price.per1kOut}, ${c.source}, ${now}, ${now})
-    ON CONFLICT (run_id, logical_step, candidate, batch) DO NOTHING`;
-  const row = await db.aiUsageReceipt.findUniqueOrThrow({ where: { runId_logicalStep_candidate_batch: key }, select: { id: true, status: true } });
+    ON CONFLICT (group_id, candidate, batch) DO NOTHING`;
+  const row = await db.aiUsageReceipt.findUniqueOrThrow({ where: { groupId_candidate_batch: key }, select: { id: true, status: true } });
   return { id: row.id, groupId: gid, status: row.status, existing: row.id !== id };
 }
 

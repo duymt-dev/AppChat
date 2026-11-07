@@ -5,6 +5,7 @@ import type { TenantDb } from '@appchat/db';
 import { AppError, type TranslateTarget } from '@appchat/shared';
 import { runOnce } from '../agents/agent.runtime';
 import type { AiRunner } from '../runs/runner';
+import type { TrustedParent } from '../runs/run-lineage';
 import { claimTranslation, finishTranslation, releaseTranslation, type CacheKey } from './translation-cache';
 
 const LANG: Record<TranslateTarget, string> = { vi: 'Vietnamese (tiếng Việt)', en: 'English', zh: 'Chinese (Simplified, 简体中文)', ko: 'Korean (한국어)', ja: 'Japanese (日本語)' };
@@ -21,6 +22,8 @@ export interface TranslateJob {
   authzEpoch: number;
   title: string;
   input: Record<string, unknown>;
+  /** Cha tin cậy (TIP-019b §3) — dịch trong một run là run con dưới gốc đó. */
+  parent?: TrustedParent | null;
 }
 
 export async function translateText(db: TenantDb, runner: AiRunner, now: () => Date, j: TranslateJob): Promise<{ text: string; cached: boolean }> {
@@ -33,6 +36,7 @@ export async function translateText(db: TenantDb, runner: AiRunner, now: () => D
       system: TRANSLATE_SYSTEM(j.to),
       prompt: j.text,
       source: 'inbox',
+      parent: j.parent ?? null,
     });
     if (r.status !== 'completed' || !r.text.trim()) {
       const credit = r.error?.code === 'CREDIT_EXHAUSTED';

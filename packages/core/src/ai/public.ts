@@ -8,6 +8,10 @@ export { admitAttempt, releaseAttempt, ensureRootBudget, assertRootOpen } from '
 export { openAttempt, recordOutcome, rawCost, groupId as usageGroupId } from './runs/usage-receipts';
 export { settleReceipt } from './runs/usage-settlement';
 export { recoverUsage, USAGE_RECOVERY_GRACE_MS } from './runs/usage-recovery';
+export { trustedParent, existingChild, reuseChild, type TrustedParent } from './runs/run-lineage';
+export { meteredEmbed, queryEmbedder, claimEmbedStep, isMeteringStop, type EmbedMeter, type QueryEmbed } from './runs/metered-embedding';
+export { embedChunks } from './kb/ingest-usage';
+export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
 export { AI_USAGE_RECOVERY } from './runs/runtime.providers';
 export { actionTool, toolActionId, inputSchemaOf, toolNameOf } from './runs/tools';
 export { AI_CANCEL_CHANNEL, listRuns, publishCancel, runScope, type RunFilter, type RunRowDto } from './runs/runs.service';

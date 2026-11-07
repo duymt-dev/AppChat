@@ -19,6 +19,8 @@ export interface NewRun {
   tier: string;
   input: unknown;
   parentRunId?: string | null;
+  /** Khoá con dưới cha tin cậy (TIP-019b §3): `<bước>:<action>` — duy nhất theo (cha, khoá). */
+  childKey?: string | null;
   initiatedByUserId?: string | null;
   agentId?: string | null;
   agentVersion?: number | null;
@@ -76,6 +78,7 @@ export class RunStore {
         tier: r.tier,
         input: json(r.input),
         parentRunId: r.parentRunId ?? null,
+        childKey: r.childKey ?? null,
         rootRunId: parent?.rootRunId ?? id,
         depth: parent ? parent.depth + 1 : 0,
         initiatedByUserId: r.initiatedByUserId ?? null,

@@ -12,6 +12,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { line, preview } from '../../kernel/actions/preview-kit';
 import { visibleConversation } from '../../inbox/services/access';
 import { AiRunner } from '../runs/runner';
+import { trustedParent } from '../runs/run-lineage';
 import { translateText } from './translation-service';
 
 type In = ActionInput<typeof aiTranslateDraft>;
@@ -36,6 +37,7 @@ export class AiTranslateDraftHandler implements Handler<In, DraftTranslationDto>
     const r = await translateText(db, this.runner, () => this.clock.now(), {
       ws: ctx.workspaceId, userId, conversationId: input.conversation_id, text: input.text, to: input.to, authzEpoch: epoch,
       title: 'ai.translate_draft', input: { to: input.to, draft_revision: input.draft_revision, chars: input.text.length },
+      parent: await trustedParent(db, ctx, 'ai.translate_draft'),
     });
     return { text: r.text, to: input.to, draft_revision: input.draft_revision, cached: r.cached };
   }

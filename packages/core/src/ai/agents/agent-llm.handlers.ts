@@ -12,6 +12,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { AiRunner } from '../runs/runner';
 import { connectedKeys, runToolIds } from './agent-tools';
+import { trustedParent } from '../runs/run-lineage';
 import { agentSystem, agentToolSpecs, dryRunTools, runOnce } from './agent.runtime';
 import { blankConfig, configOf, liveAgent, merge, type AgentConfig } from './agent.store';
 import { draftFromText, optimizeLocal, parseDraft, DRAFT_SYSTEM, OPTIMIZE_SYSTEM } from './agent-draft';
@@ -57,6 +58,7 @@ export class AgentTestHandler extends LlmHandler implements Handler<ActionInput<
     const connected = await connectedKeys(db);
     const r = await runOnce(db, runner, () => this.clock.now(), ctx.workspaceId, {
       run: { kind: 'agent_reply', title: cfg.name || 'agent.test', tier: cfg.model_tier, agentId: saved?.id ?? null, agentVersion: saved?.publishedVersion ?? null, initiatedByUserId: userOf(ctx), dryRun: true },
+      parent: await trustedParent(db, ctx, 'agent.test'),
       system: input.channel ? `${agentSystem(cfg)}\n\n# MÔ PHỎNG KÊNH\nKhách đang nhắn qua kênh: ${input.channel}. Trả lời đúng phong cách kênh này.` : agentSystem(cfg),
       prompt: input.text,
       source: 'agent_test',
@@ -87,6 +89,7 @@ export class AgentDraftHandler extends LlmHandler implements Handler<ActionInput
     const db = await this.db(ctx, 'agent.draft');
     const r = await runOnce(db, runner, () => this.clock.now(), ctx.workspaceId, {
       run: { kind: 'assistant', title: 'agent.draft_from_description', tier: 'standard', initiatedByUserId: userOf(ctx) },
+      parent: await trustedParent(db, ctx, 'agent.draft_from_description'),
       system: DRAFT_SYSTEM,
       prompt: input.description,
       source: 'assistant',
@@ -116,6 +119,7 @@ export class AgentOptimizePromptHandler extends LlmHandler implements Handler<Ac
     const db = await this.db(ctx, 'agent.optimize');
     const r = await runOnce(db, runner, () => this.clock.now(), ctx.workspaceId, {
       run: { kind: 'assistant', title: 'agent.optimize_prompt', tier: 'standard', initiatedByUserId: userOf(ctx) },
+      parent: await trustedParent(db, ctx, 'agent.optimize_prompt'),
       system: OPTIMIZE_SYSTEM,
       prompt: input.prompt || '(trống)',
       source: 'assistant',

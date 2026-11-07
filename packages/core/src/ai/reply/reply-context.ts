@@ -1,7 +1,7 @@
 // Lắp ngữ cảnh cho một lượt agent trực kênh (Blueprint §5.3 bước 2): cấu hình theo phiên bản đã xuất bản, 20 tin gần nhất, khách
 // rút gọn + `contact_memory`, top-6 đoạn kho tri thức `public` trong `kb_scope` (không căn cứ → ghi rõ, cấm bịa), giờ hoạt động +
 // lời chào của tài khoản, từ cấm governance. PII che bằng `PiiMasker` trước khi vào messages / system (agent-gateway §9).
-import { PiiMasker, prompt, type Embedder, type PiiMap, type RunMessage } from '@appchat/ai';
+import { PiiMasker, prompt, type EmbedResult, type PiiMap, type RunMessage } from '@appchat/ai';
 import { foldText } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
 import { settingsOf } from '../../channels/public';
@@ -9,6 +9,7 @@ import { agentSystem } from '../agents/agent.runtime';
 import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
 import { readGovernance } from '../governance/governance';
 import { searchKb, type KbSearchResult } from '../kb/search';
+import { isMeteringStop, type QueryEmbed } from '../runs/metered-embedding';
 import { recentFacts } from '../../crm/public';
 import { ATTACHMENT_RULE, attachmentLine } from './attachment-context';
 
@@ -62,7 +63,7 @@ async function history(db: TenantDb, c: Conv) {
 // Tệp đính kèm: metadata có kiểu + `attachment_unreadable` (TIP-022b C) — không giả vờ đã đọc nội dung tệp.
 const text = (m: { kind: string; body: string; attachments: unknown }) => (m.kind === 'text' ? m.body : attachmentLine(m.kind, m.body, m.attachments));
 
-export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent; cfg: AgentConfig; version: number }, embedder: Embedder | null, pii: PiiMap = {}): Promise<ReplyContext> {
+export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent; cfg: AgentConfig; version: number }, embed: QueryEmbed | null, pii: PiiMap = {}): Promise<ReplyContext> {
   const gov = await readGovernance(db);
   const piiOn = gov.piiFilter && a.cfg.governance.pii !== false;
   const masker = new PiiMasker(pii);
@@ -91,9 +92,7 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
   const account = await db.channelAccount.findUnique({ where: { id: c.channelAccountId } });
   const st = account ? settingsOf(account) : null;
 
-  const kb = lastTurn.trim()
-    ? await searchKb(db, embedder, { query: lastTurn.slice(0, 500), visibility: ['public'], folderIds: a.cfg.kb_scope.folder_ids, tags: a.cfg.kb_scope.tags }).catch(() => null)
-    : null;
+  const kb = lastTurn.trim() ? await replyKb(db, embed, { query: lastTurn.slice(0, 500), visibility: ['public'], folderIds: a.cfg.kb_scope.folder_ids, tags: a.cfg.kb_scope.tags }) : null;
   const docs = kb?.grounded && kb.chunks.length
     ? kb.chunks.map((h, i) => `[${i + 1}] ${h.source_name}${h.path.length ? ` › ${h.path.join(' › ')}` : ''}\n${h.content}`).join('\n\n')
     : 'Không có tài liệu phù hợp — không tự đưa thông tin, hỏi lại hoặc chuyển nhân viên.';
@@ -129,4 +128,21 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
     piiOn,
     kb,
   };
+}
+
+/**
+ * Kho tri thức cho lượt trả lời (TIP-019b §3.2): embed câu hỏi có đo dưới run của lượt, NGOÀI transaction; hết ngân sách / ví / huỷ /
+ * usage không rõ → ném ra (lượt dừng, không chạy chat không đo). Lỗi khác của embedding (không có route, nhà cung cấp từ chối) → giữ
+ * nhánh từ khoá; lỗi truy vấn kho → không có tài liệu.
+ */
+async function replyKb(db: TenantDb, embed: QueryEmbed | null, q: Parameters<typeof searchKb>[2]): Promise<KbSearchResult | null> {
+  let e: EmbedResult | null = null;
+  if (embed) {
+    try {
+      e = await embed(q.query);
+    } catch (err) {
+      if (isMeteringStop(err)) throw err;
+    }
+  }
+  return searchKb(db, null, { ...q, queryEmbedding: e }).catch(() => null);
 }

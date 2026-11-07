@@ -2,7 +2,8 @@
 // Quyết định: DC-251, DC-379.
 // Bảng: ai_root_budget (ngân sách chung của cây run — một lời gọi thật / gốc tại một thời điểm), ai_usage_group (nhóm tính tiền logic,
 // làm tròn lên một lần theo tổng chi phí thô luỹ kế), ai_usage_receipt (biên nhận từng lần gọi thật — ghi trước khi gửi),
-// ai_usage_settlement (lượt quyết toán ví: (nhóm, thứ tự) duy nhất, số trừ bất biến). FK / CHECK / partial index viết tay ở migration.
+// ai_usage_settlement (lượt quyết toán ví: (nhóm, thứ tự) duy nhất, số trừ bất biến), ai_expiry_delivery (thông báo hết hạn duyệt một
+// lần cho Owner hiện tại). FK / CHECK / partial index viết tay ở migration.
 
 /// Ngân sách gốc (một dòng / cây run). `observed` = credit đã định giá (kể cả phần ví không đủ để trừ) — hết thì không mở lời gọi mới.
 model AiRootBudget {
@@ -62,7 +63,7 @@ model AiUsageReceipt {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  @@unique([runId, logicalStep, candidate, batch], map: "ai_usage_receipt_attempt_key")
+  @@unique([groupId, candidate, batch], map: "ai_usage_receipt_attempt_key")
   @@map("ai_usage_receipt")
 }
 
@@ -82,3 +83,17 @@ model AiUsageSettlement {
   @@id([groupId, ordinal])
   @@map("ai_usage_settlement")
 }
+
+/// Biên nhận thông báo hết hạn duyệt (TIP-019b §4.5): một dòng / yêu cầu duyệt; người nhận chọn lúc gửi (Owner hiện tại), chỉ đổi khi chưa gửi.
+model AiExpiryDelivery {
+  approvalId      String    @id @map("approval_id") @db.Uuid
+  eventId         String    @map("event_id")
+  recipientUserId String?   @map("recipient_user_id") @db.Uuid
+  phase           String    @default("pending")
+  notificationId  String?   @map("notification_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  sentAt          DateTime? @map("sent_at") @db.Timestamptz(6)
+
+  @@map("ai_expiry_delivery")
+}
+

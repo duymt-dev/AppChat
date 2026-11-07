@@ -5,6 +5,7 @@
 // `ai.handoff`; khiếu nại ở auto → event `ai.complaint_detected`). `transfer_to_agent` ≤ 3 lần / lượt (A → B → A → sang người), đích phải đủ
 // điều kiện kênh + giờ. Run chờ duyệt → `ai_state=waiting_approval`; job `ai-resume` chạy tiếp rồi gọi `finishResumedTurn`.
 import { decideHandoff, parseAgentReply, unmaskPii, type Embedder } from '@appchat/ai';
+import { isMeteringStop, queryEmbedder, type EmbedMeter } from '../runs/metered-embedding';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { foldText } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
@@ -37,6 +38,8 @@ export interface ReplyDeps {
   executor: ToolExecutor;
   runner: AiRunner;
   embedder: Embedder | null;
+  /** Đo embedding câu hỏi dưới gốc của lượt (TIP-019b §3.2). */
+  meter?: EmbedMeter | null;
   kv: KeyValueStore;
   log: AppLogger;
   now: () => Date;
@@ -83,20 +86,32 @@ async function coordination(db: TenantDb, runId: string) {
 /** Chạy một agent cho hội thoại; trả kết quả run + ngữ cảnh. Tin khách nguồn lưu vào `ai_run.input` TRƯỚC khi tool chạy (TIP-022b D). */
 async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Published, extra: { summary?: string; parentRunId?: string; sourceMessageId?: string | null; runId?: string } = {}) {
   const copilot = c.aiMode === 'copilot';
-  const ctx = await buildReplyContext(db, c, a, d.embedder);
   const store = new RunStore(db, d.now);
-  const run = await store.create({
+  // Run (gốc của lượt) tạo TRƯỚC khi lắp ngữ cảnh: embedding câu hỏi kho tri thức trừ vào gốc này (TIP-019b §3.2); bảng PII ghi sau.
+  const created = await store.create({
     ...(extra.runId ? { id: extra.runId } : {}),
     kind: copilot ? 'suggestion' : 'agent_reply',
     title: a.agent.name,
     tier: a.cfg.model_tier,
-    input: { conversation_id: c.id, pii: ctx.pii, copilot, source_message_id: extra.sourceMessageId ?? null, ...(extra.summary ? { transfer_summary: extra.summary } : {}) },
+    input: { conversation_id: c.id, copilot, source_message_id: extra.sourceMessageId ?? null, ...(extra.summary ? { transfer_summary: extra.summary } : {}) },
     agentId: a.agent.id,
     agentVersion: a.version,
     conversationId: c.id,
     parentRunId: extra.parentRunId ?? null,
     maxCredits: TURN_BUDGET,
   });
+  const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: d.embedder, meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
+  let ctx: ReplyContext;
+  try {
+    ctx = await buildReplyContext(db, c, a, embed);
+  } catch (err) {
+    if (!isMeteringStop(err)) throw err;
+    const code = String((err as { code?: string }).code);
+    await store.stopReason(created.id, code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : code === 'USAGE_UNKNOWN' ? 'usage_unknown' : code === 'CANCELLED' ? 'cancelled' : 'budget');
+    await store.finish(created.id, 'failed', { error: code });
+    return { r: { status: 'failed' as const, text: '', creditsUsed: 0, error: { code: code === 'CREDIT_EXHAUSTED' ? code : 'BUDGET', message: (err as Error).message } }, run: created, ctx: await buildReplyContext(db, c, a, null) };
+  }
+  const run = await db.aiRun.update({ where: { id: created.id }, data: { input: { ...(created.input as object), pii: ctx.pii } } });
   const tools = await replyTools({ db, executor: d.executor, runner: d.runner, now: d.now }, { ws, runId: run.id, conversationId: c.id, agent: { id: a.agent.id, toolIds: a.cfg.tools }, cfg: a.cfg, pii: ctx.pii, dryRun: copilot });
   const system = extra.summary ? `${ctx.system}\n\n# ĐƯỢC CHUYỂN TỪ AGENT KHÁC\n${extra.summary}` : ctx.system;
   const r = await d.runner.start(ws, store, run, { system, messages: ctx.messages, tools, maxSteps: MAX_STEPS.agent, source: 'inbox' });

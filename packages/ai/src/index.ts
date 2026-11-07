@@ -10,6 +10,7 @@ export { buildModel, type ProviderCapabilities, type ProviderConfig, type Provid
 export { mergeCapabilities, probeError, probeProvider, type ProbeCapability, type ProbeCheck, type ProbeError, type ProbeRequest } from './router/probe';
 export { MOCK_MODEL, MOCK_PROVIDER, echoScript, mockLanguageModel, mockModelSource, staticModelSource, type MockCtx, type MockScript, type MockTurn } from './testing/mock-model';
 export { AiSdkEmbedder, EMBED_DIM, type EmbedResult, type Embedder } from './embed/embedder';
+export type { EmbedAttempt, EmbedHooks } from './embed/attempts';
 export { CHUNK_MAX_TOKENS, CHUNK_MIN_TOKENS, chunkDocument, hasPrice, tokensOf, type Chunk, type ChunkMeta, type DocBlock } from './kb/chunker';
 export { RRF_K, rrf } from './kb/rrf';
 export { KB_LABELS, nameVariants, redactForKnowledge, sensitiveLeft, type KbLabelLocale, type KnowledgeContext } from './kb/suggestion-redaction';

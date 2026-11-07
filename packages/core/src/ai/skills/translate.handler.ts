@@ -12,6 +12,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { visibleConversation } from '../../inbox/services/access';
 import { AiRunner } from '../runs/runner';
+import { trustedParent } from '../runs/run-lineage';
 import { translateText } from './translation-service';
 import { translatePreview } from './previews/translate.handler.preview';
 
@@ -44,6 +45,7 @@ export class AiTranslateHandler implements Handler<ActionInput<typeof aiTranslat
     const r = await translateText(db, this.runner, () => this.clock.now(), {
       ws: ctx.workspaceId, userId, conversationId: input.conversation_id, text: body.slice(0, 4000), to, authzEpoch: epoch,
       title: 'ai.translate', input: { message_id: input.message_id, to },
+      parent: await trustedParent(db, ctx, 'ai.translate'),
     });
     return { text: r.text, to };
   }

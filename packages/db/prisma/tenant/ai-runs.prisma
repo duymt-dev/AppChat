@@ -50,6 +50,8 @@ model AiRun {
   id                 String      @id @db.Uuid
   kind               AiRunKind
   parentRunId        String?     @map("parent_run_id") @db.Uuid
+  /// Khoá con dưới cha (TIP-019b): `<bước>:<action>` — mỗi lời gọi tool tiện ích một run con.
+  childKey           String?     @map("child_key")
   rootRunId          String      @map("root_run_id") @db.Uuid
   depth              Int         @default(0)
   state              Json?

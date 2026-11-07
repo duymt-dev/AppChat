@@ -18,7 +18,10 @@ export interface SettleOutcome {
   denied: boolean;
 }
 
-type Intent = { groupId: string; ordinal: number; delta: number; ledgerRef: string; runId: string; rootRunId: string; logicalStep: number; status: string; applied: number | null };
+type Intent = { groupId: string; ordinal: number; delta: number; ledgerRef: string; runId: string; rootRunId: string; logicalStep: number; kind: string; status: string; applied: number | null };
+
+/** Ref sổ: chat giữ `<run>:<bước>` (đối soát 045b); embedding truy vấn / nạp kho có tiền tố loại — không đụng ref chat cùng bước. */
+const refOf = (runId: string, kind: string, step: number, ordinal: number) => `${runId}:${kind === 'chat' ? '' : `${kind}:`}${step}${ordinal ? `:s${ordinal}` : ''}`;
 
 /** (1) Định số + ghi `intent` (hoặc trả lượt chưa xong của biên nhận này khi chạy lại). */
 async function intentFor(db: Db, receiptId: string, now: Date): Promise<Intent | null> {
@@ -26,17 +29,23 @@ async function intentFor(db: Db, receiptId: string, now: Date): Promise<Intent |
     const r = await tx.aiUsageReceipt.findUnique({ where: { id: receiptId }, select: { groupId: true, runId: true, rootRunId: true, logicalStep: true, status: true } });
     if (!r) return null;
     const existing = await tx.aiUsageSettlement.findFirst({ where: { receiptId }, orderBy: { ordinal: 'desc' } });
-    if (existing) return { ...existing, runId: r.runId, rootRunId: r.rootRunId, logicalStep: r.logicalStep };
+    const [kg] = await tx.$queryRaw<{ kind: string }[]>`SELECT kind FROM ai_usage_group WHERE id = ${r.groupId}`;
+    const kind = kg?.kind ?? 'chat';
+    if (existing) return { ...existing, runId: r.runId, rootRunId: r.rootRunId, logicalStep: r.logicalStep, kind };
     if (r.status !== 'usage_known') return null;
     const [g] = await tx.$queryRaw<{ charged: number; next_ordinal: number; denied: boolean }[]>`SELECT charged, next_ordinal, denied FROM ai_usage_group WHERE id = ${r.groupId} FOR UPDATE`;
     if (!g) return null;
-    const [sum] = await tx.$queryRaw<{ total: string | null }[]>`SELECT CEIL(COALESCE(SUM(raw_cost), 0))::text AS total FROM ai_usage_receipt WHERE group_id = ${r.groupId} AND status IN ('usage_known', 'settled', 'denied') AND raw_cost IS NOT NULL`;
+    // Chi phí thô luỹ kế (numeric, không làm tròn) ghi lên nhóm; số trừ = ceil(tổng) − đã trừ của nhóm.
+    const [sum] = await tx.$queryRaw<{ raw: string; total: string }[]>`
+      UPDATE ai_usage_group SET raw_cost = s.raw FROM (SELECT COALESCE(SUM(raw_cost), 0) AS raw FROM ai_usage_receipt
+        WHERE group_id = ${r.groupId} AND status IN ('usage_known', 'settled', 'denied') AND raw_cost IS NOT NULL) s
+      WHERE id = ${r.groupId} RETURNING s.raw::text AS raw, CEIL(s.raw)::text AS total`;
     const delta = Math.max(0, Number(sum?.total ?? 0) - g.charged);
     const ordinal = g.next_ordinal;
-    const ledgerRef = ordinal === 0 ? `${r.runId}:${r.logicalStep}` : `${r.runId}:${r.logicalStep}:s${ordinal}`;
+    const ledgerRef = refOf(r.runId, kind, r.logicalStep, ordinal);
     await tx.aiUsageSettlement.create({ data: { groupId: r.groupId, ordinal, receiptId, delta, ledgerRef, createdAt: now } });
     await tx.$executeRaw`UPDATE ai_usage_group SET next_ordinal = next_ordinal + 1 WHERE id = ${r.groupId}`;
-    return { groupId: r.groupId, ordinal, delta, ledgerRef, runId: r.runId, rootRunId: r.rootRunId, logicalStep: r.logicalStep, status: 'intent', applied: null };
+    return { groupId: r.groupId, ordinal, delta, ledgerRef, runId: r.runId, rootRunId: r.rootRunId, logicalStep: r.logicalStep, kind, status: 'intent', applied: null };
   });
 }
 
@@ -98,7 +107,7 @@ export async function settleReceipt(d: SettleDeps, receiptId: string, meta: { so
   });
 }
 
-/** Một dòng `ai_run_step(llm)` mỗi nhóm (giữ `meta.llm_step` cho đối soát ví 045b); credit = tổng đã trừ của nhóm. */
+/** Một dòng `ai_run_step(llm)` mỗi nhóm (chat giữ `meta.llm_step` cho đối soát ví 045b; embedding ghi `usage_kind`); credit = tổng đã trừ của nhóm. */
 async function upsertLlmStep(tx: TenantTx, it: Intent, stepId: string | null, rc: { provider: string; model: string; tokensIn: number; tokensOut: number; latencyMs: number }, charged: number, now: Date) {
   if (stepId) {
     await tx.aiRunStep.update({ where: { id: stepId }, data: { credits: charged, provider: rc.provider, model: rc.model, tokensIn: { increment: rc.tokensIn }, tokensOut: { increment: rc.tokensOut } } });
@@ -106,6 +115,6 @@ async function upsertLlmStep(tx: TenantTx, it: Intent, stepId: string | null, rc
   }
   const [last] = await tx.$queryRaw<{ idx: number | null }[]>`SELECT MAX(idx) AS idx FROM ai_run_step WHERE run_id = ${it.runId}::uuid`;
   const id = uuidv7(now.getTime());
-  await tx.aiRunStep.create({ data: { id, runId: it.runId, idx: (last?.idx ?? -1) + 1, type: 'llm', status: 'ok', provider: rc.provider, model: rc.model, tokensIn: rc.tokensIn, tokensOut: rc.tokensOut, credits: charged, latencyMs: rc.latencyMs, meta: { llm_step: it.logicalStep }, createdAt: now } });
+  await tx.aiRunStep.create({ data: { id, runId: it.runId, idx: (last?.idx ?? -1) + 1, type: 'llm', status: 'ok', provider: rc.provider, model: rc.model, tokensIn: rc.tokensIn, tokensOut: rc.tokensOut, credits: charged, latencyMs: rc.latencyMs, meta: it.kind === 'chat' ? { llm_step: it.logicalStep } : { usage_kind: it.kind, logical_step: it.logicalStep }, createdAt: now } });
   await tx.$executeRaw`UPDATE ai_usage_group SET step_id = ${id}::uuid WHERE id = ${it.groupId}`;
 }
