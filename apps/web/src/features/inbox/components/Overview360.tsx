@@ -1,4 +1,5 @@
 // Tab "Tổng quan" của Hồ sơ 360° — prototype L2025–2093: hành trình · AI tóm tắt · thông tin khách · deal · lịch sử · việc · ghi chú · comment.
+// Deal / việc / ghi chú / comment = hoạt động CRM thật (TIP-026b, shared/contact-activities).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
@@ -14,6 +15,7 @@ import { AvatarFace } from './AvatarFace';
 import { HistoryCsvButton } from './HistoryCsvButton';
 import { useCan } from '@/shared/authz/useCan';
 import { useContactEditUi } from '@/shared/crm-forms/contact-edit-command';
+import { DealCard } from '@/shared/contact-activities';
 
 export function Overview360({ c }: { c: Contact360 }) {
   // TIP-025b §D.3: "Sửa" mở form sửa toàn cục (ContactFormHost) — ẩn khi không có crm.edit; host kiểm lại quyền ghi theo bản ghi.
@@ -124,33 +126,7 @@ export function Overview360({ c }: { c: Contact360 }) {
           </div>
         </div>
       </div>
-      <div className={styles.card}>
-        <div className={styles.cardHead}>
-          <span className={styles.eyebrow}>{t('deal')}</span>
-          <button type="button" className={styles.link}>
-            {t('add')}
-          </button>
-        </div>
-        <div className={cs.dealTitle}>{c.deal.title}</div>
-        <div className={styles.kv}>
-          {t('dealValue')}
-          <b>{fmt.money(c.deal.value)}</b>
-        </div>
-        <div className={styles.kv}>
-          {t('dealStage')}
-          <span className={styles.chip} style={{ color: color.dealText, background: color.dealBg }}>
-            {c.deal.stage}
-          </span>
-        </div>
-        <div className={styles.kv}>
-          {t('dealProb')}
-          <b>{c.deal.probability}%</b>
-        </div>
-        <div className={styles.kv}>
-          {t('dealClose')}
-          <b>{c.deal.close_date}</b>
-        </div>
-      </div>
+      <DealCard contactId={c.id} a={c.activities} />
       <div className={styles.card}>
         <div className={styles.cardHead}>
           <span className={styles.eyebrow}>{t('history')}</span>

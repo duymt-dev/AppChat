@@ -9,6 +9,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { paginate } from '../paginate';
 import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './contact-memory';
+import { activityHandlers, activityRoute, activitySummary, seedActivities, type ActivityStore } from './contact-activities';
 
 export type CustomersFixture = typeof fixture;
 type Contact = CustomersFixture['contacts'][number] & { deleted?: boolean };
@@ -23,6 +24,8 @@ export interface CustomersState {
   seq: number;
   /** Trí nhớ AI theo khách (TIP-015b — domains/contact-memory). */
   memory: MemoryStore;
+  /** Hoạt động CRM (TIP-026b — domains/contact-activities). */
+  activities: ActivityStore;
 }
 
 /** Người dùng hiện tại của mock (shell.json me.user.id). */
@@ -35,6 +38,7 @@ export const createCustomersState = (): CustomersState => ({
   duplicates: structuredClone(fixture.duplicates.groups),
   seq: 0,
   memory: seedMemory(),
+  activities: seedActivities(),
 });
 
 const memberName = (id: string) => fixture.members.find((m) => m.id === id)?.name ?? id;
@@ -52,6 +56,33 @@ const withAccess = (db: MockDb, c: Contact) => {
   const collabs = db.customers.collaborators[c.id] ?? [];
   const mine = collabs.find((x) => x.user_id === ME)?.role;
   return { ...c, my_access: c.owner_user_id === ME ? 'owner' : (mine ?? 'scope'), collaborator_count: collabs.length };
+};
+
+/** Sửa được (TIP-026b): scope ghi crm + không phải watcher (watcher chỉ đọc). */
+const writable = (db: MockDb, c: Contact) => {
+  if (!visible(db, c)) return false;
+  const ws = (ROLE_DEFS[db.role] as { writeScope?: { crm: string } }).writeScope?.crm ?? ROLE_DEFS[db.role].scope.crm;
+  if (ws === 'all' || c.owner_user_id === ME) return ws !== 'none';
+  return (db.customers.collaborators[c.id] ?? []).some((x) => x.user_id === ME && x.role === 'collaborator');
+};
+const actCtx = {
+  store: (db: MockDb) => db.customers.activities,
+  role: (db: MockDb) => db.role,
+  visible: (db: MockDb, id: string) => {
+    const c = db.customers.contacts.find((x) => x.id === id);
+    return !!c && visible(db, c);
+  },
+  writable: (db: MockDb, id: string) => {
+    const c = db.customers.contacts.find((x) => x.id === id);
+    if (!c || !writable(db, c)) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id, fields: { contact_id: 'not_found' } });
+  },
+  nextId: (db: MockDb, p: string) => `${p}_${++db.customers.seq}`,
+};
+/** Hồ sơ 360° + tóm tắt hoạt động thật (ô cũ note / comments / tasks / deal suy từ hoạt động — cùng withActivities server). */
+export const withActivities360 = (db: MockDb, p: Record<string, unknown> & { id: string }) => {
+  const c = db.customers.contacts.find((x) => x.id === p.id);
+  const a = activitySummary(db.customers.activities, db.role, p.id, !!c && writable(db, c));
+  return { ...p, activities: a };
 };
 
 export const TAG_DEFS = fixture.tag_defs.map((d, i) => ({ id: `tag_${i + 1}`, ...d }));
@@ -134,10 +165,12 @@ export const customersParamRoute = (path: string): MockRoute | null => {
     return c && visible(db, c) ? c : null;
   });
   if (mem) return mem;
+  const act = activityRoute(path, actCtx);
+  if (act) return act;
   const one = path.match(/^\/contacts\/(kh_[^/]+)$/);
   if (one) return (db) => {
     const c = db.customers.contacts.find((x) => x.id === one[1]);
-    return c && visible(db, c) ? profile360(c) : null;
+    return c && visible(db, c) ? withActivities360(db, profile360(c)) : null;
   };
   const m = path.match(/^\/contacts\/([^/]+)\/collaborators$/);
   if (!m) return null;
@@ -162,6 +195,7 @@ const norm = (s?: string) => (s ?? '').replace(/\D/g, '').replace(/^84/, '0');
 
 export const customersHandlers: Record<string, MockHandler> = {
   ...(memoryHandlers((db: MockDb, id) => contact(db, id)) as Record<string, MockHandler>),
+  ...(activityHandlers(actCtx) as unknown as Record<string, MockHandler>),
   'contact.create': {
     execute: (db, i: ContactInput) => {
       // chống giành khách (D32): trùng SĐT / email với khách đã có người phụ trách khác → CONTACT_OWNED, không trả dữ liệu khách

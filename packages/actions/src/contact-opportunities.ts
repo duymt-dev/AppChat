@@ -6,7 +6,7 @@ import { CONTACT_OPPORTUNITY_STAGES, OPPORTUNITY_AMOUNT_RE, probabilityOk } from
 import { defineAction } from './define';
 import { activitySource } from './crm-schemas';
 
-const uuid = z.string().uuid();
+const uuid = z.string().min(1).max(64); // id như các action CRM khác — server kiểm UUID (sai → 404 / 422)
 const ifVersion = z.number().int().positive().optional();
 const fields = z.object({
   title: z.string().trim().min(1).max(200),

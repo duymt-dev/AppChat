@@ -50,6 +50,24 @@ describe('contact.summarize', () => {
     expect(await (await m.db()).contactSummaryCache.count({ where: { contactId: lan } })).toBe(2);
   });
 
+  it('TIP-026b §3.6: cơ hội / việc mới → fingerprint đổi → sinh lại có hoạt động (nhãn người nhập); CS không thấy giá trị kỳ vọng', async () => {
+    await m.seed('contact_opportunity.create', { contact_id: lan, title: 'Gói HIFU 10 buổi', amount_vnd: '777000000', probability: 40 });
+    await m.seed('contact_task.create', { contact_id: lan, title: 'Gọi lại tư vấn' });
+    const db = await m.db();
+    const sent = async () => JSON.stringify((await db.aiRun.findFirstOrThrow({ where: { title: 'contact.summarize' }, orderBy: { id: 'desc' } })).input);
+    expect((await m.act({ contact_id: lan })).body.data.result.status).toBe('fresh');
+    // Khối DỮ LIỆU gửi model (model giả chỉ chép 5 dòng đầu — kiểm đầu vào thật của run).
+    const owner = await sent();
+    expect(owner).toContain('Gói HIFU 10 buổi');
+    expect(owner).toContain('người nhập');
+    expect(owner).toContain('kỳ vọng 777000000');
+    expect(owner).toContain('Gọi lại tư vấn');
+    expect((await m.act({ contact_id: lan }, m.cs)).body.data.result.status).toBe('fresh');
+    const cs = await sent();
+    expect(cs).toContain('Gói HIFU 10 buổi');
+    expect(cs).not.toContain('777');
+  });
+
   it('sales ngoài scope / id lạ → 404', async () => {
     expect((await m.act({ contact_id: lan }, m.sales)).status).toBe(404);
     expect((await m.act({ contact_id: uuidv7() })).status).toBe(404);

@@ -6,7 +6,7 @@ import { CONTACT_TASK_STATES } from '@appchat/shared';
 import { defineAction } from './define';
 import { activitySource } from './crm-schemas';
 
-const uuid = z.string().uuid();
+const uuid = z.string().min(1).max(64); // id như các action CRM khác — server kiểm UUID (sai → 404 / 422)
 const ifVersion = z.number().int().positive().optional();
 const due = z.string().datetime({ offset: true }).nullable();
 const patch = z.object({ title: z.string().trim().min(1).max(200), description: z.string().max(5000), due_at: due, assignee_user_id: uuid.nullable() });

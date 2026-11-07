@@ -5,6 +5,7 @@ import type { ActionPreview } from '@appchat/actions';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { created, line, preview, updated } from '../../kernel/actions/preview-kit';
 import { canReadAmount, canWriteAmount, writableParent } from './authority';
+import { UUID } from '../services/access';
 
 const short = (s: string) => (s.length > 120 ? `${s.slice(0, 117)}…` : s);
 
@@ -19,7 +20,7 @@ export async function taskCreatePreview(tx: TenantTx, a: AuthzContext, i: { cont
 }
 
 async function task(tx: TenantTx, a: AuthzContext, id: string) {
-  const t = await tx.contactTask.findUnique({ where: { id } });
+  const t = UUID.test(id) ? await tx.contactTask.findUnique({ where: { id } }) : null;
   if (!t) throw new AppError('NOT_FOUND', 404, { task_id: 'not_found' });
   const { contact: c } = await writableParent(tx, a, t.contactId);
   return { t, c };
@@ -52,7 +53,7 @@ export async function oppCreatePreview(tx: TenantTx, a: AuthzContext, i: { conta
 }
 
 async function opp(tx: TenantTx, a: AuthzContext, id: string) {
-  const o = await tx.contactOpportunity.findUnique({ where: { id } });
+  const o = UUID.test(id) ? await tx.contactOpportunity.findUnique({ where: { id } }) : null;
   if (!o) throw new AppError('NOT_FOUND', 404, { opportunity_id: 'not_found' });
   const { contact: c } = await writableParent(tx, a, o.contactId);
   return { o, c };

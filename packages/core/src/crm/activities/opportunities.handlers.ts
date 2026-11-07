@@ -11,6 +11,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { POLICIES, guardRecord } from '../../authz/data-access';
 import { authorOf, canWriteAmount, checkSource, checkVersion, writableParent } from './authority';
 import { lockRow } from './repository';
+import { UUID } from '../services/access';
 import { activityEvent, activityTimeline, lockForUndo } from './undo';
 import { oppArchivePreview, oppCreatePreview, oppUpdatePreview } from './previews';
 
@@ -26,7 +27,7 @@ function moneyGuard(authz: AuthzContext, p: Partial<Patch>) {
 async function checkQuote(tx: TenantTx, authz: AuthzContext, contactId: string, quoteId: string | null | undefined) {
   if (!quoteId) return;
   if (!(authz.isOwner || authz.permissions.has('quote.view'))) throw new AppError('VALIDATION_FAILED', 422, NF);
-  const q = await tx.quote.findUnique({ where: { id: quoteId }, select: { contactId: true, ownerUserId: true, teamId: true, deletedAt: true } });
+  const q = !UUID.test(quoteId) ? null : await tx.quote.findUnique({ where: { id: quoteId }, select: { contactId: true, ownerUserId: true, teamId: true, deletedAt: true } });
   if (!q || q.deletedAt || q.contactId !== contactId) throw new AppError('VALIDATION_FAILED', 422, NF);
   await guardRecord(tx, authz, POLICIES.sales, 'read', { owner: q.ownerUserId, team: q.teamId, contact: q.contactId }, NF).catch(() => {
     throw new AppError('VALIDATION_FAILED', 422, NF);

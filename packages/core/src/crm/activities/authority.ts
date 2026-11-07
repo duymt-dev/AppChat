@@ -4,7 +4,7 @@
 // sẵn có, KHÔNG thêm quyền. Người được giao việc phải là thành viên active còn quyền sửa khách — giao việc không cấp quyền.
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
-import { editableContact, visibleContact, actorUserId } from '../services/access';
+import { editableContact, visibleContact, actorUserId, UUID } from '../services/access';
 import { canSeeConversation, messageOf } from '../../inbox/services/access';
 
 /** Người thấy giá trị kỳ vọng của cơ hội. */
@@ -24,10 +24,11 @@ export async function checkSource(tx: TenantTx, authz: AuthzContext, contactId: 
     if (src.source_message_id) throw new AppError('VALIDATION_FAILED', 422, { source_message_id: 'needs_conversation' });
     return { sourceConversationId: null, sourceMessageId: null };
   }
-  const c = await tx.conversation.findUnique({ where: { id: conv } });
+  const c = UUID.test(conv) ? await tx.conversation.findUnique({ where: { id: conv } }) : null;
   if (!c || c.contactId !== contactId || !authz.permissions.has('inbox.view') || !(await canSeeConversation(tx, authz, c))) {
     throw new AppError('VALIDATION_FAILED', 422, { source_conversation_id: 'invalid' });
   }
+  if (src.source_message_id && !UUID.test(src.source_message_id)) throw new AppError('VALIDATION_FAILED', 422, { source_message_id: 'invalid' });
   if (src.source_message_id) await messageOf(tx, conv, src.source_message_id).catch(() => {
     throw new AppError('VALIDATION_FAILED', 422, { source_message_id: 'invalid' });
   });
@@ -45,7 +46,7 @@ export function authorOf(ctx: ActionContext) {
  * của thành viên (null = không còn active).
  */
 export async function checkAssignee(tx: TenantTx, contactId: string, userId: string, resolve: (userId: string) => Promise<AuthzContext | null>) {
-  const a = await resolve(userId);
+  const a = UUID.test(userId) ? await resolve(userId) : null;
   if (!a || !(a.isOwner || a.permissions.has('crm.edit'))) throw new AppError('VALIDATION_FAILED', 422, { assignee_user_id: 'not_eligible' });
   await editableContact(tx, a, contactId).catch(() => {
     throw new AppError('VALIDATION_FAILED', 422, { assignee_user_id: 'not_eligible' });

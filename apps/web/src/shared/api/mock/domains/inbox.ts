@@ -6,6 +6,7 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import { isRemote, requestReact, requestRecall } from './channel-operations';
 import { SEED_INTENT, handoffSummaryRoute, hasHandoffSummary } from './inbox-handoff';
+import { withActivities360 } from './customers';
 
 export type InboxFixture = typeof fixture;
 type Conv = InboxFixture['conversations'][number];
@@ -158,7 +159,10 @@ export const inboxParamRoute = (path: string): MockRoute | null => {
   const m = path.match(/^\/(conversations|contacts|groups)\/([^/]+)(\/messages)?$/);
   if (!m) return null;
   const [, kind, id, sub] = m as unknown as [string, string, string, string | undefined];
-  if (kind === 'contacts') return () => (fixture.contacts as Record<string, unknown>)[id] ?? null;
+  if (kind === 'contacts') return (db) => {
+    const p = (fixture.contacts as Record<string, { id: string } & Record<string, unknown>>)[id];
+    return p ? withActivities360(db, structuredClone(p)) : null;
+  };
   if (kind === 'groups') return () => (fixture.groups as Record<string, unknown>)[id] ?? null;
   if (sub) return (db) => ({ data: db.inbox.messages[id] ?? [], next_cursor: null, suggestion: (fixture.suggestions as Record<string, unknown>)[id] ?? null });
   return (db) => db.inbox.conversations.find((c) => c.id === id) ?? null;

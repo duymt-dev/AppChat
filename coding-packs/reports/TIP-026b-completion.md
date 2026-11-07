@@ -43,3 +43,42 @@
 | `events/outbox.md` | sự kiện chỉ {contact_id, activity_id, version}; cùng transaction |
 | `api/response-envelope.md` | `{data, next_cursor}`; lỗi theo trường 422 / 409 / 404 |
 | `code/file-size-module-layout.md` | file ≤ 250 dòng; test riêng |
+
+---
+
+## Pha 2 — giao diện hoạt động dùng chung + Trợ lý + tóm tắt 015b (§3.3–3.6 — AC1–AC3, AC7 phần mở form, AC10 phần cache; DC-388)
+
+**FILES CHANGED** (lệch ghi ở DV-062)
+- web shared: `contact-activities/` (api, activity-store, commands, useActivityActions, useActivityForm, OpportunityCard, TaskCard, NoteCard (+ CommentCard), NoteForm, TaskForm, OpportunityForm, ActivityListDrawer, ActivityFormHost, ActivityCards, activity.styles, index).
+- web inbox: `Overview360.tsx` (thẻ deal → DealCard thật), `ExtraCards.tsx` (→ ActivityCards), `types.ts` (`activities`).
+- web app: `CrmFormsHost.tsx` (+ ActivityFormHost), `FormCommandHost.tsx` (+ 3 lệnh prefill hoạt động).
+- mock: `domains/contact-activities.ts` (seed prototype chị Lan, CAS / undo / tiền ẩn như server), nối ở `customers.ts` + `inbox.ts` (360 có `activities`).
+- core: `crm/memory/summary.ts` (ảnh chụp tóm tắt gồm việc mở + cơ hội, nhãn người nhập, tiền theo quote.view); `crm/activities/*` kiểm UUID trước tra cứu (input action nhận chuỗi như action CRM khác).
+- i18n: `common.activities` vi + en; bỏ 11 khoá `inbox.p360` không dùng.
+- test mới: `ActivityCards.test.tsx` (5), `contact-activities-shape.test.ts` (3), `e2e/crm-activities.spec.ts` (desktop + 390), ca §3.6 trong `contact.summarize.action.test.ts`.
+
+**Giả định đã chọn (gap-filling)**
+- Hạn việc nhập ngày + giờ theo múi workspace (thiếu giờ → 09:00) → ISO có offset; không dùng giờ máy.
+- Không chọn người phụ trách khi tạo → để server giao người ra lệnh (không gửi `assignee_user_id`).
+- Thẻ Việc ẩn việc đã huỷ (vẫn xem ở danh sách đầy đủ).
+- CTA báo giá điền `note` = tên + nhu cầu; không điền dòng hàng / giá.
+
+**CỔNG TEST (P2)**
+- `pnpm turbo run lint typecheck test --filter="...[origin/dev]"`: 39/39. `pnpm depcheck` 0 lỗi. `i18n-check` 100% (6502 khoá). `lint:size`, `lint:tokens` pass.
+- api integration: contact-activities + contact-memory + 9 ma trận + contact.summarize — 11 + 1 file, 48/48 + 6/6.
+- web unit inbox / customers / shared api / crm-forms 74 file 271/271 + mới 8/8.
+- E2E mock `crm-activities`, `inbox`, `inbox-context`, `contact-memory` (+ inbox-*): 34 pass, 0 fail (18 skip theo thiết bị).
+- Parity: `customers:360` 3,39%, `inbox:ai-panel` 3,76%, `inbox:default` 4,70% (≤ trần sổ nợ 5,6%).
+
+**ĐỐI CHIẾU STANDARDS (P2)**
+
+| Standard | Kết quả |
+|---|---|
+| `ui/frontend-structure.md` | thẻ / form ở `shared/contact-activities`, host ở `app/`; feature không import chéo; file ≤ 285 dòng |
+| `ui/prototype-parity.md` | thẻ theo L2401–2445; parity màn liên quan ≤ 5% / ≤ trần |
+| `ui/interaction-patterns.md` | loading / rỗng / không quyền; khoá khi chạy; đóng khi chưa lưu hỏi bỏ; 409 giữ nháp |
+| `actions/action-registry.md` | ghi chỉ qua `useAction`; lệnh Trợ lý chỉ mở / điền |
+| `domain/concurrency.md` | if_version của bản đang hiển thị; 409 → làm mới, không giả |
+| `authz/rbac-permissions.md` | can_edit theo quyền ghi khách (watcher chỉ xem); tiền theo quote.view / quote.create |
+| `i18n/i18n.md` | vi + en, không chuỗi cứng |
+| `ai/agent-gateway.md` | tóm tắt vẫn qua AiRunner một lần; dữ liệu theo quyền người xem |

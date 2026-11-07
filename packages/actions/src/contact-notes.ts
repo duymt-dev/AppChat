@@ -6,7 +6,7 @@ import { ACTIVITY_KINDS } from '@appchat/shared';
 import { defineAction } from './define';
 import { activitySource } from './crm-schemas';
 
-const uuid = z.string().uuid();
+const uuid = z.string().min(1).max(64); // id như các action CRM khác — server kiểm UUID (sai → 404 / 422)
 const body = z.string().trim().min(1).max(5000);
 
 const noteOut = z.object({ note_id: z.string(), kind: z.enum(['note', 'comment']), version: z.number().int() });

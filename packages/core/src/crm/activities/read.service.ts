@@ -3,6 +3,7 @@
 import { serverMessages, type ActivityKind, type ActivityPageDto, type ActivitySummaryDto, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { readableParent } from './authority';
+import { UUID } from '../services/access';
 import { decodeCursor, pageIds } from './repository';
 import { noteDto, opportunityDto, taskDto } from './projection';
 
@@ -40,7 +41,7 @@ export async function activityPage(tx: TenantTx, contactId: string, q: { kind: A
   await readableParent(tx, c.authz, contactId);
   if (q.activityId) {
     const table = q.kind === 'tasks' ? tx.contactTask : q.kind === 'opportunities' ? tx.contactOpportunity : tx.contactNote;
-    const row = await (table as typeof tx.contactTask).findUnique({ where: { id: q.activityId }, select: { id: true, contactId: true } });
+    const row = !UUID.test(q.activityId) ? null : await (table as typeof tx.contactTask).findUnique({ where: { id: q.activityId }, select: { id: true, contactId: true } });
     if (!row || row.contactId !== contactId) return { kind: q.kind, items: [], next_cursor: null };
     return { kind: q.kind, items: await load(tx, q.kind, [row.id], c), next_cursor: null };
   }
