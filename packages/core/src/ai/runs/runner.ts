@@ -9,10 +9,11 @@ import type { CreditMeter } from '../../billing/public';
 import type { AppLogger } from '../../kernel/logger/logger';
 import type { RunRow, RunStore } from './run.store';
 import { toolActionId } from './tools';
+import { attemptHooks } from './attempt-hooks';
+import { ensureRootBudget } from './root-budget';
 
-export const MAX_STEPS = { agent: 8, assistant: 16 } as const;
-/** Ngân sách credit mặc định của một cây run khi người gọi không đặt (rào chắn — agent-gateway §5). */
-export const DEFAULT_RUN_BUDGET = 200;
+export { DEFAULT_RUN_BUDGET, MAX_STEPS } from './budget-defaults';
+import { DEFAULT_RUN_BUDGET } from './budget-defaults';
 
 export interface RunSpec {
   system: string;
@@ -44,7 +45,7 @@ export function nowLine(at: Date, timeZone: string): string {
 
 export interface RunnerDeps {
   engine: AgentEngine;
-  meter: Pick<CreditMeter, 'assertBalance' | 'charge'> | null;
+  meter: Pick<CreditMeter, 'assertBalance' | 'charge'> & Partial<Pick<CreditMeter, 'price' | 'usage'>> | null;
   log: AppLogger;
   /** Mỗi sự kiện engine (SSE / WS `run.step` — TIP-023 nối). */
   onEvent?: (run: RunRow, e: RunEvent) => void;
@@ -91,7 +92,17 @@ export class AiRunner {
     const meter = this.d.meter;
     let creditsUsed = run.creditsUsed;
     let text = '';
+    // TIP-019b: biên nhận từng lời gọi + ngân sách gốc khi có DB nền tảng (ví theo ref) và bảng tenant; không thì cách cũ.
+    const mdb = store.metered();
+    const metered =
+      mdb && meter?.usage && meter.price
+        ? attemptHooks({ db: mdb, meter: { assertBalance: (w) => meter.assertBalance(w), price: (p, m) => meter.price!(p, m), usage: meter.usage }, ws, run, source: spec.source ?? run.kind, now: this.d.clock?.now ?? (() => new Date()), signal: ac.signal, beforeEach: async () => {
+            const cur = await store.get(run.id);
+            if (cur?.status === 'cancelled') ac.abort();
+          } })
+        : null;
     try {
+      if (mdb && metered) await ensureRootBudget(mdb, run.rootRunId);
       const events = this.d.engine.run(
         {
           runId: run.id,
@@ -102,26 +113,34 @@ export class AiRunner {
           tools: spec.tools,
           tier: run.tier as 'standard',
           maxSteps: spec.maxSteps,
-          budget: { maxCredits: run.maxCredits ?? DEFAULT_RUN_BUDGET, spent: run.creditsUsed },
+          budget: { maxCredits: run.maxCredits ?? DEFAULT_RUN_BUDGET, spent: metered ? run.subtreeCredits : run.creditsUsed },
           startStep,
-          hooks: {
-            beforeStep: async () => {
-              const cur = await store.get(run.id);
-              if (cur?.status === 'cancelled') ac.abort();
-              await this.d.assertOpen?.(ws);
-              await meter?.assertBalance(ws);
-            },
-            onUsage: async (u) => {
-              // Nền tảng trước (idempotent theo runId:stepIdx), tenant sau — Blueprint §2.0.
-              const charged = meter ? await meter.charge({ workspaceId: ws, provider: u.provider, model: u.model, tokensIn: u.tokensIn, tokensOut: u.tokensOut, runId: run.id, stepIdx: u.stepIdx, source: spec.source }) : { credits: 0 };
-              const idx = await store.nextIdx(run.id);
-              await store.step(run.id, { idx, type: 'llm', provider: u.provider, model: u.model, tokensIn: u.tokensIn, tokensOut: u.tokensOut, credits: charged.credits, latencyMs: u.latencyMs, meta: { llm_step: u.stepIdx } });
-              await store.addCredits(run.id, charged.credits);
-              recordLlmUsage({ provider: u.provider, model: u.model, purpose: spec.source ?? run.kind, tokensIn: u.tokensIn, tokensOut: u.tokensOut, latencyMs: u.latencyMs, credits: charged.credits });
-              creditsUsed += charged.credits;
-              return { credits: charged.credits };
-            },
-          },
+          hooks: metered
+            ? {
+                beforeStep: async () => {
+                  const cur = await store.get(run.id);
+                  if (cur?.status === 'cancelled') ac.abort();
+                  await this.d.assertOpen?.(ws);
+                },
+                ...metered,
+              }
+            : {
+                beforeStep: async () => {
+                  const cur = await store.get(run.id);
+                  if (cur?.status === 'cancelled') ac.abort();
+                  await this.d.assertOpen?.(ws);
+                  await meter?.assertBalance(ws);
+                },
+                onUsage: async (u) => {
+                  // Không có DB nền tảng / bảng biên nhận (test đơn vị): nền tảng trước (idempotent runId:stepIdx), tenant sau.
+                  const charged = meter ? await meter.charge({ workspaceId: ws, provider: u.provider, model: u.model, tokensIn: u.tokensIn, tokensOut: u.tokensOut, runId: run.id, stepIdx: u.stepIdx, source: spec.source }) : { credits: 0 };
+                  const idx = await store.nextIdx(run.id);
+                  await store.step(run.id, { idx, type: 'llm', provider: u.provider, model: u.model, tokensIn: u.tokensIn, tokensOut: u.tokensOut, credits: charged.credits, latencyMs: u.latencyMs, meta: { llm_step: u.stepIdx } });
+                  await store.addCredits(run.id, charged.credits);
+                  recordLlmUsage({ provider: u.provider, model: u.model, purpose: spec.source ?? run.kind, tokensIn: u.tokensIn, tokensOut: u.tokensOut, latencyMs: u.latencyMs, credits: charged.credits });
+                  return { credits: charged.credits };
+                },
+              },
         },
         ac.signal,
       );
@@ -129,6 +148,7 @@ export class AiRunner {
         this.d.onEvent?.(run, e);
         spec.onEvent?.(e);
         if (e.type === 'delta') text += e.text;
+        else if (e.type === 'usage') creditsUsed += e.credits;
         else if (e.type === 'tool_result' && e.outcome.kind !== 'needs_confirmation' && e.outcome.kind !== 'needs_approval') {
           const idx = await store.nextIdx(run.id);
           await store.step(run.id, { idx, type: 'tool', actionId: toolActionId(e.call.toolName), input: e.call.input, output: e.outcome, status: e.outcome.kind === 'error' ? 'error' : 'ok', latencyMs: e.latencyMs });
@@ -137,11 +157,23 @@ export class AiRunner {
           await store.step(run.id, { idx, type: 'tool', actionId: toolActionId(e.state.pendingToolCall.toolName), input: e.state.pendingToolCall.input, output: e.outcome, status: 'paused' });
           await store.pause(run.id, e.state, e.outcome.kind === 'needs_approval' ? e.outcome.approvalId : undefined);
           return { status: 'waiting_approval', text, creditsUsed, paused: e };
+        } else if (e.type === 'error' && (e.code === 'CANCELLED' || e.code === 'BUDGET')) {
+          // TIP-019b: cổng gốc từ chối lời gọi / tool kế tiếp — dừng sạch như engine tự dừng (bảng trạng thái thật ở pha 2).
+          const reason = e.code === 'CANCELLED' ? 'cancelled' : 'budget';
+          await store.stopReason(run.id, reason);
+          if (reason === 'cancelled') {
+            await store.finish(run.id, 'cancelled');
+            return { status: 'cancelled', text, creditsUsed, stopReason: reason };
+          }
+          await store.finish(run.id, 'completed', { output: { text, stop: reason } });
+          return { status: 'completed', text, creditsUsed, stopReason: reason };
         } else if (e.type === 'error') {
           recordLlmError(undefined, undefined, spec.source ?? run.kind);
+          await store.stopReason(run.id, e.code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : e.code === 'USAGE_UNKNOWN' ? 'usage_unknown' : 'provider_error');
           await store.finish(run.id, 'failed', { error: `${e.code}: ${e.message}` });
           return { status: 'failed', text, creditsUsed, error: { code: e.code, message: e.message } };
         } else if (e.type === 'finish') {
+          await store.stopReason(run.id, e.reason === 'stop' ? 'success' : e.reason);
           if (e.reason === 'cancelled') {
             await store.finish(run.id, 'cancelled');
             return { status: 'cancelled', text: e.text, creditsUsed, stopReason: e.reason };

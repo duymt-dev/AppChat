@@ -3,8 +3,11 @@
 // khác), loop guard (cùng tool + input lần thứ 3), maxSteps, ngân sách credit cả run, huỷ bằng signal, fallback provider khi
 // bước lỗi 5xx / 429 / timeout trước khi có chữ nào ra. Usage từng bước → hook trừ credit (spike K4). Delta phát NGAY khi model trả
 // (liveStep — TIP-023c, đóng DV-006), không đợi bước xong; đã phát chữ thì không fallback sang provider khác (không trộn hai câu).
+// TIP-019b: mỗi ứng viên = một lời gọi thật có hook `beforeAttempt` / `afterAttempt` (biên nhận + quyết toán ở core); SDK không tự gửi
+// lại (`maxRetries: 0`); lỗi không rõ đã chạy chưa → không chuyển ứng viên; hết ngân sách sau usage → không chạy tool nào của bước đó.
 import { jsonSchema, streamText, tool, type ModelMessage, type ToolSet } from 'ai';
-import { isFallbackError } from '../router/router';
+import { classifyAttemptError, type AttemptOutcome } from './attempts';
+import { outputTokens, requestBytes, REQUEST_MAX_BYTES } from './limits';
 import { liveStep } from './delta-stream';
 import { callKey, countCalls, resultPart, toJson } from './messages';
 import type { AgentEngine, ModelCandidate, ModelSource, RunEvent, RunMessage, RunRequest, StopReason, ToolCallRef, ToolOutcome, ToolSpec } from './types';
@@ -26,6 +29,7 @@ export class EngineError extends Error {
 type Live = string | { toolCallId: string; toolName: string; delta: string };
 
 interface StepResult {
+  candidateIdx: number;
   text: string;
   calls: ToolCallRef[];
   messages: RunMessage[];
@@ -62,14 +66,15 @@ export class AiSdkEngine implements AgentEngine {
 
       let r: StepResult;
       try {
-        const live = liveStep<Live, StepResult>((emit) => this.step(req, messages, tools, signal, emit));
+        const live = liveStep<Live, StepResult>((emit) => this.step(req, step, messages, tools, signal, emit));
         let it = await live.next();
         for (; !it.done; it = await live.next())
           yield typeof it.value === 'string' ? { type: 'delta', stepIdx: step, text: it.value } : { type: 'tool_input', stepIdx: step, ...it.value };
         r = it.value;
       } catch (err) {
         if (signal.aborted) return yield done('cancelled');
-        const code = err instanceof EngineError ? err.code : 'LLM_ERROR';
+        // Lỗi do hook ném (ví hết / gốc đã huỷ / ngân sách) giữ mã của hook; lỗi nhà cung cấp → LLM_ERROR.
+        const code = err instanceof EngineError ? err.code : (errOf(err).code && /^[A-Z_]+$/.test(errOf(err).code!) ? errOf(err).code! : 'LLM_ERROR');
         return yield { type: 'error', code, message: String(errOf(err).message ?? err).slice(0, 300), stepIdx: step };
       }
       text = r.text;
@@ -77,7 +82,9 @@ export class AiSdkEngine implements AgentEngine {
       const usage = { stepIdx: step, provider: r.candidate.provider, model: r.candidate.model, tokensIn: r.tokensIn, tokensOut: r.tokensOut, latencyMs: r.latencyMs };
       let credits = 0;
       try {
-        credits = (await req.hooks?.onUsage?.(usage))?.credits ?? 0;
+        credits = req.hooks?.afterAttempt
+          ? (await req.hooks.afterAttempt({ stepIdx: step, candidate: r.candidateIdx, provider: usage.provider, model: usage.model }, { kind: 'usage', tokensIn: r.tokensIn, tokensOut: r.tokensOut, latencyMs: r.latencyMs })).credits
+          : ((await req.hooks?.onUsage?.(usage))?.credits ?? 0);
       } catch (err) {
         return yield { type: 'error', code: errOf(err).code ?? 'USAGE_FAILED', message: errOf(err).message ?? 'usage_failed', stepIdx: step };
       }
@@ -86,6 +93,8 @@ export class AiSdkEngine implements AgentEngine {
       const stepIdx = step;
       step++;
       if (!r.calls.length) return yield done('stop');
+      // Rào mềm (DC-251): usage thật đã ghi; hết ngân sách → bỏ mọi tool model vừa yêu cầu, không mở lời gọi kế.
+      if (spent >= req.budget.maxCredits) return yield done('budget');
 
       const results: Record<string, unknown>[] = [];
       for (let i = 0; i < r.calls.length; i++) {
@@ -94,6 +103,12 @@ export class AiSdkEngine implements AgentEngine {
         const n = (seen.get(k) ?? 0) + 1;
         seen.set(k, n);
         if (n >= LOOP_LIMIT) return yield done('loop_guard');
+        if (signal.aborted) return yield done('cancelled');
+        try {
+          await req.hooks?.beforeTool?.(stepIdx, call.toolName);
+        } catch (err) {
+          return yield { type: 'error', code: errOf(err).code ?? 'TOOL_REJECTED', message: errOf(err).message ?? 'tool_rejected', stepIdx };
+        }
         yield { type: 'tool_call', stepIdx, call };
         const t0 = Date.now();
         const outcome = await runTool(specs.get(call.toolName), call, stepIdx, specs);
@@ -109,34 +124,48 @@ export class AiSdkEngine implements AgentEngine {
   }
 
   /** Một bước model: thử lần lượt các ứng viên; chuyển ứng viên khi lỗi đáng chuyển và chưa có chữ nào phát ra. */
-  private async step(req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
+  private async step(req: RunRequest, stepIdx: number, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
     const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0 });
     if (!candidates.length) throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
+    const bytes = requestBytes(req.system, messages, req.tools);
+    if (bytes > REQUEST_MAX_BYTES) throw new EngineError('REQUEST_TOO_LARGE', `Yêu cầu ${bytes} byte vượt trần ${REQUEST_MAX_BYTES} — rút gọn ngữ cảnh / bớt tool`);
     let last: unknown;
-    for (const c of candidates) {
+    for (let i = 0; i < candidates.length; i++) {
+      const c = candidates[i]!;
+      const info = { stepIdx, candidate: i, provider: c.provider, model: c.model };
+      // Lỗi ở đây (hết ví / gốc đang bận / huỷ) → chưa gọi gì, run dừng với mã lỗi đó.
+      await req.hooks?.beforeAttempt?.(info, bytes);
       let emitted = 0;
+      const t0 = Date.now();
       try {
-        return await this.once(c, req.system, messages, tools, signal, (d) => {
+        const r = await this.once(c, req, messages, tools, signal, (d) => {
           emitted++;
           onDelta(d);
         });
+        return { ...r, candidateIdx: i };
       } catch (err) {
         last = err;
-        if (signal.aborted || emitted || !isFallbackError(err)) throw err;
+        const k = classifyAttemptError(err, emitted > 0, signal.aborted);
+        const outcome: AttemptOutcome = { kind: k.kind, error: k.error, latencyMs: Date.now() - t0 };
+        await req.hooks?.afterAttempt?.(info, outcome);
+        if (k.kind === 'unknown' && req.hooks?.afterAttempt) throw new EngineError(signal.aborted ? 'CANCELLED' : 'USAGE_UNKNOWN', `Không rõ kết quả lời gọi ${c.provider}:${c.model} (${k.error}) — không gửi lại`);
+        if (signal.aborted || emitted || !k.fallback) throw err;
       }
     }
     throw last;
   }
 
-  private async once(c: ModelCandidate, system: string, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
+  private async once(c: ModelCandidate, req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<Omit<StepResult, 'candidateIdx'>> {
     const t0 = Date.now();
     const s = streamText({
       model: c.handle as never,
-      system,
+      system: req.system,
       messages: messages as unknown as ModelMessage[],
       ...(Object.keys(tools).length ? { tools } : {}),
       abortSignal: signal,
-      maxRetries: 1,
+      // Mỗi lần gửi phải đi qua biên nhận (TIP-019b) — SDK không tự gửi lại ngầm.
+      maxRetries: 0,
+      maxOutputTokens: outputTokens(req.maxOutputTokens),
       timeout: { firstChunkMs: FIRST_CHUNK_MS },
     });
     let text = '';

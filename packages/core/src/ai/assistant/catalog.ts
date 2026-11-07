@@ -22,7 +22,7 @@ const HIDDEN = /^(admin\.|workspace\.(switch|request_transfer_otp|transfer_owner
  * Sổ điểm theo sự kiện / lịch (TIP-036 — loyalty.earn / reverse / expire / review_tier): chỉ consumer + job loyalty gọi.
  * Mở workspace (TIP-041 — workspace.open): chỉ cổng FE gọi qua nhánh vòng đời; executor thường từ chối.
  */
-export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open']);
+export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open', 'workspace.delete_challenge', 'workspace.delete', 'workspace.freeze_request']);
 
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 
@@ -44,13 +44,16 @@ const VERB_VI: Record<string, string> = {
   close: 'dong', reopen: 'mo lai', extend: 'gia han keo dai', void: 'huy bo', reschedule: 'doi lich doi gio', record: 'ghi nhan thu tien', refund: 'hoan tien',
   remember: 'ghi nho nho luu lai luu y', memory_list: 'ghi nho tri nho da nho', memory_forget: 'quen xoa ghi nho', summarize: 'tom tat',
   redeem: 'doi diem tru diem dung diem quy doi diem thanh toan bang diem', get_member: 'xem diem hang thanh vien so diem quy doi',
+  // TIP-025b: dịch tin / bản nháp, thẻ duyệt theo hội thoại, sửa hàng loạt hội thoại, xuất lịch sử khách.
+  translate: 'dich dich sang tieng ngon ngu dich tin nhan ban dich tieng anh tieng trung tieng han tieng nhat', approvals: 'duyet cho duyet yeu cau duyet the duyet', bulk_update: 'hang loat nhieu cung luc gan the giao trang thai',
+  history_export: 'xuat lich su tuong tac csv',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
 const ENTITY_VI: Record<string, string> = {
   product: 'dich vu goi lieu trinh hang hoa mat hang gia ban', stock: 'kho ton kho con hang nhap kho', contact: 'khach nguoi lien he so dien thoai',
   quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
-  tag: 'nhan the', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
+  tag: 'nhan the', conversation: 'hoi thoai tin nhan chat', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
   // TIP-038b: nhập dữ liệu dùng chung từ tệp (khách / sản phẩm / báo giá / đơn / hợp đồng / đề nghị thanh toán) — "nhập từ tệp / file / excel".
   transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan',
 };

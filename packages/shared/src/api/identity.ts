@@ -14,7 +14,7 @@ export const sessionSchema = z.object({
   /** Workspace đang dùng (http transport gắn X-Workspace-Id) — mock không có. */
   workspace_id: z.string().nullable().optional(),
   /** TIP-041: DB tenant đang lưu trữ / đã lưu trữ / đang khôi phục → thẻ "Đang khôi phục workspace…" (null = bình thường). */
-  lifecycle: z.enum(['archiving', 'archived', 'restoring']).nullable().optional(),
+  lifecycle: z.enum(['archiving', 'archived', 'restoring', 'deleting']).nullable().optional(),
 });
 export type SessionDto = z.infer<typeof sessionSchema>;
 

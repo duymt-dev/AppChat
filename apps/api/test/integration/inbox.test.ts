@@ -238,7 +238,7 @@ describe('scope + action', () => {
     const p = await act('conversation.bulk_update', { conversation_ids: [conv, g.id], add_tags: ['Khiếu nại'] });
     expect(p).toMatchObject({ status: 202, body: { data: { status: 'preview_required', preview: { count: 2 } } } });
     const b = await call(h, '/actions/conversation.bulk_update', { input: { conversation_ids: [conv, g.id], add_tags: ['Khiếu nại'] }, confirm_token: p.body.data.confirm_token }).then(json);
-    expect(b.body.data.result).toEqual({ updated: 2 });
+    expect(b.body.data.result).toMatchObject({ updated: 2, failed: 0 });
     expect((await get('/conversations?folder=complaint')).body.data).toHaveLength(2);
     await undo(b.body.data.action_log_id);
     expect((await get('/conversations?folder=complaint')).body.data).toHaveLength(0);

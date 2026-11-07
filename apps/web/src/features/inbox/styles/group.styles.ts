@@ -226,11 +226,79 @@ export const useGroupStyles = createStyles(({ css, responsive }) => ({
   tile: css`
     aspect-ratio: 1;
     border-radius: ${radius.r4}px;
+    overflow: hidden;
+    background: ${color.groupAction};
+  `,
+  tileImg: css`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  `,
+  tileName: css`
+    aspect-ratio: 1;
+    border-radius: ${radius.r4}px;
+    background: ${color.groupAction};
+    color: ${color.groupSub};
+    font-size: ${font.scale.s10}px;
+    padding: 4px;
+    overflow: hidden;
     display: grid;
     place-items: center;
-    color: ${color.whiteSoft};
-    font-size: ${font.scale.s10}px;
-    font-weight: ${font.weight.bold};
+    text-align: center;
+    word-break: break-word;
+  `,
+  linkMain: css`
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    &:disabled {
+      cursor: default;
+    }
+    & > div {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  `,
+  copyBtn: css`
+    height: 28px;
+    padding: 0 12px;
+    border-radius: ${radius.r6}px;
+    border: none;
+    background: ${color.groupAction};
+    color: ${color.groupInk};
+    font-family: inherit;
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.semibold};
+    cursor: pointer;
+    flex-shrink: 0;
+    &:disabled {
+      color: ${color.groupSub};
+      cursor: not-allowed;
+    }
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
+  empty: css`
+    padding: 8px 16px 12px;
+    font-size: ${font.scale.s12}px;
+    color: ${color.groupSub};
+  `,
+  noteRow: css`
+    padding: 8px 16px 8px 48px;
+  `,
+  noteText: css`
+    font-size: ${font.scale.s13}px;
+    color: ${color.groupInk};
+    white-space: pre-wrap;
+    word-break: break-word;
   `,
   ext: css`
     width: 34px;

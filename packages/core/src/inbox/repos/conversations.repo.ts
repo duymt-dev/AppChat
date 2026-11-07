@@ -1,7 +1,7 @@
 // Danh sách hội thoại (indexing §3–7): bước 1 lấy `id` theo index (scope + thư mục + lọc, keyset `(last_message_at, id) DESC`
 // — không OFFSET: Hộp thư cuộn vô hạn, cursor ổn định khi có tin mới); bước 2 nạp đủ cột theo PK (deferred join). Sắp xếp
 // "chưa đọc trước" (TIP-025) thêm cờ `unread_count > 0` vào đầu keyset.
-// Đếm thư mục (`/conversations/counts`) một truy vấn `count(*) FILTER` trong scope người xem.
+// Đếm thư mục (`/conversations/counts`) một truy vấn `count(*) FILTER` trong scope người xem + cùng bộ lọc của danh sách (TIP-025b).
 import { TenantSql as Prisma } from '@appchat/db';
 import { foldText, type AuthzContext, type InboxFolder, type InboxSort } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
@@ -59,8 +59,13 @@ function folderSql(authz: AuthzContext, folder: InboxFolder, now: Date): Prisma.
 }
 
 function where(authz: AuthzContext, f: ConvFilter, now: Date): Prisma.Sql {
-  const parts: Prisma.Sql[] = [convScopeSql(authz), folderSql(authz, f.folder ?? 'all', now)];
-  if (f.channel) parts.push(Prisma.sql`cv.channel_type = ${f.channel}`);
+  return Prisma.join([convScopeSql(authz), folderSql(authz, f.folder ?? 'all', now), ...filterParts(f, true)], ' AND ');
+}
+
+/** Bộ lọc ngoài thư mục (kênh / tài khoản / thẻ / tìm kiếm) — cùng điều kiện cho danh sách và đếm (TIP-025b §B.4). */
+function filterParts(f: ConvFilter, withChannel: boolean): Prisma.Sql[] {
+  const parts: Prisma.Sql[] = [];
+  if (withChannel && f.channel) parts.push(Prisma.sql`cv.channel_type = ${f.channel}`);
   if (f.channelAccountId) parts.push(UUID.test(f.channelAccountId) ? Prisma.sql`cv.channel_account_id = ${f.channelAccountId}::uuid` : Prisma.sql`FALSE`);
   if (f.tagId) parts.push(UUID.test(f.tagId) ? Prisma.sql`EXISTS (SELECT 1 FROM conversation_tag ct WHERE ct.conversation_id = cv.id AND ct.tag_id = ${f.tagId}::uuid)` : Prisma.sql`FALSE`);
   const q = f.q?.trim();
@@ -71,8 +76,10 @@ function where(authz: AuthzContext, f: ConvFilter, now: Date): Prisma.Sql {
     parts.push(Prisma.sql`(f_unaccent(lower(coalesce(cv.title, '') || ' ' || cv.last_message_preview)) LIKE ${like}
       OR EXISTS (SELECT 1 FROM contact k WHERE k.id = cv.contact_id AND k.deleted_at IS NULL AND f_unaccent(lower(k.name)) LIKE ${like}))`);
   }
-  return Prisma.join(parts, ' AND ');
+  return parts;
 }
+
+const andAll = (parts: Prisma.Sql[]) => (parts.length ? Prisma.sql`AND ${Prisma.join(parts, ' AND ')}` : Prisma.empty);
 
 /** Cursor = `<cờ chưa đọc 0|1>_<iso last_message_at>_<id>` (base64url); cờ chỉ có nghĩa khi sắp xếp "chưa đọc trước". */
 export const encodeCursor = (at: Date, id: string, unread = 0) => Buffer.from(`${unread}_${at.toISOString()}_${id}`).toString('base64url');
@@ -113,8 +120,11 @@ export interface FolderCounts {
   byChannel: Record<string, number>;
 }
 
-/** Đếm các thư mục trong scope người xem (một lần quét các hội thoại đang hiện). */
-export async function folderCounts(tx: TenantTx, authz: AuthzContext, now: Date): Promise<FolderCounts> {
+/**
+ * Đếm các thư mục trong scope người xem (một lần quét các hội thoại đang hiện), CÙNG bộ lọc kênh / tài khoản / thẻ / tìm kiếm của danh
+ * sách (TIP-025b §B.4); đếm theo kênh bỏ điều kiện kênh của chính nó (chip kênh hiện số của từng kênh dưới các bộ lọc còn lại).
+ */
+export async function folderCounts(tx: TenantTx, authz: AuthzContext, now: Date, f: ConvFilter = {}): Promise<FolderCounts> {
   const me = authz.userId;
   const [r] = await tx.$queryRaw<Record<string, bigint>[]>`
     SELECT count(*) AS all,
@@ -127,9 +137,9 @@ export async function folderCounts(tx: TenantTx, authz: AuthzContext, now: Date)
       count(*) FILTER (WHERE ${tagged('khieu nai')}) AS complaint,
       count(*) FILTER (WHERE cv.assignee_user_id IS NOT NULL AND cv.assignee_user_id <> ${me}::uuid) AS team,
       count(*) FILTER (WHERE ${mentioned(me)}) AS mention
-    FROM conversation cv WHERE ${convScopeSql(authz)} AND ${live(now)}`;
+    FROM conversation cv WHERE ${convScopeSql(authz)} AND ${live(now)} ${andAll(filterParts(f, true))}`;
   const ch = await tx.$queryRaw<{ t: string; n: bigint }[]>`
-    SELECT cv.channel_type AS t, count(*) AS n FROM conversation cv WHERE ${convScopeSql(authz)} AND ${live(now)} GROUP BY cv.channel_type`;
+    SELECT cv.channel_type AS t, count(*) AS n FROM conversation cv WHERE ${convScopeSql(authz)} AND ${live(now)} ${andAll(filterParts(f, false))} GROUP BY cv.channel_type`;
   const n = (k: string) => Number(r?.[k] ?? 0);
   return {
     all: n('all'),

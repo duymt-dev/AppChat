@@ -76,6 +76,14 @@ export const crm = {
     import: 'Nhập {count} dòng: tạo {created}, trùng {dup}, của người khác {owned}, lỗi {invalid}',
   },
   export: { code: 'Mã KH', name: 'Họ tên', phone: 'Số điện thoại', email: 'Email', stage: 'Giai đoạn', owner: 'Phụ trách', city: 'Tỉnh / thành', source: 'Nguồn', created: 'Ngày tạo' },
+  /** Xuất lịch sử khách (TIP-025b §D.6) — cột + loại sự kiện. */
+  timelineExport: {
+    file: 'lich-su-{code}-{date}.csv',
+    cols: { at: 'Thời điểm ({tz})', type: 'Loại', text: 'Nội dung', ref: 'Chứng từ', actor: 'Người thực hiện' },
+    types: { message: 'Tin nhắn', quote: 'Báo giá', contract: 'Hợp đồng', order: 'Đơn hàng', invoice: 'Đề nghị thanh toán', payment: 'Thanh toán', appointment: 'Lịch hẹn', ticket: 'Ticket', note: 'Ghi chú', ai_action: 'AI', loyalty: 'Tích điểm', campaign: 'Chiến dịch', stage: 'Giai đoạn', owner: 'Phụ trách', merge: 'Gộp khách' },
+    actor: { system: 'Hệ thống', agent: 'AI Agent', assistant: 'Trợ lý AI', contact: 'Khách' },
+    label: 'Xuất lịch sử khách',
+  },
   dup: { phone: 'Số điện thoại', email: 'Email', name: 'Họ tên' },
   copy: '{name} (bản sao)',
   system: 'Hệ thống',

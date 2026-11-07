@@ -11,6 +11,7 @@ import { quotesQuery } from '@/features/quotes';
 import { useContractFormStyles } from '../styles/form.styles';
 import { useContractsUi } from '../contracts-store';
 import { initialContractDraft, useContractForm } from '../hooks/useContractForm';
+import { sourceLinkOf } from '@/shared/crm-forms/source-link';
 import { contractQuery } from '../api';
 import type { Contract, ContractKind } from '../types';
 import { todayIso } from '@/shared/time/today';
@@ -117,7 +118,7 @@ function ContractForm({
               .then(async (r) =>
                 r && (await update.run({ contract_id: r.result.contract_id, patch: f.input })) ? r : null,
               )
-          : await create.run(src.source ? { ...f.input, file_name: src.file?.name, source: src.source } : f.input);
+          : await create.run({ ...(src.source ? { ...f.input, file_name: src.file?.name, source: src.source } : f.input), ...(mode === 'edit' ? {} : sourceLinkOf(ui.prefill)) });
     if (res)
       ui.set({ form: null, prefill: null, editId: null, detail: res.result.contract_id, tab: 'overview' });
   };

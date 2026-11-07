@@ -116,12 +116,75 @@
       "freezeD": "Tạm dừng toàn bộ hoạt động, không mất dữ liệu",
       "freezeBtn": "Đóng băng",
       "export": "Xuất toàn bộ dữ liệu",
-      "exportD": "File ZIP chứa tất cả hội thoại, contacts, log AI",
+      "exportD": "Tải từng danh sách (khách hàng, báo giá, đơn, hợp đồng…) dạng Excel / CSV",
       "exportBtn": "Xuất dữ liệu",
       "delete": "Xoá workspace",
       "deleteD": "Hành động này không thể hoàn tác. Toàn bộ dữ liệu sẽ bị xoá sau 30 ngày.",
-      "deleteBtn": "Xoá workspace",
-      "requested": "Đã gửi yêu cầu — AppChat sẽ xác nhận qua email quản trị"
+      "deleteBtn": "Xoá workspace"
+    },
+    "del": {
+      "title": "Xoá workspace",
+      "members": "{n} thành viên sẽ mất quyền truy cập ngay.",
+      "paid": "Gói {plan} còn {n} ngày sẽ bị huỷ.",
+      "noPaid": "Không có gói trả phí đang hiệu lực.",
+      "credits": "{n} Credit mua thêm sẽ mất cùng workspace.",
+      "noRefund": "Không hoàn tiền tự động. Nếu cần, liên hệ AppChat để được xem xét riêng.",
+      "backup": "Bản sao lưu mã hoá giữ {n} ngày rồi bị xoá vĩnh viễn.",
+      "retained": "Hoá đơn, sổ ví Credit và nhật ký quản trị được giữ lại theo quy định.",
+      "typeName": "Gõ lại tên workspace \"{name}\" để xác nhận",
+      "ack": "Tôi đã hiểu: phần gói và Credit còn lại sẽ mất, không hoàn tiền tự động.",
+      "send": "Gửi mã xác nhận",
+      "sent": "Đã gửi mã 6 số tới {to} (hạn 5 phút).",
+      "otp": "Mã xác nhận",
+      "confirm": "Xoá vĩnh viễn",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "err": {
+        "name": "Tên workspace chưa khớp.",
+        "ack": "Hãy tick xác nhận đã hiểu hệ quả.",
+        "format": "Mã gồm 6 chữ số.",
+        "invalid": "Mã không đúng.",
+        "expired": "Mã đã hết hạn — gửi mã mới.",
+        "locked": "Nhập sai quá nhiều lần — gửi mã mới.",
+        "stale": "Thông tin workspace vừa thay đổi — xem lại và gửi mã mới.",
+        "rate": "Đã xin quá nhiều mã — thử lại sau 15 phút.",
+        "email": "Email của bạn chưa xác minh — xác minh email trước khi xoá."
+      }
+    },
+    "freeze": {
+      "title": "Yêu cầu đóng băng workspace",
+      "hint": "Đóng băng tạm dừng mọi hoạt động mới (kênh, AI, gửi tin) nhưng giữ nguyên dữ liệu. Đội vận hành AppChat sẽ xem và xử lý yêu cầu.",
+      "reason": "Lý do",
+      "reasonPh": "Vd. tạm nghỉ kinh doanh 2 tháng",
+      "send": "Gửi yêu cầu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "status": {
+        "pending": "Yêu cầu đang chờ xử lý (gửi {at}).",
+        "approved": "Yêu cầu đã được duyệt — workspace đã tạm dừng ({at}).",
+        "rejected": "Yêu cầu bị từ chối ({at}). Bạn có thể gửi yêu cầu mới.",
+        "cancelled": "Yêu cầu đã huỷ ({at})."
+      },
+      "err": {
+        "short": "Lý do tối thiểu 3 ký tự."
+      }
+    },
+    "export": {
+      "title": "Xuất dữ liệu workspace",
+      "hint": "Tải từng danh sách dưới dạng Excel / CSV — toàn bộ dòng bạn được xem. Danh sách lớn chạy nền và báo qua chuông khi xong.",
+      "note": "Tệp xuất không chứa mật khẩu, khoá kết nối hay bí mật hệ thống.",
+      "run": "Xuất",
+      "done": "Xong",
+      "close": "Đóng",
+      "kind": {
+        "contact": "Khách hàng",
+        "quote": "Báo giá",
+        "order": "Đơn hàng",
+        "contract": "Hợp đồng",
+        "ticket": "Ticket hỗ trợ",
+        "product": "Sản phẩm",
+        "invoice": "Đề nghị thanh toán"
+      }
     }
   },
   "locale": {

@@ -16,7 +16,10 @@ import { CHANNEL_REGISTRY, ChannelsModule, widgetUrlsFor } from '../channels/cha
 import { CrmModule } from '../crm/crm.module';
 import { ContactIdentityService } from '../crm/services/identity.service';
 import './events/inbox.rules';
-import { ConversationAssignHandler, ConversationBulkUpdateHandler, ConversationSetTagsHandler, ConversationTagHandler } from './actions/conversation-assign.handlers';
+import { ConversationAssignHandler, ConversationSetTagsHandler, ConversationTagHandler } from './actions/conversation-assign.handlers';
+import { ConversationBulkUpdateHandler } from './actions/bulk-update.handler';
+import { ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler } from './actions/alias.handlers';
+import { GROUP_HANDLERS } from './groups/group.handlers';
 import {
   ConversationArchiveHandler,
   ConversationClearHistoryHandler,
@@ -42,15 +45,18 @@ import { FILE_LINKS } from './tokens';
 const opt = (token: symbol) => ({ token, optional: true });
 
 import { CannedReplySearchHandler, ConversationGetHandler, ConversationSearchHandler } from './actions/conversation-read.handlers';
+import { ConversationApprovalsHandler } from './actions/conversation-approvals.handler';
 import { TagSearchHandler } from './actions/tag-read.handler';
 
 const HANDLERS = [
-  ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler,
+  ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler, ConversationApprovalsHandler,
   ConversationMarkReadHandler, ConversationSetStatusHandler, ConversationPinHandler, ConversationArchiveHandler, ConversationHideHandler,
   ConversationSetAiModeHandler, ConversationHandoffHandler, ConversationClearHistoryHandler,
   ConversationAssignHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,
   MessageSendHandler, ContactSendEmailHandler, ConversationCreateGroupHandler, MessageForwardHandler, MessageRecallHandler, MessageDeleteHandler, MessageReactHandler, MessagePinHandler, NoteAddHandler,
   TagCreateHandler, TagUpdateHandler, TagDeleteHandler, CannedReplyCreateHandler, CannedReplyUpdateHandler, CannedReplyDeleteHandler,
+  ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler,
+  ...GROUP_HANDLERS,
 ];
 
 /** WS `conv.join`: `inbox.view` + hội thoại trong scope inbox của người đó. */

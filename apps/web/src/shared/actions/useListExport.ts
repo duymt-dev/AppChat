@@ -5,27 +5,12 @@
 import { useState } from 'react';
 import { App } from 'antd';
 import { useTranslations } from 'next-intl';
-import type { DataJobDto, ListExportKind, ListExportResult } from '@appchat/shared';
-import { transport } from '@/shared/api/client';
+import type { ListExportKind, ListExportResult } from '@appchat/shared';
+import { downloadJobFile as download, followJob } from './download';
 import { useAction } from './useAction';
-
-const POLL_MS = 1500;
-const POLL_MAX = 400;
 
 export type ExportState =
   { phase: 'idle' } | { phase: 'running'; done: number; total: number } | { phase: 'failed' };
-
-const saveBlob = (blob: Blob, name: string) => {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-const download = async (url: string, name: string) =>
-  saveBlob(await transport.blob(url.replace(/^\/v1/, '')), name);
 
 /** Bộ lọc màn hình → input action: bỏ giá trị rỗng / `all`, trường tuỳ biến rỗng. */
 export function exportInput(f: object): Record<string, unknown> {
@@ -46,16 +31,10 @@ export function useListExport(kind: ListExportKind) {
   const [state, setState] = useState<ExportState>({ phase: 'idle' });
 
   const follow = async (id: string) => {
-    for (let i = 0; i < POLL_MAX; i++) {
-      const j = await transport.get<DataJobDto>(`/data-jobs/${id}`);
-      if (j.status === 'completed' && j.download_url) {
-        await download(j.download_url, j.file_name ?? 'export.xlsx');
-        setState({ phase: 'idle' });
-        return void message.success(t('done', { n: j.done }));
-      }
-      if (['completed', 'cancelled', 'failed'].includes(j.status)) break;
-      setState({ phase: 'running', done: j.done, total: j.total });
-      await new Promise((r) => setTimeout(r, POLL_MS));
+    const n = await followJob(id, 'export.xlsx', (done, total) => setState({ phase: 'running', done, total }));
+    if (n !== null) {
+      setState({ phase: 'idle' });
+      return void message.success(t('done', { n }));
     }
     setState({ phase: 'failed' });
     message.error(t('failed'));

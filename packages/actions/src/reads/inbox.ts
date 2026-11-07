@@ -1,6 +1,7 @@
 // Action đọc Hộp thư cho Trợ lý / agent (TIP-023b R2 · DC-224): `conversation.search` / `conversation.get` (≤ 20 tin gần nhất, tin đã
 // thu hồi / xoá không trả nội dung) và `tag.search`. Cùng repo + scope màn Hộp thư; ngoài scope → NOT_FOUND. Không trả tệp đính kèm / URL.
 import { z } from 'zod';
+import { approvalRowSchema } from '@appchat/shared';
 import { defineAction } from '../define';
 
 const convHit = z.object({
@@ -48,6 +49,20 @@ export const conversationGet = defineAction({
   agentGrantable: true,
   invalidates: [],
   uiTarget: (o) => ({ type: 'open', entity: 'conversation', id: o.id, view: 'page' }),
+});
+
+export const conversationApprovals = defineAction({
+  id: 'conversation.approvals',
+  module: 'inbox',
+  title: 'actions.conversation.approvals.title',
+  description:
+    'List approval requests raised by AI runs in one conversation (newest first, up to 50): status pending / approved / edited / rejected / expired, `executed` false = approved but the operation has not run yet (never claim it was sent). Empty when you cannot decide approvals. Example: {"conversation_id":"…"}',
+  input: z.object({ conversation_id: z.string().min(1) }),
+  output: z.object({ items: z.array(approvalRowSchema), pending: z.number().int() }),
+  permission: 'inbox.view',
+  risk: 'read',
+  agentGrantable: false,
+  invalidates: [],
 });
 
 export const tagSearch = defineAction({

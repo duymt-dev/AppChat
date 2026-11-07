@@ -4,6 +4,7 @@
 // không an toàn) → failed chắc chắn; nhà cung cấp trả lỗi rõ → failed; mạng / hết giờ → unknown. Cảm xúc cũ hơn ý định hiện tại → superseded.
 import { UnrecoverableError } from 'bullmq';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
+import type { GroupCommandJob } from './group-command.processor';
 import type { Redis } from 'ioredis';
 import { ChannelNotRunningError, ChannelOperationError, type ChannelAdapter, type ProviderMessageRef, type ReactionEmoji } from '@appchat/channels';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
@@ -34,6 +35,8 @@ export interface OperationDeps {
   /** Bạn bè + tra SĐT (TIP-014b E — friend.processor). */
   friend?: (accountId: string, adapter: ChannelAdapter, j: FriendJob, generation?: number) => Promise<string>;
   lookup?: (accountId: string, adapter: ChannelAdapter, j: LookupJob) => Promise<string>;
+  /** Lệnh quản lý nhóm (TIP-025b — group-command.processor). */
+  group?: (accountId: string, adapter: ChannelAdapter, j: GroupCommandJob, generation?: number) => Promise<string>;
 }
 
 /** Trễ giữa hai job ảnh khi còn việc (nhường hàng đợi tài khoản cho thu hồi / gửi). */
@@ -69,6 +72,13 @@ export class OperationQueue {
     let q = this.queues.get(accountId);
     if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
     await q.add('lookup', j, { jobId: `lookup-${j.lookup_id}`, attempts: 3, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 500, removeOnFail: 1000 });
+  }
+
+  /** Lệnh quản lý nhóm (TIP-025b) — job id = id lệnh. */
+  async enqueueGroup(accountId: string, j: GroupCommandJob): Promise<void> {
+    let q = this.queues.get(accountId);
+    if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
+    await q.add('group', j, { jobId: `group-${j.command_id}`, attempts: 10, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 500, removeOnFail: 1000 });
   }
 
   /** Đồng bộ danh bạ (TIP-014b D3) — cùng hàng đợi tài khoản, job id = id lần đồng bộ. */
@@ -112,7 +122,7 @@ export class ProviderOperators {
 
   async open(accountId: string, adapter: ChannelAdapter, generation?: number): Promise<void> {
     if (this.workers.has(accountId) || (!adapter.operations && !adapter.fetchHistory && !adapter.friends)) return;
-    const w = new Worker<OperationJob | HistoryJob | AvatarJob | ContactSyncJob | FriendJob | LookupJob>(
+    const w = new Worker<OperationJob | HistoryJob | AvatarJob | ContactSyncJob | FriendJob | LookupJob | GroupCommandJob>(
       operationQueueName(accountId),
       (job) =>
         job.name === 'history'
@@ -125,7 +135,9 @@ export class ProviderOperators {
                 ? (this.d.friend?.(accountId, adapter, job.data as FriendJob, generation) ?? Promise.resolve('friend_unavailable'))
                 : job.name === 'lookup'
                   ? (this.d.lookup?.(accountId, adapter, job.data as LookupJob) ?? Promise.resolve('lookup_unavailable'))
-                  : this.run(accountId, adapter, job.data as OperationJob, generation),
+                  : job.name === 'group'
+                    ? (this.d.group?.(accountId, adapter, job.data as GroupCommandJob, generation) ?? Promise.resolve('group_unavailable'))
+                    : this.run(accountId, adapter, job.data as OperationJob, generation),
       { connection: this.d.redis.duplicate(), concurrency: 1 },
     );
     w.on('error', (err) => this.d.log.warn({ err, account: accountId }, 'operation worker error'));

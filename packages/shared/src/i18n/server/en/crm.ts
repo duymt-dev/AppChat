@@ -80,6 +80,13 @@ export const crm: Shape<typeof vi> = {
     import: 'Import {count} rows: create {created}, duplicate {dup}, owned by others {owned}, invalid {invalid}',
   },
   export: { code: 'Code', name: 'Full name', phone: 'Phone', email: 'Email', stage: 'Stage', owner: 'Owner', city: 'City', source: 'Source', created: 'Created' },
+  timelineExport: {
+    file: 'history-{code}-{date}.csv',
+    cols: { at: 'Time ({tz})', type: 'Type', text: 'Details', ref: 'Document', actor: 'By' },
+    types: { message: 'Message', quote: 'Quote', contract: 'Contract', order: 'Order', invoice: 'Payment request', payment: 'Payment', appointment: 'Appointment', ticket: 'Ticket', note: 'Note', ai_action: 'AI', loyalty: 'Loyalty', campaign: 'Campaign', stage: 'Stage', owner: 'Owner', merge: 'Merge' },
+    actor: { system: 'System', agent: 'AI Agent', assistant: 'AI Assistant', contact: 'Customer' },
+    label: 'Export customer history',
+  },
   dup: { phone: 'Phone', email: 'Email', name: 'Full name' },
   copy: '{name} (copy)',
   system: 'System',

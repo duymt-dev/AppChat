@@ -43,7 +43,9 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
   const a = await target(d.db, input);
   if (!a) return err('NOT_FOUND', 'Không có agent đang chạy phù hợp');
   const root = parent.rootRunId === parent.id ? parent : await store.get(parent.rootRunId);
-  const left = Math.max(0, (root?.maxCredits ?? DEFAULT_RUN_BUDGET) - (root?.creditsUsed ?? 0));
+  // TIP-019b: phần còn lại theo usage đã định giá của cả cây (kể cả phần ví không đủ); run con chỉ là hạn mức nhỏ hơn trong ví gốc.
+  const budget = await d.db.aiRootBudget.findUnique({ where: { rootRunId: parent.rootRunId }, select: { maxCredits: true, observed: true } });
+  const left = budget ? Math.max(0, budget.maxCredits - budget.observed) : Math.max(0, (root?.maxCredits ?? DEFAULT_RUN_BUDGET) - (root?.subtreeCredits ?? 0));
   if (left <= 0) return err('BUDGET', 'Hết ngân sách credit của lượt');
   const allowed = (x: { permission: string }) => x.permission === 'self' || can(t.authz, x.permission as PermissionKey);
   const ids = runToolIds(a.cfg.tools, await connectedKeys(d.db), allowed);
@@ -63,8 +65,7 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
   const system = `${agentSystem(a.cfg)}\n\nTrợ lý AI của doanh nghiệp giao việc cho bạn thay mặt người dùng. Làm đúng việc được giao, trả lời bằng bản tóm tắt ngắn kết quả.`;
   const prompt = context ? `${task}\n\nNgữ cảnh: ${context}` : task;
   const r = await d.runner.start(t.ws, store, row, { system, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'assistant' });
-  // Credit của run con tính vào ngân sách cả cây: cộng vào run gốc để lần giao sau thấy phần còn lại đúng.
-  if (root && r.creditsUsed > 0) await store.addCredits(root.id, r.creditsUsed);
+  // Credit của run con đã cộng vào subtree mọi tổ tiên + ngân sách gốc ở lượt quyết toán (TIP-019b) — không cộng tay lần hai.
   if (r.status === 'waiting_approval') return ok({ agent: a.agent.name, run_id: row.id, status: 'waiting_approval', note: 'Agent cần người duyệt một thao tác — đã đưa vào hàng chờ duyệt.' });
   if (r.status !== 'completed') return err(r.error?.code ?? 'DELEGATE_FAILED', r.error?.message ?? r.status);
   return ok({ agent: a.agent.name, run_id: row.id, status: 'completed', summary: r.text.slice(0, 2000) });

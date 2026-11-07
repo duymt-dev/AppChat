@@ -69,8 +69,13 @@ model AiRun {
   output             Json?
   error              String?
   confidence         Float?
+  /// Credit của CHÍNH run (TIP-019b: không cộng phần run con).
   creditsUsed        Int         @default(0) @map("credits_used")
+  /// Run + mọi run con (rào ngân sách con — TIP-019b).
+  subtreeCredits     Int         @default(0) @map("subtree_credits")
   maxCredits         Int?        @map("max_credits")
+  /// Lý do dừng (TIP-019b): success · max_steps · loop_guard · budget · cancelled · provider_error · credit_exhausted · usage_unknown …
+  stopReason         String?     @map("stop_reason")
   startedAt          DateTime    @default(now()) @map("started_at") @db.Timestamptz(6)
   finishedAt         DateTime?   @map("finished_at") @db.Timestamptz(6)
 

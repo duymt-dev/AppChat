@@ -10,6 +10,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { TenantContexts } from '@appchat/db';
 import { CrmMembers, actorUserId } from '../../crm/public';
+import { linkConversation } from '../../inbox/public';
 import { lockConversion } from '../../sales/public';
 import type { GuardedDocument } from '../../documents/public';
 import { lockContract } from '../contract-access';
@@ -43,7 +44,8 @@ export class ContractCreateHandler implements Handler<ActionInput<typeof contrac
     if (input.quote_id) throw new AppError('VALIDATION_FAILED', 422, { quote_id: 'use_create_from_quote' });
     const g = prepared as GuardedDocument | null | undefined;
     if (input.source?.type === 'file' && !g) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_found' });
-    const fields = { ...input, source: undefined };
+    const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
+    const fields = { ...input, source: undefined, source_message_id: undefined, contact_id: link.contactId!, conversation_id: link.conversationId };
     const c = await insertContract(ctx, tx, this.members, g ? { ...fields, file_name: fields.file_name ?? g.name } : fields, this.clock.now(), 'created', g ? sourceCols(g) : undefined);
     if (g) await tx.file.updateMany({ where: { id: g.fileId }, data: { confirmed: true } });
     return { result: { contract_id: c.id, code: c.code }, after: { id: c.id } };

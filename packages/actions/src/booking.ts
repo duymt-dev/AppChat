@@ -70,8 +70,9 @@ export const appointmentCreate = defineAction({
     status: z.enum(['pending', 'confirmed']).optional(),
     reminder_min: z.number().int().min(0).max(10_080).optional(),
     note: z.string().max(2000).optional(),
-    /** Hội thoại khách đặt lịch (agent / Trợ lý) — nhắc hẹn đi qua đây. */
+    /** Hội thoại khách đặt lịch (Hộp thư / agent / Trợ lý) — nhắc hẹn đi qua đây; phải thấy được + đúng khách (TIP-025b §D.1). */
     conversation_id: z.string().optional(),
+    source_message_id: z.string().optional(),
     /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
     custom: customValuesSchema.optional(),
   }),

@@ -39,6 +39,7 @@ import { GroupRequestQueue } from './jobs/create-group.processor';
 import { groupRequestConsumer } from './events/group-request.consumer';
 import { OperationQueue } from './jobs/provider-operations.processor';
 import { operationRequestConsumer } from './jobs/provider-events.processor';
+import { groupCommandConsumer } from './jobs/group-command.processor';
 import { historyRequestConsumer } from './jobs/provider-history.processor';
 import { GroupRead } from './services/group-read';
 import { ChannelOperationRead } from './operations/operation-read';
@@ -136,7 +137,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
         if (!r) return null;
         const q = new OperationQueue(r.duplicate());
         // Lịch sử (TIP-014b C) đi chung hàng đợi tài khoản.
-        for (const c of [operationRequestConsumer(q), historyRequestConsumer(q), contactSyncRequestConsumer(q), friendRequestConsumer(q)]) {
+        for (const c of [operationRequestConsumer(q), historyRequestConsumer(q), contactSyncRequestConsumer(q), friendRequestConsumer(q), groupCommandConsumer(q)]) {
           unregisterEventConsumer(c.name);
           registerEventConsumer(c);
         }

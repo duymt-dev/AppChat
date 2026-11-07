@@ -13,9 +13,11 @@ import { LIFECYCLE_LEASE_MS, type LifecycleJobRow, type LifecycleOp, type Lifecy
 type Db = Pick<PlatformDb, 'workspace' | 'workspaceLifecycleJob' | 'platformConfigRevision'>;
 
 /** db_status được phép bắt đầu từng lệnh → db_status trung gian. */
-const START: Record<'archive' | 'restore', { from: 'active' | 'archived'; to: 'archiving' | 'restoring' }> = {
-  archive: { from: 'active', to: 'archiving' },
-  restore: { from: 'archived', to: 'restoring' },
+const START: Record<'archive' | 'restore' | 'delete', { from: readonly ('active' | 'archived' | 'suspended')[]; to: 'archiving' | 'restoring' | 'deleting' }> = {
+  archive: { from: ['active'], to: 'archiving' },
+  restore: { from: ['archived'], to: 'restoring' },
+  // Xoá (Owner — pha 3): từ active / tạm dừng / đã lưu trữ; tạm dừng (status suspended) KHÔNG chặn xoá như chặn lưu trữ / khôi phục.
+  delete: { from: ['active', 'suspended', 'archived'], to: 'deleting' },
 };
 
 const isUnique = (e: unknown) => (e as { code?: string })?.code === 'P2002';
@@ -27,24 +29,25 @@ const stale = (current: number) => new AppError('CONFLICT', 409, { if_version: '
  */
 export async function createLifecycleJob(
   tx: PlatformTx,
-  o: { workspaceId: string; op: 'archive' | 'restore'; expectedVersion: number | null; source: LifecycleSource; requestedBy?: string | null; now: Date },
+  o: { workspaceId: string; op: 'archive' | 'restore' | 'delete'; expectedVersion: number | null; source: LifecycleSource; requestedBy?: string | null; now: Date },
 ): Promise<{ id: string; generation: number; version: number }> {
   const w = await tx.workspace.findUnique({ where: { id: o.workspaceId }, select: { status: true, dbStatus: true, statusVersion: true, lifecycleGeneration: true } });
   if (!w) throw new AppError('NOT_FOUND', 404, { workspace_id: 'not_found' });
   if (o.expectedVersion !== null && w.statusVersion !== o.expectedVersion) throw stale(w.statusVersion);
   const s = START[o.op];
-  // Tạm dừng (status suspended) chặn cả lưu trữ lẫn khôi phục — admin mở lại trước (không tự resume).
-  if (w.status !== 'active' || w.dbStatus !== s.from) throw new AppError('INVALID_TRANSITION', 409, { db_status: w.dbStatus, status: w.status });
+  // Tạm dừng (status suspended) chặn cả lưu trữ lẫn khôi phục — admin mở lại trước (không tự resume). Xoá đi được từ mọi trạng thái ổn định.
+  const from = w.dbStatus as (typeof s.from)[number];
+  if ((o.op !== 'delete' && w.status !== 'active') || !s.from.includes(from)) throw new AppError('INVALID_TRANSITION', 409, { db_status: w.dbStatus, status: w.status });
   const generation = w.lifecycleGeneration + 1;
   const n = await tx.workspace.updateMany({
-    where: { id: o.workspaceId, statusVersion: w.statusVersion, status: 'active', dbStatus: s.from, lifecycleGeneration: w.lifecycleGeneration },
+    where: { id: o.workspaceId, statusVersion: w.statusVersion, status: w.status, dbStatus: from, lifecycleGeneration: w.lifecycleGeneration },
     data: { dbStatus: s.to, lifecycleGeneration: generation, statusVersion: { increment: 1 } },
   });
   if (!n.count) throw stale(w.statusVersion);
   const id = uuidv7(o.now.getTime());
   try {
     await tx.workspaceLifecycleJob.create({
-      data: { id, workspaceId: o.workspaceId, operation: o.op, generation, status: 'pending', step: 'queued', expectedVersion: w.statusVersion + 1, source: o.source, requestedBy: o.requestedBy ?? null, nextAttemptAt: o.now, createdAt: o.now },
+      data: { id, workspaceId: o.workspaceId, operation: o.op, generation, status: 'pending', step: 'queued', expectedVersion: w.statusVersion + 1, source: o.source, requestedBy: o.requestedBy ?? null, fromDbStatus: from, nextAttemptAt: o.now, createdAt: o.now },
     });
   } catch (e) {
     if (isUnique(e)) throw new AppError('CONFLICT', 409, { workspace: 'operation_in_progress' });
@@ -125,7 +128,14 @@ export class LifecycleJobs {
   async finish(
     job: LifecycleJobRow,
     owner: string,
-    o: { status: LifecycleStatus; error?: string | null; dbStatus?: 'active' | 'archived' | null; workspace?: { archivedAt?: Date | null; archiveKey?: string | null; schemaVersion?: string | null; provisionedAt?: Date } },
+    o: {
+      status: LifecycleStatus;
+      error?: string | null;
+      dbStatus?: 'active' | 'archived' | 'suspended' | 'deleted' | null;
+      workspace?: { archivedAt?: Date | null; archiveKey?: string | null; schemaVersion?: string | null; provisionedAt?: Date; deletedAt?: Date };
+      /** Thêm thao tác trong cùng transaction kết thúc (vd. tombstone của lệnh xoá). */
+      also?: (tx: PlatformTx) => Promise<void>;
+    },
   ): Promise<void> {
     const now = this.now();
     await this.db.$transaction(async (tx) => {
@@ -135,12 +145,13 @@ export class LifecycleJobs {
       });
       if (!n.count) throw new AppError('CONFLICT', 409, { lifecycle: 'lease_lost' });
       if (!o.dbStatus) return;
-      const from = job.operation === 'archive' ? 'archiving' : 'restoring';
+      const from = job.operation === 'archive' ? 'archiving' : job.operation === 'restore' ? 'restoring' : 'deleting';
       const w = await tx.workspace.updateMany({
         where: { id: job.workspaceId, lifecycleGeneration: job.generation, dbStatus: from },
         data: { dbStatus: o.dbStatus, statusVersion: { increment: 1 }, ...o.workspace },
       });
       if (!w.count) throw new AppError('CONFLICT', 409, { lifecycle: 'superseded' });
+      if (o.also) await o.also(tx as PlatformTx);
       await bumpRevision(tx as PlatformTx, WORKSPACE_STATUS_SCOPE, now);
     });
   }

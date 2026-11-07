@@ -1,16 +1,16 @@
 // Khung chat (mount lại theo key = conversation id để bản nháp / gợi ý reset): header · ghim · luồng tin · banner "Cần người" + bản nháp AI · thẻ gợi ý trả lời · ô soạn — prototype L1736–1902.
 'use client';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useChatStyles } from '../styles/chat.styles';
 import { useComposerStyles } from '../styles/composer.styles';
-import { threadQuery } from '../api';
+import { useThreadWindow } from '../hooks/useThreadWindow';
 import { ChatHeader } from './ChatHeader';
 import { Composer } from './Composer';
-import { MessageBubble } from './MessageBubble';
+import { ThreadViewport } from './ThreadViewport';
+import { InboxApprovals } from './InboxApprovals';
 import { HandoffSummaryPanel } from './HandoffSummaryPanel';
 import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
@@ -31,23 +31,21 @@ export function ChatPanel({
   const { styles, cx } = useChatStyles();
   const { styles: cs } = useComposerStyles();
   const searchOpen = useInboxUi((s) => s.searchOpen);
-  const thread = useQuery(threadQuery(conv.id));
+  const w = useThreadWindow(conv.id);
   const send = useAction('message.send');
   const handoff = useAction('conversation.handoff');
   const draft = useInboxUi((s) => s.draft);
   const setDraft = (v: string) => useInboxUi.getState().set({ draft: v });
   const [hideSuggest, setHideSuggest] = useState(false);
-  const suggestion = thread.data?.suggestion;
+  const suggestion = w.suggestion;
   const plain = (s: string) => s.replace(/<\/?b>/g, '');
 
   return (
     <div className={cx(styles.col, className)} data-testid="chat-panel">
       <ChatHeader conv={conv} channel={channel} />
-      {searchOpen ? <ThreadSearchBar conv={conv} /> : null}
-      <div className={styles.thread} data-testid="thread">
-        {(thread.data?.data ?? []).map((m) => (
-          <MessageBubble key={m.id} m={m} conv={conv} />
-        ))}
+      {searchOpen ? <ThreadSearchBar conv={conv} onJump={w.jumpTo} /> : null}
+      <ThreadViewport conv={conv} w={w}>
+        <InboxApprovals conversationId={conv.id} />
         {conv.ai_state === 'handoff' ? (
           <>
             <AiDraftCard
@@ -113,7 +111,7 @@ export function ChatPanel({
             }
           />
         ) : null}
-      </div>
+      </ThreadViewport>
       <Composer conv={conv} channel={channel} draft={draft} onDraft={setDraft} />
     </div>
   );

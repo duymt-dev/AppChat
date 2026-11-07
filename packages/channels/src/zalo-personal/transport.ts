@@ -96,6 +96,10 @@ export interface ZaloGroupInfo {
   name: string;
   totalMember: number | null;
   memberIds: string[];
+  /** TIP-025b: người tạo + phó nhóm + phiên bản (zca-js GroupInfo.creatorId / adminIds / version). */
+  creatorId?: string;
+  adminIds?: string[];
+  version?: string;
 }
 
 export interface ZaloSession {
@@ -143,6 +147,12 @@ export interface ZaloSession {
   groupLink(groupId: string): Promise<{ enabled: boolean; link: string | null; expiresAt: number | null }>;
   /** zca-js `addUserToGroup` — có thể thành công một phần (errorMembers / error_data). */
   addUserToGroup(groupId: string, memberIds: string[]): Promise<{ failed: { id: string; error: string }[] }>;
+  /** TIP-025b — zca-js `changeGroupName(name, groupId)`. */
+  changeGroupName(groupId: string, name: string): Promise<void>;
+  /** TIP-025b — zca-js `enableGroupLink` / `disableGroupLink`. */
+  setGroupLink(groupId: string, enabled: boolean): Promise<void>;
+  /** TIP-025b — zca-js `setMute({ action, duration: FOREVER }, groupId, Group)`. */
+  setGroupMute(groupId: string, muted: boolean): Promise<void>;
 }
 
 export interface ZaloTransport {

@@ -80,8 +80,8 @@ class BillingBoot implements OnApplicationBootstrap {
     { provide: PRICE_BOOK, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new DbPriceBook(p) : new StaticPriceBook()) },
     {
       provide: CreditMeter,
-      inject: [WalletService, PRICE_BOOK],
-      useFactory: (w: WalletService | null, pb: PriceBook) => (w ? new CreditMeter(w, pb) : null),
+      inject: [WalletService, PRICE_BOOK, opt(PLATFORM_DB)],
+      useFactory: (w: WalletService | null, pb: PriceBook, p?: PlatformDb) => (w ? new CreditMeter(w, pb, p) : null),
     },
     // Thu phí nền tảng (TIP-010): env tài khoản nhận tiền + nguồn đối soát; hoá đơn, ghi nhận, webhook ngân hàng.
     { provide: PAYMENTS_ENV, inject: [{ token: ENV_SOURCE, optional: true }], useFactory: (src?: Record<string, string | undefined>) => readPaymentsEnv(src ?? {}) },
