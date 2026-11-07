@@ -9,6 +9,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { paginate } from '../paginate';
 import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './contact-memory';
+import { bump, versionOf } from './contact-edit';
 import { activityHandlers, activityRoute, activitySummary, seedActivities, type ActivityStore } from './contact-activities';
 
 export type CustomersFixture = typeof fixture;
@@ -114,6 +115,16 @@ const filtered = (db: MockDb, p: Record<string, unknown>, o: { stage: boolean; c
 const BOARD_LIMIT = 50;
 const STAGE_KEYS = ['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost'] as const;
 
+/** `GET /contacts/board/:stage` (TIP-026b): trang tiếp một cột — cursor `stage:offset` (mock); cột / cursor khác → 400. */
+function boardColumn(db: MockDb, stage: string, p: Record<string, unknown>) {
+  const [ck, off] = String(p.cursor ?? `${stage}:0`).split(':');
+  if (!(STAGE_KEYS as readonly string[]).includes(stage) || ck !== stage || !/^\d+$/.test(off ?? '')) throw new ApiRequestError(400, { code: 'VALIDATION_FAILED', message: 'cursor', fields: { cursor: 'invalid' } });
+  const limit = Math.min(Math.max(Number(p.limit ?? BOARD_LIMIT), 1), 100);
+  const col = filtered(db, p, { stage: false, custom: true }).filter((r) => r.stage === stage);
+  const start = Number(off);
+  return { data: col.slice(start, start + limit).map((r) => ({ ...r, version: versionOf(r.id) })), next_cursor: start + limit < col.length ? `${stage}:${start + limit}` : null };
+}
+
 export const customersRoutes: Record<string, MockRoute> = {
   '/contacts': (db, p) => paginate(filtered(db, p), p),
   '/contacts/board': (db, p) => {
@@ -122,7 +133,7 @@ export const customersRoutes: Record<string, MockRoute> = {
     return {
       columns: STAGE_KEYS.filter((k) => k !== 'lost' || rows.some((r) => r.stage === 'lost')).map((key) => {
         const col = rows.filter((r) => r.stage === key);
-        return { key, color: color[key] ?? '#9CA3AF', total: col.length, rows: col.slice(0, BOARD_LIMIT) };
+        return { key, color: color[key] ?? '#9CA3AF', total: col.length, rows: col.slice(0, BOARD_LIMIT).map((r) => ({ ...r, version: versionOf(r.id) })), next_cursor: col.length > BOARD_LIMIT ? `${key}:${BOARD_LIMIT}` : null };
       }),
       limit: BOARD_LIMIT,
     };
@@ -167,6 +178,8 @@ export const customersParamRoute = (path: string): MockRoute | null => {
   if (mem) return mem;
   const act = activityRoute(path, actCtx);
   if (act) return act;
+  const col = path.match(/^\/contacts\/board\/([a-z]+)$/);
+  if (col) return (db, p) => boardColumn(db, col[1]!, p);
   const one = path.match(/^\/contacts\/(kh_[^/]+)$/);
   if (one) return (db) => {
     const c = db.customers.contacts.find((x) => x.id === one[1]);
@@ -240,9 +253,13 @@ export const customersHandlers: Record<string, MockHandler> = {
     },
   },
   'contact.set_stage': {
-    execute: (db, i: Ci & { stage: string }) => {
-      contact(db, i.contact_id).stage = i.stage;
-      return { stage: i.stage };
+    execute: (db, i: Ci & { stage: string; if_version?: number }) => {
+      const c = contact(db, i.contact_id);
+      const v = versionOf(c.id);
+      if (i.if_version !== undefined && i.if_version !== v) throw new ApiRequestError(409, { code: 'STALE_VERSION', message: 'version', fields: { version: String(v) } });
+      if (c.stage === i.stage) return { stage: c.stage, version: v };
+      c.stage = i.stage;
+      return { stage: i.stage, version: bump(c.id) };
     },
   },
   'contact.tag': {

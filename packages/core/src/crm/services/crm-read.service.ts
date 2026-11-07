@@ -3,7 +3,8 @@
 import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type ActivityKind, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
-import { boardIds, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
+import { boardCounts, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
+import { BOARD_DEFAULT, BOARD_MAX, boardColumnIds, decodeBoardCursor } from '../repos/board-page';
 import { UUID, visibleContact } from './access';
 import { contact360, withActivities } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
@@ -28,8 +29,8 @@ export interface Viewer {
 }
 
 const MAX_LIMIT = 100;
-/** Số thẻ tối đa mỗi cột kanban (đếm vẫn đủ). */
-export const BOARD_PER_STAGE = 50;
+/** Số thẻ trang đầu mỗi cột kanban (đếm vẫn đủ; trang sau qua `next_cursor` — TIP-026b). */
+export const BOARD_PER_STAGE = BOARD_DEFAULT;
 const TL_PAGE = 30;
 
 export class CrmReadService {
@@ -86,18 +87,31 @@ export class CrmReadService {
     });
   }
 
-  /** Kanban (TIP-026): cột theo giai đoạn, đếm theo bộ lọc + scope, ≤ BOARD_PER_STAGE thẻ / cột; "Thất bại" chỉ khi có khách. */
+  /** Kanban (TIP-026 / 026b §4.1): cột theo giai đoạn, đếm theo bộ lọc + scope, trang đầu ≤ 50 thẻ + `next_cursor` mỗi cột. */
   async board(v: Viewer, f: ContactFilter) {
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
       assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
-      const { ids, counts } = await boardIds(tx, v.authz, f, BOARD_PER_STAGE);
-      const rows = await this.rowsOf(tx, v, pl, ids.map((r) => r.id));
+      const counts = await boardCounts(tx, v.authz, f);
       const keys = CONTACT_STAGES.filter((k) => k !== 'lost' || (counts.lost ?? 0) > 0);
+      const pages = await Promise.all(keys.map((k) => ((counts[k] ?? 0) > 0 ? boardColumnIds(tx, v.authz, f, k, null, BOARD_PER_STAGE) : { ids: [], next: null })));
+      const rows = await this.rowsOf(tx, v, pl, pages.flatMap((p) => p.ids));
       return {
-        columns: keys.map((key) => ({ key, color: key === 'lost' ? STAGE_LOST_COLOR : STAGE_COLOR[key], total: counts[key] ?? 0, rows: rows.filter((r) => r.stage === key) })),
+        columns: keys.map((key, i) => ({ key, color: key === 'lost' ? STAGE_LOST_COLOR : STAGE_COLOR[key], total: counts[key] ?? 0, rows: rows.filter((r) => r.stage === key), next_cursor: pages[i]!.next })),
         limit: BOARD_PER_STAGE,
       };
+    });
+  }
+
+  /** Một trang của một cột (TIP-026b §4.1): `GET /contacts/board/:stage?cursor=&limit=` — mặc định 50, tối đa 100; cursor gắn cột + bộ lọc. */
+  async boardColumn(v: Viewer, f: ContactFilter, stage: string, q: { cursor?: string; limit?: number }) {
+    if (!(CONTACT_STAGES as readonly string[]).includes(stage)) throw new AppError('VALIDATION_FAILED', 400, { stage: 'invalid' });
+    const pl = await this.place(v);
+    return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
+      const cursor = decodeBoardCursor(q.cursor, stage, f);
+      const page = await boardColumnIds(tx, v.authz, f, stage, cursor, Math.min(Math.max(q.limit ?? BOARD_DEFAULT, 1), BOARD_MAX));
+      return { data: await this.rowsOf(tx, v, pl, page.ids), next_cursor: page.next };
     });
   }
 

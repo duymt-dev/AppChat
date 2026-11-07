@@ -126,7 +126,11 @@
     "tagTitle": "Gắn tag",
     "add": "Thêm thẻ",
     "remove": "Bỏ tag {tag}",
-    "x": "✕"
+    "x": "✕",
+    "more": "Tải thêm ({n})",
+    "loading": "Đang tải…",
+    "retry": "Lỗi tải — thử lại",
+    "stale": "Khách vừa được người khác chuyển — đã tải lại bảng."
   },
   "empty": "Chưa có khách hàng nào",
   "edit": {

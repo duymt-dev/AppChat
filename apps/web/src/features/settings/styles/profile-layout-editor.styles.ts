@@ -157,4 +157,26 @@ export const useProfileLayoutEditorStyles = createStyles(({ css }) => ({
     gap: 8px;
     justify-content: flex-end;
   `,
+  status: css`
+    flex: 1;
+    font-size: ${font.scale.s12}px;
+    color: ${color.text3};
+  `,
+  conflict: css`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    border-radius: ${radius.r8}px;
+    background: ${color.dangerSoftBg};
+    color: ${color.dangerDeep};
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.semibold};
+    & > span {
+      flex: 1;
+      min-width: 0;
+    }
+  `,
 }));

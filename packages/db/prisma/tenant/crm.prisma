@@ -340,6 +340,8 @@ model ProfileLayout {
   name            String
   isSystem        Boolean  @default(false) @map("is_system")
   tabs            Json     @default("[]")
+  /// Phiên bản lạc quan (TIP-026b §4.5) — trigger `profile_layout_bump_version` tăng khi đổi tên / tab; không ghi tay.
+  version         Int      @default(1)
   createdByUserId String?  @map("created_by_user_id") @db.Uuid
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)

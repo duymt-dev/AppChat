@@ -371,6 +371,8 @@ export interface ProfileLayout {
   tabs: LayoutTab[];
   roles: SystemRoleKey[];
   created_by: string;
+  /** Phiên bản lạc quan (TIP-026b §4.5) — sửa / xoá gửi lại làm if_version. */
+  version?: number;
 }
 
 export type SystemRoleKey = 'owner' | 'manager' | 'sales' | 'cs' | 'accountant';

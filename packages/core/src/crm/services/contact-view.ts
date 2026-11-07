@@ -23,12 +23,14 @@ export interface ContactRecord {
   custom: unknown;
   createdAt: Date;
   lastInteractionAt: Date;
+  /** Có khi đọc qua ROW_SELECT (TIP-026b) — writer khác có thể không chọn cột này. */
+  version?: number;
 }
 
 /** Cột cần cho hàng danh sách (indexing §8 — không SELECT *). */
 export const ROW_SELECT = {
   id: true, code: true, name: true, kind: true, title: true, phone: true, email: true, zalo: true, city: true, district: true,
-  source: true, group: true, status: true, stage: true, ownerUserId: true, custom: true, createdAt: true, lastInteractionAt: true,
+  source: true, group: true, status: true, stage: true, ownerUserId: true, custom: true, createdAt: true, lastInteractionAt: true, version: true,
 } as const;
 
 export interface RowContext {
@@ -102,5 +104,6 @@ export function toRow(c: ContactRecord, rc: RowContext, extras: Awaited<ReturnTy
     my_access: c.ownerUserId === rc.authz.userId ? 'owner' : (mine ?? 'scope'),
     collaborator_count: collabs.length,
     custom: (c.custom ?? {}) as CustomValues,
+    ...(c.version !== undefined ? { version: c.version } : {}),
   };
 }

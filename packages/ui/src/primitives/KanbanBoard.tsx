@@ -24,6 +24,8 @@ export interface KanbanBoardProps<T> {
   /** Nhãn nút "Thêm thẻ" cuối cột (không truyền = ẩn). */
   addLabel?: string;
   onAdd?: (column: string) => void;
+  /** Chân cột tuỳ chọn (vd. "Tải thêm" khi màn phân trang theo cột — TIP-026b). Không truyền = như cũ (ticket / hợp đồng không đổi). */
+  renderColumnFooter?: (column: string) => ReactNode;
   testId?: string;
 }
 
@@ -108,7 +110,7 @@ const useStyles = createStyles(({ css, responsive }) => ({
   `,
 }));
 
-export function KanbanBoard<T>({ columns, items, itemKey, groupBy, renderCard, onMove, addLabel, onAdd, testId }: KanbanBoardProps<T>) {
+export function KanbanBoard<T>({ columns, items, itemKey, groupBy, renderCard, onMove, addLabel, onAdd, renderColumnFooter, testId }: KanbanBoardProps<T>) {
   const { styles, cx } = useStyles();
   const [drag, setDrag] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -146,6 +148,7 @@ export function KanbanBoard<T>({ columns, items, itemKey, groupBy, renderCard, o
                   {renderCard(it)}
                 </div>
               ))}
+              {renderColumnFooter?.(col.key)}
               {addLabel ? (
                 <button type="button" className={styles.add} onClick={() => onAdd?.(col.key)}>
                   <Icon name="ic-plus" size={14} color={color.text3} strokeWidth={2} />

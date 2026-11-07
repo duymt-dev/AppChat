@@ -4,12 +4,11 @@ import { useState, type Key } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DataTable, KanbanBoard, PageHeader, StageTabs } from '@appchat/ui';
-import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useCrmStyles } from '../styles/crm.styles';
 import { useCrmUi } from '../crm-store';
-import { contactsBoardQuery, contactsQuery, crmStatsQuery, duplicatesQuery } from '../api';
+import { contactsQuery, crmStatsQuery, duplicatesQuery } from '../api';
 import { ContactCard, useContactColumns } from '../columns';
 import { CrmHeaderActions } from '../components/CrmHeaderActions';
 import { CrmToolbar } from '../components/CrmToolbar';
@@ -18,6 +17,8 @@ import { useAssistantContext } from '../hooks/useAssistantContext';
 import { useAssignContactAi } from '../hooks/useAssignContactAi';
 import { useHighlight } from '../hooks/useHighlight';
 import { KanbanCard } from '../components/KanbanCard';
+import { BoardMore } from '../components/CustomerBoard';
+import { useCustomerBoard } from '../hooks/useCustomerBoard';
 import type { ContactRow, StageKey } from '../types';
 import { useCustomersUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
@@ -29,18 +30,18 @@ export function CustomersScreen() {
   const ui = useCrmUi();
   const kanban = ui.layout === 'kanban';
   const list = useQuery({ ...contactsQuery(ui.filter, ui.pg), enabled: !kanban });
-  const board = useQuery({ ...contactsBoardQuery(ui.filter), enabled: kanban });
+  const kb = useCustomerBoard(ui.filter, kanban);
+  const board = kb.board;
   const stats = useQuery(crmStatsQuery()).data;
   const dups = useQuery(duplicatesQuery()).data;
-  const setStage = useAction('contact.set_stage');
   const canEdit = useCan('crm.edit');
   const [selected, setSelected] = useState<Key[]>([]);
   useAssistantContext(selected);
   const rows = list.data?.data ?? [];
   const highlight = useHighlight(kanban ? [] : rows, kanban ? board.isSuccess : list.isSuccess);
   const columns = useContactColumns(useAssignContactAi());
-  const cols = board.data?.columns ?? [];
-  const boardRows = cols.flatMap((c) => c.rows);
+  const cols = kb.columns;
+  const boardRows = kb.rows;
 
   return (
     <div className={styles.wrap} data-testid="customers">
@@ -86,7 +87,8 @@ export function CustomersScreen() {
             itemKey={(r) => r.id}
             groupBy={(r) => r.stage}
             renderCard={(r) => <KanbanCard c={r} tagDefs={stats?.tag_defs ?? []} />}
-            onMove={canEdit ? (r, to) => void setStage.run({ contact_id: r.id, stage: to }) : undefined}
+            onMove={canEdit && !kb.moving ? (r, to) => void kb.move(r, to) : undefined}
+            renderColumnFooter={(k) => <BoardMore col={cols.find((c) => c.key === k)} onMore={() => void kb.loadMore(k)} />}
             addLabel={canEdit ? t('kanban.add') : undefined}
             onAdd={() => ui.open('create')}
           />

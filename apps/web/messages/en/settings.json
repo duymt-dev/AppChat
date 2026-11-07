@@ -963,12 +963,17 @@
       "addSave": "Add tab",
       "reset": "Reset to default",
       "resetConfirm": "Reset this entire 360° Profile layout to default?",
-      "resetDone": "Layout reset to default",
       "done": "Done",
       "minOneTabFlip": "Keep at least one tab visible",
       "minOneTabDel": "Keep at least one tab",
       "delBuiltinConfirm": "Delete default tab \"{name}\" from this template? You can add it back later.",
-      "addDone": "Added tab \"{name}\" to template {tpl}"
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveError": "Not saved — edit again to retry",
+      "conflict": "Someone just edited this template. Your draft is kept.",
+      "conflictReload": "Reload",
+      "conflictOverwrite": "Overwrite with mine",
+      "pendingClose": "Changes are still saving — close anyway?"
     }
   },
   "fields": {

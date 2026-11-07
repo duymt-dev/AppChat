@@ -82,3 +82,43 @@
 | `authz/rbac-permissions.md` | can_edit theo quyền ghi khách (watcher chỉ xem); tiền theo quote.view / quote.create |
 | `i18n/i18n.md` | vi + en, không chuỗi cứng |
 | `ai/agent-gateway.md` | tóm tắt vẫn qua AiRunner một lần; dữ liệu theo quyền người xem |
+
+---
+
+## Pha 3 — Kanban phân trang theo cột, set_stage / profile_layout CAS, trường tuỳ biến trên thẻ (§4, §6 — AC5, AC6; DC-389)
+
+**MIGRATION:** tenant `20261108050000_crm_board_layout_cas` (4 index cột kanban + `profile_layout.version` + trigger) → `db:migrate-tenants` + build api / worker.
+
+**FILES CHANGED** (lệch ghi ở DV-063)
+- db: migration trên; `crm.prisma` (ProfileLayout.version).
+- shared: `contactRowSchema.version`, board column `next_cursor`, `profileLayoutsSchema` layout `version`.
+- actions: `contact.set_stage` (`if_version`, output `version`), `profile_layout.update` / `delete` (`if_version`), create / update / duplicate output `version`.
+- core: `crm/repos/board-page.ts` (mới — trang cột cursor seek), `contacts.repo.ts` (`where` dùng chung, `boardCounts`), `crm-read.service.ts` (`board` + `boardColumn`), `contact-view.ts` (`version`), `contact-write.handlers.ts` (set_stage CAS + undo theo version), `profile-layout.handlers.ts` (lockLayout CAS), `layouts.service.ts` (`version`).
+- api: `GET /v1/contacts/board/:stage`.
+- ui: `KanbanBoard` slot `renderColumnFooter`.
+- web: `features/customers/hooks/useCustomerBoard.ts`, `components/CustomerBoard.tsx` (Tải thêm), `components/KanbanCustomFields.tsx`, `CustomersScreen.tsx`; `features/settings/hooks/useProfileLayoutDraft.ts`, `ProfileLayoutEditor.tsx` (trạng thái lưu / xung đột); mock board cột + set_stage / layout CAS; i18n vi + en.
+- test mới: api `crm-board-page.test.ts` (4: 160 khách / tie → 4 trang không trùng, cursor sai 400, EXPLAIN 10k, set_stage đua 200 + 409 + undo 409, layout CAS); web `useCustomerBoard.test.tsx` (2), `useProfileLayoutDraft.test.tsx` (3); e2e `settings.spec.ts` (Đã lưu sau xác nhận + mở lại đọc bản server).
+
+**Giả định đã chọn (gap-filling)**
+- Cursor kanban là base64url JSON {cột, vân tay bộ lọc, giá trị sort dạng text, id} — không lưu server; đổi bộ lọc là truy vấn mới.
+- Ghi đè khi xung đột bố cục = đọc version mới của server rồi ghi nháp đang giữ (người dùng chủ động chọn); "Tải lại" bỏ nháp.
+- Trường tuỳ biến trên thẻ ẩn khi đo parity (`?parity=1`) như mọi chỗ khác (prototype không có).
+
+**CỔNG TEST (P3)**
+- `db:test-reset` → api CRM 12 file 57/57 (crm-ui, crm-settings, crm-contacts, set_stage + 6 ma trận profile_layout, contact-activities, crm-board-page). EXPLAIN 10k ghi `.data/gate/026b-p3-explain.txt` (`contact_stage_recent_idx` Index Scan + Limit).
+- `pnpm turbo run lint typecheck test --filter="...[origin/dev]"`: 42/42. `pnpm depcheck` 0 lỗi. `i18n-check` 100% (6511), `lint:size`, `lint:tokens` pass.
+- web unit settings / customers / inbox / shared 111 file 375/375.
+- E2E mock `customers`, `settings`, `settings-profile`, `inbox`, `crm-activities`: 36 + 31 pass, 0 fail.
+- Parity: `customers:kanban` 3,59%, `customers:table` 0,99%, `customers:360` 3,39%, `settings:profile-360` 2,80%, `inbox:default` 4,70% (≤ trần).
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `database/indexing.md` | stage `=` trước, sort + id sau, partial chưa xoá; seek cursor không OFFSET; ID trước rồi nạp hàng theo PK; EXPLAIN 10k |
+| `domain/concurrency.md` | set_stage / layout FOR UPDATE + if_version → 409; version do trigger; undo chỉ bản sau-ghi hiện tại |
+| `domain/custom-fields.md` §4b | ≤ 2 trường kanban, theo vai trò + chiếu quyền, không giá trị giả |
+| `api/response-envelope.md` | `{data, next_cursor}` cho trang cột; 400 cursor / cột sai |
+| `ui/interaction-patterns.md` | không báo thành công trước xác nhận; xung đột giữ nháp; đóng khi đang lưu hỏi |
+| `ui/frontend-structure.md` | màn orchestrator; hook / component tách; slot primitive mặc định không đổi |
+| `code/file-size-module-layout.md` | contacts.repo / crm-read.service ≤ 260 dòng; test riêng |

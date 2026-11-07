@@ -1,12 +1,11 @@
 // Hộp Tuỳ chỉnh Hồ sơ 360° (REQ-F12) — prototype L690–735: đổi mẫu, bật/tắt · đổi tên · đổi thứ tự · xoá tab (khôi phục được),
 // thêm tab mới từ thư viện 12 khối. Mở từ Cài đặt → Hồ sơ 360° và từ nút ⚙ trên Panel360 (Hộp thư) — dùng chung qua index.ts.
 'use client';
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { App } from 'antd';
 import { Icon, ModalShell, color } from '@appchat/ui';
-import { useAction } from '@/shared/actions/useAction';
+import { useProfileLayoutDraft } from '../hooks/useProfileLayoutDraft';
 import { useProfileLayoutUi } from '../profile-layout-store';
 import { useProfileLayoutEditorStyles } from '../styles/profile-layout-editor.styles';
 import { useProfileLayoutCommonStyles } from '../styles/profile-layout-common.styles';
@@ -39,7 +38,7 @@ export function ProfileLayoutEditor() {
   if (!editId || !q.data) return null;
   const tpl = q.data.layouts.find((l) => l.id === editId);
   if (!tpl) return null;
-  return <Editor tpl={tpl} opts={q.data.layouts} onClose={close} />;
+  return <Editor key={tpl.id} tpl={tpl} opts={q.data.layouts} onClose={close} />;
 }
 
 function Editor({ tpl, opts, onClose }: { tpl: ProfileLayout; opts: ProfileLayout[]; onClose: () => void }) {
@@ -52,14 +51,22 @@ function Editor({ tpl, opts, onClose }: { tpl: ProfileLayout; opts: ProfileLayou
   const open = useProfileLayoutUi((s) => s.open);
   const adding = useProfileLayoutUi((s) => s.adding);
   const setAdding = useProfileLayoutUi((s) => s.setAdding);
-  const update = useAction<{ layout_id: string }>('profile_layout.update');
-  const [tabs, setTabs] = useState<LayoutTab[]>(tpl.tabs);
-
-  const commit = (next: LayoutTab[], toast?: string) => {
-    setTabs(next);
-    void update.run({ layout_id: tpl.id, patch: { tabs: next } }, { silent: true }).then((r) => {
-      if (r && toast) message.success(toast);
-    });
+  // TIP-026b §4.6: ghi tuần tự + CAS qua bản nháp (không bắn patch mỗi phím, không báo xong trước khi server xác nhận).
+  const draft = useProfileLayoutDraft(tpl.id, tpl.tabs, tpl.version);
+  const qc = useQueryClient();
+  const tabs = draft.tabs;
+  const commit = (next: typeof tabs) => draft.edit(next);
+  const close = () => {
+    if (draft.busy() && !window.confirm(t('pendingClose'))) return;
+    onClose();
+  };
+  const reload = () => {
+    void qc.invalidateQueries({ queryKey: ['profile_layouts'] });
+    onClose();
+  };
+  const overwrite = async () => {
+    const fresh = (await qc.fetchQuery({ ...profileLayoutsQuery(), staleTime: 0 })).layouts.find((l) => l.id === tpl.id);
+    draft.rebase(fresh?.version);
   };
 
   const flip = (i: number) => {
@@ -83,20 +90,13 @@ function Editor({ tpl, opts, onClose }: { tpl: ProfileLayout; opts: ProfileLayou
     commit([...tabs, { key, label, enabled: true, sort: tabs.length, builtin: true, blocks: [] }]);
   const reset = () => {
     if (!window.confirm(t('resetConfirm'))) return;
-    const base = DEFAULT_TABS();
-    void update.run({ layout_id: tpl.id, patch: { tabs: base } }, { silent: true }).then((r) => {
-      if (r) {
-        setTabs(base);
-        message.success(t('resetDone'));
-      }
-    });
+    commit(DEFAULT_TABS());
   };
   const saveNewTab = () => {
     if (!adding || !adding.name.trim()) return;
     const name = adding.name.trim();
     commit([...tabs, { key: `c${Date.now()}`, label: name, enabled: true, sort: tabs.length, builtin: false, blocks: adding.blocks }]);
     setAdding(null);
-    message.success(t('addDone', { name, tpl: tpl.name }));
   };
 
   const tr = useTranslations('settings.roleName');
@@ -106,7 +106,7 @@ function Editor({ tpl, opts, onClose }: { tpl: ProfileLayout; opts: ProfileLayou
   return (
     <ModalShell
       open
-      onClose={onClose}
+      onClose={close}
       width={620}
       title={t('title')}
       icon="ic-panel"
@@ -119,13 +119,26 @@ function Editor({ tpl, opts, onClose }: { tpl: ProfileLayout; opts: ProfileLayou
           <button type="button" className={c.ghostBtn} onClick={reset}>
             {t('reset')}
           </button>
-          <span style={{ flex: 1 }} />
-          <button type="button" className={c.primaryBtn} onClick={onClose} data-testid="pl-editor-done">
+          <span className={styles.status} data-testid="pl-editor-status">
+            {draft.status === 'saving' ? t('saving') : draft.status === 'saved' ? t('saved') : draft.status === 'error' ? t('saveError') : ''}
+          </span>
+          <button type="button" className={c.primaryBtn} onClick={close} data-testid="pl-editor-done">
             {t('done')}
           </button>
         </>
       }
     >
+      {draft.status === 'conflict' ? (
+        <div className={styles.conflict} data-testid="pl-editor-conflict">
+          <span>{t('conflict')}</span>
+          <button type="button" className={c.ghostBtn} onClick={reload}>
+            {t('conflictReload')}
+          </button>
+          <button type="button" className={c.primaryBtn} onClick={() => void overwrite()}>
+            {t('conflictOverwrite')}
+          </button>
+        </div>
+      ) : null}
       <div className={styles.subT}>{t('sub', { roles })}</div>
       <select
         className={cx(c.select, c.mt8)}

@@ -70,6 +70,13 @@ export class ContactsController {
     return { data: await this.read.board(v, contactFilterOf(q)) };
   }
 
+  /** TIP-026b §4.1: trang tiếp của MỘT cột kanban — cùng bộ lọc / sắp xếp; cursor của truy vấn khác → 400. */
+  @Get('contacts/board/:stage')
+  async boardColumn(@Req() req: IncomingMessage, @Param('stage') stage: string, @Query() q: Record<string, string | undefined>) {
+    const v = await this.viewer(req);
+    return this.read.boardColumn(v, contactFilterOf(q), stage, { cursor: q.cursor, limit: int(q.limit, 'limit') });
+  }
+
   /**
    * Nhập khách (REQ-F03, DC-147): tệp CSV / XLSX đã tải lên (`POST /files` purpose `import`, của chính người nhập) → bảng sheet đầu
    * (≤ IMPORT_MAX_ROWS dòng) để client ghép cột rồi gọi `contact.import { rows }` theo lô. Server không giữ bản đọc.

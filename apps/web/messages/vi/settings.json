@@ -963,12 +963,17 @@
       "addSave": "Thêm tab",
       "reset": "Đặt lại mặc định",
       "resetConfirm": "Đặt lại toàn bộ mẫu bố cục Hồ sơ 360° về mặc định?",
-      "resetDone": "Đã đặt lại bố cục mặc định",
       "done": "Xong",
       "minOneTabFlip": "Cần giữ lại ít nhất một tab hiển thị",
       "minOneTabDel": "Cần giữ lại ít nhất một tab",
       "delBuiltinConfirm": "Xoá tab mặc định \"{name}\" khỏi mẫu này? Có thể thêm lại sau.",
-      "addDone": "Đã thêm tab \"{name}\" vào mẫu {tpl}"
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu",
+      "saveError": "Chưa lưu được — sửa tiếp để thử lại",
+      "conflict": "Mẫu vừa được người khác sửa. Bản nháp của bạn vẫn giữ.",
+      "conflictReload": "Tải lại",
+      "conflictOverwrite": "Ghi đè bằng bản của tôi",
+      "pendingClose": "Còn thay đổi đang lưu — vẫn đóng?"
     }
   },
   "fields": {
