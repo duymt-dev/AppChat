@@ -89,12 +89,24 @@ async function fail(d: TaskRunDeps, db: TenantDb, ws: string, t: TaskRow, run: R
   return { status: 'failed' as const, reason };
 }
 
-export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { task_id: string; run_id: string; event?: { topic: string; payload: Record<string, unknown> } }) {
+/**
+ * Sự kiện của job (TIP-012b P4): job mới chỉ mang id outbox nguồn → đọc lại payload ĐÃ COMMIT từ `outbox_event` (không tin dữ liệu trên
+ * queue); job cũ còn mang payload thì dùng payload đó. Không tìm thấy → null (run bị huỷ, không đoán).
+ */
+async function eventOf(db: TenantDb, e: { topic: string; source_event_id?: string; payload?: Record<string, unknown> }) {
+  if (!e.source_event_id) return e.payload ? { topic: e.topic, payload: e.payload } : null;
+  const row = await db.outboxEvent.findUnique({ where: { id: e.source_event_id }, select: { topic: true, payload: true } });
+  return row && row.topic === e.topic ? { topic: row.topic, payload: (row.payload ?? {}) as Record<string, unknown> } : null;
+}
+
+export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { task_id: string; run_id: string; event?: { topic: string; source_event_id?: string; payload?: Record<string, unknown> } }) {
   const store = new RunStore(db, d.now);
   const run = await store.get(job.run_id);
   const t = await db.aiTask.findUnique({ where: { id: job.task_id } });
   if (!run || run.status !== 'queued' || !t) return { status: 'skipped' as const };
-  if (t.deletedAt) {
+  const event = job.event ? await eventOf(db, job.event) : undefined;
+  // Tác vụ đã xoá / tắt / đổi sự kiện sau khi nhận (run sự kiện), hoặc sự kiện nguồn không đọc được → huỷ, không gửi gì.
+  if (t.deletedAt || (job.event && (!event || t.status !== 'active' || t.trigger !== 'event' || t.eventType !== job.event.topic))) {
     await store.finish(run.id, 'cancelled');
     return { status: 'skipped' as const };
   }
@@ -104,7 +116,7 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
   const commander = await d.commander(ws, t.createdByUserId);
   if (!commander) return done(db, t, await fail(d, db, ws, t, run, 'commander', place));
   // Sự kiện gắn bản ghi (hợp đồng — TIP-038): người tạo tác vụ phải còn đọc được bản ghi theo scope HIỆN TẠI (bị thu quyền → không chạy).
-  if (job.event && !(await db.$transaction((tx) => eventRecordVisible(tx, narrowScope(commander, t.dataScope), job.event!.payload)))) return done(db, t, await fail(d, db, ws, t, run, 'commander', place));
+  if (event && !(await db.$transaction((tx) => eventRecordVisible(tx, narrowScope(commander, t.dataScope), event.payload)))) return done(db, t, await fail(d, db, ws, t, run, 'commander', place));
 
   if (t.template === 'briefing') {
     if (!(await store.claim(run.id, ['queued']))) return { status: 'skipped' as const };
@@ -119,7 +131,7 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
   const a = t.agentId ? await publishedAgent(db, t.agentId) : null;
   if (!a || !d.runner) return done(db, t, await fail(d, db, ws, t, run, 'agent', place));
   const targets = t.template && (AI_TASK_TEMPLATES as readonly string[]).includes(t.template) ? await collectTargets(db, t.template, t.params as Record<string, number>, narrowScope(commander, t.dataScope), now) : undefined;
-  const { system, prompt } = taskPrompt(t, place, await d.userName(t.createdByUserId), { ...(targets ? { targets } : {}), ...(job.event ? { event: job.event } : {}) });
+  const { system, prompt } = taskPrompt(t, place, await d.userName(t.createdByUserId), { ...(targets ? { targets } : {}), ...(event ? { event } : {}) });
   const ids = await taskToolIds(db, a.cfg.tools, commander, t);
   const tools = agentToolSpecs(d.executor, ids, {
     workspaceId: ws,
@@ -131,7 +143,7 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
     narrow: (x) => narrowScope(x, t.dataScope),
     db,
   });
-  await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(job.event ? { event: job.event.topic } : {}) } } });
+  await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(event ? { event: event.topic } : {}) } } });
   let r: RunResult;
   try {
     r = await d.runner.start(ws, store, run, { system: `${agentSystem(a.cfg)}\n\n${system}`, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'task' });

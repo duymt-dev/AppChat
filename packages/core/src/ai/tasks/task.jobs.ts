@@ -4,13 +4,14 @@
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
+import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { eventConsumers, registerEventConsumer, unregisterEventConsumer, type EventConsumer } from '../../kernel/events/consumer';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { TASK_QUEUE, AI_TASK_QUEUE, TASK_ARMED_KEY, type TaskJob, type TaskQueue } from './task.queue';
 import { runTask, type TaskRunDeps } from './task.runner';
 import { rebuildArmed, sweepAllTasks, taskEventConsumer, type ArmedSet } from './task-scheduler';
+import { redispatchPending } from './event-dispatch';
 
 export const TASK_SCHEDULER_QUEUE = 'ai-task-scheduler';
 export const TASK_SWEEP_JOB = 'ai-task.sweep';
@@ -32,7 +33,14 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
   if ((await redis.set(ARMED_BUILT_KEY, '1', 'NX')) === 'OK') await rebuildArmed(platform, tenant, (ws) => queue.arm(ws), onError);
   const sched = new Queue(TASK_SCHEDULER_QUEUE, { connection: redis.duplicate() });
   await sched.upsertJobScheduler(TASK_SWEEP_JOB, { every: SWEEP_MS }, { name: TASK_SWEEP_JOB });
-  const sweeper = new Worker(TASK_SCHEDULER_QUEUE, () => sweepAllTasks(platform, tenant, armed, queue, deps.now, onError), { connection: redis.duplicate(), concurrency: 1 });
+  const sweeper = new Worker(
+    TASK_SCHEDULER_QUEUE,
+    async () => {
+      await sweepAllTasks(platform, tenant, armed, queue, deps.now, onError);
+      await redispatchAll(platform, tenant, queue, deps.now, onError);
+    },
+    { connection: redis.duplicate(), concurrency: 1 },
+  );
   sweeper.on('error', (err) => log.warn({ err }, 'ai-task scheduler error'));
   return {
     async close() {
@@ -41,6 +49,21 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
       await sched.close();
     },
   };
+}
+
+/**
+ * Khôi phục phát sự kiện (TIP-012b P4): run tạo do sự kiện mà job chưa xác nhận đẩy (crash giữa commit và push / Redis tạm mất) → đẩy
+ * lại đúng run đó. Index partial `ai_task_event_receipt_undispatched_idx` → workspace không có gì thì gần như miễn phí.
+ */
+async function redispatchAll(platform: PlatformDb, tenant: (ws: string) => Promise<TenantDb>, queue: TaskQueue, now: () => Date, onError: (ws: string, err: unknown) => void) {
+  const list = await platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true } });
+  for (const w of list) {
+    try {
+      await redispatchPending(await tenant(w.id), queue, w.id, now);
+    } catch (err) {
+      onError(w.id, err);
+    }
+  }
 }
 
 /** Đăng ký consumer `ai-tasks` (một lần mỗi tiến trình — nhiều app Nest trong cùng tiến trình test dùng chung bản đầu). */

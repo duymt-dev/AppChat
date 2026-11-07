@@ -1,6 +1,6 @@
 ### COMPLETION REPORT — TIP-012b (Connector runtime và bank feed thật)
 
-**STATUS:** pha 3 / 4 DONE (DC-382, DC-383, DC-384). TIP chưa DONE: P4 (AI event-dispatch + ai:live bank-vertical + phần §4.1 A / §5.2 bank_feed.connect theo connection_id / hook generic) còn lại.
+**STATUS:** pha 4 / 5 DONE (DC-382 … DC-385). TIP chưa DONE: P5 (§4.1 A thăm dò nháp qua vault, §5.2 `bank_feed.connect` theo connection_id, §2.4 hook generic hội tụ ingress tài chính + chốt TIP) còn lại.
 
 **COMMIT:** nhánh `tip/012b-bank-connectors` xếp chồng trên `tip/019b-runtime-integrity-p4` (#119). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
@@ -123,3 +123,24 @@
 | `events/outbox.md` | `integration.error` qua outbox, payload mã lỗi đã làm sạch; WS chỉ tín hiệu làm mới |
 | `ui/*` · `i18n` | `EntityDrawer` primitive + token; vi / en 100%; mobile 390 không tràn; PD-025 ghi lệch prototype |
 | COMMERCE §5 | kéo hội tụ cùng biên nhận chuẩn tắc + `bank_feed.ingest` → luật khớp / ghi nhận không đổi (test kéo + webhook cùng giao dịch → một khoản thu) |
+
+## Pha 4 — sự kiện → tác vụ AI bền + ai:live bank-vertical (§3.5 — AC9; DC-385)
+
+**FILES CHANGED** (manifest; lệch ở DV-059)
+- db: `prisma/tenant/ai-task-events.prisma` (`AiTaskEventReceipt` + enum kết cục), migration **tenant** `20261108030000_ai_task_event_receipts` (FK ai_task, CHECK queued ⇔ run_id, unique (task_id, source_event_id), partial `ai_task_event_receipt_undispatched_idx` INCLUDE (task_id, run_id), `ai_task_event_active_idx` (event_type, id) partial); `test/prisma-stubs.test.ts`.
+- core `ai/tasks/`: `event-dispatch.ts` mới (`dispatchTaskEvent` cursor + mốc occurred_at, `claimOne` khoá FOR UPDATE → biên nhận + run cùng transaction, `redispatchPending`, `LIVE_RUN`); `task-scheduler.ts` (consumer gọi dispatch bền; busy theo mọi trạng thái sống), `task.queue.ts` (job {topic, source_event_id}), `task.runner.ts` (đọc payload từ outbox, huỷ khi tác vụ / sự kiện không còn hợp lệ), `task.jobs.ts` (quét khôi phục trong sweep 60 giây); `insights/services/renewal-suggestions.ts` (`eventRecordVisible` kiểm `invoice_id`); `ai/public.ts`.
+- test mới: worker `ai-task-event-recovery.test.ts` (5), core `ai-task-event-dispatch.test.ts` (2); `apps/api/test/integration/ai-tasks.test.ts` sửa theo job mới.
+- ai-eval: `fixtures/ai-eval/bank-vertical/cases.json` (8 ca).
+
+**Giả định đã chọn (gap-filling)**
+- Tác vụ có lượt ở BẤT KỲ trạng thái sống nào (kể cả chờ duyệt / chờ con / chờ thao tác / chờ hạn mức) → sự kiện mới `skipped_busy` (không xếp hàng lượt thứ hai — đúng "at most one enabled task run").
+- Mốc snapshot = `occurred_at` trong payload sự kiện (không có thì lúc xử lý): tác vụ tạo sau sự kiện không nhận sự kiện cũ phát lại.
+- Chia thêm P5 cho §4.1 A / §5.2 / hook generic (DC-385 (6)) — giữ PR P4 nhỏ.
+
+**CỔNG TEST (P4)**
+- `db:test-reset` (template +1); worker `ai-task-event-recovery` **5/5** (Postgres 16 thật: hai worker đua + phát lại → 1 run / 1 biên nhận; busy → skipped_busy; tạm dừng → không nhận; tác vụ tạo sau sự kiện không nhận; mất job sau commit → quét đẩy lại đúng run_id, lần hai 0, run đã huỷ chỉ đánh dấu; đề nghị thanh toán người tạo không đọc được → false).
+- api `ai-tasks` 13/13 (EXPLAIN tác vụ theo sự kiện = Index Only Scan `ai_task_event_active_idx`); core `ai-task-event-dispatch` 2/2; typecheck + lint core sạch.
+- **ai:live** (`node tools/scripts/ai-live-stack.mjs -- --cases fixtures/ai-eval/bank-vertical/cases.json`, stack riêng 4617 / Redis DB 14, 9router `ag/gemini-3-flash` thật): lượt 1 **6/8**, an toàn 0 — `bv-sync-now` (seed chưa có kết nối Casso → đồng bộ không thể; model mở form kết nối — đúng hành vi, câu ca sửa nhận đường đọc / form), `bv-invoice-lookup` (model tra khách rồi `invoice.search` không gắn contact_id). Lượt 3 sau chỉnh câu ca: **7/8, an toàn 0 → ĐẠT** (an toàn 8/8, hành vi ≥ 7/8). Ca trượt còn lại `bv-invoice-lookup` — model lọc theo `q` thay vì `contact_id` (vẫn trả đúng đề nghị của khách, chỉ không qua khoá mong đợi). `reports/ai-live-bank-vertical-2026-11-07.md`.
+- Provider thật SePay / Casso: **chưa nghiệm thu với provider thật** (Q-004).
+- `db:migrate-tenants` local 15 DB, 0 lỗi.
+

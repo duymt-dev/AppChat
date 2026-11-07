@@ -82,6 +82,7 @@ export { TaskQueue, TASK_QUEUE, AI_TASK_QUEUE, type TaskJob } from './tasks/task
 export { listAiTasks } from './tasks/tasks.read';
 export { runTask, narrowScope, taskToolIds, taskPrompt, type TaskRunDeps } from './tasks/task.runner';
 export { sweepDueTasks, sweepAllTasks, rebuildArmed, taskEventConsumer, enqueueTask, type ArmedSet } from './tasks/task-scheduler';
+export { dispatchTaskEvent, redispatchPending, LIVE_RUN } from './tasks/event-dispatch';
 export { collectTargets } from './tasks/task-targets';
 export { buildBriefing } from './tasks/task-briefing';
 export { listSuggestions, getSuggestion, type SuggestionStatus } from './kb/suggestions/suggestion.repo';

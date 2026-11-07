@@ -1,25 +1,26 @@
 // Kích hoạt tác vụ (Blueprint §5.4): job `ai-task.sweep` mỗi phút (worker ROLE=ai) lấy tác vụ theo lịch tới giờ (`ai_task_due_idx`),
 // chỉ ở workspace trong tập `ai-task:armed` (action tác vụ đánh dấu); dời `next_run_at` sang mốc kế tiếp TRƯỚC khi đẩy (chạy lại job không đẩy trùng), tạo run `queued` + đẩy queue `ai-task`.
-// Consumer `ai-tasks` (queue `events`, ROLE=jobs): sự kiện khớp `event_type` của tác vụ đang bật → cùng đường đẩy. Một tác vụ đang
-// có lượt chạy dở thì bỏ lượt này (không chồng lượt, không dồn tin).
+// Consumer `ai-tasks` (queue `events`, ROLE=jobs): sự kiện khớp `event_type` của tác vụ đang bật → biên nhận bền (task, sự kiện nguồn)
+// + run cùng transaction (event-dispatch.ts — TIP-012b P4); tác vụ đang có lượt sống thì bỏ lượt này (skipped_busy, không chồng lượt).
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import { AI_TASK_EVENTS } from '@appchat/shared';
-import type { DomainEvent, EventConsumer } from '../../kernel/events/consumer';
+import type { EventConsumer } from '../../kernel/events/consumer';
 import { queueRun } from './task.handlers';
 import type { TaskQueue } from './task.queue';
 import { nextRunOf, type TaskRow } from './task.store';
+import { LIVE_RUN, dispatchTaskEvent } from './event-dispatch';
 
 const BATCH = 100;
 
 async function busy(db: TenantDb, taskId: string): Promise<boolean> {
-  return (await db.aiRun.count({ where: { taskId, status: { in: ['queued', 'running'] } } })) > 0;
+  return (await db.aiRun.count({ where: { taskId, status: { in: [...LIVE_RUN] } } })) > 0;
 }
 
-/** Tạo run + đẩy job cho một tác vụ (bỏ qua nếu đang có lượt dở). Trả id run hoặc null. */
-export async function enqueueTask(db: TenantDb, queue: TaskQueue, ws: string, t: TaskRow, now: () => Date, source: string, event?: DomainEvent): Promise<string | null> {
+/** Tạo run + đẩy job cho một tác vụ theo lịch (bỏ qua nếu đang có lượt sống). Trả id run hoặc null. */
+export async function enqueueTask(db: TenantDb, queue: TaskQueue, ws: string, t: TaskRow, now: () => Date, source: string): Promise<string | null> {
   if (await busy(db, t.id)) return null;
   const runId = await queueRun(db as never, now, t, source);
-  await queue.push({ ws, task_id: t.id, run_id: runId, ...(event ? { event: { topic: event.topic, payload: event.payload } } : {}) });
+  await queue.push({ ws, task_id: t.id, run_id: runId });
   return runId;
 }
 
@@ -72,14 +73,13 @@ export async function rebuildArmed(platform: PlatformDb, tenant: (ws: string) =>
   }
 }
 
-/** Consumer sự kiện → tác vụ đang bật nghe topic đó (`ai_task_event_idx`). */
+/** Consumer sự kiện → tác vụ đang bật nghe topic đó (`ai_task_event_active_idx`, cursor) — biên nhận bền mỗi (tác vụ, sự kiện). */
 export function taskEventConsumer(queue: TaskQueue, now: () => Date): EventConsumer {
   return {
     name: 'ai-tasks',
     topics: AI_TASK_EVENTS,
     async handle(e, db) {
-      const tasks = await db.aiTask.findMany({ where: { trigger: 'event', status: 'active', deletedAt: null, eventType: e.topic }, take: BATCH });
-      for (const t of tasks) await enqueueTask(db, queue, e.workspaceId, t, now, 'event', e);
+      await dispatchTaskEvent(db, queue, e.workspaceId, e, now);
     },
   };
 }

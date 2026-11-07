@@ -1,0 +1,29 @@
+// tenant/ai-task-events.prisma — sở hữu: TIP-012b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Biên nhận phát sự kiện → tác vụ AI (TIP-012b P4 §3.5, DC-385): mỗi (tác vụ, sự kiện nguồn) ĐÚNG MỘT dòng — tạo cùng transaction với
+// run `queued` (hoặc kết cục skipped_busy / skipped_disabled). BullMQ chỉ vận chuyển run_id cố định; dọn queue / phát lại sự kiện không
+// tạo run thứ hai. `dispatched_at` null = run đã tạo nhưng job chưa chắc đã đẩy → quét khôi phục ROLE=ai đẩy lại đúng run đó.
+
+/// queued (đã tạo run) | skipped_busy (tác vụ đang có lượt sống) | skipped_disabled (tác vụ tắt / xoá / đổi sự kiện lúc nhận).
+enum AiTaskEventOutcome {
+  queued
+  skipped_busy
+  skipped_disabled
+
+  @@map("ai_task_event_outcome")
+}
+
+model AiTaskEventReceipt {
+  id            String             @id @db.Uuid
+  taskId        String             @map("task_id") @db.Uuid
+  /// id outbox của sự kiện nguồn (khoá chống trùng — không phải payload)
+  sourceEventId String             @map("source_event_id") @db.Uuid
+  topic         String
+  outcome       AiTaskEventOutcome
+  runId         String?            @map("run_id") @db.Uuid
+  /// Job `ai-task` đã đẩy cho run này (null + outcome queued = cần đẩy lại).
+  dispatchedAt  DateTime?          @map("dispatched_at") @db.Timestamptz(6)
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([taskId, sourceEventId])
+  @@map("ai_task_event_receipt")
+}
