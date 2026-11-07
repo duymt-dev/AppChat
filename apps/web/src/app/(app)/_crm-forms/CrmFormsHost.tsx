@@ -1,4 +1,5 @@
-// Host toàn cục cho các modal nghiệp vụ mở từ nơi khác (Hồ sơ 360° — REQ-F11): báo giá, hợp đồng, đơn, ticket, lịch hẹn, gửi email.
+// Host toàn cục cho các modal nghiệp vụ mở từ nơi khác (Hồ sơ 360° — REQ-F11): báo giá, hợp đồng, đơn, ticket, lịch hẹn, gửi email,
+// sửa khách / chuyển phụ trách (TIP-025b §D.3).
 // Mounted một lần ở app/(app)/layout.tsx (cạnh AppShell) — các modal export qua index.ts của từng feature
 // (PATTERNS_DETECTED, 00-PROJECT-CONTEXT.md SCAN DELTA ver2.1); đặt ở app/ (không phải shared/) vì ESLint boundaries
 // cấm `shared` import `feature` — chỉ `app` được phép.
@@ -10,6 +11,8 @@ import { OrderFormModal } from '@/features/orders';
 import { TicketFormModal, ticketsMetaQuery, useTicketsUi } from '@/features/tickets';
 import { AppointmentFormModal, calendarMetaQuery, useCalendarUi } from '@/features/calendar';
 import { EmailComposeModal } from './EmailComposeModal';
+import { ContactFormHost } from './ContactFormHost';
+import { FormCommandHost } from './FormCommandHost';
 
 function ContractDrawerHost() {
   const detailOpen = useContractsUi((s) => !!s.detail);
@@ -35,6 +38,8 @@ function AppointmentFormHost() {
 export function CrmFormsHost() {
   return (
     <>
+      <FormCommandHost />
+      <ContactFormHost />
       <QuoteFormModal />
       <ContractFormModal />
       <ContractDrawerHost />

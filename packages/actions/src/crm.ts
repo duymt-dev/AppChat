@@ -53,9 +53,10 @@ export const contactUpdate = defineAction({
   id: 'contact.update',
   module: 'crm',
   title: 'actions.contact.update.title',
-  description: 'Update contact fields. Example: {"contact_id":"ct_lan","patch":{"title":"Chủ shop","city":"TP.HCM"}}',
-  input: z.object({ contact_id: contactId, patch: contactFields.partial() }),
-  output: z.object({ contact_id: z.string() }),
+  description: 'Update contact fields (send if_version from the latest read to avoid overwriting a newer edit). Example: {"contact_id":"ct_lan","patch":{"title":"Chủ shop","city":"TP.HCM"}}',
+  /** `if_version` (TIP-025b §D.4) — tuỳ chọn để tương thích; lệch → 409 STALE_VERSION. Kết quả trả version mới. */
+  input: z.object({ contact_id: contactId, patch: contactFields.partial(), if_version: z.number().int().positive().optional() }),
+  output: z.object({ contact_id: z.string(), version: z.number().int() }),
   permission: 'crm.edit',
   risk: 'write',
   agentGrantable: true,

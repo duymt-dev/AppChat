@@ -2,6 +2,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { quoteTotals } from '@appchat/shared';
+import { sourceLinkOf, type SourceLink } from '@/shared/crm-forms/source-link';
 import type { OrderItem } from '../types';
 
 export interface OrderDraft {
@@ -11,6 +12,8 @@ export interface OrderDraft {
   owner_user_id: string;
   shipping: { address: string; receiver: string; receiver_phone: string; eta: string };
   note: string;
+  /** Nguồn Hộp thư (TIP-025b §D.3). */
+  source: SourceLink;
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '');
@@ -25,6 +28,7 @@ export function initialOrderDraft(prefill?: Record<string, unknown> | null): Ord
     owner_user_id: str(p.owner_user_id),
     shipping: { address: '', receiver: '', receiver_phone: '', eta: '' },
     note: str(p.note),
+    source: sourceLinkOf(p),
   };
 }
 
@@ -47,6 +51,7 @@ export function useOrderForm(init: OrderDraft) {
   const depositOver = Number(d.deposit || 0) > Number(totals.total);
   const input = {
     contact_id: d.contact_id,
+    ...d.source,
     items: d.items,
     ...(Number(d.deposit) > 0 ? { deposit_amount: d.deposit } : {}),
     ...(d.owner_user_id ? { owner_user_id: d.owner_user_id } : {}),

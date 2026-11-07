@@ -45,8 +45,10 @@ const whereOf = (tab: ApprovalTab, now: Date) => {
   return {};
 };
 
-export async function listApprovals(db: Pick<TenantDb, 'approvalRequest' | 'aiAgent'>, authz: AuthzContext, tab: ApprovalTab, now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
-  const rows = await db.approvalRequest.findMany({ where: whereOf(tab, now), orderBy: [{ requestedAt: 'desc' }, { id: 'desc' }], take: 100 });
+type Row = Awaited<ReturnType<TenantDb['approvalRequest']['findMany']>>[number];
+
+/** Dòng hàng duyệt cho một tập yêu cầu đã chọn (dùng chung màn Cần duyệt + thẻ Hộp thư — TIP-025b §G). */
+export async function approvalRows(db: Pick<TenantDb, 'aiAgent'>, authz: AuthzContext, rows: Row[], now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
   const ids = [...new Set(rows.map((r) => r.agentId).filter((x): x is string => !!x))];
   const agents = new Map((ids.length ? await db.aiAgent.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : []).map((a) => [a.id, a.name]));
   const decide = can(authz, 'approvals.decide');
@@ -65,5 +67,11 @@ export async function listApprovals(db: Pick<TenantDb, 'approvalRequest' | 'aiAg
     input: (r.input ?? {}) as Record<string, unknown>,
     fields: editableFields(DEFS.get(r.actionId)),
     ...(r.decisionNote ? { note: r.decisionNote } : {}),
+    ...(r.status === 'approved' || r.status === 'edited' ? { executed: !!r.executedAt } : {}),
   }));
+}
+
+export async function listApprovals(db: Pick<TenantDb, 'approvalRequest' | 'aiAgent'>, authz: AuthzContext, tab: ApprovalTab, now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
+  const rows = await db.approvalRequest.findMany({ where: whereOf(tab, now), orderBy: [{ requestedAt: 'desc' }, { id: 'desc' }], take: 100 });
+  return approvalRows(db, authz, rows, now, timeZone);
 }

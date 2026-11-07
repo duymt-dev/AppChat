@@ -18,6 +18,7 @@ import type { CrmMembers } from './members.service';
 import type { FileLinks } from '../../kernel/files/file-links';
 import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
+import { contactEditContext } from './contact-edit';
 
 export interface Viewer {
   workspaceId: string;
@@ -138,6 +139,11 @@ export class CrmReadService {
       ]);
       return { ...p360, custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
+  }
+
+  /** `GET /v1/contacts/:id/edit-context` (TIP-025b §D.3) — cùng reader với action contact.get_edit_context. */
+  async editContext(v: Viewer, id: string) {
+    return this.tx(v, (tx) => contactEditContext(tx, v.authz, id, (ids) => this.members.names(ids)));
   }
 
   /** `GET /v1/contacts/:id/memory` (TIP-015b): khối "AI ghi nhớ" — cùng dữ liệu action contact.memory_list. */

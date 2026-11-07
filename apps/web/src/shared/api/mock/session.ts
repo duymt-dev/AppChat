@@ -8,7 +8,7 @@ export interface MockSession {
   trialDaysLeft: number;
   provisioned: boolean;
   /** TIP-041: DB tenant đã lưu trữ / đang khôi phục (seed `archived`). */
-  lifecycle?: 'archived' | 'restoring' | null;
+  lifecycle?: 'archived' | 'restoring' | 'deleting' | null;
   /** Danh sách dày ~120 dòng (bulk.ts) — chỉ khi seed `?session=…,bulk`. */
   bulk?: boolean;
 }

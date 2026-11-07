@@ -108,6 +108,12 @@ export class ContactsController {
     return { data: await this.read.get360(await this.viewer(req), id) };
   }
 
+  /** Ngữ cảnh form sửa khách (TIP-025b §D.3): trường được thấy + version + quyền sửa / chuyển. */
+  @Get('contacts/:id/edit-context')
+  async editContext(@Req() req: IncomingMessage, @Param('id') id: string) {
+    return { data: await this.read.editContext(await this.viewer(req), id) };
+  }
+
   @Get('contacts/:id/collaborators')
   async collaborators(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.read.collaborators(await this.viewer(req), id) };

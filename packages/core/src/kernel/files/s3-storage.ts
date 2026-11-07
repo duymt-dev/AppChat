@@ -2,8 +2,8 @@
 // `@aws-sdk/client-s3` — không presign, không ACL công khai (`private`), khoá đi qua cùng kiểm hình dạng như local (không `..`, không
 // `/` đầu, ký tự an toàn). Đọc giới hạn byte (tệp lớn hơn trần tải lên là bất thường → lỗi, không đọc hết vào RAM). Lỗi nhà cung cấp
 // đổi thành mã ổn định `storage_unavailable` / `storage_not_found`, không lộ endpoint / bucket / thông điệp SDK ra client.
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
-import { MAX_UPLOAD_BYTES, type Storage } from './storage';
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
+import { MAX_UPLOAD_BYTES, assertWorkspacePrefix, type Storage } from './storage';
 
 export interface S3StorageConfig {
   bucket: string;
@@ -104,6 +104,30 @@ export class S3Storage implements Storage {
       throw new StorageError('storage_unavailable', e);
     });
   }
+
+  deleteWorkspace(workspaceId: string): Promise<number> {
+    return deleteS3Workspace(this.client, this.cfg.bucket, this.cfg.prefix, workspaceId);
+  }
+}
+
+/** Liệt kê theo trang 1000 khoá dưới `<prefix>/<ws>/` rồi xoá lô — chỉ trong tiền tố của workspace. */
+export async function deleteS3Workspace(client: Sendable, bucket: string, prefix: string | undefined, workspaceId: string): Promise<number> {
+  const root = `${prefix ? `${prefix}/` : ''}${assertWorkspacePrefix(workspaceId)}/`;
+  let token: string | undefined;
+  let n = 0;
+  do {
+    const page = await client.send(new ListObjectsV2Command({ Bucket: bucket, Prefix: root, ContinuationToken: token, MaxKeys: 1000 })).catch((e: unknown) => {
+      throw new StorageError('storage_unavailable', e);
+    });
+    const keys = (page.Contents ?? []).map((o) => o.Key!).filter((k) => k.startsWith(root));
+    if (keys.length)
+      await client.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: keys.map((Key) => ({ Key })), Quiet: true } })).catch((e: unknown) => {
+        throw new StorageError('storage_unavailable', e);
+      });
+    n += keys.length;
+    token = page.IsTruncated ? page.NextContinuationToken : undefined;
+  } while (token);
+  return n;
 }
 
 const notFound = (e: unknown) => {

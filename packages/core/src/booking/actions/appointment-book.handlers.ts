@@ -11,8 +11,9 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId, createContact, editableContact, fieldDefs } from '../../crm/public';
+import { linkConversation } from '../../inbox/public';
 import { BookingPlace } from '../services/booking-place';
-import { UUID, bookingScopeSql, lockAppointment } from '../booking-access';
+import { bookingScopeSql, lockAppointment } from '../booking-access';
 import { slotsFor, serviceOf } from '../services/slots';
 import { assertSlot } from '../services/appointment-edit';
 import { eventOf, guarded, matchingPackage, step, timeline } from '../services/appointment-write';
@@ -92,12 +93,13 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
     await assertSlot(tx, { serviceId: svc.id, staffId: input.staff_id, date: input.date, start: input.start, timeZone, now });
     const errs = validateCustomValues(await fieldDefs(tx, 'appointment'), input.custom, ctx.authz.isOwner ? 'owner' : await this.members.roleOf(ctx.workspaceId, actorUserId(ctx)), 'create');
     if (Object.keys(errs).length) throw new AppError('VALIDATION_FAILED', 422, errs);
-    const contact = await contactFor(ctx, tx, this.members, input, now);
+    // TIP-025b §D.1: hội thoại nguồn kiểm trước — 1-1 lấy đúng khách của hội thoại; lệch / chưa liên kết → lỗi rõ (không âm thầm bỏ).
+    const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
+    const contact = await contactFor(ctx, tx, this.members, link.contactId ? { ...input, contact_id: link.contactId } : input, now);
     const startAt = wallToUtc(input.date, input.start, timeZone);
     const endAt = new Date(startAt.getTime() + svc.duration * 60_000);
     const status = input.status ?? 'pending';
     const pkg = await matchingPackage(tx, contact.id, svc.id, startAt);
-    const conv = input.conversation_id && UUID.test(input.conversation_id) ? await tx.conversation.findFirst({ where: { id: input.conversation_id, contactId: contact.id }, select: { id: true } }) : null;
     const actor = actorOf(ctx);
     const id = uuidv7(now.getTime());
     const code = await nextCode(tx, 'appointment');
@@ -119,7 +121,7 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
           status,
           holdExpiresAt: status === 'pending' ? holdUntil(now, startAt) : null,
           source: sourceOf(ctx),
-          conversationId: conv?.id ?? null,
+          conversationId: link.conversationId,
           packageId: pkg?.id ?? null,
           note: input.note?.trim() ?? '',
           reminderMin: input.reminder_min ?? null,

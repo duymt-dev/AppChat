@@ -120,6 +120,18 @@ export const usePopStyles = createStyles(({ css, responsive }) => ({
     color: ${color.blue};
     background: ${color.infoBg};
   `,
+  /** Ô chọn dịch vụ / ngày / nhân viên của popover đặt lịch (TIP-025b §E). */
+  field: css`
+    width: 100%;
+    padding: 6px 12px;
+    border: 1.5px solid ${color.border};
+    border-radius: ${radius.r10}px;
+    font-size: ${font.scale.s13}px;
+    font-family: inherit;
+    background: ${color.surface};
+    color: ${color.text};
+    margin-bottom: 6px;
+  `,
   builderLink: css`
     color: ${color.brandInk};
     font-weight: ${font.weight.bold};

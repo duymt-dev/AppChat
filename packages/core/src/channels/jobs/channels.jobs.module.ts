@@ -29,6 +29,7 @@ import { GroupCreators } from './create-group.processor';
 import { OperationQueue, ProviderOperators } from './provider-operations.processor';
 import { runAvatarSync } from './avatar-sync.processor';
 import { runContactSync } from './contact-sync.processor';
+import { runGroupCommand } from './group-command.processor';
 import { runFriendOp, runLookup } from './friend.processor';
 import { FilesService } from '../../kernel/files/files.service';
 import { providerEventQueue, startProviderEventWorker } from './provider-events.processor';
@@ -97,6 +98,8 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
         // Bạn bè + tra SĐT (TIP-014b E): chỉ nhân viên bấm, trần / ngày ở action.
         friend: (id, a, j, g) => runFriendOp({ tenants, kv: redis, log: this.log, now }, id, a, j, g),
         lookup: (id, a, j) => runLookup({ tenants, kv: redis, log: this.log, now }, id, a, j),
+        // Lệnh quản lý nhóm (TIP-025b): cùng hàng đợi tài khoản, kết quả theo ACK.
+        group: (id, a, j, g) => runGroupCommand({ tenants, kv: redis, log: this.log, now, ...(this.key ? { key: this.key } : {}) }, id, a, j, g),
       },
       this.opQueue ?? undefined,
     ));

@@ -5,6 +5,7 @@ import { ChannelOperationError, MAX_FRIENDS_PAGE, MAX_PROFILE_BATCH, type Channe
 import { ChannelNotRunningError } from '../types';
 import { ZALO_REACTION, ZALO_REACTION_NONE, assertCallable, emojiOfZalo } from './provider-refs';
 import type { ZaloRawMessage, ZaloRawReaction, ZaloRawReceipt, ZaloRawUndo, ZaloSession } from './transport';
+import { accountRoleOf, applyGroupSettings } from './group-settings';
 
 /** Số thành viên tối đa mỗi lần thêm (025b: ≤ 50 định danh đã biết). */
 export const MAX_ADD_MEMBERS = 50;
@@ -55,10 +56,11 @@ export function zaloOperations(session: (accountId: string) => ZaloSession): Cha
       await live(accountId).react(ref.threadId, ref.isGroup, id.msgId, id.cliMsgId, icon);
     },
     async groupInfo(accountId: string, groupId: string) {
-      const g = await live(accountId).groupInfo(groupId);
+      const s = live(accountId);
+      const g = await s.groupInfo(groupId);
       // Danh sách id SDK trả có thể thiếu so với tổng — đánh dấu complete=false, không coi số quan sát là toàn bộ.
       const complete = g.totalMember !== null && g.memberIds.length >= g.totalMember;
-      return { groupId: g.groupId, name: g.name, totalMembers: g.totalMember, memberIds: g.memberIds, complete };
+      return { groupId: g.groupId, name: g.name, totalMembers: g.totalMember, memberIds: g.memberIds, complete, accountRole: accountRoleOf(g, s.ownId), version: g.version ?? null };
     },
     async groupMembers(accountId: string, memberIds: string[]) {
       if (!memberIds.length) return [];
@@ -86,6 +88,12 @@ export function zaloOperations(session: (accountId: string) => ZaloSession): Cha
         .filter((f) => f.id && f.id.length <= 64)
         .slice(0, count)
         .map((f) => ({ id: f.id, displayName: f.displayName || f.id, ...(f.phone ? { phone: f.phone } : {}), ...(f.avatar ? { avatarUrl: f.avatar } : {}) }));
+    },
+    async updateGroupSettings(accountId: string, groupId: string, patch) {
+      return applyGroupSettings(live(accountId), groupId, patch);
+    },
+    async setGroupMute(accountId: string, groupId: string, muted: boolean) {
+      await live(accountId).setGroupMute(groupId, muted);
     },
     async addGroupMembers(accountId: string, groupId: string, memberIds: string[]) {
       const ids = [...new Set(memberIds)];

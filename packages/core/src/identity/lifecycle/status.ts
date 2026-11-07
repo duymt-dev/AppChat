@@ -6,8 +6,10 @@ import type { PlatformDb } from '@appchat/db';
 import { AppError, type WorkspaceLifecycleDto } from '@appchat/shared';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
+import { deletePreview, type DeletePreview } from './delete-preview';
 
 type Job = NonNullable<WorkspaceLifecycleDto['job']>;
+type FreezeStatus = NonNullable<WorkspaceLifecycleDto['freeze_request']>['status'];
 
 @Injectable()
 export class WorkspaceLifecycleReader {
@@ -22,7 +24,7 @@ export class WorkspaceLifecycleReader {
     const m = await db.membership.findFirst({ where: { workspaceId, userId, status: 'active' }, select: { userId: true } });
     if (!m) throw new AppError('FORBIDDEN', 403, { workspace: 'not_member' });
     const [w, job, stats] = await Promise.all([
-      db.workspace.findUnique({ where: { id: workspaceId }, select: { dbStatus: true } }),
+      db.workspace.findUnique({ where: { id: workspaceId }, select: { dbStatus: true, ownerUserId: true } }),
       db.workspaceLifecycleJob.findFirst({
         where: { workspaceId },
         orderBy: { generation: 'desc' },
@@ -37,12 +39,23 @@ export class WorkspaceLifecycleReader {
           select: { status: true, archiveOn: true },
         })
       : null;
+    const fr = w.ownerUserId === userId ? await db.workspaceFreezeRequest.findFirst({ where: { workspaceId }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], select: { id: true, status: true, createdAt: true, decidedAt: true } }) : null;
     const warn = w.dbStatus === 'active' && notice?.status === 'sent' && notice.archiveOn.getTime() > this.clock.now().getTime();
     return {
       workspace_id: workspaceId,
       db_status: w.dbStatus as WorkspaceLifecycleDto['db_status'],
       job: job ? { ...job, operation: job.operation as Job['operation'], status: job.status as Job['status'] } : null,
       archive_on: warn ? notice!.archiveOn.toISOString().slice(0, 10) : null,
+      freeze_request: fr ? { id: fr.id, status: fr.status as FreezeStatus, created_at: fr.createdAt.toISOString(), decided_at: fr.decidedAt?.toISOString() ?? null } : null,
     };
+  }
+
+  /** Bản xem trước xoá — CHỈ Owner (đọc `owner_user_id`), chỉ DB nền tảng. */
+  async deletePreview(userId: string, workspaceId: string): Promise<DeletePreview> {
+    if (!this.db) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
+    const w = await this.db.workspace.findUnique({ where: { id: workspaceId }, select: { ownerUserId: true } });
+    const m = await this.db.membership.findFirst({ where: { workspaceId, userId, status: 'active' }, select: { userId: true } });
+    if (!w || !m || w.ownerUserId !== userId) throw new AppError('FORBIDDEN', 403, { owner: 'not_owner' });
+    return (await deletePreview(this.db, workspaceId, this.clock.now())).preview;
   }
 }
