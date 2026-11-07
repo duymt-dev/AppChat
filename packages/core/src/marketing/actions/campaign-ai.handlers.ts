@@ -13,6 +13,7 @@ import { created, preview } from '../../kernel/actions/preview-kit';
 import { uuidv7 } from '../../kernel/ids';
 import { actorUserId } from '../../crm/public';
 import { AiRunner } from '../../ai/runs/runner';
+import { trustedParent } from '../../ai/runs/run-lineage';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { DRAFT_MAX_CREDITS, draftSystem, parseSuggestions } from '../ai/marketing-ai.service';
 import { unknownVariables } from '../services/campaign-policy';
@@ -67,6 +68,7 @@ export class CampaignDraftContentHandler implements Handler<ActionInput<typeof c
     const db = await this.d.tenants().get(TenantContexts.system(ctx.workspaceId, 'campaign.draft_content'));
     const r = await runOnce(db, this.runner, () => this.clock.now(), ctx.workspaceId, {
       run: { kind: 'consult', title: 'campaign.draft_content', tier: 'standard', initiatedByUserId: actorUserId(ctx), input: { tone: input.tone, channel: input.channel } },
+      parent: await trustedParent(db, ctx, 'campaign.draft_content'),
       system: draftSystem(input.tone, input.channel),
       prompt: input.text,
       source: 'marketing',

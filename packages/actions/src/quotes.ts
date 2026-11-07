@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
-import { discount, docChannel, lineItem } from './sales-schemas';
+import { discount, docChannel, lineItem, sourceLink } from './sales-schemas';
 
 const quoteId = z.string().min(1);
 const fields = z.object({
@@ -32,7 +32,7 @@ export const quoteCreate = defineAction({
   title: 'actions.quote.create.title',
   description:
     'Create a draft quote (unit prices exclude VAT, tax per line after discount). Example: {"contact_id":"ct_lan","items":[{"name":"HIFU nâng cơ","qty":8,"unit_price":"1500000","tax_rate":8}],"header_discount":{"kind":"pct","value":5}}',
-  input: fields,
+  input: fields.merge(sourceLink),
   output: out,
   permission: 'quote.create',
   risk: 'write',

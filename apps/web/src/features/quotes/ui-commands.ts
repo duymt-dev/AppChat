@@ -6,17 +6,18 @@ import { useUiCommand } from '@/shared/assistant/ui-command-bus';
 import { useQuotesUi } from './quotes-store';
 import type { QuoteFilter } from './types';
 
+/** `prefill:quote.form` — đăng ký MỘT lần ở FormCommandHost toàn cục (TIP-025b §D.3), không theo màn: Trợ lý điền form khi màn chưa mở. */
+export function prefillQuotesForm(cmd: UiCommand) {
+  if (cmd.type === 'prefill') useQuotesUi.getState().set({ prefill: cmd.values, form: 'create' });
+}
+
 export function useQuotesUiCommands() {
-  const prefill = useCallback((cmd: UiCommand) => {
-    if (cmd.type === 'prefill') useQuotesUi.getState().set({ prefill: cmd.values, form: 'create' });
-  }, []);
   const open = useCallback((cmd: UiCommand) => {
     if (cmd.type === 'open') useQuotesUi.getState().set({ detail: cmd.id, tab: 'overview' });
   }, []);
   const filter = useCallback((cmd: UiCommand) => {
     if (cmd.type === 'filter') useQuotesUi.getState().setFilter(cmd.filter as Partial<QuoteFilter>);
   }, []);
-  useUiCommand('prefill:quote.form', prefill);
   useUiCommand('open:quote', open);
   useUiCommand('filter:quotes', filter);
 }

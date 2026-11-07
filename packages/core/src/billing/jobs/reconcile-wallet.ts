@@ -12,7 +12,8 @@ export const USAGE_WINDOW_MS = 2 * 3_600_000;
 export const SETTLE_MS = 5 * 60_000;
 /** Trần số dòng sổ xét mỗi workspace mỗi lượt (giới hạn bộ nhớ); vượt → ghi finding pending để lượt sau / người xử lý biết. */
 export const USAGE_SCAN_LIMIT = 5_000;
-const RUN_REF = /^([0-9a-f-]{36}):(\d+)$/;
+// TIP-019b: lượt quyết toán thêm của cùng bước ghi ref `<run>:<bước>:s<n>` — gộp theo bước (bước llm ghi tổng của nhóm).
+const RUN_REF = /^([0-9a-f-]{36}):(\d+)(?::s\d+)?$/;
 
 type Platform = Pick<PlatformDb, '$queryRaw' | 'creditLedger'>;
 type Tenant = Pick<TenantDb, '$queryRaw'>;
@@ -40,10 +41,18 @@ export async function checkUsageReceipts(platform: Platform, tenant: Tenant, r: 
     out.push({ check: 'wallet_usage', reference: 'scan_limit', severity: 'pending', detail: { limit: USAGE_SCAN_LIMIT } });
     charges.length = USAGE_SCAN_LIMIT;
   }
-  const parsed = charges.flatMap((c) => {
+  const byStep = new Map<string, { ref: string; run: string; step: number; credits: number; at: Date }>();
+  for (const c of charges) {
     const m = RUN_REF.exec(c.refId);
-    return m ? [{ ref: c.refId, run: m[1]!, step: Number(m[2]), credits: -Number(c.delta), at: c.createdAt }] : [];
-  });
+    if (!m) continue;
+    const ref = `${m[1]}:${m[2]}`;
+    const cur = byStep.get(ref);
+    if (cur) {
+      cur.credits += -Number(c.delta);
+      if (c.createdAt > cur.at) cur.at = c.createdAt;
+    } else byStep.set(ref, { ref, run: m[1]!, step: Number(m[2]), credits: -Number(c.delta), at: c.createdAt });
+  }
+  const parsed = [...byStep.values()];
   if (!parsed.length) return out;
   const runs = [...new Set(parsed.map((p) => p.run))];
   // Bước llm ghi `meta.llm_step` = chỉ số bước của engine (khớp ref sổ); `idx` là thứ tự trong run.

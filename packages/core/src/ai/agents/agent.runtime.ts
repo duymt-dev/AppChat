@@ -10,6 +10,7 @@ import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor'
 import { resolveCodes } from '../assistant/code-refs';
 import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type NewRun } from '../runs/run.store';
+import { isChildRace, reuseChild, type TrustedParent } from '../runs/run-lineage';
 import { actionTool, toolActionId } from '../runs/tools';
 import { agentAuthz } from './agent-authz';
 import { currentAuthority } from './current-authority';
@@ -154,12 +155,27 @@ export interface OneShot {
   tools?: (runId: string) => ToolSpec[];
   source: string;
   maxCredits?: number;
+  /** Cha tin cậy (`trustedParent` từ ActionContext — TIP-019b §3): run tiện ích là con dưới gốc của cha, dùng chung ngân sách gốc. */
+  parent?: TrustedParent | null;
 }
 
-/** Tạo run + chạy tới khi xong (chạy đồng bộ trong request — lượt ngắn, tối đa MAX_STEPS.agent bước). */
+/** Tạo run + chạy tới khi xong (chạy đồng bộ trong request — lượt ngắn, tối đa MAX_STEPS.agent bước). Có cha → mỗi khoá một run con. */
 export async function runOnce(db: TenantDb, runner: AiRunner, now: () => Date, ws: string, o: OneShot): Promise<RunResult & { runId: string }> {
   const store = new RunStore(db, now);
-  const row = await store.create({ ...o.run, input: o.run.input ?? { text: o.prompt }, maxCredits: o.maxCredits ?? o.run.maxCredits ?? null });
-  const r = await runner.start(ws, store, row, { system: o.system, messages: [{ role: 'user', content: o.prompt }], tools: o.tools?.(row.id) ?? [], maxSteps: MAX_STEPS.agent, source: o.source });
-  return { ...r, runId: row.id };
+  const p = o.parent ?? null;
+  if (p) {
+    const prior = await reuseChild(db, p);
+    if (prior) return prior;
+  }
+  const data = { ...o.run, input: o.run.input ?? { text: o.prompt }, maxCredits: o.maxCredits ?? o.run.maxCredits ?? null, ...(p ? { parentRunId: p.parentRunId, childKey: p.childKey } : {}) };
+  let run;
+  try {
+    run = await store.create(data);
+  } catch (e) {
+    const again = p && isChildRace(e) ? await reuseChild(db, p) : null;
+    if (again) return again;
+    throw e;
+  }
+  const r = await runner.start(ws, store, run, { system: o.system, messages: [{ role: 'user', content: o.prompt }], tools: o.tools?.(run.id) ?? [], maxSteps: MAX_STEPS.agent, source: o.source });
+  return { ...r, runId: run.id };
 }

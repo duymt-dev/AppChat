@@ -13,6 +13,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { preview } from '../../kernel/actions/preview-kit';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { AiRunner } from '../../ai/runs/runner';
+import { trustedParent } from '../../ai/runs/run-lineage';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { actorUserId, visibleContact } from '../services/access';
 import { SUMMARY_TTL_MS, fingerprintOf, parseBullets, ruleBullets, scopeKey, snapshotOf, summaryMessage } from './summary';
@@ -73,6 +74,7 @@ export class ContactSummarizeHandler implements Handler<In, Out> {
     if (this.runner) {
       const r = await runOnce(db, this.runner, () => this.clock.now(), ctx.workspaceId, {
         run: { kind: 'assistant', title: 'contact.summarize', tier: 'standard', initiatedByUserId: actorUserId(ctx) },
+        parent: await trustedParent(db, ctx, 'contact.summarize'),
         system: doc.text,
         prompt: summaryMessage(snap, pl.locale, pl.timeZone),
         source: 'assistant',

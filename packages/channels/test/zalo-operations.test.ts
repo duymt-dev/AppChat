@@ -92,7 +92,7 @@ describe('ZaloPersonalAdapter.operations', () => {
   it('nhóm: info đánh dấu complete theo tổng; link tắt → url null; thêm thành viên thành công một phần', async () => {
     const { adapter, s } = await setup();
     s.remoteGroups.set('g1', { groupId: 'g1', name: 'Nhóm VIP', totalMember: 3, memberIds: ['u1', 'u2'], link: null });
-    expect(await adapter.operations.groupInfo!(ACC, 'g1')).toEqual({ groupId: 'g1', name: 'Nhóm VIP', totalMembers: 3, memberIds: ['u1', 'u2'], complete: false });
+    expect(await adapter.operations.groupInfo!(ACC, 'g1')).toEqual({ groupId: 'g1', name: 'Nhóm VIP', totalMembers: 3, memberIds: ['u1', 'u2'], complete: false, accountRole: null, version: null });
     expect(await adapter.operations.groupLink!(ACC, 'g1')).toEqual({ enabled: false, url: null, expiresAt: null });
     expect(await adapter.operations.addGroupMembers!(ACC, 'g1', ['u3', 'blocked_x', 'u3'])).toEqual({ added: ['u3'], failed: [{ id: 'blocked_x', error: 'blocked' }] });
     await expect(adapter.operations.addGroupMembers!(ACC, 'g1', [])).rejects.toMatchObject({ reason: 'invalid' });

@@ -1,6 +1,7 @@
 // API công khai của domain crm cho apps/api + domain khác (inbox pipeline — C06; scope khách cho sales / booking).
 export { CrmReadService, type Viewer as CrmViewer } from './services/crm-read.service';
 export { CrmMembers } from './services/members.service';
+export { loadOf as assigneeLoadOf } from './routing/routing-selector';
 export { ContactIdentityService, type InboundIdentity, type ResolvedContact } from './services/identity.service';
 export type { IdentityMatch } from './services/identity-match';
 export { scopeSql as crmScopeSql, visibleContact, editableContact, actorUserId } from './services/access';
@@ -15,6 +16,7 @@ export { purgeMergeReceipts, MERGE_UNDO_MS } from './memory/merge';
 export { recentFacts } from './memory/read';
 // Việc dữ liệu nặng của crm (TIP-045b annex D) — worker đăng ký qua CrmJobsModule; test dựng runner trực tiếp.
 export { registerContactExportKind, CONTACT_EXPORT_KIND } from './jobs/contact-export.processor';
+export { registerTimelineExportKind, TIMELINE_EXPORT_KIND } from './jobs/contact-timeline-export.processor';
 export { CONTACT_BULK_KIND } from './actions/contact-bulk.handler';
 // Chia lead mới (TIP-042b): đọc cấu hình cho controller Cài đặt; consumer + actor system cho test.
 export { LeadRoutingReadService } from './routing/routing-read.service';

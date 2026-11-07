@@ -100,7 +100,7 @@ function QuoteForm({
     const res =
       mode === 'edit' && editId
         ? await update.run({ quote_id: editId, patch: input }, { onError })
-        : await create.run(input, { onError });
+        : await create.run({ ...input, ...f.d.source }, { onError });
     if (res) ui.set({ form: null, prefill: null, editId: null, detail: res.result.quote_id, tab: 'overview' });
   };
 

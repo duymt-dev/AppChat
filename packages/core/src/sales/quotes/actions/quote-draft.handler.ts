@@ -9,6 +9,7 @@ import type { ActionContext, TenantTx } from '../../../kernel/actions/action-con
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { CrmMembers, actorUserId } from '../../../crm/public';
 import { AiRunner } from '../../../ai/runs/runner';
+import { trustedParent } from '../../../ai/runs/run-lineage';
 import { runOnce } from '../../../ai/agents/agent.runtime';
 import { QuoteDeps } from '../services/quote-deps';
 import { draftPrompt, intentByRules, matchCatalog, parseIntent, type Intent } from '../services/quote-draft';
@@ -35,6 +36,7 @@ export class QuoteDraftFromContentHandler implements Handler<In, Out> {
       const p = draftPrompt(input.content);
       const r = await runOnce(db, this.runner, () => this.clock.now(), ctx.workspaceId, {
         run: { kind: 'assistant', title: 'quote.draft_from_content', tier: 'standard', initiatedByUserId: actorUserId(ctx) },
+        parent: await trustedParent(db, ctx, 'quote.draft_from_content'),
         system: p.system,
         prompt: p.prompt,
         source: 'assistant',

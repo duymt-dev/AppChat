@@ -25,6 +25,8 @@ export const useFormModalStyles = createStyles(({ css, responsive }) => ({
     padding: 28px;
     ${responsive.md} {
       padding: 0;
+      /* Toàn màn trên mobile: phủ thanh tab (nút Lưu ở đáy) nhưng vẫn dưới dropdown / hộp xác nhận antd (≥ 1000). */
+      z-index: ${z.tabbar + 1};
     }
   `,
   box: css`

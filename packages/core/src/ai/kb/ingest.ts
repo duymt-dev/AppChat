@@ -4,7 +4,6 @@
 // `processing` thì bỏ; `learn=false` → `ready`, 0 đoạn, không gọi model. Không giữ gì trong RAM giữa các lần.
 import { chunkDocument, type Embedder } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AppError } from '@appchat/shared';
 import type { CreditMeter } from '../../billing/public';
 import type { FilesService } from '../../kernel/files/files.service';
 import { uuidv7 } from '../../kernel/ids';
@@ -12,6 +11,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { writeOutbox } from '../../kernel/outbox/outbox';
 import { FetchLimitError, safeFetch, UrlRefusedError } from '../../kernel/http/safe-fetch';
 import { ParseError, parseDocument } from './parse';
+import { embedChunks } from './ingest-usage';
 
 export const KB_INGEST_QUEUE = 'kb-ingest';
 /** Tải URL tối đa (byte) + thời gian chờ. */
@@ -26,7 +26,7 @@ export interface KbIngestJob {
 export interface IngestDeps {
   files: FilesService;
   embedder: Embedder | null;
-  meter: Pick<CreditMeter, 'assertBalance' | 'charge'> | null;
+  meter: (Pick<CreditMeter, 'assertBalance' | 'charge'> & Partial<Pick<CreditMeter, 'price' | 'usage'>>) | null;
   log: AppLogger;
   now: () => Date;
   /** Sau commit có event → đánh dấu workspace cho outbox relay (`markDirty`). */
@@ -99,9 +99,7 @@ export async function ingestSource(db: Db, ws: string, sourceId: string, d: Inge
     const chunks = chunkDocument(await parseDocument(src.kind, src.body));
     if (!d.embedder) return await fail('Chưa cấu hình model embedding');
     await d.meter?.assertBalance(ws);
-    const e = await d.embedder.embed(chunks.map((c) => c.content));
-    // Trừ credit theo token thật của model embed — idempotent theo nguồn + lần nạp (job chạy lại không trừ hai lần).
-    if (d.meter && e.tokens > 0) await d.meter.charge({ workspaceId: ws, provider: e.provider, model: e.model, tokensIn: e.tokens, tokensOut: 0, runId: `kb:${sourceId}`, stepIdx: s.ingestSeq, source: 'kb' });
+    const e = await embedChunks(db, ws, { id: sourceId, seq: s.ingestSeq, name: s.name }, chunks.map((c) => c.content), { embedder: d.embedder, meter: d.meter, now: d.now });
     const model = `${e.provider}:${e.model}`;
     await db.$transaction(async (tx) => {
       await tx.kbChunk.deleteMany({ where: { sourceId } });
@@ -117,7 +115,8 @@ export async function ingestSource(db: Db, ws: string, sourceId: string, d: Inge
     return { status: 'ready', chunks: chunks.length };
   } catch (err) {
     if (err instanceof ParseError) return fail(err.message);
-    if (err instanceof AppError && err.code === 'CREDIT_EXHAUSTED') return fail('Hết credit — nạp thêm rồi bấm Học lại');
+    if ((err as { code?: string })?.code === 'CREDIT_EXHAUSTED') return fail('Hết credit — nạp thêm rồi bấm Học lại');
+    if ((err as { code?: string })?.code === 'USAGE_UNKNOWN') return fail('Lời gọi embedding chưa rõ kết quả — chờ đối soát rồi bấm Học lại');
     d.log.warn({ err, source: sourceId }, 'kb ingest failed');
     return fail(err instanceof Error ? `Lỗi nạp: ${err.message.slice(0, 200)}` : 'Lỗi nạp');
   }

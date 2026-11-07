@@ -1,6 +1,9 @@
 // Agent Gateway (Blueprint §5.1, agent-gateway §1–§6): interface engine + tool + sự kiện run. Core chỉ thấy các kiểu này —
 // không import `ai` / `@ai-sdk/*`. Tool = action (origin 'action') hoặc meta-tool / tool phối hợp; logic nghiệp vụ không nằm trong tool.
 import type { ActionPreview } from '@appchat/actions';
+import type { AttemptInfo, AttemptOutcome } from './attempts';
+
+export type { AttemptInfo, AttemptOutcome } from './attempts';
 
 /** Tin nhắn theo định dạng AI SDK (`ModelMessage`) — lưu nguyên trong `ai_run.state` (jsonb). */
 export type RunMessage = Record<string, unknown> & { role: 'system' | 'user' | 'assistant' | 'tool' };
@@ -71,10 +74,19 @@ export interface UsageInfo {
 }
 
 export interface RunHooks {
-  /** Trước mỗi bước LLM (kiểm ví > 0) — ném lỗi thì run dừng. */
+  /** Trước mỗi bước LLM (huỷ / workspace mở) — ném lỗi thì run dừng. */
   beforeStep?(stepIdx: number): Promise<void>;
-  /** Sau mỗi bước LLM: trừ credit → trả số credit của bước (cộng vào ngân sách cả run). */
+  /** Sau mỗi bước LLM (cách cũ — khi không khai `afterAttempt`): trừ credit → trả số credit của bước. */
   onUsage?(u: UsageInfo): Promise<{ credits: number }>;
+  /**
+   * TIP-019b: NGAY trước mỗi lời gọi thật (mỗi ứng viên): nhận chỗ của gốc + kiểm ví + chụp giá + ghi biên nhận. Ném → không gọi,
+   * run dừng (`code` của lỗi). `bytes` = kích thước request (đã kiểm trần).
+   */
+  beforeAttempt?(a: AttemptInfo, bytes: number): Promise<void>;
+  /** TIP-019b: sau mỗi lời gọi thật — ghi kết quả (usage / bị từ chối / không rõ) + quyết toán; trả credit đã tính (0 nếu không usage). */
+  afterAttempt?(a: AttemptInfo, outcome: AttemptOutcome): Promise<{ credits: number }>;
+  /** TIP-019b: trước MỖI tool (kể cả meta) — kiểm lại ví / ngân sách gốc / huỷ. Ném → bỏ tool chưa chạy, run dừng. */
+  beforeTool?(stepIdx: number, toolName: string): Promise<void>;
 }
 
 export interface RunRequest {
@@ -89,6 +101,8 @@ export interface RunRequest {
   budget: { maxCredits: number; spent?: number };
   /** Chạy tiếp sau khi dừng: bước bắt đầu. */
   startStep?: number;
+  /** Trần chữ ra mỗi lời gọi (mặc định 2048, tối đa 8192 — TIP-019b §1.4). */
+  maxOutputTokens?: number;
   hooks?: RunHooks;
 }
 

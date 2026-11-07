@@ -88,7 +88,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
       this.resume = startAiResumeWorker(redis, deps, this.log);
       // TIP-022: agent trực kênh + phần quyết định sau khi run chờ duyệt chạy tiếp.
       if (this.runner) {
-        const reply: ReplyDeps = { tenants, executor: this.executor, runner: this.runner, embedder: this.embedder, kv: redis, log: this.log, now: () => this.clock.now() };
+        const reply: ReplyDeps = { tenants, executor: this.executor, runner: this.runner, embedder: this.embedder, meter: this.meter, kv: redis, log: this.log, now: () => this.clock.now() };
         // Hook chạy tiếp dùng deps của lần chạy tiếp (process đang xử lý job), chỉ embedder lấy từ module này.
         const embedder = this.embedder;
         const of = (x: ResumeDeps): ReplyDeps | null => (x.runner ? { ...x, runner: x.runner, embedder } : null);

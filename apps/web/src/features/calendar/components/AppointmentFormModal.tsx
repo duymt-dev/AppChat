@@ -13,6 +13,7 @@ import { apptQuery } from '../api';
 import { REMINDERS, initialDraft, useApptForm } from '../hooks/useApptForm';
 import type { Appointment, CalendarMeta } from '../types';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
+import { sourceLinkOf } from '@/shared/crm-forms/source-link';
 
 const KEYS = { reminders: 'reminders' } as const;
 const TOOLS = [
@@ -68,6 +69,9 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
         reminder_min: f.d.reminder,
         ...(f.d.note.trim() ? { note: f.d.note.trim() } : {}),
         ...(c.custom ? { custom: c.custom } : {}),
+        // TIP-025b §D.3: khách + hội thoại nguồn từ Hồ sơ 360° / Hộp thư (server kiểm khớp; không có → tạo / tìm theo SĐT như cũ).
+        ...(typeof prefill?.contact_id === 'string' && prefill.contact_id ? { contact_id: prefill.contact_id } : {}),
+        ...sourceLinkOf(prefill),
       },
       { onError: (e) => onError(e) || cf.absorb(e.error.fields) },
     );

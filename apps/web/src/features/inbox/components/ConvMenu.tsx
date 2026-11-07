@@ -1,4 +1,4 @@
-// Menu ⋯ hội thoại có submenu (REQ-C10, ver2.1 #2) — prototype L1978–2033: Đóng · Tạm ẩn · Phím tắt · Phân công · Vòng đời ·
+// Menu ⋯ hội thoại có submenu (REQ-C10, ver2.1 #2) — prototype L1978–2033: Đóng · Tạm ẩn · Phím tắt · Phân công (AssignPicker, §B.6) · Vòng đời ·
 // Gắn thẻ nhiều — dưới đường kẻ: Lưu trữ · Ẩn trò chuyện (D50) · Tạo nhóm (TIP-023b: chỉ mở khi kênh có `create_group` thật, còn lại
 // "Sắp có" có lý do) · Xoá lịch sử.
 'use client';
@@ -7,12 +7,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
-import { membersQuery } from '@/features/customers';
-import { agentsQuery } from '@/features/agents';
 import { useRowStyles } from '../styles/row.styles';
 import { useInboxUi, type ConvSub } from '../inbox-store';
 import { cannedQuery, channelsQuery } from '../api';
 import type { Conversation } from '../types';
+import { AssignPicker } from './AssignPicker';
 
 const STAGES = ['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost'] as const;
 const SNOOZE = ['1h', '3h', 'tomorrow', 'custom'] as const;
@@ -32,8 +31,6 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
   const canned = useQuery({ ...cannedQuery(), enabled: open && sub === 'shortcut' });
   const channels = useQuery({ ...channelsQuery(), enabled: open });
   const canGroup = conv.kind === 'direct' && !!conv.channel_account_id && !!channels.data?.[conv.channel]?.create_group;
-  const members = useQuery({ ...membersQuery(), enabled: open && sub === 'assign' });
-  const agents = useQuery({ ...agentsQuery(), enabled: open && sub === 'assign' });
   const [tags, setLocalTags] = useState<string[]>(() => conv.tags.map((g) => g.label));
   const [newTag, setNewTag] = useState('');
 
@@ -121,28 +118,7 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
               ))}
             </div>
           ) : null}
-          {sub === 'assign' ? (
-            <div className={styles.subList}>
-              {(members.data ?? []).map((m) => (
-                <button key={m.id} type="button" className={styles.item} onClick={() => doAssign(m.id, false)}>
-                  <span className={styles.dot} />
-                  <div className={styles.grow}>
-                    <div>{m.name}</div>
-                    <div className={styles.subMeta}>{t('assignHint', { role: m.role })}</div>
-                  </div>
-                </button>
-              ))}
-              {(agents.data?.data ?? []).map((a) => (
-                <button key={a.id} type="button" className={styles.item} onClick={() => doAssign(a.id, true)}>
-                  <span className={styles.dot} />
-                  <div className={styles.grow}>
-                    <div>{a.name}</div>
-                    <div className={styles.subMeta}>{t('assignHint', { role: a.role_label })}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : null}
+          {sub === 'assign' ? <AssignPicker convId={conv.id} onPick={doAssign} /> : null}
           {sub === 'stage' ? (
             <div className={styles.subList}>
               {STAGES.map((s) => (

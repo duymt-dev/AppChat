@@ -13,7 +13,7 @@ import { Profile360Content } from './Profile360Content';
 import { useProfileTabs } from '../hooks/useProfileTabs';
 import { tabLabel } from './tab-label';
 
-export function Panel360({ contactId }: { contactId: string }) {
+export function Panel360({ contactId, conversationId }: { contactId: string; conversationId?: string }) {
   const t = useTranslations('inbox.p360');
   const { styles, cx } = usePanelStyles();
   const ui = useInboxUi();
@@ -53,7 +53,7 @@ export function Panel360({ contactId }: { contactId: string }) {
       <div className={styles.scroll}>
         <Profile360Content contactId={contactId} tab={active} />
       </div>
-      <Profile360Actions contactId={contactId} />
+      <Profile360Actions contactId={contactId} conversationId={conversationId} />
     </aside>
   );
 }

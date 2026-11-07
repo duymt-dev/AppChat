@@ -7,10 +7,13 @@ import { stripRealtimeFields } from '../authz/fields/realtime';
 
 export interface NotifyIntent {
   kind: NotifyKind;
-  to: { userIds?: readonly string[]; permission?: PermissionKey };
+  /** `ownerOnly` = Owner HIỆN TẠI của workspace, đọc lúc gửi (TIP-019b §4.5) — không lưu id chủ cũ trong event. */
+  to: { userIds?: readonly string[]; permission?: PermissionKey; ownerOnly?: boolean };
   params: Record<string, string | number>;
   link?: string;
   excludeUserId?: string;
+  /** Gửi đúng một lần theo khoá nghiệp vụ (vd. `approval_expiry:<id>`) dù event phát lại / người nhận đổi (notifier giữ biên nhận). */
+  onceKey?: string;
 }
 
 type NotifyBuild = (e: DomainEvent) => NotifyIntent[];

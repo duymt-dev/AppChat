@@ -32,7 +32,6 @@ interface InboxUiState {
   /** Hội thoại mở modal "Tạo nhóm" (TIP-023b) — thành viên đầu tiên + tài khoản kênh. */
   groupFrom: string | null;
   composerMode: 'reply' | 'note';
-  autoXl: boolean;
   /** Bản nháp composer (Trợ lý điền qua UiCommand prefill `inbox.composer`). */
   draft: string;
   /** Tin đang được trích để trả lời (REQ-C09 "Trả lời"). */
@@ -57,7 +56,6 @@ interface InboxUiState {
         | 'sort'
         | 'modal'
         | 'composerMode'
-        | 'autoXl'
         | 'draft'
         | 'replyTo'
         | 'searchOpen'
@@ -96,7 +94,6 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   forwardFrom: null,
   groupFrom: null,
   composerMode: 'reply',
-  autoXl: false,
   draft: '',
   replyTo: null,
   searchOpen: false,

@@ -15,6 +15,8 @@ export interface NewContract extends Omit<ContractFields, 'source'> {
   contact_id: string;
   quote_id?: string;
   renewal_of_id?: string;
+  /** Hội thoại nguồn đã kiểm qua `linkConversation` (TIP-025b §D.1). */
+  conversation_id?: string | null;
 }
 
 /** Cột nguồn tệp + gốc tin nhắn (nguồn mẫu: vắng). */
@@ -43,6 +45,7 @@ export async function insertContract(ctx: ActionContext, tx: TenantTx, members: 
       contactId: input.contact_id,
       quoteId: input.quote_id ?? null,
       renewalOfId: input.renewal_of_id ?? null,
+      conversationId: input.conversation_id ?? null,
       ownerUserId,
       // DC-299: nhóm theo nguồn (báo giá / hợp đồng gia hạn) → nhóm duy nhất của người phụ trách.
       teamId: await snapshotTeam(tx, { from: await sourceTeam(tx, input), owner: ownerUserId }),

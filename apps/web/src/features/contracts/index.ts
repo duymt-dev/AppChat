@@ -8,3 +8,4 @@ export type { Contract, ContractStatus } from './types';
 export { ContractFormModal } from './components/ContractFormModal';
 export { ContractDrawer } from './components/ContractDrawer';
 export { useContractsUi } from './contracts-store';
+export { prefillContractsForm } from './ui-commands';

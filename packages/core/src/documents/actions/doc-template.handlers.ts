@@ -13,6 +13,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { actorUserId } from '../../crm/public';
 import { AiRunner } from '../../ai/runs/runner';
+import { trustedParent } from '../../ai/runs/run-lineage';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { detectByRules, detectPrompt, parseDetected, type DetectedField } from '../services/detect';
 import { checkDocxFields, checkRich, docxParas, liveTemplate } from '../services/template-store';
@@ -168,6 +169,7 @@ export class DocTemplateDetectHandler implements Handler<ActionInput<typeof docT
       const p = detectPrompt(kind, paras);
       const r = await runOnce(db, this.runner, () => this.clock.now(), ctx.workspaceId, {
         run: { kind: 'assistant', title: 'doc_template.detect_fields', tier: 'standard', initiatedByUserId: actorUserId(ctx) },
+        parent: await trustedParent(db, ctx, 'doc_template.detect_fields'),
         system: p.system,
         prompt: p.prompt,
         source: 'assistant',

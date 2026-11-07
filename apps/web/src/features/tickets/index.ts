@@ -4,3 +4,4 @@ export { TicketsScreen } from './screens/TicketsScreen';
 export { TicketFormModal } from './components/TicketFormModal';
 export { useTicketsUi } from './tickets-store';
 export { ticketsMetaQuery } from './api';
+export { prefillTicketsForm } from './ui-commands';

@@ -28,3 +28,12 @@ export const lineItem = z.object({
 /** Dòng hàng đề xuất: giá luôn từ catalog (`product_id`); dòng ngoài catalog `off_catalog` + giá 0 — người dùng nhập. */
 export const draftLine = z.object({ name: z.string(), qty: z.number(), unit_price: money, product_id: z.string().nullable(), off_catalog: z.boolean() });
 export const draftSuggestion = z.object({ id: z.string(), text: z.string().max(2000) });
+
+/**
+ * Nguồn Hộp thư (TIP-025b §D.1) — chỉ ở lệnh tạo, không có trong `patch` sửa. Hội thoại phải thấy được + khách khớp (nhóm: khách chọn
+ * rõ là thành viên đã liên kết); tin nguồn thuộc đúng hội thoại. Liên kết không cấp quyền chứng từ.
+ */
+export const sourceLink = z.object({
+  conversation_id: z.string().optional(),
+  source_message_id: z.string().optional(),
+});
