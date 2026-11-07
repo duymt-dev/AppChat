@@ -45,7 +45,7 @@ export const workspaceOpen = defineAction({
   id: 'workspace.open',
   module: 'identity',
   title: 'actions.workspace.open.title',
-  description: 'Record that the signed-in member opened this workspace (keeps it active) and request a restore if it is archived. UI only.',
+  description: 'Record that the signed-in member opened this workspace (keeps it active) and request a restore if it is archived. UI only. Example: {}',
   input: z.object({}).strict(),
   output: z.object({
     workspace_id: z.string(),
