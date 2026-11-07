@@ -36,6 +36,8 @@ export interface LifecycleJobRow {
   expectedVersion: number;
   attempts: number;
   manifestId: string | null;
+  /** Lệnh của lượt quét: mốc hoạt động đã dựa vào (kiểm lại sau quiesce). */
+  basisAt?: Date | null;
 }
 
 /** Cấu hình hạ tầng của vòng đời (worker ROLE=jobs) — dựng từ env ở lifecycle.providers. */

@@ -27,6 +27,14 @@ export interface ArchiveRunDeps {
   invalidate: (workspaceId: string) => void;
 }
 
+/** Lệnh của lượt quét: có hoạt động mới hơn mốc đã dựa vào (hoặc pending outbox hoạt động chưa phản ánh) → huỷ, không lưu trữ. */
+export class ArchiveActivityError extends Error {
+  constructor() {
+    super('workspace có hoạt động mới sau khi quét');
+    this.name = 'ArchiveActivityError';
+  }
+}
+
 export class ArchiveBusyError extends Error {
   constructor(readonly what: string) {
     super(`workspace còn việc đang chạy: ${what}`);
@@ -43,6 +51,11 @@ const one = async <T extends Record<string, unknown>>(url: string, sql: string):
 const BUSY_SQL = `SELECT
   (SELECT count(*)::int FROM ai_run WHERE status = 'running') AS runs,
   (SELECT count(*)::int FROM outbox_message WHERE status IN ('dispatch_reserved', 'sending')) AS sends`;
+
+/** Hoạt động gần nhất ghi trong DB tenant: action của người / agent / Trợ lý + tin vào / ra (index created_at desc). */
+const ACTIVITY_SQL = `SELECT GREATEST(
+  (SELECT max(created_at) FROM action_log WHERE source <> 'system' AND actor_type <> 'system'),
+  (SELECT max(created_at) FROM message)) AS at`;
 
 export async function runArchive(d: ArchiveRunDeps, job: LifecycleJobRow, owner: string): Promise<'archived'> {
   const ws = await d.platform.workspace.findUniqueOrThrow({ where: { id: job.workspaceId }, select: { dbName: true, dbHost: true, dbStatus: true, schemaVersion: true } });
@@ -62,6 +75,14 @@ export async function runArchive(d: ArchiveRunDeps, job: LifecycleJobRow, owner:
     const adminDb = clusterUrl(cluster, ws.dbHost, dbName);
     const busy = await one<{ runs: number; sends: number }>(adminDb, BUSY_SQL);
     if (busy && (busy.runs || busy.sends)) throw new ArchiveBusyError(`runs=${busy.runs} sends=${busy.sends}`);
+    // Lệnh của lượt quét: kiểm lần cuối SAU quiesce — hoạt động đã phản ánh ở nền tảng, action / tin đã commit ở tenant mà outbox chưa
+    // phát (relay lag) đều tính. Mới hơn `basis_at` → huỷ an toàn (không dump / drop).
+    if (job.basisAt) {
+      const st = await d.platform.workspaceStats.findUnique({ where: { workspaceId: job.workspaceId }, select: { lastActiveAt: true } });
+      const t = await one<{ at: Date | null }>(adminDb, ACTIVITY_SQL);
+      const latest = Math.max(st?.lastActiveAt?.getTime() ?? 0, t?.at ? new Date(t.at).getTime() : 0);
+      if (latest > job.basisAt.getTime()) throw new ArchiveActivityError();
+    }
     const tables = (await one<{ n: number }>(adminDb, TABLE_COUNT_SQL))?.n ?? 0;
 
     await d.jobs.step(job, owner, 'dump');
@@ -118,7 +139,7 @@ async function finishAfterManifest(d: ArchiveRunDeps, job: LifecycleJobRow, owne
  * Lỗi TRƯỚC DROP: DB còn nguyên → kiểm DB trả lời thật (role app) rồi trả `active` (lệnh failed, cảnh báo). DB không trả lời → giữ
  * `archiving` + recovery_needed (không báo active khi chưa kiểm được).
  */
-export async function rollbackArchive(d: ArchiveRunDeps, job: LifecycleJobRow, owner: string, error: string): Promise<'rolled_back' | 'recovery_needed'> {
+export async function rollbackArchive(d: ArchiveRunDeps, job: LifecycleJobRow, owner: string, error: string, status: 'failed' | 'cancelled' = 'failed'): Promise<'rolled_back' | 'recovery_needed'> {
   const ws = await d.platform.workspace.findUniqueOrThrow({ where: { id: job.workspaceId }, select: { dbName: true, dbHost: true } });
   try {
     await one(withDatabase(d.infra.tenantAppUrl, assertTenantDbName(ws.dbName), ws.dbHost), 'SELECT 1');
@@ -126,7 +147,7 @@ export async function rollbackArchive(d: ArchiveRunDeps, job: LifecycleJobRow, o
     await d.jobs.finish(job, owner, { status: 'recovery_needed', error: `${error}; db_unreachable` });
     return 'recovery_needed';
   }
-  await d.jobs.finish(job, owner, { status: 'failed', error, dbStatus: 'active' });
+  await d.jobs.finish(job, owner, { status, error, dbStatus: 'active' });
   d.invalidate(job.workspaceId);
   return 'rolled_back';
 }

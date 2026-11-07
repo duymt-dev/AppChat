@@ -1,6 +1,7 @@
 // Handler giả cho action (chạy trên store in-memory). Policy chung nằm ở mock-transport; ở đây chỉ có nghiệp vụ.
 import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
+import { workspaceLifecycleHandlers } from './domains/workspace-lifecycle';
 import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
@@ -95,6 +96,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
       return { user_id: db.shell.me.user.id };
     },
   },
+  ...workspaceLifecycleHandlers,
   ...dashboardHandlers,
   ...inboxHandlers,
   ...customersHandlers,

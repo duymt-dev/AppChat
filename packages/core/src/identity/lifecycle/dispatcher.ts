@@ -1,14 +1,15 @@
 // Worker DUY NHẤT của queue `tenant` (TIP-041 §5): phân job theo tên — `tenant.provision` (TIP-004) / `tenant.lifecycle` (archive /
 // restore). Job lạ → lỗi (không ACK như xong). Job lifecycle chỉ là tín hiệu: lệnh bền ở `workspace_lifecycle_job`; ngoài ra quét định kỳ
 // (30 giây) nhặt lệnh đến hạn / lease hết hạn (Redis mất tín hiệu, worker chết giữa chừng). Dừng phiên kênh trước dump bằng pub/sub `stop`
-// cho từng tài khoản route `connected` của workspace (worker ROLE=channels nhả lease Zalo / IMAP).
+// cho từng tài khoản route `connected` của workspace (worker ROLE=channels nhả lease Zalo / IMAP). Pha 2: job lặp `tenant.archive-scan`
+// (mỗi ngày — quét gói Miễn phí không hoạt động) + consumer `lifecycle.activity` (mốc hoạt động).
 import { hostname } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Job } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { TenantProvisioner, type DbEnv, type PlatformDb, type TenantDbResolver } from '@appchat/db';
-import { Worker } from '../../kernel/jobs/with-job-context';
+import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
@@ -16,16 +17,21 @@ import { REDIS } from '../../kernel/redis';
 import { DB_ENV, PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { CHANNEL_CONTROL } from '../../channels/services/control';
 import { PROVISION_JOB, TENANT_QUEUE, provisionWorkspace, tenantSeedDb, type ProvisionDeps } from '../jobs/tenant-provision.processor';
+import { installActivityConsumer } from './activity';
+import { scanArchiveCandidates } from './archive-scan';
 import { LifecycleJobs } from './jobs';
 import { TENANT_LIFECYCLE_JOB } from './lifecycle.providers';
 import { processLifecycleJob, type LifecycleRunDeps } from './recovery';
-import { LIFECYCLE_INFRA, type LifecycleInfra } from './types';
+import { LIFECYCLE_INFRA, LIFECYCLE_QUEUE, type LifecycleInfra, type LifecycleWake } from './types';
 
 const SWEEP_MS = 30_000;
+export const ARCHIVE_SCAN_JOB = 'tenant.archive-scan';
+const SCAN_EVERY_MS = 24 * 3_600_000;
 
 @Injectable()
 export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicationShutdown {
   private worker?: Worker;
+  private queue?: Queue;
   private timer?: NodeJS.Timeout;
   private sweeping = false;
   private readonly owner = `${hostname()}:${process.pid}:${randomUUID().slice(0, 8)}`;
@@ -37,11 +43,13 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
     @Optional() @Inject(TENANT_RESOLVER) private readonly resolver: TenantDbResolver | undefined,
     @Optional() @Inject(DB_ENV) private readonly env: DbEnv | undefined,
     @Optional() @Inject(LIFECYCLE_INFRA) private readonly infra: LifecycleInfra | null,
+    @Optional() @Inject(LIFECYCLE_QUEUE) private readonly wake: LifecycleWake | null,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
   ) {}
 
-  onApplicationBootstrap(): void {
+  async onApplicationBootstrap(): Promise<void> {
+    if (this.platform) installActivityConsumer(this.platform);
     if (!this.redis || !this.platform || !this.resolver || !this.env?.PROVISIONER_DATABASE_URL) return;
     const provisioner = new TenantProvisioner({ adminUrl: this.env.PROVISIONER_DATABASE_URL, templateDb: this.env.TENANT_TEMPLATE_DB, ownerRole: 'appchat_migrator', appRole: 'appchat_tenant_app' });
     const seedDb = tenantSeedDb(this.env.TENANT_DATABASE_URL);
@@ -81,12 +89,21 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
           this.log.info({ job: TENANT_LIFECYCLE_JOB, id: job.data.job_id, result: r }, 'workspace lifecycle');
           return;
         }
+        if (job.name === ARCHIVE_SCAN_JOB) {
+          if (!this.lifecycle) return;
+          const wake = this.wake;
+          const r = await scanArchiveCandidates({ platform, resolver: this.resolver!, kv: redis, now: () => this.clock.now(), wake: async (id) => wake?.wake(id) });
+          this.log.info({ job: ARCHIVE_SCAN_JOB, ...r }, 'archive scan');
+          return;
+        }
         throw new Error(`job lạ trên queue tenant: ${job.name}`);
       },
       { connection: this.redis.duplicate(), concurrency: 2 },
     );
     this.worker.on('failed', (job, err) => this.log.warn({ job: job?.name, ws: job?.data.workspace_id, attempt: job?.attemptsMade, err }, 'tenant job lỗi'));
     if (this.lifecycle) {
+      this.queue = new Queue(TENANT_QUEUE, { connection: redis.duplicate() });
+      await this.queue.upsertJobScheduler(ARCHIVE_SCAN_JOB, { every: SCAN_EVERY_MS }, { name: ARCHIVE_SCAN_JOB });
       this.timer = setInterval(() => void this.sweep(), SWEEP_MS);
       this.timer.unref();
     }
@@ -106,5 +123,6 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
   async onApplicationShutdown(): Promise<void> {
     if (this.timer) clearInterval(this.timer);
     await this.worker?.close();
+    await this.queue?.close();
   }
 }

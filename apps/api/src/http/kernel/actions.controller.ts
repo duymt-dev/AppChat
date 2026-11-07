@@ -5,16 +5,19 @@
 // `secret_vault` thay giá trị — confirm_token / log / idempotency không chứa bí mật thô.
 // Action quản trị (`platform_admin` — TIP-040, DC-368): nhánh chọn theo REGISTRY (không theo header client) → chỉ xác thực JWT, không
 // X-Workspace-Id / membership; ngữ cảnh nền tảng dựng phía server, quyền admin kiểm sống trong executor. Không qua GenUI / Trợ lý.
+// Action vòng đời (`workspace.open` — TIP-041): workspace có thể ĐÃ LƯU TRỮ (không DB tenant) → không AuthzResolver; JWT + X-Workspace-Id,
+// membership kiểm trong transaction nền tảng của handler. Chỉ nguồn ui, không GenUI.
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, Post, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
 import { registry } from '@appchat/actions';
-import { ActionExecutor, AUTHORIZER, GenUiIntents, RequestContext, platformContext, runGenUiAction, SecretVault, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
+import { ActionExecutor, AUTHORIZER, GenUiIntents, LIFECYCLE_ACTIONS, lifecycleContext, RequestContext, platformContext, runGenUiAction, SecretVault, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from './request-actor';
 
 const SOURCES: ActionSource[] = ['ui', 'assistant', 'api'];
 const body = z.object({ input: z.unknown().optional(), confirm_token: z.string().optional(), secret_vault: z.string().max(80).optional() });
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const header = (req: IncomingMessage, k: string) => {
   const v = req.headers[k];
   return Array.isArray(v) ? v[0] : v;
@@ -75,6 +78,16 @@ export class ActionsController {
       const userId = await this.actors.user(req);
       RequestContext.patch({ userId });
       const out = await this.executor.executePlatform(platformContext(userId, { idempotencyKey: header(req, 'idempotency-key'), confirmToken: parsed.data.confirm_token }), id, parsed.data.input);
+      res.statusCode = out.status;
+      return { data: out.data };
+    }
+    if (LIFECYCLE_ACTIONS.has(id)) {
+      if (header(req, 'x-genui-intent') || (header(req, 'x-action-source') ?? 'ui') !== 'ui') throw new AppError('FORBIDDEN', 403, { source: 'lifecycle' });
+      const userId = await this.actors.user(req);
+      const ws = header(req, 'x-workspace-id');
+      if (!ws || !UUID.test(ws)) throw new AppError('FORBIDDEN', 403, { workspace: 'missing' });
+      RequestContext.patch({ ws, userId });
+      const out = await this.executor.executeLifecycle(lifecycleContext(userId, ws, { idempotencyKey: header(req, 'idempotency-key') }), id, parsed.data.input);
       res.statusCode = out.status;
       return { data: out.data };
     }

@@ -13,6 +13,9 @@
     }
   },
   "workspace": {
+    "open": {
+      "title": "Open workspace (keep active / restore if archived)"
+    },
     "switch": {
       "title": "Switch workspace"
     },

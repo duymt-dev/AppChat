@@ -7,6 +7,8 @@ export interface MockSession {
   expiredSeen: boolean;
   trialDaysLeft: number;
   provisioned: boolean;
+  /** TIP-041: DB tenant đã lưu trữ / đang khôi phục (seed `archived`). */
+  lifecycle?: 'archived' | 'restoring' | null;
   /** Danh sách dày ~120 dòng (bulk.ts) — chỉ khi seed `?session=…,bulk`. */
   bulk?: boolean;
 }
@@ -22,7 +24,7 @@ const DEFAULT: MockSession = {
   provisioned: false,
 };
 
-/** Seed đọc từ ?session=… (e2e / parity): authed,declared,trialSeen,expired,provisioned,bulk */
+/** Seed đọc từ ?session=… (e2e / parity): authed,declared,trialSeen,expired,provisioned,bulk,archived */
 const fromQuery = (): Partial<MockSession> | null => {
   const q = new URLSearchParams(window.location.search).get('session');
   if (q === null) return null;
@@ -35,6 +37,7 @@ const fromQuery = (): Partial<MockSession> | null => {
     trialDaysLeft: f.has('expired') ? 0 : 15,
     provisioned: f.has('declared') || f.has('provisioned'),
     bulk: f.has('bulk'),
+    lifecycle: f.has('archived') ? 'archived' : null,
   };
 };
 

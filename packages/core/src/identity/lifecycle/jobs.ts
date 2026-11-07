@@ -149,7 +149,7 @@ export class LifecycleJobs {
   latest(workspaceId: string) {
     return this.db.workspaceLifecycleJob.findFirst({
       where: { workspaceId },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      orderBy: { generation: 'desc' },
       select: { id: true, operation: true, generation: true, status: true, step: true, attempts: true, error: true, metrics: true, createdAt: true, finishedAt: true },
     });
   }

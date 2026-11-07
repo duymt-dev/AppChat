@@ -28,7 +28,7 @@ const job = (o: Partial<LifecycleJobRow> = {}): LifecycleJobRow => ({
 });
 
 function deps(row: LifecycleJobRow | null) {
-  const jobs = { claim: vi.fn(async () => row), retryLater: vi.fn(async () => undefined), finish: vi.fn(async () => undefined) };
+  const jobs = { claim: vi.fn(async () => row), retryLater: vi.fn<(...a: unknown[]) => Promise<void>>(async () => undefined), finish: vi.fn<(...a: unknown[]) => Promise<void>>(async () => undefined) };
   const d = { jobs, log: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } } as unknown as LifecycleRunDeps;
   return { d, jobs };
 }

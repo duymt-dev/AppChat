@@ -15,6 +15,8 @@ export * from './actions/policy';
 export * from './actions/confirm-token';
 export * from './actions/executor';
 export * from './actions/platform-context';
+export { lifecycleContext, LIFECYCLE_ACTIONS, LifecycleActionHandler, type LifecycleContext, type LifecycleOutcome } from './actions/workspace-lifecycle-context';
+export { WORKSPACE_ACTIVITY_TOPIC } from './actions/activity-event';
 export { executePlatformAction, previewPlatformAction, type PlatformExecuteOutcome } from './actions/platform-execution';
 export * from './actions/undo.service';
 export * from './actions/tip-owners';

@@ -7,7 +7,7 @@
 import { LockUnavailableError } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { AppLogger } from '../../kernel/logger/logger';
-import { ArchiveBusyError, rollbackArchive, runArchive, type ArchiveRunDeps } from './archive-run';
+import { ArchiveActivityError, ArchiveBusyError, rollbackArchive, runArchive, type ArchiveRunDeps } from './archive-run';
 import { runRestore, type RestoreRunDeps } from './restore-run';
 import { LIFECYCLE_MAX_ATTEMPTS } from './types';
 
@@ -45,6 +45,8 @@ export async function processLifecycleJob(d: LifecycleRunDeps, jobId: string, ow
         await d.jobs.finish(job, owner, { status: 'recovery_needed', error: code });
         return 'recovery_needed';
       }
+      // Có hoạt động mới (lệnh của lượt quét) → huỷ: DB nguyên, quay lại active; lượt quét sau tính lại từ mốc mới.
+      if (e instanceof ArchiveActivityError) return (await rollbackArchive(d, job, owner, code, 'cancelled'), 'cancelled');
       if (e instanceof ArchiveBusyError && !last) return (await d.jobs.retryLater(job, owner, code, backoff(job.attempts)), 'retry');
       return rollbackArchive(d, job, owner, code);
     }

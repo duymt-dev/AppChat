@@ -13,6 +13,9 @@
     }
   },
   "workspace": {
+    "open": {
+      "title": "Mở workspace (giữ hoạt động / khôi phục khi đã lưu trữ)"
+    },
     "switch": {
       "title": "Chuyển workspace"
     },

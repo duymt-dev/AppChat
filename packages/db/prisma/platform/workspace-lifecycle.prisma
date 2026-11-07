@@ -28,6 +28,8 @@ model WorkspaceLifecycleJob {
   error           String?
   /// Manifest bản lưu trữ dùng / tạo bởi thao tác này.
   manifestId      String?   @map("manifest_id") @db.Uuid
+  /// Lệnh của lượt quét: mốc hoạt động đã dựa vào — sau quiesce thấy hoạt động mới hơn → huỷ (không lưu trữ).
+  basisAt         DateTime? @map("basis_at") @db.Timestamptz(6)
   /// Thời gian từng pha (ms) — benchmark khôi phục tách queue / dump / restore / migrate.
   metrics         Json      @default("{}")
   startedAt       DateTime? @map("started_at") @db.Timestamptz(6)
@@ -73,4 +75,26 @@ model ArchiveManifest {
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("archive_manifest")
+}
+
+/// Biên nhận giao cảnh báo lưu trữ (gói Miễn phí không hoạt động, 14 ngày trước): một dòng mỗi (workspace, cửa sổ, kênh). `sent` = provider
+/// mail đã nhận / thông báo trong app đã ghi; chưa giao được thì không lưu trữ theo lịch (admin thấy cảnh báo).
+model WorkspaceLifecycleNotice {
+  id            String    @id @db.Uuid
+  workspaceId   String    @map("workspace_id") @db.Uuid
+  /// Ngày dự kiến lưu trữ (YYYY-MM-DD) — hoạt động mới đẩy ngày → cửa sổ mới.
+  windowKey     String    @map("window_key")
+  /// email | in_app
+  channel       String
+  /// pending | sent | failed
+  status        String    @default("pending")
+  attempts      Int       @default(0)
+  lastError     String?   @map("last_error")
+  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  archiveOn     DateTime  @map("archive_on") @db.Timestamptz(6)
+  sentAt        DateTime? @map("sent_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, windowKey, channel])
+  @@map("workspace_lifecycle_notice")
 }

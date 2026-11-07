@@ -41,6 +41,24 @@ test.describe('onboarding', () => {
     await expect(page.getByTestId('trial-expired')).toBeHidden();
   });
 
+  test('workspace đã lưu trữ: mở app → thẻ Đang khôi phục, đủ bước → vào app (TIP-041)', async ({ page }) => {
+    await page.goto('/dashboard?session=authed,declared,trialSeen,archived');
+    const card = page.getByTestId('restoring');
+    await expect(card).toBeVisible();
+    await expect(card).toContainText('Đang khôi phục workspace');
+    await expect(page.getByTestId('restoring-step-restore')).toHaveAttribute('data-done', 'true', { timeout: 10_000 });
+    await expect(card).toBeHidden({ timeout: 15_000 });
+    await expect(page.getByTestId('app-shell')).toBeVisible();
+    if (isMobile(page)) await expectNoHorizontalOverflow(page);
+  });
+
+  test('workspace đã lưu trữ — tiếng Anh', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.context().addCookies([{ name: 'NEXT_LOCALE', value: 'en', url: test.info().project.use.baseURL ?? 'http://localhost:3419' }]);
+    await page.goto('/dashboard?session=authed,declared,trialSeen,archived');
+    await expect(page.getByTestId('restoring')).toContainText('Restoring your workspace');
+  });
+
   test('chưa đăng nhập → /login', async ({ page }) => {
     await page.goto('/dashboard?session=');
     await expect(page).toHaveURL(/\/login$/);

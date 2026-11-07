@@ -1337,6 +1337,7 @@
       "ai_briefing": "AI Assistant morning briefing",
       "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
+      "archive_warning": "Workspace will be archived (inactive)",
       "billing_invoice": "Plan & wallet — new invoice",
       "owner_transfer": "Workspace ownership transfer",
       "data_job_done": "Background export / bulk update finished",

@@ -22,6 +22,8 @@ export interface MembershipRow {
 }
 
 export type ProvisioningStatus = 'running' | 'ready' | 'failed';
+type LifecycleState = 'archiving' | 'archived' | 'restoring';
+const LIFECYCLE_STATES: ReadonlySet<string> = new Set<LifecycleState>(['archiving', 'archived', 'restoring']);
 
 const slugify = (name: string) =>
   name
@@ -134,11 +136,14 @@ export class WorkspacesService {
     if (!ws) return null;
     const m = await this.db.membership.findUnique({ where: { workspaceId_userId: { workspaceId: ws.id, userId } }, select: { noticesSeen: true } });
     const ready = ws.db_status === 'active';
+    // TIP-041: đã lưu trữ / đang lưu trữ / đang khôi phục ≠ khởi tạo lỗi — FE hiện thẻ "Đang khôi phục" (workspace.open tạo lệnh).
+    const lifecycle = LIFECYCLE_STATES.has(ws.db_status) ? (ws.db_status as LifecycleState) : null;
     return {
       workspaceId: ws.id,
       declared: ws.declared,
       dbReady: ready,
-      failed: !ready && (ws.db_status !== 'provisioning' || (await this.queue.failed(ws.id))),
+      lifecycle,
+      failed: !ready && !lifecycle && (ws.db_status !== 'provisioning' || (await this.queue.failed(ws.id))),
       notices: m?.noticesSeen ?? [],
     };
   }

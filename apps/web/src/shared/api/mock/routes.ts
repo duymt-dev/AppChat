@@ -2,6 +2,7 @@
 import { ROLE_DEFS } from '@appchat/shared';
 import type { MockDb } from './store';
 import { dashboardRoutes } from './domains/dashboard';
+import { workspaceLifecycleRoutes } from './domains/workspace-lifecycle';
 import { inboxRoutes } from './domains/inbox';
 import { customersRoutes } from './domains/customers';
 import { assistantRoutes } from './domains/assistant';
@@ -64,6 +65,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
     db.session.provisioned = true;
     return { status };
   },
+  ...workspaceLifecycleRoutes,
   ...dashboardRoutes,
   ...inboxRoutes,
   ...customersRoutes,

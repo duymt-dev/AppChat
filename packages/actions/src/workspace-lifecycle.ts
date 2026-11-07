@@ -35,3 +35,26 @@ export const adminWorkspaceRestore = defineAction({
   invalidates: ['admin'],
   db: 'platform',
 });
+
+/**
+ * Thành viên mở workspace (TIP-041 §1 "workspace.open"): OnboardingGate gọi MỘT lần mỗi lần mở (idempotency key mỗi lần) — ghi mốc hoạt
+ * động của chính workspace (không phải mọi workspace của user) và, nếu workspace đã lưu trữ, tạo lệnh khôi phục (gộp nhiều thành viên).
+ * Ngữ cảnh lifecycle chỉ cần membership ở DB nền tảng — chạy được khi DB tenant đã DROP. Tạm dừng / đang xoá → không tự mở / khôi phục.
+ */
+export const workspaceOpen = defineAction({
+  id: 'workspace.open',
+  module: 'identity',
+  title: 'actions.workspace.open.title',
+  description: 'Record that the signed-in member opened this workspace (keeps it active) and request a restore if it is archived. UI only.',
+  input: z.object({}).strict(),
+  output: z.object({
+    workspace_id: z.string(),
+    db_status: z.string(),
+    restore_job_id: z.string().nullable(),
+  }),
+  permission: 'self',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['session'],
+  db: 'platform',
+});

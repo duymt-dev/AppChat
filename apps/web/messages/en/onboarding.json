@@ -45,6 +45,17 @@
     "failed": "Setup isn't finished yet. We'll retry automatically.",
     "retry": "Retry"
   },
+  "restoring": {
+    "title": "Restoring your workspace…",
+    "sub": "This workspace was archived after a long period of inactivity. AppChat is restoring your data — this usually takes under a minute.",
+    "steps": {
+      "create": "Prepare the database",
+      "restore": "Load the archived data",
+      "checks": "Verify and reopen the workspace"
+    },
+    "failed": "The restore isn't finished yet. Our operators have been notified and we'll retry.",
+    "retry": "Check again"
+  },
   "welcome": {
     "eyebrow": "ONE-PERSON COMPANY SOLUTION",
     "mark": "A",
