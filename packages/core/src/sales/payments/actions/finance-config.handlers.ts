@@ -13,6 +13,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { actorUserId } from '../../../crm/public';
 import { ConnectionsService, queueProbe, rotated } from '../../../integrations/public';
 import { webhookPathOf } from '../services/bank-feed';
+import { applyBind, bindExisting, type BindPlan } from './bank-feed-bind';
 import { accountPreview, connectPreview, disconnectPreview } from '../previews/finance-config.handlers.preview';
 
 const need = (c: ConnectionsService | null) => {
@@ -53,7 +54,8 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
   /** Pha nền tảng (TIP-045b): kiểm thông tin + mã hoá + chọn id feed (tenant chỉ đọc). Ghi tenant ở `applyTenant`, route ở `finalizePlatform`. */
   async execute(ctx: ActionContext, input: ActionInput<typeof bankFeedConnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ feed_id: string; webhook_path: string }>> {
     needPtx(ptx);
-    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields, input.mode);
+    if (input.connection_id) return bindExisting(ctx, tx, input.provider, input.connection_id, input.if_version, this.clock.now());
+    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields ?? {}, input.mode);
     const accountNo = accountOrEmpty((conn.config as Record<string, unknown>).account_number);
     const existing = await tx.tenantBankFeed.findUnique({ where: { connectionId: conn.id } });
     const feedId = existing?.id ?? uuidv7(this.clock.now().getTime());
@@ -65,6 +67,7 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
   }
 
   async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    if (plan.bind) return applyBind(tx, plan as unknown as BindPlan);
     const p = plan as { conn: Parameters<ConnectionsService['applyConnect']>[2]; feedId: string; accountNo: string; provider: string; by: string; at: string };
     const row = await need(this.connections).applyConnect(tx, p.by, p.conn);
     // Thăm dò đọc bền cho khoá mới (worker; quét khôi phục 60 giây đẩy — §4.1 B). Không gọi mạng trong transaction.

@@ -693,6 +693,7 @@
       "binding": "Payment matching",
       "bindingOn": "On",
       "bindingOff": "Off",
+      "bind": "Enable payment matching",
       "never": "Never",
       "none": "None",
       "lastError": "Last error: {reason}",

@@ -63,7 +63,8 @@ export function connectionDetail(db: MockDb, id: string): ConnectionDetailDto {
     last_sync_at: r.synced,
     last_event_at: iso(-30),
     last_error: null,
-    bank_binding: { active: true, account_masked: '••3456' },
+    // Feed đối soát tiền theo dữ liệu thanh toán giả (bank_feed.connect / disconnect) — chưa gắn thì hiện "Đã tắt" + nút bật (P5).
+    bank_binding: { active: db.invoices.bank_feeds.some((f) => f.provider === c.key && f.status === 'active'), account_masked: '••3456' },
     pending_call: pending ? { ...pending } : null,
     connected_at: iso(-60 * 24),
   };

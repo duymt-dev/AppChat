@@ -14,5 +14,8 @@ export function useIntegrationDetail(id: string | null) {
   const logs = useInfiniteQuery({ ...connectionLogsQuery(id ?? ''), enabled: !!id, refetchInterval: detail.data?.pending_call ? 3000 : false });
   const sync = useAction('integration.sync_now');
   const syncNow = () => (id && detail.data ? sync.run({ connection_id: id, if_version: detail.data.credential_rev }) : Promise.resolve(null));
-  return { detail, logs, calls: logs.data?.pages.flatMap((p) => p.data) ?? [], syncNow, syncing: sync.isPending };
+  // TIP-012b P5 §5.2: bật đối soát tiền trên kết nối đã lưu (finance.manage) — dùng khoá đã lưu, không nhập lại.
+  const bind = useAction('bank_feed.connect');
+  const bindFeed = () => (id && detail.data ? bind.run({ provider: detail.data.connector_key as 'sepay' | 'casso', connection_id: id, if_version: detail.data.credential_rev }) : Promise.resolve(null));
+  return { detail, logs, calls: logs.data?.pages.flatMap((p) => p.data) ?? [], syncNow, syncing: sync.isPending, bindFeed, binding: bind.isPending };
 }

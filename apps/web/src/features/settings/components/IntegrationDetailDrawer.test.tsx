@@ -45,6 +45,17 @@ describe('IntegrationDetailDrawer', () => {
     await waitFor(() => expect(screen.getAllByTestId('st-int-call').some((c) => c.textContent?.includes('op.bank__pull'))).toBe(true));
   });
 
+  it('P5: kết nối ngân hàng chưa bật đối soát tiền → "Bật đối soát tiền" (bank_feed.connect theo connection_id) → đang bật, nút ẩn', async () => {
+    const run = vi.spyOn(transport, 'action');
+    wrap(<IntegrationDetailDrawer connectionId={MOCK_CONN.sepay!} onClose={() => undefined} onManage={() => undefined} />);
+    fireEvent.click(await screen.findByTestId('st-int-bind'));
+    await waitFor(() => expect(run).toHaveBeenCalledWith('bank_feed.connect', expect.objectContaining({ provider: 'sepay', connection_id: MOCK_CONN.sepay, if_version: 1 }), expect.anything()));
+    expect(JSON.stringify(run.mock.calls.at(-1))).not.toContain('fields');
+    await waitFor(() => expect(screen.queryByTestId('st-int-bind')).toBeNull());
+    expect(screen.getByTestId('st-int-evidence').textContent).toContain('settings.integrations.detail.bindingOn');
+    run.mockRestore();
+  });
+
   it('không mở khi chưa chọn kết nối', () => {
     wrap(<IntegrationDetailDrawer connectionId={null} onClose={() => undefined} onManage={() => undefined} />);
     expect(screen.queryByTestId('st-int-drawer')).toBeNull();

@@ -3,11 +3,11 @@
 // trên byte gốc → chuẩn hoá cả request (sai → 400, không ghi gì) → mỗi giao dịch một biên nhận chuẩn tắc + outbox cùng transaction →
 // ACK (TIP-012b P2, DC-383). Không khớp / ghi nhận / gọi LLM trước ACK: consumer ROLE=jobs chạy `bank_feed.ingest` (bank/ingress.ts).
 import { AppError } from '@appchat/shared';
-import { MAX_BATCH, accountOrEmpty, isProviderError, type BankFeedProvider, type BankTransaction, type ConnectorRegistry } from '@appchat/integrations';
-import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
+import { MAX_BATCH, accountOrEmpty, isProviderError, type BankFeedProvider, type BankTransaction, type ConnectionCtx, type ConnectorRegistry } from '@appchat/integrations';
+import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { markDirty } from '../../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../../kernel/redis';
-import { adapterOf, connectionCtx } from '../../../integrations/public';
+import { adapterOf, connectionCtx, type BankIngressSink } from '../../../integrations/public';
 import { acceptReceipts } from '../bank/receipt';
 
 export { paidNotice } from '../bank/reconcile';
@@ -53,21 +53,49 @@ export class TenantBankHook {
     const ev = adapter.verifyWebhook(ctx, { headers, rawBody });
     if (!ev) throw new AppError('UNAUTHENTICATED', 401, { signature: 'invalid' });
 
-    // Chuẩn hoá cả request trước mọi ghi (§2.2): một giao dịch hỏng → 400, không ghi phần nào.
-    let txs: BankTransaction[];
-    try {
-      txs = adapter.parseTransactions(ctx, ev.payload);
-    } catch (e) {
-      if (isProviderError(e)) throw new AppError('VALIDATION_FAILED', 400, { payload: e.field ?? e.code });
-      throw e;
-    }
-    if (txs.length > MAX_BATCH) throw new AppError('VALIDATION_FAILED', 400, { payload: 'too_many' });
-    const feedAccount = accountOrEmpty(feed.accountNo);
-    const now = this.d.now();
-    const r = await acceptReceipts(db, route.workspaceId, txs.map((tx) => ({ provider, feedId: feed.id, feedAccount, tx })), now);
-    if (r.accepted || r.ignored) await db.tenantBankFeed.update({ where: { id: feed.id }, data: { lastTxAt: now } });
-    await db.integrationConnection.update({ where: { id: conn.id }, data: { lastEventAt: now } });
-    if (r.accepted && this.d.kv) await markDirty(this.d.kv, route.workspaceId);
-    return { ok: true, ...r };
+    return ingestVerified({ db, ws: route.workspaceId, provider, feed, connId: conn.id, adapter, ctx, payload: ev.payload, kv: this.d.kv, now: this.d.now() });
   }
 }
+
+/**
+ * Phần chung sau xác thực của MỌI đường vào ngân hàng (hook tenant-payments + hook generic `/hooks/integrations` — TIP-012b §2.4 mục 4):
+ * chuẩn hoá cả request (một giao dịch hỏng → 400, không ghi phần nào) → biên nhận chuẩn tắc + outbox → ACK với số mới / trùng / bỏ qua.
+ */
+export async function ingestVerified(a: {
+  db: TenantDb;
+  ws: string;
+  provider: string;
+  feed: { id: string; accountNo: string };
+  connId: string;
+  adapter: BankFeedProvider;
+  ctx: ConnectionCtx;
+  payload: unknown;
+  kv: KeyValueStore | null;
+  now: Date;
+}): Promise<HookAck> {
+  let txs: BankTransaction[];
+  try {
+    txs = a.adapter.parseTransactions!(a.ctx, a.payload);
+  } catch (e) {
+    if (isProviderError(e)) throw new AppError('VALIDATION_FAILED', 400, { payload: e.field ?? e.code });
+    throw e;
+  }
+  if (txs.length > MAX_BATCH) throw new AppError('VALIDATION_FAILED', 400, { payload: 'too_many' });
+  const feedAccount = accountOrEmpty(a.feed.accountNo);
+  const r = await acceptReceipts(a.db, a.ws, txs.map((tx) => ({ provider: a.provider, feedId: a.feed.id, feedAccount, tx })), a.now);
+  if (r.accepted || r.ignored) await a.db.tenantBankFeed.update({ where: { id: a.feed.id }, data: { lastTxAt: a.now } });
+  await a.db.integrationConnection.update({ where: { id: a.connId }, data: { lastEventAt: a.now } });
+  if (r.accepted && a.kv) await markDirty(a.kv, a.ws);
+  return { ok: true, ...r };
+}
+
+/** Sink cho hook generic (bank-ingress-sink.ts): chỉ kết nối có feed tài chính ĐANG BẬT mới vào ingress; không có → null (lưu thô). */
+export const genericBankSink =
+  (kv: KeyValueStore | null): BankIngressSink =>
+  async (a) => {
+    const feed = await a.db.tenantBankFeed.findUnique({ where: { connectionId: a.connId } });
+    const adapter = a.adapter as BankFeedProvider;
+    if (!feed || feed.status !== 'active' || feed.provider !== a.provider || !adapter.parseTransactions) return null;
+    const r = await ingestVerified({ db: a.db, ws: a.ws, provider: a.provider, feed, connId: a.connId, adapter, ctx: a.ctx, payload: a.payload, kv, now: a.now });
+    return { accepted: r.accepted, duplicate: r.duplicate, ignored: r.ignored };
+  };

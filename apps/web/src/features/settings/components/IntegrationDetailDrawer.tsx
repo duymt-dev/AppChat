@@ -1,6 +1,7 @@
 // Drawer chi tiết kết nối (TIP-012b P3 §5.2): sức khoẻ từ bằng chứng, "Đồng bộ ngay" (biên nhận accepted ≠ xong — hiện "đang đồng bộ"
 // tới khi lượt kéo kết thúc), nhật ký lệnh gọi phân trang. Kết nối không hỗ trợ kéo → nút ẩn, ghi rõ "chỉ nhận webhook". Ngắt kết nối
-// / nhập lại khoá vẫn ở hộp kết nối (ConnectIntegrationModal).
+// / nhập lại khoá vẫn ở hộp kết nối (ConnectIntegrationModal). P5: kết nối ngân hàng chưa bật đối soát tiền → "Bật đối soát tiền"
+// (finance.manage, bank_feed.connect theo connection_id — dùng khoá đã lưu).
 'use client';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer } from '@appchat/ui';
@@ -17,7 +18,8 @@ export function IntegrationDetailDrawer({ connectionId, onClose, onManage }: { c
   const { styles } = useIntegDetailStyles();
   const s = useSectionStyles().styles;
   const can = useCan('integrations.manage');
-  const { detail, logs, calls, syncNow, syncing } = useIntegrationDetail(connectionId);
+  const canFinance = useCan('finance.manage');
+  const { detail, logs, calls, syncNow, syncing, bindFeed, binding } = useIntegrationDetail(connectionId);
   if (!connectionId) return null;
   const d = detail.data;
   const pending = d?.pending_call;
@@ -37,6 +39,11 @@ export function IntegrationDetailDrawer({ connectionId, onClose, onManage }: { c
             {t('manage')}
           </button>
           <span className={styles.grow} />
+          {canFinance && d?.port === 'bank_feed' && !d.bank_binding?.active ? (
+            <button type="button" className={s.ghost} onClick={() => void bindFeed()} disabled={binding} data-testid="st-int-bind">
+              {t('bind')}
+            </button>
+          ) : null}
           {can && d?.capabilities.pull ? (
             <button type="button" className={s.primary} onClick={() => void syncNow()} disabled={syncing || !!pending} data-testid="st-int-sync">
               {pending ? t('syncing') : t('sync')}

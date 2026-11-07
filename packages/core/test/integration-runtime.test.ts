@@ -7,6 +7,7 @@ import { backoffAt, isTerminal } from '../src/integrations/operations/call-recei
 import { capabilitiesOf, healthOf, maskAccount } from '../src/integrations/services/connection-health';
 import { decodeCursor, encodeCursor } from '../src/integrations/services/connection-detail';
 import { providerHttp } from '../src/integrations/operations/provider-http';
+import { probe } from '../src/integrations/services/form-schema';
 
 const base = { mode: 'live' as const, status: 'connected' as const, credentialRev: 2, probedRev: 2, lastProbeStatus: 'verified', lastError: null };
 
@@ -62,3 +63,18 @@ describe('cầu HTTP provider', () => {
     expect(called).toBe(1);
   });
 });
+
+describe('thăm dò nháp ngân hàng (P5 §4.1 A)', () => {
+  it('Casso nháp: integration.test dùng thăm dò đọc thật qua cầu HTTP (host cố định) — tìm thấy tài khoản → ok, không thấy → failed; thiếu khoá đọc → unsupported', async () => {
+    const urls: string[] = [];
+    const body = JSON.stringify({ error: 0, data: { bankAccs: [{ bankSubAccId: '8007041027107' }] } });
+    const http = providerHttp({ transport: async (u) => (urls.push(u), { status: 200, headers: {}, body }) });
+    const e = connectorRegistry.get('casso')!;
+    const conn = (acc: string, secrets: Record<string, string>) => ({ id: 'draft', mode: 'live' as const, config: { account_number: acc }, secrets });
+    expect(await probe(e, conn('8007041027107', { webhook_secret: 'w', api_key: 'k' }), 1000, http)).toEqual({ status: 'ok' });
+    expect(urls.every((u) => u.startsWith('https://oauth.casso.vn/'))).toBe(true);
+    expect(await probe(e, conn('0000000000', { webhook_secret: 'w', api_key: 'k' }), 1000, http)).toEqual({ status: 'failed', reason: 'rejected' });
+    expect(await probe(e, conn('8007041027107', { webhook_secret: 'w' }), 1000, http)).toEqual({ status: 'unsupported', reason: 'no_test' });
+  });
+});
+

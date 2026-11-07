@@ -693,6 +693,7 @@
       "binding": "Đối soát tiền",
       "bindingOn": "Đang bật",
       "bindingOff": "Đã tắt",
+      "bind": "Bật đối soát tiền",
       "never": "Chưa có",
       "none": "Không",
       "lastError": "Lỗi gần nhất: {reason}",

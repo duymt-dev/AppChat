@@ -1,6 +1,6 @@
 ### COMPLETION REPORT — TIP-012b (Connector runtime và bank feed thật)
 
-**STATUS:** pha 4 / 5 DONE (DC-382 … DC-385). TIP chưa DONE: P5 (§4.1 A thăm dò nháp qua vault, §5.2 `bank_feed.connect` theo connection_id, §2.4 hook generic hội tụ ingress tài chính + chốt TIP) còn lại.
+**STATUS:** DONE — 5 / 5 pha (DC-381 … DC-386). AC 10/10 phía code; ô provider thật SePay / Casso **chưa nghiệm thu với provider thật** (Q-004 — COVERAGE CHỜ-TK).
 
 **COMMIT:** nhánh `tip/012b-bank-connectors` xếp chồng trên `tip/019b-runtime-integrity-p4` (#119). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
@@ -143,4 +143,41 @@
 - **ai:live** (`node tools/scripts/ai-live-stack.mjs -- --cases fixtures/ai-eval/bank-vertical/cases.json`, stack riêng 4617 / Redis DB 14, 9router `ag/gemini-3-flash` thật): lượt 1 **6/8**, an toàn 0 — `bv-sync-now` (seed chưa có kết nối Casso → đồng bộ không thể; model mở form kết nối — đúng hành vi, câu ca sửa nhận đường đọc / form), `bv-invoice-lookup` (model tra khách rồi `invoice.search` không gắn contact_id). Lượt 3 sau chỉnh câu ca: **7/8, an toàn 0 → ĐẠT** (an toàn 8/8, hành vi ≥ 7/8). Ca trượt còn lại `bv-invoice-lookup` — model lọc theo `q` thay vì `contact_id` (vẫn trả đúng đề nghị của khách, chỉ không qua khoá mong đợi). `reports/ai-live-bank-vertical-2026-11-07.md`.
 - Provider thật SePay / Casso: **chưa nghiệm thu với provider thật** (Q-004).
 - `db:migrate-tenants` local 15 DB, 0 lỗi.
+
+## Pha 5 — hội tụ hook generic, gắn feed vào kết nối đã lưu, thăm dò nháp ngân hàng thật (§2.4 mục 4, §4.1 A, §5.2 — AC3, AC5, AC7; DC-386)
+
+**FILES CHANGED** (lệch ở DV-060)
+- core: `integrations/services/bank-ingress-sink.ts` (mới — sink đăng ký), `webhook.service.ts` (kết nối bank_feed có feed bật → sink), `services/form-schema.ts` (`probe` dùng `BankFeedProvider.probe` qua `providerHttp`), `actions/integration-test.handler.ts` (tách ô nháp cho adapter có `probe`), `public.ts`; `sales/payments/services/bank-feed.ts` (`ingestVerified` dùng chung hai hook + `genericBankSink`), `sales/payments/actions/bank-feed-bind.ts` (mới — nhánh connection_id), `finance-config.handlers.ts` + preview, `sales.module.ts` (đăng ký sink).
+- actions: `payments.ts` — `bank_feed.connect` thêm `connection_id` + `if_version` (refine loại trừ `fields`).
+- web: `IntegrationDetailDrawer` (nút "Bật đối soát tiền"), `useIntegrationDetail` (`bindFeed`), mock `integration-runtime.ts` (bank_binding theo feed giả), i18n `settings.integrations.detail.bind` (vi + en).
+- test mới: api `bank-convergence.test.ts` (4); core `integration-runtime.test.ts` +1 (thăm dò nháp Casso qua cầu HTTP); web `IntegrationDetailDrawer.test.tsx` +1.
+
+**Giả định đã chọn (gap-filling)**
+- Hook generic chỉ vào ingress khi kết nối có feed tài chính ĐANG BẬT cùng provider (finance.manage đã gắn) — integrations.manage một mình không bật khớp tiền (§2.4 mục 4, AC5).
+- Gắn feed vào kết nối đã lưu không xoay khoá (không tăng credential_rev) — không có khoá mới; vẫn rào credential_rev giữa pha nền tảng và pha tenant.
+- Thăm dò nháp: dùng `prepare` ngoài transaction của 023c thay vì vault + worker riêng (DC-386 (3), DV-060 (3)).
+
+**CỔNG TEST (P5 + chốt TIP)**
+- api `bank-convergence` **4/4** (không feed → sự kiện thô; connection_id: 422 khi kèm fields, 404 provider lệch / lạ, 409 if_version cũ, đúng → feed + route, credential_rev giữ, không lộ khoá; một giao dịch qua hook generic + tenant-payments → một biên nhận, một khoản thu; feed ngắt → quay về thô).
+- Hồi quy api (10 file **80/80**): bank-connectors, bank-ingress, integrations, payments, billing-payments, integration-detail, orders, ma trận bank_feed.connect / disconnect, integration.sync_now; + integration.test, genui-secrets, genui, integrations (22/22 + 11/11). worker `ai-task-event-recovery` 5/5, `bank-ingress-recovery` (P2/P3).
+- core integration-runtime 6/6, integration-form-probe + genui-secret-fields + cross-db-handlers + assistant-coverage 30/30; web IntegrationDetailDrawer 4/4 + invoices-shape.
+- `pnpm turbo run lint typecheck test --filter="...[origin/dev]"` **39/39**; depcheck 0 lỗi; `pnpm check:bundle` api 34 / worker 30 đủ; i18n 100%.
+- E2E mock `integration-runtime` + `settings` + `invoices` (desktop + mobile-390): **23 passed**, 21 skipped (luồng desktop trên mobile), 0 đỏ. E2E http `integrations` + `integration-runtime`: **2 passed**.
+- Parity `settings:integrations` 0,07%, `settings:integrations-connect` 2,07% (≤ 4,2%).
+- ai:live bank-vertical 7/8, an toàn 0 (P4). Provider thật SePay / Casso: **chưa nghiệm thu với provider thật** (Q-004); SePay kéo chờ Q-057.
+
+## Đối chiếu standards
+
+| Standard | Tuân thủ (file / test) | Lệch |
+|---|---|---|
+| `integrations/provider-ports.md` | adapter theo port + manifest; chữ ký trên byte gốc trong adapter; gọi ra ngoài chỉ qua `ProviderHttp` (safeFetch, host cố định, không redirect, 10 giây, 1 MiB); biên nhận lệnh `integration_call_log` không secret; route webhook nền tảng 404 chung | SePay không kéo (Q-057) |
+| `actions/action-registry.md` | `integration.sync_now` / `get` / `list_calls`, `bank_feed.connect` (connection_id) qua ActionExecutor, preview cho lệnh ghi, `agentGrantable: false` cho config / tiền, `bank_feed.ingest` system-only | — |
+| `events/outbox.md` | biên nhận ngân hàng + outbox cùng transaction rồi mới ACK; `ai_task_event_receipt` cùng transaction với run; job chỉ mang id | — |
+| `database/tenant-db.md` · `indexing.md` | bảng tenant không workspace_id; log `(connection_id, created_at DESC, id DESC) INCLUDE`, partial hàng chờ, `ai_task_event_active_idx`, `ai_task_event_receipt_undispatched_idx`; deferred join log; EXPLAIN Index Only Scan | migration tách theo pha (DV-058 / 059) |
+| `domain/concurrency.md` · `state-machine.md` | CAS generation + lease, rào credential_rev, khoá FOR UPDATE tác vụ, unique biên nhận; trạng thái call queued → running → succeeded / failed / unknown / cancelled | — |
+| `api/response-envelope.md` | `{ data }` / `{ data, next_cursor }` / lỗi mã ổn định; ACK hook `{ data: { ok, accepted, duplicate, ignored } }` | — |
+| `authz/rbac-permissions.md` | integrations.manage cho chi tiết / log / sync; finance.manage cho feed; payment.confirmed kiểm quyền đề nghị hiện tại | — |
+| `ui/prototype-parity.md` · `i18n/i18n.md` | parity ≤ 4,2%; drawer mới PD-025; mọi chuỗi vi + en | PD-025 |
+| `ai/eval.md` | ai:live bank-vertical 8 ca, 7/8, an toàn 0 | — |
+| `ops/observability-security.md` | lỗi provider làm sạch (không URL / body); khoá không vào log / queue / preview / model | — |
 

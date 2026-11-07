@@ -13,6 +13,7 @@ export { IntegrationResolver, type ResolvedConnection } from './services/resolve
 export { adapterOf, sandboxAllowed } from './services/adapter-selection';
 export { IntegrationsReadService } from './services/read.service';
 export { IntegrationWebhooks } from './services/webhook.service';
+export { registerBankIngressSink, unregisterBankIngressSink, type BankIngressSink } from './services/bank-ingress-sink';
 export {
   IntegrationCalls,
   INTEGRATIONS_QUEUE,

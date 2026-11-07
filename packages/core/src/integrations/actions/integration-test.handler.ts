@@ -28,7 +28,9 @@ export class IntegrationTestHandler implements Handler<Input, Out> {
       const mode = resolveMode(e.manifest, input.mode);
       if (!mode) throw new AppError('VALIDATION_FAILED', 422, { mode: 'unsupported' });
       // Tách theo manifest (thiếu ô bắt buộc → 422) — cùng luật với integration.connect. "Sắp có" / không adapter: probe trả unsupported.
-      const draft = e.manifest.status === 'coming_soon' || !adapterFor(e, mode)?.test ? { config: {}, secrets: {} } : splitFields(e, input.fields);
+      const a = adapterFor(e, mode) as (ReturnType<typeof adapterFor> & { probe?: unknown }) | null;
+      // TIP-012b P5: adapter ngân hàng thăm dò đọc bằng `probe` (không có `test`) — vẫn tách ô để thăm dò thật.
+      const draft = e.manifest.status === 'coming_soon' || !(a?.test || a?.probe) ? { config: {}, secrets: {} } : splitFields(e, input.fields);
       r = await probe(e, { id: 'draft', mode, ...draft });
     } else {
       const conn = this.resolver ? await this.resolver.byConnector(ctx.workspaceId, input.provider) : null;
