@@ -1,6 +1,7 @@
 # TIP-026b: CRM360 có thao tác thật — ghi chú, việc chăm sóc, cơ hội và Kanban đủ dữ liệu
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 026b before006d.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/crm/crm-settings.controller.ts`; integrate 026b before003i.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 026b before046.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/crm.ts`, `packages/actions/src/index.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 026b before003e.

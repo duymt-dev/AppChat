@@ -1,6 +1,7 @@
 # TIP-045b: Bảo mật & vận hành trong app — metrics, SSRF, kiểm file tải lên, rate limit chung, CORS, audit, chuyển chủ workspace, lọc trường theo vai trò, đối soát, AI nhường người, job nặng chạy nền
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/core/src/notify/jobs/notify.jobs.module.ts`, `packages/core/src/notify/notify.module.ts`; integrate 045b before006d.
 - **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/actions/useAction.ts`; integrate 045b before001c.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 045b before003i.
 - **Parallel-safe with TIP-004c (coverage-closure manifest):** sequential, shares `apps/api/src/http/identity/identity.http.module.ts`; integrate 045b before004c.

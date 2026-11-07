@@ -1,6 +1,7 @@
 # TIP-031c — Bên giữ tồn chuẩn theo kết nối bán hàng (stock_master appchat / external)
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 031c before006d.
 - TIP-ID: TIP-031c; Project: AppChat V2; Module: order sync + catalog stock; Priority: P1; Estimated: M. TIP bổ sung cho TIP-031 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 027b, 012 order-sync port đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-031c-files.md) — 9 paths (2 C). M path tương lai phải do TIP tạo trước tích hợp xong.

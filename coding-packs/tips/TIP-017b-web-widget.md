@@ -1,6 +1,7 @@
 # TIP-017b — Widget web: logo, nút hành động, nhiều widget, agent.status/typing, đủ danh sách agent
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before006d.
 - TIP-ID: TIP-017b; Project: AppChat V2; Module: webchat widget; Priority: P1; Estimated: L. TIP bổ sung cho TIP-017 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 022b, 045b (file security), 014b đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-017b-files.md) — 17 paths (3 C). M path tương lai phải do TIP tạo trước tích hợp xong.

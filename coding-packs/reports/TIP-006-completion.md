@@ -67,3 +67,7 @@ Digest daily/weekly còn thiếu (DEF-006-1/DC030) được nhận cụ thể b�
 ## Bổ sung — TIP-006c (2026-11-02)
 
 Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-006c](../tips/TIP-006c-realtime-events.md): BP-4.6-b, DEF-002-2. File TIP gốc không sửa (DC-233).
+
+## Bổ sung — TIP-006d (2026-11-08)
+
+Nghĩa vụ chưa đạt của TIP này chuyển sang [TIP-006d](../tips/TIP-006d-web-push.md): DEF-006-2, DC-029. File TIP gốc không sửa (DC-233).
