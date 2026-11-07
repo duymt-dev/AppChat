@@ -1,6 +1,7 @@
 # TIP-015c — Quên khách xuyên Zalo, CRM, Commerce và AI
 
 ## HEADER
+- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `packages/core/src/notify/services/notifier.ts`; integrate 015c before006d.
 - **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015c before014c.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/action-logs.read.ts`, `packages/core/src/ai/kb/kb.read.ts`, `packages/core/src/booking/services/calendar-read.service.ts`; integrate 015c before003i.
 - **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/policy.ts`; integrate 015c before019d.

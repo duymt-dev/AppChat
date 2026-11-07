@@ -211,7 +211,7 @@
 | D57 | Goal backend một mạch, ba sổ | 01-REQUIREMENTS-MATRIX.md:306 | — | QUY-TẮC | Quy trình |
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
-| DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | NGOÀI | DC-029 chốt: kênh `mobile` chỉ lưu tuỳ chọn, gửi đẩy là TIP push P2 (REQ-M02 phát hành chỉ in-app + email; D37 MCP/P2). Không thuộc bản phát hành |
+| DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | 006d | CHƯA | DC-381 (2026-11-08) đảo DC-029: kênh `mobile` gửi Web Push + PWA trong bản phát hành — TIP-006d nhận; app native / push widget vẫn P2 |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | ĐẠT | Bảng `subscription_addon` (billing-lifecycle.prisma, unique invoice_id), addons.service.ts withAddons trong QuotaService.limits; test apps/api/test/integration/billing-lifecycle.test.ts AC04 |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
